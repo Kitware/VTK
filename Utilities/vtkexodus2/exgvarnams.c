@@ -61,9 +61,9 @@
  */
 
 int ex_get_variable_names (int   exoid,
-			   ex_entity_type obj_type,
-			   int   num_vars,
-			   char *var_names[])
+                           ex_entity_type obj_type,
+                           int   num_vars,
+                           char *var_names[])
 {
   int i, varid, status;
   char errmsg[MAX_ERR_LENGTH];
@@ -106,7 +106,7 @@ int ex_get_variable_names (int   exoid,
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
       "Warning: invalid variable type %d requested from file id %d",
-	    obj_type, exoid);
+            obj_type, exoid);
     ex_err("ex_get_var_param",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -115,7 +115,7 @@ int ex_get_variable_names (int   exoid,
   if ((status = nc_inq_varid(exoid, vvarname, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg, "Warning: no %s variables names stored in file id %d",
-	    ex_name_of_object(obj_type),exoid);
+            ex_name_of_object(obj_type),exoid);
     ex_err("ex_get_variable_names",errmsg,exerrval);
     return (EX_WARN);
   }

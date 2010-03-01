@@ -59,13 +59,12 @@
  */
 
 int ex_get_name (int   exoid,
-		 ex_entity_type obj_type,
-		 int   entity_id, 
-		 char *name)
+                 ex_entity_type obj_type,
+                 int   entity_id, 
+                 char *name)
 {
   int status;
   int j, varid, ent_ndx;
-  size_t num_entity;
   size_t start[2];
   char *ptr;
   char errmsg[MAX_ERR_LENGTH];
@@ -73,12 +72,6 @@ int ex_get_name (int   exoid,
   const char *routine = "ex_get_name";
    
   exerrval = 0;
-
-  /* inquire previously defined dimensions and variables  */
-
-  ent_ndx = ex_id_lkup(exoid, obj_type, entity_id);
-  ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type),
-		   &num_entity, &varid, routine);
 
   switch(obj_type) {
   case EX_ELEM_BLOCK:
@@ -129,6 +122,7 @@ int ex_get_name (int   exoid,
     /* If this is a null entity, then 'ent_ndx' will be negative.
      * We don't care in this routine, so make it positive and continue...
      */
+    ent_ndx = ex_id_lkup(exoid, obj_type, entity_id);
     if (ent_ndx < 0) ent_ndx = -ent_ndx;
     
     /* read the name */
@@ -141,8 +135,8 @@ int ex_get_name (int   exoid,
     if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get entity name for id %d in file id %d",
-	      ent_ndx, exoid);
+              "Error: failed to get entity name for id %d in file id %d",
+              ent_ndx, exoid);
       ex_err(routine,errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -150,11 +144,11 @@ int ex_get_name (int   exoid,
     while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
       start[1] = ++j;
       if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to get name in file id %d", exoid);
-	ex_err(routine,errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to get name in file id %d", exoid);
+        ex_err(routine,errmsg,exerrval);
+        return (EX_FATAL);
       }
     }
     --ptr;

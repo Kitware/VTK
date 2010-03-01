@@ -73,7 +73,7 @@ int ex_get_info (int    exoid,
     exerrval = status;
     sprintf(errmsg,
             "Warning: failed to locate number of info records in file id %d",
-	    exoid);
+            exoid);
     ex_err("ex_get_info",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -82,7 +82,7 @@ int ex_get_info (int    exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to get number of info records in file id %d",
-	    exoid);
+            exoid);
     ex_err("ex_get_info",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -107,23 +107,23 @@ int ex_get_info (int    exoid,
       ptr = info[i];
 
       if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to get info record data in file id %d", exoid);
-	ex_err("ex_get_info",errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to get info record data in file id %d", exoid);
+        ex_err("ex_get_info",errmsg,exerrval);
+        return (EX_FATAL);
       }
 
 
       while ((*ptr++ != '\0') && (j < MAX_LINE_LENGTH)) {
-	start[1] = ++j;
-	if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-	  exerrval = status;
-	  sprintf(errmsg,
-		  "Error: failed to get info record data in file id %d", exoid);
-	  ex_err("ex_get_info",errmsg,exerrval);
-	  return (EX_FATAL);
-	}
+        start[1] = ++j;
+        if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+          exerrval = status;
+          sprintf(errmsg,
+                  "Error: failed to get info record data in file id %d", exoid);
+          ex_err("ex_get_info",errmsg,exerrval);
+          return (EX_FATAL);
+        }
       }
       /* delete trailing blanks */
       --ptr;

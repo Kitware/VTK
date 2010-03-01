@@ -3,11 +3,6 @@
 
 #include "exodusII.h"
 
-/* Need these includes for vtkstd namespace and cout/cerr */
-#include "vtkIOStream.h"
-#include "vtkObject.h"
-#include "vtkFloatingPointExceptions.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

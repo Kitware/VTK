@@ -73,7 +73,6 @@ int ex_get_conn( int   exoid,
    size_t num_nodes_per_entry, num_edges_per_entry, num_faces_per_entry;
    char errmsg[MAX_ERR_LENGTH];
 
-   const char* dnumblkent;
    const char* dnumnodent;
    const char* dnumedgent;
    const char* dnumfacent;
@@ -113,7 +112,6 @@ int ex_get_conn( int   exoid,
 
    switch (blk_type) {
    case EX_EDGE_BLOCK:
-     dnumblkent = DIM_NUM_ED_IN_EBLK(blk_id_ndx);
      dnumnodent = DIM_NUM_NOD_PER_ED(blk_id_ndx);
      dnumedgent = 0;
      dnumfacent = 0;
@@ -122,7 +120,6 @@ int ex_get_conn( int   exoid,
      vfaceconn = 0;
      break;
    case EX_FACE_BLOCK:
-     dnumblkent = DIM_NUM_FA_IN_FBLK(blk_id_ndx);
      dnumnodent = DIM_NUM_NOD_PER_FA(blk_id_ndx);
      dnumedgent = 0;
      dnumfacent = 0;
@@ -131,7 +128,6 @@ int ex_get_conn( int   exoid,
      vfaceconn = 0;
      break;
    case EX_ELEM_BLOCK:
-     dnumblkent = DIM_NUM_EL_IN_BLK(blk_id_ndx);
      dnumnodent = DIM_NUM_NOD_PER_EL(blk_id_ndx);
      dnumedgent = DIM_NUM_EDG_PER_EL(blk_id_ndx);
      dnumfacent = DIM_NUM_FAC_PER_EL(blk_id_ndx);
@@ -139,33 +135,28 @@ int ex_get_conn( int   exoid,
      vedgeconn = VAR_ECONN(blk_id_ndx);
      vfaceconn = VAR_FCONN(blk_id_ndx);
      break;
-   default:
-     sprintf(errmsg,
-       "Error: Called with invalid blk_type %d", blk_type );
-     ex_err("ex_get_conn",errmsg,exerrval);
-     return (EX_FATAL);
-     break;
+  default:
+    exerrval = 1005;
+    sprintf(errmsg,
+            "Internal Error: unrecognized block type in switch: %d in file id %d",
+            blk_type,exoid);
+    ex_err("ex_get_conn",errmsg,EX_MSG);
+    return (EX_FATAL);              /* number of attributes not defined */
    }
 /* inquire id's of previously defined dimensions  */
 
-   if ((status = nc_inq_dimid (exoid, dnumnodent, &numnodperentdim)) != NC_NOERR)
-   {
-     exerrval = status;
-     sprintf(errmsg,
-      "Error: failed to locate number of nodes/entity for %s %d in file id %d",
-             ex_name_of_object(blk_type),blk_id,exoid);
-     ex_err("ex_get_conn",errmsg,exerrval);
-     return(EX_FATAL);
-   }
-
-   if (nc_inq_dimlen(exoid, numnodperentdim, &num_nodes_per_entry) != NC_NOERR)
-   {
-     exerrval = status;
-     sprintf(errmsg,
-       "Error: failed to get number of nodes/entity for %s %d in file id %d",
-             ex_name_of_object(blk_type),blk_id,exoid);
-     ex_err("ex_get_conn",errmsg, exerrval);
-     return(EX_FATAL);
+   num_nodes_per_entry = 0;
+   if ((status = nc_inq_dimid (exoid, dnumnodent, &numnodperentdim)) != NC_NOERR) {
+     numnodperentdim = -1;
+   } else {
+     if ((status = nc_inq_dimlen(exoid, numnodperentdim, &num_nodes_per_entry)) != NC_NOERR) {
+       exerrval = status;
+       sprintf(errmsg,
+               "Error: failed to get number of nodes/entity for %s %d in file id %d",
+               ex_name_of_object(blk_type),blk_id,exoid);
+       ex_err("ex_get_conn",errmsg, exerrval);
+       return(EX_FATAL);
+     }
    }
 
    if ( dnumedgent ) {
@@ -177,7 +168,7 @@ int ex_get_conn( int   exoid,
          exerrval = status;
          sprintf(errmsg,
            "Error: failed to get number of edges/entry for %s %d in file id %d",
-		 ex_name_of_object(blk_type),blk_id,exoid);
+                 ex_name_of_object(blk_type),blk_id,exoid);
          ex_err("ex_get_conn",errmsg, exerrval);
          return(EX_FATAL);
        }
@@ -193,7 +184,7 @@ int ex_get_conn( int   exoid,
          exerrval = status;
          sprintf(errmsg,
            "Error: failed to get number of faces/entry for %s %d in file id %d",
-		 ex_name_of_object(blk_type),blk_id,exoid);
+                 ex_name_of_object(blk_type),blk_id,exoid);
          ex_err("ex_get_conn",errmsg, exerrval);
          return(EX_FATAL);
        }
@@ -201,11 +192,13 @@ int ex_get_conn( int   exoid,
    }
 
 
-   if ((status = nc_inq_varid(exoid, vnodeconn, &connid)) != NC_NOERR)
+   status = 0;
+   if (nodeconn && (numnodperentdim > 0) &&
+       ((status = nc_inq_varid(exoid, vnodeconn, &connid)) != NC_NOERR))
    {
      exerrval = status;
      sprintf(errmsg,
-        "Error: failed to locate connectivity array for %s %d in file id %d",
+        "Error: failed to locate node connectivity array for %s %d in file id %d",
              ex_name_of_object(blk_type),blk_id,exoid);
      ex_err("ex_get_conn",errmsg, exerrval);
      return(EX_FATAL);
@@ -244,7 +237,7 @@ int ex_get_conn( int   exoid,
        exerrval = status;
        sprintf(errmsg,
          "Error: failed to get edge connectivity array for %s %d in file id %d",
-	       ex_name_of_object(blk_type),blk_id,exoid);
+               ex_name_of_object(blk_type),blk_id,exoid);
        ex_err("ex_get_conn",errmsg, exerrval);
        return(EX_FATAL);
        }
@@ -258,7 +251,7 @@ int ex_get_conn( int   exoid,
        exerrval = status;
        sprintf(errmsg,
          "Error: failed to get face connectivity array for %s %d in file id %d",
-	       ex_name_of_object(blk_type),blk_id,exoid);
+               ex_name_of_object(blk_type),blk_id,exoid);
        ex_err("ex_get_conn",errmsg, exerrval);
        return(EX_FATAL);
        }
@@ -271,8 +264,8 @@ int ex_get_conn( int   exoid,
        {
        exerrval = status;
        sprintf(errmsg,
-         "Error: failed to get connectivity array for %s %d in file id %d",
-	       ex_name_of_object(blk_type),blk_id,exoid);
+         "Error: failed to get node connectivity array for %s %d in file id %d",
+               ex_name_of_object(blk_type),blk_id,exoid);
        ex_err("ex_get_conn",errmsg, exerrval);
        return(EX_FATAL);
        }

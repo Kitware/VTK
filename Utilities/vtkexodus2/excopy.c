@@ -80,9 +80,9 @@ static int cpy_att    (int, int, int, int);
 static int cpy_var_def(int, int, int, char*);
 static int cpy_var_val(int, int, char*);
 static int cpy_coord_def(int in_id,int out_id,int rec_dim_id,
-			 char *var_nm, int in_large, int out_large);
+                         char *var_nm, int in_large, int out_large);
 static int cpy_coord_val(int in_id,int out_id,char *var_nm,
-			 int in_large, int out_large);
+                         int in_large, int out_large);
 static void update_internal_structs( int, ex_inquiry, struct list_item** );
 
 /*!
@@ -107,7 +107,7 @@ int ex_copy (int in_exoid, int out_exoid)
    int var_out_id;              /* variable id */
    struct ncvar var;            /* variable */
    struct ncatt att;            /* attribute */
-   int i;
+   size_t i;
    size_t numrec;
    size_t dim_sz;
    char dim_nm[NC_MAX_NAME];
@@ -136,7 +136,7 @@ int ex_copy (int in_exoid, int out_exoid)
 
    /* copy global attributes */
 
-   for (i = 0; i < ngatts; i++) {
+   for (i = 0; i < (size_t)ngatts; i++) {
 
      nc_inq_attname(in_exoid, NC_GLOBAL, i, att.name);
         
@@ -172,27 +172,27 @@ int ex_copy (int in_exoid, int out_exoid)
       * hasn't been defined, copy it */
      
      if ( ( strcmp(dim_nm,DIM_NUM_QA)        != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_INFO)      != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_NOD_VAR)   != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_EDG_VAR)   != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_FAC_VAR)   != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_ELE_VAR)   != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_NSET_VAR)  != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_ESET_VAR)  != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_FSET_VAR)  != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_SSET_VAR)  != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_ELSET_VAR) != 0) &&
-	  ( strcmp(dim_nm,DIM_NUM_GLO_VAR)   != 0) ) {
+          ( strcmp(dim_nm,DIM_NUM_INFO)      != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_NOD_VAR)   != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_EDG_VAR)   != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_FAC_VAR)   != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_ELE_VAR)   != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_NSET_VAR)  != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_ESET_VAR)  != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_FSET_VAR)  != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_SSET_VAR)  != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_ELSET_VAR) != 0) &&
+          ( strcmp(dim_nm,DIM_NUM_GLO_VAR)   != 0) ) {
        
        /* See if the dimension has already been defined */
        status = nc_inq_dimid(out_exoid, dim_nm, &dim_out_id);
        
        if(status != NC_NOERR) {
-	 if(dimid != recdimid) {
-	   status = nc_def_dim(out_exoid, dim_nm, dim_sz,       &dim_out_id);
-	 } else {
-	   status = nc_def_dim(out_exoid, dim_nm, NC_UNLIMITED, &dim_out_id);
-	 } /* end else */
+         if(dimid != recdimid) {
+           status = nc_def_dim(out_exoid, dim_nm, dim_sz,       &dim_out_id);
+         } else {
+           status = nc_def_dim(out_exoid, dim_nm, NC_UNLIMITED, &dim_out_id);
+         } /* end else */
        } /* end if */
      } /* end if */
    } /* end loop over dim */
@@ -201,7 +201,7 @@ int ex_copy (int in_exoid, int out_exoid)
    for (varid = 0; varid < nvars; varid++) {
 
       nc_inq_var(in_exoid, varid, var.name, &var.type, &var.ndims, 
-		 var.dims, &var.natts);
+                 var.dims, &var.natts);
 
       /* we don't want to copy some variables because there is not a
        * simple way to add to them;
@@ -261,7 +261,7 @@ int ex_copy (int in_exoid, int out_exoid)
 
    for (varid = 0; varid < nvars; varid++) {
       nc_inq_var(in_exoid, varid, var.name, &var.type, &var.ndims,
-		 var.dims, &var.natts);
+                 var.dims, &var.natts);
 
       /* we don't want to copy some variable values;
        * QA records and info records shouldn't be copied because there
@@ -370,7 +370,7 @@ int cpy_att(int in_id,int out_id,int var_in_id,int var_out_id)
 } 
 
 int cpy_coord_def(int in_id,int out_id,int rec_dim_id,char *var_nm,
-		  int in_large, int out_large)
+                  int in_large, int out_large)
 /*
    int in_id: input netCDF input-file ID
    int out_id: input netCDF output-file ID
@@ -557,7 +557,7 @@ cpy_var_val(int in_id,int out_id,char *var_nm)
   size_t var_sz=1L;
   nc_type var_type_in, var_type_out;
 
-  void *void_ptr = NULL;
+  void *void_ptr;
 
   /* Get the var_id for the requested variable from both files. */
   nc_inq_varid(in_id, var_nm, &var_in_id);
@@ -685,13 +685,13 @@ cpy_coord_val(int in_id,int out_id,char *var_nm,
    */
 
   const char *routine = NULL;
-  size_t i;
   int temp;
+  size_t i;
   size_t spatial_dim, num_nodes;
   size_t start[2], count[2];
   nc_type var_type_in, var_type_out;
 
-  void *void_ptr = NULL;
+  void *void_ptr;
 
   /* Handle easiest situation first: in_large matches out_large */
   if (in_large == out_large)
@@ -723,12 +723,12 @@ cpy_coord_val(int in_id,int out_id,char *var_nm,
       start[0] = i; start[1] = 0;
       count[0] = 1; count[1] = num_nodes;
       if (var_type_in == NC_FLOAT) {
-	nc_get_vara_float(in_id, var_in_id,     start, count, void_ptr);
-	nc_put_var_float(out_id, var_out_id[i],               void_ptr);
+        nc_get_vara_float(in_id, var_in_id,     start, count, void_ptr);
+        nc_put_var_float(out_id, var_out_id[i],               void_ptr);
       } else {
-	assert(var_type_in == NC_DOUBLE);
-	nc_get_vara_double(in_id, var_in_id,    start, count, void_ptr);
-	nc_put_var_double(out_id, var_out_id[i],              void_ptr);
+        assert(var_type_in == NC_DOUBLE);
+        nc_get_vara_double(in_id, var_in_id,    start, count, void_ptr);
+        nc_put_var_double(out_id, var_out_id[i],              void_ptr);
       }
     }
   }
@@ -763,10 +763,7 @@ cpy_coord_val(int in_id,int out_id,char *var_nm,
   }
 
   /* Free the space that held the variable */
-  if (void_ptr)
-    {
-    (void)free(void_ptr);
-    }
+  (void)free(void_ptr);
   return(EX_NOERR);
 } /* end cpy_coord_val() */
 

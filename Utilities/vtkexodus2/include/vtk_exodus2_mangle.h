@@ -31,6 +31,11 @@ used when the shared library is loaded/unloaded from an executable.
 
 */
 
+
+#define ex_get_n_coord vtk_exodus_ex_get_n_coord
+#define ex_get_n_nodal_var vtk_exodus_ex_get_n_nodal_var
+#define ex_get_concat_side_set_node_count vtk_exodus_ex_get_concat_side_set_node_count 
+#define ex_put_n_coord vtk_exodus_ex_put_n_coord
 #define ex_dim_num_objects vtk_exodus_ex_dim_num_objects
 #define ex_get_attr_param vtk_exodus_ex_get_attr_param
 #define ex_get_counter_list vtk_exodus_ex_get_counter_list

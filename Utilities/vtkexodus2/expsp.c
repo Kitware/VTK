@@ -33,24 +33,23 @@
  * 
  */
 /*****************************************************************************
-*
-* expsp - ex_put_side_set_param
-*
-* entry conditions - 
-*   input parameters:
-*       int     exoid                   exodus file id
-*       int     side_set_id             side set id
-*       int     num_side_in_set         number of sides in the side set
-*       int     num_dist_fact_in_set    number of distribution factors in the
-*                                       side set
-*
-* exit conditions - 
-*
-* revision history - 
-*
-*  Id
-*
-*****************************************************************************/
+ *
+ * exgsp - ex_get_side_set_param
+ *
+ * entry conditions - 
+ *   input parameters:
+ *       int     exoid                   exodus file id
+ *       int     side_set_id             side set id
+ *
+ * exit conditions - 
+ *       int*    num_side_in_set         number of sides in the side set
+ *       int*    num_dist_fact_in_set    number of distribution factors in the 
+ *                                       side set
+ *
+ * revision history - 
+ *
+ *
+ *****************************************************************************/
 
 #include "exodusII.h"
 #include "exodusII_int.h"
@@ -71,5 +70,5 @@ int ex_put_side_set_param (int exoid,
                            int num_dist_fact_in_set)
 {
   return ex_put_set_param(exoid, EX_SIDE_SET, side_set_id,
-			  num_side_in_set, num_dist_fact_in_set);
+                          num_side_in_set, num_dist_fact_in_set);
 }

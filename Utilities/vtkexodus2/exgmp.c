@@ -72,15 +72,15 @@ int ex_get_map_param (int   exoid,
     *num_node_maps = 0;
   } else {
     if ((status = nc_inq_dimlen(exoid, dimid, &lnum_node_maps)) != NC_NOERR) {
-	  exerrval = status;
-	  sprintf(errmsg,
-		  "Error: failed to get number of node maps in file id %d",
-		  exoid);
-	  ex_err("ex_get_map_param",errmsg,exerrval);
-	  return (EX_FATAL);
-	}
-	*num_node_maps = lnum_node_maps;
-	}
+          exerrval = status;
+          sprintf(errmsg,
+                  "Error: failed to get number of node maps in file id %d",
+                  exoid);
+          ex_err("ex_get_map_param",errmsg,exerrval);
+          return (EX_FATAL);
+        }
+        *num_node_maps = lnum_node_maps;
+        }
 
     /* element maps are optional */
     if (nc_inq_dimid(exoid, DIM_NUM_EM, &dimid) != NC_NOERR) {
@@ -90,7 +90,7 @@ int ex_get_map_param (int   exoid,
       exerrval = status;
       sprintf(errmsg,
               "Error: failed to get number of element maps in file id %d",
-	      exoid);
+              exoid);
       ex_err("ex_get_map_param",errmsg,exerrval);
       return (EX_FATAL);
     }

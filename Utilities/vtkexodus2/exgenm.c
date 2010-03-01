@@ -57,7 +57,7 @@
  */
 
 int ex_get_elem_num_map (int  exoid,
-			 int *elem_map)
+                         int *elem_map)
 {
   return ex_get_id_map(exoid, EX_ELEM_MAP, elem_map);
 }

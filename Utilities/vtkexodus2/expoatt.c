@@ -69,7 +69,7 @@ int ex_put_one_attr( int   exoid,
                      const void *attrib )
 {
   int status;
-  int attrid, obj_id_ndx = 0, temp;
+  int attrid, obj_id_ndx, temp;
   size_t num_entries_this_obj, num_attr;
   size_t start[2], count[2];
   ptrdiff_t stride[2];
@@ -85,17 +85,17 @@ int ex_put_one_attr( int   exoid,
     obj_id_ndx = ex_id_lkup(exoid,obj_type,obj_id);
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-	sprintf(errmsg,
-		"Warning: no attributes allowed for NULL %s %d in file id %d",
-		ex_name_of_object(obj_type),obj_id,exoid);
-	ex_err("ex_put_one_attr",errmsg,EX_MSG);
-	return (EX_WARN);              /* no attributes for this element block */
+        sprintf(errmsg,
+                "Warning: no attributes allowed for NULL %s %d in file id %d",
+                ex_name_of_object(obj_type),obj_id,exoid);
+        ex_err("ex_put_one_attr",errmsg,EX_MSG);
+        return (EX_WARN);              /* no attributes for this element block */
       } else {
-	sprintf(errmsg,
-		"Error: no %s id %d in id array in file id %d",
-		ex_name_of_object(obj_type), obj_id, exoid);
-	ex_err("ex_put_one_attr",errmsg,exerrval);
-	return (EX_FATAL);
+        sprintf(errmsg,
+                "Error: no %s id %d in id array in file id %d",
+                ex_name_of_object(obj_type), obj_id, exoid);
+        ex_err("ex_put_one_attr",errmsg,exerrval);
+        return (EX_FATAL);
       }
     }
   }
@@ -147,10 +147,12 @@ int ex_put_one_attr( int   exoid,
     vattrbname = VAR_ATTRIB(obj_id_ndx);
     break;
   default:
+    exerrval = 1005;
     sprintf(errmsg,
-      "Error: Called with invalid obj_type %d", obj_type);
-    ex_err("ex_put_one_attr",errmsg,exerrval);
-    return (EX_FATAL);
+            "Internal Error: unrecognized object type in switch: %d in file id %d",
+            obj_type,exoid);
+    ex_err("ex_put_one_attr",errmsg,EX_MSG);
+    return (EX_FATAL);              /* number of attributes not defined */
   }
 
   /* inquire id's of previously defined dimensions  */
@@ -160,7 +162,7 @@ int ex_put_one_attr( int   exoid,
   if (ex_get_dimension(exoid, dnumobjatt,"attributes", &num_attr, &temp, "ex_put_one_attr") != NC_NOERR)
     return EX_FATAL;
 
-  if (attrib_index < 1 || (size_t)attrib_index > num_attr) {
+  if (attrib_index < 1 || attrib_index > (int)num_attr) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
             "Error: Invalid attribute index specified: %d.  Valid range is 1 to %d for %s %d in file id %d",
@@ -172,8 +174,8 @@ int ex_put_one_attr( int   exoid,
   if ((status = nc_inq_varid(exoid, vattrbname, &attrid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate attribute variable for %s %d in file id %d",
-	    ex_name_of_object(obj_type),obj_id,exoid);
+            "Error: failed to locate attribute variable for %s %d in file id %d",
+            ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_put_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }

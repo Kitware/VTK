@@ -71,11 +71,11 @@
  */
 
 int ex_open_int (const char  *path,
-		 int    mode,
-		 int   *comp_ws,
-		 int   *io_ws,
-		 float *version,
-		 int    run_version)
+                 int    mode,
+                 int   *comp_ws,
+                 int   *io_ws,
+                 float *version,
+                 int    run_version)
 {
    int exoid;
    int status;
@@ -94,7 +94,7 @@ int ex_open_int (const char  *path,
     int lib_version_major = EX_API_VERS_NODOT / 100;
     int lib_version_minor = EX_API_VERS_NODOT % 100;
     fprintf(stderr, "EXODUSII: Warning: This code was compiled with exodusII version %d.%02d,\n          but was linked with exodusII library version %d.%02d\n          This is probably an error in the build process of this code.\n",
-	    run_version_major, run_version_minor, lib_version_major, lib_version_minor);
+            run_version_major, run_version_minor, lib_version_major, lib_version_minor);
   }
   
   if (mode == EX_READ) { /* READ ONLY */

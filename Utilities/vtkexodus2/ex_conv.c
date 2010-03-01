@@ -83,9 +83,9 @@ struct file_item* file_list = NULL;
                           }
 
 int ex_conv_ini( int  exoid,
-		 int* comp_wordsize,
-		 int* io_wordsize,
-		 int  file_wordsize )
+                 int* comp_wordsize,
+                 int* io_wordsize,
+                 int  file_wordsize )
 {
   char errmsg[MAX_ERR_LENGTH];
   struct file_item* new_file;
@@ -122,44 +122,40 @@ int ex_conv_ini( int  exoid,
       (sizeof(double) != 4 && sizeof(double) != 8 ) )
     {
       sprintf(errmsg,"Error: unsupported compute word size for file id: %d",
-	      exoid);
+              exoid);
       ex_err("ex_conv_ini",errmsg,EX_FATAL);
       return(EX_FATAL);
     }
 
   /* check to see if requested word sizes are valid */
 
-  if (!*io_wordsize )
-  {
+  if (!*io_wordsize ) {
     if (!file_wordsize )
       *io_wordsize = NC_FLOAT_WORDSIZE;
     else
       *io_wordsize = file_wordsize;
   }
-  else if (*io_wordsize != 4 && *io_wordsize != 8 )
-  {
+
+  else if (*io_wordsize != 4 && *io_wordsize != 8 ) {
     sprintf(errmsg,"Error: unsupported I/O word size for file id: %d",exoid);
     ex_err("ex_conv_ini",errmsg,EX_FATAL);
     return(EX_FATAL);
   }
-  else if (file_wordsize && *io_wordsize != file_wordsize )
-  {
+
+  else if (file_wordsize && *io_wordsize != file_wordsize ) {
     *io_wordsize = file_wordsize;
     sprintf(errmsg,
-           "Error: invalid I/O word size specified for existing file id: %d",
+            "Error: invalid I/O word size specified for existing file id: %d",
             exoid);
     ex_err("ex_conv_ini",errmsg,EX_MSG);
     ex_err("ex_conv_ini",
            "       Requested I/O word size overridden.",
-            EX_MSG);
+           EX_MSG);
   }
 
-  if (!*comp_wordsize )
-  {
-      *comp_wordsize = sizeof(float);
-  }
-  else if (*comp_wordsize != 4 && *comp_wordsize != 8 )
-  {
+  if (!*comp_wordsize ) {
+    *comp_wordsize = sizeof(float);
+  } else if (*comp_wordsize != 4 && *comp_wordsize != 8 ) {
     ex_err("ex_conv_ini","Error: invalid compute wordsize specified",EX_FATAL);
     return(EX_FATAL);
   }
@@ -200,16 +196,14 @@ void ex_conv_exit( int exoid )
   struct file_item* prev = NULL;
 
   exerrval = 0; /* clear error code */
-  while( file )
-  {
+  while( file ) {
     if (file->file_id == exoid ) break;
 
     prev = file;
     file = file->next;
   }
 
-  if (!file )
-  {
+  if (!file ) {
     sprintf(errmsg,"Warning: failure to clear file id %d - not in list.",exoid);
     ex_err("ex_conv_exit",errmsg,EX_MSG);
     exerrval = EX_BADFILEID;
@@ -242,14 +236,12 @@ nc_type nc_flt_code( int exoid )
   exerrval = 0; /* clear error code */
   FIND_FILE( file, exoid );
 
-  if (!file )
-  {
+  if (!file ) {
     exerrval = EX_BADFILEID;
     sprintf(errmsg,"Error: unknown file id %d for nc_flt_code().",exoid);
     ex_err("nc_flt_code",errmsg,exerrval);
     return (nc_type) -1;
   }
-
   return file->netcdf_type_code;
 }
 
@@ -268,14 +260,12 @@ int ex_comp_ws( int exoid )
   exerrval = 0; /* clear error code */
   FIND_FILE( file, exoid );
 
-  if (!file )
-  {
+  if (!file ) {
     exerrval = EX_BADFILEID;
     sprintf(errmsg,"Error: unknown file id %d",exoid);
     ex_err("ex_comp_ws",errmsg,exerrval);
     return(EX_FATAL);
   }
-
   return file->user_compute_wordsize;
 }
 

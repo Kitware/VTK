@@ -73,5 +73,5 @@ int ex_get_nset_var (int   exoid,
                      void *nset_var_vals)
 {
   return ex_get_var(exoid, time_step, EX_NODE_SET, nset_var_index,
-		    nset_id, num_node_this_nset, nset_var_vals);
+                    nset_id, num_node_this_nset, nset_var_vals);
 }

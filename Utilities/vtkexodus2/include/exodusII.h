@@ -50,8 +50,8 @@
 
 
 /* EXODUS II version number */
-#define EX_API_VERS 4.81
-#define EX_API_VERS_NODOT 481
+#define EX_API_VERS 4.93
+#define EX_API_VERS_NODOT 493
 #define EX_VERS EX_API_VERS
 
 
@@ -140,6 +140,7 @@ extern "C" {
     EX_INQ_ELS_PROP        = 44,     /**< inquire number of properties stored per elem set      */
     EX_INQ_EDGE_MAP        = 45,     /**< inquire number of edge maps                     */
     EX_INQ_FACE_MAP        = 46,     /**< inquire number of face maps                     */
+    EX_INQ_COORD_FRAMES    = 47,     /**< inquire number of coordinate frames */
     EX_INQ_INVALID         = -1};
 
   typedef enum ex_inquiry ex_inquiry;
@@ -199,546 +200,590 @@ extern "C" {
   /* routines for file initialization i/o */
   EXODUS_EXPORT int ex_close (int exoid);
   EXODUS_EXPORT int ex_cvt_nodes_to_sides(int exoid, int *num_elem_per_set,
-					  int *num_nodes_per_set, int *side_sets_elem_index,
-					  int *side_sets_node_index, int *side_sets_elem_list,
-					  int *side_sets_node_list, int *side_sets_side_list);
+                                          int *num_nodes_per_set, int *side_sets_elem_index,
+                                          int *side_sets_node_index, int *side_sets_elem_list,
+                                          int *side_sets_node_list, int *side_sets_side_list);
   EXODUS_EXPORT int ex_copy (int in_exoid, int out_exoid);
 #define ex_create(path, mode, comp_ws, io_ws) ex_create_int(path, mode, comp_ws, io_ws, EX_API_VERS_NODOT)  
   EXODUS_EXPORT int ex_create_int (const char *path, int cmode, int *comp_ws, int *io_ws, int my_version);
   EXODUS_EXPORT int ex_get_all_times (int   exoid, void *time_values);
   EXODUS_EXPORT int ex_get_concat_node_sets (int   exoid,
-					     int  *node_set_ids,
-					     int  *num_nodes_per_set, 
-					     int  *num_df_per_set, 
-					     int  *node_sets_node_index,
-					     int  *node_sets_df_index,
-					     int  *node_sets_node_list, 
-					     void *node_sets_dist_fact);
+                                             int  *node_set_ids,
+                                             int  *num_nodes_per_set, 
+                                             int  *num_df_per_set, 
+                                             int  *node_sets_node_index,
+                                             int  *node_sets_df_index,
+                                             int  *node_sets_node_list, 
+                                             void *node_sets_dist_fact);
   EXODUS_EXPORT int ex_get_coord_names (int    exoid,
-					char **coord_names);
+                                        char **coord_names);
   EXODUS_EXPORT int ex_get_coord (int exoid,
-				  void *x_coor,
-				  void *y_coor,
-				  void *z_coor);
+                                  void *x_coor,
+                                  void *y_coor,
+                                  void *z_coor);
+  EXODUS_EXPORT int ex_get_n_coord (int exoid,
+                                    int start_node_num,
+                                    int num_nodes,
+                                    void *x_coor,
+                                    void *y_coor,
+                                    void *z_coor);
   EXODUS_EXPORT int ex_get_concat_side_sets (int   exoid,
-					     int  *side_set_ids,
-					     int  *num_elem_per_set,
-					     int  *num_dist_per_set,
-					     int  *side_sets_elem_index,
-					     int  *side_sets_dist_index,
-					     int  *side_sets_elem_list,
-					     int  *side_sets_side_list,
-					     void *side_sets_dist_fact);
+                                             int  *side_set_ids,
+                                             int  *num_elem_per_set,
+                                             int  *num_dist_per_set,
+                                             int  *side_sets_elem_index,
+                                             int  *side_sets_dist_index,
+                                             int  *side_sets_elem_list,
+                                             int  *side_sets_side_list,
+                                             void *side_sets_dist_fact);
   EXODUS_EXPORT int ex_get_elem_attr_names (int   exoid,
-					    int   elem_blk_id,
-					    char **names);
+                                            int   elem_blk_id,
+                                            char **names);
   EXODUS_EXPORT int ex_get_elem_attr (int   exoid,
-				      int   elem_blk_id,
-				      void *attrib);
+                                      int   elem_blk_id,
+                                      void *attrib);
   EXODUS_EXPORT int ex_get_ids (int  exoid, ex_entity_type obj_type, int *ids);
   EXODUS_EXPORT int ex_get_elem_blk_ids (int  exoid, int *ids);
   EXODUS_EXPORT int ex_get_elem_block (int   exoid,
-				       int   elem_blk_id,
-				       char *elem_type,
-				       int  *num_elem_this_blk, 
-				       int  *num_nodes_per_elem,
-				       int  *num_attr);
+                                       int   elem_blk_id,
+                                       char *elem_type,
+                                       int  *num_elem_this_blk, 
+                                       int  *num_nodes_per_elem,
+                                       int  *num_attr);
 
   EXODUS_EXPORT int ex_get_elem_conn (int   exoid,
-				      int   elem_blk_id,
-				      int  *connect);
+                                      int   elem_blk_id,
+                                      int  *connect);
 
   EXODUS_EXPORT int ex_get_elem_map (int   exoid,
-				     int   map_id,
-				     int  *elem_map);
+                                     int   map_id,
+                                     int  *elem_map);
   EXODUS_EXPORT int ex_get_elem_num_map (int  exoid,
-					 int *elem_map);
+                                         int *elem_map);
   EXODUS_EXPORT int ex_get_elem_var (int   exoid,
-				     int   time_step,
-				     int   elem_var_index,
-				     int   elem_blk_id, 
-				     int   num_elem_this_blk,
-				     void *elem_var_vals);
+                                     int   time_step,
+                                     int   elem_var_index,
+                                     int   elem_blk_id, 
+                                     int   num_elem_this_blk,
+                                     void *elem_var_vals);
   EXODUS_EXPORT int ex_get_elem_varid (int  exoid,
-				       int *varid);
+                                       int *varid);
   EXODUS_EXPORT int ex_get_elem_var_time (int   exoid,
-					  int   elem_var_index,
-					  int   elem_number,
-					  int   beg_time_step, 
-					  int   end_time_step,
-					  void *elem_var_vals);
+                                          int   elem_var_index,
+                                          int   elem_number,
+                                          int   beg_time_step, 
+                                          int   end_time_step,
+                                          void *elem_var_vals);
   EXODUS_EXPORT int ex_get_coordinate_frames(int exoid, int *nframes, int *cf_ids,
-					     void* pt_coordinates, char* tags);
+                                             void* pt_coordinates, char* tags);
 
   EXODUS_EXPORT int ex_get_glob_vars (int   exoid,
-				      int   time_step,
-				      int   num_glob_vars,
-				      void *glob_var_vals);
+                                      int   time_step,
+                                      int   num_glob_vars,
+                                      void *glob_var_vals);
 
   EXODUS_EXPORT int ex_get_glob_var_time (int   exoid,
-					  int   glob_var_index,
-					  int   beg_time_step,
-					  int   end_time_step,
-					  void *glob_var_vals);
+                                          int   glob_var_index,
+                                          int   beg_time_step,
+                                          int   end_time_step,
+                                          void *glob_var_vals);
 
   EXODUS_EXPORT int ex_get_info (int exoid, char **info);
 
   EXODUS_EXPORT int ex_get_init (int   exoid,
-				 char *title,
-				 int  *num_dim,
-				 int  *num_nodes,
-				 int  *num_elem, 
-				 int  *num_elem_blk,
-				 int  *num_node_sets,
-				 int  *num_side_sets);
+                                 char *title,
+                                 int  *num_dim,
+                                 int  *num_nodes,
+                                 int  *num_elem, 
+                                 int  *num_elem_blk,
+                                 int  *num_node_sets,
+                                 int  *num_side_sets);
 
   EXODUS_EXPORT int ex_get_map (int  exoid, int *elem_map);
 
   EXODUS_EXPORT int ex_get_map_param (int   exoid,
-				      int  *num_node_maps,
-				      int  *num_elem_maps);
+                                      int  *num_node_maps,
+                                      int  *num_elem_maps);
 
   EXODUS_EXPORT int ex_get_name (int   exoid,
-				 ex_entity_type   obj_type,
-				 int   entity_id, 
-				 char *name);
+                                 ex_entity_type   obj_type,
+                                 int   entity_id, 
+                                 char *name);
 
   EXODUS_EXPORT int ex_get_names (int exoid,
-				  ex_entity_type obj_type,
-				  char **names);
+                                  ex_entity_type obj_type,
+                                  char **names);
 
   EXODUS_EXPORT int ex_get_node_map (int   exoid,
-				     int   map_id,
-				     int  *node_map);
+                                     int   map_id,
+                                     int  *node_map);
 
   EXODUS_EXPORT int ex_get_node_num_map (int  exoid,
-					 int *node_map);
+                                         int *node_map);
 
   EXODUS_EXPORT int ex_get_node_set_param (int  exoid,
-					   int  node_set_id,
-					   int *num_nodes_in_set,
-					   int *num_df_in_set);
+                                           int  node_set_id,
+                                           int *num_nodes_in_set,
+                                           int *num_df_in_set);
 
   EXODUS_EXPORT int ex_get_node_set (int   exoid,
-				     int   node_set_id,
-				     int  *node_set_node_list);
+                                     int   node_set_id,
+                                     int  *node_set_node_list);
 
   EXODUS_EXPORT int ex_get_node_set_dist_fact  (int   exoid,
-						int   node_set_id,
-						void *node_set_dist_fact);
+                                                int   node_set_id,
+                                                void *node_set_dist_fact);
 
   EXODUS_EXPORT int ex_get_node_set_ids (int  exoid,
-					 int *ids);
+                                         int *ids);
 
   EXODUS_EXPORT int ex_get_nset_var_tab (int  exoid,
-					 int  num_nodesets,
-					 int  num_nset_var,
-					 int *nset_var_tab);
+                                         int  num_nodesets,
+                                         int  num_nset_var,
+                                         int *nset_var_tab);
 
   EXODUS_EXPORT int ex_get_nset_var (int   exoid,
-				     int   time_step,
-				     int   nset_var_index,
-				     int   nset_id, 
-				     int   num_node_this_nset,
-				     void *nset_var_vals);
+                                     int   time_step,
+                                     int   nset_var_index,
+                                     int   nset_id, 
+                                     int   num_node_this_nset,
+                                     void *nset_var_vals);
 
   EXODUS_EXPORT int ex_get_nset_varid (int  exoid,
-				       int *varid);
+                                       int *varid);
 
   EXODUS_EXPORT int ex_get_nodal_var (int   exoid,
-				      int   time_step,
-				      int   nodal_var_index,
-				      int   num_nodes, 
-				      void *nodal_var_vals);
+                                      int   time_step,
+                                      int   nodal_var_index,
+                                      int   num_nodes, 
+                                      void *nodal_var_vals);
+
+  EXODUS_EXPORT int ex_get_n_nodal_var (int   exoid,
+                                        int   time_step,
+                                        int   nodal_var_index,
+                                        int   start_node, 
+                                        int   num_nodes, 
+                                        void *nodal_var_vals);
 
   EXODUS_EXPORT int ex_get_nodal_varid(int exoid, int *varid);
 
   EXODUS_EXPORT int ex_get_nodal_var_time (int   exoid,
-					   int   nodal_var_index,
-					   int   node_number,
-					   int   beg_time_step, 
-					   int   end_time_step,
-					   void *nodal_var_vals);
+                                           int   nodal_var_index,
+                                           int   node_number,
+                                           int   beg_time_step, 
+                                           int   end_time_step,
+                                           void *nodal_var_vals);
 
   EXODUS_EXPORT int ex_get_nodal_varid_var(int   exoid,
-					   int   time_step,
-					   int   nodal_var_index,
-					   int   num_nodes, 
-					   int   varid,
-					   void *nodal_var_vals);
+                                           int   time_step,
+                                           int   nodal_var_index,
+                                           int   num_nodes, 
+                                           int   varid,
+                                           void *nodal_var_vals);
 
   EXODUS_EXPORT int ex_get_one_elem_attr (int   exoid,
-					  int   elem_blk_id,
-					  int   attrib_index,
-					  void *attrib);
+                                          int   elem_blk_id,
+                                          int   attrib_index,
+                                          void *attrib);
 
   EXODUS_EXPORT int ex_get_prop_array (int   exoid,
-				       ex_entity_type obj_type,
-				       const char *prop_name,
-				       int  *values);
+                                       ex_entity_type obj_type,
+                                       const char *prop_name,
+                                       int  *values);
 
   EXODUS_EXPORT int ex_get_prop (int   exoid,
-				 ex_entity_type obj_type,
-				 int   obj_id,
-				 const char *prop_name,
-				 int  *value);
+                                 ex_entity_type obj_type,
+                                 int   obj_id,
+                                 const char *prop_name,
+                                 int  *value);
 
   EXODUS_EXPORT int ex_get_partial_elem_map (int   exoid,
-					     int   map_id,
-					     int ent_start,
-					     int ent_count, 
-					     int  *elem_map);
+                                             int   map_id,
+                                             int ent_start,
+                                             int ent_count, 
+                                             int  *elem_map);
 
   EXODUS_EXPORT int ex_get_prop_names (int    exoid,
-				       ex_entity_type obj_type,
-				       char **prop_names);
+                                       ex_entity_type obj_type,
+                                       char **prop_names);
 
   EXODUS_EXPORT int ex_get_qa (int exoid,
-			       char *qa_record[][4]);
+                               char *qa_record[][4]);
   EXODUS_EXPORT int ex_get_side_set_node_list_len(int exoid,
-						  int side_set_id,
-						  int *side_set_node_list_len);
+                                                  int side_set_id,
+                                                  int *side_set_node_list_len);
   EXODUS_EXPORT int ex_get_side_set_param (int  exoid,
-					   int  side_set_id,
-					   int *num_side_in_set, 
-					   int *num_dist_fact_in_set);
+                                           int  side_set_id,
+                                           int *num_side_in_set, 
+                                           int *num_dist_fact_in_set);
   EXODUS_EXPORT int ex_get_side_set (int   exoid,
-				     int   side_set_id,
-				     int  *side_set_elem_list, 
-				     int  *side_set_side_list);
+                                     int   side_set_id,
+                                     int  *side_set_elem_list, 
+                                     int  *side_set_side_list);
   EXODUS_EXPORT int ex_get_side_set_node_count(int exoid,
-					       int side_set_id,
-					       int *side_set_node_cnt_list);
+                                               int side_set_id,
+                                               int *side_set_node_cnt_list);
+  EXODUS_EXPORT int ex_get_concat_side_set_node_count(int exoid,
+                                                      int *side_set_node_cnt_list);
   EXODUS_EXPORT int ex_get_side_set_dist_fact (int   exoid,
-					       int   side_set_id,
-					       void *side_set_dist_fact);
+                                               int   side_set_id,
+                                               void *side_set_dist_fact);
   EXODUS_EXPORT int ex_get_side_set_ids (int  exoid,
-					 int *ids);
+                                         int *ids);
   EXODUS_EXPORT int ex_get_side_set_node_list(int exoid,
-					      int side_set_id,
-					      int *side_set_node_cnt_list,
-					      int *side_set_node_list);
+                                              int side_set_id,
+                                              int *side_set_node_cnt_list,
+                                              int *side_set_node_list);
   EXODUS_EXPORT int ex_get_sset_var (int   exoid,
-				     int   time_step,
-				     int   sset_var_index,
-				     int   sset_id, 
-				     int   num_side_this_sset,
-				     void *sset_var_vals);
+                                     int   time_step,
+                                     int   sset_var_index,
+                                     int   sset_id, 
+                                     int   num_side_this_sset,
+                                     void *sset_var_vals);
 
   EXODUS_EXPORT int ex_get_sset_var_tab (int  exoid,
-					 int  num_sidesets,
-					 int  num_sset_var,
-					 int *sset_var_tab);
+                                         int  num_sidesets,
+                                         int  num_sset_var,
+                                         int *sset_var_tab);
   EXODUS_EXPORT int ex_get_sset_varid (int  exoid,
-				       int *varid);
+                                       int *varid);
   EXODUS_EXPORT int ex_get_time (int   exoid,
-				 int   time_step,
-				 void *time_value);
+                                 int   time_step,
+                                 void *time_value);
   EXODUS_EXPORT int ex_get_variable_names (int   exoid,
-					   ex_entity_type obj_type,
-					   int   num_vars,
-					   char *var_names[]);
+                                           ex_entity_type obj_type,
+                                           int   num_vars,
+                                           char *var_names[]);
   EXODUS_EXPORT int ex_get_var_names (int   exoid,
-				      const char *var_type,
-				      int   num_vars,
-				      char *var_names[]);
+                                      const char *var_type,
+                                      int   num_vars,
+                                      char *var_names[]);
   EXODUS_EXPORT int ex_get_varid (int  exoid, ex_entity_type obj_type,
-				  int *varid_arr);
+                                  int *varid_arr);
   EXODUS_EXPORT int ex_get_variable_name (int   exoid,
-					  ex_entity_type obj_type,
-					  int   var_num,
-					  char *var_name);
+                                          ex_entity_type obj_type,
+                                          int   var_num,
+                                          char *var_name);
   EXODUS_EXPORT int ex_get_var_name (int   exoid,
-				     const char *var_type,
-				     int   var_num,
-				     char *var_name);
+                                     const char *var_type,
+                                     int   var_num,
+                                     char *var_name);
   EXODUS_EXPORT int ex_get_var_param (int   exoid,
-				      const char *var_type,
-				      int  *num_vars);
+                                      const char *var_type,
+                                      int  *num_vars);
   EXODUS_EXPORT int ex_get_variable_param (int   exoid,
-					   ex_entity_type obj_type,
-					   int  *num_vars);
+                                           ex_entity_type obj_type,
+                                           int  *num_vars);
 
   EXODUS_EXPORT int ex_get_object_truth_vector (int  exoid,
-						ex_entity_type var_type,
-						int  object_id,
-						int  num_var,
-						int *var_vector);
+                                                ex_entity_type var_type,
+                                                int  object_id,
+                                                int  num_var,
+                                                int *var_vector);
   EXODUS_EXPORT int ex_get_truth_table (int  exoid,
-					ex_entity_type obj_type,
-					int  num_blk,
-					int  num_var,
-					int *var_tab);
+                                        ex_entity_type obj_type,
+                                        int  num_blk,
+                                        int  num_var,
+                                        int *var_tab);
   EXODUS_EXPORT int ex_get_var_tab (int  exoid,
-				    const char *var_type,
-				    int  num_blk,
-				    int  num_var,
-				    int *var_tab);
+                                    const char *var_type,
+                                    int  num_blk,
+                                    int  num_var,
+                                    int *var_tab);
   
   EXODUS_EXPORT int ex_get_elem_var_tab (int  exoid,
-					 int  num_elem_blk,
-					 int  num_elem_var,
-					 int *elem_var_tab);
+                                         int  num_elem_blk,
+                                         int  num_elem_var,
+                                         int *elem_var_tab);
 
 #define ex_open(path, mode, comp_ws, io_ws, version) ex_open_int(path, mode, comp_ws, io_ws, version, EX_API_VERS_NODOT)  
   EXODUS_EXPORT int ex_open_int (const char  *path,
-				 int    mode,
-				 int   *comp_ws,
-				 int   *io_ws,
-				 float *version, int my_version);
+                                 int    mode,
+                                 int   *comp_ws,
+                                 int   *io_ws,
+                                 float *version, int my_version);
   
   EXODUS_EXPORT int ex_put_attr_param (int   exoid,
-				       ex_entity_type obj_type,
-				       int   obj_id,
-				       int   num_attrs);
+                                       ex_entity_type obj_type,
+                                       int   obj_id,
+                                       int   num_attrs);
 
   EXODUS_EXPORT int ex_get_attr_param (int   exoid,
-				       ex_entity_type obj_type,
-				       int   obj_id,
-				       int   *num_attrs);
+                                       ex_entity_type obj_type,
+                                       int   obj_id,
+                                       int   *num_attrs);
 
   EXODUS_EXPORT int ex_put_all_var_param (int exoid,
-					  int num_g, int num_n,
-					  int num_e, int *elem_var_tab,
-					  int num_m, int *nset_var_tab,
-					  int num_s, int *sset_var_tab);
+                                          int num_g, int num_n,
+                                          int num_e, int *elem_var_tab,
+                                          int num_m, int *nset_var_tab,
+                                          int num_s, int *sset_var_tab);
 
   EXODUS_EXPORT int ex_put_concat_elem_block (int    exoid,
-					      const int*   elem_blk_id,
-					      char *elem_type[],
-					      const int*   num_elem_this_blk,
-					      const int*   num_nodes_per_elem,
-					      const int*   num_attr,
-					      int    define_maps);
+                                              const int*   elem_blk_id,
+                                              char *elem_type[],
+                                              const int*   num_elem_this_blk,
+                                              const int*   num_nodes_per_elem,
+                                              const int*   num_attr,
+                                              int    define_maps);
 
   EXODUS_EXPORT int ex_put_concat_node_sets (int   exoid,
-					     int  *node_set_ids,
-					     int  *num_nodes_per_set,
-					     int  *num_dist_per_set,
-					     int  *node_sets_node_index,
-					     int  *node_sets_df_index,
-					     int  *node_sets_node_list,
-					     void *node_sets_dist_fact);
+                                             int  *node_set_ids,
+                                             int  *num_nodes_per_set,
+                                             int  *num_dist_per_set,
+                                             int  *node_sets_node_index,
+                                             int  *node_sets_df_index,
+                                             int  *node_sets_node_list,
+                                             void *node_sets_dist_fact);
 
   EXODUS_EXPORT int ex_put_concat_side_sets (int   exoid,
-					     int  *side_set_ids,
-					     int  *num_elem_per_set,
-					     int  *num_dist_per_set,
-					     int  *side_sets_elem_index,
-					     int  *side_sets_dist_index,
-					     int  *side_sets_elem_list,
-					     int  *side_sets_side_list,
-					     void *side_sets_dist_fact);
+                                             int  *side_set_ids,
+                                             int  *num_elem_per_set,
+                                             int  *num_dist_per_set,
+                                             int  *side_sets_elem_index,
+                                             int  *side_sets_dist_index,
+                                             int  *side_sets_elem_list,
+                                             int  *side_sets_side_list,
+                                             void *side_sets_dist_fact);
 
   EXODUS_EXPORT int ex_put_concat_var_param (int exoid, int num_g, int num_n,
-					     int num_e, int num_elem_blk, int  *elem_var_tab);
+                                             int num_e, int num_elem_blk, int  *elem_var_tab);
   
   EXODUS_EXPORT int ex_put_coord_names (int   exoid,
-					char *coord_names[]);
+                                        char *coord_names[]);
   EXODUS_EXPORT int ex_put_coord (int   exoid,
-				  const void *x_coor,
-				  const void *y_coor,
-				  const void *z_coor);
+                                  const void *x_coor,
+                                  const void *y_coor,
+                                  const void *z_coor);
+  EXODUS_EXPORT int ex_put_n_coord (int   exoid,
+                                    int   start_node_num,
+                                    int   num_nodes,
+                                    const void *x_coor,
+                                    const void *y_coor,
+                                    const void *z_coor);
   EXODUS_EXPORT int ex_put_elem_attr_names(int   exoid,
-					   int   elem_blk_id,
-					   char *names[]);
+                                           int   elem_blk_id,
+                                           char *names[]);
   EXODUS_EXPORT int ex_put_elem_attr (int   exoid,
-				      int   elem_blk_id,
-				      const void *attrib);
+                                      int   elem_blk_id,
+                                      const void *attrib);
   EXODUS_EXPORT int ex_put_elem_block (int   exoid,
-				       int   elem_blk_id,
-				       const char *elem_type,
-				       int   num_elem_this_blk,
-				       int   num_nodes_per_elem,
-				       int   num_attr);
+                                       int   elem_blk_id,
+                                       const char *elem_type,
+                                       int   num_elem_this_blk,
+                                       int   num_nodes_per_elem,
+                                       int   num_attr);
 
   EXODUS_EXPORT int ex_put_elem_conn (int   exoid,
-				      int   elem_blk_id,
-				      const int  *connect);
+                                      int   elem_blk_id,
+                                      const int  *connect);
   EXODUS_EXPORT int ex_put_elem_map (int exoid,
-				     int map_id,
-				     const int *elem_map);
+                                     int map_id,
+                                     const int *elem_map);
   EXODUS_EXPORT int ex_put_id_map(int exoid,
-				  ex_entity_type obj_type,
-				  const int *map);
+                                  ex_entity_type obj_type,
+                                  const int *map);
   
   EXODUS_EXPORT int ex_get_id_map(int exoid,
-				  ex_entity_type obj_type,
-				  int *map);
+                                  ex_entity_type obj_type,
+                                  int *map);
   
   EXODUS_EXPORT int ex_put_elem_num_map (int  exoid,
-					 const int *elem_map);
+                                         const int *elem_map);
   EXODUS_EXPORT int ex_put_elem_var (int   exoid,
-				     int   time_step,
-				     int   elem_var_index,
-				     int   elem_blk_id,
-				     int   num_elem_this_blk,
-				     const void *elem_var_vals);
+                                     int   time_step,
+                                     int   elem_var_index,
+                                     int   elem_blk_id,
+                                     int   num_elem_this_blk,
+                                     const void *elem_var_vals);
 
   EXODUS_EXPORT int ex_put_coordinate_frames(int exoid, int nframes, const int cf_ids[], 
-					     void* pt_coordinates, const char* tags);
+                                             void* pt_coordinates, const char* tags);
   EXODUS_EXPORT int ex_put_glob_vars (int   exoid,
-				      int   time_step,
-				      int   num_glob_vars,
-				      const void *glob_var_vals);
+                                      int   time_step,
+                                      int   num_glob_vars,
+                                      const void *glob_var_vals);
   EXODUS_EXPORT int ex_put_info (int   exoid, 
-				 int   num_info,
-				 char *info[]);
+                                 int   num_info,
+                                 char *info[]);
   EXODUS_EXPORT int ex_put_init (int   exoid,
-				 const char *title,
-				 int   num_dim,
-				 int   num_nodes,
-				 int   num_elem,
-				 int   num_elem_blk,
-				 int   num_node_sets,
-				 int   num_side_sets);
+                                 const char *title,
+                                 int   num_dim,
+                                 int   num_nodes,
+                                 int   num_elem,
+                                 int   num_elem_blk,
+                                 int   num_node_sets,
+                                 int   num_side_sets);
 
   EXODUS_EXPORT int ex_put_map (int  exoid,
-				const int *elem_map);
+                                const int *elem_map);
   EXODUS_EXPORT int ex_put_map_param (int   exoid,
-				      int   num_node_maps,
-				      int   num_elem_maps);
+                                      int   num_node_maps,
+                                      int   num_elem_maps);
   EXODUS_EXPORT int ex_put_name (int   exoid,
-				 ex_entity_type obj_type,
-				 int   entity_id,
-				 const char *name);
+                                 ex_entity_type obj_type,
+                                 int   entity_id,
+                                 const char *name);
   EXODUS_EXPORT int ex_put_names (int   exoid,
-				  ex_entity_type obj_type,
-				  char *names[]);
+                                  ex_entity_type obj_type,
+                                  char *names[]);
   EXODUS_EXPORT int ex_put_nodal_var (int   exoid,
-				      int   time_step,
-				      int   nodal_var_index,
-				      int   num_nodes, 
-				      const void *nodal_var_vals);
+                                      int   time_step,
+                                      int   nodal_var_index,
+                                      int   num_nodes, 
+                                      const void *nodal_var_vals);
+
+  EXODUS_EXPORT int ex_put_n_nodal_var (int   exoid,
+                                        int   time_step,
+                                        int   nodal_var_index,
+                                        int   start_node, 
+                                        int   num_nodes, 
+                                        const void *nodal_var_vals);
 
   EXODUS_EXPORT int ex_put_nodal_varid_var(int   exoid,
-					   int   time_step,
-					   int   nodal_var_index,
-					   int   num_nodes, 
-					   int   varid,
-					   const void *nodal_var_vals);
+                                           int   time_step,
+                                           int   nodal_var_index,
+                                           int   num_nodes, 
+                                           int   varid,
+                                           const void *nodal_var_vals);
 
   EXODUS_EXPORT int ex_put_node_map (int exoid,
-				     int map_id,
-				     const int *node_map);
+                                     int map_id,
+                                     const int *node_map);
   EXODUS_EXPORT int ex_put_node_num_map (int  exoid,
-					 const int *node_map);
+                                         const int *node_map);
   EXODUS_EXPORT int ex_put_node_set_param (int exoid,
-					   int node_set_id,
-					   int num_nodes_in_set,
-					   int num_dist_in_set);
+                                           int node_set_id,
+                                           int num_nodes_in_set,
+                                           int num_dist_in_set);
   EXODUS_EXPORT int ex_put_node_set (int   exoid,
-				     int   node_set_id,
-				     const int  *node_set_node_list);
+                                     int   node_set_id,
+                                     const int  *node_set_node_list);
   EXODUS_EXPORT int ex_put_node_set_dist_fact  (int   exoid,
-						int   node_set_id,
-						const void *node_set_dist_fact);
+                                                int   node_set_id,
+                                                const void *node_set_dist_fact);
   EXODUS_EXPORT int ex_put_nset_var (int   exoid,
-				     int   time_step,
-				     int   nset_var_index,
-				     int   nset_id,
-				     int   num_nodes_this_nset,
-				     const void *nset_var_vals);
+                                     int   time_step,
+                                     int   nset_var_index,
+                                     int   nset_id,
+                                     int   num_nodes_this_nset,
+                                     const void *nset_var_vals);
 
   EXODUS_EXPORT int ex_put_nset_var_tab (int  exoid,
-					 int  num_nset,
-					 int  num_nset_var,
-					 int *nset_var_tab);
+                                         int  num_nset,
+                                         int  num_nset_var,
+                                         int *nset_var_tab);
   EXODUS_EXPORT int ex_put_one_elem_attr (int   exoid,
-					  int   elem_blk_id,
-					  int   attrib_index,
-					  const void *attrib);
+                                          int   elem_blk_id,
+                                          int   attrib_index,
+                                          const void *attrib);
+
+  EXODUS_EXPORT int ex_put_n_one_attr( int   exoid,
+                                       ex_entity_type obj_type,
+                                       int   obj_id,
+                                       int   start_num,
+                                       int   num_ent,
+                                       int   attrib_index,
+                                       const void *attrib );
+
   EXODUS_EXPORT int ex_put_partial_elem_map (int   exoid,
-					     int   map_id,
-					     int ent_start,
-					     int ent_count, 
-					     const int  *elem_map);
+                                             int   map_id,
+                                             int ent_start,
+                                             int ent_count, 
+                                             const int  *elem_map);
+
+  EXODUS_EXPORT int ex_put_partial_set_dist_fact (int   exoid,
+                                                  ex_entity_type set_type,
+                                                  int   set_id,
+                                                  int   offset,
+                                                  int   num_to_put,
+                                                  const void *set_dist_fact);
 
   EXODUS_EXPORT int ex_put_prop (int   exoid,
-				 ex_entity_type obj_type,
-				 int   obj_id,
-				 const char *prop_name,
-				 int   value);
+                                 ex_entity_type obj_type,
+                                 int   obj_id,
+                                 const char *prop_name,
+                                 int   value);
 
   EXODUS_EXPORT int ex_put_prop_array (int   exoid,
-				       ex_entity_type obj_type,
-				       const char *prop_name,
-				       const int  *values);
+                                       ex_entity_type obj_type,
+                                       const char *prop_name,
+                                       const int  *values);
   EXODUS_EXPORT int ex_put_prop_names (int   exoid,
-				       ex_entity_type obj_type,
-				       int   num_props,
-				       char **prop_names);
+                                       ex_entity_type obj_type,
+                                       int   num_props,
+                                       char **prop_names);
   EXODUS_EXPORT int ex_put_qa (int   exoid,
-			       int   num_qa_records,
-			       char* qa_record[][4]);
+                               int   num_qa_records,
+                               char* qa_record[][4]);
   EXODUS_EXPORT int ex_put_side_set_param (int exoid,
-					   int side_set_id,
-					   int num_side_in_set,
-					   int num_dist_fact_in_set);
+                                           int side_set_id,
+                                           int num_side_in_set,
+                                           int num_dist_fact_in_set);
   EXODUS_EXPORT int ex_put_side_set (int   exoid,
-				     int   side_set_id,
-				     const int  *side_set_elem_list,
-				     const int  *side_set_side_list);
+                                     int   side_set_id,
+                                     const int  *side_set_elem_list,
+                                     const int  *side_set_side_list);
   EXODUS_EXPORT int ex_put_side_set_dist_fact (int   exoid,
-					       int   side_set_id,
-					       const void *side_set_dist_fact);
+                                               int   side_set_id,
+                                               const void *side_set_dist_fact);
   EXODUS_EXPORT int ex_put_sset_var (int   exoid,
-				     int   time_step,
-				     int   sset_var_index,
-				     int   sset_id,
-				     int   num_faces_this_sset,
-				     const void *sset_var_vals);
+                                     int   time_step,
+                                     int   sset_var_index,
+                                     int   sset_id,
+                                     int   num_faces_this_sset,
+                                     const void *sset_var_vals);
 
   EXODUS_EXPORT int ex_put_sset_var_tab (int  exoid,
-					 int  num_sset,
-					 int  num_sset_var,
-					 int *sset_var_tab);
+                                         int  num_sset,
+                                         int  num_sset_var,
+                                         int *sset_var_tab);
   EXODUS_EXPORT int ex_put_time (int   exoid,
-				 int   time_step,
-				 const void *time_value);
+                                 int   time_step,
+                                 const void *time_value);
   EXODUS_EXPORT int ex_put_varid_var(int   exoid,
-				     int   time_step,
-				     int   varid,
-				     int   num_entity,
-				     const void *var_vals);
+                                     int   time_step,
+                                     int   varid,
+                                     int   num_entity,
+                                     const void *var_vals);
 
   EXODUS_EXPORT int ex_put_var_names (int   exoid,
-				      const char *var_type,
-				      int   num_vars,
-				      char *var_names[]);
+                                      const char *var_type,
+                                      int   num_vars,
+                                      char *var_names[]);
   EXODUS_EXPORT int ex_put_var_name (int   exoid,
-				     const char *var_type,
-				     int   var_num,
-				     const char *var_name);
+                                     const char *var_type,
+                                     int   var_num,
+                                     const char *var_name);
   EXODUS_EXPORT int ex_put_var_param (int   exoid,
-				      const char *var_type,
-				      int   num_vars);
+                                      const char *var_type,
+                                      int   num_vars);
   EXODUS_EXPORT int ex_put_variable_names (int   exoid,
-					   ex_entity_type obj_type,
-					   int   num_vars,
-					   char* var_names[]);
+                                           ex_entity_type obj_type,
+                                           int   num_vars,
+                                           char* var_names[]);
   EXODUS_EXPORT int ex_put_variable_name (int   exoid,
-					  ex_entity_type obj_type,
-					  int   var_num,
-					  const char *var_name);
+                                          ex_entity_type obj_type,
+                                          int   var_num,
+                                          const char *var_name);
   EXODUS_EXPORT int ex_put_variable_param (int exoid,
-					   ex_entity_type obj_type,
-					   int num_vars);
+                                           ex_entity_type obj_type,
+                                           int num_vars);
   EXODUS_EXPORT int ex_put_truth_table (int  exoid,
-					ex_entity_type obj_type,
-					int  num_blk,
-					int  num_var,
-					int *var_tab);
+                                        ex_entity_type obj_type,
+                                        int  num_blk,
+                                        int  num_var,
+                                        int *var_tab);
   EXODUS_EXPORT int ex_put_var_tab (int  exoid,
-				    const char *var_type,
-				    int  num_blk,
-				    int  num_var,
-				    int *var_tab);
+                                    const char *var_type,
+                                    int  num_blk,
+                                    int  num_var,
+                                    int *var_tab);
   
   EXODUS_EXPORT int ex_put_elem_var_tab (int  exoid,
-					 int  num_elem_blk,
-					 int  num_elem_var,
-					 int *elem_var_tab);
+                                         int  num_elem_blk,
+                                         int  num_elem_var,
+                                         int *elem_var_tab);
   EXODUS_EXPORT int ex_update (int exoid);
   EXODUS_EXPORT int ex_get_num_props (int exoid, ex_entity_type obj_type);
   EXODUS_EXPORT int ex_large_model(int exoid);
@@ -751,16 +796,16 @@ extern "C" {
   EXODUS_EXPORT int ex_inquire_int(int exoid, int inquiry);
 
   EXODUS_EXPORT int ex_get_varid_var(int   exoid,
-				     int   time_step,
-				     int   varid,
-				     int   num_entity,
-				     void *var_vals);
+                                     int   time_step,
+                                     int   varid,
+                                     int   num_entity,
+                                     void *var_vals);
   
   /* ERROR CODE DEFINITIONS AND STORAGE                                       */
   extern int exerrval;     /**< shared error return value                */
   extern int exoptval;     /**< error reporting flag (default is quiet)  */
   
-  const char* ex_name_of_object(ex_entity_type obj_type);
+  char* ex_name_of_object(ex_entity_type obj_type);
   ex_entity_type ex_var_type_to_ex_entity_type(char var_type);
 
 #ifdef __cplusplus

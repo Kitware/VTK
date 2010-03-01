@@ -79,17 +79,17 @@ int ex_get_attr( int   exoid,
     
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-	sprintf(errmsg,
-		"Warning: no attributes found for NULL %s %d in file id %d",
-		ex_name_of_object(obj_type),obj_id,exoid);
-	ex_err("ex_get_attr",errmsg,EX_MSG);
-	return (EX_WARN);              /* no attributes for this object */
+        sprintf(errmsg,
+                "Warning: no attributes found for NULL %s %d in file id %d",
+                ex_name_of_object(obj_type),obj_id,exoid);
+        ex_err("ex_get_attr",errmsg,EX_MSG);
+        return (EX_WARN);              /* no attributes for this object */
       } else {
-	sprintf(errmsg,
-		"Warning: failed to locate %s id %d in id array in file id %d",
-		ex_name_of_object(obj_type),obj_id, exoid);
-	ex_err("ex_get_attr",errmsg,exerrval);
-	return (EX_WARN);
+        sprintf(errmsg,
+                "Warning: failed to locate %s id %d in id array in file id %d",
+                ex_name_of_object(obj_type),obj_id, exoid);
+        ex_err("ex_get_attr",errmsg,exerrval);
+        return (EX_WARN);
       }
     }
   }
@@ -123,11 +123,12 @@ int ex_get_attr( int   exoid,
     vattrbname = VAR_ATTRIB(obj_id_ndx);
     break;
   default:
+    exerrval = 1005;
     sprintf(errmsg,
-      "Error: called with invalid obj_type %d", obj_type);
-    ex_err("ex_get_attr",errmsg,exerrval);
-    return (EX_WARN);
-    break;
+            "Internal Error: unrecognized object type in switch: %d in file id %d",
+            obj_type,exoid);
+    ex_err("ex_get_attr",errmsg,EX_MSG);
+    return (EX_FATAL);              /* number of attributes not defined */
   }
 
   /* inquire id's of previously defined dimensions  */

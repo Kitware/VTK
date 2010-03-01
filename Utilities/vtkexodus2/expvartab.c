@@ -73,10 +73,10 @@
  */
 
 int ex_put_truth_table (int  exoid,
-			ex_entity_type obj_type,
-			int  num_blk,
-			int  num_var,
-			int *var_tab)
+                        ex_entity_type obj_type,
+                        int  num_blk,
+                        int  num_var,
+                        int *var_tab)
 {
   int numelblkdim, numelvardim, timedim, dims[2], varid;
   char *sta_type, *tab_type;
@@ -99,11 +99,11 @@ int ex_put_truth_table (int  exoid,
   exerrval = 0; /* clear error code */
    
   ex_get_dimension(exoid, ex_dim_num_objects(obj_type),
-		   ex_name_of_object(obj_type), &num_entity, &numelblkdim, routine);
+                   ex_name_of_object(obj_type), &num_entity, &numelblkdim, routine);
 
   if (obj_type == EX_ELEM_BLOCK) {
     ex_get_dimension(exoid, DIM_NUM_ELE_VAR,  "element variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_ELEM_TAB, &varid);
     var_name = "vals_elem_var";
     ent_type = "eb";
@@ -113,7 +113,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type == EX_EDGE_BLOCK) {
     ex_get_dimension(exoid, DIM_NUM_EDG_VAR, "edge block variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_EBLK_TAB, &varid);
     var_name = "vals_edge_var";
     ent_type = "eb";
@@ -123,7 +123,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type  == EX_FACE_BLOCK) {
     ex_get_dimension(exoid, DIM_NUM_FAC_VAR, "face block variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_FBLK_TAB, &varid);
     var_name = "vals_face_var";
     ent_type = "fb";
@@ -133,7 +133,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type == EX_SIDE_SET) {
     ex_get_dimension(exoid, DIM_NUM_SSET_VAR, "sideset variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_SSET_TAB, &varid);
     var_name = "vals_sset_var";
     ent_type = "ss";
@@ -143,7 +143,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type == EX_NODE_SET) {
     ex_get_dimension(exoid, DIM_NUM_NSET_VAR, "nodeset variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_NSET_TAB, &varid);
     var_name = "vals_nset_var";
     ent_type = "ns";
@@ -153,7 +153,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type == EX_EDGE_SET) {
     ex_get_dimension(exoid, DIM_NUM_ESET_VAR, "edge set variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_ESET_TAB, &varid);
     var_name = "vals_eset_var";
     ent_type = "es";
@@ -163,7 +163,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type == EX_FACE_SET) {
     ex_get_dimension(exoid, DIM_NUM_FSET_VAR, "face set variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_FSET_TAB, &varid);
     var_name = "vals_fset_var";
     ent_type = "fs";
@@ -173,7 +173,7 @@ int ex_put_truth_table (int  exoid,
   }
   else if (obj_type == EX_ELEM_SET) {
     ex_get_dimension(exoid, DIM_NUM_ELSET_VAR, "element set variables",
-		     &num_var_db, &numelvardim, routine);
+                     &num_var_db, &numelvardim, routine);
     status = nc_inq_varid (exoid, VAR_ELSET_TAB, &varid);
     var_name = "vals_elset_var";
     ent_type = "es";
@@ -185,29 +185,26 @@ int ex_put_truth_table (int  exoid,
   else {       /* invalid variable type */
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-	    "Error: Invalid variable type %d specified in file id %d",
-	    obj_type, exoid);
+            "Error: Invalid variable type %d specified in file id %d",
+            obj_type, exoid);
     ex_err("ex_get_varid",errmsg,exerrval);
     return (EX_WARN);
   }
    
-  if (num_entity == (size_t)-1 || num_var_db == (size_t)-1)
-    return (EX_FATAL);
-
-  if (num_entity != (size_t)num_blk) {
+  if ((int)num_entity != num_blk) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-	    "Error: # of %s doesn't match those defined in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Error: # of %s doesn't match those defined in file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err("ex_get_var_tab",errmsg,exerrval);
     return (EX_FATAL);
   }
 
-  if (num_var_db != (size_t)num_var) {
+  if ((int)num_var_db != num_var) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-	    "Error: # of %s variables doesn't match those defined in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Error: # of %s variables doesn't match those defined in file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err("ex_get_var_tab",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -216,8 +213,8 @@ int ex_put_truth_table (int  exoid,
   if (!(ids = malloc(num_blk*sizeof(int)))) {
     exerrval = EX_MEMFAIL;
     sprintf(errmsg,
-	    "Error: failed to allocate memory for %s id array for file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Error: failed to allocate memory for %s id array for file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -227,7 +224,7 @@ int ex_put_truth_table (int  exoid,
     exerrval = EX_MEMFAIL;
     free(ids);
     sprintf(errmsg,
-	    "Error: failed to allocate memory for %s status array for file id %d",
+            "Error: failed to allocate memory for %s status array for file id %d",
             ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
@@ -245,7 +242,7 @@ int ex_put_truth_table (int  exoid,
       exerrval = status;
       free(stat_vals);
       sprintf(errmsg,
-	      "Error: failed to get %s status array from file id %d",
+              "Error: failed to get %s status array from file id %d",
               ex_name_of_object(obj_type), exoid);
       ex_err("put_var_tab",errmsg,exerrval);
       return (EX_FATAL);
@@ -263,7 +260,7 @@ int ex_put_truth_table (int  exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to put file id %d into define mode",
-	    exoid);
+            exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -274,8 +271,8 @@ int ex_put_truth_table (int  exoid,
     free(stat_vals);
     free (ids);
     sprintf(errmsg,
-	    "Error: failed to locate time variable in file id %d",
-	    exoid);
+            "Error: failed to locate time variable in file id %d",
+            exoid);
     ex_err(routine,errmsg,exerrval);
     goto error_ret;          /* exit define mode and return */
   }
@@ -290,51 +287,51 @@ int ex_put_truth_table (int  exoid,
 
       /* check if variables are to be put out for this entity */
       if (var_tab[k] != 0) {
-	if (stat_vals[i] != 0) {/* check for NULL entity */
-	  /* NOTE: This code used to zero out the var_tab entry
-	     if the stat_vals[i] value was zero. However, in some
-	     cases it is good to know that a variable was assigned to
-	     an entity even if that entity is empty. The code was
-	     changed to not modify the truth table.
-	  */
-	  dims[0] = timedim;
-	  
-	  /* Determine number of entities in block */
-	  if ((status = nc_inq_dimid(exoid, ex_catstr(ent_size, (i+1)), &dims[1])) != NC_NOERR) {
-	    exerrval = status;
-	    id=ids[i];
-	    free(stat_vals);
-	    free (ids);
-	    sprintf(errmsg,
-		    "Error: failed to locate number of entities in %s %d in file id %d",
-		    ex_name_of_object(obj_type), id,exoid);
-	    ex_err(routine,errmsg,exerrval);
-	    goto error_ret;          /* exit define mode and return */
-	    }
+        if (stat_vals[i] != 0) {/* check for NULL entity */
+          /* NOTE: This code used to zero out the var_tab entry
+             if the stat_vals[i] value was zero. However, in some
+             cases it is good to know that a variable was assigned to
+             an entity even if that entity is empty. The code was
+             changed to not modify the truth table.
+          */
+          dims[0] = timedim;
+          
+          /* Determine number of entities in block */
+          if ((status = nc_inq_dimid(exoid, ex_catstr(ent_size, (i+1)), &dims[1])) != NC_NOERR) {
+            exerrval = status;
+            id=ids[i];
+            free(stat_vals);
+            free (ids);
+            sprintf(errmsg,
+                    "Error: failed to locate number of entities in %s %d in file id %d",
+                    ex_name_of_object(obj_type), id,exoid);
+            ex_err(routine,errmsg,exerrval);
+            goto error_ret;          /* exit define mode and return */
+            }
 
 
-	  /* define netCDF variable to store variable values; the j
-	   * index cycles from 1 through the number of variables so
-	   * that the index of the EXODUS II variable (which is part
-	   * of the name of the netCDF variable) will begin at 1
-	   * instead of 0
-	   */
+          /* define netCDF variable to store variable values; the j
+           * index cycles from 1 through the number of variables so
+           * that the index of the EXODUS II variable (which is part
+           * of the name of the netCDF variable) will begin at 1
+           * instead of 0
+           */
 
-	  if ((status = nc_def_var(exoid, ex_catstr2(var_name, j, ent_type, i+1),
-				  nc_flt_code(exoid), 2, dims, &varid)) != NC_NOERR) {
-	    if (status != NC_ENAMEINUSE) {
-	      exerrval = status;
-	      id=ids[i];
-	      free(stat_vals);
-	      free (ids);
-	      sprintf(errmsg,
-		      "Error: failed to define variable for %s %d in file id %d",
-		      ex_name_of_object(obj_type), id,exoid);
-	      ex_err(routine,errmsg,exerrval);
-	      goto error_ret;  /* exit define mode and return */
-	    }
-	  }
-	}
+          if ((status = nc_def_var(exoid, ex_catstr2(var_name, j, ent_type, i+1),
+                                  nc_flt_code(exoid), 2, dims, &varid)) != NC_NOERR) {
+            if (status != NC_ENAMEINUSE) {
+              exerrval = status;
+              id=ids[i];
+              free(stat_vals);
+              free (ids);
+              sprintf(errmsg,
+                      "Error: failed to define variable for %s %d in file id %d",
+                      ex_name_of_object(obj_type), id,exoid);
+              ex_err(routine,errmsg,exerrval);
+              goto error_ret;  /* exit define mode and return */
+            }
+          }
+        }
       }  /* if */
       k++; /* increment element truth table pointer */
     }  /* for j */
@@ -353,8 +350,8 @@ int ex_put_truth_table (int  exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to define %s variable truth table in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Error: failed to define %s variable truth table in file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     goto error_ret;          /* exit define mode and return */
   }
@@ -363,8 +360,8 @@ int ex_put_truth_table (int  exoid,
   if ((status = nc_enddef (exoid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to complete definitions in file id %d",
-	    exoid);
+            "Error: failed to complete definitions in file id %d",
+            exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -375,8 +372,8 @@ int ex_put_truth_table (int  exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to store variable truth table in file id %d",
-	    exoid);
+            "Error: failed to store variable truth table in file id %d",
+            exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -389,8 +386,8 @@ int ex_put_truth_table (int  exoid,
   if (nc_enddef (exoid) != NC_NOERR)     /* exit define mode */
     {
       sprintf(errmsg,
-	      "Error: failed to complete definition for file id %d",
-	      exoid);
+              "Error: failed to complete definition for file id %d",
+              exoid);
       ex_err(routine,errmsg,exerrval);
     }
   return (EX_FATAL);

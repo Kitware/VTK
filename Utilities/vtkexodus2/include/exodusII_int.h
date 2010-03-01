@@ -68,21 +68,12 @@
 
 #if defined(__BORLANDC__)
 #pragma warn -8004 /* "assigned a value that is never used" */
-#pragma warn -8008 /* "condition is always true" */
-#pragma warn -8060 /* "possibly incorrect assignment" */
-#pragma warn -8066 /* "unreachable code" */
 #endif
 
 
 #include <stdio.h>
 
 #define MAX_VAR_NAME_LENGTH     20   /**< Internal use only */
-
-  /*   for netCDF 3.4, we estimate the size of the header; 
-   *   if estimate is larger than this max, set the estimate to this max;
-   */
-#define MAX_HEADER_SIZE         30000
-
 
 /* this should be defined in ANSI C and C++, but just in case ... */
 #ifndef NULL
@@ -205,6 +196,9 @@
 #define VAR_CONN(num)            ex_catstr("connect",num)
                                                 /* element connectivity for  */
                                                 /*   element block num       */
+#define VAR_EBEPEC(num)          ex_catstr("ebepecnt",num)
+                                                /* array containing number of entity per */
+                                                /*  entity for n-sided face/element blocks */
 #define VAR_ATTRIB(num)         ex_catstr("attrib",num)
                                                 /* list of attributes for    */
                                                 /*   element block num       */
@@ -259,6 +253,9 @@
 #define VAR_FBCONN(num)           ex_catstr("fbconn",num)
                                                 /* face connectivity for     */
                                                 /*   face block num          */
+#define VAR_FBEPEC(num)           ex_catstr("fbepecnt",num)
+                                                /* array containing number of entity per */
+                                                /*  entity for n-sided face/element blocks */
 #define VAR_FATTRIB(num)          ex_catstr("fattrb",num)
                                                 /* list of attributes for    */
                                                 /*   face block num          */
@@ -501,28 +498,28 @@
                                                 /* list of the numth property*/
                                                 /*   for all node maps       */
 
-#define NUM_CFRAMES  "num_cframes"
-#define NUM_CFRAME9  "num_cframes_9"
-#define FRAME_COORDS "frame_coordinates"
-#define FRAME_IDS    "frame_ids"
-#define FRAME_TAGS   "frame_tags"
+#define DIM_NUM_CFRAMES  "num_cframes"
+#define DIM_NUM_CFRAME9  "num_cframes_9"
+#define VAR_FRAME_COORDS "frame_coordinates"
+#define VAR_FRAME_IDS    "frame_ids"
+#define VAR_FRAME_TAGS   "frame_tags"
 
 
 enum ex_element_type {
-  UNK         =  -1,     /**< unknown entity */
-  NULL_ELEMENT=   0,     
-  TRIANGLE    =   1,     /**< Triangle entity */
-  QUAD        =   2,     /**< Quad entity */
-  HEX         =   3,     /**< Hex entity */
-  WEDGE       =   4,     /**< Wedge entity */
-  TETRA       =   5,     /**< Tetra entity */
-  TRUSS       =   6,     /**< Truss entity */
-  BEAM        =   7,     /**< Beam entity */
-  SHELL       =   8,     /**< Shell entity */
-  SPHERE      =   9,     /**< Sphere entity */
-  CIRCLE      =  10,     /**< Circle entity */
-  TRISHELL    =  11,     /**< Triangular Shell entity */
-  PYRAMID     =  12      /**< Pyramid entity */
+  EX_EL_UNK         =  -1,     /**< unknown entity */
+  EX_EL_NULL_ELEMENT=   0,     
+  EX_EL_TRIANGLE    =   1,     /**< Triangle entity */
+  EX_EL_QUAD        =   2,     /**< Quad entity */
+  EX_EL_HEX         =   3,     /**< Hex entity */
+  EX_EL_WEDGE       =   4,     /**< Wedge entity */
+  EX_EL_TETRA       =   5,     /**< Tetra entity */
+  EX_EL_TRUSS       =   6,     /**< Truss entity */
+  EX_EL_BEAM        =   7,     /**< Beam entity */
+  EX_EL_SHELL       =   8,     /**< Shell entity */
+  EX_EL_SPHERE      =   9,     /**< Sphere entity */
+  EX_EL_CIRCLE      =  10,     /**< Circle entity */
+  EX_EL_TRISHELL    =  11,     /**< Triangular Shell entity */
+  EX_EL_PYRAMID     =  12      /**< Pyramid entity */
 }; 
 typedef enum ex_element_type ex_element_type;
 
@@ -561,16 +558,10 @@ struct obj_stats {
 void  ex_iqsort(int v[], int iv[], int count );
 char* ex_catstr(const char*, int);
 char* ex_catstr2(const char*, int, const char*, int);
-const char* ex_dim_num_entries_in_object(ex_entity_type, int);
-const char* ex_dim_num_objects(ex_entity_type obj_type);
+char* ex_dim_num_entries_in_object(ex_entity_type, int);
+char* ex_dim_num_objects(ex_entity_type obj_type);
 char* ex_name_var_of_object( ex_entity_type, int, int );
 char* ex_name_of_map( ex_entity_type, int );
-
-enum convert_task { RTN_ADDRESS, 
-                    READ_CONVERT, 
-                    WRITE_CONVERT, 
-                    WRITE_CONVERT_DOWN, 
-                    WRITE_CONVERT_UP };
 
 int ex_conv_ini  (int exoid, int* comp_wordsize, int* io_wordsize, int file_wordsize);
 void ex_conv_exit  (int exoid);
@@ -597,11 +588,10 @@ extern struct obj_stats* exoII_fam;
 extern struct obj_stats* exoII_nm;
 
 
-int ex_get_side_set_node_list_len  (int, int, int*);
-struct obj_stats *ex_get_stat_ptr  ( int, struct obj_stats**);
-void ex_rm_stat_ptr  (int, struct obj_stats**);
+struct obj_stats *ex_get_stat_ptr  ( int exoid, struct obj_stats** obj_ptr);
+void ex_rm_stat_ptr  (int exoid, struct obj_stats** obj_ptr);
 
 int ex_id_lkup  (int exoid, ex_entity_type id_type, int num);
 int ex_get_dimension(int exoid, const char *dimtype, const char *label,
-		     size_t *count, int *dimid, const char *routine);
+                     size_t *count, int *dimid, const char *routine);
 #endif

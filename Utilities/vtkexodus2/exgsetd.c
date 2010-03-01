@@ -59,15 +59,15 @@
  */
 
 int ex_get_set_dist_fact (int   exoid,
-			  ex_entity_type set_type,
-			  int   set_id,
-			  void *set_dist_fact)
+                          ex_entity_type set_type,
+                          int   set_id,
+                          void *set_dist_fact)
 {
 
   int dimid, dist_id, set_id_ndx;
   int status;
   char errmsg[MAX_ERR_LENGTH];
-  char* factptr = NULL;
+  char* factptr;
  
   exerrval = 0; /* clear error code */
 
@@ -76,7 +76,7 @@ int ex_get_set_dist_fact (int   exoid,
     exerrval = status;
     sprintf(errmsg,
             "Warning: no %s sets stored in file id %d",
-	    ex_name_of_object(set_type), exoid);
+            ex_name_of_object(set_type), exoid);
     ex_err("ex_get_set_dist_fact",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -87,13 +87,13 @@ int ex_get_set_dist_fact (int   exoid,
     if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
               "Warning: %s set %d is NULL in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set_dist_fact",errmsg,EX_MSG);
       return (EX_WARN);
     } else {
       sprintf(errmsg,
-	      "Error: failed to locate %s set id %d in VAR_*S_IDS array in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Error: failed to locate %s set id %d in VAR_*S_IDS array in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set_dist_fact",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -122,16 +122,16 @@ int ex_get_set_dist_fact (int   exoid,
     /* not an error for node sets because this is how we check that df's exist */
     if (set_type == EX_NODE_SET) {
       sprintf(errmsg,
-	      "Warning: dist factors not stored for %s set %d in file id %d",
-	      ex_name_of_object(set_type), set_id, exoid);
+              "Warning: dist factors not stored for %s set %d in file id %d",
+              ex_name_of_object(set_type), set_id, exoid);
       ex_err("ex_get_set_dist_fact",errmsg,exerrval);
       return (EX_WARN);         /* complain - but not too loud */
     }
     /* is an error for other sets */
     else  {
       sprintf(errmsg,
-	      "Error: failed to locate dist factors list for %s set %d in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Error: failed to locate dist factors list for %s set %d in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set_dist_fact",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -147,8 +147,8 @@ int ex_get_set_dist_fact (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to get dist factors list for %s set %d in file id %d",
-	    ex_name_of_object(set_type), set_id,exoid);
+            "Error: failed to get dist factors list for %s set %d in file id %d",
+            ex_name_of_object(set_type), set_id,exoid);
     ex_err("ex_get_set_dist_fact",errmsg,exerrval);
     return (EX_FATAL);
   }

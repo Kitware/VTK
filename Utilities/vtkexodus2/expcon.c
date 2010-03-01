@@ -62,7 +62,8 @@ int ex_put_coord_names (int   exoid,
                         char *coord_names[])
 {
   int status;
-  int i, ndimdim, varid;
+  size_t i;
+  int ndimdim, varid;
   size_t num_dim, start[2], count[2];
   char errmsg[MAX_ERR_LENGTH];
 
@@ -72,8 +73,8 @@ int ex_put_coord_names (int   exoid,
   if ((status = nc_inq_dimid(exoid, DIM_NUM_DIM, &ndimdim)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate number of dimensions in file id %d",
-	    exoid);
+            "Error: failed to locate number of dimensions in file id %d",
+            exoid);
     ex_err("ex_put_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -82,7 +83,7 @@ int ex_put_coord_names (int   exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: inquire failed to get number of dimensions in file id %d",
-	    exoid);
+            exoid);
     ex_err("ex_put_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -91,7 +92,7 @@ int ex_put_coord_names (int   exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to locate coordinate names in file id %d",
-	    exoid);
+            exoid);
     ex_err("ex_put_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -99,7 +100,7 @@ int ex_put_coord_names (int   exoid,
 
   /* write out coordinate names */
 
-  for (i=0; i<(int)num_dim; i++) {
+  for (i=0; i<num_dim; i++) {
     start[0] = i;
     start[1] = 0;
 
@@ -109,8 +110,8 @@ int ex_put_coord_names (int   exoid,
     if ((status = nc_put_vara_text(exoid, varid, start, count, coord_names[i])) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to store coordinate name %d in file id %d",
-	      i,exoid);
+              "Error: failed to store coordinate name %d in file id %d",
+              (int)i,exoid);
       ex_err("ex_put_coord_names",errmsg,exerrval);
       return (EX_FATAL);
     }

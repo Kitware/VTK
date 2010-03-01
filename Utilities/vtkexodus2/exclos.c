@@ -69,9 +69,6 @@ int ex_close (int exoid)
      ex_err("ex_close",errmsg,exerrval);
      return(EX_FATAL);
    }
-   /* Check header size.  Will print message if too big... */
-   ex_header_size(exoid);
-
    if ((status = nc_close (exoid)) == NC_NOERR) {
      ex_conv_exit(exoid);
 

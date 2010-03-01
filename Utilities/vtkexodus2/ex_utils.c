@@ -105,7 +105,7 @@ char *ex_catstr2 (const char *string1,
   return (tmp_string);
 }
 
-const char* ex_name_of_object(ex_entity_type obj_type)
+char* ex_name_of_object(ex_entity_type obj_type)
 {
   switch (obj_type) {
   case EX_NODAL:
@@ -168,7 +168,7 @@ ex_entity_type ex_var_type_to_ex_entity_type(char var_type)
     return EX_INVALID;
 }
 
-const char* ex_dim_num_objects(ex_entity_type obj_type)
+char* ex_dim_num_objects(ex_entity_type obj_type)
 {
    exerrval = 0; /* clear error code */
    switch (obj_type)
@@ -201,17 +201,17 @@ const char* ex_dim_num_objects(ex_entity_type obj_type)
        return DIM_NUM_NM;
      default:
        {
-	 char errmsg[MAX_ERR_LENGTH];
-	 exerrval = EX_BADPARAM;
-	 sprintf(errmsg, "Error: object type %d not supported in call to ex_dim_num_objects",
-		 obj_type);
-	 ex_err("ex_dim_num_objects",errmsg,exerrval);
-	 return (NULL);
+         char errmsg[MAX_ERR_LENGTH];
+         exerrval = EX_BADPARAM;
+         sprintf(errmsg, "Error: object type %d not supported in call to ex_dim_num_objects",
+                 obj_type);
+         ex_err("ex_dim_num_objects",errmsg,exerrval);
+         return (NULL);
        }
    }
 }
 
-const char* ex_dim_num_entries_in_object( ex_entity_type obj_type,
+char* ex_dim_num_entries_in_object( ex_entity_type obj_type,
                                     int idx )
 {
   switch (obj_type) {
@@ -239,7 +239,7 @@ const char* ex_dim_num_entries_in_object( ex_entity_type obj_type,
 }
 
 char* ex_name_var_of_object(ex_entity_type obj_type,
-			    int i, int j)
+                            int i, int j)
 {
   switch (obj_type) {
   case EX_EDGE_BLOCK:
@@ -547,7 +547,7 @@ int ex_id_lkup( int exoid,
       if ( !(tmp_stats->valid_ids) ) {
         if (id_vals) free (id_vals); 
       }
-      return(-(((int)i)+1)); /* return index into id array (1-based) */
+      return(-(i+1)); /* return index into id array (1-based) */
     }
   }
   if ( !(tmp_stats->valid_ids) ) {
@@ -891,55 +891,55 @@ int ex_get_num_props (int exoid, ex_entity_type obj_type)
   while (TRUE)
     {
       switch (obj_type)
-	{
-	case EX_ELEM_BLOCK:
-	  strcpy (var_name, VAR_EB_PROP(cntr+1));
-	  break;
-	case EX_EDGE_BLOCK:
-	  strcpy (var_name, VAR_ED_PROP(cntr+1));
-	  break;
-	case EX_FACE_BLOCK:
-	  strcpy (var_name, VAR_FA_PROP(cntr+1));
-	  break;
-	case EX_NODE_SET:
-	  strcpy (var_name, VAR_NS_PROP(cntr+1));
-	  break;
-	case EX_EDGE_SET:
-	  strcpy (var_name, VAR_ES_PROP(cntr+1));
-	  break;
-	case EX_FACE_SET:
-	  strcpy (var_name, VAR_FS_PROP(cntr+1));
-	  break;
-	case EX_SIDE_SET:
-	  strcpy (var_name, VAR_SS_PROP(cntr+1));
-	  break;
-	case EX_ELEM_SET:
-	  strcpy (var_name, VAR_ELS_PROP(cntr+1));
-	  break;
-	case EX_ELEM_MAP:
-	  strcpy (var_name, VAR_EM_PROP(cntr+1));
-	  break;
-	case EX_FACE_MAP:
-	  strcpy (var_name, VAR_FAM_PROP(cntr+1));
-	  break;
-	case EX_EDGE_MAP:
-	  strcpy (var_name, VAR_EDM_PROP(cntr+1));
-	  break;
-	case EX_NODE_MAP:
-	  strcpy (var_name, VAR_NM_PROP(cntr+1));
-	  break;
-	default:
-	  exerrval = EX_BADPARAM;
-	  sprintf(errmsg, "Error: object type %d not supported; file id %d",
-		  obj_type, exoid);
-	  ex_err("ex_get_prop_names",errmsg,exerrval);
-	  return(EX_FATAL);
-	}
+        {
+        case EX_ELEM_BLOCK:
+          strcpy (var_name, VAR_EB_PROP(cntr+1));
+          break;
+        case EX_EDGE_BLOCK:
+          strcpy (var_name, VAR_ED_PROP(cntr+1));
+          break;
+        case EX_FACE_BLOCK:
+          strcpy (var_name, VAR_FA_PROP(cntr+1));
+          break;
+        case EX_NODE_SET:
+          strcpy (var_name, VAR_NS_PROP(cntr+1));
+          break;
+        case EX_EDGE_SET:
+          strcpy (var_name, VAR_ES_PROP(cntr+1));
+          break;
+        case EX_FACE_SET:
+          strcpy (var_name, VAR_FS_PROP(cntr+1));
+          break;
+        case EX_SIDE_SET:
+          strcpy (var_name, VAR_SS_PROP(cntr+1));
+          break;
+        case EX_ELEM_SET:
+          strcpy (var_name, VAR_ELS_PROP(cntr+1));
+          break;
+        case EX_ELEM_MAP:
+          strcpy (var_name, VAR_EM_PROP(cntr+1));
+          break;
+        case EX_FACE_MAP:
+          strcpy (var_name, VAR_FAM_PROP(cntr+1));
+          break;
+        case EX_EDGE_MAP:
+          strcpy (var_name, VAR_EDM_PROP(cntr+1));
+          break;
+        case EX_NODE_MAP:
+          strcpy (var_name, VAR_NM_PROP(cntr+1));
+          break;
+        default:
+          exerrval = EX_BADPARAM;
+          sprintf(errmsg, "Error: object type %d not supported; file id %d",
+                  obj_type, exoid);
+          ex_err("ex_get_prop_names",errmsg,exerrval);
+          return(EX_FATAL);
+        }
 
       if (nc_inq_varid (exoid, var_name, &varid) != NC_NOERR) {
-	/*   no variable with this name; return cntr which is now the number of */
-	/*   properties for this type of entity */
-	return (cntr);
+        /*   no variable with this name; return cntr which is now the number of */
+        /*   properties for this type of entity */
+        return (cntr);
       }
       cntr++;
     }
@@ -1076,18 +1076,18 @@ int ex_large_model(int exoid)
     char *option = getenv("EXODUS_LARGE_MODEL");
     if (option != NULL) {
       if (option[0] == 'n' || option[0] == 'N') {
-	if (!message_output) {
-	  fprintf(stderr,
-		  "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
-	  message_output = TRUE;
-	}
+        if (!message_output) {
+          fprintf(stderr,
+                  "EXODUSII: Small model size selected via EXODUS_LARGE_MODEL environment variable\n");
+          message_output = TRUE;
+        }
         return 0;
       } else {
-	if (!message_output) {
-	  fprintf(stderr,
-		  "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
-	  message_output = TRUE;
-	}
+        if (!message_output) {
+          fprintf(stderr,
+                  "EXODUSII: Large model size selected via EXODUS_LARGE_MODEL environment variable\n");
+          message_output = TRUE;
+        }
         return 1;
       }
     } else {

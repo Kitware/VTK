@@ -78,8 +78,8 @@ int ex_get_coord_names (int    exoid,
   if ((status = nc_inq_dimid(exoid, DIM_NUM_DIM, &ndimdim)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate number of dimensions in file id %d",
-	    exoid);
+            "Error: failed to locate number of dimensions in file id %d",
+            exoid);
     ex_err("ex_get_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -88,7 +88,7 @@ int ex_get_coord_names (int    exoid,
     exerrval = status;
     sprintf(errmsg,
             "Error: failed to get number of dimensions in file id %d",
-	    exoid);
+            exoid);
     ex_err("ex_get_coord_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -96,8 +96,8 @@ int ex_get_coord_names (int    exoid,
   if ((status = nc_inq_varid(exoid, VAR_NAME_COOR, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Warning: failed to locate coordinate names in file id %d",
-	    exoid);
+            "Warning: failed to locate coordinate names in file id %d",
+            exoid);
     ex_err("ex_get_coord_names",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -114,7 +114,7 @@ int ex_get_coord_names (int    exoid,
     if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get coordinate names in file id %d", exoid);
+              "Error: failed to get coordinate names in file id %d", exoid);
       ex_err("ex_get_coord_names",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -123,11 +123,11 @@ int ex_get_coord_names (int    exoid,
     while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
       start[1] = ++j;
       if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to get coordinate names in file id %d", exoid);
-	ex_err("ex_get_coord_names",errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to get coordinate names in file id %d", exoid);
+        ex_err("ex_get_coord_names",errmsg,exerrval);
+        return (EX_FATAL);
       }
     }
     --ptr;

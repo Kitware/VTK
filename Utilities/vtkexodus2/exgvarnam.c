@@ -59,9 +59,9 @@
  */
 
 int ex_get_variable_name (int   exoid,
-			  ex_entity_type obj_type,
-			  int   var_num,
-			  char *var_name)
+                          ex_entity_type obj_type,
+                          int   var_num,
+                          char *var_name)
 {
   int status;
   int j, varid;
@@ -115,8 +115,8 @@ int ex_get_variable_name (int   exoid,
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Warning: no %s variable names stored in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Warning: no %s variable names stored in file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err("ex_get_variable_name",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -131,8 +131,8 @@ int ex_get_variable_name (int   exoid,
   if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {/* get first character */
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to get results variable name type %s, index %d from file id %d",
-	    ex_name_of_object(obj_type), var_num, exoid);
+            "Error: failed to get results variable name type %s, index %d from file id %d",
+            ex_name_of_object(obj_type), var_num, exoid);
     ex_err("ex_get_variable_name",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -142,7 +142,7 @@ int ex_get_variable_name (int   exoid,
     if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get results variable names from file id %d", exoid);
+              "Error: failed to get results variable names from file id %d", exoid);
       ex_err("ex_get_var_names",errmsg,exerrval);
       return (EX_FATAL);
     }

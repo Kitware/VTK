@@ -62,7 +62,7 @@ int ex_get_map (int  exoid,
                 int *elem_map)
 {
    int numelemdim, mapid, status;
-   size_t i, num_elem;
+   size_t num_elem, i;
    char errmsg[MAX_ERR_LENGTH];
 
    exerrval = 0; /* clear error code */

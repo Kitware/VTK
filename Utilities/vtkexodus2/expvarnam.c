@@ -65,9 +65,9 @@
  */
 
 int ex_put_variable_name (int   exoid,
-			  ex_entity_type obj_type,
-			  int   var_num,
-			  const char *var_name)
+                          ex_entity_type obj_type,
+                          int   var_num,
+                          const char *var_name)
 {
   int status;
   int varid, dimid; 
@@ -128,8 +128,8 @@ int ex_put_variable_name (int   exoid,
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf( errmsg,
-	     "Warning: no %s variables names stored in file id %d",
-	     ex_name_of_object(obj_type), exoid );
+             "Warning: no %s variables names stored in file id %d",
+             ex_name_of_object(obj_type), exoid );
     ex_err("ex_put_variable_name",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -144,8 +144,8 @@ int ex_put_variable_name (int   exoid,
   if ((status = nc_put_vara_text(exoid, varid, start, count, var_name)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to store %s variable name %d in file id %d",
-	    ex_name_of_object(obj_type), var_num, exoid);
+            "Error: failed to store %s variable name %d in file id %d",
+            ex_name_of_object(obj_type), var_num, exoid);
     ex_err("ex_put_variable_name",errmsg,exerrval);
     return (EX_FATAL);
   }

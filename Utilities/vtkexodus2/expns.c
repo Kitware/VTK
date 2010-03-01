@@ -66,5 +66,5 @@ int ex_put_node_set (int   exoid,
                      const int  *node_set_node_list)
 {
   return ex_put_set(exoid, EX_NODE_SET, node_set_id,
-		    node_set_node_list, NULL);
+                    node_set_node_list, NULL);
 }

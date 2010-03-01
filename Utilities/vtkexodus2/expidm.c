@@ -63,8 +63,8 @@
  */
 
 int ex_put_id_map (int  exoid,
-		   ex_entity_type map_type,
-		   const int *map)
+                   ex_entity_type map_type,
+                   const int *map)
 {
   int dimid, mapid, status, dims[1];
   char errmsg[MAX_ERR_LENGTH];
@@ -98,8 +98,8 @@ int ex_put_id_map (int  exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf( errmsg,
-	     "Error: Bad map type (%d) specified for file id %d",
-	     map_type, exoid );
+             "Error: Bad map type (%d) specified for file id %d",
+             map_type, exoid );
     ex_err( "ex_put_id_map", errmsg, exerrval );
     return (EX_FATAL);
   }
@@ -114,8 +114,8 @@ int ex_put_id_map (int  exoid,
     if ((status = nc_redef (exoid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to put file id %d into define mode",
-	      exoid);
+              "Error: failed to put file id %d into define mode",
+              exoid);
       ex_err("ex_put_id_map",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -126,17 +126,17 @@ int ex_put_id_map (int  exoid,
     
     if ((status = nc_def_var(exoid, vmap, NC_INT, 1, dims, &mapid)) != NC_NOERR) {
       if (status == NC_ENAMEINUSE) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: %s numbering map already exists in file id %d",
-		tname, exoid);
-	ex_err("ex_put_id_map",errmsg,exerrval);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: %s numbering map already exists in file id %d",
+                tname, exoid);
+        ex_err("ex_put_id_map",errmsg,exerrval);
       } else {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to create %s id map in file id %d",
-		tname, exoid);
-	ex_err("ex_put_id_map",errmsg,exerrval);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to create %s id map in file id %d",
+                tname, exoid);
+        ex_err("ex_put_id_map",errmsg,exerrval);
       }
       goto error_ret;         /* exit define mode and return */
     }
@@ -146,8 +146,8 @@ int ex_put_id_map (int  exoid,
     if ((status = nc_enddef (exoid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to complete definition in file id %d",
-	      exoid);
+              "Error: failed to complete definition in file id %d",
+              exoid);
       ex_err("ex_put_id_map",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -159,8 +159,8 @@ int ex_put_id_map (int  exoid,
   if (status!= NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to store %s numbering map in file id %d",
-	    tname, exoid);
+            "Error: failed to store %s numbering map in file id %d",
+            tname, exoid);
     ex_err("ex_put_id_map",errmsg,exerrval);
     return (EX_FATAL);
   }

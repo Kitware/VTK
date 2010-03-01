@@ -73,5 +73,5 @@ int ex_get_sset_var (int   exoid,
                      void *sset_var_vals)
 {
   return ex_get_var(exoid, time_step, EX_SIDE_SET, sset_var_index,
-		    sset_id, num_side_this_sset, sset_var_vals);
+                    sset_id, num_side_this_sset, sset_var_vals);
 }

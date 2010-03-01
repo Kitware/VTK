@@ -66,9 +66,9 @@
  */
 
 int ex_put_name (int   exoid,
-		 ex_entity_type obj_type,
-		 int   entity_id,
-		 const char *name)
+                 ex_entity_type obj_type,
+                 int   entity_id,
+                 const char *name)
 {
   int status;
   int varid, ent_ndx; 
@@ -119,7 +119,7 @@ int ex_put_name (int   exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-	    "Error: Invalid type specified in file id %d", exoid);
+            "Error: Invalid type specified in file id %d", exoid);
     ex_err(routine,errmsg,exerrval);
     return(EX_FATAL);
   }
@@ -127,8 +127,8 @@ int ex_put_name (int   exoid,
   if ((status = nc_inq_varid(exoid, vobj, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate %s names in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Error: failed to locate %s names in file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -150,8 +150,8 @@ int ex_put_name (int   exoid,
   if ((status = nc_put_vara_text(exoid, varid, start, count, name)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to store %s name for id %d in file id %d",
-	    ex_name_of_object(obj_type), entity_id, exoid);
+            "Error: failed to store %s name for id %d in file id %d",
+            ex_name_of_object(obj_type), entity_id, exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }

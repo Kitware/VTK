@@ -58,7 +58,7 @@
     /* TNAME are optional and default to zero. */ \
     SDIMVAL = 0; \
   } else { \
-    if ((status = nc_inq_dimlen(exoid, DIMVAR, &lnum)) != NC_NOERR) {	\
+    if ((status = nc_inq_dimlen(exoid, DIMVAR, &lnum)) != NC_NOERR) {   \
         exerrval = status; \
         sprintf(errmsg, "Error: failed to get number of " TNAME " in file id %d", \
                 exoid); \
@@ -130,8 +130,8 @@ int ex_get_init_ext (int   exoid,
   if (info->num_elem_blk == 0 && info->num_elem > 0) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate number of element blocks in file id %d",
-	    exoid);
+            "Error: failed to locate number of element blocks in file id %d",
+            exoid);
     ex_err("ex_get_init",errmsg,exerrval);
     return (EX_FATAL);
   }

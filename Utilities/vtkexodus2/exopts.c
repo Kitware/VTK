@@ -71,5 +71,4 @@ void ex_opts (int options)
 {
   exerrval = 0; /* clear error code */
   exoptval = options;
-  ncopts = exoptval;
 }

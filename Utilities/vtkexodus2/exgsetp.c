@@ -62,18 +62,18 @@
  */
 
 int ex_get_set_param (int  exoid,
-		      ex_entity_type set_type, 
-		      int  set_id,
-		      int *num_entry_in_set, 
-		      int *num_dist_fact_in_set)
+                      ex_entity_type set_type, 
+                      int  set_id,
+                      int *num_entry_in_set, 
+                      int *num_dist_fact_in_set)
 {
   int status;
   int varid, dimid, set_id_ndx;
   size_t lnum_entry_in_set;
   size_t lnum_dist_fact_in_set;
   char errmsg[MAX_ERR_LENGTH];
-  char* numentryptr = NULL;
-  char* numdfptr = NULL;
+  char* numentryptr;
+  char* numdfptr;
 
   exerrval = 0; /* clear error code */
 
@@ -82,8 +82,8 @@ int ex_get_set_param (int  exoid,
   if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Warning: no %ss stored in file id %d",
-	    ex_name_of_object(set_type), exoid);
+            "Warning: no %ss stored in file id %d",
+            ex_name_of_object(set_type), exoid);
     ex_err("ex_get_set_param",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -93,13 +93,13 @@ int ex_get_set_param (int  exoid,
   if (exerrval != 0) {
     if (exerrval == EX_NULLENTITY)     /* NULL set? */
       {
-	*num_entry_in_set = 0;
-	*num_dist_fact_in_set = 0;
-	return (EX_NOERR);
+        *num_entry_in_set = 0;
+        *num_dist_fact_in_set = 0;
+        return (EX_NOERR);
       } else {
       sprintf(errmsg,
-	      "Error: failed to locate %s id %d in id array in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Error: failed to locate %s id %d in id array in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set_param",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -130,7 +130,7 @@ int ex_get_set_param (int  exoid,
 
   /* inquire values of dimension for number of entities in set */
   if (ex_get_dimension(exoid, numentryptr,"entries", &lnum_entry_in_set,
-		       &dimid, "ex_get_set_param") != NC_NOERR)
+                       &dimid, "ex_get_set_param") != NC_NOERR)
     return EX_FATAL;
   *num_entry_in_set = lnum_entry_in_set;
 
@@ -144,14 +144,14 @@ int ex_get_set_param (int  exoid,
     if ((status = nc_inq_varid(exoid, VAR_FACT_NS(set_id_ndx), &varid)) != NC_NOERR) {
       *num_dist_fact_in_set = 0;        /* signal dist factor doesn't exist */
       if (status == NC_ENOTVAR)
-	return (EX_NOERR);
+        return (EX_NOERR);
       else {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to locate the dist factors for %s %d in file id %d",
-		ex_name_of_object(set_type), set_id,exoid);
-	ex_err("ex_get_set_param",errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to locate the dist factors for %s %d in file id %d",
+                ex_name_of_object(set_type), set_id,exoid);
+        ex_err("ex_get_set_param",errmsg,exerrval);
+        return (EX_FATAL);
       }
     }
     *num_dist_fact_in_set = lnum_entry_in_set;   /* # of df = # of nodes */
@@ -160,22 +160,22 @@ int ex_get_set_param (int  exoid,
     if ((status = nc_inq_dimid(exoid, numdfptr, &dimid)) != NC_NOERR) {
       *num_dist_fact_in_set = 0; /* no distribution factors for this set*/
       if (status == NC_EBADDIM)
-	return (EX_NOERR);
+        return (EX_NOERR);
       else {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to locate number of dist factors in %s %d in file id %d",
-		ex_name_of_object(set_type), set_id, exoid);
-	ex_err("ex_get_set_param",errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to locate number of dist factors in %s %d in file id %d",
+                ex_name_of_object(set_type), set_id, exoid);
+        ex_err("ex_get_set_param",errmsg,exerrval);
+        return (EX_FATAL);
       }
     }
 
     if ((status = nc_inq_dimlen(exoid, dimid, &lnum_dist_fact_in_set)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get number of dist factors in %s %d in file id %d",
-	      ex_name_of_object(set_type), set_id, exoid);
+              "Error: failed to get number of dist factors in %s %d in file id %d",
+              ex_name_of_object(set_type), set_id, exoid);
       ex_err("ex_get_set_param",errmsg,exerrval);
       return (EX_FATAL);
     }

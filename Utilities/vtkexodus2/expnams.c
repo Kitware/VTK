@@ -64,12 +64,12 @@
  */
 
 int ex_put_names (int   exoid,
-		  ex_entity_type obj_type,
-		  char* names[])
+                  ex_entity_type obj_type,
+                  char* names[])
 {
   int status;
   int varid; 
-  size_t i, num_entity;
+  size_t num_entity, i;
   size_t start[2], count[2];
   char errmsg[MAX_ERR_LENGTH];
   const char *vname = NULL;
@@ -125,19 +125,19 @@ int ex_put_names (int   exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-	    "Error: Invalid type specified in file id %d", exoid);
+            "Error: Invalid type specified in file id %d", exoid);
     ex_err(routine,errmsg,exerrval);
     return(EX_FATAL);
   }
    
   ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type),
-		   &num_entity, &varid, routine);
+                   &num_entity, &varid, routine);
 
   if ((status = nc_inq_varid(exoid, vname, &varid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate %s names in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            "Error: failed to locate %s names in file id %d",
+            ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -152,12 +152,12 @@ int ex_put_names (int   exoid,
       count[1] = strlen(names[i]) + 1;
        
       if ((status = nc_put_vara_text(exoid, varid, start, count, names[i])) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to store %s names in file id %d",
-		ex_name_of_object(obj_type), exoid);
-	ex_err(routine,errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to store %s names in file id %d",
+                ex_name_of_object(obj_type), exoid);
+        ex_err(routine,errmsg,exerrval);
+        return (EX_FATAL);
       }
     }
   }

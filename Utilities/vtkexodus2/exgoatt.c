@@ -65,7 +65,7 @@ int ex_get_one_attr( int   exoid,
 
 {
   int status;
-  int attrid, obj_id_ndx = 0;
+  int attrid, obj_id_ndx;
   int temp;
   size_t num_entries_this_obj, num_attr;
   size_t start[2], count[2];
@@ -82,17 +82,17 @@ int ex_get_one_attr( int   exoid,
     obj_id_ndx = ex_id_lkup(exoid,obj_type,obj_id);
     if (exerrval != 0) {
       if (exerrval == EX_NULLENTITY) {
-	sprintf(errmsg,
-		"Warning: no attributes found for NULL %s %d in file id %d",
-		ex_name_of_object(obj_type),obj_id,exoid);
-	ex_err("ex_get_one_attr",errmsg,EX_MSG);
-	return (EX_WARN);              /* no attributes for this object */
+        sprintf(errmsg,
+                "Warning: no attributes found for NULL %s %d in file id %d",
+                ex_name_of_object(obj_type),obj_id,exoid);
+        ex_err("ex_get_one_attr",errmsg,EX_MSG);
+        return (EX_WARN);              /* no attributes for this object */
       } else {
-	sprintf(errmsg,
-		"Warning: failed to locate %s id %d in id array in file id %d",
-		ex_name_of_object(obj_type),obj_id, exoid);
-	ex_err("ex_get_one_attr",errmsg,exerrval);
-	return (EX_WARN);
+        sprintf(errmsg,
+                "Warning: failed to locate %s id %d in id array in file id %d",
+                ex_name_of_object(obj_type),obj_id, exoid);
+        ex_err("ex_get_one_attr",errmsg,exerrval);
+        return (EX_WARN);
       }
     }
   }
@@ -144,10 +144,12 @@ int ex_get_one_attr( int   exoid,
     vattrbname = VAR_ATTRIB(obj_id_ndx);
     break;
   default:
+    exerrval = 1005;
     sprintf(errmsg,
-      "Error: Called with invalid obj_type %d", obj_type);
-	ex_err("ex_get_one_attr",errmsg,exerrval);
-	return (EX_FATAL);
+            "Internal Error: unrecognized object type in switch: %d in file id %d",
+            obj_type,exoid);
+    ex_err("ex_get_one_attr",errmsg,EX_MSG);
+    return (EX_FATAL);              /* number of attributes not defined */
   }
 
   /* inquire id's of previously defined dimensions  */
@@ -169,8 +171,8 @@ int ex_get_one_attr( int   exoid,
   if ((status = nc_inq_varid(exoid, vattrbname, &attrid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate attributes for %s %d in file id %d",
-	    ex_name_of_object(obj_type),obj_id,exoid);
+            "Error: failed to locate attributes for %s %d in file id %d",
+            ex_name_of_object(obj_type),obj_id,exoid);
     ex_err("ex_get_one_attr",errmsg,exerrval);
     return (EX_FATAL);
   }

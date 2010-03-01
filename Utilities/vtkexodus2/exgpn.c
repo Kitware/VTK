@@ -116,7 +116,7 @@ int ex_get_prop_names (int    exoid,
     default:
       exerrval = EX_BADPARAM;
       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-	      obj_type, exoid);
+              obj_type, exoid);
       ex_err("ex_get_prop_names",errmsg,EX_BADPARAM);
       return(EX_FATAL);
     }
@@ -124,8 +124,8 @@ int ex_get_prop_names (int    exoid,
     if ((status = nc_inq_varid(exoid, var_name, &propid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to locate property array %s in file id %d",
-	      var_name, exoid);
+              "Error: failed to locate property array %s in file id %d",
+              var_name, exoid);
       ex_err("ex_get_prop_names",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -134,7 +134,7 @@ int ex_get_prop_names (int    exoid,
     if ((status = nc_get_att_text(exoid, propid, ATT_PROP_NAME, prop_names[i])) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get property name in file id %d", exoid);
+              "Error: failed to get property name in file id %d", exoid);
       ex_err("ex_get_prop_names",errmsg,exerrval);
       return (EX_FATAL);
     }

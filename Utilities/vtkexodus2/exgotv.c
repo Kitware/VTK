@@ -34,7 +34,7 @@
  */
 /*****************************************************************************
 *
-* exgvtt - ex_get_object_truth_vector
+* exgotv - ex_get_object_truth_vector
 *
 * revision history - 
 *
@@ -51,10 +51,10 @@
  */
 
 int ex_get_object_truth_vector (int  exoid,
-				ex_entity_type obj_type,
-				int  entity_id,
-				int  num_var,
-				int *var_vec)
+                                ex_entity_type obj_type,
+                                int  entity_id,
+                                int  num_var,
+                                int *var_vec)
 {
   int statust;
   int varid, tabid, i, status, ent_ndx;
@@ -125,8 +125,8 @@ int ex_get_object_truth_vector (int  exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-	    "Error: Invalid variable type %d specified in file id %d",
-	    obj_type, exoid);
+            "Error: Invalid variable type %d specified in file id %d",
+            obj_type, exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_WARN);
   }
@@ -141,8 +141,8 @@ int ex_get_object_truth_vector (int  exoid,
   if (exerrval != 0) {
     if (exerrval != EX_NULLENTITY) {
       sprintf(errmsg,
-	      "Error: failed to locate %s id %d in id variable in file id %d",
-	      ex_name_of_object(obj_type), entity_id, exoid);
+              "Error: failed to locate %s id %d in id variable in file id %d",
+              ex_name_of_object(obj_type), entity_id, exoid);
       ex_err(routine,errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -156,7 +156,7 @@ int ex_get_object_truth_vector (int  exoid,
   if ((int)num_var_db != num_var) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-	    "Error: # of variables doesn't match those defined in file id %d", exoid);
+            "Error: # of variables doesn't match those defined in file id %d", exoid);
     ex_err("ex_get_object_truth_vector",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -166,11 +166,11 @@ int ex_get_object_truth_vector (int  exoid,
     for (i=0; i<num_var; i++) {
       /* NOTE: names are 1-based */
       if (nc_inq_varid(exoid, ex_catstr2(var_name, i+1, ent_type, ent_ndx), &tabid) != NC_NOERR) {
-	/* variable doesn't exist; put a 0 in the truth vector */
-	var_vec[i] = 0;
+        /* variable doesn't exist; put a 0 in the truth vector */
+        var_vec[i] = 0;
       } else {
-	/* variable exists; put a 1 in the truth vector */
-	var_vec[i] = 1;
+        /* variable exists; put a 1 in the truth vector */
+        var_vec[i] = 1;
       }
     }
   } else {
@@ -188,7 +188,7 @@ int ex_get_object_truth_vector (int  exoid,
     if (status != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get truth vector from file id %d", exoid);
+              "Error: failed to get truth vector from file id %d", exoid);
       ex_err("ex_get_object_truth_vector",errmsg,exerrval);
       return (EX_FATAL);
     }

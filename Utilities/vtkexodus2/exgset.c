@@ -61,18 +61,17 @@
  */
 
 int ex_get_set (int   exoid,
-		ex_entity_type set_type,
-		int   set_id,
-		int  *set_entry_list, 
-		int  *set_extra_list) /* NULL if dont want to retrieve data */
+                ex_entity_type set_type,
+                int   set_id,
+                int  *set_entry_list, 
+                int  *set_extra_list) /* NULL if dont want to retrieve data */
 {
 
   int dimid, entry_list_id, extra_list_id, status;
   int set_id_ndx;
   char errmsg[MAX_ERR_LENGTH];
-  char* numentryptr;
-  char* entryptr = NULL;
-  char* extraptr = NULL;
+  char* entryptr;
+  char* extraptr;
 
   exerrval = 0; /* clear error code */
 
@@ -80,8 +79,8 @@ int ex_get_set (int   exoid,
   if ((status = nc_inq_dimid(exoid, ex_dim_num_objects(set_type), &dimid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Warning: no %ss stored in file id %d",
-	    ex_name_of_object(set_type), exoid);
+            "Warning: no %ss stored in file id %d",
+            ex_name_of_object(set_type), exoid);
     ex_err("ex_get_set",errmsg,exerrval);
     return (EX_WARN);
   }
@@ -91,15 +90,15 @@ int ex_get_set (int   exoid,
   if (exerrval != 0)  {
     if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
-	      "Warning: %s %d is NULL in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Warning: %s %d is NULL in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set",errmsg,EX_MSG);
       return (EX_WARN);
     } else {
 
       sprintf(errmsg,
-	      "Error: failed to locate %s id %d in VAR_*S_IDS array in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Error: failed to locate %s id %d in VAR_*S_IDS array in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -107,27 +106,22 @@ int ex_get_set (int   exoid,
 
   /* setup more pointers based on set_type */
   if (set_type == EX_NODE_SET) {
-    numentryptr = DIM_NUM_NOD_NS(set_id_ndx);
     entryptr = VAR_NODE_NS(set_id_ndx);
     extraptr = NULL;
   }
   else if (set_type == EX_EDGE_SET) {
-    numentryptr = DIM_NUM_EDGE_ES(set_id_ndx);
     entryptr = VAR_EDGE_ES(set_id_ndx);
     extraptr = VAR_ORNT_ES(set_id_ndx);
   }
   else if (set_type == EX_FACE_SET) {
-    numentryptr = DIM_NUM_FACE_FS(set_id_ndx);
     entryptr = VAR_FACE_FS(set_id_ndx);
     extraptr = VAR_ORNT_FS(set_id_ndx);
   }
   else if (set_type == EX_SIDE_SET) {
-    numentryptr = DIM_NUM_SIDE_SS(set_id_ndx);
     entryptr = VAR_ELEM_SS(set_id_ndx);
     extraptr = VAR_SIDE_SS(set_id_ndx);
   }
   if (set_type == EX_ELEM_SET) {
-    numentryptr = DIM_NUM_ELE_ELS(set_id_ndx);
     entryptr = VAR_ELEM_ELS(set_id_ndx);
     extraptr = NULL;
   }
@@ -136,8 +130,8 @@ int ex_get_set (int   exoid,
   if ((status = nc_inq_varid(exoid, entryptr, &entry_list_id)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate entry list for %s %d in file id %d",
-	    ex_name_of_object(set_type), set_id,exoid);
+            "Error: failed to locate entry list for %s %d in file id %d",
+            ex_name_of_object(set_type), set_id,exoid);
     ex_err("ex_get_set",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -152,8 +146,8 @@ int ex_get_set (int   exoid,
     if ((status = nc_inq_varid (exoid, extraptr, &extra_list_id)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to locate extra list for %s %d in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Error: failed to locate extra list for %s %d in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -166,8 +160,8 @@ int ex_get_set (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to get entry list for %s %d in file id %d",
-	    ex_name_of_object(set_type), set_id,exoid);
+            "Error: failed to get entry list for %s %d in file id %d",
+            ex_name_of_object(set_type), set_id,exoid);
     ex_err("ex_get_set",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -179,8 +173,8 @@ int ex_get_set (int   exoid,
     if (status != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get extra list for %s %d in file id %d",
-	      ex_name_of_object(set_type), set_id,exoid);
+              "Error: failed to get extra list for %s %d in file id %d",
+              ex_name_of_object(set_type), set_id,exoid);
       ex_err("ex_get_set",errmsg,exerrval);
       return (EX_FATAL);
     }

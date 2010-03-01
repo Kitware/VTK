@@ -66,5 +66,5 @@ int ex_get_side_set (int   exoid,
                      int  *side_set_side_list)
 {
   return ex_get_set(exoid, EX_SIDE_SET, side_set_id,
-		    side_set_elem_list, side_set_side_list);
+                    side_set_elem_list, side_set_side_list);
 }

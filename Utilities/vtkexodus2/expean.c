@@ -63,8 +63,8 @@
  * \deprecated Use ex_put_attr_names()(exoid, EX_ELEM_BLOCK, elem_blk_id, names)
  */
 int ex_put_elem_attr_names(int   exoid,
-			   int   elem_blk_id,
-			   char* names[])
+                           int   elem_blk_id,
+                           char* names[])
 {
   return ex_put_attr_names( exoid, EX_ELEM_BLOCK, elem_blk_id, names );
 }

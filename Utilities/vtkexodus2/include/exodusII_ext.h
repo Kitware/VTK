@@ -146,12 +146,19 @@ EXODUS_EXPORT int ex_get_block          (int, ex_entity_type, int, char*, int*, 
 /*  Write All Edge Face and Element Block Parameters */
 EXODUS_EXPORT int ex_put_concat_all_blocks(int, const ex_block_params*);
 
+EXODUS_EXPORT int ex_put_entity_count_per_polyhedra (int, ex_entity_type, int, const int*);
+
+EXODUS_EXPORT int ex_get_entity_count_per_polyhedra (int, ex_entity_type, int, int*);
+
 /*  Write Edge Face or Element Block Connectivity */
 EXODUS_EXPORT int ex_put_conn           (int, ex_entity_type, int, const int*, const int*,
                                          const int*);
 
 /*  Read Edge Face or Element Block Connectivity */
 EXODUS_EXPORT int ex_get_conn           (int, ex_entity_type, int, int*, int*, int*);
+
+/*  Read Partial Edge Face or Element Block Connectivity */
+EXODUS_EXPORT int ex_get_n_conn         (int, ex_entity_type, int, int, int, int*, int*, int*);
 
 /*  Write Edge Face or Element Block Attributes */
 EXODUS_EXPORT int ex_put_attr           (int, ex_entity_type, int, const void*);
@@ -164,6 +171,11 @@ EXODUS_EXPORT int ex_put_one_attr       (int, ex_entity_type, int, int, const vo
 
 /*  Read One Edge Face or Element Block Attribute */
 EXODUS_EXPORT int ex_get_one_attr       (int, ex_entity_type, int, int, void*);
+
+/*  Read One Edge Face or Element Block Attribute */
+EXODUS_EXPORT int ex_get_n_one_attr     (int   exoid, ex_entity_type obj_type, int   obj_id,
+                                         int   start_num, int   num_ent, int   attrib_index,
+                                         void* attrib );
 
 /*  Write Edge Face or Element Block Attribute Names */
 EXODUS_EXPORT int ex_put_attr_names     (int, ex_entity_type, int, char**);
@@ -202,8 +214,18 @@ EXODUS_EXPORT int ex_put_all_var_param_ext(int, const ex_var_params*);
 EXODUS_EXPORT int ex_put_var            (int, int, ex_entity_type, int, int, int,
                                          const void*);
 
+/*  Write Partial Edge Face or Element Variable Values on Blocks or Sets at a Time Step */
+EXODUS_EXPORT int ex_put_n_var          (int exoid, int time_step , ex_entity_type var_type,
+                                         int var_index, int obj_id, int start_index, int num_entities,
+                                         const void* var_vals);
+
 /*  Read Edge Face or Element Variable Values Defined On Blocks or Sets at a Time Step */
 EXODUS_EXPORT int ex_get_var            (int, int, ex_entity_type, int, int, int, void*);
+
+/*  Read Partial Edge Face or Element Variable Values on Blocks or Sets at a Time Step */
+EXODUS_EXPORT int ex_get_n_var          (int exoid, int time_step , ex_entity_type var_type,
+                                         int var_index, int obj_id, int start_index, int num_entities,
+                                         void* var_vals);
 
 /*  Read Edge Face or Element Variable Values Defined On Blocks or Sets Through Time */
 EXODUS_EXPORT int ex_get_var_time       (int, ex_entity_type, int, int, int, int,

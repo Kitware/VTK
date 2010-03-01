@@ -67,11 +67,12 @@ int ex_get_side_set_node_list(int exoid,
                           int *side_set_node_cnt_list,
                           int *side_set_node_list)
 {
-  int i, j, m; 
+  size_t m;
+  int i, j; 
   int  num_side_sets, num_elem_blks, num_df, ndim;
   int tot_num_elem = 0, tot_num_ss_elem = 0, elem_num = 0;
   int connect_offset, side_num, node_pos;
-  int *elem_blk_ids, *connect = NULL; 
+  int *elem_blk_ids, *connect; 
   int *ss_elem_ndx, *ss_elem_node_ndx, *ss_parm_ndx;
   int *side_set_elem_list, *side_set_side_list;
   int elem_ctr, node_ctr, elem_num_pos;
@@ -362,25 +363,25 @@ int ex_get_side_set_node_list(int exoid,
     elem_blk_parms[i].num_nodes_per_elem = num_nodes_per_elem;
     elem_blk_parms[i].num_attr = num_attr;
 
-    for (m=0; m < (int)strlen(elem_type); m++)
+    for (m=0; m < strlen(elem_type); m++)
       elem_blk_parms[i].elem_type[m] = toupper(elem_type[m]);
-    elem_blk_parms[i].elem_type[m] = NULL_ELEMENT;
+    elem_blk_parms[i].elem_type[m] = EX_EL_NULL_ELEMENT;
 
     if (strncmp(elem_blk_parms[i].elem_type,"CIRCLE",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = CIRCLE;
+      elem_blk_parms[i].elem_type_val = EX_EL_CIRCLE;
       /* set side set node stride */
         elem_blk_parms[i].num_nodes_per_side[0] = 1;
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"SPHERE",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = SPHERE;
+      elem_blk_parms[i].elem_type_val = EX_EL_SPHERE;
       /* set side set node stride */
         elem_blk_parms[i].num_nodes_per_side[0] = 1;
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"QUAD",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = QUAD;
+      elem_blk_parms[i].elem_type_val = EX_EL_QUAD;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 4)
         elem_blk_parms[i].num_nodes_per_side[0] = 2;
@@ -391,7 +392,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"TRIANGLE",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = TRIANGLE;
+      elem_blk_parms[i].elem_type_val = EX_EL_TRIANGLE;
       /* set default side set node stride */
       if (ndim == 2)  /* 2d TRIs */
       {
@@ -410,7 +411,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"SHELL",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = SHELL;
+      elem_blk_parms[i].elem_type_val = EX_EL_SHELL;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 2) /* KLUDGE for 2D Shells*/
         elem_blk_parms[i].num_nodes_per_side[0] = 2;
@@ -421,7 +422,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"HEX",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = HEX;
+      elem_blk_parms[i].elem_type_val = EX_EL_HEX;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 8)  /* 8-node bricks */
         elem_blk_parms[i].num_nodes_per_side[0] = 4;
@@ -436,7 +437,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"TETRA",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = TETRA;
+      elem_blk_parms[i].elem_type_val = EX_EL_TETRA;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 4)
         elem_blk_parms[i].num_nodes_per_side[0] = 3;
@@ -447,7 +448,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"WEDGE",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = WEDGE;
+      elem_blk_parms[i].elem_type_val = EX_EL_WEDGE;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 6)
         elem_blk_parms[i].num_nodes_per_side[0] = 4;
@@ -456,7 +457,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"PYRAMID",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = PYRAMID;
+      elem_blk_parms[i].elem_type_val = EX_EL_PYRAMID;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 5)
         elem_blk_parms[i].num_nodes_per_side[0] = 4;
@@ -465,7 +466,7 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"BEAM",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = BEAM;
+      elem_blk_parms[i].elem_type_val = EX_EL_BEAM;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 2)
         elem_blk_parms[i].num_nodes_per_side[0] = 2;
@@ -476,7 +477,7 @@ int ex_get_side_set_node_list(int exoid,
               (strncmp(elem_blk_parms[i].elem_type,"BAR",3) == 0) ||
               (strncmp(elem_blk_parms[i].elem_type,"EDGE",3) == 0) )
     {
-      elem_blk_parms[i].elem_type_val = TRUSS;
+      elem_blk_parms[i].elem_type_val = EX_EL_TRUSS;
       /* determine side set node stride */
       if (elem_blk_parms[i].num_nodes_per_elem == 2)
         elem_blk_parms[i].num_nodes_per_side[0] = 2;
@@ -485,14 +486,14 @@ int ex_get_side_set_node_list(int exoid,
     }
     else if (strncmp(elem_blk_parms[i].elem_type,"NULL",3) == 0)
     {
-      elem_blk_parms[i].elem_type_val = NULL_ELEMENT;
+      elem_blk_parms[i].elem_type_val = EX_EL_NULL_ELEMENT;
       elem_blk_parms[i].num_nodes_per_side[0] = 0;
       elem_blk_parms[i].num_elem_in_blk = 0;
     }
     else
     { /* unsupported element type; no problem if no sides specified for
          this element block */
-      elem_blk_parms[i].elem_type_val = UNK;
+      elem_blk_parms[i].elem_type_val = EX_EL_UNK;
       elem_blk_parms[i].num_nodes_per_side[0] = 0;
     }
     elem_blk_parms[i].elem_blk_id = elem_blk_ids[i];    /* save id */
@@ -511,8 +512,7 @@ int ex_get_side_set_node_list(int exoid,
     free(side_set_elem_list);
     exerrval = EX_MEMFAIL;
     sprintf(errmsg,
-"Error: failed to allocate space for side set elem parms index for file id %d"
-,
+            "Error: failed to allocate space for side set elem parms index for file id %d",
             exoid);
     ex_err("ex_get_side_set_node_list",errmsg,exerrval);
     return (EX_FATAL);
@@ -530,7 +530,7 @@ int ex_get_side_set_node_list(int exoid,
     free(side_set_elem_list);
     exerrval = EX_MEMFAIL;
     sprintf(errmsg,
-"Error: failed to allocate space for side set elem to node index for file id %d",
+            "Error: failed to allocate space for side set elem to node index for file id %d",
             exoid);
     ex_err("ex_get_side_set_node_list",errmsg,exerrval);
            
@@ -541,17 +541,14 @@ int ex_get_side_set_node_list(int exoid,
    parameter index.
 */
   node_ctr = 0;
-  for (i=0;i<tot_num_ss_elem;i++)
-  {
-    for (j=0; j<num_elem_blks; j++)
-    {
-      if (elem_blk_parms[j].elem_type_val != NULL_ELEMENT)
-      if (side_set_elem_list[i] <= elem_blk_parms[j].elem_ctr)
-        break;
+  for (i=0;i<tot_num_ss_elem;i++) {
+    for (j=0; j<num_elem_blks; j++) {
+      if (elem_blk_parms[j].elem_type_val != EX_EL_NULL_ELEMENT)
+        if (side_set_elem_list[i] <= elem_blk_parms[j].elem_ctr)
+          break;
     }
 
-    if (j >= num_elem_blks)
-    {
+    if (j >= num_elem_blks) {
       exerrval = EX_BADPARAM;
       sprintf(errmsg,
              "Error: Invalid element number %d found in side set %d in file %d",
@@ -573,7 +570,7 @@ int ex_get_side_set_node_list(int exoid,
     /* Update node_ctr (which points to next node in chain */
 
     /* WEDGEs with 3 node sides (side 4 or 5) are special cases */
-    if (elem_blk_parms[j].elem_type_val == WEDGE &&
+    if (elem_blk_parms[j].elem_type_val == EX_EL_WEDGE &&
         (side_set_side_list[i] == 4 || side_set_side_list[i] == 5))
     {
       if (elem_blk_parms[j].num_nodes_per_elem == 6)
@@ -582,7 +579,7 @@ int ex_get_side_set_node_list(int exoid,
         node_ctr += 6;  /* 6 node side */
     }
     /* PYRAMIDSs with 3 node sides (sides 1,2,3,4) are also special */
-    else if (elem_blk_parms[j].elem_type_val == PYRAMID &&
+    else if (elem_blk_parms[j].elem_type_val == EX_EL_PYRAMID &&
              (side_set_side_list[i] < 5))
     {
       if (elem_blk_parms[j].num_nodes_per_elem == 5)
@@ -591,7 +588,7 @@ int ex_get_side_set_node_list(int exoid,
         node_ctr += 6;  /* 6 node side */
     }
     /* side numbers 3,4,5,6 for SHELLs are also special */
-    else if (elem_blk_parms[j].elem_type_val == SHELL &&
+    else if (elem_blk_parms[j].elem_type_val == EX_EL_SHELL &&
         (side_set_side_list[i] > 2 ))
     {
       if (elem_blk_parms[j].num_nodes_per_elem == 4)
@@ -600,7 +597,7 @@ int ex_get_side_set_node_list(int exoid,
         node_ctr += 3;  /* 3 node side */
     }
     /* side numbers 3,4,5 for 3d TRIs are also special */
-    else if (elem_blk_parms[j].elem_type_val == TRIANGLE &&
+    else if (elem_blk_parms[j].elem_type_val == EX_EL_TRIANGLE &&
              ndim == 3 &&
              side_set_side_list[i] > 2 )
     {
@@ -617,14 +614,11 @@ int ex_get_side_set_node_list(int exoid,
 
   elem_ctr=0;
 
-  for (j=0; j < tot_num_ss_elem; j++)
-  {
+  for (j=0; j < tot_num_ss_elem; j++) {
 
-    if (side_set_elem_list[ss_elem_ndx[j]] > elem_ctr)
-    {
+    if (side_set_elem_list[ss_elem_ndx[j]] > elem_ctr) {
       /* release connectivity array space and get next one */
-      if (elem_ctr > 0)
-      {
+      if (elem_ctr > 0) {
         free(connect);
       }
 
@@ -649,10 +643,9 @@ int ex_get_side_set_node_list(int exoid,
       }
 
       /* get connectivity array */
-      if (ex_get_elem_conn(
-                        exoid,
-                        elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_blk_id,
-                        connect) == -1)
+      if (ex_get_elem_conn(exoid,
+                           elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_blk_id,
+                           connect) == -1)
       {
         free(connect);
         free(elem_blk_parms);
@@ -670,8 +663,8 @@ int ex_get_side_set_node_list(int exoid,
       }
       elem_ctr = elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_ctr;
     }
-/*  For each side in side set, use the appropriate lookup table to  
-      determine the nodes from the connect array. */
+    /*  For each side in side set, use the appropriate lookup table to  
+        determine the nodes from the connect array. */
 
     elem_num = side_set_elem_list[ss_elem_ndx[j]]-1;/* element number 0-based*/
     /* calculate the relative element number position in it's block*/
@@ -684,23 +677,22 @@ int ex_get_side_set_node_list(int exoid,
          using the ss_elem_node_ndx index into the side_sets_node_index
          and adding the element number position * number of nodes per elem */
 
-    num_nodes_per_elem = 
-               elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].num_nodes_per_elem;
+    num_nodes_per_elem = elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].num_nodes_per_elem;
     node_pos = ss_elem_node_ndx[ss_elem_ndx[j]];
     connect_offset = num_nodes_per_elem*elem_num_pos;
     side_num = side_set_side_list[ss_elem_ndx[j]]-1;
 
     switch (elem_blk_parms[ss_parm_ndx[ss_elem_ndx[j]]].elem_type_val)
     {
-      case CIRCLE:
-      case SPHERE:
+      case EX_EL_CIRCLE:
+      case EX_EL_SPHERE:
       { /* Note: no side-node lookup table is used for this simple case */
         side_set_node_list[node_pos] = connect[connect_offset];
         side_set_node_cnt_list[ss_elem_ndx[j]] = 1;   /* 1 node object */
         break;
       }
-      case TRUSS:
-      case BEAM:
+      case EX_EL_TRUSS:
+      case EX_EL_BEAM:
       { /* Note: no side-node lookup table is used for this simple case */
         side_set_node_list[node_pos] = connect[connect_offset];
         side_set_node_list[node_pos+1] = connect[connect_offset+1];
@@ -712,7 +704,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case TRIANGLE:
+      case EX_EL_TRIANGLE:
       {
         if (side_num+1 < 1 || side_num+1 > 5) /* side number range check */
         {
@@ -786,7 +778,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case QUAD:
+      case EX_EL_QUAD:
       {
         if (side_num+1 < 1 || side_num+1 > 4) /* side number range check */
         {
@@ -819,7 +811,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case SHELL:
+      case EX_EL_SHELL:
       {
         if (side_num+1 < 1 || side_num+1 > 6) /* side number range check */
         {
@@ -878,7 +870,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case TETRA:
+      case EX_EL_TETRA:
       {
         if (side_num+1 < 1 || side_num+1 > 4) /* side number range check */
         {
@@ -923,7 +915,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case WEDGE:
+      case EX_EL_WEDGE:
       {
         if (side_num+1 < 1 || side_num+1 > 5) /* side number range check */
         {
@@ -982,7 +974,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case PYRAMID:
+      case EX_EL_PYRAMID:
       {
         if (side_num+1 < 1 || side_num+1 > 5) /* side number range check */
         {
@@ -1041,7 +1033,7 @@ int ex_get_side_set_node_list(int exoid,
         }
         break;
       }
-      case HEX:
+      case EX_EL_HEX:
       {
         if (side_num+1 < 1 || side_num+1 > 6) /* side number range check */
         {

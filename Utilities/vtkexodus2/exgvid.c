@@ -58,12 +58,12 @@
  */
 
 int ex_get_varid (int  exoid,
-		  ex_entity_type obj_type,
-		  int *varid_arr)
+                  ex_entity_type obj_type,
+                  int *varid_arr)
 {
   int  status1, status2;
-  size_t i, j;
   int varid;
+  size_t i, j;
   size_t num_entity = 0;
   size_t num_var = 0;
   char errmsg[MAX_ERR_LENGTH];
@@ -126,14 +126,14 @@ int ex_get_varid (int  exoid,
   else {       /* invalid variable type */
     exerrval = EX_BADPARAM;
     sprintf(errmsg,
-	    "Error: Invalid object type %d specified in file id %d",
-	    obj_type, exoid);
+            "Error: Invalid object type %d specified in file id %d",
+            obj_type, exoid);
     ex_err("ex_get_varid",errmsg,exerrval);
     return (EX_WARN);
   }
   
   status2 = ex_get_dimension(exoid, ex_dim_num_objects(obj_type),
-			     ex_name_of_object(obj_type), &num_entity, &varid, routine);
+                             ex_name_of_object(obj_type), &num_entity, &varid, routine);
   if (status2 != NC_NOERR || status1 != NC_NOERR)
     return(EX_FATAL);
   

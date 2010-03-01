@@ -88,7 +88,7 @@ int ex_put_prop_array (int   exoid,
 
   /* inquire id of previously defined dimension (number of objects) */
   status = ex_get_dimension(exoid, ex_dim_num_objects(obj_type), ex_name_of_object(obj_type),
-			    &num_obj, &dimid, "ex_put_prop_array");
+                            &num_obj, &dimid, "ex_put_prop_array");
   if (status != NC_NOERR) return status;
 
   for (i=1; i<=num_props; i++) {
@@ -132,7 +132,7 @@ int ex_put_prop_array (int   exoid,
     default:
       exerrval = EX_BADPARAM;
       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-	      obj_type, exoid);
+              obj_type, exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       return(EX_FATAL);
     }
@@ -140,8 +140,8 @@ int ex_put_prop_array (int   exoid,
     if ((status = nc_inq_varid(exoid, name, &propid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to get property array id in file id %d",
-	      exoid);
+              "Error: failed to get property array id in file id %d",
+              exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -215,7 +215,7 @@ int ex_put_prop_array (int   exoid,
     default:
       exerrval = EX_BADPARAM;
       sprintf(errmsg, "Error: object type %d not supported; file id %d",
-	      obj_type, exoid);
+              obj_type, exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       goto error_ret;        /* Exit define mode and return */
     }
@@ -226,8 +226,8 @@ int ex_put_prop_array (int   exoid,
     if ((status = nc_def_var(exoid, name, NC_INT, 1, dims, &propid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to create property array variable in file id %d",
-	      exoid);
+              "Error: failed to create property array variable in file id %d",
+              exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       goto error_ret;  /* Exit define mode and return */
     }
@@ -236,11 +236,11 @@ int ex_put_prop_array (int   exoid,
 
     /*   store property name as attribute of property array variable */
     if ((status = nc_put_att_text(exoid, propid, ATT_PROP_NAME, 
-				  strlen(prop_name)+1, prop_name)) != NC_NOERR) {
+                                  strlen(prop_name)+1, prop_name)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
               "Error: failed to store property name %s in file id %d",
-	      prop_name,exoid);
+              prop_name,exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       goto error_ret;  /* Exit define mode and return */
     }
@@ -250,8 +250,8 @@ int ex_put_prop_array (int   exoid,
     if ((status = nc_enddef (exoid)) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to leave define mode in file id %d",
-	      exoid);
+              "Error: failed to leave define mode in file id %d",
+              exoid);
       ex_err("ex_put_prop_array",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -263,8 +263,8 @@ int ex_put_prop_array (int   exoid,
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to store property values in file id %d",
-	    exoid);
+            "Error: failed to store property values in file id %d",
+            exoid);
     ex_err("ex_put_prop_array",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -276,8 +276,8 @@ int ex_put_prop_array (int   exoid,
   nc_set_fill(exoid, oldfill, &temp); /* default: nofill */
   if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
     sprintf(errmsg,
-	    "Error: failed to complete definition for file id %d",
-	    exoid);
+            "Error: failed to complete definition for file id %d",
+            exoid);
     ex_err("ex_put_prop_array",errmsg,exerrval);
   }
   return (EX_FATAL);

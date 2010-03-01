@@ -92,25 +92,25 @@ int ex_put_coordinate_frames( int exoid, int nframes, const int cf_ids[],
     return (EX_FATAL);
   }
 
-  if ((status = nc_def_dim(exoid, NUM_CFRAMES, nframes, &dim)) != NC_NOERR  ||
-      (nc_def_dim(exoid, NUM_CFRAME9, nframes*9, &dim9) != NC_NOERR)) {
+  if ((status = nc_def_dim(exoid, DIM_NUM_CFRAMES, nframes, &dim)) != NC_NOERR  ||
+      (nc_def_dim(exoid, DIM_NUM_CFRAME9, nframes*9, &dim9) != NC_NOERR)) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to define number of coordinate frames in file id %d",
-	    exoid);
+            "Error: failed to define number of coordinate frames in file id %d",
+            exoid);
     ex_err(PROCNAME,errmsg,exerrval);
     goto error_ret;
   }
  
   /* define the variables. coordinates, tags and ids */
-  if (nc_def_var (exoid, FRAME_COORDS,
-		  nc_flt_code(exoid), 1, &dim9, &varcoords) != NC_NOERR ||
-      (nc_def_var(exoid, FRAME_IDS,NC_INT, 1, &dim, &varids) != NC_NOERR) ||
-      (nc_def_var(exoid, FRAME_TAGS,NC_CHAR,1,&dim, &vartags) != NC_NOERR) ) {
+  if (nc_def_var (exoid, VAR_FRAME_COORDS,
+                  nc_flt_code(exoid), 1, &dim9, &varcoords) != NC_NOERR ||
+      (nc_def_var(exoid, VAR_FRAME_IDS,NC_INT, 1, &dim, &varids) != NC_NOERR) ||
+      (nc_def_var(exoid, VAR_FRAME_TAGS,NC_CHAR,1,&dim, &vartags) != NC_NOERR) ) {
     exerrval = EX_FATAL;
     sprintf(errmsg,
-	    "Error:  failed to define coordinate frames in file id %d",
-	    exoid);
+            "Error:  failed to define coordinate frames in file id %d",
+            exoid);
     ex_err(PROCNAME,errmsg,exerrval);
     goto error_ret;         /* exit define mode and return */
   }
@@ -119,8 +119,8 @@ int ex_put_coordinate_frames( int exoid, int nframes, const int cf_ids[],
   if ((status = nc_enddef (exoid)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to complete coordinate frame definition in file id %d", 
-	    exoid);
+            "Error: failed to complete coordinate frame definition in file id %d", 
+            exoid);
     ex_err(PROCNAME,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -130,7 +130,7 @@ int ex_put_coordinate_frames( int exoid, int nframes, const int cf_ids[],
   for (i=0;i<nframes;i++)
     if ( strchr("RrCcSs",tags[i])==0 ){
       sprintf(errmsg,"Warning: Unrecognized coordinate frame tag: '%c'.",
-	      tags[i]);
+              tags[i]);
       exerrval=2;
       ex_err(PROCNAME,errmsg,exerrval);
     }
@@ -138,10 +138,10 @@ int ex_put_coordinate_frames( int exoid, int nframes, const int cf_ids[],
 
   /* put the variables into the file */
   if (  nc_put_var_text(exoid, vartags, tags) != NC_NOERR ||
-	nc_put_var_int(exoid, varids, cf_ids) != NC_NOERR) {
+        nc_put_var_int(exoid, varids, cf_ids) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed writing frame data in file id %d",exoid);
+            "Error: failed writing frame data in file id %d",exoid);
     ex_err(PROCNAME,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -155,7 +155,7 @@ int ex_put_coordinate_frames( int exoid, int nframes, const int cf_ids[],
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed writing frame data in file id %d",exoid);
+            "Error: failed writing frame data in file id %d",exoid);
     ex_err(PROCNAME,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -164,8 +164,8 @@ int ex_put_coordinate_frames( int exoid, int nframes, const int cf_ids[],
  error_ret:
   if (nc_enddef (exoid) != NC_NOERR) {    /* exit define mode */
     sprintf(errmsg,
-	    "Error: failed to complete frame definition for file id %d",
-	    exoid);
+            "Error: failed to complete frame definition for file id %d",
+            exoid);
     ex_err(PROCNAME,errmsg,exerrval);
   }
   return (EX_FATAL);

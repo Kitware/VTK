@@ -74,10 +74,10 @@
  */
 
 int ex_put_var_tab (int  exoid,
-		    const char *var_type,
-		    int  num_blk,
-		    int  num_var,
-		    int *var_tab)
+                    const char *var_type,
+                    int  num_blk,
+                    int  num_var,
+                    int *var_tab)
 {
   ex_entity_type obj_type;
   obj_type = ex_var_type_to_ex_entity_type(*var_type);

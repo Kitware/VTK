@@ -60,10 +60,10 @@
  */
 
 int ex_get_truth_table (int  exoid,
-			ex_entity_type obj_type,
-			int  num_blk,
-			int  num_var,
-			int *var_tab)
+                        ex_entity_type obj_type,
+                        int  num_blk,
+                        int  num_var,
+                        int *var_tab)
 {
   int dimid, varid, tabid, i, j, status, status1;
   size_t num_entity = 0;
@@ -145,7 +145,7 @@ int ex_get_truth_table (int  exoid,
   }
 
   status  = ex_get_dimension(exoid, ex_dim_num_objects(obj_type),
-			     ex_name_of_object(obj_type), &num_entity, &dimid, routine);
+                             ex_name_of_object(obj_type), &num_entity, &dimid, routine);
   if (status != NC_NOERR) {
     exerrval = status;
     return (EX_FATAL);
@@ -155,7 +155,7 @@ int ex_get_truth_table (int  exoid,
     exerrval = EX_FATAL;
     sprintf(errmsg,
       "Error: # of %s doesn't match those defined in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -164,7 +164,7 @@ int ex_get_truth_table (int  exoid,
     exerrval = EX_FATAL;
     sprintf(errmsg,
       "Error: # of %s variables doesn't match those defined in file id %d",
-	    ex_name_of_object(obj_type), exoid);
+            ex_name_of_object(obj_type), exoid);
     ex_err(routine,errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -192,7 +192,7 @@ int ex_get_truth_table (int  exoid,
       exerrval = status;
       sprintf(errmsg,
         "Error: failed to get %s truth table from file id %d",
-	      ex_name_of_object(obj_type), exoid);
+              ex_name_of_object(obj_type), exoid);
       ex_err(routine,errmsg,exerrval);
       return (EX_FATAL);
     }

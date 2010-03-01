@@ -62,9 +62,8 @@ int ex_get_names (int exoid,
                   char **names)
 {
   int status;
-  size_t i;
   int j, varid, temp;
-  size_t num_entity;
+  size_t num_entity, i;
   size_t start[2];
   char *ptr;
   char errmsg[MAX_ERR_LENGTH];
@@ -133,7 +132,7 @@ int ex_get_names (int exoid,
   default:
     exerrval = EX_BADPARAM;
     sprintf(errmsg, "Error: Invalid type specified in file id %d",
-	    exoid);
+            exoid);
     ex_err(routine,errmsg,exerrval);
     return(EX_FATAL);
   }
@@ -148,27 +147,27 @@ int ex_get_names (int exoid,
       ptr = names[i];
        
       if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-	exerrval = status;
-	sprintf(errmsg,
-		"Error: failed to get names in file id %d", exoid);
-	ex_err("ex_get_names",errmsg,exerrval);
-	return (EX_FATAL);
+        exerrval = status;
+        sprintf(errmsg,
+                "Error: failed to get names in file id %d", exoid);
+        ex_err("ex_get_names",errmsg,exerrval);
+        return (EX_FATAL);
       }
        
        
       while ((*ptr++ != '\0') && (j < MAX_STR_LENGTH)) {
-	start[1] = ++j;
-	if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
-	  exerrval = status;
-	  sprintf(errmsg,
-		  "Error: failed to get names in file id %d", exoid);
-	  ex_err("ex_get_names",errmsg,exerrval);
-	  return (EX_FATAL);
-	}
+        start[1] = ++j;
+        if ((status = nc_get_var1_text(exoid, varid, start, ptr)) != NC_NOERR) {
+          exerrval = status;
+          sprintf(errmsg,
+                  "Error: failed to get names in file id %d", exoid);
+          ex_err("ex_get_names",errmsg,exerrval);
+          return (EX_FATAL);
+        }
       }
       --ptr;
       if (ptr > names[i]) {
-	while (--ptr >= names[i] && *ptr == ' ');      /*    get rid of trailing blanks */
+        while (--ptr >= names[i] && *ptr == ' ');      /*    get rid of trailing blanks */
       }
       *(++ptr) = '\0';
     }

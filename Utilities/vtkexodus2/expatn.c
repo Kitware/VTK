@@ -64,9 +64,9 @@
  * \param   names                   ptr to array of attribute names
  */
 int ex_put_attr_names(int   exoid,
-		      ex_entity_type blk_type,
-		      int   blk_id,
-		      char* names[])
+                      ex_entity_type blk_type,
+                      int   blk_id,
+                      char* names[])
 {
   int status;
   int varid, numattrdim, blk_id_ndx;
@@ -82,14 +82,14 @@ int ex_put_attr_names(int   exoid,
   if (exerrval != 0) {
     if (exerrval == EX_NULLENTITY) {
       sprintf(errmsg,
-	      "Warning: no attributes allowed for NULL %s %d in file id %d",
-	      ex_name_of_object(blk_type),blk_id,exoid);
+              "Warning: no attributes allowed for NULL %s %d in file id %d",
+              ex_name_of_object(blk_type),blk_id,exoid);
       ex_err("ex_put_attr_names",errmsg,EX_MSG);
       return (EX_WARN);              /* no attributes for this block */
     } else {
       sprintf(errmsg,
-	      "Error: no %s id %d in %s array in file id %d",
-	      ex_name_of_object(blk_type), blk_id, VAR_ID_EL_BLK, exoid);
+              "Error: no %s id %d in %s array in file id %d",
+              ex_name_of_object(blk_type), blk_id, VAR_ID_EL_BLK, exoid);
       ex_err("ex_put_attr_names",errmsg,exerrval);
       return (EX_FATAL);
     }
@@ -125,18 +125,19 @@ int ex_put_attr_names(int   exoid,
     status = nc_inq_dimid(exoid, DIM_NUM_ATT_IN_BLK(blk_id_ndx), &numattrdim);
     break;
   default:
+    exerrval = 1005;
     sprintf(errmsg,
-      "Error: called with invalid blk_type %d", blk_type);
-    ex_err("ex_put_attr_names",errmsg,exerrval);
-    return (EX_FATAL);
-    break;
+            "Internal Error: unrecognized object type in switch: %d in file id %d",
+            blk_type,exoid);
+    ex_err("ex_put_attr_names",errmsg,EX_MSG);
+    return (EX_FATAL);              /* number of attributes not defined */
   }
 
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: number of attributes not defined for %s %d in file id %d",
-	    ex_name_of_object(blk_type),blk_id,exoid);
+            "Error: number of attributes not defined for %s %d in file id %d",
+            ex_name_of_object(blk_type),blk_id,exoid);
     ex_err("ex_put_attr_names",errmsg,EX_MSG);
     return (EX_FATAL);              /* number of attributes not defined */
   }
@@ -144,8 +145,8 @@ int ex_put_attr_names(int   exoid,
   if ((status = nc_inq_dimlen(exoid, numattrdim, &num_attr)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to get number of attributes for %s %d in file id %d",
-	    ex_name_of_object(blk_type),blk_id,exoid);
+            "Error: failed to get number of attributes for %s %d in file id %d",
+            ex_name_of_object(blk_type),blk_id,exoid);
     ex_err("ex_put_attr_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -179,15 +180,19 @@ int ex_put_attr_names(int   exoid,
     status = nc_inq_varid (exoid, VAR_NAME_ATTRIB(blk_id_ndx), &varid);
     break;
   default:
-    /* handled above */
-    break;
+    exerrval = 1005;
+    sprintf(errmsg,
+            "Internal Error: unrecognized object type in switch: %d in file id %d",
+            blk_type,exoid);
+    ex_err("ex_put_attr_names",errmsg,EX_MSG);
+    return (EX_FATAL);              /* number of attributes not defined */
   }
 
   if (status != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,
-	    "Error: failed to locate %s attribute names for %s %d in file id %d",
-	    ex_name_of_object(blk_type),ex_name_of_object(blk_type),blk_id, exoid);
+            "Error: failed to locate %s attribute names for %s %d in file id %d",
+            ex_name_of_object(blk_type),ex_name_of_object(blk_type),blk_id, exoid);
     ex_err("ex_put_attr_names",errmsg,exerrval);
     return (EX_FATAL);
   }
@@ -203,8 +208,8 @@ int ex_put_attr_names(int   exoid,
     if ((status = nc_put_vara_text(exoid, varid, start, count, (void*) names[i])) != NC_NOERR) {
       exerrval = status;
       sprintf(errmsg,
-	      "Error: failed to put attribute namess for %s %d in file id %d",
-	      ex_name_of_object(blk_type),blk_id,exoid);
+              "Error: failed to put attribute namess for %s %d in file id %d",
+              ex_name_of_object(blk_type),blk_id,exoid);
       ex_err("ex_put_attr_names",errmsg,exerrval);
       return (EX_FATAL);
     }

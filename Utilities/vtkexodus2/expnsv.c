@@ -81,5 +81,5 @@ int ex_put_nset_var (int   exoid,
                      const void *nset_var_vals)
 {
   return ex_put_var(exoid, time_step, EX_NODE_SET, nset_var_index,
-		    nset_id, num_nodes_this_nset, nset_var_vals);
+                    nset_id, num_nodes_this_nset, nset_var_vals);
 }
