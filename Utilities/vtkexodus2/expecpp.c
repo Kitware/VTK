@@ -57,7 +57,7 @@ int ex_put_entity_count_per_polyhedra (int            exoid,
                                        int            blk_id,
                                        const int     *entity_counts)
 {
-  char entity_type[5];
+  /* char entity_type[5]; */
   int npeid=-1, blk_id_ndx, status;
   char errmsg[MAX_ERR_LENGTH];
 
