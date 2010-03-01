@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.8");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -3487,6 +3487,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
                                                         double worldBounds[6],
                                                         vtkVolume *vol)
 {
+  // Pass camera through inverse volume matrix
+  // so that we are in the same coordinate system
+  vol->GetMatrix( this->InvVolumeMatrix );
+  this->InvVolumeMatrix->Invert();
+
   if(this->BoxSource==0)
     {
     this->BoxSource=vtkTessellatedBoxSource::New();
@@ -3502,20 +3507,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   this->Planes->RemoveAllItems();
 
   vtkCamera *cam = ren->GetActiveCamera();
+  double camWorldRange[2];
+  double camWorldPos[4];
+  double camFocalWorldPoint[4];
+  double camWorldDirection[3];
   double range[2];
   double camPos[4];
   double focalPoint[4];
   double direction[3];
 
-  cam->GetPosition(camPos);
-
-  // Pass camera through inverse volume matrix
-  // so that we are in the same coordinate system
-  vol->GetMatrix( this->InvVolumeMatrix );
-
-  camPos[3] = 1.0;
-  this->InvVolumeMatrix->Invert();
-  this->InvVolumeMatrix->MultiplyPoint( camPos, camPos );
+  cam->GetPosition(camWorldPos);
+  camWorldPos[3] = 1.0;
+  this->InvVolumeMatrix->MultiplyPoint( camWorldPos, camPos );
   if ( camPos[3] )
     {
     camPos[0] /= camPos[3];
@@ -3523,10 +3526,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
     camPos[2] /= camPos[3];
     }
 
-  cam->GetClippingRange(range);
-  cam->GetFocalPoint(focalPoint);
-  focalPoint[3]=1.0;
-  this->InvVolumeMatrix->MultiplyPoint( focalPoint,focalPoint );
+  cam->GetFocalPoint(camFocalWorldPoint);
+  camFocalWorldPoint[3]=1.0;
+  this->InvVolumeMatrix->MultiplyPoint( camFocalWorldPoint,focalPoint );
   if ( focalPoint[3] )
     {
     focalPoint[0] /= focalPoint[3];
@@ -3540,26 +3542,58 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   direction[2] = focalPoint[2] - camPos[2];
 
   vtkMath::Normalize(direction);
+  
+  // The range (near/far) must also be transformed
+  // into the local coordinate system.
+  camWorldDirection[0] = camFocalWorldPoint[0] - camWorldPos[0];
+  camWorldDirection[1] = camFocalWorldPoint[1] - camWorldPos[1];
+  camWorldDirection[2] = camFocalWorldPoint[2] - camWorldPos[2];
+  vtkMath::Normalize(camWorldDirection);
+  
+  double camNearWorldPoint[4];
+  double camFarWorldPoint[4];
+  double camNearPoint[4];
+  double camFarPoint[4];
+  cam->GetClippingRange(camWorldRange);
+  camNearWorldPoint[0] = camWorldPos[0] + camWorldRange[0]*camWorldDirection[0];
+  camNearWorldPoint[1] = camWorldPos[1] + camWorldRange[0]*camWorldDirection[1];
+  camNearWorldPoint[2] = camWorldPos[2] + camWorldRange[0]*camWorldDirection[2];
+  camNearWorldPoint[3] = 1.;
 
-  double nearPoint[3], farPoint[3];
+  camFarWorldPoint[0] = camWorldPos[0] + camWorldRange[1]*camWorldDirection[0];
+  camFarWorldPoint[1] = camWorldPos[1] + camWorldRange[1]*camWorldDirection[1];
+  camFarWorldPoint[2] = camWorldPos[2] + camWorldRange[1]*camWorldDirection[2];
+  camFarWorldPoint[3] = 1.;
+
+  this->InvVolumeMatrix->MultiplyPoint( camNearWorldPoint, camNearPoint );
+  if (camNearPoint[3])
+    {
+    camNearPoint[0] /= camNearPoint[3];
+    camNearPoint[1] /= camNearPoint[3];
+    camNearPoint[2] /= camNearPoint[3];
+    }
+  this->InvVolumeMatrix->MultiplyPoint( camFarWorldPoint, camFarPoint );
+  if (camFarPoint[3])
+    {
+    camFarPoint[0] /= camFarPoint[3];
+    camFarPoint[1] /= camFarPoint[3];
+    camFarPoint[2] /= camFarPoint[3];
+    }
+  range[0] = sqrt(vtkMath::Distance2BetweenPoints(camNearPoint, camPos));
+  range[1] = sqrt(vtkMath::Distance2BetweenPoints(camFarPoint, camPos));
+
+  //double nearPoint[3], farPoint[3];
 
   double dist = range[1] - range[0];
   range[0] += dist / (2<<16);
   range[1] -= dist / (2<<16);
-
-  nearPoint[0] = camPos[0] + range[0]*direction[0];
-  nearPoint[1] = camPos[1] + range[0]*direction[1];
-  nearPoint[2] = camPos[2] + range[0]*direction[2];
-
-  farPoint[0] = camPos[0] + range[1]*direction[0];
-  farPoint[1] = camPos[1] + range[1]*direction[1];
-  farPoint[2] = camPos[2] + range[1]*direction[2];
-
+  
   if(this->NearPlane==0)
     {
     this->NearPlane= vtkPlane::New();
     }
-  this->NearPlane->SetOrigin( nearPoint );
+  //this->NearPlane->SetOrigin( nearPoint );
+  this->NearPlane->SetOrigin( camNearPoint );
   this->NearPlane->SetNormal( direction );
   this->Planes->AddItem(this->NearPlane);
 
@@ -3569,7 +3603,39 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
     vtkPlane *plane;
     while ( (plane = this->ClippingPlanes->GetNextItem()) )
       {
-      this->Planes->AddItem(plane);
+      // Planes are in world coordinates, we need to 
+      // convert them in local coordinates
+      double planeOrigin[4], planeNormal[4], planeP1[4];
+      plane->GetOrigin(planeOrigin);
+      planeOrigin[3] = 1.;
+      plane->GetNormal(planeNormal);
+      planeP1[0] = planeOrigin[0] + planeNormal[0];
+      planeP1[1] = planeOrigin[1] + planeNormal[1];
+      planeP1[2] = planeOrigin[2] + planeNormal[2];
+      planeP1[3] = 1.;
+      this->InvVolumeMatrix->MultiplyPoint(planeOrigin, planeOrigin);
+      this->InvVolumeMatrix->MultiplyPoint(planeP1, planeP1);
+      if( planeOrigin[3])
+        {
+        planeOrigin[0] /= planeOrigin[3];
+        planeOrigin[1] /= planeOrigin[3];
+        planeOrigin[2] /= planeOrigin[3];
+        }
+      if( planeP1[3])
+        {
+        planeP1[0] /= planeP1[3];
+        planeP1[1] /= planeP1[3];
+        planeP1[2] /= planeP1[3];
+        }
+      planeNormal[0] = planeP1[0] - planeOrigin[0];
+      planeNormal[1] = planeP1[1] - planeOrigin[1];
+      planeNormal[2] = planeP1[2] - planeOrigin[2];
+      vtkMath::Normalize(planeNormal);
+      vtkPlane* localPlane = vtkPlane::New();
+      localPlane->SetOrigin(planeOrigin);
+      localPlane->SetNormal(planeNormal);
+      this->Planes->AddItem(localPlane);
+      localPlane->Delete();
       }
     }
 
@@ -3781,7 +3847,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
   // colorbuffer has to accumulate color or values step after step.
   // Switching would not work because two different steps can draw different
   // polygons that don't overlap
-
   vtkgl::ActiveTexture(vtkgl::TEXTURE4);
   glBindTexture(
     GL_TEXTURE_2D,
@@ -3789,10 +3854,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
       vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+1]);
 
   glReadBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-
   glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,this->ReducedSize[0],
                       this->ReducedSize[1]);
-
   if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND)
     {
@@ -4166,21 +4229,27 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-
   // If we have clipping planes, render the back faces of the clipped
   // bounding box of the whole dataset to set the zbuffer.
   if(this->ClippingPlanes && this->ClippingPlanes->GetNumberOfItems()!=0)
     {
+    // push the model view matrix onto the stack, make sure we
+    // adjust the mode first
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    this->TempMatrix[0]->DeepCopy(vol->GetMatrix());
+    this->TempMatrix[0]->Transpose();
+    glMultMatrixd(this->TempMatrix[0]->Element[0]);
     this->ClipBoundingBox(ren,datasetBounds,vol);
     glEnable (GL_CULL_FACE);
-
     glCullFace (GL_FRONT);
     glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
     this->RenderClippedBoundingBox(0,0,1,ren->GetRenderWindow());
     glDisable (GL_CULL_FACE);
     glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    //glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
     }
-
   // Check if everything is OK
   this->CheckFrameBufferStatus();
 
@@ -5003,7 +5072,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     this->RenderWholeVolume(ren,vol);
     }
   else
-    {
+    { 
     this->ClipCroppingRegionPlanes();
     this->RenderRegions(ren,vol);
     }
