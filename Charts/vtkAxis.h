@@ -28,6 +28,7 @@
 class vtkContext2D;
 class vtkFloatArray;
 class vtkStringArray;
+class vtkTextProperty;
 
 class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
 {
@@ -81,12 +82,9 @@ public:
   vtkGetMacro(NumberOfTicks, int);
 
   // Description:
-  // Set the point size of the label text for the ticks.
-  vtkSetMacro(TickLabelSize, int);
-
-  // Description:
-  // Get the point size of the label text for the ticks.
-  vtkGetMacro(TickLabelSize, int);
+  // Get the vtkTextProperty that governs how the axis lables are displayed.
+  // Note that the alignment properties are not used.
+  vtkGetObjectMacro(LabelProperties, vtkTextProperty);
 
   // Description:
   // Set the logical minimum value of the axis, in plot coordinates.
@@ -105,14 +103,13 @@ public:
   vtkGetMacro(Maximum, float);
 
   // Description:
-  // Get/set the point size of the axis title.
-  vtkSetMacro(TitleSize, int);
-  vtkGetMacro(TitleSize, int);
-
-  // Description:
   // Get/set the title text of the axis.
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
+
+  // Description:
+  // Get the vtkTextProperty that governs how the axis title is displayed.
+  vtkGetObjectMacro(TitleProperties, vtkTextProperty);
 
   // Description:
   // Get/set whether the axis should use a log scale, default is false.
@@ -172,11 +169,12 @@ protected:
   float Point2[2];     // The position of point 2 (usually the terminus)
   float TickInterval;  // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
+  vtkTextProperty* LabelProperties; // Text properties for the labels.
   int TickLabelSize;   // The point size of the tick labels
   float Minimum;       // Minimum value of the axis
   float Maximum;       // Maximum values of the axis
-  int TitleSize;       // The point size of the axis label
-  char *Title;         // The text label drawn on the axis
+  char* Title;         // The text label drawn on the axis
+  vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
   bool GridVisible;    // Whether the grid for the axis should be drawn
 

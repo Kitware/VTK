@@ -27,7 +27,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.15");
+vtkCxxRevisionMacro(vtkAxis, "1.16");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -42,10 +42,19 @@ vtkAxis::vtkAxis()
   this->Point2[1] = 10.0;
   this->TickInterval = 1.0;
   this->NumberOfTicks = 6;
-  this->TickLabelSize = 12;
+  this->LabelProperties = vtkTextProperty::New();
+  this->LabelProperties->SetColor(0.0, 0.0, 0.0);
+  this->LabelProperties->SetFontSize(12);
+  this->LabelProperties->SetFontFamilyToArial();
+  this->LabelProperties->SetJustificationToCentered();
+  this->TitleProperties = vtkTextProperty::New();
+  this->TitleProperties->SetColor(0.0, 0.0, 0.0);
+  this->TitleProperties->SetFontSize(12);
+  this->TitleProperties->SetFontFamilyToArial();
+  this->TitleProperties->SetBold(1);
+  this->TitleProperties->SetJustificationToCentered();
   this->Minimum = 0.0;
   this->Maximum = 6.66;
-  this->TitleSize = 15;
   this->Title = NULL;
   this->LogScale = false;
   this->GridVisible = true;
@@ -57,6 +66,8 @@ vtkAxis::vtkAxis()
 vtkAxis::~vtkAxis()
 {
   this->SetTitle(NULL);
+  this->TitleProperties->Delete();
+  this->LabelProperties->Delete();
   this->TickPositions->Delete();
   this->TickPositions = NULL;
   this->TickLabels->Delete();
@@ -136,9 +147,8 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     {
     int x = 0;
     int y = 0;
-    prop->SetFontSize(this->TitleSize);
-    prop->SetColor(0.0, 0.0, 0.0);
-    prop->SetJustificationToCentered();
+    painter->ApplyTextProp(this->TitleProperties);
+
     // Draw the axis label
     if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
       {
@@ -159,8 +169,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
 
   // Now draw the tick marks
-  prop->SetFontSize(this->TickLabelSize);
-  prop->SetOrientation(0.0);
+  painter->ApplyTextProp(this->LabelProperties);
 
   float *tickPos = this->TickPositions->GetPointer(0);
   vtkStdString *tickLabel = this->TickLabels->GetPointer(0);
