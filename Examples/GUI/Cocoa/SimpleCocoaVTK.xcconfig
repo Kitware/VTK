@@ -1,0 +1,18 @@
+INFOPLIST_FILE = Info.plist
+PRODUCT_NAME = SimpleCocoaVTK
+
+// Link to system zlib (if VTK_USE_SYSTEM_ZLIB was ON).
+OTHER_LDFLAGS = -lz
+
+// Mac OS architectures (match to CMAKE_OSX_ARCHITECTURES).
+ARCH = i386
+
+// Mac OS SDK (match to CMAKE_OSX_SYSROOT).
+SDKROOT = $(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk
+
+// Mac OS Deployment Target (match to CMAKE_OSX_DEPLOYMENT_TARGET).
+MACOSX_DEPLOYMENT_TARGET = 10.5
+
+// Use the source trees to find the VTK libs and headers.
+HEADER_SEARCH_PATHS = $(vtk-debug-include)
+LIBRARY_SEARCH_PATHS = $(vtk-debug-lib)

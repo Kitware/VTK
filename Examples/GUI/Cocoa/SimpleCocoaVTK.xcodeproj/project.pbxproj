@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 45;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,20 +12,22 @@
 		1454C0F1094E266D00F594FE /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C0F0094E266D00F594FE /* MyDocument.mm */; };
 		1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1454C1D5094F306B00F594FE /* OpenGL.framework */; };
 		1454C4360950A4A800F594FE /* BasicVTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C4350950A4A800F594FE /* BasicVTKView.mm */; };
-		14D36C360CD7C3AF0066C9C5 /* libvtkIO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C290CD7C3AF0066C9C5 /* libvtkIO.a */; };
-		14D36C370CD7C3AF0066C9C5 /* libvtkFiltering.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C2A0CD7C3AF0066C9C5 /* libvtkFiltering.a */; };
-		14D36C380CD7C3AF0066C9C5 /* libvtkHybrid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C2B0CD7C3AF0066C9C5 /* libvtkHybrid.a */; };
-		14D36C390CD7C3AF0066C9C5 /* libvtkRendering.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C2C0CD7C3AF0066C9C5 /* libvtkRendering.a */; };
-		14D36C3A0CD7C3AF0066C9C5 /* libvtkpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C2D0CD7C3AF0066C9C5 /* libvtkpng.a */; };
-		14D36C3B0CD7C3AF0066C9C5 /* libvtkImaging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C2E0CD7C3AF0066C9C5 /* libvtkImaging.a */; };
-		14D36C3C0CD7C3AF0066C9C5 /* libvtkCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C2F0CD7C3AF0066C9C5 /* libvtkCommon.a */; };
-		14D36C3D0CD7C3AF0066C9C5 /* libvtkjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C300CD7C3AF0066C9C5 /* libvtkjpeg.a */; };
-		14D36C3E0CD7C3AF0066C9C5 /* libvtkexpat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C310CD7C3AF0066C9C5 /* libvtkexpat.a */; };
-		14D36C3F0CD7C3AF0066C9C5 /* libvtkGraphics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C320CD7C3AF0066C9C5 /* libvtkGraphics.a */; };
-		14D36C400CD7C3AF0066C9C5 /* libvtkGenericFiltering.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C330CD7C3AF0066C9C5 /* libvtkGenericFiltering.a */; };
-		14D36C410CD7C3AF0066C9C5 /* libvtktiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C340CD7C3AF0066C9C5 /* libvtktiff.a */; };
-		14D36C420CD7C3AF0066C9C5 /* libvtkftgl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C350CD7C3AF0066C9C5 /* libvtkftgl.a */; };
-		14D36C490CD7C3E10066C9C5 /* libvtksys.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14D36C480CD7C3E10066C9C5 /* libvtksys.a */; };
+		14B86359113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */; };
+		14B8636C113C40BE00C9B42E /* libvtkCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B8635F113C40BE00C9B42E /* libvtkCommon.a */; };
+		14B8636D113C40BF00C9B42E /* libvtkexpat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86360113C40BE00C9B42E /* libvtkexpat.a */; };
+		14B8636E113C40BF00C9B42E /* libvtkFiltering.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86361113C40BE00C9B42E /* libvtkFiltering.a */; };
+		14B8636F113C40BF00C9B42E /* libvtkftgl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86362113C40BE00C9B42E /* libvtkftgl.a */; };
+		14B86370113C40BF00C9B42E /* libvtkGenericFiltering.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86363113C40BE00C9B42E /* libvtkGenericFiltering.a */; };
+		14B86371113C40BF00C9B42E /* libvtkGraphics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86364113C40BE00C9B42E /* libvtkGraphics.a */; };
+		14B86372113C40BF00C9B42E /* libvtkHybrid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86365113C40BE00C9B42E /* libvtkHybrid.a */; };
+		14B86373113C40BF00C9B42E /* libvtkImaging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86366113C40BE00C9B42E /* libvtkImaging.a */; };
+		14B86374113C40BF00C9B42E /* libvtkIO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86367113C40BE00C9B42E /* libvtkIO.a */; };
+		14B86375113C40BF00C9B42E /* libvtkpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86368113C40BE00C9B42E /* libvtkpng.a */; };
+		14B86376113C40BF00C9B42E /* libvtkRendering.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86369113C40BE00C9B42E /* libvtkRendering.a */; };
+		14B86377113C40BF00C9B42E /* libvtksys.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B8636A113C40BE00C9B42E /* libvtksys.a */; };
+		14B86378113C40BF00C9B42E /* libvtktiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B8636B113C40BE00C9B42E /* libvtktiff.a */; };
+		14B8639F113C431200C9B42E /* libvtkjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B8639E113C431200C9B42E /* libvtkjpeg.a */; };
+		14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B863A4113C436100C9B42E /* IOKit.framework */; };
 		8D15AC320486D014006FF6A4 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.mm */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -39,20 +41,22 @@
 		1454C1D5094F306B00F594FE /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		1454C4340950A4A800F594FE /* BasicVTKView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicVTKView.h; sourceTree = SOURCE_ROOT; };
 		1454C4350950A4A800F594FE /* BasicVTKView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicVTKView.mm; sourceTree = SOURCE_ROOT; };
-		14D36C290CD7C3AF0066C9C5 /* libvtkIO.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkIO.a; path = lib/libvtkIO.a; sourceTree = "vtk-debug"; };
-		14D36C2A0CD7C3AF0066C9C5 /* libvtkFiltering.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkFiltering.a; path = lib/libvtkFiltering.a; sourceTree = "vtk-debug"; };
-		14D36C2B0CD7C3AF0066C9C5 /* libvtkHybrid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkHybrid.a; path = lib/libvtkHybrid.a; sourceTree = "vtk-debug"; };
-		14D36C2C0CD7C3AF0066C9C5 /* libvtkRendering.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkRendering.a; path = lib/libvtkRendering.a; sourceTree = "vtk-debug"; };
-		14D36C2D0CD7C3AF0066C9C5 /* libvtkpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkpng.a; path = lib/libvtkpng.a; sourceTree = "vtk-debug"; };
-		14D36C2E0CD7C3AF0066C9C5 /* libvtkImaging.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkImaging.a; path = lib/libvtkImaging.a; sourceTree = "vtk-debug"; };
-		14D36C2F0CD7C3AF0066C9C5 /* libvtkCommon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkCommon.a; path = lib/libvtkCommon.a; sourceTree = "vtk-debug"; };
-		14D36C300CD7C3AF0066C9C5 /* libvtkjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkjpeg.a; path = lib/libvtkjpeg.a; sourceTree = "vtk-debug"; };
-		14D36C310CD7C3AF0066C9C5 /* libvtkexpat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkexpat.a; path = lib/libvtkexpat.a; sourceTree = "vtk-debug"; };
-		14D36C320CD7C3AF0066C9C5 /* libvtkGraphics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkGraphics.a; path = lib/libvtkGraphics.a; sourceTree = "vtk-debug"; };
-		14D36C330CD7C3AF0066C9C5 /* libvtkGenericFiltering.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkGenericFiltering.a; path = lib/libvtkGenericFiltering.a; sourceTree = "vtk-debug"; };
-		14D36C340CD7C3AF0066C9C5 /* libvtktiff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtktiff.a; path = lib/libvtktiff.a; sourceTree = "vtk-debug"; };
-		14D36C350CD7C3AF0066C9C5 /* libvtkftgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtkftgl.a; path = lib/libvtkftgl.a; sourceTree = "vtk-debug"; };
-		14D36C480CD7C3E10066C9C5 /* libvtksys.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvtksys.a; path = lib/libvtksys.a; sourceTree = "vtk-debug"; };
+		14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = SimpleCocoaVTK.xcconfig; sourceTree = "<group>"; };
+		14B8635F113C40BE00C9B42E /* libvtkCommon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkCommon.a; sourceTree = "vtk-debug-lib"; };
+		14B86360113C40BE00C9B42E /* libvtkexpat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkexpat.a; sourceTree = "vtk-debug-lib"; };
+		14B86361113C40BE00C9B42E /* libvtkFiltering.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkFiltering.a; sourceTree = "vtk-debug-lib"; };
+		14B86362113C40BE00C9B42E /* libvtkftgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkftgl.a; sourceTree = "vtk-debug-lib"; };
+		14B86363113C40BE00C9B42E /* libvtkGenericFiltering.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkGenericFiltering.a; sourceTree = "vtk-debug-lib"; };
+		14B86364113C40BE00C9B42E /* libvtkGraphics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkGraphics.a; sourceTree = "vtk-debug-lib"; };
+		14B86365113C40BE00C9B42E /* libvtkHybrid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkHybrid.a; sourceTree = "vtk-debug-lib"; };
+		14B86366113C40BE00C9B42E /* libvtkImaging.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkImaging.a; sourceTree = "vtk-debug-lib"; };
+		14B86367113C40BE00C9B42E /* libvtkIO.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkIO.a; sourceTree = "vtk-debug-lib"; };
+		14B86368113C40BE00C9B42E /* libvtkpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkpng.a; sourceTree = "vtk-debug-lib"; };
+		14B86369113C40BE00C9B42E /* libvtkRendering.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkRendering.a; sourceTree = "vtk-debug-lib"; };
+		14B8636A113C40BE00C9B42E /* libvtksys.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtksys.a; sourceTree = "vtk-debug-lib"; };
+		14B8636B113C40BE00C9B42E /* libvtktiff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtktiff.a; sourceTree = "vtk-debug-lib"; };
+		14B8639E113C431200C9B42E /* libvtkjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkjpeg.a; sourceTree = "vtk-debug-lib"; };
+		14B863A4113C436100C9B42E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -67,20 +71,21 @@
 			files = (
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */,
-				14D36C360CD7C3AF0066C9C5 /* libvtkIO.a in Frameworks */,
-				14D36C370CD7C3AF0066C9C5 /* libvtkFiltering.a in Frameworks */,
-				14D36C380CD7C3AF0066C9C5 /* libvtkHybrid.a in Frameworks */,
-				14D36C390CD7C3AF0066C9C5 /* libvtkRendering.a in Frameworks */,
-				14D36C3A0CD7C3AF0066C9C5 /* libvtkpng.a in Frameworks */,
-				14D36C3B0CD7C3AF0066C9C5 /* libvtkImaging.a in Frameworks */,
-				14D36C3C0CD7C3AF0066C9C5 /* libvtkCommon.a in Frameworks */,
-				14D36C3D0CD7C3AF0066C9C5 /* libvtkjpeg.a in Frameworks */,
-				14D36C3E0CD7C3AF0066C9C5 /* libvtkexpat.a in Frameworks */,
-				14D36C3F0CD7C3AF0066C9C5 /* libvtkGraphics.a in Frameworks */,
-				14D36C400CD7C3AF0066C9C5 /* libvtkGenericFiltering.a in Frameworks */,
-				14D36C410CD7C3AF0066C9C5 /* libvtktiff.a in Frameworks */,
-				14D36C420CD7C3AF0066C9C5 /* libvtkftgl.a in Frameworks */,
-				14D36C490CD7C3E10066C9C5 /* libvtksys.a in Frameworks */,
+				14B8636C113C40BE00C9B42E /* libvtkCommon.a in Frameworks */,
+				14B8636D113C40BF00C9B42E /* libvtkexpat.a in Frameworks */,
+				14B8636E113C40BF00C9B42E /* libvtkFiltering.a in Frameworks */,
+				14B8636F113C40BF00C9B42E /* libvtkftgl.a in Frameworks */,
+				14B86370113C40BF00C9B42E /* libvtkGenericFiltering.a in Frameworks */,
+				14B86371113C40BF00C9B42E /* libvtkGraphics.a in Frameworks */,
+				14B86372113C40BF00C9B42E /* libvtkHybrid.a in Frameworks */,
+				14B86373113C40BF00C9B42E /* libvtkImaging.a in Frameworks */,
+				14B86374113C40BF00C9B42E /* libvtkIO.a in Frameworks */,
+				14B86375113C40BF00C9B42E /* libvtkpng.a in Frameworks */,
+				14B86376113C40BF00C9B42E /* libvtkRendering.a in Frameworks */,
+				14B86377113C40BF00C9B42E /* libvtksys.a in Frameworks */,
+				14B86378113C40BF00C9B42E /* libvtktiff.a in Frameworks */,
+				14B8639F113C431200C9B42E /* libvtkjpeg.a in Frameworks */,
+				14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +95,7 @@
 		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				14B863A4113C436100C9B42E /* IOKit.framework */,
 				1454C1D5094F306B00F594FE /* OpenGL.framework */,
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
 			);
@@ -108,20 +114,20 @@
 		1454C0F8094E269200F594FE /* vtk libraries */ = {
 			isa = PBXGroup;
 			children = (
-				14D36C290CD7C3AF0066C9C5 /* libvtkIO.a */,
-				14D36C2A0CD7C3AF0066C9C5 /* libvtkFiltering.a */,
-				14D36C2B0CD7C3AF0066C9C5 /* libvtkHybrid.a */,
-				14D36C2C0CD7C3AF0066C9C5 /* libvtkRendering.a */,
-				14D36C2D0CD7C3AF0066C9C5 /* libvtkpng.a */,
-				14D36C2E0CD7C3AF0066C9C5 /* libvtkImaging.a */,
-				14D36C2F0CD7C3AF0066C9C5 /* libvtkCommon.a */,
-				14D36C300CD7C3AF0066C9C5 /* libvtkjpeg.a */,
-				14D36C310CD7C3AF0066C9C5 /* libvtkexpat.a */,
-				14D36C320CD7C3AF0066C9C5 /* libvtkGraphics.a */,
-				14D36C330CD7C3AF0066C9C5 /* libvtkGenericFiltering.a */,
-				14D36C340CD7C3AF0066C9C5 /* libvtktiff.a */,
-				14D36C480CD7C3E10066C9C5 /* libvtksys.a */,
-				14D36C350CD7C3AF0066C9C5 /* libvtkftgl.a */,
+				14B8635F113C40BE00C9B42E /* libvtkCommon.a */,
+				14B86360113C40BE00C9B42E /* libvtkexpat.a */,
+				14B86361113C40BE00C9B42E /* libvtkFiltering.a */,
+				14B86362113C40BE00C9B42E /* libvtkftgl.a */,
+				14B86363113C40BE00C9B42E /* libvtkGenericFiltering.a */,
+				14B86364113C40BE00C9B42E /* libvtkGraphics.a */,
+				14B86365113C40BE00C9B42E /* libvtkHybrid.a */,
+				14B86366113C40BE00C9B42E /* libvtkImaging.a */,
+				14B8639E113C431200C9B42E /* libvtkjpeg.a */,
+				14B86367113C40BE00C9B42E /* libvtkIO.a */,
+				14B86368113C40BE00C9B42E /* libvtkpng.a */,
+				14B86369113C40BE00C9B42E /* libvtkRendering.a */,
+				14B8636A113C40BE00C9B42E /* libvtksys.a */,
+				14B8636B113C40BE00C9B42E /* libvtktiff.a */,
 			);
 			name = "vtk libraries";
 			sourceTree = "<group>";
@@ -137,6 +143,7 @@
 		2A37F4AAFDCFA73011CA2CEA /* SimpleCocoaVTK */ = {
 			isa = PBXGroup;
 			children = (
+				14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
@@ -212,7 +219,7 @@
 		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "SimpleCocoaVTK" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
 			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* SimpleCocoaVTK */;
 			projectDirPath = "";
@@ -230,6 +237,7 @@
 			files = (
 				14187F220D132DA60038B381 /* MyDocument.nib in Resources */,
 				14187F230D132DA60038B381 /* MainMenu.nib in Resources */,
+				14B86359113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,89 +259,25 @@
 /* Begin XCBuildConfiguration section */
 		C05733C808A9546B00998B17 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
-				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = NO;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
-				GCC_WARN_SHADOW = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VALUE = YES;
-				HEADER_SEARCH_PATHS = "$(vtk-debug)/include/vtk-5.1";
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(vtk-debug)/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = SimpleCocoaVTK;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				WARNING_CFLAGS = (
-					"-Wno-system-headers",
-					"-Wno-#warnings",
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
-				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../kitware/VTK-debug-install/lib/vtk-5.5\"";
 			};
 			name = Debug;
 		};
 		C05733C908A9546B00998B17 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
-				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = NO;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
-				GCC_WARN_SHADOW = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VALUE = YES;
-				HEADER_SEARCH_PATHS = "$(vtk-debug)/include/vtk-5.1";
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(vtk-debug)/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = SimpleCocoaVTK;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				WARNING_CFLAGS = (
-					"-Wno-system-headers",
-					"-Wno-#warnings",
-				);
-				WRAPPER_EXTENSION = app;
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../kitware/VTK-debug-install/lib/vtk-5.5\"";
 			};
 			name = Release;
 		};
