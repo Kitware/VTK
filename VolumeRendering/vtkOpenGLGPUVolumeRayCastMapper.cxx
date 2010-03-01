@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.6");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.7");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -6953,7 +6953,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
       cout<<"GL_BACK";
       break;
     default:
-      cout<<"unknown value="<<ivalue<<endl;
+      cout<<"unknown value="<<ivalue[0]<<endl;
       break;
     }
 
@@ -6977,7 +6977,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
       cout<<"GL_SPECULAR";
       break;
     default:
-      cout<<"unknown value="<<ivalue<<endl;
+      cout<<"unknown value="<<ivalue[0]<<endl;
       break;
     }
 
