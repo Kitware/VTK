@@ -26,7 +26,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.12");
+vtkCxxRevisionMacro(vtkPlot, "1.13");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
@@ -64,6 +64,8 @@ vtkPlot::~vtkPlot()
     this->Data = NULL;
     }
   this->SetLabel(NULL);
+  this->SetXAxis(NULL);
+  this->SetYAxis(NULL);
 }
 
 //-----------------------------------------------------------------------------
