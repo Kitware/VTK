@@ -124,12 +124,14 @@
 int ex_cvt_nodes_to_sides(int exoid,
                           int *num_elem_per_set,
                           int *num_nodes_per_set,
-                          int *side_sets_elem_index, /* unused */ 
-                          int *side_sets_node_index, /* unused */
+                          int * side_sets_elem_index, /* unused */ 
+                          int * side_sets_node_index, /* unused */
                           int *side_sets_elem_list,
                           int *side_sets_node_list,
                           int *side_sets_side_list)
 {
+  (void)side_sets_elem_index;
+  (void)side_sets_node_index;
   size_t m;
   int i, j, k, n;
   int  num_side_sets, num_elem_blks;
@@ -329,7 +331,7 @@ int ex_cvt_nodes_to_sides(int exoid,
 
     for (m=0; m < strlen(elem_type); m++)
       elem_blk_parms[i].elem_type[m] = 
-              toupper(elem_type[m]);
+              (char)toupper(elem_type[m]);
     elem_blk_parms[i].elem_type[m] = '\0';
 
     if (strncmp(elem_blk_parms[i].elem_type,"CIRCLE",3) == 0)

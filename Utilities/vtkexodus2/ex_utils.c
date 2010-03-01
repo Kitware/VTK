@@ -143,7 +143,7 @@ char* ex_name_of_object(ex_entity_type obj_type)
 
 ex_entity_type ex_var_type_to_ex_entity_type(char var_type)
 {
-  char var_lower = tolower(var_type);
+  char var_lower = (char)tolower(var_type);
   if (var_lower == 'n')
     return EX_NODAL;
   else if (var_lower == 'l')
@@ -473,7 +473,7 @@ int ex_id_lkup( int exoid,
 
     if (filled) {
       tmp_stats->valid_ids = TRUE;
-      tmp_stats->num = dim_len;
+      tmp_stats->num = (long)dim_len;
       tmp_stats->id_vals = id_vals;
     }
 
@@ -547,14 +547,14 @@ int ex_id_lkup( int exoid,
       if ( !(tmp_stats->valid_ids) ) {
         if (id_vals) free (id_vals); 
       }
-      return(-(i+1)); /* return index into id array (1-based) */
+      return(-(((int)i)+1)); /* return index into id array (1-based) */
     }
   }
   if ( !(tmp_stats->valid_ids) ) {
     if (id_vals) free (id_vals);
     if (stat_vals) free (stat_vals);
   }
-  return(i+1); /* return index into id array (1-based) */
+  return(((int)i)+1); /* return index into id array (1-based) */
 }
 
 /******************************************************************************

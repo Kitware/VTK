@@ -97,7 +97,7 @@ int ex_put_concat_elem_block (int    exoid,
     ex_err("ex_put_concat_elem_block",errmsg,exerrval);
     return (EX_FATAL);
   }
-  num_elem_blk = length;
+  num_elem_blk = (int)length;
   
   /* Fill out the element block status array */
   if (!(eb_array = malloc(num_elem_blk*sizeof(int)))) {

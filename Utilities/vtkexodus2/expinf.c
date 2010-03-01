@@ -137,7 +137,7 @@ int ex_put_info (int   exoid,
 
     /* write out information records */
     for (i=0; i<num_info; i++) {
-      int length = strlen(info[i]);
+      int length = (int)strlen(info[i]);
       start[0] = i;
       start[1] = 0;
 

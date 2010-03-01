@@ -151,7 +151,7 @@ int ex_put_num_map ( int exoid,
      ex_err("ex_put_num_map",errmsg,exerrval);
      return (EX_FATAL);
    }
-   num_maps = num_entries;
+   num_maps = (int)num_entries;
 
    /* Keep track of the total number of maps defined using a counter stored
       in a linked list keyed by exoid.

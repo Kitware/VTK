@@ -54,6 +54,7 @@
 #include "exodusII_int.h"
 #include <string.h>
 #include <assert.h>
+#include <stdlib.h>
 
 void write_dummy_names(int exoid, ex_entity_type obj_type)
 {
@@ -236,7 +237,7 @@ int ex_put_init_ext (int   exoid,
 
   /* define some attributes... */
   title_len = strlen(model->title) < MAX_LINE_LENGTH ?
-    strlen(model->title) : MAX_LINE_LENGTH;
+    (int)strlen(model->title) : (int)MAX_LINE_LENGTH;
   if ((status = nc_put_att_text(exoid, NC_GLOBAL, (const char*)ATT_TITLE, 
                                 title_len+1, model->title)) != NC_NOERR)
     {

@@ -188,6 +188,19 @@ SET(cbind_SRCS
   expvarnams.c
   expvarparam.c
   expvartab.c
+  exgcssc.c 
+  exgecpp.c 
+  exgnconn.c 
+  exgncor.c 
+  exgnnv.c 
+  exgnoatt.c 
+  exgnvar.c 
+  expecpp.c 
+  expncor.c 
+  expnnv.c 
+  expnoatt.c 
+  expnvar.c 
+  exppsetd.c
 )
 
 

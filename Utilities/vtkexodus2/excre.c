@@ -204,7 +204,7 @@ int ex_create_int (const char *path,
    */
 
   /* store Exodus API version # as an attribute */
-  vers = EX_API_VERS;
+  vers = (float)EX_API_VERS;
   if ((status=nc_put_att_float(exoid, NC_GLOBAL, ATT_API_VERSION,
                                NC_FLOAT, 1, &vers)) != NC_NOERR) {
     exerrval = status;

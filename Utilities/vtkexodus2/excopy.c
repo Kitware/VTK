@@ -138,7 +138,7 @@ int ex_copy (int in_exoid, int out_exoid)
 
    for (i = 0; i < (size_t)ngatts; i++) {
 
-     nc_inq_attname(in_exoid, NC_GLOBAL, i, att.name);
+     nc_inq_attname(in_exoid, NC_GLOBAL, (int)i, att.name);
         
      /* if attribute exists in output file, don't overwrite it; compute 
       * word size, I/O word size etc. are global attributes stored when

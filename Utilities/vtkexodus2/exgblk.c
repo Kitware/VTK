@@ -161,7 +161,7 @@ int ex_get_block( int exoid,
       ex_err("ex_get_block",errmsg, exerrval);
       return(EX_FATAL);
     }
-    *num_entries_this_blk = len;
+    *num_entries_this_blk = (int)len;
   }
 
   if ( num_nodes_per_entry ) {
@@ -178,7 +178,7 @@ int ex_get_block( int exoid,
         return(EX_FATAL);
       }
     }
-    *num_nodes_per_entry = len;
+    *num_nodes_per_entry = (int)len;
   }
 
   if ( num_edges_per_entry ) {
@@ -202,7 +202,7 @@ int ex_get_block( int exoid,
           return(EX_FATAL);
         }
       }
-      *num_edges_per_entry = len;
+      *num_edges_per_entry = (int)len;
     }
   }
 
@@ -227,7 +227,7 @@ int ex_get_block( int exoid,
           return(EX_FATAL);
         }
       }
-      *num_faces_per_entry = len;
+      *num_faces_per_entry = (int)len;
     }
   }
 

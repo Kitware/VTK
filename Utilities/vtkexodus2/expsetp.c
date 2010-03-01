@@ -155,7 +155,7 @@ int ex_put_set_param (int exoid,
     ex_err("ex_put_set_param",errmsg,exerrval);
     return (EX_FATAL);
   }
-  num_sets = temp;
+  num_sets = (int)temp;
 
 
   /* Keep track of the total number of sets defined using a counter stored

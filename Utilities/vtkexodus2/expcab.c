@@ -521,7 +521,7 @@ int ex_put_concat_all_blocks (int    exoid,
         ex_err( "ex_put_concat_all_blocks", errmsg, exerrval );
       }
       for ( i = 1; i <= num_maps[map_type]; ++i ) {
-        const char* mapname = ex_name_of_map( map_enums[map_type], i );
+        const char* mapname = ex_name_of_map( map_enums[map_type], (int)i );
         if (nc_inq_varid(exoid, mapname, &temp) != NC_NOERR) {
           if ((status = nc_def_var(exoid, mapname, NC_INT, 1, dims, &temp)) != NC_NOERR) {
             exerrval = status;

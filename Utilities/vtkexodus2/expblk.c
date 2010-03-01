@@ -142,7 +142,7 @@ int ex_put_block( int         exoid,
                                  &temp, &dimid, "ex_put_block")) != NC_NOERR) {
     return EX_FATAL;
   }
-  num_blk = temp;
+  num_blk = (int)temp;
   
   /* Next: Make sure that this is not a duplicate element block id by
      searching the vblkids array.
@@ -199,7 +199,7 @@ int ex_put_block( int         exoid,
     return (EX_FATAL);
   }
 
-  blk_id_ndx = start[0]+1; /* element id index into vblkids array*/
+  blk_id_ndx = ((int)start[0])+1; /* element id index into vblkids array*/
 
   if (num_entries_this_blk == 0) /* Is this a NULL element block? */
     blk_stat = 0; /* change element block status to NULL */

@@ -139,7 +139,7 @@ int ex_get_attr_param (int   exoid,
       ex_err("ex_get_attr_param",errmsg, exerrval);
       return(EX_FATAL);
     }
-    *num_attrs = lnum_attr_per_entry;
+    *num_attrs = (int)lnum_attr_per_entry;
   }
   return (EX_NOERR);
 }
