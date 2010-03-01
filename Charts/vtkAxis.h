@@ -35,9 +35,26 @@ public:
   vtkTypeRevisionMacro(vtkAxis, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+//BTX
+  // Description:
+  // Enumeration of the axis locations in a conventional XY chart. Other
+  // layouts are possible.
+  enum {
+    LEFT = 0,
+    BOTTOM,
+    RIGHT,
+    TOP
+  };
+//ETX
+
   // Description:
   // Creates a 2D Chart object.
   static vtkAxis *New();
+
+  // Description:
+  // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP).
+  vtkSetMacro(Position, int);
+  vtkGetMacro(Position, int);
 
   // Description:
   // Set point 1 of the axis (in pixels), this is usually the origin.
@@ -98,6 +115,16 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
+  // Get/set whether the axis should use a log scale, default is false.
+  vtkSetMacro(LogScale, bool);
+  vtkGetMacro(LogScale, bool);
+
+  // Description:
+  // Get/set whether the axis grid lines should be drawn, default is true.
+  vtkSetMacro(ShowGrid, bool);
+  vtkGetMacro(ShowGrid, bool);
+
+  // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
   // locations etc. Should be called by the scene before rendering.
   virtual void Update();
@@ -140,7 +167,7 @@ protected:
   // number should be between 0.0 and 9.9.
   float NiceNumber(float number, bool roundUp);
 
-  bool Horizontal;     // Is the axis horizontal (true) or vertical (false)
+  int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float Point1[2];     // The position of point 1 (usually the origin)
   float Point2[2];     // The position of point 2 (usually the terminus)
   float TickInterval;  // Interval between tick marks in plot space
@@ -149,7 +176,9 @@ protected:
   float Minimum;       // Minimum value of the axis
   float Maximum;       // Maximum values of the axis
   int TitleSize;       // The point size of the axis label
-  char *Title; // The text label drawn on the axis
+  char *Title;         // The text label drawn on the axis
+  bool LogScale;       // Should the axis use a log scale
+  bool ShowGrid;       // Whether the grid for the axis should be drawn
 
   vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates
   vtkStringArray* TickLabels; // The labels for the tick marks

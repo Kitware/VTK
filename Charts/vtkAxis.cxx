@@ -27,7 +27,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.12");
+vtkCxxRevisionMacro(vtkAxis, "1.13");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkAxis);
 //-----------------------------------------------------------------------------
 vtkAxis::vtkAxis()
 {
-  this->Horizontal = true;
+  this->Position = vtkAxis::LEFT;
   this->Point1[0] = 0.0;
   this->Point1[1] = 0.0;
   this->Point2[0] = 10.0;
@@ -47,6 +47,8 @@ vtkAxis::vtkAxis()
   this->Maximum = 6.66;
   this->TitleSize = 15;
   this->Title = NULL;
+  this->LogScale = false;
+  this->ShowGrid = true;
   this->TickPositions = vtkFloatArray::New();
   this->TickLabels = vtkStringArray::New();
 }
@@ -98,7 +100,14 @@ void vtkAxis::Update()
     this->TickPositions->InsertNextValue(iTick);
     // Make a tick mark label for the tick
     char string[20];
-    sprintf(string, "%#6.3g", tick);
+    if (this->LogScale)
+      {
+      sprintf(string, "%#6.3g", pow(10.0, tick));
+      }
+    else
+      {
+      sprintf(string, "%#6.3g", tick);
+      }
     this->TickLabels->InsertNextValue(string);
 
     tick += this->TickInterval;
@@ -110,6 +119,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkAxis.");
+
+  if (!this->Visible)
+    {
+    return false;
+    }
 
   painter->GetPen()->SetWidth(1.0);
   // Draw this axis
