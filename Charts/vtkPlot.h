@@ -29,6 +29,7 @@ class vtkIdTypeArray;
 class vtkContextMapper2D;
 class vtkPen;
 class vtkBrush;
+class vtkAxis;
 
 class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
 {
@@ -106,6 +107,16 @@ public:
 
   virtual void SetSelection(vtkIdTypeArray *id);
 
+  // Description:
+  // Get/set the X axis associated with this plot.
+  vtkGetObjectMacro(XAxis, vtkAxis);
+  virtual void SetXAxis(vtkAxis* axis);
+
+  // Description:
+  // Get/set the Y axis associated with this plot.
+  vtkGetObjectMacro(YAxis, vtkAxis);
+  virtual void SetYAxis(vtkAxis* axis);
+
   virtual void GetBounds(double bounds[4])
   { bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0; }
 
@@ -147,6 +158,14 @@ protected:
   // Description:
   // Selected indices for the table the plot is rendering
   vtkIdTypeArray *Selection;
+
+  // Description:
+  // The X axis associated with this plot.
+  vtkAxis* XAxis;
+
+  // Description:
+  // The X axis associated with this plot.
+  vtkAxis* YAxis;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.

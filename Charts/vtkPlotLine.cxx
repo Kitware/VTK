@@ -16,6 +16,7 @@
 #include "vtkPlotLine.h"
 
 #include "vtkContext2D.h"
+#include "vtkAxis.h"
 #include "vtkPen.h"
 #include "vtkFloatArray.h"
 #include "vtkVector.h"
@@ -32,7 +33,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.16");
+vtkCxxRevisionMacro(vtkPlotLine, "1.17");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -42,6 +43,8 @@ vtkPlotLine::vtkPlotLine()
 {
   this->Points = 0;
   this->MarkerStyle = vtkPlotLine::NONE;
+  this->LogX = false;
+  this->LogY = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -55,6 +58,38 @@ vtkPlotLine::~vtkPlotLine()
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlotLine::Update()
+{
+  if (!this->Visible)
+    {
+    return;
+    }
+  // Check if we have an input
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkDebugMacro(<< "Update event called with no input table set.");
+    return;
+    }
+  else if(this->Data->GetMTime() > this->BuildTime ||
+          table->GetMTime() > this->BuildTime ||
+          this->MTime > this->BuildTime)
+    {
+    vtkDebugMacro(<< "Updating cached values.");
+    this->UpdateTableCache(table);
+    }
+  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis && this->YAxis->GetMaximum() > this->BuildTime))
+    {
+    if (this->LogX != this->XAxis->GetLogScale() ||
+        this->LogY != this->YAxis->GetLogScale())
+      {
+      this->UpdateTableCache(table);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkPlotLine::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -63,21 +98,6 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   if (!this->Visible)
     {
     return false;
-    }
-
-  // First check if we have an input
-  vtkTable *table = this->Data->GetInput();
-  if (!table)
-    {
-    vtkDebugMacro(<< "Paint event called with no input table set.");
-    return false;
-    }
-  else if(this->Data->GetMTime() > this->BuildTime ||
-          table->GetMTime() > this->BuildTime ||
-          this->MTime > this->BuildTime)
-    {
-    vtkDebugMacro(<< "Paint event called with outdated table cache. Updating.");
-    this->UpdateTableCache(table);
     }
 
   // Now add some decorations for our selected points...
@@ -196,23 +216,7 @@ bool vtkPlotLine::PaintLegend(vtkContext2D *painter, float rect[4])
 //-----------------------------------------------------------------------------
 void vtkPlotLine::GetBounds(double bounds[4])
 {
-  // Get the x and y arrays (index 0 and 1 respectively)
-  vtkTable *table = this->Data->GetInput();
-  vtkDataArray* x = this->UseIndexForXSeries ?
-                    0 : this->Data->GetInputArrayToProcess(0, table);
-  vtkDataArray *y = this->Data->GetInputArrayToProcess(1, table);
-
-  if (this->UseIndexForXSeries && y)
-    {
-    bounds[0] = 0;
-    bounds[1] = y->GetSize();
-    y->GetRange(&bounds[2]);
-    }
-  else if (x && y)
-    {
-    x->GetRange(&bounds[0]);
-    y->GetRange(&bounds[2]);
-    }
+  this->Points->GetBounds(bounds);
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
 }
@@ -236,9 +240,11 @@ template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
 {
   points->SetNumberOfPoints(n);
+  float* data = static_cast<float*>(points->GetVoidPointer(0));
   for (int i = 0; i < n; ++i)
     {
-    points->SetPoint(i, a[i], b[i]);
+    data[2*i] = a[i];
+    data[2*i+1] = b[i];
     }
 }
 
@@ -247,9 +253,11 @@ template<class A>
 void CopyToPoints(vtkPoints2D *points, A *a, int n)
 {
   points->SetNumberOfPoints(n);
+  float* data = static_cast<float*>(points->GetVoidPointer(0));
   for (int i = 0; i < n; ++i)
     {
-    points->SetPoint(i, i, a[i]);
+    data[2*i] = static_cast<float>(i);
+    data[2*i+1] = a[i];
     }
 }
 
@@ -304,8 +312,36 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
                              y, x->GetSize()));
       }
     }
+  this->CalculateLogSeries();
+  this->Points->Modified();
   this->BuildTime.Modified();
   return true;
+}
+
+inline void vtkPlotLine::CalculateLogSeries()
+{
+  if (!this->XAxis || !this->YAxis)
+    {
+    return;
+    }
+  this->LogX = this->XAxis->GetLogScale();
+  this->LogY = this->YAxis->GetLogScale();
+  float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+  vtkIdType n = this->Points->GetNumberOfPoints();
+  if (this->LogX)
+    {
+    for (vtkIdType i = 0; i < n; ++i)
+      {
+      data[2*i] = log10(data[2*i]);
+      }
+    }
+  if (this->LogY)
+  {
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    data[2*i+1] = log10(data[2*i+1]);
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

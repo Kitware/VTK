@@ -40,6 +40,12 @@ public:
   static vtkPlotLine *New();
 
   // Description:
+  // Perform any updates to the item that may be necessary before rendering.
+  // The scene should take care of calling this on all items before their
+  // Paint function is invoked.
+  virtual void Update();
+
+  // Description:
   // Paint event for the XY plot, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 
@@ -83,6 +89,11 @@ protected:
   bool UpdateTableCache(vtkTable *table);
 
   // Description:
+  // Handle calculating the log of the x or y series if necessary. Should be
+  // called by UpdateTableCache once the data has been updated in Points.
+  void CalculateLogSeries();
+
+  // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
 
@@ -93,6 +104,8 @@ protected:
   // Description:
   // The marker style that should be used
   int MarkerStyle;
+
+  bool LogX, LogY;
 
 private:
   vtkPlotLine(const vtkPlotLine &); // Not implemented.
