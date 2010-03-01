@@ -152,7 +152,7 @@ public:
 
 
   // Description:
-  // Draw an circular arc with center at x,y with radius r between angles
+  // Draw a circular arc with center at x,y with radius r between angles
   // startAngle and stopAngle (expressed in degrees).
   // \pre positive_radius: r>=0
   void DrawArc(float x, float y, float r, float startAngle,
@@ -172,6 +172,12 @@ public:
   void DrawImage(float x, float y, vtkImageData *image);
 
 //BTX
+  // Description:
+  // Draw some text to the screen in a bounding rectangle with the alignment
+  // of the text properties respecting the rectangle. The points should be
+  // supplied as bottom corner (x, y), width, height.
+  void DrawStringRect(vtkPoints2D *rect, const vtkStdString &string);
+
   // Description:
   // Draw some text to the screen.
   void DrawString(vtkPoints2D *point, const vtkStdString &string);
