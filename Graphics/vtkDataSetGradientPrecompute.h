@@ -7,11 +7,11 @@
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+  =========================================================================*/
 // .NAME vtkDataSetGradientPrecompute 
 //
 // .SECTION Description
@@ -32,18 +32,20 @@
 
 class VTK_GRAPHICS_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetAlgorithm
 {
-public:
+ public:
   static vtkDataSetGradientPrecompute* New();
   vtkTypeRevisionMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-protected:
+  static int GradientPrecompute(vtkDataSet* ds);
+
+ protected:
   vtkDataSetGradientPrecompute ();
   ~vtkDataSetGradientPrecompute ();
-
+  
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-private:
+ private:
   vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&); // Not implemented
   void operator=(const vtkDataSetGradientPrecompute&); // Not implemented
 };

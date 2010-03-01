@@ -7,11 +7,11 @@
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+  =========================================================================*/
 // .NAME vtkDataSetGradient - computes scalar field gradient
 //
 // .SECTION Description
@@ -33,7 +33,7 @@
 
 class VTK_GRAPHICS_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
 {
-public:
+ public:
   static vtkDataSetGradient* New();
   vtkTypeRevisionMacro(vtkDataSetGradient,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -43,7 +43,7 @@ public:
   vtkSetStringMacro(ResultArrayName);
   vtkGetStringMacro(ResultArrayName);
 
-protected:
+ protected:
   vtkDataSetGradient ();
   ~vtkDataSetGradient();
 
@@ -51,7 +51,7 @@ protected:
 
   char* ResultArrayName;
 
-private:
+ private:
   vtkDataSetGradient(const vtkDataSetGradient&); // Not implemented
   void operator=(const vtkDataSetGradient&); // Not implemented
 };
