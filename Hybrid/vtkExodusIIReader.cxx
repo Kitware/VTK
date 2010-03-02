@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.85");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.86");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -2493,6 +2493,28 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
       }
+    else if (binfop->CellType == VTK_QUADRATIC_WEDGE)
+      {
+      int k;
+      int itmp[3];
+      for ( c = 0; c < iarr->GetNumberOfTuples(); ++c )
+        {
+        for (k = 0; k < 9; ++k, ++ptr)
+          *ptr = *ptr - 1;
+
+        for (k = 0; k < 3; ++k, ++ptr)
+          {
+          itmp[k] = *ptr;
+          *ptr = ptr[3] - 1;
+          }
+
+        for (k = 0; k < 3; ++k, ++ptr)
+          {
+          *ptr = itmp[k] - 1;
+          }
+        }
+      ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
+      }
     else
       {
       for ( c = 0; c <= iarr->GetMaxId(); ++c, ++ptr )
@@ -3048,6 +3070,8 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
     { binfo.CellType=VTK_QUADRATIC_TETRA;          binfo.PointsPerCell = 10; }
   else if ((elemType.substr(0,3) == "TET") &&      (binfo.BdsPerEntry[0] == 11))
     { binfo.CellType=VTK_QUADRATIC_TETRA;          binfo.PointsPerCell = 10; }
+  else if ((elemType.substr(0,3) == "WED") &&      (binfo.BdsPerEntry[0] == 15))
+    { binfo.CellType=VTK_QUADRATIC_WEDGE;          binfo.PointsPerCell = 15; }
   else if ((elemType.substr(0,3) == "HEX") &&      (binfo.BdsPerEntry[0] == 20))
     { binfo.CellType=VTK_QUADRATIC_HEXAHEDRON;     binfo.PointsPerCell = 20; }
   else if ((elemType.substr(0,3) == "HEX") &&      (binfo.BdsPerEntry[0] == 21))
@@ -5511,7 +5535,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.85");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.86");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
