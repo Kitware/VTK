@@ -92,6 +92,7 @@
   /* enumerate all of them.                                                */
   /*                                                                       */
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#include <stdint.h>
 #define ALL_POINTS  (FT_UShort*)UINTPTR_MAX
 #else
 #define ALL_POINTS  (FT_UShort*)( -1 )
