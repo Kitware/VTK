@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2009-09-28 20:47:04 $ */
+/* glext.h last updated $Date: 2010-03-02 19:44:10 $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 56
+#define GL_GLEXT_VERSION 58
 
 /* Function declaration macros - to move into glplatform.h */
 
@@ -4391,6 +4391,13 @@ extern "C" {
 #endif
 
 #ifndef GL_NV_texture_barrier
+#endif
+
+#ifndef GL_AMD_shader_stencil_export
+#endif
+
+#ifndef GL_AMD_seamless_cubemap_per_texture
+/* reuse GL_TEXTURE_CUBE_MAP_SEAMLESS_ARB */
 #endif
 
 
@@ -9391,8 +9398,8 @@ typedef GLuint (APIENTRYP PFNGLCREATESHADERPROGRAMEXTPROC) (GLenum type, const G
 GLAPI void APIENTRY glMakeBufferResidentNV (GLenum, GLenum);
 GLAPI void APIENTRY glMakeBufferNonResidentNV (GLenum);
 GLAPI GLboolean APIENTRY glIsBufferResidentNV (GLenum);
-GLAPI void APIENTRY glNamedMakeBufferResidentNV (GLuint, GLenum);
-GLAPI void APIENTRY glNamedMakeBufferNonResidentNV (GLuint);
+GLAPI void APIENTRY glMakeNamedBufferResidentNV (GLuint, GLenum);
+GLAPI void APIENTRY glMakeNamedBufferNonResidentNV (GLuint);
 GLAPI GLboolean APIENTRY glIsNamedBufferResidentNV (GLuint);
 GLAPI void APIENTRY glGetBufferParameterui64vNV (GLenum, GLenum, GLuint64EXT *);
 GLAPI void APIENTRY glGetNamedBufferParameterui64vNV (GLuint, GLenum, GLuint64EXT *);
@@ -9406,8 +9413,8 @@ GLAPI void APIENTRY glProgramUniformui64vNV (GLuint, GLint, GLsizei, const GLuin
 typedef void (APIENTRYP PFNGLMAKEBUFFERRESIDENTNVPROC) (GLenum target, GLenum access);
 typedef void (APIENTRYP PFNGLMAKEBUFFERNONRESIDENTNVPROC) (GLenum target);
 typedef GLboolean (APIENTRYP PFNGLISBUFFERRESIDENTNVPROC) (GLenum target);
-typedef void (APIENTRYP PFNGLNAMEDMAKEBUFFERRESIDENTNVPROC) (GLuint buffer, GLenum access);
-typedef void (APIENTRYP PFNGLNAMEDMAKEBUFFERNONRESIDENTNVPROC) (GLuint buffer);
+typedef void (APIENTRYP PFNGLMAKENAMEDBUFFERRESIDENTNVPROC) (GLuint buffer, GLenum access);
+typedef void (APIENTRYP PFNGLMAKENAMEDBUFFERNONRESIDENTNVPROC) (GLuint buffer);
 typedef GLboolean (APIENTRYP PFNGLISNAMEDBUFFERRESIDENTNVPROC) (GLuint buffer);
 typedef void (APIENTRYP PFNGLGETBUFFERPARAMETERUI64VNVPROC) (GLenum target, GLenum pname, GLuint64EXT *params);
 typedef void (APIENTRYP PFNGLGETNAMEDBUFFERPARAMETERUI64VNVPROC) (GLuint buffer, GLenum pname, GLuint64EXT *params);
@@ -9455,6 +9462,14 @@ typedef void (APIENTRYP PFNGLGETINTEGERUI64I_VNVPROC) (GLenum value, GLuint inde
 GLAPI void APIENTRY glTextureBarrierNV (void);
 #endif /* GL_GLEXT_PROTOTYPES */
 typedef void (APIENTRYP PFNGLTEXTUREBARRIERNVPROC) (void);
+#endif
+
+#ifndef GL_AMD_shader_stencil_export
+#define GL_AMD_shader_stencil_export 1
+#endif
+
+#ifndef GL_AMD_seamless_cubemap_per_texture
+#define GL_AMD_seamless_cubemap_per_texture 1
 #endif
 
 
