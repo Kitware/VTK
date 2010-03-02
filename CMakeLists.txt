@@ -1060,12 +1060,10 @@ INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 ADD_SUBDIRECTORY(Wrapping)
 
 #-----------------------------------------------------------------------------
-# Wrapping hints used by all Tcl, Python and Java wrapping
-IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PATH)
-  MARK_AS_ADVANCED(VTK_WRAP_HINTS)
-ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-
+# Wrapping hints used by all Tcl, Python and Java wrapping.
+# It can also be used by external wrapping tools.
+FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PATH)
+MARK_AS_ADVANCED(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------
 # Configure Tcl wrapping support, setup executables
