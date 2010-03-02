@@ -307,6 +307,9 @@ void TestGraphDeletion(int & errors)
   VTK_CREATE(vtkIntArray, earr2);
   earr2->InsertNextValue(0);
   earr2->InsertNextValue(1);
+  earr2->InsertNextValue(2);
+  earr2->InsertNextValue(3);
+  earr2->InsertNextValue(4);
   mug->GetVertexData()->AddArray(varr2);
   mug->GetEdgeData()->AddArray(earr2);
 
