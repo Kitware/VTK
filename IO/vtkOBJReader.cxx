@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkOBJReader, "1.28");
+vtkCxxRevisionMacro(vtkOBJReader, "1.29");
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:
@@ -229,7 +229,7 @@ int vtkOBJReader::RequestData(
 
         if (pLine < pEnd)         // there is still data left on this line
           {
-          int iVert, dummyInt;
+          int iVert;
           if (sscanf(pLine, "%d", &iVert) == 1)
             {
             pointElems->InsertCellPoint(iVert-1);
