@@ -18,9 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkExtractCells.h"
-#include "vtkSignedCharArray.h"
-#include "vtkSortDataArray.h"
-#include "vtkSmartPointer.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -30,10 +27,14 @@
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkSignedCharArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkSortDataArray.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.30");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.31");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -207,6 +208,104 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
   ptIds->Delete();
 }
 
+#define vtkESI_ExtendedTemplateMacro(t1, t2, call)\
+  switch (t1)\
+    {\
+    vtkTemplateMacro(\
+      typedef VTK_TT VTK_TT1;\
+      switch (t2)\
+        {\
+        vtkTemplateMacro(\
+          typedef VTK_TT VTK_TT2;\
+          call;);\
+        }\
+    );\
+    \
+  case VTK_STRING:\
+     {\
+     typedef vtkStdString VTK_TT1;\
+     typedef vtkStdString VTK_TT2;\
+     call;\
+     }\
+    }
+
+namespace
+{
+  template <class T>
+  void vtkESIDeepCopyImpl(T* out, T* in, int compno, int num_comps,
+    vtkIdType numTuples)
+    {
+    if (compno < 0)
+      {
+      for (vtkIdType cc=0; cc < numTuples; cc++)
+        {
+        double mag = 0;
+        for (int comp=0; comp < num_comps; comp++)
+          {
+          mag += in[comp]*in[comp];
+          }
+        mag = sqrt(mag);
+        *out = static_cast<T>(mag);
+        out++;
+        in += num_comps;
+        }
+      }
+    else
+      {
+      for (vtkIdType cc=0; cc < numTuples; cc++)
+        {
+        *out = in[compno];
+        out++;
+        in += num_comps;
+        }
+      }
+    }
+
+  void vtkESIDeepCopyImpl(vtkStdString* out, vtkStdString* in,
+    int compno, int num_comps, vtkIdType numTuples)
+    {
+    if (compno < 0)
+      {
+      // we cannot compute magnitudes for string arrays!
+      compno = 0;
+      }
+    for (vtkIdType cc=0; cc < numTuples; cc++)
+      {
+      *out = in[compno];
+      out++;
+      in += num_comps;
+      }
+    }
+
+  // Deep copies a specified component (or magnitude of compno < 0).
+  static void vtkESIDeepCopy(vtkAbstractArray* out, vtkAbstractArray* in, int compno)
+    {
+    if (in->GetNumberOfComponents() == 1)
+      {
+      //trivial case.
+      out->DeepCopy(in);
+      return;
+      }
+
+    vtkIdType numTuples = in->GetNumberOfTuples();
+    out->SetNumberOfComponents(1);
+    out->SetNumberOfTuples(numTuples);
+    switch (in->GetDataType())
+      {
+      vtkTemplateMacro(
+        vtkESIDeepCopyImpl<VTK_TT>(
+          static_cast<VTK_TT*>(out->GetVoidPointer(0)),
+          static_cast<VTK_TT*>(in->GetVoidPointer(0)),
+          compno, in->GetNumberOfComponents(), numTuples));
+    case VTK_STRING:
+      vtkESIDeepCopyImpl(
+        static_cast<vtkStdString*>(out->GetVoidPointer(0)),
+        static_cast<vtkStdString*>(in->GetVoidPointer(0)),
+        compno, in->GetNumberOfComponents(), numTuples);
+      break;
+      }
+    }
+};
 //----------------------------------------------------------------------------
 int vtkExtractSelectedIds::ExtractCells(
   vtkSelectionNode *sel,  vtkDataSet *input,
@@ -290,10 +389,21 @@ int vtkExtractSelectedIds::ExtractCells(
     }
 
   if (labelArray)
-    {
+    {    
+    int component_no = 0;
+    if (sel->GetProperties()->Has(vtkSelectionNode::COMPONENT_NUMBER()))
+      {
+      component_no =
+        sel->GetProperties()->Get(vtkSelectionNode::COMPONENT_NUMBER());
+      if (component_no >= labelArray->GetNumberOfComponents())
+        {
+        component_no = 0;
+        }
+      }
+
     vtkAbstractArray* sortedArray = 
       vtkAbstractArray::CreateArray(labelArray->GetDataType());
-    sortedArray->DeepCopy(labelArray);
+    vtkESIDeepCopy(sortedArray, labelArray, component_no);
     vtkSortDataArray::Sort(sortedArray, idxArray);
     labelArray = sortedArray;
     }
@@ -347,8 +457,9 @@ int vtkExtractSelectedIds::ExtractCells(
     return 1;
     }
   
-  // Array types must match
-  if (idArray->GetDataType() != labelArray->GetDataType())
+  // Array types must match if they are string arrays.
+  if (vtkStringArray::SafeDownCast(labelArray) &&
+    vtkStringArray::SafeDownCast(idArray) == NULL)
     {
     labelArray->Delete();
     idxArray->Delete();
@@ -361,12 +472,15 @@ int vtkExtractSelectedIds::ExtractCells(
       {
       delete[] cellCounter;
       }
-    vtkWarningMacro("array types don't match");
+    vtkWarningMacro(
+      "Array types don't match. They must match for vtkStringArray.");
     return 0;
     }
 
   void *idVoid = idArray->GetVoidPointer(0);
   void *labelVoid = labelArray->GetVoidPointer(0);
+  int idArrayType = idArray->GetDataType();
+  int labelArrayType = labelArray->GetDataType();
 
   // Check each cell to see if it's selected
   while (labelArrayIndex < numCells)
@@ -376,13 +490,12 @@ int vtkExtractSelectedIds::ExtractCells(
     bool idLessThanLabel = false;
     if (idArrayIndex < numIds)
       {
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idLessThanLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idLessThanLabel = 
+        (static_cast<VTK_TT1*>(idVoid)[idArrayIndex]) <
+        static_cast<VTK_TT1>(
+          (static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex])));
       }
     while ((idArrayIndex < numIds) && idLessThanLabel)
       {
@@ -391,13 +504,12 @@ int vtkExtractSelectedIds::ExtractCells(
         {
         break;
         }
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idLessThanLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idLessThanLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
 
     if (idArrayIndex >= numIds)
@@ -412,13 +524,12 @@ int vtkExtractSelectedIds::ExtractCells(
     bool idEqualToLabel = false;
     if (labelArrayIndex < numCells)
       {
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idEqualToLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idEqualToLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] ==
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
     while ((labelArrayIndex < numCells) && idEqualToLabel)
       {
@@ -446,13 +557,12 @@ int vtkExtractSelectedIds::ExtractCells(
         {
         break;
         }
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idEqualToLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idEqualToLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] ==
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
       
 
@@ -461,13 +571,12 @@ int vtkExtractSelectedIds::ExtractCells(
     bool labelLessThanId = false;
     if (labelArrayIndex < numCells)
       {
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          labelLessThanId = 
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        labelArrayType, idArrayType,
+        labelLessThanId = 
+        static_cast<VTK_TT1*>(labelVoid)[labelArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(idVoid)[idArrayIndex]));
       }
     while ((labelArrayIndex < numCells) && labelLessThanId)
       {
@@ -476,13 +585,11 @@ int vtkExtractSelectedIds::ExtractCells(
         {
         break;
         }
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          labelLessThanId = 
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(labelArrayType, idArrayType,
+        labelLessThanId = 
+        static_cast<VTK_TT1*>(labelVoid)[labelArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(idVoid)[idArrayIndex]));
       }
     }
 
@@ -631,9 +738,20 @@ int vtkExtractSelectedIds::ExtractPoints(
 
   if (labelArray)
     {
+    int component_no = 0;
+    if (sel->GetProperties()->Has(vtkSelectionNode::COMPONENT_NUMBER()))
+      {
+      component_no =
+        sel->GetProperties()->Get(vtkSelectionNode::COMPONENT_NUMBER());
+      if (component_no >= labelArray->GetNumberOfComponents())
+        {
+        component_no = 0;
+        }
+      }
+
     vtkAbstractArray* sortedArray = 
       vtkAbstractArray::CreateArray(labelArray->GetDataType());
-    sortedArray->DeepCopy(labelArray);
+    vtkESIDeepCopy(sortedArray, labelArray, component_no);
     vtkSortDataArray::Sort(sortedArray, idxArray);
     labelArray = sortedArray;
     }
@@ -660,10 +778,12 @@ int vtkExtractSelectedIds::ExtractPoints(
     return 1;
     }
 
-  // Array types must match
-  if (idArray->GetDataType() != labelArray->GetDataType())
+  // Array types must match if they are string arrays.
+  if (vtkStringArray::SafeDownCast(labelArray) &&
+    vtkStringArray::SafeDownCast(idArray) == NULL)
     {
-    vtkWarningMacro("array types don't match");
+    vtkWarningMacro(
+      "Array types don't match. They must match for vtkStringArray.");
     labelArray->Delete();
     idxArray->Delete();
     ptCells->Delete();
@@ -680,6 +800,8 @@ int vtkExtractSelectedIds::ExtractPoints(
 
   void *idVoid = idArray->GetVoidPointer(0);
   void *labelVoid = labelArray->GetVoidPointer(0);
+  int idArrayType = idArray->GetDataType();
+  int labelArrayType = labelArray->GetDataType();
 
   // Check each point to see if it's selected
   while (labelArrayIndex < numPts)
@@ -689,13 +811,12 @@ int vtkExtractSelectedIds::ExtractPoints(
     bool idLessThanLabel = false;
     if (idArrayIndex < numIds)
       {
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idLessThanLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idLessThanLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
     while ((idArrayIndex < numIds) && idLessThanLabel)
       {
@@ -704,13 +825,12 @@ int vtkExtractSelectedIds::ExtractPoints(
         {
         break;
         }
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idLessThanLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] <
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idLessThanLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
 
     this->UpdateProgress(static_cast<double>(idArrayIndex) / (numIds * (passThrough + 1)));
@@ -725,13 +845,12 @@ int vtkExtractSelectedIds::ExtractPoints(
     bool idEqualToLabel = false;
     if (labelArrayIndex < numPts)
       {
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idEqualToLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idEqualToLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] ==
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
     while ((labelArrayIndex < numPts) && idEqualToLabel)
       {
@@ -762,13 +881,12 @@ int vtkExtractSelectedIds::ExtractPoints(
         {
         break;
         }
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          idEqualToLabel = 
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex] ==
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        idArrayType, labelArrayType,
+        idEqualToLabel = 
+        static_cast<VTK_TT1*>(idVoid)[idArrayIndex] ==
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(labelVoid)[labelArrayIndex]));
       }
 
     // Advance through point labels until we find
@@ -776,13 +894,12 @@ int vtkExtractSelectedIds::ExtractPoints(
     bool labelLessThanId = false;
     if (labelArrayIndex < numPts)
       {
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          labelLessThanId = 
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(
+        labelArrayType, idArrayType,
+        labelLessThanId = 
+        static_cast<VTK_TT1*>(labelVoid)[labelArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(idVoid)[idArrayIndex]));
       }
     while ((labelArrayIndex < numPts) && labelLessThanId)
       {
@@ -791,13 +908,11 @@ int vtkExtractSelectedIds::ExtractPoints(
         {
         break;
         }
-      switch(idArray->GetDataType())
-        {
-        vtkExtendedTemplateMacro(
-          labelLessThanId = 
-            static_cast<VTK_TT*>(labelVoid)[labelArrayIndex] <
-            static_cast<VTK_TT*>(idVoid)[idArrayIndex]);
-        }
+      vtkESI_ExtendedTemplateMacro(labelArrayType, idArrayType,
+        labelLessThanId = 
+        static_cast<VTK_TT1*>(labelVoid)[labelArrayIndex] <
+        static_cast<VTK_TT1>(
+          static_cast<VTK_TT2*>(idVoid)[idArrayIndex]));
       }
     }
 
