@@ -216,7 +216,7 @@ int ex_create_int (const char *path,
   }
    
   /* store Exodus file version # as an attribute */
-  vers = EX_VERS;
+  vers = (float)EX_VERS;
   if ((status=nc_put_att_float(exoid, NC_GLOBAL, ATT_VERSION, NC_FLOAT, 1, &vers)) != NC_NOERR) {
     exerrval = status;
     sprintf(errmsg,

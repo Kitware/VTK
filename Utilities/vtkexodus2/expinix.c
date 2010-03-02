@@ -441,7 +441,7 @@ int ex_put_init_ext (int   exoid,
   EX_WRITE_OBJECT_NAMES("face map",     VAR_NAME_FAM,   famapdim,model->num_face_maps);
   EX_WRITE_OBJECT_NAMES("element map",  VAR_NAME_EM,    emapdim, model->num_elem_maps);
   
-  EX_WRITE_OBJECT_NAMES("coordinate",   VAR_NAME_COOR,  numdimdim,dim);
+  EX_WRITE_OBJECT_NAMES("coordinate",   VAR_NAME_COOR,  numdimdim,dim[0]);
 
   /* leave define mode */
   if ((status = nc_enddef (exoid)) != NC_NOERR) {
