@@ -855,7 +855,6 @@ QVariant vtkQtTableModelAdapter::getIcon(int row) const
   int icon_idx = icon_indices->GetValue(row);
   int x, y;
   int dimX = this->IconSheetSize[0]/this->IconSize[0];
-  int dimY = this->IconSheetSize[1]/this->IconSize[1];
   x = (icon_idx >= dimX) ? icon_idx % dimX : icon_idx;
   x *= this->IconSize[0];
   y = (icon_idx >= dimX) ? static_cast<int>(icon_idx/dimX) : 0;
