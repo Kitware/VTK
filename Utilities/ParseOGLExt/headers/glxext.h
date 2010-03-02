@@ -48,9 +48,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2009/08/03 */
+/* glxext.h last updated 2010/01/20 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 23
+#define GLX_GLXEXT_VERSION 26
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -382,6 +382,27 @@ extern "C" {
 #ifndef GLX_NV_swap_group
 #endif
 
+#ifndef GLX_NV_video_capture
+#define GLX_DEVICE_ID_NV                   0x20CD
+#define GLX_UNIQUE_ID_NV                   0x20CE
+#define GLX_NUM_VIDEO_CAPTURE_SLOTS_NV     0x20CF
+#endif
+
+#ifndef GLX_EXT_swap_control
+#define GLX_SWAP_INTERVAL_EXT              0x20F1
+#define GLX_MAX_SWAP_INTERVAL_EXT          0x20F2
+#endif
+
+#ifndef GLX_NV_copy_image
+#endif
+
+#ifndef GLX_INTEL_swap_event
+#define GLX_BUFFER_SWAP_COMPLETE_INTEL_MASK 0x04000000
+#define GLX_EXCHANGE_COMPLETE_INTEL        0x8180
+#define GLX_COPY_COMPLETE_INTEL            0x8181
+#define GLX_FLIP_COMPLETE_INTEL            0x8182
+#endif
+
 
 /*************************************************************/
 
@@ -413,6 +434,14 @@ typedef struct {
     int width, height;
     int count;            /* if nonzero, at least this many more */
 } GLXBufferClobberEventSGIX;
+#endif
+
+#ifndef GLX_NV_video_output
+typedef unsigned int GLXVideoDeviceNV;
+#endif
+
+#ifndef GLX_NV_video_capture
+typedef XID GLXVideoCaptureDeviceNV;
 #endif
 
 #ifndef GLEXT_64_TYPES_DEFINED
@@ -827,14 +856,84 @@ typedef void ( * PFNGLXRELEASETEXIMAGEEXTPROC) (Display *dpy, GLXDrawable drawab
 
 #ifndef GLX_NV_present_video
 #define GLX_NV_present_video 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern unsigned int * glXEnumerateVideoDevicesNV (Display *, int, int *);
+extern int glXBindVideoDeviceNV (Display *, unsigned int, unsigned int, const int *);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef unsigned int * ( * PFNGLXENUMERATEVIDEODEVICESNVPROC) (Display *dpy, int screen, int *nelements);
+typedef int ( * PFNGLXBINDVIDEODEVICENVPROC) (Display *dpy, unsigned int video_slot, unsigned int video_device, const int *attrib_list);
 #endif
 
-#ifndef GLX_NV_video_out
-#define GLX_NV_video_out 1
+#ifndef GLX_NV_video_output
+#define GLX_NV_video_output 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern int glXGetVideoDeviceNV (Display *, int, int, GLXVideoDeviceNV *);
+extern int glXReleaseVideoDeviceNV (Display *, int, GLXVideoDeviceNV);
+extern int glXBindVideoImageNV (Display *, GLXVideoDeviceNV, GLXPbuffer, int);
+extern int glXReleaseVideoImageNV (Display *, GLXPbuffer);
+extern int glXSendPbufferToVideoNV (Display *, GLXPbuffer, int, unsigned long *, GLboolean);
+extern int glXGetVideoInfoNV (Display *, int, GLXVideoDeviceNV, unsigned long *, unsigned long *);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef int ( * PFNGLXGETVIDEODEVICENVPROC) (Display *dpy, int screen, int numVideoDevices, GLXVideoDeviceNV *pVideoDevice);
+typedef int ( * PFNGLXRELEASEVIDEODEVICENVPROC) (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice);
+typedef int ( * PFNGLXBINDVIDEOIMAGENVPROC) (Display *dpy, GLXVideoDeviceNV VideoDevice, GLXPbuffer pbuf, int iVideoBuffer);
+typedef int ( * PFNGLXRELEASEVIDEOIMAGENVPROC) (Display *dpy, GLXPbuffer pbuf);
+typedef int ( * PFNGLXSENDPBUFFERTOVIDEONVPROC) (Display *dpy, GLXPbuffer pbuf, int iBufferType, unsigned long *pulCounterPbuffer, GLboolean bBlock);
+typedef int ( * PFNGLXGETVIDEOINFONVPROC) (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice, unsigned long *pulCounterOutputPbuffer, unsigned long *pulCounterOutputVideo);
 #endif
 
 #ifndef GLX_NV_swap_group
 #define GLX_NV_swap_group 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern Bool glXJoinSwapGroupNV (Display *, GLXDrawable, GLuint);
+extern Bool glXBindSwapBarrierNV (Display *, GLuint, GLuint);
+extern Bool glXQuerySwapGroupNV (Display *, GLXDrawable, GLuint *, GLuint *);
+extern Bool glXQueryMaxSwapGroupsNV (Display *, int, GLuint *, GLuint *);
+extern Bool glXQueryFrameCountNV (Display *, int, GLuint *);
+extern Bool glXResetFrameCountNV (Display *, int);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef Bool ( * PFNGLXJOINSWAPGROUPNVPROC) (Display *dpy, GLXDrawable drawable, GLuint group);
+typedef Bool ( * PFNGLXBINDSWAPBARRIERNVPROC) (Display *dpy, GLuint group, GLuint barrier);
+typedef Bool ( * PFNGLXQUERYSWAPGROUPNVPROC) (Display *dpy, GLXDrawable drawable, GLuint *group, GLuint *barrier);
+typedef Bool ( * PFNGLXQUERYMAXSWAPGROUPSNVPROC) (Display *dpy, int screen, GLuint *maxGroups, GLuint *maxBarriers);
+typedef Bool ( * PFNGLXQUERYFRAMECOUNTNVPROC) (Display *dpy, int screen, GLuint *count);
+typedef Bool ( * PFNGLXRESETFRAMECOUNTNVPROC) (Display *dpy, int screen);
+#endif
+
+#ifndef GLX_NV_video_capture
+#define GLX_NV_video_capture 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern int glXBindVideoCaptureDeviceNV (Display *, unsigned int, GLXVideoCaptureDeviceNV);
+extern GLXVideoCaptureDeviceNV * glXEnumerateVideoCaptureDevicesNV (Display *, int, int *);
+extern void glXLockVideoCaptureDeviceNV (Display *, GLXVideoCaptureDeviceNV);
+extern int glXQueryVideoCaptureDeviceNV (Display *, GLXVideoCaptureDeviceNV, int, int *);
+extern void glXReleaseVideoCaptureDeviceNV (Display *, GLXVideoCaptureDeviceNV);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef int ( * PFNGLXBINDVIDEOCAPTUREDEVICENVPROC) (Display *dpy, unsigned int video_capture_slot, GLXVideoCaptureDeviceNV device);
+typedef GLXVideoCaptureDeviceNV * ( * PFNGLXENUMERATEVIDEOCAPTUREDEVICESNVPROC) (Display *dpy, int screen, int *nelements);
+typedef void ( * PFNGLXLOCKVIDEOCAPTUREDEVICENVPROC) (Display *dpy, GLXVideoCaptureDeviceNV device);
+typedef int ( * PFNGLXQUERYVIDEOCAPTUREDEVICENVPROC) (Display *dpy, GLXVideoCaptureDeviceNV device, int attribute, int *value);
+typedef void ( * PFNGLXRELEASEVIDEOCAPTUREDEVICENVPROC) (Display *dpy, GLXVideoCaptureDeviceNV device);
+#endif
+
+#ifndef GLX_EXT_swap_control
+#define GLX_EXT_swap_control 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern int glXSwapIntervalEXT (Display *, GLXDrawable, int);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef int ( * PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
+#endif
+
+#ifndef GLX_NV_copy_image
+#define GLX_NV_copy_image 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern void glXCopyImageSubDataNV (Display *, GLXContext, GLuint, GLenum, GLint, GLint, GLint, GLint, GLXContext, GLuint, GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef void ( * PFNGLXCOPYIMAGESUBDATANVPROC) (Display *dpy, GLXContext srcCtx, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLXContext dstCtx, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
+#endif
+
+#ifndef GLX_INTEL_swap_event
+#define GLX_INTEL_swap_event 1
 #endif
 
 
