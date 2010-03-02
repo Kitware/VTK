@@ -86,10 +86,11 @@ public:
   void SetAlternatingRowColors(bool);
 
   // Description:
-  // Whether or not to add an icon to the row header denoting the color
-  // of an annotated row.
-  void SetApplyRowColors(bool value);
-  vtkGetMacro(ApplyRowColors, bool);
+  // The strategy for how to decorate rows.
+  // Should be one of vtkQtTableModelAdapter::COLORS, 
+  // vtkQtTableModelAdapter::ICONS, or 
+  // vtkQtTableModelAdapter::NONE. Default is NONE.
+  void SetDecorationStrategy(int);
 
   // Description:
   // The array to use for coloring items in view.  Default is "color".
@@ -109,6 +110,13 @@ public:
   // Description:
   // The column used to filter on
   void SetFilterRegExp(const QRegExp& pattern);
+
+  // Description:
+  // Set the icon ivars. Only used if the decoration strategy is set to ICONS.
+  void SetIconSheet(QImage sheet);
+  void SetIconSize(int w, int h);
+  void SetIconSheetSize(int w, int h);
+  void SetIconArrayName(const char* name);
 
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
@@ -135,11 +143,14 @@ private:
 
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);
+  vtkSetStringMacro(IconIndexArrayNameInternal);
+  vtkGetStringMacro(IconIndexArrayNameInternal);
 
   QPointer<QListView> ListView;
   vtkQtTableModelAdapter* TableAdapter;
   QSortFilterProxyModel* TableSorter;
   char* ColorArrayNameInternal;
+  char* IconIndexArrayNameInternal;
   char* VisibleColumnName;
   bool SortSelectionToTop;
   bool ApplyRowColors;

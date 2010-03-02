@@ -48,7 +48,7 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtListView, "1.8");
+vtkCxxRevisionMacro(vtkQtListView, "1.9");
 vtkStandardNewMacro(vtkQtListView);
 
 
@@ -57,13 +57,14 @@ vtkQtListView::vtkQtListView()
 {
   this->ApplyColors = vtkSmartPointer<vtkApplyColors>::New();
   this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
+  this->ApplyColors->SetInputConnection(0, this->DataObjectToTable->GetOutputPort(0));
 
   this->DataObjectToTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
   this->FieldType = vtkQtListView::VERTEX_DATA;
 
   this->ListView = new QListView();
   this->TableAdapter = new vtkQtTableModelAdapter();
-  this->TableAdapter->SetRowColorStrategy(vtkQtTableModelAdapter::ITEM);
+  this->TableAdapter->SetDecorationLocation(vtkQtTableModelAdapter::ITEM);
   this->TableSorter = new QSortFilterProxyModel();
   this->TableSorter->setFilterCaseSensitivity(Qt::CaseInsensitive);
   this->TableSorter->setFilterRole(Qt::DisplayRole);
@@ -71,7 +72,8 @@ vtkQtListView::vtkQtListView()
   this->ListView->setModel(this->TableSorter);
   this->ListView->setModelColumn(0);
   this->TableSorter->setFilterKeyColumn(0);
-  
+  this->TableAdapter->SetColorColumnName("vtkApplyColors color");
+
   // Set up some default properties
   this->ListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   this->ListView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -81,8 +83,10 @@ vtkQtListView::vtkQtListView()
   this->LastMTime = 0;
   this->ApplyRowColors = false;
   this->VisibleColumn = 0;
+  this->TableAdapter->SetDecorationStrategy(vtkQtTableModelAdapter::NONE);
 
   this->ColorArrayNameInternal = 0;
+  this->IconIndexArrayNameInternal = 0;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
@@ -132,26 +136,31 @@ void vtkQtListView::SetFieldType(int type)
     }
 }
 
-void vtkQtListView::SetApplyRowColors(bool value)
+void vtkQtListView::SetIconSheet(QImage sheet)
 {
-  if(value != this->ApplyRowColors)
-    {
-    if(value)
-      {
-      this->DataObjectToTable->SetInputConnection(0, this->ApplyColors->GetOutputPort());
-      }
-    else
-      {
-      vtkDataRepresentation* rep = this->GetRepresentation();
-      if (rep)
-        {
-        vtkAlgorithmOutput *conn = rep->GetInputConnection();
-        this->DataObjectToTable->SetInputConnection(0, conn);
-        }
-      }
-    this->ApplyRowColors = value;
-    this->Modified();
-    }
+  this->TableAdapter->SetIconSheet(sheet);
+}
+
+void vtkQtListView::SetIconSheetSize(int w, int h)
+{
+  this->TableAdapter->SetIconSheetSize(w,h);
+}
+
+void vtkQtListView::SetIconSize(int w, int h)
+{
+  this->TableAdapter->SetIconSize(w,h);
+}
+
+void vtkQtListView::SetIconArrayName(const char* name)
+{
+  this->SetIconIndexArrayNameInternal(name);
+  this->TableAdapter->SetIconIndexColumnName(name);
+}
+
+void vtkQtListView::SetDecorationStrategy(int value)
+{
+  this->TableAdapter->SetDecorationStrategy(value);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -192,27 +201,11 @@ void vtkQtListView::SetVisibleColumn(int col)
 
 void vtkQtListView::AddRepresentationInternal(vtkDataRepresentation* rep)
 {    
-  vtkAlgorithmOutput *selConn, *annConn, *conn;
+  vtkAlgorithmOutput *annConn, *conn;
   conn = rep->GetInputConnection();
   annConn = rep->GetInternalAnnotationOutputPort();
-  selConn = rep->GetInternalSelectionOutputPort();
 
-  if(!this->ApplyRowColors)
-    {
-    this->DataObjectToTable->SetInputConnection(0, conn);
-    }
-
-  this->ApplyColors->SetInputConnection(0, conn);
-
-  vtkSmartPointer<vtkSelection> empty =
-    vtkSmartPointer<vtkSelection>::New();
-  vtkSmartPointer<vtkSelectionNode> emptyNode =
-    vtkSmartPointer<vtkSelectionNode>::New();
-  emptyNode->SetContentType(vtkSelectionNode::INDICES);
-  vtkSmartPointer<vtkIdTypeArray> arr =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  emptyNode->SetSelectionList(arr);
-  empty->AddNode(emptyNode);
+  this->DataObjectToTable->SetInputConnection(0, conn);
 
   if(annConn)
     {
@@ -220,15 +213,13 @@ void vtkQtListView::AddRepresentationInternal(vtkDataRepresentation* rep)
     }
 }
 
-
 void vtkQtListView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
 {   
-  vtkAlgorithmOutput *selConn, *annConn, *conn;
+  vtkAlgorithmOutput *annConn, *conn;
   conn = rep->GetInputConnection();
-  selConn = rep->GetInternalSelectionOutputPort();
   annConn = rep->GetInternalAnnotationOutputPort();
 
-  this->ApplyColors->RemoveInputConnection(0, conn);
+  this->DataObjectToTable->RemoveInputConnection(0, conn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
   this->TableAdapter->SetVTKDataObject(0);
 }
@@ -334,21 +325,13 @@ void vtkQtListView::Update()
       this->GetMTime() > this->LastMTime  ||
       atime > this->LastSelectionMTime)
     {
-    this->TableAdapter->SetVTKDataObject(0);
-
-    if(this->ApplyRowColors)
-      {
-      this->ApplyColors->Update();
-      }
-
     this->DataObjectToTable->Update();
+    this->ApplyColors->Update();
+    this->TableAdapter->SetVTKDataObject(0);
+    this->TableAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
 
-    this->TableAdapter->SetVTKDataObject(this->DataObjectToTable->GetOutput());
-
-    if(this->ApplyRowColors)
-      {
-      this->TableAdapter->SetColorColumnName("vtkApplyColors color");
-      }
+    this->TableAdapter->SetColorColumnName("vtkApplyColors color");
+    this->TableAdapter->SetIconIndexColumnName(this->IconIndexArrayNameInternal);
 
     if (atime > this->LastSelectionMTime)
       {

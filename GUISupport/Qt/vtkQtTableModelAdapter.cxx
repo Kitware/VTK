@@ -25,6 +25,7 @@
 #include "vtkTable.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -42,6 +43,7 @@
 #include <QMimeData>
 #include <QPair>
 #include <QPixmap>
+#include <QImage>
 
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
@@ -71,8 +73,12 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   this->Internal = new vtkInternal;
   this->Table = NULL;
   this->SplitMultiComponentColumns = false;
-  this->RowColorStrategy = vtkQtTableModelAdapter::HEADER;
+  this->DecorationLocation = vtkQtTableModelAdapter::HEADER;
+  this->DecorationStrategy = vtkQtTableModelAdapter::NONE;
   this->ColorColumn = -1;
+  this->IconIndexColumn = -1;
+  this->IconSheetSize[0] = this->IconSheetSize[1] = 0;
+  this->IconSize[0] = this->IconSize[1] = 0;
 } 
 
 //----------------------------------------------------------------------------
@@ -81,8 +87,12 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
 {
   this->Internal = new vtkInternal;
   this->SplitMultiComponentColumns = false;
-  this->RowColorStrategy = vtkQtTableModelAdapter::HEADER;
+  this->DecorationLocation = vtkQtTableModelAdapter::HEADER;
+  this->DecorationStrategy = vtkQtTableModelAdapter::NONE;
   this->ColorColumn = -1;
+  this->IconIndexColumn = -1;
+  this->IconSheetSize[0] = this->IconSheetSize[1] = 0;
+  this->IconSize[0] = this->IconSize[1] = 0;
   if (this->Table != NULL)
     {
     this->Table->Register(0);
@@ -134,6 +144,46 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
       }
     }
   if (this->ColorColumn != color_column)
+    {
+    emit this->reset();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
+{
+  int color_column = this->IconIndexColumn;
+  if (name == 0 || !this->Table)
+    {
+    this->IconIndexColumn = -1;
+    }
+  else if (this->SplitMultiComponentColumns)
+    {
+    this->IconIndexColumn = -1;
+    int color_index=0;
+    foreach(QString columnname, this->Internal->ModelColumnNames)
+      {
+      if (columnname == name)
+        {
+        this->IconIndexColumn = color_index;
+        break;
+        }
+      color_index++;
+      }
+    }
+  else
+    {
+    this->IconIndexColumn = -1;
+    for (int i = 0; i < static_cast<int>(this->Table->GetNumberOfColumns()); i++)
+      {
+      if (!strcmp(name, this->Table->GetColumn(i)->GetName()))
+        {
+        this->IconIndexColumn = i;
+        break;
+        }
+      }
+    }
+  if (this->IconIndexColumn != color_column)
     {
     emit this->reset();
     }
@@ -397,11 +447,20 @@ void vtkQtTableModelAdapter::SetSplitMultiComponentColumns(bool value)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableModelAdapter::SetRowColorStrategy(int s)
+void vtkQtTableModelAdapter::SetDecorationStrategy(int s)
 {
-  if (s != this->RowColorStrategy)
+  if (s != this->DecorationStrategy)
     {
-    this->RowColorStrategy = s;
+    this->DecorationStrategy = s;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQtTableModelAdapter::SetDecorationLocation(int s)
+{
+  if (s != this->DecorationLocation)
+    {
+    this->DecorationLocation = s;
     }
 }
 
@@ -440,9 +499,15 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Return a byte array if they ask for a decorate role 
   if (role == Qt::DecorationRole)
     {
-    if(this->RowColorStrategy == vtkQtTableModelAdapter::ITEM && this->ColorColumn >= 0)
+    if(this->DecorationStrategy == vtkQtTableModelAdapter::COLORS &&
+      this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->ColorColumn >= 0)
       {
       return this->getColorIcon(idx.row());
+      }
+    else if(this->DecorationStrategy == vtkQtTableModelAdapter::ICONS &&
+      this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->IconIndexColumn >= 0)
+      {
+      return this->getIcon(idx.row());
       }
     return this->Internal->IndexToDecoration[idx];
     }
@@ -539,9 +604,11 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
         return QVariant(v.ToString().c_str());
         }
       }
-    else if(role == Qt::DecorationRole && this->ColorColumn >= 0 && this->RowColorStrategy == vtkQtTableModelAdapter::HEADER)
+    else if(role == Qt::DecorationRole && 
+      this->DecorationStrategy == vtkQtTableModelAdapter::ICONS &&
+      this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->IconIndexColumn >= 0)
       {
-      return this->getColorIcon(section);
+      return this->getIcon(section);
       }
     }
 
@@ -766,4 +833,48 @@ QVariant vtkQtTableModelAdapter::getColorIcon(int row) const
     }
 
   return QVariant();
+}
+
+QVariant vtkQtTableModelAdapter::getIcon(int row) const
+{
+  int column;
+  if (this->GetSplitMultiComponentColumns())
+    {
+    column = this->Internal->ModelColumnToTableColumn[this->IconIndexColumn].first;
+    }
+  else
+    {
+    column = this->ModelColumnToFieldDataColumn(this->IconIndexColumn);
+    }
+  vtkIntArray* icon_indices = vtkIntArray::SafeDownCast(this->Table->GetColumn(column));
+  if (!icon_indices)
+    {
+    return QVariant();
+    }
+
+  int icon_idx = icon_indices->GetValue(row);
+  int x, y;
+  int dimX = this->IconSheetSize[0]/this->IconSize[0];
+  int dimY = this->IconSheetSize[1]/this->IconSize[1];
+  x = (icon_idx >= dimX) ? icon_idx % dimX : icon_idx;
+  x *= this->IconSize[0];
+  y = (icon_idx >= dimX) ? static_cast<int>(icon_idx/dimX) : 0;
+  y *= this->IconSize[1];
+
+  return this->IconSheet.copy(x, y, this->IconSize[0], this->IconSize[1]);
+}
+
+void vtkQtTableModelAdapter::SetIconSheet(QImage sheet)
+{
+  this->IconSheet = sheet;
+}
+void vtkQtTableModelAdapter::SetIconSheetSize(int w, int h)
+{
+  this->IconSheetSize[0] = w;
+  this->IconSheetSize[1] = h;
+}
+void vtkQtTableModelAdapter::SetIconSize(int w, int h)
+{
+  this->IconSize[0] = w;
+  this->IconSize[1] = h;
 }
