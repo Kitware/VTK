@@ -559,44 +559,52 @@ int TestDescriptiveStatistics( int, char *[] )
   ds3->Delete();
 
   // ************** Pseudo-random sample to exercise Jarque-Bera test ********* 
-  int nGaussianVals = 10000;
+  int nVals = 10000;
 
-  vtkDoubleArray* datasetArrG = vtkDoubleArray::New();
-  datasetArrG->SetNumberOfComponents( 1 );
-  datasetArrG->SetName( "Standard Normal" );
+  vtkDoubleArray* datasetNormal = vtkDoubleArray::New();
+  datasetNormal->SetNumberOfComponents( 1 );
+  datasetNormal->SetName( "Standard Normal" );
 
-  vtkDoubleArray* datasetArrU = vtkDoubleArray::New();
-  datasetArrU->SetNumberOfComponents( 1 );
-  datasetArrU->SetName( "Standard Uniform" );
+  vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
+  datasetUniform->SetNumberOfComponents( 1 );
+  datasetUniform->SetName( "Standard Uniform" );
 
-  vtkDoubleArray* datasetArrL = vtkDoubleArray::New();
-  datasetArrL->SetNumberOfComponents( 1 );
-  datasetArrL->SetName( "Standard Log-Normal" );
+  vtkDoubleArray* datasetLogNormal = vtkDoubleArray::New();
+  datasetLogNormal->SetNumberOfComponents( 1 );
+  datasetLogNormal->SetName( "Standard Log-Normal" );
 
-  vtkDoubleArray* datasetArrE = vtkDoubleArray::New();
-  datasetArrE->SetNumberOfComponents( 1 );
-  datasetArrE->SetName( "Standard Exponential" );
+  vtkDoubleArray* datasetExponential = vtkDoubleArray::New();
+  datasetExponential->SetNumberOfComponents( 1 );
+  datasetExponential->SetName( "Standard Exponential" );
+
+  vtkDoubleArray* datasetLaplace = vtkDoubleArray::New();
+  datasetLaplace->SetNumberOfComponents( 1 );
+  datasetLaplace->SetName( "Standard Laplace" );
 
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
-  for ( int i = 0; i < nGaussianVals; ++ i )
+  for ( int i = 0; i < nVals; ++ i )
     {
-    datasetArrG->InsertNextValue( vtkMath::Gaussian() );
-    datasetArrU->InsertNextValue( vtkMath::Random() );
-    datasetArrL->InsertNextValue( exp( vtkMath::Gaussian() ) );
-    datasetArrE->InsertNextValue( -log ( vtkMath::Random() ) );
+    datasetNormal->InsertNextValue( vtkMath::Gaussian() );
+    datasetUniform->InsertNextValue( vtkMath::Random() );
+    datasetLogNormal->InsertNextValue( exp( vtkMath::Gaussian() ) );
+    datasetExponential->InsertNextValue( -log ( vtkMath::Random() ) );
+    double u = vtkMath::Random() - .5;
+    datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
     }
 
   vtkTable* gaussianTable = vtkTable::New();
-  gaussianTable->AddColumn( datasetArrG );
-  datasetArrG->Delete();
-  gaussianTable->AddColumn( datasetArrU );
-  datasetArrU->Delete();
-  gaussianTable->AddColumn( datasetArrL );
-  datasetArrL->Delete();
-  gaussianTable->AddColumn( datasetArrE );
-  datasetArrE->Delete();
+  gaussianTable->AddColumn( datasetNormal );
+  datasetNormal->Delete();
+  gaussianTable->AddColumn( datasetUniform );
+  datasetUniform->Delete();
+  gaussianTable->AddColumn( datasetLogNormal );
+  datasetLogNormal->Delete();
+  gaussianTable->AddColumn( datasetExponential );
+  datasetExponential->Delete();
+  gaussianTable->AddColumn( datasetLaplace );
+  datasetLaplace->Delete();
 
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
   ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
@@ -610,6 +618,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds4->AddColumn( "Standard Uniform" );
   ds4->AddColumn( "Standard Log-Normal" );
   ds4->AddColumn( "Standard Exponential" );
+  ds4->AddColumn( "Standard Laplace" );
 
   // Test Learn, Derive, and Test options only
   ds4->SetLearnOption( true );
@@ -620,7 +629,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Print some calculated statistics of the Learn and Derive options
   cout << "\n## Some calculated descriptive statistics for pseudo-random variables (n="
-       << nGaussianVals
+       << nVals
        << "):\n";
 
   // Statistics of interest
@@ -652,7 +661,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
-       << nGaussianVals
+       << nVals
        << "):\n";
   
 #ifdef VTK_USE_GNU_R
