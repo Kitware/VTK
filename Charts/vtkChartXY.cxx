@@ -68,7 +68,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.40");
+vtkCxxRevisionMacro(vtkChartXY, "1.41");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -85,6 +85,10 @@ vtkChartXY::vtkChartXY()
     // By default just show the left and bottom axes
     this->ChartPrivate->axes.back()->SetVisible(i < 2 ? true : false);
     }
+  this->ChartPrivate->axes[vtkAxis::LEFT]->SetPosition(vtkAxis::LEFT);
+  this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetPosition(vtkAxis::BOTTOM);
+  this->ChartPrivate->axes[vtkAxis::RIGHT]->SetPosition(vtkAxis::RIGHT);
+  this->ChartPrivate->axes[vtkAxis::TOP]->SetPosition(vtkAxis::TOP);
 
   // Set up the x and y axes - should be congigured based on data
   this->ChartPrivate->axes[vtkAxis::LEFT]->SetTitle("Y Axis");
@@ -223,9 +227,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->ChartPrivate->axes[i]->Update();
     }
 
-  // Draw a hard wired grid right now - this should be configurable
-  painter->GetPen()->SetColorF(0.95, 0.95, 0.95);
-  painter->GetPen()->SetWidth(1.0);
+  // Draw the grid - the axes take care of its color and visibility
   this->Grid->Paint(painter);
 
   // Plot the series of the chart
@@ -449,12 +451,18 @@ void vtkChartXY::RecalculatePlotBounds()
   // Now set the newly calculated bounds on the axes
   vtkAxis* xAxis = this->ChartPrivate->axes[vtkAxis::BOTTOM];
   vtkAxis* yAxis = this->ChartPrivate->axes[vtkAxis::LEFT];
-  xAxis->SetMinimum(xmin);
-  xAxis->SetMaximum(xmax);
-  yAxis->SetMinimum(ymin);
-  yAxis->SetMaximum(ymax);
-  xAxis->AutoScale();
-  yAxis->AutoScale();
+  if (xAxis->GetBehavior() == 0)
+    {
+    xAxis->SetMinimum(xmin);
+    xAxis->SetMaximum(xmax);
+    xAxis->AutoScale();
+    }
+  if (yAxis->GetBehavior() == 0)
+    {
+    yAxis->SetMinimum(ymin);
+    yAxis->SetMaximum(ymax);
+    yAxis->AutoScale();
+    }
 }
 
 //-----------------------------------------------------------------------------

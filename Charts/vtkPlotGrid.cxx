@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPlotGrid, "1.4");
+vtkCxxRevisionMacro(vtkPlotGrid, "1.5");
 vtkCxxSetObjectMacro(vtkPlotGrid, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlotGrid, YAxis, vtkAxis);
 //-----------------------------------------------------------------------------
@@ -62,13 +62,11 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
   this->XAxis->GetPoint2(this->Point2[0], ignored);
   this->YAxis->GetPoint2(ignored, this->Point2[1]);
 
-  // Now do some grid drawing...
-  painter->GetPen()->SetWidth(1.0);
-
   // in x
   if (this->XAxis->GetGridVisible())
     {
     vtkFloatArray *xLines = this->XAxis->GetTickPositions();
+    painter->ApplyPen(this->XAxis->GetGridPen());
     float *xPositions = xLines->GetPointer(0);
     for (int i = 0; i < xLines->GetNumberOfTuples(); ++i)
       {
@@ -81,6 +79,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
   if (this->YAxis->GetGridVisible())
     {
     vtkFloatArray *yLines = this->YAxis->GetTickPositions();
+    painter->ApplyPen(this->YAxis->GetGridPen());
     float *yPositions = yLines->GetPointer(0);
     for (int i = 0; i < yLines->GetNumberOfTuples(); ++i)
       {
@@ -96,5 +95,4 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
 void vtkPlotGrid::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
 }
