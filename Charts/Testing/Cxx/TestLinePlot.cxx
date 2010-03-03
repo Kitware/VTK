@@ -33,7 +33,7 @@ int TestLinePlot( int argc, char * argv [] )
   // Set up a 2D scene, add an XY chart to it
   VTK_CREATE(vtkContextView, view);
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(800, 600);
+  view->GetRenderWindow()->SetSize(400, 300);
   VTK_CREATE(vtkChartXY, chart);
   view->GetScene()->AddItem(chart);
 
@@ -78,8 +78,9 @@ int TestLinePlot( int argc, char * argv [] )
   line->SetWidth(4.0);
 
   //Finally render the scene and compare the image to a reference image
-  view->Render();
   view->GetRenderWindow()->SetMultiSamples(0);
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
+  //int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+
   return !retVal;
 }
