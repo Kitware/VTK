@@ -736,7 +736,8 @@ IF(VTK_USE_RENDERING)
      if(VTK_USE_NVCONTROL)
        find_package(NVCtrlLib)
      endif(VTK_USE_NVCONTROL)
-   endif(VTK_USE_X)
+     mark_as_advanced(VTK_USE_NVCONTROL)
+  endif(VTK_USE_X)
 
 ENDIF(VTK_USE_RENDERING)
 
