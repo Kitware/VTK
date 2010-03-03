@@ -623,7 +623,17 @@ int TestDescriptiveStatistics( int, char *[] )
        << nGaussianVals
        << "):\n";
 
-  int soi[] = { 0, 2, 3, 4, 9, 10, 12 };
+  // Statistics of interest
+  int soi[] = 
+    { 
+      0,  // variable name
+      2,  // minimum
+      3,  // maximum
+      4,  // mean
+      9,  // variance
+      10, // g1 skewness
+      12  // g2 kurtosis
+    };
   int nsoi = 7;
 
   for ( vtkIdType r = 0; r < outputMeta4->GetNumberOfRows(); ++ r )
