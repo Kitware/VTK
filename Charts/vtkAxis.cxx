@@ -21,13 +21,14 @@
 #include "vtkFloatArray.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtksys/ios/sstream"
 
 #include "vtkObjectFactory.h"
 
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.16");
+vtkCxxRevisionMacro(vtkAxis, "1.17");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -58,6 +59,15 @@ vtkAxis::vtkAxis()
   this->Title = NULL;
   this->LogScale = false;
   this->GridVisible = true;
+  this->LabelsVisible = true;
+  this->Precision = 2;
+  this->Notation = 2; // Fixed - do the right thing...
+  this->Pen = vtkPen::New();
+  this->Pen->SetColor(0, 0, 0);
+  this->Pen->SetWidth(1.0);
+  this->GridPen = vtkPen::New();
+  this->GridPen->SetColor(242, 242, 242);
+  this->GridPen->SetWidth(1.0);
   this->TickPositions = vtkFloatArray::New();
   this->TickLabels = vtkStringArray::New();
 }
@@ -72,6 +82,8 @@ vtkAxis::~vtkAxis()
   this->TickPositions = NULL;
   this->TickLabels->Delete();
   this->TickLabels = NULL;
+  this->Pen->Delete();
+  this->GridPen->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -79,6 +91,13 @@ void vtkAxis::Update()
 {
   this->TickPositions->SetNumberOfTuples(0);
   this->TickLabels->SetNumberOfTuples(0);
+
+  // Figure out what type of behavior we should follow
+  if (this->Behavior == 1)
+    {
+    this->RecalculateTickSpacing();
+    }
+
   // Calculate where the first tick mark should be drawn
   float tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
 
@@ -110,16 +129,30 @@ void vtkAxis::Update()
     int iTick = static_cast<int>(origin + (tick - this->Minimum) * scaling);
     this->TickPositions->InsertNextValue(iTick);
     // Make a tick mark label for the tick
-    char string[20];
+    float value = tick;
     if (this->LogScale)
       {
-      sprintf(string, "%#6.3g", pow(double(10.0), double(tick)));
+      value = pow(double(10.0), double(tick));
       }
-    else
+
+    vtksys_ios::ostringstream ostr;
+    ostr.imbue(vtkstd::locale::classic());
+    if (this->Notation > 0)
       {
-      sprintf(string, "%#6.3g", tick);
+      ostr.precision(this->Precision);
       }
-    this->TickLabels->InsertNextValue(string);
+    if (this->Notation == 1)
+      {
+      // Scientific notation
+      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      }
+    else if (this->Notation == 2)
+      {
+      ostr.setf(ios::fixed, ios::floatfield);
+      }
+    ostr << value;
+
+    this->TickLabels->InsertNextValue(ostr.str());
 
     tick += this->TickInterval;
     }
@@ -136,7 +169,8 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     return false;
     }
 
-  painter->GetPen()->SetWidth(1.0);
+  painter->ApplyPen(this->Pen);
+
   // Draw this axis
   painter->DrawLine(this->Point1[0], this->Point1[1],
                     this->Point2[0], this->Point2[1]);
@@ -185,7 +219,10 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       {
       painter->DrawLine(this->Point1[0] - 5, tickPos[i],
                         this->Point1[0],     tickPos[i]);
-      painter->DrawString(this->Point1[0] - 7, tickPos[i], tickLabel[i]);
+      if (this->LabelsVisible)
+        {
+        painter->DrawString(this->Point1[0] - 7, tickPos[i], tickLabel[i]);
+        }
       }
     }
   else // Default to horizontal orientation
@@ -198,7 +235,10 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       {
       painter->DrawLine(tickPos[i], this->Point1[1] - 5,
                         tickPos[i], this->Point1[1]);
-      painter->DrawString(tickPos[i], int(this->Point1[1] - 7), tickLabel[i]);
+      if (this->LabelsVisible)
+        {
+        painter->DrawString(tickPos[i], int(this->Point1[1] - 7), tickLabel[i]);
+        }
       }
     }
 

@@ -26,6 +26,7 @@
 #include "vtkContextItem.h"
 
 class vtkContext2D;
+class vtkPen;
 class vtkFloatArray;
 class vtkStringArray;
 class vtkTextProperty;
@@ -122,6 +123,34 @@ public:
   vtkGetMacro(GridVisible, bool);
 
   // Description:
+  // Get/set whether the axis labels should be visible.
+  vtkSetMacro(LabelsVisible, bool);
+  vtkGetMacro(LabelsVisible, bool);
+
+  // Description:
+  // Get/set the numerical precision to use, default is 2.
+  vtkSetMacro(Precision, int);
+  vtkGetMacro(Precision, int);
+
+  // Description:
+  // Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
+  vtkSetMacro(Notation, int);
+  vtkGetMacro(Notation, int);
+
+  // Description:
+  // Get/set the behavior of the axis (auto, fixed, custom). Default is 0 (auto).
+  vtkSetMacro(Behavior, int);
+  vtkGetMacro(Behavior, int);
+
+  // Description:
+  // Get a pointer to the vtkPen object that controls the way this axis is drawn.
+  vtkGetObjectMacro(Pen, vtkPen);
+
+  // Description:
+  // Get a pointer to the vtkPen object that controls the way this axis is drawn.
+  vtkGetObjectMacro(GridPen, vtkPen);
+
+  // Description:
   // Update the geometry of the axis. Takes care of setting up the tick mark
   // locations etc. Should be called by the scene before rendering.
   virtual void Update();
@@ -177,6 +206,18 @@ protected:
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
   bool GridVisible;    // Whether the grid for the axis should be drawn
+  bool LabelsVisible;  // Should the axis labels be visible
+  int Precision;       // Numerical precision to use, defaults to 2.
+  int Notation;        // The notation to use (standard, scientific, mixed)
+  int Behavior;       // The behaviour of the axis (auto, fixed, custom).
+
+  // Description:
+  // This object stores the vtkPen that controls how the axis is drawn.
+  vtkPen* Pen;
+
+  // Description:
+  // This object stores the vtkPen that controls how the grid lines are drawn.
+  vtkPen* GridPen;
 
   vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates
   vtkStringArray* TickLabels; // The labels for the tick marks
