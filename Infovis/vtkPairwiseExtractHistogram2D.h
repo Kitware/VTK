@@ -129,6 +129,12 @@ public:
     HISTOGRAM_IMAGE=3
   };
 //ETX
+
+  // Description:
+  // Given a collection of models, calculate aggregate model.  Not used
+  virtual void Aggregate( vtkDataObjectCollection*, vtkDataObject* )
+    {};
+
 protected:
   vtkPairwiseExtractHistogram2D();
   ~vtkPairwiseExtractHistogram2D();
@@ -162,9 +168,10 @@ protected:
                        vtkTable* ) {};
 
   // Description:
-  // Given a collection of models, calculate aggregate model.  Not used
-  virtual void Aggregate( vtkDataObjectCollection*, vtkDataObject* )
-    {};
+  // Execute the calculations required by the Test option.
+  virtual void Test( vtkTable*,
+                     vtkDataObject*,
+                     vtkDataObject* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor.

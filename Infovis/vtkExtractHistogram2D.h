@@ -144,6 +144,11 @@ public:
   // Get/Set an optional mask that can ignore rows of the table
   virtual void SetRowMask(vtkDataArray*);
   vtkGetObjectMacro(RowMask,vtkDataArray);
+
+  // Description:
+  // Given a collection of models, calculate aggregate model. Not used.
+  virtual void Aggregate( vtkDataObjectCollection*, vtkDataObject* ) {};
+
 protected:
   vtkExtractHistogram2D();
   ~vtkExtractHistogram2D();
@@ -172,9 +177,10 @@ protected:
   virtual void Derive( vtkDataObject* ) {};
 
   // Description:
-  // Given a collection of models, calculate aggregate model. Not used.
-  virtual void Aggregate( vtkDataObjectCollection*, vtkDataObject* ) {};
-
+  // Execute the calculations required by the Test option.
+  virtual void Test( vtkTable*,
+                     vtkDataObject*,
+                     vtkDataObject* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor. Not used.

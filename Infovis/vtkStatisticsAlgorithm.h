@@ -265,7 +265,7 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkDataObject*,
-                     vtkDataObject* ) { return; };
+                     vtkDataObject* ) = 0; 
 
   //BTX
   // Description:
