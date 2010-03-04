@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.10");
 
 vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter, 
                      Controller,
@@ -71,8 +71,9 @@ public:
           this->PieceProcessList[piece+i*this->NumberOfPieces];
         }
     }
+
   // For each piece it keeps the processes that have that piece. 
-  // This is built and used on all processes.
+  // This is built and used only on the root node.
   // PieceProcessList[piece+NumPieces*process] = dataset type (-1 for NULL)
   int* PieceProcessList;
   int NumberOfPieces;
@@ -131,6 +132,12 @@ void vtkXMLPMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
 {
+  // FillDataTypes is called before the actual data writing begins.
+  // Every process fills up an array with the data types for all the leaf nodes.
+  // (Since the composite data structure is same on all the processes, the
+  // number of leaf nodes is same on all processes as well).
+  // Then we gather this list on to the root node, since the root node is the
+  // one that is writing out the vtmb file.
   this->Superclass::FillDataTypes(hdInput);
 
   if (!this->Controller)
@@ -142,7 +149,10 @@ void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   int* myDataTypes = this->GetDataTypesPointer();
 
   this->Internal->Allocate(numBlocks, this->Controller->GetNumberOfProcesses());
-  this->Controller->AllGather(myDataTypes, this->Internal->PieceProcessList, numBlocks);
+
+  // gather on to root node.
+  this->Controller->Gather(myDataTypes, this->Internal->PieceProcessList,
+                           numBlocks, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -222,13 +232,15 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
 int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   vtkDataObject* dObj, vtkXMLDataElement* parentXML, int currentFileIndex)
 {
-  int numberOfProcesses = this->Controller->GetNumberOfProcesses();
-  vtkstd::vector<int> pieceProcessList(numberOfProcesses);
-  this->Internal->GetPieceProcessList(currentFileIndex, &pieceProcessList[0]);
-  int myProcId = this->Controller->GetLocalProcessId();
- 
-  if(myProcId == 0)
+  int myProcId = this->Controller->GetLocalProcessId(); 
+  if (myProcId == 0)
     {
+    // pieceProcessList is a list where index is the process number and value is
+    // the data-type for the current leaf on that process.
+    int numberOfProcesses = this->Controller->GetNumberOfProcesses();
+    vtkstd::vector<int> pieceProcessList(numberOfProcesses);
+    this->Internal->GetPieceProcessList(currentFileIndex, &pieceProcessList[0]);
+
     int numPieces = 0;
     for (int procId=0; procId < numberOfProcesses; procId++)
       {
@@ -244,6 +256,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
       // pieces.  It will still have the index that was set before.
       parentXML->SetName("Piece");
       }
+
     int indexCounter = 0;
     for (int procId=0; procId < numberOfProcesses; procId++)
       {
@@ -270,7 +283,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
   if(dObj)
     {
     vtkStdString fName = this->CreatePieceFileName(
-      currentFileIndex, myProcId, pieceProcessList[myProcId]);
+      currentFileIndex, myProcId, this->GetDataTypesPointer()[currentFileIndex]);
     return this->Superclass::WriteNonCompositeData(
       dObj, NULL, currentFileIndex, fName.c_str());
     }
