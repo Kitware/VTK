@@ -249,6 +249,7 @@ protected:
   int IsElementaryOperator(int op);
   
   int GetMathFunctionNumber(int currentIndex);
+  int GetMathFunctionNumberByCheckingParenthesis( int currentIndex );
   int GetMathFunctionStringLength(int mathFunctionNumber);
   int GetMathConstantNumber(int currentIndex);
   int GetMathConstantStringLength(int mathConstantNumber);
