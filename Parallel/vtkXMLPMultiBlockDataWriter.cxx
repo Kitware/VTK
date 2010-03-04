@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.8");
+vtkCxxRevisionMacro(vtkXMLPMultiBlockDataWriter, "1.9");
 
 vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter, 
                      Controller,
@@ -85,7 +85,7 @@ vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
   this->Internal = new vtkInternal();
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->vtkXMLPMultiBlockDataWriter::SetWriteMetaFile(1);
+  this->SetWriteMetaFile(1);
 }
 
 //----------------------------------------------------------------------------
