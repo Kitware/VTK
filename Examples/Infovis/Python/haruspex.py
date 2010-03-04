@@ -493,8 +493,15 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
 # Main function
 def main():
     # Parse command line
-    [ inDataName, inModelPrefix, updateModel, columnsListName, haruspexName, options, outDataName, outTestName, outModelPrefix ] \
-      = ParseCommandLine()
+    [ inDataName, \
+      inModelPrefix, \
+      updateModel, \
+      columnsListName, \
+      haruspexName, \
+      options, \
+      outDataName, \
+      outTestName, \
+      outModelPrefix ] = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
     haruspex = InstantiateStatistics( haruspexName )
