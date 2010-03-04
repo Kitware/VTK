@@ -206,32 +206,33 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
-  char* Function;
-  char* ResultArrayName;
-  char** ScalarArrayNames;
-  char** VectorArrayNames;
-  char** ScalarVariableNames;
-  char** VectorVariableNames;
-  int NumberOfScalarArrays;
-  int NumberOfVectorArrays;
-  int AttributeMode;
-  int* SelectedScalarComponents;
-  int** SelectedVectorComponents;
+  char  * Function;
+  char  * ResultArrayName;
+  char ** ScalarArrayNames;
+  char ** VectorArrayNames;
+  char ** ScalarVariableNames;
+  char ** VectorVariableNames;
+  int     NumberOfScalarArrays;
+  int     NumberOfVectorArrays;
+  int     AttributeMode;
+  int   * SelectedScalarComponents;
+  int  ** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
 
-  int ReplaceInvalidValues;
-  double ReplacementValue;
+  int     ReplaceInvalidValues;
+  double  ReplacementValue;
   
-  int CoordinateResults;
-  char** CoordinateScalarVariableNames;
-  char** CoordinateVectorVariableNames;
-  int* SelectedCoordinateScalarComponents;
-  int** SelectedCoordinateVectorComponents;
-  int NumberOfCoordinateScalarArrays;
-  int NumberOfCoordinateVectorArrays;
+  int     CoordinateResults;
+  char ** CoordinateScalarVariableNames;
+  char ** CoordinateVectorVariableNames;
+  int   * SelectedCoordinateScalarComponents;
+  int  ** SelectedCoordinateVectorComponents;
+  int     NumberOfCoordinateScalarArrays;
+  int     NumberOfCoordinateVectorArrays;
 
-  int ResultArrayType;
-
+  int     ResultArrayType;
+  int     VectorsOutdated;
+  int     FunctionType;
 private:
   vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
   void operator=(const vtkArrayCalculator&);  // Not implemented.

@@ -28,13 +28,12 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.48");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.49");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
 {
   this->FunctionParser = vtkFunctionParser::New();
-  
   this->Function = NULL;
   this->ResultArrayName = NULL;
   this->SetResultArrayName("resultArray");
@@ -53,8 +52,9 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->NumberOfCoordinateVectorArrays = 0;
   this->SelectedCoordinateScalarComponents = NULL;
   this->SelectedCoordinateVectorComponents = NULL;
+  this->FunctionType    = 0;
+  this->VectorsOutdated = 0;
   this->CoordinateResults = 0;
-
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
 
@@ -193,6 +193,7 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
     return;
     }
   this->Modified();
+  
   if (this->ResultArrayName)
     {
     delete [] this->ResultArrayName;
@@ -279,10 +280,11 @@ int vtkArrayCalculator::RequestData(
     vtkDebugMacro("Empty data.");
     return 1;
     }
-  
+    
   for (i = 0; i < this->NumberOfScalarArrays; i++)
-    {
+    {   
     currentArray = inFD->GetArray(this->ScalarArrayNames[i]);
+    
     if (currentArray)
       {
       if (currentArray->GetNumberOfComponents() >
@@ -380,7 +382,11 @@ int vtkArrayCalculator::RequestData(
       }
     }
 
-  if (!this->Function || strlen(this->Function) == 0)
+  // In case the input of a calculator is changed to make a (whole) vector
+  // referenced in the function outdated, the addition of 'VectorsOutdated'
+  // below avoids a crash problem.
+  if ( !this->Function || strlen(this->Function) == 0 
+                       || this->VectorsOutdated )
     {
     dsOutput->CopyStructure(dsInput);
     dsOutput->CopyAttributes(dsInput);
@@ -389,10 +395,12 @@ int vtkArrayCalculator::RequestData(
   else if (this->FunctionParser->IsScalarResult())
     {
     resultType = 0;
+    this->FunctionType = 0;
     }
   else if (this->FunctionParser->IsVectorResult())
     {
     resultType = 1;
+    this->FunctionType = 1;
     }
   else
     {
@@ -1220,4 +1228,6 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Replace Invalid Values: " 
      << (this->ReplaceInvalidValues ? "On" : "Off") << endl;
   os << indent << "Replacement Value: " << this->ReplacementValue << endl;
+  os << indent << "FunctionType: "    << this->FunctionType    << endl;
+  os << indent << "VectorsOutdated: " << this->VectorsOutdated << endl;
 }
