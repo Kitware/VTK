@@ -35,6 +35,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    1st bit: assess"
     print "\t                    2nd bit: test"
     print "\t [-m <prefix>]    CSV input model file. Default: calculate model from scratch"
+    print "\t [-u]             update input model (if data are provided as well). NB: update happens before assessment"
     print "\t [-s <prefix>]    CSV output model (statistics) file prefix"
     print "\t [-a <filename>]  CSV output data (annotated) file"
     print "\t [-c <filename>]  CSV columns of interest file. Default: all columns are of interest"
@@ -52,6 +53,7 @@ def ParseCommandLine():
     options = 0
     inDataName = ""
     inModelPrefix = ""
+    updateModel = False
     haruspexName = ""
     outModelPrefix = ""
     outDataName = ""
@@ -60,7 +62,7 @@ def ParseCommandLine():
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:s:a:c:v')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:us:a:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -81,6 +83,8 @@ def ParseCommandLine():
             options = a
         elif o == "-m":
             inModelPrefix = a
+        elif o == "-u":
+            updateModel = True
         elif o == "-s":
             outModelPrefix = a
         elif o == "-a":
@@ -118,7 +122,15 @@ def ParseCommandLine():
 
         print
 
-    return [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outTestName, outModelPrefix ]
+    return [ inDataName, \
+             inModelPrefix, \
+             updateModel, \
+             columnsListName, \
+             haruspexName, \
+             options, \
+             outDataName, \
+             outTestName, \
+             outModelPrefix ]
 ############################################################
 
 ############################################################
@@ -344,7 +356,7 @@ def WriteOutModel( haruspex, outModelPrefix ):
 
 ############################################################
 # Calculate statistics
-def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, options ):
+def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options ):
     # Declare use of global variable
     global verbosity
 
@@ -438,32 +450,41 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, opt
         elif inModelType != "vtkTable":
             print "ERROR: unsupported type of input model!"
             sys.exit( 1 )
+            
+        # If model update is required, then learn new model and aggregate, otherwise assess directly
+        if updateModel == True:
+            # Store model it for subsequent aggregation
+            collection = vtkDataObjectCollection()
+            collection.AddItem( inModel )
+            
+            # Then learn a new primary model (do not derive nor assess)
+            haruspex.SetLearnOption( True )
+            haruspex.SetDeriveOption( False )
+            haruspex.SetAssessOption( False )
+            haruspex.Update()
+            
+            # Aggregate old and new models
+            collection.AddItem( haruspex.GetOutputDataObject( 1 ) )
+            if inModelType == "vtkTable":
+                aggregated = vtkTable()
+            elif inModelType == "vtkMultiBlockDataSet":
+                aggregated = vtkMultiBlockDataSet()
+            haruspex.Aggregate( collection, aggregated )
 
-        # Store model it for subsequent aggregation
-        collection = vtkDataObjectCollection()
-        collection.AddItem( inModel )
-
-        # Then learn a new primary model (do not derive nor assess)
-        haruspex.SetLearnOption( True )
-        haruspex.SetDeriveOption( False )
-        haruspex.SetAssessOption( False )
-        haruspex.Update()
-
-        # Aggregate old and new models
-        collection.AddItem( haruspex.GetOutputDataObject( 1 ) )
-        if inModelType == "vtkTable":
-            aggregated = vtkTable()
-        elif inModelType == "vtkMultiBlockDataSet":
-            aggregated = vtkMultiBlockDataSet()
-        haruspex.Aggregate( collection, aggregated )
-
-        # Finally, derive and possibly assess using the aggregated model (do not learn)
-        haruspex.SetInput( 2, aggregated )
-        haruspex.SetLearnOption( False )
-        haruspex.SetDeriveOption( True )
-        haruspex.SetAssessOption( assessOption )
-        haruspex.Update()
-
+            # Finally, derive and possibly assess using the aggregated model (do not learn)
+            haruspex.SetInput( 2, aggregated )
+            haruspex.SetLearnOption( False )
+            haruspex.SetDeriveOption( True )
+            haruspex.SetAssessOption( assessOption )
+            haruspex.Update()
+        else:
+            # Only derive and possibly assess using the input model (do not aggregate)
+            haruspex.SetInput( 2, inModel )
+            haruspex.SetLearnOption( False )
+            haruspex.SetDeriveOption( True )
+            haruspex.SetAssessOption( assessOption )
+            haruspex.Update()
+            
     if verbosity > 0:
         print
 ############################################################
@@ -472,7 +493,7 @@ def CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, opt
 # Main function
 def main():
     # Parse command line
-    [ inDataName, inModelPrefix, columnsListName, haruspexName, options, outDataName, outTestName, outModelPrefix ] \
+    [ inDataName, inModelPrefix, updateModel, columnsListName, haruspexName, options, outDataName, outTestName, outModelPrefix ] \
       = ParseCommandLine()
 
     # Verify that haruspex name makes sense and if so instantiate accordingly
@@ -494,7 +515,7 @@ def main():
         columnsList = []
         
     # Calculate statistics
-    CalculateStatistics( inDataReader, inModelReader, columnsList, haruspex, options )
+    CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options )
 
     # Save output (annotated) data
     WriteOutTable( haruspex, 0, outDataName, "annotated data" )
