@@ -36,7 +36,8 @@ int TestExtractPolyhedralMesh( int argc, char* argv[] )
 {
   //char* fname = vtkTestUtilities::ExpandDataFileName( 
   //	  argc, argv, "c:/d/VTK/VTKData/Data/SampleStructGrid.vtk" );
-  char fname[] = "c:/d/VTK/VTKData/Data/SampleStructGrid.vtk";
+  //char fname[] = "c:/d/VTK/VTKData/Data/SampleStructGrid.vtk";
+  char fname[] = "/home/hyang/Desktop/SampleStructGrid.vtk";
   vtkSmartPointer<vtkStructuredGridReader> reader =
     vtkSmartPointer<vtkStructuredGridReader>::New();
   reader->SetFileName(fname);
@@ -81,12 +82,34 @@ int TestExtractPolyhedralMesh( int argc, char* argv[] )
   double t, x[3], pc[3];
   int subId=0;
   int numInts = pCell->IntersectWithLine(p1,p2,tol,t,x,pc,subId); //should be 2
+  if (numInts != 2)
+    {
+    std::cerr << "Expect 2 intersections, but get " << numInts << std::endl;
+    return EXIT_FAILURE;
+    }
 
   // See if points are inside or outside
   vtkPolyhedron *pCell2 = static_cast<vtkPolyhedron*>(ugrid->GetCell(100));
+  std::cout << "Testing on a polyhedron cell extracted from structured grid. "
+   "It is a cube with " << pCell2->GetNumberOfEdges() << " edges and "
+   << pCell2->GetNumberOfFaces() << "faces. " << std::endl;
+  
   int inside = pCell2->IsInside(p1,tol); //should be out
+  if (inside)
+    {
+    std::cerr << "Expect point [" << p1[0] << ", " << p1[1] << ", " << p1[2] 
+              << "] to be inside the polyhedral, but it's outside." << std::endl;
+    return EXIT_FAILURE;
+    }
+
   p2[0] = 0.01; p2[1] = .14; p2[2] = .14;
   inside = pCell2->IsInside(p2,tol); //should be in
+  if (!inside)
+    {
+    std::cerr << "Expect point [" << p2[0] << ", " << p2[1] << ", " << p2[2] 
+              << "] to be outside the polyhedral, but it's inside." << std::endl;
+    return EXIT_FAILURE;
+    }
 
   // Create rendering infrastructure
   vtkSmartPointer<vtkRenderer> ren = 

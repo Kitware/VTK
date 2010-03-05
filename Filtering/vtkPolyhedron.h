@@ -128,8 +128,11 @@ public:
   virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
 
   // Description:
-  // Computes derivatives by triangulating and from subId and pcoords,
-  // evaluating derivatives on the resulting tetrahedron.
+  // Computes derivatives at the point specified by the parameter coordinate.
+  // Current implementation uses all vertices and subId is not used.
+  // To accelerate the speed, the future implementation can triangulate and 
+  // extract the local tetrahedron from subId and pcoords, then evaluate 
+  // derivatives on the local tetrahedron. 
   virtual void Derivatives(int subId, double pcoords[3], double *values,
                            int dim, double *derivs);
 
@@ -151,8 +154,8 @@ public:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives). Here we use the MVC calculation
   // process to compute the interpolation functions.
-  virtual void InterpolateFunctions(double pcoords[3], double *sf);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+  virtual void InterpolateFunctions(double x[3], double *sf);
+  virtual void InterpolateDerivs(double x[3], double *derivs);
 
   // Description:
   // Methods supporting the definition of faces. Note that the GetFaces()
@@ -210,6 +213,7 @@ protected:
   int    BoundsComputed;
   void   ComputeBounds();
   void   ComputeParametricCoordinate(double x[3], double pc[3]);
+  void   ComputePositionFromParametricCoordinate(double pc[3], double x[3]);
 
   // Members for supporting geometric operations
   int             PolyDataConstructed;

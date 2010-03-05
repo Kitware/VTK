@@ -31,6 +31,7 @@
 #include "vtkPolyData.h"
 #include "vtkCellLocator.h"
 #include "vtkGenericCell.h"
+#include "vtkMeanValueCoordinatesInterpolator.h"
 
 #include <vtkstd/map>
 
@@ -111,6 +112,11 @@ void vtkPolyhedron::ComputeBounds()
 //----------------------------------------------------------------------------
 void vtkPolyhedron::ConstructPolyData()
 {
+  if (this->PolyDataConstructed)
+    {
+    return;
+    }
+  
   // Here's a trick, we're going to use the Faces array as the connectivity 
   // array. Note that the Faces have an added nfaces value at the beginning
   // of the array. Other than that,it's a vtkCellArray. So we play games 
@@ -133,6 +139,11 @@ void vtkPolyhedron::ConstructPolyData()
 //----------------------------------------------------------------------------
 void vtkPolyhedron::ConstructLocator()
 {
+  if (this->LocatorConstructed)
+    {
+    return;
+    }
+  
   this->ConstructPolyData();
   
   // With the polydata set up, we can assign it to the  locator
@@ -153,6 +164,16 @@ void vtkPolyhedron::ComputeParametricCoordinate(double x[3], double pc[3])
   pc[2] = (x[2] - bounds[4]) / (bounds[5] - bounds[4]);
 }
 
+//----------------------------------------------------------------------------
+void vtkPolyhedron::
+ComputePositionFromParametricCoordinate(double pc[3], double x[3])
+{
+  this->ComputeBounds();
+  double *bounds = this->Bounds;
+  x[0] = ( 1 - pc[0] )* bounds[0] + pc[0] * bounds[1];
+  x[1] = ( 1 - pc[1] )* bounds[2] + pc[1] * bounds[3];
+  x[2] = ( 1 - pc[2] )* bounds[4] + pc[2] * bounds[5];
+}
 
 //----------------------------------------------------------------------------
 // Should be called by GetCell() prior to any other method invocation and after the
@@ -237,6 +258,11 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 //----------------------------------------------------------------------------
 int vtkPolyhedron::GenerateEdges()
 {
+  if ( this->EdgesGenerated )
+    {
+    return this->Edges->GetNumberOfTuples();
+    }
+
   //check the number of faces and return if there aren't any
   if ( this->GlobalFaces->GetValue(0) <= 0 ) 
     {
@@ -584,11 +610,44 @@ int vtkPolyhedron::CellBoundary(int subId, double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::EvaluatePosition( double x[3],
-                                     double * vtkNotUsed(closestPoint),
-                                     int & subId, double pcoords[3],
+int vtkPolyhedron::EvaluatePosition( double x[3], double * closestPoint,
+                                     int & vtkNotUsed(subId), double pcoords[3],
                                      double & minDist2, double * weights )
 {
+  // compute parametric coordinates 
+  this->ComputeParametricCoordinate(x, pcoords);
+  
+  // construct polydata, the result is stored in this->PolyData,
+  // the cell array is stored in this->Polys
+  this->ConstructPolyData();
+  
+  // Construct cell locator
+  this->ConstructLocator();
+  
+  // find closest point and store the squared distance
+  vtkGenericCell * genCell = vtkGenericCell::New( );
+
+  vtkIdType cellId;
+  int id;
+  this->CellLocator->FindClosestPoint(
+    x, closestPoint, genCell, cellId, id, minDist2 );
+
+  genCell->Delete();
+
+  // set distance to be zero, if point is inside
+  if (this->IsInside(x, VTK_DOUBLE_MIN))
+    {
+    minDist2 = 0.0;
+    }
+  
+  // get the MVC weights
+  if (this->PolyData->GetPoints())
+    {
+    return 0;
+    }
+  vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
+    x, this->PolyData->GetPoints(), this->Polys, weights);
+
   return 0;
 }
 
@@ -596,12 +655,96 @@ int vtkPolyhedron::EvaluatePosition( double x[3],
 void vtkPolyhedron::EvaluateLocation( int &  subId, double   pcoords[3], 
                                       double x[3],  double * weights )
 {
+  this->ComputePositionFromParametricCoordinate(pcoords, x);
+  
+  this->InterpolateFunctions(x, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::Derivatives(int subId, double pcoords[3],
+void vtkPolyhedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
                                 double *values, int dim, double *derivs)
 {
+  int i, j, k, idx;
+  for ( j = 0; j < dim; j++ )
+    {
+    for ( i = 0; i < 3; i++ )
+      {
+      derivs[j*dim + i] = 0.0;
+      }
+    }
+
+  static const double Sample_Offset_In_Parameter_Space = 0.01;
+  
+  double x[4][3];
+  double coord[3];
+  
+  //compute positions of poand three offset sample points
+  coord[0] = pcoords[0];
+  coord[1] = pcoords[1];
+  coord[2] = pcoords[2];
+  this->ComputePositionFromParametricCoordinate(coord, x[0]);
+  
+  coord[0] += Sample_Offset_In_Parameter_Space;
+  this->ComputePositionFromParametricCoordinate(coord, x[1]);
+  coord[0] = pcoords[0];  
+
+  coord[1] += Sample_Offset_In_Parameter_Space;
+  this->ComputePositionFromParametricCoordinate(coord, x[2]);
+  coord[1] = pcoords[1];  
+
+  coord[2] += Sample_Offset_In_Parameter_Space;
+  this->ComputePositionFromParametricCoordinate(coord, x[3]);
+  coord[2] = pcoords[2];  
+
+  this->ConstructPolyData();
+  int numVerts = this->PolyData->GetNumberOfPoints();
+
+  double *weights = new double[numVerts];
+  double *sample = new double[dim*4];
+  //for each sample point, sample data values
+  for ( idx = 0, k = 0; k < 4; k++ ) //loop over three sample points
+    {
+    this->InterpolateFunctions(x[k],weights);
+    for ( j = 0; j < dim; j++, idx++) //over number of derivates requested
+      {
+      sample[idx] = 0.0;
+      for ( i = 0; i < numVerts; i++ )
+        {
+        sample[idx] += weights[i] * values[j + i*dim];
+        }
+      }
+    }
+
+  double v1[3], v2[3], v3[3];
+  double l1, l2, l3;
+  //compute differences along the two axes
+  for ( i = 0; i < 3; i++ )
+    {
+    v1[i] = x[1][i] - x[0][i];
+    v2[i] = x[2][i] - x[0][i];
+    v3[i] = x[3][i] - x[0][i];
+    }
+  l1 = vtkMath::Normalize(v1);
+  l2 = vtkMath::Normalize(v2);
+  l3 = vtkMath::Normalize(v3);
+  
+
+  //compute derivatives along x-y-z axes
+  double ddx, ddy, ddz;
+  for ( j = 0; j < dim; j++ )
+    {
+    ddx = (sample[  dim+j] - sample[j]) / l1;
+    ddy = (sample[2*dim+j] - sample[j]) / l2;
+    ddz = (sample[3*dim+j] - sample[j]) / l3;
+
+    //project onto global x-y-z axes
+    derivs[3*j]     = ddx*v1[0] + ddy*v2[0] + ddz*v3[0];
+    derivs[3*j + 1] = ddx*v1[1] + ddy*v2[1] + ddz*v3[1];
+    derivs[3*j + 2] = ddx*v1[2] + ddy*v2[2] + ddz*v3[2];
+    }
+
+  delete [] weights;
+  delete [] sample;
 }
 
 //----------------------------------------------------------------------------
@@ -611,12 +754,23 @@ double *vtkPolyhedron::GetParametricCoords()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::InterpolateFunctions(double pcoords[3], double *sf)
+void vtkPolyhedron::InterpolateFunctions(double x[3], double *sf)
 {
+  // construct polydata, the result is stored in this->PolyData,
+  // the cell array is stored in this->Polys
+  this->ConstructPolyData();
+
+  // compute the weights
+  if (!this->PolyData->GetPoints())
+    {
+    return;
+    }
+  vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
+    x, this->PolyData->GetPoints(), this->Polys, sf);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::InterpolateDerivs(double pcoords[3], double *derivs)
+void vtkPolyhedron::InterpolateDerivs(double x[3], double *derivs)
 {
 }
 

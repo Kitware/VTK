@@ -83,8 +83,10 @@ public:
   // Two interpolation algorithms are available: 1/r^2 and Mean Value 
   // Coordinate. The former is used by default. To use the second algorithm, 
   // set UseMVCInterpolation to be true.
-  virtual void InterpolateFunctions(double pcoords[3], double *sf);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+  // The function assumes the input point lies on the polygon plane without
+  // checking that.
+  virtual void InterpolateFunctions(double x[3], double *sf);
+  virtual void InterpolateDerivs(double x[3], double *derivs);
 
   // Description:
   // Polygon specific methods.
