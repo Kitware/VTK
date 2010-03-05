@@ -60,6 +60,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticHexahedron.h"
+#include "vtkBiQuadraticTriangle.h"
 #include "vtkConvexPointSet.h"
 # include "vtkPentagonalPrism.h"
 # include "vtkHexagonalPrism.h"
@@ -67,7 +68,7 @@
 # include "vtkQuadraticPyramid.h"
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.19");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.20");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -107,6 +108,7 @@ int vtkBridgeCell::GetType()
     {
     case VTK_TRIANGLE:
     case VTK_QUADRATIC_TRIANGLE:
+    case VTK_BIQUADRATIC_TRIANGLE:
       result=VTK_HIGHER_ORDER_TRIANGLE;
       break;
     case VTK_QUAD:

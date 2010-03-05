@@ -60,6 +60,8 @@ class vtkQuadraticLinearQuad;
 class vtkBiQuadraticQuad;
 class vtkBiQuadraticQuadraticWedge;
 class vtkBiQuadraticQuadraticHexahedron;
+class vtkBiQuadraticTriangle;
+class vtkCubicLine;
 
 
 class VTK_FILTERING_EXPORT vtkUnstructuredGrid : public vtkPointSet 
@@ -214,6 +216,8 @@ protected:
   vtkQuadraticLinearWedge           *QuadraticLinearWedge;
   vtkBiQuadraticQuadraticWedge      *BiQuadraticQuadraticWedge;
   vtkBiQuadraticQuadraticHexahedron *BiQuadraticQuadraticHexahedron;
+  vtkBiQuadraticTriangle            *BiQuadraticTriangle;
+  vtkCubicLine                      *CubicLine;
   vtkConvexPointSet                 *ConvexPointSet;
   vtkEmptyCell                      *EmptyCell;
   

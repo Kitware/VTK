@@ -23,6 +23,7 @@ vtkAttributesErrorMetric.cxx
 vtkBiQuadraticQuad.cxx
 vtkBiQuadraticQuadraticHexahedron.cxx
 vtkBiQuadraticQuadraticWedge.cxx
+vtkBiQuadraticTriangle.cxx
 vtkBSPCuts.cxx
 vtkBSPIntersections.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
@@ -45,6 +46,7 @@ vtkComputingResources.cxx
 vtkCone.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
+vtkCubicLine.cxx
 vtkCylinder.cxx
 vtkDataObjectAlgorithm.cxx
 vtkDataObjectCollection.cxx

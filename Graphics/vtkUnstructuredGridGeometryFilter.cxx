@@ -43,13 +43,14 @@
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticTriangle.h"
 #include "vtkIncrementalPointLocator.h"
 
 
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.9");
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
@@ -327,6 +328,7 @@ public:
   // VTK_QUADRATIC_TRIANGLE,
   // VTK_QUADRATIC_QUAD,
   // VTK_BIQUADRATIC_QUAD,
+  // VTK_BIQUADRATIC_TRIANGLE
   // VTK_QUADRATIC_LINEAR_QUAD
   vtkIdType Type;
   
@@ -403,6 +405,7 @@ public:
       switch(faceType)
         {
         case VTK_QUADRATIC_TRIANGLE:
+        case VTK_BIQUADRATIC_TRIANGLE:
           numberOfCornerPoints=3;
           break;
         case VTK_QUADRATIC_QUAD:
@@ -510,6 +513,22 @@ public:
               switch(faceType)
                 {
                 case VTK_QUADRATIC_TRIANGLE:
+                  // the mid-edge points
+                  i=0;
+                  while(found && i<3) 
+                    {
+                    // we add numberOfPoints before modulo. Modulo does not work
+                    // with negative values.
+                    // -1: start at the end in reverse order.
+                    found=current->Points[numberOfCornerPoints+((current->SmallestIdx-i+3-1)%3)]
+                      ==points[numberOfCornerPoints+((smallestIdx+i)%3)];
+                    ++i;
+                    }
+                  break;
+                case VTK_BIQUADRATIC_TRIANGLE:
+                  // the center point
+                  found=current->Points[6]==points[6];
+                  
                   // the mid-edge points
                   i=0;
                   while(found && i<3) 
@@ -945,7 +964,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       if((cellType>=VTK_EMPTY_CELL && cellType<=VTK_QUAD)
          ||(cellType>=VTK_QUADRATIC_EDGE && cellType<=VTK_QUADRATIC_QUAD)
          ||(cellType==VTK_BIQUADRATIC_QUAD)
-         ||(cellType==VTK_QUADRATIC_LINEAR_QUAD))
+         ||(cellType==VTK_QUADRATIC_LINEAR_QUAD)
+         ||(cellType==VTK_BIQUADRATIC_TRIANGLE))
         {
         vtkDebugMacro(<<"not 3D cell. type="<<cellType);
         // not 3D: just copy it

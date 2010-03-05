@@ -45,7 +45,7 @@ static int sizeofFastQuad(int numPts)
   return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
 }
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.73");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.74");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1099,6 +1099,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
              cellType == VTK_TRIANGLE || cellType == VTK_POLYGON ||
              cellType == VTK_TRIANGLE_STRIP ||
              cellType == VTK_QUADRATIC_TRIANGLE ||
+             cellType == VTK_BIQUADRATIC_TRIANGLE ||
              cellType == VTK_QUADRATIC_QUAD ||
              cellType == VTK_QUADRATIC_LINEAR_QUAD ||
              cellType == VTK_BIQUADRATIC_QUAD )
@@ -1257,6 +1258,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         }
       }
     else if ( cellType == VTK_QUADRATIC_TRIANGLE
+           || cellType == VTK_BIQUADRATIC_TRIANGLE
            || cellType == VTK_QUADRATIC_QUAD
            || cellType == VTK_BIQUADRATIC_QUAD
            || cellType == VTK_QUADRATIC_LINEAR_QUAD)

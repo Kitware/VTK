@@ -36,7 +36,7 @@
 #include "vtkWedge.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.110");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.111");
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator)
 
@@ -953,6 +953,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
         //Quadratic cells
         case VTK_QUADRATIC_EDGE:
+        case VTK_CUBIC_LINE:
         case VTK_QUADRATIC_TRIANGLE:
         case VTK_QUADRATIC_QUAD:
         case VTK_QUADRATIC_TETRA:
@@ -960,6 +961,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         case VTK_QUADRATIC_WEDGE:
         case VTK_QUADRATIC_PYRAMID:
         case VTK_QUADRATIC_LINEAR_QUAD:
+        case VTK_BIQUADRATIC_TRIANGLE:
         case VTK_BIQUADRATIC_QUAD:
         case VTK_TRIQUADRATIC_HEXAHEDRON:
         case VTK_QUADRATIC_LINEAR_WEDGE:

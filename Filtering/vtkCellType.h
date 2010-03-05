@@ -70,6 +70,10 @@ typedef enum {
   VTK_QUADRATIC_LINEAR_WEDGE           = 31,
   VTK_BIQUADRATIC_QUADRATIC_WEDGE      = 32,
   VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON = 33,
+  VTK_BIQUADRATIC_TRIANGLE             = 34,
+
+  // Cubic, isoparametric cell
+  VTK_CUBIC_LINE                       = 35,
 
   // Special class of cells formed by convex group of points
   VTK_CONVEX_POINT_SET = 41,

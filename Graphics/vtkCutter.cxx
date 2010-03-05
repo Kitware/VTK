@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.93");
+vtkCxxRevisionMacro(vtkCutter, "1.94");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator)
@@ -391,6 +391,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_VERTEX] = 0;
   cellTypeDimensions[VTK_POLY_VERTEX] = 0;
   cellTypeDimensions[VTK_LINE] = 1;
+  cellTypeDimensions[VTK_CUBIC_LINE]=1;
   cellTypeDimensions[VTK_POLY_LINE] = 1;
   cellTypeDimensions[VTK_QUADRATIC_EDGE] = 1;
   cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
@@ -401,6 +402,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_PIXEL] = 2;
   cellTypeDimensions[VTK_QUAD] = 2;
   cellTypeDimensions[VTK_QUADRATIC_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_BIQUADRATIC_TRIANGLE] = 2;
   cellTypeDimensions[VTK_QUADRATIC_QUAD] = 2;
   cellTypeDimensions[VTK_QUADRATIC_LINEAR_QUAD] = 2;
   cellTypeDimensions[VTK_BIQUADRATIC_QUAD] = 2;

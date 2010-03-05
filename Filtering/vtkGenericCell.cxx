@@ -42,14 +42,16 @@
 #include "vtkQuadraticPyramid.h"
 #include "vtkConvexPointSet.h"
 #include "vtkQuadraticLinearQuad.h"
+#include "vtkCubicLine.h"
 #include "vtkBiQuadraticQuad.h"
 #include "vtkTriQuadraticHexahedron.h"
 #include "vtkQuadraticLinearWedge.h"
+#include "vtkBiQuadraticTriangle.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.7");
+vtkCxxRevisionMacro(vtkGenericCell, "1.8");
 vtkStandardNewMacro(vtkGenericCell);
 
 //----------------------------------------------------------------------------
@@ -310,6 +312,12 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
     break;
   case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
     cell = vtkBiQuadraticQuadraticHexahedron::New ();
+    break;
+  case VTK_BIQUADRATIC_TRIANGLE:
+    cell = vtkBiQuadraticTriangle::New();
+    break;
+  case VTK_CUBIC_LINE:
+    cell = vtkCubicLine::New();
     break;
   case VTK_CONVEX_POINT_SET:
     cell = vtkConvexPointSet::New();

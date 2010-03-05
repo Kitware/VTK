@@ -19,8 +19,10 @@
 
 #include "vtkLine.h"
 #include "vtkQuadraticEdge.h"
+#include "vtkCubicLine.h"
 #include "vtkTriangle.h"
 #include "vtkQuadraticTriangle.h"
+#include "vtkBiQuadraticTriangle.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticQuad.h"
 #include "vtkBiQuadraticQuad.h"
@@ -84,7 +86,7 @@ int CompareCellFaces(vtkCell *linear, vtkCell *quadratic)
     int n = lFace->GetNumberOfPoints();
     // Check that linear Triangle match quad Tri
     if( lFace->GetCellType() == VTK_TRIANGLE )
-      sum += (qFace->GetCellType() != VTK_QUADRATIC_TRIANGLE);
+      sum += (qFace->GetCellType() != VTK_QUADRATIC_TRIANGLE && qFace->GetCellType() != VTK_BIQUADRATIC_TRIANGLE);
     // Check that linear Quad match quad Quad
     if( lFace->GetCellType() == VTK_QUAD &&
       (qFace->GetCellType() != VTK_QUADRATIC_QUAD && qFace->GetCellType() != VTK_BIQUADRATIC_QUAD &&
@@ -103,29 +105,47 @@ int CompareCellFaces(vtkCell *linear, vtkCell *quadratic)
 int quadCellConsistency(int, char *[])
 {
   int ret = 0;
-  // Line / vtkQuadraticEdge:
+  // Line / vtkQuadraticEdge / CubicLine:
   vtkLine *edge = vtkLine::New();
   vtkQuadraticEdge *qedge = vtkQuadraticEdge::New();
+  vtkCubicLine *culine = vtkCubicLine::New();
 
   InitializeCell(edge);
   InitializeCell(qedge);
   ret += CompareCellEdges(edge, qedge);
   ret += CompareCellFaces(edge, qedge);
 
-  edge->Delete();
+  
   qedge->Delete();
+  
+  InitializeCell(culine);
+  ret += CompareCellEdges(edge, culine);
+  ret += CompareCellFaces(edge, culine);
+
+  edge->Delete();
+  culine->Delete();
 
   // Triangles:
   vtkTriangle *tri = vtkTriangle::New();
   vtkQuadraticTriangle *qtri = vtkQuadraticTriangle::New();
+  vtkBiQuadraticTriangle *bitri = vtkBiQuadraticTriangle::New();
 
   InitializeCell(tri);
   InitializeCell(qtri);
   ret += CompareCellEdges(tri, qtri);
   ret += CompareCellFaces(tri, qtri);
 
-  tri->Delete();
+
   qtri->Delete();
+  
+
+  InitializeCell(bitri);
+  ret += CompareCellEdges(tri, bitri);
+  ret += CompareCellFaces(tri, bitri);
+
+  tri->Delete();
+  bitri->Delete();
+
 
   // Quad
   vtkQuad *quad = vtkQuad::New();

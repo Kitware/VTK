@@ -55,6 +55,10 @@
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkTriQuadraticHexahedron.h"
 
+// New Bi-Class
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCubicLine.h"
+
 
 template <class TCell>
 int TestOneInterpolationDerivs()
@@ -144,6 +148,8 @@ int TestInterpolationDerivs(int, char *[])
   r += TestOneInterpolationDerivs<vtkQuadraticLinearQuad>();
   r += TestOneInterpolationDerivs<vtkQuadraticLinearWedge>();
   r += TestOneInterpolationDerivs<vtkTriQuadraticHexahedron>();
+  r += TestOneInterpolationDerivs<vtkBiQuadraticTriangle>();
+  r += TestOneInterpolationDerivs<vtkCubicLine>();
 
 
   return r;

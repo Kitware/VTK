@@ -97,6 +97,8 @@
 # include "vtkQuadraticLinearWedge.h"
 # include "vtkBiQuadraticQuadraticWedge.h"
 # include "vtkBiQuadraticQuadraticHexahedron.h"
+# include "vtkBiQuadraticTriangle.h"
+# include "vtkCubicLine.h"
 #endif
 
 #ifdef WRITE_RESULT
@@ -143,7 +145,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   vtkIdType pointId=0;
   
   // About 60 cells.
-  grid->Allocate(60,60);
+  grid->Allocate(65,65);
   
   // 0D: vertex
   points->InsertNextPoint(xOffset+0.0,yOffset+0.0,0.0);
@@ -180,7 +182,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   grid->InsertNextCell(polyVertex->GetCellType(),polyVertex->GetPointIds());
   polyVertex->Delete();
   
-  // 1D: line, polyline and quadratic edge
+  // 1D: line, polyline, quadratic edge and Cubic Line
   yOffset+=2.0;
 //  xOffset+=1.0;
   xOffset=0.0;
@@ -258,10 +260,40 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   grid->InsertNextCell(quadEdge->GetCellType(),quadEdge->GetPointIds());
   quadEdge->Delete();
   
+  // 1D: CubicLine
+  xOffset+=2.0;
+  points->InsertNextPoint(xOffset+0.0,yOffset+0.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  points->InsertNextPoint(xOffset+0.0,yOffset+3.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset-0.25,yOffset+1.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  points->InsertNextPoint(xOffset+0.25,yOffset+2.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  vtkCubicLine *cubLine=vtkCubicLine::New();
+  cubLine->GetPointIds()->SetId(0,pointId);
+  ++pointId;
+  cubLine->GetPointIds()->SetId(1,pointId);
+  ++pointId;
+  cubLine->GetPointIds()->SetId(2,pointId);
+  ++pointId;
+  cubLine->GetPointIds()->SetId(3,pointId);
+  ++pointId;
+  
+  cellIds->InsertNextValue(cellId);
+  ++cellId;
+  grid->InsertNextCell(cubLine->GetCellType(),cubLine->GetPointIds());
+  cubLine->Delete();
   
   // 2D: triangle, triangle strip, polygon (triangle, quad, pentagon, hexagon),
   // pixel, quad.
-  // quadratic quad, biquadratic quad, quadratic linear quad
+  // quadratic quad, biquadratic quad, quadratic linear quad, biquadratic Triangle
   
   // 2D: triangle
   yOffset+=3.0;
@@ -587,6 +619,51 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   grid->InsertNextCell(quadraticTriangle->GetCellType(),
                        quadraticTriangle->GetPointIds());
   quadraticTriangle->Delete();
+
+  // 2D: biquadratic triangle
+  xOffset+=2.0;
+  points->InsertNextPoint(xOffset+0.0,yOffset+0.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset+0.5,yOffset+1.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset+0.0,yOffset+2.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset+0.3,yOffset+0.5,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset+0.3,yOffset+1.5,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset-0.2,yOffset+1.0,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  points->InsertNextPoint(xOffset+0.2,yOffset+0.9,0.0);
+  scalars->InsertNextValue(scalar);
+  scalar+=scalarStep;
+  
+  vtkBiQuadraticTriangle *BiQuadraticTriangle=vtkBiQuadraticTriangle::New();
+  i=0;
+  while(i<7)
+    {
+    BiQuadraticTriangle->GetPointIds()->SetId(i,pointId);
+    ++pointId;
+    ++i;
+    }
+  
+  cellIds->InsertNextValue(cellId);
+  ++cellId;
+  grid->InsertNextCell(BiQuadraticTriangle->GetCellType(),
+                       BiQuadraticTriangle->GetPointIds());
+   BiQuadraticTriangle->Delete();
   
   // 2D: quadratic quad
   xOffset+=2.0;

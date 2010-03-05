@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.27");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.28");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkIncrementalPointLocator)
@@ -1075,6 +1075,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
     case VTK_TRIANGLE: // 5
     case VTK_QUADRATIC_TRIANGLE:
+    case VTK_BIQUADRATIC_TRIANGLE:
       newCellArray->InsertNextCell(ptstriangle, triPassThrough);
       break;
 

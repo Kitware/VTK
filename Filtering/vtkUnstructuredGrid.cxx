@@ -18,6 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
 #include "vtkConvexPointSet.h"
+#include "vtkCubicLine.h"
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
@@ -55,8 +56,9 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.15");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.16");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -90,6 +92,8 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->QuadraticLinearWedge = NULL;
   this->BiQuadraticQuadraticWedge = NULL;
   this->BiQuadraticQuadraticHexahedron = NULL;
+  this->BiQuadraticTriangle = NULL; 
+  this->CubicLine = NULL;
   
   this->ConvexPointSet = NULL;
   this->EmptyCell = NULL;
@@ -270,7 +274,15 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
     {
     this->BiQuadraticQuadraticHexahedron->Delete ();
     }
-
+  if(this->BiQuadraticTriangle)
+    {
+    this->BiQuadraticTriangle->Delete ();
+    }
+  if(this->CubicLine)
+    {
+    this->CubicLine->Delete ();
+    }
+  
   if(this->ConvexPointSet)
     {
     this->ConvexPointSet->Delete();
@@ -650,6 +662,20 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
         this->BiQuadraticQuadraticHexahedron = vtkBiQuadraticQuadraticHexahedron::New();
         }
       cell = this->BiQuadraticQuadraticHexahedron;
+      break;
+    case VTK_BIQUADRATIC_TRIANGLE:
+      if(!this->BiQuadraticTriangle)
+        {
+        this->BiQuadraticTriangle = vtkBiQuadraticTriangle::New();
+        }
+      cell = this->BiQuadraticTriangle;
+      break;
+    case VTK_CUBIC_LINE:
+      if(!this->CubicLine)
+        {
+        this->CubicLine = vtkCubicLine::New();
+        }
+      cell = this->CubicLine;
       break;
 
     case VTK_CONVEX_POINT_SET:

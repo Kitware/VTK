@@ -38,6 +38,8 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkTriQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCubicLine.h"
 
 static void  ComputeDataValues(vtkPoints *pts, double *edgeValues);
 
@@ -113,6 +115,11 @@ int TestQE(ostream& strm)
   vtkBiQuadraticQuadraticHexahedron *bihex = vtkBiQuadraticQuadraticHexahedron::New();
   vtkBiQuadraticQuadraticHexahedron *bihex2 = bihex->NewInstance();
 
+  vtkBiQuadraticTriangle *bitri = vtkBiQuadraticTriangle::New();
+  vtkBiQuadraticTriangle *bitri2 = bitri->NewInstance();
+
+  vtkCubicLine *culine = vtkCubicLine::New();
+  vtkCubicLine *culine2 = culine->NewInstance();
 
 
   edge2->Delete();
@@ -128,6 +135,8 @@ int TestQE(ostream& strm)
   wedgelin2->Delete();
   biwedge2->Delete();
   pyra2->Delete();
+  bitri2->Delete();
+  culine2->Delete();
 
   strm << "Test instantiation New() and NewInstance() End" << endl;
 
@@ -450,6 +459,53 @@ int TestQE(ostream& strm)
                          dist2, trihexWeights);
 
   
+ 
+  // vtkBiQuadraticTriangle
+  double bitriPCoords[3], bitriWeights[14], bitriPosition[3];
+  double bitriPoint[1][3] = {{0.5, 0.266667, 0.0}};
+  double bitriClosest[3];
+
+  bitri->GetPointIds()->SetId(0,0);
+  bitri->GetPointIds()->SetId(1,1);
+  bitri->GetPointIds()->SetId(2,2);
+  bitri->GetPointIds()->SetId(3,3);
+  bitri->GetPointIds()->SetId(4,4);
+  bitri->GetPointIds()->SetId(5,5);
+
+  bitri->GetPoints()->SetPoint(0, 0, 0, 0);
+  bitri->GetPoints()->SetPoint(1, 1, 0, 0);
+  bitri->GetPoints()->SetPoint(2, 0.5, 0.8, 0);
+  bitri->GetPoints()->SetPoint(3, 0.5, 0.0, 0);
+  bitri->GetPoints()->SetPoint(4, 0.75, 0.4, 0);
+  bitri->GetPoints()->SetPoint(5, 0.25, 0.4, 0);
+  bitri->GetPoints()->SetPoint(6, 0.45, 0.24, 0);
+
+  bitri->EvaluatePosition(bitriPoint[0], bitriClosest, subId, bitriPCoords, 
+                        dist2, bitriWeights);
+
+
+  // vtkCubicLine 
+
+  double culinePCoords[3], culineWeights[4], culinePosition[3];
+  double culinePoint[1][3] = {{0.25, 0.125, 0.0}};
+  double culineClosest[3];
+
+  culine->GetPointIds()->SetId(0,0);
+  culine->GetPointIds()->SetId(1,1);
+  culine->GetPointIds()->SetId(2,2);
+  culine->GetPointIds()->SetId(3,3);
+ 
+
+  culine->GetPoints()->SetPoint(0, 0, 0, 0);
+  culine->GetPoints()->SetPoint(1, 1, 0, 0);
+  culine->GetPoints()->SetPoint(2, (1.0/3.0), -0.1, 0);
+  culine->GetPoints()->SetPoint(3, (1.0/3.0), 0.1, 0);
+
+
+  culine->EvaluatePosition(culinePoint[0], culineClosest, subId, culinePCoords, 
+                        dist2, culineWeights);
+
+  
   strm << "Test vtkCell::EvaluatePosition End" << endl;
 
   //-------------------------------------------------------------
@@ -495,6 +551,9 @@ int TestQE(ostream& strm)
 
   // vtkTriQuadraticHexahedron
   trihex->EvaluateLocation(subId, trihexPCoords, trihexPosition, trihexWeights);
+
+  // vtkBiQuadraticTriangle
+  bitri->EvaluateLocation(subId, bitriPCoords, bitriPosition, bitriWeights);
 
   strm << "Test vtkCell::EvaluateLocation End" << endl;
 
@@ -568,6 +627,11 @@ int TestQE(ostream& strm)
   ComputeDataValues(trihex->Points, trihexValues);
   trihex->Derivatives(subId, trihexPCoords, trihexValues, 1, trihexDerivs);
 
+  // vtkBiQuadraticTriangle
+  double bitriValues[7], bitriDerivs[3];
+  ComputeDataValues(bitri->Points,bitriValues);
+  bitri->Derivatives(subId, bitriPCoords, bitriValues, 1, bitriDerivs);
+
 
   strm << "Test vtkCell::CellDerivs End" << endl;
 
@@ -584,6 +648,7 @@ int TestQE(ostream& strm)
   hex->Delete();
   bihex->Delete();
   trihex->Delete();
+  bitri->Delete();
 
   return 0;
 }
