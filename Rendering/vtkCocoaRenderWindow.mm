@@ -21,9 +21,9 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
 
-#include <vtksys/ios/sstream>
+#import <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.71");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.72");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
