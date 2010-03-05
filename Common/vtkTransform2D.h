@@ -112,13 +112,13 @@ class VTK_COMMON_EXPORT vtkTransform2D : public vtkObject
   // Apply the transformation to a series of points, and append the
   // results to outPts. Where n is the number of points, and the float pointers
   // are of length 2*n.
-  void TransformPoints(float *inPts, float *outPts, int n);
+  void TransformPoints(const float *inPts, float *outPts, int n);
 
   // Description:
   // Apply the transformation to a series of points, and append the
   // results to outPts. Where n is the number of points, and the float pointers
   // are of length 2*n.
-  void TransformPoints(double *inPts, double *outPts, int n);
+  void TransformPoints(const double *inPts, double *outPts, int n);
 
   // Description:
   // Apply the transformation to a series of points, and append the
@@ -129,13 +129,13 @@ class VTK_COMMON_EXPORT vtkTransform2D : public vtkObject
   // Apply the transformation to a series of points, and append the
   // results to outPts. Where n is the number of points, and the float pointers
   // are of length 2*n.
-  void InverseTransformPoints(float *inPts, float *outPts, int n);
+  void InverseTransformPoints(const float *inPts, float *outPts, int n);
 
   // Description:
   // Apply the transformation to a series of points, and append the
   // results to outPts. Where n is the number of points, and the float pointers
   // are of length 2*n.
-  void InverseTransformPoints(double *inPts, double *outPts, int n);
+  void InverseTransformPoints(const double *inPts, double *outPts, int n);
 
   // Description:
   // Apply the transformation to a series of points, and append the

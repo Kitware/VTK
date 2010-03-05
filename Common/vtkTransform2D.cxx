@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform2D, "1.2");
+vtkCxxRevisionMacro(vtkTransform2D, "1.3");
 vtkStandardNewMacro(vtkTransform2D);
 
 //----------------------------------------------------------------------------
@@ -178,7 +178,7 @@ namespace { // Anonmymous namespace
 
 template <class T1, class T2, class T3>
 inline double vtkHomogeneousTransformPoint2D(T1 M[9],
-                                             T2 in[2], T3 out[2])
+                                             const T2 in[2], T3 out[2])
 {
   double x = M[0]*in[0] + M[1]*in[1] + M[2];
   double y = M[3]*in[0] + M[4]*in[1] + M[5];
@@ -194,7 +194,7 @@ inline double vtkHomogeneousTransformPoint2D(T1 M[9],
 } // End anonymous namespace
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::TransformPoints(float *inPts, float *outPts, int n)
+void vtkTransform2D::TransformPoints(const float *inPts, float *outPts, int n)
 {
   double *M = this->Matrix->GetData();
 
@@ -205,7 +205,7 @@ void vtkTransform2D::TransformPoints(float *inPts, float *outPts, int n)
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::TransformPoints(double *inPts, double *outPts, int n)
+void vtkTransform2D::TransformPoints(const double *inPts, double *outPts, int n)
 {
   double *M = this->Matrix->GetData();
 
@@ -232,7 +232,8 @@ void vtkTransform2D::TransformPoints(vtkPoints2D *inPts, vtkPoints2D *outPts)
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::InverseTransformPoints(float *inPts, float *outPts, int n)
+void vtkTransform2D::InverseTransformPoints(const float *inPts, float *outPts,
+                                            int n)
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
     {
@@ -247,7 +248,8 @@ void vtkTransform2D::InverseTransformPoints(float *inPts, float *outPts, int n)
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform2D::InverseTransformPoints(double *inPts, double *outPts, int n)
+void vtkTransform2D::InverseTransformPoints(const double *inPts, double *outPts,
+                                            int n)
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
     {
