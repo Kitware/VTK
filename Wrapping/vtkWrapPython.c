@@ -489,9 +489,11 @@ char *get_format_string()
         result[currPos] = 'i'; currPos++; break;
 #endif
 #ifdef PY_LONG_LONG
+      case 0x1B: case 0x1C:
       case 0xB: case 0xC:
         result[currPos] = 'L'; currPos++; break;
 #else
+      case 0x1B: case 0x1C:
       case 0xB: case 0xC:
         result[currPos] = 'l'; currPos++; break;
 #endif
