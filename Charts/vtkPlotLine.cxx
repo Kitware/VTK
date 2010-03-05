@@ -33,7 +33,10 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.17");
+#include "vtkstd/vector"
+#include "vtkstd/algorithm"
+
+vtkCxxRevisionMacro(vtkPlotLine, "1.18");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -219,6 +222,84 @@ void vtkPlotLine::GetBounds(double bounds[4])
   this->Points->GetBounds(bounds);
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
+}
+
+namespace
+{
+
+// Compare the two vectors, in X component only
+bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
+{
+  if (v1.X() < v2.X())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+// See if the point is within tolerance.
+bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
+             const vtkVector2f& current)
+{
+  if (current.X() > point.X() - tol.X() && current.X() < point.X() + tol.X() &&
+      current.Y() > point.Y() - tol.Y() && current.Y() < point.Y() + tol.Y())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotLine::GetNearestPoint(const vtkVector2f& point,
+                                  const vtkVector2f& tol,
+                                  vtkVector2f* location)
+{
+  // Right now doing a simple bisector search of the array. This should be
+  // revisited. Assumes the x axis is sorted, which should always be true for
+  // line plots.
+  if (!this->Points)
+    {
+    return false;
+    }
+  vtkIdType n = this->Points->GetNumberOfPoints();
+  if (n < 2)
+    {
+    return false;
+    }
+
+  // Set up our search array, use the STL lower_bound algorithm
+  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+  vtkstd::vector<vtkVector2f> v(data, data+n);
+  vtkstd::vector<vtkVector2f>::iterator low;
+
+  // Get the lowest point we might hit within the supplied tolerance
+  vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
+  low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+
+  // Now consider the y axis
+  float highX = point.X() + tol.X();
+  while (low != v.end())
+    {
+    if (inRange(point, tol, *low))
+      {
+      *location = *low;
+      return true;
+      }
+    else if (low->X() > highX)
+      {
+      break;
+      }
+    ++low;
+    }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

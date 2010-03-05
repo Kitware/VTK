@@ -30,6 +30,7 @@ class vtkContextMapper2D;
 class vtkPen;
 class vtkBrush;
 class vtkAxis;
+class vtkVector2f;
 
 class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
 {
@@ -43,6 +44,12 @@ public:
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
   virtual bool PaintLegend(vtkContext2D *painter, float rect[4]);
+
+  // Description:
+  // Function to query a plot for the nearest point to the specified coordinate.
+  virtual bool GetNearestPoint(const vtkVector2f& point,
+                               const vtkVector2f& tolerance,
+                               vtkVector2f* location);
 
   // Description:
   // Set the plot color
