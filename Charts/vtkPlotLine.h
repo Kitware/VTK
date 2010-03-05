@@ -60,11 +60,13 @@ public:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   virtual void GetBounds(double bounds[4]);
 
+//BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   virtual bool GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
                                vtkVector2f* location);
+//ETX
 
 //BTX
   // Description:
