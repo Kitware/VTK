@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticTriangle, "1.1");
+vtkCxxRevisionMacro(vtkBiQuadraticTriangle, "1.2");
 vtkStandardNewMacro(vtkBiQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -110,9 +110,9 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
       pc1 = pc[1];
       if (closestPoint)
         {
-        for (int i = 0; i <= 3; i++ )
+        for (int j = 0; j <= 3; j++ )
           {
-          closestPoint[i] = closest[i]; 
+          closestPoint[j] = closest[j];
           }
         }
       }

@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCubicLine, "1.1");
+vtkCxxRevisionMacro(vtkCubicLine, "1.2");
 vtkStandardNewMacro(vtkCubicLine);
 
 //----------------------------------------------------------------------------
@@ -190,21 +190,6 @@ int vtkCubicLine::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
-//----------------------------------------------------------------------------
-//
-// marching lines case table
-//
-typedef int VERT_LIST;
-
-typedef struct {
-  VERT_LIST verts[2];
-} VERT_CASES;
-
-static VERT_CASES vertCases[4]= {
-  {{-1,-1}},
-  {{1,0}},
-  {{0,1}},
-  {{-1,-1}}};
 
 //LinearLines for the Contour and the Clip Algorithm
 //-----------------------------------------------------------------------------

@@ -649,6 +649,7 @@ int TestQE(ostream& strm)
   bihex->Delete();
   trihex->Delete();
   bitri->Delete();
+  culine->Delete();
 
   return 0;
 }
