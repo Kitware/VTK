@@ -477,6 +477,8 @@ protected:
 
   double LastProgressEventTime; // initial value is 0.0. Expressed in seconds.
 
+  bool PreserveOrientation;
+  
 private:
   vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&);  // Not implemented.
   void operator=(const vtkOpenGLGPUVolumeRayCastMapper&);  // Not implemented.

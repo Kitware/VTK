@@ -220,7 +220,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.9");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -1894,6 +1894,8 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
 
   this->ActualSampleDistance=1.0;
   this->LastProgressEventTime=0.0; // date in seconds
+  
+  this->PreserveOrientation=true;
 }
 
 //-----------------------------------------------------------------------------
@@ -3765,7 +3767,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
 
       double dot = vtkMath::Dot( v3, v4 );
 
-      if ( dot < 0 )
+      if (( dot < 0) && this->PreserveOrientation)
         {
         start = 0;
         end = npts;
@@ -4229,6 +4231,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
+  
+  // See if the volume transform is orientation-preserving
+  vtkMatrix4x4 *m=vol->GetMatrix();
+  double det=vtkMath::Determinant3x3(
+    m->GetElement(0,0),m->GetElement(0,1),m->GetElement(0,2),
+    m->GetElement(1,0),m->GetElement(1,1),m->GetElement(1,2),
+    m->GetElement(2,0),m->GetElement(2,1),m->GetElement(2,2));
+  
+  this->PreserveOrientation=det>0;
+  
   // If we have clipping planes, render the back faces of the clipped
   // bounding box of the whole dataset to set the zbuffer.
   if(this->ClippingPlanes && this->ClippingPlanes->GetNumberOfItems()!=0)
