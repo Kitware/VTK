@@ -77,7 +77,7 @@
 #endif // VTK_USE_MPI_IO
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkMPIImageReader, "1.1");
+vtkCxxRevisionMacro(vtkMPIImageReader, "1.2");
 vtkStandardNewMacro(vtkMPIImageReader);
 
 vtkCxxSetObjectMacro(vtkMPIImageReader, Controller, vtkMultiProcessController);
@@ -363,9 +363,9 @@ void vtkMPIImageReader::TransformData(vtkImageData *data)
         fileXYZ[2] = file_k + fileMinExtent[2];
         double dataXYZ[3];
         this->Transform->TransformPoint(fileXYZ, dataXYZ);
-        vtkIdType data_i = dataXYZ[0] - dataMinExtent[0];
-        vtkIdType data_j = dataXYZ[1] - dataMinExtent[1];
-        vtkIdType data_k = dataXYZ[2] - dataMinExtent[2];
+        vtkIdType data_i = static_cast<vtkIdType>(dataXYZ[0])-dataMinExtent[0];
+        vtkIdType data_j = static_cast<vtkIdType>(dataXYZ[1])-dataMinExtent[1];
+        vtkIdType data_k = static_cast<vtkIdType>(dataXYZ[2])-dataMinExtent[2];
 
         vtkIdType fileTuple
           = ((file_k*fileExtentSize[1] + file_j)*fileExtentSize[0]) + file_i;
