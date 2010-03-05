@@ -89,9 +89,6 @@ class VTK_COMMON_EXPORT vtkTransform2D : public vtkObject
     this->GetPosition(temp);
     pos[0] = static_cast<float>(temp[0]);
     pos[1] = static_cast<float>(temp[1]); }
-  double *GetPosition() {
-    this->GetPosition(this->ReturnValue);
-    return this->ReturnValue; }
 
   // Description:
   // Return a matrix which is the inverse of the current transformation
@@ -160,9 +157,6 @@ protected:
   vtkMatrix3x3 *Matrix;
   vtkMatrix3x3 *InverseMatrix;
 
-  float Point[3];
-  double DoublePoint[3];
-  double ReturnValue[3];
 private:
   vtkTransform2D (const vtkTransform2D&);  // Not implemented
   void operator=(const vtkTransform2D&);  // Not implemented
