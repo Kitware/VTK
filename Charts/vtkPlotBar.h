@@ -73,6 +73,14 @@ public:
   virtual void GetBounds(double bounds[4]);
 
 //BTX
+    // Description:
+    // Function to query a plot for the nearest point to the specified coordinate.
+    virtual bool GetNearestPoint(const vtkVector2f& point,
+                                 const vtkVector2f& tolerance,
+                                 vtkVector2f* location);
+//ETX
+
+//BTX
 protected:
   vtkPlotBar();
   ~vtkPlotBar();
@@ -84,6 +92,8 @@ protected:
   // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
+
+  bool Sorted;
 
   float Width;
   float Offset;

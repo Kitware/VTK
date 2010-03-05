@@ -30,7 +30,10 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlotBar, "1.4");
+#include "vtkstd/vector"
+#include "vtkstd/algorithm"
+
+vtkCxxRevisionMacro(vtkPlotBar, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBar);
@@ -39,6 +42,7 @@ vtkStandardNewMacro(vtkPlotBar);
 vtkPlotBar::vtkPlotBar()
 {
   this->Points = 0;
+  this->Sorted = false;
   this->Label = 0;
   this->Width = 1.0;
   this->Pen->SetWidth(1.0);
@@ -138,11 +142,11 @@ void vtkPlotBar::GetBounds(double bounds[4])
     y->GetRange(&bounds[2]);
     }
   // Bar plots always have one of the y bounds at the orgin
-  if (bounds[2] < bounds[3])
+  if (bounds[2] > 0.0f)
     {
     bounds[2] = 0.0;
     }
-  else
+  else if (bounds[3] < 0.0f)
     {
     bounds[3] = 0.0;
     }
@@ -179,6 +183,81 @@ void vtkPlotBar::SetColor(double r, double g, double b)
 void vtkPlotBar::GetColor(double rgb[3])
 {
   this->Brush->GetColorF(rgb);
+}
+
+namespace
+{
+
+// Compare the two vectors, in X component only
+bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
+{
+  if (v1.X() < v2.X())
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
+                                  const vtkVector2f&,
+                                  vtkVector2f* location)
+{
+  // Right now doing a simple bisector search of the array. This should be
+  // revisited. Assumes the x axis is sorted, which should always be true for
+  // bar plots.
+  if (!this->Points)
+    {
+    return false;
+    }
+  vtkIdType n = this->Points->GetNumberOfPoints();
+  if (n < 2)
+    {
+    return false;
+    }
+
+  vtkVector2f* data =
+      static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+  vtkstd::vector<vtkVector2f> v(data, data+n);
+
+  // Sort if necessary - in the case of bar plots render order does not matter
+  if (!this->Sorted)
+    {
+    sort(v.begin(), v.end(), compVector2fX);
+    this->Sorted = true;
+    }
+
+  // Set up our search array, use the STL lower_bound algorithm
+  vtkstd::vector<vtkVector2f>::iterator low;
+  vtkVector2f lowPoint(point.X()-this->Offset-this->Width, 0.0f);
+  low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+
+  // Now consider the y axis
+  while (low != v.end())
+    {
+    if (low->X()-this->Offset > point.X())
+      {
+      break;
+      }
+    else if (low->X()-this->Offset < point.X() &&
+             low->X()-this->Offset+this->Width > point.X())
+      {
+      if ((point.Y() >= 0 && point.Y() < low->Y()) ||
+          (point.Y() < 0 && point.Y() > low->Y()))
+        {
+        *location = *low;
+        return true;
+        }
+      }
+    ++low;
+    }
+
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -268,6 +347,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
                              y, x->GetSize()));
       }
     }
+  this->Sorted = false;
   this->BuildTime.Modified();
   return true;
 }
