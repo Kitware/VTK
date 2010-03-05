@@ -51,7 +51,15 @@ public:
   // bits, the largest mask you will need.  The mask will be truncated to the
   // data size required to be read (using the least significant bits).
   vtkGetMacro(DataMask, vtkTypeUInt64);
-  vtkSetMacro(DataMask, vtkTypeUInt64);
+  void SetDataMask(vtkTypeUInt64 val)
+    {
+    if(val == this->DataMask)
+      {
+      return;
+      }
+    this->DataMask = static_cast<vtkTypeUInt64>(val);
+    this->Modified();
+    }
   
   // Description:
   // Set/Get transformation matrix to transform the data from slice space
