@@ -1052,6 +1052,22 @@ int ExerciseMultiProcessController(vtkMultiProcessController *controller)
     args.retval = 1;
     }
 
+  int color = (group1->GetLocalProcessId() >= 0) ? 1 : 2;
+  vtkMultiProcessController *subcontroller
+    = controller->PartitionController(color, 0);
+  subcontroller->SetSingleMethod(Run, &args);
+  subcontroller->SingleMethodExecute();
+  subcontroller->Delete();
+
+  try
+    {
+    CheckSuccess(controller, !args.retval);
+    }
+  catch (ExerciseMultiProcessControllerError)
+    {
+    args.retval = 1;
+    }
+
   return args.retval;
 }
 

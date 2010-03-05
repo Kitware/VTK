@@ -29,6 +29,12 @@
 #include "vtkMPIController.h"
 #endif
 
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+#include <vtkstd/list>
+#include <vtkstd/vector>
 #include <vtksys/hash_map.hxx>
 
 //----------------------------------------------------------------------------
@@ -66,10 +72,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.38");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.39");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.38");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.39");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -316,6 +322,60 @@ vtkMultiProcessController *vtkMultiProcessController::CreateSubController(
   subcomm->Delete();
 
   return subcontroller;
+}
+
+//-----------------------------------------------------------------------------
+vtkMultiProcessController *vtkMultiProcessController::PartitionController(
+                                                                 int localColor,
+                                                                 int localKey)
+{
+  vtkMultiProcessController *subController = NULL;
+
+  int numProc = this->GetNumberOfProcesses();
+
+  vtkstd::vector<int> allColors(numProc);
+  this->AllGather(&localColor, &allColors[0], 1);
+
+  vtkstd::vector<int> allKeys(numProc);
+  this->AllGather(&localKey, &allKeys[0], 1);
+
+  vtkstd::vector<bool> inPartition;
+  inPartition.assign(numProc, false);
+
+  for (int i = 0; i < numProc; i++)
+    {
+    if (inPartition[i]) continue;
+    int targetColor = allColors[i];
+    vtkstd::list<int> partitionIds;     // Make sorted list, then put in group.
+    for (int j = i; j < numProc; j++)
+      {
+      if (allColors[j] != targetColor) continue;
+      inPartition[j] = true;
+      vtkstd::list<int>::iterator iter = partitionIds.begin();
+      while ((iter != partitionIds.end()) && (allKeys[*iter] <= allKeys[j]))
+        {
+        iter++;
+        }
+      partitionIds.insert(iter, j);
+      }
+    // Copy list into process group.
+    VTK_CREATE(vtkProcessGroup, group);
+    group->Initialize(this);
+    group->RemoveAllProcessIds();
+    for (vtkstd::list<int>::iterator iter = partitionIds.begin();
+         iter != partitionIds.end(); iter++)
+      {
+      group->AddProcessId(*iter);
+      }
+    // Use group to create controller.
+    vtkMultiProcessController *sc = this->CreateSubController(group);
+    if (sc)
+      {
+      subController = sc;
+      }
+    }
+
+  return subController;
 }
 
 //----------------------------------------------------------------------------

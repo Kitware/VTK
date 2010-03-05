@@ -45,6 +45,7 @@ vtkExtractPiece.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
+vtkMPIImageReader.cxx
 vtkMultiProcessController.cxx
 vtkMultiProcessStream.cxx
 vtkParallelFactory.cxx
@@ -58,6 +59,7 @@ vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
 vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
+vtkPNrrdReader.cxx
 vtkPOPReader.cxx
 ${_VTK_OPENFOAM_SOURCES}
 vtkPOutlineCornerFilter.cxx

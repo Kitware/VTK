@@ -52,6 +52,13 @@ public:
   MPI_Comm* Handle;
 };
 
+class VTK_PARALLEL_EXPORT vtkMPIOpaqueFileHandle
+{
+public:
+  vtkMPIOpaqueFileHandle() : Handle(MPI_FILE_NULL) { }
+  MPI_File Handle;
+};
+
 //-----------------------------------------------------------------------------
 class vtkMPICommunicatorOpaqueRequest
 {

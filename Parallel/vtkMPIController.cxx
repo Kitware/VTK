@@ -70,9 +70,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.28");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.29");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.28");
+vtkCxxRevisionMacro(vtkMPIController, "1.29");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -319,6 +319,22 @@ vtkMPIController *vtkMPIController::CreateSubController(vtkProcessGroup *group)
   // created with MPI_COMM_NULL.  Check for that and return NULL ourselves,
   // which is not really an error condition.
   if (*(subcomm->GetMPIComm()->Handle) == MPI_COMM_NULL) return NULL;
+
+  vtkMPIController *controller = vtkMPIController::New();
+  controller->SetCommunicator(subcomm);
+  return controller;
+}
+
+//-----------------------------------------------------------------------------
+vtkMPIController *vtkMPIController::PartitionController(int localColor,
+                                                        int localKey)
+{
+  VTK_CREATE(vtkMPICommunicator, subcomm);
+
+  if (!subcomm->SplitInitialize(this->Communicator, localColor, localKey))
+    {
+    return NULL;
+    }
 
   vtkMPIController *controller = vtkMPIController::New();
   controller->SetCommunicator(subcomm);

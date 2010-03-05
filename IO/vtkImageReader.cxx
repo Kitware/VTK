@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.122");
+vtkCxxRevisionMacro(vtkImageReader, "1.123");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -46,9 +46,8 @@ vtkImageReader::vtkImageReader()
     {
     this->DataVOI[idx*2] = this->DataVOI[idx*2 + 1] = 0;
     }
-  
-  // Left over from short reader
-  this->DataMask = 0xffff;
+
+  this->DataMask = static_cast<vtkTypeUInt64>(~0UL);
   this->Transform = NULL;
   
   this->ScalarArrayName = NULL;
@@ -211,7 +210,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   int comp, pixelSkip;
   long filePos, correction = 0;
   unsigned long count = 0;
-  unsigned short DataMask;
+  vtkTypeUInt64 DataMask;
   unsigned long target;
   
   // Get the requested extents.
@@ -327,7 +326,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
         {
         // Copy pixel into the output.
-        if (DataMask == 0xffff)
+        if (DataMask == static_cast<vtkTypeUInt64>(~0UL))
           {
           for (comp = 0; comp < pixelSkip; comp++)
             {
@@ -336,10 +335,9 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
           }
         else
           {
-          // left over from short reader (what about other types.
           for (comp = 0; comp < pixelSkip; comp++)
             {
-            outPtr0[comp] = (OT)((short)(inPtr[comp]) & DataMask);
+            outPtr0[comp] = (OT)((vtkTypeUInt64)(inPtr[comp]) & DataMask);
             }
           }
         // move to next pixel

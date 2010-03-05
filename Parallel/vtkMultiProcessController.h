@@ -161,6 +161,18 @@ public:
   // returned on all process not in the group.
   virtual vtkMultiProcessController *CreateSubController(
                                                         vtkProcessGroup *group);
+
+  // Description:
+  // Partitions this controller based on a coloring.  That is, each process
+  // passes in a color.  All processes with the same color are grouped into the
+  // same partition.  The processes are ordered by their self-assigned key.
+  // Lower keys have lower process ids.  Ties are broken by the current process
+  // ids.  (For example, if all the keys are 0, then the resulting processes
+  // will be ordered in the same way.)  This method returns a new controller to
+  // each process that represents the local partition.  This is basically the
+  // same operation as MPI_Comm_split.
+  virtual vtkMultiProcessController *PartitionController(int localColor,
+                                                         int localKey);
   
   //------------------ RMIs --------------------
   //BTX

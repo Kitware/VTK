@@ -114,6 +114,8 @@ public:
 
   virtual vtkMPIController *CreateSubController(vtkProcessGroup *group);
 
+  virtual vtkMPIController *PartitionController(int localColor, int localKey);
+
 //BTX
 
   // Description:

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This example demonstrates the use of data parallelism in VTK. The
-// pipeline ( vtkImageReader -> vtkContourFilter -> vtkElevationFilter )
+// pipeline ( vtkMPIImageReader -> vtkContourFilter -> vtkElevationFilter )
 // is created in parallel and each process is assigned 1 piece to process.
 // All satellite processes send the result to the first process which
 // collects and renders them.
@@ -27,10 +27,10 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSet.h"
 #include "vtkElevationFilter.h"
-#include "vtkImageReader.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
 #include "vtkParallelFactory.h"
+#include "vtkPNrrdReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkTestUtilities.h"
@@ -87,7 +87,7 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
 // This will be called by all processes
 void MyMain( vtkMultiProcessController *controller, void *arg )
 {
-  vtkImageReader *reader;
+  vtkPNrrdReader *reader;
   vtkContourFilter *iso;
   vtkElevationFilter *elev;
   int myid, numProcs;
@@ -102,12 +102,13 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
   char* fname = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, 
-                                                     "Data/headsq/quarter");
-  reader = vtkImageReader::New();
-  reader->SetDataByteOrderToLittleEndian();
-  reader->SetDataExtent(0, 63, 0, 63, 1, 93);
-  reader->SetFilePrefix(fname);
-  reader->SetDataSpacing(3.2, 3.2, 1.5);
+                                                    "Data/headsq/quarter.nhdr");
+  reader = vtkPNrrdReader::New();
+  reader->SetFileName(fname);
+  // reader->SetDataByteOrderToLittleEndian();
+  // reader->SetDataExtent(0, 63, 0, 63, 1, 93);
+  // reader->SetFilePrefix(fname);
+  // reader->SetDataSpacing(3.2, 3.2, 1.5);
   delete[] fname;
 
   // Iso-surface.
@@ -128,6 +129,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     vtkStreamingDemandDrivenPipeline::SafeDownCast(elev->GetExecutive());
   exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
   exec->SetUpdatePiece(exec->GetOutputInformation(0), myid);
+
+  // Make sure all processes update at the same time.
+  elev->Update();
 
   if (myid != 0)
     {

@@ -86,6 +86,11 @@ public:
   VTK_LEGACY(int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group));
 
   // Description:
+  // Used to initialize the communicator (i.e. create the underlying MPI_Comm)
+  // using MPI_Comm_split on the given communicator.
+  int SplitInitialize(vtkCommunicator *oldcomm, int color, int key);
+
+  // Description:
   // Performs the actual communication.  You will usually use the convenience
   // Send functions defined in the superclass.
   virtual int SendVoidArray(const void *data, vtkIdType length, int type,

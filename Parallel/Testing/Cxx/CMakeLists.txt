@@ -349,6 +349,16 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 1)
 
+        IF(VTK_MPI_MAX_NUMPROCS GREATER 6)
+          ADD_TEST(ParallelIso-7proc-image 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 7 ${VTK_MPI_PREFLAGS} 
+            ${CXX_TEST_PATH}/ParallelIsoTest
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/ParallelIso.7proc.png
+            ${VTK_MPI_POSTFLAGS})
+        ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 6)
+
       ENDIF (VTK_MPIRUN_EXE)
       #
       # If we do not have the data, still run the tests that we can

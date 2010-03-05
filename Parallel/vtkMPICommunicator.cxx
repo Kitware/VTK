@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.55");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.56");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -546,6 +546,53 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
     this->InitializeNumberOfProcesses();
     this->Initialized = 1;
     }
+
+  this->Modified();
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::SplitInitialize(vtkCommunicator *oldcomm,
+                                        int color, int key)
+{
+  if (this->Initialized) return 0;
+
+  vtkMPICommunicator *mpiComm = vtkMPICommunicator::SafeDownCast(oldcomm);
+  if (!mpiComm)
+    {
+    vtkErrorMacro("Split communicator must be an MPI communicator.");
+    return 0;
+    }
+
+  // If mpiComm has been initialized, it is guaranteed (unless the MPI calls
+  // return an error somewhere) to have valid Communicator.
+  if (!mpiComm->Initialized)
+    {
+    vtkWarningMacro("The communicator passed has not been initialized!");
+    return 0;
+    }
+
+  this->KeepHandleOff();
+
+  this->MPIComm->Handle = new MPI_Comm;
+  int err;
+  if (   (err = MPI_Comm_split(*(mpiComm->MPIComm->Handle), color, key,
+                               this->MPIComm->Handle))
+      != MPI_SUCCESS )
+    {
+    delete this->MPIComm->Handle;
+    this->MPIComm->Handle = 0;
+
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+
+    return 0;
+    }
+
+  this->InitializeNumberOfProcesses();
+  this->Initialized = 1;
 
   this->Modified();
 
