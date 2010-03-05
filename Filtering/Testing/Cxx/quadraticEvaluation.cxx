@@ -486,7 +486,7 @@ int TestQE(ostream& strm)
 
   // vtkCubicLine 
 
-  double culinePCoords[3], culineWeights[4], culinePosition[3];
+  double culinePCoords[3], culineWeights[4];
   double culinePoint[1][3] = {{0.25, 0.125, 0.0}};
   double culineClosest[3];
 
