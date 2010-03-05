@@ -44,6 +44,7 @@ SET(Kit_SRCS
   vtkPlotGrid.cxx
   vtkPlotLine.cxx
   vtkPlotPoints.cxx
+  vtkTooltipItem.cxx
   vtkWedgeMark.cxx
   )
 

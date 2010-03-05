@@ -23,6 +23,7 @@
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkPoints2D.h"
+#include "vtkVector.h"
 
 #include "vtkPlot.h"
 #include "vtkPlotBar.h"
@@ -33,6 +34,7 @@
 #include "vtkAxis.h"
 #include "vtkPlotGrid.h"
 #include "vtkChartLegend.h"
+#include "vtkTooltipItem.h"
 
 #include "vtkTable.h"
 #include "vtkAbstractArray.h"
@@ -49,6 +51,8 @@
 
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
+
+#include "vtksys/ios/sstream"
 
 // My STL containers
 #include <vtkstd/vector>
@@ -68,7 +72,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.41");
+vtkCxxRevisionMacro(vtkChartXY, "1.42");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -107,6 +111,9 @@ vtkChartXY::vtkChartXY()
   this->DrawNearestPoint = false;
   this->DrawAxesAtOrigin = false;
   this->BarWidthFraction = 0.8;
+
+  this->Tooltip = vtkTooltipItem::New();
+  this->Tooltip->SetVisible(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -133,6 +140,8 @@ vtkChartXY::~vtkChartXY()
     this->PlotTransform->Delete();
     this->PlotTransform = NULL;
     }
+  this->Tooltip->Delete();
+  this->Tooltip = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -267,6 +276,9 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->DrawStringRect(rect, this->Title);
     rect->Delete();
     }
+
+  // Draw in the current mouse location...
+  this->Tooltip->Paint(painter);
 
   return true;
 }
@@ -588,6 +600,13 @@ void vtkChartXY::RecalculateBounds()
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::SetScene(vtkContextScene *scene)
+{
+  this->vtkContextItem::SetScene(scene);
+  this->Tooltip->SetScene(scene);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 {
   if (mouse.ScreenPos[0] > this->Point1[0] &&
@@ -645,20 +664,63 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
+  else if (mouse.Button < 0)
+    {
+    this->Scene->SetDirty(true);
+    this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
+    }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
+{
+  size_t n = this->ChartPrivate->plots.size();
+  if (mouse.ScreenPos[0] > this->Point1[0] && mouse.ScreenPos[0] < this->Point2[0] &&
+      mouse.ScreenPos[1] > this->Point1[1] && mouse.ScreenPos[1] < this->Point2[1] &&
+      this->PlotTransform && n)
+    {
+    vtkVector2f plotPos, position;
+    this->PlotTransform->InverseTransformPoints(mouse.Pos, position.GetData(),
+                                                1);
+    // Use a tolerance of +/- 5 pixels
+    vtkVector2f tolerance(5*(1.0/this->PlotTransform->GetMatrix()->GetElement(0, 0)),
+                          5*(1.0/this->PlotTransform->GetMatrix()->GetElement(1, 1)));
+    // Iterate through the visible plots and return on the first hit
+    for (int i = static_cast<int>(--n); i >= 0; --i)
+      {
+      vtkPlot* plot = this->ChartPrivate->plots[i];
+      if (plot->GetVisible())
+        {
+        bool found = plot->GetNearestPoint(position, tolerance, &plotPos);
+        if (found)
+          {
+          // We found a point, set up the tooltip and return
+          vtksys_ios::ostringstream ostr;
+          ostr << plot->GetLabel() << ": " << plotPos.X() << ", " << plotPos.Y();
+          this->Tooltip->SetText(ostr.str().c_str());
+          this->Tooltip->SetPosition(mouse.ScreenPos[0]+2, mouse.ScreenPos[1]+2);
+          return true;
+          }
+        }
+      }
+    }
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   this->DrawNearestPoint = false;
+  this->Tooltip->SetVisible(false);
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
+  this->Tooltip->SetVisible(false);
   if (mouse.Button == 0)
     {
     // The mouse panning action.
@@ -748,6 +810,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 {
+  this->Tooltip->SetVisible(false);
   // Get the bounds of each plot.
   vtkAxis* xAxis = this->ChartPrivate->axes[vtkAxis::BOTTOM];
   vtkAxis* yAxis = this->ChartPrivate->axes[vtkAxis::LEFT];

@@ -28,6 +28,8 @@ class vtkAxis;
 class vtkPlotGrid;
 class vtkTable;
 class vtkChartLegend;
+class vtkTooltipItem;
+class vtkContextMouseEvent;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
@@ -126,6 +128,10 @@ public:
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
+  // Description:
+  // Set the vtkContextScene for the item, always set for an item in a scene.
+  virtual void SetScene(vtkContextScene *scene);
+
 //BTX
 protected:
   vtkChartXY();
@@ -152,6 +158,10 @@ protected:
   // Description:
   // The legend for the chart.
   vtkChartLegend *Legend;
+
+  // Description:
+  // The tooltip item for the chart - can be used to display extra information.
+  vtkTooltipItem *Tooltip;
 
   // Description:
   // The 2D transform for the series drawn in the plot area
@@ -201,6 +211,10 @@ private:
   // Description:
   // Figure out the spacing between the bar chart plots, and their offsets.
   void CalculateBarPlots();
+
+  // Description:
+  // Try to locate a point within the plots to display in a tooltip
+  bool LocatePointInPlots(const vtkContextMouseEvent &mouse);
 
 //ETX
 };
