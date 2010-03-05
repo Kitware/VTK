@@ -63,6 +63,9 @@ public:
         return;
         }
 
+      //cout << "eventId: " << eventId << " -> "
+      //    << this->GetStringFromEventId(eventId) << endl;
+
       switch (eventId)
         {
         case vtkCommand::MouseMoveEvent :
@@ -138,7 +141,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.12");
+vtkCxxRevisionMacro(vtkContextScene, "1.13");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 
@@ -301,6 +304,18 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
         event);
     this->Storage->items[this->Storage->itemMousePressCurrent]->MouseMoveEvent(event);
     }
+  else
+    {
+    // Propagate mouse move events
+    for (int i = size-1; i >= 0; --i)
+      {
+      if (this->Storage->items[0]->MouseMoveEvent(event))
+        {
+        break;
+        }
+      }
+    }
+
   for (int i = size-1; i >= 0; --i)
     {
     if (this->Storage->itemMousePressCurrent == i)
@@ -387,7 +402,7 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
   event.ScreenPos[1] = event.LastScreenPos[1] = y;
   event.ScenePos[0] = event.LastScenePos[0] = x;
   event.ScenePos[1] = event.LastScenePos[1] = y;
-  event.Button = 1;
+  //event.Button = 1;
   for (int i = size-1; i >= 0; --i)
     {
     this->PerformTransform(this->Storage->items[i]->GetTransform(), event);
