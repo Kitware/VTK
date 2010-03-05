@@ -16,11 +16,11 @@
 
 #include "vtkGPUInfoListArray.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
 
+#include <assert.h>
 #include <ApplicationServices/ApplicationServices.h>
 
-vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.1");
+vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.2");
 vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 
 // ----------------------------------------------------------------------------
@@ -67,17 +67,9 @@ void vtkCoreGraphicsGPUInfoList::Probe()
         // dedicated system memory (for example 256MB for a nVidia GeForce
         // 9400M).
         
-        // Property to look for
-        const char c_vram[]="VRAM,totalsize";
-        // expresse propery in unicode CFString
-        CFStringEncoding encoding=kCFStringEncodingMacRoman;
-        CFAllocatorRef alloc_default=kCFAllocatorDefault;
-        CFStringRef cf_vram=CFStringCreateWithCString(alloc_default,c_vram,
-                                                      encoding);
-        
         // Look for property
         CFTypeRef typeCode = IORegistryEntrySearchCFProperty(
-          dspPort,kIOServicePlane,cf_vram,kCFAllocatorDefault,
+          dspPort,kIOServicePlane,CFSTR("VRAM,totalsize"),kCFAllocatorDefault,
           kIORegistryIterateRecursively | kIORegistryIterateParents);
         
         if(typeCode!=0)
@@ -91,7 +83,6 @@ void vtkCoreGraphicsGPUInfoList::Probe()
             }
           CFRelease(typeCode);
           }
-        CFRelease(cf_vram);
         ++i;
         }
       free(displays);
@@ -111,7 +102,7 @@ vtkCoreGraphicsGPUInfoList::vtkCoreGraphicsGPUInfoList()
 
 // ----------------------------------------------------------------------------
 vtkCoreGraphicsGPUInfoList::~vtkCoreGraphicsGPUInfoList()
-{  
+{
 }
 
 // ----------------------------------------------------------------------------
