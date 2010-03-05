@@ -36,7 +36,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.18");
+vtkCxxRevisionMacro(vtkPlotLine, "1.19");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -44,7 +44,8 @@ vtkStandardNewMacro(vtkPlotLine);
 //-----------------------------------------------------------------------------
 vtkPlotLine::vtkPlotLine()
 {
-  this->Points = 0;
+  this->Points = NULL;
+  this->Sorted = NULL;
   this->MarkerStyle = vtkPlotLine::NONE;
   this->LogX = false;
   this->LogY = false;
@@ -57,6 +58,11 @@ vtkPlotLine::~vtkPlotLine()
     {
     this->Points->Delete();
     this->Points = NULL;
+    }
+  if (this->Sorted)
+    {
+    this->Sorted->Delete();
+    this->Sorted = NULL;
     }
 }
 
@@ -275,8 +281,24 @@ bool vtkPlotLine::GetNearestPoint(const vtkVector2f& point,
     return false;
     }
 
+  if (!this->Sorted)
+    {
+    this->Sorted = vtkPoints2D::New();
+    }
+
+  // Sort the data if necessary
+  if (this->Sorted->GetNumberOfPoints() == 0)
+    {
+    this->Sorted->DeepCopy(this->Points);
+    vtkVector2f* data =
+        static_cast<vtkVector2f*>(this->Sorted->GetVoidPointer(0));
+    vtkstd::vector<vtkVector2f> v(data, data+n);
+    sort(v.begin(), v.end(), compVector2fX);
+    }
+
   // Set up our search array, use the STL lower_bound algorithm
-  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+  vtkVector2f* data =
+      static_cast<vtkVector2f*>(this->Sorted->GetVoidPointer(0));
   vtkstd::vector<vtkVector2f> v(data, data+n);
   vtkstd::vector<vtkVector2f>::iterator low;
 
@@ -395,6 +417,10 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
     }
   this->CalculateLogSeries();
   this->Points->Modified();
+  if (this->Sorted)
+    {
+    this->Sorted->SetNumberOfPoints(0);
+    }
   this->BuildTime.Modified();
   return true;
 }

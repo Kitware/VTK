@@ -103,7 +103,11 @@ protected:
 
   // Description:
   // Store a well packed set of XY coordinates for this data series.
-  vtkPoints2D *Points;
+  vtkPoints2D* Points;
+
+  // Description:
+  // Sorted points, used when searching for the nearest point.
+  vtkPoints2D* Sorted;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
