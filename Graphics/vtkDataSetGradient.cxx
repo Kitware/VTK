@@ -31,8 +31,19 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+
+// utility macros
+#define ADD_VEC(a,b) a[0]+=b[0];a[1]+=b[1];a[2]+=b[2]
+#define SCALE_VEC(a,b) a[0]*=b;a[1]*=b;a[2]*=b
+#define ZERO_VEC(a) a[0]=0;a[1]=0;a[2]=0
+#define COPY_VEC(a,b) a[0]=b[0];a[1]=b[1];a[2]=b[2];
+#define MAX_CELL_POINTS 128
+#define MAX_FACE_POINTS 16
+#define VTK_CQS_EPSILON 1e-12
+
+
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkDataSetGradient, "1.7");
+vtkCxxRevisionMacro(vtkDataSetGradient, "1.8");
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!
@@ -118,12 +129,14 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   _output->ShallowCopy( _input );
 
   vtkDataArray* cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
-  if( cqsArray==0 )
+  vtkDataArray* volumeArray = _output->GetCellData()->GetArray("CellVolume");
+  if( cqsArray==0 || volumeArray==0 )
     {
     vtkDebugMacro(<<"Couldn't find field array 'GradientPrecomputation', computing it right now.\n");
     vtkDataSetGradientPrecompute::GradientPrecompute(_output);
     cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
-    if( cqsArray==0 )
+    volumeArray = _output->GetCellData()->GetArray("CellVolume");
+    if( cqsArray==0 || volumeArray==0 )
       {
       vtkErrorMacro(<<"Computation of field array 'GradientPrecomputation' failed.\n");
       return 0;
@@ -148,16 +161,16 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
       double gradient[3] = {0,0,0};
       for(int p=0;p<np;p++)
         {
-        double cqs[3];
+        double cqs[3], scalar;
         cqsArray->GetTuple( cellPoint++ , cqs );
-        double scalar = inArray->GetTuple1( cell->GetPointId(p) );
-        gradient[0] += scalar * cqs[0];
-        gradient[1] += scalar * cqs[1];
-        gradient[2] += scalar * cqs[2];
+        scalar = inArray->GetTuple1( cell->GetPointId(p) );
+        SCALE_VEC( cqs , scalar );
+        ADD_VEC( gradient , cqs );
         }
+      SCALE_VEC( gradient , ( 1.0 / volumeArray->GetTuple1(i) ) );
       gradientArray->SetTuple( i , gradient );
       }
-      
+
     _output->GetCellData()->AddArray( gradientArray );
     //_output->GetCellData()->SetVectors( gradientArray );
     }
@@ -168,6 +181,11 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
     gradientArray->FillComponent(1, 0.0);
     gradientArray->FillComponent(2, 0.0);
     double * gradient = gradientArray->WritePointer(0,nPoints*3);
+    double * gradientDivisor = new double [nPoints];
+    for(vtkIdType i=0;i<nPoints;i++)
+      {
+      gradientDivisor[i] = 0.0;
+      }
     vtkIdType cellPoint = 0;
     for(vtkIdType i=0;i<nCells;i++)
       {
@@ -177,20 +195,27 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
       for(int p=0;p<np;p++)
         {
         double cqs[3];
-        cqsArray->GetTuple( cellPoint++ , cqs );
+        double pointCoord[3];
         vtkIdType pointId = cell->GetPointId(p);
-        gradient[pointId*3+0] += scalar * cqs[0];
-        gradient[pointId*3+1] += scalar * cqs[1];
-        gradient[pointId*3+2] += scalar * cqs[2];
+        cqsArray->GetTuple( cellPoint++ , cqs );
+        _input->GetPoint( cell->GetPointId(p), pointCoord );
+        scalar *= cell->GetCellDimension();
+        SCALE_VEC( (gradient+pointId*3) , scalar );
+        gradientDivisor[pointId] += vtkMath::Dot(cqs,pointCoord);
         }
       }
+    for(vtkIdType i=0;i<nPoints;i++)
+      {
+      SCALE_VEC( (gradient+i*3) , (1.0/gradientDivisor[i]) );
+      }
+    delete [] gradientDivisor;
     _output->GetPointData()->AddArray( gradientArray );
     //_output->GetPointData()->SetVectors( gradientArray );
     }
   gradientArray->Delete();
-
+  
   vtkDebugMacro(<<_output->GetClassName()<<" @ "<<_output<<" :\n");
-
+  
   return 1;
 }
 

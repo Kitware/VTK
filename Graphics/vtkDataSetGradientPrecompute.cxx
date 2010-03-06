@@ -33,7 +33,11 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.6");
+#define VTK_DATASET_GRADIENT_TETRA_OPTIMIZATION
+#define VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
+//#define DEBUG
+
+vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.7");
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()
@@ -54,7 +58,6 @@ void vtkDataSetGradientPrecompute::PrintSelf(ostream& os, vtkIndent indent)
 #define ZERO_VEC(a) a[0]=0;a[1]=0;a[2]=0
 #define MAX_CELL_POINTS 128
 #define MAX_FACE_POINTS 16
-
 #define VTK_CQS_EPSILON 1e-12
 
 static inline void TETRA_CQS_VECTOR( double v0[3], double v1[3], double v2[3], double p[3], double cqs[3] )
@@ -75,7 +78,7 @@ static inline void TETRA_CQS_VECTOR( double v0[3], double v1[3], double v2[3], d
     cqs[2] = - cqs[2];
     }
 
-  SCALE_VEC( cqs , surface / 6.0 );
+  SCALE_VEC( cqs , surface / 2.0 );
 }
 
 static inline void TRIANGLE_CQS_VECTOR( double v0[3], double v1[3], double p[3], double cqs[3] )
@@ -110,6 +113,10 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
   cqs->FillComponent(1, 0.0);
   cqs->FillComponent(2, 0.0);
 
+  vtkDoubleArray* cellVolume = vtkDoubleArray::New();
+  cellVolume->SetName("CellVolume");
+  cellVolume->SetNumberOfTuples(nCells);
+
   vtkIdType curPoint = 0;
   for(vtkIdType c=0;c<nCells;c++)
     {
@@ -133,10 +140,11 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
     // -= 3 D =-
     if( cell->GetCellDimension() == 3 )
       {
+#ifdef VTK_DATASET_GRADIENT_TETRA_OPTIMIZATION
       if( np == 4 ) // cell is a tetrahedra
         {
         //vtkWarningMacro(<<"Tetra detected\n");
-        volume = fabs( vtkTetra::ComputeVolume(cellPoints[0], cellPoints[1], cellPoints[2], cellPoints[3]) ) / 2.0; 
+        volume = fabs( vtkTetra::ComputeVolume(cellPoints[0], cellPoints[1], cellPoints[2], cellPoints[3]) ) *1.5 ; 
         
         TETRA_CQS_VECTOR( cellPoints[0], cellPoints[1], cellPoints[2], cellPoints[3] , tmp );    
         ADD_VEC(cellVectors[3],tmp);
@@ -151,6 +159,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
         ADD_VEC(cellVectors[2],tmp);
         }
       else if( np > 4 )
+#endif
         {
         vtkCell3D* cell3d = static_cast<vtkCell3D*>( cell ); 
         int nf = cell->GetNumberOfFaces();
@@ -159,10 +168,11 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
           int* faceIds = 0;
           int nfp = cell->GetFace(f)->GetNumberOfPoints();
           cell3d->GetFacePoints(f,faceIds);
+#ifdef VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
           if( nfp == 3 ) // face is a triangle
             {
             //vtkWarningMacro(<<"triangular face detected\n");
-            volume += fabs(vtkTetra::ComputeVolume(cellCenter,cellPoints[faceIds[0]],cellPoints[faceIds[1]],cellPoints[faceIds[2]])) / 2.0;
+            volume+=fabs(vtkTetra::ComputeVolume(cellCenter,cellPoints[faceIds[0]],cellPoints[faceIds[1]],cellPoints[faceIds[2]]))*1.5;
  
             TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[0]], cellPoints[faceIds[1]], cellPoints[faceIds[2]] , tmp );    
             ADD_VEC(cellVectors[faceIds[2]],tmp);
@@ -174,6 +184,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
             ADD_VEC(cellVectors[faceIds[1]],tmp);
             }
           else if( nfp > 3 ) // generic case
+#endif
             {
             double faceCenter[3] = {0,0,0};
             for(int p=0;p<nfp;p++)
@@ -184,7 +195,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
             for(int p=0;p<nfp;p++)
               {
               int p2 = (p+1) % nfp ;
-              volume += fabs( vtkTetra::ComputeVolume(cellCenter, faceCenter, cellPoints[faceIds[p]] , cellPoints[faceIds[p2]]) ) / 3.0;
+              volume += fabs( vtkTetra::ComputeVolume(cellCenter, faceCenter, cellPoints[faceIds[p]] , cellPoints[faceIds[p2]]) ) ;
 
               TETRA_CQS_VECTOR( cellCenter, faceCenter, cellPoints[faceIds[p]] , cellPoints[faceIds[p2]] , tmp );    
               ADD_VEC( cellVectors[faceIds[p2]] , tmp );
@@ -231,27 +242,33 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
         }
       }
 
+    cellVolume->SetTuple1(c,volume);
+
     // check cqs consistency
-    double v[3] = {0,0,0};
+    double checkZero[3] = {0,0,0};
+    double checkVolume = 0;
     for(int p=0;p<np;p++)
       {
-      SCALE_VEC( cellVectors[p] , (1.0/volume) );
-      ADD_VEC(v,cellVectors[p]);
+      checkVolume += vtkMath::Dot( cellPoints[p] , cellVectors[p] );
+      ADD_VEC(checkZero,cellVectors[p]);
       cqs->SetTuple( curPoint + p , cellVectors[p] );
       }
+    checkVolume /= (double) cell->GetCellDimension();
 
 #ifdef DEBUG
-    if( vtkMath::Dot(v,v) > VTK_CQS_EPSILON )
+    if( vtkMath::Norm(checkZero)>VTK_CQS_EPSILON || fabs(volume-checkVolume)>VTK_CQS_EPSILON )
       {
-      vtkWarningMacro(<<"Bad CQS sum : "<<vtkMath::Dot(v,v)<<"\n");
+      cout<<"Bad CQS sum at cell #"<<c<<", Sum="<<vtkMath::Norm(checkZero)<<", volume="<<volume<<", ratio Vol="<<volume/checkVolume<<"\n";
       }
 #endif
-     
+
     curPoint += np;
     }
 
   ds->GetFieldData()->AddArray( cqs );
+  ds->GetCellData()->AddArray( cellVolume );
   cqs->Delete();
+  cellVolume->Delete();
 
   return 1;
 }
