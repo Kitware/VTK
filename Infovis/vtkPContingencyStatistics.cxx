@@ -43,7 +43,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.35");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.36");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -115,8 +115,8 @@ void UnpackValues( const vtkStdString& buffer,
 
 // ----------------------------------------------------------------------
 void vtkPContingencyStatistics::Learn( vtkTable* inData,
-                                              vtkTable* inParameters,
-                                              vtkDataObject* outMetaDO )
+                                       vtkTable* inParameters,
+                                       vtkDataObject* outMetaDO )
 {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog *timer=vtkTimerLog::New();
@@ -356,11 +356,6 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   vtkstd::vector<vtkStdString>::iterator xyit = xyValues_l.begin();
   vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
 
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  vtkTimerLog *timer5=vtkTimerLog::New();
-  timer5->StartTimer();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-
   // First replace existing rows
   // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
   for ( vtkIdType r = 1 ; r < nRowCont; ++ r, xyit += 2, kcit += 2 )
@@ -384,19 +379,6 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
    contingencyTab->InsertNextRow( row4 );
    }
     
-#if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-  timer5->StopTimer();
-
-  cout << "## Process "
-       << myRank
-       << " updated contingency table in "
-       << timer5->GetElapsedTime()
-       << " seconds."
-       << "\n";
-  
-  timer5->Delete();
-#endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
-
   // Clean up
   row4->Delete();
 
