@@ -50,7 +50,7 @@ public:
   // bitwise-and'ed to the numbers read from disk.  This ivar is stored as 64
   // bits, the largest mask you will need.  The mask will be truncated to the
   // data size required to be read (using the least significant bits).
-  vtkGetMacro(DataMask, vtkTypeUcd Int64);
+  vtkGetMacro(DataMask, vtkTypeUInt64);
   vtkSetMacro(DataMask, vtkTypeUInt64);
   
   // Description:
