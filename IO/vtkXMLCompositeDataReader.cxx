@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkXMLCompositeDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLCompositeDataReader, "1.5");
 
 struct vtkXMLCompositeDataReaderEntry
 {
@@ -290,6 +290,11 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   // Construct the name of the internal file.
   vtkstd::string fileName;
   const char* file = xmlElem->GetAttribute("file");
+  if (!file)
+    {
+    return NULL;
+    }
+
   if(!(file[0] == '/' || file[1] == ':'))
     {
     fileName = filePath;
