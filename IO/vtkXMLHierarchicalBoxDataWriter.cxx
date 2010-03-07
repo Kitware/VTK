@@ -15,24 +15,30 @@
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 
 #include "vtkAMRBox.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkErrorCode.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include "vtkXMLDataElement.h"
 #include "vtkUniformGrid.h"
+#include "vtkXMLDataElement.h"
+
+#include "assert.h"
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataWriter, "1.8");
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataWriter::vtkXMLHierarchicalBoxDataWriter()
 {
+  this->AMRBoxes = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataWriter::~vtkXMLHierarchicalBoxDataWriter()
 {
+  delete this->AMRBoxes;
+  this->AMRBoxes = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -41,6 +47,38 @@ int vtkXMLHierarchicalBoxDataWriter::FillInputPortInformation(
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput)
+{
+  this->Superclass::FillDataTypes(cdInput);
+  // Build information about the boxes. This is a bit irrelevant in serial, but
+  // makes it easier when processing in parallel.
+  
+  vtkHierarchicalBoxDataSet* hdInput =
+    vtkHierarchicalBoxDataSet::SafeDownCast(cdInput);
+  assert("dataset must be vtkHierarchicalBoxDataSet" && hdInput != NULL);
+
+  delete [] this->AMRBoxes;
+  
+  unsigned int numLeafNodes = this->GetNumberOfDataTypes();
+  this->AMRBoxes = new int[numLeafNodes * 6];
+  memset(this->AMRBoxes, 0, numLeafNodes*6*sizeof(int));
+
+  vtkCompositeDataIterator* iter = hdInput->NewIterator();
+  iter->SkipEmptyNodesOff();
+  int leafNo =  0;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem(), leafNo++)
+    {
+    if (iter->GetCurrentDataObject())
+      {
+      vtkAMRBox box = hdInput->GetAMRBox(iter);
+      box.GetDimensions(&this->AMRBoxes[leafNo*6]);
+      }
+    }
+  iter->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -61,27 +99,37 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
     for (unsigned int cc=0; cc < numDS; cc++)
       {
       vtkAMRBox box;
-      int vec_box[6]={0};
       vtkUniformGrid* ug = hboxData->GetDataSet(level, cc, box);
       vtkSmartPointer<vtkXMLDataElement> datasetXML = 
         vtkSmartPointer<vtkXMLDataElement>::New();
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", cc);
-      box.GetDimensions(vec_box);
-      datasetXML->SetVectorAttribute("amr_box", 6, vec_box);
+      // we use the box from this->AMRBoxes since that datastructure is
+      // synchronized when running in parallel.
+      datasetXML->SetVectorAttribute("amr_box", 6, &this->AMRBoxes[writerIdx*6]);
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
-      if (!this->WriteNonCompositeData(ug, datasetXML, writerIdx, 
-                                       fileName.c_str()))
+      if (fileName != "")
+        {
+        // if fileName is empty, it implies that no file is written out for this
+        // node, so don't add a filename attribute for it.
+        datasetXML->SetAttribute("file", fileName);
+        }
+      block->AddNestedElement(datasetXML);
+
+      // if this->WriteNonCompositeData() returns 0, it doesn't meant it's an
+      // error, it just means that it didn't write a file for the current node.
+      this->WriteNonCompositeData(ug, datasetXML, writerIdx, fileName.c_str());
+
+      if (this->GetErrorCode() != vtkErrorCode::NoError)
         {
         return 0;
-        } 
-      block->AddNestedElement(datasetXML);
+        }
       }
     parent->AddNestedElement(block);
     }
+
   return 1;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkXMLHierarchicalBoxDataWriter::PrintSelf(ostream& os, vtkIndent indent)

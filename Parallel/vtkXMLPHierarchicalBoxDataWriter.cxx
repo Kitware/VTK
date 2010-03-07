@@ -16,10 +16,11 @@
 
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "assert.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPHierarchicalBoxDataWriter);
-vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, "1.5");
 
 vtkCxxSetObjectMacro(vtkXMLPHierarchicalBoxDataWriter, 
                      Controller,
@@ -75,48 +76,67 @@ void vtkXMLPHierarchicalBoxDataWriter::SetWriteMetaFile(int flag)
 
 //----------------------------------------------------------------------------
 void vtkXMLPHierarchicalBoxDataWriter::FillDataTypes(
-  vtkCompositeDataSet* hdInput)
+  vtkCompositeDataSet* cdInput)
 {
-  this->Superclass::FillDataTypes(hdInput);
+  this->Superclass::FillDataTypes(cdInput);
 
-  if (!this->Controller)
+  if (!this->Controller )
     {
     return;
     }
 
   int myid = this->Controller->GetLocalProcessId();
   int numProcs = this->Controller->GetNumberOfProcesses();
-
-  unsigned numBlocks = this->GetNumberOfDataTypes();
+  unsigned int numLeafNodes = this->GetNumberOfDataTypes();
   int* myDataTypes = this->GetDataTypesPointer();
+  if (numProcs == 1 || numLeafNodes == 0)
+    {
+    return;
+    }
+
+
+  // Collect information about amr-boxes (we don't need to gather refinement
+  // ratio informations since those are certainly consistent on all processes
+  // since we expect the same composite structure on all nodes.
+  assert(this->AMRBoxes != NULL);
 
   if (myid == 0)
     {
-    int* dataTypes = new int[numBlocks];
-    for (int i=1; i<numProcs; i++)
+    int *gathered_data_types = new int [numLeafNodes*numProcs];
+    for (unsigned int cc=0; cc < numProcs*numLeafNodes; cc++)
       {
-      this->Controller->Receive(
-        dataTypes, 
-        numBlocks, 
-        i, 
-        vtkMultiProcessController::XML_WRITER_DATA_INFO);
-      for (unsigned int j=0; j<numBlocks; j++)
+      gathered_data_types[cc] = -1;
+      }
+    this->Controller->Gather(myDataTypes,
+      gathered_data_types, numLeafNodes, 0);
+
+    int *gathered_amx_box_dims = new int [numLeafNodes*6*numProcs];
+    memset(gathered_amx_box_dims, 0, numLeafNodes*6*numProcs*sizeof(int));
+    this->Controller->Gather(this->AMRBoxes, gathered_amx_box_dims,
+      numLeafNodes*6, 0);
+
+    for (int procNo=1; procNo<numProcs; procNo++)
+      {
+      for (unsigned int pieceNo=0; pieceNo<numLeafNodes; pieceNo++)
         {
-        if (dataTypes[j] >= 0)
+        if (myDataTypes[pieceNo] == -1 &&
+          gathered_data_types[procNo*numLeafNodes+pieceNo] >= 0)
           {
-          myDataTypes[j] = dataTypes[j];
+          myDataTypes[pieceNo] =
+            gathered_data_types[procNo*numLeafNodes + pieceNo];
+          memcpy(&this->AMRBoxes[pieceNo*6],
+            &gathered_amx_box_dims[(procNo*numLeafNodes + pieceNo)*6],
+            sizeof(int)*6);
           }
         }
       }
-    delete[] dataTypes;
+    delete[] gathered_data_types;
+    delete[] gathered_amx_box_dims;
     }
   else
     {
-    this->Controller->Send(myDataTypes, 
-                           numBlocks, 
-                           0, 
-                           vtkMultiProcessController::XML_WRITER_DATA_INFO);
+    this->Controller->Gather(myDataTypes, NULL, numLeafNodes, 0);
+    this->Controller->Gather(this->AMRBoxes, NULL, numLeafNodes*6, 0);
     }
-
 }
 

@@ -166,7 +166,8 @@ protected:
   // have data overwritten and added to (the index XML attribute
   // should not be touched though).  writerIdx is the piece index
   // that gets incremented for the globally numbered piece.
-  // This function returns 0 if no file was written.
+  // This function returns 0 if no file was written (not necessarily an error).
+  // this->ErrorCode is set on error.
   virtual int WriteNonCompositeData(
     vtkDataObject* dObj, vtkXMLDataElement* element, 
     int& writerIdx, const char* FileName);

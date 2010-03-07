@@ -42,11 +42,15 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
+  // Fills up this->AMRBoxes with boxes for the dataset.
+  virtual void FillDataTypes(vtkCompositeDataSet*);
+
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
   virtual int WriteComposite(vtkCompositeDataSet* compositeData, 
     vtkXMLDataElement* parent, int &writerIdx);
 
+  int *AMRBoxes;
 private:
   vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.

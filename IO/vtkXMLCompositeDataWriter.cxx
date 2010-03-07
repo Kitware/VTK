@@ -53,7 +53,7 @@
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.8");
+vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.9");
 
 class vtkXMLCompositeDataWriterInternals
 {
@@ -585,21 +585,46 @@ void vtkXMLCompositeDataWriter::ProgressCallback(vtkAlgorithm* w)
 
 //----------------------------------------------------------------------------
 vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
-  int Piece)
+  int piece)
 {
   vtkstd::string fname;
-  if(this->Internal->Writers[Piece] == 0)
+  if(this->Internal->DataTypes[piece] <= 0)
     {
     return fname;
     }
-  vtksys_ios::ostringstream fn_with_warning_C4701;
-  fn_with_warning_C4701
-    << this->Internal->FilePrefix.c_str() << "/"
-    << this->Internal->FilePrefix.c_str();
 
-  fn_with_warning_C4701 << "_" << Piece << "."
-    << this->Internal->Writers[Piece]->GetDefaultFileExtension();
-  fname = fn_with_warning_C4701.str();
+  vtksys_ios::ostringstream stream;
+  stream << this->Internal->FilePrefix.c_str() << "/"
+         << this->Internal->FilePrefix.c_str()
+         << "_" << piece << ".";
+  switch (this->Internal->DataTypes[piece])
+    {
+  case VTK_POLY_DATA:    
+    stream << "vtp";
+    break;
+  
+  case VTK_STRUCTURED_POINTS:
+  case VTK_IMAGE_DATA:
+  case VTK_UNIFORM_GRID:
+    stream << "vti";
+    break;
+  
+  case VTK_UNSTRUCTURED_GRID:
+    stream << "vtu";
+    break;
+
+  case VTK_STRUCTURED_GRID:
+    stream << "vts";
+    break;
+
+  case VTK_RECTILINEAR_GRID:
+    stream << "vtr";
+    break;
+
+  default:
+    return "";
+    }
+  fname = stream.str();
   return fname;
 }
 
