@@ -63,6 +63,12 @@ class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRende
     { this->Superclass::RenderLabel(x, tprop, label, width); }
   //ETX
 
+  // Description:
+  // Release any graphics resources that are being consumed by this strategy.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *window);
+
 protected:
   vtkFreeTypeLabelRenderStrategy();
   ~vtkFreeTypeLabelRenderStrategy();

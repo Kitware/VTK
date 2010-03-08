@@ -26,6 +26,7 @@
 #include "vtkUnicodeString.h" // For unicode string support
 
 class vtkRenderer;
+class vtkWindow;
 class vtkTextProperty;
 
 class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
@@ -92,6 +93,12 @@ class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
   // Description:
   // End a rendering frame.
   virtual void EndFrame() { }
+
+  // Description:
+  // Release any graphics resources that are being consumed by this strategy.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
 protected:
   vtkLabelRenderStrategy();

@@ -23,7 +23,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFreeTypeLabelRenderStrategy, "1.2");
+vtkCxxRevisionMacro(vtkFreeTypeLabelRenderStrategy, "1.3");
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 
 //----------------------------------------------------------------------------
@@ -41,6 +41,11 @@ vtkFreeTypeLabelRenderStrategy::~vtkFreeTypeLabelRenderStrategy()
   this->FreeTypeUtilities->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
+}
+
+void vtkFreeTypeLabelRenderStrategy::ReleaseGraphicsResources(vtkWindow *window)
+{
+  this->Actor->ReleaseGraphicsResources(window);
 }
 
 //double compute_bounds_time1 = 0;

@@ -66,6 +66,12 @@ class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrat
   // End a rendering frame.
   virtual void EndFrame();
 
+  // Description:
+  // Release any graphics resources that are being consumed by this strategy.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *window);
+
 protected:
   vtkQtLabelRenderStrategy();
   ~vtkQtLabelRenderStrategy();

@@ -45,7 +45,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.11");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.12");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 struct vtkQtLabelMapEntry
@@ -155,6 +155,13 @@ vtkQtLabelRenderStrategy::~vtkQtLabelRenderStrategy()
   this->Texture->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
+}
+
+void vtkQtLabelRenderStrategy::ReleaseGraphicsResources(vtkWindow *window)
+{
+  this->Texture->ReleaseGraphicsResources(window);
+  this->Mapper->ReleaseGraphicsResources(window);
+  this->Actor->ReleaseGraphicsResources(window);
 }
 
 //double start_frame_time = 0;
