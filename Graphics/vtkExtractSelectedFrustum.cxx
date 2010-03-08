@@ -36,7 +36,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.20");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.21");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -266,7 +266,7 @@ int vtkExtractSelectedFrustum::RequestData(
   vtkUnstructuredGrid *outputUG = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (this->ShowBounds)
+  if (this->ShowBounds && !this->PreserveTopology)
     {
     //for debugging, shows rough outline of the selection frustum
     //only valid if CreateFrustum was called
