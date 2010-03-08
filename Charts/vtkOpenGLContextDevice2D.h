@@ -55,7 +55,7 @@ public:
   // Description:
   // Draws a rectangle
   virtual void DrawQuad(float *points, int n);
-  
+
   // Description:
   // Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,
   // inner radii inRx, inRy between angles startAngle and stopAngle
@@ -69,7 +69,7 @@ public:
   virtual void DrawEllipseWedge(float x, float y, float outRx, float outRy,
                                 float inRx, float inRy, float startAngle,
                                 float stopAngle);
-  
+
   // Description:
   // Draw an elliptic arc with center at x,y with radii rX and rY between
   // angles startAngle and stopAngle (expressed in degrees).
@@ -77,8 +77,8 @@ public:
   // \pre positive_rY: rY>=0
   virtual void DrawEllipticArc(float x, float y, float rX, float rY,
                                float startAngle, float stopAngle);
-  
-  
+
+
 //BTX
   // Description:
   // Draw some text to the screen!
@@ -164,12 +164,17 @@ public:
   // then freetype will be used and this will return false.
   bool SetStringRendererToQt();
 
+  // Description:
+  // Release any graphics resources that are being consumed by this device.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *window);
+
 //BTX
 protected:
   vtkOpenGLContextDevice2D();
   virtual ~vtkOpenGLContextDevice2D();
 
- 
   // Description:
   // Factorized code called by DrawEllipseWedge() and DrawEllipticArc()
   // to figure out the number of iterations required to make an arc smooth.
@@ -180,7 +185,7 @@ protected:
                                float rY,
                                float startAngle,
                                float stopAngle);
-  
+
   // Description:
   // Store the width and height of the display devicen (in pixels).
   int Geometry[2];

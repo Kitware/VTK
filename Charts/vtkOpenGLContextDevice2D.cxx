@@ -73,7 +73,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.17");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.18");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -637,6 +637,16 @@ bool vtkOpenGLContextDevice2D::SetStringRendererToQt()
 #endif
   // The Qt based strategy is not available
   return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
+{
+  this->TextRenderer->ReleaseGraphicsResources(window);
+  if (this->Storage->texture)
+    {
+    this->Storage->texture->ReleaseGraphicsResources(window);
+    }
 }
 
 //-----------------------------------------------------------------------------

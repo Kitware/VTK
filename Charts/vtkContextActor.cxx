@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextActor, "1.4");
+vtkCxxRevisionMacro(vtkContextActor, "1.5");
 vtkStandardNewMacro(vtkContextActor);
 
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
@@ -59,8 +59,10 @@ vtkContextActor::~vtkContextActor()
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::ReleaseGraphicsResources(vtkWindow *)
+void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
 {
+  vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice())
+      ->ReleaseGraphicsResources(window);
 }
 
 //----------------------------------------------------------------------------
