@@ -141,7 +141,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.13");
+vtkCxxRevisionMacro(vtkContextScene, "1.14");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 
@@ -309,7 +309,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     // Propagate mouse move events
     for (int i = size-1; i >= 0; --i)
       {
-      if (this->Storage->items[0]->MouseMoveEvent(event))
+      if (this->Storage->items[i]->MouseMoveEvent(event))
         {
         break;
         }
