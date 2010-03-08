@@ -56,7 +56,8 @@ public:
     AddFinalPoint,
     Completed,
     TimedOut,
-    ModifyEvent
+    ModifyEvent,
+    Reset
   };
 //ETX
 

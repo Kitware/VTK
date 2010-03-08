@@ -37,17 +37,18 @@ static const char *vtkWidgetEventStrings[] = {
   "Completed",
   "TimedOut",
   "ModifyEvent",
+  "Reset",
   NULL
 };
 
-vtkCxxRevisionMacro(vtkWidgetEvent, "1.5");
+vtkCxxRevisionMacro(vtkWidgetEvent, "1.6");
 vtkStandardNewMacro(vtkWidgetEvent);
 
-
+//----------------------------------------------------------------------
 const char *vtkWidgetEvent::GetStringFromEventId(unsigned long event)
 {
   static unsigned long numevents = 0;
-  
+
   // find length of table
   if (!numevents)
     {
@@ -66,9 +67,10 @@ const char *vtkWidgetEvent::GetStringFromEventId(unsigned long event)
     return "NoEvent";
     }
 }
-  
+
+//----------------------------------------------------------------------
 unsigned long vtkWidgetEvent::GetEventIdFromString(const char *event)
-{  
+{
   unsigned long i;
 
   for (i = 0; vtkWidgetEventStrings[i] != NULL; i++)
@@ -81,13 +83,9 @@ unsigned long vtkWidgetEvent::GetEventIdFromString(const char *event)
   return vtkWidgetEvent::NoEvent;
 }
 
-  
+//----------------------------------------------------------------------
 void vtkWidgetEvent::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
 }
-
-
-
