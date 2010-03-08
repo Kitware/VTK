@@ -53,6 +53,7 @@ public:
     this->texture = NULL;
     this->lightingEnabled = GL_TRUE;
     this->depthTestEnabled = GL_TRUE;
+    this->TextCounter = 0;
   }
   ~Private()
   {
@@ -67,10 +68,12 @@ public:
   // Store the previous GL state so that we can restore it when complete
   GLboolean lightingEnabled;
   GLboolean depthTestEnabled;
+
+  int TextCounter;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.16");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.17");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -161,6 +164,22 @@ void vtkOpenGLContextDevice2D::End()
   if (this->IsTextDrawn)
     {
     this->TextRenderer->EndFrame();
+#ifdef VTK_USE_QT
+    if (++this->Storage->TextCounter > 300)
+      {
+      // Delete and recreate the label render strategy, this is a short term
+      // fix for a bug observed in ParaView/VTK charts where memory utilization
+      // would grow and grow if the chart had a large number of unique strings.
+      // The number chosen is fairly arbitrary, and a real fix should be made in
+      // the label render strategy.
+      if (this->TextRenderer->IsA("vtkQtLabelRenderStrategy"))
+        {
+        this->TextRenderer->Delete();
+        this->TextRenderer = vtkQtLabelRenderStrategy::New();
+        this->Storage->TextCounter = 0;
+        }
+      }
+#endif
     this->IsTextDrawn = false;
     }
   this->TextRenderer->SetRenderer(0);
@@ -262,7 +281,7 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   assert("pre: positive_inRy" && inRy>=0.0f);
   assert("pre: ordered_rx" && inRx<=outRx);
   assert("pre: ordered_ry" && inRy<=outRy);
-  
+
   if(outRy==0.0f && outRx==0.0f)
     {
     // we make sure maxRadius will never be null.
@@ -273,22 +292,22 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
                                                 stopAngle);
 
   float *p=new float[4*(iterations+1)];
-  
+
   // step in radians.
   double step =
     vtkMath::RadiansFromDegrees(stopAngle-startAngle)/(iterations);
-  
+
   // step have to be lesser or equal to maxStep computed inside
   // GetNumberOfIterations()
-  
+
   double rstart=vtkMath::RadiansFromDegrees(startAngle);
-  
+
   // the A vertices (0,2,4,..) are on the inner side
   // the B vertices (1,3,5,..) are on the outer side
   // (A and B vertices terms come from triangle strip definition in
   // OpenGL spec)
   // we are iterating counterclockwise
-  
+
   int i=0;
   while(i<=iterations)
     {
@@ -296,19 +315,19 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
     double a=rstart+i*step;
     p[4*i  ] = inRx * cos(a) + x;
     p[4*i+1] = inRy * sin(a) + y;
-    
+
     // B vertex (outer side)
     p[4*i+2] = outRx * cos(a) + x;
     p[4*i+3] = outRy * sin(a) + y;
-    
+
     ++i;
     }
-  
+
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 2*(iterations+1));
   glDisableClientState(GL_VERTEX_ARRAY);
-  
+
   delete[] p;
 }
 
@@ -319,26 +338,26 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
 {
   assert("pre: positive_rX" && rX>=0);
   assert("pre: positive_rY" && rY>=0);
-  
+
   if(rX==0.0f && rY==0.0f)
     {
     // we make sure maxRadius will never be null.
     return;
     }
   int iterations=this->GetNumberOfArcIterations(rX,rY,startAngle,stopAngle);
-  
+
   float *p=new float[2*(iterations+1)];
-  
+
   // step in radians.
   double step =
     vtkMath::RadiansFromDegrees(stopAngle-startAngle)/(iterations);
-  
+
   // step have to be lesser or equal to maxStep computed inside
   // GetNumberOfIterations()
-  
+
   double rstart=vtkMath::RadiansFromDegrees(startAngle);
-  
-  // we are iterating counterclockwise 
+
+  // we are iterating counterclockwise
   int i=0;
   while(i<=iterations)
     {
@@ -347,12 +366,12 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     p[2*i+1] = rY * sin(a) + y;
     ++i;
     }
-  
+
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
   glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glDisableClientState(GL_VERTEX_ARRAY);
-  
+
   delete[] p;
 }
 
@@ -365,10 +384,10 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
   assert("pre: positive_rX" && rX>=0.0f);
   assert("pre: positive_rY" && rY>=0.0f);
   assert("pre: not_both_null" && (rX>0.0 || rY>0.0));
-  
+
 // 1.0: pixel precision. 0.5 (subpixel precision, useful with multisampling)
   double error=4.0; // experience shows 4.0 is visually enough.
-  
+
   // The tessellation is the most visible on the biggest radius.
   double maxRadius;
   if(rX>=rY)
@@ -379,16 +398,16 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
     {
     maxRadius=rY;
     }
-  
+
   if(error>maxRadius)
     {
     error=0.5; // to make sure the argument of asin() is in a valid range.
     }
-  
+
   // Angle of a sector so that its chord is `error' pixels.
   // This is will be our maximum angle step.
   double maxStep=2.0*asin(error/(2.0*maxRadius));
-  
+
   // ceil because we want to make sure we don't underestimate the number of
   // iterations by 1.
   return static_cast<int>(
