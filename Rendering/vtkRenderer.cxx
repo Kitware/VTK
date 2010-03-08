@@ -39,10 +39,12 @@
 #include "vtkVolume.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
+#include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.254");
+vtkCxxRevisionMacro(vtkRenderer, "1.255");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 
 #if !defined(VTK_LEGACY_REMOVE)
 #include "vtkIdentColoredPainter.h"
@@ -132,6 +134,9 @@ vtkRenderer::vtkRenderer()
   this->Selector = 0;
   this->Delegate=0;
   this->Pass=0;
+
+  this->TexturedBackground = false;
+  this->BackgroundTexture = NULL;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -185,6 +190,11 @@ vtkRenderer::~vtkRenderer()
   if(this->Pass!=0)
     {
     this->Pass->UnRegister(this);
+    }
+
+  if(this->BackgroundTexture != NULL)
+    {
+    this->BackgroundTexture->Delete();
     }
 }
 
@@ -1428,6 +1438,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "LastRenderingUsedDepthPeeling: "
      << (this->LastRenderingUsedDepthPeeling ? "On" : "Off")<< "\n";
+
+  os << indent << "TexturedBackground: "
+    << (this->TexturedBackground ? "On" : "Off") << "\n";
 
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;

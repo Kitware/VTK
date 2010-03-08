@@ -35,7 +35,6 @@ class vtkActor2DCollection;
 class vtkAssemblyPath;
 class vtkProp;
 class vtkPropCollection;
-class vtkTexture;
 class vtkWindow;
 
 class VTK_FILTERING_EXPORT vtkViewport : public vtkObject
@@ -86,26 +85,12 @@ public:
   vtkGetVector3Macro(Background2,double);
 
   // Description:
-  // Set/Get the texture to be used for the background. If set
-  // and enabled this gets the priority over the gradient background.
-  void SetBackgroundTexture(vtkTexture*);
-  vtkGetObjectMacro(BackgroundTexture, vtkTexture);
-
-  // Description:
   // Set/Get whether this viewport should have a gradient background
   // using the Background (top) and Background2 (bottom) colors.
   // Default is off.
   vtkSetMacro(GradientBackground,bool);
   vtkGetMacro(GradientBackground,bool);
   vtkBooleanMacro(GradientBackground,bool);
-
-
-  // Description:
-  // Set/Get whether this viewport should have a textured background.
-  // Default is off.
-  vtkSetMacro(TexturedBackground,bool);
-  vtkGetMacro(TexturedBackground,bool);
-  vtkBooleanMacro(TexturedBackground,bool);
 
   // Description:
   // Set the aspect ratio of the rendered image. This is computed
@@ -332,7 +317,6 @@ protected:
   double PixelAspect[2];
   double Center[2];
   bool GradientBackground;
-  bool TexturedBackground;
 
   int Size[2];
   int Origin[2];
@@ -340,7 +324,6 @@ protected:
   double ViewPoint[3];
   double WorldPoint[4];
 
-  vtkTexture* BackgroundTexture;
 
 private:
   vtkViewport(const vtkViewport&);  // Not implemented.

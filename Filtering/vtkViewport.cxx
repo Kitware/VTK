@@ -18,11 +18,9 @@
 #include "vtkAssemblyPath.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
-#include "vtkTexture.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.13");
-vtkCxxSetObjectMacro(vtkViewport, BackgroundTexture, vtkTexture);
+vtkCxxRevisionMacro(vtkViewport, "1.14");
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light,
@@ -41,7 +39,6 @@ vtkViewport::vtkViewport()
   this->Background2[2] = 0.2;
 
   this->GradientBackground = false;
-  this->TexturedBackground = false;
 
   this->Viewport[0] = 0;
   this->Viewport[1] = 0;
@@ -82,8 +79,6 @@ vtkViewport::vtkViewport()
   this->PickX2 = -1;
   this->PickY2 = -1;
 
-  this->BackgroundTexture = NULL;
-
   this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
 }
@@ -113,10 +108,6 @@ vtkViewport::~vtkViewport()
   if ( this->PickResultProps != NULL )
     {
     this->PickResultProps->Delete();
-    }
-  if(this->BackgroundTexture != NULL)
-    {
-    this->BackgroundTexture->Delete();
     }
 }
 
@@ -378,9 +369,6 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "GradientBackground: "
     << (this->GradientBackground ? "On" : "Off") << "\n";
-
-  os << indent << "TexturedBackground: "
-    << (this->TexturedBackground ? "On" : "Off") << "\n";
 
   os << indent << "Viewport: (" << this->Viewport[0] << ", "
     << this->Viewport[1] << ", " << this->Viewport[2] << ", "
