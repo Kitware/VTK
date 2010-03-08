@@ -22,6 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
 
 #define VTK_CREATE(type, name) \
@@ -81,6 +82,10 @@ int TestLinePlot( int argc, char * argv [] )
   view->GetRenderWindow()->SetMultiSamples(0);
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
   //int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    view->GetInteractor()->Start();
+    }
 
   return !retVal;
 }
