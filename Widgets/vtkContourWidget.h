@@ -32,6 +32,7 @@
 //   MouseMoveEvent - triggers a Move event
 //   LeftButtonReleaseEvent - triggers an EndSelect event
 //   Delete key event - triggers a Delete event
+//   Shift + Delete key event - triggers a Rest event
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
@@ -85,6 +86,13 @@
 //            Manipulate: Attempt to activate a node at (X,Y). If
 //                   we do activate a node, delete it. If we now
 //                   have less than 3 nodes, go back to Define state.
+//
+//   vtkWidgetEvent::Reset
+//        widget state is: 
+//            Start: Do nothing.
+//            Define: Remove all points and line segments of the contour.
+//                 Essentially calls Intialize(NULL) 
+//            Manipulate: Do nothing.
 // </pre>
 //
 // This widget invokes the following VTK events on itself (which observers
@@ -135,24 +143,24 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkContourRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
-  
+
   // Description:
-  // Convenient method to close the contour loop. 
+  // Convenient method to close the contour loop.
   void CloseLoop();
 
   // Description:
   // Set / Get the AllowNodePicking value. This ivar indicates whether the nodes
-  // and points between nodes can be picked/un-picked by Ctrl+Click on the node. 
+  // and points between nodes can be picked/un-picked by Ctrl+Click on the node.
   void SetAllowNodePicking(int );
   vtkGetMacro( AllowNodePicking, int );
   vtkBooleanMacro( AllowNodePicking, int );
 
   // Description:
-  // Follow the cursor ? If this is ON, during definition, the last node of the 
+  // Follow the cursor ? If this is ON, during definition, the last node of the
   // contour will automatically follow the cursor, without waiting for the the
   // point to be dropped. This may be useful for some interpolators, such as the
   // live-wire interpolator to see the shape of the contour that will be placed
@@ -160,6 +168,16 @@ public:
   vtkSetMacro( FollowCursor, int );
   vtkGetMacro( FollowCursor, int );
   vtkBooleanMacro( FollowCursor, int );
+
+  // Description:
+  // Define a contour by continuously drawing with the mouse cursor.  If you
+  // do not want to see the nodes as they are added to the contour, set the
+  // opacity to 0 of the representation's property.  If you do not want to 
+  // see the last active node as it is being added, set the opacity to 0 
+  // of the representation's active property.
+  vtkSetMacro( ContinuousDraw, int );
+  vtkGetMacro( ContinuousDraw, int );
+  vtkBooleanMacro( ContinuousDraw, int );
 
   // Description:
   // Initialize the contour widget from a user supplied set of points. The
@@ -171,7 +189,7 @@ public:
   virtual void Initialize( vtkPolyData * poly, int state = 1 );
   virtual void Initialize()
     {this->Initialize(NULL);}
-    
+
 protected:
   vtkContourWidget();
   ~vtkContourWidget();
@@ -180,11 +198,12 @@ protected:
 //BTX
   enum {Start,Define,Manipulate};
 //ETX
-  
+
   int WidgetState;
   int CurrentHandle;
   int AllowNodePicking;
   int FollowCursor;
+  int ContinuousDraw;
 
   // Callback interface to capture events when
   // placing the widget.
@@ -195,11 +214,12 @@ protected:
   static void DeleteAction(vtkAbstractWidget*);
   static void TranslateContourAction(vtkAbstractWidget*);
   static void ScaleContourAction(vtkAbstractWidget*);
+  static void ResetAction(vtkAbstractWidget*);
 
   // Internal helper methods
   void SelectNode();
   void AddNode();
-  
+
 private:
   vtkContourWidget(const vtkContourWidget&);  //Not implemented
   void operator=(const vtkContourWidget&);  //Not implemented
