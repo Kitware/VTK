@@ -53,26 +53,38 @@ public:
 
   // Description:
   // Mouse enter event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
   virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse move event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse leave event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
   virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse button down event
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse button release event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
