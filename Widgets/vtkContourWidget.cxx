@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.34");
+vtkCxxRevisionMacro(vtkContourWidget, "1.35");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -261,8 +261,8 @@ void vtkContourWidget::AddNode()
     // if in continous draw mode, we dont want to cose the loop until we are at least
     // numNodes > pixelTolerance away
 
-    int distance2 = (X - displayPos[0]) * (X - displayPos[0]) +
-                    (Y - displayPos[1]) * (Y - displayPos[1]);
+    int distance2 = static_cast<int>((X - displayPos[0]) * (X - displayPos[0]) +
+                                     (Y - displayPos[1]) * (Y - displayPos[1]));
 
     if ( (distance2 < pixelTolerance2 && numNodes > 2) ||
          ( this->ContinuousDraw && numNodes > pixelTolerance && distance2 < pixelTolerance2 ) )
@@ -485,9 +485,8 @@ void vtkContourWidget::MoveAction( vtkAbstractWidget *w )
 
         rep->GetNthNodeDisplayPosition( 0, displayPos );
 
-        int distance2 =
-              (X - displayPos[0]) * (X - displayPos[0]) +
-              (Y - displayPos[1]) * (Y - displayPos[1]);
+        int distance2 = static_cast<int>((X - displayPos[0]) * (X - displayPos[0]) +
+                                         (Y - displayPos[1]) * (Y - displayPos[1]));
 
         const bool mustCloseLoop =
             ( distance2 < pixelTolerance2 && numNodes > 2 ) || 
