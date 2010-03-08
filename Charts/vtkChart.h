@@ -72,12 +72,16 @@ public:
 
   // Description:
   // Get the number of plots the chart contains.
-  virtual vtkIdType GetNumberPlots();
+  virtual vtkIdType GetNumberOfPlots();
 
   // Description:
   // Get the axis specified by axisIndex. 0 is x, 1 is y. This should probably
   // be improved either using a string or enum to select the axis.
   virtual vtkAxis* GetAxis(int axisIndex);
+
+  // Description:
+  // Get the number of axes in the current chart.
+  virtual vtkIdType GetNumberOfAxes();
 
   // Description:
   // Request that the chart recalculates the range of its axes. Especially

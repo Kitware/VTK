@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.13");
+vtkCxxRevisionMacro(vtkChart, "1.14");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ vtkPlot* vtkChart::GetPlot(vtkIdType)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkChart::GetNumberPlots()
+vtkIdType vtkChart::GetNumberOfPlots()
 {
   return 0;
 }
@@ -83,6 +83,12 @@ vtkIdType vtkChart::GetNumberPlots()
 vtkAxis* vtkChart::GetAxis(int)
 {
   return NULL;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChart::GetNumberOfAxes()
+{
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

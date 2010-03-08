@@ -47,7 +47,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartLegend, "1.2");
+vtkCxxRevisionMacro(vtkChartLegend, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartLegend);
@@ -75,7 +75,7 @@ vtkChartLegend::~vtkChartLegend()
 void vtkChartLegend::Update()
 {
   this->Storage->ActivePlots.clear();
-  for (int i = 0; i < this->Storage->Chart->GetNumberPlots(); ++i)
+  for (int i = 0; i < this->Storage->Chart->GetNumberOfPlots(); ++i)
     {
     if (this->Storage->Chart->GetPlot(i)->GetVisible())
       {

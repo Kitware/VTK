@@ -72,7 +72,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.42");
+vtkCxxRevisionMacro(vtkChartXY, "1.43");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -403,7 +403,6 @@ void vtkChartXY::RecalculatePlotTransform()
       -this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetMinimum(),
       -this->ChartPrivate->axes[vtkAxis::LEFT]->GetMinimum());
 
-
   // Move the axes if necessary and if the draw axes at origin ivar is true.
   if (this->DrawAxesAtOrigin)
     {
@@ -572,7 +571,7 @@ vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkChartXY::GetNumberPlots()
+vtkIdType vtkChartXY::GetNumberOfPlots()
 {
   return this->ChartPrivate->plots.size();
 }
@@ -589,6 +588,13 @@ vtkAxis* vtkChartXY::GetAxis(int axisIndex)
     return NULL;
     }
 }
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::GetNumberOfAxes()
+{
+  return 4;
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkChartXY::RecalculateBounds()
