@@ -32,7 +32,7 @@
 //   MouseMoveEvent - triggers a Move event
 //   LeftButtonReleaseEvent - triggers an EndSelect event
 //   Delete key event - triggers a Delete event
-//   Shift + Delete key event - triggers a Rest event
+//   Shift + Delete key event - triggers a Reset event
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
