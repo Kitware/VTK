@@ -639,7 +639,6 @@ void outputFunction(FILE *fp, FileInfo *data)
       if (currentFunction->NumberOfArguments > 1 ||
           !currentFunction->ArgCounts[i])
         {
-        fprintf(fp,"//ITS A POINTER ARG\n");
         args_ok = 0;
         }
       }
@@ -651,34 +650,29 @@ void outputFunction(FILE *fp, FileInfo *data)
         (currentFunction->ArgTypes[i] != 0x1A)&&
         (currentFunction->ArgTypes[i] != 0x1B))
       {
-      fprintf(fp,"//if > 0x10 and != to 0x13,0x14,0x15,0x16,0x1A\n");
       args_ok = 0;
       }
     }
   if ((currentFunction->ReturnType % 0x10) == 0x8)
     {
-    fprintf(fp,"//return type is == 0x8\n");
     args_ok = 0;
     }
   if (((currentFunction->ReturnType % 0x1000)/0x100 != 0x3)&&
       ((currentFunction->ReturnType % 0x1000)/0x100 != 0x1)&&
       ((currentFunction->ReturnType % 0x1000)/0x100))
     {
-    fprintf(fp,"//return type is != 0x3 0x1\n");
     args_ok = 0;
     }
   if (currentFunction->NumberOfArguments && 
       (currentFunction->ArgTypes[0] == 0x5000)
       &&(currentFunction->NumberOfArguments != 1))
     {
-    fprintf(fp,"//number OfArguments != 1\n");
     args_ok = 0;
     }
 
   /* we can't handle void * return types */
   if ((currentFunction->ReturnType % 0x1000) == 0x302) 
     {
-    fprintf(fp,"//WE CAN'T HANDLE VOID RETURN TYPES\n");
     args_ok = 0;
     }
   
