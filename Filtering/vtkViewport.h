@@ -16,11 +16,11 @@
 // .SECTION Description
 // vtkViewport provides an abstract specification for Viewports. A Viewport
 // is an object that controls the rendering process for objects. Rendering
-// is the process of converting geometry, a specification for lights, and 
-// a camera view into an image. vtkViewport also performs coordinate 
+// is the process of converting geometry, a specification for lights, and
+// a camera view into an image. vtkViewport also performs coordinate
 // transformation between world coordinates, view coordinates (the computer
-// graphics rendering coordinate system), and display coordinates (the 
-// actual screen coordinates on the display device). Certain advanced 
+// graphics rendering coordinate system), and display coordinates (the
+// actual screen coordinates on the display device). Certain advanced
 // rendering features such as two-sided lighting can also be controlled.
 
 // .SECTION See Also
@@ -35,6 +35,7 @@ class vtkActor2DCollection;
 class vtkAssemblyPath;
 class vtkProp;
 class vtkPropCollection;
+class vtkTexture;
 class vtkWindow;
 
 class VTK_FILTERING_EXPORT vtkViewport : public vtkObject
@@ -44,7 +45,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Add a prop to the list of props. Prop is the superclass of all 
+  // Add a prop to the list of props. Prop is the superclass of all
   // actors, volumes, 2D actors, composite props etc.
   void AddViewProp(vtkProp *);
 
@@ -79,10 +80,16 @@ public:
   vtkGetVector3Macro(Background,double);
 
   // Description:
-  // Set/Get the second background color of the rendering screen 
+  // Set/Get the second background color of the rendering screen
   // for gradient backgrounds using an rgb color specification.
   vtkSetVector3Macro(Background2,double);
   vtkGetVector3Macro(Background2,double);
+
+  // Description:
+  // Set/Get the texture to be used for the background. If set
+  // and enabled this gets the priority over the gradient background.
+  void SetBackgroundTexture(vtkTexture*);
+  vtkGetObjectMacro(BackgroundTexture, vtkTexture);
 
   // Description:
   // Set/Get whether this viewport should have a gradient background
@@ -92,22 +99,30 @@ public:
   vtkGetMacro(GradientBackground,bool);
   vtkBooleanMacro(GradientBackground,bool);
 
+
   // Description:
-  // Set the aspect ratio of the rendered image. This is computed 
+  // Set/Get whether this viewport should have a textured background.
+  // Default is off.
+  vtkSetMacro(TexturedBackground,bool);
+  vtkGetMacro(TexturedBackground,bool);
+  vtkBooleanMacro(TexturedBackground,bool);
+
+  // Description:
+  // Set the aspect ratio of the rendered image. This is computed
   // automatically and should not be set by the user.
   vtkSetVector2Macro(Aspect,double);
   vtkGetVectorMacro(Aspect,double,2);
   virtual void ComputeAspect();
-  
+
   // Description:
-  // Set the aspect ratio of a pixel in the rendered image. 
+  // Set the aspect ratio of a pixel in the rendered image.
   // This factor permits the image to rendered anisotropically
   // (i.e., stretched in one direction or the other).
   vtkSetVector2Macro(PixelAspect,double);
   vtkGetVectorMacro(PixelAspect,double,2);
 
   // Description:
-  // Specify the viewport for the Viewport to draw in the rendering window. 
+  // Specify the viewport for the Viewport to draw in the rendering window.
   // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
   // coordinate is 0 <= coordinate <= 1.0.
   vtkSetVector4Macro(Viewport,double);
@@ -121,25 +136,25 @@ public:
   vtkGetVectorMacro(DisplayPoint,double,3);
 
   // Description:
-  // Specify a point location in view coordinates. The origin is in the 
+  // Specify a point location in view coordinates. The origin is in the
   // middle of the viewport and it extends from -1 to 1 in all three
   // dimensions.
   vtkSetVector3Macro(ViewPoint,double);
   vtkGetVectorMacro(ViewPoint,double,3);
 
   // Description:
-  // Specify a point location in world coordinates. This method takes 
-  // homogeneous coordinates. 
+  // Specify a point location in world coordinates. This method takes
+  // homogeneous coordinates.
   vtkSetVector4Macro(WorldPoint,double);
   vtkGetVectorMacro(WorldPoint,double,4);
-   
+
   // Description:
   // Return the center of this viewport in display coordinates.
   virtual double *GetCenter();
 
   // Description:
   // Is a given display point in this Viewport's viewport.
-  virtual int IsInViewport(int x,int y); 
+  virtual int IsInViewport(int x,int y);
 
   // Description:
   // Return the vtkWindow that owns this vtkViewport.
@@ -190,14 +205,14 @@ public:
 
   // Description:
   // Get the size and origin of the viewport in display coordinates. Note:
-  // if the window has not yet been realized, GetSize() and GetOrigin() 
+  // if the window has not yet been realized, GetSize() and GetOrigin()
   // return (0,0).
   virtual int *GetSize();
   virtual int *GetOrigin();
   void GetTiledSize(int *width, int *height);
-  virtual void GetTiledSizeAndOrigin(int *width, int *height, 
+  virtual void GetTiledSizeAndOrigin(int *width, int *height,
                                      int *lowerLeftX, int *lowerLeftY);
-  
+
   // The following methods describe the public pick interface for picking
   // Props in a viewport.
 
@@ -212,9 +227,9 @@ public:
   // Same as PickProp with two arguments, but selects from the given
   // collection of Props instead of the Renderers props.  Make sure
   // the Props in the collection are in this renderer.
-  vtkAssemblyPath* PickPropFrom(double selectionX, double selectionY, 
+  vtkAssemblyPath* PickPropFrom(double selectionX, double selectionY,
                                 vtkPropCollection*);
-  
+
   // Description:
   // Methods used to return the pick (x,y) in local display coordinates (i.e.,
   // it's that same as selectionX and selectionY).
@@ -229,7 +244,7 @@ public:
   vtkGetMacro(IsPicking, int);
   vtkGetObjectMacro(PickResultProps, vtkPropCollection);
 
-  // Description: 
+  // Description:
   // Return the Z value for the last picked Prop.
   virtual double GetPickedZ() = 0;
 
@@ -268,8 +283,8 @@ public:
   VTK_LEGACY(void RemoveAllProps());
 
 protected:
-  // Create a vtkViewport with a black background, a white ambient light, 
-  // two-sided lighting turned on, a viewport of (0,0,1,1), and back face 
+  // Create a vtkViewport with a black background, a white ambient light,
+  // two-sided lighting turned on, a viewport of (0,0,1,1), and back face
   // culling turned off.
   vtkViewport();
   ~vtkViewport();
@@ -283,7 +298,7 @@ protected:
   // Set the pick id to the next id before drawing an object
   virtual void UpdatePickId() = 0;
   // Exit Pick mode
-  virtual void DonePick() = 0; 
+  virtual void DonePick() = 0;
   // Return the id of the picked object, only valid after a call to DonePick
   virtual unsigned int GetPickedId() = 0;
   // Return the number of objects picked, only valid after a call to DonePick
@@ -310,19 +325,22 @@ protected:
   vtkPropCollection *Props;
   vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;
-  double Background[3];  
-  double Background2[3];  
+  double Background[3];
+  double Background2[3];
   double Viewport[4];
   double Aspect[2];
   double PixelAspect[2];
   double Center[2];
   bool GradientBackground;
+  bool TexturedBackground;
 
   int Size[2];
   int Origin[2];
   double DisplayPoint[3];
   double ViewPoint[3];
   double WorldPoint[4];
+
+  vtkTexture* BackgroundTexture;
 
 private:
   vtkViewport(const vtkViewport&);  // Not implemented.

@@ -46,6 +46,7 @@ IF(VTK_USE_DISPLAY)
     TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
+    TestTexturedBackground.cxx
     TestTDx.cxx
     TestTilingCxx.cxx
     TestTranslucentLUTAlphaBlending.cxx
@@ -90,7 +91,7 @@ IF(VTK_USE_DISPLAY)
       TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
       )
     # Temporarily disable LIC tests on non-windows platforms
-    IF(WIN32) 
+    IF(WIN32)
       IF (VTK_DATA_ROOT)
         SET( RenderingTestsWithArguments
         ${RenderingTestsWithArguments}
@@ -109,7 +110,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 
 SET (TEST_FBO_IMPLEMENTATION_EXE
   TestFBOImplementation)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in 
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/TestFBOInclude.h
   @ONLY IMMEDIATE ESCAPE_QUOTES)
 
@@ -129,13 +130,13 @@ SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
 #
-# Add all the executables 
+# Add all the executables
 FOREACH (test ${RenderingTests})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
   ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
     -T ${VTK_BINARY_DIR}/Testing/Temporary
-    ) 
-ENDFOREACH (test) 
+    )
+ENDFOREACH (test)
 
 FOREACH (test ${RenderingTestsWithArguments})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)

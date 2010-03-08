@@ -18,18 +18,20 @@
 #include "vtkAssemblyPath.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
+#include "vtkTexture.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.12");
+vtkCxxRevisionMacro(vtkViewport, "1.13");
+vtkCxxSetObjectMacro(vtkViewport, BackgroundTexture, vtkTexture);
 
 //----------------------------------------------------------------------------
-// Create a vtkViewport with a black background, a white ambient light, 
+// Create a vtkViewport with a black background, a white ambient light,
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
 // turned off.
 vtkViewport::vtkViewport()
 {
   this->VTKWindow = NULL;
-  
+
   this->Background[0] = 0;
   this->Background[1] = 0;
   this->Background[2] = 0;
@@ -39,6 +41,7 @@ vtkViewport::vtkViewport()
   this->Background2[2] = 0.2;
 
   this->GradientBackground = false;
+  this->TexturedBackground = false;
 
   this->Viewport[0] = 0;
   this->Viewport[1] = 0;
@@ -79,6 +82,7 @@ vtkViewport::vtkViewport()
   this->PickX2 = -1;
   this->PickY2 = -1;
 
+  this->BackgroundTexture = NULL;
 
   this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
@@ -89,11 +93,11 @@ vtkViewport::~vtkViewport()
 {
   this->Actors2D->Delete();
   this->Actors2D = NULL;
-  
+
   this->RemoveAllViewProps();
   this->Props->Delete();
   this->Props = NULL;
-  
+
   if (this->VTKWindow != NULL)
     {
     // renderer never reference counted the window.
@@ -101,7 +105,7 @@ vtkViewport::~vtkViewport()
     // this->VTKWindow->UnRegister(this);
     this->VTKWindow = NULL;
     }
-  
+
   if ( this->PickedProp != NULL )
     {
     this->PickedProp->UnRegister(this);
@@ -109,6 +113,10 @@ vtkViewport::~vtkViewport()
   if ( this->PickResultProps != NULL )
     {
     this->PickResultProps->Delete();
+    }
+  if(this->BackgroundTexture != NULL)
+    {
+    this->BackgroundTexture->Delete();
     }
 }
 
@@ -171,10 +179,10 @@ void vtkViewport::RemoveAllViewProps(void)
 vtkActor2DCollection *vtkViewport::GetActors2D()
 {
   vtkProp *aProp;
-  
+
   // clear the collection first
   this->Actors2D->RemoveAllItems();
-  
+
   vtkCollectionSimpleIterator pit;
   for (this->Props->InitTraversal(pit);
        (aProp = this->Props->GetNextProp(pit)); )
@@ -198,9 +206,9 @@ void vtkViewport::DisplayToView()
     sizex = size[0];
     sizey = size[1];
 
-    vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
+    vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/
       (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
-    vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
+    vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/
       (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
     vz = this->DisplayPoint[2];
 
@@ -223,10 +231,10 @@ void vtkViewport::ViewToDisplay()
     sizex = size[0];
     sizey = size[1];
 
-    dx = (this->ViewPoint[0] + 1.0) * 
+    dx = (this->ViewPoint[0] + 1.0) *
       (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
         sizex*this->Viewport[0];
-    dy = (this->ViewPoint[1] + 1.0) * 
+    dy = (this->ViewPoint[1] + 1.0) *
       (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
         sizey*this->Viewport[1];
 
@@ -237,7 +245,7 @@ void vtkViewport::ViewToDisplay()
 //----------------------------------------------------------------------------
 // Convert view point coordinates to world coordinates.
 void vtkViewport::ViewToWorld()
-{   
+{
   this->SetWorldPoint(this->ViewPoint[0], this->ViewPoint[1],
                       this->ViewPoint[2], 1);
 }
@@ -255,24 +263,24 @@ void vtkViewport::WorldToView()
 //----------------------------------------------------------------------------
 // Return the size of the viewport in display coordinates.
 int *vtkViewport::GetSize()
-{  
+{
   if ( this->VTKWindow )
     {
     int  lowerLeft[2];
     double *vport = this->GetViewport();
-    
+
     double vpu, vpv;
     vpu = vport[0];
-    vpv = vport[1];  
+    vpv = vport[1];
     this->NormalizedDisplayToDisplay(vpu,vpv);
     lowerLeft[0] = static_cast<int>(vpu+0.5);
     lowerLeft[1] = static_cast<int>(vpv+0.5);
     double vpu2, vpv2;
     vpu2 = vport[2];
-    vpv2 = vport[3];  
+    vpv2 = vport[3];
     this->NormalizedDisplayToDisplay(vpu2,vpv2);
     this->Size[0] = static_cast<int>(vpu2 + 0.5) - lowerLeft[0];
-    this->Size[1] = static_cast<int>(vpv2 + 0.5) - lowerLeft[1];  
+    this->Size[1] = static_cast<int>(vpv2 + 0.5) - lowerLeft[1];
     }
   else
     {
@@ -311,8 +319,8 @@ double *vtkViewport::GetCenter()
   if ( this->VTKWindow )
     {
     int *size;
-  
-    // get physical window dimensions 
+
+    // get physical window dimensions
     size = this->GetVTKWindow()->GetSize();
 
     this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
@@ -335,8 +343,8 @@ int vtkViewport::IsInViewport(int x,int y)
   if ( this->VTKWindow )
     {
     int *size;
-  
-    // get physical window dimensions 
+
+    // get physical window dimensions
     size = this->GetVTKWindow()->GetSize();
 
     if ((this->Viewport[0]*size[0] <= x)&&
@@ -356,38 +364,41 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Aspect: (" << this->Aspect[0] << ", " 
+  os << indent << "Aspect: (" << this->Aspect[0] << ", "
     << this->Aspect[1] << ")\n";
 
-  os << indent << "PixelAspect: (" << this->PixelAspect[0] << ", " 
+  os << indent << "PixelAspect: (" << this->PixelAspect[0] << ", "
     << this->PixelAspect[1] << ")\n";
 
-  os << indent << "Background: (" << this->Background[0] << ", " 
+  os << indent << "Background: (" << this->Background[0] << ", "
     << this->Background[1] << ", "  << this->Background[2] << ")\n";
 
-  os << indent << "Background2: (" << this->Background2[0] << ", " 
+  os << indent << "Background2: (" << this->Background2[0] << ", "
     << this->Background2[1] << ", "  << this->Background2[2] << ")\n";
 
   os << indent << "GradientBackground: "
     << (this->GradientBackground ? "On" : "Off") << "\n";
 
-  os << indent << "Viewport: (" << this->Viewport[0] << ", " 
-    << this->Viewport[1] << ", " << this->Viewport[2] << ", " 
+  os << indent << "TexturedBackground: "
+    << (this->TexturedBackground ? "On" : "Off") << "\n";
+
+  os << indent << "Viewport: (" << this->Viewport[0] << ", "
+    << this->Viewport[1] << ", " << this->Viewport[2] << ", "
       << this->Viewport[3] << ")\n";
 
-  os << indent << "Displaypoint: (" << this->DisplayPoint[0] << ", " 
+  os << indent << "Displaypoint: (" << this->DisplayPoint[0] << ", "
     << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
 
-  os << indent << "Viewpoint: (" << this->ViewPoint[0] << ", " 
+  os << indent << "Viewpoint: (" << this->ViewPoint[0] << ", "
     << this->ViewPoint[1] << ", " << this->ViewPoint[2] << ")\n";
 
-  os << indent << "Worldpoint: (" << this->WorldPoint[0] << ", " 
-    << this->WorldPoint[1] << ", " << this->WorldPoint[2] << ", " 
+  os << indent << "Worldpoint: (" << this->WorldPoint[0] << ", "
+    << this->WorldPoint[1] << ", " << this->WorldPoint[2] << ", "
       << this->WorldPoint[3] << ")\n";
 
-  os << indent << "Pick Position X1 Y1: " << this->PickX1 
+  os << indent << "Pick Position X1 Y1: " << this->PickX1
      << " " << this->PickY1 << endl;
-  os << indent << "Pick Position X2 Y2: " << this->PickX2 
+  os << indent << "Pick Position X2 Y2: " << this->PickX2
      << " " << this->PickY2 << endl;
   os << indent << "IsPicking boolean: " << this->IsPicking << endl;
   os << indent << "Props:\n";
@@ -410,10 +421,10 @@ void vtkViewport::LocalDisplayToDisplay(double &vtkNotUsed(u), double &v)
   if ( this->VTKWindow )
     {
     int *size;
-  
+
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
-    
+
     v = size[1] - v - 1;
     }
 }
@@ -424,10 +435,10 @@ void vtkViewport::DisplayToLocalDisplay(double &vtkNotUsed(u), double &v)
   if ( this->VTKWindow )
     {
     int *size;
-  
+
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
-  
+
     v = size[1] - v - 1;
     }
 }
@@ -438,10 +449,10 @@ void vtkViewport::DisplayToNormalizedDisplay(double &u, double &v)
   if ( this->VTKWindow )
     {
     int *size;
-  
+
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
-    
+
     u = u/size[0];
     v = v/size[1];
     }
@@ -453,14 +464,14 @@ void vtkViewport::NormalizedDisplayToViewport(double &u, double &v)
   if ( this->VTKWindow )
     {
     // get the pixel value for the viewport origin
-    double vpou, vpov;    
+    double vpou, vpov;
     vpou = this->Viewport[0];
     vpov = this->Viewport[1];
     this->NormalizedDisplayToDisplay(vpou,vpov);
-    
+
     // get the pixel value for the coordinate
     this->NormalizedDisplayToDisplay(u,v);
-    
+
     // subtract the vpo
     u = u - vpou - 0.5;
     v = v - vpov - 0.5;
@@ -473,14 +484,14 @@ void vtkViewport::ViewportToNormalizedViewport(double &u, double &v)
   if ( this->VTKWindow )
     {
     int *size;
-    
+
     /* get physical window dimensions */
 /*
   double vpsizeu, vpsizev;
   size = this->VTKWindow->GetSize();
   vpsizeu = size[0]*(this->Viewport[2] - this->Viewport[0]);
   vpsizev = size[1]*(this->Viewport[3] - this->Viewport[1]);
-  
+
   u = u/(vpsizeu - 1.0);
   v = v/(vpsizev - 1.0);
 */
@@ -491,7 +502,7 @@ void vtkViewport::ViewportToNormalizedViewport(double &u, double &v)
 }
 
 //----------------------------------------------------------------------------
-void vtkViewport::NormalizedViewportToView(double &x, double &y, 
+void vtkViewport::NormalizedViewportToView(double &x, double &y,
                                            double &vtkNotUsed(z))
 {
   if(this->VTKWindow)
@@ -503,7 +514,7 @@ void vtkViewport::NormalizedViewportToView(double &x, double &y,
     double *vport = this->GetViewport();
     double nvport[4];
     this->GetViewport(nvport);
-    
+
     // clip the viewport to the tiled viewport
     if (nvport[0] < tvport[0])
       {
@@ -527,7 +538,7 @@ void vtkViewport::NormalizedViewportToView(double &x, double &y,
 
     x = (x - nvport[0])/(nvport[2] - nvport[0]);
     y = (y - nvport[1])/(nvport[3] - nvport[1]);
-    
+
     x = (2.0*x - 1.0);
     y = (2.0*y - 1.0);
     }
@@ -548,21 +559,21 @@ void vtkViewport::NormalizedDisplayToDisplay(double &u, double &v)
     }
 }
 
-  
+
 //----------------------------------------------------------------------------
 void vtkViewport::ViewportToNormalizedDisplay(double &u, double &v)
 {
   if ( this->VTKWindow )
     {
     // get the pixel value for the viewport origin
-    double vpou, vpov;    
+    double vpou, vpov;
     vpou = this->Viewport[0];
     vpov = this->Viewport[1];
     this->NormalizedDisplayToDisplay(vpou,vpov);
 
     // add the vpo
     // the 0.5 offset is here because the viewport uses pixel centers
-    // while the display uses pixel edges. 
+    // while the display uses pixel edges.
     u = u + vpou + 0.5;
     v = v + vpov + 0.5;
 
@@ -577,7 +588,7 @@ void vtkViewport::NormalizedViewportToViewport(double &u, double &v)
   if ( this->VTKWindow )
     {
     int *size;
-    
+
     /* get physical window dimensions */
 /*
   double vpsizeu, vpsizev;
@@ -589,12 +600,12 @@ void vtkViewport::NormalizedViewportToViewport(double &u, double &v)
 */
     size = this->GetSize();
     u = u * (size[0] - 1.0);
-    v = v * (size[1] - 1.0);    
+    v = v * (size[1] - 1.0);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkViewport::ViewToNormalizedViewport(double &x, double &y, 
+void vtkViewport::ViewToNormalizedViewport(double &x, double &y,
                                            double &vtkNotUsed(z))
 {
   if(this->VTKWindow)
@@ -606,7 +617,7 @@ void vtkViewport::ViewToNormalizedViewport(double &x, double &y,
     double *vport = this->GetViewport();
     double nvport[4];
     this->GetViewport(nvport);
-    
+
     // clip the viewport to the tiled viewport
     if (nvport[0] < tvport[0])
       {
@@ -646,7 +657,7 @@ void vtkViewport::ComputeAspect()
     double *vport;
     int  *size, lowerLeft[2], upperRight[2];
 
-    // get the bounds of the window 
+    // get the bounds of the window
     size = this->VTKWindow->GetSize();
 
     vport = this->GetViewport();
@@ -676,8 +687,8 @@ void vtkViewport::ComputeAspect()
 }
 
 //----------------------------------------------------------------------------
-vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX, 
-                                           double selectionY, 
+vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX,
+                                           double selectionY,
                                            vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
@@ -736,7 +747,7 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
     tileViewPort[2] = 1;
     tileViewPort[3] = 1;
     }
-  
+
   double vpu, vpv;
   // find the lower left corner of the viewport, taking into account the
   // lower left boundary of this tile
@@ -761,12 +772,12 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
   if (vpv2 > (tileViewPort[3] - tileViewPort[1]))
     {
     vpv2 = tileViewPort[3] - tileViewPort[1];
-    }  
+    }
   this->NormalizedDisplayToDisplay(vpu2,vpv2);
   // now compute the size of the intersection of the viewport with the
   // current tile
   *usize = static_cast<int>(vpu2 + 0.5) - *lowerLeftU;
-  *vsize = static_cast<int>(vpv2 + 0.5) - *lowerLeftV;  
+  *vsize = static_cast<int>(vpv2 + 0.5) - *lowerLeftV;
   if (*usize < 0)
     {
     *usize = 0;
