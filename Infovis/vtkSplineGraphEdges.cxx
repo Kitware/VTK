@@ -27,7 +27,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.5");
+vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.6");
 vtkStandardNewMacro(vtkSplineGraphEdges);
 vtkCxxSetObjectMacro(vtkSplineGraphEdges, Spline, vtkSpline);
 
@@ -257,7 +257,8 @@ int vtkSplineGraphEdges::RequestData(
       }
     if (i % 1000 == 0)
       {
-      double progress = static_cast<double>(i)/output->GetNumberOfEdges();
+      double progress = static_cast<double>(i)/
+        static_cast<double>(output->GetNumberOfEdges());
       this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
       }
     }
@@ -277,8 +278,9 @@ void vtkSplineGraphEdges::GeneratePoints(vtkGraph* g, vtkIdType e)
   g->GetEdgePoints(e, numInternalPoints, internalPoints);
 
   vtkIdType numPoints = numInternalPoints + 2;
-  double* points = new double[3*numPoints];
-  memcpy(points + 3, internalPoints, sizeof(double)*3*numInternalPoints);
+  double* points = new double[3*static_cast<size_t>(numPoints)];
+  memcpy(points + 3, internalPoints, sizeof(double)*3
+         *static_cast<size_t>(numInternalPoints));
   g->GetPoint(g->GetSourceVertex(e), points);
   g->GetPoint(g->GetTargetVertex(e), points + 3*(numInternalPoints+1));
 
@@ -327,7 +329,8 @@ void vtkSplineGraphEdges::GeneratePoints(vtkGraph* g, vtkIdType e)
   vtkIdType i;
   for (i = 0, x = newPoints; i < numNewPoints; i++, x += 3)
     {
-    double t = static_cast<double>(i+1) / this->NumberOfSubdivisions;
+    double t = static_cast<double>(i+1) /
+      static_cast<double>(this->NumberOfSubdivisions);
     x[0] = this->XSpline->Evaluate(t);
     x[1] = this->YSpline->Evaluate(t);
     x[2] = this->ZSpline->Evaluate(t);
@@ -346,7 +349,8 @@ void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
 
   vtkIdType numPoints = numInternalPoints + 2;
   double* points = new double[3*numPoints];
-  memcpy(points + 3, internalPoints, sizeof(double)*3*numInternalPoints);
+  memcpy(points + 3, internalPoints, sizeof(double)*3
+         *static_cast<size_t>(numInternalPoints));
   g->GetPoint(g->GetSourceVertex(e), points);
   g->GetPoint(g->GetTargetVertex(e), points + 3*(numInternalPoints+1));
 
@@ -366,9 +370,11 @@ void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
   knots[numKnots-3] = 1.0;
   knots[numKnots-2] = 1.0;
   knots[numKnots-1] = 1.0;
-  for (vtkIdType i = 4; i < numKnots-4; ++i)
+  
+  vtkIdType i;
+  for (i = 4; i < numKnots-4; ++i)
     {
-    knots[i] = static_cast<double>(i-3)/(numKnots-7);
+    knots[i] = static_cast<double>(i-3)/static_cast<double>(numKnots-7);
     }
 
   // Special case of 3 points, make symmetric
@@ -380,14 +386,14 @@ void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
   // Now compute the new points
   vtkIdType numNewPoints = this->NumberOfSubdivisions - 1;
   double* newPoints = new double[3*numNewPoints];
-  vtkIdType i;
   double* xNew;
   for (i = 0, xNew = newPoints; i < numNewPoints; i++, xNew += 3)
     {
     xNew[0] = 0.0;
     xNew[1] = 0.0;
     xNew[2] = 0.0;
-    double t = static_cast<double>(i+1) / this->NumberOfSubdivisions;
+    double t = static_cast<double>(i+1) /
+      static_cast<double>(this->NumberOfSubdivisions);
     double* x = points;
     //double bsum = 0.0;
     for (vtkIdType j = 0; j < numPoints; ++j, x += 3)
