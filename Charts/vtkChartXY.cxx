@@ -72,7 +72,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.43");
+vtkCxxRevisionMacro(vtkChartXY, "1.44");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -217,6 +217,11 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
+    }
+
+  if (this->ChartPrivate->plots[0]->GetData()->GetInput()->GetMTime() > this->MTime)
+    {
+    this->RecalculateBounds();
     }
 
   // Recalculate the plot transform, min and max values if necessary
@@ -474,6 +479,7 @@ void vtkChartXY::RecalculatePlotBounds()
     yAxis->SetMaximum(ymax);
     yAxis->AutoScale();
     }
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
