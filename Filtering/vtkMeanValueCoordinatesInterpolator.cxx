@@ -259,14 +259,20 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
     // in 2D case, alpha = theta
     if (fabs(sum) < eps)
       {
-      double sumWeight = 0.0;
+      for (vtkIdType pid=0; pid < npts; ++pid)
+        {
+        weights[pid] = 0.0;
+        }
+      
+      double sumWeight;
       weights[poly[0]] = 1.0 / dist[poly[0]] *
         (tan(theta[nPolyPts-1]/2.0) + tan(theta[0]/2.0));
-      for (int j = 1, sumWeight = weights[poly[0]]; j < nPolyPts; j++)
+      sumWeight = weights[poly[0]];
+      for (int j = 1; j < nPolyPts; j++)
         {
         weights[poly[j]] = 1.0 / dist[poly[j]] *
           (tan(theta[j-1]/2.0) + tan(theta[j]/2.0));
-        sumWeight += weights[poly[j]];
+        sumWeight = sumWeight + weights[poly[j]];
         }
 
       delete [] dist;

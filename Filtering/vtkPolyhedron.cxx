@@ -73,6 +73,9 @@ vtkPolyhedron::vtkPolyhedron()
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
   this->Cell = vtkGenericCell::New();
+  
+  this->TriangulationPerformed = 0;
+  this->Tets = vtkIdList::New();
 }
 
 //----------------------------------------------------------------------------
@@ -95,6 +98,7 @@ vtkPolyhedron::~vtkPolyhedron()
   this->CellLocator->Delete();
   this->CellIds->Delete();
   this->Cell->Delete();
+  this->Tets->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -641,14 +645,9 @@ int vtkPolyhedron::EvaluatePosition( double x[3], double * closestPoint,
     }
   
   // get the MVC weights
-  if (this->PolyData->GetPoints())
-    {
-    return 0;
-    }
-  vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
-    x, this->PolyData->GetPoints(), this->Polys, weights);
+  this->InterpolateFunctions(x, weights);
 
-  return 0;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -772,13 +771,54 @@ void vtkPolyhedron::InterpolateFunctions(double x[3], double *sf)
 //----------------------------------------------------------------------------
 void vtkPolyhedron::InterpolateDerivs(double x[3], double *derivs)
 {
+  (void)x;
+  (void)derivs;
 }
 
 //----------------------------------------------------------------------------
 int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                vtkPoints *pts)
 {
-  return 0;
+  ptIds->Reset();
+  pts->Reset();
+  
+  if (this->TriangulationPerformed)
+    {
+    pts->DeepCopy(this->GetPoints());
+    ptIds->DeepCopy(this->Tets);
+    return 1;
+    }
+  
+  if (!this->GetPoints() || !this->GetNumberOfPoints())
+    {
+    return 0;
+    }
+  
+  this->ComputeBounds();
+  
+  // use ordered triangulator to triangulate the polyhedron.
+  vtkOrderedTriangulator * triangulator = vtkOrderedTriangulator::New();
+  
+  triangulator->InitTriangulation(this->Bounds, this->GetNumberOfPoints());
+  triangulator->PreSortedOff();
+  
+  double point[3], pcoord[3]; 
+  for (int i = 0; i < this->GetNumberOfPoints(); i++)
+    {
+    this->GetPoints()->GetPoint(i, point);
+    this->ComputeParametricCoordinate(point, pcoord);
+    triangulator->InsertPoint(i, point, pcoord, 0);
+    }
+  triangulator->Triangulate();
+  
+  triangulator->AddTetras(0, ptIds, pts);
+  
+  this->Tets->DeepCopy(ptIds);  
+  this->TriangulationPerformed = 1;
+
+  triangulator->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

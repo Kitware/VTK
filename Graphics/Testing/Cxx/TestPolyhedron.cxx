@@ -30,9 +30,19 @@
 #include "vtkElevationFilter.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
+#include "vtkIdList.h"
+#include "vtkPoints.h"
+#include "vtkShrinkFilter.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+
+#define compare_doublevec(x, y, e) \
+(((x[0]-y[0])<e) && ((x[0]-y[0])>-e) && \
+((x[1]-y[1])<e) && ((x[1]-y[1])>-e) && \
+((x[2]-y[2])<e) && ((x[2]-y[2])>-e))
+
+#define compare_double(x, y, e) ((x)-(y)<e && (x)-(y)>-e)
 
 // Test of vtkPolyhedron. A structured grid is converted to a polyhedral
 // mesh.
@@ -121,53 +131,96 @@ int TestPolyhedron( int argc, char* argv[] )
     return EXIT_FAILURE;
     }
   
-  // test EvaluatePosition and 
-  x[0] = 5.0; x[1] = 0.0; x[2] = 0.0;
+  // test EvaluatePosition and interpolation function
   double pcoords[3], weights[8], closestPoint[3], dist2;
+  x[0] = 5.0; x[1] = 0.0; x[2] = 0.0;
   polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
   
+  std::cout << "weights for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
   for (int i = 0; i < 8; i++)
     {
     std::cout << weights[i] << " ";
     }
   std::cout << std::endl;
+
+  double refWeights[8] = {0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.25};
+  for (int i = 0; i < 8; i++)
+    {
+    if (!compare_double(refWeights[i], weights[i], 0.00001))
+      {
+      std::cout << "Error computing the weights for a point on the polyhedron."
+              << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
   
-  // void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-  //                      double *weights);
+  double refClosestPoint[3] = {5.0, 0.0, 0.0};
+  if (!compare_doublevec(closestPoint, refClosestPoint, 0.00001))
+    {
+    std::cout << "Error finding the closet point of a point on the polyhedron." 
+              << std::endl;
+    return EXIT_FAILURE;
+    }
   
-  // create actors
+  double refDist2 = 0.0;
+  if (!compare_double(dist2, refDist2, 0.000001))
+    {
+    std::cout << "Error computing the distance for a point on the polyhedron."
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // test triangulate
+  vtkSmartPointer<vtkPoints> tetraPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkIdList> tetraIdList = vtkSmartPointer<vtkIdList>::New();
+  polyhedron->Triangulate(0, tetraIdList, tetraPoints);
+  
+  for (int i = 0; i < tetraPoints->GetNumberOfPoints(); i++)
+    {
+    double *pt = tetraPoints->GetPoint(i);
+    std::cout << "point #" << i << ": [" << pt[0] << ", " 
+      << pt[1] << ", " << pt[2] << "]" << std::endl;
+    }
+  
+  vtkIdType * ids = tetraIdList->GetPointer(0);
+  for (int i = 0; i < tetraIdList->GetNumberOfIds(); i+=4)
+    {
+    std::cout << "tetra #" << i/4 << ":" << ids[i] << " " 
+      << ids[i+1] << " " << ids[i+2] << " " << ids[i+3] << std::endl; 
+    }
+  
+  vtkSmartPointer<vtkUnstructuredGrid> tetraGrid = 
+    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  for (int i = 0; i < tetraIdList->GetNumberOfIds(); i+=4)
+    {
+    tetraGrid->InsertNextCell(VTK_TETRA, 4, ids + i);
+    }
+  tetraGrid->SetPoints(poly->GetPoints());
+  tetraGrid->GetPointData()->DeepCopy(poly->GetPointData());
+
+  vtkSmartPointer<vtkShrinkFilter> shrink = 
+    vtkSmartPointer<vtkShrinkFilter>::New();
+  shrink->SetInput( tetraGrid );
+  shrink->SetShrinkFactor( 0.7 );
+  
+  // create actor
   vtkSmartPointer<vtkDataSetMapper> mapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(ugrid);
+  mapper->SetInput(shrink->GetOutput());
 
   vtkSmartPointer<vtkActor> actor = 
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  // Okay let's extract some edges
-  vtkSmartPointer<vtkExtractEdges> edges =
-    vtkSmartPointer<vtkExtractEdges>::New();
-  edges->SetInput(ugrid);
-  
-  vtkSmartPointer<vtkDataSetMapper> eMapper = 
-    vtkSmartPointer<vtkDataSetMapper>::New();
-  eMapper->SetInputConnection(edges->GetOutputPort());
-
-  vtkSmartPointer<vtkActor> eActor = 
-    vtkSmartPointer<vtkActor>::New();
-  eActor->SetMapper(eMapper);
-  eActor->GetProperty()->SetColor(0,0,0);
-
   // Create rendering infrastructure
   vtkSmartPointer<vtkProperty> lightProp = vtkSmartPointer<vtkProperty>::New();
   lightProp->LightingOff();
   actor->SetProperty(lightProp);
-  eActor->SetProperty(lightProp);  
 
   vtkSmartPointer<vtkRenderer> ren = 
     vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
-  ren->AddActor(eActor);
   ren->SetBackground(.5,.5,.5);
 
   vtkSmartPointer<vtkRenderWindow> renWin = 
