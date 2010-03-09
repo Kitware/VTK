@@ -98,8 +98,8 @@ void separateSpecularColor(gl_MaterialParameters m,
     if (gl_LightSource[i].position.w != 0.0)
       {
       // ldir=light direction
-      vec3 lightPos=gl_lightSource[i].position.xyz/
-        gl_lightSource[i].position.w;
+      vec3 lightPos=gl_LightSource[i].position.xyz/
+        gl_LightSource[i].position.w;
       ldir = lightPos - surfacePosEyeCoords;
       float sqrDistance = dot(ldir,ldir);
       ldir = normalize(ldir);
