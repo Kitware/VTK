@@ -1,7 +1,7 @@
 package require vtk
 
 vtkGlobFileNames globFileNames
-globFileNames AddFileNames "$VTK_DATA_ROOT/Data/headsq/quarter.*"
+globFileNames AddFileNames "$VTK_DATA_ROOT/Data/headsq/quarter.[1-9]+[0-9]"
 globFileNames AddFileNames "$VTK_DATA_ROOT/Data/track*.binary.vtk"
 
 vtkSortFileNames sortFileNames

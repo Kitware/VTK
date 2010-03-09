@@ -2,7 +2,7 @@ package require vtk
 
 vtkGlobFileNames globFileNames
 globFileNames SetDirectory "$VTK_DATA_ROOT/Data/"
-globFileNames AddFileNames "headsq/quarter.*"
+globFileNames AddFileNames "headsq/quarter.[1-9]+[0-9]"
 set fileNames [globFileNames GetFileNames]
 
 set n [$fileNames GetNumberOfValues]
