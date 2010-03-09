@@ -2,10 +2,14 @@ package require vtk
 
 vtkGlobFileNames globFileNames
 globFileNames SetDirectory "$VTK_DATA_ROOT/Data/"
-globFileNames AddFileNames "headsq/quarter.[1-9]+[0-9]"
-set fileNames [globFileNames GetFileNames]
+# globs do not include Kleene star support for patern repetitions thus
+# we insert a pattern for both single and double digit file extensions.
+globFileNames AddFileNames "headsq/quarter.\[1\-9\]"
+globFileNames AddFileNames "headsq/quarter.\[1\-9\]\[0\-9\]"
 
-set n [$fileNames GetNumberOfValues]
+set fileNames [globFileNames GetFileNames]
+set n [globFileNames GetNumberOfFileNames]
+
 if { $n != 93 } {
     for { set i 0 } { $i < $n } { incr i } {
         puts [$fileNames GetValue $i]
