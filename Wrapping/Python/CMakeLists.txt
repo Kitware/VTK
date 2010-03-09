@@ -76,6 +76,9 @@ IF(BORLAND)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
+  IF(VTK_USE_CHARTS)
+    SET(KITS ${KITS} Charts)
+  ENDIF(VTK_USE_CHARTS)
   IF (VTK_USE_GEOVIS)
     SET(KITS ${KITS} Geovis)
   ENDIF(VTK_USE_GEOVIS)
@@ -126,6 +129,14 @@ IF (VTK_USE_PARALLEL)
       vtkParallelPython
       )
 ENDIF (VTK_USE_PARALLEL)
+
+IF(VTK_USE_CHARTS)
+  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkCharts)
+  SET(vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkChartsPython
+      )
+ENDIF(VTK_USE_CHARTS)
 
 IF (VTK_USE_GEOVIS)
   SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkGeovis)
@@ -247,6 +258,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/__helper
     vtk/__init__
     vtk/common
+    vtk/charts
     vtk/filtering
     vtk/genericfiltering
     vtk/geovis

@@ -82,6 +82,12 @@ except ImportError, exc:
     __helper.refine_import_err('widgets', 'vtkWidgetsPython', exc)
 
 try:
+    from charts import *
+    kits.append('charts')
+except ImportError, exc:
+    __helper.refine_import_err('charts', 'vtkChartsPython', exc)
+
+try:
     from geovis import *
     kits.append('geovis')
 except ImportError, exc:

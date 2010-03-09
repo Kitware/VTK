@@ -54,6 +54,10 @@
 #include "vtkParallelInstantiator.h"
 #endif
 
+#ifdef VTK_USE_CHARTS
+#include "vtkChartsInstantiator.h"
+#endif
+
 #ifdef VTK_USE_GEOVIS
 #include "vtkGeovisInstantiator.h"
 #endif

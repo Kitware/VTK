@@ -55,6 +55,8 @@ if vtk_use_rendering:
     vtk_kit_names.extend(['Rendering', 'VolumeRendering', 'Hybrid', 'Widgets'])
 if vtk_use_parallel:
     vtk_kit_names.extend(['Parallel'])
+if vtk_use_charts:
+    vtk_kit_names.extend(['Charts'])
 if vtk_use_geovis:
     vtk_kit_names.extend(['Geovis'])
 if vtk_use_infovis:
