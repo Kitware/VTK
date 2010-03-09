@@ -35,6 +35,7 @@ vtk_lib_dir = "@LIBRARY_OUTPUT_PATH@"
 vtk_bin_dir = "@EXECUTABLE_OUTPUT_PATH@"
 vtk_use_rendering = @VTK_PYTHON_USE_RENDERING@
 vtk_use_parallel = @VTK_PYTHON_USE_PARALLEL@
+vtk_use_charts = @VTK_PYTHON_USE_CHARTS@
 vtk_use_geovis = @VTK_PYTHON_USE_GEOVIS@
 vtk_use_infovis = @VTK_PYTHON_USE_INFOVIS@
 vtk_use_text_analysis = @VTK_PYTHON_USE_TEXT_ANALYSIS@
