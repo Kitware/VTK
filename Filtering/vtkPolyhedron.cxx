@@ -246,7 +246,7 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
     }
   
   // Return the requested edge
-  vtkIdType p, edge[2];
+  vtkIdType edge[2];
   this->Edges->GetTupleValue(edgeId,edge);
 
   // Recall that edge tuples are stored in canonical numbering
@@ -651,7 +651,7 @@ int vtkPolyhedron::EvaluatePosition( double x[3], double * closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::EvaluateLocation( int &  subId, double   pcoords[3], 
+void vtkPolyhedron::EvaluateLocation( int & vtkNotUsed(subId), double pcoords[3], 
                                       double x[3],  double * weights )
 {
   this->ComputePositionFromParametricCoordinate(pcoords, x);
@@ -677,7 +677,7 @@ void vtkPolyhedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
   double x[4][3];
   double coord[3];
   
-  //compute positions of poand three offset sample points
+  //compute positions of point and three offset sample points
   coord[0] = pcoords[0];
   coord[1] = pcoords[1];
   coord[2] = pcoords[2];

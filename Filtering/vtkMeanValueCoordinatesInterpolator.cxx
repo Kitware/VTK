@@ -188,6 +188,16 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
     double vNorm = vtkMath::Norm(v);
     vtkMath::Normalize(v);
     
+    // The direction of v depends on the orientation (clockwise or 
+    // contour-clockwise) of the polygon. We want to make sure that v 
+    // starts from x and point towards the polygon.
+    if (vtkMath::Dot(v, u[0]) < 0)
+      {
+      v[0] = -v[0];
+      v[1] = -v[1];
+      v[2] = -v[2];
+      }
+
     // angles between edges
     double n0[3], n1[3];
     for (int j = 0; j < nPolyPts-1; j++)

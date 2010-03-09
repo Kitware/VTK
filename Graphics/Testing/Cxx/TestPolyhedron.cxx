@@ -132,7 +132,9 @@ int TestPolyhedron( int argc, char* argv[] )
     }
   
   // test EvaluatePosition and interpolation function
-  double pcoords[3], weights[8], closestPoint[3], dist2;
+  double weights[8], closestPoint[3], dist2;
+
+  // case 0: point on the polyhedron
   x[0] = 5.0; x[1] = 0.0; x[2] = 0.0;
   polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
   
@@ -171,10 +173,81 @@ int TestPolyhedron( int argc, char* argv[] )
     return EXIT_FAILURE;
     }
 
-  // test triangulate
+  // case 1: point inside the polyhedron
+  x[0] = 0.0; x[1] = 0.0; x[2] = 0.0;
+  polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
+  
+  std::cout << "weights for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  for (int i = 0; i < 8; i++)
+    {
+    std::cout << weights[i] << " ";
+    }
+  std::cout << std::endl;
+
+  double refWeights1[8] = {0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
+  for (int i = 0; i < 8; i++)
+    {
+    if (!compare_double(refWeights1[i], weights[i], 0.00001))
+      {
+      std::cout << "Error computing the weights for a point inside the polyhedron."
+              << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+  
+  if (!compare_double(dist2, refDist2, 0.000001))
+    {
+    std::cout << "Error computing the distance for a point inside the polyhedron."
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // case 2: point outside the polyhedron
+  x[0] = 8.0; x[1] = 0.0; x[2] = 0.0;
+  polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
+  
+  std::cout << "weights for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  for (int i = 0; i < 8; i++)
+    {
+    std::cout << weights[i] << " ";
+    }
+  std::cout << std::endl;
+
+  double refWeights2[8] = {0.0307, 0.0307, 0.0307, 0.0307, 
+                           0.2193, 0.2193, 0.2193, 0.2193};
+  for (int i = 0; i < 8; i++)
+    {
+    if (!compare_double(refWeights2[i], weights[i], 0.0001))
+      {
+      std::cout << "Error computing the weights for a point outside the polyhedron."
+              << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+
+  if (!compare_doublevec(closestPoint, refClosestPoint, 0.00001))
+    {
+    std::cout << "Error finding the closet point of a point outside the polyhedron." 
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+  
+  refDist2 = 9.0;
+  if (!compare_double(dist2, refDist2, 0.000001))
+    {
+    std::cout << "Error computing the distance for a point outside the polyhedron."
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+  
+  // test triangulation  
   vtkSmartPointer<vtkPoints> tetraPoints = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkIdList> tetraIdList = vtkSmartPointer<vtkIdList>::New();
   polyhedron->Triangulate(0, tetraIdList, tetraPoints);
+  
+  std::cout << std::endl << "Triangulation result:" << std::endl;
   
   for (int i = 0; i < tetraPoints->GetNumberOfPoints(); i++)
     {
@@ -204,7 +277,7 @@ int TestPolyhedron( int argc, char* argv[] )
   shrink->SetInput( tetraGrid );
   shrink->SetShrinkFactor( 0.7 );
   
-  // create actor
+  // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
   mapper->SetInput(shrink->GetOutput());
