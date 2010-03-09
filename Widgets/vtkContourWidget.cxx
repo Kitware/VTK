@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.35");
+vtkCxxRevisionMacro(vtkContourWidget, "1.36");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -166,7 +166,7 @@ void vtkContourWidget::SelectAction( vtkAbstractWidget *w )
       // If we are following the cursor, let's add 2 nodes rightaway, on the
       // first click. The second node is the one that follows the cursor
       // around.
-      if ( self->FollowCursor || self->ContinuousDraw && rep->GetNumberOfNodes() == 0 )
+      if ( (self->FollowCursor || self->ContinuousDraw) && (rep->GetNumberOfNodes() == 0) )
         {
         self->AddNode();
         }
