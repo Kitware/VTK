@@ -41,7 +41,7 @@
 #include "vtkRenderState.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.255");
+vtkCxxRevisionMacro(vtkRenderer, "1.256");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
@@ -1439,9 +1439,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LastRenderingUsedDepthPeeling: "
      << (this->LastRenderingUsedDepthPeeling ? "On" : "Off")<< "\n";
 
-  os << indent << "TexturedBackground: "
-    << (this->TexturedBackground ? "On" : "Off") << "\n";
-
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;
 
@@ -1464,6 +1461,19 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
       os << "null" << endl;
+    }
+
+  os << indent << "TexturedBackground: "
+    << (this->TexturedBackground ? "On" : "Off") << "\n";
+
+  os << indent << "BackgroundTexture:";
+  if(this->BackgroundTexture != 0)
+    {
+    os << "exists" << endl;
+    }
+  else
+    {
+    os << "null" << endl;
     }
 }
 
