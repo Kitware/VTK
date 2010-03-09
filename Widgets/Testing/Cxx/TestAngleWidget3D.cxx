@@ -15,7 +15,7 @@
 //
 // This example tests the vtkAngleWidget.
 
-// First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
 #include "vtkAngleWidget.h"
 #include "vtkAngleRepresentation3D.h"
 #include "vtkPolyDataMapper.h"
@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkXMLPolyDataReader.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 #include "vtkCoordinate.h"
@@ -678,36 +678,43 @@ public:
 // The actual test function
 int TestAngleWidget3D( int argc, char *argv[] )
 {
-  vtkSphereSource *ss = vtkSphereSource::New();
+  vtkSmartPointer<vtkSphereSource> ss 
+    = vtkSmartPointer<vtkSphereSource>::New();
 
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer< vtkRenderer >::New();
+  vtkSmartPointer< vtkRenderWindow > renWin = vtkSmartPointer< vtkRenderWindow >::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer< vtkRenderWindowInteractor > iren 
+    = vtkSmartPointer< vtkRenderWindowInteractor >::New();
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer< vtkPolyDataMapper > mapper 
+    = vtkSmartPointer< vtkPolyDataMapper >::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer< vtkActor > actor = vtkSmartPointer< vtkActor >::New();
   actor->SetMapper(mapper);
 
   // Create the widget and its representation
-  vtkPointHandleRepresentation3D *handle = vtkPointHandleRepresentation3D::New();
+  vtkSmartPointer< vtkPointHandleRepresentation3D > handle 
+    = vtkSmartPointer< vtkPointHandleRepresentation3D >::New();
   handle->GetProperty()->SetColor(1,0,0);
-  vtkAngleRepresentation3D *rep = vtkAngleRepresentation3D::New();
+  vtkSmartPointer< vtkAngleRepresentation3D > rep 
+    = vtkSmartPointer< vtkAngleRepresentation3D >::New();
   rep->SetHandleRepresentation(handle);
 
-  vtkAngleWidget *widget = vtkAngleWidget::New();
+  vtkSmartPointer< vtkAngleWidget > widget 
+    = vtkSmartPointer< vtkAngleWidget >::New();
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-  vtkAngleCallback *mcbk = vtkAngleCallback::New();
+  vtkSmartPointer< vtkAngleCallback > mcbk 
+    = vtkSmartPointer< vtkAngleCallback >::New();
   mcbk->Rep = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
   widget->AddObserver(vtkCommand::InteractionEvent,mcbk);
@@ -718,46 +725,14 @@ int TestAngleWidget3D( int argc, char *argv[] )
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
 
-  // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
-  recorder->SetInteractor(iren);
-  //recorder->SetFileName("/tmp/record.log");
-  recorder->On();
-  //recorder->Record();
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestAngleWidget3DEventLog);
-
   // render the image
   //
   iren->Initialize();
   renWin->Render();
   widget->On();
-  recorder->Play();
+  renWin->Render();
 
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-  recorder->Off();
-
-  mapper->Delete();
-  actor->Delete();
-  handle->Delete();
-  rep->Delete();
-  widget->RemoveObserver(mcbk);
-  mcbk->Delete();
-  widget->Off();
-  widget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
-  ss->Delete();
-  
-  return !retVal;
+  return vtkTesting::InteractorEventLoop( 
+      argc, argv, iren, TestAngleWidget3DEventLog );
 }
 
