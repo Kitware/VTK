@@ -33,6 +33,7 @@
 #include "vtkIdList.h"
 #include "vtkPoints.h"
 #include "vtkShrinkFilter.h"
+#include "vtkDataArray.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -134,6 +135,14 @@ int TestPolyhedron( int argc, char* argv[] )
   // test EvaluatePosition and interpolation function
   double weights[8], closestPoint[3], dist2;
 
+  for (int i = 0; i < 8; i++)
+    {
+    double v;
+    poly->GetPointData()->GetScalars()->GetTuple(i, &v);
+    std::cout << v << " ";
+    }
+  std::cout << std::endl;
+  
   // case 0: point on the polyhedron
   x[0] = 5.0; x[1] = 0.0; x[2] = 0.0;
   polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
@@ -241,6 +250,57 @@ int TestPolyhedron( int argc, char* argv[] )
               << std::endl;
     return EXIT_FAILURE;
     }
+
+  // test evaluation location
+  double weights1[8];
+  polyhedron->EvaluateLocation(subId, pc, x, weights1);
+
+  double refPoint[3] = {8.0, 0.0, 0.0};
+  if (!compare_doublevec(refPoint, x, 0.00001))
+    {
+    std::cout << "Error evaluate the point location for its parameter coordinate."
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  for (int i = 0; i < 8; i++)
+    {
+    if (!compare_double(refWeights2[i], weights1[i], 0.0001))
+      {
+      std::cout << "Error computing the weights based on parameter coordinates."
+              << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+  
+  // test derivative
+  pc[0] = 0;  pc[1] = 0.5;  pc[2] = 0.5;
+  polyhedron->EvaluateLocation(subId, pc, x, weights1);
+
+  double deriv[3], values[8];
+  vtkDataArray * dataArray = poly->GetPointData()->GetScalars();
+  for (int i = 0; i < 8; i++)
+    {
+    dataArray->GetTuple(i, values+i);
+    }
+  polyhedron->Derivatives(subId, pc, values, 1, deriv);
+  
+  std::cout << "derivative for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  for (int i = 0; i < 3; i++)
+    {
+    std::cout << deriv[i] << " ";
+    }
+  std::cout << std::endl;
+  
+  double refDeriv[3] = {0.0, 0.0, 0.05};
+  if (!compare_doublevec(refDeriv, deriv, 0.00001))
+    {
+    std::cout << "Error computing derivative for a point inside the polyhedron."
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+  
   
   // test triangulation  
   vtkSmartPointer<vtkPoints> tetraPoints = vtkSmartPointer<vtkPoints>::New();
@@ -275,7 +335,7 @@ int TestPolyhedron( int argc, char* argv[] )
   vtkSmartPointer<vtkShrinkFilter> shrink = 
     vtkSmartPointer<vtkShrinkFilter>::New();
   shrink->SetInput( tetraGrid );
-  shrink->SetShrinkFactor( 0.7 );
+  shrink->SetShrinkFactor( 1.0 );
   
   // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 

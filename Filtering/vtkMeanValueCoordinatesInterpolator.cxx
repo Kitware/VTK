@@ -266,13 +266,22 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
       }
     
     // the special case when x lies on the polygon, handle it using 2D mvc.
-    // in 2D case, alpha = theta
+    // in the 2D case, alpha = theta
     if (fabs(sum) < eps)
       {
       for (vtkIdType pid=0; pid < npts; ++pid)
         {
         weights[pid] = 0.0;
         }
+      
+      // recompute theta, the theta computed previously are not robust
+      for (int j = 0; j < nPolyPts-1; j++)
+        {
+        l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j+1]));
+        theta[j] = 2.0*asin(l/2.0);
+        }
+      l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], u[0]));
+      theta[nPolyPts-1] = 2.0*asin(l/2.0);
       
       double sumWeight;
       weights[poly[0]] = 1.0 / dist[poly[0]] *
