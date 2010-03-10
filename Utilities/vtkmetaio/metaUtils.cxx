@@ -871,11 +871,11 @@ bool MET_StringToWordArray(const char *s, int *n, char ***val)
 //
 bool MET_GetFilePath(const char *_fName, char *_fPath)
   {
-  size_t i;
+  long i;
 
   size_t l = strlen(_fName);
 
-  for(i=l-1; i>=0; i--)
+  for(i=(long)l-1; i>=0; i--)
     if(_fName[i] == '\\' || _fName[i] == '/')
       break;
 
