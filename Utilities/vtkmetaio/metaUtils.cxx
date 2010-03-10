@@ -871,7 +871,7 @@ bool MET_StringToWordArray(const char *s, int *n, char ***val)
 //
 bool MET_GetFilePath(const char *_fName, char *_fPath)
   {
-  long i;
+  size_t i;
 
   size_t l = strlen(_fName);
 
@@ -1038,7 +1038,8 @@ bool MET_Read(METAIO_STREAM::istream &fp,
   {
 
   char s[1024];
-  int i, j;
+  int i;
+  size_t j;
 
   METAIO_STL::vector<MET_FieldRecordType *>::iterator fieldIter;
 
@@ -1167,7 +1168,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
               {
               (*fieldIter)->length =
                     (int)((*fields)[(*fieldIter)->dependsOn]->value[0]);
-              for(j=0; j<(*fieldIter)->length; j++)
+              for(j=0; j<(size_t)(*fieldIter)->length; j++)
                 {
                 fp >> (*fieldIter)->value[j];
                 }
@@ -1181,7 +1182,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
                   << METAIO_STREAM::endl;
                 return false;
                 }
-              for(j=0; j<(*fieldIter)->length; j++)
+              for(j=0; j<(size_t)(*fieldIter)->length; j++)
                 {
                 fp >> (*fieldIter)->value[j];
                 }
@@ -1200,7 +1201,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
               {
               (*fieldIter)->length =
                     (int)((*fields)[(*fieldIter)->dependsOn]->value[0]);
-              for(j=0; j<(*fieldIter)->length*(*fieldIter)->length;
+              for(j=0; j<(size_t)(*fieldIter)->length*(*fieldIter)->length;
                   j++)
                 {
                 fp >> (*fieldIter)->value[j];
@@ -1215,7 +1216,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
                   << METAIO_STREAM::endl;
                 return false;
                 }
-              for(j=0; j<(*fieldIter)->length*(*fieldIter)->length; j++)
+              for(j=0; j<(size_t)(*fieldIter)->length*(*fieldIter)->length; j++)
                 {
                 fp >> (*fieldIter)->value[j];
                 }
