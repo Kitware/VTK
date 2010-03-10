@@ -30,10 +30,12 @@
 #include "vtkElevationFilter.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
+#include "vtkCellData.h"
 #include "vtkIdList.h"
 #include "vtkPoints.h"
 #include "vtkShrinkFilter.h"
 #include "vtkDataArray.h"
+#include "vtkPointLocator.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -332,11 +334,27 @@ int TestPolyhedron( int argc, char* argv[] )
   tetraGrid->SetPoints(poly->GetPoints());
   tetraGrid->GetPointData()->DeepCopy(poly->GetPointData());
 
+  // test contour
+  vtkSmartPointer<vtkPointLocator> locator = 
+    vtkSmartPointer<vtkPointLocator>::New();
+  vtkSmartPointer<vtkCellArray> resultPolys = 
+    vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPointData> resultPd = 
+    vtkSmartPointer<vtkPointData>::New();
+  vtkSmartPointer<vtkCellData> resultCd = 
+    vtkSmartPointer<vtkCellData>::New();
+  
+  polyhedron->Contour(0.5, tetraGrid->GetPointData()->GetScalars(), locator, 
+                      NULL, NULL, resultPolys, 
+                      tetraGrid->GetPointData(), resultPd,
+                      tetraGrid->GetCellData(), 0, resultCd);
+    
+  // shrink to show the gaps between tetrahedrons.
   vtkSmartPointer<vtkShrinkFilter> shrink = 
     vtkSmartPointer<vtkShrinkFilter>::New();
   shrink->SetInput( tetraGrid );
-  shrink->SetShrinkFactor( 1.0 );
-  
+  shrink->SetShrinkFactor( 0.7 );
+
   // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();

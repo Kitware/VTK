@@ -56,7 +56,7 @@ public:
     }
 };
   
-// Special class that can iterate over different type of triangle representations
+// Special class that can iterate over different type of polygon representations
 class vtkMVCPolyIterator
 {
 public:

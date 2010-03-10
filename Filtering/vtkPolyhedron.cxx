@@ -31,9 +31,13 @@
 #include "vtkPolyData.h"
 #include "vtkCellLocator.h"
 #include "vtkGenericCell.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkMeanValueCoordinatesInterpolator.h"
+#include "vtkSmartPointer.h"
+#include "vtkMergePoints.h"
 
 #include <vtkstd/map>
+#include <vtkstd/set>
 
 vtkCxxRevisionMacro(vtkPolyhedron, "$Revision: 1.7 $");
 vtkStandardNewMacro(vtkPolyhedron);
@@ -41,6 +45,35 @@ vtkStandardNewMacro(vtkPolyhedron);
 // Special typedef for point id map
 struct vtkPointIdMap : public vtkstd::map<vtkIdType,vtkIdType> {};
 typedef vtkstd::map<vtkIdType,vtkIdType*>::iterator PointIdMapIterator;
+
+
+// Special class for iterating through polyhedron faces
+class vtkPolyhedronFaceIterator
+{
+public:
+  vtkIdType CurrentPolygonSize;
+  vtkIdType *Polygon;
+  vtkIdType *Current;
+  vtkIdType NumberOfPolygons;
+  vtkIdType Id;
+
+  vtkPolyhedronFaceIterator(vtkIdType numFaces, vtkIdType *t)
+    {
+      this->CurrentPolygonSize = t[0];
+      this->Polygon = t;
+      this->Current = t+1;
+      this->NumberOfPolygons = numFaces;
+      this->Id = 0;
+    }
+  vtkIdType* operator++()
+    {
+      this->Current += this->CurrentPolygonSize + 1;
+      this->Polygon = this->Current - 1;
+      this->CurrentPolygonSize = *(Polygon);
+      this->Id++;
+      return this->Current;
+    }
+};
 
 //----------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
@@ -825,12 +858,186 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 void vtkPolyhedron::Contour(double value,
                             vtkDataArray *cellScalars,
                             vtkIncrementalPointLocator *locator,
-                            vtkCellArray *verts, vtkCellArray *lines,
+                            vtkCellArray *vtkNotUsed(verts), 
+                            vtkCellArray *vtkNotUsed(lines),
                             vtkCellArray *polys,
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
                             vtkCellData *outCd)
 {
+  // return if there is no edge
+  if (!this->GenerateEdges())
+    {
+    return;
+    }
+  
+  double x0[3], x1[3], x[3];
+  double v0, v1, t;
+
+  vtkIdType p0, p1, flag, pId, fId;
+  void * ptr = NULL;
+
+  // initialize point locator
+  this->ConstructPolyData();
+  this->ComputeBounds();
+  vtkSmartPointer<vtkMergePoints> merge = 
+    vtkSmartPointer<vtkMergePoints>::New();
+  merge->InitPointInsertion(this->Points, this->Bounds);
+  for (int i = 0; i < this->Points->GetNumberOfPoints(); i++)
+    {
+    merge->InsertUniquePoint(this->Points->GetPoint(i), pId);
+    }
+  
+  vtkIdType offset = polys->GetNumberOfCells();
+  
+  // generate the map from vertex to face
+  typedef vtkstd::map<vtkIdType, vtkstd::vector<vtkIdType> > 
+                                                           IdToIdArrayMapType;
+  typedef vtkstd::pair<vtkIdType, vtkstd::vector<vtkIdType> > 
+                                                           IdToIdArrayPairType;
+  typedef IdToIdArrayMapType::iterator              IdToIdArrayMapIteratorType;
+
+  IdToIdArrayMapType pointFaceMap;
+  IdToIdArrayMapIteratorType mapIter, mapIter0, mapIter1;
+  
+  vtkPolyhedronFaceIterator 
+    faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
+  
+  while ( faceIter.Id < faceIter.NumberOfPolygons)
+    {
+    fId = faceIter.Id;
+    for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
+      {
+      pId = faceIter.Current[i];
+      mapIter = pointFaceMap.find(pId);
+      if (mapIter != pointFaceMap.end())
+        {
+        mapIter->second.push_back(fId);
+        }
+      else
+        {
+        vtkstd::vector<vtkIdType> idArray;
+        idArray.push_back(fId);
+        pointFaceMap.insert(IdToIdArrayPairType(pId, idArray));
+        }
+      }
+    ++faceIter;
+    }
+
+  // loop through all edges to find contour points and store them in the point 
+  // locator. if the contour points are new (not overlap with any of original 
+  // vertex), find their adjacent faces are stored them in the point-face map.
+  this->EdgeTable->InitTraversal();
+  while (this->EdgeTable->GetNextEdge(p0, p1, ptr))
+    {
+    v0 = cellScalars->GetComponent(p0,0);
+    v1 = cellScalars->GetComponent(p1,0);
+
+    flag = 0;
+    if ( v0 >= value)
+      {
+      flag++;
+      }
+    if ( v1 >= value)
+      {
+      flag++;
+      }
+    if (flag != 1)
+      {
+      continue;
+      }
+
+    this->Points->GetPoint(p0, x0);
+    this->Points->GetPoint(p1, x1);
+    
+    t = (value - v0)/(v1 - v0);
+    
+    x[0] = (1 - t) * x0[0] + t * x1[0];
+    x[1] = (1 - t) * x0[1] + t * x1[1];
+    x[2] = (1 - t) * x0[2] + t * x1[2];
+
+    if (merge->InsertUniquePoint(x, pId))
+      {
+      mapIter0 = pointFaceMap.find(p0);
+      mapIter1 = pointFaceMap.find(p1);
+      
+      if (mapIter0 == pointFaceMap.end() || mapIter1 == pointFaceMap.end())
+        {
+        vtkErrorMacro("Cannot locate adjacent faces of a vertex. We should never "
+          "get here. Contouring continues but may generate wrong result.");
+        continue;
+        }
+      
+      vtkstd::vector<vtkIdType> idArray0 = mapIter0->second;
+      vtkstd::vector<vtkIdType> idArray1 = mapIter1->second;
+      vtkstd::set<vtkIdType> idSet;
+      
+      for (size_t i = 0; i < idArray0.size(); i++)
+        {
+        for (size_t j = 0; j < idArray1.size(); j++)
+          {
+          if (idArray0[i] == idArray1[j])
+            {
+            idSet.insert(idArray0[i]);
+            }
+          }
+        }
+
+      if (idSet.empty())
+        {
+        vtkErrorMacro("Cannot locate adjacent faces of a contour point. We should "
+          "never get here. Contouring continues but may generate wrong result.");
+        continue;
+        }
+
+      vtkstd::vector<vtkIdType> idArray;
+      
+      vtkstd::set<vtkIdType>::iterator setIter = idSet.begin();
+      for (; setIter != idSet.end(); ++setIter)
+        {
+        idArray.push_back(*setIter);
+        }
+
+      pointFaceMap.insert(IdToIdArrayPairType(pId, idArray));
+      
+      //if (outPd)
+      //  {
+      //  outPd->InterpolateEdge(inPd, pId, p0, p1, t);
+      //  }
+      }
+
+    }
+
+  for (vtkIdType i = 0; i < 12; i++)
+    {
+    std::cout << std::endl;
+    std::cout << "======= Point # " << i << "=====  [";
+    mapIter = pointFaceMap.find(i);
+    for (size_t j = 0; j < mapIter->second.size(); j++)
+      {
+      std::cout << mapIter->second[j] << ", ";
+      }
+    std::cout << "]" << std::endl;
+    }
+
+  //
+  // Constructing result contours.
+  //
+  // Algorithm: start from a point with point value larger than the input 
+  // contouring value. traverse all its desendent through edges as far as 
+  // possible until a contour point is reach at the end of each path. the
+  // result is a list of contour points. connect any two of these contour 
+  // points if they are on the same face.
+  // A single traverse may not reach all points with value larger the 
+  // input value. the above process will iterates until all large-value 
+  // points are reached. 
+  // Each iteration will output a "polygon". This so called polygon may not
+  // lie on a 2D plane. in which case, additional triangulation will be applied.
+
+  
+  //locator->Print(std::cout);
+  
+  //outPd->Print(std::cout);
 }
 
 
