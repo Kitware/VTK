@@ -107,3 +107,6 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 
+# TestConditionVariable will attempt to allocate a thread for each available core
+# and thus should not be run in parallel.
+set_tests_properties(TestConditionVariable PROPERTIES RUN_SERIAL ON)
