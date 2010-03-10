@@ -304,7 +304,22 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/vtkMathConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   )
-  
+
+# Figure out if feenableexcept and fedisableexcept functions are present
+CHECK_INCLUDE_FILE("fenv.h" HAVE_FENV_H)
+IF (HAVE_FENV_H)
+  SET(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  IF(UNIX)
+    SET(CMAKE_REQUIRED_LIBRARIES m)
+  ENDIF(UNIX)
+  CHECK_SYMBOL_EXISTS(feenableexcept "fenv.h" VTK_HAS_FEENABLEEXCEPT)
+  SET(CMAKE_REQUIRED_LIBRARIES)
+ENDIF (HAVE_FENV_H)
+
+CONFIGURE_FILE(
+  ${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
+  )
 
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.

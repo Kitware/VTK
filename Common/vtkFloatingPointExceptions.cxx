@@ -15,7 +15,9 @@
 
 #include "vtkFloatingPointExceptions.h"
 
-#if defined(__linux__)
+#include "vtkFloatingPointExceptionsConfigure.h"
+
+#if defined(VTK_USE_FENV)
 #include <csignal>
 #include <fenv.h>
 #endif
@@ -24,7 +26,7 @@
 #include <float.h>
 #endif
 
-#if defined(__linux__)
+#if defined(VTK_USE_FENV)
 //-----------------------------------------------------------------------------
 // Signal handler for floating point exceptions in anonymous namespace
 namespace {
@@ -49,15 +51,12 @@ void vtkFloatingPointExceptions::Enable()
   // enable floating point exceptions on MSVC
   _controlfp(_EM_DENORMAL | _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
 #endif  //_MSC_VER
-#if defined(__linux__)
+#if defined(VTK_USE_FENV)
   // This should work on all platforms
   feenableexcept(FE_DIVBYZERO | FE_INVALID);
   // Set the signal handler
   signal(SIGFPE, signal_handler);
-  // This only works on linux x86
-//  unsigned int fpucw= 0x1372;
-//  __asm__ ("fldcw %0" : : "m" (fpucw));
-#endif  //__linux__
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -70,7 +69,7 @@ void vtkFloatingPointExceptions::Disable()
   _controlfp(_EM_INVALID | _EM_DENORMAL | _EM_ZERODIVIDE | _EM_OVERFLOW |
              _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
 #endif  //_MSC_VER
-#if defined(__linux__)
+#if defined(VTK_USE_FENV)
   fedisableexcept(FE_DIVBYZERO | FE_INVALID);
-#endif  //__linux__
+#endif
 }
