@@ -33,7 +33,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotBar, "1.6");
+vtkCxxRevisionMacro(vtkPlotBar, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBar);
@@ -133,7 +133,7 @@ void vtkPlotBar::GetBounds(double bounds[4])
   if (this->UseIndexForXSeries && y)
     {
     bounds[0] = 0;
-    bounds[1] = y->GetSize();
+    bounds[1] = y->GetNumberOfTuples();
     y->GetRange(&bounds[2]);
     }
   else if (x && y)
@@ -315,7 +315,8 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
     vtkErrorMacro(<< "No Y column is set (index 1).");
     return false;
     }
-  else if (!this->UseIndexForXSeries && x->GetSize() != y->GetSize())
+  else if (!this->UseIndexForXSeries &&
+           x->GetNumberOfTuples() != y->GetNumberOfTuples())
     {
     vtkErrorMacro("The x and y columns must have the same number of elements.");
     return false;
@@ -334,7 +335,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
         vtkTemplateMacro(
             CopyToPoints(this->Points,
                          static_cast<VTK_TT*>(y->GetVoidPointer(0)),
-                         y->GetSize()));
+                         y->GetNumberOfTuples()));
       }
     }
   else
@@ -344,7 +345,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
       vtkTemplateMacro(
           CopyToPointsSwitch(this->Points,
                              static_cast<VTK_TT*>(x->GetVoidPointer(0)),
-                             y, x->GetSize()));
+                             y, x->GetNumberOfTuples()));
       }
     }
   this->Sorted = false;

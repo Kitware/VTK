@@ -36,7 +36,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.21");
+vtkCxxRevisionMacro(vtkPlotLine, "1.22");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -386,9 +386,11 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
     vtkErrorMacro(<< "No Y column is set (index 1).");
     return false;
     }
-  else if (!this->UseIndexForXSeries && x->GetSize() != y->GetSize())
+  else if (!this->UseIndexForXSeries &&
+           x->GetNumberOfTuples() != y->GetNumberOfTuples())
     {
-    vtkErrorMacro("The x and y columns must have the same number of elements.");
+    vtkErrorMacro("The x and y columns must have the same number of elements. "
+                  << x->GetNumberOfTuples() << ", " << y->GetNumberOfTuples());
     return false;
     }
 
@@ -405,7 +407,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
         vtkTemplateMacro(
             CopyToPoints(this->Points,
                          static_cast<VTK_TT*>(y->GetVoidPointer(0)),
-                         y->GetSize()));
+                         y->GetNumberOfTuples()));
       }
     }
   else
@@ -415,7 +417,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
       vtkTemplateMacro(
           CopyToPointsSwitch(this->Points,
                              static_cast<VTK_TT*>(x->GetVoidPointer(0)),
-                             y, x->GetSize()));
+                             y, x->GetNumberOfTuples()));
       }
     }
   this->CalculateLogSeries();
