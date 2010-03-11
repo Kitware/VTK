@@ -20,7 +20,7 @@
 
 using namespace std;
 
-class VPICREADER_EXPORT VPICView {
+class VPIC_EXPORT VPICView {
 public:
    VPICView(int r, int t, VPICGlobal& global);
    ~VPICView();

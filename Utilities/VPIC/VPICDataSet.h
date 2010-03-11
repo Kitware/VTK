@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class VPICREADER_EXPORT VPICDataSet {
+class VPIC_EXPORT VPICDataSet {
 public:
    VPICDataSet();
    ~VPICDataSet();

@@ -18,7 +18,7 @@
 
 using namespace std;
 
-class VPICREADER_EXPORT VPICGlobal {
+class VPIC_EXPORT VPICGlobal {
 public:
    VPICGlobal();
    ~VPICGlobal();

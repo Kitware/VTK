@@ -1,5 +1,5 @@
-#ifndef Definition_h
-#define Definition_h
+#ifndef VPICDefinition_h
+#define VPICDefinition_h
 
 #include <string>
 #include <iostream>
@@ -8,16 +8,17 @@
 
 using namespace std;
 
-// Now set up all of the export macros
-#if defined(VTK_BUILD_SHARED_LIBS)
+#cmakedefine01 BUILD_SHARED_LIBS
 
- #if defined(VPICReader_EXPORTS)
-  #define VPICREADER_EXPORT VTK_ABI_EXPORT
+// Now set up all of the export macros
+#if defined(BUILD_SHARED_LIBS)
+ #if defined(VPIC_EXPORTS)
+  #define VPIC_EXPORT VTK_ABI_EXPORT
  #else
-  #define VPICREADER_EXPORT VTK_ABI_IMPORT
+  #define VPIC_EXPORT VTK_ABI_IMPORT
  #endif
 #else
- #define VPICREADER_EXPORT
+ #define VPIC_EXPORT
 #endif
 
 #define vpicNotUsed(x)

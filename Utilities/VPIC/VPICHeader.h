@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class VPICREADER_EXPORT VPICHeader {
+class VPIC_EXPORT VPICHeader {
 public:
    VPICHeader();
    VPICHeader(FILE* fp);

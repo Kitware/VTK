@@ -13,7 +13,7 @@
 
 using namespace std;
 
-class VPICREADER_EXPORT VPICPart {
+class VPIC_EXPORT VPICPart {
 public:
    VPICPart(int id);
    ~VPICPart();
