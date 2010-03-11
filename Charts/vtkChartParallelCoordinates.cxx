@@ -59,7 +59,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.1");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -427,18 +427,18 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
         float high = 0.0;
         for (size_t i = 0; i < this->Storage->AxesSelections.size(); ++i)
           {
-          vtkRectf &rect = this->Storage->AxesSelections[i];
-          if (rect.Height() != 0.0f)
+          vtkRectf &rect2 = this->Storage->AxesSelections[i];
+          if (rect2.Height() != 0.0f)
             {
-            if (rect.Height() > 0.0f)
+            if (rect2.Height() > 0.0f)
               {
-              low = rect.Y();
-              high = rect.Y() + rect.Height();
+              low = rect2.Y();
+              high = rect2.Y() + rect2.Height();
               }
             else
               {
-              low = rect.Y() + rect.Height();
-              high = rect.Y();
+              low = rect2.Y() + rect2.Height();
+              high = rect2.Y();
               }
             low -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
             low /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);

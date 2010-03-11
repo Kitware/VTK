@@ -49,7 +49,7 @@ public:
   bool SelectionInitialized;
 };
 
-vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.1");
+vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotParallelCoordinates);
@@ -181,15 +181,15 @@ bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D *painter, float rect[4
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::GetBounds(double bounds[4])
+void vtkPlotParallelCoordinates::GetBounds(double *)
 {
 
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::GetNearestPoint(const vtkVector2f& point,
-                                  const vtkVector2f& tol,
-                                  vtkVector2f* location)
+bool vtkPlotParallelCoordinates::GetNearestPoint(const vtkVector2f& ,
+                                  const vtkVector2f& ,
+                                  vtkVector2f* )
 {
   return false;
 }
