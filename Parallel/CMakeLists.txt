@@ -4,6 +4,7 @@ SET(KIT_TCL_LIBS vtkIOTCL)
 SET(KIT_PYTHON_LIBS vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkIOJava)
 SET(KIT_INTERFACE_LIBRARIES vtkIO)
+SET(KIT_LIBS VPIC)
 IF(VTK_USE_RENDERING)
   SET(KIT_TCL_LIBS vtkRenderingTCL ${KIT_TCL_LIBS})
   SET(KIT_PYTHON_LIBS vtkRenderingPythonD ${KIT_PYTHON_LIBS})
@@ -87,6 +88,7 @@ vtkTransmitPolyDataPiece.cxx
 vtkTransmitRectilinearGridPiece.cxx
 vtkTransmitStructuredGridPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
+vtkVPICReader.cxx
 vtkXMLPHierarchicalBoxDataWriter.cxx
 vtkXMLPMultiBlockDataWriter.cxx
 )
