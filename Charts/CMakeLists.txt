@@ -21,6 +21,7 @@ SET(Kit_SRCS
   vtkBrush.cxx
   vtkChart.cxx
   vtkChartLegend.cxx
+  vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkColorSeries.cxx
   vtkContext2D.cxx
@@ -43,6 +44,7 @@ SET(Kit_SRCS
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
   vtkPlotLine.cxx
+  vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
   vtkTooltipItem.cxx
   vtkWedgeMark.cxx
