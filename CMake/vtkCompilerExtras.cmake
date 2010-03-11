@@ -45,10 +45,14 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(VTK_ABI_CXX_FLAGS "")
   endif()
 
-  # Set up the release with debug info and debug CXX_FLAGS for extra warnings
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_WARN}")
-  set(CMAKE_CXX_FLAGS_DEBUG
-    "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_WARN} ${CMAKE_CXX_FLAGS_ERROR}")
+  # Set up the debug CXX_FLAGS for extra warnings
+  option(VTK_EXTRA_COMPILER_WARNINGS
+    "Add compiler flags to do stricter checking when building debug." OFF)
+  if(VTK_EXTRA_COMPILER_WARNINGS)
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_WARN}")
+    set(CMAKE_CXX_FLAGS_DEBUG
+      "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_WARN} ${CMAKE_CXX_FLAGS_ERROR}")
+  endif()
 endif()
 
