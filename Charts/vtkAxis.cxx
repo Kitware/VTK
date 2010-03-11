@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.18");
+vtkCxxRevisionMacro(vtkAxis, "1.19");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -185,20 +185,35 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     painter->ApplyTextProp(this->TitleProperties);
 
     // Draw the axis label
-    if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
+    if (this->Position == vtkAxis::LEFT)
       {
       // Draw the axis label
-      x = static_cast<int>(this->Point1[0] - 45);
+      x = static_cast<int>(this->Point1[0] - 35);
       y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
       prop->SetOrientation(90.0);
       prop->SetVerticalJustificationToBottom();
       }
-    else
+    else if (this->Position == vtkAxis::RIGHT)
+      {
+      // Draw the axis label
+      x = static_cast<int>(this->Point1[0] + 45);
+      y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
+      prop->SetOrientation(90.0);
+      prop->SetVerticalJustificationToTop();
+      }
+    else if (this->Position == vtkAxis::BOTTOM)
       {
       x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
       y = static_cast<int>(this->Point1[1] - 30);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToTop();
+      }
+    else if (this->Position == vtkAxis::TOP)
+      {
+      x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
+      y = static_cast<int>(this->Point1[1] + 30);
+      prop->SetOrientation(0.0);
+      prop->SetVerticalJustificationToBottom();
       }
     painter->DrawString(x, y, this->Title);
     }
@@ -210,7 +225,9 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   vtkStdString *tickLabel = this->TickLabels->GetPointer(0);
   vtkIdType numMarks = this->TickPositions->GetNumberOfTuples();
 
-  if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
+  // There are four possible tick label positions, which should be set by the
+  // class laying out the axes.
+  if (this->Position == vtkAxis::LEFT)
     {
     prop->SetJustificationToRight();
     prop->SetVerticalJustificationToCentered();
@@ -226,7 +243,23 @@ bool vtkAxis::Paint(vtkContext2D *painter)
         }
       }
     }
-  else // Default to horizontal orientation
+  else if (this->Position == vtkAxis::RIGHT)
+    {
+    prop->SetJustificationToLeft();
+    prop->SetVerticalJustificationToCentered();
+
+    // Draw the tick marks and labels
+    for (vtkIdType i = 0; i < numMarks; ++i)
+      {
+      painter->DrawLine(this->Point1[0] + 5, tickPos[i],
+                        this->Point1[0],     tickPos[i]);
+      if (this->LabelsVisible)
+        {
+        painter->DrawString(this->Point1[0] + 7, tickPos[i], tickLabel[i]);
+        }
+      }
+    }
+  else if (this->Position == vtkAxis::BOTTOM)
     {
     prop->SetJustificationToCentered();
     prop->SetVerticalJustificationToTop();
@@ -239,6 +272,22 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       if (this->LabelsVisible)
         {
         painter->DrawString(tickPos[i], int(this->Point1[1] - 7), tickLabel[i]);
+        }
+      }
+    }
+  else if (this->Position == vtkAxis::TOP)
+    {
+    prop->SetJustificationToCentered();
+    prop->SetVerticalJustificationToBottom();
+
+    // Draw the tick marks and labels
+    for (vtkIdType i = 0; i < numMarks; ++i)
+      {
+      painter->DrawLine(tickPos[i], this->Point1[1] + 5,
+                        tickPos[i], this->Point1[1]);
+      if (this->LabelsVisible)
+        {
+        painter->DrawString(tickPos[i], int(this->Point1[1] + 7), tickLabel[i]);
         }
       }
     }
