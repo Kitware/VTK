@@ -57,6 +57,9 @@ SUBDIRS(EncodeString)
 IF(VTK_USE_PARALLEL)
   # vtkParallel uses source hashes during network handshakes.
   SUBDIRS(HashSource)
+  
+  # helper classes for VPICReader
+  SUBDIRS(VPIC)
 ENDIF(VTK_USE_PARALLEL)
 
 IF(VTK_USE_RENDERING)
