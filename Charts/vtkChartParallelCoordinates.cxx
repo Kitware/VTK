@@ -59,7 +59,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.2");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -237,7 +237,7 @@ void vtkChartParallelCoordinates::UpdateGeometry()
 
     // Iterate through the axes and set them up to span the chart area.
     int xStep = (this->Point2[0] - this->Point1[0]) /
-                (this->Storage->Axes.size()-1);
+                (static_cast<int>(this->Storage->Axes.size())-1);
     int x =  this->Point1[0];
 
     for (size_t i = 0; i < this->Storage->Axes.size(); ++i)
@@ -366,7 +366,7 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
         if (axis->GetPoint1()[0]-10 < mouse.ScenePos[0] &&
             axis->GetPoint1()[0]+10 > mouse.ScenePos[0])
           {
-          this->Storage->CurrentAxis = i;
+          this->Storage->CurrentAxis = static_cast<int>(i);
           this->Scene->SetDirty(true);
           this->Storage->AxesSelections[i].Set(axis->GetPoint1()[0]-5,
                                                mouse.ScenePos[1],
@@ -446,7 +446,8 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
             high /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
 
             // Process the selected range and display this
-            this->Storage->Plot->SetSelectionRange(i, low, high);
+            this->Storage->Plot->SetSelectionRange(static_cast<int>(i),
+                                                   low, high);
             }
           }
         }

@@ -49,7 +49,7 @@ public:
   bool SelectionInitialized;
 };
 
-vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.2");
+vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotParallelCoordinates);
@@ -124,8 +124,9 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
   // Update the axis positions
   for (size_t i = 0; i < cols; ++i)
     {
-    this->Storage->AxisPos[i] = this->Parent->GetAxis(i) ?
-                                this->Parent->GetAxis(i)->GetPoint1()[0] : 0;
+    this->Storage->AxisPos[i] = this->Parent->GetAxis(int(i)) ?
+                                this->Parent->GetAxis(int(i))->GetPoint1()[0] :
+                                0;
     }
 
   vtkIdType selection = 0;
@@ -148,7 +149,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
       {
       line[j].Set(this->Storage->AxisPos[j], (*this->Storage)[j][i]);
       }
-    painter->DrawPoly(line[0].GetData(), cols);
+    painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
     }
 
   // Now draw the selected lines
@@ -162,7 +163,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
         this->Selection->GetTupleValue(i, &id);
         line[j].Set(this->Storage->AxisPos[j], (*this->Storage)[j][id]);
         }
-      painter->DrawPoly(line[0].GetData(), cols);
+      painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
       }
     }
 
