@@ -20,20 +20,24 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 
-GLenum vtkShaderTypeVTKToGL[3]={
+GLenum vtkShaderTypeVTKToGL[5]={
   vtkgl::VERTEX_SHADER, // VTK_SHADER_TYPE_VERTEX=0
   vtkgl::GEOMETRY_SHADER_EXT, // VTK_SHADER_TYPE_GEOMETRY=1,
-  vtkgl::FRAGMENT_SHADER // VTK_SHADER_TYPE_FRAGMENT=2
+  vtkgl::FRAGMENT_SHADER, // VTK_SHADER_TYPE_FRAGMENT=2,
+  0, // VTK_SHADER_TYPE_TESSELLATION_CONTROL=3, not yet
+  0// VTK_SHADER_TYPE_TESSELLATION_EVALUATION=4, not yet
 };
 
-const char *TypeAsStringArray[3]={
+const char *TypeAsStringArray[5]={
   "vertex shader",
   "geometry shader",
-  "fragment shader"
+  "fragment shader",
+  "tessellation control shader",
+  "tessellation evaluation shader"
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader2, "1.5");
+vtkCxxRevisionMacro(vtkShader2, "1.6");
 vtkStandardNewMacro(vtkShader2);
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 
@@ -187,6 +191,20 @@ void vtkShader2::Compile()
   
   if(this->Id==0 || this->LastCompileTime<this->MTime)
     {
+    if(this->Type==VTK_SHADER_TYPE_TESSELLATION_CONTROL)
+      {
+      vtkErrorMacro(<<"tessellation control shader is not supported.");
+      this->LastCompileStatus=false;
+      this->LastCompileLog=0;
+      return;
+      }
+     if(this->Type==VTK_SHADER_TYPE_TESSELLATION_EVALUATION)
+      {
+      vtkErrorMacro(<<"tessellation evaluation shader is not supported.");
+      this->LastCompileStatus=false;
+      this->LastCompileLog=0;
+      return;
+      }
     if(this->Type==VTK_SHADER_TYPE_GEOMETRY && !this->SupportGeometryShader)
       {
       vtkErrorMacro(<<"geometry shader is not supported.");
@@ -220,7 +238,7 @@ void vtkShader2::Compile()
         {
         delete[] this->LastCompileLog;
         }
-      this->LastCompileLogCapacity=value;
+      this->LastCompileLogCapacity=static_cast<size_t>(value);
       this->LastCompileLog=new char[this->LastCompileLogCapacity];
       }
     vtkgl::GetShaderInfoLog(shaderId,value,0,this->LastCompileLog);
@@ -263,6 +281,12 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
     {
     case VTK_SHADER_TYPE_VERTEX:
       os << "vertex" << endl;
+      break;
+    case VTK_SHADER_TYPE_TESSELLATION_CONTROL:
+      os << "tessellation control" << endl;
+      break;
+    case VTK_SHADER_TYPE_TESSELLATION_EVALUATION:
+      os << "tessellation evaluation" << endl;
       break;
     case VTK_SHADER_TYPE_GEOMETRY:
       os << "geometry" << endl;

@@ -18,10 +18,15 @@
 // a type, identifying the hardware programmable stage it is attached to.
 // Hardware programmable stages are (or will be)
 // 1. vertex shader
-// 2. hull shader (not yet)
-// 3. domain shader (not yet)
+// 2. tessellation control shader
+// 3. tessellation evaluation shader
 // 4. geometry shader
 // 5. fragment shader
+//
+// Note: tessellation control shader is called hull shader in DirectX11
+// Note: tessellation evaluation shader is called domain shader in DirectX11
+// Ref: OpenGL spec 4.0
+// http://www.opengl.org/registry/doc/glspec40.core.20100311.withchanges.pdf
 // Ref: "Introducing DirectX 11"
 // http://www.gamasutra.com/view/feature/3759/sponsored_feature_introducing_.php
 
@@ -37,10 +42,10 @@
 enum vtkShader2Type
 {
   VTK_SHADER_TYPE_VERTEX=0,
+  VTK_SHADER_TYPE_TESSELLATION_CONTROL=3, // new, not supported yet
+  VTK_SHADER_TYPE_TESSELLATION_EVALUATION=4, // new, not supported yet
   VTK_SHADER_TYPE_GEOMETRY=1,
   VTK_SHADER_TYPE_FRAGMENT=2
-//  VTK_SHADER_TYPE_HULL=3, // speculation on DX11, not supported yet.
-//  VTK_SHADER_TYPE_DOMAIN=4 // speculation on DX11, not supported yet.
 };
 
 class vtkOpenGLRenderWindow;
@@ -67,6 +72,8 @@ public:
   // Description:
   // Return the shader type, .
   // \post valid_result: result==VTK_SHADER_TYPE_VERTEX ||
+  // result==VTK_SHADER_TYPE_TESSELLATION_CONTROL ||
+  // result==VTK_SHADER_TYPE_TESSELLATION_EVALUATION ||
   // result==VTK_SHADER_TYPE_GEOMETRY ||
   // result==VTK_SHADER_TYPE_FRAGMENT.
   vtkGetMacro(Type,int);
@@ -74,6 +81,8 @@ public:
   // Description:
   // Set the shader type, .
   // \pre valid_type: type==VTK_SHADER_TYPE_VERTEX ||
+  // type==VTK_SHADER_TYPE_TESSELLATION_CONTROL ||
+  // type==VTK_SHADER_TYPE_TESSELLATION_EVALUATION ||
   // type==VTK_SHADER_TYPE_GEOMETRY ||
   // type==VTK_SHADER_TYPE_FRAGMENT.
   // \post is_set: GetType()==type.
