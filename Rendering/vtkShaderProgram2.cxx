@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.13");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.14");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -204,17 +204,29 @@ bool vtkShaderProgram2::HasVertexShaders()
 
 // ----------------------------------------------------------------------------
 // Description:
-// Tells if at least one of the shaders is a fragment shader.
-// If yes, it means the fragment processing of the fixed-pipeline is
-// bypassed.
-// If no, it means the fragment processing of the fixed-pipeline is used.
-bool vtkShaderProgram2::HasFragmentShaders()
+// Tells if at least one of the shaders is a tessellation control shader.
+bool vtkShaderProgram2::HasTessellationControlShaders()
 {
   bool result=false;
   
   if(this->Shaders!=0)
     {
-    result=this->Shaders->HasFragmentShaders();
+    result=this->Shaders->HasTessellationControlShaders();
+    }
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if at least one of the shaders is a tessellation evaluation shader.
+bool vtkShaderProgram2::HasTessellationEvaluationShaders()
+{
+  bool result=false;
+  
+  if(this->Shaders!=0)
+    {
+    result=this->Shaders->HasTessellationEvaluationShaders();
     }
   
   return result;
@@ -230,6 +242,24 @@ bool vtkShaderProgram2::HasGeometryShaders()
   if(this->Shaders!=0)
     {
     result=this->Shaders->HasGeometryShaders();
+    }
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if at least one of the shaders is a fragment shader.
+// If yes, it means the fragment processing of the fixed-pipeline is
+// bypassed.
+// If no, it means the fragment processing of the fixed-pipeline is used.
+bool vtkShaderProgram2::HasFragmentShaders()
+{
+  bool result=false;
+  
+  if(this->Shaders!=0)
+    {
+    result=this->Shaders->HasFragmentShaders();
     }
   
   return result;
