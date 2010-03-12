@@ -144,7 +144,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.16");
+vtkCxxRevisionMacro(vtkContextScene, "1.17");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 
@@ -356,8 +356,6 @@ void vtkContextScene::UpdateBufferId()
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
-    
-    vtkIdType size=width*height;
     
     this->LastPainter->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
