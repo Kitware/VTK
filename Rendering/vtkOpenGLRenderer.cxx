@@ -46,7 +46,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.96");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.97");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -1057,7 +1057,7 @@ void vtkOpenGLRenderer::Clear(void)
   if (!this->Transparent() &&
       (this->GradientBackground || this->TexturedBackground))
     {
-    glPushAttrib(GL_ENABLE_BIT);
+    glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
@@ -1080,6 +1080,7 @@ void vtkOpenGLRenderer::Clear(void)
         if(this->TexturedBackground && this->BackgroundTexture)
           {
           glEnable(GL_TEXTURE_2D);
+
           this->BackgroundTexture->Render(this);
 
           // NOTE: By default the mode is GL_MODULATE. Since the user
@@ -1094,8 +1095,6 @@ void vtkOpenGLRenderer::Clear(void)
           // rejects the fragments of the quad as the alpha is set to 0 on it.
           glDisable(GL_ALPHA_TEST);
           }
-
-        glFinish();
 
         glBegin(GL_QUADS);
         glColor4d(this->Background[0],this->Background[1],this->Background[2],
@@ -1117,9 +1116,10 @@ void vtkOpenGLRenderer::Clear(void)
 
         glEnd();
       }
+      glMatrixMode(GL_PROJECTION);
       glPopMatrix();
-      glMatrixMode(GL_MODELVIEW);
     }
+    glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glPopAttrib();
     }
