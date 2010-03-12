@@ -102,12 +102,27 @@ protected:
   void CalculateLogSeries();
 
   // Description:
+  // Find all of the "bad points" in the series. This is mainly used to cache
+  // bad points for performance reasons, but could also be used plot the bad
+  // points in the future.
+  void FindBadPoints();
+
+  // Description:
+  // Calculate the bounds of the plot, ignoring the bad points.
+  void CalculateBounds(double bounds[4]);
+
+  // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D* Points;
 
   // Description:
   // Sorted points, used when searching for the nearest point.
   vtkPoints2D* Sorted;
+
+  // Description:
+  // An array containing the indices of all the "bad points", meaning any x, y
+  // pair that has an infinity, -infinity or not a number value.
+  vtkIdTypeArray* BadPoints;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.

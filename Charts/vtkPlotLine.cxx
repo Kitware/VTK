@@ -30,13 +30,14 @@
 #include "vtkExecutive.h"
 #include "vtkTimeStamp.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
 
 #include "vtkObjectFactory.h"
 
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.22");
+vtkCxxRevisionMacro(vtkPlotLine, "1.23");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -46,6 +47,7 @@ vtkPlotLine::vtkPlotLine()
 {
   this->Points = NULL;
   this->Sorted = NULL;
+  this->BadPoints = NULL;
   this->MarkerStyle = vtkPlotLine::NONE;
   this->LogX = false;
   this->LogY = false;
@@ -227,7 +229,15 @@ void vtkPlotLine::GetBounds(double bounds[4])
 {
   if (this->Points)
     {
-    this->Points->GetBounds(bounds);
+    if (!this->BadPoints)
+      {
+      this->Points->GetBounds(bounds);
+      }
+    else
+      {
+      // There are bad points in the series - need to do this ourselves.
+      this->CalculateBounds(bounds);
+      }
     }
   vtkDebugMacro(<< "Bounds: " << bounds[0] << "\t" << bounds[1] << "\t"
                 << bounds[2] << "\t" << bounds[3]);
@@ -421,6 +431,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
       }
     }
   this->CalculateLogSeries();
+  this->FindBadPoints();
   this->Points->Modified();
   if (this->Sorted)
     {
@@ -430,6 +441,7 @@ bool vtkPlotLine::UpdateTableCache(vtkTable *table)
   return true;
 }
 
+//-----------------------------------------------------------------------------
 inline void vtkPlotLine::CalculateLogSeries()
 {
   if (!this->XAxis || !this->YAxis)
@@ -448,12 +460,125 @@ inline void vtkPlotLine::CalculateLogSeries()
       }
     }
   if (this->LogY)
-  {
-  for (vtkIdType i = 0; i < n; ++i)
+    {
+    for (vtkIdType i = 0; i < n; ++i)
     {
     data[2*i+1] = log10(data[2*i+1]);
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+inline void vtkPlotLine::FindBadPoints()
+{
+  // This should be run after CalculateLogSeries as a final step.
+  float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+  vtkIdType n = this->Points->GetNumberOfPoints();
+  if (!this->BadPoints)
+    {
+    this->BadPoints = vtkIdTypeArray::New();
+    }
+  else
+    {
+    this->BadPoints->SetNumberOfTuples(0);
+    }
+
+  // Scan through and find any bad points.
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    vtkIdType p = 2*i;
+    if (vtkMath::IsInf(data[p]) || vtkMath::IsInf(data[p+1]) ||
+        vtkMath::IsNan(data[p]) || vtkMath::IsNan(data[p+1]))
+      {
+      this->BadPoints->InsertNextValue(i);
+      }
+    }
+
+  if (this->BadPoints->GetNumberOfTuples() == 0)
+    {
+    this->BadPoints->Delete();
+    this->BadPoints = NULL;
+    }
+}
+
+//-----------------------------------------------------------------------------
+inline void vtkPlotLine::CalculateBounds(double bounds[4])
+{
+  // We can use the BadPoints array to skip the bad points
+  if (!this->Points || !this->BadPoints)
+    {
+    return;
+    }
+  vtkIdType start = 0;
+  vtkIdType end = 0;
+  vtkIdType i = 0;
+  vtkIdType nBad = this->BadPoints->GetNumberOfTuples();
+  vtkIdType nPoints = this->Points->GetNumberOfPoints();
+  if (this->BadPoints->GetValue(i) == 0)
+    {
+    while (i < nBad && i == this->BadPoints->GetValue(i))
+      {
+      start = this->BadPoints->GetValue(i++) + 1;
+      }
+    if (start < nPoints)
+      {
+      end = nPoints;
+      }
+    else
+      {
+      // They are all bad points
+      return;
+      }
+    }
+  if (i < nBad)
+    {
+    end = this->BadPoints->GetValue(i++);
+    }
+  else
+    {
+    end = nPoints;
+    }
+  vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+
+  // Initialize our min/max
+  bounds[0] = bounds[1] = pts[start].X();
+  bounds[2] = bounds[3] = pts[start++].Y();
+
+  while (start < nPoints)
+    {
+    // Calculate the min/max in this range
+    while (start < end)
+      {
+      float x = pts[start].X();
+      float y = pts[start++].Y();
+      if (x < bounds[0])
+        {
+        bounds[0] = x;
+        }
+      else if (x > bounds[1])
+        {
+        bounds[1] = x;
+        }
+      if (y < bounds[2])
+        {
+        bounds[2] = y;
+        }
+      else if (y > bounds[3])
+        {
+        bounds[3] = y;
+        }
+      }
+    // Now figure out the next range
+    start = end + 1;
+    if (++i < nBad)
+      {
+      end = this->BadPoints->GetValue(i);
+      }
+    else
+      {
+      end = nPoints;
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
