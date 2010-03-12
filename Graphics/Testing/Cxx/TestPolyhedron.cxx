@@ -348,7 +348,13 @@ int TestPolyhedron( int argc, char* argv[] )
                       NULL, NULL, resultPolys, 
                       tetraGrid->GetPointData(), resultPd,
                       tetraGrid->GetCellData(), 0, resultCd);
-    
+  
+  // output the contour
+  vtkSmartPointer<vtkPolyData> contour = vtkSmartPointer<vtkPolyData>::New();
+  contour->SetPoints(locator->GetPoints());
+  contour->SetPolys(resultPolys);
+  contour->GetPointData()->DeepCopy(resultPd);;
+  
   // shrink to show the gaps between tetrahedrons.
   vtkSmartPointer<vtkShrinkFilter> shrink = 
     vtkSmartPointer<vtkShrinkFilter>::New();
@@ -364,14 +370,24 @@ int TestPolyhedron( int argc, char* argv[] )
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
+  vtkSmartPointer<vtkDataSetMapper> contourMapper = 
+    vtkSmartPointer<vtkDataSetMapper>::New();
+  contourMapper->SetInput(contour);
+
+  vtkSmartPointer<vtkActor> contourActor = 
+    vtkSmartPointer<vtkActor>::New();
+  contourActor->SetMapper(contourMapper);
+
   // Create rendering infrastructure
   vtkSmartPointer<vtkProperty> lightProp = vtkSmartPointer<vtkProperty>::New();
   lightProp->LightingOff();
   actor->SetProperty(lightProp);
+  contourActor->SetProperty(lightProp);
 
   vtkSmartPointer<vtkRenderer> ren = 
     vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
+  ren->AddActor(contourActor);
   ren->SetBackground(.5,.5,.5);
 
   vtkSmartPointer<vtkRenderWindow> renWin = 
