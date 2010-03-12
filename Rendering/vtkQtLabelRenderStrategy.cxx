@@ -45,7 +45,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.12");
+vtkCxxRevisionMacro(vtkQtLabelRenderStrategy, "1.13");
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
 struct vtkQtLabelMapEntry
@@ -431,6 +431,12 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   if (!QApplication::instance())
     {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
+    return;
+    }
+
+  if (!this->Renderer)
+    {
+    vtkErrorMacro("Renderer must be set.");
     return;
     }
 
