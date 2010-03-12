@@ -37,7 +37,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.23");
+vtkCxxRevisionMacro(vtkPlotLine, "1.24");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -65,6 +65,11 @@ vtkPlotLine::~vtkPlotLine()
     {
     this->Sorted->Delete();
     this->Sorted = NULL;
+    }
+  if (this->BadPoints)
+    {
+    this->BadPoints->Delete();
+    this->BadPoints = NULL;
     }
 }
 
