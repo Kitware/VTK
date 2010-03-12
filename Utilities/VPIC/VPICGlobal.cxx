@@ -380,7 +380,7 @@ void VPICGlobal::buildFileNames()
 
    // Names are T.time which is not 0 filled so we must sort
    sort(this->dumpTime.begin(), this->dumpTime.end());
-   this->numberOfTimeSteps = this->dumpTime.size();
+   this->numberOfTimeSteps = static_cast<int>(this->dumpTime.size());
 
    // Recompose the dump names using the sorted times
    for (int dump = 0; dump < this->numberOfTimeSteps; dump++) {
@@ -414,7 +414,7 @@ void VPICGlobal::buildFileNames()
    // Get the size of data per variable per part for calculating offsets
    tempStr << Slash << fieldName;
    FILE* filePtr = fopen(tempStr.str().c_str(), "r");
-   int headerSize = this->header.readHeader(filePtr);
+   this->header.readHeader(filePtr);
    this->numberOfFiles = this->header.getTotalRank();
    this->header.getGridSize(this->partSize);
    fclose(filePtr);
@@ -426,9 +426,9 @@ void VPICGlobal::buildFileNames()
    // fields.tttttt.pppp for instance
    //
    string::size_type ppos = fieldName.rfind(".");
-   this->procFieldLen = fieldName.size() - ppos - 1;
+   this->procFieldLen = static_cast<int>(fieldName.size() - ppos - 1);
    string::size_type tpos = fieldName.rfind(".", ppos-1);
-   this->timeFieldLen = fieldName.size() - tpos - this->procFieldLen - 2; 
+   this->timeFieldLen = static_cast<int>(fieldName.size() - tpos - this->procFieldLen - 2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -569,7 +569,7 @@ void VPICGlobal::addNewTimeSteps()
 
       // Names are T.time which is not 0 filled so we must sort
       sort(newTime.begin(), newTime.end());
-      this->numberOfTimeSteps = newTime.size();
+      this->numberOfTimeSteps = static_cast<int>(newTime.size());
 
       // Recompose the dump names using the sorted times
       for (int dump = 0; dump < this->numberOfTimeSteps; dump++) {
