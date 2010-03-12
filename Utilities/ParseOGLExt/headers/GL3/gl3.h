@@ -36,9 +36,9 @@ extern "C" {
  * will probably change slightly as we make sure exactly the right set
  * of interfaces is included.
  *
- * gl3.h last updated on $Date: 2010-03-12 02:31:52 $
+ * gl3.h last updated on $Date: 2010-03-12 02:32:53 $
  *
- * RELEASE NOTES - 2010/02/10
+ * RELEASE NOTES - 2010/03/11
  *
  * gl3.h should be placed under a directory 'GL3' and included as
  * '<GL3/gl3.h>'.
@@ -1325,7 +1325,6 @@ typedef void GLvoid;
 #endif
 
 #ifndef GL_ARB_draw_buffers_blend
-#define GL_@@@                            0x9110
 #endif
 
 #ifndef GL_ARB_sample_shading
