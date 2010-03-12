@@ -33,6 +33,7 @@ class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkFloatArray;
 class vtkStdString;
+class vtkMultiProcessController;
 //BTX
 class VPICDataSet;
 //ETX
@@ -118,6 +119,9 @@ protected:
   int ZExtent[2];                       // Subview extent in files
 
   vtkFloatArray** data;                 // Actual data arrays
+
+  // Controlls initializing and querrying MPI
+  vtkMultiProcessController * MPIController; 
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
