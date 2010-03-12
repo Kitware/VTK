@@ -160,7 +160,7 @@ public:
   // \pre bufferId_exists: bufferId!=0
   // \post started: GetBufferIdMode()
   virtual void BufferIdModeBegin(vtkContextBufferId *bufferId);
-  
+
   // Description:
   // Finalize BufferId creation Mode. It makes sure that the content of the
   // bufferId passed in argument of BufferIdModeBegin() is correctly set.
@@ -168,7 +168,7 @@ public:
   // \pre started: GetBufferIdMode()
   // \post done: !GetBufferIdMode()
   virtual void BufferIdModeEnd();
-  
+
   // Description:
   // Force the use of the freetype based render strategy. If Qt is available
   // then freetype will be used preferentially, otherwise this has no effect.
@@ -231,11 +231,6 @@ protected:
   // Load the OpenGL extensions we need.
   bool LoadExtensions(vtkOpenGLExtensionManager *m);
 
-  int BufferIdModeSavedDrawBuffer; // GLint
-  float BufferIdModeSavedClearColor[4]; // GLint
-  bool BufferIdModeSavedLighting; // GLboolean
-  bool BufferIdModeSavedDepthTest; // GLboolean
-  
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.
   void operator=(const vtkOpenGLContextDevice2D &);   // Not implemented.

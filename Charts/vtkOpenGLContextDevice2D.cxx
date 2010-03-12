@@ -51,30 +51,102 @@ class vtkOpenGLContextDevice2D::Private
 public:
   Private()
   {
-    this->texture = NULL;
-    this->lightingEnabled = GL_TRUE;
-    this->depthTestEnabled = GL_TRUE;
+    this->Texture = NULL;
+    this->SavedLighting = GL_TRUE;
+    this->SavedDepthTest = GL_TRUE;
+    this->SavedAlphaTest = GL_TRUE;
+    this->SavedStencilTest = GL_TRUE;
+    this->SavedBlend = GL_TRUE;
+    this->SavedDrawBuffer = 0;
+    this->SavedClearColor[0] = this->SavedClearColor[1] =
+                               this->SavedClearColor[2] =
+                               this->SavedClearColor[3] = 0.0f;
     this->TextCounter = 0;
   }
+
   ~Private()
   {
-    if (this->texture)
+    if (this->Texture)
       {
-      this->texture->Delete();
-      this->texture = NULL;
+      this->Texture->Delete();
+      this->Texture = NULL;
       }
   }
 
-  vtkTexture *texture;
+  void SaveGLState(bool colorBuffer = false)
+  {
+    this->SavedLighting = glIsEnabled(GL_LIGHTING);
+    this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
+
+    if (colorBuffer)
+      {
+      this->SavedAlphaTest = glIsEnabled(GL_ALPHA_TEST);
+      this->SavedStencilTest = glIsEnabled(GL_STENCIL_TEST);
+      this->SavedBlend = glIsEnabled(GL_BLEND);
+      glGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
+      glGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
+      }
+  }
+
+  void RestoreGLState(bool colorBuffer = false)
+  {
+    this->SetGLCapability(GL_LIGHTING, this->SavedLighting);
+    this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
+
+    if (colorBuffer)
+      {
+      this->SetGLCapability(GL_ALPHA_TEST, this->SavedAlphaTest);
+      this->SetGLCapability(GL_STENCIL_TEST, this->SavedStencilTest);
+      this->SetGLCapability(GL_BLEND, this->SavedBlend);
+
+      if(this->SavedDrawBuffer != GL_BACK_LEFT)
+        {
+        glDrawBuffer(this->SavedDrawBuffer);
+        }
+
+      int i = 0;
+      bool colorDiffer = false;
+      while(!colorDiffer && i < 4)
+        {
+        colorDiffer=this->SavedClearColor[i++] != 0.0;
+        }
+      if(colorDiffer)
+        {
+        glClearColor(this->SavedClearColor[0],
+                     this->SavedClearColor[1],
+                     this->SavedClearColor[2],
+                     this->SavedClearColor[3]);
+        }
+      }
+  }
+
+  void SetGLCapability(GLenum capability, GLboolean state)
+  {
+    if (state)
+      {
+      glEnable(capability);
+      }
+    else
+      {
+      glDisable(capability);
+      }
+  }
+
+  vtkTexture *Texture;
   // Store the previous GL state so that we can restore it when complete
-  GLboolean lightingEnabled;
-  GLboolean depthTestEnabled;
+  GLboolean SavedLighting;
+  GLboolean SavedDepthTest;
+  GLboolean SavedAlphaTest;
+  GLboolean SavedStencilTest;
+  GLboolean SavedBlend;
+  GLint SavedDrawBuffer;
+  GLfloat SavedClearColor[4];
 
   int TextCounter;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.19");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.20");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -123,14 +195,13 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   glOrtho( 0.5, size[0]+0.5,
            0.5, size[1]+0.5,
           -1, 1);
-  
+
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
 
   // Store the previous state before changing it
-  this->Storage->lightingEnabled = glIsEnabled(GL_LIGHTING);
-  this->Storage->depthTestEnabled = glIsEnabled(GL_DEPTH_TEST);
+  this->Storage->SaveGLState();
   glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
 
@@ -191,14 +262,7 @@ void vtkOpenGLContextDevice2D::End()
   glPopMatrix();
 
   // Restore the GL state that we changed
-  if (this->Storage->lightingEnabled)
-    {
-    glEnable(GL_LIGHTING);
-    }
-  if (this->Storage->depthTestEnabled)
-    {
-    glEnable(GL_DEPTH_TEST);
-    }
+  this->Storage->RestoreGLState();
 
   this->InRender = false;
 
@@ -210,30 +274,16 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
   assert("pre: bufferId_exists" && bufferId!=0);
-  
+
   this->BufferId=bufferId;
-  
+
   // Save OpenGL state.
-  GLint drawBuffer;
-  glGetIntegerv(GL_DRAW_BUFFER,&drawBuffer);
-  this->BufferIdModeSavedDrawBuffer=static_cast<int>(drawBuffer);
-  
-  GLfloat clearColor[4];
-  glGetFloatv(GL_COLOR_CLEAR_VALUE,clearColor);
-  int i=0;
-  while(i<4)
-    {
-    this->BufferIdModeSavedClearColor[i]=static_cast<float>(clearColor[i]);
-    ++i;
-    }
-  this->BufferIdModeSavedLighting=glIsEnabled(GL_LIGHTING)==GL_TRUE;
-  this->BufferIdModeSavedDepthTest=glIsEnabled(GL_DEPTH_TEST)==GL_TRUE;
-  
-  
+  this->Storage->SaveGLState(true);
+
   int lowerLeft[2];
   int usize, vsize;
   this->Renderer->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
-  
+
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -243,7 +293,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  
+
   glDrawBuffer(GL_BACK_LEFT);
   glClearColor(0.0,0.0,0.0,0.0); // id=0 means no hit, just background
   glClear(GL_COLOR_BUFFER_BIT);
@@ -252,30 +302,33 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
   glDisable(GL_STENCIL_TEST);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_BLEND);
-  
+
+  this->TextRenderer->SetRenderer(this->Renderer);
+  this->IsTextDrawn = false;
+
   assert("post: started" && this->GetBufferIdMode());
 }
-  
+
 // ----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::BufferIdModeEnd()
 {
   assert("pre: started" && this->GetBufferIdMode());
-  
+
   GLint savedReadBuffer;
   glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
-  
+
   glReadBuffer(GL_BACK_LEFT);
-  
+
   // Assume the renderer has been set previously during rendering (sse Begin())
   int lowerLeft[2];
   int usize, vsize;
   this->Renderer->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
-  
+
   // Expensive call here (memory allocation)
   unsigned char *rgb=new unsigned char[usize*vsize*3];
-  
+
   glPixelStorei(GL_PACK_ALIGNMENT,1);
-  
+
   // Expensive call here (memory transfer, blocking)
   glReadPixels(lowerLeft[0],lowerLeft[1],usize,vsize,GL_RGB,GL_UNSIGNED_BYTE,
                rgb);
@@ -285,7 +338,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
   // 1. we don't know if the host system is little or big endian.
   // 2. we have rgb, not rgba. if we try to grab rgba and there is not
   // alpha comment, it would be set to 1.0 (255, 0xff). we don't want that.
-  
+
   // Expensive iteration.
   vtkIdType i=0;
   vtkIdType s=usize*vsize;
@@ -297,48 +350,25 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
     this->BufferId->SetValue(i,value);
     ++i;
     }
-  
+
   delete[] rgb;
-  
+
   // Restore OpenGL state (only if it's different to avoid too much state
   // change).
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-  
+
+  this->TextRenderer->SetRenderer(0);
+
   if(savedReadBuffer!=GL_BACK_LEFT)
     {
     glReadBuffer(savedReadBuffer);
     }
-  if(this->BufferIdModeSavedDrawBuffer!=GL_BACK_LEFT)
-    {
-    glDrawBuffer(this->BufferIdModeSavedDrawBuffer);
-    }
-  
-  i=0;
-  bool colorDiffer=false;
-  while(!colorDiffer && i<4)
-    {
-    colorDiffer=this->BufferIdModeSavedClearColor[i]!=0.0;
-    ++i;
-    }
-  if(colorDiffer)
-    {
-    glClearColor(this->BufferIdModeSavedClearColor[0],
-                 this->BufferIdModeSavedClearColor[1],
-                 this->BufferIdModeSavedClearColor[2],
-                 this->BufferIdModeSavedClearColor[3]);
-    }
-  if(this->BufferIdModeSavedLighting)
-    {
-    glEnable(GL_LIGHTING);
-    }
-  if(this->BufferIdModeSavedDepthTest)
-    {
-    glEnable(GL_DEPTH_TEST);
-    }
-  
+
+  this->Storage->RestoreGLState(true);
+
   this->BufferId=0;
   assert("post: done" && !this->GetBufferIdMode());
 }
@@ -364,9 +394,9 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
 {
   if (f && n > 0)
     {
-    if (this->Storage->texture)
+    if (this->Storage->Texture)
       {
-      this->Storage->texture->Render(this->Renderer);
+      this->Storage->Texture->Render(this->Renderer);
       glEnable(vtkgl::POINT_SPRITE);
       glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_TRUE);
       vtkgl::PointParameteri(vtkgl::POINT_SPRITE_COORD_ORIGIN, vtkgl::LOWER_LEFT);
@@ -377,11 +407,11 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
     glDrawArrays(GL_POINTS, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    if (this->Storage->texture)
+    if (this->Storage->Texture)
       {
       glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_FALSE);
       glDisable(vtkgl::POINT_SPRITE);
-      this->Storage->texture->PostRender(this->Renderer);
+      this->Storage->Texture->PostRender(this->Renderer);
       glDisable(GL_TEXTURE_2D);
       }
     }
@@ -618,8 +648,8 @@ void vtkOpenGLContextDevice2D::DrawImage(float *p, int, vtkImageData *image)
 //-----------------------------------------------------------------------------
 unsigned int vtkOpenGLContextDevice2D::AddPointSprite(vtkImageData *image)
 {
-  this->Storage->texture = vtkTexture::New();
-  this->Storage->texture->SetInput(image);
+  this->Storage->Texture = vtkTexture::New();
+  this->Storage->Texture->SetInput(image);
   return 0;
 }
 
@@ -782,9 +812,9 @@ bool vtkOpenGLContextDevice2D::SetStringRendererToQt()
 void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
 {
   this->TextRenderer->ReleaseGraphicsResources(window);
-  if (this->Storage->texture)
+  if (this->Storage->Texture)
     {
-    this->Storage->texture->ReleaseGraphicsResources(window);
+    this->Storage->Texture->ReleaseGraphicsResources(window);
     }
 }
 
