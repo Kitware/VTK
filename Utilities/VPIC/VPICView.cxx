@@ -180,7 +180,7 @@ void VPICView::partitionFiles()
          }
       }
    }
-   this->numberOfMyParts = this->myParts.size();
+   this->numberOfMyParts = static_cast<int>(this->myParts.size());
    delete [] partFileNames;
 }
 
@@ -451,7 +451,7 @@ void VPICView::loadVariableData(
    // Read the variable data from file and store into overall var_array
    // Load the appropriate part of the data from the part
 
-   long int offset = this->global.getVariableOffset(var, comp);
+   // long int offset = this->global.getVariableOffset(var, comp); not used?
 
    for (int part = 0; part < this->numberOfMyParts; part++) {
       this->myParts[part]->loadVariableData(
@@ -621,7 +621,7 @@ void VPICView::setStride(int s[])
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void VPICView::PrintSelf(ostream& os, int indent)
+void VPICView::PrintSelf(ostream& os, int vpicNotUsed(indent))
 {
    if (this->rank == 0) {
       os << endl;

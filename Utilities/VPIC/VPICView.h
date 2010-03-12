@@ -114,6 +114,9 @@ private:
 
    vector<VPICPart*> myParts;           // Every VPICPart this processor handles
    int numberOfMyParts;
+
+  VPICView(const VPICView&);  // Not implemented.
+  void operator=(const VPICView&);  // Not implemented.
 };
 
 #endif
