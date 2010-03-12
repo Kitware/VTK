@@ -37,7 +37,6 @@
 #include "vtkTableToTreeFilter.h"
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
-#include "vtkTreeMapViewer.h"
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
