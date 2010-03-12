@@ -23,7 +23,7 @@
 #include "vtkContextScene.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.6");
+vtkCxxRevisionMacro(vtkPanelMark, "1.7");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
@@ -131,8 +131,6 @@ void vtkPanelMark::UpdateBufferId()
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
     
-    vtkIdType size=width*height;
-    
     this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
     this->Scene->GetLastPainter()->BufferIdModeEnd();
@@ -152,7 +150,8 @@ vtkIdType vtkPanelMark::GetPickedItem(int x, int y)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkPanelMark::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkPanelMark::MouseEnterEvent(const vtkContextMouseEvent &
+                                   vtkNotUsed(mouse))
 {
   this->MouseOver=true;
   return false;
@@ -200,7 +199,8 @@ bool vtkPanelMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkPanelMark::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkPanelMark::MouseLeaveEvent(const vtkContextMouseEvent &
+                                   vtkNotUsed(mouse))
 {
   this->MouseOver=false;
   return false;
