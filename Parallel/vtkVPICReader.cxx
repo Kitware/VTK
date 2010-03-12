@@ -35,7 +35,7 @@
 #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.3");
+vtkCxxRevisionMacro(vtkVPICReader, "1.4");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------
@@ -80,6 +80,10 @@ vtkVPICReader::~vtkVPICReader()
     delete [] this->FileName;
     }
   this->PointDataArraySelection->Delete();
+  for (int var = 0; var < this->NumberOfVariables; var++) {
+      this->data[var]->Delete();
+    }
+  this->SelectionObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
