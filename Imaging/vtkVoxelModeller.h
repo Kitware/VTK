@@ -47,21 +47,20 @@ public:
 
   // Description:
   // Set the i-j-k dimensions on which to sample the distance function.
+  // Default is (50, 50, 50)
   void SetSampleDimensions(int i, int j, int k);
-
-  // Description:
-  // Set the i-j-k dimensions on which to sample the distance function.
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
   // Specify distance away from surface of input geometry to sample. Smaller
-  // values make large increases in performance.
+  // values make large increases in performance. Default is 1.0.
   vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
   vtkGetMacro(MaximumDistance,double);
 
   // Description:
   // Specify the position in space to perform the voxelization.
+  // Default is (0, 0, 0, 0, 0, 0)
   void SetModelBounds(double bounds[6]);
   void SetModelBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   vtkGetVectorMacro(ModelBounds,double,6);
