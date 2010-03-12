@@ -82,7 +82,7 @@ void VPICDataSet::setView(int* xExtent, int* yExtent, int* zExtent)
             return;
 
    // Fetch the global information about the problem size and decomposition
-   // int* layoutSize = this->global.getLayoutSize(); not used?
+   int* layoutSize = this->global.getLayoutSize();
    int*** layoutID = this->global.getLayoutID();
    int* partSize = this->global.getPartSize();
    float* origin = this->global.getPhysicalOrigin();

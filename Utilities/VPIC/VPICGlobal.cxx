@@ -337,7 +337,7 @@ void VPICGlobal::buildFileNames()
    this->baseFileName = new string[this->numberOfDirectories];
 
    // From the full path name of the .vpc file find the directory name
-   string::size_type dirPos = this->globalFile.rfind("\\");
+   string::size_type dirPos = this->globalFile.rfind(Slash);
    if (dirPos == string::npos) {
       cout << "Bad input file name " << this->globalFile << endl;
       exit(1);
@@ -414,7 +414,7 @@ void VPICGlobal::buildFileNames()
    // Get the size of data per variable per part for calculating offsets
    tempStr << Slash << fieldName;
    FILE* filePtr = fopen(tempStr.str().c_str(), "r");
-   //int headerSize = this->header.readHeader(filePtr); not used?
+   int headerSize = this->header.readHeader(filePtr);
    this->numberOfFiles = this->header.getTotalRank();
    this->header.getGridSize(this->partSize);
    fclose(filePtr);
@@ -554,7 +554,7 @@ void VPICGlobal::addNewTimeSteps()
          if (fileName[0] == 'T') {
             istringstream timeStr(fileName);
             timeStr >> dummy >> dummy >> dtime;
-            this->dumpTime.push_back(dtime);
+            newTime.push_back(dtime);
          }
       }
    }

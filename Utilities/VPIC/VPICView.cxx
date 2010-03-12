@@ -451,7 +451,7 @@ void VPICView::loadVariableData(
    // Read the variable data from file and store into overall var_array
    // Load the appropriate part of the data from the part
 
-   // long int offset = this->global.getVariableOffset(var, comp); not used?
+   long int offset = this->global.getVariableOffset(var, comp);
 
    for (int part = 0; part < this->numberOfMyParts; part++) {
       this->myParts[part]->loadVariableData(
@@ -624,8 +624,8 @@ void VPICView::setStride(int s[])
 void VPICView::PrintSelf(ostream& os, int indent)
 {
    if (this->rank == 0) {
-      os << indent << endl;
-      os << indent << "Stride: [" << this->stride[0] << "," << this->stride[1] << ","
+      os << endl;
+      os << "Stride: [" << this->stride[0] << "," << this->stride[1] << ","
                         << this->stride[2] << "]" << endl << endl;
    }
 }

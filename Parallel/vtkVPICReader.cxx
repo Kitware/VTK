@@ -35,7 +35,7 @@
 #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.4");
+vtkCxxRevisionMacro(vtkVPICReader, "1.5");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------
@@ -351,7 +351,7 @@ int vtkVPICReader::RequestData(
 void vtkVPICReader::LoadVariableData(int var, int timeStep)
 {
   // First set the number of components for this variable
-  int numberOfComponents;
+  int numberOfComponents = 0;
   if (this->VariableStruct[var] == SCALAR) {
     numberOfComponents = 1;
     this->data[var]->SetNumberOfComponents(numberOfComponents);
@@ -456,8 +456,8 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 }
 
 //----------------------------------------------------------------------------
-void vtkVPICReader::SelectionCallback(vtkObject*, unsigned long eventid,
-                                      void* clientdata, void* calldata)
+void vtkVPICReader::SelectionCallback(vtkObject*, unsigned long vtkNotUsed(eventid),
+                                      void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkVPICReader*>(clientdata)->Modified();
 }
