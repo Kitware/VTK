@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.36");
+vtkCxxRevisionMacro(vtkRenderView, "1.37");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -366,7 +366,6 @@ void vtkRenderView::ProcessEvents(
     // vtkExecutionScheduler. We want to automatically render the view
     // when one of our representations is updated.
     vtkDebugMacro("push pipeline causing a render event");
-    this->ResetCamera();
     this->Render();
     }
   else if (caller == this->GetInteractorStyle() &&
