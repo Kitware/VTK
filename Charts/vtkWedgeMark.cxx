@@ -32,7 +32,7 @@ vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.6");
+vtkCxxRevisionMacro(vtkWedgeMark, "1.7");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------
@@ -91,8 +91,6 @@ void vtkWedgeMark::UpdateBufferId()
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
     
-    vtkIdType size=width*height;
-    
     this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
     this->Scene->GetLastPainter()->BufferIdModeEnd();
@@ -112,7 +110,8 @@ vtkIdType vtkWedgeMark::GetPickedItem(int x, int y)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkWedgeMark::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkWedgeMark::MouseEnterEvent(const vtkContextMouseEvent &
+                                   vtkNotUsed(mouse))
 {
   this->MouseOver=true;
   return false;
@@ -142,12 +141,12 @@ bool vtkWedgeMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
         {
         if(this->ActiveItem!=-1)
           {
-          this->MouseLeaveEventOnSector(mouse,this->ActiveItem);
+          this->MouseLeaveEventOnSector(this->ActiveItem);
           }
         this->ActiveItem=pickedItem;
         if(this->ActiveItem!=-1)
           {
-          this->MouseEnterEventOnSector(mouse,this->ActiveItem);
+          this->MouseEnterEventOnSector(this->ActiveItem);
           }
         }
       }
@@ -157,22 +156,21 @@ bool vtkWedgeMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkWedgeMark::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkWedgeMark::MouseLeaveEvent(const vtkContextMouseEvent &
+                                   vtkNotUsed(mouse))
 {
   this->MouseOver=false;
   return false;
 }
 
 // ----------------------------------------------------------------------------
-void vtkWedgeMark::MouseEnterEventOnSector(const vtkContextMouseEvent &mouse,
-                                           int sector)
+void vtkWedgeMark::MouseEnterEventOnSector(int sector)
 {
   this->InvokeEvent(vtkCommand::EnterEvent,&sector);
 }
 
 // ----------------------------------------------------------------------------
-void vtkWedgeMark::MouseLeaveEventOnSector(const vtkContextMouseEvent &mouse,
-                                           int sector)
+void vtkWedgeMark::MouseLeaveEventOnSector(int sector)
 {
   this->InvokeEvent(vtkCommand::LeaveEvent,&sector);
 }

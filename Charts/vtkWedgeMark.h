@@ -170,10 +170,13 @@ public:
   // propagated to other items.
   virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
   
-  void MouseEnterEventOnSector(const vtkContextMouseEvent &mouse,
-                               int sector);
-  void MouseLeaveEventOnSector(const vtkContextMouseEvent &mouse,
-                               int sector);
+  // Description:
+  // Mouse enter event on a specific sector of the wedge.
+  void MouseEnterEventOnSector(int sector);
+  
+  // Description:
+  // Mouse leave event on a specific sector of the wedge.
+  void MouseLeaveEventOnSector(int sector);
   
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
