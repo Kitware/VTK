@@ -67,7 +67,7 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
     return d.GetValue().ToDouble()*360.0;
   }
   
-  double LeftFunction(vtkMark *m, vtkDataElement& d)
+  double LeftFunction(vtkMark *m, vtkDataElement& vtkNotUsed(d))
   {
     vtkIdType i=m->GetIndex();
     
@@ -90,7 +90,7 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
     vtkIdType o=static_cast<vtkIdType>(m->GetUserVariable("o").GetConstant());
     return 175.0+cos(vtkMath::RadiansFromDegrees(a0+angle[i]/2))*(o==i ? 10 : 0);
   }
-  double BottomFunction(vtkMark *m, vtkDataElement& d)
+  double BottomFunction(vtkMark *m, vtkDataElement& vtkNotUsed(d))
   {
     vtkIdType i=m->GetIndex();
     
@@ -126,7 +126,7 @@ public:
     {
       return new MyCommand;
     }
-  void Execute(vtkObject *caller, unsigned long eventId, 
+  void Execute(vtkObject *caller, unsigned long vtkNotUsed(eventId), 
                void *callData)
     {
       assert("pre: callData_exists" && callData!=0);
