@@ -54,13 +54,14 @@ public:
 
   // Description:
   // Get/Set if log scale must be used while mapping scalars
-  // to colors.
+  // to colors. The default is 0.
   virtual void SetUseLogScale(int useLogScale);
   vtkGetMacro(UseLogScale, int);
 
   // Description:
   // Set the number of values i.e. colors to be generated in the
   // discrete lookup table. This has no effect if Discretize is off.
+  // The default is 256.
   void SetNumberOfValues(vtkIdType number);
   vtkGetMacro(NumberOfValues, vtkIdType);
 
