@@ -35,7 +35,7 @@
 #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.2");
+vtkCxxRevisionMacro(vtkVPICReader, "1.3");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------
@@ -518,14 +518,15 @@ void vtkVPICReader::SetPointArrayStatus(const char* name, int status)
 
 void vtkVPICReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Stride: " << this->Stride;
-  os << indent << "FileName: " << this->FileName;
-  os << indent << "XLayout: " << this->XLayout;
-  os << indent << "YLayout: " << this->YLayout;
-  os << indent << "ZLayout: " << this->ZLayout;
-  os << indent << "XExtent: " << this->XExtent;
-  os << indent << "YExtent: " << this->YExtent;
-  os << indent << "ZExtent: " << this->ZExtent;
+  os << indent << "FileName: " << (this->FileName != NULL ? this->FileName : "") << endl;
+  os << indent << "Stride: {" << this->Stride[0] << ", " << this->Stride[1] 
+     << ", " << this->Stride[2] << "}" << endl;
+  os << indent << "XLayout: {" << this->XLayout[0] << ", " << this->XLayout[1] << "}" << endl;
+  os << indent << "YLayout: {" << this->YLayout[0] << ", " << this->YLayout[1] << "}" << endl;
+  os << indent << "ZLayout: {" << this->ZLayout[0] << ", " << this->ZLayout[1] << "}" << endl;
+  os << indent << "XExtent: {" << this->XExtent[0] << ", " << this->XExtent[1] << "}" << endl;
+  os << indent << "YExtent: {" << this->YExtent[0] << ", " << this->YExtent[1] << "}" << endl;
+  os << indent << "ZExtent: {" << this->ZExtent[0] << ", " << this->ZExtent[1] << "}" << endl;
 
   this->Superclass::PrintSelf(os, indent);
 }
