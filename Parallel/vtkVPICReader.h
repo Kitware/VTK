@@ -131,7 +131,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
+  int RequestInformation(vtkInformation *, vtkInformationVector **inVector,
                          vtkInformationVector *);
 
   void LoadVariableData(int var, int timeStep);

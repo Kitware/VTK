@@ -33,7 +33,7 @@
 
 #include "VPICDataSet.h"
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.7");
+vtkCxxRevisionMacro(vtkVPICReader, "1.8");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------
@@ -86,18 +86,18 @@ vtkVPICReader::~vtkVPICReader()
       this->data[var]->Delete();
     }
   this->SelectionObserver->Delete();
-  if(this->MPIController)
-    {
-    this->MPIController->Delete();
-    }
+
+  // Do not delete the MPIController it is Singleton like and will
+  // cleanup itself;
+  this->MPIController = NULL;
 }
 
 //----------------------------------------------------------------------------
 // Verify that the file exists
 //----------------------------------------------------------------------------
 int vtkVPICReader::RequestInformation(
-  vtkInformation *reqInfo,
-  vtkInformationVector **inVector,
+  vtkInformation *vtkNotUsed(reqInfo),
+  vtkInformationVector **vtkNotUsed(inVector),
   vtkInformationVector *outVector)
 { 
   // Verify that file exists
