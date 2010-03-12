@@ -33,7 +33,7 @@
 
 #include "VPICDataSet.h"
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.6");
+vtkCxxRevisionMacro(vtkVPICReader, "1.7");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------
@@ -86,6 +86,10 @@ vtkVPICReader::~vtkVPICReader()
       this->data[var]->Delete();
     }
   this->SelectionObserver->Delete();
+  if(this->MPIController)
+    {
+    this->MPIController->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
