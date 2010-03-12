@@ -77,7 +77,7 @@ public:
 
    int  getNumberOfCells()      { return this->numberOfCells; }
    int  getNumberOfNodes()      { return this->numberOfNodes; }
-   size_t  getNumberOfParts()      { return this->numberOfMyParts; }
+   int  getNumberOfParts()      { return this->numberOfMyParts; }
 
 private:
    VPICGlobal& global;                  // Common information for overall data
@@ -113,9 +113,7 @@ private:
    int partSize[DIMENSION];             // # of grids in each dim per part
 
    vector<VPICPart*> myParts;           // Every VPICPart this processor handles
-   size_t numberOfMyParts;
-
-   void operator=(const VPICView&);  // Not implemented.
+   int numberOfMyParts;
 };
 
 #endif

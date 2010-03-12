@@ -58,15 +58,15 @@ public:
    int    getNumberOfParts()            { return this->numberOfFiles; }
 
    int    getNumberOfDirectories()      { return this->numberOfDirectories; }
-   size_t getNumberOfTimeSteps()        { return this->numberOfTimeSteps; }
+   int    getNumberOfTimeSteps()        { return this->numberOfTimeSteps; }
 
    string getDirectoryName(int i)       { return this->directoryName[i]; }
    string getBaseFileName(int i)        { return this->baseFileName[i]; }
    string getDumpName(int time)         { return this->dumpName[time]; }
    int    getDumpTime(int time)         { return this->dumpTime[time]; }
 
-   size_t getTimeFieldLen()             { return this->timeFieldLen; }
-   size_t getProcFieldLen()             { return this->procFieldLen; }
+   int    getTimeFieldLen()             { return this->timeFieldLen; }
+   int    getProcFieldLen()             { return this->procFieldLen; }
 
    // Grid and physical grid information
    float* getPhysicalOrigin()           { return this->physicalOrigin; }
@@ -117,11 +117,11 @@ private:
    int**    speciesByteCount;           // Bytes per basic type
 
    // Time information
-   size_t      numberOfTimeSteps;          // Number of time steps
+   int      numberOfTimeSteps;          // Number of time steps
    vector<string> dumpName;             // Dump subdirectory names
    vector<int>    dumpTime;             // Dump subdirectory times
-   size_t      procFieldLen;               // fields.tttttt.pppp part names
-   size_t      timeFieldLen;               // fields.tttttt.pppp part names
+   int      procFieldLen;               // fields.tttttt.pppp part names
+   int      timeFieldLen;               // fields.tttttt.pppp part names
 
    // Variable information
    int      numberOfVariables;          // All field and species variables

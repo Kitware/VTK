@@ -474,8 +474,8 @@ void VPICView::loadVariableData(
 
 void VPICView::getPartFileNames(string* partFileName, int timeStep, int part)
 {
-   size_t timeFieldLen = this->global.getTimeFieldLen();
-   size_t procFieldLen = this->global.getProcFieldLen();
+   int timeFieldLen = this->global.getTimeFieldLen();
+   int procFieldLen = this->global.getProcFieldLen();
    int dumpTime = this->global.getDumpTime(timeStep);
    string dumpName = this->global.getDumpName(timeStep);
 

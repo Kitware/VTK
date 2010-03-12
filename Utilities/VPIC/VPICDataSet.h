@@ -54,7 +54,7 @@ public:
    // Global common information
    int  getNumberOfParts()      { return this->global.getNumberOfParts(); }
 
-   size_t  getNumberOfTimeSteps()  { return this->global.getNumberOfTimeSteps(); }
+   int  getNumberOfTimeSteps()  { return this->global.getNumberOfTimeSteps(); }
    int  getTimeStep(int dump)   { return this->global.getDumpTime(dump); }
 
    int  getNumberOfVariables()  { return this->global.getNumberOfVariables(); }
