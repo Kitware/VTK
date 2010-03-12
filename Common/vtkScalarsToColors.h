@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkScalarsToColors - map scalar values into colors
+// .NAME vtkScalarsToColors - Superclass for mapping scalar values into 
+//  colors
 // .SECTION Description
 // vtkScalarsToColors is a general purpose superclass for objects that
 // convert scalars to colors. This include vtkLookupTable classes and
