@@ -18,19 +18,29 @@
 #include "vtkContext2D.h"
 #include "vtkObjectFactory.h"
 #include "vtkTransform2D.h"
+#include <cassert>
+#include "vtkContextBufferId.h"
+#include "vtkContextScene.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.5");
+vtkCxxRevisionMacro(vtkPanelMark, "1.6");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
 vtkPanelMark::vtkPanelMark()
 {
+  this->BufferId=0;
+  this->MouseOver=false;
+  this->ActiveItem=-1;
 }
 
 //-----------------------------------------------------------------------------
 vtkPanelMark::~vtkPanelMark()
 {
+  if(this->BufferId!=0)
+    {
+    this->BufferId->Delete();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -44,6 +54,7 @@ vtkMark* vtkPanelMark::Add(int type)
     }
   this->Marks.push_back(m);
   m->SetParent(this);
+  m->SetScene(this->Scene);
   return m;
 }
 
@@ -82,6 +93,119 @@ void vtkPanelMark::Update()
     }
 }
 
+//-----------------------------------------------------------------------------
+void vtkPanelMark::PaintIds()
+{
+  vtkDebugMacro("PaintId called.");
+  size_t size = this->Marks.size();
+  
+  if(size>16777214) // 24-bit limit, 0 reserved for background encoding.
+    {
+    vtkWarningMacro(<<"picking will not work properly as there are two many items. Items over 16777214 will be ignored.");
+    size=16777214;
+    }
+  for (size_t i = 0; i < size; ++i)
+    {
+    this->Scene->GetLastPainter()->SetTransform(this->GetTransform());
+    this->Scene->GetLastPainter()->ApplyId(i+1);
+    this->Marks[i]->Paint(this->Scene->GetLastPainter());
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkPanelMark::UpdateBufferId()
+{
+  vtkContextBufferId *bi=this->Scene->GetBufferId();
+  
+  int width=bi->GetWidth();
+  int height=bi->GetHeight();
+  
+  if(this->BufferId==0 || width!=this->BufferId->GetWidth() ||
+     height!=this->BufferId->GetHeight())
+    {
+    if(this->BufferId==0)
+      {
+      this->BufferId=vtkContextBufferId::New();
+      }
+    this->BufferId->SetWidth(width);
+    this->BufferId->SetHeight(height);
+    this->BufferId->Allocate();
+    
+    vtkIdType size=width*height;
+    
+    this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
+    this->PaintIds();
+    this->Scene->GetLastPainter()->BufferIdModeEnd();
+    }
+}
+
+// ----------------------------------------------------------------------------
+vtkIdType vtkPanelMark::GetPickedItem(int x, int y)
+{
+  this->UpdateBufferId();
+  
+  vtkIdType result=this->BufferId->GetPickedItem(x,y);
+  
+  assert("post: valid_result" && result>=-1 &&
+         result<static_cast<vtkIdType>(this->Marks.size()));
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkPanelMark::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+{
+  this->MouseOver=true;
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkPanelMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  bool result=false;
+  
+  // we can have this->MouseOver false if the enter event have been caught
+  // previously by another context item.
+  
+  if(this->MouseOver)
+    {
+    vtkIdType numMarks=static_cast<vtkIdType>(this->Marks.size());
+    if(numMarks!=0)
+      {
+      vtkIdType pickedItem=this->GetPickedItem(mouse.ScreenPos[0],
+                                               mouse.ScreenPos[1]);
+      
+      if(this->ActiveItem!=pickedItem)
+        {
+        if(this->ActiveItem!=-1)
+          {
+          this->Marks[this->ActiveItem]->MouseLeaveEvent(mouse);
+          }
+        this->ActiveItem=pickedItem;
+        if(this->ActiveItem!=-1)
+          {
+          this->Marks[this->ActiveItem]->MouseEnterEvent(mouse);
+          }
+        }
+      
+      // propagate mouse move events
+      size_t size = this->Marks.size();
+      for (size_t i = 0; i < size; ++i)
+        {
+        this->Marks[i]->MouseMoveEvent(mouse);
+        }
+      }
+    }
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkPanelMark::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+{
+  this->MouseOver=false;
+  return false;
+}
+  
 // ----------------------------------------------------------------------------
 bool vtkPanelMark::Hit(const vtkContextMouseEvent &mouse)
 { 

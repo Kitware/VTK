@@ -43,6 +43,7 @@
 #include "vtkgl.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkContextBufferId.h"
 
 //-----------------------------------------------------------------------------
 class vtkOpenGLContextDevice2D::Private
@@ -73,7 +74,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.19");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -122,7 +123,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   glOrtho( 0.5, size[0]+0.5,
            0.5, size[1]+0.5,
           -1, 1);
-
+  
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
@@ -202,6 +203,144 @@ void vtkOpenGLContextDevice2D::End()
   this->InRender = false;
 
   this->Modified();
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
+{
+  assert("pre: not_yet" && !this->GetBufferIdMode());
+  assert("pre: bufferId_exists" && bufferId!=0);
+  
+  this->BufferId=bufferId;
+  
+  // Save OpenGL state.
+  GLint drawBuffer;
+  glGetIntegerv(GL_DRAW_BUFFER,&drawBuffer);
+  this->BufferIdModeSavedDrawBuffer=static_cast<int>(drawBuffer);
+  
+  GLfloat clearColor[4];
+  glGetFloatv(GL_COLOR_CLEAR_VALUE,clearColor);
+  int i=0;
+  while(i<4)
+    {
+    this->BufferIdModeSavedClearColor[i]=static_cast<float>(clearColor[i]);
+    ++i;
+    }
+  this->BufferIdModeSavedLighting=glIsEnabled(GL_LIGHTING)==GL_TRUE;
+  this->BufferIdModeSavedDepthTest=glIsEnabled(GL_DEPTH_TEST)==GL_TRUE;
+  
+  
+  int lowerLeft[2];
+  int usize, vsize;
+  this->Renderer->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
+  
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho( 0.5, usize+0.5,
+           0.5, vsize+0.5,
+          -1, 1);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  
+  glDrawBuffer(GL_BACK_LEFT);
+  glClearColor(0.0,0.0,0.0,0.0); // id=0 means no hit, just background
+  glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_ALPHA_TEST);
+  glDisable(GL_STENCIL_TEST);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
+  
+  assert("post: started" && this->GetBufferIdMode());
+}
+  
+// ----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::BufferIdModeEnd()
+{
+  assert("pre: started" && this->GetBufferIdMode());
+  
+  GLint savedReadBuffer;
+  glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
+  
+  glReadBuffer(GL_BACK_LEFT);
+  
+  // Assume the renderer has been set previously during rendering (sse Begin())
+  int lowerLeft[2];
+  int usize, vsize;
+  this->Renderer->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
+  
+  // Expensive call here (memory allocation)
+  unsigned char *rgb=new unsigned char[usize*vsize*3];
+  
+  glPixelStorei(GL_PACK_ALIGNMENT,1);
+  
+  // Expensive call here (memory transfer, blocking)
+  glReadPixels(lowerLeft[0],lowerLeft[1],usize,vsize,GL_RGB,GL_UNSIGNED_BYTE,
+               rgb);
+  // vtkIntArray
+  // Interpret rgb into ids.
+  // We cannot just use reinterpret_cast for two reasons:
+  // 1. we don't know if the host system is little or big endian.
+  // 2. we have rgb, not rgba. if we try to grab rgba and there is not
+  // alpha comment, it would be set to 1.0 (255, 0xff). we don't want that.
+  
+  // Expensive iteration.
+  vtkIdType i=0;
+  vtkIdType s=usize*vsize;
+  while(i<s)
+    {
+    vtkIdType j=i*3;
+    int value=(static_cast<int>(rgb[j])<<16)|(static_cast<int>(rgb[j+1])<<8)
+      |static_cast<int>(rgb[j+2]);
+    this->BufferId->SetValue(i,value);
+    ++i;
+    }
+  
+  delete[] rgb;
+  
+  // Restore OpenGL state (only if it's different to avoid too much state
+  // change).
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  
+  if(savedReadBuffer!=GL_BACK_LEFT)
+    {
+    glReadBuffer(savedReadBuffer);
+    }
+  if(this->BufferIdModeSavedDrawBuffer!=GL_BACK_LEFT)
+    {
+    glDrawBuffer(this->BufferIdModeSavedDrawBuffer);
+    }
+  
+  i=0;
+  bool colorDiffer=false;
+  while(!colorDiffer && i<4)
+    {
+    colorDiffer=this->BufferIdModeSavedClearColor[i]!=0.0;
+    ++i;
+    }
+  if(colorDiffer)
+    {
+    glClearColor(this->BufferIdModeSavedClearColor[0],
+                 this->BufferIdModeSavedClearColor[1],
+                 this->BufferIdModeSavedClearColor[2],
+                 this->BufferIdModeSavedClearColor[3]);
+    }
+  if(this->BufferIdModeSavedLighting)
+    {
+    glEnable(GL_LIGHTING);
+    }
+  if(this->BufferIdModeSavedDepthTest)
+    {
+    glEnable(GL_DEPTH_TEST);
+    }
+  
+  this->BufferId=0;
+  assert("post: done" && !this->GetBufferIdMode());
 }
 
 //-----------------------------------------------------------------------------

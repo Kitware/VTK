@@ -29,6 +29,7 @@
 class vtkBrush;
 class vtkDataObject;
 class vtkPen;
+class vtkContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkPanelMark : public vtkMark
 {
@@ -50,11 +51,46 @@ public:
     vtkIdType numChildren = data.GetNumberOfChildren();
     return this->MarkInstances[markIndex*numChildren + dataIndex];
     }
-
+  
   
 //BTX
   // Description:
+  // Paint the marks in a special mode to build a cache for picking.
+  // Use internally.
+  void PaintIds();
+  
+  // Description:
+  // Make sure the buffer id for the children items is up-to-date.
+  void UpdateBufferId();
+  
+  // Description:
+  // Return the item under mouse cursor at x,y.
+  vtkIdType GetPickedItem(int x, int y);
+  
+  // Description:
+  // Mouse enter event. As Panel is container, it propagates the event to
+  // its children.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event. As Panel is container, it propagates the event to
+  // its children.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse leave event. As Panel is container, it propagates the event to
+  // its children.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  
+  // Description:
   // Return true if the supplied x, y coordinate is inside the item.
+  // As Panel is container, it delegates the call to its children.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 //ETX
   
@@ -65,6 +101,12 @@ protected:
 
   vtkstd::vector<vtkSmartPointer<vtkMark> > Marks;
   vtkstd::vector<vtkSmartPointer<vtkMark> > MarkInstances;
+
+  bool MouseOver; // tell if the mouse cursor entered the panel
+  
+  vtkContextBufferId *BufferId;
+  
+  int ActiveItem;
   
 private:
   vtkPanelMark(const vtkPanelMark &); // Not implemented.

@@ -47,6 +47,8 @@ public:
   double Alpha;
 };
 
+class vtkMarkPrivate; // PIMPL for vtkstd::map
+
 class VTK_CHARTS_EXPORT vtkMark : public vtkContextItem
 {
 public:
@@ -62,6 +64,8 @@ public:
 
   static vtkMark* CreateMark(int type);
 
+  // Description:
+  // Copy most of the mark information from `m' to `this'.
   virtual void Extend(vtkMark* m);
 
   virtual bool Paint(vtkContext2D* vtkNotUsed(painter)) { return true; }
@@ -130,14 +134,30 @@ public:
   void SetInnerRadius(vtkValue<double> v);
   vtkValue<double>& GetInnerRadius();
   
+  // Description:
+  // Angles in degree, counterclockwise.
+  // WARNING: protovis uses radians and goes clockwise
   void SetStartAngle(vtkValue<double> v);
   vtkValue<double>& GetStartAngle();
   
+  // Description:
+  // Angles in degree, counterclockwise.
+  // WARNING: protovis uses radians and goes clockwise
   void SetStopAngle(vtkValue<double> v);
   vtkValue<double>& GetStopAngle();
   
+  // Description:
+  // Angles in degree, counterclockwise.
+  // WARNING: protovis uses radians and goes clockwise
   void SetAngle(vtkValue<double> v);
   vtkValue<double>& GetAngle();
+  
+  void SetUserVariable(vtkstd::string name,
+                       vtkValue<double> value);
+  vtkValue<double> GetUserVariable(vtkstd::string name);
+  
+  vtkValueHolder<double> &GetAngleHolder();
+  vtkValueHolder<double> &GetStartAngleHolder();
   
 //BTX
 protected:
@@ -172,6 +192,9 @@ protected:
   vtkIdType Index;
   
   vtkInformation *Fields;
+  
+  vtkMarkPrivate *UserVariables; // PIMPL for vtkstd::map
+  
 private:
   vtkMark(const vtkMark &); // Not implemented.
   void operator=(const vtkMark &);   // Not implemented.

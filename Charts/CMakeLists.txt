@@ -26,6 +26,7 @@ SET(Kit_SRCS
   vtkColorSeries.cxx
   vtkContext2D.cxx
   vtkContextActor.cxx
+  vtkContextBufferId.cxx
   vtkContextDevice2D.cxx
   vtkContextItem.cxx
   vtkContextMapper2D.cxx

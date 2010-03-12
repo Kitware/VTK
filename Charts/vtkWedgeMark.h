@@ -28,6 +28,9 @@
 // The wedge can be stroked and filled, similar to {link Bar}. 
 //
 // ref: http://protovis-js.googlecode.com/svn/trunk/jsdoc/symbols/pv.Wedge.html
+//
+// This class can invoke EnterEvent and LeaveEvent with the calldata being
+// a pointer to an int. The int being the sector number on the wedge.
 
 #ifndef __vtkWedgeMark_h
 #define __vtkWedgeMark_h
@@ -39,6 +42,7 @@ class vtkDataObject;
 class vtkPen;
 class vtkInformationDoubleKey;
 class vtkInformationStringKey;
+class vtkContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkWedgeMark : public vtkMark
 {
@@ -133,6 +137,45 @@ public:
 
 //BTX
   // Description:
+  // Paint the mark elements in a special mode to build a cache for picking.
+  // Use internally.
+  void PaintIds();
+  
+  // Description:
+  // Make sure the buffer id for the children items is up-to-date.
+  void UpdateBufferId();
+  
+  // Description:
+  // Return the item under mouse cursor at x,y.
+  vtkIdType GetPickedItem(int x, int y);
+  
+  // Description:
+  // Mouse enter event. As Panel is container, it propagates the event to
+  // its children.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event. As Panel is container, it propagates the event to
+  // its children.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse leave event. As Panel is container, it propagates the event to
+  // its children.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  
+  void MouseEnterEventOnSector(const vtkContextMouseEvent &mouse,
+                               int sector);
+  void MouseLeaveEventOnSector(const vtkContextMouseEvent &mouse,
+                               int sector);
+  
+  // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 //ETX
@@ -142,6 +185,13 @@ public:
 protected:
   vtkWedgeMark();
   ~vtkWedgeMark();
+  
+  bool MouseOver; // tell if the mouse cursor entered the panel
+  
+  vtkContextBufferId *BufferId;
+  
+  int ActiveItem;
+  bool PaintIdMode;
   
 private:
   vtkWedgeMark(const vtkWedgeMark &); // Not implemented.

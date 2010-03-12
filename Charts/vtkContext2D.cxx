@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.21");
+vtkCxxRevisionMacro(vtkContext2D, "1.22");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);
@@ -64,6 +64,35 @@ bool vtkContext2D::End()
     return true;
     }
   return true;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkContext2D::GetBufferIdMode() const
+{
+  return this->BufferId!=0;
+}
+  
+// ----------------------------------------------------------------------------
+void vtkContext2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
+{
+  assert("pre: not_yet" && !this->GetBufferIdMode());
+  assert("pre: bufferId_exists" && bufferId!=0);
+  
+  this->BufferId=bufferId;
+  this->Device->BufferIdModeBegin(bufferId);
+  
+  assert("post: started" && this->GetBufferIdMode());
+}
+  
+// ----------------------------------------------------------------------------
+void vtkContext2D::BufferIdModeEnd()
+{
+  assert("pre: started" && this->GetBufferIdMode());
+  
+  this->Device->BufferIdModeEnd();
+  this->BufferId=0;
+  
+  assert("post: done" && !this->GetBufferIdMode());
 }
 
 //-----------------------------------------------------------------------------
@@ -136,7 +165,7 @@ void vtkContext2D::DrawPoly(float *x, float *y, int n)
 void vtkContext2D::DrawPoly(vtkPoints2D *points)
 {
   // Construct an array with the correct coordinate packing for OpenGL.
-  int n = points->GetNumberOfPoints();
+  int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
   float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
   this->DrawPoly(f, n);
@@ -185,7 +214,7 @@ void vtkContext2D::DrawPoints(float *x, float *y, int n)
 void vtkContext2D::DrawPoints(vtkPoints2D *points)
 {
   // Construct an array with the correct coordinate packing for OpenGL.
-  int n = points->GetNumberOfPoints();
+  int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
   float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
   this->DrawPoints(f, n);
@@ -356,7 +385,7 @@ void vtkContext2D::DrawStringRect(vtkPoints2D *rect, const vtkStdString &string)
     }
   else if (this->TextProp->GetJustification() == VTK_TEXT_CENTERED)
     {
-    x = f[0] + 0.5*f[2];
+    x = f[0] + 0.5f*f[2];
     }
   else
     {
@@ -369,7 +398,7 @@ void vtkContext2D::DrawStringRect(vtkPoints2D *rect, const vtkStdString &string)
     }
   else if (this->TextProp->GetVerticalJustification() == VTK_TEXT_CENTERED)
     {
-    y = f[1] + 0.5*f[3];
+    y = f[1] + 0.5f*f[3];
     }
   else
     {
@@ -505,10 +534,38 @@ void vtkContext2D::PopMatrix()
   this->Device->PopMatrix();
 }
 
+// ----------------------------------------------------------------------------
+void vtkContext2D::ApplyId(vtkIdType id)
+{
+  assert("pre: zero_reserved_for_background" && id>0);
+  assert("pre: 24bit_limited" && id<16777216);
+  unsigned char rgba[4];
+  
+  // r most significant bits (16-23).
+  // g (8-15)
+  // b less significant bits (0-7).
+  
+  rgba[0]= static_cast<unsigned char>((id & 0xff0000) >> 16);
+  rgba[1]= static_cast<unsigned char>((id & 0xff00) >> 8);
+  rgba[2]= static_cast<unsigned char>(id & 0xff);
+  rgba[3]=1; // not used (because the colorbuffer in the default framebuffer
+  // may not have an alpha channel)
+  
+  assert("check: valid_conversion" &&
+         static_cast<vtkIdType>((static_cast<int>(rgba[0])<<16)
+                                |(static_cast<int>(rgba[1])<<8)
+                                |static_cast<int>(rgba[2]))==id);
+  
+  this->Device->SetColor4(rgba);
+}
+
 //-----------------------------------------------------------------------------
 inline void vtkContext2D::ApplyPen()
 {
-  this->Device->SetColor4(this->Pen->GetColor());
+  if(!this->GetBufferIdMode())
+    {
+    this->Device->SetColor4(this->Pen->GetColor());
+    }
   this->Device->SetLineWidth(this->Pen->GetWidth());
   this->Device->SetPointSize(this->Pen->GetWidth());
   this->Device->SetLineType(this->Pen->GetLineType());
@@ -517,7 +574,10 @@ inline void vtkContext2D::ApplyPen()
 //-----------------------------------------------------------------------------
 inline void vtkContext2D::ApplyBrush()
 {
-  this->Device->SetColor4(this->Brush->GetColor());
+  if(!this->GetBufferIdMode())
+    {
+    this->Device->SetColor4(this->Brush->GetColor());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -528,6 +588,7 @@ vtkContext2D::vtkContext2D()
   this->Brush = vtkBrush::New();
   this->TextProp = vtkTextProperty::New();
   this->Transform = NULL;
+  this->BufferId=0;
 }
 
 //-----------------------------------------------------------------------------

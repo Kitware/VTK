@@ -24,18 +24,25 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkContextScene.h"
+#include "vtkContextBufferId.h"
+#include "vtkCommand.h" // EnterEvent,LeaveEvent
 
 vtkInformationKeyMacro(vtkWedgeMark,ANGLE,Double);
 vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.5");
+vtkCxxRevisionMacro(vtkWedgeMark, "1.6");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------
 vtkWedgeMark::vtkWedgeMark()
 {
+  this->BufferId=0;
+  this->MouseOver=false;
+  this->ActiveItem=-1;
+  this->PaintIdMode=false;
+  
   // this->Information created in vtkMark
   
   // add the default keys.
@@ -45,6 +52,129 @@ vtkWedgeMark::vtkWedgeMark()
 // ----------------------------------------------------------------------------
 vtkWedgeMark::~vtkWedgeMark()
 {
+  if(this->BufferId!=0)
+    {
+    this->BufferId->Delete();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkWedgeMark::PaintIds()
+{
+  assert("pre: not_yet" && !this->PaintIdMode);
+  vtkDebugMacro("PaintId called.");
+  
+  this->Scene->GetLastPainter()->SetTransform(this->GetTransform());
+  this->PaintIdMode=true;
+  this->Paint(this->Scene->GetLastPainter());
+  this->PaintIdMode=false;
+  
+  assert("post: done" && !this->PaintIdMode);
+}
+
+// ----------------------------------------------------------------------------
+void vtkWedgeMark::UpdateBufferId()
+{
+  vtkContextBufferId *bi=this->Scene->GetBufferId();
+  
+  int width=bi->GetWidth();
+  int height=bi->GetHeight();
+  
+  if(this->BufferId==0 || width!=this->BufferId->GetWidth() ||
+     height!=this->BufferId->GetHeight())
+    {
+    if(this->BufferId==0)
+      {
+      this->BufferId=vtkContextBufferId::New();
+      }
+    this->BufferId->SetWidth(width);
+    this->BufferId->SetHeight(height);
+    this->BufferId->Allocate();
+    
+    vtkIdType size=width*height;
+    
+    this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
+    this->PaintIds();
+    this->Scene->GetLastPainter()->BufferIdModeEnd();
+    }
+}
+
+// ----------------------------------------------------------------------------
+vtkIdType vtkWedgeMark::GetPickedItem(int x, int y)
+{
+  this->UpdateBufferId();
+  
+  vtkIdType result=this->BufferId->GetPickedItem(x,y);
+  
+  assert("post: valid_result" && result>=-1 &&
+         result<this->Data.GetData(this).GetNumberOfChildren());
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkWedgeMark::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+{
+  this->MouseOver=true;
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkWedgeMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+{
+  bool result=false;
+  
+  // we can have this->MouseOver false if the enter event have been caught
+  // previously by another context item.
+  
+  if(this->MouseOver)
+    {
+    vtkIdType numChildren=this->Data.GetData(this).GetNumberOfChildren();
+    if(numChildren!=0)
+      {
+      vtkIdType pickedItem=this->GetPickedItem(mouse.ScreenPos[0],
+                                               mouse.ScreenPos[1]);
+      
+      if(pickedItem!=-1)
+        {
+//        cout << "picked sector is"<< pickedItem << endl;
+        }
+      if(this->ActiveItem!=pickedItem)
+        {
+        if(this->ActiveItem!=-1)
+          {
+          this->MouseLeaveEventOnSector(mouse,this->ActiveItem);
+          }
+        this->ActiveItem=pickedItem;
+        if(this->ActiveItem!=-1)
+          {
+          this->MouseEnterEventOnSector(mouse,this->ActiveItem);
+          }
+        }
+      }
+    }
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkWedgeMark::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+{
+  this->MouseOver=false;
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+void vtkWedgeMark::MouseEnterEventOnSector(const vtkContextMouseEvent &mouse,
+                                           int sector)
+{
+  this->InvokeEvent(vtkCommand::EnterEvent,&sector);
+}
+
+// ----------------------------------------------------------------------------
+void vtkWedgeMark::MouseLeaveEventOnSector(const vtkContextMouseEvent &mouse,
+                                           int sector)
+{
+  this->InvokeEvent(vtkCommand::LeaveEvent,&sector);
 }
 
 //-----------------------------------------------------------------------------
@@ -172,6 +302,16 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
   
   vtkIdType numChildren = this->Data.GetData(this).GetNumberOfChildren();
   
+  if(this->PaintIdMode)
+    {
+    if(numChildren>16777214) // 24-bit limit, 0 reserved for background encoding.
+      {
+      vtkWarningMacro(<<"picking will not work properly as there are two many children. Children over 16777214 will be ignored.");
+      numChildren=16777214;
+      }
+    
+    }
+  
   double a0=0.0;
   double a1=0.0;
   for (vtkIdType i = 0; i < numChildren; ++i)
@@ -183,6 +323,10 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
                                    fillColor[i].Green,
                                    fillColor[i].Blue,
                                    fillColor[i].Alpha);
+    if(this->PaintIdMode)
+      {
+      this->Scene->GetLastPainter()->ApplyId(i+1);
+      }
     
     painter->DrawWedge(left[i],bottom[i],outerRadius[i],innerRadius[i],
                        a0,a1);

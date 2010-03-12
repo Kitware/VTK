@@ -37,6 +37,7 @@ class vtkPen;
 class vtkBrush;
 class vtkImageData;
 class vtkTransform2D;
+class vtkContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkContext2D : public vtkObject
 {
@@ -61,7 +62,25 @@ public:
   // should be called by the destructor. Returns true if the painter is no
   // longer active, otherwise false.
   bool End();
-
+  
+  // Description:
+  // Tell if the context is in BufferId creation mode. Initial value is false.
+  bool GetBufferIdMode() const;
+  
+  // Description:
+  // Start BufferId creation Mode.
+  // \pre not_yet: !GetBufferIdMode()
+  // \pre bufferId_exists: bufferId!=0
+  // \post started: GetBufferIdMode()
+  void BufferIdModeBegin(vtkContextBufferId *bufferId);
+  
+  // Description:
+  // Finalize BufferId creation Mode. It makes sure that the content of the
+  // bufferId passed in argument of BufferIdModeBegin() is correctly set.
+  // \pre started: GetBufferIdMode()
+  // \post done: !GetBufferIdMode()
+  void BufferIdModeEnd();
+  
   // Description:
   // Draw a line between the specified points.
   void DrawLine(float x1, float y1, float x2, float y2);
@@ -220,7 +239,7 @@ public:
   // Get the pen which controls the outlines of shapes as well as lines, points
   // and related primitives.
   vtkGetObjectMacro(Brush, vtkBrush);
-
+  
   // Description:
   // Apply the supplied text property which controls how text is rendered.
   // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
@@ -246,6 +265,10 @@ public:
   void PushMatrix();
   void PopMatrix();
 
+  // Description:
+  // Apply id as a color.
+  void ApplyId(vtkIdType id);
+  
 //BTX
 protected:
   vtkContext2D();
@@ -256,7 +279,9 @@ protected:
   vtkBrush *Brush;            // Fills
   vtkTextProperty *TextProp;  // Text property
   vtkTransform2D *Transform;  // The painter transform
-
+  
+  vtkContextBufferId *BufferId;
+  
 private:
   vtkContext2D(const vtkContext2D &); // Not implemented.
   void operator=(const vtkContext2D &);   // Not implemented.

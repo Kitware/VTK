@@ -32,6 +32,7 @@ class vtkTextProperty;
 class vtkPoints2D;
 class vtkImageData;
 class vtkMatrix3x3;
+class vtkContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
 {
@@ -157,6 +158,27 @@ public:
   // End drawing, clean up the view.
   virtual void End() { }
 
+  // Description:
+  // Tell if the device context is in BufferId creation mode.
+  // Initial value is false.
+  virtual bool GetBufferIdMode() const;
+  
+  // Description:
+  // Start BufferId creation Mode.
+  // The default implementation is empty.
+  // \pre not_yet: !GetBufferIdMode()
+  // \pre bufferId_exists: bufferId!=0
+  // \post started: GetBufferIdMode()
+  virtual void BufferIdModeBegin(vtkContextBufferId *bufferId);
+  
+  // Description:
+  // Finalize BufferId creation Mode. It makes sure that the content of the
+  // bufferId passed in argument of BufferIdModeBegin() is correctly set.
+  // The default implementation is empty.
+  // \pre started: GetBufferIdMode()
+  // \post done: !GetBufferIdMode()
+  virtual void BufferIdModeEnd();
+  
 //BTX
 protected:
   vtkContextDevice2D();
@@ -166,6 +188,8 @@ protected:
   // Store the width and height of the device in pixels.
   int Geometry[2];
 
+  vtkContextBufferId *BufferId;
+  
 private:
   vtkContextDevice2D(const vtkContextDevice2D &); // Not implemented.
   void operator=(const vtkContextDevice2D &);   // Not implemented.

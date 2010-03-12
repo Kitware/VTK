@@ -29,9 +29,39 @@
 #include "vtkValueHolder.txx"
 #include "vtkInformation.h"
 
+#include <vtkstd/map>
+//#include <vtksys/stl/map>
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMark, "1.2");
+vtkCxxRevisionMacro(vtkMark, "1.3");
 vtkStandardNewMacro(vtkMark);
+
+class vtkMarkPrivateCompareStrings
+{
+public:
+  bool operator()(const vtkstd::string &s1,
+                  const vtkstd::string &s2) const
+    {
+      return s1.compare(s2)<0;
+    }
+};
+
+typedef vtkstd::map<vtkstd::string,vtkValue<double>,vtkMarkPrivateCompareStrings > VariablesMap;
+typedef vtkstd::map<vtkstd::string,vtkValue<double>,vtkMarkPrivateCompareStrings >::iterator VariablesMapIt;
+
+class vtkMarkPrivate : public vtkObject
+{
+public:
+  vtkTypeRevisionMacro(vtkMarkPrivate, vtkObject);
+  
+  static vtkMarkPrivate *New();
+  
+  // Really, we don't care if the container is sorted.
+  // We'd rather have a hash_map but this is not available everywhere.
+  VariablesMap Map;
+};
+
+vtkCxxRevisionMacro(vtkMarkPrivate, "1.3");
+vtkStandardNewMacro(vtkMarkPrivate);
 
 //-----------------------------------------------------------------------------
 vtkMark::vtkMark()
@@ -41,12 +71,14 @@ vtkMark::vtkMark()
   this->Index = 0;
   this->ParentMarkIndex = 0;
   this->ParentDataIndex = 0;
+  this->UserVariables=vtkMarkPrivate::New();
 }
 
 //-----------------------------------------------------------------------------
 vtkMark::~vtkMark()
 {
   this->Fields->Delete();
+  this->UserVariables->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -87,6 +119,10 @@ void vtkMark::Extend(vtkMark* m)
   this->StartAngle.SetValue(m->GetStartAngle());
   this->StopAngle.SetValue(m->GetStopAngle());
   this->Angle.SetValue(m->GetAngle());
+  
+  this->UserVariables->Delete();
+  this->UserVariables=m->UserVariables; // shallow copy.
+  this->UserVariables->Register(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -326,6 +362,52 @@ double vtkMark::GetCousinHeight()
   return 0.0;
   }
 
+// ----------------------------------------------------------------------------
+vtkValueHolder<double> &vtkMark::GetAngleHolder()
+{
+  return this->Angle;
+}
+
+// ----------------------------------------------------------------------------
+vtkValueHolder<double> &vtkMark::GetStartAngleHolder()
+{
+  return this->StartAngle;
+}
+
+// ----------------------------------------------------------------------------
+void vtkMark::SetUserVariable(vtkstd::string name,
+                              vtkValue<double> value)
+{
+  VariablesMapIt i=this->UserVariables->Map.find(name);
+  if(i!=this->UserVariables->Map.end())
+    {
+    // replace the value
+    (*i).second=value;
+    }
+  else
+    {
+    vtksys_stl::pair<vtkstd::string,vtkValue<double> > p;
+    p.first=name;
+    p.second=value;
+    this->UserVariables->Map.insert(p);
+    }
+}
+
+// ----------------------------------------------------------------------------
+vtkValue<double> vtkMark::GetUserVariable(vtkstd::string name)
+{
+  VariablesMapIt i=this->UserVariables->Map.find(name);
+  if(i!=this->UserVariables->Map.end())
+    {
+    return (*i).second;
+    }
+  else
+    {
+    vtkErrorMacro(<<"User variable -" << name << "- not found.");
+    vtkValue<double> result;
+    return result;
+    }
+}
 
 //-----------------------------------------------------------------------------
 void vtkMark::PrintSelf(ostream &os, vtkIndent indent)

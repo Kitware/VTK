@@ -34,7 +34,8 @@ class vtkContextMouseEvent;
 class vtkInteractorStyle;
 class vtkAnnotationLink;
 
-class vtkRenderWindow;
+class vtkRenderer;
+class vtkContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkContextScene : public vtkObject
 {
@@ -56,7 +57,7 @@ public:
 
   // Description:
   // Get the number of items in the scene.
-  int NumberOfItems();
+  int GetNumberOfItems();
 
   // Get the item at the specified index.
   vtkContextItem * GetItem(int index);
@@ -92,7 +93,7 @@ public:
   // Description:
   // This should not be necessary as the context view should take care of
   // rendering.
-  virtual void SetWindow(vtkRenderWindow *window);
+  virtual void SetRenderer(vtkRenderer *renderer);
 
   // Description:
   // Inform the scene that something changed that requires a repaint of the
@@ -101,6 +102,19 @@ public:
   void SetDirty(bool isDirty);
 
 //BTX
+  // Description:
+  // Last painter used. 
+  // Not part of the end-user API. Can be used by context items to 
+  // create their own colorbuffer id (when a context item is a container).
+  vtkWeakPointer<vtkContext2D> GetLastPainter();
+
+  
+  // Description:
+  // Return buffer id.
+  // Not part of the end-user API. Can be used by context items to 
+  // initialize their own colorbuffer id (when a context item is a container).
+  vtkContextBufferId *GetBufferId();
+  
 protected:
   vtkContextScene();
   ~vtkContextScene();
@@ -136,6 +150,21 @@ protected:
   // Process a mouse wheel event where delta is the movement forward or back.
   virtual void MouseWheelEvent(int delta, int x, int y);
 
+  // Description:
+  // Paint the scene in a special mode to build a cache for picking.
+  // Use internally.
+  virtual void PaintIds();
+
+  // Description:
+  // Return the item id under mouse cursor at position (x,y).
+  // Return -1 if there is no item under the mouse cursor.
+  // \post valid_result: result>=-1 && result<this->GetNumberOfItems()
+  vtkIdType GetPickedItem(int x, int y);
+  
+  // Description:
+  // Make sure the buffer id used for picking is up-to-date.
+  void UpdateBufferId();
+  
   vtkAnnotationLink *AnnotationLink;
 
   // Store the chart dimensions - width, height of scene in pixels
@@ -152,12 +181,17 @@ protected:
   class Private;
   Private *Storage;
 
-  vtkWeakPointer<vtkRenderWindow> Window;
+  vtkWeakPointer<vtkContext2D> LastPainter;
+  
+  vtkWeakPointer<vtkRenderer> Renderer;
 
+  vtkContextBufferId *BufferId;
+  bool BufferIdDirty;
+  
   // Description:
   // Perform translation and fill in the vtkContextMouseEvent struct.
   void PerformTransform(vtkTransform2D *transform, vtkContextMouseEvent &mouse);
-
+  
 private:
   vtkContextScene(const vtkContextScene &); // Not implemented.
   void operator=(const vtkContextScene &);   // Not implemented.

@@ -27,7 +27,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextView, "1.3");
+vtkCxxRevisionMacro(vtkContextView, "1.4");
 vtkStandardNewMacro(vtkContextView);
 
 vtkCxxSetObjectMacro(vtkContextView, Context, vtkContext2D);
@@ -47,7 +47,7 @@ vtkContextView::vtkContextView()
   this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
   this->Scene->Register(this);
   // Should not need to do this...
-  this->Scene->SetWindow(this->RenderWindow);
+  this->Scene->SetRenderer(this->Renderer);
 
   // Set up our view to render on move, 2D interaction style
   this->SetDisplayHoverText(false);
