@@ -30,10 +30,14 @@
 
 #cmakedefine VTKQTCHART_BUILD_SHARED_LIBS
 
-#if defined(vtkQtChart_EXPORTS)
-# define VTKQTCHART_EXPORT VTK_ABI_EXPORT
+#if defined(VTKQTCHART_BUILD_SHARED_LIBS)
+# if defined(vtkQtChart_EXPORTS)
+#   define VTKQTCHART_EXPORT VTK_ABI_EXPORT
+# else
+#   define VTKQTCHART_EXPORT VTK_ABI_IMPORT
+# endif
 #else
-# define VTKQTCHART_EXPORT VTK_ABI_IMPORT
+# define VTKQTCHART_EXPORT
 #endif
 
 #endif
