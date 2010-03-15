@@ -64,6 +64,15 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+  
+  // Description:
+  // This function appends multiple blocks / pieces into a vtkUnstructuredGrid
+  // data by using a point locator to merge duplicate points (when ghost cell
+  // information is not available from the input data blocks / pieces).
+  // This function should be called by RequestData() only.
+  int     AppendBlocksWithPointLocator( vtkInformationVector ** inputVector,
+                                        vtkInformationVector  * outputVector );
+  
 
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
