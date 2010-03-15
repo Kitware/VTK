@@ -31,7 +31,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.14");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.15");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ int vtkTemporalInterpolator::RequestInformation (
         }
       }
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
-      &OutputTimeValues[0], OutputTimeValues.size());
+      &OutputTimeValues[0], static_cast<int>(OutputTimeValues.size()));
     }
   else 
     {
