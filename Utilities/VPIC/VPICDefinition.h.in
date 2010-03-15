@@ -1,6 +1,7 @@
 #ifndef VPICDefinition_h
 #define VPICDefinition_h
 
+#include <vtksys/Configure.h>
 #include <string>
 #include <iostream>
 
