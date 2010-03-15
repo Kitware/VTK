@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#cmakedefine01 BUILD_SHARED_LIBS
+#cmakedefine BUILD_SHARED_LIBS
 
 // Now set up all of the export macros
 #if defined(BUILD_SHARED_LIBS)
