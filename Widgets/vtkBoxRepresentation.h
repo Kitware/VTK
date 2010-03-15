@@ -150,14 +150,14 @@ public:
   // Description:
   // Switches handles (the spheres) on or off by manipulating the underlying
   // actor visibility.
-  void HandlesOn();
-  void HandlesOff();
+  virtual void HandlesOn();
+  virtual void HandlesOff();
   
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  virtual int  ComputeInteractionState(int X, int Y, int modify=0);
   virtual void StartWidgetInteraction(double e[2]);
   virtual void WidgetInteraction(double e[2]);
   virtual double *GetBounds();
@@ -165,9 +165,9 @@ public:
   // Description:
   // Methods supporting, and required by, the rendering process.
   virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  virtual int  RenderOpaqueGeometry(vtkViewport*);
+  virtual int  RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int  HasTranslucentPolygonalGeometry();
   
 //BTX - used to manage the state of the widget
   enum {Outside=0,MoveF0,MoveF1,MoveF2,MoveF3,MoveF4,MoveF5,Translating,Rotating,Scaling};
@@ -210,7 +210,7 @@ protected:
   int HighlightHandle(vtkProp *prop); //returns cell id
   void HighlightFace(int cellId);
   void HighlightOutline(int highlight);
-  void ComputeNormals();
+  virtual void ComputeNormals();
   virtual void SizeHandles();
   
   // wireframe outline
@@ -239,7 +239,7 @@ protected:
   vtkProperty *SelectedFaceProperty;
   vtkProperty *OutlineProperty;
   vtkProperty *SelectedOutlineProperty;
-  void CreateDefaultProperties();
+  virtual void CreateDefaultProperties();
   
   // Control the orientation of the normals
   int InsideOut;
