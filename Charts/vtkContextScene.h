@@ -79,6 +79,14 @@ public:
   vtkGetVector2Macro(Geometry, int);
 
   // Description:
+  // Set whether the scene should use the color buffer. Default is true.
+  vtkSetMacro(UseBufferId, bool);
+
+  // Description:
+  // Get whether the scene is using the color buffer. Default is true.
+  vtkGetMacro(UseBufferId, bool);
+
+  // Description:
   // Get the width of the view
   virtual int GetViewWidth();
 
@@ -103,18 +111,18 @@ public:
 
 //BTX
   // Description:
-  // Last painter used. 
-  // Not part of the end-user API. Can be used by context items to 
+  // Last painter used.
+  // Not part of the end-user API. Can be used by context items to
   // create their own colorbuffer id (when a context item is a container).
   vtkWeakPointer<vtkContext2D> GetLastPainter();
 
-  
+
   // Description:
   // Return buffer id.
-  // Not part of the end-user API. Can be used by context items to 
+  // Not part of the end-user API. Can be used by context items to
   // initialize their own colorbuffer id (when a context item is a container).
   vtkContextBufferId *GetBufferId();
-  
+
 protected:
   vtkContextScene();
   ~vtkContextScene();
@@ -160,11 +168,11 @@ protected:
   // Return -1 if there is no item under the mouse cursor.
   // \post valid_result: result>=-1 && result<this->GetNumberOfItems()
   vtkIdType GetPickedItem(int x, int y);
-  
+
   // Description:
   // Make sure the buffer id used for picking is up-to-date.
   void UpdateBufferId();
-  
+
   vtkAnnotationLink *AnnotationLink;
 
   // Store the chart dimensions - width, height of scene in pixels
@@ -182,22 +190,23 @@ protected:
   Private *Storage;
 
   vtkWeakPointer<vtkContext2D> LastPainter;
-  
+
   vtkWeakPointer<vtkRenderer> Renderer;
 
   vtkContextBufferId *BufferId;
   bool BufferIdDirty;
-  
+
+  bool UseBufferId;
+
   // Description:
   // Perform translation and fill in the vtkContextMouseEvent struct.
   void PerformTransform(vtkTransform2D *transform, vtkContextMouseEvent &mouse);
-  
+
 private:
   vtkContextScene(const vtkContextScene &); // Not implemented.
   void operator=(const vtkContextScene &);   // Not implemented.
 //ETX
 };
-
 
 //BTX
 // Description:
@@ -208,7 +217,7 @@ public:
   float Pos[2]; // Position of the mouse in item coordinate system.
   float ScenePos[2]; // Position of the mouse the scene coordinate system.
   int ScreenPos[2]; // Position of the mouse in screen coordinates
-  float LastPos[2]; // `Pos' at the previous mouse event 
+  float LastPos[2]; // `Pos' at the previous mouse event
   float LastScenePos[2]; // `ScenePos'at the previous mouse event
   int LastScreenPos[2]; // `ScreenPos' at the previous mouse event.
   int Button; // Mouse button that was pressed (0-left, 1-middle, 2-right)

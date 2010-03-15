@@ -144,7 +144,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.17");
+vtkCxxRevisionMacro(vtkContextScene, "1.18");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 
@@ -158,6 +158,7 @@ vtkContextScene::vtkContextScene()
   this->Geometry[1] = 0;
   this->BufferId=0;
   this->BufferIdDirty=true;
+  this->UseBufferId = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -204,7 +205,7 @@ void vtkContextScene::PaintIds()
 {
   vtkDebugMacro("PaintId called.");
   size_t size = this->Storage->items.size();
-  
+
   if(size>16777214) // 24-bit limit, 0 reserved for background encoding.
     {
     vtkWarningMacro(<<"picking will not work properly as there are two many items. Items over 16777214 will be ignored.");
@@ -344,7 +345,7 @@ void vtkContextScene::UpdateBufferId()
   int height;
   this->Renderer->GetTiledSizeAndOrigin(&width,&height,lowerLeft,
                                         lowerLeft+1);
-  
+
   if(this->BufferId==0 || this->BufferIdDirty ||
      width!=this->BufferId->GetWidth() ||
      height!=this->BufferId->GetHeight())
@@ -356,11 +357,11 @@ void vtkContextScene::UpdateBufferId()
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
-    
+
     this->LastPainter->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
     this->LastPainter->BufferIdModeEnd();
-      
+
     this->BufferIdDirty=false;
     }
 }
@@ -368,10 +369,26 @@ void vtkContextScene::UpdateBufferId()
 // ----------------------------------------------------------------------------
 vtkIdType vtkContextScene::GetPickedItem(int x, int y)
 {
-  this->UpdateBufferId();
-  
-  vtkIdType result=this->BufferId->GetPickedItem(x,y);
-  
+  vtkIdType result = -1;
+  if (this->UseBufferId)
+    {
+    this->UpdateBufferId();
+    result=this->BufferId->GetPickedItem(x,y);
+    }
+  else
+    {
+    int size = static_cast<int>(this->Storage->items.size());
+    vtkContextMouseEvent &event = this->Storage->Event;
+    for (int i = size-1; i >= 0; --i)
+      {
+      if (this->Storage->items[i]->Hit(event))
+        {
+        result = static_cast<vtkIdType>(i);
+        break;
+        }
+      }
+    }
+
   assert("post: valid_result" && result>=-1 &&
          result<this->GetNumberOfItems());
   return result;
@@ -379,15 +396,15 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
 
 //-----------------------------------------------------------------------------
 void vtkContextScene::MouseMoveEvent(int x, int y)
-{ 
+{
   int size = static_cast<int>(this->Storage->items.size());
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos[0] = x;
   event.ScreenPos[1] = y;
   event.ScenePos[0] = x;
   event.ScenePos[1] = y;
- 
-  if(size!=0)
+
+  if(size != 0)
     {
     // Fire mouse enter and leave event prior to firing a mouse event.
     vtkIdType pickedItem=this->GetPickedItem(x,y);
@@ -395,7 +412,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
 //      {
 //      cout << "item i="<< pickedItem << " is under the mouse cursor."<< endl;
 //      }
-    
+
     for (int i = size-1; i >= 0; --i)
       {
       if (this->Storage->itemMousePressCurrent == i)
@@ -404,7 +421,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
         continue;
         }
       this->PerformTransform(this->Storage->items[i]->GetTransform(), event);
-      
+
       if (i==pickedItem)
         {
         if (!this->Storage->itemState[i] && this->Storage->itemMousePressCurrent < 0)
@@ -424,9 +441,9 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
           }
         }
       }
-    
+
     // Fire mouse move event regardless of where it occurred.
-    
+
     // Check if there is a selected item that needs to receive a move event
     if (this->Storage->itemMousePressCurrent >= 0)
       {
