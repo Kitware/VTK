@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTemporalInterpolator - interpolate temporal datasets
+// .NAME vtkTemporalInterpolator - interpolate datasets between time steps to produce a new dataset
 // .SECTION Description
 // vtkTemporalInterpolator interpolates between two time steps to
 // produce new data for an arbitrary T.
-// vtkTemporalInterpolator has two modes of operation. The default
-// mode is to produce a continuous range of time values as output
-// which enables a filter downstream to request Any value of T within
-// the range. The interpolator will produce the requested T.
+// vtkTemporalInterpolator has three modes of operation. 
+// The default mode is to produce a continuous range of time 
+// values as output, which enables a filter downstream to request 
+// any value of T within the range. 
 // The second mode of operation is enabled by setting
 // DiscreteTimeStepInterval to a non zero value. When this mode is
 // activated, the filter will report a finite number of Time steps
@@ -27,6 +27,18 @@
 // This mode is useful when a dataset of N time steps has one (or more)
 // missing datasets for certain T values and you simply wish to smooth
 // over the missing steps but otherwise use the original data.
+// The third mode of operation is enabled by setting
+// ResampleFactor to a non zero positive integer value. 
+// When this mode is activated, the filter will report a finite number 
+// of Time steps which contain the original steps, plus N new values between
+// each original step 1/ResampleFactor time units apart.
+// Note that if the input time steps are irregular, then using ResampleFactor
+// will produce an irregular sequence of regular steps between 
+// each of the original irregular steps (clear enough, yes?).
+//
+// @TODO
+// Higher order interpolation schemes will require changes to the API
+// as most calls assume only two timesteps are used.
 
 // .SECTION Thanks
 // Ken Martin (Kitware) and John Bidiscombe of 
@@ -62,11 +74,23 @@ public:
   vtkSetMacro(DiscreteTimeStepInterval, double);
   vtkGetMacro(DiscreteTimeStepInterval, double);
 
+  // Description:
+  // When ResampleFactor is a non zero positive integer, each pair
+  // of input time steps will be interpolated between with the number
+  // of steps specified. For example an input of 1,2,3,4,5 and a resample factor
+  // of 10, will produce steps 0f 1.0, 1.1, 1.2.....1.9, 2.0 etc
+  // NB. Irregular input steps will produce irregular output steps.
+  // Resample factor wuill only be used if DiscreteTimeStepInterval is zero
+  // otherwise the DiscreteTimeStepInterval takes precedence
+  vtkSetMacro(ResampleFactor, int);
+  vtkGetMacro(ResampleFactor, int);
+
 protected:
   vtkTemporalInterpolator();
   ~vtkTemporalInterpolator();
 
   double DiscreteTimeStepInterval;
+  int    ResampleFactor;
 /*
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -86,7 +110,7 @@ protected:
                           vtkInformationVector *);
 
   // Description:
-  // General interpolation routine for any tiype on input data. This is
+  // General interpolation routine for any type on input data. This is
   // called recursively when heirarchical/multiblock data is encountered
   vtkDataObject *InterpolateDataObject(vtkDataObject *in1, 
                                        vtkDataObject *in2,
@@ -96,20 +120,29 @@ protected:
   // Root level interpolation for a concrete dataset object.
   // Point/Cell data and points are interpolated.
   // Needs improving if connectivity is to be handled
-  vtkDataSet *InterpolateDataSet(vtkDataSet *in1, 
-                                 vtkDataSet *in2,
-                                 double ratio);
+  virtual vtkDataSet *InterpolateDataSet(vtkDataSet *in1, 
+                                         vtkDataSet *in2,
+                                         double ratio);
 
   // Description:
   // Interpolate a single vtkDataArray. Called from the Interpolation routine
   // on the points and pointdata/celldata
-  vtkDataArray *InterpolateDataArray(double ratio, vtkDataArray **arrays, 
-                                     vtkIdType N);
+  virtual vtkDataArray *InterpolateDataArray(double ratio, 
+                                             vtkDataArray **arrays, 
+                                             vtkIdType N);
 
   // Description:
-  // Called juse before interpolation to ensure each data arrayhas the same 
-  // number of tuples
-  bool VerifyArrays(vtkDataArray **arrays, int N);
+  // Called just before interpolation of each dataset to ensure 
+  // each data array has the same number of tuples/components etc
+  virtual bool VerifyArrays(vtkDataArray **arrays, int N);
+
+  // internally used : Ratio is {0,1} between two time steps
+  // DeltaT is time between current 2 steps.
+  // These are only valid when 2 time steps are interpolated
+  // Higher order schemes will require changes to the API
+  double Ratio;
+  double DeltaT;
+  double Tfrac;
 
 private:
   vtkTemporalInterpolator(const vtkTemporalInterpolator&);  // Not implemented.
