@@ -72,7 +72,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.44");
+vtkCxxRevisionMacro(vtkChartXY, "1.45");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -646,7 +646,7 @@ bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == 0)
+  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
     // Figure out how much the mouse has moved by in plot coordinates - pan
     double pos[] = { mouse.ScreenPos[0], mouse.ScreenPos[1] };
@@ -669,7 +669,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
-  else if (mouse.Button == 2)
+  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
     this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
@@ -694,7 +694,8 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
       this->PlotTransform && n)
     {
     vtkVector2f plotPos, position;
-    this->PlotTransform->InverseTransformPoints(mouse.Pos, position.GetData(),
+    this->PlotTransform->InverseTransformPoints(mouse.Pos.GetData(),
+                                                position.GetData(),
                                                 1);
     // Use a tolerance of +/- 5 pixels
     vtkVector2f tolerance(5*(1.0/this->PlotTransform->GetMatrix()->GetElement(0, 0)),
@@ -733,12 +734,12 @@ bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
   this->Tooltip->SetVisible(false);
-  if (mouse.Button == 0)
+  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
     // The mouse panning action.
     return true;
     }
-  else if (mouse.Button == 2)
+  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     // Right mouse button - zoom box
     this->BoxOrigin[0] = mouse.Pos[0];
