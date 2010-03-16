@@ -24,7 +24,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextActor, "1.6");
+vtkCxxRevisionMacro(vtkContextActor, "1.7");
 vtkStandardNewMacro(vtkContextActor);
 
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
@@ -94,8 +94,10 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     {
     // Tiled display - work out the transform required
     double *b = window->GetTileViewport();
-    int box[] = { b[0] * size[0], b[1] * size[1],
-                  b[2] * size[0], b[3] * size[1] };
+    int box[] = { static_cast<int>(b[0] * size[0]),
+                  static_cast<int>(b[1] * size[1]),
+                  static_cast<int>(b[2] * size[0]),
+                  static_cast<int>(b[3] * size[1]) };
     transform->Translate(-box[0], -box[1]);
     }
 
