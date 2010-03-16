@@ -39,21 +39,23 @@ public:
 
   // Description:
   // Get the size of the vtkVector.
-  int GetSize() { return Size; }
+  int GetSize() const { return Size; }
 
   // Description:
   // Get a pointer to the underlying data of the vtkVector.
   T* GetData() { return this->Data; }
+  const T* GetData() const { return this->Data; }
 
   // Description:
   // Get a reference to the underlying data element of the vtkVector. Can be
   // used in much the same way as vector[i] is used.
   T& operator[](int i) { return this->Data[i]; }
+  const T& operator[](int i) const { return this->Data[i]; }
 
   // Description:
   // Get the value of the vector at the index speciifed. Does bounds checking,
   // used in much the same way as vector.at(i) is used.
-  T operator()(int i) { return this->Data[i]; }
+  T operator()(int i) const { return this->Data[i]; }
 
 protected:
   // Description:
