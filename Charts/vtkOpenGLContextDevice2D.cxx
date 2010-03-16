@@ -148,7 +148,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.22");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.23");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -187,9 +187,10 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 {
   // Need the actual pixel size of the viewport - ask OpenGL.
-  int vp[4];
+  GLint vp[4];
   glGetIntegerv(GL_VIEWPORT, vp);
-  this->Storage->Dim.Set(vp[2], vp[3]);
+  this->Storage->Dim.Set(static_cast<int>(vp[2]),
+                         static_cast<int>(vp[3]));
 
   // push a 2D matrix on the stack
   glMatrixMode(GL_PROJECTION);
