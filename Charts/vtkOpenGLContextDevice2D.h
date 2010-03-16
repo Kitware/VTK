@@ -125,6 +125,10 @@ public:
   virtual void SetLineType(int type);
 
   // Description:
+  // Multiply the current model view matrix by the supplied one.
+  virtual void MultiplyMatrix(vtkMatrix3x3 *m);
+
+  // Description:
   // Set the model view matrix for the display
   virtual void SetMatrix(vtkMatrix3x3 *m);
 

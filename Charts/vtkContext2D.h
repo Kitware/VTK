@@ -62,25 +62,25 @@ public:
   // should be called by the destructor. Returns true if the painter is no
   // longer active, otherwise false.
   bool End();
-  
+
   // Description:
   // Tell if the context is in BufferId creation mode. Initial value is false.
   bool GetBufferIdMode() const;
-  
+
   // Description:
   // Start BufferId creation Mode.
   // \pre not_yet: !GetBufferIdMode()
   // \pre bufferId_exists: bufferId!=0
   // \post started: GetBufferIdMode()
   void BufferIdModeBegin(vtkContextBufferId *bufferId);
-  
+
   // Description:
   // Finalize BufferId creation Mode. It makes sure that the content of the
   // bufferId passed in argument of BufferIdModeBegin() is correctly set.
   // \pre started: GetBufferIdMode()
   // \post done: !GetBufferIdMode()
   void BufferIdModeEnd();
-  
+
   // Description:
   // Draw a line between the specified points.
   void DrawLine(float x1, float y1, float x2, float y2);
@@ -239,7 +239,7 @@ public:
   // Get the pen which controls the outlines of shapes as well as lines, points
   // and related primitives.
   vtkGetObjectMacro(Brush, vtkBrush);
-  
+
   // Description:
   // Apply the supplied text property which controls how text is rendered.
   // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
@@ -255,9 +255,18 @@ public:
   unsigned int AddPointSprite(vtkImageData *image);
 
   // Description:
-  // Set the transform for the context.
+  // Set the transform for the context, the underlying device will use the
+  // matrix of the transform. Note, this is set immediately, later changes to
+  // the matrix will have no effect until it is set again.
   void SetTransform(vtkTransform2D *transform);
   vtkGetObjectMacro(Transform, vtkTransform2D);
+
+  // Description:
+  // Append the transform for the context, the underlying device will use the
+  // matrix of the transform. Note, this is set immediately, later changes to
+  // the matrix will have no effect until it is set again. The matrix of the
+  // transform will multiply the current context transform.
+  void AppendTransform(vtkTransform2D *transform);
 
   // Description:
   // Push/pop the transformation matrix for the painter (sets the underlying
@@ -268,7 +277,7 @@ public:
   // Description:
   // Apply id as a color.
   void ApplyId(vtkIdType id);
-  
+
 //BTX
 protected:
   vtkContext2D();
@@ -279,9 +288,9 @@ protected:
   vtkBrush *Brush;            // Fills
   vtkTextProperty *TextProp;  // Text property
   vtkTransform2D *Transform;  // The painter transform
-  
+
   vtkContextBufferId *BufferId;
-  
+
 private:
   vtkContext2D(const vtkContext2D &); // Not implemented.
   void operator=(const vtkContext2D &);   // Not implemented.

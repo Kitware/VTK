@@ -67,7 +67,7 @@ public:
   virtual void DrawEllipseWedge(float x, float y, float outRx, float outRy,
                                 float inRx, float inRy, float startAngle,
                                 float stopAngle)=0;
-  
+
   // Description:
   // Draw an elliptic arc with center at x,y with radii rX and rY between
   // angles startAngle and stopAngle (expressed in degrees).
@@ -75,7 +75,7 @@ public:
   // \pre positive_rY: rY>=0
   virtual void DrawEllipticArc(float x, float y, float rX, float rY,
                                float startAngle, float stopAngle)=0;
-  
+
 //BTX
   // Description:
   // Draw some text to the screen.
@@ -134,6 +134,10 @@ public:
   virtual void SetMatrix(vtkMatrix3x3 *m) = 0;
 
   // Description:
+  // Multiply the current model view matrix by the supplied one
+  virtual void MultiplyMatrix(vtkMatrix3x3 *m) = 0;
+
+  // Description:
   // Push the current matrix onto the stack.
   virtual void PushMatrix() = 0;
 
@@ -162,7 +166,7 @@ public:
   // Tell if the device context is in BufferId creation mode.
   // Initial value is false.
   virtual bool GetBufferIdMode() const;
-  
+
   // Description:
   // Start BufferId creation Mode.
   // The default implementation is empty.
@@ -170,7 +174,7 @@ public:
   // \pre bufferId_exists: bufferId!=0
   // \post started: GetBufferIdMode()
   virtual void BufferIdModeBegin(vtkContextBufferId *bufferId);
-  
+
   // Description:
   // Finalize BufferId creation Mode. It makes sure that the content of the
   // bufferId passed in argument of BufferIdModeBegin() is correctly set.
@@ -178,7 +182,7 @@ public:
   // \pre started: GetBufferIdMode()
   // \post done: !GetBufferIdMode()
   virtual void BufferIdModeEnd();
-  
+
 //BTX
 protected:
   vtkContextDevice2D();
@@ -189,7 +193,7 @@ protected:
   int Geometry[2];
 
   vtkContextBufferId *BufferId;
-  
+
 private:
   vtkContextDevice2D(const vtkContextDevice2D &); // Not implemented.
   void operator=(const vtkContextDevice2D &);   // Not implemented.

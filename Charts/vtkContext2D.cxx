@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.22");
+vtkCxxRevisionMacro(vtkContext2D, "1.23");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);
@@ -71,27 +71,27 @@ bool vtkContext2D::GetBufferIdMode() const
 {
   return this->BufferId!=0;
 }
-  
+
 // ----------------------------------------------------------------------------
 void vtkContext2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
   assert("pre: bufferId_exists" && bufferId!=0);
-  
+
   this->BufferId=bufferId;
   this->Device->BufferIdModeBegin(bufferId);
-  
+
   assert("post: started" && this->GetBufferIdMode());
 }
-  
+
 // ----------------------------------------------------------------------------
 void vtkContext2D::BufferIdModeEnd()
 {
   assert("pre: started" && this->GetBufferIdMode());
-  
+
   this->Device->BufferIdModeEnd();
   this->BufferId=0;
-  
+
   assert("post: done" && !this->GetBufferIdMode());
 }
 
@@ -523,6 +523,17 @@ void vtkContext2D::SetTransform(vtkTransform2D *transform)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::AppendTransform(vtkTransform2D *transform)
+{
+  if(!transform)
+    {
+    return;
+    }
+
+  this->Device->MultiplyMatrix(transform->GetMatrix());
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::PushMatrix()
 {
   this->Device->PushMatrix();
@@ -540,22 +551,22 @@ void vtkContext2D::ApplyId(vtkIdType id)
   assert("pre: zero_reserved_for_background" && id>0);
   assert("pre: 24bit_limited" && id<16777216);
   unsigned char rgba[4];
-  
+
   // r most significant bits (16-23).
   // g (8-15)
   // b less significant bits (0-7).
-  
+
   rgba[0]= static_cast<unsigned char>((id & 0xff0000) >> 16);
   rgba[1]= static_cast<unsigned char>((id & 0xff00) >> 8);
   rgba[2]= static_cast<unsigned char>(id & 0xff);
   rgba[3]=1; // not used (because the colorbuffer in the default framebuffer
   // may not have an alpha channel)
-  
+
   assert("check: valid_conversion" &&
          static_cast<vtkIdType>((static_cast<int>(rgba[0])<<16)
                                 |(static_cast<int>(rgba[1])<<8)
                                 |static_cast<int>(rgba[2]))==id);
-  
+
   this->Device->SetColor4(rgba);
 }
 

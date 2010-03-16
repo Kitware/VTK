@@ -21,6 +21,7 @@
 #endif
 #include "vtkFreeTypeLabelRenderStrategy.h"
 
+#include "vtkVector.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkMatrix3x3.h"
@@ -143,10 +144,11 @@ public:
   GLfloat SavedClearColor[4];
 
   int TextCounter;
+  vtkVector2f Dim;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.20");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.21");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -184,16 +186,17 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 {
-  int size[2];
-  size[0] = viewport->GetSize()[0];
-  size[1] = viewport->GetSize()[1];
+  // Need the actual pixel size of the viewport - ask OpenGL.
+  int vp[4];
+  glGetIntegerv(GL_VIEWPORT, vp);
+  this->Storage->Dim.Set(vp[2], vp[3]);
 
   // push a 2D matrix on the stack
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  glOrtho( 0.5, size[0]+0.5,
-           0.5, size[1]+0.5,
+  glOrtho( 0.5, vp[2]+0.5,
+           0.5, vp[3]+0.5,
           -1, 1);
 
   glMatrixMode(GL_MODELVIEW);
@@ -713,10 +716,40 @@ void vtkOpenGLContextDevice2D::SetLineType(int type)
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::MultiplyMatrix(vtkMatrix3x3 *m)
+{
+  // We must construct a 4x4 matrix from the 3x3 matrix for OpenGL
+  double *M = m->GetData();
+  double matrix[16];
+
+  // Convert from row major (C++ two dimensional arrays) to OpenGL
+  matrix[0] = M[0];
+  matrix[1] = M[3];
+  matrix[2] = 0.0;
+  matrix[3] = M[6];
+
+  matrix[4] = M[1];
+  matrix[5] = M[4];
+  matrix[6] = 0.0;
+  matrix[7] = M[7];
+
+  matrix[8] = 0.0;
+  matrix[9] = 0.0;
+  matrix[10] = 1.0;
+  matrix[11] = 0.0;
+
+  matrix[12] = M[2];
+  matrix[13] = M[5];
+  matrix[14] = 0.0;
+  matrix[15] = M[8];
+
+  glMultMatrixd(matrix);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetMatrix(vtkMatrix3x3 *m)
 {
   // We must construct a 4x4 matrix from the 3x3 matrix for OpenGL
-  glLoadIdentity();
   double *M = m->GetData();
   double matrix[16];
 
@@ -759,12 +792,28 @@ void vtkOpenGLContextDevice2D::PopMatrix()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::SetClipping(int *x)
+void vtkOpenGLContextDevice2D::SetClipping(int *dim)
 {
-  // Test the glScissor function
-  vtkDebugMacro(<< "Clipping area: " << x[0] << "\t" << x[1]
-                << "\t" << x[2] << "\t" << x[3]);
-  glScissor(x[0], x[1], x[2], x[3]);
+  // Check the bounds, and clamp if necessary
+  int vp[4] = {0, 0, this->Storage->Dim.X(), this->Storage->Dim.Y()};
+  if (dim[0] > 0 && dim[0] < this->Storage->Dim.X())
+    {
+    vp[0] = dim[0];
+    }
+  if (dim[1] > 0 && dim[1] < this->Storage->Dim.Y())
+    {
+    vp[1] = dim[1];
+    }
+  if (dim[2] > 0 && dim[2] < this->Storage->Dim.X())
+    {
+    vp[2] = dim[2];
+    }
+  if (dim[3] > 0 && dim[3] < this->Storage->Dim.Y())
+    {
+    vp[3] = dim[3];
+    }
+
+  glScissor(vp[0], vp[1], vp[2], vp[3]);
   glEnable(GL_SCISSOR_TEST);
 }
 
