@@ -144,11 +144,11 @@ public:
   GLfloat SavedClearColor[4];
 
   int TextCounter;
-  vtkVector2f Dim;
+  vtkVector2i Dim;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.21");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.22");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
