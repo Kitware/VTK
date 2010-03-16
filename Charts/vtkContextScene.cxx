@@ -144,7 +144,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.18");
+vtkCxxRevisionMacro(vtkContextScene, "1.19");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 
@@ -159,6 +159,7 @@ vtkContextScene::vtkContextScene()
   this->BufferId=0;
   this->BufferIdDirty=true;
   this->UseBufferId = true;
+  this->Transform = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -173,6 +174,10 @@ vtkContextScene::~vtkContextScene()
     {
     this->BufferId->Delete();
     }
+  if (this->Transform)
+    {
+    this->Transform->Delete();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -186,10 +191,19 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
 {
   vtkDebugMacro("Paint event called.");
   size_t size = this->Storage->items.size();
+  if (size && this->Transform)
+    {
+    painter->PushMatrix();
+    painter->SetTransform(this->Transform);
+    }
   for (size_t i = 0; i < size; ++i)
     {
     painter->SetTransform(this->Storage->items[i]->GetTransform());
     this->Storage->items[i]->Paint(painter);
+    }
+  if (size && this->Transform)
+    {
+    painter->PopMatrix();
     }
   if(this->Storage->IsDirty)
     {
@@ -275,6 +289,18 @@ int vtkContextScene::GetViewHeight()
 }
 
 //-----------------------------------------------------------------------------
+int vtkContextScene::GetSceneWidth()
+{
+  return this->Geometry[0];
+}
+
+//-----------------------------------------------------------------------------
+int vtkContextScene::GetSceneHeight()
+{
+  return this->Geometry[1];
+}
+
+//-----------------------------------------------------------------------------
 void vtkContextScene::SetInteractorStyle(vtkInteractorStyle *interactor)
 {
   //cout << "Interactor style " << interactor << " " << interactor->GetClassName() << endl;
@@ -311,6 +337,32 @@ vtkWeakPointer<vtkContext2D> vtkContextScene::GetLastPainter()
 vtkContextBufferId *vtkContextScene::GetBufferId()
 {
   return this->BufferId;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextScene::SetTransform(vtkTransform2D* transform)
+{
+  if (this->Transform == transform)
+    {
+    return;
+    }
+  this->Transform->Delete();
+  this->Transform = transform;
+  this->Transform->Register(this);
+}
+
+//-----------------------------------------------------------------------------
+vtkTransform2D* vtkContextScene::GetTransform()
+{
+  if (this->Transform)
+    {
+    return this->Transform;
+    }
+  else
+    {
+    this->Transform = vtkTransform2D::New();
+    return this->Transform;
+    }
 }
 
 //-----------------------------------------------------------------------------

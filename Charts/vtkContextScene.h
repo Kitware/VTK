@@ -96,6 +96,14 @@ public:
   virtual int GetViewHeight();
 
   // Description:
+  // Get the width of the scene.
+  int GetSceneWidth();
+
+  // Description:
+  // Get the height of the scene.
+  int GetSceneHeight();
+
+  // Description:
   // Add the scene as an observer on the supplied interactor style.
   void SetInteractorStyle(vtkInteractorStyle *interactor);
 
@@ -117,12 +125,23 @@ public:
   // create their own colorbuffer id (when a context item is a container).
   vtkWeakPointer<vtkContext2D> GetLastPainter();
 
-
   // Description:
   // Return buffer id.
   // Not part of the end-user API. Can be used by context items to
   // initialize their own colorbuffer id (when a context item is a container).
   vtkContextBufferId *GetBufferId();
+
+  // Description:
+  // Set the transform for the scene.
+  virtual void SetTransform(vtkTransform2D *transform);
+
+  // Description:
+  // Get the transform for the scene.
+  vtkTransform2D* GetTransform();
+
+  // Description:
+  // Check whether the scene has a transform.
+  bool HasTransform() { return this->Transform != 0; }
 
 protected:
   vtkContextScene();
@@ -198,6 +217,10 @@ protected:
   bool BufferIdDirty;
 
   bool UseBufferId;
+
+  // Description:
+  // The scene level transform.
+  vtkTransform2D* Transform;
 
   // Description:
   // Perform translation and fill in the vtkContextMouseEvent struct.

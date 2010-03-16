@@ -17,12 +17,14 @@
 #include "vtkContext2D.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkContextScene.h"
+#include "vtkTransform2D.h"
 
 #include "vtkViewport.h"
+#include "vtkWindow.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContextActor, "1.5");
+vtkCxxRevisionMacro(vtkContextActor, "1.6");
 vtkStandardNewMacro(vtkContextActor);
 
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
@@ -77,18 +79,31 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     return 0;
     }
 
+  // Need to figure out how big the window is, taking into account tiling...
+  vtkWindow *window = viewport->GetVTKWindow();
+  int scale[2];
+  window->GetTileScale(scale);
+  int size[2];
+  size[0] = window->GetSize()[0];
+  size[1] = window->GetSize()[1];
+  // The viewport is in normalized coordinates, and is the visible section of
+  // the scene.
+  vtkTransform2D* transform = this->Scene->GetTransform();
+  transform->Identity();
+  if (scale[0] > 1 || scale[1] > 1)
+    {
+    // Tiled display - work out the transform required
+    double *b = window->GetTileViewport();
+    int box[] = { b[0] * size[0], b[1] * size[1],
+                  b[2] * size[0], b[3] * size[1] };
+    transform->Translate(-box[0], -box[1]);
+    }
+
   // This is the entry point for all 2D rendering.
   // First initialize the drawing device.
   this->Context->GetDevice()->Begin(viewport);
-
-  int size[2];
-  size[0] = viewport->GetSize()[0];
-  size[1] = viewport->GetSize()[1];
-
   this->Scene->SetGeometry(&size[0]);
-
   this->Scene->Paint(this->Context);
-
   this->Context->GetDevice()->End();
 
   return 1;

@@ -72,7 +72,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.45");
+vtkCxxRevisionMacro(vtkChartXY, "1.46");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -165,8 +165,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
 
-  int geometry[] = { this->GetScene()->GetViewWidth(),
-                     this->GetScene()->GetViewHeight() };
+  int geometry[] = { this->GetScene()->GetSceneWidth(),
+                     this->GetScene()->GetSceneHeight() };
   if (geometry[0] == 0 || geometry[1] == 0 || !this->Visible)
     {
     // The geometry of the chart must be valid before anything can be drawn
@@ -309,14 +309,23 @@ void vtkChartXY::RenderPlots(vtkContext2D *painter)
     }
 
   // Clip drawing while plotting
-  int clip[] = { this->Point1[0], this->Point1[1],
+  float clip[] = { this->Point1[0], this->Point1[1],
                  this->Point2[0]-this->Point1[0],
                  this->Point2[1]-this->Point1[1] };
-  painter->GetDevice()->SetClipping(&clip[0]);
+  // Check whether the scene has a transform - use it if so
+  if (this->Scene->HasTransform())
+    {
+    this->Scene->GetTransform()->InverseTransformPoints(clip, clip, 2);
+    }
+  int clipi[] = { static_cast<int>(clip[0]),
+                  static_cast<int>(clip[1]),
+                  static_cast<int>(clip[2]),
+                  static_cast<int>(clip[3]) };
+  painter->GetDevice()->SetClipping(clipi);
 
   // Push the matrix and use the transform we just calculated
   painter->PushMatrix();
-  painter->SetTransform(this->PlotTransform);
+  painter->AppendTransform(this->PlotTransform);
 
   // Now iterate through the plots
   size_t n = this->ChartPrivate->plots.size();
