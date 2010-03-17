@@ -38,7 +38,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.25");
+vtkCxxRevisionMacro(vtkPlotLine, "1.26");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -254,10 +254,10 @@ void vtkPlotLine::GeneraterMarker(int width)
       double c = width/2.0;
       for (int i = 0; i < width; ++i)
         {
-        int dx2 = (i - c)*(i-c);
+        double dx2 = (i - c)*(i-c);
         for (int j = 0; j < width; ++j)
           {
-          int dy2 = (j - c)*(j - c);
+          double dy2 = (j - c)*(j - c);
           unsigned char color = 0;
           if (sqrt(dx2 + dy2) < c)
             {
