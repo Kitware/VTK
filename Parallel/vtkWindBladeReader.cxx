@@ -50,7 +50,7 @@ string Slash("\\");
 string Slash("/");
 #endif
 
-vtkCxxRevisionMacro(vtkWindBladeReader, "1.4");
+vtkCxxRevisionMacro(vtkWindBladeReader, "1.5");
 vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
@@ -181,6 +181,12 @@ int vtkWindBladeReader::RequestInformation(
       vtkInformationVector** vtkNotUsed(inputVector),
       vtkInformationVector* outputVector)
 { 
+  // Verify that file exists
+  if ( !this->Filename ) {
+    vtkErrorMacro("No filename specified");
+    return 0;
+  }
+
   // Get ParaView information and output pointers
   vtkInformation* fieldInfo = outputVector->GetInformationObject(0);
   vtkStructuredGrid *field = vtkStructuredGrid::SafeDownCast(
