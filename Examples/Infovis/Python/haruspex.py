@@ -22,7 +22,7 @@ verbosity = 0
 def Usage( outModelPrefix, outDataName ):
     print "Usage:"
     print "\t -h               Help: print this message and exit"
-    print "\t -d <filename>    CSV input data file"
+    print "\t -d <filename>    name of CSV input data file"
     print "\t -e <engine>      Type of statistics engine. Available engines are:"
     print "\t                    descriptive"
     print "\t                    order"
@@ -31,14 +31,14 @@ def Usage( outModelPrefix, outDataName ):
     print "\t                    multicorrelative"
     print "\t                    pca"
     print "\t                    kmeans"
-    print "\t [-o <bitcode>]  Engine options bitcode. Default is 0. Available bits are:"
+    print "\t [-o <bitcode>]   Engine options bitcode. Default is 0. Available bits are:"
     print "\t                    1st bit: assess"
     print "\t                    2nd bit: test"
-    print "\t [-m <prefix>]    CSV input model file. Default: calculate model from scratch"
+    print "\t [-m <prefix>]    prefix of CSV input model file(s). Default: calculate model from scratch"
     print "\t [-u]             update input model (if data are provided as well). NB: update happens before assessment"
-    print "\t [-s <prefix>]    CSV output model (statistics) file prefix"
-    print "\t [-a <filename>]  CSV output data (annotated) file"
-    print "\t [-c <filename>]  CSV columns of interest file. Default: all columns are of interest"
+    print "\t [-s <prefix>]    prefix of CSV output model (statistics) file(s)"
+    print "\t [-a <filename>]  name of CSV output data (annotated) file"
+    print "\t [-c <filename>]  name of CSV file specifying columns of interest. Default: all columns are of interest"
     print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
     sys.exit( 1 )
 ############################################################
