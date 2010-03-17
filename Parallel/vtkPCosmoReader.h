@@ -83,7 +83,7 @@ class vtkMultiProcessController;
 class vtkMPIController;
 class vtkStdString;
 
-class VTK_EXPORT vtkPCosmoReader : public vtkUnstructuredGridAlgorithm
+class VTK_PARALLEL_EXPORT vtkPCosmoReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkPCosmoReader *New();

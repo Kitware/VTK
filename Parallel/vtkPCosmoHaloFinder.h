@@ -71,7 +71,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkMultiProcessController;
 
-class VTK_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgorithm
+class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgorithm
 {
  public:
   static vtkPCosmoHaloFinder *New();
