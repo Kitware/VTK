@@ -32,8 +32,9 @@
 #include "vtkMultiProcessController.h"
 
 #include "VPICDataSet.h"
+#include "VPICView.h"
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.8");
+vtkCxxRevisionMacro(vtkVPICReader, "1.9");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------

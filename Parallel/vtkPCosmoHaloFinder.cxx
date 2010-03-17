@@ -82,7 +82,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "Partition.h"
 
-vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.1");
+vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.2");
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
 /****************************************************************************/
@@ -125,7 +125,7 @@ void vtkPCosmoHaloFinder::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Controller: (null)\n";
     }
-
+  os << indent << "NP: " << this->NP << endl;
   os << indent << "rL: " << this->RL << endl;
   os << indent << "Overlap: " << this->Overlap << endl;
   os << indent << "bb: " << this->BB << endl;

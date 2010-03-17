@@ -34,6 +34,7 @@ class vtkDataArraySelection;
 class vtkFloatArray;
 class vtkStdString;
 class vtkMultiProcessController;
+class vtkInformation;
 //BTX
 class VPICDataSet;
 //ETX
