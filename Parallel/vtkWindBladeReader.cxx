@@ -50,7 +50,7 @@ string Slash("\\");
 string Slash("/");
 #endif
 
-vtkCxxRevisionMacro(vtkWindBladeReader, "1.3");
+vtkCxxRevisionMacro(vtkWindBladeReader, "1.4");
 vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
@@ -63,10 +63,10 @@ vtkWindBladeReader::vtkWindBladeReader()
 
   // Set up two output ports, one for fields, one for blades
   this->SetNumberOfOutputPorts(2);
-  vtkUnstructuredGrid* blade = vtkUnstructuredGrid::New();
+  /*vtkUnstructuredGrid* blade = vtkUnstructuredGrid::New();
   blade->ReleaseData();
   this->GetExecutive()->SetOutputData(1, blade);
-  blade->Delete();
+  blade->Delete();*/
 
   // Irregularly spaced grid description for entire problem
   this->Points = vtkPoints::New();
@@ -145,6 +145,10 @@ vtkWindBladeReader::~vtkWindBladeReader()
 
   this->Points->Delete();
   this->BPoints->Delete();
+
+  // Do not delete the MPIController it is Singleton like and will
+  // cleanup itself;
+  this->MPIController = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -157,6 +161,14 @@ void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "FileName: "
      << (this->Filename ? this->Filename : "(NULL)") << endl;
 
+  os << indent << "WholeExent: {" << this->WholeExtent[0] << ", " 
+     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
+     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+     << this->WholeExtent[5] << "}" << endl;
+  os << indent << "SubExtent: {" << this->SubExtent[0] << ", " 
+     << this->SubExtent[1] << ", " << this->SubExtent[2] << ", "
+     << this->SubExtent[3] << ", " << this->SubExtent[4] << ", "
+     << this->SubExtent[5] << "}" << endl;
   os << indent << "VariableArraySelection:" << endl;
   this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
