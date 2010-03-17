@@ -27,6 +27,7 @@
 #include "vtkTable.h"
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
 #include "vtkExecutive.h"
 #include "vtkTimeStamp.h"
 #include "vtkInformation.h"
@@ -37,7 +38,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.24");
+vtkCxxRevisionMacro(vtkPlotLine, "1.25");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -51,6 +52,7 @@ vtkPlotLine::vtkPlotLine()
   this->MarkerStyle = vtkPlotLine::NONE;
   this->LogX = false;
   this->LogY = false;
+  this->Marker = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -70,6 +72,10 @@ vtkPlotLine::~vtkPlotLine()
     {
     this->BadPoints->Delete();
     this->BadPoints = NULL;
+    }
+  if (this->Marker)
+    {
+    this->Marker->Delete();
     }
 }
 
@@ -148,76 +154,144 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   // If there is a marker style, then draw the marker for each point too
   if (this->MarkerStyle)
     {
+    float width = this->Pen->GetWidth() * 2.3;
+    if (width < 8.0)
+      {
+      width = 8.0;
+      }
+    this->GeneraterMarker(width);
     painter->ApplyBrush(this->Brush);
-    painter->GetPen()->SetWidth(1.0);
-    float radiusX = (this->Pen->GetWidth() / 2.0f) + 4.0;
-    float radiusY = radiusX;
-    // Figure out what this is in pixel space
-    vtkTransform2D *transform = painter->GetTransform();
-    if (transform)
-      {
-      radiusX /= transform->GetMatrix()->GetElement(0, 0);
-      radiusY /= transform->GetMatrix()->GetElement(1, 1);
-      }
-    int n = this->Points->GetNumberOfPoints();
-    float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
-    vtkVector2f *pts = reinterpret_cast<vtkVector2f*>(f);
-    switch (this->MarkerStyle)
-      {
-      case vtkPlotLine::CROSS:
-        {
-        for (int i = 0; i < n; ++i)
-          {
-          painter->DrawLine(pts[i].X()+radiusX, pts[i].Y()+radiusY,
-                            pts[i].X()-radiusX, pts[i].Y()-radiusY);
-          painter->DrawLine(pts[i].X()+radiusX, pts[i].Y()-radiusY,
-                            pts[i].X()-radiusX, pts[i].Y()+radiusY);
-          }
-        break;
-        }
-      case vtkPlotLine::PLUS:
-        {
-        for (int i = 0; i < n; ++i)
-          {
-          painter->DrawLine(pts[i].X()-radiusX, pts[i].Y(),
-                            pts[i].X()+radiusX, pts[i].Y());
-          painter->DrawLine(pts[i].X(), pts[i].Y()+radiusY,
-                            pts[i].X(), pts[i].Y()-radiusY);
-          }
-        break;
-        }
-      case vtkPlotLine::SQUARE:
-        {
-        float widthX = 2.0*radiusX;
-        float widthY = 2.0*radiusY;
-        for (int i = 0; i < n; ++i)
-          {
-          painter->DrawRect(pts[i].X()-radiusX, pts[i].Y()-radiusY,
-                            widthX, widthY);
-          }
-        break;
-        }
-      case vtkPlotLine::CIRCLE:
-        {
-        painter->GetPen()->SetWidth(this->Pen->GetWidth()+5.0);
-        painter->DrawPoints(f, n);
-        break;
-        }
-      case vtkPlotLine::DIAMOND:
-        {
-        for (int i = 0; i < n; ++i)
-          {
-          painter->DrawQuad(pts[i].X()-radiusX, pts[i].Y(),
-                            pts[i].X(), pts[i].Y()+radiusY,
-                            pts[i].X()+radiusX, pts[i].Y(),
-                            pts[i].X(), pts[i].Y()-radiusY);
-          }
-        break;
-        }
-      }
+    painter->GetPen()->SetWidth(width);
+    painter->AddPointSprite(this->Marker);
+    painter->DrawPoints(this->Points);
+    painter->AddPointSprite(0);
     }
 
   return true;
+}
+
+void vtkPlotLine::GeneraterMarker(int width)
+{
+  // Set up the image data
+  if (!this->Marker)
+    {
+    this->Marker = vtkImageData::New();
+    this->Marker->SetScalarTypeToUnsignedChar();
+    this->Marker->SetNumberOfScalarComponents(4);
+    }
+  else
+    {
+    if (this->Marker->GetMTime() >= this->GetMTime() &&
+        this->Marker->GetMTime() >= this->Pen->GetMTime())
+      {
+      // Marker already generated, no need to do this again.
+      return;
+      }
+    }
+  this->Marker->SetExtent(0, width-1, 0, width-1, 0, 0);
+  this->Marker->AllocateScalars();
+  unsigned char* image =
+      static_cast<unsigned char*>(this->Marker->GetScalarPointer());
+
+  // Generate the marker image at the required size
+  switch (this->MarkerStyle)
+    {
+    case vtkPlotLine::CROSS:
+      {
+      for (int i = 0; i < width; ++i)
+        {
+        for (int j = 0; j < width; ++j)
+          {
+          unsigned char color = 0;
+          if (i == j || i == width-j)
+            {
+            color = 255;
+            }
+          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
+                                   image[4*width*i + 4*j + 2] = color;
+          image[4*width*i + 4*j + 3] = color;
+          }
+        }
+      break;
+      }
+    case vtkPlotLine::PLUS:
+      {
+      int x = width / 2;
+      int y = width / 2;
+      for (int i = 0; i < width; ++i)
+        {
+        for (int j = 0; j < width; ++j)
+          {
+          unsigned char color = 0;
+          if (i == x || j == y)
+            {
+            color = 255;
+            }
+          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
+                                   image[4*width*i + 4*j + 2] = color;
+          image[4*width*i + 4*j + 3] = color;
+          }
+        }
+      break;
+      }
+    case vtkPlotLine::SQUARE:
+      {
+      for (int i = 0; i < width; ++i)
+        {
+        for (int j = 0; j < width; ++j)
+          {
+          unsigned char color = 255;
+          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
+                                   image[4*width*i + 4*j + 2] = color;
+          image[4*width*i + 4*j] = 50;
+          image[4*width*i + 4*j + 3] = color;
+          }
+        }
+      break;
+      }
+    case vtkPlotLine::CIRCLE:
+      {
+      double c = width/2.0;
+      for (int i = 0; i < width; ++i)
+        {
+        int dx2 = (i - c)*(i-c);
+        for (int j = 0; j < width; ++j)
+          {
+          int dy2 = (j - c)*(j - c);
+          unsigned char color = 0;
+          if (sqrt(dx2 + dy2) < c)
+            {
+            color = 255;
+            }
+          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
+                                   image[4*width*i + 4*j + 2] = color;
+          image[4*width*i + 4*j + 3] = color;
+          }
+        }
+      break;
+      }
+    case vtkPlotLine::DIAMOND:
+      {
+      int c = width/2;
+      for (int i = 0; i < width; ++i)
+        {
+        int dx = i-c > 0 ? i-c : c-i;
+        for (int j = 0; j < width; ++j)
+          {
+          int dy = j-c > 0 ? j-c : c-j;
+          unsigned char color = 0;
+          if (c-dx >= dy)
+            {
+            color = 255;
+            }
+          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
+                                   image[4*width*i + 4*j + 2] = color;
+          image[4*width*i + 4*j + 3] = color;
+          }
+        }
+      break;
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

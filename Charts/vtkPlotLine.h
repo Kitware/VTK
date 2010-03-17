@@ -28,6 +28,7 @@ class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
 class vtkStdString;
+class vtkImageData;
 
 class VTK_CHARTS_EXPORT vtkPlotLine : public vtkPlot
 {
@@ -93,6 +94,10 @@ protected:
   ~vtkPlotLine();
 
   // Description:
+  // Generate the requested symbol for the plot
+  void GeneraterMarker(int width);
+
+  // Description:
   // Update the table cache.
   bool UpdateTableCache(vtkTable *table);
 
@@ -131,6 +136,7 @@ protected:
   // Description:
   // The marker style that should be used
   int MarkerStyle;
+  vtkImageData* Marker;
 
   bool LogX, LogY;
 
