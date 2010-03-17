@@ -24,13 +24,7 @@
 #ifndef __vtkWindBladeReader_h
 #define __vtkWindBladeReader_h
 
-#include "vtkStringArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
-#include "vtkPoints.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkMultiBlockDataSetAlgorithm.h"
+
 #include "vtkStructuredGridAlgorithm.h"
 
 #define VTK_USE_MPI
@@ -50,8 +44,16 @@ class vtkWindBladeReaderPiece;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 class vtkMultiProcessController;
+class vtkStringArray;
+class vtkFloatArray;
+class vtkIntArray;
+class vtkPoints;
+class vtkStructuredGrid;
+class vtkUnstructuredGrid;
+class vtkMultiBlockDataSetAglorithm;
+class vtkStructuredGridAlgorithm;
 
-class VTK_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm 
+class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm 
 {
 public:
   static vtkWindBladeReader *New();
