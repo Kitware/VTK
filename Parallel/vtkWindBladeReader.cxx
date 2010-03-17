@@ -50,7 +50,7 @@ string Slash("\\");
 string Slash("/");
 #endif
 
-vtkCxxRevisionMacro(vtkWindBladeReader, "1.5");
+vtkCxxRevisionMacro(vtkWindBladeReader, "1.6");
 vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
@@ -146,6 +146,8 @@ vtkWindBladeReader::~vtkWindBladeReader()
   this->Points->Delete();
   this->BPoints->Delete();
 
+  this->SelectionObserver->Delete();
+  
   // Do not delete the MPIController it is Singleton like and will
   // cleanup itself;
   this->MPIController = NULL;
