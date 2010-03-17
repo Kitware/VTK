@@ -58,8 +58,11 @@ IF(VTK_USE_PARALLEL)
   # vtkParallel uses source hashes during network handshakes.
   SUBDIRS(HashSource)
   
-  # helper classes for VPICReader
+  # helper classes for vtkVPICReader
   VTK_THIRD_PARTY_SUBDIR(VPIC VPIC)
+  
+  # helper classes for vtkPCosmoReader and vtkPCosmoHaloFinder
+  #VTK_THIRD_PARTY_SUBDIR(Cosmo Cosmo)
 ENDIF(VTK_USE_PARALLEL)
 
 IF(VTK_USE_RENDERING)
