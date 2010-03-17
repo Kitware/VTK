@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.75");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.76");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
@@ -1501,7 +1501,8 @@ void vtkCompositeDataPipeline::MarkOutputsGenerated(
           indices[index] = static_cast<int>(iter->GetCurrentFlatIndex());
           }
         iter->Delete();
-        outInfo->Set(COMPOSITE_INDICES(), indices, count);
+        outInfo->Set(COMPOSITE_INDICES(), indices,
+          static_cast<int>(count));
         delete []indices;
         }
       else
