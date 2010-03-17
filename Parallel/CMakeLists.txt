@@ -89,6 +89,7 @@ vtkTransmitRectilinearGridPiece.cxx
 vtkTransmitStructuredGridPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkVPICReader.cxx
+vtkWindBladeReader.cxx
 vtkXMLPHierarchicalBoxDataWriter.cxx
 vtkXMLPMultiBlockDataWriter.cxx
 )
