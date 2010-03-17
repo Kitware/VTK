@@ -42,7 +42,7 @@ string Slash("\\");
 string Slash("/");
 #endif
 
-vtkCxxRevisionMacro(vtkWindBladeReader, "1.1");
+vtkCxxRevisionMacro(vtkWindBladeReader, "1.2");
 vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
@@ -157,8 +157,8 @@ void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
 // RequestInformation supplies global meta information
 //----------------------------------------------------------------------------
 int vtkWindBladeReader::RequestInformation(
-      vtkInformation* request,
-      vtkInformationVector** inputVector,
+      vtkInformation* vtkNotUsed(request),
+      vtkInformationVector** vtkNotUsed(inputVector),
       vtkInformationVector* outputVector)
 { 
   // Get ParaView information and output pointers
@@ -228,8 +228,8 @@ int vtkWindBladeReader::RequestInformation(
 // ParaView is doing the partitioning for this reader
 //----------------------------------------------------------------------------
 int vtkWindBladeReader::RequestUpdateExtent(
-      vtkInformation* request,
-      vtkInformationVector** inputVector,
+      vtkInformation* vtkNotUsed(request),
+      vtkInformationVector** vtkNotUsed(inputVector),
       vtkInformationVector* outputVector)
 {
   // If Modified is not set, blades do not turn
@@ -240,7 +240,7 @@ int vtkWindBladeReader::RequestUpdateExtent(
   field->SetDimensions(this->Dimension);
   field->SetWholeExtent(this->WholeExtent);
 
-  vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
+  // not used? vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
   vtkUnstructuredGrid* blade = GetBladeOutput();
   blade->SetWholeExtent(this->WholeExtent);
 
@@ -520,7 +520,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   for (int k = this->SubExtent[4]; k <= this->SubExtent[5]; k++) {
     for (int j = this->SubExtent[2]; j <= this->SubExtent[3]; j++) {
       for (int i = this->SubExtent[0]; i <= this->SubExtent[1]; i++) {
-        int index = (k * planeSize) + (j * rowSize) + i;
+// not used?        int index = (k * planeSize) + (j * rowSize) + i;
 
         // Edges are initialized to 0
         if (j == this->SubExtent[2] || j == this->SubExtent[3] ||
@@ -550,11 +550,11 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 void vtkWindBladeReader::LoadVariableData(int var)
 {
   // Skip to the appropriate variable block and read byte count
-  int byteCount;
+  // not used? int byteCount;
   fseek(this->FilePtr, this->VariableOffset[var], SEEK_SET);
 
   // Set the number of components for this variable
-  int numberOfComponents;
+  int numberOfComponents = 0;
   if (this->VariableStruct[var] == SCALAR) {
     numberOfComponents = 1;
     this->data[var]->SetNumberOfComponents(numberOfComponents);
@@ -998,7 +998,7 @@ float vtkWindBladeReader::GDeform(float sigma, float sigmaMax, int flag)
   float aa2 = (f * (1.0 - aa1)) / sigmaMax;
   float aa3 = (1.0 - (aa2 * sigmaMax) - aa1) / (sigmaMax * sigmaMax);
 
-  float zcoord;
+  float zcoord = 0.0;
   if (flag == 0)
     zcoord = (aa3 * sigma_3) + (aa2 * sigma_2) + (aa1 * sigma);
   else if (flag == 1)
@@ -1025,7 +1025,7 @@ void vtkWindBladeReader::spline(
       float yp1, float ypn,  // boundary condition
       float* y2)    // return array
 {
-  float p, qn, sig, un;
+  float qn, un;
   float* u = new float[n];
 
   // Lower boundary condition set to natural spline
@@ -1157,7 +1157,7 @@ void vtkWindBladeReader::SetupBladeData()
 
   this->NumberOfBladeCells = 0;
   while (inStr2.getline(inBuf, LINE_SIZE))
-    this-NumberOfBladeCells++;
+    this->NumberOfBladeCells++;
   inStr2.close();
   this->NumberOfBladePoints = this->NumberOfBladeCells * NUM_PART_SIDES;
 
@@ -1270,7 +1270,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
 
 //----------------------------------------------------------------------------
 void vtkWindBladeReader::SelectionCallback(
-  vtkObject*, unsigned long eventid, void* clientdata, void* calldata)
+  vtkObject*, unsigned long vtkNotUsed(eventid), void* clientdata, void* vtkNotUsed(calldata))
 {
   static_cast<vtkWindBladeReader*>(clientdata)->Modified();
 }
