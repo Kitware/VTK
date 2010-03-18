@@ -42,7 +42,7 @@ int vtkExodusIIReaderVariableCheck::Accept(
   vtkExodusIIReaderPrivate::ArrayInfoType ainfo;
   ainfo.Name = this->Prefix;
   ainfo.Source = vtkExodusIIReaderPrivate::Result;
-  ainfo.Components = len;
+  ainfo.Components = static_cast<int>( len );
   for ( unsigned int i = 0; i < len; ++ i )
     {
     ainfo.OriginalIndices.push_back( startIndex + i + 1 /* FORTRAN. Blech. */ );
