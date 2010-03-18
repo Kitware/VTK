@@ -1,6 +1,7 @@
  
 project(Cosmo)
 
+
 #SET(Cosmo_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #CONFIGURE_FILE (${Cosmo_SOURCE_DIR}/VPICDefinition.h.in
