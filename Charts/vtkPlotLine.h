@@ -95,7 +95,7 @@ protected:
 
   // Description:
   // Generate the requested symbol for the plot
-  void GeneraterMarker(int width);
+  void GeneraterMarker(int width, bool highlight = false);
 
   // Description:
   // Update the table cache.
@@ -137,6 +137,7 @@ protected:
   // The marker style that should be used
   int MarkerStyle;
   vtkImageData* Marker;
+  vtkImageData* HighlightMarker;
 
   bool LogX, LogY;
 

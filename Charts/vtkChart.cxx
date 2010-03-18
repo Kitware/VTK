@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.14");
+vtkCxxRevisionMacro(vtkChart, "1.15");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -48,6 +48,10 @@ vtkChart::~vtkChart()
 {
   this->SetTitle(NULL);
   this->TitleProperties->Delete();
+  if (this->AnnotationLink)
+    {
+    this->AnnotationLink->Delete();
+    }
 }
 
 //-----------------------------------------------------------------------------

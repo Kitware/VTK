@@ -38,7 +38,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.28");
+vtkCxxRevisionMacro(vtkPlotLine, "1.29");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -53,6 +53,7 @@ vtkPlotLine::vtkPlotLine()
   this->LogX = false;
   this->LogY = false;
   this->Marker = NULL;
+  this->HighlightMarker = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,6 +77,14 @@ vtkPlotLine::~vtkPlotLine()
   if (this->Marker)
     {
     this->Marker->Delete();
+    }
+  if (this->HighlightMarker)
+    {
+    this->HighlightMarker->Delete();
+    }
+  if (this->Selection)
+    {
+    this->Selection->Delete();
     }
 }
 
@@ -122,20 +131,30 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
     return false;
     }
 
+  float width = this->Pen->GetWidth() * 2.3;
+  if (width < 8.0)
+    {
+    width = 8.0;
+    }
+
   // Now add some decorations for our selected points...
   if (this->Selection)
     {
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
     for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
-      painter->ApplyPen(this->Pen);
-      painter->GetPen()->SetWidth(this->Pen->GetWidth()*15.0);
+      this->GeneraterMarker(static_cast<int>(width+2.7), true);
+
+      painter->GetPen()->SetColor(255, 50, 0, 255);
+      painter->GetPen()->SetWidth(width+2.7);
+
       vtkIdType id = 0;
       this->Selection->GetTupleValue(i, &id);
       if (id < this->Points->GetNumberOfPoints())
         {
         double *point = this->Points->GetPoint(id);
-        painter->DrawPoint(point[0], point[1]);
+        float p[] = { point[0], point[1] };
+        painter->DrawPointSprites(this->HighlightMarker, p, 1);
         }
       }
     }
@@ -154,11 +173,6 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   // If there is a marker style, then draw the marker for each point too
   if (this->MarkerStyle)
     {
-    float width = this->Pen->GetWidth() * 2.3;
-    if (width < 8.0)
-      {
-      width = 8.0;
-      }
     this->GeneraterMarker(static_cast<int>(width));
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
@@ -168,28 +182,55 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   return true;
 }
 
-void vtkPlotLine::GeneraterMarker(int width)
+void vtkPlotLine::GeneraterMarker(int width, bool highlight)
 {
-  // Set up the image data
-  if (!this->Marker)
+  // Set up the image data, if highlight then the mark shape is different
+  vtkImageData *data = 0;
+
+  if (!highlight)
     {
-    this->Marker = vtkImageData::New();
-    this->Marker->SetScalarTypeToUnsignedChar();
-    this->Marker->SetNumberOfScalarComponents(4);
+    if (!this->Marker)
+      {
+      this->Marker = vtkImageData::New();
+      this->Marker->SetScalarTypeToUnsignedChar();
+      this->Marker->SetNumberOfScalarComponents(4);
+      }
+    else
+      {
+      if (this->Marker->GetMTime() >= this->GetMTime() &&
+          this->Marker->GetMTime() >= this->Pen->GetMTime())
+        {
+        // Marker already generated, no need to do this again.
+        return;
+        }
+      }
+    data = this->Marker;
     }
   else
     {
-    if (this->Marker->GetMTime() >= this->GetMTime() &&
-        this->Marker->GetMTime() >= this->Pen->GetMTime())
+    if (!this->HighlightMarker)
       {
-      // Marker already generated, no need to do this again.
-      return;
+      this->HighlightMarker = vtkImageData::New();
+      this->HighlightMarker->SetScalarTypeToUnsignedChar();
+      this->HighlightMarker->SetNumberOfScalarComponents(4);
+      data = this->HighlightMarker;
       }
+    else
+      {
+      if (this->HighlightMarker->GetMTime() >= this->GetMTime() &&
+          this->HighlightMarker->GetMTime() >= this->Pen->GetMTime())
+        {
+        // Marker already generated, no need to do this again.
+        return;
+        }
+      }
+    data = this->HighlightMarker;
     }
-  this->Marker->SetExtent(0, width-1, 0, width-1, 0, 0);
-  this->Marker->AllocateScalars();
+
+  data->SetExtent(0, width-1, 0, width-1, 0, 0);
+  data->AllocateScalars();
   unsigned char* image =
-      static_cast<unsigned char*>(this->Marker->GetScalarPointer());
+      static_cast<unsigned char*>(data->GetScalarPointer());
 
   // Generate the marker image at the required size
   switch (this->MarkerStyle)
@@ -201,9 +242,20 @@ void vtkPlotLine::GeneraterMarker(int width)
         for (int j = 0; j < width; ++j)
           {
           unsigned char color = 0;
-          if (i == j || i == width-j)
+
+          if (highlight)
             {
-            color = 255;
+            if ((i >= j-1 && i <= j+1) || (i >= width-j-1 && i <= width-j+1))
+              {
+              color = 255;
+              }
+            }
+          else
+            {
+            if (i == j || i == width-j)
+              {
+              color = 255;
+              }
             }
           image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
                                    image[4*width*i + 4*j + 2] = color;
@@ -225,6 +277,13 @@ void vtkPlotLine::GeneraterMarker(int width)
             {
             color = 255;
             }
+          if (highlight)
+            {
+            if (i == x-1 || i == x+1 || j == y-1 || j == y+1)
+              {
+              color = 255;
+              }
+            }
           image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
                                    image[4*width*i + 4*j + 2] = color;
           image[4*width*i + 4*j + 3] = color;
@@ -241,7 +300,6 @@ void vtkPlotLine::GeneraterMarker(int width)
           unsigned char color = 255;
           image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
                                    image[4*width*i + 4*j + 2] = color;
-          image[4*width*i + 4*j] = 50;
           image[4*width*i + 4*j + 3] = color;
           }
         }
@@ -288,6 +346,25 @@ void vtkPlotLine::GeneraterMarker(int width)
           }
         }
       break;
+      }
+    default:
+      {
+      int x = width / 2;
+      int y = width / 2;
+      for (int i = 0; i < width; ++i)
+        {
+        for (int j = 0; j < width; ++j)
+          {
+          unsigned char color = 0;
+          if (i == x || j == y)
+            {
+            color = 255;
+            }
+          image[4*width*i + 4*j] = image[4*width*i + 4*j + 1] =
+                                   image[4*width*i + 4*j + 2] = color;
+          image[4*width*i + 4*j + 3] = color;
+          }
+        }
       }
     }
 }
