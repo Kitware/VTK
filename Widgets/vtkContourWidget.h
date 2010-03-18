@@ -170,7 +170,10 @@ public:
   vtkBooleanMacro( FollowCursor, int );
 
   // Description:
-  // Define a contour by continuously drawing with the mouse cursor.  If you
+  // Define a contour by continuously drawing with the mouse cursor.
+  // Press and hold the left mouse button down to continuously draw.
+  // Releasing the left mouse button switches into a snap drawing mode.
+  // Terminate the contour by pressing the right mouse button.  If you
   // do not want to see the nodes as they are added to the contour, set the
   // opacity to 0 of the representation's property.  If you do not want to 
   // see the last active node as it is being added, set the opacity to 0 
@@ -204,6 +207,7 @@ protected:
   int AllowNodePicking;
   int FollowCursor;
   int ContinuousDraw;
+  int ContinuousActive;
 
   // Callback interface to capture events when
   // placing the widget.

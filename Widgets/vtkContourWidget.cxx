@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.36");
+vtkCxxRevisionMacro(vtkContourWidget, "1.37");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -39,6 +39,7 @@ vtkContourWidget::vtkContourWidget()
   this->AllowNodePicking = 0;
   this->FollowCursor     = 0;
   this->ContinuousDraw   = 0;
+  this->ContinuousActive = 0;
 
   // These are the event callbacks supported by this widget
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -158,6 +159,11 @@ void vtkContourWidget::SelectAction( vtkAbstractWidget *w )
   pos[0] = X;
   pos[1] = Y;
 
+  if( self->ContinuousDraw )
+   {
+   self->ContinuousActive = 0;
+   }
+
   switch ( self->WidgetState )
     {
     case vtkContourWidget::Start:
@@ -171,6 +177,10 @@ void vtkContourWidget::SelectAction( vtkAbstractWidget *w )
         self->AddNode();
         }
       self->AddNode();
+      if( self->ContinuousDraw )
+        {
+        self->ContinuousActive = 1;
+        }
       break;
       }
 
@@ -220,6 +230,11 @@ void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget *w)
     if ( !self->FollowCursor && !self->ContinuousDraw )
       {
       self->AddNode();
+      }
+
+    if( self->ContinuousDraw )
+      {
+      self->ContinuousActive = 0;
       }
 
     self->WidgetState = vtkContourWidget::Manipulate;
@@ -520,7 +535,7 @@ void vtkContourWidget::MoveAction( vtkAbstractWidget *w )
           }
         else if ( rep->GetClosedLoop() == 0 )
           {
-          if( self->ContinuousDraw )
+          if( self->ContinuousDraw && self->ContinuousActive )
             {
             rep->AddNodeAtDisplayPosition( X, Y );
             }
@@ -566,6 +581,11 @@ void vtkContourWidget::EndSelectAction( vtkAbstractWidget *w )
   vtkContourWidget *self = reinterpret_cast<vtkContourWidget*>(w);
   vtkContourRepresentation *rep =
     reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
+
+  if( self->ContinuousDraw )
+    {
+    self->ContinuousActive = 0;
+    }
 
   // Do nothing if inactive
   if ( rep->GetCurrentOperation() == vtkContourRepresentation::Inactive )
