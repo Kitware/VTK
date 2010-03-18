@@ -43,14 +43,20 @@ public:
   static vtkOpenGLContextDevice2D *New();
 
   // Description:
-  // Draw a poly line using the vtkPoints2D - fastest code path due to memory
+  // Draw a poly line using the points - fastest code path due to memory
   // layout of the coordinates.
   virtual void DrawPoly(float *points, int n);
 
   // Description:
-  // Draw a poly line using the vtkPoints2D - fastest code path due to memory
+  // Draw a series of points - fastest code path due to memory
   // layout of the coordinates.
   virtual void DrawPoints(float *points, int n);
+
+  // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize.
+  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n);
 
   // Description:
   // Draws a rectangle
@@ -99,10 +105,6 @@ public:
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) location(s) (bottom corner).
   virtual void DrawImage(float *p, int n, vtkImageData *image);
-
-  // Description:
-  // Experimentation with point sprites
-  virtual unsigned int AddPointSprite(vtkImageData *image);
 
   // Description:
   // Set the color for the device using unsigned char of length 4, RGBA.

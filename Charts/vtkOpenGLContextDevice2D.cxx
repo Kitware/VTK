@@ -145,10 +145,11 @@ public:
 
   int TextCounter;
   vtkVector2i Dim;
+  bool OpenGL15;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.24");
+vtkCxxRevisionMacro(vtkOpenGLContextDevice2D, "1.25");
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
@@ -398,30 +399,91 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
 {
   if (f && n > 0)
     {
-    if (this->Storage->Texture)
-      {
-      this->Storage->Texture->Render(this->Renderer);
-      glEnable(vtkgl::POINT_SPRITE);
-      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_TRUE);
-      vtkgl::PointParameteri(vtkgl::POINT_SPRITE_COORD_ORIGIN, vtkgl::LOWER_LEFT);
-      }
-
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, f);
     glDrawArrays(GL_POINTS, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    if (this->Storage->Texture)
-      {
-      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_FALSE);
-      glDisable(vtkgl::POINT_SPRITE);
-      this->Storage->Texture->PostRender(this->Renderer);
-      glDisable(GL_TEXTURE_2D);
-      }
     }
   else
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
+                                                float *points, int n)
+{
+  if (sprite && points && n > 0)
+    {
+    if (!this->Storage->Texture)
+      {
+      this->Storage->Texture = vtkTexture::New();
+      this->Storage->Texture->SetRepeat(false);
+      }
+    this->Storage->Texture->SetInput(sprite);
+    this->Storage->Texture->Render(this->Renderer);
+    if (this->Storage->OpenGL15)
+      {
+      // We can actually use point sprites here
+      glEnable(vtkgl::POINT_SPRITE);
+      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_TRUE);
+      vtkgl::PointParameteri(vtkgl::POINT_SPRITE_COORD_ORIGIN, vtkgl::LOWER_LEFT);
+
+      this->DrawPoints(points, n);
+
+      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_FALSE);
+      glDisable(vtkgl::POINT_SPRITE);
+
+      }
+    else
+      {
+      // Must emulate the point sprites - slower but at least they see something.
+      GLfloat width = 1.0;
+      glGetFloatv(GL_POINT_SIZE, &width);
+      width /= 2.0;
+
+      // Need to get the model view matrix for scaling factors...
+      GLfloat mv[16];
+      glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+      float xWidth = width / mv[0];
+      float yWidth = width / mv[5];
+
+      float p[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+      // This will be the same everytime
+      float texCoord[] = { 0.0, 0.0,
+                           1.0, 0.0,
+                           1.0, 1.0,
+                           0.0, 1.0 };
+
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
+
+      for (int i = 0; i < n; ++i)
+        {
+        p[0] = points[2*i] - xWidth;
+        p[1] = points[2*i+1] - yWidth;
+        p[2] = points[2*i] + xWidth;
+        p[3] = points[2*i+1] - yWidth;
+        p[4] = points[2*i] + xWidth;
+        p[5] = points[2*i+1] + yWidth;
+        p[6] = points[2*i] - xWidth;
+        p[7] = points[2*i+1] + yWidth;
+
+        glVertexPointer(2, GL_FLOAT, 0, p);
+        glDrawArrays(GL_QUADS, 0, 4);
+        }
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+      }
+    this->Storage->Texture->PostRender(this->Renderer);
+    glDisable(GL_TEXTURE_2D);
+    }
+  else
+    {
+    vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
     }
 }
 
@@ -650,18 +712,6 @@ void vtkOpenGLContextDevice2D::DrawImage(float *p, int, vtkImageData *image)
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkOpenGLContextDevice2D::AddPointSprite(vtkImageData *image)
-{
-  if (!this->Storage->Texture)
-    {
-    this->Storage->Texture = vtkTexture::New();
-    this->Storage->Texture->SetRepeat(false);
-    }
-  this->Storage->Texture->SetInput(image);
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetColor4(unsigned char *color)
 {
   glColor4ubv(color);
@@ -878,10 +928,12 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
   if(m->ExtensionSupported("GL_VERSION_1_5"))
     {
     m->LoadExtension("GL_VERSION_1_5");
+    this->Storage->OpenGL15 = true;
     return true;
     }
   else
     {
+    this->Storage->OpenGL15 = false;
     return false;
     }
 }

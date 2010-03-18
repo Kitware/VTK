@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.23");
+vtkCxxRevisionMacro(vtkContext2D, "1.24");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);
@@ -231,6 +231,29 @@ void vtkContext2D::DrawPoints(float *points, int n)
 
   this->ApplyPen();
   this->Device->DrawPoints(points, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  this->DrawPointSprites(sprite, f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPointSprites(vtkImageData *sprite, float *points, int n)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+
+  this->ApplyPen();
+  this->Device->DrawPointSprites(sprite, points, n);
 }
 
 //-----------------------------------------------------------------------------
@@ -475,13 +498,6 @@ void vtkContext2D::DrawImage(float x, float y, vtkImageData *image)
 {
   float p[] = { x, y };
   this->Device->DrawImage(&p[0], 1, image);
-}
-
-//-----------------------------------------------------------------------------
-unsigned int vtkContext2D::AddPointSprite(vtkImageData *image)
-{
-  this->Device->AddPointSprite(image);
-  return 0;
 }
 
 //-----------------------------------------------------------------------------

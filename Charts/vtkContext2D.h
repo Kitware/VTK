@@ -129,6 +129,18 @@ public:
   void DrawPoints(float *points, int n);
 
   // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize.
+  void DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points);
+
+  // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize.
+  void DrawPointSprites(vtkImageData *sprite, float *points, int n);
+
+  // Description:
   // Draw a rectangle with origin at x, y and width w, height h
   void DrawRect(float x, float y, float w, float h);
 
@@ -249,10 +261,6 @@ public:
   // Description:
   // Get the text properties object for the vtkContext2D.
   vtkGetObjectMacro(TextProp, vtkTextProperty);
-
-  // Description:
-  // Experimentation with point sprites
-  unsigned int AddPointSprite(vtkImageData *image);
 
   // Description:
   // Set the transform for the context, the underlying device will use the
