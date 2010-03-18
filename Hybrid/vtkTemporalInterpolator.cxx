@@ -31,7 +31,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.15");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.16");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -294,7 +294,9 @@ int vtkTemporalInterpolator::RequestData(
         vtkDebugMacro(<<"Interpolation times " << inTimes[i-1] << "->" << inTimes[i] 
           << " : " << upTimes[upIdx] << " Interpolation ratio " << this->Ratio );
         out1 = this->InterpolateDataObject(in1,in2,this->Ratio);
-        //outData->ShallowCopy(out1);
+        // stamp this new dataset with a time key
+        out1->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), 
+                                 upTimes, numUpTimes);
         outData->SetTimeStep(upIdx, out1);
         out1->Delete();
         }
@@ -303,7 +305,8 @@ int vtkTemporalInterpolator::RequestData(
       }
     }
 
-  // set the resulting times
+  // @TODO remove this when we move to new time framework
+  // stamp the new temporal dataset with a time key (old style of management)
   outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), 
                                  upTimes, numUpTimes);
 
