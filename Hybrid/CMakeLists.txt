@@ -29,7 +29,6 @@ ENDIF (WIN32)
 SET( KIT_LIBS ${KIT_LIBS} vtkftgl )
 
 SET ( Kit_SRCS
-vtkExodusIIReaderParser.cxx
 vtk3DSImporter.cxx
 vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx
@@ -89,6 +88,8 @@ IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkExodusIICache.cxx
     vtkExodusIIReader.cxx
+    vtkExodusIIReaderParser.cxx
+    vtkExodusIIReaderVariableCheck.cxx
     vtkExodusReader.cxx
     vtkDSPFilterDefinition.cxx
     vtkExodusModel.cxx
@@ -122,6 +123,7 @@ vtkX3DExporterWriter
 vtkX3DExporterFIWriter
 vtkX3DExporterXMLWriter
 vtkExodusIIReaderParser
+vtkExodusIIReaderVariableCheck
 WRAP_EXCLUDE)
 
 # for vtkStructuredGridLIC2D

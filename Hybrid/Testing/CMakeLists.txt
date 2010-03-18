@@ -18,6 +18,7 @@ IF(PYTHON_EXECUTABLE)
     vtk3DS.h
     vtkExodusIIReaderParser.h
     vtkExodusIIReaderPrivate.h
+    vtkExodusIIReaderVariableCheck.h
     vtkVRML.h
     vtkX3D.h
     vtkX3DExporterFIWriterHelper.h

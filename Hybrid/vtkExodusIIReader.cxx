@@ -210,70 +210,22 @@ extern "C" { typedef int (*vtkExodusIIGetMapFunc)( int, int* ); }
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 #include "vtkExodusIIReaderPrivate.h"
+#include "vtkExodusIIReaderVariableCheck.h"
 
 // ----------------------------------------------------------- UTILITY ROUTINES
-static int glomIntegrationPointElementDimension( vtkStdString& eleType )
-{
-  vtksys::RegularExpression reQuad( "[Qq][Uu][Aa][Dd]" );
-  vtksys::RegularExpression reHex( "[Hh][Ee][Xx]" );
-  vtksys::RegularExpression reTet( "[Tt][Ee][Tt]" );
-  vtksys::RegularExpression reTri( "[Tt][Rr][Ii]" );
-  vtksys::RegularExpression reWedge( "[Ww][Ee][Dd][Gg][Ee]" );
-  vtksys::RegularExpression rePyramid( "[Pp][Yy][Rr]" );
-  if ( reHex.find( eleType ) )
-    return 3;
-  else if ( reTet.find( eleType ) )
-    return 3;
-  else if ( reWedge.find( eleType ) )
-    return 3;
-  else if ( rePyramid.find( eleType ) )
-    return 3;
-  else if ( reQuad.find( eleType ) )
-    return 2;
-  else if ( reTri.find( eleType ) )
-    return 2;
-  
-  return -1;
-}
 
-static int glomTruthTabMatch( int num_obj, int num_vars, int* truth_tab, 
-                              vtkExodusIIReaderPrivate::ArrayInfoType& ainfo )
+// This function exists because FORTRAN ordering sucks.
+static void extractTruthForVar( int num_obj, int num_vars, const int* truth_tab, int var, vtkstd::vector<int>& truth )
 {
-  // This returns 1 when all objects have the same values
-  // in truth_tab for all original variable indices in
-  // ainfo (and 0 otherwise).
-  // It creates an entry in ainfo.ObjectTruth for each object
-  // based on the values in truth_tab.
-  int num_comp = (int)ainfo.OriginalIndices.size();
-  if ( num_comp < 1 )
-    return 0;
+  truth.clear();
 
   int obj;
-  int ttObj; // truth table entry for variable idx on object obj.
-  int idx = ainfo.OriginalIndices[0] - 1;
+  int ttObj; // truth table entry for variable var on object obj.
   for ( obj = 0; obj < num_obj; ++obj )
     {
-    ttObj = truth_tab[ idx + obj * num_vars ];
-    ainfo.ObjectTruth.push_back( ttObj );
+    ttObj = truth_tab[ var + obj * num_vars ];
+    truth.push_back( ttObj );
     }
-  if ( num_comp < 2 )
-    return 1;
-
-  int comp;
-  for ( comp = 1; comp < num_comp; ++comp )
-    {
-    // Get truth table entry for 0-th variable of object obj:
-    for ( obj = 0; obj < num_obj; ++obj )
-      {
-      if ( truth_tab[ ainfo.OriginalIndices[comp] - 1 + obj * num_vars ] != 
-           truth_tab[ idx                             + obj * num_vars ] )
-        {
-        // At least one object has a different truth table entry for variable ii.
-        return 0;
-        }
-      }
-    }
-  return 1; // All objects define variable ii over the same subset of objects.
 }
 
 static void printBlock( ostream& os, vtkIndent indent, int btyp, 
@@ -374,7 +326,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.86");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.87");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -443,362 +395,104 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
 }
 
 //-----------------------------------------------------------------------------
-int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
-  int nn, char** np, vtksys::RegularExpression& re,
-  vtkStdString& field, vtkStdString& ele )
-{ 
-  vtkstd::vector<vtkstd::vector<int> > gpId;
-  int max[3] = { 0, 0, 0 };
-  int dim = glomIntegrationPointElementDimension( ele );
-  for ( int i = 0; i < nn; ++i )
-    {
-    gpId.push_back( vtkstd::vector<int>() );
-    re.find( np[i] );
-    vtkStdString gpIdStr = re.match(3);
-    int d = 0;
-    for ( vtkStdString::iterator it = gpIdStr.begin(); it != gpIdStr.end(); ++it, ++d )
-      {
-      gpId[i].push_back( *it - '0' );
-      }
-    if ( dim < 0 )
-      {
-      dim = d; 
-      if ( dim > 3 )
-        {
-        vtkWarningMacro( "Field \"" << np[i] << "\" has integration dimension " 
-                          << d << " > 3." );
-        return false;
-        }
-      }
-    else if ( dim != d )
-      {
-      vtkWarningMacro( "Field \"" << np[i] << "\" has integration dimension " 
-                        << d << " != " << dim << "." );
-      return false;
-      }
-    else
-      {
-      for ( int j = 0; j < dim; ++j )
-        if ( gpId[i][j] > max[j] )
-          max[j] = gpId[i][j];
-      }
-    }
-#ifdef VTK_DBG_GLOM
-  cout << "  Integration points are " << dim << "-dimensional.\n";
-  for ( int i = 0; i < dim; ++i )
-    {
-    cout << "    " << (max[i]+1) << " integration points along " 
-         << char('r' + i) << ".\n";
-    }
-#endif // VTK_DBG_GLOM
-  int npt = 1;
-  for ( int i = 0; i < dim; ++i )
-    {
-    npt *= max[i] + 1;
-    }
-  bool bad = false;
-  if ( npt != nn )
-    {
-    vtkWarningMacro( "Field \"" << field.c_str() << "\" has " << nn <<
-      " entries, but I expected " << npt << " given the integration order." );
-    bad = true;
-    }
-  int e;
-  int ef = -1;
-  int cnt;
-  bool found; 
-  if ( dim == 2 )
-    {
-    for ( int r = 0; r <= max[0]; ++r )
-      { 
-      for ( int s = 0; s <= max[1]; ++s )
-        {
-        found = false;
-        cnt = 0;
-        for ( e = 0; e < nn; ++e )
-          {
-          if ( gpId[e][0] == r && gpId[e][1] == s )
-            {
-            found = true;
-            ef = e;
-            ++cnt;
-            }
-          }
-        if ( !found )
-          {
-          vtkWarningMacro( "Field \"" << field.c_str() <<
-            "\" is missing Gauss point (" << r << ", " << s << ")." );
-          }
-        else if ( cnt > 1 )
-          {
-          vtkWarningMacro( "Field \"" << field.c_str() << "\" has " << (cnt-1) <<
-            " duplicate(s) of Gauss point (" << r << ", " << s << ")." );
-          }
-        else if ( npt == nn && (ef != s + r * (max[1]+1) ) )
-          {
-          vtkWarningMacro( "Field \"" << field.c_str() <<
-            "\" has misplaced Gauss point (" << r << ", " << s << ")." );
-          bad = true;
-          }
-        }
-      }
-    }
-  else if ( dim == 3 )
-    {
-    for ( int r = 0; r <= max[0]; ++r )
-      { 
-      for ( int s = 0; s <= max[1]; ++s )
-        { 
-        for ( int t = 0; t <= max[2]; ++t )
-          {
-          found = false;
-          cnt = 0;
-          for ( e = 0; e < nn; ++e )
-            {
-            if ( gpId[e][0] == r && gpId[e][1] == s && gpId[e][2] == t )
-              {
-              found = true;
-              ef = e;
-              ++cnt;
-              }
-            }
-          if ( !found )
-            {
-            vtkWarningMacro( "Field \"" << field.c_str() 
-              << "\" is missing Gauss point (" << r << ", " << s << ", " 
-              << t << ")." );
-            bad = true;
-            }
-          else if ( cnt > 1 )
-            {
-            vtkWarningMacro( "Field \"" << field.c_str() << "\" has " << (cnt-1) 
-             << " duplicate(s) of Gauss point (" << r << ", " << s << ", " 
-             << t << ")." );
-            bad = true;
-            }
-          else if ( npt == nn && (ef != t + (max[2]+1) * ( s + r * (max[1]+1) )) )
-            {
-            vtkWarningMacro( "Field \"" << field.c_str() <<
-              "\" has misplaced Gauss point (" << r << ", " << s << ", " << 
-              t << ")." );
-            bad = true;
-            }
-          }
-        }
-      }
-    }
-  return ! bad;
-}
-
-//-----------------------------------------------------------------------------
 void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, 
                                                int num_obj, 
                                                int num_vars, 
                                                char** var_names, 
                                                int* truth_tab )
 {
-  vtksys::RegularExpression reTensor( "(.*)[XxYyZz][XxYyZz]$" );
-  vtksys::RegularExpression reVector( "(.*)[XxYyZz]$" );
-  vtksys::RegularExpression reVector2( "(.*)_[RrZz]$" );
-  vtksys::RegularExpression reGaussP( "(.*)_([^_]*)_GP([0-9]+)$" );
-
   // Clear out existing array names since we are re-reading them in.
   this->ArrayInfo[objtyp].clear();
 
-  ArrayInfoType ainfo;
-  for ( int i = 0; i < num_vars; ++i )
+  // Create some objects that try to glom names together in different ways.
+  const char endRZ[] = "RZ";
+  const char endV2[] = "xy";
+  const char endV3[] = "xYz";
+  const char endST23[] = "XXYYZZXYXZYZ";
+  const char endST34[] = "XXXYYYZZZWWWXXYXXZXXWXYYXYZXYWXZZXZWXWWYYZYYWYZZYZWYWWZZWZWW";
+
+  vtkExodusIIReaderScalarCheck* scalar = new vtkExodusIIReaderScalarCheck;
+  //vtkExodusIIReaderVectorCheck* vecx2 = new vtkExodusIIReaderVectorCheck( endV2, 2 );
+  //vtkExodusIIReaderVectorCheck* vecx3 = new vtkExodusIIReaderVectorCheck( endV3, 3 );
+  //vtkExodusIIReaderVectorCheck* vecrz = new vtkExodusIIReaderVectorCheck( endRZ, 2 );
+  vtkExodusIIReaderTensorCheck* vecx2 = new vtkExodusIIReaderTensorCheck( endV2, 2, 1, 2 );
+  vtkExodusIIReaderTensorCheck* vecx3 = new vtkExodusIIReaderTensorCheck( endV3, 3, 1, 3 );
+  vtkExodusIIReaderTensorCheck* vecrz = new vtkExodusIIReaderTensorCheck( endRZ, 2, 1, 2 );
+  vtkExodusIIReaderTensorCheck* ten23 = new vtkExodusIIReaderTensorCheck( endST23, 6, 2, 3 );
+  vtkExodusIIReaderTensorCheck* ten34 = new vtkExodusIIReaderTensorCheck( endST34, 20, 3, 4 );
+  vtkExodusIIReaderIntPointCheck* intpt = new vtkExodusIIReaderIntPointCheck;
+  typedef vtkstd::vector<vtkExodusIIReaderVariableCheck*> glomVec;
+  glomVec glommers;
+  glommers.push_back( scalar );
+  glommers.push_back( vecx2 );
+  glommers.push_back( vecx3 );
+  glommers.push_back( vecrz );
+  glommers.push_back( ten23 );
+  glommers.push_back( ten34 );
+  glommers.push_back( intpt );
+  glomVec::iterator glommer;
+  typedef vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> varVec;
+  varVec arrays;
+  vtkstd::vector<int> tmpTruth;
+  // Advance through the variable names.
+  for ( int i = 0; i < num_vars; ++ i )
     {
-    char* srcName = var_names[i];
-    bool didGlom = true;
-    ainfo.Source = vtkExodusIIReaderPrivate::Result;
-
-    if ( reTensor.find( srcName ) )
+    // Prepare all the glommers with the next unused variable name
+    extractTruthForVar( num_obj, num_vars, truth_tab, i, tmpTruth );
+    bool stop = true;
+    for ( glommer = glommers.begin(); glommer != glommers.end(); ++ glommer )
       {
-      if ( i + 1  < num_vars )
+      if ( (*glommer)->Start( var_names[i], &tmpTruth[0], num_obj ) )
         {
-        int ii = i;
-        int sl = (int)strlen(var_names[i]) - 2;
-        while ( ii < num_vars )
-          {
-          if ( ! reTensor.find( var_names[ii] ) || 
-               strncmp( var_names[ii], var_names[i], sl ) )
-            break;
-          ainfo.OriginalNames.push_back( var_names[ii] );
-          ainfo.OriginalIndices.push_back( ii + 1 );
-          ++ii;
-          }
-        ainfo.Components = ii - i;
-        if ( ! ainfo.Components || 
-             ! glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
-          {
-          didGlom = false;
-          }
-        else
-          {
-          reTensor.find( srcName );
-          //cout << "Tensor \"" << reTensor.match(1) << "\" has " 
-          //     << (ii-i) << " components\n";
-          ainfo.Name = reTensor.match(1);
-          ainfo.GlomType = vtkExodusIIReaderPrivate::SymmetricTensor;
-          ainfo.Status = 0;
-          ainfo.StorageType = VTK_DOUBLE;
-          this->GetInitialObjectArrayStatus(objtyp, &ainfo);
-          this->ArrayInfo[ objtyp ].push_back( ainfo );
-          i = ii - 1; // advance to end of glom
-          }
-        ainfo.Reset();
-        }
-      else
-        {
-        didGlom = false;
+        stop = false;
         }
       }
-    else if ( reVector.find( srcName ) || reVector2.find( srcName ) )
+    int j = i + 1;
+    // If any glommers can continue accepting names, give them more names until no more can accept names
+    while ( j < num_vars && ! stop )
       {
-      int vecPattern = 0; // default to XYZ name
-      if ( i+1 < num_vars )
+      stop = true;
+      for ( glommer = glommers.begin(); glommer != glommers.end(); ++ glommer )
         {
-        int sli = (int)strlen(var_names[i]) - 1;
-        int ii = i;
-        const char xyzEndings[] = "XYZ";
-        const char rzEndings[] = "RZ";
-        const char* endings = toupper( var_names[i][sli] ) == 'R' ? rzEndings : xyzEndings;
-        int numEndings = static_cast<int>( strlen( endings ) );
-        if ( endings == rzEndings ) vecPattern = 1;
-        while ( ii < num_vars && ( ii - i < numEndings ) )
+        if ( (*glommer)->Add( var_names[j], &tmpTruth[0] ) )
           {
-          int slii = ii == i ? sli : (int)strlen(var_names[ii]) - 1;
-          // Require the strings to be identical except for the 
-          // final XYZ or RZ at the end.
-          if ( slii != sli ||
-               toupper(var_names[ii][slii]) != endings[ii-i] || 
-               strncmp( var_names[ii], var_names[i], slii ) )
-            {
-            break;
-            }
-          ainfo.OriginalNames.push_back( var_names[ii] );
-          ainfo.OriginalIndices.push_back( ii + 1 );
-          ++ii;
+          stop = false;
           }
-        ainfo.Components = ii - i;
-        if ( ainfo.Components < 2 || 
-             ! glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
-          {
-          didGlom = false;
-          }
-        else
-          {
-          //cout << "Vector \"" << reVector.match(1) << "\" has " 
-          //     << (ii - i) << " components\n";
-          switch ( vecPattern )
-            {
-          case 1:
-            ainfo.Name = reVector2.match(1);
-            break;
-          case 0:
-          default:
-            ainfo.Name = reVector.match(1);
-            break;
-            }
-          ainfo.GlomType = ainfo.Components == 2 ? 
-                           vtkExodusIIReaderPrivate::Vector2 
-                           : vtkExodusIIReaderPrivate::Vector3;
-          ainfo.Status = 0;
-          ainfo.StorageType = VTK_DOUBLE;
-          this->GetInitialObjectArrayStatus(objtyp, &ainfo);
-          this->ArrayInfo[ objtyp ].push_back( ainfo );
-          i = ii - 1; // advance to end of glom
-          }
-        ainfo.Reset();
         }
-      else
+      ++ j;
+      }
+    // Find longest glom that worked. (The scalar glommer always works with Length() 1.)
+    unsigned int longestGlom = 0;
+    glomVec::iterator longestGlommer = glommers.end();
+    for ( glommer = glommers.begin(); glommer != glommers.end(); ++ glommer )
+      {
+      if ( (*glommer)->Length() > longestGlom )
         {
-        didGlom = false;
+        longestGlom = (*glommer)->Length();
+        longestGlommer = glommer;
         }
       }
-    else if ( reGaussP.find( srcName ) )
+    if ( longestGlommer != glommers.end() )
       {
-      if ( i + 1  < num_vars )
-        {
-        int ii = i;
-        vtkStdString field = reGaussP.match( 1 );
-        vtkStdString ele = reGaussP.match( 2 );
-
-        while ( ii < num_vars && 
-                reGaussP.find( var_names[ii] ) && 
-                (reGaussP.match( 1 ) == field) && 
-                (reGaussP.match( 2 ) == ele) )
-          {
-          ainfo.OriginalNames.push_back( var_names[ii] );
-          ainfo.OriginalIndices.push_back( ii + 1 );
-          ++ii;
-          }
-        ainfo.Components = ii - i;
-        // Check that the names are consistent (i.e., there aren't missing  
-        // Gauss points, they all have the same dim, etc.)
-        if ( this->VerifyIntegrationPointGlom( ii - i, var_names + i, reGaussP, field, ele ) &&
-             glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
-          {
-          //cout << "Gauss Points for \"" << field << "\" on " << ele 
-          //     << "-shaped elements has " << (ii-i) << " components\n";
-          ainfo.Name = field;
-          ainfo.GlomType = vtkExodusIIReaderPrivate::IntegrationPoint;
-          ainfo.Status = 0;
-          ainfo.StorageType = VTK_DOUBLE;
-          this->GetInitialObjectArrayStatus(objtyp, &ainfo);
-          this->ArrayInfo[ objtyp ].push_back( ainfo );
-          i = ii - 1; // advance to end of glom
-          }
-        else
-          {
-          ainfo.Reset();
-          for ( ; i < ii; ++i )
-            {
-            //cout << "Scalar \"" << var_names[i] << "\"\n";
-            ainfo.Name = var_names[i];
-            ainfo.Source = Result;
-            ainfo.Components = 1;
-            ainfo.OriginalIndices.push_back( i + 1 );
-            ainfo.OriginalNames.push_back( var_names[i] );
-            ainfo.GlomType = vtkExodusIIReaderPrivate::Scalar;
-            ainfo.StorageType = VTK_DOUBLE;
-            ainfo.Status = 0;
-            // fill in ainfo.ObjectTruth:
-            glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); 
-            this->GetInitialObjectArrayStatus(objtyp, &ainfo);
-            this->ArrayInfo[ objtyp ].push_back( ainfo );
-            }
-          }
-        ainfo.Reset();
-        }
-      else
-        {
-        didGlom = false;
-        }
-      }
-    else
-      {
-      didGlom = false;
-      }
-
-    if ( ! didGlom )
-      {
-      //cout << "Scalar \"" << srcName << "\"\n";
-      ainfo.Name = srcName;
-      ainfo.Source = Result;
-      ainfo.Components = 1;
-      ainfo.OriginalIndices.push_back( i + 1 );
-      ainfo.OriginalNames.push_back( var_names[i] );
-      ainfo.GlomType = vtkExodusIIReaderPrivate::Scalar;
-      ainfo.StorageType = VTK_DOUBLE;
-      ainfo.Status = 0;
-      // fill in ainfo.ObjectTruth:
-      glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); 
-      this->GetInitialObjectArrayStatus(objtyp, &ainfo);
-      this->ArrayInfo[ objtyp ].push_back( ainfo );
-      ainfo.Reset();
+      i += (*longestGlommer)->Accept( this->ArrayInfo[objtyp], i, this, objtyp ) - 1; // the ++i takes care of length 1
       }
     }
+
+  // Now see what the gloms were.
+  /*
+  for ( varVec::iterator it = this->ArrayInfo[objtyp].begin(); it != this->ArrayInfo[objtyp].end(); ++ it )
+    {
+    cout << "Name: \"" << it->Name.c_str() << "\" (" << it->Components << ")\n";
+    }
+    */
+
+  delete scalar;
+  delete vecx2;
+  delete vecx3;
+  delete vecrz;
+  delete ten23;
+  delete ten34;
+  delete intpt;
 }
 
 //-----------------------------------------------------------------------------
@@ -5535,7 +5229,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.86");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.87");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
