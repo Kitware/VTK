@@ -35,6 +35,7 @@ vtkChacoGraphReader.cxx
 vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
 vtkCollapseGraph.cxx
+vtkCollapseVerticesByArray.cxx
 vtkCommunity2DLayoutStrategy.cxx
 vtkConeLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
