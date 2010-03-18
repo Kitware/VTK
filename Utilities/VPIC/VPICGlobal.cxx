@@ -13,9 +13,9 @@
 #include <algorithm>
 
 #ifdef WIN32
-string Slash("\\");
+const static char * Slash = "\\";
 #else
-string Slash("/");
+const static char * Slash = "/";
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
