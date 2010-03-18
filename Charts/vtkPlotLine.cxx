@@ -38,7 +38,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.26");
+vtkCxxRevisionMacro(vtkPlotLine, "1.27");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);
@@ -159,7 +159,7 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
       {
       width = 8.0;
       }
-    this->GeneraterMarker(width);
+    this->GeneraterMarker(static_cast<int>(width));
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
     painter->AddPointSprite(this->Marker);
