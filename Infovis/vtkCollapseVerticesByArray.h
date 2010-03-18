@@ -89,9 +89,8 @@ protected:
 
 private:
   // Description:
-  // Not implemented.
-  vtkCollapseVerticesByArray(const vtkCollapseVerticesByArray&);
-  void operator=(const vtkCollapseVerticesByArray);
+  vtkCollapseVerticesByArray(const vtkCollapseVerticesByArray&); // Not implemented
+  void operator=(const vtkCollapseVerticesByArray);              // Not implemented
 
 
 protected:
