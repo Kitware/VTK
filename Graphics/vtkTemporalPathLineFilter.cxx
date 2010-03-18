@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.10");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.11");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -332,6 +332,7 @@ int vtkTemporalPathLineFilter::RequestData(
     doInfo->Get(vtkDataObject::DATA_TIME_STEPS(), &timesteps[0]);
   }
   else {
+    vtkErrorMacro(<<"The input dataset did not have a valid DATA_TIME_STEPS information key");
     return 0;
   }
   double CurrentTimeStep = timesteps[0];
