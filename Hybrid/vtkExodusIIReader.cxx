@@ -326,7 +326,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.87");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.88");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -468,7 +468,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
       {
       if ( (*glommer)->Length() > longestGlom )
         {
-        longestGlom = (*glommer)->Length();
+        longestGlom = static_cast<unsigned int>( (*glommer)->Length() );
         longestGlommer = glommer;
         }
       }
@@ -5229,7 +5229,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.87");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.88");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);

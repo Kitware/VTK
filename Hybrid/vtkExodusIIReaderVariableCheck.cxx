@@ -38,7 +38,7 @@ int vtkExodusIIReaderVariableCheck::Accept(
   vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
   int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
 {
-  unsigned int len = this->Length();
+  vtksys_stl::string::size_type len = this->Length();
   vtkExodusIIReaderPrivate::ArrayInfoType ainfo;
   ainfo.Name = this->Prefix;
   ainfo.Source = vtkExodusIIReaderPrivate::Result;
@@ -58,7 +58,7 @@ int vtkExodusIIReaderVariableCheck::Accept(
     priv->GetInitialObjectArrayStatus( objtyp, &ainfo );
     }
   arr.push_back( ainfo );
-  return this->Length();
+  return static_cast<int>( this->Length() );
 }
 
 vtkExodusIIReaderVariableCheck::vtkExodusIIReaderVariableCheck()
