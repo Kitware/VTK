@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.21");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.22");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -572,7 +572,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   // The LastUsedAlpha checks ensures that opacity changes are reflected
   // correctly when this->MapScalars(..) is called when iterating over a
   // composite dataset.
-  if (colors && lut->GetAlpha() == alpha &&
+  if (colors && 
     this->LastUsedAlpha == alpha &&
     this->LastUsedMultiplyWithAlpha == multiply_with_alpha)
     {
