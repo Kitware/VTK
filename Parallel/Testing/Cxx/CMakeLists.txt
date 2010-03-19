@@ -118,12 +118,12 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ADD_TEST(MPIController
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/TestMPIController
+        ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestMPIController
         ${VTK_MPI_POSTFLAGS}
         )
       ADD_TEST(TestProcess
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TestProcess
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestProcess
             ${VTK_MPI_POSTFLAGS})
 
 
@@ -139,7 +139,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     # I vote we just get rid of it altogether.
     ADD_TEST(GenericCommunicator-image 
       ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-      ${CXX_TEST_PATH}/GenericCommunicator
+      ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/GenericCommunicator
       ${VTK_MPI_POSTFLAGS})
 
     IF (VTK_USE_PARALLEL_BGL)
@@ -262,56 +262,56 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         IF(VTK_MPI_MAX_NUMPROCS GREATER 1)
           ADD_TEST(ParallelIso-image 
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-            ${CXX_TEST_PATH}/ParallelIsoTest
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/ParallelIsoTest
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/ParallelIso.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TestPStream-image 
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
-            ${CXX_TEST_PATH}/TestPStream
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestPStream
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestPStream.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(DistributedData-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/DistributedData
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/DistributedData
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/DistributedData.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(DistributedDataRenderPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/DistributedDataRenderPass
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/DistributedDataRenderPass
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/DistributedDataRenderPass.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitImageData-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TransmitImageData
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TransmitImageData
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitImageData.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitImageDataRenderPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TransmitImageDataRenderPass
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TransmitImageDataRenderPass
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitImageDataRenderPass.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TestPShadowMapPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TestPShadowMapPass
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestPShadowMapPass
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestPShadowMapPass.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TestDistributedDataShadowMapPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TestDistributedDataShadowMapPass
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestDistributedDataShadowMapPass
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestDistributedDataShadowMapPass.cxx.png
@@ -319,7 +319,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
           ADD_TEST(TestPCompositeZPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TestPCompositeZPass
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestPCompositeZPass
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestPCompositeZPass.cxx.png
@@ -327,7 +327,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
           ADD_TEST(TestDistributedDataCompositeZPass-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TestDistributedDataCompositeZPass
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestDistributedDataCompositeZPass
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestDistributedDataCompositeZPass.cxx.png
@@ -335,14 +335,14 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
           ADD_TEST(TransmitRectilinearGrid-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TransmitRectilinearGrid
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TransmitRectilinearGrid
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitRectilinearGrid.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitStructuredGrid-image
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
-            ${CXX_TEST_PATH}/TransmitStructuredGrid
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TransmitStructuredGrid
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Tempor2ary
             -V Baseline/Parallel/TransmitStructuredGrid.cxx.png
