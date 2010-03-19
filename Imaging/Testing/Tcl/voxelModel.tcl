@@ -18,7 +18,9 @@ vtkVoxelModeller voxelModel
   voxelModel SetInputConnection [sphereModel GetOutputPort]
   voxelModel SetSampleDimensions 21 21 21
   voxelModel SetModelBounds -1.5 1.5 -1.5 1.5 -1.5 1.5
-
+  voxelModel SetScalarTypeToBit
+  voxelModel SetForegroundValue 1
+  voxelModel SetBackgroundValue 0
 if {[catch {set channel [open "voxelModel.vtk" "w"]}] == 0 } {
    close $channel
    file delete -force "voxelModel.vtk"
@@ -67,7 +69,7 @@ if {[catch {set channel [open "voxelModel.vtk" "w"]}] == 0 } {
 
 # prevent the tk window from showing up then start the event loop
    wm withdraw .
-   catch { file delete -force "voxelModel.vtk" }
+
 }
 
 
