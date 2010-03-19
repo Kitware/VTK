@@ -26,7 +26,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestCollapseVerticesByArray(int argc, char* argv[])
+int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   typedef
   vtkSmartPointer<vtkSimple2DLayoutStrategy>  vtkSimple2DLayoutStrategyRefPtr;
