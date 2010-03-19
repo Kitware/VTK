@@ -106,6 +106,7 @@ static const char *vtkCommandEventStrings[] = {
   "HoverEvent",
   "LoadStateEvent",
   "SaveStateEvent",
+  "StateChangedEvent",
   NULL
 };
 

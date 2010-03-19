@@ -358,6 +358,7 @@ public:
     HoverEvent,
     LoadStateEvent,
     SaveStateEvent,
+    StateChangedEvent,
     UserEvent = 1000
   };
 //ETX
