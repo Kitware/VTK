@@ -23,6 +23,7 @@
 
 #include "vtkTableAlgorithm.h"
 #include "vtkUnicodeString.h" // Needed for vtkUnicodeString
+#include "vtkStdString.h" // Needed for vtkStdString
 
 // .NAME vtkDelimitedTextReader - reads in delimited ascii or unicode text files 
 // and outputs a vtkTable data structure.
@@ -175,6 +176,12 @@ public:
   vtkGetMacro(OutputPedigreeIds, bool);
   vtkBooleanMacro(OutputPedigreeIds, bool);
 
+  // Description:
+  // Returns a human-readable description of the most recent error, if any.
+  // Otherwise, returns an empty string.  Note that the result is only valid
+  // after calling Update().
+  vtkStdString GetLastError();
+
 //BTX
 protected:
   vtkDelimitedTextReader();
@@ -203,6 +210,7 @@ protected:
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;
   bool OutputPedigreeIds;
+  vtkStdString LastError;
 
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented

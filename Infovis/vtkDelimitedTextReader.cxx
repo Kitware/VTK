@@ -362,7 +362,7 @@ void ascii_to_unicode(OctetIteratorT begin, OctetIteratorT end, OutputIteratorT 
     {
     const vtkTypeUInt32 code_point = *begin++;
     if(code_point > 0x7f)
-      throw vtkstd::runtime_error("Not an ASCII character");
+      throw vtkstd::runtime_error("Detected a character that isn't valid US-ASCII.");
 
     *output++ = code_point;
     }
@@ -417,7 +417,7 @@ void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIterator
 /////////////////////////////////////////////////////////////////////////////////////////
 // vtkDelimitedTextReader
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.37");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.38");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 vtkDelimitedTextReader::vtkDelimitedTextReader() :
@@ -556,12 +556,19 @@ const char* vtkDelimitedTextReader::GetUTF8StringDelimiters()
   return this->UnicodeStringDelimiters.utf8_str();
 }
 
+vtkStdString vtkDelimitedTextReader::GetLastError()
+{
+  return this->LastError;
+}
+
 int vtkDelimitedTextReader::RequestData(
   vtkInformation*, 
   vtkInformationVector**, 
   vtkInformationVector* outputVector)
 {
   vtkTable* const output_table = vtkTable::GetData(outputVector);
+
+  this->LastError = "";
 
   try
     {
@@ -602,10 +609,8 @@ int vtkDelimitedTextReader::RequestData(
     // Get the total size of the input file in bytes ... 
     ifstream file_stream(this->FileName, ios::binary);
     if(!file_stream.good())
-      {
-      vtkErrorMacro(<< "Unable to open input file named: " << this->FileName << endl);
-      throw vtkstd::runtime_error("Unable to open input file in vtkDelimitedTextReader");
-      }
+      throw vtkstd::runtime_error("Unable to open input file " + std::string(this->FileName));
+    
     file_stream.seekg(0, ios::end);
     const vtkIdType total_bytes = file_stream.tellg();
     file_stream.seekg(0, ios::beg);
@@ -633,6 +638,9 @@ int vtkDelimitedTextReader::RequestData(
       }
     else if("UTF-8" == character_set)
       {
+      if(!vtk_utf8::is_valid(content.begin(), content.end()))
+        throw vtkstd::runtime_error("Detected a byte sequence that isn't valid UTF-8.");
+
       iterator = vtk_utf8::utf8to32(content.begin(),  content.end(), iterator);
       iterator.ReachedEndOfInput();
       }
@@ -648,20 +656,42 @@ int vtkDelimitedTextReader::RequestData(
         }
       else
         {
-        throw vtkstd::runtime_error("Cannot detect the endianness of UTF-16 data.  Use 'UTF-16BE' or 'UTF-16LE' instead.");
+        throw vtkstd::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
         }
       }
     else if("UTF-16BE" == character_set)
       {
-      utf16_to_unicode(true, content.begin(), content.end(), iterator);
+      if(content.size() > 1 && static_cast<unsigned char>(content[0]) == 0xfe && static_cast<unsigned char>(content[1]) == 0xff)
+        {
+        throw vtkstd::runtime_error("UTF-16BE file should not contain BOM.  Try 'UTF-16' instead.");
+        }
+      else if(content.size() > 1 && static_cast<unsigned char>(content[0]) == 0xff && static_cast<unsigned char>(content[1]) == 0xfe)
+        {
+        throw vtkstd::runtime_error("UTF-16BE file should not contain BOM.  Try 'UTF-16' instead.");
+        }
+      else
+        {
+        utf16_to_unicode(true, content.begin(), content.end(), iterator);
+        }
       }
     else if("UTF-16LE" == character_set)
       {
-      utf16_to_unicode(false, content.begin(), content.end(), iterator);
+      if(content.size() > 1 && static_cast<unsigned char>(content[0]) == 0xfe && static_cast<unsigned char>(content[1]) == 0xff)
+        {
+        throw vtkstd::runtime_error("UTF-16LE file should not contain BOM.  Try 'UTF-16' instead.");
+        }
+      else if(content.size() > 1 && static_cast<unsigned char>(content[0]) == 0xff && static_cast<unsigned char>(content[1]) == 0xfe)
+        {
+        throw vtkstd::runtime_error("UTF-16LE file should not contain BOM.  Try 'UTF-16' instead.");
+        }
+      else
+        {
+        utf16_to_unicode(false, content.begin(), content.end(), iterator);
+        }
       }
     else
       {
-      throw vtkstd::runtime_error("Unknown UnicodeCharacterSet: " + vtkStdString(this->UnicodeCharacterSet));
+      throw vtkstd::runtime_error("Unknown Unicode character set: " + vtkStdString(this->UnicodeCharacterSet));
       }
 
     if(this->OutputPedigreeIds)
@@ -689,8 +719,7 @@ int vtkDelimitedTextReader::RequestData(
           }
         else
           {
-          throw vtkstd::runtime_error("Could find pedigree id array: " + 
-             vtkStdString(this->PedigreeIdArrayName));
+          throw vtkstd::runtime_error("Could not find pedigree id array: " + vtkStdString(this->PedigreeIdArrayName));
           }
       }
     }
@@ -711,11 +740,13 @@ int vtkDelimitedTextReader::RequestData(
   catch(vtkstd::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
+    this->LastError = e.what();
     output_table->Initialize();
     }
   catch(...)
     {
     vtkErrorMacro(<< "caught unknown exception." << endl);
+    this->LastError = "Unknown exception.";
     output_table->Initialize();
     }
 
