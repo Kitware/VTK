@@ -130,7 +130,7 @@ int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
     this->Create(vtkGraph::SafeDownCast(inObj));
   if(outGraph)
     {
-    vtkMutableDirectedGraph::SafeDownCast(outObj)->ShallowCopy(outGraph);
+    vtkDirectedGraph::SafeDownCast(outObj)->ShallowCopy(outGraph);
     outGraph->Delete();
     }
   else
@@ -145,7 +145,7 @@ int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
 int vtkCollapseVerticesByArray::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMutableDirectedGraph");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDirectedGraph");
   return 1;
 }
 
@@ -228,6 +228,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     inVertexDataArraysAO.push_back(absArray);
     }
 
+
   for(size_t i=0; i < inVertexDataArraysAO.size(); ++i)
     {
     if(!inVertexDataArraysAO[i]->GetName())
@@ -238,6 +239,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
     outVertexDataArraysAO.push_back(outGraph->GetVertexData()
       ->GetAbstractArray(inVertexDataArraysAO[i]->GetName()));
+    outVertexDataArraysAO.back()->SetNumberOfTuples(inVertexDataArraysAO[i]->
+                                                    GetNumberOfTuples());
     }
   //--
 
@@ -298,6 +301,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                                    inEdgeDataArraysOI[i]->GetName()));
 
       outEdgeDataArraysOI.push_back(outDataArray);
+      outDataArray->SetNumberOfTuples
+        (inEdgeDataArraysOI[i]->GetNumberOfTuples());
       }
     }
 
@@ -316,6 +321,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                                       inEdgeDataArraysAO[i]->GetName());
 
       outEdgeDataArraysAO.push_back(outAbsArray);
+      outAbsArray->SetNumberOfTuples
+        (inEdgeDataArraysAO[i]->GetNumberOfTuples());
       }
     }
   //--
@@ -334,6 +341,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     {
     inSourceId = itr->Next();
     vtkVariant source = inVertexAOI->GetVariantValue(inSourceId);
+
     myItr = myMap.find(source);
 
     if(myItr != myMap.end())
@@ -348,6 +356,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       outVertexAOI->InsertVariantValue(outSourceId, source);
       myMap.insert(NameIdPair(source, outSourceId));
       }
+
 
     for(size_t i=0; i < inVertexDataArraysAO.size(); ++i)
       {
@@ -401,16 +410,14 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       // Arrays of interest.
       for(size_t i=0; i < inEdgeDataArraysOI.size(); ++i)
         {
-        double* edgeData = inEdgeDataArraysOI[i]->GetTuple(edge->GetId());
-        outEdgeDataArraysOI[i]->SetTuple(outEdgeId, edgeData);
+
+        outEdgeDataArraysOI[i]->SetTuple(
+          outEdgeId, edge->GetId(), inEdgeDataArraysOI[i]);
         }
 
       // All others. Last entered will overide previous ones.
       for(size_t i=0; i < inEdgeDataArraysAO.size(); ++i)
         {
-        outEdgeDataArraysAO[i]->SetNumberOfTuples(inEdgeDataArraysAO[i]->
-          GetNumberOfTuples());
-
         outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),
                                          inEdgeDataArraysAO[i]);
         }
@@ -429,6 +436,10 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
         double* outEdgeData = outEdgeDataArraysOI[i]->GetTuple(outEdgeId);
         double* inEdgeData  = inEdgeDataArraysOI[i]->GetTuple(edge->GetId());
 
+        if(!outEdgeData && !inEdgeData)
+        {
+        continue;
+        }
         for(int j=0; j < inEdgeDataArraysOI[i]->GetNumberOfComponents(); ++j)
           {
           outEdgeData[j] = outEdgeData[j] + inEdgeData[j];
