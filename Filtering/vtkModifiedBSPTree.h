@@ -18,7 +18,7 @@
   with permission from, and thanks to
 
   ------------------------------------------
-  Copyright (C) 1997-1999 John Biddiscombe
+  Copyright (C) 1997-2000 John Biddiscombe
   Rutherford Appleton Laboratory,
   Chilton, Oxon, England
   ------------------------------------------
@@ -26,11 +26,10 @@
   Skipping Mouse Software Ltd,
   Blewbury, England
   ------------------------------------------
-  Copyright (C) 2005-2009 John Biddiscombe
+  Copyright (C) 2004-2009 John Biddiscombe
   CSCS - Swiss National Supercomputing Centre
   Galleria 2 - Via Cantonale
-  CH-6928 Manno
-  Switzerland
+  CH-6928 Manno, Switzerland
   ------------------------------------
 =========================================================================*/
 // .NAME vtkModifiedBSPTree - Generate axis aligned BBox tree for raycasting and other Locator based searches
@@ -127,21 +126,29 @@
 //  John Biddiscombe for developing and contributing this class
 //
 // .SECTION ToDo
-// -----
+// -------------
 // Implement intersection heap for testing rays against transparent objects
-// Make this a subclass of vtkCellLocator?  No. Create a new base blass
-// vtkAbstractCellLocator and make both this and vtkCellLocator subclasses of it
+//
+// .SECTION Style
+// --------------
+// This class is currently maintained by J. Biddiscombe who has specially
+// requested that the code style not be modified to the kitware standard.
+// Please respect the contribution of this class by keeping the style
+// as close as possible to the author's original.
 //
 
 #ifndef _vtkModifiedBSPTree_h
 #define _vtkModifiedBSPTree_h
 
 #include "vtkAbstractCellLocator.h"
+#include "vtkSmartPointer.h" //required because I want it
+#include <vector> // required for generation of cell lists
 
 //BTX
 class Sorted_cell_extents_Lists;
 class BSPNode;
 class vtkGenericCell;
+class vtkIdList;
 //ETX
 
 class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
@@ -172,11 +179,11 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
 //BTX
   // Description:
   // Generate BBox representation of Nth level
-  void GenerateRepresentation(int level, vtkPolyData *pd);
+  virtual void GenerateRepresentation(int level, vtkPolyData *pd);
 
   // Description:
   // Generate BBox representation of all leaf nodes
-  void GenerateRepresentationLeafs(vtkPolyData *pd);
+  virtual void GenerateRepresentationLeafs(vtkPolyData *pd);
 
   // Description:
   // Return intersection point (if any) of finite line with cells contained
@@ -230,6 +237,13 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
 
   bool InsideCellBounds(double x[3], vtkIdType cell_ID);
 
+  // Description:
+  // After subdivision has completed, one may wish to query the tree to find
+  // which cells are in which leaf nodes. This function fills an array
+  // which holds a cell Id list for each leaf node.
+  void GetLeafNodeCellInformation(
+    vtksys_stl::vector< vtkSmartPointer<vtkIdList> > &LeafCellsList);
+
 //ETX
   protected:
    vtkModifiedBSPTree();
@@ -271,46 +285,47 @@ private:
 
 class BSPNode {
   public:
-  // Constructor
-  BSPNode(void) {
-    mChild[0] = mChild[1] = mChild[2] = NULL;
-    for (int i=0; i<6; i++) sorted_cell_lists[i] = NULL;
-    for (int i=0; i<3; i++) { bounds[i*2] = VTK_LARGE_FLOAT; bounds[i*2+1] = -VTK_LARGE_FLOAT; }
-  }
-  // Destructor
-  ~BSPNode(void) {
-    for (int i=0; i<3; i++) if (mChild[i]) delete mChild[i];
-    for (int i=0; i<6; i++) if (sorted_cell_lists[i]) delete []sorted_cell_lists[i];
-  }
-  // Set min box limits
-  void setMin(double minx, double miny, double minz) {
-    bounds[0] = minx; bounds[2] = miny; bounds[4] = minz;
-  }
-  // Set max box limits
-  void setMax(double maxx, double maxy, double maxz) {
-    bounds[1] = maxx; bounds[3] = maxy; bounds[5] = maxz;
-  }
-  //
-  bool Inside(double point[3]) const;
-  // BBox
-  double       bounds[6];
+    // Constructor
+    BSPNode(void) {
+      mChild[0] = mChild[1] = mChild[2] = NULL;
+      for (int i=0; i<6; i++) sorted_cell_lists[i] = NULL;
+      for (int i=0; i<3; i++) { bounds[i*2] = VTK_LARGE_FLOAT; bounds[i*2+1] = -VTK_LARGE_FLOAT; }
+    }
+    // Destructor
+    ~BSPNode(void) {
+      for (int i=0; i<3; i++) if (mChild[i]) delete mChild[i];
+      for (int i=0; i<6; i++) if (sorted_cell_lists[i]) delete []sorted_cell_lists[i];
+    }
+    // Set min box limits
+    void setMin(double minx, double miny, double minz) {
+      bounds[0] = minx; bounds[2] = miny; bounds[4] = minz;
+    }
+    // Set max box limits
+    void setMax(double maxx, double maxy, double maxz) {
+      bounds[1] = maxx; bounds[3] = maxy; bounds[5] = maxz;
+    }
+    //
+    bool Inside(double point[3]) const;
+    // BBox
+    double       bounds[6];
   protected:
-  // The child nodes of this one (if present - NULL otherwise)
-  BSPNode   *mChild[3];
-  // The axis we subdivide this voxel along
-  int        mAxis;
-  // Just for reference
-  int        depth;
-  // the number of cells in this node
-  int        num_cells;
-  // 6 lists, sorted after the 6 dominant axes
-  vtkIdType *sorted_cell_lists[6];
-  // Order nodes as near/mid far relative to ray
-  void Classify(double origin[3], double dir[3], double &rDist, BSPNode *&Near, BSPNode *&Mid, BSPNode *&Far) const;
-  // Test ray against node BBox : clip t values to extremes
-  bool RayMinMaxT(double origin[3], double dir[3], double &rTmin, double &rTmax) const;
-  //
-  friend class vtkModifiedBSPTree;
+    // The child nodes of this one (if present - NULL otherwise)
+    BSPNode   *mChild[3];
+    // The axis we subdivide this voxel along
+    int        mAxis;
+    // Just for reference
+    int        depth;
+    // the number of cells in this node
+    int        num_cells;
+    // 6 lists, sorted after the 6 dominant axes
+    vtkIdType *sorted_cell_lists[6];
+    // Order nodes as near/mid far relative to ray
+    void Classify(double origin[3], double dir[3], double &rDist, BSPNode *&Near, BSPNode *&Mid, BSPNode *&Far) const;
+    // Test ray against node BBox : clip t values to extremes
+    bool RayMinMaxT(double origin[3], double dir[3], double &rTmin, double &rTmax) const;
+    //
+    friend class vtkModifiedBSPTree;
+    friend class vtkParticleBoxTree;
   public:
   static bool VTK_FILTERING_EXPORT RayMinMaxT(double bounds[6], double origin[3], double dir[3], double &rTmin, double &rTmax);
   static int  VTK_FILTERING_EXPORT getDominantAxis(double dir[3]);
