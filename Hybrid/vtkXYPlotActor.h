@@ -375,6 +375,31 @@ public:
   vtkGetMacro(AdjustTitlePosition, int);
   vtkBooleanMacro(AdjustTitlePosition, int);
 
+//BTX
+enum Alignment {
+  AlignLeft = 0x1,
+  AlignRight = 0x2,
+  AlignHCenter = 0x4,
+  AlignTop = 0x10,
+  AlignBottom = 0x20,
+  AlignVCenter = 0x40,
+  AlignAxisLeft = 0x100,
+  AlignAxisRight = 0x200,
+  AlignAxisHCenter = 0x400,
+  AlignAxisTop = 0x1000,
+  AlignAxisBottom = 0x2000,
+  AlignAxisVCenter = 0x4000,
+};
+//ETX
+  // Description:
+  // If AdjustTitlePosition is truem, the xyplot actor will
+  // adjust the position of the title automatically depending on the
+  // given mode, the mode is a combination of the Alignment flags.
+  // by default: vtkXYPlotActor::AlignHCenter | vtkXYPlotActor::Top
+  // | vtkXYPlotActor::AlignAxisVCenter 
+  vtkSetMacro(AdjustTitlePositionMode, int);
+  vtkGetMacro(AdjustTitlePositionMode, int);
+
   // Description: 
   // Use these methods to control the position of the legend. The variables
   // LegendPosition and LegendPosition2 define the lower-left and upper-right
@@ -489,6 +514,46 @@ public:
   int IsInPlot(vtkViewport *viewport, double u, double v);
   
   // Description:
+  // Set/Get the flag that controls whether a box will be drawn/filled
+  // corresponding to the chart box.
+  vtkSetMacro(ChartBox, int);
+  vtkGetMacro(ChartBox, int);
+  vtkBooleanMacro(ChartBox, int);
+
+  // Description:
+  // Set/Get the flag that controls whether a box will be drawn/filled
+  // corresponding to the legend box.
+  vtkSetMacro(ChartBorder, int);
+  vtkGetMacro(ChartBorder, int);
+  vtkBooleanMacro(ChartBorder, int);
+
+  // Description:
+  // Get the box vtkProperty2D.
+  vtkProperty2D* GetChartBoxProperty() { return this->ChartBoxActor->GetProperty(); };
+
+  // Description:
+  // Set/Get if the X reference line is visible. hidden by default
+  vtkSetMacro(ShowReferenceXLine, int);
+  vtkGetMacro(ShowReferenceXLine, int);
+  vtkBooleanMacro(ShowReferenceXLine, int);
+
+  // Description
+  // Set/Get the value for the X reference line
+  vtkSetMacro(ReferenceXValue, double);
+  vtkGetMacro(ReferenceXValue, double);
+
+  // Description:
+  // Set/Get if the Y reference line is visible. hidden by default
+  vtkSetMacro(ShowReferenceYLine, int);
+  vtkGetMacro(ShowReferenceYLine, int);
+  vtkBooleanMacro(ShowReferenceYLine, int);
+
+  // Description
+  // Set/Get the value for the Y reference line
+  vtkSetMacro(ReferenceYValue, double);
+  vtkGetMacro(ReferenceYValue, double);
+
+  // Description:
   // Take into account the modified time of internal helper classes.
   unsigned long GetMTime();
   
@@ -549,6 +614,7 @@ protected:
   int AdjustYLabels;
   int AdjustTitlePosition;
   double TitlePosition[2];
+  int AdjustTitlePositionMode;
   
   vtkTextMapper   *TitleMapper;
   vtkActor2D      *TitleActor;
@@ -590,6 +656,26 @@ protected:
   vtkGlyphSource2D *GlyphSource;
   vtkPlanes *ClipPlanes;
   double GlyphSize;
+
+  // Background box
+  int ChartBox;
+  vtkPolyData                *ChartBoxPolyData;
+  vtkPolyDataMapper2D        *ChartBoxMapper;
+  vtkActor2D                 *ChartBoxActor;
+  int ChartBorder;
+  vtkPolyData                *ChartBorderPolyData;
+  vtkPolyDataMapper2D        *ChartBorderMapper;
+  vtkActor2D                 *ChartBorderActor;
+
+  // Reference lines
+  int ShowReferenceXLine;
+  int ShowReferenceYLine;
+  double ReferenceXValue;
+  double ReferenceYValue;
+
+  vtkPolyData                *ReferenceLinesPolyData;
+  vtkPolyDataMapper2D        *ReferenceLinesMapper;
+  vtkActor2D                 *ReferenceLinesActor;
 
   // Keep track of changes.
   int CachedSize[2];

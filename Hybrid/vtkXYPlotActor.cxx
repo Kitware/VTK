@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.70");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.71");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -177,6 +177,64 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->ClipPlanes->SetNormals(n);
   n->Delete();
 
+  // Construct the box
+  this->ChartBox = 0;
+  this->ChartBoxPolyData = vtkPolyData::New();
+  vtkPoints *points = vtkPoints::New();
+  points->SetNumberOfPoints(4);
+  this->ChartBoxPolyData->SetPoints(points);points->Delete();
+  vtkCellArray *polys = vtkCellArray::New();
+  polys->InsertNextCell(4);
+  polys->InsertCellPoint(0);
+  polys->InsertCellPoint(1);
+  polys->InsertCellPoint(2);
+  polys->InsertCellPoint(3);
+  this->ChartBoxPolyData->SetPolys(polys); polys->Delete();
+  this->ChartBoxMapper = vtkPolyDataMapper2D::New();
+  this->ChartBoxMapper->SetInput(this->ChartBoxPolyData);
+  this->ChartBoxActor = vtkActor2D::New();
+  this->ChartBoxActor->SetMapper(this->ChartBoxMapper);
+  // Box border
+  this->ChartBorder = 0;
+  this->ChartBorderPolyData = vtkPolyData::New();
+  this->ChartBorderPolyData->SetPoints(points);
+  vtkCellArray *lines = vtkCellArray::New();
+  lines->InsertNextCell(5);
+  lines->InsertCellPoint(0);
+  lines->InsertCellPoint(1);
+  lines->InsertCellPoint(2);
+  lines->InsertCellPoint(3);
+  lines->InsertCellPoint(0);
+  this->ChartBorderPolyData->SetLines(lines); lines->Delete();
+  this->ChartBorderMapper = vtkPolyDataMapper2D::New();
+  this->ChartBorderMapper->SetInput(this->ChartBorderPolyData);
+  this->ChartBorderActor = vtkActor2D::New();
+  this->ChartBorderActor->SetMapper(this->ChartBorderMapper);
+
+  // Reference lines
+  this->ShowReferenceXLine = 0;
+  this->ShowReferenceYLine = 0;
+  this->ReferenceXValue = 0.;
+  this->ReferenceYValue = 0.;
+  points = vtkPoints::New();
+  points->SetNumberOfPoints(4);
+  lines = vtkCellArray::New();
+  lines->InsertNextCell(2);
+  lines->InsertCellPoint(0);
+  lines->InsertCellPoint(1);
+  lines->InsertNextCell(2);
+  lines->InsertCellPoint(2);
+  lines->InsertCellPoint(3);
+  this->ReferenceLinesPolyData = vtkPolyData::New();
+  this->ReferenceLinesPolyData->SetPoints(points);
+  this->ReferenceLinesPolyData->SetLines(lines);
+  points->Delete();
+  lines->Delete();
+  this->ReferenceLinesMapper = vtkPolyDataMapper2D::New();
+  this->ReferenceLinesMapper->SetInput(this->ReferenceLinesPolyData);
+  this->ReferenceLinesActor = vtkActor2D::New();
+  this->ReferenceLinesActor->SetMapper(this->ReferenceLinesMapper);
+
   this->CachedSize[0] = 0;
   this->CachedSize[1] = 0;
 
@@ -185,6 +243,11 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->AdjustTitlePosition = 1;
   this->TitlePosition[0] = 0.5;
   this->TitlePosition[1] = 0.9;
+  this->AdjustTitlePositionMode = vtkXYPlotActor::AlignHCenter
+                                  | vtkXYPlotActor::AlignTop 
+                                  | vtkXYPlotActor::AlignAxisHCenter
+                                  | vtkXYPlotActor::AlignAxisVCenter;
+  
 }
 
 //----------------------------------------------------------------------------
@@ -235,6 +298,18 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->GlyphSource->Delete();
   this->ClipPlanes->Delete();
   
+  this->ChartBoxActor->Delete();
+  this->ChartBoxMapper->Delete();
+  this->ChartBoxPolyData->Delete();
+
+  this->ChartBorderActor->Delete();
+  this->ChartBorderMapper->Delete();
+  this->ChartBorderPolyData->Delete();
+  
+  this->ReferenceLinesActor->Delete();
+  this->ReferenceLinesMapper->Delete();
+  this->ReferenceLinesPolyData->Delete();
+
   this->XComponent->Delete();
   this->YComponent->Delete();
 
@@ -448,6 +523,15 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
     return 0;
     }
 
+  if ( this->ChartBox )
+    {
+    renderedSomething += this->ChartBoxActor->RenderOverlay(viewport);
+    }
+  if ( this->ChartBorder )
+    {
+    renderedSomething += this->ChartBorderActor->RenderOverlay(viewport);
+    }
+
   renderedSomething += this->XAxis->RenderOverlay(viewport);
   renderedSomething += this->YAxis->RenderOverlay(viewport);
   if ( this->Title )
@@ -457,6 +541,10 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
   for (int i=0; i < this->NumberOfInputs; i++)
     {
     renderedSomething += this->PlotActor[i]->RenderOverlay(viewport);
+    }
+  if ( this->ShowReferenceXLine || this->ShowReferenceYLine )
+    {
+    renderedSomething += this->ReferenceLinesActor->RenderOverlay(viewport);
     }
   if ( this->Legend )
     {
@@ -750,9 +838,66 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       if (this->AdjustTitlePosition)
         {
         this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
-        this->TitleActor->GetPositionCoordinate()->SetValue(
-          pos[0] + 0.5 * (pos2[0] - pos[0]) - stringSize[0] / 2.0, 
-          pos2[1] - stringSize[1] / 2.0);
+        double titlePos[2];
+        switch (this->AdjustTitlePositionMode & (AlignLeft | AlignRight | AlignHCenter))
+          {
+          default:
+          case AlignLeft:
+            titlePos[0] = pos[0];
+            break;
+          case AlignRight:
+            titlePos[0] = pos2[0];
+            break;
+          case AlignHCenter:
+            titlePos[0] = pos[0] + 0.5 * (pos2[0] - pos[0]);
+            break;
+          };
+        switch (this->AdjustTitlePositionMode & (AlignAxisLeft | AlignAxisRight | AlignAxisHCenter))
+          {
+          case AlignAxisLeft:
+            titlePos[0] -= stringSize[0];
+            break;
+          case AlignAxisRight:
+            break;
+          case AlignAxisHCenter:
+            titlePos[0] -= stringSize[0] / 2;
+            break;
+          default:
+            titlePos[0] -= (this->AdjustTitlePositionMode & AlignLeft) ? stringSize[0] : 0;
+            break;
+          };
+        switch (this->AdjustTitlePositionMode & (AlignTop | AlignBottom | AlignVCenter))
+          {
+          default:
+          case AlignTop:
+            titlePos[1] = pos2[1];
+            break;
+          case AlignBottom:
+            titlePos[1] = pos[1];
+            break;
+          case AlignVCenter:
+            titlePos[1] = pos[1] + 0.5 * (pos2[1] - pos[1]);
+          };
+
+        switch (this->AdjustTitlePositionMode & (AlignAxisTop | AlignAxisBottom | AlignAxisVCenter))
+          {
+          case AlignAxisTop:
+            titlePos[1] += this->AdjustTitlePositionMode & AlignTop ? this->Border : -this->Border;
+            break;
+          case AlignAxisBottom:
+            titlePos[1] -= stringSize[1];
+            break;
+          case AlignAxisVCenter:
+            titlePos[1] -= stringSize[1] / 2;
+            break;
+          default:
+            titlePos[1] += (this->AdjustTitlePositionMode & AlignTop) ? stringSize[1] : 0;
+            break;
+          };
+        this->TitleActor->GetPositionCoordinate()->SetValue(titlePos[0], titlePos[1]);
+        //this->TitleActor->GetPositionCoordinate()->SetValue(
+        //  pos[0] + 0.5 * (pos2[0] - pos[0]) - stringSize[0] / 2.0, 
+        //  pos2[1] - stringSize[1] / 2.0);
         }
       else
         {
@@ -764,6 +909,70 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->TitleActor->SetProperty(this->GetProperty());
       }
 
+    //Border and box - may adjust spacing based on font size relationship
+    //to the proportions relative to the border
+    //
+    if (this->ChartBox || this->ChartBorder)
+      {
+      double doubleP1[3], doubleP2[3];
+      
+      doubleP1[0] = static_cast<double>(pos[0]); 
+      doubleP1[1] = static_cast<double>(pos[1]); 
+      doubleP1[2] = 0.0;
+      doubleP2[0] = static_cast<double>(pos2[0]);
+      doubleP2[1] = static_cast<double>(pos2[1]); 
+      doubleP2[2] = 0.0;
+      
+      vtkPoints *pts = this->ChartBoxPolyData->GetPoints();
+      pts->SetPoint(0, doubleP1);
+      pts->SetPoint(1, doubleP2[0],doubleP1[1],0.0);
+      pts->SetPoint(2, doubleP2);
+      pts->SetPoint(3, doubleP1[0],doubleP2[1],0.0);
+
+      this->ChartBorderActor->SetProperty(this->GetProperty());
+      }
+    // Reference lines
+    if (this->ShowReferenceXLine || this->ShowReferenceYLine)
+      {
+      double doubleP1[3], doubleP2[3];
+      
+      doubleP1[0] = static_cast<double>(pos[0]); 
+      doubleP1[1] = static_cast<double>(pos[1]); 
+      doubleP1[2] = 0.0;
+      doubleP2[0] = static_cast<double>(pos2[0]);
+      doubleP2[1] = static_cast<double>(pos2[1]); 
+      doubleP2[2] = 0.0;
+      
+      vtkPoints *pts = this->ReferenceLinesPolyData->GetPoints();
+      if (this->ShowReferenceXLine && 
+          this->ReferenceXValue >= xRange[0] && 
+          this->ReferenceXValue < xRange[1])
+        {
+        double xRefPos = doubleP1[0] + (this->ReferenceXValue - xRange[0]) / (xRange[1] - xRange[0]) * (doubleP2[0] - doubleP1[0]);
+        pts->SetPoint(0, xRefPos, doubleP1[1], 0.0);
+        pts->SetPoint(1, xRefPos, doubleP2[1], 0.0);
+        }
+      else
+        {
+        pts->SetPoint(0, doubleP1);
+        pts->SetPoint(1, doubleP1);
+        }
+      if (this->ShowReferenceYLine && 
+          this->ReferenceYValue >= yRange[0] && 
+          this->ReferenceYValue < yRange[1])
+        {
+        double yRefPos = doubleP1[1] + (this->ReferenceYValue - yRange[0]) / (yRange[1] - yRange[0])* (doubleP2[1] - doubleP1[1]);
+        pts->SetPoint(2, doubleP1[0], yRefPos, 0.);
+        pts->SetPoint(3, doubleP2[0], yRefPos, 0.);
+        }
+      else
+        {
+        pts->SetPoint(2, doubleP1);
+        pts->SetPoint(3, doubleP1);
+        }
+      // copy the color/linewidth/opacity...
+      this->ReferenceLinesActor->SetProperty(this->GetProperty());
+      }
     vtkDebugMacro(<<"Creating Plot Data");
     // Okay, now create the plot data and set up the pipeline
     this->CreatePlotData(pos, pos2, xRange, yRange, lengths, numDS, numDO);
@@ -772,7 +981,20 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->BuildTime.Modified();
 
     }//if need to rebuild the plot
-
+  
+  vtkDebugMacro(<<"Rendering Box");
+  if ( this->ChartBox )
+    {
+    renderedSomething += this->ChartBoxActor->RenderOpaqueGeometry(viewport);
+    }
+  if ( this->ChartBorder )
+    {
+    renderedSomething += this->ChartBorderActor->RenderOpaqueGeometry(viewport);
+    }
+  if ( this->ShowReferenceXLine || this->ShowReferenceYLine)
+    {
+    renderedSomething += this->ReferenceLinesActor->RenderOpaqueGeometry(viewport);
+    }
   vtkDebugMacro(<<"Rendering Axes");
   renderedSomething += this->XAxis->RenderOpaqueGeometry(viewport);
   renderedSomething += this->YAxis->RenderOpaqueGeometry(viewport);
@@ -846,6 +1068,18 @@ void vtkXYPlotActor::ReleaseGraphicsResources(vtkWindow *win)
     this->PlotActor[i]->ReleaseGraphicsResources(win);
     }
   this->LegendActor->ReleaseGraphicsResources(win);
+  if (this->ChartBoxActor) 
+   { 
+   this->ChartBoxActor->ReleaseGraphicsResources(win); 
+   }
+  if (this->ChartBorderActor) 
+   { 
+   this->ChartBorderActor->ReleaseGraphicsResources(win); 
+   }
+  if (this->ReferenceLinesActor) 
+   { 
+   this->ReferenceLinesActor->ReleaseGraphicsResources(win); 
+   }
 }
 
 //----------------------------------------------------------------------------
