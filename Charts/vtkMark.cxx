@@ -32,7 +32,7 @@
 #include <vtkstd/map>
 //#include <vtksys/stl/map>
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMark, "1.3");
+vtkCxxRevisionMacro(vtkMark, "1.4");
 vtkStandardNewMacro(vtkMark);
 
 class vtkMarkPrivateCompareStrings
@@ -60,7 +60,7 @@ public:
   VariablesMap Map;
 };
 
-vtkCxxRevisionMacro(vtkMarkPrivate, "1.3");
+vtkCxxRevisionMacro(vtkMarkPrivate, "1.4");
 vtkStandardNewMacro(vtkMarkPrivate);
 
 //-----------------------------------------------------------------------------
@@ -386,7 +386,7 @@ void vtkMark::SetUserVariable(vtkstd::string name,
     }
   else
     {
-    vtksys_stl::pair<vtkstd::string,vtkValue<double> > p;
+    vtkstd::pair<vtkstd::string,vtkValue<double> > p;
     p.first=name;
     p.second=value;
     this->UserVariables->Map.insert(p);
