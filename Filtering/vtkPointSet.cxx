@@ -28,7 +28,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkPointSet, "1.13");
+vtkCxxRevisionMacro(vtkPointSet, "1.14");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -384,23 +384,20 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
 
   if ( pointSet != NULL )
     {
-    if (this->Points == NULL)
+    vtkPoints* newPoints;
+    vtkPoints* pointsToCopy = pointSet->GetPoints();
+    if (pointsToCopy)
       {
-      if ( pointSet->GetPoints() != NULL )
-        {
-        this->Points = pointSet->GetPoints()->NewInstance();
-        this->Points->SetDataType(pointSet->GetPoints()->GetDataType());
-        this->Points->Register(this);
-        this->Points->Delete();
-        }
-      else
-        {
-        this->Points = vtkPoints::New();
-        this->Points->Register(this);
-        this->Points->Delete();
-        }
+      newPoints = pointsToCopy->NewInstance();
+      newPoints->SetDataType(pointsToCopy->GetDataType());
+      newPoints->DeepCopy(pointsToCopy);
       }
-    this->Points->DeepCopy(pointSet->GetPoints());
+    else
+      {
+      newPoints = vtkPoints::New();
+      }
+    this->SetPoints(newPoints);
+    newPoints->Delete();
     }
 
   // Do superclass
