@@ -19,43 +19,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkNew.h"
 #include "vtkSmartPointer.h"
-
-template <class T>
-bool CheckRefCount(const char* v, int line, T const& o, int n)
-{
-  int c = o->GetReferenceCount();
-  if(c != n)
-    {
-    cerr << "At line " << line << ": "
-         << "RefCount of " << v << " is " << c << ", not " << n << endl;
-    return false;
-    }
-  return true;
-}
-
-#define CheckRefCount(obj, n) CheckRefCount(#obj, __LINE__, obj, n)
-
-bool TestNew()
-{
-  {
-  vtkSmartPointer<vtkDataArray> da1 = vtkNew<vtkFloatArray>();
-  if(!CheckRefCount(da1, 1)) { return false; }
-  }
-  vtkSmartPointer<vtkDataArray> da2;
-  vtkDataArray* da3 = 0;
-  {
-  vtkNew<vtkIntArray> ia1;
-  cout << "IntArray: " << ia1 << "\n";
-  if(!CheckRefCount(ia1, 1)) { return false; }
-  da2 = ia1;
-  da3 = ia1;
-  if(!CheckRefCount(ia1, 2)) { return false; }
-  }
-  if(!CheckRefCount(da3, 1)) { return false; }
-  return da2 == da3;
-}
 
 int TestSmartPointer(int,char *[])
 {
@@ -108,11 +72,6 @@ int TestSmartPointer(int,char *[])
     vtkSmartPointer<vtkIntArray>::Take(vtkIntArray::New());
   (void)da4;
   ia->Delete();
-
-  if(!TestNew())
-    {
-    return 1;
-    }
-
+  
   return 0;
 } 

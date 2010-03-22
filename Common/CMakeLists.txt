@@ -500,7 +500,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkDataArrayTemplate.h
     vtkIOStream.h
     vtkIOStreamFwd.h
-    vtkNew.h
     vtkSetGet.h
     vtkSmartPointer.h
     vtkSystemIncludes.h

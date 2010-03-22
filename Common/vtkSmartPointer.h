@@ -22,8 +22,6 @@
 
 #include "vtkSmartPointerBase.h"
 
-template <class T> class vtkNew;
-
 template <class T>
 class vtkSmartPointer: public vtkSmartPointerBase
 {
@@ -45,11 +43,6 @@ public:
     vtkSmartPointerBase(CheckType(r.GetPointer())) {}
 
   // Description:
-  // Initialize smart pointer to given object.
-  template <class U>
-  vtkSmartPointer(const vtkNew<U>& r): vtkSmartPointerBase(CheckType(r)) {}
-
-  // Description:
   // Assign object to reference.  This removes any reference to an old
   // object.
   vtkSmartPointer& operator=(T* r)
@@ -65,16 +58,6 @@ public:
   vtkSmartPointer& operator=(const vtkSmartPointer<U>& r)
     {
     this->vtkSmartPointerBase::operator=(CheckType(r.GetPointer()));
-    return *this;
-    }
-
-  // Description:
-  // Assign object to reference.  This removes any reference to an old
-  // object.
-  template <class U>
-  vtkSmartPointer& operator=(const vtkNew<U>& r)
-    {
-    this->vtkSmartPointerBase::operator=(CheckType(r));
     return *this;
     }
 
