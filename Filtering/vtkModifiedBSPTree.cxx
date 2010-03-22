@@ -20,9 +20,10 @@
 #include "vtkModifiedBSPTree.h"
 #include "vtkPolyData.h"
 #include "vtkGenericCell.h"
+#include "vtkIdListCollection.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.9");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.10");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
@@ -648,6 +649,35 @@ bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
   this->BuildLocatorIfNeeded();
   //
   return vtkModifiedBSPTree_Inside(this->CellBounds[cell_ID], x);
+}
+//----------------------------------------------------------------------------
+vtkIdListCollection *vtkModifiedBSPTree::GetLeafNodeCellInformation()
+{
+  this->BuildLocatorIfNeeded();
+  //
+  vtkIdListCollection *LeafCellsList = vtkIdListCollection::New();
+  nodestack ns;
+  BSPNode   *node;
+  ns.push(mRoot);
+  //
+  while (!ns.empty())  {
+    node = ns.top();
+    ns.pop();
+    if (node->mChild[0]) { // this must be a parent node    
+      if (node->mChild[0]) ns.push(node->mChild[0]);
+      if (node->mChild[1]) ns.push(node->mChild[1]);
+      if (node->mChild[2]) ns.push(node->mChild[2]);
+    }
+    else { // a leaf
+      vtkSmartPointer<vtkIdList> newList = vtkSmartPointer<vtkIdList>::New();
+      LeafCellsList->AddItem(newList);
+      newList->SetNumberOfIds(node->num_cells);
+      for (int i=0; i<node->num_cells; i++) {
+        newList->SetId(i, node->sorted_cell_lists[0][i]);
+      }
+    }
+  }
+  return LeafCellsList;
 }
 //----------------------------------------------------------------------------
 void vtkModifiedBSPTree::PrintSelf(ostream& os, vtkIndent indent)

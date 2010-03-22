@@ -141,15 +141,14 @@
 #define _vtkModifiedBSPTree_h
 
 #include "vtkAbstractCellLocator.h"
-#include "vtkSmartPointer.h"    // required because it is nice
-#include <vtksys/Configure.hxx> // required for vtksys stl stuff that I want to use
-#include <vector>               // required for generation of cell lists
+#include "vtkSmartPointer.h"     // required because it is nice
 
 //BTX
 class Sorted_cell_extents_Lists;
 class BSPNode;
 class vtkGenericCell;
 class vtkIdList;
+class vtkIdListCollection;
 //ETX
 
 class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
@@ -240,10 +239,9 @@ class VTK_FILTERING_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
 
   // Description:
   // After subdivision has completed, one may wish to query the tree to find
-  // which cells are in which leaf nodes. This function fills an array
+  // which cells are in which leaf nodes. This function returns a list
   // which holds a cell Id list for each leaf node.
-  void GetLeafNodeCellInformation(
-    vtksys_stl::vector< vtkSmartPointer<vtkIdList> > &LeafCellsList);
+  vtkIdListCollection *GetLeafNodeCellInformation();
 
 //ETX
   protected:
