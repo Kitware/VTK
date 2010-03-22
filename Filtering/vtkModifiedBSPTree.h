@@ -141,8 +141,9 @@
 #define _vtkModifiedBSPTree_h
 
 #include "vtkAbstractCellLocator.h"
-#include "vtkSmartPointer.h" //required because I want it
-#include <vector> // required for generation of cell lists
+#include "vtkSmartPointer.h"    // required because it is nice
+#include <vtksys/Configure.hxx> // required for vtksys stl stuff that I want to use
+#include <vector>               // required for generation of cell lists
 
 //BTX
 class Sorted_cell_extents_Lists;
