@@ -28,11 +28,11 @@
 #include <vtkSparseArray.h>
 #include <vtkUnicodeString.h>
 
-#include <sstream>
+#include <vtksys/ios/sstream>
 #include <vtkstd/stdexcept>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkArrayReader, "1.2");
+vtkCxxRevisionMacro(vtkArrayReader, "1.3");
 vtkStandardNewMacro(vtkArrayReader);
 
 namespace {
