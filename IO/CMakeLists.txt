@@ -92,6 +92,7 @@ vtkMINCImageWriter.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
 vtkNetCDFCFReader.cxx
+vtkNetCDFPOPReader.cxx
 vtkNetCDFReader.cxx
 vtkOBJReader.cxx
 ${_VTK_OGGTHEORA_SOURCES}
@@ -251,6 +252,28 @@ IF(WIN32)
     SET(KIT_LIBS ${KIT_LIBS} vfw32)
   ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
 ENDIF(WIN32)
+
+IF(NOT WIN32)
+  IF(VTK_BUILD_MPAS_READER)
+    FIND_PATH(NETCDF_C_INCLUDES netcdf.h
+      ${NETCDF}/include
+    )
+
+    FIND_PATH(NETCDF_CPP_INCLUDES netcdfcpp.h
+      ${NETCDF}/include
+    )
+
+    FIND_LIBRARY(NETCDF_C_LIBRARY netcdf
+      ${NETCDF}/lib
+    )
+
+    FIND_LIBRARY(NETCDF_CPP_LIBRARY netcdf_c++
+      ${NETCDF}/lib
+    )
+
+    INCLUDE_DIRECTORIES(${NETCDF_C_INCLUDES} ${NETCDF_CPP_INCLUDES})
+  ENDIF(VTK_BUILD_MPAS_READER)
+ENDIF(NOT WIN32)
 
 #-----------------------------------------------------------------------------
 # FFMPEG
