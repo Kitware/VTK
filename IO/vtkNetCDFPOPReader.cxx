@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMultiThreader.h"
-vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.5");
+vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.6");
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================
@@ -219,7 +219,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   size_t count3[] = {subext[1]-subext[0]+1};
   int bytestoallocate = (count[0])*(count[1])*(count[2]);
   vtkMultiThreaderIDType pid;
-  if ((pid = vtkMultiThreader::GetCurrentThreadID()) < 0) {
+  if ((pid = vtkMultiThreader::GetCurrentThreadID()) == 0) {
     cerr<< "unable to get pid" << endl;
   } else {
     cout << "The process id is " << pid << endl;
