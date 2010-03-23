@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.15");
+vtkCxxRevisionMacro(vtkChart, "1.16");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------
@@ -63,6 +63,23 @@ vtkPlot * vtkChart::AddPlot(int)
 //-----------------------------------------------------------------------------
 bool vtkChart::RemovePlot(vtkIdType)
 {
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChart::RemovePlotInstance(vtkPlot* plot)
+{
+  if (plot)
+    {
+    vtkIdType numberOfPlots = this->GetNumberOfPlots();
+    for (vtkIdType i = 0; i < numberOfPlots; ++i)
+      {
+      if (this->GetPlot(i) == plot)
+        {
+        return this->RemovePlot(i);
+        }
+      }
+    }
   return false;
 }
 

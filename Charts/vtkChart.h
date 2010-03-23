@@ -63,6 +63,12 @@ public:
   virtual bool RemovePlot(vtkIdType index);
 
   // Description:
+  // Remove the given plot.  Returns true if successful, false if the plot
+  // was not contained in this chart.  Note, the base implementation of
+  // this method performs a linear search to locate the plot.
+  virtual bool RemovePlotInstance(vtkPlot* plot);
+
+  // Description:
   // Remove all plots from the chart.
   virtual void ClearPlots();
 
