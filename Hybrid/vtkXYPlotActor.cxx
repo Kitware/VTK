@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.71");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.72");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -1242,6 +1242,16 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->TitlePosition[0] << " "
      << this->TitlePosition[1] << " "
      << endl;
+  os << indent << "AdjustTitlePositionMode: "
+     << this->AdjustTitlePositionMode << endl;
+  os << indent << "ChartBox: " << (this->ChartBox ? "On\n" : "Off\n");  
+  os << indent << "ChartBorder: " << (this->ChartBorder ? "On\n" : "Off\n");
+  os << indent << "ShowReferenceXLine: " 
+     << (this->ShowReferenceXLine ? "On\n" : "Off\n");
+  os << indent << "ReferenceXValue: " << this->ReferenceXValue << endl;
+  os << indent << "ShowReferenceYLine: " 
+     << (this->ShowReferenceYLine ? "On\n" : "Off\n");
+  os << indent << "ReferenceYValue: " << this->ReferenceYValue << endl;
 }
 
 //----------------------------------------------------------------------------
