@@ -296,7 +296,6 @@ ENDIF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
 OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT})
 MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
 
-
 # Add Option to enable Qt Support.
 OPTION(VTK_USE_QT "Build Qt support" OFF)
 
@@ -327,6 +326,9 @@ ENDIF(VTK_USE_QT)
 VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
                      "VTK_USE_RENDERING" OFF)
 MARK_AS_ADVANCED(VTK_USE_GUISUPPORT)
+IF(VTK_USE_QT AND VTK_USE_RENDERING)
+  SET(VTK_USE_GUISUPPORT 1 CACHE BOOL "Build VTK with GUI Support" FORCE)
+ENDIF()
 
 # Determing Qt GUI. This is no longer a user settable option. It's value depends
 # on whether VTK_USE_GUISUPPORT and VTK_USE_RENDERING and VTK_USE_QT are all
