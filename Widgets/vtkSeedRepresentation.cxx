@@ -27,7 +27,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedRepresentation, "1.14");
+vtkCxxRevisionMacro(vtkSeedRepresentation, "1.15");
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
@@ -229,8 +229,9 @@ void vtkSeedRepresentation::RemoveActiveHandle()
     {
     vtkHandleListIterator iter = this->Handles->begin();
     vtkstd::advance( iter, this->ActiveHandle );
+    vtkHandleRepresentation *hr = *iter;
     this->Handles->erase( iter );
-    ( *iter )->Delete();
+    hr->Delete();
     this->ActiveHandle = -1;
     }
 }
