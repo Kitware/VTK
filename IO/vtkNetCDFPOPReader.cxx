@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMultiThreader.h"
-vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.1");
+vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.2");
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================
@@ -80,6 +80,8 @@ vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
     delete[] this->Filename;
   }
   nc_close(this->ncFD);
+  this->VariableArraySelection->Delete();
+  this->SelectionObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -100,8 +102,8 @@ void vtkNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
 // This retrieve the extents for the rectilinear grid
 // NC_MAX_VAR_DIMS comes from the nc library
 int vtkNetCDFPOPReader::RequestInformation(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+    vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector),
     vtkInformationVector* outputVector)
 { 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -111,7 +113,7 @@ int vtkNetCDFPOPReader::RequestInformation(
     vtkErrorMacro(<< "can't read file " << nc_strerror(errorcode));
   }
   nc_inq_nvars(this->ncFD, &this->nvarsp); // get number of variables from file 
-  int dimId;    
+  // int dimId; not used?
   int dimidsp[NC_MAX_VAR_DIMS];
   this->nvarspw=0;
   int extent[6];
@@ -156,6 +158,7 @@ int vtkNetCDFPOPReader::RequestUpdateExtent(
   return 1;
 }
 */
+
 int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
     vtkInformationVector** vtkNotUsed(inputVector),
     vtkInformationVector* outputVector  ) 
