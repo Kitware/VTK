@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMultiThreader.h"
-vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.3");
+vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.4");
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================
@@ -92,6 +92,34 @@ void vtkNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
     << (this->Filename ? this->Filename : "(NULL)") << endl;
 
   os << indent << "VariableArraySelection:" << endl;
+
+  //int WholeExtent[6]; //extents of the rectilinear grid (not implemented)
+  //int SubExtent[6]; //extents of the rectilinear grid
+  //double Origin[3]; //default is 0,0,0
+  //double Spacing[3]; //default is 1,1,1
+  //int Stride[3]; // not implemented
+  //int BlockReadSize; //not implemented
+
+  os << indent << "WholeExtent: {" << this->WholeExtent[0] << ", "
+     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
+     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+     << this->WholeExtent[5] << "}" << endl;
+  os << indent << "SubExtent: {" << this->SubExtent[0] << ", "
+     << this->SubExtent[1] << ", " << this->SubExtent[2] << ", "
+     << this->SubExtent[3] << ", " << this->SubExtent[4] << ", "
+     << this->SubExtent[5] << "}" << endl;
+  os << indent << "Origin: {" << this->Origin[0] << ", "
+     << this->Origin[1] << ", " << this->Origin[2] << ", "
+     << "}" << endl;
+  os << indent << "Spacing: {" << this->Spacing[0] << ", "
+     << this->Spacing[1] << ", " << this->Spacing[2] << ", "
+     << "}" << endl;
+  os << indent << "Stride: {" << this->Stride[0] << ", "
+     << this->Stride[1] << ", " << this->Stride[2] << ", "
+     << "}" << endl;
+  os << indent << "BlockReadSize: " << this->BlockReadSize << endl;
+
+
   this->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
