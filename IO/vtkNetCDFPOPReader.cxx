@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMultiThreader.h"
-vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.2");
+vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.3");
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================
@@ -80,7 +80,6 @@ vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
     delete[] this->Filename;
   }
   nc_close(this->ncFD);
-  this->VariableArraySelection->Delete();
   this->SelectionObserver->Delete();
 }
 
