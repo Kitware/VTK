@@ -21,8 +21,10 @@
 
 #ifndef __vtkNetCDFPOPReader_h
 #define __vtkNetCDFPOPReader_h
+
 #include "vtkRectilinearGridAlgorithm.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // For SmartPointer
+
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 
@@ -31,6 +33,7 @@ class VTK_IO_EXPORT vtkNetCDFPOPReader : public vtkRectilinearGridAlgorithm
 public:
   vtkTypeRevisionMacro(vtkNetCDFPOPReader,vtkRectilinearGridAlgorithm);
   static vtkNetCDFPOPReader *New();
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
@@ -59,7 +62,6 @@ public:
   virtual const char *GetVariableArrayName(int idx);
   virtual int GetVariableArrayStatus(const char *name);
   virtual void SetVariableArrayStatus(const char *name, int status);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
 
 protected:
   vtkNetCDFPOPReader();
