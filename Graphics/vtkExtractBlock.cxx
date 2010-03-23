@@ -30,7 +30,7 @@ class vtkExtractBlock::vtkSet : public vtkstd::set<unsigned int>
 };
 
 vtkStandardNewMacro(vtkExtractBlock);
-vtkCxxRevisionMacro(vtkExtractBlock, "1.6");
+vtkCxxRevisionMacro(vtkExtractBlock, "1.7");
 vtkInformationKeyMacro(vtkExtractBlock, DONT_PRUNE, Integer);
 //----------------------------------------------------------------------------
 vtkExtractBlock::vtkExtractBlock()
@@ -38,6 +38,7 @@ vtkExtractBlock::vtkExtractBlock()
   this->Indices = new vtkExtractBlock::vtkSet();
   this->ActiveIndices = new vtkExtractBlock::vtkSet();
   this->PruneOutput = 1;
+  this->MaintainStructure = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -237,7 +238,8 @@ bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
       if (!prune)
         {
         vtkMultiBlockDataSet* prunedBlock = vtkMultiBlockDataSet::SafeDownCast(block);
-        if (prunedBlock && prunedBlock->GetNumberOfBlocks()==1)
+        if (this->MaintainStructure == 0 && 
+          prunedBlock && prunedBlock->GetNumberOfBlocks()==1)
           {
           // shrink redundant branches.
           clone->SetBlock(index, prunedBlock->GetBlock(0));
@@ -269,5 +271,6 @@ void vtkExtractBlock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PruneOutput: " << this->PruneOutput << endl;
+  os << indent << "MaintainStructure: " << this->MaintainStructure << endl;
 }
 

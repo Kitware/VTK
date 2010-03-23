@@ -54,6 +54,15 @@ public:
   vtkGetMacro(PruneOutput, int);
   vtkBooleanMacro(PruneOutput, int);
 
+  // Description:
+  // This is used only when PruneOutput is ON. By default, when pruning the
+  // output i.e. remove empty blocks, if node has only 1 non-null child block,
+  // then that node is removed. To preserve these parent nodes, set this flag to
+  // true. Off by default.
+  vtkSetMacro(MaintainStructure, int);
+  vtkGetMacro(MaintainStructure, int);
+  vtkBooleanMacro(MaintainStructure, int);
+
 //BTX
 protected:
   vtkExtractBlock();
@@ -77,6 +86,7 @@ protected:
   bool Prune(vtkDataObject* mblock);
 
   int PruneOutput;
+  int MaintainStructure;
 private:
   vtkExtractBlock(const vtkExtractBlock&); // Not implemented.
   void operator=(const vtkExtractBlock&); // Not implemented.
