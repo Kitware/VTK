@@ -26,13 +26,13 @@ FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        /opt/csw/include # Blastwave
        /opt/include
        /usr/freeware/include
-       PATH_SUFFIXES ffmpeg
+#       PATH_SUFFIXES ffmpeg
        DOC "Location of FFMPEG Headers"
 )
 
 # if ffmpeg headers are seperated to each of libavformat, libavcodec etc..
 IF( NOT FFMPEG_INCLUDE_DIR )
-  FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
+  FIND_PATH(FFMPEG_INCLUDE_DIR libavformat/avformat.h
        PATHS
        $ENV{FFMPEG_DIR}/include
        $ENV{OSGDIR}/include
@@ -46,7 +46,7 @@ IF( NOT FFMPEG_INCLUDE_DIR )
        /opt/csw/include # Blastwave
        /opt/include
        /usr/freeware/include
-       PATH_SUFFIXES libavformat
+       PATH_SUFFIXES ffmpeg
        DOC "Location of FFMPEG Headers"
 )
 ENDIF( NOT FFMPEG_INCLUDE_DIR )
