@@ -1011,7 +1011,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   if ((!data->NumberOfSuperClasses)&&(data->HasDelete))
     {
-    fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDeleteReference(JNIEnv *env,jclass clazz,jlong id)\n",
+    fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDeleteReference(JNIEnv *,jclass,jlong id)\n",
             data->ClassName);
     fprintf(fp,"{\n  %s *op;\n",data->ClassName);
     fprintf(fp,"  op = reinterpret_cast<%s*>(id);\n",
