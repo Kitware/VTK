@@ -25,8 +25,15 @@
 #include "vtkPoints.h"               // For output target
 #include "vtkSmartPointer.h"         // For good memory handling
 
+#include <cmath>                     // For abs, sin, cos and tan
+
 #include <vtkstd/algorithm>          // For min, max, swap, etc.
 #include <vtkstd/list>               // For internal store
+
+template <class T> bool IsZero( T value )
+{
+  return ( ( value < VTK_DBL_EPSILON ) && ( value > ( -1.0 * VTK_DBL_EPSILON ) ) );
+};
 
 class vtkSimple3DCirclesStrategyInternal
   {
@@ -75,76 +82,88 @@ private:
   };
 
 vtkStandardNewMacro(vtkSimple3DCirclesStrategy);
-vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.3" );
+vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.4" );
 
 void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   {
   this->Superclass::PrintSelf( os, indent );
+
   os << indent << "Radius : " << this->Radius << endl;
+
   os << indent << "Height : " << this->Height << endl;
+
   os << indent << "Orign  : (" << this->Orign[0] << "," << this->Orign[1] << "," << this->Orign[2] << ")" << endl;
+
   os << indent << "Direction  : (" << this->Direction[0] << "," << this->Direction[1] << "," << this->Direction[2] << ")" << endl;
+
   os << indent << "Rotate matrix : [[" << this->T[0][0] << ";" << this->T[1][0] << ";" << this->T[2][0] << "]";
   os << "[" << this->T[0][1] << ";" << this->T[1][1] << ";" << this->T[2][1] << "]";
   os << "[" << this->T[0][2] << ";" << this->T[1][2] << ";" << this->T[2][2] << "]]" << endl;
+
+  os << indent << "Method : ";
   if ( this->Method == FixedRadiusMethod )
-    os << indent << "Method : fixed radius method" << endl;
+    os << "fixed radius method" << endl;
   else if ( this->Method == FixedDistanceMethod )
-    os << indent << "Method : fixed distance method" << endl;
+    os << "fixed distance method" << endl;
+
   os << indent << "MarkValue : " << this->MarkedValue << endl;
-  if ( this->AutoHeight )
-    os << indent << "Auto height : ON" << endl;
+
+  os << indent << "Auto height : ";
+  if ( this->AutoHeight == 1 )
+    os << "On" << endl;
   else
-    os << indent << "Auto height : OFF" << endl;
-  if ( this->ForceToUseUniversalStartPointsFinder )
-    os << indent << "Force To Use Universal Start Points Finder : ON" << endl;
-  else
-    os << indent << "Force To Use Universal Start Points Finder : OFF" << endl;
+    os << "Off" << endl;
 
   os << indent << "Minimum degree for autoheight : " << this->MinimumRadian << " rad [" << vtkMath::DegreesFromRadians( this->MinimumRadian ) << " deg]" << endl;
+
+  os << indent << "Registered MarkedStartPoints :";
   if ( this->MarkedStartVertices == 0 )
-    os << indent << "Registered MarkedStartPoints : (none)" << endl;
+    os << " (none)" << endl;
   else
     {
-    os << indent << "Registered MarkedStartPoints :" << endl;
+    os << endl;
     this->MarkedStartVertices->PrintSelf( os, indent.GetNextIndent() );
     }
+
+  os << indent << "Registered HierarchicalLayers :";
   if ( this->HierarchicalLayers == 0 )
-    os << indent << "Registered HierarchicalLayers : (none)" << endl;
+    os << " (none)" << endl;
   else
     {
-    os << indent << "Registered HierarchicalLayers :" << endl;
+    os << endl;
     this->HierarchicalLayers->PrintSelf( os, indent.GetNextIndent() );
     }
+
+  os << indent << "Registered HierarchicalOrder :";
   if ( this->HierarchicalOrder == 0 )
-    os << indent << "Registered HierarchicalOrder : (none)" << endl;
+    os << " (none)" << endl;
   else
     {
-    os << indent << "Registered HierarchicalOrder :" << endl;
+    os << endl;
     this->HierarchicalOrder->PrintSelf( os, indent.GetNextIndent() );
     }
   }
 
-void vtkSimple3DCirclesStrategy::SetDirection( double d0, double d1, double d2 )
+void vtkSimple3DCirclesStrategy::SetDirection( double dx, double dy, double dz )
   {
-  vtkDebugMacro( << this->GetClassName() << " (" << this << "): setting Direction to (" << d0 << "," << d1 << "," << d2 << ")" );
+  vtkDebugMacro( << this->GetClassName() << " (" << this << "): setting Direction to (" << dx << "," << dy << "," << dz << ")" );
 
-  if ( ( this->Direction[0] != d0 ) || ( this->Direction[1] != d1 ) || ( this->Direction[2] != d2 ) )
+  if ( ( this->Direction[0] != dx ) || ( this->Direction[1] != dy ) || ( this->Direction[2] != dz ) )
     {
     double global[3], local[3];
-    global[0] = d0;
-    global[1] = d1;
-    global[2] = d2;
+    global[0] = dx;
+    global[1] = dy;
+    global[2] = dz;
 
     local[0] = 0.0;
-    local[1] = 0.0;
-    local[2] = 1.0;
+    local[1] = 1.0;
+    local[2] = 0.0;
 
     double length_global = vtkMath::Norm( global );
 
-    if ( length_global == 0.0 )
+    if ( IsZero( length_global ) )
       {
-      vtkWarningMacro( << "The length of direction vector is zero! Direction is not changed!" );
+      vtkWarningMacro( << "The length of direction vector is zero! Direction has not been changed!" );
       return;
       }
 
@@ -159,16 +178,16 @@ void vtkSimple3DCirclesStrategy::SetDirection( double d0, double d1, double d2 )
     // cos(fi) = local.global -> cosfi, because |local|=1 and |global|=1
     cosfi = vtkMath::Dot( local, global );
     // if fi == 2*Pi -> cosfi = -1
-    if ( cosfi == -1.0 )
+    if ( IsZero( cosfi + 1.0 ) )
       {
       // if "local" is on "z" axes
-      if ( ( local[2] == 1.0 ) || ( local[2] == -1.0 ) )
+      if ( IsZero( local[2] + 1.0 ) || IsZero( local[2] - 1.0 ) )
         {
         this->T[0][0] = this->T[2][2] = -1.0;
         this->T[1][1] = 1.0;
         this->T[0][1] = this->T[1][0] = this->T[0][2] = this->T[2][0] = this->T[1][2] = this->T[2][1] = 0.0;
         }
-      // if local != ( (0,0,1) or (0,0,-1) ) [here never run]
+      // if local != ( (0,0,1) or (0,0,-1) )
       else
         {
         // n vector
@@ -221,9 +240,9 @@ void vtkSimple3DCirclesStrategy::SetDirection( double d0, double d1, double d2 )
       }
 
 
-    this->Direction[0] = d0;
-    this->Direction[1] = d1;
-    this->Direction[2] = d2;
+    this->Direction[0] = dx;
+    this->Direction[1] = dy;
+    this->Direction[2] = dz;
 
     vtkDebugMacro( << "Transformation matrix : [[" << this->T[0][0] << "," << this->T[1][0] << "," << this->T[2][0] << "][" << this->T[0][1] << "," << this->T[1][1] << "," << this->T[2][1] << "][" << this->T[0][2] << "," << this->T[1][2] << "," << this->T[2][2] << "]]" );
 
@@ -252,7 +271,7 @@ vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalLayers,vtkIntArray);
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalOrder,vtkIdTypeArray);
 
 vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
-: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), MarkedValue(0), ForceToUseUniversalStartPointsFinder(false), AutoHeight(false), MinimumRadian(vtkMath::DoublePi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
+: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), MarkedValue(0), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::DoublePi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
   {
   this->Direction[0] = this->Direction[1] = 0.0; this->Direction[2] = 1.0;
   this->T[0][1] = this->T[0][2] = this->T[1][2] = 0.0;
@@ -326,7 +345,7 @@ void vtkSimple3DCirclesStrategy::Layout( void )
       if ( layers->GetValue(i) == 0 )
         order_points.push_back(i);
       else if ( layers->GetValue(i) == -2 )
-        order_points.push_back(i);
+        stand_alones.push_back(i);
       }
     }
   // Layers end
@@ -405,7 +424,7 @@ void vtkSimple3DCirclesStrategy::Layout( void )
       return;
       }
 
-    if ( this->AutoHeight && ( this->Method == FixedDistanceMethod ) )
+    if ( ( this->AutoHeight == 1 ) && ( this->Method == FixedDistanceMethod ) )
       {
       if ( fabs( tangent * ( R - Rprev ) ) > this->Height )
         localHeight = fabs( tangent * ( R - Rprev ) );
@@ -420,8 +439,8 @@ void vtkSimple3DCirclesStrategy::Layout( void )
 
     for ( ind = start; ind < index; ++ind )
       {
-      localXYZ[0] = R * cos( double(ind) * alfa );
-      localXYZ[1] = R * sin( double(ind) * alfa );
+      localXYZ[0] = R * cos( double(ind - start) * alfa );
+      localXYZ[1] = R * sin( double(ind - start) * alfa );
       this->Transform( localXYZ, globalXYZ );
       points->SetPoint( order->GetValue(ind), globalXYZ );
       }
@@ -437,22 +456,25 @@ void vtkSimple3DCirclesStrategy::Layout( void )
 
 void vtkSimple3DCirclesStrategy::SetGraph( vtkGraph * graph )
   {
-  vtkGraphLayoutStrategy::SetGraph( graph );
-  if ( this->HierarchicalLayers != 0 )
+  if ( this->Graph != graph )
     {
-    this->HierarchicalLayers->UnRegister(this);
-    this->HierarchicalLayers = 0;
-    }
-  if ( this->HierarchicalOrder != 0 )
-    {
-    this->HierarchicalOrder->UnRegister(this);
-    this->HierarchicalOrder = 0;
+    this->Superclass::SetGraph( graph );
+    if ( this->HierarchicalLayers != 0 )
+      {
+      this->HierarchicalLayers->UnRegister(this);
+      this->HierarchicalLayers = 0;
+      }
+    if ( this->HierarchicalOrder != 0 )
+      {
+      this->HierarchicalOrder->UnRegister(this);
+      this->HierarchicalOrder = 0;
+      }
     }
   }
 
 int vtkSimple3DCirclesStrategy::UniversalStartPoints( vtkDirectedGraph * input, vtkSimple3DCirclesStrategyInternal *target, vtkSimple3DCirclesStrategyInternal *StandAlones, vtkIntArray * layers )
   {
-  if ( ( this->MarkedStartVertices != 0 ) && ( ! this->ForceToUseUniversalStartPointsFinder ) )
+  if ( ( this->MarkedStartVertices != 0 ) && ( this->ForceToUseUniversalStartPointsFinder == 0 ) )
     {
     if ( this->MarkedStartVertices->GetMaxId() == layers->GetMaxId() )
       {
