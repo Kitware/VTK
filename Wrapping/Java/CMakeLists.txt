@@ -158,9 +158,12 @@ IF(JAVA_COMPILE)
 
     SET(VTK_JAVA_DEPENDENCIES
       Algorithm
+      CellType
       DynamicClassLoader
       SampleAlgorithm
       vtkGlobalJavaHash
+      vtkJavaGarbageCollector
+      vtkNativeLibrary
       vtkSettings
       vtkTesting2
     )

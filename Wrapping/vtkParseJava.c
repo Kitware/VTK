@@ -665,17 +665,18 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     /* if we are a base class and have a delete method */
     if (data->HasDelete)
       {
+      fprintf(fp,"\n  public static native void VTKDeleteReference(long id);");
       fprintf(fp,"\n  protected native void VTKDelete();");
       fprintf(fp,"\n  protected native void VTKRegister();");
       fprintf(fp,"\n  public void Delete() {");
       fprintf(fp,"\n    int refCount = this.GetReferenceCount();");
+      fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.remove(new Long(this.vtkId));");
       fprintf(fp,"\n    this.VTKDelete();");
       fprintf(fp,"\n    this.vtkDeleted = true;");
       fprintf(fp,"\n    if (refCount == 1) {");
       fprintf(fp,"\n      this.vtkId = 0;");
       fprintf(fp,"\n    }");
       fprintf(fp,"\n  }");
-      fprintf(fp,"\n  protected void finalize() { if (!this.vtkDeleted) this.Delete(); }\n");
       }
     }
   /* Special case for vtkObject */
