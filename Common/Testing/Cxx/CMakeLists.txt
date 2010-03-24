@@ -81,7 +81,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayBool.cxx
     ArrayInterpolationDense.cxx
     ArrayNullValues.cxx
-    ArraySlice.cxx
+    ArrayExtents.cxx
     ArrayUserTypes.cxx
     ArrayVariants.cxx
     SparseArrayValidation.cxx

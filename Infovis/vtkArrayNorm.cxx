@@ -34,7 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
 
-vtkCxxRevisionMacro(vtkArrayNorm, "1.6");
+vtkCxxRevisionMacro(vtkArrayNorm, "1.7");
 vtkStandardNewMacro(vtkArrayNorm);
 
 vtkArrayNorm::vtkArrayNorm() :
@@ -112,15 +112,13 @@ int vtkArrayNorm::RequestData(
       throw vtkstd::runtime_error("Dimension must be zero or one.");
     const vtkIdType element_dimension = 1 - vector_dimension;
 
-    const vtkIdType vector_count = input_array->GetExtent(vector_dimension);
-
     // Setup our output ...
     vtkstd::ostringstream array_name;
     array_name << "L" << this->L << "_norm";
     
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
     output_array->SetName(array_name.str());
-    output_array->Resize(vector_count);
+    output_array->Resize(input_array->GetExtent(vector_dimension));
     output_array->Fill(0.0);
 
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
@@ -139,7 +137,7 @@ int vtkArrayNorm::RequestData(
       output_array->SetValue(coordinates[vector_dimension], output_array->GetValue(coordinates[vector_dimension]) + pow(input_array->GetValueN(n), this->L));
       }
 
-    for(vtkIdType n = 0; n != vector_count; ++n)
+    for(vtkIdType n = 0; n != output_array->GetNonNullSize(); ++n)
       {
       output_array->SetValueN(n, pow(output_array->GetValueN(n), 1.0 / this->L));
       }
@@ -147,7 +145,7 @@ int vtkArrayNorm::RequestData(
     // Optionally invert the output vector
     if(this->Invert)
       {
-      for(vtkIdType n = 0; n != vector_count; ++n)
+      for(vtkIdType n = 0; n != output_array->GetNonNullSize(); ++n)
         {
         if(output_array->GetValueN(n))
           output_array->SetValueN(n, 1.0 / output_array->GetValueN(n));

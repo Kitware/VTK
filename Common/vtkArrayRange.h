@@ -44,10 +44,6 @@ public:
   vtkArrayRange();
   
   // Description:
-  // Creates a range containing a single value.
-  vtkArrayRange(vtkIdType index);
-  
-  // Description:
   // Creates a half-open range [begin, end).  Note that begin must be <= end,
   // if not, creates the empty range [begin, begin).
   vtkArrayRange(vtkIdType begin, vtkIdType end);
@@ -61,8 +57,12 @@ public:
   vtkIdType GetEnd() const;
 
   // Description:
-  // Returns the extent of the range (the distance End - Begin).
-  vtkIdType GetExtent() const;
+  // Returns the size of the range (the distance End - Begin).
+  vtkIdType GetSize() const;
+
+  // Description:
+  // Returns true iff the given range is a non-overlapping subset of this range.
+  bool Contains(const vtkArrayRange& range) const;
 
   // Description:
   // Returns true iff the given coordinate falls within this range.

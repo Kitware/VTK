@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkTransposeMatrix
 
-vtkCxxRevisionMacro(vtkTransposeMatrix, "1.4");
+vtkCxxRevisionMacro(vtkTransposeMatrix, "1.5");
 vtkStandardNewMacro(vtkTransposeMatrix);
 
 vtkTransposeMatrix::vtkTransposeMatrix()
@@ -108,9 +108,9 @@ int vtkTransposeMatrix::RequestData(
       output_array->SetDimensionLabel(0, input_array2->GetDimensionLabel(1));
       output_array->SetDimensionLabel(1, input_array2->GetDimensionLabel(0));
       
-      for(vtkIdType i = 0; i != input_extents[0]; ++i)
+      for(vtkIdType i = input_extents[0].GetBegin(); i != input_extents[0].GetEnd(); ++i)
         {
-        for(vtkIdType j = 0; j != input_extents[1]; ++j)
+        for(vtkIdType j = input_extents[1].GetBegin(); j != input_extents[1].GetEnd(); ++j)
           {
           output_array->SetValue(
             vtkArrayCoordinates(j, i),

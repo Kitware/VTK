@@ -32,7 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkUnityMatrixWeighting
 
-vtkCxxRevisionMacro(vtkUnityMatrixWeighting, "1.1");
+vtkCxxRevisionMacro(vtkUnityMatrixWeighting, "1.2");
 vtkStandardNewMacro(vtkUnityMatrixWeighting);
 
 vtkUnityMatrixWeighting::vtkUnityMatrixWeighting() :
@@ -82,11 +82,11 @@ int vtkUnityMatrixWeighting::RequestData(
         throw vtkstd::runtime_error("FeatureDimension out-of-bounds.");
       }
 
-    const vtkIdType feature_count = input_array->GetExtents()[feature_dimension];
+    const vtkArrayRange features = input_array->GetExtent(feature_dimension);
 
     // Setup our output ...
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
-    output_array->Resize(feature_count);
+    output_array->Resize(features);
     output_array->Fill(1.0);
     output_array->SetName("trivial_term_weight");
 

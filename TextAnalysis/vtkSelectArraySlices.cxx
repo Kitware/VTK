@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkSelectArraySlices
 
-vtkCxxRevisionMacro(vtkSelectArraySlices, "1.1");
+vtkCxxRevisionMacro(vtkSelectArraySlices, "1.2");
 vtkStandardNewMacro(vtkSelectArraySlices);
 
 vtkSelectArraySlices::vtkSelectArraySlices() :
@@ -114,22 +114,22 @@ int vtkSelectArraySlices::RequestData(
     if(dimension < 0 || dimension >= input_array->GetDimensions())
       throw vtkstd::runtime_error("SliceDimension out-of-range.");
 
-    const vtkIdType dimension_extents = input_array->GetExtents()[dimension];
+    const vtkArrayRange dimension_extents = input_array->GetExtent(dimension);
 
-    // Special-case: if the dimension extents are zero, there's nothing to select and we're done.
-    if(0 == dimension_extents)
+    // Special-case: if the dimension extents are empty, there's nothing to select and we're done.
+    if(0 == dimension_extents.GetSize())
       return 1;
     
-    const vtkIdType slice_extents = input_array->GetExtents().GetSize() / dimension_extents;
+    const vtkIdType slice_extents = input_array->GetExtents().GetSize() / dimension_extents.GetSize();
     const vtkIdType non_null_count = input_array->GetNonNullSize();
 
     // Compute the number of non-zero values in each slice along the target dimension ...
     vtkArrayCoordinates coordinates;
-    vtkstd::vector<vtkIdType> slice_counts(dimension_extents, 0);
+    vtkstd::vector<vtkIdType> slice_counts(dimension_extents.GetSize(), 0);
     for(vtkIdType n = 0; n != non_null_count; ++n)
       {
       input_array->GetCoordinatesN(n, coordinates);
-      slice_counts[coordinates[dimension]] += (input_array->GetValueN(n) ? 1 : 0);
+      slice_counts[coordinates[dimension] - dimension_extents.GetBegin()] += (input_array->GetValueN(n) ? 1 : 0);
       }
 
     // Select / deselect each slice based on whether its count meets our criteria ...
@@ -138,7 +138,7 @@ int vtkSelectArraySlices::RequestData(
     const vtkIdType minimum_percent_count = static_cast<vtkIdType>(this->MinimumPercent * slice_extents);
     const vtkIdType maximum_percent_count = static_cast<vtkIdType>(this->MaximumPercent * slice_extents);
 
-    for(vtkIdType i = 0; i != dimension_extents; ++i)
+    for(vtkIdType i = 0; i != dimension_extents.GetSize(); ++i)
       {
       const vtkIdType count = slice_counts[i];
       if(count >= minimum_count && count >= minimum_percent_count && count <= maximum_count && count <= maximum_percent_count)

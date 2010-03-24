@@ -58,7 +58,7 @@ public:
   
   // vtkArray API
   bool IsDense();
-  vtkArrayExtents GetExtents();
+  const vtkArrayExtents& GetExtents();
   vtkIdType GetNonNullSize();
   void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates);
   vtkArray* DeepCopy();
@@ -193,7 +193,10 @@ private:
   T* End;
 
   // Description:
-  // Stores the strides along each array dimension (used for fast lookups).
+  // Stores the offset along each array dimension (used for fast lookups).
+  vtkstd::vector<vtkIdType> Offsets;
+  // Description:
+  // Stores the stride along each array dimension (used for fast lookups).
   vtkstd::vector<vtkIdType> Strides;
 };
 

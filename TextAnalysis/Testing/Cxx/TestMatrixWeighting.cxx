@@ -72,14 +72,14 @@ int TestMatrixWeighting(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const unity = vtkDenseArray<double>::SafeDownCast(unity_weighting->GetOutput()->GetArray(0));
     vtkDenseArray<double>* const entropy = vtkDenseArray<double>::SafeDownCast(entropy_weighting->GetOutput()->GetArray(0));
 
-    test_expression(unity->GetExtents()[0] == 10);
-    for(int i = 0; i<unity->GetExtents()[0]; i++)
+    test_expression(unity->GetExtent(0).GetSize() == 10);
+    for(int i = unity->GetExtent(0).GetBegin(); i<unity->GetExtent(0).GetEnd(); i++)
       {
       test_expression(int(unity->GetValue(i)) == 1);
       }
 
-    test_expression(entropy->GetExtents()[0]  == 15);
-    for(int i = 0; i<entropy->GetExtents()[0]; i++)
+    test_expression(entropy->GetExtent(0).GetSize()  == 15);
+    for(int i = entropy->GetExtent(0).GetBegin(); i<entropy->GetExtent(0).GetEnd(); i++)
       {
       test_expression(entropy->GetValue(i) < 0.00001);
       }

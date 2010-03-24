@@ -93,7 +93,7 @@ bool vtkDenseArray<T>::IsDense()
 }
 
 template<typename T>
-vtkArrayExtents vtkDenseArray<T>::GetExtents()
+const vtkArrayExtents& vtkDenseArray<T>::GetExtents()
 {
   return this->Extents;
 }
@@ -112,8 +112,8 @@ void vtkDenseArray<T>::GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& c
   vtkIdType divisor = 1;
   for(vtkIdType i = 0; i < this->GetDimensions(); ++i)
     {
-    coordinates[i] = ((n / divisor) % this->Extents[i]);
-    divisor *= this->Extents[i];
+    coordinates[i] = ((n / divisor) % this->Extents[i].GetSize()) + this->Extents[i].GetBegin();
+    divisor *= this->Extents[i].GetSize();
     }
 }
 
@@ -318,19 +318,19 @@ vtkStdString vtkDenseArray<T>::InternalGetDimensionLabel(vtkIdType i)
 template<typename T>
 vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i)
 {
-  return (i * this->Strides[0]);
+  return ((i + this->Offsets[0]) * this->Strides[0]);
 }
 
 template<typename T>
 vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i, vtkIdType j)
 {
-  return (i * this->Strides[0]) + (j * this->Strides[1]);
+  return ((i + this->Offsets[0]) * this->Strides[0]) + ((j + this->Offsets[1]) * this->Strides[1]);
 }
 
 template<typename T>
 vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i, vtkIdType j, vtkIdType k)
 {
-  return (i * this->Strides[0]) + (j * this->Strides[1]) + (k * this->Strides[2]);
+  return ((i + this->Offsets[0]) * this->Strides[0]) + ((j + this->Offsets[1]) * this->Strides[1]) + ((k + this->Offsets[2]) * this->Strides[2]);
 }
 
 template<typename T>
@@ -338,7 +338,7 @@ vtkIdType vtkDenseArray<T>::MapCoordinates(const vtkArrayCoordinates& coordinate
 {
   vtkIdType index = 0;
   for(vtkIdType i = 0; i != static_cast<vtkIdType>(this->Strides.size()); ++i)
-    index += (coordinates[i] * this->Strides[i]);
+    index += ((coordinates[i] + this->Offsets[i]) * this->Strides[i]);
 
   return index;
 }
@@ -354,13 +354,19 @@ void vtkDenseArray<T>::Reconfigure(const vtkArrayExtents& extents, MemoryBlock* 
   this->Begin = storage->GetAddress();
   this->End = this->Begin + extents.GetSize(); 
 
+  this->Offsets.resize(extents.GetDimensions());
+  for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
+    {
+    this->Offsets[i] = -extents[i].GetBegin();
+    }
+
   this->Strides.resize(extents.GetDimensions());
   for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
     {
     if(i == 0)
       this->Strides[i] = 1;
     else
-      this->Strides[i] = this->Strides[i-1] * extents[i-1];
+      this->Strides[i] = this->Strides[i-1] * extents[i-1].GetSize();
     }
 }
 

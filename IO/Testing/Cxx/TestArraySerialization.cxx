@@ -56,6 +56,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     vtkstd::stringstream a_buffer;
     vtkArrayWriter::Write(a1, a_buffer);
+
     vtkSmartPointer<vtkArray> a2;
     a2.TakeReference(vtkArrayReader::Read(a_buffer));
 
@@ -72,28 +73,28 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(a2->GetVariantValue(1, 1).ToDouble() == 2.5);
 
     // Test sparse-array coordinates out-of-bounds ...
-    vtkstd::istringstream b_buffer("vtk-sparse-array double\nascii\nb1\n2 2 1\nrows\ncolumns\n0\n2 2 3.5\n");
+    vtkstd::istringstream b_buffer("vtk-sparse-array double\nascii\nb1\n0 2 0 2 1\nrows\ncolumns\n0\n2 2 3.5\n");
     vtkSmartPointer<vtkArray> b1;
     b1.TakeReference(vtkArrayReader::Read(b_buffer));
 
     test_expression(!b1);
 
     // Test sparse-array too many values ...
-    vtkstd::istringstream c_buffer("vtk-sparse-array double\nascii\nc1\n2 2 1\nrows\ncolumns\n0\n0 0 1.1\n0 1 2.2\n");
+    vtkstd::istringstream c_buffer("vtk-sparse-array double\nascii\nc1\n0 2 0 2 1\nrows\ncolumns\n0\n0 0 1.1\n0 1 2.2\n");
     vtkSmartPointer<vtkArray> c1;
     c1.TakeReference(vtkArrayReader::Read(c_buffer));
 
     test_expression(!c1);
 
     // Test sparse-array not enough values ...
-    vtkstd::istringstream d_buffer("vtk-sparse-array double\nascii\nd1\n2 2 1\nrows\ncolumns\n0\n");
+    vtkstd::istringstream d_buffer("vtk-sparse-array double\nascii\nd1\n0 2 0 2 1\nrows\ncolumns\n0\n");
     vtkSmartPointer<vtkArray> d1;
     d1.TakeReference(vtkArrayReader::Read(d_buffer));
 
     test_expression(!d1);
 
     // Test dense string arrays containing whitespace ...
-    vtkstd::istringstream e_buffer("vtk-dense-array string\nascii\ne1\n3 3\nvalues\nThe\nquick brown\nfox\n");
+    vtkstd::istringstream e_buffer("vtk-dense-array string\nascii\ne1\n0 3 3\nvalues\nThe\nquick brown\nfox\n");
     vtkSmartPointer<vtkArray> e1;
     e1.TakeReference(vtkArrayReader::Read(e_buffer));
 
@@ -105,7 +106,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(e1->GetVariantValue(2).ToString() == "fox");
 
     // Test sparse string arrays containing whitespace ...
-    vtkstd::istringstream f_buffer("vtk-sparse-array string\nascii\nf1\n3 3\nvalues\nempty value\n0 The\n1 quick brown\n2 fox\n");
+    vtkstd::istringstream f_buffer("vtk-sparse-array string\nascii\nf1\n0 3 3\nvalues\nempty value\n0 The\n1 quick brown\n2 fox\n");
     vtkSmartPointer<vtkArray> f1;
     f1.TakeReference(vtkArrayReader::Read(f_buffer));
 
@@ -158,7 +159,7 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     test_expression(h2->GetVariantValue(2).ToUnicodeString() == vtkUnicodeString::from_utf8("fox"));
 
     // Test sparse arrays with DOS line endings ...
-    vtkstd::istringstream i_buffer("vtk-sparse-array double\r\nascii\r\ni1\r\n2 2 1\r\nrows\r\ncolumns\r\n0\r\n0 0 5\r\n");
+    vtkstd::istringstream i_buffer("vtk-sparse-array double\r\nascii\r\ni1\r\n0 2 0 2 1\r\nrows\r\ncolumns\r\n0\r\n0 0 5\r\n");
     vtkSmartPointer<vtkArray> i1;
     i1.TakeReference(vtkArrayReader::Read(i_buffer));
 

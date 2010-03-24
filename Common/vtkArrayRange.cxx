@@ -29,12 +29,6 @@ vtkArrayRange::vtkArrayRange() :
 {
 }
 
-vtkArrayRange::vtkArrayRange(vtkIdType index) :
-  Begin(index),
-  End(index + 1)
-{
-}
-
 vtkArrayRange::vtkArrayRange(vtkIdType begin, vtkIdType end) :
   Begin(begin),
   End(vtkstd::max(begin, end))
@@ -51,9 +45,14 @@ vtkIdType vtkArrayRange::GetEnd() const
   return this->End;
 }
 
-vtkIdType vtkArrayRange::GetExtent() const
+vtkIdType vtkArrayRange::GetSize() const
 {
   return this->End - this->Begin;
+}
+
+bool vtkArrayRange::Contains(const vtkArrayRange& range) const
+{
+  return this->Begin <= range.Begin && range.End <= this->End;
 }
 
 bool vtkArrayRange::Contains(const vtkIdType coordinate) const

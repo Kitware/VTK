@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ArraySlice.cxx
+  Module:    ArrayExtents.cxx
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -20,7 +20,7 @@
 =========================================================================*/
 
 #include <vtkArrayCoordinates.h>
-#include <vtkArraySlice.h>
+#include <vtkArrayExtents.h>
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
@@ -37,35 +37,35 @@
     } \
 }
 
-int ArraySlice(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
-    vtkArraySlice slice(vtkArrayRange(2, 4), vtkArrayRange(6, 9));
+    vtkArrayExtents slice(vtkArrayRange(2, 4), vtkArrayRange(6, 9));
 
     test_expression(slice.GetDimensions() == 2);
-    test_expression(slice.GetExtents()[0] == 2);
-    test_expression(slice.GetExtents()[1] == 3);
-    test_expression(slice.GetExtents().GetSize() == 6);
+    test_expression(slice[0].GetSize() == 2);
+    test_expression(slice[1].GetSize() == 3);
+    test_expression(slice.GetSize() == 6);
 
     vtkArrayCoordinates coordinates;
-    for(vtkIdType n = 0; n != slice.GetExtents().GetSize(); ++n)
+    for(vtkIdType n = 0; n != slice.GetSize(); ++n)
       {
-      slice.GetCoordinatesN(n, coordinates);
+      slice.GetLeftToRightCoordinatesN(n, coordinates);
       cerr << coordinates << endl;
       }
 
-    slice.GetCoordinatesN(0, coordinates);
+    slice.GetLeftToRightCoordinatesN(0, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(2, 6));
-    slice.GetCoordinatesN(1, coordinates);
+    slice.GetLeftToRightCoordinatesN(1, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(3, 6));
-    slice.GetCoordinatesN(2, coordinates);
+    slice.GetLeftToRightCoordinatesN(2, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(2, 7));
-    slice.GetCoordinatesN(3, coordinates);
+    slice.GetLeftToRightCoordinatesN(3, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(3, 7));
-    slice.GetCoordinatesN(4, coordinates);
+    slice.GetLeftToRightCoordinatesN(4, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(2, 8));
-    slice.GetCoordinatesN(5, coordinates);
+    slice.GetLeftToRightCoordinatesN(5, coordinates);
     test_expression(coordinates == vtkArrayCoordinates(3, 8));
 
     test_expression(slice.Contains(vtkArrayCoordinates(3, 7)));

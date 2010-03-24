@@ -85,7 +85,7 @@ private:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.4");
+vtkCxxRevisionMacro(vtkDotProductSimilarity, "1.5");
 vtkStandardNewMacro(vtkDotProductSimilarity);
 
 // ----------------------------------------------------------------------
@@ -145,7 +145,15 @@ int vtkDotProductSimilarity::FillInputPortInformation(int port, vtkInformation* 
 
 // ----------------------------------------------------------------------
 
-static double DotProduct(vtkDenseArray<double>* input_a, vtkDenseArray<double>* input_b, const vtkIdType vector_a, const vtkIdType vector_b, const vtkIdType vector_dimension, const vtkIdType component_dimension, const vtkIdType component_count)
+static double DotProduct(
+  vtkDenseArray<double>* input_a,
+  vtkDenseArray<double>* input_b,
+  const vtkIdType vector_a,
+  const vtkIdType vector_b,
+  const vtkIdType vector_dimension,
+  const vtkIdType component_dimension,
+  const vtkArrayRange range_a,
+  const vtkArrayRange range_b)
 {
   vtkArrayCoordinates coordinates_a(0, 0);
   vtkArrayCoordinates coordinates_b(0, 0);
@@ -154,10 +162,10 @@ static double DotProduct(vtkDenseArray<double>* input_a, vtkDenseArray<double>* 
   coordinates_b[vector_dimension] = vector_b;
 
   double dot_product = 0.0;
-  for(vtkIdType component = 0; component != component_count; ++component)
+  for(vtkIdType component = 0; component != range_a.GetSize(); ++component)
     {
-    coordinates_a[component_dimension] = component;
-    coordinates_b[component_dimension] = component;
+    coordinates_a[component_dimension] = component + range_a.GetBegin();
+    coordinates_b[component_dimension] = component + range_b.GetBegin();
     dot_product += input_a->GetValue(coordinates_a) * input_b->GetValue(coordinates_b);
     }
   return dot_product;
@@ -203,13 +211,13 @@ int vtkDotProductSimilarity::RequestData(
 
     const vtkIdType component_dimension = 1 - vector_dimension;
 
-    const vtkIdType vector_count_a = input_array_a->GetExtents()[vector_dimension];
-    const vtkIdType component_count_a = input_array_a->GetExtents()[component_dimension];
+    const vtkArrayRange vectors_a = input_array_a->GetExtent(vector_dimension);
+    const vtkArrayRange components_a = input_array_a->GetExtent(component_dimension);
 
-    const vtkIdType vector_count_b = input_array_b ? input_array_b->GetExtents()[vector_dimension] : 0;
-    const vtkIdType component_count_b = input_array_b ? input_array_b->GetExtents()[component_dimension] : 0;
+    const vtkArrayRange vectors_b = input_array_b ? input_array_b->GetExtent(vector_dimension) : vtkArrayRange();
+    const vtkArrayRange components_b = input_array_b ? input_array_b->GetExtent(component_dimension) : vtkArrayRange();
 
-    if(input_array_b && (component_count_a != component_count_b))
+    if(input_array_b && (components_a.GetSize() != components_b.GetSize()))
       throw vtkstd::runtime_error("Input array vector lengths must match.");
 
     // Get output arrays ...
@@ -234,14 +242,14 @@ int vtkDotProductSimilarity::RequestData(
       // Compare the first matrix with the second matrix ...
       if(this->FirstSecond)
         {
-        for(vtkIdType vector_a = 0; vector_a != vector_count_a; ++vector_a)
+        for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
           {
           similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
 
-          for(vtkIdType vector_b = 0; vector_b != vector_count_b; ++vector_b)
+          for(vtkIdType vector_b = vectors_b.GetBegin(); vector_b != vectors_b.GetEnd(); ++vector_b)
             {
             // Can't use vtkstd::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-            similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_b, vector_a, vector_b, vector_dimension, component_dimension, component_count_a), vector_b));
+            similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_b, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_b), vector_b));
             }
             
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
@@ -255,14 +263,14 @@ int vtkDotProductSimilarity::RequestData(
       // Compare the second matrix with the first matrix ...
       if(this->SecondFirst)
         {
-        for(vtkIdType vector_b = 0; vector_b != vector_count_b; ++vector_b)
+        for(vtkIdType vector_b = vectors_b.GetBegin(); vector_b != vectors_b.GetEnd(); ++vector_b)
           {
           similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
 
-          for(vtkIdType vector_a = 0; vector_a != vector_count_a; ++vector_a)
+          for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
             {
             // Can't use vtkstd::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-            similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, component_count_a), vector_a));
+            similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, components_b, components_a), vector_a));
             }
             
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
@@ -277,11 +285,11 @@ int vtkDotProductSimilarity::RequestData(
     // Compare the one matrix with itself ...
     else
       {
-      for(vtkIdType vector_a = 0; vector_a != vector_count_a; ++vector_a)
+      for(vtkIdType vector_a = vectors_a.GetBegin(); vector_a != vectors_a.GetEnd(); ++vector_a)
         {
         similarities_t similarities(this->MinimumThreshold, this->MinimumCount, this->MaximumCount);
 
-        for(vtkIdType vector_b = 0; vector_b != vector_count_a; ++vector_b)
+        for(vtkIdType vector_b = vectors_a.GetBegin(); vector_b != vectors_a.GetEnd(); ++vector_b)
           {
           if((vector_b > vector_a) && !this->UpperDiagonal)
             continue;
@@ -293,7 +301,7 @@ int vtkDotProductSimilarity::RequestData(
             continue;
 
           // Can't use vtkstd::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
-          similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_a, vector_a, vector_b, vector_dimension, component_dimension, component_count_a), vector_b));
+          similarities.insert(vtkstd::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_a, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_a), vector_b));
           }
           
         for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)

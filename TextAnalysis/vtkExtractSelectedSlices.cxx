@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkExtractSelectedSlices
 
-vtkCxxRevisionMacro(vtkExtractSelectedSlices, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedSlices, "1.2");
 vtkStandardNewMacro(vtkExtractSelectedSlices);
 
 vtkExtractSelectedSlices::vtkExtractSelectedSlices() :
@@ -97,7 +97,7 @@ int vtkExtractSelectedSlices::RequestData(
     if(slice_dimension < 0 || slice_dimension >= input_array->GetDimensions())
       throw vtkstd::runtime_error("SliceDimension out-of-range.");
 
-    const vtkIdType slice_extents = input_array->GetExtents()[slice_dimension];
+    const vtkArrayRange slices = input_array->GetExtent(slice_dimension);
 
     vtkSelection* const input_selection = vtkSelection::GetData(inputVector[1]);
     if(!input_selection)
@@ -117,19 +117,19 @@ int vtkExtractSelectedSlices::RequestData(
       throw vtkstd::runtime_error("Missing vtkIdTypeArray selection indices on input port 1.");
 
     // Convert selection indices into a bit-map for constant-time lookups ...
-    vtkstd::vector<bool> selected_slice(slice_extents, false);
+    vtkstd::vector<bool> selected_slice(slices.GetSize(), false);
     for(vtkIdType i = 0; i != input_selection_list->GetNumberOfTuples(); ++i)
       {
       const vtkIdType slice = input_selection_list->GetValue(i);
-      if(slice < 0 || slice >= slice_extents)
+      if(!slices.Contains(slice))
         throw vtkstd::runtime_error("Selected slice out-of-bounds.");
 
-      selected_slice[slice] = true;
+      selected_slice[slice - slices.GetBegin()] = true;
       }
 
     // Create a map from old coordinates to new coordinates for constant-time lookups ...
-    vtkstd::vector<vtkIdType> coordinate_map(slice_extents, 0);
-    for(vtkIdType i = 0, new_coordinate = 0; i != slice_extents; ++i)
+    vtkstd::vector<vtkIdType> coordinate_map(slices.GetSize(), 0);
+    for(vtkIdType i = 0, new_coordinate = 0; i != slices.GetSize(); ++i)
       {
       coordinate_map[i] = new_coordinate;
       if(selected_slice[i])
@@ -153,17 +153,15 @@ int vtkExtractSelectedSlices::RequestData(
     for(vtkIdType n = 0; n != non_null_count; ++n)
       {
       input_array->GetCoordinatesN(n, coordinates);
-      if(!selected_slice[coordinates[slice_dimension]])
+      if(!selected_slice[coordinates[slice_dimension] - slices.GetBegin()])
         continue;
 
-      coordinates[slice_dimension] = coordinate_map[coordinates[slice_dimension]];
+      coordinates[slice_dimension] = coordinate_map[coordinates[slice_dimension] - slices.GetBegin()];
       output_array->AddValue(coordinates, input_array->GetValueN(n));
       }
 
     // Reset the array extents ...
-    vtkArrayExtents extents = input_array->GetExtents();
-    extents[slice_dimension] = coordinate_map.size() ? coordinate_map.back() + 1 : 0;
-    output_array->SetExtents(extents);
+    output_array->SetExtentsFromContents();
 
     return 1;
     } 

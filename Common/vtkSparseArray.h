@@ -79,7 +79,7 @@ public:
 
   // vtkArray API 
   bool IsDense();
-  vtkArrayExtents GetExtents();
+  const vtkArrayExtents& GetExtents();
   vtkIdType GetNonNullSize();
   void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates);
   vtkArray* DeepCopy();

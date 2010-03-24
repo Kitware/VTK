@@ -48,7 +48,7 @@ bool vtkSparseArray<T>::IsDense()
 }
 
 template<typename T>
-vtkArrayExtents vtkSparseArray<T>::GetExtents()
+const vtkArrayExtents& vtkSparseArray<T>::GetExtents()
 {
   return this->Extents;
 }
@@ -451,16 +451,21 @@ void vtkSparseArray<T>::ReserveStorage(const vtkIdType value_count)
 template<typename T>
 void vtkSparseArray<T>::SetExtentsFromContents()
 {
-  vtkArrayExtents new_extents = vtkArrayExtents::Uniform(this->GetDimensions(), 0);
+  vtkArrayExtents new_extents;
 
-  vtkIdType row_begin = 0;
-  vtkIdType row_end = row_begin + this->Values.size();
-  for(vtkIdType row = row_begin; row != row_end; ++row)
+  const vtkIdType row_begin = 0;
+  const vtkIdType row_end = row_begin + this->Values.size();
+  const vtkIdType dimension_count = this->GetDimensions();
+  for(vtkIdType dimension = 0; dimension != dimension_count; ++dimension)
     {
-    for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
+    vtkIdType range_begin = std::numeric_limits<vtkIdType>::max();
+    vtkIdType range_end = -std::numeric_limits<vtkIdType>::max();
+    for(vtkIdType row = row_begin; row != row_end; ++row)
       {
-      new_extents[column] = vtkstd::max(new_extents[column], this->Coordinates[column][row] + 1);
+        range_begin = vtkstd::min(range_begin, this->Coordinates[dimension][row]);
+        range_end = vtkstd::max(range_end, this->Coordinates[dimension][row] + 1);
       }
+    new_extents.Append(vtkArrayRange(range_begin, range_end));
     }
 
   this->Extents = new_extents;
@@ -552,13 +557,7 @@ bool vtkSparseArray<T>::Validate()
     {
     for(vtkIdType j = 0; j != dimensions; ++j)
       {
-      if(this->Coordinates[j][i] < 0)
-        {
-        ++out_of_bound_count;
-        break;
-        }
-
-      if(this->Coordinates[j][i] >= this->Extents[j])
+      if(this->Coordinates[j][i] < this->Extents[j].GetBegin() || this->Coordinates[j][i] >= this->Extents[j].GetEnd())
         {
         ++out_of_bound_count;
         break;

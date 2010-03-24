@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArraySlices.cxx
+  Module:    vtkArrayExtentsList.cxx
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,26 +19,26 @@
 
 =========================================================================*/
 
-#include "vtkArraySlices.h"
+#include "vtkArrayExtentsList.h"
 
-vtkArraySlices::vtkArraySlices()
+vtkArrayExtentsList::vtkArrayExtentsList()
 {
 }
 
-vtkArraySlices::vtkArraySlices(const vtkArraySlice& i) :
+vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i) :
   Storage(1)
 {
   this->Storage[0] = i;
 }
   
-vtkArraySlices::vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j) :
+vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j) :
   Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
   
-vtkArraySlices::vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, const vtkArraySlice& k) :
+vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k) :
   Storage(3)
 {
   this->Storage[0] = i;
@@ -46,7 +46,7 @@ vtkArraySlices::vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, c
   this->Storage[2] = k;
 }
 
-vtkArraySlices::vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, const vtkArraySlice& k, const vtkArraySlice& l) :
+vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k, const vtkArrayExtents& l) :
   Storage(4)
 {
   this->Storage[0] = i;
@@ -55,22 +55,22 @@ vtkArraySlices::vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, c
   this->Storage[3] = l;
 }
 
-vtkIdType vtkArraySlices::GetCount() const
+vtkIdType vtkArrayExtentsList::GetCount() const
 {
   return this->Storage.size();
 }
 
-void vtkArraySlices::SetCount(vtkIdType count)
+void vtkArrayExtentsList::SetCount(vtkIdType count)
 {
-  this->Storage.assign(count, vtkArraySlice());
+  this->Storage.assign(count, vtkArrayExtents());
 }
 
-vtkArraySlice& vtkArraySlices::operator[](vtkIdType i)
+vtkArrayExtents& vtkArrayExtentsList::operator[](vtkIdType i)
 {
   return this->Storage[i];
 }
 
-const vtkArraySlice& vtkArraySlices::operator[](vtkIdType i) const
+const vtkArrayExtents& vtkArrayExtentsList::operator[](vtkIdType i) const
 {
   return this->Storage[i];
 }

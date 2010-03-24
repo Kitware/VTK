@@ -21,6 +21,7 @@ IF(PYTHON_EXECUTABLE)
     vtkArrayCoordinateIterator.h
     vtkArrayCoordinates.h
     vtkArrayExtents.h
+    vtkArrayExtentsList.h
     vtkArrayInterpolate.h
     vtkArrayIteratorIncludes.h
     vtkArrayIteratorTemplate.h
@@ -28,8 +29,6 @@ IF(PYTHON_EXECUTABLE)
     vtkArrayMapIterator.h
     vtkArrayPrint.h
     vtkArrayRange.h
-    vtkArraySlice.h
-    vtkArraySlices.h
     vtkArraySort.h
     vtkArrayWeights.h
     vtkAssemblyPaths.h

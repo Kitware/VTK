@@ -35,7 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkPointwiseMutualInformation
 
-vtkCxxRevisionMacro(vtkPointwiseMutualInformation, "1.2");
+vtkCxxRevisionMacro(vtkPointwiseMutualInformation, "1.3");
 vtkStandardNewMacro(vtkPointwiseMutualInformation);
 
 vtkPointwiseMutualInformation::vtkPointwiseMutualInformation()
@@ -92,7 +92,7 @@ int vtkPointwiseMutualInformation::RequestData(
     vtkstd::vector<vtkstd::vector<double> > dimension_sums(dimension_count);
     for(vtkIdType i = 0; i != dimension_count; ++i)
       {
-      dimension_sums[i].resize(input_array->GetExtents()[i], 0.0);
+      dimension_sums[i].resize(input_array->GetExtent(i).GetSize(), 0.0);
       }
 
     vtkArrayCoordinates coordinates;

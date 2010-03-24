@@ -35,7 +35,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.5");
+vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.6");
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
 // ----------------------------------------------------------------------
@@ -127,14 +127,14 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
 
   // For each source in the matrix ...
   vtkArrayCoordinates coordinates(0, 0);
-  for(vtkIdType i = 0; i != input_extents[source_dimension]; ++i)
+  for(vtkIdType i = input_extents[source_dimension].GetBegin(); i != input_extents[source_dimension].GetEnd(); ++i)
     {
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
     typedef vtkstd::multimap<double, vtkIdType, vtkstd::greater<double> > sorted_values_t;
     sorted_values_t sorted_values;
-    for(vtkIdType j = 0; j != input_extents[target_dimension]; ++j)
+    for(vtkIdType j = input_extents[target_dimension].GetBegin(); j != input_extents[target_dimension].GetEnd(); ++j)
       {
       coordinates[target_dimension] = j;
 
@@ -159,7 +159,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
         }
       }
 
-    double progress = static_cast<double>(i) / static_cast<double>(input_extents[source_dimension]);
+    double progress = static_cast<double>(i - input_extents[source_dimension].GetBegin()) / static_cast<double>(input_extents[source_dimension].GetSize());
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
     }
 

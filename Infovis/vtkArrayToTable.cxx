@@ -47,14 +47,14 @@ static bool ConvertVector(vtkArray* Array, vtkTable* Output)
   if(!array)
     return false;
 
-  const vtkArrayExtents extents = array->GetExtents();
+  const vtkArrayRange extents = array->GetExtent(0);
 
   ColumnT* const column = ColumnT::New();
-  column->SetNumberOfTuples(extents[0]);
+  column->SetNumberOfTuples(extents.GetSize());
   column->SetName(array->GetName());
-  for(vtkIdType i = 0; i != extents[0]; ++i)
+  for(vtkIdType i = extents.GetBegin(); i != extents.GetEnd(); ++i)
     {
-    column->SetValue(i, array->GetValue(i));
+    column->SetValue(i - extents.GetBegin(), array->GetValue(i));
     }
 
   Output->AddColumn(column);
@@ -77,22 +77,22 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
   vtkSparseArray<ValueT>* const sparse_array = vtkSparseArray<ValueT>::SafeDownCast(array);
 
   const vtkIdType non_null_count = array->GetNonNullSize();
-  const vtkIdType column_count = array->GetExtents()[1];
-  const vtkIdType row_count = array->GetExtents()[0];
+  const vtkArrayRange columns = array->GetExtent(1);
+  const vtkArrayRange rows = array->GetExtent(0);
 
   vtkstd::vector<ColumnT*> new_columns;
-  for(vtkIdType j = 0; j != column_count; ++j)
+  for(vtkIdType j = columns.GetBegin(); j != columns.GetEnd(); ++j)
     {
     vtkstd::ostringstream column_name;
     column_name << j;
       
     ColumnT* const column = ColumnT::New();
-    column->SetNumberOfTuples(row_count);
+    column->SetNumberOfTuples(rows.GetSize());
     column->SetName(column_name.str().c_str());
 
     if(sparse_array)
       {
-      for(vtkIdType i = 0; i != row_count; ++i)
+      for(vtkIdType i = 0; i != rows.GetSize(); ++i)
         column->SetValue(i, sparse_array->GetNullValue());
       }
 
@@ -106,7 +106,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
     vtkArrayCoordinates coordinates;
     array->GetCoordinatesN(n, coordinates);
 
-    new_columns[coordinates[1]]->SetValue(coordinates[0], array->GetValueN(n));
+    new_columns[coordinates[1] - columns.GetBegin()]->SetValue(coordinates[0] - rows.GetBegin(), array->GetValueN(n));
     }
 
   return true;
@@ -114,7 +114,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkArrayToTable, "1.7");
+vtkCxxRevisionMacro(vtkArrayToTable, "1.8");
 vtkStandardNewMacro(vtkArrayToTable);
 
 // ----------------------------------------------------------------------

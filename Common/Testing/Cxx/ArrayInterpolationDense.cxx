@@ -46,8 +46,8 @@ int ArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkDenseArray<double> > b = vtkSmartPointer<vtkDenseArray<double> >::New();
     b->Resize(vtkArrayExtents(2));
 
-    vtkInterpolate(a.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(0)), vtkArraySlice(vtkArrayRange(1))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(0)), b.GetPointer());
-    vtkInterpolate(a.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(2)), vtkArraySlice(vtkArrayRange(3))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(1)), b.GetPointer());
+    vtkInterpolate(a.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(0, 1)), vtkArrayExtents(vtkArrayRange(1, 2))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(0, 1)), b.GetPointer());
+    vtkInterpolate(a.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(2, 3)), vtkArrayExtents(vtkArrayRange(3, 4))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(1, 2)), b.GetPointer());
 
     test_expression(b->GetValue(0) == 0.5, "expected 0.5");
     test_expression(b->GetValue(1) == 2.5, "expected 2.5");
@@ -66,8 +66,8 @@ int ArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkDenseArray<double> > d = vtkSmartPointer<vtkDenseArray<double> >::New();
     d->Resize(vtkArrayExtents(2, 2));
 
-    vtkInterpolate(c.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(0), vtkArrayRange(0, 2)), vtkArraySlice(vtkArrayRange(1), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(0), vtkArrayRange(0, 2)), d.GetPointer());
-    vtkInterpolate(c.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(2), vtkArrayRange(0, 2)), vtkArraySlice(vtkArrayRange(3), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(1), vtkArrayRange(0, 2)), d.GetPointer());
+    vtkInterpolate(c.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(0, 1), vtkArrayRange(0, 2)), vtkArrayExtents(vtkArrayRange(1, 2), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(0, 1), vtkArrayRange(0, 2)), d.GetPointer());
+    vtkInterpolate(c.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(2, 3), vtkArrayRange(0, 2)), vtkArrayExtents(vtkArrayRange(3, 4), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(1, 2), vtkArrayRange(0, 2)), d.GetPointer());
 
     test_expression(d->GetValue(0, 0) == 1, "expected 1");
     test_expression(d->GetValue(0, 1) == 2, "expected 2");

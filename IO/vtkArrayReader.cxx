@@ -20,7 +20,6 @@
 
 #include "vtkArrayReader.h"
 
-#include <vtkArrayCoordinateIterator.h>
 #include <vtkCommand.h>
 #include <vtkDenseArray.h>
 #include <vtkObjectFactory.h>
@@ -32,7 +31,7 @@
 #include <vtkstd/stdexcept>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkArrayReader, "1.3");
+vtkCxxRevisionMacro(vtkArrayReader, "1.4");
 vtkStandardNewMacro(vtkArrayReader);
 
 namespace {
@@ -85,12 +84,21 @@ void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non_null_s
   for(extents_buffer >> extent; extents_buffer; extents_buffer >> extent)
     temp_extents.push_back(extent);
 
-  if(temp_extents.size() < 2)
-    throw vtkstd::runtime_error("Missing array extents.");
-
   extents.SetDimensions(0);
-  for(vtkstd::vector<vtkIdType>::size_type i = 0; i + 1 < temp_extents.size(); ++i)
-    extents.Append(temp_extents[i]);
+  while(temp_extents.size() > 1)
+    {
+    const vtkIdType begin = temp_extents.front();
+    temp_extents.erase(temp_extents.begin());
+    const vtkIdType end = temp_extents.front();
+    temp_extents.erase(temp_extents.begin());
+    extents.Append(vtkArrayRange(begin, end));
+    }
+
+  if(extents.GetDimensions() < 1)
+    throw vtkstd::runtime_error("Array cannot have fewer than one dimension.");
+
+  if(temp_extents.empty())
+    throw vtkstd::runtime_error("Missing non null size.");
 
   non_null_size = temp_extents.back();
 
@@ -406,7 +414,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
     for(vtkIdType j = 0; j != array->GetDimensions(); ++j)
       {
       line_stream >> *(coordinates[j] + value_count);
-      if(*(coordinates[j] + value_count) >= extents[j])
+      if(!extents[j].Contains(*(coordinates[j] + value_count)))
         throw vtkstd::runtime_error("Coordinate out-of-bounds.");
       if(!line_stream)
         throw vtkstd::runtime_error("Missing coordinate.");
@@ -440,20 +448,19 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
     throw vtkstd::runtime_error("Incorrect number of values for a dense array.");
 
   // Read the file contents ...
-  vtkSmartPointer<vtkArrayCoordinateIterator> iterator = vtkSmartPointer<vtkArrayCoordinateIterator>::New();
-  iterator->SetExtents(extents);
-
   ValueT value;
-  vtkIdType value_count = 0;
-  for(ExtractValue(stream, value); stream; ExtractValue(stream, value), ++value_count)
+  vtkIdType n = 0;
+  vtkArrayCoordinates coordinates;
+  for(ExtractValue(stream, value); stream; ExtractValue(stream, value), ++n)
     {
-    if(value_count + 1 > non_null_size)
+    if(n + 1 > non_null_size)
       throw vtkstd::runtime_error("Stream contains too many values.");
 
-    array->SetValue(iterator->Next(), value);
+    extents.GetRightToLeftCoordinatesN(n, coordinates);
+    array->SetValue(coordinates, value);
     }
 
-  if(value_count != non_null_size)
+  if(n != non_null_size)
     throw vtkstd::runtime_error("Stream doesn't contain enough values.");
 
   array->Register(0); 

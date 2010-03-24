@@ -24,7 +24,7 @@
 
 #include "vtkTypedArray.h"
 
-class vtkArraySlice;
+class vtkArrayExtents;
 class vtkArraySlices;
 class vtkArrayWeights;
 
@@ -51,7 +51,7 @@ void vtkInterpolate(
   vtkTypedArray<T>* source_array,
   const vtkArraySlices& source_slices,
   const vtkArrayWeights& source_weights,
-  const vtkArraySlice& target_slice,
+  const vtkArrayExtents& target_slice,
   vtkTypedArray<T>* target_array);
 
 #include "vtkArrayInterpolate.txx"

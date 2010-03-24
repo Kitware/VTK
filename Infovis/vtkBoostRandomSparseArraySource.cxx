@@ -19,7 +19,6 @@
 
 =========================================================================*/
 
-#include "vtkArrayCoordinateIterator.h"
 #include "vtkBoostRandomSparseArraySource.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -31,7 +30,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkBoostRandomSparseArraySource, "1.2");
+vtkCxxRevisionMacro(vtkBoostRandomSparseArraySource, "1.3");
 vtkStandardNewMacro(vtkBoostRandomSparseArraySource);
 
 // ----------------------------------------------------------------------
@@ -99,11 +98,10 @@ int vtkBoostRandomSparseArraySource::RequestData(
   vtkSparseArray<double>* const array = vtkSparseArray<double>::New();
   array->Resize(this->Extents);
 
-  vtkSmartPointer<vtkArrayCoordinateIterator> iterator = vtkSmartPointer<vtkArrayCoordinateIterator>::New();
-  iterator->SetExtents(this->Extents);
-  while(iterator->HasNext())
+  vtkArrayCoordinates coordinates;
+  for(vtkIdType n = 0; n != this->Extents.GetSize(); ++n)
     {
-    vtkArrayCoordinates coordinates = iterator->Next();
+    this->Extents.GetRightToLeftCoordinatesN(n, coordinates);
 
     // Although it seems wasteful, we calculate a value for every element in the array
     // so the results stay consistent as the ElementProbability varies

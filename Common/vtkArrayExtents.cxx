@@ -29,20 +29,41 @@ vtkArrayExtents::vtkArrayExtents()
 {
 }
 
-vtkArrayExtents::vtkArrayExtents(vtkIdType i) :
+vtkArrayExtents::vtkArrayExtents(const vtkIdType i) :
+  Storage(1)
+{
+  this->Storage[0] = vtkArrayRange(0, i);
+}
+
+vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i) :
   Storage(1)
 {
   this->Storage[0] = i;
 }
 
-vtkArrayExtents::vtkArrayExtents(vtkIdType i, vtkIdType j) :
+vtkArrayExtents::vtkArrayExtents(const vtkIdType i, const vtkIdType j) :
+  Storage(2)
+{
+  this->Storage[0] = vtkArrayRange(0, i);
+  this->Storage[1] = vtkArrayRange(0, j);
+}
+
+vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j) :
   Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
 
-vtkArrayExtents::vtkArrayExtents(vtkIdType i, vtkIdType j, vtkIdType k) :
+vtkArrayExtents::vtkArrayExtents(const vtkIdType i, const vtkIdType j, const vtkIdType k) :
+  Storage(3)
+{
+  this->Storage[0] = vtkArrayRange(0, i);
+  this->Storage[1] = vtkArrayRange(0, j);
+  this->Storage[2] = vtkArrayRange(0, k);
+}
+
+vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k) :
   Storage(3)
 {
   this->Storage[0] = i;
@@ -58,15 +79,15 @@ const vtkArrayExtents vtkArrayExtents::Uniform(vtkIdType n, vtkIdType m)
   // arguement constructor and initialize the values manually.
   // result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
 
-  result.Storage = vtksys_stl::vector<vtkIdType>(n);
-  for(int i = 0; i < n; i++)
+  result.Storage = vtksys_stl::vector<vtkArrayRange>(n);
+  for(vtkIdType i = 0; i < n; i++)
     {
-    result.Storage[i] = m;
+    result.Storage[i] = vtkArrayRange(0, m);
     }
   return result;
 }
 
-void vtkArrayExtents::Append(vtkIdType extent)
+void vtkArrayExtents::Append(const vtkArrayRange& extent)
 {
   this->Storage.push_back(extent);
 }
@@ -81,20 +102,24 @@ vtkIdType vtkArrayExtents::GetSize() const
   if(this->Storage.empty())
     return 0;
 
-  return vtkstd::accumulate(this->Storage.begin(), this->Storage.end(), 1, vtkstd::multiplies<vtkIdType>());
+  vtkIdType size = 1;
+  for(vtkIdType i = 0; i != this->Storage.size(); ++i)
+    size *= this->Storage[i].GetSize();
+
+  return size;
 }
 
 void vtkArrayExtents::SetDimensions(vtkIdType dimensions)
 {
-  this->Storage.assign(dimensions, 0);
+  this->Storage.assign(dimensions, vtkArrayRange());
 }
 
-vtkIdType& vtkArrayExtents::operator[](vtkIdType i)
+vtkArrayRange& vtkArrayExtents::operator[](vtkIdType i)
 {
   return this->Storage[i];
 }
 
-const vtkIdType& vtkArrayExtents::operator[](vtkIdType i) const
+const vtkArrayRange& vtkArrayExtents::operator[](vtkIdType i) const
 {
   return this->Storage[i];
 }
@@ -109,6 +134,69 @@ bool vtkArrayExtents::operator!=(const vtkArrayExtents& rhs) const
   return !(*this == rhs);
 }
 
+bool vtkArrayExtents::ZeroBased() const
+{
+  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+    {
+    if(this->Storage[i].GetBegin() != 0)
+      return false;
+    }
+
+  return true;
+}
+
+bool vtkArrayExtents::SameShape(const vtkArrayExtents& rhs) const
+{
+  if(this->GetDimensions() != rhs.GetDimensions())
+    return false;
+
+  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+    {
+    if(this->Storage[i].GetSize() != rhs.Storage[i].GetSize())
+      return false;
+    }
+
+  return true;
+}
+
+void vtkArrayExtents::GetLeftToRightCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const
+{
+  coordinates.SetDimensions(this->GetDimensions());
+
+  vtkIdType divisor = 1;
+  for(vtkIdType i = 0; i < this->GetDimensions(); ++i)
+    {
+    coordinates[i] = ((n / divisor) % this->Storage[i].GetSize()) + this->Storage[i].GetBegin();
+    divisor *= this->Storage[i].GetSize();
+    }
+}
+
+void vtkArrayExtents::GetRightToLeftCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const
+{
+  coordinates.SetDimensions(this->GetDimensions());
+
+  vtkIdType divisor = 1;
+  for(vtkIdType i = this->GetDimensions() - 1; i >= 0; --i)
+    {
+    coordinates[i] = ((n / divisor) % this->Storage[i].GetSize()) + this->Storage[i].GetBegin();
+    divisor *= this->Storage[i].GetSize();
+    }
+}
+
+bool vtkArrayExtents::Contains(const vtkArrayExtents& other) const
+{
+  if(this->GetDimensions() != other.GetDimensions())
+    return false;
+
+  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+    {
+    if(!this->Storage[i].Contains(other[i]))
+      return false;
+    }
+
+  return true;
+}
+
 bool vtkArrayExtents::Contains(const vtkArrayCoordinates& coordinates) const
 {
   if(coordinates.GetDimensions() != this->GetDimensions())
@@ -116,9 +204,7 @@ bool vtkArrayExtents::Contains(const vtkArrayCoordinates& coordinates) const
 
   for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
     {
-    if(coordinates[i] < 0)
-      return false;
-    if(coordinates[i] >= this->Storage[i])
+    if(!this->Storage[i].Contains(coordinates[i]))
       return false;
     }
 
@@ -131,7 +217,7 @@ ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs)
     {
     if(i)
       stream << "x";
-    stream << rhs.Storage[i];
+    stream << "[" << rhs.Storage[i].GetBegin() << "," << rhs.Storage[i].GetEnd() << ")";
     }
 
   return stream;

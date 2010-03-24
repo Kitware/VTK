@@ -19,13 +19,21 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayExtents - Stores the number of dimensions and size of an
-// N-way array.
+// .NAME vtkArrayExtents - Stores the number of dimensions and valid coordinate
+// ranges along each dimension for vtkArray.
 //
 // .SECTION Description
-// vtkArrayExtents describes the number of dimensions and size along each
-// dimension of an N-way collection of values.  It is used to retrieve and
-// update the extents of a vtkArray object.
+// vtkArrayExtents describes the number of dimensions and coordinate ranges
+//  along each dimension of an N-way collection of values.  It is used to
+// retrieve and update the extents of a vtkArray object.
+//
+// Conceptually, vtkArrayExtents is a collection of vtkArrayRange objects,
+// one per dimension, that store the half-open range of valid coordinates
+// (the "extent") for that dimension.  Because each extent is stored as a
+// range rather than a size, you can: create arrays that use one-based
+// coordinates for consistency with mathematics and tools such as MATLAB;
+// easily represent arbitrary subsets of an array; and easily store and
+// manipulate distributed arrays using "global" coordinates.
 //
 // Convenience constructors are provided for creating extents along one, two,
 // and three dimensions.  For higher dimensions, you can:
@@ -40,7 +48,7 @@
 // size along each dimension.
 //
 // .SECTION See Also
-// vtkArray, vtkArrayCoordinates
+// vtkArray, vtkArrayRange, vtkArrayCoordinates
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -49,6 +57,7 @@
 #define __vtkArrayExtents_h
 
 #include "vtkSystemIncludes.h"
+#include "vtkArrayRange.h"
 #include <vtksys/stl/vector> // STL Header
 
 class vtkArrayCoordinates;
@@ -61,25 +70,38 @@ public:
   vtkArrayExtents();
   
   // Description:
+  // Create one-dimensional extents.  This constructor is shorthand for
+  // vtkArrayExtents(vtkArrayRange(0, i)).
+  explicit vtkArrayExtents(const vtkIdType i);
+  // Description:
   // Create one-dimensional extents. 
-  explicit vtkArrayExtents(vtkIdType i);
+  explicit vtkArrayExtents(const vtkArrayRange& i);
   
+  // Description:
+  // Create two-dimensional extents.  This constructor is shorthand for
+  // vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)).
+  vtkArrayExtents(const vtkIdType i, const vtkIdType j);
   // Description:
   // Create two-dimensional extents.
-  vtkArrayExtents(vtkIdType i, vtkIdType j);
+  vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j);
   
   // Description:
-  // Create three-dimensional extents.
-  vtkArrayExtents(vtkIdType i, vtkIdType j, vtkIdType k);
+  // Create three-dimensional extents.  This constructor is shorthand for
+  // vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j), vtkArrayRange(0, k)).
+  vtkArrayExtents(const vtkIdType i, const vtkIdType j, const vtkIdType k);
+  // Description:
+  // Create two-dimensional extents.
+  vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
   
   // Description:
-  // Create n-dimensional extents with size m along each dimension.
+  // Create n-dimensional extents with extent [0, m) along each dimension.  This
+  // is useful for creating e.g: a square matrix.
   static const vtkArrayExtents Uniform(vtkIdType n, vtkIdType m);
 
   // Description:
   // Grow the number of dimensions by one, specifying the extent
   // of the new dimension.
-  void Append(vtkIdType extent);
+  void Append(const vtkArrayRange& extent);
 
   // Description:
   // Return the current number of dimensions.
@@ -87,24 +109,24 @@ public:
   
   // Description:
   // Return the number of values that *could* be stored using the
-  // current extents.  This is equal to the product of the extents
-  // along each dimension.
+  // current extents.  This is equal to the product of the size of the
+  // extent along each dimension.
   vtkIdType GetSize() const;
 
   // Description:
   // Set the current number of dimensions.  Note that this method
-  // resets the extent along each dimension to zero, so you must assign
-  // each dimension's extent explicitly using operator[] after calling
-  // SetDimensions().
+  // resets the extent along each dimension to an empty range, so you
+  // must assign each dimension's extent explicitly using operator[]
+  // after calling SetDimensions().
   void SetDimensions(vtkIdType dimensions);
   
   // Description:
   // Accesses the extent of the i-th dimension.
-  vtkIdType& operator[](vtkIdType i);
+  vtkArrayRange& operator[](vtkIdType i);
   
   // Description:
   // Accesses the extent of the i-th dimension.
-  const vtkIdType& operator[](vtkIdType i) const;
+  const vtkArrayRange& operator[](vtkIdType i) const;
   
   // Description:
   // Equality comparison
@@ -115,8 +137,43 @@ public:
   bool operator!=(const vtkArrayExtents& rhs) const;
 
   // Description:
+  // Returns true iff every range in the current extents is zero-based.
+  // This is useful as a precondition test for legacy filters / operations
+  // that predate the switch to range-based extents and assume that all extents
+  // are zero-based.  In general, new code should be written to work with
+  // arbitrary range extents, so won't need to perform this check.
+  bool ZeroBased() const;
+
+  // Description:
+  // Returns true iff the given extents have the same number of dimensions
+  // and size along each dimension.  Note that the ranges along each dimension
+  // may have different values, so long as their sizes match.
+  bool SameShape(const vtkArrayExtents& rhs) const;
+
+  // Description:
+  // Returns coordinates that reference the n-th value in the extents, where
+  // n is in the range [0, GetSize()).  The returned coordinates will be ordered
+  // so that the left-most indices vary fastest.  The is equivalent to column-major
+  // ordering for matrices, and corresponds to the order in which consecutive array
+  // values would be stored in languages such as Fortran, MATLAB, Octave, and R.
+  void GetLeftToRightCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const;
+  // Description:
+  // Returns coordinates that reference the n-th value in the extents, where
+  // n is in the range [0, GetSize()).  The returned coordinates will be ordered
+  // so that the right-most indices vary fastest.  The is equivalent to row-major
+  // ordering for matrices, and corresponds to the order in which consecutive array
+  // values would be stored in languages including C and C++.
+  void GetRightToLeftCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const;
+
+  // Description:
+  // Returns true if the given extents are a non-overlapping subset of the
+  // current extents.  Returns false if any of the given extents fall outside
+  // the current extents, or there is a mismatch in the number of dimensions.
+  bool Contains(const vtkArrayExtents& extents) const;
+
+  // Description:
   // Returns true if the given array coordinates are completely contained
-  // by the current extents (i.e. that 0 <= coordinate and coordinate < extent
+  // by the current extents (i.e. extent begin <= coordinate and coordinate < extent end
   // along every dimension).  Returns false if the array coordinates are outside
   // the current extents, or contain a different number of dimensions.
   bool Contains(const vtkArrayCoordinates& coordinates) const;
@@ -125,7 +182,7 @@ public:
     ostream& stream, const vtkArrayExtents& rhs);
   
 private:
-  vtksys_stl::vector<vtkIdType> Storage;
+  vtksys_stl::vector<vtkArrayRange> Storage;
 };
 
 #endif

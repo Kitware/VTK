@@ -410,12 +410,10 @@ IF(VTK_USE_N_WAY_ARRAYS)
   SET(Kit_SRCS
     ${Kit_SRCS}
     vtkArray.cxx
-    vtkArrayExtents.cxx
     vtkArrayCoordinates.cxx
-    vtkArrayCoordinateIterator.cxx
+    vtkArrayExtents.cxx
+    vtkArrayExtentsList.cxx
     vtkArrayRange.cxx
-    vtkArraySlice.cxx
-    vtkArraySlices.cxx
     vtkArraySort.cxx
     vtkArrayWeights.cxx
     )
@@ -426,11 +424,10 @@ IF(VTK_USE_N_WAY_ARRAYS)
     )
 
   SET_SOURCE_FILES_PROPERTIES(
-    vtkArrayExtents.cxx
     vtkArrayCoordinates.cxx
+    vtkArrayExtents.cxx
+    vtkArrayExtentsList.cxx
     vtkArrayRange.cxx
-    vtkArraySlice.cxx
-    vtkArraySlices.cxx
     vtkArraySort.cxx
     vtkArrayWeights.cxx
     WRAP_EXCLUDE

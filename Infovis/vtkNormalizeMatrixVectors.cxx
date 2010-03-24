@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkNormalizeMatrixVectors
 
-vtkCxxRevisionMacro(vtkNormalizeMatrixVectors, "1.3");
+vtkCxxRevisionMacro(vtkNormalizeMatrixVectors, "1.4");
 vtkStandardNewMacro(vtkNormalizeMatrixVectors);
 
 vtkNormalizeMatrixVectors::vtkNormalizeMatrixVectors() :
@@ -78,22 +78,22 @@ int vtkNormalizeMatrixVectors::RequestData(
 
   vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
 
-  const vtkIdType vector_count = input_array->GetExtents()[vector_dimension];
+  const vtkArrayRange vectors = input_array->GetExtent(vector_dimension);
   const vtkIdType value_count = input_array->GetNonNullSize();
   
   // Create temporary storage for computed vector weights ...
-  vtkstd::vector<double> weight(vector_count, 0.0);
+  vtkstd::vector<double> weight(vectors.GetSize(), 0.0);
 
   // Store the sum of the squares of each vector value ...
   vtkArrayCoordinates coordinates;
   for(vtkIdType n = 0; n != value_count; ++n)
     {
     output_array->GetCoordinatesN(n, coordinates);
-    weight[coordinates[vector_dimension]] += pow(output_array->GetValueN(n), 2);
+    weight[coordinates[vector_dimension] - vectors.GetBegin()] += pow(output_array->GetValueN(n), 2);
     }
 
   // Convert the sums into weights, avoiding divide-by-zero ...
-  for(vtkIdType i = 0; i != vector_count; ++i)
+  for(vtkIdType i = 0; i != vectors.GetSize(); ++i)
     {
     const double length = sqrt(weight[i]);
     weight[i] = length ? 1.0 / length : 0.0;
@@ -103,7 +103,7 @@ int vtkNormalizeMatrixVectors::RequestData(
   for(vtkIdType n = 0; n != value_count; ++n)
     {
     output_array->GetCoordinatesN(n, coordinates);
-    output_array->SetValueN(n, output_array->GetValueN(n) * weight[coordinates[vector_dimension]]);
+    output_array->SetValueN(n, output_array->GetValueN(n) * weight[coordinates[vector_dimension] - vectors.GetBegin()]);
     }
   
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);

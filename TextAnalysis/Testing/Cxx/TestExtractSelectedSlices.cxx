@@ -125,8 +125,8 @@ int TestExtractSelectedSlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkPrintMatrixFormat(cout, output_frequency_matrix);
     cout << "\n";
 
-    test_expression(output_frequency_matrix->GetExtents()[0] == 4);
-    test_expression(output_frequency_matrix->GetExtents()[1] == 3);
+    test_expression(output_frequency_matrix->GetExtent(0).GetSize() == 4);
+    test_expression(output_frequency_matrix->GetExtent(1).GetSize() == 3);
     test_expression(output_frequency_matrix->GetValue(1, 0) == 1);
     test_expression(output_frequency_matrix->GetValue(2, 1) == 2);
     test_expression(output_frequency_matrix->GetValue(3, 1) == 3);

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArraySlices.h
+  Module:    vtkArrayExtentsList.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,15 +19,15 @@
 
 =========================================================================*/
 
-// .NAME vtkArraySlices - Stores a collection of vtkArraySlice objects.
+// .NAME vtkArrayExtentsList - Stores a collection of vtkArraySlice objects.
 //
 // .SECTION Description
-// vtkArraySlices provides storage for a collection of vtkArraySlice instances.
+// vtkArrayExtentsList provides storage for a collection of vtkArraySlice instances.
 // Constructors are provided for creating collections containing one, two, three,
 // or four slices.  To work with larger numbers of slices, use the default
 // constructor, the SetCount() method, and operator[].
 //
-// vtkArraySlices is most commonly used with the vtkInterpolate() function, which
+// vtkArrayExtentsList is most commonly used with the vtkInterpolate() function, which
 // is used to computed weighted sums of vtkArray slices.
 //
 // .SECTION See Also
@@ -36,34 +36,34 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkArraySlices_h
-#define __vtkArraySlices_h
+#ifndef __vtkArrayExtentsList_h
+#define __vtkArrayExtentsList_h
 
-#include "vtkArraySlice.h"
-#include <vtksys/stl/vector>
+#include "vtkArrayExtents.h"
+#include <vtksys/stl/vector> // STL Header
 
-class VTK_COMMON_EXPORT vtkArraySlices
+class VTK_COMMON_EXPORT vtkArrayExtentsList
 {
 public:
   // Description:
   // Creates an empty collection of slices.
-  vtkArraySlices();
+  vtkArrayExtentsList();
   
   // Description:
   // Creates a collection containing one slice.
-  vtkArraySlices(const vtkArraySlice& i);
+  vtkArrayExtentsList(const vtkArrayExtents& i);
   
   // Description:
   // Creates a collection containing two slices.
-  vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j);
+  vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j);
   
   // Description:
   // Creates a collection containing three slices.
-  vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, const vtkArraySlice& k);
+  vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k);
   
   // Description:
   // Creates a collection containing four slices.
-  vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, const vtkArraySlice& k, const vtkArraySlice& l);
+  vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k, const vtkArrayExtents& l);
 
   // Description:
   // Returns the number of slices stored in this collection.
@@ -77,14 +77,14 @@ public:
 
   // Description:
   // Accesses the i-th slice.
-  vtkArraySlice& operator[](vtkIdType i);
+  vtkArrayExtents& operator[](vtkIdType i);
   
   // Description:
   // Accesses the i-th slice.
-  const vtkArraySlice& operator[](vtkIdType i) const;
+  const vtkArrayExtents& operator[](vtkIdType i) const;
 
 private:
-  vtkstd::vector<vtkArraySlice> Storage;
+  vtkstd::vector<vtkArrayExtents> Storage;
 };
 
 #endif

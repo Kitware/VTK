@@ -44,13 +44,13 @@ static void CopyValues(vtkArray* const source, vtkArray* const target, const vtk
     target->CopyValue(source, source_index, target_coordinates);
     }
 
-  offset += source->GetExtents()[dimension];
+  offset += source->GetExtent(dimension).GetSize();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkConcatenateArray
 
-vtkCxxRevisionMacro(vtkConcatenateArray, "1.1");
+vtkCxxRevisionMacro(vtkConcatenateArray, "1.2");
 vtkStandardNewMacro(vtkConcatenateArray);
 
 vtkConcatenateArray::vtkConcatenateArray() :
@@ -112,12 +112,15 @@ int vtkConcatenateArray::RequestData(
       if(i == this->AdjacentDimension)
         continue;
 
-      if(array1->GetExtents()[i] != array2->GetExtents()[i])
+      if(array1->GetExtent(i) != array2->GetExtent(i))
         throw vtkstd::runtime_error("array extent mismatch");
       }
 
     vtkArrayExtents output_extents = array1->GetExtents();
-    output_extents[this->AdjacentDimension] += array2->GetExtents()[this->AdjacentDimension];
+    output_extents[this->AdjacentDimension] =
+      vtkArrayRange(
+        array1->GetExtent(this->AdjacentDimension).GetBegin(),
+        array1->GetExtent(this->AdjacentDimension).GetEnd() + array2->GetExtent(this->AdjacentDimension).GetSize());
 
     vtkArray* const output_array = array1->NewInstance();
     output_array->Resize(output_extents);

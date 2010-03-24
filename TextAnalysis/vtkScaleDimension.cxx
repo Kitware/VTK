@@ -32,7 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkScaleDimension
 
-vtkCxxRevisionMacro(vtkScaleDimension, "1.1");
+vtkCxxRevisionMacro(vtkScaleDimension, "1.2");
 vtkStandardNewMacro(vtkScaleDimension);
 
 vtkScaleDimension::vtkScaleDimension() :
@@ -99,11 +99,11 @@ int vtkScaleDimension::RequestData(
     if(scale_vector->GetDimensions() != 1)
       throw vtkstd::runtime_error("Vector input must have exactly one dimension.");
 
-    if(scale_vector->GetExtents()[0] != input_array->GetExtents()[this->Dimension])
+    if(scale_vector->GetExtent(0).GetSize() != input_array->GetExtent(this->Dimension).GetSize())
       throw vtkstd::runtime_error("Vector extents must match Array extents along the scale dimension.");
 
     // Optionally invert the input vector
-    vtkstd::vector<double> scale(scale_vector->GetStorage(), scale_vector->GetStorage() + scale_vector->GetExtents()[0]);
+    vtkstd::vector<double> scale(scale_vector->GetStorage(), scale_vector->GetStorage() + scale_vector->GetExtent(0).GetSize());
     if(this->Invert)
       {
       for(unsigned int i = 0; i != scale.size(); ++i)
@@ -122,11 +122,12 @@ int vtkScaleDimension::RequestData(
 
     // Multiply each element of our output array by the corresponding element in the scale vector.
     vtkArrayCoordinates coordinates;
+    const vtkIdType offset = output_array->GetExtent(this->Dimension).GetBegin();
     const vtkIdType element_count = output_array->GetNonNullSize();
     for(vtkIdType n = 0; n != element_count; ++n)
       {
       output_array->GetCoordinatesN(n, coordinates);
-      output_array->SetValueN(n, output_array->GetValueN(n) * scale[coordinates[this->Dimension]]);
+      output_array->SetValueN(n, output_array->GetValueN(n) * scale[coordinates[this->Dimension] - offset]);
 
       if( n % 100 == 0 )
         {

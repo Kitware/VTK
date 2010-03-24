@@ -63,11 +63,11 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     // Verify that the array contains all zeros ...
     {
     const vtkArrayExtents extents = array->GetExtents();
-    for(int i = 0; i != extents[0]; ++i)
+    for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
       {
-      for(int j = 0; j != extents[1]; ++j)
+      for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
         {
-        for(int k = 0; k != extents[2]; ++k)
+        for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
           {
           test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == 0);
           }
@@ -79,11 +79,11 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     {
     double value = 0;
     const vtkArrayExtents extents = array->GetExtents();
-    for(int i = 0; i != extents[0]; ++i)
+    for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
       {
-      for(int j = 0; j != extents[1]; ++j)
+      for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
         {
-        for(int k = 0; k != extents[2]; ++k)
+        for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
           {
           array->AddValue(vtkArrayCoordinates(i, j, k), value++);
           }
@@ -95,11 +95,11 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     double value = 0;
     vtkIdType index = 0;
     const vtkArrayExtents extents = array->GetExtents();
-    for(int i = 0; i != extents[0]; ++i)
+    for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
       {
-      for(int j = 0; j != extents[1]; ++j)
+      for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
         {
-        for(int k = 0; k != extents[2]; ++k)
+        for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
           {
           test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == value);
           test_expression(array->GetValueN(index) == value);

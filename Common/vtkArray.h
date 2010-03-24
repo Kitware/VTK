@@ -91,21 +91,23 @@ public:
   // initialize its contents accordingly.  In particular, dimension-labels will be
   // undefined, dense array values will be undefined, and sparse arrays will be
   // empty.
-  void Resize(vtkIdType i);
-  void Resize(vtkIdType i, vtkIdType j);
-  void Resize(vtkIdType i, vtkIdType j, vtkIdType k);
+  void Resize(const vtkIdType i);
+  void Resize(const vtkIdType i, const vtkIdType j);
+  void Resize(const vtkIdType i, const vtkIdType j, const vtkIdType k);
 //BTX
+  void Resize(const vtkArrayRange& i);
+  void Resize(const vtkArrayRange& i, const vtkArrayRange& j);
+  void Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
   void Resize(const vtkArrayExtents& extents);
 //ETX
 
+//BTX
   // Description:
-  // Returns the extent (array size) along the given dimension.
-  vtkIdType GetExtent(vtkIdType dimension);
-
+  // Returns the extent (valid coordinate range) along the given dimension.
+  const vtkArrayRange GetExtent(vtkIdType dimension);
   // Description:
   // Returns the extents (the number of dimensions and size along each dimension) of the array.
-//BTX
-  virtual vtkArrayExtents GetExtents() = 0;
+  virtual const vtkArrayExtents& GetExtents() = 0;
 //ETX
 
   // Description:

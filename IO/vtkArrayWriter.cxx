@@ -15,7 +15,6 @@
 
 #include "vtkArrayWriter.h"
 
-#include <vtkArrayCoordinateIterator.h>
 #include <vtkArrayPrint.h>
 #include <vtkDenseArray.h>
 #include <vtkExecutive.h>
@@ -56,7 +55,7 @@ void WriteHeader(const vtkStdString& array_type,
 
   // Serialize the array extents and number of non-NULL values ...
   for(vtkIdType i = 0; i != dimensions; ++i)
-    stream << extents[i] << " ";
+    stream << extents[i].GetBegin() << " " << extents[i].GetEnd() << " ";
   stream << array->GetNonNullSize() << "\n";
 
   // Serialize the dimension-label for each dimension ...
@@ -300,11 +299,10 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
   if(vtkstd::numeric_limits<ValueT>::is_specialized)
     stream.precision(vtkstd::numeric_limits<ValueT>::digits10 + 1);
 
-  vtkSmartPointer<vtkArrayCoordinateIterator> iterator = vtkSmartPointer<vtkArrayCoordinateIterator>::New();
-  iterator->SetExtents(extents);
-  while(iterator->HasNext())
+  vtkArrayCoordinates coordinates;
+  for(vtkIdType n = 0; n != extents.GetSize(); ++n)
     {
-    vtkArrayCoordinates coordinates = iterator->Next();
+    extents.GetRightToLeftCoordinatesN(n, coordinates);
     stream << concrete_array->GetValue(coordinates) << "\n";
     }
   
@@ -313,7 +311,7 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
 
 } // End anonymous namespace
 
-vtkCxxRevisionMacro(vtkArrayWriter, "1.3");
+vtkCxxRevisionMacro(vtkArrayWriter, "1.4");
 vtkStandardNewMacro(vtkArrayWriter);
 
 vtkArrayWriter::vtkArrayWriter()

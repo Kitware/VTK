@@ -30,7 +30,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArray, "1.5");
+vtkCxxRevisionMacro(vtkArray, "1.6");
 
 //----------------------------------------------------------------------------
 
@@ -138,36 +138,42 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
     return 0;
 }
 
-void vtkArray::Resize(vtkIdType i)
+void vtkArray::Resize(const vtkIdType i)
+{
+  this->Resize(vtkArrayExtents(vtkArrayRange(0, i)));
+}
+
+void vtkArray::Resize(const vtkArrayRange& i)
 {
   this->Resize(vtkArrayExtents(i));
 }
 
-void vtkArray::Resize(vtkIdType i, vtkIdType j)
+void vtkArray::Resize(const vtkIdType i, const vtkIdType j)
+{
+  this->Resize(vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)));
+}
+
+void vtkArray::Resize(const vtkArrayRange& i, const vtkArrayRange& j)
 {
   this->Resize(vtkArrayExtents(i, j));
 }
 
-void vtkArray::Resize(vtkIdType i, vtkIdType j, vtkIdType k)
+void vtkArray::Resize(const vtkIdType i, const vtkIdType j, const vtkIdType k)
+{
+  this->Resize(vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j), vtkArrayRange(0, k)));
+}
+
+void vtkArray::Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k)
 {
   this->Resize(vtkArrayExtents(i, j, k));
 }
 
 void vtkArray::Resize(const vtkArrayExtents& extents)
 {    
-  for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
-    {
-    if(extents[i] < 0)
-      {
-      vtkErrorMacro(<< "cannot create dimension with extents < 0");
-      return;
-      }
-    }
-
   this->InternalResize(extents);
 }
 
-vtkIdType vtkArray::GetExtent(vtkIdType dimension)
+const vtkArrayRange vtkArray::GetExtent(vtkIdType dimension)
 {
   return this->GetExtents()[dimension];
 }

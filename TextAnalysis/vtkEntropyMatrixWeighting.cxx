@@ -41,7 +41,7 @@ static inline double log2(double n)
 ///////////////////////////////////////////////////////////////////////////////
 // vtkEntropyMatrixWeighting
 
-vtkCxxRevisionMacro(vtkEntropyMatrixWeighting, "1.1");
+vtkCxxRevisionMacro(vtkEntropyMatrixWeighting, "1.2");
 vtkStandardNewMacro(vtkEntropyMatrixWeighting);
 
 vtkEntropyMatrixWeighting::vtkEntropyMatrixWeighting() :
@@ -94,12 +94,12 @@ int vtkEntropyMatrixWeighting::RequestData(
         throw vtkstd::runtime_error("FeatureDimension out-of-bounds.");
       }
 
-    const vtkIdType feature_count = input_array->GetExtents()[feature_dimension];
-    const vtkIdType object_count = input_array->GetExtents()[object_dimension];
+    const vtkArrayRange features = input_array->GetExtent(feature_dimension);
+    const vtkArrayRange objects = input_array->GetExtent(object_dimension);
 
     // Setup our output ...
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
-    output_array->Resize(feature_count);
+    output_array->Resize(features);
     output_array->Fill(0.0);
 
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
@@ -111,10 +111,10 @@ int vtkEntropyMatrixWeighting::RequestData(
     output_array->SetName("entropy_weight");
 
     // Cache log2( number of documents ) ...
-    const double logN = log2(static_cast<double>(object_count));
+    const double logN = log2(static_cast<double>(objects.GetSize()));
 
     // Cache the frequency of each feature across the entire corpus ...
-    vtkstd::vector<double> Fi(feature_count, 0);
+    vtkstd::vector<double> Fi(features.GetSize(), 0);
     vtkArrayCoordinates coordinates;
     const vtkIdType non_null_count = input_array->GetNonNullSize();
     for(vtkIdType n = 0; n != non_null_count; ++n)
@@ -122,7 +122,7 @@ int vtkEntropyMatrixWeighting::RequestData(
       input_array->GetCoordinatesN(n, coordinates);
       const vtkIdType i = coordinates[feature_dimension];
       const double fij = input_array->GetValueN(n);
-      Fi[i] += fij;
+      Fi[i - features.GetBegin()] += fij;
       }
 
     // Compute weights ...
@@ -131,12 +131,12 @@ int vtkEntropyMatrixWeighting::RequestData(
       input_array->GetCoordinatesN(n, coordinates);
       const vtkIdType i = coordinates[feature_dimension];
       const double fij = input_array->GetValueN(n);
-      const double pij = fij / Fi[i];
+      const double pij = fij / Fi[i - features.GetBegin()];
       output_array->SetValue(i, output_array->GetValue(i) + (pij * log2(pij) / logN));
       }
 
     // Add 1 to each weight ...
-    for(vtkIdType i = 0; i != feature_count; ++i)
+    for(vtkIdType i = features.GetBegin(); i != features.GetEnd(); ++i)
       {
       output_array->SetValue(i, output_array->GetValue(i) + 1);
       }
