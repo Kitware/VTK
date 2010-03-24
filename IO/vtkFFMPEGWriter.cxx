@@ -21,11 +21,13 @@
 #include "vtkFFMPEGConfig.h"
 
 extern "C" {
-#ifdef VTK_FFMPEG_HAS_OLD_HEADER
-# include <ffmpeg/avformat.h>
-#else
-# include <libavformat/avformat.h>
-#endif
+//#ifdef VTK_FFMPEG_HAS_OLD_HEADER
+//# include <ffmpeg/avformat.h>
+//#else
+//# include <libavformat/avformat.h>
+//#endif
+
+#include <avformat.h>
 
 #ifndef VTK_FFMPEG_HAS_IMG_CONVERT
 # include <libswscale/swscale.h>
@@ -400,7 +402,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.7");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.8");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()

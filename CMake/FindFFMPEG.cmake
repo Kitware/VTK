@@ -11,6 +11,7 @@
 # This is usefull to do it this way so that we can always add more libraries
 # if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
+# if ffmpeg headers are all in one directory
 FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        PATHS
        $ENV{FFMPEG_DIR}/include
@@ -29,8 +30,9 @@ FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        DOC "Location of FFMPEG Headers"
 )
 
+# if ffmpeg headers are seperated to each of libavformat, libavcodec etc..
 IF( NOT FFMPEG_INCLUDE_DIR )
-  FIND_PATH(FFMPEG_INCLUDE_DIR libavformat/avformat.h
+  FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        PATHS
        $ENV{FFMPEG_DIR}/include
        $ENV{OSGDIR}/include
@@ -44,7 +46,7 @@ IF( NOT FFMPEG_INCLUDE_DIR )
        /opt/csw/include # Blastwave
        /opt/include
        /usr/freeware/include
-       PATH_SUFFIXES ffmpeg
+       PATH_SUFFIXES libavformat
        DOC "Location of FFMPEG Headers"
 )
 ENDIF( NOT FFMPEG_INCLUDE_DIR )
