@@ -20,17 +20,12 @@
 #include "vtkStringArray.h"
 #include "vtkIntArray.h"
 #include "vtkVariantArray.h"
-#include "vtkSimple2DLayoutStrategy.h"
-#include "vtkGraphLayoutView.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
 
 int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  typedef
-  vtkSmartPointer<vtkSimple2DLayoutStrategy>  vtkSimple2DLayoutStrategyRefPtr;
-  typedef vtkSmartPointer<vtkGraphLayoutView> vtkGraphLayoutViewRefPtr;
   typedef
   vtkSmartPointer<vtkMutableDirectedGraph>    vtkMutableDirectedGraphRefPtr;
   typedef
