@@ -12,7 +12,7 @@
 # if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
 # if ffmpeg headers are all in one directory
-FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
+FIND_PATH(FFMPEG_INCLUDE_DIR ffmpeg/avformat.h
        PATHS
        $ENV{FFMPEG_DIR}/include
        $ENV{OSGDIR}/include
@@ -26,7 +26,6 @@ FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        /opt/csw/include # Blastwave
        /opt/include
        /usr/freeware/include
-#       PATH_SUFFIXES ffmpeg
        DOC "Location of FFMPEG Headers"
 )
 
