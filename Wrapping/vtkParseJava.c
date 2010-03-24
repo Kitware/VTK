@@ -571,7 +571,7 @@ void outputFunction(FILE *fp, FileInfo *data)
         fprintf(fp,"\n      } catch (Exception e) {");
         fprintf(fp,"\n        e.printStackTrace();");
         fprintf(fp,"\n      }");
-        fprintf(fp,"\n      tempObj.Delete();");
+        fprintf(fp,"\n      vtkObjectBase.VTKDeleteReference(temp);");
         fprintf(fp,"\n    }");
         fprintf(fp,"\n    return obj;");
         fprintf(fp,"\n  }\n");
