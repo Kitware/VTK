@@ -47,6 +47,7 @@
 #include <vtkstd/map>
 
 #include <stdio.h>
+#include <assert.h>
 
 #define R_NO_REMAP /* AVOID SOME SERIOUS STUPIDITY. DO NOT REMOVE. */
 
@@ -55,7 +56,7 @@
 #include "R_ext/Parse.h"
 #include "R_ext/Rdynload.h"
 
-vtkCxxRevisionMacro(vtkRAdapter, "1.7");
+vtkCxxRevisionMacro(vtkRAdapter, "1.8");
 
 vtkStandardNewMacro(vtkRAdapter);
 
@@ -73,7 +74,7 @@ int R_FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& ex
   for(i = 0; i < d; ++i)
     {
     ret = ret + coordinates[i]*divisor;
-    divisor *= extents[i];
+    divisor *= extents[i].GetSize();
     }
 
   return(ret);
@@ -220,12 +221,12 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
     {
     for(i=0;i< ndim;i++)
       {
-      extents[i] = INTEGER(dims)[i];
+      extents[i] = vtkArrayRange(0,INTEGER(dims)[i]);
       }
     }
   else
     {
-    extents[0] = length(variable);
+    extents[0] = vtkArrayRange(0,length(variable));
     }
 
   da->Resize(extents);
@@ -267,9 +268,10 @@ SEXP vtkRAdapter::VTKArrayToR(vtkArray* da)
 
   PROTECT(dim = Rf_allocVector(INTSXP, da->GetDimensions()));
 
+  assert(da->GetExtents().ZeroBased());
   for(i=0;i<da->GetDimensions();i++)
     {
-    INTEGER(dim)[i] = da->GetExtents()[i];
+    INTEGER(dim)[i] = da->GetExtents()[i].GetSize();
     }
 
   PROTECT(a = Rf_allocArray(REALSXP, dim));
@@ -279,6 +281,7 @@ SEXP vtkRAdapter::VTKArrayToR(vtkArray* da)
     REAL(a)[i] = 0.0;
     }
 
+  assert(da->GetExtents().ZeroBased());
   for(i=0;i<da->GetNonNullSize();i++)
     {
     da->GetCoordinatesN(i,coords);

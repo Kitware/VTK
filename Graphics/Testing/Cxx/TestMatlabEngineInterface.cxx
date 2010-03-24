@@ -30,6 +30,7 @@
 #include <vtksys/stl/stdexcept>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 namespace
 {
@@ -92,12 +93,13 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     mei->PutVtkArray("a",dda);
     mei->EvalString("a = sqrt(a);\n");
     vtkDenseArray<double>* rdda = vtkDenseArray<double>::SafeDownCast(mei->GetVtkArray("a"));
+    assert(rdda->GetExtents().ZeroBased());
     const vtkArrayExtents extents = rdda->GetExtents();
-    for(int i = 0; i != extents[0]; ++i)
+    for(int i = 0; i != extents[0].GetSize(); ++i)
       {
-      for(int j = 0; j != extents[1]; ++j)
+      for(int j = 0; j != extents[1].GetSize(); ++j)
         {
-        for(int k = 0; k != extents[2]; ++k)
+        for(int k = 0; k != extents[2].GetSize(); ++k)
           {
           test_expression(doubleEquals(sqrt(dda->GetValue(vtkArrayCoordinates(i, j, k))),
                                        rdda->GetValue(vtkArrayCoordinates(i, j, k)),

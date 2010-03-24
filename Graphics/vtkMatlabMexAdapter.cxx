@@ -58,10 +58,11 @@
 #include "vtkDataObjectCollection.h"
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
+#include <assert.h>
 
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
 
-vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.3");
+vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.4");
 
 vtkStandardNewMacro(vtkMatlabMexAdapter);
 
@@ -123,7 +124,7 @@ int FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& exte
   for(i = 0; i < d; ++i)
     {
     ret = ret + coordinates[i]*divisor;
-    divisor *= extents[i];
+    divisor *= extents[i].GetSize();
     }
 
   return(ret);
@@ -141,9 +142,11 @@ template<typename T> mxArray* CopyVTKArrayTomxArray(vtkTypedArray<T>* da, mxClas
 
   dims = new mwSize[da->GetDimensions()];
 
+  assert(da->GetExtents().ZeroBased());
+
   for(i=0;i<da->GetDimensions();i++)
     {
-    dims[i] = da->GetExtents()[i];
+    dims[i] = da->GetExtents()[i].GetSize();
     }
 
   output = mxCreateNumericArray(da->GetDimensions(),dims,mt,mxREAL);
@@ -155,6 +158,7 @@ template<typename T> mxArray* CopyVTKArrayTomxArray(vtkTypedArray<T>* da, mxClas
     dest[i] = 0;
     }
 
+  assert(da->GetExtents().ZeroBased());
   for(i=0;i<da->GetNonNullSize();i++)
     {
     da->GetCoordinatesN(i,coords);
@@ -187,7 +191,7 @@ template<typename T> vtkArray* vtkMatlabMexAdapter::CopymxArrayToVTKArray(mxArra
 
   for(i=0;i< (int) mxndim;i++)
     {
-    extents[i] = (int) mxdims[i];
+    extents[i] = vtkArrayRange(0,(int) mxdims[i]);
     }
 
   da->Resize(extents);
