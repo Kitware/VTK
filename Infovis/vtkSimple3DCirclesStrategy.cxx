@@ -82,7 +82,7 @@ private:
   };
 
 vtkStandardNewMacro(vtkSimple3DCirclesStrategy);
-vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.4" );
+vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.5" );
 
 void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   {
@@ -498,7 +498,7 @@ int vtkSimple3DCirclesStrategy::UniversalStartPoints( vtkDirectedGraph * input, 
         }
 
       vtkDebugMacro( << "StartPoint finder: Universal start point finder was used. Number of start point(s): " << target->size() << "; Number of stand alone point(s): " << StandAlones->size() );
-      return target->size();
+      return static_cast<int>(target->size());
       }
     else
       {
@@ -522,7 +522,7 @@ int vtkSimple3DCirclesStrategy::UniversalStartPoints( vtkDirectedGraph * input, 
     }
 
   vtkDebugMacro( << "StartPoint finder: Universal start point finder was used. Number of start points: " << target->size() << "; Number of stand alone point(s): " << StandAlones->size() );
-  return target->size();
+  return static_cast<int>(target->size());
   }
 
 int vtkSimple3DCirclesStrategy::BuildLayers( vtkDirectedGraph * input, vtkSimple3DCirclesStrategyInternal *source, vtkIntArray * layers )
