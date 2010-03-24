@@ -103,7 +103,7 @@ vtkIdType vtkArrayExtents::GetSize() const
     return 0;
 
   vtkIdType size = 1;
-  for(vtkIdType i = 0; i != this->Storage.size(); ++i)
+  for(size_t i = 0; i != this->Storage.size(); ++i)
     size *= this->Storage[i].GetSize();
 
   return size;
@@ -213,7 +213,7 @@ bool vtkArrayExtents::Contains(const vtkArrayCoordinates& coordinates) const
 
 ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs)
 {
-  for(unsigned int i = 0; i != rhs.Storage.size(); ++i)
+  for(size_t i = 0; i != rhs.Storage.size(); ++i)
     {
     if(i)
       stream << "x";

@@ -69,7 +69,7 @@ public:
   vtkstd::vector<vtkIdType> ID;
 };
 
-vtkCxxRevisionMacro(vtkDocumentReader, "1.6");
+vtkCxxRevisionMacro(vtkDocumentReader, "1.7");
 vtkStandardNewMacro(vtkDocumentReader);
 
 vtkDocumentReader::vtkDocumentReader() :
@@ -137,8 +137,8 @@ int vtkDocumentReader::RequestData(
     vtkStringArray* const content_array = vtkStringArray::New();
     content_array->SetName("content");
 
-    int number_of_files = this->Internal->Files.size();
-    for(vtkIdType i = 0; static_cast<unsigned int>(i) != this->Internal->Files.size(); ++i)
+    size_t number_of_files = this->Internal->Files.size();
+    for(size_t i = 0; i != this->Internal->Files.size(); ++i)
       {
       const vtkStdString file = this->Internal->Files[i];
       const vtkIdType document = this->Internal->ID[i];
