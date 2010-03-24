@@ -29,9 +29,11 @@ extern "C" {
 
 #include <avformat.h>
 
-#ifndef VTK_FFMPEG_HAS_IMG_CONVERT
-# include <libswscale/swscale.h>
-#endif
+//#ifndef VTK_FFMPEG_HAS_IMG_CONVERT
+//# include <libswscale/swscale.h>
+//#endif
+
+#include <swscale.h>
 }
 
 //---------------------------------------------------------------------------
@@ -402,7 +404,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.8");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.9");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
