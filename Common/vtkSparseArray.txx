@@ -23,6 +23,7 @@
 #define __vtkSparseArray_txx
 
 #include <vtkstd/algorithm>
+#include <vtkstd/limits>
 
 template<typename T>
 vtkSparseArray<T>* vtkSparseArray<T>::New()
