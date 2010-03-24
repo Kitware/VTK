@@ -28,21 +28,22 @@ IF (FFMPEG_INCLUDE_DIR)
           "-DLINK_LIBRARIES:STRING=${FFMPEG_avcodec_LIBRARY}"
           -DCOMPILE_DEFINITIONS:STRING=-D${VTK_FFMPEG_CDEFS}
         OUTPUT_VARIABLE OUTPUT)
-        IF(VTK_FFMPEG_HAS_IMG_CONVERT)
-          MESSAGE(STATUS "Checking if FFMPEG has img_convert - found")
-          FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
-                  "Checking if FFMPEG has img_convert (passed):\n"
-                  "${OUTPUT}\n\n")    
-        ELSE(VTK_FFMPEG_HAS_IMG_CONVERT)
-          MESSAGE(STATUS "Checking if FFMPEG has img_convert - not found")
-          FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-                  "Checking if FFMPEG has img_convert (failed):\n"
-                  "${OUTPUT}\n\n")    
-        ENDIF(VTK_FFMPEG_HAS_IMG_CONVERT)
+      IF(VTK_FFMPEG_HAS_IMG_CONVERT)
+        MESSAGE(STATUS "Checking if FFMPEG has img_convert - found")
+        FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+                "Checking if FFMPEG has img_convert (passed):\n"
+                "${OUTPUT}\n\n")    
+      ELSE(VTK_FFMPEG_HAS_IMG_CONVERT)
+        MESSAGE(STATUS "Checking if FFMPEG has img_convert - not found")
+        FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+                "Checking if FFMPEG has img_convert (failed):\n"
+                "${OUTPUT}\n\n")    
+      ENDIF(VTK_FFMPEG_HAS_IMG_CONVERT)
     ENDIF(FFMPEG_avcodec_LIBRARY)
     SET(VTK_FFMPEG_CACHED_AVCODEC ${FFMPEG_avcodec_LIBRARY} CACHE INTERNAL "Previous value of FFMPEG_avcodec_LIBRARY" FORCE)
   ENDIF("VTK_FFMPEG_HAS_IMG_CONVERT" MATCHES "^VTK_FFMPEG_HAS_IMG_CONVERT$" OR NOT "VTK_FFMPEG_CACHED_AVCODEC" MATCHES "^${FFMPEG_avcodec_LIBRARY}$")
 
+SET(VTK_FFMPEG_OLD_URL_FCLOSE "VTK_FFMPEG_OLD_URL_FCLOSE")
   IF("VTK_FFMPEG_OLD_URL_FCLOSE" MATCHES "^VTK_FFMPEG_OLD_URL_FCLOSE$" OR NOT "VTK_FFMPEG_CACHED_AVFORMAT" MATCHES "^${FFMPEG_avformat_LIBRARY}$")
     IF(VTK_FFMPEG_HAS_OLD_HEADER)
       SET(VTK_FFMPEG_CDEFS "HAS_OLD_HEADER")

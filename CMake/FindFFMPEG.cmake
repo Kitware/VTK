@@ -12,7 +12,7 @@
 # if needed to FFMPEG_LIBRARIES if ffmpeg ever changes...
 
 # if ffmpeg headers are all in one directory
-FIND_PATH(FFMPEG_INCLUDE_DIR ffmpeg/avformat.h
+FIND_PATH(FFMPEG_INCLUDE_DIR avformat.h
        PATHS
        $ENV{FFMPEG_DIR}/include
        $ENV{OSGDIR}/include
@@ -26,10 +26,9 @@ FIND_PATH(FFMPEG_INCLUDE_DIR ffmpeg/avformat.h
        /opt/csw/include # Blastwave
        /opt/include
        /usr/freeware/include
+       PATH_SUFFIXES ffmpeg
        DOC "Location of FFMPEG Headers"
 )
-
-message("FFMPEG_INCLUDE_DIR: ${FFMPEG_INCLUDE_DIR}")
 
 # if ffmpeg headers are seperated to each of libavformat, libavcodec etc..
 IF( NOT FFMPEG_INCLUDE_DIR )
@@ -51,10 +50,11 @@ IF( NOT FFMPEG_INCLUDE_DIR )
        DOC "Location of FFMPEG Headers"
 )
 
-message("FFMPEG_INCLUDE_DIR: ${FFMPEG_INCLUDE_DIR}")
-
 ENDIF( NOT FFMPEG_INCLUDE_DIR )
 
+# we want the -I include line to use the parent directory of ffmpeg as
+# ffmpeg uses relative includes such as <ffmpeg/avformat.h> or <libavcodec/avformat.h>
+get_filename_component(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE_DIR} PATH)
 
 FIND_LIBRARY(FFMPEG_avformat_LIBRARY avformat
   /usr/local/lib
