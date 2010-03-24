@@ -82,7 +82,7 @@ private:
   };
 
 vtkStandardNewMacro(vtkSimple3DCirclesStrategy);
-vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.5" );
+vtkCxxRevisionMacro(vtkSimple3DCirclesStrategy, "1.6" );
 
 void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   {
@@ -142,6 +142,9 @@ void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
     os << endl;
     this->HierarchicalOrder->PrintSelf( os, indent.GetNextIndent() );
     }
+
+  os << indent << "ForceToUseUniversalStartPointsFinder :"
+     << this->ForceToUseUniversalStartPointsFinder << endl;
   }
 
 void vtkSimple3DCirclesStrategy::SetDirection( double dx, double dy, double dz )
