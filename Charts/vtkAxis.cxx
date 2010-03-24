@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.19");
+vtkCxxRevisionMacro(vtkAxis, "1.20");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -100,7 +100,7 @@ void vtkAxis::Update()
     }
 
   // Calculate where the first tick mark should be drawn
-  float tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
+  float tick = ceilf(this->Minimum / this->TickInterval) * this->TickInterval;
 
   // If this check is not used, and the first tick is at 0.0 then it has the
   // negative sign bit set. This check gets rid of the negative bit but is quite
