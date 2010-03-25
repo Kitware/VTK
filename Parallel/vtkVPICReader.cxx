@@ -34,7 +34,7 @@
 #include "VPICDataSet.h"
 #include "VPICView.h"
 
-vtkCxxRevisionMacro(vtkVPICReader, "1.9");
+vtkCxxRevisionMacro(vtkVPICReader, "1.10");
 vtkStandardNewMacro(vtkVPICReader);
 
 //----------------------------------------------------------------------------
@@ -314,13 +314,14 @@ int vtkVPICReader::RequestData(
     static_cast<vtkInformationDoubleVectorKey*>
       (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
 
+  // Actual time for the time step
+  double dTime = this->TimeSteps[0];
   if (outInfo->Has(timeKey)) {
     numRequestedTimeSteps = outInfo->Length(timeKey);
     requestedTimeSteps = outInfo->Get(timeKey);
+    dTime = requestedTimeSteps[0];
   }
 
-  // Actual time for the time step
-  double dTime = requestedTimeSteps[0];
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
 
   // Index of the time step to request
