@@ -12,7 +12,6 @@ IF (VTK_USE_DISPLAY)
       TestGeoGraticule.cxx
       TestGeoProjection.cxx
       TestGeoView2D.cxx
-      #TestGeoView2DPopulation.cxx
       TestGeoView.cxx
       TestLabeledGeoView2D.cxx
       )
@@ -22,6 +21,7 @@ IF (VTK_USE_DISPLAY)
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkGeovis vtkRendering vtkIO)
+  
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
@@ -38,4 +38,7 @@ IF (VTK_USE_DISPLAY)
       ADD_TEST(Geovis-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test)
+
+#  set_tests_properties(TestGeoView2D PROPERTIES RUN_SERIAL ON)
+
 ENDIF (VTK_USE_DISPLAY)
