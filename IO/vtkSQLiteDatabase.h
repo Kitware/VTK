@@ -156,6 +156,8 @@ private:
   
   char* DatabaseType;
   char* DatabaseFileName;
+
+  vtkStdString TempURL;
   
   vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
   void operator=(const vtkSQLiteDatabase &); // Not implemented.

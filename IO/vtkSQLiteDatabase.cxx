@@ -32,7 +32,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.22");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.23");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -433,15 +433,15 @@ vtkStringArray * vtkSQLiteDatabase::GetRecord(const char *table)
 // ----------------------------------------------------------------------
 vtkStdString vtkSQLiteDatabase::GetURL()
 {
-  vtkStdString url;
   const char* fname = this->GetDatabaseFileName();
-  url = this->GetDatabaseType();
-  url += "://";
+  this->TempURL = this->GetDatabaseType();
+  this->TempURL += "://";
   if ( fname )
     {
-    url += fname;
+    this->TempURL += fname;
     }
-  return url;
+  this->TempURL =
+  return this->TempURL;
 }
 
 // ----------------------------------------------------------------------
