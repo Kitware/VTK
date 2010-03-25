@@ -23,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.32");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.33");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -304,8 +304,8 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
                                              output->GetNumberOfPoints());
         // Restore the scalars
         int idx = output->GetPointData()->AddArray(tmp);
-        output->GetPointData()->SetActiveAttribute(vtkDataSetAttributes::SCALARS,
-            idx);
+        output->GetPointData()->SetActiveAttribute(idx, 
+          vtkDataSetAttributes::SCALARS);
         tmp->UnRegister(this);
         // Now Copy The point data, but only if output is a subextent of the
         // input.
