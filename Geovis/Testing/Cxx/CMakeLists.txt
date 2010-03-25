@@ -39,6 +39,9 @@ IF (VTK_USE_DISPLAY)
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test)
 
-#  set_tests_properties(TestGeoView2D PROPERTIES RUN_SERIAL ON)
+  IF (VTK_DATA_ROOT)
+    set_tests_properties(Geovis-TestGeoView PROPERTIES RUN_SERIAL ON)
+    set_tests_properties(Geovis-TestGeoView2D PROPERTIES RUN_SERIAL ON)
+  ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_DISPLAY)
