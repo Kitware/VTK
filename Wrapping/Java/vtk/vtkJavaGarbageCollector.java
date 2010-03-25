@@ -53,8 +53,6 @@ public class vtkJavaGarbageCollector {
         SwingUtilities.invokeLater(deleteRunnable);
       }
     };
-
-    SetAutoGarbageCollection(true);
   }
 
   /**

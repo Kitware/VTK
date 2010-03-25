@@ -15,10 +15,8 @@ public class TestJavaGCHashTable {
   }
 
   public static void main(String[] args) {
-    vtkDataArray pseudoStatic = new vtkDoubleArray();
     while (true) {
-      vtkAbstractArray arr = pseudoStatic.CreateDataArray(8);
-      arr.Delete();
+      vtkDoubleArray arr = new vtkDoubleArray();
       arr.Delete();
 
       vtkQuadric quadric = new vtkQuadric();

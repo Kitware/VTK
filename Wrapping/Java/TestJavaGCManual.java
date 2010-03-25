@@ -28,12 +28,6 @@ public class TestJavaGCManual {
   }
 
   public static void main(String[] args) {
-    // Turn off automatic VTK garbage collection on the Swing thread.
-    // This would have the same issues as finalize() being run on
-    // the finalizer thread.
-    vtkGlobalJavaHash.GarbageCollector.SetAutoGarbageCollection(false);
-    vtkGlobalJavaHash.GarbageCollector.SetDebug(true);
-
     int count = 0;
     while (true) {
       // When the selection is deleted,

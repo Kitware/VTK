@@ -14,6 +14,8 @@ import vtk.vtkPanel;
 import vtk.vtkPolyDataMapper;
 
 /**
+ * This test should print out garbage collection messages at regular
+ * intervals, then eventually stop (after ~30s) with no leaks.
  *
  * @author sebastien jourdain - sebastien.jourdain@kitware.com
  */
