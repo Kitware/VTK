@@ -32,7 +32,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.23");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.24");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -440,7 +440,6 @@ vtkStdString vtkSQLiteDatabase::GetURL()
     {
     this->TempURL += fname;
     }
-  this->TempURL =
   return this->TempURL;
 }
 
