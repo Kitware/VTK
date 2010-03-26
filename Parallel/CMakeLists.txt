@@ -157,11 +157,10 @@ ENDIF (VTK_USE_MPI)
 IF (NOT VTK_LEGACY_REMOVE)
   SET(Kit_Deprecated_SRCS
     )
-  #IF (VTK_USE_MPI)
-  #  SET(Kit_Deprecated_SRCS ${Kit_Deprecated_SRCS}
-  #    vtkMPIGroup.cxx
-  #    )
-  #ENDIF (VTK_USE_MPI)
+  IF (VTK_USE_MPI)
+    SET(Kit_Deprecated_SRCS ${Kit_Deprecated_SRCS}
+      )
+  ENDIF (VTK_USE_MPI)
   SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
   IF (CMAKE_COMPILER_IS_GNUCXX)
     SET_SOURCE_FILES_PROPERTIES(${Kit_Deprecated_SRCS}
