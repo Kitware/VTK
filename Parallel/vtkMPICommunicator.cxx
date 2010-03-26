@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.57");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.58");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -1389,109 +1389,3 @@ int vtkMPICommunicator::AllReduceVoidArray(
 
   return res;
 }
-
-//=============================================================================
-// Deprecated reduce methods.
-#ifndef VTK_LEGACY_REMOVE
-
-int vtkMPICommunicator::ReduceMax(int *data, int *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMax, "5.2", Reduce);
-  return this->Reduce(data, to, size, MAX_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMax(unsigned long *data, unsigned long *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMax, "5.2", Reduce);
-  return this->Reduce(data, to, size, MAX_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMax(float *data, float *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMax, "5.2", Reduce);
-  return this->Reduce(data, to, size, MAX_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMax(double *data, double *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMax, "5.2", Reduce);
-  return this->Reduce(data, to, size, MAX_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMin(int *data, int *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMin, "5.2", Reduce);
-  return this->Reduce(data, to, size, MIN_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMin(unsigned long *data, unsigned long *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMin, "5.2", Reduce);
-  return this->Reduce(data, to, size, MIN_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMin(float *data, float *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMin, "5.2", Reduce);
-  return this->Reduce(data, to, size, MIN_OP, root);
-}
-
-int vtkMPICommunicator::ReduceMin(double *data, double *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceMin, "5.2", Reduce);
-  return this->Reduce(data, to, size, MIN_OP, root);
-}
-
-int vtkMPICommunicator::ReduceSum(int *data, int *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceSum, "5.2", Reduce);
-  return this->Reduce(data, to, size, SUM_OP, root);
-}
-
-int vtkMPICommunicator::ReduceSum(unsigned long *data, unsigned long *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceSum, "5.2", Reduce);
-  return this->Reduce(data, to, size, SUM_OP, root);
-}
-
-int vtkMPICommunicator::ReduceSum(float *data, float *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceSum, "5.2", Reduce);
-  return this->Reduce(data, to, size, SUM_OP, root);
-}
-
-int vtkMPICommunicator::ReduceSum(double *data, double *to,
-                                  int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceSum, "5.2", Reduce);
-  return this->Reduce(data, to, size, SUM_OP, root);
-}
-
-int vtkMPICommunicator::ReduceAnd(bool *data, bool *to, int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceAnd, "5.2", Reduce);
-  return this->Reduce(reinterpret_cast<char *>(data),
-                      reinterpret_cast<char *>(to), size,
-                      LOGICAL_AND_OP, root);
-}
-
-int vtkMPICommunicator::ReduceOr(bool *data, bool *to, int size, int root)
-{
-  VTK_LEGACY_REPLACED_BODY(ReduceOr, "5.2", Reduce);
-  return this->Reduce(reinterpret_cast<char *>(data),
-                      reinterpret_cast<char *>(to), size,
-                      LOGICAL_OR_OP, root);
-}
-
-#endif // VTK_LEGACY_REMOVE
