@@ -17,7 +17,7 @@
 
 #include "vtkImageData.h"
 #include "vtkMPIController.h"
-#include "vtkMPIGroup.h"
+//#include "vtkMPIGroup.h"
 #include "vtkProcessGroup.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.56");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.57");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -432,19 +432,19 @@ vtkMPICommunicator::~vtkMPICommunicator()
 }
 
 //-----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-int vtkMPICommunicator::Initialize(vtkMPICommunicator  *mpiComm,
-                                   vtkMPIGroup *deprecatedGroup)
-{
-  VTK_LEGACY_REPLACED_BODY(Initialize(vtkMPICommunicator *, vtkMPIGroup *),
-                           "5.2", Initialize(vtkProcessGroup *));
-
-  VTK_CREATE(vtkProcessGroup, group);
-  deprecatedGroup->CopyInto(group, mpiComm);
-
-  return this->Initialize(group);
-}
-#endif
+//#ifndef VTK_LEGACY_REMOVE
+//int vtkMPICommunicator::Initialize(vtkMPICommunicator  *mpiComm,
+//                                   vtkMPIGroup *deprecatedGroup)
+//{
+//  VTK_LEGACY_REPLACED_BODY(Initialize(vtkMPICommunicator *, vtkMPIGroup *),
+//                           "5.2", Initialize(vtkProcessGroup *));
+//
+//  VTK_CREATE(vtkProcessGroup, group);
+//  deprecatedGroup->CopyInto(group, mpiComm);
+//
+//  return this->Initialize(group);
+//}
+//#endif
 
 //-----------------------------------------------------------------------------
 int vtkMPICommunicator::Initialize(vtkProcessGroup *group)

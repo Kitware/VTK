@@ -36,7 +36,6 @@
 #include "vtkCommunicator.h"
 
 class vtkMPIController;
-class vtkMPIGroup;
 class vtkProcessGroup;
 
 class vtkMPICommunicatorOpaqueComm;
@@ -83,7 +82,7 @@ public:
 
   // Description:
   // DO NOT CALL.  Deprecated in VTK 5.2.
-  VTK_LEGACY(int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group));
+  //VTK_LEGACY(int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group));
 
   // Description:
   // Used to initialize the communicator (i.e. create the underlying MPI_Comm)
