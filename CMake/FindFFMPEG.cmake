@@ -54,7 +54,7 @@ ENDIF( NOT FFMPEG_INCLUDE_DIR )
 
 # we want the -I include line to use the parent directory of ffmpeg as
 # ffmpeg uses relative includes such as <ffmpeg/avformat.h> or <libavcodec/avformat.h>
-get_filename_component(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE_DIR} PATH)
+get_filename_component(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE_DIR} ABSOLUTE)
 
 FIND_LIBRARY(FFMPEG_avformat_LIBRARY avformat
   /usr/local/lib
