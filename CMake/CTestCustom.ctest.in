@@ -135,6 +135,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # gcc -Wstric-aliasing
   "[Qq]t.*q.*h.*warning: dereferencing pointer .* does break strict-aliasing rules"
   "[Qq]t.*q.*h.*note: initialized from here"
+  "[Qq]t.*ui_"
 
   # Specifically for HP compiler, mask out
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"
