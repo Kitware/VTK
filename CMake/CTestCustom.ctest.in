@@ -234,6 +234,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtkpng.*warning: conversion to .* from .* may alter its value"
   "Utilities.vtkpng.pngwutil.c.*warning: passing argument 2 of .vtk_png_write_chunk_start. discards qualifiers from pointer target type"
   "Utilities.vtkpng.*warning: negative integer implicitly converted to unsigned type"
+  "Utilities.vtkpng.*warning: variable .* might be clobbered by"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may change the sign of the result"
   "Utilities/vtkjpeg.*warning: conversion to .* from .* may alter its value"
   "Utilities/DICOMParser.*warning: conversion to .* from .* may alter its value"
