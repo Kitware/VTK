@@ -257,7 +257,11 @@ IF(JAVA_COMPILE)
 
       # Since vtkTesting is within vtkRendering we need blockers
       IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
-        ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
+
+        # If JAVA_DATAMODEL_FLAG is set, pass it as first argument. Otherwise, it's empty.
+        # For exampel, use "-d64" to force 64-bit java jvm.
+        #
+        ADD_TEST(JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG} 
           -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           Regression -D ${VTK_DATA_ROOT}
           -V Baseline/Graphics/Cone.png 
