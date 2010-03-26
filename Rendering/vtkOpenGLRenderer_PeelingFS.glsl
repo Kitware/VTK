@@ -17,8 +17,7 @@
 // Fragment shader used by the depth peeling algorithm.
 
 #version 110
-
-// #extension GL_ARB_texture_rectangle: enable
+#extension GL_ARB_texture_rectangle: enable
 
 uniform sampler2DRectShadow shadowTex;
 uniform sampler2DRectShadow opaqueShadowTex;
