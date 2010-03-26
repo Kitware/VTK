@@ -67,8 +67,13 @@ ADD_TEST(TestInstantiator ${CXX_TEST_PATH}/TestInstantiator)
 # with cygwin:
 #
 IF(CYGWIN)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy 
+    ${CMAKE_CURRENT_SOURCE_DIR}/SystemInformation-cygcheck.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/SystemInformation-cygcheck.sh)
+  EXECUTE_PROCESS(COMMAND dos2unix 
+    ${CMAKE_CURRENT_BINARY_DIR}/SystemInformation-cygcheck.sh)
   ADD_TEST(SystemInformation-cygcheck
-    "${CMAKE_CURRENT_SOURCE_DIR}/SystemInformation-cygcheck.sh")
+    "${CMAKE_CURRENT_BINARY_DIR}/SystemInformation-cygcheck.sh")
 ENDIF(CYGWIN)
 
 IF(VTK_USE_N_WAY_ARRAYS)
