@@ -50,6 +50,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include "Definition.h"
+
 #ifdef USE_SERIAL_COSMO
 
 #ifdef USE_VTK_COSMO
@@ -70,8 +72,6 @@ using namespace std;
 #endif
 
 #endif
-
-#include "Definition.h"
 
 class Message {
 public:

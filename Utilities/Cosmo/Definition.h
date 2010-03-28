@@ -45,6 +45,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef Definition_h
 #define Definition_h
 
+#include "BasicDefinition.h"
+
 #ifndef USE_SERIAL_COSMO
 #ifdef USE_VTK_COSMO
 #include "vtkMPI.h"
@@ -53,6 +55,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #endif
 
-#include "BasicDefinition.h"
+
 
 #endif
