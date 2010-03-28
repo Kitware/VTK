@@ -4,8 +4,8 @@ project(Cosmo)
 
 #SET(Cosmo_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
-#CONFIGURE_FILE (${Cosmo_SOURCE_DIR}/VPICDefinition.h.in
-#                ${Cosmo_BINARY_DIR}/VPICDefinition.h)
+CONFIGURE_FILE (${Cosmo_SOURCE_DIR}/CosmoDefinition.h.in
+                ${Cosmo_BINARY_DIR}/CosmoDefinition.h)
  
 SET(Cosmo_SOURCES
   Partition.cxx
@@ -37,7 +37,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${Cosmo_SOURCE_DIR}/VPICHeader.h
     ${Cosmo_SOURCE_DIR}/VPICPart.h
     ${Cosmo_SOURCE_DIR}/VPICView.h
-    ${Cosmo_BINARY_DIR}/VPICDefinition.h
+    ${Cosmo_BINARY_DIR}/CosmoDefinition.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/Cosmo
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

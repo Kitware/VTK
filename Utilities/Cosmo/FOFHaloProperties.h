@@ -51,14 +51,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef FOFHaloProperties_h
 #define FOFHaloProperties_h
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include "ChainingMesh.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 
-class FOFHaloProperties {
+class COSMO_EXPORT FOFHaloProperties {
 public:
   FOFHaloProperties();
   ~FOFHaloProperties();

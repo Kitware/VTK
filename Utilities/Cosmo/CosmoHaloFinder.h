@@ -108,7 +108,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 
 #define numDataDims 3
 #define dataX 0
@@ -142,7 +142,7 @@ public:
 
 /****************************************************************************/
 
-class CosmoHaloFinder
+class COSMO_EXPORT CosmoHaloFinder
 {
 public:
   // create a finder

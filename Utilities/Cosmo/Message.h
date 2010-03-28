@@ -50,7 +50,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 
 #ifdef USE_SERIAL_COSMO
 

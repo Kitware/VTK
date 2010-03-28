@@ -54,7 +54,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef Partition_h
 #define Partition_h
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 
 #ifdef USE_VTK_COSMO
 #ifndef USE_SERIAL_COSMO
@@ -76,7 +76,7 @@ using namespace vtkstd;
 using namespace std;
 #endif
 
-class Partition {
+class COSMO_EXPORT Partition {
 public:
   Partition();
   ~Partition();
