@@ -4,7 +4,7 @@ SET(KIT_TCL_LIBS vtkIOTCL)
 SET(KIT_PYTHON_LIBS vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkIOJava)
 SET(KIT_INTERFACE_LIBRARIES vtkIO)
-SET(KIT_LIBS VPIC Cosmo)
+SET(KIT_LIBS VPIC)
 IF(VTK_USE_RENDERING)
   SET(KIT_TCL_LIBS vtkRenderingTCL ${KIT_TCL_LIBS})
   SET(KIT_PYTHON_LIBS vtkRenderingPythonD ${KIT_PYTHON_LIBS})
@@ -53,8 +53,6 @@ vtkParallelFactory.cxx
 vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
-vtkPCosmoHaloFinder.cxx
-vtkPCosmoReader.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
@@ -151,7 +149,10 @@ IF (VTK_USE_MPI)
     ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
+    vtkPCosmoHaloFinder.cxx
+    vtkPCosmoReader.cxx
     )
+    SET(KIT_LIBS ${KIT_LIBS} Cosmo)
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
 ENDIF (VTK_USE_MPI)
