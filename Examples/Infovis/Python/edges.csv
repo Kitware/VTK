@@ -1,0 +1,6 @@
+source,target,lbl,value
+apple,plum,foo,13
+plum,grape,bar,92
+grape,orange,zig,63
+grape,apple,zag,33
+orange,apple,omg!,75
