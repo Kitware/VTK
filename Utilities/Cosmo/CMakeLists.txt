@@ -4,6 +4,9 @@ project(Cosmo)
 
 #SET(Cosmo_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
+# Needed for mpich 2
+ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
+
 CONFIGURE_FILE (${Cosmo_SOURCE_DIR}/CosmoDefinition.h.in
                 ${Cosmo_BINARY_DIR}/CosmoDefinition.h)
  
