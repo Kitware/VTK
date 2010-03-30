@@ -1,0 +1,12 @@
+package require -exact vtkfiltering @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+
+if {[info commands ::vtk::init::require_package] != ""} {
+  if {[::vtk::init::require_package vtkGraphicsTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
+    package provide vtkgraphics @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+} else {
+  if {[info commands vtkAxes]  != "" ||
+    [::vtk::load_component vtkGraphicsTCL] == ""} {
+    package provide vtkgraphics @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+}
