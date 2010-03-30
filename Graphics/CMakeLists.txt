@@ -30,6 +30,7 @@ vtkBrownianPoints.cxx
 vtkButterflySubdivisionFilter.cxx
 vtkButtonSource.cxx
 vtkCellCenters.cxx
+vtkClipClosedSurface.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
 vtkCleanPolyData.cxx
