@@ -78,11 +78,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDemandDrivenPipeline.h"
 
 #include "CosmoHaloFinderP.h"
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include "FOFHaloProperties.h"
 #include "Partition.h"
 
-vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.2");
+vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.2.2.1");
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
 /****************************************************************************/

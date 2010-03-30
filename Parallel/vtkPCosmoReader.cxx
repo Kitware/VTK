@@ -82,12 +82,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace vtkstd;
 
 // RRU stuff
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include "Partition.h"
 #include "ParticleExchange.h"
 #include "ParticleDistribute.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.7");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.7.2.1");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 //----------------------------------------------------------------------------

@@ -58,7 +58,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ParticleDistribute_h
 #define ParticleDistribute_h
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include "Message.h"
 
 #include <cstdlib>
@@ -75,7 +75,7 @@ using namespace vtkstd;
 using namespace std;
 #endif
 
-class ParticleDistribute {
+class COSMO_EXPORT ParticleDistribute {
 public:
   ParticleDistribute();
   ~ParticleDistribute();

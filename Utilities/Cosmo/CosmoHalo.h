@@ -45,7 +45,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHalo_h
 #define CosmoHalo_h
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include <string>
 #include <vector>
 #include <set>

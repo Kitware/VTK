@@ -34,7 +34,7 @@
 #include "vtkVectorText.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.6");
+vtkCxxRevisionMacro(vtkAbstractPolygonalHandleRepresentation3D, "1.6.2.1");
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,Property,vtkProperty);
 vtkCxxSetObjectMacro(vtkAbstractPolygonalHandleRepresentation3D,SelectedProperty,vtkProperty);
 
@@ -570,6 +570,11 @@ void vtkAbstractPolygonalHandleRepresentation3D::UpdateLabel()
     if (this->Renderer)
       {
       this->LabelTextActor->SetCamera( this->Renderer->GetActiveCamera() );
+      }
+    else
+      {
+      vtkErrorMacro("UpdateLabel: no renderer has been set!");
+      return;
       }
 
     // Place the label on the North east of the handle. We need to take into

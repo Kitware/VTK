@@ -56,13 +56,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ChainingMesh_h
 #define ChainingMesh_h
 
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 
-class ChainingMesh {
+class COSMO_EXPORT ChainingMesh {
 public:
   // Chaining mesh for all particles on a processor
   ChainingMesh(
