@@ -35,11 +35,17 @@ ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    ${Cosmo_SOURCE_DIR}/VPICDataSet.h
-    ${Cosmo_SOURCE_DIR}/VPICGlobal.h
-    ${Cosmo_SOURCE_DIR}/VPICHeader.h
-    ${Cosmo_SOURCE_DIR}/VPICPart.h
-    ${Cosmo_SOURCE_DIR}/VPICView.h
+    ${Cosmo_SOURCE_DIR}/BasicDefinition.h
+    ${Cosmo_SOURCE_DIR}/ChainingMesh.h
+    ${Cosmo_SOURCE_DIR}/CosmoHalo.h
+    ${Cosmo_SOURCE_DIR}/CosmoHaloFinder.h
+    ${Cosmo_SOURCE_DIR}/CosmoHaloFinderP.h
+    ${Cosmo_SOURCE_DIR}/FOFHaloProperties.h
+    ${Cosmo_SOURCE_DIR}/Message.h
+    ${Cosmo_SOURCE_DIR}/ParticleDistribute.h
+    ${Cosmo_SOURCE_DIR}/ParticleExchange.h
+    ${Cosmo_SOURCE_DIR}/Partition.h
+    ${Cosmo_SOURCE_DIR}/winDirent.h
     ${Cosmo_BINARY_DIR}/CosmoDefinition.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/Cosmo
     COMPONENT Development)
