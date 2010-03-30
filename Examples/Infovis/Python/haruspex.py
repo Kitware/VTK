@@ -489,6 +489,10 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
             haruspex.Update()
             
     if verbosity > 0:
+        if verbosity > 1:
+            if haruspex.GetTestOption():
+                print "  Test results:"
+                haruspex.GetOutput( 2 ).Dump( 16 )
         print
 ############################################################
 
