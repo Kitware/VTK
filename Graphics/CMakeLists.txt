@@ -34,10 +34,10 @@ vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
 vtkCleanPolyData.cxx
 vtkClipClosedSurface.cxx
+vtkClipConvexPolyData.cxx
 vtkClipDataSet.cxx
 vtkClipHyperOctree.cxx
 vtkClipPolyData.cxx
-vtkClipConvexPolyData.cxx
 vtkClipVolume.cxx
 vtkCoincidentPoints.cxx
 vtkCompositeDataGeometryFilter.cxx
