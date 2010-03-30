@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.1");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.2");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -1592,7 +1592,8 @@ int vtkCCSPolyInPoly(
   // There could also be a check to see if all the verts match.
   // If they do, both polys could be removed.
    
-  return vtkPolygon::PointInPolygon(p, n, const_cast<double *>(pp),
+  return vtkPolygon::PointInPolygon(
+    p, static_cast<int>(n), const_cast<double *>(pp),
     const_cast<double *>(bounds), const_cast<double *>(normal));
 }
 
