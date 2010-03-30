@@ -1,0 +1,12 @@
+package require -exact vtkfiltering @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+
+if {[info commands ::vtk::init::require_package] != ""} {
+  if {[::vtk::init::require_package vtkImagingTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
+    package provide vtkimaging @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+} else {
+  if {[info commands vtkImageFFT] != "" ||
+    [::vtk::load_component vtkImagingTCL] == ""} {
+    package provide vtkimaging @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+}

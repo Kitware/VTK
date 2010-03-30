@@ -1,5 +1,5 @@
-package require -exact vtkgraphics 5.7
-package require -exact vtkimaging 5.7
+package require -exact vtkgraphics @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+package require -exact vtkimaging @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
 
 catch {
     unset __tk_error
@@ -31,15 +31,15 @@ namespace eval ::vtk::rendering {
 
 if {[info commands ::vtk::init::require_package] != ""} {
   if {![info exists __tk_error] && \
-       [::vtk::init::require_package vtkRenderingTCL 5.7]} {
+       [::vtk::init::require_package vtkRenderingTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
     ::vtk::rendering::SetWin32ExitCallback
-    package provide vtkrendering 5.7
+    package provide vtkrendering @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
   }
 } else {
   if {![info exists __tk_error] && \
         ([info commands vtkAxisActor2D] != "" || \
         [::vtk::load_component vtkRenderingTCL] == "")} {
     ::vtk::rendering::SetWin32ExitCallback
-    package provide vtkrendering 5.7
+    package provide vtkrendering @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
   }
 }

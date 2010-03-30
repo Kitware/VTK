@@ -1,0 +1,12 @@
+package require -exact vtkwidgets @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+
+if {[info commands ::vtk::init::require_package] != ""} {
+  if {[::vtk::init::require_package vtkGeovisTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
+    package provide vtkgeovis @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+} else {
+  if {[info commands vtkGeoMath] != "" ||
+    [::vtk::load_component vtkGeovisTCL] == ""} {
+    package provide vtkgeovis @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+}
