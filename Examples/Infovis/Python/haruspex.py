@@ -38,6 +38,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t [-u]             update input model (if data are provided as well). NB: update happens before assessment"
     print "\t [-s <prefix>]    prefix of CSV output model (statistics) file(s)"
     print "\t [-a <filename>]  name of CSV output data (annotated) file"
+    print "\t [-t <filename>]  name of CSV statistical test results file"
     print "\t [-c <filename>]  name of CSV file specifying columns of interest. Default: all columns are of interest"
     print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
     sys.exit( 1 )
@@ -62,7 +63,7 @@ def ParseCommandLine():
     
     # Try to hash command line with respect to allowable flags
     try:
-        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:us:a:c:v')
+        opts,args = getopt.getopt(sys.argv[1:], 'hd:e:o:m:us:a:t:c:v')
     except getopt.GetoptError:
         Usage( outModelPrefix, outDataName )
         sys.exit( 1 )
@@ -89,6 +90,8 @@ def ParseCommandLine():
             outModelPrefix = a
         elif o == "-a":
             outDataName = a
+        elif o == "-t":
+            outTestName = a
         elif o == "-c":
             columnsListName = a
         elif o == "-v":
@@ -386,7 +389,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         for i in range( 0, n ):
             colName = inData.GetColumnName( columnsList[i] )
             if verbosity > 0:
-                print "  Requesting column",colName
+                print "  Requesting column", colName
             haruspex.AddColumn( colName )
 
     elif haruspex.IsA( "vtkBivariateStatisticsAlgorithm" ):
@@ -396,7 +399,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
             for j in range( i+1, n ):
                 colNameY = inData.GetColumnName( columnsList[j] )
                 if verbosity > 0:
-                    print "  Requesting column pair",colNameX,colNameY
+                    print "  Requesting column pair (", colNameX, ",", colNameY, ")"
                 haruspex.AddColumnPair( colNameX, colNameY )
 
     else:
@@ -423,7 +426,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
     if int( options ) % 2:
         haruspex.SetTestOption( True )
         if verbosity > 0:
-            print "  Test option is on (make sure you exported the R_HOME environment variable)"
+            print "  Test option is on"
     else:
         haruspex.SetTestOption( False )
         if verbosity > 0:
