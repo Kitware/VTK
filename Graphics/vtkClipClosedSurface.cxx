@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.3");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.4");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -796,6 +796,12 @@ void vtkClipClosedSurface::BreakTriangleStrips(
 }
 
 //----------------------------------------------------------------------------
+// Everything below this point is support code for MakeCutPolys().
+// It could be separated out into its own class for generating
+// polygons from contours. 
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 // A helper class: a bitfield that is always as large as needed.
 // For our purposes this is much more convenient than a bool vector,
 // which would have to be resized and range-checked externally.
@@ -826,13 +832,6 @@ public:
   void clear() {
     bitstorage.clear();
   };
-
-  void merge(vtkCCSBitArray &b) {
-    if (b.bitstorage.size() > bitstorage.size()) {
-      bitstorage.resize(b.bitstorage.size()); }
-    for (size_t i = 0; i < b.bitstorage.size(); i++) {
-      bitstorage[i] |= b.bitstorage[i]; }
-  }; 
 
 private:
   vtkstd::vector<unsigned int> bitstorage;
