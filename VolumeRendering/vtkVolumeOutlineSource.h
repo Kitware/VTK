@@ -55,6 +55,13 @@ public:
   vtkGetMacro(GenerateScalars, int);
 
   // Description:
+  // Set whether to generate an outline wherever an input face was
+  // cut by a plane.  This is on by default. 
+  vtkSetMacro(GenerateOutline, int);
+  vtkBooleanMacro(GenerateOutline, int);
+  vtkGetMacro(GenerateOutline, int);
+
+  // Description:
   // Set whether to generate polygonal faces for the output.  By default,
   // only lines are generated.  The faces will form a closed, watertight
   // surface.
@@ -88,6 +95,7 @@ protected:
 
   vtkVolumeMapper *VolumeMapper;
   int GenerateScalars;
+  int GenerateOutline;
   int GenerateFaces;
   int ActivePlaneId;
   double Color[3];
