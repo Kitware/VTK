@@ -38,7 +38,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.3");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.4");
 vtkStandardNewMacro(vtkGraphHierarchicalBundleEdges);
 
 vtkGraphHierarchicalBundleEdges::vtkGraphHierarchicalBundleEdges()
@@ -278,6 +278,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
 
     // Insert points into the polyline going up the tree to
     // the common ancestor.
+    output->ClearEdgePoints(e.Id);
     for (vtkIdType s = 0; s < sourceList->IsId(curTarget); s++)
       {
       tree->GetPoint(sourceList->GetId(s), pt);

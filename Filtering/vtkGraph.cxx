@@ -66,7 +66,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.39");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.40");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -75,7 +75,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.39");
+vtkCxxRevisionMacro(vtkGraph, "1.40");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1595,7 +1595,7 @@ void vtkGraph::RemoveEdgeInternal(vtkIdType e, bool directed)
     {
     this->Internals->ReplaceEdgeFromInList(le, e, this->Internals->Adjacency[lv].InEdges);
     }
-  else if (u != v)
+  else if (lu != lv)
     {
     this->Internals->ReplaceEdgeFromOutList(le, e, this->Internals->Adjacency[lv].OutEdges);
     }
