@@ -1,0 +1,12 @@
+package require -exact vtkwidgets @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+
+if {[info commands ::vtk::init::require_package] != ""} {
+  if {[::vtk::init::require_package vtkViewsTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
+    package provide vtkviews @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+} else {
+  if {[info commands vtkGraphLayout] != "" ||
+    [::vtk::load_component vtkViewsTCL] == ""} {
+    package provide vtkviews @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+}
