@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.2");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.3");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -1399,14 +1399,16 @@ void vtkCCSInsertTriangle(
   originalEdges->InitTraversal();
   while (originalEdges->GetNextCell(npts, pts))
     {
-    if (npts > 2)
-      {
-      vtkIdType a = pts[0];
-      vtkIdType b = pts[npts-1];
+    vtkIdType a = pts[0];
 
-      vtkIdType c = triPts[2];
-      vtkIdType d = triPts[0];
-      vtkIdType e = triPts[1];
+    vtkIdType c = triPts[2];
+    vtkIdType d = triPts[0];
+    vtkIdType e = triPts[1];
+
+    // Check if the edge and the triangle share a point
+    if ((a == c || a == d || a == e) && npts > 2)
+      {
+      vtkIdType b = pts[npts-1];
 
       for (int i = 0; i < 3 && !foundEdge; i++)
         {
