@@ -35,21 +35,26 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkMergeGraphs, "1.5");
+vtkCxxRevisionMacro(vtkMergeGraphs, "1.6");
 vtkStandardNewMacro(vtkMergeGraphs);
 //---------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
-  this->MaxEdges = -1;
+  this->UseEdgeWindow = false;
+  this->EdgeWindowArrayName = 0;
+  this->SetEdgeWindowArrayName("time");
+  this->EdgeWindow = 10000;
 }
 
 //---------------------------------------------------------------------------
 vtkMergeGraphs::~vtkMergeGraphs()
 {
+  this->SetEdgeWindowArrayName(0);
 }
 
+//---------------------------------------------------------------------------
 int vtkMergeGraphs::FillInputPortInformation(int port, vtkInformation *info)
 {
   if(port == 0)
@@ -207,15 +212,6 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
   // For each edge in graph2, add it to the output
   vtkSmartPointer<vtkEdgeListIterator> it = vtkSmartPointer<vtkEdgeListIterator>::New();
   graph2->GetEdges(it);
-  if (this->MaxEdges >= 0)
-    {
-    vtkIdType cur = 0;
-    while (cur < graph2->GetNumberOfEdges() - this->MaxEdges)
-      {
-      it->Next();
-      ++cur;
-      }
-    }
   while (it->HasNext())
     {
     vtkEdgeType e = it->Next();
@@ -228,16 +224,51 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
       }
     }
 
-  // Remove some edges if there are too many
-  if (this->MaxEdges >= 0 && builder->GetGraph()->GetNumberOfEdges() > this->MaxEdges)
+  // Remove edges if using an edge window.
+  if (this->UseEdgeWindow)
     {
-    vtkSmartPointer<vtkIdTypeArray> edgesToRemove =
-      vtkSmartPointer<vtkIdTypeArray>::New();
-    for (vtkIdType i = 0; i < builder->GetGraph()->GetNumberOfEdges() - this->MaxEdges; ++i)
+    if (!this->EdgeWindowArrayName)
       {
-      edgesToRemove->InsertNextValue(i);
+      vtkErrorMacro("EdgeWindowArrayName must not be null if using edge window.");
+      return 0;
       }
-    builder->RemoveEdges(edgesToRemove);
+    vtkDataArray* windowArr = vtkDataArray::SafeDownCast(
+      builder->GetGraph()->GetEdgeData()->GetAbstractArray(this->EdgeWindowArrayName));
+    if (!windowArr)
+      {
+      vtkErrorMacro("EdgeWindowArrayName not found or not a numeric array.");
+      return 0;
+      }
+    double range[2];
+    range[0] = VTK_DOUBLE_MAX;
+    range[1] = VTK_DOUBLE_MIN;
+    vtkIdType numEdges = builder->GetGraph()->GetNumberOfEdges();
+    for (vtkIdType i = 0; i < numEdges; ++i)
+      {
+      double val = windowArr->GetTuple1(i);
+      if (val < range[0])
+        {
+        range[0] = val;
+        }
+      if (val > range[1])
+        {
+        range[1] = val;
+        }
+      }
+    double cutoff = range[1] - this->EdgeWindow;
+    if (range[0] < cutoff)
+      {
+      vtkSmartPointer<vtkIdTypeArray> edgesToRemove =
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      for (vtkIdType i = 0; i < numEdges; ++i)
+        {
+        if (windowArr->GetTuple1(i) < cutoff)
+          {
+          edgesToRemove->InsertNextValue(i);
+          }
+        }
+      builder->RemoveEdges(edgesToRemove);
+      }
     }
 
   return 1;
@@ -247,5 +278,8 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
 void vtkMergeGraphs::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "MaxEdges: " << this->MaxEdges << endl;
+  os << indent << "UseEdgeWindow: " << this->UseEdgeWindow << endl;
+  os << indent << "EdgeWindowArrayName: "
+     << (this->EdgeWindowArrayName ? this->EdgeWindowArrayName : "(none)") << endl;
+  os << indent << "EdgeWindow: " << this->EdgeWindow << endl;
 }

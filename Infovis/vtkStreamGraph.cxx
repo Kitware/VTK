@@ -35,14 +35,17 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkStreamGraph, "1.3");
+vtkCxxRevisionMacro(vtkStreamGraph, "1.4");
 vtkStandardNewMacro(vtkStreamGraph);
 //---------------------------------------------------------------------------
 vtkStreamGraph::vtkStreamGraph()
 {
-  this->MaxEdges = -1;
   this->CurrentGraph = vtkMutableGraphHelper::New();
   this->MergeGraphs = vtkMergeGraphs::New();
+  this->UseEdgeWindow = false;
+  this->EdgeWindowArrayName = 0;
+  this->SetEdgeWindowArrayName("time");
+  this->EdgeWindow = 10000.0;
 }
 
 //---------------------------------------------------------------------------
@@ -56,6 +59,7 @@ vtkStreamGraph::~vtkStreamGraph()
     {
     this->MergeGraphs->Delete();
     }
+  this->SetEdgeWindowArrayName(0);
 }
 
 //---------------------------------------------------------------------------
@@ -101,7 +105,9 @@ int vtkStreamGraph::RequestData(
   progress = 0.2;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
 
-  this->MergeGraphs->SetMaxEdges(this->MaxEdges);
+  this->MergeGraphs->SetUseEdgeWindow(this->UseEdgeWindow);
+  this->MergeGraphs->SetEdgeWindowArrayName(this->EdgeWindowArrayName);
+  this->MergeGraphs->SetEdgeWindow(this->EdgeWindow);
 
   if (!this->MergeGraphs->ExtendGraph(this->CurrentGraph, input))
     {
@@ -120,5 +126,8 @@ int vtkStreamGraph::RequestData(
 void vtkStreamGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "MaxEdges: " << this->MaxEdges << endl;
+  os << indent << "UseEdgeWindow: " << this->UseEdgeWindow << endl;
+  os << indent << "EdgeWindowArrayName: "
+     << (this->EdgeWindowArrayName ? this->EdgeWindowArrayName : "(none)") << endl;
+  os << indent << "EdgeWindow: " << this->EdgeWindow << endl;
 }

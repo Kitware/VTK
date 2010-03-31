@@ -26,6 +26,9 @@
 //
 // Each update, vtkMergeGraphs is used to combine this filter's input with the
 // internal graph.
+//
+// If you can use an edge window array to filter out old edges based on a
+// moving threshold.
 
 #ifndef __vtkStreamGraph_h
 #define __vtkStreamGraph_h
@@ -47,11 +50,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The maximum number of edges in the combined graph. Default is -1,
-  // which specifies that there should be no limit on the number
-  // of edges.
-  vtkSetMacro(MaxEdges, vtkIdType);
-  vtkGetMacro(MaxEdges, vtkIdType);
+  // Whether to use an edge window array. The default is to
+  // not use a window array.
+  vtkSetMacro(UseEdgeWindow, bool);
+  vtkGetMacro(UseEdgeWindow, bool);
+  vtkBooleanMacro(UseEdgeWindow, bool);
+
+  // Description:
+  // The edge window array. The default array name is "time".
+  vtkSetStringMacro(EdgeWindowArrayName);
+  vtkGetStringMacro(EdgeWindowArrayName);
+
+  // Description:
+  // The time window amount. Edges with values lower
+  // than the maximum value minus this window will be
+  // removed from the graph. The default edge window is
+  // 10000.
+  vtkSetMacro(EdgeWindow, double);
+  vtkGetMacro(EdgeWindow, double);
 
 protected:
   vtkStreamGraph();
@@ -64,7 +80,9 @@ protected:
 
   vtkMutableGraphHelper* CurrentGraph;
   vtkMergeGraphs* MergeGraphs;
-  vtkIdType MaxEdges;
+  bool UseEdgeWindow;
+  double EdgeWindow;
+  char* EdgeWindowArrayName;
 
 private:
   vtkStreamGraph(const vtkStreamGraph&); // Not implemented
