@@ -196,6 +196,8 @@ vtkXMLWriter.cxx
 vtkXMLWriterC.cxx
 vtkXYZMolReader.cxx
 vtkZLibDataCompressor.cxx
+vtkXMLPolyhedronMeshWriter.cxx
+vtkXMLPolyhedronMeshReader.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(

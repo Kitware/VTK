@@ -89,6 +89,11 @@ public:
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds, 
                            vtkIdType nfaces, vtkIdType *faces);
+
+  // Description:
+  // Set faces array to existing cells. This is a temporary function called by
+  // vtkXMLPolyhedronMeshReader.
+  vtkIdType SetAllFacesAtOnce(vtkCellArray *faces);
   
   // Description:
   // Standard vtkDataSet methods; see vtkDataSet.h for documentation.

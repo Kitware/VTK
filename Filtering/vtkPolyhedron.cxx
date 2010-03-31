@@ -755,14 +755,13 @@ int vtkPolyhedron::EvaluatePosition( double x[3], double * closestPoint,
   this->ConstructLocator();
   
   // find closest point and store the squared distance
-  vtkGenericCell * genCell = vtkGenericCell::New( );
+  vtkSmartPointer<vtkGenericCell> genCell = 
+    vtkSmartPointer<vtkGenericCell>::New( );
 
   vtkIdType cellId;
   int id;
   this->CellLocator->FindClosestPoint(
     x, closestPoint, genCell, cellId, id, minDist2 );
-
-  genCell->Delete();
 
   // set distance to be zero, if point is inside
   if (this->IsInside(x, VTK_DOUBLE_MIN))
@@ -923,7 +922,8 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   this->ComputeBounds();
   
   // use ordered triangulator to triangulate the polyhedron.
-  vtkOrderedTriangulator * triangulator = vtkOrderedTriangulator::New();
+  vtkSmartPointer<vtkOrderedTriangulator> triangulator = 
+    vtkSmartPointer<vtkOrderedTriangulator>::New();
   
   triangulator->InitTriangulation(this->Bounds, this->GetNumberOfPoints());
   triangulator->PreSortedOff();
@@ -941,8 +941,6 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   
   this->Tets->DeepCopy(ptIds);  
   this->TriangulationPerformed = 1;
-
-  triangulator->Delete();
 
   return 1;
 }
@@ -1254,11 +1252,12 @@ void vtkPolyhedron::Contour(double value,
       {
       vtkErrorMacro("The contour are not 2-connected. This special case is "
         "not handled currently. Contouring aborted.");
+      delete [] numPointEdges;
       return;
       }
     }  
 
-  delete []  numPointEdges;
+  delete [] numPointEdges;
 
   // finally, construct the polys
   while (!cpSet.empty())

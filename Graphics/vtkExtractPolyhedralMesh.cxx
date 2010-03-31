@@ -141,20 +141,24 @@ int vtkExtractPolyhedralMesh::RequestData(
                 }
               }//for all points of the faces
             }//for all faces of the cell
-          output->InsertNextCell(VTK_POLYHEDRON, cell->PointIds->GetNumberOfIds(), cell->PointIds->GetPointer(0),
-                                 cellArray->GetNumberOfCells(), cellArray->GetPointer());
-                                 std::cout << cell->PointIds->GetNumberOfIds() << " " << cellArray->GetNumberOfCells() << std::endl;
-                                 
-                                 for (int i = 0; i < 8; i++)
-                                   {
-                                   std::cout << cell->PointIds->GetPointer(0)[i] << " ";
-                                   }
-                                 std::cout << std::endl;
-                                 for (int i = 0; i < 30; i++)
-                                   {
-                                   std::cout << cellArray->GetPointer()[i] << " ";
-                                   }
-                                 std::cout << std::endl;
+          output->InsertNextCell(VTK_POLYHEDRON, cell->PointIds->GetNumberOfIds(), 
+            cell->PointIds->GetPointer(0), cellArray->GetNumberOfCells(), 
+            cellArray->GetPointer());
+          /*
+          std::cout << cell->PointIds->GetNumberOfIds() << " " << cellArray->GetNumberOfCells() << std::endl;
+          
+          for (int i = 0; i < 8; i++)
+            {
+            std::cout << cell->PointIds->GetPointer(0)[i] << " ";
+            }
+          std::cout << std::endl;
+          for (int i = 0; i < 30; i++)
+            {
+            std::cout << cellArray->GetPointer()[i] << " ";
+            }
+          std::cout << std::endl;
+          */
+
           break;
         } //switch
       } //if non-empty cells

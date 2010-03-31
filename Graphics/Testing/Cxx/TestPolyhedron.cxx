@@ -36,6 +36,8 @@
 #include "vtkShrinkFilter.h"
 #include "vtkDataArray.h"
 #include "vtkPointLocator.h"
+#include "vtkXMLPolyhedronMeshWriter.h"
+#include "vtkXMLPolyhedronMeshReader.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -86,15 +88,26 @@ int TestPolyhedron( int argc, char* argv[] )
   faces->InsertNextCell(4, face4);
   faces->InsertNextCell(4, face5);
   
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid = 
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid0 = 
     vtkSmartPointer<vtkUnstructuredGrid>::New();
-  ugrid->SetPoints(poly->GetPoints());
-  ugrid->GetPointData()->DeepCopy(poly->GetPointData());
+  ugrid0->SetPoints(poly->GetPoints());
+  ugrid0->GetPointData()->DeepCopy(poly->GetPointData());
 
-  ugrid->InsertNextCell(VTK_POLYHEDRON, 8, pointIds, 
+  ugrid0->InsertNextCell(VTK_POLYHEDRON, 8, pointIds, 
     6, faces->GetPointer());
 
-  vtkPolyhedron *polyhedron = static_cast<vtkPolyhedron*>(ugrid->GetCell(0));
+  vtkPolyhedron *polyhedron = static_cast<vtkPolyhedron*>(ugrid0->GetCell(0));
+
+  vtkCellArray * cell = ugrid0->GetCells();
+  vtkIdTypeArray * pids = cell->GetData();
+  std::cout << "num of cells: " << cell->GetNumberOfCells() << std::endl;
+  std::cout << "num of tuples: " << pids->GetNumberOfTuples() << std::endl;
+  for (int i = 0; i < pids->GetNumberOfTuples(); i++)
+    {
+    std::cout << pids->GetValue(i) << " ";
+    }
+  std::cout << std::endl;
+  cell->Print(std::cout);
   
   // Print out basic information
   std::cout << "Testing polyhedron is a cube of with bounds "
@@ -107,7 +120,36 @@ int TestPolyhedron( int argc, char* argv[] )
   double tol = 0.001;
   double t, x[3], pc[3];
   int subId=0;
+
+
+  //
+  // test writer
+  vtkSmartPointer<vtkXMLPolyhedronMeshWriter> writer =
+    vtkSmartPointer<vtkXMLPolyhedronMeshWriter>::New();
+  writer->SetInput(ugrid0);
+  writer->SetFileName("test.vth");
+  writer->SetDataModeToAscii();
+  writer->Update();
+  std::cout << "finished writing the polyhedron mesh to test.vth "<< std::endl;
   
+  //
+  // test reader
+  vtkSmartPointer<vtkXMLPolyhedronMeshReader> reader =
+    vtkSmartPointer<vtkXMLPolyhedronMeshReader>::New();
+  reader->SetFileName("test.vth");
+  reader->Update();
+  std::cout << "finished reading the polyhedron mesh from test.vth "<< std::endl;
+  
+  vtkUnstructuredGrid * ugrid = reader->GetOutput();
+  polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
+  
+  // write again to help compare
+  writer->SetInput(ugrid);
+  writer->SetFileName("test1.vth");
+  writer->SetDataModeToAscii();
+  writer->Update();
+
+  // test the polyhedron functions  
   // test intersection
   int numInts = polyhedron->IntersectWithLine(p1,p2,tol,t,x,pc,subId); //should be 2
   if (numInts != 2)
@@ -343,7 +385,7 @@ int TestPolyhedron( int argc, char* argv[] )
     vtkSmartPointer<vtkPointData>::New();
   vtkSmartPointer<vtkCellData> resultCd = 
     vtkSmartPointer<vtkCellData>::New();
-  
+
   polyhedron->Contour(0.5, tetraGrid->GetPointData()->GetScalars(), locator, 
                       NULL, NULL, resultPolys, 
                       tetraGrid->GetPointData(), resultPd,
@@ -360,6 +402,8 @@ int TestPolyhedron( int argc, char* argv[] )
     vtkSmartPointer<vtkShrinkFilter>::New();
   shrink->SetInput( tetraGrid );
   shrink->SetShrinkFactor( 0.7 );
+
+  std::cout << "after contour" << std::endl;  
 
   // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 
@@ -407,6 +451,17 @@ int TestPolyhedron( int argc, char* argv[] )
     {
     iren->Start();
     }
+
+
+/*  
+  vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer1 =
+    vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+  writer1->SetInput(ugrid);
+  writer1->SetFileName("test.vtu");
+  writer1->SetDataModeToAscii();
+  writer1->Update();
+*/
+
 
   return !retVal;
 }

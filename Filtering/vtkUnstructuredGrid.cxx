@@ -946,6 +946,45 @@ InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
   return this->Types->InsertNextValue(static_cast<unsigned char>(type));
 }
 
+
+//----------------------------------------------------------------------------
+// Insert faces array to an existing polyhedral cell.
+vtkIdType vtkUnstructuredGrid::SetAllFacesAtOnce(vtkCellArray *faces)
+{
+  if (!this->Faces)
+    {
+    this->Faces = vtkIdTypeArray::New();
+    this->Faces->Allocate(this->Types->GetSize());
+    this->FaceLocations = vtkIdTypeArray::New();
+    this->FaceLocations->Allocate(this->Types->GetSize());
+    }
+  
+  
+  vtkIdType num, *cell;
+  vtkIdType cid = 0;
+  faces->InitTraversal();
+  while (cid < this->GetNumberOfCells() && faces->GetNextCell(num, cell))
+    {
+    this->FaceLocations->InsertNextValue(this->Faces->GetMaxId() + 1);
+    vtkIdType nfaces = cell[0];
+    this->Faces->InsertNextValue(nfaces);
+    vtkIdType *face = cell + 1;
+    for (vtkIdType faceNum=0; faceNum < nfaces; ++faceNum)
+      {
+      vtkIdType npts = face[0];
+      this->Faces->InsertNextValue(npts);
+      for (vtkIdType i=1; i <= npts; ++i)
+        {
+        this->Faces->InsertNextValue(face[i]);
+        }
+      face += npts + 1;
+      } //for all faces
+    cid++;
+    }
+  
+  return 1;    
+}
+
 //----------------------------------------------------------------------------
 // Return faces for a polyhedral cell (or face-explicit cell).
 vtkIdType *vtkUnstructuredGrid::GetFaces(vtkIdType cellId)
