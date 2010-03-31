@@ -15,6 +15,8 @@
 //
 #include <vtksys/stl/stack>
 #include <vtksys/stl/vector>
+#include <vtksys/stl/algorithm>
+#include <vtksys/stl/functional>
 //
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
@@ -23,7 +25,7 @@
 #include "vtkIdListCollection.h"
 //
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.10");
+vtkCxxRevisionMacro(vtkModifiedBSPTree, "1.11");
 vtkStandardNewMacro(vtkModifiedBSPTree);
 //----------------------------------------------------------------------------
 //
@@ -454,32 +456,32 @@ void vtkModifiedBSPTree::GenerateRepresentationLeafs(vtkPolyData *pd) {
 //////////////////////////////////////////////////////////////////////////////
 
 // Ray->Box edge t-distance tests
-double _getMinDistPOS_X(double origin[3], double dir[3], double B[6]) {
+double _getMinDistPOS_X(const double origin[3], const double dir[3], const double B[6]) {
   return ((B[0] - origin[0]) / dir[0]);
 }
-double _getMinDistNEG_X(double origin[3], double dir[3], double B[6]) {
+double _getMinDistNEG_X(const double origin[3], const double dir[3], const double B[6]) {
   return ((B[1] - origin[0]) / dir[0]);
 }
-double _getMinDistPOS_Y(double origin[3], double dir[3], double B[6]) {
+double _getMinDistPOS_Y(const double origin[3], const double dir[3], const double B[6]) {
   return ((B[2] - origin[1]) / dir[1]);
 }
-double _getMinDistNEG_Y(double origin[3], double dir[3], double B[6]) {
+double _getMinDistNEG_Y(const double origin[3], const double dir[3], const double B[6]) {
   return ((B[3] - origin[1]) / dir[1]);
 }
-double _getMinDistPOS_Z(double origin[3], double dir[3], double B[6]) {
+double _getMinDistPOS_Z(const double origin[3], const double dir[3], const double B[6]) {
   return ((B[4] - origin[2]) / dir[2]);
 }
-double _getMinDistNEG_Z(double origin[3], double dir[3], double B[6]) {
+double _getMinDistNEG_Z(const double origin[3], const double dir[3], const double B[6]) {
   return ((B[5] - origin[2]) / dir[2]);
 }
 
-int BSPNode::getDominantAxis(double dir[3]) {
+int BSPNode::getDominantAxis(const double dir[3]) {
   double tX = (dir[0]>0) ? dir[0] : -dir[0];
   double tY = (dir[1]>0) ? dir[1] : -dir[1];
   double tZ = (dir[2]>0) ? dir[2] : -dir[2];
   if (tX > tY && tX > tZ) return ((dir[0] > 0) ? POS_X : NEG_X);
-  else if ( tY > tZ )   return ((dir[1] > 0) ? POS_Y : NEG_Y);
-  else          return ((dir[2] > 0) ? POS_Z : NEG_Z);
+  else if ( tY > tZ )     return ((dir[1] > 0) ? POS_Y : NEG_Y);
+  else                    return ((dir[2] > 0) ? POS_Z : NEG_Z);
 }
 //---------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol,
@@ -511,14 +513,14 @@ int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol
   bool     HIT = false;
   // setup our axis optimized ray box edge stuff
   int axis = BSPNode::getDominantAxis(ray_vec);
-  double (*_getMinDist)(double origin[3], double dir[3], double B[6]);
+  double (*_getMinDist)(const double origin[3], const double dir[3], const double B[6]);
   switch (axis) {
     case POS_X: _getMinDist = _getMinDistPOS_X; break;
     case NEG_X: _getMinDist = _getMinDistNEG_X; break;
     case POS_Y: _getMinDist = _getMinDistPOS_Y; break;
     case NEG_Y: _getMinDist = _getMinDistNEG_Y; break;
     case POS_Z: _getMinDist = _getMinDistPOS_Z; break;
-    default:  _getMinDist = _getMinDistNEG_Z; break;
+    default:    _getMinDist = _getMinDistNEG_Z; break;
   }
   //
   // OK, lets walk the tree and find intersections
@@ -592,12 +594,138 @@ int vtkModifiedBSPTree::IntersectWithLine(double p1[3], double p2[3], double tol
   return HIT;
 }
 //---------------------------------------------------------------------------
+typedef vtksys_stl::pair<double, int> Intersection;
+//
+struct Isort : public vtksys_stl::binary_function<Intersection, Intersection, bool> {
+  bool operator()(const Intersection &x, const Intersection &y) { 
+    return x.first < y.first; 
+  }
+};
+//---------------------------------------------------------------------------
+int vtkModifiedBSPTree::IntersectWithLine(
+    const double p1[3], const double p2[3], const double tol,
+    vtkPoints *points, vtkIdList *cellIds)
+{
+  //
+  BSPNode  *node, *Near, *Mid, *Far;
+  double    ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist, pcoords[3];
+  double    ray_vec[3] = { p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2] };
+  int       subId;
+  //
+  this->BuildLocatorIfNeeded();
+  //
+  // Does ray pass through root BBox
+  tmin = 0; tmax = 1;
+  if (!mRoot->RayMinMaxT(p1, ray_vec, tmin, tmax)) return false;
+  // Ok, setup a stack and various params
+  nodestack  ns;
+  double    closest_intersection = VTK_LARGE_FLOAT;
+  bool     HIT = false;
+  // setup our axis optimized ray box edge stuff
+  int axis = BSPNode::getDominantAxis(ray_vec);
+  double (*_getMinDist)(const double origin[3], const double dir[3], const double B[6]);
+  switch (axis) {
+    case POS_X: _getMinDist = _getMinDistPOS_X; break;
+    case NEG_X: _getMinDist = _getMinDistNEG_X; break;
+    case POS_Y: _getMinDist = _getMinDistPOS_Y; break;
+    case NEG_Y: _getMinDist = _getMinDistNEG_Y; break;
+    case POS_Z: _getMinDist = _getMinDistPOS_Z; break;
+    default:    _getMinDist = _getMinDistNEG_Z; break;
+  }
+
+  //
+  // we will sort intersections by t, so keep track using these lists
+  //
+  vtksys_stl::vector<Intersection> t_list;
+  vtkSmartPointer<vtkPoints> tempPoints;
+  vtkSmartPointer<vtkIdList>    tempIds;
+  if (points)  tempPoints = vtkSmartPointer<vtkPoints>::New();
+  if (cellIds) tempIds = vtkSmartPointer<vtkIdList>::New();
+  int icount = 0;
+  //
+  // OK, lets walk the tree and find intersections
+  //
+  ns.push(mRoot);
+  while (!ns.empty())  {
+    node = ns.top();
+    ns.pop();
+    // We do as few tests on the way down as possible, because our BBoxes
+    // can be quite tight and we want to reject as many boxes as possible without
+    // testing them at all - mainly because we quickly get to a leaf node and
+    // test candidates, once we've found a hit, we note the intersection t val,
+    // as soon as we pull a BBox of the stack that has a closest point further
+    // than the t val, we know we can stop.
+    //
+    while (node->mChild[0]) { // this must be a parent node
+      // Which child node is closest to ray origin - given direction
+      node->Classify(p1, ray_vec, tDist, Near, Mid, Far);
+      // if the distance to the far edge of the near box is > tmax, no need to test far box
+      // (we still need to test Mid because it may overlap slightly)
+      if ((tDist > tmax) || (tDist <= 0) ) { //<=0 for ray on edge
+        if (Mid) ns.push(Mid);
+        node = Near;
+      }
+      // if the distance to the far edge of the near box is < tmin, no need to test near box
+      else if (tDist < tmin) {
+        if (Mid) {
+          ns.push(Far);
+          node = Mid;
+        }
+        else node = Far;
+      }
+      // All the child nodes may be candidates, keep near, push far then mid
+      else {
+        ns.push(Far);
+        if (Mid) ns.push(Mid);
+        node = Near;
+      }
+    }
+    double t_hit, ipt[3];
+    // Ok, so we're a leaf node, first check the BBox against the ray
+    // then test the candidates in our sorted ray direction order
+    _tmin = tmin; _tmax = tmax;
+//    if (node->RayMinMaxT(p1, ray_vec, _tmin, _tmax)) {
+      // Was the closest point on the box > intersection point
+//      if (_tmax>closest_intersection) break;
+      //
+      for (int i=0; i<node->num_cells; i++) {
+        vtkIdType cell_ID = node->sorted_cell_lists[axis][i];
+        //
+        if (_getMinDist(p1, ray_vec, CellBounds[cell_ID]) > closest_intersection) break;
+        //
+        ctmin = _tmin; ctmax = _tmax;
+        if (BSPNode::RayMinMaxT(CellBounds[cell_ID], p1, ray_vec, ctmin, ctmax)) {
+          if (this->IntersectCellInternal(cell_ID, p1, p2, tol, t_hit, ipt, pcoords, subId)) {
+            if (points)  tempPoints->InsertNextPoint(ipt);
+            if (cellIds) tempIds->InsertNextId(cell_ID);
+            t_list.push_back(Intersection(t_hit, icount++));
+            HIT = true;
+          }
+        }
+      }
+//    }
+  }
+  if (HIT) {
+    vtksys_stl::sort(t_list.begin(), t_list.end(), Isort());
+    int N = t_list.size();
+    if (points)  points->SetNumberOfPoints(N);
+    if (cellIds) cellIds->SetNumberOfIds(N);
+    for (int n=0; n<N; n++) {
+      Intersection &i = t_list[n];
+      if (points)  points->SetPoint(n, tempPoints->GetPoint(i.second));
+      if (cellIds) cellIds->SetId(n, tempIds->GetId(i.second));
+    }
+  }
+  //
+  return HIT;
+}
+//---------------------------------------------------------------------------
 int vtkModifiedBSPTree::IntersectCellInternal(
-  vtkIdType cell_ID, double p1[3], double p2[3], 
-  double tol, double &t, double ipt[3], double pcoords[3], int &subId)
+  vtkIdType cell_ID, const double p1[3], const double p2[3], 
+  const double tol, double &t, double ipt[3], double pcoords[3], int &subId)
 {
   this->DataSet->GetCell(cell_ID, this->GenericCell);
-  return this->GenericCell->IntersectWithLine(p1, p2, tol, t, ipt, pcoords, subId);
+  return this->GenericCell->IntersectWithLine(const_cast<double*>(p1), const_cast<double*>(p2), tol, t, ipt, pcoords, subId);
 }
 //////////////////////////////////////////////////////////////////////////////
 // FindCell stuff
@@ -688,7 +816,7 @@ void vtkModifiedBSPTree::PrintSelf(ostream& os, vtkIndent indent)
 //////////////////////////////////////////////////////////////////////////////
 // BSPNode routines
 //////////////////////////////////////////////////////////////////////////////
-void BSPNode::Classify(double origin[3], double dir[3], double &rDist, BSPNode *&Near, BSPNode *&Mid, BSPNode *&Far) const {
+void BSPNode::Classify(const double origin[3], const double dir[3], double &rDist, BSPNode *&Near, BSPNode *&Mid, BSPNode *&Far) const {
   double tOriginToDivPlane = mChild[0]->bounds[mAxis*2+1] - origin[mAxis];
   double tDivDirection   = dir[mAxis];
   if ( tOriginToDivPlane > 0 ) {
@@ -718,7 +846,7 @@ void BSPNode::Classify(double origin[3], double dir[3], double &rDist, BSPNode *
 }
 //---------------------------------------------------------------------------
 // Update the two t values for the ray against the box, return false if misses
-bool BSPNode::RayMinMaxT(double origin[3], double dir[3], double &rTmin, double &rTmax) const {
+bool BSPNode::RayMinMaxT(const double origin[3], const double dir[3], double &rTmin, double &rTmax) const {
   double tT;
   // X-Axis
   if (dir[0] < -Epsilon_) {                // ray travelling in -x direction
@@ -791,7 +919,10 @@ bool BSPNode::RayMinMaxT(double origin[3], double dir[3], double &rTmin, double 
 }
 //---------------------------------------------------------------------------
 // Update the two t values for the ray against the box, return false if misses
-bool BSPNode::RayMinMaxT(double bounds[6], double origin[3], double dir[3], double &rTmin, double &rTmax) {
+bool BSPNode::RayMinMaxT(
+  const double bounds[6], const double origin[3], const double dir[3], 
+  double &rTmin, double &rTmax) 
+{
   double tT;
   // X-Axis
   if (dir[0] < -Epsilon_) {                // ray travelling in -x direction
