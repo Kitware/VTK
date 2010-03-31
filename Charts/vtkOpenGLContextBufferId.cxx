@@ -23,7 +23,7 @@
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.2");
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 // ----------------------------------------------------------------------------
@@ -205,12 +205,6 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
         |static_cast<int>(rgb[2]);
     
       result=static_cast<vtkIdType>(value-1);
-      
-      cout << "rgb=" << static_cast<int>(rgb[0]) << ", " <<
-      static_cast<int>(rgb[1]) << "," << static_cast<int>(rgb[2]) <<
-      " value=" << value <<" result=" << result<<  endl;
-    
-      
       }
     }
 
