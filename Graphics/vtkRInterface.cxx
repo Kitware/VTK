@@ -23,6 +23,7 @@
 #undef HAVE_UINTPTR_T
 #ifdef HAVE_VTK_UINTPTR_T
 #define HAVE_UINTPTR_T HAVE_VTK_UINTPTR_T
+#include <stdint.h>
 #endif
 
 #include "vtkInformation.h"
@@ -31,7 +32,7 @@
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.6");
+vtkCxxRevisionMacro(vtkRInterface, "1.7");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"
