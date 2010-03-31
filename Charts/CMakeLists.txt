@@ -66,6 +66,7 @@ SET_SOURCE_FILES_PROPERTIES(
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
+  vtkContextBufferId
   vtkBarMark
   vtkChartColors
   vtkDataElement
@@ -73,6 +74,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkLineMark
   vtkMark
   vtkMarkUtil
+  vtkOpenGLContextBufferId
   vtkPanelMark
   vtkValueHolder
   vtkWedgeMark
