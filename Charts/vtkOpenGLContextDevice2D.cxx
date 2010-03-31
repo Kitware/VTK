@@ -46,6 +46,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkContextBufferId.h"
+#include "vtkOpenGLContextBufferId.h"
 
 //-----------------------------------------------------------------------------
 class vtkOpenGLContextDevice2D::Private
@@ -287,7 +288,8 @@ void vtkOpenGLContextDevice2D::End()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
+void vtkOpenGLContextDevice2D::BufferIdModeBegin(
+  vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
   assert("pre: bufferId_exists" && bufferId!=0);
@@ -331,45 +333,12 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
 {
   assert("pre: started" && this->GetBufferIdMode());
 
-  GLint savedReadBuffer;
-  glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
-
-  glReadBuffer(GL_BACK_LEFT);
-
   // Assume the renderer has been set previously during rendering (sse Begin())
   int lowerLeft[2];
   int usize, vsize;
   this->Renderer->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
-
-  // Expensive call here (memory allocation)
-  unsigned char *rgb=new unsigned char[usize*vsize*3];
-
-  glPixelStorei(GL_PACK_ALIGNMENT,1);
-
-  // Expensive call here (memory transfer, blocking)
-  glReadPixels(lowerLeft[0],lowerLeft[1],usize,vsize,GL_RGB,GL_UNSIGNED_BYTE,
-               rgb);
-  // vtkIntArray
-  // Interpret rgb into ids.
-  // We cannot just use reinterpret_cast for two reasons:
-  // 1. we don't know if the host system is little or big endian.
-  // 2. we have rgb, not rgba. if we try to grab rgba and there is not
-  // alpha comment, it would be set to 1.0 (255, 0xff). we don't want that.
-
-  // Expensive iteration.
-  vtkIdType i=0;
-  vtkIdType s=usize*vsize;
-  while(i<s)
-    {
-    vtkIdType j=i*3;
-    int value=(static_cast<int>(rgb[j])<<16)|(static_cast<int>(rgb[j+1])<<8)
-      |static_cast<int>(rgb[j+2]);
-    this->BufferId->SetValue(i,value);
-    ++i;
-    }
-
-  delete[] rgb;
-
+  this->BufferId->SetValues(lowerLeft[0],lowerLeft[1]);
+  
   // Restore OpenGL state (only if it's different to avoid too much state
   // change).
   glMatrixMode(GL_PROJECTION);
@@ -378,11 +347,6 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
   glPopMatrix();
 
   this->TextRenderer->SetRenderer(0);
-
-  if(savedReadBuffer!=GL_BACK_LEFT)
-    {
-    glReadBuffer(savedReadBuffer);
-    }
 
   this->Storage->RestoreGLState(true);
 
@@ -426,18 +390,15 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
 void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                 float *points, int n)
 {
-  if (points && n > 0)
+  if (sprite && points && n > 0)
     {
-    if (sprite)
+    if (!this->Storage->Texture)
       {
-      if (!this->Storage->Texture)
-        {
-        this->Storage->Texture = vtkTexture::New();
-        this->Storage->Texture->SetRepeat(false);
-        }
-      this->Storage->Texture->SetInput(sprite);
-      this->Storage->Texture->Render(this->Renderer);
+      this->Storage->Texture = vtkTexture::New();
+      this->Storage->Texture->SetRepeat(false);
       }
+    this->Storage->Texture->SetInput(sprite);
+    this->Storage->Texture->Render(this->Renderer);
     if (this->Storage->OpenGL15)
       {
       // We can actually use point sprites here
@@ -493,11 +454,8 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       }
-    if (sprite)
-      {
-      this->Storage->Texture->PostRender(this->Renderer);
-      glDisable(GL_TEXTURE_2D);
-      }
+    this->Storage->Texture->PostRender(this->Renderer);
+    glDisable(GL_TEXTURE_2D);
     }
   else
     {

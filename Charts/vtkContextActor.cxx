@@ -64,6 +64,11 @@ void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
 {
   vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice())
       ->ReleaseGraphicsResources(window);
+  
+  if(this->Scene!=0)
+    {
+    this->Scene->ReleaseGraphicsResources();
+    }
 }
 
 //----------------------------------------------------------------------------

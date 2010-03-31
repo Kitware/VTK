@@ -165,7 +165,7 @@ public:
   // \pre not_yet: !GetBufferIdMode()
   // \pre bufferId_exists: bufferId!=0
   // \post started: GetBufferIdMode()
-  virtual void BufferIdModeBegin(vtkContextBufferId *bufferId);
+  virtual void BufferIdModeBegin(vtkAbstractContextBufferId *bufferId);
 
   // Description:
   // Finalize BufferId creation Mode. It makes sure that the content of the

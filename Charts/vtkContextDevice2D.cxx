@@ -41,7 +41,8 @@ bool vtkContextDevice2D::GetBufferIdMode() const
 }
   
 // ----------------------------------------------------------------------------
-void vtkContextDevice2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
+void vtkContextDevice2D::BufferIdModeBegin(
+  vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
   assert("pre: bufferId_exists" && bufferId!=0);

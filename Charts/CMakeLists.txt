@@ -15,6 +15,7 @@ SET(KIT_LIBS vtkIO vtkftgl
 )
 
 SET(Kit_SRCS
+  vtkAbstractContextBufferId.cxx
   vtkAxis.cxx
   vtkBlockItem.cxx
   vtkBrush.cxx
@@ -32,6 +33,7 @@ SET(Kit_SRCS
   vtkContextScene.cxx
   vtkContextView.cxx
   vtkImageItem.cxx
+  vtkOpenGLContextBufferId.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkPen.cxx
   vtkPlot.cxx
@@ -44,6 +46,7 @@ SET(Kit_SRCS
   )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkAbstractContextBufferId
   vtkChart
   vtkContextDevice2D
   vtkContextItem
@@ -53,6 +56,7 @@ SET_SOURCE_FILES_PROPERTIES(
   )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkAbstractContextBufferId
   vtkChartColors
   WRAP_EXCLUDE
 )

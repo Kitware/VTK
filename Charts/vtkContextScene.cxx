@@ -31,6 +31,8 @@
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkObjectFactory.h"
 #include "vtkContextBufferId.h"
+#include "vtkOpenGLContextBufferId.h"
+#include "vtkOpenGLRenderWindow.h"
 
 // My STL containers
 #include <vtkstd/vector>
@@ -326,6 +328,15 @@ void vtkContextScene::SetDirty(bool isDirty)
     }
 }
 
+// ----------------------------------------------------------------------------
+void vtkContextScene::ReleaseGraphicsResources()
+{
+  if(this->BufferId!=0)
+    {
+    this->BufferId->ReleaseGraphicsResources();
+    }
+}
+
 //-----------------------------------------------------------------------------
 vtkWeakPointer<vtkContext2D> vtkContextScene::GetLastPainter()
 {
@@ -333,7 +344,7 @@ vtkWeakPointer<vtkContext2D> vtkContextScene::GetLastPainter()
 }
 
 //-----------------------------------------------------------------------------
-vtkContextBufferId *vtkContextScene::GetBufferId()
+vtkAbstractContextBufferId *vtkContextScene::GetBufferId()
 {
   return this->BufferId;
 }
@@ -403,7 +414,10 @@ void vtkContextScene::UpdateBufferId()
     {
     if(this->BufferId==0)
       {
-      this->BufferId=vtkContextBufferId::New();
+      vtkOpenGLContextBufferId *b=vtkOpenGLContextBufferId::New();
+      this->BufferId=b;
+      b->SetContext(static_cast<vtkOpenGLRenderWindow *>(
+                      this->Renderer->GetRenderWindow()));
       }
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
