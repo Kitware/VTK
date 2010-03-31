@@ -23,7 +23,7 @@
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.4");
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 // ----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       {
       this->Context->MakeCurrent();
       // Render texture to current write buffer. Texel x,y is rendered at
-      // pixel 0,0.
+      // pixel x,y (instead of pixel 0,0 to work around pixel ownership test).
       GLint savedDrawBuffer;
       glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
       bool savedDepthTest=glIsEnabled(GL_DEPTH_TEST)==GL_TRUE;
@@ -161,20 +161,22 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       this->Texture->Bind();
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
       glEnable(GL_TEXTURE_2D);
-      this->Texture->CopyToFrameBuffer(x,y,x,y,0,0,this->Width,this->Height);
+      this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,this->Width,this->Height);
       glDisable(GL_TEXTURE_2D);
       
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
       glReadBuffer(GL_BACK_LEFT);
       
-      // Get value from current read buffer at pixel (0,0).
+      // To workaround pixel ownership test,
+      // get value from current read buffer at pixel (x,y) instead of just
+      // (0,0).
       glPixelStorei(GL_PACK_ALIGNMENT,1);
       unsigned char rgb[3];
       rgb[0]=5;
       rgb[1]=1;
       rgb[2]=8;
-      glReadPixels(0,0,1,1,GL_RGB,GL_UNSIGNED_BYTE,rgb);
+      glReadPixels(x,y,1,1,GL_RGB,GL_UNSIGNED_BYTE,rgb);
       
       if(savedReadBuffer!=GL_BACK_LEFT)
         {
