@@ -36,7 +36,7 @@ class vtkInteractorStyle;
 class vtkAnnotationLink;
 
 class vtkRenderer;
-class vtkContextBufferId;
+class vtkAbstractContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkContextScene : public vtkObject
 {
@@ -120,6 +120,10 @@ public:
 
 //BTX
   // Description:
+  // Release graphics resources hold by the scene.
+  void ReleaseGraphicsResources();
+  
+  // Description:
   // Last painter used.
   // Not part of the end-user API. Can be used by context items to
   // create their own colorbuffer id (when a context item is a container).
@@ -129,7 +133,7 @@ public:
   // Return buffer id.
   // Not part of the end-user API. Can be used by context items to
   // initialize their own colorbuffer id (when a context item is a container).
-  vtkContextBufferId *GetBufferId();
+  vtkAbstractContextBufferId *GetBufferId();
 
   // Description:
   // Set the transform for the scene.
@@ -213,7 +217,7 @@ protected:
 
   vtkWeakPointer<vtkRenderer> Renderer;
 
-  vtkContextBufferId *BufferId;
+  vtkAbstractContextBufferId *BufferId;
   bool BufferIdDirty;
 
   bool UseBufferId;

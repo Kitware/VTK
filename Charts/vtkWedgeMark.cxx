@@ -32,7 +32,7 @@ vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.7");
+vtkCxxRevisionMacro(vtkWedgeMark, "1.8");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void vtkWedgeMark::PaintIds()
 // ----------------------------------------------------------------------------
 void vtkWedgeMark::UpdateBufferId()
 {
-  vtkContextBufferId *bi=this->Scene->GetBufferId();
+  vtkAbstractContextBufferId *bi=this->Scene->GetBufferId();
   
   int width=bi->GetWidth();
   int height=bi->GetHeight();

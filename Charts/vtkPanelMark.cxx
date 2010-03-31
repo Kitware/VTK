@@ -23,7 +23,7 @@
 #include "vtkContextScene.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.7");
+vtkCxxRevisionMacro(vtkPanelMark, "1.8");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void vtkPanelMark::PaintIds()
 // ----------------------------------------------------------------------------
 void vtkPanelMark::UpdateBufferId()
 {
-  vtkContextBufferId *bi=this->Scene->GetBufferId();
+  vtkAbstractContextBufferId *bi=this->Scene->GetBufferId();
   
   int width=bi->GetWidth();
   int height=bi->GetHeight();

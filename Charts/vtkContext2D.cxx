@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.24");
+vtkCxxRevisionMacro(vtkContext2D, "1.25");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);
@@ -73,7 +73,7 @@ bool vtkContext2D::GetBufferIdMode() const
 }
 
 // ----------------------------------------------------------------------------
-void vtkContext2D::BufferIdModeBegin(vtkContextBufferId *bufferId)
+void vtkContext2D::BufferIdModeBegin(vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
   assert("pre: bufferId_exists" && bufferId!=0);

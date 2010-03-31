@@ -37,7 +37,7 @@ class vtkPen;
 class vtkBrush;
 class vtkImageData;
 class vtkTransform2D;
-class vtkContextBufferId;
+class vtkAbstractContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkContext2D : public vtkObject
 {
@@ -72,7 +72,7 @@ public:
   // \pre not_yet: !GetBufferIdMode()
   // \pre bufferId_exists: bufferId!=0
   // \post started: GetBufferIdMode()
-  void BufferIdModeBegin(vtkContextBufferId *bufferId);
+  void BufferIdModeBegin(vtkAbstractContextBufferId *bufferId);
 
   // Description:
   // Finalize BufferId creation Mode. It makes sure that the content of the
@@ -297,7 +297,7 @@ protected:
   vtkTextProperty *TextProp;  // Text property
   vtkTransform2D *Transform;  // The painter transform
 
-  vtkContextBufferId *BufferId;
+  vtkAbstractContextBufferId *BufferId;
 
 private:
   vtkContext2D(const vtkContext2D &); // Not implemented.
