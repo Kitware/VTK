@@ -72,7 +72,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartXY, "1.46");
+vtkCxxRevisionMacro(vtkChartXY, "1.46.2.1");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartXY);
@@ -446,6 +446,7 @@ void vtkChartXY::RecalculatePlotBounds()
   float xmax = 1.0;
   float ymin = 0.0;
   float ymax = 1.0;
+  bool initialized = false;
 
   size_t n = this->ChartPrivate->plots.size();
   double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
@@ -456,13 +457,14 @@ void vtkChartXY::RecalculatePlotBounds()
       continue;
       }
     this->ChartPrivate->plots[i]->GetBounds(bounds);
-    if (i == 0)
+    if (!initialized)
       {
       // Initialize the bounds for the chart
       xmin = float(bounds[0]);
       xmax = float(bounds[1]);
       ymin = float(bounds[2]);
       ymax = float(bounds[3]);
+      initialized = true;
       }
     else
       {
