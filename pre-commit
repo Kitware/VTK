@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Copy or link this file as ".git/hooks/pre-commit".
+
+die() {
+	echo 'pre-commit hook failure' 1>&2
+	echo '-----------------------' 1>&2
+	echo '' 1>&2
+	echo "$@" 1>&2
+	exit 1
+}
+
+#-----------------------------------------------------------------------------
+# Check for committer identity.
+git config --get user.name > /dev/null &&
+git config --get user.email > /dev/null ||
+die 'Identity not configured!  Use the commands
+
+	git config --global user.name '\''Your Name'\''
+	git config --global user.email '\''you@yourdomain.com'\''
+
+to introduce yourself to Git before committing.'
+
+#-----------------------------------------------------------------------------
+# Check content that will be added by this commit.
+
+if git rev-parse --verify -q HEAD > /dev/null; then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# Disallow non-ascii file names.  The printable range starts at the
+# space character and ends with tilde.
+if test "$(git diff --cached --name-only --diff-filter=A -z $against |
+	   LC_ALL=C tr -d '[ -~]\0')"; then
+	die 'Non-ascii file names may not be added:
+'"$(git diff --cached --name-only --diff-filter=A $against)"
+fi
+
+# Builtin whitespace checks.
+bad=$(git diff-index --check --cached $against --) || die "$bad"
