@@ -57,7 +57,9 @@ SET_SOURCE_FILES_PROPERTIES(
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
+  vtkContextBufferId
   vtkChartColors
+  vtkOpenGLContextBufferId
   WRAP_EXCLUDE
 )
 
