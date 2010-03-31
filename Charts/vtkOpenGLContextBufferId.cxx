@@ -23,7 +23,7 @@
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.3");
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 // ----------------------------------------------------------------------------
@@ -90,8 +90,8 @@ bool vtkOpenGLContextBufferId::IsAllocated() const
 {
 
   return this->Texture!=0 &&
-    this->Texture->GetWidth()==this->Width &&
-    this->Texture->GetHeight()==this->Height;
+    this->Texture->GetWidth()==static_cast<unsigned int>(this->Width) &&
+    this->Texture->GetHeight()==static_cast<unsigned int>(this->Height);
 }
 
 // ----------------------------------------------------------------------------
