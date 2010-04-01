@@ -87,7 +87,7 @@ using namespace vtkstd;
 #include "ParticleExchange.h"
 #include "ParticleDistribute.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.8");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.9");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,6 @@ vtkPCosmoReader::~vtkPCosmoReader()
 
   this->SetController(0);
 }
-
 
 //----------------------------------------------------------------------------
 void vtkPCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
