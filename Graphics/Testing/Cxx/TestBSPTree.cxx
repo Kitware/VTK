@@ -235,6 +235,7 @@ int TestBSPTree(int argc, char* argv[])
     // Standard testing code.
     //
     renWin->SetSize(300,300);
+    renWin->SetMultiSamples(0);
     renWin->Render();
     renderer->GetActiveCamera()->SetPosition(0.0, 0.15, 0.0);
     renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
