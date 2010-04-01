@@ -23,7 +23,7 @@
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.5");
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 // ----------------------------------------------------------------------------
@@ -163,6 +163,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       glEnable(GL_TEXTURE_2D);
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,this->Width,this->Height);
       glDisable(GL_TEXTURE_2D);
+      glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // restore
       
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
