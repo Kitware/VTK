@@ -68,8 +68,8 @@ public:
         return;
         }
 
-      //cout << "eventId: " << eventId << " -> "
-      //    << this->GetStringFromEventId(eventId) << endl;
+//      cout << "eventId: " << eventId << " -> "
+//           << this->GetStringFromEventId(eventId) << endl;
 
       switch (eventId)
         {
@@ -454,6 +454,20 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
       }
     }
 
+  // Work-around for Qt bug under Linux (and maybe other platforms), 4.5.2
+  // or 4.6.2 :
+  // when the cursor leaves the window, Qt returns an extra mouse move event
+  // with coordinates out of the window area. The problem is that the pixel
+  // underneath is not owned by the OpenGL context, hence the bufferid contains
+  // garbage (see OpenGL pixel ownership test).
+  // As a workaround, any value out of the scope of
+  // [-1,this->GetNumberOfItems()-1] is set to -1 (<=> no hit)
+  
+  if(result<-1 || result>=this->GetNumberOfItems())
+    {
+    result=-1;
+    } 
+  
   assert("post: valid_result" && result>=-1 &&
          result<this->GetNumberOfItems());
   return result;
