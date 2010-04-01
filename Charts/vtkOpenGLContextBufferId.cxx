@@ -23,13 +23,14 @@
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.6");
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 // ----------------------------------------------------------------------------
 vtkOpenGLContextBufferId::vtkOpenGLContextBufferId()
 {
   this->Texture=0;
+  this->Context=0;
 }
 
 // ----------------------------------------------------------------------------
