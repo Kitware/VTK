@@ -82,7 +82,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "Partition.h"
 
-vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.3");
+vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.4");
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
 /****************************************************************************/
@@ -580,4 +580,3 @@ int vtkPCosmoHaloFinder::RequestData(
 
   return 1;
 }
-
