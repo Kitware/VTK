@@ -62,7 +62,7 @@ int TestBSPTree(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   iren->SetRenderWindow(renWin);
 
-  int maxI = 0;
+  vtkIdType maxI = 0;
   int bestSeed = 0;
   for (int s=931; s<=931; s++) {
     renderer->RemoveAllViewProps();
@@ -114,7 +114,7 @@ int TestBSPTree(int argc, char* argv[])
 
     vtkSmartPointer<vtkPolyData> intersections = vtkSmartPointer<vtkPolyData>::New();
     vtkSmartPointer<vtkCellArray>     vertices = vtkSmartPointer<vtkCellArray>::New();
-    int N = verts->GetNumberOfPoints();
+    vtkIdType N = verts->GetNumberOfPoints();
     vtkIdType *cells = vertices->WritePointer(0, N*2);
     for (int i=0; i<N; i++) {
       cells[i*2]   = 1;  
@@ -123,17 +123,17 @@ int TestBSPTree(int argc, char* argv[])
     intersections->SetPoints(verts);
     intersections->SetVerts(vertices);
 
-    std::cout << "Seed = " << s << " Number of intersections is " << N << std::endl;
+    cout << "Seed = " << s << " Number of intersections is " << N << endl;
 
     vtkSmartPointer<vtkSelectionSource> selection = vtkSmartPointer<vtkSelectionSource>::New();
     vtkSmartPointer<vtkExtractSelection>  extract = vtkSmartPointer<vtkExtractSelection>::New();
     selection->SetContentType(vtkSelectionNode::INDICES);
     selection->SetFieldType(vtkSelectionNode::CELL);
     for (int I=0; I<cellIds->GetNumberOfIds(); I++) {
-      std::cout << cellIds->GetId(I) << ",";
+      cout << cellIds->GetId(I) << ",";
       selection->AddID(-1, cellIds->GetId(I));
     }
-    std::cout << std::endl;
+    cout << endl;
     //
     extract->SetInputConnection(glyph->GetOutputPort());
     extract->SetSelectionConnection(selection->GetOutputPort());
@@ -143,7 +143,7 @@ int TestBSPTree(int argc, char* argv[])
       maxI = N;
       bestSeed = s;
     }
-    std::cout << "maxI = " << maxI << " At seed " << bestSeed << std::endl << std::endl;
+    cout << "maxI = " << maxI << " At seed " << bestSeed << endl << endl;
 
   #ifdef WIN32
       if (kbhit()) {
