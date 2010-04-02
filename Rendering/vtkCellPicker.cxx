@@ -40,7 +40,7 @@
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.50");
+vtkCxxRevisionMacro(vtkCellPicker, "1.51");
 vtkStandardNewMacro(vtkCellPicker);
 
 //----------------------------------------------------------------------------
@@ -423,11 +423,8 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
       tMin = t1*(1.0 - tMin) + t2*tMin;
       }
 
-    // Change strip to triangle for some of the later code
-    if (this->Cell->GetCellType() == VTK_TRIANGLE_STRIP)
-      {
-      this->TriangleFromStrip(this->Cell, minSubId);
-      }
+    // If cell is a strip, then replace cell with a sub-cell
+    this->SubCellFromCell(this->Cell, minSubId);
     }
   else
     {
@@ -440,23 +437,26 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
       double x[3];
       double pcoords[3];
       pcoords[0] = pcoords[1] = pcoords[2] = 0;
-      int cellType = data->GetCellType(cellId);
       int newSubId = -1;
       int numSubIds = 1;
 
-      // If it is a strip, we need to iterate over the triangles
-      if (cellType == VTK_TRIANGLE_STRIP)
+      // If it is a strip, we need to iterate over the subIds
+      int cellType = data->GetCellType(cellId);
+      int useSubCells = this->HasSubCells(cellType);
+      if (useSubCells)
         {
+        // Get the pointIds for the strip and the length of the strip
         data->GetCellPoints(cellId, pointIds);
-        numSubIds = pointIds->GetNumberOfIds() - 2;
+        numSubIds = this->GetNumberOfSubCells(pointIds, cellType);
         }
 
-      // This will only loop once unless the cell is a triangle strip
+      // This will only loop once unless we need to deal with a strip
       for (int subId = 0; subId < numSubIds; subId++)
         {
-        if (cellType == VTK_TRIANGLE_STRIP)
+        if (useSubCells)
           {
-          this->TriangleFromStrip(this->Cell, subId, pointIds, data);
+          // Get a sub-cell from a the strip
+          this->GetSubCell(data, pointIds, subId, cellType, this->Cell);
           }
         else
           {
@@ -496,7 +496,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
             // save all of these
             minCellId = cellId;
             minSubId = newSubId;
-            if (cellType == VTK_TRIANGLE_STRIP)
+            if (useSubCells)
               {
               minSubId = subId;
               }
@@ -522,10 +522,12 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     // If we used a locator, we already have the picked cell
     if (!locator)
       {
-      if (data->GetCellType(minCellId) == VTK_TRIANGLE_STRIP)
+      int cellType = data->GetCellType(minCellId);
+
+      if (this->HasSubCells(cellType))
         {
         data->GetCellPoints(minCellId, this->PointIds);
-        this->TriangleFromStrip(cell, minSubId, this->PointIds, data);
+        this->GetSubCell(data, this->PointIds, minSubId, cellType, cell);
         }
       else
         {
@@ -536,13 +538,14 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     // Get the cell weights
     vtkIdType numPoints = cell->GetNumberOfPoints();
     double *weights = new double[numPoints];
-    for (vtkIdType i = 0; i < numPoints; ++i)
+    for (vtkIdType i = 0; i < numPoints; i++)
       {
-      weights[i] = 1.0;
+      weights[i] = 0;
       }
-    double maxWeight = VTK_DOUBLE_MIN;
-    vtkIdType iMaxWeight = 0;
-    cell->InterpolateFunctions(minPCoords, weights);
+
+    // Get the interpolation weights (point is thrown away)
+    double point[3];
+    cell->EvaluateLocation(minSubId, minPCoords, point, weights);
 
     this->Mapper = mapper;
 
@@ -600,7 +603,9 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
       this->PCoords[1] = minPCoords[1];
       this->PCoords[2] = minPCoords[2];
 
-      // Use weights to find the closest point in the cell
+      // Find the point with the maximum weight
+      double maxWeight = 0;
+      vtkIdType iMaxWeight = -1;
       for (vtkIdType i = 0; i < numPoints; i++)
         {
         if (weights[i] > maxWeight)
@@ -608,7 +613,12 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
           iMaxWeight = i;
           }
         }
-      this->PointId = cell->PointIds->GetId(iMaxWeight);
+
+      // If maximum weight is found, use it to get the PointId
+      if (iMaxWeight != -1)
+        {
+        this->PointId = cell->PointIds->GetId(iMaxWeight);
+        }
       }
 
     // Set the mapper position
@@ -1149,60 +1159,182 @@ int vtkCellPicker::ComputeSurfaceTCoord(vtkDataSet *data, vtkCell *cell,
 }
 
 //----------------------------------------------------------------------------
-// Do an in-place replacement of a triangle strip with a single triangle.
-void vtkCellPicker::TriangleFromStrip(vtkGenericCell *cell, int subId)
+// Do an in-place replacement of a cell with a subcell of that cell
+void vtkCellPicker::SubCellFromCell(vtkGenericCell *cell, int subId)
 {
-  static int idx[2][3]={{0,1,2},{1,0,2}};
-  int *order = idx[subId & 1];
-  vtkIdType pointIds[3];
-  double points[3][3];
+  switch(cell->GetCellType())
+    {
+    case VTK_TRIANGLE_STRIP:
+      {
+      static int idx[2][3]={{0,1,2},{1,0,2}};
+      int *order = idx[subId & 1];
+      vtkIdType pointIds[3];
+      double points[3][3];
 
-  pointIds[0] = cell->PointIds->GetId(subId + order[0]);
-  pointIds[1] = cell->PointIds->GetId(subId + order[1]);
-  pointIds[2] = cell->PointIds->GetId(subId + order[2]);
+      pointIds[0] = cell->PointIds->GetId(subId + order[0]);
+      pointIds[1] = cell->PointIds->GetId(subId + order[1]);
+      pointIds[2] = cell->PointIds->GetId(subId + order[2]);
 
-  cell->Points->GetPoint(subId + order[0], points[0]);
-  cell->Points->GetPoint(subId + order[1], points[1]);
-  cell->Points->GetPoint(subId + order[2], points[2]);
+      cell->Points->GetPoint(subId + order[0], points[0]);
+      cell->Points->GetPoint(subId + order[1], points[1]);
+      cell->Points->GetPoint(subId + order[2], points[2]);
 
-  cell->SetCellTypeToTriangle();
+      cell->SetCellTypeToTriangle();
 
-  cell->PointIds->SetId(0, pointIds[0]);
-  cell->PointIds->SetId(1, pointIds[1]);
-  cell->PointIds->SetId(2, pointIds[2]);
+      cell->PointIds->SetId(0, pointIds[0]);
+      cell->PointIds->SetId(1, pointIds[1]);
+      cell->PointIds->SetId(2, pointIds[2]);
 
-  cell->Points->SetPoint(0, points[0]);
-  cell->Points->SetPoint(1, points[1]);
-  cell->Points->SetPoint(2, points[2]);
+      cell->Points->SetPoint(0, points[0]);
+      cell->Points->SetPoint(1, points[1]);
+      cell->Points->SetPoint(2, points[2]);
+      }
+      break;
+
+    case VTK_POLY_LINE:
+      {
+      vtkIdType pointIds[2];
+      double points[2][3];
+
+      pointIds[0] = cell->PointIds->GetId(subId);
+      pointIds[1] = cell->PointIds->GetId(subId + 1);
+
+      cell->Points->GetPoint(subId, points[0]);
+      cell->Points->GetPoint(subId + 1, points[1]);
+
+      cell->SetCellTypeToLine();
+
+      cell->PointIds->SetId(0, pointIds[0]);
+      cell->PointIds->SetId(1, pointIds[1]);
+
+      cell->Points->SetPoint(0, points[0]);
+      cell->Points->SetPoint(1, points[1]);
+      }
+      break;
+
+    case VTK_POLY_VERTEX:
+      {
+      double point[3];
+
+      vtkIdType pointId = cell->PointIds->GetId(subId);
+      cell->Points->GetPoint(subId, point);
+
+      cell->SetCellTypeToVertex();
+
+      cell->PointIds->SetId(0, pointId);
+      cell->Points->SetPoint(0, point);
+      }
+      break;
+   }
 }
 
 //----------------------------------------------------------------------------
-// Extract a triangle from a triangle cell in a data set
-void vtkCellPicker::TriangleFromStrip(vtkGenericCell *cell, int subId,
-                                      vtkIdList *ptIds, vtkDataSet *data)
+int vtkCellPicker::HasSubCells(int cellType)
 {
-  static int idx[2][3]={{0,1,2},{1,0,2}};
-  int *order = idx[subId & 1];
-  vtkIdType pointIds[3];
-  double points[3][3];
+  switch (cellType)
+    {
+    case VTK_TRIANGLE_STRIP:
+    case VTK_POLY_LINE:
+    case VTK_POLY_VERTEX:
+      return 1;
+      break;
+    }
 
-  pointIds[0] = ptIds->GetId(subId + order[0]);
-  pointIds[1] = ptIds->GetId(subId + order[1]);
-  pointIds[2] = ptIds->GetId(subId + order[2]);
+  return 0;
+}
 
-  data->GetPoint(pointIds[0], points[0]);
-  data->GetPoint(pointIds[1], points[1]);
-  data->GetPoint(pointIds[2], points[2]);
+//----------------------------------------------------------------------------
+// Extract a single subcell from a cell in a data set
+int vtkCellPicker::GetNumberOfSubCells(vtkIdList *pointIds, int cellType)
+{
+  switch (cellType)
+    {
+    case VTK_TRIANGLE_STRIP:
+      return pointIds->GetNumberOfIds() - 2;
+      break;
 
-  cell->SetCellTypeToTriangle();
+    case VTK_POLY_LINE:
+      return pointIds->GetNumberOfIds() - 1;
+      break;
 
-  cell->PointIds->SetId(0, pointIds[0]);
-  cell->PointIds->SetId(1, pointIds[1]);
-  cell->PointIds->SetId(2, pointIds[2]);
+    case VTK_POLY_VERTEX:
+      return pointIds->GetNumberOfIds();
+      break;
+    }
 
-  cell->Points->SetPoint(0, points[0]);
-  cell->Points->SetPoint(1, points[1]);
-  cell->Points->SetPoint(2, points[2]);
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+// Extract a single subcell from a cell in a data set.  This method
+// requires a vtkIdList that contains the pointIds for the cell.
+void vtkCellPicker::GetSubCell(vtkDataSet *data, vtkIdList *ptIds, int subId,
+                               int cellType, vtkGenericCell *cell)
+{
+  switch(cellType)
+    {
+    case VTK_TRIANGLE_STRIP:
+      {
+      static int idx[2][3]={{0,1,2},{1,0,2}};
+      int *order = idx[subId & 1];
+      vtkIdType pointIds[3];
+      double points[3][3];
+
+      pointIds[0] = ptIds->GetId(subId + order[0]);
+      pointIds[1] = ptIds->GetId(subId + order[1]);
+      pointIds[2] = ptIds->GetId(subId + order[2]);
+
+      data->GetPoint(pointIds[0], points[0]);
+      data->GetPoint(pointIds[1], points[1]);
+      data->GetPoint(pointIds[2], points[2]);
+
+      cell->SetCellTypeToTriangle();
+
+      cell->PointIds->SetId(0, pointIds[0]);
+      cell->PointIds->SetId(1, pointIds[1]);
+      cell->PointIds->SetId(2, pointIds[2]);
+
+      cell->Points->SetPoint(0, points[0]);
+      cell->Points->SetPoint(1, points[1]);
+      cell->Points->SetPoint(2, points[2]);
+      }
+      break;
+
+    case VTK_POLY_LINE:
+      {
+      vtkIdType pointIds[2];
+      double points[2][3];
+
+      pointIds[0] = ptIds->GetId(subId);
+      pointIds[1] = ptIds->GetId(subId + 1);
+
+      data->GetPoint(pointIds[0], points[0]);
+      data->GetPoint(pointIds[1], points[1]);
+
+      cell->SetCellTypeToLine();
+
+      cell->PointIds->SetId(0, pointIds[0]);
+      cell->PointIds->SetId(1, pointIds[1]);
+
+      cell->Points->SetPoint(0, points[0]);
+      cell->Points->SetPoint(1, points[1]);
+      }
+      break;
+
+    case VTK_POLY_VERTEX:
+      {
+      double point[3];
+
+      vtkIdType pointId = ptIds->GetId(subId);
+      data->GetPoint(pointId, point);
+
+      cell->SetCellTypeToVertex();
+
+      cell->PointIds->SetId(0, pointId);
+      cell->Points->SetPoint(0, point);
+      }
+      break;
+    }
 }
 
 //----------------------------------------------------------------------------
