@@ -80,7 +80,8 @@ public:
   // properties, etc.
   vtkGetObjectMacro(Ray1,vtkActor);
   vtkGetObjectMacro(Ray2,vtkActor);
-  //vtkGetObjectMacro(Arc,vtkActor);
+  vtkGetObjectMacro(Arc,vtkActor);
+  vtkGetObjectMacro(TextActor,vtkFollower);
   
   // Description:
   // Scale text.
