@@ -90,18 +90,28 @@ void vtkChartParallelCoordinates::Update()
     return;
     }
 
-  if (table->GetMTime() < this->MTime)
+  if (table->GetMTime() < this->BuildTime)
   {
     return;
   }
 
   // Now we have a table, set up the axes accordingly, clear and build.
-  for (vtkstd::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
-       it != this->Storage->Axes.end(); ++it)
+  if (static_cast<int>(this->Storage->Axes.size()) != table->GetNumberOfColumns())
     {
-    (*it)->Delete();
+    for (vtkstd::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
+         it != this->Storage->Axes.end(); ++it)
+      {
+      (*it)->Delete();
+      }
+    this->Storage->Axes.clear();
+
+    for (int i = 0; i < table->GetNumberOfColumns(); ++i)
+      {
+      vtkAxis* axis = vtkAxis::New();
+      axis->SetPosition(vtkAxis::PARALLEL);
+      this->Storage->Axes.push_back(axis);
+      }
     }
-  this->Storage->Axes.clear();
 
   // Now set up their ranges and locations
   for (int i = 0; i < table->GetNumberOfColumns(); ++i)
@@ -112,16 +122,16 @@ void vtkChartParallelCoordinates::Update()
       {
       array->GetRange(range);
       }
-    vtkAxis* axis = vtkAxis::New();
+    vtkAxis* axis = this->Storage->Axes[i];
     axis->SetMinimum(range[0]);
     axis->SetMaximum(range[1]);
-    this->Storage->Axes.push_back(axis);
+    axis->SetTitle(table->GetColumnName(i));
     }
   this->Storage->AxesSelections.clear();
 
   this->Storage->AxesSelections.resize(this->Storage->Axes.size());
-  this->Storage->Plot->Update();
-  this->Modified();
+  this->GeometryValid = false;
+  this->BuildTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -252,6 +262,7 @@ void vtkChartParallelCoordinates::UpdateGeometry()
     this->GeometryValid = true;
     // Cause the plot transform to be recalculated if necessary
     this->CalculatePlotTransform();
+    this->Storage->Plot->Update();
     }
 }
 

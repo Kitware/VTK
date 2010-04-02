@@ -126,6 +126,10 @@ protected:
   // Selected indices for the table the plot is rendering
   vtkIdTypeArray *Selection;
 
+  // Description:
+  // The point cache is marked dirty until it has been initialized.
+  vtkTimeStamp BuildTime;
+
   void UpdateGeometry();
   void CalculatePlotTransform();
 
