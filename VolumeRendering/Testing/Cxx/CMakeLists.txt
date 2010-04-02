@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       PreIntegrationNonIncremental.cxx
       ProjectedTetrahedraZoomIn.cxx
       TestFinalColorWindowLevel.cxx
+      TestGPURayCastAdditive.cxx
       TestGPURayCastCompositeMaskBlend.cxx
       TestGPURayCastCompositeMask.cxx
       TestGPURayCastCompositeShadeMask.cxx

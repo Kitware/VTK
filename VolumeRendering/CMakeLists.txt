@@ -94,6 +94,9 @@ SET(asm_files
 # Set of GLSL source files
 # -----------------------------------------------------------------------------
 set(KIT_GLSL_SRCS
+  vtkGPUVolumeRayCastMapper_AdditiveFS
+  vtkGPUVolumeRayCastMapper_AdditiveCroppingFS
+  vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS
   vtkGPUVolumeRayCastMapper_CompositeFS
   vtkGPUVolumeRayCastMapper_CompositeMaskFS
   vtkGPUVolumeRayCastMapper_CompositeCroppingFS

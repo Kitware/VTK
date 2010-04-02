@@ -56,7 +56,9 @@ public:
   // by the vtkFixedPointVolumeRayCastMapper - other mappers
   // have different ways to set this (supplying a function
   // to a vtkVolumeRayCastMapper) or don't have any options
-  // (vtkVolumeTextureMapper2D supports only compositing)
+  // (vtkVolumeTextureMapper2D supports only compositing).
+  // Additive blend mode adds scalars along the ray and multiply them by
+  // their opacity mapping value.
   vtkSetMacro( BlendMode, int );
   void SetBlendModeToComposite()
     { this->SetBlendMode( vtkVolumeMapper::COMPOSITE_BLEND ); }
@@ -64,6 +66,8 @@ public:
     { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
   void SetBlendModeToMinimumIntensity()
     { this->SetBlendMode( vtkVolumeMapper::MINIMUM_INTENSITY_BLEND ); }
+  void SetBlendModeToAdditive()
+    { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
   vtkGetMacro( BlendMode, int );
   
   // Description:
@@ -127,7 +131,8 @@ public:
   {
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND,
-    MINIMUM_INTENSITY_BLEND
+    MINIMUM_INTENSITY_BLEND,
+    ADDITIVE_BLEND
   };
 //ETX
 

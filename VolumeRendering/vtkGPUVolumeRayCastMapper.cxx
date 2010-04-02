@@ -33,7 +33,7 @@
 #include "vtkGPUInfoList.h"
 #include "vtkGPUInfo.h"
 
-vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.7");
+vtkCxxRevisionMacro(vtkGPUVolumeRayCastMapper, "1.8");
 vtkInstantiatorNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
@@ -367,11 +367,12 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     {
     if(this->BlendMode!=vtkVolumeMapper::COMPOSITE_BLEND &&
        this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
-       this->BlendMode!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
+       this->BlendMode!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
+       this->BlendMode!=vtkVolumeMapper::ADDITIVE_BLEND)
       {
       goodSoFar = 0;
       vtkErrorMacro(<< "Selected blend mode not supported. "
-                    << "Only Composite and MIP and MinIP modes "
+                    << "Only Composite, MIP, MinIP and additive modes "
                     << "are supported by the current implementation.");
       }
     }
@@ -402,6 +403,13 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     vtkErrorMacro("Only unsigned char is supported for 4-component scalars!");
     }
 
+  if(goodSoFar && numberOfComponents!=1 &&
+     this->BlendMode==vtkVolumeMapper::ADDITIVE_BLEND)
+    {
+    goodSoFar=0;
+    vtkErrorMacro("Additive mode only works with 1-component scalars!");
+    }
+  
   // return our status
   return goodSoFar;
 }

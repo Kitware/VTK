@@ -155,6 +155,9 @@ extern const char *vtkGPUVolumeRayCastMapper_NoShadeFS;
 extern const char *vtkGPUVolumeRayCastMapper_ShadeFS;
 extern const char *vtkGPUVolumeRayCastMapper_OneComponentFS;
 extern const char *vtkGPUVolumeRayCastMapper_FourComponentsFS;
+extern const char *vtkGPUVolumeRayCastMapper_AdditiveFS;
+extern const char *vtkGPUVolumeRayCastMapper_AdditiveCroppingFS;
+extern const char *vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS;
 
 enum
 {
@@ -171,7 +174,8 @@ enum
   vtkOpenGLGPUVolumeRayCastMapperMethodComposite,
   vtkOpenGLGPUVolumeRayCastMapperMethodMinIP,
   vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent,
-  vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask
+  vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask,
+  vtkOpenGLGPUVolumeRayCastMapperMethodAdditive
 };
 
 // component implementation
@@ -206,7 +210,9 @@ enum
   vtkOpenGLGPUVolumeRayCastMapperMinIPCropping,
   vtkOpenGLGPUVolumeRayCastMapperMinIPNoCropping,
   vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentCropping,
-  vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentNoCropping
+  vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentNoCropping,
+  vtkOpenGLGPUVolumeRayCastMapperAdditiveCropping,
+  vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping,
 };
 
 enum
@@ -220,7 +226,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.9");
+vtkCxxRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper, "1.10");
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 #endif
 
@@ -324,6 +330,23 @@ public:
             }
           this->LastSampleDistance=sampleDistance;
           }
+        else if (blendMode==vtkVolumeMapper::ADDITIVE_BLEND)
+          {
+          float *ptr=this->Table;
+          double factor=sampleDistance/unitDistance;
+          int i=0;
+          while(i<vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize)
+            {
+            if(*ptr>0.0001f)
+              {
+              *ptr=static_cast<float>(static_cast<double>(*ptr)*factor);
+              }
+            ++ptr;
+            ++i;
+            }
+          this->LastSampleDistance=sampleDistance;
+          }
+        
         glTexImage1D(GL_TEXTURE_1D,0,GL_ALPHA16,
                      vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,0,
                      GL_ALPHA,GL_FLOAT,this->Table);
@@ -2888,7 +2911,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
 
   int needNewMaxValueBuffer=this->MaxValueFrameBuffer==0 &&
     (this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ||
-     this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND);
+     this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND ||
+     this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND);
 
   if(needNewMaxValueBuffer)
     {
@@ -2925,9 +2949,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
   else
     {
      if(this->MaxValueFrameBuffer!=0 &&
-     (this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-      &&
-      this->BlendMode!=vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND))
+        (this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
+         &&
+         this->BlendMode!=vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
+         &&
+         this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND))
        {
        // blend mode changed and does not need max value buffer anymore.
 
@@ -2954,7 +2980,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     }
 
   if((this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND) && (sizeChanged || needNewMaxValueBuffer))
+      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
+      || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND) && (sizeChanged || needNewMaxValueBuffer))
     {
     // max scalar frame buffer
     GLuint maxValueFrameBuffer=static_cast<GLuint>(this->MaxValueFrameBuffer);
@@ -3859,7 +3886,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
   glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,this->ReducedSize[0],
                       this->ReducedSize[1]);
   if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-     || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND)
+     || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
+     || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
     vtkgl::ActiveTexture(vtkgl::TEXTURE5);
     glBindTexture(GL_TEXTURE_2D,this->MaxValueFrameBuffer2);
@@ -4359,6 +4387,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
           break;
         }
       break;
+    case vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND:
+      shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed;
+      componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed;
+      switch(numberOfScalarComponents)
+        {
+        case 1:
+          rayCastMethod=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive;
+          break;
+        default:
+          assert("check: impossible case" && false);
+          break;
+        }
+      break;
     default:
       assert("check: impossible case" && 0);
       rayCastMethod=0;
@@ -4425,7 +4466,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       }
     }
 
-  if(numberOfScalarComponents==1)
+  if(numberOfScalarComponents==1 &&
+     this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
     GLint uColorTexture;
     uColorTexture=vtkgl::GetUniformLocation(
@@ -4539,7 +4581,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   if(this->NumberOfCroppingRegions>1)
     {
     // framebuffer texture
-    if(rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMIP && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP)
+    if(rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMIP
+       && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP
+       && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive)
       {
       vtkgl::ActiveTexture( vtkgl::TEXTURE4 );
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront]));
@@ -4564,7 +4608,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     this->CheckFrameBufferStatus();
     // max scalar value framebuffer texture
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-       || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND)
+       || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
+       || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
       {
       vtkgl::ActiveTexture( vtkgl::TEXTURE5 );
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->MaxValueFrameBuffer2));
@@ -4736,7 +4781,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
   if(this->NumberOfCroppingRegions>1 &&
      (this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::MAXIMUM_INTENSITY_BLEND))
+      || this->BlendMode==vtkGPUVolumeRayCastMapper::MAXIMUM_INTENSITY_BLEND
+      || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND))
     {
 //    cout << "this->MaxValueFrameBuffer="<< this->MaxValueFrameBuffer <<endl;
 //    cout << "this->MaxValueFrameBuffer2="<< this->MaxValueFrameBuffer2 <<endl;
@@ -4761,7 +4807,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       }
     else
       {
-      glClearColor(0.0, 0.0, 0.0, 0.0); // for MAXIMUM_INTENSITY_BLEND
+      // for MAXIMUM_INTENSITY_BLEND and for ADDITIVE_BLEND
+      glClearColor(0.0, 0.0, 0.0, 0.0);
       }
 //    cout << "check before clear on max" << endl;
     this->CheckFrameBufferStatus();
@@ -4782,7 +4829,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     glBindTexture(GL_TEXTURE_2D,this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+1]);
 
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-       || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND)
+       || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
+       || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND )
       {
       // max buffer target in the color attachment 1
       vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
@@ -5102,14 +5150,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
   if(this->NumberOfCroppingRegions>1)
     {
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND)
+      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
+      || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
       {
       vtkgl::ActiveTexture( vtkgl::TEXTURE5 );
       glBindTexture(GL_TEXTURE_2D,0);
       }
 
     if(this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMIP
-      && this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP)
+       && this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP
+       && this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive)
       {
       vtkgl::ActiveTexture( vtkgl::TEXTURE4 );
       glBindTexture(GL_TEXTURE_2D,0);
@@ -6604,7 +6654,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
 
   assert("pre: valid_raycastMethod" &&
          raycastMethod>= vtkOpenGLGPUVolumeRayCastMapperMethodMIP
-         && raycastMethod<=vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask);
+         && raycastMethod<=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive);
   GLuint fs;
 
 //  cout<<"projection="<<parallelProjection<<endl;
@@ -6651,6 +6701,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
         break;
       case vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent:
         methodCode=vtkGPUVolumeRayCastMapper_MinIPFourDependentFS;
+        break;
+      case vtkOpenGLGPUVolumeRayCastMapperMethodAdditive:
+        methodCode=vtkGPUVolumeRayCastMapper_AdditiveFS;
         break;
       }
     fs=static_cast<GLuint>(this->FragmentTraceShader);
@@ -6705,6 +6758,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
           vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentNoCropping;
         }
       break;
+    case vtkOpenGLGPUVolumeRayCastMapperMethodAdditive:
+      if(this->NumberOfCroppingRegions>1)
+        {
+        croppingMode=vtkOpenGLGPUVolumeRayCastMapperAdditiveCropping;
+        }
+      else
+        {
+        croppingMode=vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping;
+        }
+      break;
     default:
       if(this->NumberOfCroppingRegions>1)
         {
@@ -6752,6 +6815,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
         break;
       case vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentNoCropping:
         croppingCode=vtkGPUVolumeRayCastMapper_MinIPFourDependentNoCroppingFS;
+        break;
+      case vtkOpenGLGPUVolumeRayCastMapperAdditiveCropping:
+        croppingCode=vtkGPUVolumeRayCastMapper_AdditiveCroppingFS;
+        break;
+      case vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping:
+        croppingCode=vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS;
         break;
       }
 
