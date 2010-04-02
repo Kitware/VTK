@@ -65,7 +65,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkSmartPointer.h"
 #include "vtkDummyController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -87,7 +86,7 @@ using namespace vtkstd;
 #include "ParticleExchange.h"
 #include "ParticleDistribute.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.7.4.1");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.7.4.2");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 //----------------------------------------------------------------------------
