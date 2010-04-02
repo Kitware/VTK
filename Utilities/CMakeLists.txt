@@ -62,7 +62,7 @@ IF(VTK_USE_PARALLEL)
   VTK_THIRD_PARTY_SUBDIR(VPIC VPIC)
   
   # helper classes for vtkPCosmoReader and vtkPCosmoHaloFinder
-  #VTK_THIRD_PARTY_SUBDIR(Cosmo Cosmo)
+  VTK_THIRD_PARTY_SUBDIR(Cosmo Cosmo)
 ENDIF(VTK_USE_PARALLEL)
 
 IF(VTK_USE_RENDERING)
