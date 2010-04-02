@@ -218,6 +218,10 @@ public:
   // Get the distance annotation property
   virtual vtkProperty *GetDistanceAnnotationProperty();
 
+  // Description:
+  // Get the text actor
+  vtkGetObjectMacro(TextActor, vtkFollower);
+
 protected:
   vtkLineRepresentation();
   ~vtkLineRepresentation();
