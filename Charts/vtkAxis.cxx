@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.22");
+vtkCxxRevisionMacro(vtkAxis, "1.23");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -418,7 +418,10 @@ float vtkAxis::NiceNumber(float n, bool roundUp)
 void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Axis title: \"" << *this->Title << "\"" << endl;
+  if (this->Title)
+    {
+    os << indent << "Axis title: \"" << *this->Title << "\"" << endl;
+    }
   os << indent << "Minimum point: " << this->Point1[0] << ", "
      << this->Point1[1] << endl;
   os << indent << "Maximum point: " << this->Point2[0] << ", "
