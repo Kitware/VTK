@@ -78,28 +78,29 @@ public:
 
   // Description:
   // Specify tolerance in terms of fraction of bounding box length.
+  // Default is 0.0.
   vtkSetClampMacro(Tolerance,double,0.0,1.0);
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Specify tolerance in absolute terms
+  // Specify tolerance in absolute terms. Default is 1.0.
   vtkSetClampMacro(AbsoluteTolerance,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(AbsoluteTolerance,double);
 
   // Description:
-  // Turn on/off conversion of degenerate lines to points
+  // Turn on/off conversion of degenerate lines to points. Default is On.
   vtkSetMacro(ConvertLinesToPoints,int);
   vtkBooleanMacro(ConvertLinesToPoints,int);
   vtkGetMacro(ConvertLinesToPoints,int);
 
   // Description:
-  // Turn on/off conversion of degenerate polys to lines
+  // Turn on/off conversion of degenerate polys to lines. Default is On.
   vtkSetMacro(ConvertPolysToLines,int);
   vtkBooleanMacro(ConvertPolysToLines,int);
   vtkGetMacro(ConvertPolysToLines,int);
 
   // Description:
-  // Turn on/off conversion of degenerate strips to polys
+  // Turn on/off conversion of degenerate strips to polys. Default is On.
   vtkSetMacro(ConvertStripsToPolys,int);
   vtkBooleanMacro(ConvertStripsToPolys,int);
   vtkGetMacro(ConvertStripsToPolys,int);
