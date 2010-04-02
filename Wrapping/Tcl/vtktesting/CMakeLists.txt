@@ -1,6 +1,21 @@
 IF(NOT VTK_INSTALL_NO_RUNTIME)
 
   CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/backdrop.tcl
+    ${CMAKE_CURRENT_BINARY_DIR}/backdrop.tcl
+    COPYONLY)
+    
+  CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/colors.tcl
+    ${CMAKE_CURRENT_BINARY_DIR}/colors.tcl
+    COPYONLY)
+
+  CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/mccases.tcl
+    ${CMAKE_CURRENT_BINARY_DIR}/mccases.tcl
+    COPYONLY)
+
+  CONFIGURE_FILE(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtktesting.tcl.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtktesting.tcl
     @ONLY)
