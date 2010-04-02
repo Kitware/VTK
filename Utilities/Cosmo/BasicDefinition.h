@@ -48,6 +48,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkType.h"
 
+#ifdef VTK_HAS_ID_TYPE
+#define USE_VTK_COSMO
+#endif
+
 #ifdef USE_VTK_COSMO
 
 #else

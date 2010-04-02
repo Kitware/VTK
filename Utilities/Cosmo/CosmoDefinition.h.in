@@ -42,79 +42,35 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-// .NAME Partition - Partition MPI processors into cartesian grid
-//
-// .SECTION Description
-// Partition allows MPI to divide the number of processors it is given and
-// to set the position of this processor within the Cartesian grid.  Using
-// that information with wraparound, all neighbors of a processor are
-// also computed.  This class is static and will be shared by all classes
-// within the infrastructure.
+#ifndef Definition_h
+#define Definition_h
 
-#ifndef Partition_h
-#define Partition_h
+#include <vtksys/Configure.h>
+#include "vtkABI.h"
 
-#include "CosmoDefinition.h"
+#cmakedefine BUILD_SHARED_LIBS
 
-#ifdef USE_VTK_COSMO
-#ifndef USE_SERIAL_COSMO
-#include "vtkMPI.h"
-#endif
-
-#include "vtkstd/string"
-#include "vtkstd/vector"
-
-using namespace vtkstd;
+// Now set up all of the export macros
+#if defined(BUILD_SHARED_LIBS)
+ #if defined(Cosmo_EXPORTS)
+  #define COSMO_EXPORT VTK_ABI_EXPORT
+ #else
+  #define COSMO_EXPORT VTK_ABI_IMPORT
+ #endif
 #else
-#ifndef USE_SERIAL_COSMO
-#include <rru_mpi.h>
+ #define COSMO_EXPORT
 #endif
 
-#include <string>
-#include <vector>
-
-using namespace std;
-#endif
-
-class COSMO_EXPORT Partition {
-public:
-  Partition();
-  ~Partition();
-
-  // Control MPI and the Cartesian topology
-  //static void initialize(int& argc, char** argv);
-  static void initialize();
-  static void finalize();
-
-  // Set the processor numbers of neighbors in all directions
-  static void setNeighbors();
+#include "BasicDefinition.h"
 
 #ifndef USE_SERIAL_COSMO
-  static MPI_Comm getComm()       { return cartComm; }
+#ifdef USE_VTK_COSMO
+#include "vtkMPI.h"
+#else
+//#include <rru_mpi.h>
+#endif
 #endif
 
-  static int  getMyProc()               { return myProc; }
-  static int  getNumProc()              { return numProc; }
 
-  static void getDecompSize(int size[]);
-  static void getMyPosition(int pos[]);
-  static void getNeighbors(int neigh[]);
-
-  static int  getNeighbor(int xpos, int ypos, int zpos);
-
-private:
-  static int myProc;                    // My processor number
-  static int numProc;                   // Total number of processors
-  static int initialized;
-
-#ifndef USE_SERIAL_COSMO
-  static MPI_Comm cartComm;             // Cartesian communicator
-#endif
-
-  static int decompSize[DIMENSION];     // Number of processors in each dim
-  static int myPosition[DIMENSION];     // My index in cartesian communicator
-
-  static int neighbor[NUM_OF_NEIGHBORS];// Neighbor processor ids
-};
 
 #endif

@@ -72,13 +72,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "CosmoHaloFinder.h"
 #include "CosmoHalo.h"
-#include "Definition.h"
+#include "CosmoDefinition.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 
-class CosmoHaloFinderP {
+class COSMO_EXPORT CosmoHaloFinderP {
 public:
   CosmoHaloFinderP();
   ~CosmoHaloFinderP();
