@@ -80,6 +80,7 @@ vtkActor outlineActor
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
+    renWin SetMultiSamples 0
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
