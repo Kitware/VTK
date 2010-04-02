@@ -29,6 +29,10 @@
 #include "vtkIdTypeArray.h"
 #include "vtkTransform2D.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
+#include "vtkAnnotationLink.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
@@ -59,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.4");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -148,6 +152,26 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
 
   this->Update();
   this->UpdateGeometry();
+
+  // Handle selections
+  vtkIdTypeArray *idArray = 0;
+  if (this->AnnotationLink)
+    {
+    this->AnnotationLink->Update();
+    vtkSelection *selection =
+        vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
+    if (selection->GetNumberOfNodes() &&
+        this->AnnotationLink->GetMTime() > this->Storage->Plot->GetMTime())
+      {
+      vtkSelectionNode *node = selection->GetNode(0);
+      idArray = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      this->Storage->Plot->SetSelection(idArray);
+      }
+    }
+  else
+    {
+    vtkDebugMacro("No annotation link set.");
+    }
 
   painter->PushMatrix();
   painter->SetTransform(this->Storage->Transform);
@@ -487,6 +511,7 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
 
       this->Scene->SetDirty(true);
       }
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     }
   return false;
 }
