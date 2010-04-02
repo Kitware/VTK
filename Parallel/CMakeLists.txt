@@ -149,7 +149,10 @@ IF (VTK_USE_MPI)
     ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
+    vtkPCosmoHaloFinder.cxx
+    vtkPCosmoReader.cxx
     )
+    SET(KIT_LIBS ${KIT_LIBS} Cosmo)
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
 ENDIF (VTK_USE_MPI)
