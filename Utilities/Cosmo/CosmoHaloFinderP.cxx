@@ -78,7 +78,7 @@ using namespace std;
 //
 /////////////////////////////////////////////////////////////////////////
 
-CosmoHaloFinderP::CosmoHaloFinderP()
+CosmoHaloFinderP::CosmoHaloFinderP() : haloList(NULL), haloStart(NULL), haloSize(NULL)
 {
   // Get the number of processors and rank of this processor
   this->numProc = Partition::getNumProc();
