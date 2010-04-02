@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.21");
+vtkCxxRevisionMacro(vtkAxis, "1.22");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -215,6 +215,14 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToBottom();
       }
+    else if (this->Position == vtkAxis::PARALLEL)
+      {
+      x = static_cast<int>(this->Point1[0]);
+      y = static_cast<int>(this->Point1[1] - 10);
+      prop->SetOrientation(0.0);
+      prop->SetVerticalJustificationToTop();
+      }
+
     painter->DrawString(x, y, this->Title);
     }
 
@@ -227,7 +235,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 
   // There are four possible tick label positions, which should be set by the
   // class laying out the axes.
-  if (this->Position == vtkAxis::LEFT)
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL)
     {
     prop->SetJustificationToRight();
     prop->SetVerticalJustificationToCentered();
