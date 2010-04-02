@@ -71,7 +71,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkSmartPointer.h"
 #include "vtkDummyController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -82,7 +81,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "Partition.h"
 
-vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.2.2.1");
+vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.2.2.2");
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
 /****************************************************************************/

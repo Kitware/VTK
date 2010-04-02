@@ -65,7 +65,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkSmartPointer.h"
 #include "vtkDummyController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -87,7 +86,7 @@ using namespace vtkstd;
 #include "ParticleExchange.h"
 #include "ParticleDistribute.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.7.2.2");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.7.2.3");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 //----------------------------------------------------------------------------
@@ -102,7 +101,7 @@ vtkPCosmoReader::vtkPCosmoReader()
       this->SetController(vtkSmartPointer<vtkDummyController>::New());
     }
 
-  this->FileName = 0;
+  this->FileName = NULL;
   this->RL = 90.140846;
   this->Overlap = 5;
   this->ReadMode = 1;
@@ -134,7 +133,7 @@ void vtkPCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Controller: (null)\n";
     }
 
-  os << indent << "FileName: " << this->FileName << endl;
+  os << indent << "FileName: " << (this->FileName != NULL ? this->FileName : "") << endl;
   os << indent << "rL: " << this->RL << endl;
   os << indent << "Overlap: " << this->Overlap << endl;
   os << indent << "ReadMode: " << this->ReadMode << endl;
@@ -225,6 +224,12 @@ int vtkPCosmoReader::RequestData(
     {
       vtkErrorMacro(<< "Piece number does not match process number.");
       return 0;
+    }
+
+   if (this->FileName == NULL || this->FileName == '\0')
+    {
+    vtkErrorMacro(<< "No FileName specified!");
+    return 0;
     }
 
   // RRU code

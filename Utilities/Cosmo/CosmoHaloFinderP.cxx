@@ -78,7 +78,7 @@ using namespace std;
 //
 /////////////////////////////////////////////////////////////////////////
 
-CosmoHaloFinderP::CosmoHaloFinderP()
+CosmoHaloFinderP::CosmoHaloFinderP() : haloData(NULL), haloList(NULL), haloStart(NULL), haloSize(NULL)
 {
   // Get the number of processors and rank of this processor
   this->numProc = Partition::getNumProc();
@@ -108,13 +108,25 @@ CosmoHaloFinderP::~CosmoHaloFinderP()
   for (unsigned int i = 0; i < this->myMixedHalos.size(); i++)
     delete this->myMixedHalos[i];
 
-  delete [] this->haloList;
-  delete [] this->haloStart;
-  delete [] this->haloSize;
+  if(this->haloList)
+    {
+    delete [] this->haloList;
+    }
+  if(this->haloStart)
+    {
+    delete [] this->haloStart;
+    }
+  if(this->haloSize)
+    {
+    delete [] this->haloSize;
+    }
 
-  for (int dim = 0; dim < DIMENSION; dim++)
-    delete haloData[dim];
-  delete [] haloData;
+  if(this->haloData)
+    {
+    for (int dim = 0; dim < DIMENSION; dim++)
+      delete this->haloData[dim];
+    delete [] this->haloData;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////

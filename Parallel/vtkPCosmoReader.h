@@ -80,7 +80,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkMultiProcessController;
-class vtkMPIController;
 class vtkStdString;
 
 class VTK_PARALLEL_EXPORT vtkPCosmoReader : public vtkUnstructuredGridAlgorithm
