@@ -86,7 +86,7 @@ using namespace vtkstd;
 #include "ParticleExchange.h"
 #include "ParticleDistribute.h"
 
-vtkCxxRevisionMacro(vtkPCosmoReader, "1.11");
+vtkCxxRevisionMacro(vtkPCosmoReader, "1.12");
 vtkStandardNewMacro(vtkPCosmoReader);
 
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ vtkPCosmoReader::vtkPCosmoReader()
       this->SetController(vtkSmartPointer<vtkDummyController>::New());
     }
 
-  this->FileName = 0;
+  this->FileName = NULL;
   this->RL = 90.140846;
   this->Overlap = 5;
   this->ReadMode = 1;
@@ -224,6 +224,12 @@ int vtkPCosmoReader::RequestData(
     {
       vtkErrorMacro(<< "Piece number does not match process number.");
       return 0;
+    }
+
+   if (this->FileName == NULL || this->FileName == '\0')
+    {
+    vtkErrorMacro(<< "No FileName specified!");
+    return 0;
     }
 
   // RRU code

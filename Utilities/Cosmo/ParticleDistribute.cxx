@@ -414,6 +414,11 @@ void ParticleDistribute::partitionInputFiles()
     baseName = this->baseFile.substr(dirPos + 1);
   }
 
+  if(this->baseFile.size() == 0)
+    {
+    return;
+    }
+
   // strip everything back to the first non-number
   string::size_type pos = baseName.size() - 1;
   int numbersOK = 1;
