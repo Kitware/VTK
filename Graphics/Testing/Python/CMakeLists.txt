@@ -78,6 +78,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           TestCameraInterpolator
           TestCellDerivs
           TestClipClosedSurface
+          TestClipOutline
           TestCurvatures
           TestDiscreteMarchingCubes
           TestGraphLayoutFilter
