@@ -30,7 +30,7 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.79");
+vtkCxxRevisionMacro(vtkSTLReader, "1.80");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -221,6 +221,7 @@ int vtkSTLReader::RequestData(
 
   if (mergedScalars) 
     {
+    mergedScalars->SetName("STLSolidLabeling");
     output->GetCellData()->SetScalars(mergedScalars);
     mergedScalars->Delete();
     }
