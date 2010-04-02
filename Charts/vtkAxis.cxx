@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.20");
+vtkCxxRevisionMacro(vtkAxis, "1.21");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -317,8 +317,8 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
   // First get the order of the range of the numbers
   if (this->Maximum == this->Minimum)
     {
-    vtkWarningMacro(<< "Minimum and maximum values are equal - invalid.");
-    return 0.0f;
+    this->Minimum *= 0.95;
+    this->Maximum *= 1.05;
     }
   float range = this->Maximum - this->Minimum;
   bool isNegative = false;
