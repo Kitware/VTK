@@ -241,10 +241,14 @@ protected:
   static int ComputeSurfaceTCoord(vtkDataSet *data, vtkCell *cell,
                                   const double *weights, double tcoord[3]);
 
-  static void TriangleFromStrip(vtkGenericCell *cell, int subId,
-                                vtkIdList *pointIds, vtkDataSet *data);
+  static int HasSubCells(int cellType);
 
-  static void TriangleFromStrip(vtkGenericCell *cell, int subId);
+  static int GetNumberOfSubCells(vtkIdList *pointIds, int cellType);
+
+  static void GetSubCell(vtkDataSet *data, vtkIdList *pointIds, int subId,
+                         int cellType, vtkGenericCell *cell);
+
+  static void SubCellFromCell(vtkGenericCell *cell, int subId);
 
   void SetImageDataPickInfo(const double x[3], const int extent[6]);
 
