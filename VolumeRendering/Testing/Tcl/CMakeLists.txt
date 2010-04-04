@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       volTM3DCropRegions
       volTM3DRotateClip
       VolumeOutlineSource
+      VolumeOutlineSourceClipped
       VolumePicker
       VolumePickerCrop
     )
