@@ -48,11 +48,11 @@ typedef boost::mpl::joint_view<vtkNumericTypes, vtkStringTypes> vtkAllTypes;
 
 // End-users can ignore these, they're the guts of the beast ...
 template<template <typename> class TargetT, typename FunctorT>
-class vtkTryDowncastHelper
+class vtkTryDowncastHelper1
 {
 public:
-  vtkTryDowncastHelper(vtkObject* source, FunctorT functor, bool& succeeded) :
-    Source(source),
+  vtkTryDowncastHelper1(vtkObject* source1, FunctorT functor, bool& succeeded) :
+    Source1(source1),
     Functor(functor),
     Succeeded(succeeded)
   {
@@ -64,14 +64,14 @@ public:
     if(Succeeded)
       return;
 
-    if(TargetT<ValueT>* const target = TargetT<ValueT>::SafeDownCast(Source))
+    if(TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1))
       {
       Succeeded = true;
-      this->Functor(target);
+      this->Functor(target1);
       }
   }
 
-  vtkObject* Source;
+  vtkObject* Source1;
   FunctorT Functor;
   bool& Succeeded;
 
@@ -79,14 +79,14 @@ private:
   vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
 };
 
-template<template <typename> class TargetT, typename FunctorT, typename Arg1T>
-class vtkTryDowncastHelper1
+template<template <typename> class TargetT, typename FunctorT>
+class vtkTryDowncastHelper2
 {
 public:
-  vtkTryDowncastHelper1(vtkObject* source, FunctorT functor, Arg1T arg1, bool& succeeded) :
-    Source(source),
+  vtkTryDowncastHelper2(vtkObject* source1, vtkObject* source2, FunctorT functor, bool& succeeded) :
+    Source1(source1),
+    Source2(source2),
     Functor(functor),
-    Arg1(arg1),
     Succeeded(succeeded)
   {
   }
@@ -97,35 +97,83 @@ public:
     if(Succeeded)
       return;
 
-    if(TargetT<ValueT>* const target = TargetT<ValueT>::SafeDownCast(Source))
+    if(TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1)
+      && TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2))
       {
       Succeeded = true;
-      this->Functor(target, this->Arg1);
+      this->Functor(target1, target2);
       }
   }
 
-  vtkObject* Source;
+  vtkObject* Source1;
+  vtkObject* Source2;
   FunctorT Functor;
-  Arg1T Arg1;
   bool& Succeeded;
 
 private:
-  vtkTryDowncastHelper1& operator=(const vtkTryDowncastHelper1&);
+  vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
+};
+
+template<template <typename> class TargetT, typename FunctorT>
+class vtkTryDowncastHelper3
+{
+public:
+  vtkTryDowncastHelper3(vtkObject* source1, vtkObject* source2, vtkObject* source3, FunctorT functor, bool& succeeded) :
+    Source1(source1),
+    Source2(source2),
+    Source3(source3),
+    Functor(functor),
+    Succeeded(succeeded)
+  {
+  }
+
+  template<typename ValueT>
+  void operator()(ValueT) const
+  {
+    if(Succeeded)
+      return;
+
+    if(TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1)
+      && TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2)
+      && TargetT<ValueT>* const target3 = TargetT<ValueT>::SafeDownCast(Source3))
+      {
+      Succeeded = true;
+      this->Functor(target1, target2, target3);
+      }
+  }
+
+  vtkObject* Source1;
+  vtkObject* Source2;
+  vtkObject* Source3;
+  FunctorT Functor;
+  bool& Succeeded;
+
+private:
+  vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
 };
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT>
-bool vtkTryDowncast(vtkObject* source, FunctorT functor)
+bool vtkTryDowncast(vtkObject* source1, FunctorT functor)
 {
   bool succeeded = false;
-  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper<TargetT, FunctorT>(source, functor, succeeded));
+  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper1<TargetT, FunctorT>(source1, functor, succeeded));
   return succeeded;
 }
 
-template<template <typename> class TargetT, typename TypesT, typename FunctorT, typename Arg1T>
-bool vtkTryDowncast(vtkObject* source, FunctorT functor, Arg1T arg1)
+template<template <typename> class TargetT, typename TypesT, typename FunctorT>
+bool vtkTryDowncast(vtkObject* source1, vtkObject* source2, FunctorT functor)
 {
   bool succeeded = false;
-  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper1<TargetT, FunctorT, Arg1T>(source, functor, arg1, succeeded));
+  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper2<TargetT, FunctorT>(source1, source2, functor, succeeded));
+  return succeeded;
+}
+
+
+template<template <typename> class TargetT, typename TypesT, typename FunctorT>
+bool vtkTryDowncast(vtkObject* source1, vtkObject* source2, vtkObject* source3, FunctorT functor)
+{
+  bool succeeded = false;
+  boost::mpl::for_each<TypesT>(vtkTryDowncastHelper3<TargetT, FunctorT>(source1, source2, source3, functor, succeeded));
   return succeeded;
 }
 
