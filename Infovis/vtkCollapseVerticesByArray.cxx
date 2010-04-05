@@ -379,8 +379,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       {
       // If we already have a vertex for this "source" get its id.
       outSourceId = myItr->second;
-      countVerticesCollapsedArray->InsertValue(outSourceId,
-                                               countVerticesCollapsedArray->GetValue(outSourceId) + 1);
+      countVerticesCollapsedArray->SetValue(outSourceId,
+                                            countVerticesCollapsedArray->GetValue(outSourceId) + 1);
       }
     else
       {
@@ -496,7 +496,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
       if(countArray)
         {
-        countArray->InsertValue(outEdgeId, (int)(countArray->GetValue(outEdgeId) + 1));
+        countArray->SetValue(outEdgeId, (int)(countArray->GetValue(outEdgeId) + 1));
         }
       }
     //--
