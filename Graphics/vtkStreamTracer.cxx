@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.51");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.52");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkAbstractInterpolatedVelocityField);
@@ -684,13 +684,23 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     angularVel->SetName("AngularVelocity");
     }
   
-  // We will interpolate all point attributes of the input on
-  // each point of the output (unless they are turned off)
-  // Note that we are using only the first input, if there are more
-  // than one, the attributes have to match.
-  outputPD->InterpolateAllocate(input0->GetPointData());
-  // Note:  It is an overestimation to have the estimate the same number of
-  // output points and input points.  We sill have to squeeze at end.
+  // We will interpolate all point attributes of the input on each point of 
+  // the output (unless they are turned off). Note that we are using only 
+  // the first input, if there are more than one, the attributes have to match.
+  //
+  // Note: We have to use a specific value (safe to employ the maximum number
+  //       of steps) as the size of the initial memory allocation here. The
+  //       use of the default argument might incur a crash problem (due to
+  //       "insufficient memory") in the parallel mode. This is the case when
+  //       a streamline intensely shuttles between two processes in an exactly
+  //       interleaving fashion --- only one point is produced on each process
+  //       (and actually two points, after point duplication, are saved to a 
+  //       vtkPolyData in vtkDistributedStreamTracer::NoBlockProcessTask) and
+  //       as a consequence a large number of such small vtkPolyData objects
+  //       are needed to represent a streamline, consuming up the memory before
+  //       the intermediate memory is timely released.
+  outputPD->InterpolateAllocate( input0->GetPointData(), 
+                                 this->MaximumNumberOfSteps );
 
   vtkIdType numPtsTotal=0;
   double velocity[3];
@@ -728,7 +738,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       {
       continue;
       }
-
+    
     if ( propagation >= this->MaximumPropagation ||
          numSteps    >  this->MaximumNumberOfSteps)
       {
@@ -739,7 +749,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     numPtsTotal++;
     vtkIdType nextPoint = outputPoints->InsertNextPoint(point1);
     time->InsertNextValue(0.0);
-
+    
     // We will always pass an arc-length step size to the integrator.
     // If the user specifies a step size in cell length unit, we will 
     // have to convert it to arc length.
@@ -849,7 +859,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         maxStep = stepSize.Interval;
         }
       this->LastUsedStepSize = stepSize.Interval;
-          
+      
       // Calculate the next step using the integrator provided
       // Break if the next point is out of bounds.
       func->SetNormalizeVector( true );
@@ -863,7 +873,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         memcpy(lastPoint, point2, 3*sizeof(double));
         break;
         }
-
+      
       // It is not enough to use the starting point for stagnation calculation
       // Use delX/stepSize to calculate speed and check if it is below
       // stagnation threshold
