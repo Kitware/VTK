@@ -36,7 +36,7 @@
 #include <assert.h>
 #include <locale> // C++ locale
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.57");
+vtkCxxRevisionMacro(vtkXMLReader, "1.58");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -692,28 +692,32 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 
   array->SetName(da->GetAttribute("Name"));
 
-  int components;
+  //this needs to be zero since GetScalarAttribute will not fill it 
+  //with a value if da does not have a NumberOfComponents
+  int components = 0;
   if(da->GetScalarAttribute("NumberOfComponents", components))
     {
     array->SetNumberOfComponents(components);
     }
-  
-  vtkstd::ostringstream buff;
-  vtkstd::string compNameBase = "ComponentName";
-  const char* compName;
-  for ( int i=0; i < components; ++i )
+
+  //determine what component names have been saved in the file.  
+  const char* compName = NULL;
+  vtksys_ios::ostringstream buff;  
+  for ( int i=0; i < components && i < 10; ++i )
     {
-    //get the component names    
-    buff << compNameBase << i;
+    //get the component names                    
+    buff << "ComponentName" << i;        
     compName = da->GetAttribute( buff.str().c_str() );
     if ( compName )
-      {
+      {      
+      //detected a component name, add it
       array->SetComponentName( i ,compName );
-      }
+      compName=NULL;
+      }    
     buff.str("");
     buff.clear();
     }
-
+   
   // Scan/load for vtkInformationKey data.  
   int nElements=da->GetNumberOfNestedElements();
   for (int i=0; i<nElements; ++i)
