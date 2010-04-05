@@ -84,7 +84,16 @@ void vtkCollapseVerticesByArray::PrintSelf(ostream &os, vtkIndent indent)
   vtkGraphAlgorithm::PrintSelf(os, indent);
 
   os << indent << "AllowSelfLoops: "  << this->AllowSelfLoops << endl;
-  os << indent << "VertexArray: "     << (this->VertexArray ? this->VertexArray : "NULL") << endl;
+  os << indent << "VertexArray: "     <<
+    (this->VertexArray ? this->VertexArray : "NULL") << endl;
+
+  os << indent << "CountEdgesCollapsed: "  << this->CountEdgesCollapsed << endl;
+  os << indent << "EdgesCollapsedArray: "
+    << (this->EdgesCollapsedArray ? this->EdgesCollapsedArray : "NULL") << endl;
+
+  os << indent << "CountVerticesCollapsed: "  << this->CountVerticesCollapsed << endl;
+  os << indent << "VerticesCollapsedArray: "
+    << (this->VerticesCollapsedArray ? this->VerticesCollapsedArray : "NULL") << endl;
 }
 
 //------------------------------------------------------------------------------
