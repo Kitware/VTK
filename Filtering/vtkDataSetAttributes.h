@@ -642,11 +642,12 @@ public:
 
     int NumberOfFields; //the number of fields (including five named attributes)
     // These keep track of what is common across datasets. The first
-    // five items are always named attributes.
+    // six items are always named attributes.
     char** Fields;                     // the names of the fields
     int *FieldTypes;                   // the types of the fields
-    int *FieldComponents;              // the number of components in field
+    int *FieldComponents;              // the number of components in field    
     int *FieldIndices;                 // output data array index
+    vtkComponentNames **FieldComponentsNames;       // the name for each component in the field
     vtkLookupTable **LUT;              // luts associated with each array
     vtkInformation **FieldInformation; // Information map associated with each array
 
@@ -660,6 +661,7 @@ public:
     int **DSAIndices;
     int NumberOfDSAIndices;
     int CurrentInput;
+    
   };
 
 //ETX

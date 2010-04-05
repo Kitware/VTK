@@ -36,7 +36,7 @@
 #include <assert.h>
 #include <locale> // C++ locale
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.56");
+vtkCxxRevisionMacro(vtkXMLReader, "1.57");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -697,8 +697,24 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
     {
     array->SetNumberOfComponents(components);
     }
+  
+  vtkstd::ostringstream buff;
+  vtkstd::string compNameBase = "ComponentName";
+  const char* compName;
+  for ( int i=0; i < components; ++i )
+    {
+    //get the component names    
+    buff << compNameBase << i;
+    compName = da->GetAttribute( buff.str().c_str() );
+    if ( compName )
+      {
+      array->SetComponentName( i ,compName );
+      }
+    buff.str("");
+    buff.clear();
+    }
 
-  // Scan/load for vtkInformationKey data.
+  // Scan/load for vtkInformationKey data.  
   int nElements=da->GetNumberOfNestedElements();
   for (int i=0; i<nElements; ++i)
     {

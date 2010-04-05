@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.49");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.50");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -448,7 +448,7 @@ int vtkArrayCalculator::RequestData(
     {
     resultArray->Allocate(numTuples * 3);
     resultArray->SetNumberOfComponents(3);
-    resultArray->SetNumberOfTuples(numTuples);
+    resultArray->SetNumberOfTuples(numTuples);    
     resultArray->SetTuple(0, this->FunctionParser->GetVectorResult());
     }
   

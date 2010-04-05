@@ -214,7 +214,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.78");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.79");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -1740,6 +1740,7 @@ void vtkXMLWriter::WriteArrayAppended(
     offs.GetRangeMinPosition(timestep) = -1;
     offs.GetRangeMaxPosition(timestep) = -1;
     }
+
   //
   offs.GetPosition(timestep) = this->ReserveAttributeSpace("offset");
   // Write information in the recognized keys associated with this array.
@@ -1802,7 +1803,23 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
   if(a->GetNumberOfComponents() > 1)
     {
     this->WriteScalarAttribute("NumberOfComponents",
-      a->GetNumberOfComponents());
+      a->GetNumberOfComponents());    
+
+    vtkstd::ostringstream buff;
+    vtkstd::string compNameBase = "ComponentName";
+    const char* compName;
+    for ( int i=0; i < a->GetNumberOfComponents(); ++i )
+      {
+      //get the component names    
+      buff << compNameBase << i;      
+      compName = a->GetComponentName( i );
+      if ( compName )
+        {
+        this->WriteStringAttribute( buff.str().c_str(), compName );
+        }
+      buff.str("");
+      buff.clear();
+      }
     }
   if(this->NumberOfTimeSteps > 1)
     {
@@ -1898,7 +1915,7 @@ void vtkXMLWriter::WriteArrayInline(
     key->SaveState(info,eKey);
     eKey->PrintXML(os,indent);
     eKey->Delete();
-    }
+    }  
   // Write the inline data.
   this->WriteInlineData(a, indent.GetNextIndent());
   // Close tag.

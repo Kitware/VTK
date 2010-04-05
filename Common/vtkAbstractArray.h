@@ -49,6 +49,7 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkInformation;
+class vtkComponentNames;
 
 class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
 {
@@ -91,6 +92,19 @@ public:
   vtkSetClampMacro(NumberOfComponents, int, 1, VTK_LARGE_INTEGER);
   int GetNumberOfComponents() { return this->NumberOfComponents; }
 
+  // Description:
+  // Set the name for a component. Must be >= 1. 
+  void SetComponentName( int component, const char *name );
+  
+  //Description:
+  // Get the component name for a given component.
+  // Note: will return the actual string that is stored
+  const char* GetComponentName( int component );
+
+  // Description:
+  // Returns if any component has had a name assigned
+  bool HasAComponentName();
+  
   // Description:
   // Set the number of tuples (a component group) in the array. Note that 
   // this may allocate space depending on the number of components.
@@ -338,6 +352,8 @@ protected:
   bool RebuildArray;      // whether to rebuild the fast lookup data structure.
 
   vtkInformation* Information;
+
+  vtkComponentNames* ComponentNames; //names for each component
 
 private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.

@@ -45,7 +45,10 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.17");
+typedef  vtkstd::vector< vtkStdString* > vtkComponentNameBase;
+class vtkComponentNames : public vtkComponentNameBase {};
+
+vtkCxxRevisionMacro(vtkAbstractArray, "1.18");
 
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
@@ -53,17 +56,82 @@ vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
 {
   this->Size = 0;
   this->MaxId = -1;
-  this->NumberOfComponents = 1;
+  this->NumberOfComponents = 1;   
   this->Name = NULL;
   this->Information = NULL;
+
+  this->ComponentNames = NULL; 
 }
 
 //----------------------------------------------------------------------------
 vtkAbstractArray::~vtkAbstractArray()
 {
+  if ( this->ComponentNames )
+    {
+    this->ComponentNames->clear();
+    delete this->ComponentNames;
+    this->ComponentNames = NULL;
+    }
+  
   this->SetName(NULL);
   this->SetInformation(NULL);
 }
+
+//----------------------------------------------------------------------------
+void vtkAbstractArray::SetComponentName( int component, const char *name )
+  {
+  if ( component < 0 || name == NULL )
+    {
+    return;
+    }
+
+  if ( this->ComponentNames == NULL )
+    {
+    //delayed allocate
+    this->ComponentNames = new vtkComponentNames();
+    }
+
+  if ( component == this->ComponentNames->size() )
+    {
+    //the array isn't large enough, so we will resize
+    this->ComponentNames->push_back( new vtkStdString(name) );
+    return;
+    }
+  else if ( component > this->ComponentNames->size() )
+    {
+    this->ComponentNames->resize( component+1, NULL );
+    }  
+   
+  //replace an exisiting element
+  vtkStdString *compName = this->ComponentNames->at(component);
+  if ( !compName )
+    {
+    compName = new vtkStdString(name);
+    this->ComponentNames->at(component) = compName;    
+    } 
+  else
+    {
+    compName->assign( name );
+    }
+  }
+
+//----------------------------------------------------------------------------
+const char* vtkAbstractArray::GetComponentName( int component )
+{
+  if ( !this->ComponentNames || component < 0 ||
+    component >= this->ComponentNames->size() )
+    {
+    //make sure we have valid vector
+    return NULL;
+    }
+  vtkStdString *compName = this->ComponentNames->at( component );
+  return ( compName ) ? compName->c_str() : NULL;  
+  }
+//----------------------------------------------------------------------------
+bool vtkAbstractArray::HasAComponentName()
+  {
+  return (this->ComponentNames) ? ( this->ComponentNames->size() > 0 ) : 0;
+  }
 
 //----------------------------------------------------------------------------
 void vtkAbstractArray::SetInformation(vtkInformation *args)
@@ -126,6 +194,28 @@ void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
   if (da && da->HasInformation() && da!=this)
     {
     this->CopyInformation(da->GetInformation(),/*deep=*/1);
+    }
+  if ( da && da != this && da->ComponentNames )
+    {
+    //clear the vector of the all data
+    if ( this->ComponentNames )
+      {
+      this->ComponentNames->clear();
+      delete this->ComponentNames;
+      }
+    
+    //copy the passed in components
+    this->ComponentNames = new vtkComponentNames();
+    this->ComponentNames->reserve( da->ComponentNames->size() );
+    const char *name;
+    for ( vtkIdType i = 0; i < da->ComponentNames->size(); ++i )
+      {
+      name = da->GetComponentName(i);
+      if ( name )
+        {
+        this->SetComponentName(i, name);
+        }
+      }
     }
 }
 
@@ -307,6 +397,15 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
+  if ( this->ComponentNames )
+    {
+    os << indent << "ComponentNames: " << endl;
+    vtkIndent nextIndent = indent.GetNextIndent();
+    for ( int i=0; i < this->ComponentNames->size(); ++i )
+      {
+      os << nextIndent << i << " : " << this->ComponentNames->at(i) << endl;
+      }
+    }
   os << indent << "Information: " << this->Information << endl;
   if ( this->Information )
     {

@@ -25,6 +25,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
+    TestNamedComponents.cxx
     TestPolyDataPointSampler.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellatedBoxSource.cxx

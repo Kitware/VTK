@@ -18,9 +18,9 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestInterpolationDerivs.cxx
   TestImageIterator.cxx
   TestGenericCell.cxx
-  TestHigherOrderCell.cxx
+  TestHigherOrderCell.cxx  
   TestPointLocators.cxx
-  TestPolyDataRemoveCell.cxx
+  TestPolyDataRemoveCell.cxx  
   TestTriangle.cxx
   TestPolygon.cxx
   EXTRA_INCLUDE vtkTestDriver.h

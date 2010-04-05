@@ -152,6 +152,11 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
+  // Set/Get the title for the component that is selected,
+  vtkSetStringMacro(ComponentTitle);
+  vtkGetStringMacro(ComponentTitle);
+
+  // Description:
   // Shallow copy of a scalar bar actor. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
@@ -204,6 +209,7 @@ protected:
   int   NumberOfLabelsBuilt;
   int   Orientation;
   char  *Title;
+  char* ComponentTitle;
   char  *LabelFormat;
   int   UseOpacity; // off by default
   double TextureGridWidth;
