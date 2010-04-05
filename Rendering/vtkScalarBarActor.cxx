@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.66");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.67");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -664,6 +664,7 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
+  os << indent << "ComponentTitle: " << (this->ComponentTitle ? this->ComponentTitle : "(none)") << "\n";
   os << indent << "Maximum Number Of Colors: " 
      << this->MaximumNumberOfColors << "\n";
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
