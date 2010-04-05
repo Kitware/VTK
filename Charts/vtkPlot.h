@@ -115,6 +115,7 @@ public:
   virtual void SetInputArray(int index, const char *name);
 
   virtual void SetSelection(vtkIdTypeArray *id);
+  vtkGetObjectMacro(Selection, vtkIdTypeArray);
 
   // Description:
   // Get/set the X axis associated with this plot.
