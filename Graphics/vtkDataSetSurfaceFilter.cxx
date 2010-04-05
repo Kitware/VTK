@@ -45,7 +45,7 @@ static int sizeofFastQuad(int numPts)
   return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
 }
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.74");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.75");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -235,37 +235,37 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   // xMin face
   if (ext[0] == wholeExt[0] && ext[2] != ext[3] && ext[4] != ext[5] && ext[0] != ext[1])
     {
-    cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
+    cellArraySize += (ext[3]-ext[2])*(ext[5]-ext[4]);
     numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
     }
   // xMax face
   if (ext[1] == wholeExt[1] && ext[2] != ext[3] && ext[4] != ext[5])
     {
-    cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
+    cellArraySize += (ext[3]-ext[2])*(ext[5]-ext[4]);
     numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
     }
   // yMin face
   if (ext[2] == wholeExt[2] && ext[0] != ext[1] && ext[4] != ext[5] && ext[2] != ext[3])
     {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
+    cellArraySize += (ext[1]-ext[0])*(ext[5]-ext[4]);
     numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
     }
   // yMax face
   if (ext[3] == wholeExt[3] && ext[0] != ext[1] && ext[4] != ext[5])
     {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
+    cellArraySize += (ext[1]-ext[0])*(ext[5]-ext[4]);
     numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
     }
   // zMin face
   if (ext[4] == wholeExt[4] && ext[0] != ext[1] && ext[2] != ext[3] && ext[4] != ext[5])
     {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
+    cellArraySize += (ext[1]-ext[0])*(ext[3]-ext[2]);
     numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     }
   // zMax face
   if (ext[5] == wholeExt[5] && ext[0] != ext[1] && ext[2] != ext[3])
     {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
+    cellArraySize += (ext[1]-ext[0])*(ext[3]-ext[2]);
     numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     }
  
@@ -328,9 +328,9 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
 
   // Allocate attributes for copying.
   output->GetPointData()->CopyGlobalIdsOn();
-  output->GetPointData()->CopyAllocate(input->GetPointData());
+  output->GetPointData()->CopyAllocate(input->GetPointData(), numPoints); 
   output->GetCellData()->CopyGlobalIdsOn();
-  output->GetCellData()->CopyAllocate(input->GetCellData());
+  output->GetCellData()->CopyAllocate(input->GetCellData(), cellArraySize);
 
   if (this->PassThroughCellIds)
     {
