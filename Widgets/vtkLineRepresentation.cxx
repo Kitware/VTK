@@ -36,7 +36,7 @@
 #include "vtkCellPicker.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.24");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.24.2.1");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -1019,6 +1019,16 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }  
+
+  os << indent << "TextActor: ";
+  if ( this->TextActor )
+    {
+    os << this->TextActor << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
   
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
