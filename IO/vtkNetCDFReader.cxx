@@ -78,7 +78,7 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFReader, "1.7");
+vtkCxxRevisionMacro(vtkNetCDFReader, "1.7.2.1");
 vtkStandardNewMacro(vtkNetCDFReader);
 
 //-----------------------------------------------------------------------------
@@ -590,7 +590,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
 
   // Are we using time?
   int timeIndexOffset = 0;
-  if (this->IsTimeDimension(ncFD, dimIds[0]))
+  if ((numDims > 0) && this->IsTimeDimension(ncFD, dimIds[0]))
     {
     vtkSmartPointer<vtkDoubleArray> timeValues
       = this->GetTimeValues(ncFD, dimIds[0]);
