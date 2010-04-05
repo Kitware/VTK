@@ -64,7 +64,8 @@ public:
     if(Succeeded)
       return;
 
-    if(TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1))
+    TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1);
+    if(target1)
       {
       Succeeded = true;
       this->Functor(target1);
@@ -76,7 +77,7 @@ public:
   bool& Succeeded;
 
 private:
-  vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
+  vtkTryDowncastHelper1& operator=(const vtkTryDowncastHelper1&);
 };
 
 template<template <typename> class TargetT, typename FunctorT>
@@ -97,8 +98,9 @@ public:
     if(Succeeded)
       return;
 
-    if(TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1)
-      && TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2))
+    TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1);
+    TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2);
+    if(target1 && target2)
       {
       Succeeded = true;
       this->Functor(target1, target2);
@@ -111,7 +113,7 @@ public:
   bool& Succeeded;
 
 private:
-  vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
+  vtkTryDowncastHelper2& operator=(const vtkTryDowncastHelper2&);
 };
 
 template<template <typename> class TargetT, typename FunctorT>
@@ -133,9 +135,10 @@ public:
     if(Succeeded)
       return;
 
-    if(TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1)
-      && TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2)
-      && TargetT<ValueT>* const target3 = TargetT<ValueT>::SafeDownCast(Source3))
+    TargetT<ValueT>* const target1 = TargetT<ValueT>::SafeDownCast(Source1);
+    TargetT<ValueT>* const target2 = TargetT<ValueT>::SafeDownCast(Source2);
+    TargetT<ValueT>* const target3 = TargetT<ValueT>::SafeDownCast(Source3);
+    if(target1 && target2 && target3)
       {
       Succeeded = true;
       this->Functor(target1, target2, target3);
@@ -149,7 +152,7 @@ public:
   bool& Succeeded;
 
 private:
-  vtkTryDowncastHelper& operator=(const vtkTryDowncastHelper&);
+  vtkTryDowncastHelper3& operator=(const vtkTryDowncastHelper3&);
 };
 
 template<template <typename> class TargetT, typename TypesT, typename FunctorT>
