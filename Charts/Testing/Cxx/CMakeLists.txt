@@ -8,11 +8,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestLinePlot.cxx
     TestContext.cxx
     TestVector.cxx
-    TestMarks.cxx
-    TestMarksGanttChart.cxx
-    TestMarksWedge.cxx
-    TestMarksWedgeCallback.cxx
-    TestMarksWedgeLine.cxx
     )
     
   IF (VTK_DATA_ROOT)

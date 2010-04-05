@@ -16,7 +16,6 @@ SET(KIT_LIBS vtkIO vtkftgl
 
 SET(Kit_SRCS
   vtkAxis.cxx
-  vtkBarMark.cxx
   vtkBlockItem.cxx
   vtkBrush.cxx
   vtkChart.cxx
@@ -32,14 +31,8 @@ SET(Kit_SRCS
   vtkContextMapper2D.cxx
   vtkContextScene.cxx
   vtkContextView.cxx
-  vtkDataElement.cxx
-  vtkDataValue.cxx
   vtkImageItem.cxx
-  vtkLineMark.cxx
-  vtkMark.cxx
-  vtkMarkUtil.cxx
   vtkOpenGLContextDevice2D.cxx
-  vtkPanelMark.cxx
   vtkPen.cxx
   vtkPlot.cxx
   vtkPlotBar.cxx
@@ -48,7 +41,6 @@ SET(Kit_SRCS
   vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
   vtkTooltipItem.cxx
-  vtkWedgeMark.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -56,22 +48,12 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextDevice2D
   vtkContextItem
   vtkContextMapper2D
-  vtkDataValue
   vtkPlot
   ABSTRACT
   )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkBarMark
   vtkChartColors
-  vtkDataElement
-  vtkDataValue
-  vtkLineMark
-  vtkMark
-  vtkMarkUtil
-  vtkPanelMark
-  vtkValueHolder
-  vtkWedgeMark
   WRAP_EXCLUDE
 )
 
