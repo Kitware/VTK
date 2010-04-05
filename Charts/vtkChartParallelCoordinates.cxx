@@ -510,6 +510,21 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
 
       this->Scene->SetDirty(true);
       }
+    if (this->AnnotationLink)
+      {
+      vtkSelectionNode* node = 0;
+      if (this->AnnotationLink->GetCurrentSelection()->GetNumberOfNodes() == 0)
+        {
+        node = vtkSelectionNode::New();
+        this->AnnotationLink->GetCurrentSelection()->AddNode(node);
+        node->Delete();
+        }
+      else
+        {
+        node = this->AnnotationLink->GetCurrentSelection()->GetNode(0);
+        }
+      node->SetSelectionList(this->Storage->Plot->GetSelection());
+      }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     }
   return false;
