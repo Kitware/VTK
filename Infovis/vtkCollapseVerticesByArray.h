@@ -62,6 +62,31 @@ public:
     vtkSetStringMacro(VertexArray);
 
 
+    // Description:
+    // Set if count should be made of how many edges collapsed.
+    vtkGetMacro(CountEdgesCollapsed, bool);
+    vtkSetMacro(CountEdgesCollapsed, bool);
+    vtkBooleanMacro(CountEdgesCollapsed, bool);
+
+    // Description:
+    // Name of the array where the count of how many edges collapsed will
+    // be stored.By default the name of array is "EdgesCollapsedCountArray".
+    vtkGetStringMacro(EdgesCollapsedArray);
+    vtkSetStringMacro(EdgesCollapsedArray);
+
+
+    // Description:
+    // Get/Set if count should be made of how many vertices collapsed.
+    vtkGetMacro(CountVerticesCollapsed, bool);
+    vtkSetMacro(CountVerticesCollapsed, bool);
+    vtkBooleanMacro(CountVerticesCollapsed, bool);
+
+    // Description:
+    // Name of the array where the count of how many vertices collapsed will
+    // be stored. By default name of the array is "VerticesCollapsedCountArray".
+    vtkGetStringMacro(VerticesCollapsedArray);
+    vtkSetStringMacro(VerticesCollapsedArray);
+
 protected:
 
     vtkCollapseVerticesByArray();
@@ -96,6 +121,12 @@ private:
 protected:
   bool            AllowSelfLoops;
   char*           VertexArray;
+
+  bool            CountEdgesCollapsed;
+  char*           EdgesCollapsedArray;
+
+  bool            CountVerticesCollapsed;
+  char*           VerticesCollapsedArray;
 
   vtkCollapseVerticesByArrayInternal* Internal;
 };

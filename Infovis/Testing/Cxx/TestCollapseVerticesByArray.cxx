@@ -102,6 +102,10 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
 
   vtkCollapseVerticesByArrayRefPtr cvs(vtkCollapseVerticesByArrayRefPtr::New());
+  cvs->SetCountEdgesCollapsed(1);
+  cvs->SetEdgesCollapsedArray("weight_edges");
+  cvs->SetCountVerticesCollapsed(1);
+  cvs->SetVerticesCollapsedArray("weight_vertices");
   cvs->SetVertexArray("owner_company");
   cvs->AddAggregateEdgeArray("data_transfer");
   cvs->SetInput(inGraph);
@@ -115,13 +119,17 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   validResult->InsertNextValue("CELL_TOWER_C");
   validResult->InsertNextValue("AT&T");
   validResult->InsertNextValue(2000);
+  validResult->InsertNextValue(2);
   validResult->InsertNextValue("CELL_TOWER_B");
   validResult->InsertNextValue("VERIZON");
   validResult->InsertNextValue(300);
+  validResult->InsertNextValue(1);
   validResult->InsertNextValue(700);
   validResult->InsertNextValue(50);
+  validResult->InsertNextValue(2);
   validResult->InsertNextValue(100);
   validResult->InsertNextValue(300);
+  validResult->InsertNextValue(1);
 
   vtkVertexListIteratorRefPtr outVtxLstItr (vtkVertexListIteratorRefPtr::New());
   vtkEdgeListIteratorRefPtr   outEgeLstItr (vtkEdgeListIteratorRefPtr::New());

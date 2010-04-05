@@ -24,6 +24,7 @@
 #include "vtkGraphEdge.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutEdgeIterator.h"
@@ -49,8 +50,16 @@ public:
 vtkCollapseVerticesByArray::vtkCollapseVerticesByArray() :
   vtkGraphAlgorithm(),
   AllowSelfLoops(false),
-  VertexArray(0)
+  VertexArray(0),
+  CountEdgesCollapsed(0),
+  EdgesCollapsedArray(0),
+  CountVerticesCollapsed(0),
+  VerticesCollapsedArray(0)
 {
+  // Setting default names.
+  this->SetVerticesCollapsedArray("VerticesCollapsedCountArray");
+  this->SetEdgesCollapsedArray("EdgesCollapsedCountArray");
+
   this->Internal = new vtkCollapseVerticesByArrayInternal();
 }
 
@@ -170,6 +179,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                                               vtkVertexListIteratorRefPtr;
   typedef vtkSmartPointer<vtkStringArray>     vtkStringArrayRefPtr;
   typedef vtkSmartPointer<vtkDoubleArray>     vtkDoubleArrayRefPtr;
+  typedef vtkSmartPointer<vtkIntArray>        vtkIntArrayRefPtr;
   typedef vtkstd::pair<vtkVariant, vtkIdType> NameIdPair;
 
 
@@ -203,6 +213,27 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     vtkErrorMacro("Error: Could not find the key vertex array.")
     return 0;
     }
+
+  // Optional.
+  vtkIntArrayRefPtr countArray(0);
+  if(this->CountEdgesCollapsed)
+    {
+    countArray = vtkIntArrayRefPtr::New();
+    countArray->SetName(this->EdgesCollapsedArray);
+    countArray->SetNumberOfComponents(1);
+    outGraph->GetEdgeData()->AddArray(countArray);
+    }
+
+  // Optional.
+  vtkIntArrayRefPtr countVerticesCollapsedArray(0);
+  if(this->CountVerticesCollapsed)
+    {
+    countVerticesCollapsedArray = vtkIntArrayRefPtr::New();
+    countVerticesCollapsedArray->SetName(this->VerticesCollapsedArray);
+    countVerticesCollapsedArray->SetNumberOfComponents(1);
+    outGraph->GetVertexData()->AddArray(countVerticesCollapsedArray);
+    }
+
 
   // Arrays of interest.
   vtkstd::vector<vtkDataArray*>     inEdgeDataArraysOI;
@@ -348,6 +379,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       {
       // If we already have a vertex for this "source" get its id.
       outSourceId = myItr->second;
+      countVerticesCollapsedArray->InsertValue(outSourceId,
+                                               countVerticesCollapsedArray->GetValue(outSourceId) + 1);
       }
     else
       {
@@ -355,6 +388,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       outSourceId = outGraph->AddVertex();
       outVertexAOI->InsertVariantValue(outSourceId, source);
       myMap.insert(NameIdPair(source, outSourceId));
+      countVerticesCollapsedArray->InsertValue(outSourceId, 1);
       }
 
 
@@ -421,6 +455,11 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
         outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),
                                          inEdgeDataArraysAO[i]);
         }
+
+      if(countArray)
+        {
+        countArray->InsertValue(outEdgeId, 1);
+        }
       }
     else
       {
@@ -453,6 +492,11 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
         {
         outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),
                                          inEdgeDataArraysAO[i]);
+        }
+
+      if(countArray)
+        {
+        countArray->InsertValue(outEdgeId, (int)(countArray->GetValue(outEdgeId) + 1));
         }
       }
     //--
