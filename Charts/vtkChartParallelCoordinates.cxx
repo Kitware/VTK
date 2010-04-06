@@ -63,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.6");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -157,9 +157,7 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
   vtkIdTypeArray *idArray = 0;
   if (this->AnnotationLink)
     {
-    this->AnnotationLink->Update();
-    vtkSelection *selection =
-        vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
+    vtkSelection *selection = this->AnnotationLink->GetCurrentSelection();
     if (selection->GetNumberOfNodes() &&
         this->AnnotationLink->GetMTime() > this->Storage->Plot->GetMTime())
       {
@@ -513,18 +511,13 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
       }
     if (this->AnnotationLink)
       {
-      vtkSelectionNode* node = 0;
-      if (this->AnnotationLink->GetCurrentSelection()->GetNumberOfNodes() == 0)
-        {
-        node = vtkSelectionNode::New();
-        this->AnnotationLink->GetCurrentSelection()->AddNode(node);
-        node->Delete();
-        }
-      else
-        {
-        node = this->AnnotationLink->GetCurrentSelection()->GetNode(0);
-        }
+      vtkSelection* selection = vtkSelection::New();
+      vtkSelectionNode* node = vtkSelectionNode::New();
+      selection->AddNode(node);
       node->SetSelectionList(this->Storage->Plot->GetSelection());
+      this->AnnotationLink->SetCurrentSelection(selection);
+      selection->Delete();
+      node->Delete();
       }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     }
