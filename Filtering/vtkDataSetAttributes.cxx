@@ -39,7 +39,7 @@ namespace
 }
 class vtkDataSetAttributes::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.36");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.37");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1485,7 +1485,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(
   vtkAbstractArray* newAA=0;
   vtkDataArray* newDA=0;
   vtkStdString *compName;
-  int i,j;
+  int i;
 
   // Allocate attributes if any
   for (i=0; i < list.NumberOfFields; i++)
@@ -1498,7 +1498,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(
       
       if ( list.FieldComponentsNames[i] )
         {
-        for ( j=0; j < list.FieldComponentsNames[i]->size(); ++j)
+        for (unsigned int j=0; j < list.FieldComponentsNames[i]->size(); ++j)
           {
           compName = list.FieldComponentsNames[i]->at(j);
           if ( compName )
@@ -2107,13 +2107,14 @@ void vtkDataSetAttributes::FieldList::SetField(
   if ( aa->HasAComponentName() )
     {    
     this->FieldComponentsNames[index]->resize( numberOfComponents, NULL );
-    const char *name;
+    name = NULL;
     for ( vtkIdType i=0; i < numberOfComponents; ++i)
       {    
       name = aa->GetComponentName(i);  
       if ( name )
         {        
         this->FieldComponentsNames[index]->at(i) = new vtkStdString(name);
+        name = NULL;
         }    
       }
     }
