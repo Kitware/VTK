@@ -80,11 +80,11 @@ public:
   // (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault()
+  void SetAttributeModeToDefault() 
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
-  void SetAttributeModeToUsePointData()
+  void SetAttributeModeToUsePointData() 
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData()
+  void SetAttributeModeToUseCellData() 
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
   const char *GetAttributeModeAsString();
 
@@ -99,23 +99,23 @@ public:
                    VTK_COMPONENT_MODE_USE_SELECTED,
                    VTK_COMPONENT_MODE_USE_ANY);
   vtkGetMacro(ComponentMode,int);
-  void SetComponentModeToUseSelected()
+  void SetComponentModeToUseSelected() 
     {this->SetComponentMode(VTK_COMPONENT_MODE_USE_SELECTED);};
-  void SetComponentModeToUseAll()
+  void SetComponentModeToUseAll() 
     {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL);};
-  void SetComponentModeToUseAny()
+  void SetComponentModeToUseAny() 
     {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY);};
   const char *GetComponentModeAsString();
-
+  
   // Description:
   // When the component mode is UseSelected, this ivar indicated the selected
   // component. The default value is 0.
   vtkSetClampMacro(SelectedComponent,int,0,VTK_INT_MAX);
   vtkGetMacro(SelectedComponent,int);
-
+  
   // Description:
-  // If using scalars from point data, all scalars for all points in a cell
-  // must satisfy the threshold criterion if AllScalars is set. Otherwise,
+  // If using scalars from point data, all scalars for all points in a cell 
+  // must satisfy the threshold criterion if AllScalars is set. Otherwise, 
   // just a single scalar value satisfying the threshold criterion enables
   // will extract the cell.
   vtkSetMacro(AllScalars,int);
@@ -123,16 +123,13 @@ public:
   vtkBooleanMacro(AllScalars,int);
 
   // Description:
-  // Set the data type of the output points (See the data types defined in
+  // Set the data type of the output points (See the data types defined in 
   // vtkType.h). The default data type is float.
   void SetPointsDataTypeToDouble() { this->SetPointsDataType( VTK_DOUBLE ); }
   void SetPointsDataTypeToFloat()  { this->SetPointsDataType( VTK_FLOAT  ); }
   vtkSetMacro( PointsDataType, int );
   vtkGetMacro( PointsDataType, int );
-
-  virtual int ProcessRequest(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
+  
 protected:
   vtkThreshold();
   ~vtkThreshold();
@@ -142,6 +139,8 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
   int    AllScalars;
   double LowerThreshold;
   double UpperThreshold;
@@ -149,18 +148,18 @@ protected:
   int    ComponentMode;
   int    SelectedComponent;
   int    PointsDataType;
-
+  
   //BTX
   int (vtkThreshold::*ThresholdFunction)(double s);
   //ETX
 
   int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(double s) {return ( s >= this->LowerThreshold ?
+  int Between(double s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 
   int EvaluateComponents( vtkDataArray *scalars, vtkIdType id );
-
+  
 private:
   vtkThreshold(const vtkThreshold&);  // Not implemented.
   void operator=(const vtkThreshold&);  // Not implemented.
