@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.49");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.49.2.1");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -52,8 +52,6 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->NumberOfCoordinateVectorArrays = 0;
   this->SelectedCoordinateScalarComponents = NULL;
   this->SelectedCoordinateVectorComponents = NULL;
-  this->FunctionType    = 0;
-  this->VectorsOutdated = 0;
   this->CoordinateResults = 0;
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
@@ -382,11 +380,7 @@ int vtkArrayCalculator::RequestData(
       }
     }
 
-  // In case the input of a calculator is changed to make a (whole) vector
-  // referenced in the function outdated, the addition of 'VectorsOutdated'
-  // below avoids a crash problem.
-  if ( !this->Function || strlen(this->Function) == 0 
-                       || this->VectorsOutdated )
+  if ( !this->Function || strlen(this->Function) == 0)
     {
     dsOutput->CopyStructure(dsInput);
     dsOutput->CopyAttributes(dsInput);
@@ -395,12 +389,10 @@ int vtkArrayCalculator::RequestData(
   else if (this->FunctionParser->IsScalarResult())
     {
     resultType = 0;
-    this->FunctionType = 0;
     }
   else if (this->FunctionParser->IsVectorResult())
     {
     resultType = 1;
-    this->FunctionType = 1;
     }
   else
     {
@@ -448,7 +440,7 @@ int vtkArrayCalculator::RequestData(
     {
     resultArray->Allocate(numTuples * 3);
     resultArray->SetNumberOfComponents(3);
-    resultArray->SetNumberOfTuples(numTuples);
+    resultArray->SetNumberOfTuples(numTuples);    
     resultArray->SetTuple(0, this->FunctionParser->GetVectorResult());
     }
   
@@ -1228,6 +1220,4 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Replace Invalid Values: " 
      << (this->ReplaceInvalidValues ? "On" : "Off") << endl;
   os << indent << "Replacement Value: " << this->ReplacementValue << endl;
-  os << indent << "FunctionType: "    << this->FunctionType    << endl;
-  os << indent << "VectorsOutdated: " << this->VectorsOutdated << endl;
 }
