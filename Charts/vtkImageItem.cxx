@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.8");
+vtkCxxRevisionMacro(vtkImageItem, "1.8.4.1");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------
@@ -88,12 +88,6 @@ bool vtkImageItem::Paint(vtkContext2D *painter)
     painter->DrawString(this->Dimensions[0]+60, this->Dimensions[1]+60,
                         this->Label);
     }
-
-  float p[] = { 0.0, 0.0,
-                20.0, 50.0,
-                30.0, 5.0,
-                100.0, 30.0 };
-  painter->DrawPoly(p, 4);
 
   if (this->ScalarFunction)
     {
