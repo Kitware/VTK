@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.68");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.69");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -393,9 +393,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     //update with the proper title
     if ( this->ComponentTitle && strlen(this->ComponentTitle) > 0 )
       {
-      //need to account for a space between title & component and null term
-      unsigned int size = strlen(this->Title) + strlen(this->ComponentTitle) + 2;
-      char *combinedTitle = new char[ size ];
+      //need to account for a space between title & component and null term      
+      char *combinedTitle = new char[ ( strlen(this->Title) + strlen(this->ComponentTitle) + 2) ];
       strcpy(combinedTitle, this->Title );
       strcat( combinedTitle, " " );
       strcat( combinedTitle, this->ComponentTitle );
