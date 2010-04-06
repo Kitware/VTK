@@ -87,7 +87,7 @@ private:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.15");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.16");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   AnnotationLinkInternal, vtkAnnotationLink);
@@ -302,7 +302,7 @@ void vtkDataRepresentation::UpdateAnnotations(vtkAnnotationLayers* annotations, 
     {
     // Append the annotations to the existing set of annotations on the link
     vtkAnnotationLayers* currentAnnotations = this->AnnotationLinkInternal->GetAnnotationLayers();
-    for(int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
+    for(unsigned int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
       {
       currentAnnotations->AddAnnotation(annotations->GetAnnotation(i));
       }
