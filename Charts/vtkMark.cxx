@@ -31,8 +31,10 @@
 
 #include <vtkstd/map>
 //#include <vtksys/stl/map>
+#include <cassert>
+
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMark, "1.4");
+vtkCxxRevisionMacro(vtkMark, "1.5");
 vtkStandardNewMacro(vtkMark);
 
 class vtkMarkPrivateCompareStrings
@@ -60,12 +62,13 @@ public:
   VariablesMap Map;
 };
 
-vtkCxxRevisionMacro(vtkMarkPrivate, "1.4");
+vtkCxxRevisionMacro(vtkMarkPrivate, "1.5");
 vtkStandardNewMacro(vtkMarkPrivate);
 
 //-----------------------------------------------------------------------------
 vtkMark::vtkMark()
 {
+  this->PaintIdMode=false;
   this->Fields=vtkInformation::New();
   this->Parent = NULL;
   this->Index = 0;
@@ -407,6 +410,28 @@ vtkValue<double> vtkMark::GetUserVariable(vtkstd::string name)
     vtkValue<double> result;
     return result;
     }
+}
+
+// ----------------------------------------------------------------------------
+void vtkMark::PaintIdModeBegin()
+{
+  assert("pre: out" && !this->GetPaintIdMode());
+  this->PaintIdMode=true;
+  assert("post: in" && this->GetPaintIdMode());
+}
+
+// ----------------------------------------------------------------------------
+void vtkMark::PaintIdModeEnd()
+{
+  assert("pre: in" && this->GetPaintIdMode());
+  this->PaintIdMode=false;
+  assert("post: out" && !this->GetPaintIdMode());
+}
+
+// ----------------------------------------------------------------------------
+bool vtkMark::GetPaintIdMode()
+{
+  return this->PaintIdMode;
 }
 
 //-----------------------------------------------------------------------------

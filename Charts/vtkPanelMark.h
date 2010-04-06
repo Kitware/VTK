@@ -41,6 +41,13 @@ public:
   //virtual void Add(vtkMark* m);
   virtual vtkMark* Add(int type);
   
+  // Description:
+  // Return the index of the mark template `m' in the list of marks of the
+  // panel. Return -1 if not found.
+  // \pre m_exists: m!=0
+  // \post valid_result: result>=-1 && result<this->Marks.size()
+  virtual vtkIdType FindIndex(vtkMark *m);
+  
   virtual bool Paint(vtkContext2D*);
 
   virtual void Update();
@@ -92,6 +99,13 @@ public:
   // Return true if the supplied x, y coordinate is inside the item.
   // As Panel is container, it delegates the call to its children.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
+  
+  // Descrition:
+  // PaintId mode for the submark template `m'.
+  // Called by `m'.
+  // \pre m_exists: m!=0
+  virtual void PaintIdsOfMark(vtkMark *m);
+  
 //ETX
   
 //BTX

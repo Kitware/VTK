@@ -124,6 +124,11 @@ public:
   // Get the vtkContextScene for the item, always set for an item in a scene.
   vtkContextScene* GetScene();
   
+  // Description:
+  // Release graphics resources hold by the item. The default implementation
+  // is empty.
+  virtual void ReleaseGraphicsResources();
+  
 //BTX
 protected:
   vtkContextItem();

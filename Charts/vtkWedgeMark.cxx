@@ -25,14 +25,17 @@
 #include "vtkMath.h"
 #include "vtkContextScene.h"
 #include "vtkContextBufferId.h"
+//#include "vtkOpenGLContextBufferId.h"
 #include "vtkCommand.h" // EnterEvent,LeaveEvent
+//#include "vtkRenderer.h"
+//#include "vtkOpenGLRenderWindow.h"
 
 vtkInformationKeyMacro(vtkWedgeMark,ANGLE,Double);
 vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.8");
+vtkCxxRevisionMacro(vtkWedgeMark, "1.9");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------
@@ -86,6 +89,10 @@ void vtkWedgeMark::UpdateBufferId()
     if(this->BufferId==0)
       {
       this->BufferId=vtkContextBufferId::New();
+//      vtkOpenGLContextBufferId *b=vtkOpenGLContextBufferId::New();
+//      this->BufferId=b;
+//      b->SetContext(static_cast<vtkOpenGLRenderWindow *>(
+//                      this->Scene->GetRenderer()->GetRenderWindow()));
       }
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
@@ -304,7 +311,7 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
     {
     if(numChildren>16777214) // 24-bit limit, 0 reserved for background encoding.
       {
-      vtkWarningMacro(<<"picking will not work properly as there are two many children. Children over 16777214 will be ignored.");
+      vtkWarningMacro(<<"picking will not work properly as there are too many children. Children over 16777214 will be ignored.");
       numChildren=16777214;
       }
     
@@ -323,7 +330,7 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
                                    fillColor[i].Alpha);
     if(this->PaintIdMode)
       {
-      this->Scene->GetLastPainter()->ApplyId(i+1);
+      painter->ApplyId(i+1);
       }
     
     painter->DrawWedge(left[i],bottom[i],outerRadius[i],innerRadius[i],
@@ -358,6 +365,15 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
       }
     }
   return true;
+}
+
+// ----------------------------------------------------------------------------
+void vtkWedgeMark::ReleaseGraphicsResources()
+{
+  if(this->BufferId!=0)
+    {
+    this->BufferId->ReleaseGraphicsResources();
+    }
 }
 
 //-----------------------------------------------------------------------------

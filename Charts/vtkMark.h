@@ -159,6 +159,23 @@ public:
   vtkValueHolder<double> &GetAngleHolder();
   vtkValueHolder<double> &GetStartAngleHolder();
   
+  // Description:
+  // Enter paint id mode.
+  // \pre out: !GetPaintIdMode()
+  // \post in: GetPaintIdMode()
+  void PaintIdModeBegin();
+  
+  // Description:
+  // Exit paint id mode.
+  // \pre in: GetPaintIdMode()
+  // \post out: !GetPaintIdMode()
+  void PaintIdModeEnd();
+  
+  // Description:
+  // Tell if the mark (template or instance) is in PaintId mode.
+  // The initial value is false.
+  bool GetPaintIdMode();
+  
 //BTX
 protected:
   vtkMark();
@@ -194,6 +211,8 @@ protected:
   vtkInformation *Fields;
   
   vtkMarkPrivate *UserVariables; // PIMPL for vtkstd::map
+  
+  bool PaintIdMode;
   
 private:
   vtkMark(const vtkMark &); // Not implemented.

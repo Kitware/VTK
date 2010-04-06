@@ -23,12 +23,13 @@
 #include "vtkContextScene.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.8");
+vtkCxxRevisionMacro(vtkPanelMark, "1.9");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
 vtkPanelMark::vtkPanelMark()
 {
+//  this->DebugOn();
   this->BufferId=0;
   this->MouseOver=false;
   this->ActiveItem=-1;
@@ -58,7 +59,35 @@ vtkMark* vtkPanelMark::Add(int type)
   return m;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+vtkIdType vtkPanelMark::FindIndex(vtkMark *m)
+{
+  assert("pre: m_exists" && m!=0);
+  
+  vtkIdType result=0;
+  vtkIdType size=static_cast<vtkIdType>(this->Marks.size());
+  
+  bool found=false;
+  while(!found && result<size)
+    {
+    found=this->Marks[static_cast<size_t>(result)]==m;
+    ++result;
+    }
+  if(found)
+    {
+    --result;
+    }
+  else
+    {
+    result=-1;
+    }
+  
+  assert("post: valid_result" && result>=-1 && result<size);
+  
+  return result;
+}
+
+// ----------------------------------------------------------------------------
 void vtkPanelMark::Update()
 {
   this->MarkInstances.clear();
@@ -75,9 +104,9 @@ void vtkPanelMark::Update()
     {    
     numChildren = data.GetNumberOfChildren();
     }
-  for (vtkIdType j = 0; j < numMarks; ++j)
+  for (vtkIdType j = 0; j < numMarks; ++j) // types
     {
-    for (vtkIdType i = 0; i < numChildren; ++i)
+    for (vtkIdType i = 0; i < numChildren; ++i) // data series
       {
       this->Index = i;
       this->Marks[j]->DataChanged();
@@ -97,6 +126,11 @@ void vtkPanelMark::Update()
 void vtkPanelMark::PaintIds()
 {
   vtkDebugMacro("PaintId called.");
+  
+  this->PaintIdMode=true;
+  this->Paint(this->Scene->GetLastPainter());
+  this->PaintIdMode=false;
+#if 0
   size_t size = this->Marks.size();
   
   if(size>16777214) // 24-bit limit, 0 reserved for background encoding.
@@ -110,6 +144,7 @@ void vtkPanelMark::PaintIds()
     this->Scene->GetLastPainter()->ApplyId(i+1);
     this->Marks[i]->Paint(this->Scene->GetLastPainter());
     }
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -244,8 +279,22 @@ bool vtkPanelMark::Paint(vtkContext2D* painter)
     {
     numChildren = data.GetNumberOfChildren();
     }
+  
+  if(this->PaintIdMode)
+    {
+    if(numMarks>16777214) // 24-bit limit, 0 reserved for background encoding.
+      {
+      vtkWarningMacro(<<"picking will not work properly as there are too many marks. Marks over 16777214 will be ignored.");
+      numMarks=16777214;
+      }
+    }
+  
   for (size_t j = 0; j < numMarks; ++j)
     {
+    if(this->PaintIdMode)
+      {
+      painter->ApplyId(j+1);
+      }
     for (vtkIdType i = 0; i < numChildren; ++i)
       {
       this->Index = i;
@@ -257,6 +306,51 @@ bool vtkPanelMark::Paint(vtkContext2D* painter)
       }
     }
   return true;
+}
+
+// ----------------------------------------------------------------------------
+void vtkPanelMark::PaintIdsOfMark(vtkMark *m)
+{
+  assert("pre: m_exists" && m!=0);
+  
+  vtkIdType idx=this->FindIndex(m);
+  
+  //TODO: Be smarter about the update
+  this->Update();
+
+  vtkContext2D *painter=this->Scene->GetLastPainter();
+  
+  if (!painter->GetTransform())
+    {
+    vtkSmartPointer<vtkTransform2D> trans = vtkSmartPointer<vtkTransform2D>::New();
+    trans->Identity();
+    painter->SetTransform(trans);
+    }
+
+  double* left = this->Left.GetArray(this);
+  double* bottom = this->Bottom.GetArray(this);  
+  size_t numMarks = this->Marks.size();
+  
+  vtkDataElement data = this->Data.GetData(this);
+  vtkIdType numChildren = 1;
+  if(data.IsValid())
+    {
+    numChildren = data.GetNumberOfChildren();
+    }
+  
+  size_t j=static_cast<size_t>(idx);
+  for (vtkIdType i = 0; i < numChildren; ++i)
+    {
+    this->Index = i;
+    painter->GetTransform()->Translate(left[i], bottom[i]);
+    painter->SetTransform(painter->GetTransform());
+    this->MarkInstances[j*numChildren + i]->SetScene(this->Scene);
+    this->MarkInstances[j*numChildren + i]->PaintIdModeBegin();
+    this->MarkInstances[j*numChildren + i]->Paint(painter);
+    this->MarkInstances[j*numChildren + i]->PaintIdModeEnd();
+    painter->GetTransform()->Translate(-left[i], -bottom[i]);
+    painter->SetTransform(painter->GetTransform());
+    }
 }
 
 //-----------------------------------------------------------------------------

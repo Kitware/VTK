@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextItem, "1.8");
+vtkCxxRevisionMacro(vtkContextItem, "1.9");
 vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D);
 
 //-----------------------------------------------------------------------------
@@ -119,6 +119,11 @@ void vtkContextItem::Translate(float dx, float dy)
     this->Transform = vtkTransform2D::New();
     }
   this->Transform->Translate(dx, dy);
+}
+
+// ----------------------------------------------------------------------------
+void vtkContextItem::ReleaseGraphicsResources()
+{
 }
 
 //-----------------------------------------------------------------------------

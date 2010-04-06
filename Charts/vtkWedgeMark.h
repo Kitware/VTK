@@ -42,7 +42,7 @@ class vtkDataObject;
 class vtkPen;
 class vtkInformationDoubleKey;
 class vtkInformationStringKey;
-class vtkContextBufferId;
+class vtkAbstractContextBufferId;
 
 class VTK_CHARTS_EXPORT vtkWedgeMark : public vtkMark
 {
@@ -185,13 +185,17 @@ public:
   
   virtual int GetType();
   
+  // Description:
+  // Release graphics resources hold by the item.
+  virtual void ReleaseGraphicsResources();
+  
 protected:
   vtkWedgeMark();
   ~vtkWedgeMark();
   
   bool MouseOver; // tell if the mouse cursor entered the panel
   
-  vtkContextBufferId *BufferId;
+  vtkAbstractContextBufferId *BufferId;
   
   int ActiveItem;
   bool PaintIdMode;

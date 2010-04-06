@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestContext.cxx
     TestVector.cxx
     TestMarks.cxx
+    TestMarksCallback.cxx
     TestMarksGanttChart.cxx
     TestMarksWedge.cxx
     TestMarksWedgeCallback.cxx
