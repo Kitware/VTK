@@ -130,6 +130,7 @@ protected:
   // The point cache is marked dirty until it has been initialized.
   vtkTimeStamp BuildTime;
 
+  void ResetSelection();
   void UpdateGeometry();
   void CalculatePlotTransform();
 
