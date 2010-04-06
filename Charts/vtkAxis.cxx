@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.20");
+vtkCxxRevisionMacro(vtkAxis, "1.20.2.1");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -215,6 +215,14 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToBottom();
       }
+    else if (this->Position == vtkAxis::PARALLEL)
+      {
+      x = static_cast<int>(this->Point1[0]);
+      y = static_cast<int>(this->Point1[1] - 10);
+      prop->SetOrientation(0.0);
+      prop->SetVerticalJustificationToTop();
+      }
+
     painter->DrawString(x, y, this->Title);
     }
 
@@ -227,7 +235,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 
   // There are four possible tick label positions, which should be set by the
   // class laying out the axes.
-  if (this->Position == vtkAxis::LEFT)
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL)
     {
     prop->SetJustificationToRight();
     prop->SetVerticalJustificationToCentered();
@@ -317,8 +325,8 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
   // First get the order of the range of the numbers
   if (this->Maximum == this->Minimum)
     {
-    vtkWarningMacro(<< "Minimum and maximum values are equal - invalid.");
-    return 0.0f;
+    this->Minimum *= 0.95;
+    this->Maximum *= 1.05;
     }
   float range = this->Maximum - this->Minimum;
   bool isNegative = false;
@@ -410,7 +418,10 @@ float vtkAxis::NiceNumber(float n, bool roundUp)
 void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Axis title: \"" << *this->Title << "\"" << endl;
+  if (this->Title)
+    {
+    os << indent << "Axis title: \"" << *this->Title << "\"" << endl;
+    }
   os << indent << "Minimum point: " << this->Point1[0] << ", "
      << this->Point1[1] << endl;
   os << indent << "Maximum point: " << this->Point2[0] << ", "

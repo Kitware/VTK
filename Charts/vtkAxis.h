@@ -45,7 +45,8 @@ public:
     LEFT = 0,
     BOTTOM,
     RIGHT,
-    TOP
+    TOP,
+    PARALLEL
   };
 //ETX
 
