@@ -50,6 +50,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkAlgorithmOutput;
+class vtkAnnotationLayers;
 class vtkAnnotationLink;
 class vtkDataObject;
 class vtkSelection;
@@ -97,6 +98,20 @@ public:
   void Select(vtkView* view, vtkSelection* selection, bool extend);
 
   // Description:
+  // Analagous to Select(). The view calls this method when it needs to
+  // change the underlying annotations (some views might perform the
+  // creation of annotations). The representation takes the annotations
+  // and converts them into a selection on its data by calling ConvertAnnotations,
+  // then calls UpdateAnnotations with the converted selection.
+  // Subclasses should not overrride this method, but should instead
+  // override ConvertSelection.
+  // The optional third argument specifies whether the selection should be
+  // added to the previous selection on this representation.
+  void Annotate(vtkView* view, vtkAnnotationLayers* annotations)
+    { this->Annotate(view, annotations, false); }
+  void Annotate(vtkView* view, vtkAnnotationLayers* annotations, bool extend);
+
+  // Description:
   // Whether this representation is able to handle a selection.
   // Default is true.
   vtkSetMacro(Selectable, bool);
@@ -112,6 +127,16 @@ public:
   void UpdateSelection(vtkSelection* selection)
     { this->UpdateSelection(selection, false); }
   void UpdateSelection(vtkSelection* selection, bool extend);
+
+  // Description:
+  // Updates the selection in the selection link and fires a selection
+  // change event. Subclasses should not overrride this method,
+  // but should instead override ConvertSelection.
+  // The optional second argument specifies whether the selection should be
+  // added to the previous selection on this representation.
+  void UpdateAnnotations(vtkAnnotationLayers* annotations)
+    { this->UpdateAnnotations(annotations, false); }
+  void UpdateAnnotations(vtkAnnotationLayers* annotations, bool extend);
 
   // Description:
   // The output port that contains the annotations whose selections are
@@ -234,6 +259,12 @@ protected:
   // from a frustrum to a list of pedigree ids.  If the selection cannot
   // be applied to this representation, return NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
+
+  // Description:
+  // Analogous to ConvertSelection(), allows subclasses to manipulate annotations
+  // before passing them off to vtkAnnotationLink.  If the annotations cannot
+  // be applied to this representation, return NULL.
+  virtual vtkAnnotationLayers* ConvertAnnotations(vtkView* view, vtkAnnotationLayers* annotations);
 
 private:
   vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.

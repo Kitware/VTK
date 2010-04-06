@@ -20,6 +20,7 @@
 
 #include "vtkDataRepresentation.h"
 
+#include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelectionDomain.h"
@@ -86,7 +87,7 @@ private:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.14");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.15");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   AnnotationLinkInternal, vtkAnnotationLink);
@@ -269,6 +270,49 @@ void vtkDataRepresentation::UpdateSelection(vtkSelection* selection, bool extend
     }
   this->AnnotationLinkInternal->SetCurrentSelection(selection);
   this->InvokeEvent(vtkCommand::SelectionChangedEvent, reinterpret_cast<void*>(selection));
+}
+
+
+//----------------------------------------------------------------------------
+void vtkDataRepresentation::Annotate(
+  vtkView* view, vtkAnnotationLayers* annotations, bool extend)
+{
+  vtkAnnotationLayers* converted = this->ConvertAnnotations(view, annotations);
+  if (converted)
+    {
+    this->UpdateAnnotations(converted, extend);
+    if (converted != annotations)
+      {
+      converted->Delete();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAnnotationLayers* vtkDataRepresentation::ConvertAnnotations(
+  vtkView* vtkNotUsed(view), vtkAnnotationLayers* annotations)
+{
+  return annotations;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataRepresentation::UpdateAnnotations(vtkAnnotationLayers* annotations, bool extend)
+{
+  if (extend)
+    {
+    // Append the annotations to the existing set of annotations on the link
+    vtkAnnotationLayers* currentAnnotations = this->AnnotationLinkInternal->GetAnnotationLayers();
+    for(int i=0; i<annotations->GetNumberOfAnnotations(); ++i)
+      {
+      currentAnnotations->AddAnnotation(annotations->GetAnnotation(i));
+      }
+    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(currentAnnotations));
+    }
+  else
+    {
+    this->AnnotationLinkInternal->SetAnnotationLayers(annotations);
+    this->InvokeEvent(vtkCommand::AnnotationChangedEvent, reinterpret_cast<void*>(annotations));
+    }
 }
 
 //----------------------------------------------------------------------------
