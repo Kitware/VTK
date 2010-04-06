@@ -141,7 +141,8 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
     }
 
   // Draw all of the lines
-  painter->GetPen()->SetColor(230, 230, 230, 255);
+  //painter->GetPen()->SetColor(230, 230, 230, 255);
+  painter->GetPen()->SetColor(0, 0, 0, 25);
   for (size_t i = 0; i < rows; ++i)
     {
     for (size_t j = 0; j < cols; ++j)

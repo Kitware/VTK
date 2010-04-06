@@ -216,6 +216,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   this->Storage->SaveGLState();
   glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
 
   this->Renderer = vtkRenderer::SafeDownCast(viewport);
   this->TextRenderer->SetRenderer(this->Renderer);
@@ -338,7 +339,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
   int usize, vsize;
   this->Renderer->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
   this->BufferId->SetValues(lowerLeft[0],lowerLeft[1]);
-  
+
   // Restore OpenGL state (only if it's different to avoid too much state
   // change).
   glMatrixMode(GL_PROJECTION);
