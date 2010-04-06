@@ -19,7 +19,7 @@
 // through the DirectX API. As recommended by Microsoft, the WMI interface is
 // used for Windows XP and the DXGI interface is used for Windows Vista and
 // later. (see documentation of VideoMemory sample of the DirectX SDK)
-// ref: http://msdn.microsoft.com/en-us/library/cc308070(VS.85).aspx
+// ref: http://msdn.microsoft.com/en-us/library/ee419018(v=VS.85)
 // .SECTION See Also
 // vtkGPUInfo vtkGPUInfoList
 
