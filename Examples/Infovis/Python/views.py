@@ -15,6 +15,8 @@ graphReader.SetFileName(xmlRootDir+"vtkclasses.xml")
 graphReader.SetEdgePedigreeIdArrayName("graph edge")
 graphReader.GenerateVertexPedigreeIdsOff();
 graphReader.SetVertexPedigreeIdArrayName("id");
+graphReader.Update()
+print graphReader.GetOutput()
 
 # Create a tree layout strategy
 treeStrat = vtkTreeLayoutStrategy();
@@ -25,14 +27,17 @@ treeStrat.SetLogSpacingValue(1)
 view0 = vtkTreeRingView()
 view0.SetTreeFromInputConnection(treeReader.GetOutputPort())
 view0.SetGraphFromInputConnection(graphReader.GetOutputPort())
-view0.SetAreaColorArrayName("VertexDegree")
-view0.SetEdgeColorArrayName("tree edge")
-view0.SetAreaHoverArrayName("id")
-view0.SetColorEdges(True)
 view0.SetAreaLabelArrayName("id")
+view0.SetAreaColorArrayName("VertexDegree")
+view0.SetAreaHoverArrayName("id")
 view0.SetAreaLabelVisibility(True)
 view0.SetShrinkPercentage(0.02)
-view0.SetBundlingStrength(.5)
+view0.SetBundlingStrength(.75)
+view0.Update()
+view0.SetEdgeColorArrayName("graph edge")
+view0.SetColorEdges(True)
+
+
 
 # Create a graph layout view
 view1 = vtkGraphLayoutView()
