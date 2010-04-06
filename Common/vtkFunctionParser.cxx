@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.45");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.45.4.1");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -534,7 +534,8 @@ bool vtkFunctionParser::Evaluate()
   
   this->StackPointer = -1;
 
-  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime())
+  if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime() ||
+    this->VariableMTime.GetMTime() > this->ParseMTime.GetMTime())
     {
     if (this->Parse() == 0)
       {
