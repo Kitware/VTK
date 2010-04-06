@@ -23,7 +23,7 @@
 #include "vtkContextScene.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.9");
+vtkCxxRevisionMacro(vtkPanelMark, "1.10");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------
@@ -328,8 +328,7 @@ void vtkPanelMark::PaintIdsOfMark(vtkMark *m)
     }
 
   double* left = this->Left.GetArray(this);
-  double* bottom = this->Bottom.GetArray(this);  
-  size_t numMarks = this->Marks.size();
+  double* bottom = this->Bottom.GetArray(this);
   
   vtkDataElement data = this->Data.GetData(this);
   vtkIdType numChildren = 1;
