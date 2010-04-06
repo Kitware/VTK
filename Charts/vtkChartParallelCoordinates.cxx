@@ -63,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.8");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.9");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -408,14 +408,20 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
             axis->GetPoint1()[0]+10 > mouse.ScenePos[0])
           {
           this->Storage->CurrentAxis = static_cast<int>(i);
-          this->Scene->SetDirty(true);
+          vtkVector<float, 2>& range = this->Storage->AxesSelections[i];
+          if (range[0] != range[1])
+            {
+            range[0] = range[1] = 0.0f;
+            this->ResetSelection();
+            }
 
           // Transform into normalized coordinates
           float low = mouse.ScenePos[1];
           low -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
           low /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
-          this->Storage->AxesSelections[i][0] = low;
-          this->Storage->AxesSelections[i][1] = low;
+          range[0] = range[1] = low;
+
+          this->Scene->SetDirty(true);
           return true;
           }
         }
@@ -467,28 +473,7 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
 
       if (range[0] == range[1])
         {
-        // Reset the axes.
-        this->Storage->Plot->ResetSelectionRange();
-
-        // Now set the remaining selections that were kept
-        for (size_t i = 0; i < this->Storage->AxesSelections.size(); ++i)
-          {
-          vtkVector<float, 2> &range2 = this->Storage->AxesSelections[i];
-          if (range2[0] != range2[1])
-            {
-            // Process the selected range and display this
-            if (range[0] < range[1])
-              {
-              this->Storage->Plot->SetSelectionRange(static_cast<int>(i),
-                                                     range2[0], range2[1]);
-              }
-            else
-              {
-              this->Storage->Plot->SetSelectionRange(static_cast<int>(i),
-                                                     range2[1], range2[0]);
-              }
-            }
-          }
+        this->ResetSelection();
         }
       else
         {
@@ -527,6 +512,34 @@ bool vtkChartParallelCoordinates::MouseWheelEvent(const vtkContextMouseEvent &,
                                                   int)
 {
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::ResetSelection()
+{
+  // This function takes care of resetting the selection of the chart
+  // Reset the axes.
+  this->Storage->Plot->ResetSelectionRange();
+
+  // Now set the remaining selections that were kept
+  for (size_t i = 0; i < this->Storage->AxesSelections.size(); ++i)
+    {
+    vtkVector<float, 2> &range = this->Storage->AxesSelections[i];
+    if (range[0] != range[1])
+      {
+      // Process the selected range and display this
+      if (range[0] < range[1])
+        {
+        this->Storage->Plot->SetSelectionRange(static_cast<int>(i),
+                                               range[0], range[1]);
+        }
+      else
+        {
+        this->Storage->Plot->SetSelectionRange(static_cast<int>(i),
+                                               range[1], range[0]);
+        }
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
