@@ -63,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.9");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.10");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -377,8 +377,13 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
       }
     this->Scene->SetDirty(true);
     }
-  else if (mouse.Button == 2)
+  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
     {
+    vtkAxis* axis = this->Storage->Axes[this->Storage->CurrentAxis];
+    float deltaX = mouse.ScenePos.X() - mouse.LastScenePos.X();
+    axis->SetPoint1(axis->GetPoint1()[0]+deltaX, axis->GetPoint1()[1]);
+    axis->SetPoint2(axis->GetPoint2()[0]+deltaX, axis->GetPoint2()[1]);
+    this->Scene->SetDirty(true);
     }
 
   return true;
@@ -430,10 +435,19 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
     this->Scene->SetDirty(true);
     return true;
     }
-  else if (mouse.Button == 2)
+  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
     {
-    // Right mouse button - zoom box
-
+    // Middle mouse button - move and zoom the axes
+    // Iterate over the axes, see if we are within 10 pixels of an axis
+    for (size_t i = 0; i < this->Storage->Axes.size(); ++i)
+      {
+      vtkAxis* axis = this->Storage->Axes[i];
+      if (axis->GetPoint1()[0]-10 < mouse.ScenePos[0] &&
+          axis->GetPoint1()[0]+10 > mouse.ScenePos[0])
+        {
+        this->Storage->CurrentAxis = static_cast<int>(i);
+        }
+      }
     return true;
     }
   else

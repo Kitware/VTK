@@ -49,7 +49,7 @@ public:
   bool SelectionInitialized;
 };
 
-vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.4");
+vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.5");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotParallelCoordinates);
@@ -156,7 +156,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
   // Now draw the selected lines
   if (this->Selection)
     {
-    painter->GetPen()->SetColor(255, 0, 0, 255);
+    painter->GetPen()->SetColor(255, 0, 0, 100);
     for (vtkIdType i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
       for (size_t j = 0; j < cols; ++j)
