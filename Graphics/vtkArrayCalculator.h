@@ -231,8 +231,6 @@ protected:
   int     NumberOfCoordinateVectorArrays;
 
   int     ResultArrayType;
-  int     VectorsOutdated;
-  int     FunctionType;
 private:
   vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
   void operator=(const vtkArrayCalculator&);  // Not implemented.
