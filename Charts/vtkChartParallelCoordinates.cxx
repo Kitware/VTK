@@ -60,10 +60,11 @@ public:
   vtkstd::vector<vtkAxis *> Axes;
   vtkstd::vector<vtkVector<float, 2> > AxesSelections;
   int CurrentAxis;
+  int AxisResize;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.10");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.11");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -380,9 +381,54 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
   else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
     {
     vtkAxis* axis = this->Storage->Axes[this->Storage->CurrentAxis];
-    float deltaX = mouse.ScenePos.X() - mouse.LastScenePos.X();
-    axis->SetPoint1(axis->GetPoint1()[0]+deltaX, axis->GetPoint1()[1]);
-    axis->SetPoint2(axis->GetPoint2()[0]+deltaX, axis->GetPoint2()[1]);
+    if (this->Storage->AxisResize == 0)
+      {
+      // Move the axis in x
+      float deltaX = mouse.ScenePos.X() - mouse.LastScenePos.X();
+      axis->SetPoint1(axis->GetPoint1()[0]+deltaX, axis->GetPoint1()[1]);
+      axis->SetPoint2(axis->GetPoint2()[0]+deltaX, axis->GetPoint2()[1]);
+      }
+    else if (this->Storage->AxisResize == 1)
+      {
+      // Modify the bottom axis range...
+      float deltaY = mouse.ScenePos.Y() - mouse.LastScenePos.Y();
+      float scale = (axis->GetPoint2()[1]-axis->GetPoint1()[1]) /
+                    (axis->GetMaximum() - axis->GetMinimum());
+      axis->SetMinimum(axis->GetMinimum() - deltaY/scale);
+      // If there is an active selection on the axis, remove it
+      vtkVector<float, 2>& range =
+          this->Storage->AxesSelections[this->Storage->CurrentAxis];
+      if (range[0] != range[1])
+        {
+        range[0] = range[1] = 0.0f;
+        this->ResetSelection();
+        }
+
+      // Now update everything that needs to be
+      axis->Update();
+      axis->RecalculateTickSpacing();
+      this->Storage->Plot->Update();
+      }
+    else if (this->Storage->AxisResize == 2)
+      {
+      // Modify the bottom axis range...
+      float deltaY = mouse.ScenePos.Y() - mouse.LastScenePos.Y();
+      float scale = (axis->GetPoint2()[1]-axis->GetPoint1()[1]) /
+                    (axis->GetMaximum() - axis->GetMinimum());
+      axis->SetMaximum(axis->GetMaximum() - deltaY/scale);
+      // If there is an active selection on the axis, remove it
+      vtkVector<float, 2>& range =
+          this->Storage->AxesSelections[this->Storage->CurrentAxis];
+      if (range[0] != range[1])
+        {
+        range[0] = range[1] = 0.0f;
+        this->ResetSelection();
+        }
+
+      axis->Update();
+      axis->RecalculateTickSpacing();
+      this->Storage->Plot->Update();
+      }
     this->Scene->SetDirty(true);
     }
 
@@ -396,8 +442,8 @@ bool vtkChartParallelCoordinates::MouseLeaveEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEvent
-                                                        &mouse)
+bool vtkChartParallelCoordinates::MouseButtonPressEvent(
+    const vtkContextMouseEvent& mouse)
 {
   if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
@@ -446,6 +492,23 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
           axis->GetPoint1()[0]+10 > mouse.ScenePos[0])
         {
         this->Storage->CurrentAxis = static_cast<int>(i);
+        if (mouse.ScenePos.Y() > axis->GetPoint1()[1] &&
+            mouse.ScenePos.Y() < axis->GetPoint1()[1] + 20)
+          {
+          // Resize the bottom of the axis
+          this->Storage->AxisResize = 1;
+          }
+        else if (mouse.ScenePos.Y() < axis->GetPoint2()[1] &&
+                 mouse.ScenePos.Y() > axis->GetPoint2()[1] - 20)
+          {
+          // Resize the top of the axis
+          this->Storage->AxisResize = 2;
+          }
+        else
+          {
+          // Move the axis
+          this->Storage->AxisResize = 0;
+          }
         }
       }
     return true;
@@ -457,8 +520,8 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseEvent
-                                                          &mouse)
+bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
+    const vtkContextMouseEvent& mouse)
 {
   if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
@@ -517,6 +580,13 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
       this->InvokeEvent(vtkCommand::SelectionChangedEvent);
       this->Scene->SetDirty(true);
       }
+    return true;
+    }
+  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+    {
+    this->Storage->CurrentAxis = -1;
+    this->Storage->AxisResize = 0;
+    return true;
     }
   return false;
 }
