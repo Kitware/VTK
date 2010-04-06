@@ -49,7 +49,6 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkInformation;
-class vtkComponentNames;
 
 class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
 {
@@ -94,16 +93,21 @@ public:
 
   // Description:
   // Set the name for a component. Must be >= 1. 
-  void SetComponentName( int component, const char *name );
+  void SetComponentName( vtkIdType component, const char *name );
   
   //Description:
   // Get the component name for a given component.
   // Note: will return the actual string that is stored
-  const char* GetComponentName( int component );
+  const char* GetComponentName( vtkIdType component );
 
   // Description:
   // Returns if any component has had a name assigned
   bool HasAComponentName();
+
+  // Description:
+  // Copies the component names from the inputed array to the current array
+  // make sure that the current array has the same number of components as the input array
+  int CopyComponentNames( vtkAbstractArray *da );
   
   // Description:
   // Set the number of tuples (a component group) in the array. Note that 
@@ -353,7 +357,10 @@ protected:
 
   vtkInformation* Information;
 
-  vtkComponentNames* ComponentNames; //names for each component
+  //BTX
+  class vtkInternalComponentNames;
+  vtkInternalComponentNames* ComponentNames; //names for each component
+  //ETX
 
 private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.

@@ -33,10 +33,13 @@
 
 #include <vtkstd/vector>
 
-typedef  vtkstd::vector< vtkStdString* > vtkComponentNameBase;
-class vtkComponentNames : public vtkComponentNameBase {};
+namespace
+{
+  typedef  vtkstd::vector< vtkStdString* > vtkInternalComponentNameBase;
+}
+class vtkDataSetAttributes::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.35");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.36");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -622,19 +625,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
         {
         newAA = aa->NewInstance();
         newAA->SetNumberOfComponents(aa->GetNumberOfComponents());
-        //set the component names
-        if ( aa->HasAComponentName() )
-          {
-          const char *name;
-          for ( vtkIdType i = 0; i < newAA->GetNumberOfComponents(); ++i)
-            {
-            name = aa->GetComponentName(i);
-            if ( name )
-              {
-              newAA->SetComponentName(i, name );
-              }
-            }
-          }
+        newAA->CopyComponentNames( aa );        
         newAA->SetName(aa->GetName());
         if (aa->HasInformation())
           {
@@ -1686,7 +1677,8 @@ void vtkDataSetAttributes::FieldList::InitializeFieldList(
   this->Fields = new char*[this->NumberOfFields];
   this->FieldTypes = new int [this->NumberOfFields];
   this->FieldComponents = new int [this->NumberOfFields];
-  this->FieldComponentsNames = new vtkComponentNames*[ this->NumberOfFields ];
+  this->FieldComponentsNames = 
+    new vtkDataSetAttributes::vtkInternalComponentNames*[this->NumberOfFields];
   this->FieldIndices = new int [this->NumberOfFields];
   this->LUT = new vtkLookupTable* [this->NumberOfFields];
   this->FieldInformation = new vtkInformation* [this->NumberOfFields];
@@ -1866,7 +1858,9 @@ void vtkDataSetAttributes::FieldList::GrowBy(unsigned int delta)
   char** newFields = new char*[new_size];
   int* newFieldTypes = new int[new_size];
   int* newFieldComponents = new int [new_size];
-  vtkComponentNames** newFieldComponentsNames = new vtkComponentNames* [ new_size ];
+  vtkDataSetAttributes::vtkInternalComponentNames** newFieldComponentsNames
+    = new vtkDataSetAttributes::vtkInternalComponentNames* [ new_size ];
+
   int* newFieldIndices = new int [new_size];
   vtkLookupTable** newLUT = new vtkLookupTable* [new_size];
   vtkInformation** newFieldInformation = new vtkInformation* [new_size];
@@ -2101,7 +2095,8 @@ void vtkDataSetAttributes::FieldList::SetField(
   //so we unallocate correctly
   if ( !this->FieldComponentsNames[index] )
     {
-    this->FieldComponentsNames[index] = new vtkComponentNames();
+    this->FieldComponentsNames[index] = 
+      new vtkDataSetAttributes::vtkInternalComponentNames();
     }
   
   //delete the array of component names

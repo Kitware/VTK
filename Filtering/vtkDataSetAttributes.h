@@ -598,6 +598,7 @@ public:
   // This public class is used to perform set operations, other misc. 
   // operations on fields. For example, vtkAppendFilter uses it to 
   // determine which attributes the input datasets share in common.
+  class vtkInternalComponentNames;
   class VTK_FILTERING_EXPORT FieldList
   {
   public:
@@ -646,10 +647,11 @@ public:
     char** Fields;                     // the names of the fields
     int *FieldTypes;                   // the types of the fields
     int *FieldComponents;              // the number of components in field    
-    int *FieldIndices;                 // output data array index
-    vtkComponentNames **FieldComponentsNames;       // the name for each component in the field
+    int *FieldIndices;                 // output data array index    
     vtkLookupTable **LUT;              // luts associated with each array
     vtkInformation **FieldInformation; // Information map associated with each array
+    
+    vtkInternalComponentNames **FieldComponentsNames;       // the name for each component in the field
 
     vtkIdType NumberOfTuples; // a running total of values
 
@@ -662,8 +664,7 @@ public:
     int NumberOfDSAIndices;
     int CurrentInput;
     
-  };
-
+  };  
 //ETX
 };
 

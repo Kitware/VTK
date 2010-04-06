@@ -143,5 +143,69 @@ int TestDataArrayComponentNames(int,char *[])
 
   deepCopy->Delete();
   farray->Delete();  
+
+
+  //test the copy components command
+  vtkIntArray *source = vtkIntArray::New();
+  source->SetComponentName(0,"x");
+  source->SetComponentName(1,"y");
+  source->SetComponentName(2,"z");
+
+  vtkIntArray *dest = vtkIntArray::New();
+  dest->SetComponentName(0,"a");
+  dest->SetComponentName(1,"b");
+  dest->SetComponentName(2,"c");
+
+  dest->CopyComponentNames( source );
+  if (  strcmp(dest->GetComponentName(0),"x") != 0|| 
+        strcmp(dest->GetComponentName(1),"y") != 0|| 
+        strcmp(dest->GetComponentName(2),"z") != 0) 
+    {
+    cerr 
+      << "Copy Component Names failed to work correctly";
+    dest->Delete();
+    source->Delete();
+    return 1;
+    }
+  
+  dest->Delete();
+
+  //test copy when dest has a null pointer
+  dest = vtkIntArray::New();
+  dest->CopyComponentNames( source );
+  if (  strcmp(dest->GetComponentName(0),"x") != 0|| 
+        strcmp(dest->GetComponentName(1),"y") != 0|| 
+        strcmp(dest->GetComponentName(2),"z") != 0) 
+    {
+    cerr 
+      << "Copy Component Names failed to work correctly";
+    dest->Delete();
+    source->Delete();
+    return 1;
+    }
+
+  dest->Delete();
+
+  //test copy when dest had more components
+  dest = vtkIntArray::New();
+  dest->SetComponentName(10,"10");
+  dest->CopyComponentNames( source );
+  if (  strcmp(dest->GetComponentName(0),"x") != 0|| 
+        strcmp(dest->GetComponentName(1),"y") != 0|| 
+        strcmp(dest->GetComponentName(2),"z") != 0) 
+    {
+    cerr 
+      << "Copy Component Names failed to work correctly";
+    dest->Delete();
+    source->Delete();
+    return 1;
+    }
+
+
+
+  dest->Delete();
+  source->Delete();
+
+
   return 0;
 }
