@@ -138,13 +138,22 @@ protected:
     vtkInformationVector* outputVector);
 
   // Description:
-  // Combine clipping and contouring of cells into one single method.
-  // The inputCellDimensionality must be set to the dimensionality of
-  // the inputCells (1 or 2), and the inputCell must be either
-  // lines/polylines or polys/quads/tris. 
-  void ClipAndContourCells(
+  // Method for clipping lines and copying the scalar data.
+  void ClipLines(
     vtkPoints *points, vtkDoubleArray *pointScalars,
-    vtkIncrementalPointLocator *locator, int inputCellDimensionality,
+    vtkIncrementalPointLocator *locator,
+    vtkCellArray *inputCells, vtkCellArray *outputLines,
+    vtkPointData *inPointData, vtkPointData *outPointData,
+    vtkCellData *inCellData, vtkCellData *outLineData);
+
+  // Description:
+  // Clip and contour polys in one step, in order to guarantee
+  // that the contour lines exactly match the new free edges of
+  // the clipped polygons.  This exact correspondence is necessary
+  // in order to guarantee that the surface remains closed.
+  void ClipAndContourPolys(
+    vtkPoints *points, vtkDoubleArray *pointScalars,
+    vtkIncrementalPointLocator *locator, int triangulate,
     vtkCellArray *inputCells, vtkCellArray *outputPolys,
     vtkCellArray *outputLines, vtkPointData *inPointData,
     vtkPointData *outPointData, vtkCellData *inCellData,
