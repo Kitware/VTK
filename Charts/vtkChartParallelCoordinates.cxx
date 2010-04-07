@@ -46,6 +46,7 @@ public:
     this->Plot = vtkSmartPointer<vtkPlotParallelCoordinates>::New();
     this->Transform = vtkSmartPointer<vtkTransform2D>::New();
     this->CurrentAxis = -1;
+    this->AxisResize = -1;
     }
   ~Private()
     {
@@ -64,7 +65,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.11");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.12");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -585,7 +586,7 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
   else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
     {
     this->Storage->CurrentAxis = -1;
-    this->Storage->AxisResize = 0;
+    this->Storage->AxisResize = -1;
     return true;
     }
   return false;
