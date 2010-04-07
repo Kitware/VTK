@@ -38,7 +38,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.4");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.5");
 vtkStandardNewMacro(vtkGraphHierarchicalBundleEdges);
 
 vtkGraphHierarchicalBundleEdges::vtkGraphHierarchicalBundleEdges()
@@ -161,7 +161,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
             }
           else
             {
-            graphDomain == graphIdArray->GetName();
+            graphDomain = graphIdArray->GetName();
             }
           if(graphDomain != treeDomain)
             {
