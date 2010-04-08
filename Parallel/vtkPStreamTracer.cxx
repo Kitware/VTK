@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.23");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.24");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -139,7 +139,7 @@ void vtkPStreamTracer::MoveToNextSend(vtkPolyData *output)
 // originated in another process to that process. This information
 // is stored in the "Streamline Origin" array.
 void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
-{
+{ 
   vtkIntArray* strOrigin = vtkIntArray::SafeDownCast(
     output->GetCellData()->GetArray("Streamline Origin"));
   if (!strOrigin)
@@ -147,6 +147,7 @@ void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
     this->MoveToNextSend(output);
     return;
     }
+  
   int numLines = strOrigin->GetNumberOfTuples();
   int streamId, sendToId;
   int i;
@@ -155,7 +156,7 @@ void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
     sendToId = strOrigin->GetValue(2*i);
     streamId = strOrigin->GetValue(2*i+1);
     if (streamId != -1)
-      {
+      { 
       this->Controller->Send(&streamId, 1, sendToId, 733);
       this->SendCellPoint(output, i, 0, sendToId);
       }
@@ -353,13 +354,25 @@ int vtkPStreamTracer::RequestData(
   vtkPolyData* output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkAbstractInterpolatedVelocityField* func;
+  // init 'func' with NULL such that we can check it later to determine
+  // if we need to deallocate 'func' in case CheckInputs() fails (note
+  // that a process may be assigned no any dataset when the number of
+  // processes is greater than that of the blocks)
+  vtkAbstractInterpolatedVelocityField * func = NULL;
   int maxCellSize = 0;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
     {
     vtkDebugMacro("No appropriate inputs have been found..");
     this->EmptyData = 1;
-    func->Delete();
+    
+    // the if-statement below is a MUST since 'func' may be still NULL 
+    // when this->InputData is NULL ---- no any data has been assigned
+    // to this process
+    if ( func )
+      {
+      func->Delete();
+      func = NULL;
+      }
     }
   else
     {
