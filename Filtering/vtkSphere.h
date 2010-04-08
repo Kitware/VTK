@@ -45,12 +45,12 @@ public:
   void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
-  // Set / get the radius of the sphere.
+  // Set / get the radius of the sphere. The default is 0.5.
   vtkSetMacro(Radius,double);
   vtkGetMacro(Radius,double);
 
   // Description:
-  // Set / get the center of the sphere.
+  // Set / get the center of the sphere. The default is (0,0,0).
   vtkSetVector3Macro(Center,double);
   vtkGetVectorMacro(Center,double,3);
 
