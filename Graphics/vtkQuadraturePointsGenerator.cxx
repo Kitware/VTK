@@ -42,7 +42,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.15");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.16");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -147,6 +147,7 @@ int vtkQuadraturePointsGenerator::GenerateField(vtkUnstructuredGrid *usgIn,
     vtkDataArray *V_out = data->NewInstance();
     V_out->SetName(data->GetName());
     V_out->SetNumberOfComponents(data->GetNumberOfComponents());
+    V_out->CopyComponentNames( data );
     for (cellId = 0; cellId < ncell; cellId++)
       {
       vtkIdType offset = offsets->GetValue(cellId);
