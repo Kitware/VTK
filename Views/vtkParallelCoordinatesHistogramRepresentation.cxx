@@ -55,7 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnsignedIntArray.h"
 #include "vtkViewTheme.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelCoordinatesHistogramRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkParallelCoordinatesHistogramRepresentation, "1.4");
 vtkStandardNewMacro(vtkParallelCoordinatesHistogramRepresentation);
 //------------------------------------------------------------------------------
 vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRepresentation()
@@ -547,6 +547,11 @@ void vtkParallelCoordinatesHistogramRepresentation::SetNumberOfHistogramBins(int
 
     this->Modified();
     }
+}
+//------------------------------------------------------------------------------
+void vtkParallelCoordinatesHistogramRepresentation::SetNumberOfHistogramBins(int* n)
+{
+  this->SetNumberOfHistogramBins(n[0],n[1]);
 }
 //------------------------------------------------------------------------------
 vtkImageData* vtkParallelCoordinatesHistogramRepresentation::GetHistogramImage(int idx)
