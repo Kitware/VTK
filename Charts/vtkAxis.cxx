@@ -28,7 +28,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.23");
+vtkCxxRevisionMacro(vtkAxis, "1.24");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -90,17 +90,32 @@ vtkAxis::~vtkAxis()
 //-----------------------------------------------------------------------------
 void vtkAxis::Update()
 {
+  if (!this->Visible || this->BuildTime > this->MTime)
+    {
+    return;
+    }
+
   this->TickPositions->SetNumberOfTuples(0);
   this->TickLabels->SetNumberOfTuples(0);
 
   // Figure out what type of behavior we should follow
-  if (this->Behavior == 1)
+  if (this->Behavior < 2)
     {
     this->RecalculateTickSpacing();
     }
 
   // Calculate where the first tick mark should be drawn
-  float tick = ceilf(this->Minimum / this->TickInterval) * this->TickInterval;
+  double tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
+  int n = (this->Maximum - this->Minimum) / this->TickInterval;
+
+  // If there will be more than 500 tick marks it is likely a rounding issue
+  // with a small range.
+  if (n > 500)
+    {
+    vtkWarningMacro("A large number of tick marks was calculated (" << n
+                    << "). This is likely an error.")
+    return;
+    }
 
   // If this check is not used, and the first tick is at 0.0 then it has the
   // negative sign bit set. This check gets rid of the negative bit but is quite
@@ -110,8 +125,8 @@ void vtkAxis::Update()
     tick = 0.0f;
     }
 
-  float scaling = 0.0;
-  float origin = 0.0;
+  double scaling = 0.0;
+  double origin = 0.0;
   if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
     {
     scaling = (this->Point2[1] - this->Point1[1]) /
@@ -124,13 +139,15 @@ void vtkAxis::Update()
               (this->Maximum - this->Minimum);
     origin = this->Point1[0];
     }
+
   while (tick <= this->Maximum)
     {
     // Calculate the next tick mark position
     int iTick = static_cast<int>(origin + (tick - this->Minimum) * scaling);
+
     this->TickPositions->InsertNextValue(iTick);
     // Make a tick mark label for the tick
-    float value = tick;
+    double value = tick;
     if (this->LogScale)
       {
       value = pow(double(10.0), double(tick));
@@ -157,6 +174,7 @@ void vtkAxis::Update()
 
     tick += this->TickInterval;
     }
+  this->BuildTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -315,12 +333,12 @@ void vtkAxis::RecalculateTickSpacing()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing,
   // discard the min and max in this case. TODO: Refactor the function called.
-  float min, max;
+  double min, max;
   this->TickInterval = this->CalculateNiceMinMax(min, max);
 }
 
 //-----------------------------------------------------------------------------
-float vtkAxis::CalculateNiceMinMax(float &min, float &max)
+float vtkAxis::CalculateNiceMinMax(double &min, double &max)
 {
   // First get the order of the range of the numbers
   if (this->Maximum == this->Minimum)
@@ -328,7 +346,7 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
     this->Minimum *= 0.95;
     this->Maximum *= 1.05;
     }
-  float range = this->Maximum - this->Minimum;
+  double range = this->Maximum - this->Minimum;
   bool isNegative = false;
   if (range < 0.0f)
     {
@@ -347,11 +365,11 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
     // The axes do not have a valid set of points - return
     return 0.0f;
     }
-  float tickSpacing = range / maxTicks;
+  double tickSpacing = range / maxTicks;
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
-  float normTickSpacing = tickSpacing * pow(10.0f, -order);
-  float niceTickSpacing = this->NiceNumber(normTickSpacing, true);
+  double normTickSpacing = tickSpacing * pow(10.0f, -order);
+  double niceTickSpacing = this->NiceNumber(normTickSpacing, true);
   niceTickSpacing *= pow(10.0f, order);
 
   if (isNegative)
@@ -372,44 +390,44 @@ float vtkAxis::CalculateNiceMinMax(float &min, float &max)
 }
 
 //-----------------------------------------------------------------------------
-float vtkAxis::NiceNumber(float n, bool roundUp)
+float vtkAxis::NiceNumber(double n, bool roundUp)
 {
   if (roundUp)
     {
-    if (n <= 1.0f)
+    if (n <= 1.0)
       {
-      return 1.0f;
+      return 1.0;
       }
-    else if (n <= 2.0f)
+    else if (n <= 2.0)
       {
-      return 2.0f;
+      return 2.0;
       }
-    else if (n <= 5.0f)
+    else if (n <= 5.0)
       {
-      return 5.0f;
+      return 5.0;
       }
     else
       {
-      return 10.0f;
+      return 10.0;
       }
     }
   else
     {
-    if (n < 1.5f)
+    if (n < 1.5)
       {
-      return 1.0f;
+      return 1.0;
       }
-    else if (n <= 3.0f)
+    else if (n <= 3.0)
       {
-      return 2.0f;
+      return 2.0;
       }
-    else if (n <= 7.0f)
+    else if (n <= 7.0)
       {
-      return 5.0f;
+      return 5.0;
       }
     else
       {
-      return 10.0f;
+      return 10.0;
       }
     }
 }
