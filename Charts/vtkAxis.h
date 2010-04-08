@@ -90,19 +90,19 @@ public:
 
   // Description:
   // Set the logical minimum value of the axis, in plot coordinates.
-  vtkSetMacro(Minimum, float);
+  vtkSetMacro(Minimum, double);
 
   // Description:
   // Get the logical minimum value of the axis, in plot coordinates.
-  vtkGetMacro(Minimum, float);
+  vtkGetMacro(Minimum, double);
 
   // Description:
   // Set the logical maximum value of the axis, in plot coordinates.
-  vtkSetMacro(Maximum, float);
+  vtkSetMacro(Maximum, double);
 
   // Description:
   // Get the logical maximum value of the axis, in plot coordinates.
-  vtkGetMacro(Maximum, float);
+  vtkGetMacro(Maximum, double);
 
   // Description:
   // Get/set the title text of the axis.
@@ -186,23 +186,23 @@ protected:
   // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
-  float CalculateNiceMinMax(float &min, float &max);
+  float CalculateNiceMinMax(double &min, double &max);
 
   // Description:
   // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
   // the nice number will be rounded up, false it is rounded down. The supplied
   // number should be between 0.0 and 9.9.
-  float NiceNumber(float number, bool roundUp);
+  float NiceNumber(double number, bool roundUp);
 
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float Point1[2];     // The position of point 1 (usually the origin)
   float Point2[2];     // The position of point 2 (usually the terminus)
-  float TickInterval;  // Interval between tick marks in plot space
+  double TickInterval;  // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   int TickLabelSize;   // The point size of the tick labels
-  float Minimum;       // Minimum value of the axis
-  float Maximum;       // Maximum values of the axis
+  double Minimum;       // Minimum value of the axis
+  double Maximum;       // Maximum values of the axis
   char* Title;         // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
@@ -222,6 +222,10 @@ protected:
 
   vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates
   vtkStringArray* TickLabels; // The labels for the tick marks
+
+  // Description:
+  // The point cache is marked dirty until it has been initialized.
+  vtkTimeStamp BuildTime;
 
 private:
   vtkAxis(const vtkAxis &); // Not implemented.
