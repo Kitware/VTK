@@ -33,6 +33,7 @@
 #include "vtkAnnotationLink.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkStringArray.h"
 
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
@@ -65,7 +66,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.12");
+vtkCxxRevisionMacro(vtkChartParallelCoordinates, "1.13");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartParallelCoordinates);
@@ -78,6 +79,7 @@ vtkChartParallelCoordinates::vtkChartParallelCoordinates()
   this->GeometryValid = false;
   this->Selection = vtkIdTypeArray::New();
   this->Storage->Plot->SetSelection(this->Selection);
+  this->VisibleColumns = vtkStringArray::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -86,6 +88,7 @@ vtkChartParallelCoordinates::~vtkChartParallelCoordinates()
   this->Storage->Plot->SetSelection(NULL);
   delete this->Storage;
   this->Selection->Delete();
+  this->VisibleColumns->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -97,13 +100,14 @@ void vtkChartParallelCoordinates::Update()
     return;
     }
 
-  if (table->GetMTime() < this->BuildTime)
+  if (table->GetMTime() < this->BuildTime && this->MTime < this->BuildTime)
   {
     return;
   }
 
   // Now we have a table, set up the axes accordingly, clear and build.
-  if (static_cast<int>(this->Storage->Axes.size()) != table->GetNumberOfColumns())
+  if (static_cast<int>(this->Storage->Axes.size()) !=
+      this->VisibleColumns->GetNumberOfTuples())
     {
     for (vtkstd::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
          it != this->Storage->Axes.end(); ++it)
@@ -112,7 +116,7 @@ void vtkChartParallelCoordinates::Update()
       }
     this->Storage->Axes.clear();
 
-    for (int i = 0; i < table->GetNumberOfColumns(); ++i)
+    for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
       {
       vtkAxis* axis = vtkAxis::New();
       axis->SetPosition(vtkAxis::PARALLEL);
@@ -121,10 +125,11 @@ void vtkChartParallelCoordinates::Update()
     }
 
   // Now set up their ranges and locations
-  for (int i = 0; i < table->GetNumberOfColumns(); ++i)
+  for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
     {
     double range[2];
-    vtkDataArray* array = vtkDataArray::SafeDownCast(table->GetColumn(i));
+    vtkDataArray* array =
+        vtkDataArray::SafeDownCast(table->GetColumnByName(this->VisibleColumns->GetValue(i)));
     if (array)
       {
       array->GetRange(range);
@@ -132,7 +137,7 @@ void vtkChartParallelCoordinates::Update()
     vtkAxis* axis = this->Storage->Axes[i];
     axis->SetMinimum(range[0]);
     axis->SetMaximum(range[1]);
-    axis->SetTitle(table->GetColumnName(i));
+    axis->SetTitle(this->VisibleColumns->GetValue(i));
     }
   this->Storage->AxesSelections.clear();
 
@@ -146,7 +151,8 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
 {
   if (this->GetScene()->GetViewWidth() == 0 ||
       this->GetScene()->GetViewHeight() == 0 ||
-      !this->Visible || !this->Storage->Plot->GetVisible())
+      !this->Visible || !this->Storage->Plot->GetVisible() ||
+      this->VisibleColumns->GetNumberOfTuples() < 2)
     {
     // The geometry of the chart must be valid before anything can be drawn
     return false;
@@ -213,6 +219,61 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
     }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SetColumnVisibility(const char* name,
+                                                      bool visible)
+{
+  if (visible)
+    {
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      {
+      if (strcmp(this->VisibleColumns->GetValue(i).c_str(), name) == 0)
+        {
+        // Already there, nothing more needs to be done
+        return;
+        }
+      }
+    // Add the column to the end of the list
+    this->VisibleColumns->InsertNextValue(name);
+    this->Modified();
+    this->Update();
+    }
+  else
+    {
+    // Remove the value if present
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      {
+      if (strcmp(this->VisibleColumns->GetValue(i).c_str(), name) == 0)
+        {
+        // Move all the later elements down by one, and reduce the size
+        while (i < this->VisibleColumns->GetNumberOfTuples()-1)
+          {
+          this->VisibleColumns->SetValue(i, this->VisibleColumns->GetValue(i+1));
+          ++i;
+          }
+        this->VisibleColumns->SetNumberOfTuples(
+            this->VisibleColumns->GetNumberOfTuples()-1);
+        this->Modified();
+        this->Update();
+        return;
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartParallelCoordinates::GetColumnVisibility(const char* name)
+{
+  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+    if (strcmp(this->VisibleColumns->GetValue(i).c_str(), name) == 0)
+      {
+      return true;
+      }
+    }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

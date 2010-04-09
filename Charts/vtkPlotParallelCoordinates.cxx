@@ -28,6 +28,7 @@
 #include "vtkTable.h"
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkStringArray.h"
 #include "vtkTimeStamp.h"
 #include "vtkInformation.h"
 
@@ -49,7 +50,7 @@ public:
   bool SelectionInitialized;
 };
 
-vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.5");
+vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.6");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotParallelCoordinates);
@@ -60,6 +61,7 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
   this->Points = NULL;
   this->Storage = new vtkPlotParallelCoordinates::Private;
   this->Parent = NULL;
+  this->Pen->SetColor(0, 0, 0, 25);
 }
 
 //-----------------------------------------------------------------------------
@@ -142,8 +144,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
     }
 
   // Draw all of the lines
-  //painter->GetPen()->SetColor(230, 230, 230, 255);
-  painter->GetPen()->SetColor(0, 0, 0, 25);
+  painter->ApplyPen(this->Pen);
   for (size_t i = 0; i < rows; ++i)
     {
     for (size_t j = 0; j < cols; ++j)
@@ -257,6 +258,25 @@ bool vtkPlotParallelCoordinates::ResetSelectionRange()
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
+{
+  if (table == this->Data->GetInput())
+    {
+    return;
+    }
+
+  this->vtkPlot::SetInput(table);
+  if (this->Parent)
+    {
+    // By default make the first 10 columns visible in a plot.
+    for (vtkIdType i = 0; i < table->GetNumberOfColumns() && i < 10; ++i)
+      {
+      this->Parent->SetColumnVisibility(table->GetColumnName(i), true);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
 {
   // Each axis is a column in our storage array, they are scaled from 0.0 to 1.0
@@ -265,14 +285,17 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     return false;
     }
 
-  this->Storage->resize(table->GetNumberOfColumns());
-  this->Storage->AxisPos.resize(table->GetNumberOfColumns());
+  vtkStringArray* cols = this->Parent->GetVisibleColumns();
+  this->Storage->resize(cols->GetNumberOfTuples());
+  this->Storage->AxisPos.resize(cols->GetNumberOfTuples());
   vtkIdType rows = table->GetNumberOfRows();
-  for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+
+  for (vtkIdType i = 0; i < cols->GetNumberOfTuples(); ++i)
     {
     vtkstd::vector<float>& col = this->Storage->at(i);
     col.resize(rows);
-    vtkDataArray* data = vtkDataArray::SafeDownCast(table->GetColumn(i));
+    vtkDataArray* data =
+        vtkDataArray::SafeDownCast(table->GetColumnByName(cols->GetValue(i)));
     if (!data)
       {
       continue;
