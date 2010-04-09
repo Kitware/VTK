@@ -39,7 +39,7 @@ namespace
 }
 class vtkDataSetAttributes::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.38");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.39");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1878,14 +1878,13 @@ void vtkDataSetAttributes::FieldList::GrowBy(unsigned int delta)
       }
     if ( this->FieldComponentsNames[i] )
       {
-      for ( unsigned int j=0; j < this->FieldComponentsNames[i]->size(); ++j )
-        {
-        *newFieldComponentsNames[i]->at(j) = *this->FieldComponentsNames[i]->at(j);
-        }
+      newFieldComponentsNames[i] = 
+        new vtkDataSetAttributes::vtkInternalComponentNames(
+        *this->FieldComponentsNames[i]);            
       }
     else
       {
-      this->FieldComponentsNames[i] = NULL;
+      newFieldComponentsNames[i] = NULL;
       }
     }
   memcpy(newFieldTypes, this->FieldTypes, sizeof(int)*old_size);
@@ -1904,6 +1903,7 @@ void vtkDataSetAttributes::FieldList::GrowBy(unsigned int delta)
     newFieldIndices[i] = -1;
     newLUT[i] = NULL;
     newFieldInformation[i] = NULL;
+    newFieldComponentsNames[i] = NULL;
     }
 
   int **newDSAIndices = new int*[this->NumberOfDSAIndices];
@@ -2046,20 +2046,9 @@ void vtkDataSetAttributes::FieldList::ClearFields()
   delete [] this->FieldComponents;
   this->FieldComponents = 0;
 
-  if ( this->FieldComponentsNames )
-    {
-    for ( i=0; i < this->NumberOfFields; ++i )
-      {
-      if ( this->FieldComponentsNames[i] )
-        {
-        this->FieldComponentsNames[i]->clear();
-        delete this->FieldComponentsNames[i];
-        }
-      this->FieldComponentsNames[i] = 0;
-      }
-    this->FieldComponentsNames=0;
-    }
-
+  delete [] this->FieldComponentsNames;
+  this->FieldComponentsNames = 0;
+  
   delete [] this->FieldIndices;
   this->FieldIndices = 0;
 
@@ -2093,19 +2082,18 @@ void vtkDataSetAttributes::FieldList::SetField(
 
   //we unallocate the names before we update the field components  
   //so we unallocate correctly
-  if ( !this->FieldComponentsNames[index] )
-    {
-    this->FieldComponentsNames[index] = 
-      new vtkDataSetAttributes::vtkInternalComponentNames();
+  if ( this->FieldComponentsNames[index] )
+    {    
+    delete this->FieldComponentsNames[index];
+    this->FieldComponentsNames[index] = NULL;    
     }
-  
-  //delete the array of component names
-  this->FieldComponentsNames[index]->clear();      
-    
+       
   //store the components names
   int numberOfComponents = aa->GetNumberOfComponents();
   if ( aa->HasAComponentName() )
     {    
+    this->FieldComponentsNames[index] = 
+      new vtkDataSetAttributes::vtkInternalComponentNames();
     this->FieldComponentsNames[index]->resize( numberOfComponents, NULL );
     name = NULL;
     for ( vtkIdType i=0; i < numberOfComponents; ++i)
@@ -2153,8 +2141,7 @@ void vtkDataSetAttributes::FieldList::RemoveField(const char *name)
       this->Fields[i] = 0;
       this->FieldTypes[i] = -1;      
       this->FieldComponents[i] = 0;
-
-      this->FieldComponentsNames[i]->clear();
+      
       delete this->FieldComponentsNames[i];
       this->FieldComponentsNames = 0;
 
