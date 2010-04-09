@@ -36,8 +36,9 @@
 #include "vtkMatrix4x4.h"
 
 #include <vtkstd/vector>
+#include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.6");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.7");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -1053,6 +1054,11 @@ static void vtkCCSMakePolysFromLines(
   vtkstd::vector<vtkCCSPoly> &newPolys,
   vtkstd::vector<size_t> &incompletePolys);
 
+// Finish any incomplete polygons by trying to join loose ends
+static void vtkCCSJoinLooseEnds(
+  vtkstd::vector<vtkCCSPoly> &polys, vtkstd::vector<size_t> &incompletePolys,
+  vtkPoints *points, const double normal[3]);
+
 // Check for polygons that contain multiple loops, and split the loops apart
 static void vtkCCSUntangleSelfIntersection(
   vtkstd::vector<vtkCCSPoly> &newPolys);
@@ -1134,6 +1140,11 @@ void vtkClipClosedSurface::MakeCutPolys(
   vtkstd::vector<size_t> incompletePolys;
   vtkCCSMakePolysFromLines(lines, firstLine, numNewLines, newPolys,
                            incompletePolys);
+
+  // Join any loose ends.  If the input was a closed surface then there
+  // will not be any loose ends, so this is provided as a service to users
+  // who want to clip a non-closed surface.
+  vtkCCSJoinLooseEnds(newPolys, incompletePolys, points, normal);
 
   // Some polys might be self-intersecting.  Split the polys at each
   // intersection point.
@@ -1319,9 +1330,10 @@ void vtkCCSMakePolysFromLines(
 
         if (poly.size() == 0)
           {
+          poly.resize(static_cast<size_t>(npts));
           for (vtkIdType i = 0; i < npts; i++)
             { 
-            poly.push_back(pts[i]);
+            poly[i] = pts[i];
             }
           }
         else if (pts[0] == poly[npoly-1] &&
@@ -1334,7 +1346,7 @@ void vtkCCSMakePolysFromLines(
             completePoly = 1;
             }
 
-          poly.resize(npoly + n - 1);
+          poly.insert(poly.end(), n - 1, 0);
 
           for (vtkIdType k = 1; k < n; k++)
             {
@@ -1345,15 +1357,7 @@ void vtkCCSMakePolysFromLines(
                  pts[npts-2] != poly[1])
           {
           vtkIdType n = npts - 1;
-          poly.resize(npoly + n);
-
-          size_t j = npoly;
-          do
-            {
-            j--;
-            poly[j + n] = poly[j];
-            }
-          while (j > 0);
+          poly.insert(poly.begin(), n, 0);
 
           for (vtkIdType k = 0; k < n; k++)
             {
@@ -1380,6 +1384,134 @@ void vtkCCSMakePolysFromLines(
       incompletePolys.push_back(polyId);
       }
     }
+}
+
+// ---------------------------------------------------
+// Join polys that have loose ends, as indicated by incompletePolys.
+// Any polys created will have a normal opposite to the supplied normal,
+// and any new edges that are created will be on the hull of the point set.
+// Shorter edges will be preferred over long edges.
+
+static void vtkCCSJoinLooseEnds(
+  vtkstd::vector<vtkCCSPoly> &polys, vtkstd::vector<size_t> &incompletePolys,
+  vtkPoints *points, const double normal[3])
+{
+  // Relative tolerance for checking whether an edge is on the hull
+  const double tol = 1e-5;
+
+  // A list of polys to remove when everything is done
+  vtkstd::vector<size_t> removePolys;
+
+  size_t n;
+  while ( (n = incompletePolys.size()) )
+    {
+    vtkCCSPoly &poly1 = polys[incompletePolys[n-1]];
+    vtkIdType pt1 = poly1[poly1.size()-1];
+    double p1[3], p2[3];
+    points->GetPoint(pt1, p1);
+
+    double dMin = VTK_DOUBLE_MAX;
+    size_t iMin = 0; 
+
+    for (size_t i = 0; i < n; i++)
+      {
+      vtkCCSPoly &poly2 = polys[incompletePolys[i]];
+      vtkIdType pt2 = poly2[0];
+      points->GetPoint(pt2, p2);
+
+      // The next few steps verify that edge [p1, p2] is on the hull
+      double v[3];
+      v[0] = p2[0] - p1[0]; v[1] = p2[1] - p1[1]; v[2] = p2[2] - p1[2];
+      double d = vtkMath::Norm(v);
+      v[0] /= d; v[1] /= d; v[2] /= d;
+
+      // Compute the midpoint of the edge
+      double pm[3];
+      pm[0] = 0.5*(p1[0] + p2[0]);
+      pm[1] = 0.5*(p1[1] + p2[1]);
+      pm[2] = 0.5*(p1[2] + p2[2]);
+
+      // Create a plane equation
+      double pc[4];
+      vtkMath::Cross(v, normal, pc);
+      pc[3] = -vtkMath::Dot(pc, pm);
+
+      // Check that all points are inside the plane.  If they aren't, then
+      // the edge is not on the hull of the pointset.
+      int badPoint = 0;
+      size_t m = polys.size();
+      for (size_t j = 0; j < m && !badPoint; j++)
+        {
+        vtkCCSPoly &poly = polys[j];
+        size_t npts = poly.size();
+        for (size_t k = 0; k < npts; k++)
+          {
+          vtkIdType ptId = poly[k];
+          if (ptId != pt1 && ptId != pt2)
+            {
+            double p[3];
+            points->GetPoint(ptId, p);
+            double val = p[0]*pc[0] + p[1]*pc[1] + p[2]*pc[2] + pc[3];
+            double r2 = vtkMath::Distance2BetweenPoints(p, pm);
+
+            // Check distance from plane against the tolerance
+            if (val < 0 && val*val > tol*tol*r2)
+              {
+              badPoint = 1;
+              break;
+              }
+            }
+          }
+
+        // If no bad points, then this edge is a candidate
+        if (!badPoint && d < dMin)
+          {
+          dMin = d;
+          iMin = i;
+          }
+        }
+      }
+
+    // If a match was found, append the polys
+    if (dMin < VTK_DOUBLE_MAX)
+      {
+      // Did the poly match with itself?
+      if (iMin == n-1)
+        {
+        // Mark the poly as closed
+        incompletePolys.pop_back();
+        }
+      else
+        {
+        size_t id2 = incompletePolys[iMin];
+
+        // Combine the polys
+        poly1.insert(poly1.end(), polys[id2].begin(), polys[id2].end());
+
+        // Erase the second poly
+        removePolys.push_back(id2);
+        incompletePolys.erase(incompletePolys.begin() + iMin);
+        }
+      }
+    else
+      {
+      // If no match, erase this poly from consideration
+      removePolys.push_back(incompletePolys[n-1]);
+      incompletePolys.pop_back();
+      }
+    }
+
+  // Remove polys that couldn't be completed
+  vtkstd::sort(removePolys.begin(), removePolys.end());
+  size_t i = removePolys.size();
+  while (i > 0)
+    {
+    // Remove items in reverse order
+    polys.erase(polys.begin() + removePolys[--i]);
+    }
+
+  // Clear the incompletePolys vector, it's indices are no longer valid
+  incompletePolys.clear();
 }
 
 // ---------------------------------------------------
