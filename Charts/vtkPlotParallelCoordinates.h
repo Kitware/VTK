@@ -80,6 +80,14 @@ public:
   // Reset the selection criteria for the chart.
   bool ResetSelectionRange();
 
+  // Description:
+  // This is a convenience function to set the input table.
+  virtual void SetInput(vtkTable *table);
+  virtual void SetInput(vtkTable *table, const char*, const char*)
+  {
+    this->SetInput(table);
+  }
+
 //BTX
 protected:
   vtkPlotParallelCoordinates();
