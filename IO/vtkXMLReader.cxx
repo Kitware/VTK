@@ -36,7 +36,7 @@
 #include <assert.h>
 #include <locale> // C++ locale
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.59");
+vtkCxxRevisionMacro(vtkXMLReader, "1.60");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -692,29 +692,33 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 
   array->SetName(da->GetAttribute("Name"));
   
-  int components = 0;
+
+  //if NumberOfComponents fails, we have 1 component
+  int components = 1;
+
   if(da->GetScalarAttribute("NumberOfComponents", components))
     {
     array->SetNumberOfComponents(components);
-
-    //determine what component names have been saved in the file.  
-    const char* compName = NULL;
-    vtksys_ios::ostringstream buff;  
-    for ( int i=0; i < components && i < 10; ++i )
-      {
-      //get the component names                    
-      buff << "ComponentName" << i;        
-      compName = da->GetAttribute( buff.str().c_str() );
-      if ( compName )
-        {      
-        //detected a component name, add it
-        array->SetComponentName( i ,compName );
-        compName=NULL;
-        }    
-      buff.str("");
-      buff.clear();
-      }
     }
+
+  //determine what component names have been saved in the file.  
+  const char* compName = NULL;
+  vtksys_ios::ostringstream buff;  
+  for ( int i=0; i < components && i < 10; ++i )
+    {
+    //get the component names                    
+    buff << "ComponentName" << i;        
+    compName = da->GetAttribute( buff.str().c_str() );
+    if ( compName )
+      {      
+      //detected a component name, add it
+      array->SetComponentName( i ,compName );
+      compName=NULL;
+      }    
+    buff.str("");
+    buff.clear();
+    }
+    
     
   // Scan/load for vtkInformationKey data.  
   int nElements=da->GetNumberOfNestedElements();

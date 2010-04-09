@@ -214,7 +214,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.80");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.81");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -1803,24 +1803,26 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
   if(a->GetNumberOfComponents() > 1)
     {
     this->WriteScalarAttribute("NumberOfComponents",
-      a->GetNumberOfComponents());    
-    
-    vtksys_ios::ostringstream buff;    
-    const char* compName = NULL;
-    for ( int i=0; i < a->GetNumberOfComponents(); ++i )
-      {
-      //get the component names    
-      buff << "ComponentName" << i;      
-      compName = a->GetComponentName( i );
-      if ( compName )
-        {
-        this->WriteStringAttribute( buff.str().c_str(), compName );
-        compName = NULL;
-        }
-      buff.str("");
-      buff.clear();
-      }
+      a->GetNumberOfComponents()); 
     }
+  
+  //always write out component names, even if only 1 component
+  vtksys_ios::ostringstream buff;    
+  const char* compName = NULL;
+  for ( int i=0; i < a->GetNumberOfComponents(); ++i )
+    {
+    //get the component names    
+    buff << "ComponentName" << i;      
+    compName = a->GetComponentName( i );
+    if ( compName )
+      {
+      this->WriteStringAttribute( buff.str().c_str(), compName );
+      compName = NULL;
+      }
+    buff.str("");
+    buff.clear();
+    }
+    
   if(this->NumberOfTimeSteps > 1)
     {
     this->WriteScalarAttribute("TimeStep", timestep);
