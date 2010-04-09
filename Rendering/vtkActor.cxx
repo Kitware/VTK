@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.143");
+vtkCxxRevisionMacro(vtkActor, "1.144");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
@@ -126,20 +126,9 @@ int vtkActor::GetIsOpaque()
   
   int result=this->Property->GetOpacity() >= 1.0;
   
-  if(result)
+  if(result && this->Texture)
     {
-    if (this->Texture && this->Texture->GetInput())
-      {
-      this->Texture->GetInput()->UpdateInformation();
-      this->Texture->GetInput()->SetUpdateExtent(
-        this->Texture->GetInput()->GetWholeExtent());
-      this->Texture->GetInput()->PropagateUpdateExtent();
-      this->Texture->GetInput()->TriggerAsynchronousUpdate();
-      this->Texture->GetInput()->UpdateData();
-      result=this->Texture->GetInput()->GetPointData()->GetScalars() == NULL
-        || this->Texture->GetInput()->GetPointData()->GetScalars()
-        ->GetNumberOfComponents()%2;
-      }
+    result = !this->Texture->IsTranslucent();
     }
   if(result)
     {
