@@ -66,22 +66,23 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 
-void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg, 
+void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
   int test, int cols, const char* labelArray, bool circular)
 {
   double distance = circular ? 2.5 : 100.0;
   double xoffset = (test % cols)*distance;
   double yoffset = -(test / cols)*distance;
-  
+
   VTK_CREATE(vtkStringToCategory, cat);
   cat->SetInputConnection(alg->GetOutputPort());
-  cat->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "domain");
-  
+  cat->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES,
+                              "domain");
+
   cat->Update();
   vtkUndirectedGraph* output = vtkUndirectedGraph::SafeDownCast(cat->GetOutput());
   VTK_CREATE(vtkUndirectedGraph, graph);
   graph->DeepCopy(output);
-  
+
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInput(graph);
   if (circular)
@@ -95,7 +96,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
     strategy->SetMaxNumberOfIterations(10);
     layout->SetLayoutStrategy(strategy);
     }
-  
+
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(layout->GetOutputPort());
 
@@ -151,7 +152,7 @@ int TestTableToGraph(int argc, char* argv[])
 #if SHOW_QT_DATA_TABLES
   QApplication app(argc, argv);
 #endif
-  
+
   const char* label = 0;
   bool circular = true;
   for (int a = 1; a < argc; a++)
@@ -165,20 +166,20 @@ int TestTableToGraph(int argc, char* argv[])
       circular = false;
       }
     }
-  
+
   // Read edge table from a file.
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                     "Data/Infovis/authors-tabletographtest.csv");
-  
+
   VTK_CREATE(vtkDelimitedTextReader, reader);
   reader->SetFileName(file);
   delete[] file;
   reader->SetHaveHeaders(true);
-  
+
   //VTK_CREATE(vtkBoostSplitTableField, split);
   //split->SetInputConnection(reader->GetOutputPort());
   //split->AddField("Categories", ";");
-  
+
   // Create a simple person table.
   VTK_CREATE(vtkTable, personTable);
   VTK_CREATE(vtkStringArray, nameArr);
@@ -199,7 +200,7 @@ int TestTableToGraph(int argc, char* argv[])
   petArr->InsertNextValue("rabbit");
   personTable->AddColumn(nameArr);
   personTable->AddColumn(petArr);
-  
+
   // Insert rows for organizations
   VTK_CREATE(vtkTable, orgTable);
   VTK_CREATE(vtkStringArray, orgNameArr);
@@ -214,7 +215,7 @@ int TestTableToGraph(int argc, char* argv[])
   sizeArr->InsertNextValue(20);
   orgTable->AddColumn(orgNameArr);
   orgTable->AddColumn(sizeArr);
-  
+
   // Merge the two tables
   VTK_CREATE(vtkMergeTables, merge);
   merge->SetInput(0, personTable);
@@ -223,19 +224,19 @@ int TestTableToGraph(int argc, char* argv[])
   merge->SetSecondTablePrefix("organization.");
   merge->MergeColumnsByNameOff();
   merge->PrefixAllButMergedOn();
-  
+
   // Create the renderer.
   VTK_CREATE(vtkRenderer, ren);
-  
+
   // Create table to graph filter with edge and vertex table inputs
   VTK_CREATE(vtkTableToGraph, tableToGraph);
   tableToGraph->SetInputConnection(0, reader->GetOutputPort());
-  
+
   int cols = 3;
   int test = 0;
-  
+
   // Path
-  tableToGraph->ClearLinkVertices();  
+  tableToGraph->ClearLinkVertices();
   tableToGraph->AddLinkVertex("Author", "person");
   tableToGraph->AddLinkVertex("Boss", "person");
   tableToGraph->AddLinkVertex("Affiliation", "organization");
@@ -246,7 +247,7 @@ int TestTableToGraph(int argc, char* argv[])
   tableToGraph->AddLinkEdge("Affiliation", "Alma Mater");
   tableToGraph->AddLinkEdge("Alma Mater", "Categories");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   // Star
   tableToGraph->ClearLinkVertices();
   tableToGraph->AddLinkVertex("Author", "person");
@@ -259,14 +260,14 @@ int TestTableToGraph(int argc, char* argv[])
   tableToGraph->AddLinkEdge("Author", "Alma Mater");
   tableToGraph->AddLinkEdge("Author", "Categories");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   // Affiliation
   tableToGraph->ClearLinkVertices();
   tableToGraph->AddLinkVertex("Author", "person");
   tableToGraph->AddLinkVertex("Affiliation", "organization");
   tableToGraph->AddLinkEdge("Author", "Affiliation");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   // Group by affiliation (hide affiliation)
   tableToGraph->ClearLinkVertices();
   tableToGraph->AddLinkVertex("Author", "person", 0);
@@ -274,21 +275,21 @@ int TestTableToGraph(int argc, char* argv[])
   tableToGraph->AddLinkEdge("Author", "Affiliation");
   tableToGraph->AddLinkEdge("Affiliation", "Author");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   // Boss
   tableToGraph->ClearLinkVertices();
   tableToGraph->AddLinkVertex("Author", "person");
   tableToGraph->AddLinkVertex("Boss", "person");
   tableToGraph->AddLinkEdge("Author", "Boss");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   // Boss in different domain
   tableToGraph->ClearLinkVertices();
   tableToGraph->AddLinkVertex("Author", "person");
   tableToGraph->AddLinkVertex("Boss", "boss");
   tableToGraph->AddLinkEdge("Author", "Boss");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   // Use simple linking of column path
   tableToGraph->ClearLinkVertices();
   VTK_CREATE(vtkStringArray, pathColumn);
@@ -319,13 +320,13 @@ int TestTableToGraph(int argc, char* argv[])
   tableToGraph->AddLinkVertex("Affiliation", "organization.name", 0);
   tableToGraph->AddLinkEdge("Author", "Affiliation");
   TestTableToGraphRender(ren, tableToGraph, test++, cols, label, circular);
-  
+
   VTK_CREATE(vtkRenderWindow, win);
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
   win->AddRenderer(ren);
   ren->SetBackground(1, 1, 1);
-  
+
 //  VTK_CREATE(vtkGraphLayoutView, view);
 //  view->SetupRenderWindow(win);
 //  view->SetRepresentationFromInputConnection(tableToGraph->GetOutputPort());
@@ -335,12 +336,12 @@ int TestTableToGraph(int argc, char* argv[])
 //  view->Update();
 //  view->GetRenderer()->ResetCamera();
 //  view->Update();
-  
+
 #if SHOW_QT_DATA_TABLES
   VTK_CREATE(vtkQtTableView, mergeView);
   mergeView->SetRepresentationFromInputConnection(merge->GetOutputPort());
   mergeView->GetWidget()->show();
-  
+
   VTK_CREATE(vtkDataObjectToTable, vertToTable);
   vertToTable->SetInputConnection(tableToGraph->GetOutputPort());
   vertToTable->SetFieldType(vtkDataObjectToTable::POINT_DATA);
@@ -348,7 +349,7 @@ int TestTableToGraph(int argc, char* argv[])
   vertView->SetRepresentationFromInputConnection(vertToTable->GetOutputPort());
   vertView->GetWidget()->show();
   vertView->Update();
-  
+
   VTK_CREATE(vtkDataObjectToTable, edgeToTable);
   edgeToTable->SetInputConnection(tableToGraph->GetOutputPort());
   edgeToTable->SetFieldType(vtkDataObjectToTable::CELL_DATA);
@@ -356,7 +357,7 @@ int TestTableToGraph(int argc, char* argv[])
   edgeView->SetRepresentationFromInputConnection(edgeToTable->GetOutputPort());
   edgeView->GetWidget()->show();
 #endif
-  
+
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -366,10 +367,10 @@ int TestTableToGraph(int argc, char* argv[])
     iren->Initialize();
     iren->Start();
 #endif
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
-  
+
   return !retVal;
 }
 
