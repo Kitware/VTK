@@ -36,7 +36,7 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkStringToCategory, "1.5");
+vtkCxxRevisionMacro(vtkStringToCategory, "1.6");
 vtkStandardNewMacro(vtkStringToCategory);
 
 vtkStringToCategory::vtkStringToCategory()
@@ -52,19 +52,19 @@ vtkStringToCategory::~vtkStringToCategory()
 }
 
 int vtkStringToCategory::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Get the input and output objects
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   output->ShallowCopy(input);
-  
+
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
   vtkStringArray* stringArr = vtkStringArray::SafeDownCast(arr);
   if (!stringArr)
@@ -72,39 +72,17 @@ int vtkStringToCategory::RequestData(
     vtkErrorMacro("String array input could not be found");
     return 0;
     }
-  
+
+  vtkInformation* arrayInfo = this->GetInputArrayInformation(0);
   // Find where the input array came from
-  vtkFieldData* fd = 0;
-  if (output->GetFieldData()->GetAbstractArray(stringArr->GetName()))
-    {
-    fd = output->GetFieldData();
-    }
-  else if (vtkDataSet::SafeDownCast(output) && 
-      vtkDataSet::SafeDownCast(output)->GetPointData()->GetAbstractArray(stringArr->GetName()))
-    {
-    fd = vtkDataSet::SafeDownCast(output)->GetPointData();
-    }
-  else if (vtkDataSet::SafeDownCast(output) && 
-      vtkDataSet::SafeDownCast(output)->GetCellData()->GetAbstractArray(stringArr->GetName()))
-    {
-    fd = vtkDataSet::SafeDownCast(output)->GetCellData();
-    }
-  else if (vtkGraph::SafeDownCast(output) && 
-      vtkGraph::SafeDownCast(output)->GetVertexData()->GetAbstractArray(stringArr->GetName()))
-    {
-    fd = vtkGraph::SafeDownCast(output)->GetVertexData();
-    }
-  else if (vtkGraph::SafeDownCast(output) && 
-      vtkGraph::SafeDownCast(output)->GetEdgeData()->GetAbstractArray(stringArr->GetName()))
-    {
-    fd = vtkGraph::SafeDownCast(output)->GetEdgeData();
-    }
+  vtkFieldData* fd = output->GetAttributesAsFieldData(
+      arrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION()));
   if (!fd)
     {
     vtkErrorMacro("Could not find where the input array came from");
     return 0;
     }
-  
+
   // Perform the conversion
   vtkIdType numTuples = stringArr->GetNumberOfTuples();
   int numComp = stringArr->GetNumberOfComponents();
@@ -138,14 +116,14 @@ int vtkStringToCategory::RequestData(
       }
     }
   list->Delete();
-  
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkStringToCategory::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // create the output
@@ -158,8 +136,8 @@ int vtkStringToCategory::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkStringToCategory::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -168,7 +146,7 @@ int vtkStringToCategory::RequestDataObject(
     return 0;
     }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
     // for each output
@@ -176,8 +154,8 @@ int vtkStringToCategory::RequestDataObject(
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
