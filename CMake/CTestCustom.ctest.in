@@ -160,9 +160,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "lex.yy.c.*warning: passing argument .* of .* as .* due to prototype"
 
   # Java lint warnings
-  "Note: .* uses or overrides a deprecated API"
+  "Note: .* uses? or overrides a deprecated API"
+  "Note: .* uses? unchecked or unsafe operations"
   "Note: Recompile with -Xlint:.* for details"
-  "Note: Some input files use unchecked or unsafe operations"
 
   # warnings from some Open MPI headers/libs, cannot fix:
   "/openmpi/.*request_inln.h.*warning: declaration .struct MPI::Grequest_intercept_t. does not declare anything"
