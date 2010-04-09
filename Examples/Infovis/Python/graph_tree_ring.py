@@ -70,15 +70,28 @@ view1.Update()
 view1.SetColorEdges(True)
 view1.SetEdgeColorArrayName("edge weight")
 
+view2 = vtkGraphLayoutView()
+view2.AddRepresentationFromInputConnection(bi_conn_comp.GetOutputPort())
+view2.SetVertexLabelArrayName("label")
+view2.SetVertexLabelVisibility(True)
+view2.SetVertexColorArrayName("label")
+view2.SetColorVertices(True)
+view2.SetLayoutStrategyToSimple2D()
+
 
 # Apply a theme to the views
 theme = vtkViewTheme.CreateOceanTheme()
 view1.ApplyViewTheme(theme)
+view2.ApplyViewTheme(theme)
 theme.FastDelete()
  
 view1.GetRenderWindow().SetSize(600, 600)
 view1.ResetCamera()
 view1.Render()
+
+view2.GetRenderWindow().SetSize(600, 600)
+view2.ResetCamera()
+view2.Render()
 
 
 view1.GetInteractor().Start()
