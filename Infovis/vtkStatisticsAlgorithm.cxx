@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.46");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.47");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -162,21 +162,20 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector )
 {
-  // Extract input data table
+  // Extract input tables
   vtkTable* inData = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
-  if ( ! inData )
-    {
-    return 1;
-    }
-
   vtkTable* inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
-  //
+
   // Extract output tables
   vtkTable*      outData  = vtkTable::GetData(      outputVector, OUTPUT_DATA );
   vtkDataObject* outModel = vtkDataObject::GetData( outputVector, OUTPUT_MODEL );
   vtkDataObject* outTest  = vtkDataObject::GetData( outputVector, OUTPUT_TEST );
 
-  outData->ShallowCopy( inData );
+  // If input data table is not null then shallow copy it to output
+  if ( inData )
+    {
+    outData->ShallowCopy( inData );
+    }
 
   // If there are any columns selected in the buffer which have not been
   // turned into a request by RequestSelectedColumns(), add them now.

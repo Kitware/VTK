@@ -29,6 +29,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #ifdef VTK_USE_GNU_R
 #include <vtkRInterface.h>
@@ -42,7 +43,9 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.98");
+#define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
+
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.99");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -73,6 +76,41 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
+int vtkDescriptiveStatistics::FillInputPortInformation( int port, vtkInformation* info )
+{
+  int res; 
+  if ( port == INPUT_MODEL )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+
+    res = 1;
+    }
+  else
+    {
+    res = this->Superclass::FillInputPortInformation( port, info );
+    }
+
+  return res;
+}
+
+// ----------------------------------------------------------------------
+int vtkDescriptiveStatistics::FillOutputPortInformation( int port, vtkInformation* info )
+{
+  int res = this->Superclass::FillOutputPortInformation( port, info );
+  if ( port == OUTPUT_MODEL )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    }
+  else
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    }
+  
+  return res;
+}
+
+// ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::SetNominalParameter( const char* name ) 
 { 
   this->SetAssessOptionParameter( 0, name ); 
@@ -88,7 +126,8 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
                                           vtkDataObject* outMetaDO )
 {
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  // Verify that the output model is indeed contained in a multiblock data set
+  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
     { 
     return; 
@@ -99,14 +138,21 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
   inMetaColl->InitTraversal( it );
   vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
 
-  // Verify that the model is indeed contained in a table
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
+  // Verify that the first input model is indeed contained in a multiblock data set
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta ) 
     { 
+    return; 
+    }
+
+  // Verify that the first primary statistics are indeed contained in a table
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
     return;
     }
 
-  vtkIdType nRow = inMeta->GetNumberOfRows();
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   if ( ! nRow )
     {
     // No statistics were calculated.
@@ -114,19 +160,27 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     }
 
   // Use this first model to initialize the aggregated one
-  outMeta->DeepCopy( inMeta );
+  vtkTable* aggregatedTab = vtkTable::New();
+  aggregatedTab->DeepCopy( primaryTab );
 
   // Now, loop over all remaining models and update aggregated each time
   while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
     {
-    // Verify that the model is indeed contained in a table
-    inMeta = vtkTable::SafeDownCast( inMetaDO );
+    // Verify that the current model is indeed contained in a multiblock data set
+    inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
       { 
+      return; 
+      }
+
+    // Verify that the current primary statistics are indeed contained in a table
+    vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+    if ( ! primaryTab )
+      {
       return;
       }
-    
-    if ( inMeta->GetNumberOfRows() != nRow )
+
+    if ( primaryTab->GetNumberOfRows() != nRow )
       {
       // Models do not match
       return;
@@ -136,41 +190,41 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     for ( int r = 0; r < nRow; ++ r )
       {
       // Verify that variable names match each other
-      if ( inMeta->GetValueByName( r, "Variable" ) != outMeta->GetValueByName( r, "Variable" ) )
+      if ( primaryTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
         {
         // Models do not match
         return;
         }
 
       // Get aggregated statistics
-      int n = outMeta->GetValueByName( r, "Cardinality" ).ToInt();
-      double min = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
-      double max = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
-      double mean = outMeta->GetValueByName( r, "Mean" ).ToDouble();
-      double M2 = outMeta->GetValueByName( r, "M2" ).ToDouble();
-      double M3 = outMeta->GetValueByName( r, "M3" ).ToDouble();
-      double M4 = outMeta->GetValueByName( r, "M4" ).ToDouble();
+      int n = aggregatedTab->GetValueByName( r, "Cardinality" ).ToInt();
+      double min = aggregatedTab->GetValueByName( r, "Minimum" ).ToDouble();
+      double max = aggregatedTab->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean = aggregatedTab->GetValueByName( r, "Mean" ).ToDouble();
+      double M2 = aggregatedTab->GetValueByName( r, "M2" ).ToDouble();
+      double M3 = aggregatedTab->GetValueByName( r, "M3" ).ToDouble();
+      double M4 = aggregatedTab->GetValueByName( r, "M4" ).ToDouble();
       
       // Get current model statistics
-      int n_c = inMeta->GetValueByName( r, "Cardinality" ).ToInt();
-      double min_c = inMeta->GetValueByName( r, "Minimum" ).ToDouble();
-      double max_c = inMeta->GetValueByName( r, "Maximum" ).ToDouble();
-      double mean_c = inMeta->GetValueByName( r, "Mean" ).ToDouble();
-      double M2_c = inMeta->GetValueByName( r, "M2" ).ToDouble();
-      double M3_c = inMeta->GetValueByName( r, "M3" ).ToDouble();
-      double M4_c = inMeta->GetValueByName( r, "M4" ).ToDouble();
+      int n_c = primaryTab->GetValueByName( r, "Cardinality" ).ToInt();
+      double min_c = primaryTab->GetValueByName( r, "Minimum" ).ToDouble();
+      double max_c = primaryTab->GetValueByName( r, "Maximum" ).ToDouble();
+      double mean_c = primaryTab->GetValueByName( r, "Mean" ).ToDouble();
+      double M2_c = primaryTab->GetValueByName( r, "M2" ).ToDouble();
+      double M3_c = primaryTab->GetValueByName( r, "M3" ).ToDouble();
+      double M4_c = primaryTab->GetValueByName( r, "M4" ).ToDouble();
       
       // Update global statics
       int N = n + n_c;
 
       if ( min_c < min )
         {
-        outMeta->SetValueByName( r, "Minimum", min_c );
+        aggregatedTab->SetValueByName( r, "Minimum", min_c );
         }
 
       if ( max_c > max )
         {
-        outMeta->SetValueByName( r, "Maximum", max_c );
+        aggregatedTab->SetValueByName( r, "Maximum", max_c );
         }
 
       double delta = mean_c - mean;
@@ -196,13 +250,21 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       mean += n_c * delta_sur_N;
 
       // Store updated model
-      outMeta->SetValueByName( r, "Cardinality", N );
-      outMeta->SetValueByName( r, "Mean", mean );
-      outMeta->SetValueByName( r, "M2", M2 );
-      outMeta->SetValueByName( r, "M3", M3 );
-      outMeta->SetValueByName( r, "M4", M4 );
+      aggregatedTab->SetValueByName( r, "Cardinality", N );
+      aggregatedTab->SetValueByName( r, "Mean", mean );
+      aggregatedTab->SetValueByName( r, "M2", M2 );
+      aggregatedTab->SetValueByName( r, "M3", M3 );
+      aggregatedTab->SetValueByName( r, "M4", M4 );
       }
     }
+
+  // Finally set first block of aggregated model to primary statistics table
+  outMeta->SetNumberOfBlocks( 1 );
+  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
+  outMeta->SetBlock( 0, aggregatedTab );
+
+  // Clean up
+  aggregatedTab->Delete();
 
   return;
 }
@@ -212,50 +274,53 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
                                       vtkTable* vtkNotUsed( inParameters ),
                                       vtkDataObject* outMetaDO )
 {
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
-  if ( ! outMeta ) 
-    { 
+  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
+  if ( ! outMeta )
+    {
     return;
-    } 
+    }
+
+  // The descriptive statistics table
+  vtkTable* statTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  outMeta->AddColumn( stringCol );
+  statTab->AddColumn( stringCol );
   stringCol->Delete();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
-  outMeta->AddColumn( idTypeCol );
+  statTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Minimum" );
-  outMeta->AddColumn( doubleCol );
+  statTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Maximum" );
-  outMeta->AddColumn( doubleCol );
+  statTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Mean" );
-  outMeta->AddColumn( doubleCol );
+  statTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M2" );
-  outMeta->AddColumn( doubleCol );
+  statTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M3" );
-  outMeta->AddColumn( doubleCol );
+  statTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M4" );
-  outMeta->AddColumn( doubleCol );
+  statTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   vtkIdType nRow = inData->GetNumberOfRows();
@@ -337,10 +402,18 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     row->SetValue( 6, mom3 );
     row->SetValue( 7, mom4 );
 
-    outMeta->InsertNextRow( row );
+    statTab->InsertNextRow( row );
 
     row->Delete();
     } // rit
+
+  // Finally set first block of output meta port to primary statistics table
+  outMeta->SetNumberOfBlocks( 1 );
+  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
+  outMeta->SetBlock( 0, statTab );
+
+  // Clean up
+  statTab->Delete();
 
   return;
 }
@@ -348,19 +421,20 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 {
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO );
-  if ( ! inMeta ) 
-    { 
-    return;
-    } 
-
-  vtkIdType nCol = inMeta->GetNumberOfColumns();
-  if ( nCol < 8 )
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
     {
     return;
     }
 
-  vtkIdType nRow = inMeta->GetNumberOfRows();
+  vtkTable* primaryTab;
+  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
+       || primaryTab->GetNumberOfColumns() < 8 )
+    {
+    return;
+    }
+
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   if ( ! nRow )
     {
     return;
@@ -375,15 +449,17 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
                                  "G2 Kurtosis",
                                  "Sum" };
 
+  // Create table for derived statistics
+  vtkTable* derivedTab = vtkTable::New();
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
     {
-    if ( ! inMeta->GetColumnByName( doubleNames[j] ) )
+    if ( ! derivedTab->GetColumnByName( doubleNames[j] ) )
       {
       doubleCol = vtkDoubleArray::New();
       doubleCol->SetName( doubleNames[j] );
       doubleCol->SetNumberOfTuples( nRow );
-      inMeta->AddColumn( doubleCol );
+      derivedTab->AddColumn( doubleCol );
       doubleCol->Delete();
       }
     }
@@ -393,11 +469,11 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 
   for ( int i = 0; i < nRow; ++ i )
     {
-    double mom2 = inMeta->GetValueByName( i, "M2" ).ToDouble();
-    double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
-    double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
+    double mom2 = primaryTab->GetValueByName( i, "M2" ).ToDouble();
+    double mom3 = primaryTab->GetValueByName( i, "M3" ).ToDouble();
+    double mom4 = primaryTab->GetValueByName( i, "M4" ).ToDouble();
 
-    int numSamples = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
+    int numSamples = primaryTab->GetValueByName( i, "Cardinality" ).ToInt();
 
     if ( numSamples == 1 || mom2 < 1.e-150 )
       {
@@ -456,15 +532,119 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
       }
 
     // Sum
-    derivedVals[6] = numSamples * inMeta->GetValueByName( i, "Mean" ).ToDouble();
+    derivedVals[6] = numSamples * primaryTab->GetValueByName( i, "Mean" ).ToDouble();
 
     for ( int j = 0; j < numDoubles; ++ j )
       {
-      inMeta->SetValueByName( i, doubleNames[j], derivedVals[j] );
+      derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
       }
     }
 
+  // Finally set second block of output meta port to derived statistics table
+  inMeta->SetNumberOfBlocks( 2 );
+  inMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Derived Statistics" );
+  inMeta->SetBlock( 1, derivedTab );
+
+  // Clean up
+  derivedTab->Delete();
   delete [] derivedVals;
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::Assess( vtkTable* inData,
+                                       vtkDataObject* inMetaDO,
+                                       vtkTable* outData )
+{
+  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
+    {
+    return;
+    }
+
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  if ( nRowData <= 0 )
+    {
+    return;
+    }
+
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+    {
+    return;
+    }
+
+  // Loop over requests
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      continue;
+      }
+
+    vtkStringArray* varNames = vtkStringArray::New();
+    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
+    varNames->SetValue( 0, varName );
+
+    // Store names to be able to use SetValueByName, and create the outData columns
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
+      {
+      vtksys_ios::ostringstream assessColName;
+      assessColName << this->AssessNames->GetValue( v )
+                    << "("
+                    << varName
+                    << ")";
+
+      names[v] = assessColName.str().c_str(); 
+
+      vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
+      assessValues->SetName( names[v] ); 
+      assessValues->SetNumberOfTuples( nRowData  ); 
+      outData->AddColumn( assessValues ); 
+      assessValues->Delete(); 
+      }
+
+    // Select assess functor
+    AssessFunctor* dfunc;
+    this->SelectAssessFunctor( outData,
+                               inMeta,
+                               varNames,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      // Functor selection did not work. Do nothing.
+      vtkWarningMacro( "AssessFunctors could not be allocated for column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      }
+    else
+      {
+      // Assess each entry of the column
+      vtkVariantArray* assessResult = vtkVariantArray::New();
+      for ( vtkIdType r = 0; r < nRowData; ++ r )
+        {
+        (*dfunc)( assessResult, r );
+        for ( int v = 0; v < nv; ++ v )
+          {
+          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+          }
+        }
+
+      assessResult->Delete();
+      }
+
+    delete dfunc;
+    delete [] names;
+    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -472,25 +652,28 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
                                      vtkDataObject* inMetaDO,
                                      vtkDataObject* outMetaDO )
 {
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta 
+       || inMeta->GetNumberOfBlocks() < 2 )
+    {
+    return;
+    }
+
+  vtkTable* primaryTab;
+  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
+       || primaryTab->GetNumberOfColumns() < 8 )
+    {
+    return;
+    }
+
   vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
     }
 
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta ) 
-    { 
-    return; 
-    } 
-
-  vtkIdType nRow = inMeta->GetNumberOfRows();
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   if ( nRow <= 0 )
-    {
-    return;
-    }
-
-  if ( inMeta->GetNumberOfColumns() < 8 )
     {
     return;
     }
@@ -508,7 +691,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   statCol->SetName( "Jarque-Bera" );
 
   // Downcast columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   
   // Loop over requests
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
@@ -540,10 +723,10 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
       }
     
     // Retrieve model statistics necessary for Jarque-Bera testing
-    double n = inMeta->GetValueByName( r, "Cardinality" ).ToDouble();
-    double m2 = inMeta->GetValueByName( r, "M2" ).ToDouble();
-    double m3 = inMeta->GetValueByName( r, "M3" ).ToDouble();
-    double m4 = inMeta->GetValueByName( r, "M4" ).ToDouble();
+    double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
+    double m2 = primaryTab->GetValueByName( r, "M2" ).ToDouble();
+    double m3 = primaryTab->GetValueByName( r, "M3" ).ToDouble();
+    double m4 = primaryTab->GetValueByName( r, "M4" ).ToDouble();
 
     // Now calculate Jarque-Bera statistic
     double jb;
@@ -711,25 +894,50 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta ) 
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta
+       || inMeta->GetNumberOfBlocks() < 2 )
     { 
     return; 
+    }
+
+  vtkTable* primaryTab;
+  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
+       || primaryTab->GetNumberOfColumns() < 8 )
+    {
+    return;
+    }
+
+  vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  if ( nRowPrim <= 0 )
+    {
+    return;
+    }
+
+  vtkTable* derivedTab;
+  if ( ! ( derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) ) 
+       || derivedTab->GetNumberOfColumns() < 2 )
+    {
+    return;
+    }
+
+  if ( nRowPrim != derivedTab->GetNumberOfRows() )
+    {
+    return;
     }
 
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     dfunc = 0;
     return;
     }
 
-  // Loop over parameters table until the requested variable is found
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  for ( int r = 0; r < nRowP; ++ r )
+  // Loop over primary statistics table until the requested variable is found
+  for ( int r = 0; r < nRowPrim; ++ r )
     {
     if ( vars->GetValue( r ) == varName )
       {
@@ -749,9 +957,8 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      double nominal   = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
-      double deviation = inMeta->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
-
+      double nominal   = primaryTab->GetValueByName( r, this->AssessParameters->GetValue( 0 ) ).ToDouble();
+      double deviation = derivedTab->GetValueByName( r, this->AssessParameters->GetValue( 1 ) ).ToDouble();
       if ( deviation == 0. )
         {
         dfunc = new ZedDeviationDeviantFunctor( vals, nominal );
@@ -775,3 +982,4 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
   // The variable of interest was not found in the parameter table
   dfunc = 0;
 }
+

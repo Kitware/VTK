@@ -13,6 +13,7 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -141,12 +142,9 @@ int TestDescriptiveStatistics( int, char *[] )
   // Standard deviations for metrics 0, 1, and 2, respectively
   double stdevs1[] = { sqrt( 5.9828629 ), sqrt( 7.548397 ), 0. };
 
+  // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
-  vtkTable* outputData1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkTable* outputMeta1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
-  vtkTable* outputTest1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
-
   datasetTable1->Delete();
 
   // Select Columns of Interest
@@ -168,27 +166,48 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->SignedDeviationsOff();
   ds1->Update();
 
-  cout << "## Calculated the following statistics for first data set:\n";
+  // Get output data and meta tables
+  vtkTable* outputData1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkMultiBlockDataSet* outputMetaDS1 = vtkMultiBlockDataSet::SafeDownCast( ds1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 0 ) );
+  vtkTable* outputDerived1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 1 ) );
+  vtkTable* outputTest1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
-  for ( vtkIdType r = 0; r < outputMeta1->GetNumberOfRows(); ++ r )
+  cout << "## Calculated the following primary statistics for first data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputMeta1->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
       {
-      cout << outputMeta1->GetColumnName( i )
+      cout << outputPrimary1->GetColumnName( i )
            << "="
-           << outputMeta1->GetValue( r, i ).ToString()
+           << outputPrimary1->GetValue( r, i ).ToString()
            << "  ";
       }
 
-    // Verify some of the calculated statistics
-    if ( fabs ( outputMeta1->GetValueByName( r, "Mean" ).ToDouble() - means1[r] ) > 1.e-6 )
+    // Verify some of the calculated primary statistics
+    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean" ).ToDouble() - means1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
       }
+    cout << "\n";
+    }
 
-    if ( fabs ( outputMeta1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs1[r] ) > 1.e-5 )
+  cout << "\n## Calculated the following derived statistics for first data set:\n";
+  for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputDerived1->GetColumnName( i )
+           << "="
+           << outputDerived1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    // Verify some of the calculated derived statistics
+    if ( fabs ( outputDerived1->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
@@ -291,13 +310,21 @@ int TestDescriptiveStatistics( int, char *[] )
   // Now, used modified output 1 as input 1 to test 0-deviation
   cout << "\n## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
 
-  vtkTable* paramsTable = vtkTable::New();
-  paramsTable->ShallowCopy( outputMeta1 );
-  paramsTable->SetValueByName( 1, "Mean", 50. );
-  paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
+  vtkTable* modifiedPrimary = vtkTable::New();
+  modifiedPrimary->ShallowCopy( outputPrimary1 );
+  modifiedPrimary->SetValueByName( 1, "Mean", 50. );
+
+  vtkTable* modifiedDerived = vtkTable::New();
+  modifiedDerived->ShallowCopy( outputDerived1 );
+  modifiedDerived->SetValueByName( 1, "Standard Deviation", 0. );
   
+  vtkMultiBlockDataSet* modifiedModel = vtkMultiBlockDataSet::New();
+  modifiedModel->SetNumberOfBlocks( 2 );
+  modifiedModel->SetBlock( 0, modifiedPrimary );
+  modifiedModel->SetBlock( 1, modifiedDerived );
+
   // Run with Assess option only (do not recalculate nor rederive a model)
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTable );
+  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel );
   ds1->SetLearnOption( false );
   ds1->SetDeriveOption( false ); 
   ds1->SetTestOption( true );
@@ -341,10 +368,12 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
-  // Clean up (which implies resetting parameters table values which were modified to their initial values)
-  paramsTable->SetValueByName( 1, "Mean", means1[1] );
-  paramsTable->SetValueByName( 1, "Standard Deviation", stdevs1[1] );
-  paramsTable->Delete();
+  // Clean up (which implies resetting input model to first algorithm parameters table values which were modified to their initial values)
+  modifiedPrimary->SetValueByName( 1, "Mean", means1[1] );
+  modifiedPrimary->Delete();
+  modifiedDerived->SetValueByName( 1, "Standard Deviation", stdevs1[1] );
+  modifiedDerived->Delete();
+  modifiedModel->Delete();
 
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
@@ -377,10 +406,9 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetTable2->AddColumn( dataset6Arr );
   dataset6Arr->Delete();
 
+  // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds2 = vtkDescriptiveStatistics::New();
   ds2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
-  vtkTable* outputMeta2 = ds2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
-
   datasetTable2->Delete();
 
   // Select Columns of Interest (all of them)
@@ -396,67 +424,89 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->SetAssessOption( false );
   ds2->Update();
 
-  cout << "\n## Calculated the following statistics for second data set:\n";
+  // Get output meta tables
+  vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast( ds2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 0 ) );
 
-  for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
+  cout << "\n## Calculated the following primary statistics for second data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputMeta2->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++ i )
       {
-      cout << outputMeta2->GetColumnName( i )
+      cout << outputPrimary2->GetColumnName( i )
            << "="
-           << outputMeta2->GetValue( r, i ).ToString()
+           << outputPrimary2->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";
-    }
+   }
 
   // Now build a data object collection of the two obtained models
   vtkDataObjectCollection* doc = vtkDataObjectCollection::New();
-  doc->AddItem( outputMeta1 );
-  doc->AddItem( outputMeta2 );
+  doc->AddItem( outputMetaDS1 );
+  doc->AddItem( outputMetaDS2 );
 
   // And calculate the aggregated minimal statistics of the two models
-  vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
-  vtkTable* aggregated = vtkTable::New();
-  ds->Aggregate( doc, aggregated );
+  vtkDescriptiveStatistics* ds0 = vtkDescriptiveStatistics::New();
+  vtkMultiBlockDataSet* aggregated = vtkMultiBlockDataSet::New();
+  ds0->Aggregate( doc, aggregated );
 
   // Finally, calculate the derived statistics of the aggregated model
-  ds2->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
-  ds2->SetLearnOption( false );
-  ds2->SetDeriveOption( true ); 
-  ds2->SetTestOption( false );
-  ds2->SetAssessOption( false );
-  ds2->Update();
+  ds0->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
+  ds0->SetLearnOption( false );
+  ds0->SetDeriveOption( true ); 
+  ds0->SetTestOption( false );
+  ds0->SetAssessOption( false );
+  ds0->Update();
 
   // Reference values
   // Means deviations for metrics 0, 1, and 2, respectively
-  double means2[] = { 49.71875 , 49.5, 0. };
+  double means0[] = { 49.71875 , 49.5, 0. };
 
   // Standard deviations for metrics 0, 1, and 2, respectively
-  double stdevs2[] = { sqrt( 6.1418651 ), sqrt( 7.548397 * 62. / 63. ), sqrt( 64. / 63. ) };
+  double stdevs0[] = { sqrt( 6.1418651 ), sqrt( 7.548397 * 62. / 63. ), sqrt( 64. / 63. ) };
 
-  cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
+  // Get output meta tables
+  vtkMultiBlockDataSet* outputMetaDS0 = vtkMultiBlockDataSet::SafeDownCast( ds0->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary0 = vtkTable::SafeDownCast( outputMetaDS0->GetBlock( 0 ) );
+  vtkTable* outputDerived0 = vtkTable::SafeDownCast( outputMetaDS0->GetBlock( 1 ) );
 
-  for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
+  cout << "\n## Calculated the following primary statistics for aggregated (first + second) data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary0->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputMeta2->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputPrimary0->GetNumberOfColumns(); ++ i )
       {
-      cout << outputMeta2->GetColumnName( i )
+      cout << outputPrimary0->GetColumnName( i )
            << "="
-           << outputMeta2->GetValue( r, i ).ToString()
+           << outputPrimary0->GetValue( r, i ).ToString()
            << "  ";
       }
 
-    // Verify some of the calculated statistics
-    if ( fabs ( outputMeta2->GetValueByName( r, "Mean" ).ToDouble() - means2[r] ) > 1.e-6 )
+    // Verify some of the calculated primary statistics
+    if ( fabs ( outputPrimary0->GetValueByName( r, "Mean" ).ToDouble() - means0[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
       }
+    cout << "\n";
+    }
 
-    if ( fabs ( outputMeta2->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs2[r] ) > 1.e-5 )
+  cout << "\n## Calculated the following derived statistics for aggregated (first + second) data set:\n";
+  for ( vtkIdType r = 0; r < outputDerived0->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputDerived0->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputDerived0->GetColumnName( i )
+           << "="
+           << outputDerived0->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    // Verify some of the calculated derived statistics
+    if ( fabs ( outputDerived0->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs0[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect standard deviation");
       testStatus = 1;
@@ -465,7 +515,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   // Clean up
-  ds->Delete();
+  ds0->Delete();
   ds1->Delete();
   ds2->Delete();
   doc->Delete();
@@ -505,10 +555,9 @@ int TestDescriptiveStatistics( int, char *[] )
   double g1 = 0.;
   double g2 = -1.56163636363636;
 
+  // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
   ds3->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
-  vtkTable* outputSimpleMeta = ds3->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
-
   simpleTable->Delete();
 
   // Select Column of Interest
@@ -521,35 +570,51 @@ int TestDescriptiveStatistics( int, char *[] )
   ds3->SetAssessOption( false );
   ds3->Update();
 
-  cout << "\n## Calculated the following statistics for {0,...9} sequence:\n";
-  
-  for ( int i = 0; i < outputSimpleMeta->GetNumberOfColumns(); ++ i )
+  // Get output data and meta tables
+  vtkMultiBlockDataSet* outputMetaDS3 = vtkMultiBlockDataSet::SafeDownCast( ds3->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary3 = vtkTable::SafeDownCast( outputMetaDS3->GetBlock( 0 ) );
+  vtkTable* outputDerived3 = vtkTable::SafeDownCast( outputMetaDS3->GetBlock( 1 ) );
+
+  cout << "\n## Calculated the following primary statistics for {0,...9} sequence:\n";
+  for ( int i = 0; i < outputPrimary3->GetNumberOfColumns(); ++ i )
     {
-    cout << outputSimpleMeta->GetColumnName( i )
+    cout << outputPrimary3->GetColumnName( i )
          << "="
-         << outputSimpleMeta->GetValue( 0, i ).ToString()
+         << outputPrimary3->GetValue( 0, i ).ToString()
          << "  ";
     }
-  
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e-6 )
+
+  // Verify some of the calculated primary statistics
+  if ( fabs ( outputPrimary3->GetValueByName( 0, "Mean" ).ToDouble() - mean ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect mean");
     testStatus = 1;
     }
+  cout << "\n";
+
+  cout << "\n## Calculated the following derived statistics for {0,...9} sequence:\n";
+  for ( int i = 0; i < outputDerived3->GetNumberOfColumns(); ++ i )
+    {
+    cout << outputDerived3->GetColumnName( i )
+         << "="
+         << outputDerived3->GetValue( 0, i ).ToString()
+         << "  ";
+    }
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e-6 )
+  // Verify some of the calculated derived statistics
+  if ( fabs ( outputDerived3->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect variance");
     testStatus = 1;
     }
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "g1 Skewness" ).ToDouble() - g1 ) > 1.e-6 )
+  if ( fabs ( outputDerived3->GetValueByName( 0, "g1 Skewness" ).ToDouble() - g1 ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect g1 skewness");
     testStatus = 1;
     }
   
-  if ( fabs ( outputSimpleMeta->GetValueByName( 0, "g2 Kurtosis" ).ToDouble() - g2 ) > 1.e-6 )
+  if ( fabs ( outputDerived3->GetValueByName( 0, "g2 Kurtosis" ).ToDouble() - g2 ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect g2 kurtosis");
     testStatus = 1;
@@ -606,11 +671,9 @@ int TestDescriptiveStatistics( int, char *[] )
   gaussianTable->AddColumn( datasetLaplace );
   datasetLaplace->Delete();
 
+  // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
   ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
-  vtkTable* outputMeta4 = ds4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
-  vtkTable* outputTest4 = ds4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
-
   gaussianTable->Delete();
 
   // Select Column of Interest
@@ -627,38 +690,46 @@ int TestDescriptiveStatistics( int, char *[] )
   ds4->SetAssessOption( false );
   ds4->Update();
 
-  // Print some calculated statistics of the Learn and Derive options
-  cout << "\n## Some calculated descriptive statistics for pseudo-random variables (n="
+  // Get output data and meta tables
+  vtkMultiBlockDataSet* outputMetaDS4 = vtkMultiBlockDataSet::SafeDownCast( ds4->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary4 = vtkTable::SafeDownCast( outputMetaDS4->GetBlock( 0 ) );
+  vtkTable* outputDerived4 = vtkTable::SafeDownCast( outputMetaDS4->GetBlock( 1 ) );
+  vtkTable* outputTest4 = ds4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
+
+  cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="
        << nVals
        << "):\n";
-
-  // Statistics of interest
-  int soi[] = 
-    { 
-      0,  // variable name
-      2,  // minimum
-      3,  // maximum
-      4,  // mean
-      9,  // variance
-      10, // g1 skewness
-      12  // g2 kurtosis
-    };
-  int nsoi = 7;
-
-  for ( vtkIdType r = 0; r < outputMeta4->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputPrimary4->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < nsoi; ++ i )
+    for ( int i = 0; i < outputPrimary4->GetNumberOfColumns(); ++ i )
       {
-      cout << outputMeta4->GetColumnName( soi[i] )
+      cout << outputPrimary4->GetColumnName( i )
            << "="
-           << outputMeta4->GetValue( r, soi[i] ).ToString()
+           << outputPrimary4->GetValue( r, i ).ToString()
            << "  ";
       }
 
     cout << "\n";
     }
 
+  cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
+       << nVals
+       << "):\n";
+  for ( vtkIdType r = 0; r < outputDerived4->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputDerived4->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputDerived4->GetColumnName( i )
+           << "="
+           << outputDerived4->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+  
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
        << nVals

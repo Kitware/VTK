@@ -91,6 +91,13 @@ protected:
   ~vtkDescriptiveStatistics();
 
   // Description:
+  // This algorithm accepts and returns a multiblock dataset containing several tables for
+  // its meta input/output instead of a single vtkTable.
+  // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
+  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  virtual int FillOutputPortInformation( int port, vtkInformation* info );
+
+  // Description:
   // Execute the calculations required by the Learn option, given some input Data
   // NB: input parameters are unused.
   virtual void Learn( vtkTable* inData,
@@ -101,6 +108,12 @@ protected:
   // Execute the calculations required by the Derive option.
   virtual void Derive( vtkDataObject* );
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkDataObject* inMeta,
+                       vtkTable* outData ); 
+  
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable* inData,
