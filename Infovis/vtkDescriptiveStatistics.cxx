@@ -45,7 +45,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.99");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.100");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -174,7 +174,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       }
 
     // Verify that the current primary statistics are indeed contained in a table
-    vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+    primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! primaryTab )
       {
       return;
