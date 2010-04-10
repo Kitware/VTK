@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkExtractPolyhedralMesh.h"
 #include "vtkDataSetMapper.h"
 #include "vtkActor.h"
 #include "vtkRenderer.h"
@@ -396,19 +395,37 @@ int TestPolyhedron( int argc, char* argv[] )
   contour->SetPoints(locator->GetPoints());
   contour->SetPolys(resultPolys);
   contour->GetPointData()->DeepCopy(resultPd);;
-  
+
+  // test clip
+  vtkSmartPointer<vtkPointLocator> locator1 = 
+    vtkSmartPointer<vtkPointLocator>::New();
+  vtkSmartPointer<vtkCellArray> resultPolys1 = 
+    vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPointData> resultPd1 = 
+    vtkSmartPointer<vtkPointData>::New();
+  vtkSmartPointer<vtkCellData> resultCd1 = 
+    vtkSmartPointer<vtkCellData>::New();
+
+  polyhedron->Clip(0.5, tetraGrid->GetPointData()->GetScalars(), locator1, 
+                   resultPolys1, tetraGrid->GetPointData(), resultPd1,
+                   tetraGrid->GetCellData(), 0, resultCd1, 0);
+
+  // output the clipped polyhedron
+  vtkSmartPointer<vtkPolyData> clipPolyhedron = vtkSmartPointer<vtkPolyData>::New();
+  clipPolyhedron->SetPoints(locator->GetPoints());
+  clipPolyhedron->SetPolys(resultPolys1);
+  clipPolyhedron->GetPointData()->DeepCopy(resultPd1);;
+
   // shrink to show the gaps between tetrahedrons.
   vtkSmartPointer<vtkShrinkFilter> shrink = 
     vtkSmartPointer<vtkShrinkFilter>::New();
   shrink->SetInput( tetraGrid );
   shrink->SetShrinkFactor( 0.7 );
 
-  std::cout << "after contour" << std::endl;  
-
   // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(shrink->GetOutput());
+  mapper->SetInput(poly);
 
   vtkSmartPointer<vtkActor> actor = 
     vtkSmartPointer<vtkActor>::New();
@@ -422,16 +439,32 @@ int TestPolyhedron( int argc, char* argv[] )
     vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
 
+  vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper = 
+    vtkSmartPointer<vtkDataSetMapper>::New();
+  clipPolyhedronMapper->SetInput(clipPolyhedron);
+
+  vtkSmartPointer<vtkActor> clipPolyhedronActor = 
+    vtkSmartPointer<vtkActor>::New();
+  clipPolyhedronActor->SetMapper(clipPolyhedronMapper);
+
   // Create rendering infrastructure
-  vtkSmartPointer<vtkProperty> lightProp = vtkSmartPointer<vtkProperty>::New();
-  lightProp->LightingOff();
-  actor->SetProperty(lightProp);
-  contourActor->SetProperty(lightProp);
+  vtkSmartPointer<vtkProperty> prop = vtkSmartPointer<vtkProperty>::New();
+  prop->LightingOff();
+  prop->SetRepresentationToSurface();
+  prop->EdgeVisibilityOn();
+  prop->SetLineWidth(3.0);
+  prop->SetOpacity(0.8);
+  
+  // set property
+  actor->SetProperty(prop);
+  contourActor->SetProperty(prop);
+  clipPolyhedronActor->SetProperty(prop);
 
   vtkSmartPointer<vtkRenderer> ren = 
     vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
   ren->AddActor(contourActor);
+  ren->AddActor(clipPolyhedronActor);
   ren->SetBackground(.5,.5,.5);
 
   vtkSmartPointer<vtkRenderWindow> renWin = 
