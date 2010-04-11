@@ -576,6 +576,7 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkTable* outputDerived3 = vtkTable::SafeDownCast( outputMetaDS3->GetBlock( 1 ) );
 
   cout << "\n## Calculated the following primary statistics for {0,...9} sequence:\n";
+  cout << "   ";
   for ( int i = 0; i < outputPrimary3->GetNumberOfColumns(); ++ i )
     {
     cout << outputPrimary3->GetColumnName( i )
@@ -593,6 +594,7 @@ int TestDescriptiveStatistics( int, char *[] )
   cout << "\n";
 
   cout << "\n## Calculated the following derived statistics for {0,...9} sequence:\n";
+  cout << "   ";
   for ( int i = 0; i < outputDerived3->GetNumberOfColumns(); ++ i )
     {
     cout << outputDerived3->GetColumnName( i )
