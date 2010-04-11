@@ -45,7 +45,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.100");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.101");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -280,47 +280,47 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // The descriptive statistics table
-  vtkTable* statTab = vtkTable::New();
+  // The primary statistics table
+  vtkTable* primaryTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  statTab->AddColumn( stringCol );
+  primaryTab->AddColumn( stringCol );
   stringCol->Delete();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
-  statTab->AddColumn( idTypeCol );
+  primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Minimum" );
-  statTab->AddColumn( doubleCol );
+  primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Maximum" );
-  statTab->AddColumn( doubleCol );
+  primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Mean" );
-  statTab->AddColumn( doubleCol );
+  primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M2" );
-  statTab->AddColumn( doubleCol );
+  primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M3" );
-  statTab->AddColumn( doubleCol );
+  primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M4" );
-  statTab->AddColumn( doubleCol );
+  primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
   vtkIdType nRow = inData->GetNumberOfRows();
@@ -402,7 +402,7 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
     row->SetValue( 6, mom3 );
     row->SetValue( 7, mom4 );
 
-    statTab->InsertNextRow( row );
+    primaryTab->InsertNextRow( row );
 
     row->Delete();
     } // rit
@@ -410,10 +410,10 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
   // Finally set first block of output meta port to primary statistics table
   outMeta->SetNumberOfBlocks( 1 );
   outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
-  outMeta->SetBlock( 0, statTab );
+  outMeta->SetBlock( 0, primaryTab );
 
   // Clean up
-  statTab->Delete();
+  primaryTab->Delete();
 
   return;
 }
