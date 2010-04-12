@@ -109,12 +109,6 @@ protected:
   virtual void Derive( vtkDataObject* );
 
   // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkDataObject* inMeta,
-                       vtkTable* outData ); 
-  
-  // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable* inData,
                      vtkDataObject* inMeta,
