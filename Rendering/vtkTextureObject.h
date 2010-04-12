@@ -474,6 +474,7 @@ protected:
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
   bool SupportsTextureInteger;
+  bool SupportsTextureFloat;
 
   int WrapS;
   int WrapT;
