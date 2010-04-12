@@ -21,6 +21,7 @@
 #include "vtkUnivariateStatisticsAlgorithm.h"
 
 #include "vtkDoubleArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
@@ -34,7 +35,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.33");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.34");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -50,6 +51,35 @@ vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+}
+
+// ----------------------------------------------------------------------
+int vtkUnivariateStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* info )
+{
+  int res = this->Superclass::FillInputPortInformation( port, info ); 
+  if ( port == INPUT_MODEL )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+
+    res *= 1;
+    }
+
+  return res;
+}
+
+// ----------------------------------------------------------------------
+int vtkUnivariateStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation* info )
+{
+  int res = this->Superclass::FillOutputPortInformation( port, info );
+  if ( port == OUTPUT_MODEL )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+
+    res *= 1;
+    }
+  
+  return res;
 }
 
 // ----------------------------------------------------------------------

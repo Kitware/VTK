@@ -26,7 +26,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiBlockDataSet.h"
@@ -39,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.59");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.60");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -63,41 +62,6 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
-}
-
-// ----------------------------------------------------------------------
-int vtkOrderStatistics::FillInputPortInformation( int port, vtkInformation* info )
-{
-  int res; 
-  if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
-
-    res = 1;
-    }
-  else
-    {
-    res = this->Superclass::FillInputPortInformation( port, info );
-    }
-
-  return res;
-}
-
-// ----------------------------------------------------------------------
-int vtkOrderStatistics::FillOutputPortInformation( int port, vtkInformation* info )
-{
-  int res = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == OUTPUT_MODEL )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
-    }
-  else
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
-    }
-  
-  return res;
 }
 
 // ----------------------------------------------------------------------

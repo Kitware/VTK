@@ -27,7 +27,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -43,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.104");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.105");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -71,41 +70,6 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "UnbiasedVariance: " << this->UnbiasedVariance << "\n";
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
-}
-
-// ----------------------------------------------------------------------
-int vtkDescriptiveStatistics::FillInputPortInformation( int port, vtkInformation* info )
-{
-  int res; 
-  if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
-
-    res = 1;
-    }
-  else
-    {
-    res = this->Superclass::FillInputPortInformation( port, info );
-    }
-
-  return res;
-}
-
-// ----------------------------------------------------------------------
-int vtkDescriptiveStatistics::FillOutputPortInformation( int port, vtkInformation* info )
-{
-  int res = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == OUTPUT_MODEL )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
-    }
-  else
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
-    }
-  
-  return res;
 }
 
 // ----------------------------------------------------------------------
