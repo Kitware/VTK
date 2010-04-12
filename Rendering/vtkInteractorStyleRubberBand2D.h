@@ -22,6 +22,8 @@
 // .SECTION Description
 // vtkInteractorStyleRubberBand2D manages interaction in a 2D view.
 // Camera rotation is not allowed with this interactor style.
+// Zooming affects the camera's parallel scale only, and assumes
+// that the camera is in parallel projection mode.
 // The style also allows draws a rubber band using the left button.
 // All camera changes invoke InteractionBeginEvent when the button
 // is pressed, InteractionEvent when the mouse (or wheel) is moved,
