@@ -28,6 +28,10 @@
 // where N is the number of distinct strings in the string array.  Set the string
 // array to process with SetInputArrayToProcess(0,0,0,...).  The array may be in
 // the point, cell, or field data of the data object.
+//
+// The list of unique strings, in the order they are mapped, can also be
+// retrieved from output port 1. They are in a vtkTable, stored in the "Strings"
+// column as a vtkStringArray.
 
 #ifndef __vtkStringToCategory_h
 #define __vtkStringToCategory_h
@@ -45,10 +49,10 @@ public:
   // The name to give to the output vtkIntArray of category values.
   vtkSetStringMacro(CategoryArrayName);
   vtkGetStringMacro(CategoryArrayName);
-  
+
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -61,14 +65,16 @@ protected:
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
-  
+
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
   char *CategoryArrayName;
-    
+
 private:
   vtkStringToCategory(const vtkStringToCategory&); // Not implemented
   void operator=(const vtkStringToCategory&);   // Not implemented

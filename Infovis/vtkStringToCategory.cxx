@@ -33,17 +33,20 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkStringToCategory, "1.6");
+vtkCxxRevisionMacro(vtkStringToCategory, "1.7");
 vtkStandardNewMacro(vtkStringToCategory);
 
 vtkStringToCategory::vtkStringToCategory()
 {
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "label");
+  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               "label");
   this->CategoryArrayName = 0;
   this->SetCategoryArrayName("category");
+  this->SetNumberOfOutputPorts(2);
 }
 
 vtkStringToCategory::~vtkStringToCategory()
@@ -59,11 +62,30 @@ int vtkStringToCategory::RequestData(
   // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *outKeyInfo = outputVector->GetInformationObject(1);
 
   // Get the input and output objects
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   output->ShallowCopy(input);
+
+  // This second output stores a list of the unique strings, in the same order
+  // as used in the first output.
+  vtkTable* stringTable =
+      vtkTable::SafeDownCast(outKeyInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStringArray* strings =
+      vtkStringArray::SafeDownCast(stringTable->GetColumnByName("Strings"));
+  if (strings)
+    {
+    strings->SetNumberOfTuples(0);
+    }
+  else
+    {
+    strings = vtkStringArray::New();
+    strings->SetName("Strings");
+    stringTable->AddColumn(strings);
+    strings->Delete();
+    }
 
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
   vtkStringArray* stringArr = vtkStringArray::SafeDownCast(arr);
@@ -107,6 +129,7 @@ int vtkStringToCategory::RequestData(
     if (s.find(stringArr->GetValue(i)) == s.end())
       {
       s.insert(stringArr->GetValue(i));
+      strings->InsertNextValue(stringArr->GetValue(i));
       stringArr->LookupValue(stringArr->GetValue(i), list);
       for (vtkIdType j = 0; j < list->GetNumberOfIds(); j++)
         {
@@ -165,6 +188,22 @@ int vtkStringToCategory::RequestDataObject(
     return 1;
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkStringToCategory::FillOutputPortInformation(int port,
+                                                   vtkInformation* info)
+{
+  // now add our info
+  if (port == 0)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+    }
+  else
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    }
+  return 1;
 }
 
 void vtkStringToCategory::PrintSelf(ostream& os, vtkIndent indent)
