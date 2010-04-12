@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.49");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.49.4.1");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -3079,8 +3079,22 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
   
   // first, attempt contiguous memory. If this fails, then go
   // for non-contiguous
-  this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
-  this->ContiguousGradientMagnitude = new unsigned char [numSlices * sliceSize];
+  try
+    {
+    this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
+    }
+  catch(std::bad_alloc &)
+    {
+    this->ContiguousGradientNormal = NULL;
+    }
+  try
+    {
+    this->ContiguousGradientMagnitude = new unsigned char [numSlices * sliceSize];
+    }
+  catch(std::bad_alloc &)
+    {
+    this->ContiguousGradientMagnitude = NULL;
+    }
   
   if ( this->ContiguousGradientNormal )
     {
