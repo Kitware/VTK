@@ -23,11 +23,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -37,7 +39,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.55");
+#define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
+
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.56");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -61,6 +65,41 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
+}
+
+// ----------------------------------------------------------------------
+int vtkOrderStatistics::FillInputPortInformation( int port, vtkInformation* info )
+{
+  int res; 
+  if ( port == INPUT_MODEL )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+
+    res = 1;
+    }
+  else
+    {
+    res = this->Superclass::FillInputPortInformation( port, info );
+    }
+
+  return res;
+}
+
+// ----------------------------------------------------------------------
+int vtkOrderStatistics::FillOutputPortInformation( int port, vtkInformation* info )
+{
+  int res = this->Superclass::FillOutputPortInformation( port, info );
+  if ( port == OUTPUT_MODEL )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    }
+  else
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    }
+  
+  return res;
 }
 
 // ----------------------------------------------------------------------
@@ -112,20 +151,23 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
                                 vtkTable* vtkNotUsed( inParameters ),
                                 vtkDataObject* outMetaDO )
 {
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
-  if ( ! outMeta ) 
-    { 
-    return; 
-    } 
+  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
+  if ( ! outMeta )
+    {
+    return;
+    }
+
+  // The primary statistics table
+  vtkTable* primaryTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  outMeta->AddColumn( stringCol );
+  primaryTab->AddColumn( stringCol );
   stringCol->Delete();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
-  outMeta->AddColumn( idTypeCol );
+  primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   vtkIdType n = inData->GetNumberOfRows();
@@ -179,7 +221,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           break;
         }
       }
-    outMeta->AddColumn( variantCol );
+    primaryTab->AddColumn( variantCol );
     variantCol->Delete();
     }
 
@@ -249,7 +291,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         }
     
       row->SetValue( i, distr.rbegin()->first );
-      outMeta->InsertNextRow( row );
+      primaryTab->InsertNextRow( row );
       }
     else if ( arr->IsA("vtkStringArray") ) 
       {
@@ -272,7 +314,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         }
       
       row->SetValue( i, distr.rbegin()->first );
-      outMeta->InsertNextRow( row );
+      primaryTab->InsertNextRow( row );
       }
     else // column is of type vtkVariantArray, which is not supported by this filter
       {
@@ -283,6 +325,14 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
     row->Delete();
     }
+
+  // Finally set first block of output meta port to primary statistics table
+  outMeta->SetNumberOfBlocks( 1 );
+  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
+  outMeta->SetBlock( 0, primaryTab );
+
+  // Clean up
+  primaryTab->Delete();
 
   return;
 }
@@ -331,6 +381,103 @@ public:
     result->SetValue( 0, q - 2 ); 
   }
 };
+
+// ----------------------------------------------------------------------
+void vtkOrderStatistics::Assess( vtkTable* inData,
+                                 vtkDataObject* inMetaDO,
+                                 vtkTable* outData )
+{
+  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
+    {
+    return;
+    }
+
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  if ( nRowData <= 0 )
+    {
+    return;
+    }
+
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+    {
+    return;
+    }
+
+  // Loop over requests
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      continue;
+      }
+
+    vtkStringArray* varNames = vtkStringArray::New();
+    varNames->SetNumberOfValues( VTK_STATISTICS_NUMBER_OF_VARIABLES );
+    varNames->SetValue( 0, varName );
+
+    // Store names to be able to use SetValueByName, and create the outData columns
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
+      {
+      vtksys_ios::ostringstream assessColName;
+      assessColName << this->AssessNames->GetValue( v )
+                    << "("
+                    << varName
+                    << ")";
+
+      names[v] = assessColName.str().c_str(); 
+
+      vtkDoubleArray* assessValues = vtkDoubleArray::New(); 
+      assessValues->SetName( names[v] ); 
+      assessValues->SetNumberOfTuples( nRowData  ); 
+      outData->AddColumn( assessValues ); 
+      assessValues->Delete(); 
+      }
+
+    // Select assess functor
+    AssessFunctor* dfunc;
+    this->SelectAssessFunctor( outData,
+                               inMeta,
+                               varNames,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      // Functor selection did not work. Do nothing.
+      vtkWarningMacro( "AssessFunctors could not be allocated for column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      }
+    else
+      {
+      // Assess each entry of the column
+      vtkVariantArray* assessResult = vtkVariantArray::New();
+      for ( vtkIdType r = 0; r < nRowData; ++ r )
+        {
+        (*dfunc)( assessResult, r );
+        for ( int v = 0; v < nv; ++ v )
+          {
+          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+          }
+        }
+
+      assessResult->Delete();
+      }
+
+    delete dfunc;
+    delete [] names;
+    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
+    }
+}
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
