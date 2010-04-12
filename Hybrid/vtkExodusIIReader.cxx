@@ -326,7 +326,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.88");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.88.4.1");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -1127,6 +1127,28 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     return;
     }
 
+  vtkIntArray* ent = 0;
+  if ( binfo->PointsPerCell == 0 )
+    {
+    int arrId;
+    if (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN) 
+      {
+      arrId = 0;
+      }
+    else 
+      {
+      arrId = 1;
+      }
+    ent = vtkIntArray::SafeDownCast( 
+                    this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, arrId ) ) );
+    if ( ! ent ) 
+      {
+      vtkErrorMacro( "Entity used 0 points per cell, but didn't return poly_hedra correctly" );
+      binfo->Status = 0;
+      return;
+      }
+    }
+
   vtkIntArray* arr;
   arr = vtkIntArray::SafeDownCast( this->GetCacheOrRead( vtkExodusIICacheKey( -1, conn_type, obj, 0 ) ) );
   if ( ! arr )
@@ -1144,15 +1166,21 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
 
     for ( int i = 0; i < binfo->Size; ++i )
       {
-      for ( int p = 0; p < binfo->PointsPerCell; ++p )
+      int entitiesPerCell = binfo->PointsPerCell;
+      if ( ent != 0) 
+        {
+        entitiesPerCell = ent->GetValue (i);
+        cellIds.resize( entitiesPerCell );
+        }
+      for ( int p = 0; p < entitiesPerCell; ++p )
         {
         cellIds[p] = this->GetSqueezePointId( binfo, srcIds[p] );
         //cout << " " << srcIds[p] << "(" << cellIds[p] << ")";
         }
       //cout << "\n";
       //cout << " " <<
-      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
-      srcIds += binfo->PointsPerCell;
+      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, entitiesPerCell, &cellIds[0] );
+      srcIds += entitiesPerCell;
       }
       //cout << "\n";
     }
@@ -1165,22 +1193,33 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
 
     for ( int i = 0; i < binfo->Size; ++i )
       {
-      for ( int p = 0; p < binfo->PointsPerCell; ++p )
+      int entitiesPerCell = binfo->PointsPerCell;
+      if ( ent != 0) 
+        {
+        entitiesPerCell = ent->GetValue (i);
+        cellIds.resize( entitiesPerCell );
+        }
+      for ( int p = 0; p < entitiesPerCell; ++p )
         {
         cellIds[p] = srcIds[p];
         //cout << " " << srcIds[p];
         }
       //cout << "\n";
-      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
-      srcIds += binfo->PointsPerCell;
+      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, entitiesPerCell, &cellIds[0] );
+      srcIds += entitiesPerCell;
       }
 #else // VTK_USE_64BIT_IDS
     vtkIdType* srcIds = (vtkIdType*) arr->GetPointer( 0 );
 
     for ( int i = 0; i < binfo->Size; ++i )
       {
-      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
-      srcIds += binfo->PointsPerCell;
+      int entitiesPerCell = binfo->PointsPerCell;
+      if ( ent != 0) 
+        {
+        entitiesPerCell = ent->GetValue (i);
+        }
+      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, entitiesPerCell, srcIds );
+      srcIds += entitiesPerCell;
       //for ( int k = 0; k < binfo->PointsPerCell; ++k )
         //cout << " " << srcIds[k];
       //cout << "\n";
@@ -2124,6 +2163,33 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       "with a single vtkDataArray. Who told you to call this routine to get it?"
       );
     }
+  else if ( key.ObjectType == vtkExodusIIReader::ENTITY_COUNTS )
+    {
+    int ctypidx;
+    if (key.ArrayId == 0) 
+      {
+      ctypidx = 0;
+      }
+    else
+      {
+      ctypidx = 1;
+      }    
+    int otypidx = conn_obj_idx_cvt[ctypidx];
+    int otyp = obj_types[ otypidx ];
+    BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
+    vtkIntArray* iarr = vtkIntArray::New();
+    iarr->SetNumberOfComponents (1);
+    iarr->SetNumberOfTuples (binfop->Size);
+    if ( ex_get_entity_count_per_polyhedra ( exoid, static_cast<ex_entity_type>( otyp ), binfop->Id, 
+                                             iarr->GetPointer(0)) < 0 )
+      {
+      vtkErrorMacro( "Unable to read " << binfop->Id << " (index " << key.ObjectId <<
+        ") entity count per polyhedra" );
+      iarr->Delete();
+      iarr = 0;
+      }
+    arr = iarr;
+    }
   else if (
     key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN ||
     key.ObjectType == vtkExodusIIReader::FACE_BLOCK_CONN ||
@@ -2137,8 +2203,15 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
 
     vtkIntArray* iarr = vtkIntArray::New();
-    iarr->SetNumberOfComponents( binfop->BdsPerEntry[0] );
-    iarr->SetNumberOfTuples( binfop->Size );
+    if (binfop->CellType == VTK_POLYGON)
+      {
+      iarr->SetNumberOfValues (binfop->BdsPerEntry[0]);
+      }
+    else
+      {
+      iarr->SetNumberOfComponents( binfop->BdsPerEntry[0] );
+      iarr->SetNumberOfTuples( binfop->Size );
+      }
     
     if ( ex_get_conn( exoid, static_cast<ex_entity_type>( otyp ), binfop->Id, iarr->GetPointer(0), 0, 0 ) < 0 )
       {
@@ -2209,6 +2282,52 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
       }
+    /*
+    else if (binfop->CellType == VTK_POLYGON)
+      {
+      int arrId;
+      if (key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN) 
+        {
+        arrId = 0;
+        }
+      else 
+        {
+        arrId = 1;
+        }
+      vtkIntArray* ent;
+      ent = vtkIntArray::SafeDownCast( 
+                      this->GetCacheOrRead( 
+                              vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, 
+                                                  key.ObjectId, arrId ) ) );
+      if ( ! ent ) 
+        {
+        vtkErrorMacro("Entity used 0 points per cell, but didn't return poly_hedra correctly");
+        iarr = 0;
+        }
+      else 
+        {
+        // reverse each polygon's winding order.
+        for ( c = 0; c < binfop->Size; c ++ )
+          {
+          int *nptr = ptr + ent->GetValue (c);
+          int *eptr = nptr - 1;
+          while ( eptr >= ptr )
+            {
+            *eptr = *eptr - 1;
+            *ptr = *ptr - 1;
+  
+            int tmp = *eptr;
+            *eptr = *ptr;
+            *ptr = tmp; 
+  
+            ptr ++;
+            eptr --;
+            }
+          ptr = nptr;
+          }
+        }
+      }
+      */
     else
       {
       for ( c = 0; c <= iarr->GetMaxId(); ++c, ++ptr )
@@ -2798,6 +2917,11 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
   else if (elemType.substr(0,3) == "PYR") { binfo.CellType = VTK_PYRAMID;    binfo.PointsPerCell = 5; }
   else if (elemType.substr(0,3) == "WED") { binfo.CellType = VTK_WEDGE;      binfo.PointsPerCell = 6; }
   else if (elemType.substr(0,3) == "HEX") { binfo.CellType = VTK_HEXAHEDRON; binfo.PointsPerCell = 8; }
+  else if (elemType.substr(0,3) == "NSI" || elemType.substr(0,3) == "NFA") 
+    { 
+    binfo.CellType = VTK_POLYGON;
+    binfo.PointsPerCell = 0;
+    }
   else if ((elemType.substr(0,3) == "SHE") && (binfo.BdsPerEntry[0] == 3))
     { binfo.CellType = VTK_TRIANGLE;           binfo.PointsPerCell = 3; }
   else if ((elemType.substr(0,3) == "SHE") && (binfo.BdsPerEntry[0] == 4))
@@ -5229,7 +5353,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.88");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.88.4.1");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
