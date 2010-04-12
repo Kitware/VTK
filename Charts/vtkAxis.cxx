@@ -29,7 +29,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.26");
+vtkCxxRevisionMacro(vtkAxis, "1.27");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -420,7 +420,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
   // Now calculate the tick labels, and positions within the axis range
   this->TickPositions->SetNumberOfTuples(0);
   this->TickLabels->SetNumberOfTuples(0);
-  int n = (max - min) / this->TickInterval;
+  int n = static_cast<int>((max - min) / this->TickInterval);
   for (int i = 0; i <= n && i < 200; ++i)
     {
     double value = min + double(i) * this->TickInterval;
