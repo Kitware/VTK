@@ -43,9 +43,10 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkFixedPointRayCastImage.h"
 
+#include <vtkstd/exception>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.50");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.51");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -3083,7 +3084,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
     {
     this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
     }
-  catch(std::bad_alloc &)
+  catch(vtkstd::bad_alloc &)
     {
     this->ContiguousGradientNormal = NULL;
     }
@@ -3091,7 +3092,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
     {
     this->ContiguousGradientMagnitude = new unsigned char [numSlices * sliceSize];
     }
-  catch(std::bad_alloc &)
+  catch(vtkstd::bad_alloc &)
     {
     this->ContiguousGradientMagnitude = NULL;
     }
