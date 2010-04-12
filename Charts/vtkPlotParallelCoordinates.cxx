@@ -20,6 +20,7 @@
 #include "vtkAxis.h"
 #include "vtkPen.h"
 #include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkVector.h"
 #include "vtkTransform2D.h"
 #include "vtkContextDevice2D.h"
@@ -31,6 +32,10 @@
 #include "vtkStringArray.h"
 #include "vtkTimeStamp.h"
 #include "vtkInformation.h"
+#include "vtkSmartPointer.h"
+
+// Need to turn some arrays of strings into categories
+#include "vtkStringToCategory.h"
 
 #include "vtkObjectFactory.h"
 
@@ -50,7 +55,7 @@ public:
   bool SelectionInitialized;
 };
 
-vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.6");
+vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotParallelCoordinates);
@@ -293,16 +298,54 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
   for (vtkIdType i = 0; i < cols->GetNumberOfTuples(); ++i)
     {
     vtkstd::vector<float>& col = this->Storage->at(i);
+    vtkAxis* axis = this->Parent->GetAxis(i);
     col.resize(rows);
-    vtkDataArray* data =
+    vtkSmartPointer<vtkDataArray> data =
         vtkDataArray::SafeDownCast(table->GetColumnByName(cols->GetValue(i)));
     if (!data)
       {
-      continue;
+      if (table->GetColumnByName(cols->GetValue(i))->IsA("vtkStringArray"))
+        {
+        // We have a different kind of column - attempt to make it into an enum
+        vtkStringToCategory* stoc = vtkStringToCategory::New();
+        stoc->SetInput(table);
+        stoc->SetInputArrayToProcess(0, 0, 0,
+                                     vtkDataObject::FIELD_ASSOCIATION_ROWS,
+                                     cols->GetValue(i));
+        stoc->SetCategoryArrayName("enumPC");
+        stoc->Update();
+        vtkTable* table2 = vtkTable::SafeDownCast(stoc->GetOutput());
+        vtkTable* stringTable = vtkTable::SafeDownCast(stoc->GetOutput(1));
+        if (table2)
+          {
+          data = vtkDataArray::SafeDownCast(table2->GetColumnByName("enumPC"));
+          }
+        if (stringTable && stringTable->GetColumnByName("Strings"))
+          {
+          vtkStringArray* strings =
+              vtkStringArray::SafeDownCast(stringTable->GetColumnByName("Strings"));
+          vtkSmartPointer<vtkDoubleArray> arr =
+              vtkSmartPointer<vtkDoubleArray>::New();
+          for (vtkIdType j = 0; j < strings->GetNumberOfTuples(); ++j)
+            {
+            arr->InsertNextValue(j);
+            }
+          // Now we need to set the range on the string axis
+          axis->SetTickLabels(strings);
+          axis->SetTickPositions(arr);
+          axis->SetRange(0.0, strings->GetNumberOfTuples()-1);
+          axis->Update();
+          }
+        stoc->Delete();
+        }
+      // If we still don't have a valid data array then skip this column.
+      if (!data)
+        {
+        continue;
+        }
       }
 
     // Also need the range from the appropriate axis, to normalize points
-    vtkAxis* axis = this->Parent->GetAxis(i);
     float min = axis->GetMinimum();
     float max = axis->GetMaximum();
     float scale = 1.0f / (max - min);
