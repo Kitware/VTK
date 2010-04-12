@@ -19,6 +19,7 @@
 #include "vtkPen.h"
 #include "vtkTextProperty.h"
 #include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtksys/ios/sstream"
@@ -28,7 +29,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.25");
+vtkCxxRevisionMacro(vtkAxis, "1.26");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -69,8 +70,11 @@ vtkAxis::vtkAxis()
   this->GridPen = vtkPen::New();
   this->GridPen->SetColor(242, 242, 242);
   this->GridPen->SetWidth(1.0);
-  this->TickPositions = vtkFloatArray::New();
-  this->TickLabels = vtkStringArray::New();
+  this->TickPositions = vtkSmartPointer<vtkDoubleArray>::New();
+  this->TickScenePositions = vtkSmartPointer<vtkFloatArray>::New();
+  this->TickLabels = vtkSmartPointer<vtkStringArray>::New();
+  this->UsingNiceMinMax = false;
+  this->TickMarksDirty = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -79,10 +83,6 @@ vtkAxis::~vtkAxis()
   this->SetTitle(NULL);
   this->TitleProperties->Delete();
   this->LabelProperties->Delete();
-  this->TickPositions->Delete();
-  this->TickPositions = NULL;
-  this->TickLabels->Delete();
-  this->TickLabels = NULL;
   this->Pen->Delete();
   this->GridPen->Delete();
 }
@@ -95,37 +95,30 @@ void vtkAxis::Update()
     return;
     }
 
-  this->TickPositions->SetNumberOfTuples(0);
-  this->TickLabels->SetNumberOfTuples(0);
-
   // Figure out what type of behavior we should follow
-  if (this->Behavior < 2)
+  if (this->Behavior == 1)
     {
     this->RecalculateTickSpacing();
     }
 
-  // Calculate where the first tick mark should be drawn
-  double tick = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
-  int n = static_cast<int>(
-    (this->Maximum - this->Minimum) / this->TickInterval);
-
-  // If there will be more than 500 tick marks it is likely a rounding issue
-  // with a small range.
-  if (n > 500)
+  if (this->Behavior < 2 && this->TickMarksDirty)
     {
-    vtkWarningMacro("A large number of tick marks was calculated (" << n
-                    << "). This is likely an error.")
-    return;
+    // Regenerate the tick marks/positions if necessary
+    // Calculate where the first tick mark should be drawn
+    double first = ceil(this->Minimum / this->TickInterval) * this->TickInterval;
+    double last = first;
+    for (int i = 0; i < 500; ++i)
+      {
+      last += this->TickInterval;
+      if (last > this->Maximum)
+        {
+        this->GenerateTickLabels(first, last-this->TickInterval);
+        break;
+        }
+      }
     }
 
-  // If this check is not used, and the first tick is at 0.0 then it has the
-  // negative sign bit set. This check gets rid of the negative bit but is quite
-  // possibly not the best way of doing it...
-  if (tick == 0.0f)
-    {
-    tick = 0.0f;
-    }
-
+  // Figure out the scaling and origin for the scene
   double scaling = 0.0;
   double origin = 0.0;
   if (this->Point1[0] == this->Point2[0]) // x1 == x2, therefore vertical
@@ -141,40 +134,25 @@ void vtkAxis::Update()
     origin = this->Point1[0];
     }
 
-  while (tick <= this->Maximum)
+  if (this->TickPositions->GetNumberOfTuples() !=
+      this->TickLabels->GetNumberOfTuples())
     {
-    // Calculate the next tick mark position
-    int iTick = static_cast<int>(origin + (tick - this->Minimum) * scaling);
-
-    this->TickPositions->InsertNextValue(iTick);
-    // Make a tick mark label for the tick
-    double value = tick;
-    if (this->LogScale)
-      {
-      value = pow(double(10.0), double(tick));
-      }
-
-    vtksys_ios::ostringstream ostr;
-    ostr.imbue(vtkstd::locale::classic());
-    if (this->Notation > 0)
-      {
-      ostr.precision(this->Precision);
-      }
-    if (this->Notation == 1)
-      {
-      // Scientific notation
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
-      }
-    else if (this->Notation == 2)
-      {
-      ostr.setf(ios::fixed, ios::floatfield);
-      }
-    ostr << value;
-
-    this->TickLabels->InsertNextValue(ostr.str());
-
-    tick += this->TickInterval;
+    vtkWarningMacro("The number of tick positions is not the same as the number "
+                    << "of tick labels - error.");
+    this->TickScenePositions->SetNumberOfTuples(0);
+    return;
     }
+
+  vtkIdType n = this->TickPositions->GetNumberOfTuples();
+  this->TickScenePositions->SetNumberOfTuples(n);
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    int iPos = static_cast<int>(origin +
+                                (this->TickPositions->GetValue(i) -
+                                 this->Minimum) * scaling);
+    this->TickScenePositions->InsertValue(i, iPos);
+    }
+
   this->BuildTime.Modified();
 }
 
@@ -197,7 +175,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   vtkTextProperty *prop = painter->GetTextProp();
 
   // Draw the axis title if there is one
-  if (this->Title)
+  if (this->Title && this->Title[0])
     {
     int x = 0;
     int y = 0;
@@ -248,9 +226,9 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   // Now draw the tick marks
   painter->ApplyTextProp(this->LabelProperties);
 
-  float *tickPos = this->TickPositions->GetPointer(0);
+  float *tickPos = this->TickScenePositions->GetPointer(0);
   vtkStdString *tickLabel = this->TickLabels->GetPointer(0);
-  vtkIdType numMarks = this->TickPositions->GetNumberOfTuples();
+  vtkIdType numMarks = this->TickScenePositions->GetNumberOfTuples();
 
   // There are four possible tick label positions, which should be set by the
   // class laying out the axes.
@@ -323,10 +301,45 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::SetMinimum(double minimum)
+{
+  if (this->Minimum == minimum)
+    {
+    return;
+    }
+  this->Minimum = minimum;
+  this->UsingNiceMinMax = false;
+  this->TickMarksDirty = true;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetMaximum(double maximum)
+{
+  if (this->Maximum == maximum)
+    {
+    return;
+    }
+  this->Maximum = maximum;
+  this->UsingNiceMinMax = false;
+  this->TickMarksDirty = true;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetRange(double minimum, double maximum)
+{
+  this->SetMinimum(minimum);
+  this->SetMaximum(maximum);
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::AutoScale()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing
   this->TickInterval = this->CalculateNiceMinMax(this->Minimum, this->Maximum);
+  this->UsingNiceMinMax = true;
+  this->GenerateTickLabels(this->Minimum, this->Maximum);
 }
 
 //-----------------------------------------------------------------------------
@@ -334,12 +347,115 @@ void vtkAxis::RecalculateTickSpacing()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing,
   // discard the min and max in this case. TODO: Refactor the function called.
-  double min, max;
-  this->TickInterval = this->CalculateNiceMinMax(min, max);
+  if (this->Behavior < 2)
+    {
+    double min, max;
+    this->TickInterval = this->CalculateNiceMinMax(min, max);
+    if (this->UsingNiceMinMax)
+      {
+      this->GenerateTickLabels(this->Minimum, this->Maximum);
+      }
+    else
+      {
+      while (min < this->Minimum)
+        {
+        min += this->TickInterval;
+        }
+      while (max > this->Maximum)
+        {
+        max -= this->TickInterval;
+        }
+      this->GenerateTickLabels(min, max);
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
-float vtkAxis::CalculateNiceMinMax(double &min, double &max)
+vtkDoubleArray* vtkAxis::GetTickPositions()
+{
+  return this->TickPositions;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetTickPositions(vtkDoubleArray* array)
+{
+  if (this->TickPositions == array)
+    {
+    return;
+    }
+  this->TickPositions = array;
+  this->Behavior = 2;
+  this->TickMarksDirty = false;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkFloatArray* vtkAxis::GetTickScenePositions()
+{
+  return this->TickScenePositions;
+}
+
+//-----------------------------------------------------------------------------
+vtkStringArray* vtkAxis::GetTickLabels()
+{
+  return this->TickLabels;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetTickLabels(vtkStringArray* array)
+{
+  if (this->TickLabels == array)
+    {
+    return;
+    }
+  this->TickLabels = array;
+  this->Behavior = 2;
+  this->TickMarksDirty = false;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::GenerateTickLabels(double min, double max)
+{
+  // Now calculate the tick labels, and positions within the axis range
+  this->TickPositions->SetNumberOfTuples(0);
+  this->TickLabels->SetNumberOfTuples(0);
+  int n = (max - min) / this->TickInterval;
+  for (int i = 0; i <= n && i < 200; ++i)
+    {
+    double value = min + double(i) * this->TickInterval;
+    this->TickPositions->InsertNextValue(value);
+    // Make a tick mark label for the tick
+    if (this->LogScale)
+      {
+      value = pow(double(10.0), double(value));
+      }
+
+    // Now create a label for the tick position
+    vtksys_ios::ostringstream ostr;
+    ostr.imbue(vtkstd::locale::classic());
+    if (this->Notation > 0)
+      {
+      ostr.precision(this->Precision);
+      }
+    if (this->Notation == 1)
+      {
+      // Scientific notation
+      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      }
+    else if (this->Notation == 2)
+      {
+      ostr.setf(ios::fixed, ios::floatfield);
+      }
+    ostr << value;
+
+    this->TickLabels->InsertNextValue(ostr.str());
+    }
+  this->TickMarksDirty = false;
+}
+
+//-----------------------------------------------------------------------------
+double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 {
   // First get the order of the range of the numbers
   if (this->Maximum == this->Minimum)
@@ -391,7 +507,7 @@ float vtkAxis::CalculateNiceMinMax(double &min, double &max)
 }
 
 //-----------------------------------------------------------------------------
-float vtkAxis::NiceNumber(double n, bool roundUp)
+double vtkAxis::NiceNumber(double n, bool roundUp)
 {
   if (roundUp)
     {
