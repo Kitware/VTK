@@ -24,11 +24,6 @@
 #include "vtkAbstractArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
-#include "vtkXYPlotActor.h"
-#include "vtkXYPlotWidget.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -56,7 +51,7 @@
 #include "R_ext/Parse.h"
 #include "R_ext/Rdynload.h"
 
-vtkCxxRevisionMacro(vtkRAdapter, "1.8");
+vtkCxxRevisionMacro(vtkRAdapter, "1.9");
 
 vtkStandardNewMacro(vtkRAdapter);
 
