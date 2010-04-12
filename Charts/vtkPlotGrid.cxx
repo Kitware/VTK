@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPlotGrid, "1.5");
+vtkCxxRevisionMacro(vtkPlotGrid, "1.5.4.1");
 vtkCxxSetObjectMacro(vtkPlotGrid, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlotGrid, YAxis, vtkAxis);
 //-----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
   // in x
   if (this->XAxis->GetGridVisible())
     {
-    vtkFloatArray *xLines = this->XAxis->GetTickPositions();
+    vtkFloatArray *xLines = this->XAxis->GetTickScenePositions();
     painter->ApplyPen(this->XAxis->GetGridPen());
     float *xPositions = xLines->GetPointer(0);
     for (int i = 0; i < xLines->GetNumberOfTuples(); ++i)
@@ -78,7 +78,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
   // in y
   if (this->YAxis->GetGridVisible())
     {
-    vtkFloatArray *yLines = this->YAxis->GetTickPositions();
+    vtkFloatArray *yLines = this->YAxis->GetTickScenePositions();
     painter->ApplyPen(this->YAxis->GetGridPen());
     float *yPositions = yLines->GetPointer(0);
     for (int i = 0; i < yLines->GetNumberOfTuples(); ++i)

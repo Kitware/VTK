@@ -24,10 +24,12 @@
 #define __vtkAxis_h
 
 #include "vtkContextItem.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 class vtkContext2D;
 class vtkPen;
 class vtkFloatArray;
+class vtkDoubleArray;
 class vtkStringArray;
 class vtkTextProperty;
 
@@ -90,7 +92,7 @@ public:
 
   // Description:
   // Set the logical minimum value of the axis, in plot coordinates.
-  vtkSetMacro(Minimum, double);
+  virtual void SetMinimum(double minimum);
 
   // Description:
   // Get the logical minimum value of the axis, in plot coordinates.
@@ -98,11 +100,15 @@ public:
 
   // Description:
   // Set the logical maximum value of the axis, in plot coordinates.
-  vtkSetMacro(Maximum, double);
+  virtual void SetMaximum(double maximum);
 
   // Description:
   // Get the logical maximum value of the axis, in plot coordinates.
   vtkGetMacro(Maximum, double);
+
+  // Description:
+  // Get the logical range of the axis, in plot coordinates.
+  virtual void SetRange(double minimum, double maximum);
 
   // Description:
   // Get/set the title text of the axis.
@@ -173,10 +179,26 @@ public:
   virtual void RecalculateTickSpacing();
 
   // Description:
-  // A float array with the positions of the tick marks along the axis line.
-  // The positions are specified in the coordinate system the axis is drawn in
-  // (normally screen coordinates).
-  vtkFloatArray* GetTickPositions() { return this->TickPositions; }
+  // An array with the positions of the tick marks along the axis line.
+  // The positions are specified in the plot coordinates of the axis.
+  virtual vtkDoubleArray* GetTickPositions();
+
+  // Description:
+  // Set the tick positions (in plot coordinates).
+  virtual void SetTickPositions(vtkDoubleArray*);
+
+  // Description:
+  // An array with the positions of the tick marks along the axis line.
+  // The positions are specified in scene coordinates.
+  virtual vtkFloatArray* GetTickScenePositions();
+
+  // Description:
+  // A string array containing the tick labels for the axis.
+  virtual vtkStringArray* GetTickLabels();
+
+  // Description:
+  // Set the tick labels for the axis.
+  virtual void SetTickLabels(vtkStringArray*);
 
 //BTX
 protected:
@@ -184,15 +206,19 @@ protected:
   ~vtkAxis();
 
   // Description:
+  // Calculate and assign nice labels/logical label positions.
+  void GenerateTickLabels(double min, double max);
+
+  // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
-  float CalculateNiceMinMax(double &min, double &max);
+  double CalculateNiceMinMax(double &min, double &max);
 
   // Description:
   // Return a "nice number", often defined as 1, 2 or 5. If roundUp is true then
   // the nice number will be rounded up, false it is rounded down. The supplied
   // number should be between 0.0 and 9.9.
-  float NiceNumber(double number, bool roundUp);
+  double NiceNumber(double number, bool roundUp);
 
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float Point1[2];     // The position of point 1 (usually the origin)
@@ -200,7 +226,6 @@ protected:
   double TickInterval;  // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
   vtkTextProperty* LabelProperties; // Text properties for the labels.
-  int TickLabelSize;   // The point size of the tick labels
   double Minimum;       // Minimum value of the axis
   double Maximum;       // Maximum values of the axis
   char* Title;         // The text label drawn on the axis
@@ -220,8 +245,26 @@ protected:
   // This object stores the vtkPen that controls how the grid lines are drawn.
   vtkPen* GridPen;
 
-  vtkFloatArray* TickPositions; // Position of tick marks in screen coordinates
-  vtkStringArray* TickLabels; // The labels for the tick marks
+  // Description:
+  // Position of tick marks in screen coordinates
+  vtkSmartPointer<vtkDoubleArray> TickPositions;
+
+  // Description:
+  // Position of tick marks in screen coordinates
+  vtkSmartPointer<vtkFloatArray> TickScenePositions;
+
+  // Description:
+  // The labels for the tick marks
+  vtkSmartPointer<vtkStringArray> TickLabels;
+
+  // Description:
+  // Hint as to whether a nice min/max was set, otherwise labels may not be
+  // present at the top/bottom of the axis.
+  bool UsingNiceMinMax;
+
+  // Description:
+  // Mark the tick labels as dirty when the min/max value is changed
+  bool TickMarksDirty;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
