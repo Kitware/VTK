@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.73");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.73.16.1");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -219,7 +219,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
               {
               // Gather statistics
               sum[idxC] += *subPtr;
-              sumSqr[idxC] += (*subPtr * *subPtr);
+              sumSqr[idxC] += (static_cast<double>(*subPtr) * (*subPtr));
               if (*subPtr > max[idxC])
                 {
                 max[idxC] = *subPtr;
