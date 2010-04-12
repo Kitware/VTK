@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.24");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.25");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -313,6 +313,11 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   mucov->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
   sparseCov->AddColumn( mucov );
   mucov->Delete();
+
+  if ( ! inData )
+    {
+    return;
+    }
 
   vtkIdType n = inData->GetNumberOfRows();
   if ( n <= 0 )

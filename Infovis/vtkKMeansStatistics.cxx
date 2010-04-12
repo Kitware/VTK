@@ -19,7 +19,7 @@
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
-vtkCxxRevisionMacro(vtkKMeansStatistics,"1.19");
+vtkCxxRevisionMacro(vtkKMeansStatistics,"1.20");
 vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
 
 // ----------------------------------------------------------------------
@@ -309,6 +309,11 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
     return;
     }
   vtkIdType totalNumberOfObservations = this->GetTotalNumberOfObservations( numObservations );
+
+  if ( ! inData )
+    {
+    return;
+    }
 
   if ( inData->GetNumberOfColumns() <= 0 )
     {

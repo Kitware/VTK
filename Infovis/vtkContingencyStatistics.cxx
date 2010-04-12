@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.80");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.81");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -159,6 +159,11 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   idTypeCol->SetName( "Cardinality" );
   contingencyTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
+
+  if ( ! inData )
+    {
+    return;
+    }
 
   vtkIdType n = inData->GetNumberOfRows();
   if ( n <= 0 )

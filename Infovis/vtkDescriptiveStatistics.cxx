@@ -45,7 +45,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.101");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.102");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -322,6 +322,11 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
   doubleCol->SetName( "M4" );
   primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
+
+  if ( ! inData )
+    {
+    return;
+    }
 
   vtkIdType nRow = inData->GetNumberOfRows();
   if ( ! nRow )

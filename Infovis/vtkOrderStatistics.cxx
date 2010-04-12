@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.56");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.57");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -169,6 +169,11 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
   idTypeCol->SetName( "Cardinality" );
   primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
+
+  if ( ! inData )
+    {
+    return;
+    }
 
   vtkIdType n = inData->GetNumberOfRows();
   if ( n <= 0 )

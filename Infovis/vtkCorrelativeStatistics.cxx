@@ -38,7 +38,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.62");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.63");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -230,6 +230,11 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
   doubleCol->SetName( "M XY" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
+
+  if ( ! inData )
+    {
+    return;
+    }
 
   vtkIdType nRow = inData->GetNumberOfRows();
   if ( ! nRow )
