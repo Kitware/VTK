@@ -19,6 +19,7 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkDoubleArray.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkOrderStatistics.h"
@@ -175,22 +176,27 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
 
+  // Set order statistics algorithm and its input data port
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
-  vtkTable* outputTable = haruspex->GetOutput( 1 );
-
   datasetTable->Delete();
   paramsTable->Delete();
 
-// -- Select Columns of Interest -- 
+  // Select Columns of Interest
   for ( int i = 0; i< nMetrics; ++ i )
     {  
     haruspex->AddColumn( columns[i] );
     }
 
-// -- Test Learn Mode for quartiles with InverseCDFAveragedSteps quantile definition -- 
+  // Use Learn option for quartiles with InverseCDFAveragedSteps quantile definition
+  haruspex->SetLearnOption( true );
+  haruspex->SetAssessOption( false );
   haruspex->Update();
+
+  // Get calculated model
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputTable = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
   QTestApp app(argc, argv);
 
