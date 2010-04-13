@@ -178,8 +178,7 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
 
   // Set order statistics algorithm and its input data port
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
-  haruspex->SetInput( 0, datasetTable );
-  haruspex->SetInput( 1, paramsTable );
+  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
   paramsTable->Delete();
 
