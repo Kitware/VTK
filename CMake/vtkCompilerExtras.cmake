@@ -38,7 +38,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   mark_as_advanced(VTK_USE_GCC_VISIBILITY)
 
   if(${_gcc_version} VERSION_GREATER 4.2.0 AND HAVE_GCC_VISIBILITY
-    AND VTK_USE_GCC_VISIBILITY)
+    AND VTK_USE_GCC_VISIBILITY AND BUILD_SHARED_LIBS)
     # Should only be set if GCC is newer than 4.2.0
     set(VTK_ABI_CXX_FLAGS "-fvisibility=hidden -fvisibility-inlines-hidden")
   else()

@@ -159,6 +159,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkParse.l.*warning: passing argument .* of .* as .* due to prototype"
   "lex.yy.c.*warning: passing argument .* of .* as .* due to prototype"
 
+  # Java lint warnings
+  "Note: .* uses? or overrides a deprecated API"
+  "Note: .* uses? unchecked or unsafe operations"
+  "Note: Recompile with -Xlint:.* for details"
+
   # warnings from some Open MPI headers/libs, cannot fix:
   "/openmpi/.*request_inln.h.*warning: declaration .struct MPI::Grequest_intercept_t. does not declare anything"
   "openmpi.*comm_inln.h.*warning: unused parameter"
