@@ -4812,9 +4812,14 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     const vtkFoamIntVectorVector *facesPoints, vtkFloatArray *pointArray,
     vtkIdTypeArray *additionalCells, vtkIntArray *cellList)
 {
-  const int maxNPoints = 128; // assume max number of points per cell
+  const int maxNPoints = 256; // assume max number of points per cell
   vtkIdList* cellPoints = vtkIdList::New();
   cellPoints->SetNumberOfIds(maxNPoints);
+  // assume max number of nPoints per face + points per cell
+  const int maxNPolyPoints = 1024;
+  vtkIdList* polyPoints = vtkIdList::New();
+  polyPoints->SetNumberOfIds(maxNPolyPoints);
+
   const int nCells = (cellList == NULL ? this->NumCells
       : cellList->GetNumberOfTuples());
   int nAdditionalPoints = 0;
@@ -5475,33 +5480,39 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         this->NumAdditionalCells->InsertNextValue(nAdditionalCells);
         this->NumTotalAdditionalCells += nAdditionalCells;
         }
-      else // don't decompose; use VTK_CONVEX_PONIT_SET
+      else // don't decompose; use VTK_POLYHEDRON
         {
         // get first face
         const int cellFaces0 = cellFaces[0];
         const int *baseFacePoints = facePoints[cellFaces0];
         const int nBaseFacePoints = facePoints.GetSize(cellFaces0);
-        int nPoints = nBaseFacePoints;
-        if (nPoints > maxNPoints)
+        int nPoints = nBaseFacePoints, nPolyPoints = nBaseFacePoints + 1;
+        if (nPoints > maxNPoints || nPolyPoints > maxNPolyPoints)
           {
           vtkErrorMacro(<< "Too large polyhedron at cellId = " << cellId);
+          cellPoints->Delete();
+          polyPoints->Delete();
           return;
           }
+        polyPoints->SetId(0, nBaseFacePoints);
         if (this->FaceOwner->GetValue(cellFaces0) == cellId)
-          {
-          // if it is an owner face flip the points
-          // not sure if flipping is necessary but do it anyway
-          for (int j = 0; j < nBaseFacePoints; j++)
-            {
-            cellPoints->SetId(j, baseFacePoints[nBaseFacePoints - 1 - j]);
-            }
-          }
-        else
           {
           // add first face to cell points
           for (int j = 0; j < nBaseFacePoints; j++)
             {
-            cellPoints->SetId(j, baseFacePoints[j]);
+            const int pointJ = baseFacePoints[j];
+            cellPoints->SetId(j, pointJ);
+            polyPoints->SetId(j + 1, pointJ);
+            }
+          }
+        else
+          {
+          // if it is a _neighbor_ face flip the points
+          for (int j = 0; j < nBaseFacePoints; j++)
+            {
+            const int pointJ = baseFacePoints[nBaseFacePoints - 1 - j];
+            cellPoints->SetId(j, pointJ);
+            polyPoints->SetId(j + 1, pointJ);
             }
           }
 
@@ -5513,9 +5524,29 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           const int cellFacesJ = cellFaces[j];
           const int *faceJPoints = facePoints[cellFacesJ];
           const size_t nFaceJPoints = facePoints.GetSize(cellFacesJ);
-          for (size_t k = 0; k < nFaceJPoints; k++)
+          if (nPolyPoints >= maxNPolyPoints)
             {
-            const int faceJPointK = faceJPoints[k];
+            vtkErrorMacro(<< "Too large polyhedron at cellId = " << cellId);
+            cellPoints->Delete();
+            polyPoints->Delete();
+            return;
+            }
+          polyPoints->SetId(nPolyPoints++, nFaceJPoints);
+          int pointI, delta; // must be signed
+          if (this->FaceOwner->GetValue(cellFacesJ) == cellId)
+            {
+            pointI = 0;
+            delta = 1;
+            }
+          else
+            {
+            // if it is a _neighbor_ face flip the points
+            pointI = nFaceJPoints - 1;
+            delta = -1;
+            }
+          for (size_t k = 0; k < nFaceJPoints; k++, pointI += delta)
+            {
+            const int faceJPointK = faceJPoints[pointI];
             bool foundDup = false;
             for (int l = 0; l < nPoints; l++)
               {
@@ -5530,20 +5561,31 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               if (nPoints >= maxNPoints)
                 {
                 vtkErrorMacro(<< "Too large polyhedron at cellId = " << cellId);
+                cellPoints->Delete();
+                polyPoints->Delete();
                 return;
                 }
               cellPoints->SetId(nPoints++, faceJPointK);
               }
+            if (nPolyPoints >= maxNPolyPoints)
+                {
+                vtkErrorMacro(<< "Too large polyhedron at cellId = " << cellId);
+                cellPoints->Delete();
+                polyPoints->Delete();
+                return;
+                }
+            polyPoints->SetId(nPolyPoints++, faceJPointK);
             }
           }
 
         // create the poly cell and insert it into the mesh
-        internalMesh->InsertNextCell(VTK_CONVEX_POINT_SET, nPoints,
-            cellPoints->GetPointer(0));
+        internalMesh->InsertNextCell(VTK_POLYHEDRON, nPoints,
+            cellPoints->GetPointer(0), nCellFaces, polyPoints->GetPointer(0));
         }
       }
     }
   cellPoints->Delete();
+  polyPoints->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -7949,8 +7991,8 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->CacheMesh = 1;
 
   // for decomposing polyhedra
-  this->DecomposePolyhedra = 1;
-  this->DecomposePolyhedraOld = 1;
+  this->DecomposePolyhedra = 0;
+  this->DecomposePolyhedraOld = 0;
 
   // for reading old binary lagrangian/positions format
   this->PositionsIsIn13Format = 0; // turned off by default

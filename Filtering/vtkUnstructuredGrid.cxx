@@ -925,6 +925,11 @@ InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
     this->Faces->Allocate(this->Types->GetSize());
     this->FaceLocations = vtkIdTypeArray::New();
     this->FaceLocations->Allocate(this->Types->GetSize());
+    // FaceLocations must be padded until the current position
+    for(vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
+      {
+      this->FaceLocations->InsertNextValue(-1);
+      }
     }
 
   // Okay the faces go in
@@ -957,6 +962,11 @@ vtkIdType vtkUnstructuredGrid::SetAllFacesAtOnce(vtkCellArray *faces)
     this->Faces->Allocate(this->Types->GetSize());
     this->FaceLocations = vtkIdTypeArray::New();
     this->FaceLocations->Allocate(this->Types->GetSize());
+    // FaceLocations must be padded until the current position
+    for(vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
+      {
+      this->FaceLocations->InsertNextValue(-1);
+      }
     }
   
   

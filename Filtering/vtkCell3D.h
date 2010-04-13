@@ -53,7 +53,7 @@ public:
   // 0<=faceId<this->GetNumberOfFaces().
   virtual void GetFacePoints(int faceId, int* &pts) = 0;
 
-  void Contour(double value, vtkDataArray *cellScalars, 
+  virtual void Contour(double value, vtkDataArray *cellScalars, 
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
