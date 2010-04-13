@@ -143,7 +143,6 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  vtkTable* paramsTable = vtkTable::New();
   int nMetrics = 3;
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
   double centers[] = { 49.5, -1., 49.2188 };
@@ -155,7 +154,6 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
     {
     stdStringCol->InsertNextValue( columns[i] );
     }
-  paramsTable->AddColumn( stdStringCol );
   stdStringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
@@ -164,7 +162,6 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
     {
     doubleCol->InsertNextValue( centers[i] );
     }
-  paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
@@ -173,14 +170,12 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
     {
     doubleCol->InsertNextValue( radii[i] );
     }
-  paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
 
   // Set order statistics algorithm and its input data port
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
-  paramsTable->Delete();
 
   // Select Columns of Interest
   for ( int i = 0; i< nMetrics; ++ i )
