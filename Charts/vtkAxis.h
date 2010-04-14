@@ -136,12 +136,12 @@ public:
 
   // Description:
   // Get/set the numerical precision to use, default is 2.
-  vtkSetMacro(Precision, int);
+  virtual void SetPrecision(int precision);
   vtkGetMacro(Precision, int);
 
   // Description:
   // Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
-  vtkSetMacro(Notation, int);
+  virtual void SetNotation(int notation);
   vtkGetMacro(Notation, int);
 
   // Description:

@@ -29,7 +29,7 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAxis, "1.27");
+vtkCxxRevisionMacro(vtkAxis, "1.28");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
@@ -62,7 +62,7 @@ vtkAxis::vtkAxis()
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->Precision = 2;
-  this->Notation = 2; // Fixed - do the right thing...
+  this->Notation = 0; // Mixed - do the right thing...
   this->Behavior = 0;
   this->Pen = vtkPen::New();
   this->Pen->SetColor(0, 0, 0);
@@ -334,6 +334,30 @@ void vtkAxis::SetRange(double minimum, double maximum)
 }
 
 //-----------------------------------------------------------------------------
+void vtkAxis::SetPrecision(int precision)
+{
+  if (this->Precision == precision)
+    {
+    return;
+    }
+  this->Precision = precision;
+  this->TickMarksDirty = true;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetNotation(int notation)
+{
+  if (this->Notation == notation)
+    {
+    return;
+    }
+  this->Notation = notation;
+  this->TickMarksDirty = true;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::AutoScale()
 {
   // Calculate the min and max, set the number of ticks and the tick spacing
@@ -463,6 +487,12 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     this->Minimum *= 0.95;
     this->Maximum *= 1.05;
     }
+  else if ((this->Maximum - this->Minimum) < 1.0e-20)
+    {
+    this->Minimum *= 0.95;
+    this->Maximum *= 1.05;
+    }
+
   double range = this->Maximum - this->Minimum;
   bool isNegative = false;
   if (range < 0.0f)
