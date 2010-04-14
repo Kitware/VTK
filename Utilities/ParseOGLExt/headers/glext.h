@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2010-03-12 02:34:03 $ */
+/* glext.h last updated $Date: 2010-04-14 17:15:11 $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 60
+#define GL_GLEXT_VERSION 61
 /* Function declaration macros - to move into glplatform.h */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -4659,6 +4659,9 @@ extern "C" {
 
 #ifndef GL_AMD_seamless_cubemap_per_texture
 /* reuse GL_TEXTURE_CUBE_MAP_SEAMLESS_ARB */
+#endif
+
+#ifndef GL_AMD_conservative_depth
 #endif
 
 
@@ -10063,6 +10066,10 @@ typedef void (APIENTRYP PFNGLTEXTUREBARRIERNVPROC) (void);
 
 #ifndef GL_AMD_seamless_cubemap_per_texture
 #define GL_AMD_seamless_cubemap_per_texture 1
+#endif
+
+#ifndef GL_AMD_conservative_depth
+#define GL_AMD_conservative_depth 1
 #endif
 
 
