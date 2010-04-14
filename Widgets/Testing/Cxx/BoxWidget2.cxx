@@ -542,8 +542,15 @@ int BoxWidget2( int , char *[] )
   // testing option fails.
   recorder->Off();
 
+  boxRep->SetPlaceFactor( 1.0 );
+  boxRep->HandlesOff();
+  
   iren->Start();
 
+  boxRep->SetPlaceFactor( 1.25 );
+  boxRep->HandlesOn();
+  renWin->Render();
+  
   // Clean up
   recorder->Off();
 
