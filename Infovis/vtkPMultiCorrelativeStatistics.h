@@ -54,8 +54,8 @@ protected:
 
   // Execute the parallel calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
-                             vtkTable* inParameters,
-                             vtkDataObject* outMeta );
+                      vtkTable* inParameters,
+                      vtkMultiBlockDataSet* outMeta );
 
 
 private:

@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.13");
+vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.14");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()
@@ -53,9 +53,8 @@ void vtkPMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------
 void vtkPMultiCorrelativeStatistics::Learn( vtkTable* inData,
                                             vtkTable* inParameters,
-                                            vtkDataObject* outMetaDO )
+                                            vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
