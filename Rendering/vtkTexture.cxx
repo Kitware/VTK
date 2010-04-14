@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 
 
-vtkCxxRevisionMacro(vtkTexture, "1.63");
+vtkCxxRevisionMacro(vtkTexture, "1.64");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -268,7 +268,9 @@ void vtkTexture::Render(vtkRenderer *ren)
 //----------------------------------------------------------------------------
 int vtkTexture::IsTranslucent()
 {
-  if(this->GetMTime() <= this->TranslucentComputationTime)
+  if(this->GetMTime() <= this->TranslucentComputationTime
+      && (this->GetInput() == NULL ||
+          (this->GetInput()->GetMTime() <= this->TranslucentComputationTime)))
     return this->TranslucentCachedResult;
 
   if(this->GetInput())
@@ -302,7 +304,7 @@ int vtkTexture::IsTranslucent()
         {
         hasTransparentPixel = true;
         }
-      else if((scal->GetDataType() == VTK_FLOAT || scal->GetDataType() == VTK_DOUBLE && alpha >= 1.0) || alpha == scal->GetDataTypeMax())
+      else if(((scal->GetDataType() == VTK_FLOAT || scal->GetDataType() == VTK_DOUBLE) && alpha >= 1.0) || alpha == scal->GetDataTypeMax())
         {
         hasOpaquePixel = true;
         }
