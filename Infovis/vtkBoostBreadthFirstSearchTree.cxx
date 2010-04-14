@@ -39,11 +39,12 @@
 #include "vtkTree.h"
 
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/reverse_graph.hpp>
 #include <boost/pending/queue.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.9");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.10");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 
@@ -115,6 +116,7 @@ vtkBoostBreadthFirstSearchTree::vtkBoostBreadthFirstSearchTree()
   this->ArrayNameSet = false;
   this->OriginValue = 0;
   this->CreateGraphVertexIdArray = false;
+  this->ReverseEdges = false;
 }
 
 vtkBoostBreadthFirstSearchTree::~vtkBoostBreadthFirstSearchTree()
@@ -245,7 +247,15 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   if (vtkDirectedGraph::SafeDownCast(input))
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
-    breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
+    if (this->ReverseEdges)
+      {
+      boost::reverse_graph<vtkDirectedGraph*> r(g);
+      breadth_first_search(r, this->OriginVertexIndex, q, builder, color);
+      }
+    else
+      {
+      breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
+      }
     }
   else
     {
@@ -293,5 +303,8 @@ void vtkBoostBreadthFirstSearchTree::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CreateGraphVertexIdArray: " 
      << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;   
+
+  os << indent << "ReverseEdges: "
+     << (this->ReverseEdges ? "on" : "off") << endl;
 }
 

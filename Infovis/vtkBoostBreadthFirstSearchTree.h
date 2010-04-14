@@ -68,6 +68,12 @@ public:
   vtkGetMacro(CreateGraphVertexIdArray, bool);
   vtkBooleanMacro(CreateGraphVertexIdArray, bool);
 
+  // Description:
+  // Turn on this option to reverse the edges in the graph.
+  vtkSetMacro(ReverseEdges, bool);
+  vtkGetMacro(ReverseEdges, bool);
+  vtkBooleanMacro(ReverseEdges, bool);
+
 protected:
   vtkBoostBreadthFirstSearchTree();
   ~vtkBoostBreadthFirstSearchTree();
@@ -85,6 +91,7 @@ private:
   //ETX
   bool ArrayNameSet;
   bool CreateGraphVertexIdArray;
+  bool ReverseEdges;
   
   // Description:
   // Using the convenience function for set strings internally
