@@ -270,13 +270,18 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
     }
 
   this->vtkPlot::SetInput(table);
-  if (this->Parent)
+  if (this->Parent && table)
     {
     // By default make the first 10 columns visible in a plot.
     for (vtkIdType i = 0; i < table->GetNumberOfColumns() && i < 10; ++i)
       {
       this->Parent->SetColumnVisibility(table->GetColumnName(i), true);
       }
+    }
+  else if (this->Parent)
+    {
+    // No table, therefore no visible columns
+    this->Parent->GetVisibleColumns()->SetNumberOfTuples(0);
     }
 }
 
