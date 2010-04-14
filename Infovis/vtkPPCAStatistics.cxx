@@ -29,7 +29,7 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPPCAStatistics);
-vtkCxxRevisionMacro(vtkPPCAStatistics, "1.5");
+vtkCxxRevisionMacro(vtkPPCAStatistics, "1.6");
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPPCAStatistics::vtkPPCAStatistics()
@@ -53,10 +53,9 @@ void vtkPPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 // ----------------------------------------------------------------------
 void vtkPPCAStatistics::Learn( vtkTable* inData,
-                                      vtkTable* inParameters,
-                                      vtkDataObject* outMetaDO )
+                               vtkTable* inParameters,
+                               vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
