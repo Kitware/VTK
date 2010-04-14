@@ -38,7 +38,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.9.4.1");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------
@@ -1102,7 +1102,10 @@ int vtkBoxRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   // render the handles
   for (int j=0; j<7; j++)
     {
-    count += this->Handle[j]->RenderOpaqueGeometry(v);
+    if(this->Handle[j]->GetVisibility())
+      {
+      count += this->Handle[j]->RenderOpaqueGeometry(v);
+      }
     }
 
   return count;
@@ -1120,7 +1123,10 @@ int vtkBoxRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
   // render the handles
   for (int j=0; j<7; j++)
     {
-    count += this->Handle[j]->RenderTranslucentPolygonalGeometry(v);
+    if(this->Handle[j]->GetVisibility())
+      {
+      count += this->Handle[j]->RenderTranslucentPolygonalGeometry(v);
+      }
     }
 
   return count;
