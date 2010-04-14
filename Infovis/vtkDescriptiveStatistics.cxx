@@ -42,7 +42,7 @@
 #include <vtksys/ios/sstream> 
 #include <vtkstd/limits>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.105");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.106");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -86,7 +86,7 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
-                                          vtkDataObject* outMetaDO )
+                                          vtkMultiBlockDataSet* outMetaDO )
 {
   // Verify that the output model is indeed contained in a multiblock data set
   vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
@@ -234,9 +234,8 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Learn( vtkTable* inData,
                                       vtkTable* vtkNotUsed( inParameters ),
-                                      vtkDataObject* outMetaDO )
+                                      vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
@@ -386,9 +385,8 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
+void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
     {
     return;
@@ -519,10 +517,9 @@ void vtkDescriptiveStatistics::Derive( vtkDataObject* inMetaDO )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Test( vtkTable* inData,
-                                     vtkDataObject* inMetaDO,
-                                     vtkDataObject* outMetaDO )
+                                     vtkMultiBlockDataSet* inMeta,
+                                     vtkTable* outMeta )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta 
        || inMeta->GetNumberOfBlocks() < 2 )
     {
@@ -536,7 +533,6 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;

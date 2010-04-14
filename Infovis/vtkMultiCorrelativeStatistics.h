@@ -62,6 +62,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
+class vtkMultiBlockDataSet;
 class vtkVariant;
 
 class VTK_INFOVIS_EXPORT vtkMultiCorrelativeStatistics : public vtkStatisticsAlgorithm
@@ -74,40 +75,33 @@ public:
   // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkDataObject* );
+                          vtkMultiBlockDataSet* );
 
 protected:
   vtkMultiCorrelativeStatistics();
   ~vtkMultiCorrelativeStatistics();
 
   // Description:
-  // This algorithm accepts and returns a multiblock dataset containing several tables for
-  // its meta input/output (port INPUT_MODEL) instead of a single vtkTable.
-  // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int FillOutputPortInformation( int port, vtkInformation* info );
-
-  // Description:
   // Execute the calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkDataObject* outMeta );
+                      vtkMultiBlockDataSet* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void Derive( vtkDataObject* );
+  virtual void Derive( vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*, 
-                       vtkDataObject*, 
+                       vtkMultiBlockDataSet*, 
                        vtkTable* );
 
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
-                     vtkDataObject*,
-                     vtkDataObject* ) { return; };
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ) { return; };
 
   //BTX  
   // Description:

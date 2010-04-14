@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
+class vtkMultiBlockDataSet;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
@@ -70,16 +71,9 @@ protected:
   ~vtkUnivariateStatisticsAlgorithm();
 
   // Description:
-  // Thes algorithms take and return a multiblock dataset containing several tables for
-  // their meta input/output instead of a single vtkTable.
-  // FillInputPortInformation/FillOutputPortInformation are overridden accordingly.
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int FillOutputPortInformation( int port, vtkInformation* info );
-
-  // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
-                       vtkDataObject* inMeta,
+                       vtkMultiBlockDataSet* inMeta,
                        vtkTable* outData ); 
 
 private:

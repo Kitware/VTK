@@ -22,7 +22,7 @@
 #define VTK_MULTICORRELATIVE_AVERAGECOL "Mean"
 #define VTK_MULTICORRELATIVE_COLUMNAMES "Column"
 
-vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.26");
+vtkCxxRevisionMacro(vtkMultiCorrelativeStatistics,"1.27");
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -41,34 +41,6 @@ vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics()
 void vtkMultiCorrelativeStatistics::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-// ----------------------------------------------------------------------
-int vtkMultiCorrelativeStatistics::FillInputPortInformation( int port, vtkInformation* info )
-{
-  int stat; // = this->Superclass::FillInputPortInformation( port, info );
-  if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    stat = 1;
-    }
-  else
-    {
-    stat = this->Superclass::FillInputPortInformation( port, info );
-    }
-  return stat;
-}
-
-// ----------------------------------------------------------------------
-int vtkMultiCorrelativeStatistics::FillOutputPortInformation( int port, vtkInformation* info )
-{
-  int stat = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == OUTPUT_MODEL )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
-    }
-  return stat;
 }
 
 // ----------------------------------------------------------------------
@@ -164,10 +136,8 @@ void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vt
 
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
-                                               vtkDataObject* outMetaDO )
+                                               vtkMultiBlockDataSet* outMeta )
 {
-  // Verify that the output model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
     { 
     return; 
@@ -289,9 +259,8 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData, 
                                            vtkTable* vtkNotUsed( inParameters ),
-                                           vtkDataObject* outMetaDO )
+                                           vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
@@ -492,9 +461,8 @@ void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
+void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   vtkTable* sparseCov;
   vtkStringArray* ocol1;
   vtkStringArray* ocol2;
@@ -624,10 +592,9 @@ void vtkMultiCorrelativeStatistics::Derive( vtkDataObject* outMetaDO )
 
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData, 
-                                            vtkDataObject* inMetaDO, 
+                                            vtkMultiBlockDataSet* inMeta, 
                                             vtkTable* outData )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || ! outData )
     {
     return;

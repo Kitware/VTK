@@ -44,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkUnivariateStatisticsAlgorithm.h"
 
+class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
@@ -84,7 +85,7 @@ public:
   // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkDataObject* );
+                          vtkMultiBlockDataSet* );
 
 protected:
   vtkDescriptiveStatistics();
@@ -95,17 +96,17 @@ protected:
   // NB: input parameters are unused.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkDataObject* outMeta );
+                      vtkMultiBlockDataSet* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void Derive( vtkDataObject* );
+  virtual void Derive( vtkMultiBlockDataSet* );
 
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable* inData,
-                     vtkDataObject* inMeta,
-                     vtkDataObject* outMeta ); 
+                     vtkMultiBlockDataSet* inMeta,
+                     vtkTable* outMeta ); 
 
   int UnbiasedVariance;
   int SignedDeviations;

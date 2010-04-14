@@ -55,6 +55,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTableAlgorithm.h"
 
 class vtkDataObjectCollection;
+class vtkMultiBlockDataSet;
 class vtkStdString;
 class vtkStringArray;
 class vtkVariant;
@@ -230,7 +231,7 @@ public:
   // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
-                          vtkDataObject* ) = 0;
+                          vtkMultiBlockDataSet* ) = 0;
 
 protected:
   vtkStatisticsAlgorithm();
@@ -249,23 +250,23 @@ protected:
   // NB: input parameters are unused.
   virtual void Learn( vtkTable*,
                       vtkTable*,
-                      vtkDataObject* ) = 0;
+                      vtkMultiBlockDataSet* ) = 0;
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void Derive( vtkDataObject* ) = 0;
+  virtual void Derive( vtkMultiBlockDataSet* ) = 0;
 
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*,
-                       vtkDataObject*,
+                       vtkMultiBlockDataSet*,
                        vtkTable* ) = 0; 
 
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
-                     vtkDataObject*,
-                     vtkDataObject* ) = 0; 
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ) = 0; 
 
   //BTX
   // Description:

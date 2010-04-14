@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.81");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.82");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -79,46 +79,10 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-int vtkContingencyStatistics::FillInputPortInformation( int port, vtkInformation* info )
-{
-  int res; 
-  if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
-
-    res = 1;
-    }
-  else
-    {
-    res = this->Superclass::FillInputPortInformation( port, info );
-    }
-
-  return res;
-}
-
-// ----------------------------------------------------------------------
-int vtkContingencyStatistics::FillOutputPortInformation( int port, vtkInformation* info )
-{
-  int res = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == OUTPUT_MODEL )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
-    }
-  else
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
-    }
-  
-  return res;
-}
-
-// ----------------------------------------------------------------------
 void vtkContingencyStatistics::Learn( vtkTable* inData,
                                       vtkTable* vtkNotUsed( inParameters ),
-                                      vtkDataObject* outMetaDO )
+                                      vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
@@ -275,9 +239,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::Derive( vtkDataObject* inMetaDO )
+void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
@@ -620,7 +583,7 @@ public:
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::Assess( vtkTable* inData,
-                                       vtkDataObject* inMetaDO,
+                                       vtkMultiBlockDataSet* inMeta,
                                        vtkTable* outData )
 {
   if ( ! inData || inData->GetNumberOfColumns() <= 0 )
@@ -634,7 +597,6 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     return;
     }
 
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
@@ -772,10 +734,9 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::Test( vtkTable* inData,
-                                     vtkDataObject* inMetaDO,
-                                     vtkDataObject* outMetaDO )
+                                     vtkMultiBlockDataSet* inMeta,
+                                     vtkTable* outMeta )
 {
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
@@ -792,7 +753,6 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 4 ) // We need at least 2 marginal PDFs in addition to the contingency table
     {
     return;

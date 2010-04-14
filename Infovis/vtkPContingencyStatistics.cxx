@@ -43,7 +43,7 @@
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 vtkStandardNewMacro(vtkPContingencyStatistics);
-vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.36");
+vtkCxxRevisionMacro(vtkPContingencyStatistics, "1.37");
 vtkCxxSetObjectMacro(vtkPContingencyStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPContingencyStatistics::vtkPContingencyStatistics()
@@ -116,14 +116,13 @@ void UnpackValues( const vtkStdString& buffer,
 // ----------------------------------------------------------------------
 void vtkPContingencyStatistics::Learn( vtkTable* inData,
                                        vtkTable* inParameters,
-                                       vtkDataObject* outMetaDO )
+                                       vtkMultiBlockDataSet* outMeta )
 {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS

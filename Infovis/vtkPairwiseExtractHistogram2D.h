@@ -36,7 +36,7 @@
 //  vtkExtractHistogram2D vtkPPairwiseExtractHistogram2D
 // 
 // .SECTION Thanks
-//  Developed by David Feng at Sandia National Laboratories
+//  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------
 #ifndef __vtkPairwiseExtractHistogram2D_h
 #define __vtkPairwiseExtractHistogram2D_h
@@ -47,6 +47,7 @@ class vtkCollection;
 class vtkExtractHistogram2D;
 class vtkImageData;
 class vtkIdTypeArray;
+class vtkMultiBlockDataSet;
 
 class VTK_INFOVIS_EXPORT vtkPairwiseExtractHistogram2D : public vtkStatisticsAlgorithm
 {
@@ -132,8 +133,7 @@ public:
 
   // Description:
   // Given a collection of models, calculate aggregate model.  Not used
-  virtual void Aggregate( vtkDataObjectCollection*, vtkDataObject* )
-    {};
+  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {};
 
 protected:
   vtkPairwiseExtractHistogram2D();
@@ -155,23 +155,23 @@ protected:
   // Does the actual histogram computation works.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkDataObject* outMeta );
+                      vtkMultiBlockDataSet* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option. Not used.
-  virtual void Derive( vtkDataObject* ) {};
+  virtual void Derive( vtkMultiBlockDataSet* ) {};
 
   // Description:
   // Execute the assess option. Not implemented.
   virtual void Assess( vtkTable*, 
-                       vtkDataObject*, 
+                       vtkMultiBlockDataSet*, 
                        vtkTable* ) {};
 
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
-                     vtkDataObject*,
-                     vtkDataObject* ) { return; }; 
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor.

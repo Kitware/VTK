@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkPCAStatistics_h
 #define __vtkPCAStatistics_h
 
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatistics.h"
 
 class VTK_INFOVIS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
@@ -188,12 +189,12 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void Derive( vtkDataObject* inMeta );
+  virtual void Derive( vtkMultiBlockDataSet* inMeta );
 
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*, 
-                       vtkDataObject*, 
+                       vtkMultiBlockDataSet*, 
                        vtkTable* );
 
   //BTX  

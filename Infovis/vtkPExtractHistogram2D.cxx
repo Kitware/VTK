@@ -18,17 +18,18 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 #include "vtkPExtractHistogram2D.h"
-//------------------------------------------------------------------------------
+
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkTable.h"
-//------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPExtractHistogram2D, "1.2");
+
+vtkCxxRevisionMacro(vtkPExtractHistogram2D, "1.3");
 vtkStandardNewMacro(vtkPExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPExtractHistogram2D, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -51,14 +52,18 @@ void vtkPExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkPExtractHistogram2D::Learn(vtkTable *inData, 
                                    vtkTable* inParameters,
-                                   vtkDataObject *outMetaDO)
+                                   vtkMultiBlockDataSet *outMeta)
 {
+  vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
+  if ( ! primaryTab ) 
+    {
+    return;
+    }
 
-  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
   vtkImageData* outImage = vtkImageData::SafeDownCast(this->GetOutputDataObject(vtkPExtractHistogram2D::HISTOGRAM_IMAGE));
 
   // have all of the nodes compute their histograms
-  this->Superclass::Learn(inData,inParameters,outMetaDO);
+  this->Superclass::Learn(inData,inParameters,outMeta);
 
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
     {
@@ -102,8 +107,8 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
 
   reducedOutImage->Delete();
 
-  outMeta->Initialize();
-  outMeta->AddColumn(outImage->GetPointData()->GetScalars());
+  primaryTab->Initialize();
+  primaryTab->AddColumn(outImage->GetPointData()->GetScalars());
 }
 
 int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2)

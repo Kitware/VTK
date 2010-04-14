@@ -30,15 +30,16 @@
 //  vtkExtractHistogram2D
 // 
 // .SECTION Thanks
-//  Developed by David Feng at Sandia National Laboratories
+//  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------
 #ifndef __vtkPExtractHistogram2D_h
 #define __vtkPExtractHistogram2D_h
-//------------------------------------------------------------------------------
+
 #include "vtkExtractHistogram2D.h"
-//------------------------------------------------------------------------------
+
+class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
-//------------------------------------------------------------------------------
+
 class VTK_INFOVIS_EXPORT vtkPExtractHistogram2D : public vtkExtractHistogram2D
 {
 public:
@@ -60,7 +61,7 @@ protected:
   // Execute the calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkDataObject* outMeta );
+                      vtkMultiBlockDataSet* outMeta );
 
 private:
   vtkPExtractHistogram2D(const vtkPExtractHistogram2D&); // Not implemented

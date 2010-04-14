@@ -35,7 +35,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 1
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.34");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.35");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -51,35 +51,6 @@ vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-// ----------------------------------------------------------------------
-int vtkUnivariateStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* info )
-{
-  int res = this->Superclass::FillInputPortInformation( port, info ); 
-  if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
-
-    res *= 1;
-    }
-
-  return res;
-}
-
-// ----------------------------------------------------------------------
-int vtkUnivariateStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation* info )
-{
-  int res = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == OUTPUT_MODEL )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
-
-    res *= 1;
-    }
-  
-  return res;
 }
 
 // ----------------------------------------------------------------------
@@ -99,7 +70,7 @@ int vtkUnivariateStatisticsAlgorithm::RequestSelectedColumns()
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
-                                               vtkDataObject* inMetaDO,
+                                               vtkMultiBlockDataSet* inMeta,
                                                vtkTable* outData )
 {
   if ( ! inData || inData->GetNumberOfColumns() <= 0 )
@@ -113,7 +84,6 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     return;
     }
 
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;

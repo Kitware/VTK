@@ -39,7 +39,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.64");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.65");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -69,46 +69,9 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-int vtkCorrelativeStatistics::FillInputPortInformation( int port, vtkInformation* info )
-{
-  int res; 
-  if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
-
-    res = 1;
-    }
-  else
-    {
-    res = this->Superclass::FillInputPortInformation( port, info );
-    }
-
-  return res;
-}
-
-// ----------------------------------------------------------------------
-int vtkCorrelativeStatistics::FillOutputPortInformation( int port, vtkInformation* info )
-{
-  int res = this->Superclass::FillOutputPortInformation( port, info );
-  if ( port == OUTPUT_MODEL )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
-    }
-  else
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
-    }
-  
-  return res;
-}
-
-// ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
-                                          vtkDataObject* outMetaDO )
+                                          vtkMultiBlockDataSet* outMeta )
 {
-  // Verify that the output model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
     { 
     return; 
@@ -243,9 +206,8 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::Learn( vtkTable* inData,
                                       vtkTable* vtkNotUsed( inParameters ),
-                                      vtkDataObject* outMetaDO )
+                                      vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;
@@ -390,9 +352,8 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::Derive( vtkDataObject* inMetaDO )
+void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
     {
     return;

@@ -26,7 +26,7 @@
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkPDescriptiveStatistics);
-vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.11");
+vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.12");
 vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
@@ -51,9 +51,8 @@ void vtkPDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------
 void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
                                        vtkTable* inParameters,
-                                       vtkDataObject* outMetaDO )
+                                       vtkMultiBlockDataSet* outMeta )
 {
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta )
     {
     return;

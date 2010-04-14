@@ -39,16 +39,17 @@
 //  vtkPExtractHistogram2D
 // 
 // .SECTION Thanks
-//  Developed by David Feng at Sandia National Laboratories
+//  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------
 #ifndef __vtkExtractHistogram2D_h
 #define __vtkExtractHistogram2D_h
-//------------------------------------------------------------------------------
+
 #include "vtkBivariateStatisticsAlgorithm.h"
-//------------------------------------------------------------------------------
+
 class vtkImageData;
 class vtkIdTypeArray;
-//------------------------------------------------------------------------------
+class vtkMultiBlockDataSet;
+
 class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkBivariateStatisticsAlgorithm
 {
 public:
@@ -147,7 +148,7 @@ public:
 
   // Description:
   // Given a collection of models, calculate aggregate model. Not used.
-  virtual void Aggregate( vtkDataObjectCollection*, vtkDataObject* ) {};
+  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {};
 
 protected:
   vtkExtractHistogram2D();
@@ -170,17 +171,17 @@ protected:
   // This is what actually does the histogram computation.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkDataObject* outMeta );
+                      vtkMultiBlockDataSet* inMeta );
 
   // Description:
   // Execute the calculations required by the Derive option. Not used.
-  virtual void Derive( vtkDataObject* ) {};
+  virtual void Derive( vtkMultiBlockDataSet* ) {};
 
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
-                     vtkDataObject*,
-                     vtkDataObject* ) { return; }; 
+                     vtkMultiBlockDataSet*,
+                     vtkTable* ) { return; }; 
 
   // Description:
   // Provide the appropriate assessment functor. Not used.

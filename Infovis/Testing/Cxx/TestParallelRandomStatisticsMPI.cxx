@@ -528,8 +528,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcs->Update();
 
   // Get output data and meta tables
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputDerived = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
   outputData = pcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkTable* outputMeta = pcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL );
 
     // Synchronize and stop clock
   com->Barrier();
@@ -539,34 +541,41 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
          << "   Total sample size: "
-         << pcs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_MODEL )->GetValueByName( 0, "Cardinality" ).ToInt() 
+         << outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt()   
          << " \n"
          << "   Wall time: "
          << timer->GetElapsedTime()
          << " sec.\n";
 
-    for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+    cout << "   Calculated the following primary statistics:\n";
+    for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
       {
       cout << "   ";
-      for ( int c = 0; c < outputMeta->GetNumberOfColumns(); ++ c )
+      for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
         {
-        vtkStdString colName = outputMeta->GetColumnName( c );
-
-        // Do not report M aggregates
-        if ( colName.at(0) == 'M' && colName.at(1) != 'a' && colName.at(1) != 'e' && colName.at(1) != 'i' )
-          {
-          continue;
-          }
-
-        cout << colName
+        cout << outputPrimary->GetColumnName( i )
              << "="
-             << outputMeta->GetValue( r, c ).ToString()
+             << outputPrimary->GetValue( r, i ).ToString()
+             << "  ";
+        }
+      cout << "\n";
+      }
+    
+    cout << "   Calculated the following derived statistics:\n";
+    for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
+      {
+      cout << "   ";
+      for ( int i = 0; i < outputDerived->GetNumberOfColumns(); ++ i )
+        {
+        cout << outputDerived->GetColumnName( i )
+             << "="
+             << outputDerived->GetValue( r, i ).ToString()
              << "  ";
         }
       cout << "\n";
       }
     }
-
+  
   // Clean up
   pcs->Delete();
 
@@ -620,6 +629,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << timer->GetElapsedTime()
          << " sec.\n";
 
+    vtkTable* outputMeta;
     for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
       {
       outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
@@ -680,6 +690,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
          << timer->GetElapsedTime()
          << " sec.\n";
 
+    vtkTable* outputMeta;
     for ( unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
       {
       outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );

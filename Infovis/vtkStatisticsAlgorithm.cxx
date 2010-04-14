@@ -25,11 +25,12 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.48");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.49");
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessParameters,vtkStringArray);
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -85,25 +86,36 @@ int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* 
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
     }
+  else if ( port == INPUT_MODEL )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+    return 1;
+    }
   else if ( port == LEARN_PARAMETERS )
     {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
     }
-  else if ( port == INPUT_MODEL )
-    {
-    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
-    return 1;
-    }
+
   return 0;
 }
 
 // ----------------------------------------------------------------------
 int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation* info )
 {
-  if ( port >= 0 )
+  if ( port == OUTPUT_DATA )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    return 1;
+    }
+  else if ( port == OUTPUT_MODEL )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    return 1;
+    }
+  else if ( port == OUTPUT_TEST )
     {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
@@ -199,13 +211,13 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
                                          vtkInformationVector* outputVector )
 {
   // Extract input tables
-  vtkTable* inData = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
+  vtkTable* inData       = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
   vtkTable* inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
 
   // Extract output tables
-  vtkTable*      outData  = vtkTable::GetData(      outputVector, OUTPUT_DATA );
-  vtkDataObject* outModel = vtkDataObject::GetData( outputVector, OUTPUT_MODEL );
-  vtkDataObject* outTest  = vtkDataObject::GetData( outputVector, OUTPUT_TEST );
+  vtkTable*             outData  = vtkTable::GetData( outputVector, OUTPUT_DATA );
+  vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData( outputVector, OUTPUT_MODEL );
+  vtkTable*             outTest  = vtkTable::GetData( outputVector, OUTPUT_TEST );
 
   // If input data table is not null then shallow copy it to output
   if ( inData )
@@ -221,7 +233,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   // on their own.
   this->RequestSelectedColumns();
 
-  vtkDataObject* inMeta;
+  vtkMultiBlockDataSet* inMeta;
   if ( this->LearnOption )
     {
     this->Learn( inData, inParameters, outModel );
@@ -229,7 +241,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   else
     {
     // Extract input meta table
-    inMeta = vtkDataObject::GetData( inputVector[INPUT_MODEL], 0 );
+    inMeta = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
 
     if ( ! inMeta )
       {

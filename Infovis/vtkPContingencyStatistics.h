@@ -38,6 +38,7 @@
 #include <vtkstd/vector> // STL Header
 //ETX
 
+class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
 class VTK_INFOVIS_EXPORT vtkPContingencyStatistics : public vtkContingencyStatistics
@@ -57,7 +58,7 @@ public:
   // Execute the parallel calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkDataObject* outMeta );
+                      vtkMultiBlockDataSet* outMeta );
 
 protected:
   vtkPContingencyStatistics();

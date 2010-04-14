@@ -43,6 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
+class vtkMultiBlockDataSet;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkBivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
@@ -77,7 +78,7 @@ protected:
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
-                       vtkDataObject* inMeta,
+                       vtkMultiBlockDataSet* inMeta,
                        vtkTable* outData ); 
 
 private:

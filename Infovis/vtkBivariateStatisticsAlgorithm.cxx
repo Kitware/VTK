@@ -34,7 +34,7 @@
 
 #define VTK_STATISTICS_NUMBER_OF_VARIABLES 2
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.21");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.22");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -69,7 +69,7 @@ int vtkBivariateStatisticsAlgorithm::RequestSelectedColumns()
 
 // ----------------------------------------------------------------------
 void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
-                                              vtkDataObject* inMetaDO,
+                                              vtkMultiBlockDataSet* inMeta,
                                               vtkTable* outData )
 {
   if ( ! inData || inData->GetNumberOfColumns() <= 0 )
@@ -83,7 +83,6 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     return;
     }
 
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
@@ -176,6 +175,5 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     delete dfunc;
     delete [] names;
     varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-    cerr << "Deleted\n";
     }
 }

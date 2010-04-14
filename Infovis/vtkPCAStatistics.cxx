@@ -23,7 +23,7 @@
 #define VTK_PCA_COMPCOLUMN "PCA"
 
 
-vtkCxxRevisionMacro(vtkPCAStatistics,"1.12");
+vtkCxxRevisionMacro(vtkPCAStatistics,"1.13");
 vtkStandardNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
@@ -478,15 +478,10 @@ static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAStatistics::Derive( vtkDataObject* inMetaDO )
+void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta )
     {
-    vtkWarningMacro(
-                    "Expected a vtkMultiBlockDataSet but was given "
-                    << ( inMetaDO ? inMetaDO->GetClassName() : "null pointer" )
-                    << "instead" );
     return;
     }
 
@@ -618,10 +613,9 @@ void vtkPCAStatistics::Derive( vtkDataObject* inMetaDO )
 
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
-                               vtkDataObject* inMetaDO, 
+                               vtkMultiBlockDataSet* inMeta, 
                                vtkTable* outData )
 {
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta || ! outData )
     {
     return;
