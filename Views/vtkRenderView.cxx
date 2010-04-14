@@ -60,7 +60,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRenderView, "1.37");
+vtkCxxRevisionMacro(vtkRenderView, "1.38");
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);
 vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
@@ -503,7 +503,13 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
 }
 
 void vtkRenderView::Render()
-{
+{ 
+  // Indirectly call this->RenderWindow->Start() without crashing.
+  // to create context if it is not yet created and to make it current
+  // this is required for HoverWidget to be active after the first
+  // render.
+  this->RenderWindow->GetInteractor()->Initialize();
+  
   this->Update();
   this->PrepareForRendering();
   this->Renderer->ResetCameraClippingRange();

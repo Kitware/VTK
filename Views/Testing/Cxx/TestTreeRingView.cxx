@@ -61,7 +61,7 @@ int TestTreeRingView(int argc, char* argv[])
   reader2->Update();
 
   VTK_CREATE(vtkTreeRingView, view);
-  view->DisplayHoverTextOff();
+  view->DisplayHoverTextOn();
   view->SetTreeFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
   view->Update();
@@ -92,7 +92,8 @@ int TestTreeRingView(int argc, char* argv[])
   view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->ResetCamera();
   view->Render();
-
+//  view->Render();
+  
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
