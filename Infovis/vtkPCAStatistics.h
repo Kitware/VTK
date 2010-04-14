@@ -42,7 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkPCAStatistics_h
 #define __vtkPCAStatistics_h
 
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatistics.h"
 
 class VTK_INFOVIS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
