@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 
 
-vtkCxxRevisionMacro(vtkTexture, "1.64");
+vtkCxxRevisionMacro(vtkTexture, "1.65");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -283,7 +283,8 @@ int vtkTexture::IsTranslucent()
     this->GetInput()->UpdateData();
     }
 
-  if(this->GetInput()->GetPointData()->GetScalars() == NULL ||
+  if(this->GetInput() == NULL ||
+      this->GetInput()->GetPointData()->GetScalars() == NULL ||
       this->GetInput()->GetPointData()->GetScalars()
               ->GetNumberOfComponents()%2)
     {
