@@ -38,10 +38,9 @@ class vtkIdTypeArray;
 class vtkCellArray;
 class vtkPointData;
 class vtkCellData;
-class vtkIncrementalPointLocator;
-class vtkGenericCell;
 class vtkPolygon;
 class vtkIdList;
+class vtkCCSEdgeLocator;
 
 class VTK_GRAPHICS_EXPORT vtkClipClosedSurface : public vtkPolyDataAlgorithm
 {
@@ -54,6 +53,13 @@ public:
   // Set the vtkPlaneCollection that holds the clipping planes.
   virtual void SetClippingPlanes(vtkPlaneCollection *planes);
   vtkGetObjectMacro(ClippingPlanes,vtkPlaneCollection);
+
+  // Description:
+  // Set the tolerance for creating new points while clipping.  If the
+  // tolerance is too small, then degenerate triangles might be produced.
+  // The default tolerance is 1e-6.
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
 
   // Description:
   // Set whether to add cell scalars, so that the new faces and
@@ -112,6 +118,8 @@ protected:
 
   vtkPlaneCollection *ClippingPlanes;
 
+  double Tolerance;
+
   int GenerateColorScalars;
   int GenerateOutline;
   int GenerateFaces;
@@ -120,13 +128,9 @@ protected:
   double ClipColor[3];
   double ActivePlaneColor[3];
 
-  vtkIncrementalPointLocator *Locator;
-
-  vtkDoubleArray *CellClipScalars;
   vtkIdList *IdList;
   vtkCellArray *CellArray;
   vtkPolygon *Polygon;
-  vtkGenericCell *Cell;
 
   virtual int ComputePipelineMTime(
     vtkInformation* request, vtkInformationVector** inputVector,
@@ -141,9 +145,8 @@ protected:
   // Method for clipping lines and copying the scalar data.
   void ClipLines(
     vtkPoints *points, vtkDoubleArray *pointScalars,
-    vtkIncrementalPointLocator *locator,
+    vtkPointData *pointData, vtkCCSEdgeLocator *edgeLocator,
     vtkCellArray *inputCells, vtkCellArray *outputLines,
-    vtkPointData *inPointData, vtkPointData *outPointData,
     vtkCellData *inCellData, vtkCellData *outLineData);
 
   // Description:
@@ -152,12 +155,28 @@ protected:
   // the clipped polygons.  This exact correspondence is necessary
   // in order to guarantee that the surface remains closed.
   void ClipAndContourPolys(
-    vtkPoints *points, vtkDoubleArray *pointScalars,
-    vtkIncrementalPointLocator *locator, int triangulate,
+    vtkPoints *points, vtkDoubleArray *pointScalars, vtkPointData *pointData,
+    vtkCCSEdgeLocator *edgeLocator, int triangulate,
     vtkCellArray *inputCells, vtkCellArray *outputPolys,
-    vtkCellArray *outputLines, vtkPointData *inPointData,
-    vtkPointData *outPointData, vtkCellData *inCellData,
+    vtkCellArray *outputLines, vtkCellData *inPolyData,
     vtkCellData *outPolyData, vtkCellData *outLineData);
+
+  // Description:
+  // A helper function for interpolating a new point along an edge.  It
+  // stores the index of the interpolated point in "i", and returns 1 if
+  // a new point was added to the points.  The values i0, i1, v0, v1 are
+  // the edge enpoints and scalar values, respectively.
+  static int InterpolateEdge(
+    vtkPoints *points, vtkPointData *pointData,
+    vtkCCSEdgeLocator *edgeLocator, double tol,
+    vtkIdType i0, vtkIdType i1, double v0, double v1, vtkIdType &i);
+
+  // Description:
+  // A robust method for triangulating a polygon.  It cleans up the polygon
+  // and then applies the ear-cut method that is implemented in vtkPolygon.
+  // A zero return value indicates that triangulation failed.
+  int TriangulatePolygon(
+    vtkIdList *polygon, vtkPoints *points, vtkCellArray *triangles);
 
   // Description:
   // Given some closed contour lines, create a triangle mesh that
@@ -169,8 +188,7 @@ protected:
   // scalars will be added for each poly that is created.
   void MakeCutPolys(
     vtkPoints *points, vtkCellArray *inputLines, vtkIdType firstLine,
-    vtkCellArray *outputPolys, const double normal[3], vtkCellData *outCD,
-    const unsigned char color[3]);
+    vtkCellArray *outputPolys, const double normal[3]);
 
   // Description:
   // Break polylines into individual lines, copying scalar values from
@@ -198,6 +216,13 @@ protected:
     vtkCellArray *inputStrips, vtkCellArray *outputPolys,
     vtkUnsignedCharArray *inputScalars, vtkIdType firstStripScalar,
     vtkUnsignedCharArray *outputScalars, const unsigned char color[3]);
+
+  // Description:
+  // Squeeze the points and store them in the output.  Only the points that
+  // are used by the cells will be saved, and the pointIds of the cells will
+  // be modified.
+  static void SqueezeOutputPoints(
+    vtkPolyData *output, vtkPoints *points, vtkPointData *pointData);
 
   // Description:
   // Take three colors as doubles, and convert to unsigned char.
