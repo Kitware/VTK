@@ -48,6 +48,7 @@
 #include "vtkSmartPointer.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
@@ -679,6 +680,13 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
+  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+    {
+    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
+    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
+    }
   else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
@@ -749,6 +757,15 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
     // The mouse panning action.
     return true;
     }
+  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+    {
+    // Selection, for now at least...
+    this->BoxOrigin[0] = mouse.Pos[0];
+    this->BoxOrigin[1] = mouse.Pos[1];
+    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->DrawBox = true;
+    return true;
+    }
   else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     // Right mouse button - zoom box
@@ -767,7 +784,63 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == 2)
+  if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+    {
+    // Check whether a valid selection box was drawn
+    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
+    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
+    if (fabs(this->BoxGeometry[0]) < 0.5 || fabs(this->BoxGeometry[1]) < 0.5)
+      {
+      // Invalid box size - do nothing
+      this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+      this->DrawBox = false;
+      return true;
+      }
+
+    // Zoom into the chart by the specified amount, and recalculate the bounds
+    this->PlotTransform->InverseTransformPoints(this->BoxOrigin,
+                                                this->BoxOrigin, 1);
+    float point2[] = { mouse.Pos[0], mouse.Pos[1] };
+    this->PlotTransform->InverseTransformPoints(point2, point2, 1);
+
+    vtkVector2f min(this->BoxOrigin);
+    vtkVector2f max(point2);
+    if (min.X() > max.X())
+      {
+      float tmp = min.X();
+      min.SetX(max.X());
+      max.SetX(tmp);
+      }
+    if (min.Y() > max.Y())
+      {
+      float tmp = min.Y();
+      min.SetY(max.Y());
+      max.SetY(tmp);
+      }
+
+    vtkPlot* plot = this->ChartPrivate->plots[0];
+    if (plot->SelectPoints(min, max))
+      {
+      if (this->AnnotationLink)
+        {
+        vtkSelection* selection = vtkSelection::New();
+        vtkSelectionNode* node = vtkSelectionNode::New();
+        selection->AddNode(node);
+        node->SetSelectionList(plot->GetSelection());
+        this->AnnotationLink->SetCurrentSelection(selection);
+        node->Delete();
+        selection->Delete();
+        this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+        }
+      }
+
+    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
+    this->DrawBox = false;
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
+    return true;
+    }
+  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     // Check whether a valid zoom box was drawn
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];

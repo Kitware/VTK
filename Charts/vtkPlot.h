@@ -51,6 +51,8 @@ public:
   virtual bool GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
                                vtkVector2f* location);
+
+  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 //ETX
 
   // Description:
@@ -107,6 +109,10 @@ public:
   virtual void SetInput(vtkTable *table, const char *xColumn,
                         const char *yColumn);
   void SetInput(vtkTable *table, vtkIdType xColumn, vtkIdType yColumn);
+
+  // Description:
+  // Get the input table used by the plot.
+  virtual vtkTable* GetInput();
 
   // Description:
   // Convenience function to set the input arrays. For most mappers index 0

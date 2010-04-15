@@ -489,6 +489,35 @@ bool vtkPlotLine::GetNearestPoint(const vtkVector2f& point,
 }
 
 //-----------------------------------------------------------------------------
+bool vtkPlotLine::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
+{
+  if (!this->Points)
+    {
+    return false;
+    }
+
+  if (!this->Selection)
+    {
+    this->Selection = vtkIdTypeArray::New();
+    }
+  this->Selection->SetNumberOfTuples(0);
+
+  // Iterate through all points and check whether any are in range
+  vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+  vtkIdType n = this->Points->GetNumberOfPoints();
+
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    if (data[i].X() >= min.X() && data[i].X() <= max.X() &&
+        data[i].Y() >= min.Y() && data[i].Y() <= max.Y())
+      {
+      this->Selection->InsertNextValue(i);
+      }
+    }
+  return this->Selection->GetNumberOfTuples() > 0;
+}
+
+//-----------------------------------------------------------------------------
 namespace {
 
 // Copy the two arrays into the points array
