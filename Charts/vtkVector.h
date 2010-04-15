@@ -37,6 +37,14 @@ public:
       }
   }
 
+  vtkVector(const T* init)
+  {
+    for (int i = 0; i < Size; ++i)
+      {
+      Data[i] = init[i];
+      }
+  }
+
   // Description:
   // Get the size of the vtkVector.
   int GetSize() const { return Size; }
@@ -73,6 +81,10 @@ public:
   {
     this->Data[0] = x;
     this->Data[1] = y;
+  }
+
+  vtkVector2(const T* init) : vtkVector<T, 2>(init)
+  {
   }
 
   // Description:
@@ -228,6 +240,7 @@ class vtkVector2f : public vtkVector2<float>
 {
 public:
   vtkVector2f(float x = 0.0, float y = 0.0) : vtkVector2<float>(x, y) {}
+  vtkVector2f(const float* i) : vtkVector2<float>(i) {}
 };
 
 class vtkVector2d : public vtkVector2<double>
