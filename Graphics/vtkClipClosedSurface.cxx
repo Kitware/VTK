@@ -38,7 +38,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.11");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.12");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -1310,9 +1310,10 @@ static void vtkCCSFindTrueEdges(
   vtkstd::vector<vtkCCSPoly> &newPolys, vtkPoints *points,
   vtkCellArray *originalEdges);
 
-// Returns 1 if the poly's normal matches the specified normal
+// Set sense to 1 if the poly's normal matches the specified normal, and
+// zero otherwise. Returns zero if poly is degenerate.
 static int vtkCCSCheckPolygonSense(
-  vtkCCSPoly &polys, vtkPoints *points, const double normal[3]);
+  vtkCCSPoly &polys, vtkPoints *points, const double normal[3], int &sense);
 
 // Add a triangle to the output, and subdivide the triangle if one
 // of the edges originally had more than two points, as indicated
@@ -1358,7 +1359,7 @@ int vtkCCSTriangulate(
 // scalars, where "color" specifies the color to be used.
 
 // Define this to add poly cut info to the "lines"
-//#define VTK_CCS_SHOW_CUT_POLYS
+// #define VTK_CCS_SHOW_CUT_POLYS
 
 void vtkClipClosedSurface::MakeCutPolys(
   vtkPoints *points, vtkCellArray *lines, vtkIdType firstLine,
@@ -1554,6 +1555,7 @@ int vtkCCSTriangulate(
       {
       triangulationFailure = 1;
       }
+
     vtkIdType m = triangles->GetNumberOfIds();
 
     for (vtkIdType k = 0; k < m; k += 3)
@@ -1958,6 +1960,13 @@ void vtkCCSFindTrueEdges(
 
       // Dot product is |v1||v2|cos(theta)
       double c = vtkMath::Dot(v1, v2);
+      // sin^2(theta) = (1 - cos^2(theta))
+      // and   c*c = l1*l2*cos^2(theta)
+      double s2 = (l1*l2 - c*c);
+
+      // In the small angle approximation, sin(theta) == theta, so
+      // s2/(l1*l2) is the angle that we want to check, but it's not
+      // a valid check if l1 or l2 is very close to zero.
 
       vtkIdType pointId = oldPoly[j];
 
@@ -1965,11 +1974,9 @@ void vtkCCSFindTrueEdges(
       // 1) removing it would create a 2-point poly OR
       // 2) it's more than "tol" distance from the prev point AND
       // 3) the angle is greater than atol:
-      //    sin^2(theta) = (1 - cos^2(theta)), where
-      //    c*c = l1*l2*cos^2(theta)
       if (m <= 3 ||
           (l1 > tol2 &&
-           (c < 0 || (l1*l2 - c*c) > l1*l2*atol2)))
+           (c < 0 || l1 < tol2 || l2 < tol2 || s2 > l1*l2*atol2)))
         {
         newPoly.push_back(pointId);
 
@@ -2156,10 +2163,12 @@ void vtkCCSInsertTriangle(
 }
 
 // ---------------------------------------------------
-// Check the sense of the polygon against the given normal.
+// Check the sense of the polygon against the given normal.  Returns
+// zero if the normal is zero.
 
 int vtkCCSCheckPolygonSense(
-  vtkCCSPoly &poly, vtkPoints *points, const double normal[3])
+  vtkCCSPoly &poly, vtkPoints *points, const double normal[3],
+  int &sense)
 {
   // Compute the normal
   double pnormal[3], p0[3], p1[3], p2[3], v1[3], v2[3], v[3];
@@ -2181,7 +2190,11 @@ int vtkCCSCheckPolygonSense(
     }
 
   // Check the normal
-  return (vtkMath::Dot(pnormal, normal) >= 0);
+  double d = vtkMath::Dot(pnormal, normal);
+
+  sense = (d > 0);
+  
+  return (d != 0);
 }
 
 // ---------------------------------------------------
@@ -2325,8 +2338,11 @@ void vtkCCSMakeHoleyPolys(
     if (n < 3) { continue; }
 
     // Check if poly is reversed
-    polyReversed.set(i,
-      vtkCCSCheckPolygonSense(newPolys[i], points, normal));
+    int sense = 0;
+    if (vtkCCSCheckPolygonSense(newPolys[i], points, normal, sense))
+      {
+      polyReversed.set(i, sense);
+      }
 
     // Precompute some values needed for poly-in-poly checks
     vtkCCSPrepareForPolyInPoly(newPolys[i], points, pp, bounds, tol2);
@@ -2418,17 +2434,10 @@ void vtkCCSMakeHoleyPolys(
 // Return value of zero means check failed and the cut is not
 // usable.
 
-// Note: this can be done much more efficiently.  To check for line
-// intersection, I should define a "cut plane" by taking cross
-// product of line with poly normal.  Then, a line segment is
-// a candidate for intersection if the endpoints lie on either
-// side of the plane. Then create a new plane with this line
-// segment, and if it bisects the original line, then the cut
-// is bad.
-
 int vtkCCSCheckCut(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points, const double normal[3],
-  vtkCCSPolyGroup &polyGroup, vtkIdType ptId1, vtkIdType ptId2)
+  const vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  const double normal[3], const vtkCCSPolyGroup &polyGroup,
+  vtkIdType ptId1, vtkIdType ptId2)
 {
   const double tol = 1e-5;
 
@@ -2454,10 +2463,10 @@ int vtkCCSCheckCut(
 
   for (size_t i = 0; i < polyGroup.size(); i++)
     {
-    vtkCCSPoly &poly = polys[polyGroup[i]];
+    const vtkCCSPoly &poly = polys[polyGroup[i]];
     size_t n = poly.size();
 
-    double q1[3], q2[3];
+    double q1[3];
     vtkIdType qtId1 = poly[n-1];
     points->GetPoint(qtId1, q1);
     double v1 = pc[0]*q1[0] + pc[1]*q1[1] + pc[2]*q1[2] + pc[3];
@@ -2465,19 +2474,17 @@ int vtkCCSCheckCut(
 
     for (size_t j = 0; j < n; j++)
       {
+      double q2[3];
       vtkIdType qtId2 = poly[j];
-      int c2 = 0;
-      double v2 = 0;
+      points->GetPoint(qtId2, q2);
+      double v2 = pc[0]*q2[0] + pc[1]*q2[1] + pc[2]*q2[2] + pc[3];
+      int c2 = (v2 > 0);
 
       // If lines share an endpoint, they can't intersect,
       // so don't bother with the check.
       if (ptId1 != qtId1 && ptId1 != qtId2 &&
           ptId2 != qtId1 && ptId2 != qtId2)
         {
-        points->GetPoint(qtId2, q2);
-        v2 = pc[0]*q2[0] + pc[1]*q2[1] + pc[2]*q2[2] + pc[3];
-        c2 = (v2 > 0);
-
         // Check for intersection
         if ( (c1 ^ c2) || v1*v1 < tol2 || v2*v2 < tol2)
           {
@@ -2526,7 +2533,7 @@ int vtkCCSCheckCut(
 // higher quality cut.
 
 double vtkCCSCutQuality(
-  vtkCCSPoly &outerPoly, vtkCCSPoly &innerPoly,
+  const vtkCCSPoly &outerPoly, const vtkCCSPoly &innerPoly,
   size_t i, size_t j, vtkPoints *points)
 {
   size_t n = outerPoly.size();
@@ -2592,10 +2599,10 @@ double vtkCCSCutQuality(
 
   if (l1 > 0)
     {
-    return qmax/l1;
+    return qmax/l1; // also l1 + qmax, incorporates distance;
     }
 
-  return 1.0;
+  return VTK_DOUBLE_MAX;
 }
 
 // ---------------------------------------------------
@@ -2656,6 +2663,150 @@ void vtkCCSFindSharpestVerts(
 }
 
 // ---------------------------------------------------
+// Find two valid cuts between outerPoly and innerPoly.
+// Used by vtkCCSCutHoleyPolys.
+
+int vtkCCSFindCuts(
+  const vtkstd::vector<vtkCCSPoly> &polys,
+  const vtkCCSPolyGroup &polyGroup, size_t outerPolyId, size_t innerPolyId,
+  vtkPoints *points, const double normal[3], size_t cuts[2][2])
+{
+  const vtkCCSPoly &outerPoly = polys[outerPolyId];
+  const vtkCCSPoly &innerPoly = polys[innerPolyId];
+  size_t innerSize = innerPoly.size();
+  // Find the two sharpest points on the inner poly
+  size_t verts[2];
+  vtkCCSFindSharpestVerts(innerPoly, points, normal, verts);
+
+  // A list of cut locations according to quality
+  typedef vtkstd::pair<double, size_t> vtkCCSCutLoc;
+  vtkstd::vector<vtkCCSCutLoc> cutlist(outerPoly.size());
+
+  // Search for potential cuts (need to find two cuts)
+  int cutId = 0;
+  cuts[0][0] = cuts[0][1] = 0;
+  cuts[1][0] = cuts[1][1] = 0;
+
+  for (cutId = 0; cutId < 2; cutId++)
+    {
+    int foundCut = 0;
+
+    for (size_t i = 0; i < innerSize && !foundCut; i++)
+      {
+      size_t j = (i + verts[cutId])%innerSize; 
+
+      for (size_t kk = 0; kk < outerPoly.size(); kk++)
+        {
+        double q = vtkCCSCutQuality(outerPoly, innerPoly, kk, j, points);
+        cutlist[kk].first = q;
+        cutlist[kk].second = kk;
+        }
+
+      vtkstd::sort(cutlist.begin(), cutlist.end());
+
+      for (size_t lid = 0; lid < cutlist.size(); lid++)
+        {
+        size_t k = cutlist[lid].second;
+
+        // If this is the second cut, do extra checks
+        if (cutId > 0)
+          {
+          // Make sure cuts don't share an endpoint
+          if (j == cuts[0][1] || k == cuts[0][0])
+            {
+            continue;
+            }
+
+          // Make sure cuts don't intersect
+          double p1[3], p2[3];
+          points->GetPoint(outerPoly[cuts[0][0]], p1);
+          points->GetPoint(innerPoly[cuts[0][1]], p2);
+
+          double q1[3], q2[3];
+          points->GetPoint(outerPoly[k], q1);
+          points->GetPoint(innerPoly[j], q2);
+
+          double u, v;
+          if (vtkLine::Intersection(p1, p2, q1, q2, u, v) == 2)
+            {
+            continue;
+            }
+          }
+
+        // This check is done for both cuts
+        // Look for the cut that produces closest to 90 degree angles
+        if (vtkCCSCheckCut(polys, points, normal, polyGroup,
+                           outerPoly[k], innerPoly[j]))
+          {
+          cuts[cutId][0] = k;
+          cuts[cutId][1] = j;
+          foundCut = 1;
+          break;
+          }
+        }
+      }
+
+    if (!foundCut)
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+// ---------------------------------------------------
+// Helper for vtkCCSCutHoleyPolys.  Change a polygon and a hole
+// into two separate polygons by making two cuts between them.
+
+void vtkCCSMakeCuts(
+  vtkstd::vector<vtkCCSPoly> &polys,
+  size_t outerPolyId, size_t innerPolyId, const size_t cuts[2][2])
+{
+  vtkCCSPoly &outerPoly = polys[outerPolyId];
+  vtkCCSPoly &innerPoly = polys[innerPolyId];
+
+  // Generate new polys from the cuts
+  size_t n = outerPoly.size();
+  size_t m = innerPoly.size();
+  size_t idx;
+
+  // Generate poly1
+  vtkCCSPoly poly1;
+  for (idx = cuts[0][0];;)
+    {
+    poly1.push_back(outerPoly[idx]);
+    if (idx == cuts[1][0]) { break; }
+    if (++idx >= n) { idx = 0; }
+    }
+  for (idx = cuts[1][1];;)
+    {
+    poly1.push_back(innerPoly[idx]);
+    if (idx == cuts[0][1]) { break; }
+    if (++idx >= m) { idx = 0; }
+    }
+
+  // Generate poly2
+  vtkCCSPoly poly2;
+  for (idx = cuts[1][0];;)
+    {
+    poly2.push_back(outerPoly[idx]);
+    if (idx == cuts[0][0]) { break; }
+    if (++idx >= n) { idx = 0; }
+    }
+  for (idx = cuts[0][1];;)
+    {
+    poly2.push_back(innerPoly[idx]);
+    if (idx == cuts[1][1]) { break; }
+    if (++idx >= m) { idx = 0; }
+    }
+
+  // Replace outerPoly and innerPoly with these new polys
+  polys[outerPolyId] = poly1;
+  polys[innerPolyId] = poly2;
+}
+
+// ---------------------------------------------------
 // After the holes have been identified, make cuts between the
 // outer poly and each hole.  Make two cuts per hole.  The only
 // strict requirement is that the cut must not intersect any
@@ -2681,137 +2832,58 @@ int vtkCCSCutHoleyPolys(
       {
       // The first member of the group is the outer poly
       size_t outerPolyId = polyGroup[0];
-      vtkCCSPoly &outerPoly = polys[outerPolyId];
 
       // The second member of the group is the first inner poly
       size_t innerPolyId = polyGroup[1];
-      vtkCCSPoly &innerPoly = polys[innerPolyId];
 
-      size_t innerSize = innerPoly.size();
-      // Find the two sharpest points on the inner poly
-      size_t verts[2];
-      vtkCCSFindSharpestVerts(innerPoly, points, normal, verts);
+      // Sort the group by size, do largest holes first
+      vtkstd::vector<vtkstd::pair<size_t, size_t> >
+        innerBySize(polyGroup.size());
 
-      // A list of cut locations according to quality
-      typedef vtkstd::pair<double, size_t> vtkCCSCutLoc;
-      vtkstd::vector<vtkCCSCutLoc> cutlist(outerPoly.size());
-
-      // Search for potential cuts (need to find two cuts)
-      int cutId = 0;
-      size_t cuts[2][2];
-      cuts[0][0] = cuts[0][1] = 0;
-      cuts[1][0] = cuts[1][1] = 0;
-
-      for (cutId = 0; cutId < 2; cutId++)
+      for (size_t i = 1; i < polyGroup.size(); i++)
         {
-        int foundCut = 0;
+        innerBySize[i].first = polys[polyGroup[i]].size();
+        innerBySize[i].second = i;
+        }
 
-        for (size_t i = 0; i < innerSize && !foundCut; i++)
+      vtkstd::sort(innerBySize.begin()+1, innerBySize.end());
+      vtkstd::reverse(innerBySize.begin()+1, innerBySize.end());
+
+      // need to check all inner polys in sequence, until one succeeds
+      int madeCut = 0;
+      size_t inner = 0;
+      for (size_t j = 1; j < polyGroup.size(); j++)
+        {
+        inner = innerBySize[j].second;
+        innerPolyId = polyGroup[inner];
+
+        size_t cuts[2][2];
+        if (vtkCCSFindCuts(polys, polyGroup, outerPolyId, innerPolyId,
+                           points, normal, cuts))
           {
-          size_t j = (i + verts[cutId])%innerSize; 
-
-          for (size_t kk = 0; kk < outerPoly.size(); kk++)
-            {
-            double q = vtkCCSCutQuality(outerPoly, innerPoly, kk, j, points);
-            cutlist[kk].first = q;
-            cutlist[kk].second = kk;
-            }
-
-          vtkstd::sort(cutlist.begin(), cutlist.end());
-
-          for (size_t lid = 0; lid < cutlist.size(); lid++)
-            {
-            size_t k = cutlist[lid].second;
-
-            // If this is the second cut, do extra checks
-            if (cutId > 0)
-              {
-              // Make sure cuts don't share an endpoint
-              if (j == cuts[0][1] || k == cuts[0][0])
-                {
-                continue;
-                }
-
-              // Make sure cuts don't intersect
-              double p1[3], p2[3];
-              points->GetPoint(outerPoly[cuts[0][0]], p1);
-              points->GetPoint(innerPoly[cuts[0][1]], p2);
-
-              double q1[3], q2[3];
-              points->GetPoint(outerPoly[k], q1);
-              points->GetPoint(innerPoly[j], q2);
-
-              double u, v;
-              if (vtkLine::Intersection(p1, p2, q1, q2, u, v) == 2)
-                {
-                continue;
-                }
-              }
-
-            // This check is done for both cuts
-            // Look for the cut that produces closest to 90 degree angles
-            if (vtkCCSCheckCut(polys, points, normal, polyGroup,
-                               outerPoly[k], innerPoly[j]))
-              {
-              cuts[cutId][0] = k;
-              cuts[cutId][1] = j;
-              foundCut = 1;
-              break;
-              }
-            }
-          }
-
-        if (!foundCut)
-          {
-          cutFailure = 1;
+          vtkCCSMakeCuts(polys, outerPolyId, innerPolyId, cuts);
+          madeCut = 1;
+          break;
           }
         }
 
-      if (!cutFailure)
+      if (madeCut)
         {
-        // Generate new polys from the cuts
-        size_t n = outerPoly.size();
-        size_t m = innerPoly.size();
-        size_t idx;
-
-        // Generate poly1
-        vtkCCSPoly poly1;
-        for (idx = cuts[0][0];;)
-          {
-          poly1.push_back(outerPoly[idx]);
-          if (idx == cuts[1][0]) { break; }
-          if (++idx >= n) { idx = 0; }
-          }
-        for (idx = cuts[1][1];;)
-          {
-          poly1.push_back(innerPoly[idx]);
-          if (idx == cuts[0][1]) { break; }
-          if (++idx >= m) { idx = 0; }
-          }
-
-        // Generate poly2
-        vtkCCSPoly poly2;
-        for (idx = cuts[1][0];;)
-          {
-          poly2.push_back(outerPoly[idx]);
-          if (idx == cuts[0][0]) { break; }
-          if (++idx >= n) { idx = 0; }
-          }
-        for (idx = cuts[0][1];;)
-          {
-          poly2.push_back(innerPoly[idx]);
-          if (idx == cuts[1][1]) { break; }
-          if (++idx >= m) { idx = 0; }
-          }
-
-        // Replace outerPoly and innerPoly with these new polys
-        polys[outerPolyId] = poly1;
-        polys[innerPolyId] = poly2;
+        // Move successfuly cut innerPolyId into its own group
+        polyGroup.erase(polyGroup.begin() + inner);
+        polyGroups[innerPolyId].push_back(innerPolyId);
         }
-
-      // Move innerPolyId into its own group
-      polyGroup.erase(polyGroup.begin()+1);
-      polyGroups[innerPolyId].push_back(innerPolyId);
+      else
+        {
+        // Remove all failed inner polys from the group
+        for (size_t k = 1; k < polyGroup.size(); k++)
+          {
+          innerPolyId = polyGroup[k];
+          polyGroups[innerPolyId].push_back(innerPolyId);
+          }
+        polyGroup.resize(1);
+        cutFailure = 1;
+        }
 
       // If there are other interior polys in the group, find out whether
       // they are in poly1 or poly2
