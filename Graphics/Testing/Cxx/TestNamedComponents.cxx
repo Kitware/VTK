@@ -15,12 +15,13 @@
 #include "vtkCellData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
-
+#include "vtkArrayCalculator.h"
 
 int TestNamedComponents(int , char *[])
 {
@@ -34,16 +35,29 @@ int TestNamedComponents(int , char *[])
   vtkIdType numCells = numVerts+numLines+numTriangles+numStrips;
   vtkIdType i;
 
+
+  vtkIdTypeArray* pointCoords = vtkIdTypeArray::New();
+  const char pcName[] = "point coords";
+  pointCoords->SetName(pcName);
+  pointCoords->SetNumberOfComponents(3); // num points + point ids
+  pointCoords->SetNumberOfTuples(numPoints);    
+  pointCoords->SetComponentName(0,"XLOC");
+  pointCoords->SetComponentName(1,"YLOC");
+  pointCoords->SetComponentName(2,"ZLOC");
+
   vtkPoints* points = vtkPoints::New();
   points->SetNumberOfPoints(numPoints);
   for(i=0;i<numPoints;i++)
     {
     double loc[3] = {i, i*i, 0};
     points->InsertPoint(i, loc);
+    pointCoords->InsertTuple(i,loc);
     }
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
   poly->Allocate(numCells, numCells);
   poly->SetPoints(points);
+  poly->GetPointData()->AddArray( pointCoords );
+  pointCoords->Delete();
   points->Delete();
 
   for(i=0;i<numVerts;i++)
@@ -104,9 +118,10 @@ int TestNamedComponents(int , char *[])
       }
     cellPoints->SetTupleValue(i, data);
     }
+  
   poly->GetCellData()->AddArray(cellPoints);
   cellPoints->Delete();
-
+ 
   poly->BuildCells();
   
   vtkSmartPointer<vtkThreshold> thresh = vtkSmartPointer<vtkThreshold>::New();  
@@ -145,7 +160,18 @@ int TestNamedComponents(int , char *[])
     vtkGenericWarningMacro("threshold failed to mantain component names on point property.");
     return 1;
     }
- 
+
+  //Test component names with the calculator
+  vtkSmartPointer<vtkArrayCalculator> calc = vtkSmartPointer<vtkArrayCalculator>::New();  
+  calc->SetInput( poly );
+  calc->SetAttributeModeToUsePointData();
+  // Add coordinate scalar and vector variables
+  calc->AddCoordinateScalarVariable( "coordsX", 0 );    
+  calc->AddScalarVariable("point coords_YLOC","point coords",1 );
+  calc->SetFunction("coordsX + point coords_YLOC");
+  calc->SetResultArrayName("Result");
+  calc->Update();
+
   
   return rval;
 }
