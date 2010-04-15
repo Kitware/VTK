@@ -67,6 +67,8 @@ public:
   virtual bool GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
                                vtkVector2f* location);
+
+  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 //ETX
 
 //BTX

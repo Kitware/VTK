@@ -26,7 +26,7 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.14");
+vtkCxxRevisionMacro(vtkPlot, "1.15");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
@@ -77,6 +77,12 @@ bool vtkPlot::PaintLegend(vtkContext2D*, float*)
 //-----------------------------------------------------------------------------
 bool vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
                               vtkVector2f*)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlot::SelectPoints(const vtkVector2f&, const vtkVector2f&)
 {
   return false;
 }
@@ -164,6 +170,12 @@ void vtkPlot::SetInput(vtkTable *table, vtkIdType xColumn,
   this->SetInput(table,
                  table->GetColumnName(xColumn),
                  table->GetColumnName(yColumn));
+}
+
+//-----------------------------------------------------------------------------
+vtkTable* vtkPlot::GetInput()
+{
+  return this->Data->GetInput();
 }
 
 //-----------------------------------------------------------------------------
