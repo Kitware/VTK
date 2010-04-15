@@ -38,7 +38,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.9");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.10");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -1994,7 +1994,7 @@ void vtkCCSFindTrueEdges(
         cellCount = 1;
 
         // Rotate to the next point
-        p0[0] = p1[0]; p0[1] = p1[1]; p0[2] = p1[2];
+        p0[0] = p2[0]; p0[1] = p2[1]; p0[2] = p2[2];
         p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
         v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
         l1 = l2;
@@ -2024,6 +2024,7 @@ void vtkCCSFindTrueEdges(
         m--;
 
         // Join the previous two segments, since the point was removed
+        p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
         v1[0] = p2[0] - p0[0];  v1[1] = p2[1] - p0[1];  v1[2] = p2[2] - p0[2];  
         l1 = vtkMath::Dot(v1, v1);
         }
@@ -2493,7 +2494,15 @@ int vtkCCSCheckCut(
 
             if ( (d1 ^ d2) )
               {
-              return 0;
+              // One final check to make sure endpoints aren't coincident
+              double *p = p1;
+              double *q = q1;
+              if (v2*v2 < v1*v1) { p = p2; } 
+              if (u2*u2 < u1*u1) { q = q2; } 
+              if (vtkMath::Distance2BetweenPoints(p, q) > tol2)
+                {
+                return 0;
+                }
               }
             }
           }
