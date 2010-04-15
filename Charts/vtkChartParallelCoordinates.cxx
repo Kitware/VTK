@@ -633,6 +633,9 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
         vtkSelection* selection = vtkSelection::New();
         vtkSelectionNode* node = vtkSelectionNode::New();
         selection->AddNode(node);
+        node->SetContentType(vtkSelectionNode::INDICES);
+        node->SetFieldType(vtkSelectionNode::POINT);
+
         node->SetSelectionList(this->Storage->Plot->GetSelection());
         this->AnnotationLink->SetCurrentSelection(selection);
         selection->Delete();
