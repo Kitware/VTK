@@ -38,7 +38,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.10");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.11");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -559,10 +559,9 @@ int vtkClipClosedSurface::RequestData(
       this->MakeCutPolys(points, newLines, numClipLines, newPolys, pc);
 
       // Add scalars for the newly-created polys
-      vtkUnsignedCharArray *polyScalars =
-        vtkUnsignedCharArray::SafeDownCast(outPolyData->GetScalars());
+      scalars = vtkUnsignedCharArray::SafeDownCast(outPolyData->GetScalars());
 
-      if (polyScalars)
+      if (scalars)
         {
         unsigned char *color = colors[1+active];
 
@@ -570,16 +569,18 @@ int vtkClipClosedSurface::RequestData(
         if (numCells > cellId)
           {
           // The insert allocates space up to numCells-1
-          polyScalars->InsertTupleValue(numCells-1, color);
+          scalars->InsertTupleValue(numCells-1, color);
           for (;cellId < numCells; cellId++)
             {
-            polyScalars->SetTupleValue(cellId, color);
+            scalars->SetTupleValue(cellId, color);
             }
           }
         }
  
       // Add scalars to any diagnostic lines that added by
       // MakeCutPolys.  In usual operation, no lines are added.
+      scalars = vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
+
       if (scalars)
         {
         unsigned char color[3] = { 0, 255, 255 };
@@ -1060,8 +1061,8 @@ void vtkClipClosedSurface::ClipAndContourPolys(
         }
 
       // Copy the attribute data to the triangle cells
-      vtkIdType numCells = outputPolys->GetNumberOfCells();
-      for (; newCellId < numCells; newCellId++)
+      vtkIdType nCells = outputPolys->GetNumberOfCells();
+      for (; newCellId < nCells; newCellId++)
         {
         outPolyData->CopyData(inCellData, cellId, newCellId);
         }
@@ -1923,10 +1924,10 @@ void vtkCCSFindTrueEdges(
     double bounds[6];
     vtkCCSPolygonBounds(oldPoly, points, bounds);
 
-    double a = (bounds[1] - bounds[0]);
-    double b = (bounds[3] - bounds[2]);
-    double c = (bounds[5] - bounds[4]);
-    double tol2 = (a*a + b*b + c*c)*atol2;
+    double bx = (bounds[1] - bounds[0]);
+    double by = (bounds[3] - bounds[2]);
+    double bz = (bounds[5] - bounds[4]);
+    double tol2 = (bx*bx + by*by + bz*bz)*atol2;
 
     // The new poly
     vtkCCSPoly newPoly;
