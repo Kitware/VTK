@@ -224,13 +224,13 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     }
 
   // Optional.
-  vtkIntArrayRefPtr countArray(0);
+  vtkIntArrayRefPtr countEdgesCollapsedArray(0);
   if(this->CountEdgesCollapsed)
     {
-    countArray = vtkIntArrayRefPtr::New();
-    countArray->SetName(this->EdgesCollapsedArray);
-    countArray->SetNumberOfComponents(1);
-    outGraph->GetEdgeData()->AddArray(countArray);
+    countEdgesCollapsedArray = vtkIntArrayRefPtr::New();
+    countEdgesCollapsedArray->SetName(this->EdgesCollapsedArray);
+    countEdgesCollapsedArray->SetNumberOfComponents(1);
+    outGraph->GetEdgeData()->AddArray(countEdgesCollapsedArray);
     }
 
   // Optional.
@@ -399,6 +399,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       outSourceId = outGraph->AddVertex();
       outVertexAOI->InsertVariantValue(outSourceId, source);
       myMap.insert(NameIdPair(source, outSourceId));
+
       if(this->CountVerticesCollapsed)
         {
         countVerticesCollapsedArray->InsertValue(outSourceId, 1);
@@ -470,9 +471,9 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                                          inEdgeDataArraysAO[i]);
         }
 
-      if(countArray)
+      if(this->CountEdgesCollapsed)
         {
-        countArray->InsertValue(outEdgeId, 1);
+        countEdgesCollapsedArray->InsertValue(outEdgeId, 1);
         }
       }
     else
@@ -508,9 +509,10 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                                          inEdgeDataArraysAO[i]);
         }
 
-      if(countArray)
+      if(this->CountEdgesCollapsed)
         {
-        countArray->SetValue(outEdgeId, (int)(countArray->GetValue(outEdgeId) + 1));
+        countEdgesCollapsedArray->SetValue(
+          outEdgeId, (int)(countEdgesCollapsedArray->GetValue(outEdgeId) + 1));
         }
       }
     //--
