@@ -196,6 +196,10 @@ public:
   static vtkUnstructuredGrid* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+  // Description:
+  // Special support for polyhedron. Return NULL for all other cell types.
+  vtkIdType      *GetFaces(vtkIdType cellId);
+
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();
@@ -250,7 +254,6 @@ protected:
   // (n,i,j,k,n,i,j,k,...).
   vtkIdTypeArray *Faces;
   vtkIdTypeArray *FaceLocations;
-  vtkIdType      *GetFaces(vtkIdType cellId);
 
 private:
   // Hide these from the user and the compiler.

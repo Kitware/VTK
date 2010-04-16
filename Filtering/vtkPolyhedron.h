@@ -111,7 +111,7 @@ public:
   // cell and then adding clip-edge intersection points into the
   // triangulation; extracting the clipped region.
   virtual void Clip(double value, vtkDataArray *pointScalars,
-                    vtkPointLocator *locator, vtkCellArray *connectivity,
+                    vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                     int insideOut);

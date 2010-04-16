@@ -377,6 +377,32 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
       this->Locations->Register(this);
       }
     }
+
+  if (this->Faces != ug->Faces)
+    {
+    if ( this->Faces )
+      {
+      this->Faces->UnRegister(this);
+      }
+    this->Faces = ug->Faces;
+    if (this->Faces)
+      {
+      this->Faces->Register(this);
+      }
+    }
+
+  if (this->FaceLocations != ug->FaceLocations)
+    {
+    if ( this->FaceLocations )
+      {
+      this->FaceLocations->UnRegister(this);
+      }
+    this->FaceLocations = ug->FaceLocations;
+    if (this->FaceLocations)
+      {
+      this->FaceLocations->Register(this);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
