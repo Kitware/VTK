@@ -38,7 +38,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkClipClosedSurface, "1.13");
+vtkCxxRevisionMacro(vtkClipClosedSurface, "1.14");
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
@@ -2453,6 +2453,7 @@ int vtkCCSCheckCut(
   w[0] = p2[0] - p1[0]; w[1] = p2[1] - p1[1]; w[2] = p2[2] - p1[2];
   double l = vtkMath::Normalize(w);
 
+  // Cuts between coincident points are good
   if (l == 0)
     {
     return 1;
@@ -2464,17 +2465,17 @@ int vtkCCSCheckCut(
   // Check the sense of the cut: it must be pointing "in" for both polys.
   size_t polyId = outerPolyId;
   size_t polyIdx = outerIdx;
-  double *p = p1;
+  double *px = p1;
 
   for (int ii= 0; ii < 2; ii++)
     {
     const vtkCCSPoly &poly = polys[polyId];
     double r[3], v[3], u[3];
     size_t nextIdx = polyIdx+1;
-    if (nextIdx == poly.size()) { nextIdx = 0; };
+    if (nextIdx == poly.size()) { nextIdx = 0; }
 
     points->GetPoint(poly[nextIdx], r);
-    v[0] = r[0] - p[0]; v[1] = r[1] - p[1]; v[2] = r[2] - p[2];
+    v[0] = r[0] - px[0]; v[1] = r[1] - px[1]; v[2] = r[2] - px[2];
     vtkMath::Cross(w, v, u);
     if (vtkMath::Dot(u, normal) < 0)
       {
@@ -2483,11 +2484,12 @@ int vtkCCSCheckCut(
 
     polyId = innerPolyId;
     polyIdx = innerIdx;
-    p = p2;
+    px = p2;
     w[0] = -w[0]; w[1] = -w[1]; w[2] = -w[2];
     }
 
-  // Create a cut plane
+  // Check for intersections of the cut with polygon edges.
+  // First, create a cut plane that divides space at the cut line.
   double pc[4];
   vtkMath::Cross(normal, w, pc);
   pc[3] = -vtkMath::Dot(pc, p1);
@@ -2765,7 +2767,6 @@ int vtkCCSFindCuts(
           }
 
         // This check is done for both cuts
-        // Look for the cut that produces closest to 90 degree angles
         if (vtkCCSCheckCut(polys, points, normal, polyGroup,
                            outerPolyId, innerPolyId, k, j))
           {
