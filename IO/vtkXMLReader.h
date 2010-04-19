@@ -95,6 +95,10 @@ public:
   vtkGetVector2Macro(TimeStepRange, int);
   vtkSetVector2Macro(TimeStepRange, int);
 
+  virtual int ProcessRequest(vtkInformation *request,
+                             vtkInformationVector **inputVector,
+                             vtkInformationVector *outputVector);
+  
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
@@ -218,10 +222,7 @@ protected:
   virtual void SetProgressRange(float* range, int curStep, float* fractions);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
-
-  virtual int ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector);
+  
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
