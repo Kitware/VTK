@@ -12,14 +12,24 @@ die() {
 
 #-----------------------------------------------------------------------------
 # Check for committer identity.
-git config --get user.name > /dev/null &&
-git config --get user.email > /dev/null ||
-die 'Identity not configured!  Use the commands
+advice='
+Use the commands
 
 	git config --global user.name '\''Your Name'\''
 	git config --global user.email '\''you@yourdomain.com'\''
 
 to introduce yourself to Git before committing.'
+
+# Ensure name and email are available.
+git config --get user.name > /dev/null &&
+git config --get user.email > /dev/null ||
+die 'Identity not configured!' "$advice"
+
+# Validate the name and email.
+git config --get user.name | grep ' ' > /dev/null ||
+die 'Set user.name to your Real Name (with a space), not a userid.' "$advice"
+git config --get user.email | grep '^[^@]*@[^@]*$' > /dev/null ||
+die 'Set user.email to an email address (userid@validdomain.com).' "$advice"
 
 #-----------------------------------------------------------------------------
 # Check content that will be added by this commit.
