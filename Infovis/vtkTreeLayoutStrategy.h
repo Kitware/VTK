@@ -87,6 +87,12 @@ public:
   vtkSetStringMacro(DistanceArrayName);
   vtkGetStringMacro(DistanceArrayName);
 
+  // Description:
+  // The amount of counter-clockwise rotation to apply after the
+  // layout.
+  vtkSetMacro(Rotation, double);
+  vtkGetMacro(Rotation, double);
+
 protected:
   vtkTreeLayoutStrategy();
   ~vtkTreeLayoutStrategy();
@@ -96,6 +102,7 @@ protected:
   double LogSpacingValue;
   double LeafSpacing;
   char *DistanceArrayName;
+  double Rotation;
 
 private:
 

@@ -33,6 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
@@ -46,6 +47,7 @@ vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
   this->LogSpacingValue = 1.0;
   this->LeafSpacing = 0.9;
   this->DistanceArrayName = NULL;
+  this->Rotation = 0.0;
 }
 
 vtkTreeLayoutStrategy::~vtkTreeLayoutStrategy()
@@ -336,6 +338,21 @@ void vtkTreeLayoutStrategy::Layout()
       }
     newPoints->SetPoint(vertex, x, y, 0.0);
     }
+
+  // Rotate coordinates
+  if (this->Rotation != 0.0)
+    {
+    vtkSmartPointer<vtkTransform> t = vtkSmartPointer<vtkTransform>::New();
+    t->RotateZ(this->Rotation);
+    double x[3];
+    double y[3];
+    for (vtkIdType p = 0; p < newPoints->GetNumberOfPoints(); ++p)
+      {
+      newPoints->GetPoint(p, x);
+      t->MultiplyPoint(x, y);
+      newPoints->SetPoint(p, y);
+      }
+    }
   
   // Copy coordinates back into the original graph
   if (vtkTree::SafeDownCast(this->Graph))
@@ -377,7 +394,8 @@ void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radial: " << (this->Radial ? "true" : "false") << endl;
   os << indent << "LogSpacingValue: " << this->LogSpacingValue << endl;
   os << indent << "LeafSpacing: " << this->LeafSpacing << endl;
-  os << indent << "DistanceArrayName: " 
+  os << indent << "Rotation: " << this->Rotation << endl;
+  os << indent << "DistanceArrayName: "
      << (this->DistanceArrayName ? this->DistanceArrayName : "(null)") << endl;
 }
 
