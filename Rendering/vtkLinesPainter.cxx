@@ -130,6 +130,9 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   // we just ignore the flag.
   idx &= (~VTK_PDM_FIELD_COLORS);
 
+  // Also ignore edge flags.
+  idx &= (~VTK_PDM_EDGEFLAGS);
+
   // draw all the elements, use fast path if available
   switch (idx)
     {

@@ -118,6 +118,13 @@ public:
   // defined in vtkCellType.h)
   static int GetTypeIdFromClassName(const char* classname);
 
+  // Description:
+  // This convenience method is a fast check to determine if a cell type
+  // represents a linear or nonlinear cell.  This is generally much more
+  // efficient than getting the appropriate vtkCell and checking its IsLinear
+  // method.
+  static int IsLinear(unsigned char type);
+
 protected:
   vtkCellTypes();
   ~vtkCellTypes();
@@ -146,6 +153,12 @@ inline int vtkCellTypes::IsType(unsigned char type)
       }
     }
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+inline int vtkCellTypes::IsLinear(unsigned char type)
+{
+  return ((type <= 20) || (type == VTK_CONVEX_POINT_SET));
 }
 
 

@@ -180,6 +180,8 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     pd->GetLines()->GetNumberOfCells();
   vtkIdType cellNumStart = cellNum;
   vtkIdType totalCells = ca->GetNumberOfCells();
+  vtkUnsignedCharArray *ef = vtkUnsignedCharArray::SafeDownCast(
+              pd->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG));
   
   vtkPainterDeviceAdapter* device = ren->GetRenderWindow()->
     GetPainterDeviceAdapter();
@@ -187,6 +189,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   void *normals = 0;
   void *tcoords = 0;
   unsigned char *colors = 0;
+  unsigned char *edgeflags = 0;
   int primitive = VTK_POLYGON;
 
   if (ca->GetNumberOfCells() == 0)
@@ -210,12 +213,17 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     {
     tcoords = t->GetVoidPointer(0);
     }
+  if (ef)
+    {
+    edgeflags = ef->GetPointer(0);
+    }
   vtkIdType *ptIds = ca->GetPointer();
   vtkIdType *endPtIds = ptIds + ca->GetNumberOfConnectivityEntries();
   int ptype = p->GetDataType();
   int ntype = (n)? n->GetDataType() : 0;
   int ttype = (t)? t->GetDataType() : 0;
   int tcomps = (t)? t->GetNumberOfComponents() : 0;
+  int eftype = (ef)? ef->GetDataType() : 0;
   int celloffset = 0;
   
   // since this painter does not deal with field colors specially,
@@ -411,9 +419,266 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
           VTK_UNSIGNED_CHAR, colors); colors += 4;,
         celloffset = cellNum;);
       break;
+
+    case VTK_PDM_EDGEFLAGS:
+      if (this->BuildNormals)
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          PolyNormal,;);
+        }
+      else
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);, ;,;);
+        }
+      break;
+
+    case VTK_PDM_NORMALS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,;,;);
+      break;
+
+    case VTK_PDM_COLORS | VTK_PDM_EDGEFLAGS:
+      if (this->BuildNormals)
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::SCALARS, 4,
+                                                VTK_UNSIGNED_CHAR,
+                                                colors + 4**ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          PolyNormal,;);
+        }
+      else
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::SCALARS, 4,
+                                                VTK_UNSIGNED_CHAR,
+                                                colors + 4**ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          ;,;);
+        }
+      break;
+    case VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS | VTK_PDM_EDGEFLAGS:
+      if (this->BuildNormals)
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::SCALARS, 3,
+                                                VTK_UNSIGNED_CHAR,
+                                                colors + 4**ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          PolyNormal,;);
+        }
+      else
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::SCALARS, 3,
+                                                VTK_UNSIGNED_CHAR,
+                                                colors + 4**ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          ;,;);
+        }
+      break;
+    case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3**ptIds);
+                        device->SendAttribute(vtkPointData::SCALARS, 4,
+                                              VTK_UNSIGNED_CHAR,
+                                              colors + 4**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,;,;);
+      break;
+    case VTK_PDM_NORMALS | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3**ptIds);
+                        device->SendAttribute(vtkPointData::SCALARS, 3,
+                                              VTK_UNSIGNED_CHAR,
+                                              colors + 4**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,;,;);
+      break;
+    case VTK_PDM_NORMALS | VTK_PDM_TCOORDS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3**ptIds);
+                        device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+                                              ttype, tcoords, tcomps**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,;,;);
+      break;
+    case VTK_PDM_CELL_NORMALS | VTK_PDM_TCOORDS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+                                              ttype, tcoords, tcomps**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3*celloffset);
+                        celloffset++;,
+                        celloffset = cellNum;);
+      break;
+    case VTK_PDM_TCOORDS | VTK_PDM_EDGEFLAGS:
+      if (this->BuildNormals)
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::TCOORDS, tcomps,
+                                                ttype, tcoords, tcomps**ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          PolyNormal,;);
+        }
+      else
+        {
+        vtkDrawPolysMacro(primitive,
+                          device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                                eftype, edgeflags, *ptIds);
+                          device->SendAttribute(vtkPointData::TCOORDS, 1,
+                                                ttype, tcoords, *ptIds);
+                          device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                                ptype, points, 3**ptIds);,
+                          ;,;);
+        }
+      break;
+    case VTK_PDM_CELL_NORMALS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3*celloffset);
+                        celloffset++;,
+                        celloffset = cellNum;);
+      break;
+    case VTK_PDM_CELL_NORMALS | VTK_PDM_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::SCALARS, 4,
+                                              VTK_UNSIGNED_CHAR,
+                                              colors + 4**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3*celloffset);
+                        celloffset++;,
+                        celloffset = cellNum;);
+      break;
+    case VTK_PDM_CELL_NORMALS | VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::SCALARS, 3,
+                                              VTK_UNSIGNED_CHAR,
+                                              colors + 4**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3*celloffset);
+                        celloffset++;,
+                        celloffset = cellNum;);
+      break;
+    case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_CELL_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::SCALARS, 4,
+                                              VTK_UNSIGNED_CHAR, colors);
+                        colors += 4;,;);
+      break;
+    case VTK_PDM_NORMALS | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS | VTK_PDM_CELL_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3**ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::SCALARS, 3,
+                                              VTK_UNSIGNED_CHAR, colors);
+                        colors += 4;,;);
+      break;
+    case VTK_PDM_CELL_NORMALS | VTK_PDM_COLORS | VTK_PDM_CELL_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3*celloffset);
+                        celloffset++;
+                        device->SendAttribute(vtkPointData::SCALARS, 4,
+                                              VTK_UNSIGNED_CHAR, colors);
+                        colors += 4;,
+                        celloffset = cellNum;);
+      break;
+    case VTK_PDM_CELL_NORMALS | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS | VTK_PDM_CELL_COLORS | VTK_PDM_EDGEFLAGS:
+      vtkDrawPolysMacro(primitive,
+                        device->SendAttribute(vtkPointData::EDGEFLAG, 1,
+                                              eftype, edgeflags, *ptIds);
+                        device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
+                                              ptype, points, 3**ptIds);,
+                        device->SendAttribute(vtkPointData::NORMALS, 3,
+                                              ntype, normals, 3*celloffset);
+                        celloffset++;
+                        device->SendAttribute(vtkPointData::SCALARS, 3,
+                                              VTK_UNSIGNED_CHAR, colors);
+                        colors += 4;,
+                        celloffset = cellNum;);
+      break;
+
     default:
       return 0; // let the delegate painter handle it.
     }
+
+  if (idx & VTK_PDM_EDGEFLAGS)
+    {
+    // Reset the edge flag to 1 so that if the next thing rendered does not
+    // have an edge flag, it will have all edges on.
+    unsigned char edgeflag = 1;
+    device->SendAttribute(vtkPointData::EDGEFLAG, 1, VTK_UNSIGNED_CHAR,
+                          &edgeflag, 0);
+    }
+
   return 1;
 }
 

@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkPentagonalPrism.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTetra.h"
@@ -717,6 +718,11 @@ vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
   this->CellClipping = 0;
   this->ExtentClipping = 0;
 
+  this->PassThroughCellIds = 0;
+  this->PassThroughPointIds = 0;
+  this->OriginalCellIdsName = NULL;
+  this->OriginalPointIdsName = NULL;
+
   this->Merging = 1;
   this->Locator = NULL;
   
@@ -731,6 +737,9 @@ vtkUnstructuredGridGeometryFilter::~vtkUnstructuredGridGeometryFilter()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
+
+  this->SetOriginalCellIdsName(NULL);
+  this->SetOriginalPointIdsName(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -904,8 +913,24 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   newPts->Allocate(numPts);
   output->Allocate(numCells);
   outputPD->CopyAllocate(pd,numPts,numPts/2);
+  vtkSmartPointer<vtkIdTypeArray> originalPointIds;
+  if (this->PassThroughPointIds)
+    {
+    originalPointIds = vtkSmartPointer<vtkIdTypeArray>::New();
+    originalPointIds->SetName(this->GetOriginalPointIdsName());
+    originalPointIds->SetNumberOfComponents(1);
+    originalPointIds->Allocate(numPts, numPts/2);
+    }
  
   outputCD->CopyAllocate(cd,numCells,numCells/2);
+  vtkSmartPointer<vtkIdTypeArray> originalCellIds;
+  if (this->PassThroughCellIds)
+    {
+    originalCellIds = vtkSmartPointer<vtkIdTypeArray>::New();
+    originalCellIds->SetName(this->GetOriginalCellIdsName());
+    originalCellIds->SetNumberOfComponents(1);
+    originalCellIds->Allocate(numCells, numCells/2);
+    }
 
   vtkIdType *pointMap=0;
   
@@ -978,6 +1003,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
             if ( this->Locator->InsertUniquePoint(x, newPtId) )
               {
               outputPD->CopyData(pd,ptId,newPtId);
+              if (this->PassThroughPointIds)
+                {
+                originalPointIds->InsertValue(newPtId, ptId);
+                }
               }
             cellIds->InsertNextId(newPtId);
             }
@@ -992,6 +1021,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
               newPtId=newPts->InsertNextPoint(inPts->GetPoint(ptId));
               pointMap[ptId]=newPtId;
               outputPD->CopyData(pd, ptId, newPtId);
+              if (this->PassThroughPointIds)
+                {
+                originalPointIds->InsertValue(newPtId, ptId);
+                }
               }
             cellIds->InsertNextId(pointMap[ptId]);
             }
@@ -999,6 +1032,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
         
         newCellId = output->InsertNextCell(cellType,cellIds);
         outputCD->CopyData(cd, cellId, newCellId);
+        if (this->PassThroughCellIds)
+          {
+          originalCellIds->InsertValue(newCellId, cellId);
+          }
         }
       else // added the faces to the hashtable
         {
@@ -1377,6 +1414,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
           if ( this->Locator->InsertUniquePoint(x, newPtId) )
             {
             outputPD->CopyData(pd,ptId,newPtId);
+            if (this->PassThroughPointIds)
+              {
+              originalPointIds->InsertValue(newPtId, ptId);
+              }
             }
           cellIds->InsertNextId(newPtId);
           }
@@ -1391,6 +1432,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
             newPtId=newPts->InsertNextPoint(inPts->GetPoint(ptId));
             pointMap[ptId]=newPtId;
             outputPD->CopyData(pd, ptId, newPtId);
+            if (this->PassThroughPointIds)
+              {
+              originalPointIds->InsertValue(newPtId, ptId);
+              }
             }
           cellIds->InsertNextId(pointMap[ptId]);
           }
@@ -1398,6 +1443,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       
       newCellId = output->InsertNextCell(cellType,cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
+      if (this->PassThroughCellIds)
+        {
+        originalCellIds->InsertValue(newCellId, cellId);
+        }
       }
     cursor.Next();
     }
@@ -1415,6 +1464,15 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   newPts->Delete();
   
 //  output->SetCells(types,locs,conn);
+
+  if (this->PassThroughPointIds)
+    {
+    outputPD->AddArray(originalPointIds);
+    }
+  if (this->PassThroughCellIds)
+    {
+    outputCD->AddArray(originalCellIds);
+    }
   
   if(!this->Merging && this->Locator)
     {
@@ -1489,6 +1547,12 @@ void vtkUnstructuredGridGeometryFilter::PrintSelf(ostream& os,
   os << indent << "PointClipping: " << (this->PointClipping ? "On\n" : "Off\n");
   os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
   os << indent << "ExtentClipping: " << (this->ExtentClipping ? "On\n" : "Off\n");
+
+  os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
+  os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
+
+  os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
+  os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
 
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )

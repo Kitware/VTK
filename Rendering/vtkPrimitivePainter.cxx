@@ -158,6 +158,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   vtkUnsignedCharArray *c=NULL;
   vtkDataArray *n;
   vtkDataArray *t;
+  vtkDataArray *ef;
   int tDim;
   vtkPolyData *input = this->GetInputAsPolyData();
   int cellNormals;
@@ -266,6 +267,28 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   if (t)
     {
     idx |= VTK_PDM_TCOORDS;
+    }
+
+  // Edge flag
+  ef = input->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG);
+  if (ef)
+    {
+    if (ef->GetNumberOfComponents() != 1)
+      {
+      vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
+      ef = NULL;
+      }
+    if (!ef->IsA("vtkUnsignedCharArray"))
+      {
+      vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+      ef = NULL;
+      }
+    }
+
+  // Set the flags
+  if (ef)
+    {
+    idx |= VTK_PDM_EDGEFLAGS;
     }
 
   if (!act)

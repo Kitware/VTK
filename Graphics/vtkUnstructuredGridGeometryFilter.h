@@ -107,6 +107,36 @@ public:
   vtkBooleanMacro(Merging,int);
 
   // Description:
+  // If on, the output polygonal dataset will have a celldata array that
+  // holds the cell index of the original 3D cell that produced each output
+  // cell. This is useful for cell picking. The default is off to conserve
+  // memory. Note that PassThroughCellIds will be ignored if UseStrips is on,
+  // since in that case each tringle strip can represent more than on of the
+  // input cells.
+  vtkSetMacro(PassThroughCellIds,int);
+  vtkGetMacro(PassThroughCellIds,int);
+  vtkBooleanMacro(PassThroughCellIds,int);
+  vtkSetMacro(PassThroughPointIds,int);
+  vtkGetMacro(PassThroughPointIds,int);
+  vtkBooleanMacro(PassThroughPointIds,int);
+
+  // Description:
+  // If PassThroughCellIds or PassThroughPointIds is on, then these ivars
+  // control the name given to the field in which the ids are written into.  If
+  // set to NULL, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
+  // is used, respectively.
+  vtkSetStringMacro(OriginalCellIdsName);
+  virtual const char *GetOriginalCellIdsName() {
+    return (  this->OriginalCellIdsName
+            ? this->OriginalCellIdsName : "vtkOriginalCellIds");
+  }
+  vtkSetStringMacro(OriginalPointIdsName);
+  virtual const char *GetOriginalPointIdsName() {
+    return (  this->OriginalPointIdsName
+            ? this->OriginalPointIdsName : "vtkOriginalPointIds");
+  }
+
+  // Description:
   // Set / get a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
@@ -137,6 +167,11 @@ protected:
   int PointClipping;
   int CellClipping;
   int ExtentClipping;
+
+  int PassThroughCellIds;
+  int PassThroughPointIds;
+  char *OriginalCellIdsName;
+  char *OriginalPointIdsName;
 
   int Merging;
   vtkIncrementalPointLocator *Locator;

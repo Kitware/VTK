@@ -90,6 +90,7 @@ public:
     TENSORS=4,
     GLOBALIDS=5,
     PEDIGREEIDS=6,
+    EDGEFLAG=7,
     NUM_ATTRIBUTES
   };
 
@@ -165,6 +166,7 @@ public:
   //  vtkDataSetAttributes::TENSORS = 4
   //  vtkDataSetAttributes::GLOBALIDS = 5
   //  vtkDataSetAttributes::PEDIGREEIDS = 6
+  //  vtkDataSetAttributes::EDGEFLAG = 7
   // Returns the index of the array if succesful, -1 if the array 
   // is not in the list of arrays.
   int SetActiveAttribute(const char* name, int attributeType);

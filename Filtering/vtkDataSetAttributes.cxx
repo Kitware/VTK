@@ -50,7 +50,9 @@ const char vtkDataSetAttributes
   "TCoords",
   "Tensors",
   "GlobalIds",
-  "PedigreeIds" };
+  "PedigreeIds",
+  "EdgeFlag"
+};
 
 const char vtkDataSetAttributes
 ::LongAttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][35] =
@@ -60,7 +62,9 @@ const char vtkDataSetAttributes
   "vtkDataSetAttributes::TCOORDS",
   "vtkDataSetAttributes::TENSORS",
   "vtkDataSetAttributes::GLOBALIDS",
-  "vtkDataSetAttributes::PEDIGREEIDS" };
+  "vtkDataSetAttributes::PEDIGREEIDS",
+  "vtkDataSetAttributes::EDGEFLAG"
+};
 
 //--------------------------------------------------------------------------
 // Construct object with copying turned on for all data.
@@ -1072,6 +1076,7 @@ const int vtkDataSetAttributes
   3,
   9,
   1,
+  1,
   1};
 
 //--------------------------------------------------------------------------
@@ -1082,6 +1087,7 @@ const int vtkDataSetAttributes
   EXACT,
   EXACT,
   MAX,
+  EXACT,
   EXACT,
   EXACT,
   EXACT};
