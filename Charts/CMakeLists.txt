@@ -16,77 +16,41 @@ SET(KIT_LIBS vtkIO vtkftgl
 
 SET(Kit_SRCS
   vtkAbstractContextBufferId.cxx
-  vtkAbstractContextBufferId.h
   vtkAxis.cxx
-  vtkAxis.h
   vtkBarMark.cxx
-  vtkBarMark.h
   vtkBlockItem.cxx
-  vtkBlockItem.h
   vtkBrush.cxx
-  vtkBrush.h
   vtkChart.cxx
-  vtkChart.h
   vtkChartLegend.cxx
-  vtkChartLegend.h
   vtkChartParallelCoordinates.cxx
-  vtkChartParallelCoordinates.h
   vtkChartXY.cxx
-  vtkChartXY.h
   vtkColorSeries.cxx
-  vtkColorSeries.h
   vtkContext2D.cxx
-  vtkContext2D.h
   vtkContextActor.cxx
-  vtkContextActor.h
   vtkContextBufferId.cxx
-  vtkContextBufferId.h
   vtkContextDevice2D.cxx
-  vtkContextDevice2D.h
   vtkContextItem.cxx
-  vtkContextItem.h
   vtkContextMapper2D.cxx
-  vtkContextMapper2D.h
   vtkContextScene.cxx
-  vtkContextScene.h
   vtkContextView.cxx
-  vtkContextView.h
   vtkDataElement.cxx
-  vtkDataElement.h
   vtkDataValue.cxx
-  vtkDataValue.h
   vtkImageItem.cxx
-  vtkImageItem.h
   vtkLineMark.cxx
-  vtkLineMark.h
   vtkMark.cxx
-  vtkMark.h
   vtkMarkUtil.cxx
-  vtkMarkUtil.h
   vtkOpenGLContextBufferId.cxx
-  vtkOpenGLContextBufferId.h
   vtkOpenGLContextDevice2D.cxx
-  vtkOpenGLContextDevice2D.h
   vtkPanelMark.cxx
-  vtkPanelMark.h
   vtkPen.cxx
-  vtkPen.h
   vtkPlot.cxx
-  vtkPlot.h
   vtkPlotBar.cxx
-  vtkPlotBar.h
   vtkPlotGrid.cxx
-  vtkPlotGrid.h
   vtkPlotLine.cxx
-  vtkPlotLine.h
   vtkPlotParallelCoordinates.cxx
-  vtkPlotParallelCoordinates.h
   vtkPlotPoints.cxx
-  vtkPlotPoints.h
   vtkTooltipItem.cxx
-  vtkTooltipItem.h
   vtkWedgeMark.cxx
-  vtkWedgeMark.h
   )
 
 SET_SOURCE_FILES_PROPERTIES(
