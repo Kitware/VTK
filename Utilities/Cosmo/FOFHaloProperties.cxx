@@ -1101,9 +1101,9 @@ void FOFHaloProperties::aStarActualNeighborPart(
 
         // Only do the perimeter buckets
         if ((bucketCount[bi][bj][bk] > 0) &&
-            (bi < minActual[0] || bi > maxActual[0]) ||
-            (bj < minActual[1] || bj > maxActual[1]) ||
-            (bk < minActual[2] || bk > maxActual[2])) {
+            ((bi < minActual[0] || bi > maxActual[0]) ||
+             (bj < minActual[1] || bj > maxActual[1]) ||
+             (bk < minActual[2] || bk > maxActual[2]))) {
 
           // Set a window around this bucket for calculating actual potentials
           first[0] = bi - 1;    last[0] = bi + 1;
@@ -1294,9 +1294,9 @@ void FOFHaloProperties::aStarEstimatedNeighborPart(
       for (bk = 0; bk < meshSize[2]; bk++) { 
 
         if ((bucketCount[bi][bj][bk] > 0) &&
-            (bi < minActual[0] || bi > maxActual[0]) ||
-            (bj < minActual[1] || bj > maxActual[1]) ||
-            (bk < minActual[2] || bk > maxActual[2])) {
+            ((bi < minActual[0] || bi > maxActual[0]) ||
+             (bj < minActual[1] || bj > maxActual[1]) ||
+             (bk < minActual[2] || bk > maxActual[2]))) {
 
           // Set a window around this bucket for calculating estimates
           first[0] = bi - 1;    last[0] = bi + 1;
