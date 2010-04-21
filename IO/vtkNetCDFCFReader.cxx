@@ -166,7 +166,8 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       // correspond to strings formatted with the Unidata udunits package.  I'm
       // not sure if these checks are complete, but they matches all of the
       // examples I have seen.
-      if (units.find(" since ") != vtkStdString::npos)
+      if (   (units.find(" since ") != vtkStdString::npos)
+          || (units.find(" after ") != vtkStdString::npos) )
         {
         this->Units = TIME_UNITS;
         }
