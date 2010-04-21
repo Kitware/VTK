@@ -187,15 +187,15 @@ public:
   // Return the clipped output.
   vtkUnstructuredGrid * GetClippedOutput();
 
-protected:
-  vtkTableBasedClipDataSet( vtkImplicitFunction * cf = NULL );
-  ~vtkTableBasedClipDataSet();
-
   // Description:
   // Overridden to process REQUEST_UPDATE_EXTENT_INFORMATION.
   virtual int ProcessRequest( vtkInformation *,
                               vtkInformationVector **,
                               vtkInformationVector  *);
+protected:
+  vtkTableBasedClipDataSet( vtkImplicitFunction * cf = NULL );
+  ~vtkTableBasedClipDataSet();
+
   virtual int RequestData( vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector * );
   virtual int FillInputPortInformation( int port, vtkInformation * info );
