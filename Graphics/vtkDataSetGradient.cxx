@@ -128,16 +128,16 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   _output->ShallowCopy( _input );
 
   vtkDataArray* cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
-  vtkDataArray* volumeArray = _output->GetCellData()->GetArray("CellVolume");
-  if( cqsArray==0 || volumeArray==0 )
+  vtkDataArray* sizeArray = _output->GetCellData()->GetArray("CellSize");
+  if( cqsArray==0 || sizeArray==0 )
     {
     vtkDebugMacro(<<"Couldn't find field array 'GradientPrecomputation', computing it right now.\n");
     vtkDataSetGradientPrecompute::GradientPrecompute(_output);
     cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
-    volumeArray = _output->GetCellData()->GetArray("CellVolume");
-    if( cqsArray==0 || volumeArray==0 )
+    sizeArray = _output->GetCellData()->GetArray("CellSize");
+    if( cqsArray==0 || sizeArray==0 )
       {
-      vtkErrorMacro(<<"Computation of field array 'GradientPrecomputation' failed.\n");
+      vtkErrorMacro(<<"Computation of field array 'GradientPrecomputation' or 'CellSize' failed.\n");
       return 0;
       }
     }
@@ -166,7 +166,7 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
         SCALE_VEC( cqs , scalar );
         ADD_VEC( gradient , cqs );
         }
-      SCALE_VEC( gradient , ( 1.0 / volumeArray->GetTuple1(i) ) );
+      SCALE_VEC( gradient , ( 1.0 / sizeArray->GetTuple1(i) ) );
       gradientArray->SetTuple( i , gradient );
       }
 
