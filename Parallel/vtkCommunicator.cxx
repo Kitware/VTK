@@ -46,6 +46,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtkstd/algorithm>
+#include <vtkstd/vector>
 
 
 #define EXTENT_HEADER_SIZE      128
@@ -1123,6 +1124,58 @@ int vtkCommunicator::GatherVVoidArray(const void *sendBuffer,
 }
 
 //-----------------------------------------------------------------------------
+int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+                             vtkIdType *recvLengths, vtkIdType *offsets,
+                             int destProcessId)
+{
+  int type = sendBuffer->GetDataType();
+  if (recvBuffer && (type != recvBuffer->GetDataType()))
+    {
+    vtkErrorMacro("Send/receive buffers do not match!");
+    return 0;
+    }
+  return this->GatherVVoidArray(sendBuffer->GetVoidPointer(0),
+                                (  recvBuffer
+                                 ? recvBuffer->GetVoidPointer(0) : NULL ),
+                                (  sendBuffer->GetNumberOfComponents()
+                                 * sendBuffer->GetNumberOfTuples() ),
+                                recvLengths, offsets, type,
+                                destProcessId);
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+                             int destProcessId)
+{
+  vtkstd::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
+  vtkstd::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
+  int numComponents = sendBuffer->GetNumberOfComponents();
+  vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
+  vtkIdType sendLength = numComponents*numTuples;
+  if (!this->Gather(&sendLength, &recvLengths.at(0), 1, destProcessId))
+    {
+    return 0;
+    }
+  if (destProcessId == this->LocalProcessId)
+    {
+    offsets[0] = 0;
+    for (int i = 0; i < this->NumberOfProcesses; i++)
+      {
+      if ((recvLengths[i] % numComponents) != 0)
+        {
+        vtkWarningMacro(<< "Not all send buffers have same tuple size.");
+        }
+      offsets[i+1] = offsets[i] + recvLengths[i];
+      }
+    recvBuffer->SetNumberOfComponents(numComponents);
+    recvBuffer->SetNumberOfTuples(
+                                offsets[this->NumberOfProcesses]/numComponents);
+    }
+  return this->GatherV(sendBuffer, recvBuffer,
+                       &recvLengths.at(0), &offsets.at(0), destProcessId);
+}
+
+//-----------------------------------------------------------------------------
 int vtkCommunicator::ScatterVoidArray(const void *sendBuffer,
                                       void *recvBuffer,
                                       vtkIdType length,
@@ -1279,6 +1332,53 @@ int vtkCommunicator::AllGatherVVoidArray(const void *sendBuffer,
     }
   result &= this->BroadcastVoidArray(recvBuffer, maxIndex, type, 0);
   return result;
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::AllGatherV(vtkDataArray *sendBuffer,
+                                vtkDataArray *recvBuffer,
+                                vtkIdType *recvLengths,
+                                vtkIdType *offsets)
+{
+  int type = sendBuffer->GetDataType();
+  if (type != recvBuffer->GetDataType())
+    {
+    vtkErrorMacro("Send/receive buffers do not match!");
+    return 0;
+    }
+  return this->AllGatherVVoidArray(sendBuffer->GetVoidPointer(0),
+                                   recvBuffer->GetVoidPointer(0),
+                                   (  sendBuffer->GetNumberOfComponents()
+                                    * sendBuffer->GetNumberOfTuples() ),
+                                   recvLengths, offsets, type);
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::AllGatherV(vtkDataArray *sendBuffer,
+                                vtkDataArray *recvBuffer)
+{
+  vtkstd::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
+  vtkstd::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
+  int numComponents = sendBuffer->GetNumberOfComponents();
+  vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
+  vtkIdType sendLength = numComponents*numTuples;
+  if (!this->AllGather(&sendLength, &recvLengths.at(0), 1))
+    {
+    return 0;
+    }
+  offsets[0] = 0;
+  for (int i = 0; i < this->NumberOfProcesses; i++)
+    {
+    if ((recvLengths[i] % numComponents) != 0)
+      {
+      vtkWarningMacro(<< "Not all send buffers have same tuple size.");
+      }
+    offsets[i+1] = offsets[i] + recvLengths[i];
+    }
+  recvBuffer->SetNumberOfComponents(numComponents);
+  recvBuffer->SetNumberOfTuples(offsets[this->NumberOfProcesses]/numComponents);
+  return this->AllGatherV(sendBuffer, recvBuffer,
+                          &recvLengths.at(0), &offsets.at(0));
 }
 
 //-----------------------------------------------------------------------------
