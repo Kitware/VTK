@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkClipClosedSurface.h
+  Module:    $RCSfile: vtkClipClosedSurface.h,v $
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,6 +21,14 @@
 // the clipping planes intersect the data.  The GenerateColorScalars option
 // will add color scalars to the output, so that the generated faces
 // can be visualized in a different color from the original surface.
+// .SECTION Caveats
+// The triangulation of new faces is done in O(n) time for simple convex
+// inputs, but for non-convex inputs the worst-case time is O(n^2*m^2)
+// where n is the number of points and m is the number of 3D cavities.
+// The best triangulation algorithms, in contrast, are O(n log n).
+// There are also rare cases where the triangulation will fail to produce
+// a watertight output.  Turn on TriangulationErrorDisplay to be notified
+// of these failures.
 // .SECTION See Also
 // vtkOutlineFilter vtkOutlineSource vtkVolumeOutlineSource
 // .SECTION Thanks
@@ -60,6 +68,13 @@ public:
   // The default tolerance is 1e-6.
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
+
+  // Description:
+  // Pass the point data to the output.  Point data will be interpolated
+  // when new points are generated.  This is off by default.
+  vtkSetMacro(PassPointData, int);
+  vtkBooleanMacro(PassPointData, int);
+  vtkGetMacro(PassPointData, int);
 
   // Description:
   // Set whether to add cell scalars, so that the new faces and
@@ -112,6 +127,15 @@ public:
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
 
+  // Description:
+  // Generate errors when the triangulation fails.  Usually the
+  // triangulation errors are too small to see, but they result in
+  // a surface that is not watertight.  This option has no impact
+  // on performance.
+  vtkSetMacro(TriangulationErrorDisplay, int);
+  vtkBooleanMacro(TriangulationErrorDisplay, int);
+  vtkGetMacro(TriangulationErrorDisplay, int);
+
 protected:
   vtkClipClosedSurface();
   ~vtkClipClosedSurface();
@@ -120,6 +144,7 @@ protected:
 
   double Tolerance;
 
+  int PassPointData;
   int GenerateColorScalars;
   int GenerateOutline;
   int GenerateFaces;
@@ -127,6 +152,8 @@ protected:
   double BaseColor[3];
   double ClipColor[3];
   double ActivePlaneColor[3];
+
+  int TriangulationErrorDisplay;
 
   vtkIdList *IdList;
   vtkCellArray *CellArray;
@@ -182,12 +209,12 @@ protected:
   // Given some closed contour lines, create a triangle mesh that
   // fills those lines.  The input lines must be single-segment lines,
   // not polylines.  The input lines do not have to be in order.
-  // Only lines from firstLine onward will be used.  Specify the normal
+  // Only lines from firstLine to will be used.  Specify the normal
   // of the clip plane, which will be opposite the the normals
   // of the polys that will be produced.  If outCD has scalars, then color
   // scalars will be added for each poly that is created.
-  void MakeCutPolys(
-    vtkPoints *points, vtkCellArray *inputLines, vtkIdType firstLine,
+  void MakePolysFromContours(
+    vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
     vtkCellArray *outputPolys, const double normal[3]);
 
   // Description:
@@ -222,7 +249,8 @@ protected:
   // are used by the cells will be saved, and the pointIds of the cells will
   // be modified.
   static void SqueezeOutputPoints(
-    vtkPolyData *output, vtkPoints *points, vtkPointData *pointData);
+    vtkPolyData *output, vtkPoints *points, vtkPointData *pointData,
+    int outputPointDataType);
 
   // Description:
   // Take three colors as doubles, and convert to unsigned char.

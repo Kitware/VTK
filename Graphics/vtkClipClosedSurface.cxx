@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkClipClosedSurface.cxx
+  Module:    $RCSfile: vtkClipClosedSurface.cxx,v $
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -33,6 +33,8 @@
 #include "vtkLine.h"
 #include "vtkMatrix4x4.h"
 
+#include "vtkIncrementalOctreePointLocator.h"
+
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 #include <vtkstd/map>
@@ -48,6 +50,7 @@ vtkClipClosedSurface::vtkClipClosedSurface()
 {
   this->ClippingPlanes = 0;
   this->Tolerance = 1e-6;
+  this->PassPointData = 0;
 
   this->GenerateColorScalars = 0;
   this->GenerateOutline = 0;
@@ -65,6 +68,8 @@ vtkClipClosedSurface::vtkClipClosedSurface()
   this->ActivePlaneColor[0] = 1.0;
   this->ActivePlaneColor[1] = 1.0;
   this->ActivePlaneColor[2] = 0.0;
+
+  this->TriangulationErrorDisplay = 0;
 
   // A whole bunch of objects needed during execution
   this->IdList = 0;
@@ -97,6 +102,11 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     } 
 
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+
+  os << indent << "PassPointData: "
+     << (this->PassPointData ? "On\n" : "Off\n" );
+
   os << indent << "GenerateOutline: "
      << (this->GenerateOutline ? "On\n" : "Off\n" );
 
@@ -116,6 +126,9 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ActivePlaneColor: " << this->ActivePlaneColor[0] << ", "
      << this->ActivePlaneColor[1] << ", " << this->ActivePlaneColor[2] << "\n";
+
+  os << indent << "TriangulationErrorDisplay: "
+     << (this->TriangulationErrorDisplay ? "On\n" : "Off\n" );
 }
 
 //----------------------------------------------------------------------------
@@ -269,6 +282,7 @@ vtkIdType *vtkCCSEdgeLocator::InsertUniqueEdge(
   node = node->next;
   node->ptId0 = i0;
   node->ptId1 = i1;
+  node->edgeId = this->EdgeMap.size()-1;
   return &node->edgeId;
 }
 
@@ -307,9 +321,13 @@ int vtkClipClosedSurface::RequestData(
   points->SetNumberOfPoints(numPts);
 
   vtkPointData *pointData = vtkPointData::New();
-  // Point data is not copied from input
-  //vtkPointData *inPointData = input->GetPointData();
-  //pointData->InterpolateAllocate(inPointData, numPts, 0);
+  vtkPointData *inPointData = 0;
+
+  if (this->PassPointData)
+    {
+    inPointData = input->GetPointData();
+    pointData->InterpolateAllocate(inPointData, numPts, 0);
+    }
 
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
     {
@@ -317,11 +335,17 @@ int vtkClipClosedSurface::RequestData(
     inputPoints->GetPoint(ptId, point);
     points->SetPoint(ptId, point);
     // Point data is not copied from input
-    //pointData->CopyData(inPointData, ptId, ptId);
+    if (inPointData)
+      {
+      pointData->CopyData(inPointData, ptId, ptId);
+      }
     } 
 
   // An edge locator to avoid point duplication while clipping
   vtkCCSEdgeLocator *edgeLocator = vtkCCSEdgeLocator::New();
+
+  // A temporary polydata for the contour lines that are triangulated
+  vtkPolyData *tmpContourData = vtkPolyData::New();
 
   // The cell scalars
   vtkUnsignedCharArray *lineScalars = 0;
@@ -554,9 +578,16 @@ int vtkClipClosedSurface::RequestData(
 
       // Generate new polys from the cut lines
       vtkIdType cellId = newPolys->GetNumberOfCells();
-      vtkIdType lineCellId = newLines->GetNumberOfCells();
-      
-      this->MakeCutPolys(points, newLines, numClipLines, newPolys, pc);
+      vtkIdType numClipAndContourLines = newLines->GetNumberOfCells();
+
+      // Create a polydata for the lines
+      tmpContourData->SetPoints(points);
+      tmpContourData->SetLines(newLines);
+      tmpContourData->BuildCells();
+
+      this->MakePolysFromContours(tmpContourData, numClipLines,
+                                  numClipAndContourLines - numClipLines,
+                                  newPolys, pc);
 
       // Add scalars for the newly-created polys
       scalars = vtkUnsignedCharArray::SafeDownCast(outPolyData->GetScalars());
@@ -578,7 +609,7 @@ int vtkClipClosedSurface::RequestData(
         }
  
       // Add scalars to any diagnostic lines that added by
-      // MakeCutPolys.  In usual operation, no lines are added.
+      // MakePolysFromContours().  In usual operation, no lines are added.
       scalars = vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
 
       if (scalars)
@@ -586,11 +617,12 @@ int vtkClipClosedSurface::RequestData(
         unsigned char color[3] = { 0, 255, 255 };
 
         vtkIdType numCells = newLines->GetNumberOfCells();
-        if (numCells > lineCellId)
+        if (numCells > numClipAndContourLines)
           {
           // The insert allocates space up to numCells-1
           scalars->InsertTupleValue(numCells-1, color);
-          for (;lineCellId < numCells; lineCellId++)
+          for (vtkIdType lineCellId = numClipAndContourLines;
+               lineCellId < numCells; lineCellId++)
             {
             scalars->SetTupleValue(lineCellId, color);
             }
@@ -625,6 +657,9 @@ int vtkClipClosedSurface::RequestData(
 
   // Delete the locator
   edgeLocator->Delete();
+
+  // Delete the contour data container
+  tmpContourData->Delete();
 
   // Delete the clip scalars
   pointScalars->Delete();
@@ -694,7 +729,8 @@ int vtkClipClosedSurface::RequestData(
   outPolyData->Delete();
 
   // Finally, store the points in the output
-  this->SqueezeOutputPoints(output, points, pointData);
+  this->SqueezeOutputPoints(output, points, pointData,
+                            inputPoints->GetDataType());
   output->Squeeze();
 
   points->Delete();
@@ -705,7 +741,8 @@ int vtkClipClosedSurface::RequestData(
 
 //----------------------------------------------------------------------------
 void vtkClipClosedSurface::SqueezeOutputPoints(
-    vtkPolyData *output, vtkPoints *points, vtkPointData *pointData)
+    vtkPolyData *output, vtkPoints *points, vtkPointData *pointData,
+    int outputPointDataType)
 {
   // Create a list of points used by cells
   vtkIdType n = points->GetNumberOfPoints();
@@ -752,7 +789,7 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
 
   // Create exactly the number of points that are required
   vtkPoints *newPoints = vtkPoints::New();
-  newPoints->SetDataTypeToDouble();
+  newPoints->SetDataType(outputPointDataType);
   newPoints->SetNumberOfPoints(numNewPoints);
   outPointData->CopyAllocate(pointData, numNewPoints, 0);
 
@@ -1082,10 +1119,9 @@ void vtkClipClosedSurface::ClipAndContourPolys(
       }
     }
 
-  if (triangulationFailure)
+  if (triangulationFailure && this->TriangulationErrorDisplay)
     {
-    vtkWarningMacro("Triangulation failure while clipping, "
-                    "output data will not be watertight");
+    vtkErrorMacro("Triangulation failed, output may not be watertight");
     }
 
   // Free up the idList memory
@@ -1224,9 +1260,31 @@ void vtkClipClosedSurface::BreakTriangleStrips(
 }
 
 //----------------------------------------------------------------------------
-// Everything below this point is support code for MakeCutPolys().
+//----------------------------------------------------------------------------
+// Everything below this point is support code for MakePolysFromContours().
 // It could be separated out into its own class for generating
 // polygons from contours. 
+//
+// MakePolysFromContours uses the following steps:
+// 1) Join line segments into contours, never change line directions
+// 2) If any contours aren't closed, and if a loose end is on the hull
+//    of the point set, try to connect it with another loose end on the hull
+// 3) Remove degenerate points and points at 180 degree vertices
+// 4) Group polygons according to which polygons are inside others
+// 5) Cut the "hole" polygons to make simple polygons
+// 6) Check for pinch-points to ensure that polygons are simple polygons
+// 7) Triangulate polygons with vtkPolygon::Triangulate()
+// 8) Add triangles for each point removed in Step 3
+//
+// In other words, this routine does a lot of work to process the contours
+// so that vtkPolygon can be used to triangulate them (vtkPolygon only does
+// simple polygons and even then it will fail on degenerate vertices or
+// vertices with 180 degree angles).
+//
+// The whole mess below could be replaced by any robust triangulation code
+// that can deal with holes.  Also, it is O(n^2) while available algorithms
+// are O(n log n).  The vtkDelaunay2D filter will go into infinite recursion
+// for some triangulations, hence it cannot be used.
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
@@ -1277,13 +1335,20 @@ typedef vtkstd::vector<vtkIdType> vtkCCSPoly;
 // other members are the holes.
 typedef vtkstd::vector<size_t> vtkCCSPolyGroup;
 
+// Extra info for each edge in a poly
+typedef vtkstd::vector<vtkIdType> vtkCCSPolyEdges;
+
 //----------------------------------------------------------------------------
 // These are the prototypes for helper functions for manipulating
 // polys that are stored in stl vectors.
 
+// Tolerances are relative to polygon size
+#define VTK_CCS_POLYGON_TOLERANCE 1e-5
+
+int vtkCCSDegenerateCheck(vtkCCSPoly &poly, vtkPoints *points);
 // Take a set of lines, join them tip-to-tail to create polygons
 static void vtkCCSMakePolysFromLines(
-  vtkCellArray *lines, vtkIdType firstLine, vtkIdType numLines,
+  vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
   vtkstd::vector<vtkCCSPoly> &newPolys,
   vtkstd::vector<size_t> &incompletePolys);
 
@@ -1292,12 +1357,25 @@ static void vtkCCSJoinLooseEnds(
   vtkstd::vector<vtkCCSPoly> &polys, vtkstd::vector<size_t> &incompletePolys,
   vtkPoints *points, const double normal[3]);
 
-// Check for polygons that contain multiple loops, and split the loops apart
-static void vtkCCSUntangleSelfIntersection(
-  vtkstd::vector<vtkCCSPoly> &newPolys);
+// Check for polygons that contain multiple loops, and split the loops apart.
+// Returns the number of splits made.
+static int vtkCCSSplitAtPinchPoints(
+  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  const double normal[3]);
+
+// Given three vectors p->p1, p->p2, and p->p3, this routine
+// checks to see if progressing from p1 to p2 to p3 is a clockwise
+// or counterclockwise progression with respect to the normal.
+// The return value is -1 for clockwise, +1 for counterclockwise,
+// and 0 if any two of the vectors are coincident.
+static int vtkCCSVectorProgression(
+  const double p[3], const double p1[3],
+  const double p2[3], const double p3[3], const double normal[3]);
 
 // Compute polygon bounds.  Poly must have at least one point.
-void vtkCCSPolygonBounds(
+static double vtkCCSPolygonBounds(
   const vtkCCSPoly &poly, vtkPoints *points, double bounds[6]);
 
 // Remove points that are not vertices of the polygon,
@@ -1308,7 +1386,7 @@ void vtkCCSPolygonBounds(
 // corner vertices and all the points in between.
 static void vtkCCSFindTrueEdges(
   vtkstd::vector<vtkCCSPoly> &newPolys, vtkPoints *points,
-  vtkCellArray *originalEdges);
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges, vtkCellArray *originalEdges);
 
 // Set sense to 1 if the poly's normal matches the specified normal, and
 // zero otherwise. Returns zero if poly is degenerate.
@@ -1320,8 +1398,8 @@ static int vtkCCSCheckPolygonSense(
 // by originalEdges.  If scalars is not null, then add a scalar for
 // each triangle.
 static void vtkCCSInsertTriangle(
-  vtkCellArray *polys, const vtkIdType pts[3],
-  vtkCellArray *originalEdges);
+  vtkCellArray *polys, const vtkCCSPoly &poly, const size_t trids[3],
+  const vtkCCSPolyEdges &polyEdges, vtkCellArray *originalEdges);
 
 // Check for polys within other polys, i.e. find polys that are holes and
 // add them to the "polyGroup" of the poly that they are inside of.
@@ -1335,15 +1413,17 @@ static void vtkCCSMakeHoleyPolys(
 static int vtkCCSCutHoleyPolys(
   vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
   vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
   const double normal[3]);
 
 // Triangulate a polygon that has been simplified by FindTrueEdges.
-// This will re-insert the original edges.  The output triangles are
+// This will re-insert the original edges.  The output tridss are
 // appended to "polys".  The final two arguments (polygon and
 // triangles) are only for temporary storage.
 // The return value is true if triangulation was successful.
 int vtkCCSTriangulate(
-  const vtkCCSPoly &poly, vtkPoints *points, vtkCellArray *originalEdges,
+  const vtkCCSPoly &poly, vtkPoints *points,
+  const vtkCCSPolyEdges &polyEdges, vtkCellArray *originalEdges,
   vtkCellArray *polys, vtkPolygon *polygon, vtkIdList *triangles);
 
 //----------------------------------------------------------------------------
@@ -1352,28 +1432,26 @@ int vtkCCSTriangulate(
 // a face that has those lines as its edges.  The lines must form one
 // or more closed contours, but they need not be sorted.
 //
-// Only the lines from "firstLine" onward are used to create new polygons,
-// and the new polygons are appended to "polys".  The normal of the cut
-// plane must be provided so that the polys will be correctly oriented.
-// New cell scalars will be appended to outCD.  These will be color
-// scalars, where "color" specifies the color to be used.
+// Only "numLine" lines starting from "firstLine" are used to create new
+// polygons, and the new polygons are appended to "polys".  The normal of
+// the cut plane must be provided so that polys will be correctly oriented.
 
-// Define this to add poly cut info to the "lines"
-// #define VTK_CCS_SHOW_CUT_POLYS
+// If this is defined, then the outlines of any failed polygons will be
+// added to "data".  It is only meant as a debugging tool.
+//#define VTK_CCS_SHOW_FAILED_POLYS
 
-void vtkClipClosedSurface::MakeCutPolys(
-  vtkPoints *points, vtkCellArray *lines, vtkIdType firstLine,
+#include "vtkTimerLog.h"
+void vtkClipClosedSurface::MakePolysFromContours(
+  vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
   vtkCellArray *polys, const double normal[3])
 {
-  // Find the number of lines that were generated by the cut
-  vtkIdType numLines = lines->GetNumberOfCells();
-  vtkIdType numNewLines = numLines - firstLine;
-
   // If no cut lines were generated, there's nothing to do
-  if (firstLine >= numLines)
+  if (numLines <= 0)
     {
     return;
     }
+
+  vtkPoints *points = data->GetPoints();
 
   // Join all the new lines into connected groups, i.e. polygons.
   // If we are lucky these will be simple, convex polygons.  But
@@ -1381,18 +1459,16 @@ void vtkClipClosedSurface::MakeCutPolys(
 
   vtkstd::vector<vtkCCSPoly> newPolys;
   vtkstd::vector<size_t> incompletePolys;
-  vtkCCSMakePolysFromLines(lines, firstLine, numNewLines, newPolys,
-                           incompletePolys);
+  // reallocating this would be expensive, so start it big
+  newPolys.reserve(100);
+
+  vtkCCSMakePolysFromLines(data, firstLine, firstLine+numLines,
+                           newPolys, incompletePolys);
 
   // Join any loose ends.  If the input was a closed surface then there
   // will not be any loose ends, so this is provided as a service to users
   // who want to clip a non-closed surface.
   vtkCCSJoinLooseEnds(newPolys, incompletePolys, points, normal);
-
-  // Some polys might be self-intersecting.  Split the polys at each
-  // intersection point.
-
-  vtkCCSUntangleSelfIntersection(newPolys);
 
   // Some points might be in the middle of straight line segments.
   // These points can be removed without changing the shape of the
@@ -1400,9 +1476,11 @@ void vtkClipClosedSurface::MakeCutPolys(
   // Unfortunately removing these points also means that the polys
   // will no longer form a watertight cap over the cut.
 
+  vtkstd::vector<vtkCCSPolyEdges> polyEdges;
+  polyEdges.reserve(100);
   vtkCellArray *originalEdges = this->CellArray;
   originalEdges->Initialize();
-  vtkCCSFindTrueEdges(newPolys, points, originalEdges);
+  vtkCCSFindTrueEdges(newPolys, points, polyEdges, originalEdges);
 
   // Next we have to check for polygons with holes, i.e. polygons that
   // have other polygons inside.  Each polygon is "grouped" with the
@@ -1427,11 +1505,27 @@ void vtkClipClosedSurface::MakeCutPolys(
 
   // Make cuts to create simple polygons out of the holey polys.
   // After this is done, each polyGroup will have exactly 1 polygon,
-  // and no polys will be holes.
+  // and no polys will be holes.  This is currently the most computationally
+  // expensive part of the process.
 
-  if (!vtkCCSCutHoleyPolys(newPolys, points, polyGroups, normal))
+  if (!vtkCCSCutHoleyPolys(newPolys, points, polyGroups, polyEdges, normal))
     {
-    vtkErrorMacro("Triangulation failed for cap polygon.");
+    if (this->TriangulationErrorDisplay)
+      {
+      vtkErrorMacro("Triangulation failed, data may not be watertight.");
+      }
+    }
+
+  // Some polys might be self-intersecting.  Split the polys at each
+  // intersection point.
+
+  if (vtkCCSSplitAtPinchPoints(
+        newPolys, points, polyGroups, polyEdges, normal))
+    {
+    if (this->TriangulationErrorDisplay)
+      {
+      vtkErrorMacro("Possible intersection, output may not be watertight");
+      }
     }
 
   // ------ Triangulation code ------
@@ -1442,7 +1536,7 @@ void vtkClipClosedSurface::MakeCutPolys(
 
   // Go through all polys and triangulate them
   int triangulationFailure = 0;
-  for (size_t polyId = 0; polyId < numNewPolys; polyId++)
+  for (size_t polyId = 0; polyId < polyGroups.size(); polyId++)
     {
     // If group is empty, then poly was a hole without a containing poly
     if (polyGroups[polyId].size() == 0)
@@ -1450,15 +1544,13 @@ void vtkClipClosedSurface::MakeCutPolys(
       continue;
       }
 
-    if (!vtkCCSTriangulate(newPolys[polyId], points, originalEdges,
-                           polys, polygon, triangles))
+    if (!vtkCCSTriangulate(newPolys[polyId], points, polyEdges[polyId],
+                           originalEdges, polys, polygon, triangles))
       {
       triangulationFailure = 1;
-      }
-
-#ifdef VTK_CCS_SHOW_CUT_POLYS
-      {
+#ifdef VTK_CCS_SHOW_FAILED_POLYS
       // Diagnostic code: show the polys as outlines
+      vtkCellArray *lines = data->GetLines();
       vtkCCSPoly &poly = newPolys[polyId];
       lines->InsertNextCell(poly.size()+1);
       for (size_t jjj = 0; jjj < poly.size(); jjj++)
@@ -1466,14 +1558,13 @@ void vtkClipClosedSurface::MakeCutPolys(
         lines->InsertCellPoint(poly[jjj]);
         }
       lines->InsertCellPoint(poly[0]);
-      }
 #endif
+      }
     }
 
-  if (triangulationFailure)
+  if (triangulationFailure && this->TriangulationErrorDisplay)
     {
-    vtkWarningMacro("Triangulation failed in cap,"
-                    " surface will not be watertight.");
+    vtkWarningMacro("Triangulation failed, surface may not be watertight.");
     }
 
   // Free up some memory
@@ -1500,9 +1591,11 @@ int vtkClipClosedSurface::TriangulatePolygon(
   vtkCellArray *originalEdges = this->CellArray;
   originalEdges->Initialize();
 
-  vtkCCSFindTrueEdges(polys, points, originalEdges);
+  vtkstd::vector<vtkCCSPolyEdges> polyEdges;
+  vtkCCSFindTrueEdges(polys, points, polyEdges, originalEdges);
+  vtkCCSPolyEdges &edges = polyEdges[0];
 
-  return vtkCCSTriangulate(poly, points, originalEdges, triangles,
+  return vtkCCSTriangulate(poly, points, edges, originalEdges, triangles,
                            this->Polygon, this->IdList);
 }
 
@@ -1514,7 +1607,8 @@ int vtkClipClosedSurface::TriangulatePolygon(
 // triangles) are only for temporary storage.
 // The return value is true if triangulation was successful.
 int vtkCCSTriangulate(
-  const vtkCCSPoly &poly, vtkPoints *points, vtkCellArray *originalEdges,
+  const vtkCCSPoly &poly, vtkPoints *points,
+  const vtkCCSPolyEdges &polyEdges, vtkCellArray *originalEdges,
   vtkCellArray *polys, vtkPolygon *polygon, vtkIdList *triangles)
 {
   int triangulationFailure = 0;
@@ -1528,12 +1622,12 @@ int vtkCCSTriangulate(
   // If the poly is a triangle, then pass it
   else if (n == 3)
     {
-    vtkIdType pts[3];
-    pts[0] = poly[0];
-    pts[1] = poly[1];
-    pts[2] = poly[2];
+    size_t trids[3];
+    trids[0] = 0;
+    trids[1] = 1;
+    trids[2] = 2;
 
-    vtkCCSInsertTriangle(polys, pts, originalEdges);
+    vtkCCSInsertTriangle(polys, poly, trids, polyEdges, originalEdges);
     }
   // If the poly has 4 or more points, triangulate it
   else
@@ -1560,12 +1654,12 @@ int vtkCCSTriangulate(
 
     for (vtkIdType k = 0; k < m; k += 3)
       {
-      vtkIdType pts[3];
-      pts[0] = poly[static_cast<size_t>(triangles->GetId(k + 0))];
-      pts[1] = poly[static_cast<size_t>(triangles->GetId(k + 1))];
-      pts[2] = poly[static_cast<size_t>(triangles->GetId(k + 2))];
+      size_t trids[3];
+      trids[0] = triangles->GetId(k + 0);
+      trids[1] = triangles->GetId(k + 1);
+      trids[2] = triangles->GetId(k + 2);
 
-      vtkCCSInsertTriangle(polys, pts, originalEdges);
+      vtkCCSInsertTriangle(polys, poly, trids, polyEdges, originalEdges);
       }
     }
 
@@ -1576,99 +1670,124 @@ int vtkCCSTriangulate(
 // Here is the code for creating polygons from line segments.
 
 void vtkCCSMakePolysFromLines(
-  vtkCellArray *lines, vtkIdType firstLine, vtkIdType numLines,
+  vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
   vtkstd::vector<vtkCCSPoly> &newPolys,
   vtkstd::vector<size_t> &incompletePolys)
 {
-  // Skip through the cell array until we get to the first line
-  lines->InitTraversal();
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
-  for (vtkIdType cellId = 0; cellId < firstLine; cellId++)
-    {
-    lines->GetNextCell(npts, pts);
-    }
-
-  vtkIdType firstLineLoc = lines->GetTraversalLocation();
 
   // Bitfield for marking lines as used
   vtkCCSBitArray usedLines;
 
+  // Require cell links to get lines from pointIds
+  data->BuildLinks(data->GetPoints()->GetNumberOfPoints());
+
   size_t numNewPolys = 0;
-  vtkIdType remainingLines = numLines;
+  vtkIdType remainingLines = numLines - firstLine;
+
   while (remainingLines > 0)
     {
     // Create a new poly
     size_t polyId = numNewPolys++;
-    newPolys.resize(numNewPolys);
+    newPolys.push_back(vtkCCSPoly());
     vtkCCSPoly &poly = newPolys[polyId];
 
+    vtkIdType lineId = 0;
     int completePoly = 0;
+
+    // start the poly
+    for (lineId = firstLine; lineId < numLines; lineId++)
+      {
+      if (!usedLines.get(lineId-firstLine))
+        {
+        data->GetCellPoints(lineId, npts, pts);
+
+        vtkIdType n = npts;
+        if (npts > 2 && pts[0] == pts[npts-1])
+          {
+          n = npts - 1;
+          completePoly = 1;
+          }
+        poly.resize(static_cast<size_t>(n));
+        for (vtkIdType i = 0; i < n; i++)
+          { 
+          poly[i] = pts[i];
+          }
+        break;
+        }
+      }
+ 
+    usedLines.set(lineId-firstLine, 1);
+    remainingLines--;
+
     int noLinesMatch = 0;
+
     while (!completePoly && !noLinesMatch && remainingLines > 0)
       {
+      // This is cleared if a match is found
       noLinesMatch = 1;
-      lines->SetTraversalLocation(firstLineLoc);
-      for (vtkIdType lineId = 0; lineId < numLines; lineId++)
+
+      // Number of points in the poly
+      size_t npoly = poly.size();
+
+      vtkIdType endPts[2];
+      endPts[0] = poly[npoly-1];
+      endPts[1] = poly[0];
+
+      for (int endIdx = 0; endIdx < 2; endIdx++)
         {
-        lines->GetNextCell(npts, pts);
+        unsigned short ncells;
+        vtkIdType *cells;
+        data->GetPointCells(endPts[endIdx], ncells, cells);
 
-        if (usedLines.get(lineId))
+        for (vtkIdType icell = 0; icell < ncells; icell++)
           {
-          continue;
-          }
-
-        // Number of points in the poly
-        size_t npoly = poly.size();
-
-        int usedLine = 1;
-
-        if (poly.size() == 0)
-          {
-          poly.resize(static_cast<size_t>(npts));
-          for (vtkIdType i = 0; i < npts; i++)
-            { 
-            poly[i] = pts[i];
-            }
-          }
-        else if (pts[0] == poly[npoly-1] &&
-                 pts[1] != poly[npoly-2])
-          {
-          vtkIdType n = npts;
-          if (pts[npts-1] == poly[0])
+          lineId = cells[icell];
+          if (lineId >= firstLine && lineId < numLines &&
+              !usedLines.get(lineId-firstLine))
             {
-            n = npts-1;
-            completePoly = 1;
+            data->GetCellPoints(lineId, npts, pts);
+
+            if (pts[0] == poly[npoly-1] &&
+                pts[1] != poly[npoly-2])
+              {
+              vtkIdType n = npts;
+              if (pts[npts-1] == poly[0])
+                {
+                n = npts-1;
+                completePoly = 1;
+                }
+
+              poly.insert(poly.end(), n - 1, 0);
+
+              for (vtkIdType k = 1; k < n; k++)
+                {
+                poly[npoly++] = pts[k];
+                }
+
+              usedLines.set(lineId-firstLine, 1);
+              remainingLines--;
+              noLinesMatch = 0;
+              break;
+              }
+            else if (pts[npts-1] == poly[0] &&
+                     pts[npts-2] != poly[1])
+              {
+              vtkIdType n = npts - 1;
+              poly.insert(poly.begin(), n, 0);
+
+              for (vtkIdType k = 0; k < n; k++)
+                {
+                poly[k] = pts[k];
+                }
+
+              usedLines.set(lineId-firstLine, 1);
+              remainingLines--;
+              noLinesMatch = 0;
+              break;
+              }
             }
-
-          poly.insert(poly.end(), n - 1, 0);
-
-          for (vtkIdType k = 1; k < n; k++)
-            {
-            poly[npoly++] = pts[k];
-            }
-          }
-        else if (pts[npts-1] == poly[0] &&
-                 pts[npts-2] != poly[1])
-          {
-          vtkIdType n = npts - 1;
-          poly.insert(poly.begin(), n, 0);
-
-          for (vtkIdType k = 0; k < n; k++)
-            {
-            poly[k] = pts[k];
-            }
-          }
-        else
-          {
-          usedLine = 0;
-          }
-
-        if (usedLine)
-          {
-          noLinesMatch = 0;
-          usedLines.set(lineId, 1);
-          remainingLines--;
           }
         }
       }
@@ -1692,7 +1811,7 @@ static void vtkCCSJoinLooseEnds(
   vtkPoints *points, const double normal[3])
 {
   // Relative tolerance for checking whether an edge is on the hull
-  const double tol = 1e-5;
+  const double tol = VTK_CCS_POLYGON_TOLERANCE;
 
   // A list of polys to remove when everything is done
   vtkstd::vector<size_t> removePolys;
@@ -1812,69 +1931,214 @@ static void vtkCCSJoinLooseEnds(
 // ---------------------------------------------------
 // Check for self-intersection. Split the figure-eights.
 // This assumes that all intersections occur at existing
-// vertices, i.e. no new vertices will be created.
+// vertices, i.e. no new vertices will be created. Returns
+// the number of splits made.
 
-void vtkCCSUntangleSelfIntersection(
-  vtkstd::vector<vtkCCSPoly> &newPolys)
+int vtkCCSSplitAtPinchPoints(
+  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  const double normal[3])
 {
-  size_t numNewPolys = newPolys.size();
-  for (size_t i = 0; i < numNewPolys; i++)
+  vtkPoints *tryPoints = vtkPoints::New();
+  tryPoints->SetDataTypeToDouble();
+
+  vtkIncrementalOctreePointLocator *locator =
+    vtkIncrementalOctreePointLocator::New();
+
+  int splitCount = 0;
+
+  for (size_t i = 0; i < polys.size(); i++)
     {
-    size_t n = newPolys[i].size();
+    vtkCCSPoly &poly = polys[i];
+    size_t n = poly.size();
+
+    double bounds[6];
+    double tol = VTK_CCS_POLYGON_TOLERANCE;
+    tol *= sqrt(vtkCCSPolygonBounds(poly, points, bounds));
+
+    if (tol == 0)
+      {
+      continue;
+      }
+
+    tryPoints->Initialize();
+    locator->SetTolerance(tol);
+    locator->InitPointInsertion(tryPoints, bounds);
 
     int foundMatch = 0;
     size_t idx1 = 0;
     size_t idx2 = 0;
+    int unique = 0;
 
-    for (idx1 = 0; idx1 < n; idx1++)
+    for (idx2 = 0; idx2 < n; idx2++)
       {
-      vtkIdType firstId = newPolys[i][idx1];
+      double point[3];
+      vtkIdType firstId = poly[idx2];
+      points->GetPoint(firstId, point);
 
-      for (idx2 = idx1+1; idx2 < n ; idx2++)
+      vtkIdType vertIdx = 0;
+      if (!locator->InsertUniquePoint(point, vertIdx))
         {
-        vtkIdType secondId = newPolys[i][idx2];
+        // Need vertIdx to match poly indices, so force point insertion
+        locator->InsertNextPoint(point);
 
-        if (firstId == secondId)
+        // Do the points have different pointIds?
+        idx1 = static_cast<size_t>(vertIdx);
+        unique = (poly[idx2] != poly[idx1]);
+
+        if ((idx2 > idx1 + 2 - unique) && (n + idx1 > idx2 + 2 - unique))
           {
-          foundMatch = 1;
-          break;
+          if (normal)
+            {
+            // Make sure that splitting this poly won't create a hole poly
+            double p1[3], p2[3], p3[3];
+            size_t prevIdx = n + idx1 - 1;
+            size_t midIdx = idx1 + 1;
+            size_t nextIdx = idx2 + 1;
+            if (prevIdx >= n) { prevIdx -= n; }
+            if (midIdx >= n) { midIdx -= n; }
+            if (nextIdx >= n) { nextIdx -= n; }
+
+            points->GetPoint(poly[prevIdx], p1);
+            points->GetPoint(poly[midIdx], p2);
+            points->GetPoint(poly[nextIdx], p3);
+
+            if (vtkCCSVectorProgression(point, p1, p2, p3, normal) < 0)
+              {
+              foundMatch = 1;
+              break;
+              }
+            }
+          else
+            {
+            foundMatch = 1;
+            break;
+            }
           }
         }
-
-      if (foundMatch) { break; }
       }
 
     if (foundMatch)
       {
+      splitCount++;
+
       // Split off a new poly
       size_t m = idx2 - idx1;
 
-      newPolys.resize(++numNewPolys);
-      newPolys[numNewPolys-1].resize(n - m);
+      vtkCCSPoly &oldPoly = polys[i];
+      vtkCCSPolyEdges &oldEdges = polyEdges[i];
+      vtkCCSPoly newPoly1(m + unique);
+      vtkCCSPolyEdges newEdges1(m + unique);
+      vtkCCSPoly newPoly2(n - m + unique);
+      vtkCCSPolyEdges newEdges2(n - m + unique);
 
-      for (size_t j = 0; j < idx1; j++)
+      // The current poly, which is now intersection-free
+      for (size_t l = 0; l < m+unique; l++)
         {
-        newPolys[numNewPolys-1][j] = newPolys[i][j];
+        newPoly1[l] = oldPoly[l+idx1];
+        newEdges1[l] = oldEdges[l+idx1];
+        }
+      if (unique)
+        {
+        newEdges1[m] = -1;
+        }
+
+      // The poly that is split off, which might have more intersections
+      for (size_t j = 0; j < idx1+unique; j++)
+        {
+        newPoly2[j] = oldPoly[j];
+        newEdges2[j] = oldEdges[j];
+        }
+      if (unique)
+        {
+        newEdges2[idx1] = -1;
         }
       for (size_t k = idx2; k < n; k++)
         {
-        newPolys[numNewPolys-1][k - m] = newPolys[i][k];
+        newPoly2[k - m + unique] = oldPoly[k];
+        newEdges2[k - m + unique] = oldEdges[k];
         }
 
-      // The current poly, which is now intersection-free
-      for (size_t l = 0; l < m; l++)
+      polys[i] = newPoly1;
+      polyEdges[i] = newEdges1;
+      polys.push_back(newPoly2);
+      polyEdges.push_back(newEdges2);
+
+      // Unless polygroup was clear (because poly was reversed), 
+      // make a group with one entry for the new poly
+      polyGroups.resize(polys.size());
+      if (polyGroups[i].size())
         {
-        newPolys[i][l] = newPolys[i][l + idx1];
+        polyGroups[polys.size()-1].push_back(polys.size()-1);
         }
-      newPolys[i].resize(m);
       }
     }
+
+  tryPoints->Delete();
+  locator->Delete();
+
+  return splitCount;
 }
 
 // ---------------------------------------------------
+// Given three vectors p->p1, p->p2, and p->p3, this routine
+// checks to see if progressing from p1 to p2 to p3 is a clockwise
+// or counterclockwise progression with respect to the normal.
+// The return value is -1 for clockwise, +1 for counterclockwise,
+// and 0 if any two of the vectors are coincident.
+int vtkCCSVectorProgression(
+  const double p[3], const double p1[3],
+  const double p2[3], const double p3[3], const double normal[3])
+{
+  double v1[3], v2[3], v3[3];
+
+  v1[0] = p1[0] - p[0]; v1[1] = p1[1] - p[1]; v1[2] = p1[2] - p[2];
+  v2[0] = p2[0] - p[0]; v2[1] = p2[1] - p[1]; v2[2] = p2[2] - p[2];
+  v3[0] = p3[0] - p[0]; v3[1] = p3[1] - p[1]; v3[2] = p3[2] - p[2];
+
+  double w1[3], w2[3];
+
+  vtkMath::Cross(v2, v1, w1);
+  vtkMath::Cross(v2, v3, w2);
+  double s1 = vtkMath::Dot(w1, normal);
+  double s2 = vtkMath::Dot(w2, normal);
+
+  if (s1 != 0 && s2 != 0)
+    {
+    int sb1 = (s1 < 0);
+    int sb2 = (s2 < 0);
+
+    // if sines have different signs
+    if ( (sb1 ^ sb2) )
+      {
+      // return -1 if s2 is -ve
+      return (1 - 2*sb2);
+      }
+
+    double c1 = vtkMath::Dot(v2, v1);
+    double l1 = vtkMath::Norm(v1);
+    double c2 = vtkMath::Dot(v2, v3);
+    double l2 = vtkMath::Norm(v3);
+
+    // ck is the difference of the cosines, flipped in sign if sines are +ve
+    double ck = (c2*l2 - c1*l1)*(1 - sb1*2);
+
+    if (ck != 0)
+      {
+      // return the sign of ck
+      return (1 - 2*(ck < 0));
+      }
+    }
+
+  return 0;
+}
+  
+// ---------------------------------------------------
 // Simple utility method for computing polygon bounds.
+// Returns the sum of the squares of the dimensions.
 // Requires a poly with at least one  point.
-void vtkCCSPolygonBounds(
+double vtkCCSPolygonBounds(
   const vtkCCSPoly &poly, vtkPoints *points, double bounds[6])
 {
   size_t n = poly.size();
@@ -1895,6 +2159,12 @@ void vtkCCSPolygonBounds(
     if (p[2] < bounds[4]) { bounds[4] = p[2]; };
     if (p[2] > bounds[5]) { bounds[5] = p[2]; };
     }
+
+  double bx = (bounds[1] - bounds[0]);
+  double by = (bounds[3] - bounds[2]);
+  double bz = (bounds[5] - bounds[4]);
+
+  return (bx*bx + by*by + bz*bz);
 }
 
 // ---------------------------------------------------
@@ -1905,36 +2175,43 @@ void vtkCCSPolygonBounds(
 
 void vtkCCSFindTrueEdges(
   vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkCellArray *originalEdges)
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges, vtkCellArray *originalEdges)
 {
   // Tolerance^2 for angle to see if line segments are parallel
-  const double atol2 = (1e-5 * 1e-5);
+  const double atol2 = (VTK_CCS_POLYGON_TOLERANCE*VTK_CCS_POLYGON_TOLERANCE);
 
-  size_t numNewPolys = polys.size();
-  for (size_t i = 0; i < numNewPolys; i++)
+  for (size_t polyId = 0; polyId < polys.size(); polyId++)
     {
-    vtkCCSPoly &oldPoly = polys[i];
+    vtkCCSPoly &oldPoly = polys[polyId];
     size_t n = oldPoly.size();
+    polyEdges.push_back(vtkCCSPolyEdges());
 
     // Only useful if poly has more than three sides
-    if (n < 4) { continue; }
+    if (n < 4)
+      {
+      polyEdges[polyId].resize(3);
+      polyEdges[polyId][0] = -1;
+      polyEdges[polyId][1] = -1;
+      polyEdges[polyId][2] = -1;
+      continue;
+      }
 
     // While we remove points, m keeps track of how many points are left
     size_t m = n;
 
     // Compute bounds for tolerance
     double bounds[6];
-    vtkCCSPolygonBounds(oldPoly, points, bounds);
-
-    double bx = (bounds[1] - bounds[0]);
-    double by = (bounds[3] - bounds[2]);
-    double bz = (bounds[5] - bounds[4]);
-    double tol2 = (bx*bx + by*by + bz*bz)*atol2;
+    double tol2 = vtkCCSPolygonBounds(oldPoly, points, bounds)*atol2;
 
     // The new poly
     vtkCCSPoly newPoly;
+    vtkCCSPolyEdges &newEdges = polyEdges[polyId];
     vtkIdType cornerPointId = 0;
     vtkIdType oldOriginalId = -1;
+
+    // Allocate space
+    newPoly.reserve(n);
+    newEdges.reserve(n);
 
     // Keep the partial edge from before the first corner is found
     vtkstd::vector<vtkIdType> partialEdge;
@@ -1952,7 +2229,7 @@ void vtkCCSFindTrueEdges(
     for (size_t j = 0; j < n; j++)
       {
       size_t k = j+1;
-      if (k == n) { k = 0; }
+      if (k >= n) { k -= n; }
 
       points->GetPoint(oldPoly[k], p2);
       v2[0] = p2[0] - p1[0];  v2[1] = p2[1] - p1[1];  v2[2] = p2[2] - p1[2];  
@@ -1978,8 +2255,6 @@ void vtkCCSFindTrueEdges(
           (l1 > tol2 &&
            (c < 0 || l1 < tol2 || l2 < tol2 || s2 > l1*l2*atol2)))
         {
-        newPoly.push_back(pointId);
-
         // Complete the previous edge only if the final point count
         // will be greater than two
         if (cellCount > 1)
@@ -1990,11 +2265,18 @@ void vtkCCSFindTrueEdges(
             cellCount++;
             }
           originalEdges->UpdateCellCount(cellCount);
+          newEdges.push_back(originalEdges->GetInsertLocation(cellCount));
           }
         else if (cellCount == 0)
           {
           partialEdge.push_back(pointId);
           }
+        else
+          {
+          newEdges.push_back(-1);
+          }
+
+        newPoly.push_back(pointId);
 
         // Start a new edge with cornerPointId as a "virtual" point
         cornerPointId = pointId;
@@ -2060,9 +2342,10 @@ void vtkCCSFindTrueEdges(
     if (cellCount > 1)
       {
       originalEdges->UpdateCellCount(cellCount);
+      newEdges.push_back(originalEdges->GetInsertLocation(cellCount));
       }
 
-    polys[i] = newPoly;
+    polys[polyId] = newPoly;
     }
 }
 
@@ -2071,94 +2354,126 @@ void vtkCCSFindTrueEdges(
 // its edges originally had more than two points before
 // vtkCCSFindTrueEdges was called.
 
-void vtkCCSInsertTriangle(
-  vtkCellArray *polys, const vtkIdType triPts[3],
-  vtkCellArray *originalEdges)
+static void vtkCCSInsertTriangle(
+  vtkCellArray *polys, const vtkCCSPoly &poly, const size_t trids[3],
+  const vtkCCSPolyEdges &polyEdges, vtkCellArray *originalEdges)
 {
-  int foundEdge = 0;
+  static const size_t nextVert[3] = { 1, 2, 0 };
 
-  vtkIdType npts = 0;
-  vtkIdType *pts = 0; 
-  originalEdges->InitTraversal();
-  while (originalEdges->GetNextCell(npts, pts))
+  // To store how many of originalEdges match
+  int edgeCount = 0;
+  int edgeLocs[3];
+  edgeLocs[0] = -1;
+  edgeLocs[1] = -1;
+  edgeLocs[2] = -1;
+
+  // Check for original edge matches
+  for (int vert = 0; vert < 3; vert++)
     {
-    vtkIdType a = pts[0];
-
-    vtkIdType c = triPts[2];
-    vtkIdType d = triPts[0];
-    vtkIdType e = triPts[1];
-
-    // Check if the edge and the triangle share a point
-    if ((a == c || a == d || a == e) && npts > 2)
+    size_t currId = trids[vert];
+    vtkIdType edgeLoc = polyEdges[currId];
+    if (edgeLoc >= 0)
       {
-      vtkIdType b = pts[npts-1];
+      size_t nextId = currId+1;
+      if (nextId == poly.size()) { nextId = 0; }
 
-      for (int i = 0; i < 3 && !foundEdge; i++)
+      // Is the triangle edge a polygon edge?
+      if (nextId == trids[nextVert[vert]])
         {
-        // "c to d" is the current edge
-        d = triPts[i];
-
-        // If a triangle edge matches an original edge
-        if ( (a == c && b == d) || (a == d && b == c) )
-          {
-          // If original edge is same direction as triangle edge 
-          vtkIdType jstart = 1;
-          vtkIdType jstop = npts-1;
-          vtkIdType jinc = 1;
-          // Else if they are in opposite directions
-          if (a != c)
-            {
-            jstart = npts-2;
-            jstop = 0;
-            jinc = -1;
-            }
-
-          // Make new sub-triangles
-          vtkIdType newTri[3];
-          newTri[0] = c;
-          newTri[1] = pts[jstart];
-          newTri[2] = e;
-
-          // The first triangle's trailing edge must be checked
-          vtkCCSInsertTriangle(polys, newTri, originalEdges);
-
-          newTri[0] = newTri[1];
-          jstart += jinc;
-
-          for (vtkIdType j = jstart; (jstop-jinc-j)*jinc >= 0; j += jinc)
-            {
-            newTri[1] = pts[j];
-
-            polys->InsertNextCell(3);
-            polys->InsertCellPoint(newTri[0]);
-            polys->InsertCellPoint(newTri[1]);
-            polys->InsertCellPoint(newTri[2]);
-
-            newTri[0] = newTri[1];
-            }
-
-          // The final triangle's leading edge must be checked
-          newTri[1] = d;
-          vtkCCSInsertTriangle(polys, newTri, originalEdges);
-
-          foundEdge = 1;
-          break;
-          }
-
-        // Rotate the points
-        e = c;
-        c = d;
+        edgeLocs[vert] = edgeLoc;
+        edgeCount++;
         }
       }
     }
 
-  // If no triangle edges matched, then add without subdividing
-  if (!foundEdge)
+  if (edgeCount == 0)
     {
+    // No special edge handling, so just do one triangle
+
     polys->InsertNextCell(3);
-    polys->InsertCellPoint(triPts[0]);
-    polys->InsertCellPoint(triPts[1]);
-    polys->InsertCellPoint(triPts[2]);
+    polys->InsertCellPoint(poly[trids[0]]);
+    polys->InsertCellPoint(poly[trids[1]]);
+    polys->InsertCellPoint(poly[trids[2]]);
+    }
+  else
+    {
+    // Make triangle fans for edges with extra points
+
+    vtkIdType edgePtIds[4];
+    edgePtIds[0] = poly[trids[0]];
+    edgePtIds[1] = poly[trids[1]];
+    edgePtIds[2] = poly[trids[2]];
+    edgePtIds[3] = poly[trids[0]];
+
+    vtkIdType *edgePts[3];
+    edgePts[0] = &edgePtIds[0];
+    edgePts[1] = &edgePtIds[1];
+    edgePts[2] = &edgePtIds[2];
+
+    vtkIdType edgeNPts[3];
+    edgeNPts[0] = 2;
+    edgeNPts[1] = 2;
+    edgeNPts[2] = 2;
+
+    // Find out which edge has the most extra points
+    vtkIdType maxPoints = 0;
+    int currSide = 0;
+    for (int i = 0; i < 3; i++)
+      {
+      if (edgeLocs[i] >= 0)
+        {
+        vtkIdType npts, *pts;
+        originalEdges->GetCell(edgeLocs[i], npts, pts);
+        assert(edgePts[i][0] == pts[0]);
+        assert(edgePts[i][1] == pts[npts-1]);
+        if (npts > maxPoints)
+          {
+          maxPoints = npts;
+          currSide = i;
+          }
+        edgeNPts[i] = npts;
+        edgePts[i] = pts;
+        }
+      }
+
+    // Find the edges before/after the edge with most points
+    int prevSide = (currSide+2)%3;
+    int nextSide = (currSide+1)%3;
+
+    // If other edges have only 2 points, nothing to do with them
+    int prevNeeded = (edgeNPts[prevSide] > 2);
+    int nextNeeded = (edgeNPts[nextSide] > 2);
+
+    // The tail is the common point in the triangle fan
+    vtkIdType tailPtIds[3];
+    tailPtIds[prevSide] = edgePts[currSide][1];
+    tailPtIds[currSide] = edgePts[prevSide][0];
+    tailPtIds[nextSide] = edgePts[currSide][edgeNPts[currSide]-2];
+
+    // Go through the sides and make the fans
+    for (int side = 0; side < 3; side++)
+      {
+      if ((side != prevSide || prevNeeded) &&
+          (side != nextSide || nextNeeded))
+        {
+        vtkIdType m = 0;
+        vtkIdType n = edgeNPts[side]-1;
+
+        if (side == currSide)
+          {
+          m += prevNeeded;
+          n -= nextNeeded;
+          }
+
+        for (int k = m; k < n; k++)
+          {
+          polys->InsertNextCell(3);
+          polys->InsertCellPoint(edgePts[side][k]);
+          polys->InsertCellPoint(edgePts[side][k+1]);
+          polys->InsertCellPoint(tailPtIds[side]);
+          }
+        }
+      }
     }
 }
 
@@ -2213,48 +2528,47 @@ int vtkCCSPolyInPoly(
   // This is necessary or the PointInPolygon might return "true"
   // based only on roundoff error.
 
-  double p[3];
-  int allPointsOnEdges = 1;
   size_t n = outerPoly.size();
   size_t m = innerPoly.size();
 
   for (size_t jj = 0; jj < m; jj++)
     {
-    points->GetPoint(innerPoly[jj], p);
+    // Semi-randomize the point order
+    size_t kk = (jj>>1) + (jj&1)*((m+1)>>1);
+    double p[3];
+    points->GetPoint(innerPoly[kk], p);
 
-    int pointOnEdge = 0;
-    double q1[3], q2[3];
-    points->GetPoint(outerPoly[n-1], q1);
-    for (size_t ii = 0; ii < n; ii++)
+    if (vtkPolygon::PointInPolygon(
+        p, static_cast<int>(n), const_cast<double *>(pp),
+        const_cast<double *>(bounds), const_cast<double *>(normal)))
       {
-      points->GetPoint(outerPoly[ii], q2);
-      double t, dummy[3];
-      // This method returns distance squared
-      if (vtkLine::DistanceToLine(p, q1, q2, t, dummy) < tol2)
+      int pointOnEdge = 0;
+      double q1[3], q2[3];
+      points->GetPoint(outerPoly[n-1], q1);
+
+      for (size_t ii = 0; ii < n; ii++)
         {
-        pointOnEdge = 1;
-        break;
+        points->GetPoint(outerPoly[ii], q2);
+        double t, dummy[3];
+        // This method returns distance squared
+        if (vtkLine::DistanceToLine(p, q1, q2, t, dummy) < tol2)
+          {
+          pointOnEdge = 1;
+          break;
+          }
+        q1[0] = q2[0]; q1[1] = q2[1]; q1[2] = q2[2];
         }
-      q1[0] = q2[0]; q1[1] = q2[1]; q1[2] = q2[2];
-      }
-    if (!pointOnEdge)
-      {
-      allPointsOnEdges = 0;
-      break;
+
+      if (!pointOnEdge)
+        {
+        // Good result, point is in polygon
+        return 1;
+        }
       }
     }
 
-  if (allPointsOnEdges)
-    {
-    return 1;
-    }
-
-  // There could also be a check to see if all the verts match.
-  // If they do, both polys could be removed.
-   
-  return vtkPolygon::PointInPolygon(
-    p, static_cast<int>(n), const_cast<double *>(pp),
-    const_cast<double *>(bounds), const_cast<double *>(normal));
+  // No matches found
+  return 0;
 }
 
 // ---------------------------------------------------
@@ -2283,17 +2597,9 @@ void vtkCCSPrepareForPolyInPoly(
     points->GetPoint(outerPoly[k], p);
     }
 
-  // Find the bounding box for the polygon
-  vtkCCSPolygonBounds(outerPoly, points, bounds);
-
-  // Compute a tolerance based on the poly size
-  double ps[3];
-  ps[0] = bounds[1] - bounds[0];
-  ps[1] = bounds[3] - bounds[2];
-  ps[2] = bounds[5] - bounds[4];
-
-  // Tolerance is for squared distance
-  tol2 = (ps[0]*ps[0] + ps[1]*ps[1] + ps[2]*ps[2])*(1e-5 * 1e-5);
+  // Find the bounding box and tolerance for the polygon
+  tol2 = (vtkCCSPolygonBounds(outerPoly, points, bounds)*
+          (VTK_CCS_POLYGON_TOLERANCE * VTK_CCS_POLYGON_TOLERANCE));
 }
 
 // ---------------------------------------------------
@@ -2443,7 +2749,7 @@ int vtkCCSCheckCut(
   vtkIdType ptId1 = polys[outerPolyId][outerIdx];
   vtkIdType ptId2 = polys[innerPolyId][innerIdx];
 
-  const double tol = 1e-5;
+  const double tol = VTK_CCS_POLYGON_TOLERANCE;
 
   double p1[3], p2[3];
   points->GetPoint(ptId1, p1);
@@ -2465,27 +2771,32 @@ int vtkCCSCheckCut(
   // Check the sense of the cut: it must be pointing "in" for both polys.
   size_t polyId = outerPolyId;
   size_t polyIdx = outerIdx;
-  double *px = p1;
+  double *r = p1;
+  double *r2 = p2;
 
   for (int ii= 0; ii < 2; ii++)
     {
     const vtkCCSPoly &poly = polys[polyId];
-    double r[3], v[3], u[3];
-    size_t nextIdx = polyIdx+1;
-    if (nextIdx == poly.size()) { nextIdx = 0; }
+    size_t n = poly.size();
+    size_t prevIdx = n - polyIdx - 1;
+    size_t nextIdx = polyIdx + 1;
+    if (prevIdx >= n) { prevIdx -= n; }
+    if (nextIdx >= n) { nextIdx -= n; }
 
-    points->GetPoint(poly[nextIdx], r);
-    v[0] = r[0] - px[0]; v[1] = r[1] - px[1]; v[2] = r[2] - px[2];
-    vtkMath::Cross(w, v, u);
-    if (vtkMath::Dot(u, normal) < 0)
+    double r1[3], r3[3];
+
+    points->GetPoint(poly[prevIdx], r1);
+    points->GetPoint(poly[nextIdx], r3);
+
+    if (vtkCCSVectorProgression(r, r1, r2, r3, normal) < 0)
       {
       return 0;
       }
 
     polyId = innerPolyId;
     polyIdx = innerIdx;
-    px = p2;
-    w[0] = -w[0]; w[1] = -w[1]; w[2] = -w[2];
+    r = p2;
+    r2 = p1;
     }
 
   // Check for intersections of the cut with polygon edges.
@@ -2702,7 +3013,8 @@ void vtkCCSFindSharpestVerts(
 int vtkCCSFindCuts(
   const vtkstd::vector<vtkCCSPoly> &polys,
   const vtkCCSPolyGroup &polyGroup, size_t outerPolyId, size_t innerPolyId,
-  vtkPoints *points, const double normal[3], size_t cuts[2][2])
+  vtkPoints *points, const double normal[3], size_t cuts[2][2],
+  size_t exhaustive)
 {
   const vtkCCSPoly &outerPoly = polys[outerPolyId];
   const vtkCCSPoly &innerPoly = polys[innerPolyId];
@@ -2724,9 +3036,14 @@ int vtkCCSFindCuts(
     {
     int foundCut = 0;
 
-    for (size_t i = 0; i < innerSize && !foundCut; i++)
+    size_t count = (exhaustive ? innerSize : 3);
+
+    for (size_t i = 0; i < count && !foundCut; i++)
       {
-      size_t j = (i + verts[cutId])%innerSize; 
+      // Semi-randomize the search order
+      size_t j = (i>>1) + (i&1)*((innerSize+1)>>1);
+      // Start at the best first point
+      j = (j + verts[cutId])%innerSize; 
 
       for (size_t kk = 0; kk < outerPoly.size(); kk++)
         {
@@ -2793,10 +3110,24 @@ int vtkCCSFindCuts(
 
 void vtkCCSMakeCuts(
   vtkstd::vector<vtkCCSPoly> &polys,
-  size_t outerPolyId, size_t innerPolyId, const size_t cuts[2][2])
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  size_t outerPolyId, size_t innerPolyId,
+  vtkPoints *points, const size_t cuts[2][2])
 {
+  double q[3], r[3];
+  for (size_t bb = 0; bb < 2; bb++)
+    {
+    vtkIdType ptId1 = polys[outerPolyId][cuts[bb][0]];
+    vtkIdType ptId2 = polys[innerPolyId][cuts[bb][1]];
+    points->GetPoint(ptId1, q);
+    points->GetPoint(ptId2, r);
+    }
+
   vtkCCSPoly &outerPoly = polys[outerPolyId];
   vtkCCSPoly &innerPoly = polys[innerPolyId];
+
+  vtkCCSPolyEdges &outerEdges = polyEdges[outerPolyId];
+  vtkCCSPolyEdges &innerEdges = polyEdges[innerPolyId];
 
   // Generate new polys from the cuts
   size_t n = outerPoly.size();
@@ -2804,38 +3135,64 @@ void vtkCCSMakeCuts(
   size_t idx;
 
   // Generate poly1
-  vtkCCSPoly poly1;
-  for (idx = cuts[0][0];;)
+  size_t n1 = n*(cuts[1][0] < cuts[0][0]) + cuts[1][0] - cuts[0][0] + 1;
+  size_t n2 = n1 + m*(cuts[0][1] < cuts[1][1]) + cuts[0][1] - cuts[1][1] + 1;
+
+  vtkCCSPoly poly1(n2);
+  vtkCCSPolyEdges edges1(n2);
+
+  idx = cuts[0][0]; 
+  for (size_t i1 = 0; i1 < n1; i1++)
     {
-    poly1.push_back(outerPoly[idx]);
-    if (idx == cuts[1][0]) { break; }
-    if (++idx >= n) { idx = 0; }
+    size_t k = idx++;
+    poly1[i1] = outerPoly[k];
+    edges1[i1] = outerEdges[k];
+    idx *= (idx != n);
     }
-  for (idx = cuts[1][1];;)
+  edges1[n1-1] = -1;
+
+  idx = cuts[1][1];
+  for (size_t i2 = n1; i2 < n2; i2++)
     {
-    poly1.push_back(innerPoly[idx]);
-    if (idx == cuts[0][1]) { break; }
-    if (++idx >= m) { idx = 0; }
+    size_t k = idx++;
+    poly1[i2] = innerPoly[k];
+    edges1[i2] = innerEdges[k];
+    idx *= (idx != m);
     }
+  edges1[n2-1] = -1;
 
   // Generate poly2
-  vtkCCSPoly poly2;
-  for (idx = cuts[1][0];;)
+  size_t m1 = n*(cuts[0][0] < cuts[1][0]) + cuts[0][0] - cuts[1][0] + 1;
+  size_t m2 = m1 + m*(cuts[1][1] < cuts[0][1]) + cuts[1][1] - cuts[0][1] + 1;
+
+  vtkCCSPoly poly2(m2);
+  vtkCCSPolyEdges edges2(m2);
+
+  idx = cuts[1][0];
+  for (size_t j1 = 0; j1 < m1; j1++)
     {
-    poly2.push_back(outerPoly[idx]);
-    if (idx == cuts[0][0]) { break; }
-    if (++idx >= n) { idx = 0; }
+    size_t k = idx++;
+    poly2[j1] = outerPoly[k];
+    edges2[j1] = outerEdges[k];
+    idx *= (idx != n);
     }
-  for (idx = cuts[0][1];;)
+  edges2[m1-1] = -1;
+
+  idx = cuts[0][1];
+  for (size_t j2 = m1; j2 < m2; j2++)
     {
-    poly2.push_back(innerPoly[idx]);
-    if (idx == cuts[1][1]) { break; }
-    if (++idx >= m) { idx = 0; }
+    size_t k = idx++;
+    poly2[j2] = innerPoly[k];
+    edges2[j2] = innerEdges[k];
+    idx *= (idx != m);
     }
+  edges2[m2-1] = -1;
 
   // Replace outerPoly and innerPoly with these new polys
   polys[outerPolyId] = poly1;
   polys[innerPolyId] = poly2;
+  polyEdges[outerPolyId] = edges1;
+  polyEdges[innerPolyId] = edges2;
 }
 
 // ---------------------------------------------------
@@ -2847,7 +3204,9 @@ void vtkCCSMakeCuts(
 
 int vtkCCSCutHoleyPolys(
   vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups, const double normal[3])
+  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
+  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  const double normal[3])
 {
   int cutFailure = 0;
 
@@ -2881,21 +3240,26 @@ int vtkCCSCutHoleyPolys(
       vtkstd::sort(innerBySize.begin()+1, innerBySize.end());
       vtkstd::reverse(innerBySize.begin()+1, innerBySize.end());
 
-      // need to check all inner polys in sequence, until one succeeds
+      // Need to check all inner polys in sequence, until one succeeds.
+      // Do a quick search first, then do an exhaustive search.
       int madeCut = 0;
       size_t inner = 0;
-      for (size_t j = 1; j < polyGroup.size(); j++)
+      for (int exhaustive = 0; exhaustive < 2 && !madeCut; exhaustive++)
         {
-        inner = innerBySize[j].second;
-        innerPolyId = polyGroup[inner];
-
-        size_t cuts[2][2];
-        if (vtkCCSFindCuts(polys, polyGroup, outerPolyId, innerPolyId,
-                           points, normal, cuts))
+        for (size_t j = 1; j < polyGroup.size(); j++)
           {
-          vtkCCSMakeCuts(polys, outerPolyId, innerPolyId, cuts);
-          madeCut = 1;
-          break;
+          inner = innerBySize[j].second;
+          innerPolyId = polyGroup[inner];
+
+          size_t cuts[2][2];
+          if (vtkCCSFindCuts(polys, polyGroup, outerPolyId, innerPolyId,
+                             points, normal, cuts, exhaustive))
+            {
+            vtkCCSMakeCuts(polys, polyEdges, outerPolyId, innerPolyId,
+                           points, cuts);
+            madeCut = 1;
+            break;
+            }
           }
         }
 
