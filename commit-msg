@@ -2,11 +2,18 @@
 #
 # Copy or link this file as ".git/hooks/pre-commit".
 
+# Prepare a backup message without comments.
+commit_msg="$GIT_DIR/COMMIT_MSG"
+grep -v '^#' "$1" > "$commit_msg"
+
 die() {
 	echo 'commit-msg hook failure' 1>&2
 	echo '-----------------------' 1>&2
 	echo '' 1>&2
 	echo "$@" 1>&2
+	echo 'To continue editing, run the command
+  git commit -e -F '"$commit_msg"'
+(assuming your working directory is at the top).' 1>&2
 	exit 1
 }
 
@@ -51,7 +58,8 @@ msg_rest() {
 
 # Pipe commit message into the state machine.
 state=first
-cat "$1" | grep -v '^#' |
+cat "$commit_msg" |
 while read line; do
 	msg_$state || break
-done
+done &&
+rm -f "$commit_msg"
