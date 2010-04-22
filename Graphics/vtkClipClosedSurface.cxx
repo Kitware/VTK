@@ -310,9 +310,11 @@ int vtkClipClosedSurface::RequestData(
   // Get the input points
   vtkPoints *inputPoints = input->GetPoints();
   vtkIdType numPts = 0;
+  int inputPointsType = VTK_FLOAT;
   if (inputPoints)
     {
     numPts = inputPoints->GetNumberOfPoints();
+    inputPointsType = inputPoints->GetDataType();
     }
 
   // Force points to double precision, copy the point attributes
@@ -729,8 +731,7 @@ int vtkClipClosedSurface::RequestData(
   outPolyData->Delete();
 
   // Finally, store the points in the output
-  this->SqueezeOutputPoints(output, points, pointData,
-                            inputPoints->GetDataType());
+  this->SqueezeOutputPoints(output, points, pointData, inputPointsType);
   output->Squeeze();
 
   points->Delete();
