@@ -158,7 +158,9 @@ inline int vtkCellTypes::IsType(unsigned char type)
 //-----------------------------------------------------------------------------
 inline int vtkCellTypes::IsLinear(unsigned char type)
 {
-  return ((type <= 20) || (type == VTK_CONVEX_POINT_SET));
+  return (   (type <= 20)
+          || (type == VTK_CONVEX_POINT_SET)
+          || (type == VTK_POLYHEDRON) );
 }
 
 
