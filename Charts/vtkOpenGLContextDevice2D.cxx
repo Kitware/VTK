@@ -146,6 +146,7 @@ public:
 
   int TextCounter;
   vtkVector2i Dim;
+  vtkVector2i Offset;
   bool OpenGL15;
 };
 
@@ -190,6 +191,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   // Need the actual pixel size of the viewport - ask OpenGL.
   GLint vp[4];
   glGetIntegerv(GL_VIEWPORT, vp);
+  this->Storage->Offset.Set(static_cast<int>(vp[0]),
+                         static_cast<int>(vp[1]));
+
   this->Storage->Dim.Set(static_cast<int>(vp[2]),
                          static_cast<int>(vp[3]));
 
@@ -197,9 +201,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  glOrtho( 0.5, vp[2]+0.5,
-           0.5, vp[3]+0.5,
-          -1, 1);
+  glOrtho(0.5,vp[2]+0.5,
+    0.5, vp[3]+0.5,
+    -1,1 );
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -625,6 +629,10 @@ void vtkOpenGLContextDevice2D::DrawString(float *point, vtkTextProperty *prop,
 
   int p[] = { static_cast<int>(point[0]),
               static_cast<int>(point[1]) };
+
+  //TextRenderer draws in window, not viewport coords
+  p[0]+=this->Storage->Offset.GetX();
+  p[1]+=this->Storage->Offset.GetY();
   this->TextRenderer->RenderLabel(&p[0], prop, string);
 }
 
@@ -814,20 +822,22 @@ void vtkOpenGLContextDevice2D::PopMatrix()
 void vtkOpenGLContextDevice2D::SetClipping(int *dim)
 {
   // Check the bounds, and clamp if necessary
-  int vp[4] = {0, 0, this->Storage->Dim.X(), this->Storage->Dim.Y()};
-  if (dim[0] > 0 && dim[0] < this->Storage->Dim.X())
+  GLint vp[4] = { this->Storage->Offset.GetX(), this->Storage->Offset.GetY(),
+    this->Storage->Dim.GetX(),this->Storage->Dim.GetY()};
+
+  if (dim[0] > 0 && dim[0] < vp[2] )
     {
-    vp[0] = dim[0];
+    vp[0] += dim[0];
     }
-  if (dim[1] > 0 && dim[1] < this->Storage->Dim.Y())
+  if (dim[1] > 0 && dim[1] < vp[3])
     {
-    vp[1] = dim[1];
+    vp[1] += dim[1];
     }
-  if (dim[2] > 0 && dim[2] < this->Storage->Dim.X())
+  if (dim[2] > 0 && dim[2] < vp[2])
     {
     vp[2] = dim[2];
     }
-  if (dim[3] > 0 && dim[3] < this->Storage->Dim.Y())
+  if (dim[3] > 0 && dim[3] < vp[3])
     {
     vp[3] = dim[3];
     }
