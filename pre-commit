@@ -51,3 +51,27 @@ fi
 
 # Builtin whitespace checks.
 bad=$(git diff-index --check --cached $against --) || die "$bad"
+
+# Reject leading TABs.
+check_tab() {
+	git diff-index -p --cached $against -- "$1" |
+	grep '^+	' > /dev/null &&
+	echo "  $1"
+}
+bad=$(git diff-index --name-only --cached $against -- |
+while read file; do
+	case "$file" in
+		*.c)		check_tab "$file" ;;
+		*.h)		check_tab "$file" ;;
+		*.cxx)		check_tab "$file" ;;
+		*.txx)		check_tab "$file" ;;
+		*.hxx)		check_tab "$file" ;;
+		*.htm)		check_tab "$file" ;;
+		*.html)		check_tab "$file" ;;
+		*.txt)		check_tab "$file" ;;
+		*.cmake)	check_tab "$file" ;;
+	esac
+done)
+test -z "$bad" || die 'Leading TABs added in
+'"$bad"'
+Convert them to spaces (2 per TAB) before commit.'
