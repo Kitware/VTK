@@ -38,7 +38,7 @@ class VTK_INFOVIS_EXPORT vtkRandomGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkRandomGraphSource* New();
-  vtkTypeRevisionMacro(vtkRandomGraphSource,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkRandomGraphSource,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

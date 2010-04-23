@@ -26,7 +26,6 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkOctreePointLocatorNode, "1.2");
 vtkStandardNewMacro(vtkOctreePointLocatorNode);
 
 //----------------------------------------------------------------------------

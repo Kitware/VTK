@@ -41,7 +41,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkOrientedPolygonalHandleRepresentation3D,
+  vtkTypeMacro(vtkOrientedPolygonalHandleRepresentation3D,
                        vtkAbstractPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 

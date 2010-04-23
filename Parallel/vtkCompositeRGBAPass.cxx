@@ -54,7 +54,6 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeRGBAPass, "1.8");
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);

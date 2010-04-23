@@ -35,7 +35,7 @@ class vtkAbstractArray;
 class VTK_GRAPHICS_EXPORT vtkSortDataArray : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkSortDataArray, vtkObject);
+  vtkTypeMacro(vtkSortDataArray, vtkObject);
   static vtkSortDataArray *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

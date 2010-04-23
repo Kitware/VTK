@@ -47,7 +47,7 @@ class VTK_FILTERING_EXPORT vtkSelectionAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkSelectionAlgorithm *New();
-  vtkTypeRevisionMacro(vtkSelectionAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkSelectionAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

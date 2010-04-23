@@ -26,7 +26,6 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.59");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.

@@ -33,7 +33,7 @@ class vtkContextMouseEvent;
 class VTK_CHARTS_EXPORT vtkContextItem : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkContextItem, vtkObject);
+  vtkTypeMacro(vtkContextItem, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

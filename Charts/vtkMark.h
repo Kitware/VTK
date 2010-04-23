@@ -52,7 +52,7 @@ class vtkMarkPrivate; // PIMPL for vtkstd::map
 class VTK_CHARTS_EXPORT vtkMark : public vtkContextItem
 {
 public:
-  vtkTypeRevisionMacro(vtkMark, vtkContextItem);
+  vtkTypeMacro(vtkMark, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkMark* New();
 

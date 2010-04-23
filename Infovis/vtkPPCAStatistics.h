@@ -32,7 +32,7 @@ class vtkMultiProcessController;
 class VTK_INFOVIS_EXPORT vtkPPCAStatistics : public vtkPCAStatistics
 {
 public:
-  vtkTypeRevisionMacro(vtkPPCAStatistics, vtkPCAStatistics);
+  vtkTypeMacro(vtkPPCAStatistics, vtkPCAStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPPCAStatistics* New();
 

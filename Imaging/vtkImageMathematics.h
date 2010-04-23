@@ -53,7 +53,7 @@ class VTK_IMAGING_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMathematics *New();
-  vtkTypeRevisionMacro(vtkImageMathematics,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageMathematics,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -49,7 +49,7 @@ class vtkSQLDatabaseSchemaInternals;
 class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
 {
  public:
-  vtkTypeRevisionMacro(vtkSQLDatabaseSchema, vtkObject);
+  vtkTypeMacro(vtkSQLDatabaseSchema, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLDatabaseSchema *New();
 

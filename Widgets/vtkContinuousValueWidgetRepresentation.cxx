@@ -31,7 +31,6 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkContinuousValueWidgetRepresentation, "1.1");
 
 //----------------------------------------------------------------------
 vtkContinuousValueWidgetRepresentation::vtkContinuousValueWidgetRepresentation()

@@ -26,7 +26,7 @@
 class VTK_COMMON_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkQuadric,vtkImplicitFunction);
+  vtkTypeMacro(vtkQuadric,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description

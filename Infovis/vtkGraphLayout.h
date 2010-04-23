@@ -41,7 +41,7 @@ class VTK_INFOVIS_EXPORT vtkGraphLayout : public vtkGraphAlgorithm
 {
 public:
   static vtkGraphLayout *New();
-  vtkTypeRevisionMacro(vtkGraphLayout, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkGraphLayout, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

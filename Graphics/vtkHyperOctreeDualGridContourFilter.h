@@ -54,7 +54,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkHyperOctreeDualGridContourFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkHyperOctreeDualGridContourFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkHyperOctreeDualGridContourFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -28,7 +28,6 @@
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkCompositeDataProbeFilter);
-vtkCxxRevisionMacro(vtkCompositeDataProbeFilter, "1.5");
 //----------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 {

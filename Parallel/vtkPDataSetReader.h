@@ -29,7 +29,7 @@ class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkPDataSetReader,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkPDataSetReader,vtkDataSetAlgorithm);
   static vtkPDataSetReader *New();
 
   // Description:

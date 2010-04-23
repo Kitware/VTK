@@ -31,7 +31,6 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLogoRepresentation, "1.4");
 vtkStandardNewMacro(vtkLogoRepresentation);
 
 vtkCxxSetObjectMacro(vtkLogoRepresentation, Image, vtkImageData);

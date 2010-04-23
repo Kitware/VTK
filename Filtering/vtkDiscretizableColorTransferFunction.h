@@ -33,7 +33,7 @@ class VTK_FILTERING_EXPORT vtkDiscretizableColorTransferFunction : public vtkCol
 {
 public:
   static vtkDiscretizableColorTransferFunction* New();
-  vtkTypeRevisionMacro(vtkDiscretizableColorTransferFunction, vtkColorTransferFunction);
+  vtkTypeMacro(vtkDiscretizableColorTransferFunction, vtkColorTransferFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

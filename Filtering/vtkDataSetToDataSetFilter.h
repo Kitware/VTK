@@ -51,7 +51,7 @@ class VTK_FILTERING_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
-  vtkTypeRevisionMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
+  vtkTypeMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

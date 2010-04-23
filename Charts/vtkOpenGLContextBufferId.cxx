@@ -23,7 +23,6 @@
 #include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkOpenGLContextBufferId, "1.7");
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 // ----------------------------------------------------------------------------

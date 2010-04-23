@@ -23,7 +23,7 @@
 class VTK_PARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
-  vtkTypeRevisionMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
+  vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkPPolyDataNormals *New();

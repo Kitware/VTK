@@ -43,7 +43,7 @@ class vtkPoints;
 class VTK_FILTERING_EXPORT vtkParametricSpline : public vtkParametricFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkParametricSpline,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricSpline,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

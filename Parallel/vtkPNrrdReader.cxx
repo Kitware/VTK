@@ -195,7 +195,6 @@ static int NrrdType2VTKType(vtkstd::string nrrdType)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkPNrrdReader, "1.3");
 vtkStandardNewMacro(vtkPNrrdReader);
 
 //-----------------------------------------------------------------------------

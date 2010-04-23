@@ -40,7 +40,7 @@ class VTK_FILTERING_EXPORT vtkQuadraticTriangle : public vtkNonLinearCell
 {
 public:
   static vtkQuadraticTriangle *New();
-  vtkTypeRevisionMacro(vtkQuadraticTriangle,vtkNonLinearCell);
+  vtkTypeMacro(vtkQuadraticTriangle,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

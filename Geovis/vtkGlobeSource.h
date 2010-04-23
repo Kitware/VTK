@@ -42,7 +42,7 @@ class vtkFloatArray;
 class VTK_GEOVIS_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkGlobeSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGlobeSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

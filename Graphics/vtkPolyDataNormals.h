@@ -44,7 +44,7 @@ class vtkPolyData;
 class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPolyDataNormals,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataNormals,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

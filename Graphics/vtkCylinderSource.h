@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCylinderSource *New();
-  vtkTypeRevisionMacro(vtkCylinderSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCylinderSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

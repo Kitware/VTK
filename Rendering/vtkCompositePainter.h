@@ -30,7 +30,7 @@ class VTK_RENDERING_EXPORT vtkCompositePainter : public vtkPainter
 {
 public:
   static vtkCompositePainter* New();
-  vtkTypeRevisionMacro(vtkCompositePainter, vtkPainter);
+  vtkTypeMacro(vtkCompositePainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

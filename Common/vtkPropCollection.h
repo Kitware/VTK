@@ -32,7 +32,7 @@ class VTK_COMMON_EXPORT vtkPropCollection : public vtkCollection
 {
  public:
   static vtkPropCollection *New();
-  vtkTypeRevisionMacro(vtkPropCollection,vtkCollection);
+  vtkTypeMacro(vtkPropCollection,vtkCollection);
 
   // Description:
   // Add an Prop to the list.

@@ -33,7 +33,7 @@ class VTK_COMMON_EXPORT vtkParametricTorus : public vtkParametricFunction
 {
 
 public:
-  vtkTypeRevisionMacro(vtkParametricTorus,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricTorus,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

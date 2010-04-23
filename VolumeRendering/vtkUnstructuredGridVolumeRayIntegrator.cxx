@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayIntegrator, "1.1");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridVolumeRayIntegrator::vtkUnstructuredGridVolumeRayIntegrator()

@@ -26,7 +26,6 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCubicLine, "1.2");
 vtkStandardNewMacro(vtkCubicLine);
 
 //----------------------------------------------------------------------------

@@ -44,7 +44,7 @@ class VTK_INFOVIS_EXPORT vtkPExtractHistogram2D : public vtkExtractHistogram2D
 {
 public:
   static vtkPExtractHistogram2D* New();
-  vtkTypeRevisionMacro(vtkPExtractHistogram2D, vtkExtractHistogram2D);
+  vtkTypeMacro(vtkPExtractHistogram2D, vtkExtractHistogram2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetController(vtkMultiProcessController*);

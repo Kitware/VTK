@@ -17,7 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkAbstractPicker, "1.11");
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.

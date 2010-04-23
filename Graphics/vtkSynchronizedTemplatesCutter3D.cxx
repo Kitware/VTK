@@ -39,7 +39,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.6");
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFunction);
 

@@ -40,7 +40,7 @@
 class VTK_GRAPHICS_EXPORT vtkImageDataGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageDataGeometryFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkImageDataGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

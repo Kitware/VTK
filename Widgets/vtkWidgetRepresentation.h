@@ -50,7 +50,7 @@ class VTK_WIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
 public:
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkWidgetRepresentation,vtkProp);
+  vtkTypeMacro(vtkWidgetRepresentation,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -38,7 +38,6 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.30");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotLine);

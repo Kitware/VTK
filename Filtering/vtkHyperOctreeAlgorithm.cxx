@@ -22,7 +22,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeAlgorithm, "1.1");
 
 //----------------------------------------------------------------------------
 vtkHyperOctreeAlgorithm::vtkHyperOctreeAlgorithm()

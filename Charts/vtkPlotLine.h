@@ -33,7 +33,7 @@ class vtkImageData;
 class VTK_CHARTS_EXPORT vtkPlotLine : public vtkPlot
 {
 public:
-  vtkTypeRevisionMacro(vtkPlotLine, vtkPlot);
+  vtkTypeMacro(vtkPlotLine, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

@@ -33,7 +33,7 @@
 class VTK_GRAPHICS_EXPORT vtkReverseSense : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkReverseSense,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkReverseSense,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -32,7 +32,6 @@
 #include "vtkXMLMaterialReader.h"
 
 
-vtkCxxRevisionMacro(vtkCgShaderProgram, "1.5");
 vtkStandardNewMacro(vtkCgShaderProgram);
 
 //----------------------------------------------------------------------------

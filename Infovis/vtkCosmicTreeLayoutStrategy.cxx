@@ -23,7 +23,6 @@
 #undef VTK_COSMIC_DBG
 
 vtkStandardNewMacro(vtkCosmicTreeLayoutStrategy);
-vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.6");
 
 /// Represent a circle to be placed
 class vtkCosmicTreeEntry

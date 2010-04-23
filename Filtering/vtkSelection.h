@@ -35,7 +35,7 @@ struct vtkSelectionInternals;
 class VTK_FILTERING_EXPORT vtkSelection : public vtkDataObject
 {
 public:
-  vtkTypeRevisionMacro(vtkSelection,vtkDataObject);
+  vtkTypeMacro(vtkSelection,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSelection* New();
 

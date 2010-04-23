@@ -26,7 +26,6 @@
 #endif
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.13");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()

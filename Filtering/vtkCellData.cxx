@@ -15,7 +15,6 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellData, "1.1");
 vtkStandardNewMacro(vtkCellData);
 
 void vtkCellData::PrintSelf(ostream& os, vtkIndent indent)

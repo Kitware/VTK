@@ -29,7 +29,7 @@ class VTK_COMMON_EXPORT vtkLinearTransform : public vtkHomogeneousTransform
 {
 public:
 
-  vtkTypeRevisionMacro(vtkLinearTransform,vtkHomogeneousTransform);
+  vtkTypeMacro(vtkLinearTransform,vtkHomogeneousTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

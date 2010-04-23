@@ -45,7 +45,7 @@ class VTK_IO_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
 {
 public:
   static vtkEnSightGoldBinaryReader *New();
-  vtkTypeRevisionMacro(vtkEnSightGoldBinaryReader, vtkEnSightReader);
+  vtkTypeMacro(vtkEnSightGoldBinaryReader, vtkEnSightReader);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
  
 protected:

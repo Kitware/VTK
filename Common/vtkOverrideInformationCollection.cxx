@@ -15,5 +15,4 @@
 #include "vtkOverrideInformationCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOverrideInformationCollection, "1.4");
 vtkStandardNewMacro(vtkOverrideInformationCollection);

@@ -31,7 +31,7 @@ class VTK_HYBRID_EXPORT vtkRIBLight : public vtkLight
 {
 public:
   static vtkRIBLight *New();
-  vtkTypeRevisionMacro(vtkRIBLight,vtkLight);
+  vtkTypeMacro(vtkRIBLight,vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkBooleanMacro(Shadows,int);

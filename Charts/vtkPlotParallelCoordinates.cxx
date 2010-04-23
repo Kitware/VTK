@@ -55,7 +55,6 @@ public:
   bool SelectionInitialized;
 };
 
-vtkCxxRevisionMacro(vtkPlotParallelCoordinates, "1.9");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotParallelCoordinates);

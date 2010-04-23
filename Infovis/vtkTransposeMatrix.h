@@ -33,7 +33,7 @@ class VTK_INFOVIS_EXPORT vtkTransposeMatrix : public vtkArrayDataAlgorithm
 {
 public:
   static vtkTransposeMatrix* New();
-  vtkTypeRevisionMacro(vtkTransposeMatrix, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkTransposeMatrix, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

@@ -27,7 +27,7 @@ public:
   // Construct the ProcessStatistics with eight points.
   static vtkProcessStatistics *New();
 
-  vtkTypeRevisionMacro(vtkProcessStatistics,vtkObject);
+  vtkTypeMacro(vtkProcessStatistics,vtkObject);
 
   int    GetProcessSizeInBytes();
   double GetProcessCPUTimeInMilliseconds();

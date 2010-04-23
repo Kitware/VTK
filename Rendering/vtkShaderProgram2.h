@@ -47,7 +47,7 @@ class VTK_RENDERING_EXPORT vtkShaderProgram2 : public vtkObject
 {
 public:
   static vtkShaderProgram2* New();
-  vtkTypeRevisionMacro(vtkShaderProgram2, vtkObject);
+  vtkTypeMacro(vtkShaderProgram2, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

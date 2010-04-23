@@ -56,7 +56,7 @@ public:
 
   // Description:
   // Standard methods for the class.
-  vtkTypeRevisionMacro(vtkSliderRepresentation2D,vtkSliderRepresentation);
+  vtkTypeMacro(vtkSliderRepresentation2D,vtkSliderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

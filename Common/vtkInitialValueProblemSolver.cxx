@@ -16,7 +16,6 @@
 
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.11");
 
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver() 
 {

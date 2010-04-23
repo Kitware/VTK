@@ -40,7 +40,7 @@ class vtkKdNode;
 class VTK_FILTERING_EXPORT vtkBSPCuts : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkBSPCuts, vtkObject);
+  vtkTypeMacro(vtkBSPCuts, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkBSPCuts *New();

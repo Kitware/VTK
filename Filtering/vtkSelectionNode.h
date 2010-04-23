@@ -59,7 +59,7 @@ class vtkTable;
 class VTK_FILTERING_EXPORT vtkSelectionNode : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkSelectionNode,vtkObject);
+  vtkTypeMacro(vtkSelectionNode,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSelectionNode* New();
 

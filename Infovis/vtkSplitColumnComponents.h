@@ -34,7 +34,7 @@ class VTK_INFOVIS_EXPORT vtkSplitColumnComponents : public vtkTableAlgorithm
 {
 public:
   static vtkSplitColumnComponents* New();
-  vtkTypeRevisionMacro(vtkSplitColumnComponents,vtkTableAlgorithm);
+  vtkTypeMacro(vtkSplitColumnComponents,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

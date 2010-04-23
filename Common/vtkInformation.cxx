@@ -41,7 +41,6 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.33");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------

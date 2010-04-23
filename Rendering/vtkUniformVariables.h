@@ -32,7 +32,7 @@ class VTK_RENDERING_EXPORT vtkUniformVariables : public vtkObject
 {
 public:
   static vtkUniformVariables *New();
-  vtkTypeRevisionMacro(vtkUniformVariables,vtkObject);
+  vtkTypeMacro(vtkUniformVariables,vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
   
   // Description:

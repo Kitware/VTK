@@ -25,7 +25,6 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(__int64);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtk__Int64Array, "1.2");
 vtkStandardNewMacro(vtk__Int64Array);
 
 //----------------------------------------------------------------------------

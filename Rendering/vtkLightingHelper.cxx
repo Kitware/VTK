@@ -22,7 +22,6 @@
 extern const char * vtkLightingHelper_s;
 
 vtkStandardNewMacro(vtkLightingHelper);
-vtkCxxRevisionMacro(vtkLightingHelper, "1.1");
 vtkCxxSetObjectMacro(vtkLightingHelper, Shader, vtkShaderProgram2);
 //----------------------------------------------------------------------------
 vtkLightingHelper::vtkLightingHelper()

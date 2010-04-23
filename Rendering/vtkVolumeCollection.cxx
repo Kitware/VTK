@@ -15,7 +15,6 @@
 #include "vtkVolumeCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeCollection, "1.8");
 vtkStandardNewMacro(vtkVolumeCollection);
 
 //----------------------------------------------------------------------------

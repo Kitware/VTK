@@ -42,7 +42,7 @@ class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorith
 {
 public:
   static vtkRecursiveDividingCubes *New();
-  vtkTypeRevisionMacro(vtkRecursiveDividingCubes,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRecursiveDividingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

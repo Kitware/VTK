@@ -109,7 +109,7 @@ class VTK_COMMON_EXPORT vtkCriticalSection : public vtkObject
 public:
   static vtkCriticalSection *New();
 
-  vtkTypeRevisionMacro(vtkCriticalSection,vtkObject);
+  vtkTypeMacro(vtkCriticalSection,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -23,7 +23,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCastToConcrete, "1.31");
 vtkStandardNewMacro(vtkCastToConcrete);
 
 int vtkCastToConcrete::RequestData(

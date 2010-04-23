@@ -30,7 +30,7 @@
 class VTK_CHARTS_EXPORT vtkColorSeries : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkColorSeries, vtkObject);
+  vtkTypeMacro(vtkColorSeries, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

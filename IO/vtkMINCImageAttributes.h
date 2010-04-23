@@ -79,7 +79,7 @@ class vtkMINCImageAttributeMap;
 class VTK_IO_EXPORT vtkMINCImageAttributes : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkMINCImageAttributes,vtkObject);
+  vtkTypeMacro(vtkMINCImageAttributes,vtkObject);
 
   static vtkMINCImageAttributes *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);

@@ -54,7 +54,7 @@ class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkBivariateStatisticsAl
 {
 public:
   static vtkExtractHistogram2D* New();
-  vtkTypeRevisionMacro(vtkExtractHistogram2D, vtkBivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkExtractHistogram2D, vtkBivariateStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

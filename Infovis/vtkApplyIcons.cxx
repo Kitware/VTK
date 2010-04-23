@@ -37,7 +37,6 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkApplyIcons, "1.1");
 vtkStandardNewMacro(vtkApplyIcons);
 
 class vtkApplyIcons::Internals {

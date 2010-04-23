@@ -22,7 +22,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkAxes, "1.45");
 vtkStandardNewMacro(vtkAxes);
 
 

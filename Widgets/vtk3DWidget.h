@@ -61,7 +61,7 @@ class vtkProp3D;
 class VTK_WIDGETS_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
-  vtkTypeRevisionMacro(vtk3DWidget,vtkInteractorObserver);
+  vtkTypeMacro(vtk3DWidget,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

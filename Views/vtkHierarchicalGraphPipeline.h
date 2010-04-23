@@ -47,7 +47,7 @@ class VTK_VIEWS_EXPORT vtkHierarchicalGraphPipeline : public vtkObject
 {
 public:
   static vtkHierarchicalGraphPipeline* New();
-  vtkTypeRevisionMacro(vtkHierarchicalGraphPipeline, vtkObject);
+  vtkTypeMacro(vtkHierarchicalGraphPipeline, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

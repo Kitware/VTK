@@ -16,7 +16,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricKlein, "1.3");
 vtkStandardNewMacro(vtkParametricKlein);
 
 //----------------------------------------------------------------------------

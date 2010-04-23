@@ -31,7 +31,7 @@ class vtkKdTree;
 class VTK_FILTERING_EXPORT vtkKdTreePointLocator : public vtkAbstractPointLocator
 {
 public:
-  vtkTypeRevisionMacro(vtkKdTreePointLocator,vtkAbstractPointLocator);
+  vtkTypeMacro(vtkKdTreePointLocator,vtkAbstractPointLocator);
   static vtkKdTreePointLocator* New();
   void PrintSelf(ostream& os, vtkIndent indent);
 

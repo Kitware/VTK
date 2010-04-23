@@ -44,7 +44,7 @@ class VTK_IMAGING_EXPORT vtkImageAccumulate : public vtkImageAlgorithm
 {
 public:
   static vtkImageAccumulate *New();
-  vtkTypeRevisionMacro(vtkImageAccumulate,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageAccumulate,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

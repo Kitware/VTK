@@ -32,7 +32,7 @@ class VTK_RENDERING_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeAlgor
 public:
   static vtkLabelSizeCalculator* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
-  vtkTypeRevisionMacro(vtkLabelSizeCalculator,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkLabelSizeCalculator,vtkPassInputTypeAlgorithm);
 
   // Description:
   // Get/Set the font used compute label sizes.

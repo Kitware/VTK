@@ -78,7 +78,7 @@ class VTK_WIDGETS_EXPORT vtkOrientationMarkerWidget : public vtkInteractorObserv
 {
 public:
   static vtkOrientationMarkerWidget* New();
-  vtkTypeRevisionMacro(vtkOrientationMarkerWidget, vtkInteractorObserver);
+  vtkTypeMacro(vtkOrientationMarkerWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

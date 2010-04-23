@@ -36,7 +36,6 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.31");
 vtkStandardNewMacro(vtkGarbageCollector);
 
 #if VTK_GARBAGE_COLLECTOR_HASH

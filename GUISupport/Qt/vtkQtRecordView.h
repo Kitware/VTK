@@ -45,7 +45,7 @@ Q_OBJECT
 
 public:
   static vtkQtRecordView *New();
-  vtkTypeRevisionMacro(vtkQtRecordView, vtkQtView);
+  vtkTypeMacro(vtkQtRecordView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -30,7 +30,6 @@
 
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkTree, "1.12");
 vtkStandardNewMacro(vtkTree);
 //----------------------------------------------------------------------------
 vtkTree::vtkTree()

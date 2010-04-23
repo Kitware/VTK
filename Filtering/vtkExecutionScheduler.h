@@ -54,7 +54,7 @@ class VTK_FILTERING_EXPORT vtkExecutionScheduler : public vtkObject
 {
 public:
   static vtkExecutionScheduler* New();
-  vtkTypeRevisionMacro(vtkExecutionScheduler,vtkObject);
+  vtkTypeMacro(vtkExecutionScheduler,vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

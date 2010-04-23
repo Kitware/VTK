@@ -33,7 +33,7 @@ class vtkUnsignedCharArray;
 class VTK_IO_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLUnstructuredDataReader,vtkXMLDataReader);
+  vtkTypeMacro(vtkXMLUnstructuredDataReader,vtkXMLDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);  
   
   // Description:

@@ -35,7 +35,7 @@
 class VTK_IO_EXPORT vtkPLYReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkPLYReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPLYReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

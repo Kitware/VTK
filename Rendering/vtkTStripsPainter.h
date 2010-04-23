@@ -23,7 +23,7 @@ class VTK_RENDERING_EXPORT vtkTStripsPainter : public vtkPrimitivePainter
 {
 public:
   static vtkTStripsPainter* New();
-  vtkTypeRevisionMacro(vtkTStripsPainter, vtkPrimitivePainter);
+  vtkTypeMacro(vtkTStripsPainter, vtkPrimitivePainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

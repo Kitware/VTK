@@ -31,7 +31,6 @@
 #include "vtkDefaultPainter.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.5");
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {

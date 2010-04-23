@@ -29,7 +29,7 @@ class VTK_RENDERING_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
 {
 public:
   static vtkQImageToImageSource *New();
-  vtkTypeRevisionMacro(vtkQImageToImageSource,vtkImageAlgorithm);
+  vtkTypeMacro(vtkQImageToImageSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

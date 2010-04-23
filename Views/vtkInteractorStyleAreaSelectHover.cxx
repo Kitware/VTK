@@ -47,7 +47,6 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleAreaSelectHover, "1.1");
 vtkStandardNewMacro(vtkInteractorStyleAreaSelectHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleAreaSelectHover, Layout, vtkAreaLayout);

@@ -70,7 +70,7 @@ class vtkTextProperty;
 class VTK_RENDERING_EXPORT vtkParallelCoordinatesActor : public vtkActor2D
 {
 public:
-  vtkTypeRevisionMacro(vtkParallelCoordinatesActor,vtkActor2D);
+  vtkTypeMacro(vtkParallelCoordinatesActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

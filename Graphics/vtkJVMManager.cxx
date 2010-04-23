@@ -46,7 +46,6 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkJVMManager);
-vtkCxxRevisionMacro(vtkJVMManager, "1.5");
 
 //----------------------------------------------------------------------------
 class vtkJVMManagerInternal

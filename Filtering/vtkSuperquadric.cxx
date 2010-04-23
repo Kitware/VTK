@@ -24,7 +24,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadric, "1.18");
 vtkStandardNewMacro(vtkSuperquadric);
 
 // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,

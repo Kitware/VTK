@@ -31,7 +31,7 @@ class VTK_IMAGING_EXPORT vtkImageMedian3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageMedian3D *New();
-  vtkTypeRevisionMacro(vtkImageMedian3D,vtkImageSpatialAlgorithm);
+  vtkTypeMacro(vtkImageMedian3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

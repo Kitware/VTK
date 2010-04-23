@@ -30,7 +30,7 @@ class vtkExecutive;
 class VTK_FILTERING_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
 {
 public:
-  vtkTypeRevisionMacro(vtkInformationExecutivePortKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationExecutivePortKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkInformationExecutivePortKey(const char* name, const char* location);

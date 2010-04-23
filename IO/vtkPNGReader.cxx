@@ -20,7 +20,6 @@
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.27");
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER

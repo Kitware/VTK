@@ -102,7 +102,7 @@ class vtkUnstructuredGrid;
 
 class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
 {
-  vtkTypeRevisionMacro(vtkDistributedDataFilter, 
+  vtkTypeMacro(vtkDistributedDataFilter,
     vtkDataObjectAlgorithm);
 
 public:

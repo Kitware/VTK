@@ -35,7 +35,6 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkMergeGraphs, "1.6");
 vtkStandardNewMacro(vtkMergeGraphs);
 //---------------------------------------------------------------------------
 vtkMergeGraphs::vtkMergeGraphs()

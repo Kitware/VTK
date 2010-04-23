@@ -50,7 +50,7 @@ class vtkUnsignedCharArray;
 class VTK_PARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractCTHPart,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

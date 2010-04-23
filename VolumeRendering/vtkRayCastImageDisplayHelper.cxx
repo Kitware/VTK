@@ -15,7 +15,6 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkRayCastImageDisplayHelper, "1.5");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

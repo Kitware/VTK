@@ -30,7 +30,7 @@ class vtkUnstructuredGrid;
 class VTK_FILTERING_EXPORT vtkUnstructuredGridSource : public vtkSource
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridSource,vtkSource);
+  vtkTypeMacro(vtkUnstructuredGridSource,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -80,7 +80,7 @@ class vtkStringArray;
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkSQLDatabase, vtkObject);
+  vtkTypeMacro(vtkSQLDatabase, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

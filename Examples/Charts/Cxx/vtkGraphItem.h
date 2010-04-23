@@ -30,7 +30,7 @@ class vtkGraph;
 class vtkGraphItem : public vtkContextItem
 {
 public:
-  vtkTypeRevisionMacro(vtkGraphItem, vtkContextItem);
+  vtkTypeMacro(vtkGraphItem, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkGraphItem *New();

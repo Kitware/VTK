@@ -53,7 +53,7 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     // Description:
     // Standard Type-Macro
     static vtkTemporalPathLineFilter *New();
-    vtkTypeRevisionMacro(vtkTemporalPathLineFilter,vtkPolyDataAlgorithm);
+    vtkTypeMacro(vtkTemporalPathLineFilter,vtkPolyDataAlgorithm);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:

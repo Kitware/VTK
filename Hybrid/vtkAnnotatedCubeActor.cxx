@@ -31,7 +31,6 @@
 #include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 
-vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.6");
 vtkStandardNewMacro(vtkAnnotatedCubeActor);
 
 //-------------------------------------------------------------------------

@@ -26,7 +26,7 @@ class VTK_IO_EXPORT vtkXMLMultiGroupDataReader : public vtkXMLMultiBlockDataRead
 {
 public:
   static vtkXMLMultiGroupDataReader* New();
-  vtkTypeRevisionMacro(vtkXMLMultiGroupDataReader,vtkXMLMultiBlockDataReader);
+  vtkTypeMacro(vtkXMLMultiGroupDataReader,vtkXMLMultiBlockDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

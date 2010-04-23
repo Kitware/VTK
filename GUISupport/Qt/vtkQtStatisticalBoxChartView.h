@@ -34,7 +34,7 @@ Q_OBJECT
 
 public:
   static vtkQtStatisticalBoxChartView *New();
-  vtkTypeRevisionMacro(vtkQtStatisticalBoxChartView, vtkQtChartView);
+  vtkTypeMacro(vtkQtStatisticalBoxChartView, vtkQtChartView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

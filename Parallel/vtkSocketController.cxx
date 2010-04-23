@@ -26,7 +26,6 @@
 
 int vtkSocketController::Initialized = 0;
 
-vtkCxxRevisionMacro(vtkSocketController, "1.15");
 vtkStandardNewMacro(vtkSocketController);
 
 //----------------------------------------------------------------------------

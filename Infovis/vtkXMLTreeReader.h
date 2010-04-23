@@ -92,7 +92,7 @@ class VTK_INFOVIS_EXPORT vtkXMLTreeReader : public vtkTreeAlgorithm
 {
 public:
   static vtkXMLTreeReader* New();
-  vtkTypeRevisionMacro(vtkXMLTreeReader,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkXMLTreeReader,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

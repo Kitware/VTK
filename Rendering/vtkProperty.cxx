@@ -52,7 +52,6 @@ public:
   MapOfTextureNames TextureNames;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.78");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

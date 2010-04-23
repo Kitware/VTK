@@ -34,7 +34,7 @@ class vtkMergePoints;
 class VTK_GRAPHICS_EXPORT vtkEdgePoints : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkEdgePoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkEdgePoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

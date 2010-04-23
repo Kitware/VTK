@@ -17,7 +17,6 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayCollection.h"
 
-vtkCxxRevisionMacro(vtkDataArrayCollectionIterator, "1.3");
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
 //----------------------------------------------------------------------------

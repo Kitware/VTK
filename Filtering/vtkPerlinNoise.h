@@ -34,7 +34,7 @@
 class VTK_FILTERING_EXPORT vtkPerlinNoise : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkPerlinNoise,vtkImplicitFunction);
+  vtkTypeMacro(vtkPerlinNoise,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

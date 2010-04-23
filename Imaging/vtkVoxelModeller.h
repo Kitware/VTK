@@ -33,7 +33,7 @@
 class VTK_IMAGING_EXPORT vtkVoxelModeller : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkVoxelModeller,vtkImageAlgorithm);
+  vtkTypeMacro(vtkVoxelModeller,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

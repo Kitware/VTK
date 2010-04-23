@@ -16,7 +16,6 @@
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey

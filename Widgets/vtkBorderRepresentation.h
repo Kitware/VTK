@@ -58,7 +58,7 @@ public:
 
   // Description:
   // Define standard methods.
-  vtkTypeRevisionMacro(vtkBorderRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkBorderRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

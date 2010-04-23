@@ -56,7 +56,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGrid : public vtkPointSet
 public:
   static vtkStructuredGrid *New();
 
-  vtkTypeRevisionMacro(vtkStructuredGrid,vtkPointSet);
+  vtkTypeMacro(vtkStructuredGrid,vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent);
  
   // Description:

@@ -33,7 +33,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractBlock : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExtractBlock* New();
-  vtkTypeRevisionMacro(vtkExtractBlock, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractBlock, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

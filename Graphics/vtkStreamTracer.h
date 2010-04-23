@@ -93,7 +93,7 @@ class vtkAbstractInterpolatedVelocityField;
 class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStreamTracer,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkStreamTracer,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

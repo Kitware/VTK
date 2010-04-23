@@ -32,7 +32,7 @@ public:
   // Description:
   // Standard methods for instantiation, obtaining type and printing instance values.
   static vtkRegularPolygonSource *New();
-  vtkTypeRevisionMacro(vtkRegularPolygonSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRegularPolygonSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

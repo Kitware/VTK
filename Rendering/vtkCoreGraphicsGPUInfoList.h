@@ -31,7 +31,7 @@ class VTK_RENDERING_EXPORT vtkCoreGraphicsGPUInfoList : public vtkGPUInfoList
 {
 public:
   static vtkCoreGraphicsGPUInfoList* New();
-  vtkTypeRevisionMacro(vtkCoreGraphicsGPUInfoList, vtkGPUInfoList);
+  vtkTypeMacro(vtkCoreGraphicsGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -49,7 +49,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkArrayData.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.8");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in

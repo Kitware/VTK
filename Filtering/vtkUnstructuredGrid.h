@@ -69,7 +69,7 @@ class VTK_FILTERING_EXPORT vtkUnstructuredGrid : public vtkPointSet
 public:
   static vtkUnstructuredGrid *New();
 
-  vtkTypeRevisionMacro(vtkUnstructuredGrid,vtkPointSet);
+  vtkTypeMacro(vtkUnstructuredGrid,vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

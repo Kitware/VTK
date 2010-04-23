@@ -15,7 +15,6 @@
 #include "vtkCylinder.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCylinder, "1.27");
 vtkStandardNewMacro(vtkCylinder);
 
 // Construct cylinder radius of 0.5.

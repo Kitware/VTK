@@ -37,7 +37,7 @@ class VTK_GRAPHICS_EXPORT vtkPolyDataStreamer : public vtkPolyDataAlgorithm
 public:
   static vtkPolyDataStreamer *New();
 
-  vtkTypeRevisionMacro(vtkPolyDataStreamer,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataStreamer,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

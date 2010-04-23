@@ -40,7 +40,7 @@ class VTK_GEOVIS_EXPORT vtkGeoAlignedImageSource : public vtkGeoSource
 {
 public:
   static vtkGeoAlignedImageSource *New();
-  vtkTypeRevisionMacro(vtkGeoAlignedImageSource, vtkGeoSource);
+  vtkTypeMacro(vtkGeoAlignedImageSource, vtkGeoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

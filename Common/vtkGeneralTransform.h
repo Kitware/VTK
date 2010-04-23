@@ -35,7 +35,7 @@ class VTK_COMMON_EXPORT vtkGeneralTransform : public vtkAbstractTransform
 public:
   static vtkGeneralTransform *New();
 
-  vtkTypeRevisionMacro(vtkGeneralTransform,vtkAbstractTransform);
+  vtkTypeMacro(vtkGeneralTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

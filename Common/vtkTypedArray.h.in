@@ -27,7 +27,7 @@ class VTK_COMMON_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtk@VTK_TYPE_NATIVE
 {
 public:
   static vtkType@VTK_TYPE_NAME@Array* New();
-  vtkTypeRevisionMacro(vtkType@VTK_TYPE_NAME@Array,vtk@VTK_TYPE_NATIVE@Array);
+  vtkTypeMacro(vtkType@VTK_TYPE_NAME@Array,vtk@VTK_TYPE_NATIVE@Array);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

@@ -30,7 +30,7 @@
 class VTK_IO_EXPORT vtkXMLStructuredDataReader : public vtkXMLDataReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLStructuredDataReader,vtkXMLDataReader);
+  vtkTypeMacro(vtkXMLStructuredDataReader,vtkXMLDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);  
   
   // Description:

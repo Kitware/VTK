@@ -42,7 +42,7 @@ class vtkPlanesIntersection;
 class VTK_FILTERING_EXPORT vtkOctreePointLocatorNode : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkOctreePointLocatorNode, vtkObject);
+  vtkTypeMacro(vtkOctreePointLocatorNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkOctreePointLocatorNode *New();

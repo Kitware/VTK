@@ -23,7 +23,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.120");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

@@ -38,7 +38,6 @@
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
 
 vtkStandardNewMacro(vtkImageDataLIC2D);
-vtkCxxRevisionMacro(vtkImageDataLIC2D, "1.5");
 //----------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {

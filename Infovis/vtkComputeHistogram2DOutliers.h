@@ -58,7 +58,7 @@ class VTK_INFOVIS_EXPORT vtkComputeHistogram2DOutliers : public vtkSelectionAlgo
 {
 public:
   static vtkComputeHistogram2DOutliers* New();
-  vtkTypeRevisionMacro(vtkComputeHistogram2DOutliers, vtkSelectionAlgorithm);
+  vtkTypeMacro(vtkComputeHistogram2DOutliers, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkSetMacro(PreferredNumberOfOutliers,int);

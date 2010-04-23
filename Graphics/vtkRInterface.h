@@ -52,7 +52,7 @@ class VTK_GRAPHICS_EXPORT vtkRInterface : public vtkObject
 public:
 
   static vtkRInterface* New();
-  vtkTypeRevisionMacro(vtkRInterface,vtkObject);
+  vtkTypeMacro(vtkRInterface,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

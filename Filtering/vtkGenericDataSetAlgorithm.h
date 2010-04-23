@@ -43,7 +43,7 @@ class vtkGenericDataSet;
 class VTK_FILTERING_EXPORT vtkGenericDataSetAlgorithm : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericDataSetAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkGenericDataSetAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

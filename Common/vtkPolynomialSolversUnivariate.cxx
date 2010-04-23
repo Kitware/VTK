@@ -41,7 +41,6 @@
 
 #define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.15");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );

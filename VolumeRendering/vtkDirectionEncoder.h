@@ -37,7 +37,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkDirectionEncoder : public vtkObject
 public:
   // Description:
   // Get the name of this class
-  vtkTypeRevisionMacro(vtkDirectionEncoder,vtkObject);
+  vtkTypeMacro(vtkDirectionEncoder,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -28,7 +28,7 @@
 class VTK_RENDERING_EXPORT vtkScaledTextActor : public vtkTextActor
 {
 public:
-  vtkTypeRevisionMacro(vtkScaledTextActor,vtkTextActor);
+  vtkTypeMacro(vtkScaledTextActor,vtkTextActor);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

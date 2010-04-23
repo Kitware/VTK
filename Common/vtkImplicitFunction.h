@@ -54,7 +54,7 @@ class vtkAbstractTransform;
 class VTK_COMMON_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitFunction,vtkObject);
+  vtkTypeMacro(vtkImplicitFunction,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

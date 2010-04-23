@@ -38,7 +38,7 @@ class vtkSelection;
 class VTK_FILTERING_EXPORT vtkAnnotationLayers : public vtkDataObject
 {
 public:
-  vtkTypeRevisionMacro(vtkAnnotationLayers, vtkDataObject);
+  vtkTypeMacro(vtkAnnotationLayers, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkAnnotationLayers* New();
 

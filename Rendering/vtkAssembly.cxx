@@ -22,7 +22,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.60");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.

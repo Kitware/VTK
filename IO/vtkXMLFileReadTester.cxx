@@ -15,7 +15,6 @@
 #include "vtkXMLFileReadTester.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMLFileReadTester, "1.3");
 vtkStandardNewMacro(vtkXMLFileReadTester);
 
 //----------------------------------------------------------------------------

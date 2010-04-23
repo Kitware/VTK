@@ -39,7 +39,7 @@ class VTK_HYBRID_EXPORT vtkX3DExporter : public vtkExporter
 {
 public:
   static vtkX3DExporter *New();
-  vtkTypeRevisionMacro(vtkX3DExporter,vtkExporter);
+  vtkTypeMacro(vtkX3DExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,6 @@
 #include "vtkExecutiveCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExecutiveCollection, "1.1");
 vtkStandardNewMacro(vtkExecutiveCollection);
 
 //----------------------------------------------------------------------------

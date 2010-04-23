@@ -99,7 +99,7 @@ class VTK_RENDERING_EXPORT vtkLightKit : public vtkObject
 {
 public:
   static vtkLightKit *New();
-  vtkTypeRevisionMacro(vtkLightKit, vtkObject);
+  vtkTypeMacro(vtkLightKit, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

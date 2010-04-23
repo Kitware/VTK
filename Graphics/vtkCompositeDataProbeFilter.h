@@ -42,7 +42,7 @@ class VTK_GRAPHICS_EXPORT vtkCompositeDataProbeFilter : public vtkProbeFilter
 {
 public:
   static vtkCompositeDataProbeFilter* New();
-  vtkTypeRevisionMacro(vtkCompositeDataProbeFilter, vtkProbeFilter);
+  vtkTypeMacro(vtkCompositeDataProbeFilter, vtkProbeFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

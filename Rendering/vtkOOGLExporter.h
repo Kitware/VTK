@@ -34,7 +34,7 @@ class VTK_RENDERING_EXPORT vtkOOGLExporter : public vtkExporter
 {
 public:
   static vtkOOGLExporter *New();
-  vtkTypeRevisionMacro(vtkOOGLExporter,vtkExporter);
+  vtkTypeMacro(vtkOOGLExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

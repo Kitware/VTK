@@ -50,7 +50,7 @@ class vtkPiecewiseFunction;
 class VTK_RENDERING_EXPORT vtkTupleInterpolator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkTupleInterpolator, vtkObject);
+  vtkTypeMacro(vtkTupleInterpolator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

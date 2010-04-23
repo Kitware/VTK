@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.111");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------

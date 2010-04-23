@@ -24,7 +24,6 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.7");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 //----------------------------------------------------------------------------

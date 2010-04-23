@@ -65,7 +65,7 @@ class VTK_FILTERING_EXPORT vtkSimpleCellTessellator : public vtkGenericCellTesse
 {
 public:
   static vtkSimpleCellTessellator *New();
-  vtkTypeRevisionMacro(vtkSimpleCellTessellator,vtkGenericCellTessellator);
+  vtkTypeMacro(vtkSimpleCellTessellator,vtkGenericCellTessellator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

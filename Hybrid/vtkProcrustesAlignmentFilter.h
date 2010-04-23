@@ -59,7 +59,7 @@ class vtkPoints;
 class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkPointSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkProcrustesAlignmentFilter,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkProcrustesAlignmentFilter,vtkPointSetAlgorithm);
 
   // Description:
   // Prints information about the state of the filter.

@@ -71,7 +71,7 @@ class VTK_GRAPHICS_JAVA_EXPORT vtkJVMManager : public vtkObject
 {
 public:
   static vtkJVMManager *New();
-  vtkTypeRevisionMacro(vtkJVMManager,vtkObject);
+  vtkTypeMacro(vtkJVMManager,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

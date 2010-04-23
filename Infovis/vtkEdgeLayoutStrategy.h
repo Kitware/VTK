@@ -32,7 +32,7 @@ class vtkGraph;
 class VTK_INFOVIS_EXPORT vtkEdgeLayoutStrategy : public vtkObject 
 {
 public:
-  vtkTypeRevisionMacro(vtkEdgeLayoutStrategy,vtkObject);
+  vtkTypeMacro(vtkEdgeLayoutStrategy,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

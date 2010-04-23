@@ -40,7 +40,6 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.14");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 

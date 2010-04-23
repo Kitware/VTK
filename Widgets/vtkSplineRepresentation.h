@@ -48,7 +48,7 @@ class VTK_WIDGETS_EXPORT vtkSplineRepresentation : public vtkWidgetRepresentatio
 {
 public:
   static vtkSplineRepresentation* New();
-  vtkTypeRevisionMacro(vtkSplineRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkSplineRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 //BTX
   // Used to manage the InteractionState of the widget

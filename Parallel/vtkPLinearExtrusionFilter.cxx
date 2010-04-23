@@ -20,7 +20,6 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPLinearExtrusionFilter, "1.6");
 vtkStandardNewMacro(vtkPLinearExtrusionFilter);
 
 //----------------------------------------------------------------------------

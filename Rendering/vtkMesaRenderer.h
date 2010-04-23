@@ -30,7 +30,7 @@ protected:
 
 public:
   static vtkMesaRenderer *New();
-  vtkTypeRevisionMacro(vtkMesaRenderer,vtkRenderer);
+  vtkTypeMacro(vtkMesaRenderer,vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

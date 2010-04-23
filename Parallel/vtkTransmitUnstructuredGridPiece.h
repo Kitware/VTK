@@ -31,7 +31,7 @@ class VTK_PARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructu
 {
 public:
   static vtkTransmitUnstructuredGridPiece *New();
-  vtkTypeRevisionMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -33,7 +33,6 @@
 #include "vtkTableToGraph.h"
 #include "vtkUndirectedGraph.h"
 
-vtkCxxRevisionMacro(vtkSQLGraphReader, "1.3");
 vtkStandardNewMacro(vtkSQLGraphReader);
 
 vtkSQLGraphReader::vtkSQLGraphReader()

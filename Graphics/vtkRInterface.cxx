@@ -32,7 +32,6 @@
 #include "vtkDataArray.h"
 #include "vtkRAdapter.h"
 
-vtkCxxRevisionMacro(vtkRInterface, "1.7");
 vtkStandardNewMacro(vtkRInterface);
 
 #include "R.h"

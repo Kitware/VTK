@@ -61,7 +61,7 @@ class VTK_INFOVIS_EXPORT vtkSQLGraphReader : public vtkGraphAlgorithm
 {
 public:
   static vtkSQLGraphReader* New();
-  vtkTypeRevisionMacro(vtkSQLGraphReader,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkSQLGraphReader,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

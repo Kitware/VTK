@@ -31,7 +31,6 @@
 #include "vtkQtChartWidget.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkQtBarChartView, "1.6");
 vtkStandardNewMacro(vtkQtBarChartView);
 
 //----------------------------------------------------------------------------

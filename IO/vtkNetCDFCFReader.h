@@ -40,7 +40,7 @@ class vtkStructuredGrid;
 class VTK_IO_EXPORT vtkNetCDFCFReader : public vtkNetCDFReader
 {
 public:
-  vtkTypeRevisionMacro(vtkNetCDFCFReader, vtkNetCDFReader);
+  vtkTypeMacro(vtkNetCDFCFReader, vtkNetCDFReader);
   static vtkNetCDFCFReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

@@ -30,7 +30,7 @@ class VTK_FILTERING_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
   static vtkMergePoints *New();
-  vtkTypeRevisionMacro(vtkMergePoints,vtkPointLocator);
+  vtkTypeMacro(vtkMergePoints,vtkPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

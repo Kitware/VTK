@@ -26,7 +26,6 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.70");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 

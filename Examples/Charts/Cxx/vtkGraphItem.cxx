@@ -36,7 +36,6 @@
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraphItem, Graph, vtkGraph);
-vtkCxxRevisionMacro(vtkGraphItem, "1.2");
 vtkStandardNewMacro(vtkGraphItem);
 
 class vtkGraphItem::Implementation

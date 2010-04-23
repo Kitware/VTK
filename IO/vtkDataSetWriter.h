@@ -27,7 +27,7 @@ class VTK_IO_EXPORT vtkDataSetWriter : public vtkDataWriter
 {
 public:
   static vtkDataSetWriter *New();
-  vtkTypeRevisionMacro(vtkDataSetWriter,vtkDataWriter);
+  vtkTypeMacro(vtkDataSetWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

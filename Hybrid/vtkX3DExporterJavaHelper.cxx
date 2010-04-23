@@ -19,7 +19,6 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterJavaHelper);
-vtkCxxRevisionMacro(vtkX3DExporterJavaHelper, "1.1");
 
 //----------------------------------------------------------------------------
 void vtkX3DExporterJavaHelper::SetFastInfosetJarLocation(const char* location)

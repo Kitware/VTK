@@ -33,7 +33,7 @@ class vtkPolyData;
 class VTK_IO_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLPolyDataReader,vtkXMLUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLPolyDataReader,vtkXMLUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);  
   static vtkXMLPolyDataReader *New();
   

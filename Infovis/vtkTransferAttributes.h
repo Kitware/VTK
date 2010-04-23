@@ -50,7 +50,7 @@ public:
   // TargetFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS
   static vtkTransferAttributes *New();
   
-  vtkTypeRevisionMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

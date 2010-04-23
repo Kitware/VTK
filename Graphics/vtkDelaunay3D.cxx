@@ -28,7 +28,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.76");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 // Structure used to represent sphere around tetrahedron

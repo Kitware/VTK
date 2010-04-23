@@ -154,7 +154,7 @@ class vtkPBGLDistributedGraphHelperInternals : public vtkObject
 {
 public:
   static vtkPBGLDistributedGraphHelperInternals *New();
-  vtkTypeRevisionMacro(vtkPBGLDistributedGraphHelperInternals, vtkObject);
+  vtkTypeMacro(vtkPBGLDistributedGraphHelperInternals, vtkObject);
 
   // Description:
   // Handle a FIND_VERTEX_TAG message.
@@ -238,12 +238,10 @@ boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.15");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.15");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------

@@ -52,7 +52,6 @@ namespace
 class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.19");
 
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.

@@ -16,7 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataLevelFilter, "1.2");
 vtkStandardNewMacro(vtkHierarchicalDataLevelFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated

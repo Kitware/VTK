@@ -43,7 +43,6 @@
 #include "vtkTransformFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkRenderedSurfaceRepresentation, "1.7");
 vtkStandardNewMacro(vtkRenderedSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()

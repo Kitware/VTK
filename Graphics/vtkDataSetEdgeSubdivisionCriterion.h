@@ -43,7 +43,7 @@ class vtkDataSet;
 class VTK_GRAPHICS_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSubdivisionCriterion
 {
   public:
-    vtkTypeRevisionMacro(vtkDataSetEdgeSubdivisionCriterion,vtkEdgeSubdivisionCriterion);
+    vtkTypeMacro(vtkDataSetEdgeSubdivisionCriterion,vtkEdgeSubdivisionCriterion);
     static vtkDataSetEdgeSubdivisionCriterion* New();
     virtual void PrintSelf( ostream& os, vtkIndent indent );
 

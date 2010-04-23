@@ -43,7 +43,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractGrid : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkExtractGrid *New();
-  vtkTypeRevisionMacro(vtkExtractGrid,vtkStructuredGridAlgorithm);
+  vtkTypeMacro(vtkExtractGrid,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

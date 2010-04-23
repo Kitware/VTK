@@ -42,7 +42,7 @@ class VTK_FILTERING_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkPiecewiseFunction *New();
-  vtkTypeRevisionMacro(vtkPiecewiseFunction,vtkDataObject);
+  vtkTypeMacro(vtkPiecewiseFunction,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void DeepCopy( vtkDataObject *f );

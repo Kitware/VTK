@@ -52,7 +52,7 @@ class VTK_GRAPHICS_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
   static vtkSliceCubes *New();
-  vtkTypeRevisionMacro(vtkSliceCubes,vtkObject);
+  vtkTypeMacro(vtkSliceCubes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // methods to make it look like a filter

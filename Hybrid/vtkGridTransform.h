@@ -38,7 +38,7 @@ class VTK_HYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 {
 public:
   static vtkGridTransform *New();
-  vtkTypeRevisionMacro(vtkGridTransform,vtkWarpTransform);
+  vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -20,7 +20,6 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.42");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------

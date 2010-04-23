@@ -17,7 +17,7 @@ class VTK_vtkLocal_EXPORT vtkLocalExample : public vtkObject
 {
 public:
   static vtkLocalExample* New();
-  vtkTypeRevisionMacro(vtkLocalExample, vtkObject);
+  vtkTypeMacro(vtkLocalExample, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

@@ -60,7 +60,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.55")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 

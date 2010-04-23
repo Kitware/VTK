@@ -30,7 +30,7 @@ class VTK_FILTERING_EXPORT vtkTemporalDataSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkTemporalDataSetAlgorithm *New();
-  vtkTypeRevisionMacro(vtkTemporalDataSetAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkTemporalDataSetAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

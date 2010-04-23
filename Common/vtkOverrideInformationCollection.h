@@ -29,7 +29,7 @@
 class VTK_COMMON_EXPORT vtkOverrideInformationCollection : public vtkCollection
 {
 public:
-  vtkTypeRevisionMacro(vtkOverrideInformationCollection,vtkCollection);
+  vtkTypeMacro(vtkOverrideInformationCollection,vtkCollection);
   static vtkOverrideInformationCollection *New();
 
   // Description:

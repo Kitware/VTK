@@ -17,7 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkAnimationCue, "1.8");
 vtkStandardNewMacro(vtkAnimationCue);
 
 //----------------------------------------------------------------------------

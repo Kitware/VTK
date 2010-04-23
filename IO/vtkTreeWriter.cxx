@@ -26,7 +26,6 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkTreeWriter, "1.4");
 vtkStandardNewMacro(vtkTreeWriter);
 
 void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex)

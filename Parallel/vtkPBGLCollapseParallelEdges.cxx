@@ -39,7 +39,6 @@
 #include <vtksys/stl/map>
 #include <vtksys/stl/utility> // for pair
 
-vtkCxxRevisionMacro(vtkPBGLCollapseParallelEdges, "1.1");
 vtkStandardNewMacro(vtkPBGLCollapseParallelEdges);
 
 vtkPBGLCollapseParallelEdges::vtkPBGLCollapseParallelEdges()

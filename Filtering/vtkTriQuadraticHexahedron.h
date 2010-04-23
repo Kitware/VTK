@@ -79,7 +79,7 @@ class VTK_FILTERING_EXPORT vtkTriQuadraticHexahedron : public vtkNonLinearCell
 {
 public:
   static vtkTriQuadraticHexahedron *New ();
-  vtkTypeRevisionMacro (vtkTriQuadraticHexahedron, vtkNonLinearCell);
+  vtkTypeMacro(vtkTriQuadraticHexahedron,vtkNonLinearCell);
   void PrintSelf (ostream & os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,7 @@ class vtkPen;
 class VTK_CHARTS_EXPORT vtkLineMark : public vtkMark
 {
 public:
-  vtkTypeRevisionMacro(vtkLineMark, vtkMark);
+  vtkTypeMacro(vtkLineMark, vtkMark);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkLineMark* New();
 

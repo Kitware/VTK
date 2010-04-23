@@ -38,7 +38,7 @@ class VTK_HYBRID_EXPORT vtkVectorText : public vtkPolyDataAlgorithm
 {
 public:
   static vtkVectorText *New();
-  vtkTypeRevisionMacro(vtkVectorText,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkVectorText,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

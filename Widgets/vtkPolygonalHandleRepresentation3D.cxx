@@ -25,7 +25,6 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.11");
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 //----------------------------------------------------------------------

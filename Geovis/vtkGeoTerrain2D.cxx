@@ -27,7 +27,6 @@
 #include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkGeoTerrain2D);
-vtkCxxRevisionMacro(vtkGeoTerrain2D, "1.5");
 //----------------------------------------------------------------------------
 vtkGeoTerrain2D::vtkGeoTerrain2D()
 {

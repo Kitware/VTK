@@ -41,7 +41,7 @@ class VTK_HYBRID_EXPORT vtkDSPFilterGroup : public vtkObject
 {
 public:
   static vtkDSPFilterGroup *New();
-  vtkTypeRevisionMacro(vtkDSPFilterGroup,vtkObject);
+  vtkTypeMacro(vtkDSPFilterGroup,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

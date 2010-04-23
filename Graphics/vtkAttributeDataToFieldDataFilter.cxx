@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAttributeDataToFieldDataFilter, "1.19");
 vtkStandardNewMacro(vtkAttributeDataToFieldDataFilter);
 
 // Instantiate object.

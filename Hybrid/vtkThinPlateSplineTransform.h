@@ -46,7 +46,7 @@
 class VTK_HYBRID_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 {
 public:
-  vtkTypeRevisionMacro(vtkThinPlateSplineTransform,vtkWarpTransform);
+  vtkTypeMacro(vtkThinPlateSplineTransform,vtkWarpTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkThinPlateSplineTransform *New();
 

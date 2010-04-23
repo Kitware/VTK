@@ -54,7 +54,7 @@ class VTK_RENDERING_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMa
 {
 public:
   static vtkLabeledTreeMapDataMapper *New();
-  vtkTypeRevisionMacro(vtkLabeledTreeMapDataMapper,vtkLabeledDataMapper);
+  vtkTypeMacro(vtkLabeledTreeMapDataMapper,vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

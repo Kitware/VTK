@@ -30,7 +30,7 @@ class VTK_PARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
 {
 public:
   static vtkPImageWriter *New();
-  vtkTypeRevisionMacro(vtkPImageWriter,vtkImageWriter);
+  vtkTypeMacro(vtkPImageWriter,vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent);  
 
   // Description:

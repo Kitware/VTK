@@ -33,7 +33,7 @@ class vtkRenderer;
 class VTK_RENDERING_EXPORT vtkCuller : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkCuller,vtkObject);
+  vtkTypeMacro(vtkCuller,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

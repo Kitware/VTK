@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkHierarchicalDataSetGeometryFilter :
 {
 public:
   static vtkHierarchicalDataSetGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkHierarchicalDataSetGeometryFilter,
+  vtkTypeMacro(vtkHierarchicalDataSetGeometryFilter,
     vtkCompositeDataGeometryFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 

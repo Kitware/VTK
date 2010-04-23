@@ -51,7 +51,7 @@ class vtkDataSet;
 class VTK_GRAPHICS_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDataSetToDataObjectFilter,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkDataSetToDataObjectFilter,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

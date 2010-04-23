@@ -62,7 +62,7 @@ class VTK_GRAPHICS_JAVA_EXPORT vtkJavaProgrammableFilter : public vtkAlgorithm
 {
 public:
   static vtkJavaProgrammableFilter* New();
-  vtkTypeRevisionMacro(vtkJavaProgrammableFilter, vtkAlgorithm);
+  vtkTypeMacro(vtkJavaProgrammableFilter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

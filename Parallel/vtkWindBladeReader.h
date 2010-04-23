@@ -57,7 +57,7 @@ class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkWindBladeReader *New();
-  vtkTypeRevisionMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
+  vtkTypeMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   vtkSetStringMacro(Filename);

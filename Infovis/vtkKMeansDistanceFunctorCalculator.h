@@ -27,7 +27,7 @@ class VTK_INFOVIS_EXPORT vtkKMeansDistanceFunctorCalculator : public vtkKMeansDi
 {
 public:
   static vtkKMeansDistanceFunctorCalculator* New();
-  vtkTypeRevisionMacro(vtkKMeansDistanceFunctorCalculator,vtkKMeansDistanceFunctor);
+  vtkTypeMacro(vtkKMeansDistanceFunctorCalculator,vtkKMeansDistanceFunctor);
   virtual void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:

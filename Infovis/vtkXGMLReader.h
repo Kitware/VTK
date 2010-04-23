@@ -37,7 +37,7 @@ class VTK_INFOVIS_EXPORT vtkXGMLReader : public vtkUndirectedGraphAlgorithm
 {
 public:
   static vtkXGMLReader *New();
-  vtkTypeRevisionMacro(vtkXGMLReader, vtkUndirectedGraphAlgorithm);
+  vtkTypeMacro(vtkXGMLReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

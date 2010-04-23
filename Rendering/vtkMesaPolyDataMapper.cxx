@@ -48,5 +48,4 @@
 #undef vtkOpenGLPolyDataMapperDrawLines
 #undef vtkOpenGLPolyDataMapper
 
-vtkCxxRevisionMacro(vtkMesaPolyDataMapper, "1.14");
 vtkStandardNewMacro(vtkMesaPolyDataMapper);

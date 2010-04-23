@@ -50,7 +50,7 @@ class vtkCellArray;
 class VTK_GRAPHICS_EXPORT vtkGlyphSource2D : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkGlyphSource2D,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGlyphSource2D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

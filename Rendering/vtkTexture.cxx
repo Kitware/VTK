@@ -25,7 +25,6 @@
 #include "vtkPointData.h"
 
 
-vtkCxxRevisionMacro(vtkTexture, "1.65");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

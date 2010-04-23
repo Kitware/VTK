@@ -31,7 +31,7 @@
 class VTK_VOLUMERENDERING_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
-  vtkTypeRevisionMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
+  vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
   void PrintSelf( ostream& os, vtkIndent indent );
 
 // Description:

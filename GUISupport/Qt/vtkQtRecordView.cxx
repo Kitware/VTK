@@ -37,7 +37,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkQtRecordView, "1.11");
 vtkStandardNewMacro(vtkQtRecordView);
 
 //----------------------------------------------------------------------------

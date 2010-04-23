@@ -47,7 +47,6 @@ public:
 };
 
 vtkStandardNewMacro(vtkExtractDataSets);
-vtkCxxRevisionMacro(vtkExtractDataSets, "1.1");
 //----------------------------------------------------------------------------
 vtkExtractDataSets::vtkExtractDataSets()
 {

@@ -29,7 +29,7 @@ class vtkSelection;
 class VTK_GRAPHICS_EXPORT vtkExtractSelectedPolyDataIds : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedPolyDataIds,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkExtractSelectedPolyDataIds,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkExtractSelectedPolyDataIds *New();
 

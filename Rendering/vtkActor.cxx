@@ -31,7 +31,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.144");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);

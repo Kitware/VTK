@@ -46,7 +46,7 @@ class VTK_WIDGETS_EXPORT vtkAffineRepresentation : public vtkWidgetRepresentatio
 public:
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkAffineRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkAffineRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

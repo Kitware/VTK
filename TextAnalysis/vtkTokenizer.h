@@ -81,7 +81,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkTokenizer :
 {
 public:
   static vtkTokenizer* New();
-  vtkTypeRevisionMacro(vtkTokenizer, vtkTableAlgorithm);
+  vtkTypeMacro(vtkTokenizer, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

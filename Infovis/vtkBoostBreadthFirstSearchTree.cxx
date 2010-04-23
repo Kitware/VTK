@@ -44,7 +44,6 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.10");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 

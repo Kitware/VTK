@@ -25,7 +25,6 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.49");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 

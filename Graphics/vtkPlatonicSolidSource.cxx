@@ -22,7 +22,6 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.6");
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 
 // The geometry and topology of each solid. Solids are centered at

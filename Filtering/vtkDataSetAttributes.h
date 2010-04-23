@@ -52,7 +52,7 @@ public:
   // Construct object with copying turned on for all data.
   static vtkDataSetAttributes *New();
   
-  vtkTypeRevisionMacro(vtkDataSetAttributes,vtkFieldData);
+  vtkTypeMacro(vtkDataSetAttributes,vtkFieldData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

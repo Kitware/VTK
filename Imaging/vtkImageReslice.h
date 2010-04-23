@@ -68,7 +68,7 @@ class VTK_IMAGING_EXPORT vtkImageReslice : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageReslice *New();
-  vtkTypeRevisionMacro(vtkImageReslice, vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageReslice, vtkThreadedImageAlgorithm);
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 

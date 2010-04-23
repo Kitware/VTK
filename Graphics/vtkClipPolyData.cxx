@@ -32,7 +32,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipPolyData, "1.61");
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData,ClipFunction,vtkImplicitFunction);
 

@@ -37,7 +37,7 @@ class VTK_RENDERING_EXPORT vtkFrameBufferObject : public vtkObject
 {
 public:
   static vtkFrameBufferObject* New();
-  vtkTypeRevisionMacro(vtkFrameBufferObject, vtkObject);
+  vtkTypeMacro(vtkFrameBufferObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

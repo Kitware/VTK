@@ -36,7 +36,7 @@ class VTK_WIDGETS_EXPORT vtkContinuousValueWidgetRepresentation :
 public:
   // Description:
   // Standard methods for the class.
-  vtkTypeRevisionMacro(vtkContinuousValueWidgetRepresentation,
+  vtkTypeMacro(vtkContinuousValueWidgetRepresentation,
                        vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   

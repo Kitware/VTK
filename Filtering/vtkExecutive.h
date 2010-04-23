@@ -42,7 +42,7 @@ class vtkInformationVector;
 class VTK_FILTERING_EXPORT vtkExecutive : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkExecutive,vtkObject);
+  vtkTypeMacro(vtkExecutive,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

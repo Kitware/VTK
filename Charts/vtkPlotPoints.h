@@ -32,7 +32,7 @@ class vtkStdString;
 class VTK_CHARTS_EXPORT vtkPlotPoints : public vtkPlot
 {
 public:
-  vtkTypeRevisionMacro(vtkPlotPoints, vtkPlot);
+  vtkTypeMacro(vtkPlotPoints, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

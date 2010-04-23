@@ -48,7 +48,7 @@ class VTK_COMMON_EXPORT vtkAbstractTransform : public vtkObject
 {
 public:
 
-  vtkTypeRevisionMacro(vtkAbstractTransform,vtkObject);
+  vtkTypeMacro(vtkAbstractTransform,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

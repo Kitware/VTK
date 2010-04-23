@@ -64,7 +64,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkClipPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkClipPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

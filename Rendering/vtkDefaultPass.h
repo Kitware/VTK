@@ -40,7 +40,7 @@ class VTK_RENDERING_EXPORT vtkDefaultPass : public vtkRenderPass
 {
 public:
   static vtkDefaultPass *New();
-  vtkTypeRevisionMacro(vtkDefaultPass,vtkRenderPass);
+  vtkTypeMacro(vtkDefaultPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

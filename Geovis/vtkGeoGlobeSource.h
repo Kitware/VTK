@@ -31,7 +31,7 @@ class VTK_GEOVIS_EXPORT vtkGeoGlobeSource : public vtkGeoSource
 {
 public:
   static vtkGeoGlobeSource *New();
-  vtkTypeRevisionMacro(vtkGeoGlobeSource,vtkGeoSource);
+  vtkTypeMacro(vtkGeoGlobeSource,vtkGeoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

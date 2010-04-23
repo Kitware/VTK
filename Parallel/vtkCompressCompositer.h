@@ -37,7 +37,7 @@ class VTK_PARALLEL_EXPORT vtkCompressCompositer : public vtkCompositer
 {
 public:
   static vtkCompressCompositer *New();
-  vtkTypeRevisionMacro(vtkCompressCompositer,vtkCompositer);
+  vtkTypeMacro(vtkCompressCompositer,vtkCompositer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,

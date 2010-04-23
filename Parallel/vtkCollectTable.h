@@ -34,7 +34,7 @@ class VTK_PARALLEL_EXPORT vtkCollectTable : public vtkTableAlgorithm
 {
 public:
   static vtkCollectTable *New();
-  vtkTypeRevisionMacro(vtkCollectTable, vtkTableAlgorithm);
+  vtkTypeMacro(vtkCollectTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

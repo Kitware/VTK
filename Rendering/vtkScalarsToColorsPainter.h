@@ -37,7 +37,7 @@ class VTK_RENDERING_EXPORT vtkScalarsToColorsPainter : public vtkPainter
 {
 public:
   static vtkScalarsToColorsPainter* New();
-  vtkTypeRevisionMacro(vtkScalarsToColorsPainter, vtkPainter);
+  vtkTypeMacro(vtkScalarsToColorsPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

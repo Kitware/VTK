@@ -65,7 +65,7 @@ class vtkWindow;
 class VTK_RENDERING_EXPORT vtkLODActor : public vtkActor
 {
 public:
-  vtkTypeRevisionMacro(vtkLODActor,vtkActor);
+  vtkTypeMacro(vtkLODActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

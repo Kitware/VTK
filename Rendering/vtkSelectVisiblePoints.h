@@ -50,7 +50,7 @@ class vtkMatrix4x4;
 class VTK_RENDERING_EXPORT vtkSelectVisiblePoints : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSelectVisiblePoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSelectVisiblePoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

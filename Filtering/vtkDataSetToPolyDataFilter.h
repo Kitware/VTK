@@ -33,7 +33,7 @@ class vtkDataSet;
 class VTK_FILTERING_EXPORT vtkDataSetToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkTypeRevisionMacro(vtkDataSetToPolyDataFilter,vtkPolyDataSource);
+  vtkTypeMacro(vtkDataSetToPolyDataFilter,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

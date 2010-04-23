@@ -20,7 +20,6 @@
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
-vtkCxxRevisionMacro(vtkMPIGroup, "1.6");
 vtkStandardNewMacro(vtkMPIGroup);
 
 void vtkMPIGroup::PrintSelf(ostream& os, vtkIndent indent)

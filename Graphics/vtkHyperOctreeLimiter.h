@@ -34,7 +34,7 @@ class VTK_GRAPHICS_EXPORT vtkHyperOctreeLimiter : public vtkDataSetAlgorithm
 {
 public:
   static vtkHyperOctreeLimiter *New();
-  vtkTypeRevisionMacro(vtkHyperOctreeLimiter, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkHyperOctreeLimiter, vtkDataSetAlgorithm);
 
   // Description:
   // Return the maximum number of levels of the hyperoctree.

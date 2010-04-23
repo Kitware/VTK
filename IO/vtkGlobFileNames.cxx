@@ -23,7 +23,6 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkGlobFileNames, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

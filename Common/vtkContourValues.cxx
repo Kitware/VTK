@@ -16,7 +16,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContourValues, "1.22");
 vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.

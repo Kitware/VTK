@@ -31,7 +31,7 @@ class VTK_PARALLEL_EXPORT vtkDuplicatePolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDuplicatePolyData *New();
-  vtkTypeRevisionMacro(vtkDuplicatePolyData, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDuplicatePolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

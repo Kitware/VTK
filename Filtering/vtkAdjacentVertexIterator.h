@@ -43,7 +43,7 @@ class VTK_FILTERING_EXPORT vtkAdjacentVertexIterator : public vtkObject
 {
 public:
   static vtkAdjacentVertexIterator *New();
-  vtkTypeRevisionMacro(vtkAdjacentVertexIterator, vtkObject);
+  vtkTypeMacro(vtkAdjacentVertexIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -28,7 +28,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper, "1.3");
 vtkStandardNewMacro(vtkCompositePolyDataMapper);
 
 class vtkCompositePolyDataMapperInternals

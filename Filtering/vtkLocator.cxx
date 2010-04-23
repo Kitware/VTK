@@ -17,7 +17,6 @@
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkLocator, "1.6");
 
 vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 

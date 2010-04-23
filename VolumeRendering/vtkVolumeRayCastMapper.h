@@ -76,7 +76,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkVolumeRayCastMapper *New();
-  vtkTypeRevisionMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
+  vtkTypeMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:

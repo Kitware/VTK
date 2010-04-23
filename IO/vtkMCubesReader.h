@@ -57,7 +57,7 @@ class vtkIncrementalPointLocator;
 class VTK_IO_EXPORT vtkMCubesReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkMCubesReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMCubesReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

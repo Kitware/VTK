@@ -15,7 +15,6 @@
 #include "vtkPlaneCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlaneCollection, "1.8");
 vtkStandardNewMacro(vtkPlaneCollection);
 
 vtkPlane *vtkPlaneCollection::GetNextPlane(

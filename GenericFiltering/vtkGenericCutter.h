@@ -56,7 +56,7 @@ class vtkCellData;
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericCutter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericCutter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGenericCutter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

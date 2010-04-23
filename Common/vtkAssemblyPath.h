@@ -37,7 +37,7 @@ class vtkProp;
 class VTK_COMMON_EXPORT vtkAssemblyPath : public vtkCollection
 {
 public:
-  vtkTypeRevisionMacro(vtkAssemblyPath,vtkCollection);
+  vtkTypeMacro(vtkAssemblyPath,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

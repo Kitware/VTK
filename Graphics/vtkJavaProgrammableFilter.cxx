@@ -41,7 +41,6 @@ public:
   vtksys_stl::map<vtkStdString, vtkVariant> Parameters;
 };
 
-vtkCxxRevisionMacro(vtkJavaProgrammableFilter, "1.3");
 vtkStandardNewMacro(vtkJavaProgrammableFilter);
 //---------------------------------------------------------------------------
 vtkJavaProgrammableFilter::vtkJavaProgrammableFilter()

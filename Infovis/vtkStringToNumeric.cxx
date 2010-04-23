@@ -36,7 +36,6 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkStringToNumeric, "1.9");
 vtkStandardNewMacro(vtkStringToNumeric);
 
 vtkStringToNumeric::vtkStringToNumeric()

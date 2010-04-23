@@ -45,7 +45,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleRubberBand2D : public vtkInteractor
 {
 public:
   static vtkInteractorStyleRubberBand2D *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleRubberBand2D, vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleRubberBand2D, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void OnLeftButtonDown();

@@ -30,7 +30,7 @@ class VTK_GRAPHICS_EXPORT vtkGraphGeodesicPath : public vtkGeodesicPath
 public:
   // Description:
   // Standard methids for printing and determining type information.
-  vtkTypeRevisionMacro(vtkGraphGeodesicPath,vtkGeodesicPath);
+  vtkTypeMacro(vtkGraphGeodesicPath,vtkGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

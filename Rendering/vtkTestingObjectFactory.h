@@ -42,7 +42,7 @@ class VTK_RENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkTestingObjectFactory* New();
-  vtkTypeRevisionMacro(vtkTestingObjectFactory,vtkObjectFactory);
+  vtkTypeMacro(vtkTestingObjectFactory,vtkObjectFactory);
   virtual const char* GetVTKSourceVersion();
   const char* GetDescription() { return "Factory for overrides during testing"; }
   void PrintSelf(ostream& os, vtkIndent indent);

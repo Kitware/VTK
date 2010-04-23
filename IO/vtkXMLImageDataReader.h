@@ -33,7 +33,7 @@ class vtkImageData;
 class VTK_IO_EXPORT vtkXMLImageDataReader : public vtkXMLStructuredDataReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLImageDataReader,vtkXMLStructuredDataReader);
+  vtkTypeMacro(vtkXMLImageDataReader,vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLImageDataReader *New();
   

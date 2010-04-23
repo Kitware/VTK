@@ -16,7 +16,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCone, "1.28");
 vtkStandardNewMacro(vtkCone);
 
 // Construct cone with angle of 45 degrees.

@@ -120,7 +120,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkHAVSVolumeMapper : public vtkUnstructuredGri
 {
 public:
   static vtkHAVSVolumeMapper *New();
-  vtkTypeRevisionMacro(vtkHAVSVolumeMapper,
+  vtkTypeMacro(vtkHAVSVolumeMapper,
                        vtkUnstructuredGridVolumeMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 

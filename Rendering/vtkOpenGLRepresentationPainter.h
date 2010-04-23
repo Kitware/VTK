@@ -29,7 +29,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLRepresentationPainter :
 {
 public:
   static vtkOpenGLRepresentationPainter* New();
-  vtkTypeRevisionMacro(vtkOpenGLRepresentationPainter, vtkRepresentationPainter);
+  vtkTypeMacro(vtkOpenGLRepresentationPainter, vtkRepresentationPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

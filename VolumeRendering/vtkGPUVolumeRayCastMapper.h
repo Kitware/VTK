@@ -33,7 +33,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMap
 {
 public:
   static vtkGPUVolumeRayCastMapper *New();
-  vtkTypeRevisionMacro(vtkGPUVolumeRayCastMapper,vtkVolumeMapper);
+  vtkTypeMacro(vtkGPUVolumeRayCastMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:

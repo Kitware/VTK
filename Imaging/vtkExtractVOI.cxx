@@ -22,7 +22,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.48");
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.

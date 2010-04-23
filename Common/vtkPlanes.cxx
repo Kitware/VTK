@@ -21,7 +21,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPlanes, "1.14");
 vtkStandardNewMacro(vtkPlanes);
 vtkCxxSetObjectMacro(vtkPlanes,Points,vtkPoints);
 

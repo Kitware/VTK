@@ -31,7 +31,6 @@
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.21");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------

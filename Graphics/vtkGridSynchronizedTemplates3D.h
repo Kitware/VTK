@@ -37,7 +37,7 @@ class VTK_GRAPHICS_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataAlg
 {
 public:
   static vtkGridSynchronizedTemplates3D *New();
-  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGridSynchronizedTemplates3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

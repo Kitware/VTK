@@ -27,7 +27,7 @@ class VTK_GRAPHICS_EXPORT vtkArcSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkArcSource *New();
-  vtkTypeRevisionMacro(vtkArcSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkArcSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -132,7 +132,6 @@ const char *DepthInternalFormatFilterAsString[6]=
 };
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.13");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {

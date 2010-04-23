@@ -33,7 +33,7 @@ class VTK_IMAGING_EXPORT vtkImplicitFunctionToImageStencil : public vtkImageSten
 {
 public:
   static vtkImplicitFunctionToImageStencil *New();
-  vtkTypeRevisionMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
+  vtkTypeMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

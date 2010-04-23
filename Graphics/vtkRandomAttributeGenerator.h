@@ -51,7 +51,7 @@ public:
   // Create instance with minimum speed 0.0, maximum speed 1.0.
   static vtkRandomAttributeGenerator *New();
 
-  vtkTypeRevisionMacro(vtkRandomAttributeGenerator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkRandomAttributeGenerator,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

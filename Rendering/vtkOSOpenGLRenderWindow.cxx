@@ -76,7 +76,6 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOSOpenGLRenderWindow, "1.6");
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 #endif
 

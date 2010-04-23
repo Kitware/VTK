@@ -80,7 +80,7 @@ class VTK_COMMON_EXPORT vtkMutexLock : public vtkObject
 public:
   static vtkMutexLock *New();
 
-  vtkTypeRevisionMacro(vtkMutexLock,vtkObject);
+  vtkTypeMacro(vtkMutexLock,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

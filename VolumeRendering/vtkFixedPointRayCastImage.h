@@ -36,7 +36,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkFixedPointRayCastImage : public vtkObject
 {
 public:
   static vtkFixedPointRayCastImage *New();
-  vtkTypeRevisionMacro(vtkFixedPointRayCastImage,vtkObject);
+  vtkTypeMacro(vtkFixedPointRayCastImage,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

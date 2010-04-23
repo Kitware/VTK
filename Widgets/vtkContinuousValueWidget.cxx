@@ -31,7 +31,6 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
-vtkCxxRevisionMacro(vtkContinuousValueWidget, "1.1");
 
 //------------------------------------------------------------
 vtkContinuousValueWidget::vtkContinuousValueWidget()

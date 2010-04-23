@@ -30,7 +30,6 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.127");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------

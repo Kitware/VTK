@@ -17,7 +17,6 @@
 #include "vtkInformation.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToStructuredGridFilter, "1.22");
 
 //----------------------------------------------------------------------------
 vtkDataSetToStructuredGridFilter::vtkDataSetToStructuredGridFilter()

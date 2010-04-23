@@ -33,7 +33,7 @@ class VTK_IO_EXPORT vtkSESAMEReader : public vtkRectilinearGridSource
 {
 public:
   static vtkSESAMEReader *New();
-  vtkTypeRevisionMacro(vtkSESAMEReader, vtkRectilinearGridSource);
+  vtkTypeMacro(vtkSESAMEReader, vtkRectilinearGridSource);
   
   void PrintSelf(ostream& os, vtkIndent indent);
 

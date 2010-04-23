@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkPointHandleRepresentation3D,vtkHandleRepresentation);
+  vtkTypeMacro(vtkPointHandleRepresentation3D,vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

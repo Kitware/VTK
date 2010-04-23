@@ -34,7 +34,7 @@ class VTK_INFOVIS_EXPORT vtkVertexDegree : public vtkGraphAlgorithm
 public:
   static vtkVertexDegree *New();
 
-  vtkTypeRevisionMacro(vtkVertexDegree, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkVertexDegree, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

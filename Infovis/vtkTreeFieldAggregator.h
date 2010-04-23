@@ -42,7 +42,7 @@ class VTK_INFOVIS_EXPORT vtkTreeFieldAggregator : public vtkTreeAlgorithm
 public:
   static vtkTreeFieldAggregator *New();
 
-  vtkTypeRevisionMacro(vtkTreeFieldAggregator,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkTreeFieldAggregator,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

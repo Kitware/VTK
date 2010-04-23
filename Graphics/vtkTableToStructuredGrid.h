@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkTableToStructuredGrid : public vtkStructuredGridAlg
 {
 public:
   static vtkTableToStructuredGrid* New();
-  vtkTypeRevisionMacro(vtkTableToStructuredGrid, vtkStructuredGridAlgorithm);
+  vtkTypeMacro(vtkTableToStructuredGrid, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

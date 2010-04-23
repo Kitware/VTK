@@ -20,7 +20,6 @@
 #include <sys/stat.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.35");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

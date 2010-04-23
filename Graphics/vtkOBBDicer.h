@@ -38,7 +38,7 @@ class vtkPoints;
 class VTK_GRAPHICS_EXPORT vtkOBBDicer : public vtkDicer 
 {
 public:
-  vtkTypeRevisionMacro(vtkOBBDicer,vtkDicer);
+  vtkTypeMacro(vtkOBBDicer,vtkDicer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

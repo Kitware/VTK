@@ -57,7 +57,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkContourGrid,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkContourGrid,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

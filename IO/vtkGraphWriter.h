@@ -30,7 +30,7 @@ class VTK_IO_EXPORT vtkGraphWriter : public vtkDataWriter
 {
 public:
   static vtkGraphWriter *New();
-  vtkTypeRevisionMacro(vtkGraphWriter,vtkDataWriter);
+  vtkTypeMacro(vtkGraphWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

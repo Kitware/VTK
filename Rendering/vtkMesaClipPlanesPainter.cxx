@@ -32,5 +32,4 @@
 #include "vtkOpenGLClipPlanesPainter.cxx"
 #undef vtkOpenGLClipPlanesPainter
 
-vtkCxxRevisionMacro(vtkMesaClipPlanesPainter, "1.2");
 vtkStandardNewMacro(vtkMesaClipPlanesPainter);

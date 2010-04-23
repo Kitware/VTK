@@ -68,7 +68,7 @@ class VTK_GRAPHICS_EXPORT vtkMatlabMexAdapter : public vtkObject
 
 public:
 
-  vtkTypeRevisionMacro(vtkMatlabMexAdapter, vtkObject);
+  vtkTypeMacro(vtkMatlabMexAdapter, vtkObject);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

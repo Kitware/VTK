@@ -36,7 +36,6 @@
 #include "vtkstd/vector" // Using STL.
 #include "vtkstd/string" // Using STL.
 
-vtkCxxRevisionMacro(vtkCollapseVerticesByArray, "$Revision");
 vtkStandardNewMacro(vtkCollapseVerticesByArray);
 
 //------------------------------------------------------------------------------

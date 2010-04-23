@@ -41,7 +41,6 @@ static const char *vtkWidgetEventStrings[] = {
   NULL
 };
 
-vtkCxxRevisionMacro(vtkWidgetEvent, "1.6");
 vtkStandardNewMacro(vtkWidgetEvent);
 
 //----------------------------------------------------------------------

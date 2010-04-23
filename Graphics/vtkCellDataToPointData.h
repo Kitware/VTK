@@ -41,7 +41,7 @@ class VTK_GRAPHICS_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 {
 public:
   static vtkCellDataToPointData *New();
-  vtkTypeRevisionMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

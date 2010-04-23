@@ -27,7 +27,7 @@ class vtkOutlineCornerSource;
 class VTK_GRAPHICS_EXPORT vtkOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkOutlineCornerFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkOutlineCornerFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

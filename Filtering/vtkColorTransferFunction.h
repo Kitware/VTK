@@ -48,7 +48,7 @@ class VTK_FILTERING_EXPORT vtkColorTransferFunction : public vtkScalarsToColors
 {
 public:
   static vtkColorTransferFunction *New();
-  vtkTypeRevisionMacro(vtkColorTransferFunction,vtkScalarsToColors);
+  vtkTypeMacro(vtkColorTransferFunction,vtkScalarsToColors);
   void DeepCopy( vtkColorTransferFunction *f );
   void ShallowCopy( vtkColorTransferFunction *f );
 

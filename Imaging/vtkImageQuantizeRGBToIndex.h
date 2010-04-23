@@ -36,7 +36,7 @@ class VTK_IMAGING_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageAlgorithm
 {
 public:
   static vtkImageQuantizeRGBToIndex *New();
-  vtkTypeRevisionMacro(vtkImageQuantizeRGBToIndex,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageQuantizeRGBToIndex,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

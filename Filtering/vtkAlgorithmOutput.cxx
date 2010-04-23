@@ -16,7 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAlgorithmOutput, "1.1");
 vtkStandardNewMacro(vtkAlgorithmOutput);
 
 //----------------------------------------------------------------------------

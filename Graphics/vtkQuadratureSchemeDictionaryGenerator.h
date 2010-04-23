@@ -38,7 +38,7 @@ class vtkInformationVector;
 class VTK_GRAPHICS_EXPORT vtkQuadratureSchemeDictionaryGenerator : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkQuadratureSchemeDictionaryGenerator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkQuadratureSchemeDictionaryGenerator,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadratureSchemeDictionaryGenerator *New();
 

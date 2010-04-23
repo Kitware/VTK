@@ -26,7 +26,6 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.11");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------

@@ -211,4 +211,4 @@ GetClassName to get it to work whether or not windows.h is included or
 UNICODE is defined.  The method is no longer virtual so user code must
 define a GetClassNameInternal protected method instead of GetClassName
 in order to override it.  Since most user code defines the method with
-vtkTypeRevisionMacro anyway this should not require many changes.
+vtkTypeMacro anyway this should not require many changes.

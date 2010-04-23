@@ -53,7 +53,7 @@ class vtkObserverMediator;
 class VTK_RENDERING_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkInteractorObserver,vtkObject);
+  vtkTypeMacro(vtkInteractorObserver,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

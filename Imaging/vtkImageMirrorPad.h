@@ -28,7 +28,7 @@ class VTK_IMAGING_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
   static vtkImageMirrorPad *New();
-  vtkTypeRevisionMacro(vtkImageMirrorPad,vtkImagePadFilter);
+  vtkTypeMacro(vtkImageMirrorPad,vtkImagePadFilter);
 
 protected:
   vtkImageMirrorPad() {};

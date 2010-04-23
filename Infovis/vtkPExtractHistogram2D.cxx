@@ -29,7 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkPExtractHistogram2D, "1.3");
 vtkStandardNewMacro(vtkPExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPExtractHistogram2D, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------

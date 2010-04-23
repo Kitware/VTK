@@ -36,7 +36,7 @@ class vtkPointData;
 class VTK_GRAPHICS_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

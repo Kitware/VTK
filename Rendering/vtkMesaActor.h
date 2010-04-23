@@ -30,7 +30,7 @@ protected:
   
 public:
   static vtkMesaActor *New();
-  vtkTypeRevisionMacro(vtkMesaActor,vtkActor);
+  vtkTypeMacro(vtkMesaActor,vtkActor);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -43,7 +43,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleRubberBand3D : public vtkInteractor
 {
 public:
   static vtkInteractorStyleRubberBand3D *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleRubberBand3D, vtkInteractorStyleTrackballCamera);
+  vtkTypeMacro(vtkInteractorStyleRubberBand3D, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void OnLeftButtonDown();

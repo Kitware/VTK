@@ -35,7 +35,7 @@ class vtkShaderProgram;
 class VTK_RENDERING_EXPORT vtkShaderDeviceAdapter : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkShaderDeviceAdapter, vtkObject);
+  vtkTypeMacro(vtkShaderDeviceAdapter, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

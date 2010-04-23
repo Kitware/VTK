@@ -475,7 +475,6 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOggTheoraWriter);
-vtkCxxRevisionMacro(vtkOggTheoraWriter, "1.2");
 
 //---------------------------------------------------------------------------
 vtkOggTheoraWriter::vtkOggTheoraWriter()

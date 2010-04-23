@@ -51,7 +51,7 @@ class VTK_INFOVIS_EXPORT vtkChacoGraphReader : public vtkUndirectedGraphAlgorith
 {
 public:
   static vtkChacoGraphReader *New();
-  vtkTypeRevisionMacro(vtkChacoGraphReader, vtkUndirectedGraphAlgorithm);
+  vtkTypeMacro(vtkChacoGraphReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,7 @@
 class VTK_FILTERING_EXPORT vtkHyperOctreePointsGrabber : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkHyperOctreePointsGrabber,vtkObject);
+  vtkTypeMacro(vtkHyperOctreePointsGrabber,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

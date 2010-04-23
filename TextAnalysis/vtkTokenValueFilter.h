@@ -52,7 +52,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkTokenValueFilter :
 {
 public:
   static vtkTokenValueFilter* New();
-  vtkTypeRevisionMacro(vtkTokenValueFilter, vtkTableAlgorithm);
+  vtkTypeMacro(vtkTokenValueFilter, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

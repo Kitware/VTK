@@ -46,7 +46,7 @@ class VTK_FILTERING_EXPORT vtkTreeDFSIterator : public vtkObject
 {
 public:
   static vtkTreeDFSIterator* New();
-  vtkTypeRevisionMacro(vtkTreeDFSIterator, vtkObject);
+  vtkTypeMacro(vtkTreeDFSIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

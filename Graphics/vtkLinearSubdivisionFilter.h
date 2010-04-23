@@ -41,7 +41,7 @@ public:
   // Description:
   // Construct object with NumberOfSubdivisions set to 1.
   static vtkLinearSubdivisionFilter *New();
-  vtkTypeRevisionMacro(vtkLinearSubdivisionFilter,vtkInterpolatingSubdivisionFilter);
+  vtkTypeMacro(vtkLinearSubdivisionFilter,vtkInterpolatingSubdivisionFilter);
 
 protected:
   vtkLinearSubdivisionFilter () {};

@@ -19,7 +19,6 @@
 #include "vtkXMLMaterial.h"
 #include "vtkXMLMaterialParser.h"
 
-vtkCxxRevisionMacro(vtkXMLMaterialReader, "1.2");
 vtkStandardNewMacro( vtkXMLMaterialReader );
 //-----------------------------------------------------------------------------
 vtkXMLMaterialReader::vtkXMLMaterialReader()

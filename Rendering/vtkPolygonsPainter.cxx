@@ -27,7 +27,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkUnsignedCharArray.h"
 vtkStandardNewMacro(vtkPolygonsPainter);
-vtkCxxRevisionMacro(vtkPolygonsPainter, "1.4");
 
 #define VTK_PP_INVALID_TYPE -1
 //-----------------------------------------------------------------------------

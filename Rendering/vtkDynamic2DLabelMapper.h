@@ -59,7 +59,7 @@ public:
   // Instantiate object with %%-#6.3g label format. By default, point ids
   // are labeled.
   static vtkDynamic2DLabelMapper *New();
-  vtkTypeRevisionMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
+  vtkTypeMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

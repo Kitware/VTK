@@ -63,7 +63,7 @@ class vtkFieldData;
 class VTK_GRAPHICS_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -41,7 +41,7 @@ class VTK_FILTERING_EXPORT vtkVertexListIterator : public vtkObject
 {
 public:
   static vtkVertexListIterator *New();
-  vtkTypeRevisionMacro(vtkVertexListIterator, vtkObject);
+  vtkTypeMacro(vtkVertexListIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

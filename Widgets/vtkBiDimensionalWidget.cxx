@@ -26,7 +26,6 @@
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkBiDimensionalWidget, "1.10");
 vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 

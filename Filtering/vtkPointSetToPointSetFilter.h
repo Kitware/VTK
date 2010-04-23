@@ -46,7 +46,7 @@ class vtkUnstructuredGrid;
 class VTK_FILTERING_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
 {
 public:
-  vtkTypeRevisionMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
+  vtkTypeMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -33,7 +33,7 @@ public:
   // Description:
   // Construct an empty uniform grid.
   static vtkUniformGrid *New();
-  vtkTypeRevisionMacro(vtkUniformGrid,vtkImageData);
+  vtkTypeMacro(vtkUniformGrid,vtkImageData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,7 @@ class VTK_FILTERING_EXPORT vtkPixel : public vtkCell
 {
 public:
   static vtkPixel *New();
-  vtkTypeRevisionMacro(vtkPixel,vtkCell);
+  vtkTypeMacro(vtkPixel,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

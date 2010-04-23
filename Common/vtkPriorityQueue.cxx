@@ -15,7 +15,6 @@
 #include "vtkPriorityQueue.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPriorityQueue, "1.33");
 vtkStandardNewMacro(vtkPriorityQueue);
 
 // Instantiate priority queue with default size and extension size of 1000.

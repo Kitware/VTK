@@ -45,7 +45,7 @@ class VTK_COMMON_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
   static vtkPlanes *New();
-  vtkTypeRevisionMacro(vtkPlanes,vtkImplicitFunction);
+  vtkTypeMacro(vtkPlanes,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

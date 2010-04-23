@@ -61,7 +61,7 @@ typedef void (*vtkRMIFunctionType)(void *localArg,
 class VTK_PARALLEL_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkMultiProcessController,vtkObject);
+  vtkTypeMacro(vtkMultiProcessController,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

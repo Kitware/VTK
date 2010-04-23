@@ -25,7 +25,6 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataGeometryFilter, "1.1");
 vtkStandardNewMacro(vtkCompositeDataGeometryFilter);
 
 //-----------------------------------------------------------------------------

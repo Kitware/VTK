@@ -15,7 +15,6 @@
 #include "vtkReferenceCount.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkReferenceCount, "1.16");
 vtkStandardNewMacro(vtkReferenceCount);
 
 vtkReferenceCount::vtkReferenceCount() 

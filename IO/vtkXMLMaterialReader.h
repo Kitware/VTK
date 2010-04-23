@@ -50,7 +50,7 @@ class vtkXMLMaterialParser;
 class VTK_IO_EXPORT vtkXMLMaterialReader : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLMaterialReader,vtkObject);
+  vtkTypeMacro(vtkXMLMaterialReader,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLMaterialReader* New();
 

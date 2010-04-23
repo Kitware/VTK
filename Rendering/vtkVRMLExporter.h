@@ -39,7 +39,7 @@ class VTK_RENDERING_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
   static vtkVRMLExporter *New();
-  vtkTypeRevisionMacro(vtkVRMLExporter,vtkExporter);
+  vtkTypeMacro(vtkVRMLExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

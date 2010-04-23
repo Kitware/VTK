@@ -40,7 +40,6 @@
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkGaussianBlurPass, "1.9");
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
 extern const char *vtkGaussianBlurPassShader_fs;

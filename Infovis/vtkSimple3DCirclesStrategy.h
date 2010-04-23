@@ -47,7 +47,7 @@ class VTK_INFOVIS_EXPORT vtkSimple3DCirclesStrategy : public vtkGraphLayoutStrat
   {
 public:
   static vtkSimple3DCirclesStrategy * New();
-  vtkTypeRevisionMacro(vtkSimple3DCirclesStrategy,vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkSimple3DCirclesStrategy,vtkGraphLayoutStrategy);
   void PrintSelf( ostream& os, vtkIndent indent );
 
 //BTX

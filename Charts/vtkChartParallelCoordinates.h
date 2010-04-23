@@ -29,7 +29,7 @@ class vtkStringArray;
 class VTK_CHARTS_EXPORT vtkChartParallelCoordinates : public vtkChart
 {
 public:
-  vtkTypeRevisionMacro(vtkChartParallelCoordinates, vtkChart);
+  vtkTypeMacro(vtkChartParallelCoordinates, vtkChart);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

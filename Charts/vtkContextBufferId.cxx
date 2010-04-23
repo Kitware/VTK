@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkContextBufferId, "1.3");
 vtkStandardNewMacro(vtkContextBufferId);
 
 // ----------------------------------------------------------------------------

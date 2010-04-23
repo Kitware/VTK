@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkImageDataStreamer : public vtkImageAlgorithm
 {
 public:
   static vtkImageDataStreamer *New();
-  vtkTypeRevisionMacro(vtkImageDataStreamer,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageDataStreamer,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

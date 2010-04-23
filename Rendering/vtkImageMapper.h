@@ -34,7 +34,7 @@ class vtkImageData;
 class VTK_RENDERING_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
-  vtkTypeRevisionMacro(vtkImageMapper,vtkMapper2D);
+  vtkTypeMacro(vtkImageMapper,vtkMapper2D);
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 

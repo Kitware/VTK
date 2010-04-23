@@ -26,7 +26,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkVertexListIterator, "1.3");
 vtkStandardNewMacro(vtkVertexListIterator);
 //----------------------------------------------------------------------------
 vtkVertexListIterator::vtkVertexListIterator()

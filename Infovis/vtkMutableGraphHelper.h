@@ -44,7 +44,7 @@ class VTK_INFOVIS_EXPORT vtkMutableGraphHelper : public vtkObject
 {
 public:
   static vtkMutableGraphHelper *New();
-  vtkTypeRevisionMacro(vtkMutableGraphHelper, vtkObject);
+  vtkTypeMacro(vtkMutableGraphHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

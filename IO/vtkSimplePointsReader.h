@@ -30,7 +30,7 @@ class VTK_IO_EXPORT vtkSimplePointsReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSimplePointsReader* New();
-  vtkTypeRevisionMacro(vtkSimplePointsReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSimplePointsReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

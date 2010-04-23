@@ -31,7 +31,7 @@ class vtkActor2D;
 class VTK_FILTERING_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkMapper2D,vtkAbstractMapper);
+  vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};

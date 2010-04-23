@@ -77,7 +77,6 @@
 #endif // VTK_USE_MPI_IO
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkMPIImageReader, "1.2");
 vtkStandardNewMacro(vtkMPIImageReader);
 
 vtkCxxSetObjectMacro(vtkMPIImageReader, Controller, vtkMultiProcessController);

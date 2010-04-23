@@ -23,7 +23,6 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkExodusIIReaderParser);
-vtkCxxRevisionMacro(vtkExodusIIReaderParser, "1.3");
 //-----------------------------------------------------------------------------
 vtkExodusIIReaderParser::vtkExodusIIReaderParser()
 {

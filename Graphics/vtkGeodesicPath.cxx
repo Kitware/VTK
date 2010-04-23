@@ -20,7 +20,6 @@
 #include "vtkPolyData.h"
 #include "vtkExecutive.h"
 
-vtkCxxRevisionMacro(vtkGeodesicPath, "1.1");
 
 //-----------------------------------------------------------------------------
 vtkGeodesicPath::vtkGeodesicPath()

@@ -51,7 +51,6 @@
 #include <vtkstd/queue>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.7");
 
 // Timing data ---------------------------------------------
 

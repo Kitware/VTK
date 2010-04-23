@@ -83,7 +83,7 @@ class VTK_IMAGING_EXPORT vtkImageBlend : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageBlend *New();
-  vtkTypeRevisionMacro(vtkImageBlend,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageBlend,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

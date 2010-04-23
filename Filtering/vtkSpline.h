@@ -59,7 +59,7 @@ class vtkPiecewiseFunction;
 class VTK_FILTERING_EXPORT vtkSpline : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkSpline,vtkObject);
+  vtkTypeMacro(vtkSpline,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

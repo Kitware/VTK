@@ -33,7 +33,7 @@ class FTFont;
 class VTK_RENDERING_EXPORT vtkOpenGLFreeTypeTextMapper : public vtkTextMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLFreeTypeTextMapper,vtkTextMapper);
+  vtkTypeMacro(vtkOpenGLFreeTypeTextMapper,vtkTextMapper);
   static vtkOpenGLFreeTypeTextMapper *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 

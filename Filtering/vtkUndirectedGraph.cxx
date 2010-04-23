@@ -31,7 +31,6 @@
 //----------------------------------------------------------------------------
 // class vtkUndirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUndirectedGraph, "1.4");
 vtkStandardNewMacro(vtkUndirectedGraph);
 //----------------------------------------------------------------------------
 vtkUndirectedGraph::vtkUndirectedGraph()

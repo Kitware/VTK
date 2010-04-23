@@ -26,7 +26,6 @@
 #include "vtkMath.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkArcSource, "1.5");
 vtkStandardNewMacro(vtkArcSource);
 
 // --------------------------------------------------------------------------

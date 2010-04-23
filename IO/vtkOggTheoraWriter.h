@@ -35,7 +35,7 @@ class VTK_IO_EXPORT vtkOggTheoraWriter : public vtkGenericMovieWriter
 {
 public:
   static vtkOggTheoraWriter *New();
-  vtkTypeRevisionMacro(vtkOggTheoraWriter,vtkGenericMovieWriter);
+  vtkTypeMacro(vtkOggTheoraWriter,vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

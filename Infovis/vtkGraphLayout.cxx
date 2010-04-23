@@ -35,7 +35,6 @@
 #include "vtkPoints.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.11");
 vtkStandardNewMacro(vtkGraphLayout);
 vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 

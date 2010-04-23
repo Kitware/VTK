@@ -20,7 +20,6 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationStringVectorKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationStringVectorKey

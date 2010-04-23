@@ -27,7 +27,6 @@
 
 #include "vtkDijkstraGraphInternals.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.9");
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //----------------------------------------------------------------------------

@@ -60,7 +60,7 @@ public:
   // direction, a theta resolution and a phi resolutions of 16.
   static vtkSuperquadricSource *New();
 
-  vtkTypeRevisionMacro(vtkSuperquadricSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSuperquadricSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

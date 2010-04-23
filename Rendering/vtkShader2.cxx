@@ -37,7 +37,6 @@ const char *TypeAsStringArray[5]={
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader2, "1.6");
 vtkStandardNewMacro(vtkShader2);
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 

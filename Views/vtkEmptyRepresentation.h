@@ -33,7 +33,7 @@ class VTK_VIEWS_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkEmptyRepresentation* New();
-  vtkTypeRevisionMacro(vtkEmptyRepresentation, vtkDataRepresentation);
+  vtkTypeMacro(vtkEmptyRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

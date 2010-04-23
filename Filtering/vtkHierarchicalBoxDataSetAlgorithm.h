@@ -29,7 +29,7 @@ class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSetAlgorithm : public vtkAlgori
 {
 public:
   static vtkHierarchicalBoxDataSetAlgorithm* New();
-  vtkTypeRevisionMacro(vtkHierarchicalBoxDataSetAlgorithm, vtkAlgorithm);
+  vtkTypeMacro(vtkHierarchicalBoxDataSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

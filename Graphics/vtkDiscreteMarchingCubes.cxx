@@ -42,7 +42,6 @@
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.4");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:

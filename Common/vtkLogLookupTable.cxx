@@ -17,7 +17,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLogLookupTable, "1.30");
 vtkStandardNewMacro(vtkLogLookupTable);
 
 // Construct with (minimum,maximum) range 1 to 10 (based on 

@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Standard macros.
-  vtkTypeRevisionMacro(vtkCompassWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkCompassWidget,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

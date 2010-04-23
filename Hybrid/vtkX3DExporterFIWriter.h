@@ -28,7 +28,7 @@ class VTK_HYBRID_EXPORT vtkX3DExporterFIWriter : public vtkX3DExporterWriter
 {
 public:
   static vtkX3DExporterFIWriter *New();
-  vtkTypeRevisionMacro(vtkX3DExporterFIWriter, vtkX3DExporterWriter);
+  vtkTypeMacro(vtkX3DExporterFIWriter, vtkX3DExporterWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void CloseFile();

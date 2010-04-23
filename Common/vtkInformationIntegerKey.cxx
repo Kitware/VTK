@@ -16,7 +16,6 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.9");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char* location):

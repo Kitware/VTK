@@ -32,7 +32,6 @@
 #include <vtksys/stl/map>
 
 vtkStandardNewMacro(vtkPassThroughEdgeStrategy);
-vtkCxxRevisionMacro(vtkPassThroughEdgeStrategy, "1.1");
 
 vtkPassThroughEdgeStrategy::vtkPassThroughEdgeStrategy()
 {

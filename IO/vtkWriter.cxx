@@ -23,7 +23,6 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkWriter, "1.46");
 
 namespace 
 {

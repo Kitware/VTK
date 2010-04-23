@@ -28,7 +28,6 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.59");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files

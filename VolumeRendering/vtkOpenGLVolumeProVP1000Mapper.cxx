@@ -25,7 +25,6 @@
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.1");
 vtkStandardNewMacro(vtkOpenGLVolumeProVP1000Mapper);
 
 void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,

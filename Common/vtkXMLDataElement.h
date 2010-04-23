@@ -32,7 +32,7 @@ class vtkXMLDataParser;
 class VTK_COMMON_EXPORT vtkXMLDataElement : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLDataElement,vtkObject);
+  vtkTypeMacro(vtkXMLDataElement,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataElement* New();
 

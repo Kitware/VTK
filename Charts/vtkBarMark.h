@@ -32,7 +32,7 @@ class vtkAbstractContextBufferId;
 class VTK_CHARTS_EXPORT vtkBarMark : public vtkMark
 {
 public:
-  vtkTypeRevisionMacro(vtkBarMark, vtkMark);
+  vtkTypeMacro(vtkBarMark, vtkMark);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkBarMark* New();
 

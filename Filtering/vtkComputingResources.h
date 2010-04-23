@@ -48,7 +48,7 @@ class VTK_FILTERING_EXPORT vtkComputingResources : public vtkObject
 {
 public:
   static vtkComputingResources* New();
-  vtkTypeRevisionMacro(vtkComputingResources,vtkObject);
+  vtkTypeMacro(vtkComputingResources,vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

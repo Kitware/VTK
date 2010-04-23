@@ -22,7 +22,6 @@
 #include "vtkInformationVector.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkFrustumSource, "1.2");
 vtkStandardNewMacro(vtkFrustumSource);
 vtkCxxSetObjectMacro(vtkFrustumSource,Planes,vtkPlanes);
 

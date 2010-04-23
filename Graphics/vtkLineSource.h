@@ -27,7 +27,7 @@ class VTK_GRAPHICS_EXPORT vtkLineSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLineSource *New();
-  vtkTypeRevisionMacro(vtkLineSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLineSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

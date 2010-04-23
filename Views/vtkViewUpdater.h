@@ -37,7 +37,7 @@ class VTK_VIEWS_EXPORT vtkViewUpdater : public vtkObject
 {
 public:
   static vtkViewUpdater *New();
-  vtkTypeRevisionMacro(vtkViewUpdater, vtkObject);
+  vtkTypeMacro(vtkViewUpdater, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddView(vtkView* view);

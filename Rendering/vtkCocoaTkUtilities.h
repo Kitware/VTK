@@ -39,7 +39,7 @@ class VTK_RENDERING_EXPORT vtkCocoaTkUtilities : public vtkObject
 {
 public:
   static vtkCocoaTkUtilities *New();
-  vtkTypeRevisionMacro(vtkCocoaTkUtilities,vtkObject);
+  vtkTypeMacro(vtkCocoaTkUtilities,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

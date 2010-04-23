@@ -27,7 +27,6 @@
 #include "vtkVolumeMapper.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkVolumeOutlineSource, "1.3");
 vtkStandardNewMacro(vtkVolumeOutlineSource);
 
 vtkCxxSetObjectMacro(vtkVolumeOutlineSource,VolumeMapper,vtkVolumeMapper);

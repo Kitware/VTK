@@ -37,7 +37,7 @@ class VTK_FILTERING_EXPORT vtkMultiPieceDataSet : public vtkCompositeDataSet
 {
 public:
   static vtkMultiPieceDataSet* New();
-  vtkTypeRevisionMacro(vtkMultiPieceDataSet, vtkCompositeDataSet);
+  vtkTypeMacro(vtkMultiPieceDataSet, vtkCompositeDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

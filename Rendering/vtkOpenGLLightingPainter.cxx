@@ -28,7 +28,6 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLLightingPainter);
-vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.6");
 #endif
 
 //-----------------------------------------------------------------------------

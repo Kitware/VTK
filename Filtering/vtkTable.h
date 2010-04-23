@@ -58,7 +58,7 @@ class VTK_FILTERING_EXPORT vtkTable : public vtkDataObject
 {
 public:
   static vtkTable* New();
-  vtkTypeRevisionMacro(vtkTable, vtkDataObject);
+  vtkTypeMacro(vtkTable, vtkDataObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

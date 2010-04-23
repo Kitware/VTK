@@ -29,7 +29,6 @@
 
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkContext2D, "1.25");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkContext2D);

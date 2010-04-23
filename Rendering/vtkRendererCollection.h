@@ -31,7 +31,7 @@ class VTK_RENDERING_EXPORT vtkRendererCollection : public vtkCollection
 {
  public:
   static vtkRendererCollection *New();
-  vtkTypeRevisionMacro(vtkRendererCollection,vtkCollection);
+  vtkTypeMacro(vtkRendererCollection,vtkCollection);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

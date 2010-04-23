@@ -40,7 +40,7 @@ class VTK_FILTERING_EXPORT vtkNonMergingPointLocator : public vtkPointLocator
 public:
   static vtkNonMergingPointLocator * New();
   
-  vtkTypeRevisionMacro( vtkNonMergingPointLocator, vtkPointLocator );
+  vtkTypeMacro( vtkNonMergingPointLocator, vtkPointLocator );
   void PrintSelf( ostream & os, vtkIndent indent );
 
 //BTX

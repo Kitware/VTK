@@ -32,7 +32,6 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkArrayData, "1.13");
 vtkStandardNewMacro(vtkArrayData);
 
 class vtkArrayData::implementation

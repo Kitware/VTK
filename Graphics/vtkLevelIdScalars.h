@@ -28,7 +28,7 @@ class VTK_GRAPHICS_EXPORT vtkLevelIdScalars : public vtkHierarchicalBoxDataSetAl
 {
 public:
   static vtkLevelIdScalars* New();
-  vtkTypeRevisionMacro(vtkLevelIdScalars, vtkHierarchicalBoxDataSetAlgorithm);
+  vtkTypeMacro(vtkLevelIdScalars, vtkHierarchicalBoxDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

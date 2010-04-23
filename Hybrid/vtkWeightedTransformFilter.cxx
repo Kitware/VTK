@@ -27,7 +27,6 @@
 #include "vtkPointSet.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.21");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.

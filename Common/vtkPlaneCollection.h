@@ -29,7 +29,7 @@
 class VTK_COMMON_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
-  vtkTypeRevisionMacro(vtkPlaneCollection,vtkCollection);
+  vtkTypeMacro(vtkPlaneCollection,vtkCollection);
   static vtkPlaneCollection *New();
 
   // Description:

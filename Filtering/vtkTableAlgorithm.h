@@ -51,7 +51,7 @@ class VTK_FILTERING_EXPORT vtkTableAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkTableAlgorithm *New();
-  vtkTypeRevisionMacro(vtkTableAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkTableAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

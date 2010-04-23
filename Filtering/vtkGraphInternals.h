@@ -50,7 +50,7 @@ class VTK_FILTERING_EXPORT vtkGraphInternals : public vtkObject
 public:
   static vtkGraphInternals *New();
   //BTX
-  vtkTypeRevisionMacro(vtkGraphInternals, vtkObject);
+  vtkTypeMacro(vtkGraphInternals, vtkObject);
   vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
   //ETX
   vtkIdType NumberOfEdges;

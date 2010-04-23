@@ -28,7 +28,7 @@ class VTK_IO_EXPORT vtkShaderCodeLibrary : public vtkObject
 {
 public:
   static vtkShaderCodeLibrary* New();
-  vtkTypeRevisionMacro(vtkShaderCodeLibrary, vtkObject);
+  vtkTypeMacro(vtkShaderCodeLibrary, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

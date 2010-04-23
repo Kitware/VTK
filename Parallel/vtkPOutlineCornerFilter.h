@@ -31,7 +31,7 @@ class vtkMultiProcessController;
 class VTK_PARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPOutlineCornerFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPOutlineCornerFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -15,7 +15,6 @@
 #include "vtkProperty2D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProperty2D, "1.21");
 vtkStandardNewMacro(vtkProperty2D);
 
 // Creates a vtkProperty2D with the following default values:

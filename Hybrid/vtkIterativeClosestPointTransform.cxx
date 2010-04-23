@@ -22,7 +22,6 @@
 #include "vtkPoints.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.14");
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //----------------------------------------------------------------------------

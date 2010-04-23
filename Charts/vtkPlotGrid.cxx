@@ -24,7 +24,6 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPlotGrid, "1.6");
 vtkCxxSetObjectMacro(vtkPlotGrid, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlotGrid, YAxis, vtkAxis);
 //-----------------------------------------------------------------------------

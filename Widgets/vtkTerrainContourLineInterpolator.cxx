@@ -22,7 +22,6 @@
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTerrainContourLineInterpolator, "1.1");
 vtkStandardNewMacro(vtkTerrainContourLineInterpolator);
 
 //----------------------------------------------------------------------

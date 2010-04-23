@@ -24,7 +24,6 @@
 #include "vtkCoordinate.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkViewDependentErrorMetric,"1.7");
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 
 //-----------------------------------------------------------------------------

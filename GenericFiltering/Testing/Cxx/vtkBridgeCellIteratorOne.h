@@ -32,7 +32,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeCellIteratorOne : public vtkBridgeCellIteratorS
 {
 public:
   static vtkBridgeCellIteratorOne *New();
-  vtkTypeRevisionMacro(vtkBridgeCellIteratorOne,
+  vtkTypeMacro(vtkBridgeCellIteratorOne,
                        vtkBridgeCellIteratorStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
   

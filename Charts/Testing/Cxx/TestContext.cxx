@@ -39,7 +39,7 @@ class ContextTest : public vtkContextItem
 {
 public:
   static ContextTest *New();
-  vtkTypeRevisionMacro(ContextTest, vtkContextItem);
+  vtkTypeMacro(ContextTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
@@ -67,7 +67,6 @@ int TestContext( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(ContextTest);
-vtkCxxRevisionMacro(ContextTest, "1.2");
 // This function aims to test the primitives provided by the 2D API.
 bool ContextTest::Paint(vtkContext2D *painter)
 {

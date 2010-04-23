@@ -40,7 +40,7 @@ class VTK_GEOVIS_EXPORT vtkGeoImageNode : public vtkGeoTreeNode
 {
 public:
   static vtkGeoImageNode *New();
-  vtkTypeRevisionMacro(vtkGeoImageNode, vtkGeoTreeNode);
+  vtkTypeMacro(vtkGeoImageNode, vtkGeoTreeNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Decription:

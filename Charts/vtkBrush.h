@@ -31,7 +31,7 @@
 class VTK_CHARTS_EXPORT vtkBrush : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkBrush, vtkObject);
+  vtkTypeMacro(vtkBrush, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkBrush *New();

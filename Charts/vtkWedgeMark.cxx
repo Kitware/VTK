@@ -35,7 +35,6 @@ vtkInformationKeyMacro(vtkWedgeMark,INNER_RADIUS,Double);
 vtkInformationKeyMacro(vtkWedgeMark,FILL_STYLE,String);
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkWedgeMark, "1.9");
 vtkStandardNewMacro(vtkWedgeMark);
 
 // ----------------------------------------------------------------------------

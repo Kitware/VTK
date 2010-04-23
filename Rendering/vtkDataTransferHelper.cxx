@@ -32,7 +32,6 @@ static void vtkGetDimensions(int extents[6], int dims[3])
 }
 
 vtkStandardNewMacro(vtkDataTransferHelper);
-vtkCxxRevisionMacro(vtkDataTransferHelper, "1.3");
 vtkCxxSetObjectMacro(vtkDataTransferHelper, Texture, vtkTextureObject);
 vtkCxxSetObjectMacro(vtkDataTransferHelper, Array, vtkDataArray);
 //----------------------------------------------------------------------------

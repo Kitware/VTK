@@ -85,7 +85,7 @@ class vtkVectorText;
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
 {
 public:
-  vtkTypeRevisionMacro(vtkAxisActor,vtkActor);
+  vtkTypeMacro(vtkAxisActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

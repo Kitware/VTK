@@ -44,7 +44,6 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkExpandSelectedGraph, "1.5");
 vtkStandardNewMacro(vtkExpandSelectedGraph);
 
 vtkExpandSelectedGraph::vtkExpandSelectedGraph()

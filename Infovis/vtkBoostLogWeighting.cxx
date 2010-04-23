@@ -40,7 +40,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkBoostLogWeighting
 
-vtkCxxRevisionMacro(vtkBoostLogWeighting, "1.7");
 vtkStandardNewMacro(vtkBoostLogWeighting);
 
 vtkBoostLogWeighting::vtkBoostLogWeighting() :

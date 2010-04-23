@@ -80,7 +80,7 @@ public:
   // Instantiate the object.
   static vtkImageTracerWidget *New();
 
-  vtkTypeRevisionMacro(vtkImageTracerWidget,vtk3DWidget);
+  vtkTypeMacro(vtkImageTracerWidget,vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

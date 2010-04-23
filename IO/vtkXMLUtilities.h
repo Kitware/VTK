@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkXMLUtilities : public vtkObject
 {
 public:
   static vtkXMLUtilities* New();
-  vtkTypeRevisionMacro(vtkXMLUtilities, vtkObject);
+  vtkTypeMacro(vtkXMLUtilities, vtkObject);
 
   // Description:
   // Encode a string from one format to another 

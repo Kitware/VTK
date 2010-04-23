@@ -31,7 +31,7 @@ class VTK_PARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTransmitPolyDataPiece *New();
-  vtkTypeRevisionMacro(vtkTransmitPolyDataPiece, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

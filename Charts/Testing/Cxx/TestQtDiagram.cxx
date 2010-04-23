@@ -39,7 +39,7 @@ class APIDiagram2 : public vtkContextItem
 {
 public:
   static APIDiagram2 *New();
-  vtkTypeRevisionMacro(APIDiagram2, vtkContextItem);
+  vtkTypeMacro(APIDiagram2, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
@@ -89,7 +89,6 @@ int TestQtDiagram( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram2);
-vtkCxxRevisionMacro(APIDiagram2, "1.5");
 // This function draws our API diagram
 bool APIDiagram2::Paint(vtkContext2D *painter)
 {

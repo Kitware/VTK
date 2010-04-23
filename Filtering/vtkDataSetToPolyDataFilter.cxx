@@ -17,7 +17,6 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.19");
 
 //----------------------------------------------------------------------------
 vtkDataSetToPolyDataFilter::vtkDataSetToPolyDataFilter()

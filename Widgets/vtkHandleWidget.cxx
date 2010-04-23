@@ -26,7 +26,6 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkHandleWidget, "1.9");
 vtkStandardNewMacro(vtkHandleWidget);
 
 //----------------------------------------------------------------------------------

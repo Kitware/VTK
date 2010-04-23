@@ -33,7 +33,7 @@ class VTK_INFOVIS_EXPORT vtkTreeMapToPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTreeMapToPolyData *New();
-  vtkTypeRevisionMacro(vtkTreeMapToPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTreeMapToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

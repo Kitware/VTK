@@ -27,7 +27,7 @@ class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataWriter : public vtkXMLCompositeData
 {
 public:
   static vtkXMLHierarchicalBoxDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLHierarchicalBoxDataWriter, vtkXMLCompositeDataWriter);
+  vtkTypeMacro(vtkXMLHierarchicalBoxDataWriter, vtkXMLCompositeDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

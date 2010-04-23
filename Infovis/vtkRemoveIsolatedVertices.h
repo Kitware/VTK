@@ -33,7 +33,7 @@ class VTK_INFOVIS_EXPORT vtkRemoveIsolatedVertices : public vtkGraphAlgorithm
 {
 public:
   static vtkRemoveIsolatedVertices* New();
-  vtkTypeRevisionMacro(vtkRemoveIsolatedVertices,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkRemoveIsolatedVertices,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

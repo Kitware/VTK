@@ -32,7 +32,6 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompassWidget, "1.3");
 vtkStandardNewMacro(vtkCompassWidget);
 
 //------------------------------------------------------------

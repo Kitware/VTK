@@ -31,7 +31,7 @@
 class VTK_IO_EXPORT vtkXMLPDataSetWriter : public vtkXMLPDataWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
+  vtkTypeMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPDataSetWriter* New();
   

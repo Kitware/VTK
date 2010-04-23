@@ -30,7 +30,7 @@ class vtkOpenGLExtensionManager;
 class VTK_RENDERING_EXPORT vtkOpenGLHardwareSupport : public vtkObject //: public vtkHardwareSupport
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLHardwareSupport,vtkObject);
+  vtkTypeMacro(vtkOpenGLHardwareSupport,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkOpenGLHardwareSupport *New();

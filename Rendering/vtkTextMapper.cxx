@@ -18,7 +18,6 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.57");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

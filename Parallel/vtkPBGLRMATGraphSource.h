@@ -70,7 +70,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLRMATGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLRMATGraphSource* New();
-  vtkTypeRevisionMacro(vtkPBGLRMATGraphSource,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkPBGLRMATGraphSource,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

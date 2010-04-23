@@ -47,7 +47,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkFoldCase :
 {
 public:
   static vtkFoldCase* New();
-  vtkTypeRevisionMacro(vtkFoldCase, vtkTableAlgorithm);
+  vtkTypeMacro(vtkFoldCase, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkSetStringMacro(ResultArray);

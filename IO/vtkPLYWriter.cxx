@@ -24,7 +24,6 @@
 
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.22");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);

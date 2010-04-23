@@ -34,7 +34,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkPowerWeighting : public vtkArrayDataAlgorithm
 {
 public:
   static vtkPowerWeighting* New();
-  vtkTypeRevisionMacro(vtkPowerWeighting, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkPowerWeighting, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

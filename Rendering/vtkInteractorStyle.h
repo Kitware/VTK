@@ -129,7 +129,7 @@ public:
   // programmers.
   static vtkInteractorStyle *New();
 
-  vtkTypeRevisionMacro(vtkInteractorStyle,vtkInteractorObserver);
+  vtkTypeMacro(vtkInteractorStyle,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

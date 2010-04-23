@@ -88,7 +88,7 @@ class vtkPyramid;
 class VTK_FILTERING_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericAdaptorCell,vtkObject);
+  vtkTypeMacro(vtkGenericAdaptorCell,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

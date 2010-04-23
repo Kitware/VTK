@@ -39,7 +39,7 @@ class VTK_RENDERING_EXPORT vtkViewTheme : public vtkObject
 {
 public:
   static vtkViewTheme* New();
-  vtkTypeRevisionMacro(vtkViewTheme, vtkObject);
+  vtkTypeMacro(vtkViewTheme, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

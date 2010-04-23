@@ -42,7 +42,7 @@ class vtkImplicitFunction;
 class VTK_GRAPHICS_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractPolyDataGeometry,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkExtractPolyDataGeometry,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,7 @@ class VTK_RENDERING_EXPORT vtkPainterPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkPainterPolyDataMapper* New();
-  vtkTypeRevisionMacro(vtkPainterPolyDataMapper, vtkPolyDataMapper);
+  vtkTypeMacro(vtkPainterPolyDataMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

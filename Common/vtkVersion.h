@@ -40,7 +40,7 @@ class VTK_COMMON_EXPORT vtkVersion : public vtkObject
 {
 public:
   static vtkVersion *New();
-  vtkTypeRevisionMacro(vtkVersion,vtkObject);
+  vtkTypeMacro(vtkVersion,vtkObject);
 
   // Description: 
   // Return the version of vtk this object is a part of.

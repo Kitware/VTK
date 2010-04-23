@@ -47,7 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 class VTK_INFOVIS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
 {
 public:
-  vtkTypeRevisionMacro(vtkPCAStatistics,vtkMultiCorrelativeStatistics);
+  vtkTypeMacro(vtkPCAStatistics,vtkMultiCorrelativeStatistics);
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkPCAStatistics* New();
 

@@ -56,7 +56,7 @@ class VTK_COMMON_EXPORT vtkMath : public vtkObject
 {
 public:
   static vtkMath *New();
-  vtkTypeRevisionMacro(vtkMath,vtkObject);
+  vtkTypeMacro(vtkMath,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

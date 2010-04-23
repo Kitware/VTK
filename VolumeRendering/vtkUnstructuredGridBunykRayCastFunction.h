@@ -80,7 +80,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridBunykRayCastFunction : publi
 { 
 public:
   static vtkUnstructuredGridBunykRayCastFunction *New();
-  vtkTypeRevisionMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
+  vtkTypeMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

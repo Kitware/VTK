@@ -34,7 +34,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkUnityMatrixWeighting :
 {
 public:
   static vtkUnityMatrixWeighting* New();
-  vtkTypeRevisionMacro(vtkUnityMatrixWeighting, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkUnityMatrixWeighting, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

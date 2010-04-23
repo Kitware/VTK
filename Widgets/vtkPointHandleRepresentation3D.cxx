@@ -29,7 +29,6 @@
 #include "vtkFocalPlanePointPlacer.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation3D, "1.17");
 vtkStandardNewMacro(vtkPointHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation3D,Property,vtkProperty);

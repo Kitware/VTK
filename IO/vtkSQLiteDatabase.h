@@ -57,7 +57,7 @@ class VTK_IO_EXPORT vtkSQLiteDatabase : public vtkSQLDatabase
   //ETX
 
 public:
-  vtkTypeRevisionMacro(vtkSQLiteDatabase, vtkSQLDatabase);
+  vtkTypeMacro(vtkSQLiteDatabase, vtkSQLDatabase);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLiteDatabase *New();
 

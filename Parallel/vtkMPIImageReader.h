@@ -54,7 +54,7 @@ class vtkMultiProcessController;
 class VTK_PARALLEL_EXPORT vtkMPIImageReader : public vtkImageReader
 {
 public:
-  vtkTypeRevisionMacro(vtkMPIImageReader, vtkImageReader);
+  vtkTypeMacro(vtkMPIImageReader, vtkImageReader);
   static vtkMPIImageReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

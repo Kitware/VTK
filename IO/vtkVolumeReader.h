@@ -47,7 +47,7 @@
 class VTK_IO_EXPORT vtkVolumeReader : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkVolumeReader,vtkImageAlgorithm);
+  vtkTypeMacro(vtkVolumeReader,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

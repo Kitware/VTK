@@ -37,7 +37,7 @@ class VTK_GEOVIS_EXPORT vtkGeoSphereTransform : public vtkAbstractTransform
 public:
   static vtkGeoSphereTransform* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
-  vtkTypeRevisionMacro(vtkGeoSphereTransform,vtkAbstractTransform);
+  vtkTypeMacro(vtkGeoSphereTransform,vtkAbstractTransform);
 
   // Description:
   // Invert the transformation.

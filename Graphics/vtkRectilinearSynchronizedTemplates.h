@@ -40,7 +40,7 @@ class VTK_GRAPHICS_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDa
 public:
   static vtkRectilinearSynchronizedTemplates *New();
 
-  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

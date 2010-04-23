@@ -42,7 +42,7 @@ class VTK_WIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
 {
 public:
   static vtkScalarBarWidget *New();
-  vtkTypeRevisionMacro(vtkScalarBarWidget, vtkBorderWidget);
+  vtkTypeMacro(vtkScalarBarWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

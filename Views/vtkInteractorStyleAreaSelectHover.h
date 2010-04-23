@@ -45,7 +45,7 @@ class VTK_VIEWS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorS
 {
 public:
   static vtkInteractorStyleAreaSelectHover* New();
-  vtkTypeRevisionMacro(vtkInteractorStyleAreaSelectHover,vtkInteractorStyleRubberBand2D);
+  vtkTypeMacro(vtkInteractorStyleAreaSelectHover,vtkInteractorStyleRubberBand2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

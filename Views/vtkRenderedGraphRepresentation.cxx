@@ -95,7 +95,6 @@
 
 
 
-vtkCxxRevisionMacro(vtkRenderedGraphRepresentation, "1.33");
 vtkStandardNewMacro(vtkRenderedGraphRepresentation);
 
 vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()

@@ -34,7 +34,7 @@ class vtkDoubleArray;
 class VTK_FILTERING_EXPORT vtkCell3D : public vtkCell
 {
 public:
-  vtkTypeRevisionMacro(vtkCell3D,vtkCell);
+  vtkTypeMacro(vtkCell3D,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

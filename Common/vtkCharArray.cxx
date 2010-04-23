@@ -25,7 +25,6 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(char);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCharArray, "1.40");
 vtkStandardNewMacro(vtkCharArray);
 
 //----------------------------------------------------------------------------

@@ -25,7 +25,6 @@
 
 #include <vtkstd/set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
-vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.5");
 //----------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock()
 {

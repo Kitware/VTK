@@ -27,7 +27,6 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkLinesPainter);
-vtkCxxRevisionMacro(vtkLinesPainter, "1.6");
 //-----------------------------------------------------------------------------
 vtkLinesPainter::vtkLinesPainter()
 {

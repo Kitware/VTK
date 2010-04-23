@@ -41,7 +41,7 @@ class VTK_PARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkExtractArraysOve
 {
 public:
   static vtkPExtractArraysOverTime *New();
-  vtkTypeRevisionMacro(vtkPExtractArraysOverTime,vtkExtractArraysOverTime);
+  vtkTypeMacro(vtkPExtractArraysOverTime,vtkExtractArraysOverTime);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

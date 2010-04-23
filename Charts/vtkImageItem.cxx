@@ -29,7 +29,6 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkImageItem, "1.9");
 vtkStandardNewMacro(vtkImageItem);
 
 //-----------------------------------------------------------------------------

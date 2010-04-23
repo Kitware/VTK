@@ -32,7 +32,7 @@ class VTK_FILTERING_EXPORT vtkQuad : public vtkCell
 {
 public:
   static vtkQuad *New();
-  vtkTypeRevisionMacro(vtkQuad,vtkCell);
+  vtkTypeMacro(vtkQuad,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

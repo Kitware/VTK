@@ -32,7 +32,7 @@ class VTK_COMMON_EXPORT vtkTensor : public vtkObject
 {
 public:
   static vtkTensor *New();
-  vtkTypeRevisionMacro(vtkTensor,vtkObject);
+  vtkTypeMacro(vtkTensor,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -37,7 +37,6 @@
 #define VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
 //#define DEBUG
 
-vtkCxxRevisionMacro(vtkDataSetGradientPrecompute, "1.7");
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
 vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()

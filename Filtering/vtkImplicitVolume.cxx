@@ -20,7 +20,6 @@
 #include "vtkPointData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImplicitVolume, "1.34");
 vtkStandardNewMacro(vtkImplicitVolume);
 vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 

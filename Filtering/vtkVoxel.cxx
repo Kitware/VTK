@@ -25,7 +25,6 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.5");
 vtkStandardNewMacro(vtkVoxel);
 
 //----------------------------------------------------------------------------

@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.9");
 vtkStandardNewMacro(vtkSimpleScalarTree);
 
 class vtkScalarNode {};

@@ -27,7 +27,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.31");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()

@@ -26,7 +26,7 @@ class VTK_RENDERING_EXPORT vtkMesaCoincidentTopologyResolutionPainter :
 {
 public:
   static vtkMesaCoincidentTopologyResolutionPainter* New();
-  vtkTypeRevisionMacro(vtkMesaCoincidentTopologyResolutionPainter,
+  vtkTypeMacro(vtkMesaCoincidentTopologyResolutionPainter,
     vtkCoincidentTopologyResolutionPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 

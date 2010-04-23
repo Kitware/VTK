@@ -37,7 +37,7 @@ class vtkModelMetadata;
 class VTK_GRAPHICS_EXPORT vtkExtractCells : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractCells, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkExtractCells, vtkUnstructuredGridAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkExtractCells *New();

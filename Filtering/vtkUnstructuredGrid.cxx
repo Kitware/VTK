@@ -58,7 +58,6 @@
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.16");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()

@@ -27,7 +27,7 @@
 class VTK_FILTERING_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkSphere,vtkImplicitFunction);
+  vtkTypeMacro(vtkSphere,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

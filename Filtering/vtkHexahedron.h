@@ -38,7 +38,7 @@ class VTK_FILTERING_EXPORT vtkHexahedron : public vtkCell3D
 {
 public:
   static vtkHexahedron *New();
-  vtkTypeRevisionMacro(vtkHexahedron,vtkCell3D);
+  vtkTypeMacro(vtkHexahedron,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

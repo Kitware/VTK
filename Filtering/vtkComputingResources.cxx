@@ -37,7 +37,6 @@
 #include <vtksys/hash_map.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkComputingResources, "1.6");
 vtkStandardNewMacro(vtkComputingResources);
 
 //----------------------------------------------------------------------------

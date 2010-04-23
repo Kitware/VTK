@@ -942,7 +942,7 @@ private:
   vtkstd::map<vtkStdString,int> apbIndents;
 
 public:
-  vtkTypeRevisionMacro(vtkExodusXMLParser,vtkXMLParser);
+  vtkTypeMacro(vtkExodusXMLParser,vtkXMLParser);
 
   static vtkExodusXMLParser* New();
 
@@ -1395,7 +1395,6 @@ private:
 };
 
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.58");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1577,7 +1576,6 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.58");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE

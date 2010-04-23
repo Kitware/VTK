@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkProcessStatistics.h"
 
-vtkCxxRevisionMacro(vtkProcessStatistics, "1.13");
 
 #ifndef _WIN32
 #include <sys/procfs.h>

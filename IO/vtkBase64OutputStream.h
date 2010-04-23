@@ -25,7 +25,7 @@
 class VTK_IO_EXPORT vtkBase64OutputStream : public vtkOutputStream
 {
 public:
-  vtkTypeRevisionMacro(vtkBase64OutputStream,vtkOutputStream);
+  vtkTypeMacro(vtkBase64OutputStream,vtkOutputStream);
   static vtkBase64OutputStream *New();
   void PrintSelf(ostream& os, vtkIndent indent);
   

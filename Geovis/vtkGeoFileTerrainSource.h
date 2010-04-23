@@ -35,7 +35,7 @@ class VTK_GEOVIS_EXPORT vtkGeoFileTerrainSource : public vtkGeoSource
 {
 public:
   static vtkGeoFileTerrainSource *New();
-  vtkTypeRevisionMacro(vtkGeoFileTerrainSource,vtkGeoSource);
+  vtkTypeMacro(vtkGeoFileTerrainSource,vtkGeoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkGeoFileTerrainSource();

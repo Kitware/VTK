@@ -34,7 +34,6 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMark, "1.5");
 vtkStandardNewMacro(vtkMark);
 
 class vtkMarkPrivateCompareStrings
@@ -53,7 +52,7 @@ typedef vtkstd::map<vtkstd::string,vtkValue<double>,vtkMarkPrivateCompareStrings
 class vtkMarkPrivate : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkMarkPrivate, vtkObject);
+  vtkTypeMacro(vtkMarkPrivate, vtkObject);
   
   static vtkMarkPrivate *New();
   
@@ -62,7 +61,6 @@ public:
   VariablesMap Map;
 };
 
-vtkCxxRevisionMacro(vtkMarkPrivate, "1.5");
 vtkStandardNewMacro(vtkMarkPrivate);
 
 //-----------------------------------------------------------------------------

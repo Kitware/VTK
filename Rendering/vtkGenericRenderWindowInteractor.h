@@ -31,7 +31,7 @@ class VTK_RENDERING_EXPORT vtkGenericRenderWindowInteractor : public vtkRenderWi
 {
 public:
   static vtkGenericRenderWindowInteractor *New();
-  vtkTypeRevisionMacro(vtkGenericRenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkGenericRenderWindowInteractor,vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

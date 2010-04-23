@@ -16,7 +16,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
 
-vtkCxxRevisionMacro(vtkExtentTranslator, "1.22");
 vtkStandardNewMacro(vtkExtentTranslator);
 
 //----------------------------------------------------------------------------

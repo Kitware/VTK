@@ -44,7 +44,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkStructuredGridAlgorithm *New();
-  vtkTypeRevisionMacro(vtkStructuredGridAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkStructuredGridAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

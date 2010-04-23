@@ -42,7 +42,7 @@ class VTK_IO_EXPORT vtkGlobFileNames : public vtkObject
 public:
   // Description:
   // Return the class name as a string.
-  vtkTypeRevisionMacro(vtkGlobFileNames,vtkObject);
+  vtkTypeMacro(vtkGlobFileNames,vtkObject);
 
   // Description:
   // Create a new vtkGlobFileNames object.

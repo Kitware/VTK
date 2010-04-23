@@ -47,7 +47,7 @@ class vtkAbstractContextBufferId;
 class VTK_CHARTS_EXPORT vtkWedgeMark : public vtkMark
 {
 public:
-  vtkTypeRevisionMacro(vtkWedgeMark, vtkMark);
+  vtkTypeMacro(vtkWedgeMark, vtkMark);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkWedgeMark* New();
 

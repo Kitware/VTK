@@ -41,7 +41,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.16");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================

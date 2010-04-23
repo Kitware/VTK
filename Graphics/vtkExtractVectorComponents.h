@@ -39,7 +39,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractVectorComponents : public vtkDataSetAlgorith
 {
 public:
   static vtkExtractVectorComponents *New();
-  vtkTypeRevisionMacro(vtkExtractVectorComponents,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractVectorComponents,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

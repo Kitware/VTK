@@ -35,7 +35,7 @@ class VTK_WIDGETS_EXPORT vtkImageOrthoPlanes : public vtkObject
 {
 public:
   static vtkImageOrthoPlanes *New();
-  vtkTypeRevisionMacro(vtkImageOrthoPlanes,vtkObject);
+  vtkTypeMacro(vtkImageOrthoPlanes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

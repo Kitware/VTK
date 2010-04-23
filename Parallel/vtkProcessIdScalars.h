@@ -36,7 +36,7 @@ class VTK_PARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
 public:
   static vtkProcessIdScalars *New();
 
-  vtkTypeRevisionMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

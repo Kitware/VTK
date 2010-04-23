@@ -41,7 +41,7 @@ public:
   // Description:
   // Constructor: Sets default filter to be identity.
   static vtkImageIslandRemoval2D *New();
-  vtkTypeRevisionMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

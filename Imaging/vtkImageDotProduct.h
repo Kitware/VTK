@@ -28,7 +28,7 @@ class VTK_IMAGING_EXPORT vtkImageDotProduct : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageDotProduct *New();
-  vtkTypeRevisionMacro(vtkImageDotProduct,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageDotProduct,vtkThreadedImageAlgorithm);
 
   // Description:
   // Set the two inputs to this filter

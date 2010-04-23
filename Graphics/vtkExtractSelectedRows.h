@@ -36,7 +36,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractSelectedRows : public vtkTableAlgorithm
 {
 public:
   static vtkExtractSelectedRows* New();
-  vtkTypeRevisionMacro(vtkExtractSelectedRows,vtkTableAlgorithm);
+  vtkTypeMacro(vtkExtractSelectedRows,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -50,7 +50,7 @@ class vtkRenderer;
 class VTK_RENDERING_EXPORT vtkImporter : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkImporter,vtkObject);
+  vtkTypeMacro(vtkImporter,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

@@ -27,7 +27,7 @@ class VTK_RENDERING_EXPORT vtkClipPlanesPainter : public vtkPainter
 {
 public:
   static vtkClipPlanesPainter* New();
-  vtkTypeRevisionMacro(vtkClipPlanesPainter, vtkPainter);
+  vtkTypeMacro(vtkClipPlanesPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -35,7 +35,7 @@ class VTK_GRAPHICS_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPlatonicSolidSource *New();
-  vtkTypeRevisionMacro(vtkPlatonicSolidSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPlatonicSolidSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -33,7 +33,7 @@
 class VTK_COMMON_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkRandomSequence,vtkObject);
+  vtkTypeMacro(vtkRandomSequence,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

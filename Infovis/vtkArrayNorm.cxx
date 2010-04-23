@@ -34,7 +34,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
 
-vtkCxxRevisionMacro(vtkArrayNorm, "1.7");
 vtkStandardNewMacro(vtkArrayNorm);
 
 vtkArrayNorm::vtkArrayNorm() :

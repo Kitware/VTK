@@ -23,7 +23,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.14");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------

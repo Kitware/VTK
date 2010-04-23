@@ -39,7 +39,6 @@ namespace
 }
 class vtkDataSetAttributes::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.39");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------

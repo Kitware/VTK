@@ -67,7 +67,7 @@ class VTK_HYBRID_EXPORT vtkSpiderPlotActor : public vtkActor2D
 public:
   // Description:
   // Standard methods for type information and printing.
-  vtkTypeRevisionMacro(vtkSpiderPlotActor,vtkActor2D);
+  vtkTypeMacro(vtkSpiderPlotActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -46,7 +46,7 @@ class VTK_INFOVIS_EXPORT vtkCollapseGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkCollapseGraph* New();
-  vtkTypeRevisionMacro(vtkCollapseGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkCollapseGraph,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /// Convenience function provided for setting the graph input.

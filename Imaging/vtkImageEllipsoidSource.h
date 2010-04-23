@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkImageEllipsoidSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageEllipsoidSource *New();
-  vtkTypeRevisionMacro(vtkImageEllipsoidSource,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageEllipsoidSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:

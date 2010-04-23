@@ -43,7 +43,7 @@ class VTK_FILTERING_EXPORT vtkCellTypes : public vtkObject
 {
 public:
   static vtkCellTypes *New();
-  vtkTypeRevisionMacro(vtkCellTypes,vtkObject);
+  vtkTypeMacro(vtkCellTypes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

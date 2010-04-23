@@ -30,7 +30,6 @@
 #include <vtkstd/vector>
 #include <vtkstd/queue>
 
-vtkCxxRevisionMacro(vtkDecimatePolylineFilter, "1.2");
 vtkStandardNewMacro(vtkDecimatePolylineFilter);
 
 //------------------------------------------------------------------

@@ -30,7 +30,7 @@ class VTK_IMAGING_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageFourierCenter *New();
-  vtkTypeRevisionMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
+  vtkTypeMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
 
 protected:
   vtkImageFourierCenter();

@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
 
-vtkCxxRevisionMacro(vtkClipPlanesPainter, "1.3");
 vtkCxxSetObjectMacro(vtkClipPlanesPainter, ClippingPlanes, vtkPlaneCollection);
 
 // Needed when we don't use the vtkStandardNewMacro.

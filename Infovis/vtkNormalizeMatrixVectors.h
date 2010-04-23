@@ -34,7 +34,7 @@ class VTK_INFOVIS_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAlgorith
 {
 public:
   static vtkNormalizeMatrixVectors* New();
-  vtkTypeRevisionMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

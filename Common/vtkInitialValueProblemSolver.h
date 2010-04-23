@@ -36,7 +36,7 @@ class vtkFunctionSet;
 class VTK_COMMON_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkInitialValueProblemSolver,vtkObject);
+  vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

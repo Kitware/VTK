@@ -27,7 +27,6 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.16");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

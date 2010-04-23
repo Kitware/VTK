@@ -28,7 +28,7 @@ class VTK_COMMON_EXPORT vtkDataArrayCollection : public vtkCollection
 {
 public:
   static vtkDataArrayCollection *New();
-  vtkTypeRevisionMacro(vtkDataArrayCollection,vtkCollection);
+  vtkTypeMacro(vtkDataArrayCollection,vtkCollection);
 
   // Description:
   // Add a dataarray to the list.

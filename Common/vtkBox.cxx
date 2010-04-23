@@ -18,7 +18,6 @@
 #include "vtkBoundingBox.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBox, "1.10");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.

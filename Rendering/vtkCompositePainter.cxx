@@ -29,7 +29,6 @@
 # include "vtkOpenGL.h"
 #endif
 vtkStandardNewMacro(vtkCompositePainter);
-vtkCxxRevisionMacro(vtkCompositePainter, "1.2");
 vtkInformationKeyMacro(vtkCompositePainter, COLOR_LEAVES, Integer);
 //----------------------------------------------------------------------------
 vtkCompositePainter::vtkCompositePainter()

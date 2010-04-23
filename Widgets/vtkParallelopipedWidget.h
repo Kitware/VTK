@@ -56,7 +56,7 @@ public:
   // Instantiate the object.
   static vtkParallelopipedWidget *New();
 
-  vtkTypeRevisionMacro(vtkParallelopipedWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkParallelopipedWidget,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

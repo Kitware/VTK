@@ -38,7 +38,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-vtkCxxRevisionMacro(vtkMFIXReader, "1.7");
 vtkStandardNewMacro(vtkMFIXReader);
 
 //----------------------------------------------------------------------------

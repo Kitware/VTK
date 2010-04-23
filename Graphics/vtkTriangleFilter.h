@@ -27,7 +27,7 @@ class VTK_GRAPHICS_EXPORT vtkTriangleFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTriangleFilter *New();
-  vtkTypeRevisionMacro(vtkTriangleFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTriangleFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

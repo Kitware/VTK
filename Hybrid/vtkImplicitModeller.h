@@ -96,7 +96,7 @@ class vtkMultiThreader;
 class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitModeller,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImplicitModeller,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

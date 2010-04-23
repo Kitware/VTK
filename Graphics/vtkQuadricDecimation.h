@@ -64,7 +64,7 @@ class vtkDoubleArray;
 class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadricDecimation *New();
 

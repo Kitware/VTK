@@ -43,7 +43,6 @@
 
 
 // standard constructors and factory
-vtkCxxRevisionMacro(vtkDataSetGradient, "1.8");
 vtkStandardNewMacro(vtkDataSetGradient);
 
 /*!

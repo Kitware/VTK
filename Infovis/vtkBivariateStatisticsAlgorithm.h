@@ -49,7 +49,7 @@ class vtkTable;
 class VTK_INFOVIS_EXPORT vtkBivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkBivariateStatisticsAlgorithm, vtkStatisticsAlgorithm);
+  vtkTypeMacro(vtkBivariateStatisticsAlgorithm, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

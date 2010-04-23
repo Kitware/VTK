@@ -48,7 +48,7 @@ class vtkWindow;
 class VTK_FILTERING_EXPORT vtkAbstractMapper : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkAbstractMapper,vtkAlgorithm);
+  vtkTypeMacro(vtkAbstractMapper,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

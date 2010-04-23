@@ -34,7 +34,7 @@ class VTK_COMMON_EXPORT vtkDirectory : public vtkObject
 public:
   // Description:
   // Return the class name as a string.
-  vtkTypeRevisionMacro(vtkDirectory,vtkObject);
+  vtkTypeMacro(vtkDirectory,vtkObject);
 
   // Description:
   // Create a new vtkDirectory object.

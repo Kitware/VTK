@@ -21,7 +21,6 @@
 
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.10");
 
 void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
 {

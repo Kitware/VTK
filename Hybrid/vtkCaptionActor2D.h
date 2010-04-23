@@ -68,7 +68,7 @@ class vtkTextProperty;
 class VTK_HYBRID_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
-  vtkTypeRevisionMacro(vtkCaptionActor2D,vtkActor2D);
+  vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkCaptionActor2D *New();

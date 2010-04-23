@@ -40,7 +40,7 @@ class VTK_IMAGING_EXPORT vtkImageLogic : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLogic *New();
-  vtkTypeRevisionMacro(vtkImageLogic,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageLogic,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

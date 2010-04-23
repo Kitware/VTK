@@ -42,7 +42,6 @@ private:
 };
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationQuadratureSchemeDefinitionVectorKey::vtkInformationQuadratureSchemeDefinitionVectorKey(

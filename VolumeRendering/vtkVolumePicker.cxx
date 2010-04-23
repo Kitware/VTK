@@ -20,7 +20,6 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumePicker, "1.10");
 vtkStandardNewMacro(vtkVolumePicker);
 
 //----------------------------------------------------------------------------

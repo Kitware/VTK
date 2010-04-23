@@ -49,7 +49,6 @@
 #include "vtkTable.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkQtTableView, "1.23");
 vtkStandardNewMacro(vtkQtTableView);
 
 //----------------------------------------------------------------------------

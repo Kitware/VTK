@@ -29,7 +29,6 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPassInputTypeAlgorithm, "1.4");
 vtkStandardNewMacro(vtkPassInputTypeAlgorithm);
 
 //----------------------------------------------------------------------------

@@ -52,7 +52,7 @@ class vtkPoints;
 class VTK_FILTERING_EXPORT vtkCell : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkCell,vtkObject);
+  vtkTypeMacro(vtkCell,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

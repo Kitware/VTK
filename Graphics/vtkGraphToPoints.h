@@ -34,7 +34,7 @@ class VTK_GRAPHICS_EXPORT vtkGraphToPoints : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphToPoints *New();
-  vtkTypeRevisionMacro(vtkGraphToPoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGraphToPoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:

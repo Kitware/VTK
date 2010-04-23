@@ -54,7 +54,7 @@ class VTK_GRAPHICS_EXPORT vtkClipClosedSurface : public vtkPolyDataAlgorithm
 {
 public:
   static vtkClipClosedSurface *New();
-  vtkTypeRevisionMacro(vtkClipClosedSurface,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkClipClosedSurface,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

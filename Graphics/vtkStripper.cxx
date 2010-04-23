@@ -24,7 +24,6 @@
 #include "vtkPolyData.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.76");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.

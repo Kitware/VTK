@@ -49,7 +49,7 @@ class VTK_HYBRID_EXPORT vtkStructuredGridLIC2D : public vtkStructuredGridAlgorit
 {
 public:
   static vtkStructuredGridLIC2D* New();
-  vtkTypeRevisionMacro(vtkStructuredGridLIC2D, vtkStructuredGridAlgorithm);
+  vtkTypeMacro(vtkStructuredGridLIC2D, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

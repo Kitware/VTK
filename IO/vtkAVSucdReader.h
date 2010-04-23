@@ -44,7 +44,7 @@ class VTK_IO_EXPORT vtkAVSucdReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkAVSucdReader *New();
-  vtkTypeRevisionMacro(vtkAVSucdReader,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkAVSucdReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

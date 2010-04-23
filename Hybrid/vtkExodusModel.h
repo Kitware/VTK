@@ -63,7 +63,7 @@ class vtkUnstructuredGrid;
 class VTK_HYBRID_EXPORT vtkExodusModel : public vtkObject
 { 
 public:
-  vtkTypeRevisionMacro(vtkExodusModel, vtkObject);
+  vtkTypeMacro(vtkExodusModel, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   static vtkExodusModel *New();

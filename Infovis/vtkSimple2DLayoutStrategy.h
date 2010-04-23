@@ -41,7 +41,7 @@ class VTK_INFOVIS_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrate
 public:
   static vtkSimple2DLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

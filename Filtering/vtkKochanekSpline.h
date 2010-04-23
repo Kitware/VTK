@@ -48,7 +48,7 @@
 class VTK_FILTERING_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
-  vtkTypeRevisionMacro(vtkKochanekSpline,vtkSpline);
+  vtkTypeMacro(vtkKochanekSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

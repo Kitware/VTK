@@ -30,7 +30,7 @@ class VTK_IMAGING_EXPORT vtkImageCheckerboard : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageCheckerboard *New();
-  vtkTypeRevisionMacro(vtkImageCheckerboard,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageCheckerboard,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -26,7 +26,7 @@ class vtkPointSet;
 class VTK_FILTERING_EXPORT vtkPointSetSource : public vtkSource
 {
 public:
-  vtkTypeRevisionMacro(vtkPointSetSource,vtkSource);
+  vtkTypeMacro(vtkPointSetSource,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

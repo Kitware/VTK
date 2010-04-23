@@ -51,7 +51,7 @@ class VTK_FILTERING_EXPORT vtkTree : public vtkDirectedAcyclicGraph
 {
 public:
   static vtkTree *New();
-  vtkTypeRevisionMacro(vtkTree, vtkDirectedAcyclicGraph);
+  vtkTypeMacro(vtkTree, vtkDirectedAcyclicGraph);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -36,7 +36,7 @@ class VTK_INFOVIS_EXPORT vtkSplineGraphEdges : public vtkGraphAlgorithm
 {
 public:
   static vtkSplineGraphEdges *New();
-  vtkTypeRevisionMacro(vtkSplineGraphEdges,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkSplineGraphEdges,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

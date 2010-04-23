@@ -26,7 +26,6 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkTableWriter, "1.2");
 vtkStandardNewMacro(vtkTableWriter);
 
 void vtkTableWriter::WriteData()

@@ -37,7 +37,7 @@ class VTK_COMMON_EXPORT vtkUnicodeStringArray :
 {
 public:
   static vtkUnicodeStringArray* New();
-  vtkTypeRevisionMacro(vtkUnicodeStringArray,vtkAbstractArray);
+  vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int Allocate(vtkIdType sz, vtkIdType ext=1000);

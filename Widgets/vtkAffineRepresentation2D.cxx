@@ -36,7 +36,6 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkAffineRepresentation2D, "1.9");
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D,Property,vtkProperty2D);

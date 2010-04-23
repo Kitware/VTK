@@ -84,7 +84,7 @@ class VTK_HYBRID_EXPORT vtkVRMLImporter : public vtkImporter
 public:
   static vtkVRMLImporter *New();
 
-  vtkTypeRevisionMacro(vtkVRMLImporter,vtkImporter);
+  vtkTypeMacro(vtkVRMLImporter,vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

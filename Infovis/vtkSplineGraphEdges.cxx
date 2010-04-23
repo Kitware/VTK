@@ -27,7 +27,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSplineGraphEdges, "1.6");
 vtkStandardNewMacro(vtkSplineGraphEdges);
 vtkCxxSetObjectMacro(vtkSplineGraphEdges, Spline, vtkSpline);
 

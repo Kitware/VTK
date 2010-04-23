@@ -36,7 +36,7 @@ class VTK_COMMON_EXPORT vtkSignedCharArray : public vtkDataArray
 {
 public:
   static vtkSignedCharArray* New();
-  vtkTypeRevisionMacro(vtkSignedCharArray,vtkDataArray);
+  vtkTypeMacro(vtkSignedCharArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

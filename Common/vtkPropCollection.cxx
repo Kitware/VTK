@@ -15,7 +15,6 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPropCollection, "1.11");
 vtkStandardNewMacro(vtkPropCollection);
 
 int vtkPropCollection::GetNumberOfPaths()

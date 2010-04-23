@@ -22,7 +22,6 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPolyDataReader, "1.29");
 vtkStandardNewMacro(vtkPolyDataReader);
 
 //----------------------------------------------------------------------------

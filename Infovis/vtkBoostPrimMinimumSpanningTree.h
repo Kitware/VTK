@@ -52,7 +52,7 @@ class VTK_INFOVIS_EXPORT vtkBoostPrimMinimumSpanningTree : public vtkTreeAlgorit
 {
 public:
   static vtkBoostPrimMinimumSpanningTree *New();
-  vtkTypeRevisionMacro(vtkBoostPrimMinimumSpanningTree, vtkTreeAlgorithm);
+  vtkTypeMacro(vtkBoostPrimMinimumSpanningTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

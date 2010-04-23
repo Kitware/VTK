@@ -33,7 +33,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.11");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------

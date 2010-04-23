@@ -50,7 +50,7 @@ class vtkRenderer;
 class VTK_RENDERING_EXPORT vtkCgShaderProgram : public vtkShaderProgram
 {
 public:
-  vtkTypeRevisionMacro(vtkCgShaderProgram, vtkShaderProgram);
+  vtkTypeMacro(vtkCgShaderProgram, vtkShaderProgram);
   static vtkCgShaderProgram *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 

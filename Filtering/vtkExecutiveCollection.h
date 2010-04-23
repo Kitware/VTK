@@ -46,7 +46,7 @@ class VTK_FILTERING_EXPORT vtkExecutiveCollection : public vtkCollection
 {
 public:
   static vtkExecutiveCollection *New();
-  vtkTypeRevisionMacro(vtkExecutiveCollection,vtkCollection);
+  vtkTypeMacro(vtkExecutiveCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

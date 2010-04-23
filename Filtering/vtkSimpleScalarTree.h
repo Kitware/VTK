@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Standard type related macros and PrintSelf() method.
-  vtkTypeRevisionMacro(vtkSimpleScalarTree,vtkScalarTree);
+  vtkTypeMacro(vtkSimpleScalarTree,vtkScalarTree);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

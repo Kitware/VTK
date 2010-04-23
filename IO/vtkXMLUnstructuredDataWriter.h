@@ -30,7 +30,7 @@ class vtkIdTypeArray;
 class VTK_IO_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLUnstructuredDataWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLUnstructuredDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -30,7 +30,7 @@ public:
 
   void Initialize();
   int Allocate(const vtkIdType sz, const int strategy=0);
-  vtkTypeRevisionMacro(vtkIdList,vtkObject);
+  vtkTypeMacro(vtkIdList,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

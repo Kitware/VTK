@@ -26,7 +26,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLCoincidentTopologyResolutionPainter :
 {
 public:
   static vtkOpenGLCoincidentTopologyResolutionPainter* New();
-  vtkTypeRevisionMacro(vtkOpenGLCoincidentTopologyResolutionPainter,
+  vtkTypeMacro(vtkOpenGLCoincidentTopologyResolutionPainter,
     vtkCoincidentTopologyResolutionPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 

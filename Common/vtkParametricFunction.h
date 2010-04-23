@@ -55,7 +55,7 @@
 class VTK_COMMON_EXPORT vtkParametricFunction : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkParametricFunction, vtkObject);
+  vtkTypeMacro(vtkParametricFunction, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

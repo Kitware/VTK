@@ -35,7 +35,7 @@ class VTK_PARALLEL_EXPORT vtkMPIGroup : public vtkObject
 
 public:
 
-  vtkTypeRevisionMacro( vtkMPIGroup,vtkObject);
+  vtkTypeMacro( vtkMPIGroup,vtkObject);
   
   // Description:
   // Construct a vtkMPIGroup with the following initial state:

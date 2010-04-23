@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Standard methods for a VTK class.
-  vtkTypeRevisionMacro(vtkBalloonWidget,vtkHoverWidget);
+  vtkTypeMacro(vtkBalloonWidget,vtkHoverWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

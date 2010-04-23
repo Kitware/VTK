@@ -39,7 +39,7 @@ public:
   enum caseType { DECOMPOSED_CASE = 0, RECONSTRUCTED_CASE = 1 };
   //ETX
   static vtkPOpenFOAMReader *New();
-  vtkTypeRevisionMacro(vtkPOpenFOAMReader, vtkOpenFOAMReader);
+  vtkTypeMacro(vtkPOpenFOAMReader, vtkOpenFOAMReader);
 
   void PrintSelf(ostream &os, vtkIndent indent);
 

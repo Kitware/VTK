@@ -55,7 +55,7 @@ class vtkGenericDataSet;
 class VTK_FILTERING_EXPORT vtkGenericCellTessellator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericCellTessellator,vtkObject);
+  vtkTypeMacro(vtkGenericCellTessellator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

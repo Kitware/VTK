@@ -53,7 +53,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkTerrainContourLineInterpolator,
+  vtkTypeMacro(vtkTerrainContourLineInterpolator,
                               vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -79,7 +79,7 @@ class vtkUnsignedCharArray;
 class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkClipVolume,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkClipVolume,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

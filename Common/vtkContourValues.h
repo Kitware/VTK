@@ -35,7 +35,7 @@ public:
   // Construct object with a single contour value at 0.0.
   static vtkContourValues *New();
 
-  vtkTypeRevisionMacro(vtkContourValues,vtkObject);
+  vtkTypeMacro(vtkContourValues,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

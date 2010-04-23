@@ -25,7 +25,7 @@ class VTK_IO_EXPORT vtkXMLMultiBlockDataWriter : public vtkXMLCompositeDataWrite
 {
 public:
   static vtkXMLMultiBlockDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLMultiBlockDataWriter, vtkXMLCompositeDataWriter);
+  vtkTypeMacro(vtkXMLMultiBlockDataWriter, vtkXMLCompositeDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -24,7 +24,6 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.160");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

@@ -36,7 +36,7 @@ class VTK_IMAGING_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFil
 {
 public:
   static vtkImageCityBlockDistance *New();
-  vtkTypeRevisionMacro(vtkImageCityBlockDistance,vtkImageDecomposeFilter);
+  vtkTypeMacro(vtkImageCityBlockDistance,vtkImageDecomposeFilter);
   
 protected:
   vtkImageCityBlockDistance();

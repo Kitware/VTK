@@ -45,7 +45,6 @@ static int sizeofFastQuad(int numPts)
   return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
 }
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.75");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------

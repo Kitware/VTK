@@ -36,7 +36,7 @@ class VTK_IO_EXPORT vtkTableReader : public vtkDataReader
 {
 public:
   static vtkTableReader *New();
-  vtkTypeRevisionMacro(vtkTableReader,vtkDataReader);
+  vtkTypeMacro(vtkTableReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

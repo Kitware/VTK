@@ -41,7 +41,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLRandomGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLRandomGraphSource* New();
-  vtkTypeRevisionMacro(vtkPBGLRandomGraphSource,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkPBGLRandomGraphSource,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

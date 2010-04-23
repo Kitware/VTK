@@ -50,7 +50,7 @@ public:
 
   // Description:
   // Standard macros.
-  vtkTypeRevisionMacro(vtkWidgetEventTranslator,vtkObject);
+  vtkTypeMacro(vtkWidgetEventTranslator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

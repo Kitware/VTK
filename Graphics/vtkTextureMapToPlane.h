@@ -42,7 +42,7 @@
 class VTK_GRAPHICS_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTextureMapToPlane,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkTextureMapToPlane,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

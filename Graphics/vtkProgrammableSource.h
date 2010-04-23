@@ -47,7 +47,7 @@ class VTK_GRAPHICS_EXPORT vtkProgrammableSource : public vtkDataSetAlgorithm
 {
 public:
   static vtkProgrammableSource *New();
-  vtkTypeRevisionMacro(vtkProgrammableSource,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkProgrammableSource,vtkDataSetAlgorithm);
 
   // Description:
   // Specify the function to use to generate the source data. Note

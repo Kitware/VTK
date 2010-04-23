@@ -25,7 +25,6 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCoincidentTopologyResolutionPainter);
-vtkCxxRevisionMacro(vtkCoincidentTopologyResolutionPainter, "1.4");
 vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter, 
   RESOLVE_COINCIDENT_TOPOLOGY, Integer);
 vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter, Z_SHIFT, Double);

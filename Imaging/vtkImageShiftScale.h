@@ -30,7 +30,7 @@ class VTK_IMAGING_EXPORT vtkImageShiftScale : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageShiftScale *New();
-  vtkTypeRevisionMacro(vtkImageShiftScale,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageShiftScale,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

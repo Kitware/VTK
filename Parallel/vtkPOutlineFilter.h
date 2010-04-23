@@ -29,7 +29,7 @@ class VTK_PARALLEL_EXPORT vtkPOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPOutlineFilter *New();
-  vtkTypeRevisionMacro(vtkPOutlineFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPOutlineFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

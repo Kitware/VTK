@@ -23,7 +23,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkTableReader, "1.2");
 vtkStandardNewMacro(vtkTableReader);
 
 #ifdef read

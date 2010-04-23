@@ -19,7 +19,6 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.8");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 //----------------------------------------------------------------------------

@@ -88,7 +88,7 @@ class vtkModelMetadataSTLCloak;
 class VTK_GRAPHICS_EXPORT vtkModelMetadata : public vtkObject
 { 
 public:
-  vtkTypeRevisionMacro(vtkModelMetadata, vtkObject);
+  vtkTypeMacro(vtkModelMetadata, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkModelMetadata *New();
 

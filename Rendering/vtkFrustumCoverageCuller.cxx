@@ -20,7 +20,6 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.34");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values

@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkPostScriptWriter : public vtkImageWriter
 {
 public:
   static vtkPostScriptWriter *New();
-  vtkTypeRevisionMacro(vtkPostScriptWriter,vtkImageWriter);
+  vtkTypeMacro(vtkPostScriptWriter,vtkImageWriter);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

@@ -40,7 +40,6 @@
 #include <vtkstd/vector>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkXMLCompositeDataReader, "1.5");
 
 struct vtkXMLCompositeDataReaderEntry
 {

@@ -140,7 +140,7 @@ extern "C" {
 class VTK_RENDERING_EXPORT vtkOpenGLExtensionManager : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLExtensionManager, vtkObject);
+  vtkTypeMacro(vtkOpenGLExtensionManager, vtkObject);
   static vtkOpenGLExtensionManager *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 

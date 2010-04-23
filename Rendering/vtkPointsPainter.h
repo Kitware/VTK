@@ -29,7 +29,7 @@ class VTK_RENDERING_EXPORT vtkPointsPainter : public vtkPrimitivePainter
 {
 public:
   static vtkPointsPainter* New();
-  vtkTypeRevisionMacro(vtkPointsPainter, vtkPrimitivePainter);
+  vtkTypeMacro(vtkPointsPainter, vtkPrimitivePainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

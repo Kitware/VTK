@@ -100,7 +100,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkTableBasedClipDataSet : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro( vtkTableBasedClipDataSet, vtkUnstructuredGridAlgorithm );
+  vtkTypeMacro( vtkTableBasedClipDataSet, vtkUnstructuredGridAlgorithm );
   void PrintSelf( ostream & os, vtkIndent indent );
 
   // Description:

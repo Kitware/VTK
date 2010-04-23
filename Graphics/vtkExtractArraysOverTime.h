@@ -45,7 +45,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractArraysOverTime : public vtkMultiBlockDataSet
 {
 public:
   static vtkExtractArraysOverTime *New();
-  vtkTypeRevisionMacro(vtkExtractArraysOverTime, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractArraysOverTime, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

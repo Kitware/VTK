@@ -30,7 +30,7 @@ class VTK_RENDERING_EXPORT vtkHardwareSelectionPolyDataPainter :
 {
 public:
   static vtkHardwareSelectionPolyDataPainter* New();
-  vtkTypeRevisionMacro(vtkHardwareSelectionPolyDataPainter, vtkStandardPolyDataPainter);
+  vtkTypeMacro(vtkHardwareSelectionPolyDataPainter, vtkStandardPolyDataPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

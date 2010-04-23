@@ -36,7 +36,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkOpenGLPolyDataMapper *New();
-  vtkTypeRevisionMacro(vtkOpenGLPolyDataMapper,vtkPolyDataMapper);
+  vtkTypeMacro(vtkOpenGLPolyDataMapper,vtkPolyDataMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

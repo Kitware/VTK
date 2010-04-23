@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkSimpleImageFilterExample : public vtkSimpleImageToIm
 {
 public:
   static vtkSimpleImageFilterExample *New();
-  vtkTypeRevisionMacro(vtkSimpleImageFilterExample,vtkSimpleImageToImageFilter);
+  vtkTypeMacro(vtkSimpleImageFilterExample,vtkSimpleImageToImageFilter);
 
 protected:
 

@@ -106,7 +106,7 @@ typedef unsigned long   TemplateIDType;
 class VTK_FILTERING_EXPORT vtkOrderedTriangulator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkOrderedTriangulator,vtkObject);
+  vtkTypeMacro(vtkOrderedTriangulator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

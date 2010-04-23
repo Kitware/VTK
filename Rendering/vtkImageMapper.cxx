@@ -24,7 +24,6 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.54");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

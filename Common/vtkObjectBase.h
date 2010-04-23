@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Return the class name as a string. This method is defined
-  // in all subclasses of vtkObjectBase with the vtkTypeRevisionMacro found
+  // in all subclasses of vtkObjectBase with the vtkTypeMacro found
   // in vtkSetGet.h.
   const char* GetClassName() const;
 
@@ -76,13 +76,13 @@ public:
   // Description:
   // Return 1 if this class type is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
-  // combination with vtkTypeRevisionMacro found in vtkSetGet.h.
+  // combination with vtkTypeMacro found in vtkSetGet.h.
   static int IsTypeOf(const char *name);
 
   // Description:
   // Return 1 if this class is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
-  // combination with vtkTypeRevisionMacro found in vtkSetGet.h.
+  // combination with vtkTypeMacro found in vtkSetGet.h.
   virtual int IsA(const char *name);
 
   // Description:

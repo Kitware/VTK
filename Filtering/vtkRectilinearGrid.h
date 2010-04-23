@@ -47,7 +47,7 @@ class VTK_FILTERING_EXPORT vtkRectilinearGrid : public vtkDataSet
 public:
   static vtkRectilinearGrid *New();
 
-  vtkTypeRevisionMacro(vtkRectilinearGrid,vtkDataSet);
+  vtkTypeMacro(vtkRectilinearGrid,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

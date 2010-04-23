@@ -17,7 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.28");
 vtkStandardNewMacro(vtkKochanekSpline);
 
 //----------------------------------------------------------------------------

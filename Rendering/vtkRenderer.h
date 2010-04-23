@@ -58,7 +58,7 @@ class vtkVisibleCellSelector;
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
 public:
-  vtkTypeRevisionMacro(vtkRenderer,vtkViewport);
+  vtkTypeMacro(vtkRenderer,vtkViewport);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

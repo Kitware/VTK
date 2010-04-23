@@ -97,7 +97,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDelaunay3D,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

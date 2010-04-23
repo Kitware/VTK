@@ -26,7 +26,6 @@
 // make garbage collecting easier but results in a weak reference.
 #define VTK_USE_SINGLE_REF 1
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.11");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):

@@ -23,7 +23,6 @@
 #include "vtkContextScene.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPanelMark, "1.10");
 vtkStandardNewMacro(vtkPanelMark);
 
 //-----------------------------------------------------------------------------

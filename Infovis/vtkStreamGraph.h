@@ -46,7 +46,7 @@ class VTK_INFOVIS_EXPORT vtkStreamGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkStreamGraph* New();
-  vtkTypeRevisionMacro(vtkStreamGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkStreamGraph,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

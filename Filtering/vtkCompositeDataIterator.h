@@ -31,7 +31,7 @@ class VTK_FILTERING_EXPORT vtkCompositeDataIterator : public vtkObject
 {
 public:
   static vtkCompositeDataIterator* New();
-  vtkTypeRevisionMacro(vtkCompositeDataIterator, vtkObject);
+  vtkTypeMacro(vtkCompositeDataIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,7 @@ class VTK_COMMON_EXPORT vtkTimePointUtility : public vtkObject
 {
 public:
   static vtkTimePointUtility *New();
-  vtkTypeRevisionMacro(vtkTimePointUtility,vtkObject);
+  vtkTypeMacro(vtkTimePointUtility,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

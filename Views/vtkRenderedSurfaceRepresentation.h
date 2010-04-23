@@ -46,7 +46,7 @@ class VTK_VIEWS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRenderedRepr
 {
 public:
   static vtkRenderedSurfaceRepresentation *New();
-  vtkTypeRevisionMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
+  vtkTypeMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //Description:

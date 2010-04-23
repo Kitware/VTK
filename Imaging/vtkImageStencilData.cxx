@@ -25,7 +25,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.33");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------

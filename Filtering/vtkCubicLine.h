@@ -40,7 +40,7 @@ class VTK_FILTERING_EXPORT vtkCubicLine : public vtkNonLinearCell
 {
 public:
   static vtkCubicLine *New();
-  vtkTypeRevisionMacro(vtkCubicLine,vtkNonLinearCell);
+  vtkTypeMacro(vtkCubicLine,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -51,7 +51,7 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
 {
  public:
   static vtkTransform *New();
-  vtkTypeRevisionMacro(vtkTransform,vtkLinearTransform);
+  vtkTypeMacro(vtkTransform,vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

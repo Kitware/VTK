@@ -36,7 +36,7 @@ class VTK_FILTERING_EXPORT vtkGraphEdge : public vtkObject
 {
 public:
   static vtkGraphEdge *New();
-  vtkTypeRevisionMacro(vtkGraphEdge, vtkObject);
+  vtkTypeMacro(vtkGraphEdge, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

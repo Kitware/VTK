@@ -47,7 +47,7 @@ class VTK_GRAPHICS_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAl
 {
 public:
   static vtkStructuredGridGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkStructuredGridGeometryFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkStructuredGridGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

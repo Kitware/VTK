@@ -63,7 +63,7 @@ class VTK_RENDERING_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMappe
 {
 public:
   static vtkQtTreeRingLabelMapper *New();
-  vtkTypeRevisionMacro(vtkQtTreeRingLabelMapper,vtkLabeledDataMapper);
+  vtkTypeMacro(vtkQtTreeRingLabelMapper,vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

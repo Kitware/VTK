@@ -50,7 +50,7 @@ class VTK_COMMON_EXPORT vtkHeap : public vtkObject
 {
 public:
   static vtkHeap *New();
-  vtkTypeRevisionMacro(vtkHeap,vtkObject);
+  vtkTypeMacro(vtkHeap,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

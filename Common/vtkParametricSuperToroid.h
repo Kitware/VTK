@@ -45,7 +45,7 @@
 class VTK_COMMON_EXPORT vtkParametricSuperToroid : public vtkParametricFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkParametricSuperToroid,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricSuperToroid,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -16,7 +16,6 @@
 #include <cassert>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMinimalStandardRandomSequence, "1.3");
 vtkStandardNewMacro(vtkMinimalStandardRandomSequence);
 
 const int VTK_K_A=16807;

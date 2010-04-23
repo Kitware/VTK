@@ -58,7 +58,7 @@ class vtkRectilinearSynchronizedTemplates;
 class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkContourFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkContourFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

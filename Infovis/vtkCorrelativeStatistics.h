@@ -52,7 +52,7 @@ class vtkVariant;
 class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkBivariateStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkCorrelativeStatistics, vtkBivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkCorrelativeStatistics, vtkBivariateStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCorrelativeStatistics* New();
 

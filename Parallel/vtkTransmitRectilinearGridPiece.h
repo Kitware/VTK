@@ -32,7 +32,7 @@ class VTK_PARALLEL_EXPORT vtkTransmitRectilinearGridPiece : public vtkRectilinea
 {
 public:
   static vtkTransmitRectilinearGridPiece *New();
-  vtkTypeRevisionMacro(vtkTransmitRectilinearGridPiece, vtkRectilinearGridAlgorithm);
+  vtkTypeMacro(vtkTransmitRectilinearGridPiece, vtkRectilinearGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

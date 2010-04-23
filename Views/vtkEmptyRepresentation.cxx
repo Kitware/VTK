@@ -24,7 +24,6 @@
 #include "vtkConvertSelectionDomain.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEmptyRepresentation, "1.2");
 vtkStandardNewMacro(vtkEmptyRepresentation);
 
 

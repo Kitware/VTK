@@ -17,7 +17,6 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageConnector, "1.21");
 vtkStandardNewMacro(vtkImageConnector);
 
 //----------------------------------------------------------------------------

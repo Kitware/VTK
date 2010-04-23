@@ -34,7 +34,7 @@ class VTK_INFOVIS_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGraphLay
 {
 public:
   static vtkAssignCoordinatesLayoutStrategy *New();
-  vtkTypeRevisionMacro(vtkAssignCoordinatesLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkAssignCoordinatesLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

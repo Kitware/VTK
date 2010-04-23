@@ -28,7 +28,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkTableAlgorithm, "1.3");
 vtkStandardNewMacro(vtkTableAlgorithm);
 
 //----------------------------------------------------------------------------

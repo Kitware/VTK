@@ -40,7 +40,7 @@ class VTK_INFOVIS_EXPORT vtkStringToTimePoint : public vtkDataObjectAlgorithm
 {
 public:
   static vtkStringToTimePoint* New();
-  vtkTypeRevisionMacro(vtkStringToTimePoint,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkStringToTimePoint,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

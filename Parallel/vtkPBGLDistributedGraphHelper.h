@@ -48,8 +48,7 @@ namespace boost { namespace graph { namespace distributed {
 class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
 {
  public:
-  vtkTypeRevisionMacro (vtkPBGLDistributedGraphHelper,
-                        vtkDistributedGraphHelper);
+  vtkTypeMacro(vtkPBGLDistributedGraphHelper,vtkDistributedGraphHelper);
 
   // Description:
   // Creates an empty Parallel BGL distributed graph helper

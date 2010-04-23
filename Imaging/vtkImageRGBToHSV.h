@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageRGBToHSV *New();
-  vtkTypeRevisionMacro(vtkImageRGBToHSV,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageRGBToHSV,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

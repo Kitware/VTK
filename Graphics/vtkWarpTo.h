@@ -26,7 +26,7 @@ class VTK_GRAPHICS_EXPORT vtkWarpTo : public vtkPointSetAlgorithm
 {
 public:
   static vtkWarpTo *New();
-  vtkTypeRevisionMacro(vtkWarpTo,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkWarpTo,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

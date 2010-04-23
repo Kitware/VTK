@@ -18,7 +18,6 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.21");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionInternals

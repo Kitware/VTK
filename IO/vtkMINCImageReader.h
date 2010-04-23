@@ -81,7 +81,7 @@ class vtkMINCImageAttributes;
 class VTK_IO_EXPORT vtkMINCImageReader : public vtkImageReader2
 {
 public:
-  vtkTypeRevisionMacro(vtkMINCImageReader,vtkImageReader2);
+  vtkTypeMacro(vtkMINCImageReader,vtkImageReader2);
 
   static vtkMINCImageReader *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);

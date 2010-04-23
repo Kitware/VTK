@@ -43,7 +43,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCenteredSliderRepresentation, "1.4");
 vtkStandardNewMacro(vtkCenteredSliderRepresentation);
 
 //----------------------------------------------------------------------

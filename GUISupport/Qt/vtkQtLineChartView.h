@@ -40,7 +40,7 @@ Q_OBJECT
 
 public:
   static vtkQtLineChartView *New();
-  vtkTypeRevisionMacro(vtkQtLineChartView, vtkQtChartView);
+  vtkTypeMacro(vtkQtLineChartView, vtkQtChartView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

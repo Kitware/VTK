@@ -27,7 +27,6 @@
 #include "vtkRenderWindow.h"
 
 
-vtkCxxRevisionMacro(vtkLineWidget2, "1.4");
 vtkStandardNewMacro(vtkLineWidget2);
 
 //----------------------------------------------------------------------------

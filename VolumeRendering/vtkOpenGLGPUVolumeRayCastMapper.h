@@ -51,7 +51,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkOpenGLGPUVolumeRayCastMapper : public vtkGPU
 {
 public:
   static vtkOpenGLGPUVolumeRayCastMapper *New();
-  vtkTypeRevisionMacro(vtkOpenGLGPUVolumeRayCastMapper,vtkGPUVolumeRayCastMapper);
+  vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper,vtkGPUVolumeRayCastMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

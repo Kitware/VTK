@@ -45,7 +45,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkConcatenateArray : public vtkArrayDataAlgorith
 {
 public:
   static vtkConcatenateArray* New();
-  vtkTypeRevisionMacro(vtkConcatenateArray, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkConcatenateArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,7 +42,7 @@
 class VTK_FILTERING_EXPORT vtkSimpleImageToImageFilter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSimpleImageToImageFilter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkSimpleImageToImageFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

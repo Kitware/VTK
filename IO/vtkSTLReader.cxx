@@ -30,7 +30,6 @@
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.80");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0

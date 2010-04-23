@@ -25,7 +25,6 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLLight, "1.24");
 vtkStandardNewMacro(vtkOpenGLLight);
 #endif
 

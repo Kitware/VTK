@@ -67,7 +67,6 @@ void ConvertFromNetworkOrder(T &target, const char *rawBytes)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.12");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 // ----------------------------------------------------------------------

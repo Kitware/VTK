@@ -43,7 +43,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,7 +39,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkEllipsoidTensorProbeRepresentation,
+  vtkTypeMacro(vtkEllipsoidTensorProbeRepresentation,
                                 vtkTensorProbeRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -37,7 +37,7 @@ class APIDiagram : public vtkContextItem
 {
 public:
   static APIDiagram *New();
-  vtkTypeRevisionMacro(APIDiagram, vtkContextItem);
+  vtkTypeMacro(APIDiagram, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
@@ -76,7 +76,6 @@ int TestDiagram( int argc, char * argv [] )
 
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram);
-vtkCxxRevisionMacro(APIDiagram, "1.5");
 // This function draws our API diagram
 bool APIDiagram::Paint(vtkContext2D *painter)
 {

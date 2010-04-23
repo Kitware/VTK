@@ -42,7 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 //--------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkSpanTreeLayoutStrategy);
-vtkCxxRevisionMacro(vtkSpanTreeLayoutStrategy, "1.0");
 
 vtkSpanTreeLayoutStrategy::vtkSpanTreeLayoutStrategy()
 {

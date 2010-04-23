@@ -15,7 +15,6 @@
 #include "vtkWarpTransform.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkWarpTransform, "1.11");
 
 //----------------------------------------------------------------------------
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)

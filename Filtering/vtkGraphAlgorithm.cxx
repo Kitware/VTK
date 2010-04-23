@@ -27,7 +27,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkGraphAlgorithm, "1.5");
 vtkStandardNewMacro(vtkGraphAlgorithm);
 
 //----------------------------------------------------------------------------

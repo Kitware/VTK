@@ -73,7 +73,6 @@ public:
   vtkstd::set<vtkIdType> Set;
 };
 
-vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.4");
 vtkStandardNewMacro(vtkHyperOctreeDualGridContourFilter);
 
 //----------------------------------------------------------------------------

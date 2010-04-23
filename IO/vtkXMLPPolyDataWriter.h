@@ -34,7 +34,7 @@ class VTK_IO_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructuredDataWriter
 {
 public:
   static vtkXMLPPolyDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLPPolyDataWriter,vtkXMLPUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLPPolyDataWriter,vtkXMLPUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

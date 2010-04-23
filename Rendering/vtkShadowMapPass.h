@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkShadowMapPass : public vtkRenderPass
 {
 public:
   static vtkShadowMapPass *New();
-  vtkTypeRevisionMacro(vtkShadowMapPass,vtkRenderPass);
+  vtkTypeMacro(vtkShadowMapPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

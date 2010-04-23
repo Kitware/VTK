@@ -31,7 +31,7 @@ class VTK_IMAGING_EXPORT vtkImageCacheFilter : public vtkImageAlgorithm
 {
 public:
   static vtkImageCacheFilter *New();
-  vtkTypeRevisionMacro(vtkImageCacheFilter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageCacheFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

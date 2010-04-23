@@ -52,7 +52,6 @@
 # pragma warn -8012 /* signed/unsigned comparison */
 #endif
 
-vtkCxxRevisionMacro(vtkSocket, "1.3");
 //-----------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {

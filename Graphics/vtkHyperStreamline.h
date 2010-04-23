@@ -61,7 +61,7 @@ class vtkHyperArray;
 class VTK_GRAPHICS_EXPORT vtkHyperStreamline : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkHyperStreamline,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkHyperStreamline,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -32,7 +32,6 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkPassArrays, "1.4");
 vtkStandardNewMacro(vtkPassArrays);
 
 class vtkPassArrays::Internals

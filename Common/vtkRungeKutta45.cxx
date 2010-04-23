@@ -17,7 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.14");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 //----------------------------------------------------------------------------

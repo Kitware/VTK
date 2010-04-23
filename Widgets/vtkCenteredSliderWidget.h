@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Standard macros.
-  vtkTypeRevisionMacro(vtkCenteredSliderWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkCenteredSliderWidget,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

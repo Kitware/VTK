@@ -34,7 +34,7 @@ class VTK_RENDERING_EXPORT vtkLightsPass : public vtkRenderPass
 {
 public:
   static vtkLightsPass *New();
-  vtkTypeRevisionMacro(vtkLightsPass,vtkRenderPass);
+  vtkTypeMacro(vtkLightsPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

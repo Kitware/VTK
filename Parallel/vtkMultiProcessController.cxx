@@ -58,7 +58,7 @@ class VTK_PARALLEL_EXPORT vtkMultiProcessControllerRMI : public vtkObject
 {
 public:
   static vtkMultiProcessControllerRMI *New(); 
-  vtkTypeRevisionMacro(vtkMultiProcessControllerRMI, vtkObject);
+  vtkTypeMacro(vtkMultiProcessControllerRMI, vtkObject);
   
   int Tag;
   vtkRMIFunctionType Function;
@@ -72,10 +72,8 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.39");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.39");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.

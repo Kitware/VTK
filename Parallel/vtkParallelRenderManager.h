@@ -54,7 +54,7 @@ class vtkUnsignedCharArray;
 class VTK_PARALLEL_EXPORT vtkParallelRenderManager : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkParallelRenderManager, vtkObject);
+  vtkTypeMacro(vtkParallelRenderManager, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

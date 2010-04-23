@@ -39,7 +39,6 @@
 #include <vtkstd/stack>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkOctreePointLocator, "1.3");
 vtkStandardNewMacro(vtkOctreePointLocator);
 
 // helper class for ordering the points in 

@@ -37,7 +37,7 @@ public:
   
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkBezierContourLineInterpolator,vtkContourLineInterpolator);
+  vtkTypeMacro(vtkBezierContourLineInterpolator,vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int InterpolateLine( vtkRenderer *ren, 

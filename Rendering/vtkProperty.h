@@ -53,7 +53,7 @@ class vtkPropertyInternals;
 class VTK_RENDERING_EXPORT vtkProperty : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkProperty,vtkObject);
+  vtkTypeMacro(vtkProperty,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

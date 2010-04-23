@@ -57,7 +57,7 @@ class vtkIdTypeArray;
 class VTK_GRAPHICS_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPolyDataConnectivityFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataConnectivityFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

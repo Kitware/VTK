@@ -36,7 +36,7 @@ class VTK_IO_EXPORT vtkStructuredGridReader : public vtkDataReader
 {
 public:
   static vtkStructuredGridReader *New();
-  vtkTypeRevisionMacro(vtkStructuredGridReader,vtkDataReader);
+  vtkTypeMacro(vtkStructuredGridReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

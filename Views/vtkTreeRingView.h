@@ -42,7 +42,7 @@ class VTK_VIEWS_EXPORT vtkTreeRingView : public vtkTreeAreaView
 {
 public:
   static vtkTreeRingView *New();
-  vtkTypeRevisionMacro(vtkTreeRingView, vtkTreeAreaView);
+  vtkTypeMacro(vtkTreeRingView, vtkTreeAreaView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

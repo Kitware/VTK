@@ -42,7 +42,7 @@ class VTK_RENDERING_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
 {
 public:
   static vtkLabelPlacementMapper *New();
-  vtkTypeRevisionMacro(vtkLabelPlacementMapper, vtkMapper2D);
+  vtkTypeMacro(vtkLabelPlacementMapper, vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -23,7 +23,6 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTextSource, "1.50");
 vtkStandardNewMacro(vtkTextSource);
 
 #define vtkfont_width 9

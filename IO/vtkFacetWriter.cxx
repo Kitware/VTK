@@ -34,7 +34,6 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkFacetWriter, "1.5");
 vtkStandardNewMacro(vtkFacetWriter);
 
 //----------------------------------------------------------------------------

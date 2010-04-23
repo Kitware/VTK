@@ -49,7 +49,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkTerrainDataPointPlacer,vtkPointPlacer);
+  vtkTypeMacro(vtkTerrainDataPointPlacer,vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Descuription:

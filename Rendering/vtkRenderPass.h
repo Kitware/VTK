@@ -51,7 +51,7 @@ class vtkRenderer;
 class VTK_RENDERING_EXPORT vtkRenderPass : public vtkObject
 {
  public:
-  vtkTypeRevisionMacro(vtkRenderPass,vtkObject);
+  vtkTypeMacro(vtkRenderPass,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

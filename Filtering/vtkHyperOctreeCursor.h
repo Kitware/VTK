@@ -47,7 +47,7 @@ const int VTK_BINARY_TREE_CHILD_RIGHT=VTK_QUADTREE_CHILD_SE;
 class VTK_FILTERING_EXPORT vtkHyperOctreeCursor : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkHyperOctreeCursor,vtkObject);
+  vtkTypeMacro(vtkHyperOctreeCursor,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

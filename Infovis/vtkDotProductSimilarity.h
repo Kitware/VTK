@@ -61,7 +61,7 @@ class VTK_INFOVIS_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 {
 public:
   static vtkDotProductSimilarity* New();
-  vtkTypeRevisionMacro(vtkDotProductSimilarity, vtkTableAlgorithm);
+  vtkTypeMacro(vtkDotProductSimilarity, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

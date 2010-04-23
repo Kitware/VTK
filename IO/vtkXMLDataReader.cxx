@@ -29,7 +29,6 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.40");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()

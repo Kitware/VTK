@@ -18,7 +18,6 @@
 #include "vtkMedicalImageProperties.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.7");
 vtkStandardNewMacro(vtkMedicalImageReader2);
 
 //----------------------------------------------------------------------------

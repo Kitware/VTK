@@ -36,7 +36,7 @@ class vtkDSPFilterDefinitionStringSTLCloak;
 class VTK_HYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 {
  public:
-  vtkTypeRevisionMacro(vtkDSPFilterDefinition, vtkObject);
+  vtkTypeMacro(vtkDSPFilterDefinition, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
   static vtkDSPFilterDefinition *New();
 

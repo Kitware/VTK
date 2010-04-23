@@ -48,7 +48,7 @@ class VTK_RENDERING_EXPORT vtkLightActor : public vtkProp3D
 {
 public:
   static vtkLightActor *New();
-  vtkTypeRevisionMacro(vtkLightActor,vtkProp3D);
+  vtkTypeMacro(vtkLightActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -28,7 +28,6 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkClipConvexPolyData,"1.4");
 vtkStandardNewMacro(vtkClipConvexPolyData);
 
 vtkCxxSetObjectMacro(vtkClipConvexPolyData,Planes,vtkPlaneCollection);

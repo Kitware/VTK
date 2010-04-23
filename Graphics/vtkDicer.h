@@ -50,7 +50,7 @@
 class VTK_GRAPHICS_EXPORT vtkDicer : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkDicer,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkDicer,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

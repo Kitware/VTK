@@ -36,7 +36,7 @@ class VTK_IO_EXPORT vtkGAMBITReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkGAMBITReader *New();
-  vtkTypeRevisionMacro(vtkGAMBITReader,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkGAMBITReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

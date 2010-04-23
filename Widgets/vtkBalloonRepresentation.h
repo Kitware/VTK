@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Standard VTK methods.
-  vtkTypeRevisionMacro(vtkBalloonRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkBalloonRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

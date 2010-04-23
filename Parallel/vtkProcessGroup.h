@@ -50,7 +50,7 @@ class vtkCommunicator;
 class VTK_PARALLEL_EXPORT vtkProcessGroup : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkProcessGroup, vtkObject);
+  vtkTypeMacro(vtkProcessGroup, vtkObject);
   static vtkProcessGroup *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

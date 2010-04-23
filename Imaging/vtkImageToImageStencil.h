@@ -32,7 +32,7 @@ class VTK_IMAGING_EXPORT vtkImageToImageStencil : public vtkImageStencilSource
 {
 public:
   static vtkImageToImageStencil *New();
-  vtkTypeRevisionMacro(vtkImageToImageStencil, vtkImageStencilSource);
+  vtkTypeMacro(vtkImageToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

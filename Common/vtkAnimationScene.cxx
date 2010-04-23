@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.15");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------

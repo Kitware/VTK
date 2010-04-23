@@ -32,7 +32,7 @@ class VTK_COMMON_EXPORT vtkInformationVector : public vtkObject
 {
 public:
   static vtkInformationVector *New();
-  vtkTypeRevisionMacro(vtkInformationVector,vtkObject);
+  vtkTypeMacro(vtkInformationVector,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

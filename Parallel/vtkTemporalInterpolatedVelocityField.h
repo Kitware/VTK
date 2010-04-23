@@ -64,7 +64,7 @@ class vtkCachingInterpolatedVelocityField;
 class VTK_PARALLEL_EXPORT vtkTemporalInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
-  vtkTypeRevisionMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);
+  vtkTypeMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

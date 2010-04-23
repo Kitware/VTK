@@ -50,7 +50,6 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkThreadedStreamingPipeline, "1.6");
 vtkStandardNewMacro(vtkThreadedStreamingPipeline);
 
 vtkInformationKeyMacro(vtkThreadedStreamingPipeline, AUTO_PROPAGATE, Integer);

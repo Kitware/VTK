@@ -26,7 +26,7 @@ class VTK_IO_EXPORT vtkGenericDataObjectWriter : public vtkDataWriter
 {
 public:
   static vtkGenericDataObjectWriter *New();
-  vtkTypeRevisionMacro(vtkGenericDataObjectWriter,vtkDataWriter);
+  vtkTypeMacro(vtkGenericDataObjectWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
