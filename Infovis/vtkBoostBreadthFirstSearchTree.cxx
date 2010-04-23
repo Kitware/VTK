@@ -248,8 +248,13 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     if (this->ReverseEdges)
       {
+#if BOOST_VERSION < 104100      // Boost 1.41.x
+      vtkErrorMacro("ReverseEdges requires Boost 1.41.x or higher");
+      return 0;
+#else
       boost::reverse_graph<vtkDirectedGraph*> r(g);
       breadth_first_search(r, this->OriginVertexIndex, q, builder, color);
+#endif
       }
     else
       {
