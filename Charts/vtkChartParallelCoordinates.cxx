@@ -347,7 +347,10 @@ void vtkChartParallelCoordinates::UpdateGeometry()
       vtkAxis* axis = this->Storage->Axes[i];
       axis->SetPoint1(x, this->Point1[1]);
       axis->SetPoint2(x, this->Point2[1]);
-      axis->AutoScale();
+      if (axis->GetBehavior() == 0)
+        {
+        axis->AutoScale();
+        }
       axis->Update();
       x += xStep;
       }
