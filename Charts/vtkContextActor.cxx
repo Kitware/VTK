@@ -64,7 +64,7 @@ void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
 {
   vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice())
       ->ReleaseGraphicsResources(window);
-  
+
   if(this->Scene!=0)
     {
     this->Scene->ReleaseGraphicsResources();
@@ -90,6 +90,11 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   int size[2];
   size[0] = window->GetSize()[0];
   size[1] = window->GetSize()[1];
+
+  int viewportInfo[4];
+  viewport->GetTiledSizeAndOrigin( &viewportInfo[0], &viewportInfo[1],
+    &viewportInfo[2], &viewportInfo[3] );
+
   // The viewport is in normalized coordinates, and is the visible section of
   // the scene.
   vtkTransform2D* transform = this->Scene->GetTransform();
@@ -103,6 +108,11 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
                   static_cast<int>(b[2] * size[0]),
                   static_cast<int>(b[3] * size[1]) };
     transform->Translate(-box[0], -box[1]);
+    }
+  else if (viewportInfo[0] != size[0] || viewportInfo[1] != size[1] )
+    {
+    size[0]=viewportInfo[0];
+    size[1]=viewportInfo[1];
     }
 
   // This is the entry point for all 2D rendering.
