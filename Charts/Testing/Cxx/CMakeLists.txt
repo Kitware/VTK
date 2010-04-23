@@ -14,6 +14,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestMarksWedge.cxx
     TestMarksWedgeCallback.cxx
     TestMarksWedgeLine.cxx
+    TestMultipleChartRenderers.cxx
+    TestMultipleRenderers.cxx
     )
     
   IF (VTK_DATA_ROOT)
