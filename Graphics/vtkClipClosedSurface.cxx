@@ -1440,7 +1440,6 @@ int vtkCCSTriangulate(
 // added to "data".  It is only meant as a debugging tool.
 //#define VTK_CCS_SHOW_FAILED_POLYS
 
-#include "vtkTimerLog.h"
 void vtkClipClosedSurface::MakePolysFromContours(
   vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
   vtkCellArray *polys, const double normal[3])
@@ -1519,14 +1518,7 @@ void vtkClipClosedSurface::MakePolysFromContours(
   // Some polys might be self-intersecting.  Split the polys at each
   // intersection point.
 
-  if (vtkCCSSplitAtPinchPoints(
-        newPolys, points, polyGroups, polyEdges, normal))
-    {
-    if (this->TriangulationErrorDisplay)
-      {
-      vtkErrorMacro("Possible intersection, output may not be watertight");
-      }
-    }
+  vtkCCSSplitAtPinchPoints(newPolys, points, polyGroups, polyEdges, normal);
 
   // ------ Triangulation code ------
 
@@ -1735,12 +1727,15 @@ void vtkCCSMakePolysFromLines(
       endPts[0] = poly[npoly-1];
       endPts[1] = poly[0];
 
+      // For both open ends of the polygon
       for (int endIdx = 0; endIdx < 2; endIdx++)
         {
+        vtkstd::vector<vtkIdType> matches;
         unsigned short ncells;
         vtkIdType *cells;
         data->GetPointCells(endPts[endIdx], ncells, cells);
 
+        // Go through all lines that contain this endpoint
         for (vtkIdType icell = 0; icell < ncells; icell++)
           {
           lineId = cells[icell];
@@ -1748,46 +1743,62 @@ void vtkCCSMakePolysFromLines(
               !usedLines.get(lineId-firstLine))
             {
             data->GetCellPoints(lineId, npts, pts);
+            vtkIdType lineEndPts[2];
+            lineEndPts[0] = pts[0];
+            lineEndPts[1] = pts[npts-1];
 
-            if (pts[0] == poly[npoly-1] &&
-                pts[1] != poly[npoly-2])
+            // Check that poly end matches line end
+            if (endPts[endIdx] == lineEndPts[endIdx])
               {
-              vtkIdType n = npts;
-              if (pts[npts-1] == poly[0])
-                {
-                n = npts-1;
-                completePoly = 1;
-                }
-
-              poly.insert(poly.end(), n - 1, 0);
-
-              for (vtkIdType k = 1; k < n; k++)
-                {
-                poly[npoly++] = pts[k];
-                }
-
-              usedLines.set(lineId-firstLine, 1);
-              remainingLines--;
-              noLinesMatch = 0;
-              break;
-              }
-            else if (pts[npts-1] == poly[0] &&
-                     pts[npts-2] != poly[1])
-              {
-              vtkIdType n = npts - 1;
-              poly.insert(poly.begin(), n, 0);
-
-              for (vtkIdType k = 0; k < n; k++)
-                {
-                poly[k] = pts[k];
-                }
-
-              usedLines.set(lineId-firstLine, 1);
-              remainingLines--;
-              noLinesMatch = 0;
-              break;
+              matches.push_back(lineId);
               }
             }
+          }
+
+        if (matches.size() > 0)
+          {
+          // Multiple matches mean we need to decide which path to take
+          if (matches.size() > 1)
+            {
+            // Remove double-backs
+            size_t k = matches.size();
+            do
+              {
+              lineId = matches[--k];
+              data->GetCellPoints(lineId, npts, pts);
+              if ((endIdx == 0 && poly[npoly-2] == pts[1]) ||
+                  (endIdx == 1 && poly[1] == pts[npts-2]))
+                {
+                matches.erase(matches.begin()+k);
+                }
+              }
+            while (k > 0 && matches.size() > 1);
+
+            // If there are multiple matches due to intersections,
+            // they should be dealt with here.
+            }
+
+          lineId = matches[0];
+          data->GetCellPoints(lineId, npts, pts);
+
+          // Do both ends match?
+          if (pts[0] == poly[npoly-1] && pts[npts-1] == poly[0])
+            {
+            completePoly = 1;
+            }
+
+          if (endIdx == 0)
+            {
+            poly.insert(poly.end(), &pts[1], &pts[npts-completePoly]); 
+            }
+          else
+            {
+            poly.insert(poly.begin(), &pts[completePoly], &pts[npts-1]); 
+            }
+
+          usedLines.set(lineId-firstLine, 1);
+          remainingLines--;
+          noLinesMatch = 0;
           }
         }
       }
