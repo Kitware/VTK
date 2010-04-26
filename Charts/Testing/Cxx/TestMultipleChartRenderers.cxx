@@ -36,7 +36,7 @@ int TestMultipleChartRenderers( int argc, char * argv [] )
 {
 
   VTK_CREATE(vtkRenderWindow, renwin);
-  renwin->SetMultiSamples(4);
+  renwin->SetMultiSamples(0);
   renwin->SetSize(800, 640);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
@@ -109,13 +109,11 @@ int TestMultipleChartRenderers( int argc, char * argv [] )
     line->SetWidth(4.0);
     }
 
-  renwin->Render();
-
-  int retVal = vtkRegressionTestImage(renwin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Start();
+    view->GetInteractor()->Start();
     }
 
-  return 0;
+  return !retVal;
 }

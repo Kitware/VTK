@@ -117,27 +117,14 @@ int TestMultipleRenderers( int argc, char * argv [] )
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
 
-
-  //x scale
-  //ren3d->SetViewport(0.5,0,1,1);
-  //ren2d->SetViewport(0,0,0.5,1);
-
-  //ren2d->SetViewport(0.5,0,1,1);
-  //ren3d->SetViewport(0,0,0.5,1);
-
   ren3d->SetViewport(0,0,1,0.5);
   ren2d->SetViewport(0,0.5,1,1);
 
-  //ren2d->SetViewport(0,0,1,0.5);
-  //ren3d->SetViewport(0,0.5,1,1);
-
-  renwin->Render();
-
-  int retVal = vtkRegressionTestImage(renwin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-    iren->Start();
+    view->GetInteractor()->Start();
     }
 
-  return 0;
+  return !retVal;
 }
