@@ -120,7 +120,7 @@ int TestMultipleRenderers( int argc, char * argv [] )
   ren3d->SetViewport(0,0,1,0.5);
   ren2d->SetViewport(0,0.5,1,1);
 
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  int retVal = vtkRegressionTestImage(iren->GetRenderWindow());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

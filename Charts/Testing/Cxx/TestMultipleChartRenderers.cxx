@@ -109,7 +109,7 @@ int TestMultipleChartRenderers( int argc, char * argv [] )
     line->SetWidth(4.0);
     }
 
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  int retVal = vtkRegressionTestImage(iren->GetRenderWindow());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
