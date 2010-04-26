@@ -411,6 +411,7 @@ void vtkContextScene::TestBufferIdSupport()
     b->SetContext(static_cast<vtkOpenGLRenderWindow *>(
                     this->Renderer->GetRenderWindow()));
     this->BufferIdSupported=b->IsSupported();
+    b->ReleaseGraphicsResources();
     b->Delete();
     this->BufferIdSupportTested=true;
     }
