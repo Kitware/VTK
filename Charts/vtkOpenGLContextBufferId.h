@@ -47,9 +47,15 @@ public:
   vtkOpenGLRenderWindow *GetContext();
   
   // Description:
+  // Returns if the context supports the required extensions.
+  // \pre context_is_set: this->GetContext()!=0
+  bool IsSupported();
+
+  // Description:
   // Allocate the memory for at least Width*Height elements.
   // \pre positive_width: GetWidth()>0
   // \pre positive_height: GetHeight()>0
+  // \pre context_is_set: this->GetContext()!=0
   virtual void Allocate();
   
   // Description:

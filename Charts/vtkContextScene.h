@@ -188,6 +188,9 @@ protected:
   virtual void PaintIds();
 
   // Description:
+  // Test if BufferId is supported by the OpenGL context.
+  void TestBufferIdSupport();
+  // Description:
   // Return the item id under mouse cursor at position (x,y).
   // Return -1 if there is no item under the mouse cursor.
   // \post valid_result: result>=-1 && result<this->GetNumberOfItems()
@@ -221,6 +224,9 @@ protected:
   bool BufferIdDirty;
 
   bool UseBufferId;
+
+  bool BufferIdSupportTested;
+  bool BufferIdSupported;
 
   // Description:
   // The scene level transform.

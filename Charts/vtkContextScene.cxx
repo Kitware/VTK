@@ -159,6 +159,8 @@ vtkContextScene::vtkContextScene()
   this->Geometry[1] = 0;
   this->BufferId=0;
   this->BufferIdDirty=true;
+  this->BufferIdSupportTested=false;
+  this->BufferIdSupported=false;
   this->UseBufferId = true;
   this->Transform = NULL;
 }
@@ -185,6 +187,7 @@ vtkContextScene::~vtkContextScene()
 void vtkContextScene::SetRenderer(vtkRenderer *r)
 {
   this->Renderer=r;
+  this->BufferIdSupportTested=false;
 }
 
 //-----------------------------------------------------------------------------
@@ -400,6 +403,20 @@ void vtkContextScene::ProcessSelectionEvent(vtkObject* caller, void* callData)
 }
 
 // ----------------------------------------------------------------------------
+void vtkContextScene::TestBufferIdSupport()
+{
+  if(!this->BufferIdSupportTested)
+    {
+    vtkOpenGLContextBufferId *b=vtkOpenGLContextBufferId::New();
+    b->SetContext(static_cast<vtkOpenGLRenderWindow *>(
+                    this->Renderer->GetRenderWindow()));
+    this->BufferIdSupported=b->IsSupported();
+    b->Delete();
+    this->BufferIdSupportTested=true;
+    }
+}
+
+// ----------------------------------------------------------------------------
 void vtkContextScene::UpdateBufferId()
 {
   int lowerLeft[2];
@@ -435,7 +452,8 @@ void vtkContextScene::UpdateBufferId()
 vtkIdType vtkContextScene::GetPickedItem(int x, int y)
 {
   vtkIdType result = -1;
-  if (this->UseBufferId)
+  this->TestBufferIdSupport();
+  if (this->UseBufferId && this->BufferIdSupported)
     {
     this->UpdateBufferId();
     result=this->BufferId->GetPickedItem(x,y);

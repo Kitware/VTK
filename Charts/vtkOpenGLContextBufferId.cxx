@@ -51,7 +51,7 @@ void vtkOpenGLContextBufferId::ReleaseGraphicsResources()
     }
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::SetContext(vtkOpenGLRenderWindow *context)
 {
   if(this->Context!=context)
@@ -62,10 +62,22 @@ void vtkOpenGLContextBufferId::SetContext(vtkOpenGLRenderWindow *context)
     }
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow *vtkOpenGLContextBufferId::GetContext()
 {
   return this->Context;
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLContextBufferId::IsSupported()
+{
+  assert("pre: context_is_set" && this->GetContext()!=0);
+  if(this->Texture==0)
+    {
+    this->Texture=vtkTextureObject::New();
+    this->Texture->SetContext(this->Context);
+    }
+  return this->Texture->IsSupported(this->Context);
 }
 
 // ----------------------------------------------------------------------------
@@ -73,6 +85,7 @@ void vtkOpenGLContextBufferId::Allocate()
 {
   assert("pre: positive_width" && this->GetWidth()>0);
   assert("pre: positive_height" && this->GetHeight()>0);
+  assert("pre: context_is_set" && this->GetContext()!=0);
   
   if(this->Texture==0)
     {
@@ -89,7 +102,6 @@ void vtkOpenGLContextBufferId::Allocate()
 // ----------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsAllocated() const
 {
-
   return this->Texture!=0 &&
     this->Texture->GetWidth()==static_cast<unsigned int>(this->Width) &&
     this->Texture->GetHeight()==static_cast<unsigned int>(this->Height);
