@@ -539,8 +539,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
     // as the plane normal. Otherwise, reverse the order
     int flipCount = 0;
     int checkCount = 0;
-    int startV;
-    for ( startV = 0; startV+2 < newPoly->Vertices.size(); startV++)
+    for (size_t startV = 0; startV+2 < newPoly->Vertices.size(); startV++)
       {
       double *p1 = newPoly->Vertices[startV]->Point;
       double *p2 = newPoly->Vertices[startV+1]->Point;
