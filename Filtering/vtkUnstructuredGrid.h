@@ -119,11 +119,23 @@ public:
 
   // Description:
   // Special methods specific to vtkUnstructuredGrid for defining the cells
-  // composing the dataset.
+  // composing the dataset. Most cells require just arrays of cellTypes, 
+  // cellLocations and cellConnectivities which implicitly define the set of
+  // points in each cell and their ordering. In those cases the 
+  // cellConnectivities are of the format (n,i,j,k,n,i,j,k,...). However, some 
+  // cells like vtkPolyhedron require points plus a list of faces. To handle
+  // vtkPolyhedron, SetCells() support a special input cellConnectivities format 
+  // (nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...). The functions
+  // use vtkPolyhedron::DecomposeAPolyhedronCell() to convert polyhedron cells
+  // into standard format. 
   void SetCells(int type, vtkCellArray *cells);
   void SetCells(int *types, vtkCellArray *cells);
   void SetCells(vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations, 
                 vtkCellArray *cells);
+  void SetCells(vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations,
+                vtkCellArray *cells, vtkIdTypeArray *faceLocations, 
+                vtkIdTypeArray *faces);
+  
   vtkCellArray *GetCells() {return this->Connectivity;};
   void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
   int InsertNextLinkedCell(int type, int npts, vtkIdType *pts);

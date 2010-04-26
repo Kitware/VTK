@@ -36,6 +36,7 @@
 #include "vtkType.h"
 #include <vtkstd/map>
 #include <vtkstd/vector>
+#include <vtkstd/set>
 
 class vtkIdTypeArray;
 class vtkCellArray;
@@ -67,6 +68,7 @@ public:
   // Special types.
   //BTX
   typedef vtkstd::vector<vtkIdType>                 IdVectorType;
+  typedef vtkstd::set<vtkIdType>                    IdSetType;
   typedef vtkstd::map<vtkIdType, IdVectorType>      IdToIdVectorMapType;
   typedef vtkstd::pair<vtkIdType, IdVectorType>     IdToIdVectorPairType;
   typedef IdToIdVectorMapType::iterator             IdToIdVectorMapIteratorType;
@@ -100,7 +102,7 @@ public:
   // Description:
   // Satisfy the vtkCell API. This method contours by triangulating the
   // cell and then contouring the resulting tetrahedra.
-  virtual void Contour(double value, vtkDataArray *pointScalars,
+  virtual void Contour(double value, vtkDataArray *scalars,
                        vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                        vtkCellArray *lines, vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
@@ -110,7 +112,12 @@ public:
   // Satisfy the vtkCell API. This method clips by triangulating the
   // cell and then adding clip-edge intersection points into the
   // triangulation; extracting the clipped region.
-  virtual void Clip(double value, vtkDataArray *pointScalars,
+  // Note: output connectivity is a polyhedron vtkCellArray of a special format
+  // Cell0Length [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // Cell1Length [nCell1Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...] ...
+  // Use the static method DecomposePolyhedronCellArray to convert it into a 
+  // standard format.
+  virtual void Clip(double value, vtkDataArray *scalars,
                     vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -205,9 +212,42 @@ public:
   int IsInside(double x[3], double tolerance);
 
   // Description:
-  // Construct polydata if no one exist then return this->PolyData
+  // Construct polydata if no one exist, then return this->PolyData
   vtkPolyData* GetPolyData();
+
+  // Description:
+  // A static method for converting a polyhedron vtkCellArray of format
+  // [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // into three components: (1) an integer indicating the number of faces
+  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
+  // and (3) an vtkIdTypeArray storing face connectivity in format
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // Note: input is assumed to contain only one polyhedron cell.
+  // Outputs (2) and (3) will be stacked at the end of the input
+  // cellArray and faces. The original data in the input will not
+  // be touched.
+  static void DecomposeAPolyhedronCell(vtkCellArray *polyhedronCellArray,
+                                       vtkIdType & nCellpts,
+                                       vtkIdType & nCellfaces,
+                                       vtkCellArray *cellArray,
+                                       vtkIdTypeArray *faces);
   
+  // Description:
+  // A static method for converting a polyhedron vtkCellArray of format
+  // [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // into three components: (1) an integer indicating the number of faces
+  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
+  // and (3) an vtkIdTypeArray storing face connectivity in format
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. This method is similar
+  // to the previous method, expect that the input polyhedron cell is 
+  // represented using cell length plus an pointer to an array of vtkIdType.
+  static void DecomposeAPolyhedronCell(vtkIdType polyhedronCellLength,
+                                       vtkIdType *polyhedronCellData,
+                                       vtkIdType & nCellpts,
+                                       vtkIdType & nCellfaces,
+                                       vtkCellArray *cellArray,
+                                       vtkIdTypeArray *faces);
+
 protected:
   vtkPolyhedron();
   ~vtkPolyhedron();
@@ -293,4 +333,3 @@ inline int vtkPolyhedron::GetParametricCenter(double pcoords[3])
 }
 
 #endif
-

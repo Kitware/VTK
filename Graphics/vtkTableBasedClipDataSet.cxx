@@ -3360,6 +3360,19 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
       edgeVtxs = NULL;
       thisCase = NULL;
       }
+    else if (cellType == VTK_POLYHEDRON)
+      {
+      if ( numCants == 0 )
+        {
+          specials->GetCellData()
+                  ->CopyAllocate( unstruct->GetCellData(), numCells );
+        }
+      specials->InsertNextCell(cellType, numbPnts, pntIndxs, 
+          unstruct->GetCell(i)->GetNumberOfFaces(), unstruct->GetFaces(i)+1);
+      specials->GetCellData()
+              ->CopyData( unstruct->GetCellData(), i, numCants );
+      numCants ++;
+      }
     else
       {
       if ( numCants == 0 )
@@ -3367,15 +3380,7 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
           specials->GetCellData()
                   ->CopyAllocate( unstruct->GetCellData(), numCells );
         }
-      if (cellType == VTK_POLYHEDRON)
-        {
-        specials->InsertNextCell(cellType, numbPnts, pntIndxs, 
-          unstruct->GetCell(i)->GetNumberOfFaces(), unstruct->GetFaces(i)+1);
-        }
-      else
-        {
-        specials->InsertNextCell( cellType, numbPnts, pntIndxs );
-        }
+      specials->InsertNextCell( cellType, numbPnts, pntIndxs );
       specials->GetCellData()
               ->CopyData( unstruct->GetCellData(), i, numCants );
       numCants ++;
