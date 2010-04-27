@@ -305,7 +305,8 @@ void do_return(FILE *fp)
               "      Py_INCREF(Py_None);\n"
               "      return Py_None;\n      }\n"
               "    else {\n"
-              "      return PyString_FromString(temp%i);\n      }\n",
+              "      return PyString_FromString(temp%i);\n"
+              "      }\n",
               MAX_ARGS, MAX_ARGS);
     break;
     case VTK_PARSE_VTK_OBJECT_REF:
@@ -976,6 +977,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
   int returnType = 0;
   int backType = 0;
   int argType = 0;
+  int voteCurrent = 0;
+  int voteMaster = 0;
 
   is_vtkobject = ((strcmp(data->ClassName,"vtkObjectBase") == 0) || 
                   (data->NumberOfSuperClasses != 0));
@@ -1024,6 +1027,64 @@ void outputFunction2(FILE *fp, FileInfo *data)
     currentFunction = theFunc;
     returnType = (theFunc->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
+    /* check for type precedence, don't need a "float" method if a
+       "double" method exists */
+
+    for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
+      {
+      if (theFunc->Name && wrappedFunctions[occ]->Name &&
+          !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
+        {
+        currentFunction = wrappedFunctions[occ];
+
+        voteCurrent = 0;
+        voteMaster = 0;
+        if (theFunc->NumberOfArguments == currentFunction->NumberOfArguments)
+          {
+          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+            {
+            if ((currentFunction->ArgCounts[i] == theFunc->ArgCounts[i]) &&
+                (currentFunction->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE) ==
+                (theFunc->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE))
+              {
+              if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                  == VTK_PARSE_FLOAT &&
+                  (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                  == VTK_PARSE_DOUBLE &&
+                  !voteMaster)
+                {
+                voteCurrent = 1;
+                }
+              else if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                       == VTK_PARSE_FLOAT &&
+                       (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                       == VTK_PARSE_DOUBLE &&
+                       !voteCurrent)
+                {
+                voteMaster = 1;
+                }
+              else if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE) !=
+                       (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE))
+                {
+                voteCurrent = 0;
+                voteMaster = 0;
+                break;
+                }
+              }
+            }
+          }
+        if (voteMaster)
+          {
+          /* prefer theFunc's signature over currentFunction */
+          currentFunction->Name = 0;
+          }
+        else if (voteCurrent)
+          {
+          theFunc->Name = 0;
+          }
+        }
+      }
+
     if (theFunc->Name)
       {
       fprintf(fp,"\n");
@@ -1057,10 +1118,10 @@ void outputFunction2(FILE *fp, FileInfo *data)
                 "#if !defined(VTK_LEGACY_REMOVE)\n");
         }
       fprintf(fp,
-              "static PyObject *Py%s_%s(PyObject *%s, PyObject *args)\n",
+              "static PyObject *Py%s_%s(PyObject *%s, PyObject *args)\n"
+              "{\n",
               data->ClassName,currentFunction->Name,
               (is_static ? "" : "self"));
-      fprintf(fp,"{\n");
       
       /* find all occurances of this method */
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
@@ -1101,7 +1162,9 @@ void outputFunction2(FILE *fp, FileInfo *data)
             }
 
           fprintf(fp,
-                  "  /* handle an occurrence */\n  {\n");
+                  "  /* handle an occurrence */\n"
+                  "  {\n");
+
           /* declare the variables */
           if (!is_static)
             {
@@ -1113,7 +1176,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
             else 
               {
               fprintf(fp,
-                      "  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n\n",
+                      "  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n"
+                      "\n",
                       data->ClassName, data->ClassName);
               }
             }
@@ -1293,7 +1357,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
             else
               {
               fprintf(fp,
-                      "    else\n      {\n");
+                      "    else\n"
+                      "      {\n");
 
               sprintf(methodname,"op->%s",currentFunction->Name);
               }
@@ -1641,8 +1706,7 @@ static void create_class_doc(FILE *fp, FileInfo *data)
   if (data->Caveats)
     {
     fprintf(fp,
-            "  \"Caveats:\\n\\n"
-            "%s\\n\",\n",
+            "  \"Caveats:\\n\\n%s\\n\",\n",
             quote_string(data->Caveats,500));
     }
 
