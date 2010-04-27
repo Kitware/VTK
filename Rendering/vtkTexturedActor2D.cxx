@@ -55,7 +55,12 @@ int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
     {
     this->Texture->Render(ren);
     }
-  return this->Superclass::RenderOverlay(viewport);
+  int result=this->Superclass::RenderOverlay(viewport);
+  if (this->Texture)
+    {
+    this->Texture->PostRender(ren);
+    }
+   return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -67,7 +72,12 @@ int vtkTexturedActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
     {
     this->Texture->Render(ren);
     }
-  return this->Superclass::RenderOpaqueGeometry(viewport);
+  int result=this->Superclass::RenderOpaqueGeometry(viewport);
+  if (this->Texture)
+    {
+    this->Texture->PostRender(ren);
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,7 +90,12 @@ int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(
     {
     this->Texture->Render(ren);
     }
-  return this->Superclass::RenderTranslucentPolygonalGeometry(viewport);
+  int result=this->Superclass::RenderTranslucentPolygonalGeometry(viewport);
+  if (this->Texture)
+    {
+    this->Texture->PostRender(ren);
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------
