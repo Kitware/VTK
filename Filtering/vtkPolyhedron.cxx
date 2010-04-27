@@ -1462,16 +1462,24 @@ void vtkPolyhedron::Clip(double value,
   IdToIdMapType       pointIdMap;
   vtkIdType newPid, newCellId;
 
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
+
+  // vector to store cell connectivity
+  IdVectorType cellVector;
+
   vtkDataArray * contourScalars = pointScalars->NewInstance();
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
- 
+
+/* 
   vtkPointLocator *kkkk = vtkPointLocator::SafeDownCast(locator);
   std::cout << "# points " << this->Points->GetNumberOfPoints() << std::endl;
   std::cout << "# pointScalars " << pointScalars->GetNumberOfTuples() << std::endl;
   std::cout << "# locator " << kkkk->GetPoints()->GetNumberOfPoints() << std::endl;
   std::cout << "# inPd " << inPd->GetScalars()->GetNumberOfTuples() << std::endl;
   std::cout << "# inCd " << inCd->GetScalars()->GetNumberOfTuples() << std::endl;
+*/
     
   this->InternalContour(value, locator, pointScalars, contourScalars, 
     inPd, outPd, contourPolys, faceToPointsMap, pointToFacesMap, pointIdMap);
@@ -1480,7 +1488,6 @@ void vtkPolyhedron::Clip(double value,
   // if empty contour, the polyhedron will be all inside or all outside
   if (!contourPolys->GetNumberOfCells())
     {
-    /*
     bool containPositivePoint = false;
     for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
       {
@@ -1493,7 +1500,9 @@ void vtkPolyhedron::Clip(double value,
       }
     if (containPositivePoint)
       {
-      // loop through all faces to add them into output
+      cellVector.push_back(this->GetNumberOfFaces());
+
+      // loop through all faces to add them into cellVector
       vtkPolyhedronFaceIterator 
         faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
       while (faceIter.Id < faceIter.NumberOfPolygons)
@@ -1502,34 +1511,39 @@ void vtkPolyhedron::Clip(double value,
         for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
           {
           vtkIdType pid = faceIter.Current[i];
-          vtkIdType globalPid = this->PointIds->GetId(pid);
           if (locator->InsertUniquePoint(this->Points->GetPoint(pid), newPid))
             {
+            vtkIdType globalPid = this->PointIds->GetId(pid);
             outPd->CopyData(inPd, globalPid, newPid);
             }
           pids.push_back(pid);
           pointIdMap.insert(IdToIdPairType(pid, newPid));
           }
-        if (!ConvertPointIds(static_cast<vtkIdType>(pids.size()), 
-                             &(pids[0]), pointIdMap))
+
+        npts = static_cast<vtkIdType>(pids.size());
+        pts = &(pids[0]);
+        if (!ConvertPointIds(npts, pts, pointIdMap))
           {
           vtkErrorMacro("Cannot find the id of an output point. We should never "
             "get here. Clipping aborted.");
           contourScalars->Delete();
           return;
           }
-        newCellId = connectivity->InsertNextCell(
-          static_cast<vtkIdType>(pids.size()), &(pids[0]));
-        outCd->CopyData(inCd, cellId, newCellId);
-
+        cellVector.push_back(npts);
+        cellVector.insert(cellVector.end(), pts, pts+npts);
+       
         ++faceIter;
         }
+      
+      newCellId = connectivity->InsertNextCell(
+        static_cast<vtkIdType>(cellVector.size()), &(cellVector[0]));
+      outCd->CopyData(inCd, cellId, newCellId);
       }
-    */
+    
     contourScalars->Delete();
     return;
     }
-  
+
   // prepare visited array for all faces
   bool* visited = new bool [this->GetNumberOfFaces()];
   for (int i = 0; i < this->GetNumberOfFaces(); i++)
@@ -1713,15 +1727,11 @@ void vtkPolyhedron::Clip(double value,
 
   contourScalars->Delete();
 
-  // vector to store cell connectivity
-  IdVectorType cellVector;
   vtkIdType numAllFaces = contourPolys->GetNumberOfCells() + 
                           static_cast<vtkIdType>(faces.size());
   cellVector.push_back(numAllFaces);
   
   // add contour faces
-  vtkIdType npts = 0;
-  vtkIdType *pts = 0;
   contourPolys->InitTraversal();
   while (contourPolys->GetNextCell(npts, pts))
     {
@@ -1789,17 +1799,18 @@ void vtkPolyhedron::DecomposeAPolyhedronCell(vtkCellArray * polyhedronCell,
 //----------------------------------------------------------------------------
 void vtkPolyhedron::DecomposeAPolyhedronCell(
        vtkIdType cellLength, vtkIdType *cellData,
-       vtkIdType & numCellPts, vtkIdType & nCellfaces, 
+       vtkIdType & numCellPts, vtkIdType & nCellFaces, 
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {
   IdSetType cellPointSet;
   IdSetType::iterator it;
   
   // first element indicates the number of faces
-  nCellfaces = *cellData++;
+  nCellFaces = *cellData++;
+  faces->InsertNextValue(nCellFaces);
   
   // for each face
-  for (vtkIdType fid = 0; fid < nCellfaces; fid++)
+  for (vtkIdType fid = 0; fid < nCellFaces; fid++)
     {
     // extract all points on the same face, store them into a set
     vtkIdType npts = *cellData++;

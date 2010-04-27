@@ -874,7 +874,8 @@ int vtkUnstructuredGrid::GetMaxCellSize()
 //----------------------------------------------------------------------------
 vtkIdType vtkUnstructuredGrid::GetNumberOfCells()
 {
-  vtkDebugMacro(<< "NUMBER OF CELLS = " <<  (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0));
+  vtkDebugMacro(<< "NUMBER OF CELLS = " <<  
+    (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0));
   return (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0);
 }
 
@@ -1101,6 +1102,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
   
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
+    cellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
     if (types[i] != VTK_POLYHEDRON)
       {
       newCells->InsertNextCell(npts, pts);
@@ -1108,14 +1110,13 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
       }
     else
       {
+      faceLocations->InsertNextValue(faces->GetMaxId()+1);
       vtkPolyhedron::DecomposeAPolyhedronCell(
         npts, pts, realnpts, nfaces, newCells, faces);
-      faceLocations->InsertNextValue(faces->GetMaxId()+1);
       }
-    cellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
     }
 
-  this->SetCells(cellTypes, cellLocations, newCells, faces, faceLocations);
+  this->SetCells(cellTypes, cellLocations, newCells, faceLocations, faces);
 
   cellTypes->Delete();
   cellLocations->Delete();
@@ -1163,6 +1164,7 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
   vtkIdType i, npts, nfaces, realnpts, *pts;
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
+    newCellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
     if (cellTypes->GetValue(i) != VTK_POLYHEDRON)
       {
       newCells->InsertNextCell(npts, pts);
@@ -1170,15 +1172,14 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
       }
     else
       {
+      faceLocations->InsertNextValue(faces->GetMaxId()+1);
       vtkPolyhedron::DecomposeAPolyhedronCell(
         npts, pts, realnpts, nfaces, newCells, faces);
-      faceLocations->InsertNextValue(faces->GetMaxId()+1);
       }
-    newCellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
     }
   
   // set the new cells
-  this->SetCells(cellTypes, newCellLocations, newCells, faces, faceLocations);
+  this->SetCells(cellTypes, newCellLocations, newCells, faceLocations, faces);
   
   newCells->Delete();
   newCellLocations->Delete();
