@@ -641,7 +641,7 @@ void vtkCarbonRenderWindow::Frame()
   this->MakeCurrent();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
-      //    glFinish();
+    glFinish();
     aglSwapBuffers(this->ContextId);
     vtkDebugMacro(<< " aglSwapBuffers\n");
     }
