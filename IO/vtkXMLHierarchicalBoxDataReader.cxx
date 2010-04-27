@@ -200,6 +200,14 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         vtkWarningMacro("Missing amr box for level " << level << ",  dataset " << index);
         }
 
+      int dimensionality = 3;
+      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
+        {
+        // default.
+        dimensionality = 3;
+        }
+      amrBox.SetDimensionality(dimensionality);
+
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
         {

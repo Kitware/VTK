@@ -31,13 +31,17 @@ vtkStandardNewMacro(vtkXMLHierarchicalBoxDataWriter);
 vtkXMLHierarchicalBoxDataWriter::vtkXMLHierarchicalBoxDataWriter()
 {
   this->AMRBoxes = NULL;
+  this->AMRBoxDims = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataWriter::~vtkXMLHierarchicalBoxDataWriter()
 {
-  delete this->AMRBoxes;
+  delete [] this->AMRBoxes;
   this->AMRBoxes = NULL;
+
+  delete [] this->AMRBoxDims;
+  this->AMRBoxDims = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -60,10 +64,14 @@ void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput
   assert("dataset must be vtkHierarchicalBoxDataSet" && hdInput != NULL);
 
   delete [] this->AMRBoxes;
+  delete [] this->AMRBoxDims;
   
   unsigned int numLeafNodes = this->GetNumberOfDataTypes();
   this->AMRBoxes = new int[numLeafNodes * 6];
   memset(this->AMRBoxes, 0, numLeafNodes*6*sizeof(int));
+
+  this->AMRBoxDims = new int[numLeafNodes];
+  memset(this->AMRBoxDims, 0, numLeafNodes*sizeof(int));
 
   vtkCompositeDataIterator* iter = hdInput->NewIterator();
   iter->SkipEmptyNodesOff();
@@ -75,6 +83,7 @@ void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput
       {
       vtkAMRBox box = hdInput->GetAMRBox(iter);
       box.GetDimensions(&this->AMRBoxes[leafNo*6]);
+      this->AMRBoxDims[leafNo] = box.GetDimensionality();
       }
     }
   iter->Delete();
@@ -106,6 +115,8 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
       // we use the box from this->AMRBoxes since that datastructure is
       // synchronized when running in parallel.
       datasetXML->SetVectorAttribute("amr_box", 6, &this->AMRBoxes[writerIdx*6]);
+      datasetXML->SetIntAttribute("dimensionality",
+        this->AMRBoxDims[writerIdx]);
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
       if (fileName != "")
         {
