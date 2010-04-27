@@ -1102,6 +1102,9 @@ void vtkPolyhedron::InternalContour(double value,
 
     globalP0 = this->PointIds->GetId(p0);
     globalP1 = this->PointIds->GetId(p1);
+
+    points->GetPoint(p0, x0);
+    points->GetPoint(p1, x1);
     
     if (v1-value > eps && v0-value > eps)
       {
@@ -1139,9 +1142,6 @@ void vtkPolyhedron::InternalContour(double value,
       continue;
       }
     
-    points->GetPoint(p0, x0);
-    points->GetPoint(p1, x1);
-
     t = (value - v0)/(v1 - v0);
     x[0] = (1 - t) * x0[0] + t * x1[0];
     x[1] = (1 - t) * x0[1] + t * x1[1];
@@ -1288,17 +1288,36 @@ void vtkPolyhedron::InternalContour(double value,
         }
       }
     
-    // for more than two points, close it
-    if (polyVtxVector.size() > 2)
+    // for more than two points, close it. Note that we need to check degenerate
+    // case where all points in polyVtxVector lie on the same line. Otherwise,
+    // we will generate a line polygon.
+    // TODO: use matrix determinant to detect colinear case to get faster speed
+    if (polyVtxVector.size() > 2 && polyEdgeTable->IsEdge(
+        polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]) == (-1))
       {
-      if (polyEdgeTable->IsEdge(
-            polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]) == (-1))
+      bool isLinear = true;
+      double startPt[3], endPt[3], testPt[3];
+      points->GetPoint(polyVtxVector[0], startPt);
+      points->GetPoint(polyVtxVector[polyVtxVector.size()-1], endPt);
+      for (size_t k = 1; k < polyVtxVector.size() - 1; k++)
+        {
+        points->GetPoint(polyVtxVector[k], testPt);
+        double distance = vtkLine::DistanceToLine(startPt, endPt, testPt);
+        if ( distance > eps)
+          {
+          isLinear = false;
+          break;
+          }
+        }
+      
+      if (!isLinear)
         {
         polyEdgeTable->InsertEdge(
           polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]);
         }
       }
-    }
+
+    } // end of face loop
 
   delete [] validPoints;
   delete [] validFaces;
@@ -1315,6 +1334,8 @@ void vtkPolyhedron::InternalContour(double value,
     {
     numPointEdges[i] = 0;
     }
+  
+  vtkIdType ddd = polyEdgeTable->GetNumberOfEdges();
   
   polyEdgeTable->InitTraversal();
   while (polyEdgeTable->GetNextEdge(p0, p1, ptr))
@@ -1389,7 +1410,7 @@ void vtkPolyhedron::InternalContour(double value,
 
 //----------------------------------------------------------------------------
 void vtkPolyhedron::Contour(double value,
-                            vtkDataArray *scalars,
+                            vtkDataArray *pointScalars,
                             vtkIncrementalPointLocator *locator,
                             vtkCellArray *verts,
                             vtkCellArray *lines,
@@ -1412,20 +1433,11 @@ void vtkPolyhedron::Contour(double value,
   IdToIdVectorMapType pointToFacesMap;
   IdToIdMapType       pointIdMap;
 
-  vtkDataArray* pointScalars = 
-    vtkDataArray::CreateDataArray(inPd->GetScalars()->GetDataType());
-  pointScalars->Initialize();
-  for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
-    {
-    vtkIdType globalPid = this->PointIds->GetId(i);
-    pointScalars->InsertNextTuple1(inPd->GetScalars()->GetComponent(globalPid, 0));
-    }
-
   vtkDataArray * contourScalars = pointScalars->NewInstance();
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
   
-  this->InternalContour(value, locator, scalars, contourScalars, 
+  this->InternalContour(value, locator, pointScalars, contourScalars, 
     inPd, outPd, contourPolys, faceToPointsMap, pointToFacesMap, pointIdMap);
   
   vtkIdType npts = 0;
