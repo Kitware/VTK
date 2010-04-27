@@ -19,12 +19,6 @@ IF(VTK_HAS_EXODUS)
   SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
 ENDIF(VTK_HAS_EXODUS)
 
-IF(VTK_USE_OPENFOAM)
-  set(_VTK_OPENFOAM_SOURCES vtkPOpenFOAMReader.cxx)
-ELSE(VTK_USE_OPENFOAM)
-  set(_VTK_OPENFOAM_SOURCES)
-ENDIF(VTK_USE_OPENFOAM)
-
 SET ( Kit_SRCS
 vtkBranchExtentTranslator.cxx
 vtkCachingInterpolatedVelocityField.cxx
@@ -64,7 +58,7 @@ vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPNrrdReader.cxx
 vtkPOPReader.cxx
-${_VTK_OPENFOAM_SOURCES}
+vtkPOpenFOAMReader.cxx
 vtkPOutlineCornerFilter.cxx
 vtkPOutlineFilter.cxx
 vtkPPolyDataNormals.cxx
