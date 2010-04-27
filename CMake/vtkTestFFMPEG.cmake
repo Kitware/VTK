@@ -19,7 +19,7 @@ IF (FFMPEG_INCLUDE_DIR)
     ELSE(VTK_FFMPEG_HAS_OLD_HEADER)
       SET(VTK_FFMPEG_CDEFS "HAS_NEW_HEADER")
     ENDIF(VTK_FFMPEG_HAS_OLD_HEADER)
-      
+
     IF(FFMPEG_avcodec_LIBRARY)
       TRY_COMPILE(VTK_FFMPEG_HAS_IMG_CONVERT
         ${VTK_BINARY_DIR}/CMakeTmp
@@ -32,12 +32,12 @@ IF (FFMPEG_INCLUDE_DIR)
         MESSAGE(STATUS "Checking if FFMPEG has img_convert - found")
         FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
                 "Checking if FFMPEG has img_convert (passed):\n"
-                "${OUTPUT}\n\n")    
+                "${OUTPUT}\n\n")
       ELSE(VTK_FFMPEG_HAS_IMG_CONVERT)
         MESSAGE(STATUS "Checking if FFMPEG has img_convert - not found")
         FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
                 "Checking if FFMPEG has img_convert (failed):\n"
-                "${OUTPUT}\n\n")    
+                "${OUTPUT}\n\n")
       ENDIF(VTK_FFMPEG_HAS_IMG_CONVERT)
     ENDIF(FFMPEG_avcodec_LIBRARY)
     SET(VTK_FFMPEG_CACHED_AVCODEC ${FFMPEG_avcodec_LIBRARY} CACHE INTERNAL "Previous value of FFMPEG_avcodec_LIBRARY" FORCE)
@@ -57,16 +57,18 @@ IF (FFMPEG_INCLUDE_DIR)
         CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${FFMPEG_INCLUDE_DIR}"
           -DCOMPILE_DEFINITIONS:STRING=-D${VTK_FFMPEG_CDEFS}
           "-DLINK_LIBRARIES:STRING=${FFMPEG_avformat_LIBRARY};${FFMPEG_avutil_LIBRARY};${FFMPEG_avcodec_LIBRARY}"
+        OUTPUT_VARIABLE OUTPUT)
+
         IF(VTK_FFMPEG_OLD_URL_FCLOSE)
           MESSAGE(STATUS "Checking if FFMPEG uses old API for url_fclose - found")
           FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
                   "Checking if FFMPEG uses old API for url_fclose (passed):\n"
-                  "${OUTPUT}\n\n")    
+                  "${OUTPUT}\n\n")
         ELSE(VTK_FFMPEG_OLD_URL_FCLOSE)
           MESSAGE(STATUS "Checking if FFMPEG uses old API for url_fclose - not found")
           FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
                   "Checking if FFMPEG uses old API for url_fclose (failed):\n"
-                  "${OUTPUT}\n\n")    
+                  "${OUTPUT}\n\n")
         ENDIF(VTK_FFMPEG_OLD_URL_FCLOSE)
     ENDIF(FFMPEG_avformat_LIBRARY)
   ENDIF("VTK_FFMPEG_OLD_URL_FCLOSE" MATCHES "^VTK_FFMPEG_OLD_URL_FCLOSE$" OR NOT "VTK_FFMPEG_CACHED_AVFORMAT" MATCHES "^${FFMPEG_avformat_LIBRARY}$")
@@ -86,16 +88,17 @@ IF (FFMPEG_INCLUDE_DIR)
           -DCOMPILE_DEFINITIONS:STRING=-D${VTK_FFMPEG_CDEFS}
           "-DLINK_LIBRARIES:STRING=${FFMPEG_avformat_LIBRARY}"
         OUTPUT_VARIABLE OUTPUT)
+
         IF(VTK_FFMPEG_NEW_ALLOC)
           MESSAGE(STATUS "Checking if FFMPEG has avformat_alloc_context - found")
           FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
                   "Checking if FFMPEG has avformat_alloc_context (passed):\n"
-                  "${OUTPUT}\n\n")    
+                  "${OUTPUT}\n\n")
         ELSE(VTK_FFMPEG_NEW_ALLOC)
           MESSAGE(STATUS "Checking if FFMPEG has avformat_alloc_context - not found")
           FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
                   "Checking if FFMPEG has avformat_alloc_context (failed):\n"
-                  "${OUTPUT}\n\n")    
+                  "${OUTPUT}\n\n")
         ENDIF(VTK_FFMPEG_NEW_ALLOC)
     ENDIF(FFMPEG_avformat_LIBRARY)
     SET(VTK_FFMPEG_CACHED_AVFORMAT ${FFMPEG_avformat_LIBRARY} CACHE INTERNAL "Previous value of FFMPEG_avformat_LIBRARY" FORCE)
