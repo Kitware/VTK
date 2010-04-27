@@ -58,19 +58,22 @@ check_tab() {
 	grep '^+	' > /dev/null &&
 	echo "  $1"
 }
+check_file() {
+	case "$1" in
+		*.c)		check_tab "$1" ;;
+		*.h)		check_tab "$1" ;;
+		*.cxx)		check_tab "$1" ;;
+		*.txx)		check_tab "$1" ;;
+		*.hxx)		check_tab "$1" ;;
+		*.htm)		check_tab "$1" ;;
+		*.html)		check_tab "$1" ;;
+		*.txt)		check_tab "$1" ;;
+		*.cmake)	check_tab "$1" ;;
+	esac
+}
 bad=$(git diff-index --name-only --cached $against -- |
 while read file; do
-	case "$file" in
-		*.c)		check_tab "$file" ;;
-		*.h)		check_tab "$file" ;;
-		*.cxx)		check_tab "$file" ;;
-		*.txx)		check_tab "$file" ;;
-		*.hxx)		check_tab "$file" ;;
-		*.htm)		check_tab "$file" ;;
-		*.html)		check_tab "$file" ;;
-		*.txt)		check_tab "$file" ;;
-		*.cmake)	check_tab "$file" ;;
-	esac
+	check_file "$file"
 done)
 test -z "$bad" || die 'Leading TABs added in
 '"$bad"'
