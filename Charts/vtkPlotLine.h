@@ -122,7 +122,8 @@ protected:
 
   // Description:
   // Sorted points, used when searching for the nearest point.
-  vtkPoints2D* Sorted;
+  class VectorPIMPL;
+  VectorPIMPL* Sorted;
 
   // Description:
   // An array containing the indices of all the "bad points", meaning any x, y
