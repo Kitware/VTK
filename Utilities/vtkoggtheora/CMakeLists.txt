@@ -126,12 +126,16 @@ IF(APPLE)
     "-read_only_relocs suppress -Wl,-exported_symbols_list,${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.exp"
     )
 ENDIF(APPLE)
-# assume that -Wl,--version-script works on UNIX systems (excluding Mac and Cygwin).
+# assume that -Wl,--version-script works on UNIX systems (excluding Mac, Cygwin and Solaris SPARC).
 # otherwise the user can always set to an empty string
 IF(UNIX AND NOT APPLE AND NOT CYGWIN)
-  SET( VTKOGGTHEORA_SHARED_LINKER_FLAGS
-    "-Wl,--version-script=${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.vscript"
+  IF("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
+    SET( VTKOGGTHEORA_SHARED_LINKER_FLAGS "" )
+  ELSE("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
+    SET( VTKOGGTHEORA_SHARED_LINKER_FLAGS
+      "-Wl,--version-script=${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.vscript"
     )
+  ENDIF("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
 ENDIF(UNIX AND NOT APPLE AND NOT CYGWIN)
 SET(VTKOGGTHEORA_SHARED_LINKER_FLAGS "${VTKOGGTHEORA_SHARED_LINKER_FLAGS}"
   CACHE STRING "Additional linker flags for vtkoggtheora when building as a shared library"
