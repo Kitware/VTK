@@ -465,12 +465,6 @@ bool vtkPlotLine::GetNearestPoint(const vtkVector2f& point,
   VectorPIMPL::iterator low;
   VectorPIMPL &v = *this->Sorted;
 
-  cout << "Sorted array: " << endl;
-  for (size_t i = 0; i < v.size(); ++i)
-    {
-    cout << v[i].X() << "\t" << v[i].Y() << endl;
-    }
-
   // Get the lowest point we might hit within the supplied tolerance
   vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
   low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
