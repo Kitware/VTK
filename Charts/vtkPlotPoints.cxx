@@ -551,11 +551,13 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   if (!x && !this->UseIndexForXSeries)
     {
     vtkErrorMacro(<< "No X column is set (index 0).");
+    this->BuildTime.Modified();
     return false;
     }
   else if (!y)
     {
     vtkErrorMacro(<< "No Y column is set (index 1).");
+    this->BuildTime.Modified();
     return false;
     }
   else if (!this->UseIndexForXSeries &&
@@ -563,6 +565,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     {
     vtkErrorMacro("The x and y columns must have the same number of elements. "
                   << x->GetNumberOfTuples() << ", " << y->GetNumberOfTuples());
+    this->BuildTime.Modified();
     return false;
     }
 
