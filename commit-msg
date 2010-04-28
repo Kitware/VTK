@@ -2,9 +2,11 @@
 #
 # Copy or link this file as ".git/hooks/pre-commit".
 
-# Prepare a backup message without comments.
+# Prepare a copy of the message:
+#  - strip comment lines
+#  - stop at "diff --git" (git commit -v)
 commit_msg="$GIT_DIR/COMMIT_MSG"
-grep -v '^#' "$1" > "$commit_msg"
+sed -n -e '/^#/d' -e '/^diff --git/q' -e 'p;d' "$1" > "$commit_msg"
 
 die() {
 	echo 'commit-msg hook failure' 1>&2
