@@ -277,4 +277,5 @@ void vtkDelimitedTextWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseStringDelimiter: " << this->UseStringDelimiter << endl;
   os << indent << "FileName: " << (this->FileName? this->FileName : "none") 
     << endl;
+  os << indent << "WriteToOutputString: " << this->WriteToOutputString << endl;
 }
