@@ -62,6 +62,11 @@ vtkPlot::~vtkPlot()
     this->Data->Delete();
     this->Data = NULL;
     }
+  if (this->Selection)
+    {
+    this->Selection->Delete();
+    this->Selection = NULL;
+    }
   this->SetLabel(NULL);
   this->SetXAxis(NULL);
   this->SetYAxis(NULL);
