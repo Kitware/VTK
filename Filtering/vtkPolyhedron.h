@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkPolyhedron.h,v $
+  Module:    vtkPolyhedron.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -61,7 +61,7 @@ public:
   // Description:
   // Standard new methods.
   static vtkPolyhedron *New();
-  vtkTypeRevisionMacro(vtkPolyhedron,vtkCell3D);
+  vtkTypeMacro(vtkPolyhedron,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

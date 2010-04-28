@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkExtractPolyhedralMesh.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -26,7 +26,6 @@
 #include "vtkGenericCell.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyhedralMesh, "$Revision$");
 vtkStandardNewMacro(vtkExtractPolyhedralMesh);
 
 //----------------------------------------------------------------------------

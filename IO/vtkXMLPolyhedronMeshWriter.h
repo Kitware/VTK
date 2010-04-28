@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkXMLPolyhedronMeshWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -38,7 +38,7 @@ class vtkIdTypeArray;
 class VTK_IO_EXPORT vtkXMLPolyhedronMeshWriter : public vtkXMLUnstructuredGridWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLPolyhedronMeshWriter,vtkXMLUnstructuredGridWriter);
+  vtkTypeMacro(vtkXMLPolyhedronMeshWriter, vtkXMLUnstructuredGridWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyhedronMeshWriter* New();
 

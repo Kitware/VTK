@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkDeformPointSet.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -27,7 +27,6 @@
 #include "vtkMeanValueCoordinatesInterpolator.h"
 
 
-vtkCxxRevisionMacro(vtkDeformPointSet, "$Revision$");
 vtkStandardNewMacro(vtkDeformPointSet);
 
 //----------------------------------------------------------------------------

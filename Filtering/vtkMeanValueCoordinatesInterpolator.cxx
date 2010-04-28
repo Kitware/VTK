@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkMeanValueCoordinatesInterpolator.cxx,v $
+  Module:    vtkMeanValueCoordinatesInterpolator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -27,7 +27,6 @@
 
 static int numSpecialPoints = 0;
 
-vtkCxxRevisionMacro(vtkMeanValueCoordinatesInterpolator, "$Revision: 1.83 $");
 vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 
 // Special class that can iterate over different type of triangle representations

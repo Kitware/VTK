@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    $RCSfile: vtkMeanValueCoordinatesInterpolator.h,v $
+Module:    vtkMeanValueCoordinatesInterpolator.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -50,7 +50,7 @@ public:
   // Description
   // Standard instantiable class methods.
   static vtkMeanValueCoordinatesInterpolator *New();
-  vtkTypeRevisionMacro(vtkMeanValueCoordinatesInterpolator,vtkObject);
+  vtkTypeMacro(vtkMeanValueCoordinatesInterpolator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
