@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkXMLPolyhedronMeshReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -33,7 +33,7 @@ class vtkUnstructuredGrid;
 class VTK_IO_EXPORT vtkXMLPolyhedronMeshReader : public vtkXMLUnstructuredGridReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLPolyhedronMeshReader,vtkXMLUnstructuredGridReader);
+  vtkTypeMacro(vtkXMLPolyhedronMeshReader, vtkXMLUnstructuredGridReader);
   void PrintSelf(ostream& os, vtkIndent indent);  
   static vtkXMLPolyhedronMeshReader *New();
   

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkExtractPolyhedralMesh.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Standard instanitable class methods.
-  vtkTypeRevisionMacro(vtkExtractPolyhedralMesh,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkExtractPolyhedralMesh,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

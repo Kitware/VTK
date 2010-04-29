@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile: vtkPolyhedron.cxx,v $
+  Module:    vtkPolyhedron.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -42,7 +42,6 @@
 #include <vtkstd/list>
 #include <limits>
 
-vtkCxxRevisionMacro(vtkPolyhedron, "$Revision: 1.7 $");
 vtkStandardNewMacro(vtkPolyhedron);
 
 // Special typedef for point id map

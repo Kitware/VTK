@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkProbePolyhedron.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -66,7 +66,7 @@ public:
   // Description:
   // Standard methods for instantiable (i.e., concrete) class.
   static vtkProbePolyhedron *New();
-  vtkTypeRevisionMacro(vtkProbePolyhedron,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkProbePolyhedron,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

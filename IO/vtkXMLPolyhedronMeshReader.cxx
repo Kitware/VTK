@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkXMLPolyhedronMeshReader.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,7 +29,6 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLPolyhedronMeshReader, "$Revision$");
 vtkStandardNewMacro(vtkXMLPolyhedronMeshReader);
 
 //----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $RCSfile$
+  Module:    vtkDeformPointSet.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -69,7 +69,7 @@ public:
   // Description:
   // Standard methods for instantiable (i.e., concrete) class.
   static vtkDeformPointSet *New();
-  vtkTypeRevisionMacro(vtkDeformPointSet,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkDeformPointSet,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
