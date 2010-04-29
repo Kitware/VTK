@@ -12,16 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLGenericDataObjectReader - Read VTK XML HyperOctree files.
+// .NAME vtkXMLGenericDataObjectReader - Read any type of vtk data object
 // .SECTION Description
-// vtkXMLGenericDataObjectReader reads the VTK XML HyperOctree file
-// format.  One rectilinear grid file can be read to produce one
-// output.  Streaming is supported.  The standard extension for this
-// reader's file format is "vto".  This reader is also used to read a
-// single piece of the parallel file format.
+// vtkXMLGenericDataObjectReader reads any type of vtk data object encoded
+// in XML format.
 
 // .SECTION See Also
-// vtkXMLPHyperOctreeReader
+// vtkGenericDataObjectReader
 
 #ifndef __vtkXMLGenericDataObjectReader_h
 #define __vtkXMLGenericDataObjectReader_h
