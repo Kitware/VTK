@@ -279,7 +279,28 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
     input->GetCell(cellId, cell);
     dim = cell->GetCellDimension();
 
-    if ( dim == 3 ) //use ordered triangulation
+    if (cell->GetCellType() == VTK_POLYHEDRON) //polyhedron
+      {
+      dim = 4;
+      cell->Triangulate(0, cellPtIds, cellPts);
+      numPts = cellPtIds->GetNumberOfIds();
+    
+      numSimplices = numPts / dim;
+      type = VTK_TETRA;
+
+      for ( j=0; j < numSimplices; j++ )
+        {
+        for (k=0; k<dim; k++)
+          {
+          pts[k] = cellPtIds->GetId(dim*j+k);
+          }
+        // copy cell data
+        newCellId = output->InsertNextCell(type, dim, pts);
+        outCD->CopyData(inCD, cellId, newCellId);
+        }
+      }
+
+    else if ( dim == 3 ) //use ordered triangulation
       {
       numPts = cell->GetNumberOfPoints();
       double *p, *pPtr=cell->GetParametricCoords();

@@ -283,12 +283,9 @@ protected:
   void            GenerateFaces();
 
   // If triangulation has been performed. TriangulationPerformed flag will be
-  // set to true. The result vtkIdList and vtkPoints will be stored. So the next
-  // time the Triangulate() function is called, we don't need to run the whole 
-  // triangulation process again.
+  // set to true. The result tets will be stored. 
   int             TriangulationPerformed;
   vtkIdList      *Tets;
-  vtkPoints      *TetsPoints;
 
   // Bounds management
   int    BoundsComputed;

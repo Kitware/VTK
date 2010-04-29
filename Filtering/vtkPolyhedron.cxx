@@ -392,6 +392,10 @@ void vtkPolyhedron::Initialize()
   // No supplemental geometric stuff created
   this->PolyDataConstructed = 0;
   this->LocatorConstructed = 0;
+  
+  // No tets generated.
+  this->TriangulationPerformed = 0; 
+  this->Tets->Reset();
 }
 
 //----------------------------------------------------------------------------
@@ -987,7 +991,7 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   triangulator->PreSortedOff();
   
   double point[3], pcoord[3]; 
-  for (int i = 0; i < this->GetNumberOfPoints(); i++)
+  for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
     {
     this->GetPoints()->GetPoint(i, point);
     this->ComputeParametricCoordinate(point, pcoord);
@@ -997,6 +1001,13 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   
   triangulator->AddTetras(0, ptIds, pts);
   
+  // convert to global 
+  vtkIdType* ids = ptIds->GetPointer(0);
+  for (vtkIdType i = 0; i < ptIds->GetNumberOfIds(); i++)
+    {
+    ids[i] = this->PointIds->GetId(ids[i]);
+    }
+    
   this->Tets->DeepCopy(ptIds);  
   this->TriangulationPerformed = 1;
 
