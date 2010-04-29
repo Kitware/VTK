@@ -343,7 +343,6 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   m1outliers = 0;
-
   for ( vtkIdType r = 0; r < outputData1->GetNumberOfRows(); ++ r )
     {
     dev = devs1->GetValue( r );
