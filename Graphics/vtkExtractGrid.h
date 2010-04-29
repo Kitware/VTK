@@ -58,6 +58,7 @@ public:
   // then the resulting VOI will be subsampled representation of the input.
   // For example, if the SampleRate=(2,2,2), every other point will be
   // selected, resulting in a volume 1/8th the original size.
+  // Initial value is (1,1,1).
   vtkSetVector3Macro(SampleRate, int);
   vtkGetVectorMacro(SampleRate, int, 3);
 
