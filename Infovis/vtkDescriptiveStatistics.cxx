@@ -505,26 +505,18 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
                                      vtkMultiBlockDataSet* inMeta,
                                      vtkTable* outMeta )
 {
-  if ( ! inMeta 
-       || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
     {
     return;
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
     {
     return;
     }
 
   if ( ! outMeta )
-    {
-    return;
-    }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( nRow <= 0 )
     {
     return;
     }
@@ -545,6 +537,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   
   // Loop over requests
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
