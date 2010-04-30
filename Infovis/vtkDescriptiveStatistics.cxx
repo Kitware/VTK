@@ -234,8 +234,6 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
   // Clean up
   aggregatedTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
