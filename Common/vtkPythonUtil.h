@@ -63,12 +63,16 @@ typedef struct {
 } PyVTKObject;
 
 // This for objects not derived from vtkObjectBase
+
+typedef void *(*PyVTKSpecialCopyFunc)(void *);
+typedef void (*PyVTKSpecialDeleteFunc)(void *);
+typedef void (*PyVTKSpecialPrintFunc)(ostream& os, void *);
+class PyVTKSpecialTypeInfo;
+
 typedef struct {
   PyObject_HEAD
   void *vtk_ptr;
-  PyMethodDef *vtk_methods;
-  PyObject *vtk_name;
-  PyObject *vtk_doc;
+  PyVTKSpecialTypeInfo *vtk_info;
 } PyVTKSpecialObject;
 
 // Standard methods for all vtk/python objects
@@ -84,8 +88,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
                          char *classname, char *modulename, char *docstring[],
                          PyObject *base);
 VTK_PYTHON_EXPORT
-PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
-                                 char *classname, char *docstring[]);
+PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy);
 
 // this is a special version of ParseTuple that handles both bound
 // and unbound method calls for VTK objects
@@ -117,6 +120,24 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr);
 // is supported for SWIG-style mangled pointer strings.
 extern VTK_PYTHON_EXPORT
 PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
+
+// Add a non-VTK type to the type lookup table, this allows us to later
+// create object given only the class name.
+extern VTK_PYTHON_EXPORT
+void vtkPythonAddSpecialTypeToHash(
+  char *classname, PyMethodDef *methods, char *docstring[],
+  PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
+  PyVTKSpecialPrintFunc printfunc);
+
+// Return the pointer to a non-VTK object
+extern VTK_PYTHON_EXPORT
+void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
+                                           const char *result_type);
+
+// Convert a non-VTK object to a PyVTKSpecialObject
+extern VTK_PYTHON_EXPORT
+PyObject *vtkPythonGetSpecialObjectFromPointer(void *ptr,
+                                               const char *type);
 
 // Add and delete PyVTKObject/vtkObjectBase pairs from the wrapper hash table,
 // these methods do not change the reference counts of either the vtkObjectBase

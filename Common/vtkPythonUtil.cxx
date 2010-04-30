@@ -69,6 +69,38 @@
 //#define VTKPYTHONDEBUG
 
 //--------------------------------------------------------------------
+// special struct for the SpecialType hash
+
+static PyObject *vtkBuildDocString(char *docstring[]);
+
+class PyVTKSpecialTypeInfo
+{
+public:
+  PyVTKSpecialTypeInfo() :
+    classname(0), docstring(0), methods(0),
+    copy_func(0), delete_func(0), print_func(0) {};
+
+  PyVTKSpecialTypeInfo(
+    char *cname, char *cdocstring[], PyMethodDef *cmethods,
+    PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
+    PyVTKSpecialPrintFunc printfunc) {
+
+    this->classname = PyString_FromString(cname);
+    this->docstring = vtkBuildDocString(cdocstring);
+    this->methods = cmethods;
+    this->copy_func = copyfunc;
+    this->delete_func = deletefunc;
+    this->print_func = printfunc; };
+
+  PyObject *classname;
+  PyObject *docstring;
+  PyMethodDef *methods;
+  PyVTKSpecialCopyFunc copy_func;
+  PyVTKSpecialDeleteFunc delete_func;
+  PyVTKSpecialPrintFunc print_func;
+};
+
+//--------------------------------------------------------------------
 // There are two hash tables associated with the Python wrappers
 
 class vtkPythonUtil
@@ -79,6 +111,7 @@ public:
 
   vtkstd::map<vtkSmartPointerBase, PyObject*> *ObjectHash;
   vtkstd::map<vtkstd::string, PyObject*> *ClassHash;
+  vtkstd::map<vtkstd::string, PyVTKSpecialTypeInfo> *SpecialTypeHash;
 };
 
 //--------------------------------------------------------------------
@@ -89,6 +122,8 @@ vtkPythonUtil::vtkPythonUtil()
 {
   this->ObjectHash = new vtkstd::map<vtkSmartPointerBase, PyObject*>;
   this->ClassHash = new vtkstd::map<vtkstd::string, PyObject*>;;
+  this->SpecialTypeHash =
+    new vtkstd::map<vtkstd::string, PyVTKSpecialTypeInfo>;
 }
 
 //--------------------------------------------------------------------
@@ -96,6 +131,7 @@ vtkPythonUtil::~vtkPythonUtil()
 {
   delete this->ObjectHash;
   delete this->ClassHash;
+  delete this->SpecialTypeHash;
 }
 
 //--------------------------------------------------------------------
@@ -1168,8 +1204,10 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
 //--------------------------------------------------------------------
 static PyObject *PyVTKSpecialObject_PyString(PyVTKSpecialObject *self)
 {
-  Py_INCREF(self->vtk_name);
-  return self->vtk_name;
+  vtksys_ios::ostringstream os;
+  self->vtk_info->print_func(os, self->vtk_ptr);
+  const vtksys_stl::string &s = os.str();
+  return PyString_FromStringAndSize(s.data(), s.size());
 }
 
 //--------------------------------------------------------------------
@@ -1177,7 +1215,7 @@ static PyObject *PyVTKSpecialObject_PyRepr(PyVTKSpecialObject *self)
 {
   char buf[255];
   sprintf(buf,"<%s %s at %p>", self->ob_type->tp_name, 
-          PyString_AsString(self->vtk_name), self);
+          PyString_AsString(self->vtk_info->classname), self);
   return PyString_FromString(buf);
 }
 
@@ -1192,17 +1230,17 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyVTKSpecialObject *self,
     {
     if (strcmp(name,"__name__") == 0)
       {
-      Py_INCREF(self->vtk_name);
-      return self->vtk_name;
+      Py_INCREF(self->vtk_info->classname);
+      return self->vtk_info->classname;
       }
     if (strcmp(name,"__doc__") == 0)
       {
-      Py_INCREF(self->vtk_doc);
-      return self->vtk_doc;
+      Py_INCREF(self->vtk_info->docstring);
+      return self->vtk_info->docstring;
       }
     if (strcmp(name,"__methods__") == 0)
       {
-      meth = self->vtk_methods;
+      meth = self->vtk_info->methods;
       PyObject *lst;
       int i, n;
 
@@ -1213,7 +1251,7 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyVTKSpecialObject *self,
 
       if ((lst = PyList_New(n)) != NULL)
         {
-        meth = self->vtk_methods;
+        meth = self->vtk_info->methods;
         for (i = 0; i < n; i++)
           {
           PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
@@ -1237,7 +1275,7 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyVTKSpecialObject *self,
       }
     } 
 
-  for (meth = self->vtk_methods; meth && meth->ml_name; meth++)
+  for (meth = self->vtk_info->methods; meth && meth->ml_name; meth++)
     {
     if (name[0] == meth->ml_name[0] && strcmp(name+1, meth->ml_name+1) == 0)
       {
@@ -1252,9 +1290,11 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyVTKSpecialObject *self,
 //--------------------------------------------------------------------
 static void PyVTKSpecialObject_PyDelete(PyVTKSpecialObject *self)
 {
+  if (self->vtk_ptr)
+    {
+    self->vtk_info->delete_func(self->vtk_ptr);
+    }
   self->vtk_ptr = NULL;
-  Py_XDECREF(self->vtk_name);
-  Py_XDECREF(self->vtk_doc);
 #if (PY_MAJOR_VERSION >= 2)
   PyObject_Del(self);
 #else
@@ -1298,8 +1338,7 @@ int PyVTKSpecialObject_Check(PyObject *obj)
   return (obj->ob_type == &PyVTKSpecialObjectType);
 }
 
-PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
-                                 char *classname, char *docstring[])
+PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy)
 {
 #if (PY_MAJOR_VERSION >= 2)
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, 
@@ -1308,11 +1347,35 @@ PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
   PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, 
                                           &PyVTKSpecialObjectType);
 #endif  
+
+  PyVTKSpecialTypeInfo *info = 0;
+
+  if (vtkPythonHash)
+    {
+    vtkstd::map<vtkstd::string, PyVTKSpecialTypeInfo>::iterator it =
+      vtkPythonHash->SpecialTypeHash->find(classname);
+    if(it != vtkPythonHash->SpecialTypeHash->end())
+      {
+      info = &it->second;
+      }
+    }
+
+  if (info == 0)
+    {
+    char buf[256];
+    sprintf(buf,"cannot create object of unknown type \"%s\"",classname);
+    PyErr_SetString(PyExc_ValueError,buf);
+    return NULL;
+    }
+
+  if (copy)
+    {
+    ptr = info->copy_func(ptr);
+    }
+
   self->vtk_ptr = ptr;
-  self->vtk_methods = methods;
-  self->vtk_name = PyString_FromString(classname);
-  self->vtk_doc = vtkBuildDocString(docstring);
-  
+  self->vtk_info = info;
+
   return (PyObject *)self;
 }
 
@@ -1358,6 +1421,42 @@ vtkObjectBase *PyArg_VTKParseTuple(PyObject *pself, PyObject *args,
       }
     }   
   return obj;
+}
+
+//--------------------------------------------------------------------
+void vtkPythonAddSpecialTypeToHash(
+  char *classname, PyMethodDef *methods, char *docstring[],
+  PyVTKSpecialCopyFunc copy_func, PyVTKSpecialDeleteFunc delete_func,
+  PyVTKSpecialPrintFunc print_func)
+{
+  if (vtkPythonHash == NULL)
+    {
+    vtkPythonHash = new vtkPythonUtil();
+    Py_AtExit(vtkPythonHashDelete);
+    }
+
+#ifdef VTKPYTHONDEBUG
+  //  vtkGenericWarningMacro("Adding an type " << type << " to hash ptr");
+#endif
+
+  // lets make sure it isn't already there
+  vtkstd::map<vtkstd::string, PyVTKSpecialTypeInfo>::iterator i =
+    vtkPythonHash->SpecialTypeHash->find(classname);
+  if(i != vtkPythonHash->SpecialTypeHash->end())
+    {
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("Attempt to add type to the hash when already there!!!");
+#endif
+    return;
+    }
+
+  (*vtkPythonHash->SpecialTypeHash)[classname] =
+    PyVTKSpecialTypeInfo(classname, docstring, methods,
+                         copy_func, delete_func, print_func);
+
+#ifdef VTKPYTHONDEBUG
+  //  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
+#endif
 }
 
 //--------------------------------------------------------------------
@@ -1636,6 +1735,64 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
   
   PyErr_SetString(PyExc_TypeError,"method requires a string argument");
   return NULL;
+}
+
+//--------------------------------------------------------------------
+PyObject *vtkPythonGetSpecialObjectFromPointer(void *ptr,
+                                               const char *classname)
+{
+  PyObject *obj = NULL;
+
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Checking into pointer " << ptr);
+#endif
+
+  if (ptr)
+    {
+    obj = PyVTKSpecialObject_New((char *)(classname), ptr, 1);
+    }
+  else
+    {
+    Py_INCREF(Py_None);
+    obj = Py_None;
+    }
+
+  return obj;
+}
+
+//--------------------------------------------------------------------
+void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
+                                           const char *result_type)
+{
+  // convert Py_None to NULL every time
+  if (obj == Py_None)
+    {
+    return NULL;
+    }
+
+  // check to ensure it is a vtk special object
+  if (obj->ob_type != &PyVTKSpecialObjectType)
+    {
+    return NULL;
+    }
+
+  // check to make sure that it is the right type
+  const char *object_type =
+    PyString_AsString(((PyVTKSpecialObject *)obj)->vtk_info->classname);
+
+  if (strcmp(object_type, result_type) != 0)
+    {
+    char error_string[256];
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
+#endif
+    sprintf(error_string,"method requires a %s, a %s was provided.",
+            result_type, object_type);
+    PyErr_SetString(PyExc_ValueError,error_string);
+    return NULL;
+    }
+
+  return ((PyVTKSpecialObject *)obj)->vtk_ptr;
 }
 
 //--------------------------------------------------------------------
