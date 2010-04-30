@@ -160,11 +160,11 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
 
   switch (aType & VTK_PARSE_INDIRECT)
     {
-    case VTK_PARSE_REF:             fprintf(fp, " *"); break; /* act " &" */
-    case VTK_PARSE_POINTER:         fprintf(fp, " *"); break;
-    case VTK_PARSE_POINTER_REF:     fprintf(fp, "*&"); break;
-    case VTK_PARSE_POINTER_POINTER: fprintf(fp, "**"); break;
-    default:                        fprintf(fp,"  "); break;
+    case VTK_PARSE_REF:         fprintf(fp, " *"); break; /* act " &" */
+    case VTK_PARSE_PTR:         fprintf(fp, " *"); break;
+    case VTK_PARSE_PTR_REF:     fprintf(fp, "*&"); break;
+    case VTK_PARSE_PTR_PTR:     fprintf(fp, "**"); break;
+    default:                    fprintf(fp,"  "); break;
     }
 
   fprintf(fp,"temp%i",i);
@@ -699,7 +699,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     args_ok = 0;
     }
   if (((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
-       != VTK_PARSE_POINTER) &&
+       != VTK_PARSE_PTR) &&
       ((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
        != VTK_PARSE_REF) &&
       ((currentFunction->ReturnType & VTK_PARSE_INDIRECT) != 0))

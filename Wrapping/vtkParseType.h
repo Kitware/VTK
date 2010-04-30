@@ -73,9 +73,9 @@
 
 #define VTK_PARSE_INDIRECT  0xF00
 #define VTK_PARSE_REF       0x100
-#define VTK_PARSE_POINTER   0x300
-#define VTK_PARSE_POINTER_REF 0x500
-#define VTK_PARSE_POINTER_POINTER 0x700
+#define VTK_PARSE_PTR       0x300
+#define VTK_PARSE_PTR_REF   0x500
+#define VTK_PARSE_PTR_PTR   0x700
 
 /*
  * The lowest two hex digits describe the basic type,

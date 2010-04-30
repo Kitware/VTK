@@ -2383,14 +2383,14 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 450 "vtkParse.y"
-    { (yyval.integer) = VTK_PARSE_POINTER + (VTK_PARSE_COUNT_START * (yyvsp[(1) - (3)].integer)) + ((yyvsp[(3) - (3)].integer) & VTK_PARSE_UNQUALIFIED_TYPE); }
+    { (yyval.integer) = VTK_PARSE_PTR + (VTK_PARSE_COUNT_START * (yyvsp[(1) - (3)].integer)) + ((yyvsp[(3) - (3)].integer) & VTK_PARSE_UNQUALIFIED_TYPE); }
     break;
 
   case 67:
 
 /* Line 1455 of yacc.c  */
 #line 452 "vtkParse.y"
-    { postSig("[]"); (yyval.integer) = VTK_PARSE_POINTER + ((yyvsp[(4) - (4)].integer) & VTK_PARSE_UNQUALIFIED_TYPE); }
+    { postSig("[]"); (yyval.integer) = VTK_PARSE_PTR + ((yyvsp[(4) - (4)].integer) & VTK_PARSE_UNQUALIFIED_TYPE); }
     break;
 
   case 68:
@@ -2460,7 +2460,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 466 "vtkParse.y"
-    { postSig("*"); (yyval.integer) = (VTK_PARSE_REF + VTK_PARSE_POINTER) + (yyvsp[(1) - (2)].integer);}
+    { postSig("*"); (yyval.integer) = (VTK_PARSE_REF + VTK_PARSE_PTR) + (yyvsp[(1) - (2)].integer);}
     break;
 
   case 78:
@@ -2481,7 +2481,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 479 "vtkParse.y"
-    { postSig("*"); (yyval.integer) = VTK_PARSE_POINTER;}
+    { postSig("*"); (yyval.integer) = VTK_PARSE_PTR;}
     break;
 
   case 81:
@@ -2495,7 +2495,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 481 "vtkParse.y"
-    { (yyval.integer) = (VTK_PARSE_REF + VTK_PARSE_POINTER) + (yyvsp[(2) - (2)].integer);}
+    { (yyval.integer) = (VTK_PARSE_REF + VTK_PARSE_PTR) + (yyvsp[(2) - (2)].integer);}
     break;
 
   case 83:
@@ -3048,7 +3048,7 @@ yyreduce:
      local);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ArgTypes[0] = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->ArgCounts[0] = 2;
    output_function();
    }
@@ -3074,7 +3074,7 @@ yyreduce:
    sprintf(temps,"Get%s",(yyvsp[(3) - (7)].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ReturnType = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 2;
    output_function();
@@ -3117,7 +3117,7 @@ yyreduce:
      local);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ArgTypes[0] = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->ArgCounts[0] = 3;
    output_function();
    }
@@ -3143,7 +3143,7 @@ yyreduce:
    sprintf(temps,"Get%s",(yyvsp[(3) - (7)].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ReturnType = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 3;
    output_function();
@@ -3188,7 +3188,7 @@ yyreduce:
      local);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ArgTypes[0] = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->ArgCounts[0] = 4;
    output_function();
    }
@@ -3214,7 +3214,7 @@ yyreduce:
    sprintf(temps,"Get%s",(yyvsp[(3) - (7)].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ReturnType = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 4;
    output_function();
@@ -3263,7 +3263,7 @@ yyreduce:
      local);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ArgTypes[0] = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->ArgCounts[0] = 6;
    output_function();
    }
@@ -3289,7 +3289,7 @@ yyreduce:
    sprintf(temps,"Get%s",(yyvsp[(3) - (7)].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = VTK_PARSE_POINTER + (yyvsp[(6) - (7)].integer);
+   currentFunction->ReturnType = VTK_PARSE_PTR + (yyvsp[(6) - (7)].integer);
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 6;
    output_function();
@@ -3318,7 +3318,7 @@ yyreduce:
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->ReturnType = VTK_PARSE_VOID;
      currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = VTK_PARSE_POINTER + (yyvsp[(6) - (9)].integer);
+     currentFunction->ArgTypes[0] = VTK_PARSE_PTR + (yyvsp[(6) - (9)].integer);
      currentFunction->ArgCounts[0] = (yyvsp[(8) - (9)].integer);
      output_function();
    }
@@ -3344,7 +3344,7 @@ yyreduce:
    sprintf(temps,"Get%s",(yyvsp[(3) - (9)].str)); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = VTK_PARSE_POINTER + (yyvsp[(6) - (9)].integer);
+   currentFunction->ReturnType = VTK_PARSE_PTR + (yyvsp[(6) - (9)].integer);
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = (yyvsp[(8) - (9)].integer);
    output_function();
@@ -3912,8 +3912,8 @@ void output_function()
   /* reject multi-dimensional arrays from wrappers */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) == 2*VTK_PARSE_POINTER ||
-        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) == 3*VTK_PARSE_POINTER)
+    if ((currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) == 2*VTK_PARSE_PTR ||
+        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) == 3*VTK_PARSE_PTR)
       {
       currentFunction->ArrayFailure = 1;
       }
