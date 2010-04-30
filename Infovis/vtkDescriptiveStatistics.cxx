@@ -369,8 +369,6 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 
   // Clean up
   primaryTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------

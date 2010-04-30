@@ -336,8 +336,6 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 
   // Clean up
   primaryTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -348,15 +346,8 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
-    {
-    return;
-    }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( ! nRow )
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab  )
     {
     return;
     }
@@ -372,6 +363,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                  "Pearson r" };
   
   // Create table for derived statistics
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   vtkTable* derivedTab = vtkTable::New();
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
@@ -539,26 +531,19 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
     return; 
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
+  vtkTable* primaryTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
+    return;
+    }
+
+  vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! derivedTab )
     {
     return;
     }
 
   vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
-  if ( nRowPrim <= 0 )
-    {
-    return;
-    }
-
-  vtkTable* derivedTab;
-  if ( ! ( derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) ) 
-       || derivedTab->GetNumberOfColumns() < 2 )
-    {
-    return;
-    }
-
   if ( nRowPrim != derivedTab->GetNumberOfRows() )
     {
     return;
