@@ -383,15 +383,8 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
-    {
-    return;
-    }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( ! nRow )
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab  )
     {
     return;
     }
@@ -406,6 +399,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                  "Sum" };
 
   // Create table for derived statistics
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   vtkTable* derivedTab = vtkTable::New();
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
