@@ -42,7 +42,6 @@
 #include "vtkInformationVector.h"
 #include <cassert>
 
-vtkCxxRevisionMacro(vtkXMLGenericDataObjectReader, "$Revision$");
 vtkStandardNewMacro(vtkXMLGenericDataObjectReader);
 
 // ---------------------------------------------------------------------------

@@ -37,7 +37,7 @@ class vtkUnstructuredGrid;
 class VTK_IO_EXPORT vtkXMLGenericDataObjectReader : public vtkXMLDataReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLGenericDataObjectReader,vtkXMLDataReader);
+  vtkTypeMacro(vtkXMLGenericDataObjectReader,vtkXMLDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLGenericDataObjectReader *New();
 
@@ -70,10 +70,6 @@ public:
   vtkIdType GetNumberOfCells();
 
   // Description:
-  // Overridden method. Not used. Return "vtkDataObject".
-  const char* GetDataSetName();
-
-  // Description:
   // Overridden method. Not Used. Delegated.
   void SetupEmptyOutput();
 
@@ -85,7 +81,12 @@ public:
 protected:
   vtkXMLGenericDataObjectReader();
   ~vtkXMLGenericDataObjectReader();
-
+  
+  // Description:
+  // Overridden method. Not used. Return "vtkDataObject".
+  const char* GetDataSetName();
+  
+  
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
                                 vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
