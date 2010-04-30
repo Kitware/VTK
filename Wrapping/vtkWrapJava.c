@@ -17,7 +17,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "vtkParse.h"
-#include "vtkParseType.h"
 
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];

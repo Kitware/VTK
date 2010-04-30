@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "vtkParse.h"
-#include "vtkParseType.h"
 #include "vtkConfigure.h"
 
 int numberOfWrappedFunctions = 0;
