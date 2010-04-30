@@ -111,7 +111,7 @@ FIND_LIBRARY(FFMPEG_z_LIBRARY z
   /usr/lib
 )
 
-
+SET(FFMPEG_LIBRARIES)
 IF(FFMPEG_INCLUDE_DIR)
   IF(FFMPEG_avformat_LIBRARY)
     IF(FFMPEG_avcodec_LIBRARY)
@@ -122,16 +122,43 @@ IF(FFMPEG_INCLUDE_DIR)
           ${FFMPEG_avformat_LIBRARY}
           ${FFMPEG_avutil_LIBRARY} 
           )
-        SET( FFMPEG_LIBRARIES 
-          ${FFMPEG_BASIC_LIBRARIES}
-          ${FFMPEG_vorbis_LIBRARY} 
-          ${FFMPEG_dc1394_LIBRARY} 
-          ${FFMPEG_vorbisenc_LIBRARY} 
-          ${FFMPEG_theora_LIBRARY} 
-          ${FFMPEG_dts_LIBRARY} 
-          ${FFMPEG_gsm_LIBRARY} 
-          ${FFMPEG_swscale_LIBRARY} 
-          ${FFMPEG_z_LIBRARY})
+
+        SET(FFMPEG_LIBRARIES ${FFMPEG_BASIC_LIBRARIES})
+
+        IF(FFMPEG_vorbis_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_vorbis_LIBRARY})
+        ENDIF(FFMPEG_vorbis_LIBRARY)
+
+        IF(FFMPEG_dc1394_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_dc1394_LIBRARY})
+        ENDIF(FFMPEG_dc1394_LIBRARY)
+
+        IF(FFMPEG_vorbisenc_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_vorbisenc_LIBRARY})
+        ENDIF(FFMPEG_vorbisenc_LIBRARY)
+
+        IF(FFMPEG_theora_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_theora_LIBRARY})
+        ENDIF(FFMPEG_theora_LIBRARY)
+
+        IF(FFMPEG_dts_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_dts_LIBRARY})
+        ENDIF(FFMPEG_dts_LIBRARY)
+
+        IF(FFMPEG_gsm_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_gsm_LIBRARY})
+        ENDIF(FFMPEG_gsm_LIBRARY)
+
+        IF(FFMPEG_swscale_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_swscale_LIBRARY})
+        ENDIF(FFMPEG_swscale_LIBRARY)
+
+        IF(FFMPEG_z_LIBRARY)
+          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_z_LIBRARY})
+        ENDIF(FFMPEG_z_LIBRARY)
+
+        SET(FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} CACHE INTERNAL "All presently found FFMPEG libraries.")
+
       ENDIF(FFMPEG_avutil_LIBRARY)
     ENDIF(FFMPEG_avcodec_LIBRARY)
   ENDIF(FFMPEG_avformat_LIBRARY)
