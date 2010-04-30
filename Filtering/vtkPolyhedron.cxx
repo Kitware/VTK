@@ -1413,7 +1413,6 @@ void vtkPolyhedron::InternalContour(double value,
     // for more than two points, close it. Note that we need to check degenerate
     // case where all points in polyVtxVector lie on the same line. Otherwise,
     // we will generate a line polygon.
-    // TODO: use matrix determinant to detect colinear case to get faster speed
     if (polyVtxVector.size() > 2 && polyEdgeTable->IsEdge(
         polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]) == (-1))
       {
@@ -1517,7 +1516,7 @@ void vtkPolyhedron::InternalContour(double value,
     if (ret <= 1) // skip single point or co-linear points
       {
       }
-    else if (ret == 5) // planar polygon, add directly
+    else if (ret == 2) // planar polygon, add directly
       {
       contourPolys->InsertNextCell(npts, pts);
       }
