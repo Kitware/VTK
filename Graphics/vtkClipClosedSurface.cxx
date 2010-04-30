@@ -370,7 +370,7 @@ int vtkClipClosedSurface::RequestData(
     {
     // Make the scalars
     lineScalars = vtkUnsignedCharArray::New();
-    lineScalars->SetName( "CellOriginColor" );
+    lineScalars->SetName("CellOriginColor");
     lineScalars->SetNumberOfComponents(3);
 
     vtkDataArray *tryInputScalars = input->GetCellData()->GetScalars();
@@ -422,7 +422,7 @@ int vtkClipClosedSurface::RequestData(
     if (lineScalars)
       {
       polyScalars = vtkUnsignedCharArray::New();
-      polyScalars->SetName( "CellOriginColor" );
+      polyScalars->SetName("CellOriginColor");
       polyScalars->SetNumberOfComponents(3);
       }
 
