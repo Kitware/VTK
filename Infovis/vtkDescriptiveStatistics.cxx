@@ -130,7 +130,9 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     // Verify that the current model is indeed contained in a multiblock data set
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
-      { 
+      {
+      aggregatedTab->Delete();
+
       return; 
       }
 
@@ -138,12 +140,16 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! primaryTab )
       {
+      aggregatedTab->Delete();
+
       return;
       }
 
     if ( primaryTab->GetNumberOfRows() != nRow )
       {
       // Models do not match
+      aggregatedTab->Delete();
+
       return;
       }
 
@@ -154,6 +160,8 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       if ( primaryTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
         {
         // Models do not match
+        aggregatedTab->Delete();
+
         return;
         }
 
