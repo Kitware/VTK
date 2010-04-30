@@ -49,6 +49,7 @@ struct vtkPointIdMap : public vtkstd::map<vtkIdType,vtkIdType> {};
 typedef vtkstd::map<vtkIdType,vtkIdType*>::iterator PointIdMapIterator;
 
 // Special class for iterating through polyhedron faces
+//----------------------------------------------------------------------------
 class vtkPolyhedronFaceIterator
 {
 public:
@@ -78,6 +79,7 @@ public:
 
 
 // Special class for iterating through vertices on a polygon face
+//----------------------------------------------------------------------------
 class vtkPolygonVertexIterator
 {
 public:
@@ -132,6 +134,7 @@ public:
     }
 };
 
+//----------------------------------------------------------------------------
 namespace
 {
 // insert new id element in between two existing adjacent id elements.
@@ -170,6 +173,7 @@ int InsertNewIdToIdVector(vtkPolyhedron::IdVectorType & idVector,
 // Convinient function used by clip. The id is the vector index of the positive 
 // point, id0 is the vector index of the start point, and id1 is the vector index
 // of the end point.
+//----------------------------------------------------------------------------
 int EraseSegmentFromIdVector(vtkPolyhedron::IdVectorType & idVector, 
                              vtkIdType id, vtkIdType id0, vtkIdType id1)
 {
@@ -195,6 +199,7 @@ int EraseSegmentFromIdVector(vtkPolyhedron::IdVectorType & idVector,
 }
 
 // convert the point ids from map.first to map.second
+//----------------------------------------------------------------------------
 int ConvertPointIds(vtkIdType npts, vtkIdType * pts, 
                     vtkPolyhedron::IdToIdMapType & map)
 {
@@ -209,6 +214,113 @@ int ConvertPointIds(vtkIdType npts, vtkIdType * pts,
     }
   return 1;
 }
+
+//----------------------------------------------------------------------------
+// Use eigenvalues to determine the dimension of the input contour points.
+// This chunk of code is mostly copied from vtkOBBTree::ComputeOBB()
+// Function return 0 if input is a single point, 1 if co-linear, 
+// 2 if co-planar, 3 if 3D
+int CheckContourDimensions(vtkPoints* points, vtkIdType npts, vtkIdType * ptIds)
+{
+  static const double eigenvalueRatioThresh = 0.001;
+  
+  if (npts < 3)
+    {
+    return npts - 1;
+    }
+  
+  vtkIdType i, j;
+  double x[3], mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
+  double *a[3], a0[3], a1[3], a2[3], eigValue[3];
+
+  // Compute mean
+  mean[0] = mean[1] = mean[2] = 0.0;
+  for (i=0; i < npts; i++ )
+    {
+    points->GetPoint(ptIds[i], x);
+    mean[0] += x[0];
+    mean[1] += x[1];
+    mean[2] += x[2];
+    }
+  for (i=0; i < 3; i++)
+    {
+    mean[i] /= npts;
+    }
+
+  // Compute covariance matrix
+  a[0] = a0; a[1] = a1; a[2] = a2; 
+  for (i=0; i < 3; i++)
+    {
+    a0[i] = a1[i] = a2[i] = 0.0;
+    }
+
+  for (j = 0; j < npts; j++ )
+    {
+    points->GetPoint(ptIds[j], x);
+    xp[0] = x[0] - mean[0]; xp[1] = x[1] - mean[1]; xp[2] = x[2] - mean[2];
+    for (i = 0; i < 3; i++)
+      {
+      a0[i] += xp[0] * xp[i];
+      a1[i] += xp[1] * xp[i];
+      a2[i] += xp[2] * xp[i];
+      }
+    }//for all points
+
+  for (i=0; i < 3; i++)
+    {
+    a0[i] /= npts;
+    a1[i] /= npts;
+    a2[i] /= npts;
+    }
+
+  // Extract axes (i.e., eigenvectors) from covariance matrix. 
+  v[0] = v0; v[1] = v1; v[2] = v2; 
+  vtkMath::Jacobi(a,eigValue,v);
+
+  int ret = 3;
+  
+  if ((eigValue[2] / eigValue[0]) < eigenvalueRatioThresh)
+    {
+    ret--;
+    }
+  if ((eigValue[1] / eigValue[0]) < eigenvalueRatioThresh)
+    {
+    ret--;
+    }
+  
+  return ret;
+}
+
+
+//----------------------------------------------------------------------------
+// Note: the triangulation results are inserted into the input cellArray, which
+// does not need to be empty.
+void Triangulate3DContour(vtkIdType npts, vtkIdType * pts, 
+                          vtkCellArray *cellArray)
+{
+  vtkIdType start = 0;
+  vtkIdType end = npts-1;
+  vtkIdType ids[3];
+  
+  while (start < end)
+    {
+    ids[0] = pts[start++];
+    ids[1] = pts[start];
+    ids[2] = pts[end];
+    cellArray->InsertNextCell(3, ids);
+
+    if (start >= end - 1)
+      {
+      return;
+      }
+    
+    ids[0] = pts[end];
+    ids[1] = pts[start];
+    ids[2] = pts[--end];
+    cellArray->InsertNextCell(3, ids);
+    }
+}
+
 } //end namespace
 
 
@@ -1305,22 +1417,9 @@ void vtkPolyhedron::InternalContour(double value,
     if (polyVtxVector.size() > 2 && polyEdgeTable->IsEdge(
         polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]) == (-1))
       {
-      bool isLinear = true;
-      double startPt[3], endPt[3], testPt[3];
-      points->GetPoint(polyVtxVector[0], startPt);
-      points->GetPoint(polyVtxVector[polyVtxVector.size()-1], endPt);
-      for (size_t k = 1; k < polyVtxVector.size() - 1; k++)
-        {
-        points->GetPoint(polyVtxVector[k], testPt);
-        double distance = vtkLine::DistanceToLine(startPt, endPt, testPt);
-        if ( distance > eps)
-          {
-          isLinear = false;
-          break;
-          }
-        }
-      
-      if (!isLinear)
+      int ret = CheckContourDimensions(merge->GetPoints(), 
+                                       polyVtxVector.size(), &polyVtxVector[0]);
+      if (ret > 1)
         {
         polyEdgeTable->InsertEdge(
           polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]);
@@ -1344,8 +1443,6 @@ void vtkPolyhedron::InternalContour(double value,
     {
     numPointEdges[i] = 0;
     }
-  
-  vtkIdType ddd = polyEdgeTable->GetNumberOfEdges();
   
   polyEdgeTable->InitTraversal();
   while (polyEdgeTable->GetNextEdge(p0, p1, ptr))
@@ -1409,11 +1506,25 @@ void vtkPolyhedron::InternalContour(double value,
         cpLoop.push_back(pid);
         cpSet.erase(cpSet.find(pid));
         }
-      }      
+      }
+
+    vtkIdType npts = static_cast<vtkIdType>(cpLoop.size());
+    vtkIdType *pts = &(cpLoop[0]);
+
+    // check the dimensionality of the contour
+    int ret = CheckContourDimensions(merge->GetPoints(), npts, pts);
     
-    // store the point in the vector into polys
-    contourPolys->InsertNextCell(
-      static_cast<vtkIdType>(cpLoop.size()), &(cpLoop[0]));
+    if (ret <= 1) // skip single point or co-linear points
+      {
+      }
+    else if (ret == 5) // planar polygon, add directly
+      {
+      contourPolys->InsertNextCell(npts, pts);
+      }
+    else  // 3D points, need to triangulate the original polygon
+      {
+      Triangulate3DContour(npts, pts, contourPolys); 
+      }
     }
 }
 
@@ -1443,13 +1554,12 @@ void vtkPolyhedron::Contour(double value,
   IdToIdVectorMapType pointToFacesMap;
   IdToIdMapType       pointIdMap;
 
-  vtkDataArray * contourScalars = pointScalars->NewInstance();
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
   
-  this->InternalContour(value, locator, pointScalars, contourScalars, 
+  this->InternalContour(value, locator, pointScalars, NULL, 
     inPd, outPd, contourPolys, faceToPointsMap, pointToFacesMap, pointIdMap);
-  
+
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   contourPolys->InitTraversal();
@@ -1459,14 +1569,12 @@ void vtkPolyhedron::Contour(double value,
       {
       vtkErrorMacro("Cannot find the id of an output point. We should never "
         "get here. Contouring aborted.");
-      contourScalars->Delete();
       return;
       }
+    
     vtkIdType newCellId = offset + polys->InsertNextCell(npts, pts);
     outCd->CopyData(inCd, cellId, newCellId);
     }
-  
-  contourScalars->Delete();
 }
 
 
@@ -1494,15 +1602,6 @@ void vtkPolyhedron::Clip(double value,
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
 
-/* 
-  vtkPointLocator *kkkk = vtkPointLocator::SafeDownCast(locator);
-  std::cout << "# points " << this->Points->GetNumberOfPoints() << std::endl;
-  std::cout << "# pointScalars " << pointScalars->GetNumberOfTuples() << std::endl;
-  std::cout << "# locator " << kkkk->GetPoints()->GetNumberOfPoints() << std::endl;
-  std::cout << "# inPd " << inPd->GetScalars()->GetNumberOfTuples() << std::endl;
-  std::cout << "# inCd " << inCd->GetScalars()->GetNumberOfTuples() << std::endl;
-*/
-    
   this->InternalContour(value, locator, pointScalars, contourScalars, 
     inPd, outPd, contourPolys, faceToPointsMap, pointToFacesMap, pointIdMap);
 
