@@ -107,7 +107,10 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
     IF (${FILE} MATCHES "vtkTimeStamp")
       SET (WRAP_THIS_CLASS 0)
     ENDIF (${FILE} MATCHES "vtkTimeStamp")
-      
+    IF (${FILE} MATCHES "vtkVariant")
+      SET (WRAP_THIS_CLASS 0)
+    ENDIF (${FILE} MATCHES "vtkVariant")
+
     # finally if we should wrap it, then ...
     IF (WRAP_THIS_CLASS)
 
