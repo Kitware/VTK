@@ -743,26 +743,19 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
     return; 
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
+  vtkTable* primaryTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
+    return;
+    }
+
+  vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! derivedTab )
     {
     return;
     }
 
   vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
-  if ( nRowPrim <= 0 )
-    {
-    return;
-    }
-
-  vtkTable* derivedTab;
-  if ( ! ( derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) ) 
-       || derivedTab->GetNumberOfColumns() < 2 )
-    {
-    return;
-    }
-
   if ( nRowPrim != derivedTab->GetNumberOfRows() )
     {
     return;

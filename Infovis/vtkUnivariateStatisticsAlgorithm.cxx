@@ -77,7 +77,7 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     return;
     }
 
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta )
     {
     return;
     }

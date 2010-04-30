@@ -353,16 +353,23 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
                                               vtkStringArray* rowNames,
                                               AssessFunctor*& dfunc )
 {
-  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta ) 
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+  if ( ! inMeta
+       || inMeta->GetNumberOfBlocks() < 1 )
     { 
     return; 
+    }
+
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
+    return;
     }
 
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( inMeta->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     dfunc = 0;
@@ -370,7 +377,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     }
 
   // Loop over parameters table until the requested variable is found
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
+  vtkIdType nRowP = primaryTab->GetNumberOfRows();
   for ( int r = 0; r < nRowP; ++ r )
     {
     if ( vars->GetValue( r ) == varName )
@@ -383,7 +390,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      dfunc = new TableColumnBucketingFunctor( vals, inMeta->GetRow( r ) );
+      dfunc = new TableColumnBucketingFunctor( vals, primaryTab->GetRow( r ) );
       return;
       }
     }
