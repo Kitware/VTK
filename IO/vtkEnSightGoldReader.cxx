@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkEnSightGoldReader.cxx
+  Module:    $RCSfile: vtkEnSightGoldReader.cxx,v $
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -10,7 +10,7 @@
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
-
+ 
 =========================================================================*/
 #include "vtkEnSightGoldReader.h"
 
@@ -31,6 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "$Revision: 1.67 $");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -1947,6 +1948,24 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             }
           lineRead = this->ReadNextDataLine(line);
           }
+          
+        // prepare an array of Ids describing the vtkPolyhedron object
+        int         nodeIndx = 0; // indexing the raw array of point Ids
+        int         arrayIdx = 0; // indexing the new array of Ids
+        vtkIdType * theFaces = new vtkIdType // vtkPolyhedron's info of faces
+                               [ elementNodeCount + numFacesPerElement[i] ];
+        for ( j = 0; j < numFacesPerElement[i]; j ++ )
+          {
+          // number of points constituting this face
+          theFaces[ arrayIdx ++ ] = numNodesPerFace[ faceCount + j ];
+          
+          for (  k = 0;  k < numNodesPerFace[ faceCount + j ];  k ++  )
+            {
+            // convert EnSight 1-based indexing to VTK 0-based indexing
+            theFaces[ arrayIdx ++ ] = intIds[ nodeIndx ++ ] - 1;
+            }
+          }
+        
         faceCount += numFacesPerElement[i];
 
         // Build element
@@ -1961,9 +1980,14 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             elementNodeCount += 1;
             }
           }
-        cellId = output->InsertNextCell(VTK_CONVEX_POINT_SET, 
-                                        elementNodeCount, 
-                                        nodeIds);
+        
+        // insert the cell as a vtkPolyhedron object 
+        cellId = output->InsertNextCell( VTK_POLYHEDRON, elementNodeCount,
+                                         nodeIds, numFacesPerElement[i],
+                                         theFaces );
+        delete [] theFaces;
+        theFaces = NULL;
+        
         this->GetCellIds(idx, vtkEnSightReader::NFACED)->InsertNextId(cellId);
         delete [] nodeIds;
         delete [] intIds;
