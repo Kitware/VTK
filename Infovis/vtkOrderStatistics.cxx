@@ -112,6 +112,11 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
                                 vtkTable* vtkNotUsed( inParameters ),
                                 vtkMultiBlockDataSet* outMeta )
 {
+  if ( ! inData )
+    {
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -130,27 +135,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
   primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
-  if ( ! inData )
-    {
-    return;
-    }
-
-  vtkIdType n = inData->GetNumberOfRows();
-  if ( n <= 0 )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->Requests.size() )
-    {
-    return;
-    }
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-  
   vtkVariantArray* variantCol;
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
@@ -191,6 +175,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     }
 
   // Loop over requests
+  vtkIdType nRow = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -212,10 +197,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     
     int i = 0;
     row->SetValue( i ++, col );
-    row->SetValue( i ++, n );
+    row->SetValue( i ++, nRow );
     
     vtksys_stl::vector<double> quantileThresholds;
-    double dh = n / static_cast<double>( this->NumberOfIntervals );
+    double dh = nRow / static_cast<double>( this->NumberOfIntervals );
     for ( int j = 0; j < this->NumberOfIntervals; ++ j )
       {
       quantileThresholds.push_back( j * dh );
@@ -229,7 +214,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
 
       vtksys_stl::map<double,vtkIdType> distr;
-      for ( vtkIdType r = 0; r < n; ++ r )
+      for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ distr[darr->GetTuple1( r )];
         }
@@ -262,7 +247,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       {
       vtkStringArray* sarr = vtkStringArray::SafeDownCast( arr ); 
       vtksys_stl::map<vtkStdString,vtkIdType> distr;
-      for ( vtkIdType r = 0; r < n; ++ r )
+      for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ distr[sarr->GetValue( r )];
         }
