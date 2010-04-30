@@ -323,37 +323,26 @@ def WriteOutModel( haruspex, outModelPrefix ):
     if verbosity > 0:
         print "  Output model is a", outModelType
 
-    # Select write scheme depending on output model type
-    if outModelType == "vtkTable":
+    # Verify that model is a vtkMultiBlockDataSet, error out otherwise
+    if outModelType != "vtkMultiBlockDataSet":
+        print "ERROR: unsupported type of output model!"
+        sys.exit( 1 )
+
+    # Must iterate over all blocks of the vtkMultiBlockDataSet
+    outModel = haruspex.GetOutputDataObject( 1 )
+    n = outModel.GetNumberOfBlocks()
+    for i in range( 0, n ):
         # Straightforward CSV file dump of a vtkTable
-        outModelName = outModelPrefix + "-0.csv"
+        outModelName = outModelPrefix + "-" + str( i )+ ".csv"
         outModelWriter.SetFileName( outModelName )
-        outModelWriter.SetInputConnection( haruspex.GetOutputPort( 1 ) )
+        table = outModel.GetBlock( i )
+        outModelWriter.SetInput( table )
         outModelWriter.Update()
-
-        if verbosity > 0:
-            print "  Wrote", outModelName
-            if verbosity > 1:
-                haruspex.GetOutput( 1 ).Dump( 10 )
-
-    elif outModelType == "vtkMultiBlockDataSet":
-        # Must iterate over all blocks of the vtkMultiBlockDataSet
-        outModel = haruspex.GetOutputDataObject( 1 )
-        n = outModel.GetNumberOfBlocks()
-        for i in range( 0, n ):
-            # Straightforward CSV file dump of a vtkTable
-            outModelName = outModelPrefix + "-" + str( i )+ ".csv"
-            outModelWriter.SetFileName( outModelName )
-            table = outModel.GetBlock( i )
-            outModelWriter.SetInput( table )
-            outModelWriter.Update()
             
-            if verbosity > 0:
-                print "  Wrote", outModelName
-                if verbosity > 1:
-                    table.Dump( 10 )
-
     if verbosity > 0:
+        print "  Wrote", outModelName
+        if verbosity > 1:
+            table.Dump( 10 )
         print
 ############################################################
 
@@ -440,19 +429,17 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
     else:
-        # There is an initial model: decide if vtkTable of vtkMultiBlockDataSet is needed
+        # There is an initial model: must be a vtkMultiBlockDataSet
         inModelType = haruspex.GetOutputDataObject( 1 ).GetClassName()
-        if verbosity > 0:
-            print "  Input model must be a", inModelType
-        if inModelType == "vtkMultiBlockDataSet":
-            # The model table inModel must become the first block of a vtkMultiBlockDataSet
-            inModelMB = vtkMultiBlockDataSet()
-            inModelMB.SetNumberOfBlocks( 1 )
-            inModelMB.SetBlock( 0, inModel )
-            inModel = inModelMB
-        elif inModelType != "vtkTable":
+        if inModelType != "vtkMultiBlockDataSet":
             print "ERROR: unsupported type of input model!"
             sys.exit( 1 )
+
+        # The model table inModel must become the first block of a vtkMultiBlockDataSet
+        inModelMB = vtkMultiBlockDataSet()
+        inModelMB.SetNumberOfBlocks( 1 )
+        inModelMB.SetBlock( 0, inModel )
+        inModel = inModelMB
             
         # If model update is required, then learn new model and aggregate, otherwise assess directly
         if updateModel == True:
@@ -468,10 +455,7 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
             
             # Aggregate old and new models
             collection.AddItem( haruspex.GetOutputDataObject( 1 ) )
-            if inModelType == "vtkTable":
-                aggregated = vtkTable()
-            elif inModelType == "vtkMultiBlockDataSet":
-                aggregated = vtkMultiBlockDataSet()
+            aggregated = vtkMultiBlockDataSet()
             haruspex.Aggregate( collection, aggregated )
 
             # Finally, derive and possibly assess using the aggregated model (do not learn)
