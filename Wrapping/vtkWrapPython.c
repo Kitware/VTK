@@ -1193,12 +1193,6 @@ static void vtkWrapPython_GenerateMethods(
           }
         }
 
-      if (all_legacy)
-        {
-        fprintf(fp,
-                "#if !defined(VTK_LEGACY_REMOVE)\n");
-        }
-
       /* find all occurances of this method */
       signatureCount = 0;
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
@@ -1210,6 +1204,12 @@ static void vtkWrapPython_GenerateMethods(
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
           signatureCount++;
+
+          if (wrappedFunctions[occ]->IsLegacy)
+            {
+            fprintf(fp,
+                    "#if !defined(VTK_LEGACY_REMOVE)\n");
+            }
 
           /* check for static methods */
           if ((wrappedFunctions[occ]->ReturnType & VTK_PARSE_STATIC) != 0)
@@ -1234,24 +1234,6 @@ static void vtkWrapPython_GenerateMethods(
           currentFunction = wrappedFunctions[occ];
           returnType = (currentFunction->ReturnType &
                         VTK_PARSE_UNQUALIFIED_TYPE);
-
-          if(currentFunction->IsLegacy)
-            {
-            fprintf(fp,
-                    "#if defined(VTK_LEGACY_REMOVE)\n");
-
-            /* avoid warnings if all signatures are legacy and removed */
-            if(!all_static)
-              {
-              fprintf(fp,
-                      "  (void)self;"
-                      " /* avoid warning if all signatures removed */\n");
-              }
-            fprintf(fp,
-                    "  (void)args;"
-                    " /* avoid warning if all signatures removed */\n"
-                    "#else\n");
-            }
 
           /* declare the variables */
           if (!is_static)
@@ -1572,23 +1554,29 @@ static void vtkWrapPython_GenerateMethods(
             }
 
           fprintf(fp,
-                  "    }\n");
+                  "    }\n"
+                  "  return NULL;\n"
+                  "}\n");
 
-          if(currentFunction->IsLegacy)
+          if (wrappedFunctions[occ]->IsLegacy)
             {
             fprintf(fp,
                     "#endif\n");
             }
 
           fprintf(fp,
-                  "  return NULL;\n"
-                  "}\n"
                   "\n");
           }
         }
 
       if (numberOfSignatures > 1)
         {
+        if(all_legacy)
+          {
+          fprintf(fp,
+                  "#if !defined(VTK_LEGACY_REMOVE)\n");
+          }
+
         /* output the method table for the signatures */
         fprintf(fp,
                "static PyMethodDef Py%s_%sMethods[] = {\n",
@@ -1606,7 +1594,7 @@ static void vtkWrapPython_GenerateMethods(
 
           signatureCount++;
 
-          if (wrappedFunctions[occ]->IsLegacy)
+          if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
             {
             fprintf(fp,
                    "#if !defined(VTK_LEGACY_REMOVE)\n");
@@ -1620,7 +1608,7 @@ static void vtkWrapPython_GenerateMethods(
                     signatureCount,
                     vtkWrapPython_FormatString(wrappedFunctions[occ]));
             }
-          if (wrappedFunctions[occ]->IsLegacy)
+          if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
             {
             fprintf(fp,
                     "#endif\n");
@@ -1661,15 +1649,15 @@ static void vtkWrapPython_GenerateMethods(
 
         fprintf(fp,
                 "  return NULL;\n"
-                "}\n"
-                "\n");
+                "}\n");
+
+        if (all_legacy)
+          {
+          fprintf(fp,
+                  "#endif\n");
+          }
         }
 
-      if (all_legacy)
-        {
-        fprintf(fp,
-                "#endif\n");
-        }
       fprintf(fp,"\n");
 
       /* set the legacy flag */
