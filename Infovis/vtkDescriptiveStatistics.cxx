@@ -85,10 +85,8 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
-                                          vtkMultiBlockDataSet* outMetaDO )
+                                          vtkMultiBlockDataSet* outMeta )
 {
-  // Verify that the output model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
     { 
     return; 
