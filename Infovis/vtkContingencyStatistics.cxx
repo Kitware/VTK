@@ -1049,15 +1049,8 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
-  vtkTable* contingencyTab;
-  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
-       || contingencyTab->GetNumberOfColumns() < 7 )
-    {
-    return;
-    }
-
-  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  if ( nRowCont <= 0 )
+  vtkTable* contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! contingencyTab  )
     {
     return;
     }
@@ -1102,6 +1095,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   double cdf = 0.;
 
   // Loop over parameters table until the requested variables are found 
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   vtkStdString x, y;
   vtkIdType key;
   double v;
