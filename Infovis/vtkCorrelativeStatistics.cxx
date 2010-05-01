@@ -113,6 +113,8 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
       { 
+      aggregatedTab->Delete();
+
       return; 
       }
     
@@ -120,12 +122,16 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! primaryTab )
       {
+      aggregatedTab->Delete();
+
       return;
       }
 
     if ( primaryTab->GetNumberOfRows() != nRow )
       {
       // Models do not match
+      aggregatedTab->Delete();
+
       return;
       }
 
@@ -136,6 +142,8 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       if ( primaryTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
         {
         // Models do not match
+        aggregatedTab->Delete();
+
         return;
         }
 
