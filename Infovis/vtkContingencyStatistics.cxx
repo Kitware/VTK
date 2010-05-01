@@ -223,8 +223,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   row2->Delete();
   contingencyTab->Delete();
   row4->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
