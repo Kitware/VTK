@@ -82,6 +82,11 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
                                       vtkTable* vtkNotUsed( inParameters ),
                                       vtkMultiBlockDataSet* outMeta )
 {
+  if ( ! inData )
+    {
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -123,22 +128,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   contingencyTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
-  if ( ! inData )
-    {
-    return;
-    }
-
-  vtkIdType n = inData->GetNumberOfRows();
-  if ( n <= 0 )
-    {
-    return;
-    }
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
   // Row to be used to insert into summary and table
   vtkVariantArray* row2 = vtkVariantArray::New();
   row2->SetNumberOfValues( 2 );
@@ -163,6 +152,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   typedef vtksys_stl::map<vtkStdString,vtkIdType> Distribution;
 
   // Loop over requests
+  vtkIdType nRow = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -200,7 +190,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );
 
     vtksys_stl::map<vtkStdString,Distribution> contingencyTable;
-    for ( vtkIdType r = 0; r < n; ++ r )
+    for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       ++ contingencyTable
         [valsX->GetVariantValue( r ).ToString()]
