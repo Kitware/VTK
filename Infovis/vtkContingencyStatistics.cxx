@@ -235,25 +235,25 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  vtkTable* summaryTab;
-  if ( ! ( summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || summaryTab->GetNumberOfColumns() < 2 )
+  vtkTable* summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! summaryTab  )
     {
     return;
     }
 
-  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
-  if ( nRowSumm <= 0 )
+  vtkTable* contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! contingencyTab )
     {
     return;
     }
 
-  // Add columns for joint and conditional probabilities
   int nEntropy = 3;
   vtkStdString entropyNames[] = { "H(X,Y)",
                                   "H(Y|X)",
                                   "H(X|Y)" };
   
+  // Create table for derived meta statistics
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < nEntropy; ++ j )
     {
@@ -267,26 +267,14 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  vtkTable* contingencyTab;
-  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
-       || contingencyTab->GetNumberOfColumns() < 4 )
-    {
-    return;
-    }
-
-  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  if ( nRowCont <= 0 )
-    {
-    return;
-    }
-
-  // Add columns for joint and conditional probabilities
+  // Create table for derived statistics
   int nDerivedVals = 4;
   vtkStdString derivedNames[] = { "P",
                                   "Py|x",
                                   "Px|y",
                                   "PMI" };
   
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   for ( int j = 0; j < nDerivedVals; ++ j )
     {
     if ( ! contingencyTab->GetColumnByName( derivedNames[j] ) )
