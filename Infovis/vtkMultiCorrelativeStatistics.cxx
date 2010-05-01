@@ -266,6 +266,11 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
                                            vtkTable* vtkNotUsed( inParameters ),
                                            vtkMultiBlockDataSet* outMeta )
 {
+  if ( ! inData )
+    {
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -287,22 +292,6 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   mucov->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
   sparseCov->AddColumn( mucov );
   mucov->Delete();
-
-  if ( ! inData )
-    {
-    return;
-    }
-
-  vtkIdType n = inData->GetNumberOfRows();
-  if ( n <= 0 )
-    {
-    return;
-    }
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
 
   vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
   vtksys_stl::set<vtkStdString>::const_iterator colIt;
@@ -346,7 +335,9 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   // This keeps us from computing the same covariance entry multiple times if several requests
   // contain common pairs of columns.
   i = m;
-  // For each request:
+
+  // Loop over requests
+  vtkIdType nRow = inData->GetNumberOfRows();
   for ( reqIt = this->Internals->Requests.begin(); reqIt != this->Internals->Requests.end(); ++ reqIt )
     {
     // For each column in the request:
@@ -394,9 +385,9 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   mucov->SetNumberOfTuples( 1 + m + colPairs.size() ); // sample size followed by mean (mu) followed by covariance (cov) values
   mucov->FillComponent( 0, 0. );
   double* rv = mucov->GetPointer( 0 );
-  *rv = static_cast<double>( n );
+  *rv = static_cast<double>( nRow );
   ++ rv; // skip Cardinality entry
-  for ( i = 0; i < n; ++ i )
+  for ( i = 0; i < nRow; ++ i )
     {
     // First fetch column values
     for ( vtkIdType j = 0; j < m; ++ j )
