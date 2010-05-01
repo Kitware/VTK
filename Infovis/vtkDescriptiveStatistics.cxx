@@ -733,8 +733,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     AssessFunctor*& dfunc )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta
-       || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta )
     { 
     return; 
     }
