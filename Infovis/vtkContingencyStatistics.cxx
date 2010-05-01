@@ -701,49 +701,29 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
                                      vtkMultiBlockDataSet* inMeta,
                                      vtkTable* outMeta )
 {
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  vtkTable* summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! summaryTab )
+    {
+    return;
+    }
+
+  vtkTable* contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! contingencyTab  )
+    {
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
     }
 
-  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
-  vtkIdType nRowData = inData->GetNumberOfRows();
-  if ( nRowData <= 0 )
-    {
-    return;
-    }
-
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 4 ) // We need at least 2 marginal PDFs in addition to the contingency table
-    {
-    return;
-    }
-
-  vtkTable* summaryTab;
-  if ( ! ( summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || summaryTab->GetNumberOfColumns() < 2 )
-    {
-    return;
-    }
-
-  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
-  if ( nRowSumm <= 0 )
-    {
-    return;
-    }
-
-  vtkTable* contingencyTab;
-  if ( ! ( contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) )
-       || contingencyTab->GetNumberOfColumns() < 7 )
-    {
-    return;
-    }
-
-  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  if ( nRowCont <= 0 )
+  if ( ! inData )
     {
     return;
     }
@@ -777,6 +757,8 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
 
   // Loop over requests
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
