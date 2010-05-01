@@ -181,7 +181,6 @@ public:
   // Additional functions
   //
 
-  //BTX
   // Description:
   // Get the data at a particular index.
   vtkVariant & GetValue(vtkIdType id) const;
@@ -205,6 +204,8 @@ public:
   // Expand the array by one and set the value at that location.
   // Return the array index of the inserted value.
   vtkIdType InsertNextValue(vtkVariant value);
+
+  //BTX
 
   // Description:
   // Return a pointer to the location in the internal array at the specified index.

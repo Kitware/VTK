@@ -56,8 +56,9 @@ class vtkAbstractArray;
 class vtkVariant;
 struct vtkVariantLessThan;
 
+//BTX
 VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
-
+//ETX
 
 class VTK_COMMON_EXPORT vtkVariant
 {
@@ -150,9 +151,12 @@ public:
   // Create a string variant from a std string.
   vtkVariant(vtkStdString value);
 
+//BTX
+
   // Description:
   // Create a Unicode string variant
   vtkVariant(const vtkUnicodeString& value);
+//ETX
 
   // Description:
   // Create a vtkObjectBase variant.
@@ -258,9 +262,13 @@ public:
   // Convert the variant to a string.
   vtkStdString ToString() const;
 
+//BTX
+
   // Description:
   // convert the variant to a Unicode string.
   vtkUnicodeString ToUnicodeString() const;
+
+//ETX
 
   // Description:
   // Convert the variant to a numeric type:
@@ -270,27 +278,63 @@ public:
   // If it holds an array type, cast the first value of the array
   //   to the appropriate type.
   // Fail if it holds a VTK object which is not an array.
-  float ToFloat(bool* valid = 0) const;
-  double ToDouble(bool* valid = 0) const;
-  char ToChar(bool* valid = 0) const;
-  unsigned char ToUnsignedChar(bool* valid = 0) const;
-  signed char ToSignedChar(bool* valid = 0) const;
-  short ToShort(bool* valid = 0) const;
-  unsigned short ToUnsignedShort(bool* valid = 0) const;
-  int ToInt(bool* valid = 0) const;
-  unsigned int ToUnsignedInt(bool* valid = 0) const;
-  long ToLong(bool* valid = 0) const;
-  unsigned long ToUnsignedLong(bool* valid = 0) const;
+  float ToFloat(bool* valid) const;
+  float ToFloat() const {
+    return this->ToFloat(0); };
+  double ToDouble(bool* valid) const;
+  double ToDouble() const {
+    return this->ToDouble(0); };
+  char ToChar(bool* valid) const;
+  char ToChar() const {
+    return this->ToChar(0); };
+  unsigned char ToUnsignedChar(bool* valid) const;
+  unsigned char ToUnsignedChar() const {
+    return this->ToUnsignedChar(0); };
+  signed char ToSignedChar(bool* valid) const;
+  signed char ToSignedChar() const {
+    return this->ToSignedChar(0); };
+  short ToShort(bool* valid) const;
+  short ToShort() const {
+    return this->ToShort(0); };
+  unsigned short ToUnsignedShort(bool* valid) const;
+  unsigned short ToUnsignedShort() const {
+    return this->ToUnsignedShort(0); };
+  int ToInt(bool* valid) const;
+  int ToInt() const {
+    return this->ToInt(0); };
+  unsigned int ToUnsignedInt(bool* valid) const;
+  unsigned int ToUnsignedInt() const {
+    return this->ToUnsignedInt(0); };
+  long ToLong(bool* valid) const;
+  long ToLong() const {
+    return this->ToLong(0); };
+  unsigned long ToUnsignedLong(bool* valid) const;
+  unsigned long ToUnsignedLong() const {
+    return this->ToUnsignedLong(0); };
+//BTX
 #if defined(VTK_TYPE_USE___INT64)
-  __int64 To__Int64(bool* valid = 0) const;
-  unsigned __int64 ToUnsigned__Int64(bool* valid = 0) const;
+  __int64 To__Int64(bool* valid) const;
+  __int64 To__Int64() const {
+    return this->To__Int64(0); };
+  unsigned __int64 ToUnsigned__Int64(bool* valid) const;
+  unsigned __int64 ToUnsigned__Int64() const {
+    return this->ToUnsigned__Int64(0); };
 #endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
-  long long ToLongLong(bool* valid = 0) const;
-  unsigned long long ToUnsignedLongLong(bool* valid = 0) const;
+  long long ToLongLong(bool* valid) const;
+  long long ToLongLong() const {
+    return this->ToLongLong(0); };
+  unsigned long long ToUnsignedLongLong(bool* valid) const;
+  unsigned long long ToUnsignedLongLong() const {
+    return this->ToUnsignedLongLong(0); };
 #endif
-  vtkTypeInt64 ToTypeInt64(bool* valid = 0) const;
-  vtkTypeUInt64 ToTypeUInt64(bool* valid = 0) const;
+//ETX
+  vtkTypeInt64 ToTypeInt64(bool* valid) const;
+  vtkTypeInt64 ToTypeInt64() const {
+    return this->ToTypeInt64(0); };
+  vtkTypeUInt64 ToTypeUInt64(bool* valid) const;
+  vtkTypeUInt64 ToTypeUInt64() const {
+    return this->ToTypeUInt64(0); };
 
   // Description:
   // Return the VTK object, or NULL if not of that type.
@@ -300,8 +344,10 @@ public:
   // Return the array, or NULL if not of that type.
   vtkAbstractArray* ToArray() const;
 
+//BTX
   template <typename T>
   T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
+//ETX
 
   // Description:
   // Determines whether two variants have the same value. They do
@@ -350,10 +396,12 @@ public:
   bool operator<=(const vtkVariant &other) const;
   bool operator>=(const vtkVariant &other) const;
 
+//BTX
   friend VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
-
+//ETX
 
 private:
+//BTX
   union
   {
     vtkStdString* String;
@@ -387,7 +435,10 @@ private:
   friend struct vtkVariantEqual;
   friend struct vtkVariantStrictWeakOrder;
   friend struct vtkVariantStrictEquality;
+//ETX
 };
+
+//BTX
 
 #include "vtkVariantInlineOperators.h" // needed for operator== and company
 
@@ -423,5 +474,7 @@ struct VTK_COMMON_EXPORT vtkVariantStrictEquality
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
+
+//ETX
 
 #endif

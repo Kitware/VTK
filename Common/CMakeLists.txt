@@ -392,8 +392,8 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOldStyleCallbackCommand.cxx
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
-  vtkTimeStamp.cxx
-  vtkVariant.cxx
+#  vtkTimeStamp.cxx
+#  vtkVariant.cxx
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
 
