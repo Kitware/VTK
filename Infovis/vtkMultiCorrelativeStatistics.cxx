@@ -259,8 +259,6 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
 
   // Clean up
   outCov->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
