@@ -178,7 +178,9 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
     // Verify that the current model is indeed contained in a multiblock data set
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
-      { 
+      {
+      outCov->Delete();
+
       return; 
       }
 
@@ -186,12 +188,16 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
     inCov = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! inCov )
       {
+      outCov->Delete();
+
       return;
       }
 
     if ( inCov->GetNumberOfRows() != nRow )
       {
       // Models do not match
+      outCov->Delete();
+
       return;
       }
 
@@ -209,6 +215,8 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
            || inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ) != outCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ) )
         {
         // Models do not match
+        outCov->Delete();
+
         return;
         }
 
