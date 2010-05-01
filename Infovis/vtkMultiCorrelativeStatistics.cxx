@@ -464,7 +464,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   vtkStringArray* ocol2;
   vtkDoubleArray* mucov;
   if (
-    ! outMeta || outMeta->GetNumberOfBlocks() < 1 ||
+    ! outMeta ||
     ! ( sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
     ! ( ocol1 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN1 ) ) ) ||
     ! ( ocol2 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN2 ) ) ) ||
@@ -591,18 +591,12 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
                                             vtkMultiBlockDataSet* inMeta, 
                                             vtkTable* outData )
 {
-  if ( ! inMeta || ! outData )
+  if ( ! inData )
     {
     return;
     }
 
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
-  vtkIdType nsamples = inData->GetNumberOfRows();
-  if ( nsamples <= 0 )
+  if ( ! inMeta )
     {
     return;
     }
@@ -611,6 +605,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
   // Column names of the metadata and input data are assumed to match (no mapping using AssessNames or AssessParameters is done).
   // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)" where "A", "B", and "C" are the column names specified in the
   // per-request metadata tables.
+  vtkIdType nRow = inData->GetNumberOfRows();
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
   AssessFunctor* dfunc = 0;
   for ( int req = 1; req < nb; ++ req )
@@ -659,14 +654,14 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
       vtkDoubleArray* assessValues = vtkDoubleArray::New();
       names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
       assessValues->SetName( names[v] );
-      assessValues->SetNumberOfTuples( nsamples );
+      assessValues->SetNumberOfTuples( nRow );
       outData->AddColumn( assessValues );
       assessValues->Delete();
       }
 
     // Assess each entry of the column
     vtkVariantArray* assessResult = vtkVariantArray::New();
-    for ( vtkIdType r = 0; r < nsamples; ++ r )
+    for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       (*dfunc)( assessResult, r );
       for ( int v = 0; v < nv; ++ v )
@@ -768,8 +763,6 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
                                                          vtkStringArray* vtkNotUsed(rowNames), 
                                                          AssessFunctor*& dfunc )
 {
-  (void)inData;
-
   dfunc = 0;
   vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );
   if ( ! reqModel )
