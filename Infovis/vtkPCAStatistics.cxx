@@ -615,18 +615,12 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
                                vtkMultiBlockDataSet* inMeta, 
                                vtkTable* outData )
 {
-  if ( ! inMeta || ! outData )
+  if ( ! inData )
     {
     return;
     }
 
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
-  vtkIdType nsamples = inData->GetNumberOfRows();
-  if ( nsamples <= 0 )
+  if ( ! inMeta )
     {
     return;
     }
@@ -635,6 +629,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
   // Column names of the metadata and input data are assumed to match (no mapping using AssessNames or AssessParameters is done).
   // The output columns will be named "RelDevSq(A,B,C)" where "A", "B", and "C" are the column names specified in the
   // per-request metadata tables.
+  vtkIdType nRow = inData->GetNumberOfRows();
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
   AssessFunctor* dfunc = 0;
   for ( int req = 1; req < nb; ++ req )
@@ -679,7 +674,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       reqNameStr << "}(" << comp << ")";
       vtkDoubleArray* arr = vtkDoubleArray::New();
       arr->SetName( reqNameStr.str().c_str() );
-      arr->SetNumberOfTuples( nsamples );
+      arr->SetNumberOfTuples( nRow );
       outData->AddColumn( arr );
       arr->Delete();
       assessValues.push_back( arr->GetPointer( 0 ) );
@@ -688,7 +683,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
     // Something to hold assessed values for a single input datum
     vtkVariantArray* singleResult = vtkVariantArray::New();
     // Loop over all the input data and assess each datum:
-    for ( vtkIdType row = 0; row < nsamples; ++ row )
+    for ( vtkIdType row = 0; row < nRow; ++ row )
       {
       (*dfunc)( singleResult, row );
       for ( comp = 0; comp < pcafunc->BasisSize; ++ comp )
