@@ -268,7 +268,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case VTK_PARSE_REF:
       fprintf(fp, " *"); /* act " &" */
       break;
-    case VTK_PARSE_PTR:
+    case VTK_PARSE_POINTER:
       if ((i == MAX_ARGS) ||
           ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_VTK_OBJECT_PTR) ||
           ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR_PTR))
@@ -276,10 +276,10 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
         fprintf(fp, " *");
         }
       break;
-    case VTK_PARSE_PTR_REF:
+    case VTK_PARSE_POINTER_REF:
       fprintf(fp, "*&");
       break;
-    case VTK_PARSE_PTR_PTR:
+    case VTK_PARSE_POINTER_POINTER:
       fprintf(fp, "**");
       break;
     default:
@@ -289,7 +289,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
   fprintf(fp,"temp%i",i);
 
   /* handle arrays */
-  if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_PTR)&&
+  if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER)&&
       (i != MAX_ARGS) &&
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_VTK_OBJECT_PTR) &&
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_CHAR_PTR))
@@ -829,7 +829,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 
     if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
     if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
-    if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_PTR) &&
+    if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
         (aType != VTK_PARSE_VTK_OBJECT_REF) &&
         ((aType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
@@ -842,7 +842,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     }
   if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
   if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
-  if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_PTR)&&
+  if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)&&
       (rType != VTK_PARSE_VTK_OBJECT_REF)&&
       ((rType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
@@ -864,7 +864,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
-    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_PTR)&&
+    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER)&&
         (currentFunction->ArgCounts[i] <= 0)&&
         (aType != VTK_PARSE_VTK_OBJECT_PTR)&&
         (aType != VTK_PARSE_CHAR_PTR)) args_ok = 0;
