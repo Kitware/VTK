@@ -499,7 +499,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
                                      vtkMultiBlockDataSet* inMeta,
                                      vtkTable* outMeta )
 {
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
+  if ( ! inMeta )
     {
     return;
     }
