@@ -82,6 +82,7 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     }
 
   // Loop over requests
+  vtkIdType nRowData = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -114,7 +115,6 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     // Store names to be able to use SetValueByName, and create the outData columns
     int nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
-    vtkIdType nRowData = inData->GetNumberOfRows();
     for ( int v = 0; v < nv; ++ v )
       {
       vtksys_ios::ostringstream assessColName;
