@@ -1060,8 +1060,10 @@ static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
 static void vtkWrapPython_GenerateMethods(
   FILE *fp, FileInfo *data, int class_has_new, int do_constructors)
 {
-  int i, j, k, is_static, is_vtkobject, fnum, occ, goto_used;
-  int all_legacy;
+  int i, j, k, is_static, is_vtkobject, fnum, occ;
+  int numberOfSignatures, signatureCount;
+  char signatureSuffix[8];
+  int all_legacy, all_static;
   int numberOfWrappedFunctions = 0;
   FunctionInfo *wrappedFunctions[1000];
   FunctionInfo *currentFunction;
@@ -1165,7 +1167,8 @@ static void vtkWrapPython_GenerateMethods(
       fprintf(fp,"\n");
 
       /* check whether all signatures are static methods or legacy */
-      is_static = 1;
+      numberOfSignatures = 0;
+      all_static = 1;
       all_legacy = 1;
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
         {
@@ -1173,10 +1176,13 @@ static void vtkWrapPython_GenerateMethods(
         if (wrappedFunctions[occ]->Name &&
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
+          /* increment the signature count */
+          numberOfSignatures++;
+
           /* check for static methods */
           if ((wrappedFunctions[occ]->ReturnType & VTK_PARSE_STATIC) == 0)
             {
-            is_static = 0;
+            all_static = 0;
             }
 
           /* check for legacy */
@@ -1187,56 +1193,55 @@ static void vtkWrapPython_GenerateMethods(
           }
         }
 
-      if(all_legacy)
+      if (all_legacy)
         {
         fprintf(fp,
                 "#if !defined(VTK_LEGACY_REMOVE)\n");
         }
 
-      /* declare the method */
-      if (do_constructors)
-        {
-        fprintf(fp,
-               "PyObject *PyVTKObject_%sNew(PyObject *, PyObject *args)\n"
-               "{\n",
-                data->ClassName);
-        }
-      else
-        {
-        fprintf(fp,
-                "static PyObject *Py%s_%s(PyObject *%s, PyObject *args)\n"
-                "{\n",
-                data->ClassName,currentFunction->Name,
-                (is_static ? "" : "self"));
-        }
-      
       /* find all occurances of this method */
+      signatureCount = 0;
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
         {
-        goto_used = 0;
         is_static = 0;
 
         /* is it the same name */
         if (wrappedFunctions[occ]->Name && 
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
+          signatureCount++;
+
           /* check for static methods */
           if ((wrappedFunctions[occ]->ReturnType & VTK_PARSE_STATIC) != 0)
             {
             is_static = 1;
             }
 
+          /* method suffix to distinguish between signatures */
+          signatureSuffix[0] = '\0';
+          if (numberOfSignatures > 1)
+            {
+            sprintf(signatureSuffix, "_s%d", signatureCount);
+            }
+
+          /* declare the method */
+          fprintf(fp,
+                  "static PyObject *Py%s_%s%s(PyObject *%s, PyObject *args)\n"
+                  "{\n",
+                  data->ClassName, currentFunction->Name, signatureSuffix,
+                  ((is_static | do_constructors) ? "" : "self"));
+
           currentFunction = wrappedFunctions[occ];
           returnType = (currentFunction->ReturnType &
                         VTK_PARSE_UNQUALIFIED_TYPE);
 
-          if(currentFunction->IsLegacy && !all_legacy)
+          if(currentFunction->IsLegacy)
             {
             fprintf(fp,
                     "#if defined(VTK_LEGACY_REMOVE)\n");
 
             /* avoid warnings if all signatures are legacy and removed */
-            if(!is_static)
+            if(!all_static)
               {
               fprintf(fp,
                       "  (void)self;"
@@ -1247,10 +1252,6 @@ static void vtkWrapPython_GenerateMethods(
                     " /* avoid warning if all signatures removed */\n"
                     "#else\n");
             }
-
-          fprintf(fp,
-                  "  /* handle an occurrence */\n"
-                  "  {\n");
 
           /* declare the variables */
           if (!is_static)
@@ -1280,12 +1281,7 @@ static void vtkWrapPython_GenerateMethods(
           /* temp variable for return value */
           vtkWrapPython_MakeTempVariable(fp, currentFunction, MAX_ARGS);
 
-          /* don't clear error first time around */
-          if (occ != fnum)
-            {
-            fprintf(fp,
-                    "  PyErr_Clear();\n");
-            }
+          /* Use ParseTuple to convert python args to C args */
           if (is_static || !is_vtkobject)
             {
             fprintf(fp,
@@ -1352,9 +1348,11 @@ static void vtkWrapPython_GenerateMethods(
                       i, currentFunction->ArgClasses[i], i, 
                       currentFunction->ArgClasses[i]);
               fprintf(fp,
-                      "    if (!temp%d && tempH%d != Py_None) { goto break%d; }\n",
-                      i,i,occ);
-              goto_used = 1;
+                      "    if (!temp%d && tempH%d != Py_None)\n"
+                      "      {\n"
+                      "      return NULL;\n"
+                      "      }\n",
+                      i,i);
               }
             else if (argType == VTK_PARSE_VTK_OBJECT_REF ||
                      argType == VTK_PARSE_VTK_OBJECT)
@@ -1364,9 +1362,11 @@ static void vtkWrapPython_GenerateMethods(
                       i, currentFunction->ArgClasses[i], i,
                       currentFunction->ArgClasses[i]);
               fprintf(fp,
-                      "    if (!temp%d && tempH%d != Py_None) { goto break%d; }\n",
-                      i,i,occ);
-              goto_used = 1;
+                      "    if (!temp%d && tempH%d != Py_None)\n"
+                      "      {\n"
+                      "      return NULL;\n"
+                      "      }\n",
+                      i,i);
               }
             }
           
@@ -1572,32 +1572,108 @@ static void vtkWrapPython_GenerateMethods(
             }
 
           fprintf(fp,
-                  "    }\n"
-                  "  }\n");
+                  "    }\n");
 
-          if (goto_used) 
+          if(currentFunction->IsLegacy)
             {
             fprintf(fp,
-                    " break%d:\n",
-                    occ);
+                    "#endif\n");
             }
-          if(currentFunction->IsLegacy && !all_legacy)
+
+          fprintf(fp,
+                  "  return NULL;\n"
+                  "}\n"
+                  "\n");
+          }
+        }
+
+      if (numberOfSignatures > 1)
+        {
+        /* output the method table for the signatures */
+        fprintf(fp,
+               "static PyMethodDef Py%s_%sMethods[] = {\n",
+                data->ClassName, wrappedFunctions[fnum]->Name);
+
+        signatureCount = 0;
+        for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
+          {
+          if (wrappedFunctions[occ]->Name == 0 ||
+              strcmp(wrappedFunctions[occ]->Name,
+                     wrappedFunctions[fnum]->Name) != 0)
+            {
+            continue;
+            }
+
+          signatureCount++;
+
+          if (wrappedFunctions[occ]->IsLegacy)
+            {
+            fprintf(fp,
+                   "#if !defined(VTK_LEGACY_REMOVE)\n");
+            }
+          if (wrappedFunctions[occ]->Name)
+            {
+            fprintf(fp,
+                    "  {(char*)\"\", (PyCFunction)Py%s_%s_s%d, 1,\n"
+                    "   (char*)\"%s\"},\n",
+                    data->ClassName, wrappedFunctions[occ]->Name,
+                    signatureCount,
+                    vtkWrapPython_FormatString(wrappedFunctions[occ]));
+            }
+          if (wrappedFunctions[occ]->IsLegacy)
             {
             fprintf(fp,
                     "#endif\n");
             }
           }
-        }
-      fprintf(fp,
-              "  return NULL;\n}"
-              "\n");
 
-      if(all_legacy)
+        fprintf(fp,
+                "  {NULL,       NULL, 0, NULL}\n"
+                "};\n"
+                "\n");
+
+        /* declare a "master method" to look through the signatures */
+        fprintf(fp,
+                "static PyObject *Py%s_%s(PyObject *self, PyObject *args)\n"
+                "{\n"
+                "  PyMethodDef *meth = Py%s_%sMethods;\n"
+                "  PyObject *result;\n"
+                "  int count;\n"
+                "\n",
+                 data->ClassName, wrappedFunctions[fnum]->Name,
+                 data->ClassName, wrappedFunctions[fnum]->Name);
+
+        fprintf(fp,
+                "  for (count = 0; meth->ml_meth; count++, meth++)\n"
+                "    {\n"
+                "    if (count > 0)\n"
+                "      {\n"
+                "      PyErr_Clear();\n"
+                "      }\n"
+                "\n"
+                "    result = meth->ml_meth(self, args);\n"
+                "    if (result)\n"
+                "      {\n"
+                "      return result;\n"
+                "      }\n"
+                "    }\n"
+                "\n");
+
+        fprintf(fp,
+                "  return NULL;\n"
+                "}\n"
+                "\n");
+        }
+
+      if (all_legacy)
         {
         fprintf(fp,
                 "#endif\n");
         }
       fprintf(fp,"\n");
+
+      /* set the legacy flag */
+      wrappedFunctions[fnum]->IsLegacy = all_legacy;
 
       /* clear all occurances of this method from further consideration */
       for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
@@ -2201,11 +2277,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     /* the method table for the New method */
     fprintf(fp,
             "static PyMethodDef Py%sNewMethod = \\\n"
-            "{ (char*)\"%s\",  (PyCFunction)PyVTKObject_%sNew, 1,\n"
+            "{ (char*)\"%s\",  (PyCFunction)Py%s_%s, 1,\n"
             "  (char*)%sDoc[0] };\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName);
+            data->ClassName, data->ClassName);
 
     /* the copy constructor */
     fprintf(fp,
