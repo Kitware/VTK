@@ -1681,27 +1681,30 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
               }
             else
               {
+              // Note: we don't reject the method if the sequence count
+              // doesn't match.  If that circumstance occurs, we want the
+              // method to be called with an incorrect count so that a
+              // useful error will be reported to the user.  Also, we want
+              // to mimic C++ semantics, and C++ doesn't care about the
+              // size of arrays when it resolves overloads.
               int m = PySequence_Size(arg);
-              for (int j = 0; j < m; j++)
+              for (int j = 0;; j++)
                 {
-                if (!helper->next(&format, &classname) || *format == ')')
+                if (!helper->next(&format, &classname))
                   {
                   helper->priority(-1);
                   break;
                   }
-
-                PyObject *sarg = PySequence_GetItem(arg, j);
-                if (helper->priority(PyVTKCheckArg(sarg, format, classname))
-                    < 0)
+                if (*format == ')')
                   {
                   break;
                   }
-                }
 
-              if (!helper->next(&format, &classname) ||
-                  *format != ')')
-                {
-                helper->priority(-1);
+                if (j < m)
+                  {
+                  PyObject *sarg = PySequence_GetItem(arg, j);
+                  helper->priority(PyVTKCheckArg(sarg, format, classname));
+                  }
                 }
               }
             }
