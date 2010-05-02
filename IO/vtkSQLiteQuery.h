@@ -96,11 +96,9 @@ public:
   bool RollbackTransaction();
   bool CommitTransaction();
 
-  //BTX
   // Description:
   // Return data in current row, field c
   vtkVariant DataValue(vtkIdType c);
-  //ETX
 
   // Description:
   // Get the last error text from the query
@@ -137,8 +135,8 @@ public:
   bool BindParameter(int index, const char *stringValue, size_t length);
 //BTX
   bool BindParameter(int index, const vtkStdString &string);
-  bool BindParameter(int index, vtkVariant value);
 //ETX
+  bool BindParameter(int index, vtkVariant value);
   // Description:
   // Bind a blob value.  Not all databases support blobs as a data
   // type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to

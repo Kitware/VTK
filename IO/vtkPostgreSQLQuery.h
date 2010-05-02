@@ -82,11 +82,9 @@ public:
   bool RollbackTransaction();
   bool CommitTransaction();
 
-  //BTX
   // Description:
   // Return data in current row, field c
   vtkVariant DataValue( vtkIdType c );
-  //ETX
 
   // Description:
   // Get the last error text from the query

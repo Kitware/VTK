@@ -206,7 +206,6 @@ public:
   vtkIdType InsertNextValue(vtkVariant value);
 
   //BTX
-
   // Description:
   // Return a pointer to the location in the internal array at the specified index.
   vtkVariant* GetPointer(vtkIdType id);
@@ -226,12 +225,10 @@ public:
   // Return the number of values in the array.
   vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
 
-  //BTX
   // Description:
   // Return the indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
-  //ETX
   
   // Description:
   // Tell the array explicitly that the data has changed.
@@ -277,10 +274,8 @@ private:
   vtkVariantArray(const vtkVariantArray&);  // Not implemented.
   void operator=(const vtkVariantArray&);  // Not implemented.
 
-  //BTX
   vtkVariantArrayLookup* Lookup;
   void UpdateLookup();
-  //ETX
 };
 
 #endif

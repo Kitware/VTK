@@ -67,9 +67,8 @@ public:
   // Set the index (into the vertex array) of the 
   // minimum spanning tree 'origin' vertex.
   void SetOriginVertex(vtkIdType index);
-  
+
   //BTX
-  
   // Description:
   // Set the minimum spanning tree 'origin' vertex.
   // This method is basically the same as above
@@ -85,7 +84,6 @@ public:
   vtkSetMacro(CreateGraphVertexIdArray, bool);
   vtkGetMacro(CreateGraphVertexIdArray, bool);
   vtkBooleanMacro(CreateGraphVertexIdArray, bool);
-  
   
   // Description:
   // Whether to negate the edge weights. By negating the edge

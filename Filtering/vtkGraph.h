@@ -422,7 +422,6 @@ public:
   vtkDistributedGraphHelper *GetDistributedGraphHelper();
   //ETX
 
-  //BTX
   // Description:
   // Retrieve the vertex with the given pedigree ID. If successful,
   // returns the ID of the vertex. Otherwise, either the vertex data
@@ -431,7 +430,6 @@ public:
   // If the graph is a distributed graph, this method will return the
   // Distributed-ID of the vertex.
   vtkIdType FindVertex(const vtkVariant& pedigreeID);
-  //ETX
 
   // Description:
   // Shallow copies the data object into this graph.

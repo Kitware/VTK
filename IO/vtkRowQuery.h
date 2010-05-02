@@ -95,7 +95,6 @@ public:
   // inactive query.
   virtual bool IsActive() = 0;
 
-//BTX
   // Description:
   // Advance row, return false if past end.
   // Also, fill array with row values.
@@ -104,7 +103,6 @@ public:
   // Description:
   // Return data in current row, field c
   virtual vtkVariant DataValue(vtkIdType c) = 0;
-//ETX
 
   // Description:
   // Returns true if an error is set, otherwise false.

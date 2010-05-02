@@ -218,7 +218,6 @@ public:
   virtual int GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName );
   //ETX
 
-//BTX  
   // Description:
   // A convenience method (in particular for access from other applications) to 
   // set parameter values of Learn mode.
@@ -228,7 +227,6 @@ public:
   virtual bool SetParameter( const char* parameter,
                              int index,
                              vtkVariant value );
-//ETX
 
   // Description:
   // Given a collection of models, calculate aggregate model

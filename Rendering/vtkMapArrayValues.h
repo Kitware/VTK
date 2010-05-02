@@ -90,9 +90,7 @@ public:
 // Description:
 // Add to the internal STL map. "from" should be a value in the input array and
 // "to" should be the new value it gets assigned in the output array. 
-//BTX
   void AddToMap(vtkVariant from, vtkVariant to);
-//ETX
   void AddToMap(int from, int to);
   void AddToMap(int from, char *to);
   void AddToMap(char *from, int to);

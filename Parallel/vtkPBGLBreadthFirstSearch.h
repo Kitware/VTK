@@ -60,7 +60,6 @@ public:
   void SetOriginVertex(vtkIdType index);
 
   //BTX
-  
   // Description:
   // Set the breadth first search 'origin' vertex.
   // This method is basically the same as above
@@ -126,9 +125,7 @@ private:
   vtkIdType OriginVertexIndex;
   char* InputArrayName;
   char* OutputArrayName;
-  //BTX
   vtkVariant OriginValue;
-  //ETX
   bool OutputSelection;
   bool OriginFromSelection;
   char* OutputSelectionType;
@@ -137,14 +134,11 @@ private:
   // Using the convenience function internally
   vtkSetStringMacro(InputArrayName);
 
-  //BTX
-  
   // Description:
   // This method is basically a helper function to find
   // the index of a specific value within a specific array
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
-  //ETX
 
   vtkPBGLBreadthFirstSearch(const vtkPBGLBreadthFirstSearch&);  // Not implemented.
   void operator=(const vtkPBGLBreadthFirstSearch&);  // Not implemented.

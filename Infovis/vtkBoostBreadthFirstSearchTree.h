@@ -49,9 +49,8 @@ public:
   // Set the index (into the vertex array) of the 
   // breadth first search 'origin' vertex.
   void SetOriginVertex(vtkIdType index);
-  
-  //BTX
 
+  //BTX
   // Description:
   // Set the breadth first search 'origin' vertex.
   // This method is basically the same as above
@@ -86,9 +85,7 @@ private:
 
   vtkIdType OriginVertexIndex;
   char* ArrayName;
-  //BTX
   vtkVariant OriginValue;
-  //ETX
   bool ArrayNameSet;
   bool CreateGraphVertexIdArray;
   bool ReverseEdges;
@@ -97,14 +94,11 @@ private:
   // Using the convenience function for set strings internally
   vtkSetStringMacro(ArrayName);
 
-  //BTX
-  
   // Description:
   // This method is basically a helper function to find
   // the index of a specific value within a specific array
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
-  //ETX
 
   vtkBoostBreadthFirstSearchTree(const vtkBoostBreadthFirstSearchTree&);  // Not implemented.
   void operator=(const vtkBoostBreadthFirstSearchTree&);  // Not implemented.

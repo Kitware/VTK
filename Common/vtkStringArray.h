@@ -174,15 +174,15 @@ public:
   int GetNumberOfElementComponents() { return 0; }
   int GetElementComponentSize() { return static_cast<int>(sizeof(vtkStdString::value_type)); }
 
+//BTX
   // Description:
   // Insert data at a specified position in the array.
-//BTX
   void InsertValue(vtkIdType id, vtkStdString f);
+//ETX
 
   // Description:
   // Insert a value into the array from a variant.
   void InsertVariantValue(vtkIdType idx, vtkVariant value);
-//ETX
   void InsertValue(vtkIdType id, const char *val);
 
   // Description:

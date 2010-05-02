@@ -156,7 +156,6 @@ public:
   // Table single entry functions
   //
 
-  //BTX
   // Description:
   // Retrieve a value in the table by row and column index as a variant.
   // Note that this calls GetValueByName internally so that each column
@@ -175,7 +174,6 @@ public:
   // Description:
   // Set a value in the table by row index and column name as a variant.
   void SetValueByName(vtkIdType row, const char* col, vtkVariant value);
-  //ETX
   
   // Description:
   // Initialize to an empty table.

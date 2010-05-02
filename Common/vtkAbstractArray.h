@@ -278,7 +278,6 @@ public:
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
     }
 
-  //BTX
   // Description:
   // Return the indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value) = 0;
@@ -291,7 +290,6 @@ public:
   // Description:
   // Insert a value into the array from a variant.
   virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
-  //ETX
 
   // Description:
   // Tell the array explicitly that the data has changed.

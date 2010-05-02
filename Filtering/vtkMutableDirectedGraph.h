@@ -88,7 +88,6 @@ public:
   // the delays associated with returning the vertex index.
   vtkIdType AddVertex(vtkVariantArray *propertyArr);
 
-  //BTX
   // Description:
   // Adds a vertex with the given \p pedigreeID to the graph and
   // returns the index of the new vertex.
@@ -104,7 +103,6 @@ public:
   // LazyAddVertex, which provides better performance by eliminating
   // the delays associated with returning the vertex index.
   vtkIdType AddVertex(const vtkVariant& pedigreeId);
-  //ETX
 
   // Description:
   // Adds a directed edge from \p u to \p v,
@@ -200,7 +198,6 @@ public:
   // called on the helper.
   void LazyAddVertex(vtkVariantArray *propertyArr);
 
-  //BTX
   // Description:
   // Adds a vertex with the given \p pedigreeID to the graph.
   //
@@ -267,7 +264,6 @@ public:
   void LazyAddEdge(const vtkVariant& u,
                    const vtkVariant& v,
                    vtkVariantArray *propertyArr = 0);
-  //ETX
 
   // Description:
   // Variant of AddEdge() that returns a heavyweight \p vtkGraphEdge object.

@@ -147,11 +147,10 @@ public:
   // Create a string variant from a const char*.
   vtkVariant(const char* value);
 
+//BTX
   // Description:
   // Create a string variant from a std string.
   vtkVariant(vtkStdString value);
-
-//BTX
 
   // Description:
   // Create a Unicode string variant
@@ -258,16 +257,14 @@ public:
   // Get the type of the variant as a string.
   const char* GetTypeAsString() const;
 
+//BTX
   // Description:
   // Convert the variant to a string.
   vtkStdString ToString() const;
 
-//BTX
-
   // Description:
   // convert the variant to a Unicode string.
   vtkUnicodeString ToUnicodeString() const;
-
 //ETX
 
   // Description:
@@ -311,7 +308,6 @@ public:
   unsigned long ToUnsignedLong(bool* valid) const;
   unsigned long ToUnsignedLong() const {
     return this->ToUnsignedLong(0); };
-//BTX
 #if defined(VTK_TYPE_USE___INT64)
   __int64 To__Int64(bool* valid) const;
   __int64 To__Int64() const {
@@ -328,7 +324,6 @@ public:
   unsigned long long ToUnsignedLongLong() const {
     return this->ToUnsignedLongLong(0); };
 #endif
-//ETX
   vtkTypeInt64 ToTypeInt64(bool* valid) const;
   vtkTypeInt64 ToTypeInt64() const {
     return this->ToTypeInt64(0); };

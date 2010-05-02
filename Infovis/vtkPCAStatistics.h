@@ -166,7 +166,6 @@ public:
   vtkSetClampMacro(FixedBasisEnergy,double,0.,1.);
   vtkGetMacro(FixedBasisEnergy,double);
 
-//BTX
   // Description:
   // A convenience method (in particular for access from other applications) to 
   // set parameter values.
@@ -174,7 +173,6 @@ public:
   virtual bool SetParameter( const char* parameter,
                              int index,
                              vtkVariant value );
-//ETX
 
 protected:
   vtkPCAStatistics();

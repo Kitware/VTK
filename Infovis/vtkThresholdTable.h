@@ -55,7 +55,6 @@ public:
   vtkSetClampMacro(Mode, int, 0, 3);
   vtkGetMacro(Mode, int);
 
-  //BTX
   // Description:
   // The minumum value for the threshold.
   // This may be any data type stored in a vtkVariant.
@@ -86,8 +85,6 @@ public:
   // Criterion is rows whose scalars are between lower and upper thresholds
   // (inclusive of the end values).
   void ThresholdBetween(vtkVariant lower, vtkVariant upper);
-
-  //ETX
 
   // Description:
   // The minumum value for the threshold as a double.

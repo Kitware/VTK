@@ -86,10 +86,8 @@ public:
   
   // Description:
   // Method to get/set the default value.
-  //BTX
   vtkVariant GetDefaultValue();
   void SetDefaultValue(vtkVariant value);
-  //ETX
   
   // Description:
   // Set the input type of the algorithm to vtkGraph.
@@ -105,9 +103,7 @@ protected:
   int SourceFieldType;
   int TargetFieldType;
   
-  //BTX
   vtkVariant DefaultValue;
-  //ETX
   
   // Description:
   // Convert the vtkGraph into vtkPolyData.

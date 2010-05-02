@@ -75,23 +75,18 @@ private:
 
   vtkIdType OriginVertexIndex;
   char* ArrayName;
-  //BTX
   vtkVariant OriginValue;
-  //ETX
   bool ArrayNameSet;
   
   // Description:
   // Using the convenience function for set strings internally
   vtkSetStringMacro(ArrayName);
   
-  //BTX
-
   // Description:
   // This method is basically a helper function to find
   // the index of a specific value within a specific array
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
-  //ETX
 
   vtkBoostBrandesCentrality(const vtkBoostBrandesCentrality&);  // Not implemented.
   void operator=(const vtkBoostBrandesCentrality&);  // Not implemented.

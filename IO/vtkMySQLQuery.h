@@ -82,11 +82,9 @@ public:
   // Return true if there is an error on the current query.
   bool HasError();
 
-  //BTX
   // Description:
   // Return data in current row, field c
   vtkVariant DataValue(vtkIdType c);
-  //ETX
 
   // Description:
   // Get the last error text from the query

@@ -73,9 +73,7 @@ public:
   // Description:
   // Edits the lookup table to use for point icons. This is only used if
   // input array 0 is set and UsePointLookupTable is on.
-  //BTX
   void SetIconType(vtkVariant v, int icon);
-  //ETX
   void SetIconType(double v, int icon)
     { this->SetIconType(vtkVariant(v), icon); }
   void SetIconType(const char* v, int icon)
