@@ -61,6 +61,10 @@ static int vtkWrapPython_MethodCheck(
 static char *vtkWrapPython_FormatString(
   FunctionInfo *currentFunction);
 
+/* create a string for checking arguments against available signatures */
+static char *vtkWrapPython_ArgCheckString(
+  FunctionInfo *currentFunction);
+
 /* replace the original method signature with a python-ized signature */
 static void vtkWrapPython_Signature(
   FunctionInfo *currentFunction);
@@ -579,7 +583,11 @@ static void vtkWrapPython_ReturnValue(
 /* -------------------------------------------------------------------- */
 /* Create a format string for PyArg_ParseTuple(), see the python
  * documentation for PyArg_ParseTuple() for more information.
- * Briefly, "O" is for objects and "d", "f", "i" etc are basic types. */
+ * Briefly, "O" is for objects and "d", "f", "i" etc are basic types.
+ *
+ * If any new format characters are added here, they must also be
+ * added to PyVTKCheckArg() in vtkPythonUtil.cxx
+ */
 
 static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 {
@@ -728,6 +736,45 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     }
 
   result[currPos] = '\0';
+  return result;
+}
+
+/* -------------------------------------------------------------------- */
+/* Create a string to describe the signature of a method.
+ * It will start with a prefix, followed by a ParseTuple format string,
+ * followed by the names of any VTK classes required. */
+
+static char *vtkWrapPython_ArgCheckString(
+  FunctionInfo *currentFunction)
+{
+  static char result[1024];
+  int currPos = 0;
+  int argtype;
+  int i;
+
+  strcpy(&result[currPos], vtkWrapPython_FormatString(currentFunction));
+  currPos = strlen(result);
+
+  if (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
+    {
+    strcpy(&result[currPos], " func");
+    return result;
+    }
+
+  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+    {
+    argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    if (argtype == VTK_PARSE_VTK_OBJECT_REF ||
+        argtype == VTK_PARSE_VTK_OBJECT_PTR ||
+        argtype == VTK_PARSE_VTK_OBJECT)
+      {
+      result[currPos++] = ' ';
+      strcpy(&result[currPos], currentFunction->ArgClasses[i]);
+      currPos += strlen(currentFunction->ArgClasses[i]);
+      }
+    }
+
   return result;
 }
 
@@ -1606,7 +1653,7 @@ static void vtkWrapPython_GenerateMethods(
                     "   (char*)\"%s\"},\n",
                     data->ClassName, wrappedFunctions[occ]->Name,
                     signatureCount,
-                    vtkWrapPython_FormatString(wrappedFunctions[occ]));
+                    vtkWrapPython_ArgCheckString(wrappedFunctions[occ]));
             }
           if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
             {
@@ -1624,32 +1671,13 @@ static void vtkWrapPython_GenerateMethods(
         fprintf(fp,
                 "static PyObject *Py%s_%s(PyObject *self, PyObject *args)\n"
                 "{\n"
-                "  PyMethodDef *meth = Py%s_%sMethods;\n"
-                "  PyObject *result;\n"
-                "  int count;\n"
-                "\n",
-                 data->ClassName, wrappedFunctions[fnum]->Name,
-                 data->ClassName, wrappedFunctions[fnum]->Name);
-
-        fprintf(fp,
-                "  for (count = 0; meth->ml_meth; count++, meth++)\n"
-                "    {\n"
-                "    if (count > 0)\n"
-                "      {\n"
-                "      PyErr_Clear();\n"
-                "      }\n"
+                "  PyMethodDef *methods = Py%s_%sMethods;\n"
                 "\n"
-                "    result = meth->ml_meth(self, args);\n"
-                "    if (result)\n"
-                "      {\n"
-                "      return result;\n"
-                "      }\n"
-                "    }\n"
-                "\n");
-
-        fprintf(fp,
-                "  return NULL;\n"
-                "}\n");
+                "  return PyVTKCallOverloadedMethod(\"%s\", methods, self, args);\n"
+                "}\n",
+                 data->ClassName, wrappedFunctions[fnum]->Name,
+                 data->ClassName, wrappedFunctions[fnum]->Name,
+                 data->ClassName);
 
         if (all_legacy)
           {

@@ -1380,6 +1380,374 @@ PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy)
 }
 
 //--------------------------------------------------------------------
+// This must check the same format chars that are used by
+// vtkWrapPython_FormatString() in vtkWrapPython.c
+
+int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
+{
+  int penalty = 0;
+
+  switch (*format)
+    {
+    case 'b':
+    case 'h':
+    case 'l':
+      penalty = 1;
+    case 'i':
+      if (!PyInt_Check(arg))
+        {
+        penalty = 2;
+        long tmpi = PyInt_AsLong(arg);
+        if (tmpi == -1 || PyErr_Occurred())
+          {
+          PyErr_Clear();
+          penalty = -1;
+          }
+        }
+      break;
+
+#ifdef PY_LONG_LONG
+    case 'L':
+      if (!PyLong_Check(arg))
+        {
+        penalty = 1;
+        if (!PyInt_Check(arg))
+          {
+          penalty = 2;
+          PyLong_AsLongLong(arg);
+          if (PyErr_Occurred())
+            {
+            PyErr_Clear();
+            penalty = -1;
+            }
+          }
+        }
+      break;
+#endif
+
+    case 'f':
+      penalty = 1;
+    case 'd':
+      if (!PyFloat_Check(arg))
+        {
+        penalty = 2;
+        PyFloat_AsDouble(arg);
+        if (PyErr_Occurred())
+          {
+          PyErr_Clear();
+          penalty = -1;
+          }
+        }
+      break;
+
+    case 'c':
+      penalty = 1;
+      if (!PyString_Check(arg) || PyString_Size(arg) != 1)
+        {
+        penalty = -1;
+        }
+      break;
+
+    case 's':
+      if (arg == Py_None)
+        {
+        penalty = -1;
+        }
+    case 'z':
+      if (format[1] == '#') // memory buffer
+        {
+        penalty |= 1;
+        // make sure that arg can act as a buffer
+        if (arg != Py_None && arg->ob_type->tp_as_buffer == 0)
+          {
+          penalty = -1;
+          }
+        }
+      else if (arg != Py_None && !PyString_Check(arg))
+        {
+        penalty = -1;
+        }
+      break;
+
+    case 'O':
+      if (arg->ob_type == &PyVTKObjectType)
+        {
+        // classname is terminated by a space, not a null
+        const char *cp = classname;
+        char name[128];
+        int i = 0;
+        for (; i < 127 && cp[i] != ' ' && cp[i] != '\0'; i++)
+          {
+          name[i] = cp[i];
+          }
+
+        name[i] = '\0';
+
+        PyVTKObject *vobj = (PyVTKObject *)arg;
+        if (strncmp(vobj->vtk_ptr->GetClassName(), name, 128) != 0)
+          {
+          penalty = 1;
+          if (!vobj->vtk_ptr->IsA(name))
+            {
+            penalty = -1;
+            }
+          }
+        }
+      else if (arg->ob_type == &PyVTKSpecialObjectType)
+        {
+        // classname is terminated by a space, not a null
+        const char *cp = classname;
+        char name[128];
+        int i = 0;
+        for (; i < 127 && cp[i] != ' ' && cp[i] != '\0'; i++)
+          {
+          name[i] = cp[i];
+          }
+
+        name[i] = '\0';
+
+        PyVTKSpecialObject *sobj = (PyVTKSpecialObject *)arg;
+        if (strncmp(PyString_AsString(sobj->vtk_info->classname), name, 128)
+            != 0)
+          {
+          penalty = -1;
+          // add "isa" check if polymorphism is added for special types,
+          // check constructors to see if conversion is possible
+          }
+        }
+      else
+        {
+        penalty = -1;
+        }
+      break;
+
+    default:
+      vtkGenericWarningMacro("Unrecognized python format character "
+                             << format[0]);
+      penalty = -1;
+    }
+
+  return penalty;
+}
+
+//--------------------------------------------------------------------
+// A helper struct for PyVTKCallOverloadedMethod
+class PyVTKOverloadHelper
+{
+public:
+  PyVTKOverloadHelper() : m_format(0), m_classname(0), m_priority(0) {};
+  void initialize(const char *format);
+  bool next(const char **format, const char **classname);
+  int priority() { return m_priority; };
+  int priority(int priority) { m_priority |= priority; return priority; };
+
+private:
+  const char *m_format;
+  const char *m_classname;
+  int m_priority;
+  PyCFunction m_meth;
+};
+
+// Construct the object with a priority of 0
+void PyVTKOverloadHelper::initialize(const char *format)
+{
+  m_format = format;
+  m_classname = format;
+  while (*m_classname != '\0' && *m_classname != ' ')
+    {
+    m_classname++;
+    }
+  if (*m_classname == ' ')
+    {
+    m_classname++;
+    }
+
+  this->m_priority = 0;
+}
+
+// Get the next format char and, if char is 'O', the classname.
+// The classname is terminated with space, not with null
+bool PyVTKOverloadHelper::next(const char **format, const char **classname)
+{
+  if (*m_format == '\0' || *m_format == ' ')
+    {
+    return false;
+    }
+
+  *format = m_format;
+
+  if (*m_format == 'O')
+    {
+    *classname = m_classname;
+
+    while (*m_classname != '\0' && *m_classname != ' ')
+      {
+      m_classname++;
+      }
+    if (*m_classname == ' ')
+      {
+      m_classname++;
+      }
+    }
+
+  m_format++;
+  if (!isalpha(*m_format) && *m_format != '(' && *m_format != ')' &&
+      *m_format != '\0' && *m_format != ' ')
+    {
+    m_format++;
+    }
+
+  return true;
+}
+
+//--------------------------------------------------------------------
+PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
+                                    PyObject *self, PyObject *args)
+{
+  PyMethodDef *meth = &methods[0];
+
+  // Make sure there is more than one method
+  if (methods[1].ml_meth != 0)
+    {
+    PyVTKOverloadHelper helperStorage[16];
+    PyVTKOverloadHelper *helperArray = helperStorage;
+    PyVTKOverloadHelper *helper;
+
+    const char *format;
+    const char *classname;
+
+    int n = PyTuple_Size(args);
+
+    int sig;
+    for (sig = 0; methods[sig].ml_meth != 0; sig++)
+      {
+      // Have we overgrown the stack storage?
+      if ((sig & 15) == 0 && sig != 0)
+        {
+        // Grab more space from the heap
+        PyVTKOverloadHelper *tmp = helperArray;
+        helperArray = new PyVTKOverloadHelper[sig+16];
+        for (int k = 0; k < sig; k++)
+          {
+          helperArray[k] = tmp[k];
+          }
+        if (tmp != helperStorage)
+          {
+          delete [] tmp;
+          }
+        }
+
+      // Initialize the helper for ths signature
+      helperArray[sig].initialize(methods[sig].ml_doc);
+      }
+
+    // Get the number of signatures
+    int nsig = sig;
+
+    // Go through the tuple and check each arg against each format, knocking
+    // out mismatched functions as we go along.  For matches, prioritize:
+    // 0) exact type matches first
+    // 1) trivial conversions second, e.g. double to float
+    // 2) other conversions third, e.g. double to int
+
+    // Is self a PyVTKClass object, rather than a PyVTKObject?  If so,
+    // then first arg is an object, and other args should follow format.
+    int i = 0;
+    if (self && self->ob_type == &PyVTKClassType)
+      {
+      i = 1;
+      }
+
+    // Loop through args
+    for (; i < n; i++)
+      {
+      PyObject *arg = PyTuple_GetItem(args, i);
+
+      for (sig = 0; sig < nsig; sig++)
+        {
+        helper = &helperArray[sig];
+
+        if (helper->priority() >= 0 && helper->next(&format, &classname))
+          {
+          if (*format != '(')
+            {
+            helper->priority(PyVTKCheckArg(arg, format, classname));
+            }
+          else
+            {
+            if (!PySequence_Check(arg))
+              {
+              helper->priority(-1);
+              }
+            else
+              {
+              int m = PySequence_Size(arg);
+              for (int j = 0; j < m; j++)
+                {
+                if (!helper->next(&format, &classname) || *format == ')')
+                  {
+                  helper->priority(-1);
+                  break;
+                  }
+
+                PyObject *sarg = PySequence_GetItem(arg, j);
+                if (helper->priority(PyVTKCheckArg(sarg, format, classname))
+                    < 0)
+                  {
+                  break;
+                  }
+                }
+
+              if (!helper->next(&format, &classname) ||
+                  *format != ')')
+                {
+                helper->priority(-1);
+                }
+              }
+            }
+          }
+        else
+          {
+          helper->priority(-1);
+          }
+        }
+      }
+
+    // Loop through methods and identify the best match
+    int minPriority = 4;
+    meth = 0;
+    for (sig = 0; sig < nsig; sig++)
+      {
+      // the "helper->next" check is to ensure that there are no leftover args
+      helper = &helperArray[sig];
+      int priority = helper->priority();
+      if (priority >= 0 && priority < minPriority &&
+          !helper->next(&format, &classname))
+        {
+        minPriority = priority;
+        meth = &methods[sig];
+        }
+      }
+
+    // Free any heap space that we have used
+    if (helperArray != helperStorage)
+      {
+      delete [] helperArray;
+      }
+    }
+
+  if (meth)
+    {
+    return meth->ml_meth(self, args);
+    }
+
+  PyErr_SetString(PyExc_TypeError,
+    "arguments do not match any overloaded methods");
+
+  return NULL;
+}
+
+//--------------------------------------------------------------------
 vtkObjectBase *PyArg_VTKParseTuple(PyObject *pself, PyObject *args, 
                                    char *format, ...)
 {

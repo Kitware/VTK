@@ -90,6 +90,12 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy);
 
+// for deciding what method signature to use for overloaded methods
+VTK_PYTHON_EXPORT
+PyObject *PyVTKCallOverloadedMethod(const char *classname,
+                                    PyMethodDef *methods,
+                                    PyObject *self, PyObject *args);
+
 // this is a special version of ParseTuple that handles both bound
 // and unbound method calls for VTK objects
 VTK_PYTHON_EXPORT
