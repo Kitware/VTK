@@ -464,7 +464,6 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case VTK_PARSE_VTK_OBJECT_REF:
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"      vtkTclGetObjectFromPointer(interp,(void *)(temp%i),\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
       break;
@@ -571,7 +570,8 @@ void get_args(FILE *fp, int i)
               start_arg);
       fprintf(fp,"    temp%i = static_cast<unsigned long>(tempi);\n",i);
       break;
-    case VTK_PARSE_UNSIGNED_LONG_LONG: case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg);
       fprintf(fp,"    temp%i = static_cast<unsigned long long>(tempi);\n",i);
@@ -579,13 +579,13 @@ void get_args(FILE *fp, int i)
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
-    case VTK_PARSE_VTK_OBJECT_REF:
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],const_cast<char *>(\"%s\"),interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
               currentFunction->ArgClasses[i]);
       break;
     case VTK_PARSE_VOID:
     case VTK_PARSE_VTK_OBJECT:
+    case VTK_PARSE_VTK_OBJECT_REF:
       break;
     default:
       if (currentFunction->ArgCounts[i] > 1)
@@ -668,14 +668,30 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
         == VTK_PARSE_UNKNOWN) args_ok = 0;
+#ifndef VTK_SIZEOF_LONG_LONG
+    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+        == VTK_PARSE_LONG_LONG ||
+        (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+        == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
+#endif
+#ifndef VTK_SIZEOF___INT64
+    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+        == VTK_PARSE___INT64 ||
+        (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+        == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
+#endif
+
+    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+        == VTK_PARSE_VTK_OBJECT &&
+        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT)
+        != VTK_PARSE_POINTER) args_ok = 0;
+
     /* if its a pointer arg make sure we have the ArgCount */
     if (((currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) != 0) &&
         ((currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE)
          != VTK_PARSE_CHAR_PTR) &&
         ((currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE)
-         != VTK_PARSE_VTK_OBJECT_PTR) &&
-        ((currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE)
-         != VTK_PARSE_VTK_OBJECT_REF))
+         != VTK_PARSE_VTK_OBJECT_PTR))
       {
       if (currentFunction->NumberOfArguments > 1 ||
           !currentFunction->ArgCounts[i])
@@ -688,16 +704,32 @@ void outputFunction(FILE *fp, FileInfo *data)
         (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_INT) &&
         (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_SHORT) &&
         (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_LONG) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_ID_TYPE) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_LONG_LONG))
+        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_LONG_LONG) &&
+        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_ID_TYPE))
       {
       args_ok = 0;
       }
     }
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN)
-    {
-    args_ok = 0;
-    }
+  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE_UNKNOWN) args_ok = 0;
+#ifndef VTK_SIZEOF_LONG_LONG
+  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE_LONG_LONG ||
+      (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
+#endif
+#ifndef VTK_SIZEOF___INT64
+  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE___INT64 ||
+      (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
+#endif
+
+  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE)
+      == VTK_PARSE_VTK_OBJECT &&
+      (currentFunction->ReturnType & VTK_PARSE_INDIRECT)
+      != VTK_PARSE_POINTER) args_ok = 0;
+
   if (((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
        != VTK_PARSE_POINTER) &&
       ((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
@@ -792,9 +824,6 @@ void outputFunction(FILE *fp, FileInfo *data)
       case VTK_PARSE_VOID:
         fprintf(fp,"    op->%s(",currentFunction->Name);
         break;
-      case VTK_PARSE_VTK_OBJECT_REF:
-        fprintf(fp,"    temp%i = &(op)->%s(",MAX_ARGS,currentFunction->Name);
-        break;
       default:
         fprintf(fp,"    temp%i = (op)->%s(",MAX_ARGS,currentFunction->Name);
       }
@@ -804,11 +833,7 @@ void outputFunction(FILE *fp, FileInfo *data)
         {
         fprintf(fp,",");
         }
-      if (currentFunction->ArgTypes[i] == VTK_PARSE_VTK_OBJECT_REF)
-        {
-        fprintf(fp,"*(temp%i)",i);
-        }
-      else if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+      if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
         fprintf(fp,"vtkTclVoidFunc,static_cast<void *>(temp%i)",i);
         }
@@ -1116,7 +1141,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
                 }
               fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
               break;
-            case VTK_PARSE_LONG_LONG_PTR: case VTK_PARSE___INT64_PTR:
+            case VTK_PARSE_LONG_LONG_PTR:
+            case VTK_PARSE___INT64_PTR:
               /* Vector */
               fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
               for (j = 0; j < currentFunction->ArgCounts[i]; j++)
@@ -1125,7 +1151,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
                 }
               fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
               break;
-            case VTK_PARSE_VTK_OBJECT_REF:
             case VTK_PARSE_VTK_OBJECT_PTR:
               fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", currentFunction->ArgClasses[i] );
               break;
