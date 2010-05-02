@@ -102,7 +102,6 @@ void return_result(FILE *fp)
       fprintf(fp,"int ");
       break;
     case VTK_PARSE_CHAR_PTR: fprintf(fp,"String "); break;
-    case VTK_PARSE_VTK_OBJECT_REF:
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
@@ -158,11 +157,7 @@ int DoneOne()
         fType = (fi->ArgTypes[j] & VTK_PARSE_UNQUALIFIED_TYPE);
 
         if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-            !(((fType == VTK_PARSE_VTK_OBJECT_PTR)&&
-               (aType == VTK_PARSE_VTK_OBJECT_REF)) ||
-              ((fType == VTK_PARSE_VTK_OBJECT_REF)&&
-               (aType == VTK_PARSE_VTK_OBJECT_PTR)) ||
-              ((fType == VTK_PARSE_FLOAT_PTR)&&
+            !(((fType == VTK_PARSE_FLOAT_PTR)&&
                (aType == VTK_PARSE_DOUBLE_PTR)) ||
               ((fType == VTK_PARSE_DOUBLE_PTR)&&
                (aType == VTK_PARSE_FLOAT_PTR)) ||
@@ -231,7 +226,7 @@ int DoneOne()
           }
         else
           {
-          if (fType == VTK_PARSE_VTK_OBJECT_PTR || fType == VTK_PARSE_VTK_OBJECT_REF)
+          if (fType == VTK_PARSE_VTK_OBJECT_PTR)
             {
             if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
               {
@@ -241,11 +236,7 @@ int DoneOne()
           }
         }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-          !(((qType == VTK_PARSE_VTK_OBJECT_PTR)&&
-             (rType == VTK_PARSE_VTK_OBJECT_REF)) ||
-            ((qType == VTK_PARSE_VTK_OBJECT_REF)&&
-             (rType == VTK_PARSE_VTK_OBJECT_PTR)) ||
-            ((qType == VTK_PARSE_FLOAT_PTR)&&
+          !(((qType == VTK_PARSE_FLOAT_PTR)&&
              (rType == VTK_PARSE_DOUBLE_PTR)) ||
             ((qType == VTK_PARSE_DOUBLE_PTR)&&
              (rType == VTK_PARSE_FLOAT_PTR)) ||
@@ -314,7 +305,7 @@ int DoneOne()
         }
       else
         {
-        if (qType == VTK_PARSE_VTK_OBJECT_PTR || qType == VTK_PARSE_VTK_OBJECT_REF)
+        if (qType == VTK_PARSE_VTK_OBJECT_PTR)
           {
           if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
             {
@@ -359,7 +350,6 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
     if ((currentFunction->ArgTypes[i] % VTK_PARSE_FLOAT0) == VTK_PARSE_UNKNOWN) args_ok = 0;
     if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-        (aType != VTK_PARSE_VTK_OBJECT_REF)&&
         ((aType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
@@ -372,7 +362,6 @@ void outputFunction(FILE *fp, FileInfo *data)
   if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
   if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
   if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-      (rType != VTK_PARSE_VTK_OBJECT_REF)&&
       ((rType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
 

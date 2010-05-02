@@ -206,7 +206,6 @@ void return_result(FILE *fp)
       fprintf(fp,"jboolean ");
       break;
     case VTK_PARSE_CHAR_PTR: fprintf(fp,"jstring "); break;
-    case VTK_PARSE_VTK_OBJECT_REF:
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"jlong "); break;
 
@@ -348,7 +347,6 @@ void get_args(FILE *fp, int i)
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
       break;
-    case VTK_PARSE_VTK_OBJECT_REF:
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i));\n",i,currentFunction->ArgClasses[i],i);
       break;
@@ -374,7 +372,8 @@ void get_args(FILE *fp, int i)
         }
       break;
     case VTK_PARSE_VOID:
-    case VTK_PARSE_VTK_OBJECT: break;
+    case VTK_PARSE_VTK_OBJECT:
+    case VTK_PARSE_VTK_OBJECT_REF: break;
     default: fprintf(fp,"  temp%i = id%i;\n",i,i); break;
     }
 }
@@ -447,7 +446,6 @@ void do_return(FILE *fp)
               MAX_ARGS);
       break;
       }
-    case VTK_PARSE_VTK_OBJECT_REF:
     case VTK_PARSE_VTK_OBJECT_PTR:
       {
       fprintf(fp,"  return (jlong)(size_t)temp%i;", MAX_ARGS);
@@ -500,11 +498,7 @@ int DoneOne()
         fType = (fi->ArgTypes[j] & VTK_PARSE_UNQUALIFIED_TYPE);
 
         if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-            !(((fType == VTK_PARSE_VTK_OBJECT_PTR)&&
-               (aType == VTK_PARSE_VTK_OBJECT_REF)) ||
-              ((fType == VTK_PARSE_VTK_OBJECT_REF)&&
-               (aType == VTK_PARSE_VTK_OBJECT_PTR)) ||
-              ((fType == VTK_PARSE_FLOAT_PTR)&&
+            !(((fType == VTK_PARSE_FLOAT_PTR)&&
                (aType == VTK_PARSE_DOUBLE_PTR)) ||
               ((fType == VTK_PARSE_DOUBLE_PTR)&&
                (aType == VTK_PARSE_FLOAT_PTR)) ||
@@ -573,7 +567,7 @@ int DoneOne()
           }
         else
           {
-          if (fType == VTK_PARSE_VTK_OBJECT_PTR || fType == VTK_PARSE_VTK_OBJECT_REF)
+          if (fType == VTK_PARSE_VTK_OBJECT_PTR)
             {
             if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
               {
@@ -583,11 +577,7 @@ int DoneOne()
           }
         }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-          !(((qType == VTK_PARSE_VTK_OBJECT_PTR)&&
-             (rType == VTK_PARSE_VTK_OBJECT_REF)) ||
-            ((qType == VTK_PARSE_VTK_OBJECT_REF)&&
-             (rType == VTK_PARSE_VTK_OBJECT_PTR)) ||
-            ((qType == VTK_PARSE_FLOAT_PTR)&&
+          !(((qType == VTK_PARSE_FLOAT_PTR)&&
              (rType == VTK_PARSE_DOUBLE_PTR)) ||
             ((qType == VTK_PARSE_DOUBLE_PTR)&&
              (rType == VTK_PARSE_FLOAT_PTR)) ||
@@ -656,7 +646,7 @@ int DoneOne()
         }
       else
         {
-        if (rType == VTK_PARSE_VTK_OBJECT_PTR || qType == VTK_PARSE_VTK_OBJECT_REF)
+        if (rType == VTK_PARSE_VTK_OBJECT_PTR)
           {
           if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
             {
@@ -844,7 +834,6 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
     if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
     if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-        (aType != VTK_PARSE_VTK_OBJECT_REF) &&
         ((aType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
@@ -856,8 +845,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     }
   if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
   if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
-  if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)&&
-      (rType != VTK_PARSE_VTK_OBJECT_REF)&&
+  if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       ((rType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
 
@@ -1005,9 +993,6 @@ void outputFunction(FILE *fp, FileInfo *data)
         case VTK_PARSE_VOID:
           fprintf(fp,"  op->%s(",currentFunction->Name);
           break;
-        case VTK_PARSE_VTK_OBJECT_REF:
-          fprintf(fp,"  temp%i = &(op)->%s(",MAX_ARGS, currentFunction->Name);
-          break;
         default:
           fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS, currentFunction->Name);
         }
@@ -1020,11 +1005,7 @@ void outputFunction(FILE *fp, FileInfo *data)
           {
           fprintf(fp,",");
           }
-        if (aType == VTK_PARSE_VTK_OBJECT_REF)
-          {
-          fprintf(fp,"*(temp%i)",i);
-          }
-        else if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
           {
           fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
           }
