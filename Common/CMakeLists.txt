@@ -404,7 +404,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkTimeStamp.cxx
   vtkVariant.cxx
 
-  WRAP_SPECIAL
+  PROPERTIES WRAP_SPECIAL 1
 )
 
 # Activate code in "vtkVariant.cxx".  See the comment in the source.
