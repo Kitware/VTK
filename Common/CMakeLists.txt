@@ -392,12 +392,19 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOldStyleCallbackCommand.cxx
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
-#  vtkTimeStamp.cxx
-#  vtkVariant.cxx
+  vtkTimeStamp.cxx
+  vtkVariant.cxx
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
 
   WRAP_EXCLUDE
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkTimeStamp.cxx
+  vtkVariant.cxx
+
+  WRAP_SPECIAL
 )
 
 # Activate code in "vtkVariant.cxx".  See the comment in the source.
