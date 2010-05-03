@@ -41,6 +41,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkShaderProgram2.h"
 #include "vtkgl.h"
 
 #include "vtkObjectFactory.h"
@@ -64,6 +65,9 @@ public:
                                this->SavedClearColor[2] =
                                this->SavedClearColor[3] = 0.0f;
     this->TextCounter = 0;
+    this->GLExtensionsLoaded = false;
+    this->OpenGL15 = false;
+    this->GLSL = false;
   }
 
   ~Private()
@@ -147,7 +151,9 @@ public:
   int TextCounter;
   vtkVector2i Dim;
   vtkVector2i Offset;
+  bool GLExtensionsLoaded;
   bool OpenGL15;
+  bool GLSL;
 };
 
 //-----------------------------------------------------------------------------
@@ -174,6 +180,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->TextRenderer = vtkFreeTypeLabelRenderStrategy::New();
 #endif
   this->Storage = new vtkOpenGLContextDevice2D::Private;
+  this->RenderWindow = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -222,11 +229,15 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
     {
-    vtkOpenGLRenderWindow *glWin = vtkOpenGLRenderWindow::SafeDownCast(
+    this->RenderWindow = vtkOpenGLRenderWindow::SafeDownCast(
         gl->GetRenderWindow());
-    if (glWin)
+    }
+
+  if (!this->Storage->GLExtensionsLoaded)
+    {
+    if (this->RenderWindow)
       {
-      this->LoadExtensions(glWin->GetExtensionManager());
+      this->LoadExtensions(this->RenderWindow->GetExtensionManager());
       }
     }
 
@@ -273,6 +284,8 @@ void vtkOpenGLContextDevice2D::End()
 
   // Restore the GL state that we changed
   this->Storage->RestoreGLState();
+
+  this->RenderWindow = NULL;
 
   this->InRender = false;
 
@@ -382,15 +395,18 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
 void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                 float *points, int n)
 {
-  if (sprite && points && n > 0)
+  if (points && n > 0)
     {
-    if (!this->Storage->Texture)
+    if (sprite)
       {
-      this->Storage->Texture = vtkTexture::New();
-      this->Storage->Texture->SetRepeat(false);
+      if (!this->Storage->Texture)
+        {
+        this->Storage->Texture = vtkTexture::New();
+        this->Storage->Texture->SetRepeat(false);
+        }
+      this->Storage->Texture->SetInput(sprite);
+      this->Storage->Texture->Render(this->Renderer);
       }
-    this->Storage->Texture->SetInput(sprite);
-    this->Storage->Texture->Render(this->Renderer);
     if (this->Storage->OpenGL15)
       {
       // We can actually use point sprites here
@@ -446,8 +462,11 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       }
-    this->Storage->Texture->PostRender(this->Renderer);
-    glDisable(GL_TEXTURE_2D);
+    if (sprite)
+      {
+      this->Storage->Texture->PostRender(this->Renderer);
+      glDisable(GL_TEXTURE_2D);
+      }
     }
   else
     {
@@ -896,6 +915,12 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
     }
 }
 
+//----------------------------------------------------------------------------
+bool vtkOpenGLContextDevice2D::HasGLSL()
+{
+  return this->Storage->GLSL;
+}
+
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
@@ -903,13 +928,23 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
     {
     m->LoadExtension("GL_VERSION_1_5");
     this->Storage->OpenGL15 = true;
-    return true;
     }
   else
     {
     this->Storage->OpenGL15 = false;
-    return false;
     }
+  if(vtkShaderProgram2::IsSupported(
+      static_cast<vtkOpenGLRenderWindow *>(m->GetRenderWindow())))
+    {
+    this->Storage->GLSL = true;
+    }
+  else
+    {
+    this->Storage->GLSL = false;
+    }
+
+  this->Storage->GLExtensionsLoaded = true;
+  return true;
 }
 
 //-----------------------------------------------------------------------------

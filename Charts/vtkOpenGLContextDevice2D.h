@@ -187,6 +187,14 @@ public:
   bool SetStringRendererToQt();
 
   // Description:
+  // Check whether the current context device has support for GLSL.
+  bool HasGLSL();
+
+  // Description:
+  // Get the active RenderWindow of the device. Will return null if not active.
+  vtkGetObjectMacro(RenderWindow, vtkOpenGLRenderWindow);
+
+  // Description:
   // Release any graphics resources that are being consumed by this device.
   // The parameter window could be used to determine which graphic
   // resources to release.
@@ -236,6 +244,10 @@ protected:
   // Description:
   // Load the OpenGL extensions we need.
   bool LoadExtensions(vtkOpenGLExtensionManager *m);
+
+  // Description:
+  // The OpenGL render window being used by the device
+  vtkOpenGLRenderWindow* RenderWindow;
 
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.
