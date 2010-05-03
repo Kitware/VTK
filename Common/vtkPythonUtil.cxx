@@ -26,7 +26,6 @@
 #include "vtkTimeStamp.h"
 #include "vtkWindows.h"
 
-
 #include <vtksys/ios/sstream>
 #include <vtkstd/map>
 #include <vtkstd/string>
@@ -287,72 +286,6 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
       Py_INCREF(self->vtk_dict);
       return self->vtk_dict;
       }
-      
-    /* __methods__ is no longer applicable, methods are in __dict__
-    if (strcmp(name,"__methods__") == 0)
-      {
-      PyMethodDef *meth = pyclass->vtk_methods;
-      PyObject *lst;
-      int i, n, m;
-
-      n = 0;
-      if ((lst = PyList_New(0)) == NULL)
-        {
-        return NULL;
-        }
-          
-      bases = NULL;
-      while (pyclass != NULL)
-        {
-        m = 0;
-        for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
-          {
-          for (i = 0; i < n; i++)
-            {
-            if (strcmp(PyString_AsString(PyList_GetItem(lst,i)),
-                       meth->ml_name) == 0)
-              {
-              break;
-              }
-            }
-          if (i == n &&
-              PyDict_GetItemString(self->vtk_dict, meth->ml_name) == 0)
-            {
-            if (PyList_Append(lst,PyString_FromString(meth->ml_name)) == -1)
-              {
-              Py_DECREF(lst);
-              return NULL;
-              }
-            m++;
-            }
-          }
-        n += m;
-        bases = pyclass->vtk_bases;
-        pyclass = NULL;
-        if (PyTuple_Size(bases))
-          {
-          pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
-          }
-        }
-      PyList_Sort(lst);
-      return lst;
-      }
-
-    if (strcmp(name,"__members__") == 0)
-      {
-      PyObject *lst;
-      if ((lst = PyList_New(6)) != NULL)
-        {
-        PyList_SetItem(lst,0,PyString_FromString("__class__"));
-        PyList_SetItem(lst,1,PyString_FromString("__dict__"));
-        PyList_SetItem(lst,2,PyString_FromString("__doc__"));
-        PyList_SetItem(lst,3,PyString_FromString("__members__"));
-        PyList_SetItem(lst,4,PyString_FromString("__methods__"));
-        PyList_SetItem(lst,5,PyString_FromString("__this__"));
-        }
-      return lst;
-      }
-    */
     }
 
   while (pyclass != NULL)
@@ -433,8 +366,15 @@ static void PyVTKObject_PyDelete(PyVTKObject *self)
 #endif  
 }
 
+//--------------------------------------------------------------------
+// The following methods and struct define the "buffer" protocol
+// for PyVTKObject, so that python can read from a vtkDataArray.
+// This is particularly useful for NumPy.
+
+//--------------------------------------------------------------------
 static Py_ssize_t
-array_getsegcount(PyObject *pself, Py_ssize_t *lenp)
+PyVTKObject_AsBuffer_GetSegCount(
+  PyObject *pself, Py_ssize_t *lenp)
 {
   PyVTKObject *self = (PyVTKObject*)pself;
   vtkDataArray *da = vtkDataArray::SafeDownCast(self->vtk_ptr);
@@ -457,8 +397,10 @@ array_getsegcount(PyObject *pself, Py_ssize_t *lenp)
   return 0;
 }
 
+//--------------------------------------------------------------------
 static Py_ssize_t
-array_getreadbuf(PyObject *pself, Py_ssize_t segment, void **ptrptr)
+PyVTKObject_AsBuffer_GetReadBuf(
+  PyObject *pself, Py_ssize_t segment, void **ptrptr)
 {
   if (segment != 0) 
     {
@@ -479,34 +421,37 @@ array_getreadbuf(PyObject *pself, Py_ssize_t segment, void **ptrptr)
   return -1;
 }
 
-
+//--------------------------------------------------------------------
 static Py_ssize_t
-array_getwritebuf(PyObject *pself, Py_ssize_t segment, void **ptrptr)
+PyVTKObject_AsBuffer_GetWriteBuf(
+  PyObject *pself, Py_ssize_t segment, void **ptrptr)
 {
-  return array_getreadbuf(pself, segment, ptrptr);
+  return PyVTKObject_AsBuffer_GetReadBuf(pself, segment, ptrptr);
 }
 
+//--------------------------------------------------------------------
 static Py_ssize_t
-array_getcharbuf(PyObject *, Py_ssize_t , const char **)
+PyVTKObject_AsBuffer_GetCharBuf(PyObject *, Py_ssize_t , const char **)
 {
   return -1;
 }
 
-static PyBufferProcs array_as_buffer = {
+//--------------------------------------------------------------------
+static PyBufferProcs PyVTKObject_AsBuffer = {
 #if PY_VERSION_HEX >= 0x02050000
-  (readbufferproc)array_getreadbuf,    /*bf_getreadbuffer*/
-  (writebufferproc)array_getwritebuf,  /*bf_getwritebuffer*/
-  (segcountproc)array_getsegcount,            /*bf_getsegcount*/
-  (charbufferproc)array_getcharbuf,    /*bf_getcharbuffer*/
-  #if PY_VERSION_HEX >= 0x02060000
-   (getbufferproc)0, /* bf_getbuffer */
-   (releasebufferproc)0 /* bf_releasebuffer */
-  #endif
+  (readbufferproc)PyVTKObject_AsBuffer_GetReadBuf,     // bf_getreadbuffer
+  (writebufferproc)PyVTKObject_AsBuffer_GetWriteBuf,   // bf_getwritebuffer
+  (segcountproc)PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
+  (charbufferproc)PyVTKObject_AsBuffer_GetCharBuf,     // bf_getcharbuffer
+ #if PY_VERSION_HEX >= 0x02060000
+  (getbufferproc)0,                                    // bf_getbuffer
+  (releasebufferproc)0                                 // bf_releasebuffer
+ #endif
 #else
-  (getreadbufferproc)array_getreadbuf,    /*bf_getreadbuffer*/
-  (getwritebufferproc)array_getwritebuf,  /*bf_getwritebuffer*/
-  (getsegcountproc)array_getsegcount,         /*bf_getsegcount*/
-  (getcharbufferproc)array_getcharbuf,    /*bf_getcharbuffer*/
+  (getreadbufferproc)PyVTKObject_AsBuffer_GetReadBuf,  // bf_getreadbuffer
+  (getwritebufferproc)PyVTKObject_AsBuffer_GetWriteBuf,// bf_getwritebuffer
+  (getsegcountproc)PyVTKObject_AsBuffer_GetSegCount,   // bf_getsegcount
+  (getcharbufferproc)PyVTKObject_AsBuffer_GetCharBuf,  // bf_getcharbuffer
 #endif
 };
 
@@ -531,7 +476,7 @@ static PyTypeObject PyVTKObjectType = {
   (reprfunc)PyVTKObject_PyString,        // tp_string
   (getattrofunc)PyVTKObject_PyGetAttr,   // tp_getattro
   (setattrofunc)PyVTKObject_PySetAttr,   // tp_setattro
-  &array_as_buffer,                      // tp_as_buffer
+  &PyVTKObject_AsBuffer,                 // tp_as_buffer
 #if PY_VERSION_HEX >= 0x02010000
   Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
 #else
@@ -558,7 +503,7 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
 {
   PyVTKClass *vtkclass = (PyVTKClass *)pyvtkclass;
   bool haveRef = false;
-  if(!ptr)
+  if (!ptr)
     {
     // Create a new instance of this class since we were not given one.
     if(vtkclass->vtk_new)
@@ -583,7 +528,7 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
   PyObject *cls = NULL;
   vtkstd::map<vtkstd::string, PyObject*>::iterator i =
     vtkPythonHash->ClassHash->find(ptr->GetClassName());
-  if(i != vtkPythonHash->ClassHash->end())
+  if (i != vtkPythonHash->ClassHash->end())
     {
     cls = i->second;
     }
@@ -609,7 +554,7 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
   vtkPythonAddObjectToHash((PyObject *)self, ptr);
 
   // The hash now owns a reference so we can free ours.
-  if(haveRef)
+  if (haveRef)
     {
     ptr->Delete();
     }
@@ -772,59 +717,6 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
       Py_INCREF(pyclass->vtk_doc);
       return pyclass->vtk_doc;
       }
-
-    /* methods are stored in __dict__, so this is irrelevant
-    if (strcmp(name,"__methods__") == 0)
-      {
-      PyMethodDef *meth = pyclass->vtk_methods;
-      PyObject *lst;
-      int i, n;
-
-      for (n = 0; meth && meth[n].ml_name; n++);
-
-      if ((lst = PyList_New(0)) != NULL)
-        {
-        meth = pyclass->vtk_methods;
-        for (i = 0; i < n; i++)
-          {
-          if (pyclass->vtk_dict == NULL ||
-              PyDict_GetItemString(pyclass->vtk_dict, meth[i].ml_name) == 0)
-            {
-            PyList_Append(lst, PyString_FromString(meth[i].ml_name));
-            }
-          }
-        PyList_Sort(lst);
-        }
-      return lst;
-      }
-      
-    if (strcmp(name,"__members__") == 0)
-      {
-      int n = 6;
-      int i = 0;
-      PyObject *lst;
-
-      if (pyclass->vtk_dict)
-        {
-        n++;
-        }
-
-      if ((lst = PyList_New(n)) != NULL)
-        {
-        PyList_SetItem(lst,i++,PyString_FromString("__bases__"));
-        if (pyclass->vtk_dict)
-          {
-          PyList_SetItem(lst,i++,PyString_FromString("__dict__"));
-          }
-        PyList_SetItem(lst,i++,PyString_FromString("__doc__"));
-        PyList_SetItem(lst,i++,PyString_FromString("__members__"));
-        PyList_SetItem(lst,i++,PyString_FromString("__methods__"));
-        PyList_SetItem(lst,i++,PyString_FromString("__module__"));
-        PyList_SetItem(lst,i++,PyString_FromString("__name__"));
-        }
-      return lst;
-      }
-    */
     }
 
   PyErr_SetString(PyExc_AttributeError, name);
@@ -2730,6 +2622,3 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 #endif
 }
 //--------------------------------------------------------------------
-
-
-
