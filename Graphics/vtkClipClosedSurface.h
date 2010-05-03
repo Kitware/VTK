@@ -286,23 +286,4 @@ private:
   void operator=(const vtkClipClosedSurface&);  // Not implemented.
 };
 
-//BTX
-const char *vtkClipClosedSurface::GetScalarModeAsString()
-{
-  switch (this->ScalarMode)
-    {
-    case VTK_CCS_SCALAR_MODE_NONE:
-      return "None";
-      break;
-    case VTK_CCS_SCALAR_MODE_COLORS:
-      return "Colors";
-      break;
-    case VTK_CCS_SCALAR_MODE_CATEGORIES:
-      return "Categories";
-      break;
-    }
-  return "";
-}
-//ETX
-
 #endif

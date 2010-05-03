@@ -88,6 +88,24 @@ vtkClipClosedSurface::~vtkClipClosedSurface()
 }
 
 //----------------------------------------------------------------------------
+const char *vtkClipClosedSurface::GetScalarModeAsString()
+{
+  switch (this->ScalarMode)
+    {
+    case VTK_CCS_SCALAR_MODE_NONE:
+      return "None";
+      break;
+    case VTK_CCS_SCALAR_MODE_COLORS:
+      return "Colors";
+      break;
+    case VTK_CCS_SCALAR_MODE_CATEGORIES:
+      return "Categories";
+      break;
+    }
+  return "";
+}
+
+//----------------------------------------------------------------------------
 void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -135,7 +153,7 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
 #ifndef VTK_LEGACY_REMOVE
 int vtkClipClosedSurface::GetGenerateColorScalars()
 {
-  VTK_LEGACY_BODY(SetGenerateColorScalars, "5.7");
+  VTK_LEGACY_BODY(GetGenerateColorScalars, "5.7");
   return (this->GetScalarMode() != 0);
 }
 
@@ -148,12 +166,14 @@ void vtkClipClosedSurface::SetGenerateColorScalars(int val)
 
 void vtkClipClosedSurface::GenerateColorScalarsOn()
 {
-  this->SetGenerateColorScalars(1);
+  VTK_LEGACY_BODY(GenerateColorScalarsOn, "5.7");
+  this->SetScalarModeToColors();
 }
 
 void vtkClipClosedSurface::GenerateColorScalarsOff()
 {
-  this->SetGenerateColorScalars(0);
+  VTK_LEGACY_BODY(GenerateColorScalarsOff, "5.7");
+  this->SetScalarModeToNone();
 }
 #endif
 
