@@ -1491,6 +1491,20 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
         {
         if (!PyCallable_Check(arg))
           {
+          penalty = 1;
+          if (arg != Py_None)
+            {
+            penalty = -1;
+            }
+          }
+        }
+      else if (arg == Py_None)
+        {
+        penalty = 1;
+        vtkstd::map<vtkstd::string, PyObject*>::iterator iter =
+          vtkPythonHash->ClassHash->find(name);
+        if(iter == vtkPythonHash->ClassHash->end())
+          {
           penalty = -1;
           }
         }
