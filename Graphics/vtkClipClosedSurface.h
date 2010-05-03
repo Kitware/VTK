@@ -19,7 +19,7 @@
 // by creating new polygonal faces where the input data was clipped.
 // If GenerateOutline is on, it will also generate an outline wherever
 // the clipping planes intersect the data.  The ScalarMode option
-// will add color scalars to the output, so that the generated faces
+// will add cell scalars to the output, so that the generated faces
 // can be visualized in a different color from the original surface.
 // .SECTION Caveats
 // The triangulation of new faces is done in O(n) time for simple convex
@@ -119,14 +119,14 @@ public:
   // Set the color for all cells were part of the original geometry.
   // If the the input data already has color cell scalars, then those
   // values will be used and parameter will be ignored.  The default color
-  // is red.  Requires ScalarMode to be on.
+  // is red.  Requires SetScalarModeToColors.
   vtkSetVector3Macro(BaseColor, double);
   vtkGetVector3Macro(BaseColor, double);
 
   // Description:
   // Set the color for any new geometry, either faces or outlines, that are
   // created as a result of the clipping. The default color is orange.
-  // Requires ScalarMode to be on.
+  // Requires SetScalarModeToColors.
   vtkSetVector3Macro(ClipColor, double);
   vtkGetVector3Macro(ClipColor, double);
 
@@ -139,8 +139,8 @@ public:
 
   // Description:
   // Set the color for any new geometry produced by clipping with the
-  // ActivePlane, if ActivePlaneId is set.  Default is yellow.  Requires
-  // ScalarMode to be on.
+  // ActivePlane, if ActivePlaneId is set.  Default is yellow.
+  // Requires SetScalarModeToColors.
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
 
