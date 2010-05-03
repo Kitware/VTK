@@ -39,7 +39,7 @@ const char* SimpleVertexShader =
 "void main(void)\n"
 "{\n"
 "  gl_FrontColor = gl_Color;\n"
-"  gl_Position = gl_Position = ftransform();\n"
+"  gl_Position = ftransform();\n"
 "}\n";
 
 const char* SimpleFragmentShader =
