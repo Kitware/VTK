@@ -122,5 +122,15 @@ used when the shared library is loaded/unloaded from an executable.
 #define v_tri_shape_and_size @VERDICT_MANGLE_PREFIX@_v_tri_shape_and_size
 #define v_wedge_quality @VERDICT_MANGLE_PREFIX@_v_wedge_quality
 #define v_wedge_volume @VERDICT_MANGLE_PREFIX@_v_wedge_volume
+#define v_wedge_condition @VERDICT_MANGLE_PREFIX@_wedge_condition
+#define v_wedge_distortion @VERDICT_MANGLE_PREFIX@_wedge_distortion
+#define v_wedge_edge_ratio @VERDICT_MANGLE_PREFIX@_wedge_edge_ratio
+#define v_wedge_jacobian @VERDICT_MANGLE_PREFIX@_wedge_jacobian
+#define v_wedge_max_aspect_frobenius @VERDICT_MANGLE_PREFIX@_wedge_max_aspect_frobenius
+#define v_wedge_max_stretch @VERDICT_MANGLE_PREFIX@_wedge_max_stretch
+#define v_wedge_mean_aspect_frobenius @VERDICT_MANGLE_PREFIX@_wedge_mean_aspect_frobenius
+#define v_wedge_scaled_jacobian @VERDICT_MANGLE_PREFIX@_wedge_scaled_jacobian
+#define v_wedge_shape @VERDICT_MANGLE_PREFIX@_wedge_shape
+
 
 #endif /* __verdict_mangle_h */

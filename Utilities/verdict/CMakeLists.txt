@@ -53,12 +53,6 @@ configure_file(
 
 if ( VERDICT_MANGLE )
   set( verdict_LIBRARY "${VERDICT_MANGLE_PREFIX}verdict" )
-  # if the name of the library is not 'verdict', then add verdict_EXPORTS 
-  # manually so that the usual dllexport/dllimport tricks still work.
-  if(WIN32)
-    set_source_files_properties(${verdict_SRCS} PROPERTIES
-      COMPILE_FLAGS "-Dverdict_EXPORTS")
-  endif(WIN32)
 else ( VERDICT_MANGLE )
   set( verdict_LIBRARY "verdict" )
 endif ( VERDICT_MANGLE )
@@ -76,6 +70,8 @@ if ( NOT VERDICT_NO_LIBRARY_VERSION )
 endif ( NOT VERDICT_NO_LIBRARY_VERSION )
 
 add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
+set_target_properties( ${verdict_LIBRARY} PROPERTIES DEFINE_SYMBOL verdict_EXPORTS)
+
 # Apply user-defined properties to the library targets.
 if ( VERDICT_LIBRARY_PROPERTIES )
   set_target_properties( ${verdict_LIBRARY}

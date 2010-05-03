@@ -22,8 +22,6 @@
  */
 
 
-#define VERDICT_EXPORTS
-
 #include "verdict.h"
 #include <math.h>
 #include "VerdictVector.hpp"
