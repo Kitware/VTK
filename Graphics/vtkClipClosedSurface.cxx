@@ -25,6 +25,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkSignedCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkPlaneCollection.h"
 #include "vtkMath.h"
@@ -51,7 +52,7 @@ vtkClipClosedSurface::vtkClipClosedSurface()
   this->Tolerance = 1e-6;
   this->PassPointData = 0;
 
-  this->GenerateColorScalars = 0;
+  this->ScalarMode = VTK_CCS_SCALAR_MODE_NONE;
   this->GenerateOutline = 0;
   this->GenerateFaces = 1;
   this->ActivePlaneId = -1;
@@ -112,8 +113,8 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GenerateFaces: "
      << (this->GenerateFaces ? "On\n" : "Off\n" );
 
-  os << indent << "GenerateColorScalars: "
-     << (this->GenerateColorScalars ? "On\n" : "Off\n" );
+  os << indent << "ScalarMode: "
+     << this->GetScalarModeAsString() << "\n";
 
   os << indent << "BaseColor: " << this->BaseColor[0] << ", "
      << this->BaseColor[1] << ", " << this->BaseColor[2] << "\n";
@@ -129,6 +130,32 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TriangulationErrorDisplay: "
      << (this->TriangulationErrorDisplay ? "On\n" : "Off\n" );
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+int vtkClipClosedSurface::GetGenerateColorScalars()
+{
+  VTK_LEGACY_BODY(SetGenerateColorScalars, "5.7");
+  return (this->GetScalarMode() != 0);
+}
+
+void vtkClipClosedSurface::SetGenerateColorScalars(int val)
+{
+  VTK_LEGACY_BODY(SetGenerateColorScalars, "5.7");
+  if (val) { this->SetScalarModeToColors(); }
+  else { this->SetScalarModeToNone(); }
+}
+
+void vtkClipClosedSurface::GenerateColorScalarsOn()
+{
+  this->SetGenerateColorScalars(1);
+}
+
+void vtkClipClosedSurface::GenerateColorScalarsOff()
+{
+  this->SetGenerateColorScalars(0);
+}
+#endif
 
 //----------------------------------------------------------------------------
 int vtkClipClosedSurface::ComputePipelineMTime(
@@ -359,23 +386,35 @@ int vtkClipClosedSurface::RequestData(
   vtkIdType firstStripScalar = 0;
 
   // Make the colors to be used on the data.
+  int numberOfScalarComponents = 1;
   unsigned char colors[3][3];
-  this->CreateColorValues(this->BaseColor, this->ClipColor,
-                          this->ActivePlaneColor, colors);
+
+  if (this->ScalarMode == VTK_CCS_SCALAR_MODE_COLORS)
+    {
+    numberOfScalarComponents = 3;
+    this->CreateColorValues(this->BaseColor, this->ClipColor,
+                            this->ActivePlaneColor, colors);
+    }
+  else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_CATEGORIES)
+    {
+    colors[0][0] = 0;
+    colors[1][0] = 1;
+    colors[2][0] = 2;
+    }
 
   // This is set if we have to work with scalars.  The input scalars
   // will be copied if they are unsigned char with 3 components, otherwise
   // new scalars will be generated.
-  if (this->GenerateColorScalars)
+  if (this->ScalarMode)
     {
     // Make the scalars
     lineScalars = vtkUnsignedCharArray::New();
-    lineScalars->SetName("CellOriginColor");
-    lineScalars->SetNumberOfComponents(3);
+    lineScalars->SetNumberOfComponents(numberOfScalarComponents);
 
     vtkDataArray *tryInputScalars = input->GetCellData()->GetScalars();
     // Get input scalars if they are RGB color scalars
     if (tryInputScalars && tryInputScalars->IsA("vtkUnsignedCharArray") &&
+        numberOfScalarComponents == 3 &&
         tryInputScalars->GetNumberOfComponents() == 3)
       {
       inputScalars = static_cast<vtkUnsignedCharArray *>(
@@ -422,8 +461,7 @@ int vtkClipClosedSurface::RequestData(
     if (lineScalars)
       {
       polyScalars = vtkUnsignedCharArray::New();
-      polyScalars->SetName("CellOriginColor");
-      polyScalars->SetNumberOfComponents(3);
+      polyScalars->SetNumberOfComponents(numberOfScalarComponents);
       }
 
     polys = vtkCellArray::New();
@@ -570,7 +608,8 @@ int vtkClipClosedSurface::RequestData(
           {
           unsigned char oldColor[3];
           scalars->GetTupleValue(lineId, oldColor);
-          if (oldColor[0] != activeColor[0] ||
+          if (numberOfScalarComponents != 3 ||
+              oldColor[0] != activeColor[0] ||
               oldColor[1] != activeColor[1] ||
               oldColor[2] != activeColor[2])
             {
@@ -718,7 +757,24 @@ int vtkClipClosedSurface::RequestData(
     polys->Delete();
     }
 
-  output->GetCellData()->SetScalars(scalars);
+  if (this->ScalarMode == VTK_CCS_SCALAR_MODE_COLORS)
+    {
+    scalars->SetName("Colors");
+    output->GetCellData()->SetScalars(scalars);
+    }
+  else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_CATEGORIES)
+    {
+    // Don't use UNSIGNED_CHAR or they will look like color scalars
+    vtkSignedCharArray *categories = vtkSignedCharArray::New();
+    categories->DeepCopy(scalars);
+    categories->SetName("Categories");
+    output->GetCellData()->SetScalars(categories);
+    categories->Delete();
+    }
+  else
+    {
+    output->GetCellData()->SetScalars(0);
+    }
 
   newLines->Delete();
   if (newPolys)

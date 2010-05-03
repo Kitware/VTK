@@ -18,7 +18,7 @@
 // collection of clipping planes.  It will produce a new closed surface
 // by creating new polygonal faces where the input data was clipped.
 // If GenerateOutline is on, it will also generate an outline wherever
-// the clipping planes intersect the data.  The GenerateColorScalars option
+// the clipping planes intersect the data.  The ScalarMode option
 // will add color scalars to the output, so that the generated faces
 // can be visualized in a different color from the original surface.
 // .SECTION Caveats
@@ -50,6 +50,12 @@ class vtkPolygon;
 class vtkIdList;
 class vtkCCSEdgeLocator;
 
+enum {
+  VTK_CCS_SCALAR_MODE_NONE = 0,
+  VTK_CCS_SCALAR_MODE_COLORS = 1,
+  VTK_CCS_SCALAR_MODE_CATEGORIES = 2
+};
+
 class VTK_GRAPHICS_EXPORT vtkClipClosedSurface : public vtkPolyDataAlgorithm
 {
 public:
@@ -77,14 +83,6 @@ public:
   vtkGetMacro(PassPointData, int);
 
   // Description:
-  // Set whether to add cell scalars, so that the new faces and
-  // outlines can be distinguished from the original faces and outlines.
-  // This is off by default.
-  vtkSetMacro(GenerateColorScalars, int);
-  vtkBooleanMacro(GenerateColorScalars, int);
-  vtkGetMacro(GenerateColorScalars, int);
-
-  // Description:
   // Set whether to generate an outline wherever an input face was
   // cut by a plane.  This is off by default. 
   vtkSetMacro(GenerateOutline, int);
@@ -99,17 +97,36 @@ public:
   vtkGetMacro(GenerateFaces, int);
 
   // Description:
+  // Set whether to add cell scalars, so that new faces and outlines
+  // can be distinguished from original faces and lines.  The options
+  // are "None", "Colors", and "Categories".  For the "Categories" option,
+  // a scalar value of "0" indicates an original cell, "1" indicates
+  // a new cell on a cut face, and "2" indicates a new cell on the
+  // ActivePlane as set by the SetActivePlane() method.  The default
+  // scalar mode is "None".
+  vtkSetClampMacro(ScalarMode, int,
+    VTK_CCS_SCALAR_MODE_NONE, VTK_CCS_SCALAR_MODE_CATEGORIES);
+  void SetScalarModeToNone() {
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_NONE); };
+  void SetScalarModeToColors() {
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_COLORS); };
+  void SetScalarModeToCategories() {
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_CATEGORIES); };
+  vtkGetMacro(ScalarMode, int);
+  const char *GetScalarModeAsString();
+
+  // Description:
   // Set the color for all cells were part of the original geometry.
   // If the the input data already has color cell scalars, then those
   // values will be used and parameter will be ignored.  The default color
-  // is red.  Requires GenerateColorScalars to be on.
+  // is red.  Requires ScalarMode to be on.
   vtkSetVector3Macro(BaseColor, double);
   vtkGetVector3Macro(BaseColor, double);
 
   // Description:
   // Set the color for any new geometry, either faces or outlines, that are
   // created as a result of the clipping. The default color is orange.
-  // Requires GenerateColorScalars to be on.
+  // Requires ScalarMode to be on.
   vtkSetVector3Macro(ClipColor, double);
   vtkGetVector3Macro(ClipColor, double);
 
@@ -123,7 +140,7 @@ public:
   // Description:
   // Set the color for any new geometry produced by clipping with the
   // ActivePlane, if ActivePlaneId is set.  Default is yellow.  Requires
-  // GenerateColorScalars to be on.
+  // ScalarMode to be on.
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
 
@@ -136,6 +153,12 @@ public:
   vtkBooleanMacro(TriangulationErrorDisplay, int);
   vtkGetMacro(TriangulationErrorDisplay, int);
 
+  // Legacy methods, do not use.
+  VTK_LEGACY(void SetGenerateColorScalars(int));
+  VTK_LEGACY(int GetGenerateColorScalars());
+  VTK_LEGACY(void GenerateColorScalarsOn());
+  VTK_LEGACY(void GenerateColorScalarsOff());
+
 protected:
   vtkClipClosedSurface();
   ~vtkClipClosedSurface();
@@ -145,10 +168,10 @@ protected:
   double Tolerance;
 
   int PassPointData;
-  int GenerateColorScalars;
   int GenerateOutline;
   int GenerateFaces;
   int ActivePlaneId;
+  int ScalarMode;
   double BaseColor[3];
   double ClipColor[3];
   double ActivePlaneColor[3];
@@ -262,5 +285,24 @@ private:
   vtkClipClosedSurface(const vtkClipClosedSurface&);  // Not implemented.
   void operator=(const vtkClipClosedSurface&);  // Not implemented.
 };
+
+//BTX
+const char *vtkClipClosedSurface::GetScalarModeAsString()
+{
+  switch (this->ScalarMode)
+    {
+    case VTK_CCS_SCALAR_MODE_NONE:
+      return "None";
+      break;
+    case VTK_CCS_SCALAR_MODE_COLORS:
+      return "Colors";
+      break;
+    case VTK_CCS_SCALAR_MODE_CATEGORIES:
+      return "Categories";
+      break;
+    }
+  return "";
+}
+//ETX
 
 #endif
