@@ -63,7 +63,7 @@ static char *vtkWrapPython_FormatString(
 
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
-  FunctionInfo *currentFunction);
+  int isvtkobjmethod, FunctionInfo *currentFunction);
 
 /* replace the original method signature with a python-ized signature */
 static void vtkWrapPython_Signature(
@@ -741,16 +741,24 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 
 /* -------------------------------------------------------------------- */
 /* Create a string to describe the signature of a method.
- * It will start with a prefix, followed by a ParseTuple format string,
- * followed by the names of any VTK classes required. */
+ * If isvtkobject is set the string will start with an ampersand.
+ * Following the optional space will be a ParseTuple format string,
+ * followed by the names of any VTK classes required.  The optional
+ * ampersand indicates that methods like vtkClass.Method(self, arg1,...)
+ * are possible, and the ampersand is a placeholder for "self". */
 
 static char *vtkWrapPython_ArgCheckString(
-  FunctionInfo *currentFunction)
+  int isvtkobjmethod, FunctionInfo *currentFunction)
 {
   static char result[1024];
   int currPos = 0;
   int argtype;
   int i;
+
+  if (isvtkobjmethod)
+    {
+    result[currPos++] = '@';
+    }
 
   strcpy(&result[currPos], vtkWrapPython_FormatString(currentFunction));
   currPos = strlen(result);
@@ -1641,6 +1649,11 @@ static void vtkWrapPython_GenerateMethods(
 
           signatureCount++;
 
+          is_static = 0;
+          if ((wrappedFunctions[occ]->ReturnType & VTK_PARSE_STATIC) != 0)
+            {
+            is_static = 1;
+            }
           if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
             {
             fprintf(fp,
@@ -1649,11 +1662,12 @@ static void vtkWrapPython_GenerateMethods(
           if (wrappedFunctions[occ]->Name)
             {
             fprintf(fp,
-                    "  {(char*)\"\", (PyCFunction)Py%s_%s_s%d, 1,\n"
+                    "  {NULL, (PyCFunction)Py%s_%s_s%d, 1,\n"
                     "   (char*)\"%s\"},\n",
                     data->ClassName, wrappedFunctions[occ]->Name,
                     signatureCount,
-                    vtkWrapPython_ArgCheckString(wrappedFunctions[occ]));
+                    vtkWrapPython_ArgCheckString((is_vtkobject && !is_static),
+                                                 wrappedFunctions[occ]));
             }
           if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
             {

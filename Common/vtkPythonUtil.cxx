@@ -1441,6 +1441,7 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
       break;
 
     case 'c':
+      // penalize chars, because strings are better
       penalty = 1;
       if (!PyString_Check(arg) || PyString_Size(arg) != 1)
         {
@@ -1449,6 +1450,7 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
       break;
 
     case 's':
+      // the 's' format doesn't allow Py_None
       if (arg == Py_None)
         {
         penalty = -1;
@@ -1469,20 +1471,31 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
         }
       break;
 
+    case '@':
+      // '@' is a placeholder that always succeeds
+      break;
+
     case 'O':
-      if (arg->ob_type == &PyVTKObjectType)
+      {
+      // classname is terminated by a space, not a null
+      const char *cp = classname;
+      char name[128];
+      int i = 0;
+      for (; i < 127 && cp[i] != ' ' && cp[i] != '\0'; i++)
         {
-        // classname is terminated by a space, not a null
-        const char *cp = classname;
-        char name[128];
-        int i = 0;
-        for (; i < 127 && cp[i] != ' ' && cp[i] != '\0'; i++)
+        name[i] = cp[i];
+        }
+      name[i] = '\0';
+
+      if (name[0] == 'f' && strcmp(name, "func") == 0)
+        {
+        if (!PyCallable_Check(arg))
           {
-          name[i] = cp[i];
+          penalty = -1;
           }
-
-        name[i] = '\0';
-
+        }
+      else if (arg->ob_type == &PyVTKObjectType)
+        {
         PyVTKObject *vobj = (PyVTKObject *)arg;
         if (strncmp(vobj->vtk_ptr->GetClassName(), name, 128) != 0)
           {
@@ -1495,17 +1508,6 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
         }
       else if (arg->ob_type == &PyVTKSpecialObjectType)
         {
-        // classname is terminated by a space, not a null
-        const char *cp = classname;
-        char name[128];
-        int i = 0;
-        for (; i < 127 && cp[i] != ' ' && cp[i] != '\0'; i++)
-          {
-          name[i] = cp[i];
-          }
-
-        name[i] = '\0';
-
         PyVTKSpecialObject *sobj = (PyVTKSpecialObject *)arg;
         if (strncmp(PyString_AsString(sobj->vtk_info->classname), name, 128)
             != 0)
@@ -1519,6 +1521,7 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
         {
         penalty = -1;
         }
+      }
       break;
 
     default:
@@ -1536,7 +1539,7 @@ class PyVTKOverloadHelper
 {
 public:
   PyVTKOverloadHelper() : m_format(0), m_classname(0), m_priority(0) {};
-  void initialize(const char *format);
+  void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
   int priority() { return m_priority; };
   int priority(int priority) { m_priority |= priority; return priority; };
@@ -1549,8 +1552,14 @@ private:
 };
 
 // Construct the object with a priority of 0
-void PyVTKOverloadHelper::initialize(const char *format)
+void PyVTKOverloadHelper::initialize(bool selfIsClass, const char *format)
 {
+  // remove the first arg check if "self" is not a PyVTKClass
+  if (format[0] == '@' && !selfIsClass)
+    {
+    format++;
+    }
+
   m_format = format;
   m_classname = format;
   while (*m_classname != '\0' && *m_classname != ' ')
@@ -1615,10 +1624,16 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
 
     const char *format;
     const char *classname;
-
-    int n = PyTuple_Size(args);
-
+    bool selfIsClass = 0;
     int sig;
+
+    // Is self a PyVTKClass object, rather than a PyVTKObject?  If so,
+    // then first arg is an object, and other args should follow format.
+    if (self && self->ob_type == &PyVTKClassType)
+      {
+      selfIsClass = true;
+      }
+
     for (sig = 0; methods[sig].ml_meth != 0; sig++)
       {
       // Have we overgrown the stack storage?
@@ -1638,7 +1653,7 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
         }
 
       // Initialize the helper for ths signature
-      helperArray[sig].initialize(methods[sig].ml_doc);
+      helperArray[sig].initialize(selfIsClass, methods[sig].ml_doc);
       }
 
     // Get the number of signatures
@@ -1650,16 +1665,9 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
     // 1) trivial conversions second, e.g. double to float
     // 2) other conversions third, e.g. double to int
 
-    // Is self a PyVTKClass object, rather than a PyVTKObject?  If so,
-    // then first arg is an object, and other args should follow format.
-    int i = 0;
-    if (self && self->ob_type == &PyVTKClassType)
-      {
-      i = 1;
-      }
-
     // Loop through args
-    for (; i < n; i++)
+    Py_ssize_t n = PyTuple_Size(args);
+    for (Py_ssize_t i = 0; i < n; i++)
       {
       PyObject *arg = PyTuple_GetItem(args, i);
 
@@ -1687,8 +1695,8 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
               // useful error will be reported to the user.  Also, we want
               // to mimic C++ semantics, and C++ doesn't care about the
               // size of arrays when it resolves overloads.
-              int m = PySequence_Size(arg);
-              for (int j = 0;; j++)
+              Py_ssize_t m = PySequence_Size(arg);
+              for (Py_ssize_t j = 0;; j++)
                 {
                 if (!helper->next(&format, &classname))
                   {
