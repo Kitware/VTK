@@ -7,6 +7,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestDiagram.cxx
     TestLinePlot.cxx
     TestContext.cxx
+    TestGLSL.cxx
     TestVector.cxx
     )
     
