@@ -36,6 +36,7 @@
 #include "vtkRegressionTestImage.h"
 
 const char* SimpleVertexShader =
+"#version 110\n"
 "void main(void)\n"
 "{\n"
 "  gl_FrontColor = gl_Color;\n"
@@ -43,6 +44,7 @@ const char* SimpleVertexShader =
 "}\n";
 
 const char* SimpleFragmentShader =
+"#version 110\n"
 "void main()\n"
 "{\n"
 "  vec2 location = gl_PointCoord - vec2(0.5, 0.5);\n"
@@ -54,6 +56,7 @@ const char* SimpleFragmentShader =
 "}\n";
 
 const char* SimpleFragmentShader2 =
+"#version 110\n"
 "void main()\n"
 "{\n"
 "  vec2 location = gl_PointCoord - vec2(0.5, 0.5);\n"
@@ -73,18 +76,16 @@ const char* SimpleFragmentShader2 =
 class GLSLTestItem : public vtkContextItem
 {
 public:
-  GLSLTestItem() : program(0), program2(0)
-  {
-  }
-
   static GLSLTestItem *New();
   vtkTypeMacro(GLSLTestItem, vtkContextItem);
-  // Paint event for the chart, called whenever the chart needs to be drawn
+  // Paint event for the test.
   virtual bool Paint(vtkContext2D *painter);
+  // Required for the shader programs - ensure they release their resources.
+  virtual void ReleaseGraphicsResources();
 
   void BuildShader(vtkOpenGLRenderWindow*);
 
-  vtkShaderProgram2 *program, *program2;
+  vtkSmartPointer<vtkShaderProgram2> program, program2;
 };
 
 //----------------------------------------------------------------------------
@@ -175,15 +176,27 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
   return true;
 }
 
+void GLSLTestItem::ReleaseGraphicsResources()
+{
+  if (this->program)
+    {
+    this->program->ReleaseGraphicsResources();
+    }
+  if (this->program2)
+    {
+    this->program2->ReleaseGraphicsResources();
+    }
+}
+
 void GLSLTestItem::BuildShader(vtkOpenGLRenderWindow* glContext)
 {
   if (this->program)
     {
     return;
     }
-  this->program = vtkShaderProgram2::New();
+  this->program = vtkSmartPointer<vtkShaderProgram2>::New();
   this->program->SetContext(glContext);
-  this->program2 = vtkShaderProgram2::New();
+  this->program2 = vtkSmartPointer<vtkShaderProgram2>::New();
   this->program2->SetContext(glContext);
 
   // The vertext shader
