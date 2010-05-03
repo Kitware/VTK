@@ -114,6 +114,7 @@ protected:
   double LeafSpacing;
   char *DistanceArrayName;
   double Rotation;
+  bool ReverseEdges;
 
 private:
 

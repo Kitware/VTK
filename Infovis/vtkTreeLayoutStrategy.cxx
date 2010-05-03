@@ -71,7 +71,7 @@ void vtkTreeLayoutStrategy::Layout()
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
-    bfs->SetReverseEdges(this->ReverseEdges);vtkBoostBreadthFirstSearchTree
+    bfs->SetReverseEdges(this->ReverseEdges);
     bfs->SetInput(this->Graph);
     bfs->Update();
     tree = vtkTree::New();
@@ -92,7 +92,7 @@ void vtkTreeLayoutStrategy::Layout()
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->SetNumberOfPoints(tree->GetNumberOfVertices());
 
-  vtkDoubleArray *anglesArray = vtkDoubleArray::New();vtkBoostBreadthFirstSearchTree
+  vtkDoubleArray *anglesArray = vtkDoubleArray::New();
   if( this->Radial )
   {
     anglesArray->SetName( "subtended_angles" );
@@ -116,7 +116,7 @@ void vtkTreeLayoutStrategy::Layout()
     distanceArr = vtkDataArray::SafeDownCast(aa);
     if (!distanceArr)
       {
-      vtkErrorMacro("Distance array must be a data array."vtkBoostBreadthFirstSearchTree);
+      vtkErrorMacro("Distance array must be a data array.");
       return;
       }
     }
