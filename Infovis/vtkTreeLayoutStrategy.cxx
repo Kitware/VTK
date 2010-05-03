@@ -47,6 +47,7 @@ vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
   this->LeafSpacing = 0.9;
   this->DistanceArrayName = NULL;
   this->Rotation = 0.0;
+  this->ReverseEdges;
 }
 
 vtkTreeLayoutStrategy::~vtkTreeLayoutStrategy()
@@ -70,6 +71,7 @@ void vtkTreeLayoutStrategy::Layout()
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
+    bfs->SetReverseEdges(this->ReverseEdges);vtkBoostBreadthFirstSearchTree
     bfs->SetInput(this->Graph);
     bfs->Update();
     tree = vtkTree::New();
@@ -90,7 +92,7 @@ void vtkTreeLayoutStrategy::Layout()
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->SetNumberOfPoints(tree->GetNumberOfVertices());
 
-  vtkDoubleArray *anglesArray = vtkDoubleArray::New();
+  vtkDoubleArray *anglesArray = vtkDoubleArray::New();vtkBoostBreadthFirstSearchTree
   if( this->Radial )
   {
     anglesArray->SetName( "subtended_angles" );
@@ -114,7 +116,7 @@ void vtkTreeLayoutStrategy::Layout()
     distanceArr = vtkDataArray::SafeDownCast(aa);
     if (!distanceArr)
       {
-      vtkErrorMacro("Distance array must be a data array.");
+      vtkErrorMacro("Distance array must be a data array."vtkBoostBreadthFirstSearchTree);
       return;
       }
     }
@@ -396,6 +398,7 @@ void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rotation: " << this->Rotation << endl;
   os << indent << "DistanceArrayName: "
      << (this->DistanceArrayName ? this->DistanceArrayName : "(null)") << endl;
+  os << indent << "ReverseEdges: " << this->ReverseEdges << endl;
 }
 
 #if 0
