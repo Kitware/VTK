@@ -35,8 +35,6 @@
 #include "vtkShrinkFilter.h"
 #include "vtkDataArray.h"
 #include "vtkPointLocator.h"
-#include "vtkXMLPolyhedronMeshWriter.h"
-#include "vtkXMLPolyhedronMeshReader.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -123,19 +121,19 @@ int TestPolyhedron( int argc, char* argv[] )
 
   //
   // test writer
-  vtkSmartPointer<vtkXMLPolyhedronMeshWriter> writer =
-    vtkSmartPointer<vtkXMLPolyhedronMeshWriter>::New();
+  vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
+    vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
   writer->SetInput(ugrid0);
-  writer->SetFileName("test.vth");
+  writer->SetFileName("test.vtu");
   writer->SetDataModeToAscii();
   writer->Update();
   std::cout << "finished writing the polyhedron mesh to test.vth "<< std::endl;
   
   //
   // test reader
-  vtkSmartPointer<vtkXMLPolyhedronMeshReader> reader =
-    vtkSmartPointer<vtkXMLPolyhedronMeshReader>::New();
-  reader->SetFileName("test.vth");
+  vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
+    vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+  reader->SetFileName("test.vtu");
   reader->Update();
   std::cout << "finished reading the polyhedron mesh from test.vth "<< std::endl;
   
@@ -144,7 +142,7 @@ int TestPolyhedron( int argc, char* argv[] )
   
   // write again to help compare
   writer->SetInput(ugrid);
-  writer->SetFileName("test1.vth");
+  writer->SetFileName("test1.vtu");
   writer->SetDataModeToAscii();
   writer->Update();
 

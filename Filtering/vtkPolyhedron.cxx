@@ -1906,38 +1906,51 @@ void vtkPolyhedron::DecomposeAPolyhedronCell(vtkCellArray * polyhedronCell,
        vtkIdType & numCellPts, vtkIdType & nCellfaces, 
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {
-  vtkIdType *cellData = 0;
+  vtkIdType *cellStream = 0;
   vtkIdType cellLength = 0;
   
   polyhedronCell->InitTraversal();
-  polyhedronCell->GetNextCell(cellLength, cellData);
+  polyhedronCell->GetNextCell(cellLength, cellStream);
   
   vtkPolyhedron::DecomposeAPolyhedronCell(
-    cellLength, cellData, numCellPts, nCellfaces, cellArray, faces);
+    cellStream, numCellPts, nCellfaces, cellArray, faces);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::DecomposeAPolyhedronCell(
-       vtkIdType cellLength, vtkIdType *cellData,
+void vtkPolyhedron::DecomposeAPolyhedronCell(vtkIdType *cellStream,
        vtkIdType & numCellPts, vtkIdType & nCellFaces, 
+       vtkCellArray * cellArray, vtkIdTypeArray * faces)
+{
+  nCellFaces = cellStream[0];
+  if (nCellFaces <= 0)
+    {
+    return;
+    }
+  
+  vtkPolyhedron::DecomposeAPolyhedronCell(
+    nCellFaces, cellStream+1, numCellPts, cellArray, faces);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyhedron::DecomposeAPolyhedronCell(vtkIdType nCellFaces,
+       vtkIdType * cellStream, vtkIdType & numCellPts, 
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {
   IdSetType cellPointSet;
   IdSetType::iterator it;
   
-  // first element indicates the number of faces
-  nCellFaces = *cellData++;
+  // insert number of faces into the face array
   faces->InsertNextValue(nCellFaces);
   
   // for each face
   for (vtkIdType fid = 0; fid < nCellFaces; fid++)
     {
     // extract all points on the same face, store them into a set
-    vtkIdType npts = *cellData++;
+    vtkIdType npts = *cellStream++;
     faces->InsertNextValue(npts);
     for (vtkIdType i = 0; i < npts; i++)
       {
-      vtkIdType pid = *cellData++;
+      vtkIdType pid = *cellStream++;
       faces->InsertNextValue(pid);
       cellPointSet.insert(pid);
       }

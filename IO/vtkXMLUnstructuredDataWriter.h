@@ -26,6 +26,7 @@ class vtkPointSet;
 class vtkCellArray;
 class vtkDataArray;
 class vtkIdTypeArray;
+class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
 {
@@ -81,12 +82,21 @@ protected:
   
   void WriteCellsInline(const char* name, vtkCellArray* cells,
                         vtkDataArray* types, vtkIndent indent);
+
+  // New API with face infomration for polyhedron cell support.
+  void WriteCellsInline(const char* name, vtkCellArray* cells,
+                        vtkDataArray* types, vtkIdTypeArray* faces,
+                        vtkIdTypeArray* faceOffsets, vtkIndent indent);
+
   void WriteCellsAppended(const char* name, vtkDataArray* types,
                           vtkIndent indent, OffsetsManagerGroup *cellsManager);
   void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types,
                               int timestep, OffsetsManagerGroup *cellsManager);
   void ConvertCells(vtkCellArray* cells);
 
+  // For polyhedron support, convertion results are stored in Faces and FaceOffsets
+  void ConvertFaces(vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets);
+  
   // Get the number of points/cells.  Valid after Update has been
   // invoked on the input.
   virtual vtkIdType GetNumberOfInputPoints();
@@ -116,6 +126,10 @@ protected:
   vtkIdTypeArray* CellOffsets;
 
   int CurrentPiece;
+
+  // Hold the face arrays for polyhedron cells.
+  vtkIdTypeArray* Faces;
+  vtkIdTypeArray* FaceOffsets;
   
 private:
   vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&);  // Not implemented.

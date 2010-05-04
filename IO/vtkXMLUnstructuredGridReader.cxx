@@ -194,6 +194,7 @@ void vtkXMLUnstructuredGridReader::SetupNextPiece()
   this->StartCell += this->NumberOfCells[this->Piece];
 }
 
+
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredGridReader::ReadPieceData()
 {
@@ -204,11 +205,15 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     ((this->NumberOfPointArrays+1)*this->GetNumberOfPointsInPiece(this->Piece)+
      this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
 
-  // Total amount of data in this piece comes from point/cell data
-  // arrays and the point/cell specifications themselves (cell
-  // specifications for vtkUnstructuredGrid take three data arrays).
+  // Total amount of data in this piece comes from cell/face data arrays. 
+  // Three of them are for standard vtkUnstructuredGrid cell specification:
+  // connectivities, offsets and types. Two optional arrays are for face 
+  // specification of polyhedron cells: faces and face offsets. 
+  // Note: We don't know exactly the array size of cell connectivities and
+  // faces until we actually read the file. The following progress computation 
+  // assumes that each array cost the same time to read.
   vtkIdType totalPieceSize =
-    superclassPieceSize + 3*this->GetNumberOfCellsInPiece(this->Piece);
+    superclassPieceSize + 5*this->GetNumberOfCellsInPiece(this->Piece);
   if(totalPieceSize == 0)
     {
     totalPieceSize = 1;
@@ -220,12 +225,14 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   // one more.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  float fractions[4] =
+  float fractions[5] =
     {
       0,
       float(superclassPieceSize) / totalPieceSize,
       ((float(superclassPieceSize) +
         2*this->GetNumberOfCellsInPiece(this->Piece)) / totalPieceSize),
+      ((float(superclassPieceSize) +
+        3*this->GetNumberOfCellsInPiece(this->Piece)) / totalPieceSize),
       1
     };
 
@@ -254,22 +261,25 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
 
   // Read the Cells.
   vtkXMLDataElement* eCells = this->CellElements[this->Piece];
-  if(eCells)
+  if(!eCells)
     {
-//    int needToRead = this->CellsNeedToReadTimeStep(eNested,
-//      this->CellsTimeStep, this->CellsOffset);
-//    if( needToRead )
-      {
-      // Read the array.
-      if(!this->ReadCellArray(this->NumberOfCells[this->Piece],
-                              this->TotalNumberOfCells,
-                              eCells,
-                              output->GetCells()))
-        {
-        return 0;
-        }
-      }
+    vtkErrorMacro("Cannot find cell arrays in piece " << this->Piece);
+    return 0;
     }
+    
+//  int needToRead = this->CellsNeedToReadTimeStep(eNested,
+//    this->CellsTimeStep, this->CellsOffset);
+//  if( needToRead )
+  {
+    // Read the array.
+    if(!this->ReadCellArray(this->NumberOfCells[this->Piece],
+                            this->TotalNumberOfCells,
+                            eCells,
+                            output->GetCells()))
+      {
+      return 0;
+      }
+  }
 
   // Construct the cell locations.
   vtkIdTypeArray* locations = output->GetCellLocationsArray();
@@ -330,6 +340,36 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
          cellTypes->GetPointer(0), numberOfCells);
 
   cellTypes->Delete();
+
+  // Set the range of progress for the faces.
+  this->SetProgressRange(progressRange, 3, fractions);
+
+  //
+  // Read face array. Used for polyhedron mesh support.
+  // First need to check if faces and faceoffsets arrays are available.
+  if (!this->FindDataArrayWithName(eCells, "faces") ||
+      !this->FindDataArrayWithName(eCells, "faceoffsets"))
+    {
+    return 1;
+    }
+  
+  // By default vtkUnstructuredGrid does not contain face information, which is
+  // only used by polyhedron cells. If so far no polyhedron cells have been 
+  // added, the pointers to the arrays will be NULL. In this case, we need to 
+  // initialize the arrays and assign values to the previous non-polyhedron cells. 
+  if (!output->GetFaces() || !output->GetFaceLocations())
+    {
+    output->InitializeFacesRepresentation(this->StartCell);
+    }
+  
+  // Read face arrays.
+  if(!this->ReadFaceArray(this->NumberOfCells[this->Piece],
+                          eCells,
+                          output->GetFaces(),
+                          output->GetFaceLocations()))
+    {
+    return 0;
+    }
 
   return 1;
 }

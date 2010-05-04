@@ -29,6 +29,7 @@
 #include "vtkXMLUnstructuredDataReader.h"
 
 class vtkUnstructuredGrid;
+class vtkIdTypeArray;
 
 class VTK_IO_EXPORT vtkXMLUnstructuredGridReader : public vtkXMLUnstructuredDataReader
 {

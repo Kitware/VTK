@@ -74,7 +74,7 @@ protected:
   // Positions of attributes for each piece.
   unsigned long* NumberOfCellsPositions;
   OffsetsManagerArray *CellsOM; //one per piece
-  
+
 private:
   vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
   void operator=(const vtkXMLUnstructuredGridWriter&);  // Not implemented.

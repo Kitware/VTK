@@ -86,7 +86,7 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   
   // Split progress range by the approximate fraction of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[3] = {0,0};
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
@@ -106,7 +106,10 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   
   // Write the cell specifications.
   this->WriteCellsInline("Cells", input->GetCells(),
-                         input->GetCellTypesArray(), indent);
+                         input->GetCellTypesArray(), 
+                         input->GetFaces(),
+                         input->GetFaceLocations(),
+                         indent);
 }
 
 //----------------------------------------------------------------------------
