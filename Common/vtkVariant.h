@@ -39,6 +39,7 @@
 // The following should be eventually placed in vtkSetGet.h
 //
 
+//BTX
 // This is same as extended template macro with an additional case for VTK_VARIANT
 #define vtkExtraExtendedTemplateMacro(call)                                 \
   vtkExtendedTemplateMacro(call);                                            \
@@ -48,15 +49,16 @@
 #define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
   vtkArrayIteratorTemplateMacro(call);                                                   \
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
+//ETX
 
 class vtkStdString;
 class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
 class vtkVariant;
+//BTX
 struct vtkVariantLessThan;
 
-//BTX
 VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
 //ETX
 
