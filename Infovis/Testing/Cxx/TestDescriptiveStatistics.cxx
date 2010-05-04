@@ -144,6 +144,13 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
+
+  // First verify that absence of input does not cause trouble
+  cout << "## Verifying that absence of input does not cause trouble... ";
+  ds1->Update();
+  cout << "done.\n";
+
+  //Prepare first test with data
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
