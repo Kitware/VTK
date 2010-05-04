@@ -150,7 +150,7 @@ int TestDescriptiveStatistics( int, char *[] )
   ds1->Update();
   cout << "done.\n";
 
-  //Prepare first test with data
+  // Prepare first test with data
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
