@@ -161,8 +161,8 @@ void vtkPythonAddSpecialTypeToHash(
 
 // Return the pointer to a non-VTK object
 extern VTK_PYTHON_EXPORT
-void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
-                                           const char *result_type);
+void *vtkPythonGetPointerFromSpecialObject(
+  PyObject *obj, const char *result_type, PyObject **newobj);
 
 // Convert a non-VTK object to a PyVTKSpecialObject
 extern VTK_PYTHON_EXPORT

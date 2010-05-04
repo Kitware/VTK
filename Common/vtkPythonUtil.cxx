@@ -2194,8 +2194,8 @@ PyObject *vtkPythonGetSpecialObjectFromPointer(void *ptr,
 }
 
 //--------------------------------------------------------------------
-void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
-                                           const char *result_type)
+void *vtkPythonGetPointerFromSpecialObject(
+  PyObject *obj, const char *result_type, PyObject **newobj)
 {
   // The type name, for diagnostics
   const char *object_type = obj->ob_type->tp_name;
@@ -2247,11 +2247,12 @@ void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
 
     if (sobj && sobj->ob_type == &PyVTKSpecialObjectType)
       {
-      // Yes, we copy the object that was just constructed
-      void *result = info->copy_func(((PyVTKSpecialObject *)sobj)->vtk_ptr);
+      *newobj = sobj;
+      return ((PyVTKSpecialObject *)sobj)->vtk_ptr;
+      }
+    else if (sobj)
+      {
       Py_DECREF(sobj);
-
-      return result;
       }
  
     // If a TypeError occurred, clear it and set our own error
