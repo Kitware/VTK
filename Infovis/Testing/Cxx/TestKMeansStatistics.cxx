@@ -106,7 +106,7 @@ int TestKMeansStatistics( int, char *[] )
 
   // First verify that absence of input does not cause trouble
   cout << "## Verifying that absence of input does not cause trouble... ";
-  pcas->Update();
+  haruspex->Update();
   cout << "done.\n";
 
   // Prepare first test with data
