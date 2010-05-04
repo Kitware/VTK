@@ -100,7 +100,13 @@ public:
   // Description:
   // Intersect this list with another vtkIdList. Updates current list according
   // to result of intersection operation.
-  void IntersectWith(vtkIdList& otherIds);
+  void IntersectWith(vtkIdList* otherIds);
+
+  //BTX
+  // This method should become legacy
+  void IntersectWith(vtkIdList& otherIds) {
+    return this->IntersectWith(&otherIds); };
+  //ETX
 
 protected:
   vtkIdList();
