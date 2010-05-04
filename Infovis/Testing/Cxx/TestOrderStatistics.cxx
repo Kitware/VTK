@@ -130,6 +130,7 @@ int TestOrderStatistics( int, char *[] )
   os->Update();
   cout << "done.\n";
 
+  // Prepare first test with data
   os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
 
