@@ -96,7 +96,7 @@ typedef struct {
 } PyVTKSpecialObject;
 
 // Standard methods for all vtk/python objects
-extern "C" 
+extern "C"
 {
 VTK_PYTHON_EXPORT int PyVTKObject_Check(PyObject *obj);
 VTK_PYTHON_EXPORT int PyVTKClass_Check(PyObject *obj);
@@ -123,16 +123,16 @@ PyMethodDef *PyVTKFindConversionMethod(PyMethodDef *methods, PyObject *arg);
 // and unbound method calls for VTK objects
 
 VTK_PYTHON_EXPORT
-vtkObjectBase *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
+vtkObjectBase *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
                                    char *format, ...);
 }
 
 // Add a PyVTKClass to the type lookup table, this allows us to later
 // create object given only the class name.
 extern VTK_PYTHON_EXPORT
-void vtkPythonAddClassToHash(PyObject *obj, const char *type); 
+void vtkPythonAddClassToHash(PyObject *obj, const char *type);
 
-// Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is not a 
+// Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is not a
 // PyVTKObject, or is not a PyVTKObject of the specified type, the python
 // error indicator will be set.
 // Special behaviour: Py_None is converted to NULL without no error.
@@ -155,7 +155,7 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
 // create object given only the class name.
 extern VTK_PYTHON_EXPORT
 void vtkPythonAddSpecialTypeToHash(
-  char *classname, char *docstring[], PyMethodDef *methods, 
+  char *classname, char *docstring[], PyMethodDef *methods,
   PyMethodDef *constructors, PyVTKSpecialCopyFunc copyfunc,
   PyVTKSpecialDeleteFunc deletefunc, PyVTKSpecialPrintFunc printfunc);
 
@@ -234,12 +234,12 @@ public:
   void SetObject(PyObject *o);
   void SetThreadState(PyThreadState *ts);
   void Execute(vtkObject *ptr, unsigned long eventtype, void *CallData);
- 
+
   PyObject *obj;
   PyThreadState *ThreadState;
 protected:
   vtkPythonCommand();
-  ~vtkPythonCommand(); 
+  ~vtkPythonCommand();
 };
 
 #endif
