@@ -222,13 +222,13 @@ static void vtkWrapPython_MakeTempVariable(
   /* print the type itself */
   switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
     {
-    case VTK_PARSE_FLOAT:       fprintf(fp,"float  "); break;
+    case VTK_PARSE_FLOAT:       fprintf(fp,"float "); break;
     case VTK_PARSE_DOUBLE:      fprintf(fp,"double "); break;
-    case VTK_PARSE_INT:         fprintf(fp,"int    "); break;
-    case VTK_PARSE_SHORT:       fprintf(fp,"short  "); break;
-    case VTK_PARSE_LONG:        fprintf(fp,"long   "); break;
-    case VTK_PARSE_VOID:        fprintf(fp,"void   "); break;
-    case VTK_PARSE_CHAR:        fprintf(fp,"char   "); break;
+    case VTK_PARSE_INT:         fprintf(fp,"int "); break;
+    case VTK_PARSE_SHORT:       fprintf(fp,"short "); break;
+    case VTK_PARSE_LONG:        fprintf(fp,"long "); break;
+    case VTK_PARSE_VOID:        fprintf(fp,"void "); break;
+    case VTK_PARSE_CHAR:        fprintf(fp,"char "); break;
     case VTK_PARSE_VTK_OBJECT:  fprintf(fp,"%s ",Id); break;
     case VTK_PARSE_ID_TYPE:     fprintf(fp,"vtkIdType "); break;
     case VTK_PARSE_LONG_LONG:   fprintf(fp,"long long "); break;
@@ -242,7 +242,7 @@ static void vtkWrapPython_MakeTempVariable(
   switch (aType & VTK_PARSE_INDIRECT)
     {
     case VTK_PARSE_REF:
-      fprintf(fp, " *"); /* refs are converted to pointers */
+      fprintf(fp, "*"); /* refs are converted to pointers */
       break;
     case VTK_PARSE_POINTER:
       if ((i == MAX_ARGS) ||
@@ -250,7 +250,7 @@ static void vtkWrapPython_MakeTempVariable(
           ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR_PTR) ||
           ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_VOID_PTR))
         {
-        fprintf(fp, " *");
+        fprintf(fp, "*");
         }
       break;
     case VTK_PARSE_POINTER_REF:
@@ -260,7 +260,6 @@ static void vtkWrapPython_MakeTempVariable(
       fprintf(fp, "**");
       break;
     default:
-      fprintf(fp,"  ");
       break;
     }
 
@@ -778,6 +777,14 @@ static char *vtkWrapPython_ArgCheckString(
         argtype == VTK_PARSE_VTK_OBJECT)
       {
       result[currPos++] = ' ';
+      if (argtype == VTK_PARSE_VTK_OBJECT_REF)
+        {
+        result[currPos++] = '&';
+        }
+      else if (argtype == VTK_PARSE_VTK_OBJECT_PTR)
+        {
+        result[currPos++] = '*';
+        }
       strcpy(&result[currPos], currentFunction->ArgClasses[i]);
       currPos += strlen(currentFunction->ArgClasses[i]);
       }
@@ -791,8 +798,18 @@ static char *vtkWrapPython_ArgCheckString(
 
 static void vtkWrapPython_AddToSignature(char *sig, const char *add, int *i)
 {
-  strcpy(&sig[*i],add);
-  *i += (int)strlen(add);
+  int j = 0;
+  char *cp = &sig[*i];
+  for (; add[j] != '\0'; j++)
+    {
+    // stop at the semicolon, there's often garbage after it
+    if ((cp[j] = add[j]) == ';')
+      {
+      cp[++j] = '\0';
+      break;
+      }
+    }
+  *i += j;
 }
 
 /* -------------------------------------------------------------------- */
@@ -1115,13 +1132,13 @@ static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
 static void vtkWrapPython_GenerateMethods(
   FILE *fp, FileInfo *data, int class_has_new, int do_constructors)
 {
-  int i, j, k, is_static, is_vtkobject, fnum, occ;
+  int i, j, k, is_static, is_pure_virtual, is_vtkobject, fnum, occ;
   int numberOfSignatures, signatureCount;
   char signatureSuffix[8];
   int all_legacy, all_static;
   int numberOfWrappedFunctions = 0;
   FunctionInfo *wrappedFunctions[1000];
-  FunctionInfo *currentFunction;
+  FunctionInfo *theSignature;
   FunctionInfo *theFunc;
   int returnType = 0;
   int argType = 0;
@@ -1129,15 +1146,15 @@ static void vtkWrapPython_GenerateMethods(
   int voteMaster = 0;
 
   /* go through all functions and see which are wrappable,
-   * note that "currentFunction" is a global variable  */
+   * note that "theSignature" is a global variable  */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
-    currentFunction = &data->Functions[i];
+    theFunc = &data->Functions[i];
 
     /* check for wrappability */
-    if (vtkWrapPython_MethodCheck(data, currentFunction, do_constructors))
+    if (vtkWrapPython_MethodCheck(data, theFunc, do_constructors))
       {
-      wrappedFunctions[numberOfWrappedFunctions++] = currentFunction;
+      wrappedFunctions[numberOfWrappedFunctions++] = theFunc;
       }
     }
 
@@ -1156,7 +1173,6 @@ static void vtkWrapPython_GenerateMethods(
     {
     /* make sure we haven't already done one of these */
     theFunc = wrappedFunctions[fnum];
-    currentFunction = theFunc;
     returnType = (theFunc->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
     /* check for type precedence, don't need a "float" method if a
@@ -1164,24 +1180,24 @@ static void vtkWrapPython_GenerateMethods(
 
     for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
       {
-      if (theFunc->Name && wrappedFunctions[occ]->Name &&
-          !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
-        {
-        currentFunction = wrappedFunctions[occ];
+      theSignature = wrappedFunctions[occ];
 
+      if (theFunc->Name && theSignature->Name &&
+          strcmp(theFunc->Name, theSignature->Name) == 0)
+        {
         voteCurrent = 0;
         voteMaster = 0;
-        if (theFunc->NumberOfArguments == currentFunction->NumberOfArguments)
+        if (theFunc->NumberOfArguments == theSignature->NumberOfArguments)
           {
-          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
-            if ((currentFunction->ArgCounts[i] == theFunc->ArgCounts[i]) &&
-                (currentFunction->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE) ==
+            if ((theSignature->ArgCounts[i] == theFunc->ArgCounts[i]) &&
+                (theSignature->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE) ==
                 (theFunc->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE))
               {
               if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
                   == VTK_PARSE_FLOAT &&
-                  (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                  (theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
                   == VTK_PARSE_DOUBLE &&
                   !voteMaster)
                 {
@@ -1189,14 +1205,14 @@ static void vtkWrapPython_GenerateMethods(
                 }
               else if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
                        == VTK_PARSE_FLOAT &&
-                       (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                       (theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
                        == VTK_PARSE_DOUBLE &&
                        !voteCurrent)
                 {
                 voteMaster = 1;
                 }
               else if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE) !=
-                       (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE))
+                       (theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE))
                 {
                 voteCurrent = 0;
                 voteMaster = 0;
@@ -1207,8 +1223,8 @@ static void vtkWrapPython_GenerateMethods(
           }
         if (voteMaster)
           {
-          /* prefer theFunc's signature over currentFunction */
-          currentFunction->Name = 0;
+          /* prefer theFunc's signature over theSignature */
+          theSignature->Name = 0;
           }
         else if (voteCurrent)
           {
@@ -1252,24 +1268,32 @@ static void vtkWrapPython_GenerateMethods(
       signatureCount = 0;
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
         {
-        is_static = 0;
+        theSignature = wrappedFunctions[occ];
 
         /* is it the same name */
-        if (wrappedFunctions[occ]->Name && 
-            !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
+        if (theSignature->Name && 
+            !strcmp(theFunc->Name,theSignature->Name))
           {
           signatureCount++;
 
-          if (wrappedFunctions[occ]->IsLegacy)
+          if (theSignature->IsLegacy)
             {
             fprintf(fp,
                     "#if !defined(VTK_LEGACY_REMOVE)\n");
             }
 
           /* check for static methods */
-          if ((wrappedFunctions[occ]->ReturnType & VTK_PARSE_STATIC) != 0)
+          is_static = 0;
+          if ((theSignature->ReturnType & VTK_PARSE_STATIC) != 0)
             {
             is_static = 1;
+            }
+
+          /* check for pure virtual methods */
+          is_pure_virtual = 0;
+          if (theSignature->IsPureVirtual)
+            {
+            is_pure_virtual = 1;
             }
 
           /* method suffix to distinguish between signatures */
@@ -1283,11 +1307,10 @@ static void vtkWrapPython_GenerateMethods(
           fprintf(fp,
                   "static PyObject *Py%s_%s%s(PyObject *%s, PyObject *args)\n"
                   "{\n",
-                  data->ClassName, currentFunction->Name, signatureSuffix,
+                  data->ClassName, theSignature->Name, signatureSuffix,
                   ((is_static | do_constructors) ? "" : "self"));
 
-          currentFunction = wrappedFunctions[occ];
-          returnType = (currentFunction->ReturnType &
+          returnType = (theSignature->ReturnType &
                         VTK_PARSE_UNQUALIFIED_TYPE);
 
           /* declare the variables */
@@ -1296,45 +1319,59 @@ static void vtkWrapPython_GenerateMethods(
             if (is_vtkobject)
               {
               fprintf(fp,
-                      "  %s *op;\n"
-                      "\n",
+                      "  %s *op;\n",
                       data->ClassName);
               }
             else if (!do_constructors)
               {
               fprintf(fp,
-                      "  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n"
-                      "\n",
+                      "  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n",
                       data->ClassName, data->ClassName);
               }
             }
 
           /* temp variables for arg values */
-          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
-            vtkWrapPython_MakeTempVariable(fp, currentFunction, i);
+            vtkWrapPython_MakeTempVariable(fp, theSignature, i);
             }
 
           /* temp variable for return value */
-          vtkWrapPython_MakeTempVariable(fp, currentFunction, MAX_ARGS);
+          vtkWrapPython_MakeTempVariable(fp, theSignature, MAX_ARGS);
+
+          fprintf(fp,
+                  "\n");
+
+          /* pure virtual class methods need "self" to be an object */
+          if (is_vtkobject && is_pure_virtual)
+            {
+            fprintf(fp,
+                    "  if (PyVTKClass_Check(self))\n"
+                    "    {\n"
+                    "    PyErr_SetString(PyExc_TypeError,\"pure virtual method call\");\n"
+                    "    return NULL;\n"
+                    "    }\n"
+                    "\n");
+            }
 
           /* Use ParseTuple to convert python args to C args */
           if (is_static || !is_vtkobject)
             {
             fprintf(fp,
                     "  if ((PyArg_ParseTuple(args, (char*)\"%s\"",
-                    vtkWrapPython_FormatString(currentFunction));
+                    vtkWrapPython_FormatString(theSignature));
             }
           else
             {
             fprintf(fp,
                     "  op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"%s\"",
                     data->ClassName,
-                    vtkWrapPython_FormatString(currentFunction));
+                    vtkWrapPython_FormatString(theSignature));
             }
-          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
-            argType = (currentFunction->ArgTypes[i] &
+            argType = (theSignature->ArgTypes[i] &
                        VTK_PARSE_UNQUALIFIED_TYPE);
 
             if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT)
@@ -1347,9 +1384,9 @@ static void vtkWrapPython_GenerateMethods(
               }
             else
               {
-              if (currentFunction->ArgCounts[i])
+              if (theSignature->ArgCounts[i])
                 {
-                for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+                for (j = 0; j < theSignature->ArgCounts[i]; j++)
                   {
                   fprintf(fp,", temp%d + %d",i,j);
                   }
@@ -1373,17 +1410,17 @@ static void vtkWrapPython_GenerateMethods(
             }
 
           /* lookup and required objects */
-          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
-            argType = (currentFunction->ArgTypes[i] &
+            argType = (theSignature->ArgTypes[i] &
                        VTK_PARSE_UNQUALIFIED_TYPE);
 
             if (argType == VTK_PARSE_VTK_OBJECT_PTR)
               {
               fprintf(fp,
                       "    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,(char*)\"%s\");\n",
-                      i, currentFunction->ArgClasses[i], i, 
-                      currentFunction->ArgClasses[i]);
+                      i, theSignature->ArgClasses[i], i, 
+                      theSignature->ArgClasses[i]);
               fprintf(fp,
                       "    if (!temp%d && tempH%d != Py_None)\n"
                       "      {\n"
@@ -1396,8 +1433,8 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,
                       "    temp%d = (%s *)vtkPythonGetPointerFromSpecialObject(tempH%d,(char*)\"%s\");\n",
-                      i, currentFunction->ArgClasses[i], i,
-                      currentFunction->ArgClasses[i]);
+                      i, theSignature->ArgClasses[i], i,
+                      theSignature->ArgClasses[i]);
               fprintf(fp,
                       "    if (!temp%d && tempH%d != Py_None)\n"
                       "      {\n"
@@ -1406,10 +1443,10 @@ static void vtkWrapPython_GenerateMethods(
                       i,i);
               }
             }
-          
+
           /* make sure passed method is callable  for VAR functions */
-          if (currentFunction->NumberOfArguments == 1 &&
-              currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
+          if (theSignature->NumberOfArguments == 1 &&
+              theSignature->ArgTypes[0] == VTK_PARSE_FUNCTION)
             {
             fprintf(fp,
                     "    if (!PyCallable_Check(temp0) && temp0 != Py_None)\n"
@@ -1418,20 +1455,20 @@ static void vtkWrapPython_GenerateMethods(
                     "      return NULL;\n"
                     "      }\n"
                     "    Py_INCREF(temp0);\n",
-                    currentFunction->Name, data->ClassName);
+                    theSignature->Name, data->ClassName);
             }
           
           /* check for void pointers and pass appropriate info*/
-          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
-            argType = (currentFunction->ArgTypes[i] &
+            argType = (theSignature->ArgTypes[i] &
                        VTK_PARSE_UNQUALIFIED_TYPE);
 
             if (argType == VTK_PARSE_VOID_PTR)
               {
               fprintf(fp,
                       "    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,(char*)\"%s\");\n",
-                      i,i,i,"void_p");
+                      i, i, i, "void_p");
 
               fprintf(fp,
                       "    if (size%i == -1)\n"
@@ -1439,7 +1476,7 @@ static void vtkWrapPython_GenerateMethods(
                       "      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n"
                       "      return NULL;\n"
                       "      }\n",
-                      i,currentFunction->Name,data->ClassName);
+                      i, theSignature->Name, data->ClassName);
 
               fprintf(fp,
                       "    else if (size%i == -2)\n"
@@ -1447,55 +1484,38 @@ static void vtkWrapPython_GenerateMethods(
                       "      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was poorly formed.\");\n"
                       "      return NULL;\n"
                       "      }\n",
-                      i,currentFunction->Name,data->ClassName);
+                      i, theSignature->Name, data->ClassName);
               }
             }
 
-          for (k = 0; k < (2 - (is_static || !is_vtkobject)); k++)
+          for (k = 0;
+               k < (2 - (is_static || !is_vtkobject || is_pure_virtual));
+               k++)
             {
             char methodname[256]; 
             if (k == 0)
               {
               if (is_static)
                 {
-                fprintf(fp,
-                        "      {\n");
-
                 sprintf(methodname,"%s::%s",
-                        data->ClassName,currentFunction->Name);
+                        data->ClassName, theSignature->Name);
                 }
               else if (do_constructors)
                 {
-                sprintf(methodname, "%s",currentFunction->Name);
+                sprintf(methodname, "%s", theSignature->Name);
                 }
-              else if (!is_vtkobject)
+              else if (!is_vtkobject || is_pure_virtual) 
                 {
-                fprintf(fp,
-                        "      {\n");
-
-                sprintf(methodname,"op->%s",currentFunction->Name);
+                sprintf(methodname,"op->%s", theSignature->Name);
                 }
               else
                 {
-                if (currentFunction->IsPureVirtual)
-                  {
-                  fprintf(fp,
-                          "    if (PyVTKClass_Check(self))\n"
-                          "      {\n"
-                          "      PyErr_SetString(PyExc_TypeError,\"pure virtual method call\");\n"
-                          "      return NULL;\n"
-                          "      }\n");
-                  continue;
-                  }
-                else
-                  {
-                  fprintf(fp,
-                          "    if (PyVTKClass_Check(self))\n"
-                          "      {\n");
+                fprintf(fp,
+                        "    if (PyVTKClass_Check(self))\n"
+                        "      {\n");
 
-                  sprintf(methodname,"op->%s::%s",
-                    data->ClassName,currentFunction->Name);
-                  }
+                sprintf(methodname,"op->%s::%s",
+                  data->ClassName, theSignature->Name);
                 }
               }
             else
@@ -1504,9 +1524,15 @@ static void vtkWrapPython_GenerateMethods(
                       "    else\n"
                       "      {\n");
 
-              sprintf(methodname,"op->%s",currentFunction->Name);
+              sprintf(methodname, "op->%s", theSignature->Name);
               }
                 
+            if (is_vtkobject && !is_static && !is_pure_virtual &&
+                !do_constructors)
+               {
+               fprintf(fp, "  ");
+               }
+
             switch (returnType)
               {
               case VTK_PARSE_VOID:
@@ -1519,24 +1545,24 @@ static void vtkWrapPython_GenerateMethods(
                 else
                   {
                   fprintf(fp,
-                          "      %s(",
+                          "    %s(",
                           methodname);
                   }
                 break;
               case VTK_PARSE_VTK_OBJECT_REF:
                 fprintf(fp,
-                        "      temp%i = &%s(",
+                        "    temp%i = &%s(",
                         MAX_ARGS, methodname);
                 break;
               default:
                 fprintf(fp,
-                        "      temp%i = %s(",
+                        "    temp%i = %s(",
                         MAX_ARGS, methodname);
               }
 
-            for (i = 0; i < currentFunction->NumberOfArguments; i++)
+            for (i = 0; i < theSignature->NumberOfArguments; i++)
               {
-              argType = (currentFunction->ArgTypes[i] &
+              argType = (theSignature->ArgTypes[i] &
                          VTK_PARSE_UNQUALIFIED_TYPE);
 
               if (i)
@@ -1548,8 +1574,8 @@ static void vtkWrapPython_GenerateMethods(
                 {
                 fprintf(fp,"*(temp%i)",i);
                 }
-              else if (currentFunction->NumberOfArguments == 1 
-                       && currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+              else if (theSignature->NumberOfArguments == 1 &&
+                       theSignature->ArgTypes[i] == VTK_PARSE_FUNCTION)
                 {
                 fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
                 }
@@ -1560,39 +1586,63 @@ static void vtkWrapPython_GenerateMethods(
               }
             fprintf(fp,");\n");
           
-            if (currentFunction->NumberOfArguments == 1 
-                && currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
+            if (theSignature->NumberOfArguments == 1 &&
+                theSignature->ArgTypes[0] == VTK_PARSE_FUNCTION)
               {
               fprintf(fp,
                       "      %sArgDelete(vtkPythonVoidFuncArgDelete);\n",
                       methodname);
               }
 
-            if (!do_constructors)
+            if (is_vtkobject && !is_static && !is_pure_virtual &&
+                !do_constructors)
               {
               fprintf(fp,
                       "      }\n");
               }
             }
 
-          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          /* Free any objects that were constructed by an earlier call
+           * to vtkPythonGetPointerFromSpecialObject() */
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
-            argType = (currentFunction->ArgTypes[i] &
+            argType = (theSignature->ArgTypes[i] &
                        VTK_PARSE_UNQUALIFIED_TYPE);
 
-            if (currentFunction->ArgCounts[i] &&  /* array */
+            if (argType == VTK_PARSE_VTK_OBJECT_REF ||
+                argType == VTK_PARSE_VTK_OBJECT)
+              {
+              fprintf(fp,
+                      "    if (PyVTKSpecialObject_Check(tempH%d) && temp%d &&\n"
+                      "        temp%d != (%s *)((PyVTKSpecialObject *)tempH%d)->vtk_ptr)\n"
+                      "      {\n"
+                      "      ((PyVTKSpecialObject *)tempH%d)->vtk_info->delete_func(temp%d);\n"
+                      "      }\n",
+                      i, i, i, theSignature->ArgClasses[i], i, i, i);
+              }
+            }
+ 
+          /* If a mutable python sequence was used as a C array arg,
+           * then if the VTK method changed any values in the array,
+           * copy the changes from the C array into the python sequence */
+          for (i = 0; i < theSignature->NumberOfArguments; i++)
+            {
+            argType = (theSignature->ArgTypes[i] &
+                       VTK_PARSE_UNQUALIFIED_TYPE);
+
+            if (theSignature->ArgCounts[i] &&  /* array */
                 (argType & VTK_PARSE_BASE_TYPE) != 0 && /* not special type */
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VTK_OBJECT &&
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_UNKNOWN &&
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VOID &&
-                ((currentFunction->ArgTypes[i] & VTK_PARSE_CONST) == 0))
+                ((theSignature->ArgTypes[i] & VTK_PARSE_CONST) == 0))
               {
               fprintf(fp,
                       "    if (vtkPythonCheckArray(args,%d,temp%d,%d))\n"
                       "      {\n"
                       "      return 0;\n"
                       "      }\n",
-                      i, i, currentFunction->ArgCounts[i]);
+                      i, i, theSignature->ArgCounts[i]);
               }
             }
 
@@ -1605,7 +1655,7 @@ static void vtkWrapPython_GenerateMethods(
             }
           else
             {
-            vtkWrapPython_ReturnValue(fp, currentFunction);
+            vtkWrapPython_ReturnValue(fp, theSignature);
             }
 
           fprintf(fp,
@@ -1613,7 +1663,7 @@ static void vtkWrapPython_GenerateMethods(
                   "  return NULL;\n"
                   "}\n");
 
-          if (wrappedFunctions[occ]->IsLegacy)
+          if (theSignature->IsLegacy)
             {
             fprintf(fp,
                     "#endif\n");
@@ -1624,15 +1674,16 @@ static void vtkWrapPython_GenerateMethods(
           }
         }
 
-      if (numberOfSignatures > 1)
+      if (numberOfSignatures > 1 || do_constructors)
         {
+        /* output the method table for the signatures */
+
         if(all_legacy)
           {
           fprintf(fp,
                   "#if !defined(VTK_LEGACY_REMOVE)\n");
           }
 
-        /* output the method table for the signatures */
         fprintf(fp,
                "static PyMethodDef Py%s_%sMethods[] = {\n",
                 data->ClassName, wrappedFunctions[fnum]->Name);
@@ -1640,9 +1691,10 @@ static void vtkWrapPython_GenerateMethods(
         signatureCount = 0;
         for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
           {
-          if (wrappedFunctions[occ]->Name == 0 ||
-              strcmp(wrappedFunctions[occ]->Name,
-                     wrappedFunctions[fnum]->Name) != 0)
+          theSignature = wrappedFunctions[occ];
+
+          if (theSignature->Name == 0 ||
+              strcmp(theSignature->Name, theFunc->Name) != 0)
             {
             continue;
             }
@@ -1650,26 +1702,33 @@ static void vtkWrapPython_GenerateMethods(
           signatureCount++;
 
           is_static = 0;
-          if ((wrappedFunctions[occ]->ReturnType & VTK_PARSE_STATIC) != 0)
+          if ((theSignature->ReturnType & VTK_PARSE_STATIC) != 0)
             {
             is_static = 1;
             }
-          if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
+
+          if (theSignature->IsLegacy && !all_legacy)
             {
             fprintf(fp,
                    "#if !defined(VTK_LEGACY_REMOVE)\n");
             }
-          if (wrappedFunctions[occ]->Name)
+
+          /* method suffix to distinguish between signatures */
+          signatureSuffix[0] = '\0';
+          if (numberOfSignatures > 1)
             {
-            fprintf(fp,
-                    "  {NULL, (PyCFunction)Py%s_%s_s%d, 1,\n"
-                    "   (char*)\"%s\"},\n",
-                    data->ClassName, wrappedFunctions[occ]->Name,
-                    signatureCount,
-                    vtkWrapPython_ArgCheckString((is_vtkobject && !is_static),
-                                                 wrappedFunctions[occ]));
+            sprintf(signatureSuffix, "_s%d", signatureCount);
             }
-          if (wrappedFunctions[occ]->IsLegacy && !all_legacy)
+
+          fprintf(fp,
+                  "  {NULL, (PyCFunction)Py%s_%s%s, 1,\n"
+                  "   (char*)\"%s\"},\n",
+                  data->ClassName, wrappedFunctions[occ]->Name,
+                  signatureSuffix,
+                  vtkWrapPython_ArgCheckString((is_vtkobject && !is_static),
+                                               wrappedFunctions[occ]));
+
+          if (theSignature->IsLegacy && !all_legacy)
             {
             fprintf(fp,
                     "#endif\n");
@@ -1681,17 +1740,31 @@ static void vtkWrapPython_GenerateMethods(
                 "};\n"
                 "\n");
 
+        if (all_legacy)
+          {
+          fprintf(fp,
+                  "#endif\n");
+          }
+        }
+
+      if (numberOfSignatures > 1)
+        {
         /* declare a "master method" to look through the signatures */
+        if(all_legacy)
+          {
+          fprintf(fp,
+                  "#if !defined(VTK_LEGACY_REMOVE)\n");
+          }
+
         fprintf(fp,
                 "static PyObject *Py%s_%s(PyObject *self, PyObject *args)\n"
                 "{\n"
                 "  PyMethodDef *methods = Py%s_%sMethods;\n"
                 "\n"
-                "  return PyVTKCallOverloadedMethod(\"%s\", methods, self, args);\n"
+                "  return PyVTKCallOverloadedMethod(methods, self, args);\n"
                 "}\n",
                  data->ClassName, wrappedFunctions[fnum]->Name,
-                 data->ClassName, wrappedFunctions[fnum]->Name,
-                 data->ClassName);
+                 data->ClassName, wrappedFunctions[fnum]->Name);
 
         if (all_legacy)
           {
@@ -1703,24 +1776,26 @@ static void vtkWrapPython_GenerateMethods(
       fprintf(fp,"\n");
 
       /* set the legacy flag */
-      wrappedFunctions[fnum]->IsLegacy = all_legacy;
+      theFunc->IsLegacy = all_legacy;
 
       /* clear all occurances of this method from further consideration */
       for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
         {
+        theSignature = wrappedFunctions[occ];
+
         /* is it the same name */
-        if (wrappedFunctions[occ]->Name && 
-            !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
+        if (theSignature->Name && 
+            !strcmp(theFunc->Name,theSignature->Name))
           {
-          size_t siglen = strlen(wrappedFunctions[fnum]->Signature);
+          size_t siglen = strlen(theFunc->Signature);
           /* memory leak here but ... */
-          wrappedFunctions[occ]->Name = NULL;
-          wrappedFunctions[fnum]->Signature = (char *)
-            realloc(wrappedFunctions[fnum]->Signature,siglen+3+
-                    strlen(wrappedFunctions[occ]->Signature));
-          strcpy(&wrappedFunctions[fnum]->Signature[siglen],"\\n");
-          strcpy(&wrappedFunctions[fnum]->Signature[siglen+2],
-                 wrappedFunctions[occ]->Signature);
+          theSignature->Name = NULL;
+          theFunc->Signature = (char *)
+            realloc(theFunc->Signature,siglen+3+
+                    strlen(theSignature->Signature));
+          strcpy(&theFunc->Signature[siglen],"\\n");
+          strcpy(&theFunc->Signature[siglen+2],
+                 theSignature->Signature);
           }
         }
       } /* is this method non NULL */
@@ -2355,14 +2430,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "PyObject *PyVTKClass_%sNew(char *)\n"
             "{\n"
             "  vtkPythonAddSpecialTypeToHash(\n"
-            "    (char *)\"%s\", Py%sMethods, (char**)%sDoc,\n"
-            "    &vtkSpecial_%sCopy, &vtkSpecial_%sDelete, &vtkSpecial_%sPrint);\n"
+            "    (char *)\"%s\", (char**)%sDoc, Py%sMethods,\n"
+            "    Py%s_%sMethods, &vtkSpecial_%sCopy,\n"
+            "    &vtkSpecial_%sDelete, &vtkSpecial_%sPrint);\n"
             "  return PyCFunction_New(&Py%sNewMethod,Py_None);\n"
             "}\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName,
             data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName, data->ClassName);
+            data->ClassName, data->ClassName, data->ClassName,
+            data->ClassName);
     }
 
   /* the New method for un-wrappable classes returns "NULL" */

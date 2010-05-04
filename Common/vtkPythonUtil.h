@@ -67,7 +67,27 @@ typedef struct {
 typedef void *(*PyVTKSpecialCopyFunc)(void *);
 typedef void (*PyVTKSpecialDeleteFunc)(void *);
 typedef void (*PyVTKSpecialPrintFunc)(ostream& os, void *);
-class PyVTKSpecialTypeInfo;
+
+VTK_PYTHON_EXPORT class PyVTKSpecialTypeInfo
+{
+public:
+  PyVTKSpecialTypeInfo() :
+    classname(0), docstring(0), methods(0), constructors(0),
+    copy_func(0), delete_func(0), print_func(0) {};
+
+  PyVTKSpecialTypeInfo(
+    char *cname, char *cdocs[], PyMethodDef *cmethods, PyMethodDef *ccons,
+    PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
+    PyVTKSpecialPrintFunc printfunc);
+
+  PyObject *classname;
+  PyObject *docstring;
+  PyMethodDef *methods;
+  PyMethodDef *constructors;
+  PyVTKSpecialCopyFunc copy_func;
+  PyVTKSpecialDeleteFunc delete_func;
+  PyVTKSpecialPrintFunc print_func;
+};
 
 typedef struct {
   PyObject_HEAD
@@ -80,7 +100,7 @@ extern "C"
 {
 VTK_PYTHON_EXPORT int PyVTKObject_Check(PyObject *obj);
 VTK_PYTHON_EXPORT int PyVTKClass_Check(PyObject *obj);
-VTK_PYTHON_EXPORT int PyVTKSpecialObjectCheck(PyObject *obj);
+VTK_PYTHON_EXPORT int PyVTKSpecialObject_Check(PyObject *obj);
 VTK_PYTHON_EXPORT
 PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObjectBase *ptr);
 VTK_PYTHON_EXPORT
@@ -92,12 +112,16 @@ PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy);
 
 // for deciding what method signature to use for overloaded methods
 VTK_PYTHON_EXPORT
-PyObject *PyVTKCallOverloadedMethod(const char *classname,
-                                    PyMethodDef *methods,
+PyObject *PyVTKCallOverloadedMethod(PyMethodDef *methods,
                                     PyObject *self, PyObject *args);
+
+// Find a method that takes the arg
+VTK_PYTHON_EXPORT
+PyMethodDef *PyVTKFindConversionMethod(PyMethodDef *methods, PyObject *arg);
 
 // this is a special version of ParseTuple that handles both bound
 // and unbound method calls for VTK objects
+
 VTK_PYTHON_EXPORT
 vtkObjectBase *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
                                    char *format, ...);
@@ -131,9 +155,9 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
 // create object given only the class name.
 extern VTK_PYTHON_EXPORT
 void vtkPythonAddSpecialTypeToHash(
-  char *classname, PyMethodDef *methods, char *docstring[],
-  PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
-  PyVTKSpecialPrintFunc printfunc);
+  char *classname, char *docstring[], PyMethodDef *methods, 
+  PyMethodDef *constructors, PyVTKSpecialCopyFunc copyfunc,
+  PyVTKSpecialDeleteFunc deletefunc, PyVTKSpecialPrintFunc printfunc);
 
 // Return the pointer to a non-VTK object
 extern VTK_PYTHON_EXPORT

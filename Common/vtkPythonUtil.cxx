@@ -68,38 +68,6 @@
 //#define VTKPYTHONDEBUG
 
 //--------------------------------------------------------------------
-// special struct for the SpecialType hash
-
-static PyObject *vtkBuildDocString(char *docstring[]);
-
-class PyVTKSpecialTypeInfo
-{
-public:
-  PyVTKSpecialTypeInfo() :
-    classname(0), docstring(0), methods(0),
-    copy_func(0), delete_func(0), print_func(0) {};
-
-  PyVTKSpecialTypeInfo(
-    char *cname, char *cdocstring[], PyMethodDef *cmethods,
-    PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
-    PyVTKSpecialPrintFunc printfunc) {
-
-    this->classname = PyString_FromString(cname);
-    this->docstring = vtkBuildDocString(cdocstring);
-    this->methods = cmethods;
-    this->copy_func = copyfunc;
-    this->delete_func = deletefunc;
-    this->print_func = printfunc; };
-
-  PyObject *classname;
-  PyObject *docstring;
-  PyMethodDef *methods;
-  PyVTKSpecialCopyFunc copy_func;
-  PyVTKSpecialDeleteFunc delete_func;
-  PyVTKSpecialPrintFunc print_func;
-};
-
-//--------------------------------------------------------------------
 // There are two hash tables associated with the Python wrappers
 
 class vtkPythonUtil
@@ -1285,10 +1253,92 @@ enum PyVTKArgPenalties
 };
 
 //--------------------------------------------------------------------
+// A helper struct for PyVTKCallOverloadedMethod
+class PyVTKOverloadHelper
+{
+public:
+  PyVTKOverloadHelper() : m_format(0), m_classname(0), m_penalty(0) {};
+  void initialize(bool selfIsClass, const char *format);
+  bool next(const char **format, const char **classname);
+  int penalty() { return m_penalty; };
+  int penalty(int penalty) {
+    if (penalty > m_penalty) { m_penalty = penalty; };
+    return m_penalty; };
+
+private:
+  const char *m_format;
+  const char *m_classname;
+  int m_penalty;
+  PyCFunction m_meth;
+};
+
+// Construct the object with a penalty of VTK_PYTHON_EXACT_MATCH
+void PyVTKOverloadHelper::initialize(bool selfIsClass, const char *format)
+{
+  // remove the first arg check if "self" is not a PyVTKClass
+  if (format[0] == '@' && !selfIsClass)
+    {
+    format++;
+    }
+
+  m_format = format;
+  m_classname = format;
+  while (*m_classname != '\0' && *m_classname != ' ')
+    {
+    m_classname++;
+    }
+  if (*m_classname == ' ')
+    {
+    m_classname++;
+    }
+
+  this->m_penalty = VTK_PYTHON_EXACT_MATCH;
+}
+
+// Get the next format char and, if char is 'O', the classname.
+// The classname is terminated with space, not with null
+bool PyVTKOverloadHelper::next(const char **format, const char **classname)
+{
+  if (*m_format == '\0' || *m_format == ' ')
+    {
+    return false;
+    }
+
+  *format = m_format;
+
+  if (*m_format == 'O')
+    {
+    *classname = m_classname;
+
+    while (*m_classname != '\0' && *m_classname != ' ')
+      {
+      m_classname++;
+      }
+    if (*m_classname == ' ')
+      {
+      m_classname++;
+      }
+    }
+
+  m_format++;
+  if (!isalpha(*m_format) && *m_format != '(' && *m_format != ')' &&
+      *m_format != '\0' && *m_format != ' ')
+    {
+    m_format++;
+    }
+
+  return true;
+}
+
+//--------------------------------------------------------------------
 // This must check the same format chars that are used by
 // vtkWrapPython_FormatString() in vtkWrapPython.c
+//
+// The "level" parameter limits possible recursion of this method,
+// it is incremented every time recursion occurs.
 
-int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
+int PyVTKCheckArg(
+  PyObject *arg, const char *format, const char *classname, int level=0)
 {
   int penalty = VTK_PYTHON_EXACT_MATCH;
 
@@ -1301,11 +1351,18 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
     case 'i':
       if (!PyInt_Check(arg))
         {
-        penalty = VTK_PYTHON_NEEDS_CONVERSION;
-        long tmpi = PyInt_AsLong(arg);
-        if (tmpi == -1 || PyErr_Occurred())
+        if (level == 0)
           {
-          PyErr_Clear();
+          penalty = VTK_PYTHON_NEEDS_CONVERSION;
+          long tmpi = PyInt_AsLong(arg);
+          if (tmpi == -1 || PyErr_Occurred())
+            {
+            PyErr_Clear();
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
+          }
+        else
+          {
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
@@ -1318,11 +1375,18 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
         penalty = VTK_PYTHON_GOOD_MATCH;
         if (!PyInt_Check(arg))
           {
-          penalty = VTK_PYTHON_NEEDS_CONVERSION;
-          PyLong_AsLongLong(arg);
-          if (PyErr_Occurred())
+          if (level == 0)
             {
-            PyErr_Clear();
+            penalty = VTK_PYTHON_NEEDS_CONVERSION;
+            PyLong_AsLongLong(arg);
+            if (PyErr_Occurred())
+              {
+              PyErr_Clear();
+              penalty = VTK_PYTHON_INCOMPATIBLE;
+              }
+            }
+          else
+            {
             penalty = VTK_PYTHON_INCOMPATIBLE;
             }
           }
@@ -1336,10 +1400,17 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
       if (!PyFloat_Check(arg))
         {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
-        PyFloat_AsDouble(arg);
-        if (PyErr_Occurred())
+        if (level == 0)
           {
-          PyErr_Clear();
+          PyFloat_AsDouble(arg);
+          if (PyErr_Occurred())
+            {
+            PyErr_Clear();
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
+          }
+        else
+          {
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
@@ -1391,8 +1462,10 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
         name[i] = cp[i];
         }
       name[i] = '\0';
+      classname = name;
 
-      if (name[0] == 'f' && strcmp(name, "func") == 0)
+      // callback functions
+      if (name[0] == 'f' && strcmp(classname, "func") == 0)
         {
         if (!PyCallable_Check(arg))
           {
@@ -1403,61 +1476,100 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
             }
           }
         }
-      else if (arg == Py_None)
+
+      // Assume any pointers are vtkObjectBase-derived types
+      else if (classname[0] == '*' && strncmp(&classname[1], "vtk", 3) == 0)
         {
-        penalty = VTK_PYTHON_GOOD_MATCH;
-        vtkstd::map<vtkstd::string, PyObject*>::iterator iter =
-          vtkPythonHash->ClassHash->find(name);
-        if(iter == vtkPythonHash->ClassHash->end())
+        classname++;
+
+        if (arg == Py_None)
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        else if (arg->ob_type == &PyVTKObjectType)
+          {
+          PyVTKObject *vobj = (PyVTKObject *)arg;
+          if (strncmp(vobj->vtk_ptr->GetClassName(), classname, 127) != 0)
+            {
+            // Trace back through superclasses to look for a match
+            PyVTKClass *cls = vobj->vtk_class;
+            if (PyTuple_Size(cls->vtk_bases) == 0)
+              {
+              penalty = VTK_PYTHON_INCOMPATIBLE;
+              }
+            else
+              {
+              penalty = VTK_PYTHON_GOOD_MATCH;
+              cls = (PyVTKClass *)PyTuple_GetItem(cls->vtk_bases,0);
+              while (strncmp(PyString_AsString(cls->vtk_name),
+                     classname, 127) != 0)
+                {
+                if (PyTuple_Size(cls->vtk_bases) > 0)
+                  {
+                  cls = (PyVTKClass *)PyTuple_GetItem(cls->vtk_bases,0);
+                  }
+                else
+                  {
+                  penalty = VTK_PYTHON_INCOMPATIBLE;
+                  break;
+                  }
+                if (penalty+1 < VTK_PYTHON_NEEDS_CONVERSION)
+                  {
+                  penalty++;
+                  }
+                }
+              }
+            }
+          }
+        else
           {
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
-      else if (arg->ob_type == &PyVTKObjectType)
+
+      // Any other object starting with "vtk" is a special object
+      else if ((classname[0] == '&' && strncmp(&classname[1], "vtk", 3) == 0)
+               || strncmp(classname, "vtk", 3) == 0)
         {
-        PyVTKObject *vobj = (PyVTKObject *)arg;
-        if (strncmp(vobj->vtk_ptr->GetClassName(), name, 128) != 0)
+        // Skip over the "&" that indicates a reference
+        if (classname[0] == '&')
           {
-          // Trace back through superclasses to look for a match
-          PyVTKClass *cls = vobj->vtk_class;
-          if (PyTuple_Size(cls->vtk_bases) == 0)
+          classname++;
+          }
+
+        // Check for an exact match
+        if (arg->ob_type != &PyVTKSpecialObjectType ||
+            strncmp(PyString_AsString(
+                      ((PyVTKSpecialObject *)arg)->vtk_info->classname),
+                    classname, 127) != 0)
+          {
+          // If it didn't match, then maybe conversion is possible
+          penalty = VTK_PYTHON_NEEDS_CONVERSION;
+
+          // Look up the required type in the hash
+          vtkstd::map<vtkstd::string, PyVTKSpecialTypeInfo>::iterator i;
+
+          if (level != 0 ||
+              (i = vtkPythonHash->SpecialTypeHash->find(classname)) ==
+              vtkPythonHash->SpecialTypeHash->end())
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
             }
           else
             {
-            penalty = VTK_PYTHON_GOOD_MATCH;
-            cls = (PyVTKClass *)PyTuple_GetItem(cls->vtk_bases,0);
-            while (strncmp(PyString_AsString(cls->vtk_name), name, 128) != 0)
+            // Get info about the required type
+            PyVTKSpecialTypeInfo *info = &i->second;
+
+            // Try out all the constructor methods
+            if (!PyVTKFindConversionMethod(info->constructors, arg))
               {
-              if (PyTuple_Size(cls->vtk_bases) > 0)
-                {
-                cls = (PyVTKClass *)PyTuple_GetItem(cls->vtk_bases,0);
-                }
-              else
-                {
-                penalty = VTK_PYTHON_INCOMPATIBLE;
-                break;
-                }
-              if (penalty+1 < VTK_PYTHON_NEEDS_CONVERSION)
-                {
-                penalty++;
-                }
+              penalty = VTK_PYTHON_INCOMPATIBLE;
               }
             }
           }
         }
-      else if (arg->ob_type == &PyVTKSpecialObjectType)
-        {
-        PyVTKSpecialObject *sobj = (PyVTKSpecialObject *)arg;
-        if (strncmp(PyString_AsString(sobj->vtk_info->classname), name, 128)
-            != 0)
-          {
-          penalty = VTK_PYTHON_INCOMPATIBLE;
-          // add "isa" check if polymorphism is added for special types,
-          // check constructors to see if conversion is possible
-          }
-        }
+
+      // An object of unrecognized type
       else
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -1475,86 +1587,12 @@ int PyVTKCheckArg(PyObject *arg, const char *format, const char *classname)
 }
 
 //--------------------------------------------------------------------
-// A helper struct for PyVTKCallOverloadedMethod
-class PyVTKOverloadHelper
-{
-public:
-  PyVTKOverloadHelper() : m_format(0), m_classname(0), m_priority(0) {};
-  void initialize(bool selfIsClass, const char *format);
-  bool next(const char **format, const char **classname);
-  int priority() { return m_priority; };
-  int priority(int priority) {
-    if (priority > m_priority) { m_priority = priority; };
-    return m_priority; };
+// Call the overloaded method that is the best match for the arguments.
+// The first arg is name of the class that the methods belong to, it
+// is there for potential diagnostic usage but is currently unused.
 
-private:
-  const char *m_format;
-  const char *m_classname;
-  int m_priority;
-  PyCFunction m_meth;
-};
-
-// Construct the object with a priority of VTK_PYTHON_EXACT_MATCH
-void PyVTKOverloadHelper::initialize(bool selfIsClass, const char *format)
-{
-  // remove the first arg check if "self" is not a PyVTKClass
-  if (format[0] == '@' && !selfIsClass)
-    {
-    format++;
-    }
-
-  m_format = format;
-  m_classname = format;
-  while (*m_classname != '\0' && *m_classname != ' ')
-    {
-    m_classname++;
-    }
-  if (*m_classname == ' ')
-    {
-    m_classname++;
-    }
-
-  this->m_priority = VTK_PYTHON_EXACT_MATCH;
-}
-
-// Get the next format char and, if char is 'O', the classname.
-// The classname is terminated with space, not with null
-bool PyVTKOverloadHelper::next(const char **format, const char **classname)
-{
-  if (*m_format == '\0' || *m_format == ' ')
-    {
-    return false;
-    }
-
-  *format = m_format;
-
-  if (*m_format == 'O')
-    {
-    *classname = m_classname;
-
-    while (*m_classname != '\0' && *m_classname != ' ')
-      {
-      m_classname++;
-      }
-    if (*m_classname == ' ')
-      {
-      m_classname++;
-      }
-    }
-
-  m_format++;
-  if (!isalpha(*m_format) && *m_format != '(' && *m_format != ')' &&
-      *m_format != '\0' && *m_format != ' ')
-    {
-    m_format++;
-    }
-
-  return true;
-}
-
-//--------------------------------------------------------------------
-PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
-                                    PyObject *self, PyObject *args)
+PyObject *PyVTKCallOverloadedMethod(
+  PyMethodDef *methods, PyObject *self, PyObject *args)
 {
   PyMethodDef *meth = &methods[0];
 
@@ -1618,18 +1656,18 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
         {
         helper = &helperArray[sig];
 
-        if (helper->priority() != VTK_PYTHON_INCOMPATIBLE &&
+        if (helper->penalty() != VTK_PYTHON_INCOMPATIBLE &&
             helper->next(&format, &classname))
           {
           if (*format != '(')
             {
-            helper->priority(PyVTKCheckArg(arg, format, classname));
+            helper->penalty(PyVTKCheckArg(arg, format, classname));
             }
           else
             {
             if (!PySequence_Check(arg))
               {
-              helper->priority(VTK_PYTHON_INCOMPATIBLE);
+              helper->penalty(VTK_PYTHON_INCOMPATIBLE);
               }
             else
               {
@@ -1644,7 +1682,7 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
                 {
                 if (!helper->next(&format, &classname))
                   {
-                  helper->priority(VTK_PYTHON_INCOMPATIBLE);
+                  helper->penalty(VTK_PYTHON_INCOMPATIBLE);
                   break;
                   }
                 if (*format == ')')
@@ -1655,7 +1693,7 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
                 if (j < m)
                   {
                   PyObject *sarg = PySequence_GetItem(arg, j);
-                  helper->priority(PyVTKCheckArg(sarg, format, classname));
+                  helper->penalty(PyVTKCheckArg(sarg, format, classname));
                   }
                 }
               }
@@ -1663,24 +1701,24 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
           }
         else
           {
-          helper->priority(VTK_PYTHON_INCOMPATIBLE);
+          helper->penalty(VTK_PYTHON_INCOMPATIBLE);
           }
         }
       }
 
     // Loop through methods and identify the best match
-    int minPriority = VTK_INT_MAX;
+    int minPenalty = VTK_INT_MAX;
     meth = 0;
     for (sig = 0; sig < nsig; sig++)
       {
       // the "helper->next" check is to ensure that there are no leftover args
       helper = &helperArray[sig];
-      int priority = helper->priority();
-      if (priority != VTK_PYTHON_INCOMPATIBLE &&
-          priority < minPriority &&
+      int penalty = helper->penalty();
+      if (penalty != VTK_PYTHON_INCOMPATIBLE &&
+          penalty < minPenalty &&
           !helper->next(&format, &classname))
         {
-        minPriority = priority;
+        minPenalty = penalty;
         meth = &methods[sig];
         }
       }
@@ -1701,6 +1739,40 @@ PyObject *PyVTKCallOverloadedMethod(const char *name, PyMethodDef *methods,
     "arguments do not match any overloaded methods");
 
   return NULL;
+}
+
+//--------------------------------------------------------------------
+// Look through the a batch of constructor methods to see if any of
+// them take the provided argument.
+
+PyMethodDef *PyVTKFindConversionMethod(
+  PyMethodDef *methods, PyObject *arg)
+{
+  PyVTKOverloadHelper helper;
+  const char *format, *classname, *dummy1, *dummy2;
+  int minPenalty = VTK_PYTHON_NEEDS_CONVERSION;
+  PyMethodDef *method = 0;
+
+  for (PyMethodDef *meth = methods; meth->ml_meth != NULL; meth++)
+    {
+    // If meth only takes one arg
+    helper.initialize(0, meth->ml_doc);
+    if (helper.next(&format, &classname) &&
+        !helper.next(&dummy1, &dummy2))
+      {
+      // If the constructor accepts the arg without
+      // additional conversion, then we found a match
+      int penalty = PyVTKCheckArg(arg, format, classname, 1);
+
+      if (penalty < minPenalty)
+        {
+        minPenalty = penalty;
+        method = meth;
+        }
+      }
+    }
+
+  return method;
 }
 
 //--------------------------------------------------------------------
@@ -1743,15 +1815,30 @@ vtkObjectBase *PyArg_VTKParseTuple(PyObject *pself, PyObject *args,
       {
       obj = self->vtk_ptr;
       }
-    }   
+    }
   return obj;
 }
 
 //--------------------------------------------------------------------
+PyVTKSpecialTypeInfo::PyVTKSpecialTypeInfo(
+    char *cname, char *cdocs[], PyMethodDef *cmethods, PyMethodDef *ccons,
+    PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
+    PyVTKSpecialPrintFunc printfunc)
+{
+  this->classname = PyString_FromString(cname);
+  this->docstring = vtkBuildDocString(cdocs);
+  this->methods = cmethods;
+  this->constructors = ccons;
+  this->copy_func = copyfunc;
+  this->delete_func = deletefunc;
+  this->print_func = printfunc;
+}
+
+//--------------------------------------------------------------------
 void vtkPythonAddSpecialTypeToHash(
-  char *classname, PyMethodDef *methods, char *docstring[],
-  PyVTKSpecialCopyFunc copy_func, PyVTKSpecialDeleteFunc delete_func,
-  PyVTKSpecialPrintFunc print_func)
+  char *classname, char *docstring[], PyMethodDef *methods,
+  PyMethodDef *constructors, PyVTKSpecialCopyFunc copy_func,
+  PyVTKSpecialDeleteFunc delete_func, PyVTKSpecialPrintFunc print_func)
 {
   if (vtkPythonHash == NULL)
     {
@@ -1775,7 +1862,7 @@ void vtkPythonAddSpecialTypeToHash(
     }
 
   (*vtkPythonHash->SpecialTypeHash)[classname] =
-    PyVTKSpecialTypeInfo(classname, docstring, methods,
+    PyVTKSpecialTypeInfo(classname, docstring, methods, constructors,
                          copy_func, delete_func, print_func);
 
 #ifdef VTKPYTHONDEBUG
@@ -2088,6 +2175,9 @@ PyObject *vtkPythonGetSpecialObjectFromPointer(void *ptr,
 void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
                                            const char *result_type)
 {
+  // The type name, for diagnostics
+  const char *object_type = obj->ob_type->tp_name;
+
   // convert Py_None to NULL every time
   if (obj == Py_None)
     {
@@ -2095,28 +2185,73 @@ void *vtkPythonGetPointerFromSpecialObject(PyObject *obj,
     }
 
   // check to ensure it is a vtk special object
-  if (obj->ob_type != &PyVTKSpecialObjectType)
+  if (obj->ob_type == &PyVTKSpecialObjectType)
     {
-    return NULL;
+    // check to make sure that it is the right type
+    object_type =
+      PyString_AsString(((PyVTKSpecialObject *)obj)->vtk_info->classname);
+
+    if (strcmp(object_type, result_type) == 0)
+      {
+      return ((PyVTKSpecialObject *)obj)->vtk_ptr;
+      }
+    }
+  else if (obj->ob_type == &PyVTKObjectType)
+    {
+    object_type = 
+      PyString_AsString(((PyVTKObject *)obj)->vtk_class->vtk_name);
     }
 
-  // check to make sure that it is the right type
-  const char *object_type =
-    PyString_AsString(((PyVTKSpecialObject *)obj)->vtk_info->classname);
-
-  if (strcmp(object_type, result_type) != 0)
+  // try to construct the special object from the supplied object
+  vtkstd::map<vtkstd::string, PyVTKSpecialTypeInfo>::iterator it =
+    vtkPythonHash->SpecialTypeHash->find(result_type);
+  if(it != vtkPythonHash->SpecialTypeHash->end())
     {
-    char error_string[256];
+    PyVTKSpecialTypeInfo *info = &it->second;
+    PyMethodDef *meth = PyVTKFindConversionMethod(info->constructors, obj);
+    PyObject *sobj = 0;
+
+    // If a constructor signature exists for "obj", call it
+    if (meth && meth->ml_meth)
+      {
+      PyObject *args = PyTuple_New(1);
+      PyTuple_SET_ITEM(args, 0, obj);
+      Py_INCREF(obj);
+
+      sobj = meth->ml_meth(0, args);
+
+      Py_DECREF(args);
+      }
+
+    if (sobj && sobj->ob_type == &PyVTKSpecialObjectType)
+      {
+      // Yes, we copy the object that was just constructed
+      void *result = info->copy_func(((PyVTKSpecialObject *)sobj)->vtk_ptr);
+      Py_DECREF(sobj);
+
+      return result;
+      }
+ 
+    // If a TypeError occurred, clear it and set our own error
+    PyObject *ex = PyErr_Occurred();
+    if (ex == NULL || !PyErr_GivenExceptionMatches(ex, PyExc_TypeError))
+      {
+      return NULL;
+      }
+
+    PyErr_Clear();
+    }
+
 #ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
+  vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
-    sprintf(error_string,"method requires a %s, a %s was provided.",
-            result_type, object_type);
-    PyErr_SetString(PyExc_ValueError,error_string);
-    return NULL;
-    }
 
-  return ((PyVTKSpecialObject *)obj)->vtk_ptr;
+  char error_string[256];
+  sprintf(error_string,"method requires a %s, a %s was provided.",
+          result_type, object_type);
+  PyErr_SetString(PyExc_TypeError, error_string);
+
+  return NULL;
 }
 
 //--------------------------------------------------------------------
