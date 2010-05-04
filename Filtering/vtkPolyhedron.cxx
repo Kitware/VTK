@@ -355,9 +355,6 @@ vtkPolyhedron::vtkPolyhedron()
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
   this->Cell = vtkGenericCell::New();
-  
-  this->TriangulationPerformed = 0;
-  this->Tets = vtkIdList::New();
 }
 
 //----------------------------------------------------------------------------
@@ -380,7 +377,6 @@ vtkPolyhedron::~vtkPolyhedron()
   this->CellLocator->Delete();
   this->CellIds->Delete();
   this->Cell->Delete();
-  this->Tets->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -453,9 +449,12 @@ void vtkPolyhedron::ComputeParametricCoordinate(double x[3], double pc[3])
 {
   this->ComputeBounds();
   double *bounds = this->Bounds;
-  pc[0] = (x[0] - bounds[0]) / (bounds[1] - bounds[0]);
-  pc[1] = (x[1] - bounds[2]) / (bounds[3] - bounds[2]);
-  pc[2] = (x[2] - bounds[4]) / (bounds[5] - bounds[4]);
+  const double eps = ( bounds[1] - bounds[0] + bounds[3] - bounds[2] 
+                     + bounds[5] - bounds[4] ) / 3.0 / 1000;
+
+  pc[0] = (x[0] - bounds[0]) / (bounds[1] - bounds[0] + eps);
+  pc[1] = (x[1] - bounds[2]) / (bounds[3] - bounds[2] + eps);
+  pc[2] = (x[2] - bounds[4]) / (bounds[5] - bounds[4] + eps);
 }
 
 //----------------------------------------------------------------------------
@@ -503,10 +502,6 @@ void vtkPolyhedron::Initialize()
   // No supplemental geometric stuff created
   this->PolyDataConstructed = 0;
   this->LocatorConstructed = 0;
-  
-  // No tets generated.
-  this->TriangulationPerformed = 0; 
-  this->Tets->Reset();
 }
 
 //----------------------------------------------------------------------------
@@ -1080,13 +1075,6 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   ptIds->Reset();
   pts->Reset();
   
-  if (this->TriangulationPerformed)
-    {
-    pts->DeepCopy(this->GetPoints());
-    ptIds->DeepCopy(this->Tets);
-    return 1;
-    }
-  
   if (!this->GetPoints() || !this->GetNumberOfPoints())
     {
     return 0;
@@ -1105,23 +1093,19 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
     {
     this->GetPoints()->GetPoint(i, point);
-    this->ComputeParametricCoordinate(point, pcoord);
-    triangulator->InsertPoint(i, point, pcoord, 0);
+    triangulator->InsertPoint(i, point, point, 0);
     }
   triangulator->Triangulate();
   
   triangulator->AddTetras(0, ptIds, pts);
   
-  // convert to global 
+  // convert to global Ids
   vtkIdType* ids = ptIds->GetPointer(0);
   for (vtkIdType i = 0; i < ptIds->GetNumberOfIds(); i++)
     {
     ids[i] = this->PointIds->GetId(ids[i]);
     }
     
-  this->Tets->DeepCopy(ptIds);  
-  this->TriangulationPerformed = 1;
-
   return 1;
 }
 
