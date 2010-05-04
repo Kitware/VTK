@@ -1595,6 +1595,7 @@ PyObject *PyVTKCallOverloadedMethod(
   PyMethodDef *methods, PyObject *self, PyObject *args)
 {
   PyMethodDef *meth = &methods[0];
+  int matchCount = 1;
 
   // Make sure there is more than one method
   if (methods[1].ml_meth != 0)
@@ -1707,19 +1708,24 @@ PyObject *PyVTKCallOverloadedMethod(
       }
 
     // Loop through methods and identify the best match
-    int minPenalty = VTK_INT_MAX;
+    int minPenalty = VTK_PYTHON_INCOMPATIBLE;
     meth = 0;
+    matchCount = 0;
     for (sig = 0; sig < nsig; sig++)
       {
       // the "helper->next" check is to ensure that there are no leftover args
       helper = &helperArray[sig];
       int penalty = helper->penalty();
-      if (penalty != VTK_PYTHON_INCOMPATIBLE &&
-          penalty < minPenalty &&
+      if (penalty <= minPenalty && penalty < VTK_PYTHON_INCOMPATIBLE &&
           !helper->next(&format, &classname))
         {
-        minPenalty = penalty;
-        meth = &methods[sig];
+        if (penalty < minPenalty)
+          {
+          matchCount = 0;
+          minPenalty = penalty;
+          meth = &methods[sig];
+          }
+        matchCount++;
         }
       }
 
@@ -1728,6 +1734,14 @@ PyObject *PyVTKCallOverloadedMethod(
       {
       delete [] helperArray;
       }
+    }
+
+  if (meth && matchCount > 1)
+    {
+    PyErr_SetString(PyExc_TypeError,
+      "ambiguous call, multiple overloaded methods match the arguments");
+
+    return NULL;
     }
 
   if (meth)
@@ -1752,6 +1766,7 @@ PyMethodDef *PyVTKFindConversionMethod(
   const char *format, *classname, *dummy1, *dummy2;
   int minPenalty = VTK_PYTHON_NEEDS_CONVERSION;
   PyMethodDef *method = 0;
+  int matchCount = 0;
 
   for (PyMethodDef *meth = methods; meth->ml_meth != NULL; meth++)
     {
@@ -1766,11 +1781,18 @@ PyMethodDef *PyVTKFindConversionMethod(
 
       if (penalty < minPenalty)
         {
+        matchCount = 1;
         minPenalty = penalty;
         method = meth;
         }
+      else if (meth && penalty == minPenalty)
+        {
+        matchCount++;
+        }
       }
     }
+
+  // if matchCount > 1, there was ambiguity
 
   return method;
 }
