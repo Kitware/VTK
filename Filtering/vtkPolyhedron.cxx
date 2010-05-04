@@ -19,7 +19,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkTetra.h"
@@ -37,6 +36,8 @@
 #include "vtkMergePoints.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDelaunay3D.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <vtkstd/set>
 #include <vtkstd/list>
@@ -1077,12 +1078,12 @@ void vtkPolyhedron::InterpolateDerivs(double x[3], double *derivs)
 int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                vtkPoints *pts)
 {
+  // reset
   ptIds->Reset();
   pts->Reset();
   
   if (this->TriangulationPerformed)
     {
-    pts->DeepCopy(this->GetPoints());
     ptIds->DeepCopy(this->Tets);
     return 1;
     }
@@ -1092,33 +1093,29 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     return 0;
     }
   
-  this->ComputeBounds();
+  // triangulate using 3D delaunay
+  vtkSmartPointer<vtkDelaunay3D> filter = 
+    vtkSmartPointer<vtkDelaunay3D>::New();
+  filter->SetInput(this->GetPolyData());
+  filter->Update();
   
-  // use ordered triangulator to triangulate the polyhedron.
-  vtkSmartPointer<vtkOrderedTriangulator> triangulator = 
-    vtkSmartPointer<vtkOrderedTriangulator>::New();
-  
-  triangulator->InitTriangulation(this->Bounds, this->GetNumberOfPoints());
-  triangulator->PreSortedOff();
-  
-  double point[3], pcoord[3]; 
-  for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
+  vtkUnstructuredGrid * grid = filter->GetOutput();
+  vtkCellArray* tets = grid->GetCells();
+
+  // update ptIds and pts
+  vtkIdType nCellPts = 0;
+  vtkIdType *cellPtIds = 0;
+  tets->InitTraversal();
+  while (tets->GetNextCell(nCellPts, cellPtIds))
     {
-    this->GetPoints()->GetPoint(i, point);
-    this->ComputeParametricCoordinate(point, pcoord);
-    triangulator->InsertPoint(i, point, pcoord, 0);
+    for (vtkIdType i = 0; i < nCellPts; i++)
+      {
+      ptIds->InsertNextId(this->PointIds->GetId(cellPtIds[i]));
+      pts->InsertNextPoint(this->GetPoints()->GetPoint(cellPtIds[i]));
+      }
     }
-  triangulator->Triangulate();
   
-  triangulator->AddTetras(0, ptIds, pts);
-  
-  // convert to global 
-  vtkIdType* ids = ptIds->GetPointer(0);
-  for (vtkIdType i = 0; i < ptIds->GetNumberOfIds(); i++)
-    {
-    ids[i] = this->PointIds->GetId(ids[i]);
-    }
-    
+  // save the triangulation results
   this->Tets->DeepCopy(ptIds);  
   this->TriangulationPerformed = 1;
 

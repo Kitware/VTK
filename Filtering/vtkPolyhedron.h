@@ -148,19 +148,15 @@ public:
                                 double x[3], double pcoords[3], int& subId);
 
   // Description:
-  // Use vtkOrderedTriangulator to tetrahedralize the polyhedron mesh. This 
-  // method works well for a convex polyhedron but may return wrong result
-  // in a concave case.
-  // Once triangulation has been performed, the results are saved in ptIds and
-  // pts. The ptIds is a vtkIdList with 4xn number of ids (n is the 
-  // number of result tetrahedrons). The first 4 represent the ids of the points
-  // of the first tetrahedron, the second 4 ids represents the ids for the 
-  // second tetrahedron and so on. The ids in ptIds range from 0 to m-1, where m
-  // is the number of points in the original polyhedron. 
-  // While the TetsPoints stores the coordinate of 4xn number of points. One
-  // original point may be stored multiple times if it is shared by multiple
-  // tetrahedrons. The points in TetsPoints are ordered the same as they are 
-  // listed in Tets. 
+  // Use vtkDelaunay3D to tetrahedralize the polyhedron mesh. Result 
+  // tetrahedrons are saved in ptIds as a list of 4xn point ids (n is the number
+  // of tetrahedrons). The first 4 represent the ids of the points of the first 
+  // tetrahedron, the second 4 ids represents the ids for the second tetrahedron
+  // and so on. The point ids are global dataset ids.
+  // The points of result tetrahedons are stored in pts. Note that there are
+  // 4xn points. One point may be stored multiple times when it is shared by 
+  // more than one tetrahedrons. The points stored in pts are ordered the same 
+  // as they are listed in ptIds.
   virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
 
   // Description:
