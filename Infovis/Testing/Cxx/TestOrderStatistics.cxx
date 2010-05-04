@@ -124,6 +124,12 @@ int TestOrderStatistics( int, char *[] )
 
   // Set order statistics algorithm and its input data port
   vtkOrderStatistics* os = vtkOrderStatistics::New();
+
+  // First verify that absence of input does not cause trouble
+  cout << "## Verifying that absence of input does not cause trouble... ";
+  os->Update();
+  cout << "done.\n";
+
   os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
 
