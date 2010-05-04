@@ -101,15 +101,20 @@ int TestKMeansStatistics( int, char *[] )
     paramArray->Delete();
     }
 
-
+  // Set k-means statistics algorithm and its input data port
   vtkKMeansStatistics* haruspex = vtkKMeansStatistics::New();
+
+  // First verify that absence of input does not cause trouble
+  cout << "## Verifying that absence of input does not cause trouble... ";
+  pcas->Update();
+  cout << "done.\n";
+
+  // Prepare first test with data
   haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   haruspex->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );
   haruspex->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
   haruspex->SetColumnStatus( "Testing", 1 );
   haruspex->RequestSelectedColumns();
-
-
   haruspex->SetDefaultNumberOfClusters( 3 );
 
   cout << "## Testing with no input data:"
