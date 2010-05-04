@@ -1,4 +1,4 @@
-/*
+//*
  * Copyright 2008 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
@@ -153,6 +153,7 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->Update();
   cout << "done.\n";
 
+  // Prepare first test with data
   cs1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
