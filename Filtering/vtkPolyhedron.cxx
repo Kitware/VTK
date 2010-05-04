@@ -1317,18 +1317,20 @@ void vtkPolyhedron::InternalContour(double value,
         InsertNewIdToIdVector(fvMapIt->second, pid, p0, p1);
         }
 
-      // maintain point data
-      if (locator->InsertUniquePoint(x, outPid))
+      // Maintain point data. only add to locator when it has never been added
+      // as contour point of previous processed cells.
+      if (locator->InsertUniquePoint(x, outPid) && outPd)
         {
-        if (outPd)
-          {
-          outPd->InterpolateEdge(inPd,outPid,globalP0,globalP1,t);
-          }
-        if (outScalars)
-          {
-          outScalars->InsertTuple1(pid, value);
-          }
+        outPd->InterpolateEdge(inPd,outPid,globalP0,globalP1,t);
         }
+
+      // A point unique to merge may not be unique to locator, since it may have 
+      // been inserted to locator as contour point of previous processed cells.
+      if (outScalars)
+        {
+        outScalars->InsertTuple1(pid, value);
+        }
+
       pointIdMap.insert(IdToIdPairType(pid, outPid));
       }
       
@@ -1671,7 +1673,7 @@ void vtkPolyhedron::Clip(double value,
     visited[i] = false;
     }
   
-  const double eps = 0.000000000001;
+  const double eps = 0.00000001;
   
   // Main algorithm: go through all positive points (points on the right side 
   // of the contour).  These do not include contour points.
