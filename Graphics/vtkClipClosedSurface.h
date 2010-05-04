@@ -99,7 +99,7 @@ public:
   // Description:
   // Set whether to add cell scalars, so that new faces and outlines
   // can be distinguished from original faces and lines.  The options
-  // are "None", "Colors", and "Categories".  For the "Categories" option,
+  // are "None", "Colors", and "Labels".  For the "Labels" option,
   // a scalar value of "0" indicates an original cell, "1" indicates
   // a new cell on a cut face, and "2" indicates a new cell on the
   // ActivePlane as set by the SetActivePlane() method.  The default
@@ -110,7 +110,7 @@ public:
     this->SetScalarMode(VTK_CCS_SCALAR_MODE_NONE); };
   void SetScalarModeToColors() {
     this->SetScalarMode(VTK_CCS_SCALAR_MODE_COLORS); };
-  void SetScalarModeToCategories() {
+  void SetScalarModeToLabels() {
     this->SetScalarMode(VTK_CCS_SCALAR_MODE_CATEGORIES); };
   vtkGetMacro(ScalarMode, int);
   const char *GetScalarModeAsString();

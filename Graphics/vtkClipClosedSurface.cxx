@@ -99,7 +99,7 @@ const char *vtkClipClosedSurface::GetScalarModeAsString()
       return "Colors";
       break;
     case VTK_CCS_SCALAR_MODE_CATEGORIES:
-      return "Categories";
+      return "Labels";
       break;
     }
   return "";
@@ -787,7 +787,7 @@ int vtkClipClosedSurface::RequestData(
     // Don't use UNSIGNED_CHAR or they will look like color scalars
     vtkSignedCharArray *categories = vtkSignedCharArray::New();
     categories->DeepCopy(scalars);
-    categories->SetName("Categories");
+    categories->SetName("Labels");
     output->GetCellData()->SetScalars(categories);
     categories->Delete();
     }
