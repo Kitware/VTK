@@ -60,7 +60,7 @@ class vtkInformationStringVectorKey;
 class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
 
-class vtkInformation : public vtkObject 
+class VTK_COMMON_EXPORT vtkInformation : public vtkObject 
 {
 public:
   VTK_COMMON_EXPORT static vtkInformation *New();
