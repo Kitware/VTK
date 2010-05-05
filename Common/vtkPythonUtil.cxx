@@ -1350,6 +1350,10 @@ int PyVTKCheckArg(
     case 'l':
       penalty = VTK_PYTHON_GOOD_MATCH;
     case 'i':
+      if (PyBool_Check(arg))
+        {
+        penalty = VTK_PYTHON_GOOD_MATCH;
+        }
       if (!PyInt_Check(arg))
         {
         if (level == 0)
@@ -1465,8 +1469,25 @@ int PyVTKCheckArg(
       name[i] = '\0';
       classname = name;
 
+      // booleans
+      if (name[0] == 'b' && strcmp(classname, "bool") == 0)
+        {
+#if PY_VERSION_HEX >= 0x02030000
+        if (!PyBool_Check(arg))
+#endif
+          {
+          penalty = VTK_PYTHON_NEEDS_CONVERSION;
+          int tmpi = PyObject_IsTrue(arg);
+          if (tmpi == -1 || PyErr_Occurred())
+            {
+            PyErr_Clear();
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
+          }
+        }
+
       // callback functions
-      if (name[0] == 'f' && strcmp(classname, "func") == 0)
+      else if (name[0] == 'f' && strcmp(classname, "func") == 0)
         {
         if (!PyCallable_Check(arg))
           {

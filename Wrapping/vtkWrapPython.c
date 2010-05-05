@@ -303,6 +303,14 @@ static void vtkWrapPython_MakeTempVariable(
             "  PyObject *tempH%d = 0;\n",
             i);
     }
+
+  /* ditto for bool */
+  if ((i != MAX_ARGS) && (aType == VTK_PARSE_BOOL))
+    {
+    fprintf(fp,
+            "  PyObject *tempB%d = 0;\n",
+            i);
+    }
 }
 
 
@@ -728,8 +736,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
         result[currPos++] = 'b';
         break;
       case VTK_PARSE_BOOL:
-        /* assume that sizeof(bool) == 1 */
-        result[currPos++] = 'b';
+        result[currPos++] = 'O';
         break;
       }
     }
@@ -771,6 +778,12 @@ static char *vtkWrapPython_ArgCheckString(
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    if (argtype == VTK_PARSE_BOOL)
+      {
+      strcpy(&result[currPos], " bool");
+      currPos += 5;
+      }
 
     if (argtype == VTK_PARSE_VTK_OBJECT_REF ||
         argtype == VTK_PARSE_VTK_OBJECT_PTR ||
@@ -1401,6 +1414,10 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,", &tempH%d",i);
               }
+            else if (argType == VTK_PARSE_BOOL)
+              {
+              fprintf(fp,", &tempB%d",i);
+              }
             else if (argType == VTK_PARSE_VOID_PTR)
               {
               fprintf(fp,", &temp%d, &size%d",i,i);
@@ -1470,8 +1487,17 @@ static void vtkWrapPython_GenerateMethods(
 
               potential_error = 1;
               }
+            else if (argType == VTK_PARSE_BOOL)
+              {
+              fprintf(fp,
+                      "    temp%d = PyObject_IsTrue(tempB%d);\n"
+                      "    if (PyErr_Occurred())\n"
+                      "      {\n"
+                      "      %s;\n"
+                      "      }\n",
+                      i, i, on_error);
+              }
             }
-
           /* make sure passed method is callable  for VAR functions */
           if (theSignature->NumberOfArguments == 1 &&
               theSignature->ArgTypes[0] == VTK_PARSE_FUNCTION)
