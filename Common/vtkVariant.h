@@ -149,7 +149,6 @@ public:
   // Create a string variant from a const char*.
   vtkVariant(const char* value);
 
-//BTX
   // Description:
   // Create a string variant from a std string.
   vtkVariant(vtkStdString value);
@@ -157,7 +156,6 @@ public:
   // Description:
   // Create a Unicode string variant
   vtkVariant(const vtkUnicodeString& value);
-//ETX
 
   // Description:
   // Create a vtkObjectBase variant.
@@ -259,7 +257,6 @@ public:
   // Get the type of the variant as a string.
   const char* GetTypeAsString() const;
 
-//BTX
   // Description:
   // Convert the variant to a string.
   vtkStdString ToString() const;
@@ -267,7 +264,6 @@ public:
   // Description:
   // convert the variant to a Unicode string.
   vtkUnicodeString ToUnicodeString() const;
-//ETX
 
   // Description:
   // Convert the variant to a numeric type:
