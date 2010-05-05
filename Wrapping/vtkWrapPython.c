@@ -2046,6 +2046,7 @@ static int vtkWrapPython_MethodCheck(
   int args_ok = 1;
   int argType = 0;
   int returnType = 0;
+  char *cp;
 
   /* some functions will not get wrapped no matter what else,
      and some really common functions will appear only in vtkObjectPython */
@@ -2157,9 +2158,13 @@ static int vtkWrapPython_MethodCheck(
   else
     {
     /* check for destructor */
-    if (currentFunction->Signature[0] == '~')
+    cp = currentFunction->Signature;
+    for (i = 0; cp[i] != '\0' && cp[i] != '('; i++)
       {
-      args_ok = 0;
+      if (cp[i] == '~')
+        {
+        args_ok = 0;
+        }
       }
 
     /* check for constructors */
