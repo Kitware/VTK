@@ -2024,7 +2024,7 @@ static int vtkWrapPython_MethodCheck(
   else
     {
     /* check for destructor */
-    if (strcmp(data->ClassName, &currentFunction->Name[1]) == 0)
+    if (currentFunction->Signature[0] == '~')
       {
       args_ok = 0;
       }
