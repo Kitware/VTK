@@ -68,10 +68,6 @@ public:
     R_SignalHandlers = 0;
 #endif
 
-#ifdef CSTACK_DEFNS
-    R_CStackLimit = (uintptr_t)-1; 
-#endif
-
   const char* path = vtksys::SystemTools::GetEnv("R_HOME");
   if (!path)
     {
@@ -81,7 +77,15 @@ public:
     }
     const char* path2 = vtksys::SystemTools::GetEnv("R_HOME");
     char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
-    Rf_initEmbeddedR(sizeof(R_argv)/sizeof(R_argv[0]), R_argv);
+
+    Rf_initialize_R(sizeof(R_argv)/sizeof(R_argv[0]), R_argv);
+
+#ifdef CSTACK_DEFNS
+    R_CStackLimit = (uintptr_t)-1;
+#endif
+
+    R_Interactive = static_cast<Rboolean>(TRUE);
+    setup_Rmainloop();
 
     this->Rinitialized = 1;
     this->refcount++;
