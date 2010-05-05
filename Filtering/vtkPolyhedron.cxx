@@ -450,7 +450,7 @@ void vtkPolyhedron::ComputeParametricCoordinate(double x[3], double pc[3])
   this->ComputeBounds();
   double *bounds = this->Bounds;
   const double eps = ( bounds[1] - bounds[0] + bounds[3] - bounds[2] 
-                     + bounds[5] - bounds[4] ) / 3.0 / 1000;
+                     + bounds[5] - bounds[4] ) / 3.0 / 10000;
 
   pc[0] = (x[0] - bounds[0]) / (bounds[1] - bounds[0] + eps);
   pc[1] = (x[1] - bounds[2]) / (bounds[3] - bounds[2] + eps);

@@ -3367,8 +3367,9 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
           specials->GetCellData()
                   ->CopyAllocate( unstruct->GetCellData(), numCells );
         }
-      specials->InsertNextCell(cellType, numbPnts, pntIndxs, 
-          unstruct->GetCell(i)->GetNumberOfFaces(), unstruct->GetFaces(i)+1);
+      vtkIdType nfaces, *facePtIds;
+      unstruct->GetFaceStream(i, nfaces, facePtIds);
+      specials->InsertNextCell(cellType, nfaces, facePtIds);
       specials->GetCellData()
               ->CopyData( unstruct->GetCellData(), i, numCants );
       numCants ++;

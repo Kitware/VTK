@@ -191,7 +191,20 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
     {
     if (inArray[i] > 0)
       {
-      input->GetCellPoints(i, ptIds);
+      if (input->GetCellType(i) == VTK_POLYHEDRON)
+        {
+        vtkUnstructuredGrid* inUG = vtkUnstructuredGrid::SafeDownCast(input);
+        vtkUnstructuredGrid* outUG = vtkUnstructuredGrid::SafeDownCast(output);
+        if (!inUG || !outUG)
+          {
+          continue;
+          }
+        inUG->GetFaceStream(i, ptIds);
+        }
+      else
+        {
+        input->GetCellPoints(i, ptIds);
+        }
       for (j = 0; j < ptIds->GetNumberOfIds(); j++)
         {
         ptIds->SetId(j, pointMap[ptIds->GetId(j)]);
