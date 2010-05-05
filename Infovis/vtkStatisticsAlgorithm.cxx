@@ -252,12 +252,14 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
     }
   else
     {
+    // No input data and no input model result in an error condition
     if ( ! inModel )
       {
       vtkErrorMacro( "No model available AND no Learn phase requested. Cannot proceed with statistics algorithm." );
       return 1;
       }
 
+    // Since no learn phase was requested, the output model is equal to the input one
     outModel->ShallowCopy( inModel );
     }
 
