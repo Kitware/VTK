@@ -1758,6 +1758,7 @@ PyObject *PyVTKCallOverloadedMethod(
       }
     }
 
+#if 0
   if (meth && matchCount > 1)
     {
     PyErr_SetString(PyExc_TypeError,
@@ -1765,6 +1766,7 @@ PyObject *PyVTKCallOverloadedMethod(
 
     return NULL;
     }
+#endif
 
   if (meth)
     {
