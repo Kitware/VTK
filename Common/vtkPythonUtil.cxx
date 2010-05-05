@@ -1332,6 +1332,52 @@ bool PyVTKOverloadHelper::next(const char **format, const char **classname)
 }
 
 //--------------------------------------------------------------------
+// If tmpi > VTK_INT_MAX, then penalize unless format == 'l'
+
+#ifdef PY_LONG_LONG
+int PyVTKIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
+#else
+int PyVTKIntPenalty(long tmpi, int penalty, char format)
+#endif
+{
+#if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
+  if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)
+    {
+    if (format != 'l')
+      {
+      if (penalty < VTK_PYTHON_GOOD_MATCH)
+        {
+        penalty = VTK_PYTHON_GOOD_MATCH;
+        if (format != 'i')
+          {
+          penalty++;
+          }
+        }
+      else
+        {
+        penalty++;
+        }
+      }
+    }
+  else
+    {
+    if (format != 'i')
+      {
+      if (penalty < VTK_PYTHON_GOOD_MATCH)
+        {
+        penalty = VTK_PYTHON_GOOD_MATCH;
+        }
+      else
+        {
+        penalty++;
+        }
+      }
+    }
+#endif
+  return penalty;
+}
+
+//--------------------------------------------------------------------
 // This must check the same format chars that are used by
 // vtkWrapPython_FormatString() in vtkWrapPython.c
 //
@@ -1348,13 +1394,50 @@ int PyVTKCheckArg(
     case 'b':
     case 'h':
     case 'l':
-      penalty = VTK_PYTHON_GOOD_MATCH;
     case 'i':
       if (PyBool_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
+        if (*format != 'i')
+          {
+          penalty++;
+          }
         }
-      if (!PyInt_Check(arg))
+      else if (PyInt_Check(arg))
+        {
+#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
+        if (*format != 'i')
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+#else
+        penalty = PyVTKIntPenalty(PyInt_AsLong(arg), penalty, *format);
+#endif
+        }
+      else if (PyLong_Check(arg))
+        {
+        penalty = VTK_PYTHON_GOOD_MATCH;
+#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
+        if (*format != 'i')
+          {
+          penalty++;
+          }
+#else
+# ifdef PY_LONG_LONG
+        PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
+# else
+        long tmpi = PyLong_AsLong(arg);
+# endif
+        if (PyErr_Occurred())
+          {
+          PyErr_Clear();
+          tmpi = VTK_LONG_MAX;
+          }
+
+        penalty = PyVTKIntPenalty(tmpi, penalty, *format);
+#endif
+        }
+      else // not PyInt or PyLong
         {
         if (level == 0)
           {
