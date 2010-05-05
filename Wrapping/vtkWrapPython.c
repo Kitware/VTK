@@ -61,6 +61,10 @@ static int vtkWrapPython_MethodCheck(
 static char *vtkWrapPython_FormatString(
   FunctionInfo *currentFunction);
 
+/* weed out methods that will never be called */
+static void vtkWrapPython_RemovePreceededMethods(
+  FunctionInfo *wrappedFunctions[], int numberWrapped, int fnum);
+
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction);
@@ -1138,6 +1142,162 @@ static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
 }
 
 /* -------------------------------------------------------------------- */
+/* Check for type precedence. Some method signatures will just never
+ * be called because of the way python types map to C++ types.  If
+ * we don't remove such methods, they can lead to ambiguities later.
+ *
+ * The precedence rule is the following:
+ * The type closest to the native Python type wins.
+ */
+
+void vtkWrapPython_RemovePreceededMethods(
+  FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum)
+{
+  FunctionInfo *theFunc = wrappedFunctions[fnum];
+  const char *name = theFunc->Name;
+  FunctionInfo *sig1;
+  FunctionInfo *sig2;
+  int vote1 = 0;
+  int vote2 = 0;
+  int occ1, occ2;
+  int baseType1, baseType2;
+  int unsigned1, unsigned2;
+  int indirect1, indirect2;
+  int i, n;
+
+  if (!name)
+    {
+    return;
+    }
+
+  for (occ1 = fnum; occ1 < numberOfWrappedFunctions; occ1++)
+    {
+    sig1 = wrappedFunctions[occ1];
+
+    if (sig1->Name && strcmp(sig1->Name, name) == 0)
+      {
+      for (occ2 = occ1+1; occ2 < numberOfWrappedFunctions; occ2++)
+        {
+        sig2 = wrappedFunctions[occ2];
+        vote1 = 0;
+        vote2 = 0;
+
+        if (sig2->NumberOfArguments == sig1->NumberOfArguments &&
+            sig2->Name && strcmp(sig2->Name, name) == 0)
+          {
+          n = sig1->NumberOfArguments;
+          for (i = 0; i < n; i++)
+            {
+            if (sig1->ArgCounts[i] != sig2->ArgCounts[i])
+              {
+              vote1 = 0;
+              vote2 = 0;
+              break;
+              }
+            else
+              {
+              baseType1 = (sig1->ArgTypes[i] & VTK_PARSE_BASE_TYPE);
+              baseType2 = (sig2->ArgTypes[i] & VTK_PARSE_BASE_TYPE);
+
+              unsigned1 = (baseType1 & VTK_PARSE_UNSIGNED);
+              unsigned2 = (baseType2 & VTK_PARSE_UNSIGNED);
+
+              baseType1 = (baseType1 & ~VTK_PARSE_UNSIGNED);
+              baseType2 = (baseType2 & ~VTK_PARSE_UNSIGNED);
+
+              indirect1 = (sig1->ArgTypes[i] & VTK_PARSE_INDIRECT);
+              indirect2 = (sig2->ArgTypes[i] & VTK_PARSE_INDIRECT);
+
+              /* double preceeds float */
+              if ((indirect1 == indirect2) &&
+                       (baseType1 == VTK_PARSE_DOUBLE) &&
+                       (baseType2 == VTK_PARSE_FLOAT))
+                {
+                if (!vote2) { vote1 = 1; }
+                }
+              else if ((indirect1 == indirect2) &&
+                  (baseType1 == VTK_PARSE_FLOAT) &&
+                  (baseType2 == VTK_PARSE_DOUBLE))
+                {
+                if (!vote1) { vote2 = 1; }
+                }
+              /* unsigned char preceeds signed char */
+              else if ((indirect1 == indirect2) &&
+                       ((baseType1 == VTK_PARSE_CHAR) && unsigned1) &&
+                       (baseType2 == VTK_PARSE_SIGNED_CHAR))
+                {
+                if (!vote2) { vote1 = 1; }
+                }
+              else if ((indirect1 == indirect2) &&
+                       (baseType1 == VTK_PARSE_SIGNED_CHAR) &&
+                       ((baseType2 == VTK_PARSE_CHAR) && unsigned2))
+                {
+                if (!vote1) { vote2 = 1; }
+                }
+              /* signed preceeds unsigned for everthing but char */
+              else if ((indirect1 == indirect2) &&
+                       (baseType1 != VTK_PARSE_CHAR) &&
+                       (baseType2 != VTK_PARSE_CHAR) &&
+                       (baseType1 == baseType2) &&
+                       (unsigned1 != unsigned2))
+                {
+                if (unsigned2 && !vote2)
+                  {
+                  vote1 = 1;
+                  }
+                else if (unsigned1 && !vote1)
+                  {
+                  vote2 = 1;
+                  }
+                }
+              /* integer promotion precedence */
+              else if ((indirect1 == indirect2) &&
+                       ((baseType1 == VTK_PARSE_INT) ||
+                        (baseType1 == VTK_PARSE_ID_TYPE)) &&
+                       ((baseType2 == VTK_PARSE_SHORT) ||
+                        (baseType2 == VTK_PARSE_SIGNED_CHAR) ||
+                        ((baseType2 == VTK_PARSE_CHAR) && unsigned2)))
+                {
+                if (!vote2) { vote1 = 1; }
+                }
+              else if ((indirect1 == indirect2) &&
+                       ((baseType2 == VTK_PARSE_INT) ||
+                        (baseType2 == VTK_PARSE_ID_TYPE)) &&
+                       ((baseType1 == VTK_PARSE_SHORT) ||
+                        (baseType1 == VTK_PARSE_SIGNED_CHAR) ||
+                        ((baseType1 == VTK_PARSE_CHAR) && unsigned1)))
+                {
+                if (!vote1) { vote2 = 1; }
+                }
+              /* mismatch: both methods are allowed to live */
+              else if ((baseType1 != baseType2) ||
+                       (unsigned1 != unsigned2) ||
+                       (indirect1 != indirect2))
+                {
+                vote1 = 0;
+                vote2 = 0;
+                break;
+                }
+              }
+            }
+          }
+
+        if (vote1)
+          {
+          sig2->Name = 0;
+          }
+        else if (vote2)
+          {
+          sig1->Name = 0;
+          break;
+          }
+
+        } // for (occ2 ...
+      } // if (sig1->Name ...
+    } // for (occ1 ...
+}
+
+/* -------------------------------------------------------------------- */
 /* Print out all the python methods that call the C++ class methods.
  * After they're all printed, a Py_MethodDef array that has function
  * pointers and documentation for each method is printed.  In other
@@ -1156,8 +1316,6 @@ static void vtkWrapPython_GenerateMethods(
   FunctionInfo *theFunc;
   int returnType = 0;
   int argType = 0;
-  int voteCurrent = 0;
-  int voteMaster = 0;
   int potential_error = 0;
   int needs_cleanup = 0;
   char on_error[32];
@@ -1194,62 +1352,10 @@ static void vtkWrapPython_GenerateMethods(
 
     /* check for type precedence, don't need a "float" method if a
        "double" method exists */
+    vtkWrapPython_RemovePreceededMethods(
+      wrappedFunctions, numberOfWrappedFunctions, fnum);
 
-    for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
-      {
-      theSignature = wrappedFunctions[occ];
-
-      if (theFunc->Name && theSignature->Name &&
-          strcmp(theFunc->Name, theSignature->Name) == 0)
-        {
-        voteCurrent = 0;
-        voteMaster = 0;
-        if (theFunc->NumberOfArguments == theSignature->NumberOfArguments)
-          {
-          for (i = 0; i < theSignature->NumberOfArguments; i++)
-            {
-            if ((theSignature->ArgCounts[i] == theFunc->ArgCounts[i]) &&
-                (theSignature->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE) ==
-                (theFunc->ArgTypes[i] & ~VTK_PARSE_BASE_TYPE))
-              {
-              if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-                  == VTK_PARSE_FLOAT &&
-                  (theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-                  == VTK_PARSE_DOUBLE &&
-                  !voteMaster)
-                {
-                voteCurrent = 1;
-                }
-              else if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-                       == VTK_PARSE_FLOAT &&
-                       (theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-                       == VTK_PARSE_DOUBLE &&
-                       !voteCurrent)
-                {
-                voteMaster = 1;
-                }
-              else if ((theFunc->ArgTypes[i] & VTK_PARSE_BASE_TYPE) !=
-                       (theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE))
-                {
-                voteCurrent = 0;
-                voteMaster = 0;
-                break;
-                }
-              }
-            }
-          }
-        if (voteMaster)
-          {
-          /* prefer theFunc's signature over theSignature */
-          theSignature->Name = 0;
-          }
-        else if (voteCurrent)
-          {
-          theFunc->Name = 0;
-          }
-        }
-      }
-
+    /* if theFunc wasn't removed, process all its signatures */
     if (theFunc->Name)
       {
       fprintf(fp,"\n");
