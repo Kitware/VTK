@@ -22,6 +22,7 @@
 
 #include "vtkStatisticsAlgorithm.h"
 
+#include "vtkDataObjectCollection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -209,11 +210,12 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector )
 {
-  // Extract input tables
-  vtkTable* inData       = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
-  vtkTable* inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
+  // Extract inputs
+  vtkTable*             inData       = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
+  vtkMultiBlockDataSet* inModel      = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
+  vtkTable*             inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
 
-  // Extract output tables
+  // Extract outputs
   vtkTable*             outData  = vtkTable::GetData( outputVector, OUTPUT_DATA );
   vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData( outputVector, OUTPUT_MODEL );
   vtkTable*             outTest  = vtkTable::GetData( outputVector, OUTPUT_TEST );
@@ -232,35 +234,46 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   // on their own.
   this->RequestSelectedColumns();
 
-  vtkMultiBlockDataSet* inMeta;
+  // Calculate primary statistics if requested
   if ( this->LearnOption )
     {
+    // First, learn primary statistics from data; otherwise, only use input model as output model
     this->Learn( inData, inParameters, outModel );
+
+    // Second, aggregate learned models with input model if one is present
+    if ( inModel )
+      {
+      vtkDataObjectCollection* models = vtkDataObjectCollection::New();
+      models->AddItem( inModel );
+      models->AddItem( outModel );
+      this->Aggregate( models, outModel );
+      models->Delete();
+      }
     }
   else
     {
-    // Extract input meta table
-    inMeta = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
-
-    if ( ! inMeta )
+    if ( ! inModel )
       {
       vtkErrorMacro( "No model available AND no Learn phase requested. Cannot proceed with statistics algorithm." );
       return 1;
       }
 
-    outModel->ShallowCopy( inMeta );
+    outModel->ShallowCopy( inModel );
     }
 
+  // Calculate derived statistics if requested
   if ( this->DeriveOption )
     {
     this->Derive( outModel );
     }
 
+  // Assess data with respect to statistical model if requested
   if ( this->AssessOption )
     {
     this->Assess( inData, outModel, outData );
     }
 
+  // Calculate test statistics if requested
   if ( this->TestOption )
     {
     this->Test( inData, outModel, outTest );
