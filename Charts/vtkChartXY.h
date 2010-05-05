@@ -74,6 +74,14 @@ public:
   virtual vtkIdType GetNumberOfPlots();
 
   // Description:
+  // Figure out which quadrant the plot is in.
+  int GetPlotCorner(vtkPlot *plot);
+
+  // Description:
+  // Figure out which quadrant the plot is in.
+  void SetPlotCorner(vtkPlot *plot, int corner);
+
+  // Description:
   // Get the axis specified by axisIndex. This should probably
   // be improved either using a string or enum to select the axis.
   // (0 - left, 1 - bottom, 2 - right, 3 - top).
@@ -142,9 +150,13 @@ protected:
   ~vtkChartXY();
 
   // Description:
-  // Recalculate the plot area transform to fit in all points that will be
-  // plotted.
-  void RecalculatePlotTransform();
+  // Recalculate the necessary transforms.
+  void RecalculatePlotTransforms();
+
+  // Description:
+  // Recalculate the supplied transform for the two axes.
+  void RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
+                                vtkTransform2D *transform);
 
   // Description:
   // Calculate the optimal zoom level such that all of the points to be plotted
@@ -166,10 +178,6 @@ protected:
   // Description:
   // The tooltip item for the chart - can be used to display extra information.
   vtkTooltipItem *Tooltip;
-
-  // Description:
-  // The 2D transform for the series drawn in the plot area
-  vtkTransform2D *PlotTransform;
 
   // Description:
   // Does the plot area transform need to be recalculated?
@@ -219,6 +227,12 @@ private:
   // Description:
   // Try to locate a point within the plots to display in a tooltip
   bool LocatePointInPlots(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Remove the plot from the plot corners list.
+  bool RemovePlotFromConers(vtkPlot *plot);
+
+  void ZoomInAxes(vtkAxis *x, vtkAxis *y, float *orign, float *max);
 
 //ETX
 };
