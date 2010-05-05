@@ -29,6 +29,7 @@
 #include <vtksys/ios/sstream>
 #include <vtkstd/map>
 #include <vtkstd/string>
+#include <vtkstd/utility>
 
 // Silent warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
@@ -1857,7 +1858,7 @@ PyVTKSpecialTypeInfo::PyVTKSpecialTypeInfo(
 }
 
 //--------------------------------------------------------------------
-void vtkPythonAddSpecialTypeToHash(
+PyVTKSpecialTypeInfo *vtkPythonAddSpecialTypeToHash(
   char *classname, char *docstring[], PyMethodDef *methods,
   PyMethodDef *constructors, PyVTKSpecialCopyFunc copy_func,
   PyVTKSpecialDeleteFunc delete_func, PyVTKSpecialPrintFunc print_func)
@@ -1880,16 +1881,20 @@ void vtkPythonAddSpecialTypeToHash(
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Attempt to add type to the hash when already there!!!");
 #endif
-    return;
+    return 0;
     }
 
-  (*vtkPythonHash->SpecialTypeHash)[classname] =
-    PyVTKSpecialTypeInfo(classname, docstring, methods, constructors,
-                         copy_func, delete_func, print_func);
+  i = vtkPythonHash->SpecialTypeHash->insert(i,
+    vtkstd::pair<const vtkstd::string, PyVTKSpecialTypeInfo>(
+      classname,
+      PyVTKSpecialTypeInfo(classname, docstring, methods, constructors,
+                           copy_func, delete_func, print_func)));
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
 #endif
+
+  return &i->second;
 }
 
 //--------------------------------------------------------------------

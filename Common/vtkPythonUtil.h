@@ -154,7 +154,7 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
 // Add a non-VTK type to the type lookup table, this allows us to later
 // create object given only the class name.
 extern VTK_PYTHON_EXPORT
-void vtkPythonAddSpecialTypeToHash(
+PyVTKSpecialTypeInfo *vtkPythonAddSpecialTypeToHash(
   char *classname, char *docstring[], PyMethodDef *methods,
   PyMethodDef *constructors, PyVTKSpecialCopyFunc copyfunc,
   PyVTKSpecialDeleteFunc deletefunc, PyVTKSpecialPrintFunc printfunc);

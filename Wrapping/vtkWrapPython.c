@@ -2071,20 +2071,20 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
       text++;
       }
     fprintf(fp,
-            "  (char*)\"%s\\n\\n\",\n",
+            "    \"%s\\n\\n\",\n",
             vtkWrapPython_QuoteString(text,500));
     }
   else
     {
     fprintf(fp,
-            "  (char*)\"%s - no description provided.\\n\\n\",\n",
+            "    \"%s - no description provided.\\n\\n\",\n",
             vtkWrapPython_QuoteString(data->ClassName,500));
     }
 
   if (data->NumberOfSuperClasses > 0)
     {
     fprintf(fp,
-            "  \"Super Class:\\n\\n %s\\n\\n\",\n",
+            "    \"Super Class:\\n\\n %s\\n\\n\",\n",
             vtkWrapPython_QuoteString(data->SuperClasses[0],500));
     }
 
@@ -2098,13 +2098,13 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
       if (i < n-1)
         {
         fprintf(fp,
-                "  (char*)\"%s\",\n",
+                "    \"%s\",\n",
                 vtkWrapPython_QuoteString(temp,500));
         }
       else
         { /* just for the last time */
         fprintf(fp,
-                "  (char*)\"%s\\n\",\n",
+                "    \"%s\\n\",\n",
                 vtkWrapPython_QuoteString(temp,500));
         }
       }
@@ -2112,14 +2112,14 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
   else
     {
     fprintf(fp,
-            "  (char*)\"%s\\n\",\n",
+            "    \"%s\\n\",\n",
             "None provided.\\n");
     }
 
   if (data->Caveats)
     {
     fprintf(fp,
-            "  \"Caveats:\\n\\n%s\\n\",\n",
+            "    \"Caveats:\\n\\n%s\\n\",\n",
             vtkWrapPython_QuoteString(data->Caveats,500));
     }
 
@@ -2128,21 +2128,31 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
     char *sdup, *tok;
 
     fprintf(fp,
-            "  \"See Also:\\n\\n");
+            "    \"See Also:\\n\\n");
 
     sdup = strdup(data->SeeAlso);
     tok = strtok(sdup," ");
     while (tok)
       {
-      fprintf(fp," %s",vtkWrapPython_QuoteString(tok,120));
+      fprintf(fp,"   %s",vtkWrapPython_QuoteString(tok,120));
       tok = strtok(NULL," ");
       }
     free(sdup);
     fprintf(fp,"\\n\",\n");
     }
 
-  fprintf(fp,
-          "  NULL\n");
+  /* for special objects, add constructor signatures to the doc */
+  if ((data->NumberOfSuperClasses == 0) &&
+      (strcmp(data->ClassName,"vtkObjectBase") != 0))
+    {
+    for (i = 0; i < data->NumberOfFunctions; i++)
+      {
+      if (vtkWrapPython_MethodCheck(data, &data->Functions[i], 1))
+        {
+        fprintf(fp,"    \"%s\\n\",\n", data->Functions[i].Signature);
+        }
+      }
+    }
 }
 
 /* -------------------------------------------------------------------- */
@@ -2199,6 +2209,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,
            "extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
             data->SuperClasses[i]);
+    }
+
+  /* prototype for the docstring function */
+  if (data->NumberOfSuperClasses || !data->IsAbstract)
+    {
+    fprintf(fp,
+            "\n"
+            "static const char **%sDoc();\n"
+            "\n",
+            data->ClassName);
     }
 
   /* the python vtkObject needs special hooks for observers */
@@ -2315,20 +2335,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     vtkWrapPython_GenerateMethods(fp, data, class_has_new, 0);
     }
 
-  /* the docstring for the class, as a static var ending in "Doc" */
-  if (data->NumberOfSuperClasses || !data->IsAbstract)
-    {
-    fprintf(fp,
-            "static const char *%sDoc[] = {\n",
-            data->ClassName);
-
-    vtkWrapPython_ClassDoc(fp,data);
-
-    fprintf(fp,
-            "};\n"
-            "\n");
-    }
-
   /* output the class initilization function */
 
   /* the New method for vtkObjectBase */
@@ -2365,7 +2371,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,
             "                        Py%sMethods,\n"
             "                        (char*)\"%s\",modulename,\n"
-            "                        (char**)%sDoc,0);\n"
+            "                        (char**)%sDoc(),0);\n"
             "}\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName);
@@ -2405,7 +2411,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,
             "                        Py%sMethods,\n"
             "                        (char*)\"%s\",modulename,\n"
-            "                        (char**)%sDoc,\n"
+            "                        (char**)%sDoc(),\n"
             "                        PyVTKClass_%sNew(modulename));\n"
             "}\n"
             "\n",
@@ -2423,10 +2429,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,
             "static PyMethodDef Py%sNewMethod = \\\n"
             "{ (char*)\"%s\",  (PyCFunction)Py%s_%s, 1,\n"
-            "  (char*)%sDoc[0] };\n"
+            "  (char*)\"\" };\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName, data->ClassName);
+            data->ClassName);
 
     /* the copy constructor */
     fprintf(fp,
@@ -2469,17 +2475,21 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,
             "PyObject *PyVTKClass_%sNew(char *)\n"
             "{\n"
-            "  vtkPythonAddSpecialTypeToHash(\n"
-            "    (char *)\"%s\", (char**)%sDoc, Py%sMethods,\n"
-            "    Py%s_%sMethods, &vtkSpecial_%sCopy,\n"
-            "    &vtkSpecial_%sDelete, &vtkSpecial_%sPrint);\n"
+            "  PyVTKSpecialTypeInfo *info =\n"
+            "    vtkPythonAddSpecialTypeToHash(\n"
+            "      (char *)\"%s\", (char**)%sDoc(), Py%sMethods,\n"
+            "      Py%s_%sMethods, &vtkSpecial_%sCopy,\n"
+            "      &vtkSpecial_%sDelete, &vtkSpecial_%sPrint);\n"
+            "\n"
+            "  Py%sNewMethod.ml_doc = PyString_AsString(info->docstring);\n"
+            "\n"
             "  return PyCFunction_New(&Py%sNewMethod,Py_None);\n"
             "}\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName,
             data->ClassName, data->ClassName, data->ClassName,
             data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName);
+            data->ClassName, data->ClassName);
     }
 
   /* the New method for un-wrappable classes returns "NULL" */
@@ -2492,6 +2502,26 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "}\n"
             "\n",
             data->ClassName);
+    }
+
+  /* the docstring for the class, as a static var ending in "Doc" */
+  if (data->NumberOfSuperClasses || !data->IsAbstract)
+    {
+    fprintf(fp,
+            "const char **%sDoc()\n"
+            "{\n"
+            "  static const char *docstring[] = {\n",
+            data->ClassName);
+
+    vtkWrapPython_ClassDoc(fp,data);
+
+    fprintf(fp,
+            "    NULL\n"
+            "  };\n"
+            "\n"
+            "  return docstring;\n"
+            "}\n"
+            "\n");
     }
 }
 
