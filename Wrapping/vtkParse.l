@@ -49,8 +49,8 @@ Modify lex.yy.c:
 
 "/*" { int c1 = 0, c2 = input();
        for (;;)
-	 {
-         if (c2 == 0) 
+         {
+         if (c2 == 0)
            {
            fprintf(yyout,"Cannot find closing comment.\n");
            break;
@@ -60,11 +60,11 @@ Modify lex.yy.c:
          }
      };
 
-^[\t ]*"//BTX".*$ { 
+^[\t ]*"//BTX".*$ {
        int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = input();
        for (;;)
-	 {
-         if (c5 == 0) 
+         {
+         if (c5 == 0)
            {
            fprintf(yyout,"Cannot find matching //ETX.\n");
            break;
@@ -77,14 +77,14 @@ Modify lex.yy.c:
          if (c5 == 0) break;
          if (c5 == '\n') break;
          c5 = input();
-         } 
+         }
      };
 
-^[\t ]*"// .NAME".* { 
+^[\t ]*"// .NAME".* {
      int pos = 1;
      while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
        {
-       pos++; 
+       pos++;
        }
      yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
      memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
@@ -92,44 +92,44 @@ Modify lex.yy.c:
      data.NameComment = vtkstrdup(yylval.str);
      };
 
-^[\t ]*"// .SECTION Description".* { 
+^[\t ]*"// .SECTION Description".* {
      CommentState = 1;
      data.Description = (char*)malloc(100000);
      data.Description[0] = '\0';
      };
 
-^[\t ]*"// .SECTION See Also".* { 
+^[\t ]*"// .SECTION See Also".* {
      CommentState = 3;
      data.SeeAlso = (char*)malloc(100000);
      data.SeeAlso[0] = '\0';
      };
 
-^[\t ]*"// .SECTION see also".* { 
+^[\t ]*"// .SECTION see also".* {
      CommentState = 3;
      data.SeeAlso = (char*)malloc(100000);
      data.SeeAlso[0] = '\0';
      };
 
-^[\t ]*"// .SECTION Caveats".* { 
+^[\t ]*"// .SECTION Caveats".* {
      CommentState = 4;
      data.Caveats = (char*)malloc(100000);
      data.Caveats[0] = '\0';
      };
 
-^[\t ]*"// Description:".* { 
+^[\t ]*"// Description:".* {
      CommentState = 2;
      HaveComment = 1;
      CommentText[0] = '\0';
      };
 
-^[\t ]*[\r\n]  { 
-     HaveComment = 0; 
-     CommentState = 0; 
+^[\t ]*[\r\n]  {
+     HaveComment = 0;
+     CommentState = 0;
      };
 
-^[\t ]*"//".*   { 
+^[\t ]*"//".*   {
      int pos = 1;
-     while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++; 
+     while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++;
      yylval.str = (char *)malloc(yyleng + 1 - pos - 1 + 1);
      memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
      yylval.str[yyleng - pos - 1] = '\n';
@@ -152,7 +152,7 @@ Modify lex.yy.c:
 "["[\t\n\r\ ]*[1-9][0-9]*[\t\n\r ]*"]"  {
    sscanf(yytext+1,"%d",&yylval.integer); return(ARRAY_NUM);}
 
-
+"struct "[\t\n\r ]*"vtk"[a-zA-Z0-9_]*[\t\n\r ]*";"  return(CLASS_REF);
 "class "[\t\n\r ]*"vtk"[a-zA-Z0-9_]*[\t\n\r ]*";"  return(CLASS_REF);
 
 "void"[\t\n\r ]*"("[\t\n\r ]*"*"[a-zA-Z0-9_]*[\t\n\r ]*")"[\t\n\r ]*"("[\t\n\r ]*"void"[\t\n\r ]*"*"[\n\t ]*")" return(VAR_FUNCTION);
@@ -170,18 +170,18 @@ Modify lex.yy.c:
 
 "signed"[\t\n\r ]*"char"  return(SIGNED_CHAR);
 
-"class"		return(CLASS);
-"public"  	return(PUBLIC);
-"private"  	return(PRIVATE);
-"protected" 	return(PROTECTED);
-"int" 	        return(INT);
-"float" 	return(FLOAT);
-"short" 	return(SHORT);
-"long"  	return(LONG);
-"double" 	return(DOUBLE);
-"void" 	        return(VOID);
-"char" 	        return(CHAR);
-"bool" 	        return(BOOL);
+"class"                return(CLASS);
+"public"          return(PUBLIC);
+"private"          return(PRIVATE);
+"protected"         return(PROTECTED);
+"int"                 return(INT);
+"float"         return(FLOAT);
+"short"         return(SHORT);
+"long"          return(LONG);
+"double"         return(DOUBLE);
+"void"                 return(VOID);
+"char"                 return(CHAR);
+"bool"                 return(BOOL);
 "virtual"       return(VIRTUAL);
 "const"         return(CONST);
 "operator"      return(OPERATOR);
@@ -192,13 +192,13 @@ Modify lex.yy.c:
 "vtkFloatingPointType" return(DOUBLE);
 "vtkIdType"            return(IdType);
 "vtkStdString"         return(StdString);
+"vtkUnicodeString"     return(UnicodeString);
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
 "vtkSetStringMacro"    return(SetStringMacro);
 "vtkGetStringMacro"    return(GetStringMacro);
 "vtkSetClampMacro"     return(SetClampMacro);
 "vtkSetObjectMacro"    return(SetObjectMacro);
-"vtkSetReferenceCountedObjectMacro" return(SetReferenceCountedObjectMacro);
 "vtkGetObjectMacro"    return(GetObjectMacro);
 "vtkBooleanMacro"      return(BooleanMacro);
 "vtkSetVector2Macro"   return(SetVector2Macro);
@@ -231,13 +231,13 @@ Modify lex.yy.c:
 "vtkTypeFloat64"       return(TypeFloat64);
 
 
-[0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
+[0-9]+                { sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 
-\"[^\"]+\"	{
-		yylval.str =  vtkstrdup(yytext + 1);
-		yylval.str[strlen(yytext)-2] = '\0';
-		return(STRING);
-		}
+\"[^\"]+\"        {
+                yylval.str =  vtkstrdup(yytext + 1);
+                yylval.str[strlen(yytext)-2] = '\0';
+                return(STRING);
+                }
 
 ^"#"[^\n]*$     ;
 
@@ -257,12 +257,12 @@ Modify lex.yy.c:
 [\t\n\r ] ;
 
 
-"["	return(yytext[0]);
-"]"	return(yytext[0]);
+"["        return(yytext[0]);
+"]"        return(yytext[0]);
 
 
-[~{}():;*=,&.\-] {	return(yytext[0]); }
+[~{}():;*=,&.\-] {        return(yytext[0]); }
 
-.		return(OTHER);
+.                return(OTHER);
 %%
 

@@ -35,7 +35,7 @@
  * Mask for removing everything but the base type
  */
 
-#define VTK_PARSE_BASE_TYPE  0x001F
+#define VTK_PARSE_BASE_TYPE  0x00FF
 
 /*
  * Mask for checking signed/unsigned
@@ -105,6 +105,8 @@
 #define VTK_PARSE_UNSIGNED___INT64    0x1C
 #define VTK_PARSE_SIGNED_CHAR         0x0D
 #define VTK_PARSE_BOOL                0x0E
+#define VTK_PARSE_STRING              0x21
+#define VTK_PARSE_UNICODE_STRING      0x22
 
 /*
  * Basic pointer types
@@ -131,6 +133,8 @@
 #define VTK_PARSE_UNSIGNED___INT64_PTR    0x31C
 #define VTK_PARSE_SIGNED_CHAR_PTR         0x30D
 #define VTK_PARSE_BOOL_PTR                0x30E
+#define VTK_PARSE_STRING_PTR              0x321
+#define VTK_PARSE_UNICODE_STRING_PTR      0x322
 
 /*
  * Basic reference types
@@ -157,5 +161,7 @@
 #define VTK_PARSE_UNSIGNED___INT64_REF    0x11C
 #define VTK_PARSE_SIGNED_CHAR_REF         0x10D
 #define VTK_PARSE_BOOL_REF                0x10E
+#define VTK_PARSE_STRING_REF              0x121
+#define VTK_PARSE_UNICODE_STRING_REF      0x122
 
 #endif

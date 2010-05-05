@@ -239,6 +239,8 @@ static void vtkWrapPython_MakeTempVariable(
     case VTK_PARSE___INT64:     fprintf(fp,"__int64 "); break;
     case VTK_PARSE_SIGNED_CHAR: fprintf(fp,"signed char "); break;
     case VTK_PARSE_BOOL:        fprintf(fp,"bool "); break;
+    case VTK_PARSE_STRING:      fprintf(fp,"vtkStdString "); break;
+    case VTK_PARSE_UNICODE_STRING: fprintf(fp,"vtkUnicodeString "); break;
     case VTK_PARSE_UNKNOWN:     return;
     }
 
@@ -314,6 +316,16 @@ static void vtkWrapPython_MakeTempVariable(
     {
     fprintf(fp,
             "  PyObject *tempB%d = 0;\n",
+            i);
+    }
+
+  /* ditto for string */
+  if ((i != MAX_ARGS) &&
+      (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_UNICODE_STRING) ||
+       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_STRING)))
+    {
+    fprintf(fp,
+            "  PyObject *tempS%d = 0;\n",
             i);
     }
 }
@@ -588,6 +600,14 @@ static void vtkWrapPython_ReturnValue(
               MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS);
       break;
       }
+
+    /* return a string */
+    case VTK_PARSE_STRING:
+      {
+      fprintf(fp,
+              "    result = PyString_FromString(temp%i);\n",
+              MAX_ARGS);
+      }
     }
 }
 
@@ -743,6 +763,12 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
       case VTK_PARSE_BOOL:
         result[currPos++] = 'O';
         break;
+      case VTK_PARSE_STRING:
+        result[currPos++] = 'O';
+        break;
+      case VTK_PARSE_UNICODE_STRING:
+        result[currPos++] = 'O';
+        break;
       }
     }
 
@@ -788,6 +814,18 @@ static char *vtkWrapPython_ArgCheckString(
       {
       strcpy(&result[currPos], " bool");
       currPos += 5;
+      }
+
+    if (argtype == VTK_PARSE_STRING)
+      {
+      strcpy(&result[currPos], " string");
+      currPos += 7;
+      }
+
+    if (argtype == VTK_PARSE_UNICODE_STRING)
+      {
+      strcpy(&result[currPos], " unicode");
+      currPos += 8;
       }
 
     if (argtype == VTK_PARSE_VTK_OBJECT_REF ||
@@ -955,6 +993,12 @@ static void vtkWrapPython_Signature(FunctionInfo *currentFunction)
       case VTK_PARSE_BOOL:
         vtkWrapPython_AddToSignature(result,"bool",&currPos);
         break;
+      case VTK_PARSE_STRING:
+        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        break;
+      case VTK_PARSE_UNICODE_STRING:
+        vtkWrapPython_AddToSignature(result,"unicode",&currPos);
+        break;
       }
     }
 
@@ -1058,6 +1102,13 @@ static void vtkWrapPython_Signature(FunctionInfo *currentFunction)
       case VTK_PARSE_BOOL:
         vtkWrapPython_AddToSignature(result,"bool",&currPos);
         break;
+      case VTK_PARSE_STRING:
+        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        break;
+      case VTK_PARSE_UNICODE_STRING:
+        vtkWrapPython_AddToSignature(result,"unicode",&currPos);
+        break;
+
       }
     }
 
@@ -1266,6 +1317,21 @@ void vtkWrapPython_RemovePreceededMethods(
                        ((baseType1 == VTK_PARSE_SHORT) ||
                         (baseType1 == VTK_PARSE_SIGNED_CHAR) ||
                         ((baseType1 == VTK_PARSE_CHAR) && unsigned1)))
+                {
+                if (!vote1) { vote2 = 1; }
+                }
+              /* a "char *" method preceeds a string method */
+              else if ((baseType1 == VTK_PARSE_CHAR) &&
+                       (indirect1 == VTK_PARSE_POINTER) &&
+                       (baseType2 == VTK_PARSE_STRING) &&
+                       ((indirect2 == VTK_PARSE_REF) || (indirect2 == 0)))
+                {
+                if (!vote2) { vote1 = 1; }
+                }
+              else if ((baseType2 == VTK_PARSE_CHAR) &&
+                       (indirect2 == VTK_PARSE_POINTER) &&
+                       (baseType1 == VTK_PARSE_STRING) &&
+                       ((indirect1 == VTK_PARSE_REF) || (indirect1 == 0)))
                 {
                 if (!vote1) { vote2 = 1; }
                 }
@@ -1525,6 +1591,11 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,", &tempB%d",i);
               }
+            else if ((argType == VTK_PARSE_STRING) ||
+                     (argType == VTK_PARSE_UNICODE_STRING))
+              {
+              fprintf(fp,", &tempS%d",i);
+              }
             else if (argType == VTK_PARSE_VOID_PTR)
               {
               fprintf(fp,", &temp%d, &size%d",i,i);
@@ -1598,6 +1669,16 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,
                       "    temp%d = PyObject_IsTrue(tempB%d);\n"
+                      "    if (PyErr_Occurred())\n"
+                      "      {\n"
+                      "      %s;\n"
+                      "      }\n",
+                      i, i, on_error);
+              }
+            else if (argType == VTK_PARSE_STRING)
+              {
+              fprintf(fp,
+                      "    temp%d = PyString_AsString(tempS%d);\n"
                       "    if (PyErr_Occurred())\n"
                       "      {\n"
                       "      %s;\n"
@@ -2082,6 +2163,12 @@ static int vtkWrapPython_MethodCheck(
     if (argType == VTK_PARSE_LONG_LONG) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
 #endif
+    if (argType == VTK_PARSE_STRING_PTR) args_ok = 0;
+    if (argType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
+
+    /* disable UNICODE for now */
+    if ((argType & VTK_PARSE_BASE_TYPE) ==
+        VTK_PARSE_UNICODE_STRING) args_ok = 0;
     }
 
   /* make sure we have all the info we need for array arguments */
@@ -2117,13 +2204,20 @@ static int vtkWrapPython_MethodCheck(
 
   /* eliminate types that aren't supported by the compiler */
 #ifndef VTK_SIZEOF___INT64
-    if (returnType == VTK_PARSE___INT64) args_ok = 0;
-    if (returnType == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
+  if (returnType == VTK_PARSE___INT64) args_ok = 0;
+  if (returnType == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
 #endif
 #ifndef VTK_SIZEOF_LONG_LONG
-    if (returnType == VTK_PARSE_LONG_LONG) args_ok = 0;
-    if (returnType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
+  if (returnType == VTK_PARSE_LONG_LONG) args_ok = 0;
+  if (returnType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
 #endif
+
+  if (returnType == VTK_PARSE_STRING_PTR) args_ok = 0;
+  if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
+
+  /* disable UNICODE for now */
+  if ((returnType & VTK_PARSE_BASE_TYPE) ==
+      VTK_PARSE_UNICODE_STRING) args_ok = 0;
 
   /* if we need a return type hint make sure we have one */
   switch (returnType)

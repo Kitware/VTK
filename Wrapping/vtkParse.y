@@ -118,7 +118,7 @@ char *vtkstrdup(const char *in)
 }
 
 #include "vtkParse.h"
-    
+
   FileInfo data;
   FunctionInfo *currentFunction;
 
@@ -132,27 +132,27 @@ char *vtkstrdup(const char *in)
   int openSig;
   int invertSig;
   unsigned int sigAllocatedLength;
-  
+
 #define YYMAXDEPTH 1000
 
   void checkSigSize(const char *arg)
     {
-    if (strlen(currentFunction->Signature) + strlen(arg) + 3 > 
+    if (strlen(currentFunction->Signature) + strlen(arg) + 3 >
         sigAllocatedLength)
       {
       currentFunction->Signature = (char *)
         realloc(currentFunction->Signature, sigAllocatedLength*2);
       sigAllocatedLength = sigAllocatedLength*2;
       }
-    } 
+    }
   void preSig(const char *arg)
     {
     if (!currentFunction->Signature)
       {
       currentFunction->Signature = (char*)malloc(2048);
-      sigAllocatedLength = 2048; 
+      sigAllocatedLength = 2048;
       sprintf(currentFunction->Signature,"%s",arg);
-      }    
+      }
     else if (openSig)
       {
       char *tmp;
@@ -167,9 +167,9 @@ char *vtkstrdup(const char *in)
     if (!currentFunction->Signature)
       {
       currentFunction->Signature = (char*)malloc(2048);
-      sigAllocatedLength = 2048; 
+      sigAllocatedLength = 2048;
       sprintf(currentFunction->Signature,"%s",arg);
-      }    
+      }
     else if (openSig)
       {
       char *tmp;
@@ -253,13 +253,13 @@ char *vtkstrdup(const char *in)
 /* macro tokens */
 %token IdType
 %token StdString
+%token UnicodeString
 %token SetMacro
 %token GetMacro
 %token SetStringMacro
 %token GetStringMacro
 %token SetClampMacro
 %token SetObjectMacro
-%token SetReferenceCountedObjectMacro
 %token GetObjectMacro
 %token BooleanMacro
 %token SetVector2Macro
@@ -283,18 +283,18 @@ char *vtkstrdup(const char *in)
  */
 strt: maybe_other class_def maybe_other;
 
-vtk_id : VTK_ID VTK_WRAP_EXTERN 
+vtk_id : VTK_ID VTK_WRAP_EXTERN
          {
            ($<vtkid>$).name = $<str>1;
            ($<vtkid>$).external = 1;
          }
-       | VTK_ID 
+       | VTK_ID
          {
            ($<vtkid>$).name = $<str>1;
            ($<vtkid>$).external = 0;
          };
 
-class_def : CLASS VTK_ID 
+class_def : CLASS VTK_ID
       {
       data.ClassName = vtkstrdup($2);
       }
@@ -313,23 +313,23 @@ class_def_item: scope_type ':' | var
 
 legacy_function: VTK_LEGACY '(' function ')'
 
-function: '~' func { preSig("~"); } 
+function: '~' func { preSig("~"); }
       | VIRTUAL '~' func { preSig("virtual ~"); }
       | func
-      | type func 
+      | type func
          {
          currentFunction->ReturnType = $<integer>1;
-         } 
-      | type CONST func 
+         }
+      | type CONST func
          {
          currentFunction->ReturnType = $<integer>1;
-         } 
-      | VIRTUAL type CONST func 
+         }
+      | VIRTUAL type CONST func
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
          }
-      | VIRTUAL type func 
+      | VIRTUAL type func
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
@@ -378,18 +378,18 @@ operator_sig: OPERATOR maybe_other_no_semi ';'
       vtkParseDebug("Converted operator", 0);
     }
 
-func: func_sig { postSig(")"); } maybe_const { postSig(";"); openSig = 0; } 
+func: func_sig { postSig(")"); } maybe_const { postSig(";"); openSig = 0; }
     {
       openSig = 1;
-      currentFunction->Name = $<str>1; 
+      currentFunction->Name = $<str>1;
       vtkParseDebug("Parsed func", $<str>1);
     }
   | func_sig '=' NUM
-    { 
-      postSig(") = 0;"); 
-      currentFunction->Name = $<str>1; 
+    {
+      postSig(") = 0;");
+      currentFunction->Name = $<str>1;
       vtkParseDebug("Parsed func", $<str>1);
-      currentFunction->IsPureVirtual = 1; 
+      currentFunction->IsPureVirtual = 1;
       data.IsAbstract = 1;
     };
 
@@ -403,32 +403,32 @@ static_mod: STATIC {postSig("static ");};
 
 any_id: vtk_id {postSig(($<vtkid>1).name);} | ID {postSig($<str>1);};
 
-func_body: ';' 
-    | '{' maybe_other '}' ';' 
-    | '{' maybe_other '}'  
+func_body: ';'
+    | '{' maybe_other '}' ';'
+    | '{' maybe_other '}'
     | ':' maybe_other_no_semi ';';
 
 args_list: | more_args;
 
-more_args: arg { currentFunction->NumberOfArguments++;} 
+more_args: arg { currentFunction->NumberOfArguments++;}
   | arg { currentFunction->NumberOfArguments++; postSig(", ");} ',' more_args;
 
-arg: type 
+arg: type
     {
-      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
-      currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-        $<integer>1;} 
-  | type var_id 
+      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0;
+      currentFunction->ArgTypes[currentFunction->NumberOfArguments] =
+        $<integer>1;}
+  | type var_id
     {
-      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 
-        $<integer>2 / VTK_PARSE_COUNT_START; 
-      currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
+      currentFunction->ArgCounts[currentFunction->NumberOfArguments] =
+        $<integer>2 / VTK_PARSE_COUNT_START;
+      currentFunction->ArgTypes[currentFunction->NumberOfArguments] =
         $<integer>1 + $<integer>2 % VTK_PARSE_COUNT_START;
     } opt_var_assign
-  | VAR_FUNCTION 
-    { 
+  | VAR_FUNCTION
+    {
       postSig("void (*func)(void *) ");
-      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
+      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0;
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = VTK_PARSE_FUNCTION;
     };
 
@@ -445,19 +445,19 @@ var_id: any_id var_array { $<integer>$ = $<integer>2; };
 */
 
 var_array: { $<integer>$ = 0; }
-     | ARRAY_NUM { char temp[100]; sprintf(temp,"[%i]",$<integer>1); 
-                   postSig(temp); } 
-       var_array { $<integer>$ = VTK_PARSE_POINTER + (VTK_PARSE_COUNT_START * $<integer>1) + ($<integer>3 & VTK_PARSE_UNQUALIFIED_TYPE); } 
-     | '[' maybe_other_no_semi ']' var_array 
+     | ARRAY_NUM { char temp[100]; sprintf(temp,"[%i]",$<integer>1);
+                   postSig(temp); }
+       var_array { $<integer>$ = VTK_PARSE_POINTER + (VTK_PARSE_COUNT_START * $<integer>1) + ($<integer>3 & VTK_PARSE_UNQUALIFIED_TYPE); }
+     | '[' maybe_other_no_semi ']' var_array
            { postSig("[]"); $<integer>$ = VTK_PARSE_POINTER + ($<integer>4 & VTK_PARSE_UNQUALIFIED_TYPE); };
 
-type: const_mod type_red1 {$<integer>$ = VTK_PARSE_CONST + $<integer>2;} 
+type: const_mod type_red1 {$<integer>$ = VTK_PARSE_CONST + $<integer>2;}
           | type_red1 {$<integer>$ = $<integer>1;}
           | static_mod type_red1 {$<integer>$ = VTK_PARSE_STATIC + $<integer>2;}
-          | static_mod const_mod type_red1 {$<integer>$ = (VTK_PARSE_CONST | VTK_PARSE_STATIC) + $<integer>3;}; 
+          | static_mod const_mod type_red1 {$<integer>$ = (VTK_PARSE_CONST | VTK_PARSE_STATIC) + $<integer>3;};
 
-type_red1: type_red2 {$<integer>$ = $<integer>1;} 
-         | type_red2 type_indirection 
+type_red1: type_red2 {$<integer>$ = $<integer>1;}
+         | type_red2 type_indirection
            {$<integer>$ = $<integer>1 + $<integer>2;}
          | type_string1 {$<integer>$ = $<integer>1;};
 
@@ -465,9 +465,13 @@ type_string1: type_string2 {$<integer>$ = $<integer>1;}
          | type_string2 '&' { postSig("&"); $<integer>$ = $<integer>1;}
          | type_string2 '*' { postSig("*"); $<integer>$ = (VTK_PARSE_REF + VTK_PARSE_POINTER) + $<integer>1;}
 
-type_string2: StdString { postSig("vtkStdString "); $<integer>$ = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR); }; 
+type_string2: type_string3 {$<integer>$ = $<integer>1;}
+         | type_string4 {$<integer>$ = $<integer>1;};
 
- 
+type_string3: StdString { postSig("vtkStdString "); $<integer>$ = (VTK_PARSE_STRING); };
+
+type_string4: UnicodeString { postSig("vtkUnicodeString "); $<integer>$ = (VTK_PARSE_UNICODE_STRING); };
+
 /* &   is VTK_PARSE_REF
    &&  is VTK_PARSE_REF + VTK_PARSE_REF
    *   is VTK_PARSE_POINTER
@@ -475,16 +479,16 @@ type_string2: StdString { postSig("vtkStdString "); $<integer>$ = (VTK_PARSE_CON
    *&  is VTK_PARSE_POINTER + VTK_PARSE_REF + VTK_PARSE_REF
    **  is VTK_PARSE_POINTER + VTK_PARSE_POINTER + VTK_PARSE_REF
    */
-type_indirection: '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF;} 
-                | '*' { postSig("*"); $<integer>$ = VTK_PARSE_POINTER;} 
+type_indirection: '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF;}
+                | '*' { postSig("*"); $<integer>$ = VTK_PARSE_POINTER;}
                 | '&' type_indirection { $<integer>$ = VTK_PARSE_REF + $<integer>2;}
                 | '*' type_indirection { $<integer>$ = (VTK_PARSE_REF + VTK_PARSE_POINTER) + $<integer>2;};
 
-type_red2: UNSIGNED {postSig("unsigned ");} 
-             type_primitive { $<integer>$ = VTK_PARSE_UNSIGNED + $<integer>3;} 
+type_red2: UNSIGNED {postSig("unsigned ");}
+             type_primitive { $<integer>$ = VTK_PARSE_UNSIGNED + $<integer>3;}
                   | type_primitive { $<integer>$ = $<integer>1;};
 
-type_primitive: 
+type_primitive:
   TypeInt8 { postSig("vtkTypeInt8 "); $<integer>$ = VTK_PARSE_INT8; } |
   TypeUInt8 { postSig("vtkTypeUInt8 "); $<integer>$ = VTK_PARSE_UINT8; } |
   TypeInt16 { postSig("vtkTypeInt16 "); $<integer>$ = VTK_PARSE_INT16; } |
@@ -495,35 +499,35 @@ type_primitive:
   TypeUInt64 { postSig("vtkTypeUInt64 "); $<integer>$ = VTK_PARSE_UINT64; } |
   TypeFloat32 { postSig("vtkTypeFloat32 "); $<integer>$ = VTK_PARSE_FLOAT32; } |
   TypeFloat64 { postSig("vtkTypeFloat64 "); $<integer>$ = VTK_PARSE_FLOAT64; } |
-  FLOAT  { postSig("float "); $<integer>$ = VTK_PARSE_FLOAT;} | 
-  VOID   { postSig("void "); $<integer>$ = VTK_PARSE_VOID;} | 
-  CHAR   { postSig("char "); $<integer>$ = VTK_PARSE_CHAR;} | 
-  INT    { postSig("int "); $<integer>$ = VTK_PARSE_INT;} | 
-  SHORT  { postSig("short "); $<integer>$ = VTK_PARSE_SHORT;} | 
-  LONG   { postSig("long "); $<integer>$ = VTK_PARSE_LONG;} | 
-  DOUBLE { postSig("double "); $<integer>$ = VTK_PARSE_DOUBLE;} | 
-  ID     {       
+  FLOAT  { postSig("float "); $<integer>$ = VTK_PARSE_FLOAT;} |
+  VOID   { postSig("void "); $<integer>$ = VTK_PARSE_VOID;} |
+  CHAR   { postSig("char "); $<integer>$ = VTK_PARSE_CHAR;} |
+  INT    { postSig("int "); $<integer>$ = VTK_PARSE_INT;} |
+  SHORT  { postSig("short "); $<integer>$ = VTK_PARSE_SHORT;} |
+  LONG   { postSig("long "); $<integer>$ = VTK_PARSE_LONG;} |
+  DOUBLE { postSig("double "); $<integer>$ = VTK_PARSE_DOUBLE;} |
+  ID     {
       char ctmpid[2048];
       sprintf(ctmpid,"%s ",$<str>1);
       postSig(ctmpid);
       $<integer>$ = VTK_PARSE_UNKNOWN;} |
-  vtk_id  
-    { 
+  vtk_id
+    {
       char ctmpid[2048];
       sprintf(ctmpid,"%s ",($<vtkid>1).name);
       postSig(ctmpid);
-      $<integer>$ = VTK_PARSE_VTK_OBJECT; 
+      $<integer>$ = VTK_PARSE_VTK_OBJECT;
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
-        vtkstrdup(($<vtkid>1).name); 
+        vtkstrdup(($<vtkid>1).name);
       currentFunction->ArgExternals[currentFunction->NumberOfArguments] =
         ($<vtkid>1).external;
       /* store the string into the return value just in case we need it */
       /* this is a parsing hack because the first "type" parser will */
       /* possibly be ht ereturn type of the first argument */
-      if ((!currentFunction->ReturnClass) && 
-          (!currentFunction->NumberOfArguments)) 
-        { 
-        currentFunction->ReturnClass = vtkstrdup(($<vtkid>1).name); 
+      if ((!currentFunction->ReturnClass) &&
+          (!currentFunction->NumberOfArguments))
+        {
+        currentFunction->ReturnClass = vtkstrdup(($<vtkid>1).name);
         currentFunction->ReturnExternal = ($<vtkid>1).external;
         }
     } |
@@ -535,32 +539,32 @@ type_primitive:
 
 optional_scope: | ':' scope_list;
 
-scope_list: scope_type VTK_ID 
-    { 
-      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup($2); 
-      data.NumberOfSuperClasses++; 
-    } 
-  | scope_type VTK_ID 
-    { 
-      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup($2); 
-      data.NumberOfSuperClasses++; 
+scope_list: scope_type VTK_ID
+    {
+      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup($2);
+      data.NumberOfSuperClasses++;
+    }
+  | scope_type VTK_ID
+    {
+      data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup($2);
+      data.NumberOfSuperClasses++;
     } ',' scope_list;
 
-scope_type: PUBLIC {in_public = 1; in_protected = 0;} 
-          | PRIVATE {in_public = 0; in_protected = 0;} 
+scope_type: PUBLIC {in_public = 1; in_protected = 0;}
+          | PRIVATE {in_public = 0; in_protected = 0;}
           | PROTECTED {in_public = 0; in_protected = 1;};
 
 float_num: '-' float_prim | float_prim;
 
-float_prim: NUM {$<integer>$ = $1;} 
+float_prim: NUM {$<integer>$ = $1;}
          | NUM '.' NUM {$<integer>$ = -1;} | any_id {$<integer>$ = -1;};
 
 macro:
-  SetMacro '(' any_id ',' 
+  SetMacro '(' any_id ','
            {preSig("void Set"); postSig(" ("); } type_red2 ')'
    {
    postSig(");");
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -568,10 +572,10 @@ macro:
    currentFunction->ReturnType = VTK_PARSE_VOID;
    output_function();
    }
-| GetMacro '('{postSig("Get");} any_id ',' {postSig(" ();"); invertSig = 1;} 
+| GetMacro '('{postSig("Get");} any_id ',' {postSig(" ();"); invertSig = 1;}
     type_red2 ')'
-   { 
-   sprintf(temps,"Get%s",$<str>4); 
+   {
+   sprintf(temps,"Get%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = $<integer>7;
@@ -579,8 +583,8 @@ macro:
    }
 | SetStringMacro '(' {preSig("void Set");} any_id ')'
    {
-   postSig(" (char *);"); 
-   sprintf(temps,"Set%s",$<str>4); 
+   postSig(" (char *);");
+   sprintf(temps,"Set%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = VTK_PARSE_CHAR_PTR;
@@ -589,21 +593,21 @@ macro:
    output_function();
    }
 | GetStringMacro '(' {preSig("char *Get");} any_id ')'
-   { 
+   {
    postSig(" ();");
-   sprintf(temps,"Get%s",$<str>4); 
+   sprintf(temps,"Get%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_CHAR_PTR;
    output_function();
    }
-| SetClampMacro  '(' any_id ',' 
-    {preSig("void Set"); postSig(" ("); } type_red2 
+| SetClampMacro  '(' any_id ','
+    {preSig("void Set"); postSig(" ("); } type_red2
     {postSig(");"); openSig = 0;} ',' maybe_other_no_semi ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sscanf (currentFunction->Signature, "%*s %*s (%s);", local);
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -629,11 +633,11 @@ macro:
    currentFunction->ReturnType = $<integer>6;
    output_function();
    }
-| SetObjectMacro '(' any_id ',' 
+| SetObjectMacro '(' any_id ','
   {preSig("void Set"); postSig(" ("); } type_red2 ')'
-   { 
+   {
    postSig("*);");
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
@@ -641,55 +645,43 @@ macro:
    currentFunction->ReturnType = VTK_PARSE_VOID;
    output_function();
    }
-| SetReferenceCountedObjectMacro '(' any_id ','   
-   {preSig("void Set"); postSig(" ("); } type_red2 ')'
-   { 
-   postSig("*);");
-   sprintf(temps,"Set%s",$<str>3); 
-   currentFunction->Name = vtkstrdup(temps);
-   currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
-   currentFunction->ArgCounts[0] = 1;
-   currentFunction->ReturnType = VTK_PARSE_VOID;
-   output_function();
-   }
-| GetObjectMacro '(' {postSig("*Get");} any_id ',' 
+| GetObjectMacro '(' {postSig("*Get");} any_id ','
    {postSig(" ();"); invertSig = 1;} type_red2 ')'
-   { 
-   sprintf(temps,"Get%s",$<str>4); 
+   {
+   sprintf(temps,"Get%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
    output_function();
    }
-| BooleanMacro '(' any_id 
-    {preSig("void "); postSig("On ();"); openSig = 0; } 
+| BooleanMacro '(' any_id
+    {preSig("void "); postSig("On ();"); openSig = 0; }
         ',' type_red2 ')'
-   { 
-   sprintf(temps,"%sOn",$<str>3); 
+   {
+   sprintf(temps,"%sOn",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_VOID;
    output_function();
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
-   sprintf(currentFunction->Signature,"void %sOff ();",$<str>3); 
-   sprintf(temps,"%sOff",$<str>3); 
+   sprintf(currentFunction->Signature,"void %sOff ();",$<str>3);
+   sprintf(temps,"%sOff",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    output_function();
    }
-| SetVector2Macro '(' any_id ',' 
+| SetVector2Macro '(' any_id ','
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s);",$<str>3,
      local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 2;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -709,16 +701,16 @@ macro:
    currentFunction->ArgCounts[0] = 2;
    output_function();
    }
-| GetVector2Macro  '(' any_id ',' 
+| GetVector2Macro  '(' any_id ','
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_POINTER + $<integer>6;
@@ -726,17 +718,17 @@ macro:
    currentFunction->HintSize = 2;
    output_function();
    }
-| SetVector3Macro '(' any_id ',' 
+| SetVector3Macro '(' any_id ','
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s);",
      $<str>3, local, local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 3;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -762,12 +754,12 @@ macro:
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_POINTER + $<integer>6;
@@ -775,17 +767,17 @@ macro:
    currentFunction->HintSize = 3;
    output_function();
    }
-| SetVector4Macro '(' any_id ',' 
+| SetVector4Macro '(' any_id ','
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s);",
      $<str>3, local, local, local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 4;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -813,12 +805,12 @@ macro:
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_POINTER + $<integer>6;
@@ -830,13 +822,13 @@ macro:
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s, %s, %s);",
      $<str>3, local, local, local, local, local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 6;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -868,12 +860,12 @@ macro:
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
       type_red2 ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_POINTER + $<integer>6;
@@ -881,17 +873,17 @@ macro:
    currentFunction->HintSize = 6;
    output_function();
    }
-| SetVectorMacro  '(' any_id ',' 
+| SetVectorMacro  '(' any_id ','
       {
       free (currentFunction->Signature);
       currentFunction->Signature = NULL;
-      } 
+      }
      type_red2 ',' float_num ')'
    {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",$<str>3,
       local, $<integer>8);
-     sprintf(temps,"Set%s",$<str>3); 
+     sprintf(temps,"Set%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->ReturnType = VTK_PARSE_VOID;
      currentFunction->NumberOfArguments = 1;
@@ -899,16 +891,16 @@ macro:
      currentFunction->ArgCounts[0] = $<integer>8;
      output_function();
    }
-| GetVectorMacro  '(' any_id ',' 
+| GetVectorMacro  '(' any_id ','
      {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
-     } 
+     }
      type_red2 ',' float_num ')'
-   { 
+   {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_POINTER + $<integer>6;
@@ -917,11 +909,11 @@ macro:
    output_function();
    }
 | ViewportCoordinateMacro '(' any_id ')'
-   { 
+   {
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        $<str>3);
 
-     sprintf(temps,"Get%sCoordinate",$<str>3); 
+     sprintf(temps,"Get%sCoordinate",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
@@ -932,7 +924,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double, double);",
        $<str>3);
-     sprintf(temps,"Set%s",$<str>3); 
+     sprintf(temps,"Set%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 2;
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE;
@@ -951,11 +943,11 @@ macro:
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE_PTR;
      currentFunction->ArgCounts[0] = 2;
      output_function();
-     
+
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"double *Get%s ();", $<str>3);
-     sprintf(temps,"Get%s",$<str>3); 
+     sprintf(temps,"Get%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_DOUBLE_PTR;
@@ -964,11 +956,11 @@ macro:
      output_function();
    }
 | WorldCoordinateMacro '(' any_id ')'
-   { 
+   {
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        $<str>3);
 
-     sprintf(temps,"Get%sCoordinate",$<str>3); 
+     sprintf(temps,"Get%sCoordinate",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
@@ -979,7 +971,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double, double, double);",
        $<str>3);
-     sprintf(temps,"Set%s",$<str>3); 
+     sprintf(temps,"Set%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 3;
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE;
@@ -1000,11 +992,11 @@ macro:
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE_PTR;
      currentFunction->ArgCounts[0] = 3;
      output_function();
-     
+
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"double *Get%s ();", $<str>3);
-     sprintf(temps,"Get%s",$<str>3); 
+     sprintf(temps,"Get%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_DOUBLE_PTR;
@@ -1013,11 +1005,11 @@ macro:
      output_function();
    }
 | TypeMacro '(' any_id ',' any_id ')'
-   { 
+   {
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "const char *GetClassName ();");
-   sprintf(temps,"GetClassName"); 
+   sprintf(temps,"GetClassName");
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
@@ -1027,7 +1019,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,
            "int IsA (const char *name);");
-   sprintf(temps,"IsA"); 
+   sprintf(temps,"IsA");
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
@@ -1039,7 +1031,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
            $<str>3);
-   sprintf(temps,"NewInstance"); 
+   sprintf(temps,"NewInstance");
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
@@ -1052,7 +1044,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
              $<str>3);
-     sprintf(temps,"SafeDownCast"); 
+     sprintf(temps,"SafeDownCast");
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
@@ -1064,11 +1056,11 @@ macro:
      }
    }
 | TypeMacro '(' any_id ',' any_id ',' ')'
-   { 
+   {
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "const char *GetClassName ();");
-   sprintf(temps,"GetClassName"); 
+   sprintf(temps,"GetClassName");
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
@@ -1078,7 +1070,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,
            "int IsA (const char *name);");
-   sprintf(temps,"IsA"); 
+   sprintf(temps,"IsA");
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
@@ -1090,7 +1082,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
            $<str>3);
-   sprintf(temps,"NewInstance"); 
+   sprintf(temps,"NewInstance");
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
@@ -1103,7 +1095,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
              $<str>3);
-     sprintf(temps,"SafeDownCast"); 
+     sprintf(temps,"SafeDownCast");
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
@@ -1179,7 +1171,7 @@ void look_for_hint(void)
   int  h_value;
 
   /* reset the position */
-  if (!fhint) 
+  if (!fhint)
     {
     return;
     }
@@ -1206,14 +1198,14 @@ void output_function()
 
   /* a void argument is the same as no arguements */
   if ((currentFunction->ArgTypes[0] & VTK_PARSE_UNQUALIFIED_TYPE) ==
-      VTK_PARSE_VOID) 
+      VTK_PARSE_VOID)
     {
     currentFunction->NumberOfArguments = 0;
     }
 
   currentFunction->IsPublic = in_public;
   currentFunction->IsProtected = in_protected;
-  
+
   /* look for VAR FUNCTIONS */
   if (currentFunction->NumberOfArguments
       && (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION))
@@ -1227,7 +1219,7 @@ void output_function()
       currentFunction->ArrayFailure = 1;
       }
     }
-  
+
   /* is it a delete function */
   if (currentFunction->Name && !strcmp("Delete",currentFunction->Name))
     {
@@ -1270,7 +1262,7 @@ void output_function()
     {
     currentFunction->Comment = vtkstrdup(CommentText);
     }
-  
+
   data.NumberOfFunctions++;
   currentFunction = data.Functions + data.NumberOfFunctions;
   InitFunction(currentFunction);
@@ -1283,14 +1275,14 @@ int main(int argc,char *argv[])
   FILE *fin;
   int ret;
   FILE *fout;
-  
+
   if (argc < 4 || argc > 5)
     {
     fprintf(stderr,
             "Usage: %s input_file <hint_file> is_concrete output_file\n",argv[0]);
     exit(1);
     }
-  
+
   if (!(fin = fopen(argv[1],"r")))
     {
     fprintf(stderr,"Error opening input file %s\n",argv[1]);
@@ -1318,17 +1310,17 @@ int main(int argc,char *argv[])
     {
     data.IsConcrete = atoi(argv[2]);
     }
-  
+
   currentFunction = data.Functions;
   InitFunction(currentFunction);
-  
+
   yyin = fin;
   yyout = stdout;
   ret = yyparse();
   if (ret)
     {
     fprintf(stdout,
-            "*** SYNTAX ERROR found in parsing the header file %s before line %d ***\n", 
+            "*** SYNTAX ERROR found in parsing the header file %s before line %d ***\n",
             argv[1], yylineno);
     return ret;
     }
@@ -1343,7 +1335,7 @@ int main(int argc,char *argv[])
     fout = fopen(argv[3],"w");
     data.OutputFileName = argv[3];
     }
-  
+
   if (!fout)
     {
     fprintf(stderr,"Error opening output file %s\n",argv[3]);

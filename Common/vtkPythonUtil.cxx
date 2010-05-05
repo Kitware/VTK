@@ -1522,7 +1522,10 @@ int PyVTKCheckArg(
     case 'z':
       if (format[1] == '#') // memory buffer
         {
-        penalty |= VTK_PYTHON_GOOD_MATCH;
+        if (penalty != VTK_PYTHON_INCOMPATIBLE)
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
         // make sure that arg can act as a buffer
         if (arg != Py_None && arg->ob_type->tp_as_buffer == 0)
           {
@@ -1568,6 +1571,42 @@ int PyVTKCheckArg(
             }
           }
         }
+
+      // string functions
+      else if (name[0] == 's' && strcmp(classname, "string") == 0)
+        {
+        // this makes "char *" preferable to "string"
+        penalty = VTK_PYTHON_GOOD_MATCH;
+        if (!PyString_Check(arg))
+          {
+#ifdef PY_USING_UNICODE
+          penalty++;
+          if (!PyUnicode_Check(arg))
+            {
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
+#else
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+#endif
+          }
+        }
+
+#ifdef PY_USING_UNICODE
+      // unicode string functions
+      else if (name[0] == 'u' && strcmp(classname, "unicode") == 0)
+        {
+        if (!PyUnicode_Check(arg))
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          penalty++;
+          if (!PyString_Check(arg))
+            {
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        }
+#endif
 
       // callback functions
       else if (name[0] == 'f' && strcmp(classname, "func") == 0)
