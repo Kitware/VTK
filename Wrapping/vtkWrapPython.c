@@ -305,7 +305,8 @@ static void vtkWrapPython_MakeTempVariable(
     }
 
   /* ditto for bool */
-  if ((i != MAX_ARGS) && (aType == VTK_PARSE_BOOL))
+  if ((i != MAX_ARGS) &&
+      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_BOOL))
     {
     fprintf(fp,
             "  PyObject *tempB%d = 0;\n",
