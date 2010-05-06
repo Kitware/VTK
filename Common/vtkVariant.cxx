@@ -287,6 +287,106 @@ vtkVariant::vtkVariant(const vtkVariant & other)
     }
 }
 
+vtkVariant::vtkVariant(const vtkVariant &s2, unsigned int type)
+{
+  bool valid = false;
+
+  if (s2.Valid)
+    {
+    switch (type)
+      {
+      case VTK_STRING:
+        this->Data.String = new vtkStdString(s2.ToString());
+        valid = true;
+        break;
+
+      case VTK_UNICODE_STRING:
+        this->Data.UnicodeString =
+          new vtkUnicodeString(s2.ToUnicodeString());
+        valid = true;
+        break;
+
+      case VTK_OBJECT:
+        this->Data.VTKObject = s2.ToVTKObject();
+        if (this->Data.VTKObject)
+          {
+          this->Data.VTKObject->Register(0);
+          valid = true;
+          }
+        break;
+
+      case VTK_CHAR:
+        this->Data.Char = s2.ToChar(&valid);
+        break;
+
+      case VTK_SIGNED_CHAR:
+        this->Data.SignedChar = s2.ToSignedChar(&valid);
+        break;
+
+      case VTK_UNSIGNED_CHAR:
+        this->Data.UnsignedChar = s2.ToUnsignedChar(&valid);
+        break;
+
+      case VTK_SHORT:
+        this->Data.Short = s2.ToShort(&valid);
+        break;
+
+      case VTK_UNSIGNED_SHORT:
+        this->Data.UnsignedShort = s2.ToUnsignedShort(&valid);
+        break;
+
+      case VTK_INT:
+        this->Data.Int = s2.ToInt(&valid);
+        break;
+
+      case VTK_UNSIGNED_INT:
+        this->Data.UnsignedInt = s2.ToUnsignedInt(&valid);
+        break;
+
+      case VTK_LONG:
+        this->Data.Long = s2.ToLong(&valid);
+        break;
+
+      case VTK_UNSIGNED_LONG:
+        this->Data.UnsignedLong = s2.ToUnsignedLong(&valid);
+        break;
+
+#if defined(VTK_TYPE_USE___INT64)
+      case VTK___INT64:
+        this->Data.__Int64 = s2.To__Int64(&valid);
+        break;
+
+      case VTK_UNSIGNED___INT64:
+        this->Data.Unsigned__Int64 = s2.ToUnsigned__Int64(&valid);
+        break;
+#endif
+
+#if defined(VTK_TYPE_USE_LONG_LONG)
+      case VTK_LONG_LONG:
+        this->Data.LongLong = s2.ToLongLong(&valid);
+        break;
+
+      case VTK_UNSIGNED_LONG_LONG:
+        this->Data.UnsignedLongLong = s2.ToUnsignedLongLong(&valid);
+        break;
+#endif
+
+      case VTK_FLOAT:
+        this->Data.Float = s2.ToFloat(&valid);
+        break;
+
+      case VTK_DOUBLE:
+        this->Data.Double = s2.ToDouble(&valid);
+        break;
+      }
+    }
+
+  if (valid)
+    {
+    this->Type = type;
+    this->Valid = valid;
+    }
+}
 
 const vtkVariant & vtkVariant::operator= (const vtkVariant & other)
 {

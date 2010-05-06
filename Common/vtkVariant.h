@@ -56,9 +56,9 @@ class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
 class vtkVariant;
-//BTX
 struct vtkVariantLessThan;
 
+//BTX
 VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
 //ETX
 
@@ -160,6 +160,10 @@ public:
   // Description:
   // Create a vtkObjectBase variant.
   vtkVariant(vtkObjectBase* value);
+
+  // Description:
+  // Create a variant of a specific type.
+  vtkVariant(const vtkVariant &other, unsigned int type);
 
   // Description:
   // Copy the value of one variant into another.
