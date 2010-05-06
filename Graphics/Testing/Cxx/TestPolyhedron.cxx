@@ -35,6 +35,8 @@
 #include "vtkShrinkFilter.h"
 #include "vtkDataArray.h"
 #include "vtkPointLocator.h"
+#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLUnstructuredGridWriter.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"

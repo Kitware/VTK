@@ -135,7 +135,7 @@ public:
   // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...).
   // If the requested cell is not a polyhedron, then the standard GetCellPoints
   // is called to return a list of unique point ids (id1, id2, id3, ...).
-  void GetFaceStream(int cellId, vtkIdList *ptIds);
+  void GetFaceStream(vtkIdType cellId, vtkIdList *ptIds);
 
   // Description:
   // Get the number of face and the face stream of a polyhedron cell. Result 
@@ -144,7 +144,7 @@ public:
   // If the requested cell is not a polyhedron, then the standard GetCellPoints
   // is called to return the number of points and a list of unique point ids 
   // (id1, id2, id3, ...).
-  void GetFaceStream(int cellId, vtkIdType& nfaces, vtkIdType* &ptIds);
+  void GetFaceStream(vtkIdType cellId, vtkIdType& nfaces, vtkIdType* &ptIds);
 
   // Description:
   // Special methods specific to vtkUnstructuredGrid for defining the cells
