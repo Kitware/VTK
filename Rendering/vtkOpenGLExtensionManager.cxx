@@ -256,8 +256,8 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 #endif //MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
 #endif //VTK_USE_APPLE_LOADER
 
-
-#ifdef VTK_USE_GLX_GET_PROC_ADDRESS
+#ifdef VTK_USE_X
+ #ifdef VTK_USE_GLX_GET_PROC_ADDRESS
   // In a perfect world, it should be 
   // return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddress(reinterpret_cast<const GLubyte *>(fname)));
   // but glx.h of Solaris 10 has line 209 wrong: it is
@@ -265,11 +265,11 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   // when it should be:
   // extern void (*glXGetProcAddress(const GLubyte *procname))(void);
   return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddress(reinterpret_cast<const GLubyte *>(fname)));
-#endif //VTK_USE_GLX_GET_PROC_ADDRESS
-#ifdef VTK_USE_GLX_GET_PROC_ADDRESS_ARB
+ #endif //VTK_USE_GLX_GET_PROC_ADDRESS
+ #ifdef VTK_USE_GLX_GET_PROC_ADDRESS_ARB
   return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddressARB(reinterpret_cast<const GLubyte *>(fname)));
-#endif //VTK_USE_GLX_GET_PROC_ADDRESS_ARB
-
+ #endif //VTK_USE_GLX_GET_PROC_ADDRESS_ARB
+#endif
 
 #ifdef VTK_USE_VTK_DYNAMIC_LOADER
   // If the GLX implementation cannot load procedures for us, load them
