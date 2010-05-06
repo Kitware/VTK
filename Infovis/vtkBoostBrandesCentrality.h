@@ -43,12 +43,30 @@ public:
   vtkTypeMacro(vtkBoostBrandesCentrality, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get/Set the flag that sets the rule whether or not to use the
+  // edge weight array as set using \c SetEdgeWeightArrayName.
+  vtkSetMacro(UseEdgeWeightArray, bool);
+  vtkBooleanMacro(UseEdgeWeightArray, bool);
+
+  // Description:
+  // Get/Set the name of the array that needs to be used as the edge weight.
+  // The array should be a vtkDataArray.
+  vtkGetStringMacro(EdgeWeightArrayName);
+  vtkSetStringMacro(EdgeWeightArrayName);
+
+  bool UseEdgeWeightArray;
+  char* EdgeWeightArrayName;
+
+
 protected:
   vtkBoostBrandesCentrality();
   ~vtkBoostBrandesCentrality();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *);
+
+
 private:
 
   vtkIdType OriginVertexIndex;
