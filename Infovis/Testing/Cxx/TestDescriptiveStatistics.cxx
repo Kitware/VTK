@@ -146,7 +146,7 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkDescriptiveStatistics* ds1 = vtkDescriptiveStatistics::New();
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  cout << "\n## Verifying that absence of input does not cause trouble... ";
   ds1->Update();
   cout << "done.\n";
 
@@ -155,9 +155,8 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetTable1->Delete();
 
   // Select Columns of Interest
-  ds1->AddColumn( "Metric 3" ); // Include invalid Metric 3
   for ( int i = 0; i< nMetrics; ++ i )
-    {  // Try to add all valid indices once more
+    {
     ds1->AddColumn( columns[i] );
     }
 
@@ -180,7 +179,7 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkTable* outputDerived1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 1 ) );
   vtkTable* outputTest1 = ds1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
-  cout << "## Calculated the following primary statistics for first data set:\n";
+  cout << "\n## Calculated the following primary statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -358,7 +357,11 @@ int TestDescriptiveStatistics( int, char *[] )
       ++ m1outliers;
       }
     }
-  cout << "   Found 28 outliers\n";
+
+  cout << "  Found "
+       << m1outliers
+       << " outliers for Metric 1.\n";
+
   if ( m1outliers != 28 )
     {
     vtkGenericWarningMacro("Expected 28 outliers for Metric 1, found " << m1outliers << ".");
@@ -409,7 +412,7 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Select Columns of Interest (all of them)
   for ( int i = 0; i< nMetrics; ++ i )
-    {  // Try to add all valid indices once more
+    {
     ds2->AddColumn( columns[i] );
     }
 
@@ -552,8 +555,14 @@ int TestDescriptiveStatistics( int, char *[] )
   ds3->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
   simpleTable->Delete();
 
-  // Select Column of Interest
+  // Select column of interest
   ds3->AddColumn( "Digits" );
+
+  // Add non existing column
+  ds3->AddColumn( "Bogus" );
+
+  // Warning for non existing column will mess up output
+  cout << "\n";
 
   // Test Learn and Derive options only
   ds3->SetLearnOption( true );
