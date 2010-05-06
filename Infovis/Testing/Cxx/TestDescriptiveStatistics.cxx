@@ -471,7 +471,7 @@ int TestDescriptiveStatistics( int, char *[] )
   outputPrimary1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 0 ) );
   outputDerived1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 1 ) );
 
-  cout << "## Calculated the following primary statistics for updated (first + second) data set:\n";
+  cout << "\n## Calculated the following primary statistics for updated (first + second) data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
