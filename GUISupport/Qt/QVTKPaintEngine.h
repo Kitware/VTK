@@ -64,6 +64,10 @@ public:
   // draw a path
   void drawPath(const QPainterPath& path);
 
+  // Description:
+  // draw a polygon
+  void drawPolygon(const QPointF* points, int pointCount, PolygonDrawMode mode);
+
 protected:
 
   QVTKWidget* Widget;
