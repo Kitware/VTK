@@ -451,19 +451,19 @@ int TestDescriptiveStatistics( int, char *[] )
   ds2->Delete();
 
   // Test model aggregation by adding new data to engine which already has a model
+  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  datasetTable2->Delete();
   vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
   model->ShallowCopy( outputMetaDS1 );
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
   ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model );
+  model->Delete();
 
   // Update with Learn and Derive options only
   ds1->SetLearnOption( true );
   ds1->SetDeriveOption( true );
   ds1->SetTestOption( false );
   ds1->SetAssessOption( false );
-
   ds1->Update();
-  model->Delete();
 
   // Updated reference values
   // Means deviations for metrics 0, 1, and 2, respectively
@@ -520,7 +520,6 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   // Clean up
-  datasetTable2->Delete();
   ds1->Delete();
 
   // ************** Very simple example, for baseline comparison vs. R ********* 
