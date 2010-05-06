@@ -607,7 +607,22 @@ static void vtkWrapPython_ReturnValue(
       fprintf(fp,
               "    result = PyString_FromString(temp%i);\n",
               MAX_ARGS);
+      break;
       }
+
+    /* return a vtkUnicodeString, using utf8 intermediate */
+#ifdef Py_UNICODE_SIZE
+    case VTK_PARSE_UNICODE_STRING:
+      {
+      fprintf(fp,
+              "      {\n"
+              "      const char *s = temp%i.utf8_str();\n"
+              "      result = PyUnicode_DecodeUTF8(s, strlen(s), \"strict\");\n"
+              "      }\n",
+              MAX_ARGS);
+      break;
+      }
+#endif
     }
 }
 
@@ -1685,6 +1700,41 @@ static void vtkWrapPython_GenerateMethods(
                       "      }\n",
                       i, i, on_error);
               }
+#ifdef Py_UNICODE_SIZE
+            else if (argType == VTK_PARSE_UNICODE_STRING)
+              {
+              fprintf(fp,
+                      "    if (PyString_Check(tempS%d))\n"
+                      "      {\n"
+                      "      if (vtkUnicodeString::is_utf8(PyString_AS_STRING(tempS%d)))\n"
+                      "        {\n"
+                      "        temp%d = vtkUnicodeString::from_utf8(PyString_AsString(tempS%d));\n"
+                      "        }\n"
+                      "      else\n"
+                      "        {\n"
+                      "        PyErr_SetString(PyExc_TypeError, \"pure virtual method call\");\n"
+                      "        %s;\n"
+                      "        }\n"
+                      "      }\n",
+                      i, i, i, i, on_error);
+
+              fprintf(fp,
+                      "    else\n"
+                      "      {\n"
+                      "      PyObject *s = PyUnicode_AsUTF8String(tempS%d);\n"
+                      "      if (s)\n"
+                      "        {\n"
+                      "        temp%d = vtkUnicodeString::from_utf8(PyString_AsString(s));\n"
+                      "        Py_DECREF(s);\n"
+                      "        }\n"
+                      "      else\n"
+                      "        {\n"
+                      "        %s;\n"
+                      "        }\n"
+                      "      }\n",
+                      i, i, on_error);
+              }
+#endif
             }
           /* make sure passed method is callable  for VAR functions */
           if (theSignature->NumberOfArguments == 1 &&
@@ -2166,9 +2216,10 @@ static int vtkWrapPython_MethodCheck(
     if (argType == VTK_PARSE_STRING_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
 
-    /* disable UNICODE for now */
+#ifndef Py_UNICODE_SIZE
     if ((argType & VTK_PARSE_BASE_TYPE) ==
         VTK_PARSE_UNICODE_STRING) args_ok = 0;
+#endif
     }
 
   /* make sure we have all the info we need for array arguments */
@@ -2215,9 +2266,10 @@ static int vtkWrapPython_MethodCheck(
   if (returnType == VTK_PARSE_STRING_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
 
-  /* disable UNICODE for now */
+#ifndef Py_UNICODE_SIZE
   if ((returnType & VTK_PARSE_BASE_TYPE) ==
       VTK_PARSE_UNICODE_STRING) args_ok = 0;
+#endif
 
   /* if we need a return type hint make sure we have one */
   switch (returnType)

@@ -1505,8 +1505,8 @@ int PyVTKCheckArg(
       break;
 
     case 'c':
-      // penalize chars, because strings are better
-      penalty = VTK_PYTHON_GOOD_MATCH;
+      // penalize chars, they must be converted from strings
+      penalty = VTK_PYTHON_NEEDS_CONVERSION;
       if (!PyString_Check(arg) || PyString_Size(arg) != 1)
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -1572,7 +1572,7 @@ int PyVTKCheckArg(
           }
         }
 
-      // string functions
+      // string
       else if (name[0] == 's' && strcmp(classname, "string") == 0)
         {
         // this makes "char *" preferable to "string"
@@ -1591,8 +1591,8 @@ int PyVTKCheckArg(
           }
         }
 
-#ifdef PY_USING_UNICODE
-      // unicode string functions
+#ifdef Py_USING_UNICODE
+      // unicode string
       else if (name[0] == 'u' && strcmp(classname, "unicode") == 0)
         {
         if (!PyUnicode_Check(arg))
@@ -1603,7 +1603,6 @@ int PyVTKCheckArg(
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
             }
-          penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
 #endif
