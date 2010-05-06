@@ -239,6 +239,23 @@ void vtkSynchronizedRenderers::PushImageToScreen()
 }
 
 //----------------------------------------------------------------------------
+void vtkSynchronizedRenderers::ResetCamera()
+{
+  if (!this->ParallelController)
+    {
+    vtkErrorMacro("No controller set.");
+    return;
+    }
+
+  if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
+    {
+    // TODO: gather information about bounds from every one and then reset the
+    // camera on the root node alone. Other processes will get the updated
+    // camera position when render gets called.
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

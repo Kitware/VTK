@@ -82,10 +82,17 @@ public:
   vtkSetMacro(RootProcessId, int);
   vtkGetMacro(RootProcessId, int);
 
+  // Description:
+  // Resets the camera on all renders synchronized by this class. This method
+  // must only be called on the root processes, on all other processes it's a
+  // no-op.
+  void ResetCamera();
+
 //BTX
   enum 
     {
     SYNC_RENDERER_TAG = 15101,
+    RESET_CAMERA_TAG  = 15102
     };
 
   /// vtkRawImage can be used to make it easier to deal with images for

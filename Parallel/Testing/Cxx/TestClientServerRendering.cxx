@@ -18,6 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkClearZPass.h"
+#include "vtkClientServerCompositePass.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetSurfaceFilter.h"
@@ -25,7 +26,6 @@
 #include "vtkDistributedDataFilter.h"
 #include "vtkImageRenderManager.h"
 #include "vtkLightsPass.h"
-#include "vtkSocketController.h"
 #include "vtkOpaquePass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOverlayPass.h"
@@ -33,6 +33,7 @@
 #include "vtkPieceScalars.h"
 #include "vtkPKdTree.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProcess.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -42,6 +43,7 @@
 #include "vtkSequencePass.h"
 #include "vtkSmartPointer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSocketController.h"
 #include "vtkSphereSource.h"
 #include "vtkSynchronizedRenderers.h"
 #include "vtkSynchronizedRenderWindows.h"
@@ -49,13 +51,6 @@
 #include "vtkTranslucentPass.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolumetricPass.h"
-#include "vtkClientServerCompositePass.h"
-/*
-** This test only builds if MPI is in use
-*/
-#include "vtkMPICommunicator.h"
-
-#include "vtkProcess.h"
 
 #include <vtksys/CommandLineArguments.hxx>
 
@@ -189,7 +184,7 @@ void MyProcess::Execute()
     vtkSynchronizedRenderWindows::New();
   syncWindows->SetRenderWindow(renWin);
   syncWindows->SetParallelController(this->Controller);
-  syncWindows->SetIdentifier(1);
+  syncWindows->SetIdentifier(2);
   syncWindows->SetRootProcessId(this->IsServer? 1 : 0);
 
   vtkSynchronizedRenderers* syncRenderers = vtkSynchronizedRenderers::New();
