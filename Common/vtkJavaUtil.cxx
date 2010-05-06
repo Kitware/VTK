@@ -37,9 +37,9 @@ JNIEXPORT jlong vtkJavaGetId(JNIEnv *env,jobject obj)
 {
   jfieldID id;
   jlong result;
-    
+
   id = env->GetFieldID(env->GetObjectClass(obj),"vtkId","J");
-  
+
   result = env->GetLongField(obj,id);
   return result;
 }
@@ -69,7 +69,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, i
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseDoubleArrayElements(ret,array,0);
   return ret;
 }
@@ -94,7 +94,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseDoubleArrayElements(ret,array,0);
   return ret;
 }
@@ -119,7 +119,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseIntArrayElements(ret,array,0);
   return ret;
 }
@@ -144,7 +144,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, vtkIdType *ptr, i
     {
     array[i] = (int)ptr[i];
     }
-  
+
   env->ReleaseIntArrayElements(ret,array,0);
   return ret;
 }
@@ -248,7 +248,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env, float *ptr, int 
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseFloatArrayElements(ret,array,0);
   return ret;
 }
@@ -273,7 +273,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, short *ptr, int 
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseShortArrayElements(ret,array,0);
   return ret;
 }
@@ -298,7 +298,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned c
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseByteArrayElements(ret,array,0);
   return ret;
 }
@@ -324,7 +324,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, long *ptr, int siz
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseLongArrayElements(ret,array,0);
   return ret;
 }
@@ -350,7 +350,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env,uns
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseLongArrayElements(ret,array,0);
   return ret;
 }
@@ -376,7 +376,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,u
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseShortArrayElements(ret,array,0);
   return ret;
 }
@@ -402,7 +402,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env,uns
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseByteArrayElements(ret,array,0);
   return ret;
 }
@@ -428,7 +428,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env,unsig
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseIntArrayElements(ret,array,0);
   return ret;
 }
@@ -454,7 +454,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *ptr, int siz
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseCharArrayElements(ret,array,0);
   return ret;
 }
@@ -480,7 +480,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
     {
     array[i] = ptr[i];
     }
-  
+
   env->ReleaseIntArrayElements(ret,array,0);
   return ret;
 }
@@ -491,15 +491,15 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   const char *inBytes;
   int length, i;
   int resultLength = 1;
-  
+
   if( in == NULL )
     {
-    return NULL; 
+    return NULL;
     }
 
   length = env->GetStringUTFLength(in);
   inBytes = env->GetStringUTFChars(in,NULL);
-  
+
   for (i = 0; i < length; i++)
     {
     if ((inBytes[i] & 0x80) == 0) resultLength++;
@@ -520,6 +520,34 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   return result;
 }
 
+JNIEXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, vtkStdString out)
+{
+  const char *inBytes;
+  int length, i;
+
+  if( in == NULL )
+    {
+    return false;
+    }
+
+  length = env->GetStringUTFLength(in);
+  inBytes = env->GetStringUTFChars(in,NULL);
+
+  out.reserve(out.size() + length);
+
+  for (i = 0; i < length; i++)
+    {
+    if ((inBytes[i] & 0x80) == 0)
+      {
+      out.push_back(inBytes[i]);
+      }
+    }
+
+  env->ReleaseStringUTFChars(in,inBytes);
+
+  return true;
+}
+
 JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
 {
   if (!in) {
@@ -533,8 +561,8 @@ JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
 //since the callback must be a method of a class. We make the rash assumption
 //that the <this> pointer will anchor any required other elements for the
 //called functions. - edited by km
-JNIEXPORT void vtkJavaVoidFunc(void* f) 
-{  
+JNIEXPORT void vtkJavaVoidFunc(void* f)
+{
   vtkJavaVoidFuncArg *iprm = (vtkJavaVoidFuncArg *)f;
   // make sure we have a valid method ID
   if (iprm->mid)
@@ -546,16 +574,16 @@ JNIEXPORT void vtkJavaVoidFunc(void* f)
 #else
     iprm->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
 #endif
-    e->CallVoidMethod(iprm->uobj,iprm->mid,NULL); 
+    e->CallVoidMethod(iprm->uobj,iprm->mid,NULL);
     }
 }
 
-JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg) 
+JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
 {
   vtkJavaVoidFuncArg *arg2;
-  
+
   arg2 = (vtkJavaVoidFuncArg *)arg;
-  
+
   JNIEnv *e;
   // it should already be atached
 #ifdef JNI_VERSION_1_2
@@ -568,13 +596,13 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
   delete arg2;
 }
 
-vtkJavaCommand::vtkJavaCommand() 
-{ 
+vtkJavaCommand::vtkJavaCommand()
+{
   this->vm = NULL;
 }
 
-vtkJavaCommand::~vtkJavaCommand() 
-{ 
+vtkJavaCommand::~vtkJavaCommand()
+{
   JNIEnv *e;
   // it should already be atached
 #ifdef JNI_VERSION_1_2
@@ -598,7 +626,7 @@ void vtkJavaCommand::Execute(vtkObject *, unsigned long, void *)
 #else
     this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
 #endif
-    e->CallVoidMethod(this->uobj,this->mid,NULL); 
+    e->CallVoidMethod(this->uobj,this->mid,NULL);
     }
 }
 

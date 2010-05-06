@@ -39,7 +39,7 @@ void output_proto_vars(FILE *fp, int i)
     return;
     }
 
-  if (aType == VTK_PARSE_CHAR_PTR)
+  if ((aType == VTK_PARSE_CHAR_PTR) || (aType == VTK_PARSE_STRING))
     {
     fprintf(fp,"jstring ");
     fprintf(fp,"id%i",i);
@@ -205,7 +205,9 @@ void return_result(FILE *fp)
     case VTK_PARSE_BOOL:
       fprintf(fp,"jboolean ");
       break;
-    case VTK_PARSE_CHAR_PTR: fprintf(fp,"jstring "); break;
+    case VTK_PARSE_CHAR_PTR:
+    case VTK_PARSE_STRING:
+      fprintf(fp,"jstring "); break;
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"jlong "); break;
 
@@ -244,7 +246,9 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     }
 
   /* for const * return types prototype with const */
-  if ((i == MAX_ARGS) && ((aType & VTK_PARSE_CONST) != 0))
+  if ((i == MAX_ARGS) &&
+      ((aType & VTK_PARSE_INDIRECT) != 0) &&
+      ((aType & VTK_PARSE_CONST) != 0))
     {
     fprintf(fp,"  const ");
     }
@@ -273,6 +277,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case VTK_PARSE_SIGNED_CHAR:     fprintf(fp,"signed char "); break;
     case VTK_PARSE_BOOL:     fprintf(fp,"bool "); break;
     case VTK_PARSE_VTK_OBJECT:     fprintf(fp,"%s ",Id); break;
+    case VTK_PARSE_STRING:  fprintf(fp,"vtkStdString "); break;
     case VTK_PARSE_UNKNOWN: return;
     }
 
@@ -346,6 +351,9 @@ void get_args(FILE *fp, int i)
       break;
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
+      break;
+    case VTK_PARSE_STRING:
+      fprintf(fp,"  vtkJavaUTFToString(env,id%i,temp%i);\n",i,i);
       break;
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i));\n",i,currentFunction->ArgClasses[i],i);
@@ -441,6 +449,7 @@ void do_return(FILE *fp)
   switch (rType)
     {
     case VTK_PARSE_CHAR_PTR:
+    case VTK_PARSE_STRING:
       {
       fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i);\n",
               MAX_ARGS);
@@ -842,12 +851,14 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (aType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
+    if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING) args_ok = 0;
     }
   if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
   if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
   if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       ((rType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
+  if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING) args_ok = 0;
 
   /* eliminate unsigned short * usigned int * etc */
   if (rType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;

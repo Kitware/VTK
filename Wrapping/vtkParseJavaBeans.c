@@ -37,7 +37,7 @@ void output_temp(FILE *fp,int i)
     return;
     }
 
-  if (aType == VTK_PARSE_CHAR_PTR)
+  if ((aType == VTK_PARSE_CHAR_PTR) || (VTK_PARSE_STRING))
     {
     fprintf(fp,"String ");
     }
@@ -101,7 +101,10 @@ void return_result(FILE *fp)
     case VTK_PARSE_UNSIGNED___INT64:
       fprintf(fp,"int ");
       break;
-    case VTK_PARSE_CHAR_PTR: fprintf(fp,"String "); break;
+    case VTK_PARSE_CHAR_PTR:
+    case VTK_PARSE_STRING:
+      fprintf(fp,"String ");
+      break;
     case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
@@ -358,6 +361,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (aType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
+    if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING) args_ok = 0;
     }
   if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
   if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
@@ -373,6 +377,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (rType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
+  if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING) args_ok = 0;
 
   if (currentFunction->NumberOfArguments &&
       (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
@@ -487,7 +492,7 @@ void outputFunction(FILE *fp, FileInfo *data)
           fprintf(fp,");\n      changes.firePropertyChange(\"%s\",null,",prop);
 
           /* handle basic types */
-          if (aType == VTK_PARSE_CHAR_PTR)
+          if ((aType == VTK_PARSE_CHAR_PTR) || (aType == VTK_PARSE_STRING))
             {
             fprintf(fp," id0");
             }
