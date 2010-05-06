@@ -93,15 +93,18 @@ vtkXMLPMultiBlockDataWriter.cxx
 IF(VTK_USE_RENDERING)
   SET ( Kit_SRCS
     ${Kit_SRCS}
+    vtkClientServerCompositePass.cxx
     vtkCompositeRenderManager.cxx
-    vtkImageRenderManager.cxx
-    vtkMemoryLimitImageDataStreamer.cxx
-    vtkPipelineSize.cxx
-    vtkParallelRenderManager.cxx
-    vtkPImageWriter.cxx
-    vtkTreeCompositer.cxx
     vtkCompositeRGBAPass.cxx
     vtkCompositeZPass.cxx
+    vtkImageRenderManager.cxx
+    vtkMemoryLimitImageDataStreamer.cxx
+    vtkParallelRenderManager.cxx
+    vtkPImageWriter.cxx
+    vtkPipelineSize.cxx
+    vtkSynchronizedRenderers.cxx
+    vtkSynchronizedRenderWindows.cxx
+    vtkTreeCompositer.cxx
     )
 
 # The set of source files to be encoded.

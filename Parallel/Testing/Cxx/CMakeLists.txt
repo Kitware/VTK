@@ -114,6 +114,12 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(PSLACReaderQuadratic PSLACReaderQuadratic.cxx)
     TARGET_LINK_LIBRARIES(PSLACReaderQuadratic vtkParallel)
 
+    ADD_EXECUTABLE(TestParallelRendering TestParallelRendering.cxx)
+    TARGET_LINK_LIBRARIES(TestParallelRendering vtkParallel ${MPI_LIBRARIES})
+
+    ADD_EXECUTABLE(TestClientServerRendering TestClientServerRendering.cxx)
+    TARGET_LINK_LIBRARIES(TestClientServerRendering vtkParallel ${MPI_LIBRARIES})
+
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(MPIController
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}

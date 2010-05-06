@@ -66,6 +66,7 @@ public:
   // Serialization methods used to save/restore the stream to/from raw data.
   void GetRawData(vtkstd::vector<unsigned char>& data) const;
   void SetRawData(const vtkstd::vector<unsigned char>& data);
+  void SetRawData(const unsigned char*, unsigned int size);
 
 private:
   class vtkInternals;

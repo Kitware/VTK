@@ -32,6 +32,7 @@ vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
 vtkCameraPass::vtkCameraPass()
 {
   this->DelegatePass=0;
+  this->AspectRatioOverride = 1.0;
 }
 
 // ----------------------------------------------------------------------------
@@ -47,7 +48,9 @@ vtkCameraPass::~vtkCameraPass()
 void vtkCameraPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+ 
+  os << indent << "AspectRatioOverride: " << this->AspectRatioOverride
+    << endl;
   os << indent << "DelegatePass:";
   if(this->DelegatePass!=0)
     {
@@ -184,7 +187,8 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glEnable( GL_SCISSOR_TEST );
   glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
   
-  double aspectModification = 1.0;
+  double aspectModification = this->AspectRatioOverride > 0.0?
+    this->AspectRatioOverride : 1.0;
   
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)

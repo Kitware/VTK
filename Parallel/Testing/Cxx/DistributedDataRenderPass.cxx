@@ -402,7 +402,7 @@ int main(int argc, char **argv)
   int numProcs = contr->GetNumberOfProcesses();
   int me = contr->GetLocalProcessId();
 
-  if (numProcs != 2)
+  if (numProcs < 2)
     {
     if (me == 0)
       {

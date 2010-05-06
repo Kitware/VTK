@@ -356,3 +356,24 @@ void vtkMultiProcessStream::SetRawData(const vtkstd::vector<unsigned char>& data
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkMultiProcessStream::SetRawData(const unsigned char* data,
+  unsigned int size)
+{
+  this->Internals->Data.clear();
+  if (size > 0)
+    {
+    unsigned char endianness = data[0];
+    this->Internals->Data.resize(size-1);
+    int cc=0;
+    for (;cc < size-1; cc++)
+      {
+      this->Internals->Data[cc] = data[cc+1];
+      }
+    if (this->Endianness != endianness)
+      {
+      this->Internals->SwapBytes();
+      }
+    }
+}
+

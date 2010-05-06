@@ -59,7 +59,12 @@ public:
   // Initial value is a NULL pointer.
   vtkGetObjectMacro(DelegatePass,vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass *delegatePass);
-  
+ 
+  // Description:
+  // Used to override the aspect ratio used when computing the projection
+  // matrix. This is useful when rendering for tile-displays for example.
+  vtkSetMacro(AspectRatioOverride, double);
+  vtkGetMacro(AspectRatioOverride, double);
  protected:
   // Description:
   // Default constructor. DelegatePass is set to NULL.
@@ -71,6 +76,7 @@ public:
   
   vtkRenderPass *DelegatePass;
   
+  double AspectRatioOverride;
  private:
   vtkCameraPass(const vtkCameraPass&);  // Not implemented.
   void operator=(const vtkCameraPass&);  // Not implemented.

@@ -339,6 +339,7 @@ void vtkRenderer::Render(void)
     s.SetPropArrayAndCount(this->PropArray,this->PropArrayCount);
     s.SetFrameBuffer(0);
     this->Pass->Render(&s);
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     }
   else
     {
