@@ -148,6 +148,8 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
     case VTK_PARSE___INT64:     fprintf(fp,"__int64 "); break;
     case VTK_PARSE_SIGNED_CHAR: fprintf(fp,"signed char "); break;
     case VTK_PARSE_BOOL:        fprintf(fp,"bool "); break;
+    case VTK_PARSE_STRING:      fprintf(fp,"vtkStdString "); break;
+    case VTK_PARSE_UNICODE_STRING: fprintf(fp,"vtkUnicodeString "); break;
     case VTK_PARSE_UNKNOWN:     return;
     }
 
@@ -453,6 +455,11 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+    case VTK_PARSE_STRING:
+      fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i.c_str()), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS);
+      fprintf(fp,"      }\n    else\n      {\n");
+      fprintf(fp,"      Tcl_ResetResult(interp);\n      }\n");
+      break;
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS);
       fprintf(fp,"      }\n    else\n      {\n");
@@ -576,6 +583,9 @@ void get_args(FILE *fp, int i)
               start_arg);
       fprintf(fp,"    temp%i = static_cast<unsigned long long>(tempi);\n",i);
       break;
+    case VTK_PARSE_STRING:
+      fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
+      break;
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
@@ -681,6 +691,15 @@ void outputFunction(FILE *fp, FileInfo *data)
         == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
 #endif
 
+    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE) ==
+         VTK_PARSE_STRING &&
+        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) != 0 &&
+        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) !=
+         VTK_PARSE_REF) args_ok = 0;
+
+    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE) ==
+         VTK_PARSE_UNICODE_STRING) args_ok = 0;
+
     if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
         == VTK_PARSE_VTK_OBJECT &&
         (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT)
@@ -724,6 +743,15 @@ void outputFunction(FILE *fp, FileInfo *data)
       (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
        VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
 #endif
+
+  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE_STRING &&
+      (currentFunction->ReturnType & VTK_PARSE_INDIRECT) != 0 &&
+      (currentFunction->ReturnType & VTK_PARSE_INDIRECT) !=
+       VTK_PARSE_REF) args_ok = 0;
+
+  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
+       VTK_PARSE_UNICODE_STRING) args_ok = 0;
 
   if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE)
       == VTK_PARSE_VTK_OBJECT &&
@@ -1156,6 +1184,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
               break;
             case VTK_PARSE_VOID_PTR:
             case VTK_PARSE_CHAR_PTR:
+            case VTK_PARSE_STRING:
               fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"string\" );\n" );
               break;
             case VTK_PARSE_FLOAT:
