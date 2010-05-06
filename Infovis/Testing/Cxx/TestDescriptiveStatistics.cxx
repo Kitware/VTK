@@ -520,6 +520,67 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Test model aggregation by adding new data to engine which already has a model
+  vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
+  model->ShallowCopy( outputMetaDS1 );
+  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model );
+
+  // Update with Learn and Derive options only
+  ds1->SetLearnOption( true );
+  ds1->SetDeriveOption( true );
+  ds1->SetTestOption( false );
+  ds1->SetAssessOption( false );
+  ds1->Update();
+  model->Delete();
+
+  // Get output data and meta tables
+  vtkMultiBlockDataSet* outputMetaDS6 = vtkMultiBlockDataSet::SafeDownCast( ds1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary6 = vtkTable::SafeDownCast( outputMetaDS6->GetBlock( 0 ) );
+  vtkTable* outputDerived6 = vtkTable::SafeDownCast( outputMetaDS6->GetBlock( 1 ) );
+
+  cout << "## Calculated the following primary statistics for first data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary6->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputPrimary6->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputPrimary6->GetColumnName( i )
+           << "="
+           << outputPrimary6->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    // Verify some of the calculated primary statistics
+    if ( fabs ( outputPrimary6->GetValueByName( r, "Mean" ).ToDouble() - means0[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean");
+      testStatus = 1;
+      }
+    cout << "\n";
+    }
+
+  cout << "\n## Calculated the following derived statistics for first data set:\n";
+  for ( vtkIdType r = 0; r < outputDerived6->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputDerived6->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputDerived6->GetColumnName( i )
+           << "="
+           << outputDerived6->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    // Verify some of the calculated derived statistics
+    if ( fabs ( outputDerived6->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs0[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect standard deviation");
+      testStatus = 1;
+      }
+    cout << "\n";
+    }
+
   // Clean up
   ds0->Delete();
   ds1->Delete();
