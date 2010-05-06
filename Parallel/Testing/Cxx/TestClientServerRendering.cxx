@@ -12,16 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// Test of vtkDistributedDataFilter and supporting classes, covering as much 
-// code as possible.  This test requires 4 MPI processes.
-//
-// To cover ghost cell creation, use vtkDataSetSurfaceFilter.
-//
-// To cover clipping code:  SetBoundaryModeToSplitBoundaryCells()
-//
-// To run fast redistribution: SetUseMinimalMemoryOff() (Default)
-// To run memory conserving code instead: SetUseMinimalMemoryOn()
+// Tests client-server rendering using the vtkClientServerCompositePass.
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -108,8 +99,8 @@ void MyProcess::CreatePipeline(vtkRenderer* renderer)
     }
 
   vtkSphereSource* sphere = vtkSphereSource::New();
-  sphere->SetPhiResolution(100);
-  sphere->SetThetaResolution(100);
+  //sphere->SetPhiResolution(100);
+  //sphere->SetThetaResolution(100);
 
   vtkDataSetSurfaceFilter* surface = vtkDataSetSurfaceFilter::New();
   surface->SetInputConnection(sphere->GetOutputPort());
@@ -205,6 +196,7 @@ void MyProcess::Execute()
   syncRenderers->SetRenderer(renderer);
   syncRenderers->SetParallelController(this->Controller);
   syncRenderers->SetRootProcessId(this->IsServer? 1 : 0);
+  syncRenderers->SetImageReductionFactor(this->ImageReductionFactor);
 
   this->CreatePipeline(renderer);
   this->SetupRenderPasses(renderer);
@@ -239,6 +231,7 @@ int main(int argc, char **argv)
 
   int image_reduction_factor = 1;
   int is_server = 0;
+  int port = 11111;
 
   vtksys::CommandLineArguments args;
   args.Initialize(argc, argv);
@@ -246,9 +239,15 @@ int main(int argc, char **argv)
   args.AddArgument("--image-reduction-factor",
     vtksys::CommandLineArguments::SPACE_ARGUMENT,
     &image_reduction_factor, "Image reduction factor");
+  args.AddArgument("-irf",
+    vtksys::CommandLineArguments::SPACE_ARGUMENT,
+    &image_reduction_factor, "Image reduction factor (shorthand)");
   args.AddArgument("--server",
     vtksys::CommandLineArguments::NO_ARGUMENT,
     &is_server, "process is a server");
+  args.AddArgument("--port",
+    vtksys::CommandLineArguments::SPACE_ARGUMENT,
+    &port, "Port number (default is 11111)");
   if (!args.Parse())
     {
     return 1;
@@ -264,7 +263,7 @@ int main(int argc, char **argv)
     }
   else
     {
-    if (!contr->ConnectTo(const_cast<char*>("localhost"), 11111))
+    if (!contr->ConnectTo(const_cast<char*>("localhost"), port))
       {
       return 1;
       }

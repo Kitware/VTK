@@ -392,7 +392,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   glBindTexture(GL_TEXTURE_2D, tex);
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
     this->GetWidth(), this->GetHeight(), 0,
     GL_RGBA,
     GL_UNSIGNED_BYTE,
