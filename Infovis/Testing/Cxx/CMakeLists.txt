@@ -60,7 +60,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestBoostAlgorithms
       )
 
-     message("VTK_USE_VIEWS" VTK_USE_VIEWS)
      IF (VTK_USE_VIEWS)
        SET(MyTests ${MyTests}
          TestBoostBrandesCentrality
