@@ -315,7 +315,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
   // Now, used modified output 1 as input 1 to test 0-deviation
-  cout << "\n## Searching for outliers from mean with relative deviation > 0 from 50 for metric 1:\n";
+  cout << "\n## Searching for values not equal to 50 for metric 1:\n";
 
   vtkTable* modifiedPrimary = vtkTable::New();
   modifiedPrimary->ShallowCopy( outputPrimary1 );
@@ -356,18 +356,9 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev )
       {
       ++ m1outliers;
-      cout << "   " 
-           << " row " 
-           << r
-           << ", "
-           << devs1->GetName() 
-           << " = " 
-           << dev
-           << " (value: " 
-           << vals1->GetValue( r ) 
-           << ")\n";
       }
     }
+  cout << "   Found 28 outliers\n";
   if ( m1outliers != 28 )
     {
     vtkGenericWarningMacro("Expected 28 outliers for Metric 1, found " << m1outliers << ".");
