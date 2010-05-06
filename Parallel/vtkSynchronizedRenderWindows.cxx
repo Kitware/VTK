@@ -198,7 +198,8 @@ void vtkSynchronizedRenderWindows::AbortRender()
 void vtkSynchronizedRenderWindows::HandleStartRender()
 {
   if (!this->RenderWindow || !this->ParallelRendering ||
-    !this->ParallelController || !this->Identifier)
+    !this->ParallelController || 
+    (!this->Identifier && this->RenderEventPropagation))
     {
     return;
     }
