@@ -90,11 +90,9 @@ public:
   // Get the last error text from the query
   const char* GetLastErrorText();
 
-  //BTX
   // Description:
   // Escape a string for inclusion into an SQL query
   virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
-  //ETX
 
   // Description:
   // Unlike some databases, Postgres can tell you right away how many

@@ -56,7 +56,7 @@
 //
 // Outputs:
 //   Output port 0: A vtkTable containing "document", "begin", "end", "type", and
-//     "text" columns. 
+//     "text" columns.
 //
 // Use SetInputArrayToProcess(0, ...) to specify the input table column that contains
 // document ids (must be a vtkIdTypeArray).  Default: "document"
@@ -84,14 +84,13 @@ public:
   vtkTypeMacro(vtkTokenizer, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Defines storage for a half-open range of Unicode characters [begin, end).
   typedef vtkstd::pair<vtkUnicodeString::value_type, vtkUnicodeString::value_type> DelimiterRange;
   // Description:
   // Defines storage for a collection of half-open ranges of Unicode characters.
   typedef vtkstd::vector<DelimiterRange> DelimiterRanges;
- 
+
   // Description:
   // Returns a set of delimiter ranges that match Unicode punctuation codepoints.
   static const DelimiterRanges Punctuation();
@@ -102,7 +101,7 @@ public:
   // Returns a set of delimiter ranges that match logosyllabic languages where characters represent
   // words instead of sounds, such as Chinese, Japanese, and Korean.
   static const DelimiterRanges Logosyllabic();
-  
+
   // Description:
   // Adds the half-open range of Unicode characters [begin, end) to the set of "dropped" delimiters.
   void AddDroppedDelimiters(vtkUnicodeString::value_type begin, vtkUnicodeString::value_type end);
@@ -116,7 +115,6 @@ public:
   // Description:
   // Adds a collection of delimiter ranges to the set of "kept" delimiters.
   void AddKeptDelimiters(const DelimiterRanges& ranges);
-//ETX
 
   // Description:
   // Convenience functions to specify delimiters, mainly intended for use from Python and

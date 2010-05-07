@@ -24,7 +24,7 @@
 //
 //
 // .SECTION Caveats
-// 
+//
 // Wrapping support for the Set/Get/Insert methods is a little
 // strange.  The Tcl/Python/Java wrappers treat vtkStdString as const
 // char * right now instead of dealing with native strings.  This is
@@ -54,7 +54,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //
-  // 
+  //
   // Functions required by vtkAbstractArray
   //
   //
@@ -64,7 +64,7 @@ public:
   int GetDataType()
     { return VTK_STRING; }
 
-  int IsNumeric() { return 0; } 
+  int IsNumeric() { return 0; }
 
   // Description:
   // Release storage and reset array to initial state.
@@ -89,24 +89,24 @@ public:
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not 
+  // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array. 
+  // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
 
   // Description:
   // Set the ith tuple in this array as the interpolated tuple value,
-  // given the ptIndices in the source array and associated 
+  // given the ptIndices in the source array and associated
   // interpolation weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
@@ -114,14 +114,14 @@ public:
     vtkAbstractArray* source,  double* weights);
 
   // Description
-  // Insert the ith tuple in this array as interpolated from the two values, 
-  // p1 and p2, and an interpolation factor, t. 
-  // The interpolation factor ranges from (0,1), 
-  // with t=0 located at p1. This method assumes that the three arrays are of 
+  // Insert the ith tuple in this array as interpolated from the two values,
+  // p1 and p2, and an interpolation factor, t.
+  // The interpolation factor ranges from (0,1),
+  // with t=0 located at p1. This method assumes that the three arrays are of
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i, 
-    vtkIdType id1, vtkAbstractArray* source1, 
+  virtual void InterpolateTuple(vtkIdType i,
+    vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t);
 
   // Description:
@@ -158,11 +158,11 @@ public:
   void SetValue(vtkIdType id, const char *value);
 
   // Description:
-  // Set the number of tuples (a component group) in the array. Note that 
+  // Set the number of tuples (a component group) in the array. Note that
   // this may allocate space depending on the number of components.
   virtual void SetNumberOfTuples(vtkIdType number)
     { this->SetNumberOfValues(this->NumberOfComponents* number); }
-  
+
   // Description:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
@@ -174,16 +174,16 @@ public:
   int GetNumberOfElementComponents() { return 0; }
   int GetElementComponentSize() { return static_cast<int>(sizeof(vtkStdString::value_type)); }
 
-//BTX
   // Description:
   // Insert data at a specified position in the array.
+//BTX
   void InsertValue(vtkIdType id, vtkStdString f);
 //ETX
+  void InsertValue(vtkIdType id, const char *val);
 
   // Description:
   // Insert a value into the array from a variant.
   void InsertVariantValue(vtkIdType idx, vtkVariant value);
-  void InsertValue(vtkIdType id, const char *val);
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
@@ -222,7 +222,7 @@ public:
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
   // from the suppled array. If save is 0, then this class is free to delete
-  // the array when it cleans up or reallocates. In that case, it is required 
+  // the array when it cleans up or reallocates. In that case, it is required
   // that the array was allocated using the C++ new operator (and not malloc).
   void SetArray(vtkStdString* array, vtkIdType size, int save);
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
@@ -233,8 +233,8 @@ public:
   // Return the memory in kilobytes consumed by this data array. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
-  // actually represent the data represented by this object. The 
-  // information returned is valid only after the pipeline has 
+  // actually represent the data represented by this object. The
+  // information returned is valid only after the pipeline has
   // been updated.
   //
   // This function takes into account the size of the contents of the
@@ -250,18 +250,18 @@ public:
   // for the data can be computed by GetDataSize() * GetDataTypeSize().
   // The size computation includes the string termination character for each string.
   virtual vtkIdType GetDataSize();
-  
-  //BTX
+
   // Description:
   // Return the indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+//BTX
   vtkIdType LookupValue(vtkStdString value);
   void LookupValue(vtkStdString value, vtkIdList* ids);
-  //ETX
+//ETX
   vtkIdType LookupValue(const char* value);
   void LookupValue(const char* value, vtkIdList* ids);
-  
+
   // Description:
   // Tell the array explicitly that the data has changed.
   // This is only necessary to call when you modify the array contents
@@ -274,15 +274,15 @@ public:
   // Description:
   // Tell the array explicitly that a single data element has
   // changed. Like DataChanged(), then is only necessary when you
-  // modify the array contents without using the array's API. 
+  // modify the array contents without using the array's API.
   virtual void DataElementChanged(vtkIdType id);
-  
+
   // Description:
   // Delete the associated fast lookup data structure on this array,
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
   // function.
   virtual void ClearLookup();
-  
+
 protected:
   vtkStringArray(vtkIdType numComp=1);
   ~vtkStringArray();
@@ -295,7 +295,7 @@ protected:
 private:
   vtkStringArray(const vtkStringArray&);  // Not implemented.
   void operator=(const vtkStringArray&);  // Not implemented.
-  
+
   //BTX
   vtkStringArrayLookup* Lookup;
   void UpdateLookup();

@@ -356,9 +356,7 @@ protected:
   
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
-  //BTX
   virtual vtkUnicodeString GetHoverTextInternal(vtkSelection* sel);
-  //ETX
 
   // Description:
   // Connect inputs to internal pipeline.

@@ -22,7 +22,7 @@
 //
 // .SECTION Description
 //
-// This VTK class uses the Parallel BGL  breadth_first_search 
+// This VTK class uses the Parallel BGL  breadth_first_search
 // generic algorithm to perform a breadth first search from a given
 // a 'source' vertex on the input graph (a distributed vtkGraph).
 //
@@ -39,13 +39,13 @@
 
 class vtkSelection;
 
-class VTK_PARALLEL_EXPORT vtkPBGLBreadthFirstSearch : public vtkGraphAlgorithm 
+class VTK_PARALLEL_EXPORT vtkPBGLBreadthFirstSearch : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLBreadthFirstSearch *New();
   vtkTypeMacro(vtkPBGLBreadthFirstSearch, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Convenience methods for setting the origin selection input.
   void SetOriginSelection(vtkSelection *s);
@@ -55,11 +55,10 @@ public:
   }
 
   // Description:
-  // Set the index (into the vertex array) of the 
+  // Set the index (into the vertex array) of the
   // breadth first search 'origin' vertex.
   void SetOriginVertex(vtkIdType index);
 
-  //BTX
   // Description:
   // Set the breadth first search 'origin' vertex.
   // This method is basically the same as above
@@ -67,7 +66,6 @@ public:
   // an array name and value, instead of having to
   // know the specific index of the vertex.
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
-  //ETX
 
   // Description:
   // Convenience method for setting the origin vertex
@@ -98,10 +96,10 @@ public:
   vtkGetMacro(OutputSelection, bool);
   vtkSetMacro(OutputSelection, bool);
   vtkBooleanMacro(OutputSelection, bool);
-  
+
   // Description:
   // Set the output selection type. The default is to use the
-  // the maximum distance from the starting vertex "MAX_DIST_FROM_ROOT". 
+  // the maximum distance from the starting vertex "MAX_DIST_FROM_ROOT".
   // But you can also specify other things like "ROOT","2D_MAX", etc
   vtkSetStringMacro(OutputSelectionType);
 
@@ -110,8 +108,8 @@ protected:
   ~vtkPBGLBreadthFirstSearch();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
@@ -119,7 +117,7 @@ protected:
 
   virtual int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
 
   vtkIdType OriginVertexIndex;
@@ -129,7 +127,7 @@ private:
   bool OutputSelection;
   bool OriginFromSelection;
   char* OutputSelectionType;
-  
+
   // Description:
   // Using the convenience function internally
   vtkSetStringMacro(InputArrayName);

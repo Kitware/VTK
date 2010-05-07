@@ -48,7 +48,6 @@ public:
   vtkTypeMacro(vtkTextExtractionStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Given a resource Mime type and content, implementations should return 'true' if they can
   // extract text from resources with the given Mime type, otherwise false.  If the implementation
@@ -69,7 +68,6 @@ public:
     vtkIdTypeArray* tag_begin,
     vtkIdTypeArray* tag_end,
     vtkStringArray* tag_type) = 0;
-//ETX
 
 protected:
   vtkTextExtractionStrategy();

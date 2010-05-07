@@ -25,7 +25,7 @@
 #include "vtkUnicodeString.h" // Needed for vtkUnicodeString
 #include "vtkStdString.h" // Needed for vtkStdString
 
-// .NAME vtkDelimitedTextReader - reads in delimited ascii or unicode text files 
+// .NAME vtkDelimitedTextReader - reads in delimited ascii or unicode text files
 // and outputs a vtkTable data structure.
 //
 // .SECTION Description
@@ -34,11 +34,11 @@
 //
 // The behavior of the reader with respect to ascii or unicode input is controlled
 // by the SetUnicodeCharacterSet() method.  By default (without calling SetUnicodeCharacterSet()),
-// the reader will expect to read ascii text and will output vtkStdString columns.  Use 
-// the Set and Get methods to set delimiters that do not contain UTF8 in the name when operating 
-// the reader in default ascii mode.  If the SetUnicodeCharacterSet() method is called, the reader 
-// will output vtkUnicodeString columns in the output table.  In addition, it is necessary to use 
-// the Set and Get methods that contain UTF8 in the name to specify delimiters when operating in 
+// the reader will expect to read ascii text and will output vtkStdString columns.  Use
+// the Set and Get methods to set delimiters that do not contain UTF8 in the name when operating
+// the reader in default ascii mode.  If the SetUnicodeCharacterSet() method is called, the reader
+// will output vtkUnicodeString columns in the output table.  In addition, it is necessary to use
+// the Set and Get methods that contain UTF8 in the name to specify delimiters when operating in
 // unicode mode.
 //
 // This class emits ProgressEvent for every 100 lines it reads.
@@ -46,7 +46,7 @@
 // .SECTION Thanks
 // Thanks to Andy Wilson, Brian Wylie, Tim Shead, and Thomas Otahal
 // from Sandia National Laboratories for implementing this class.
-// 
+//
 // .SECTION Caveats
 //
 // This reader assumes that the first line in the file (whether that's
@@ -84,10 +84,8 @@ public:
   // to "\r\n".
   void SetUTF8RecordDelimiters(const char* delimiters);
   const char* GetUTF8RecordDelimiters();
-//BTX
   void SetUnicodeRecordDelimiters(const vtkUnicodeString& delimiters);
   vtkUnicodeString GetUnicodeRecordDelimiters();
-//ETX
 
   // Description:
   // Specify the character(s) that will be used to separate fields.  For
@@ -100,11 +98,8 @@ public:
 
   void SetUTF8FieldDelimiters(const char* delimiters);
   const char* GetUTF8FieldDelimiters();
-//BTX
   void SetUnicodeFieldDelimiters(const vtkUnicodeString& delimiters);
   vtkUnicodeString GetUnicodeFieldDelimiters();
-//ETX
- 
 
   // Description:
   // Get/set the character that will begin and end strings.  Microsoft
@@ -119,10 +114,8 @@ public:
 
   void SetUTF8StringDelimiters(const char* delimiters);
   const char* GetUTF8StringDelimiters();
-//BTX
   void SetUnicodeStringDelimiters(const vtkUnicodeString& delimiters);
   vtkUnicodeString GetUnicodeStringDelimiters();
-//ETX
 
   // Description:
   // Set/get whether to use the string delimiter.  Defaults to on.
@@ -188,8 +181,8 @@ protected:
   ~vtkDelimitedTextReader();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   char* FileName;

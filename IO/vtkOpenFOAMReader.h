@@ -221,9 +221,7 @@ public:
   void SetRefresh() { this->Refresh = true; this->Modified(); }
 
   void SetParent(vtkOpenFOAMReader *parent) { this->Parent = parent; }
-  //BTX
   int MakeInformationVector(vtkInformationVector *, const vtkStdString &);
-  //ETX
   bool SetTimeValue(const double);
   vtkDoubleArray *GetTimeValues();
   int MakeMetaDataAtTimeStep(const bool);

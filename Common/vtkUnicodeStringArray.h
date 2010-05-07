@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkUnicodeStringArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -53,8 +53,8 @@ public:
   virtual void DeepCopy(vtkAbstractArray* da);
   virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     vtkAbstractArray* source,  double* weights);
-  virtual void InterpolateTuple(vtkIdType i, 
-    vtkIdType id1, vtkAbstractArray* source1, 
+  virtual void InterpolateTuple(vtkIdType i,
+    vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t);
   virtual void Squeeze();
   virtual int Resize(vtkIdType numTuples);
@@ -70,17 +70,15 @@ public:
   virtual void DataChanged();
   virtual void ClearLookup();
 
-//BTX
   vtkIdType InsertNextValue(const vtkUnicodeString&);
   void InsertValue(vtkIdType idx, const vtkUnicodeString&); // Ranged checked
   void SetValue(vtkIdType i, const vtkUnicodeString&); // Not ranged checked
   vtkUnicodeString& GetValue(vtkIdType i);
-//ETX
 
   void InsertNextUTF8Value(const char*);
   void SetUTF8Value(vtkIdType i, const char*);
   const char* GetUTF8Value(vtkIdType i);
-  
+
 protected:
   vtkUnicodeStringArray(vtkIdType numComp = 1);
   ~vtkUnicodeStringArray();

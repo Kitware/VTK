@@ -40,7 +40,6 @@ class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrat
   vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
 
-  //BTX
   // Description:
   // Compute the bounds of a label. Must be performed after the renderer is set.
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4])
@@ -56,7 +55,6 @@ class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrat
     { this->Superclass::RenderLabel(x, tprop, label, maxWidth); }
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label);
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth);
-  //ETX
 
   // Description:
   // Start a rendering frame. Renderer must be set.

@@ -143,7 +143,6 @@ public:
   virtual void SetAssessNames( vtkStringArray* );
   vtkGetObjectMacro(AssessNames,vtkStringArray);
 
-//BTX
   // Description:
   // Set the name of a parameter of the Assess option
   void SetAssessOptionParameter( vtkIdType id, vtkStdString name );
@@ -152,6 +151,7 @@ public:
   // Get the name of a parameter of the Assess option
   vtkStdString GetAssessParameter( vtkIdType id );
 
+//BTX
   // Description:
   // A base class for a functor that assesses data.
   class AssessFunctor {

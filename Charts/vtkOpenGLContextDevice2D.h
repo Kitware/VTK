@@ -85,7 +85,6 @@ public:
                                float startAngle, float stopAngle);
 
 
-//BTX
   // Description:
   // Draw some text to the screen!
   virtual void DrawString(float *point, vtkTextProperty *tprop,
@@ -100,7 +99,6 @@ public:
   virtual void ComputeStringBounds(const vtkStdString &string,
                                    vtkTextProperty *tprop,
                                    float bounds[4]);
-//ETX
 
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) location(s) (bottom corner).

@@ -61,7 +61,6 @@ class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
   virtual void SetDefaultTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(DefaultTextProperty, vtkTextProperty);
 
-  //BTX
   // Description:
   // Compute the bounds of a label. Must be performed after the renderer is set.
   // Only the unicode string version must be implemented in subclasses.
@@ -84,7 +83,6 @@ class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) = 0;
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int vtkNotUsed(maxWidth))
     { this->RenderLabel(x, tprop, label); }
-  //ETX
 
   // Description:
   // Start a rendering frame. Renderer must be set.

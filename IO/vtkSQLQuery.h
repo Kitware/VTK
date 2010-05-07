@@ -112,7 +112,7 @@ public:
   // You are responsible for making sure that the types match when you
   // call BindParameter.  You don't have to get it precisely correct:
   // in general, the SQL driver is smart enough to do things like cast
-  // a short to a long or a float to a double.  
+  // a short to a long or a float to a double.
   //
   // Bound parameters were introduced in ANSI SQL 92.  Please see that
   // standard for more information.
@@ -164,7 +164,6 @@ public:
   // Reset all parameter bindings to NULL.
   virtual bool ClearParameterBindings();
 
-  //BTX
   // Description:
   // Escape a string for inclusion into an SQL query.
   // If \a addSurroundingQuotes is true, then quotation marks appropriate to the
@@ -174,8 +173,9 @@ public:
   // A default, simple-minded implementation is provided for
   // database backends that do not provde a way to escape
   // strings for use inside queries.
+//BTX
   virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
-  //ETX
+//ETX
 
   // Description:
   // Escape a string for inclusion into an SQL query.

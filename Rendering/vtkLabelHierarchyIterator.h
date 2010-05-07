@@ -70,7 +70,6 @@ public:
   // Retrieves the current label type.
   virtual int GetType();
 
-  //BTX
   // Description:
   // Retrieves the current label string.
   virtual vtkStdString GetLabel();
@@ -78,7 +77,6 @@ public:
   // Description:
   // Retrieves the current label as a unicode string.
   virtual vtkUnicodeString GetUnicodeLabel();
-  //ETX
 
   // Description:
   // Retrieves the current label orientation.

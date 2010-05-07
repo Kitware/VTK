@@ -62,7 +62,6 @@ protected:
   void AddPropOnNextRender(vtkProp* p);
   void RemovePropOnNextRender(vtkProp* p);
 
-  //BTX
   // Description:
   // Obtains the hover text for a particular prop and cell.
   // If the prop is not applicable to the representation, return an empty string.
@@ -74,7 +73,6 @@ protected:
   // Subclasses may override this method to generate the hover text.
   virtual vtkUnicodeString GetHoverTextInternal(vtkSelection*)
     { return vtkUnicodeString(); }
-  //ETX
 
   // Description:
   // The view will call this method before every render.

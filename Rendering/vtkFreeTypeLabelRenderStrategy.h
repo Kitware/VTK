@@ -44,7 +44,6 @@ class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRende
   virtual bool SupportsBoundedSize()
     { return false; }
 
-  //BTX
   // Description:
   // Compute the bounds of a label. Must be performed after the renderer is set.
   virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4])
@@ -61,7 +60,6 @@ class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRende
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label);
   virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int width)
     { this->Superclass::RenderLabel(x, tprop, label, width); }
-  //ETX
 
   // Description:
   // Release any graphics resources that are being consumed by this strategy.

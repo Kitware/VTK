@@ -61,9 +61,7 @@ public:
   void AddStopWordValues();
   // Description:
   // Adds a new value to the list of token values that will be discarded.
-//BTX
   void AddValue(const vtkUnicodeString& value);
-//ETX
   // Description:
   // Clears the list of discardable token values.
   void ClearValues();

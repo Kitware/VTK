@@ -58,7 +58,6 @@ public:
   // breadth first search 'origin' vertex.
   void SetOriginVertex(vtkIdType index);
 
-  //BTX
   // Description:
   // Set the breadth first search 'origin' vertex.
   // This method is basically the same as above
@@ -66,7 +65,6 @@ public:
   // an array name and value, instead of having to
   // know the specific index of the vertex.
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
-  //ETX
 
   // Description:
   // Convenience method for setting the origin vertex

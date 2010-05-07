@@ -202,7 +202,6 @@ public:
   // Draw the supplied image at the given x, y location (bottom corner).
   void DrawImage(float x, float y, vtkImageData *image);
 
-//BTX
   // Description:
   // Draw some text to the screen in a bounding rectangle with the alignment
   // of the text properties respecting the rectangle. The points should be
@@ -213,11 +212,9 @@ public:
   // Draw some text to the screen.
   void DrawString(vtkPoints2D *point, const vtkStdString &string);
   void DrawString(float x, float y, const vtkStdString &string);
-//ETX
   void DrawString(vtkPoints2D *point, const char *string);
   void DrawString(float x, float y, const char *string);
 
-//BTX
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
   // supplied bounds variable, the first two elements are the bottom corner of
@@ -226,7 +223,6 @@ public:
   // NOTE: This function does not take account of the text rotation.
   void ComputeStringBounds(const vtkStdString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
-//ETX
   void ComputeStringBounds(const char *string, float bounds[4]);
 
   // Description:

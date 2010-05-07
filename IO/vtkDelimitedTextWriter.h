@@ -68,7 +68,6 @@ public:
   // so that the user is responsible for deleting the string.
   char *RegisterAndGetOutputString();
 
-//BTX
   // Description:
   // Internal method: Returns the "string" with the "StringDelimiter" if 
   // UseStringDelimiter is true.
@@ -93,11 +92,12 @@ protected:
   char* FieldDelimiter;
   char* StringDelimiter;
   bool UseStringDelimiter;
+//BTX
   ostream* Stream;
+//ETX
 private:
   vtkDelimitedTextWriter(const vtkDelimitedTextWriter&); // Not implemented.
   void operator=(const vtkDelimitedTextWriter&); // Not implemented.
-//ETX
 };
 
 
