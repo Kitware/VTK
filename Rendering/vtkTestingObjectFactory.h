@@ -25,18 +25,13 @@
 // exit. This factory overrides vtkRenderWindowInteractor so that the
 // Start() method just returns.
 // To use this factory:
+// \code
 //   #include "vtkTestingObjectFactory.h"
 //   vtkTestingObjectFactory* factory = vtkTestingObjectFactory::New();
 //   vtkObjectFactory::RegisterFactory(factory);
-//
+// \endcode
+
 #include "vtkObjectFactory.h"
-#include "vtkTesting.h"            // Required for testing framework
-#include "vtkTestDriver.h"         // Required for testing framework
-#include "vtkTestingInteractor.h"  // Required for testing framework
-#include "vtkSmartPointer.h"       // Required for testing framework
-//BTX
-#include <vtkstd/string> // STL Header; Required for string
-//ETX
 
 class VTK_RENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
