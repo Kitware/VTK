@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "PyVTKClass.h"
+#include "vtkPythonUtil.h"
 
 //--------------------------------------------------------------------
 static PyObject *PyVTKClass_PyString(PyVTKClass *self)
