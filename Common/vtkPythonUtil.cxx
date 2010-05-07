@@ -406,25 +406,37 @@ int vtkPythonUtil::CheckArg(
       break;
 
     case 's':
-      // the 's' format doesn't allow Py_None
-      if (arg == Py_None)
-        {
-        penalty = VTK_PYTHON_INCOMPATIBLE;
-        }
     case 'z':
       if (format[1] == '#') // memory buffer
         {
-        if (penalty != VTK_PYTHON_INCOMPATIBLE)
+        penalty = VTK_PYTHON_GOOD_MATCH;
+        if (arg == Py_None)
           {
-          penalty = VTK_PYTHON_GOOD_MATCH;
+          penalty = VTK_PYTHON_NEEDS_CONVERSION;
+          if (format[0] == 's')
+            {
+            penalty = VTK_PYTHON_INCOMPATIBLE;
+            }
           }
         // make sure that arg can act as a buffer
-        if (arg != Py_None && arg->ob_type->tp_as_buffer == 0)
+        else if (arg->ob_type->tp_as_buffer == 0)
           {
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
-      else if (arg != Py_None && !PyString_Check(arg))
+      else if (arg == Py_None)
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        if (format[0] == 's')
+          {
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        }
+      else if (PyUnicode_Check(arg))
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      else if (!PyString_Check(arg))
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
@@ -464,40 +476,17 @@ int vtkPythonUtil::CheckArg(
           }
         }
 
-      // string
-      else if (name[0] == 's' && strcmp(classname, "string") == 0)
-        {
-        // this makes "char *" preferable to "string"
-        penalty = VTK_PYTHON_GOOD_MATCH;
-        if (!PyString_Check(arg))
-          {
-#ifdef PY_USING_UNICODE
-          penalty++;
-          if (!PyUnicode_Check(arg))
-            {
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-#else
-          penalty = VTK_PYTHON_INCOMPATIBLE;
-#endif
-          }
-        }
-
-#ifdef Py_USING_UNICODE
       // unicode string
+#ifdef Py_USING_UNICODE
       else if (name[0] == 'u' && strcmp(classname, "unicode") == 0)
         {
         if (!PyUnicode_Check(arg))
           {
-          penalty = VTK_PYTHON_GOOD_MATCH;
-          penalty++;
-          if (!PyString_Check(arg))
-            {
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
+          penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
 #endif
+
 
       // callback functions
       else if (name[0] == 'f' && strcmp(classname, "func") == 0)

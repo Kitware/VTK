@@ -297,7 +297,7 @@ static void vtkWrapPython_MakeTempVariable(
       (i != MAX_ARGS))
     {
     fprintf(fp,
-            "  int      size%d;\n",
+            "  int size%d;\n",
             i);
     }
 
@@ -321,11 +321,29 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* ditto for string */
   if ((i != MAX_ARGS) &&
-      (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_UNICODE_STRING) ||
-       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_STRING)))
+       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_STRING))
     {
     fprintf(fp,
+            "  const char *tempC%d = 0;\n",
+            i);
+    }
+
+  /* ditto for unicode */
+  if ((i != MAX_ARGS) &&
+      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_UNICODE_STRING))
+    {
+    fprintf(fp,
+            "  PyObject *tempU%d = 0;\n"
             "  PyObject *tempS%d = 0;\n",
+            i, i);
+    }
+
+  /* A temporary mini-string for character return value conversion */
+  if ((i == MAX_ARGS) &&
+      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR))
+    {
+    fprintf(fp,
+            "  char tempA%d[2];\n",
             i);
     }
 }
@@ -593,11 +611,10 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_CHAR:
       {
       fprintf(fp,
-              "    char temp%iString[2];\n"
-              "    temp%iString[0] = temp%i;\n"
-              "    temp%iString[1] = \'\\0\';\n"
-              "    result = PyString_FromStringAndSize(temp%iString,1);\n",
-              MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS);
+              "    tempA%i[0] = temp%i;\n"
+              "    tempA%i[1] = \'\\0\';\n"
+              "    result = PyString_FromStringAndSize(tempA%i,1);\n",
+              MAX_ARGS, MAX_ARGS, MAX_ARGS, MAX_ARGS);
       break;
       }
 
@@ -610,8 +627,9 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
 
-    /* return a vtkUnicodeString, using utf8 intermediate */
-#ifdef Py_UNICODE_SIZE
+    /* return a vtkUnicodeString, using utf8 intermediate because python
+     * can be configured for either 32-bit or 16-bit unicode and it's
+     * tricky to test both, so utf8 is a safe alternative */
     case VTK_PARSE_UNICODE_STRING:
       {
       fprintf(fp,
@@ -622,7 +640,6 @@ static void vtkWrapPython_ReturnValue(
               MAX_ARGS);
       break;
       }
-#endif
     }
 }
 
@@ -779,7 +796,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
         result[currPos++] = 'O';
         break;
       case VTK_PARSE_STRING:
-        result[currPos++] = 'O';
+        result[currPos++] = 's';
         break;
       case VTK_PARSE_UNICODE_STRING:
         result[currPos++] = 'O';
@@ -829,12 +846,6 @@ static char *vtkWrapPython_ArgCheckString(
       {
       strcpy(&result[currPos], " bool");
       currPos += 5;
-      }
-
-    if (argtype == VTK_PARSE_STRING)
-      {
-      strcpy(&result[currPos], " string");
-      currPos += 7;
       }
 
     if (argtype == VTK_PARSE_UNICODE_STRING)
@@ -1606,10 +1617,13 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,", &tempB%d",i);
               }
-            else if ((argType == VTK_PARSE_STRING) ||
-                     (argType == VTK_PARSE_UNICODE_STRING))
+            else if (argType == VTK_PARSE_STRING)
               {
-              fprintf(fp,", &tempS%d",i);
+              fprintf(fp,", &tempC%d",i);
+              }
+            else if (argType == VTK_PARSE_UNICODE_STRING)
+              {
+              fprintf(fp,", &tempU%d",i);
               }
             else if (argType == VTK_PARSE_VOID_PTR)
               {
@@ -1693,46 +1707,24 @@ static void vtkWrapPython_GenerateMethods(
             else if (argType == VTK_PARSE_STRING)
               {
               fprintf(fp,
-                      "    temp%d = PyString_AsString(tempS%d);\n"
-                      "    if (PyErr_Occurred())\n"
-                      "      {\n"
-                      "      %s;\n"
-                      "      }\n",
-                      i, i, on_error);
+                      "    temp%d = tempC%d;\n",
+                      i, i);
               }
-#ifdef Py_UNICODE_SIZE
+#ifdef Py_USING_UNICODE
             else if (argType == VTK_PARSE_UNICODE_STRING)
               {
               fprintf(fp,
-                      "    if (PyString_Check(tempS%d))\n"
+                      "    tempS%d = PyUnicode_AsUTF8String(tempU%d);\n"
+                      "    if (tempS%d)\n"
                       "      {\n"
-                      "      if (vtkUnicodeString::is_utf8(PyString_AS_STRING(tempS%d)))\n"
-                      "        {\n"
-                      "        temp%d = vtkUnicodeString::from_utf8(PyString_AsString(tempS%d));\n"
-                      "        }\n"
-                      "      else\n"
-                      "        {\n"
-                      "        PyErr_SetString(PyExc_TypeError, \"pure virtual method call\");\n"
-                      "        %s;\n"
-                      "        }\n"
-                      "      }\n",
-                      i, i, i, i, on_error);
-
-              fprintf(fp,
+                      "      temp%d = vtkUnicodeString::from_utf8(PyString_AS_STRING(tempS%d));\n"
+                      "      Py_DECREF(tempS%d);\n"
+                      "      }\n"
                       "    else\n"
                       "      {\n"
-                      "      PyObject *s = PyUnicode_AsUTF8String(tempS%d);\n"
-                      "      if (s)\n"
-                      "        {\n"
-                      "        temp%d = vtkUnicodeString::from_utf8(PyString_AsString(s));\n"
-                      "        Py_DECREF(s);\n"
-                      "        }\n"
-                      "      else\n"
-                      "        {\n"
-                      "        %s;\n"
-                      "        }\n"
+                      "      %s;\n"
                       "      }\n",
-                      i, i, on_error);
+                      i, i, i, i, i, i, on_error);
               }
 #endif
             }
