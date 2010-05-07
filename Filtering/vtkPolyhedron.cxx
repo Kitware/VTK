@@ -1135,16 +1135,15 @@ void vtkPolyhedron::InternalContour(double value,
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->DeepCopy(this->Points);
   vtkSmartPointer<vtkMergePoints> merge = vtkSmartPointer<vtkMergePoints>::New();
-  merge->SetTolerance(0.0);
   merge->InitPointInsertion(points, this->Bounds);
   for (int i = 0; i < points->GetNumberOfPoints(); i++)
     {
     merge->InsertUniquePoint(points->GetPoint(i), pid);
     }
 
-  if (outScalars)
+  for (vtkIdType i = 0; i < inScalars->GetNumberOfTuples(); i++)
     {
-    outScalars->DeepCopy(inScalars);
+    outScalars->InsertNextTuple1(inScalars->GetTuple1(i));
     }
   
   pointToFacesMap.clear();
@@ -1191,7 +1190,7 @@ void vtkPolyhedron::InternalContour(double value,
     ++faceIter;
     }
 
-  const double eps = 0.000000000001;
+  const double eps = 0.0000000001;
 
   // loop through all edges to find contour points and store them in the point 
   // locator. if the contour points are new (not overlap with any of original 
@@ -1581,7 +1580,8 @@ void vtkPolyhedron::Clip(double value,
   // vector to store cell connectivity
   IdVectorType cellVector;
 
-  vtkDataArray * contourScalars = pointScalars->NewInstance();
+  vtkSmartPointer<vtkDoubleArray> contourScalars = 
+    vtkSmartPointer<vtkDoubleArray>::New();
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
 
@@ -1592,59 +1592,60 @@ void vtkPolyhedron::Clip(double value,
   // if empty contour, the polyhedron will be all inside or all outside
   if (!contourPolys->GetNumberOfCells())
     {
-    bool containPositivePoint = false;
+    int numPositivePoints = 0;
     for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
       {
       double v = static_cast<double>(pointScalars->GetComponent(i,0));
       if (((v < value) && insideOut) || ((v > value) && (!insideOut)))
         {
-        containPositivePoint = true;
-        break;
+        numPositivePoints++;
         }
-      }
-    if (containPositivePoint)
-      {
-      cellVector.push_back(this->GetNumberOfFaces());
-
-      // loop through all faces to add them into cellVector
-      vtkPolyhedronFaceIterator 
-        faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
-      while (faceIter.Id < faceIter.NumberOfPolygons)
-        {
-        IdVectorType pids;
-        for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
-          {
-          vtkIdType pid = faceIter.Current[i];
-          if (locator->InsertUniquePoint(this->Points->GetPoint(pid), newPid))
-            {
-            vtkIdType globalPid = this->PointIds->GetId(pid);
-            outPd->CopyData(inPd, globalPid, newPid);
-            }
-          pids.push_back(pid);
-          pointIdMap.insert(IdToIdPairType(pid, newPid));
-          }
-
-        npts = static_cast<vtkIdType>(pids.size());
-        pts = &(pids[0]);
-        if (!ConvertPointIds(npts, pts, pointIdMap))
-          {
-          vtkErrorMacro("Cannot find the id of an output point. We should never "
-            "get here. Clipping aborted.");
-          contourScalars->Delete();
-          return;
-          }
-        cellVector.push_back(npts);
-        cellVector.insert(cellVector.end(), pts, pts+npts);
-       
-        ++faceIter;
-        }
-      
-      newCellId = connectivity->InsertNextCell(
-        static_cast<vtkIdType>(cellVector.size()), &(cellVector[0]));
-      outCd->CopyData(inCd, cellId, newCellId);
       }
     
-    contourScalars->Delete();
+    // point or line cases
+    if (numPositivePoints < 3)
+      {
+      return;
+      }
+
+    cellVector.push_back(this->GetNumberOfFaces());
+
+    // loop through all faces to add them into cellVector
+    vtkPolyhedronFaceIterator 
+      faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
+    while (faceIter.Id < faceIter.NumberOfPolygons)
+      {
+      IdVectorType pids;
+      for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
+        {
+        vtkIdType pid = faceIter.Current[i];
+        if (locator->InsertUniquePoint(this->Points->GetPoint(pid), newPid))
+          {
+          vtkIdType globalPid = this->PointIds->GetId(pid);
+          outPd->CopyData(inPd, globalPid, newPid);
+          }
+        pids.push_back(pid);
+        pointIdMap.insert(IdToIdPairType(pid, newPid));
+        }
+
+      npts = static_cast<vtkIdType>(pids.size());
+      pts = &(pids[0]);
+      if (!ConvertPointIds(npts, pts, pointIdMap))
+        {
+        vtkErrorMacro("Cannot find the id of an output point. We should never "
+          "get here. Clipping aborted.");
+        return;
+        }
+      cellVector.push_back(npts);
+      cellVector.insert(cellVector.end(), pts, pts+npts);
+     
+      ++faceIter;
+      }
+    
+    newCellId = connectivity->InsertNextCell(
+      static_cast<vtkIdType>(cellVector.size()), &(cellVector[0]));
+    outCd->CopyData(inCd, cellId, newCellId);
+    
     return;
     }
 
@@ -1655,7 +1656,7 @@ void vtkPolyhedron::Clip(double value,
     visited[i] = false;
     }
   
-  const double eps = 0.00000001;
+  const double eps = 0.0000000001;
   
   // Main algorithm: go through all positive points (points on the right side 
   // of the contour).  These do not include contour points.
@@ -1754,6 +1755,14 @@ void vtkPolyhedron::Clip(double value,
           if ((insideOut && (v > value-eps)) || ((!insideOut) && (v < value+eps)))
             {
             startFound = true;
+            if ((insideOut && (v > value+eps)) || ((!insideOut) && (v < value-eps)))
+              {
+              vtkWarningMacro("A positive point is directly connected to a "
+                "negative point with no contour point in between. We should "
+                "never get here.");
+              startPt = startPt == numFacePoints-1 ? 0 : startPt++;
+              newpids.erase(newpids.begin());
+              }
             }
           else
             {
@@ -1773,6 +1782,14 @@ void vtkPolyhedron::Clip(double value,
           if ((insideOut && (v > value-eps)) || ((!insideOut) && (v < value+eps)))
             {
             endFound = true;
+            if ((insideOut && (v > value+eps)) || ((!insideOut) && (v < value-eps)))
+              {
+              vtkWarningMacro("A positive point is directly connected to a "
+                "negative point with no contour point in between. We should "
+                "never get here.");
+              endPt = endPt == 0 ? numFacePoints-1 : endPt--;
+              newpids.pop_back();
+              }
             }
           else
             {
@@ -1791,10 +1808,15 @@ void vtkPolyhedron::Clip(double value,
       // if face contain contour points
       else if (startFound && endFound)
         {
+        // a point or a line
+        if (newpids.size() < 3)
+          {
+          visited[fid] = true;
+          }
         // if face only contains one contour point, this is a special case that
         // may only happen when one of the original vertex is a contour point.
         // we will add this face to the result polyhedron.
-        if (startPt == endPt)
+        else if (startPt == endPt)
           {
           visited[fid] = true;
           faces.push_back(pids);
@@ -1808,12 +1830,19 @@ void vtkPolyhedron::Clip(double value,
         // can still be visited in the future.
         else
           {
-          EraseSegmentFromIdVector(pids, positivePt, startPt, endPt);
-          fpMapIt->second = pids;
+          if (!EraseSegmentFromIdVector(pids, positivePt, startPt, endPt))
+            {
+            vtkErrorMacro("Erase segment from Id vector failed. We should never get "
+              "here.");
+            visited[fid] = true;
+            continue;
+            }
           if (pids.size()<=2) // all but two contour points are left
             {
+            pids.clear();
             visited[fid] = true;
             }
+          fpMapIt->second = pids;
           faces.push_back(newpids); 
           }
         }
@@ -1822,14 +1851,12 @@ void vtkPolyhedron::Clip(double value,
       else
         {
         visited[fid] = true;
-        vtkErrorMacro("We should never get here. Lcating contour points failed. "
+        vtkErrorMacro("We should never get here. Locating contour points failed. "
           "Clipping continues but may generate wrong result.");
         }
       } // end for each face
 
     } // end for_pid 
-
-  contourScalars->Delete();
 
   vtkIdType numAllFaces = contourPolys->GetNumberOfCells() + 
                           static_cast<vtkIdType>(faces.size());
