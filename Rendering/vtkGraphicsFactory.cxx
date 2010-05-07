@@ -231,7 +231,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
   if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
     {
-    return vtkRenderWindowInteractor::New();
+    return 0; // there is no interactor with OSMesa
     }
 #endif
 
