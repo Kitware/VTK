@@ -35,6 +35,8 @@
 #include "vtkShrinkFilter.h"
 #include "vtkDataArray.h"
 #include "vtkPointLocator.h"
+#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLUnstructuredGridWriter.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -48,7 +50,7 @@
 
 // Test of vtkPolyhedron. A structured grid is converted to a polyhedral
 // mesh.
-int TestPolyhedron( int argc, char* argv[] )
+int TestPolyhedron0( int argc, char* argv[] )
 {
   // create the a cube
   vtkSmartPointer<vtkCubeSource> cube = 
@@ -382,6 +384,10 @@ int TestPolyhedron( int argc, char* argv[] )
     vtkSmartPointer<vtkPointData>::New();
   vtkSmartPointer<vtkCellData> resultCd = 
     vtkSmartPointer<vtkCellData>::New();
+  vtkSmartPointer<vtkPoints> resultPoints = 
+    vtkSmartPointer<vtkPoints>::New();
+  resultPoints->DeepCopy(ugrid0->GetPoints());
+  locator->InitPointInsertion(resultPoints, ugrid0->GetBounds());
 
   polyhedron->Contour(0.5, tetraGrid->GetPointData()->GetScalars(), locator, 
                       NULL, NULL, resultPolys, 
@@ -389,10 +395,11 @@ int TestPolyhedron( int argc, char* argv[] )
                       tetraGrid->GetCellData(), 0, resultCd);
   
   // output the contour
-  vtkSmartPointer<vtkPolyData> contour = vtkSmartPointer<vtkPolyData>::New();
-  contour->SetPoints(locator->GetPoints());
-  contour->SetPolys(resultPolys);
-  contour->GetPointData()->DeepCopy(resultPd);;
+  vtkSmartPointer<vtkUnstructuredGrid> contourResult = 
+    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  contourResult->SetPoints(locator->GetPoints());
+  contourResult->SetCells(VTK_POLYGON, resultPolys);
+  contourResult->GetPointData()->DeepCopy(resultPd);
 
   // test clip
   vtkSmartPointer<vtkPointLocator> locator1 = 
@@ -403,16 +410,21 @@ int TestPolyhedron( int argc, char* argv[] )
     vtkSmartPointer<vtkPointData>::New();
   vtkSmartPointer<vtkCellData> resultCd1 = 
     vtkSmartPointer<vtkCellData>::New();
+  vtkSmartPointer<vtkPoints> resultPoints1 = 
+    vtkSmartPointer<vtkPoints>::New();
+  resultPoints1->DeepCopy(ugrid0->GetPoints());
+  locator1->InitPointInsertion(resultPoints1, ugrid0->GetBounds());
 
   polyhedron->Clip(0.5, tetraGrid->GetPointData()->GetScalars(), locator1, 
                    resultPolys1, tetraGrid->GetPointData(), resultPd1,
                    tetraGrid->GetCellData(), 0, resultCd1, 0);
 
   // output the clipped polyhedron
-  vtkSmartPointer<vtkPolyData> clipPolyhedron = vtkSmartPointer<vtkPolyData>::New();
-  clipPolyhedron->SetPoints(locator->GetPoints());
-  clipPolyhedron->SetPolys(resultPolys1);
-  clipPolyhedron->GetPointData()->DeepCopy(resultPd1);;
+  vtkSmartPointer<vtkUnstructuredGrid> clipResult = 
+    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  clipResult->SetPoints(locator1->GetPoints());
+  clipResult->SetCells(VTK_POLYHEDRON, resultPolys1);
+  clipResult->GetPointData()->DeepCopy(resultPd1);
 
   // shrink to show the gaps between tetrahedrons.
   vtkSmartPointer<vtkShrinkFilter> shrink = 
@@ -431,7 +443,7 @@ int TestPolyhedron( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> contourMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  contourMapper->SetInput(contour);
+  contourMapper->SetInput(contourResult);
 
   vtkSmartPointer<vtkActor> contourActor = 
     vtkSmartPointer<vtkActor>::New();
@@ -439,7 +451,7 @@ int TestPolyhedron( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  clipPolyhedronMapper->SetInput(clipPolyhedron);
+  clipPolyhedronMapper->SetInput(clipResult);
 
   vtkSmartPointer<vtkActor> clipPolyhedronActor = 
     vtkSmartPointer<vtkActor>::New();

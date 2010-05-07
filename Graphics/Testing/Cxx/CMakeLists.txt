@@ -32,7 +32,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestMeanValueCoordinatesInterpolation1.cxx
     TestMeanValueCoordinatesInterpolation2.cxx
     TestPolyDataPointSampler.cxx
-    TestPolyhedron.cxx
+    TestPolyhedron0.cxx
     TestPolyhedron1.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellatedBoxSource.cxx
