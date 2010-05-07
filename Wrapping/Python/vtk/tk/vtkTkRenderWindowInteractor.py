@@ -24,11 +24,11 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
     stereo-capable window.
 
     Create with the keyword focus_on_enter=1 to enable
-    focus-follows-mouse.  The default is for a click-to-focus mode.    
+    focus-follows-mouse.  The default is for a click-to-focus mode.
 
     __getattr__ is used to make the widget also behave like a
     vtkGenericRenderWindowInteractor.
-    """    
+    """
     def __init__(self, master, cnf={}, **kw):
         """
         Constructor.
@@ -58,14 +58,14 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
                del kw['stereo']
 	except KeyError:
             pass
- 
+
         # check if focus should follow mouse
         if kw.get('focus_on_enter'):
             self._FocusOnEnter = 1
             del kw['focus_on_enter']
         else:
             self._FocusOnEnter = 0
- 
+
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
@@ -99,7 +99,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
             raise AttributeError, self.__class__.__name__ + \
                   " has no attribute named " + attr
 
-    def BindEvents(self):        
+    def BindEvents(self):
         """ Bind all the events.  """
         self.bind("<Motion>",
                   lambda e, s=self: s.MouseMoveEvent(e, 0, 0))
@@ -145,7 +145,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
                   lambda e, s=self: s.MiddleButtonReleaseEvent(e, 0, 1))
         self.bind("<Control-Shift-ButtonRelease-2>",
                   lambda e, s=self: s.MiddleButtonReleaseEvent(e, 1, 1))
-        
+
         # Right Button
         self.bind("<ButtonPress-3>",
                   lambda e, s=self: s.RightButtonPressEvent(e, 0, 0))
@@ -174,7 +174,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
           self.bind("<Control-Shift-MouseWheel>",
                     lambda e, s=self: s.MouseWheelEvent(e, 1, 1))
         else:
-          # Mouse wheel forward event 
+          # Mouse wheel forward event
           self.bind("<ButtonPress-4>",
                     lambda e, s=self: s.MouseWheelForwardEvent(e, 0, 0))
           self.bind("<Control-ButtonPress-4>",
@@ -184,7 +184,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
           self.bind("<Control-Shift-ButtonPress-4>",
                     lambda e, s=self: s.MouseWheelForwardEvent(e, 1, 1))
 
-          # Mouse wheel backward event 
+          # Mouse wheel backward event
           self.bind("<ButtonPress-5>",
                     lambda e, s=self: s.MouseWheelBackwardEvent(e, 0, 0))
           self.bind("<Control-ButtonPress-5>",
@@ -193,24 +193,24 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
                     lambda e, s=self: s.MouseWheelBackwardEvent(e, 0, 1))
           self.bind("<Control-Shift-ButtonPress-5>",
                     lambda e, s=self: s.MouseWheelBackwardEvent(e, 1, 1))
-  
+
         # Key related events
-        self.bind("<KeyPress>", 
+        self.bind("<KeyPress>",
                   lambda e, s=self: s.KeyPressEvent(e, 0, 0))
-        self.bind("<Control-KeyPress>", 
+        self.bind("<Control-KeyPress>",
                   lambda e, s=self: s.KeyPressEvent(e, 1, 0))
-        self.bind("<Shift-KeyPress>", 
+        self.bind("<Shift-KeyPress>",
                   lambda e, s=self: s.KeyPressEvent(e, 0, 1))
-        self.bind("<Control-Shift-KeyPress>", 
+        self.bind("<Control-Shift-KeyPress>",
                   lambda e, s=self: s.KeyPressEvent(e, 1, 1))
-        
-        self.bind("<KeyRelease>", 
+
+        self.bind("<KeyRelease>",
                   lambda e, s=self: s.KeyReleaseEvent(e, 0, 0))
-        self.bind("<Control-KeyRelease>", 
+        self.bind("<Control-KeyRelease>",
                   lambda e, s=self: s.KeyReleaseEvent(e, 1, 0))
-        self.bind("<Shift-KeyRelease>", 
+        self.bind("<Shift-KeyRelease>",
                   lambda e, s=self: s.KeyReleaseEvent(e, 0, 1))
-        self.bind("<Control-Shift-KeyRelease>", 
+        self.bind("<Control-Shift-KeyRelease>",
                   lambda e, s=self: s.KeyReleaseEvent(e, 1, 1))
 
         self.bind("<Enter>",
@@ -272,7 +272,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
         self._Iren.MiddleButtonReleaseEvent()
-        
+
     def RightButtonPressEvent(self, event, ctrl, shift):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
@@ -354,7 +354,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._RenderWindow.Render()
 
 
-#----------------------------------------------------------------------------  
+#----------------------------------------------------------------------------
 def vtkRenderWindowInteractorConeExample():
     """Like it says, just a simple example
     """
@@ -375,10 +375,10 @@ def vtkRenderWindowInteractorConeExample():
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
-    
+
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
-    
+
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
@@ -390,7 +390,7 @@ def vtkRenderWindowInteractorConeExample():
 
     # start the tk mainloop
     root.mainloop()
-    
+
 if __name__ == "__main__":
     vtkRenderWindowInteractorConeExample()
 

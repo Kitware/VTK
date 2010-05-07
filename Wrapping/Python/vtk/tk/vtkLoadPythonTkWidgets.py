@@ -33,7 +33,7 @@ def vtkLoadPythonTkWidgets(interp):
         auto_paths = interp.getvar('auto_path')
     for path in auto_paths:
         prev = str(pathlist[-1])
-        try:            
+        try:
             # try block needed when one uses Gordon McMillan's Python
             # Installer.
             if len(prev) > 0 and prev[0] == '{' and prev[-1] != '}':
@@ -42,7 +42,7 @@ def vtkLoadPythonTkWidgets(interp):
                 pathlist.append(path)
         except AttributeError:
             pass
-    # a common place for these sorts of things  
+    # a common place for these sorts of things
     if os.name == 'posix':
         pathlist.append('/usr/local/lib')
 
@@ -67,4 +67,3 @@ def vtkLoadPythonTkWidgets(interp):
 
     # re-generate the error
     interp.call('load', filename)
-    

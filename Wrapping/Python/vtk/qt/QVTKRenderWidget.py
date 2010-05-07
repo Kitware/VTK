@@ -32,7 +32,7 @@ per application.
 In short, this class is experimental.  A proper implementation
 will probably require a QVTKRenderWidget that is written in
 C++ and then wrapped to be made available through python,
-similar to the vtkTkRenderWidget.  
+similar to the vtkTkRenderWidget.
 """
 
 # Problems on Win32:
@@ -60,13 +60,13 @@ class QVTKRenderWidget(QWidget):
 
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
-        
+
         self._Picker = vtk.vtkCellPicker()
         self._PickedActor = None
         self._PickedProperty = vtk.vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
-        
+
         # these record the previous mouse position
         self._LastX = 0
         self._LastY = 0
@@ -88,9 +88,9 @@ class QVTKRenderWidget(QWidget):
 
         # do special handling of some keywords:
         # stereo, rw
-        
+
         stereo = 0
-        
+
         if kw.has_key('stereo'):
             if kw['stereo']:
                 stereo = 1
@@ -113,14 +113,14 @@ class QVTKRenderWidget(QWidget):
         if stereo: # stereo mode
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
- 
+
         # do all the necessary qt setup
         self.setBackgroundMode(2) # NoBackground
         self.setMouseTracking(1) # get all mouse events
         self.setFocusPolicy(2) # ClickFocus
         if parent == None:
             self.show()
-        
+
         if self.isVisible():
             if self.__connected == 0:
                 size = self.size()
@@ -160,7 +160,7 @@ class QVTKRenderWidget(QWidget):
         if self._Mode != None:
             return
 
-        if (ev.button() == 2 or 
+        if (ev.button() == 2 or
             ev.button() == 1 and ev.state() & 16):
             self._Mode = "Zoom"
             self._ActiveButton = ev.button()
@@ -174,7 +174,7 @@ class QVTKRenderWidget(QWidget):
 
         if self._Mode != None:
             self._RenderWindow.SetDesiredUpdateRate(self._DesiredUpdateRate)
-        
+
         self.UpdateRenderer(ev.x(),ev.y())
 
     def mouseReleaseEvent(self,ev):
@@ -209,7 +209,7 @@ class QVTKRenderWidget(QWidget):
             self.Surface()
         if ev.key() == ord('P'):
             self.PickActor(self.__saveX,self.__saveY)
-    
+
     def contextMenuEvent(self,ev):
         ev.accept();
 
@@ -221,8 +221,8 @@ class QVTKRenderWidget(QWidget):
     def GetDesiredUpdateRate(self):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
-        return self._DesiredUpdateRate 
-        
+        return self._DesiredUpdateRate
+
     def SetStillUpdateRate(self, rate):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
@@ -231,7 +231,7 @@ class QVTKRenderWidget(QWidget):
     def GetStillUpdateRate(self):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
-        return self._StillUpdateRate 
+        return self._StillUpdateRate
 
     def GetZoomFactor(self):
         return self._CurrentZoom
@@ -271,7 +271,7 @@ class QVTKRenderWidget(QWidget):
             if (windowY > 1):
                 vy = (windowY-float(y)-1)/(windowY-1)
             (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
-            
+
             if (vx >= vpxmin and vx <= vpxmax and
                 vy >= vpymin and vy <= vpymax):
                 self._CurrentRenderer = renderer
@@ -290,23 +290,23 @@ class QVTKRenderWidget(QWidget):
 
     def GetCurrentRenderer(self):
         return self._CurrentRenderer
-                
+
     def Rotate(self,x,y):
         if self._CurrentRenderer:
-            
+
             self._CurrentCamera.Azimuth(self._LastX - x)
             self._CurrentCamera.Elevation(y - self._LastY)
             self._CurrentCamera.OrthogonalizeViewUp()
-            
+
             self._LastX = x
             self._LastY = y
-            
+
             self._CurrentRenderer.ResetCameraClippingRange()
             self.Render()
 
     def Pan(self,x,y):
         if self._CurrentRenderer:
-            
+
             renderer = self._CurrentRenderer
             camera = self._CurrentCamera
             (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
@@ -332,7 +332,7 @@ class QVTKRenderWidget(QWidget):
                 renderer.DisplayToWorld()
                 fx,fy,fz,fw = renderer.GetWorldPoint()
                 camera.SetPosition(fx,fy,fz)
-                
+
             else:
                 (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
                 # Specify a point location in world coordinates
@@ -341,24 +341,24 @@ class QVTKRenderWidget(QWidget):
                 # Convert world point coordinates to display coordinates
                 dPoint = renderer.GetDisplayPoint()
                 focalDepth = dPoint[2]
-                
+
                 aPoint0 = self._ViewportCenterX + (x - self._LastX)
                 aPoint1 = self._ViewportCenterY - (y - self._LastY)
-                
+
                 renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
                 renderer.DisplayToWorld()
-                
+
                 (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
                 if (rPoint3 != 0.0):
                     rPoint0 = rPoint0/rPoint3
                     rPoint1 = rPoint1/rPoint3
                     rPoint2 = rPoint2/rPoint3
 
-                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0, 
+                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0,
                                      (fPoint1 - rPoint1) + fPoint1,
-                                     (fPoint2 - rPoint2) + fPoint2) 
-                
-                camera.SetPosition((fPoint0 - rPoint0) + pPoint0, 
+                                     (fPoint2 - rPoint2) + fPoint2)
+
+                camera.SetPosition((fPoint0 - rPoint0) + pPoint0,
                                    (fPoint1 - rPoint1) + pPoint1,
                                    (fPoint2 - rPoint2) + pPoint2)
 
@@ -391,7 +391,7 @@ class QVTKRenderWidget(QWidget):
     def Reset(self,x,y):
         if self._CurrentRenderer:
             self._CurrentRenderer.ResetCamera()
-            
+
         self.Render()
 
     def Wireframe(self):
@@ -403,7 +403,7 @@ class QVTKRenderWidget(QWidget):
             actor.GetProperty().SetRepresentationToWireframe()
 
         self.Render()
-        
+
     def Surface(self):
         actors = self._CurrentRenderer.GetActors()
         numActors = actors.GetNumberOfItems()
@@ -419,7 +419,7 @@ class QVTKRenderWidget(QWidget):
 
             renderer = self._CurrentRenderer
             picker = self._Picker
-            
+
             windowY = self.height()
             picker.Pick(x,(windowY - y - 1),0.0,renderer)
             actor = picker.GetActor()
@@ -440,7 +440,7 @@ class QVTKRenderWidget(QWidget):
 
             self.Render()
 
-#----------------------------------------------------------------------------  
+#----------------------------------------------------------------------------
 def QVTKRenderWidgetConeExample():
     """Like it says, just a simple example
     """
@@ -455,10 +455,10 @@ def QVTKRenderWidgetConeExample():
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
-    
+
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
-    
+
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
@@ -470,7 +470,7 @@ def QVTKRenderWidgetConeExample():
     qApp.setMainWidget(widget)
     # start event processing
     app.exec_loop()
-    
+
 if __name__ == "__main__":
     QVTKRenderWidgetConeExample()
 

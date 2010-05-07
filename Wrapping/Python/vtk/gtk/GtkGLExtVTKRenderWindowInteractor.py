@@ -43,7 +43,7 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         gtk.gtkgl.DrawingArea.__init__(self)
 
         self.set_double_buffered(gtk.FALSE)
-        
+
         self._RenderWindow = vtk.vtkRenderWindow()
 
         # private attributes
@@ -56,16 +56,16 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
         self.ConnectSignals()
-        
+
         # need this to be able to handle key_press events.
         self.set_flags(gtk.CAN_FOCUS)
 
     def set_size_request(self, w, h):
-	gtk.gtkgl.DrawingArea.set_size_request(self, w, h)
-	self._RenderWindow.SetSize(w, h)
-	self._Iren.SetSize(w, h)
-	self._Iren.ConfigureEvent()
-	
+        gtk.gtkgl.DrawingArea.set_size_request(self, w, h)
+        self._RenderWindow.SetSize(w, h)
+        self._Iren.SetSize(w, h)
+        self._Iren.ConfigureEvent()
+
     def ConnectSignals(self):
         self.connect("realize", self.OnRealize)
         self.connect("expose_event", self.OnExpose)
@@ -83,8 +83,8 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
                         gdk.POINTER_MOTION_MASK |
                         gdk.POINTER_MOTION_HINT_MASK |
                         gdk.ENTER_NOTIFY_MASK | gdk.LEAVE_NOTIFY_MASK)
-        
-    def __getattr__(self, attr):        
+
+    def __getattr__(self, attr):
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor"""
         if attr == '__vtk__':
@@ -122,7 +122,7 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
             #self._Iren.Initialize()
             self.__Created = 1
         return gtk.TRUE
-    
+
     def OnConfigure(self, widget, event):
         self.widget=widget
         self._Iren.SetSize(event.width, event.height)
@@ -141,7 +141,7 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         return gtk.TRUE
 
     def _GetCtrlShift(self, event):
-        ctrl, shift = 0, 0        
+        ctrl, shift = 0, 0
         if ((event.state & gdk.CONTROL_MASK) == gdk.CONTROL_MASK):
             ctrl = 1
         if ((event.state & gdk.SHIFT_MASK) == gdk.SHIFT_MASK):
@@ -158,15 +158,15 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         if button == 3:
             self._Iren.RightButtonPressEvent()
             return gtk.TRUE
-	elif button == 1:
+        elif button == 1:
             self._Iren.LeftButtonPressEvent()
             return gtk.TRUE
-	elif button == 2:
+        elif button == 2:
             self._Iren.MiddleButtonPressEvent()
             return gtk.TRUE
         else:
             return gtk.FALSE
-    
+
     def OnButtonUp(self, wid, event):
         """Mouse button released."""
         m = self.get_pointer()
@@ -177,13 +177,13 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         if button == 3:
             self._Iren.RightButtonReleaseEvent()
             return gtk.TRUE
-	elif button == 1:
+        elif button == 1:
             self._Iren.LeftButtonReleaseEvent()
             return gtk.TRUE
-	elif button == 2:
+        elif button == 2:
             self._Iren.MiddleButtonReleaseEvent()
             return gtk.TRUE
-        
+
         return gtk.FALSE
 
     def OnMouseMove(self, wid, event):
@@ -213,12 +213,12 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
                                             chr(0), 0, None)
         self._Iren.LeaveEvent()
         return gtk.TRUE
-    
+
     def OnKeyPress(self, wid, event):
         """Key pressed."""
         m = self.get_pointer()
         ctrl, shift = self._GetCtrlShift(event)
-	keycode, keysym = event.keyval, event.string
+        keycode, keysym = event.keyval, event.string
         key = chr(0)
         if keycode < 256:
             key = chr(keycode)
@@ -232,7 +232,7 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         "Key released."
         m = self.get_pointer()
         ctrl, shift = self._GetCtrlShift(event)
-	keycode, keysym = event.keyval, event.string
+        keycode, keysym = event.keyval, event.string
         key = chr(0)
         if keycode < 256:
             key = chr(keycode)
@@ -242,9 +242,9 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         return gtk.TRUE
 
     def Initialize(self):
-	if self.__Created:
-	    self._Iren.Initialize()
-	    
+        if self.__Created:
+            self._Iren.Initialize()
+
     def SetPicker(self, picker):
         self._Iren.SetPicker(picker)
 
@@ -283,7 +283,7 @@ def main():
     coneMapper.SetInput(cone.GetOutput())
     #coneActor = vtk.vtkLODActor()
     coneActor = vtk.vtkActor()
-    coneActor.SetMapper(coneMapper)    
+    coneActor.SetMapper(coneMapper)
     coneActor.GetProperty().SetColor(0.5, 0.5, 1.0)
     ren = vtk.vtkRenderer()
     gvtk.GetRenderWindow().AddRenderer(ren)

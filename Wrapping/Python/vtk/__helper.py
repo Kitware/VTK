@@ -17,7 +17,7 @@ def refine_import_err(mod_name, extension_name, exc):
 
      - extension_name : The name of the extension module that is to be
      imported by the module having mod_name.
-     
+
      - exc : The exception raised when the module called mod_name was
      imported.
 

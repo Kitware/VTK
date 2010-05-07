@@ -16,7 +16,7 @@ Overview:
 
 Nearly all the power of VTK objects are available through Python
 (with a few exceptions as noted below).  The C++ symantics are
-translated as directly as possible to Python symantics.  
+translated as directly as possible to Python symantics.
 
 
 The Basics:
@@ -29,7 +29,7 @@ becomes
     o = vtkObject()
 
 and
-    o->Method() 
+    o->Method()
 becomes
     o.Method()
 
@@ -40,7 +40,7 @@ list or array to a method that requires a C++ array e.g.:
 >>> p = (100.0, 200.0, 100.0)
 >>> a.SetPosition(p)
 
-or if the C++ array is used to return information, you must pass a 
+or if the C++ array is used to return information, you must pass a
 Python list or array that has the correct number of slots:
 
 >>> z = [0.0, 0.0, 0.0]
@@ -65,7 +65,7 @@ Finally, the python 'None' is treated the same as C++ NULL:
 >>> print a.GetMapper()
 None
 
-And perhaps one of the most pleasant features of Python is that all 
+And perhaps one of the most pleasant features of Python is that all
 type-checking is performed at run time, so the type casts that are
 often necessary in VTK-C++ are never needed in VTK-Python.
 
@@ -78,8 +78,8 @@ caution should be applied when using this feature.
 Unavailable methods
 -------------------
 
-A method is not wrapped if 
-1) its parameter list contains a pointer/reference that is not a 
+A method is not wrapped if
+1) its parameter list contains a pointer/reference that is not a
    pointer/reference to a vtkObject
 2) its parameter list contains a multidimensional array
 3) it returns a pointer/reference that is not a pointer/reference
@@ -95,7 +95,7 @@ not wrapped.  These are labelled as WRAP_EXCLUDE in the CMakeLists.txt
 files.
 
 
-Printing VTK objects 
+Printing VTK objects
 ====================
 
 Printing a vtk object will provide the same information as provided
@@ -146,7 +146,7 @@ SetPosition(...)
     C++: virtual void SetPosition (float _arg1, float _arg2, float _arg3);
     V.SetPosition((float, float, float))
     C++: virtual void SetPosition (float _arg[3]);
-    
+
      Set/Get/Add the position of the Prop3D in world coordinates.
 
 
@@ -214,7 +214,7 @@ Transmitting data from Python to VTK
 
 If you have a large block of data in Python (for example a Numeric
 array) that you want to access from VTK, then you can do so using
-the vtkDataArray.SetVoidArray() method.  
+the vtkDataArray.SetVoidArray() method.
 
 
 Creating a Python object from just the address of a VTK object

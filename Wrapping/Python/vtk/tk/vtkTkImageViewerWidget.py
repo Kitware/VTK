@@ -21,9 +21,9 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
 
     Create with the keyword double=1 in order to generate a
     double-buffered viewer.
-    
+
     Create with the keyword focus_on_enter=1 to enable
-    focus-follows-mouse.  The default is for a click-to-focus mode.    
+    focus-follows-mouse.  The default is for a click-to-focus mode.
     """
     def __init__(self, master, cnf={}, **kw):
         """
@@ -55,7 +55,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
             del kw['double']
         except:
             pass
- 
+
         # check if focus should follow mouse
         if kw.get('focus_on_enter'):
             self._FocusOnEnter = 1
@@ -90,7 +90,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
 
     def BindTkImageViewer(self):
         imager = self._ImageViewer.GetRenderer()
-        
+
         # stuff for window level text.
         mapper = vtk.vtkTextMapper()
         mapper.SetInput("none")
@@ -99,7 +99,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         t_prop.SetFontSize(18)
         t_prop.BoldOn()
         t_prop.ShadowOn()
-        
+
         self._LevelMapper = mapper
 
         actor = vtk.vtkActor2D()
@@ -111,7 +111,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         imager.AddActor2D(actor)
 
         self._LevelActor = actor
-                
+
         mapper = vtk.vtkTextMapper()
         mapper.SetInput("none")
         t_prop = mapper.GetTextProperty()
@@ -119,7 +119,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         t_prop.SetFontSize(18)
         t_prop.BoldOn()
         t_prop.ShadowOn()
-        
+
         self._WindowMapper = mapper
 
         actor = vtk.vtkActor2D()
@@ -136,7 +136,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         self._LastY = 0
         self._OldFocus = 0
         self._InExpose = 0
-        
+
         # bindings
         # window level
         self.bind("<ButtonPress-1>",
@@ -144,15 +144,15 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         self.bind("<B1-Motion>",
                   lambda e,s=self: s.UpdateWindowLevelInteraction(e.x,e.y))
         self.bind("<ButtonRelease-1>",
-                  lambda e,s=self: s.EndWindowLevelInteraction()) 
-        
+                  lambda e,s=self: s.EndWindowLevelInteraction())
+
         # Get the value
         self.bind("<ButtonPress-3>",
                   lambda e,s=self: s.StartQueryInteraction(e.x,e.y))
         self.bind("<B3-Motion>",
                   lambda e,s=self: s.UpdateQueryInteraction(e.x,e.y))
         self.bind("<ButtonRelease-3>",
-                  lambda e,s=self: s.EndQueryInteraction()) 
+                  lambda e,s=self: s.EndQueryInteraction())
 
         self.bind("<Expose>",
                   lambda e,s=self: s.ExposeTkImageViewer())
@@ -174,7 +174,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
     def _GrabFocus(self):
         self._OldFocus=self.focus_get()
         self.focus()
-        
+
     def EnterTkViewer(self):
         if self._FocusOnEnter:
             self._GrabFocus()
@@ -237,7 +237,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
 
         self._WindowMapper.SetInput("Window: %g" % window)
         self._LevelMapper.SetInput("Level: %g" % level)
-        
+
         self.Render()
 
 
@@ -255,12 +255,12 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         input.Update()
 
         (low,high) = input.GetScalarRange()
-   
+
         viewer.SetColorWindow(high - low)
         viewer.SetColorLevel((high + low) * 0.5)
 
         self.Render()
-   
+
     def StartQueryInteraction(self,x,y):
         if not self._FocusOnEnter:
             self._GrabFocus()
@@ -292,10 +292,10 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         text = ""
         for i in xrange(numComps):
             val = input.GetScalarComponentAsDouble(x,y,z,i)
-            text = "%s  %.1f" % (text,val)  
+            text = "%s  %.1f" % (text,val)
 
         self._WindowMapper.SetInput("(%d, %d): %s" % (x,y,text))
-        
+
         self.Render()
 
 #-----------------------------------------------------------------------------

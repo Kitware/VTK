@@ -94,7 +94,7 @@ if wx.Platform == "__WXGTK__":
 # (in wxGTK 2.3.2 there is a bug that keeps this from working,
 # but it is only relevant in wxGTK if there are multiple windows)
 _useCapture = (wx.Platform == "__WXMSW__")
-        
+
 # end of configuration items
 
 
@@ -105,14 +105,14 @@ class wxVTKRenderWindow(baseClass):
     Create with the keyword stereo=1 in order to
     generate a stereo-capable window.
     """
-    
+
     def __init__(self, parent, ID, *args, **kw):
         """Default class constructor.
         @param parent: parent window
         @param ID: window id
         @param **kw: wxPython keywords (position, size, style) plus the
         'stereo' keyword
-        """        
+        """
         # miscellaneous protected variables
         self._CurrentRenderer = None
         self._CurrentCamera = None
@@ -121,13 +121,13 @@ class wxVTKRenderWindow(baseClass):
 
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
-        
+
         self._Picker = vtk.vtkCellPicker()
         self._PickedActor = None
         self._PickedProperty = vtk.vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
-        
+
         # these record the previous mouse position
         self._LastX = 0
         self._LastY = 0
@@ -145,9 +145,9 @@ class wxVTKRenderWindow(baseClass):
 
         # First do special handling of some keywords:
         # stereo, position, size, width, height, style
-        
+
         stereo = 0
-        
+
         if kw.has_key('stereo'):
             if kw['stereo']:
                 stereo = 1
@@ -167,7 +167,7 @@ class wxVTKRenderWindow(baseClass):
         if kw.has_key('size'):
             size = kw['size']
             del kw['size']
-        
+
         # wx.WANTS_CHARS says to give us e.g. TAB
         # wx.NO_FULL_REPAINT_ON_RESIZE cuts down resize flicker under GTK
         style = wx.WANTS_CHARS | wx.NO_FULL_REPAINT_ON_RESIZE
@@ -209,7 +209,7 @@ class wxVTKRenderWindow(baseClass):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         # turn off background erase to reduce flicker
         self.Bind(wx.EVT_ERASE_BACKGROUND, lambda e: None)
-        
+
         # Bind the events to the event converters
         self.Bind(wx.EVT_RIGHT_DOWN, self._OnButtonDown)
         self.Bind(wx.EVT_LEFT_DOWN, self._OnButtonDown)
@@ -229,10 +229,10 @@ class wxVTKRenderWindow(baseClass):
         # other necessary keyboard-dependent translations.
         self.Bind(wx.EVT_CHAR, self.OnKeyDown)
         self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
-        
+
         self.Bind(wx.EVT_SIZE, self._OnSize)
         self.Bind(wx.EVT_MOVE, self.OnMove)
-        
+
         self.Bind(wx.EVT_SET_FOCUS, self.OnSetFocus)
         self.Bind(wx.EVT_KILL_FOCUS, self.OnKillFocus)
 
@@ -247,7 +247,7 @@ class wxVTKRenderWindow(baseClass):
         vtkRenderWindowInteractor.
         """
         return self._DesiredUpdateRate
-        
+
     def SetStillUpdateRate(self, rate):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor.
@@ -330,7 +330,7 @@ class wxVTKRenderWindow(baseClass):
         """
         # helper function for capturing mouse until button released
         self._RenderWindow.SetDesiredUpdateRate(self._DesiredUpdateRate)
-        
+
         if event.RightDown():
             button = "Right"
         elif event.LeftDown():
@@ -502,10 +502,10 @@ class wxVTKRenderWindow(baseClass):
         if not self.GetUpdateRegion().IsEmpty() or self.__handle:
             if self.__handle and self.__handle == self.GetHandle():
                 self._RenderWindow.Render()
-            
+
             elif self.GetHandle():
                 # this means the user has reparented us
-                # let's adapt to the new situation by doing the WindowRemap 
+                # let's adapt to the new situation by doing the WindowRemap
                 # dance
                 self._RenderWindow.SetNextWindowInfo(str(self.GetHandle()))
                 self._RenderWindow.WindowRemap()
@@ -536,7 +536,7 @@ class wxVTKRenderWindow(baseClass):
             if (windowY > 1):
                 vy = (windowY-float(y)-1)/(windowY-1)
             (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
-            
+
             if (vx >= vpxmin and vx <= vpxmax and
                 vy >= vpymin and vy <= vpymax):
                 self._CurrentRenderer = renderer
@@ -557,21 +557,21 @@ class wxVTKRenderWindow(baseClass):
         """Returns the current renderer.
         """
         return self._CurrentRenderer
-                
+
     def Rotate(self, event):
         """Rotates the scene (camera).
         """
         if self._CurrentRenderer:
             x = event.GetX()
             y = event.GetY()
-            
+
             self._CurrentCamera.Azimuth(self._LastX - x)
             self._CurrentCamera.Elevation(y - self._LastY)
             self._CurrentCamera.OrthogonalizeViewUp()
-            
+
             self._LastX = x
             self._LastY = y
-            
+
             self._CurrentRenderer.ResetCameraClippingRange()
             self.Render()
 
@@ -581,7 +581,7 @@ class wxVTKRenderWindow(baseClass):
         if self._CurrentRenderer:
             x = event.GetX()
             y = event.GetY()
-            
+
             renderer = self._CurrentRenderer
             camera = self._CurrentCamera
             (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
@@ -607,7 +607,7 @@ class wxVTKRenderWindow(baseClass):
                 renderer.DisplayToWorld()
                 fx,fy,fz,fw = renderer.GetWorldPoint()
                 camera.SetPosition(fx,fy,fz)
-                
+
             else:
                 (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
                 # Specify a point location in world coordinates
@@ -616,24 +616,24 @@ class wxVTKRenderWindow(baseClass):
                 # Convert world point coordinates to display coordinates
                 dPoint = renderer.GetDisplayPoint()
                 focalDepth = dPoint[2]
-                
+
                 aPoint0 = self._ViewportCenterX + (x - self._LastX)
                 aPoint1 = self._ViewportCenterY - (y - self._LastY)
-                
+
                 renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
                 renderer.DisplayToWorld()
-                
+
                 (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
                 if (rPoint3 != 0.0):
                     rPoint0 = rPoint0/rPoint3
                     rPoint1 = rPoint1/rPoint3
                     rPoint2 = rPoint2/rPoint3
 
-                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0, 
+                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0,
                                      (fPoint1 - rPoint1) + fPoint1,
-                                     (fPoint2 - rPoint2) + fPoint2) 
-                
-                camera.SetPosition((fPoint0 - rPoint0) + pPoint0, 
+                                     (fPoint2 - rPoint2) + fPoint2)
+
+                camera.SetPosition((fPoint0 - rPoint0) + pPoint0,
                                    (fPoint1 - rPoint1) + pPoint1,
                                    (fPoint2 - rPoint2) + pPoint2)
 
@@ -672,7 +672,7 @@ class wxVTKRenderWindow(baseClass):
         """
         if self._CurrentRenderer:
             self._CurrentRenderer.ResetCamera()
-            
+
         self.Render()
 
     def Wireframe(self):
@@ -686,7 +686,7 @@ class wxVTKRenderWindow(baseClass):
             actor.GetProperty().SetRepresentationToWireframe()
 
         self.Render()
-        
+
     def Surface(self):
         """Sets the current actor representation as surface.
         """
@@ -708,7 +708,7 @@ class wxVTKRenderWindow(baseClass):
 
             renderer = self._CurrentRenderer
             picker = self._Picker
-            
+
             windowX, windowY = self._RenderWindow.GetSize()
             picker.Pick(x,(windowY - y - 1),0.0,renderer)
             actor = picker.GetActor()
@@ -730,7 +730,7 @@ class wxVTKRenderWindow(baseClass):
             self.Render()
 
 
-#----------------------------------------------------------------------------  
+#----------------------------------------------------------------------------
 def wxVTKRenderWindowConeExample():
     """Like it says, just a simple example.
     """
@@ -746,21 +746,20 @@ def wxVTKRenderWindowConeExample():
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
-    
+
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
-    
+
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)
 
     # show the window
-    
+
     frame.Show()
 
     app.MainLoop()
 
 if __name__ == "__main__":
     wxVTKRenderWindowConeExample()
-

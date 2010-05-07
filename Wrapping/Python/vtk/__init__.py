@@ -35,7 +35,7 @@ except AttributeError:
     orig_dlopen_flags = None
 
 if dl and (os.name == 'posix'):
-    sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)    
+    sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
 
 # Load all required kits.
 from common import *

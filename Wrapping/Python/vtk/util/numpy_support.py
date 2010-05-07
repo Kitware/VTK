@@ -3,10 +3,10 @@
 loosely based on TVTK (https://svn.enthought.com/enthought/wiki/TVTK).
 
 This code depends on an addition to the VTK data arrays made by Berk
-Geveci to make it support Python's buffer protocol (on Feb. 15, 2008). 
+Geveci to make it support Python's buffer protocol (on Feb. 15, 2008).
 
 The main functionality of this module is provided by the two functions:
-    numpy_to_vtk, 
+    numpy_to_vtk,
     vtk_to_numpy.
 
 
@@ -166,7 +166,7 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     if deep:
         copy = result_array.NewInstance()
         # NewInstance sets the refcount to 2 and this causes a severe
-        # memory leak.        
+        # memory leak.
         copy.UnRegister(None)
         copy.DeepCopy(result_array)
         result_array = copy
@@ -183,7 +183,7 @@ def numpy_to_vtkIdTypeArray(num_array, deep=0):
         if dtype != numpy.int64:
             raise ValueError, \
              'Expecting a numpy.int64 array, got %s instead.' % (str(dtype))
-        
+
     return numpy_to_vtk(num_array, deep, vtkConstants.VTK_ID_TYPE)
 
 def vtk_to_numpy(vtk_array):
@@ -191,7 +191,7 @@ def vtk_to_numpy(vtk_array):
 
     Given a subclass of vtkDataArray, this function returns an
     appropriate numpy array containing the same data -- it actually
-    points to the same data.  
+    points to the same data.
 
     WARNING: This does not work for bit arrays.
 

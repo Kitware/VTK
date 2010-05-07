@@ -26,7 +26,7 @@ def get_install_path(command, *args):
 
     # convert setup args into an option dictionary
     options = {}
-    
+
     for arg in args:
         if arg == '--':
             break
@@ -63,7 +63,7 @@ def get_install_path(command, *args):
     # get rid of trailing separator
     if prefix != "" and prefix[-1] == "/":
         prefix = prefix[0:-1]
-        
+
     if exec_prefix != "" and exec_prefix[-1] == "/":
         exec_prefix = exec_prefix[0:-1]
 
@@ -100,7 +100,7 @@ def get_install_path(command, *args):
         platlib = prefix+'/Lib/site-packages'
         scripts = prefix+'/Scripts'
         data    = prefix
-    
+
     # allow direct setting of install directories
     try:
         purelib = options["--install-purelib"]
@@ -135,4 +135,3 @@ def get_install_path(command, *args):
 
 if __name__ == "__main__":
     print apply(get_install_path, sys.argv[1:])
-    

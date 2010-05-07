@@ -6,7 +6,7 @@ Created by David Gobbi, April 1999
 May ??, 1999  - Modifications peformed by Heather Drury,
                 to rewrite _pan to match method in TkInteractor.tcl
 May 11, 1999  - Major rewrite by David Gobbi to make the
-                interactor bindings identical to the TkInteractor.tcl 
+                interactor bindings identical to the TkInteractor.tcl
                 bindings.
 July 14, 1999 - Added modification by Ken Martin for VTK 2.4, to
                 use vtk widgets instead of Togl.
@@ -98,7 +98,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
             del kw['focus_on_enter']
         else:
             self._FocusOnEnter = 0
- 
+
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
@@ -109,13 +109,13 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
-        
+
         self._Picker = vtk.vtkCellPicker()
         self._PickedAssembly = None
         self._PickedProperty = vtk.vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
-        
+
         self._OldFocus = None
 
         # used by the LOD actors
@@ -175,7 +175,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
                       lambda e,s=self: s.Leave(e.x,e.y))
         else:
             self.bind("<ButtonPress>",
-                      lambda e,s=self: s.Enter(e.x,e.y))            
+                      lambda e,s=self: s.Enter(e.x,e.y))
         self.bind("<Expose>",
                   lambda e,s=self: s.Expose())
 
@@ -190,8 +190,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def GetDesiredUpdateRate(self):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
-        return self._DesiredUpdateRate 
-        
+        return self._DesiredUpdateRate
+
     def SetStillUpdateRate(self, rate):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
@@ -200,7 +200,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def GetStillUpdateRate(self):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
-        return self._StillUpdateRate 
+        return self._StillUpdateRate
 
     def GetRenderWindow(self):
         addr = self.tk.call(self._w, 'GetRenderWindow')[5:]
@@ -246,7 +246,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
             if (windowY > 1):
                 vy = (windowY-float(y)-1)/(windowY-1)
             (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
-            
+
             if (vx >= vpxmin and vx <= vpxmax and
                 vy >= vpymin and vy <= vpymax):
                 self._CurrentRenderer = renderer
@@ -265,7 +265,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
     def GetCurrentRenderer(self):
         return self._CurrentRenderer
-                
+
     def Enter(self,x,y):
         self._OldFocus=self.focus_get()
         self.focus()
@@ -286,20 +286,20 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
     def Rotate(self,x,y):
         if self._CurrentRenderer:
-            
+
             self._CurrentCamera.Azimuth(self._LastX - x)
             self._CurrentCamera.Elevation(y - self._LastY)
             self._CurrentCamera.OrthogonalizeViewUp()
-            
+
             self._LastX = x
             self._LastY = y
-            
+
             self._CurrentRenderer.ResetCameraClippingRange()
             self.Render()
 
     def Pan(self,x,y):
         if self._CurrentRenderer:
-            
+
             renderer = self._CurrentRenderer
             camera = self._CurrentCamera
             (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
@@ -325,7 +325,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
                 renderer.DisplayToWorld()
                 fx,fy,fz,fw = renderer.GetWorldPoint()
                 camera.SetPosition(fx,fy,fz)
-                
+
             else:
                 (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
                 # Specify a point location in world coordinates
@@ -334,24 +334,24 @@ class vtkTkRenderWidget(Tkinter.Widget):
                 # Convert world point coordinates to display coordinates
                 dPoint = renderer.GetDisplayPoint()
                 focalDepth = dPoint[2]
-                
+
                 aPoint0 = self._ViewportCenterX + (x - self._LastX)
                 aPoint1 = self._ViewportCenterY - (y - self._LastY)
-                
+
                 renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
                 renderer.DisplayToWorld()
-                
+
                 (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
                 if (rPoint3 != 0.0):
                     rPoint0 = rPoint0/rPoint3
                     rPoint1 = rPoint1/rPoint3
                     rPoint2 = rPoint2/rPoint3
 
-                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0, 
+                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0,
                                      (fPoint1 - rPoint1) + fPoint1,
-                                     (fPoint2 - rPoint2) + fPoint2) 
-                
-                camera.SetPosition((fPoint0 - rPoint0) + pPoint0, 
+                                     (fPoint2 - rPoint2) + fPoint2)
+
+                camera.SetPosition((fPoint0 - rPoint0) + pPoint0,
                                    (fPoint1 - rPoint1) + pPoint1,
                                    (fPoint2 - rPoint2) + pPoint2)
 
@@ -384,7 +384,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def Reset(self,x,y):
         if self._CurrentRenderer:
             self._CurrentRenderer.ResetCamera()
-            
+
         self.Render()
 
     def Wireframe(self):
@@ -396,7 +396,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
             actor.GetProperty().SetRepresentationToWireframe()
 
         self.Render()
-        
+
     def Surface(self):
         actors = self._CurrentRenderer.GetActors()
         numActors = actors.GetNumberOfItems()
@@ -412,7 +412,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
             renderer = self._CurrentRenderer
             picker = self._Picker
-            
+
             windowY = self.winfo_height()
             picker.Pick(x,(windowY - y - 1),0.0,renderer)
             assembly = picker.GetAssembly()
@@ -433,7 +433,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
             self.Render()
 
-#----------------------------------------------------------------------------  
+#----------------------------------------------------------------------------
 def vtkRenderWidgetConeExample():
     """Like it says, just a simple example
     """
@@ -448,10 +448,10 @@ def vtkRenderWidgetConeExample():
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
-    
+
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
-    
+
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
@@ -462,7 +462,7 @@ def vtkRenderWidgetConeExample():
 
     # start the tk mainloop
     root.mainloop()
-    
+
 if __name__ == "__main__":
     vtkRenderWidgetConeExample()
 

@@ -9,7 +9,7 @@ Methods:
 
   GetOutput() -- connect to VTK image pipeline
   SetArray()  -- set the array to load in
-  
+
 Convert python 'Int' to VTK_UNSIGNED_SHORT:
 (python doesn't support unsigned short, so this might be necessary)
 
@@ -17,7 +17,7 @@ Convert python 'Int' to VTK_UNSIGNED_SHORT:
   ConvertIntToUnsignedShortOn()
   ConvertIntToUnsignedShortOff()
 
-Methods from vtkImageImport: 
+Methods from vtkImageImport:
 (if you don't set these, sensible defaults will be used)
 
   SetDataExtent()
@@ -75,7 +75,7 @@ class vtkImageImportFromArray:
 
     def GetConvertIntToUnsignedShort(self):
         return self.__ConvertIntToUnsignedShort
-    
+
     def ConvertIntToUnsignedShortOn(self):
         self.__ConvertIntToUnsignedShort = 1
 
@@ -95,7 +95,7 @@ class vtkImageImportFromArray:
         if (len(dim) == 4):
             numComponents = dim[3]
             dim = (dim[0],dim[1],dim[2])
-            
+
         type = self.__typeDict[imArray.typecode()]
 
         if (imArray.typecode() == 'F' or imArray.typecode == 'D'):
@@ -127,7 +127,7 @@ class vtkImageImportFromArray:
 
     def GetArray(self):
         return self.__Array
-        
+
     # a whole bunch of methods copied from vtkImageImport
 
     def SetDataExtent(self,extent):
@@ -135,16 +135,15 @@ class vtkImageImportFromArray:
 
     def GetDataExtent(self):
         return self.__import.GetDataExtent()
-    
+
     def SetDataSpacing(self,spacing):
         self.__import.SetDataSpacing(spacing)
 
     def GetDataSpacing(self):
         return self.__import.GetDataSpacing()
-    
+
     def SetDataOrigin(self,origin):
         self.__import.SetDataOrigin(origin)
 
     def GetDataOrigin(self):
         return self.__import.GetDataOrigin()
-    

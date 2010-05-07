@@ -73,7 +73,7 @@ class vtkImageExportToArray:
 
     def GetConvertUnsignedShortToInt(self):
         return self.__ConvertUnsignedShortToInt
-    
+
     def ConvertUnsignedShortToIntOn(self):
         self.__ConvertUnsignedShortToInt = 1
 
@@ -118,14 +118,12 @@ class vtkImageExportToArray:
             imArray = umath.bitwise_and(imArray.astype(Numeric.Int32),0xffff)
 
         return imArray
-        
+
     def GetDataExtent(self):
         return self.__export.GetDataExtent()
-    
+
     def GetDataSpacing(self):
         return self.__export.GetDataSpacing()
-    
+
     def GetDataOrigin(self):
         return self.__export.GetDataOrigin()
-    
-

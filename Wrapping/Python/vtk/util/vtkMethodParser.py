@@ -57,12 +57,12 @@ class VtkDirMethodParser:
                 else:
                     self.toggle_meths.append (method)
                     self.methods.remove (method)
-                    self.methods.remove ("%sOff"%method[:-2])            
+                    self.methods.remove ("%sOff"%method[:-2])
 	    # finding the Get/Set methods.
 	    elif string.find (method[:3], "Get") == 0:
 		set_m = "Set"+method[3:]
-		try: 
-		    self.methods.index (set_m) 
+		try:
+		    self.methods.index (set_m)
 		except ValueError:
 		    pass
 		else:
@@ -106,7 +106,7 @@ class VtkDirMethodParser:
 	
     def clean_state_methods (self, vtk_obj):
 	debug ("VtkDirMethodParser:: clean_state_methods()")
-	# Getting the remaining pure GetMethods 
+	# Getting the remaining pure GetMethods
 	for method in self.methods[:]:
 	    if string.find (method[:3], "Get") == 0:
 		self.get_meths.append (method)
@@ -119,7 +119,7 @@ class VtkDirMethodParser:
 	    state_group = [tmp[0]]
 	    end = self.state_patn.search (tmp[0]).start ()
 	    # stores the method type common to all similar methods
-	    m = tmp[0][3:end] 
+	    m = tmp[0][3:end]
 	    for i in range (1, len (tmp)):
 		if string.find (tmp[i], m) >= 0:
 		    state_group.append (tmp[i])
@@ -130,7 +130,7 @@ class VtkDirMethodParser:
 		    m = tmp[i][3:end]
 		try: # remove the corresponding set method in get_set
 		    val = self.get_set_meths.index (m)
-		except ValueError: 
+		except ValueError:
 		    pass
 		else:
 		    del self.get_set_meths[val]
@@ -169,7 +169,7 @@ class VtkDirMethodParser:
                 self.get_meths.remove( method)
             elif string.find (method[-8:], "MinValue") > -1:
                 self.get_meths.remove( method)
-                
+
 	self.get_meths.sort ()
 
     def toggle_methods (self):
@@ -190,7 +190,7 @@ class VtkPrintMethodParser:
     """ This class finds the methods for a given vtkObject.  It uses
     the output from vtkObject->Print() (or in Python str(vtkObject))
     and output from the VtkDirMethodParser to obtain the methods. """
-    
+
     def parse_methods (self, vtk_obj):
 	"Parse for the methods."
 	debug ("VtkPrintMethodParser:: parse_methods()")
@@ -236,7 +236,7 @@ class VtkPrintMethodParser:
 			pass
 		    else:
 			self.get_meths.append ("Get"+method[0]+"AsString")
-		else: 
+		else:
 		    # the long name is inherited or it is not a state method
 		    try:
 			t = eval ("vtk_obj.Get%s ().GetClassName ()"%
@@ -267,7 +267,7 @@ class VtkPrintMethodParser:
                                     self.get_set_meths.append (method[0])
                             else:
                                 self.get_set_meths.append (method[0])
-                        
+
         self._clean_up_methods (vtk_obj)
 
     def _get_str_obj (self, vtk_obj):
@@ -302,11 +302,11 @@ class VtkPrintMethodParser:
 
 	self._get_str_obj (vtk_obj)
 	patn = re.compile ("  \S")
-    
+
 	for method in self.methods[:]:
 	    if not patn.match (method):
 		self.methods.remove (method)
-    
+
 	for method in self.methods[:]:
 	    if string.find (method, ":") == -1:
 		self.methods.remove (method)
@@ -320,7 +320,7 @@ class VtkPrintMethodParser:
 	self.toggle_meths = []
 	self.state_meths = []
 	self.get_set_meths = []
-	self.get_meths = []    
+	self.get_meths = []
 
         return 0
 
@@ -334,7 +334,7 @@ class VtkPrintMethodParser:
 		try:
 		    meth_list[1].index (method)
 		except ValueError:
-		    meth_list[1].append (method)	    
+		    meth_list[1].append (method)
 
 	# Remove all get_set methods that are already in toggle_meths
 	# This case can happen if the str produces no "On/Off" but
@@ -349,7 +349,7 @@ class VtkPrintMethodParser:
 	self.state_meths.sort ()
 	self.get_set_meths.sort ()
 	self.get_meths.sort ()
-    
+
     def toggle_methods (self):
 	return self.toggle_meths
 
@@ -361,4 +361,3 @@ class VtkPrintMethodParser:
 
     def get_methods (self):
 	return self.get_meths
-

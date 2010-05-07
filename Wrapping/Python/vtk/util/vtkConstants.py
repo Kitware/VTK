@@ -25,7 +25,7 @@ VTK_FLOAT           =10
 VTK_DOUBLE          =11
 VTK_ID_TYPE         =12
 
-# These types are not currently supported by GetDataType, but are 
+# These types are not currently supported by GetDataType, but are
 # for completeness.
 VTK_STRING          =13
 VTK_OPAQUE          =14
@@ -199,7 +199,7 @@ __vtkTypeNameDict = {VTK_VOID:"void",
                      VTK_UNSIGNED_CHAR:"unsigned char",
                      VTK_SIGNED_CHAR:"signed char",
                      VTK_BIT:"bit"}
-                   
+
 def vtkImageScalarTypeNameMacro(type):
   return __vtkTypeNameDict[type]
 

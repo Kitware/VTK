@@ -89,14 +89,14 @@ class QVTKRenderWindowInteractor(qt.QWidget):
     - Keypress f: fly to the picked point
 
     - Keypress p: perform a pick operation. The render window interactor
-    has an internal instance of vtkCellPicker that it uses to pick. 
+    has an internal instance of vtkCellPicker that it uses to pick.
 
     - Keypress r: reset the camera view along the current view
     direction. Centers the actors and moves the camera so that all actors
     are visible.
 
     - Keypress s: modify the representation of all actors so that they
-    are surfaces. 
+    are surfaces.
 
     - Keypress u: invoke the user-defined function. Typically, this
     keypress will bring up an interactor that you can type commands in.
@@ -104,7 +104,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
     - Keypress w: modify the representation of all actors so that they
     are wireframe.
     """
-    
+
     def __init__(self, parent=None, name=None, *args, **kw):
         # the current button
         self._ActiveButton = 0
@@ -118,9 +118,9 @@ class QVTKRenderWindowInteractor(qt.QWidget):
 
         # do special handling of some keywords:
         # stereo, rw
-        
+
         stereo = 0
-        
+
         if kw.has_key('stereo'):
             if kw['stereo']:
                 stereo = 1
@@ -155,14 +155,14 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self.setFocusPolicy(qt.QWidget.ClickFocus)
         if parent == None:
             self.show()
-        
+
         self._Timer = qt.QTimer(self, 'timer handler')
         self.connect(self._Timer, qt.SIGNAL('timeout()'),
                      self.TimerEvent)
 
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
-        
+
     def __getattr__(self, attr):
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor"""
@@ -193,7 +193,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self._RenderWindow.SetWindowInfo(str(int(self.winId())))
         self._Iren.ConfigureEvent()
         self.__connected = 1
-        
+
     def show(self):
         qt.QWidget.show(self)
         self.update() # needed for initial contents display on Win32
@@ -219,7 +219,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
             if (self.__saveState & 8):
                 shift = 1
             if (self.__saveState & 16):
-                ctrl = 1            
+                ctrl = 1
         return ctrl, shift
 
     def enterEvent(self,ev):
@@ -263,7 +263,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         ctrl, shift = self._GetCtrlShift(ev)
         self._Iren.SetEventInformationFlipY(ev.x(), ev.y(),
                                             ctrl, shift, chr(0), 0, None)
-        
+
         if self._ActiveButton == 'Right':
             self._Iren.RightButtonReleaseEvent()
         elif self._ActiveButton == 'Left':
@@ -290,7 +290,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
                                             ctrl, shift, key, 0, None)
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
-        
+
     def keyReleaseEvent(self,ev):
         ctrl, shift = self._GetCtrlShift(ev)
         key = chr(0)
@@ -308,11 +308,11 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self._RenderWindow.Render()
 
 
-#-----------------------------------------------------------------------  
-def QVTKRenderWidgetConeExample():    
+#-----------------------------------------------------------------------
+def QVTKRenderWidgetConeExample():
     """A simple example that uses the QVTKRenderWindowInteractor
     class.  """
-    
+
     # every QT app needs an app
     app = qt.QApplication(['QVTKRenderWindowInteractor'])
 
@@ -328,10 +328,10 @@ def QVTKRenderWidgetConeExample():
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
-    
+
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
-    
+
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
@@ -343,7 +343,7 @@ def QVTKRenderWidgetConeExample():
     app.setMainWidget(widget)
     # start event processing
     app.exec_loop()
-    
+
 if __name__ == "__main__":
     QVTKRenderWidgetConeExample()
 

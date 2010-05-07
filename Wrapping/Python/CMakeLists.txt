@@ -54,10 +54,10 @@ IF (APPLE)
 ENDIF (APPLE)
 
 # Link against all the kit wrappers.
-SET(VTKPYTHON_LINK_LIBS 
-  ${VTK_PYTHON_LIBRARIES} 
+SET(VTKPYTHON_LINK_LIBS
+  ${VTK_PYTHON_LIBRARIES}
   vtksys
-  vtkCommon 
+  vtkCommon
   vtkFiltering
   vtkIO
   vtkGraphics
@@ -108,10 +108,10 @@ IF(PYTHON_UTIL_LIBRARY)
 ENDIF(PYTHON_UTIL_LIBRARY)
 
 IF (VTK_USE_RENDERING)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} 
-                          vtkRendering 
-                          vtkVolumeRendering 
-                          vtkHybrid 
+  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS}
+                          vtkRendering
+                          vtkVolumeRendering
+                          vtkHybrid
                           vtkWidgets )
   SET (vtkpython_pyc_depends
       ${vtkpython_pyc_depends}
@@ -203,14 +203,14 @@ SET_TARGET_PROPERTIES(vtkpython PROPERTIES LINK_FLAGS "${VTKPYTHON_LINK_FLAGS}")
 SET(PVTKPYTHON_EXECUTABLE)
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL AND VTK_USE_MPI)
-  IF (MPI_LIBRARY) 
-    SET(MPI_LIBRARIES ${MPI_LIBRARY})   
-  ENDIF (MPI_LIBRARY)   
-  IF (MPI_EXTRA_LIBRARY)   
-    SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")   
-  ENDIF (MPI_EXTRA_LIBRARY) 
+  IF (MPI_LIBRARY)
+    SET(MPI_LIBRARIES ${MPI_LIBRARY})
+  ENDIF (MPI_LIBRARY)
+  IF (MPI_EXTRA_LIBRARY)
+    SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")
+  ENDIF (MPI_EXTRA_LIBRARY)
   IF (VTK_USE_PARALLEL_BGL)
-    SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${Boost_LIBRARIES}")   
+    SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${Boost_LIBRARIES}")
   ENDIF (VTK_USE_PARALLEL_BGL)
 
 
@@ -257,7 +257,7 @@ IF(PYTHON_EXECUTABLE)
 # Now create a list of Python files.
 
 # Wrapping/Python/vtk/*.py
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     vtk/__helper
     vtk/__init__
     vtk/common
@@ -280,7 +280,7 @@ IF(PYTHON_EXECUTABLE)
     )
 
 # vtk.util package
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/util/__init__
     vtk/util/vtkMethodParser
@@ -293,7 +293,7 @@ IF(PYTHON_EXECUTABLE)
     )
 
 # vtk.test package
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/test/BlackBox
     vtk/test/Testing
@@ -301,7 +301,7 @@ IF(PYTHON_EXECUTABLE)
     )
 
 # Tk related files
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/tk/__init__
     vtk/tk/vtkLoadPythonTkWidgets
@@ -312,7 +312,7 @@ IF(PYTHON_EXECUTABLE)
     )
 
 # PyQt v3 related files
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/qt/QVTKRenderWidget
     vtk/qt/__init__
@@ -320,14 +320,14 @@ IF(PYTHON_EXECUTABLE)
     )
 
 # PyQt v4 related files
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/qt4/__init__
     vtk/qt4/QVTKRenderWindowInteractor
     )
 
 # wxPython related files
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/wx/__init__
     vtk/wx/wxVTKRenderWindow
@@ -335,7 +335,7 @@ IF(PYTHON_EXECUTABLE)
     )
 
 # pyGTK related files
-  SET(VTK_PYTHON_FILES 
+  SET(VTK_PYTHON_FILES
     ${VTK_PYTHON_FILES}
     vtk/gtk/GtkVTKRenderWindow
     vtk/gtk/__init__
@@ -394,7 +394,7 @@ IF(PYTHON_EXECUTABLE)
   # this should also depend on the vtkpython executable.
   ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "..."
     DEPENDS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete")
-  ADD_DEPENDENCIES(vtkpython_pyc 
+  ADD_DEPENDENCIES(vtkpython_pyc
       vtkpython
       ${vtkpython_pyc_depends})
 
@@ -403,7 +403,7 @@ IF(PYTHON_EXECUTABLE)
     SET(VTK_INSTALL_NO_PYTHON 1)
   ENDIF(VTK_INSTALL_NO_RUNTIME)
 
-  # If set (generally by projects that include VTK), we install the 
+  # If set (generally by projects that include VTK), we install the
   # vtk{*}Python libraries using CMake rather than setup.py. Which implies that
   # they will be put will all other libraries. This is done in
   # KitCommonPythonWrapBlock.cmake
@@ -414,7 +414,7 @@ IF(PYTHON_EXECUTABLE)
   # Add a rule to use python distutils to install the python wrappers.
   IF(NOT VTK_INSTALL_NO_PYTHON)
     SET(DOLLAR "$")
- 
+
     # Create default python setup arguments if they are not set.
     IF(NOT DEFINED VTK_PYTHON_SETUP_ARGS)
       SET(VTK_PYTHON_SETUP_ARGS "--prefix=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\""

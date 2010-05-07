@@ -20,7 +20,7 @@ Please see the example at the end of this file.
 Creation:
 
  wxVTKRenderWindowInteractor(parent, ID, stereo=0, [wx keywords]):
- 
+
  You should create a wx.PySimpleApp() or some other wx**App before
  creating the window.
 
@@ -78,7 +78,7 @@ class EventTimer(wx.Timer):
         wx.Timer.__init__(self)
         self.iren = iren
 
-        
+
     def Notify(self):
         """ The timer has expired.
         """
@@ -100,7 +100,7 @@ class wxVTKRenderWindowInteractor(baseClass):
     # wxVTKRenderWindowInteractor.USE_STEREO = True
     # myRWI = wxVTKRenderWindowInteractor(parent, -1)
     USE_STEREO = False
-    
+
     def __init__(self, parent, ID, *args, **kw):
         """Default class constructor.
         @param parent: parent window
@@ -113,9 +113,9 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         # First do special handling of some keywords:
         # stereo, position, size, style
-        
+
         stereo = 0
-        
+
         if kw.has_key('stereo'):
             if kw['stereo']:
                 stereo = 1
@@ -133,7 +133,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         if kw.has_key('size'):
             size = kw['size']
             del kw['size']
-        
+
         # wx.WANTS_CHARS says to give us e.g. TAB
         # wx.NO_FULL_REPAINT_ON_RESIZE cuts down resize flicker under GTK
         style = wx.WANTS_CHARS | wx.NO_FULL_REPAINT_ON_RESIZE
@@ -161,17 +161,17 @@ class wxVTKRenderWindowInteractor(baseClass):
             # but by WX, hence all of this.
 
             # Initialize GLCanvas with correct attriblist
-            attribList = [wx.glcanvas.WX_GL_RGBA, 
+            attribList = [wx.glcanvas.WX_GL_RGBA,
                           wx.glcanvas.WX_GL_MIN_RED, 1,
                           wx.glcanvas.WX_GL_MIN_GREEN, 1,
-                          wx.glcanvas.WX_GL_MIN_BLUE, 1, 
+                          wx.glcanvas.WX_GL_MIN_BLUE, 1,
                           wx.glcanvas.WX_GL_DEPTH_SIZE, 16,
                           wx.glcanvas.WX_GL_DOUBLEBUFFER]
-            if stereo: 
+            if stereo:
                 attribList.append(wx.glcanvas.WX_GL_STEREO)
 
             try:
-                baseClass.__init__(self, parent, ID, position, size, style, 
+                baseClass.__init__(self, parent, ID, position, size, style,
                                    attribList=attribList)
             except wx.PyAssertionError:
                 # visual couldn't be allocated, so we go back to default
@@ -196,7 +196,7 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._Iren.GetRenderWindow().SetSize(size.width, size.height)
         except AttributeError:
             self._Iren.GetRenderWindow().SetSize(size[0], size[1])
-            
+
         if stereo:
             self._Iren.GetRenderWindow().StereoCapableWindowOn()
             self._Iren.GetRenderWindow().SetStereoTypeToCrystalEyes()
@@ -228,16 +228,16 @@ class wxVTKRenderWindowInteractor(baseClass):
                             9: wx.CURSOR_HAND, # VTK_CURSOR_HAND
                             10: wx.CURSOR_CROSS, # VTK_CURSOR_CROSSHAIR
                            }
-        
+
     def BindEvents(self):
         """Binds all the necessary events for navigation, sizing,
         drawing.
-        """        
+        """
         # refresh window by doing a Render
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         # turn off background erase to reduce flicker
         self.Bind(wx.EVT_ERASE_BACKGROUND, lambda e: None)
-        
+
         # Bind the events to the event converters
         self.Bind(wx.EVT_RIGHT_DOWN, self.OnButtonDown)
         self.Bind(wx.EVT_LEFT_DOWN, self.OnButtonDown)
@@ -256,7 +256,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         # other necessary keyboard-dependent translations.
         self.Bind(wx.EVT_CHAR, self.OnKeyDown)
         self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
-        
+
         self.Bind(wx.EVT_SIZE, self.OnSize)
 
         # the wx 2.8.7.1 documentation states that you HAVE to handle
@@ -265,8 +265,8 @@ class wxVTKRenderWindowInteractor(baseClass):
             self.Bind(wx.EVT_MOUSE_CAPTURE_LOST,
                     self.OnMouseCaptureLost)
 
- 
-    def __getattr__(self, attr):        
+
+    def __getattr__(self, attr):
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor.
         """
@@ -288,10 +288,10 @@ class wxVTKRenderWindowInteractor(baseClass):
         """The timer is a one shot timer so will expire automatically.
         """
         return 1
-   
+
     def _CursorChangedEvent(self, obj, evt):
         """Change the wx cursor if the renderwindow's cursor was
-        changed. 
+        changed.
         """
         cur = self._cursor_map[obj.GetCurrentCursor()]
         c = wx.StockCursor(cur)
@@ -330,13 +330,13 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         try:
             d = wx.GetXDisplay()
-            
+
         except NameError:
             # wx.GetXDisplay was added by Robin Dunn in wxPython 2.6.0.1
-            # if it's not available, we can't pass it.  In general, 
+            # if it's not available, we can't pass it.  In general,
             # things will still work; on some setups, it'll break.
             pass
-        
+
         else:
             # wx returns None on platforms where wx.GetXDisplay is not relevant
             if d:
@@ -344,7 +344,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                 # On wxPython-2.6.3.2 and above there is no leading '0x'.
                 if not d.startswith('0x'):
                     d = '0x' + d
-                
+
                 # we now have 0xdeadbeef
                 # VTK wants it as: _deadbeef_void_p (pre-SWIG-1.3 style)
                 d = '_%s_%s\0' % (d[2:], 'void_p')
@@ -362,7 +362,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         # to call ReleaseMouse ourselves.
         if _useCapture and self._own_mouse:
             self._own_mouse = False
- 
+
     def OnPaint(self,event):
         """Handles the wx.EVT_PAINT event for
         wxVTKRenderWindowInteractor.
@@ -372,12 +372,12 @@ class wxVTKRenderWindowInteractor(baseClass):
         # We call this BEFORE Render(), so that if Render() raises
         # an exception, wx doesn't re-call OnPaint repeatedly.
         event.Skip()
-        
+
         dc = wx.PaintDC(self)
 
         # make sure the RenderWindow is sized correctly
         self._Iren.GetRenderWindow().SetSize(self.GetSizeTuple())
-        
+
         # Tell the RenderWindow to render inside the wx.Window.
         if not self.__handle:
 
@@ -421,12 +421,12 @@ class wxVTKRenderWindowInteractor(baseClass):
         """Handles the wx.EVT_MOTION event for
         wxVTKRenderWindowInteractor.
         """
-        
+
         # event processing should continue
         # we call this early in case any of the VTK code raises an
         # exception.
         event.Skip()
-        
+
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(),
                                             event.ShiftDown(),
@@ -437,37 +437,37 @@ class wxVTKRenderWindowInteractor(baseClass):
         """Handles the wx.EVT_ENTER_WINDOW event for
         wxVTKRenderWindowInteractor.
         """
-        
+
         # event processing should continue
         event.Skip()
-        
+
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
-                                            event.ControlDown(), 
-              event.ShiftDown(), 
+                                            event.ControlDown(),
+              event.ShiftDown(),
               chr(0), 0, None)
         self._Iren.EnterEvent()
 
-        
+
     def OnLeave(self,event):
         """Handles the wx.EVT_LEAVE_WINDOW event for
         wxVTKRenderWindowInteractor.
         """
-        
+
         # event processing should continue
         event.Skip()
 
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
-                                            event.ControlDown(), 
-              event.ShiftDown(), 
+                                            event.ControlDown(),
+              event.ShiftDown(),
               chr(0), 0, None)
         self._Iren.LeaveEvent()
 
-        
+
     def OnButtonDown(self,event):
         """Handles the wx.EVT_LEFT/RIGHT/MIDDLE_DOWN events for
         wxVTKRenderWindowInteractor.
         """
-        
+
         # allow wx event processing to continue
         # on wxPython 2.6.0.1, omitting this will cause problems with
         # the initial focus, resulting in the wxVTKRWI ignoring keypresses
@@ -475,11 +475,11 @@ class wxVTKRenderWindowInteractor(baseClass):
         # we do it this early in case any of the following VTK code
         # raises an exception.
         event.Skip()
-        
+
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
-                                            
+
         button = 0
         if event.RightDown():
             self._Iren.RightButtonPressEvent()
@@ -524,7 +524,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                 button==self._mouse_capture_button:
             self.ReleaseMouse()
             self._own_mouse = False
-        
+
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
@@ -536,15 +536,15 @@ class wxVTKRenderWindowInteractor(baseClass):
         elif button == 'Middle':
             self._Iren.MiddleButtonReleaseEvent()
 
-            
+
     def OnMouseWheel(self,event):
         """Handles the wx.EVT_MOUSEWHEEL event for
         wxVTKRenderWindowInteractor.
         """
-        
+
         # event processing should continue
         event.Skip()
-        
+
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
@@ -553,7 +553,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         else:
             self._Iren.MouseWheelBackwardEvent()
 
-        
+
     def OnKeyDown(self,event):
         """Handles the wx.EVT_KEY_DOWN event for
         wxVTKRenderWindowInteractor.
@@ -578,15 +578,15 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
-        
+
     def OnKeyUp(self,event):
         """Handles the wx.EVT_KEY_UP event for
         wxVTKRenderWindowInteractor.
         """
-        
+
         # event processing should continue
         event.Skip()
-        
+
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         keycode, keysym = event.GetKeyCode(), None
         key = chr(0)
@@ -608,7 +608,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         """Actually renders the VTK scene on screen.
         """
         RenderAllowed = 1
-        
+
         if not self.__RenderWhenDisabled:
             # the user doesn't want us to render when the toplevel frame
             # is disabled - first find the top level parent
@@ -617,7 +617,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                 # if it exists, check whether it's enabled
                 # if it's not enabeld, RenderAllowed will be false
                 RenderAllowed = topParent.IsEnabled()
-            
+
         if RenderAllowed:
             if self.__handle and self.__handle == self.GetHandle():
                 self._Iren.GetRenderWindow().Render()
@@ -632,7 +632,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                 d = self.GetDisplayId()
                 if d:
                     self._Iren.GetRenderWindow().SetDisplayId(d)
-                
+
                 # do the actual remap with the new parent information
                 self._Iren.GetRenderWindow().WindowRemap()
 
@@ -653,7 +653,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         it does this by disabling all windows (disallowing user-input to
         prevent re-entrancy of code) and then handling all outstanding
         GUI events.
-        
+
         However, this often triggers an OnPaint() method for wxVTKRWIs,
         resulting in a Render(), resulting in Update() being called whilst
         still in progress.
@@ -661,7 +661,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         self.__RenderWhenDisabled = bool(newValue)
 
 
-#--------------------------------------------------------------------  
+#--------------------------------------------------------------------
 def wxVTKRenderWindowInteractorConeExample():
     """Like it says, just a simple example
     """
@@ -678,7 +678,7 @@ def wxVTKRenderWindowInteractorConeExample():
 
     # It would be more correct (API-wise) to call widget.Initialize() and
     # widget.Start() here, but Initialize() calls RenderWindow.Render().
-    # That Render() call will get through before we can setup the 
+    # That Render() call will get through before we can setup the
     # RenderWindow() to render via the wxWidgets-created context; this
     # causes flashing on some platforms and downright breaks things on
     # other platforms.  Instead, we call widget.Enable().  This means
@@ -693,10 +693,10 @@ def wxVTKRenderWindowInteractorConeExample():
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
-    
+
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
-    
+
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 

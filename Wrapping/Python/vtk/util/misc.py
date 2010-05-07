@@ -66,4 +66,3 @@ def vtkRegressionTestImage( renWin ):
                              % rt_id.GetThresholdedError())
             return 0
     return 2
-            

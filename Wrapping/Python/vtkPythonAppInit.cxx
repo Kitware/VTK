@@ -85,7 +85,7 @@ public:
       MPI_Init(argc, argv);
       this->Controller = vtkMPIController::New();
       this->Controller->Initialize(argc, argv, 1);
-      vtkMultiProcessController::SetGlobalController(this->Controller);      
+      vtkMultiProcessController::SetGlobalController(this->Controller);
     }
   ~vtkMPICleanup()
     {
@@ -128,7 +128,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir);
 int main(int argc, char **argv)
 {
   vtkPythonAppInitEnableMSVCDebugHook();
-  
+
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
 #endif // VTK_COMPILED_USING_MPI

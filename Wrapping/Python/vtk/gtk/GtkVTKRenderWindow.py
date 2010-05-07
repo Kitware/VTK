@@ -66,12 +66,12 @@ class GtkVTKRenderWindowBase(gtkgl.GtkGLArea):
         self._StillUpdateRate = 0.0001
 
         self.ConnectSignals()
-        
+
         # need this to be able to handle key_press events.
         self.set_flags(gtk.CAN_FOCUS)
         # default size
         self.set_usize(300, 300)
-        
+
     def ConnectSignals(self):
         self.connect("realize", self.OnRealize)
         self.connect("expose_event", self.OnExpose)
@@ -89,7 +89,7 @@ class GtkVTKRenderWindowBase(gtkgl.GtkGLArea):
                         GDK.POINTER_MOTION_MASK |
                         GDK.POINTER_MOTION_HINT_MASK |
                         GDK.ENTER_NOTIFY_MASK | GDK.LEAVE_NOTIFY_MASK)
-        
+
     def GetRenderWindow(self):
         return self._RenderWindow
 
@@ -105,8 +105,8 @@ class GtkVTKRenderWindowBase(gtkgl.GtkGLArea):
     def GetDesiredUpdateRate(self):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
-        return self._DesiredUpdateRate 
-        
+        return self._DesiredUpdateRate
+
     def SetStillUpdateRate(self, rate):
         """Mirrors the method with the same name in
         vtkRenderWindowInteractor."""
@@ -129,7 +129,7 @@ class GtkVTKRenderWindowBase(gtkgl.GtkGLArea):
             self._RenderWindow.SetWindowInfo(win_id)
             self.__Created = 1
         return gtk.TRUE
-    
+
     def OnConfigure(self, wid, event=None):
         sz = self._RenderWindow.GetSize()
         if (event.width != sz[0]) or (event.height != sz[1]):
@@ -150,7 +150,7 @@ class GtkVTKRenderWindowBase(gtkgl.GtkGLArea):
         """Mouse button pressed."""
         self._RenderWindow.SetDesiredUpdateRate(self._DesiredUpdateRate)
         return gtk.TRUE
-    
+
     def OnButtonUp(self, wid, event):
         """Mouse button released."""
         self._RenderWindow.SetDesiredUpdateRate(self._StillUpdateRate)
@@ -167,7 +167,7 @@ class GtkVTKRenderWindowBase(gtkgl.GtkGLArea):
     def OnLeave(self, wid, event):
         """Leaving the vtkRenderWindow."""
         return gtk.TRUE
-    
+
     def OnKeyPress(self, wid, event):
         """Key pressed."""
         return gtk.TRUE
@@ -186,7 +186,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
         l = list(args)
         l.insert(0, self)
         apply(GtkVTKRenderWindowBase.__init__, l)
-        
+
         self._CurrentRenderer = None
         self._CurrentCamera = None
         self._CurrentZoom = 1.0
@@ -194,13 +194,13 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
 
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
-        
+
         self._Picker = vtk.vtkCellPicker()
         self._PickedAssembly = None
         self._PickedProperty = vtk.vtkProperty()
         self._PickedProperty.SetColor(1, 0, 0)
         self._PrePickedProperty = None
-        
+
         self._OldFocus = None
 
         # these record the previous mouse position
@@ -210,7 +210,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
     def OnButtonDown(self, wid, event):
         self._RenderWindow.SetDesiredUpdateRate(self._DesiredUpdateRate)
         return self.StartMotion(wid, event)
-    
+
     def OnButtonUp(self, wid, event):
         self._RenderWindow.SetDesiredUpdateRate(self._StillUpdateRate)
         return self.EndMotion(wid, event)
@@ -300,7 +300,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
             if (windowY > 1):
                 vy = (windowY-float(y)-1)/(windowY-1)
             (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
-            
+
             if (vx >= vpxmin and vx <= vpxmax and
                 vy >= vpymin and vy <= vpymax):
                 self._CurrentRenderer = renderer
@@ -319,7 +319,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
 
     def GetCurrentRenderer(self):
         return self._CurrentRenderer
-                
+
     def StartMotion(self, wid, event=None):
         x = event.x
         y = event.y
@@ -333,20 +333,20 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
 
     def Rotate(self,x,y):
         if self._CurrentRenderer:
-            
+
             self._CurrentCamera.Azimuth(self._LastX - x)
             self._CurrentCamera.Elevation(y - self._LastY)
             self._CurrentCamera.OrthogonalizeViewUp()
-            
+
             self._LastX = x
             self._LastY = y
-            
+
             self._CurrentRenderer.ResetCameraClippingRange()
             self.Render()
 
     def Pan(self,x,y):
         if self._CurrentRenderer:
-            
+
             renderer = self._CurrentRenderer
             camera = self._CurrentCamera
             (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
@@ -372,7 +372,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
                 renderer.DisplayToWorld()
                 fx,fy,fz,fw = renderer.GetWorldPoint()
                 camera.SetPosition(fx,fy,fz)
-                
+
             else:
                 (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
                 # Specify a point location in world coordinates
@@ -381,24 +381,24 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
                 # Convert world point coordinates to display coordinates
                 dPoint = renderer.GetDisplayPoint()
                 focalDepth = dPoint[2]
-                
+
                 aPoint0 = self._ViewportCenterX + (x - self._LastX)
                 aPoint1 = self._ViewportCenterY - (y - self._LastY)
-                
+
                 renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
                 renderer.DisplayToWorld()
-                
+
                 (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
                 if (rPoint3 != 0.0):
                     rPoint0 = rPoint0/rPoint3
                     rPoint1 = rPoint1/rPoint3
                     rPoint2 = rPoint2/rPoint3
 
-                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0, 
+                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0,
                                      (fPoint1 - rPoint1) + fPoint1,
-                                     (fPoint2 - rPoint2) + fPoint2) 
-                
-                camera.SetPosition((fPoint0 - rPoint0) + pPoint0, 
+                                     (fPoint2 - rPoint2) + fPoint2)
+
+                camera.SetPosition((fPoint0 - rPoint0) + pPoint0,
                                    (fPoint1 - rPoint1) + pPoint1,
                                    (fPoint2 - rPoint2) + pPoint2)
 
@@ -431,7 +431,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
     def Reset(self):
         if self._CurrentRenderer:
             self._CurrentRenderer.ResetCamera()
-            
+
         self.Render()
 
     def Wireframe(self):
@@ -443,7 +443,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
             actor.GetProperty().SetRepresentationToWireframe()
 
         self.Render()
-        
+
     def Surface(self):
         actors = self._CurrentRenderer.GetActors()
         numActors = actors.GetNumberOfItems()
@@ -459,7 +459,7 @@ class GtkVTKRenderWindow(GtkVTKRenderWindowBase):
 
             renderer = self._CurrentRenderer
             picker = self._Picker
-            
+
             windowY = self.get_window().height
             picker.Pick(x,(windowY - y - 1),0.0,renderer)
             assembly = picker.GetAssembly()
@@ -508,7 +508,7 @@ def main():
     coneMapper.SetInput(cone.GetOutput())
     #coneActor = vtk.vtkLODActor()
     coneActor = vtk.vtkActor()
-    coneActor.SetMapper(coneMapper)    
+    coneActor.SetMapper(coneMapper)
     coneActor.GetProperty().SetColor(0.5, 0.5, 1.0)
     ren = vtk.vtkRenderer()
     gvtk.GetRenderWindow().AddRenderer(ren)

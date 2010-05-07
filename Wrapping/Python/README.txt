@@ -84,7 +84,7 @@ modules.
       `VTK_ROOT` directory.  To install VTK built from source you
       simply need to run the "install rule".  Under Unix this
       implies running `make install` and under Windows this implies
-      running the INSTALL target.  
+      running the INSTALL target.
 
       The installation rule internally executes the
       ``VTK_BINARY_DIR/Wrapping/Python/setup.py`` script.
@@ -92,7 +92,7 @@ modules.
       VTK-Python correctly.  The `setup.py` script may also be
       executed from the `VTK_BINARY_DIR` in order to build an
       installer (via `bdist_wininst`) or to build a Python Egg.
-  
+
 
 VTK-Python interpreters
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -105,7 +105,7 @@ Python interpreter is good enough and works well for you, please use
 it.  However if you run into severe problems you might want to give
 vtkpython a try.  Incidentally, to see what the problems are with
 the vanilla Python interpreter on some platforms read this thread:
- 
+
 http://public.kitware.com/pipermail/vtk-developers/2002-May/001536.html
 
 Additionally, if you built VTK along with MPI support
@@ -145,7 +145,7 @@ in other kits can be imported by using the appropriate kit name.
 Please do note that even when you import vtk.common, the vtk
 namespace will still have all the kits loaded inside it.  Its just
 that vtk.common will have only the classes from the Common
-directory. 
+directory.
 
 
 Valid Kit names
@@ -203,7 +203,7 @@ the following widgets are available.
 
   qt4 -- PyQt v4 widgets.
 
-  tk -- The Tkinter widgets.  
+  tk -- The Tkinter widgets.
 
   wx -- wxPython widgets.
 
@@ -280,7 +280,7 @@ in the form of Debian, RPM and other packages.
      *not* as Python extension modules.  Only the
      ``libvtk*Python.so`` (or ``vtk*Python.dll``) files are Python
      extension modules.  These extension modules are linked to the
-     `PythonD.so` libraries.  
+     `PythonD.so` libraries.
 
      Therefore, the ``libvtk*PythonD.so*`` files should be installed
      somewhere in the linkers path (for example in `\usr\lib`).

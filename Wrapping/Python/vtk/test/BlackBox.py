@@ -56,7 +56,7 @@ class Tester:
             # Turn on
             eval("obj.%sOn()"%method)
             val = eval("obj.%s()"%getm)
-            
+
             if val != 1:
                 name = obj.GetClassName()
                 msg = "Failed test for %(name)s.%(method)sOn\n"\
@@ -66,7 +66,7 @@ class Tester:
             # Turn on
             eval("obj.%sOff()"%method)
             val = eval("obj.%s()"%getm)
-            
+
             if val != 0:
                 name = obj.GetClassName()
                 msg = "Failed test for %(name)s.%(method)sOff\n"\
