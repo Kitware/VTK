@@ -39,6 +39,12 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
           # This is a development version.  Default to use rpath.
           SET(VTK_USE_RPATH_DEFAULT ON)
         ENDIF(VTK_MINOR_VERSION MATCHES "[02468]$")
+        
+        # On APPLE we will always default ON as the RPATHs will be stripped/modified by 
+        # FixUpBundle at CPack time if the binaries need to be redistributed.
+        IF(APPLE)
+           SET(VTK_USE_RPATH_DEFAULT ON)
+        ENDIF(APPLE)
       ENDIF("VTK_USE_RPATH_DEFAULT" MATCHES "^VTK_USE_RPATH_DEFAULT$")
       VTK_DEPENDENT_OPTION(VTK_USE_RPATH "Build shared libraries with rpath.  This makes it easy to run executables from the build tree when using shared libraries, but removes install support."
         ${VTK_USE_RPATH_DEFAULT}
