@@ -2475,6 +2475,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   /* the header file for the wrapped class */
   fprintf(fp,
+          "#include \"vtkStdString.h\"\n"
+          "#include \"vtkUnicodeString.h\"\n"
           "#include \"%s.h\"\n",
           data->ClassName);
 

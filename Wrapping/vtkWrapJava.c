@@ -1072,6 +1072,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
   fprintf(fp,"#include \"vtkJavaUtil.h\"\n\n");
+  fprintf(fp,"#include \"vtkStdString.h\"\n\n");
   fprintf(fp,"#include <vtksys/ios/sstream>\n");
 
   for (i = 0; i < data->NumberOfSuperClasses; i++)

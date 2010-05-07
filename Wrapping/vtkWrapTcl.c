@@ -912,6 +912,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n\n",data->ClassName);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
+  fprintf(fp,"#include \"vtkStdString.h\"\n");
   fprintf(fp,"#include <vtkstd/stdexcept>\n");
   fprintf(fp,"#include <vtksys/ios/sstream>\n");
   if (data->IsConcrete)
