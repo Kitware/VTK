@@ -27,7 +27,7 @@
 class vtkAlgorithm;
 
 template<class DType>
-class vtkImageProgressIterator : public vtkImageIterator<DType>
+class VTK_FILTERING_EXPORT vtkImageProgressIterator : public vtkImageIterator<DType>
 {
 public:
   typedef vtkImageIterator<DType> Superclass;

@@ -27,7 +27,7 @@ template <class T>
 class vtkDataArrayTemplateLookup;
 
 template <class T>
-class vtkDataArrayTemplate: public vtkDataArray
+class VTK_COMMON_EXPORT vtkDataArrayTemplate: public vtkDataArray
 {
 public:
   typedef vtkDataArray Superclass;
