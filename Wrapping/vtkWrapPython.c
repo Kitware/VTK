@@ -373,7 +373,7 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_VTK_OBJECT_PTR:
       {
       fprintf(fp,
-              "    result = vtkPythonGetObjectFromPointer((vtkObjectBase *)temp%i);\n",
+              "    result = vtkPythonUtil::GetObjectFromPointer((vtkObjectBase *)temp%i);\n",
               MAX_ARGS);
       break;
       }
@@ -382,7 +382,7 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_VTK_OBJECT_REF:
       {
       fprintf(fp,
-              "    result = vtkPythonGetSpecialObjectFromPointer(temp%i, \"%s\");\n",
+              "    result = vtkPythonUtil::GetSpecialObjectFromPointer(temp%i, \"%s\");\n",
               MAX_ARGS, currentFunction->ReturnClass);
       break;
       }
@@ -391,7 +391,7 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_VTK_OBJECT:
       {
       fprintf(fp,
-              "    result = vtkPythonGetSpecialObjectFromPointer(&temp%i, \"%s\");\n",
+              "    result = vtkPythonUtil::GetSpecialObjectFromPointer(&temp%i, \"%s\");\n",
               MAX_ARGS, currentFunction->ReturnClass);
       break;
       }
@@ -422,7 +422,7 @@ static void vtkWrapPython_ReturnValue(
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyString_FromString(vtkPythonManglePointer(temp%i,\"void_p\"));\n"
+              "      result = PyString_FromString(vtkPythonUtil::ManglePointer(temp%i,\"void_p\"));\n"
               "      }\n",
               MAX_ARGS, MAX_ARGS);
       break;
@@ -633,7 +633,7 @@ static void vtkWrapPython_ReturnValue(
  * Briefly, "O" is for objects and "d", "f", "i" etc are basic types.
  *
  * If any new format characters are added here, they must also be
- * added to PyVTKCheckArg() in vtkPythonUtil.cxx
+ * added to vtkPythonUtil::CheckArg() in vtkPythonUtil.cxx
  */
 
 static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
@@ -1588,7 +1588,7 @@ static void vtkWrapPython_GenerateMethods(
           else
             {
             fprintf(fp,
-                    "  op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"%s\"",
+                    "  op = (%s *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"%s\"",
                     data->ClassName,
                     vtkWrapPython_FormatString(theSignature));
             }
@@ -1651,7 +1651,7 @@ static void vtkWrapPython_GenerateMethods(
             if (argType == VTK_PARSE_VTK_OBJECT_PTR)
               {
               fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,(char*)\"%s\");\n",
+                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromObject(tempH%d,(char*)\"%s\");\n",
                       i, theSignature->ArgClasses[i], i,
                       theSignature->ArgClasses[i]);
               fprintf(fp,
@@ -1667,7 +1667,7 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_VTK_OBJECT)
               {
               fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonGetPointerFromSpecialObject(tempH%d, (char*)\"%s\", &tempH%d);\n",
+                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromSpecialObject(tempH%d, (char*)\"%s\", &tempH%d);\n",
                       i, theSignature->ArgClasses[i], i,
                       theSignature->ArgClasses[i], i);
 
@@ -1759,7 +1759,7 @@ static void vtkWrapPython_GenerateMethods(
             if (argType == VTK_PARSE_VOID_PTR)
               {
               fprintf(fp,
-                      "    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,(char*)\"%s\");\n",
+                      "    temp%i = vtkPythonUtil::UnmanglePointer((char *)temp%i,&size%i,(char*)\"%s\");\n",
                       i, i, i, "void_p");
 
               fprintf(fp,
@@ -1912,7 +1912,7 @@ static void vtkWrapPython_GenerateMethods(
                 ((theSignature->ArgTypes[i] & VTK_PARSE_CONST) == 0))
               {
               fprintf(fp,
-                      "    if (vtkPythonCheckArray(args,%d,temp%d,%d))\n"
+                      "    if (vtkPythonUtil::CheckArray(args,%d,temp%d,%d))\n"
                       "      {\n"
                       "      %s;\n"
                       "      }\n",
@@ -1943,7 +1943,7 @@ static void vtkWrapPython_GenerateMethods(
             }
 
           /* Free any objects that were constructed by an earlier call
-           * to vtkPythonGetPointerFromSpecialObject() */
+           * to vtkPythonUtil::GetPointerFromSpecialObject() */
           for (i = 0; i < theSignature->NumberOfArguments; i++)
             {
             argType = (theSignature->ArgTypes[i] &
@@ -2065,7 +2065,7 @@ static void vtkWrapPython_GenerateMethods(
                 "{\n"
                 "  PyMethodDef *methods = Py%s_%sMethods;\n"
                 "\n"
-                "  return PyVTKCallOverloadedMethod(methods, self, args);\n"
+                "  return vtkPythonUtil::CallOverloadedMethod(methods, self, args);\n"
                 "}\n",
                  data->ClassName, wrappedFunctions[fnum]->Name,
                  data->ClassName, wrappedFunctions[fnum]->Name);
@@ -2472,10 +2472,26 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   /* lots of important utility functions are defined in vtkPythonUtil.h */
   fprintf(fp,
-          "#include \"vtkPythonUtil.h\"\n"
-          "#include <vtksys/ios/sstream>\n"
+          "#include \"vtkPythonUtil.h\"\n");
+
+  /* vtkPythonCommand is needed to wrap vtkObject.h */
+  if (strcmp("vtkObject", data->ClassName) == 0)
+    {
+    fprintf(fp,
+          "#include \"vtkPythonCommand.h\"\n");
+    }
+
+  /* the header file for the wrapped class */
+  fprintf(fp,
           "#include \"%s.h\"\n",
           data->ClassName);
+
+  if ((data->NumberOfSuperClasses == 0) && !(data->IsAbstract))
+    {
+    fprintf(fp,
+            "\n"
+            "#include <vtksys/ios/sstream>\n");
+    }
 
   /* do the export of the main entry point */
   fprintf(fp,
@@ -2519,7 +2535,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "  unsigned long     temp20 = 0;\n");
 
     fprintf(fp,
-            "  op = (vtkObject *)PyArg_VTKParseTuple(self, args, (char*)\"zO\", &temp0, &temp1);\n"
+            "  op = (vtkObject *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"zO\", &temp0, &temp1);\n"
             "  if (op)\n"
             "    {\n"
             "    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n"
@@ -2538,7 +2554,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "  PyErr_Clear();\n");
 
     fprintf(fp,
-            "  op = (vtkObject *)PyArg_VTKParseTuple(self, args, (char*)\"zOf\", &temp0, &temp1, &temp2);\n"
+            "  op = (vtkObject *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"zOf\", &temp0, &temp1, &temp2);\n"
             "  if (op)\n"
             "    {\n"
             "    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n"
@@ -2571,7 +2587,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "  %s *op;\n"
             "  char *typecast;\n"
             "\n"
-            "  op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"s\", &typecast);\n"
+            "  op = (%s *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"s\", &typecast);\n"
             "  if (op)\n"
             "    {\n    char temp20[256];\n"
             "    sprintf(temp20,\"Addr=%%p\",op);\n"
@@ -2587,7 +2603,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "PyObject *PyvtkObjectBase_PrintRevisions(PyObject *self, PyObject *args)\n"
             "{\n"
             "  %s *op;\n"
-            "  op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"\");\n"
+            "  op = (%s *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"\");\n"
             "  if (op)\n"
             "    {\n"
             "    vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n"
@@ -2759,21 +2775,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,
             "PyObject *PyVTKClass_%sNew(char *)\n"
             "{\n"
-            "  PyVTKSpecialTypeInfo *info =\n"
-            "    vtkPythonAddSpecialTypeToHash(\n"
-            "      (char *)\"%s\", (char**)%sDoc(), Py%sMethods,\n"
-            "      Py%s_%sMethods, &vtkSpecial_%sCopy,\n"
+            "  return PyVTKSpecialType_New(\n"
+            "      &Py%sNewMethod, Py%sMethods, Py%s_%sMethods,"
+            "      (char *)\"%s\", (char**)%sDoc(), &vtkSpecial_%sCopy,\n"
             "      &vtkSpecial_%sDelete, &vtkSpecial_%sPrint);\n"
-            "\n"
-            "  Py%sNewMethod.ml_doc = PyString_AsString(info->docstring);\n"
-            "\n"
-            "  return PyCFunction_New(&Py%sNewMethod,Py_None);\n"
             "}\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName,
             data->ClassName, data->ClassName, data->ClassName,
             data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName, data->ClassName);
+            data->ClassName);
     }
 
   /* the New method for un-wrappable classes returns "NULL" */

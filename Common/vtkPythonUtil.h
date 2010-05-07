@@ -16,230 +16,197 @@
 #define __vtkPythonUtil_h
 
 #include "vtkPython.h"
-#include "vtkCommand.h"
+#include "PyVTKClass.h"
+#include "PyVTKObject.h"
+#include "PyVTKSpecialObject.h"
 
-#if defined(WIN32)
-# if defined(vtkCommonPythonD_EXPORTS)
-#  define VTK_PYTHON_EXPORT __declspec(dllexport)
-# else
-#  define VTK_PYTHON_EXPORT __declspec(dllimport)
-# endif
-#else
-# define VTK_PYTHON_EXPORT
-#endif
+class vtkPythonObjectMap;
+class vtkPythonClassMap;
+class vtkPythonSpecialTypeMap;
 
-// This is the VTK/Python 'class,' it contains the method list and a pointer
-// to the superclass
-typedef vtkObjectBase *(*vtknewfunc)();
+extern "C" void vtkPythonUtilDelete();
 
-typedef struct {
-  PyObject_HEAD
-  // the first six are common to PyClassObject
-  PyObject *vtk_bases;
-  PyObject *vtk_dict;
-  PyObject *vtk_name;
-  PyObject *vtk_getattr;
-  PyObject *vtk_setattr;
-  PyObject *vtk_delattr;
-  // these are unique to the PyVTKClass
-  PyObject *vtk_module;
-  PyObject *vtk_doc;
-  PyMethodDef *vtk_methods;
-  vtknewfunc vtk_new;
-} PyVTKClass;
-
-// This is the VTK/Python 'object,' it contains the python object header
-// plus a pointer to the associated vtkObjectBase and PyVTKClass.
-typedef struct {
-  PyObject_HEAD
-  // the first two are common with the PyInstanceObject
-  PyVTKClass *vtk_class;
-  PyObject *vtk_dict;
-  // the rest are unique to the PyVTKObject
-  vtkObjectBase *vtk_ptr;
-#if PY_VERSION_HEX >= 0x02010000
-  PyObject *vtk_weakreflist;
-#endif
-} PyVTKObject;
-
-// This for objects not derived from vtkObjectBase
-
-typedef void *(*PyVTKSpecialCopyFunc)(void *);
-typedef void (*PyVTKSpecialDeleteFunc)(void *);
-typedef void (*PyVTKSpecialPrintFunc)(ostream& os, void *);
-
-VTK_PYTHON_EXPORT class PyVTKSpecialTypeInfo
+class VTK_PYTHON_EXPORT vtkPythonUtil
 {
 public:
-  PyVTKSpecialTypeInfo() :
-    classname(0), docstring(0), methods(0), constructors(0),
-    copy_func(0), delete_func(0), print_func(0) {};
+  // Description:
+  // This is a special version of ParseTuple that handles both bound
+  // and unbound method calls for VTK objects, depending on whether
+  // "self" is a PyVTKObject or a PyVTKClass.
+  static vtkObjectBase *VTKParseTuple(PyObject *self, PyObject *args,
+                                      char *format, ...);
 
-  PyVTKSpecialTypeInfo(
-    char *cname, char *cdocs[], PyMethodDef *cmethods, PyMethodDef *ccons,
-    PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
-    PyVTKSpecialPrintFunc printfunc);
+  // Description:
+  // Check python object against a format character and return a number
+  // to indicate how well it matches (lower numbers are better).
+  static int CheckArg(PyObject *arg, const char *format,
+                      const char *classname, int level=0);
 
-  PyObject *classname;
-  PyObject *docstring;
-  PyMethodDef *methods;
-  PyMethodDef *constructors;
-  PyVTKSpecialCopyFunc copy_func;
-  PyVTKSpecialDeleteFunc delete_func;
-  PyVTKSpecialPrintFunc print_func;
-};
+  // Description:
+  // Call the method that is the best match for the for the provided
+  // arguments.  The docstrings in the PyMethodDef must provide info
+  // about the argument types for each method.
+  static PyObject *CallOverloadedMethod(PyMethodDef *methods,
+                                        PyObject *self, PyObject *args);
 
-typedef struct {
-  PyObject_HEAD
-  void *vtk_ptr;
-  PyVTKSpecialTypeInfo *vtk_info;
-} PyVTKSpecialObject;
+  // Description:
+  // Find a method that takes the single arg provided, this is used
+  // to locate the correct constructor signature for a conversion.
+  // The docstrings in the PyMethodDef must provide info about the
+  // argument types for each method.
+  static PyMethodDef *FindConversionMethod(PyMethodDef *methods,
+                                           PyObject *arg);
 
-// Standard methods for all vtk/python objects
-extern "C"
-{
-VTK_PYTHON_EXPORT int PyVTKObject_Check(PyObject *obj);
-VTK_PYTHON_EXPORT int PyVTKClass_Check(PyObject *obj);
-VTK_PYTHON_EXPORT int PyVTKSpecialObject_Check(PyObject *obj);
-VTK_PYTHON_EXPORT
-PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObjectBase *ptr);
-VTK_PYTHON_EXPORT
-PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
-                         char *classname, char *modulename, char *docstring[],
-                         PyObject *base);
-VTK_PYTHON_EXPORT
-PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy);
+  // Description:
+  // Add a PyVTKClass to the type lookup table, this allows us to later
+  // create object given only the class name.
+  static void AddClassToMap(PyObject *obj, const char *classname);
 
-// for deciding what method signature to use for overloaded methods
-VTK_PYTHON_EXPORT
-PyObject *PyVTKCallOverloadedMethod(PyMethodDef *methods,
-                                    PyObject *self, PyObject *args);
+  // Description:
+  // Get information about a special VTK type, given the type name.
+  static PyObject *FindClass(const char *classname);
 
-// Find a method that takes the arg
-VTK_PYTHON_EXPORT
-PyMethodDef *PyVTKFindConversionMethod(PyMethodDef *methods, PyObject *arg);
+  // Description:
+  // For an VTK object whose class is not in the ClassMap, search
+  // the whole ClassMap to find out which class is the closest base
+  // class of the object.  Returns a PyVTKClass.
+  static PyObject *FindNearestBaseClass(vtkObjectBase *ptr);
 
-// this is a special version of ParseTuple that handles both bound
-// and unbound method calls for VTK objects
+  // Description:
+  // Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is
+  // not a PyVTKObject, or is not a PyVTKObject of the specified type,
+  // the python error indicator will be set.
+  // Special behavior: Py_None is converted to NULL without no error.
+  static vtkObjectBase *GetPointerFromObject(PyObject *obj,
+                                             const char *classname);
 
-VTK_PYTHON_EXPORT
-vtkObjectBase *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
-                                   char *format, ...);
-}
+  // Description:
+  // Convert a vtkObjectBase to a PyVTKObject.  This will first check to
+  // see if the PyVTKObject already exists, and create a new PyVTKObject
+  // if necessary.  This function also passes ownership of the reference
+  // to the PyObject.
+  // Special behaviour: NULL is converted to Py_None.
+  static PyObject *GetObjectFromPointer(vtkObjectBase *ptr);
 
-// Add a PyVTKClass to the type lookup table, this allows us to later
-// create object given only the class name.
-extern VTK_PYTHON_EXPORT
-void vtkPythonAddClassToHash(PyObject *obj, const char *type);
+  // Description:
+  // Try to convert some PyObject into a PyVTKObject, currently conversion
+  // is supported for SWIG-style mangled pointer strings.
+  static PyObject *GetObjectFromObject(PyObject *arg, const char *type);
 
-// Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is not a
-// PyVTKObject, or is not a PyVTKObject of the specified type, the python
-// error indicator will be set.
-// Special behaviour: Py_None is converted to NULL without no error.
-extern VTK_PYTHON_EXPORT
-vtkObjectBase *vtkPythonGetPointerFromObject(PyObject *obj, const char *type);
+  // Description:
+  // Add PyVTKObject/vtkObjectBase pairs to the internal mapping.
+  // This methods do not change the reference counts of either the
+  // vtkObjectBase or the PyVTKObject.
+  static void AddObjectToMap(PyObject *obj, vtkObjectBase *anInstance);
 
-// Convert a vtkObjectBase to a PyVTKObject.  This will first check to see if
-// the PyVTKObject already exists, and create a new PyVTKObject if necessary.
-// This function also passes ownership of the reference to the PyObject.
-// Special behaviour: NULL is converted to Py_None.
-extern VTK_PYTHON_EXPORT
-PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr);
+  // Description:
+  // Remove a PyVTKObject from the internal mapping.  No reference
+  // counts are changed.
+  static void RemoveObjectFromMap(PyObject *obj);
 
-// Try to convert some PyObject into a PyVTKObject, currently conversion
-// is supported for SWIG-style mangled pointer strings.
-extern VTK_PYTHON_EXPORT
-PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
+  // Description:
+  // Add a special VTK type to the type lookup table, this allows us to
+  // later create object given only the class name.
+  static PyVTKSpecialType *AddSpecialTypeToMap(
+    char *classname, char *docstring[], PyMethodDef *methods,
+    PyMethodDef *constructors, PyVTKSpecialCopyFunc copyfunc,
+    PyVTKSpecialDeleteFunc deletefunc, PyVTKSpecialPrintFunc printfunc);
 
-// Add a non-VTK type to the type lookup table, this allows us to later
-// create object given only the class name.
-extern VTK_PYTHON_EXPORT
-PyVTKSpecialTypeInfo *vtkPythonAddSpecialTypeToHash(
-  char *classname, char *docstring[], PyMethodDef *methods,
-  PyMethodDef *constructors, PyVTKSpecialCopyFunc copyfunc,
-  PyVTKSpecialDeleteFunc deletefunc, PyVTKSpecialPrintFunc printfunc);
+  // Description:
+  // Get information about a special VTK type, given the type name.
+  static PyVTKSpecialType *FindSpecialType(const char *classname);
 
-// Return the pointer to a non-VTK object
-extern VTK_PYTHON_EXPORT
-void *vtkPythonGetPointerFromSpecialObject(
-  PyObject *obj, const char *result_type, PyObject **newobj);
+  // Description:
+  // Given a PyObject, convert it into a "result_type" object, where
+  // "result_type" must have been wrapped.  The C object is returned
+  // as a void *, while the python object is returned in "newobj" unless
+  // the original object was already of the correct type, in which case
+  // newobj is set to NULL.  If a python exception was raised, NULL will be
+  // returned.
+  static void *GetPointerFromSpecialObject(
+    PyObject *obj, const char *result_type, PyObject **newobj);
 
-// Convert a non-VTK object to a PyVTKSpecialObject
-extern VTK_PYTHON_EXPORT
-PyObject *vtkPythonGetSpecialObjectFromPointer(void *ptr,
-                                               const char *type);
+  // Description:
+  // Convert a pointer to an object of special wrapped type "class_type"
+  // into a PyObject of that type.  If the given pointer is NULL, then
+  // Py_None will be returned with no error.  If the given pointer is
+  // of the wrong type, expect fireworks.
+  static PyObject *GetSpecialObjectFromPointer(void *ptr,
+    const char *class_type);
 
-// Add and delete PyVTKObject/vtkObjectBase pairs from the wrapper hash table,
-// these methods do not change the reference counts of either the vtkObjectBase
-// or the PyVTKObject.
-extern VTK_PYTHON_EXPORT
-void vtkPythonAddObjectToHash(PyObject *obj, vtkObjectBase *anInstance);
-extern VTK_PYTHON_EXPORT
-void vtkPythonDeleteObjectFromHash(PyObject *obj);
+  // Description:
+  // Utility function to build a docstring by concatenating a series
+  // of strings until a null string is found.
+  static PyObject *BuildDocString(char *docstring[]);
 
-// Utility functions for creating/usinge SWIG-style mangled pointer strings.
-extern VTK_PYTHON_EXPORT
-char *vtkPythonManglePointer(void *ptr, const char *type);
-extern VTK_PYTHON_EXPORT
-void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type);
+  // Description:
+  // Utility function for creating SWIG-style mangled pointer string.
+  static char *ManglePointer(void *ptr, const char *type);
 
-// check array arguments sent through the wrappers to see if the underlying
-// C++ method changed the values, and attempt to modify the original python
-// sequence (list or tuple) if so.
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, char *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, signed char *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, unsigned char *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, short *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, unsigned short *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, int *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, unsigned int *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, long *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, unsigned long *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, float *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, double *a, int n);
+  // Description:
+  // Utility function decoding a SWIG-style mangled pointer string.
+  static void *UnmanglePointer(char *ptrText, int *len, const char *type);
+
+  // Description:
+  // check array arguments sent through the wrappers to see if the
+  // underlying C++ method changed the values, and attempt to modify
+  // the original python sequence (list or tuple) if so.
+  static int CheckArray(PyObject *args, int i, char *a, int n);
+  static int CheckArray(PyObject *args, int i, signed char *a, int n);
+  static int CheckArray(PyObject *args, int i, unsigned char *a, int n);
+  static int CheckArray(PyObject *args, int i, short *a, int n);
+  static int CheckArray(PyObject *args, int i, unsigned short *a, int n);
+  static int CheckArray(PyObject *args, int i, int *a, int n);
+  static int CheckArray(PyObject *args, int i, unsigned int *a, int n);
+  static int CheckArray(PyObject *args, int i, long *a, int n);
+  static int CheckArray(PyObject *args, int i, unsigned long *a, int n);
+  static int CheckArray(PyObject *args, int i, float *a, int n);
+  static int CheckArray(PyObject *args, int i, double *a, int n);
 #if defined(VTK_TYPE_USE_LONG_LONG)
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, long long *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, unsigned long long *a, int n);
+  static int CheckArray(PyObject *args, int i, long long *a, int n);
+  static int CheckArray(PyObject *args, int i, unsigned long long *a, int n);
 #endif
 #if defined(VTK_TYPE_USE___INT64)
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, __int64 *a, int n);
-extern VTK_PYTHON_EXPORT
-int vtkPythonCheckArray(PyObject *args, int i, unsigned __int64 *a, int n);
+  static int CheckArray(PyObject *args, int i, __int64 *a, int n);
+  static int CheckArray(PyObject *args, int i, unsigned __int64 *a, int n);
 #endif
+
+private:
+  vtkPythonUtil();
+  ~vtkPythonUtil();
+  vtkPythonUtil(const vtkPythonUtil&);  // Not implemented.
+  void operator=(const vtkPythonUtil&);  // Not implemented.
+
+  vtkPythonObjectMap *ObjectMap;
+  vtkPythonClassMap *ClassMap;
+  vtkPythonSpecialTypeMap *SpecialTypeMap;
+
+  friend void vtkPythonUtilDelete();
+};
 
 // For use by SetXXMethod() , SetXXMethodArgDelete()
 extern VTK_PYTHON_EXPORT void vtkPythonVoidFunc(void *);
 extern VTK_PYTHON_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 
-// To allow Python to use the vtkCommand features
-class vtkPythonCommand : public vtkCommand
-{
-public:
-  static vtkPythonCommand *New() { return new vtkPythonCommand; };
+// The following macro is used to supress missing initializer
+// warnings.  Python documentation says these should not be necessary.
+// We define it as a macro in case the length needs to change across
+// python versions.
+#if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
+#elif   PY_VERSION_HEX >= 0x02030000
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,
+#elif PY_VERSION_HEX >= 0x02020000
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
+#else
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
+#endif
 
-  void SetObject(PyObject *o);
-  void SetThreadState(PyThreadState *ts);
-  void Execute(vtkObject *ptr, unsigned long eventtype, void *CallData);
-
-  PyObject *obj;
-  PyThreadState *ThreadState;
-protected:
-  vtkPythonCommand();
-  ~vtkPythonCommand();
-};
+#if PY_VERSION_HEX < 0x02050000
+  typedef int Py_ssize_t;
+#endif
 
 #endif
