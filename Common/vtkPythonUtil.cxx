@@ -432,10 +432,12 @@ int vtkPythonUtil::CheckArg(
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
+#ifdef Py_USING_UNICODE
       else if (PyUnicode_Check(arg))
         {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
         }
+#endif
       else if (!PyString_Check(arg))
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -486,7 +488,6 @@ int vtkPythonUtil::CheckArg(
           }
         }
 #endif
-
 
       // callback functions
       else if (name[0] == 'f' && strcmp(classname, "func") == 0)
