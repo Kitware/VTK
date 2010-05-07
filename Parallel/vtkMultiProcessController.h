@@ -202,6 +202,23 @@ public:
   // Take an RMI away.
   void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
     {f = f; arg = arg; tag = tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
+
+  // Description:
+  // These methods are a part of the newer API to add multiple rmi callbacks.
+  // When the RMI is triggered, all the callbacks are called
+  // Adds a new callback for an RMI. Returns the identifier for the callback.
+  unsigned long AddRMICallback(vtkRMIFunctionType, void* localArg, int tag);
+
+  // Description:
+  // These methods are a part of the newer API to add multiple rmi callbacks.
+  // When the RMI is triggered, all the callbacks are called
+  // Removes all callbacks for the tag.
+  void RemoveAllRMICallbacks(int tag);
+
+  // Description:
+  // Remove a callback. Returns true is the remove was successful.
+  bool RemoveRMICallback(unsigned long id);
+
   //ETX
   
   // Description:
@@ -956,8 +973,6 @@ protected:
   void                       *SingleData;
 
   void GetMultipleMethod(int index, vtkProcessFunctionType &func, void *&data);
-  
-  vtkCollection *RMIs;
   
   // This is a flag that can be used by the ports to break
   // their update loop. (same as ProcessRMIs)
