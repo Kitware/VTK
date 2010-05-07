@@ -41,6 +41,14 @@ VTK___INT64            =18
 #  VTK_TYPE_CONVERT_UI64_TO_DOUBLE are both defined.
 VTK_UNSIGNED___INT64   =19
 
+# These types are required by vtkVariant and vtkVariantArray
+VTK_VARIANT =20
+VTK_OBJECT  =21
+
+# Storage for Unicode strings
+VTK_UNICODE_STRING  =22
+
+
 # Some constant required for correct template performance
 VTK_BIT_MIN = 0
 VTK_BIT_MAX = 1

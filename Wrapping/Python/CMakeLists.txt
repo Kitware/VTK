@@ -288,6 +288,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/util/vtkConstants
     vtk/util/vtkImageExportToArray
     vtk/util/vtkImageImportFromArray
+    vtk/util/vtkVariant
     vtk/util/colors
     vtk/util/numpy_support
     )

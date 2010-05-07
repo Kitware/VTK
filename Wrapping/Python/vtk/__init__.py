@@ -120,6 +120,9 @@ except ImportError, exc:
 # import useful VTK related constants.
 from util.vtkConstants import *
 
+# import the vtkVariant helpers
+from util.vtkVariant import *
+
 # reset the dlopen flags to the original state if possible.
 if dl and (os.name == 'posix') and orig_dlopen_flags:
     sys.setdlopenflags(orig_dlopen_flags)
