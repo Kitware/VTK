@@ -1124,6 +1124,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
   
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
+    cellTypes->InsertNextValue(static_cast<unsigned char>(types[i]));
     cellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
     if (types[i] != VTK_POLYHEDRON)
       {
