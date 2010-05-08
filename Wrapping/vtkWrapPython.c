@@ -534,7 +534,7 @@ static void vtkWrapPython_ReturnValue(
 #endif
 
     /* support for "long long" depends on config and capabilities */
-#if defined(VTK_SIZEOF_LONG_LONG)
+#if defined(VTK_TYPE_USE_LONG_LONG)
 # if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_LONG_LONG)
     case VTK_PARSE_LONG_LONG:
       {
@@ -569,7 +569,7 @@ static void vtkWrapPython_ReturnValue(
 #endif
 
     /* support for "__int64" depends on config and capabilities */
-#if defined(VTK_SIZEOF___INT64)
+#if defined(VTK_TYPE_USE___INT64)
 # if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF___INT64)
     case VTK_PARSE___INT64:
       {
@@ -2198,11 +2198,11 @@ static int vtkWrapPython_MethodCheck(
     if (argType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
-#ifndef VTK_SIZEOF___INT64
+#ifndef VTK_TYPE_USE___INT64
     if (argType == VTK_PARSE___INT64) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
 #endif
-#ifndef VTK_SIZEOF_LONG_LONG
+#ifndef VTK_TYPE_USE_LONG_LONG
     if (argType == VTK_PARSE_LONG_LONG) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
 #endif
@@ -2247,11 +2247,11 @@ static int vtkWrapPython_MethodCheck(
   if (returnType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
 
   /* eliminate types that aren't supported by the compiler */
-#ifndef VTK_SIZEOF___INT64
+#ifndef VTK_TYPE_USE___INT64
   if (returnType == VTK_PARSE___INT64) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
 #endif
-#ifndef VTK_SIZEOF_LONG_LONG
+#ifndef VTK_TYPE_USE_LONG_LONG
   if (returnType == VTK_PARSE_LONG_LONG) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
 #endif

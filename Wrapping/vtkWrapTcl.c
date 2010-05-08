@@ -678,13 +678,13 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
         == VTK_PARSE_UNKNOWN) args_ok = 0;
-#ifndef VTK_SIZEOF_LONG_LONG
+#ifndef VTK_TYPE_USE_LONG_LONG
     if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
         == VTK_PARSE_LONG_LONG ||
         (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
         == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
 #endif
-#ifndef VTK_SIZEOF___INT64
+#ifndef VTK_TYPE_USE___INT64
     if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
         == VTK_PARSE___INT64 ||
         (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
@@ -731,13 +731,13 @@ void outputFunction(FILE *fp, FileInfo *data)
     }
   if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
        VTK_PARSE_UNKNOWN) args_ok = 0;
-#ifndef VTK_SIZEOF_LONG_LONG
+#ifndef VTK_TYPE_USE_LONG_LONG
   if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
        VTK_PARSE_LONG_LONG ||
       (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
        VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
 #endif
-#ifndef VTK_SIZEOF___INT64
+#ifndef VTK_TYPE_USE___INT64
   if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
        VTK_PARSE___INT64 ||
       (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
