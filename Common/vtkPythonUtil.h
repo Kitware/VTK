@@ -23,6 +23,7 @@
 class vtkPythonObjectMap;
 class vtkPythonClassMap;
 class vtkPythonSpecialTypeMap;
+class vtkVariant;
 
 extern "C" void vtkPythonUtilDelete();
 
@@ -147,7 +148,7 @@ public:
   static void *UnmanglePointer(char *ptrText, int *len, const char *type);
 
   // Description:
-  // check array arguments sent through the wrappers to see if the
+  // Check array arguments sent through the wrappers to see if the
   // underlying C++ method changed the values, and attempt to modify
   // the original python sequence (list or tuple) if so.
   static int CheckArray(PyObject *args, int i, bool *a, int n);
@@ -170,6 +171,10 @@ public:
   static int CheckArray(PyObject *args, int i, __int64 *a, int n);
   static int CheckArray(PyObject *args, int i, unsigned __int64 *a, int n);
 #endif
+
+  // Description:
+  // Compute a hash for a vtkVariant.
+  static long VariantHash(vtkVariant *variant);
 
 private:
   vtkPythonUtil();

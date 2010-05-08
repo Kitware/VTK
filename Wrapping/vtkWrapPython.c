@@ -2443,6 +2443,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   static char *compare_tokens[6] = {
     "<", "<=", "==", "!=", ">", ">=" };
   int compare_ops = 0;
+  int has_hash = 0;
   int class_has_new = 0;
   int i;
 
@@ -2816,6 +2817,40 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "\n");
       }
 
+    /* the hash function for vtkTimeStamp */
+    if (strcmp(data->ClassName, "vtkTimeStamp") == 0)
+      {
+      has_hash = 1;
+
+      fprintf(fp,
+            "static long vtkSpecial_%sHash(void *self, int *immutable)\n"
+            "{\n"
+            "  unsigned long mtime = *((vtkTimeStamp *)self);\n"
+            "  long h = (long)mtime;\n"
+            "  *immutable = 0;\n"
+            "  if (h != -1) { return h; };\n"
+            "  return -1;\n"
+            "}\n"
+            "\n",
+            data->ClassName);
+      }
+
+    /* the hash function for vtkVariant */
+    if (strcmp(data->ClassName, "vtkVariant") == 0)
+      {
+      has_hash = 1;
+
+      fprintf(fp,
+            "static long vtkSpecial_%sHash(void *self, int *immutable)\n"
+            "{\n"
+            "  long h = vtkPythonUtil::VariantHash((vtkVariant *)self);\n"
+            "  *immutable = 1;\n"
+            "  return h;\n"
+            "}\n"
+            "\n",
+            data->ClassName);
+      }
+
     /* the table to hold these special methods */
     fprintf(fp,
             "static PyVTKSpecialMethods vtkSpecial_%sSpecialMethods =\n"
@@ -2837,8 +2872,20 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,
             "  0,\n");
       }
+
+    if (has_hash)
+      {
+      fprintf(fp,
+            "  &vtkSpecial_%sHash,\n",
+            data->ClassName);
+      }
+    else
+      {
+      fprintf(fp,
+            "  0,\n");
+      }
+
     fprintf(fp,
-            "  0,\n"
             "};\n"
             "\n");
 

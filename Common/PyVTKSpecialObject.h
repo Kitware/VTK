@@ -33,8 +33,9 @@ typedef void (*PyVTKSpecialPrintFunc)(ostream& os, void *);
 // Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 // return "-1" if the comparison is impossible
 typedef int (*PyVTKSpecialCompareFunc)(void *, void *, int);
-// return a hash from the value of the object, or -1 if error
-typedef long (*PyVTKSpecialHashFunc)(void *);
+// return a hash from the value of the object, or -1 if error,
+// set second arg to '1' if the object is immutable
+typedef long (*PyVTKSpecialHashFunc)(void *, int *);
 
 // Struct to hold special methods, the first three are mandatory
 // and the rest are optional.
@@ -79,6 +80,7 @@ public:
 struct PyVTKSpecialObject {
   PyObject_HEAD
   void *vtk_ptr;
+  long vtk_hash;
   PyVTKSpecialType *vtk_info;
 };
 

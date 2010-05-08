@@ -19,6 +19,7 @@
 
 #include "vtkObject.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkVariant.h"
 #include "vtkWindows.h"
 
 #include <vtksys/ios/sstream>
@@ -1612,6 +1613,52 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n)
   return vtkPythonCheckLongArray(args, i, a, n);
 }
 #endif
+
+//--------------------------------------------------------------------
+long vtkPythonUtil::VariantHash(vtkVariant *v)
+{
+  long h = -1;
+
+  // This uses the same rules as the vtkVariant "==" operator.
+  // All types except for vtkObject are converted to strings.
+  // Quite inefficient, but it gets the job done.  Fortunately,
+  // the python vtkVariant is immutable, so its hash can be cached.
+
+  switch (v->GetType())
+    {
+    case VTK_OBJECT:
+      {
+      h = _Py_HashPointer(v->ToVTKObject());
+      break;
+      }
+
+    case VTK_UNICODE_STRING:
+      {
+      vtkUnicodeString u = v->ToUnicodeString();
+      const char *s = u.utf8_str();
+      PyObject *tmp = PyUnicode_DecodeUTF8(s, strlen(s), "strict");
+      if (tmp == 0)
+        {
+        PyErr_Clear();
+        return 0;
+        }
+      h = PyObject_Hash(tmp);
+      Py_DECREF(tmp);
+      break;
+      }
+
+    default:
+      {
+      vtkStdString s = v->ToString();
+      PyObject *tmp = PyString_FromString(s.c_str());
+      h = PyObject_Hash(tmp);
+      Py_DECREF(tmp);
+      break;
+      }
+    }
+
+  return h;
+}
 
 //--------------------------------------------------------------------
 void vtkPythonVoidFunc(void *arg)

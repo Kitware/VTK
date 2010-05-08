@@ -138,11 +138,23 @@ static void PyVTKSpecialObject_PyDelete(PyVTKSpecialObject *self)
 //--------------------------------------------------------------------
 static long PyVTKSpecialObject_PyHash(PyVTKSpecialObject *self)
 {
+  // self->vtk_hash must never be set to anything but -1 for mutable objects
+  if (self->vtk_hash != -1)
+    {
+    return self->vtk_hash;
+    }
+
   if (self->vtk_ptr && self->vtk_info->hash_func)
     {
-    long val = self->vtk_info->hash_func(self->vtk_ptr);
+    int imm = 0;
+    long val = self->vtk_info->hash_func(self->vtk_ptr, &imm);
     if (val != -1)
       {
+      if (imm)
+        {
+        // cache the hash for immutable objects
+        self->vtk_hash = val;
+        }
       return val;
       }
     }
@@ -250,6 +262,7 @@ PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy)
     }
 
   self->vtk_ptr = ptr;
+  self->vtk_hash = -1;
   self->vtk_info = info;
 
   return (PyObject *)self;
