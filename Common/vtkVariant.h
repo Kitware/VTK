@@ -343,7 +343,7 @@ public:
 
 //BTX
   template <typename T>
-  T ToNumeric(bool valid[1], T* vtkNotUsed(ignored)) const;
+  T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
 //ETX
 
   // Description:
