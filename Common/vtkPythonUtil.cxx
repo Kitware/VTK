@@ -1248,12 +1248,6 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
   // The type name, for diagnostics
   const char *object_type = obj->ob_type->tp_name;
 
-  // convert Py_None to NULL every time
-  if (obj == Py_None)
-    {
-    return NULL;
-    }
-
   // check to ensure it is a vtk special object
   if (PyVTKSpecialObject_Check(obj))
     {
