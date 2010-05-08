@@ -2338,6 +2338,7 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
 {
   const char *text;
   size_t i, n;
+  int j;
   char temp[500];
 
   if (data->NameComment)
@@ -2422,11 +2423,11 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
   if ((data->NumberOfSuperClasses == 0) &&
       (strcmp(data->ClassName,"vtkObjectBase") != 0))
     {
-    for (i = 0; i < data->NumberOfFunctions; i++)
+    for (j = 0; j < data->NumberOfFunctions; j++)
       {
-      if (vtkWrapPython_MethodCheck(data, &data->Functions[i], 1))
+      if (vtkWrapPython_MethodCheck(data, &data->Functions[j], 1))
         {
-        fprintf(fp,"    \"%s\\n\",\n", data->Functions[i].Signature);
+        fprintf(fp,"    \"%s\\n\",\n", data->Functions[j].Signature);
         }
       }
     }
