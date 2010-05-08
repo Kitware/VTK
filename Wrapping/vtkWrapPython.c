@@ -2438,8 +2438,13 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
 
 void vtkParseOutput(FILE *fp, FileInfo *data)
 {
-  int i;
+  static char *compare_consts[6] = {
+    "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
+  static char *compare_tokens[6] = {
+    "<", "<=", "==", "!=", ">", ">=" };
+  int compare_ops = 0;
   int class_has_new = 0;
+  int i;
 
   /* the VTK_WRAPPING_CXX tells header files where they're included from */
   fprintf(fp,
@@ -2766,20 +2771,90 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "\n",
             data->ClassName, data->ClassName);
 
+    /* hard-code comparison operators until vtkParse provides
+     * operator information */
+    if (strcmp(data->ClassName, "vtkVariant") == 0)
+      {
+      compare_ops =
+       ( (1 << Py_LT) | (1 << Py_LE) | (1 << Py_EQ) |
+         (1 << Py_NE) | (1 << Py_GT) | (1 << Py_GE));
+      }
+    else if (strcmp(data->ClassName, "vtkTimeStamp") == 0)
+      {
+      compare_ops =
+       ( (1 << Py_LT) | (1 << Py_GT) );
+      }
+
+    /* the compare function */
+    if (compare_ops != 0)
+      {
+      fprintf(fp,
+            "static int vtkSpecial_%sCompare(void *o1, void *o2, int opid)\n"
+            "{\n"
+            "  const %s &so1 = *((%s *)o1);\n"
+            "  const %s &so2 = *((%s *)o2);\n"
+            "  switch (opid)\n"
+            "    {\n",
+            data->ClassName, data->ClassName, data->ClassName,
+            data->ClassName, data->ClassName);
+
+      for (i = Py_LT; i <= Py_GE; i++)
+        {
+        if ( ((compare_ops >> i) & 1) != 0 )
+          {
+          fprintf(fp,
+            "    case %s:\n"
+            "      return (so1 %s so2);\n",
+            compare_consts[i-Py_LT], compare_tokens[i-Py_LT]);
+          }
+        }
+
+      fprintf(fp,
+            "  }"
+            "  return -1;\n"
+            "}\n"
+            "\n");
+      }
+
+    /* the table to hold these special methods */
+    fprintf(fp,
+            "static PyVTKSpecialMethods vtkSpecial_%sSpecialMethods =\n"
+            "{\n"
+            "  &vtkSpecial_%sCopy,\n"
+            "  &vtkSpecial_%sDelete,\n"
+            "  &vtkSpecial_%sPrint,\n",
+            data->ClassName, data->ClassName, data->ClassName,
+            data->ClassName);
+
+    if (compare_ops != 0)
+      {
+      fprintf(fp,
+            "  &vtkSpecial_%sCompare,\n",
+            data->ClassName);
+      }
+    else
+      {
+      fprintf(fp,
+            "  0,\n");
+      }
+    fprintf(fp,
+            "  0,\n"
+            "};\n"
+            "\n");
+
     /* the exported New method */
     fprintf(fp,
             "PyObject *PyVTKClass_%sNew(char *)\n"
             "{\n"
             "  return PyVTKSpecialType_New(\n"
             "      &Py%sNewMethod, Py%sMethods, Py%s_%sMethods,"
-            "      (char *)\"%s\", (char**)%sDoc(), &vtkSpecial_%sCopy,\n"
-            "      &vtkSpecial_%sDelete, &vtkSpecial_%sPrint);\n"
+            "      (char *)\"%s\", (char**)%sDoc(),\n"
+            "      &vtkSpecial_%sSpecialMethods);\n"
             "}\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName,
             data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName, data->ClassName, data->ClassName,
-            data->ClassName);
+            data->ClassName, data->ClassName);
     }
 
   /* the New method for un-wrappable classes returns "NULL" */

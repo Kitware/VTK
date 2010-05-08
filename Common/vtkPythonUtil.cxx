@@ -870,8 +870,7 @@ vtkObjectBase *vtkPythonUtil::VTKParseTuple(
 //--------------------------------------------------------------------
 PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   char *classname, char *docstring[], PyMethodDef *methods,
-  PyMethodDef *constructors, PyVTKSpecialCopyFunc copy_func,
-  PyVTKSpecialDeleteFunc delete_func, PyVTKSpecialPrintFunc print_func)
+  PyMethodDef *constructors, PyVTKSpecialMethods *smethods)
 {
   if (vtkPythonMap == NULL)
     {
@@ -897,8 +896,8 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   i = vtkPythonMap->SpecialTypeMap->insert(i,
     vtkPythonSpecialTypeMap::value_type(
       classname,
-      PyVTKSpecialType(classname, docstring, methods, constructors,
-                           copy_func, delete_func, print_func)));
+      PyVTKSpecialType(classname, docstring, methods,
+                       constructors, smethods)));
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Added type to map type = " << typeObject);

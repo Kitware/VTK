@@ -22,9 +22,30 @@
 // This for objects not derived from vtkObjectBase
 
 // Prototypes for per-type copy, delete, and print funcs
+
+// copy the object and return the copy
 typedef void *(*PyVTKSpecialCopyFunc)(void *);
+// delete the object
 typedef void (*PyVTKSpecialDeleteFunc)(void *);
+// print the object to the stream
 typedef void (*PyVTKSpecialPrintFunc)(ostream& os, void *);
+// compare objects, final arg is on of the following:
+// Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
+// return "-1" if the comparison is impossible
+typedef int (*PyVTKSpecialCompareFunc)(void *, void *, int);
+// return a hash from the value of the object, or -1 if error
+typedef long (*PyVTKSpecialHashFunc)(void *);
+
+// Struct to hold special methods, the first three are mandatory
+// and the rest are optional.
+struct PyVTKSpecialMethods
+{
+  PyVTKSpecialCopyFunc copy_func;
+  PyVTKSpecialDeleteFunc delete_func;
+  PyVTKSpecialPrintFunc print_func;
+  PyVTKSpecialCompareFunc compare_func;
+  PyVTKSpecialHashFunc hash_func;
+};
 
 // Unlike PyVTKObject, there is no "meta-type" like PyVTKClass.
 // Instead, there is just the following class that contains info
@@ -38,8 +59,7 @@ public:
 
   PyVTKSpecialType(
     char *cname, char *cdocs[], PyMethodDef *cmethods, PyMethodDef *ccons,
-    PyVTKSpecialCopyFunc copyfunc, PyVTKSpecialDeleteFunc deletefunc,
-    PyVTKSpecialPrintFunc printfunc);
+    PyVTKSpecialMethods *smethods);
 
   // general information
   PyObject *classname;
@@ -50,6 +70,9 @@ public:
   PyVTKSpecialCopyFunc copy_func;
   PyVTKSpecialDeleteFunc delete_func;
   PyVTKSpecialPrintFunc print_func;
+  // optional functions
+  PyVTKSpecialCompareFunc compare_func;
+  PyVTKSpecialHashFunc hash_func;
 };
 
 // The PyVTKSpecialObject is very lightweight.
@@ -64,10 +87,7 @@ extern "C"
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialType_New(
   PyMethodDef *newmethod, PyMethodDef *methods, PyMethodDef *constructors,
-  char *classname, char *docstring[],
-  PyVTKSpecialCopyFunc copy_func,
-  PyVTKSpecialDeleteFunc delete_func,
-  PyVTKSpecialPrintFunc print_func);
+  char *classname, char *docstring[], PyVTKSpecialMethods *smethods);
 
 VTK_PYTHON_EXPORT
 int PyVTKSpecialObject_Check(PyObject *obj);
