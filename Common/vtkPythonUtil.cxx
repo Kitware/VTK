@@ -720,6 +720,7 @@ PyObject *vtkPythonUtil::CallOverloadedMethod(
                   {
                   PyObject *sarg = PySequence_GetItem(arg, j);
                   helper->penalty(vtkPythonUtil::CheckArg(sarg, format, classname));
+                  Py_DECREF(sarg);
                   }
                 }
               }
@@ -1501,6 +1502,40 @@ int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
   return 0;
 }
 #endif
+
+int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int n)
+{
+  int changed = 0;
+
+  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  for (i = 0; i < n; i++)
+    {
+    PyObject *oldobj = PySequence_GetItem(seq, i);
+    bool oldval = PyObject_IsTrue(oldobj);
+    Py_DECREF(oldobj);
+    changed |= (a[i] != oldval);
+    }
+
+  if (changed)
+    {
+    for (i = 0; i < n; i++)
+      {
+#if PY_VERSION_HEX >= 0x02030000
+      PyObject *newobj = PyBool_FromLong(a[i]);
+#else
+      PyObject *newobj = PyInt_FromLong(a[i]);
+#endif
+      int rval = PySequence_SetItem(seq, i, newobj);
+      Py_DECREF(newobj);
+      if (rval == -1)
+        {
+        return -1;
+        }
+      }
+    }
+
+  return 0;
+}
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, char *a, int n)
 {

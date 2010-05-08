@@ -689,6 +689,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
           }
         result[currPos++] = ')';
         break;
+      case VTK_PARSE_BOOL_PTR: /* there is no char for "bool" */
       case VTK_PARSE_INT_PTR:
         result[currPos++] = '(';
         for (j = 0; j < currentFunction->ArgCounts[i]; j++)
@@ -2208,7 +2209,7 @@ static int vtkWrapPython_MethodCheck(
     if (argType == VTK_PARSE_STRING_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
 
-#ifndef Py_UNICODE_SIZE
+#ifndef Py_USING_UNICODE
     if ((argType & VTK_PARSE_BASE_TYPE) ==
         VTK_PARSE_UNICODE_STRING) args_ok = 0;
 #endif
@@ -2258,7 +2259,7 @@ static int vtkWrapPython_MethodCheck(
   if (returnType == VTK_PARSE_STRING_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
 
-#ifndef Py_UNICODE_SIZE
+#ifndef Py_USING_UNICODE
   if ((returnType & VTK_PARSE_BASE_TYPE) ==
       VTK_PARSE_UNICODE_STRING) args_ok = 0;
 #endif

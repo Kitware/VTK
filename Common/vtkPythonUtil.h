@@ -151,6 +151,7 @@ public:
   // check array arguments sent through the wrappers to see if the
   // underlying C++ method changed the values, and attempt to modify
   // the original python sequence (list or tuple) if so.
+  static int CheckArray(PyObject *args, int i, bool *a, int n);
   static int CheckArray(PyObject *args, int i, char *a, int n);
   static int CheckArray(PyObject *args, int i, signed char *a, int n);
   static int CheckArray(PyObject *args, int i, unsigned char *a, int n);
