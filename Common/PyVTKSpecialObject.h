@@ -51,7 +51,7 @@ struct PyVTKSpecialMethods
 // Unlike PyVTKObject, there is no "meta-type" like PyVTKClass.
 // Instead, there is just the following class that contains info
 // about each special type.
-VTK_PYTHON_EXPORT class PyVTKSpecialType
+class VTK_PYTHON_EXPORT PyVTKSpecialType
 {
 public:
   PyVTKSpecialType() :
