@@ -2485,6 +2485,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,
           "#include \"vtkStdString.h\"\n"
           "#include \"vtkUnicodeString.h\"\n"
+          "#include \"vtkTimeStamp.h\"\n"
+          "#include \"vtkVariant.h\"\n"
           "#include \"%s.h\"\n",
           data->ClassName);
 
