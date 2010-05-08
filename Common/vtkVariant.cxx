@@ -64,7 +64,7 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
     {
     return s1.Type < s2.Type;
     }
- 
+
   // Next check for nulls
   if (!(s1.Valid && s2.Valid))
     {
@@ -101,10 +101,10 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
 
     case VTK_UNSIGNED_CHAR:
       return (s1.Data.UnsignedChar < s2.Data.UnsignedChar);
-      
+
     case VTK_SHORT:
       return (s1.Data.Short < s2.Data.Short);
-      
+
     case VTK_UNSIGNED_SHORT:
       return (s1.Data.UnsignedShort < s2.Data.UnsignedShort);
 
@@ -138,7 +138,7 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
 
     case VTK_FLOAT:
       return (s1.Data.Float < s2.Data.Float);
-      
+
     case VTK_DOUBLE:
       return (s1.Data.Double < s2.Data.Double);
 
@@ -159,7 +159,7 @@ vtkVariantStrictEquality::operator()(const vtkVariant &s1, const vtkVariant &s2)
     cerr << "Types differ: " << s1.Type << " and " << s2.Type << "\n";
     return false;
     }
-  
+
   // Next check for nulls
   if (!(s1.Valid && s2.Valid))
     {
@@ -195,10 +195,10 @@ vtkVariantStrictEquality::operator()(const vtkVariant &s1, const vtkVariant &s2)
 
     case VTK_UNSIGNED_CHAR:
       return (s1.Data.UnsignedChar == s2.Data.UnsignedChar);
-      
+
     case VTK_SHORT:
       return (s1.Data.Short == s2.Data.Short);
-      
+
     case VTK_UNSIGNED_SHORT:
       return (s1.Data.UnsignedShort == s2.Data.UnsignedShort);
 
@@ -232,7 +232,7 @@ vtkVariantStrictEquality::operator()(const vtkVariant &s1, const vtkVariant &s2)
 
     case VTK_FLOAT:
       return (s1.Data.Float == s2.Data.Float);
-      
+
     case VTK_DOUBLE:
       return (s1.Data.Double == s2.Data.Double);
 
@@ -571,9 +571,14 @@ vtkVariant::vtkVariant(double value)
 
 vtkVariant::vtkVariant(const char* value)
 {
-  this->Data.String = new vtkStdString(value);
-  this->Valid = 1;
-  this->Type = VTK_STRING;
+  this->Valid = 0;
+  this->Type = 0;
+  if (value)
+    {
+    this->Data.String = new vtkStdString(value);
+    this->Valid = 1;
+    this->Type = VTK_STRING;
+    }
 }
 
 vtkVariant::vtkVariant(vtkStdString value)
@@ -592,10 +597,15 @@ vtkVariant::vtkVariant(const vtkUnicodeString& value)
 
 vtkVariant::vtkVariant(vtkObjectBase* value)
 {
-  value->Register(0);
-  this->Data.VTKObject = value;
-  this->Valid = 1;
-  this->Type = VTK_OBJECT;
+  this->Valid = 0;
+  this->Type = 0;
+  if (value)
+    {
+    value->Register(0);
+    this->Data.VTKObject = value;
+    this->Valid = 1;
+    this->Type = VTK_OBJECT;
+    }
 }
 
 bool vtkVariant::IsValid() const
@@ -615,20 +625,20 @@ bool vtkVariant::IsUnicodeString() const
 
 bool vtkVariant::IsNumeric() const
 {
-  return this->IsFloat() 
-    || this->IsDouble() 
+  return this->IsFloat()
+    || this->IsDouble()
     || this->IsChar()
     || this->IsUnsignedChar()
     || this->IsSignedChar()
     || this->IsShort()
     || this->IsUnsignedShort()
-    || this->IsInt() 
+    || this->IsInt()
     || this->IsUnsignedInt()
-    || this->IsLong() 
+    || this->IsLong()
     || this->IsUnsignedLong()
-    || this->Is__Int64() 
-    || this->IsUnsigned__Int64() 
-    || this->IsLongLong() 
+    || this->Is__Int64()
+    || this->IsUnsigned__Int64()
+    || this->IsLongLong()
     || this->IsUnsignedLongLong();
 }
 
@@ -714,8 +724,8 @@ bool vtkVariant::IsVTKObject() const
 
 bool vtkVariant::IsArray() const
 {
-  return this->Type == VTK_OBJECT 
-    && this->Valid 
+  return this->Type == VTK_OBJECT
+    && this->Valid
     && this->Data.VTKObject->IsA("vtkAbstractArray");
 }
 
