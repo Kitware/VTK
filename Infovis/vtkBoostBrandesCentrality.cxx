@@ -176,6 +176,9 @@ void vtkBoostBrandesCentrality::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "UseEdgeWeightArray: " << this->UseEdgeWeightArray << endl;
 
+  os << indent << "InvertEdgeWeightArray: " << this->InvertEdgeWeightArray
+    << endl;
+
   os << indent << "this->EdgeWeightArrayName: " <<
     (this->EdgeWeightArrayName ?  this->EdgeWeightArrayName : "NULL") << endl;
 }
