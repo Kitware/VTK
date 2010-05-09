@@ -177,6 +177,9 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
       this->GetProcAddress("glPointParameteriv")!=0;
     }
   
+  const char *gl_renderer=
+    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+
   // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
   // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
   // The driver reports it supports 1.5 but the 1.4 core promoted extension
@@ -185,14 +188,41 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // in GeForce4 and Quadro4.
   // It will make this method return false with "GL_VERSION_1_4" and true
   // with "GL_VERSION_1_5".
-  const char *gl_renderer=
-    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
   if (result && strcmp(name, "GL_VERSION_1_4") == 0)
     {
-    result=strstr(gl_renderer,"Quadro4")==0 &&
+    result=strstr(gl_renderer,"Quadro4")==0 ||
       strstr(gl_renderer,"GeForce4")==0;
     }
   
+  const char *gl_version=
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  const char *gl_vendor=
+    reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+
+  // Workaround for a bug on renderer string="ATI Radeon X1600 OpenGL Engine"
+  // version string="2.0 ATI-1.4.58" vendor string="ATI Technologies Inc."
+  // It happens on a Apple iMac Intel Core Duo (early 2006) with Mac OS X
+  // 10.4.11 (Tiger) and an ATI Radeon X1600 128MB.
+  // The driver reports it supports 2.0 (where GL_ARB_texture_non_power_of_two
+  // extension has been promoted to core) and that it supports extension
+  // GL_ARB_texture_non_power_of_two. Reality is that non power of two
+  // textures just don't work in this OS/driver/card.
+  // It will make this method returns false with "GL_VERSION_2_0" and true
+  // with "GL_VERSION_2_1".
+  // It will make this method returns false with
+  // "GL_ARB_texture_non_power_of_two".
+  if (result && strcmp(name, "GL_VERSION_2_0") == 0)
+    {
+    result=!(strcmp(gl_renderer,"ATI Radeon X1600 OpenGL Engine")==0 &&
+             strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
+             strcmp(gl_vendor,"ATI Technologies Inc.")==0);
+    }
+  if (result && strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)
+    {
+    result=!(strcmp(gl_renderer,"ATI Radeon X1600 OpenGL Engine")==0 &&
+             strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
+             strcmp(gl_vendor,"ATI Technologies Inc.")==0);
+    }
   return result;
 }
 
