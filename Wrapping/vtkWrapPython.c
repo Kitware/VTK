@@ -33,6 +33,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data);
 static void vtkWrapPython_ClassDoc(
   FILE *fp, FileInfo *data);
 
+/* print out headers for any special types used by methods */
+static void vtkWrapPython_GenerateSpecialHeaders(
+  FILE *fp, FileInfo *data);
+
 /* print out all methods and the method table */
 static void vtkWrapPython_GenerateMethods(
   FILE *fp, FileInfo *data, int class_has_new, int do_constructors);
@@ -55,7 +59,15 @@ static void vtkWrapPython_ReturnHintedValue(
 
 /* check whether a method is wrappable */
 static int vtkWrapPython_MethodCheck(
-  FileInfo *data, FunctionInfo *currentFunction, int contructor);
+  FunctionInfo *currentFunction);
+
+/* is the method a constructor of the class */
+static int vtkWrapPython_IsConstructor(
+  FileInfo *data, FunctionInfo *currentFunction);
+
+/* is the method a destructor of the class */
+static int vtkWrapPython_IsDestructor(
+  FileInfo *data, FunctionInfo *currentFunction);
 
 /* create a format string for PyArg_ParseTuple */
 static char *vtkWrapPython_FormatString(
@@ -1420,7 +1432,9 @@ static void vtkWrapPython_GenerateMethods(
     theFunc = &data->Functions[i];
 
     /* check for wrappability */
-    if (vtkWrapPython_MethodCheck(data, theFunc, do_constructors))
+    if (vtkWrapPython_MethodCheck(theFunc) &&
+        !vtkWrapPython_IsDestructor(data, theFunc) &&
+        (!vtkWrapPython_IsConstructor(data, theFunc) == !do_constructors))
       {
       wrappedFunctions[numberOfWrappedFunctions++] = theFunc;
       }
@@ -2159,18 +2173,51 @@ static void vtkWrapPython_GenerateMethods(
           "\n");
 }
 
+/* -------------------------------------------------------------------- */
+static int vtkWrapPython_IsDestructor(
+  FileInfo *data, FunctionInfo *currentFunction)
+{
+  int i;
+  char *cp;
+
+  if (data->ClassName && currentFunction->Name)
+    {
+    cp = currentFunction->Signature;
+    for (i = 0; cp[i] != '\0' && cp[i] != '('; i++)
+      {
+      if (cp[i] == '~')
+        {
+        return (strcmp(data->ClassName, &cp[i+1]) == 0);
+        }
+      }
+    }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+static int vtkWrapPython_IsConstructor(
+  FileInfo *data, FunctionInfo *currentFunction)
+{
+  if (data->ClassName && currentFunction->Name &&
+      !vtkWrapPython_IsDestructor(data, currentFunction))
+    {
+    return (strcmp(data->ClassName, currentFunction->Name) == 0);
+    }
+
+  return 0;
+}
 
 /* -------------------------------------------------------------------- */
 /* Check a method to see if it is wrappable in python */
 
 static int vtkWrapPython_MethodCheck(
-  FileInfo *data, FunctionInfo *currentFunction, int constructor)
+  FunctionInfo *currentFunction)
 {
   int i;
   int args_ok = 1;
   int argType = 0;
   int returnType = 0;
-  char *cp;
 
   /* some functions will not get wrapped no matter what else,
      and some really common functions will appear only in vtkObjectPython */
@@ -2234,7 +2281,6 @@ static int vtkWrapPython_MethodCheck(
 
   /* check the return type */
   if ((returnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
-  if (returnType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
   if (((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       (returnType != VTK_PARSE_VTK_OBJECT_REF) &&
       ((returnType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
@@ -2289,47 +2335,8 @@ static int vtkWrapPython_MethodCheck(
     args_ok = 0;
     }
 
-  /* make sure that the class and method have names */
-  if (data->ClassName == 0 || currentFunction->Name == 0)
-    {
-    args_ok = 0;
-    }
-  else
-    {
-    /* check for destructor */
-    cp = currentFunction->Signature;
-    for (i = 0; cp[i] != '\0' && cp[i] != '('; i++)
-      {
-      if (cp[i] == '~')
-        {
-        args_ok = 0;
-        }
-      }
-
-    /* check for constructors */
-    if (strcmp(data->ClassName, currentFunction->Name) == 0)
-      {
-      /* if "constructor" is not set, disallow constructors */
-      if (!constructor)
-        {
-        args_ok = 0;
-        }
-      }
-    else if (constructor)
-      {
-      /* if "constructor" is set, only allow constructors */
-      args_ok = 0;
-      }
-    }
-
-  if (currentFunction->IsPublic)
-    {
-    return args_ok;
-    }
-
-  return 0;
+  return args_ok;
 }
-
 
 /* -------------------------------------------------------------------- */
 /* Create the docstring for a class, and print it to fp */
@@ -2425,11 +2432,87 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
     {
     for (j = 0; j < data->NumberOfFunctions; j++)
       {
-      if (vtkWrapPython_MethodCheck(data, &data->Functions[j], 1))
+      if (vtkWrapPython_MethodCheck(&data->Functions[j]) &&
+          vtkWrapPython_IsConstructor(data, &data->Functions[j]))
         {
         fprintf(fp,"    \"%s\\n\",\n", data->Functions[j].Signature);
         }
       }
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* generate includes for any special types that are used */
+static void vtkWrapPython_GenerateSpecialHeaders(
+  FILE *fp, FileInfo *data)
+{
+  const char *types[1000];
+  int numTypes = 0;
+  FunctionInfo *currentFunction;
+  int i, j, k, n, m;
+  int aType;
+  const char *classname;
+
+  n = data->NumberOfFunctions;
+  for (i = 0; i < n; i++)
+    {
+    currentFunction = &data->Functions[i];
+    if (vtkWrapPython_MethodCheck(currentFunction))
+      {
+      classname = currentFunction->ReturnClass;
+      aType = currentFunction->ReturnType;
+      m = currentFunction->NumberOfArguments;
+      for (j = -1; j < m; j++)
+        {
+        if (j >= 0)
+          {
+          classname = currentFunction->ArgClasses[j];
+          aType = currentFunction->ArgTypes[j];
+          }
+        if ((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+          {
+          if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_STRING)
+            {
+            classname = "vtkStdString";
+            }
+          else if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
+            {
+            classname = "vtkUnicodeString";
+            }
+          else if ((aType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VTK_OBJECT)
+            {
+            classname = 0;
+            }
+          }
+        else
+          {
+          classname = 0;
+          }
+
+        if (classname && strcmp(classname, data->ClassName) != 0)
+          {
+          for (k = 0; k < numTypes; k++)
+            {
+            if (strcmp(classname, types[k]) == 0)
+              {
+              break;
+              }
+            }
+
+          if (k == numTypes)
+            {
+            types[numTypes++] = classname;
+            }
+          }
+        }
+      }
+    }
+
+  for (i = 0; i < numTypes; i++)
+    {
+    fprintf(fp,
+            "#include \"%s.h\"\n",
+            types[i]);
     }
 }
 
@@ -2439,9 +2522,9 @@ static void vtkWrapPython_ClassDoc(FILE *fp, FileInfo *data)
 
 void vtkParseOutput(FILE *fp, FileInfo *data)
 {
-  static char *compare_consts[6] = {
+  static const char *compare_consts[6] = {
     "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
-  static char *compare_tokens[6] = {
+  static const char *compare_tokens[6] = {
     "<", "<=", "==", "!=", ">", ">=" };
   int compare_ops = 0;
   int has_hash = 0;
@@ -2481,12 +2564,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
           "#include \"vtkPythonCommand.h\"\n");
     }
 
+  /* generate includes for any special types that are used */
+  vtkWrapPython_GenerateSpecialHeaders(fp, data);
+
   /* the header file for the wrapped class */
   fprintf(fp,
-          "#include \"vtkStdString.h\"\n"
-          "#include \"vtkUnicodeString.h\"\n"
-          "#include \"vtkTimeStamp.h\"\n"
-          "#include \"vtkVariant.h\"\n"
           "#include \"%s.h\"\n",
           data->ClassName);
 
@@ -2499,6 +2581,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   /* do the export of the main entry point */
   fprintf(fp,
+          "\n"
           "#if defined(WIN32)\n"
           "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(char *); }\n"
           "#else\n"
