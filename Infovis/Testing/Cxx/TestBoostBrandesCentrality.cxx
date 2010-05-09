@@ -118,7 +118,7 @@ int TestBoostBrandesCentrality(int argc, char* argv[])
   VTK_CREATE(vtkBoostBrandesCentrality, centrality);
   centrality->SetInput(g);
   centrality->SetEdgeWeightArrayName("weights");
-//  centrality->SetInvertEdgeWeightArray(1);
+  centrality->SetInvertEdgeWeightArray(1);
   centrality->UseEdgeWeightArrayOn();
 
   VTK_CREATE(vtkGraphLayoutView, view);
