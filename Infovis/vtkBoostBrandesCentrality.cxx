@@ -28,6 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
 #include "vtkDataArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
 #include "vtkBoostGraphAdapter.h"
@@ -45,6 +46,7 @@ vtkStandardNewMacro(vtkBoostBrandesCentrality);
 // Constructor/Destructor
 vtkBoostBrandesCentrality::vtkBoostBrandesCentrality() :
   UseEdgeWeightArray(0),
+  InvertEdgeWeightArray(0),
   EdgeWeightArrayName(0)
 {
 
@@ -86,10 +88,34 @@ int vtkBoostBrandesCentrality::RequestData(
   edgeCMap->SetName("centrality");
   vtkGraphEdgePropertyMapHelper<vtkFloatArray*> helper(edgeCMap);
 
-  vtkDataArray* edgeWeight (0);
+  vtkSmartPointer<vtkDataArray> edgeWeight (0);
   if(this->UseEdgeWeightArray && this->EdgeWeightArrayName)
     {
-    edgeWeight = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
+    if(!this->InvertEdgeWeightArray)
+      {
+      edgeWeight = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
+      }
+    else
+      {
+      vtkDataArray* weights =
+          input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
+
+      edgeWeight.TakeReference(
+        vtkDataArray::CreateDataArray(weights->GetDataType()));
+
+      double range[2];
+      weights->GetRange(range);
+
+      if(weights->GetNumberOfComponents() > 1)
+        {
+        return 0;
+        }
+
+      for(int i=0; i < weights->GetDataSize(); ++i)
+        {
+        edgeWeight->InsertNextTuple1(range[1] - weights->GetTuple1(i));
+        }
+      }
 
     if(!edgeWeight)
       {
