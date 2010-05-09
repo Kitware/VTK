@@ -88,36 +88,37 @@ int TestBoostBrandesCentrality(int argc, char* argv[])
   g->SetPoints(pts);
 
   vtkEdgeType e = g->AddEdge(0, 3);
-  weights->InsertTuple1(e.Id, 1);
-
-  e = g->AddEdge(1, 3);
-  weights->InsertTuple1(e.Id, 1);
-
-  e = g->AddEdge(2, 3);
-  weights->InsertTuple1(e.Id, 1);
-
-  e = g->AddEdge(3, 4);
   weights->InsertTuple1(e.Id, 10);
 
+  e = g->AddEdge(1, 3);
+  weights->InsertTuple1(e.Id, 10);
+
+  e = g->AddEdge(2, 3);
+  weights->InsertTuple1(e.Id, 10);
+
+  e = g->AddEdge(3, 4);
+  weights->InsertTuple1(e.Id, 1);
+
   e = g->AddEdge(3, 5);
-  weights->InsertTuple1(e.Id, 2);
+  weights->InsertTuple1(e.Id, 10);
 
   e = g->AddEdge(5, 4);
-  weights->InsertTuple1(e.Id, 1);
+  weights->InsertTuple1(e.Id, 10);
 
   e = g->AddEdge(6, 4);
-  weights->InsertTuple1(e.Id, 1);
+  weights->InsertTuple1(e.Id, 10);
 
   e = g->AddEdge(7, 4);
-  weights->InsertTuple1(e.Id, 1);
+  weights->InsertTuple1(e.Id, 10);
 
   e = g->AddEdge(8, 4);
-  weights->InsertTuple1(e.Id, 1);
+  weights->InsertTuple1(e.Id, 10);
 
   // Test centrality
   VTK_CREATE(vtkBoostBrandesCentrality, centrality);
   centrality->SetInput(g);
   centrality->SetEdgeWeightArrayName("weights");
+//  centrality->SetInvertEdgeWeightArray(1);
   centrality->UseEdgeWeightArrayOn();
 
   VTK_CREATE(vtkGraphLayoutView, view);
