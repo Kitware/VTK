@@ -198,7 +198,7 @@ def ReadInModel( inModelPrefix ):
         print
         if verbosity > 1:
             print "# Input Model:"
-            inModelReader.GetOutput().Dump( 10 )
+            inModelReader.GetOutput().Dump( 16 )
             print
     
     return inModelReader
@@ -228,7 +228,7 @@ def ReadInData( inDataName ):
         print
         if verbosity > 2:
             print "# Input data:"
-            inDataReader.GetOutput().Dump( 10 )
+            inDataReader.GetOutput().Dump( 16 )
             print
     
     return inDataReader
@@ -295,7 +295,7 @@ def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
     if verbosity > 0:
         print "  Wrote", outPortName
         if verbosity > 2:
-            haruspex.GetOutput( outPort ).Dump( 10 )
+            haruspex.GetOutput( outPort ).Dump( 16 )
         print
 ############################################################
 
@@ -342,7 +342,7 @@ def WriteOutModel( haruspex, outModelPrefix ):
     if verbosity > 0:
         print "  Wrote", outModelName
         if verbosity > 1:
-            table.Dump( 10 )
+            table.Dump( 16 )
         print
 ############################################################
 
@@ -472,11 +472,6 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
             haruspex.SetAssessOption( assessOption )
             haruspex.Update()
             
-    if verbosity > 0:
-        if verbosity > 1:
-            if haruspex.GetTestOption():
-                print "  Test results:"
-                haruspex.GetOutput( 2 ).Dump( 16 )
         print
 ############################################################
 
