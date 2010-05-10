@@ -318,12 +318,8 @@ def WriteOutModel( haruspex, outModelPrefix ):
     outModelWriter = vtkDelimitedTextWriter()
     outModelWriter.SetFieldDelimiter(",")
 
-    # Get output model type to select appropriate write scheme
-    outModelType = haruspex.GetOutputDataObject( 1 ).GetClassName()
-    if verbosity > 0:
-        print "  Output model is a", outModelType
-
     # Verify that model is a vtkMultiBlockDataSet, error out otherwise
+    outModelType = haruspex.GetOutputDataObject( 1 ).GetClassName()
     if outModelType != "vtkMultiBlockDataSet":
         print "ERROR: unsupported type of output model!"
         sys.exit( 1 )
@@ -420,6 +416,9 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         haruspex.SetTestOption( False )
         if verbosity > 0:
             print "  Test option is off"
+
+    if verbosity > 0:
+        print
 
     # If an input model was provided, then update it first, otherwise run in a single pass
     if inModel == None:
