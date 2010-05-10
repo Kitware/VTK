@@ -272,7 +272,7 @@ def ReadColumnsList( columnsListName ):
 
 ############################################################
 # Write table from haruspex output port (i.e., for data or tests)
-def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
+def WriteOutTable( haruspex, outPort, outFileName, outPortName, threshold ):
     # Declare use of global variable
     global verbosity
 
@@ -294,7 +294,7 @@ def WriteOutTable( haruspex, outPort, outFileName, outPortName ):
 
     if verbosity > 0:
         print "  Wrote", outPortName
-        if verbosity > 2:
+        if verbosity > threshold:
             haruspex.GetOutput( outPort ).Dump( 16 )
         print
 ############################################################
@@ -510,10 +510,10 @@ def main():
     CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, haruspex, options )
 
     # Save output (annotated) data
-    WriteOutTable( haruspex, 0, outDataName, "annotated data" )
+    WriteOutTable( haruspex, 0, outDataName, "annotated data", 2 )
 
     # Save output of statistical tests
-    WriteOutTable( haruspex, 2, outTestName, "statistical test results" )
+    WriteOutTable( haruspex, 2, outTestName, "statistical test results", 1 )
 
     # Save output model (statistics)
     WriteOutModel( haruspex, outModelPrefix )
