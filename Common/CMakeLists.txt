@@ -523,12 +523,12 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
       vtkPython.h
       )
     IF (TK_FOUND)
-      IF(NOT VTK_USE_COCOA)
+      IF(VTK_USE_TK)
         SET(__inst_files ${__inst_files}
           vtkTcl.h
           vtkTk.h
           )
-      ENDIF(NOT VTK_USE_COCOA)
+      ENDIF(VTK_USE_TK)
     ENDIF (TK_FOUND)
   ENDIF(VTK_WRAP_PYTHON)
   IF(VTK_WRAP_JAVA)
