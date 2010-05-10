@@ -335,11 +335,11 @@ def WriteOutModel( haruspex, outModelPrefix ):
         outModelWriter.SetInput( table )
         outModelWriter.Update()
             
-    if verbosity > 0:
-        print "  Wrote", outModelName
-        if verbosity > 1:
-            table.Dump( 16 )
-        print
+        if verbosity > 0:
+            print "  Wrote", outModelName
+            if verbosity > 1:
+                table.Dump( 16 )
+                print
 ############################################################
 
 ############################################################
