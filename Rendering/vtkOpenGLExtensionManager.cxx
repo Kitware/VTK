@@ -190,7 +190,7 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // with "GL_VERSION_1_5".
   if (result && strcmp(name, "GL_VERSION_1_4") == 0)
     {
-    result=strstr(gl_renderer,"Quadro4")==0 ||
+    result=strstr(gl_renderer,"Quadro4")==0 &&
       strstr(gl_renderer,"GeForce4")==0;
     }
   
