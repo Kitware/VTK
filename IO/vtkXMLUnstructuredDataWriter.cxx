@@ -55,6 +55,8 @@ vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
 
   this->Faces = vtkIdTypeArray::New();
   this->FaceOffsets = vtkIdTypeArray::New();
+  this->Faces->SetName("faces");
+  this->FaceOffsets->SetName("faceoffsets");
 }
 
 //----------------------------------------------------------------------------
@@ -653,19 +655,31 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
                                                       vtkIndent indent,
                                                       OffsetsManagerGroup *cellsManager)
 {
+  this->WriteCellsAppended(name, types, NULL, NULL, indent, cellsManager);
+}
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
+                                                      vtkDataArray* types,
+                                                      vtkIdTypeArray* faces,
+                                                      vtkIdTypeArray* faceOffsets,
+                                                      vtkIndent indent,
+                                                      OffsetsManagerGroup *cellsManager)
+{
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
 
   // Helper for the 'for' loop
-  vtkDataArray *allcells[3];
+  vtkDataArray *allcells[5];
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
-  const char *names[] = {NULL, NULL, "types"};
+  allcells[3] = this->Faces;
+  allcells[4] = this->FaceOffsets;
+  const char *names[] = {NULL, NULL, "types", NULL, NULL};
 
   for(int t=0; t<this->NumberOfTimeSteps; t++)
     {
-    for(int i=0; i<3; i++)
+    for(int i=0; i<5; i++)
       {
       if(allcells[i])
         {
@@ -695,24 +709,40 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
                                                      int timestep,
                                                      OffsetsManagerGroup *cellsManager)
 {
+  this->WriteCellsAppendedData(cells, types, NULL, NULL, timestep, cellsManager);
+}
+
+//----------------------------------------------------------------------------
+void
+vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
+                                                     vtkDataArray* types,
+                                                     vtkIdTypeArray* faces,
+                                                     vtkIdTypeArray* faceOffsets,
+                                                     int timestep,
+                                                     OffsetsManagerGroup *cellsManager)
+{
   if (cells)
     {
     this->ConvertCells(cells);
     }
   
+  this->ConvertFaces(faces, faceOffsets);
+
   // Split progress by cell connectivity, offset, and type arrays.
-  float progressRange[2] = {0,0};
+  float progressRange[5] = {0,0,0,0,0};
   this->GetProgressRange(progressRange);
-  float fractions[4];
+  float fractions[6];
   this->CalculateCellFractions(fractions, types?types->GetNumberOfTuples():0);
   
   // Helper for the 'for' loop
-  vtkDataArray *allcells[3];
+  vtkDataArray *allcells[5];
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
+  allcells[3] = this->Faces;
+  allcells[4] = this->FaceOffsets;
 
-  for(int i=0; i<3; i++)
+  for(int i=0; i<5; i++)
     {
     if(allcells[i])
       {
@@ -787,8 +817,15 @@ void vtkXMLUnstructuredDataWriter::ConvertFaces(vtkIdTypeArray* faces,
     return;
     }
 
-  this->Faces->DeepCopy(faces);
-
+  // copy faces stream.
+  this->Faces->SetNumberOfTuples(faces->GetNumberOfTuples());
+  vtkIdType * fromPtr = faces->GetPointer(0);
+  vtkIdType * toPtr = this->Faces->GetPointer(0);
+  for (vtkIdType i = 0; i < faces->GetNumberOfTuples(); i++)
+    {
+    *toPtr++ = *fromPtr++;
+    }
+  
   // this->FaceOffsets point to the face arrays of cells. Specifically 
   // FaceOffsets[i] points to the end of the i-th cell's faces + 1. While 
   // input faceOffsets[i] points to the beginning of the i-th cell. Note
