@@ -32,6 +32,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
+#include "vtkInformationIntegerKey.h"
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
 # include "vtkLongLongArray.h"
@@ -45,13 +46,13 @@
 # endif
 #endif
 
+vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
+
 namespace
 {
   typedef  vtkstd::vector< vtkStdString* > vtkInternalComponentNameBase;
 }
 class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
-
-
 
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.

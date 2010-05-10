@@ -49,6 +49,7 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkInformation;
+class vtkInformationIntegerKey;
 
 class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
 {
@@ -335,6 +336,11 @@ public:
   // explicilty copy the keys as it's handled here.
   virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
   //ETX
+
+  // Description:
+  // This key is a hint to end user interface that this array
+  // is internal and should not be shown to the end user.
+  static vtkInformationIntegerKey* GUI_HIDE();
 
 protected:
   // Description:
