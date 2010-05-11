@@ -2196,7 +2196,7 @@ static int vtkWrapPython_IsDestructor(
       {
       if (cp[i] == '~')
         {
-        return (strcmp(data->ClassName, &cp[i+1]) == 0);
+        return 1;
         }
       }
     }
