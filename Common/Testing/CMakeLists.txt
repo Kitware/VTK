@@ -74,8 +74,7 @@ IF(PYTHON_EXECUTABLE)
     vtkPlaneCollection.h
     vtkProcessStatistics.h
     vtkPropCollection.h
-    vtkPython.h
-    vtkPythonUtil.h
+    vtkPythonCommand.h
     vtkRayCastStructures.h
     vtkRungeKutta2.h 
     vtkSetGet.h

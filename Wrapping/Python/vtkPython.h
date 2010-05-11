@@ -23,13 +23,19 @@
 #include "vtkABI.h"
 
 #if defined(WIN32)
-# if defined(vtkCommonPythonD_EXPORTS)
+# if defined(vtkPythonCore_EXPORTS)
 #  define VTK_PYTHON_EXPORT VTK_ABI_EXPORT
 # else
 #  define VTK_PYTHON_EXPORT VTK_ABI_IMPORT
 # endif
+# if defined(vtkCommonPythonD_EXPORTS)
+#  define VTK_COMMON_PYTHON_EXPORT VTK_ABI_EXPORT
+# else
+#  define VTK_COMMON_PYTHON_EXPORT VTK_ABI_IMPORT
+# endif
 #else
 # define VTK_PYTHON_EXPORT
+# define VTK_COMMON_PYTHON_EXPORT
 #endif
 
 /*

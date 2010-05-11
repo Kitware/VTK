@@ -1,5 +1,57 @@
 # this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
 
+#-----------------------
+# for libvtkPythonCore.so, the core classes and utilities for VTK-Python
+SET(VTK_PYTHON_CORE_SRCS
+  vtkPythonUtil.cxx
+  PyVTKClass.cxx
+  PyVTKObject.cxx
+  PyVTKSpecialObject.cxx
+)
+
+ADD_LIBRARY(vtkPythonCore ${VTK_PYTHON_CORE_SRCS})
+TARGET_LINK_LIBRARIES(vtkPythonCore vtkCommon)
+IF(NOT VTK_INSTALL_NO_LIBRARIES)
+  INSTALL(TARGETS vtkPythonCore
+    RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+    LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+    ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  SET(__inst_files
+    vtkPython.h
+    vtkPythonUtil.h
+    PyVTKClass.h
+    PyVTKObject.h
+    PyVTKSpecialObject.h
+  )
+  INSTALL(FILES ${__inst_files}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
+# Underlinking on purpose. The following library will not compile
+# with LDFLAGS=-Wl,--no-undefined by design:
+# On some UNIX platforms the python library is static and therefore
+# should not be linked into the shared library.  Instead the symbols
+# are exported from the python executable so that they can be used by
+# shared libraries that are linked or loaded.  On Windows and OSX we
+# want to link to the python libray to resolve its symbols
+# immediately.
+IF(WIN32 OR APPLE)
+  TARGET_LINK_LIBRARIES (vtkPythonCore ${VTK_PYTHON_LIBRARIES})
+ENDIF(WIN32 OR APPLE)
+
+# Apply user-defined properties to the library targets.
+IF(VTK_LIBRARY_PROPERTIES)
+  SET_TARGET_PROPERTIES(vtkPythonCore PROPERTIES
+    ${VTK_LIBRARY_PROPERTIES}
+    )
+ENDIF(VTK_LIBRARY_PROPERTIES)
+
+#-----------------------
+# for the vtkpython executable
 IF(VTK_USE_CARBON)
   FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
 ENDIF(VTK_USE_CARBON)

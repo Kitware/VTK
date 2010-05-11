@@ -445,9 +445,7 @@ ENDIF(VTK_USE_N_WAY_ARRAYS)
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS vtkTclUtil.cxx)
-SET(Kit_PYTHON_EXTRA_SRCS
-  vtkPythonUtil.cxx vtkPythonCommand.cxx
-  PyVTKClass.cxx PyVTKObject.cxx PyVTKSpecialObject.cxx)
+SET(Kit_PYTHON_EXTRA_SRCS vtkPythonCommand.cxx)
 SET(Kit_JAVA_EXTRA_SRCS vtkJavaUtil.cxx)
 SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
@@ -528,11 +526,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   ENDIF(VTK_WRAP_TCL)
   IF(VTK_WRAP_PYTHON)
     SET(__inst_files ${__inst_files}
-      PyVTKClass.h
-      PyVTKObject.h
-      PyVTKSpecialObject.h
-      vtkPythonUtil.h
-      vtkPython.h
+      vtkPythonCommand.h
       )
     IF (TK_FOUND)
       IF(VTK_USE_TK)
