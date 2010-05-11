@@ -165,6 +165,24 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     p += n;
     }
   
+  // Woraround for a nVidia bug in indirect/remote rendering mode (ssh -X)
+  // The version returns is not the one actually supported.
+  // For example, the version returns is greater or equal to 2.1
+  // but where PBO (which are core in 2.1) are not actually supported.
+  // In this case, force the version to be 1.1 (minimal). Anything above
+  // will be requested only through extensions.
+  // See ParaView bug 
+  if(result && !this->RenderWindow->IsDirect())
+    {
+    if (result && strncmp(name, "GL_VERSION_",11) == 0)
+      {
+      // whatever is the OpenGL version, return false.
+      // (nobody asks for GL_VERSION_1_1)
+      result=0;
+      }
+    }
+  
+  
   // Workaround for a bug on Mac PowerPC G5 with nVidia GeForce FX 5200
   // Mac OS 10.3.9 and driver 1.5 NVIDIA-1.3.42. It reports it supports
   // OpenGL>=1.4 but querying for glPointParameteri and glPointParameteriv
