@@ -302,7 +302,14 @@ static void vtkWrapPython_MakeTempVariable(
     }
 
   /* finish off with a semicolon */
-  fprintf(fp,";\n");
+  if (i == MAX_ARGS)
+    {
+    fprintf(fp, "; // return value\n");
+    }
+  else
+    {
+    fprintf(fp, "; // arg %d\n", i);
+    }
 
   /* for "void *", add another temp to hold the size of the argument */
   if (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_VOID_PTR) &&
@@ -327,8 +334,9 @@ static void vtkWrapPython_MakeTempVariable(
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_BOOL))
     {
     fprintf(fp,
-            "  PyObject *tempB%d = 0;\n",
-            i);
+            "  PyObject *tempB%d = 0;\n"
+            "  int tempI%d;\n",
+            i, i);
     }
 
   /* ditto for string */
@@ -487,7 +495,7 @@ static void vtkWrapPython_ReturnValue(
       {
       fprintf(fp,
               "#if PY_VERSION_HEX >= 0x02030000\n"
-              "    result = PyBool_FromLong(temp%i);\n"
+              "    result = PyBool_FromLong((long)temp%i);\n"
               "#else\n"
               "    result = PyInt_FromLong((long)temp%i);\n"
               "#endif\n",
@@ -1712,12 +1720,13 @@ static void vtkWrapPython_GenerateMethods(
             else if (argType == VTK_PARSE_BOOL)
               {
               fprintf(fp,
-                      "    temp%d = PyObject_IsTrue(tempB%d);\n"
-                      "    if (PyErr_Occurred())\n"
+                      "    tempI%d = PyObject_IsTrue(tempB%d);\n"
+                      "    if (tempI%d == -1)\n"
                       "      {\n"
                       "      %s;\n"
-                      "      }\n",
-                      i, i, on_error);
+                      "      }\n"
+                      "    temp%d = (tempI%d != 0);\n",
+                      i, i, i, on_error, i, i);
               }
             else if (argType == VTK_PARSE_STRING)
               {
