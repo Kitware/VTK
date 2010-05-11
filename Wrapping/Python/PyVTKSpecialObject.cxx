@@ -46,10 +46,11 @@ static PyObject *PyVTKSpecialObject_PyString(PyVTKSpecialObject *self)
 //--------------------------------------------------------------------
 static PyObject *PyVTKSpecialObject_PyRepr(PyVTKSpecialObject *self)
 {
-  char buf[255];
-  sprintf(buf,"<%s %s at %p>", self->ob_type->tp_name,
-          PyString_AsString(self->vtk_info->classname), self);
-  return PyString_FromString(buf);
+  vtksys_ios::ostringstream os;
+  os << "(" << PyString_AS_STRING(self->vtk_info->classname) << ")";
+  self->vtk_info->print_func(os, self->vtk_ptr);
+  const vtksys_stl::string &s = os.str();
+  return PyString_FromStringAndSize(s.data(), s.size());
 }
 
 //--------------------------------------------------------------------
