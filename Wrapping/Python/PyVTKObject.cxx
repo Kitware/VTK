@@ -54,10 +54,8 @@ static PyObject *PyVTKObject_PyRepr(PyVTKObject *self)
   PyErr_Clear();
 
   char buf[255];
-  sprintf(buf,"<%s.%s %s at %p>",
-          PyString_AsString(self->vtk_class->vtk_module),
-          PyString_AsString(self->vtk_class->vtk_name),
-          self->ob_type->tp_name,self);
+  sprintf(buf,"(%s)%p",
+          PyString_AS_STRING(self->vtk_class->vtk_name), self);
 
   return PyString_FromString(buf);
 }
