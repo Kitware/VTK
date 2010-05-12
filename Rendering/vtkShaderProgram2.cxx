@@ -900,7 +900,7 @@ int vtkShaderProgram2::GetAttributeLocation(const char *name)
 void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "Context: ";
   if(this->Context!=0)
     {
@@ -910,7 +910,37 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "none" << endl;
     }
-  
+
+  os << indent << "PrintErrors: ";
+  if(this->PrintErrors)
+    {
+    os << "true" << endl;
+    }
+  else
+    {
+    os << "false" << endl;
+    }
+
+  os << indent << "LastBuildStatus: ";
+  switch(this->LastBuildStatus)
+    {
+    case VTK_SHADER_PROGRAM2_COMPILE_FAILED:
+      os << "Compile failed";
+      break;
+    case VTK_SHADER_PROGRAM2_LINK_FAILED:
+      os << "Link failed";
+      break;
+    case VTK_SHADER_PROGRAM2_LINK_SUCCEEDED:
+      os << "Link succeeded";
+      break;
+    default:
+      os << "ERROR unknown value!";
+      break;
+    }
+  os << endl;
+
+  os << indent << "OpenGL Id: " << this->Id << endl;
+
   os << indent << "UniformVariables: ";
   if(this->UniformVariables!=0)
     {
@@ -920,7 +950,7 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "none" << endl;
     }
-  
+
   os << indent << "Shaders: ";
   if(this->Shaders!=0)
     {
@@ -929,16 +959,6 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << "none" <<  endl;
-    }
-  
-  os << indent << "PrintErrors: ";
-  if(this->PrintErrors)
-    {
-    os << "true" << endl;
-    }
-  else
-    {
-    os << "false" << endl;
     }
 }
 

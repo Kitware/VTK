@@ -237,4 +237,16 @@ void vtkShader2Collection::ReleaseGraphicsResources()
 void vtkShader2Collection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  size_t i=0;
+  size_t c=static_cast<size_t>(this->GetNumberOfItems());
+  this->InitTraversal();
+  vtkShader2 *s=this->GetNextShader();
+  while(s!=0)
+    {
+    os << indent << "shader #" << i << "/"<<c<<endl;
+    s->PrintSelf(os,indent.GetNextIndent());
+    s=this->GetNextShader();
+    ++i;
+    }
 }
