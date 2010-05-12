@@ -83,6 +83,12 @@
 #include <vtksys/ios/sstream>
 #include "vtkStdString.h"
 
+#include "vtkShaderProgram2.h"
+#include "vtkShader2.h"
+#include "vtkUniformVariables.h"
+#include "vtkShader2Collection.h"
+#include "vtkOpenGLRenderWindow.h"
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -1888,11 +1894,6 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
   this->Densify=0;
   this->InvVolumeMatrix=vtkMatrix4x4::New();
 
-  this->ScaleBiasProgramShader=0;
-  this->UFrameBufferTexture=-1;
-  this->UScale=-1;
-  this->UBias=-1;
-
   this->SavedFrameBuffer=0;
 
   this->BoxSource=0;
@@ -1918,6 +1919,15 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
   this->LastProgressEventTime=0.0; // date in seconds
   
   this->PreserveOrientation=true;
+
+  this->Program=0;
+  this->Main=0;
+  this->Projection=0;
+  this->Trace=0;
+  this->CroppingShader=0;
+  this->Component=0;
+  this->Shade=0;
+  this->ScaleBiasProgram=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2000,6 +2010,39 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
     {
     delete this->MaskTextures;
     this->MaskTextures=0;
+    }
+
+  if(this->Program!=0)
+    {
+    this->Program->Delete();
+    }
+  if(this->Main!=0)
+    {
+    this->Main->Delete();
+    }
+  if(this->Projection!=0)
+    {
+    this->Projection->Delete();
+    }
+  if(this->Trace!=0)
+    {
+    this->Trace->Delete();
+    }
+  if(this->CroppingShader!=0)
+    {
+    this->CroppingShader->Delete();
+    }
+  if(this->Component!=0)
+    {
+    this->Component->Delete();
+    }
+  if(this->Shade!=0)
+    {
+    this->Shade->Delete();
+    }
+  if(this->ScaleBiasProgram!=0)
+    {
+    this->ScaleBiasProgram->Delete();
     }
 }
 
@@ -2340,28 +2383,34 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // stage because the parser underneath only check for syntax during
   // compilation and the actual native code generation happens during
   // the linking stage.
-  this->CreateGLSLObjects();
   this->NumberOfCroppingRegions=1;
-  this->BuildProgram(1,vtkOpenGLGPUVolumeRayCastMapperMethodComposite,
+  this->BuildProgram(window,1,
+                     vtkOpenGLGPUVolumeRayCastMapperMethodComposite,
                      vtkOpenGLGPUVolumeRayCastMapperShadeNo,
                      vtkOpenGLGPUVolumeRayCastMapperComponentOne);
 
-  GLint params;
-  vtkgl::GetProgramiv(static_cast<GLuint>(this->ProgramShader),
-                      vtkgl::LINK_STATUS,&params);
-  if(params==GL_FALSE)
+  this->Program->SetPrintErrors(false);
+  this->Program->Build();
+  this->Program->SetPrintErrors(true);
+
+  if(this->Program->GetLastBuildStatus()!=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
     {
     this->LoadExtensionsSucceeded=0;
     this->UnsupportedRequiredExtensions->Stream<<
       " this card does not support while statements in fragment shaders.";
     }
 
-  // FB debug
-  this->CheckLinkage(this->ProgramShader);
-
-  // Release GLSL Objects.
-  GLuint programShader=static_cast<GLuint>(this->ProgramShader);
-  vtkgl::DeleteProgram(programShader);
+  this->Program->ReleaseGraphicsResources();
+  if(this->LastComponent!=
+     vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized)
+    {
+    this->Program->GetShaders()->RemoveItem(this->Component);
+    }
+  if(this->LastShade!=
+     vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized)
+    {
+    this->Program->GetShaders()->RemoveItem(this->Shade);
+    }
 
   this->LastParallelProjection=
     vtkOpenGLGPUVolumeRayCastMapperProjectionNotInitialized;
@@ -2374,65 +2423,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
 
   extensions->Delete();
-}
-
-//-----------------------------------------------------------------------------
-// Create GLSL OpenGL objects such fragment program Ids.
-//-----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::CreateGLSLObjects()
-{
-  GLuint programShader;
-  GLuint fragmentMainShader;
-
-  programShader=vtkgl::CreateProgram();
-  fragmentMainShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-  vtkgl::AttachShader(programShader,fragmentMainShader);
-  vtkgl::DeleteShader(fragmentMainShader); // reference counting
-
-  vtkgl::ShaderSource(
-    fragmentMainShader,1,
-    const_cast<const char **>(&vtkGPUVolumeRayCastMapper_HeaderFS),0);
-  vtkgl::CompileShader(fragmentMainShader);
-
-  this->CheckCompilation(static_cast<unsigned int>(fragmentMainShader));
-
-  GLuint fragmentProjectionShader;
-  GLuint fragmentTraceShader;
-  GLuint fragmentCroppingShader;
-  GLuint fragmentComponentShader;
-  GLuint fragmentShadeShader;
-
-  fragmentProjectionShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-  vtkgl::AttachShader(programShader,fragmentProjectionShader);
-  vtkgl::DeleteShader(fragmentProjectionShader); // reference counting
-
-  fragmentTraceShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-  vtkgl::AttachShader(programShader,fragmentTraceShader);
-  vtkgl::DeleteShader(fragmentTraceShader); // reference counting
-  fragmentCroppingShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-  vtkgl::AttachShader(programShader,fragmentCroppingShader);
-  vtkgl::DeleteShader(fragmentCroppingShader); // reference counting
-
-  fragmentComponentShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-
-  // don't delete it, it is optionally attached.
-  fragmentShadeShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-
-  // Save GL objects by static casting to standard C types. GL* types
-  // are not allowed in VTK header files.
-  this->ProgramShader=static_cast<unsigned int>(programShader);
-
-  this->FragmentMainShader=static_cast<unsigned int>(fragmentMainShader);
-  this->FragmentProjectionShader=
-    static_cast<unsigned int>(fragmentProjectionShader);
-  this->FragmentTraceShader=static_cast<unsigned int>(fragmentTraceShader);
-  this->FragmentCroppingShader=
-    static_cast<unsigned int>(fragmentCroppingShader);
-  this->FragmentComponentShader=
-    static_cast<unsigned int>(fragmentComponentShader);
-  this->FragmentShadeShader=
-    static_cast<unsigned int>(fragmentShadeShader);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -2510,8 +2500,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects()
   // Restore default frame buffer.
   vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
 
-  this->CreateGLSLObjects();
-
   // Save GL objects by static casting to standard C types. GL* types
   // are not allowed in VTK header files.
   this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
@@ -2524,175 +2512,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects()
     }
 
   this->OpenGLObjectsCreated=1;
-}
-
-
-//-----------------------------------------------------------------------------
-// Check the compilation status of some fragment shader source.
-//-----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::CheckCompilation(
-  unsigned int fragmentShader)
-{
-  GLuint fs=static_cast<GLuint>(fragmentShader);
-  GLint params;
-  vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&params);
-
-  if(params==GL_TRUE)
-    {
-    vtkDebugMacro(<<"shader source compiled successfully");
-    }
-  else
-    {
-    vtkErrorMacro(<<"shader source compile error");
-    // include null terminator
-    vtkgl::GetShaderiv(fs,vtkgl::INFO_LOG_LENGTH,&params);
-    if(params>0)
-      {
-      char *buffer=new char[params];
-      vtkgl::GetShaderInfoLog(fs,params,0,buffer);
-      vtkErrorMacro(<<"log: "<<buffer);
-      delete[] buffer;
-      }
-    else
-      {
-      vtkErrorMacro(<<"no log");
-      }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------
-// Print the list of uniform variables. This is a debugging method used only
-// internally to this class.
-//-----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::PrintUniformVariables(unsigned int programShader)
-{
-  GLint params;
-  GLuint prog=static_cast<GLuint>(programShader);
-
-  // info about the list of active uniform variables
-  vtkgl::GetProgramiv(prog,vtkgl::ACTIVE_UNIFORMS,&params);
-  cout<<"There are "<<params<<" active uniform variables"<<endl;
-  GLuint i=0;
-  GLuint c=static_cast<GLuint>(params);
-  vtkgl::GetProgramiv(prog,vtkgl::OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
-                      &params);
-
-  GLint buffSize=params;
-  char *name=new char[buffSize+1];
-  GLint size;
-  GLenum type;
-  while(i<c)
-    {
-    vtkgl::GetActiveUniform(prog,i,buffSize,0,&size,&type,name);
-    cout<<i<<" ";
-    switch(type)
-      {
-      case GL_FLOAT:
-        cout<<"float";
-        break;
-      case vtkgl::FLOAT_VEC2_ARB:
-        cout<<"vec2";
-        break;
-      case vtkgl::FLOAT_VEC3_ARB:
-        cout<<"vec3";
-        break;
-      case vtkgl::FLOAT_VEC4_ARB:
-        cout<<"vec4";
-        break;
-      case GL_INT:
-        cout<<"int";
-        break;
-      case vtkgl::INT_VEC2_ARB:
-        cout<<"ivec2";
-        break;
-      case vtkgl::INT_VEC3_ARB:
-        cout<<"ivec3";
-        break;
-      case vtkgl::INT_VEC4_ARB:
-        cout<<"ivec4";
-        break;
-      case vtkgl::BOOL_ARB:
-        cout<<"bool";
-        break;
-      case vtkgl::BOOL_VEC2_ARB:
-        cout<<"bvec2";
-        break;
-      case vtkgl::BOOL_VEC3_ARB:
-        cout<<"bvec3";
-        break;
-      case vtkgl::BOOL_VEC4_ARB:
-        cout<<"bvec4";
-        break;
-      case vtkgl::FLOAT_MAT2_ARB:
-        cout<<"mat2";
-        break;
-      case vtkgl::FLOAT_MAT3_ARB:
-        cout<<"mat3";
-        break;
-      case vtkgl::FLOAT_MAT4_ARB:
-        cout<<"mat4";
-        break;
-      case vtkgl::SAMPLER_1D_ARB:
-        cout<<"sampler1D";
-        break;
-      case vtkgl::SAMPLER_2D_ARB:
-        cout<<"sampler2D";
-        break;
-      case vtkgl::SAMPLER_3D_ARB:
-        cout<<"sampler3D";
-        break;
-      case vtkgl::SAMPLER_CUBE_ARB:
-        cout<<"samplerCube";
-        break;
-      case vtkgl::SAMPLER_1D_SHADOW_ARB:
-        cout<<"sampler1Dshadow";
-        break;
-      case vtkgl::SAMPLER_2D_SHADOW_ARB:
-        cout<<"sampler2Dshadow";
-        break;
-      }
-    cout<<" "<<name<<endl;
-    ++i;
-    }
-  delete[] name;
-}
-
-
-//-----------------------------------------------------------------------------
-// Check the linkage status of the fragment program. This is an internal
-// debugging method only. Returns 1 if link status is TRUE, 0 otherwise.
-//-----------------------------------------------------------------------------
-int vtkOpenGLGPUVolumeRayCastMapper::CheckLinkage(unsigned int programShader)
-{
-  GLint params;
-  GLuint prog=static_cast<GLuint>(programShader);
-  vtkgl::GetProgramiv(prog,vtkgl::LINK_STATUS,&params);
-  int status = 0;
-  if(params==GL_TRUE)
-    {
-    status = 1;
-    vtkDebugMacro(<<"program linked successfully");
-    }
-  else
-    {
-    vtkErrorMacro(<<"program link error");
-    vtkgl::GetProgramiv(prog,vtkgl::INFO_LOG_LENGTH,&params);
-    if(params>0)
-      {
-      char *buffer=new char[params];
-      vtkgl::GetProgramInfoLog(prog,params,0,buffer);
-      vtkErrorMacro(<<"log: "<<buffer);
-      delete[] buffer;
-      }
-    else
-      {
-      vtkErrorMacro(<<"no log: ");
-      }
-    }
-
-  return status;
 }
 
 //-----------------------------------------------------------------------------
@@ -2734,24 +2553,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
         static_cast<GLuint>(this->MaxValueFrameBuffer2);
       glDeleteTextures(1,&maxValueFrameBuffer2);
       this->MaxValueFrameBuffer2=0;
-      }
-
-    GLuint programShader=static_cast<GLuint>(this->ProgramShader);
-    vtkgl::DeleteProgram(programShader);
-    this->ProgramShader=0;
-    GLuint fragmentComponentShader=
-      static_cast<GLuint>(this->FragmentComponentShader);
-    vtkgl::DeleteShader(fragmentComponentShader);
-    GLuint fragmentShadeShader=
-      static_cast<GLuint>(this->FragmentShadeShader);
-    vtkgl::DeleteShader(fragmentShadeShader);
-
-    GLuint scaleBiasProgramShader=
-      static_cast<GLuint>(this->ScaleBiasProgramShader);
-    if(scaleBiasProgramShader!=0)
-      {
-      vtkgl::DeleteProgram(scaleBiasProgramShader);
-      this->ScaleBiasProgramShader=0;
       }
     this->LastParallelProjection=
       vtkOpenGLGPUVolumeRayCastMapperProjectionNotInitialized;
@@ -2825,6 +2626,39 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     {
     delete this->OpacityTables;
     this->OpacityTables=0;
+    }
+
+  if(this->Program!=0)
+    {
+    this->Program->ReleaseGraphicsResources();
+    }
+   if(this->Main!=0)
+    {
+    this->Main->ReleaseGraphicsResources();
+    }
+  if(this->Projection!=0)
+    {
+    this->Projection->ReleaseGraphicsResources();
+    }
+  if(this->Trace!=0)
+    {
+    this->Trace->ReleaseGraphicsResources();
+    }
+  if(this->CroppingShader!=0)
+    {
+    this->CroppingShader->ReleaseGraphicsResources();
+    }
+  if(this->Component!=0)
+    {
+    this->Component->ReleaseGraphicsResources();
+    }
+  if(this->Shade!=0)
+    {
+    this->Shade->ReleaseGraphicsResources();
+    }
+  if(this->ScaleBiasProgram!=0)
+    {
+    this->ScaleBiasProgram->ReleaseGraphicsResources();
     }
 }
 
@@ -3021,7 +2855,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       }
 
     }
-  PrintError("AllocateFrameBuffers");
+  this->PrintError("AllocateFrameBuffers");
   return result;
 }
 
@@ -3867,6 +3701,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
   return abort;
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
 {  
   // in OpenGL copy texture to texture does not exist but
@@ -3910,37 +3745,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::CleanupRender()
 // Build the fragment shader program that scale and bias a texture
 // for window/level purpose.
 //-----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::BuildScaleBiasProgram()
+void vtkOpenGLGPUVolumeRayCastMapper::BuildScaleBiasProgram(vtkRenderWindow *w)
 {
-  if(this->ScaleBiasProgramShader==0)
+  if(this->ScaleBiasProgram==0)
     {
-    GLuint programShader;
-    GLuint fragmentShader;
+    this->ScaleBiasProgram=vtkShaderProgram2::New();
+    this->ScaleBiasProgram->SetContext(
+      static_cast<vtkOpenGLRenderWindow *>(w));
+    vtkShader2Collection *shaders=this->ScaleBiasProgram->GetShaders();
 
-    programShader=vtkgl::CreateProgram();
-    fragmentShader=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER);
-    vtkgl::AttachShader(programShader,fragmentShader);
-    vtkgl::DeleteShader(fragmentShader); // reference counting
-
-    vtkgl::ShaderSource(
-      fragmentShader,1,
-      const_cast<const char **>(&vtkGPUVolumeRayCastMapper_ScaleBiasFS),0);
-    vtkgl::CompileShader(fragmentShader);
-
-    this->CheckCompilation(static_cast<unsigned int>(fragmentShader));
-    vtkgl::LinkProgram(programShader);
-    this->CheckLinkage(static_cast<unsigned int>(programShader));
-
-    this->ScaleBiasProgramShader=static_cast<unsigned int>(programShader);
-    this->UFrameBufferTexture=
-      static_cast<int>(vtkgl::GetUniformLocation(programShader,
-                                                 "frameBufferTexture"));
-    this->UScale=static_cast<int>(vtkgl::GetUniformLocation(programShader,
-                                                            "scale"));
-    this->UBias=static_cast<int>(vtkgl::GetUniformLocation(programShader,
-                                                           "bias"));
+    vtkShader2 *s=vtkShader2::New();
+    s->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    s->SetSourceCode(vtkGPUVolumeRayCastMapper_ScaleBiasFS);
+    shaders->AddItem(s);
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -4009,32 +3827,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
 
   if(scale!=1.0 || bias!=0.0)
     {
-    this->BuildScaleBiasProgram();
-    vtkgl::UseProgram(this->ScaleBiasProgramShader);
-    if(this->UFrameBufferTexture!=-1)
-      {
-      vtkgl::Uniform1i(this->UFrameBufferTexture,0);
-      }
-    else
-      {
-      vtkErrorMacro(<<"uFrameBufferTexture is not a uniform variable.");
-      }
-    if(this->UScale!=-1)
-      {
-      vtkgl::Uniform1f(this->UScale,static_cast<GLfloat>(scale));
-      }
-    else
-      {
-      vtkErrorMacro(<<"uScale is not a uniform variable.");
-      }
-    if(this->UBias!=-1)
-      {
-      vtkgl::Uniform1f(this->UBias,static_cast<GLfloat>(bias));
-      }
-    else
-      {
-      vtkErrorMacro(<<"uBias is not a uniform variable.");
-      }
+    this->BuildScaleBiasProgram(ren->GetRenderWindow());
+    vtkUniformVariables *v=this->ScaleBiasProgram->GetUniformVariables();
+    int ivalue=0;
+    v->SetUniformi("frameBufferTexture",1,&ivalue);
+    float fvalue=static_cast<float>(scale);
+    v->SetUniformf("scale",1,&fvalue);
+    fvalue=static_cast<float>(bias);
+    v->SetUniformf("bias",1,&fvalue);
+    this->ScaleBiasProgram->Use();
     }
   else
     {
@@ -4060,7 +3861,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
 
   if(scale!=1.0 || bias!=0.0)
     {
-    vtkgl::UseProgram(0);
+    this->ScaleBiasProgram->Restore();
     }
   else
     {
@@ -4176,11 +3977,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
 //   - numberOfLevels >= 1
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
-                                                  vtkVolume *vol,
-                                                  double datasetBounds[6],
-                                                  double scalarRange[2],
-                                                  int numberOfScalarComponents,
-                                                  unsigned int numberOfLevels)
+                                                vtkVolume *vol,
+                                                double datasetBounds[6],
+                                                double scalarRange[2],
+                                                int numberOfScalarComponents,
+                                                unsigned int numberOfLevels)
 {
   // make sure our window is the current OpenGL context.
   ren->GetRenderWindow()->MakeCurrent();
@@ -4299,7 +4100,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   int lowerLeft[2];
   ren->GetTiledSizeAndOrigin(size,size+1,lowerLeft,lowerLeft+1);
 
-  vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE3);
   glBindTexture(GL_TEXTURE_2D,
                 static_cast<GLuint>(
                   this->TextureObjects[
@@ -4308,7 +4109,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
                       size[1]);
 
 
-  vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 
   int parallelProjection=ren->GetActiveCamera()->GetParallelProjection();
 
@@ -4411,11 +4212,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     NumberOfCroppingRegions=2; // >1, means use do compositing between blocks
     }
-  this->BuildProgram(parallelProjection,rayCastMethod,shadeMethod,
+  this->BuildProgram(ren->GetRenderWindow(),
+                     parallelProjection,rayCastMethod,shadeMethod,
                      componentMethod);
-  this->CheckLinkage(this->ProgramShader);
 
-  vtkgl::UseProgram(this->ProgramShader);
+  vtkUniformVariables *v=this->Program->GetUniformVariables();
 
   // for active texture 0, dataset
 
@@ -4434,147 +4235,53 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
        }
     }
 
-  GLint uDataSetTexture;
+  float fvalue[2];
+  int ivalue=0;
+  v->SetUniformi("dataSetTexture",1,&ivalue);
 
-  uDataSetTexture=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"dataSetTexture");
-
-  if(uDataSetTexture!=-1)
-    {
-    vtkgl::Uniform1i(uDataSetTexture,0);
-    }
-  else
-    {
-    vtkErrorMacro(<<"dataSetTexture is not a uniform variable.");
-    }
-
-  if ( this->MaskInput)
+  if(this->MaskInput!=0)
     {
     // Make the mask texture available on texture unit 7
-    GLint uMaskTexture;
-
-    uMaskTexture=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"maskTexture");
-
-    if(uMaskTexture!=-1)
-      {
-      vtkgl::Uniform1i(uMaskTexture,7);
-      }
-    else
-      {
-      vtkErrorMacro(<<"maskTexture is not a uniform variable.");
-      }
+    ivalue=7;
+    v->SetUniformi("maskTexture",1,&ivalue);
     }
 
   if(numberOfScalarComponents==1 &&
      this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
-    GLint uColorTexture;
-    uColorTexture=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"colorTexture");
-
-    if(uColorTexture!=-1)
-      {
-      vtkgl::Uniform1i(uColorTexture,1);
-      }
-    else
-      {
-      vtkErrorMacro(<<"colorTexture is not a uniform variable.");
-      }
+    ivalue=1;
+    v->SetUniformi("colorTexture",1,&ivalue);
 
     if(this->MaskInput!=0)
       {
-      GLint uMask1ColorTexture;
-      uMask1ColorTexture=vtkgl::GetUniformLocation(
-        static_cast<GLuint>(this->ProgramShader),"mask1ColorTexture");
+      ivalue=8;
+      v->SetUniformi("mask1ColorTexture",1,&ivalue);
 
-      if(uMask1ColorTexture!=-1)
-        {
-        vtkgl::Uniform1i(uMask1ColorTexture,8);
-        }
-      else
-        {
-        vtkErrorMacro(<<"mask1ColorTexture is not a uniform variable.");
-        }
+      ivalue=9;
+      v->SetUniformi("mask2ColorTexture",1,&ivalue);
 
-      GLint uMask2ColorTexture;
-      uMask2ColorTexture=vtkgl::GetUniformLocation(
-        static_cast<GLuint>(this->ProgramShader),"mask2ColorTexture");
-
-      if(uMask2ColorTexture!=-1)
-        {
-        vtkgl::Uniform1i(uMask2ColorTexture,9);
-        }
-      else
-        {
-        vtkErrorMacro(<<"mask2ColorTexture is not a uniform variable.");
-        }
-
-      GLint uMaskBlendFactor;
-      uMaskBlendFactor=vtkgl::GetUniformLocation(
-        static_cast<GLuint>(this->ProgramShader),"maskBlendFactor");
-      if(uMaskBlendFactor!=-1)
-        {
-        vtkgl::Uniform1f(uMaskBlendFactor,this->MaskBlendFactor);
-        }
-      else
-        {
-        vtkErrorMacro(<<"maskBlendFactor is not a uniform variable.");
-        }
+      fvalue[0]=static_cast<float>(this->MaskBlendFactor);
+      v->SetUniformf("maskBlendFactor",1,fvalue);
       }
 
     }
 
-  GLint uOpacityTexture;
-
-  uOpacityTexture=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"opacityTexture");
-
-  if(uOpacityTexture!=-1)
-    {
-    vtkgl::Uniform1i(uOpacityTexture,2);
-    }
-  else
-    {
-    vtkErrorMacro(<<"opacityTexture is not a uniform variable.");
-    }
+  ivalue=2;
+  v->SetUniformi("opacityTexture",1,&ivalue);
 
   // depthtexture
-  vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE3);
   glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]));
 
-  GLint uDepthTexture;
-
-  uDepthTexture=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"depthTexture");
-
-  if(uDepthTexture!=-1)
-    {
-    vtkgl::Uniform1i(uDepthTexture,3);
-    }
-  else
-    {
-    vtkErrorMacro(<<"depthTexture is not a uniform variable.");
-    }
+  ivalue=3;
+  v->SetUniformi("depthTexture",1,&ivalue);
 
   // noise texture
-  vtkgl::ActiveTexture( vtkgl::TEXTURE6 );
+  vtkgl::ActiveTexture(vtkgl::TEXTURE6);
   glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->NoiseTextureId));
 
-
-  GLint uNoiseTexture;
-
-  uNoiseTexture=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"noiseTexture");
-
-  if(uNoiseTexture!=-1)
-    {
-    vtkgl::Uniform1i(uNoiseTexture,6);
-    }
-  else
-    {
-    vtkErrorMacro(<<"noiseTexture is not a uniform variable.");
-    }
+  ivalue=6;
+  v->SetUniformi("noiseTexture",1,&ivalue);
 
   this->CheckFrameBufferStatus();
 
@@ -4585,24 +4292,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
        && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP
        && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive)
       {
-      vtkgl::ActiveTexture( vtkgl::TEXTURE4 );
+      vtkgl::ActiveTexture(vtkgl::TEXTURE4);
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront]));
 
-      GLint uFrameBufferTexture;
-
-      uFrameBufferTexture=vtkgl::GetUniformLocation(
-        static_cast<GLuint>(this->ProgramShader),"frameBufferTexture");
-
-      this->PrintError("framebuffertexture 1");
-      if(uFrameBufferTexture!=-1)
-        {
-        vtkgl::Uniform1i(uFrameBufferTexture,4);
-        }
-      else
-        {
-        vtkErrorMacro(<<"frameBufferTexture is not a uniform variable.");
-        }
-      this->PrintError("framebuffertexture 2");
+      ivalue=4;
+      v->SetUniformi("frameBufferTexture",1,&ivalue);
       }
 
     this->CheckFrameBufferStatus();
@@ -4611,80 +4305,29 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
        || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
        || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
       {
-      vtkgl::ActiveTexture( vtkgl::TEXTURE5 );
+      vtkgl::ActiveTexture(vtkgl::TEXTURE5);
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->MaxValueFrameBuffer2));
 
-      GLint uScalarBufferTexture;
-
-      uScalarBufferTexture=vtkgl::GetUniformLocation(
-        static_cast<GLuint>(this->ProgramShader),"scalarBufferTexture");
-
-      this->PrintError("scalarbuffertexture 1");
-      if(uScalarBufferTexture!=-1)
-        {
-        vtkgl::Uniform1i(uScalarBufferTexture,5);
-        }
-      else
-        {
-        vtkErrorMacro(<<"scalarBufferTexture is not a uniform variable.");
-        }
-      this->PrintError("scalarbuffertexture 2");
+      ivalue=5;
+      v->SetUniformi("scalarBufferTexture",1,&ivalue);
       }
     }
   this->CheckFrameBufferStatus();
 
-  GLint uWindowLowerLeftCorner;
+  fvalue[0]=static_cast<float>(lowerLeft[0]);
+  fvalue[1]=static_cast<float>(lowerLeft[1]);
+  v->SetUniformf("windowLowerLeftCorner",2,fvalue);
 
-  uWindowLowerLeftCorner=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"windowLowerLeftCorner");
-
-  if(uWindowLowerLeftCorner!=-1)
-    {
-    vtkgl::Uniform2f(uWindowLowerLeftCorner,static_cast<GLfloat>(lowerLeft[0]),
-                     static_cast<GLfloat>(lowerLeft[1]));
-    }
-  else
-    {
-    vtkErrorMacro(<<"windowLowerLeftCorner is not a uniform variable.");
-    }
-  GLint uInvOriginalWindowSize;
-
-  uInvOriginalWindowSize=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"invOriginalWindowSize");
-
-  if(uInvOriginalWindowSize!=-1)
-    {
-    vtkgl::Uniform2f(uInvOriginalWindowSize,
-                     static_cast<GLfloat>(1.0/size[0]),
-                     static_cast<GLfloat>(1.0/size[1]));
-    }
-  else
-    {
-    // yes it is not error. It is only actually used when there is some
-    // complex cropping (this->NumberOfCroppingRegions>1). Some GLSL compilers
-    // may remove the uniform variable for optimization when it is not used.
-    vtkDebugMacro(
-      <<"invOriginalWindowSize is not an active uniform variable.");
-    }
+  fvalue[0]=static_cast<float>(1.0/size[0]);
+  fvalue[1]=static_cast<float>(1.0/size[1]);
+  v->SetUniformf("invOriginalWindowSize",2,fvalue);
 
   size[0] = static_cast<int>(size[0]*this->ReductionFactor);
   size[1] = static_cast<int>(size[1]*this->ReductionFactor);
 
-  GLint uInvWindowSize;
-
-  uInvWindowSize=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"invWindowSize");
-
-  if(uInvWindowSize!=-1)
-    {
-    vtkgl::Uniform2f(uInvWindowSize,static_cast<GLfloat>(1.0/size[0]),
-                     static_cast<GLfloat>(1.0/size[1]));
-    }
-  else
-    {
-    vtkErrorMacro(<<"invWindowSize is not a uniform variable.");
-    }
-
+  fvalue[0]=static_cast<float>(1.0/size[0]);
+  fvalue[1]=static_cast<float>(1.0/size[1]);
+  v->SetUniformf("invWindowSize",2,fvalue);
 
   this->PrintError("after uniforms for textures");
 
@@ -4858,9 +4501,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     this->OpacityTables=new vtkOpacityTables(numberOfLevels);
     }
 
+  this->Program->Use();
+
   // debug code
   // DO NOT REMOVE the following commented line
-//  this->ValidateProgram();
+//  if(!this->Program->IsValid())
+//    {
+//    vtkErrorMacro(<<this->Program->GetLastValidateLog());
+//    }
 
   glCullFace (GL_BACK);
   // otherwise, we are rendering back face to initialize the zbuffer.
@@ -5196,9 +4844,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
   glBindTexture(vtkgl::TEXTURE_3D_EXT,0);
 
-  vtkgl::UseProgram(0);
-
-  this->PrintError("after UseProgram(0)");
+  this->Program->Restore();
 
   this->CleanupRender();
   this->PrintError("after CleanupRender");
@@ -6132,46 +5778,22 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
           assert("check: high_bounds1_less_than1" && highBounds[1]<=1.0);
           assert("check: high_bounds2_less_than1" && highBounds[2]<=1.0);
 
-          GLint lb;
-          lb=vtkgl::GetUniformLocation(static_cast<GLuint>(this->ProgramShader),
-                                       "lowBounds");
-
-          this->PrintError("get uniform low bounds");
-          if(lb!=-1)
-            {
-            vtkgl::Uniform3f(lb, lowBounds[0],lowBounds[1],lowBounds[2]);
-            this->PrintError("set uniform low bounds");
-            }
-          else
-            {
-            vtkErrorMacro(<<" lowBounds is not a uniform variable.");
-            }
-          GLint hb;
-          hb=vtkgl::GetUniformLocation(static_cast<GLuint>(this->ProgramShader),
-                                       "highBounds");
-          this->PrintError("get uniform high bounds");
-          if(hb!=-1)
-            {
-            vtkgl::Uniform3f(hb, highBounds[0],highBounds[1],highBounds[2]);
-            this->PrintError("set uniform high bounds");
-            }
-          else
-            {
-            vtkErrorMacro(<<" highBounds is not a uniform variable.");
-            }
+          vtkUniformVariables *v=this->Program->GetUniformVariables();
+          v->SetUniformf("lowBounds",3,lowBounds);
+          v->SetUniformf("highBounds",3,highBounds);
 
           this->PrintError("uniform low/high bounds block");
           // other sub-volume rendering code
           this->LoadProjectionParameters(ren,volume);
           this->ClipBoundingBox(ren,blocks[k].Bounds,volume);
+
+          this->Program->SendUniforms();
           abort=this->RenderClippedBoundingBox(1,i,count,ren->GetRenderWindow());
           if (!abort)
             {
             this->CopyFBOToTexture();
             }
           this->PrintError("render clipped block 1");
-
-
 
           ++i;
           }
@@ -6232,38 +5854,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   assert("check: high_bounds1_less_than1" && highBounds[1]<=1.0);
   assert("check: high_bounds2_less_than1" && highBounds[2]<=1.0);
 
-  GLint lb;
-  lb=vtkgl::GetUniformLocation(static_cast<GLuint>(this->ProgramShader),
-                               "lowBounds");
-
-  this->PrintError("get uniform low bounds");
-  if(lb!=-1)
-    {
-    vtkgl::Uniform3f(lb, lowBounds[0],lowBounds[1],lowBounds[2]);
-    this->PrintError("set uniform low bounds");
-    }
-  else
-    {
-    vtkErrorMacro(<<" lowBounds is not a uniform variable.");
-    }
-  GLint hb;
-  hb=vtkgl::GetUniformLocation(static_cast<GLuint>(this->ProgramShader),
-                                 "highBounds");
-  this->PrintError("get uniform high bounds");
-  if(hb!=-1)
-    {
-    vtkgl::Uniform3f(hb, highBounds[0],highBounds[1],highBounds[2]);
-    this->PrintError("set uniform high bounds");
-    }
-  else
-    {
-    vtkErrorMacro(<<" highBounds is not a uniform variable.");
-    }
+  vtkUniformVariables *v=this->Program->GetUniformVariables();
+  v->SetUniformf("lowBounds",3,lowBounds);
+  v->SetUniformf("highBounds",3,highBounds);
 
   this->PrintError("uniform low/high bounds");
   // other sub-volume rendering code
   this->LoadProjectionParameters(ren,volume);
   this->ClipBoundingBox(ren,bounds,volume);
+  this->Program->SendUniforms();
   int abort=this->RenderClippedBoundingBox(1,0,1,ren->GetRenderWindow());
   if (!abort)
     {
@@ -6314,6 +5913,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
 
 //  cout << "actualSampleDistance=" << this->ActualSampleDistance << endl;
 
+  vtkUniformVariables *v=this->Program->GetUniformVariables();
+  float fvalues[3];
+
   if(parallelProjection)
     {
     // Unit vector of the direction of projection in world space.
@@ -6331,19 +5933,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     dir[1]=dir[1]*this->ActualSampleDistance/dy;
     dir[2]=dir[2]*this->ActualSampleDistance/dz;
 
-    GLint rayDir;
-    rayDir=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"parallelRayDirection");
-    if(rayDir!=-1)
-      {
-      vtkgl::Uniform3f(rayDir,static_cast<GLfloat>(dir[0]),
-                       static_cast<GLfloat>(dir[1]),
-                       static_cast<GLfloat>(dir[2]));
-      }
-    else
-      {
-      vtkErrorMacro(<<"parallelRayDirection is not a uniform variable.");
-      }
+    fvalues[0]=static_cast<float>(dir[0]);
+    fvalues[1]=static_cast<float>(dir[1]);
+    fvalues[2]=static_cast<float>(dir[2]);
+    v->SetUniformf("parallelRayDirection",3,fvalues);
     //cout<<"rayDir="<<dir[0]<<","<<dir[1]<<","<<dir[2]<<endl;
     }
   else
@@ -6388,66 +5981,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     vtkMatrix4x4 *coefMatrix=this->TempMatrix[1];
     vtkMatrix4x4::Multiply4x4(transposeWorldToTexture,worldToTexture,
                               coefMatrix);
-    GLint uCameraPosition;
 
-    uCameraPosition=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"cameraPosition");
+    fvalues[0]=static_cast<float>(cameraPosTexture[0]);
+    fvalues[1]=static_cast<float>(cameraPosTexture[1]);
+    fvalues[2]=static_cast<float>(cameraPosTexture[2]);
+    v->SetUniformf("cameraPosition",3,fvalues);
 
-    if(uCameraPosition!=-1)
-      {
-      vtkgl::Uniform3f(uCameraPosition,
-                       static_cast<GLfloat>(cameraPosTexture[0]),
-                       static_cast<GLfloat>(cameraPosTexture[1]),
-                       static_cast<GLfloat>(cameraPosTexture[2]));
-      }
-    else
-      {
-      vtkErrorMacro(<<"cameraPosition is not a uniform variable.");
-      }
-    GLint uSampleDistance;
-    uSampleDistance=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"sampleDistance");
+    fvalues[0]=this->ActualSampleDistance;
+    v->SetUniformf("sampleDistance",1,fvalues);
 
-    if(uSampleDistance!=-1)
-      {
-      vtkgl::Uniform1f(uSampleDistance,this->ActualSampleDistance);
-      }
-    else
-      {
-      vtkErrorMacro(<<"sampleDistance is not a uniform variable.");
-      }
+    fvalues[0]=static_cast<float>(coefMatrix->GetElement(0,0));
+    fvalues[1]=static_cast<float>(coefMatrix->GetElement(1,1));
+    fvalues[2]=static_cast<float>(coefMatrix->GetElement(2,2));
+    v->SetUniformf("matrix1",3,fvalues);
 
-    GLint uMatrix1;
-
-    uMatrix1=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"matrix1");
-
-    if(uMatrix1!=-1)
-      {
-      vtkgl::Uniform3f(uMatrix1,
-                       static_cast<GLfloat>(coefMatrix->GetElement(0,0)),
-                       static_cast<GLfloat>(coefMatrix->GetElement(1,1)),
-                       static_cast<GLfloat>(coefMatrix->GetElement(2,2)));
-      }
-    else
-      {
-      vtkErrorMacro(<<"matrix1 is not a uniform variable.");
-      }
-    GLint uMatrix2;
-    uMatrix2=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"matrix2");
-
-    if(uMatrix2!=-1)
-      {
-      vtkgl::Uniform3f(uMatrix2,
-                       static_cast<GLfloat>(2*coefMatrix->GetElement(0,1)),
-                       static_cast<GLfloat>(2*coefMatrix->GetElement(1,2)),
-                       static_cast<GLfloat>(2*coefMatrix->GetElement(0,2)));
-      }
-    else
-      {
-      vtkErrorMacro(<<"matrix2 is not a uniform variable.");
-      }
+    fvalues[0]=static_cast<float>(2*coefMatrix->GetElement(0,1));
+    fvalues[1]=static_cast<float>(2*coefMatrix->GetElement(1,2));
+    fvalues[2]=static_cast<float>(2*coefMatrix->GetElement(0,2));
+    v->SetUniformf("matrix2",3,fvalues);
     }
   this->PrintError("after uniforms for projection");
 
@@ -6481,22 +6032,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
         }
       ++column;
       }
-    GLint uEyeToTexture3;
-
-    uEyeToTexture3=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"eyeToTexture3");
-
-    this->PrintError("after getUniform eyeToTexture3");
-
-    if(uEyeToTexture3!=-1)
-      {
-      vtkgl::UniformMatrix3fv(uEyeToTexture3,1,GL_FALSE,matrix);
-      }
-    else
-      {
-      vtkErrorMacro(<<"eyeToTexture3 is not a uniform variable.");
-      }
-    this->PrintError("after Uniform eyeToTexture3");
+    v->SetUniformMatrix("eyeToTexture3",3,3,matrix);
 
     index=0;
     column=0;
@@ -6512,19 +6048,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
         }
       ++column;
       }
-    GLint uEyeToTexture4;
-
-    uEyeToTexture4=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"eyeToTexture4");
-
-    if(uEyeToTexture4!=-1)
-      {
-      vtkgl::UniformMatrix4fv(uEyeToTexture4,1,GL_FALSE,matrix);
-      }
-    else
-      {
-      vtkErrorMacro(<<"eyeToTexture4 is not a uniform variable.");
-      }
+    v->SetUniformMatrix("eyeToTexture4",4,4,matrix);
     }
 
   eyeToTexture->Invert();
@@ -6544,22 +6068,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     ++column;
     }
 
-  this->PrintError("before GetUniformLocation TextureToEye");
-  GLint uTextureToEye;
-
-  uTextureToEye=vtkgl::GetUniformLocation(
-    static_cast<GLuint>(this->ProgramShader),"textureToEye");
-
-  this->PrintError("after GetUniformLocation TextureToEye");
-  if(uTextureToEye!=-1)
-    {
-    vtkgl::UniformMatrix4fv(uTextureToEye,1,GL_FALSE,matrix);
-    }
-  else
-    {
-    vtkErrorMacro(<<"textureToEye is not a uniform variable.");
-    }
-  this->PrintError("after UniformMatrxix TextureToEye");
+  v->SetUniformMatrix("textureToEye",4,4,matrix);
 
   if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeYes)
     {
@@ -6579,18 +6088,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
         }
       ++column;
       }
-    GLint uTranposeTextureToEye;
-    uTranposeTextureToEye=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"transposeTextureToEye");
-
-    if(uTranposeTextureToEye!=-1)
-      {
-      vtkgl::UniformMatrix3fv(uTranposeTextureToEye,1,GL_FALSE,matrix);
-      }
-    else
-      {
-      vtkErrorMacro(<<"transposeTextureToEye is not a uniform variable.");
-      }
+    v->SetUniformMatrix("transposeTextureToEye",3,3,matrix);
 
     float cellScale[3]; // 1/(2*Step)
     float cellStep[3]; // Step
@@ -6609,35 +6107,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     cellStep[2]=static_cast<float>(1.0/static_cast<double>(
                                      loadedExtent[5]-loadedExtent[4]));
 
-    GLint uCellScale;
-    uCellScale=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"cellScale");
-    if(uCellScale!=-1)
-      {
-      vtkgl::Uniform3f(uCellScale,cellScale[0],cellScale[1],cellScale[2]);
-      }
-    else
-      {
-      vtkErrorMacro(<<"error: cellScale is not a uniform variable.");
-      }
-    GLint uCellStep;
-
-    uCellStep=vtkgl::GetUniformLocation(
-      static_cast<GLuint>(this->ProgramShader),"cellStep");
-
-    if(uCellStep!=-1)
-      {
-      vtkgl::Uniform3f(uCellStep,cellStep[0],cellStep[1],cellStep[2]);
-      }
-    else
-      {
-      vtkErrorMacro(<<"error: cellStep is not a uniform variable.");
-      }
+    v->SetUniformf("cellScale",3,cellScale);
+    v->SetUniformf("cellStep",3,cellStep);
     }
-
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Concatenate the header string, projection type code and method to the
@@ -6646,21 +6119,74 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
 //    vtkOpenGLGPUVolumeRayCastMapperMethodMIP &&
 //    raycastMethod<=vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent
 //-----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
-                                                      int raycastMethod,
-                                                      int shadeMethod,
-                                                      int componentMethod)
+void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
+                                                   int parallelProjection,
+                                                   int raycastMethod,
+                                                   int shadeMethod,
+                                                   int componentMethod)
 {
 
   assert("pre: valid_raycastMethod" &&
          raycastMethod>= vtkOpenGLGPUVolumeRayCastMapperMethodMIP
          && raycastMethod<=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive);
-  GLuint fs;
+
+  if(this->Program==0)
+    {
+    this->Program=vtkShaderProgram2::New();
+    this->Program->SetContext(static_cast<vtkOpenGLRenderWindow *>(w));
+    }
+
+  vtkShader2Collection *shaders=this->Program->GetShaders();
+
+  if(this->Main==0)
+    {
+    this->Main=vtkShader2::New();
+    this->Main->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    this->Main->SetSourceCode(vtkGPUVolumeRayCastMapper_HeaderFS);
+//      this->Main->SetSourceCode(vtkGPUVolumeRayCastMapper_DebugFS);
+    shaders->AddItem(this->Main);
+    }
+  if(this->Projection==0)
+    {
+    this->Projection=vtkShader2::New();
+    this->Projection->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    // SourceCode is postponed.
+    shaders->AddItem(this->Projection);
+    }
+  if(this->Trace==0)
+    {
+    this->Trace=vtkShader2::New();
+    this->Trace->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    // SourceCode is postponed.
+    shaders->AddItem(this->Trace);
+    }
+  if(this->CroppingShader==0)
+    {
+    this->CroppingShader=vtkShader2::New();
+    this->CroppingShader->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    // SourceCode is postponed.
+    shaders->AddItem(this->CroppingShader);
+    }
+  if(this->Component==0)
+    {
+    this->Component=vtkShader2::New();
+    this->Component->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    // SourceCode is postponed.
+    // addition to collection is postponed.
+    }
+  if(this->Shade==0)
+    {
+    this->Shade=vtkShader2::New();
+    this->Shade->SetType(VTK_SHADER_TYPE_FRAGMENT);
+    // SourceCode is postponed.
+    // addition to collection is postponed.
+    }
 
 //  cout<<"projection="<<parallelProjection<<endl;
 //  cout<<"method="<<raycastMethod<<endl;
   if(parallelProjection!=this->LastParallelProjection)
     {
+    this->LastParallelProjection=parallelProjection;
     // update projection
     const char *projectionCode;
     if(parallelProjection)
@@ -6671,15 +6197,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
       {
       projectionCode=vtkGPUVolumeRayCastMapper_PerspectiveProjectionFS;
       }
-
-    fs=static_cast<GLuint>(this->FragmentProjectionShader);
-    vtkgl::ShaderSource(fs,1,const_cast<const char **>(&projectionCode),0);
-    vtkgl::CompileShader(fs);
-    this->CheckCompilation(this->FragmentProjectionShader);
+    this->Projection->SetSourceCode(projectionCode);
     }
 
   if(raycastMethod!=this->LastRayCastMethod)
     {
+    this->LastRayCastMethod=raycastMethod;
     // update tracing method
     const char *methodCode;
     switch(raycastMethod)
@@ -6706,10 +6229,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
         methodCode=vtkGPUVolumeRayCastMapper_AdditiveFS;
         break;
       }
-    fs=static_cast<GLuint>(this->FragmentTraceShader);
-    vtkgl::ShaderSource(fs,1,const_cast<const char **>(&methodCode),0);
-    vtkgl::CompileShader(fs);
-    this->CheckCompilation(this->FragmentTraceShader);
+    this->Trace->SetSourceCode(methodCode);
     }
 
   // update cropping method
@@ -6783,6 +6303,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
 //  cout<<"croppingMode="<<croppingMode<<endl;
   if(croppingMode!=this->LastCroppingMode)
     {
+    this->LastCroppingMode=croppingMode;
     const char *croppingCode;
     switch(croppingMode)
       {
@@ -6823,24 +6344,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
         croppingCode=vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS;
         break;
       }
-
-    fs=static_cast<GLuint>(this->FragmentCroppingShader);
-    vtkgl::ShaderSource(fs,1,const_cast<const char **>(&croppingCode),0);
-    vtkgl::CompileShader(fs);
-
-    this->CheckCompilation(this->FragmentCroppingShader);
+    this->CroppingShader->SetSourceCode(croppingCode);
     }
 
   if(componentMethod!=this->LastComponent)
     {
-    fs=static_cast<GLuint>(this->FragmentComponentShader);
-    GLuint programShader=static_cast<GLuint>(this->ProgramShader);
     if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed)
       {
       if(this->LastComponent!=
          vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized)
         {
-        vtkgl::DetachShader(programShader,fs);
+        shaders->RemoveItem(this->Component);
         }
       }
     else
@@ -6850,7 +6364,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
          this->LastComponent==
          vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed)
         {
-        vtkgl::AttachShader(programShader,fs);
+        shaders->AddItem(this->Component);
         }
       const char *componentCode;
       if(componentMethod==vtkOpenGLGPUVolumeRayCastMapperComponentOne)
@@ -6861,22 +6375,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
         {
         componentCode=vtkGPUVolumeRayCastMapper_FourComponentsFS;
         }
-      vtkgl::ShaderSource(fs,1,const_cast<const char **>(&componentCode),0);
-      vtkgl::CompileShader(fs);
-      this->CheckCompilation(this->FragmentComponentShader);
+      this->Component->SetSourceCode(componentCode);
       }
+    this->LastComponent=componentMethod;
     }
 
   if(shadeMethod!=this->LastShade)
     {
-    fs=static_cast<GLuint>(this->FragmentShadeShader);
-    GLuint programShader=static_cast<GLuint>(this->ProgramShader);
     if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed)
       {
       if(this->LastShade!=
          vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized)
         {
-        vtkgl::DetachShader(programShader,fs);
+        shaders->RemoveItem(this->Shade);
         }
       }
     else
@@ -6884,7 +6395,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
       if(this->LastShade==vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized
          || this->LastShade==vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed)
         {
-        vtkgl::AttachShader(programShader,fs);
+        shaders->AddItem(this->Shade);
         }
       const char *shadeCode;
       if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeYes)
@@ -6895,67 +6406,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(int parallelProjection,
         {
         shadeCode=vtkGPUVolumeRayCastMapper_NoShadeFS;
         }
-      vtkgl::ShaderSource(fs,1,const_cast<const char **>(&shadeCode),0);
-      vtkgl::CompileShader(fs);
-      this->CheckCompilation(this->FragmentShadeShader);
+      this->Shade->SetSourceCode(shadeCode);
       }
-    }
-
-  if(parallelProjection!=this->LastParallelProjection ||
-     raycastMethod!=this->LastRayCastMethod ||
-     croppingMode!=this->LastCroppingMode ||
-     componentMethod!=this->LastComponent ||
-     shadeMethod!=this->LastShade)
-    {
-    // need to re-link the program
-    this->LastParallelProjection=parallelProjection;
-    this->LastRayCastMethod=raycastMethod;
-    this->LastCroppingMode=croppingMode;
-    this->LastComponent=componentMethod;
     this->LastShade=shadeMethod;
-
-    vtkgl::LinkProgram(static_cast<GLuint>(this->ProgramShader));
     }
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Is the program shader valid in the current OpenGL state?
-// Debugging purpose only.
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::ValidateProgram()
-{
-  vtkgl::ValidateProgram(this->ProgramShader);
-
-  GLint params;
-  vtkgl::GetProgramiv(this->ProgramShader,
-                      vtkgl::VALIDATE_STATUS,&params);
-  if(params==GL_TRUE)
-    {
-    cout<<"In the current state the fragment program will succeed."<<endl;
-    }
-  else
-    {
-    cout<<"In the current state the fragment program will fail."<<endl;
-    }
-  vtkgl::GetProgramiv(this->ProgramShader,
-                      vtkgl::INFO_LOG_LENGTH,&params);
-
-  if(params>0)
-    {
-    char *buffer=new char[params];
-    vtkgl::GetProgramInfoLog(this->ProgramShader,params,0,buffer);
-    cout<<"validation log: "<<buffer<<endl;
-    cout<<"end of validation log"<<endl;
-    delete[] buffer;
-    }
-  else
-    {
-    cout<<"no validation log"<<endl;
-    }
-
 }
 
 //-----------------------------------------------------------------------------
