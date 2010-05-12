@@ -381,11 +381,8 @@ vtkVariant::vtkVariant(const vtkVariant &s2, unsigned int type)
       }
     }
 
-  if (valid)
-    {
-    this->Type = type;
-    this->Valid = valid;
-    }
+  this->Type = (valid ? type : 0);
+  this->Valid = valid;
 }
 
 const vtkVariant & vtkVariant::operator= (const vtkVariant & other)
