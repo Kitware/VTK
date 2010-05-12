@@ -1246,6 +1246,9 @@ PyObject *vtkPythonUtil::GetSpecialObjectFromPointer(
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
+  // Clear newobj, it will only be set if a new obj is created
+  *newobj = 0;
+
   // The type name, for diagnostics
   const char *object_type = obj->ob_type->tp_name;
 
