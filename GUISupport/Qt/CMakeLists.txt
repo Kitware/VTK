@@ -2,11 +2,13 @@
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
     vtkQtConnection.cxx
+    QVTKInteractor.cxx
     QVTKWidget.cxx
     )
 
 SET ( QVTKMocHeaders
-    QVTKWidget.h 
+    QVTKInteractor.h
+    QVTKWidget.h
     vtkQtConnection.h
     )
 

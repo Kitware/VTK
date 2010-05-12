@@ -34,14 +34,6 @@
 
 #include "QVTKWidget.h"
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-# include "vtkTDxWinDevice.h"
-#endif
-
-#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
-# include "vtkTDxMacDevice.h"
-#endif
-
 # include "QVTKPaintEngine.h"
 
 #include "qevent.h"
@@ -895,176 +887,183 @@ QPaintEngine* QVTKWidget::paintEngine() const
   return mPaintEngine;
 }
 
-class QVTKInteractorInternal : public QObject
-{
-public:
-  QVTKInteractorInternal(QObject* p)
-    : QObject(p)
-    {
-      this->SignalMapper = new QSignalMapper(this);
-    }
-  ~QVTKInteractorInternal()
-    {
-    }
-  QSignalMapper* SignalMapper;
-  typedef vtkstd::map<int, QTimer*> TimerMap;
-  TimerMap Timers;
-};
 
+// X11 stuff near the bottom of the file
+// to prevent namespace collisions with Qt headers
 
-/*! allocation method for Qt/VTK interactor
- */
-vtkStandardNewMacro(QVTKInteractor);
-
-/*! constructor for Qt/VTK interactor
- */
-QVTKInteractor::QVTKInteractor()
-{
-  this->Internal = new QVTKInteractorInternal(this);
-  QObject::connect(this->Internal->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)) );
-
-#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-  this->Device=vtkTDxWinDevice::New();
+#if defined Q_WS_X11
+#if defined(VTK_USE_OPENGL_LIBRARY)
+#include "vtkXOpenGLRenderWindow.h"
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
-  this->Device=vtkTDxMacDevice::New();
+#ifdef VTK_USE_MANGLED_MESA
+#include "vtkXMesaRenderWindow.h"
 #endif
-}
-  
-void QVTKInteractor::Initialize()
+#endif
+
+
+void QVTKWidget::x11_setup_window()
 {
-#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-  if(this->UseTDx)
+#if defined Q_WS_X11
+
+  // this whole function is to allow this window to have a
+  // different colormap and visual than the rest of the Qt application
+  // this is very important if Qt's default visual and colormap is
+  // not enough to get a decent graphics window
+
+
+  // save widget states
+  bool tracking = this->hasMouseTracking();
+  Qt::FocusPolicy focus_policy = focusPolicy();
+  bool visible = isVisible();
+  if(visible)
     {
-    // this is QWidget::winId();
-    HWND hWnd=static_cast<HWND>(this->GetRenderWindow()->GetGenericWindowId());
-    if(!this->Device->GetInitialized())
+    hide();
+    }
+
+
+  // get visual and colormap from VTK
+  XVisualInfo* vi = 0;
+  Colormap cmap = 0;
+  Display* display = reinterpret_cast<Display*>(mRenWin->GetGenericDisplayId());
+
+  // check ogl and mesa and get information we need to create a decent window
+#if defined(VTK_USE_OPENGL_LIBRARY)
+  vtkXOpenGLRenderWindow* ogl_win = vtkXOpenGLRenderWindow::SafeDownCast(mRenWin);
+  if(ogl_win)
+    {
+    vi = ogl_win->GetDesiredVisualInfo();
+    cmap = ogl_win->GetDesiredColormap();
+    }
+#endif
+#ifdef VTK_USE_MANGLED_MESA
+  if(!vi)
+    {
+    vtkXMesaRenderWindow* mgl_win = vtkXMesaRenderWindow::SafeDownCast(mRenWin);
+    if(mgl_win)
       {
-      this->Device->SetInteractor(this);
-      this->Device->SetWindowHandle(hWnd);
-      this->Device->Initialize();
+      vi = mgl_win->GetDesiredVisualInfo();
+      cmap = mgl_win->GetDesiredColormap();
       }
     }
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
-  if(this->UseTDx)
+
+  // can't get visual, oh well.
+  // continue with Qt's default visual as it usually works
+  if(!vi)
     {
-    if(!this->Device->GetInitialized())
+    if(visible)
       {
-      this->Device->SetInteractor(this);
-      // Do not initialize the device here.
+      show();
       }
-    }
-#endif
-  this->Initialized = 1;
-  this->Enable();
-}
-
-
-/*! start method for interactor
- */
-void QVTKInteractor::Start()
-{
-  vtkErrorMacro(<<"QVTKInteractor cannot control the event loop.");
-}
-
-/*! terminate the application
- */
-void QVTKInteractor::TerminateApp()
-{
-  // we are in a GUI so let's terminate the GUI the normal way
-  //qApp->exit();
-}
-
-// ----------------------------------------------------------------------------
-void QVTKInteractor::StartListening()
-{
-#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-  if(this->Device->GetInitialized() && !this->Device->GetIsListening())
-    {
-    this->Device->StartListening();
-    }
-#endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
-  if(this->UseTDx && !this->Device->GetInitialized())
-    {
-    this->Device->Initialize();
-    }
-#endif
-}
-
-// ----------------------------------------------------------------------------
-void QVTKInteractor::StopListening()
-{
-#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-  if(this->Device->GetInitialized() && this->Device->GetIsListening())
-    {
-    this->Device->StopListening();
-    }
-#endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
-  if(this->UseTDx && this->Device->GetInitialized())
-    {
-    this->Device->Close();
-    }
-#endif
-}
-
-
-/*! handle timer event
- */
-void QVTKInteractor::TimerEvent(int timerId)
-{
-  if ( !this->GetEnabled() ) 
-    {
     return;
     }
-  this->InvokeEvent(vtkCommand::TimerEvent, (void*)&timerId);
 
-  if(this->IsOneShotTimer(timerId))
+  // create the X window based on information VTK gave us
+  XSetWindowAttributes attrib;
+  attrib.colormap = cmap;
+  attrib.border_pixel = 0;
+  attrib.background_pixel = 0;
+
+  Window p = RootWindow(display, DefaultScreen(display));
+  if(parentWidget())
     {
-    this->DestroyTimer(timerId);  // 'cause our Qt timers are always repeating
+    p = parentWidget()->winId();
     }
-}
 
-/*! constructor
- */
-QVTKInteractor::~QVTKInteractor()
-{
-#if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
-  this->Device->Delete();
-#endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
-  this->Device->Delete();
-#endif
-}
+  XWindowAttributes a;
+  XGetWindowAttributes(display, this->winId(), &a);
 
-/*! create Qt timer with an interval of 10 msec.
- */
-int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), unsigned long duration)
-{
-  QTimer* timer = new QTimer(this);
-  timer->start(duration);
-  this->Internal->SignalMapper->setMapping(timer, timerId);
-  QObject::connect(timer, SIGNAL(timeout()), this->Internal->SignalMapper, SLOT(map()));
-  int platformTimerId = timer->timerId();
-  this->Internal->Timers.insert(QVTKInteractorInternal::TimerMap::value_type(platformTimerId, timer));
-  return platformTimerId;
-}
+  Window win = XCreateWindow(display, p, a.x, a.y, a.width, a.height,
+                             0, vi->depth, InputOutput, vi->visual,
+                             CWBackPixel|CWBorderPixel|CWColormap, &attrib);
 
-/*! destroy timer
- */
-int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
-{
-  QVTKInteractorInternal::TimerMap::iterator iter = this->Internal->Timers.find(platformTimerId);
-  if(iter != this->Internal->Timers.end())
+  // backup colormap stuff
+  Window *cmw;
+  Window *cmwret;
+  int count;
+  if ( XGetWMColormapWindows(display, topLevelWidget()->winId(), &cmwret, &count) )
     {
-    iter->second->stop();
-    iter->second->deleteLater();
-    this->Internal->Timers.erase(iter);
-    return 1;
+    cmw = new Window[count+1];
+    memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
+    XFree( (char *)cmwret );
+    int i;
+    for ( i=0; i<count; i++ )
+      {
+      if ( cmw[i] == winId() )
+        {
+        cmw[i] = win;
+        break;
+        }
+      }
+    if ( i >= count )
+      {
+      cmw[count++] = win;
+      }
     }
-  return 0;
+  else
+    {
+    count = 1;
+    cmw = new Window[count];
+    cmw[0] = win;
+    }
+
+
+  // tell Qt to initialize anything it needs to for this window
+  create(win);
+
+  // restore colormaps
+  XSetWMColormapWindows( display, topLevelWidget()->winId(), cmw, count );
+
+  delete [] cmw;
+  XFree(vi);
+
+  XFlush(display);
+
+  // restore widget states
+  this->setMouseTracking(tracking);
+  this->setAttribute(Qt::WA_NoBackground);
+  this->setAttribute(Qt::WA_PaintOnScreen);
+  this->setFocusPolicy(focus_policy);
+  if(visible)
+    {
+    show();
+    }
+
+#endif
+}
+
+#if defined (QVTK_USE_CARBON)
+OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, void* wid)
+{
+  QVTKWidget* widget = reinterpret_cast<QVTKWidget*>(wid);
+  UInt32 event_kind = GetEventKind(event);
+  UInt32 event_class = GetEventClass(event);
+  if((event_class == 'cute' || event_class == 'Cute') && event_kind == 20)
+    {
+    static_cast<vtkCarbonRenderWindow*>(widget->GetRenderWindow())->UpdateGLRegion();
+    }
+  return eventNotHandledErr;
+}
+
+#endif
+
+
+static void dirty_cache(vtkObject *caller, unsigned long,
+                        void *clientdata, void *)
+{
+  QVTKWidget *widget = reinterpret_cast<QVTKWidget *>(clientdata);
+  widget->markCachedImageAsDirty();
+
+  vtkRenderWindow *renwin = vtkRenderWindow::SafeDownCast(caller);
+  if (renwin)
+    {
+    if (   widget->isAutomaticImageCacheEnabled()
+           && (  renwin->GetDesiredUpdateRate()
+                 < widget->maxRenderRateForImageCache() ) )
+      {
+      widget->saveImageToCache();
+      }
+    }
 }
 
 
@@ -1219,185 +1218,5 @@ const char* qt_key_to_key_sym(Qt::Key i)
     break;
     }
   return ret;
-}
-
-
-
-
-// X11 stuff near the bottom of the file
-// to prevent namespace collisions with Qt headers
-
-#if defined Q_WS_X11
-#if defined(VTK_USE_OPENGL_LIBRARY)
-#include "vtkXOpenGLRenderWindow.h"
-#endif
-#ifdef VTK_USE_MANGLED_MESA
-#include "vtkXMesaRenderWindow.h"
-#endif
-#endif
-
-
-void QVTKWidget::x11_setup_window()
-{
-#if defined Q_WS_X11
-
-  // this whole function is to allow this window to have a 
-  // different colormap and visual than the rest of the Qt application
-  // this is very important if Qt's default visual and colormap is
-  // not enough to get a decent graphics window
-  
-  
-  // save widget states
-  bool tracking = this->hasMouseTracking();       
-  Qt::FocusPolicy focus_policy = focusPolicy();
-  bool visible = isVisible();
-  if(visible)
-    {
-    hide();
-    }
-
-  
-  // get visual and colormap from VTK
-  XVisualInfo* vi = 0;
-  Colormap cmap = 0;
-  Display* display = reinterpret_cast<Display*>(mRenWin->GetGenericDisplayId());
-
-  // check ogl and mesa and get information we need to create a decent window
-#if defined(VTK_USE_OPENGL_LIBRARY)
-  vtkXOpenGLRenderWindow* ogl_win = vtkXOpenGLRenderWindow::SafeDownCast(mRenWin);
-  if(ogl_win)
-    {
-    vi = ogl_win->GetDesiredVisualInfo();
-    cmap = ogl_win->GetDesiredColormap();
-    }
-#endif
-#ifdef VTK_USE_MANGLED_MESA
-  if(!vi)
-    {
-    vtkXMesaRenderWindow* mgl_win = vtkXMesaRenderWindow::SafeDownCast(mRenWin);
-    if(mgl_win)
-      {
-      vi = mgl_win->GetDesiredVisualInfo();
-      cmap = mgl_win->GetDesiredColormap();
-      }
-    }
-#endif
-  
-  // can't get visual, oh well.
-  // continue with Qt's default visual as it usually works
-  if(!vi)
-    {
-    if(visible)
-      {
-      show();
-      }
-    return;
-    }
-
-  // create the X window based on information VTK gave us
-  XSetWindowAttributes attrib;
-  attrib.colormap = cmap;
-  attrib.border_pixel = 0;
-  attrib.background_pixel = 0;
-
-  Window p = RootWindow(display, DefaultScreen(display));
-  if(parentWidget())
-    {
-    p = parentWidget()->winId();
-    }
-
-  XWindowAttributes a;
-  XGetWindowAttributes(display, this->winId(), &a);
-
-  Window win = XCreateWindow(display, p, a.x, a.y, a.width, a.height,
-                             0, vi->depth, InputOutput, vi->visual,
-                             CWBackPixel|CWBorderPixel|CWColormap, &attrib);
-  
-  // backup colormap stuff
-  Window *cmw;
-  Window *cmwret;
-  int count;
-  if ( XGetWMColormapWindows(display, topLevelWidget()->winId(), &cmwret, &count) )
-    {
-    cmw = new Window[count+1];
-    memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
-    XFree( (char *)cmwret );
-    int i;
-    for ( i=0; i<count; i++ ) 
-      {
-      if ( cmw[i] == winId() ) 
-        {
-        cmw[i] = win;
-        break;
-        }
-      }
-    if ( i >= count )
-      {
-      cmw[count++] = win;
-      }
-    } 
-  else 
-    {
-    count = 1;
-    cmw = new Window[count];
-    cmw[0] = win;
-    }
-
-
-  // tell Qt to initialize anything it needs to for this window
-  create(win);
-    
-  // restore colormaps
-  XSetWMColormapWindows( display, topLevelWidget()->winId(), cmw, count );
-
-  delete [] cmw;
-  XFree(vi);
-  
-  XFlush(display);
-
-  // restore widget states
-  this->setMouseTracking(tracking);
-  this->setAttribute(Qt::WA_NoBackground);
-  this->setAttribute(Qt::WA_PaintOnScreen);
-  this->setFocusPolicy(focus_policy);
-  if(visible)
-    {
-    show();
-    }
-
-#endif
-}
-
-#if defined (QVTK_USE_CARBON)
-OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, void* wid)
-{
-  QVTKWidget* widget = reinterpret_cast<QVTKWidget*>(wid);
-  UInt32 event_kind = GetEventKind(event);
-  UInt32 event_class = GetEventClass(event);
-  if((event_class == 'cute' || event_class == 'Cute') && event_kind == 20)
-    {
-    static_cast<vtkCarbonRenderWindow*>(widget->GetRenderWindow())->UpdateGLRegion();
-    }
-  return eventNotHandledErr;
-}
-
-#endif
-
-static void dirty_cache(vtkObject *caller, unsigned long,
-                        void *clientdata, void *)
-{
-  QVTKWidget *widget = reinterpret_cast<QVTKWidget *>(clientdata);
-  widget->markCachedImageAsDirty();
-
-  vtkRenderWindow *renwin = vtkRenderWindow::SafeDownCast(caller);
-  if (renwin)
-    {
-    if (   widget->isAutomaticImageCacheEnabled()
-           && (  renwin->GetDesiredUpdateRate()
-                 < widget->maxRenderRateForImageCache() ) )
-      {
-      widget->saveImageToCache();
-      }
-    }
 }
 
