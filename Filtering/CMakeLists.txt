@@ -170,7 +170,6 @@ vtkPolyDataCollection.cxx
 vtkPolyData.cxx
 vtkPolyDataSource.cxx
 vtkPolyDataToPolyDataFilter.cxx
-vtkPolyDataToReebGraphFilter.cxx
 vtkPolygon.cxx
 vtkPolyhedron.cxx
 vtkPolyLine.cxx
@@ -193,8 +192,6 @@ vtkRectilinearGrid.cxx
 vtkRectilinearGridSource.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
 vtkReebGraph.cxx
-vtkReebGraphToGraphFilter.cxx
-vtkReebGraphToReebGraphPersistenceFilter.cxx
 vtkScalarTree.cxx
 vtkSelectionAlgorithm.cxx
 vtkSelection.cxx
@@ -241,7 +238,6 @@ vtkUnstructuredGridAlgorithm.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
-vtkUnstructuredGridToReebGraphFilter.cxx
 vtkUnstructuredGridToUnstructuredGridFilter.cxx
 vtkVertex.cxx
 vtkVertexListIterator.cxx

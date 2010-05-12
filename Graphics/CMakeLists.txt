@@ -181,6 +181,7 @@ vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataPointSampler.cxx
 vtkPolyDataStreamer.cxx
+vtkPolyDataToReebGraphFilter.cxx
 vtkProbeFilter.cxx
 vtkProbePolyhedron.cxx
 vtkProbeSelectedLocations.cxx
@@ -204,6 +205,8 @@ vtkRectilinearGridGeometryFilter.cxx
 vtkRectilinearGridToTetrahedra.cxx
 vtkRectilinearSynchronizedTemplates.cxx
 vtkRecursiveDividingCubes.cxx
+vtkReebGraphToGraphFilter.cxx
+vtkReebGraphToReebGraphPersistenceFilter.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx
 vtkReverseSense.cxx
@@ -268,6 +271,7 @@ vtkTriangularTCoords.cxx
 vtkTubeFilter.cxx
 vtkUncertaintyTubeFilter.cxx
 vtkUnstructuredGridGeometryFilter.cxx
+vtkUnstructuredGridToReebGraphFilter.cxx
 vtkVectorDot.cxx
 vtkVectorNorm.cxx
 vtkVertexGlyphFilter.cxx
