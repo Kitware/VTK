@@ -63,56 +63,56 @@ vtkReebGraph* vtkPolyDataToReebGraphFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToReebGraphFilter::RequestDataObject(vtkInformation *request,
-                                            vtkInformationVector **inputVector,
-                                            vtkInformationVector *outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
-    {
-    return 0;
-    }
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkPolyData::DATA_OBJECT()));
-
-  if (input)
-    {
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    vtkReebGraph *output = (vtkReebGraph *)
-      outInfo->Get(vtkReebGraph::DATA_OBJECT());
-
-    if(!output){
-      output = vtkReebGraph::New();
-      output->SetPipelineInformation(outInfo);
-    }
-    return 1;
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 int vtkPolyDataToReebGraphFilter::RequestData(vtkInformation*,
                                     vtkInformationVector** inputVector,
                                     vtkInformationVector* outputVector)
 {
 
-  vtkInformation *mInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation  *inInfo = inputVector[0]->GetInformationObject(0);
 
-  // get the input and output
-  vtkPolyData *mesh = vtkPolyData::SafeDownCast(
-                                  mInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if(!inInfo)
+    {
+    return 0;
+    }
 
-  vtkReebGraph *rg = vtkReebGraph::SafeDownCast(
-                                  outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkPolyData::DATA_OBJECT()));
 
-  if(rg->Build(mesh, FieldId)){
-    vtkElevationFilter *f = vtkElevationFilter::New();
-    f->SetInput(mesh);
-    f->Update();
-    vtkPolyData *elevatedMesh = (vtkPolyData *) f->GetOutput();
-    rg->Build(elevatedMesh, "Elevation");
-  }
+  if(input)
+    {
+    vtkInformation  *outInfo = outputVector->GetInformationObject(0);
+    vtkReebGraph    *output = vtkReebGraph::SafeDownCast(
+      outInfo->Get(vtkReebGraph::DATA_OBJECT()));
 
-  return 1;
+    // check for the presence of a scalar field
+    vtkDataArray    *scalarField = input->GetPointData()->GetArray(FieldId);
+    vtkPolyData *newInput = NULL;
+    if(!scalarField)
+      {
+      vtkElevationFilter *eFilter = vtkElevationFilter::New();
+      eFilter->SetInput(input);
+      eFilter->Update();
+      newInput = vtkPolyData::SafeDownCast(eFilter->GetOutput());
+      }
+
+    if(output)
+      {
+      if(scalarField) output->Build(input, FieldId);
+      else output->Build(newInput, "Elevation");
+      }
+    else
+      {
+      output = vtkReebGraph::New();
+      if(scalarField) output->Build(input, FieldId);
+      else output->Build(newInput, "Elevation");
+      output->SetPipelineInformation(outInfo);
+      output->Delete();
+      }
+
+    if(!scalarField) newInput->Delete();
+
+    return 1;
+    }
+
+  return 0;
 }

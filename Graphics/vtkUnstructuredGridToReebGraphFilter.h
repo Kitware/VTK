@@ -23,25 +23,22 @@
 #ifndef __vtkUnstructuredGridToReebGraphFilter_h
 #define __vtkUnstructuredGridToReebGraphFilter_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkReebGraph.h"
 
-class VTK_FILTERING_EXPORT vtkUnstructuredGridToReebGraphFilter :
-  public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkUnstructuredGridToReebGraphFilter :
+  public vtkDataObjectAlgorithm
 {
 public:
   static vtkUnstructuredGridToReebGraphFilter* New();
   vtkTypeRevisionMacro(vtkUnstructuredGridToReebGraphFilter,
-    vtkDataSetAlgorithm);
+    vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the scalar field id (default = 0).
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
-
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
 
   vtkReebGraph* GetOutput();
 
@@ -52,13 +49,12 @@ protected:
 
   int FieldId;
 
+  int FillInputPortInformation(int portNumber, vtkInformation *);
+  int FillOutputPortInformation(int, vtkInformation *);
+
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
                   vtkInformationVector*);
-
-  int RequestDataObject(vtkInformation *request,
-                        vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
 
 private:
   vtkUnstructuredGridToReebGraphFilter(

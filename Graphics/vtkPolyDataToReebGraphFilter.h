@@ -23,24 +23,21 @@
 #ifndef __vtkPolyDataToReebGraphFilter_h
 #define __vtkPolyDataToReebGraphFilter_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkReebGraph.h"
 
-class VTK_FILTERING_EXPORT vtkPolyDataToReebGraphFilter :
-  public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkPolyDataToReebGraphFilter :
+  public vtkDataObjectAlgorithm
 {
 public:
   static vtkPolyDataToReebGraphFilter* New();
-  vtkTypeRevisionMacro(vtkPolyDataToReebGraphFilter, vtkDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkPolyDataToReebGraphFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the scalar field id (default = 0).
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
-
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
 
   vtkReebGraph* GetOutput();
 
@@ -51,13 +48,12 @@ protected:
 
   int FieldId;
 
+  int FillInputPortInformation(int portNumber, vtkInformation *);
+  int FillOutputPortInformation(int, vtkInformation *);
+
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
                   vtkInformationVector*);
-
-  int RequestDataObject(vtkInformation *request,
-                        vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
 
 private:
   vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&);
