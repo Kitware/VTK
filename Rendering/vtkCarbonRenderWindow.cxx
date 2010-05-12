@@ -430,6 +430,12 @@ void vtkCarbonRenderWindow::SetForceMakeCurrent()
 }
 
 // --------------------------------------------------------------------------
+int vtkCarbonRenderWindow::IsDirect()
+{
+  return 1;
+}
+
+// --------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetSize(int a[2])
 {
   this->SetSize(a[0], a[1]);
