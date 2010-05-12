@@ -16,6 +16,7 @@
 
 #include  "vtkInformation.h"
 #include  "vtkInformationVector.h"
+#include  "vtkReebGraph.h"
 
 vtkCxxRevisionMacro(vtkReebGraphToGraphFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphToGraphFilter);
@@ -41,14 +42,6 @@ int vtkReebGraphToGraphFilter::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToGraphFilter::FillOutputPortInformation(
-  int, vtkInformation *info)
-{
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMutableDirectedGraph");
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 void vtkReebGraphToGraphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -61,38 +54,37 @@ vtkMutableDirectedGraph* vtkReebGraphToGraphFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToGraphFilter::RequestDataObject(vtkInformation *request,
-                                            vtkInformationVector **inputVector,
-                                            vtkInformationVector *outputVector)
+int vtkReebGraphToGraphFilter::RequestData(vtkInformation *request,
+  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
     {
     return 0;
     }
+
   vtkReebGraph *input = vtkReebGraph::SafeDownCast(
     inInfo->Get(vtkReebGraph::DATA_OBJECT()));
 
   if (input)
     {
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    vtkMutableDirectedGraph *output = (vtkMutableDirectedGraph *)
-      outInfo->Get(vtkMutableDirectedGraph::DATA_OBJECT());
+    vtkMutableDirectedGraph *output =
+      vtkMutableDirectedGraph::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-    if(!output){
-      output = input->GetVtkGraph();
-      /*vtkMutableDirectedGraph *rG = input->GetVtkGraph();
+    if(output)
+      {
+      output->ShallowCopy(input->GetVtkGraph());
+      }
+    else
+      {
       output = vtkMutableDirectedGraph::New();
-      output->CopyStructure(rG);
-      output->GetVertexData()->PassData(rG->GetVertexData());
-      output->GetEdgeData()->PassData(rG->GetEdgeData());*/
+      output->ShallowCopy(input->GetVtkGraph());
       output->SetPipelineInformation(outInfo);
-
-      cout << "vtkGraph (inside filter):  vD: " << output->GetVertexData()
-        << ", eD: " << output->GetEdgeData()
-        << ", vAnB: " << output->GetVertexData()->GetNumberOfArrays()
-        << endl;
-    }
+      output->Delete();
+      }
     return 1;
     }
   return 0;

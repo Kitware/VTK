@@ -21,22 +21,17 @@
 #ifndef __vtkReebGraphToGraphFilter_h
 #define __vtkReebGraphToGraphFilter_h
 
-#include "vtkDataSetAlgorithm.h"
-#include "vtkMutableDirectedGraph.h"
-#include "vtkReebGraph.h"
-#include "vtkSmartPointer.h"
+#include  "vtkDirectedGraphAlgorithm.h"
+#include  "vtkMutableDirectedGraph.h"
 
 class VTK_FILTERING_EXPORT vtkReebGraphToGraphFilter :
-  public vtkDataSetAlgorithm
+  public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkReebGraphToGraphFilter* New();
   vtkTypeRevisionMacro(vtkReebGraphToGraphFilter,
-    vtkDataSetAlgorithm);
+    vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
 
   vtkMutableDirectedGraph* GetOutput();
 
@@ -44,9 +39,10 @@ protected:
   vtkReebGraphToGraphFilter();
   ~vtkReebGraphToGraphFilter();
 
-  int RequestDataObject(vtkInformation *request,
-                        vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+  int FillInputPortInformation(int portNumber, vtkInformation *);
+
+  int RequestData(vtkInformation *request,
+    vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
   vtkReebGraphToGraphFilter(
