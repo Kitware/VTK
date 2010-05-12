@@ -21,17 +21,16 @@
 #ifndef __vtkReebGraphToReebGraphPersistenceFilter_h
 #define __vtkReebGraphToReebGraphPersistenceFilter_h
 
-#include "vtkDataSetAlgorithm.h"
-#include "vtkMutableDirectedGraph.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkReebGraph.h"
 
-class VTK_FILTERING_EXPORT vtkReebGraphToReebGraphPersistenceFilter :
-  public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkReebGraphToReebGraphPersistenceFilter :
+  public vtkDataObjectAlgorithm
 {
 public:
   static vtkReebGraphToReebGraphPersistenceFilter* New();
   vtkTypeRevisionMacro(vtkReebGraphToReebGraphPersistenceFilter,
-    vtkDataSetAlgorithm);
+    vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -39,9 +38,6 @@ public:
   // Default value: 0 (no simplification).
   vtkSetMacro(PersistenceThreshold, double);
   vtkGetMacro(PersistenceThreshold, double);
-
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
 
   vtkReebGraph* GetOutput();
 
@@ -51,9 +47,11 @@ protected:
 
   double PersistenceThreshold;
 
-  int RequestDataObject(vtkInformation *request,
-                        vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector);
+  int FillInputPortInformation(int portNumber, vtkInformation *);
+  int FillOutputPortInformation(int, vtkInformation *);
+
+  int RequestData(vtkInformation *request,
+    vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
   vtkReebGraphToReebGraphPersistenceFilter(

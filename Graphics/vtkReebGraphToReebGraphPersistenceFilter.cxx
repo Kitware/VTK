@@ -36,8 +36,10 @@ vtkReebGraphToReebGraphPersistenceFilter::~vtkReebGraphToReebGraphPersistenceFil
 int vtkReebGraphToReebGraphPersistenceFilter::FillInputPortInformation(
   int portNumber, vtkInformation *info)
 {
-  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkReebGraph");
+  if(!portNumber){
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkReebGraph");
+  }
   return 1;
 }
 
@@ -62,12 +64,13 @@ vtkReebGraph* vtkReebGraphToReebGraphPersistenceFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToReebGraphPersistenceFilter::RequestDataObject(
-                                            vtkInformation *request,
-                                            vtkInformationVector **inputVector,
-                                            vtkInformationVector *outputVector)
+int vtkReebGraphToReebGraphPersistenceFilter::RequestData(
+  vtkInformation *request, vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+
   if (!inInfo)
     {
     return 0;
@@ -81,10 +84,17 @@ int vtkReebGraphToReebGraphPersistenceFilter::RequestDataObject(
     vtkReebGraph *output = vtkReebGraph::SafeDownCast(
       outInfo->Get(vtkReebGraph::DATA_OBJECT()));
 
+    if(output){
+      output->DeepCopy(input);
+      output->FilterByPersistence(this->PersistenceThreshold);
+    }
+
     if(!output){
-      output = input->Clone();
+      output = vtkReebGraph::New();
+      output->DeepCopy(input);
       output->FilterByPersistence(this->PersistenceThreshold);
       output->SetPipelineInformation(outInfo);
+      output->Delete();
     }
 
     return 1;
