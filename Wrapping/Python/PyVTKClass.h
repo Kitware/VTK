@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-----------------------------------------------------------------------
+  The PyVTKClass was created in Oct 2000 by David Gobbi for VTK 3.2.
+-----------------------------------------------------------------------*/
 
 #ifndef __PyVTKClass_h
 #define __PyVTKClass_h

@@ -12,6 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-----------------------------------------------------------------------
+  The PyVTKClass was created in Oct 2000 by David Gobbi for VTK 3.2.
+  The PyVTKClassMetaType was created in Jan 2002 by David Gobbi.
+
+  A PyVTKClass is a python object that represents a VTK class.
+  It is a callable object, and calling it will result in the
+  creation of a PyVTKObject of the class.  All of the class methods
+  are stored in the __dict__ of the PyVTKClass.
+
+  The PyVTKClassMetaType allows subclassing of a PyVTKClass within
+  python.  Like PyVTKClass, PyVTKClassMetaType is also a callable
+  object, and calling it will produce a new PyVTKClass.  This
+  underlying mechanism is hidden from the user, who will just use
+  the usual "class vtkMyReader(vtk.vtkImageReader):" syntax.
+-----------------------------------------------------------------------*/
 
 #include "PyVTKClass.h"
 #include "vtkPythonUtil.h"

@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-----------------------------------------------------------------------
+  The PyVTKSpecialObject was created in Feb 2001 by David Gobbi.
+  The PyVTKSpecialType class was created in April 2010 by David Gobbi.
+-----------------------------------------------------------------------*/
 
 #ifndef __PyVTKSpecialObject_h
 #define __PyVTKSpecialObject_h

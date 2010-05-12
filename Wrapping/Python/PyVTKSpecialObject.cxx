@@ -12,6 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-----------------------------------------------------------------------
+  The PyVTKSpecialObject was created in Feb 2001 by David Gobbi.
+  It was substantially updated in April 2010 by David Gobbi.
+
+  A PyVTKSpecialObject is a python object that represents an object
+  that belongs to one of the special classes in VTK, that is, classes
+  that are not derived from vtkObjectBase.  Unlike vtkObjects, these
+  special objects are not reference counted: a PyVTKSpecialObject
+  always contains its own copy of the C++ object.
+
+  A PyVTKSpecialType is a simple structure that contains information
+  about the C++ class, including the class name and methods.  Each
+  PyVTKSpecialObject contains a pointer to its PyVTKSpecialType.
+  The use of PyVTKSpecialType is a bit of a cop-out.  Ideally, each
+  special type should have its own PyTypeObject struct that defines
+  it as a distinct sub-type of PyVTKSpecialObjectType.  This would
+  allow different special types to support different protocols and
+  behaviours, instead of just supporting different methods.
+-----------------------------------------------------------------------*/
 
 #include "PyVTKSpecialObject.h"
 #include "vtkPythonUtil.h"

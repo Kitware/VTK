@@ -1,7 +1,7 @@
 Notes on the Python Wrappers for VTK
 
-Latest Revision: Dec 19, 2002
-Refers to VTK version 4.2
+First version by David Gobbi: Dec 19, 2002
+Updated May 11, 2010 for VTK 6.0
 
 Abstract:
 =========
@@ -69,8 +69,10 @@ And perhaps one of the most pleasant features of Python is that all
 type-checking is performed at run time, so the type casts that are
 often necessary in VTK-C++ are never needed in VTK-Python.
 
-Finally, a C++ method that requires a void * can be passed a Python
-string.  No check is done to ensure that the string is the correct
+Finally, a C++ method that requires a void * can be passed any
+any python object that supports the "buffer" protocol, which
+include string objects, numpy arrays and even VTK arrays.
+No check is done to ensure that the string is the correct
 size, and the string's reference count is not incremented.  Extreme
 caution should be applied when using this feature.
 
@@ -79,12 +81,15 @@ Unavailable methods
 -------------------
 
 A method is not wrapped if
-1) its parameter list contains a pointer/reference that is not a
-   pointer/reference to a vtkObject
-2) its parameter list contains a multidimensional array
-3) it returns a pointer/reference that is not a pointer/reference
-   to a vtkObject and there is no entry in hints file
-4) it is an operator method (there should not be any of these in VTK)
+1) its parameter list contains a pointer that isn't a vtkObject
+   pointer, char pointer, or void pointer
+2) its parameter list contains a reference that isn't a reference to
+   a special vtk type like vtkVariant
+3) its parameter list contains a multidimensional array
+4) it returns a pointer that is not a vtkObject pointer, char pointer,
+   or void pointer, unless the method has an entry in the wrapping
+   hints file
+5) it is an operator method
 
 
 Unavailable classes
@@ -103,9 +108,7 @@ by the vtkObject::Print() method (i.e. the values of all instance variables)
 The same information is provided by calling str(obj).  A more compact
 representation of the object is available by calling repr(obj)
 
-  repr(obj)  ->  '<vtkclass libVTKCommonPython.vtkObject at 100c8d48>'
-
-(under Windows (TM), 'libVTKCommonPython' is replaced by 'vtkpython').
+  repr(obj)  ->  '(vtkFloatArray)0x100c8d48'
 
 
 Built-in documentation
@@ -116,29 +119,29 @@ in the html man pages is also available through python.
 
 If you want to see what methods are available for a class, use e.g.
 
->>> dir(vtkActor)
+>>> dir(vtk.vtkActor)
 
 to get a list of all the methods defined in vtkActor.h or if you also
 want a listing of all method defined for vtkActor and its superclasses
 
->>> a = vtkActor()
+>>> a = vtk.vtkActor()
 >>> dir(a)
 
 will print a very long list of all the methods for object 'a'.
 
 
-Using the 'pydoc' module (part of the standard python library) you
-can also retrieve documentation about VTK classes and methods:
+You can also retrieve documentation about VTK classes and methods
+from the built-in "docstrings":
 
->>> import pydoc
->>> pydoc.doc(vtkActor)
+>>> help(vtk.vtkActor)
+>>> help(vtk.vtkActor.SetUserTransform)
 [ lots of info printed, try it yourself]
 
 For the method documentation, all the different 'signatures' for the
 method are given in both Python and in the original C++ format before
 the documentation itself is given.
 
->>> pydoc.doc(vtkActor.SetPosition)
+>>> help(vtkActor.SetPosition)
 Python Library Documentation: built-in function SetPosition
 
 SetPosition(...)
@@ -229,6 +232,48 @@ than a new wrapper being created.  If you want to use this feature
 of vtkpython, please think twice.
 
 
+Special VTK types
+===================
+
+In addition to VTK objects that are derived from vtkObjectBase, there
+are many lightweight types in VTK such as vtkTimeStamp or vtkVariant.
+These types are wrapped in different way from vtkObject-based types.
+The main difference is that instead of python maintaining a "reference"
+to these objects, python makes its own copy of the object.
+
+
+Automatic conversion
+--------------------
+
+These special types can have several constructors, and the constructors
+can be used for automatic type conversion for VTK methods.  For
+example, vtkVariantArray has a method InsertNextItem(vtkVariant v), and
+vtkVariant has a constructor vtkVariant(int x).  So, you can do this:
+
+>>> variantArray.InsertNextItem(1)
+
+The wrappers will automatically construct a vtkVariant from "1", and
+will then pass it as a parameter to InsertNextItem.
+
+
+Comparison and mapping
+----------------------
+
+Some special types can be sorted by value, and some can be used as
+dict keys.  Sorting requires the existence of comparison operators
+such as "< <= == != > >=" and these are not automatically wrapped.
+The use of an object as a dict key requires the computation of a
+hash.  Comparison and hashing are supported by vtkVariant and
+vtkTimeStamp, but will by supported by other types on a case-by-case
+basis.
+
+The reason that all vtkObjects can be easily hashed, while vtk
+special types are hard to hash, is that vtkObjects are hashed
+by memory address.  This cannot be done for special types, since
+they must be hashed by value, not by address.  I.e. vtkVariant(1)
+must hash equal to every other vtkVariant(1).
+
+
 Special attributes available from VTK-Python
 ============================================
 
@@ -237,8 +282,6 @@ Special vtkobject attributes:
 
  o.__class__     the vtkclass that this object is an instance of
  o.__doc__       a description of the class (obtained from C++ header file)
- o.__methods__   list of all methods of this object
- o.__members__   list of all attributes of this object
  o.__this__      a string containing the address of the VTK object
 
 
@@ -253,10 +296,7 @@ Special vtkclass attributes:
 
  c.__bases__     a tuple of base classes for this class (empty for vtkObject)
  c.__doc__       a description of the class (obtained from C++ header file)
- c.__methods__   methods of this class (not including inherited methods)
- c.__members__   list of all attributes of this class
  c.__name__      the name of the class, same as returned by GetClassName()
-
 
 
 END OF FILE

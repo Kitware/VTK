@@ -276,18 +276,18 @@ in the form of Debian, RPM and other packages.
      Prior to VTK-5.0 this was not the case.
 
   3. VTK-Python has two components.  The ``libvtk*PythonD.so.*`` (or
-     ``vtk*PythonD.dll``) files should be treated as libraries and
-     *not* as Python extension modules.  Only the
-     ``libvtk*Python.so`` (or ``vtk*Python.dll``) files are Python
-     extension modules.  These extension modules are linked to the
+     ``vtk*PythonD.dll``) files and ``libvtkPythonCore.so.*'' should
+     be treated as libraries and *not* as Python extension modules.
+     Only the ``libvtk*Python.so`` (or ``vtk*Python.dll``) files are
+     Python extension modules.  These extension modules link to the
      `PythonD.so` libraries.
 
-     Therefore, the ``libvtk*PythonD.so*`` files should be installed
-     somewhere in the linkers path (for example in `\usr\lib`).
-     Under Windows these should be installed in a directory that is
-     in the `PATH`.  The Python extension modules should be
-     installed via the `setup.py` file inside the `vtk` package.
-     Typically these should be installed to
+     Therefore, ``libvtkPythonCore.so*'' and all ``libvtk*PythonD.so*``
+     files should be installed somewhere in the linkers path (for
+     example in `\usr\lib`).  Under Windows these should be installed
+     in a directory that is in the `PATH`.  The Python extension modules
+     should be  installed via the `setup.py` file inside the `vtk`
+     package.  Typically these should be installed to
      `/usr/lib/pythonX.Y/site-packages/vtk` (or
      `PythonX.Y\Lib\site-packages\vtk`).
 

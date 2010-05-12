@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*-----------------------------------------------------------------------
+  The PyVTKObject was created in Oct 2000 by David Gobbi for VTK 3.2.
+-----------------------------------------------------------------------*/
 
 #ifndef __PyVTKObject_h
 #define __PyVTKObject_h
