@@ -151,11 +151,11 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
   // Draw points without our shader code
   for (int i = 0; i < 8; ++i)
     {
-    float pos[] = { 50, i*25+5 };
+    float pos[] = { 50.0f, static_cast<float>(i)*25.0f+5.0f };
     painter->GetPen()->SetColor(255,
                                 static_cast<unsigned char>(float(i)*35.0),
                                 0);
-    painter->GetPen()->SetWidth(i*5+1);
+    painter->GetPen()->SetWidth(static_cast<float>(i)*5.0f+1.0f);
     painter->DrawPointSprites(0, pos, 1);
     }
 
@@ -164,11 +164,11 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
   this->program->Use();
   for (int i = 0; i < 8; ++i)
     {
-    float pos[] = { 100, i*25+5 };
+    float pos[] = { 100.0f, static_cast<float>(i)*25.0f+5.0f };
     painter->GetPen()->SetColor(255,
                                 0,
                                 static_cast<unsigned char>(float(i)*35.0));
-    painter->GetPen()->SetWidth(i*5+1);
+    painter->GetPen()->SetWidth(static_cast<float>(i)*5.0f+1.0f);
     painter->DrawPointSprites(0, pos, 1);
     }
   this->program->Restore();
@@ -177,11 +177,11 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
   this->program2->Use();
   for (int i = 0; i < 8; ++i)
     {
-    float pos[] = { 150, i*25+5 };
+    float pos[] = { 150.0f, static_cast<float>(i)*25.0f+5.0f };
     painter->GetPen()->SetColor(static_cast<unsigned char>(float(i)*35.0),
                                 255,
                                 0);
-    painter->GetPen()->SetWidth(i*5+1);
+    painter->GetPen()->SetWidth(static_cast<float>(i)*5.0f+1.0f);
     painter->DrawPointSprites(0, pos, 1);
     }
   this->program2->Restore();
