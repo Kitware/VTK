@@ -376,7 +376,7 @@ static PyTypeObject PyVTKObjectType = {
 #else
   0,                                     // tp_flags
 #endif
-  (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), __methods__ (a list of all methods for this object), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
+  (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
   0,                                     // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
