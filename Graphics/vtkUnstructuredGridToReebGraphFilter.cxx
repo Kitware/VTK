@@ -87,9 +87,10 @@ int vtkUnstructuredGridToReebGraphFilter::RequestData(vtkInformation*,
     // check for the presence of a scalar field
     vtkDataArray    *scalarField = input->GetPointData()->GetArray(FieldId);
     vtkUnstructuredGrid *newInput = NULL;
+    vtkElevationFilter  *eFilter = NULL;
     if(!scalarField)
       {
-      vtkElevationFilter *eFilter = vtkElevationFilter::New();
+      eFilter = vtkElevationFilter::New();
       eFilter->SetInput(input);
       eFilter->Update();
       newInput = vtkUnstructuredGrid::SafeDownCast(eFilter->GetOutput());
@@ -109,7 +110,7 @@ int vtkUnstructuredGridToReebGraphFilter::RequestData(vtkInformation*,
       output->Delete();
       }
 
-    if(!scalarField) newInput->Delete();
+    if(eFilter) eFilter->Delete();
 
     return 1;
     }

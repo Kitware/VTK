@@ -237,23 +237,17 @@ public:
                          vtkIdType vertex3Id, double scalar3);
 
 	// Description:
-	// Close the streaming computation (no more triangle will be given).
+	// Close the streaming computation (no more triangle or tetrahedron will be
+  // given).
 	// IMPORTANT: this method has to be called when the input stream is over so as
 	// to finalize the Reeb graph data structure.
+  // If you need to get a snapshot of the Reeb graph during the streaming
+  // process, do a DeepCopy followed by a CloseStream on the copy.
 	void CloseStream();
 
-	// Description:
-	// Get a valid Reeb graph data structure at a given point of the input
-	// stream.
-	vtkReebGraph* GetStreamSnapshot();
-
-  // Description:
-  // Returns a verbatim copy of the Reeb graph.
-  //
-  // This method is particularly useful for multi-resolution hierarchy
-  // construction. It enables to make a new copy of the Reeb graph for each
-  // level of simplification.
-  vtkReebGraph* Clone();
+  // Descrition:
+  // Implements deep copy
+  void DeepCopy(vtkReebGraph *src);
 
   // Description:
   // Simplify the Reeb graph given the scale 'functionScalePercentage'.
@@ -285,87 +279,6 @@ public:
   //
   int FilterByPersistence(double functionScalePercentage);
 
-  // Description:
-  // Returns the Id of the lower node of the arc specified by 'arcId'.
-  vtkIdType GetArcDownNodeId(vtkIdType arcId);
-
-  // Description:
-  // Return the Id of the upper node of the arc specified by 'arcId'.
-  vtkIdType GetArcUpNodeId(vtkIdType arcId);
-
-  // Description:
-  // Iterates forwards through the arcs of the Reeb graph.
-  //
-  // The first time this method is called, the first arc's Id will be returned.
-  // When the last arc is reached, this method will keep on returning its Id at
-  // each call. See 'GetPreviousArcId' to go back in the list.
-  vtkIdType GetNextArcId();
-
-  // Description:
-  // Iterates forwards through the nodes of the Reeb graph.
-  //
-  // The first time this method is called, the first node's Id will be returned.
-  // When the last node is reached, this method will keep on returning its Id at
-  // each call. See 'GetPreviousNodeId' to go back in the list.
-  vtkIdType GetNextNodeId();
-
-  // Description:
-  // Copy into 'arcIdList' the list of the down arcs' Ids, given a node
-  // specified by 'nodeId'.
-  void GetNodeDownArcIds(vtkIdType nodeId, vtkIdList *arcIdList);
-
-  // Description:
-  // Returns the scalar field value of the node specified by 'nodeId'.
-  double GetNodeScalarValue(vtkIdType nodeId);
-
-  // Description:
-  // Copy into 'arcIdList' the list of the up arcs' Ids, given a node specified
-  // by 'nodeId'.
-  void GetNodeUpArcIds(vtkIdType nodeId, vtkIdList *arcIdList);
-
-  // Description:
-  // Returns the corresponding vertex Id (in the simplicial mesh, vtkPolyData),
-  // given a node specified by 'nodeId'.
-  vtkIdType GetNodeVertexId(vtkIdType nodeId);
-
-  // Description:
-  // Returns the number of arcs in the Reeb graph.
-  int GetNumberOfArcs();
-
-  // Description:
-  // Returns the number of connected components of the Reeb graph.
-  int GetNumberOfConnectedComponents();
-
-  // Description:
-  // Returns the number of nodes in the Reeb graph.
-  int GetNumberOfNodes();
-
-  // Description:
-  // Returns the number of loops (cycles) in the Reeb graph.
-  //
-  // Notice that for closed PL 2-manifolds, this number equals the genus of the
-  // manifold.
-  //
-  // Reference:
-  // "Loops in Reeb graphs of 2-manifolds",
-  // K. Cole-McLaughlin, H. Edelsbrunner, J. Harer, V. Natarajan, and V.
-  // Pascucci,
-  // ACM Symposium on Computational Geometry, pp. 344-350, 2003.
-  int GetNumberOfLoops();
-
-  // Description:
-  // Iterates backwards through the arcs of the Reeb graph.
-  //
-  // When the first arc is reached, this method will keep on returning its Id at
-  // each call. See 'GetNextArcId' to go forwards in the list.
-  vtkIdType GetPreviousArcId();
-
-  // Description:
-  // Iterates backwards through the nodes of the Reeb graph.
-  //
-  // When the first node is reached, this method will keep on returning its Id
-  // at each call. See 'GetNextNodeId' to go forwards in the list.
-  vtkIdType GetPreviousNodeId();
 
 protected:
 
@@ -505,11 +418,6 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
 
   vtkIdType currentNodeId, currentArcId;
 
-  vtkDataArray *ScalarField;
-  vtkPolyData *TriangularMesh;
-	vtkUnstructuredGrid *TetMesh;
-
-
   // INTERNAL METHODS --------------------------------------------------------
 
   // Description:
@@ -519,48 +427,26 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   vtkIdType AddPath(int nodeNumber, vtkIdType* nodeOffset,
                     vtkReebLabelTag label);
 
-  // Description:
+	// Description:
   //   Add a vertex from the mesh to the Reeb graph.
   //
   //   INTERNAL USE ONLY!
-  vtkIdType AddVertex(vtkIdType vertexId);
-
-	// Description:
-  //   Add a streamed vertex from the mesh to the Reeb graph.
-  //
-  //   INTERNAL USE ONLY!
-  vtkIdType AddStreamedVertex(vtkIdType vertexId, double scalar);
-
-  // Description:
-  //   Add a triangle from the mesh to the Reeb grpah.
-  //
-  //   INTERNAL USE ONLY!
-  int AddTriangle(vtkIdType triangleId);
+  vtkIdType AddVertex(vtkIdType vertexId, double scalar);
 
 	// Description:
   //   Add a triangle from the mesh to the Reeb grpah.
   //
   //   INTERNAL USE ONLY!
-  int AddTetrahedron(vtkIdType tetId);
-
-	// Description:
-  //   Add a streamed triangle from the mesh to the Reeb grpah.
-  //
-  //   INTERNAL USE ONLY!
-  int AddStreamedTriangle(vtkIdType vertex0Id, double f0,
-													vtkIdType vertex1Id, double f1,
-													vtkIdType vertex2Id, double f2);
+  int AddTriangle(vtkIdType vertex0Id, double f0,
+    vtkIdType vertex1Id, double f1, vtkIdType vertex2Id, double f2);
 
   // Description:
-  //   Add a streamed tetrahedron from the mesh to the Reeb grpah.
+  //   Add a tetrahedron from the mesh to the Reeb grpah.
   //
   //   INTERNAL USE ONLY!
-  int AddStreamedTetrahedron(vtkIdType vertex0Id, double f0,
-													   vtkIdType vertex1Id, double f1,
-													   vtkIdType vertex2Id, double f2,
-                             vtkIdType vertex3Id, double f3);
-
-
+  int AddTetrahedron(vtkIdType vertex0Id, double f0,
+    vtkIdType vertex1Id, double f1, vtkIdType vertex2Id, double f2,
+    vtkIdType vertex3Id, double f3);
 
   // Description:
   // "Zip" the corresponding paths when the interior of a simplex is added to
@@ -683,11 +569,89 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   void SimplifyLabels(const vtkIdType nodeId, vtkReebLabelTag onlyLabel=0,
                       bool goDown=true, bool goUp=true);
 
+  // ACCESSORS
+
   // Description:
-  // Finalize the data-structures when the mesh is completely processed.
+  // Returns the Id of the lower node of the arc specified by 'arcId'.
+  vtkIdType GetArcDownNodeId(vtkIdType arcId);
+
+  // Description:
+  // Return the Id of the upper node of the arc specified by 'arcId'.
+  vtkIdType GetArcUpNodeId(vtkIdType arcId);
+
+  // Description:
+  // Iterates forwards through the arcs of the Reeb graph.
   //
-  // INTERNAL USE ONLY!
-  void Terminate();
+  // The first time this method is called, the first arc's Id will be returned.
+  // When the last arc is reached, this method will keep on returning its Id at
+  // each call. See 'GetPreviousArcId' to go back in the list.
+  vtkIdType GetNextArcId();
+
+  // Description:
+  // Iterates forwards through the nodes of the Reeb graph.
+  //
+  // The first time this method is called, the first node's Id will be returned.
+  // When the last node is reached, this method will keep on returning its Id at
+  // each call. See 'GetPreviousNodeId' to go back in the list.
+  vtkIdType GetNextNodeId();
+
+  // Description:
+  // Copy into 'arcIdList' the list of the down arcs' Ids, given a node
+  // specified by 'nodeId'.
+  void GetNodeDownArcIds(vtkIdType nodeId, vtkIdList *arcIdList);
+
+  // Description:
+  // Returns the scalar field value of the node specified by 'nodeId'.
+  double GetNodeScalarValue(vtkIdType nodeId);
+
+  // Description:
+  // Copy into 'arcIdList' the list of the up arcs' Ids, given a node specified
+  // by 'nodeId'.
+  void GetNodeUpArcIds(vtkIdType nodeId, vtkIdList *arcIdList);
+
+  // Description:
+  // Returns the corresponding vertex Id (in the simplicial mesh, vtkPolyData),
+  // given a node specified by 'nodeId'.
+  vtkIdType GetNodeVertexId(vtkIdType nodeId);
+
+  // Description:
+  // Returns the number of arcs in the Reeb graph.
+  int GetNumberOfArcs();
+
+  // Description:
+  // Returns the number of connected components of the Reeb graph.
+  int GetNumberOfConnectedComponents();
+
+  // Description:
+  // Returns the number of nodes in the Reeb graph.
+  int GetNumberOfNodes();
+
+  // Description:
+  // Returns the number of loops (cycles) in the Reeb graph.
+  //
+  // Notice that for closed PL 2-manifolds, this number equals the genus of the
+  // manifold.
+  //
+  // Reference:
+  // "Loops in Reeb graphs of 2-manifolds",
+  // K. Cole-McLaughlin, H. Edelsbrunner, J. Harer, V. Natarajan, and V.
+  // Pascucci,
+  // ACM Symposium on Computational Geometry, pp. 344-350, 2003.
+  int GetNumberOfLoops();
+
+  // Description:
+  // Iterates backwards through the arcs of the Reeb graph.
+  //
+  // When the first arc is reached, this method will keep on returning its Id at
+  // each call. See 'GetNextArcId' to go forwards in the list.
+  vtkIdType GetPreviousArcId();
+
+  // Description:
+  // Iterates backwards through the nodes of the Reeb graph.
+  //
+  // When the first node is reached, this method will keep on returning its Id
+  // at each call. See 'GetNextNodeId' to go forwards in the list.
+  vtkIdType GetPreviousNodeId();
 
 
   // INTERNAL MACROS ---------------------------------------------------------

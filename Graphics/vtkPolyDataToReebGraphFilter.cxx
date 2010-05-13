@@ -86,10 +86,11 @@ int vtkPolyDataToReebGraphFilter::RequestData(vtkInformation*,
 
     // check for the presence of a scalar field
     vtkDataArray    *scalarField = input->GetPointData()->GetArray(FieldId);
-    vtkPolyData *newInput = NULL;
+    vtkPolyData     *newInput = NULL;
+    vtkElevationFilter  *eFilter = NULL;
     if(!scalarField)
       {
-      vtkElevationFilter *eFilter = vtkElevationFilter::New();
+      eFilter = vtkElevationFilter::New();
       eFilter->SetInput(input);
       eFilter->Update();
       newInput = vtkPolyData::SafeDownCast(eFilter->GetOutput());
@@ -109,7 +110,7 @@ int vtkPolyDataToReebGraphFilter::RequestData(vtkInformation*,
       output->Delete();
       }
 
-    if(!scalarField) newInput->Delete();
+    if(eFilter) eFilter->Delete();
 
     return 1;
     }
