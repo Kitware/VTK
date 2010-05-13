@@ -1705,7 +1705,7 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_VTK_OBJECT)
               {
               fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromSpecialObject(tempH%d, (char*)\"%s\", &tempH%d);\n",
+                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromSpecialObject(tempH%d, \"%s\", &tempH%d);\n",
                       i, theSignature->ArgClasses[i], i,
                       theSignature->ArgClasses[i], i);
 
