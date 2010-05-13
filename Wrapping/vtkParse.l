@@ -187,6 +187,7 @@ Modify lex.yy.c:
 "operator"      return(OPERATOR);
 "unsigned"      return(UNSIGNED);
 "friend"        return(FRIEND);
+"inline"        return(INLINE);
 "static"        return(STATIC);
 
 "vtkFloatingPointType" return(DOUBLE);

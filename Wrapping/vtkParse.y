@@ -234,6 +234,7 @@ char *vtkstrdup(const char *in)
 %token OPERATOR
 %token UNSIGNED
 %token FRIEND
+%token INLINE
 %token <str> VTK_ID
 %token STATIC
 %token VAR_FUNCTION
@@ -305,8 +306,10 @@ class_def_body: class_def_item | class_def_item class_def_body;
 class_def_item: scope_type ':' | var
    | operator
    | FRIEND operator
+   | INLINE operator
    | function func_body { output_function(); }
    | FRIEND function func_body { output_function(); }
+   | INLINE function func_body { output_function(); }
    | legacy_function func_body { legacySig(); output_function(); }
    | macro ';'
    | macro;
@@ -338,6 +341,7 @@ function: '~' func { preSig("~"); }
          {
          preSig("virtual ");
          };
+
 
 operator:
         operator_sig
@@ -1118,7 +1122,7 @@ other_stuff : ';' | other_stuff_no_semi;
 
 other_stuff_no_semi : OTHER | braces | parens | '*' | '=' | ':' | ',' | '.'
    | STRING | type_red2 | type_string2 | NUM | CLASS_REF | '&' | brackets
-   | CONST | OPERATOR | '-' | '~' | STATIC | ARRAY_NUM;
+   | CONST | OPERATOR | '-' | '~' | STATIC | INLINE | ARRAY_NUM;
 
 braces: '{' maybe_other '}';
 parens: '(' maybe_other ')';
