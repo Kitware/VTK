@@ -116,12 +116,21 @@ class TestVariant(Testing.vtkTest):
         self.assertEqual(v.ToString(), '10')
 
     def testCompare(self):
-        """Use comparison operators to sort an array of vtkVariants"""
+        """Use comparison operators to sort a list of vtkVariants"""
         if not unicode_support:
             return
         l = map(vtk.vtkVariant, [1, 2.5, vtk.vtkVariant(), "0", u'hello'])
         s = map(vtk.vtkVariant, [vtk.vtkVariant(), "0", 1, 2.5, u'hello'])
         l.sort()
+        self.assertEqual(l, s)
+
+    def testStrictWeakOrder(self):
+        """Use vtkVariantStrictWeakOrder to sort a list of vtkVariants"""
+        if not unicode_support:
+            return
+        l = map(vtk.vtkVariant, [1, 2.5, vtk.vtkVariant(), "0", u'hello'])
+        s = map(vtk.vtkVariant, [vtk.vtkVariant(), 1, 2.5, "0", u'hello'])
+        l.sort(vtk.vtkVariantStrictWeakOrder)
         self.assertEqual(l, s)
 
     def testVariantExtract(self):
