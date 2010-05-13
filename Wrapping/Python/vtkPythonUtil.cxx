@@ -1221,7 +1221,7 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 
 //--------------------------------------------------------------------
 PyObject *vtkPythonUtil::GetSpecialObjectFromPointer(
-  void *ptr, const char *classname)
+  const void *ptr, const char *classname)
 {
   PyObject *obj = NULL;
 
@@ -1231,7 +1231,7 @@ PyObject *vtkPythonUtil::GetSpecialObjectFromPointer(
 
   if (ptr)
     {
-    obj = PyVTKSpecialObject_New((char *)(classname), ptr, 1);
+    obj = PyVTKSpecialObject_CopyNew(classname, ptr);
     }
   else
     {

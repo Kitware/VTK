@@ -256,8 +256,11 @@ int PyVTKSpecialObject_Check(PyObject *obj)
 }
 
 //--------------------------------------------------------------------
-PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy)
+PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
 {
+  // would be nice if "info" could be passed instead if "classname"
+  PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+
 #if (PY_MAJOR_VERSION >= 2)
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject,
                                           &PyVTKSpecialObjectType);
@@ -266,6 +269,16 @@ PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy)
                                           &PyVTKSpecialObjectType);
 #endif
 
+  self->vtk_ptr = ptr;
+  self->vtk_hash = -1;
+  self->vtk_info = info;
+
+  return (PyObject *)self;
+}
+
+//--------------------------------------------------------------------
+PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
+{
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
 
   if (info == 0)
@@ -276,12 +289,15 @@ PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy)
     return NULL;
     }
 
-  if (copy)
-    {
-    ptr = info->copy_func(ptr);
-    }
+#if (PY_MAJOR_VERSION >= 2)
+  PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject,
+                                          &PyVTKSpecialObjectType);
+#else
+  PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject,
+                                          &PyVTKSpecialObjectType);
+#endif
 
-  self->vtk_ptr = ptr;
+  self->vtk_ptr = info->copy_func(ptr);
   self->vtk_hash = -1;
   self->vtk_info = info;
 
@@ -301,5 +317,6 @@ PyObject *PyVTKSpecialType_New(
   // Add the built docstring to the method
   newmethod->ml_doc = PyString_AsString(info->docstring);
 
+  // Returns a function.  Returning a type object would be nicer.
   return PyCFunction_New(newmethod, Py_None);
 }

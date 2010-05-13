@@ -220,7 +220,8 @@ static void vtkWrapPython_MakeTempVariable(
     }
 
   /* for const * return types, prepend with const */
-  if ((i == MAX_ARGS) && ((aType & VTK_PARSE_CONST) != 0))
+  if ((i == MAX_ARGS) && ((aType & VTK_PARSE_CONST) != 0) &&
+      ((aType & VTK_PARSE_INDIRECT) != 0))
     {
     fprintf(fp,"  const ");
     }
@@ -1942,7 +1943,7 @@ static void vtkWrapPython_GenerateMethods(
           if (do_constructors && !is_vtkobject)
             {
             fprintf(fp,
-                    "    result = PyVTKSpecialObject_New((char*)\"%s\", op, 0);\n",
+                    "    result = PyVTKSpecialObject_New(\"%s\", op);\n",
                     data->ClassName);
             }
           else
@@ -2832,11 +2833,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     /* the copy constructor */
     fprintf(fp,
-           "static void *vtkSpecial_%sCopy(void *obj)\n"
+           "static void *vtkSpecial_%sCopy(const void *obj)\n"
             "{\n"
             "  if (obj)\n"
             "    {\n"
-            "    return new %s(*static_cast<%s*>(obj));\n"
+            "    return new %s(*static_cast<const %s*>(obj));\n"
             "    }\n"
             "  return 0;\n"
             "}\n"
@@ -2857,11 +2858,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     /* the printer */
     fprintf(fp,
-            "static void vtkSpecial_%sPrint(ostream &os, void *obj)\n"
+            "static void vtkSpecial_%sPrint(ostream &os, const void *obj)\n"
             "{\n"
             "  if (obj)\n"
             "    {\n"
-            "    os << *(static_cast<%s*>(obj));\n"
+            "    os << *(static_cast<const %s*>(obj));\n"
             "    }\n"
             "}\n"
             "\n",
@@ -2885,10 +2886,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     if (compare_ops != 0)
       {
       fprintf(fp,
-            "static int vtkSpecial_%sCompare(void *o1, void *o2, int opid)\n"
+            "static int vtkSpecial_%sCompare(const void *o1, const void *o2, int opid)\n"
             "{\n"
-            "  const %s &so1 = *((%s *)o1);\n"
-            "  const %s &so2 = *((%s *)o2);\n"
+            "  const %s &so1 = *((const %s *)o1);\n"
+            "  const %s &so2 = *((const %s *)o2);\n"
             "  switch (opid)\n"
             "    {\n",
             data->ClassName, data->ClassName, data->ClassName,
@@ -2918,9 +2919,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       has_hash = 1;
 
       fprintf(fp,
-            "static long vtkSpecial_%sHash(void *self, int *immutable)\n"
+            "static long vtkSpecial_%sHash(const void *self, int *immutable)\n"
             "{\n"
-            "  unsigned long mtime = *((vtkTimeStamp *)self);\n"
+            "  unsigned long mtime = *((const vtkTimeStamp *)self);\n"
             "  long h = (long)mtime;\n"
             "  *immutable = 0;\n"
             "  if (h != -1) { return h; };\n"
@@ -2936,7 +2937,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       has_hash = 1;
 
       fprintf(fp,
-            "static long vtkSpecial_%sHash(void *self, int *immutable)\n"
+            "static long vtkSpecial_%sHash(const void *self, int *immutable)\n"
             "{\n"
             "  long h = vtkPythonUtil::VariantHash((vtkVariant *)self);\n"
             "  *immutable = 1;\n"

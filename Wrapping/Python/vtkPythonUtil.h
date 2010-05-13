@@ -131,7 +131,7 @@ public:
   // into a PyObject of that type.  If the given pointer is NULL, then
   // Py_None will be returned with no error.  If the given pointer is
   // of the wrong type, expect fireworks.
-  static PyObject *GetSpecialObjectFromPointer(void *ptr,
+  static PyObject *GetSpecialObjectFromPointer(const void *ptr,
     const char *class_type);
 
   // Description:

@@ -28,18 +28,18 @@
 // Prototypes for per-type copy, delete, and print funcs
 
 // copy the object and return the copy
-typedef void *(*PyVTKSpecialCopyFunc)(void *);
+typedef void *(*PyVTKSpecialCopyFunc)(const void *);
 // delete the object
 typedef void (*PyVTKSpecialDeleteFunc)(void *);
 // print the object to the stream
-typedef void (*PyVTKSpecialPrintFunc)(ostream& os, void *);
+typedef void (*PyVTKSpecialPrintFunc)(ostream& os, const void *);
 // compare objects, final arg is on of the following:
 // Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 // return "-1" if the comparison is impossible
-typedef int (*PyVTKSpecialCompareFunc)(void *, void *, int);
+typedef int (*PyVTKSpecialCompareFunc)(const void *, const void *, int);
 // return a hash from the value of the object, or -1 if error,
 // set second arg to '1' if the object is immutable
-typedef long (*PyVTKSpecialHashFunc)(void *, int *);
+typedef long (*PyVTKSpecialHashFunc)(const void *, int *);
 
 // Struct to hold special methods, the first three are mandatory
 // and the rest are optional.
@@ -99,7 +99,10 @@ VTK_PYTHON_EXPORT
 int PyVTKSpecialObject_Check(PyObject *obj);
 
 VTK_PYTHON_EXPORT
-PyObject *PyVTKSpecialObject_New(char *classname, void *ptr, int copy);
+PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr);
+
+VTK_PYTHON_EXPORT
+PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr);
 }
 
 #endif
