@@ -6228,6 +6228,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
       case vtkOpenGLGPUVolumeRayCastMapperMethodAdditive:
         methodCode=vtkGPUVolumeRayCastMapper_AdditiveFS;
         break;
+      default:
+        assert("check: impossible case" && 0);
+        methodCode=0; // to avoid warning
+        break;
       }
     this->Trace->SetSourceCode(methodCode);
     }
@@ -6342,6 +6346,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
         break;
       case vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping:
         croppingCode=vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS;
+        break;
+      default:
+        assert("check: impossible case" && 0);
+        croppingCode=0; // to avoid warning
         break;
       }
     this->CroppingShader->SetSourceCode(croppingCode);
