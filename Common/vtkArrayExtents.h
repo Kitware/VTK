@@ -190,7 +190,9 @@ public:
     ostream& stream, const vtkArrayExtents& rhs);
 
 private:
+  //BTX
   vtksys_stl::vector<vtkArrayRange> Storage;
+  //ETX
 };
 
 #endif

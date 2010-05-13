@@ -77,6 +77,7 @@ public:
   // to assign each slice.
   void SetCount(vtkIdType count);
 
+
   // Description:
   // Accesses the i-th slice.
   vtkArrayExtents& operator[](vtkIdType i);
@@ -86,7 +87,9 @@ public:
   const vtkArrayExtents& operator[](vtkIdType i) const;
 
 private:
+  //BTX
   vtkstd::vector<vtkArrayExtents> Storage;
+  //ETX
 };
 
 #endif

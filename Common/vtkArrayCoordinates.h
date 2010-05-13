@@ -82,7 +82,6 @@ public:
   // Returns the index of the i-th dimension.
   const vtkIdType& operator[](vtkIdType i) const;
 
-
   // Description:
   // Equality comparison
   bool operator==(const vtkArrayCoordinates& rhs) const;
@@ -94,7 +93,9 @@ public:
     ostream& stream, const vtkArrayCoordinates& rhs);
 
 private:
+  //BTX
   vtkstd::vector<vtkIdType> Storage;
+  //ETX
 };
 
 #endif

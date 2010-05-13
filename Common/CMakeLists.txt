@@ -401,6 +401,9 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkArrayCoordinates.cxx
+  vtkArrayExtents.cxx
+  vtkArrayRange.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
 

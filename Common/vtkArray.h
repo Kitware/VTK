@@ -102,14 +102,11 @@ public:
   void Resize(const vtkIdType i);
   void Resize(const vtkIdType i, const vtkIdType j);
   void Resize(const vtkIdType i, const vtkIdType j, const vtkIdType k);
-//BTX
   void Resize(const vtkArrayRange& i);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
   void Resize(const vtkArrayExtents& extents);
-//ETX
 
-//BTX
   // Description:
   // Returns the extent (valid coordinate range) along the given
   // dimension.
@@ -118,7 +115,6 @@ public:
   // Returns the extents (the number of dimensions and size along each
   // dimension) of the array.
   virtual const vtkArrayExtents& GetExtents() = 0;
-//ETX
 
   // Description:
   // Returns the number of dimensions stored in the array.  Note that
@@ -155,7 +151,6 @@ public:
   // Returns the label for the i-th array dimension.
   vtkStdString GetDimensionLabel(vtkIdType i);
 
-  //BTX
   // Description:
   // Returns the coordinates of the n-th value in the array, where n is
   // in the range [0, GetNonNullSize()).  Note that the order in which
@@ -204,7 +199,6 @@ public:
   virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) = 0;
   virtual void CopyValue(vtkArray* source, const vtkIdType source_index, const vtkArrayCoordinates& target_coordinates) = 0;
   virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkIdType target_index) = 0;
-  //ETX
 
   // Description:
   // Returns a new array that is a deep copy of this array.

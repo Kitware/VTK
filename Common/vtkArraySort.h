@@ -93,7 +93,9 @@ public:
     ostream& stream, const vtkArraySort& rhs);
 
 private:
+  //BTX
   vtkstd::vector<vtkIdType> Storage;
+  //ETX
 };
 
 #endif
