@@ -105,6 +105,9 @@ public:
   
   // Description:
   // Tell if the shader program is valid with the current OpenGL state.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->Context()->IsCurrent()
+  // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   bool IsValid();
   
   // Description:
