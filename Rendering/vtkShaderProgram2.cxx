@@ -269,6 +269,9 @@ bool vtkShaderProgram2::HasFragmentShaders()
 // Tell if the program is the one currently used by OpenGL.
 bool vtkShaderProgram2::IsUsed()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+
   GLint value;
   glGetIntegerv(vtkgl::CURRENT_PROGRAM,&value);
   return static_cast<GLuint>(value)==static_cast<GLuint>(this->Id);
@@ -283,6 +286,9 @@ bool vtkShaderProgram2::IsUsed()
 // useful.
 bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+
   bool result=false;
   GLint value;
   glGetIntegerv(GL_LIST_INDEX,&value);
@@ -316,7 +322,7 @@ void vtkShaderProgram2::Use()
   assert("pre: context_is_set" && this->Context!=0);
   assert("pre: current_context_matches" && this->Context->IsCurrent());
   this->Build();
-  
+
   // We need to know if this call happens in a display list or not because
   // glGetIntegerv(vtkgl::CURRENT_PROGRAM,&value) is executed immediately
   // while vtkgl::UseProgram(id) is just compiled and its execution is
@@ -356,6 +362,9 @@ void vtkShaderProgram2::Use()
 // Restore the previous shader program (or fixed-pipeline).
 void vtkShaderProgram2::Restore()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+
   if(this->DisplayListUnderCreationInCompileMode())
     {
      vtkgl::UseProgram(0);
@@ -387,6 +396,9 @@ void vtkShaderProgram2::Restore()
 // creation.
 void vtkShaderProgram2::RestoreFixedPipeline()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+
   vtkgl::UseProgram(0);
   this->SavedId=0;
 }
@@ -394,6 +406,9 @@ void vtkShaderProgram2::RestoreFixedPipeline()
 // ----------------------------------------------------------------------------
 void vtkShaderProgram2::Build()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+
   if(this->Id==0 || this->LastLinkTime<this->MTime ||
      (this->Shaders!=0 && this->LastLinkTime<this->Shaders->GetMTime()))
     {
@@ -510,6 +525,9 @@ void vtkShaderProgram2::Build()
 // ----------------------------------------------------------------------------
 void vtkShaderProgram2::SendUniforms()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+
   bool needUpdate=this->LastSendUniformsTime<this->LastLinkTime;
   if(!needUpdate)
     {
@@ -596,6 +614,11 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   ostream &os,
   vtkIndent indent)
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+  assert("pre: built" &&
+         this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED);
+
   GLint params;
   GLuint progId=static_cast<GLuint>(this->Id);
 
@@ -833,6 +856,10 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
 // Call PrintActiveUniformVariables on cout. Useful for calling inside gdb.
 void vtkShaderProgram2::PrintActiveUniformVariablesOnCout()
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
+  assert("pre: built" &&
+         this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED);
   vtkIndent i;
   this->PrintActiveUniformVariables(cout,i);
 }
@@ -910,6 +937,8 @@ const char *vtkShaderProgram2::GetLastValidateLog()
 //----------------------------------------------------------------------------
 int vtkShaderProgram2::GetAttributeLocation(const char *name)
 {
+  assert("pre: context_is_set" && this->Context!=0);
+  assert("pre: current_context_matches" && this->Context->IsCurrent());
   assert("pre: name_exists" && name!=0);
   assert("pre: built" &&
          this->LastBuildStatus==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED);

@@ -114,23 +114,35 @@ public:
   // If not done yet, compile all the shaders and link the program.
   // The status of the build can then be query with GetLastBuildStatus()
   // and GetLastLinkLog().
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   void Build();
   
   // Description:
   // Send the uniform variables values to the program.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   void SendUniforms();
   
   // Description:
   // Introspection. Return the list of active uniform variables of the program.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->Context()->IsCurrent()
+  // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   void PrintActiveUniformVariables(ostream &os,
                                    vtkIndent indent);
   
   // Description:
   // Call PrintActiveUniformVariables on cout. Useful for calling inside gdb.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->Context()->IsCurrent()
+  // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   void PrintActiveUniformVariablesOnCout();
   
   // Description:
   // Tell if the program is the one currently used by OpenGL.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   bool IsUsed();
   
   // Description:
@@ -143,12 +155,16 @@ public:
   
   // Description:
   // Restore the previous shader program (or fixed-pipeline).
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   void Restore();
   
   // Description:
   // Force the current shader program to be the fixed-pipeline.
   // Warning: this call will be compiled if called inside a display list
   // creation.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   void RestoreFixedPipeline();
 
   // Description:
@@ -180,6 +196,8 @@ public:
   // Description:
   // Returns the generic attribute location.
   // The shader must be bound before calling this.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   // \pre name_exists: name!=0
   // \pre built: this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   int GetAttributeLocation(const char *name);
@@ -196,6 +214,8 @@ public:
   // mode is GL_COMPILE_AND_EXECUTE.
   // Used internally and provided as a public method for whoever find it
   // useful.
+  // \pre context_is_set: this->GetContext()!=0
+  // \pre current_context_matches: this->GetContext()->IsCurrent()
   bool DisplayListUnderCreationInCompileMode();
   
 protected:
