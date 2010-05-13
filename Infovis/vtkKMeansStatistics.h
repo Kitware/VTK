@@ -140,6 +140,13 @@ public:
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* ) { return; };
 
+  //BTX
+  // Description:
+  // A convenience method for setting properties by name.
+  virtual bool SetParameter(
+    const char* parameter, int index, vtkVariant value );
+  //ETX
+
 protected:
   vtkKMeansStatistics();
   ~vtkKMeansStatistics();
