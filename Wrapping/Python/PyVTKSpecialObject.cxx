@@ -189,11 +189,32 @@ static long PyVTKSpecialObject_PyHash(PyVTKSpecialObject *self)
 
 //--------------------------------------------------------------------
 static PyObject *PyVTKSpecialObject_PyRichCompare(
-  PyVTKSpecialObject *self, PyVTKSpecialObject *o, int opid)
+  PyObject *o1, PyObject *o2, int opid)
 {
-  if (self->vtk_ptr && self->vtk_info->compare_func)
+  // Heterogenous comparisons are not implemented
+  if (!PyVTKSpecialObject_Check(o1) ||
+      !PyVTKSpecialObject_Check(o2) ||
+      (((PyVTKSpecialObject *)o1)->vtk_info !=
+       ((PyVTKSpecialObject *)o2)->vtk_info))
     {
-    int val = self->vtk_info->compare_func(self->vtk_ptr, o->vtk_ptr, opid);
+#if PY_VERSION_HEX >= 0x02010000
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
+#else
+    Py_INCREF(Py_None);
+    return Py_None;
+#endif
+    }
+
+  // Types are matched, try to do the comparison
+  PyVTKSpecialCompareFunc cmpfunc =
+    ((PyVTKSpecialObject *)o1)->vtk_info->compare_func;
+
+  if (cmpfunc)
+    {
+    int val = cmpfunc(((PyVTKSpecialObject *)o1)->vtk_ptr,
+                      ((PyVTKSpecialObject *)o2)->vtk_ptr, opid);
+
     if (val == 0)
       {
       Py_INCREF(Py_False);
@@ -208,14 +229,6 @@ static PyObject *PyVTKSpecialObject_PyRichCompare(
 
   PyErr_SetString(PyExc_TypeError, (char *)"operation not available");
   return NULL;
-// Returning "None" is also valid, but not as informative
-#if PY_VERSION_HEX >= 0x02010000
-//  Py_INCREF(Py_NotImplemented);
-//  return Py_NotImplemented;
-#else
-//  Py_INCREF(Py_None);
-//  return Py_None;
-#endif
 }
 
 //--------------------------------------------------------------------
