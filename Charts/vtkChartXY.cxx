@@ -379,11 +379,22 @@ void vtkChartXY::CalculateBarPlots()
       {
       barWidth = 1.0f / bars.size() * this->BarWidthFraction;
       }
+
     // Now set the offsets and widths on each bar
+    // The offsetIndex deals with the fact that half the bars
+    // must shift to the left of the point and half to the right
+    int offsetIndex = (bars.size() - 1);
     for (size_t i = 0; i < bars.size(); ++i)
       {
       bars[i]->SetWidth(barWidth);
-      bars[i]->SetOffset(float(bars.size()-i-1)*barWidth);
+      bars[i]->SetOffset(offsetIndex * (barWidth / 2));
+      // Increment by two since we need to shift by half widths
+      // but make room for entire bars. Increment backwards because
+      // offsets are always subtracted and Positive offsets move
+      // the bar leftwards.  Negative offsets will shift the bar
+      // to the right.
+      offsetIndex -= 2;
+      //bars[i]->SetOffset(float(bars.size()-i-1)*(barWidth/2));
       }
     }
 }

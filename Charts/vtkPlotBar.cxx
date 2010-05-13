@@ -104,7 +104,7 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
 
     for (int i = 0; i < n; ++i)
       {
-      painter->DrawRect(f[2*i]-this->Offset, 0.0, this->Width, f[2*i+1]);
+      painter->DrawRect(f[2*i]-(this->Width/2)-this->Offset, 0.0, this->Width, f[2*i+1] - (this->Width/2));
       }
     }
 
@@ -131,13 +131,16 @@ void vtkPlotBar::GetBounds(double bounds[4])
 
   if (this->UseIndexForXSeries && y)
     {
-    bounds[0] = 0;
-    bounds[1] = y->GetNumberOfTuples();
+    bounds[0] = 0 - (this->Width / 2 );
+    bounds[1] = y->GetNumberOfTuples() + (this->Width/2);
     y->GetRange(&bounds[2]);
     }
   else if (x && y)
     {
     x->GetRange(&bounds[0]);
+    // We surround our point by Width/2 on either side
+    bounds[0] -= this->Width / 2;
+    bounds[1] += this->Width / 2;
     y->GetRange(&bounds[2]);
     }
   // Bar plots always have one of the y bounds at the orgin
@@ -231,21 +234,30 @@ bool vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
     this->Sorted = true;
     }
 
+  // The extent of any given bar is half a width on either
+  // side of the point with which it is associated.
+  float halfWidth = this->Width / 2.0;
+
+
   // Set up our search array, use the STL lower_bound algorithm
+  // When searching, invert the behavior of the offset and
+  // compensate for the half width overlap.
   vtkstd::vector<vtkVector2f>::iterator low;
-  vtkVector2f lowPoint(point.X()-this->Offset-this->Width, 0.0f);
+  vtkVector2f lowPoint(point.X()-(this->Offset * -1)-halfWidth, 0.0f);
   low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
-  // Now consider the y axis
   while (low != v.end())
     {
-    if (low->X()-this->Offset > point.X())
+    // Is the left side of the bar beyond the point?
+    if (low->X()-this->Offset-halfWidth > point.X())
       {
       break;
       }
-    else if (low->X()-this->Offset < point.X() &&
-             low->X()-this->Offset+this->Width > point.X())
+    // Does the bar surround the point?
+    else if (low->X()-halfWidth-this->Offset < point.X() &&
+             low->X()+halfWidth-this->Offset > point.X())
       {
+      // Is the point within the vertical extent of the bar?
       if ((point.Y() >= 0 && point.Y() < low->Y()) ||
           (point.Y() < 0 && point.Y() > low->Y()))
         {
