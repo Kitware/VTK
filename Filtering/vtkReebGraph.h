@@ -22,7 +22,7 @@
 // .SECTION Description
 // vtkReebGraph is a data object that computes a Reeb graph given a PL scalar
 // field (vtkDataArray) defined on a simplicial mesh (a surface mesh,
-// vtkPolyData).
+// vtkPolyData or a tetrahedral mesh, vtkUnstructuredGrid).
 // vtkReebGraph represents in a concise manner the connectivity
 // evolution of the level sets of a scalar function defined on the mesh.
 //
@@ -46,11 +46,6 @@
 // V. Pascucci, G. Scorzelli, P.-T. Bremer, and A. Mascarenhas,
 // ACM Transactions on Graphics, Proc. of SIGGRAPH 2007.
 //
-// In addition to Reeb graph fast computation, vtkReebGraph provides a
-// self-contained set of methods for iterating over the nodes and the arcs of
-// the graph, for retrieving statistics about the graph and its nodes, and, most
-// important, for multi-resolution representations.
-//
 // vtkReebGraph provides methods for computing filtered topological
 // abstractions (filtered in the sense of persistent homology).
 //
@@ -60,31 +55,32 @@
 // Discrete Computational Geometry, 28:511-533, 2002.
 //
 // .SECTION See Also
-//      vtkPolyData vtkDataArray
+//      vtkPolyData vtkUnstructuredGrid vtkDataArray
 
 #ifndef __vtkReebGraph_h
 #define __vtkReebGraph_h
 
-#include <map>
-#include <queue>
+#include  <map>
+#include  <queue>
 
-#include "vtkCell.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMutableDirectedGraph.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkVariantArray.h"
+#include  "vtkCell.h"
+#include  "vtkEdgeListIterator.h"
+#include  "vtkIdTypeArray.h"
+#include  "vtkMutableDirectedGraph.h"
+#include  "vtkObjectFactory.h"
+#include  "vtkPointData.h"
+#include  "vtkPolyData.h"
+#include  "vtkUnstructuredGrid.h"
+#include  "vtkVariantArray.h"
 
-class VTK_FILTERING_EXPORT vtkReebGraph : public vtkDataObject
+class VTK_FILTERING_EXPORT vtkReebGraph : public vtkMutableDirectedGraph
 {
 
 public:
 
   static vtkReebGraph *New();
 
-  vtkTypeRevisionMacro(vtkReebGraph, vtkObject);
+  vtkTypeRevisionMacro(vtkReebGraph, vtkMutableDirectedGraph);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum
@@ -237,12 +233,14 @@ public:
                          vtkIdType vertex3Id, double scalar3);
 
 	// Description:
-	// Close the streaming computation (no more triangle or tetrahedron will be
-  // given).
-	// IMPORTANT: this method has to be called when the input stream is over so as
-	// to finalize the Reeb graph data structure.
+	// Finalize internal data structures, in the case of streaming computations
+  // (with StreamTriangle or StreamTetrahedron)/
+  // After this call, no more triangle or tetrahedron can be inserted via
+  // StreamTriangle or StreamTetrahedron.
+	// IMPORTANT: This method _must_ be called when the input stream is finisehd.
   // If you need to get a snapshot of the Reeb graph during the streaming
-  // process, do a DeepCopy followed by a CloseStream on the copy.
+  // process (to parse or simplify it), do a DeepCopy followed by a
+  // CloseStream on the copy.
 	void CloseStream();
 
   // Descrition:
@@ -431,20 +429,20 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   //   Add a vertex from the mesh to the Reeb graph.
   //
   //   INTERNAL USE ONLY!
-  vtkIdType AddVertex(vtkIdType vertexId, double scalar);
+  vtkIdType AddMeshVertex(vtkIdType vertexId, double scalar);
 
 	// Description:
   //   Add a triangle from the mesh to the Reeb grpah.
   //
   //   INTERNAL USE ONLY!
-  int AddTriangle(vtkIdType vertex0Id, double f0,
+  int AddMeshTriangle(vtkIdType vertex0Id, double f0,
     vtkIdType vertex1Id, double f1, vtkIdType vertex2Id, double f2);
 
   // Description:
   //   Add a tetrahedron from the mesh to the Reeb grpah.
   //
   //   INTERNAL USE ONLY!
-  int AddTetrahedron(vtkIdType vertex0Id, double f0,
+  int AddMeshTetrahedron(vtkIdType vertex0Id, double f0,
     vtkIdType vertex1Id, double f1, vtkIdType vertex2Id, double f2,
     vtkIdType vertex3Id, double f3);
 

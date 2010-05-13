@@ -772,12 +772,109 @@ void vtkReebGraph::DeepCopy(vtkReebGraph *src)
 			sizeof(int)*src->TriangleVertexMapAllocatedSize);
 	}
 
+  vtkMutableDirectedGraph::DeepCopy(src);
+
 }
 
 //----------------------------------------------------------------------------
 void vtkReebGraph::CloseStream()
 {
-  // a simplification of vertices
+
+  vtkIdType prevArcId = -1, arcId = 0;
+  while(arcId != prevArcId)
+    {
+    prevArcId = arcId;
+    arcId = GetPreviousArcId();
+    }
+  prevArcId = -1;
+
+  // loop over the arcs and build the local adjacency map
+
+  // vertex -> (down vertices, up vertices)
+  std::map<int, std::pair<std::vector<int>, std::vector<int> > > localAdjacency;
+  std::map<int, std::pair<std::vector<int>, std::vector<int> > >::iterator aIt;
+
+  while(prevArcId != arcId)
+    {
+    vtkIdType downVertexId, upVertexId;
+    downVertexId = vtkReebGraphGetNode(this,
+      (vtkReebGraphGetArc(this, arcId))->NodeId0)->VertexId;
+    upVertexId = vtkReebGraphGetNode(this,
+      (vtkReebGraphGetArc(this, arcId))->NodeId1)->VertexId;
+
+    std::map<int,
+      std::pair<std::vector<int>, std::vector<int> > >::iterator aIt;
+
+    // lookUp for the down vertex
+    aIt = localAdjacency.find(downVertexId);
+    if(aIt == localAdjacency.end())
+      {
+      std::pair<std::vector<int>, std::vector<int> > adjacencyItem;
+      adjacencyItem.second.push_back(upVertexId);
+      localAdjacency[downVertexId] = adjacencyItem;
+      }
+    else
+      {
+      aIt->second.second.push_back(upVertexId);
+      }
+
+    // same thing for the up vertex
+    aIt = localAdjacency.find(upVertexId);
+    if(aIt == localAdjacency.end())
+      {
+      std::pair<std::vector<int>, std::vector<int> > adjacencyItem;
+      adjacencyItem.first.push_back(downVertexId);
+      localAdjacency[upVertexId] = adjacencyItem;
+      }
+    else
+      {
+      aIt->second.first.push_back(downVertexId);
+      }
+
+    prevArcId = arcId;
+    arcId = GetNextArcId();
+    }
+
+  // now build the super-arcs with deg-2 nodes
+
+  // <vertex,vertex>,<vertex list> (arc, deg2 node list)
+  std::vector<std::pair<std::pair<int, int>, std::vector<int> > >
+    globalAdjacency;
+
+  aIt = localAdjacency.begin();
+  do
+    {
+    if(!((aIt->second.first.size() == 1)&&(aIt->second.second.size() == 1)))
+      {
+      // not a deg-2 node
+      if(aIt->second.second.size())
+        {
+        // start the sweep up
+        for(int i = 0; i < aIt->second.second.size(); i++)
+          {
+          std::vector<int> deg2List;
+          std::map<int,
+            std::pair<std::vector<int>, std::vector<int> > >::iterator nextIt;
+
+          nextIt = localAdjacency.find(aIt->second.second[i]);
+          while((nextIt->second.first.size() == 1)
+            &&(nextIt->second.second.size() == 1))
+            {
+            deg2List.push_back(nextIt->first);
+            nextIt = localAdjacency.find(nextIt->second.second[0]);
+            }
+            globalAdjacency.push_back(
+              std::pair<std::pair<int, int>,
+                std::vector<int> >(std::pair<int, int>(
+                  aIt->first, nextIt->first), deg2List));
+          }
+        }
+      }
+      aIt++;
+    }
+  while(aIt != localAdjacency.end());
+
+  // now cleanup the internal representation
   int nmyend=0;
   for (vtkIdType N=1;N<this->MainNodeTable.Size;N++)
   {
@@ -795,7 +892,65 @@ void vtkReebGraph::CloseStream()
 
   this->FlushLabels();
 
-  // TODO: build the VTK graph
+
+  // now construct the actual graph
+  vtkIdType prevNodeId = -1, nodeId = 0;
+  while(prevNodeId != nodeId)
+    {
+    prevNodeId = nodeId;
+    nodeId = GetPreviousNodeId();
+    }
+  prevNodeId = -1;
+
+  vtkVariantArray *vertexProperties = vtkVariantArray::New();
+  vertexProperties->SetNumberOfValues(1);
+
+  vtkIdTypeArray  *vertexIds = vtkIdTypeArray::New();
+  vertexIds->SetName("Vertex Ids");
+  GetVertexData()->AddArray(vertexIds);
+
+  std::map<int, int> vMap;
+  int vIt = 0;
+
+  while(prevNodeId != nodeId)
+    {
+    vtkIdType nodeVertexId = GetNodeVertexId(nodeId);
+    vMap[nodeVertexId] = vIt;
+    vertexProperties->SetValue(0, nodeVertexId);
+    AddVertex(vertexProperties);
+
+    prevNodeId = nodeId;
+    nodeId = GetNextNodeId();
+    vIt++;
+    }
+  vertexIds->Delete();
+  vertexProperties->Delete();
+
+  vtkVariantArray  *deg2NodeIds = vtkVariantArray::New();
+  deg2NodeIds->SetName("Vertex Ids");
+  GetEdgeData()->AddArray(deg2NodeIds);
+
+  for(int i = 0; i < globalAdjacency.size(); i++)
+    {
+    std::map<int, int>::iterator downIt, upIt;
+    downIt = vMap.find(globalAdjacency[i].first.first);
+    upIt = vMap.find(globalAdjacency[i].first.second);
+
+    if((downIt != vMap.end())&&(upIt != vMap.end()))
+      {
+      vtkVariantArray *edgeProperties = vtkVariantArray::New();
+      vtkIdTypeArray  *vertexList = vtkIdTypeArray::New();
+      vertexList->SetNumberOfValues(globalAdjacency[i].second.size());
+      for(int j = 0; j < globalAdjacency[i].second.size(); j++)
+        vertexList->SetValue(j, globalAdjacency[i].second[j]);
+      edgeProperties->SetNumberOfValues(1);
+      edgeProperties->SetValue(0, vertexList);
+      AddEdge(downIt->second, upIt->second, edgeProperties);
+      vertexList->Delete();
+      edgeProperties->Delete();
+      }
+    }
+  deg2NodeIds->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -839,6 +994,7 @@ vtkReebGraph::vtkReebGraph()
 	this->VertexMapAllocatedSize = 0;
 	this->TriangleVertexMapSize = 0;
 	this->TriangleVertexMapAllocatedSize = 0;
+
 }
 
 //----------------------------------------------------------------------------
@@ -1067,7 +1223,7 @@ void vtkReebGraph::FindLoops()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkReebGraph::AddVertex(vtkIdType vertexId, double scalar){
+vtkIdType vtkReebGraph::AddMeshVertex(vtkIdType vertexId, double scalar){
 
   vtkIdType N0;
   ResizeMainNodeTable(1);
@@ -1495,7 +1651,7 @@ void vtkReebGraph::EndVertex(const vtkIdType N)
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::AddTetrahedron(vtkIdType vertex0Id, double f0,
+int vtkReebGraph::AddMeshTetrahedron(vtkIdType vertex0Id, double f0,
                                          vtkIdType vertex1Id, double f1,
                                          vtkIdType vertex2Id, double f2,
                                          vtkIdType vertex3Id, double f3)
@@ -1611,7 +1767,7 @@ int vtkReebGraph::AddTetrahedron(vtkIdType vertex0Id, double f0,
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::AddTriangle(vtkIdType vertex0Id, double f0,
+int vtkReebGraph::AddMeshTriangle(vtkIdType vertex0Id, double f0,
 																			vtkIdType vertex1Id, double f1,
 																			vtkIdType vertex2Id, double f2){
 
@@ -1732,7 +1888,7 @@ int vtkReebGraph::StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex0Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex0Id, scalar0);
+			= this->AddMeshVertex(vertex0Id, scalar0);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
@@ -1744,7 +1900,7 @@ int vtkReebGraph::StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex1Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex1Id, scalar1);
+			= this->AddMeshVertex(vertex1Id, scalar1);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
@@ -1756,7 +1912,7 @@ int vtkReebGraph::StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex2Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex2Id, scalar2);
+			= this->AddMeshVertex(vertex2Id, scalar2);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
@@ -1768,12 +1924,12 @@ int vtkReebGraph::StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex3Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex3Id, scalar3);
+			= this->AddMeshVertex(vertex3Id, scalar3);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
 
-	this->AddTetrahedron(vertex0Id, scalar0, vertex1Id, scalar1,
+	this->AddMeshTetrahedron(vertex0Id, scalar0, vertex1Id, scalar1,
 		vertex2Id, scalar2, vertex3Id, scalar3);
 
 	return 0;
@@ -1829,7 +1985,7 @@ int vtkReebGraph::StreamTriangle(	vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex0Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex0Id, scalar0);
+			= this->AddMeshVertex(vertex0Id, scalar0);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
@@ -1841,7 +1997,7 @@ int vtkReebGraph::StreamTriangle(	vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex1Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex1Id, scalar1);
+			= this->AddMeshVertex(vertex1Id, scalar1);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
@@ -1853,12 +2009,12 @@ int vtkReebGraph::StreamTriangle(	vtkIdType vertex0Id, double scalar0,
 		// this vertex hasn't been streamed yet, let's add it
 		this->VertexStream[vertex2Id] = this->VertexMapSize;
 		this->VertexMap[this->VertexMapSize]
-			= this->AddVertex(vertex2Id, scalar2);
+			= this->AddMeshVertex(vertex2Id, scalar2);
 		this->VertexMapSize++;
 		this->TriangleVertexMapSize++;
 	}
 
-	this->AddTriangle(vertex0Id, scalar0, vertex1Id, scalar1,
+	this->AddMeshTriangle(vertex0Id, scalar0, vertex1Id, scalar1,
 		vertex2Id, scalar2);
 
 	return 0;
@@ -2150,6 +2306,8 @@ vtkMutableDirectedGraph* vtkReebGraph::GetVtkGraph()
     arcId = this->GetPreviousArcId();
   }
   prevArcId = -1;
+
+  // TODO: map the deg2list to each arc
 
   // now copy the arcs
   while(prevArcId != arcId){
