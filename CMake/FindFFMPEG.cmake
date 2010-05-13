@@ -122,6 +122,11 @@ IF(FFMPEG_INCLUDE_DIR)
           ${FFMPEG_avformat_LIBRARY}
           ${FFMPEG_avutil_LIBRARY} 
           )
+		
+        # swscale is always a part of newer ffmpeg distros		
+		IF(FFMPEG_swscale_LIBRARY)
+          LIST(APPEND FFMPEG_BASIC_LIBRARIES ${FFMPEG_swscale_LIBRARY})
+        ENDIF(FFMPEG_swscale_LIBRARY)
 
         SET(FFMPEG_LIBRARIES ${FFMPEG_BASIC_LIBRARIES})
 
@@ -148,10 +153,6 @@ IF(FFMPEG_INCLUDE_DIR)
         IF(FFMPEG_gsm_LIBRARY)
           LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_gsm_LIBRARY})
         ENDIF(FFMPEG_gsm_LIBRARY)
-
-        IF(FFMPEG_swscale_LIBRARY)
-          LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_swscale_LIBRARY})
-        ENDIF(FFMPEG_swscale_LIBRARY)
 
         IF(FFMPEG_z_LIBRARY)
           LIST(APPEND FFMPEG_LIBRARIES ${FFMPEG_z_LIBRARY})
