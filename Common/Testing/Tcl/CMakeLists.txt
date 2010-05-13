@@ -1,22 +1,24 @@
 ADD_TEST(otherInterp ${VTK_EXECUTABLE}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/otherInterp.tcl 
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/otherInterp.tcl
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ADD_TEST(otherPrint ${VTK_EXECUTABLE}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/otherPrint.tcl 
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/otherPrint.tcl
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ADD_TEST(TestEmptyInput ${VTK_EXECUTABLE}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestEmptyInput.tcl 
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestEmptyInput.tcl
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ADD_TEST(TestSetGet ${VTK_EXECUTABLE}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestSetGet.tcl 
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestSetGet.tcl
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ADD_TEST(TestArrays ${VTK_EXECUTABLE}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestArrays.tcl 
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestArrays.tcl
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+ADD_TEST(TestString ${VTK_EXECUTABLE}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestString.tcl)
 ADD_TEST(TestAmoebaMinimizer ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestAmoebaMinimizer.tcl)
 ADD_TEST(PrintSelf-Common ${TCL_TCLSH}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl
          ${VTK_SOURCE_DIR}/Common)
 ADD_TEST(TestSetObjectMacro-Common ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
