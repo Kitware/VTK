@@ -795,32 +795,43 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
         {
         os << "{";
         }
-      if(isInt)
+      if(loc==-1)
         {
-        vtkgl::GetUniformiv(progId,loc,ivalues);
-        int j=0;
-        while(j<elementSize)
-          {
-          os << ivalues[j];
-          if(j<(elementSize-1))
-            {
-            os << " ";
-            }
-          ++j;
-          }
+        // this a built-in variable like:
+        // gl_DepthRange.near, gl_DepthRange.far, gl_DepthRange.diff,
+        // gl_ProjectionMatrixInverse, ...
+        // we cannot get the value through vtkgl::GetUniform*()
+        os << "<built-in value>";
         }
       else
         {
-        vtkgl::GetUniformfv(progId,loc,fvalues);
-        int j=0;
-        while(j<elementSize)
+        if(isInt)
           {
-          os << fvalues[j];
-          if(j<(elementSize-1))
+          vtkgl::GetUniformiv(progId,loc,ivalues);
+          int j=0;
+          while(j<elementSize)
             {
-            os << " ";
+            os << ivalues[j];
+            if(j<(elementSize-1))
+              {
+              os << " ";
+              }
+            ++j;
             }
-          ++j;
+          }
+        else
+          {
+          vtkgl::GetUniformfv(progId,loc,fvalues);
+          int j=0;
+          while(j<elementSize)
+            {
+            os << fvalues[j];
+            if(j<(elementSize-1))
+              {
+              os << " ";
+              }
+            ++j;
+            }
           }
         }
       if(elementSize>1)
