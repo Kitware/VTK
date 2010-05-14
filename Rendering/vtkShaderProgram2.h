@@ -122,6 +122,7 @@ public:
   // Send the uniform variables values to the program.
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
+  // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   void SendUniforms();
   
   // Description:

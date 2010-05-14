@@ -527,6 +527,8 @@ void vtkShaderProgram2::SendUniforms()
 {
   assert("pre: context_is_set" && this->Context!=0);
   assert("pre: current_context_matches" && this->Context->IsCurrent());
+  assert("pre: built" &&
+         this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED);
 
   bool needUpdate=this->LastSendUniformsTime<this->LastLinkTime;
   if(!needUpdate)
