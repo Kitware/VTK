@@ -635,12 +635,16 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   GLenum type;
   bool isInt;
   int elementSize;
+  bool isSampler;
+  GLenum textureBinding;
   while(i<c)
     {
     vtkgl::GetActiveUniform(progId,i,buffSize,0,&size,&type,name);
     os << indent << i <<" ";
     os << indent;
     isInt=true;
+    isSampler=false;
+    textureBinding=GL_TEXTURE_BINDING_1D;
     elementSize=1;
     switch(type)
       {
@@ -740,21 +744,43 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
         break;
       case vtkgl::SAMPLER_1D:
         os<<"sampler1D";
+        isSampler=true;
+        textureBinding=GL_TEXTURE_BINDING_1D;
         break;
       case vtkgl::SAMPLER_2D:
         os<<"sampler2D";
+        isSampler=true;
+        textureBinding=GL_TEXTURE_BINDING_2D;
         break;
       case vtkgl::SAMPLER_3D:
         os<<"sampler3D";
+        isSampler=true;
+        textureBinding=GL_TEXTURE_BINDING_3D;
         break;
       case vtkgl::SAMPLER_CUBE:
         os<<"samplerCube";
+        isSampler=true;
+        textureBinding=GL_TEXTURE_BINDING_CUBE_MAP;
         break;
       case vtkgl::SAMPLER_1D_SHADOW:
-        os<<"sampler1Dshadow";
+        os<<"sampler1DShadow";
+        isSampler=true;
+        textureBinding=GL_TEXTURE_BINDING_1D;
         break;
       case vtkgl::SAMPLER_2D_SHADOW:
-        os<<"sampler2Dshadow";
+        os<<"sampler2DShadow";
+        isSampler=true;
+        textureBinding=GL_TEXTURE_BINDING_2D;
+        break;
+      case vtkgl::SAMPLER_2D_RECT_ARB:
+        os<<"sampler2DRect";
+        isSampler=true;
+        textureBinding=vtkgl::TEXTURE_BINDING_RECTANGLE_ARB;
+        break;
+      case vtkgl::SAMPLER_2D_RECT_SHADOW_ARB:
+        os<<"sampler2DRectShadow";
+        isSampler=true;
+        textureBinding=vtkgl::TEXTURE_BINDING_RECTANGLE_ARB;
         break;
       }
     os<<" "<<name;
@@ -817,6 +843,24 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
               os << " ";
               }
             ++j;
+            }
+          if(isSampler)
+            {
+            os << " (Texture Unit)->";
+            GLint savedActiveTextureUnit;
+            glGetIntegerv(vtkgl::ACTIVE_TEXTURE,&savedActiveTextureUnit);
+            savedActiveTextureUnit=savedActiveTextureUnit-GL_TEXTURE0;
+            if(savedActiveTextureUnit!=ivalues[0])
+              {
+              vtkgl::ActiveTexture(GL_TEXTURE0+ivalues[0]);
+              }
+            GLint textureObject;
+            glGetIntegerv(textureBinding,&textureObject);
+            if(savedActiveTextureUnit!=ivalues[0])
+              {
+              vtkgl::ActiveTexture(GL_TEXTURE0+savedActiveTextureUnit);
+              }
+            os << textureObject << " (Texture Object)";
             }
           }
         else
