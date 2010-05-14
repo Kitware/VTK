@@ -241,6 +241,7 @@ protected:
   bool cachedImageCleanFlag;
   bool automaticImageCache;
   double maxImageCacheRenderRate;
+  QVTKInteractorAdapter* mIrenAdapter;
   
 private:
   //! unimplemented operator=

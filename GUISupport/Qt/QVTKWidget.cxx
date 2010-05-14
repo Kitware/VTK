@@ -60,11 +60,6 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 
-// function to get VTK keysyms from ascii characters
-static const char* ascii_to_key_sym(int);
-// function to get VTK keysyms from Qt keys
-static const char* qt_key_to_key_sym(Qt::Key);
-
 // function to dirty cache when a render occurs.
 static void dirty_cache(vtkObject *, unsigned long, void *, void *);
 
@@ -104,6 +99,8 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
   this->DirtyRegionHandler = 0;
   this->DirtyRegionHandlerUPP = 0;
 #endif
+
+  mIrenAdapter = new QVTKInteractorAdapter(this);
 
 }
 
@@ -401,12 +398,17 @@ void QVTKWidget::resizeEvent(QResizeEvent* e)
     return;
     }
 
-  // give the size to the interactor and vtk window
+  // Don't set size on subclass of vtkRenderWindow or it triggers recursion.
+  // Getting this event in the first place means the window was already
+  // resized and we're updating the sizes in VTK.
   this->mRenWin->vtkRenderWindow::SetSize(this->width(), this->height());
+
+  // and update the interactor
   if(this->mRenWin->GetInteractor())
     {
-    this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
+
   this->markCachedImageAsDirty();
 }
 
@@ -419,7 +421,9 @@ void QVTKWidget::moveEvent(QMoveEvent* e)
     return;
     }
     
-  // give the size to the interactor and vtk window
+  // Don't set size on subclass of vtkRenderWindow or it triggers recursion.
+  // Getting this event in the first place means the window was already
+  // resized and we're updating the sizes in VTK.
   this->mRenWin->vtkRenderWindow::SetPosition(this->x(), this->y());
 }
 
@@ -484,66 +488,21 @@ void QVTKWidget::mousePressEvent(QMouseEvent* e)
   // Emit a mouse press event for anyone who might be interested
   emit mouseEvent(e);
 
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
   
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-
-  // give interactor the event information
-  iren->SetEventInformationFlipY(e->x(), e->y(), 
-                              (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
-                              (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
-                              0,
-                              e->type() == QEvent::MouseButtonDblClick ? 1 : 0);
-
-  // invoke appropriate vtk event
-  switch(e->button())
-    {
-    case Qt::LeftButton:
-      iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, e);
-      break;
-
-    case Qt::MidButton:
-      iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, e);
-      break;
-
-    case Qt::RightButton:
-      iren->InvokeEvent(vtkCommand::RightButtonPressEvent, e);
-      break;
-
-    default:
-      break;
-    }
 }
 
 /*! handle mouse move event
  */
 void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // give interactor the event information
-  iren->SetEventInformationFlipY(e->x(), e->y(), 
-                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
-                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
-  
-  // invoke vtk event
-  iren->InvokeEvent(vtkCommand::MouseMoveEvent, e);
 }
 
 
@@ -551,75 +510,29 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* e)
  */
 void QVTKWidget::enterEvent(QEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-
-  iren->InvokeEvent(vtkCommand::EnterEvent, e);
 }
 
 /*! handle leave event
  */
 void QVTKWidget::leaveEvent(QEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  iren->InvokeEvent(vtkCommand::LeaveEvent, e);
 }
 
 /*! handle mouse release event
  */
 void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
-    }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // give vtk event information
-  iren->SetEventInformationFlipY(e->x(), e->y(), 
-                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
-                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
-  
-  // invoke appropriate vtk event
-  switch(e->button())
-    {
-    case Qt::LeftButton:
-      iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, e);
-      break;
-
-    case Qt::MidButton:
-      iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, e);
-      break;
-
-    case Qt::RightButton:
-      iren->InvokeEvent(vtkCommand::RightButtonReleaseEvent, e);
-      break;
-
-    default:
-      break;
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
 }
 
@@ -627,44 +540,9 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* e)
  */
 void QVTKWidget::keyPressEvent(QKeyEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
-    }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // get key and keysym information
-  int ascii_key = e->text().length() ? e->text().unicode()->toLatin1() : 0;
-  const char* keysym = ascii_to_key_sym(ascii_key);
-  if(!keysym)
-    {
-    // get virtual keys
-    keysym = qt_key_to_key_sym(static_cast<Qt::Key>(e->key()));
-    }
-
-  if(!keysym)
-    {
-    keysym = "None";
-    }
-  
-  // give interactor event information
-  iren->SetKeyEventInformation(
-    (e->modifiers() & Qt::ControlModifier),
-    (e->modifiers() & Qt::ShiftModifier),
-    ascii_key, e->count(), keysym);
-
-  // invoke vtk event
-  iren->InvokeEvent(vtkCommand::KeyPressEvent, e);
-  
-  // invoke char event only for ascii characters
-  if(ascii_key)
-    {
-    iren->InvokeEvent(vtkCommand::CharEvent, e);
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
 }
 
@@ -672,76 +550,21 @@ void QVTKWidget::keyPressEvent(QKeyEvent* e)
  */
 void QVTKWidget::keyReleaseEvent(QKeyEvent* e)
 {
-
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // get key and keysym info
-  int ascii_key = e->text().length() ? e->text().unicode()->toLatin1() : 0;
-  const char* keysym = ascii_to_key_sym(ascii_key);
-  if(!keysym)
-    {
-    // get virtual keys
-    keysym = qt_key_to_key_sym((Qt::Key)e->key());
-    }
-
-  if(!keysym)
-    {
-    keysym = "None";
-    }
-
-  // give event information to interactor
-  iren->SetKeyEventInformation(
-    (e->modifiers() & Qt::ControlModifier),
-    (e->modifiers() & Qt::ShiftModifier),
-    ascii_key, e->count(), keysym);
-
-  // invoke vtk event
-  iren->InvokeEvent(vtkCommand::KeyReleaseEvent, e);
 }
 
-#ifndef QT_NO_WHEELEVENT
 void QVTKWidget::wheelEvent(QWheelEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
-    }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-
-// VTK supports wheel mouse events only in version 4.5 or greater
-  // give event information to interactor
-  iren->SetEventInformationFlipY(e->x(), e->y(), 
-                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
-                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
-  
-  // invoke vtk event
-  // if delta is positive, it is a forward wheel event
-  if(e->delta() > 0)
-    {
-    iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e);
-    }
-  else
-    {
-    iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e);
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
 }
-#endif
 
-void QVTKWidget::focusInEvent(QFocusEvent*)
+void QVTKWidget::focusInEvent(QFocusEvent* e)
 {
   // These prevent updates when the window 
   // gains or loses focus.  By default, Qt
@@ -749,17 +572,11 @@ void QVTKWidget::focusInEvent(QFocusEvent*)
   // active status changes.  We don't even use
   // color groups so we do nothing here.
   
-  // For 3Dconnexion devices:
-  QVTKInteractor* iren = this->GetInteractor();
-  // Note that this class can have interactor of type
-  // other than QVTKInteractor
-  if (iren)
-    {
-    iren->StartListening();
-    }
+  // also pass to interactor
+  mIrenAdapter->ProcessEvent(e, this->GetInteractor());
 }
 
-void QVTKWidget::focusOutEvent(QFocusEvent*)
+void QVTKWidget::focusOutEvent(QFocusEvent* e)
 {
   // These prevent updates when the window 
   // gains or loses focus.  By default, Qt
@@ -767,112 +584,49 @@ void QVTKWidget::focusOutEvent(QFocusEvent*)
   // active status changes.  We don't even use
   // color groups so we do nothing here.
   
-  // For 3DConnexion devices:
-  QVTKInteractor* iren = this->GetInteractor();
-  // Note that this class can have interactor of type
-  // other than QVTKInteractor
-  if (iren)
-    {
-    iren->StopListening();
-    }
+  // also pass to interactor
+  mIrenAdapter->ProcessEvent(e, this->GetInteractor());
 }
 
 
 void QVTKWidget::contextMenuEvent(QContextMenuEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // give interactor the event information
-  iren->SetEventInformationFlipY(e->x(), e->y(), 
-                             (e->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0, 
-                             (e->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
-
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::ContextMenuEvent, e);
-  
 }
 
 void QVTKWidget::dragEnterEvent(QDragEnterEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DragEnterEvent, e);
 }
 
 void QVTKWidget::dragMoveEvent(QDragMoveEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // give interactor the event information
-  iren->SetEventInformationFlipY(e->pos().x(), e->pos().y());
-
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DragMoveEvent, e);
 }
 
 void QVTKWidget::dragLeaveEvent(QDragLeaveEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DragLeaveEvent, e);
 }
 
 void QVTKWidget::dropEvent(QDropEvent* e)
 {
-  vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     {
-    iren = this->mRenWin->GetInteractor();
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
-  if(!iren || !iren->GetEnabled())
-    {
-    return;
-    }
-  
-  // give interactor the event information
-  iren->SetEventInformationFlipY(e->pos().x(), e->pos().y());
-
-  // invoke event and pass qt event for additional data as well
-  iren->InvokeEvent(QVTKWidget::DropEvent, e);
 }
 
 void QVTKWidget::showEvent(QShowEvent* e)
@@ -1065,158 +819,3 @@ static void dirty_cache(vtkObject *caller, unsigned long,
       }
     }
 }
-
-
-// ***** keysym stuff below  *****
-
-static const char *AsciiToKeySymTable[] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, "Tab", 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  "space", "exclam", "quotedbl", "numbersign",
-  "dollar", "percent", "ampersand", "quoteright",
-  "parenleft", "parenright", "asterisk", "plus",
-  "comma", "minus", "period", "slash",
-  "0", "1", "2", "3", "4", "5", "6", "7",
-  "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
-  "at", "A", "B", "C", "D", "E", "F", "G",
-  "H", "I", "J", "K", "L", "M", "N", "O",
-  "P", "Q", "R", "S", "T", "U", "V", "W",
-  "X", "Y", "Z", "bracketleft",
-  "backslash", "bracketright", "asciicircum", "underscore",
-  "quoteleft", "a", "b", "c", "d", "e", "f", "g",
-  "h", "i", "j", "k", "l", "m", "n", "o",
-  "p", "q", "r", "s", "t", "u", "v", "w",
-  "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-const char* ascii_to_key_sym(int i)
-{
-  if(i >= 0)
-    {
-    return AsciiToKeySymTable[i];
-    }
-  return 0;
-}
-
-#define QVTK_HANDLE(x,y) \
-  case x : \
-    ret = y; \
-    break;
-
-const char* qt_key_to_key_sym(Qt::Key i)
-{
-  const char* ret = 0;
-  switch(i)
-    {
-    // Cancel
-    QVTK_HANDLE(Qt::Key_Backspace, "BackSpace")
-      QVTK_HANDLE(Qt::Key_Tab, "Tab")
-      QVTK_HANDLE(Qt::Key_Backtab, "Tab")
-      //QVTK_HANDLE(Qt::Key_Clear, "Clear")
-      QVTK_HANDLE(Qt::Key_Return, "Return")
-      QVTK_HANDLE(Qt::Key_Enter, "Return")
-      QVTK_HANDLE(Qt::Key_Shift, "Shift_L")
-      QVTK_HANDLE(Qt::Key_Control, "Control_L")
-      QVTK_HANDLE(Qt::Key_Alt, "Alt_L")
-      QVTK_HANDLE(Qt::Key_Pause, "Pause")
-      QVTK_HANDLE(Qt::Key_CapsLock, "Caps_Lock")
-      QVTK_HANDLE(Qt::Key_Escape, "Escape")
-      QVTK_HANDLE(Qt::Key_Space, "space")
-      //QVTK_HANDLE(Qt::Key_Prior, "Prior")
-      //QVTK_HANDLE(Qt::Key_Next, "Next")
-      QVTK_HANDLE(Qt::Key_End, "End")
-      QVTK_HANDLE(Qt::Key_Home, "Home")
-      QVTK_HANDLE(Qt::Key_Left, "Left")
-      QVTK_HANDLE(Qt::Key_Up, "Up")
-      QVTK_HANDLE(Qt::Key_Right, "Right")
-      QVTK_HANDLE(Qt::Key_Down, "Down")
-
-      // Select
-      // Execute
-      QVTK_HANDLE(Qt::Key_SysReq, "Snapshot")
-      QVTK_HANDLE(Qt::Key_Insert, "Insert")
-      QVTK_HANDLE(Qt::Key_Delete, "Delete")
-      QVTK_HANDLE(Qt::Key_Help, "Help")
-      QVTK_HANDLE(Qt::Key_0, "0")
-      QVTK_HANDLE(Qt::Key_1, "1")
-      QVTK_HANDLE(Qt::Key_2, "2")
-      QVTK_HANDLE(Qt::Key_3, "3")
-      QVTK_HANDLE(Qt::Key_4, "4")
-      QVTK_HANDLE(Qt::Key_5, "5")
-      QVTK_HANDLE(Qt::Key_6, "6")
-      QVTK_HANDLE(Qt::Key_7, "7")
-      QVTK_HANDLE(Qt::Key_8, "8")
-      QVTK_HANDLE(Qt::Key_9, "9")
-      QVTK_HANDLE(Qt::Key_A, "a")
-      QVTK_HANDLE(Qt::Key_B, "b")
-      QVTK_HANDLE(Qt::Key_C, "c")
-      QVTK_HANDLE(Qt::Key_D, "d")
-      QVTK_HANDLE(Qt::Key_E, "e")
-      QVTK_HANDLE(Qt::Key_F, "f")
-      QVTK_HANDLE(Qt::Key_G, "g")
-      QVTK_HANDLE(Qt::Key_H, "h")
-      QVTK_HANDLE(Qt::Key_I, "i")
-      QVTK_HANDLE(Qt::Key_J, "h")
-      QVTK_HANDLE(Qt::Key_K, "k")
-      QVTK_HANDLE(Qt::Key_L, "l")
-      QVTK_HANDLE(Qt::Key_M, "m")
-      QVTK_HANDLE(Qt::Key_N, "n")
-      QVTK_HANDLE(Qt::Key_O, "o")
-      QVTK_HANDLE(Qt::Key_P, "p")
-      QVTK_HANDLE(Qt::Key_Q, "q")
-      QVTK_HANDLE(Qt::Key_R, "r")
-      QVTK_HANDLE(Qt::Key_S, "s")
-      QVTK_HANDLE(Qt::Key_T, "t")
-      QVTK_HANDLE(Qt::Key_U, "u")
-      QVTK_HANDLE(Qt::Key_V, "v")
-      QVTK_HANDLE(Qt::Key_W, "w")
-      QVTK_HANDLE(Qt::Key_X, "x")
-      QVTK_HANDLE(Qt::Key_Y, "y")
-      QVTK_HANDLE(Qt::Key_Z, "z")
-      // KP_0 - KP_9
-      QVTK_HANDLE(Qt::Key_Asterisk, "asterisk")
-      QVTK_HANDLE(Qt::Key_Plus, "plus")
-      // bar
-      QVTK_HANDLE(Qt::Key_Minus, "minus")
-      QVTK_HANDLE(Qt::Key_Period, "period")
-      QVTK_HANDLE(Qt::Key_Slash, "slash")
-      QVTK_HANDLE(Qt::Key_F1, "F1")
-      QVTK_HANDLE(Qt::Key_F2, "F2")
-      QVTK_HANDLE(Qt::Key_F3, "F3")
-      QVTK_HANDLE(Qt::Key_F4, "F4")
-      QVTK_HANDLE(Qt::Key_F5, "F5")
-      QVTK_HANDLE(Qt::Key_F6, "F6")
-      QVTK_HANDLE(Qt::Key_F7, "F7")
-      QVTK_HANDLE(Qt::Key_F8, "F8")
-      QVTK_HANDLE(Qt::Key_F9, "F9")
-      QVTK_HANDLE(Qt::Key_F10, "F10")
-      QVTK_HANDLE(Qt::Key_F11, "F11")
-      QVTK_HANDLE(Qt::Key_F12, "F12")
-      QVTK_HANDLE(Qt::Key_F13, "F13")
-      QVTK_HANDLE(Qt::Key_F14, "F14")
-      QVTK_HANDLE(Qt::Key_F15, "F15")
-      QVTK_HANDLE(Qt::Key_F16, "F16")
-      QVTK_HANDLE(Qt::Key_F17, "F17")
-      QVTK_HANDLE(Qt::Key_F18, "F18")
-      QVTK_HANDLE(Qt::Key_F19, "F19")
-      QVTK_HANDLE(Qt::Key_F20, "F20")
-      QVTK_HANDLE(Qt::Key_F21, "F21")
-      QVTK_HANDLE(Qt::Key_F22, "F22")
-      QVTK_HANDLE(Qt::Key_F23, "F23")
-      QVTK_HANDLE(Qt::Key_F24, "F24")
-      QVTK_HANDLE(Qt::Key_NumLock, "Num_Lock")
-      QVTK_HANDLE(Qt::Key_ScrollLock, "Scroll_Lock")
-
-      default:
-    break;
-    }
-  return ret;
-}
-
