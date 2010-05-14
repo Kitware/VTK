@@ -21,16 +21,16 @@
 #ifndef __vtkReebGraphToReebGraphPersistenceFilter_h
 #define __vtkReebGraphToReebGraphPersistenceFilter_h
 
-#include "vtkDataObjectAlgorithm.h"
+#include "vtkDirectedGraphAlgorithm.h"
 #include "vtkReebGraph.h"
 
 class VTK_GRAPHICS_EXPORT vtkReebGraphToReebGraphPersistenceFilter :
-  public vtkDataObjectAlgorithm
+  public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkReebGraphToReebGraphPersistenceFilter* New();
   vtkTypeRevisionMacro(vtkReebGraphToReebGraphPersistenceFilter,
-    vtkDataObjectAlgorithm);
+    vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

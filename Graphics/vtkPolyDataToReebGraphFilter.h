@@ -23,15 +23,15 @@
 #ifndef __vtkPolyDataToReebGraphFilter_h
 #define __vtkPolyDataToReebGraphFilter_h
 
-#include "vtkDataObjectAlgorithm.h"
+#include "vtkDirectedGraphAlgorithm.h"
 #include "vtkReebGraph.h"
 
 class VTK_GRAPHICS_EXPORT vtkPolyDataToReebGraphFilter :
-  public vtkDataObjectAlgorithm
+  public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkPolyDataToReebGraphFilter* New();
-  vtkTypeRevisionMacro(vtkPolyDataToReebGraphFilter, vtkDataObjectAlgorithm);
+  vtkTypeRevisionMacro(vtkPolyDataToReebGraphFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

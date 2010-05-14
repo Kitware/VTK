@@ -46,7 +46,7 @@ int vtkPolyDataToReebGraphFilter::FillInputPortInformation(
 int vtkPolyDataToReebGraphFilter::FillOutputPortInformation(
   int, vtkInformation *info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkReebGraph");
+  info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
   return 1;
 }
 
