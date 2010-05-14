@@ -9,6 +9,7 @@ MACRO(VTK_EXPORT_KIT2 kit ukit dest_dir sources)
   SET(KIT_CLASS_LIST)
   SET(KIT_ABSTRACT_LIST)
   SET(KIT_EXCLUDE_LIST)
+  SET(KIT_SPECIAL_LIST)
   FOREACH(src ${sources})
     # Get the class name from the full file name.  All class headers
     # will be installed to the same directory for this kit in the
@@ -23,6 +24,10 @@ MACRO(VTK_EXPORT_KIT2 kit ukit dest_dir sources)
     IF(IS_EXCLUDE MATCHES "^1$")
       SET(KIT_EXCLUDE_LIST "${KIT_EXCLUDE_LIST}\n  \"${CLASS}\"")
     ENDIF(IS_EXCLUDE MATCHES "^1$")
+    GET_SOURCE_FILE_PROPERTY(IS_SPECIAL ${src} WRAP_SPECIAL)
+    IF(IS_SPECIAL MATCHES "^1$")
+      SET(KIT_SPECIAL_LIST "${KIT_SPECIAL_LIST}\n  \"${CLASS}\"")
+    ENDIF(IS_SPECIAL MATCHES "^1$")
   ENDFOREACH(src)
   CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkKit.cmake.in
                  ${dest_dir}/InstallOnly/vtk${kit}Kit.cmake
