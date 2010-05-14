@@ -20,11 +20,15 @@
 // .NAME vtkReebGraph - Reeb graph computation for PL scalar fields.
 //
 // .SECTION Description
-// vtkReebGraph is a data object that computes a Reeb graph given a PL scalar
-// field (vtkDataArray) defined on a simplicial mesh (a surface mesh,
-// vtkPolyData or a tetrahedral mesh, vtkUnstructuredGrid).
-// vtkReebGraph represents in a concise manner the connectivity
-// evolution of the level sets of a scalar function defined on the mesh.
+// vtkReebGraph is a class that computes a Reeb graph given a PL scalar
+// field (vtkDataArray) defined on a simplicial mesh.
+// A Reeb graph is a concise representation of the connectivity evolution of
+// the level sets of a scalar function.
+//
+// It is particularly useful in visualization (optimal seed set computation,
+// fast flexible isosurface extraction, automated transfer function design,
+// feature-driven visualization, etc.) and computer graphics (shape
+// deformation, shape matching, shape compression, etc.).
 //
 // Reference:
 // "Sur les points singuliers d'une forme de Pfaff completement integrable ou
@@ -32,14 +36,8 @@
 // G. Reeb,
 // Comptes-rendus de l'Academie des Sciences, 222:847-849, 1946.
 //
-// vtkReebGraph provides a concise yet powerful representation of a scalar
-// field, which has shown to be useful in diverse tasks in computer graphics
-// (shape deformation, shape matching, shape compression, etc.) and in
-// visualization (fast flexible isosurface extraction, automated transfer
-// function design, feature-driven visualization metaphors, etc.)
-//
-// vtkReebGraph implements one of the latest and most robust algorithms
-// for Reeb graph computation.
+// vtkReebGraph implements one of the latest and most robust Reeb graph
+// computation algorithms.
 //
 // Reference:
 // "Robust on-line computation of Reeb graphs: simplicity and speed",
@@ -53,6 +51,33 @@
 // "Topological persistence and simplification",
 // H. Edelsbrunner, D. Letscher, and A. Zomorodian,
 // Discrete Computational Geometry, 28:511-533, 2002.
+//
+//
+// Reeb graphs can be computed from 2D data (vtkPolyData, with triangles only)
+// or 3D data (vtkUnstructuredGrid, with tetrahedra only), sequentially (see
+// the "Build" calls) or in streaming (see the "StreamTriangle" and
+// "StreamTetrahedron" calls).
+//
+// vtkReebGraph inherits from vtkMutableDirectedGraph.
+//
+// Each vertex of a vtkReebGraph object represents a critical point of the
+// scalar field where the connectivity of the related level set changes
+// (creation, deletion, split or merge of connected components).
+// A vtkIdTypeArray (called "Vertex Ids") is associated with the VertexData of
+// a vtkReebGraph object, in order to retrieve if necessary the exact Ids of
+// the corresponding vertices in the input mesh.
+//
+// The edges of a vtkReebGraph object represent the regions of the input mesh
+// separated by the critical contours of the field, and where the connectivity
+// of the input field does not change.
+// A vtkVariantArray is associated with the EdgeDta of a vtkReebGraph object and
+// each entry of this array is a vtkAbstractArray containing the Ids of the
+// vertices of those regions, sorted by function value (useful for flexible
+// isosurface extraction or level set signature computation, for instance).
+//
+// See Graphics/vtkReebGraphToAreaSignatureFilter.cxx for examples of traversals
+// of a vtkReebGraph object.
+//
 //
 // .SECTION See Also
 //      vtkPolyData vtkUnstructuredGrid vtkDataArray
@@ -191,15 +216,6 @@ public:
   //
   int Build(vtkUnstructuredGrid *mesh, const char* scalarFieldName);
 
-  // Description:
-  // Returns a vtkMutableDirectedGraph representation of the Reeb graph
-  // (convenient traversal features).
-  //
-  // The vertices of the output graph are associated with attributes 
-  // ("Vertex Ids" array) representing the mesh vertex Id of each node of the 
-  // Reeb graph.
-  vtkMutableDirectedGraph* GetVtkGraph();
-
 	// Description:
 	// Streaming Reeb graph computation.
 	// Add to the streaming computation the triangle of the vtkPolyData surface
@@ -211,6 +227,7 @@ public:
 	// 	where vertex<i>Id is the Id of the vertex in the vtkPolyData structure
 	// 	and scalar<i> is the corresponding scalar field value.
 	//
+  // IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
 	int StreamTriangle(	vtkIdType vertex0Id, double scalar0,
 											vtkIdType vertex1Id, double scalar1,
 											vtkIdType vertex2Id, double scalar2);
@@ -227,6 +244,7 @@ public:
 	// 	where vertex<i>Id is the Id of the vertex in the vtkUnstructuredGrid
 	// 	structure and scalar<i> is the corresponding scalar field value.
 	//
+  // IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
 	int StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
 											   vtkIdType vertex1Id, double scalar1,
 											   vtkIdType vertex2Id, double scalar2,
@@ -234,10 +252,10 @@ public:
 
 	// Description:
 	// Finalize internal data structures, in the case of streaming computations
-  // (with StreamTriangle or StreamTetrahedron)/
+  // (with StreamTriangle or StreamTetrahedron).
   // After this call, no more triangle or tetrahedron can be inserted via
   // StreamTriangle or StreamTetrahedron.
-	// IMPORTANT: This method _must_ be called when the input stream is finisehd.
+	// IMPORTANT: This method _must_ be called when the input stream is finished.
   // If you need to get a snapshot of the Reeb graph during the streaming
   // process (to parse or simplify it), do a DeepCopy followed by a
   // CloseStream on the copy.
