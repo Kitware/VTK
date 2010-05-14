@@ -4296,6 +4296,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
   this->CheckFrameBufferStatus();
 
+#ifdef APPLE_SNOW_LEOPARD_BUG
+  this->Program->SendUniforms();
+  cout << "BEFORE isValid0"  << endl;
+  if(!this->Program->IsValid())
+    {
+    cout <<this->Program->GetLastValidateLog() << endl;
+    this->Program->PrintActiveUniformVariablesOnCout();
+    v->Print(cout);
+    }
+  cout << "AFTER isValid0"  << endl;
+#endif
+  
   if(this->NumberOfCroppingRegions>1)
     {
     // framebuffer texture
@@ -4318,6 +4330,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       {
       cout <<this->Program->GetLastValidateLog() << endl;
       this->Program->PrintActiveUniformVariablesOnCout();
+      v->Print(cout);
       }
     cout << "AFTER isValid1"  << endl;
 #endif
@@ -4344,6 +4357,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     {
     cout <<this->Program->GetLastValidateLog() << endl;
     this->Program->PrintActiveUniformVariablesOnCout();
+    v->Print(cout);
     }
   cout << "AFTER isValid2"  << endl;
 #endif
