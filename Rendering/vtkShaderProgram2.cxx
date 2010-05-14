@@ -755,12 +755,12 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
       case vtkgl::SAMPLER_3D:
         os<<"sampler3D";
         isSampler=true;
-        textureBinding=GL_TEXTURE_BINDING_3D;
+        textureBinding=vtkgl::TEXTURE_BINDING_3D;
         break;
       case vtkgl::SAMPLER_CUBE:
         os<<"samplerCube";
         isSampler=true;
-        textureBinding=GL_TEXTURE_BINDING_CUBE_MAP;
+        textureBinding=vtkgl::TEXTURE_BINDING_CUBE_MAP;
         break;
       case vtkgl::SAMPLER_1D_SHADOW:
         os<<"sampler1DShadow";
@@ -849,16 +849,19 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
             os << " (Texture Unit)->";
             GLint savedActiveTextureUnit;
             glGetIntegerv(vtkgl::ACTIVE_TEXTURE,&savedActiveTextureUnit);
-            savedActiveTextureUnit=savedActiveTextureUnit-GL_TEXTURE0;
+            savedActiveTextureUnit=static_cast<GLint>(
+              static_cast<GLenum>(savedActiveTextureUnit)-vtkgl::TEXTURE0);
             if(savedActiveTextureUnit!=ivalues[0])
               {
-              vtkgl::ActiveTexture(GL_TEXTURE0+ivalues[0]);
+              vtkgl::ActiveTexture(vtkgl::TEXTURE0+
+                                   static_cast<GLenum>(ivalues[0]));
               }
             GLint textureObject;
             glGetIntegerv(textureBinding,&textureObject);
             if(savedActiveTextureUnit!=ivalues[0])
               {
-              vtkgl::ActiveTexture(GL_TEXTURE0+savedActiveTextureUnit);
+              vtkgl::ActiveTexture(
+                vtkgl::TEXTURE0+static_cast<GLenum>(savedActiveTextureUnit));
               }
             os << textureObject << " (Texture Object)";
             }
