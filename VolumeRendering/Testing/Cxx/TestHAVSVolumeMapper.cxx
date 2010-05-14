@@ -155,7 +155,7 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
   renWin->SetSize(300, 300);
   renWin->Render();
 
-  int supported = volumeMapper->SupportedByHardware();
+  int supported = volumeMapper->SupportedByHardware(ren1);
 
   vtkTextActor *textActor = vtkTextActor::New();
   textActor->SetInput("Required Extensions\nNot Supported");

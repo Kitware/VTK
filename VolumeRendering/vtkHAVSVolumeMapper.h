@@ -162,7 +162,8 @@ public:
   // features include off-screen rendering, 32-bit fp textures, multiple
   // render targets, and framebuffer objects.
   // Subclasses must override this method to indicate if supported by Hardware.
-  virtual bool SupportedByHardware() {return false; }
+  virtual bool SupportedByHardware(vtkRenderer *vtkNotUsed(r))
+    {return false; }
 
   // Description:
   // Set/get whether or not the data structures should be stored on the GPU 
