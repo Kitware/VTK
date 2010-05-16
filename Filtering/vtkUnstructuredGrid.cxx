@@ -1326,26 +1326,32 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
     {
     return;
     }
+
+  ptIds->Reset();
   
   vtkIdType loc = this->FaceLocations->GetValue(cellId);
   vtkIdType* facePtr = this->Faces->GetPointer(loc);
-  vtkIdType npts = *facePtr++;
   
-  ptIds->SetNumberOfIds(npts);
-  vtkIdType* ptIdsPtr = ptIds->GetPointer(0);
-  for (vtkIdType i = 0; i < npts; i++)
+  vtkIdType nfaces = *facePtr++;
+  ptIds->InsertNextId(nfaces);  
+  for (vtkIdType i = 0; i < nfaces; i++)
     {
-    *ptIdsPtr++ = *facePtr++;
+    vtkIdType npts = *facePtr++;
+    ptIds->InsertNextId(npts);
+    for (vtkIdType j = 0; j < npts; j++)
+      {
+      ptIds->InsertNextId(*facePtr++);
+      }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdType& npts,
+void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdType& nfaces,
                                         vtkIdType* &ptIds)
 {
   if (this->GetCellType(cellId) != VTK_POLYHEDRON)
     {
-    this->GetCellPoints(cellId, npts, ptIds);
+    this->GetCellPoints(cellId, nfaces, ptIds);
     return;
     }
   
@@ -1357,7 +1363,7 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdType& npts,
   vtkIdType loc = this->FaceLocations->GetValue(cellId);
   vtkIdType* facePtr = this->Faces->GetPointer(loc);
   
-  npts = *facePtr;
+  nfaces = *facePtr;
   ptIds = facePtr+1;
 }
 

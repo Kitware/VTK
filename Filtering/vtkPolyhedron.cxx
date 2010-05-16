@@ -1061,6 +1061,10 @@ void vtkPolyhedron::Initialize()
   this->EdgeTable->Reset();
   this->Edges->Reset();
   this->Faces->Reset();
+
+  // Polys have to be reset
+  this->Polys->Reset();
+  this->PolyConnectivity->Reset();
   
   // Faces may need renumbering later. This means converting the face ids from
   // global ids to local, canonical ids.
