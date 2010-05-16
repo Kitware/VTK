@@ -46,7 +46,8 @@ public:
   // Is hardware rendering supported? No if the input data is
   // more than one independent component, or if the hardware does
   // not support the required extensions
-  int IsRenderSupported(vtkVolumeProperty *);
+  int IsRenderSupported(vtkVolumeProperty *,
+                        vtkRenderer *ren);
   
 //BTX
 
@@ -103,7 +104,7 @@ protected:
   int InternalRGB; // GLint
   int InternalRGBA; // GLint
   
-  void Initialize();
+  void Initialize(vtkRenderer *r);
 
   virtual void RenderNV(vtkRenderer *ren, vtkVolume *vol);
   virtual void RenderFP(vtkRenderer *ren, vtkVolume *vol);

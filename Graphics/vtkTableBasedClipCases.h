@@ -21,7 +21,7 @@
 * LLNL-CODE-400124
 * All rights reserved.
 *
-* This file is a combination of several VisIt files containing the triagulation
+* This file is a combination of several VisIt files containing the triangulation
 * and clipping tables used in VisIt cutter and clipper / slicer. For details, 
 * see https://visit.llnl.gov/.  The full copyright notice is contained in the 
 * file COPYRIGHT located at the root of the VisIt distribution or at

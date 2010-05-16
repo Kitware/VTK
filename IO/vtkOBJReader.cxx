@@ -93,6 +93,11 @@ l <v_a> <v_b> ...
     lines linking vertices v_a, v_b, etc. which are 1-based
     indices into the vertex list
 
+p <v_a> <v_b> ...
+
+    points located at the vertices v_a, v_b, etc. which are 1-based
+    indices into the vertex list
+
 \*---------------------------------------------------------------------------*/
 
 
@@ -207,6 +212,7 @@ int vtkOBJReader::RequestData(
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
         {
         normals->InsertNextTuple(xyz);
+        hasNormals = true;
         }
       else
         {

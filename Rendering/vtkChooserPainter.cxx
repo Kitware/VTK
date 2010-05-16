@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkLinesPainter.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointsPainter.h"
 #include "vtkPolyData.h"
 #include "vtkPolygonsPainter.h"
@@ -337,7 +338,9 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     if (   this->UseLinesPainterForWireframes
         && (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
         && !actor->GetProperty()->GetBackfaceCulling()
-        && !actor->GetProperty()->GetFrontfaceCulling() )
+        && !actor->GetProperty()->GetFrontfaceCulling()
+        && !this->GetInputAsPolyData()->GetPointData()->GetAttribute(
+                                               vtkDataSetAttributes::EDGEFLAG) )
       {
       this->LinePainter->Render(renderer, actor, vtkPainter::POLYS,
         forceCompileOnly);

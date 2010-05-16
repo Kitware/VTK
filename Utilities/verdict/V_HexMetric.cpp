@@ -20,8 +20,6 @@
  *
  */
 
-#define VERDICT_EXPORTS
-
 #include "verdict.h"
 #include "VerdictVector.hpp"
 #include "V_GaussIntegration.hpp"

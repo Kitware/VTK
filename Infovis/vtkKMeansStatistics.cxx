@@ -274,18 +274,6 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  vtkIdType numObservations = inData->GetNumberOfRows();
-  if ( numObservations <= 0 )
-    {
-    return;
-    }
-  vtkIdType totalNumberOfObservations = this->GetTotalNumberOfObservations( numObservations );
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
   if ( !this->DistanceFunctor )
     {
     vtkErrorMacro( "Distance functor is NULL" );
@@ -318,6 +306,8 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
     return;
     }
                                  
+  vtkIdType numObservations = inData->GetNumberOfRows();
+  vtkIdType totalNumberOfObservations = this->GetTotalNumberOfObservations( numObservations );
   vtkIdType numToAllocate = curClusterElements->GetNumberOfRows();
   vtkIdTypeArray* numIterations = vtkIdTypeArray::New();
   vtkIdTypeArray* numDataElementsInCluster = vtkIdTypeArray::New();
@@ -503,7 +493,7 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   vtkDoubleArray* error;
   
   if (
-    ! outMeta || outMeta->GetNumberOfBlocks() < 1 ||
+    ! outMeta ||
     ! ( outTable = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
     ! ( clusterRunIDs = vtkIdTypeArray::SafeDownCast( outTable->GetColumn( 0 ) ) ) ||
     ! ( numberOfClusters = vtkIdTypeArray::SafeDownCast( outTable->GetColumn( 1 ) ) ) ||
@@ -597,18 +587,12 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
                                   vtkMultiBlockDataSet* inMeta, 
                                   vtkTable* outData )
 {
-  if ( ! inMeta || ! outData )
+  if ( ! inData )
     {
     return;
     }
 
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
-  vtkIdType nsamples = inData->GetNumberOfRows();
-  if ( nsamples <= 0 )
+  if ( ! inMeta )
     {
     return;
     }
@@ -645,6 +629,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
   vtkIdType nv = this->AssessNames->GetNumberOfValues();
   int numRuns = kmfunc->GetNumberOfRuns();
   vtkStdString* names = new vtkStdString[nv*numRuns];
+  vtkIdType nRow = inData->GetNumberOfRows();
   for ( int i = 0; i < numRuns; ++ i )
     {
     for ( vtkIdType v = 0; v < nv; ++ v )
@@ -666,7 +651,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
          }
        names[i*nv+v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
        assessValues->SetName( names[i*nv+v] );
-       assessValues->SetNumberOfTuples( nsamples );
+       assessValues->SetNumberOfTuples( nRow );
        outData->AddColumn( assessValues );
        assessValues->Delete();
       }
@@ -674,7 +659,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
        
   // Assess each entry of the column
   vtkVariantArray* assessResult = vtkVariantArray::New();
-  for ( vtkIdType r = 0; r < nsamples; ++ r )
+  for ( vtkIdType r = 0; r < nRow; ++ r )
     {
     (*dfunc)( assessResult, r );
     for ( vtkIdType j = 0; j < nv*numRuns; ++ j )

@@ -50,7 +50,7 @@ vtkClipClosedSurface clip
   clip SetClipColor 1.0 1.0 1.0
   clip SetActivePlaneColor 1.0 1.0 0.8
   clip SetActivePlaneId 2
-  clip GenerateColorScalarsOn
+  clip SetScalarModeToColors
   clip GenerateOutlineOn
   clip GenerateFacesOn
 

@@ -124,7 +124,7 @@ renWin Render
 [ren1 GetActiveCamera] Roll 45
 [ren1 GetActiveCamera] Zoom 2.0
 
-set valid [volumeMapper IsRenderSupported volumeProperty]
+set valid [volumeMapper IsRenderSupported volumeProperty ren1]
 
 ren1 AddViewProp volume
 if {!$valid} {

@@ -134,8 +134,11 @@ void vtkChartParallelCoordinates::Update()
       array->GetRange(range);
       }
     vtkAxis* axis = this->Storage->Axes[i];
-    axis->SetMinimum(range[0]);
-    axis->SetMaximum(range[1]);
+    if (axis->GetBehavior() == 0)
+      {
+      axis->SetMinimum(range[0]);
+      axis->SetMaximum(range[1]);
+      }
     axis->SetTitle(this->VisibleColumns->GetValue(i));
     }
   this->Storage->AxesSelections.clear();

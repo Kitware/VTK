@@ -264,7 +264,8 @@ bool vtkPlotParallelCoordinates::ResetSelectionRange()
 //-----------------------------------------------------------------------------
 void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
 {
-  if (table == this->Data->GetInput())
+  if (table == this->Data->GetInput() && (!table ||
+                                          table->GetMTime() < this->BuildTime))
     {
     return;
     }

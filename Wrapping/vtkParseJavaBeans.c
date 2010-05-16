@@ -23,47 +23,48 @@ extern FunctionInfo *currentFunction;
 
 void output_temp(FILE *fp,int i)
 {
+  int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
   /* ignore void */
-  if (((currentFunction->ArgTypes[i] % 0x10) == 0x2)&&
-      (!((currentFunction->ArgTypes[i] % 0x1000)/0x100)))
+  if (aType == VTK_PARSE_VOID)
     {
     return;
     }
-  
-  if (currentFunction->ArgTypes[i] == 0x5000)
+
+  if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
     {
-    fprintf(fp,"Object id0, String id1");  
+    fprintf(fp,"Object id0, String id1");
     return;
     }
-  
-  if (currentFunction->ArgTypes[i] % 0x1000 == 0x303)
+
+  if (aType == VTK_PARSE_CHAR_PTR)
     {
     fprintf(fp,"String ");
     }
   else
     {
-    switch (currentFunction->ArgTypes[i] % 0x10)
+    switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
       {
-      case 0x1:   fprintf(fp,"double "); break;
-      case 0x7:   fprintf(fp,"double "); break;
-      case 0x4:   fprintf(fp,"int "); break;
-      case 0x5:   fprintf(fp,"int "); break;
-      case 0x6:   fprintf(fp,"int "); break;
-      case 0xA:   fprintf(fp,"int "); break;
-      case 0xB:   fprintf(fp,"int "); break;
-      case 0xC:   fprintf(fp,"int "); break;
-      case 0x2:     fprintf(fp,"void "); break;
-      case 0xD:   fprintf(fp,"char "); break;
-      case 0x3:     fprintf(fp,"char "); break;
-      case 0x9:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
-      case 0x8: return;
+      case VTK_PARSE_FLOAT:   fprintf(fp,"double "); break;
+      case VTK_PARSE_DOUBLE:   fprintf(fp,"double "); break;
+      case VTK_PARSE_INT:   fprintf(fp,"int "); break;
+      case VTK_PARSE_SHORT:   fprintf(fp,"int "); break;
+      case VTK_PARSE_LONG:   fprintf(fp,"int "); break;
+      case VTK_PARSE_ID_TYPE:   fprintf(fp,"int "); break;
+      case VTK_PARSE_LONG_LONG:   fprintf(fp,"int "); break;
+      case VTK_PARSE___INT64:   fprintf(fp,"int "); break;
+      case VTK_PARSE_VOID:     fprintf(fp,"void "); break;
+      case VTK_PARSE_SIGNED_CHAR:   fprintf(fp,"char "); break;
+      case VTK_PARSE_CHAR:     fprintf(fp,"char "); break;
+      case VTK_PARSE_VTK_OBJECT:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
+      case VTK_PARSE_UNKNOWN: return;
       }
     }
 
   fprintf(fp,"id%i",i);
-  if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 == 0x3)&&
-      (currentFunction->ArgTypes[i] % 0x1000 != 0x303)&&
-      (currentFunction->ArgTypes[i] % 0x1000 != 0x309))
+  if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
+      (aType != VTK_PARSE_CHAR_PTR) &&
+      (aType != VTK_PARSE_VTK_OBJECT_PTR))
     {
     fprintf(fp,"[]");
     }
@@ -71,29 +72,61 @@ void output_temp(FILE *fp,int i)
 
 void return_result(FILE *fp)
 {
-  switch (currentFunction->ReturnType % 0x1000)
+  switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
     {
-    case 0x1: fprintf(fp,"double "); break;
-    case 0x2: fprintf(fp,"void "); break;
-    case 0x3: fprintf(fp,"char "); break;
-    case 0x7: fprintf(fp,"double "); break;
-    case 0x4: case 0x5: case 0x6: case 0xA: case 0xB: case 0xC:
-    case 0x13: case 0x14: case 0x15: case 0x16: case 0x1A: case 0x1B: case 0x1C:
-      fprintf(fp,"int "); 
+    case VTK_PARSE_FLOAT:
+      fprintf(fp,"double ");
       break;
-    case 0x303: fprintf(fp,"String "); break;
-    case 0x109:  
-    case 0x309:  
+    case VTK_PARSE_VOID:
+      fprintf(fp,"void ");
+      break;
+    case VTK_PARSE_CHAR:
+      fprintf(fp,"char ");
+      break;
+    case VTK_PARSE_DOUBLE:
+      fprintf(fp,"double ");
+      break;
+    case VTK_PARSE_INT:
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+    case VTK_PARSE_UNSIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_UNSIGNED_LONG:
+    case VTK_PARSE_UNSIGNED_ID_TYPE:
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+      fprintf(fp,"int ");
+      break;
+    case VTK_PARSE_CHAR_PTR: fprintf(fp,"String "); break;
+    case VTK_PARSE_VTK_OBJECT_REF:
+    case VTK_PARSE_VTK_OBJECT_PTR:
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
-      
+
       /* handle functions returning vectors */
       /* this is done by looking them up in a hint file */
-    case 0x301: case 0x307:
-      fprintf(fp,"double[] "); 
+    case VTK_PARSE_FLOAT_PTR:
+    case VTK_PARSE_DOUBLE_PTR:
+      fprintf(fp,"double[] ");
       break;
-    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
-    case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
+    case VTK_PARSE_INT_PTR:
+    case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_ID_TYPE_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
+    case VTK_PARSE_SIGNED_CHAR_PTR:
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
+    case VTK_PARSE_UNSIGNED___INT64_PTR:
       fprintf(fp,"int[]  "); break;
     }
 }
@@ -101,94 +134,104 @@ void return_result(FILE *fp)
 /* have we done one of these yet */
 int DoneOne()
 {
+  int aType = 0;
+  int fType = 0;
+  int rType = 0;
+  int qType = 0;
   int i,j;
   int match;
   FunctionInfo *fi;
-  
+
   for (i = 0; i < numberOfWrappedFunctions; i++)
     {
     fi = wrappedFunctions[i];
+    rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+    qType = (fi->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+
     if ((!strcmp(fi->Name,currentFunction->Name))
         &&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
       {
       match = 1;
       for (j = 0; j < fi->NumberOfArguments; j++)
         {
+        aType = (currentFunction->ArgTypes[j] & VTK_PARSE_UNQUALIFIED_TYPE);
+        fType = (fi->ArgTypes[j] & VTK_PARSE_UNQUALIFIED_TYPE);
+
         if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-            !(((fi->ArgTypes[j] % 0x1000 == 0x309)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x109)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x109)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x309)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x301)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x307)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x307)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x301)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x304)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x306)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x306)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x304)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x304)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x30A)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x30A)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x304)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x30A)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x306)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x306)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x30A)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x304)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x30B)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x30B)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x304)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x30B)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x306)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x306)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x30B)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x304)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x30C)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x30C)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x304)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x30C)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x306)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x306)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x30C)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x1)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x7)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x7)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x1)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x4)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x6)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x6)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x4)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x4)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0xA)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0xA)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x4)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0xA)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x6)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x6)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0xA)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x4)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0xB)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0xB)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x4)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0xB)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x6)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x6)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0xB)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x4)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0xC)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0xC)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x4)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0xC)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0x6)) ||
-              ((fi->ArgTypes[j] % 0x1000 == 0x6)&&
-               (currentFunction->ArgTypes[j] % 0x1000 == 0xC))))
+            !(((fType == VTK_PARSE_VTK_OBJECT_PTR)&&
+               (aType == VTK_PARSE_VTK_OBJECT_REF)) ||
+              ((fType == VTK_PARSE_VTK_OBJECT_REF)&&
+               (aType == VTK_PARSE_VTK_OBJECT_PTR)) ||
+              ((fType == VTK_PARSE_FLOAT_PTR)&&
+               (aType == VTK_PARSE_DOUBLE_PTR)) ||
+              ((fType == VTK_PARSE_DOUBLE_PTR)&&
+               (aType == VTK_PARSE_FLOAT_PTR)) ||
+              ((fType == VTK_PARSE_INT_PTR)&&
+               (aType == VTK_PARSE_LONG_PTR)) ||
+              ((fType == VTK_PARSE_LONG_PTR)&&
+               (aType == VTK_PARSE_INT_PTR)) ||
+              ((fType == VTK_PARSE_INT_PTR)&&
+               (aType == VTK_PARSE_ID_TYPE_PTR)) ||
+              ((fType == VTK_PARSE_ID_TYPE_PTR)&&
+               (aType == VTK_PARSE_INT_PTR)) ||
+              ((fType == VTK_PARSE_ID_TYPE_PTR)&&
+               (aType == VTK_PARSE_LONG_PTR)) ||
+              ((fType == VTK_PARSE_LONG_PTR)&&
+               (aType == VTK_PARSE_ID_TYPE_PTR)) ||
+              ((fType == VTK_PARSE_INT_PTR)&&
+               (aType == VTK_PARSE_LONG_LONG_PTR)) ||
+              ((fType == VTK_PARSE_LONG_LONG_PTR)&&
+               (aType == VTK_PARSE_INT_PTR)) ||
+              ((fType == VTK_PARSE_LONG_LONG_PTR)&&
+               (aType == VTK_PARSE_LONG_PTR)) ||
+              ((fType == VTK_PARSE_LONG_PTR)&&
+               (aType == VTK_PARSE_LONG_LONG_PTR)) ||
+              ((fType == VTK_PARSE_INT_PTR)&&
+               (aType == VTK_PARSE___INT64_PTR)) ||
+              ((fType == VTK_PARSE___INT64_PTR)&&
+               (aType == VTK_PARSE_INT_PTR)) ||
+              ((fType == VTK_PARSE___INT64_PTR)&&
+               (aType == VTK_PARSE_LONG_PTR)) ||
+              ((fType == VTK_PARSE_LONG_PTR)&&
+               (aType == VTK_PARSE___INT64_PTR)) ||
+              ((fType == VTK_PARSE_FLOAT)&&
+               (aType == VTK_PARSE_DOUBLE)) ||
+              ((fType == VTK_PARSE_DOUBLE)&&
+               (aType == VTK_PARSE_FLOAT)) ||
+              ((fType == VTK_PARSE_INT)&&
+               (aType == VTK_PARSE_LONG)) ||
+              ((fType == VTK_PARSE_LONG)&&
+               (aType == VTK_PARSE_INT)) ||
+              ((fType == VTK_PARSE_INT)&&
+               (aType == VTK_PARSE_ID_TYPE)) ||
+              ((fType == VTK_PARSE_ID_TYPE)&&
+               (aType == VTK_PARSE_INT)) ||
+              ((fType == VTK_PARSE_ID_TYPE)&&
+               (aType == VTK_PARSE_LONG)) ||
+              ((fType == VTK_PARSE_LONG)&&
+               (aType == VTK_PARSE_ID_TYPE)) ||
+              ((fType == VTK_PARSE_INT)&&
+               (aType == VTK_PARSE_LONG_LONG)) ||
+              ((fType == VTK_PARSE_LONG_LONG)&&
+               (aType == VTK_PARSE_INT)) ||
+              ((fType == VTK_PARSE_LONG_LONG)&&
+               (aType == VTK_PARSE_LONG)) ||
+              ((fType == VTK_PARSE_LONG)&&
+               (aType == VTK_PARSE_LONG_LONG)) ||
+              ((fType == VTK_PARSE_INT)&&
+               (aType == VTK_PARSE___INT64)) ||
+              ((fType == VTK_PARSE___INT64)&&
+               (aType == VTK_PARSE_INT)) ||
+              ((fType == VTK_PARSE___INT64)&&
+               (aType == VTK_PARSE_LONG)) ||
+              ((fType == VTK_PARSE_LONG)&&
+               (aType == VTK_PARSE___INT64))))
           {
           match = 0;
           }
         else
           {
-          if (fi->ArgTypes[j] % 0x1000 == 0x309 || fi->ArgTypes[j] % 0x1000 == 0x109)
+          if (fType == VTK_PARSE_VTK_OBJECT_PTR || fType == VTK_PARSE_VTK_OBJECT_REF)
             {
             if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
               {
@@ -198,80 +241,80 @@ int DoneOne()
           }
         }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-          !(((fi->ReturnType % 0x1000 == 0x309)&&
-             (currentFunction->ReturnType % 0x1000 == 0x109)) ||
-            ((fi->ReturnType % 0x1000 == 0x109)&&
-             (currentFunction->ReturnType % 0x1000 == 0x309)) ||
-            ((fi->ReturnType % 0x1000 == 0x301)&&
-             (currentFunction->ReturnType % 0x1000 == 0x307)) ||
-            ((fi->ReturnType % 0x1000 == 0x307)&&
-             (currentFunction->ReturnType % 0x1000 == 0x301)) ||
-            ((fi->ReturnType % 0x1000 == 0x304)&&
-             (currentFunction->ReturnType % 0x1000 == 0x306)) ||
-            ((fi->ReturnType % 0x1000 == 0x306)&&
-             (currentFunction->ReturnType % 0x1000 == 0x304)) ||
-            ((fi->ReturnType % 0x1000 == 0x30A)&&
-             (currentFunction->ReturnType % 0x1000 == 0x306)) ||
-            ((fi->ReturnType % 0x1000 == 0x306)&&
-             (currentFunction->ReturnType % 0x1000 == 0x30A)) ||
-            ((fi->ReturnType % 0x1000 == 0x304)&&
-             (currentFunction->ReturnType % 0x1000 == 0x30A)) ||
-            ((fi->ReturnType % 0x1000 == 0x30A)&&
-             (currentFunction->ReturnType % 0x1000 == 0x304)) ||
-            ((fi->ReturnType % 0x1000 == 0x30B)&&
-             (currentFunction->ReturnType % 0x1000 == 0x306)) ||
-            ((fi->ReturnType % 0x1000 == 0x306)&&
-             (currentFunction->ReturnType % 0x1000 == 0x30B)) ||
-            ((fi->ReturnType % 0x1000 == 0x304)&&
-             (currentFunction->ReturnType % 0x1000 == 0x30B)) ||
-            ((fi->ReturnType % 0x1000 == 0x30B)&&
-             (currentFunction->ReturnType % 0x1000 == 0x304)) ||
-            ((fi->ReturnType % 0x1000 == 0x30C)&&
-             (currentFunction->ReturnType % 0x1000 == 0x306)) ||
-            ((fi->ReturnType % 0x1000 == 0x306)&&
-             (currentFunction->ReturnType % 0x1000 == 0x30C)) ||
-            ((fi->ReturnType % 0x1000 == 0x304)&&
-             (currentFunction->ReturnType % 0x1000 == 0x30C)) ||
-            ((fi->ReturnType % 0x1000 == 0x30C)&&
-             (currentFunction->ReturnType % 0x1000 == 0x304)) ||
-            ((fi->ReturnType % 0x1000 == 0x1)&&
-             (currentFunction->ReturnType % 0x1000 == 0x7)) ||
-            ((fi->ReturnType % 0x1000 == 0x7)&&
-             (currentFunction->ReturnType % 0x1000 == 0x1)) ||
-            ((fi->ReturnType % 0x1000 == 0x4)&&
-             (currentFunction->ReturnType % 0x1000 == 0x6)) ||
-            ((fi->ReturnType % 0x1000 == 0x6)&&
-             (currentFunction->ReturnType % 0x1000 == 0x4)) ||
-            ((fi->ReturnType % 0x1000 == 0x4)&&
-             (currentFunction->ReturnType % 0x1000 == 0xA)) ||
-            ((fi->ReturnType % 0x1000 == 0xA)&&
-             (currentFunction->ReturnType % 0x1000 == 0x4)) ||
-            ((fi->ReturnType % 0x1000 == 0xA)&&
-             (currentFunction->ReturnType % 0x1000 == 0x6)) ||
-            ((fi->ReturnType % 0x1000 == 0x6)&&
-             (currentFunction->ReturnType % 0x1000 == 0xA)) ||
-            ((fi->ReturnType % 0x1000 == 0x4)&&
-             (currentFunction->ReturnType % 0x1000 == 0xB)) ||
-            ((fi->ReturnType % 0x1000 == 0xB)&&
-             (currentFunction->ReturnType % 0x1000 == 0x4)) ||
-            ((fi->ReturnType % 0x1000 == 0xB)&&
-             (currentFunction->ReturnType % 0x1000 == 0x6)) ||
-            ((fi->ReturnType % 0x1000 == 0x6)&&
-             (currentFunction->ReturnType % 0x1000 == 0xB)) ||
-            ((fi->ReturnType % 0x1000 == 0x4)&&
-             (currentFunction->ReturnType % 0x1000 == 0xC)) ||
-            ((fi->ReturnType % 0x1000 == 0xC)&&
-             (currentFunction->ReturnType % 0x1000 == 0x4)) ||
-            ((fi->ReturnType % 0x1000 == 0xC)&&
-             (currentFunction->ReturnType % 0x1000 == 0x6)) ||
-            ((fi->ReturnType % 0x1000 == 0x6)&&
-             (currentFunction->ReturnType % 0x1000 == 0xC))))
+          !(((qType == VTK_PARSE_VTK_OBJECT_PTR)&&
+             (rType == VTK_PARSE_VTK_OBJECT_REF)) ||
+            ((qType == VTK_PARSE_VTK_OBJECT_REF)&&
+             (rType == VTK_PARSE_VTK_OBJECT_PTR)) ||
+            ((qType == VTK_PARSE_FLOAT_PTR)&&
+             (rType == VTK_PARSE_DOUBLE_PTR)) ||
+            ((qType == VTK_PARSE_DOUBLE_PTR)&&
+             (rType == VTK_PARSE_FLOAT_PTR)) ||
+            ((qType == VTK_PARSE_INT_PTR)&&
+             (rType == VTK_PARSE_LONG_PTR)) ||
+            ((qType == VTK_PARSE_LONG_PTR)&&
+             (rType == VTK_PARSE_INT_PTR)) ||
+            ((qType == VTK_PARSE_ID_TYPE_PTR)&&
+             (rType == VTK_PARSE_LONG_PTR)) ||
+            ((qType == VTK_PARSE_LONG_PTR)&&
+             (rType == VTK_PARSE_ID_TYPE_PTR)) ||
+            ((qType == VTK_PARSE_INT_PTR)&&
+             (rType == VTK_PARSE_ID_TYPE_PTR)) ||
+            ((qType == VTK_PARSE_ID_TYPE_PTR)&&
+             (rType == VTK_PARSE_INT_PTR)) ||
+            ((qType == VTK_PARSE_LONG_LONG_PTR)&&
+             (rType == VTK_PARSE_LONG_PTR)) ||
+            ((qType == VTK_PARSE_LONG_PTR)&&
+             (rType == VTK_PARSE_LONG_LONG_PTR)) ||
+            ((qType == VTK_PARSE_INT_PTR)&&
+             (rType == VTK_PARSE_LONG_LONG_PTR)) ||
+            ((qType == VTK_PARSE_LONG_LONG_PTR)&&
+             (rType == VTK_PARSE_INT_PTR)) ||
+            ((qType == VTK_PARSE___INT64_PTR)&&
+             (rType == VTK_PARSE_LONG_PTR)) ||
+            ((qType == VTK_PARSE_LONG_PTR)&&
+             (rType == VTK_PARSE___INT64_PTR)) ||
+            ((qType == VTK_PARSE_INT_PTR)&&
+             (rType == VTK_PARSE___INT64_PTR)) ||
+            ((qType == VTK_PARSE___INT64_PTR)&&
+             (rType == VTK_PARSE_INT_PTR)) ||
+            ((qType == VTK_PARSE_FLOAT)&&
+             (rType == VTK_PARSE_DOUBLE)) ||
+            ((qType == VTK_PARSE_DOUBLE)&&
+             (rType == VTK_PARSE_FLOAT)) ||
+            ((qType == VTK_PARSE_INT)&&
+             (rType == VTK_PARSE_LONG)) ||
+            ((qType == VTK_PARSE_LONG)&&
+             (rType == VTK_PARSE_INT)) ||
+            ((qType == VTK_PARSE_INT)&&
+             (rType == VTK_PARSE_ID_TYPE)) ||
+            ((qType == VTK_PARSE_ID_TYPE)&&
+             (rType == VTK_PARSE_INT)) ||
+            ((qType == VTK_PARSE_ID_TYPE)&&
+             (rType == VTK_PARSE_LONG)) ||
+            ((qType == VTK_PARSE_LONG)&&
+             (rType == VTK_PARSE_ID_TYPE)) ||
+            ((qType == VTK_PARSE_INT)&&
+             (rType == VTK_PARSE_LONG_LONG)) ||
+            ((qType == VTK_PARSE_LONG_LONG)&&
+             (rType == VTK_PARSE_INT)) ||
+            ((qType == VTK_PARSE_LONG_LONG)&&
+             (rType == VTK_PARSE_LONG)) ||
+            ((qType == VTK_PARSE_LONG)&&
+             (rType == VTK_PARSE_LONG_LONG)) ||
+            ((qType == VTK_PARSE_INT)&&
+             (rType == VTK_PARSE___INT64)) ||
+            ((qType == VTK_PARSE___INT64)&&
+             (rType == VTK_PARSE_INT)) ||
+            ((qType == VTK_PARSE___INT64)&&
+             (rType == VTK_PARSE_LONG)) ||
+            ((qType == VTK_PARSE_LONG)&&
+             (rType == VTK_PARSE___INT64))))
         {
         match = 0;
         }
       else
         {
-        if (fi->ReturnType % 0x1000 == 0x309 || fi->ReturnType % 0x1000 == 0x109)
+        if (qType == VTK_PARSE_VTK_OBJECT_PTR || qType == VTK_PARSE_VTK_OBJECT_REF)
           {
           if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
             {
@@ -287,21 +330,23 @@ int DoneOne()
 
 void outputFunction(FILE *fp, FileInfo *data)
 {
+  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  int aType = 0;
   int i;
   int args_ok = 1;
   /* beans */
   char *beanfunc;
- 
+
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsPureVirtual ||
-      currentFunction->IsOperator || 
+      currentFunction->IsOperator ||
       currentFunction->ArrayFailure ||
       !currentFunction->IsPublic ||
-      !currentFunction->Name) 
+      !currentFunction->Name)
     {
     return;
     }
-  
+
   /* make the first letter lowercase for set get methods */
   beanfunc = strdup(currentFunction->Name);
   if (isupper(beanfunc[0])) beanfunc[0] = beanfunc[0] + 32;
@@ -309,66 +354,76 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x9) args_ok = 0;
-    if ((currentFunction->ArgTypes[i] % 0x10) == 0x8) args_ok = 0;
-    if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 != 0x3)&&
-        (currentFunction->ArgTypes[i] % 0x1000 != 0x109)&&
-        ((currentFunction->ArgTypes[i] % 0x1000)/0x100)) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x313) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x314) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x315) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x316) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31A) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31B) args_ok = 0;
-    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31C) args_ok = 0;
+    aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
+    if ((currentFunction->ArgTypes[i] % VTK_PARSE_FLOAT0) == VTK_PARSE_UNKNOWN) args_ok = 0;
+    if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
+        (aType != VTK_PARSE_VTK_OBJECT_REF)&&
+        ((aType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
+    if (aType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
     }
-  if ((currentFunction->ReturnType % 0x10) == 0x8) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x9) args_ok = 0;
-  if (((currentFunction->ReturnType % 0x1000)/0x100 != 0x3)&&
-      (currentFunction->ReturnType % 0x1000 != 0x109)&&
-      ((currentFunction->ReturnType % 0x1000)/0x100)) args_ok = 0;
+  if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
+  if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
+  if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
+      (rType != VTK_PARSE_VTK_OBJECT_REF)&&
+      ((rType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
 
   /* eliminate unsigned char * and unsigned short * */
-  if (currentFunction->ReturnType % 0x1000 == 0x313) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x314) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x315) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x316) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x31A) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x31B) args_ok = 0;
-  if (currentFunction->ReturnType % 0x1000 == 0x31C) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
+  if (rType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
 
-  if (currentFunction->NumberOfArguments && 
-      (currentFunction->ArgTypes[0] == 0x5000)
+  if (currentFunction->NumberOfArguments &&
+      (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
       &&(currentFunction->NumberOfArguments != 1)) args_ok = 0;
 
   /* make sure we have all the info we need for array arguments in */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 == 0x3)&&
+    aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER)&&
         (currentFunction->ArgCounts[i] <= 0)&&
-        (currentFunction->ArgTypes[i] % 0x1000 != 0x309)&&
-        (currentFunction->ArgTypes[i] % 0x1000 != 0x303)) args_ok = 0;
+        (aType != VTK_PARSE_VTK_OBJECT_PTR)&&
+        (aType != VTK_PARSE_CHAR_PTR)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
-  switch (currentFunction->ReturnType % 0x1000)
+  switch (rType)
     {
-    case 0x301: case 0x302: case 0x307:
-    case 0x304: case 0x305: case 0x306:
-    case 0x30A: case 0x30B: case 0x30C:
+    case VTK_PARSE_FLOAT_PTR:
+    case VTK_PARSE_VOID_PTR:
+    case VTK_PARSE_DOUBLE_PTR:
+    case VTK_PARSE_INT_PTR:
+    case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_ID_TYPE_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
       args_ok = currentFunction->HaveHint;
       break;
     }
-  
+
   /* make sure it isn't a Delete or New function */
   if (!strcmp("Delete",currentFunction->Name) ||
       !strcmp("New",currentFunction->Name))
     {
     args_ok = 0;
     }
-  
-  if (currentFunction->IsPublic && args_ok && 
+
+  if (currentFunction->IsPublic && args_ok &&
       strcmp(data->ClassName,currentFunction->Name) &&
       strcmp(data->ClassName, currentFunction->Name + 1))
     {
@@ -378,7 +433,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       fprintf(fp,"\n  private native ");
       return_result(fp);
       fprintf(fp,"%s_%i(",currentFunction->Name,numberOfWrappedFunctions);
-      
+
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
         {
         if (i)
@@ -391,7 +446,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       fprintf(fp,"  public ");
       return_result(fp);
       fprintf(fp,"%s(",beanfunc);
-      
+
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
         {
         if (i)
@@ -401,7 +456,7 @@ void outputFunction(FILE *fp, FileInfo *data)
         output_temp(fp,i);
         }
       /* if not void then need return otherwise none */
-      if (currentFunction->ReturnType % 0x1000 == 0x2)
+      if (rType == VTK_PARSE_VOID)
         {
         fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
                 numberOfWrappedFunctions);
@@ -419,42 +474,45 @@ void outputFunction(FILE *fp, FileInfo *data)
           }
         fprintf(fp,"id%i",i);
         }
-      if ((currentFunction->NumberOfArguments == 1) && 
-          (currentFunction->ArgTypes[0] == 0x5000)) fprintf(fp,",id1");
+      if ((currentFunction->NumberOfArguments == 1) &&
+          (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)) fprintf(fp,",id1");
 
       /* stick in secret beanie code for set methods */
-      if (currentFunction->ReturnType % 0x1000 == 0x2)
+      if (rType == VTK_PARSE_VOID)
         {
+        aType = (currentFunction->ArgTypes[0] & VTK_PARSE_UNQUALIFIED_TYPE);
+
         /* only care about set methods and On/Off methods */
-        if (!strncmp(beanfunc,"set",3) && 
-            currentFunction->NumberOfArguments == 1 && 
-            (currentFunction->ArgTypes[0] % 0x1000 < 0x10 || 
-             currentFunction->ArgTypes[0] % 0x1000 == 0x303 || 
-             currentFunction->ArgTypes[0] % 0x10 == 0x9))
+        if (!strncmp(beanfunc,"set",3) &&
+            currentFunction->NumberOfArguments == 1 &&
+            (((aType & VTK_PARSE_INDIRECT) == 0 &&
+              (aType & VTK_PARSE_UNSIGNED) == 0)||
+             aType == VTK_PARSE_CHAR_PTR ||
+             (aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT))
           {
           char prop[256];
-          
+
           strncpy(prop,beanfunc+3,strlen(beanfunc)-3);
           prop[strlen(beanfunc)-3] = '\0';
           if (isupper(prop[0])) prop[0] = prop[0] + 32;
           fprintf(fp,");\n      changes.firePropertyChange(\"%s\",null,",prop);
-          
+
           /* handle basic types */
-          if (currentFunction->ArgTypes[0] % 0x1000 == 0x303)
+          if (aType == VTK_PARSE_CHAR_PTR)
             {
             fprintf(fp," id0");
             }
           else
             {
-            switch (currentFunction->ArgTypes[0] % 0x10)
+            switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
               {
-              case 0x1:
-              case 0x7:   fprintf(fp," new Double(id0)"); break;
-              case 0x4:   
-              case 0x5:   
-              case 0x6:   fprintf(fp," new Integer(id0)"); break;
-              case 0x9:   fprintf(fp," id0"); break;
-              case 0x3:   /* not implemented yet */ 
+              case VTK_PARSE_FLOAT:
+              case VTK_PARSE_DOUBLE:   fprintf(fp," new Double(id0)"); break;
+              case VTK_PARSE_INT:
+              case VTK_PARSE_SHORT:
+              case VTK_PARSE_LONG:   fprintf(fp," new Integer(id0)"); break;
+              case VTK_PARSE_VTK_OBJECT:   fprintf(fp," id0"); break;
+              case VTK_PARSE_CHAR:   /* not implemented yet */
               default:  fprintf(fp," null");
               }
             }
@@ -483,7 +541,7 @@ void outputFunction(FILE *fp, FileInfo *data)
           }
         }
       fprintf(fp,"); }\n");
-      
+
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
       }
@@ -495,7 +553,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 void vtkParseOutput(FILE *fp, FileInfo *data)
 {
   int i;
-  
+
   fprintf(fp,"// java wrapper for %s object\n//\n",data->ClassName);
   fprintf(fp,"\npackage vtk;\n");
 
@@ -504,7 +562,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"import java.beans.*;\n");
     }
-  
+
 if (strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"import vtk.*;\n");
@@ -512,33 +570,33 @@ if (strcmp("vtkObject",data->ClassName))
   fprintf(fp,"\npublic class %s",data->ClassName);
   if (strcmp("vtkObject",data->ClassName))
     {
-    if (data->NumberOfSuperClasses) 
+    if (data->NumberOfSuperClasses)
       fprintf(fp," extends %s",data->SuperClasses[0]);
     }
   fprintf(fp,"\n{\n");
-  
+
   fprintf(fp,"  public %s getThis%s() { return this;}\n\n",
           data->ClassName, data->ClassName+3);
-  
+
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     currentFunction = data->Functions + i;
     outputFunction(fp, data);
     }
-  
+
 if (!data->NumberOfSuperClasses)
     {
     fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->ClassName);
     fprintf(fp,"  protected int vtkId = 0;\n");
-    
+
     /* beans */
     fprintf(fp,"  public void addPropertyChangeListener(PropertyChangeListener l)\n    {\n");
     fprintf(fp,"    changes.addPropertyChangeListener(l);\n    }\n");
     fprintf(fp,"  public void removePropertyChangeListener(PropertyChangeListener l)\n    {\n");
     fprintf(fp,"    changes.removePropertyChangeListener(l);\n    }\n");
     fprintf(fp,"  protected PropertyChangeSupport changes = new PropertyChangeSupport(this);\n\n");
-    
+
     /* if we are a base class and have a delete method */
     if (data->HasDelete)
       {
@@ -549,7 +607,7 @@ if (!data->NumberOfSuperClasses)
   if ((!data->IsAbstract)&&
       strcmp(data->ClassName,"vtkDataWriter") &&
       strcmp(data->ClassName,"vtkPointSet") &&
-      strcmp(data->ClassName,"vtkDataSetSource") 
+      strcmp(data->ClassName,"vtkDataSetSource")
       )
     {
     fprintf(fp,"  public native void   VTKInit();\n");

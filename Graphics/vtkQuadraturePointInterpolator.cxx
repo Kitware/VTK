@@ -181,6 +181,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     int nComps=V->GetNumberOfComponents();
     vtkDoubleArray *interpolated=vtkDoubleArray::New();
     interpolated->SetNumberOfComponents(nComps);
+    interpolated->CopyComponentNames( V );
     interpolated->Allocate(nComps*nCells); // at least one qp per cell
     ostringstream interpolatedName;
     interpolatedName << V->GetName();// << "_QP_Interpolated";

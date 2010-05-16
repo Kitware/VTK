@@ -165,6 +165,24 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     p += n;
     }
   
+  // Woraround for a nVidia bug in indirect/remote rendering mode (ssh -X)
+  // The version returns is not the one actually supported.
+  // For example, the version returns is greater or equal to 2.1
+  // but where PBO (which are core in 2.1) are not actually supported.
+  // In this case, force the version to be 1.1 (minimal). Anything above
+  // will be requested only through extensions.
+  // See ParaView bug 
+  if(result && !this->RenderWindow->IsDirect())
+    {
+    if (result && strncmp(name, "GL_VERSION_",11) == 0)
+      {
+      // whatever is the OpenGL version, return false.
+      // (nobody asks for GL_VERSION_1_1)
+      result=0;
+      }
+    }
+  
+  
   // Workaround for a bug on Mac PowerPC G5 with nVidia GeForce FX 5200
   // Mac OS 10.3.9 and driver 1.5 NVIDIA-1.3.42. It reports it supports
   // OpenGL>=1.4 but querying for glPointParameteri and glPointParameteriv
@@ -177,6 +195,9 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
       this->GetProcAddress("glPointParameteriv")!=0;
     }
   
+  const char *gl_renderer=
+    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+
   // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
   // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
   // The driver reports it supports 1.5 but the 1.4 core promoted extension
@@ -185,14 +206,41 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // in GeForce4 and Quadro4.
   // It will make this method return false with "GL_VERSION_1_4" and true
   // with "GL_VERSION_1_5".
-  const char *gl_renderer=
-    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
   if (result && strcmp(name, "GL_VERSION_1_4") == 0)
     {
     result=strstr(gl_renderer,"Quadro4")==0 &&
       strstr(gl_renderer,"GeForce4")==0;
     }
   
+  const char *gl_version=
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  const char *gl_vendor=
+    reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+
+  // Workaround for a bug on renderer string="ATI Radeon X1600 OpenGL Engine"
+  // version string="2.0 ATI-1.4.58" vendor string="ATI Technologies Inc."
+  // It happens on a Apple iMac Intel Core Duo (early 2006) with Mac OS X
+  // 10.4.11 (Tiger) and an ATI Radeon X1600 128MB.
+  // The driver reports it supports 2.0 (where GL_ARB_texture_non_power_of_two
+  // extension has been promoted to core) and that it supports extension
+  // GL_ARB_texture_non_power_of_two. Reality is that non power of two
+  // textures just don't work in this OS/driver/card.
+  // It will make this method returns false with "GL_VERSION_2_0" and true
+  // with "GL_VERSION_2_1".
+  // It will make this method returns false with
+  // "GL_ARB_texture_non_power_of_two".
+  if (result && strcmp(name, "GL_VERSION_2_0") == 0)
+    {
+    result=!(strcmp(gl_renderer,"ATI Radeon X1600 OpenGL Engine")==0 &&
+             strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
+             strcmp(gl_vendor,"ATI Technologies Inc.")==0);
+    }
+  if (result && strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)
+    {
+    result=!(strcmp(gl_renderer,"ATI Radeon X1600 OpenGL Engine")==0 &&
+             strcmp(gl_version,"2.0 ATI-1.4.58")==0 &&
+             strcmp(gl_vendor,"ATI Technologies Inc.")==0);
+    }
   return result;
 }
 
@@ -256,8 +304,8 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 #endif //MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
 #endif //VTK_USE_APPLE_LOADER
 
-
-#ifdef VTK_USE_GLX_GET_PROC_ADDRESS
+#ifdef VTK_USE_X
+ #ifdef VTK_USE_GLX_GET_PROC_ADDRESS
   // In a perfect world, it should be 
   // return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddress(reinterpret_cast<const GLubyte *>(fname)));
   // but glx.h of Solaris 10 has line 209 wrong: it is
@@ -265,11 +313,11 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   // when it should be:
   // extern void (*glXGetProcAddress(const GLubyte *procname))(void);
   return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddress(reinterpret_cast<const GLubyte *>(fname)));
-#endif //VTK_USE_GLX_GET_PROC_ADDRESS
-#ifdef VTK_USE_GLX_GET_PROC_ADDRESS_ARB
+ #endif //VTK_USE_GLX_GET_PROC_ADDRESS
+ #ifdef VTK_USE_GLX_GET_PROC_ADDRESS_ARB
   return reinterpret_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddressARB(reinterpret_cast<const GLubyte *>(fname)));
-#endif //VTK_USE_GLX_GET_PROC_ADDRESS_ARB
-
+ #endif //VTK_USE_GLX_GET_PROC_ADDRESS_ARB
+#endif
 
 #ifdef VTK_USE_VTK_DYNAMIC_LOADER
   // If the GLX implementation cannot load procedures for us, load them

@@ -60,7 +60,7 @@
 //  with capping faces in the form of a vtkPolyData), it itself is able to deal
 //  with most grids. It is worth mentioning that vtkTableBasedClipDataSet is 
 //  capable of addressing the artifacts that may occur with vtkClipDataSet due 
-//  to the possibly inconsistent triagulation modes between neighboring cells. 
+//  to the possibly inconsistent triangulation modes between neighboring cells.
 //  In addition, the former is much faster than the latter. Furthermore, the 
 //  former produces less cells (with ratio usually being 5~6) than by the latter 
 //  in the output. In other words, this filter retains the original cells (i.e., 

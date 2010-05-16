@@ -47,6 +47,7 @@ vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
   this->LeafSpacing = 0.9;
   this->DistanceArrayName = NULL;
   this->Rotation = 0.0;
+  this->ReverseEdges = false;
 }
 
 vtkTreeLayoutStrategy::~vtkTreeLayoutStrategy()
@@ -70,6 +71,7 @@ void vtkTreeLayoutStrategy::Layout()
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
+    bfs->SetReverseEdges(this->ReverseEdges);
     bfs->SetInput(this->Graph);
     bfs->Update();
     tree = vtkTree::New();
@@ -396,59 +398,7 @@ void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rotation: " << this->Rotation << endl;
   os << indent << "DistanceArrayName: "
      << (this->DistanceArrayName ? this->DistanceArrayName : "(null)") << endl;
+  os << indent << "ReverseEdges: " << this->ReverseEdges << endl;
 }
-
-#if 0
-// Code storage
-
-#include "vtkGraphToBoostAdapter.h"
-#include "vtkTreeToBoostAdapter.h"
-#include <boost/graph/visitors.hpp>
-#include <boost/graph/depth_first_search.hpp>
-#include <boost/property_map.hpp>
-#include <boost/pending/queue.hpp>
-
-using namespace boost;
-
-// Redefine the bfs visitor, the only visitor we
-// are using is the tree_edge visitor.
-template <typename PlacementMap>
-  class placement_visitor : public default_dfs_visitor
-  {
-  public:
-    placement_visitor() { }
-    placement_visitor(PlacementMap dist, typename property_traits<PlacementMap>::value_type ii = 1) 
-      : d(dist), cur_place(0), internal_inc(ii) { }
-
-    template <typename Vertex, typename Graph>
-    void finish_vertex(Vertex v, const Graph& g)
-    {
-      put(d, v, cur_place);
-      if (g->IsLeaf(v))
-        {
-        cur_place += 1;
-        }
-      else
-        {
-        cur_place += internal_inc;
-        }
-    }
-
-    typename property_traits<PlacementMap>::value_type max_place() { return cur_place; }
-
-  private:
-    PlacementMap d;
-    typename property_traits<PlacementMap>::value_type cur_place;
-    typename property_traits<PlacementMap>::value_type internal_inc;
-  };
-
-    // Create a color map (used for marking visited nodes)
-    //vector_property_map<default_color_type> color;
-    //vtkDoubleArray* placement = vtkDoubleArray::New();
-    //depth_first_search(tree, 
-    //  placement_visitor<vtkDoubleArray*>(placement, 1.0), 
-    //  color, tree->GetRoot());
-#endif
-
 
 

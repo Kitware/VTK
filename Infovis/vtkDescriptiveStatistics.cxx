@@ -85,10 +85,8 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
-                                          vtkMultiBlockDataSet* outMetaDO )
+                                          vtkMultiBlockDataSet* outMeta )
 {
-  // Verify that the output model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* outMeta = vtkMultiBlockDataSet::SafeDownCast( outMetaDO );
   if ( ! outMeta ) 
     { 
     return; 
@@ -130,7 +128,9 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     // Verify that the current model is indeed contained in a multiblock data set
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
-      { 
+      {
+      aggregatedTab->Delete();
+
       return; 
       }
 
@@ -138,12 +138,16 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! primaryTab )
       {
+      aggregatedTab->Delete();
+
       return;
       }
 
     if ( primaryTab->GetNumberOfRows() != nRow )
       {
       // Models do not match
+      aggregatedTab->Delete();
+
       return;
       }
 
@@ -154,6 +158,8 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       if ( primaryTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
         {
         // Models do not match
+        aggregatedTab->Delete();
+
         return;
         }
 
@@ -226,8 +232,6 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
   // Clean up
   aggregatedTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -235,6 +239,11 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
                                       vtkTable* vtkNotUsed( inParameters ),
                                       vtkMultiBlockDataSet* outMeta )
 {
+  if ( ! inData )
+    {
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -283,29 +292,8 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
   primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  if ( ! inData )
-    {
-    return;
-    }
-
-  vtkIdType nRow = inData->GetNumberOfRows();
-  if ( ! nRow )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->Requests.size() )
-    {
-    return;
-    }
-
-  vtkIdType nCol = inData->GetNumberOfColumns();
-  if ( ! nCol )
-    {
-    return;
-    }
-  
   // Loop over requests
+  vtkIdType nRow = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -379,8 +367,6 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 
   // Clean up
   primaryTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -391,15 +377,8 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
-    {
-    return;
-    }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( ! nRow )
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab  )
     {
     return;
     }
@@ -414,6 +393,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                  "Sum" };
 
   // Create table for derived statistics
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   vtkTable* derivedTab = vtkTable::New();
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
@@ -519,26 +499,18 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
                                      vtkMultiBlockDataSet* inMeta,
                                      vtkTable* outMeta )
 {
-  if ( ! inMeta 
-       || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta )
     {
     return;
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
     {
     return;
     }
 
   if ( ! outMeta )
-    {
-    return;
-    }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( nRow <= 0 )
     {
     return;
     }
@@ -559,6 +531,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   
   // Loop over requests
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -760,32 +733,24 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     AssessFunctor*& dfunc )
 {
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
-  if ( ! inMeta
-       || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta )
     { 
     return; 
     }
 
-  vtkTable* primaryTab;
-  if ( ! ( primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) ) ) 
-       || primaryTab->GetNumberOfColumns() < 8 )
+  vtkTable* primaryTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
+    return;
+    }
+
+  vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! derivedTab )
     {
     return;
     }
 
   vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
-  if ( nRowPrim <= 0 )
-    {
-    return;
-    }
-
-  vtkTable* derivedTab;
-  if ( ! ( derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) ) ) 
-       || derivedTab->GetNumberOfColumns() < 2 )
-    {
-    return;
-    }
-
   if ( nRowPrim != derivedTab->GetNumberOfRows() )
     {
     return;

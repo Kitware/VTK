@@ -105,7 +105,15 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
+  // Set multi-correlative statistics algorithm and its input data port
   vtkMultiCorrelativeStatistics* mcs = vtkMultiCorrelativeStatistics::New();
+
+  // First verify that absence of input does not cause trouble
+  cout << "## Verifying that absence of input does not cause trouble... ";
+  mcs->Update();
+  cout << "done.\n";
+
+  // Prepare first test with data
   mcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
 
   datasetTable->Delete();

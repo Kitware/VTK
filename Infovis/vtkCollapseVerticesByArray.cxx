@@ -62,7 +62,7 @@ vtkCollapseVerticesByArray::vtkCollapseVerticesByArray() :
   this->Internal = new vtkCollapseVerticesByArrayInternal();
 }
 
-//------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
 {
   if(this->Internal)
@@ -74,9 +74,19 @@ vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
     {
     delete [] this->VertexArray;
     }
+  
+  if(this->VerticesCollapsedArray!=0)
+    {
+    delete[] this->VerticesCollapsedArray;
+    }
+  
+  if(this->EdgesCollapsedArray!=0)
+    {
+    delete[] this->EdgesCollapsedArray;
+    }
 }
 
-//------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkCollapseVerticesByArray::PrintSelf(ostream &os, vtkIndent indent)
 {
   // Base class print.
@@ -511,7 +521,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
       if(this->CountEdgesCollapsed)
         {
         countEdgesCollapsedArray->SetValue(
-          outEdgeId, (int)(countEdgesCollapsedArray->GetValue(outEdgeId) + 1));
+          outEdgeId,
+          static_cast<int>(countEdgesCollapsedArray->GetValue(outEdgeId) + 1));
         }
       }
     //--

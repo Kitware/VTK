@@ -71,23 +71,18 @@ void vtkBivariateStatisticsAlgorithm::Assess( vtkTable* inData,
                                               vtkMultiBlockDataSet* inMeta,
                                               vtkTable* outData )
 {
-  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
+  if ( ! inData )
     {
     return;
     }
 
-  vtkIdType nRowData = inData->GetNumberOfRows();
-  if ( nRowData <= 0 )
-    {
-    return;
-    }
-
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta )
     {
     return;
     }
 
   // Loop over requests
+  vtkIdType nRowData = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {

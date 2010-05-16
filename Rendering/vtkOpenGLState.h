@@ -353,7 +353,7 @@ public:
   bool HasFragmentShader;
 };
 
-class vtkOpenGLState
+class VTK_RENDERING_EXPORT vtkOpenGLState
 {
 public:
   vtkOpenGLState(vtkOpenGLRenderWindow *context);

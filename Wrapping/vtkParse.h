@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtkParseType.h"
+
 #define MAX_ARGS 20  
 
   typedef struct _FunctionInfo

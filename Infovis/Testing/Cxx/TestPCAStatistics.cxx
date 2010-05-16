@@ -95,7 +95,15 @@ int TestPCAStatistics( int argc, char* argv[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
+  // Set PCA statistics algorithm and its input data port
   vtkPCAStatistics* pcas = vtkPCAStatistics::New();
+
+  // First verify that absence of input does not cause trouble
+  cout << "## Verifying that absence of input does not cause trouble... ";
+  pcas->Update();
+  cout << "done.\n";
+
+  // Prepare first test with data
   pcas->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   pcas->SetNormalizationSchemeByName( normScheme );
   pcas->SetBasisSchemeByName( "FixedBasisEnergy" );

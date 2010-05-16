@@ -77,26 +77,29 @@
 #define VERDICT_DBL_MAX 1.0E+30
 #define VERDICT_PI 3.1415926535897932384626
 
+#if defined(_WIN32) || defined (__CYGWIN__)
+# define VERDICT_ABI_IMPORT __declspec(dllimport)
+# define VERDICT_ABI_EXPORT __declspec(dllexport)
+#elif __GNUC__ >= 4
+# define VERDICT_ABI_IMPORT __attribute__ ((visibility("default")))
+# define VERDICT_ABI_EXPORT __attribute__ ((visibility("default")))
+#else
+# define VERDICT_ABI_IMPORT
+# define VERDICT_ABI_EXPORT
+#endif
+
 #ifdef __cplusplus
-# if defined(WIN32) && defined(VERDICT_SHARED_LIB)
-#  ifdef verdict_EXPORTS
-#   define C_FUNC_DEF extern "C" __declspec(dllexport)
-#  else
-#   define C_FUNC_DEF extern "C" __declspec(dllimport)
-#  endif
+# define VERDICT_EXTERN_C extern "C"
+#endif
+
+#if defined(VERDICT_SHARED_LIB)
+# ifdef verdict_EXPORTS
+#  define C_FUNC_DEF VERDICT_EXTERN_C  VERDICT_ABI_EXPORT
 # else
-#  define C_FUNC_DEF extern "C"
+#  define C_FUNC_DEF VERDICT_EXTERN_C  VERDICT_ABI_IMPORT
 # endif
 #else
-# if defined(WIN32) && defined(VERDICT_SHARED_LIB)
-#  ifdef verdict_EXPORTS
-#   define C_FUNC_DEF __declspec(dllexport)
-#  else
-#   define C_FUNC_DEF __declspec(dllimport)
-#  endif
-# else
-#  define C_FUNC_DEF
-# endif
+# define C_FUNC_DEF VERDICT_EXTERN_C
 #endif
 
 
@@ -270,7 +273,26 @@ struct PyramidMetricVals
   */
 struct WedgeMetricVals
 {
-  double volume ; 
+  /** \sa v_wedge_volume */
+  double volume ;
+  /** \sa v_wedge_edge_ratio */
+  double edge_ratio ;
+  /** \sa v_wedge_max_aspect_frobenius */
+  double max_aspect_frobenius;
+  /** \sa v_wedge_mean_aspect_frobenius */
+  double mean_aspect_frobenius;
+  /** \sa v_wedge_jacobian */
+  double jacobian;
+  /** \sa v_wedge_distortion */
+  double distortion;
+  /** \sa v_wedge_max_stretch */
+  double max_stretch;
+  /** \sa v_wedge_scaled_jacobian */
+  double scaled_jacobian;
+  /** \sa v_wedge_shape */
+  double shape;
+  /** \sa v_wedge_condition */
+  double condition;
 };
      
 /**\brief A <em>struct</em> to hold values computed by \ref v_tet_quality.
@@ -528,7 +550,16 @@ struct TriMetricVals
 //! 
 //@{
 /*!\hideinitializer \brief */
-#define V_WEDGE_VOLUME               1
+#define V_WEDGE_VOLUME                 1
+#define V_WEDGE_EDGE_RATIO             2
+#define V_WEDGE_MAX_ASPECT_FROBENIUS   4
+#define V_WEDGE_MEAN_ASPECT_FROBENIUS  8
+#define V_WEDGE_JACOBIAN               16
+#define V_WEDGE_SCALED_JACOBIAN        32
+#define V_WEDGE_DISTORTION             64
+#define V_WEDGE_MAX_STRETCH            128
+#define V_WEDGE_SHAPE                  256
+#define V_WEDGE_CONDITION              512
 /*!\hideinitializer \brief */
 #define V_WEDGE_ALL \
   V_WEDGE_VOLUME
@@ -1083,7 +1114,52 @@ struct TriMetricVals
     //! Calculates wedge volume.
     C_FUNC_DEF double v_wedge_volume( int num_nodes, double coordinates[][3] ); 
 
-   
+    //! Calculates wedge edge ratio metric.
+    /**  Hmax / Hmin where Hmax and Hmin are respectively the maximum and the
+       minimum edge lengths */
+    C_FUNC_DEF double v_wedge_edge_ratio( int num_nodes, double coordinates[][3] );
+
+    //! Calculates wedge max aspect forbenius.
+    /** max(F_0123, F_1204, F_2015, F_3540, F_4351, F_5432)
+      Reference --- Adaptation of hex max aspect frobenius */
+    C_FUNC_DEF double v_wedge_max_aspect_frobenius( int num_nodes, double coordinates[][3] );
+
+    //! Calculates wedge mean aspect forbenius.
+    /** 1/6 * (F_0123 + F_1204 + F+2015 + F_3540 + F_4351 + F_5432)
+      Reference --- Adaptation of hex mean aspect frobenius */
+    C_FUNC_DEF double v_wedge_mean_aspect_frobenius( int num_nodes, double coordinates[][3] );
+
+    //! Calculates wedge jacobian metric.
+    /** min{((L_2 X L_0) * L_3)_k}
+       Reference --- Adaptation of Tet jacobian metric. */
+    C_FUNC_DEF double v_wedge_jacobian( int num_nodes, double coordinates[][3]);
+
+    //! Calculates wedge distortion metric.
+    /** {min(|J|)/actual volume}*parent volume.
+       Reference --- Adaptation of Hex distortion metric. */
+    C_FUNC_DEF double v_wedge_distortion( int num_nodes, double coordinates[][3] );
+
+    //! Calculates the wedge stretch
+    /** Minimum of the stretch of each quadrilateral face.
+        Reference -- See quadrilateral stretch */
+    C_FUNC_DEF double v_wedge_max_stretch( int num_nodes, double coordinates[][3] );
+
+    //! Calculates wedge scaled jacobian metric.
+    /** Reference --- Adaptation of Hex and Tet scaled jacobian metric. */
+    C_FUNC_DEF double v_wedge_scaled_jacobian( int num_nodes, double coordinates[][3] );
+
+    //! Calculates the wedge shape metric.
+    /** 3 divided by the minimum mean ratio of the Jacobian matrix at each
+        element corner.
+        Reference -- Adaptaation of Hex shape metric. */
+    C_FUNC_DEF double v_wedge_shape( int num_nodes, double coordinates[][3] );
+
+    //! Calculates wedge max aspect forbenius.
+    /** max(F_0123, F_1204, F_2015, F_3540, F_4351, F_5432)
+      Reference --- Adaptation of hex max aspect frobenius */
+    C_FUNC_DEF double v_wedge_condition( int num_nodes, double coordinates[][3] );
+
+
 /* individual quality functions for knife elements */
 
     //! Calculates knife volume.

@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkVersion.h"
 #include "vtkTestingObjectFactory.h"
-#include "vtkSmartPointer.h"
+#include "vtkVersion.h"
+#include "vtkTestingInteractor.h"
 
 vtkStandardNewMacro(vtkTestingObjectFactory);
 

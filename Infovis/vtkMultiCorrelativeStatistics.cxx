@@ -178,7 +178,9 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
     // Verify that the current model is indeed contained in a multiblock data set
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta ) 
-      { 
+      {
+      outCov->Delete();
+
       return; 
       }
 
@@ -186,12 +188,16 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
     inCov = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! inCov )
       {
+      outCov->Delete();
+
       return;
       }
 
     if ( inCov->GetNumberOfRows() != nRow )
       {
       // Models do not match
+      outCov->Delete();
+
       return;
       }
 
@@ -209,6 +215,8 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
            || inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ) != outCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ) )
         {
         // Models do not match
+        outCov->Delete();
+
         return;
         }
 
@@ -251,8 +259,6 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
 
   // Clean up
   outCov->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -260,6 +266,11 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
                                            vtkTable* vtkNotUsed( inParameters ),
                                            vtkMultiBlockDataSet* outMeta )
 {
+  if ( ! inData )
+    {
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -281,22 +292,6 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   mucov->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
   sparseCov->AddColumn( mucov );
   mucov->Delete();
-
-  if ( ! inData )
-    {
-    return;
-    }
-
-  vtkIdType n = inData->GetNumberOfRows();
-  if ( n <= 0 )
-    {
-    return;
-    }
-
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
 
   vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
   vtksys_stl::set<vtkStdString>::const_iterator colIt;
@@ -340,7 +335,9 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   // This keeps us from computing the same covariance entry multiple times if several requests
   // contain common pairs of columns.
   i = m;
-  // For each request:
+
+  // Loop over requests
+  vtkIdType nRow = inData->GetNumberOfRows();
   for ( reqIt = this->Internals->Requests.begin(); reqIt != this->Internals->Requests.end(); ++ reqIt )
     {
     // For each column in the request:
@@ -388,9 +385,9 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   mucov->SetNumberOfTuples( 1 + m + colPairs.size() ); // sample size followed by mean (mu) followed by covariance (cov) values
   mucov->FillComponent( 0, 0. );
   double* rv = mucov->GetPointer( 0 );
-  *rv = static_cast<double>( n );
+  *rv = static_cast<double>( nRow );
   ++ rv; // skip Cardinality entry
-  for ( i = 0; i < n; ++ i )
+  for ( i = 0; i < nRow; ++ i )
     {
     // First fetch column values
     for ( vtkIdType j = 0; j < m; ++ j )
@@ -467,7 +464,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   vtkStringArray* ocol2;
   vtkDoubleArray* mucov;
   if (
-    ! outMeta || outMeta->GetNumberOfBlocks() < 1 ||
+    ! outMeta ||
     ! ( sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
     ! ( ocol1 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN1 ) ) ) ||
     ! ( ocol2 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN2 ) ) ) ||
@@ -594,18 +591,12 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
                                             vtkMultiBlockDataSet* inMeta, 
                                             vtkTable* outData )
 {
-  if ( ! inMeta || ! outData )
+  if ( ! inData )
     {
     return;
     }
 
-  if ( inData->GetNumberOfColumns() <= 0 )
-    {
-    return;
-    }
-
-  vtkIdType nsamples = inData->GetNumberOfRows();
-  if ( nsamples <= 0 )
+  if ( ! inMeta )
     {
     return;
     }
@@ -614,6 +605,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
   // Column names of the metadata and input data are assumed to match (no mapping using AssessNames or AssessParameters is done).
   // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)" where "A", "B", and "C" are the column names specified in the
   // per-request metadata tables.
+  vtkIdType nRow = inData->GetNumberOfRows();
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
   AssessFunctor* dfunc = 0;
   for ( int req = 1; req < nb; ++ req )
@@ -662,14 +654,14 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
       vtkDoubleArray* assessValues = vtkDoubleArray::New();
       names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
       assessValues->SetName( names[v] );
-      assessValues->SetNumberOfTuples( nsamples );
+      assessValues->SetNumberOfTuples( nRow );
       outData->AddColumn( assessValues );
       assessValues->Delete();
       }
 
     // Assess each entry of the column
     vtkVariantArray* assessResult = vtkVariantArray::New();
-    for ( vtkIdType r = 0; r < nsamples; ++ r )
+    for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       (*dfunc)( assessResult, r );
       for ( int v = 0; v < nv; ++ v )
@@ -771,8 +763,6 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
                                                          vtkStringArray* vtkNotUsed(rowNames), 
                                                          AssessFunctor*& dfunc )
 {
-  (void)inData;
-
   dfunc = 0;
   vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );
   if ( ! reqModel )

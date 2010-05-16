@@ -44,6 +44,8 @@ vtkDelimitedTextWriter::vtkDelimitedTextWriter()
   this->SetFieldDelimiter(",");
   this->Stream = 0;
   this->FileName = 0;
+  this->WriteToOutputString = false;
+  this->OutputString = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -53,6 +55,7 @@ vtkDelimitedTextWriter::~vtkDelimitedTextWriter()
   this->SetFieldDelimiter(0);
   this->SetFileName(0);
   delete this->Stream;
+  delete[] this->OutputString;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,35 +67,43 @@ int vtkDelimitedTextWriter::FillInputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkDelimitedTextWriter::OpenFile()
+bool vtkDelimitedTextWriter::OpenStream()
 {
-  if ( !this->FileName )
+  if (this->WriteToOutputString)
     {
-    vtkErrorMacro(<< "No FileName specified! Can't write!");
-    this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return false;
+    this->Stream = new vtksys_ios::ostringstream;
+    }
+  else
+    {
+    if ( !this->FileName )
+      {
+      vtkErrorMacro(<< "No FileName specified! Can't write!");
+      this->SetErrorCode(vtkErrorCode::NoFileNameError);
+      return false;
+      }
+
+    vtkDebugMacro(<<"Opening file for writing...");
+
+    ofstream *fptr = new ofstream(this->FileName, ios::out);
+
+    if (fptr->fail())
+      {
+      vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+      delete fptr;
+      return false;
+      }
+
+    this->Stream = fptr;
     }
 
-  vtkDebugMacro(<<"Opening file for writing...");
-
-  ofstream *fptr = new ofstream(this->FileName, ios::out);
-
-  if (fptr->fail())
-    {
-    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
-    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    delete fptr;
-    return false;
-    }
-
-  this->Stream = fptr;
   return true;
 }
 
 //-----------------------------------------------------------------------------
 template <class iterT>
 void vtkDelimitedTextWriterGetDataString(
-  iterT* iter, vtkIdType tupleIndex, ofstream* stream, vtkDelimitedTextWriter* writer,
+  iterT* iter, vtkIdType tupleIndex, ostream* stream, vtkDelimitedTextWriter* writer,
   bool* first)
 {
   int numComps = iter->GetNumberOfComponents();
@@ -123,7 +134,7 @@ void vtkDelimitedTextWriterGetDataString(
 VTK_TEMPLATE_SPECIALIZE
 void vtkDelimitedTextWriterGetDataString(
   vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType tupleIndex, 
-  ofstream* stream, vtkDelimitedTextWriter* writer, bool* first)
+  ostream* stream, vtkDelimitedTextWriter* writer, bool* first)
 {
   int numComps = iter->GetNumberOfComponents();
   vtkIdType index = tupleIndex* numComps;
@@ -180,7 +191,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
 {
   vtkIdType numRows = table->GetNumberOfRows();
   vtkDataSetAttributes* dsa = table->GetRowData();
-  if (!this->OpenFile())
+  if (!this->OpenStream())
     {
     return;
     }
@@ -232,7 +243,27 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
     (*this->Stream) << "\n";
     }
 
-  this->Stream->close();
+  if (this->WriteToOutputString)
+    {
+    vtksys_ios::ostringstream *ostr =
+      static_cast<vtksys_ios::ostringstream*>(this->Stream);
+
+    delete [] this->OutputString;
+    size_t strLen = ostr->str().size();
+    this->OutputString = new char[strLen+1];
+    memcpy(this->OutputString, ostr->str().c_str(), strLen+1);
+    }
+  delete this->Stream;
+  this->Stream = 0;
+}
+
+//-----------------------------------------------------------------------------
+char *vtkDelimitedTextWriter::RegisterAndGetOutputString()
+{
+  char *tmp = this->OutputString;
+  this->OutputString = NULL;
+
+  return tmp;
 }
 
 //-----------------------------------------------------------------------------
@@ -246,4 +277,5 @@ void vtkDelimitedTextWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseStringDelimiter: " << this->UseStringDelimiter << endl;
   os << indent << "FileName: " << (this->FileName? this->FileName : "none") 
     << endl;
+  os << indent << "WriteToOutputString: " << this->WriteToOutputString << endl;
 }

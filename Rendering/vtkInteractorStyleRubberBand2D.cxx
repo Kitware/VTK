@@ -321,4 +321,6 @@ void vtkInteractorStyleRubberBand2D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Interaction: " << this->Interaction << endl;
   os << indent << "RenderOnMouseMove: " << this->RenderOnMouseMove << endl;
+  os << indent << "StartPosition: " << this->StartPosition[0] << "," << this->StartPosition[1] << endl;
+  os << indent << "EndPosition: " << this->EndPosition[0] << "," << this->EndPosition[1] << endl;
 }

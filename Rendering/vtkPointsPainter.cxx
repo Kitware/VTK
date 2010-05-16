@@ -106,6 +106,10 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   // since this painter does not deal with field colors specially,
   // we just ignore the flag.
   idx &= (~VTK_PDM_FIELD_COLORS);
+
+  // Also ignore edge flags.
+  idx &= (~VTK_PDM_EDGEFLAGS);
+
   switch (idx)
     {
   case 0://no cell/point attribs are present. 

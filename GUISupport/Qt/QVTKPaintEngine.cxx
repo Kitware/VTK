@@ -95,3 +95,8 @@ void QVTKPaintEngine::drawPath(const QPainterPath& path)
   this->drawPixmap(QRectF(QPoint(0,0), img.size()), img, box);
 }
 
+void QVTKPaintEngine::drawPolygon(const QPointF* /*points*/, int /*pointCount*/,
+  PolygonDrawMode /*mode*/)
+{
+}
+

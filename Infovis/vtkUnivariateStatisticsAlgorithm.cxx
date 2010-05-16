@@ -72,18 +72,12 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
                                                vtkMultiBlockDataSet* inMeta,
                                                vtkTable* outData )
 {
-  if ( ! inData || inData->GetNumberOfColumns() <= 0 )
+  if ( ! inData )
     {
     return;
     }
 
-  vtkIdType nRowData = inData->GetNumberOfRows();
-  if ( nRowData <= 0 )
-    {
-    return;
-    }
-
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
+  if ( ! inMeta )
     {
     return;
     }
@@ -110,6 +104,7 @@ void vtkUnivariateStatisticsAlgorithm::Assess( vtkTable* inData,
     // Store names to be able to use SetValueByName, and create the outData columns
     int nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
+    vtkIdType nRowData = inData->GetNumberOfRows();
     for ( int v = 0; v < nv; ++ v )
       {
       vtksys_ios::ostringstream assessColName;

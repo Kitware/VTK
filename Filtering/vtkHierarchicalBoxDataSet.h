@@ -164,6 +164,7 @@ public:
   void GenerateVisibilityArrays();
 
   static vtkInformationIntegerVectorKey* BOX();
+  static vtkInformationIntegerKey* BOX_DIMENSIONALITY();
   static vtkInformationIntegerKey* REFINEMENT_RATIO();
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
 

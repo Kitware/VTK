@@ -192,7 +192,8 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   
   // Initialize copying data into tree
   temp->GetFieldData()->PassData(input->GetFieldData());
-  temp->GetVertexData()->CopyAllocate(input->GetVertexData());
+  temp->GetVertexData()->PassData(input->GetVertexData());
+  temp->GetPoints()->ShallowCopy(input->GetPoints());
   //FIXME - We're not copying the edge data, see FIXME note below.
   //  temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
   
@@ -218,11 +219,6 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     }
 
   vtkIdType i;
-  for( i = 0; i < input->GetNumberOfVertices(); i++ )
-    {
-    vtkIdType tree_v = temp->AddVertex();
-    temp->GetVertexData()->CopyData( input->GetVertexData(), i, tree_v );
-    }
   for( i = 0; i < temp->GetNumberOfVertices(); i++ )
     {
     if( predecessorMap->GetValue(i) == i )

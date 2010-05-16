@@ -94,7 +94,15 @@ int TestContingencyStatistics( int, char *[] )
   int nEntropies = 3; // correct number of entropies reported in the summary table
   double* H = new double[nEntropies];
   
+  // Set contingency statistics algorithm and its input data port
   vtkContingencyStatistics* cs = vtkContingencyStatistics::New();
+
+  // First verify that absence of input does not cause trouble
+  cout << "## Verifying that absence of input does not cause trouble... ";
+  cs->Update();
+  cout << "done.\n";
+
+  // Prepare first test with data
   cs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   vtkTable* outputData = cs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 

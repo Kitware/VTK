@@ -321,8 +321,8 @@ void ExerciseType(vtkMultiProcessController *controller)
 
   typedef typename vtkTypeTraits<baseType>::PrintType printType;
 
-  int rank = controller->GetLocalProcessId();
-  int numProc = controller->GetNumberOfProcesses();
+  const int rank = controller->GetLocalProcessId();
+  const int numProc = controller->GetNumberOfProcesses();
   int i;
   int result;
   int srcProcessId;
@@ -330,7 +330,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   vtkIdType length;
   vtkstd::vector<vtkIdType> lengths;  lengths.resize(numProc);
   vtkstd::vector<vtkIdType> offsets;  offsets.resize(numProc);
-  int arraySize = (numProc < 8) ? 8 : numProc;
+  const int arraySize = (numProc < 8) ? 8 : numProc;
 
   // Fill up some random arrays.  Note that here and elsewhere we are careful to
   // have each process request the same random numbers.  The pseudorandomness
@@ -365,6 +365,7 @@ void ExerciseType(vtkMultiProcessController *controller)
     }
 
   VTK_CREATE(arrayType, buffer);
+  VTK_CREATE(arrayType, tmpSource);
 
   COUT("Basic send and receive.");
   result = 1;
@@ -751,6 +752,79 @@ void ExerciseType(vtkMultiProcessController *controller)
     }
   CheckSuccess(controller, result);
 
+  COUT("Vector Gather with vtkDataArray");
+  offsets[0] = static_cast<vtkIdType>(vtkMath::Random(0.0, 2.99));
+  lengths[0] = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+  for (i = 1; i < numProc; i++)
+    {
+    offsets[i] = (  offsets[i-1] + lengths[i-1]
+                  + static_cast<vtkIdType>(vtkMath::Random(0.0, 2.99)) );
+    lengths[i]
+      = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+    }
+  destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
+  tmpSource->DeepCopy(sourceArrays[rank]);
+  tmpSource->SetNumberOfTuples(lengths[rank]);
+  buffer->SetNumberOfTuples(offsets[numProc-1]+lengths[numProc-1]);
+  result = 1;
+  if (rank == destProcessId)
+    {
+    controller->GatherV(tmpSource, buffer,
+                        &lengths[0], &offsets[0], destProcessId);
+    for (i = 0; i < numProc; i++)
+      {
+      for (int j = 0; j < lengths[i]; j++)
+        {
+        if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
+          {
+          vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+          result = 0;
+          break;
+          }
+        }
+      }
+    }
+  else
+    {
+    controller->GatherV(tmpSource, NULL, NULL, NULL, destProcessId);
+    }
+  CheckSuccess(controller, result);
+
+  COUT("Vector Gather with vtkDataArray (automatic receive sizes)");
+  lengths[0] = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+  for (i = 1; i < numProc; i++)
+    {
+    lengths[i]
+      = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+    }
+  destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
+  tmpSource->DeepCopy(sourceArrays[rank]);
+  tmpSource->SetNumberOfTuples(lengths[rank]);
+  buffer->Initialize();
+  result = 1;
+  if (rank == destProcessId)
+    {
+    controller->GatherV(tmpSource, buffer, destProcessId);
+    int k = 0;
+    for (i = 0; i < numProc; i++)
+      {
+      for (int j = 0; j < lengths[i]; j++)
+        {
+        if (sourceArrays[i]->GetValue(j) != buffer->GetValue(k++))
+          {
+          vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+          result = 0;
+          break;
+          }
+        }
+      }
+    }
+  else
+    {
+    controller->GatherV(tmpSource, NULL, destProcessId);
+    }
+  CheckSuccess(controller, result);
+
   COUT("All Gather with vtkDataArray");
   buffer->Initialize();
   result = 1;
@@ -760,6 +834,62 @@ void ExerciseType(vtkMultiProcessController *controller)
     for (int j = 0; j < arraySize; j++)
       {
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i*arraySize + j))
+        {
+        vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+        result = 0;
+        break;
+        }
+      }
+    }
+  CheckSuccess(controller, result);
+
+  COUT("Vector All Gather with vtkDataArray");
+  offsets[0] = static_cast<vtkIdType>(vtkMath::Random(0.0, 2.99));
+  lengths[0] = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+  for (i = 1; i < numProc; i++)
+    {
+    offsets[i] = (  offsets[i-1] + lengths[i-1]
+                  + static_cast<vtkIdType>(vtkMath::Random(0.0, 2.99)) );
+    lengths[i]
+      = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+    }
+  tmpSource->DeepCopy(sourceArrays[rank]);
+  tmpSource->SetNumberOfTuples(lengths[rank]);
+  buffer->SetNumberOfTuples(offsets[numProc-1]+lengths[numProc-1]);
+  result = 1;
+  controller->AllGatherV(tmpSource, buffer, &lengths[0], &offsets[0]);
+  for (i = 0; i < numProc; i++)
+    {
+    for (int j = 0; j < lengths[i]; j++)
+      {
+      if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
+        {
+        vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
+        result = 0;
+        break;
+        }
+      }
+    }
+  CheckSuccess(controller, result);
+
+  COUT("Vector All Gather with vtkDataArray (automatic receive sizes)");
+  lengths[0] = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+  for (i = 1; i < numProc; i++)
+    {
+    lengths[i]
+      = static_cast<vtkIdType>(vtkMath::Random(0.0, arraySize + 0.99));
+    }
+  tmpSource->DeepCopy(sourceArrays[rank]);
+  tmpSource->SetNumberOfTuples(lengths[rank]);
+  buffer->Initialize();
+  result = 1;
+  controller->AllGatherV(tmpSource, buffer);
+  int k = 0;
+  for (i = 0; i < numProc; i++)
+    {
+    for (int j = 0; j < lengths[i]; j++)
+      {
+      if (sourceArrays[i]->GetValue(j) != buffer->GetValue(k++))
         {
         vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
         result = 0;

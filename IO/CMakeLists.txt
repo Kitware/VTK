@@ -145,6 +145,7 @@ vtkXMLDataParser.cxx
 vtkXMLDataReader.cxx
 vtkXMLDataSetWriter.cxx
 vtkXMLFileReadTester.cxx
+vtkXMLGenericDataObjectReader.cxx
 vtkXMLHierarchicalBoxDataReader.cxx
 vtkXMLHierarchicalDataReader.cxx
 vtkXMLImageDataReader.cxx

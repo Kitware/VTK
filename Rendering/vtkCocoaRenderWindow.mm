@@ -307,16 +307,7 @@ int vtkCocoaRenderWindow::IsDirect()
     {
     return 0;
     }
-
-  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  GLint currentScreen = [context currentVirtualScreen];
-
-  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
-  GLint pfd;
-  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAFullScreen forVirtualScreen: currentScreen];
-
-  int isDirect = (pfd == 0) ? 0 : 1;
-  return isDirect;
+  return 1;
 }
 
 //----------------------------------------------------------------------------

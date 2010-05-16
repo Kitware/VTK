@@ -33,6 +33,9 @@
 // The user may also specify an array to use to indicate the distance from the
 // root, either vertically (for standard layout) or radially
 // (for radial layout).  You specify this with SetDistanceArrayName().
+//
+// If the input is not a tree but a general graph, this strategy first extracts
+// a tree from the graph using a breadth-first search starting at vertex ID 0.
 
 #ifndef __vtkTreeLayoutStrategy_h
 #define __vtkTreeLayoutStrategy_h
@@ -93,6 +96,14 @@ public:
   vtkSetMacro(Rotation, double);
   vtkGetMacro(Rotation, double);
 
+  // Description:
+  // If set and the input is not a tree but a general graph, the filter
+  // will reverse the edges on the graph before extracting a tree using
+  // breadth first search.
+  vtkSetMacro(ReverseEdges, bool);
+  vtkGetMacro(ReverseEdges, bool);
+  vtkBooleanMacro(ReverseEdges, bool);
+
 protected:
   vtkTreeLayoutStrategy();
   ~vtkTreeLayoutStrategy();
@@ -103,6 +114,7 @@ protected:
   double LeafSpacing;
   char *DistanceArrayName;
   double Rotation;
+  bool ReverseEdges;
 
 private:
 

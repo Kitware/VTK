@@ -87,7 +87,14 @@ public:
     SELECTING
     };
   //ETX
-    
+
+  // Description:
+  // Access to the start and end positions (display coordinates) of the rubber
+  // band pick area. This is a convenience method for the wrapped languages
+  // since the event callData is lost when using those wrappings.
+  vtkGetVector2Macro(StartPosition,int);
+  vtkGetVector2Macro(EndPosition,int);
+
 protected:
   vtkInteractorStyleRubberBand2D();
   ~vtkInteractorStyleRubberBand2D();

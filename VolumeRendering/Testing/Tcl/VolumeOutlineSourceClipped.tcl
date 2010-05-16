@@ -101,7 +101,7 @@ vtkClipClosedSurface outlineClip1
     outlineClip1 SetClippingPlanes clippingPlanes
     outlineClip1 GenerateFacesOff
     outlineClip1 GenerateOutlineOn
-    outlineClip1 GenerateColorScalarsOn
+    outlineClip1 SetScalarModeToColors
     outlineClip1 SetClipColor 1 1 0
     outlineClip1 SetActivePlaneId 2
     outlineClip1 SetActivePlaneColor 0 1 0
