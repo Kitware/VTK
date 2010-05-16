@@ -201,18 +201,383 @@ int EraseSegmentFromIdVector(vtkPolyhedron::IdVectorType & idVector,
 // convert the point ids from map.first to map.second
 //----------------------------------------------------------------------------
 int ConvertPointIds(vtkIdType npts, vtkIdType * pts, 
-                    vtkPolyhedron::IdToIdMapType & map)
+                    vtkPolyhedron::IdToIdMapType & map,
+                    vtkIdType reverse = 0)
 {
   for (vtkIdType i = 0; i < npts; i++)
     {
-    vtkPolyhedron::IdToIdMapType::iterator iter = map.find(pts[i]);
+    vtkIdType id = reverse ? npts-1-i : i;
+    vtkPolyhedron::IdToIdMapType::iterator iter = map.find(pts[id]);
     if (iter == map.end())
       {
       return 0;
       }
-    pts[i] = iter->second;
+    pts[id] = iter->second;
     }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+// The connected contour points are found by (1) locating the current
+// contour point in the face loop, (2) looping through face point: 
+//  meet a positive point, keep going. 
+//  meet a contour point, store it and stop marching in this direction.
+//  meet a negative point, stop marching in this direction.
+//  meet the same point from both directions, stop. 
+// This loop may find zero, one or two connected contour points.
+void FindConnectedContourPointsOnFace(vtkPolyhedron::IdVectorType & facePtsVector, 
+                                      vtkPolyhedron::IdVectorType & faceContourPtsVec,
+                                      vtkIdType currContourPoint,
+                                      vtkPolyhedron::IdVectorType & pointLabelVec,
+                                      vtkPolyhedron::IdSetType & connectedContourPtsSet,
+                                      vtkPolyhedron::IdSetType & unConnectedContourPtsSet)
+{
+  vtkIdType numFacePoints = static_cast<vtkIdType>(facePtsVector.size());
+  if (numFacePoints < 3)
+    {
+    return;
+    }
+  if (faceContourPtsVec.size() < 2)
+    {
+    return;
+    }
+  // locate the id of the startContourPt inside the face loop
+  vtkIdType startPt = -1;
+  for (vtkIdType i = 0; i < numFacePoints; i++)
+    {
+    if (currContourPoint == facePtsVector[i])
+      {
+      startPt = i;
+      break;
+      }
+    }
+
+  if (startPt < 0 || startPt >= numFacePoints)
+    {
+    return;
+    }
+
+  vtkIdType leftEndPt = -1; // face loop index
+  vtkIdType rightEndPt = -1; // face loop index
+  vtkIdType leftEndPoint = -1; // point id
+  vtkIdType rightEndPoint = -1; // point id
+  vtkIdType leftEndPassPositivePoint = 0;
+  vtkIdType rightEndPassPositivePoint = 0;
+  // search in one direction.
+  vtkIdType endPt = startPt - 1;
+  for (; endPt != startPt; endPt--)
+    {
+    if (endPt < 0)
+      {
+      endPt = numFacePoints - 1;
+      if (endPt == startPt)
+        {
+        break;
+        }
+      }
+    if (pointLabelVec[facePtsVector[endPt]] == -1)//negative point reached. stop
+      {
+      break;
+      }
+    else if (pointLabelVec[facePtsVector[endPt]] == 0)//contour pt reached. stop
+      {
+      leftEndPt = endPt;
+      leftEndPoint = facePtsVector[endPt];
+      break;
+      }
+    else
+      {
+      leftEndPassPositivePoint = 1;
+      }
+    // positive pt reached. continue.
+    }
+  
+  // check if already loop through the entire face
+  if (endPt != startPt)
+    {
+    vtkIdType prevEndPt = endPt;
+    
+    // search in the other direction
+    for (endPt = startPt + 1; endPt != prevEndPt; endPt++)
+      {
+      if (endPt > numFacePoints - 1)
+        {
+        endPt = 0;
+        if (endPt == prevEndPt)
+          {
+          break;
+          }
+        if (endPt == startPt)
+          {
+          break;
+          }
+        }
+      if (pointLabelVec[facePtsVector[endPt]] == -1)//negative point reached. stop
+        {
+        break;
+        }
+      else if (pointLabelVec[facePtsVector[endPt]] == 0)//contour pt reached. stop
+        {
+        rightEndPt = endPt;
+        rightEndPoint = facePtsVector[endPt];
+        break;
+        }
+      else
+        {
+        rightEndPassPositivePoint = 1;
+        }
+      }
+    }
+
+  // need to check a special case where startPt, leftEndPoint and rightEndPoint
+  // are directly connected or connected by a series of other contour points, 
+  // and startPt is at one end of the contour strip. We can check this situation
+  // using leftEndPassPositivePoint and leftEndPassPositivePoint. If both are
+  // 1, then the three points are not on a contour strip. If both are 0, then
+  // startPt is not at one end of the contour strip.
+  if (leftEndPoint >= 0 && rightEndPoint >=0 && leftEndPoint != rightEndPoint)
+    {
+    if (leftEndPassPositivePoint != rightEndPassPositivePoint)
+      {
+      bool foundNonContourPoint = false;
+      for (endPt = leftEndPt - 1; endPt != rightEndPt; endPt--)
+        {
+        if (endPt < 0)
+          {
+          endPt = numFacePoints - 1;
+          if (endPt == rightEndPt)
+            {
+            break;
+            }
+          }
+        if (pointLabelVec[facePtsVector[endPt]] != 0)
+          {
+          foundNonContourPoint = true;
+          break;
+          }
+        }
+      if (!foundNonContourPoint)// startPt on one end of the contour strip
+        {
+        if (leftEndPassPositivePoint)
+          {
+          leftEndPoint = -1;
+          }
+        else
+          {
+          rightEndPoint = -1;
+          }
+        }
+      }
+    }
+  
+  if (leftEndPoint >= 0)
+    {
+    connectedContourPtsSet.insert(leftEndPoint);
+    }
+  if (rightEndPoint >= 0)
+    {
+    connectedContourPtsSet.insert(rightEndPoint);
+    }
+  for (size_t i = 0; i < faceContourPtsVec.size(); i++)
+    {
+    if (faceContourPtsVec[i] != leftEndPoint && 
+        faceContourPtsVec[i] != rightEndPoint &&
+        faceContourPtsVec[i] != currContourPoint)
+      {
+      unConnectedContourPtsSet.insert(faceContourPtsVec[i]);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void RemoveIdFromIdToIdVectorMap(vtkPolyhedron::IdToIdVectorMapType & map, 
+                                 vtkIdType id)
+{
+  vtkPolyhedron::IdToIdVectorMapIteratorType mit = map.begin();
+  for (; mit != map.end(); ++mit)
+    {
+    vtkPolyhedron::IdVectorType::iterator vit = mit->second.begin();
+    for (; vit != mit->second.end(); ++vit)
+      {
+      if ((*vit) == id)
+        {
+        mit->second.erase(vit);
+        break;
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// For each contour point, extract its adjacent faces, then extract other 
+// contour points on the same face that can be connected to the current
+// points.
+// The connected contour points are found by (1) locating the current
+// contour point in the face loop, (2) looping through face point: 
+//  meet a positive point, keep going. 
+//  meet a contour point, store it and stop marching in this direction.
+//  meet a negative point, stop marching in this direction.
+//  meet the same point from both directions, stop. 
+// This loop may find zero, one or two connected contour points.
+int  ExtractContourConnectivities(
+                 vtkPolyhedron::IdToIdVectorMapType & ceMap,
+                 vtkPolyhedron::IdVectorType & isBranchPointVector,
+                 vtkPolyhedron::IdSetType & cpSet, 
+                 vtkPolyhedron::IdVectorType & pointLabelVector, 
+                 vtkPolyhedron::IdToIdVectorMapType & pointToFacesMap, 
+                 vtkPolyhedron::IdToIdVectorMapType & faceToPointsMap, 
+                 vtkPolyhedron::IdToIdVectorMapType & faceToContourPointsMap)
+{
+  int maxConnectivity = 0;
+  if (cpSet.empty())
+    {
+    return 0;
+    }
+  
+  vtkPolyhedron::IdSetType contourBranchesSet;
+  vtkPolyhedron::IdSetType nonContourBranchesSet;
+  vtkPolyhedron::IdVectorType contourBranchesVector;
+  vtkPolyhedron::IdSetType::iterator cpSetIt;
+  vtkPolyhedron::IdToIdVectorMapType::iterator fcpMapIt, fvMapIt, ceMapIt, ceMapIt1;
+  for (cpSetIt = cpSet.begin(); cpSetIt != cpSet.end(); /*manual increment*/)
+    {
+    contourBranchesSet.clear();
+    nonContourBranchesSet.clear();
+    contourBranchesVector.clear();
+    vtkIdType pid = *cpSetIt;
+    vtkPolyhedron::IdVectorType fVector = pointToFacesMap.find(pid)->second;
+    for (size_t i = 0; i < fVector.size(); i++)
+      {
+      // find adjacent faces that contain contour points
+      fcpMapIt = faceToContourPointsMap.find(fVector[i]);
+      if (fcpMapIt == faceToContourPointsMap.end())
+        {
+        continue;
+        }
+      fvMapIt = faceToPointsMap.find(fVector[i]);
+      if (fvMapIt == faceToPointsMap.end())
+        {
+        std::cout << "Cannot find point ids of a face. We should never get "
+                     "here. Contouring aborted." << std::endl;;
+        return 0;
+        }
+
+
+      // find connected contour points and store them in the set. Notice that
+      // some weird topology will classify a point as a connected contour point
+      // in one face and a non-connected contour point in some other face. we
+      // will extract the union.
+      FindConnectedContourPointsOnFace(fvMapIt->second, fcpMapIt->second, pid, 
+                  pointLabelVector, contourBranchesSet, nonContourBranchesSet);
+      }
+
+    if (!contourBranchesSet.empty())
+      {
+      vtkPolyhedron::IdSetType::iterator ccpSetIt = contourBranchesSet.begin();
+      for (; ccpSetIt != contourBranchesSet.end(); ++ccpSetIt)
+        {
+        if (nonContourBranchesSet.find(*ccpSetIt) == nonContourBranchesSet.end())
+          {
+          contourBranchesVector.push_back(*ccpSetIt);
+          }
+        }
+      }
+
+    if (contourBranchesVector.size() >= 2)
+      {
+      ceMap.insert(
+        vtkPolyhedron::IdToIdVectorPairType(pid, contourBranchesVector));
+      ++cpSetIt;
+      }
+    else // throw away point contour or edge contour.
+      {
+      if (cpSetIt != cpSet.begin())
+        {
+        vtkPolyhedron::IdSetType::iterator tempIt = cpSetIt;
+        --cpSetIt;
+        cpSet.erase(tempIt);
+        ++cpSetIt;
+        }
+      else
+        {
+        cpSet.erase(cpSetIt);
+        cpSetIt = cpSet.begin();
+        }
+      }
+    }
+  
+  // sanity check, all edges should be listed twice
+  for (ceMapIt = ceMap.begin(); ceMapIt != ceMap.end(); ++ceMapIt)
+    {
+    vtkPolyhedron::IdVectorType edges = ceMapIt->second;
+    for (size_t i = 0; i < edges.size(); i++)
+      {
+      bool foundMatch = false;
+      ceMapIt1 = ceMap.find(edges[i]);
+      if (ceMapIt1 != ceMap.end())
+        {
+        for (size_t j = 0; j < ceMapIt1->second.size(); j++)
+          {
+          if (ceMapIt->first == ceMapIt1->second[j])
+            {
+            foundMatch = true;
+            break;
+            }
+          }
+        }
+      if (!foundMatch)
+        {
+        edges.erase(edges.begin()+i);
+        i--;
+        }
+      }
+    ceMapIt->second = edges;
+    }
+
+  // clean 0 or 1-connected contour from ceMap
+  for (ceMapIt = ceMap.begin(); ceMapIt != ceMap.end(); /*manual increment*/)
+    {
+    if (ceMapIt->second.size() >= 2)
+      {
+      ++ceMapIt;
+      continue;
+      }
+      
+    cpSetIt = cpSet.find(ceMapIt->first);
+    if (cpSetIt != cpSet.end())
+      {
+      cpSet.erase(cpSetIt);
+      }
+    
+    if (ceMapIt != ceMap.begin())
+      {
+      vtkPolyhedron::IdToIdVectorMapType::iterator tempIt = ceMapIt;
+      --ceMapIt;
+      ceMap.erase(tempIt);
+      ++ceMapIt;
+      }
+    else
+      {
+      ceMap.erase(ceMapIt);
+      ceMapIt = ceMap.begin();
+      }
+    }
+  
+  // set isBranchPointVector and maxConnectivity.
+  for (ceMapIt = ceMap.begin(); ceMapIt != ceMap.end(); ++ceMapIt)
+    {
+    if (ceMapIt->second.size() > 2)
+      {
+      isBranchPointVector[ceMapIt->first] = 1;
+      }
+
+    if (static_cast<int>(ceMapIt->second.size()) > maxConnectivity)
+      {
+      maxConnectivity = ceMapIt->second.size();
+      }
+    }
+
+  return maxConnectivity;
 }
 
 //----------------------------------------------------------------------------
@@ -291,6 +656,213 @@ int CheckContourDimensions(vtkPoints* points, vtkIdType npts, vtkIdType * ptIds)
   return ret;
 }
 
+//----------------------------------------------------------------------------
+// Compute the normal (pointing to the positive side) for each contour point, 
+// then sort the contour edges such that they are ordered contour-clockwise
+// when viewed from normal direction. 
+// Current implementation of this function assumes planar contours, we only 
+// compute normal once and reuse it for all other contour points.
+// TODO: for non-planar cut, need to compute normal for each contour point. We 
+// then project edges onto a tangent plane and sort them.
+void OrderConnectedContourPoints(
+                      vtkPolyhedron::IdToIdVectorMapType & cpMap,
+                      vtkPolyhedron::IdVectorType isBranchPointVector,
+                      vtkPoints * points,
+                      vtkPolyhedron::IdVectorType & pointLabelVector)
+{
+  
+  double o[3], x0[3], x1[3], x2[3], e0[3], e1[3], n[3], nn[3];
+  vtkPolyhedron::IdToIdVectorMapType::iterator mapIt;
+  for (mapIt = cpMap.begin(); mapIt != cpMap.end(); ++mapIt)
+    {
+    vtkPolyhedron::IdVectorType pids = mapIt->second;
+    pids.insert(pids.begin(), mapIt->first);
+    if (CheckContourDimensions(points, 3, &(pids[0])) > 1)
+      {
+      points->GetPoint(pids[0], o);
+      points->GetPoint(pids[1], x0);
+      points->GetPoint(pids[2], x1);
+      e0[0] = x0[0] - o[0];
+      e0[1] = x0[1] - o[1];
+      e0[2] = x0[2] - o[2];
+      e1[0] = x1[0] - o[0];
+      e1[1] = x1[1] - o[1];
+      e1[2] = x1[2] - o[2];
+      vtkMath::Cross(e0, e1, n);
+      vtkMath::Normalize(n);
+      
+      // make sure n points to the positive side
+      vtkIdType numPoints = static_cast<vtkIdType>(pointLabelVector.size());
+      for (vtkIdType i = 0; i < numPoints; i++)
+        {
+        if (pointLabelVector[i] == 1)
+          {
+          points->GetPoint(i, x0);
+          }
+        e0[0] = x0[0] - o[0];
+        e0[1] = x0[1] - o[1];
+        e0[2] = x0[2] - o[2];
+        if (vtkMath::Dot(e0, n) < 0)
+          {
+          n[0] = -n[0];
+          n[1] = -n[1];
+          n[2] = -n[2];
+          }
+        }
+      }
+    }
+  
+  // now loop over contour points to order edges. note: we don't need to order
+  // the two edges of a 2-connected points.
+  for (mapIt = cpMap.begin(); mapIt != cpMap.end(); ++mapIt)
+    {
+    vtkPolyhedron::IdVectorType edges = mapIt->second;
+
+    if (edges.size() < 3)
+      {
+      continue;
+      }
+
+    // for branching point, there are two cases: 
+    // (1) complete interior contour point with no boundary edge. 
+    // (2) boundary contour point with two boundary edges.
+    // for case (2), we need to find the outgoing boundary edge.
+    vtkPolyhedron::IdVectorType boundaryEdges;
+    vtkPolyhedron::IdVectorType nonBoundaryEdges;
+    for (size_t i = 0; i < edges.size(); i++)
+      {
+      if (!isBranchPointVector[edges[i]])
+        {
+        boundaryEdges.push_back(edges[i]);
+        }
+      else
+        {
+        nonBoundaryEdges.push_back(edges[i]);
+        }
+      }
+    if (boundaryEdges.size() != 0 && boundaryEdges.size() != 2)
+      {
+      std::cout << "Find a contour point with " << boundaryEdges.size() << 
+        " boundary edges. This should never happen." << std::endl;
+      return;
+      }
+
+    // we use the observation: normalize the two boundary edges and the selected
+    // non-boundary edge. compute a new vector starting from the end of the 
+    // normalized incoming boundary edge and ending at the end of the normalized
+    // outgoing boundary edge. the end point of the normalized non-boundary edge
+    // should be to the left of the new vector. this property holds for both
+    // convex and concave cases.
+    points->GetPoint(mapIt->first, o);
+    if (!boundaryEdges.empty())
+      {
+      points->GetPoint(boundaryEdges[0], x0);
+      x0[0] = x0[0] - o[0];
+      x0[1] = x0[1] - o[1];
+      x0[2] = x0[2] - o[2];
+      vtkMath::Normalize(x0);
+      points->GetPoint(boundaryEdges[1], x1);
+      x1[0] = x1[0] - o[0];
+      x1[1] = x1[1] - o[1];
+      x1[2] = x1[2] - o[2];
+      vtkMath::Normalize(x1);
+      points->GetPoint(nonBoundaryEdges[0], x2);
+      x2[0] = x2[0] - o[0];
+      x2[1] = x2[1] - o[1];
+      x2[2] = x2[2] - o[2];
+      vtkMath::Normalize(x2);
+      e0[0] = x1[0] - x0[0];
+      e0[1] = x1[1] - x0[1];
+      e0[2] = x1[2] - x0[2];
+      e1[0] = x2[0] - x0[0];
+      e1[1] = x2[1] - x0[1];
+      e1[2] = x2[2] - x0[2];
+      vtkMath::Cross(e0, e1, nn);
+      if (vtkMath::Dot(n, nn) > 0)
+        {
+        vtkIdType temp = boundaryEdges[0];
+        boundaryEdges[0] = boundaryEdges[1];
+        boundaryEdges[1] = temp;
+        }
+      // set the outgoing and incoming boundary edges at the beginning and 
+      edges.clear();
+      edges.push_back(boundaryEdges[0]);
+      for (size_t i = 0; i < nonBoundaryEdges.size(); i++)
+        {
+        edges.push_back(nonBoundaryEdges[i]);
+        }
+      edges.push_back(boundaryEdges[1]);
+      }
+    
+    if (edges.size() == 3)
+      {
+      mapIt->second = edges;
+      continue;
+      }
+    
+    // get the first edge
+    points->GetPoint(mapIt->first, o);
+    points->GetPoint(edges[0], x0);
+    e0[0] = x0[0] - o[0];
+    e0[1] = x0[1] - o[1];
+    e0[2] = x0[2] - o[2];
+    vtkMath::Normalize(e0);
+
+    // compute the angles from other edges to the first edge
+    std::vector<double> angles;
+    angles.push_back(0);
+    const double maxDotProduct = 0.95;
+    size_t endId = boundaryEdges.empty() ? edges.size() : edges.size() - 1;
+    for (size_t i = 1; i < endId; i++)
+      {
+      points->GetPoint(edges[i], x1);
+      e1[0] = x1[0] - o[0];
+      e1[1] = x1[1] - o[1];
+      e1[2] = x1[2] - o[2];
+      vtkMath::Normalize(e1);
+      double dotproduct = vtkMath::Dot(e0, e1);
+      double angle = acos(dotproduct);
+      if (dotproduct < maxDotProduct && dotproduct > -maxDotProduct)
+        {
+        vtkMath::Cross(e0, e1, nn);
+        if (vtkMath::Dot(n, nn) < 0)
+          {
+          angle += vtkMath::Pi();
+          }
+        }
+      else if (dotproduct > maxDotProduct)
+        {
+        vtkMath::Cross(e0, n, nn);
+        angle = acos(vtkMath::Dot(nn, e1)) - vtkMath::Pi()/2.0;
+        }
+      else
+        {
+        vtkMath::Cross(n, e0, nn);
+        angle = acos(vtkMath::Dot(nn, e1)) + vtkMath::Pi()/2.0;
+        }
+      angles.push_back(angle);
+      }
+    
+    // sort connected contour points 
+    for (size_t i = 1; i < endId-1; i++)
+      {
+      for (size_t j = i+1; j < endId; j++)
+        {
+        if (angles[i] > angles[j])
+          {
+          vtkIdType temp = edges[i];
+          edges[i] = edges[j];
+          edges[j] = temp;
+          double angle = angles[i];
+          angles[i] = angles[j];
+          angles[j] = angle;
+          }
+        }
+      }
+    
+    mapIt->second = edges;
+    }
+}
 
 //----------------------------------------------------------------------------
 // Note: the triangulation results are inserted into the input cellArray, which
@@ -1087,7 +1659,7 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   triangulator->InitTriangulation(this->Bounds, this->GetNumberOfPoints());
   triangulator->PreSortedOff();
   
-  double point[3], pcoord[3]; 
+  double point[3]; 
   for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
     {
     this->GetPoints()->GetPoint(i, point);
@@ -1109,7 +1681,8 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 // NOTE: inScalars are in canonoical id space. while inPd are in global id space.
-void vtkPolyhedron::InternalContour(double value,
+int vtkPolyhedron::InternalContour(double value,
+                            vtkIdType insideOut,
                             vtkIncrementalPointLocator *locator,
                             vtkDataArray *inScalars,
                             vtkDataArray *outScalars,
@@ -1121,10 +1694,16 @@ void vtkPolyhedron::InternalContour(double value,
                             IdToIdMapType & pointIdMap)
 {
   double x0[3], x1[3], x[3];
-  double v0, v1, t;
+  double v0, v1, v, t;
 
-  vtkIdType p0, p1, flag, pid, fid, outPid, globalP0, globalP1;
+  vtkIdType p0, p1, pid, fid, outPid, globalP0, globalP1;
   void * ptr = NULL;
+
+  const double eps = 0.000001;
+
+  pointToFacesMap.clear();
+  faceToPointsMap.clear();
+  pointIdMap.clear();
 
   // initialization
   this->GenerateEdges();
@@ -1132,9 +1711,58 @@ void vtkPolyhedron::InternalContour(double value,
   this->ConstructPolyData();
   this->ComputeBounds();
 
+  // first check if all positive or all negative, construct a point label vector
+  // that records whether a point is a positive point 1, a negative point -1 or 
+  // a contour point 0.
+  bool allPositive = true;
+  bool allNegative = true;
+  vtkstd::vector<int> pointLabelVector;
+  for (pid = 0; pid < this->Points->GetNumberOfPoints(); pid++)
+    {
+    v = inScalars->GetComponent(pid,0);
+    if (v < value + eps)
+      {
+      allPositive = false;
+      if (v > value - eps)
+        {
+        pointLabelVector.push_back(0);
+        }
+      else
+        {
+        pointLabelVector.push_back(-1);
+        }
+      }
+    else if (v > value - eps)
+      {
+      allNegative = false;
+      if (v < value + eps)
+        {
+        pointLabelVector.push_back(0);
+        }
+      else
+        {
+        pointLabelVector.push_back(1);
+        }
+      }
+    }
+  
+  if ((allPositive && insideOut) || (allNegative && !insideOut))
+    {
+    return 2;
+    }
+  
+  if (allPositive || allNegative)
+    {
+    return 1;
+    }
+
+  // Here we use a point merger to try to prevent the problem of duplicated 
+  // points in the input. Since point duplication can be really complicated,
+  // there is no guarantee that this will always work. 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->DeepCopy(this->Points);
   vtkSmartPointer<vtkMergePoints> merge = vtkSmartPointer<vtkMergePoints>::New();
+  //merge->SetTolerance(0.000001);
   merge->InitPointInsertion(points, this->Bounds);
   for (int i = 0; i < points->GetNumberOfPoints(); i++)
     {
@@ -1146,13 +1774,14 @@ void vtkPolyhedron::InternalContour(double value,
     outScalars->InsertNextTuple1(inScalars->GetTuple1(i));
     }
   
-  pointToFacesMap.clear();
-  faceToPointsMap.clear();
-  pointIdMap.clear();
+  // construct a face to contour points map
+  IdToIdVectorMapType faceToContourPointsMap;
   
   IdToIdVectorMapIteratorType vfMapIt, vfMapIt0, vfMapIt1;
-  IdToIdVectorMapIteratorType fvMapIt;
-  
+  IdToIdVectorMapIteratorType fvMapIt, fcpMapIt, fcpMapItTemp;
+
+  IdToIdVectorMapType globalMap;
+
   // loop through all faces to construct PointToFacesMap and FaceToPointsMap
   vtkPolyhedronFaceIterator 
     faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
@@ -1164,11 +1793,12 @@ void vtkPolyhedron::InternalContour(double value,
       {
       vtkErrorMacro("Find a face with " << faceIter.CurrentPolygonSize <<
         " vertices. Contouring aborted due to this degenrate case.");
-      return;      
+      return -1;      
       }
 
     fid = faceIter.Id;
     IdVectorType vVector;
+    IdVectorType gVector;
     for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
       {
       pid = faceIter.Current[i];
@@ -1184,67 +1814,109 @@ void vtkPolyhedron::InternalContour(double value,
         pointToFacesMap.insert(IdToIdVectorPairType(pid, fVector));
         }
       vVector.push_back(pid);
+      gVector.push_back(this->PointIds->GetId(pid));
       }
     
     faceToPointsMap.insert(IdToIdVectorPairType(fid, vVector));
+    globalMap.insert(IdToIdVectorPairType(fid, gVector));
     ++faceIter;
     }
 
-  const double eps = 0.0000000001;
-
   // loop through all edges to find contour points and store them in the point 
   // locator. if the contour points are new (not overlap with any of original 
-  // vertex), update PointToFacesMap and FaceToPointsMap.
-  
+  // vertex), update PointToFacesMap, FaceToPointsMap and FaceToContourPointsMap.
   IdSetType cpSet; // contour point set
   this->EdgeTable->InitTraversal();
   while (this->EdgeTable->GetNextEdge(p0, p1, ptr))
     {
-    v0 = static_cast<double>(inScalars->GetComponent(p0,0));
-    v1 = static_cast<double>(inScalars->GetComponent(p1,0));
-
+    // If both vertices are positive or negative, we do nothing and continue;
+    if ((pointLabelVector[p0] == 1 && pointLabelVector[p1] == 1) ||
+        (pointLabelVector[p0] == -1 && pointLabelVector[p1] == -1))
+      {
+      continue;
+      }
+    
     globalP0 = this->PointIds->GetId(p0);
     globalP1 = this->PointIds->GetId(p1);
 
+    v0 = inScalars->GetComponent(p0,0);
+    v1 = inScalars->GetComponent(p1,0);
+
     points->GetPoint(p0, x0);
     points->GetPoint(p1, x1);
-    
-    if (v1-value > eps && v0-value > eps)
+
+    // If one or two of the vertices are contour points, we maintain the face
+    // to contour point map then continue
+    if (!pointLabelVector[p0] || !pointLabelVector[p1])
       {
-      continue;
-      }
-    if (v1-value < -eps && v0-value < -eps)
-      {
-      continue;
-      }
-    
-    flag = 0;
-    if (v0 - value < eps && v0 - value > -eps)
-      {
-      cpSet.insert(p0);
-      if (locator->InsertUniquePoint(x0, outPid))
+      vtkIdType flag = 0;
+      vtkIdType contourVertexIds[2] = {-1, -1};
+      if (pointLabelVector[p0] == 0)
         {
-        outPd->CopyData(inPd, globalP0, outPid);
+        if (cpSet.insert(p0).second) // check if the point already exist in set
+          {
+          if (locator->InsertUniquePoint(x0, outPid))
+            {
+            outPd->CopyData(inPd, globalP0, outPid);
+            }
+          pointIdMap.insert(IdToIdPairType(p0, outPid));
+          contourVertexIds[0] = p0;
+          }
+        flag = 1;
         }
-      pointIdMap.insert(IdToIdPairType(p0, outPid));
-      flag = 1;
-      }
-    if (v1 - value < eps && v1 - value > -eps)
-      {
-      cpSet.insert(p1);
-      if (locator->InsertUniquePoint(x1, outPid))
+      if (pointLabelVector[p1] == 0)
         {
-        outPd->CopyData(inPd, globalP1, outPid);
+        if (cpSet.insert(p1).second) // check if the point already exist in set
+          {
+          if (locator->InsertUniquePoint(x1, outPid))
+            {
+            outPd->CopyData(inPd, globalP1, outPid);
+            }
+          pointIdMap.insert(IdToIdPairType(p1, outPid));
+          contourVertexIds[1] = p1;
+          }
+        flag = 1;
         }
-      pointIdMap.insert(IdToIdPairType(p1, outPid));
-      flag = 1;
-      }
-    
-    if (flag)
-      {
+      
+      for (int i = 0; i < 2; i++)
+        {
+        if (contourVertexIds[i] < 0)
+          {
+          continue;
+          }
+        
+        vfMapIt = pointToFacesMap.find(contourVertexIds[i]);
+        if (vfMapIt == pointToFacesMap.end())
+          {
+          vtkErrorMacro("Cannot locate adjacent faces of a vertex. We "
+            "should never get here. Contouring aborted.");
+          return -1;
+          }
+        
+        for (size_t k = 0; k < vfMapIt->second.size(); k++)
+          {
+          vtkIdType contourFaceId = vfMapIt->second[k];
+          fcpMapIt = faceToContourPointsMap.find(contourFaceId);
+          if (fcpMapIt != faceToContourPointsMap.end())
+            {
+            fcpMapIt->second.push_back(contourVertexIds[i]);
+            }
+          else
+            {
+            IdVectorType contourPointVector;
+            contourPointVector.push_back(contourVertexIds[i]);
+            faceToContourPointsMap.insert(
+              IdToIdVectorPairType(contourFaceId, contourPointVector));
+            }
+          }
+        }
+      
       continue;
       }
-    
+
+   // If two edge vertices are one positive and one negative. We need to 
+   // insert new contour points on this edge.
+        
     t = (value - v0)/(v1 - v0);
     x[0] = (1 - t) * x0[0] + t * x1[0];
     x[1] = (1 - t) * x0[1] + t * x1[1];
@@ -1252,50 +1924,58 @@ void vtkPolyhedron::InternalContour(double value,
 
     if (merge->InsertUniquePoint(x, pid))
       {
-      // find adjacent faces for the new point
+      // update pointLabelVector: we know the pid will be the number of existing
+      // point (original verices plus previously inserted contour points)
+      pointLabelVector.push_back(0);
+      
+      // update PointToFacesMap: there should be two and only two faces adjacent
+      // to the newly inserted contour point.
       vfMapIt0 = pointToFacesMap.find(p0);
       vfMapIt1 = pointToFacesMap.find(p1);
-      if (vfMapIt0 == pointToFacesMap.end() || vfMapIt1 == pointToFacesMap.end())
-        {
-        vtkErrorMacro("Cannot locate adjacent faces of a vertex. We should never "
-          "get here. Contouring continues but may generate wrong result.");
-        continue;
-        }
-      
+      IdVectorType fVector;
       IdVectorType fVector0 = vfMapIt0->second;
       IdVectorType fVector1 = vfMapIt1->second;
-      vtkstd::set<vtkIdType> fSet;
       for (size_t i = 0; i < fVector0.size(); i++)
         {
         for (size_t j = 0; j < fVector1.size(); j++)
           {
           if (fVector0[i] == fVector1[j])
             {
-            fSet.insert(fVector0[i]);
+            fVector.push_back(fVector0[i]);
             }
           }
         }
-      if (fSet.empty())
+      if (fVector.size() != 2)
         {
-        vtkErrorMacro("Cannot locate adjacent faces of a contour point. We should "
-          "never get here. Contouring continues but may generate wrong result.");
-        continue;
-        }
-
-      // update PointToFacesMap: add adjacent faces to the new point
-      IdVectorType fVector;
-      vtkstd::set<vtkIdType>::iterator fSetIt;
-      for (fSetIt = fSet.begin(); fSetIt != fSet.end(); ++fSetIt)
-        {
-        fVector.push_back(*fSetIt);
+        vtkErrorMacro("The number of adjacent faces of a newly inserted contour "
+          "point not equal to 2. We should never get here. Contouring aborted.");
+        return -1;
         }
       pointToFacesMap.insert(IdToIdVectorPairType(pid, fVector));
 
-      // update FaceToPointsMap: insert the new point to the adjacent faces
-      for (fSetIt = fSet.begin(); fSetIt != fSet.end(); ++fSetIt)
+      // update FaceToPointsMap: insert the new point to the adjacent faces,
+      // but still need to keep the order
+      for (int k = 0; k < 2; k++)
         {
-        fvMapIt = faceToPointsMap.find(*fSetIt);
+        fvMapIt = faceToPointsMap.find(fVector[k]);
         InsertNewIdToIdVector(fvMapIt->second, pid, p0, p1);
+        }
+
+      // update FaceToContourPointsMap: insert the new point to the adjacent faces
+      for (int k = 0; k < 2; k++)
+        {
+        fcpMapIt = faceToContourPointsMap.find(fVector[k]);
+        if (fcpMapIt != faceToContourPointsMap.end())
+          {
+          fcpMapIt->second.push_back(pid);
+          }
+        else
+          {
+          IdVectorType contourPointVector;
+          contourPointVector.push_back(pid);
+          faceToContourPointsMap.insert(
+            IdToIdVectorPairType(fVector[k], contourPointVector));
+          }
         }
 
       // Maintain point data. only add to locator when it has never been added
@@ -1317,182 +1997,262 @@ void vtkPolyhedron::InternalContour(double value,
       
     cpSet.insert(pid);
     }
-  
-  int numberOfAllPoints = merge->GetPoints()->GetNumberOfPoints();
-  
-  //
-  // Construct result contour by connecting any two contour points on the 
-  // same plane. If there are more than 2 contour points on one plane, connect
-  // them in a order to avoid self-intersecting.
-  
-  vtkSmartPointer<vtkEdgeTable> polyEdgeTable = 
-    vtkSmartPointer<vtkEdgeTable>::New();
-  polyEdgeTable->InitEdgeInsertion(numberOfAllPoints);
-  
-  // array indicating faces with contour points
-  bool *validFaces = new bool [this->GetNumberOfFaces()];
-  for (int i = 0; i < this->GetNumberOfFaces(); i++)
-    {
-    validFaces[i] = false;
-    }
 
-  // array indicating contour points
-  bool *validPoints = new bool [numberOfAllPoints];
-  for (int i = 0; i < numberOfAllPoints; i++)
+  // Extract valid edges between contour points. We store edge information in a
+  // edge map ceMap. The key (first field) of ceMap is contour point Pd. The 
+  // second field of ceMap is a vector of Ids of connected contour points.
+  IdToIdVectorMapType ceMap; // edge map
+  
+  // The following process needs to know whether a contour point is 2-connected.
+  // This information is important. Contour edges connecting two 2-connected 
+  // points or one 2-connected point and one branching point (connectivity > 2)
+  // are boundary edges that only need to be traversed once. On the other hand, 
+  // edges connecting two branching points are internal edges. They are shared
+  // by two polygon faces and therefore need to be traversed twice, from both
+  // directions. Note: a newly inserted contour point is always 2-connected.
+  // While original vertex contour points can be 2-connected or branching point.
+  // We store this information in a vector. Note: for fast access, the vector is 
+  // indexed by point id.
+  IdVectorType isBranchPointVector;
+  vtkIdType numberOfAllPoints = merge->GetPoints()->GetNumberOfPoints();
+  for (vtkIdType i = 0; i < numberOfAllPoints; i++)
     {
-    validPoints[i] = false;
+    isBranchPointVector.push_back(0);
     }
   
-  // find valid contour points and their faces
-  vtkstd::set<vtkIdType>::iterator cpSetIt;
-  IdVectorType fVector;
-  for (cpSetIt = cpSet.begin(); cpSetIt != cpSet.end(); ++cpSetIt)
+  int maxConnectivity = ExtractContourConnectivities(ceMap, isBranchPointVector,
+                             cpSet, pointLabelVector, pointToFacesMap, 
+                             faceToPointsMap, faceToContourPointsMap);
+
+  // special handling of point or line cases.
+  vtkIdType numberOfContourPoints = cpSet.size();
+  if (numberOfContourPoints < 3)
     {
-    validPoints[*cpSetIt] = true;
-    
-    fVector = pointToFacesMap.find(*cpSetIt)->second;
-    for (size_t i = 0; i < fVector.size(); i++)
+    for (size_t i = 0; i < pointLabelVector.size(); i++)
       {
-      validFaces[fVector[i]] = true;
-      }
-    }
-
-  // loop through each face with contour points
-  for (int i = 0; i < this->GetNumberOfFaces(); i++)
-    {
-    if (!validFaces[i])
-      {
-      continue;
-      }
-
-    IdVectorType vVector = 
-      faceToPointsMap.find(static_cast<vtkIdType>(i))->second;
-
-    
-    // save contour points on this face in an vector    
-    IdVectorType polyVtxVector;
-    for (size_t j = 0; j < vVector.size(); j++)
-      {
-      if (validPoints[vVector[j]])
+      if (pointLabelVector[i] == 1)
         {
-        polyVtxVector.push_back(vVector[j]);
+        return insideOut ? 2 : 1;
+        }
+      if (pointLabelVector[i] == -1)
+        {
+        return insideOut ? 1 : 2;
         }
       }
-
-    // skip line connection if there is only one point
-    if (polyVtxVector.size() < 2)
-      {
-      continue;
-      }
-
-    for (size_t j = 0; j < polyVtxVector.size() - 1; j++)
-      {
-      if (polyEdgeTable->IsEdge(polyVtxVector[j], polyVtxVector[j+1]) == (-1))
-        {
-        polyEdgeTable->InsertEdge(polyVtxVector[j], polyVtxVector[j+1]);
-        }
-      }
-    
-    // for more than two points, close it. Note that we need to check degenerate
-    // case where all points in polyVtxVector lie on the same line. Otherwise,
-    // we will generate a line polygon.
-    if (polyVtxVector.size() > 2 && polyEdgeTable->IsEdge(
-        polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]) == (-1))
-      {
-      int ret = CheckContourDimensions(merge->GetPoints(), 
-                                       polyVtxVector.size(), &polyVtxVector[0]);
-      if (ret > 1)
-        {
-        polyEdgeTable->InsertEdge(
-          polyVtxVector[polyVtxVector.size()-1], polyVtxVector[0]);
-        }
-      }
-
-    } // end of face loop
-
-  delete [] validPoints;
-  delete [] validFaces;
-  
-  // Check if all contour points are 2-connected. If so, the contour is a simple
-  // one. Otherwise, the contour may have a topology different than a plane 
-  // (such as self-itersecting, closed in 3D, edge face, etc.
-  // ===================================================================
-  // ========= currently these special cases are not handled ===========
-  // ===================================================================
-  
-  int *numPointEdges = new int [numberOfAllPoints];
-  for (int i = 0; i < numberOfAllPoints; i++)
-    {
-    numPointEdges[i] = 0;
-    }
-  
-  polyEdgeTable->InitTraversal();
-  while (polyEdgeTable->GetNextEdge(p0, p1, ptr))
-    {
-    numPointEdges[p0] += 1;
-    numPointEdges[p1] += 1;
     }
 
-  for (int i = 0; i < numberOfAllPoints; i++)
+  // Compute the normal of contour point and sort its edges counter-clockwise.
+  if (maxConnectivity > 2)
     {
-    if (numPointEdges[i] && numPointEdges[i] != 2)
-      {
-      vtkErrorMacro("The contour are not 2-connected. This special case is "
-        "not handled currently. Contouring aborted.");
-      delete [] numPointEdges;
-      return;
-      }
-    }  
-
-  delete [] numPointEdges;
-
-  // finally, construct the polys
+    OrderConnectedContourPoints(ceMap, isBranchPointVector,
+                                merge->GetPoints(), pointLabelVector);
+    }
+  
+  // cpSet and ceMap defines the contour graph. We now need to travel through 
+  // the graph to extract non-overlapping polygons. The polygons can share 
+  // edges but none of them is a subset of another one. 
+  // Here we use the order of the edges. Specifically, when a contour point 
+  // is visited, we will choose the outgoing edge to be the edge previous to the 
+  // incoming edge. 
+  vtkstd::vector<IdVectorType> polygonVector;
+  IdToIdVectorMapType::iterator ceMapIt, ceBackupMapIt;
+  IdSetType::iterator cpSetIt;
+  IdVectorType::iterator cpVectorIt;
+  
+  // backup ceMap. During graph travasal, we will remove edges from contour point
+  // which can mess up the ordering.
+  IdToIdVectorMapType ceBackupMap = ceMap;
+  
   while (!cpSet.empty())
     {
+    // we prefer starting from a branching point as its edges are ordered.
+    vtkIdType startPid = -1;
+    for (cpSetIt = cpSet.begin(); cpSetIt != cpSet.end(); ++cpSetIt)
+      {
+      if (isBranchPointVector[*cpSetIt])
+        {
+        startPid = *cpSetIt;
+        break;
+        }
+      }
+    if (startPid < 0)
+      {
+      startPid = *(cpSet.begin());
+      }
+
+    // check if the point still have untravelled outgoing edges.
+    ceMapIt = ceMap.find(startPid);
+    if (ceMapIt == ceMap.end())
+      {
+      cpSet.erase(cpSetIt);
+      continue;
+      }
+    
+    vtkIdType currPid = startPid;
+    vtkIdType prevPid = -1;
+    vtkIdType nextPid = -1;
+    
+    // vector to record points on a contour polygon
     IdVectorType cpLoop;
 
-    cpSetIt = cpSet.begin();
-    pid = *cpSetIt;
-    cpSet.erase(cpSetIt);
-    cpLoop.push_back(pid);
-    
-    vtkIdType startPId = pid;
-    vtkIdType prevPId = -1;
-    
-    // continue to find the next contour point that shares an edge with the 
-    // current one, until reaches the start point.
-    while (!cpSet.empty())
+    // continue to find the next contour point.
+    while (!cpLoop.empty() || prevPid == -1)
       {
-      bool foundNewPoint = false;
-      polyEdgeTable->InitTraversal();
-      while (polyEdgeTable->GetNextEdge(p0, p1, ptr))
+
+      // when back to the start point, break the loop.
+      if (!cpLoop.empty() && currPid == startPid)
         {
-        if (p0 == pid && p1 != prevPId && p1 != startPId)
+        break;
+        }
+
+      cpSetIt = cpSet.find(currPid);
+      ceMapIt = ceMap.find(currPid);
+
+      // we should never arrive to a deadend.
+      if (ceMapIt == ceMap.end() || cpSetIt == cpSet.end())
+        {
+        vtkWarningMacro("Find unexpected case, the input polyhedron cell may "
+        "contain intersecting edges. Contouring will continue, but this cell "
+        "will be not be processed.");
+        return -1;
+        }
+
+      // add current point to the polygon loop
+      cpLoop.push_back(currPid);
+      
+      // get the current available outgoing edges
+      IdVectorType edges = ceMapIt->second;
+      
+      // choose the next point to travel. the outgoing edge is chosen to be the
+      // one previous to the incoming edge.
+      if (prevPid == -1)
+        {
+        nextPid = edges[0];
+        }
+      else
+        {
+        if (!isBranchPointVector[currPid])
           {
-          prevPId = pid;
-          pid = p1;
-          foundNewPoint = true;
-          break;
+          nextPid = edges[0] == prevPid ? edges[1] : edges[0];
           }
-        if (p1 == pid && p0 != prevPId && p0 != startPId)
+        else
           {
-          prevPId = pid;
-          pid = p0;
-          foundNewPoint = true;
-          break;
+          IdVectorType backupEdges = ceBackupMap.find(currPid)->second;
+          for (size_t i = 0; i < backupEdges.size(); i++)
+            {
+            if (backupEdges[i] == prevPid)
+              {
+              if (i == 0)
+                {
+                nextPid = backupEdges[backupEdges.size() - 1];
+                }
+              else
+                {
+                nextPid = backupEdges[i-1];
+                }
+              break;
+              }
+            }
           }
         }
       
-      if (foundNewPoint)
+      // remove the outgoing edge
+      bool foundEdge = false;
+      for (size_t i = 0; i < edges.size(); i++)
         {
-        cpLoop.push_back(pid);
-        cpSet.erase(cpSet.find(pid));
+        if (edges[i] == nextPid)
+          {
+          foundEdge = true;
+          edges.erase(edges.begin()+i);
+          }
+        }
+      
+      // the next edge shouldn't have been travelled and thus been removed
+      if (!foundEdge)
+        {
+        vtkWarningMacro("Find unexpected case, the input polyhedron cell may "
+        "contain intersecting edges. Contouring will continue, but this cell "
+        "will be not be processed.");
+        return -1;
+        }
+      
+      // updating ceMap. removing point from ceMap and cpSet if necessary. 
+      // notice that for a 2-connected contour point, its edges have only
+      // one adjacent polygon and therefore will only be visited once. so
+      // we should remove the contour point the first time it is visited.
+      if (edges.empty() || isBranchPointVector[currPid] == 0)
+        {
+        ceMap.erase(ceMapIt);
+        cpSet.erase(cpSetIt);
+        }
+      else
+        {
+        ceMapIt->second = edges;
+        }
+      
+      // move on
+      prevPid = currPid;
+      currPid = nextPid;
+      nextPid = -1;
+
+      }// end_inner_while_loop
+
+    if (cpLoop.empty())
+      {
+      continue;
+      }
+    
+    // record polygon loop. notice that we should also remove edges going from
+    // a branching point to a 2-connected point visited in this loop.
+    polygonVector.push_back(cpLoop);
+    
+    for (size_t i = 0; i < cpLoop.size(); i++)
+      {
+      if (isBranchPointVector[cpLoop[i]] == 0)
+        {
+        ceBackupMapIt = ceBackupMap.find(cpLoop[i]);
+        IdVectorType connectedPts = ceBackupMapIt->second;
+        for (size_t j = 0; j < connectedPts.size(); j++)
+          {
+          ceMapIt = ceMap.find(connectedPts[j]);
+          if (ceMapIt != ceMap.end())
+            {
+            for (size_t k = 0; k < ceMapIt->second.size(); k++)
+              {
+              if (ceMapIt->second[k] == cpLoop[i])
+                {
+                ceMapIt->second.erase(ceMapIt->second.begin()+k);
+                }
+              }
+            if (ceMapIt->second.empty())
+              {
+              cpSetIt = cpSet.find(ceMapIt->first);
+              if (cpSetIt != cpSet.end())
+                {
+                cpSet.erase(cpSetIt);
+                }
+              ceMap.erase(ceMapIt);
+              }
+            }
+          }
         }
       }
+    } // end_outer_while_loop
 
-    vtkIdType npts = static_cast<vtkIdType>(cpLoop.size());
-    vtkIdType *pts = &(cpLoop[0]);
+  //
+  // Finally, add contour polygons to the output
+  for (size_t i = 0; i < polygonVector.size(); i++)
+    {
+    IdVectorType polygon = polygonVector[i];
+    
+    vtkIdType npts = static_cast<vtkIdType>(polygon.size());
+    vtkIdType *pts = &(polygon[0]);
 
+    if (npts < 3) // skip point or line contour
+      {
+      continue;
+      }
+    
     // check the dimensionality of the contour
     int ret = CheckContourDimensions(merge->GetPoints(), npts, pts);
     
@@ -1508,6 +2268,8 @@ void vtkPolyhedron::InternalContour(double value,
       Triangulate3DContour(npts, pts, contourPolys); 
       }
     }
+  
+  return 0;
 }
 
 
@@ -1539,9 +2301,13 @@ void vtkPolyhedron::Contour(double value,
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
   
-  this->InternalContour(value, locator, pointScalars, NULL, 
+  int ret = this->InternalContour(value, 0, locator, pointScalars, NULL, 
     inPd, outPd, contourPolys, faceToPointsMap, pointToFacesMap, pointIdMap);
-
+  if (ret != 0)
+    {
+    return;
+    }
+  
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   contourPolys->InitTraversal();
@@ -1585,29 +2351,16 @@ void vtkPolyhedron::Clip(double value,
   vtkSmartPointer<vtkCellArray> contourPolys =
     vtkSmartPointer<vtkCellArray>::New();
 
-  this->InternalContour(value, locator, pointScalars, contourScalars, 
+  int ret = this->InternalContour(value, insideOut, locator, pointScalars, contourScalars, 
     inPd, outPd, contourPolys, faceToPointsMap, pointToFacesMap, pointIdMap);
-
-  
-  // if empty contour, the polyhedron will be all inside or all outside
-  if (!contourPolys->GetNumberOfCells())
+  if (ret == 2)
     {
-    int numPositivePoints = 0;
-    for (vtkIdType i = 0; i < this->GetNumberOfPoints(); i++)
-      {
-      double v = static_cast<double>(pointScalars->GetComponent(i,0));
-      if (((v < value) && insideOut) || ((v > value) && (!insideOut)))
-        {
-        numPositivePoints++;
-        }
-      }
-    
-    // point or line cases
-    if (numPositivePoints < 3)
-      {
-      return;
-      }
-
+    return;
+    }
+  
+  // polyhedron is all
+  if (ret == 1)
+    {
     cellVector.push_back(this->GetNumberOfFaces());
 
     // loop through all faces to add them into cellVector
@@ -1656,7 +2409,7 @@ void vtkPolyhedron::Clip(double value,
     visited[i] = false;
     }
   
-  const double eps = 0.0000000001;
+  const double eps = 0.000001;
   
   // Main algorithm: go through all positive points (points on the right side 
   // of the contour).  These do not include contour points.
@@ -1866,7 +2619,7 @@ void vtkPolyhedron::Clip(double value,
   contourPolys->InitTraversal();
   while (contourPolys->GetNextCell(npts, pts))
     {
-    if (!ConvertPointIds(npts, pts, pointIdMap))
+    if (!ConvertPointIds(npts, pts, pointIdMap, 1-insideOut))
       {
       vtkErrorMacro("Cannot find the id of an output point. We should never "
         "get here. Clipping aborted.");

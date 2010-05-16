@@ -308,16 +308,17 @@ protected:
   vtkGenericCell *Cell;
 
 
-  void InternalContour(double value,
-                       vtkIncrementalPointLocator *locator,
-                       vtkDataArray *inScalars, 
-                       vtkDataArray *outScalars,
-                       vtkPointData *inPd, 
-                       vtkPointData *outPd,
-                       vtkCellArray *contourPolys,
-                       IdToIdVectorMapType & faceToPointsMap,
-                       IdToIdVectorMapType & pointToFacesMap,
-                       IdToIdMapType & pointIdMap);
+  int InternalContour(double value,
+                      int insideOut,
+                      vtkIncrementalPointLocator *locator,
+                      vtkDataArray *inScalars, 
+                      vtkDataArray *outScalars,
+                      vtkPointData *inPd, 
+                      vtkPointData *outPd,
+                      vtkCellArray *contourPolys,
+                      IdToIdVectorMapType & faceToPointsMap,
+                      IdToIdVectorMapType & pointToFacesMap,
+                      IdToIdMapType & pointIdMap);
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
