@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		14187F220D132DA60038B381 /* MyDocument.nib in Resources */ = {isa = PBXBuildFile; fileRef = 14187F200D132DA60038B381 /* MyDocument.nib */; };
-		14187F230D132DA60038B381 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 14187F210D132DA60038B381 /* MainMenu.nib */; };
 		1454C0F1094E266D00F594FE /* MyDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C0F0094E266D00F594FE /* MyDocument.mm */; };
 		1454C1D6094F306B00F594FE /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1454C1D5094F306B00F594FE /* OpenGL.framework */; };
 		1454C4360950A4A800F594FE /* BasicVTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1454C4350950A4A800F594FE /* BasicVTKView.mm */; };
+		14A3028C119E0C3200D75B9A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028A119E0C3200D75B9A /* MainMenu.xib */; };
+		14A3028D119E0C3200D75B9A /* MyDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028B119E0C3200D75B9A /* MyDocument.xib */; };
 		14B86359113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */; };
 		14B8636C113C40BE00C9B42E /* libvtkCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B8635F113C40BE00C9B42E /* libvtkCommon.a */; };
 		14B8636D113C40BF00C9B42E /* libvtkexpat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B86360113C40BE00C9B42E /* libvtkexpat.a */; };
@@ -34,13 +34,13 @@
 
 /* Begin PBXFileReference section */
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		14187F200D132DA60038B381 /* MyDocument.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MyDocument.nib; sourceTree = "<group>"; };
-		14187F210D132DA60038B381 /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MainMenu.nib; sourceTree = "<group>"; };
 		1454C0EF094E266D00F594FE /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocument.h; sourceTree = SOURCE_ROOT; };
 		1454C0F0094E266D00F594FE /* MyDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyDocument.mm; sourceTree = SOURCE_ROOT; };
 		1454C1D5094F306B00F594FE /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		1454C4340950A4A800F594FE /* BasicVTKView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicVTKView.h; sourceTree = SOURCE_ROOT; };
 		1454C4350950A4A800F594FE /* BasicVTKView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicVTKView.mm; sourceTree = SOURCE_ROOT; };
+		14A3028A119E0C3200D75B9A /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		14A3028B119E0C3200D75B9A /* MyDocument.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyDocument.xib; sourceTree = "<group>"; };
 		14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = SimpleCocoaVTK.xcconfig; sourceTree = "<group>"; };
 		14B8635F113C40BE00C9B42E /* libvtkCommon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkCommon.a; sourceTree = "vtk-debug-lib"; };
 		14B86360113C40BE00C9B42E /* libvtkexpat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkexpat.a; sourceTree = "vtk-debug-lib"; };
@@ -176,9 +176,9 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				14187F210D132DA60038B381 /* MainMenu.nib */,
-				14187F200D132DA60038B381 /* MyDocument.nib */,
 				8D15AC360486D014006FF6A4 /* Info.plist */,
+				14A3028A119E0C3200D75B9A /* MainMenu.xib */,
+				14A3028B119E0C3200D75B9A /* MyDocument.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -235,9 +235,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14187F220D132DA60038B381 /* MyDocument.nib in Resources */,
-				14187F230D132DA60038B381 /* MainMenu.nib in Resources */,
 				14B86359113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig in Resources */,
+				14A3028C119E0C3200D75B9A /* MainMenu.xib in Resources */,
+				14A3028D119E0C3200D75B9A /* MyDocument.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,11 +261,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../kitware/VTK-debug-install/lib/vtk-5.5\"";
 			};
 			name = Debug;
 		};
@@ -273,29 +268,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../kitware/VTK-debug-install/lib/vtk-5.5\"";
 			};
 			name = Release;
 		};
 		C05733CC08A9546B00998B17 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PREBINDING = NO;
 			};
 			name = Debug;
 		};
 		C05733CD08A9546B00998B17 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PREBINDING = NO;
 			};
 			name = Release;
 		};
