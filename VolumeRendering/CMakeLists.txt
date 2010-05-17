@@ -33,6 +33,7 @@ vtkHAVSVolumeMapper.cxx
 vtkProjectedTetrahedraMapper.cxx
 vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
+vtkSmartVolumeMapper.cxx
 vtkSphericalDirectionEncoder.cxx
 vtkVolumeMapper.cxx
 vtkVolumeOutlineSource.cxx
