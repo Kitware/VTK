@@ -566,6 +566,12 @@ void vtkSmartVolumeMapper::CreateCanonicalView(
 }
 
 // ----------------------------------------------------------------------------
+int vtkSmartVolumeMapper::GetLastUsedRenderMode()
+{
+  return this->CurrentRenderMode;
+}
+
+// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
