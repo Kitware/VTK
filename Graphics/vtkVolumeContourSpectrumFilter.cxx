@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkAreaContourSignatureFilter.h"
+#include  "vtkVolumeContourSpectrumFilter.h"
 
 #include  "vtkInformation.h"
 #include  "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkAreaContourSignatureFilter, "$Revision$");
-vtkStandardNewMacro(vtkAreaContourSignatureFilter);
+vtkCxxRevisionMacro(vtkVolumeContourSpectrumFilter, "$Revision$");
+vtkStandardNewMacro(vtkVolumeContourSpectrumFilter);
 
 //----------------------------------------------------------------------------
-vtkAreaContourSignatureFilter::vtkAreaContourSignatureFilter()
+vtkVolumeContourSpectrumFilter::vtkVolumeContourSpectrumFilter()
 {
   this->SetNumberOfInputPorts(2);
   this->ArcId = 0;
@@ -30,19 +30,20 @@ vtkAreaContourSignatureFilter::vtkAreaContourSignatureFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkAreaContourSignatureFilter::~vtkAreaContourSignatureFilter()
+vtkVolumeContourSpectrumFilter::~vtkVolumeContourSpectrumFilter()
 {
 }
 
 //----------------------------------------------------------------------------
-int vtkAreaContourSignatureFilter::FillInputPortInformation(
+int vtkVolumeContourSpectrumFilter::FillInputPortInformation(
   int portNumber, vtkInformation *info)
 {
   switch(portNumber)
     {
     case 0:
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
-      info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+      info->Append(
+        vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
       break;
     case 1:
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
@@ -53,7 +54,7 @@ int vtkAreaContourSignatureFilter::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkAreaContourSignatureFilter::FillOutputPortInformation(int portNumber,
+int vtkVolumeContourSpectrumFilter::FillOutputPortInformation(int portNumber,
   vtkInformation *info)
 {
 
@@ -63,19 +64,19 @@ int vtkAreaContourSignatureFilter::FillOutputPortInformation(int portNumber,
 }
 
 //----------------------------------------------------------------------------
-void vtkAreaContourSignatureFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVolumeContourSpectrumFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-vtkTable* vtkAreaContourSignatureFilter::GetOutput()
+vtkTable* vtkVolumeContourSpectrumFilter::GetOutput()
 {
   return vtkTable::SafeDownCast(this->GetOutputDataObject(0));
 }
 
 //----------------------------------------------------------------------------
-int vtkAreaContourSignatureFilter::RequestData(
+int vtkVolumeContourSpectrumFilter::RequestData(
   vtkInformation *request, vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -87,8 +88,8 @@ int vtkAreaContourSignatureFilter::RequestData(
     {
     return 0;
     }
-  vtkPolyData *inputMesh = vtkPolyData::SafeDownCast(
-    inInfoMesh->Get(vtkPolyData::DATA_OBJECT()));
+  vtkUnstructuredGrid *inputMesh = vtkUnstructuredGrid::SafeDownCast(
+    inInfoMesh->Get(vtkUnstructuredGrid::DATA_OBJECT()));
 
   vtkReebGraph *inputGraph = vtkReebGraph::SafeDownCast(
     inInfoGraph->Get(vtkReebGraph::DATA_OBJECT()));
@@ -129,15 +130,15 @@ int vtkAreaContourSignatureFilter::RequestData(
 
       // parse the input vertex list (region in which the connectivity of the
       // level sets does not change) and compute the area signature
-      double cumulativeArea = 0;
-      std::vector<double> scalarValues, areaSignature;
+      double cumulativeVolume = 0;
+      std::vector<double> scalarValues, volumeSignature;
       std::vector<int>    vertexIds;
-      std::vector<bool>   visitedTriangles;
+      std::vector<bool>   visitedTetrahedra;
 
-      visitedTriangles.resize(inputMesh->GetNumberOfCells());
+      visitedTetrahedra.resize(inputMesh->GetNumberOfCells());
       vertexIds.resize(vertexList->GetNumberOfTuples() + 2);
       scalarValues.resize(vertexIds.size());
-      areaSignature.resize(vertexIds.size());
+      volumeSignature.resize(vertexIds.size());
 
       // include the critical points in the computation
       //  - iterates through the edges of the Reeb graph until we found the arc
@@ -176,8 +177,8 @@ int vtkAreaContourSignatureFilter::RequestData(
         vertexIds[i + 1] = vertexList->GetVariantValue(i).ToInt();
 
       // mark all the input triangles as non visited.
-      for(int i = 0; i < visitedTriangles.size(); i++)
-        visitedTriangles[i] = false;
+      for(int i = 0; i < visitedTetrahedra.size(); i++)
+        visitedTetrahedra[i] = false;
 
       // now do the parsing
       double  min = scalarField->GetComponent(vertexIds[0], 0),
@@ -186,15 +187,15 @@ int vtkAreaContourSignatureFilter::RequestData(
         {
         scalarValues[i] = scalarField->GetComponent(vertexIds[i], 0);
 
-        vtkIdList *starTriangleList = vtkIdList::New();
-        inputMesh->GetPointCells(vertexIds[i], starTriangleList);
+        vtkIdList *starTetrahedronList = vtkIdList::New();
+        inputMesh->GetPointCells(vertexIds[i], starTetrahedronList);
 
-        for(int j = 0; j < starTriangleList->GetNumberOfIds(); j++)
+        for(int j = 0; j < starTetrahedronList->GetNumberOfIds(); j++)
           {
-          vtkIdType tId = starTriangleList->GetId(j);
-          if(!visitedTriangles[tId])
+          vtkIdType tId = starTetrahedronList->GetId(j);
+          if(!visitedTetrahedra[tId])
             {
-            vtkTriangle *t = vtkTriangle::SafeDownCast(inputMesh->GetCell(tId));
+            vtkTetra *t = vtkTetra::SafeDownCast(inputMesh->GetCell(tId));
 
             if((scalarField->GetComponent(t->GetPointIds()->GetId(0), 0)
               <= scalarValues[i])
@@ -205,21 +206,34 @@ int vtkAreaContourSignatureFilter::RequestData(
               (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0)
               <= scalarValues[i])
               &&
+              (scalarField->GetComponent(t->GetPointIds()->GetId(3), 0)
+              <= scalarValues[i])
+              &&
               (scalarField->GetComponent(t->GetPointIds()->GetId(0), 0) >= min)
               &&
               (scalarField->GetComponent(t->GetPointIds()->GetId(1), 0) >= min)
               &&
-              (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0) >= min))
+              (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0) >= min)
+              &&
+              (scalarField->GetComponent(t->GetPointIds()->GetId(3), 0) >= min)
+              )
               {
               // make sure the triangle is strictly in the covered function
               // span.
-              cumulativeArea += t->ComputeArea();
-              visitedTriangles[tId] = true;
+
+              double p0[3], p1[3], p2[3], p3[3];
+              inputMesh->GetPoint(t->GetPointIds()->GetId(0), p0);
+              inputMesh->GetPoint(t->GetPointIds()->GetId(1), p1);
+              inputMesh->GetPoint(t->GetPointIds()->GetId(2), p2);
+              inputMesh->GetPoint(t->GetPointIds()->GetId(3), p3);
+              cumulativeVolume += vtkTetra::ComputeVolume(p0, p1, p2, p3);
+
+              visitedTetrahedra[tId] = true;
               }
             }
           }
-        areaSignature[i] = cumulativeArea;
-        starTriangleList->Delete();
+        volumeSignature[i] = cumulativeVolume;
+        starTetrahedronList->Delete();
         }
 
       // now adjust to the desired sampling
@@ -234,7 +248,7 @@ int vtkAreaContourSignatureFilter::RequestData(
            &&(pos < scalarValues.size()))
           {
             samples[i].first++;
-            samples[i].second += areaSignature[pos];
+            samples[i].second += volumeSignature[pos];
             pos++;
           }
         if(samples[i].first) samples[i].second /= samples[i].first;
@@ -250,7 +264,7 @@ int vtkAreaContourSignatureFilter::RequestData(
       if(!samples[samples.size() - 1].first)
         {
         samples[samples.size() - 1].first = 1;
-        samples[samples.size() - 1].second = cumulativeArea;
+        samples[samples.size() - 1].second = cumulativeVolume;
         }
 
       // fill out the blanks

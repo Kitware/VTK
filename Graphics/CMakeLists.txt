@@ -16,7 +16,7 @@ vtkAppendPolyData.cxx
 vtkAppendSelection.cxx
 vtkApproximatingSubdivisionFilter.cxx
 vtkArcSource.cxx
-vtkAreaContourSignatureFilter.cxx
+vtkAreaContourSpectrumFilter.cxx
 vtkArrayCalculator.cxx
 vtkArrowSource.cxx
 vtkAssignAttribute.cxx
@@ -275,6 +275,7 @@ vtkUnstructuredGridToReebGraphFilter.cxx
 vtkVectorDot.cxx
 vtkVectorNorm.cxx
 vtkVertexGlyphFilter.cxx
+vtkVolumeContourSpectrumFilter.cxx
 vtkVoxelContoursToSurfaceFilter.cxx
 vtkWarpLens.cxx
 vtkWarpScalar.cxx

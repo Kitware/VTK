@@ -12,20 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAreaContourSignatureFilter - compute an approximation of the area
-// contour signature (evolution of the area of the input surface along an arc of
-// the Reeb graph).
+// .NAME vtkVolumeContourSpectrumFilter - compute an approximation of the
+// volume contour signature (evolution of the volume of the input tet-mesh
+// along an arc of the Reeb graph).
 // .SECTION Description
-// The filter takes a vtkPolyData as an input (port 0), along with a
+// The filter takes a vtkUnstructuredGrid as an input (port 0), along with a
 // vtkReebGraph (port 1).
 // The Reeb graph arc to consider can be specified with SetArcId() (default: 0).
 // The number of (evenly distributed) samples of the signature can be defined
 // with SetNumberOfSamples() (default value: 100).
 // The filter will first try to pull as a scalar field the vtkDataArray with Id
-// 'FieldId' of the vtkPolyData, see SetFieldId (default: 0). The filter will
-// abort if this field does not exist.
+// 'FieldId' of the vtkUnstructuredGrid, see SetFieldId (default: 0). The
+// filter will abort if this field does not exist.
 //
-// The filter outputs a vtkTable with the area contour signature
+// The filter outputs a vtkTable with the volume contour signature
 // approximation, each sample being evenly distributed in the function span of
 // the arc.
 //
@@ -33,21 +33,21 @@
 // filter (with customized metrics). It also shows typical vtkReebGraph
 // traversals.
 
-#ifndef __vtkAreaContourSignatureFilter_h
-#define __vtkAreaContourSignatureFilter_h
+#ifndef __vtkVolumeContourSpectrumFilter_h
+#define __vtkVolumeContourSpectrumFilter_h
 
 #include  "vtkDataObjectAlgorithm.h"
-#include  "vtkDoubleArray.h"
+#include  "vtkMath.h"
 #include  "vtkTable.h"
-#include  "vtkTriangle.h"
+#include  "vtkTetra.h"
 #include  "vtkReebGraph.h"
 
-class VTK_GRAPHICS_EXPORT vtkAreaContourSignatureFilter :
+class VTK_GRAPHICS_EXPORT vtkVolumeContourSpectrumFilter :
   public vtkDataObjectAlgorithm
 {
 public:
-  static vtkAreaContourSignatureFilter* New();
-  vtkTypeRevisionMacro(vtkAreaContourSignatureFilter, vtkDataObjectAlgorithm);
+  static vtkVolumeContourSpectrumFilter* New();
+  vtkTypeRevisionMacro(vtkVolumeContourSpectrumFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -71,8 +71,8 @@ public:
   vtkTable* GetOutput();
 
 protected:
-  vtkAreaContourSignatureFilter();
-  ~vtkAreaContourSignatureFilter();
+  vtkVolumeContourSpectrumFilter();
+  ~vtkVolumeContourSpectrumFilter();
 
   vtkIdType ArcId, FieldId;
   int NumberOfSamples;
@@ -84,10 +84,10 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkAreaContourSignatureFilter(
-    const vtkAreaContourSignatureFilter&);
+  vtkVolumeContourSpectrumFilter(
+    const vtkVolumeContourSpectrumFilter&);
   // Not implemented.
-  void operator=(const vtkAreaContourSignatureFilter&);
+  void operator=(const vtkVolumeContourSpectrumFilter&);
   // Not implemented.
 };
 
