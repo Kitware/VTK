@@ -57,6 +57,62 @@ void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int ArcNumber,
   vtkIdType nodeId0 = vtkReebGraphGetArc(this, arcId)->NodeId0;
   vtkIdType nodeId1 = vtkReebGraphGetArc(this, arcId)->NodeId1;
 
+  vtkReebArc *A = vtkReebGraphGetArc(this, arcId);
+  vtkReebArc *B = NULL;
+  int down, middle, up;
+
+  if(historyOn)
+    {
+    if(A->ArcDwId0)
+      {
+      B = vtkReebGraphGetArc(this, A->ArcDwId0);
+      down = vtkReebGraphGetNode(this, B->NodeId0)->VertexId;
+      middle = vtkReebGraphGetNode(this, A->NodeId0)->VertexId;
+      up = vtkReebGraphGetNode(this, B->NodeId1)->VertexId;
+
+      vtkReebCancellation c;
+      c.removedArcs.push_back(std::pair<int, int>(middle, up));
+      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      cancellationHistory.push_back(c);
+      }
+    if(A->ArcDwId1)
+      {
+      B = vtkReebGraphGetArc(this, A->ArcDwId1);
+      down = vtkReebGraphGetNode(this, B->NodeId0)->VertexId;
+      middle = vtkReebGraphGetNode(this, A->NodeId0)->VertexId;
+      up = vtkReebGraphGetNode(this, A->NodeId1)->VertexId;
+
+      vtkReebCancellation c;
+      c.removedArcs.push_back(std::pair<int, int>(middle, up));
+      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      cancellationHistory.push_back(c);
+      }
+    if(A->ArcUpId0)
+      {
+      B = vtkReebGraphGetArc(this, A->ArcUpId0);
+      down = vtkReebGraphGetNode(this, A->NodeId0)->VertexId;
+      middle = vtkReebGraphGetNode(this, A->NodeId1)->VertexId;
+      up = vtkReebGraphGetNode(this, B->NodeId1)->VertexId;
+
+      vtkReebCancellation c;
+      c.removedArcs.push_back(std::pair<int, int>(down, middle));
+      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      cancellationHistory.push_back(c);
+      }
+    if(A->ArcUpId1)
+      {
+      B = vtkReebGraphGetArc(this, A->ArcUpId1);
+      down = vtkReebGraphGetNode(this, B->NodeId0)->VertexId;
+      middle = vtkReebGraphGetNode(this, A->NodeId1)->VertexId;
+      up = vtkReebGraphGetNode(this, B->NodeId1)->VertexId;
+
+      vtkReebCancellation c;
+      c.removedArcs.push_back(std::pair<int, int>(down, middle));
+      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+      cancellationHistory.push_back(c);
+      }
+    }
+
   vtkReebGraphRemoveUpArc(this, nodeId0, arcId);
   vtkReebGraphRemoveDownArc(this, nodeId1, arcId);
   vtkReebGraphDeleteArc(this, arcId);
@@ -425,6 +481,30 @@ int vtkReebGraph::FilterLoopsByPersistence(double functionScalePercentage)
 
    else if (vtkReebGraphIsRegular(this,vtkReebGraphGetNode(this,N)))
    {
+     if(historyOn)
+      {
+      vtkReebNode *n = vtkReebGraphGetNode(this, N);
+
+      int A0 = n->ArcDownId;
+      int A1 = n->ArcUpId;
+
+      vtkReebArc *a0 = vtkReebGraphGetArc(this, A0);
+      vtkReebArc *a1 = vtkReebGraphGetArc(this, A1);
+      vtkReebNode *downN = vtkReebGraphGetNode(this, a0->NodeId0);
+      vtkReebNode *upN = vtkReebGraphGetNode(this, a1->NodeId1);
+
+      int down, middle, up;
+      down = downN->VertexId;
+      middle = n->VertexId;
+      up = upN->VertexId;
+
+      vtkReebCancellation c;
+      c.removedArcs.push_back(std::pair<int, int>(down, middle));
+      c.removedArcs.push_back(std::pair<int, int>(middle, up));
+      c.insertedArcs.push_back(std::pair<int, int>(down, up));
+
+      cancellationHistory.push_back(c);
+      }
      EndVertex(N);
    }
  }
@@ -585,7 +665,6 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
       if (Up= FindJoinNode(A,vtkReebGraphGetNode(this,N)->Value,
         userfilter,RouteOld))
       {
-
         if (Down=FindLess(Up,N,RouteNew))
         {
           SetLabel(AddArc(Down,N),RouteOld);
@@ -645,7 +724,6 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
 
   } //while
 
-
   if (redo)
     goto REDO;
 
@@ -683,15 +761,297 @@ void vtkReebGraph::ResizeMainNodeTable(int newSize)
 }
 
 //----------------------------------------------------------------------------
+static bool vertexCmp(const std::pair<int, double> v0,
+  const std::pair<int, double> v1)
+{
+  return ((v0.second < v1.second)
+    || ((v0.second == v1.second)&&(v0.first < v1.first)));
+}
+
+//----------------------------------------------------------------------------
+int vtkReebGraph::CommitFiltering()
+{
+
+  // now re-construct the graph with projected deg-2 nodes.
+  std::vector<std::pair<std::pair<int, int>, std::vector<int> > > before, after;
+
+  vtkEdgeListIterator *eIt = vtkEdgeListIterator::New();
+  GetEdges(eIt);
+  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+    GetEdgeData()->GetAbstractArray("Vertex Ids"));
+  vtkDataArray    *vertexInfo = GetVertexData()->GetArray("Vertex Ids");
+
+  // avoids double projection
+  int vertexNumber = vertexInfo->GetNumberOfTuples();
+  std::vector<bool> segmentedVertices;
+
+  do
+    {
+    std::pair<std::pair<int, int>, std::vector<int> > superArc;
+
+    vtkEdgeType e = eIt->Next();
+    vtkAbstractArray *vertexList = edgeInfo->GetPointer(e.Id)->ToArray();
+
+    superArc.first.first = (int) *(vertexInfo->GetTuple(e.Source));
+    superArc.first.second = (int) *(vertexInfo->GetTuple(e.Target));
+
+    superArc.second.resize(vertexList->GetNumberOfTuples());
+    vertexNumber += vertexList->GetNumberOfTuples();
+    for(int i = 0; i < superArc.second.size(); i++)
+      superArc.second[i] = vertexList->GetVariantValue(i).ToInt();
+
+    before.push_back(superArc);
+    }while(eIt->HasNext());
+
+  segmentedVertices.resize(vertexNumber);
+  for(int i = 0; i < segmentedVertices.size(); i++)
+    segmentedVertices[i] = false;
+
+  vtkIdType prevArcId = -1, arcId = 0;
+  while(arcId != prevArcId)
+    {
+    prevArcId = arcId;
+    arcId = GetPreviousArcId();
+    }
+  prevArcId = -1;
+
+
+  while(prevArcId != arcId)
+    {
+    if(vtkReebGraphGetArc(this, arcId))
+      {
+      int down, up;
+      down = vtkReebGraphGetNode(this,
+        (vtkReebGraphGetArc(this, arcId))->NodeId0)->VertexId;
+      up = vtkReebGraphGetNode(this,
+        (vtkReebGraphGetArc(this, arcId))->NodeId1)->VertexId;
+
+      std::pair<std::pair<int, int>, std::vector<int> > superArc;
+
+      superArc.first.first = down;
+      superArc.first.second = up;
+
+      after.push_back(superArc);
+      }
+    prevArcId = arcId;
+    arcId = GetNextArcId();
+    }
+
+  std::pair<int, int> destinationArc;
+  std::map<int, bool> processedInputArcs, processedOutputArcs;
+
+  // now map the unsimplified arcs onto the simplified ones
+  for(int i = 0; i < before.size(); i++)
+    {
+    std::vector<int> simplifiedCriticalNodes;
+    destinationArc = before[i].first;
+    for(int j = 0; j < cancellationHistory.size(); j++)
+      {
+      for(int k = 0; k < cancellationHistory[j].removedArcs.size(); k++)
+        {
+        if((destinationArc.first == cancellationHistory[j].removedArcs[k].first)
+          &&(destinationArc.second
+            == cancellationHistory[j].removedArcs[k].second))
+          {
+          // the arc has been involved in a cancellation
+          destinationArc = cancellationHistory[j].insertedArcs[0];
+
+          if(cancellationHistory[j].removedArcs.size() > 1)
+            {
+            if(((cancellationHistory[j].removedArcs[0].first
+              == destinationArc.first)
+              &&(cancellationHistory[j].removedArcs[1].second
+                == destinationArc.second))
+              ||
+              ((cancellationHistory[j].removedArcs[1].first
+                == destinationArc.first)
+              &&(cancellationHistory[j].removedArcs[0].second
+                == destinationArc.second)))
+              {
+              for(int l = 0; l < cancellationHistory[j].removedArcs.size(); l++)
+                {
+                if((cancellationHistory[j].removedArcs[l].first
+                  != destinationArc.first)
+                  &&(cancellationHistory[j].removedArcs[l].first
+                  != destinationArc.second))
+                  {
+                  // this critical node will become a degree two node, let's
+                  // remember it
+                  simplifiedCriticalNodes.push_back(
+                    cancellationHistory[j].removedArcs[l].first);
+                  }
+                if((cancellationHistory[j].removedArcs[l].second
+                  != destinationArc.first)
+                  &&(cancellationHistory[j].removedArcs[l].second
+                  != destinationArc.second))
+                  {
+                  // same thing as above
+                  simplifiedCriticalNodes.push_back(
+                    cancellationHistory[j].removedArcs[l].second);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // at this point the deg2-nodes are in before[i].second
+
+      // now find the projection in the simplified graph
+      for(int j = 0; j < after.size(); j++)
+        {
+        if(destinationArc == after[j].first)
+          {
+          std::map<int, bool>::iterator aIt;
+          aIt = processedOutputArcs.find(j);
+          if(aIt == processedOutputArcs.end())
+            {
+            if(before[i].first == destinationArc)
+              {
+              // non-simplified arc
+              processedOutputArcs[j] = true;
+              after[j].second = before[i].second;
+              }
+            if(before[i].first != destinationArc)
+              {
+              // adding content of before[i].second to after[j].second
+              for(int k = 0; k < before[i].second.size(); k++)
+                {
+                if(!segmentedVertices[before[i].second[k]])
+                  {
+                  after[j].second.push_back(before[i].second[k]);
+                  segmentedVertices[before[i].second[k]] = true;
+                  }
+                }
+              }
+              for(int k = 0; k < simplifiedCriticalNodes.size(); k++)
+                {
+                if(!segmentedVertices[simplifiedCriticalNodes[k]])
+                  {
+                  after[j].second.push_back(simplifiedCriticalNodes[k]);
+                  segmentedVertices[simplifiedCriticalNodes[k]] = true;
+                  }
+                }
+              break;
+            }
+          }
+        }
+    }
+
+  // ensure the sorting on the arcs
+  for(int i = 0; i < after.size(); i++)
+    {
+    std::vector<std::pair<int, double> > scalarValues;
+    for(int j = 0; j < after[i].second.size(); j++)
+      {
+      std::pair<int, double> scalarVertex;
+      scalarVertex.first = after[i].second[j];
+      std::map<int, double>::iterator sIt;
+      sIt = ScalarField.find(scalarVertex.first);
+      if(sIt != ScalarField.end())
+        {
+        scalarVertex.second = sIt->second;
+        scalarValues.push_back(scalarVertex);
+        }
+      }
+    std::sort(scalarValues.begin(), scalarValues.end(), vertexCmp);
+    for(int j = 0; j < after[i].second.size(); j++)
+      after[i].second[j] = scalarValues[j].first;
+    }
+
+  // now construct the vtkMutableDirectedGraph
+
+  // first, clean up the current graph
+  while(GetNumberOfEdges()) RemoveEdge(0);
+  while(GetNumberOfVertices()) RemoveVertex(0);
+
+  GetVertexData()->RemoveArray("Vertex Ids");
+  GetEdgeData()->RemoveArray("Vertex Ids");
+
+  vtkIdType prevNodeId = -1, nodeId = 0;
+  while(prevNodeId != nodeId)
+    {
+    prevNodeId = nodeId;
+    nodeId = GetPreviousNodeId();
+    }
+  prevNodeId = -1;
+
+  vtkVariantArray *vertexProperties = vtkVariantArray::New();
+  vertexProperties->SetNumberOfValues(1);
+
+  vtkIdTypeArray *vertexIds = vtkIdTypeArray::New();
+  vertexIds->SetName("Vertex Ids");
+  GetVertexData()->AddArray(vertexIds);
+
+  std::map<int, int> vMap;
+  int vIt;
+  while(prevNodeId != nodeId)
+    {
+    vtkIdType nodeVertexId = GetNodeVertexId(nodeId);
+    vMap[nodeVertexId] = vIt;
+    vertexProperties->SetValue(0, nodeVertexId);
+    AddVertex(vertexProperties);
+
+    prevNodeId = nodeId;
+    nodeId = GetNextNodeId();
+    vIt++;
+    }
+  vertexIds->Delete();
+  vertexProperties->Delete();
+
+  vtkVariantArray *deg2NodeIds = vtkVariantArray::New();
+  deg2NodeIds->SetName("Vertex Ids");
+  GetEdgeData()->AddArray(deg2NodeIds);
+
+  for(int i = 0; i < after.size(); i++)
+    {
+    std::map<int, int>::iterator downIt, upIt;
+    downIt = vMap.find(after[i].first.first);
+    upIt = vMap.find(after[i].first.second);
+
+    if((downIt != vMap.end())&&(upIt != vMap.end()))
+      {
+      vtkVariantArray *edgeProperties = vtkVariantArray::New();
+      vtkIdTypeArray  *vertexList = vtkIdTypeArray::New();
+      vertexList->SetNumberOfValues(after[i].second.size());
+      for(int j = 0; j < after[i].second.size(); j++)
+        vertexList->SetValue(j, after[i].second[j]);
+      edgeProperties->SetNumberOfValues(1);
+      edgeProperties->SetValue(0, vertexList);
+      AddEdge(downIt->second, upIt->second, edgeProperties);
+      vertexList->Delete();
+      edgeProperties->Delete();
+      }
+    }
+  deg2NodeIds->Delete();
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkReebGraph::FilterByPersistence(double functionScalePercentage)
 {
 
-   this->ArcNumber = 0;
-   this->NodeNumber = 0;
+  printf("going for filtering\n");
+  int deletionNumber = 0;
 
-   return this->FilterBranchesByPersistence(functionScalePercentage)
-          + this->FilterLoopsByPersistence(functionScalePercentage)
-          + this->FilterBranchesByPersistence(functionScalePercentage);
+  cancellationHistory.clear();
+  historyOn = true;
+
+  this->ArcNumber = 0;
+  this->NodeNumber = 0;
+
+  deletionNumber = this->FilterBranchesByPersistence(functionScalePercentage)
+    + this->FilterLoopsByPersistence(functionScalePercentage)
+    + this->FilterBranchesByPersistence(functionScalePercentage);
+
+  printf("in committing?\n");
+  this->CommitFiltering();
+  printf("no\n");
+  historyOn = false;
+
+  return deletionNumber;
 }
 
 //----------------------------------------------------------------------------
@@ -719,10 +1079,22 @@ void vtkReebGraph::FlushLabels()
 //----------------------------------------------------------------------------
 void vtkReebGraph::DeepCopy(vtkReebGraph *src)
 {
-  memcpy(this, src, sizeof(vtkReebGraph));
+
+  MinimumScalarValue = src->MinimumScalarValue;
+  MaximumScalarValue = src->MaximumScalarValue;
+
+  ArcNumber = src->ArcNumber;
+  NodeNumber = src->NodeNumber;
+  LoopNumber = src->LoopNumber;
+
+  ScalarField = src->ScalarField;
+
+  VertexStream = src->VertexStream;
 
   if (src->MainArcTable.Buffer)
   {
+    MainArcTable.Size = src->MainArcTable.Size;
+    MainArcTable.Number = src->MainArcTable.Number;
     this->MainArcTable.Buffer = (vtkReebArc*)malloc(
       sizeof(vtkReebArc)*src->MainArcTable.Size);
 
@@ -732,6 +1104,8 @@ void vtkReebGraph::DeepCopy(vtkReebGraph *src)
 
   if (src->MainNodeTable.Buffer)
   {
+    MainNodeTable.Size = src->MainNodeTable.Size;
+    MainNodeTable.Number = src->MainNodeTable.Number;
     this->MainNodeTable.Buffer = (vtkReebNode*)malloc(
       sizeof(vtkReebNode)*src->MainNodeTable.Size);
 
@@ -741,6 +1115,9 @@ void vtkReebGraph::DeepCopy(vtkReebGraph *src)
 
   if (src->MainLabelTable.Buffer)
   {
+    MainLabelTable.Size = src->MainLabelTable.Size;
+    MainLabelTable.Number = src->MainLabelTable.Number;
+
     this->MainLabelTable.Buffer = (vtkReebLabel*)malloc(
       sizeof(vtkReebLabel)*src->MainLabelTable.Size);
     memcpy(this->MainLabelTable.Buffer,src->MainLabelTable.Buffer,
@@ -773,7 +1150,6 @@ void vtkReebGraph::DeepCopy(vtkReebGraph *src)
 	}
 
   vtkMutableDirectedGraph::DeepCopy(src);
-
 }
 
 //----------------------------------------------------------------------------
@@ -956,6 +1332,8 @@ void vtkReebGraph::CloseStream()
 //----------------------------------------------------------------------------
 vtkReebGraph::vtkReebGraph()
 {
+
+  historyOn = false;
 
   this->MainNodeTable.Buffer = (vtkReebNode*)malloc(sizeof(vtkReebNode)*2);
   this->MainArcTable.Buffer = (vtkReebArc*)malloc(sizeof(vtkReebArc)*2);
@@ -1225,6 +1603,8 @@ void vtkReebGraph::FindLoops()
 //----------------------------------------------------------------------------
 vtkIdType vtkReebGraph::AddMeshVertex(vtkIdType vertexId, double scalar){
 
+  ScalarField[vertexId] = scalar;
+
   vtkIdType N0;
   ResizeMainNodeTable(1);
   vtkReebGraphNewNode(this,N0);
@@ -1419,6 +1799,11 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
     int A1=vtkReebGraphGetLabel(this,L1)->ArcId;
     vtkReebArc* a1=vtkReebGraphGetArc(this,A1);
 
+    vtkReebNode *down0 = vtkReebGraphGetNode(this, a0->NodeId0),
+                *up0 = vtkReebGraphGetNode(this, a0->NodeId1),
+                *down1 = vtkReebGraphGetNode(this, a1->NodeId0),
+                *up1 = vtkReebGraphGetNode(this, a1->NodeId1);
+
     /* it is the same arc, no semplification is done */
     if (A0==A1)
     {
@@ -1460,6 +1845,18 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
     }
     else
     {
+      if(historyOn)
+        {
+        vtkReebCancellation c;
+        int downVertex, middleVertex, upVertex;
+        downVertex = down0->VertexId;
+        middleVertex = up0->VertexId;
+        upVertex = up1->VertexId;
+        c.removedArcs.push_back(std::pair<int, int>(downVertex, upVertex));
+        c.insertedArcs.push_back(std::pair<int, int>(downVertex, middleVertex));
+        c.insertedArcs.push_back(std::pair<int, int>(middleVertex, upVertex));
+        cancellationHistory.push_back(c);
+        }
       // a more complicate situation, collapse reaching the less ending point of
       // the arcs.
       Case=2;
@@ -1516,6 +1913,24 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
 
     if (n0->IsFinalized && vtkReebGraphIsRegular(this,n0))
     {
+      if(historyOn)
+        {
+        vtkReebArc  *up = vtkReebGraphGetArc(this, n0->ArcUpId),
+                    *down = vtkReebGraphGetArc(this, n0->ArcDownId);
+
+        vtkReebCancellation c;
+        int v0, v1, v2, v3;
+
+        v0 = vtkReebGraphGetNode(this, up->NodeId0)->VertexId;
+        v1 = vtkReebGraphGetNode(this, up->NodeId1)->VertexId;
+        v2 = vtkReebGraphGetNode(this, down->NodeId0)->VertexId;
+        v3 = vtkReebGraphGetNode(this, down->NodeId1)->VertexId;
+
+        c.removedArcs.push_back(std::pair<int, int>(v0, v1));
+        c.removedArcs.push_back(std::pair<int, int>(v2, v3));
+        c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
+        cancellationHistory.push_back(c);
+        }
       vtkReebGraphVertexCollapse(this,N0,n0);
     }
 
@@ -1526,6 +1941,27 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
 
       if (nend->IsFinalized && vtkReebGraphIsRegular(this,nend))
       {
+        if(historyOn)
+          {
+          vtkReebArc  *up = vtkReebGraphGetArc(this,
+            vtkReebGraphGetNode(this, endingNode)->ArcUpId),
+                      *down = vtkReebGraphGetArc(this,
+            vtkReebGraphGetNode(this, endingNode)->ArcDownId);
+
+          vtkReebCancellation c;
+
+          int v0, v1, v2, v3;
+
+          v0 = vtkReebGraphGetNode(this, up->NodeId0)->VertexId;
+          v1 = vtkReebGraphGetNode(this, up->NodeId1)->VertexId;
+          v2 = vtkReebGraphGetNode(this, down->NodeId0)->VertexId;
+          v3 = vtkReebGraphGetNode(this, down->NodeId1)->VertexId;
+
+          c.removedArcs.push_back(std::pair<int, int>(v0, v1));
+          c.removedArcs.push_back(std::pair<int, int>(v2, v3));
+          c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
+          cancellationHistory.push_back(c);
+          }
         vtkReebGraphVertexCollapse(this,endingNode,nend);
       }
 

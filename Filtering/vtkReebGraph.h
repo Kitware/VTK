@@ -85,6 +85,7 @@
 #ifndef __vtkReebGraph_h
 #define __vtkReebGraph_h
 
+#include  <algorithm>
 #include  <map>
 #include  <queue>
 
@@ -312,6 +313,13 @@ protected:
 
   typedef unsigned long long vtkReebLabelTag;
 
+  bool                  historyOn;
+
+  typedef struct        _vtkReebCancellation{
+    std::vector<std::pair<int, int> > removedArcs;
+    std::vector<std::pair<int, int> > insertedArcs;
+  }vtkReebCancellation;
+  std::vector<vtkReebCancellation> cancellationHistory;
 #define vtkReebGraphSwapVars(type, var1, var2)  \
 {\
   type tmp;\
@@ -432,6 +440,8 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   // CC
   int ConnectedComponentNumber;
 
+  std::map<int, double> ScalarField;
+
   vtkIdType currentNodeId, currentArcId;
 
   // INTERNAL METHODS --------------------------------------------------------
@@ -495,6 +505,13 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   //
   // INTERNAL USE ONLY!
   int FilterLoopsByPersistence(double functionScalePercentage);
+
+  // Description:
+  // Update the vtkMutableDirectedGraph internal structure after filtering, with
+  // deg-2 nodes maintaining.
+  //
+  // INTERNAL USE ONLY!
+  int CommitFiltering();
 
   // Description:
   // Retrieve downwards labels.
