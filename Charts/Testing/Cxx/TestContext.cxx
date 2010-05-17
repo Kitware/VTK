@@ -31,9 +31,6 @@
 
 #include "vtkRegressionTestImage.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 //----------------------------------------------------------------------------
 class ContextTest : public vtkContextItem
 {
@@ -48,10 +45,10 @@ public:
 int TestContext( int argc, char * argv [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
-  VTK_CREATE(vtkContextView, view);
+  vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
-  VTK_CREATE(ContextTest, test);
+  vtkSmartPointer<ContextTest> test = vtkSmartPointer<ContextTest>::New();
   view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
@@ -62,6 +59,11 @@ int TestContext( int argc, char * argv [] )
   view->GetRenderWindow()->Render();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
+  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    view->GetInteractor()->Initialize();
+    view->GetInteractor()->Start();
+    }
   return !retVal;
 }
 
@@ -91,7 +93,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
     }
 
   // Use the draw lines function now to draw a shape.
-  VTK_CREATE(vtkPoints2D, points);
+  vtkSmartPointer<vtkPoints2D> points = vtkSmartPointer<vtkPoints2D>::New();
   points->SetNumberOfPoints(30);
   for (int i = 0; i < 30; ++i)
     {
@@ -139,7 +141,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
                     525, 199, 666, 45);
 
   // Now to test out the transform...
-  VTK_CREATE(vtkTransform2D, transform);
+  vtkSmartPointer<vtkTransform2D> transform = vtkSmartPointer<vtkTransform2D>::New();
   transform->Translate(20, 200);
   painter->GetDevice()->SetMatrix(transform->GetMatrix());
   painter->GetPen()->SetColor(255, 0, 0);
