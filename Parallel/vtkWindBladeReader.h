@@ -161,8 +161,6 @@ protected:
   vtkStdString TurbineTowerName; // Name of tower file
   vtkStdString TurbineBladeName; // Base name of time series blade data
 
-  int RequestDataLoop;   // Hack to deal with two output ports
-
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
 
@@ -205,11 +203,6 @@ protected:
     vtkInformationVector* outputVector);
 
   virtual int RequestInformation(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
-
-  virtual int RequestUpdateExtent(
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
