@@ -115,7 +115,7 @@ int vtkQuadraturePointsGenerator::GenerateField(vtkUnstructuredGrid *usgIn,
   vtkIdType cellId;
   vtkIdType ncell = usgIn->GetNumberOfCells();
   int cellType;
-  // first lopp through all cells to check if a shallow copyy is possible
+  // first loop through all cells to check if a shallow copy is possible
   bool shallowok = true;
   vtkIdType previous = -1;
 
@@ -129,7 +129,14 @@ int vtkQuadraturePointsGenerator::GenerateField(vtkUnstructuredGrid *usgIn,
       }
     cellType = usgIn->GetCellType(cellId);
 
-    previous = offset + dict[cellType]->GetNumberOfQuadraturePoints();
+    if (dict[cellType] == NULL)
+      {
+      previous = offset;
+      }
+    else
+      {
+      previous = offset + dict[cellType]->GetNumberOfQuadraturePoints();
+      }
     }
   if (previous + 1 != nVerts)
     shallowok = false;
