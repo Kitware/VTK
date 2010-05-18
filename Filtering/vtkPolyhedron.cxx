@@ -976,6 +976,11 @@ void vtkPolyhedron::ConstructPolyData()
   // of the array. Other than that,it's a vtkCellArray. So we play games 
   // with the pointers.
   this->GenerateFaces();
+
+  if (this->Faces->GetNumberOfTuples() == 0)
+    {
+    return;
+    }
   
   this->PolyConnectivity->
     SetArray(this->Faces->GetPointer(1), this->Faces->GetSize()-1, 1);
@@ -1087,7 +1092,7 @@ int vtkPolyhedron::GetNumberOfEdges()
     this->GenerateEdges();
     }
   
-  return this->Edges->GetNumberOfTuples();
+  return static_cast<int>(this->Edges->GetNumberOfTuples());
 }
 
 //----------------------------------------------------------------------------
@@ -1131,7 +1136,8 @@ int vtkPolyhedron::GenerateEdges()
     }
 
   //check the number of faces and return if there aren't any
-  if ( this->GlobalFaces->GetValue(0) <= 0 ) 
+  if ( this->GlobalFaces->GetNumberOfTuples() == 0 ||
+       this->GlobalFaces->GetValue(0) <= 0 ) 
     {
     return 0;
     }
@@ -1167,7 +1173,18 @@ int vtkPolyhedron::GenerateEdges()
 //----------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfFaces()
 {
-  return this->GlobalFaces->GetValue(0);
+  // Make sure faces have been generated.
+  if ( ! this->FacesGenerated )
+    {
+    this->GenerateFaces();
+    }
+
+  if (this->GlobalFaces->GetNumberOfTuples() == 0)
+    {
+    return 0;
+    }
+  
+  return static_cast<int>(this->GlobalFaces->GetValue(0));
 }
 
 //----------------------------------------------------------------------------
@@ -1178,6 +1195,11 @@ void vtkPolyhedron::GenerateFaces()
     return;
     }
 
+  if (this->GlobalFaces->GetNumberOfTuples() == 0)
+    {
+    return;
+    }
+  
   // Basically we just ron through the faces and change the global ids to the
   // canonical ids using the PointIdMap.
   this->Faces->SetNumberOfTuples(this->GlobalFaces->GetNumberOfTuples());
@@ -1274,6 +1296,11 @@ void vtkPolyhedron::SetFaces(vtkIdType *faces)
 // Return the list of faces for this cell.
 vtkIdType *vtkPolyhedron::GetFaces()
 {
+  if (!this->GlobalFaces->GetNumberOfTuples())
+    {
+    return NULL;
+    }
+
   return this->GlobalFaces->GetPointer(0);
 }
 

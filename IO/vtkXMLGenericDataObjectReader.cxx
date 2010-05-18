@@ -137,7 +137,7 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char *name,
       }
     }
 
-  vtkErrorMacro(<<"could not load" << name);
+  vtkErrorMacro(<<"could not load " << name);
   return -1;
 }
 

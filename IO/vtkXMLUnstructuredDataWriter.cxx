@@ -673,15 +673,15 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
-  allcells[3] = this->Faces;
-  allcells[4] = this->FaceOffsets;
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : 0;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : 0;
   const char *names[] = {NULL, NULL, "types", NULL, NULL};
 
   for(int t=0; t<this->NumberOfTimeSteps; t++)
     {
     for(int i=0; i<5; i++)
       {
-      if(allcells[i])
+      if(allcells[i] &&  allcells[i]->GetNumberOfTuples() != 0)
         {
         this->WriteArrayAppended(allcells[i], indent.GetNextIndent(),
           cellsManager->GetElement(i), names[i], 0, t);
@@ -739,8 +739,8 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
-  allcells[3] = this->Faces;
-  allcells[4] = this->FaceOffsets;
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : 0;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : 0;
 
   for(int i=0; i<5; i++)
     {

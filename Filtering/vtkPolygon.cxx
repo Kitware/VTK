@@ -1845,6 +1845,8 @@ void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "SuccessfulTriangulation: " <<
     this->SuccessfulTriangulation << "\n";
+  os << indent << "UseMVCInterpolation: " <<
+    this->UseMVCInterpolation << "\n";
   os << indent << "Normal: (" << this->Normal[0] << ", "
      << this->Normal[1] << ", " << this->Normal[2] << ")\n";
   os << indent << "Tris:\n";

@@ -64,7 +64,6 @@ vtkDataSetToDataObjectFilter.cxx
 vtkDataSetTriangleFilter.cxx
 vtkDecimatePolylineFilter.cxx
 vtkDecimatePro.cxx
-vtkDeformPointSet.cxx
 vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
 vtkDensifyPolyData.cxx
@@ -87,7 +86,6 @@ vtkExtractGeometry.cxx
 vtkExtractGrid.cxx
 vtkExtractLevel.cxx
 vtkExtractPolyDataGeometry.cxx
-vtkExtractPolyhedralMesh.cxx
 vtkExtractRectilinearGrid.cxx
 vtkExtractSelectedBlock.cxx
 vtkExtractSelectedFrustum.cxx
