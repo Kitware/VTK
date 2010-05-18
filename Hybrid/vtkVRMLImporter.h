@@ -38,11 +38,14 @@
 // in). This, in a way, removes the need for the route and script mechanism
 // (not completely though).
 //
+// .SECTION Thanks
+//  Thanks to Russ Coucher of Areva for numerous bug fixes and a new test.
+//
 // .SECTION See Also
 // vtkImporter
 
 /* ======================================================================
- 
+
    Importer based on BNF Yacc and Lex parser definition from:
 
         **************************************************
@@ -143,6 +146,7 @@ private:
   vtkAlgorithm         *CurrentSource;
   vtkPoints            *CurrentPoints;
   vtkFloatArray        *CurrentNormals;
+  vtkCellArray         *CurrentNormalCells;
   vtkFloatArray        *CurrentTCoords;
   vtkCellArray         *CurrentTCoordCells;
   vtkLookupTable       *CurrentLut;
