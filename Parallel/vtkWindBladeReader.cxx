@@ -50,7 +50,6 @@ static const char * Slash = "\\";
 static const char * Slash = "/";
 #endif
 
-vtkCxxRevisionMacro(vtkWindBladeReader, "1.8");
 vtkStandardNewMacro(vtkWindBladeReader);
 
 //----------------------------------------------------------------------------
@@ -267,9 +266,9 @@ int vtkWindBladeReader::RequestInformation(
 // ParaView is doing the partitioning for this reader
 //----------------------------------------------------------------------------
 int vtkWindBladeReader::RequestUpdateExtent(
-      vtkInformation* vtkNotUsed(request),
-      vtkInformationVector** vtkNotUsed(inputVector),
-      vtkInformationVector* outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // If Modified is not set, blades do not turn
   this->Modified();

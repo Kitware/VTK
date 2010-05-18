@@ -1476,7 +1476,7 @@ int vtkExodusIIWriter::WriteInitializationParameters()
   int dim = em->GetDimension();
   int nnsets = em->GetNumberOfNodeSets();
   int nssets = em->GetNumberOfSideSets();
-  char *title = em->GetTitle();
+  const char *title = em->GetTitle();
   int numBlocks = em->GetNumberOfBlocks();
   int rc = ex_put_init(this->fid, title, dim, this->NumPoints, this->NumCells, 
                        numBlocks, nnsets, nssets);
