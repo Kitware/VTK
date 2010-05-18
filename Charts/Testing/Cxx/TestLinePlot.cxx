@@ -25,31 +25,29 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 //----------------------------------------------------------------------------
 int TestLinePlot( int argc, char * argv [] )
 {
   // Set up a 2D scene, add an XY chart to it
-  VTK_CREATE(vtkContextView, view);
+  vtkSmartPointer<vtkContextView> view =
+      vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
-  VTK_CREATE(vtkChartXY, chart);
+  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
-  VTK_CREATE(vtkTable, table);
-  VTK_CREATE(vtkFloatArray, arrX);
+  vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
+  vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
   arrX->SetName("X Axis");
   table->AddColumn(arrX);
-  VTK_CREATE(vtkFloatArray, arrC);
+  vtkSmartPointer<vtkFloatArray> arrC = vtkSmartPointer<vtkFloatArray>::New();
   arrC->SetName("Cosine");
   table->AddColumn(arrC);
-  VTK_CREATE(vtkFloatArray, arrS);
+  vtkSmartPointer<vtkFloatArray> arrS = vtkSmartPointer<vtkFloatArray>::New();
   arrS->SetName("Sine");
   table->AddColumn(arrS);
-  VTK_CREATE(vtkFloatArray, arrS2);
+  vtkSmartPointer<vtkFloatArray> arrS2 = vtkSmartPointer<vtkFloatArray>::New();
   arrS2->SetName("Sine2");
   table->AddColumn(arrS2);
   // Test charting with a few more points...
