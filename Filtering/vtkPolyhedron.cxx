@@ -1686,7 +1686,7 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 //----------------------------------------------------------------------------
 // NOTE: inScalars are in canonoical id space. while inPd are in global id space.
 int vtkPolyhedron::InternalContour(double value,
-                            vtkIdType insideOut,
+                            int insideOut,
                             vtkIncrementalPointLocator *locator,
                             vtkDataArray *inScalars,
                             vtkDataArray *outScalars,
@@ -1720,7 +1720,7 @@ int vtkPolyhedron::InternalContour(double value,
   // a contour point 0.
   bool allPositive = true;
   bool allNegative = true;
-  vtkstd::vector<int> pointLabelVector;
+  IdVectorType pointLabelVector;
   for (pid = 0; pid < this->Points->GetNumberOfPoints(); pid++)
     {
     v = inScalars->GetComponent(pid,0);
@@ -1784,8 +1784,6 @@ int vtkPolyhedron::InternalContour(double value,
   IdToIdVectorMapIteratorType vfMapIt, vfMapIt0, vfMapIt1;
   IdToIdVectorMapIteratorType fvMapIt, fcpMapIt, fcpMapItTemp;
 
-  IdToIdVectorMapType globalMap;
-
   // loop through all faces to construct PointToFacesMap and FaceToPointsMap
   vtkPolyhedronFaceIterator 
     faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
@@ -1802,7 +1800,6 @@ int vtkPolyhedron::InternalContour(double value,
 
     fid = faceIter.Id;
     IdVectorType vVector;
-    IdVectorType gVector;
     for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
       {
       pid = faceIter.Current[i];
@@ -1818,11 +1815,9 @@ int vtkPolyhedron::InternalContour(double value,
         pointToFacesMap.insert(IdToIdVectorPairType(pid, fVector));
         }
       vVector.push_back(pid);
-      gVector.push_back(this->PointIds->GetId(pid));
       }
     
     faceToPointsMap.insert(IdToIdVectorPairType(fid, vVector));
-    globalMap.insert(IdToIdVectorPairType(fid, gVector));
     ++faceIter;
     }
 
