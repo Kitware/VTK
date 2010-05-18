@@ -1399,7 +1399,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           {
           vtkIdType ptId = pts->GetId(i);
           vtkIdType cellPtId;
-          for (cellPtId = 0; cell->GetPointId(cellPtId) != ptId; cellPtId++);
+          for (cellPtId = 0; cell->GetPointId(cellPtId) != ptId; cellPtId++)
+            {
+            }
           parametricCoords->InsertNextTupleValue(pc + 3*cellPtId);
           }
         // Subdivide these triangles as many more times as necessary.  Remember
