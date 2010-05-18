@@ -115,7 +115,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
 {
 public:
   static vtkSmartVolumeMapper *New();
-  vtkTypeRevisionMacro(vtkSmartVolumeMapper,vtkVolumeMapper);
+  vtkTypeMacro(vtkSmartVolumeMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
@@ -126,10 +126,11 @@ public:
   // 0.00001 and greater than or equal to 0.0 will be set to
   // 0.00001, and any value greater than -0.00001 but less
   // than or equal to 0.0 will be set to -0.00001.
+  // Initial value is 1.0.
   vtkSetMacro( FinalColorWindow, float );
 
   // Description:
-  // Get the final color window.
+  // Get the final color window. Initial value is 1.0.
   vtkGetMacro( FinalColorWindow, float );
 
   // Description:
@@ -192,11 +193,13 @@ public:
   // If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
   // falls at or above this rate, the render is considered interactive and
   // the mapper may be adjusted (depending on the render mode).
+  // Initial value is 1.0e-5.
   vtkSetClampMacro( InteractiveUpdateRate, double, 1.0e-10, 1.0e10 );
 
   // Description:
   // Get the update rate at or above which this is considered an
   // interactive render.
+  // Initial value is 1.0e-5.
   vtkGetMacro( InteractiveUpdateRate, double );
 
   // Description:

@@ -32,7 +32,6 @@
 
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
-vtkCxxRevisionMacro(vtkSmartVolumeMapper, "$Revision: 2057 $");
 
 // ----------------------------------------------------------------------------
 // Constructor
@@ -575,4 +574,9 @@ int vtkSmartVolumeMapper::GetLastUsedRenderMode()
 void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << "FinalColorWindow: " << this->FinalColorWindow << endl;
+  os << "FinalColorLevel: " << this->FinalColorLevel << endl;
+  os << "RequestedRenderMode: " << this->RequestedRenderMode << endl;
+  os << "InteractiveUpdateRate: " << this->InteractiveUpdateRate << endl;
 }
