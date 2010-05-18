@@ -230,8 +230,8 @@ int QVTKInteractor::InternalDestroyTimer(int platformTimerId)
   return 0;
 }
 
-QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parent)
-  : QObject(parent)
+QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
+  : QObject(parentObject)
 {
 }
 
