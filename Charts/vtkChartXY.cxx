@@ -112,7 +112,7 @@ vtkChartXY::vtkChartXY()
   this->DrawBox = false;
   this->DrawNearestPoint = false;
   this->DrawAxesAtOrigin = false;
-  this->BarWidthFraction = 0.8;
+  this->BarWidthFraction = 0.8f;
 
   this->Tooltip = vtkTooltipItem::New();
   this->Tooltip->SetVisible(false);
@@ -125,7 +125,7 @@ vtkChartXY::~vtkChartXY()
     {
     this->ChartPrivate->plots[i]->Delete();
     }
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < 4; ++i)
     {
     this->ChartPrivate->axes[i]->Delete();
     }
@@ -383,7 +383,7 @@ void vtkChartXY::CalculateBarPlots()
     // Now set the offsets and widths on each bar
     // The offsetIndex deals with the fact that half the bars
     // must shift to the left of the point and half to the right
-    int offsetIndex = (bars.size() - 1);
+    int offsetIndex = static_cast<int>(bars.size() - 1);
     for (size_t i = 0; i < bars.size(); ++i)
       {
       bars[i]->SetWidth(barWidth);
