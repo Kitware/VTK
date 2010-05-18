@@ -680,6 +680,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
   int currPos = 0;
   int argtype;
   int i, j;
+  int typeChar;
 
   if (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
     {
@@ -692,73 +693,10 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     {
     argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
-    switch (argtype)
+    switch ( (argtype & VTK_PARSE_BASE_TYPE) )
       {
-      case VTK_PARSE_FLOAT_PTR:
-        result[currPos++] = '(';
-        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-          {
-          result[currPos++] = 'f';
-          }
-        result[currPos++] = ')';
-        break;
-      case VTK_PARSE_DOUBLE_PTR:
-        result[currPos++] = '(';
-        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-          {
-          result[currPos++] = 'd';
-          }
-        result[currPos++] = ')';
-        break;
-      case VTK_PARSE_BOOL_PTR: /* there is no char for "bool" */
-      case VTK_PARSE_INT_PTR:
-        result[currPos++] = '(';
-        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-          {
-          result[currPos++] = 'i';
-          }
-        result[currPos++] = ')';
-        break;
-      case VTK_PARSE_ID_TYPE_PTR:
-        result[currPos++] = '(';
-        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-          {
-#ifdef VTK_USE_64BIT_IDS
-#ifdef PY_LONG_LONG
-          result[currPos++] = 'L';
-#else
-          result[currPos++] = 'l';
-#endif
-#else
-          result[currPos++] = 'i';
-#endif
-          }
-        result[currPos++] = ')';
-        break;
-      case VTK_PARSE_LONG_LONG_PTR:
-      case VTK_PARSE___INT64_PTR:
-        result[currPos++] = '(';
-        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-          {
-#ifdef PY_LONG_LONG
-          result[currPos++] = 'L';
-#else
-          result[currPos++] = 'l';
-#endif
-          }
-        result[currPos++] = ')';
-        break;
-      case VTK_PARSE_VTK_OBJECT_REF:
-      case VTK_PARSE_VTK_OBJECT_PTR:
       case VTK_PARSE_VTK_OBJECT:
         result[currPos++] = 'O';
-        break;
-      case VTK_PARSE_CHAR_PTR:
-        result[currPos++] = 'z';
-        break;
-      case VTK_PARSE_VOID_PTR:
-        result[currPos++] = 's';
-        result[currPos++] = '#';
         break;
       case VTK_PARSE_FLOAT:
         result[currPos++] = 'f';
@@ -823,6 +761,46 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
       case VTK_PARSE_UNICODE_STRING:
         result[currPos++] = 'O';
         break;
+      default:
+        result[currPos++] = 'O';
+        break;
+      }
+
+    if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER &&
+        argtype != VTK_PARSE_VTK_OBJECT_PTR)
+      {
+      /* back up and replace the char */
+      --currPos;
+
+      if (argtype == VTK_PARSE_CHAR_PTR)
+        {
+        /* string with "None" equivalent to "NULL" */
+        result[currPos++] = 'z';
+        }
+      else if (argtype == VTK_PARSE_VOID_PTR)
+        {
+        /* buffer type, None not allowed to avoid passing NULL pointer */
+        result[currPos++] = 's';
+        result[currPos++] = '#';
+        }
+      else
+        {
+        typeChar = result[currPos];
+
+        if (argtype == VTK_PARSE_BOOL_PTR)
+          {
+          /* A tuple of ints stands in for a tuple of bools,
+           * since python bool is a subclass of python int */
+          typeChar = 'i';
+          }
+
+        result[currPos++] = '(';
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+          {
+          result[currPos++] = typeChar;
+          }
+        result[currPos++] = ')';
+        }
       }
     }
 
