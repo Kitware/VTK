@@ -67,6 +67,7 @@ public:
   // Description:
   // draw a polygon
   void drawPolygon(const QPointF* points, int pointCount, PolygonDrawMode mode);
+  void drawPolygon(const QPoint* points, int pointCount, PolygonDrawMode mode);
 
 protected:
 
