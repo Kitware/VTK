@@ -53,21 +53,21 @@ public:
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not 
+  // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array. 
+  // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
-  
+
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
@@ -96,6 +96,17 @@ public:
   vtkIdType InsertNextTuple(const float* tuple);
   vtkIdType InsertNextTuple(const double* tuple);
   vtkIdType InsertNextTupleValue(const T* tuple);
+
+  // Description:
+  // Get the range of array values for the given component in the
+  // native data type.
+  void GetValueRange(T range[2], int comp) {
+    this->ComputeRange(comp);
+    range[0] = this->ValueRange[0];
+    range[1] = this->ValueRange[1]; }
+  T *GetValueRange(int comp) {
+    this->ComputeRange(comp);
+    return this->ValueRange; }
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
@@ -206,12 +217,12 @@ public:
     { this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE); }
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<T*>(array), size, save); }
-  virtual void SetVoidArray(void* array, 
-                            vtkIdType size, 
-                            int save, 
+  virtual void SetVoidArray(void* array,
+                            vtkIdType size,
+                            int save,
                             int deleteMethod)
-    { 
-      this->SetArray(static_cast<T*>(array), size, save, deleteMethod); 
+    {
+      this->SetArray(static_cast<T*>(array), size, save, deleteMethod);
     }
 
   // Description:
@@ -223,7 +234,7 @@ public:
   // Description:
   // Returns a vtkArrayIteratorTemplate<T>.
   virtual vtkArrayIterator* NewIterator();
-  
+
   //BTX
   // Description:
   // Return the indices where a specific value appears.
@@ -232,7 +243,7 @@ public:
   //ETX
   vtkIdType LookupValue(T value);
   void LookupValue(T value, vtkIdList* ids);
-  
+
   // Description:
   // Tell the array explicitly that the data has changed.
   // This is only necessary to call when you modify the array contents
@@ -241,11 +252,11 @@ public:
   // the fast lookup will know to rebuild itself.  Otherwise, the lookup
   // functions will give incorrect results.
   virtual void DataChanged();
-  
+
   // Description:
   // Tell the array explicitly that a single data element has
   // changed. Like DataChanged(), then is only necessary when you
-  // modify the array contents without using the array's API. 
+  // modify the array contents without using the array's API.
   virtual void DataElementChanged(vtkIdType id);
 
   // Description:
@@ -253,15 +264,16 @@ public:
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
   // function.
   virtual void ClearLookup();
-  
+
 protected:
   vtkDataArrayTemplate(vtkIdType numComp);
   ~vtkDataArrayTemplate();
 
   T* Array;   // pointer to data
+  T ValueRange[2]; // range of the data
   T* ResizeAndExtend(vtkIdType sz);  // function to resize data
   T* Realloc(vtkIdType sz);
-  
+
   int TupleSize; //used for data conversion
   double* Tuple;
 
@@ -296,7 +308,7 @@ private:
 #if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE)
 # if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
 #  pragma warning (push)
-#  pragma warning (disable: 4091) // warning C4091: 'extern ' : 
+#  pragma warning (disable: 4091) // warning C4091: 'extern ' :
    // ignored on left of 'int' when no variable is declared
 #  pragma warning (disable: 4231) // Compiler-specific extension warning.
 

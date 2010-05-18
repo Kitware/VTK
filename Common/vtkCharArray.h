@@ -93,6 +93,38 @@ public:
   vtkIdType InsertNextValue(char f)
     { return this->RealSuperclass::InsertNextValue(f); }
 
+//BTX
+  // Description:
+  // Get the range of array values for the given component in the
+  // native data type.
+  char *GetValueRange(int comp)
+    { return this->RealSuperclass::GetValueRange(comp); }
+  void GetValueRange(char range[2], int comp)
+    { this->RealSuperclass::GetValueRange(range, comp); }
+
+  // Description:
+  // Get the range of array values for the 0th component in the
+  // native data type.
+  char *GetValueRange()
+    { return this->RealSuperclass::GetValueRange(0); }
+  void GetValueRange(char range[2])
+    { this->RealSuperclass::GetValueRange(range, 0); }
+
+  // Description:
+  // Get the minimum data value in its native type.
+  static char GetDataTypeValueMin() { return VTK_CHAR_MIN; }
+
+  // Description:
+  // Get the maximum data value in its native type.
+  static char GetDataTypeValueMax() { return VTK_CHAR_MAX; }
+
+  // Description:
+  // Get the data type range in its native type.
+  static void GetDataTypeValueRange(char range[2])
+    { range[0] = vtkCharArray::GetDataTypeValueMin();
+      range[1] = vtkCharArray::GetDataTypeValueMax(); }
+//ETX
+
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
@@ -112,7 +144,7 @@ public:
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
-  // from the suppled array. 
+  // from the suppled array.
   void SetArray(char* array, vtkIdType size, int save)
     { this->RealSuperclass::SetArray(array, size, save); }
   void SetArray(char* array, vtkIdType size, int save, int deleteMethod)
