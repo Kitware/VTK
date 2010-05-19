@@ -922,6 +922,8 @@ vtkPolyhedron::vtkPolyhedron()
   this->PolyDataConstructed = 0;
   this->PolyData = vtkPolyData::New();
   this->Polys = vtkCellArray::New();
+  //this->Polys->Register(this);
+  //this->Polys->Delete();
   this->PolyConnectivity = vtkIdTypeArray::New();
   this->LocatorConstructed = 0;
   this->CellLocator = vtkCellLocator::New();
@@ -976,13 +978,16 @@ void vtkPolyhedron::ConstructPolyData()
   // of the array. Other than that,it's a vtkCellArray. So we play games 
   // with the pointers.
   this->GenerateFaces();
-  
+
+  this->PolyConnectivity->SetNumberOfTuples(this->Faces->GetMaxId()-1);
   this->PolyConnectivity->
-    SetArray(this->Faces->GetPointer(1), this->Faces->GetSize()-1, 1);
+    SetArray(this->Faces->GetPointer(1), this->Faces->GetMaxId()-1, 1);
+  this->Polys->SetNumberOfCells(*(this->Faces->GetPointer(0)));
   this->Polys->
     SetCells(*(this->Faces->GetPointer(0)), this->PolyConnectivity);
 
   // Standard setup
+  this->PolyData->Initialize();
   this->PolyData->SetPoints(this->Points);
   this->PolyData->SetPolys(this->Polys);
 
@@ -1009,6 +1014,7 @@ void vtkPolyhedron::ConstructLocator()
   this->ConstructPolyData();
   
   // With the polydata set up, we can assign it to the  locator
+  this->CellLocator->Initialize();
   this->CellLocator->SetDataSet(this->PolyData);
   this->CellLocator->BuildLocator();
 
@@ -1061,7 +1067,7 @@ void vtkPolyhedron::Initialize()
   this->EdgeTable->Reset();
   this->Edges->Reset();
   this->Faces->Reset();
-
+  
   // Polys have to be reset
   this->Polys->Reset();
   this->PolyConnectivity->Reset();
@@ -1195,6 +1201,10 @@ void vtkPolyhedron::GenerateFaces()
     for (i=1; i <= npts; ++i)
       {
       id = (*this->PointIdMap)[gFace[i]];
+      if (id < 0)
+        {
+        id = id;
+        }
       face[i] = id;
       }
     gFace += gFace[0] + 1;
@@ -1475,10 +1485,65 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
 
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::CellBoundary(int subId, double pcoords[3],
+int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                                     vtkIdList *pts)
 { 
-  return 0;
+  double x[3], n[3], o[3], v[3];
+  double dist, minDist = VTK_DOUBLE_MAX;
+  vtkIdType numFacePts = -1;
+  vtkIdType * facePts = 0;
+   
+  // compute coordinates 
+  this->ComputePositionFromParametricCoordinate(pcoords, x);
+
+  vtkPolyhedronFaceIterator 
+    faceIter(this->GetNumberOfFaces(), this->Faces->GetPointer(1));
+  while (faceIter.Id < faceIter.NumberOfPolygons)
+    {
+    if (faceIter.CurrentPolygonSize < 3)
+      {
+      continue;
+      }
+    
+    vtkPolygon::ComputeNormal(this->Points, faceIter.CurrentPolygonSize, 
+                              faceIter.Current, n);
+    vtkMath::Normalize(n);
+    this->Points->GetPoint(faceIter.Current[0], o);
+    v[0] = x[0] - o[0];
+    v[1] = x[1] - o[1];
+    v[2] = x[2] - o[2];
+    dist = fabs(vtkMath::Dot(v, n));
+    if (dist < minDist)
+      {
+      minDist = dist;
+      numFacePts = faceIter.CurrentPolygonSize;
+      facePts = faceIter.Current;
+      }
+    
+    ++faceIter;
+    }
+  
+  pts->Reset();
+  if (numFacePts > 0)
+    {
+    for (vtkIdType i = 0; i < numFacePts; i++)
+      {
+      pts->InsertNextId(this->PointIds->GetId(facePts[i]));
+      }
+    }
+  
+  // determine whether point is inside of polygon
+  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
+       pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
+       pcoords[2] >= 0.0 && pcoords[2] <= 1.0 &&
+       (this->IsInside(x, std::numeric_limits<double>::infinity())) )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1497,24 +1562,31 @@ int vtkPolyhedron::EvaluatePosition( double x[3], double * closestPoint,
   this->ConstructLocator();
   
   // find closest point and store the squared distance
-  vtkSmartPointer<vtkGenericCell> genCell = 
-    vtkSmartPointer<vtkGenericCell>::New( );
-
   vtkIdType cellId;
   int id;
+  double cp[3];
+  this->Cell->Initialize();
   this->CellLocator->FindClosestPoint(
-    x, closestPoint, genCell, cellId, id, minDist2 );
+    x, cp, this->Cell, cellId, id, minDist2 );
+  
+  if (closestPoint)
+    {
+    closestPoint[0] = cp[0];
+    closestPoint[1] = cp[1];
+    closestPoint[2] = cp[2];
+    }
+
+  // get the MVC weights
+  this->InterpolateFunctions(x, weights);
 
   // set distance to be zero, if point is inside
-  if (this->IsInside(x, std::numeric_limits<double>::infinity()))
+  int isInside = this->IsInside(x, std::numeric_limits<double>::infinity());
+  if (isInside)
     {
     minDist2 = 0.0;
     }
   
-  // get the MVC weights
-  this->InterpolateFunctions(x, weights);
-
-  return 1;
+  return isInside;
 }
 
 //----------------------------------------------------------------------------
@@ -2667,73 +2739,6 @@ void vtkPolyhedron::Clip(double value,
   newCellId = connectivity->InsertNextCell(
     static_cast<vtkIdType>(cellVector.size()), &(cellVector[0]));
   outCd->CopyData(inCd, cellId, newCellId);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::DecomposeAPolyhedronCell(vtkCellArray * polyhedronCell, 
-       vtkIdType & numCellPts, vtkIdType & nCellfaces, 
-       vtkCellArray * cellArray, vtkIdTypeArray * faces)
-{
-  vtkIdType *cellStream = 0;
-  vtkIdType cellLength = 0;
-  
-  polyhedronCell->InitTraversal();
-  polyhedronCell->GetNextCell(cellLength, cellStream);
-  
-  vtkPolyhedron::DecomposeAPolyhedronCell(
-    cellStream, numCellPts, nCellfaces, cellArray, faces);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::DecomposeAPolyhedronCell(vtkIdType *cellStream,
-       vtkIdType & numCellPts, vtkIdType & nCellFaces, 
-       vtkCellArray * cellArray, vtkIdTypeArray * faces)
-{
-  nCellFaces = cellStream[0];
-  if (nCellFaces <= 0)
-    {
-    return;
-    }
-  
-  vtkPolyhedron::DecomposeAPolyhedronCell(
-    nCellFaces, cellStream+1, numCellPts, cellArray, faces);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyhedron::DecomposeAPolyhedronCell(vtkIdType nCellFaces,
-       vtkIdType * cellStream, vtkIdType & numCellPts, 
-       vtkCellArray * cellArray, vtkIdTypeArray * faces)
-{
-  IdSetType cellPointSet;
-  IdSetType::iterator it;
-  
-  // insert number of faces into the face array
-  faces->InsertNextValue(nCellFaces);
-  
-  // for each face
-  for (vtkIdType fid = 0; fid < nCellFaces; fid++)
-    {
-    // extract all points on the same face, store them into a set
-    vtkIdType npts = *cellStream++;
-    faces->InsertNextValue(npts);
-    for (vtkIdType i = 0; i < npts; i++)
-      {
-      vtkIdType pid = *cellStream++;
-      faces->InsertNextValue(pid);
-      cellPointSet.insert(pid);
-      }
-    }
-  
-  // standard cell connectivity array that stores the number of points plus
-  // a list of point ids.
-  cellArray->InsertNextCell(static_cast<int>(cellPointSet.size()));
-  for (it = cellPointSet.begin(); it != cellPointSet.end(); ++it)
-    {
-    cellArray->InsertCellPoint(*it);
-    }
-  
-  // the real number of points in the polyhedron cell.
-  numCellPts = cellPointSet.size();
 }
 
 //----------------------------------------------------------------------------

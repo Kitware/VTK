@@ -203,6 +203,16 @@ int vtkThreshold::RequestData(
           }
         newCellPts->InsertId(i,newId);
         }
+      // special handling for polyhedron cells
+      if (vtkUnstructuredGrid::SafeDownCast(input) &&
+          input->GetCellType(cellId) == VTK_POLYHEDRON)
+        {
+        newCellPts->Reset();
+        vtkUnstructuredGrid::SafeDownCast(input)->
+          GetFaceStream(cellId, newCellPts);
+        vtkUnstructuredGrid::ConvertFaceStreamPointIds(
+          newCellPts, pointMap->GetPointer(0));
+        }
       newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outCD->CopyData(cd,cellId,newCellId);
       newCellPts->Reset();
