@@ -48,7 +48,7 @@ vtkCellArray::~vtkCellArray()
 }
 
 //----------------------------------------------------------------------------
-void vtkCellArray::Initialize() 
+void vtkCellArray::Initialize()
 {
   this->Ia->Initialize();
   this->NumberOfCells = 0;
@@ -94,6 +94,34 @@ void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray *cells)
 unsigned long vtkCellArray::GetActualMemorySize()
 {
   return this->Ia->GetActualMemorySize();
+}
+
+//----------------------------------------------------------------------------
+int vtkCellArray::GetNextCell(vtkIdList *pts)
+{
+  vtkIdType npts, *ppts;
+  if (this->GetNextCell(npts, ppts))
+    {
+    pts->SetNumberOfIds(npts);
+    for (vtkIdType i = 0; i < npts; i++)
+      {
+      pts->SetId(i, ppts[i]);
+      }
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkCellArray::GetCell(vtkIdType loc, vtkIdList *pts)
+{
+  vtkIdType npts = this->Ia->GetValue(loc++);
+  vtkIdType *ppts = this->Ia->GetPointer(loc);
+  pts->SetNumberOfIds(npts);
+  for (vtkIdType i = 0; i < npts; i++)
+    {
+    pts->SetId(i, ppts[i]);
+    }
 }
 
 //----------------------------------------------------------------------------
