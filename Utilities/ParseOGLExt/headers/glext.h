@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2010-04-14 17:15:11 $ */
+/* glext.h last updated $Date: 2010-05-17 09:47:20 -0700 (Mon, 17 May 2010) $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 61
+#define GL_GLEXT_VERSION 62
 /* Function declaration macros - to move into glplatform.h */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -1878,7 +1878,7 @@ extern "C" {
 #define GL_MIN_FRAGMENT_INTERPOLATION_OFFSET 0x8E5B
 #define GL_MAX_FRAGMENT_INTERPOLATION_OFFSET 0x8E5C
 #define GL_FRAGMENT_INTERPOLATION_OFFSET_BITS 0x8E5D
-#define GL_MAX_VERTEX_STREAMS             0x8E71
+/* reuse GL_MAX_VERTEX_STREAMS */
 #endif
 
 #ifndef GL_ARB_gpu_shader_fp64
@@ -1966,6 +1966,7 @@ extern "C" {
 
 #ifndef GL_ARB_transform_feedback3
 #define GL_MAX_TRANSFORM_FEEDBACK_BUFFERS 0x8E70
+#define GL_MAX_VERTEX_STREAMS             0x8E71
 #endif
 
 #ifndef GL_EXT_abgr
@@ -3789,9 +3790,9 @@ extern "C" {
 #endif
 
 #ifndef GL_APPLE_element_array
-#define GL_ELEMENT_ARRAY_APPLE            0x8768
-#define GL_ELEMENT_ARRAY_TYPE_APPLE       0x8769
-#define GL_ELEMENT_ARRAY_POINTER_APPLE    0x876A
+#define GL_ELEMENT_ARRAY_APPLE            0x8A0C
+#define GL_ELEMENT_ARRAY_TYPE_APPLE       0x8A0D
+#define GL_ELEMENT_ARRAY_POINTER_APPLE    0x8A0E
 #endif
 
 #ifndef GL_APPLE_fence
@@ -3808,6 +3809,7 @@ extern "C" {
 #define GL_VERTEX_ARRAY_RANGE_LENGTH_APPLE 0x851E
 #define GL_VERTEX_ARRAY_STORAGE_HINT_APPLE 0x851F
 #define GL_VERTEX_ARRAY_RANGE_POINTER_APPLE 0x8521
+#define GL_STORAGE_CLIENT_APPLE           0x85B4
 #define GL_STORAGE_CACHED_APPLE           0x85BE
 #define GL_STORAGE_SHARED_APPLE           0x85BF
 #endif
@@ -4662,6 +4664,167 @@ extern "C" {
 #endif
 
 #ifndef GL_AMD_conservative_depth
+#endif
+
+#ifndef GL_EXT_shader_image_load_store
+#define GL_MAX_IMAGE_UNITS_EXT            0x8F38
+#define GL_MAX_COMBINED_IMAGE_UNITS_AND_FRAGMENT_OUTPUTS_EXT 0x8F39
+#define GL_IMAGE_BINDING_NAME_EXT         0x8F3A
+#define GL_IMAGE_BINDING_LEVEL_EXT        0x8F3B
+#define GL_IMAGE_BINDING_LAYERED_EXT      0x8F3C
+#define GL_IMAGE_BINDING_LAYER_EXT        0x8F3D
+#define GL_IMAGE_BINDING_ACCESS_EXT       0x8F3E
+#define GL_IMAGE_1D_EXT                   0x904C
+#define GL_IMAGE_2D_EXT                   0x904D
+#define GL_IMAGE_3D_EXT                   0x904E
+#define GL_IMAGE_2D_RECT_EXT              0x904F
+#define GL_IMAGE_CUBE_EXT                 0x9050
+#define GL_IMAGE_BUFFER_EXT               0x9051
+#define GL_IMAGE_1D_ARRAY_EXT             0x9052
+#define GL_IMAGE_2D_ARRAY_EXT             0x9053
+#define GL_IMAGE_CUBE_MAP_ARRAY_EXT       0x9054
+#define GL_IMAGE_2D_MULTISAMPLE_EXT       0x9055
+#define GL_IMAGE_2D_MULTISAMPLE_ARRAY_EXT 0x9056
+#define GL_INT_IMAGE_1D_EXT               0x9057
+#define GL_INT_IMAGE_2D_EXT               0x9058
+#define GL_INT_IMAGE_3D_EXT               0x9059
+#define GL_INT_IMAGE_2D_RECT_EXT          0x905A
+#define GL_INT_IMAGE_CUBE_EXT             0x905B
+#define GL_INT_IMAGE_BUFFER_EXT           0x905C
+#define GL_INT_IMAGE_1D_ARRAY_EXT         0x905D
+#define GL_INT_IMAGE_2D_ARRAY_EXT         0x905E
+#define GL_INT_IMAGE_CUBE_MAP_ARRAY_EXT   0x905F
+#define GL_INT_IMAGE_2D_MULTISAMPLE_EXT   0x9060
+#define GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY_EXT 0x9061
+#define GL_UNSIGNED_INT_IMAGE_1D_EXT      0x9062
+#define GL_UNSIGNED_INT_IMAGE_2D_EXT      0x9063
+#define GL_UNSIGNED_INT_IMAGE_3D_EXT      0x9064
+#define GL_UNSIGNED_INT_IMAGE_2D_RECT_EXT 0x9065
+#define GL_UNSIGNED_INT_IMAGE_CUBE_EXT    0x9066
+#define GL_UNSIGNED_INT_IMAGE_BUFFER_EXT  0x9067
+#define GL_UNSIGNED_INT_IMAGE_1D_ARRAY_EXT 0x9068
+#define GL_UNSIGNED_INT_IMAGE_2D_ARRAY_EXT 0x9069
+#define GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY_EXT 0x906A
+#define GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_EXT 0x906B
+#define GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY_EXT 0x906C
+#define GL_MAX_IMAGE_SAMPLES_EXT          0x906D
+#define GL_IMAGE_BINDING_FORMAT_EXT       0x906E
+#define GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT_EXT 0x00000001
+#define GL_ELEMENT_ARRAY_BARRIER_BIT_EXT  0x00000002
+#define GL_UNIFORM_BARRIER_BIT_EXT        0x00000004
+#define GL_TEXTURE_FETCH_BARRIER_BIT_EXT  0x00000008
+#define GL_SHADER_IMAGE_ACCESS_BARRIER_BIT_EXT 0x00000020
+#define GL_COMMAND_BARRIER_BIT_EXT        0x00000040
+#define GL_PIXEL_BUFFER_BARRIER_BIT_EXT   0x00000080
+#define GL_TEXTURE_UPDATE_BARRIER_BIT_EXT 0x00000100
+#define GL_BUFFER_UPDATE_BARRIER_BIT_EXT  0x00000200
+#define GL_FRAMEBUFFER_BARRIER_BIT_EXT    0x00000400
+#define GL_TRANSFORM_FEEDBACK_BARRIER_BIT_EXT 0x00000800
+#define GL_ATOMIC_COUNTER_BARRIER_BIT_EXT 0x00001000
+#define GL_ALL_BARRIER_BITS_EXT           0xFFFFFFFF
+#endif
+
+#ifndef GL_EXT_vertex_attrib_64bit
+/* reuse GL_DOUBLE */
+#define GL_DOUBLE_VEC2_EXT                0x8FFC
+#define GL_DOUBLE_VEC3_EXT                0x8FFD
+#define GL_DOUBLE_VEC4_EXT                0x8FFE
+#define GL_DOUBLE_MAT2_EXT                0x8F46
+#define GL_DOUBLE_MAT3_EXT                0x8F47
+#define GL_DOUBLE_MAT4_EXT                0x8F48
+#define GL_DOUBLE_MAT2x3_EXT              0x8F49
+#define GL_DOUBLE_MAT2x4_EXT              0x8F4A
+#define GL_DOUBLE_MAT3x2_EXT              0x8F4B
+#define GL_DOUBLE_MAT3x4_EXT              0x8F4C
+#define GL_DOUBLE_MAT4x2_EXT              0x8F4D
+#define GL_DOUBLE_MAT4x3_EXT              0x8F4E
+#endif
+
+#ifndef GL_NV_gpu_program5
+#define GL_MAX_GEOMETRY_PROGRAM_INVOCATIONS_NV 0x8E5A
+#define GL_MIN_FRAGMENT_INTERPOLATION_OFFSET_NV 0x8E5B
+#define GL_MAX_FRAGMENT_INTERPOLATION_OFFSET_NV 0x8E5C
+#define GL_FRAGMENT_PROGRAM_INTERPOLATION_OFFSET_BITS_NV 0x8E5D
+#endif
+
+#ifndef GL_NV_gpu_shader5
+#define GL_INT64_NV                       0x140E
+#define GL_UNSIGNED_INT64_NV              0x140F
+#define GL_INT8_NV                        0x8FE0
+#define GL_INT8_VEC2_NV                   0x8FE1
+#define GL_INT8_VEC3_NV                   0x8FE2
+#define GL_INT8_VEC4_NV                   0x8FE3
+#define GL_INT16_NV                       0x8FE4
+#define GL_INT16_VEC2_NV                  0x8FE5
+#define GL_INT16_VEC3_NV                  0x8FE6
+#define GL_INT16_VEC4_NV                  0x8FE7
+#define GL_INT64_VEC2_NV                  0x8FE9
+#define GL_INT64_VEC3_NV                  0x8FEA
+#define GL_INT64_VEC4_NV                  0x8FEB
+#define GL_UNSIGNED_INT8_NV               0x8FEC
+#define GL_UNSIGNED_INT8_VEC2_NV          0x8FED
+#define GL_UNSIGNED_INT8_VEC3_NV          0x8FEE
+#define GL_UNSIGNED_INT8_VEC4_NV          0x8FEF
+#define GL_UNSIGNED_INT16_NV              0x8FF0
+#define GL_UNSIGNED_INT16_VEC2_NV         0x8FF1
+#define GL_UNSIGNED_INT16_VEC3_NV         0x8FF2
+#define GL_UNSIGNED_INT16_VEC4_NV         0x8FF3
+#define GL_UNSIGNED_INT64_VEC2_NV         0x8FF5
+#define GL_UNSIGNED_INT64_VEC3_NV         0x8FF6
+#define GL_UNSIGNED_INT64_VEC4_NV         0x8FF7
+#define GL_FLOAT16_NV                     0x8FF8
+#define GL_FLOAT16_VEC2_NV                0x8FF9
+#define GL_FLOAT16_VEC3_NV                0x8FFA
+#define GL_FLOAT16_VEC4_NV                0x8FFB
+/* reuse GL_PATCHES */
+#endif
+
+#ifndef GL_NV_shader_buffer_store
+#define GL_SHADER_GLOBAL_ACCESS_BARRIER_BIT_NV 0x00000010
+/* reuse GL_READ_WRITE */
+/* reuse GL_WRITE_ONLY */
+#endif
+
+#ifndef GL_NV_tessellation_program5
+#define GL_MAX_PROGRAM_PATCH_ATTRIBS_NV   0x86D8
+#define GL_TESS_CONTROL_PROGRAM_NV        0x891E
+#define GL_TESS_EVALUATION_PROGRAM_NV     0x891F
+#define GL_TESS_CONTROL_PROGRAM_PARAMETER_BUFFER_NV 0x8C74
+#define GL_TESS_EVALUATION_PROGRAM_PARAMETER_BUFFER_NV 0x8C75
+#endif
+
+#ifndef GL_NV_vertex_attrib_integer_64bit
+/* reuse GL_INT64_NV */
+/* reuse GL_UNSIGNED_INT64_NV */
+#endif
+
+#ifndef GL_NV_multisample_coverage
+#define GL_COVERAGE_SAMPLES_NV            0x80A9
+#define GL_COLOR_SAMPLES_NV               0x8E20
+#endif
+
+#ifndef GL_AMD_name_gen_delete
+#define GL_DATA_BUFFER_AMD                0x9151
+#define GL_PERFORMANCE_MONITOR_AMD        0x9152
+#define GL_QUERY_OBJECT_AMD               0x9153
+#define GL_VERTEX_ARRAY_OBJECT_AMD        0x9154
+#define GL_SAMPLER_OBJECT_AMD             0x9155
+#endif
+
+#ifndef GL_AMD_debug_output
+#define GL_MAX_DEBUG_LOGGED_MESSAGES_AMD  0x9144
+#define GL_DEBUG_LOGGED_MESSAGES_AMD      0x9145
+#define GL_DEBUG_SEVERITY_HIGH_AMD        0x9146
+#define GL_DEBUG_SEVERITY_MEDIUM_AMD      0x9147
+#define GL_DEBUG_SEVERITY_LOW_AMD         0x9148
+#define GL_DEBUG_CATEGORY_API_ERROR_AMD   0x9149
+#define GL_DEBUG_CATEGORY_WINDOW_SYSTEM_AMD 0x914A
+#define GL_DEBUG_CATEGORY_DEPRECATION_AMD 0x914B
+#define GL_DEBUG_CATEGORY_UNDEFINED_BEHAVIOR_AMD 0x914C
+#define GL_DEBUG_CATEGORY_PERFORMANCE_AMD 0x914D
+#define GL_DEBUG_CATEGORY_SHADER_COMPILER_AMD 0x914E
+#define GL_DEBUG_CATEGORY_APPLICATION_AMD 0x914F
+#define GL_DEBUG_CATEGORY_OTHER_AMD       0x9150
 #endif
 
 
@@ -10070,6 +10233,42 @@ typedef void (APIENTRYP PFNGLTEXTUREBARRIERNVPROC) (void);
 
 #ifndef GL_AMD_conservative_depth
 #define GL_AMD_conservative_depth 1
+#endif
+
+#ifndef GL_EXT_shader_image_load_store
+#define GL_EXT_shader_image_load_store 1
+#endif
+
+#ifndef GL_EXT_vertex_attrib_64bit
+#define GL_EXT_vertex_attrib_64bit 1
+#endif
+
+#ifndef GL_NV_gpu_program5
+#define GL_NV_gpu_program5 1
+#endif
+
+#ifndef GL_NV_gpu_shader5
+#define GL_NV_gpu_shader5 1
+#endif
+
+#ifndef GL_NV_shader_buffer_store
+#define GL_NV_shader_buffer_store 1
+#endif
+
+#ifndef GL_NV_tessellation_program5
+#define GL_NV_tessellation_program5 1
+#endif
+
+#ifndef GL_NV_vertex_attrib_integer_64bit
+#define GL_NV_vertex_attrib_integer_64bit 1
+#endif
+
+#ifndef GL_NV_multisample_coverage
+#define GL_NV_multisample_coverage 1
+#endif
+
+#ifndef GL_AMD_name_gen_delete
+#define GL_AMD_name_gen_delete 1
 #endif
 
 
