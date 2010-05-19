@@ -48,9 +48,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2010/02/10 */
+/* glxext.h last updated 2010/05/17 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 27
+#define GLX_GLXEXT_VERSION 28
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -122,6 +122,10 @@ extern "C" {
 #ifndef GLX_ARB_multisample
 #define GLX_SAMPLE_BUFFERS_ARB             100000
 #define GLX_SAMPLES_ARB                    100001
+#endif
+
+#ifndef GLX_ARB_vertex_buffer_object
+#define GLX_CONTEXT_ALLOW_BUFFER_BYTE_ORDER_MISMATCH_ARB 0x2095
 #endif
 
 #ifndef GLX_ARB_fbconfig_float
@@ -403,6 +407,11 @@ extern "C" {
 #define GLX_FLIP_COMPLETE_INTEL            0x8182
 #endif
 
+#ifndef GLX_NV_multisample_coverage
+#define GLX_COVERAGE_SAMPLES_NV            100001
+#define GLX_COLOR_SAMPLES_NV               0x20B3
+#endif
+
 
 /*************************************************************/
 
@@ -423,16 +432,16 @@ typedef struct __GLXFBConfigRec *GLXFBConfigSGIX;
 typedef XID GLXPbufferSGIX;
 typedef struct {
     int type;
-    unsigned long serial;       /* # of last request processed by server */
-    Bool send_event;            /* true if this came for SendEvent request */
-    Display *display;           /* display the event was read from */
-    GLXDrawable drawable;       /* i.d. of Drawable */
-    int event_type;             /* GLX_DAMAGED_SGIX or GLX_SAVED_SGIX */
-    int draw_type;              /* GLX_WINDOW_SGIX or GLX_PBUFFER_SGIX */
-    unsigned int mask;          /* mask indicating which buffers are affected*/
+    unsigned long serial;	  /* # of last request processed by server */
+    Bool send_event;		  /* true if this came for SendEvent request */
+    Display *display;		  /* display the event was read from */
+    GLXDrawable drawable;	  /* i.d. of Drawable */
+    int event_type;		  /* GLX_DAMAGED_SGIX or GLX_SAVED_SGIX */
+    int draw_type;		  /* GLX_WINDOW_SGIX or GLX_PBUFFER_SGIX */
+    unsigned int mask;	  /* mask indicating which buffers are affected*/
     int x, y;
     int width, height;
-    int count;                  /* if nonzero, at least this many more */
+    int count;		  /* if nonzero, at least this many more */
 } GLXBufferClobberEventSGIX;
 #endif
 
@@ -934,6 +943,10 @@ typedef void ( * PFNGLXCOPYIMAGESUBDATANVPROC) (Display *dpy, GLXContext srcCtx,
 
 #ifndef GLX_INTEL_swap_event
 #define GLX_INTEL_swap_event 1
+#endif
+
+#ifndef GLX_NV_multisample_coverage
+#define GLX_NV_multisample_coverage 1
 #endif
 
 
