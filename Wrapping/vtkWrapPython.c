@@ -2571,9 +2571,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,
           "\n"
           "#if defined(WIN32)\n"
-          "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(char *); }\n"
+          "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
           "#else\n"
-          "extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n"
+          "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
           "#endif\n"
           "\n",
           data->ClassName, data->ClassName);
@@ -2582,7 +2582,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
     fprintf(fp,
-           "extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
+           "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
             data->SuperClasses[i]);
     }
 
@@ -2727,7 +2727,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }
 
     fprintf(fp,
-            "PyObject *PyVTKClass_%sNew(char *modulename)\n"
+            "PyObject *PyVTKClass_%sNew(const char *modulename)\n"
             "{\n",
             data->ClassName);
 
@@ -2745,8 +2745,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     fprintf(fp,
             "                        Py%sMethods,\n"
-            "                        (char*)\"%s\",modulename,\n"
-            "                        (char**)%sDoc(),0);\n"
+            "                        \"%s\",modulename,\n"
+            "                        %sDoc(),0);\n"
             "}\n"
             "\n",
             data->ClassName, data->ClassName, data->ClassName);
@@ -2767,7 +2767,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }
 
     fprintf(fp,
-            "PyObject *PyVTKClass_%sNew(char *modulename)\n"
+            "PyObject *PyVTKClass_%sNew(const char *modulename)\n"
             "{\n",
             data->ClassName);
 
@@ -2785,8 +2785,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     fprintf(fp,
             "                        Py%sMethods,\n"
-            "                        (char*)\"%s\",modulename,\n"
-            "                        (char**)%sDoc(),\n"
+            "                        \"%s\",modulename,\n"
+            "                        %sDoc(),\n"
             "                        PyVTKClass_%sNew(modulename));\n"
             "}\n"
             "\n",
@@ -2899,7 +2899,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,
             "static long vtkSpecial_%sHash(const void *self, int *immutable)\n"
             "{\n"
-            "  unsigned long mtime = *((const vtkTimeStamp *)self);\n"
+            "  unsigned long mtime = *(static_cast<const vtkTimeStamp *>(self));\n"
             "  long h = (long)mtime;\n"
             "  *immutable = 0;\n"
             "  if (h != -1) { return h; };\n"
@@ -2917,7 +2917,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,
             "static long vtkSpecial_%sHash(const void *self, int *immutable)\n"
             "{\n"
-            "  long h = vtkPythonUtil::VariantHash((vtkVariant *)self);\n"
+            "  long h = vtkPythonUtil::VariantHash(static_cast<const vtkVariant *>(self));\n"
             "  *immutable = 1;\n"
             "  return h;\n"
             "}\n"
@@ -2969,7 +2969,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "{\n"
             "  return PyVTKSpecialType_New(\n"
             "      &Py%sNewMethod, Py%sMethods, Py%s_%sMethods,"
-            "      (char *)\"%s\", (char**)%sDoc(),\n"
+            "      \"%s\", %sDoc(),\n"
             "      &vtkSpecial_%sSpecialMethods);\n"
             "}\n"
             "\n",

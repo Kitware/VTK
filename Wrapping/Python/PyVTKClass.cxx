@@ -317,10 +317,9 @@ int PyVTKClass_Check(PyObject *obj)
   return (obj->ob_type == &PyVTKClassType);
 }
 
-PyObject *PyVTKClass_New(vtknewfunc constructor,
-                         PyMethodDef *methods,
-                         char *classname, char *modulename, char *docstring[],
-                         PyObject *base)
+PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
+                         const char *classname, const char *modulename,
+                         const char *docstring[], PyObject *base)
 {
   static PyObject *modulestr[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   static int nmodulestr = 10;
@@ -352,7 +351,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
       class_self->vtk_bases = PyTuple_New(0);
       }
     class_self->vtk_dict = NULL;
-    class_self->vtk_name = PyString_FromString(classname);
+    class_self->vtk_name = PyString_FromString((char *)classname);
 
     class_self->vtk_getattr = NULL;
     class_self->vtk_setattr = NULL;
@@ -367,12 +366,12 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
       {
       if (modulestr[i] == 0)
         {
-        modulestr[i] = PyString_InternFromString(modulename);
+        modulestr[i] = PyString_InternFromString((char *)modulename);
         moduleobj = modulestr[i];
         Py_INCREF(moduleobj);
         break;
         }
-      else if (strcmp(modulename,PyString_AsString(modulestr[i])) == 0)
+      else if (strcmp(modulename, PyString_AsString(modulestr[i])) == 0)
         {
         moduleobj = modulestr[i];
         Py_INCREF(moduleobj);
@@ -381,12 +380,12 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
       }
     if (i == nmodulestr)
       {
-      moduleobj = PyString_FromString(modulename);
+      moduleobj = PyString_FromString((char *)modulename);
       }
 
     class_self->vtk_module = moduleobj;
 
-    vtkPythonUtil::AddClassToMap(self,classname);
+    vtkPythonUtil::AddClassToMap(self, classname);
     }
 
   return (PyObject *)self;

@@ -63,7 +63,8 @@ public:
     copy_func(0), delete_func(0), print_func(0) {};
 
   PyVTKSpecialType(
-    char *cname, char *cdocs[], PyMethodDef *cmethods, PyMethodDef *ccons,
+    const char *cname, const char *cdocs[],
+    PyMethodDef *cmethods, PyMethodDef *ccons,
     PyVTKSpecialMethods *smethods);
 
   // general information
@@ -93,7 +94,8 @@ extern "C"
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialType_New(
   PyMethodDef *newmethod, PyMethodDef *methods, PyMethodDef *constructors,
-  char *classname, char *docstring[], PyVTKSpecialMethods *smethods);
+  const char *classname, const char *docstring[],
+  PyVTKSpecialMethods *smethods);
 
 VTK_PYTHON_EXPORT
 int PyVTKSpecialObject_Check(PyObject *obj);

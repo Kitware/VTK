@@ -27,7 +27,7 @@
 #include <vtkstd/string>
 #include <vtkstd/utility>
 
-// Silent warning like
+// Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (long *)&ptr
 // pragma GCC diagnostic is available since gcc>=4.2
@@ -91,32 +91,32 @@ vtkPythonUtil::~vtkPythonUtil()
 // Concatenate an array of strings into a single string.  The resulting
 // string is allocated via new.  The array of strings must be null-terminated,
 // e.g. static char *strings[] = {"string1", "string2", NULL};
-PyObject *vtkPythonUtil::BuildDocString(char *docstring[])
+PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
 {
   PyObject *result;
   char *data;
-  int i, j, n;
-  int *m;
-  int total = 0;
+  size_t i, j, n;
+  size_t *m;
+  size_t total = 0;
 
   for (n = 0; docstring[n] != NULL; n++)
     {
     ;
     }
 
-  m = new int[n];
+  m = new size_t[n];
 
   for (i = 0; i < n; i++)
     {
-    m[i] = static_cast<int>(strlen(docstring[i]));
+    m[i] = strlen(docstring[i]);
     total += m[i];
     }
 
-  result = PyString_FromStringAndSize(docstring[0], m[0]);
+  result = PyString_FromStringAndSize((char *)docstring[0], (Py_ssize_t)m[0]);
 
   if (n > 1)
     {
-    _PyString_Resize(&result, total);
+    _PyString_Resize(&result, (Py_ssize_t)total);
     }
 
   data = PyString_AsString(result);
@@ -826,7 +826,7 @@ PyMethodDef *vtkPythonUtil::FindConversionMethod(
 
 //--------------------------------------------------------------------
 vtkObjectBase *vtkPythonUtil::VTKParseTuple(
-  PyObject *pself, PyObject *args, char *format, ...)
+  PyObject *pself, PyObject *args, const char *format, ...)
 {
   PyVTKObject *self = (PyVTKObject *)pself;
   vtkObjectBase *obj = NULL;
@@ -851,7 +851,7 @@ vtkObjectBase *vtkPythonUtil::VTKParseTuple(
       }
     // re-slice the args to remove 'self'
     args = PyTuple_GetSlice(args,1,n);
-    if (PyArg_VaParse(args,format,va))
+    if (PyArg_VaParse(args, (char *)format, va))
       {
       obj = self->vtk_ptr;
       }
@@ -860,7 +860,7 @@ vtkObjectBase *vtkPythonUtil::VTKParseTuple(
   /* it was called as a bound method */
   else
     {
-    if (PyArg_VaParse(args,format,va))
+    if (PyArg_VaParse(args, (char *)format, va))
       {
       obj = self->vtk_ptr;
       }
@@ -870,7 +870,7 @@ vtkObjectBase *vtkPythonUtil::VTKParseTuple(
 
 //--------------------------------------------------------------------
 PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
-  char *classname, char *docstring[], PyMethodDef *methods,
+  const char *classname, const char *docstring[], PyMethodDef *methods,
   PyMethodDef *constructors, PyVTKSpecialMethods *smethods)
 {
   if (vtkPythonMap == NULL)
@@ -1327,7 +1327,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 
 //--------------------------------------------------------------------
 // mangle a void pointer into a SWIG-style string
-char *vtkPythonUtil::ManglePointer(void *ptr, const char *type)
+char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 {
   static char ptrText[128];
   sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
@@ -1618,7 +1618,7 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n)
 #endif
 
 //--------------------------------------------------------------------
-long vtkPythonUtil::VariantHash(vtkVariant *v)
+long vtkPythonUtil::VariantHash(const vtkVariant *v)
 {
   long h = -1;
 

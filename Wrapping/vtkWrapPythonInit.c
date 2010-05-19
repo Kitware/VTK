@@ -33,7 +33,7 @@ static void CreateInitFile(const char *libName,
   
 for (i = 0; i < numConcrete; i++)
     {
-    fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKClass_%sNew(char *); }\n", dllexp, concrete[i]);
+    fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKClass_%sNew(const char *); }\n", dllexp, concrete[i]);
     }
   
   fprintf(fout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n", libName);
@@ -54,7 +54,7 @@ for (i = 0; i < numConcrete; i++)
 
   for (i = 0; i < numConcrete; i++)
     {
-    fprintf(fout,"  c = PyVTKClass_%sNew((char*)modulename);\n",
+    fprintf(fout,"  c = PyVTKClass_%sNew(modulename);\n",
       concrete[i]);
     fprintf(fout,"  if (c && -1 == PyDict_SetItemString(d, (char*)\"%s\", c))\n",
       concrete[i]);

@@ -35,7 +35,7 @@ public:
   // and unbound method calls for VTK objects, depending on whether
   // "self" is a PyVTKObject or a PyVTKClass.
   static vtkObjectBase *VTKParseTuple(PyObject *self, PyObject *args,
-                                      char *format, ...);
+                                      const char *format, ...);
 
   // Description:
   // Check python object against a format character and return a number
@@ -109,7 +109,7 @@ public:
   // Add a special VTK type to the type lookup table, this allows us to
   // later create object given only the class name.
   static PyVTKSpecialType *AddSpecialTypeToMap(
-    char *classname, char *docstring[], PyMethodDef *methods,
+    const char *classname, const char *docstring[], PyMethodDef *methods,
     PyMethodDef *constructors, PyVTKSpecialMethods *smethods);
 
   // Description:
@@ -137,11 +137,11 @@ public:
   // Description:
   // Utility function to build a docstring by concatenating a series
   // of strings until a null string is found.
-  static PyObject *BuildDocString(char *docstring[]);
+  static PyObject *BuildDocString(const char *docstring[]);
 
   // Description:
   // Utility function for creating SWIG-style mangled pointer string.
-  static char *ManglePointer(void *ptr, const char *type);
+  static char *ManglePointer(const void *ptr, const char *type);
 
   // Description:
   // Utility function decoding a SWIG-style mangled pointer string.
@@ -174,7 +174,7 @@ public:
 
   // Description:
   // Compute a hash for a vtkVariant.
-  static long VariantHash(vtkVariant *variant);
+  static long VariantHash(const vtkVariant *variant);
 
 private:
   vtkPythonUtil();

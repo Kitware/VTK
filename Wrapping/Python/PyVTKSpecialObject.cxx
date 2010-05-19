@@ -37,12 +37,21 @@
 
 #include <vtksys/ios/sstream>
 
+// Silence warning like
+// "dereferencing type-punned pointer will break strict-aliasing rules"
+// it happens because this kind of expression: (long *)&ptr
+// pragma GCC diagnostic is available since gcc>=4.2
+#if defined(__GNUG__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 //--------------------------------------------------------------------
 PyVTKSpecialType::PyVTKSpecialType(
-    char *cname, char *cdocs[], PyMethodDef *cmethods, PyMethodDef *ccons,
+    const char *cname, const char *cdocs[],
+    PyMethodDef *cmethods, PyMethodDef *ccons,
     PyVTKSpecialMethods *smethods)
 {
-  this->classname = PyString_FromString(cname);
+  this->classname = PyString_FromString((char *)cname);
   this->docstring = vtkPythonUtil::BuildDocString(cdocs);
   this->methods = cmethods;
   this->constructors = ccons;
@@ -320,7 +329,8 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 //--------------------------------------------------------------------
 PyObject *PyVTKSpecialType_New(
   PyMethodDef *newmethod, PyMethodDef *methods, PyMethodDef *constructors,
-  char *classname, char *docstring[], PyVTKSpecialMethods *smethods)
+  const char *classname, const char *docstring[],
+  PyVTKSpecialMethods *smethods)
 {
   // Add this type to the special type map
   PyVTKSpecialType *info =

@@ -51,8 +51,8 @@ int PyVTKClass_Check(PyObject *obj);
 
 VTK_PYTHON_EXPORT
 PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
-                         char *classname, char *modulename, char *docstring[],
-                         PyObject *base);
+                         const char *classname, const char *modulename,
+                         const char *docstring[], PyObject *base);
 }
 
 #endif
