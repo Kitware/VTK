@@ -37,7 +37,7 @@ class VTK_INFOVIS_EXPORT vtkBoostLogWeighting : public vtkArrayDataAlgorithm
 {
 public:
   static vtkBoostLogWeighting* New();
-  vtkTypeRevisionMacro(vtkBoostLogWeighting, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkBoostLogWeighting, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

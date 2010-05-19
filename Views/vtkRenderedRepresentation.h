@@ -40,7 +40,7 @@ class VTK_VIEWS_EXPORT vtkRenderedRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkRenderedRepresentation* New();
-  vtkTypeRevisionMacro(vtkRenderedRepresentation, vtkDataRepresentation);
+  vtkTypeMacro(vtkRenderedRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

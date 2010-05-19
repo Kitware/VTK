@@ -35,7 +35,7 @@ class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageAlgorithm
 {
 public:
   static vtkImageImport *New();
-  vtkTypeRevisionMacro(vtkImageImport,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageImport,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

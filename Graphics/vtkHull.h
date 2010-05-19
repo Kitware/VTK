@@ -49,7 +49,7 @@ class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHull *New();
-  vtkTypeRevisionMacro(vtkHull,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkHull,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

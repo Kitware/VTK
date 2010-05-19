@@ -32,7 +32,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadricSource, "1.25");
 vtkStandardNewMacro(vtkSuperquadricSource);
 
 static void evalSuperquadric(double u, double v,

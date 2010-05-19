@@ -50,7 +50,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkFeatureDictionary :
 {
 public:
   static vtkFeatureDictionary* New();
-  vtkTypeRevisionMacro(vtkFeatureDictionary, vtkTableAlgorithm);
+  vtkTypeMacro(vtkFeatureDictionary, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

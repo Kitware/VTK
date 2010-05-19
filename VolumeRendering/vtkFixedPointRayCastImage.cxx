@@ -15,7 +15,6 @@
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFixedPointRayCastImage, "1.3");
 vtkStandardNewMacro(vtkFixedPointRayCastImage);
 
 // Construct a new vtkFixedPointRayCastImage with default values

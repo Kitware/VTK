@@ -28,7 +28,7 @@
 class VTK_GRAPHICS_EXPORT vtkMultiBlockDataGroupFilter : public vtkMultiBlockDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkMultiBlockDataGroupFilter,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkMultiBlockDataGroupFilter,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

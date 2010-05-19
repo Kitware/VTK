@@ -38,7 +38,7 @@
 class VTK_PARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);
+  vtkTypeMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);
   static vtkExtractUserDefinedPiece *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkBMPWriter : public vtkImageWriter
 {
 public:
   static vtkBMPWriter *New();
-  vtkTypeRevisionMacro(vtkBMPWriter,vtkImageWriter);
+  vtkTypeMacro(vtkBMPWriter,vtkImageWriter);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

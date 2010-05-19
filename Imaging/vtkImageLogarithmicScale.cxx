@@ -20,7 +20,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.27");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------

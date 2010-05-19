@@ -44,7 +44,7 @@ class vtkDataSet;
 class VTK_FILTERING_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitDataSet,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitDataSet,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

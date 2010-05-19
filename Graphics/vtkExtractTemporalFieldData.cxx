@@ -33,7 +33,6 @@
 
 
 
-vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.7");
 vtkStandardNewMacro(vtkExtractTemporalFieldData);
 
 //----------------------------------------------------------------------------

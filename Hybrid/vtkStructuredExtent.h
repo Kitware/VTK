@@ -29,7 +29,7 @@ class VTK_HYBRID_EXPORT vtkStructuredExtent : public vtkObject
 {
 public:
   static vtkStructuredExtent* New();
-  vtkTypeRevisionMacro(vtkStructuredExtent, vtkObject);
+  vtkTypeMacro(vtkStructuredExtent, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

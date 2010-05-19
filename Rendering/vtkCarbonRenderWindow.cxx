@@ -29,7 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.79");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------

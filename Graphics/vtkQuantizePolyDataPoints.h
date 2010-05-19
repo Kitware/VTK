@@ -40,7 +40,7 @@ class VTK_GRAPHICS_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {
 public:
   static vtkQuantizePolyDataPoints *New();
-  vtkTypeRevisionMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
+  vtkTypeMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

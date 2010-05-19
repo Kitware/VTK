@@ -34,7 +34,7 @@ class VTK_GEOVIS_EXPORT vtkGeoTransform : public vtkAbstractTransform
 public:
   static vtkGeoTransform* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
-  vtkTypeRevisionMacro(vtkGeoTransform,vtkAbstractTransform);
+  vtkTypeMacro(vtkGeoTransform,vtkAbstractTransform);
 
   // Description:
   // The source geographic projection.

@@ -40,7 +40,6 @@
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkStackedTreeLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkStackedTreeLayoutStrategy);
 
 vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()

@@ -110,7 +110,7 @@ public:
   // Instance methods to be used on individual instances of vtkObjectFactory
   
   // Methods from vtkObject
-  vtkTypeRevisionMacro(vtkObjectFactory,vtkObject);
+  vtkTypeMacro(vtkObjectFactory,vtkObject);
   // Description:
   // Print ObjectFactory to stream.
   virtual void PrintSelf(ostream& os, vtkIndent indent);

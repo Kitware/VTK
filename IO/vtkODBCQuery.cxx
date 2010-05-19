@@ -45,7 +45,6 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkODBCQuery, "1.4");
 vtkStandardNewMacro(vtkODBCQuery);
 
 static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code=0);

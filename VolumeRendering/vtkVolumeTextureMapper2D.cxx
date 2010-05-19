@@ -461,7 +461,6 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.5");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

@@ -33,7 +33,7 @@ class VTK_COMMON_EXPORT vtkParametricRoman : public vtkParametricFunction
 {
 
 public:
-  vtkTypeRevisionMacro(vtkParametricRoman,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricRoman,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description

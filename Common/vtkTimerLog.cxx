@@ -38,7 +38,6 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.45");
 vtkStandardNewMacro(vtkTimerLog);
 
 // Create a singleton to cleanup the table.  No other singletons

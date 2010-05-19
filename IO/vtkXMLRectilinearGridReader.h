@@ -33,7 +33,7 @@ class vtkRectilinearGrid;
 class VTK_IO_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);
+  vtkTypeMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLRectilinearGridReader *New();
   

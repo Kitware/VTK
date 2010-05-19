@@ -57,7 +57,7 @@ class VTK_FILTERING_EXPORT vtkIncrementalOctreePointLocator : public vtkIncremen
 {
 public:
  
-  vtkTypeRevisionMacro( vtkIncrementalOctreePointLocator, vtkIncrementalPointLocator );
+  vtkTypeMacro( vtkIncrementalOctreePointLocator, vtkIncrementalPointLocator );
   void PrintSelf( ostream & os, vtkIndent indent );
 
   static vtkIncrementalOctreePointLocator * New();

@@ -30,7 +30,7 @@
 class VTK_GRAPHICS_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
-  vtkTypeRevisionMacro(vtkStreamPoints,vtkStreamer);
+  vtkTypeMacro(vtkStreamPoints,vtkStreamer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -21,7 +21,6 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.45");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

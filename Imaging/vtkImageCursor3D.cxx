@@ -19,7 +19,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.23");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------

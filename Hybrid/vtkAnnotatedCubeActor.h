@@ -54,7 +54,7 @@ class VTK_HYBRID_EXPORT vtkAnnotatedCubeActor : public vtkProp3D
 {
 public:
   static vtkAnnotatedCubeActor *New();
-  vtkTypeRevisionMacro(vtkAnnotatedCubeActor,vtkProp3D);
+  vtkTypeMacro(vtkAnnotatedCubeActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

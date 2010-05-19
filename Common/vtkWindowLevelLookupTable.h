@@ -39,7 +39,7 @@ class VTK_COMMON_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
   static vtkWindowLevelLookupTable *New();
-  vtkTypeRevisionMacro(vtkWindowLevelLookupTable,vtkLookupTable);
+  vtkTypeMacro(vtkWindowLevelLookupTable,vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

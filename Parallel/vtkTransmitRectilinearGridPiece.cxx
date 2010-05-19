@@ -25,7 +25,6 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.4");
 vtkStandardNewMacro(vtkTransmitRectilinearGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitRectilinearGridPiece,Controller,

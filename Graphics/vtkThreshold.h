@@ -51,7 +51,7 @@ class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkThreshold *New();
-  vtkTypeRevisionMacro(vtkThreshold,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkThreshold,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -28,7 +28,7 @@ class VTK_RENDERING_EXPORT vtkMesaLight : public vtkLight
 {
 public:
   static vtkMesaLight *New();
-  vtkTypeRevisionMacro(vtkMesaLight,vtkLight);
+  vtkTypeMacro(vtkMesaLight,vtkLight);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

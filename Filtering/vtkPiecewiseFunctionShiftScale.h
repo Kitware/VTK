@@ -28,7 +28,7 @@ class VTK_FILTERING_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseF
 {
 public:
   static vtkPiecewiseFunctionShiftScale *New();
-  vtkTypeRevisionMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
+  vtkTypeMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   vtkSetMacro(PositionShift, double);

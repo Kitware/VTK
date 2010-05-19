@@ -19,7 +19,6 @@
 #include "vtkTupleInterpolator.h"
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkCameraInterpolator, "1.6");
 vtkStandardNewMacro(vtkCameraInterpolator);
 
 // PIMPL STL encapsulation for list of cameras. This just keeps track of all

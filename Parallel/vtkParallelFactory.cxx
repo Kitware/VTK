@@ -26,7 +26,6 @@
 #  include "vtkPImageWriter.h"
 #endif // VTK_USE_RENDERING
 
-vtkCxxRevisionMacro(vtkParallelFactory, "1.11");
 vtkStandardNewMacro(vtkParallelFactory);
 
 void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)

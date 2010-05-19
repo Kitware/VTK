@@ -29,7 +29,7 @@ class VTK_COMMON_EXPORT vtkOverrideInformation : public vtkObject
 {
 public: 
   static vtkOverrideInformation* New();
-  vtkTypeRevisionMacro(vtkOverrideInformation,vtkObject);
+  vtkTypeMacro(vtkOverrideInformation,vtkObject);
   // Description:
   // Print ObjectFactor to stream.
   virtual void PrintSelf(ostream& os, vtkIndent indent);

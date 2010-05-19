@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoTreeNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTreeNode, "1.7");
 vtkStandardNewMacro(vtkGeoTreeNode);
 
 

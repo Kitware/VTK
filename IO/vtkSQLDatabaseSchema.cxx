@@ -29,7 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.23");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------

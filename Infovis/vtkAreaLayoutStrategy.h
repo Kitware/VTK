@@ -44,7 +44,7 @@ class vtkDataArray;
 class VTK_INFOVIS_EXPORT vtkAreaLayoutStrategy : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkAreaLayoutStrategy,vtkObject);
+  vtkTypeMacro(vtkAreaLayoutStrategy,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

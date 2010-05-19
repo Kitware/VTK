@@ -18,7 +18,6 @@
 #include "vtkPiecewiseFunction.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.31");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //----------------------------------------------------------------------------

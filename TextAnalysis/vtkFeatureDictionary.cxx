@@ -35,7 +35,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // vtkFeatureDictionary
 
-vtkCxxRevisionMacro(vtkFeatureDictionary, "1.2");
 vtkStandardNewMacro(vtkFeatureDictionary);
 
 vtkFeatureDictionary::vtkFeatureDictionary()

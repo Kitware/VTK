@@ -24,7 +24,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.64");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()

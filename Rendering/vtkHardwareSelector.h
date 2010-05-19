@@ -68,7 +68,7 @@ class VTK_RENDERING_EXPORT vtkHardwareSelector : public vtkObject
 {
 public:
   static vtkHardwareSelector* New();
-  vtkTypeRevisionMacro(vtkHardwareSelector, vtkObject);
+  vtkTypeMacro(vtkHardwareSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

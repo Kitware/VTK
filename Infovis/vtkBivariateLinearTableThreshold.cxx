@@ -30,7 +30,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkBivariateLinearTableThreshold, "1.3");
 vtkStandardNewMacro(vtkBivariateLinearTableThreshold);
 
 class vtkBivariateLinearTableThreshold::Internals

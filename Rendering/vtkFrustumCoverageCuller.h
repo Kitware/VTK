@@ -46,7 +46,7 @@ class VTK_RENDERING_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 {
 public:
   static vtkFrustumCoverageCuller *New();
-  vtkTypeRevisionMacro(vtkFrustumCoverageCuller,vtkCuller);
+  vtkTypeMacro(vtkFrustumCoverageCuller,vtkCuller);
   void PrintSelf(ostream& os,vtkIndent indent);
 
   // Description:

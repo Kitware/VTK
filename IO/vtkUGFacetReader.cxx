@@ -26,7 +26,6 @@
 #include "vtkShortArray.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkUGFacetReader, "1.48");
 vtkStandardNewMacro(vtkUGFacetReader);
 
 // Construct object to extract all parts, and with point merging

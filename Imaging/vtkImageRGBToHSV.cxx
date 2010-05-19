@@ -19,7 +19,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.31");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------

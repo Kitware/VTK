@@ -20,7 +20,6 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.2");
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim=0, ydim=1, zdim=2;

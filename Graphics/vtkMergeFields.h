@@ -50,7 +50,7 @@ class vtkFieldData;
 class VTK_GRAPHICS_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMergeFields,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkMergeFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

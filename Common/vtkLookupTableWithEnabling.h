@@ -39,7 +39,7 @@ class VTK_COMMON_EXPORT vtkLookupTableWithEnabling : public vtkLookupTable
 public:
   static vtkLookupTableWithEnabling *New();
   
-  vtkTypeRevisionMacro(vtkLookupTableWithEnabling,vtkLookupTable);
+  vtkTypeMacro(vtkLookupTableWithEnabling,vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

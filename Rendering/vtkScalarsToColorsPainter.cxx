@@ -66,7 +66,6 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.22");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);

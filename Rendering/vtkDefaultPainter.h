@@ -44,7 +44,7 @@ class VTK_RENDERING_EXPORT vtkDefaultPainter : public vtkPainter
 {
 public:
   static vtkDefaultPainter *New();
-  vtkTypeRevisionMacro(vtkDefaultPainter, vtkPainter);
+  vtkTypeMacro(vtkDefaultPainter, vtkPainter);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   
   // Description:

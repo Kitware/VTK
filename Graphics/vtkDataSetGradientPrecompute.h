@@ -34,7 +34,7 @@ class VTK_GRAPHICS_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetAlgori
 {
  public:
   static vtkDataSetGradientPrecompute* New();
-  vtkTypeRevisionMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static int GradientPrecompute(vtkDataSet* ds);

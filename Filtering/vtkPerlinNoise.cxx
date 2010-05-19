@@ -16,7 +16,6 @@
 #include "vtkObjectFactory.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPerlinNoise, "1.6");
 vtkStandardNewMacro(vtkPerlinNoise);
 
 // These functions are from Greg Ward's recursive implementation in 

@@ -42,7 +42,7 @@ class vtkContextBufferId;
 class VTK_CHARTS_EXPORT vtkContext2D : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkContext2D, vtkObject);
+  vtkTypeMacro(vtkContext2D, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

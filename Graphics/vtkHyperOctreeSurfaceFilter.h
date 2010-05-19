@@ -33,7 +33,7 @@ class VTK_GRAPHICS_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDataAlgori
 {
 public:
   static vtkHyperOctreeSurfaceFilter *New();
-  vtkTypeRevisionMacro(vtkHyperOctreeSurfaceFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkHyperOctreeSurfaceFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -37,7 +37,7 @@ class vtkVolumeProperty;
 class VTK_VOLUMERENDERING_EXPORT vtkOpenGLVolumeTextureMapper3D : public vtkVolumeTextureMapper3D
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLVolumeTextureMapper3D,vtkVolumeTextureMapper3D);
+  vtkTypeMacro(vtkOpenGLVolumeTextureMapper3D,vtkVolumeTextureMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkOpenGLVolumeTextureMapper3D *New();

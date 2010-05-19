@@ -30,7 +30,7 @@ class VTK_IMAGING_EXPORT vtkImageExtractComponents : public vtkThreadedImageAlgo
 {
 public:
   static vtkImageExtractComponents *New();
-  vtkTypeRevisionMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

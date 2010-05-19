@@ -441,7 +441,6 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkLabelPlacementMapper, "1.6");
 vtkStandardNewMacro(vtkLabelPlacementMapper);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, AnchorTransform, vtkCoordinate);
 vtkCxxSetObjectMacro(vtkLabelPlacementMapper, RenderStrategy, vtkLabelRenderStrategy);

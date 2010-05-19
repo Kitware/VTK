@@ -28,7 +28,7 @@
 class VTK_COMMON_EXPORT vtkTableExtentTranslator : public vtkExtentTranslator
 {
 public:
-  vtkTypeRevisionMacro(vtkTableExtentTranslator,vtkExtentTranslator);
+  vtkTypeMacro(vtkTableExtentTranslator,vtkExtentTranslator);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   static vtkTableExtentTranslator* New();

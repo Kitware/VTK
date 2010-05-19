@@ -21,7 +21,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLUnstructuredDataWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataWriter, "1.8");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter()

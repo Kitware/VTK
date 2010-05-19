@@ -116,7 +116,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkOpenGLHAVSVolumeMapper : public vtkHAVSVolum
 {
 public:
   static vtkOpenGLHAVSVolumeMapper *New();
-  vtkTypeRevisionMacro(vtkOpenGLHAVSVolumeMapper,
+  vtkTypeMacro(vtkOpenGLHAVSVolumeMapper,
                        vtkHAVSVolumeMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   

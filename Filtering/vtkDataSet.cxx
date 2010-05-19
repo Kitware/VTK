@@ -28,7 +28,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.15");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).

@@ -29,7 +29,7 @@
 class VTK_RENDERING_EXPORT vtkMesaPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
-  vtkTypeRevisionMacro(vtkMesaPolyDataMapper2D,vtkPolyDataMapper2D);
+  vtkTypeMacro(vtkMesaPolyDataMapper2D,vtkPolyDataMapper2D);
   static vtkMesaPolyDataMapper2D *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 

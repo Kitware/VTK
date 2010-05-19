@@ -36,7 +36,7 @@ class VTK_HYBRID_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
 public:
   static vtkWin32VideoSource *New();
-  vtkTypeRevisionMacro(vtkWin32VideoSource,vtkVideoSource);
+  vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

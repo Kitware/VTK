@@ -49,7 +49,7 @@ class VTK_FILTERING_EXPORT vtkThreadedStreamingPipeline : public vtkCompositeDat
 {
 public:
   static vtkThreadedStreamingPipeline* New();
-  vtkTypeRevisionMacro(vtkThreadedStreamingPipeline,vtkCompositeDataPipeline);
+  vtkTypeMacro(vtkThreadedStreamingPipeline,vtkCompositeDataPipeline);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

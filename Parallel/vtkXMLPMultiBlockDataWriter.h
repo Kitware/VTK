@@ -32,7 +32,7 @@ class VTK_PARALLEL_EXPORT vtkXMLPMultiBlockDataWriter : public vtkXMLMultiBlockD
 {
 public:
   static vtkXMLPMultiBlockDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLPMultiBlockDataWriter, vtkXMLMultiBlockDataWriter);
+  vtkTypeMacro(vtkXMLPMultiBlockDataWriter, vtkXMLMultiBlockDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

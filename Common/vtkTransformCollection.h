@@ -31,7 +31,7 @@
 class VTK_COMMON_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
-  vtkTypeRevisionMacro(vtkTransformCollection,vtkCollection);
+  vtkTypeMacro(vtkTransformCollection,vtkCollection);
   static vtkTransformCollection *New();
 
   // Description:

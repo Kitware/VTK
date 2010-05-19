@@ -15,7 +15,6 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.16");
 vtkStandardNewMacro(vtkHeap);
 
 struct vtkTestAlignLong

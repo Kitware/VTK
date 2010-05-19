@@ -19,7 +19,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.1");
 vtkStandardNewMacro(vtkVolumeRayCastMIPFunction);
 
 // This is the templated function that actually casts a ray and computes

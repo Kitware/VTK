@@ -24,7 +24,6 @@
 #include "vtkCocoaTkUtilities.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCocoaTkUtilities, "1.2");
 vtkStandardNewMacro(vtkCocoaTkUtilities);
 
 void vtkCocoaTkUtilities::PrintSelf(ostream& os, vtkIndent indent)

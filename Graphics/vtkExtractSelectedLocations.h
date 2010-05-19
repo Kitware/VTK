@@ -35,7 +35,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkExtractSelecti
 {
 public:
   static vtkExtractSelectedLocations *New();
-  vtkTypeRevisionMacro(vtkExtractSelectedLocations, vtkExtractSelectionBase);
+  vtkTypeMacro(vtkExtractSelectedLocations, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

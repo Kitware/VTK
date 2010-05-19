@@ -22,7 +22,6 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.11");
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 

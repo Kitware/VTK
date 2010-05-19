@@ -41,7 +41,7 @@
 class VTK_COMMON_EXPORT vtkParametricSuperEllipsoid : public vtkParametricFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkParametricSuperEllipsoid,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricSuperEllipsoid,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

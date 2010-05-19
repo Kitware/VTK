@@ -30,7 +30,7 @@
 class VTK_PARALLEL_EXPORT vtkDummyCommunicator : public vtkCommunicator
 {
 public:
-  vtkTypeRevisionMacro(vtkDummyCommunicator, vtkCommunicator);
+  vtkTypeMacro(vtkDummyCommunicator, vtkCommunicator);
   static vtkDummyCommunicator *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

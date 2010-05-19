@@ -50,7 +50,7 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 {
  public:
   static vtkPerspectiveTransform *New();
-  vtkTypeRevisionMacro(vtkPerspectiveTransform,vtkHomogeneousTransform);
+  vtkTypeMacro(vtkPerspectiveTransform,vtkHomogeneousTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -30,7 +30,7 @@ class VTK_FILTERING_EXPORT vtkMultiBlockDataSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkMultiBlockDataSetAlgorithm *New();
-  vtkTypeRevisionMacro(vtkMultiBlockDataSetAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkMultiBlockDataSetAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

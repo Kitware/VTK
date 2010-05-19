@@ -26,7 +26,7 @@ class VTK_INFOVIS_EXPORT vtkPassThrough : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkPassThrough* New();
-  vtkTypeRevisionMacro(vtkPassThrough, vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkPassThrough, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

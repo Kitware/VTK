@@ -49,7 +49,7 @@ class VTK_INFOVIS_EXPORT vtkConstrained2DLayoutStrategy : public vtkGraphLayoutS
 public:
   static vtkConstrained2DLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkConstrained2DLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkConstrained2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

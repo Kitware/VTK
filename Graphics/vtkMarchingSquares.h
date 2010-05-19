@@ -47,7 +47,7 @@ class VTK_GRAPHICS_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMarchingSquares *New();
-  vtkTypeRevisionMacro(vtkMarchingSquares,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMarchingSquares,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

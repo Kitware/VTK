@@ -24,7 +24,6 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkThresholdPoints, "1.43");
 vtkStandardNewMacro(vtkThresholdPoints);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 

@@ -20,7 +20,6 @@
 #include "vtkInteractorObserver.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObserverMediator, "1.8");
 vtkStandardNewMacro(vtkObserverMediator);
 
 // PIMPL the map representing the observer (key) to cursor request

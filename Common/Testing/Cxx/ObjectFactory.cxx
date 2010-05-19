@@ -32,7 +32,7 @@ public:
     {
     }
 
-  vtkTypeRevisionMacro(vtkTestPoints,vtkPoints);
+  vtkTypeMacro(vtkTestPoints,vtkPoints);
   static vtkTestPoints* New() { return new vtkTestPoints; }
   vtkTestPoints() {  }
 private:
@@ -40,7 +40,6 @@ private:
   void operator=(const vtkTestPoints&);
 };
 
-vtkCxxRevisionMacro(vtkTestPoints, "1.24");
 
 class vtkTestPoints2 : public vtkPoints
 {
@@ -50,7 +49,7 @@ public:
     }
 
   // Methods from vtkObject
-  vtkTypeRevisionMacro(vtkTestPoints2,vtkPoints);
+  vtkTypeMacro(vtkTestPoints2,vtkPoints);
   static vtkTestPoints2* New() { return new vtkTestPoints2; }
   vtkTestPoints2() { }
 private:
@@ -58,7 +57,6 @@ private:
   void operator=(const vtkTestPoints2&);
 };
 
-vtkCxxRevisionMacro(vtkTestPoints2, "1.24");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestPoints);
 VTK_CREATE_CREATE_FUNCTION(vtkTestPoints2);

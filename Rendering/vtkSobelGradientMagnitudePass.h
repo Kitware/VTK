@@ -69,7 +69,7 @@ class VTK_RENDERING_EXPORT vtkSobelGradientMagnitudePass : public vtkImageProces
 {
 public:
   static vtkSobelGradientMagnitudePass *New();
-  vtkTypeRevisionMacro(vtkSobelGradientMagnitudePass,vtkImageProcessingPass);
+  vtkTypeMacro(vtkSobelGradientMagnitudePass,vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

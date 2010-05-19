@@ -20,7 +20,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.28");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);

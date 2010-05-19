@@ -41,7 +41,7 @@
 class VTK_COMMON_EXPORT vtkXMLFileOutputWindow : public vtkFileOutputWindow
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLFileOutputWindow, vtkFileOutputWindow);
+  vtkTypeMacro(vtkXMLFileOutputWindow, vtkFileOutputWindow);
 
   static vtkXMLFileOutputWindow* New();
 

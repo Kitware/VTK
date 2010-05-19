@@ -21,7 +21,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.11");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
 vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()

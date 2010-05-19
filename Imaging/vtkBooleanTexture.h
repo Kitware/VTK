@@ -48,7 +48,7 @@ class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkImageAlgorithm
 public:
   static vtkBooleanTexture *New();
 
-  vtkTypeRevisionMacro(vtkBooleanTexture,vtkImageAlgorithm);
+  vtkTypeMacro(vtkBooleanTexture,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -31,7 +31,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkPBivariateLinearTableThreshold, "1.3");
 vtkStandardNewMacro(vtkPBivariateLinearTableThreshold);
 vtkCxxSetObjectMacro(vtkPBivariateLinearTableThreshold, Controller, vtkMultiProcessController);
 

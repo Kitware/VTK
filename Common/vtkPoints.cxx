@@ -29,7 +29,6 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.56");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

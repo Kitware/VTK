@@ -46,7 +46,7 @@ class VTK_VIEWS_EXPORT vtkHierarchicalGraphView : public vtkGraphLayoutView
 {
 public:
   static vtkHierarchicalGraphView *New();
-  vtkTypeRevisionMacro(vtkHierarchicalGraphView, vtkGraphLayoutView);
+  vtkTypeMacro(vtkHierarchicalGraphView, vtkGraphLayoutView);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

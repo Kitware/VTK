@@ -86,7 +86,7 @@ class vtkPriorityQueue;
 class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDecimatePro,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDecimatePro,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

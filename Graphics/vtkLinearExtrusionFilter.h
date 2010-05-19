@@ -59,7 +59,7 @@ class vtkDataArray;
 class VTK_GRAPHICS_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkLinearExtrusionFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLinearExtrusionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

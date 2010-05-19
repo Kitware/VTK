@@ -22,7 +22,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkSelectionAlgorithm, "1.1");
 vtkStandardNewMacro(vtkSelectionAlgorithm);
 
 //----------------------------------------------------------------------------

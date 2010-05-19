@@ -24,7 +24,6 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkTriangleFilter, "1.54");
 vtkStandardNewMacro(vtkTriangleFilter);
 
 int vtkTriangleFilter::RequestData(

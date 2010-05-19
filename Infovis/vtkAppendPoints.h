@@ -31,7 +31,7 @@ class VTK_INFOVIS_EXPORT vtkAppendPoints : public vtkPolyDataAlgorithm
 {
 public:
   static vtkAppendPoints *New();
-  vtkTypeRevisionMacro(vtkAppendPoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkAppendPoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

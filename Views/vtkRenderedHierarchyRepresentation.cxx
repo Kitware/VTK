@@ -49,7 +49,6 @@ public:
   vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
-vtkCxxRevisionMacro(vtkRenderedHierarchyRepresentation, "1.8");
 vtkStandardNewMacro(vtkRenderedHierarchyRepresentation);
 
 vtkRenderedHierarchyRepresentation::vtkRenderedHierarchyRepresentation()

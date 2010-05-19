@@ -31,7 +31,7 @@ class VTK_IO_EXPORT vtkStructuredGridWriter : public vtkDataWriter
 {
 public:
   static vtkStructuredGridWriter *New();
-  vtkTypeRevisionMacro(vtkStructuredGridWriter,vtkDataWriter);
+  vtkTypeMacro(vtkStructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

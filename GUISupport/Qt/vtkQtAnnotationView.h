@@ -44,7 +44,7 @@ Q_OBJECT
 
 public:
   static vtkQtAnnotationView *New();
-  vtkTypeRevisionMacro(vtkQtAnnotationView, vtkQtView);
+  vtkTypeMacro(vtkQtAnnotationView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

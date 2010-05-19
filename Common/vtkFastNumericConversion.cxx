@@ -41,7 +41,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFastNumericConversion, "1.4");
 vtkStandardNewMacro(vtkFastNumericConversion);
 
 int vtkFastNumericConversion::TestQuickFloor(double val)

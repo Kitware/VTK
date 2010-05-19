@@ -53,7 +53,7 @@ class vtkCamera;
 class VTK_RENDERING_EXPORT vtkVisibilitySort : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkVisibilitySort, vtkObject);
+  vtkTypeMacro(vtkVisibilitySort, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

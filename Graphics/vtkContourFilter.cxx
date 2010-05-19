@@ -44,7 +44,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.133");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 

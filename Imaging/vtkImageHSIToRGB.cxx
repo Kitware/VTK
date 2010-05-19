@@ -20,7 +20,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.6");
 vtkStandardNewMacro(vtkImageHSIToRGB);
 
 //----------------------------------------------------------------------------

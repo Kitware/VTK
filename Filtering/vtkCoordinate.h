@@ -60,7 +60,7 @@ class vtkViewport;
 class VTK_FILTERING_EXPORT vtkCoordinate : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkCoordinate,vtkObject);
+  vtkTypeMacro(vtkCoordinate,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

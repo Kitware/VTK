@@ -20,7 +20,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.3");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals

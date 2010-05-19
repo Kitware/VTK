@@ -31,7 +31,7 @@ class VTK_IO_EXPORT vtkDEMReader : public vtkImageAlgorithm
 {
 public:
   static vtkDEMReader *New();
-  vtkTypeRevisionMacro(vtkDEMReader,vtkImageAlgorithm);
+  vtkTypeMacro(vtkDEMReader,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

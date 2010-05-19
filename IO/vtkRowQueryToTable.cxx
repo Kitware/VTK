@@ -31,7 +31,6 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRowQueryToTable, "1.6");
 vtkStandardNewMacro(vtkRowQueryToTable);
 
 vtkRowQueryToTable::vtkRowQueryToTable()

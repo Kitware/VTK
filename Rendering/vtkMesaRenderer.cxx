@@ -39,7 +39,6 @@
 #include "vtkOpenGLRenderer.cxx"
 #undef vtkOpenGLRenderer
 
-vtkCxxRevisionMacro(vtkMesaRenderer, "1.14");
 vtkStandardNewMacro(vtkMesaRenderer);
 
 vtkCamera *vtkMesaRenderer::MakeCamera()

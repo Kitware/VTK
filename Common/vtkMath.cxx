@@ -32,7 +32,6 @@
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.153");
 vtkStandardNewMacro(vtkMath);
 
 vtkMathInternal::vtkMathInternal()

@@ -35,7 +35,7 @@ class vtkPointLocator;
 class VTK_FILTERING_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
-  vtkTypeRevisionMacro(vtkPointSet,vtkDataSet);
+  vtkTypeMacro(vtkPointSet,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

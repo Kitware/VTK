@@ -32,7 +32,7 @@ class VTK_COMMON_EXPORT vtkAmoebaMinimizer : public vtkObject
 {
 public:
   static vtkAmoebaMinimizer *New();
-  vtkTypeRevisionMacro(vtkAmoebaMinimizer,vtkObject);
+  vtkTypeMacro(vtkAmoebaMinimizer,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

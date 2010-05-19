@@ -51,7 +51,6 @@ static const char * vtkLineIntegralConvolution2DCode =
 #endif
 
 vtkStandardNewMacro( vtkLineIntegralConvolution2D );
-vtkCxxRevisionMacro( vtkLineIntegralConvolution2D, "1.4" );
 
 // Given the coordinate range of the vector texture, that of the resulting
 // LIC texture, and the size of the output image, this function invokes the

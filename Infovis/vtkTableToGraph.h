@@ -74,7 +74,7 @@ class VTK_INFOVIS_EXPORT vtkTableToGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkTableToGraph* New();
-  vtkTypeRevisionMacro(vtkTableToGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkTableToGraph,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

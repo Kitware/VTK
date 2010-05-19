@@ -35,7 +35,7 @@
 class VTK_FILTERING_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

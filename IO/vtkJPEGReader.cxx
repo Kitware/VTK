@@ -31,7 +31,6 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.26");
 vtkStandardNewMacro(vtkJPEGReader);
 
 

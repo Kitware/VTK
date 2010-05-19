@@ -41,7 +41,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkPPairwiseExtractHistogram2D, "1.2");
 vtkStandardNewMacro(vtkPPairwiseExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPPairwiseExtractHistogram2D, Controller, vtkMultiProcessController);
 

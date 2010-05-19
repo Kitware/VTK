@@ -35,7 +35,7 @@ class VTK_FILTERING_EXPORT vtkVoxel : public vtkCell3D
 {
 public:
   static vtkVoxel *New();
-  vtkTypeRevisionMacro(vtkVoxel,vtkCell3D);
+  vtkTypeMacro(vtkVoxel,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

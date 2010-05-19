@@ -40,7 +40,7 @@
 class VTK_COMMON_EXPORT vtkAnimationCue: public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkAnimationCue,vtkObject);
+  vtkTypeMacro(vtkAnimationCue,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkAnimationCue* New();

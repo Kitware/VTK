@@ -27,7 +27,7 @@ class VTK_IMAGING_EXPORT vtkImageShrink3D : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageShrink3D *New();
-  vtkTypeRevisionMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

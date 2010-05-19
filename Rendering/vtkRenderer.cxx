@@ -41,7 +41,6 @@
 #include "vtkRenderState.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.256");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);

@@ -26,7 +26,7 @@ class VTK_GRAPHICS_EXPORT vtkWarpLens : public vtkPointSetAlgorithm
 {
 public:
   static vtkWarpLens *New();
-  vtkTypeRevisionMacro(vtkWarpLens,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkWarpLens,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

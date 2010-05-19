@@ -25,7 +25,6 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.58");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and

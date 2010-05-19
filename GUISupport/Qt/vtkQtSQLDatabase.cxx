@@ -36,7 +36,6 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.6");
 vtkStandardNewMacro(vtkQtSQLDatabase);
 
 int vtkQtSQLDatabase::id = 0;

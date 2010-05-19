@@ -16,7 +16,6 @@
 #include "vtkTDxInteractorStyleSettings.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTDxInteractorStyleSettings, "1.1");
 vtkStandardNewMacro(vtkTDxInteractorStyleSettings);
 
 // ----------------------------------------------------------------------------

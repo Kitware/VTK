@@ -57,7 +57,7 @@ public:
 
   static vtkMatlabEngineInterface *New();
 
-  vtkTypeRevisionMacro(vtkMatlabEngineInterface, vtkObject );
+  vtkTypeMacro(vtkMatlabEngineInterface, vtkObject );
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

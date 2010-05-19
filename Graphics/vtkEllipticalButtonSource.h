@@ -47,7 +47,7 @@ class VTK_GRAPHICS_EXPORT vtkEllipticalButtonSource : public vtkButtonSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkEllipticalButtonSource,vtkButtonSource);
+  vtkTypeMacro(vtkEllipticalButtonSource,vtkButtonSource);
 
   // Description:
   // Construct a circular button with depth 10% of its height.

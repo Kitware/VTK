@@ -15,7 +15,6 @@
 #include "vtkRIBLight.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRIBLight, "1.17");
 vtkStandardNewMacro(vtkRIBLight);
 
 vtkRIBLight::vtkRIBLight ()

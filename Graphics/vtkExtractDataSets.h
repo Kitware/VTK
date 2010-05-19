@@ -28,7 +28,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractDataSets : public vtkHierarchicalBoxDataSetA
 {
 public:
   static vtkExtractDataSets* New();
-  vtkTypeRevisionMacro(vtkExtractDataSets, vtkHierarchicalBoxDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractDataSets, vtkHierarchicalBoxDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

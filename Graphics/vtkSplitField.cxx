@@ -24,7 +24,6 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSplitField, "1.24");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 

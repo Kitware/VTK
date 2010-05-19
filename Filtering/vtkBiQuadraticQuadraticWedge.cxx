@@ -29,7 +29,6 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.12");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------

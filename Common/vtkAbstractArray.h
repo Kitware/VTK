@@ -53,7 +53,7 @@ class vtkInformation;
 class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
 {
 public:
-  vtkTypeRevisionMacro(vtkAbstractArray,vtkObject);
+  vtkTypeMacro(vtkAbstractArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

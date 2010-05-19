@@ -23,7 +23,6 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.29");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------

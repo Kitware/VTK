@@ -28,7 +28,7 @@ class VTK_COMMON_EXPORT vtkReferenceCount : public vtkObject
 public:
   static vtkReferenceCount *New();
 
-  vtkTypeRevisionMacro(vtkReferenceCount,vtkObject);
+  vtkTypeMacro(vtkReferenceCount,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:  

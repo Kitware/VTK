@@ -24,7 +24,6 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkPolyDataWriter, "1.27");
 vtkStandardNewMacro(vtkPolyDataWriter);
 
 void vtkPolyDataWriter::WriteData()

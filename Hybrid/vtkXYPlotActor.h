@@ -108,7 +108,7 @@ class vtkTextProperty;
 class VTK_HYBRID_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
-  vtkTypeRevisionMacro(vtkXYPlotActor,vtkActor2D);
+  vtkTypeMacro(vtkXYPlotActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

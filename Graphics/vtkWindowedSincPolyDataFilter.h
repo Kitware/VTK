@@ -142,7 +142,7 @@
 class VTK_GRAPHICS_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

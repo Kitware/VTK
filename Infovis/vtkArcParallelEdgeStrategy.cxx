@@ -33,7 +33,6 @@
 #include <vtksys/stl/map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
-vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.5");
 
 vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
 {

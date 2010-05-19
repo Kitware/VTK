@@ -65,7 +65,6 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.20");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------

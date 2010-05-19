@@ -56,7 +56,7 @@
 class VTK_GRAPHICS_EXPORT vtkStripper : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStripper,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkStripper,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

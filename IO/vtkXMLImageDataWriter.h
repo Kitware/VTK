@@ -34,7 +34,7 @@ class VTK_IO_EXPORT vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLImageDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //BTX

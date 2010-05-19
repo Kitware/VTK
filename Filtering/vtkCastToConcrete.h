@@ -45,7 +45,7 @@ class VTK_FILTERING_EXPORT vtkCastToConcrete : public vtkDataSetAlgorithm
 
 public:
   static vtkCastToConcrete *New();
-  vtkTypeRevisionMacro(vtkCastToConcrete,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkCastToConcrete,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

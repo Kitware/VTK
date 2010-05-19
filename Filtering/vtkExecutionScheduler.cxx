@@ -50,7 +50,6 @@
 #include <vtksys/hash_set.hxx>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkExecutionScheduler, "1.19");
 vtkStandardNewMacro(vtkExecutionScheduler);
 
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);

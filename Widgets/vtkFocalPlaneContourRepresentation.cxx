@@ -32,7 +32,6 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.5");
 
 //----------------------------------------------------------------------
 vtkFocalPlaneContourRepresentation::vtkFocalPlaneContourRepresentation()

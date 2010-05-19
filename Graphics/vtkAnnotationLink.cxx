@@ -27,7 +27,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkAnnotationLink, "1.11");
 vtkStandardNewMacro(vtkAnnotationLink);
 //vtkCxxSetObjectMacro(vtkAnnotationLink, AnnotationLayers, vtkAnnotationLayers);
 

@@ -23,7 +23,6 @@
 #include "vtkCallbackCommand.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.34");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl

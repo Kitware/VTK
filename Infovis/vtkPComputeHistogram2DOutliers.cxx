@@ -38,7 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPComputeHistogram2DOutliers, "1.3");
 vtkStandardNewMacro(vtkPComputeHistogram2DOutliers);
 vtkCxxSetObjectMacro(vtkPComputeHistogram2DOutliers, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------

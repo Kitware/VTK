@@ -27,7 +27,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkCollectTable, "1.3");
 vtkStandardNewMacro(vtkCollectTable);
 
 vtkCxxSetObjectMacro(vtkCollectTable,Controller, vtkMultiProcessController);

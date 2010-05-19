@@ -47,7 +47,7 @@ class VTK_WIDGETS_EXPORT vtkDijkstraImageContourLineInterpolator
 public:
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkDijkstraImageContourLineInterpolator,
+  vtkTypeMacro(vtkDijkstraImageContourLineInterpolator,
                               vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 

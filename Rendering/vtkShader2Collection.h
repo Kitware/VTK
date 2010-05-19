@@ -32,7 +32,7 @@ class VTK_RENDERING_EXPORT vtkShader2Collection : public vtkCollection
 {
  public:
   static vtkShader2Collection *New();
-  vtkTypeRevisionMacro(vtkShader2Collection,vtkCollection);
+  vtkTypeMacro(vtkShader2Collection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

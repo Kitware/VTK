@@ -42,7 +42,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
   static vtkEncodedGradientShader *New();
-  vtkTypeRevisionMacro(vtkEncodedGradientShader,vtkObject);
+  vtkTypeMacro(vtkEncodedGradientShader,vtkObject);
 
   // Description:
   // Print the vtkEncodedGradientShader

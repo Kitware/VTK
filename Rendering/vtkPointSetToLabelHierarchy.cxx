@@ -41,7 +41,6 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy, "1.12");
 vtkCxxSetObjectMacro(vtkPointSetToLabelHierarchy, TextProperty, vtkTextProperty);
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()

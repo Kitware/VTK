@@ -200,7 +200,6 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.28");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 

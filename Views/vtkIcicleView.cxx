@@ -25,7 +25,6 @@
 #include "vtkStackedTreeLayoutStrategy.h"
 #include "vtkTreeMapToPolyData.h"
 
-vtkCxxRevisionMacro(vtkIcicleView, "1.5");
 vtkStandardNewMacro(vtkIcicleView);
 //----------------------------------------------------------------------------
 vtkIcicleView::vtkIcicleView()

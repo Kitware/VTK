@@ -29,7 +29,7 @@
 class VTK_IMAGING_EXPORT vtkImageIterateFilter : public vtkThreadedImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageIterateFilter,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageIterateFilter,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

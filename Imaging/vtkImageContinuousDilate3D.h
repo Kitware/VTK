@@ -35,7 +35,7 @@ public:
   // Construct an instance of vtkImageContinuousDilate3D filter.
   // By default zero values are dilated.
   static vtkImageContinuousDilate3D *New();
-  vtkTypeRevisionMacro(vtkImageContinuousDilate3D,vtkImageSpatialAlgorithm);
+  vtkTypeMacro(vtkImageContinuousDilate3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

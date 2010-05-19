@@ -62,7 +62,7 @@ public:
 
 //ETX
 
-  vtkTypeRevisionMacro( vtkMPICommunicator,vtkCommunicator);
+  vtkTypeMacro( vtkMPICommunicator,vtkCommunicator);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

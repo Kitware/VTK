@@ -39,7 +39,7 @@ class VTK_INFOVIS_EXPORT vtkForceDirectedLayoutStrategy : public vtkGraphLayoutS
 public:
   static vtkForceDirectedLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkForceDirectedLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkForceDirectedLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

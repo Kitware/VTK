@@ -37,7 +37,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkFileExtensionMimeTypeStrategy :
 {
 public:
   static vtkFileExtensionMimeTypeStrategy* New();
-  vtkTypeRevisionMacro(vtkFileExtensionMimeTypeStrategy, vtkMimeTypeStrategy);
+  vtkTypeMacro(vtkFileExtensionMimeTypeStrategy, vtkMimeTypeStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkStdString Lookup(const vtkStdString& uri, const vtkTypeUInt8* begin, const vtkTypeUInt8* end);

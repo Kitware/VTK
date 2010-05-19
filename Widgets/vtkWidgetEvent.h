@@ -31,7 +31,7 @@ public:
 
   // Description:
   // Standard macros.
-  vtkTypeRevisionMacro(vtkWidgetEvent,vtkObject);
+  vtkTypeMacro(vtkWidgetEvent,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

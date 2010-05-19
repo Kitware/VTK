@@ -36,7 +36,6 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

@@ -30,7 +30,6 @@
 #include "vtkMath.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkSelectEnclosedPoints, "1.2");
 vtkStandardNewMacro(vtkSelectEnclosedPoints);
 
 //----------------------------------------------------------------------------

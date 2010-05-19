@@ -35,7 +35,7 @@ class VTK_GRAPHICS_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTriangularTCoords *New();
-  vtkTypeRevisionMacro(vtkTriangularTCoords,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTriangularTCoords,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

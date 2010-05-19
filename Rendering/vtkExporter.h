@@ -42,7 +42,7 @@ class vtkRenderWindow;
 class VTK_RENDERING_EXPORT vtkExporter : public vtkObject 
 {
 public:
-  vtkTypeRevisionMacro(vtkExporter,vtkObject);
+  vtkTypeMacro(vtkExporter,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

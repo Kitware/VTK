@@ -28,7 +28,6 @@
 #include "vtkStandardPolyDataPainter.h"
 #include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.9");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);

@@ -23,7 +23,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------

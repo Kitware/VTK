@@ -30,7 +30,7 @@ class VTK_IMAGING_EXPORT vtkImageHSIToRGB : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageHSIToRGB *New();
-  vtkTypeRevisionMacro(vtkImageHSIToRGB,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageHSIToRGB,vtkThreadedImageAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

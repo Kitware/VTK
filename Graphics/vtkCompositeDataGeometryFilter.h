@@ -30,7 +30,7 @@ class VTK_GRAPHICS_EXPORT vtkCompositeDataGeometryFilter : public vtkPolyDataAlg
 {
 public:
   static vtkCompositeDataGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkCompositeDataGeometryFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCompositeDataGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

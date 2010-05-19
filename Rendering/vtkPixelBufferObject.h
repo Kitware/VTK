@@ -55,7 +55,7 @@ public:
   //ETX
   
   static vtkPixelBufferObject* New();
-  vtkTypeRevisionMacro(vtkPixelBufferObject, vtkObject);
+  vtkTypeMacro(vtkPixelBufferObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

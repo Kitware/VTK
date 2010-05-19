@@ -42,7 +42,7 @@ class VTK_RENDERING_EXPORT vtkDataTransferHelper : public vtkObject
 {
 public:
   static vtkDataTransferHelper* New();
-  vtkTypeRevisionMacro(vtkDataTransferHelper, vtkObject);
+  vtkTypeMacro(vtkDataTransferHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

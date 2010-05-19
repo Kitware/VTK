@@ -37,7 +37,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.47");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);

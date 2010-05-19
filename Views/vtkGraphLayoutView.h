@@ -50,7 +50,7 @@ class VTK_VIEWS_EXPORT vtkGraphLayoutView : public vtkRenderView
 {
 public:
   static vtkGraphLayoutView *New();
-  vtkTypeRevisionMacro(vtkGraphLayoutView, vtkRenderView);
+  vtkTypeMacro(vtkGraphLayoutView, vtkRenderView);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

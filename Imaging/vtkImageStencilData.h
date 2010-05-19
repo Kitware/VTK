@@ -31,7 +31,7 @@ class VTK_IMAGING_EXPORT vtkImageStencilData : public vtkDataObject
 {
 public:
   static vtkImageStencilData *New();
-  vtkTypeRevisionMacro(vtkImageStencilData, vtkDataObject);
+  vtkTypeMacro(vtkImageStencilData, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Initialize();

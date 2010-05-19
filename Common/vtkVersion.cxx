@@ -15,5 +15,4 @@
 #include "vtkVersion.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVersion, "1.7");
 vtkStandardNewMacro(vtkVersion);

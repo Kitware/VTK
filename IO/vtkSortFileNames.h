@@ -41,7 +41,7 @@ class VTK_IO_EXPORT vtkSortFileNames : public vtkObject
 {
 public:
   
-  vtkTypeRevisionMacro(vtkSortFileNames,vtkObject);
+  vtkTypeMacro(vtkSortFileNames,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);   
   static vtkSortFileNames *New();
 

@@ -25,7 +25,6 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.40");
 vtkStandardNewMacro(vtkStructuredGridWriter);
 
 void vtkStructuredGridWriter::WriteData()

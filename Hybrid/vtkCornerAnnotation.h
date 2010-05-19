@@ -33,7 +33,7 @@ class vtkTextProperty;
 class VTK_HYBRID_EXPORT vtkCornerAnnotation : public vtkActor2D
 {
 public:
-  vtkTypeRevisionMacro(vtkCornerAnnotation,vtkActor2D);
+  vtkTypeMacro(vtkCornerAnnotation,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

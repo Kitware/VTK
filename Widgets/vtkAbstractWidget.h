@@ -62,7 +62,7 @@ class VTK_WIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
 public:
   // Description:
   // Standard macros implementing standard VTK methods.
-  vtkTypeRevisionMacro(vtkAbstractWidget,vtkInteractorObserver);
+  vtkTypeMacro(vtkAbstractWidget,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

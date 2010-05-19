@@ -34,7 +34,7 @@ class VTK_FILTERING_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
   static vtkStructuredPoints *New();
-  vtkTypeRevisionMacro(vtkStructuredPoints,vtkImageData);
+  vtkTypeMacro(vtkStructuredPoints,vtkImageData);
 
   // Description:
   // To simplify filter superclasses,

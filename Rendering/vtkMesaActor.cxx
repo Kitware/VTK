@@ -38,7 +38,6 @@
 #include "vtkOpenGLActor.cxx"
 #undef vtkOpenGLActor
 
-vtkCxxRevisionMacro(vtkMesaActor, "1.15");
 vtkStandardNewMacro(vtkMesaActor);
 
 vtkProperty* vtkMesaActor::MakeProperty()

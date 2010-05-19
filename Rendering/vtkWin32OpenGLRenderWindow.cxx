@@ -32,7 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.163");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8

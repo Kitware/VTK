@@ -28,7 +28,7 @@ class VTK_PARALLEL_EXPORT vtkPieceRequestFilter : public vtkAlgorithm
 {
 public:
   static vtkPieceRequestFilter *New();
-  vtkTypeRevisionMacro(vtkPieceRequestFilter,vtkAlgorithm);
+  vtkTypeMacro(vtkPieceRequestFilter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

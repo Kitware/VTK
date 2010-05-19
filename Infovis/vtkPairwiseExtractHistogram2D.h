@@ -52,7 +52,7 @@ class VTK_INFOVIS_EXPORT vtkPairwiseExtractHistogram2D : public vtkStatisticsAlg
 {
 public:
   static vtkPairwiseExtractHistogram2D* New();
-  vtkTypeRevisionMacro(vtkPairwiseExtractHistogram2D, vtkStatisticsAlgorithm);
+  vtkTypeMacro(vtkPairwiseExtractHistogram2D, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

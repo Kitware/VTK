@@ -42,7 +42,7 @@ class vtkMultiProcessController;
 class VTK_PARALLEL_EXPORT vtkProcess : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkProcess,vtkObject);
+  vtkTypeMacro(vtkProcess,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description

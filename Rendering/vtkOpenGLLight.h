@@ -28,7 +28,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
   static vtkOpenGLLight *New();
-  vtkTypeRevisionMacro(vtkOpenGLLight,vtkLight);
+  vtkTypeMacro(vtkOpenGLLight,vtkLight);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

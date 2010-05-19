@@ -27,7 +27,7 @@ class VTK_IMAGING_EXPORT vtkImageRGBToHSI : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageRGBToHSI *New();
-  vtkTypeRevisionMacro(vtkImageRGBToHSI,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageRGBToHSI,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -45,7 +45,7 @@ class VTK_GEOVIS_EXPORT vtkGeoTerrain : public vtkObject
 {
 public:
   static vtkGeoTerrain *New();
-  vtkTypeRevisionMacro(vtkGeoTerrain,vtkObject);
+  vtkTypeMacro(vtkGeoTerrain,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -50,7 +50,7 @@
 class vtkTestMagnifyRenderManager : public vtkParallelRenderManager
 {
 public:
-  vtkTypeRevisionMacro(vtkTestMagnifyRenderManager, vtkParallelRenderManager);
+  vtkTypeMacro(vtkTestMagnifyRenderManager, vtkParallelRenderManager);
   static vtkTestMagnifyRenderManager *New();
 
 protected:
@@ -69,7 +69,6 @@ private:
   void operator=(const vtkTestMagnifyRenderManager &);  // Not implemented.
 };
 
-vtkCxxRevisionMacro(vtkTestMagnifyRenderManager, "1.4");
 vtkStandardNewMacro(vtkTestMagnifyRenderManager);
 
 vtkTestMagnifyRenderManager::vtkTestMagnifyRenderManager()

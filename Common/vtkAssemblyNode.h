@@ -54,7 +54,7 @@ public:
   // Create an assembly node.
   static vtkAssemblyNode *New();
 
-  vtkTypeRevisionMacro(vtkAssemblyNode,vtkObject);
+  vtkTypeMacro(vtkAssemblyNode,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -40,7 +40,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkForceMimeTypeStrategy :
 {
 public:
   static vtkForceMimeTypeStrategy* New();
-  vtkTypeRevisionMacro(vtkForceMimeTypeStrategy, vtkMimeTypeStrategy);
+  vtkTypeMacro(vtkForceMimeTypeStrategy, vtkMimeTypeStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkGetStringMacro(MimeType);

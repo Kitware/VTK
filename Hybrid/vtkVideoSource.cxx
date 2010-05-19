@@ -69,7 +69,6 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.44");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET

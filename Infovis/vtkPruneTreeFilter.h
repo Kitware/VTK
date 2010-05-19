@@ -35,7 +35,7 @@ class VTK_INFOVIS_EXPORT vtkPruneTreeFilter : public vtkTreeAlgorithm
 {
 public:
   static vtkPruneTreeFilter* New();
-  vtkTypeRevisionMacro(vtkPruneTreeFilter,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkPruneTreeFilter,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -51,7 +51,7 @@ class vtkMatrix4x4;
 class VTK_RENDERING_EXPORT vtkLight : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkLight,vtkObject);
+  vtkTypeMacro(vtkLight,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

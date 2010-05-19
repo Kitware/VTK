@@ -32,7 +32,7 @@
 class VTK_GRAPHICS_EXPORT vtkIdFilter : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkIdFilter,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkIdFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

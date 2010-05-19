@@ -39,7 +39,7 @@ class VTK_FILTERING_EXPORT vtkGenericCellIterator : public vtkObject
 public:
   // Description:
   // Standard VTK construction and type macros.
-  vtkTypeRevisionMacro(vtkGenericCellIterator,vtkObject);
+  vtkTypeMacro(vtkGenericCellIterator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

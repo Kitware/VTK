@@ -38,7 +38,7 @@ class VTK_INFOVIS_EXPORT vtkPerturbCoincidentVertices : public vtkGraphAlgorithm
 {
 public:
   static vtkPerturbCoincidentVertices* New();
-  vtkTypeRevisionMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -34,7 +34,7 @@ class VTK_GRAPHICS_EXPORT vtkHyperOctreeClipCutPointsGrabber : public vtkHyperOc
 public:
   static vtkHyperOctreeClipCutPointsGrabber *New();
   
-  vtkTypeRevisionMacro(vtkHyperOctreeClipCutPointsGrabber,vtkHyperOctreePointsGrabber);
+  vtkTypeMacro(vtkHyperOctreeClipCutPointsGrabber,vtkHyperOctreePointsGrabber);
   
   void PrintSelf(ostream& os, vtkIndent indent);
   

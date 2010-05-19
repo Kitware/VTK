@@ -24,7 +24,6 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned int);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUnsignedIntArray, "1.36");
 vtkStandardNewMacro(vtkUnsignedIntArray);
 
 //----------------------------------------------------------------------------

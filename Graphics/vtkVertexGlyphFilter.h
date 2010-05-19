@@ -36,7 +36,7 @@
 class VTK_GRAPHICS_EXPORT vtkVertexGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkVertexGlyphFilter, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkVertexGlyphFilter, vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkVertexGlyphFilter *New();
 

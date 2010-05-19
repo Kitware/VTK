@@ -27,7 +27,7 @@ class VTK_PARALLEL_EXPORT vtkPReflectionFilter : public vtkReflectionFilter
 {
 public:
   static vtkPReflectionFilter* New();
-  vtkTypeRevisionMacro(vtkPReflectionFilter, vtkReflectionFilter);
+  vtkTypeMacro(vtkPReflectionFilter, vtkReflectionFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

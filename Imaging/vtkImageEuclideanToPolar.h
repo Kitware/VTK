@@ -27,7 +27,7 @@ class VTK_IMAGING_EXPORT vtkImageEuclideanToPolar : public vtkThreadedImageAlgor
 {
 public:
   static vtkImageEuclideanToPolar *New();
-  vtkTypeRevisionMacro(vtkImageEuclideanToPolar,
+  vtkTypeMacro(vtkImageEuclideanToPolar,
                        vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 

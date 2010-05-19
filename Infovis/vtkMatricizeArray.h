@@ -39,7 +39,7 @@ class VTK_INFOVIS_EXPORT vtkMatricizeArray : public vtkArrayDataAlgorithm
 {
 public:
   static vtkMatricizeArray* New();
-  vtkTypeRevisionMacro(vtkMatricizeArray, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkMatricizeArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

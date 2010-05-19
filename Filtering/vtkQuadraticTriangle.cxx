@@ -22,7 +22,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.9");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------

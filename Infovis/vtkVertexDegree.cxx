@@ -28,7 +28,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVertexDegree, "1.6");
 vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()

@@ -17,7 +17,6 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.8");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------

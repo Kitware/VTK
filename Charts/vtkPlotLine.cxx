@@ -38,7 +38,6 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotLine, "1.29");
 
 // PIMPL for STL vector...
 class vtkPlotLine::VectorPIMPL : public vtkstd::vector<vtkVector2f>

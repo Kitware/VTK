@@ -36,7 +36,6 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.27");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 //----------------------------------------------------------------------------

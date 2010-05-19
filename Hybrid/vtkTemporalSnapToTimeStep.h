@@ -39,7 +39,7 @@ class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlg
 {
 public:
   static vtkTemporalSnapToTimeStep *New();
-  vtkTypeRevisionMacro(vtkTemporalSnapToTimeStep, vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkTemporalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

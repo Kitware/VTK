@@ -35,7 +35,7 @@ class VTK_WIDGETS_EXPORT vtkDistanceRepresentation : public vtkWidgetRepresentat
 public:
   // Description:
   // Standard VTK methods.
-  vtkTypeRevisionMacro(vtkDistanceRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkDistanceRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

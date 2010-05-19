@@ -36,7 +36,7 @@ class VTK_IO_EXPORT vtkStructuredPointsReader : public vtkDataReader
 {
 public:
   static vtkStructuredPointsReader *New();
-  vtkTypeRevisionMacro(vtkStructuredPointsReader,vtkDataReader);
+  vtkTypeMacro(vtkStructuredPointsReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

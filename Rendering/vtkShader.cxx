@@ -339,7 +339,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.25")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()

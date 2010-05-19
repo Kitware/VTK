@@ -36,7 +36,7 @@ class vtkCamera;
 class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
 {
  public:
-  vtkTypeRevisionMacro(vtkFollower,vtkActor);
+  vtkTypeMacro(vtkFollower,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

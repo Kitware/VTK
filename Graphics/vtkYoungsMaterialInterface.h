@@ -40,7 +40,7 @@ class VTK_GRAPHICS_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataS
 {
 public:
   static vtkYoungsMaterialInterface* New();
-  vtkTypeRevisionMacro(vtkYoungsMaterialInterface,vtkMultiBlockDataSetAlgorithm);          
+  vtkTypeMacro(vtkYoungsMaterialInterface,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

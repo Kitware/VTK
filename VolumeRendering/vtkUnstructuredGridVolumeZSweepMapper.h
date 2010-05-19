@@ -67,7 +67,7 @@ namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
 class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);
+  vtkTypeMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
   
   // Description:

@@ -30,7 +30,7 @@ class VTK_GRAPHICS_EXPORT vtkSectorSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSectorSource *New();
-  vtkTypeRevisionMacro(vtkSectorSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSectorSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

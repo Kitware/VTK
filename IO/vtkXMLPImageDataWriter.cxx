@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.8");
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------

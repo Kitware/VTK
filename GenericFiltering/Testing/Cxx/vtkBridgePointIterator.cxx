@@ -31,7 +31,6 @@
 #include "vtkBridgePointIteratorOne.h"
 #include "vtkBridgePointIteratorOnCell.h"
 
-vtkCxxRevisionMacro(vtkBridgePointIterator, "1.2");
 vtkStandardNewMacro(vtkBridgePointIterator);
 
 //-----------------------------------------------------------------------------

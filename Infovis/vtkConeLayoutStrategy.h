@@ -53,7 +53,7 @@ class VTK_INFOVIS_EXPORT vtkConeLayoutStrategy : public vtkGraphLayoutStrategy
 public:
   static vtkConeLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkConeLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkConeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -72,7 +72,7 @@ typedef vtkIdType (*vtkVertexPedigreeIdDistribution)
 class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
  public:
-  vtkTypeRevisionMacro (vtkDistributedGraphHelper, vtkObject);
+  vtkTypeMacro (vtkDistributedGraphHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

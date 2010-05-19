@@ -27,7 +27,6 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLClipPlanesPainter);
-vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.6");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLClipPlanesPainter::vtkOpenGLClipPlanesPainter()

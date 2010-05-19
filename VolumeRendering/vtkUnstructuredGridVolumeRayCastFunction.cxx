@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeRayCastFunction.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastFunction, "1.1");
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeRayCastFunction::PrintSelf(ostream& os, vtkIndent indent)

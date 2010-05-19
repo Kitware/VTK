@@ -25,7 +25,6 @@
 #include "vtkImageData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.4");
 vtkStandardNewMacro(vtkTransmitImageDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitImageDataPiece,Controller,

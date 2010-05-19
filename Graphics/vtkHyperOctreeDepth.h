@@ -33,7 +33,7 @@ class VTK_GRAPHICS_EXPORT vtkHyperOctreeDepth : public vtkDataSetAlgorithm
 {
 public:
   static vtkHyperOctreeDepth *New();
-  vtkTypeRevisionMacro(vtkHyperOctreeDepth, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkHyperOctreeDepth, vtkDataSetAlgorithm);
 
 protected:
   vtkHyperOctreeDepth();

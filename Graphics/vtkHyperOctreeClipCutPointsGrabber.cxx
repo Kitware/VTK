@@ -21,7 +21,6 @@
 #include <assert.h>
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeClipCutPointsGrabber, "1.1");
 vtkStandardNewMacro(vtkHyperOctreeClipCutPointsGrabber);
 
 class vtkHyperOctreeIdSet // Pimpl idiom

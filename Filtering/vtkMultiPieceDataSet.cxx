@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkMultiPieceDataSet);
-vtkCxxRevisionMacro(vtkMultiPieceDataSet, "1.2");
 //----------------------------------------------------------------------------
 vtkMultiPieceDataSet::vtkMultiPieceDataSet()
 {

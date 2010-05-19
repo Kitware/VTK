@@ -35,7 +35,6 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeOrbitLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkTreeOrbitLayoutStrategy);
 
 vtkTreeOrbitLayoutStrategy::vtkTreeOrbitLayoutStrategy()

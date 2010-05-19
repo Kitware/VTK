@@ -27,14 +27,14 @@
 #define __vtkInformationKey_h
 
 #include "vtkObjectBase.h"
-#include "vtkObject.h" // Need vtkTypeRevisionMacro
+#include "vtkObject.h" // Need vtkTypeMacro
 
 class vtkInformation;
 
 class VTK_COMMON_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
-  vtkTypeRevisionMacro(vtkInformationKey,vtkObjectBase);
+  vtkTypeMacro(vtkInformationKey,vtkObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -22,7 +22,6 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkDistanceRepresentation, "1.5");
 vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
 

@@ -30,7 +30,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.58");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;

@@ -22,7 +22,6 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.14");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------

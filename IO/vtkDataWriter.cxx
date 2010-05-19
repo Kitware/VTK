@@ -45,7 +45,6 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.137");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including

@@ -36,7 +36,6 @@
 #include "vtkTree.h"
 #include "vtkAreaLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeAreaView, "1.9");
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()

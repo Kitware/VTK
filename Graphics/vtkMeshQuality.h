@@ -101,7 +101,7 @@ class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkMeshQuality,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkMeshQuality,vtkDataSetAlgorithm);
   static vtkMeshQuality* New();
 
   // Description:

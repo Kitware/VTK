@@ -44,7 +44,7 @@ class vtkVariant;
 class VTK_RENDERING_EXPORT vtkMapArrayValues : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMapArrayValues,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkMapArrayValues,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkMapArrayValues *New();

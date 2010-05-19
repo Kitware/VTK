@@ -51,7 +51,6 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.108");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 

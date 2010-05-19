@@ -32,7 +32,6 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.7");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>

@@ -36,7 +36,7 @@ class VTK_IO_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkChacoReader *New();
-  vtkTypeRevisionMacro(vtkChacoReader,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkChacoReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

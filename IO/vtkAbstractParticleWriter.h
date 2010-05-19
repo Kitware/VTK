@@ -33,7 +33,7 @@
 class VTK_IO_EXPORT vtkAbstractParticleWriter : public vtkWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkAbstractParticleWriter,vtkWriter);
+  vtkTypeMacro(vtkAbstractParticleWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

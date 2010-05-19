@@ -35,7 +35,7 @@ class VTK_GRAPHICS_EXPORT vtkAppendSelection : public vtkSelectionAlgorithm
 public:
   static vtkAppendSelection *New();
 
-  vtkTypeRevisionMacro(vtkAppendSelection,vtkSelectionAlgorithm);
+  vtkTypeMacro(vtkAppendSelection,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

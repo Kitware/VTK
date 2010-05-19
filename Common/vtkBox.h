@@ -34,7 +34,7 @@ class vtkBoundingBox;
 class VTK_COMMON_EXPORT vtkBox : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkBox,vtkImplicitFunction);
+  vtkTypeMacro(vtkBox,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

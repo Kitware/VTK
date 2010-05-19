@@ -41,7 +41,7 @@ class vtkBSPCuts;
 class VTK_FILTERING_EXPORT vtkBSPIntersections : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkBSPIntersections, vtkObject);
+  vtkTypeMacro(vtkBSPIntersections, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkBSPIntersections *New();

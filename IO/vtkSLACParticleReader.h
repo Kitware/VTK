@@ -46,7 +46,7 @@ class vtkInformationObjectBaseKey;
 class VTK_IO_EXPORT vtkSLACParticleReader : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSLACParticleReader, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSLACParticleReader, vtkPolyDataAlgorithm);
   static vtkSLACParticleReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

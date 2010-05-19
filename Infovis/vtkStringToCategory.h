@@ -38,7 +38,7 @@ class VTK_INFOVIS_EXPORT vtkStringToCategory : public vtkDataObjectAlgorithm
 {
 public:
   static vtkStringToCategory* New();
-  vtkTypeRevisionMacro(vtkStringToCategory,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkStringToCategory,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

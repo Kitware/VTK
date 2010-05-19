@@ -35,7 +35,7 @@ class VTK_IMAGING_EXPORT vtkImageMapToColors : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMapToColors *New();
-  vtkTypeRevisionMacro(vtkImageMapToColors,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageMapToColors,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

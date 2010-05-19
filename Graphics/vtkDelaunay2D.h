@@ -134,7 +134,7 @@ class vtkPointSet;
 class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

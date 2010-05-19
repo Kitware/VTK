@@ -51,7 +51,7 @@ class VTK_IO_EXPORT vtkPLYWriter : public vtkPolyDataWriter
 {
 public:
   static vtkPLYWriter *New();
-  vtkTypeRevisionMacro(vtkPLYWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkPLYWriter,vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

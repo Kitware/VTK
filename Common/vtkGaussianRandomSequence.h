@@ -27,7 +27,7 @@
 class VTK_COMMON_EXPORT vtkGaussianRandomSequence : public vtkRandomSequence
 {
 public:
-  vtkTypeRevisionMacro(vtkGaussianRandomSequence,vtkRandomSequence);
+  vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

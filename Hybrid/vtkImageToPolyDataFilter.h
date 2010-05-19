@@ -81,7 +81,7 @@ class vtkUnsignedCharArray;
 class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageToPolyDataFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkImageToPolyDataFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

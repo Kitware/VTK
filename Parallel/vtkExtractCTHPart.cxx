@@ -50,7 +50,6 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.29");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);

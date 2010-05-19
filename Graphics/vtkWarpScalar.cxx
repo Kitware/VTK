@@ -24,7 +24,6 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpScalar, "1.51");
 vtkStandardNewMacro(vtkWarpScalar);
 
 vtkWarpScalar::vtkWarpScalar()

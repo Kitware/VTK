@@ -30,7 +30,6 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendCompositeDataLeaves, "1.3");
 vtkStandardNewMacro(vtkAppendCompositeDataLeaves);
 
 //----------------------------------------------------------------------------

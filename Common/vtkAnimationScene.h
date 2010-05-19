@@ -37,7 +37,7 @@ class vtkTimerLog;
 class VTK_COMMON_EXPORT vtkAnimationScene: public vtkAnimationCue
 {
 public:
-  vtkTypeRevisionMacro(vtkAnimationScene, vtkAnimationCue);
+  vtkTypeMacro(vtkAnimationScene, vtkAnimationCue);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkAnimationScene* New();
 

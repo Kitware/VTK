@@ -41,7 +41,6 @@ public:
 
 
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.48");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------

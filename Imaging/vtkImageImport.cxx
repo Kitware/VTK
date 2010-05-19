@@ -27,7 +27,6 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.54");
 vtkStandardNewMacro(vtkImageImport);
 
 

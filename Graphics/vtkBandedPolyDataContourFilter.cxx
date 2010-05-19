@@ -29,7 +29,6 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.58");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.

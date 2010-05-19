@@ -23,7 +23,6 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.40");
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.

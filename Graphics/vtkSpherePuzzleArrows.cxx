@@ -24,7 +24,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.13");
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
 //----------------------------------------------------------------------------

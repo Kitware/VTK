@@ -49,7 +49,7 @@ public:
 
   // Description:
   // Standard macros for type information and printing.
-  vtkTypeRevisionMacro(vtkPolyDataPointSampler,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataPointSampler,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

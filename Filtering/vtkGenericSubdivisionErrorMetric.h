@@ -46,7 +46,7 @@ class VTK_FILTERING_EXPORT vtkGenericSubdivisionErrorMetric : public vtkObject
 public:  
   // Description:
   // Standard VTK type and error macros.
-  vtkTypeRevisionMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
+  vtkTypeMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
  
   // Description:

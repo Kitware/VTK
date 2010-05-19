@@ -51,7 +51,7 @@ class vtkProperty2D;
 class VTK_HYBRID_EXPORT vtkLegendBoxActor : public vtkActor2D
 {
 public:
-  vtkTypeRevisionMacro(vtkLegendBoxActor,vtkActor2D);
+  vtkTypeMacro(vtkLegendBoxActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

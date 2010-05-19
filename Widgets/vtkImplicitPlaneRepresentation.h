@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Standard methods for the class.
-  vtkTypeRevisionMacro(vtkImplicitPlaneRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkImplicitPlaneRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

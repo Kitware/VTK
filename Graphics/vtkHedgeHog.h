@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkHedgeHog : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHedgeHog *New();
-  vtkTypeRevisionMacro(vtkHedgeHog,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkHedgeHog,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

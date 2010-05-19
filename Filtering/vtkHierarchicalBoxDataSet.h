@@ -52,7 +52,7 @@ class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet : public vtkCompositeDataSe
 {
 public:
   static vtkHierarchicalBoxDataSet *New();
-  vtkTypeRevisionMacro(vtkHierarchicalBoxDataSet,vtkCompositeDataSet);
+  vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkCompositeDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

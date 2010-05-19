@@ -37,7 +37,7 @@ class VTK_INFOVIS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm
 {
 public:
   static vtkBoostConnectedComponents *New();
-  vtkTypeRevisionMacro(vtkBoostConnectedComponents, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkBoostConnectedComponents, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

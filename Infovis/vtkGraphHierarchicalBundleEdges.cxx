@@ -38,7 +38,6 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundleEdges, "1.3");
 vtkStandardNewMacro(vtkGraphHierarchicalBundleEdges);
 
 vtkGraphHierarchicalBundleEdges::vtkGraphHierarchicalBundleEdges()

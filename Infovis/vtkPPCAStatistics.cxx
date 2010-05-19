@@ -29,7 +29,6 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPPCAStatistics);
-vtkCxxRevisionMacro(vtkPPCAStatistics, "1.5");
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPPCAStatistics::vtkPPCAStatistics()

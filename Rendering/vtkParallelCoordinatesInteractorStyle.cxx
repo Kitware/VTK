@@ -29,7 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 //#include <wx/wx.h>
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesInteractorStyle, "1.3");
 vtkStandardNewMacro(vtkParallelCoordinatesInteractorStyle);
 
 //----------------------------------------------------------------------------

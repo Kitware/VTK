@@ -39,7 +39,7 @@ class VTK_WIDGETS_EXPORT vtkFocalPlaneContourRepresentation : public vtkContourR
 public:
   // Description:
   // Standard VTK methods.
-  vtkTypeRevisionMacro(vtkFocalPlaneContourRepresentation,vtkContourRepresentation);
+  vtkTypeMacro(vtkFocalPlaneContourRepresentation,vtkContourRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -35,7 +35,7 @@ class vtkIntArray;
 class VTK_IO_EXPORT vtkXMLHyperOctreeWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLHyperOctreeWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLHyperOctreeWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLHyperOctreeWriter* New();
   

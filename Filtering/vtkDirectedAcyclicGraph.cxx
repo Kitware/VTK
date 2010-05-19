@@ -30,7 +30,6 @@
 
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkDirectedAcyclicGraph, "1.5");
 vtkStandardNewMacro(vtkDirectedAcyclicGraph);
 //----------------------------------------------------------------------------
 vtkDirectedAcyclicGraph::vtkDirectedAcyclicGraph()

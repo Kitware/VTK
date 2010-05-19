@@ -24,7 +24,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBa
 {
 public:
   static vtkExtractSelectedBlock* New();
-  vtkTypeRevisionMacro(vtkExtractSelectedBlock, vtkExtractSelectionBase);
+  vtkTypeMacro(vtkExtractSelectedBlock, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

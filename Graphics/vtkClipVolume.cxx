@@ -35,7 +35,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.75");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 

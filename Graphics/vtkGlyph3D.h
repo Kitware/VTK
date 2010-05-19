@@ -94,7 +94,7 @@
 class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGlyph3D,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGlyph3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

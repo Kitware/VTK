@@ -27,7 +27,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.28");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.

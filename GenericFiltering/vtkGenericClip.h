@@ -69,7 +69,7 @@ class vtkIncrementalPointLocator;
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericClip : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericClip,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkGenericClip,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -26,7 +26,7 @@ class VTK_HYBRID_EXPORT vtkX3DExporterJavaHelper : public vtkObject
 {
 public:
   static vtkX3DExporterJavaHelper *New();
-  vtkTypeRevisionMacro(vtkX3DExporterJavaHelper,vtkObject);
+  vtkTypeMacro(vtkX3DExporterJavaHelper,vtkObject);
 
   int OpenFile(const char* fileName);
   int Write(const char* data, vtkIdType length);

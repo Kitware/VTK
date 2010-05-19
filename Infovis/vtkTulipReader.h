@@ -55,7 +55,7 @@ class VTK_INFOVIS_EXPORT vtkTulipReader : public vtkUndirectedGraphAlgorithm
 {
 public:
   static vtkTulipReader *New();
-  vtkTypeRevisionMacro(vtkTulipReader, vtkUndirectedGraphAlgorithm);
+  vtkTypeMacro(vtkTulipReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

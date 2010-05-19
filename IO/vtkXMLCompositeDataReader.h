@@ -36,7 +36,7 @@ struct vtkXMLCompositeDataReaderInternals;
 class VTK_IO_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLCompositeDataReader,vtkXMLReader);
+  vtkTypeMacro(vtkXMLCompositeDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

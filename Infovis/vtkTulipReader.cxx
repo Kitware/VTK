@@ -45,7 +45,6 @@
 // so it would be nice to put this in a common file.
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkTulipReader, "1.5");
 vtkStandardNewMacro(vtkTulipReader);
 
 vtkTulipReader::vtkTulipReader()

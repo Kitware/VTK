@@ -25,7 +25,6 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(double);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDoubleArray, "1.49");
 vtkStandardNewMacro(vtkDoubleArray);
 
 //----------------------------------------------------------------------------

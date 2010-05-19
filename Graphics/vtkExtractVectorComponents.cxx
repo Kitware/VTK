@@ -24,7 +24,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.53");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()

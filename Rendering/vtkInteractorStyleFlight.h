@@ -44,7 +44,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleFlight *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleFlight,vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleFlight,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

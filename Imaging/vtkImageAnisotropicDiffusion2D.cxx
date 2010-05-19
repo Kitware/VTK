@@ -22,7 +22,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.49");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //----------------------------------------------------------------------------

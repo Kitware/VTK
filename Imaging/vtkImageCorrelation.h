@@ -32,7 +32,7 @@ class VTK_IMAGING_EXPORT vtkImageCorrelation : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageCorrelation *New();
-  vtkTypeRevisionMacro(vtkImageCorrelation,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageCorrelation,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

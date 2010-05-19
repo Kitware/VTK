@@ -40,7 +40,7 @@ class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageAlgorithm
 {
 public:
   static vtkVideoSource *New();
-  vtkTypeRevisionMacro(vtkVideoSource,vtkImageAlgorithm);
+  vtkTypeMacro(vtkVideoSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

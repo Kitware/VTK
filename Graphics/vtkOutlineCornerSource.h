@@ -25,7 +25,7 @@
 class VTK_GRAPHICS_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
 {
 public:
-  vtkTypeRevisionMacro(vtkOutlineCornerSource,vtkOutlineSource);
+  vtkTypeMacro(vtkOutlineCornerSource,vtkOutlineSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

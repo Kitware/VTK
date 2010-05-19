@@ -59,7 +59,7 @@ public:
   // Instantiate the object.
   static vtkInteractorStyleTerrain *New();
 
-  vtkTypeRevisionMacro(vtkInteractorStyleTerrain,vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleTerrain,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -22,7 +22,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkMassProperties, "1.30");
 vtkStandardNewMacro(vtkMassProperties);
 
 #define  VTK_CUBE_ROOT(x) \

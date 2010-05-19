@@ -40,7 +40,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkBoundedPlanePointPlacer,vtkPointPlacer);
+  vtkTypeMacro(vtkBoundedPlanePointPlacer,vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

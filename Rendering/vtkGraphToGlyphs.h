@@ -44,7 +44,7 @@ class VTK_RENDERING_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphToGlyphs *New();
-  vtkTypeRevisionMacro(vtkGraphToGlyphs,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGraphToGlyphs,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

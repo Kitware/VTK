@@ -40,7 +40,7 @@ class VTK_GEOVIS_EXPORT vtkGeoGraticule : public vtkPolyDataAlgorithm
 public:
   static vtkGeoGraticule* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
-  vtkTypeRevisionMacro(vtkGeoGraticule,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGeoGraticule,vtkPolyDataAlgorithm);
 
   // Description:
   // The latitude bounds of the graticule.

@@ -25,7 +25,6 @@
 #include "vtkSocketController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.18");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 vtkCxxSetObjectMacro(vtkCollectPolyData,Controller, vtkMultiProcessController);

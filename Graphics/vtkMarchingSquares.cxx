@@ -37,7 +37,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.3");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:

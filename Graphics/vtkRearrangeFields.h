@@ -64,7 +64,7 @@ class vtkFieldData;
 class VTK_GRAPHICS_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

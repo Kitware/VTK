@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProjectedTexture, "1.31");
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:

@@ -25,7 +25,6 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.11");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------

@@ -43,7 +43,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleSwitch : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleSwitch *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleSwitch, vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleSwitch, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

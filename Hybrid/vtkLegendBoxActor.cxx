@@ -28,7 +28,6 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.32");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);

@@ -26,7 +26,7 @@
 class VTK_IO_EXPORT vtkXMLFileReadTester: public vtkXMLParser
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLFileReadTester,vtkXMLParser);
+  vtkTypeMacro(vtkXMLFileReadTester,vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent);  
   static vtkXMLFileReadTester* New();
   

@@ -30,7 +30,7 @@ class VTK_GRAPHICS_EXPORT vtkMultiBlockMergeFilter
 : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMultiBlockMergeFilter,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkMultiBlockMergeFilter,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

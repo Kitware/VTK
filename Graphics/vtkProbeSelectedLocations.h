@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkProbeSelectedLocations : public vtkExtractSelection
 {
 public:
   static vtkProbeSelectedLocations* New();
-  vtkTypeRevisionMacro(vtkProbeSelectedLocations, vtkExtractSelectionBase);
+  vtkTypeMacro(vtkProbeSelectedLocations, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

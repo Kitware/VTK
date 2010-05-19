@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
   static vtkUnstructuredGridWriter *New();
-  vtkTypeRevisionMacro(vtkUnstructuredGridWriter,vtkDataWriter);
+  vtkTypeMacro(vtkUnstructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

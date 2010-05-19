@@ -35,7 +35,7 @@
 class VTK_PARALLEL_EXPORT vtkMPIEventLog : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkMPIEventLog,vtkObject);
+  vtkTypeMacro(vtkMPIEventLog,vtkObject);
   
   // Description:
   // Construct a vtkMPIEventLog with the following initial state:

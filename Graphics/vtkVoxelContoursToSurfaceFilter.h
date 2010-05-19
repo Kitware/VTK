@@ -46,7 +46,7 @@ class VTK_GRAPHICS_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataAl
 {
 public:
   static vtkVoxelContoursToSurfaceFilter *New();
-  vtkTypeRevisionMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

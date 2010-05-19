@@ -49,7 +49,7 @@ Q_OBJECT
 
 public:
   static vtkQtListView *New();
-  vtkTypeRevisionMacro(vtkQtListView, vtkQtView);
+  vtkTypeMacro(vtkQtListView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

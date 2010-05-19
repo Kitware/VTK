@@ -55,7 +55,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkMimeTypes :
 {
 public:
   static vtkMimeTypes* New();
-  vtkTypeRevisionMacro(vtkMimeTypes, vtkObject);
+  vtkTypeMacro(vtkMimeTypes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

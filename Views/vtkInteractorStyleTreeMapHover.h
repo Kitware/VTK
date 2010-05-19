@@ -45,7 +45,7 @@ class VTK_VIEWS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteractorStyl
 {
 public:
   static vtkInteractorStyleTreeMapHover* New();
-  vtkTypeRevisionMacro(vtkInteractorStyleTreeMapHover,vtkInteractorStyleImage);
+  vtkTypeMacro(vtkInteractorStyleTreeMapHover,vtkInteractorStyleImage);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

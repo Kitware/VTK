@@ -43,7 +43,7 @@ enum
 class VTK_FILTERING_EXPORT vtkGenericAttribute : public vtkObject
 {
  public:
-  vtkTypeRevisionMacro(vtkGenericAttribute,vtkObject);
+  vtkTypeMacro(vtkGenericAttribute,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

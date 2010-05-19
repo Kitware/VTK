@@ -17,7 +17,6 @@
 #include "vtkBase64Utilities.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64InputStream, "1.4");
 vtkStandardNewMacro(vtkBase64InputStream);
 
 //----------------------------------------------------------------------------

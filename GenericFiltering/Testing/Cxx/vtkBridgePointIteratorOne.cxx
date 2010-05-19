@@ -27,7 +27,6 @@
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkBridgePointIteratorOne, "1.1");
 vtkStandardNewMacro(vtkBridgePointIteratorOne);
 
 //-----------------------------------------------------------------------------

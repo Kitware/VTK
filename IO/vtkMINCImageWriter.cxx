@@ -90,7 +90,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.16");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,DirectionCosines,vtkMatrix4x4);

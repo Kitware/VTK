@@ -39,7 +39,7 @@ class VTK_FILTERING_EXPORT vtkConvexPointSet : public vtkCell3D
 {
 public:
   static vtkConvexPointSet *New();
-  vtkTypeRevisionMacro(vtkConvexPointSet,vtkCell3D);
+  vtkTypeMacro(vtkConvexPointSet,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

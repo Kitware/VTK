@@ -22,7 +22,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.69");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(double sf)

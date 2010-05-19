@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.9");
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
 //----------------------------------------------------------------------------

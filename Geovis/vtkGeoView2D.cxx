@@ -31,7 +31,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView2D, "1.6");
 vtkStandardNewMacro(vtkGeoView2D);
 vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 

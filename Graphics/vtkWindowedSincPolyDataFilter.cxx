@@ -27,7 +27,6 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.42");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;

@@ -38,7 +38,7 @@ class VTK_RENDERING_EXPORT vtkInteractorEventRecorder : public vtkInteractorObse
 {
 public:
   static vtkInteractorEventRecorder *New();
-  vtkTypeRevisionMacro(vtkInteractorEventRecorder,vtkInteractorObserver);
+  vtkTypeMacro(vtkInteractorEventRecorder,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Satisfy the superclass API. Enable/disable listening for events.

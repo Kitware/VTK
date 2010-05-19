@@ -33,7 +33,7 @@ class VTK_IMAGING_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageAppend *New();
-  vtkTypeRevisionMacro(vtkImageAppend,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageAppend,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

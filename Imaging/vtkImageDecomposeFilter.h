@@ -32,7 +32,7 @@ public:
   // Description:
   // Construct an instance of vtkImageDecomposeFilter filter with default
   // dimensionality 3.
-  vtkTypeRevisionMacro(vtkImageDecomposeFilter,vtkImageIterateFilter);
+  vtkTypeMacro(vtkImageDecomposeFilter,vtkImageIterateFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

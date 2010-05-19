@@ -30,7 +30,6 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.12");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------

@@ -26,7 +26,6 @@ using vtksys_ios::istringstream;
 using vtkstd::string;
 #include <locale> // C++ locale
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.5");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------

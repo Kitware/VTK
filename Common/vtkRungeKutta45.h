@@ -37,7 +37,7 @@
 class VTK_COMMON_EXPORT vtkRungeKutta45 : public vtkInitialValueProblemSolver
 {
 public:
-  vtkTypeRevisionMacro(vtkRungeKutta45,vtkInitialValueProblemSolver);
+  vtkTypeMacro(vtkRungeKutta45,vtkInitialValueProblemSolver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

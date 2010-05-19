@@ -42,7 +42,6 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.65");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];

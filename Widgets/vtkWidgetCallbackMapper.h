@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Standard macros.
-  vtkTypeRevisionMacro(vtkWidgetCallbackMapper,vtkObject);
+  vtkTypeMacro(vtkWidgetCallbackMapper,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

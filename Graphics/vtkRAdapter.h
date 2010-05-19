@@ -63,7 +63,7 @@ class VTK_GRAPHICS_EXPORT vtkRAdapter : public vtkObject
 
 public:
 
-  vtkTypeRevisionMacro(vtkRAdapter, vtkObject);
+  vtkTypeMacro(vtkRAdapter, vtkObject);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

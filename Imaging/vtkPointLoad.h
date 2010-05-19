@@ -32,7 +32,7 @@
 class VTK_IMAGING_EXPORT vtkPointLoad :  public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPointLoad,vtkImageAlgorithm);
+  vtkTypeMacro(vtkPointLoad,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

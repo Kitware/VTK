@@ -53,7 +53,7 @@ class VTK_HYBRID_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
 {
 public:
   static vtkImageDataLIC2D* New();
-  vtkTypeRevisionMacro(vtkImageDataLIC2D, vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageDataLIC2D, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

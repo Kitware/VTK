@@ -44,7 +44,7 @@ class vtkPolyData;
 class VTK_RENDERING_EXPORT vtkLabelHierarchyCompositeIterator : public vtkLabelHierarchyIterator
 {
 public:
-  vtkTypeRevisionMacro(vtkLabelHierarchyCompositeIterator, vtkLabelHierarchyIterator);
+  vtkTypeMacro(vtkLabelHierarchyCompositeIterator, vtkLabelHierarchyIterator);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   static vtkLabelHierarchyCompositeIterator* New();
 

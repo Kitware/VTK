@@ -34,7 +34,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkMesaRayCastImageDisplayHelper : public vtkRa
 {
 public:
   static vtkMesaRayCastImageDisplayHelper *New();
-  vtkTypeRevisionMacro(vtkMesaRayCastImageDisplayHelper,vtkRayCastImageDisplayHelper);
+  vtkTypeMacro(vtkMesaRayCastImageDisplayHelper,vtkRayCastImageDisplayHelper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,

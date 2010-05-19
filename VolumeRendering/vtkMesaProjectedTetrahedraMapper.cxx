@@ -38,5 +38,4 @@
 #include "vtkOpenGLProjectedTetrahedraMapper.cxx"
 #undef vtkOpenGLProjectedTetrahedraMapper
 
-//vtkCxxRevisionMacro(vtkMesaProjectedTetrahedraMapper, "1.1");
 //vtkStandardNewMacro(vtkMesaProjectedTetrahedraMapper);

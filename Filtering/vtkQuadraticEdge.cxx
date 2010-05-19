@@ -20,7 +20,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.8");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 //----------------------------------------------------------------------------

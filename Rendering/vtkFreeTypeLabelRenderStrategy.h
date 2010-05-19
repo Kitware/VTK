@@ -31,7 +31,7 @@ class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRende
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkFreeTypeLabelRenderStrategy, vtkLabelRenderStrategy);
+  vtkTypeMacro(vtkFreeTypeLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkFreeTypeLabelRenderStrategy* New();
 
   // Description:

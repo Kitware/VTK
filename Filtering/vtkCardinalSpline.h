@@ -33,7 +33,7 @@ class VTK_FILTERING_EXPORT vtkCardinalSpline : public vtkSpline
 public:
   static vtkCardinalSpline *New();
 
-  vtkTypeRevisionMacro(vtkCardinalSpline,vtkSpline);
+  vtkTypeMacro(vtkCardinalSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

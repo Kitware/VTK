@@ -45,7 +45,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtkstd/map>
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPairwiseExtractHistogram2D, "1.6");
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------
 class vtkPairwiseExtractHistogram2D::Internals

@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkImageStencil : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageStencil *New();
-  vtkTypeRevisionMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

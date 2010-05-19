@@ -62,7 +62,6 @@
 
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
 
-vtkCxxRevisionMacro(vtkMatlabMexAdapter, "1.4");
 
 vtkStandardNewMacro(vtkMatlabMexAdapter);
 

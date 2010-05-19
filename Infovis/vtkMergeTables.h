@@ -42,7 +42,7 @@ class VTK_INFOVIS_EXPORT vtkMergeTables : public vtkTableAlgorithm
 {
 public:
   static vtkMergeTables* New();
-  vtkTypeRevisionMacro(vtkMergeTables,vtkTableAlgorithm);
+  vtkTypeMacro(vtkMergeTables,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -34,7 +34,7 @@ class VTK_IO_EXPORT vtkXMLRectilinearGridWriter : public vtkXMLStructuredDataWri
 {
 public:
   static vtkXMLRectilinearGridWriter* New();
-  vtkTypeRevisionMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //BTX

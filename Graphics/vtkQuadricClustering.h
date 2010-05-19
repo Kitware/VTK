@@ -93,7 +93,7 @@ class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
 public:
   // Description:
   // Standard instantition, type and print methods.
-  vtkTypeRevisionMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadricClustering *New();
 

@@ -30,7 +30,7 @@ class vtkInformationObjectBaseVectorValue;
 class VTK_COMMON_EXPORT vtkInformationObjectBaseVectorKey : public vtkInformationKey
 {
 public:
-  vtkTypeRevisionMacro(vtkInformationObjectBaseVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationObjectBaseVectorKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
   // Description:
   // The name of the static instance and the class in which

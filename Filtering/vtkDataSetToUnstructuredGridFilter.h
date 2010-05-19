@@ -32,7 +32,7 @@ class vtkDataSet;
 class VTK_FILTERING_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
-  vtkTypeRevisionMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);
+  vtkTypeMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

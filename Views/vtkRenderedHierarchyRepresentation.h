@@ -30,7 +30,7 @@ class VTK_VIEWS_EXPORT vtkRenderedHierarchyRepresentation : public vtkRenderedGr
 {
 public:
   static vtkRenderedHierarchyRepresentation* New();
-  vtkTypeRevisionMacro(vtkRenderedHierarchyRepresentation, vtkRenderedGraphRepresentation);
+  vtkTypeMacro(vtkRenderedHierarchyRepresentation, vtkRenderedGraphRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

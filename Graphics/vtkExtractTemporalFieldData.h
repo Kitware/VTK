@@ -42,7 +42,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractTemporalFieldData : public vtkTableAlgorithm
 {
 public:
   static vtkExtractTemporalFieldData *New();
-  vtkTypeRevisionMacro(vtkExtractTemporalFieldData,vtkTableAlgorithm);
+  vtkTypeMacro(vtkExtractTemporalFieldData,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

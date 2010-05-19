@@ -36,7 +36,6 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkStringToCategory, "1.5");
 vtkStandardNewMacro(vtkStringToCategory);
 
 vtkStringToCategory::vtkStringToCategory()

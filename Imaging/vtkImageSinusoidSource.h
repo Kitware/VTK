@@ -27,7 +27,7 @@ class VTK_IMAGING_EXPORT vtkImageSinusoidSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageSinusoidSource *New();
-  vtkTypeRevisionMacro(vtkImageSinusoidSource,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageSinusoidSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

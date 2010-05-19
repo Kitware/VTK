@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.23");
 vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()

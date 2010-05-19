@@ -37,7 +37,7 @@ class VTK_FILTERING_EXPORT vtkQuadraticEdge : public vtkNonLinearCell
 {
 public:
   static vtkQuadraticEdge *New();
-  vtkTypeRevisionMacro(vtkQuadraticEdge,vtkNonLinearCell);
+  vtkTypeMacro(vtkQuadraticEdge,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

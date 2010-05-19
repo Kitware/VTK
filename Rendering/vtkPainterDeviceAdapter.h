@@ -52,7 +52,7 @@ class VTK_RENDERING_EXPORT vtkPainterDeviceAdapter : public vtkObject
 {
 public:
   static vtkPainterDeviceAdapter* New();
-  vtkTypeRevisionMacro(vtkPainterDeviceAdapter, vtkObject);
+  vtkTypeMacro(vtkPainterDeviceAdapter, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

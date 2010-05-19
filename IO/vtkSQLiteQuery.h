@@ -55,7 +55,7 @@ class VTK_IO_EXPORT vtkSQLiteQuery : public vtkSQLQuery
   //ETX
 
 public:
-  vtkTypeRevisionMacro(vtkSQLiteQuery, vtkSQLQuery);
+  vtkTypeMacro(vtkSQLiteQuery, vtkSQLQuery);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLiteQuery *New();
 

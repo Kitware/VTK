@@ -26,7 +26,6 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/tokenizer.hpp>
 
-vtkCxxRevisionMacro(vtkBoostSplitTableField, "1.2");
 vtkStandardNewMacro(vtkBoostSplitTableField);
 
 /// Ecapsulates private implementation details of vtkBoostSplitTableField

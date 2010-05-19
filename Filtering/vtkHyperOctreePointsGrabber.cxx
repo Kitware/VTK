@@ -16,7 +16,6 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHyperOctreePointsGrabber, "1.1");
 
 //-----------------------------------------------------------------------------
 // Default constructor.

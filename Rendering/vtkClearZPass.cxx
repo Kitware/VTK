@@ -20,7 +20,6 @@
 #include "vtkRenderer.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkClearZPass, "1.2");
 vtkStandardNewMacro(vtkClearZPass);
 
 // ----------------------------------------------------------------------------

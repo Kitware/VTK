@@ -28,7 +28,6 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkGraphWriter, "1.6");
 vtkStandardNewMacro(vtkGraphWriter);
 
 void vtkGraphWriter::WriteData()

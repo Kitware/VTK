@@ -18,7 +18,6 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkBitArrayIterator);
-vtkCxxRevisionMacro(vtkBitArrayIterator, "1.3");
 vtkCxxSetObjectMacro(vtkBitArrayIterator, Array, vtkBitArray);
 //-----------------------------------------------------------------------------
 vtkBitArrayIterator::vtkBitArrayIterator()

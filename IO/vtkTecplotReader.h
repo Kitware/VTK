@@ -93,7 +93,7 @@ class VTK_IO_EXPORT vtkTecplotReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkTecplotReader * New();
-  vtkTypeRevisionMacro( vtkTecplotReader, vtkMultiBlockDataSetAlgorithm );
+  vtkTypeMacro( vtkTecplotReader, vtkMultiBlockDataSetAlgorithm );
   void  PrintSelf( ostream & os, vtkIndent indent );
   
   // Description:

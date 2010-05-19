@@ -49,7 +49,7 @@ class VTK_RENDERING_EXPORT vtkLabelPlacer : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLabelPlacer* New();
-  vtkTypeRevisionMacro(vtkLabelPlacer,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLabelPlacer,vtkPolyDataAlgorithm);
   virtual void PrintSelf( ostream& os, vtkIndent indent );
 
   vtkGetObjectMacro(Renderer,vtkRenderer);

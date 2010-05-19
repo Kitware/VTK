@@ -29,7 +29,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBand2D, "1.11");
 vtkStandardNewMacro(vtkInteractorStyleRubberBand2D);
 
 //--------------------------------------------------------------------------

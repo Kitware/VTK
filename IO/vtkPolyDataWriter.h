@@ -30,7 +30,7 @@ class VTK_IO_EXPORT vtkPolyDataWriter : public vtkDataWriter
 {
 public:
   static vtkPolyDataWriter *New();
-  vtkTypeRevisionMacro(vtkPolyDataWriter,vtkDataWriter);
+  vtkTypeMacro(vtkPolyDataWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -33,7 +33,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMultiThreader.h"
-vtkCxxRevisionMacro(vtkNetCDFPOPReader, "1.7");
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
 //============================================================================

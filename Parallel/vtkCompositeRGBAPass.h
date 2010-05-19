@@ -41,7 +41,7 @@ class VTK_PARALLEL_EXPORT vtkCompositeRGBAPass : public vtkRenderPass
 {
 public:
   static vtkCompositeRGBAPass *New();
-  vtkTypeRevisionMacro(vtkCompositeRGBAPass,vtkRenderPass);
+  vtkTypeMacro(vtkCompositeRGBAPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -62,7 +62,6 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.23");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------

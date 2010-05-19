@@ -55,7 +55,7 @@ class VTK_FILTERING_EXPORT vtkFieldData : public vtkObject
 public:
   static vtkFieldData *New();
 
-  vtkTypeRevisionMacro(vtkFieldData,vtkObject);
+  vtkTypeMacro(vtkFieldData,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -40,7 +40,7 @@ class vtkAbstractVolumeMapper;
 class VTK_RENDERING_EXPORT vtkVolume : public vtkProp3D
 {
 public:
-  vtkTypeRevisionMacro(vtkVolume,vtkProp3D);
+  vtkTypeMacro(vtkVolume,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

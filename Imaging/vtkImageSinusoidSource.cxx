@@ -22,7 +22,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.43");
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //----------------------------------------------------------------------------

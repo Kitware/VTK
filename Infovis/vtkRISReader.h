@@ -43,7 +43,7 @@ class VTK_INFOVIS_EXPORT vtkRISReader : public vtkTableAlgorithm
 {
 public:
   static vtkRISReader* New();
-  vtkTypeRevisionMacro(vtkRISReader,vtkTableAlgorithm);
+  vtkTypeMacro(vtkRISReader,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

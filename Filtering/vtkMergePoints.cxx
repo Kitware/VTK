@@ -20,7 +20,6 @@
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkMergePoints, "1.42");
 vtkStandardNewMacro(vtkMergePoints);
 
 // Determine whether point given by x[3] has been inserted into points list.

@@ -28,7 +28,6 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkPointSet, "1.14");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 

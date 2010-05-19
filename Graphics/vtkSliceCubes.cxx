@@ -32,7 +32,6 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.2");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);

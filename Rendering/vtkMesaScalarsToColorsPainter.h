@@ -25,8 +25,8 @@ class VTK_RENDERING_EXPORT vtkMesaScalarsToColorsPainter :
 {
 public:
   static vtkMesaScalarsToColorsPainter* New();
-  vtkTypeRevisionMacro(vtkMesaScalarsToColorsPainter, 
-    vtkScalarsToColorsPainter);
+  vtkTypeMacro(vtkMesaScalarsToColorsPainter,
+               vtkScalarsToColorsPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 

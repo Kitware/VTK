@@ -130,7 +130,7 @@ typedef struct
 class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkVolumeRayCastFunction,vtkObject);
+  vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

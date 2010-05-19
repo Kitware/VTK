@@ -31,7 +31,7 @@
 class VTK_COMMON_EXPORT vtkFunctionSet : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkFunctionSet,vtkObject);
+  vtkTypeMacro(vtkFunctionSet,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

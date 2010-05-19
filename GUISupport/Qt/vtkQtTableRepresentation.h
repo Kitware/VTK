@@ -61,7 +61,7 @@ class vtkQtTableModelAdapter;
 class QVTK_EXPORT vtkQtTableRepresentation : public vtkDataRepresentation
 {
 public:
-  vtkTypeRevisionMacro(vtkQtTableRepresentation, vtkDataRepresentation);
+  vtkTypeMacro(vtkQtTableRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

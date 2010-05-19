@@ -57,7 +57,7 @@ class vtkCameraList;
 class VTK_RENDERING_EXPORT vtkCameraInterpolator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkCameraInterpolator, vtkObject);
+  vtkTypeMacro(vtkCameraInterpolator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

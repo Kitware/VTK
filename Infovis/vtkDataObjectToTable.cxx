@@ -31,7 +31,6 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToTable, "1.7");
 vtkStandardNewMacro(vtkDataObjectToTable);
 //---------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()

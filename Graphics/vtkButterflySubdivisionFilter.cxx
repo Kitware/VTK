@@ -21,7 +21,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.17");
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
 static double butterflyWeights[8] =

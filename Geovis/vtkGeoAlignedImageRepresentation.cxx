@@ -130,7 +130,6 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
 }
 
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.13");
 vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()

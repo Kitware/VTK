@@ -94,7 +94,7 @@ class vtkUnsignedCharArray;
 class VTK_RENDERING_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
-  vtkTypeRevisionMacro(vtkRenderWindow,vtkWindow);
+  vtkTypeMacro(vtkRenderWindow,vtkWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

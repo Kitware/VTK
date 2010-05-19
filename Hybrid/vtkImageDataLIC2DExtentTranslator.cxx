@@ -18,7 +18,6 @@
 #include "vtkImageDataLIC2D.h"
 
 vtkStandardNewMacro(vtkImageDataLIC2DExtentTranslator);
-vtkCxxRevisionMacro(vtkImageDataLIC2DExtentTranslator, "1.2");
 vtkCxxSetObjectMacro(vtkImageDataLIC2DExtentTranslator, InputExtentTranslator, vtkExtentTranslator);
 //----------------------------------------------------------------------------
 vtkImageDataLIC2DExtentTranslator::vtkImageDataLIC2DExtentTranslator()

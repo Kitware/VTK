@@ -39,7 +39,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLVertexColoring : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLVertexColoring *New();
-  vtkTypeRevisionMacro(vtkPBGLVertexColoring, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkPBGLVertexColoring, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

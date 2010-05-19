@@ -45,7 +45,7 @@ class vtkInformationObjectBaseKey;
 class VTK_IO_EXPORT vtkSLACReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSLACReader, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkSLACReader, vtkMultiBlockDataSetAlgorithm);
   static vtkSLACReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

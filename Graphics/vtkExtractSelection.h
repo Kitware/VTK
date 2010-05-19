@@ -44,7 +44,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelection *New();
-  vtkTypeRevisionMacro(vtkExtractSelection, vtkExtractSelectionBase);
+  vtkTypeMacro(vtkExtractSelection, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

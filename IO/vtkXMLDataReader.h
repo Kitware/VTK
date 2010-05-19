@@ -29,7 +29,7 @@
 class VTK_IO_EXPORT vtkXMLDataReader : public vtkXMLReader
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLDataReader,vtkXMLReader);
+  vtkTypeMacro(vtkXMLDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

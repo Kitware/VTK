@@ -15,7 +15,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHierarchicalDataExtractDataSets.h"
 
 #include "vtkObjectFactory.h"
-vtkCxxRevisionMacro(vtkHierarchicalDataExtractDataSets, "1.3");
 vtkStandardNewMacro(vtkHierarchicalDataExtractDataSets);
 
 //----------------------------------------------------------------------------

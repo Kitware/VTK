@@ -32,7 +32,7 @@
 class VTK_COMMON_EXPORT vtkParametricMobius : public vtkParametricFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkParametricMobius,vtkParametricFunction);
+  vtkTypeMacro(vtkParametricMobius,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

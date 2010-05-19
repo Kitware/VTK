@@ -51,7 +51,7 @@ class vtkVariant;
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDescriptiveStatistics, vtkUnivariateStatisticsAlgorithm);
+  vtkTypeMacro(vtkDescriptiveStatistics, vtkUnivariateStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDescriptiveStatistics* New();
 

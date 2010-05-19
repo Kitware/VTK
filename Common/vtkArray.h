@@ -56,7 +56,7 @@
 class VTK_COMMON_EXPORT vtkArray : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkArray, vtkObject);
+  vtkTypeMacro(vtkArray, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
 //BTX

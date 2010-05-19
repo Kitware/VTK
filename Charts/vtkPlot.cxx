@@ -26,7 +26,6 @@
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkPlot, "1.14");
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);

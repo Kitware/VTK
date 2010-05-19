@@ -33,7 +33,7 @@ class VTK_RENDERING_EXPORT vtkXMesaRenderWindow : public vtkMesaRenderWindow
 {
 public:
   static vtkXMesaRenderWindow *New();
-  vtkTypeRevisionMacro(vtkXMesaRenderWindow,vtkMesaRenderWindow);
+  vtkTypeMacro(vtkXMesaRenderWindow,vtkMesaRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

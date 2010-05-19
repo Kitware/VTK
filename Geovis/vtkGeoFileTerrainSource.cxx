@@ -33,7 +33,6 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoFileTerrainSource);
-vtkCxxRevisionMacro(vtkGeoFileTerrainSource, "1.2");
 //----------------------------------------------------------------------------
 vtkGeoFileTerrainSource::vtkGeoFileTerrainSource()
 {

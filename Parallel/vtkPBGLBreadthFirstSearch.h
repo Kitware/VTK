@@ -43,7 +43,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLBreadthFirstSearch : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLBreadthFirstSearch *New();
-  vtkTypeRevisionMacro(vtkPBGLBreadthFirstSearch, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkPBGLBreadthFirstSearch, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -31,7 +31,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeCellIteratorOnCellList : public vtkBridgeCellIt
 {
 public:
   static vtkBridgeCellIteratorOnCellList *New();
-  vtkTypeRevisionMacro(vtkBridgeCellIteratorOnCellList,
+  vtkTypeMacro(vtkBridgeCellIteratorOnCellList,
                        vtkBridgeCellIteratorStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
   

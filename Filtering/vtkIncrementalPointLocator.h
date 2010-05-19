@@ -48,7 +48,7 @@ class VTK_FILTERING_EXPORT vtkIncrementalPointLocator : public vtkAbstractPointL
 {
 public:
 
-  vtkTypeRevisionMacro( vtkIncrementalPointLocator, vtkAbstractPointLocator );
+  vtkTypeMacro( vtkIncrementalPointLocator, vtkAbstractPointLocator );
   void PrintSelf( ostream & os, vtkIndent indent );
   
   // Description:

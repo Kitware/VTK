@@ -24,7 +24,6 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.22");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);

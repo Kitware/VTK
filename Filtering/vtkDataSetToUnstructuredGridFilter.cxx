@@ -17,7 +17,6 @@
 #include "vtkInformation.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToUnstructuredGridFilter, "1.29");
 
 //----------------------------------------------------------------------------
 vtkDataSetToUnstructuredGridFilter::vtkDataSetToUnstructuredGridFilter()

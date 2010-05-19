@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Standard VTK methods.
-  vtkTypeRevisionMacro(vtkBiDimensionalRepresentation2D,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkBiDimensionalRepresentation2D,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

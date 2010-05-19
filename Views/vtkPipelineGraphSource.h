@@ -28,7 +28,7 @@ class VTK_VIEWS_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkPipelineGraphSource* New();
-  vtkTypeRevisionMacro(vtkPipelineGraphSource,vtkDirectedGraphAlgorithm);
+  vtkTypeMacro(vtkPipelineGraphSource,vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddSink(vtkObject* object);

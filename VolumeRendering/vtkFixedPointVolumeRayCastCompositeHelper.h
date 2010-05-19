@@ -38,7 +38,7 @@ class VTK_VOLUMERENDERING_EXPORT vtkFixedPointVolumeRayCastCompositeHelper : pub
 {
 public:
   static vtkFixedPointVolumeRayCastCompositeHelper *New();
-  vtkTypeRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper,vtkFixedPointVolumeRayCastHelper);
+  vtkTypeMacro(vtkFixedPointVolumeRayCastCompositeHelper,vtkFixedPointVolumeRayCastHelper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   virtual void  GenerateImage( int threadID, 

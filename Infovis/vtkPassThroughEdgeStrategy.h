@@ -31,7 +31,7 @@ class VTK_INFOVIS_EXPORT vtkPassThroughEdgeStrategy : public vtkEdgeLayoutStrate
 {
 public:
   static vtkPassThroughEdgeStrategy* New();
-  vtkTypeRevisionMacro(vtkPassThroughEdgeStrategy,vtkEdgeLayoutStrategy);
+  vtkTypeMacro(vtkPassThroughEdgeStrategy,vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -48,7 +48,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkScaleDimension :
 {
 public:
   static vtkScaleDimension* New();
-  vtkTypeRevisionMacro(vtkScaleDimension, vtkArrayDataAlgorithm);
+  vtkTypeMacro(vtkScaleDimension, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

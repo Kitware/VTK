@@ -34,7 +34,7 @@ class VTK_IMAGING_EXPORT vtkImageFFT : public vtkImageFourierFilter
 {
 public:
   static vtkImageFFT *New();
-  vtkTypeRevisionMacro(vtkImageFFT,vtkImageFourierFilter);
+  vtkTypeMacro(vtkImageFFT,vtkImageFourierFilter);
 
 
   // Description:

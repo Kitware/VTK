@@ -89,7 +89,7 @@ class VTK_COMMON_EXPORT vtkMultiThreader : public vtkObject
 public:
   static vtkMultiThreader *New();
 
-  vtkTypeRevisionMacro(vtkMultiThreader,vtkObject);
+  vtkTypeMacro(vtkMultiThreader,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

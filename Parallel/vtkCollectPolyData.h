@@ -30,7 +30,7 @@ class VTK_PARALLEL_EXPORT vtkCollectPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCollectPolyData *New();
-  vtkTypeRevisionMacro(vtkCollectPolyData, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCollectPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

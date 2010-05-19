@@ -34,7 +34,7 @@ class VTK_GENERIC_FILTERING_EXPORT vtkGenericOutlineFilter : public vtkPolyDataA
 {
 public:
   static vtkGenericOutlineFilter *New();
-  vtkTypeRevisionMacro(vtkGenericOutlineFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGenericOutlineFilter,vtkPolyDataAlgorithm);
 
 protected:
   vtkGenericOutlineFilter();

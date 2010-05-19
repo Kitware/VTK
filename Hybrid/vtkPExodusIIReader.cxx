@@ -91,7 +91,6 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.36");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand

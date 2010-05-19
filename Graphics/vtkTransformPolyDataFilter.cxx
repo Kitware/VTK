@@ -24,7 +24,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.35");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
                      Transform,vtkAbstractTransform);

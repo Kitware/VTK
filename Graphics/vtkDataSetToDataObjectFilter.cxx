@@ -29,7 +29,6 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.35");
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //----------------------------------------------------------------------------

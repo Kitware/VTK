@@ -234,7 +234,7 @@ class TestVTKFiles:
             rm = regx.match(line)
             if rm:
                 found = 1
-                if rm.group(1) != "Revision":
+                if rm.group(1) == "Revision":
                     oldlines.append(" %4d: %s" % (cc, line))
                 cname = rm.group(2)
                 pname = rm.group(3)
@@ -249,7 +249,7 @@ class TestVTKFiles:
                     rm = regx.match(line)
                     if rm:
                         found = 1
-                        if rm.group(1) != "Revision":
+                        if rm.group(1) == "Revision":
                             oldlines.append(" %4d: %s" % (cc, line))
                         cname = rm.group(2)
                         pname = rm.group(3)
@@ -260,19 +260,19 @@ class TestVTKFiles:
             self.Print( "File: %s has broken type macro(s):" % self.FileName )
             for a in lines:
                 self.Print( a )
-            self.Print( "Should be:\n vtkTypeRevisionMacro(%s, %s)" %
+            self.Print( "Should be:\n vtkTypeMacro(%s, %s)" %
                         (self.ClassName, self.ParentName) )
             self.Error("Broken type macro")
         if len(oldlines) > 0:
-            self.Print( "File: %s has old type macro(s):" % self.FileName )
+            self.Print( "File: %s has legacy type-revision macro(s):" % self.FileName )
             for a in oldlines:
                 self.Print( a )
-                self.Print( "Should be:\n vtkTypeRevisionMacro(%s, %s);" %
+                self.Print( "Should be:\n vtkTypeMacro(%s, %s);" %
                             (self.ClassName, self.ParentName))
-            self.Error("Old style type macro")
+            self.Error("Legacy style type-revision macro")
         if not found:
             self.Print( "File: %s does not have type macro" % self.FileName )
-            self.Print( "Should be:\n vtkTypeRevisionMacro(%s, %s);" %
+            self.Print( "Should be:\n vtkTypeMacro(%s, %s);" %
                             (self.ClassName, self.ParentName))
             self.Error("No type macro")
         pass

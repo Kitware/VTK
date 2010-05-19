@@ -29,7 +29,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.25");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices

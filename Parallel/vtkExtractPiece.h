@@ -36,7 +36,7 @@ class VTK_PARALLEL_EXPORT vtkExtractPiece : public vtkCompositeDataSetAlgorithm
 {
 public:
   static vtkExtractPiece* New();
-  vtkTypeRevisionMacro(vtkExtractPiece, vtkCompositeDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractPiece, vtkCompositeDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:

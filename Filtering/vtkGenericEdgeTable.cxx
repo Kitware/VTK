@@ -18,7 +18,6 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.13");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,

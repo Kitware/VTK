@@ -48,7 +48,7 @@ class VTK_IO_EXPORT vtkFLUENTReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkFLUENTReader *New();
-  vtkTypeRevisionMacro(vtkFLUENTReader,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkFLUENTReader,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

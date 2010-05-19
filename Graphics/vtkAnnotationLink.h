@@ -54,7 +54,7 @@ class VTK_GRAPHICS_EXPORT vtkAnnotationLink : public vtkAnnotationLayersAlgorith
 {
 public:
   static vtkAnnotationLink *New();
-  vtkTypeRevisionMacro(vtkAnnotationLink, vtkAnnotationLayersAlgorithm);
+  vtkTypeMacro(vtkAnnotationLink, vtkAnnotationLayersAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -17,7 +17,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataWriter, "1.7");
 vtkStandardNewMacro(vtkXMLImageDataWriter);
 
 //----------------------------------------------------------------------------

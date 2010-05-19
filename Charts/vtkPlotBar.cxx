@@ -33,7 +33,6 @@
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
 
-vtkCxxRevisionMacro(vtkPlotBar, "1.7");
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBar);

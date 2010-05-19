@@ -40,7 +40,7 @@
 class VTK_IMAGING_EXPORT vtkShepardMethod : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkShepardMethod,vtkImageAlgorithm);
+  vtkTypeMacro(vtkShepardMethod,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,7 +42,7 @@ class VTK_INFOVIS_EXPORT vtkBoostBreadthFirstSearchTree : public vtkTreeAlgorith
 {
 public:
   static vtkBoostBreadthFirstSearchTree *New();
-  vtkTypeRevisionMacro(vtkBoostBreadthFirstSearchTree, vtkTreeAlgorithm);
+  vtkTypeMacro(vtkBoostBreadthFirstSearchTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

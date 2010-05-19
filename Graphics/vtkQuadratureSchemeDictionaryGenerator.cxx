@@ -131,7 +131,6 @@ double W_QE_42_A[] = { 1.56250000000000e-01, -9.37500000000000e-02,
 }
 ;
 
-vtkCxxRevisionMacro(vtkQuadratureSchemeDictionaryGenerator, "1.7");
 vtkStandardNewMacro(vtkQuadratureSchemeDictionaryGenerator);
 
 //-----------------------------------------------------------------------------

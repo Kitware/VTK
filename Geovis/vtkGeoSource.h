@@ -50,7 +50,7 @@ class vtkMutexLock;
 class VTK_GEOVIS_EXPORT vtkGeoSource : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkGeoSource,vtkObject);
+  vtkTypeMacro(vtkGeoSource,vtkObject);
 
   vtkGeoSource();
   ~vtkGeoSource();

@@ -41,7 +41,7 @@ public:
 
   // Description:
   // Standar VTK class methods.
-  vtkTypeRevisionMacro(vtkLogoWidget,vtkBorderWidget);
+  vtkTypeMacro(vtkLogoWidget,vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

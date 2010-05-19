@@ -30,7 +30,7 @@
 class VTK_COMMON_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
-  vtkTypeRevisionMacro(vtkObjectFactoryCollection,vtkCollection);
+  vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);
   static vtkObjectFactoryCollection *New();
 
   // Description:

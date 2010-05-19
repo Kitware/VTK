@@ -55,7 +55,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnsignedIntArray.h"
 #include "vtkViewTheme.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelCoordinatesHistogramRepresentation, "1.3");
 vtkStandardNewMacro(vtkParallelCoordinatesHistogramRepresentation);
 //------------------------------------------------------------------------------
 vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRepresentation()

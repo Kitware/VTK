@@ -31,7 +31,7 @@ class VTK_CHARTS_EXPORT vtkContextView : public vtkRenderView
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkContextView,vtkRenderView);
+  vtkTypeMacro(vtkContextView,vtkRenderView);
 
   static vtkContextView* New();
 

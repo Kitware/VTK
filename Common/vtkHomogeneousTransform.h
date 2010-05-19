@@ -32,7 +32,7 @@ class VTK_COMMON_EXPORT vtkHomogeneousTransform : public vtkAbstractTransform
 {
 public:
 
-  vtkTypeRevisionMacro(vtkHomogeneousTransform,vtkAbstractTransform);
+  vtkTypeMacro(vtkHomogeneousTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

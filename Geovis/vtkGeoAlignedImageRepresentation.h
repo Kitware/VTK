@@ -38,7 +38,7 @@ class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataReprese
 {
 public:
   static vtkGeoAlignedImageRepresentation *New();
-  vtkTypeRevisionMacro(vtkGeoAlignedImageRepresentation,vtkDataRepresentation);
+  vtkTypeMacro(vtkGeoAlignedImageRepresentation,vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

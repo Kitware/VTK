@@ -35,7 +35,7 @@ class vtkMultiProcessController;
 class VTK_PARALLEL_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
-  vtkTypeRevisionMacro(vtkPStreamTracer,vtkStreamTracer);
+  vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

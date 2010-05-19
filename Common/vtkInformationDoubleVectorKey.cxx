@@ -18,7 +18,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleVectorKey

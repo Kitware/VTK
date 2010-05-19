@@ -60,7 +60,7 @@ class VTK_HYBRID_EXPORT vtkTemporalInterpolator : public vtkTemporalDataSetAlgor
 {
 public:
   static vtkTemporalInterpolator *New();
-  vtkTypeRevisionMacro(vtkTemporalInterpolator, vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalInterpolator, vtkTemporalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -51,7 +51,7 @@ class vtkKdNode;
 class VTK_PARALLEL_EXPORT vtkPKdTree : public vtkKdTree
 {
 public:
-  vtkTypeRevisionMacro(vtkPKdTree, vtkKdTree);
+  vtkTypeMacro(vtkPKdTree, vtkKdTree);
 
 
   void PrintSelf(ostream& os, vtkIndent indent);

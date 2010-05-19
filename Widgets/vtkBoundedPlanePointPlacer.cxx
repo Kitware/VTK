@@ -26,7 +26,6 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.10");
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);

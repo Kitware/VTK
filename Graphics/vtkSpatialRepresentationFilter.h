@@ -64,7 +64,7 @@ class VTK_GRAPHICS_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSou
 {
 public:
   static vtkSpatialRepresentationFilter *New();
-  vtkTypeRevisionMacro(vtkSpatialRepresentationFilter,vtkPolyDataSource);
+  vtkTypeMacro(vtkSpatialRepresentationFilter,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

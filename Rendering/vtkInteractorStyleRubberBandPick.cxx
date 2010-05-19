@@ -23,7 +23,6 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.11");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0

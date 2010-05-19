@@ -32,7 +32,6 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.12");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0

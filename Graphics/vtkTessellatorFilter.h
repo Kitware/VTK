@@ -66,7 +66,7 @@ class vtkUnstructuredGrid;
 class VTK_GRAPHICS_EXPORT vtkTessellatorFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkTessellatorFilter,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkTessellatorFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   static vtkTessellatorFilter* New();

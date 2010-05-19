@@ -26,7 +26,6 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.28");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()

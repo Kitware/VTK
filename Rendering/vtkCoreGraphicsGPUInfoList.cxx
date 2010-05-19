@@ -20,7 +20,6 @@
 #include <assert.h>
 #include <ApplicationServices/ApplicationServices.h>
 
-vtkCxxRevisionMacro(vtkCoreGraphicsGPUInfoList, "1.2");
 vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 
 // ----------------------------------------------------------------------------

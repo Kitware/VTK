@@ -33,7 +33,7 @@ class VTK_GRAPHICS_EXPORT vtkTransformCoordinateSystems : public vtkPointSetAlgo
 public:
   // Description:
   // Standard methods for type information and printing.
-  vtkTypeRevisionMacro(vtkTransformCoordinateSystems,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkTransformCoordinateSystems,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

@@ -73,7 +73,6 @@ static void BuildGraph(vtkGraph* input_graph, const vtkstd::vector<vtkIdType>& v
 ///////////////////////////////////////////////////////////////////////////////////
 // vtkCollapseGraph
 
-vtkCxxRevisionMacro(vtkCollapseGraph, "1.2");
 vtkStandardNewMacro(vtkCollapseGraph);
 
 vtkCollapseGraph::vtkCollapseGraph()

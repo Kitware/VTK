@@ -86,7 +86,7 @@ class VTK_RENDERING_EXPORT vtkLineIntegralConvolution2D : public vtkObject
 public:
 
   static vtkLineIntegralConvolution2D * New();
-  vtkTypeRevisionMacro( vtkLineIntegralConvolution2D, vtkObject );
+  vtkTypeMacro( vtkLineIntegralConvolution2D, vtkObject );
   void PrintSelf( ostream & os, vtkIndent indent );
   
   // Description:

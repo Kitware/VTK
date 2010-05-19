@@ -26,7 +26,6 @@
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkOBBDicer, "1.22");
 vtkStandardNewMacro(vtkOBBDicer);
 
 void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,

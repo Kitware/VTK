@@ -41,7 +41,7 @@ class VTK_IO_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkParticleReader *New();
-  vtkTypeRevisionMacro(vtkParticleReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkParticleReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

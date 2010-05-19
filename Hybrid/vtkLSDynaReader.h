@@ -155,7 +155,7 @@ class vtkUnstructuredGrid;
 class VTK_HYBRID_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkLSDynaReader *New();
 

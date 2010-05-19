@@ -33,7 +33,7 @@ class VTK_COMMON_EXPORT vtkExtentTranslator : public vtkObject
 public:
   static vtkExtentTranslator *New();
 
-  vtkTypeRevisionMacro(vtkExtentTranslator,vtkObject);
+  vtkTypeMacro(vtkExtentTranslator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

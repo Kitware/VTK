@@ -49,7 +49,7 @@
 class VTK_GRAPHICS_EXPORT vtkExtractTensorComponents : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractTensorComponents,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkExtractTensorComponents,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

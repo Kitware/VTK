@@ -74,7 +74,7 @@ class VTK_FILTERING_EXPORT vtkPolyData : public vtkPointSet
 public:
   static vtkPolyData *New();
 
-  vtkTypeRevisionMacro(vtkPolyData,vtkPointSet);
+  vtkTypeMacro(vtkPolyData,vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

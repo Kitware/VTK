@@ -78,7 +78,6 @@ static int NetCDFTypeToVTKType(nc_type type)
 }
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkNetCDFReader, "1.7.4.1");
 vtkStandardNewMacro(vtkNetCDFReader);
 
 //-----------------------------------------------------------------------------

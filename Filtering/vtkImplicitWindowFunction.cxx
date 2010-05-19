@@ -17,7 +17,6 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.21");
 vtkStandardNewMacro(vtkImplicitWindowFunction);
 vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunction);
 

@@ -73,7 +73,7 @@ class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil :
 {
 public:
   static vtkPolyDataToImageStencil* New();
-  vtkTypeRevisionMacro(vtkPolyDataToImageStencil, vtkImageStencilSource);
+  vtkTypeMacro(vtkPolyDataToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -26,7 +26,6 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.5");
 vtkStandardNewMacro(vtkPixel);
 
 //----------------------------------------------------------------------------

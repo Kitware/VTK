@@ -39,7 +39,6 @@
 #include "vtkTDxUnixDevice.h"
 #endif
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.143");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this

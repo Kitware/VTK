@@ -371,7 +371,6 @@ static int TRIANGLE_VERTEX_STATE[3]={5,  // 1 0 1
                                      3,  // 0 1 1
                                      6}; // 1 1 0
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.25");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //

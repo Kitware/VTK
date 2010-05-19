@@ -58,7 +58,7 @@ class vtkPolyData;
 class VTK_FILTERING_EXPORT vtkLocator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkLocator,vtkObject);
+  vtkTypeMacro(vtkLocator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

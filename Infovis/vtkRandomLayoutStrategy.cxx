@@ -32,7 +32,6 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()

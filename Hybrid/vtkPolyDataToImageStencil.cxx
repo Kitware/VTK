@@ -73,7 +73,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.32");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);

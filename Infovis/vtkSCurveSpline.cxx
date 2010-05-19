@@ -24,7 +24,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <assert.h>
 #include <vtkstd/algorithm> // for vtkstd::min()/vtkstd::max()
 
-vtkCxxRevisionMacro(vtkSCurveSpline, "1.3");
 vtkStandardNewMacro(vtkSCurveSpline);
 
 //----------------------------------------------------------------------------

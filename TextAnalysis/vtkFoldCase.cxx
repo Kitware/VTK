@@ -31,7 +31,6 @@
 
 #include <stdexcept>
 
-vtkCxxRevisionMacro(vtkFoldCase, "1.3");
 vtkStandardNewMacro(vtkFoldCase);
 
 vtkFoldCase::vtkFoldCase() :

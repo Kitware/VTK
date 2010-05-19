@@ -59,7 +59,7 @@ class VTK_INFOVIS_EXPORT vtkGraphHierarchicalBundle : public vtkPolyDataAlgorith
 public:
   static vtkGraphHierarchicalBundle *New();
 
-  vtkTypeRevisionMacro(vtkGraphHierarchicalBundle,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGraphHierarchicalBundle,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

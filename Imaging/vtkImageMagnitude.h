@@ -27,7 +27,7 @@ class VTK_IMAGING_EXPORT vtkImageMagnitude : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMagnitude *New();
-  vtkTypeRevisionMacro(vtkImageMagnitude,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageMagnitude,vtkThreadedImageAlgorithm);
 
 protected:
   vtkImageMagnitude();

@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Standard methods for a VTK class.
-  vtkTypeRevisionMacro(vtkCheckerboardWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkCheckerboardWidget,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

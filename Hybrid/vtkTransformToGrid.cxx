@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.21");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);

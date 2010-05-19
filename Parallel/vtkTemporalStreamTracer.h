@@ -86,7 +86,7 @@ class VTK_PARALLEL_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
 {
 public:
 
-    vtkTypeRevisionMacro(vtkTemporalStreamTracer,vtkStreamTracer);
+    vtkTypeMacro(vtkTemporalStreamTracer,vtkStreamTracer);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:

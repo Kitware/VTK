@@ -39,7 +39,6 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkSliderRepresentation3D, "1.10");
 vtkStandardNewMacro(vtkSliderRepresentation3D);
 
 //----------------------------------------------------------------------

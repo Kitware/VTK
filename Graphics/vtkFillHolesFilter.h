@@ -45,7 +45,7 @@ public:
   // Description:
   // Standard methods for instantiation, type information and printing.
   static vtkFillHolesFilter *New();
-  vtkTypeRevisionMacro(vtkFillHolesFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkFillHolesFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,6 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLMinimumSpanningTree, "1.5");
 vtkStandardNewMacro(vtkPBGLMinimumSpanningTree);
 
 // Constructor/Destructor

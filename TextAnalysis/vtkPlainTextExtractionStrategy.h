@@ -43,7 +43,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkPlainTextExtractionStrategy :
 {
 public:
   static vtkPlainTextExtractionStrategy* New();
-  vtkTypeRevisionMacro(vtkPlainTextExtractionStrategy, vtkTextExtractionStrategy);
+  vtkTypeMacro(vtkPlainTextExtractionStrategy, vtkTextExtractionStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual bool Extract(

@@ -31,7 +31,7 @@ public:
   // Construct an instance of vtkImageCanvasSource2D with no data.
   static vtkImageCanvasSource2D *New();
 
-  vtkTypeRevisionMacro(vtkImageCanvasSource2D,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageCanvasSource2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

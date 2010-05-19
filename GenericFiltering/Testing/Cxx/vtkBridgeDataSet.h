@@ -29,7 +29,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeDataSet : public vtkGenericDataSet
 {
 public:
   static vtkBridgeDataSet *New();
-  vtkTypeRevisionMacro(vtkBridgeDataSet,vtkGenericDataSet);
+  vtkTypeMacro(vtkBridgeDataSet,vtkGenericDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

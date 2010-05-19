@@ -42,7 +42,7 @@ class VTK_WIDGETS_EXPORT vtkContourLineInterpolator : public vtkObject
 public:
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkContourLineInterpolator,vtkObject);
+  vtkTypeMacro(vtkContourLineInterpolator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

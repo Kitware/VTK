@@ -29,7 +29,7 @@ class VTK_PARALLEL_EXPORT vtkDummyController : public vtkMultiProcessController
 {
 public:
   static vtkDummyController *New();
-  vtkTypeRevisionMacro(vtkDummyController,vtkMultiProcessController);
+  vtkTypeMacro(vtkDummyController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

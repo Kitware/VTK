@@ -81,7 +81,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "Partition.h"
 
-vtkCxxRevisionMacro(vtkPCosmoHaloFinder, "1.2.4.2");
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
 /****************************************************************************/

@@ -22,7 +22,6 @@
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkCaptionWidget, "1.4");
 vtkStandardNewMacro(vtkCaptionWidget);
 
 // The point widget invokes events that we watch for. Basically

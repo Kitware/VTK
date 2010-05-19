@@ -45,7 +45,7 @@ class vtkRenderWindow;
 class VTK_RENDERING_EXPORT vtkGLSLShaderProgram : public vtkShaderProgram
 {
 public:
-  vtkTypeRevisionMacro(vtkGLSLShaderProgram, vtkShaderProgram);
+  vtkTypeMacro(vtkGLSLShaderProgram, vtkShaderProgram);
   static vtkGLSLShaderProgram *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 

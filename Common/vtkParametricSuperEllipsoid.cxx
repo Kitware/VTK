@@ -17,7 +17,6 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricSuperEllipsoid, "1.5");
 vtkStandardNewMacro(vtkParametricSuperEllipsoid);
 
 //----------------------------------------------------------------------------

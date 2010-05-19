@@ -29,7 +29,7 @@ class vtkIntArray;
 class VTK_CHARTS_EXPORT vtkContextBufferId : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkContextBufferId, vtkObject);
+  vtkTypeMacro(vtkContextBufferId, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

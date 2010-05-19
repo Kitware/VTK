@@ -23,7 +23,6 @@
 #include "vtkAssemblyNode.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkPolyDataPointPlacer, "1.4");
 vtkStandardNewMacro(vtkPolyDataPointPlacer);
 
 //----------------------------------------------------------------------

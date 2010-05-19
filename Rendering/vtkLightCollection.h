@@ -32,7 +32,7 @@ class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
   static vtkLightCollection *New();
-  vtkTypeRevisionMacro(vtkLightCollection,vtkCollection);
+  vtkTypeMacro(vtkLightCollection,vtkCollection);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

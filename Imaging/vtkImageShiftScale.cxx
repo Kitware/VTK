@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.54");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------

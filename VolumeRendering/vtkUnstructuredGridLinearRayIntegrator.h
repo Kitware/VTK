@@ -48,7 +48,7 @@ class vtkVolumeProperty;
 class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridLinearRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridLinearRayIntegrator,
+  vtkTypeMacro(vtkUnstructuredGridLinearRayIntegrator,
                        vtkUnstructuredGridVolumeRayIntegrator);
   static vtkUnstructuredGridLinearRayIntegrator *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);

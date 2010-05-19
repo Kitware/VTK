@@ -35,7 +35,6 @@
  #define Custom_TreeType vtkModifiedBSPTree
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCachingInterpolatedVelocityField, "1.3");
 vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;

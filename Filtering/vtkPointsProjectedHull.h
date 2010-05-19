@@ -33,7 +33,7 @@
 
 class VTK_FILTERING_EXPORT vtkPointsProjectedHull : public vtkPoints
 {
-    vtkTypeRevisionMacro(vtkPointsProjectedHull, vtkPoints);
+    vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
 
 public:
     void PrintSelf(ostream& os, vtkIndent indent);

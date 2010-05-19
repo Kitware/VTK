@@ -47,7 +47,7 @@ class vtkStringArray;
 class VTK_IO_EXPORT vtkNetCDFReader : public vtkDataObjectAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkNetCDFReader, vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkNetCDFReader, vtkDataObjectAlgorithm);
   static vtkNetCDFReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

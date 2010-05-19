@@ -42,7 +42,7 @@ class VTK_INFOVIS_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayoutStra
 {
 public:
   static vtkSquarifyLayoutStrategy *New();
-  vtkTypeRevisionMacro(vtkSquarifyLayoutStrategy,vtkTreeMapLayoutStrategy);
+  vtkTypeMacro(vtkSquarifyLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

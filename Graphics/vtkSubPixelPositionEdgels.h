@@ -43,7 +43,7 @@ class VTK_GRAPHICS_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlgorith
 {
 public:
   static vtkSubPixelPositionEdgels *New();
-  vtkTypeRevisionMacro(vtkSubPixelPositionEdgels,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSubPixelPositionEdgels,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

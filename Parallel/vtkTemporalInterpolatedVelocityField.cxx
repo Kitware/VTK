@@ -25,7 +25,6 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.9");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()

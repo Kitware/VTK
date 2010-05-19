@@ -27,7 +27,6 @@
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
 
-vtkCxxRevisionMacro(vtkEdgeListIterator, "1.4");
 vtkStandardNewMacro(vtkEdgeListIterator);
 //----------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()

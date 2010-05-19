@@ -34,7 +34,7 @@ class vtkPolyData;
 class VTK_IO_EXPORT vtkXMLPolyDataWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLPolyDataWriter,vtkXMLUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLPolyDataWriter,vtkXMLUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataWriter* New();
 

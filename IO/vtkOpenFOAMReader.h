@@ -53,7 +53,7 @@ class VTK_IO_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkOpenFOAMReader *New();
-  vtkTypeRevisionMacro(vtkOpenFOAMReader, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkOpenFOAMReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream &, vtkIndent);
 
   // Description:

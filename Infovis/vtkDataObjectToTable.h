@@ -32,7 +32,7 @@ class VTK_INFOVIS_EXPORT vtkDataObjectToTable : public vtkTableAlgorithm
 {
 public:
   static vtkDataObjectToTable* New();
-  vtkTypeRevisionMacro(vtkDataObjectToTable,vtkTableAlgorithm);
+  vtkTypeMacro(vtkDataObjectToTable,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //BTX

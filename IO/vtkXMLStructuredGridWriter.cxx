@@ -25,7 +25,6 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.11");
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
 //----------------------------------------------------------------------------

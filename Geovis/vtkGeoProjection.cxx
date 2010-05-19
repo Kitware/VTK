@@ -27,7 +27,6 @@
 #include "vtk_libproj4.h"
 
 vtkStandardNewMacro(vtkGeoProjection);
-vtkCxxRevisionMacro(vtkGeoProjection,"1.1");
 
 static int vtkGeoProjectionNumProj = -1;
 

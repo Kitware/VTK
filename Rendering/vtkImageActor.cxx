@@ -20,7 +20,6 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.24");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

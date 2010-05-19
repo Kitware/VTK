@@ -60,7 +60,7 @@ public:
   // VTK_SCALARS.
   static vtkArcPlotter *New();
 
-  vtkTypeRevisionMacro(vtkArcPlotter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkArcPlotter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

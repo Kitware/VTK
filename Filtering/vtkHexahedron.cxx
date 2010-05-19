@@ -24,7 +24,6 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.6");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;

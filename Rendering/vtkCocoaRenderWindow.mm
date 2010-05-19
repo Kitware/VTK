@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #import <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.72");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 

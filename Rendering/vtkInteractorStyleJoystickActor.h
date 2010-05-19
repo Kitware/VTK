@@ -42,7 +42,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickActor : public vtkInteracto
 public:
   static vtkInteractorStyleJoystickActor *New();
 
-  vtkTypeRevisionMacro(vtkInteractorStyleJoystickActor,vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleJoystickActor,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

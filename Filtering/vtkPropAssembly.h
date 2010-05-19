@@ -46,7 +46,7 @@
 class VTK_FILTERING_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
-  vtkTypeRevisionMacro(vtkPropAssembly,vtkProp);
+  vtkTypeMacro(vtkPropAssembly,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -40,7 +40,7 @@ class vtkSelectionNode;
 class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
+  vtkTypeMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

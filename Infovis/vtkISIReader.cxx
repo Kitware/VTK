@@ -29,7 +29,6 @@
 #include <vtkstd/map>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkISIReader, "1.6");
 vtkStandardNewMacro(vtkISIReader);
 
 // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so

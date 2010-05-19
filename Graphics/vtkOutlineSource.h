@@ -33,7 +33,7 @@ class VTK_GRAPHICS_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOutlineSource *New();
-  vtkTypeRevisionMacro(vtkOutlineSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkOutlineSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

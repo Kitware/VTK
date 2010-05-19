@@ -43,7 +43,7 @@ class vtkAbstractArray;
 class VTK_COMMON_EXPORT vtkArrayIterator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkArrayIterator, vtkObject);
+  vtkTypeMacro(vtkArrayIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

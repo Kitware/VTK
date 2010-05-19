@@ -27,7 +27,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEarthSource, "1.27");
 vtkStandardNewMacro(vtkEarthSource);
 
 // Description:

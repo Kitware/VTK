@@ -39,7 +39,7 @@ class vtkLinearTransform;
 class VTK_RENDERING_EXPORT vtkProp3D : public vtkProp
 {
 public:
-  vtkTypeRevisionMacro(vtkProp3D,vtkProp);
+  vtkTypeMacro(vtkProp3D,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

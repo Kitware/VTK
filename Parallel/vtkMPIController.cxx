@@ -32,7 +32,7 @@ int vtkMPIController::UseSsendForRMI = 0;
 class VTK_PARALLEL_EXPORT vtkMPIOutputWindow : public vtkOutputWindow
 {
 public:
-  vtkTypeRevisionMacro(vtkMPIOutputWindow,vtkOutputWindow);
+  vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);
 
   void DisplayText(const char* t)
     {
@@ -70,9 +70,7 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.29");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.29");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------

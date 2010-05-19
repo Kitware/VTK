@@ -30,7 +30,7 @@ class VTK_CHARTS_EXPORT vtkContextActor : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkContextActor,vtkProp);
+  vtkTypeMacro(vtkContextActor,vtkProp);
 
   static vtkContextActor* New();
 

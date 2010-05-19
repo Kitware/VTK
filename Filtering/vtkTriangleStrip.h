@@ -34,7 +34,7 @@ class VTK_FILTERING_EXPORT vtkTriangleStrip : public vtkCell
 {
 public:
   static vtkTriangleStrip *New();
-  vtkTypeRevisionMacro(vtkTriangleStrip,vtkCell);
+  vtkTypeMacro(vtkTriangleStrip,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

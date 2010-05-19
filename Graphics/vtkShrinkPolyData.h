@@ -42,7 +42,7 @@ class VTK_GRAPHICS_EXPORT vtkShrinkPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkShrinkPolyData *New();
-  vtkTypeRevisionMacro(vtkShrinkPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkShrinkPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

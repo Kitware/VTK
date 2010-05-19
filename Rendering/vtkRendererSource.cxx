@@ -27,7 +27,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.63");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);

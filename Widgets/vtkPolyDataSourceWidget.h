@@ -42,7 +42,7 @@ class vtkPolyDataSource;
 class VTK_WIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
  public:
-  vtkTypeRevisionMacro(vtkPolyDataSourceWidget, vtk3DWidget);
+  vtkTypeMacro(vtkPolyDataSourceWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

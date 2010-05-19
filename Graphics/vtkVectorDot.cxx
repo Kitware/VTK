@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.40");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).

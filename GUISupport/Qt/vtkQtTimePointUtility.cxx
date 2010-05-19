@@ -22,7 +22,6 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQtTimePointUtility, "1.2");
 
 QDateTime vtkQtTimePointUtility::TimePointToQDateTime(vtkTypeUInt64 time)
 {

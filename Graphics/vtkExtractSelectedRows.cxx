@@ -48,7 +48,6 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedRows, "1.3");
 vtkStandardNewMacro(vtkExtractSelectedRows);
 //----------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()

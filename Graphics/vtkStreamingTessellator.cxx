@@ -77,7 +77,6 @@ static void DefaultFacet0Callback(
   (void)pd;
 }
 
-vtkCxxRevisionMacro(vtkStreamingTessellator,"1.3");
 vtkStandardNewMacro(vtkStreamingTessellator);
 
 void vtkStreamingTessellator::PrintSelf( ostream& os, vtkIndent indent )

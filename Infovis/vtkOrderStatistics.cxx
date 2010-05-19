@@ -37,7 +37,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.55");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------

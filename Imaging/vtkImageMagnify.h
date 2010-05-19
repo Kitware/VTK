@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkImageMagnify : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMagnify *New();
-  vtkTypeRevisionMacro(vtkImageMagnify,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageMagnify,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

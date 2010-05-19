@@ -49,7 +49,7 @@ class VTK_INFOVIS_EXPORT vtkStrahlerMetric : public vtkTreeAlgorithm
 {
 public:
   static vtkStrahlerMetric *New();
-  vtkTypeRevisionMacro(vtkStrahlerMetric,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkStrahlerMetric,vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

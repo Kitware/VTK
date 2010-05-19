@@ -37,7 +37,7 @@ class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageAlgorithm
 {
 public:
   static vtkImageSeedConnectivity *New();
-  vtkTypeRevisionMacro(vtkImageSeedConnectivity,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageSeedConnectivity,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

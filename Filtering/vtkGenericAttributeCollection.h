@@ -35,7 +35,7 @@ public:
   
   // Description:
   // Standard type definition and print methods for a VTK class.
-  vtkTypeRevisionMacro(vtkGenericAttributeCollection,vtkObject);
+  vtkTypeMacro(vtkGenericAttributeCollection,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

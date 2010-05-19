@@ -48,7 +48,6 @@ public:
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
-vtkCxxRevisionMacro(vtkHardwareSelector, "1.8");
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()

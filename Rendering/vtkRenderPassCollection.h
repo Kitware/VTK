@@ -32,7 +32,7 @@ class VTK_RENDERING_EXPORT vtkRenderPassCollection : public vtkCollection
 {
  public:
   static vtkRenderPassCollection *New();
-  vtkTypeRevisionMacro(vtkRenderPassCollection,vtkCollection);
+  vtkTypeMacro(vtkRenderPassCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

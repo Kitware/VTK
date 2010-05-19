@@ -30,7 +30,7 @@ class VTK_IMAGING_EXPORT vtkImageResample : public vtkImageReslice
 {
 public:
   static vtkImageResample *New();
-  vtkTypeRevisionMacro(vtkImageResample,vtkImageReslice);
+  vtkTypeMacro(vtkImageResample,vtkImageReslice);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

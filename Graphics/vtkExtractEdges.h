@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractEdges : public vtkPolyDataAlgorithm
 {
 public:
   static vtkExtractEdges *New();
-  vtkTypeRevisionMacro(vtkExtractEdges,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkExtractEdges,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

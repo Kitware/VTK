@@ -33,8 +33,6 @@ private:
   virtual const char* GetClassNameInternal() const 
     { return "vtkArrayIteratorTemplate"; }
 
-protected:
-  void CollectRevisions(ostream& os);
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
   

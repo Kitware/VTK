@@ -46,7 +46,7 @@ class vtkPoints;
 class VTK_FILTERING_EXPORT vtkAbstractCellLocator : public vtkLocator
 {
 public:
-  vtkTypeRevisionMacro(vtkAbstractCellLocator,vtkLocator);
+  vtkTypeMacro(vtkAbstractCellLocator,vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

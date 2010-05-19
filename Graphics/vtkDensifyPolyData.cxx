@@ -348,7 +348,6 @@ private:
 
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDensifyPolyData, "1.2");
 vtkStandardNewMacro(vtkDensifyPolyData);
 
 //----------------------------------------------------------------------------

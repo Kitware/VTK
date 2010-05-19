@@ -38,7 +38,7 @@ class VTK_COMMON_EXPORT vtkMinimalStandardRandomSequence
   : public vtkRandomSequence
 {
 public:
-  vtkTypeRevisionMacro(vtkMinimalStandardRandomSequence,vtkRandomSequence);
+  vtkTypeMacro(vtkMinimalStandardRandomSequence,vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkMinimalStandardRandomSequence* New();

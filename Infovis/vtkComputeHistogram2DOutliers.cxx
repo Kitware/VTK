@@ -37,7 +37,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSortDataArray.h"
 #include "vtkTable.h"
 //------------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkComputeHistogram2DOutliers, "1.2");
 vtkStandardNewMacro(vtkComputeHistogram2DOutliers);
 //------------------------------------------------------------------------------
 vtkComputeHistogram2DOutliers::vtkComputeHistogram2DOutliers()

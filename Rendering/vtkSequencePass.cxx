@@ -18,7 +18,6 @@
 #include <assert.h>
 #include "vtkRenderPassCollection.h"
 
-vtkCxxRevisionMacro(vtkSequencePass, "1.1");
 vtkStandardNewMacro(vtkSequencePass);
 vtkCxxSetObjectMacro(vtkSequencePass,Passes,vtkRenderPassCollection);
 

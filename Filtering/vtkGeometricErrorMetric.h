@@ -39,7 +39,7 @@ public:
   
   // Description:
   // Standard VTK type and error macros.
-  vtkTypeRevisionMacro(vtkGeometricErrorMetric,vtkGenericSubdivisionErrorMetric);
+  vtkTypeMacro(vtkGeometricErrorMetric,vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

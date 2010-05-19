@@ -83,7 +83,7 @@ class vtkEdgeSubdivisionCriterion;
 class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
 {
   public:
-    vtkTypeRevisionMacro(vtkStreamingTessellator,vtkObject);
+    vtkTypeMacro(vtkStreamingTessellator,vtkObject);
     static vtkStreamingTessellator* New();
     virtual void PrintSelf( ostream& os, vtkIndent indent );
 

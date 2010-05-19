@@ -22,7 +22,6 @@
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHull, "1.40");
 vtkStandardNewMacro(vtkHull);
 
 // Construct an the hull object with no planes

@@ -22,7 +22,6 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGraphEdge, "1.2");
 vtkStandardNewMacro(vtkGraphEdge);
 //----------------------------------------------------------------------------
 vtkGraphEdge::vtkGraphEdge()

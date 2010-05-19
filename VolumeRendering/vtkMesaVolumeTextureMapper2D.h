@@ -29,7 +29,7 @@
 class VTK_VOLUMERENDERING_EXPORT vtkMesaVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
 {
 public:
-  vtkTypeRevisionMacro(vtkMesaVolumeTextureMapper2D,vtkVolumeTextureMapper2D);
+  vtkTypeMacro(vtkMesaVolumeTextureMapper2D,vtkVolumeTextureMapper2D);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   static vtkMesaVolumeTextureMapper2D *New();

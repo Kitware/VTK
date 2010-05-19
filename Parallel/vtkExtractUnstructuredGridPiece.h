@@ -27,7 +27,7 @@ class VTK_PARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnstructur
 {
 public:
   static vtkExtractUnstructuredGridPiece *New();
-  vtkTypeRevisionMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

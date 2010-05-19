@@ -50,7 +50,7 @@ class vtkPoints;
 class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkRibbonFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRibbonFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

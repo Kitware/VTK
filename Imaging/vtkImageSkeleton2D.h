@@ -35,7 +35,7 @@ class VTK_IMAGING_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
   static vtkImageSkeleton2D *New();
-  vtkTypeRevisionMacro(vtkImageSkeleton2D,vtkImageIterateFilter);
+  vtkTypeMacro(vtkImageSkeleton2D,vtkImageIterateFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

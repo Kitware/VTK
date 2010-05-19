@@ -77,7 +77,7 @@ class VTK_IO_EXPORT vtkXMLMaterialParser : public vtkXMLParser
 {
 public:
   static vtkXMLMaterialParser *New();
-  vtkTypeRevisionMacro(vtkXMLMaterialParser,vtkXMLParser);
+  vtkTypeMacro(vtkXMLMaterialParser,vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

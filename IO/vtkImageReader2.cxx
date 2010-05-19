@@ -26,7 +26,6 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.43");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read

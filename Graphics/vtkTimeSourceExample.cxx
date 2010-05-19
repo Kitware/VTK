@@ -30,7 +30,6 @@
 #include "vtkIdTypeArray.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTimeSourceExample, "1.7");
 vtkStandardNewMacro(vtkTimeSourceExample);
 
 #ifndef M_PI

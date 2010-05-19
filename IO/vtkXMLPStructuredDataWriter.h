@@ -28,7 +28,7 @@ class vtkExtentTranslator;
 class VTK_IO_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
+  vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

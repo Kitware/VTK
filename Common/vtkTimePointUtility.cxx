@@ -43,7 +43,6 @@ const int vtkTimePointUtility::MINUTES_PER_HOUR   =       60;
 const int vtkTimePointUtility::MINUTES_PER_DAY    =     1440;
 const int vtkTimePointUtility::HOURS_PER_DAY      =       24;
 
-vtkCxxRevisionMacro(vtkTimePointUtility, "1.3");
 vtkStandardNewMacro(vtkTimePointUtility);
 
 void vtkTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)

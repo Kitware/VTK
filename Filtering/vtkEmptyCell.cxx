@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkEmptyCell, "1.4");
 vtkStandardNewMacro(vtkEmptyCell);
 
 //----------------------------------------------------------------------------

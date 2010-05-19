@@ -51,7 +51,7 @@ class VTK_RENDERING_EXPORT vtkPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPicker *New();
-  vtkTypeRevisionMacro(vtkPicker,vtkAbstractPropPicker);
+  vtkTypeMacro(vtkPicker,vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

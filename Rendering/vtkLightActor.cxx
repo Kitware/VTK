@@ -25,7 +25,6 @@
 #include "vtkProperty.h"
 #include "vtkBoundingBox.h"
 
-vtkCxxRevisionMacro(vtkLightActor, "1.3");
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 

@@ -37,7 +37,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.6");
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,

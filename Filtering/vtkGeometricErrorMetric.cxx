@@ -22,7 +22,6 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.7");
 vtkStandardNewMacro(vtkGeometricErrorMetric);
 
 //-----------------------------------------------------------------------------

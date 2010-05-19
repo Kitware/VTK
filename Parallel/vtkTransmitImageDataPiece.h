@@ -32,7 +32,7 @@ class VTK_PARALLEL_EXPORT vtkTransmitImageDataPiece : public vtkImageAlgorithm
 {
 public:
   static vtkTransmitImageDataPiece *New();
-  vtkTypeRevisionMacro(vtkTransmitImageDataPiece, vtkImageAlgorithm);
+  vtkTypeMacro(vtkTransmitImageDataPiece, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

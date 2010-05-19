@@ -45,7 +45,7 @@ class VTK_FILTERING_EXPORT vtkBiQuadraticTriangle : public vtkNonLinearCell
 {
 public:
   static vtkBiQuadraticTriangle *New();
-  vtkTypeRevisionMacro(vtkBiQuadraticTriangle,vtkNonLinearCell);
+  vtkTypeMacro(vtkBiQuadraticTriangle,vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

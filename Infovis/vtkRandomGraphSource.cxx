@@ -35,7 +35,6 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.13");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------

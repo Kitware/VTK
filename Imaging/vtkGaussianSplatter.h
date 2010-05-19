@@ -75,7 +75,7 @@ class vtkDoubleArray;
 class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkGaussianSplatter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkGaussianSplatter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

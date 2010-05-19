@@ -33,7 +33,7 @@ class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkLabelRenderStrategy, vtkObject);
+  vtkTypeMacro(vtkLabelRenderStrategy, vtkObject);
 
   // Description:
   // Whether the text rendering strategy supports rotation.

@@ -22,7 +22,6 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.30");
 vtkStandardNewMacro(vtkWarpLens);
 
 //

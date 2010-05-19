@@ -83,7 +83,7 @@ class VTK_INFOVIS_EXPORT vtkApplyColors : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkApplyColors *New();
-  vtkTypeRevisionMacro(vtkApplyColors, vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkApplyColors, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -21,7 +21,6 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkChart, "1.16");
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
 
 //-----------------------------------------------------------------------------

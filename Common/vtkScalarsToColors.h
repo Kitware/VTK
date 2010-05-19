@@ -37,7 +37,7 @@ class vtkUnsignedCharArray;
 class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkScalarsToColors,vtkObject);
+  vtkTypeMacro(vtkScalarsToColors,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

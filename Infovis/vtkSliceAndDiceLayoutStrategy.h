@@ -38,7 +38,7 @@ class VTK_INFOVIS_EXPORT vtkSliceAndDiceLayoutStrategy : public vtkTreeMapLayout
 public:
   static vtkSliceAndDiceLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkSliceAndDiceLayoutStrategy,vtkTreeMapLayoutStrategy);
+  vtkTypeMacro(vtkSliceAndDiceLayoutStrategy,vtkTreeMapLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

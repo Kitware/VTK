@@ -33,7 +33,7 @@ class VTK_FILTERING_EXPORT vtkDataObjectTypes : public vtkObject
 public:
   static vtkDataObjectTypes *New();
 
-  vtkTypeRevisionMacro(vtkDataObjectTypes,vtkObject);
+  vtkTypeMacro(vtkDataObjectTypes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

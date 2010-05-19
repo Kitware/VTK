@@ -55,7 +55,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <QHttpRequestHeader>
 #include <QUrl>
 
-vtkCxxRevisionMacro(vtkQtRichTextView, "1.20");
 vtkStandardNewMacro(vtkQtRichTextView);
 
 /////////////////////////////////////////////////////////////////////////////

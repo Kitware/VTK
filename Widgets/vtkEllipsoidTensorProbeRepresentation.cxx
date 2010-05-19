@@ -31,7 +31,6 @@
 #include "vtkCellPicker.h"
 #include "vtkAssemblyPath.h"
 
-vtkCxxRevisionMacro(vtkEllipsoidTensorProbeRepresentation, "1.2");
 vtkStandardNewMacro(vtkEllipsoidTensorProbeRepresentation);
 
 //----------------------------------------------------------------------

@@ -19,7 +19,6 @@
 #include "vtkSocket.h"
 
 vtkStandardNewMacro(vtkSocketCollection);
-vtkCxxRevisionMacro(vtkSocketCollection, "1.1");
 //-----------------------------------------------------------------------------
 vtkSocketCollection::vtkSocketCollection()
 {

@@ -36,7 +36,6 @@
 #include "vtkExecutive.h" // for GetExecutive()
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamTracer, "1.5");
 vtkStandardNewMacro(vtkGenericStreamTracer);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer,InterpolatorPrototype,vtkGenericInterpolatedVelocityField);

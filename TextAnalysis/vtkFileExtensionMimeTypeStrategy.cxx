@@ -24,7 +24,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-vtkCxxRevisionMacro(vtkFileExtensionMimeTypeStrategy, "1.8");
 vtkStandardNewMacro(vtkFileExtensionMimeTypeStrategy);
 
 class vtkFileExtensionMimeTypeStrategy::implementation

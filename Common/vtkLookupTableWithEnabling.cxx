@@ -19,7 +19,6 @@
 #include "vtkVariant.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkLookupTableWithEnabling, "1.3");
 vtkStandardNewMacro(vtkLookupTableWithEnabling);
 
 vtkCxxSetObjectMacro(vtkLookupTableWithEnabling,EnabledArray,vtkDataArray);

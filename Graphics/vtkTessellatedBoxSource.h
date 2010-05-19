@@ -38,7 +38,7 @@ class VTK_GRAPHICS_EXPORT vtkTessellatedBoxSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTessellatedBoxSource *New();
-  vtkTypeRevisionMacro(vtkTessellatedBoxSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTessellatedBoxSource,vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

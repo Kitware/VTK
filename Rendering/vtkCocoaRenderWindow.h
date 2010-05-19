@@ -45,7 +45,7 @@ class VTK_RENDERING_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkCocoaRenderWindow *New();
-  vtkTypeRevisionMacro(vtkCocoaRenderWindow,vtkOpenGLRenderWindow);
+  vtkTypeMacro(vtkCocoaRenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -63,7 +63,7 @@ class vtkPolyData;
 class VTK_GRAPHICS_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkRuledSurfaceFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRuledSurfaceFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

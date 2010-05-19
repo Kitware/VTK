@@ -27,7 +27,6 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDSPFilterDefinition, "1.2");
 vtkStandardNewMacro(vtkDSPFilterDefinition);
 
 class vtkDSPFilterDefinitionVectorDoubleSTLCloak

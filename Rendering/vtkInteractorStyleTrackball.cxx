@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackball, "1.27");
 vtkStandardNewMacro(vtkInteractorStyleTrackball);
 
 //----------------------------------------------------------------------------

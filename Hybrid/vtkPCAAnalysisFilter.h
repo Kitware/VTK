@@ -56,7 +56,7 @@ class vtkPointSet;
 class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkPointSetAlgorithm
 {
  public:
-  vtkTypeRevisionMacro(vtkPCAAnalysisFilter,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkPCAAnalysisFilter,vtkPointSetAlgorithm);
   
   // Description:
   // Prints information about the state of the filter.

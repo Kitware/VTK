@@ -36,7 +36,7 @@ class VTK_INFOVIS_EXPORT vtkCollapseVerticesByArray : public vtkGraphAlgorithm
 {
 public:
     static vtkCollapseVerticesByArray* New();
-    vtkTypeRevisionMacro(vtkCollapseVerticesByArray, vtkGraphAlgorithm);
+    vtkTypeMacro(vtkCollapseVerticesByArray, vtkGraphAlgorithm);
 
     void PrintSelf(ostream &os, vtkIndent indent);
 

@@ -46,7 +46,6 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.97");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 

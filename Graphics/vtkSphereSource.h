@@ -36,7 +36,7 @@
 class VTK_GRAPHICS_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSphereSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSphereSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

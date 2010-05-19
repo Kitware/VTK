@@ -41,7 +41,7 @@ public:
   
   // Description:
   // Standard VTK type and print macros.
-  vtkTypeRevisionMacro(vtkGenericEdgeTable,vtkObject);
+  vtkTypeMacro(vtkGenericEdgeTable,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

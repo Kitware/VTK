@@ -30,7 +30,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLLightingPainter : public vtkLightingPainter
 {
 public:
   static vtkOpenGLLightingPainter* New();
-  vtkTypeRevisionMacro(vtkOpenGLLightingPainter, vtkLightingPainter);
+  vtkTypeMacro(vtkOpenGLLightingPainter, vtkLightingPainter);
   void PrintSelf(ostream& os ,vtkIndent indent);
 
   // Description:

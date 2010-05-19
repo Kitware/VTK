@@ -46,7 +46,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractSelectedFrustum : public vtkExtractSelection
 {
 public:
   static vtkExtractSelectedFrustum *New();
-  vtkTypeRevisionMacro(vtkExtractSelectedFrustum, vtkExtractSelectionBase);
+  vtkTypeMacro(vtkExtractSelectedFrustum, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

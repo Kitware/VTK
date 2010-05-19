@@ -23,7 +23,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.20");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------

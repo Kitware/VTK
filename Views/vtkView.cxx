@@ -76,7 +76,6 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.23");
 vtkStandardNewMacro(vtkView);
 //----------------------------------------------------------------------------
 vtkView::vtkView()

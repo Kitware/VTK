@@ -22,7 +22,6 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkgl.h"
 
-vtkCxxRevisionMacro(vtkOpenGLHardwareSupport, "1.6");
 vtkStandardNewMacro(vtkOpenGLHardwareSupport);
 
 vtkCxxSetObjectMacro(vtkOpenGLHardwareSupport, ExtensionManager, vtkOpenGLExtensionManager);

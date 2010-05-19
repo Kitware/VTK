@@ -62,7 +62,6 @@ public:
 };
 
 
-vtkCxxRevisionMacro(vtkAttributeClustering2DLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkAttributeClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers

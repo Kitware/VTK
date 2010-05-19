@@ -417,7 +417,6 @@ void utf16_to_unicode(const bool big_endian, OctetIteratorT begin, OctetIterator
 /////////////////////////////////////////////////////////////////////////////////////////
 // vtkDelimitedTextReader
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.38");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 vtkDelimitedTextReader::vtkDelimitedTextReader() :

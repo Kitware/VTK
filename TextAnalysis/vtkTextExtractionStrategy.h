@@ -45,7 +45,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkTextExtractionStrategy :
   public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkTextExtractionStrategy, vtkObject);
+  vtkTypeMacro(vtkTextExtractionStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

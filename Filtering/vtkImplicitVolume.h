@@ -45,7 +45,7 @@ class vtkImageData;
 class VTK_FILTERING_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitVolume,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitVolume,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

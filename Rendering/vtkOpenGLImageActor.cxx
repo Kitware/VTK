@@ -28,7 +28,6 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.39");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 

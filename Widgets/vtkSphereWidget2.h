@@ -99,7 +99,7 @@ public:
 
   // Description:
   // Standard class methods for type information and printing.
-  vtkTypeRevisionMacro(vtkSphereWidget2,vtkAbstractWidget);
+  vtkTypeMacro(vtkSphereWidget2,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

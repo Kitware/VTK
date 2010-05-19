@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPieceRequestFilter, "1.3");
 vtkStandardNewMacro(vtkPieceRequestFilter);
 
 //----------------------------------------------------------------------------

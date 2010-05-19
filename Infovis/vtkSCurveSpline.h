@@ -37,7 +37,7 @@ class VTK_INFOVIS_EXPORT vtkSCurveSpline : public vtkSpline
 public:
   static vtkSCurveSpline *New();
 
-  vtkTypeRevisionMacro(vtkSCurveSpline,vtkSpline);
+  vtkTypeMacro(vtkSCurveSpline,vtkSpline);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

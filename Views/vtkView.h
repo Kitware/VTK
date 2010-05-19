@@ -51,7 +51,7 @@ class VTK_VIEWS_EXPORT vtkView : public vtkObject
 {
 public:
   static vtkView *New();
-  vtkTypeRevisionMacro(vtkView, vtkObject);
+  vtkTypeMacro(vtkView, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

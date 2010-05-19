@@ -34,7 +34,7 @@
 class VTK_GRAPHICS_EXPORT vtkConeSource : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkConeSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkConeSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

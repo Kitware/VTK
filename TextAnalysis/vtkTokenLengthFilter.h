@@ -47,7 +47,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkTokenLengthFilter :
 {
 public:
   static vtkTokenLengthFilter* New();
-  vtkTypeRevisionMacro(vtkTokenLengthFilter, vtkTableAlgorithm);
+  vtkTypeMacro(vtkTokenLengthFilter, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

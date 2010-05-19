@@ -28,7 +28,7 @@
 class VTK_COMMON_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandomSequence
 {
 public:
-  vtkTypeRevisionMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
+  vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkBoxMuellerRandomSequence* New();

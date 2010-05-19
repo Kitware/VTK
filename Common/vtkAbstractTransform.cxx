@@ -22,7 +22,6 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.29");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -366,7 +365,7 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase *o)
 class vtkSimpleTransform : public vtkHomogeneousTransform
 {
 public:
-  vtkTypeRevisionMacro(vtkSimpleTransform,vtkHomogeneousTransform);
+  vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);
   static vtkSimpleTransform *New() {
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::ConstructClass("vtkSimpleTransform");
@@ -380,7 +379,6 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.29");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()

@@ -44,8 +44,8 @@ class VTK_GEOVIS_EXPORT vtkGeoInteractorStyle :
 {
 public:
   static vtkGeoInteractorStyle *New();
-  vtkTypeRevisionMacro(vtkGeoInteractorStyle, 
-                       vtkInteractorStyleTrackballCamera);
+  vtkTypeMacro(vtkGeoInteractorStyle,
+               vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

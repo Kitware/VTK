@@ -15,7 +15,6 @@
 #include "vtkOutputStream.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputStream, "1.2");
 vtkStandardNewMacro(vtkOutputStream);
 
 //----------------------------------------------------------------------------

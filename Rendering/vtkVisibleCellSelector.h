@@ -66,7 +66,7 @@ class vtkIdentColoredPainter;
 class VTK_RENDERING_EXPORT vtkVisibleCellSelector  : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkVisibleCellSelector, vtkObject);
+  vtkTypeMacro(vtkVisibleCellSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkVisibleCellSelector *New();
 

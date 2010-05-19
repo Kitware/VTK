@@ -25,7 +25,6 @@
 
 #include <locale.h>
 
-vtkCxxRevisionMacro(vtkVectorText, "1.38");
 vtkStandardNewMacro(vtkVectorText);
 
 typedef struct {

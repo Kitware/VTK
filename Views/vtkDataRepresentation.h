@@ -61,7 +61,7 @@ class VTK_VIEWS_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkDataRepresentation *New();
-  vtkTypeRevisionMacro(vtkDataRepresentation, vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkDataRepresentation, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

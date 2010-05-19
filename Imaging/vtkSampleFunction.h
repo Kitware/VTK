@@ -35,7 +35,7 @@ class vtkDataArray;
 class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSampleFunction,vtkImageAlgorithm);
+  vtkTypeMacro(vtkSampleFunction,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

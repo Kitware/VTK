@@ -16,7 +16,6 @@
 #include "vtkViewport.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCoordinate, "1.4");
 vtkStandardNewMacro(vtkCoordinate);
 
 vtkCxxSetObjectMacro(vtkCoordinate,ReferenceCoordinate,vtkCoordinate);

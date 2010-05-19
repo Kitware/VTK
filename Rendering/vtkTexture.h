@@ -60,7 +60,7 @@ class VTK_RENDERING_EXPORT vtkTexture : public vtkImageAlgorithm
 {
 public:
   static vtkTexture *New();
-  vtkTypeRevisionMacro(vtkTexture,vtkImageAlgorithm);
+  vtkTypeMacro(vtkTexture,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

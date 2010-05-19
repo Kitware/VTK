@@ -67,7 +67,7 @@ class vtkVariant;
 class VTK_INFOVIS_EXPORT vtkMultiCorrelativeStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMultiCorrelativeStatistics, vtkStatisticsAlgorithm);
+  vtkTypeMacro(vtkMultiCorrelativeStatistics, vtkStatisticsAlgorithm);
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkMultiCorrelativeStatistics* New();
 

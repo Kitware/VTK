@@ -31,7 +31,6 @@
 #include <vtkstd/queue>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro( vtkIncrementalOctreePointLocator, "1.3" );
 vtkStandardNewMacro( vtkIncrementalOctreePointLocator );
 
 // ---------------------------------------------------------------------------

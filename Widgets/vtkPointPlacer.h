@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkPointPlacer,vtkObject);
+  vtkTypeMacro(vtkPointPlacer,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

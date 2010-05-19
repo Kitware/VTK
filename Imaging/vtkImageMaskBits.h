@@ -29,7 +29,7 @@ class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMaskBits *New();
-  vtkTypeRevisionMacro(vtkImageMaskBits,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageMaskBits,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

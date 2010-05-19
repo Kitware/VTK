@@ -28,7 +28,7 @@ class VTK_COMMON_EXPORT vtkIdListCollection : public vtkCollection
 {
 public:
   static vtkIdListCollection *New();
-  vtkTypeRevisionMacro(vtkIdListCollection,vtkCollection);
+  vtkTypeMacro(vtkIdListCollection,vtkCollection);
 
   // Description:
   // Add a dataset to the list.

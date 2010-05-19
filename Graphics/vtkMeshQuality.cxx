@@ -38,7 +38,6 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.57");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );

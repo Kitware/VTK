@@ -53,7 +53,7 @@ class VTK_IMAGING_EXPORT vtkImageConnector : public vtkObject
 public:
   static vtkImageConnector *New();
 
-  vtkTypeRevisionMacro(vtkImageConnector,vtkObject);
+  vtkTypeMacro(vtkImageConnector,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

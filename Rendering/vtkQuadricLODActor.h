@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Standard class methods.
-  vtkTypeRevisionMacro(vtkQuadricLODActor,vtkActor);
+  vtkTypeMacro(vtkQuadricLODActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

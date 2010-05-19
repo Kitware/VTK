@@ -24,7 +24,7 @@ class VTK_RENDERING_EXPORT vtkGraphicsFactory : public vtkObject
 {
 public:
   static vtkGraphicsFactory *New();
-  vtkTypeRevisionMacro(vtkGraphicsFactory,vtkObject);
+  vtkTypeMacro(vtkGraphicsFactory,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

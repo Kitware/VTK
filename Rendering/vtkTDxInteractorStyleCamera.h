@@ -33,7 +33,7 @@ class VTK_RENDERING_EXPORT vtkTDxInteractorStyleCamera : public vtkTDxInteractor
 {
 public:
   static vtkTDxInteractorStyleCamera *New();
-  vtkTypeRevisionMacro(vtkTDxInteractorStyleCamera,vtkTDxInteractorStyle);
+  vtkTypeMacro(vtkTDxInteractorStyleCamera,vtkTDxInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

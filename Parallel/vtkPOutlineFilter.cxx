@@ -25,7 +25,6 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.11");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 

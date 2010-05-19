@@ -37,7 +37,7 @@ class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrat
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
+  vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
 
   //BTX

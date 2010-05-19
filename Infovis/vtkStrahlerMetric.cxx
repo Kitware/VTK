@@ -32,7 +32,6 @@ the U.S. Government retains certain rights in this software.
 //--------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkStrahlerMetric);
-vtkCxxRevisionMacro(vtkStrahlerMetric,"1.00");
 
 vtkStrahlerMetric::vtkStrahlerMetric()
 {

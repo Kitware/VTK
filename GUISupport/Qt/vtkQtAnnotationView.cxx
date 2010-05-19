@@ -50,7 +50,6 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkQtAnnotationView, "1.7");
 vtkStandardNewMacro(vtkQtAnnotationView);
 
 //----------------------------------------------------------------------------

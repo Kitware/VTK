@@ -36,7 +36,7 @@ class VTK_IO_EXPORT vtkTreeReader : public vtkDataReader
 {
 public:
   static vtkTreeReader *New();
-  vtkTypeRevisionMacro(vtkTreeReader,vtkDataReader);
+  vtkTypeMacro(vtkTreeReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -40,7 +40,6 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.19");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 // Forward function reference (definition at bottom :)

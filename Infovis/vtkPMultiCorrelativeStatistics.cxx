@@ -28,7 +28,6 @@
 #include <vtkstd/map>
 
 vtkStandardNewMacro(vtkPMultiCorrelativeStatistics);
-vtkCxxRevisionMacro(vtkPMultiCorrelativeStatistics, "1.13");
 vtkCxxSetObjectMacro(vtkPMultiCorrelativeStatistics, Controller, vtkMultiProcessController);
 //-----------------------------------------------------------------------------
 vtkPMultiCorrelativeStatistics::vtkPMultiCorrelativeStatistics()

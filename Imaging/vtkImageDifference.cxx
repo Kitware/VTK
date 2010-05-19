@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.40");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.

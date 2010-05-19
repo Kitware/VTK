@@ -36,7 +36,6 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDSPFilterGroup, "1.2");
 vtkStandardNewMacro(vtkDSPFilterGroup);
 
 

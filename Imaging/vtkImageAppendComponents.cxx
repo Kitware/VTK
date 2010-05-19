@@ -23,7 +23,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppendComponents, "1.33");
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //----------------------------------------------------------------------------

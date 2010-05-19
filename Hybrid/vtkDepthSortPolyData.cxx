@@ -27,7 +27,6 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
-vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.33");
 vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);

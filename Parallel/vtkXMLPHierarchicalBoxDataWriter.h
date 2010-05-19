@@ -31,7 +31,7 @@ class VTK_PARALLEL_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLHierar
 {
 public:
   static vtkXMLPHierarchicalBoxDataWriter* New();
-  vtkTypeRevisionMacro(vtkXMLPHierarchicalBoxDataWriter, vtkXMLHierarchicalBoxDataWriter);
+  vtkTypeMacro(vtkXMLPHierarchicalBoxDataWriter, vtkXMLHierarchicalBoxDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

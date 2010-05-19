@@ -27,7 +27,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.20");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------

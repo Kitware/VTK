@@ -18,7 +18,6 @@
 #include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToUnstructuredGridFilter, "1.18");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToUnstructuredGridFilter::vtkStructuredPointsToUnstructuredGridFilter()

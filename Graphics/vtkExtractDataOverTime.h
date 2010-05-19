@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractDataOverTime : public vtkPointSetAlgorithm
 {
 public:
   static vtkExtractDataOverTime *New();
-  vtkTypeRevisionMacro(vtkExtractDataOverTime,vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkExtractDataOverTime,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

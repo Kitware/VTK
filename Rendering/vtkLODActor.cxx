@@ -28,7 +28,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.68");
 vtkStandardNewMacro(vtkLODActor);
 vtkCxxSetObjectMacro(vtkLODActor, LowResFilter, vtkPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkLODActor, MediumResFilter, vtkPolyDataAlgorithm);

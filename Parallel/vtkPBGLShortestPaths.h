@@ -43,7 +43,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLShortestPaths : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLShortestPaths *New();
-  vtkTypeRevisionMacro(vtkPBGLShortestPaths, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkPBGLShortestPaths, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

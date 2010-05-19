@@ -32,7 +32,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkRenderedRepresentation, "1.4");
 vtkStandardNewMacro(vtkRenderedRepresentation);
 
 class vtkRenderedRepresentation::Internals

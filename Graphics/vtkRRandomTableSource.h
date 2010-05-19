@@ -59,7 +59,7 @@ class VTK_GRAPHICS_EXPORT vtkRRandomTableSource : public vtkTableAlgorithm
 public:
 
   static vtkRRandomTableSource* New();
-  vtkTypeRevisionMacro(vtkRRandomTableSource,vtkTableAlgorithm);
+  vtkTypeMacro(vtkRRandomTableSource,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

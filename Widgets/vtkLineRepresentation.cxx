@@ -36,7 +36,6 @@
 #include "vtkCellPicker.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.24.4.1");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);

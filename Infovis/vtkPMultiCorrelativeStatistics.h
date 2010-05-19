@@ -32,7 +32,7 @@ class VTK_INFOVIS_EXPORT vtkPMultiCorrelativeStatistics : public vtkMultiCorrela
 {
 public:
   static vtkPMultiCorrelativeStatistics* New();
-  vtkTypeRevisionMacro(vtkPMultiCorrelativeStatistics, vtkMultiCorrelativeStatistics);
+  vtkTypeMacro(vtkPMultiCorrelativeStatistics, vtkMultiCorrelativeStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -40,7 +40,7 @@ class vtkWindow;
 class VTK_FILTERING_EXPORT vtkViewport : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkViewport,vtkObject);
+  vtkTypeMacro(vtkViewport,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

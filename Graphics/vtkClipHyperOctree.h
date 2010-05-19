@@ -78,7 +78,7 @@ class vtkHyperOctreeClipCutPointsGrabber;
 class VTK_GRAPHICS_EXPORT vtkClipHyperOctree : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkClipHyperOctree,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkClipHyperOctree,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

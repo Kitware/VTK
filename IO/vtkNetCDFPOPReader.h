@@ -31,7 +31,7 @@ class vtkCallbackCommand;
 class VTK_IO_EXPORT vtkNetCDFPOPReader : public vtkRectilinearGridAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkNetCDFPOPReader,vtkRectilinearGridAlgorithm);
+  vtkTypeMacro(vtkNetCDFPOPReader,vtkRectilinearGridAlgorithm);
   static vtkNetCDFPOPReader *New();
   void PrintSelf(ostream& os, vtkIndent indent);
   

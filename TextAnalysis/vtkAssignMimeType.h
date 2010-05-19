@@ -56,7 +56,7 @@ class VTK_TEXT_ANALYSIS_EXPORT vtkAssignMimeType :
 {
 public:
   static vtkAssignMimeType* New();
-  vtkTypeRevisionMacro(vtkAssignMimeType, vtkTableAlgorithm);
+  vtkTypeMacro(vtkAssignMimeType, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

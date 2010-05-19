@@ -144,7 +144,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkContextScene, "1.19");
 vtkStandardNewMacro(vtkContextScene);
 vtkCxxSetObjectMacro(vtkContextScene, AnnotationLink, vtkAnnotationLink);
 

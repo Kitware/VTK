@@ -35,7 +35,7 @@ class vtkViewport;
 class VTK_RENDERING_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
-  vtkTypeRevisionMacro(vtkTextMapper,vtkMapper2D);
+  vtkTypeMacro(vtkTextMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

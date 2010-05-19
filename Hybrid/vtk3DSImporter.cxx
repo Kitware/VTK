@@ -27,7 +27,6 @@
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.40");
 vtkStandardNewMacro(vtk3DSImporter);
 
 // Silent warning like

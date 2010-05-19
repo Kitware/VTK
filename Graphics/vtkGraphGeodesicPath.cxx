@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkExecutive.h"
 
-vtkCxxRevisionMacro(vtkGraphGeodesicPath, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkGraphGeodesicPath::vtkGraphGeodesicPath()

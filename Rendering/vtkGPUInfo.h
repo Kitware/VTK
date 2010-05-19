@@ -29,7 +29,7 @@ class VTK_RENDERING_EXPORT vtkGPUInfo : public vtkObject
 {
 public:
   static vtkGPUInfo* New();
-  vtkTypeRevisionMacro(vtkGPUInfo, vtkObject);
+  vtkTypeMacro(vtkGPUInfo, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

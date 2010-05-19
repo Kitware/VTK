@@ -30,7 +30,7 @@ class vtkInformationVector;
 class VTK_IO_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
+  vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

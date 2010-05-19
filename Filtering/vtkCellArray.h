@@ -40,7 +40,7 @@
 class VTK_FILTERING_EXPORT vtkCellArray : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkCellArray,vtkObject);
+  vtkTypeMacro(vtkCellArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

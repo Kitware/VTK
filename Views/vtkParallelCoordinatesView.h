@@ -50,7 +50,7 @@ class vtkPolyDataMapper2D;
 class VTK_VIEWS_EXPORT vtkParallelCoordinatesView : public vtkRenderView
 {
 public:
-  vtkTypeRevisionMacro(vtkParallelCoordinatesView, vtkRenderView);
+  vtkTypeMacro(vtkParallelCoordinatesView, vtkRenderView);
   static vtkParallelCoordinatesView *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 

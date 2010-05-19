@@ -27,7 +27,6 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.7");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays

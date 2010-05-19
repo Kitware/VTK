@@ -76,7 +76,6 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.17");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)

@@ -54,7 +54,7 @@ public:
   // Instantiate object.
   static vtkPolyDataSilhouette *New();
 
-  vtkTypeRevisionMacro(vtkPolyDataSilhouette,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataSilhouette,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

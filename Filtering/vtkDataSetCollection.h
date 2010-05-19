@@ -28,7 +28,7 @@ class VTK_FILTERING_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
   static vtkDataSetCollection *New();
-  vtkTypeRevisionMacro(vtkDataSetCollection,vtkCollection);
+  vtkTypeMacro(vtkDataSetCollection,vtkCollection);
 
   // Description:
   // Add a dataset to the list.

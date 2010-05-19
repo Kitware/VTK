@@ -34,7 +34,7 @@ class vtkTextProperty;
 class VTK_CHARTS_EXPORT vtkTooltipItem : public vtkContextItem
 {
 public:
-  vtkTypeRevisionMacro(vtkTooltipItem, vtkContextItem);
+  vtkTypeMacro(vtkTooltipItem, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

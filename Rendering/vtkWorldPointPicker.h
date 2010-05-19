@@ -35,7 +35,7 @@ class VTK_RENDERING_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 {
 public:
   static vtkWorldPointPicker *New();
-  vtkTypeRevisionMacro(vtkWorldPointPicker,vtkAbstractPicker);
+  vtkTypeMacro(vtkWorldPointPicker,vtkAbstractPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -66,7 +66,7 @@ class VTK_COMMON_EXPORT vtkInstantiator : public vtkObject
 {
 public:
   static vtkInstantiator* New();
-  vtkTypeRevisionMacro(vtkInstantiator,vtkObject);
+  vtkTypeMacro(vtkInstantiator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

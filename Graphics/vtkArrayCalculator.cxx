@@ -28,7 +28,6 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.49.4.1");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()

@@ -27,7 +27,6 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.57");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()

@@ -43,7 +43,7 @@ class VTK_FILTERING_EXPORT vtkUnstructuredGridAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkUnstructuredGridAlgorithm *New();
-  vtkTypeRevisionMacro(vtkUnstructuredGridAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkUnstructuredGridAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

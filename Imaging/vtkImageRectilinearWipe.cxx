@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageRectilinearWipe, "1.6");
 vtkStandardNewMacro(vtkImageRectilinearWipe);
 
 //----------------------------------------------------------------------------

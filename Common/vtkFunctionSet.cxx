@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkFunctionSet, "1.5");
 
 vtkFunctionSet::vtkFunctionSet() 
 {

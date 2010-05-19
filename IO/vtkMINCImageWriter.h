@@ -78,7 +78,7 @@ class vtkMINCImageAttributes;
 class VTK_IO_EXPORT vtkMINCImageWriter : public vtkImageWriter
 {
 public:
-  vtkTypeRevisionMacro(vtkMINCImageWriter,vtkImageWriter);
+  vtkTypeMacro(vtkMINCImageWriter,vtkImageWriter);
 
   static vtkMINCImageWriter *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);

@@ -47,7 +47,7 @@
 class VTK_IMAGING_EXPORT vtkFastSplatter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkFastSplatter, vtkImageAlgorithm);
+  vtkTypeMacro(vtkFastSplatter, vtkImageAlgorithm);
   static vtkFastSplatter *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

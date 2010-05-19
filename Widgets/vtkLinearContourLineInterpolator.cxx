@@ -15,7 +15,6 @@
 #include "vtkLinearContourLineInterpolator.h"
 #include <vtkObjectFactory.h>
 
-vtkCxxRevisionMacro(vtkLinearContourLineInterpolator, "1.3");
 vtkStandardNewMacro(vtkLinearContourLineInterpolator);
 
 //----------------------------------------------------------------------

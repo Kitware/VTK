@@ -66,7 +66,7 @@ class VTK_HYBRID_EXPORT vtkMILVideoSource : public vtkVideoSource
 {
 public:
   static vtkMILVideoSource *New();
-  vtkTypeRevisionMacro(vtkMILVideoSource,vtkVideoSource);
+  vtkTypeMacro(vtkMILVideoSource,vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

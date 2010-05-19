@@ -52,7 +52,7 @@ class VTK_HYBRID_EXPORT vtkExodusIIReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExodusIIReader *New();
-  vtkTypeRevisionMacro(vtkExodusIIReader,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkExodusIIReader,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

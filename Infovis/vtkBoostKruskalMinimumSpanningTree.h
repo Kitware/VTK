@@ -41,7 +41,7 @@ class VTK_INFOVIS_EXPORT vtkBoostKruskalMinimumSpanningTree : public vtkSelectio
 {
 public:
   static vtkBoostKruskalMinimumSpanningTree *New();
-  vtkTypeRevisionMacro(vtkBoostKruskalMinimumSpanningTree, vtkSelectionAlgorithm);
+  vtkTypeMacro(vtkBoostKruskalMinimumSpanningTree, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

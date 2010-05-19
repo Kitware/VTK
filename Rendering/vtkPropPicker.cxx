@@ -21,7 +21,6 @@
 #include "vtkRenderer.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkPropPicker, "1.26");
 vtkStandardNewMacro(vtkPropPicker);
 
 vtkPropPicker::vtkPropPicker()

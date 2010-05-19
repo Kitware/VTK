@@ -71,7 +71,7 @@ class vtkFunctionParser;
 class VTK_GRAPHICS_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkArrayCalculator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkArrayCalculator,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkArrayCalculator *New();

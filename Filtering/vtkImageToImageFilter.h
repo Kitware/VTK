@@ -37,7 +37,7 @@ class vtkMultiThreader;
 class VTK_FILTERING_EXPORT vtkImageToImageFilter : public vtkImageSource
 {
 public:
-  vtkTypeRevisionMacro(vtkImageToImageFilter,vtkImageSource);
+  vtkTypeMacro(vtkImageToImageFilter,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

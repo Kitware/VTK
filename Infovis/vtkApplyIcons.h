@@ -67,7 +67,7 @@ class VTK_INFOVIS_EXPORT vtkApplyIcons : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkApplyIcons *New();
-  vtkTypeRevisionMacro(vtkApplyIcons, vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkApplyIcons, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

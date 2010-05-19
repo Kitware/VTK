@@ -38,7 +38,6 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.9.4.1");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------

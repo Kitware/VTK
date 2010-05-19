@@ -20,7 +20,6 @@
 #include <vtkstd/queue>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtentSplitter, "1.5");
 vtkStandardNewMacro(vtkExtentSplitter);
 
 //----------------------------------------------------------------------------

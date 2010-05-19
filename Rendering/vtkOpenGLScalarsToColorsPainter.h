@@ -30,8 +30,8 @@ class VTK_RENDERING_EXPORT vtkOpenGLScalarsToColorsPainter :
 {
 public:
   static vtkOpenGLScalarsToColorsPainter* New();
-  vtkTypeRevisionMacro(vtkOpenGLScalarsToColorsPainter, 
-    vtkScalarsToColorsPainter);
+  vtkTypeMacro(vtkOpenGLScalarsToColorsPainter,
+               vtkScalarsToColorsPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 

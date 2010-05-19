@@ -34,7 +34,7 @@ class VTK_IMAGING_EXPORT vtkImageVariance3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageVariance3D *New();
-  vtkTypeRevisionMacro(vtkImageVariance3D,vtkImageSpatialAlgorithm);
+  vtkTypeMacro(vtkImageVariance3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

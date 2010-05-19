@@ -21,7 +21,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.43");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------

@@ -37,7 +37,7 @@ class vtkDataArray;
 class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);
+  vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

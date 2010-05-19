@@ -31,7 +31,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkAxesActor, "1.7");
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedTip, vtkPolyData );

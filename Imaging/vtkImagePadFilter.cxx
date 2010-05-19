@@ -21,7 +21,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.34");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------

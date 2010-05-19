@@ -18,7 +18,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.7");
 
 //----------------------------------------------------------------------------
 vtkDataSetToImageFilter::vtkDataSetToImageFilter()

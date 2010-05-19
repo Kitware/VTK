@@ -23,7 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSetAlgorithm, "1.1");
 vtkStandardNewMacro(vtkCompositeDataSetAlgorithm);
 
 //----------------------------------------------------------------------------

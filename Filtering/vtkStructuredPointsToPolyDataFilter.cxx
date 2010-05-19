@@ -17,7 +17,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.31");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToPolyDataFilter::vtkStructuredPointsToPolyDataFilter()

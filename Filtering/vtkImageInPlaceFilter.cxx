@@ -22,7 +22,6 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.46");
 
 //----------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter()

@@ -26,7 +26,7 @@
 class VTK_FILTERING_EXPORT vtkUnstructuredGridToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
-  vtkTypeRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter,vtkUnstructuredGridSource);
+  vtkTypeMacro(vtkUnstructuredGridToUnstructuredGridFilter,vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

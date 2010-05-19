@@ -23,7 +23,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.18");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data

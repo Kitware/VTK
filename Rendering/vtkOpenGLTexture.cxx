@@ -31,7 +31,6 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.81");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 

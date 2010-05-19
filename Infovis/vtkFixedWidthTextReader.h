@@ -50,7 +50,7 @@ class VTK_INFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
 {
 public:
   static vtkFixedWidthTextReader* New();
-  vtkTypeRevisionMacro(vtkFixedWidthTextReader,vtkTableAlgorithm);
+  vtkTypeMacro(vtkFixedWidthTextReader,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkGetStringMacro(FileName);

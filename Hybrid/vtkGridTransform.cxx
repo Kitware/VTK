@@ -20,7 +20,6 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.30");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);

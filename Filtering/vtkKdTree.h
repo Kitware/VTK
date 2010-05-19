@@ -71,7 +71,7 @@ class vtkDataSetCollection;
 class VTK_FILTERING_EXPORT vtkKdTree : public vtkLocator
 {
 public:
-  vtkTypeRevisionMacro(vtkKdTree, vtkLocator);
+  vtkTypeMacro(vtkKdTree, vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkKdTree *New();

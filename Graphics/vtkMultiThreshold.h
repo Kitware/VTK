@@ -116,7 +116,7 @@ class vtkUnstructuredGrid;
 class VTK_GRAPHICS_EXPORT vtkMultiThreshold : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMultiThreshold,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkMultiThreshold,vtkMultiBlockDataSetAlgorithm);
   static vtkMultiThreshold* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
 

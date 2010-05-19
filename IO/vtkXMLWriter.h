@@ -48,7 +48,7 @@ class OffsetsManagerArray; // array of OffsetsManagerGroup
 class VTK_IO_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLWriter,vtkAlgorithm);
+  vtkTypeMacro(vtkXMLWriter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
  
   //BTX

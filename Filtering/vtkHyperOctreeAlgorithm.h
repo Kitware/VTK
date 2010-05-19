@@ -43,7 +43,7 @@ class vtkHyperOctree;
 class VTK_FILTERING_EXPORT vtkHyperOctreeAlgorithm : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkHyperOctreeAlgorithm,vtkAlgorithm);
+  vtkTypeMacro(vtkHyperOctreeAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

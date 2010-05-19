@@ -34,7 +34,6 @@
 #include "vtkTimePointUtility.h"
 #include "vtkTypeUInt64Array.h"
 
-vtkCxxRevisionMacro(vtkStringToTimePoint, "1.5");
 vtkStandardNewMacro(vtkStringToTimePoint);
 
 vtkStringToTimePoint::vtkStringToTimePoint()

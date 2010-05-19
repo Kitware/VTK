@@ -37,7 +37,6 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPerturbCoincidentVertices, "1.17");
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
 vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()

@@ -68,7 +68,7 @@ class vtkTexture;
 class VTK_RENDERING_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
-  vtkTypeRevisionMacro(vtkScalarBarActor,vtkActor2D);
+  vtkTypeMacro(vtkScalarBarActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

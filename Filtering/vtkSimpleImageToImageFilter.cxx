@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.16");
 
 //----------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()

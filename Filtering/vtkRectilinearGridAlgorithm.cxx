@@ -22,7 +22,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridAlgorithm, "1.3");
 vtkStandardNewMacro(vtkRectilinearGridAlgorithm);
 
 //----------------------------------------------------------------------------

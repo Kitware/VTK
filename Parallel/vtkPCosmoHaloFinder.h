@@ -76,7 +76,7 @@ class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgori
  public:
   static vtkPCosmoHaloFinder *New();
 
-  vtkTypeRevisionMacro(vtkPCosmoHaloFinder,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkPCosmoHaloFinder,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

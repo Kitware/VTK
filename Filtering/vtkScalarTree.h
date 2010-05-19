@@ -43,7 +43,7 @@ class vtkTimeStamp;
 class VTK_FILTERING_EXPORT vtkScalarTree : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkScalarTree,vtkObject);
+  vtkTypeMacro(vtkScalarTree,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

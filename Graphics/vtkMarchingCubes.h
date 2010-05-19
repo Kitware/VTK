@@ -40,7 +40,7 @@ class VTK_GRAPHICS_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMarchingCubes *New();
-  vtkTypeRevisionMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values

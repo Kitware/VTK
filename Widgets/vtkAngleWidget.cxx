@@ -25,7 +25,6 @@
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.13");
 vtkStandardNewMacro(vtkAngleWidget);
 
 // The angle widget observes the handles.

@@ -38,7 +38,6 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 
-vtkCxxRevisionMacro(vtkSobelGradientMagnitudePass, "1.6");
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 
 extern const char *vtkSobelGradientMagnitudePassShader1_fs;

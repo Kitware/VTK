@@ -24,7 +24,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinkEdgels, "1.40");
 vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 

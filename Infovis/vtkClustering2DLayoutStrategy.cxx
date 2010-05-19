@@ -41,7 +41,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.18");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers

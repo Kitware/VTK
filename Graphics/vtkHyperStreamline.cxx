@@ -24,7 +24,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.63");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //

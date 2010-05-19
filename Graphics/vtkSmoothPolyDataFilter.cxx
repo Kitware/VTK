@@ -28,7 +28,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.46");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing

@@ -49,7 +49,7 @@ class VTK_VIEWS_EXPORT vtkRenderedTreeAreaRepresentation : public vtkRenderedRep
 {
 public:
   static vtkRenderedTreeAreaRepresentation* New();
-  vtkTypeRevisionMacro(vtkRenderedTreeAreaRepresentation, vtkRenderedRepresentation);
+  vtkTypeMacro(vtkRenderedTreeAreaRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

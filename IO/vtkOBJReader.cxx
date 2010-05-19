@@ -23,7 +23,6 @@
 #include "vtkPolyData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkOBJReader, "1.29");
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:

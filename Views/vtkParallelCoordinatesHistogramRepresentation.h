@@ -64,7 +64,7 @@ class VTK_VIEWS_EXPORT vtkParallelCoordinatesHistogramRepresentation : public vt
 {
 public:
   static vtkParallelCoordinatesHistogramRepresentation* New();
-  vtkTypeRevisionMacro(vtkParallelCoordinatesHistogramRepresentation, vtkParallelCoordinatesRepresentation);
+  vtkTypeMacro(vtkParallelCoordinatesHistogramRepresentation, vtkParallelCoordinatesRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

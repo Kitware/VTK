@@ -37,7 +37,7 @@ class VTK_IMAGING_EXPORT vtkImageIdealLowPass : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageIdealLowPass *New();
-  vtkTypeRevisionMacro(vtkImageIdealLowPass,vtkThreadedImageAlgorithm);
+  vtkTypeMacro(vtkImageIdealLowPass,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

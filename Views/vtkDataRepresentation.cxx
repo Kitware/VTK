@@ -86,7 +86,6 @@ private:
 // vtkDataRepresentation
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.14");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   AnnotationLinkInternal, vtkAnnotationLink);

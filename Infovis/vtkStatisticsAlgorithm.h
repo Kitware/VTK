@@ -64,7 +64,7 @@ class vtkStatisticsAlgorithmPrivate;
 class VTK_INFOVIS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
+  vtkTypeMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 //BTX

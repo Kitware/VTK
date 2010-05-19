@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockMergeFilter, "1.6");
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 //-----------------------------------------------------------------------------
 vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter()

@@ -26,7 +26,7 @@ class VTK_IMAGING_EXPORT vtkImageGridSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageGridSource *New();
-  vtkTypeRevisionMacro(vtkImageGridSource,vtkImageAlgorithm);
+  vtkTypeMacro(vtkImageGridSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

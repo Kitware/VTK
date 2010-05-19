@@ -19,7 +19,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitBoolean, "1.36");
 vtkStandardNewMacro(vtkImplicitBoolean);
 
 // Construct with union operation.

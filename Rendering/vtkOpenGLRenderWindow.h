@@ -37,7 +37,7 @@ protected:
   long OldMonitorSetting;
 
 public:
-  vtkTypeRevisionMacro(vtkOpenGLRenderWindow,vtkRenderWindow);
+  vtkTypeMacro(vtkOpenGLRenderWindow,vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

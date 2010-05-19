@@ -73,7 +73,6 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkSparseArrayToTable, "1.2");
 vtkStandardNewMacro(vtkSparseArrayToTable);
 
 // ----------------------------------------------------------------------

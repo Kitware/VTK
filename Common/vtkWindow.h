@@ -30,7 +30,7 @@ class vtkUnsignedCharArray;
 class VTK_COMMON_EXPORT vtkWindow : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkWindow,vtkObject);
+  vtkTypeMacro(vtkWindow,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

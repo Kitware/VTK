@@ -24,7 +24,7 @@ class VTK_COMMON_EXPORT vtkOnePieceExtentTranslator : public vtkExtentTranslator
 {
 public:
   static vtkOnePieceExtentTranslator* New();
-  vtkTypeRevisionMacro(vtkOnePieceExtentTranslator, vtkExtentTranslator);
+  vtkTypeMacro(vtkOnePieceExtentTranslator, vtkExtentTranslator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

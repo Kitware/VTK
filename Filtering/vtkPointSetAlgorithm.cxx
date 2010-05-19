@@ -24,7 +24,6 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetAlgorithm, "1.4");
 vtkStandardNewMacro(vtkPointSetAlgorithm);
 
 //----------------------------------------------------------------------------

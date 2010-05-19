@@ -42,7 +42,7 @@ class vtkIncrementalPointLocator;
 class VTK_GRAPHICS_EXPORT vtkFeatureEdges : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkFeatureEdges,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkFeatureEdges,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

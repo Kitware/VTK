@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkClipConvexPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkClipConvexPolyData *New();
-  vtkTypeRevisionMacro(vtkClipConvexPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkClipConvexPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

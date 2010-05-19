@@ -30,7 +30,6 @@
 #include "vtkPointData.h"
 #include "vtkIncrementalPointLocator.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.77");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 

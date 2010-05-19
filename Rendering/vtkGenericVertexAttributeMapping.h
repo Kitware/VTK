@@ -31,7 +31,7 @@ class VTK_RENDERING_EXPORT vtkGenericVertexAttributeMapping : public vtkObject
 {
 public:
   static vtkGenericVertexAttributeMapping* New();
-  vtkTypeRevisionMacro(vtkGenericVertexAttributeMapping, vtkObject);
+  vtkTypeMacro(vtkGenericVertexAttributeMapping, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

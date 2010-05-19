@@ -44,7 +44,7 @@ class VTK_INFOVIS_EXPORT vtkClustering2DLayoutStrategy : public vtkGraphLayoutSt
 public:
   static vtkClustering2DLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkClustering2DLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkClustering2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

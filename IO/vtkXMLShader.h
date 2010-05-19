@@ -32,7 +32,7 @@ class VTK_IO_EXPORT vtkXMLShader : public vtkObject
 {
 public:
   static vtkXMLShader* New();
-  vtkTypeRevisionMacro(vtkXMLShader, vtkObject);
+  vtkTypeMacro(vtkXMLShader, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

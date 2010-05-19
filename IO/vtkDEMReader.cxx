@@ -22,7 +22,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.42");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0

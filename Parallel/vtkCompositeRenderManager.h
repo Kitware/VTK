@@ -32,7 +32,7 @@ class vtkFloatArray;
 class VTK_PARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallelRenderManager
 {
 public:
-  vtkTypeRevisionMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
+  vtkTypeMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
   static vtkCompositeRenderManager *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

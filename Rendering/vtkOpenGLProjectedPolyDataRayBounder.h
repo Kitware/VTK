@@ -44,7 +44,7 @@ class vtkWindow;
 class VTK_RENDERING_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);    
+  vtkTypeMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

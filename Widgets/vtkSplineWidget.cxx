@@ -34,7 +34,6 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.3");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);

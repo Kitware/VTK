@@ -29,7 +29,6 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper, "1.9");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeGOShadeHelper with default values

@@ -45,7 +45,7 @@ class vtkCellCenterDepthSortStack;
 class VTK_RENDERING_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
-  vtkTypeRevisionMacro(vtkCellCenterDepthSort, vtkVisibilitySort);
+  vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkCellCenterDepthSort *New();
 

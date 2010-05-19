@@ -29,7 +29,6 @@
 #include "vtk_libproj4.h"
 
 vtkStandardNewMacro(vtkGeoTransform);
-vtkCxxRevisionMacro(vtkGeoTransform,"1.3");
 vtkCxxSetObjectMacro(vtkGeoTransform, SourceProjection, vtkGeoProjection);
 vtkCxxSetObjectMacro(vtkGeoTransform, DestinationProjection, vtkGeoProjection);
 

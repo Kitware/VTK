@@ -31,7 +31,7 @@ class vtkChart;
 class VTK_CHARTS_EXPORT vtkChartLegend : public vtkContextItem
 {
 public:
-  vtkTypeRevisionMacro(vtkChartLegend, vtkContextItem);
+  vtkTypeMacro(vtkChartLegend, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

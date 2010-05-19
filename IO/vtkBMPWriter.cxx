@@ -18,7 +18,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPWriter, "1.23");
 vtkStandardNewMacro(vtkBMPWriter);
 
 vtkBMPWriter::vtkBMPWriter()

@@ -34,7 +34,7 @@ class VTK_INFOVIS_EXPORT vtkPassThroughLayoutStrategy : public vtkGraphLayoutStr
 public:
   static vtkPassThroughLayoutStrategy *New();
 
-  vtkTypeRevisionMacro(vtkPassThroughLayoutStrategy, vtkGraphLayoutStrategy);
+  vtkTypeMacro(vtkPassThroughLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

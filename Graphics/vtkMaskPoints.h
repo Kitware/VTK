@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkMaskPoints : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMaskPoints *New();
-  vtkTypeRevisionMacro(vtkMaskPoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMaskPoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
