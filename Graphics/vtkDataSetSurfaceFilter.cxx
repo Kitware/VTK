@@ -326,7 +326,8 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   else
     {
     outPolys = vtkCellArray::New();
-    outPolys->Allocate(cellArraySize);
+    outPolys->Allocate(
+      outPolys->EstimateSize(cellArraySize, 4));
     output->SetPolys(outPolys);
     outPolys->Delete();
     }
@@ -380,6 +381,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     this->OriginalCellIds = vtkIdTypeArray::New();
     this->OriginalCellIds->SetName(this->GetOriginalCellIdsName());
     this->OriginalCellIds->SetNumberOfComponents(1);
+    this->OriginalCellIds->Allocate(cellArraySize);
     output->GetCellData()->AddArray(this->OriginalCellIds);
     }
   if (this->PassThroughPointIds)
@@ -387,6 +389,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     this->OriginalPointIds = vtkIdTypeArray::New();
     this->OriginalPointIds->SetName(this->GetOriginalPointIdsName());
     this->OriginalPointIds->SetNumberOfComponents(1);
+    this->OriginalPointIds->Allocate(numPoints);
     output->GetPointData()->AddArray(this->OriginalPointIds);
     }
 
