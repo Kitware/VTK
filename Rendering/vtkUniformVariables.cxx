@@ -545,6 +545,11 @@ public:
         }
     }
   
+  ~vtkUniformMatrix()
+    {
+      delete[] this->Values;
+    }
+
   int GetRows()
     {
       return this->Rows;
