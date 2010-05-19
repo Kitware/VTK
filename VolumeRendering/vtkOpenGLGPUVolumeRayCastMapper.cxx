@@ -6764,6 +6764,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
   int i;
   int wholeTextureExtent[6];
   this->GetInput()->GetExtent(wholeTextureExtent);
+
+  // To ensure this->CellFlag is initialized.
+  vtkDataArray *scalars=this->GetScalars(this->GetInput(),this->ScalarMode,
+                                         this->ArrayAccessMode,
+                                         this->ArrayId,
+                                         this->ArrayName,
+                                         this->CellFlag);
+
   if(this->CellFlag) // if we deal with cell data
     {
     i=1;
@@ -6797,12 +6805,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
     }
 
   // Data memory limits.
-
-  vtkDataArray *scalars=this->GetScalars(this->GetInput(),this->ScalarMode,
-                                         this->ArrayAccessMode,
-                                         this->ArrayId,
-                                         this->ArrayName,
-                                         this->CellFlag);
   int scalarType=scalars->GetDataType();
 
   vtkIdType size=rTextureSize[0]*rTextureSize[1]*rTextureSize[2]
