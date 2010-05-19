@@ -113,7 +113,7 @@ public:
   // cell and then adding clip-edge intersection points into the
   // triangulation; extracting the clipped region.
   // Note: output connectivity is a polyhedron vtkCellArray of a special format
-  // Cell0Length [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // Cell0Length [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
   // Cell1Length [nCell1Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...] ...
   // Use the static method DecomposePolyhedronCellArray to convert it into a 
   // standard format.
@@ -214,46 +214,6 @@ public:
   // Description:
   // Construct polydata if no one exist, then return this->PolyData
   vtkPolyData* GetPolyData();
-
-  // Description:
-  // A static method for converting a polyhedron vtkCellArray of format
-  // [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
-  // into three components: (1) an integer indicating the number of faces
-  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
-  // and (3) an vtkIdTypeArray storing face connectivity in format
-  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
-  // Note: input is assumed to contain only one polyhedron cell.
-  // Outputs (2) and (3) will be stacked at the end of the input
-  // cellArray and faces. The original data in the input will not
-  // be touched.
-  static void DecomposeAPolyhedronCell(vtkCellArray *polyhedronCellArray,
-                                       vtkIdType & nCellpts,
-                                       vtkIdType & nCellfaces,
-                                       vtkCellArray *cellArray,
-                                       vtkIdTypeArray *faces);
-
-  static void DecomposeAPolyhedronCell(vtkIdType * polyhedronCellStream,
-                                       vtkIdType & nCellpts,
-                                       vtkIdType & nCellfaces,
-                                       vtkCellArray *cellArray,
-                                       vtkIdTypeArray *faces);
-
-  // Description:
-  // A static method for converting an input polyhedron cell stream of format
-  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
-  // into three components: (1) an integer indicating the number of faces
-  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
-  // and (3) an vtkIdTypeArray storing face connectivity in format
-  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
-  // Note: input is assumed to contain only one polyhedron cell.
-  // Outputs (2) and (3) will be stacked at the end of the input
-  // cellArray and faces. The original data in the input will not
-  // be touched.
-  static void DecomposeAPolyhedronCell(vtkIdType nCellFaces,
-                                       vtkIdType * inFaceStream,
-                                       vtkIdType & nCellpts,
-                                       vtkCellArray * cellArray,
-                                       vtkIdTypeArray * faces);
   
 protected:
   vtkPolyhedron();

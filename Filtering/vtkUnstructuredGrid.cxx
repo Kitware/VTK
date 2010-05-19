@@ -962,7 +962,7 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
     // insert face location
     this->FaceLocations->InsertNextValue(this->Faces->GetMaxId()+1);
     // insert cell connectivity and faces stream
-    vtkPolyhedron::DecomposeAPolyhedronCell(
+    vtkUnstructuredGrid::DecomposeAPolyhedronCell(
         npts, ptIds, realnpts, this->Connectivity, this->Faces);
     }
 
@@ -1134,7 +1134,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
     else
       {
       faceLocations->InsertNextValue(faces->GetMaxId()+1);
-      vtkPolyhedron::DecomposeAPolyhedronCell(
+      vtkUnstructuredGrid::DecomposeAPolyhedronCell(
         pts, realnpts, nfaces, newCells, faces);
       }
     }
@@ -1196,7 +1196,7 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
     else
       {
       faceLocations->InsertNextValue(faces->GetMaxId()+1);
-      vtkPolyhedron::DecomposeAPolyhedronCell(
+      vtkUnstructuredGrid::DecomposeAPolyhedronCell(
         pts, realnpts, nfaces, newCells, faces);
       }
     }
@@ -1957,6 +1957,105 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
   newGrid = NULL;
 
   this->Squeeze();
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkCellArray * polyhedronCell, 
+       vtkIdType & numCellPts, vtkIdType & nCellfaces, 
+       vtkCellArray * cellArray, vtkIdTypeArray * faces)
+{
+  vtkIdType *cellStream = 0;
+  vtkIdType cellLength = 0;
+  
+  polyhedronCell->InitTraversal();
+  polyhedronCell->GetNextCell(cellLength, cellStream);
+  
+  vtkUnstructuredGrid::DecomposeAPolyhedronCell(
+    cellStream, numCellPts, nCellfaces, cellArray, faces);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkIdType *cellStream,
+       vtkIdType & numCellPts, vtkIdType & nCellFaces, 
+       vtkCellArray * cellArray, vtkIdTypeArray * faces)
+{
+  nCellFaces = cellStream[0];
+  if (nCellFaces <= 0)
+    {
+    return;
+    }
+  
+  vtkUnstructuredGrid::DecomposeAPolyhedronCell(
+    nCellFaces, cellStream+1, numCellPts, cellArray, faces);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkIdType nCellFaces,
+       vtkIdType * cellStream, vtkIdType & numCellPts, 
+       vtkCellArray * cellArray, vtkIdTypeArray * faces)
+{
+  vtkPolyhedron::IdSetType cellPointSet;
+  vtkPolyhedron::IdSetType::iterator it;
+  
+  // insert number of faces into the face array
+  faces->InsertNextValue(nCellFaces);
+  
+  // for each face
+  for (vtkIdType fid = 0; fid < nCellFaces; fid++)
+    {
+    // extract all points on the same face, store them into a set
+    vtkIdType npts = *cellStream++;
+    faces->InsertNextValue(npts);
+    for (vtkIdType i = 0; i < npts; i++)
+      {
+      vtkIdType pid = *cellStream++;
+      faces->InsertNextValue(pid);
+      cellPointSet.insert(pid);
+      }
+    }
+  
+  // standard cell connectivity array that stores the number of points plus
+  // a list of point ids.
+  cellArray->InsertNextCell(static_cast<int>(cellPointSet.size()));
+  for (it = cellPointSet.begin(); it != cellPointSet.end(); ++it)
+    {
+    cellArray->InsertCellPoint(*it);
+    }
+  
+  // the real number of points in the polyhedron cell.
+  numCellPts = cellPointSet.size();
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::ConvertFaceStreamPointIds(vtkIdList * faceStream, 
+                                                    vtkIdType * idMap)
+{
+  vtkIdType* idPtr = faceStream->GetPointer(0);
+  vtkIdType nfaces = *idPtr++;
+  for (vtkIdType i = 0; i < nfaces; i++)
+    {
+    vtkIdType npts = *idPtr++;
+    for (vtkIdType j = 0; j < npts; j++)
+      {
+      *idPtr++ = idMap[*idPtr];
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::ConvertFaceStreamPointIds(vtkIdType nfaces,
+                                                    vtkIdType * faceStream, 
+                                                    vtkIdType * idMap)
+{
+  vtkIdType* idPtr = faceStream;
+  for (vtkIdType i = 0; i < nfaces; i++)
+    {
+    vtkIdType npts = *idPtr++;
+    for (vtkIdType j = 0; j < npts; j++)
+      {
+      *idPtr++ = idMap[*idPtr];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

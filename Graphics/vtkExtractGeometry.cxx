@@ -252,6 +252,14 @@ int vtkExtractGeometry::RequestData(
       }
     if ( extraction_condition )
       {
+      // special handling for polyhedron cells
+      if (vtkUnstructuredGrid::SafeDownCast(input) &&
+          cell->GetCellType() == VTK_POLYHEDRON)
+        {
+        newCellPts->Reset();
+        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
+        vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, pointMap);
+        }
       newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outputCD->CopyData(cd,cellId,newCellId);
       }

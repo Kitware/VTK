@@ -254,6 +254,63 @@ public:
   // added, Faces and FaceLocations pointers will be NULL. In this case, need to 
   // initialize the arrays and assign values to the previous non-polyhedron cells. 
   int InitializeFacesRepresentation(vtkIdType numPrevCells);
+
+  // Description:
+  // A static method for converting a polyhedron vtkCellArray of format
+  // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // into three components: (1) an integer indicating the number of faces
+  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
+  // and (3) an vtkIdTypeArray storing face connectivity in format
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // Note: input is assumed to contain only one polyhedron cell.
+  // Outputs (2) and (3) will be stacked at the end of the input
+  // cellArray and faces. The original data in the input will not
+  // be touched.
+  static void DecomposeAPolyhedronCell(vtkCellArray *polyhedronCellArray,
+                                       vtkIdType & nCellpts,
+                                       vtkIdType & nCellfaces,
+                                       vtkCellArray *cellArray,
+                                       vtkIdTypeArray *faces);
+
+  static void DecomposeAPolyhedronCell(vtkIdType * polyhedronCellStream,
+                                       vtkIdType & nCellpts,
+                                       vtkIdType & nCellfaces,
+                                       vtkCellArray *cellArray,
+                                       vtkIdTypeArray *faces);
+
+  // Description:
+  // A static method for converting an input polyhedron cell stream of format
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // into three components: (1) an integer indicating the number of faces
+  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
+  // and (3) an vtkIdTypeArray storing face connectivity in format
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+  // Note: input is assumed to contain only one polyhedron cell.
+  // Outputs (2) and (3) will be stacked at the end of the input
+  // cellArray and faces. The original data in the input will not
+  // be touched.
+  static void DecomposeAPolyhedronCell(vtkIdType nCellFaces,
+                                       vtkIdType * inFaceStream,
+                                       vtkIdType & nCellpts,
+                                       vtkCellArray * cellArray,
+                                       vtkIdTypeArray * faces);
+
+  // Description:
+  // Convert pid in a face stream into idMap[pid]. The face stream is of format
+  // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. The user is 
+  // responsible to make sure all the Ids in faceStream do not exceed the 
+  // range of idMap.
+  static void ConvertFaceStreamPointIds(vtkIdList * faceStream,
+                                        vtkIdType * idMap);
+
+  // Description:
+  // Convert pid in a face stream into idMap[pid]. The face stream is of format
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. The user is responsible to 
+  // make sure all the Ids in faceStream do not exceed the range of idMap.
+  static void ConvertFaceStreamPointIds(vtkIdType nfaces,
+                                        vtkIdType * faceStream,
+                                        vtkIdType * idMap);
+
     
 protected:
   vtkUnstructuredGrid();
