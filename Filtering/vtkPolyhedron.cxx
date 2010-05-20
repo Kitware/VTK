@@ -1872,9 +1872,12 @@ int vtkPolyhedron::InternalContour(double value,
     merge->InsertUniquePoint(points->GetPoint(i), pid);
     }
 
-  for (vtkIdType i = 0; i < inScalars->GetNumberOfTuples(); i++)
+  if (outScalars)
     {
-    outScalars->InsertNextTuple1(inScalars->GetTuple1(i));
+    for (vtkIdType i = 0; i < inScalars->GetNumberOfTuples(); i++)
+      {
+      outScalars->InsertNextTuple1(inScalars->GetTuple1(i));
+      }
     }
   
   // construct a face to contour points map

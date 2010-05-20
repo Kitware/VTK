@@ -191,23 +191,22 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
     {
     if (inArray[i] > 0)
       {
-      if (input->GetCellType(i) == VTK_POLYHEDRON)
+      // special handling for polyhedron cells
+      if (vtkUnstructuredGrid::SafeDownCast(input) &&
+          vtkUnstructuredGrid::SafeDownCast(output) &&
+          input->GetCellType(i) == VTK_POLYHEDRON)
         {
-        vtkUnstructuredGrid* inUG = vtkUnstructuredGrid::SafeDownCast(input);
-        vtkUnstructuredGrid* outUG = vtkUnstructuredGrid::SafeDownCast(output);
-        if (!inUG || !outUG)
-          {
-          continue;
-          }
-        inUG->GetFaceStream(i, ptIds);
+        ptIds->Reset();
+        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, ptIds);
+        vtkUnstructuredGrid::ConvertFaceStreamPointIds(ptIds, pointMap);
         }
       else
         {
         input->GetCellPoints(i, ptIds);
-        }
-      for (j = 0; j < ptIds->GetNumberOfIds(); j++)
-        {
-        ptIds->SetId(j, pointMap[ptIds->GetId(j)]);
+        for (j = 0; j < ptIds->GetNumberOfIds(); j++)
+          {
+          ptIds->SetId(j, pointMap[ptIds->GetId(j)]);
+          }
         }
       output->InsertNextCell(input->GetCellType(i), ptIds);
       outCD->CopyData(inCD, i, newId++);

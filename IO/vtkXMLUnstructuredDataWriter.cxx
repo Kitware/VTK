@@ -681,7 +681,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
     {
     for(int i=0; i<5; i++)
       {
-      if(allcells[i] &&  allcells[i]->GetNumberOfTuples() != 0)
+      if(allcells[i])
         {
         this->WriteArrayAppended(allcells[i], indent.GetNextIndent(),
           cellsManager->GetElement(i), names[i], 0, t);
