@@ -49,9 +49,11 @@ if test "$(git diff --cached --name-only --diff-filter=A -z $against |
 '"$(git diff --cached --name-only --diff-filter=A $against)"
 fi
 
+#-----------------------------------------------------------------------------
 # Builtin whitespace checks.
 bad=$(git diff-index --check --cached $against --) || die "$bad"
 
+#-----------------------------------------------------------------------------
 # Reject leading TABs.
 check_tab() {
 	git diff-index -p --cached $against -- "$1" |
@@ -78,3 +80,40 @@ done)
 test -z "$bad" || die 'Leading TABs added in
 '"$bad"'
 Convert them to spaces (2 per TAB) before commit.'
+
+#-----------------------------------------------------------------------------
+# Check file modes.
+looks_executable() {
+	case "$1" in
+		*.bat) return 0 ;;
+		*.cmd) return 0 ;;
+		*.exe) return 0 ;;
+		*.com) return 0 ;;
+	esac
+	git cat-file blob "$2" | head -1 | grep "^#!/" > /dev/null
+}
+mode_not_exe () {
+	echo "The file '$file' has looks executable but does not have an executable mode."
+}
+mode_bad_exe () {
+	echo "The file '$file' has executable mode but does not look executable."
+}
+mode_non_file () {
+	echo "The path '$file' has a non-file mode."
+}
+check_mode() {
+	case "$dst_mode" in
+		100755) looks_executable "$file" "$dst_obj" || mode_bad_exe ;;
+		100644) looks_executable "$file" "$dst_obj" && mode_not_exe ;;
+		160000) ;;
+		*)	mode_non_file ;;
+	esac
+}
+bad=$(git diff-index --cached $against -- |
+sed -n '/^:[^:]/ {s/^://;p;}' |
+while read src_mode dst_mode src_obj dst_obj status file; do
+	if test "$src_mode" != "$dst_mode" -a "$dst_mode" != "000000"; then
+		check_mode
+	fi
+done)
+test -z "$bad" || die "$bad"
