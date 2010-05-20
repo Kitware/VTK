@@ -213,6 +213,18 @@ void vtkXRenderWindowInteractor::TerminateApp()
 
   this->BreakLoopFlag = 1;
 
+#ifdef VTK_USE_TDX
+  // 3DConnexion device
+  if(this->UseTDx)
+    {
+    vtkTDxUnixDevice *d=this->Internal->GetDevice();
+    if(d->GetInitialized())
+      {
+      d->Close();
+      }
+    }
+#endif
+  
   // Send a VTK_BreakXtLoop ClientMessage event to be sure we pop out of the
   // event loop.  This "wakes up" the event loop.  Otherwise, it might sit idle 
   // waiting for an event before realizing an exit was requested.
