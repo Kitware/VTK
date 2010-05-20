@@ -30,6 +30,7 @@ class vtkTable;
 class vtkChartLegend;
 class vtkTooltipItem;
 class vtkContextMouseEvent;
+class vtkDataArray;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
@@ -143,6 +144,18 @@ public:
   // Description:
   // Set the vtkContextScene for the item, always set for an item in a scene.
   virtual void SetScene(vtkContextScene *scene);
+
+  // Description:
+  // Return the Stacked plot accumulator so that each vtkPlotStacked can 
+  // use it to determine its base and contribute to the position of the next
+  // stacked plot.
+  vtkDataArray *GetStackedPlotAccumulator(int dataType, int n);
+
+  // Description:
+  // Timestamp identifying the last time the participants in a stacked plot
+  // have changed (either by being added or having their visibility change)
+  vtkTimeStamp GetStackParticipantsChanged();
+  void SetStackPartipantsChanged();
 
 //BTX
 protected:

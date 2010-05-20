@@ -47,6 +47,7 @@ SET(Kit_SRCS
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
   vtkPlotLine.cxx
+  vtkPlotStacked.cxx
   vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
   vtkTooltipItem.cxx

@@ -6,6 +6,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestPCPlot.cxx
     TestDiagram.cxx
     TestLinePlot.cxx
+    TestStackedPlot.cxx
     TestBarGraph.cxx
     TestContext.cxx
     TestGLSL.cxx
