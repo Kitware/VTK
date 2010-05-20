@@ -221,6 +221,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* for const * return types, prepend with const */
   if ((i == MAX_ARGS) && ((aType & VTK_PARSE_CONST) != 0) &&
+      (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) ||
+       ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT)) &&
       ((aType & VTK_PARSE_INDIRECT) != 0))
     {
     fprintf(fp,"  const ");
@@ -261,7 +263,10 @@ static void vtkWrapPython_MakeTempVariable(
   switch (aType & VTK_PARSE_INDIRECT)
     {
     case VTK_PARSE_REF:
-      fprintf(fp, "*"); /* refs are converted to pointers */
+      if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT)
+        {
+        fprintf(fp, "*"); /* refs are converted to pointers */
+        }
       break;
     case VTK_PARSE_POINTER:
       if ((i == MAX_ARGS) ||
@@ -332,7 +337,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* ditto for bool */
   if ((i != MAX_ARGS) &&
-      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_BOOL))
+      (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_BOOL) ||
+       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_BOOL_REF)))
     {
     fprintf(fp,
             "  PyObject *tempB%d = 0;\n"
@@ -342,7 +348,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* ditto for string */
   if ((i != MAX_ARGS) &&
-       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_STRING))
+       (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_STRING) ||
+        ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_STRING_REF)))
     {
     fprintf(fp,
             "  const char *tempC%d = 0;\n",
@@ -351,7 +358,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* ditto for unicode */
   if ((i != MAX_ARGS) &&
-      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_UNICODE_STRING))
+      (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_UNICODE_STRING) ||
+       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_UNICODE_STRING_REF)))
     {
     fprintf(fp,
             "  PyObject *tempU%d = 0;\n"
@@ -361,7 +369,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* A temporary mini-string for character return value conversion */
   if ((i == MAX_ARGS) &&
-      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR))
+      (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR) ||
+       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR_REF)))
     {
     fprintf(fp,
             "  char tempA%d[2];\n",
@@ -469,7 +478,9 @@ static void vtkWrapPython_ReturnValue(
 
     /* handle all basic types by simple conversion */
     case VTK_PARSE_FLOAT:
+    case VTK_PARSE_FLOAT_REF:
     case VTK_PARSE_DOUBLE:
+    case VTK_PARSE_DOUBLE_REF:
       {
       fprintf(fp,
               "    result = PyFloat_FromDouble(temp%i);\n",
@@ -477,12 +488,19 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_CHAR_REF:
     case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_UNSIGNED_INT_REF:
     case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_UNSIGNED_SHORT_REF:
     case VTK_PARSE_INT:
+    case VTK_PARSE_INT_REF:
     case VTK_PARSE_SHORT:
+    case VTK_PARSE_SHORT_REF:
     case VTK_PARSE_LONG:
+    case VTK_PARSE_LONG_REF:
     case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_SIGNED_CHAR_REF:
       {
       fprintf(fp,
               "    result = PyInt_FromLong(temp%i);\n",
@@ -493,6 +511,7 @@ static void vtkWrapPython_ReturnValue(
     /* PyBool_FromLong was introduced in Python 2.3,
      * but PyInt_FromLong is a good substitute */
     case VTK_PARSE_BOOL:
+    case VTK_PARSE_BOOL_REF:
       {
       fprintf(fp,
               "#if PY_VERSION_HEX >= 0x02030000\n"
@@ -506,6 +525,7 @@ static void vtkWrapPython_ReturnValue(
 
     /* PyLong_FromUnsignedLong() is new to Python 2.2 */
     case VTK_PARSE_UNSIGNED_LONG:
+    case VTK_PARSE_UNSIGNED_LONG_REF:
       {
       fprintf(fp,
               "#if (PY_VERSION_HEX >= 0x02020000)\n"
@@ -520,6 +540,7 @@ static void vtkWrapPython_ReturnValue(
     /* Support for vtkIdType depends on config and capabilities */
 #if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
     case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_ID_TYPE_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromLongLong(temp%i);\n",
@@ -527,6 +548,7 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED_ID_TYPE:
+    case VTK_PARSE_UNSIGNED_ID_TYPE_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromUnsignedLongLong(temp%i);\n",
@@ -535,6 +557,7 @@ static void vtkWrapPython_ReturnValue(
       }
 #else
     case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_ID_TYPE_REF:
       {
       fprintf(fp,
               "    result = PyInt_FromLong((long)temp%i);\n",
@@ -542,6 +565,7 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED_ID_TYPE:
+    case VTK_PARSE_UNSIGNED_ID_TYPE_REF:
       {
       fprintf(fp,
               "#if (PY_VERSION_HEX >= 0x02020000)\n"
@@ -558,6 +582,7 @@ static void vtkWrapPython_ReturnValue(
 #if defined(VTK_TYPE_USE_LONG_LONG)
 # if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_LONG_LONG)
     case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE_LONG_LONG_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromLongLong(temp%i);\n",
@@ -565,6 +590,7 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromUnsignedLongLong(temp%i);\n",
@@ -573,6 +599,7 @@ static void vtkWrapPython_ReturnValue(
       }
 # else
     case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE_LONG_LONG_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromLong(temp%i);\n",
@@ -580,6 +607,7 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromUnsignedLong(temp%i);\n",
@@ -593,6 +621,7 @@ static void vtkWrapPython_ReturnValue(
 #if defined(VTK_TYPE_USE___INT64)
 # if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF___INT64)
     case VTK_PARSE___INT64:
+    case VTK_PARSE___INT64_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromLongLong(temp%i);\n",
@@ -600,6 +629,7 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE_UNSIGNED___INT64_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromUnsignedLongLong(temp%i);\n",
@@ -608,6 +638,7 @@ static void vtkWrapPython_ReturnValue(
       }
 # else
     case VTK_PARSE___INT64:
+    case VTK_PARSE___INT64_REF:
       {
       fprintf(fp,
               "    result = PyLong_FromLong(temp%i);\n",
@@ -615,6 +646,7 @@ static void vtkWrapPython_ReturnValue(
       break;
       }
     case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE_UNSIGNED___INT64_REF:
       {
       fprintf(fp,
               "#if (PY_VERSION_HEX >= 0x02020000)\n"
@@ -630,6 +662,7 @@ static void vtkWrapPython_ReturnValue(
 
     /* return a char as a string of unit length */
     case VTK_PARSE_CHAR:
+    case VTK_PARSE_CHAR_REF:
       {
       fprintf(fp,
               "    tempA%i[0] = temp%i;\n"
@@ -641,6 +674,7 @@ static void vtkWrapPython_ReturnValue(
 
     /* return a string */
     case VTK_PARSE_STRING:
+    case VTK_PARSE_STRING_REF:
       {
       fprintf(fp,
               "    result = PyString_FromString(temp%i);\n",
@@ -652,6 +686,7 @@ static void vtkWrapPython_ReturnValue(
      * can be configured for either 32-bit or 16-bit unicode and it's
      * tricky to test both, so utf8 is a safe alternative */
     case VTK_PARSE_UNICODE_STRING:
+    case VTK_PARSE_UNICODE_STRING_REF:
       {
       fprintf(fp,
               "      {\n"
@@ -842,13 +877,15 @@ static char *vtkWrapPython_ArgCheckString(
     {
     argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
-    if (argtype == VTK_PARSE_BOOL)
+    if (argtype == VTK_PARSE_BOOL ||
+        argtype == VTK_PARSE_BOOL_REF)
       {
       strcpy(&result[currPos], " bool");
       currPos += 5;
       }
 
-    if (argtype == VTK_PARSE_UNICODE_STRING)
+    if (argtype == VTK_PARSE_UNICODE_STRING ||
+        argtype == VTK_PARSE_UNICODE_STRING_REF)
       {
       strcpy(&result[currPos], " unicode");
       currPos += 8;
@@ -1616,15 +1653,18 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,", &tempH%d",i);
               }
-            else if (argType == VTK_PARSE_BOOL)
+            else if (argType == VTK_PARSE_BOOL ||
+                     argType == VTK_PARSE_BOOL_REF)
               {
               fprintf(fp,", &tempB%d",i);
               }
-            else if (argType == VTK_PARSE_STRING)
+            else if (argType == VTK_PARSE_STRING ||
+                     argType == VTK_PARSE_STRING_REF)
               {
               fprintf(fp,", &tempC%d",i);
               }
-            else if (argType == VTK_PARSE_UNICODE_STRING)
+            else if (argType == VTK_PARSE_UNICODE_STRING ||
+                     argType == VTK_PARSE_UNICODE_STRING_REF)
               {
               fprintf(fp,", &tempU%d",i);
               }
@@ -1681,8 +1721,8 @@ static void vtkWrapPython_GenerateMethods(
 
               potential_error = 1;
               }
-            else if (argType == VTK_PARSE_VTK_OBJECT_REF ||
-                     argType == VTK_PARSE_VTK_OBJECT)
+            else if (argType == VTK_PARSE_VTK_OBJECT ||
+                     argType == VTK_PARSE_VTK_OBJECT_REF)
               {
               fprintf(fp,
                       "    temp%d = static_cast<%s *>(\n"
@@ -1700,7 +1740,8 @@ static void vtkWrapPython_GenerateMethods(
 
               potential_error = 1;
               }
-            else if (argType == VTK_PARSE_BOOL)
+            else if (argType == VTK_PARSE_BOOL ||
+                     argType == VTK_PARSE_BOOL_REF)
               {
               fprintf(fp,
                       "    tempI%d = PyObject_IsTrue(tempB%d);\n"
@@ -1711,14 +1752,16 @@ static void vtkWrapPython_GenerateMethods(
                       "    temp%d = (tempI%d != 0);\n",
                       i, i, i, on_error, i, i);
               }
-            else if (argType == VTK_PARSE_STRING)
+            else if (argType == VTK_PARSE_STRING ||
+                     argType == VTK_PARSE_STRING_REF)
               {
               fprintf(fp,
                       "    temp%d = tempC%d;\n",
                       i, i);
               }
 #ifdef Py_USING_UNICODE
-            else if (argType == VTK_PARSE_UNICODE_STRING)
+            else if (argType == VTK_PARSE_UNICODE_STRING ||
+                     argType == VTK_PARSE_UNICODE_STRING_REF)
               {
               fprintf(fp,
                       "    tempS%d = PyUnicode_AsUTF8String(tempU%d);\n"
@@ -2230,8 +2273,13 @@ static int vtkWrapPython_MethodCheck(
 
     if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
     if (((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-        (argType != VTK_PARSE_VTK_OBJECT_REF) &&
+        ((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
         ((argType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
+    if (((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF) &&
+        (argType != VTK_PARSE_VTK_OBJECT_REF) &&
+        ((currentFunction->ArgTypes[i] & VTK_PARSE_CONST) == 0)) args_ok = 0;
+    if (argType == VTK_PARSE_CHAR_PTR &&
+        currentFunction->ArgCounts[i] > 0) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
@@ -2274,7 +2322,7 @@ static int vtkWrapPython_MethodCheck(
   /* check the return type */
   if ((returnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
   if (((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-      (returnType != VTK_PARSE_VTK_OBJECT_REF) &&
+      ((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
       ((returnType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
   /* eliminate "unsigned char *" and "unsigned short *" */
@@ -2318,6 +2366,11 @@ static int vtkWrapPython_MethodCheck(
       args_ok = currentFunction->HaveHint;
       break;
     }
+
+  /* char * is always treated as a string, not an array */
+  if (returnType == VTK_PARSE_CHAR_PTR &&
+      currentFunction->HaveHint &&
+      currentFunction->HintSize > 0) args_ok = 0;
 
   /* make sure it isn't a Delete or New function */
   if (currentFunction->Name == 0 ||
