@@ -122,9 +122,9 @@ IF(FFMPEG_INCLUDE_DIR)
           ${FFMPEG_avformat_LIBRARY}
           ${FFMPEG_avutil_LIBRARY} 
           )
-		
-        # swscale is always a part of newer ffmpeg distros		
-		IF(FFMPEG_swscale_LIBRARY)
+
+        # swscale is always a part of newer ffmpeg distros
+        IF(FFMPEG_swscale_LIBRARY)
           LIST(APPEND FFMPEG_BASIC_LIBRARIES ${FFMPEG_swscale_LIBRARY})
         ENDIF(FFMPEG_swscale_LIBRARY)
 
