@@ -33,10 +33,6 @@
 #define __vtkPolyhedron_h
 
 #include "vtkCell3D.h"
-#include "vtkType.h"
-#include <vtkstd/map>
-#include <vtkstd/vector>
-#include <vtkstd/set>
 
 class vtkIdTypeArray;
 class vtkCellArray;
@@ -46,14 +42,15 @@ class vtkTetra;
 class vtkPolygon;
 class vtkLine;
 //BTX
-struct vtkPointIdMap;
+class vtkPointIdMap;
+class vtkIdToIdVectorMapType;
+class vtkIdToIdMapType;
 //ETX
 class vtkEdgeTable;
 class vtkPolyData;
 class vtkCellLocator;
 class vtkGenericCell;
 class vtkPointLocator;
-
 
 class VTK_FILTERING_EXPORT vtkPolyhedron : public vtkCell3D
 {
@@ -63,18 +60,6 @@ public:
   static vtkPolyhedron *New();
   vtkTypeMacro(vtkPolyhedron,vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Special types.
-  //BTX
-  typedef vtkstd::vector<vtkIdType>                 IdVectorType;
-  typedef vtkstd::set<vtkIdType>                    IdSetType;
-  typedef vtkstd::map<vtkIdType, IdVectorType>      IdToIdVectorMapType;
-  typedef vtkstd::pair<vtkIdType, IdVectorType>     IdToIdVectorPairType;
-  typedef IdToIdVectorMapType::iterator             IdToIdVectorMapIteratorType;
-  typedef vtkstd::map<vtkIdType, vtkIdType>         IdToIdMapType;
-  typedef vtkstd::pair<vtkIdType, vtkIdType>        IdToIdPairType;
-  //ETX
 
   // Description:
   // See vtkCell3D API for description of these methods.
@@ -276,13 +261,18 @@ protected:
                       vtkPointData *inPd, 
                       vtkPointData *outPd,
                       vtkCellArray *contourPolys,
-                      IdToIdVectorMapType & faceToPointsMap,
-                      IdToIdVectorMapType & pointToFacesMap,
-                      IdToIdMapType & pointIdMap);
+                      vtkIdToIdVectorMapType & faceToPointsMap,
+                      vtkIdToIdVectorMapType & pointToFacesMap,
+                      vtkIdToIdMapType & pointIdMap);
 
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
   void operator=(const vtkPolyhedron&);  // Not implemented.
+
+  //BTX
+  class vtkInternal;
+  vtkInternal * Internal;
+  //ETX
 };
 
 //----------------------------------------------------------------------------
