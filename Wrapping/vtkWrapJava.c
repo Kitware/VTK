@@ -107,6 +107,7 @@ void use_hints(FILE *fp)
         fprintf(fp,"    return vtkJavaMakeJArrayOfByteFromUnsignedChar(env,temp%i,op->GetOutputStringLength());\n", MAX_ARGS);
         }
       break;
+
     case VTK_PARSE_FLOAT_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
@@ -126,24 +127,37 @@ void use_hints(FILE *fp)
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromIdType(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
       break;
+
     case VTK_PARSE_LONG_LONG_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromLongLong(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
       break;
+
     case VTK_PARSE___INT64_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFrom__Int64(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
       break;
+
     case VTK_PARSE_SIGNED_CHAR_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromSignedChar(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
       break;
+
     case VTK_PARSE_BOOL_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromBool(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
       break;
+
     case VTK_PARSE_SHORT_PTR:
+              fprintf(fp,"    return vtkJavaMakeJArrayOfShortFromShort(env,temp%i,%i);\n",
+              MAX_ARGS, currentFunction->HintSize);
+      break;
+
     case VTK_PARSE_LONG_PTR:
+              fprintf(fp,"    return vtkJavaMakeJArrayOfLongFromLong(env,temp%i,%i);\n",
+              MAX_ARGS, currentFunction->HintSize);
+      break;
+
     case VTK_PARSE_UNSIGNED_INT_PTR:
     case VTK_PARSE_UNSIGNED_SHORT_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
