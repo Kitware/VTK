@@ -159,8 +159,8 @@ void vtkTDxUnixDevice::Close()
 bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
 {
   assert("pre: initialized" && this->GetInitialized());
-  assert("e_exists" && e!=0);
-  assert("e_is_client_message" &&
+  assert("pre: e_exists" && e!=0);
+  assert("pre: e_is_client_message" &&
          static_cast<const XEvent *>(e)->type==ClientMessage);
   
   MagellanFloatEvent info;
