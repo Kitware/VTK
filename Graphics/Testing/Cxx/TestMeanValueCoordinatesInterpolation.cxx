@@ -95,7 +95,7 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
   pSource->SetXResolution(50);
   pSource->SetYResolution(50);
 
-  // interpolation 0
+  // interpolation 0: use the faster MVC algorithm specialized for triangle meshes.
   vtkSmartPointer<vtkProbePolyhedron> interp = 
     vtkSmartPointer<vtkProbePolyhedron>::New();
   interp->SetInputConnection(pSource->GetOutputPort());
@@ -129,7 +129,8 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
   vtkPolyData* spherePoly = vtkPolyData::SafeDownCast(ele1->GetOutput());
   vtkCellArray *polys = spherePoly->GetPolys();
 
-  // merge the first two cell
+  // merge the first two cell, this will make vtkProbePolyhedron select the
+  // more general MVC algorithm.
   vtkIdType * p = polys->GetPointer();
   vtkIdType pids[4] = {p[1], p[2], p[6], p[3]};
   
@@ -171,7 +172,7 @@ int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
   pSource1->SetXResolution(50);
   pSource1->SetYResolution(50);
 
-  // interpolation 0
+  // interpolation 1: use the more general but slower MVC algorithm.
   vtkSmartPointer<vtkProbePolyhedron> interp1 = 
     vtkSmartPointer<vtkProbePolyhedron>::New();
   interp1->SetInputConnection(pSource1->GetOutputPort());

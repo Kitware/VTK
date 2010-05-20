@@ -27,8 +27,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeToUniformGrid.cxx
     TestNamedComponents.cxx
     TestMeanValueCoordinatesInterpolation.cxx
-    TestMeanValueCoordinatesInterpolation1.cxx
-    TestMeanValueCoordinatesInterpolation2.cxx
     TestPolyDataPointSampler.cxx
     TestPolyhedron0.cxx
     TestPolyhedron1.cxx

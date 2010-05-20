@@ -25,8 +25,6 @@
 
 // test git commit.
 
-static int numSpecialPoints = 0;
-
 vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 
 // Special class that can iterate over different type of triangle representations
@@ -252,7 +250,6 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
     
     if (outlierFlag)
       {
-      std::cout << numSpecialPoints++ << std::endl;
       poly = ++iter;
       continue;
       }
@@ -301,7 +298,6 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
 
       if (sumWeight < eps)
         {
-        std::cout << numSpecialPoints++ << std::endl;
         return;
         }
       
@@ -431,8 +427,6 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
     double theta2 = 2.0*asin(l2/2.0);
     double halfSum = (theta0 + theta1 + theta2)/2.0;
 
-    //std::cout << "Start ===== " << std::endl;
-
     // special case when the point lies on the triangle
     if (vtkMath::Pi() - halfSum < eps)
       {
@@ -487,12 +481,6 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
 
     if (fabs(det) < eps)
       {
-      std::cout << numSpecialPoints++ << std::endl;
-      std::cout << "zero det for triangle " << pid0 << " " << pid1 << " " << pid2 << std::endl;
-      std::cout << "u0 " << u0[0] << " " << u0[1] << " " << u0[2] << std::endl;
-      std::cout << "u1 " << u1[0] << " " << u1[1] << " " << u1[2] << std::endl;
-      std::cout << "u2 " << u2[0] << " " << u2[1] << " " << u2[2] << std::endl;
-      std::cout << std::endl;
       tri = ++iter;
       continue;
       }
@@ -506,7 +494,6 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
     // the current triangle.
     if (fabs(sign0) < eps || fabs(sign1) < eps || fabs(sign2) < eps)
       {
-      std::cout << numSpecialPoints++ << std::endl;
       tri = ++iter;
       continue;
       }
