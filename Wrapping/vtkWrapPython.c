@@ -1544,7 +1544,8 @@ static void vtkWrapPython_GenerateMethods(
             else
               {
               fprintf(fp,
-                      "  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n",
+                      "  %s *op = static_cast<%s *>(\n"
+                      "    ((PyVTKSpecialObject *)self)->vtk_ptr);\n",
                       data->ClassName, data->ClassName);
               }
             }
@@ -1601,7 +1602,7 @@ static void vtkWrapPython_GenerateMethods(
           else
             {
             fprintf(fp,
-                    "  op = (%s *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"%s\"",
+                    "  op = static_cast<%s *>(vtkPythonUtil::VTKParseTuple(self, args, \"%s\"",
                     data->ClassName,
                     vtkWrapPython_FormatString(theSignature));
             }
@@ -1653,7 +1654,7 @@ static void vtkWrapPython_GenerateMethods(
             }
           else
             {
-            fprintf(fp,");\n"
+            fprintf(fp,"));\n"
                     "  if (op)\n"
                     "    {\n");
             }
@@ -1667,7 +1668,8 @@ static void vtkWrapPython_GenerateMethods(
             if (argType == VTK_PARSE_VTK_OBJECT_PTR)
               {
               fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromObject(tempH%d,(char*)\"%s\");\n",
+                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromObject(\n"
+                      "      tempH%d,\"%s\");\n",
                       i, theSignature->ArgClasses[i], i,
                       theSignature->ArgClasses[i]);
               fprintf(fp,
@@ -1683,7 +1685,9 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_VTK_OBJECT)
               {
               fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromSpecialObject(tempH%d, \"%s\", &tempH%d);\n",
+                      "    temp%d = static_cast<%s *>(\n"
+                      "      vtkPythonUtil::GetPointerFromSpecialObject(\n"
+                      "        tempH%d, \"%s\", &tempH%d));\n",
                       i, theSignature->ArgClasses[i], i,
                       theSignature->ArgClasses[i], i);
 
@@ -1754,7 +1758,7 @@ static void vtkWrapPython_GenerateMethods(
             if (argType == VTK_PARSE_VOID_PTR)
               {
               fprintf(fp,
-                      "    temp%i = vtkPythonUtil::UnmanglePointer((char *)temp%i,&size%i,(char*)\"%s\");\n",
+                      "    temp%i = vtkPythonUtil::UnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",
                       i, i, i, "void_p");
 
               fprintf(fp,
@@ -2610,7 +2614,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "  unsigned long     temp20 = 0;\n");
 
     fprintf(fp,
-            "  op = (vtkObject *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"zO\", &temp0, &temp1);\n"
+            "  op = static_cast<vtkObject *>(vtkPythonUtil::VTKParseTuple(self, args, \"zO\", &temp0, &temp1));\n"
             "  if (op)\n"
             "    {\n"
             "    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n"
@@ -2629,7 +2633,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "  PyErr_Clear();\n");
 
     fprintf(fp,
-            "  op = (vtkObject *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"zOf\", &temp0, &temp1, &temp2);\n"
+            "  op = static_cast<vtkObject *>(vtkPythonUtil::VTKParseTuple(self, args, \"zOf\", &temp0, &temp1, &temp2));\n"
             "  if (op)\n"
             "    {\n"
             "    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n"
@@ -2662,7 +2666,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "  %s *op;\n"
             "  char *typecast;\n"
             "\n"
-            "  op = (%s *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"s\", &typecast);\n"
+            "  op = static_cast<%s *>(vtkPythonUtil::VTKParseTuple(self, args, \"s\", &typecast));\n"
             "  if (op)\n"
             "    {\n    char temp20[256];\n"
             "    sprintf(temp20,\"Addr=%%p\",op);\n"
@@ -2678,7 +2682,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "PyObject *PyvtkObjectBase_PrintRevisions(PyObject *self, PyObject *args)\n"
             "{\n"
             "  %s *op;\n"
-            "  op = (%s *)vtkPythonUtil::VTKParseTuple(self, args, (char*)\"\");\n"
+            "  op = static_cast<%s *>(vtkPythonUtil::VTKParseTuple(self, args, \"\"));\n"
             "  if (op)\n"
             "    {\n"
             "    vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n"
@@ -2828,7 +2832,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "{\n"
             "  if (obj)\n"
             "    {\n"
-            "    delete (static_cast<%s*>(obj));\n"
+            "    delete static_cast<%s *>(obj);\n"
             "    }\n"
             "}\n"
             "\n",
@@ -2840,7 +2844,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             "{\n"
             "  if (obj)\n"
             "    {\n"
-            "    os << *(static_cast<const %s*>(obj));\n"
+            "    os << *static_cast<const %s *>(obj);\n"
             "    }\n"
             "}\n"
             "\n",
@@ -2866,8 +2870,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,
             "static int vtkSpecial_%sCompare(const void *o1, const void *o2, int opid)\n"
             "{\n"
-            "  const %s &so1 = *((const %s *)o1);\n"
-            "  const %s &so2 = *((const %s *)o2);\n"
+            "  const %s &so1 = *static_cast<const %s *>(o1);\n"
+            "  const %s &so2 = *static_cast<const %s *>(o2);\n"
             "  switch (opid)\n"
             "    {\n",
             data->ClassName, data->ClassName, data->ClassName,
@@ -2965,7 +2969,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     /* the exported New method */
     fprintf(fp,
-            "PyObject *PyVTKClass_%sNew(char *)\n"
+            "PyObject *PyVTKClass_%sNew(const char *)\n"
             "{\n"
             "  return PyVTKSpecialType_New(\n"
             "      &Py%sNewMethod, Py%sMethods, Py%s_%sMethods,"
@@ -2982,7 +2986,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   else
     {
     fprintf(fp,
-            "PyObject *PyVTKClass_%sNew(char *)\n"
+            "PyObject *PyVTKClass_%sNew(const char *)\n"
             "{\n"
             "  return NULL;\n"
             "}\n"
