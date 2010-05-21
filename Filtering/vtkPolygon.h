@@ -78,10 +78,15 @@ public:
   double ComputeArea();
 
   // Description:
-  // Compute the interpolation functions/derivatives
+  // Compute the interpolation functions/derivatives. 
   // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double *sf);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
+  // Two interpolation algorithms are available: 1/r^2 and Mean Value 
+  // Coordinate. The former is used by default. To use the second algorithm, 
+  // set UseMVCInterpolation to be true.
+  // The function assumes the input point lies on the polygon plane without
+  // checking that.
+  virtual void InterpolateFunctions(double x[3], double *sf);
+  virtual void InterpolateDerivs(double x[3], double *derivs);
 
   // Description:
   // Polygon specific methods.
@@ -163,7 +168,6 @@ public:
                                          double x[3]);
 
   // Description:
-
   // Intersect two convex 2D polygons to produce a line segment as output.
   // The return status of the methods indicated no intersection (returns 0);
   // a single point of intersection (returns 1); or a line segment (i.e., two
@@ -176,9 +180,20 @@ public:
   static int IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
                                     double tol, double p0[3], double p1[3]);
 
+  // Description:
+  // Set/Get the flag indicating whether to use Mean Value Coordinate for the "
+  // interpolation. If true, InterpolateFunctions() uses the Mean Value "
+  // Coordinate to compute weights. Otherwise, the conventional 1/r^2 method
+  // is used. The UseMVCInterpolation parameter is set to false by default.
+  vtkGetMacro(UseMVCInterpolation, bool);
+  vtkSetMacro(UseMVCInterpolation, bool);
+  
 protected:
   vtkPolygon();
   ~vtkPolygon();
+
+  // Compute the interpolation functions using Mean Value Coordinate.
+  void InterpolateFunctionsUsingMVC(double x[3], double *weights);
 
   // variables used by instances of this class
   double   Tolerance; // Intersection tolerance
@@ -190,6 +205,10 @@ protected:
   vtkDoubleArray *TriScalars;
   vtkLine *Line;
 
+  // Parameter indicating whether to use Mean Value Coordinate algorithm 
+  // for interpolation. The parameter is false by default.
+  bool     UseMVCInterpolation;
+  
   // Helper methods for triangulation------------------------------
   // Description:
   // A fast triangulation method. Uses recursive divide and

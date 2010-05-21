@@ -515,6 +515,14 @@ int vtkExtractSelectedFrustum::RequestData(
           }
         else
           {
+          // special handling for polyhedron cells
+          if (vtkUnstructuredGrid::SafeDownCast(input) &&
+              cell->GetCellType() == VTK_POLYHEDRON)
+            {
+            newCellPts->Reset();
+            vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
+            vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, pointMap);
+            }
           newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
           outputCD->CopyData(cd,cellId,newCellId);
           originalCellIds->InsertNextValue(cellId);
@@ -680,7 +688,14 @@ int vtkExtractSelectedFrustum::RequestData(
                 }
               newCellPts->InsertId(i,newPointId);
               }
-
+            // special handling for polyhedron cells
+            if (vtkUnstructuredGrid::SafeDownCast(input) &&
+                cell->GetCellType() == VTK_POLYHEDRON)
+              {
+              newCellPts->Reset();
+              vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
+              vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, pointMap2);
+              }
             newCellId = outputUG->InsertNextCell(cell->GetCellType(),newCellPts);
             outputCD->CopyData(cd,cellId,newCellId);
             originalCellIds->InsertNextValue(cellId);

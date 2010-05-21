@@ -455,7 +455,18 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
           {
           newPtIds->InsertId(  i,  globalIdxs[ ptIds->GetId(i) + ptOffset ]  );
           }
-        output->InsertNextCell(  ds->GetCellType( cellId ),  newPtIds  );
+        if (vtkUnstructuredGrid::SafeDownCast(ds) && 
+            ds->GetCellType( cellId ) == VTK_POLYHEDRON)
+          {
+          vtkUnstructuredGrid * ug = vtkUnstructuredGrid::SafeDownCast(ds);
+          vtkIdType nfaces, *facePtIds;
+          ug->GetFaceStream(cellId, nfaces, facePtIds);
+          output->InsertNextCell( VTK_POLYHEDRON, nfaces, facePtIds);
+          }
+        else
+          {
+          output->InsertNextCell(  ds->GetCellType( cellId ),  newPtIds  );
+          }
         
         count ++;
         if (  !( count % tenth )  ) 

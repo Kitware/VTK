@@ -26,7 +26,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
     TestNamedComponents.cxx
+    TestMeanValueCoordinatesInterpolation.cxx
     TestPolyDataPointSampler.cxx
+    TestPolyhedron0.cxx
+    TestPolyhedron1.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellatedBoxSource.cxx
     TestTessellator.cxx

@@ -56,6 +56,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkGenericCell.h"
 
 #include "vtkTableBasedClipCases.h"
 
@@ -3359,6 +3360,20 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
       edgeVtxs = NULL;
       thisCase = NULL;
       }
+    else if (cellType == VTK_POLYHEDRON)
+      {
+      if ( numCants == 0 )
+        {
+          specials->GetCellData()
+                  ->CopyAllocate( unstruct->GetCellData(), numCells );
+        }
+      vtkIdType nfaces, *facePtIds;
+      unstruct->GetFaceStream(i, nfaces, facePtIds);
+      specials->InsertNextCell(cellType, nfaces, facePtIds);
+      specials->GetCellData()
+              ->CopyData( unstruct->GetCellData(), i, numCants );
+      numCants ++;
+      }
     else
       {
       if ( numCants == 0 )
@@ -3366,7 +3381,6 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
           specials->GetCellData()
                   ->CopyAllocate( unstruct->GetCellData(), numCells );
         }
-
       specials->InsertNextCell( cellType, numbPnts, pntIndxs );
       specials->GetCellData()
               ->CopyData( unstruct->GetCellData(), i, numCants );

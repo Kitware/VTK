@@ -36,6 +36,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkPolyhedron.h"
 
 #include <math.h>
 
@@ -411,31 +412,42 @@ int vtkClipDataSet::RequestData(
       {
       for (j=0; j < numNew[i]; j++) 
         {
-        locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
-        conn[i]->GetNextCell(npts,pts);
-        
-        //For each new cell added, got to set the type of the cell
-        switch ( cell->GetCellDimension() )
+        if (cell->GetCellType() == VTK_POLYHEDRON)
           {
-          case 0: //points are generated--------------------------------
-            cellType = (npts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
-            break;
+          //Polyhedron cells have a special cell connectivity format
+          //(nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...).
+          //But we don't need to deal with it here. The special case is handled 
+          //by vtkUnstructuredGrid::SetCells(), which will be called next.
+          types[i]->InsertNextValue(VTK_POLYHEDRON);
+          }
+        else
+          {
+          locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
+          conn[i]->GetNextCell(npts,pts);
+          
+          //For each new cell added, got to set the type of the cell
+          switch ( cell->GetCellDimension() )
+            {
+            case 0: //points are generated--------------------------------
+              cellType = (npts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
+              break;
 
-          case 1: //lines are generated---------------------------------
-            cellType = (npts > 2 ? VTK_POLY_LINE : VTK_LINE);
-            break;
+            case 1: //lines are generated---------------------------------
+              cellType = (npts > 2 ? VTK_POLY_LINE : VTK_LINE);
+              break;
 
-          case 2: //polygons are generated------------------------------
-            cellType = (npts == 3 ? VTK_TRIANGLE : 
-                        (npts == 4 ? VTK_QUAD : VTK_POLYGON));
-            break;
+            case 2: //polygons are generated------------------------------
+              cellType = (npts == 3 ? VTK_TRIANGLE : 
+                          (npts == 4 ? VTK_QUAD : VTK_POLYGON));
+              break;
 
-          case 3: //tetrahedra or wedges are generated------------------
-            cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
-            break;
-          } //switch
+            case 3: //tetrahedra or wedges are generated------------------
+              cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
+              break;
+            } //switch
 
-        types[i]->InsertNextValue(cellType);
+          types[i]->InsertNextValue(cellType);
+          }
         } //for each new cell
       } //for both outputs
     } //for each cell

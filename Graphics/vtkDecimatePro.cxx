@@ -54,6 +54,7 @@ static double ComputeEdgeError(double x[3], double x1[3], double x2[3]);
 static double ComputeSingleTriangleError(double x[3], double x1[3], double x2[3]);
 
 
+//----------------------------------------------------------------------------
 // Create object with specified reduction of 90% and feature angle of
 // 15 degrees. Edge splitting is on, defer splitting is on, and the
 // split angle is 75 degrees. Topology preservation is off, delete
@@ -90,6 +91,7 @@ vtkDecimatePro::vtkDecimatePro()
   this->Mesh = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkDecimatePro::~vtkDecimatePro()
 {
   this->InflectionPoints->Delete();
@@ -107,6 +109,7 @@ vtkDecimatePro::~vtkDecimatePro()
   delete this->T;
 }
 
+//----------------------------------------------------------------------------
 //
 //  Reduce triangles in mesh by specified reduction factor.
 //
@@ -420,7 +423,7 @@ int vtkDecimatePro::RequestData(
   return 1;
 }
 
-//
+//----------------------------------------------------------------------------
 // Computes error to edge (distance squared)
 //
 static double ComputeEdgeError(double x[3], double x1[3], double x2[3])
@@ -431,7 +434,7 @@ static double ComputeEdgeError(double x[3], double x1[3], double x2[3])
   return (projDist < edgeLength ? projDist : edgeLength);
 }
 
-//
+//----------------------------------------------------------------------------
 // Computes triangle area
 //
 static double ComputeSingleTriangleError(double x[3], double x1[3], double x2[3])
@@ -439,7 +442,7 @@ static double ComputeSingleTriangleError(double x[3], double x1[3], double x2[3]
   return vtkTriangle::TriangleArea(x, x1, x2);
 }
 
-//
+//----------------------------------------------------------------------------
 // Computes error to a cycle of triangles...the average plane (normal and
 // point) have been already computed. (Returns distance squared.)
 //
@@ -449,7 +452,7 @@ static double ComputeSimpleError(double x[3], double normal[3], double point[3])
   return dist * dist;
 }
 
-// 
+//----------------------------------------------------------------------------
 // Split the mesh along sharp edges - separates the mesh into pieces.
 //
 void vtkDecimatePro::SplitMesh()
@@ -477,7 +480,7 @@ void vtkDecimatePro::SplitMesh()
 
 #define VTK_FEATURE_ANGLE(tri1,tri2) \
                       vtkMath::Dot(this->T->Array[tri1].n, this->T->Array[tri2].n)
-//
+//----------------------------------------------------------------------------
 // Evalute the local topology/geometry of a vertex. This is a two-pass
 // process: first topology is examined, and then the geometry.
 //
@@ -834,7 +837,7 @@ int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
   return vtype;
 }
 
-//
+//----------------------------------------------------------------------------
 // Split the vertex by modifying topological connections.
 //
 void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
@@ -1083,7 +1086,7 @@ void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
 }
 
 
-//
+//----------------------------------------------------------------------------
 // Find a way to split this loop. If -1 is returned, then we have a real
 // bad situation and we'll split the vertex.
 //
@@ -1245,7 +1248,7 @@ vtkIdType vtkDecimatePro::FindSplit (int type, vtkIdType fedges[2],
   return -1;
 }
 
-//
+//----------------------------------------------------------------------------
 //  Determine whether the loop can be split at the vertex indicated
 //
 int vtkDecimatePro::IsValidSplit(int index)
@@ -1326,7 +1329,7 @@ int vtkDecimatePro::IsValidSplit(int index)
   return 1;
 }
 
-//
+//----------------------------------------------------------------------------
 //  Creates two loops from splitting plane provided
 //
 void vtkDecimatePro::SplitLoop(vtkIdType fedges[2], vtkIdType& n1,
@@ -1352,6 +1355,7 @@ void vtkDecimatePro::SplitLoop(vtkIdType fedges[2], vtkIdType& n1,
     }
 }
 
+//----------------------------------------------------------------------------
 // Collapse the point to the specified vertex. Distribute the error
 // and update neighborhood vertices.
 int vtkDecimatePro::CollapseEdge(int type, vtkIdType ptId,
@@ -1439,6 +1443,7 @@ int vtkDecimatePro::CollapseEdge(int type, vtkIdType ptId,
   return numDeleted;
 }
 
+//----------------------------------------------------------------------------
 // Get a list of inflection points. These are double values 0 < r <= 1.0 
 // corresponding to reduction level, and there are a total of
 // NumberOfInflectionPoints() values. You must provide an array (of
@@ -1453,6 +1458,7 @@ void vtkDecimatePro::GetInflectionPoints(double *inflectionPoints)
     }
 }
 
+//----------------------------------------------------------------------------
 // Get a list of inflection points. These are double values 0 < r <= 1.0 
 // corresponding to reduction level, and there are a total of
 // NumberOfInflectionPoints() values. You must provide an array (of
@@ -1463,6 +1469,7 @@ double *vtkDecimatePro::GetInflectionPoints()
   return this->InflectionPoints->GetPointer(0);
 }
 
+//----------------------------------------------------------------------------
 // Get the number of inflection points. Only returns a valid value
 // after the filter has executed.
 vtkIdType vtkDecimatePro::GetNumberOfInflectionPoints()
@@ -1470,11 +1477,12 @@ vtkIdType vtkDecimatePro::GetNumberOfInflectionPoints()
   return this->InflectionPoints->GetMaxId()+1;
 }
 
-//
+//----------------------------------------------------------------------------
 // The following are private functions used to manage the priority
 // queue of vertices.
 //
 
+//----------------------------------------------------------------------------
 void vtkDecimatePro::InitializeQueue(vtkIdType numPts)
 {
   if ( !this->PreserveTopology && this->Splitting ) 
@@ -1486,6 +1494,7 @@ void vtkDecimatePro::InitializeQueue(vtkIdType numPts)
   this->Queue->Allocate(numPts, static_cast<vtkIdType>(0.25*numPts));
 }
 
+//----------------------------------------------------------------------------
 int vtkDecimatePro::Pop(double &error)
 {
   vtkIdType ptId;
@@ -1562,6 +1571,7 @@ int vtkDecimatePro::Pop(double &error)
   return -1; 
 }
 
+//----------------------------------------------------------------------------
 // Computes error and inserts point into priority queue.
 void vtkDecimatePro::Insert(vtkIdType ptId, double error)
 {
@@ -1652,6 +1662,7 @@ void vtkDecimatePro::Insert(vtkIdType ptId, double error)
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute the error of the point to the new triangulated surface
 void vtkDecimatePro::DistributeError(double error)
 {
@@ -1665,6 +1676,8 @@ void vtkDecimatePro::DistributeError(double error)
     this->VertexError->SetValue(this->V->Array[i].id, previousError+error);
     }
 }
+
+//----------------------------------------------------------------------------
 void vtkDecimatePro::DeleteQueue()
 {
   if (this->Queue)
@@ -1674,16 +1687,19 @@ void vtkDecimatePro::DeleteQueue()
   this->Queue=NULL;
 }
 
+//----------------------------------------------------------------------------
 double vtkDecimatePro::DeleteId(vtkIdType id) 
 {
   return this->Queue->DeleteId(id);
 }
 
+//----------------------------------------------------------------------------
 void vtkDecimatePro::Reset() 
 {
   this->Queue->Reset();
 }
 
+//----------------------------------------------------------------------------
 void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

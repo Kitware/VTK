@@ -106,7 +106,10 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   
   // Write the cell specifications.
   this->WriteCellsInline("Cells", input->GetCells(),
-                         input->GetCellTypesArray(), indent);
+                         input->GetCellTypesArray(), 
+                         input->GetFaces(),
+                         input->GetFaceLocations(),
+                         indent);
 }
 
 //----------------------------------------------------------------------------
@@ -115,7 +118,7 @@ void vtkXMLUnstructuredGridWriter::AllocatePositionArrays()
   this->Superclass::AllocatePositionArrays();
 
   this->NumberOfCellsPositions = new unsigned long[this->NumberOfPieces];
-  this->CellsOM->Allocate(this->NumberOfPieces,3,this->NumberOfTimeSteps);
+  this->CellsOM->Allocate(this->NumberOfPieces,5,this->NumberOfTimeSteps);
 }
 
 //----------------------------------------------------------------------------
@@ -151,8 +154,9 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
     return;
     }
   
-  this->WriteCellsAppended("Cells", input->GetCellTypesArray(), indent, 
-    &this->CellsOM->GetPiece(index));
+  this->WriteCellsAppended("Cells", input->GetCellTypesArray(), 
+                           input->GetFaces(), input->GetFaceLocations(),
+                           indent, &this->CellsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -192,7 +196,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   
   // Write the cell specification arrays.
   this->WriteCellsAppendedData( input->GetCells(), 
-    input->GetCellTypesArray(), this->CurrentTimeIndex,
+    input->GetCellTypesArray(), input->GetFaces(),
+    input->GetFaceLocations(), this->CurrentTimeIndex,
     &this->CellsOM->GetPiece(index));
 }
 

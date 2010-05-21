@@ -28,6 +28,7 @@
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
+//----------------------------------------------------------------------------
 // Construct object with ExtractInside turned on.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 {
@@ -42,6 +43,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
   this->ExtractOnlyBoundaryCells = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkExtractGeometry::~vtkExtractGeometry()
 {
   this->SetImplicitFunction(NULL);
@@ -63,6 +65,7 @@ unsigned long vtkExtractGeometry::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 int vtkExtractGeometry::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -249,6 +252,14 @@ int vtkExtractGeometry::RequestData(
       }
     if ( extraction_condition )
       {
+      // special handling for polyhedron cells
+      if (vtkUnstructuredGrid::SafeDownCast(input) &&
+          cell->GetCellType() == VTK_POLYHEDRON)
+        {
+        newCellPts->Reset();
+        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
+        vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, pointMap);
+        }
       newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outputCD->CopyData(cd,cellId,newCellId);
       }
@@ -271,12 +282,14 @@ int vtkExtractGeometry::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkExtractGeometry::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

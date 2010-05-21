@@ -1142,7 +1142,7 @@ int vtkTessellatorFilter::RequestData(
       int np = cp->GetCellType();
       if (
         np == VTK_POLYGON || np == VTK_TRIANGLE_STRIP || np == VTK_CONVEX_POINT_SET ||
-        np == VTK_POLY_LINE || np == VTK_POLY_VERTEX )
+        np == VTK_POLY_LINE || np == VTK_POLY_VERTEX || np == VTK_POLYHEDRON )
         {
         if ( ! vtkTessellatorHasPolys )
           {

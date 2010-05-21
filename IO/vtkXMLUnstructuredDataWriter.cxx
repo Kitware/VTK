@@ -52,6 +52,11 @@ vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
   this->PointsOM    = new OffsetsManagerGroup;
   this->PointDataOM = new OffsetsManagerArray;
   this->CellDataOM  = new OffsetsManagerArray;
+
+  this->Faces = vtkIdTypeArray::New();
+  this->FaceOffsets = vtkIdTypeArray::New();
+  this->Faces->SetName("faces");
+  this->FaceOffsets->SetName("faceoffsets");
 }
 
 //----------------------------------------------------------------------------
@@ -59,6 +64,9 @@ vtkXMLUnstructuredDataWriter::~vtkXMLUnstructuredDataWriter()
 {
   this->CellPoints->Delete();
   this->CellOffsets->Delete();
+  this->Faces->Delete();
+  this->FaceOffsets->Delete();
+  
   delete this->PointsOM;
   delete this->PointDataOM;
   delete this->CellDataOM;
@@ -552,7 +560,18 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
                                                     vtkDataArray* types,
                                                     vtkIndent indent)
 {
+  this->WriteCellsInline(name, cells, types, NULL, NULL, indent);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name, 
+                        vtkCellArray* cells,  vtkDataArray* types, 
+                        vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets, 
+                        vtkIndent indent)
+{
   this->ConvertCells(cells);
+  this->ConvertFaces(faces, faceOffsets);
   
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
@@ -560,7 +579,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
   // Split progress by cell connectivity, offset, and type arrays.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  float fractions[4];
+  float fractions[6];
   this->CalculateCellFractions(fractions, types?types->GetNumberOfTuples():0);
   
   // Set the range of progress for the connectivity array.
@@ -595,6 +614,33 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
       return;
       }
     }
+
+  if (this->Faces->GetNumberOfTuples())
+    {
+    // Set the range of progress for the faces array.
+    this->SetProgressRange(progressRange, 3, fractions);
+    
+    // Write the connectivity array.
+    this->WriteArrayInline(this->Faces, indent.GetNextIndent(), "faces");
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
+    }
+  
+  if (this->FaceOffsets->GetNumberOfTuples())
+    {
+    // Set the range of progress for the face offset array.
+    this->SetProgressRange(progressRange, 4, fractions);
+    
+    // Write the face offsets array.
+    this->WriteArrayInline(this->FaceOffsets, indent.GetNextIndent(), "faceoffsets");
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
+    }
+  
   os << indent << "</" << name << ">\n";
   os.flush();
   if (os.fail())
@@ -609,19 +655,31 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
                                                       vtkIndent indent,
                                                       OffsetsManagerGroup *cellsManager)
 {
+  this->WriteCellsAppended(name, types, NULL, NULL, indent, cellsManager);
+}
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
+                                                      vtkDataArray* types,
+                                                      vtkIdTypeArray* faces,
+                                                      vtkIdTypeArray* faceOffsets,
+                                                      vtkIndent indent,
+                                                      OffsetsManagerGroup *cellsManager)
+{
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
 
   // Helper for the 'for' loop
-  vtkDataArray *allcells[3];
+  vtkDataArray *allcells[5];
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
-  const char *names[] = {NULL, NULL, "types"};
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : 0;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : 0;
+  const char *names[] = {NULL, NULL, "types", NULL, NULL};
 
   for(int t=0; t<this->NumberOfTimeSteps; t++)
     {
-    for(int i=0; i<3; i++)
+    for(int i=0; i<5; i++)
       {
       if(allcells[i])
         {
@@ -651,24 +709,40 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
                                                      int timestep,
                                                      OffsetsManagerGroup *cellsManager)
 {
+  this->WriteCellsAppendedData(cells, types, NULL, NULL, timestep, cellsManager);
+}
+
+//----------------------------------------------------------------------------
+void
+vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
+                                                     vtkDataArray* types,
+                                                     vtkIdTypeArray* faces,
+                                                     vtkIdTypeArray* faceOffsets,
+                                                     int timestep,
+                                                     OffsetsManagerGroup *cellsManager)
+{
   if (cells)
     {
     this->ConvertCells(cells);
     }
   
+  this->ConvertFaces(faces, faceOffsets);
+
   // Split progress by cell connectivity, offset, and type arrays.
-  float progressRange[2] = {0,0};
+  float progressRange[5] = {0,0,0,0,0};
   this->GetProgressRange(progressRange);
-  float fractions[4];
+  float fractions[6];
   this->CalculateCellFractions(fractions, types?types->GetNumberOfTuples():0);
   
   // Helper for the 'for' loop
-  vtkDataArray *allcells[3];
+  vtkDataArray *allcells[5];
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : 0;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : 0;
 
-  for(int i=0; i<3; i++)
+  for(int i=0; i<5; i++)
     {
     if(allcells[i])
       {
@@ -732,6 +806,69 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::ConvertFaces(vtkIdTypeArray* faces,
+                                                vtkIdTypeArray* faceOffsets)
+{
+  if (!faces || !faces->GetNumberOfTuples() ||
+      !faceOffsets || !faceOffsets->GetNumberOfTuples())
+    {
+    this->Faces->SetNumberOfTuples(0);
+    this->FaceOffsets->SetNumberOfTuples(0);
+    return;
+    }
+
+  // copy faces stream.
+  this->Faces->SetNumberOfTuples(faces->GetNumberOfTuples());
+  vtkIdType * fromPtr = faces->GetPointer(0);
+  vtkIdType * toPtr = this->Faces->GetPointer(0);
+  for (vtkIdType i = 0; i < faces->GetNumberOfTuples(); i++)
+    {
+    *toPtr++ = *fromPtr++;
+    }
+  
+  // this->FaceOffsets point to the face arrays of cells. Specifically 
+  // FaceOffsets[i] points to the end of the i-th cell's faces + 1. While 
+  // input faceOffsets[i] points to the beginning of the i-th cell. Note
+  // that for both arrays, a non-polyhedron cell has an offset of -1.
+  vtkIdType numberOfCells = faceOffsets->GetNumberOfTuples();
+  this->FaceOffsets->SetNumberOfTuples(numberOfCells);
+  vtkIdType* newOffsetPtr = this->FaceOffsets->GetPointer(0);
+  vtkIdType* oldOffsetPtr = faceOffsets->GetPointer(0);
+  vtkIdType* facesPtr = this->Faces->GetPointer(0);
+  bool foundPolyhedronCell = false;
+  for (vtkIdType i = 0; i < numberOfCells; i++)
+    {
+    if (oldOffsetPtr[i] < 0) //non-polyhedron cell
+      {
+      newOffsetPtr[i] = -1;
+      }
+    else // polyhedron cell
+      {
+      foundPolyhedronCell = true;
+      // read numberOfFaces in a cell
+      vtkIdType currLoc = oldOffsetPtr[i];
+      vtkIdType numberOfCellFaces = facesPtr[currLoc];
+      currLoc += 1;
+      for (vtkIdType j = 0; j < numberOfCellFaces; j++)
+        {
+        // read numberOfPoints in a face
+        vtkIdType numberOfFacePoints = facesPtr[currLoc];
+        currLoc += numberOfFacePoints + 1;
+        }
+      newOffsetPtr[i] = currLoc; 
+      }
+    }
+  
+  if (!foundPolyhedronCell)
+    {
+    this->Faces->SetNumberOfTuples(0);
+    this->FaceOffsets->SetNumberOfTuples(0);
+    }
+
+  return;
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkXMLUnstructuredDataWriter::GetNumberOfInputPoints()
 {
   vtkPointSet* input = this->GetInputAsPointSet();
@@ -768,7 +905,10 @@ void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
   // each of the connectivity, offset, and type arrays.
   vtkIdType connectSize = this->CellPoints->GetNumberOfTuples();
   vtkIdType offsetSize = this->CellOffsets->GetNumberOfTuples();
-  vtkIdType total = connectSize+offsetSize+typesSize;
+  vtkIdType faceSize = this->Faces ? this->Faces->GetNumberOfTuples() : 0;
+  vtkIdType faceoffsetSize = this->FaceOffsets ? 
+                               this->FaceOffsets->GetNumberOfTuples() : 0;
+  vtkIdType total = connectSize+offsetSize+faceSize+faceoffsetSize+typesSize;
   if(total == 0)
     {
     total = 1;
@@ -776,7 +916,9 @@ void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
   fractions[0] = 0;
   fractions[1] = float(connectSize)/total;
   fractions[2] = float(connectSize+offsetSize)/total;
-  fractions[3] = 1;
+  fractions[3] = float(connectSize+offsetSize+faceSize)/total;
+  fractions[4] = float(connectSize+offsetSize+faceSize+faceoffsetSize)/total;
+  fractions[5] = 1;
 }
 
 //----------------------------------------------------------------------------

@@ -10,7 +10,7 @@
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
-
+ 
 =========================================================================*/
 #include "vtkEnSightGoldBinaryReader.h"
 
@@ -3003,8 +3003,11 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         this->IFile->seekg(sizeof(int)*numElements, ios::cur);
         }
       
+      // array: number of faces per element
       numFacesPerElement = new int[numElements];
       this->ReadIntArray(numFacesPerElement, numElements);
+      
+      // array: number of nodes per face
       for (i = 0; i < numElements; i++)
         {
         numFaces += numFacesPerElement[i];
@@ -3012,6 +3015,8 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       numNodesPerFace = new int[numFaces];
       this->ReadIntArray(numNodesPerFace, numFaces);
 
+      // array: number of nodes per element
+      // number of faces of all elements
       numNodesPerElement = new int[numElements];
       for (i = 0; i < numElements; i++)
         {
@@ -3023,14 +3028,18 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         faceCount += numFacesPerElement[i];
         }
 
+      /*/ xxx begin
       delete [] numFacesPerElement;
       delete [] numNodesPerFace;
+      //*//// xxx end
 
+      // number of nodes of all elements
       for (i = 0; i < numElements; i++)
         {
         numNodes += numNodesPerElement[i];
         }
 
+      // allocate and init markers to determine unique points
       numPts = output->GetNumberOfPoints();
       nodeMarker = new int[numPts];
       for (i = 0; i < numPts; i++)
@@ -3038,13 +3047,37 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         nodeMarker[i] = -1;
         }
 
+      // array: node Ids of all elements
+      // NOTE:  each node Id is usually referenced multiple times in a
+      //        polyhedron and therefore nodeIdList is not a set of
+      //        UNIQUE point Ids (instead it an RAW list)
       nodeIdList = new int[numNodes];
       this->ReadIntArray(nodeIdList, numNodes);
+      
+      int         k;              // indexing each node Id of a face
+      int         faceIdx = 0;    // indexing faces throughout all polyhedra
+      int         nodeIdx = 0;    // indexing nodes throughout all polyhedra
+      int         arayIdx = 0;    // indexing the array of Ids (info of faces)
+      vtkIdType * faceAry = NULL; // array of Ids describing a vtkPolyhedron
       
       for (i = 0; i < numElements; i++)
         {
         elementNodeCount = 0;
         nodeIds = new vtkIdType[numNodesPerElement[i]];
+        
+        arayIdx = 0;
+        faceAry = new vtkIdType[ numFacesPerElement[i] + 
+                                 numNodesPerElement[i] ];
+        for ( j = 0; j < numFacesPerElement[i]; j ++, faceIdx ++ )
+          {
+          faceAry[ arayIdx ++ ] = numNodesPerFace[ faceIdx ];
+          
+          for (  k = 0;  k < numNodesPerFace[ faceIdx ];  k ++  )
+            {
+            faceAry[ arayIdx ++ ] = nodeIdList[ nodeIdx ++ ] - 1;
+            }
+          }                                      
+        
         for (j = 0; j < numNodesPerElement[i]; j++)
           {
           if (nodeMarker[nodeIdList[nodeCount] - 1] < i)
@@ -3055,13 +3088,22 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
             }
           nodeCount++;
           }
-        cellId = output->InsertNextCell(VTK_CONVEX_POINT_SET, 
-                                        elementNodeCount, 
-                                        nodeIds);
+          
+        cellId = output->InsertNextCell( VTK_POLYHEDRON, elementNodeCount,
+                                         nodeIds, numFacesPerElement[i],
+                                         faceAry );
+        delete [] faceAry;
+        faceAry = NULL;
+        
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         
         delete [] nodeIds;
         }
+        
+      delete [] numNodesPerFace;
+      delete [] numFacesPerElement;
+      numNodesPerFace    = NULL;
+      numFacesPerElement = NULL;
       
       delete [] nodeMarker;
       delete [] nodeIdList;

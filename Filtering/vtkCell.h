@@ -98,6 +98,14 @@ public:
   virtual int IsExplicitCell() {return 0;}
 
   // Description:
+  // Determine whether the cell requires explicit face representation, and
+  // methods for setting and getting the faces (see vtkPolyhedron for example
+  // usage of these methods).
+  virtual int RequiresExplicitFaceRepresentation() {return 0;}
+  virtual void SetFaces(vtkIdType *vtkNotUsed(faces)) {}
+  virtual vtkIdType *GetFaces() {return NULL;}
+
+  // Description:
   // Get the point coordinates for the cell.
   vtkPoints *GetPoints() {return this->Points;}
 

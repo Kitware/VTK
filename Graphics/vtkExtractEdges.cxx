@@ -29,12 +29,14 @@
 
 vtkStandardNewMacro(vtkExtractEdges);
 
+//----------------------------------------------------------------------------
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()
 {
   this->Locator = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkExtractEdges::~vtkExtractEdges()
 {
   if ( this->Locator )
@@ -44,6 +46,7 @@ vtkExtractEdges::~vtkExtractEdges()
     }
 }
 
+//----------------------------------------------------------------------------
 // Generate feature edges for mesh
 int vtkExtractEdges::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -205,6 +208,7 @@ int vtkExtractEdges::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
@@ -226,6 +230,7 @@ void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractEdges::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -236,12 +241,14 @@ void vtkExtractEdges::CreateDefaultLocator()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkExtractEdges::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -256,6 +263,7 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkExtractEdges::GetMTime()
 {
   unsigned long mTime=this-> Superclass::GetMTime();
