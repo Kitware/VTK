@@ -135,7 +135,7 @@ int vtkBoostBiconnectedComponents::RequestData(
       }
     else
       {
-      comp = numComp;
+      comp = static_cast<int>(numComp);
       numComp++;
       }
     vertCompArr->SetValue(u, comp);

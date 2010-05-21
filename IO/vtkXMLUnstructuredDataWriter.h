@@ -99,11 +99,6 @@ protected:
   void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types,
                               int timestep, OffsetsManagerGroup *cellsManager);
 
-  // New API with face infomration for polyhedron cell support.
-  void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types,
-                              vtkIdTypeArray* faces,vtkIdTypeArray* faceOffsets,
-                              int timestep, OffsetsManagerGroup *cellsManager);
-
   void ConvertCells(vtkCellArray* cells);
 
   // For polyhedron support, convertion results are stored in Faces and FaceOffsets

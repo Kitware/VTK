@@ -5625,7 +5625,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           else
             {
             // if it is a _neighbor_ face flip the points
-            pointI = nFaceJPoints - 1;
+            pointI = static_cast<int>(nFaceJPoints) - 1;
             delta = -1;
             }
           for (size_t k = 0; k < nFaceJPoints; k++, pointI += delta)

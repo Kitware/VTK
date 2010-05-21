@@ -655,16 +655,6 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
                                                       vtkIndent indent,
                                                       OffsetsManagerGroup *cellsManager)
 {
-  this->WriteCellsAppended(name, types, NULL, NULL, indent, cellsManager);
-}
-//----------------------------------------------------------------------------
-void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
-                                                      vtkDataArray* types,
-                                                      vtkIdTypeArray* faces,
-                                                      vtkIdTypeArray* faceOffsets,
-                                                      vtkIndent indent,
-                                                      OffsetsManagerGroup *cellsManager)
-{
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
 

@@ -229,7 +229,6 @@ int vtkProbePolyhedron::RequestUpdateExtent(
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   int usePiece = 0;

@@ -585,7 +585,7 @@ int  ExtractContourConnectivities(
 
     if (static_cast<int>(ceMapIt->second.size()) > maxConnectivity)
       {
-      maxConnectivity = ceMapIt->second.size();
+      maxConnectivity = static_cast<int>(ceMapIt->second.size());
       }
     }
 
