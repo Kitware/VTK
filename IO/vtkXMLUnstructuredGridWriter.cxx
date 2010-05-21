@@ -155,7 +155,6 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
     }
   
   this->WriteCellsAppended("Cells", input->GetCellTypesArray(), 
-                           input->GetFaces(), input->GetFaceLocations(),
                            indent, &this->CellsOM->GetPiece(index));
 }
 
