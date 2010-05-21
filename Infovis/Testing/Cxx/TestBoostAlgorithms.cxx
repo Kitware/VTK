@@ -22,6 +22,9 @@
 #include "vtkBoostBreadthFirstSearch.h"
 #include "vtkBoostBreadthFirstSearchTree.h"
 #include "vtkBoostConnectedComponents.h"
+#include "vtkBoostPrimMinimumSpanningTree.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkGlyph3D.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkGraphToPolyData.h"
@@ -113,6 +116,46 @@ int TestBoostAlgorithms(int argc, char* argv[])
   g->AddEdge(2, 4);
   g->AddEdge(3, 4);
 
+  // Create a connected test graph
+  VTK_CREATE(vtkMutableUndirectedGraph, g2);
+
+  VTK_CREATE(vtkPoints, pts2);
+  g2->AddVertex();
+  pts2->InsertNextPoint(0, 1, 0);
+  g2->AddVertex();
+  pts2->InsertNextPoint(0.5, 1, 0);
+  g2->AddVertex();
+  pts2->InsertNextPoint(0.25, 0.5, 0);
+  g2->AddVertex();
+  pts2->InsertNextPoint(0, 0, 0);
+  g2->AddVertex();
+  pts2->InsertNextPoint(0.5, 0, 0);
+  g2->AddVertex();
+  pts2->InsertNextPoint(1, 0, 0);
+  g2->AddVertex();
+  pts2->InsertNextPoint(0.75, 0.5, 0);
+  g2->SetPoints(pts);
+
+  VTK_CREATE(vtkDoubleArray, weights2);
+  weights2->SetName("weight");
+  g2->AddEdge(0, 1);
+  weights2->InsertNextValue(0.5);
+  g2->AddEdge(0, 2);
+  weights2->InsertNextValue(0.5);
+  g2->AddEdge(1, 2);
+  weights2->InsertNextValue(0.1);
+  g2->AddEdge(2, 3);
+  weights2->InsertNextValue(0.5);
+  g2->AddEdge(2, 4);
+  weights2->InsertNextValue(0.5);
+  g2->AddEdge(3, 4);
+  weights2->InsertNextValue(0.1);
+  g2->AddEdge(4, 5);
+  weights2->InsertNextValue(0.5);
+  g2->AddEdge(5, 6);
+  weights2->InsertNextValue(0.5);
+  g2->GetEdgeData()->AddArray(weights2);
+
   VTK_CREATE(vtkRenderer, ren);
 
   // Test biconnected components
@@ -143,6 +186,13 @@ int TestBoostAlgorithms(int argc, char* argv[])
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs2);
   bfs2->SetInputConnection(bfsTree->GetOutputPort());
   RenderGraph(ren, bfs2.GetPointer(), 0, 4, "BFS", 0, 3, NULL, 0, 0);
+
+  // Test Prim's MST
+  VTK_CREATE(vtkBoostPrimMinimumSpanningTree, prim);
+  prim->SetInput(g2);
+  prim->SetOriginVertex(0);
+  prim->SetEdgeWeightArrayName("weight");
+  RenderGraph(ren, prim.GetPointer(), 2, 4, NULL, 0, 0, NULL, 0, 0);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);

@@ -219,6 +219,10 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     }
 
   vtkIdType i;
+  for( i = 0; i < input->GetNumberOfVertices(); i++ )
+    {
+    temp->AddVertex();
+    }
   for( i = 0; i < temp->GetNumberOfVertices(); i++ )
     {
     if( predecessorMap->GetValue(i) == i )
@@ -258,7 +262,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     }
   
   predecessorMap->Delete();
-  
+
   return 1;
 }
 
