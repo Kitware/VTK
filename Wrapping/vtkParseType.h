@@ -61,21 +61,18 @@
 /*
  * Pointers, arrays, and references
  * (note that []  and * are equivalent)
- *
- * 0x100 = &
- * 0x300 = *    or e.g. int val[n]
- * 0x500 = *&   i.e. a ref to a pointer, like vtkIdType* &pts
- * 0x700 = **   or e.g. char *val[3]
- *
- * The following are defined, but not really supported by vtkParse:
- * 0x200 = &&,  0x400 = &*,  0x600 = [n][m],  0x900 = [n][m][l]
  */
 
 #define VTK_PARSE_INDIRECT  0xF00
 #define VTK_PARSE_REF       0x100
 #define VTK_PARSE_POINTER   0x300
+#define VTK_PARSE_ARRAY_2D  0x600
+#define VTK_PARSE_ARRAY_3D  0x900
 #define VTK_PARSE_POINTER_REF 0x500
 #define VTK_PARSE_POINTER_POINTER 0x700
+#define VTK_PARSE_POINTER_CONST_REF 0x200
+#define VTK_PARSE_POINTER_CONST_POINTER 0x400
+#define VTK_PARSE_BAD_INDIRECT 0x800
 
 /*
  * The lowest two hex digits describe the basic type,

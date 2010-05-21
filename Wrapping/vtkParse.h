@@ -30,14 +30,12 @@
     int   HintSize;
     int   ArgTypes[MAX_ARGS];
     int   ArgCounts[MAX_ARGS];
-    int   ArgExternals[MAX_ARGS];
     char *ArgClasses[MAX_ARGS];
     int   ReturnType;
     char *ReturnClass;
     char *Comment;
     char *Signature;  
     int   IsLegacy;
-    int   ReturnExternal;
   } FunctionInfo;
   
   typedef struct _FileInfo
@@ -48,7 +46,6 @@
     char *ClassName;
     char *FileName;
     char *OutputFileName;
-    
     char *SuperClasses[10];
     int   NumberOfSuperClasses;
     int   NumberOfFunctions;

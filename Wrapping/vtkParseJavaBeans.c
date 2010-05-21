@@ -37,7 +37,9 @@ void output_temp(FILE *fp,int i)
     return;
     }
 
-  if ((aType == VTK_PARSE_CHAR_PTR) || (VTK_PARSE_STRING))
+  if ((aType == VTK_PARSE_CHAR_PTR) ||
+      (aType == VTK_PARSE_STRING) ||
+      (aType == VTK_PARSE_STRING_REF))
     {
     fprintf(fp,"String ");
     }
@@ -103,6 +105,7 @@ void return_result(FILE *fp)
       break;
     case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_STRING:
+    case VTK_PARSE_STRING_REF:
       fprintf(fp,"String ");
       break;
     case VTK_PARSE_VTK_OBJECT_PTR:
@@ -223,7 +226,15 @@ int DoneOne()
               ((fType == VTK_PARSE___INT64)&&
                (aType == VTK_PARSE_LONG)) ||
               ((fType == VTK_PARSE_LONG)&&
-               (aType == VTK_PARSE___INT64))))
+               (aType == VTK_PARSE___INT64)) ||
+              ((qType == VTK_PARSE_CHAR_PTR)&&
+               (rType == VTK_PARSE_STRING_REF)) ||
+              ((qType == VTK_PARSE_STRING_REF)&&
+               (rType == VTK_PARSE_CHAR_PTR)) ||
+              ((qType == VTK_PARSE_CHAR_PTR)&&
+               (rType == VTK_PARSE_STRING)) ||
+              ((qType == VTK_PARSE_STRING)&&
+               (rType == VTK_PARSE_CHAR_PTR))))
           {
           match = 0;
           }
@@ -302,7 +313,15 @@ int DoneOne()
             ((qType == VTK_PARSE___INT64)&&
              (rType == VTK_PARSE_LONG)) ||
             ((qType == VTK_PARSE_LONG)&&
-             (rType == VTK_PARSE___INT64))))
+             (rType == VTK_PARSE___INT64)) ||
+            ((qType == VTK_PARSE_CHAR_PTR)&&
+             (rType == VTK_PARSE_STRING_REF)) ||
+            ((qType == VTK_PARSE_STRING_REF)&&
+             (rType == VTK_PARSE_CHAR_PTR)) ||
+            ((qType == VTK_PARSE_CHAR_PTR)&&
+             (rType == VTK_PARSE_STRING)) ||
+            ((qType == VTK_PARSE_STRING)&&
+             (rType == VTK_PARSE_CHAR_PTR))))
         {
         match = 0;
         }
@@ -492,7 +511,9 @@ void outputFunction(FILE *fp, FileInfo *data)
           fprintf(fp,");\n      changes.firePropertyChange(\"%s\",null,",prop);
 
           /* handle basic types */
-          if ((aType == VTK_PARSE_CHAR_PTR) || (aType == VTK_PARSE_STRING))
+          if ((aType == VTK_PARSE_CHAR_PTR) ||
+              (aType == VTK_PARSE_STRING) ||
+              (aType == VTK_PARSE_STRING_REF))
             {
             fprintf(fp," id0");
             }

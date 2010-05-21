@@ -162,7 +162,12 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
 
   switch (aType & VTK_PARSE_INDIRECT)
     {
-    case VTK_PARSE_REF:             fprintf(fp, " *"); break; /* act " &" */
+    case VTK_PARSE_REF:
+      if (i == MAX_ARGS)
+        {
+        fprintf(fp, " *"); /* act " &" */
+        }
+      break;
     case VTK_PARSE_POINTER:         fprintf(fp, " *"); break;
     case VTK_PARSE_POINTER_REF:     fprintf(fp, "*&"); break;
     case VTK_PARSE_POINTER_POINTER: fprintf(fp, "**"); break;
@@ -456,9 +461,10 @@ void return_result(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case VTK_PARSE_STRING:
-      fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i.c_str()), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS);
-      fprintf(fp,"      }\n    else\n      {\n");
-      fprintf(fp,"      Tcl_ResetResult(interp);\n      }\n");
+      fprintf(fp,"    Tcl_SetResult(interp, const_cast<char *>(temp%i.c_str()), TCL_VOLATILE);\n",MAX_ARGS);
+      break;
+    case VTK_PARSE_STRING_REF:
+      fprintf(fp,"    Tcl_SetResult(interp, const_cast<char *>(temp%i->c_str()), TCL_VOLATILE);\n",MAX_ARGS);
       break;
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS);
@@ -584,6 +590,7 @@ void get_args(FILE *fp, int i)
       fprintf(fp,"    temp%i = static_cast<unsigned long long>(tempi);\n",i);
       break;
     case VTK_PARSE_STRING:
+    case VTK_PARSE_STRING_REF:
       fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
     case VTK_PARSE_CHAR_PTR:
@@ -853,7 +860,16 @@ void outputFunction(FILE *fp, FileInfo *data)
         fprintf(fp,"    op->%s(",currentFunction->Name);
         break;
       default:
-        fprintf(fp,"    temp%i = (op)->%s(",MAX_ARGS,currentFunction->Name);
+        if ((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
+            == VTK_PARSE_REF)
+          {
+          fprintf(fp,"    temp%i = &(op)->%s(",MAX_ARGS,currentFunction->Name);
+          }
+        else
+          {
+          fprintf(fp,"    temp%i = (op)->%s(",MAX_ARGS,currentFunction->Name);
+          }
+        break;
       }
     for (i = 0; i < currentFunction->NumberOfArguments; i++)
       {
@@ -1186,6 +1202,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             case VTK_PARSE_VOID_PTR:
             case VTK_PARSE_CHAR_PTR:
             case VTK_PARSE_STRING:
+            case VTK_PARSE_STRING_REF:
               fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"string\" );\n" );
               break;
             case VTK_PARSE_FLOAT:

@@ -39,14 +39,17 @@ void output_proto_vars(FILE *fp, int i)
     return;
     }
 
-  if ((aType == VTK_PARSE_CHAR_PTR) || (aType == VTK_PARSE_STRING))
+  if ((aType == VTK_PARSE_CHAR_PTR) ||
+      (aType == VTK_PARSE_STRING) ||
+      (aType == VTK_PARSE_STRING_REF))
     {
     fprintf(fp,"jstring ");
     fprintf(fp,"id%i",i);
     return;
     }
 
-  if ((aType == VTK_PARSE_FLOAT_PTR) || (aType == VTK_PARSE_DOUBLE_PTR))
+  if ((aType == VTK_PARSE_FLOAT_PTR) ||
+      (aType == VTK_PARSE_DOUBLE_PTR))
     {
     fprintf(fp,"jdoubleArray ");
     fprintf(fp,"id%i",i);
@@ -207,10 +210,12 @@ void return_result(FILE *fp)
       break;
     case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_STRING:
-      fprintf(fp,"jstring "); break;
+    case VTK_PARSE_STRING_REF:
+      fprintf(fp,"jstring ");
+      break;
     case VTK_PARSE_VTK_OBJECT_PTR:
-      fprintf(fp,"jlong "); break;
-
+      fprintf(fp,"jlong ");
+      break;
     case VTK_PARSE_FLOAT_PTR:
     case VTK_PARSE_DOUBLE_PTR:
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
@@ -225,7 +230,8 @@ void return_result(FILE *fp)
     case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp,"jarray "); break;
+      fprintf(fp,"jarray ");
+      break;
     }
 }
 
@@ -284,7 +290,10 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
   switch (aType & VTK_PARSE_INDIRECT)
     {
     case VTK_PARSE_REF:
-      fprintf(fp, " *"); /* act " &" */
+      if (i == MAX_ARGS)
+        {
+        fprintf(fp, " *"); /* act " &" */
+        }
       break;
     case VTK_PARSE_POINTER:
       if ((i == MAX_ARGS) ||
@@ -293,12 +302,6 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
         {
         fprintf(fp, " *");
         }
-      break;
-    case VTK_PARSE_POINTER_REF:
-      fprintf(fp, "*&");
-      break;
-    case VTK_PARSE_POINTER_POINTER:
-      fprintf(fp, "**");
       break;
     default:
       fprintf(fp,"  ");
@@ -353,6 +356,7 @@ void get_args(FILE *fp, int i)
       fprintf(fp,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
       break;
     case VTK_PARSE_STRING:
+    case VTK_PARSE_STRING_REF:
       fprintf(fp,"  vtkJavaUTFToString(env,id%i,temp%i);\n",i,i);
       break;
     case VTK_PARSE_VTK_OBJECT_PTR:
@@ -451,8 +455,12 @@ void do_return(FILE *fp)
     case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_STRING:
       {
-      fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i);\n",
-              MAX_ARGS);
+      fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case VTK_PARSE_STRING_REF:
+      {
+      fprintf(fp,"  return vtkJavaMakeJavaString(env,*temp%i);\n", MAX_ARGS);
       break;
       }
     case VTK_PARSE_VTK_OBJECT_PTR:
@@ -570,7 +578,15 @@ int DoneOne()
               ((fType == VTK_PARSE___INT64)&&
                (aType == VTK_PARSE_LONG)) ||
               ((fType == VTK_PARSE_LONG)&&
-               (aType == VTK_PARSE___INT64))))
+               (aType == VTK_PARSE___INT64)) ||
+              ((fType == VTK_PARSE_CHAR_PTR)&&
+               (aType == VTK_PARSE_STRING_REF)) ||
+              ((fType == VTK_PARSE_STRING_REF)&&
+               (aType == VTK_PARSE_CHAR_PTR)) ||
+              ((fType == VTK_PARSE_CHAR_PTR)&&
+               (aType == VTK_PARSE_STRING)) ||
+              ((fType == VTK_PARSE_STRING)&&
+               (aType == VTK_PARSE_CHAR_PTR))))
           {
           match = 0;
           }
@@ -618,6 +634,14 @@ int DoneOne()
              (rType == VTK_PARSE___INT64_PTR)) ||
             ((qType == VTK_PARSE___INT64_PTR)&&
              (rType == VTK_PARSE_LONG_PTR)) ||
+            ((qType == VTK_PARSE_CHAR_PTR)&&
+             (rType == VTK_PARSE_STRING_REF)) ||
+            ((qType == VTK_PARSE_STRING_REF)&&
+             (rType == VTK_PARSE_CHAR_PTR)) ||
+            ((qType == VTK_PARSE_CHAR_PTR)&&
+             (rType == VTK_PARSE_STRING)) ||
+            ((qType == VTK_PARSE_STRING)&&
+             (rType == VTK_PARSE_CHAR_PTR)) ||
             ((qType == VTK_PARSE_FLOAT)&&
              (rType == VTK_PARSE_DOUBLE)) ||
             ((qType == VTK_PARSE_DOUBLE)&&
@@ -1005,7 +1029,15 @@ void outputFunction(FILE *fp, FileInfo *data)
           fprintf(fp,"  op->%s(",currentFunction->Name);
           break;
         default:
-          fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS, currentFunction->Name);
+          if ((rType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF)
+            {
+            fprintf(fp,"  temp%i = &(op)->%s(",MAX_ARGS,currentFunction->Name);
+            }
+          else
+            {
+            fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS,currentFunction->Name);
+            }
+          break;
         }
 
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
