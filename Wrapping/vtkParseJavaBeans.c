@@ -343,9 +343,23 @@ int DoneOne()
 
 void outputFunction(FILE *fp, FileInfo *data)
 {
+  static int supported_types[] = {
+    VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
+    VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
+    VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
+    VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT,
+    VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
+    VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
+    VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
+    VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
+    VTK_PARSE_VTK_OBJECT, VTK_PARSE_STRING,
+    0
+  };
+
   int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   int aType = 0;
-  int i;
+  int baseType = 0;
+  int i, j;
   int args_ok = 1;
   /* beans */
   char *beanfunc;
@@ -368,11 +382,24 @@ void outputFunction(FILE *fp, FileInfo *data)
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+    baseType = (aType & VTK_PARSE_BASE_TYPE);
+
+    if (currentFunction->ArgTypes[i] != VTK_PARSE_FUNCTION)
+      {
+      for (j = 0; supported_types[j] != 0; j++)
+        {
+        if (baseType == supported_types[j]) { break; }
+        }
+      if (supported_types[j] == 0)
+        {
+        args_ok = 0;
+        }
+      }
 
     if (aType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
-    if ((currentFunction->ArgTypes[i] % VTK_PARSE_FLOAT0) == VTK_PARSE_UNKNOWN) args_ok = 0;
     if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-        ((aType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
+        ((aType & VTK_PARSE_INDIRECT) != 0) &&
+        (aType != VTK_PARSE_STRING_REF)) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
@@ -380,13 +407,23 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (aType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
-    if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING) args_ok = 0;
     }
-  if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
+
+  baseType = (rType & VTK_PARSE_BASE_TYPE);
+
+  for (j = 0; supported_types[j] != 0; j++)
+    {
+    if (baseType == supported_types[j]) { break; }
+    }
+  if (supported_types[j] == 0)
+    {
+    args_ok = 0;
+    }
+
   if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
   if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
-      ((rType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
-
+      ((rType & VTK_PARSE_INDIRECT) != 0) &&
+      (rType != VTK_PARSE_STRING_REF)) args_ok = 0;
 
   /* eliminate unsigned char * and unsigned short * */
   if (rType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
@@ -396,7 +433,6 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (rType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
-  if ((rType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING) args_ok = 0;
 
   if (currentFunction->NumberOfArguments &&
       (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)

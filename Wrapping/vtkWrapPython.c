@@ -2266,9 +2266,30 @@ static int vtkWrapPython_IsConstructor(
 static int vtkWrapPython_MethodCheck(
   FunctionInfo *currentFunction)
 {
-  int i;
+  static int supported_types[] = {
+    VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
+    VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
+    VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
+    VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT,
+    VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
+    VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
+#ifdef VTK_TYPE_USE_LONG_LONG
+    VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
+#endif
+#ifdef VTK_TYPE_USE___INT64
+    VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
+#endif
+    VTK_PARSE_VTK_OBJECT, VTK_PARSE_STRING,
+#ifdef Py_USING_UNICODE
+    VTK_PARSE_UNICODE_STRING,
+#endif
+    0
+  };
+
+  int i, j;
   int args_ok = 1;
   int argType = 0;
+  int baseType = 0;
   int returnType = 0;
 
   /* some functions will not get wrapped no matter what else,
@@ -2281,42 +2302,43 @@ static int vtkWrapPython_MethodCheck(
     return 0;
     }
 
-  returnType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
-
   /* check to see if we can handle all the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     argType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+    baseType = (argType & VTK_PARSE_BASE_TYPE);
 
-    if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
+    if (currentFunction->ArgTypes[i] != VTK_PARSE_FUNCTION)
+      {
+      for (j = 0; supported_types[j] != 0; j++)
+        {
+        if (baseType == supported_types[j]) { break; }
+        }
+      if (supported_types[j] == 0)
+        {
+        args_ok = 0;
+        }
+      }
+
     if (((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
         ((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
         ((argType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
+
     if (((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF) &&
         (argType != VTK_PARSE_VTK_OBJECT_REF) &&
         ((currentFunction->ArgTypes[i] & VTK_PARSE_CONST) == 0)) args_ok = 0;
+
     if (argType == VTK_PARSE_CHAR_PTR &&
         currentFunction->ArgCounts[i] > 0) args_ok = 0;
+
     if (argType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
+    if (argType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
-#ifndef VTK_TYPE_USE___INT64
-    if (argType == VTK_PARSE___INT64) args_ok = 0;
-    if (argType == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
-#endif
-#ifndef VTK_TYPE_USE_LONG_LONG
-    if (argType == VTK_PARSE_LONG_LONG) args_ok = 0;
-    if (argType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
-#endif
     if (argType == VTK_PARSE_STRING_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
-
-#ifndef Py_USING_UNICODE
-    if ((argType & VTK_PARSE_BASE_TYPE) ==
-        VTK_PARSE_UNICODE_STRING) args_ok = 0;
-#endif
     }
 
   /* make sure we have all the info we need for array arguments */
@@ -2337,7 +2359,18 @@ static int vtkWrapPython_MethodCheck(
       (currentFunction->NumberOfArguments != 1)) args_ok = 0;
 
   /* check the return type */
-  if ((returnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) args_ok = 0;
+  returnType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  baseType = (returnType & VTK_PARSE_BASE_TYPE);
+
+  for (j = 0; supported_types[j] != 0; j++)
+    {
+    if (baseType == supported_types[j]) { break; }
+    }
+  if (supported_types[j] == 0)
+    {
+    args_ok = 0;
+    }
+
   if (((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       ((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
       ((returnType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
@@ -2345,27 +2378,13 @@ static int vtkWrapPython_MethodCheck(
   /* eliminate "unsigned char *" and "unsigned short *" */
   if (returnType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
+  if (returnType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
 
-  /* eliminate types that aren't supported by the compiler */
-#ifndef VTK_TYPE_USE___INT64
-  if (returnType == VTK_PARSE___INT64) args_ok = 0;
-  if (returnType == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
-#endif
-#ifndef VTK_TYPE_USE_LONG_LONG
-  if (returnType == VTK_PARSE_LONG_LONG) args_ok = 0;
-  if (returnType == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
-#endif
-
   if (returnType == VTK_PARSE_STRING_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
-
-#ifndef Py_USING_UNICODE
-  if ((returnType & VTK_PARSE_BASE_TYPE) ==
-      VTK_PARSE_UNICODE_STRING) args_ok = 0;
-#endif
 
   /* if we need a return type hint make sure we have one */
   switch (returnType)

@@ -149,7 +149,6 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
     case VTK_PARSE_SIGNED_CHAR: fprintf(fp,"signed char "); break;
     case VTK_PARSE_BOOL:        fprintf(fp,"bool "); break;
     case VTK_PARSE_STRING:      fprintf(fp,"vtkStdString "); break;
-    case VTK_PARSE_UNICODE_STRING: fprintf(fp,"vtkUnicodeString "); break;
     case VTK_PARSE_UNKNOWN:     return;
     }
 
@@ -668,8 +667,28 @@ void get_args(FILE *fp, int i)
 
 void outputFunction(FILE *fp, FileInfo *data)
 {
-  int i;
+  static int supported_types[] = {
+    VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
+    VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
+    VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
+    VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT,
+    VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
+    VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
+#ifdef VTK_TYPE_USE_LONG_LONG
+    VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
+#endif
+#ifdef VTK_TYPE_USE___INT64
+    VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
+#endif
+    VTK_PARSE_VTK_OBJECT, VTK_PARSE_STRING,
+    0
+  };
+
+  int i, j;
   int args_ok = 1;
+  int returnType = 0;
+  int argType = 0;
+  int baseType = 0;
 
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsOperator ||
@@ -683,41 +702,38 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-        == VTK_PARSE_UNKNOWN) args_ok = 0;
-#ifndef VTK_TYPE_USE_LONG_LONG
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-        == VTK_PARSE_LONG_LONG ||
-        (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-        == VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
-#endif
-#ifndef VTK_TYPE_USE___INT64
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-        == VTK_PARSE___INT64 ||
-        (currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-        == VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
-#endif
+    argType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+    baseType = (argType & VTK_PARSE_BASE_TYPE);
 
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE) ==
-         VTK_PARSE_STRING &&
-        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) != 0 &&
-        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) !=
-         VTK_PARSE_REF) args_ok = 0;
+    if (currentFunction->ArgTypes[i] != VTK_PARSE_FUNCTION)
+      {
+      for (j = 0; supported_types[j] != 0; j++)
+        {
+        if (baseType == supported_types[j]) { break; }
+        }
+      if (supported_types[j] == 0)
+        {
+        args_ok = 0;
+        }
+      }
 
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE) ==
-         VTK_PARSE_UNICODE_STRING) args_ok = 0;
+    if (baseType == VTK_PARSE_STRING &&
+        (argType & VTK_PARSE_INDIRECT) != 0 &&
+        (argType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF)
+      {
+      args_ok = 0;
+      }
 
-    if ((currentFunction->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
-        == VTK_PARSE_VTK_OBJECT &&
-        (currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT)
-        != VTK_PARSE_POINTER) args_ok = 0;
+    if (baseType == VTK_PARSE_VTK_OBJECT &&
+        (argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+      {
+      args_ok = 0;
+      }
 
     /* if its a pointer arg make sure we have the ArgCount */
-    if (((currentFunction->ArgTypes[i] & VTK_PARSE_INDIRECT) != 0) &&
-        ((currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE)
-         != VTK_PARSE_CHAR_PTR) &&
-        ((currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE)
-         != VTK_PARSE_VTK_OBJECT_PTR))
+    if (((argType & VTK_PARSE_INDIRECT) != 0) &&
+        (argType != VTK_PARSE_CHAR_PTR) &&
+        (baseType != VTK_PARSE_VTK_OBJECT))
       {
       if (currentFunction->NumberOfArguments > 1 ||
           !currentFunction->ArgCounts[i])
@@ -725,70 +741,66 @@ void outputFunction(FILE *fp, FileInfo *data)
         args_ok = 0;
         }
       }
-    if (((currentFunction->ArgTypes[i] & VTK_PARSE_UNSIGNED) != 0) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_CHAR) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_INT) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_SHORT) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_LONG) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_LONG_LONG) &&
-        (currentFunction->ArgTypes[i] != VTK_PARSE_UNSIGNED_ID_TYPE))
+    if (((argType & VTK_PARSE_UNSIGNED) != 0) &&
+        (argType != VTK_PARSE_UNSIGNED_CHAR) &&
+        (argType != VTK_PARSE_UNSIGNED_INT) &&
+        (argType != VTK_PARSE_UNSIGNED_SHORT) &&
+        (argType != VTK_PARSE_UNSIGNED_LONG) &&
+        (argType != VTK_PARSE_UNSIGNED_LONG_LONG) &&
+        (argType != VTK_PARSE_UNSIGNED_ID_TYPE))
       {
       args_ok = 0;
       }
     }
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE_UNKNOWN) args_ok = 0;
-#ifndef VTK_TYPE_USE_LONG_LONG
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE_LONG_LONG ||
-      (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE_UNSIGNED_LONG_LONG) args_ok = 0;
-#endif
-#ifndef VTK_TYPE_USE___INT64
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE___INT64 ||
-      (currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
-#endif
 
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE_STRING &&
-      (currentFunction->ReturnType & VTK_PARSE_INDIRECT) != 0 &&
-      (currentFunction->ReturnType & VTK_PARSE_INDIRECT) !=
-       VTK_PARSE_REF) args_ok = 0;
+  /* check the return type */
+  returnType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  baseType = (returnType & VTK_PARSE_BASE_TYPE);
 
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) ==
-       VTK_PARSE_UNICODE_STRING) args_ok = 0;
-
-  if ((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE)
-      == VTK_PARSE_VTK_OBJECT &&
-      (currentFunction->ReturnType & VTK_PARSE_INDIRECT)
-      != VTK_PARSE_POINTER) args_ok = 0;
-
-  if (((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
-       != VTK_PARSE_POINTER) &&
-      ((currentFunction->ReturnType & VTK_PARSE_INDIRECT)
-       != VTK_PARSE_REF) &&
-      ((currentFunction->ReturnType & VTK_PARSE_INDIRECT) != 0))
+  for (j = 0; supported_types[j] != 0; j++)
+    {
+    if (baseType == supported_types[j]) { break; }
+    }
+  if (supported_types[j] == 0)
     {
     args_ok = 0;
     }
+
+  if (baseType == VTK_PARSE_STRING &&
+      (returnType & VTK_PARSE_INDIRECT) != 0 &&
+      (returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF)
+    {
+    args_ok = 0;
+    }
+
+  if (baseType == VTK_PARSE_VTK_OBJECT &&
+      (returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+    {
+    args_ok = 0;
+    }
+
+  if (((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
+      ((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
+      ((returnType & VTK_PARSE_INDIRECT) != 0))
+    {
+    args_ok = 0;
+    }
+
   if (currentFunction->NumberOfArguments &&
-      (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
-      &&(currentFunction->NumberOfArguments != 1))
+      (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION) &&
+      (currentFunction->NumberOfArguments != 1))
     {
     args_ok = 0;
     }
 
   /* we can't handle void * return types */
-  if ((currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
-      == VTK_PARSE_VOID_PTR)
+  if (returnType == VTK_PARSE_VOID_PTR)
     {
     args_ok = 0;
     }
 
   /* watch out for functions that dont have enough info */
-  switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
+  switch (returnType)
     {
     case VTK_PARSE_FLOAT_PTR:
     case VTK_PARSE_DOUBLE_PTR:
