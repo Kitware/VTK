@@ -437,7 +437,6 @@ const char *getTypeId()
 %token OTHER
 %token CONST
 %token CONST_PTR
-%token CONST_REF
 %token CONST_EQUAL
 %token OPERATOR
 %token UNSIGNED
@@ -670,17 +669,6 @@ function: '~' destructor {openSig(); preSig("~"); closeSig();}
          {
          currentFunction->ReturnType = $<integer>1;
          }
-      | type CONST func
-         {
-         currentFunction->ReturnType = $<integer>1;
-         }
-      | VIRTUAL type CONST func
-         {
-         openSig();
-         preSig("virtual ");
-         closeSig();
-         currentFunction->ReturnType = $<integer>2;
-         }
       | VIRTUAL type func
          {
          openSig();
@@ -697,17 +685,6 @@ operator:
       | type op_func
          {
          currentFunction->ReturnType = $<integer>1;
-         }
-      | type CONST op_func
-         {
-         currentFunction->ReturnType = $<integer>1;
-         }
-      | VIRTUAL type CONST op_func
-         {
-         openSig();
-         preSig("virtual ");
-         closeSig();
-         currentFunction->ReturnType = $<integer>2;
          }
       | VIRTUAL type op_func
          {
@@ -911,7 +888,6 @@ var: CLASS any_id var_ids ';'
      | UNION any_id var_ids ';'
      | UNION any_id type_indirection var_ids ';'
      | type var_ids ';'
-     | type CONST var_ids ';'
      | VAR_FUNCTION ';'
      | STATIC VAR_FUNCTION ';'
      | type LPAREN_AMPERSAND any_id ')' ';'
@@ -953,29 +929,23 @@ var_array:
               $<integer>$ = ((VTK_PARSE_POINTER + $<integer>4) &
                              VTK_PARSE_UNQUALIFIED_TYPE); };
 
-type: const_mod type_red1 {$<integer>$ = (VTK_PARSE_CONST | $<integer>2);}
-          | type_red1 {$<integer>$ = $<integer>1;}
-          | static_mod type_red1
-            {$<integer>$ = (VTK_PARSE_STATIC | $<integer>2);}
-          | static_mod const_mod type_red1
-            {$<integer>$ = (VTK_PARSE_CONST|VTK_PARSE_STATIC | $<integer>3);};
+type: type_red1 {$<integer>$ = $<integer>1;}
+    | static_mod type_red1 {$<integer>$ = (VTK_PARSE_STATIC | $<integer>2);};
 
-type_red1: type_red2 {$<integer>$ = $<integer>1;}
-         | type_red2 type_indirection
-           {$<integer>$ = ($<integer>1 | $<integer>2);}
-         | templated_id
-           {postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN;}
-         | templated_id {postSig(" "); setTypeId($<str>1);} type_indirection
-           {$<integer>$ = (VTK_PARSE_UNKNOWN | $<integer>3);}
-         | scoped_id
-           {postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN;}
-         | scoped_id {postSig(" "); setTypeId($<str>1);} type_indirection
-           {$<integer>$ = (VTK_PARSE_UNKNOWN | $<integer>3);}
-         | TYPENAME scoped_id
-           {postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN;}
-         | TYPENAME scoped_id
-           {postSig(" "); setTypeId($<str>1);} type_indirection
-           {$<integer>$ = (VTK_PARSE_UNKNOWN | $<integer>4);};
+type_red1: type_red11 {$<integer>$ = $<integer>1;}
+    | type_red11 type_indirection {$<integer>$ = ($<integer>1 | $<integer>2);};
+
+type_red11: type_red12 {$<integer>$ = $<integer>1;}
+    | const_mod type_red12 {$<integer>$ = (VTK_PARSE_CONST | $<integer>2);}
+    | type_red12 const_mod {$<integer>$ = (VTK_PARSE_CONST | $<integer>1);};
+
+type_red12: type_red2
+    | templated_id
+      {postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN;}
+    | scoped_id
+      {postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN;}
+    | TYPENAME {postSig("typename ");} scoped_id
+      {postSig(" "); setTypeId($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN;};
 
 templated_id:
    VTK_ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
@@ -983,7 +953,7 @@ templated_id:
  | ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
      {chopSig(); postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();};
 
-types: type | type ',' {postSig(", ");} types;
+types: type_red1 | type_red1 ',' {postSig(", ");} types;
 
 maybe_scoped_id: ID {$<str>$ = $<str>1; postSig($<str>1);}
                | VTK_ID {$<str>$ = $<str>1; postSig($<str>1);}
@@ -1009,32 +979,33 @@ scoped_id: ID DOUBLE_COLON maybe_scoped_id
              preScopeSig("");
            };
 
-/* &   is VTK_PARSE_REF
-   *   is VTK_PARSE_POINTER
-   *&  is VTK_PARSE_POINTER_REF
-   * const&  is VTK_PARSE_POINTER_CONST_REF
-   **  is VTK_PARSE_POINTER_POINTER
-   * const*  is VTK_PARSE_POINTER_CONST_POINTER
+/* &          is VTK_PARSE_REF
+   *          is VTK_PARSE_POINTER
+   *&         is VTK_PARSE_POINTER_REF
+   **         is VTK_PARSE_POINTER_POINTER
+   *const     is VTK_PARSE_CONST_POINTER
+   *const&    is VTK_PARSE_CONST_POINTER_REF
+   *const*    is VTK_PARSE_POINTER_CONST_POINTER
    everything else is VTK_PARSE_BAD_INDIRECT
    */
 
-type_indirection: '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF;}
+type_indirection:
+    '&' { postSig("&"); $<integer>$ = VTK_PARSE_REF;}
   | '*' { postSig("*"); $<integer>$ = VTK_PARSE_POINTER;}
+  | CONST_PTR { postSig("*const "); $<integer>$ = VTK_PARSE_CONST_POINTER;}
   | '*' '&' { postSig("*&"); $<integer>$ = VTK_PARSE_POINTER_REF;}
   | '*' '*' { postSig("**"); $<integer>$ = VTK_PARSE_POINTER_POINTER;}
-  | '*' CONST_REF
-    { postSig("* const&"); $<integer>$ = VTK_PARSE_POINTER_CONST_REF;}
-  | '*' CONST_PTR
-    { postSig("* const*"); $<integer>$ = VTK_PARSE_POINTER_CONST_POINTER;}
-  | CONST_REF { postSig("const&"); $<integer>$ = VTK_PARSE_BAD_INDIRECT;}
-  | CONST_PTR { postSig("const*"); $<integer>$ = VTK_PARSE_BAD_INDIRECT;}
+  | CONST_PTR '&'
+    { postSig("*const &"); $<integer>$ = VTK_PARSE_CONST_POINTER_REF;}
+  | CONST_PTR '*'
+    { postSig("*const *"); $<integer>$ = VTK_PARSE_POINTER_CONST_POINTER;}
+  | CONST_PTR CONST_PTR
+    { postSig("*const *"); $<integer>$ = VTK_PARSE_BAD_INDIRECT;}
   | '*' '*' { postSig("**"); } type_indirection
     { $<integer>$ = VTK_PARSE_BAD_INDIRECT;}
-  | '*' '&' { postSig("**"); } type_indirection
+  | CONST_PTR '*' { postSig("*const *");} type_indirection
     { $<integer>$ = VTK_PARSE_BAD_INDIRECT;}
-  | CONST_REF { postSig("const&");} type_indirection
-    { $<integer>$ = VTK_PARSE_BAD_INDIRECT;}
-  | CONST_PTR { postSig("const*");} type_indirection
+  | CONST_PTR CONST_PTR { postSig("*const *const ");} type_indirection
     { $<integer>$ = VTK_PARSE_BAD_INDIRECT;};
 
 type_red2:  type_primitive { $<integer>$ = $<integer>1;}
@@ -1160,9 +1131,8 @@ macro:
 | SetClampMacro '(' any_id ',' {delSig(); markSig();} type_red2 {closeSig();}
      ',' maybe_other_no_semi ')'
    {
-   char *local;
    chopSig();
-   local = vtkstrdup(copySig());
+   char *local = vtkstrdup(copySig());
    sprintf(currentFunction->Signature,"void Set%s(%s);",$<str>3,local);
    sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
@@ -1274,9 +1244,8 @@ macro:
 | SetVectorMacro  '(' any_id ',' {delSig(); markSig();}
      type_red2 ',' INT_LITERAL ')'
    {
-   char *local;
    chopSig();
-   local = vtkstrdup(copySig());
+   char *local = vtkstrdup(copySig());
    sprintf(currentFunction->Signature,"void Set%s(%s a[%s]);",
            $<str>3, local, $<str>8);
    sprintf(temps,"Set%s",$<str>3);
@@ -1291,9 +1260,8 @@ macro:
 | GetVectorMacro  '(' any_id ',' {delSig(); markSig();}
      type_red2 ',' INT_LITERAL ')'
    {
-   char *local;
    chopSig();
-   local = vtkstrdup(copySig());
+   char *local = vtkstrdup(copySig());
    sprintf(currentFunction->Signature,"%s *Get%s();", local, $<str>3);
    sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
@@ -1579,7 +1547,7 @@ other_stuff : ';' | other_stuff_no_semi | typedef_ignore;
 other_stuff_no_semi : OTHER | braces | parens | brackets
    | op_token_no_delim | ':' | '.' | type_red2 | DOUBLE_COLON
    | INT_LITERAL | HEX_LITERAL | FLOAT_LITERAL | CHAR_LITERAL
-   | STRING_LITERAL | CLASS_REF | CONST | CONST_PTR | CONST_REF | CONST_EQUAL
+   | STRING_LITERAL | CLASS_REF | CONST | CONST_PTR | CONST_EQUAL
    | OPERATOR | STATIC | INLINE | VIRTUAL | ENUM | UNION | TYPENAME
    | ARRAY_NUM | VAR_FUNCTION | ELLIPSIS | PUBLIC | PROTECTED | PRIVATE
    | NAMESPACE | USING | vtk_constant_def;

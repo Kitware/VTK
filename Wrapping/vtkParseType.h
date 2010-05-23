@@ -63,16 +63,17 @@
  * (note that []  and * are equivalent)
  */
 
-#define VTK_PARSE_INDIRECT  0xF00
-#define VTK_PARSE_REF       0x100
-#define VTK_PARSE_POINTER   0x300
-#define VTK_PARSE_ARRAY_2D  0x600
-#define VTK_PARSE_ARRAY_3D  0x900
-#define VTK_PARSE_POINTER_REF 0x500
-#define VTK_PARSE_POINTER_POINTER 0x700
-#define VTK_PARSE_POINTER_CONST_REF 0x200
-#define VTK_PARSE_POINTER_CONST_POINTER 0x400
-#define VTK_PARSE_BAD_INDIRECT 0x800
+#define VTK_PARSE_INDIRECT              0xF00
+#define VTK_PARSE_REF                   0x100
+#define VTK_PARSE_CONST_POINTER         0x200
+#define VTK_PARSE_POINTER               0x300
+#define VTK_PARSE_CONST_POINTER_REF     0x400
+#define VTK_PARSE_POINTER_REF           0x500
+#define VTK_PARSE_ARRAY_2D              0x600
+#define VTK_PARSE_POINTER_POINTER       0x700
+#define VTK_PARSE_POINTER_CONST_POINTER 0x800
+#define VTK_PARSE_ARRAY_3D              0x900
+#define VTK_PARSE_BAD_INDIRECT          0xF00
 
 /*
  * The lowest two hex digits describe the basic type,

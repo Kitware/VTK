@@ -266,8 +266,7 @@ Modify lex.yy.c:
 "vtkTypeFloat32"       return(TypeFloat32);
 "vtkTypeFloat64"       return(TypeFloat64);
 
-"const"[\r\n\t ]*"*"   return(CONST_PTR);
-"const"[\r\n\t ]*"&"   return(CONST_REF);
+"*"[\r\n\t ]*"const"   return(CONST_PTR);
 "const"[\r\n\t ]*"="   return(CONST_EQUAL);
 
 [0-9]+"."[0-9]*([eE][+-]?[0-9]+)?[fFlL]?  {
