@@ -400,6 +400,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
         ((aType & VTK_PARSE_INDIRECT) != 0) &&
         (aType != VTK_PARSE_STRING_REF)) args_ok = 0;
+    if (aType == VTK_PARSE_STRING_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
     if (aType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
@@ -424,6 +425,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       ((rType & VTK_PARSE_INDIRECT) != 0) &&
       (rType != VTK_PARSE_STRING_REF)) args_ok = 0;
+  if (rType == VTK_PARSE_STRING_PTR) args_ok = 0;
 
   /* eliminate unsigned char * and unsigned short * */
   if (rType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
@@ -463,6 +465,36 @@ void outputFunction(FILE *fp, FileInfo *data)
     case VTK_PARSE___INT64_PTR:
       args_ok = currentFunction->HaveHint;
       break;
+    }
+
+  /* make sure there isn't a Java-specific override */
+  if (!strcmp("vtkObject",data->ClassName))
+    {
+    /* remove the original vtkCommand observer methods */
+    if (!strcmp(currentFunction->Name,"AddObserver") ||
+        !strcmp(currentFunction->Name,"GetCommand") ||
+        (!strcmp(currentFunction->Name,"RemoveObserver") &&
+         (currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG)) ||
+        ((!strcmp(currentFunction->Name,"RemoveObservers") ||
+          !strcmp(currentFunction->Name,"HasObserver")) &&
+         (((currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG) &&
+           (currentFunction->ArgTypes[0] !=
+            (VTK_PARSE_CHAR_PTR|VTK_PARSE_CONST))) ||
+          (currentFunction->NumberOfArguments > 1))) ||
+        (!strcmp(currentFunction->Name,"RemoveAllObservers") &&
+         (currentFunction->NumberOfArguments > 0)))
+      {
+      args_ok = 0;
+      }
+    }
+  else if (!strcmp("vtkObjectBase",data->ClassName))
+    {
+    /* remove the special vtkObjectBase methods */
+    if (!strcmp(currentFunction->Name,"PrintRevisions") ||
+        !strcmp(currentFunction->Name,"Print"))
+      {
+      args_ok = 0;
+      }
     }
 
   /* make sure it isn't a Delete or New function */

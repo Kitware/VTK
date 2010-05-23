@@ -823,6 +823,36 @@ void outputFunction(FILE *fp, FileInfo *data)
       break;
     }
 
+  /* check for methods that will be overriden especially for Tcl */
+  if (!strcmp("vtkObject",data->ClassName))
+    {
+    /* remove the original vtkCommand observer methods */
+    if (!strcmp(currentFunction->Name,"AddObserver") ||
+        !strcmp(currentFunction->Name,"GetCommand") ||
+        (!strcmp(currentFunction->Name,"RemoveObserver") &&
+         (currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG)) ||
+        ((!strcmp(currentFunction->Name,"RemoveObservers") ||
+          !strcmp(currentFunction->Name,"HasObserver")) &&
+         (((currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG) &&
+           (currentFunction->ArgTypes[0] !=
+            (VTK_PARSE_CHAR_PTR|VTK_PARSE_CONST))) ||
+          (currentFunction->NumberOfArguments > 1))) ||
+        (!strcmp(currentFunction->Name,"RemoveAllObservers") &&
+         (currentFunction->NumberOfArguments > 0)))
+      {
+      args_ok = 0;
+      }
+    }
+  else if (!strcmp("vtkObjectBase",data->ClassName))
+    {
+    /* remove the special vtkObjectBase methods */
+    if (!strcmp(currentFunction->Name,"PrintRevisions") ||
+        !strcmp(currentFunction->Name,"Print"))
+      {
+      args_ok = 0;
+      }
+    }
+
   /* if the args are OK and it is not a constructor or destructor */
   if (args_ok &&
       strcmp(data->ClassName,currentFunction->Name) &&
