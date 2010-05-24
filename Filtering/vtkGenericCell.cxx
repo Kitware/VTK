@@ -112,7 +112,7 @@ int vtkGenericCell::RequiresExplicitFaceRepresentation()
 //----------------------------------------------------------------------------
 void vtkGenericCell::SetFaces(vtkIdType *faces)
 {
-  return this->Cell->SetFaces(faces);
+  this->Cell->SetFaces(faces);
 }
 
 
