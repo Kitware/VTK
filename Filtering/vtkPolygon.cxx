@@ -440,7 +440,7 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(double x[3], double *weights)
   // tan(alpha/2) = (1-cos(alpha))/sin(alpha) 
   //              = (d0*d1 - cross(u0, u1))/(2*dot(u0,u1))
   double *tanHalfTheta = new double [numPts];
-  for (int i = 0; i < numPts-1; i++)
+  for (int i = 0; i < numPts; i++)
     {
     int i1 = i+1;
     if ( i1 == numPts )
@@ -455,9 +455,9 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(double x[3], double *weights)
     double theta = 2.0*asin(l/2.0);
     
     // special case where x lies on an edge
-    if (vtkMath::Pi() - theta < eps)
+    if (vtkMath::Pi() - theta < 0.001)
       {
-      weights[i] = dist[i+1] / (dist[i] + dist[i+1]);
+      weights[i] = dist[i1] / (dist[i] + dist[i1]);
       weights[i1] = 1 - weights[i];
       delete [] dist;
       delete [] uVec;
@@ -469,15 +469,15 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(double x[3], double *weights)
     }
 
     // Normal case
-  for (int i = 0; i < numPts-1; i++)
+  for (int i = 0; i < numPts; i++)
     {
     int i1 = i-1;
     if ( i1 == -1 )
       {
-      i1 = 0;
+      i1 = numPts-1;
       }
 
-    weights[i] += (tanHalfTheta[i] + tanHalfTheta[i1]) / dist[i];
+    weights[i] = (tanHalfTheta[i] + tanHalfTheta[i1]) / dist[i];
     }    
 
   // clear memory

@@ -34,7 +34,7 @@
 #include "vtkCellArray.h"
 #include "vtkSmartPointer.h"
 
-int TestMeanValueCoordinatesInterpolation( int argc, char *argv[] )
+int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
 {
   vtkSmartPointer<vtkRenderer> renderer = 
     vtkSmartPointer<vtkRenderer>::New();
