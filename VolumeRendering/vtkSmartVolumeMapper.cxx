@@ -383,6 +383,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->RayCastMapper->SetCroppingRegionFlags(
         this->GetCroppingRegionFlags());
       this->RayCastMapper->SetBlendMode( this->GetBlendMode() );
+      this->RayCastMapper->SetFinalColorWindow(this->FinalColorWindow);
+      this->RayCastMapper->SetFinalColorLevel(this->FinalColorLevel);
       break;
 
       // We are rendering with the vtkVolumeTextureMapper3D
@@ -403,6 +405,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         this->GetCroppingRegionPlanes());
       this->TextureMapper->SetCroppingRegionFlags(
         this->GetCroppingRegionFlags());
+      // TextureMapper does not support FinalColor Window/Level.
       break;
 
       // We are rendering with the vtkGPUVolumeRayCastMapper
@@ -418,6 +421,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->GPUMapper->SetCroppingRegionFlags(
         this->GetCroppingRegionFlags());
       this->GPUMapper->SetBlendMode( this->GetBlendMode() );
+      this->GPUMapper->SetFinalColorWindow(this->FinalColorWindow);
+      this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
 
       // Make the window current because we need the OpenGL context
       win->MakeCurrent();
@@ -448,6 +453,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         this->GPULowResMapper->SetCroppingRegionFlags(
         this->GetCroppingRegionFlags());
         this->GPULowResMapper->SetBlendMode( this->GetBlendMode() );
+        this->GPULowResMapper->SetFinalColorWindow(this->FinalColorWindow);
+        this->GPULowResMapper->SetFinalColorLevel(this->FinalColorLevel);
         }
       else
         {

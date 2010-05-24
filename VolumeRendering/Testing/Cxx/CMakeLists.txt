@@ -31,6 +31,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestMinIntensityRendering.cxx
       TestProjectedTetrahedra.cxx
       TestSmartVolumeMapper.cxx
+      TestSmartVolumeMapperWindowLevel.cxx
       volProt.cxx
       ZsweepConcavities.cxx
       )
