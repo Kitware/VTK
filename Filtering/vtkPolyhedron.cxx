@@ -81,7 +81,7 @@ public:
     {
       this->Current += this->CurrentPolygonSize + 1;
       this->Polygon = this->Current - 1;
-      this->CurrentPolygonSize = *(Polygon);
+      this->CurrentPolygonSize = this->Polygon[0];
       this->Id++;
       return this->Current;
     }
@@ -468,8 +468,8 @@ int  ExtractContourConnectivities(
       fvMapIt = faceToPointsMap.find(fVector[i]);
       if (fvMapIt == faceToPointsMap.end())
         {
-        cout << "Cannot find point ids of a face. We should never get "
-          "here. Contouring aborted." << endl;
+        std::cout << "Cannot find point ids of a face. We should never get "
+                     "here. Contouring aborted." << std::endl;;
         return 0;
         }
 
@@ -753,8 +753,8 @@ void OrderConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
       }
     if (boundaryEdges.size() != 0 && boundaryEdges.size() != 2)
       {
-      cout << "Find a contour point with " << boundaryEdges.size() <<
-        " boundary edges. This should never happen." << endl;
+      std::cout << "Find a contour point with " << boundaryEdges.size() << 
+        " boundary edges. This should never happen." << std::endl;
       return;
       }
 
@@ -2730,6 +2730,8 @@ void vtkPolyhedron::Clip(double value,
       } // end for each face
 
     } // end for_pid 
+
+  delete [] visited;
 
   vtkIdType numAllFaces = contourPolys->GetNumberOfCells() + 
                           static_cast<vtkIdType>(faces.size());

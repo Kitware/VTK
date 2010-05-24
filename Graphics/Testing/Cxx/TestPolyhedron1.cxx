@@ -116,7 +116,7 @@ int TestPolyhedron1( int argc, char* argv[] )
   pointDataArray->Initialize();
   for (int i = 0; i < 20; i++)
     {
-    cout << plane->EvaluateFunction(dodechedronPoint[i]) << endl;
+    std::cout << plane->EvaluateFunction(dodechedronPoint[i]) << std::endl;
     pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i])+0.01);
     }
 
@@ -267,9 +267,10 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   iren->Initialize();
 
+  renWin->SetMultiSamples(0);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 0.95 );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
