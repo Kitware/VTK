@@ -245,9 +245,20 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   // Check that we have input data
   vtkImageData *input=this->GetInput();
 
+  if(goodSoFar && input==0)
+    {
+    vtkErrorMacro("Input is NULL but is required");
+    goodSoFar = 0;
+    }
+
+  if(goodSoFar)
+    {
+    input->Update();
+    }
+
   // If we have a timestamp change or data change then create a new clone.
-  if(input != this->LastInput ||
-     input->GetMTime() > this->TransformedInput->GetMTime())
+  if(goodSoFar && (input != this->LastInput ||
+                   input->GetMTime() > this->TransformedInput->GetMTime()))
     {
     this->LastInput = input;
 
@@ -290,13 +301,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
     clone->SetOrigin(origin);
     clone->SetExtent(extents);
-    }
-
-
-  if ( goodSoFar && !this->TransformedInput )
-    {
-    vtkErrorMacro("Input is NULL but is required");
-    goodSoFar = 0;
     }
 
   // Update the date then make sure we have scalars. Note
