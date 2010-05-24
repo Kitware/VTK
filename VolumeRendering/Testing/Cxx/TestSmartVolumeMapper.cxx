@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastAdditive.cxx
+  Module:    TestSmartVolumeMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test covers additive method.
+// This test covers the smart volume mapper and composite method.
 // This test volume renders a synthetic dataset with unsigned char values,
-// with the additive method.
+// with the composite method.
 
 #include "vtkSphere.h"
 #include "vtkSampleFunction.h"
