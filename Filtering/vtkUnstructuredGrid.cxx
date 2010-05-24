@@ -2039,7 +2039,8 @@ void vtkUnstructuredGrid::ConvertFaceStreamPointIds(vtkIdList * faceStream,
     vtkIdType npts = *idPtr++;
     for (vtkIdType j = 0; j < npts; j++)
       {
-      *idPtr++ = idMap[*idPtr];
+      *idPtr = idMap[*idPtr];
+      idPtr++;
       }
     }
 }
@@ -2055,7 +2056,8 @@ void vtkUnstructuredGrid::ConvertFaceStreamPointIds(vtkIdType nfaces,
     vtkIdType npts = *idPtr++;
     for (vtkIdType j = 0; j < npts; j++)
       {
-      *idPtr++ = idMap[*idPtr];
+      *idPtr = idMap[*idPtr];
+      idPtr++;
       }
     }
 }

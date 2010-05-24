@@ -2632,7 +2632,14 @@ void vtkPolyhedron::Clip(double value,
               vtkWarningMacro("A positive point is directly connected to a "
                 "negative point with no contour point in between. We should "
                 "never get here.");
-              startPt = startPt == numFacePoints-1 ? 0 : startPt++;
+              if (startPt == numFacePoints-1)
+                {
+                startPt = 0;
+                }
+              else
+                {
+                startPt++;
+                }
               newpids.erase(newpids.begin());
               }
             }
@@ -2659,7 +2666,14 @@ void vtkPolyhedron::Clip(double value,
               vtkWarningMacro("A positive point is directly connected to a "
                 "negative point with no contour point in between. We should "
                 "never get here.");
-              endPt = endPt == 0 ? numFacePoints-1 : endPt--;
+              if (endPt == 0)
+                {
+                endPt = numFacePoints-1;
+                }
+              else
+                {
+                endPt--;
+                }
               newpids.pop_back();
               }
             }

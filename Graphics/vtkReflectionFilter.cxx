@@ -322,8 +322,8 @@ int vtkReflectionFilter::RequestDataInternal(
       cellPts = vtkIdList::New();
       vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, cellPts);
       vtkIdType* idPtr = cellPts->GetPointer(0);;
-      vtkIdType nfaces = *idPtr++;
-      for (vtkIdType j = 0; j < nfaces; j++)
+      int nfaces = static_cast<int>(*idPtr++);
+      for (j = 0; j < nfaces; j++)
         {
         vtkIdType npts = *idPtr++;
         for (vtkIdType k = 0; k < (npts+1)/2; k++)
