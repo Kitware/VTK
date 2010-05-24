@@ -2229,7 +2229,7 @@ int vtkPolyhedron::InternalContour(double value,
       if (ceMapIt == ceMap.end() || cpSetIt == cpSet.end())
         {
         vtkWarningMacro("Find unexpected case, the input polyhedron cell may "
-        "contain intersecting edges. Contouring will continue, but this cell "
+        "not be a water tight cell. Contouring will continue, but this cell "
         "will be not be processed.");
         return -1;
         }
@@ -2288,7 +2288,7 @@ int vtkPolyhedron::InternalContour(double value,
       if (!foundEdge)
         {
         vtkWarningMacro("Find unexpected case, the input polyhedron cell may "
-        "contain intersecting edges. Contouring will continue, but this cell "
+        "not be a water tight cell. Contouring will continue, but this cell "
         "will be not be processed.");
         return -1;
         }

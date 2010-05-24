@@ -41,10 +41,6 @@
 // approximation. Currently the approach of Mean Value Coordinates is used,
 // but this filter may be extended in the future to use other methods.
 //
-// If the source mesh is not a triangle mesh, or has triangle strips, it will
-// first be tessellated prior to interpolation. If the mesh is non-manifold,
-// not closed, or self-intersecting you are asking for trouble; no checking
-// is performed.
 
 // .SECTION See Also
 // vtkProbeFilter vtkMeanValueCoordinatesInterpolator vtkPolyhedron

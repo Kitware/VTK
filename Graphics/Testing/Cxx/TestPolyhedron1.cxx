@@ -92,37 +92,11 @@ int TestPolyhedron1( int argc, char* argv[] )
   
   double offset = 0;//0.375185;
   
-#if 0
-  double x[3], y[3], normal[3], origin[3];
-  x[0] = dodechedronPoint[2][0] - dodechedronPoint[1][0];
-  x[1] = dodechedronPoint[2][1] - dodechedronPoint[1][1];
-  x[2] = dodechedronPoint[2][2] - dodechedronPoint[1][2];
-  
-  y[0] = dodechedronPoint[2][0] - dodechedronPoint[18][0];
-  y[1] = dodechedronPoint[2][1] - dodechedronPoint[18][1];
-  y[2] = dodechedronPoint[2][2] - dodechedronPoint[18][2];
-  
-  vtkMath::Cross(x, y, normal);
-  vtkMath::Normalize(normal);
-  
-  vtkMath::Cross(normal, x, y);
-  vtkMath::Normalize(y);
-  
-  vtkMath::Normalize(x);
-  
-  origin[0] = (dodechedronPoint[2][0] + dodechedronPoint[1][0] + dodechedronPoint[18][0])/3.0
-            + normal[0] * offset;
-  origin[1] = (dodechedronPoint[2][1] + dodechedronPoint[1][1] + dodechedronPoint[18][1])/3.0
-            + normal[1] * offset;
-  origin[2] = (dodechedronPoint[2][2] + dodechedronPoint[1][2] + dodechedronPoint[18][2])/3.0 
-            + normal[2] * offset;
 
-#else
   double normal[3] = {0.0, 0.0, 1.0};
   double origin[3] = {0.0, 0.0, offset};
   double x[3] = {1.0, 0.0, 0.0};
   double y[3] = {0.0, 1.0, 0.0};
-#endif
 
   vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<vtkPlaneSource>::New();
   planeSource->SetNormal(normal);
@@ -300,15 +274,6 @@ int TestPolyhedron1( int argc, char* argv[] )
     {
     iren->Start();
     }
-
-/*  
-  vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer1 =
-    vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-  writer1->SetInput(ugrid);
-  writer1->SetFileName("test.vtu");
-  writer1->SetDataModeToAscii();
-  writer1->Update();
-*/
 
   return !retVal;
 }

@@ -41,11 +41,9 @@ class vtkQuad;
 class vtkTetra;
 class vtkPolygon;
 class vtkLine;
-//BTX
 class vtkPointIdMap;
 class vtkIdToIdVectorMapType;
 class vtkIdToIdMapType;
-//ETX
 class vtkEdgeTable;
 class vtkPolyData;
 class vtkCellLocator;
@@ -85,8 +83,9 @@ public:
   virtual vtkCell *GetFace(int faceId);
 
   // Description:
-  // Satisfy the vtkCell API. This method contours by triangulating the
-  // cell and then contouring the resulting tetrahedra.
+  // Satisfy the vtkCell API. This method contours the input polyhedron and outputs 
+  // a polygon. When the result polygon is not planar, it will be triangulated.
+  // The current implementation assumes water-tight polyhedron cells.
   virtual void Contour(double value, vtkDataArray *scalars,
                        vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                        vtkCellArray *lines, vtkCellArray *polys,
@@ -94,14 +93,13 @@ public:
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
 
   // Description:
-  // Satisfy the vtkCell API. This method clips by triangulating the
-  // cell and then adding clip-edge intersection points into the
-  // triangulation; extracting the clipped region.
-  // Note: output connectivity is a polyhedron vtkCellArray of a special format
-  // Cell0Length [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
-  // Cell1Length [nCell1Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...] ...
-  // Use the static method DecomposePolyhedronCellArray to convert it into a 
-  // standard format.
+  // Satisfy the vtkCell API. This method clips the input polyhedron and outputs
+  // a new polyhedron. The face information of the output polyhedron is encoded
+  // in the output vtkCellArray using a special format:
+  // CellLength [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...].
+  // Use the static method vtkUnstructuredGrid::DecomposePolyhedronCellArray 
+  // to convert it into a standard format. Note: the algorithm assumes water-tight
+  // polyhedron cells.
   virtual void Clip(double value, vtkDataArray *scalars,
                     vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
@@ -110,7 +108,7 @@ public:
 
   // Description:
   // Satisfy the vtkCell API. The subId is ignored and zero is always
-  // returned.  the parametric coordinates pcoords are normalized values in
+  // returned. The parametric coordinates pcoords are normalized values in
   // the bounding box of the polyhedron. The weights are determined by
   // evaluating the MVC coordinates. The dist is always zero if the point x[3]
   // is inside the polyhedron; otherwise it's the distance to the surface.
@@ -252,7 +250,8 @@ protected:
   vtkIdList      *CellIds;
   vtkGenericCell *Cell;
 
-
+  // This is the internal implementation of contouring a polyhedron. It is used
+  // by both Clip and Contour functions.
   int InternalContour(double value,
                       int insideOut,
                       vtkIncrementalPointLocator *locator,

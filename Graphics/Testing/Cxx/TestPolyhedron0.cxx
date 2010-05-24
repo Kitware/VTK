@@ -495,16 +495,5 @@ int TestPolyhedron0( int argc, char* argv[] )
     iren->Start();
     }
 
-
-/*  
-  vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer1 =
-    vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-  writer1->SetInput(ugrid);
-  writer1->SetFileName("test.vtu");
-  writer1->SetDataModeToAscii();
-  writer1->Update();
-*/
-
-
   return !retVal;
 }

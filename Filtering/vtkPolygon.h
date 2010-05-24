@@ -181,8 +181,8 @@ public:
                                     double tol, double p0[3], double p1[3]);
 
   // Description:
-  // Set/Get the flag indicating whether to use Mean Value Coordinate for the "
-  // interpolation. If true, InterpolateFunctions() uses the Mean Value "
+  // Set/Get the flag indicating whether to use Mean Value Coordinate for the
+  // interpolation. If true, InterpolateFunctions() uses the Mean Value
   // Coordinate to compute weights. Otherwise, the conventional 1/r^2 method
   // is used. The UseMVCInterpolation parameter is set to false by default.
   vtkGetMacro(UseMVCInterpolation, bool);

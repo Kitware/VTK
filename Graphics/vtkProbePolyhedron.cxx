@@ -93,14 +93,11 @@ int vtkProbePolyhedron::RequestData(
 
   // Make sure that the mesh consists of triangles. Bail out if not.
   vtkIdType numPolys = source->GetNumberOfPolys();
-  vtkIdType numStrips = source->GetNumberOfStrips();
-  
   vtkCellArray *srcPolys = source->GetPolys();
-  vtkIdType numTriangles = srcPolys->GetNumberOfConnectivityEntries() / 4;
   
-  if ( numStrips > 0 || numTriangles != numPolys )
+  if ( !numPolys || !srcPolys )
     {
-    vtkErrorMacro("Probe polyhedron filter requires a triangle mesh");
+    vtkErrorMacro("Probe polyhedron filter requires a non-empty mesh");
     return 0;
     }
 
