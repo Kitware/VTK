@@ -3765,6 +3765,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildScaleBiasProgram(vtkRenderWindow *w)
     s->SetType(VTK_SHADER_TYPE_FRAGMENT);
     s->SetSourceCode(vtkGPUVolumeRayCastMapper_ScaleBiasFS);
     shaders->AddItem(s);
+    s->Delete();
     }
 }
 
