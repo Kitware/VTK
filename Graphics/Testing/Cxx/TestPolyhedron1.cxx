@@ -269,7 +269,7 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 0.95 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

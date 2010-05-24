@@ -210,7 +210,7 @@ int TestMeanValueCoordinatesInterpolation1( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 0.95 );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
