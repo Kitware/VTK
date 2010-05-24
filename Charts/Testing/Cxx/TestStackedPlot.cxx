@@ -25,7 +25,6 @@
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
-
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -53,10 +52,6 @@ int TestStackedPlot( int argc, char * argv [] )
   VTK_CREATE(vtkIntArray, arrMonth);
   arrMonth->SetName("Month");
   table->AddColumn(arrMonth);
-
-  VTK_CREATE(vtkIntArray,arrBase);
-  arrBase->SetName("Base");
-  table->AddColumn(arrBase);
 
   VTK_CREATE(vtkIntArray, arrBook);
   arrBook->SetName("Books");
@@ -90,33 +85,32 @@ int TestStackedPlot( int argc, char * argv [] )
     }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlotStacked *stack = 0;
+  vtkPlot *stack = 0;
 
   // Books
-  stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
+  stack = chart->AddPlot(vtkChart::STACKED);
   stack->SetInput(table, 0, 1);
   stack->SetColor(120, 120, 254, 255);
  
   // New / Popular 
-  stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
+  stack = chart->AddPlot(vtkChart::STACKED);
   stack->SetInput(table, 0, 2);
   stack->SetColor(254, 118, 118, 255);
 
   // Periodical
-  stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
+  stack = chart->AddPlot(vtkChart::STACKED);
   stack->SetInput(table, 0, 3);
   stack->SetColor(170, 170, 254, 255);
 
   // Audiobook
-  stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
+  stack = chart->AddPlot(vtkChart::STACKED);
   stack->SetInput(table, 0, 4);
   stack->SetColor(91, 91, 254, 255);
 
   // Video
-  stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
+  stack = chart->AddPlot(vtkChart::STACKED);
   stack->SetInput(table, 0, 5);
   stack->SetColor(253, 158, 158, 255);
-
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
 

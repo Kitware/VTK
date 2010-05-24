@@ -886,7 +886,7 @@ vtkDataArray *vtkChartXY::GetStackedPlotAccumulator(int dataType, int n)
 {
   if (!this->ChartPrivate->StackedPlotAccumulator) 
     {
-    this->ChartPrivate->StackedPlotAccumulator = vtkDataArray::SafeDownCast(vtkDataArray::CreateArray(dataType));
+    this->ChartPrivate->StackedPlotAccumulator.TakeReference(vtkDataArray::SafeDownCast(vtkDataArray::CreateArray(dataType)));
     if (!this->ChartPrivate->StackedPlotAccumulator) 
       {
       return NULL;
