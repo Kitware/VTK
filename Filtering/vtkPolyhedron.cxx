@@ -468,8 +468,8 @@ int  ExtractContourConnectivities(
       fvMapIt = faceToPointsMap.find(fVector[i]);
       if (fvMapIt == faceToPointsMap.end())
         {
-        std::cout << "Cannot find point ids of a face. We should never get "
-                     "here. Contouring aborted." << std::endl;;
+        cout << "Cannot find point ids of a face. We should never get "
+          "here. Contouring aborted." << endl;
         return 0;
         }
 
@@ -753,8 +753,8 @@ void OrderConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
       }
     if (boundaryEdges.size() != 0 && boundaryEdges.size() != 2)
       {
-      std::cout << "Find a contour point with " << boundaryEdges.size() << 
-        " boundary edges. This should never happen." << std::endl;
+      cout << "Find a contour point with " << boundaryEdges.size() <<
+        " boundary edges. This should never happen." << endl;
       return;
       }
 
