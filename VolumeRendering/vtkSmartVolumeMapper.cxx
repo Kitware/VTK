@@ -525,6 +525,8 @@ void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)
   this->RayCastMapper->ReleaseGraphicsResources(w);
   this->TextureMapper->ReleaseGraphicsResources(w);
   this->GPUMapper->ReleaseGraphicsResources(w);
+  this->GPULowResMapper->ReleaseGraphicsResources(w);
+
   this->Initialized      = 0;
   this->TextureSupported = 0;
   this->GPUSupported     = 0;
