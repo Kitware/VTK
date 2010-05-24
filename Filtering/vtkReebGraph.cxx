@@ -1032,8 +1032,6 @@ int vtkReebGraph::CommitFiltering()
 //----------------------------------------------------------------------------
 int vtkReebGraph::FilterByPersistence(double functionScalePercentage)
 {
-
-  printf("going for filtering\n");
   int deletionNumber = 0;
 
   cancellationHistory.clear();
@@ -1046,9 +1044,7 @@ int vtkReebGraph::FilterByPersistence(double functionScalePercentage)
     + this->FilterLoopsByPersistence(functionScalePercentage)
     + this->FilterBranchesByPersistence(functionScalePercentage);
 
-  printf("in committing?\n");
   this->CommitFiltering();
-  printf("no\n");
   historyOn = false;
 
   return deletionNumber;

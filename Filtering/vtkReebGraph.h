@@ -75,8 +75,9 @@
 // vertices of those regions, sorted by function value (useful for flexible
 // isosurface extraction or level set signature computation, for instance).
 //
-// See Graphics/vtkReebGraphToAreaSignatureFilter.cxx for examples of traversals
-// of a vtkReebGraph object.
+// See Graphics/Testing/Cxx/TestReebGraph.cxx for examples of traversals and
+// typical usages (skeletonization, contour spectra, etc.) of a vtkReebGraph 
+// object.
 //
 //
 // .SECTION See Also

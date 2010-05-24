@@ -26,7 +26,7 @@ vtkReebGraphSurfaceSkeletonFilter::vtkReebGraphSurfaceSkeletonFilter()
   this->SetNumberOfInputPorts(2);
   this->FieldId = 0;
   this->NumberOfSamples = 10;
-  this->NumberOfSmoothingIterations = 10;
+  this->NumberOfSmoothingIterations = 30;
 }
 
 //----------------------------------------------------------------------------
@@ -270,7 +270,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
         }
         printf("finished...\n");
         fclose(f);*/
-
+        
         // now launch the level set traversal
         double  minValue = scalarField->GetComponent(criticalNodeIds.first, 0),
                 maxValue = scalarField->GetComponent(criticalNodeIds.second, 0);
@@ -286,23 +286,38 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
         arcSkeleton.push_back(arcEntry);
         free(criticalPoint);
 
-        if(vertexList->GetNumberOfTuples() > 1)
+        if(vertexList->GetNumberOfTuples() > 50)
+          // very conservative safety margin, noticed some floating point 
+          // exception in the contouring filter otherwise.
           {
           for(int i = 0; i < NumberOfSamples; i++)
             {
             vtkContourFilter *contourFilter = vtkContourFilter::New();
 
             contourFilter->SetNumberOfContours(1);
-            contourFilter->SetValue(i, minValue +
-              (i + 1.0)*(maxValue - minValue)/(NumberOfSamples + 1.0));
+            contourFilter->SetValue(i, minValue + 
+              (i + 1.0)*(maxValue - minValue)/(((double)NumberOfSamples) + 1.0));
             contourFilter->SetInput(subMesh);
+/*            printf(
+              "contouring? (%d samples, isovalue: %f, cells: %d, arc: %d v:%d)\n",
+              NumberOfSamples, minValue +
+                (i + 1.0)*(maxValue - minValue)
+                /(((double)NumberOfSamples) + 1.0),
+              subMesh->GetNumberOfCells(), e.Id,
+              vertexList->GetNumberOfTuples());*/
             contourFilter->Update();
+<<<<<<< HEAD
 
+=======
+/*            printf("ok\n");*/
+  
+>>>>>>> Testing code for the 2D part, plus minor bug fix
             vtkPolyData *contourMesh = contourFilter->GetOutput();
             std::vector<double> baryCenter(3);
             for(int j = 0; j < 3; j++)
               baryCenter[j] = 0.0;
 
+<<<<<<< HEAD
             for(int j = 0; j < contourMesh->GetNumberOfPoints(); j++)
               {
               double *point = (double *) malloc(sizeof(double)*3);
@@ -318,6 +333,25 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
               // if the current arc of the Reeb graph has not deg-2 node, then
               // the level set will most likely be empty.
               arcSkeleton.push_back(baryCenter);
+=======
+            if(contourMesh->GetNumberOfPoints() > 1)
+              {
+              // if the current arc of the Reeb graph has not deg-2 node, then 
+              // the level set will most likely be empty. 
+
+              for(int j = 0; j < contourMesh->GetNumberOfPoints(); j++)
+                {
+                double *point = (double *) malloc(sizeof(double)*3);
+                contourMesh->GetPoint(j, point);
+                for(int k = 0; k < 3; k++)
+                  baryCenter[k] += point[k];
+                free(point);
+                }
+              for(int j = 0; j < 3; j++)
+                baryCenter[j] /= contourMesh->GetNumberOfPoints();
+                            arcSkeleton.push_back(baryCenter);
+              }
+>>>>>>> Testing code for the 2D part, plus minor bug fix
             contourFilter->Delete();
             }
           }
@@ -358,8 +392,14 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
               {
               std::vector<double> smoothedSample(3);
               for(int k = 0; k < 3; k++)
+<<<<<<< HEAD
                 smoothedSample[k] =
                   0.5*(arcSkeleton[j-1][k] + arcSkeleton[j+1][k]);
+=======
+                smoothedSample[k] = 
+                  (arcSkeleton[j-1][k] 
+                  + arcSkeleton[j+1][k] + arcSkeleton[j][k])/3;
+>>>>>>> Testing code for the 2D part, plus minor bug fix
               smoothedArc.push_back(smoothedSample);
               }
             }
@@ -389,13 +429,11 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
         outputArc->SetNumberOfComponents(3);
         for(int j = 0; j < skeleton[i].size(); j++)
           {
-          vtkDoubleArray *point = vtkDoubleArray::New();
-          point->SetNumberOfTuples(1);
-          point->SetNumberOfComponents(3);
+          double *point = (double *) malloc(sizeof(double)*3);
           for(int k = 0; k < 3; k++)
-            point->SetComponent(0, k, skeleton[i][j][k]);
-          outputArc->InsertNextTuple(j, point);
-          point->Delete();
+            point[k] = skeleton[i][j][k];
+          outputArc->InsertNextTupleValue(point);
+          free(point);
           }
         output->AddColumn(outputArc);
         outputArc->Delete();

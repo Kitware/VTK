@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Set the number of optional smoothing iterations
-  // Default value: 10
+  // Default value: 30
   vtkSetMacro(NumberOfSmoothingIterations, int);
   vtkGetMacro(NumberOfSmoothingIterations, int);
 
