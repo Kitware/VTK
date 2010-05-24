@@ -48,6 +48,7 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   
   vtkSmartPointer<vtkRenderWindow> renWin = 
     vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer);
   renWin->AddRenderer(renderer1);
   renderer1->SetViewport(0.5, 0, 1, 1);
@@ -200,7 +201,6 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   renderer1->SetBackground(1,1,1);
   
   renWin->SetSize(600,300);
-  renWin->SetMultiSamples(0);
   
   // interact with data
   renWin->Render();

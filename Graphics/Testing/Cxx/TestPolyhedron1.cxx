@@ -259,6 +259,7 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   vtkSmartPointer<vtkRenderWindow> renWin = 
     vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren = 
@@ -267,7 +268,6 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   iren->Initialize();
 
-  renWin->SetMultiSamples(0);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
