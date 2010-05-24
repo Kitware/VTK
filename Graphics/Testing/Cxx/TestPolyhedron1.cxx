@@ -116,7 +116,7 @@ int TestPolyhedron1( int argc, char* argv[] )
   pointDataArray->Initialize();
   for (int i = 0; i < 20; i++)
     {
-    std::cout << plane->EvaluateFunction(dodechedronPoint[i]) << std::endl;
+    cout << plane->EvaluateFunction(dodechedronPoint[i]) << endl;
     pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i])+0.01);
     }
 

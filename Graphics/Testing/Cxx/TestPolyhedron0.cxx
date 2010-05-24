@@ -99,20 +99,20 @@ int TestPolyhedron0( int argc, char* argv[] )
 
   vtkCellArray * cell = ugrid0->GetCells();
   vtkIdTypeArray * pids = cell->GetData();
-  std::cout << "num of cells: " << cell->GetNumberOfCells() << std::endl;
-  std::cout << "num of tuples: " << pids->GetNumberOfTuples() << std::endl;
+  cout << "num of cells: " << cell->GetNumberOfCells() << endl;
+  cout << "num of tuples: " << pids->GetNumberOfTuples() << endl;
   for (int i = 0; i < pids->GetNumberOfTuples(); i++)
     {
-    std::cout << pids->GetValue(i) << " ";
+    cout << pids->GetValue(i) << " ";
     }
-  std::cout << std::endl;
-  cell->Print(std::cout);
+  cout << endl;
+  cell->Print(cout);
   
   // Print out basic information
-  std::cout << "Testing polyhedron is a cube of with bounds "
+  cout << "Testing polyhedron is a cube of with bounds "
             << "[-5, 5, -5, 5, -10, 10]. It has "
             << polyhedron->GetNumberOfEdges() << " edges and " 
-            << polyhedron->GetNumberOfFaces() << " faces." << std::endl;
+            << polyhedron->GetNumberOfFaces() << " faces." << endl;
   
   double p1[3] = {-100,0,0};
   double p2[3] = { 100,0,0};
@@ -129,7 +129,7 @@ int TestPolyhedron0( int argc, char* argv[] )
   writer->SetFileName("test.vtu");
   writer->SetDataModeToAscii();
   writer->Update();
-  std::cout << "finished writing the polyhedron mesh to test.vth "<< std::endl;
+  cout << "finished writing the polyhedron mesh to test.vth "<< endl;
   
   //
   // test reader
@@ -137,7 +137,7 @@ int TestPolyhedron0( int argc, char* argv[] )
     vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
   reader->SetFileName("test.vtu");
   reader->Update();
-  std::cout << "finished reading the polyhedron mesh from test.vth "<< std::endl;
+  cout << "finished reading the polyhedron mesh from test.vth "<< endl;
   
   vtkUnstructuredGrid * ugrid = reader->GetOutput();
   polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
@@ -153,7 +153,7 @@ int TestPolyhedron0( int argc, char* argv[] )
   int numInts = polyhedron->IntersectWithLine(p1,p2,tol,t,x,pc,subId); //should be 2
   if (numInts != 2)
     {
-    std::cerr << "Expect 2 intersections, but get " << numInts << std::endl;
+    cerr << "Expect 2 intersections, but get " << numInts << endl;
     return EXIT_FAILURE;
     }
   
@@ -161,8 +161,8 @@ int TestPolyhedron0( int argc, char* argv[] )
   int inside = polyhedron->IsInside(p1,tol); //should be out
   if (inside)
     {
-    std::cerr << "Expect point [" << p1[0] << ", " << p1[1] << ", " << p1[2] 
-              << "] to be outside the polyhedral, but it's inside." << std::endl;
+    cerr << "Expect point [" << p1[0] << ", " << p1[1] << ", " << p1[2] 
+              << "] to be outside the polyhedral, but it's inside." << endl;
     return EXIT_FAILURE;
     }
   
@@ -170,8 +170,8 @@ int TestPolyhedron0( int argc, char* argv[] )
   inside = polyhedron->IsInside(p2,tol); //should be in
   if (!inside)
     {
-    std::cerr << "Expect point [" << p2[0] << ", " << p2[1] << ", " << p2[2] 
-              << "] to be inside the polyhedral, but it's outside." << std::endl;
+    cerr << "Expect point [" << p2[0] << ", " << p2[1] << ", " << p2[2] 
+              << "] to be inside the polyhedral, but it's outside." << endl;
     return EXIT_FAILURE;
     }
   
@@ -182,29 +182,29 @@ int TestPolyhedron0( int argc, char* argv[] )
     {
     double v;
     poly->GetPointData()->GetScalars()->GetTuple(i, &v);
-    std::cout << v << " ";
+    cout << v << " ";
     }
-  std::cout << std::endl;
+  cout << endl;
   
   // case 0: point on the polyhedron
   x[0] = 5.0; x[1] = 0.0; x[2] = 0.0;
   polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
   
-  std::cout << "weights for point [" 
-            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  cout << "weights for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << endl;
   for (int i = 0; i < 8; i++)
     {
-    std::cout << weights[i] << " ";
+    cout << weights[i] << " ";
     }
-  std::cout << std::endl;
+  cout << endl;
 
   double refWeights[8] = {0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.25};
   for (int i = 0; i < 8; i++)
     {
     if (!compare_double(refWeights[i], weights[i], 0.00001))
       {
-      std::cout << "Error computing the weights for a point on the polyhedron."
-              << std::endl;
+      cout << "Error computing the weights for a point on the polyhedron."
+              << endl;
       return EXIT_FAILURE;
       }
     }
@@ -212,16 +212,16 @@ int TestPolyhedron0( int argc, char* argv[] )
   double refClosestPoint[3] = {5.0, 0.0, 0.0};
   if (!compare_doublevec(closestPoint, refClosestPoint, 0.00001))
     {
-    std::cout << "Error finding the closet point of a point on the polyhedron." 
-              << std::endl;
+    cout << "Error finding the closet point of a point on the polyhedron." 
+              << endl;
     return EXIT_FAILURE;
     }
   
   double refDist2 = 0.0;
   if (!compare_double(dist2, refDist2, 0.000001))
     {
-    std::cout << "Error computing the distance for a point on the polyhedron."
-              << std::endl;
+    cout << "Error computing the distance for a point on the polyhedron."
+              << endl;
     return EXIT_FAILURE;
     }
 
@@ -229,29 +229,29 @@ int TestPolyhedron0( int argc, char* argv[] )
   x[0] = 0.0; x[1] = 0.0; x[2] = 0.0;
   polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
   
-  std::cout << "weights for point [" 
-            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  cout << "weights for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << endl;
   for (int i = 0; i < 8; i++)
     {
-    std::cout << weights[i] << " ";
+    cout << weights[i] << " ";
     }
-  std::cout << std::endl;
+  cout << endl;
 
   double refWeights1[8] = {0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125};
   for (int i = 0; i < 8; i++)
     {
     if (!compare_double(refWeights1[i], weights[i], 0.00001))
       {
-      std::cout << "Error computing the weights for a point inside the polyhedron."
-              << std::endl;
+      cout << "Error computing the weights for a point inside the polyhedron."
+              << endl;
       return EXIT_FAILURE;
       }
     }
   
   if (!compare_double(dist2, refDist2, 0.000001))
     {
-    std::cout << "Error computing the distance for a point inside the polyhedron."
-              << std::endl;
+    cout << "Error computing the distance for a point inside the polyhedron."
+              << endl;
     return EXIT_FAILURE;
     }
 
@@ -259,13 +259,13 @@ int TestPolyhedron0( int argc, char* argv[] )
   x[0] = 8.0; x[1] = 0.0; x[2] = 0.0;
   polyhedron->EvaluatePosition(x, closestPoint, subId, pc, dist2, weights);
   
-  std::cout << "weights for point [" 
-            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  cout << "weights for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << endl;
   for (int i = 0; i < 8; i++)
     {
-    std::cout << weights[i] << " ";
+    cout << weights[i] << " ";
     }
-  std::cout << std::endl;
+  cout << endl;
 
   double refWeights2[8] = {0.0307, 0.0307, 0.0307, 0.0307, 
                            0.2193, 0.2193, 0.2193, 0.2193};
@@ -273,24 +273,24 @@ int TestPolyhedron0( int argc, char* argv[] )
     {
     if (!compare_double(refWeights2[i], weights[i], 0.0001))
       {
-      std::cout << "Error computing the weights for a point outside the polyhedron."
-              << std::endl;
+      cout << "Error computing the weights for a point outside the polyhedron."
+              << endl;
       return EXIT_FAILURE;
       }
     }
 
   if (!compare_doublevec(closestPoint, refClosestPoint, 0.00001))
     {
-    std::cout << "Error finding the closet point of a point outside the polyhedron." 
-              << std::endl;
+    cout << "Error finding the closet point of a point outside the polyhedron." 
+              << endl;
     return EXIT_FAILURE;
     }
   
   refDist2 = 9.0;
   if (!compare_double(dist2, refDist2, 0.000001))
     {
-    std::cout << "Error computing the distance for a point outside the polyhedron."
-              << std::endl;
+    cout << "Error computing the distance for a point outside the polyhedron."
+              << endl;
     return EXIT_FAILURE;
     }
 
@@ -301,8 +301,8 @@ int TestPolyhedron0( int argc, char* argv[] )
   double refPoint[3] = {8.0, 0.0, 0.0};
   if (!compare_doublevec(refPoint, x, 0.00001))
     {
-    std::cout << "Error evaluate the point location for its parameter coordinate."
-              << std::endl;
+    cout << "Error evaluate the point location for its parameter coordinate."
+              << endl;
     return EXIT_FAILURE;
     }
 
@@ -310,8 +310,8 @@ int TestPolyhedron0( int argc, char* argv[] )
     {
     if (!compare_double(refWeights2[i], weights1[i], 0.0001))
       {
-      std::cout << "Error computing the weights based on parameter coordinates."
-              << std::endl;
+      cout << "Error computing the weights based on parameter coordinates."
+              << endl;
       return EXIT_FAILURE;
       }
     }
@@ -328,19 +328,19 @@ int TestPolyhedron0( int argc, char* argv[] )
     }
   polyhedron->Derivatives(subId, pc, values, 1, deriv);
   
-  std::cout << "derivative for point [" 
-            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << std::endl;
+  cout << "derivative for point [" 
+            << x[0] << ", " << x[1] << ", " << x[2] << "]:" << endl;
   for (int i = 0; i < 3; i++)
     {
-    std::cout << deriv[i] << " ";
+    cout << deriv[i] << " ";
     }
-  std::cout << std::endl;
+  cout << endl;
   
   double refDeriv[3] = {0.0, 0.0, 0.05};
   if (!compare_doublevec(refDeriv, deriv, 0.00001))
     {
-    std::cout << "Error computing derivative for a point inside the polyhedron."
-              << std::endl;
+    cout << "Error computing derivative for a point inside the polyhedron."
+              << endl;
     return EXIT_FAILURE;
     }
   
@@ -350,20 +350,20 @@ int TestPolyhedron0( int argc, char* argv[] )
   vtkSmartPointer<vtkIdList> tetraIdList = vtkSmartPointer<vtkIdList>::New();
   polyhedron->Triangulate(0, tetraIdList, tetraPoints);
   
-  std::cout << std::endl << "Triangulation result:" << std::endl;
+  cout << endl << "Triangulation result:" << endl;
   
   for (int i = 0; i < tetraPoints->GetNumberOfPoints(); i++)
     {
     double *pt = tetraPoints->GetPoint(i);
-    std::cout << "point #" << i << ": [" << pt[0] << ", " 
-      << pt[1] << ", " << pt[2] << "]" << std::endl;
+    cout << "point #" << i << ": [" << pt[0] << ", " 
+      << pt[1] << ", " << pt[2] << "]" << endl;
     }
   
   vtkIdType * ids = tetraIdList->GetPointer(0);
   for (int i = 0; i < tetraIdList->GetNumberOfIds(); i+=4)
     {
-    std::cout << "tetra #" << i/4 << ":" << ids[i] << " " 
-      << ids[i+1] << " " << ids[i+2] << " " << ids[i+3] << std::endl; 
+    cout << "tetra #" << i/4 << ":" << ids[i] << " " 
+      << ids[i+1] << " " << ids[i+2] << " " << ids[i+3] << endl; 
     }
   
   vtkSmartPointer<vtkUnstructuredGrid> tetraGrid = 
