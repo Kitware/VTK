@@ -771,7 +771,6 @@ static bool vertexCmp(const std::pair<int, double> v0,
 //----------------------------------------------------------------------------
 int vtkReebGraph::CommitFiltering()
 {
-
   // now re-construct the graph with projected deg-2 nodes.
   std::vector<std::pair<std::pair<int, int>, std::vector<int> > > before, after;
 
@@ -961,7 +960,6 @@ int vtkReebGraph::CommitFiltering()
     }
 
   // now construct the vtkMutableDirectedGraph
-
   // first, clean up the current graph
   while(GetNumberOfEdges()) RemoveEdge(0);
   while(GetNumberOfVertices()) RemoveVertex(0);
@@ -985,7 +983,7 @@ int vtkReebGraph::CommitFiltering()
   GetVertexData()->AddArray(vertexIds);
 
   std::map<int, int> vMap;
-  int vIt;
+  int vIt = 0;
   while(prevNodeId != nodeId)
     {
     vtkIdType nodeVertexId = GetNodeVertexId(nodeId);

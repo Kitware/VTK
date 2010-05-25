@@ -82,6 +82,15 @@
 //
 // .SECTION See Also
 //      vtkPolyData vtkUnstructuredGrid vtkDataArray
+//      vtkPolyDataToReebGraphFilter
+//      vtkUnstructuredGridToReebGraphFilter
+//      vtkReebGraphToReebGraphPersistenceFilter
+//      vtkReebGraphSurfaceSkeletonFilter
+//      vtkAreaContourSpectrumFilter
+//      vtkVolumeContourSpectrumFilter
+//
+// .SECTION Tests
+//      Graphics/Testing/Cxx/TestReebGraph.cxx
 
 #ifndef __vtkReebGraph_h
 #define __vtkReebGraph_h
