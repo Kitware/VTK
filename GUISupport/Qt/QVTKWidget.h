@@ -45,6 +45,8 @@ class vtkRenderWindow;
 #include <vtkToolkits.h>
 class vtkImageData;
 
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+
 #if defined(Q_WS_MAC)
 # if defined(QT_MAC_USE_COCOA) && defined(VTK_USE_COCOA)
 #  define QVTK_USE_COCOA
@@ -63,8 +65,6 @@ class vtkImageData;
 #endif
 
 #include "QVTKWin32Header.h"
-
-#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 
 //! QVTKWidget displays a VTK window in a Qt window.
 class QVTK_EXPORT QVTKWidget : public QWidget
