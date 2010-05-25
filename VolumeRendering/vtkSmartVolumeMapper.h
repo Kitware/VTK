@@ -102,6 +102,7 @@
 #define __vtkSmartVolumeMapper_h
 
 #include "vtkVolumeMapper.h"
+#include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
 class vtkFixedPointVolumeRayCastMapper;
 class vtkGPUVolumeRayCastMapper;
@@ -208,6 +209,33 @@ public:
   int GetLastUsedRenderMode();
 
   // Description:
+  // Value passed to the GPU mapper. Ignored by other mappers.
+  // Maximum size of the 3D texture in GPU memory.
+  // Will default to the size computed from the graphics
+  // card. Can be adjusted by the user.
+  // Useful if the automatic detection is defective or missing.
+  vtkSetMacro( MaxMemoryInBytes, vtkIdType );
+  vtkGetMacro( MaxMemoryInBytes, vtkIdType );
+
+  // Description:
+  // Value passed to the GPU mapper. Ignored by other mappers.
+  // Maximum fraction of the MaxMemoryInBytes that should
+  // be used to hold the texture. Valid values are 0.1 to
+  // 1.0.
+  vtkSetClampMacro( MaxMemoryFraction, float, 0.1f, 1.0f );
+  vtkGetMacro( MaxMemoryFraction, float );
+
+  // Description:
+  // Set interpolation mode for downsampling (lowres GPU)
+  // (initial value: cubic).
+  vtkSetClampMacro(InterpolationMode, int,
+                   VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC);
+  vtkGetMacro(InterpolationMode, int);
+  void SetInterpolationModeToNearestNeighbor();
+  void SetInterpolationModeToLinear();
+  void SetInterpolationModeToCubic();
+
+  // Description:
   // This method can be used to render a representative view of the input data
   // into the supplied image given the supplied blending mode, view direction,
   // and view up vector.
@@ -241,6 +269,13 @@ protected:
   // Window / level ivars
   float   FinalColorWindow;
   float   FinalColorLevel;
+
+  // GPU mapper-specific memory ivars.
+  vtkIdType MaxMemoryInBytes;
+  float MaxMemoryFraction;
+
+  // Used for downsampling.
+  int InterpolationMode;
 
   // The requested render mode is used to compute the current render mode. Note
   // that the current render mode can be invalid if the requested mode is not

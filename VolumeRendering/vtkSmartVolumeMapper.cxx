@@ -51,10 +51,14 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->GPUSupported       = 0;
   this->RayCastSupported   = 0;
   this->LowResGPUNecessary = 0;
+  this->InterpolationMode=VTK_RESLICE_CUBIC;
 
   // Create all the mappers we might need
   this->RayCastMapper   = vtkFixedPointVolumeRayCastMapper::New();
   this->GPUMapper       = vtkGPUVolumeRayCastMapper::New();
+  this->MaxMemoryInBytes=this->GPUMapper->GetMaxMemoryInBytes();
+  this->MaxMemoryFraction=this->GPUMapper->GetMaxMemoryFraction();
+
   this->TextureMapper   = vtkVolumeTextureMapper3D::New();
   this->GPULowResMapper = vtkGPUVolumeRayCastMapper::New();
 
@@ -149,6 +153,8 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // desired update rate
   this->ComputeRenderMode(ren,vol);
 
+  vtkGPUVolumeRayCastMapper *usedMapper=0;
+
   switch ( this->CurrentRenderMode )
     {
     case vtkSmartVolumeMapper::RayCastRenderMode:
@@ -158,25 +164,18 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       this->TextureMapper->Render(ren,vol);
       break;
     case vtkSmartVolumeMapper::GPURenderMode:
-      if ( ren->GetRenderWindow()->GetDesiredUpdateRate() >=
-           this->InteractiveUpdateRate &&
-           this->LowResGPUNecessary )
+      if(this->LowResGPUNecessary)
         {
-        this->GPULowResMapper->Render(ren, vol);
+        usedMapper=this->GPULowResMapper;
         }
       else
         {
-        if ( ren->GetRenderWindow()->GetDesiredUpdateRate() >=
-             this->InteractiveUpdateRate )
-          {
-          this->GPUMapper->AutoAdjustSampleDistancesOn();
-          }
-        else
-          {
-          this->GPUMapper->AutoAdjustSampleDistancesOff();
-          }
-        this->GPUMapper->Render(ren,vol);
+        usedMapper=this->GPUMapper;
         }
+      usedMapper->SetAutoAdjustSampleDistances(
+        ren->GetRenderWindow()->GetDesiredUpdateRate()>=
+        this->InteractiveUpdateRate);
+      usedMapper->Render(ren, vol);
       break;
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
@@ -410,6 +409,8 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       // We are rendering with the vtkGPUVolumeRayCastMapper
     case vtkSmartVolumeMapper::GPURenderMode:
+      this->GPUMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
+      this->GPUMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
       this->GPUMapper->SetSampleDistance(
         static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
 
@@ -440,9 +441,15 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
         this->GPUResampleFilter->SetInputConnection(
           this->GetInputConnection(0,0));
+        this->GPUResampleFilter->SetInterpolationMode(this->InterpolationMode);
         this->GPUResampleFilter->SetAxisMagnificationFactor( 0, scale[0]/2.0 );
         this->GPUResampleFilter->SetAxisMagnificationFactor( 1, scale[1]/2.0 );
         this->GPUResampleFilter->SetAxisMagnificationFactor( 2, scale[2]/2.0 );
+
+        this->GPULowResMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
+        this->GPULowResMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
+        this->GPULowResMapper->SetSampleDistance(
+        static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
 
         this->GPULowResMapper->SetInputConnection(
           this->GPUResampleFilter->GetOutputPort());
@@ -533,6 +540,23 @@ void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)
   this->RayCastSupported = 0;
 }
 
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetInterpolationModeToNearestNeighbor()
+{
+  this->SetInterpolationMode(VTK_RESLICE_NEAREST);
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetInterpolationModeToLinear()
+{
+  this->SetInterpolationMode(VTK_RESLICE_LINEAR);
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetInterpolationModeToCubic()
+{
+  this->SetInterpolationMode(VTK_RESLICE_CUBIC);
+}
 
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::CreateCanonicalView(
