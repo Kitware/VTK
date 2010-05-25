@@ -9,6 +9,8 @@ import vtk
 import vtk.test.Testing
 import math
 
+month_labels =  ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 book =       [5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946, 5526, 5166];
 new_popular = [701,  687,  736,  696,  750,  814,  923,  860,  786,  735,  680,  741];
 periodical =  [184,  176,  166,  131,  171,  191,  231,  166,  197,  162,  152,  143];
@@ -28,6 +30,9 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
 
         # Create a table with some points in it
         table = vtk.vtkTable()
+
+        arrMonthLabels = vtk.vtkStringArray()
+        arrMonthPositions = vtk.vtkDoubleArray()
 
         arrMonth = vtk.vtkIntArray()
         arrMonth.SetName("Month")
@@ -50,7 +55,10 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         numMonths = 12
 
         for i in range(0,numMonths):
-            arrMonth.InsertNextValue(i + 1)
+            arrMonthLabels.InsertNextValue(month_labels[i])
+            arrMonthPositions.InsertNextValue(float(i));
+
+            arrMonth.InsertNextValue(i)
             arrBooks.InsertNextValue(book[i])
             arrNew.InsertNextValue(new_popular[i])
             arrPeriodical.InsertNextValue(periodical[i])
@@ -65,6 +73,10 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         table.AddColumn(arrVideo)
 
         # Now add the line plots with appropriate colors
+
+        chart.GetAxis(1).SetTickLabels(arrMonthLabels)
+        chart.GetAxis(1).SetTickPositions(arrMonthPositions)
+        chart.GetAxis(1).SetMaximum(11)
 
         # Books
         line = chart.AddPlot(3)
@@ -92,7 +104,7 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         line.SetColor(253,158,158,255)
 
         view.GetRenderWindow().SetMultiSamples(0)
-        # view.GetRenderWindow().GetInteractor().Start()
+        #view.GetRenderWindow().GetInteractor().Start()
 
         img_file = "TestStackedPlot.png"
         img_file2 = "TestStackedPlot0Hidden.png"

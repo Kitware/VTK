@@ -18,9 +18,12 @@
 #include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
 #include "vtkPlot.h"
+#include "vtkAxis.h"
 #include "vtkPlotStacked.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkStringArray.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
@@ -30,6 +33,8 @@
 
 
 // Monthly checkout data
+static const char *month_labels[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 static int book[] =       {5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946, 5526, 5166};
 static int new_popular[] = {701,  687,  736,  696,  750,  814,  923,  860,  786,  735,  680,  741};
 static int periodical[] =  {184,  176,  166,  131,  171,  191,  231,  166,  197,  162,  152,  143};
@@ -48,6 +53,12 @@ int TestStackedPlot( int argc, char * argv [] )
 
   // Create a table with some points in it...
   VTK_CREATE(vtkTable, table);
+
+  VTK_CREATE(vtkStringArray, arrMonthLabel);
+  arrMonthLabel->SetNumberOfValues(12);
+
+  VTK_CREATE(vtkDoubleArray, arrXTickPositions);
+  arrXTickPositions->SetNumberOfValues(12);
 
   VTK_CREATE(vtkIntArray, arrMonth);
   arrMonth->SetName("Month");
@@ -76,13 +87,21 @@ int TestStackedPlot( int argc, char * argv [] )
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)
     {
-    table->SetValue(i,0,i+1);
+    arrMonthLabel->SetValue(i,month_labels[i]);
+    arrXTickPositions->SetValue(i,i);
+
+    table->SetValue(i,0,i);
     table->SetValue(i,1,book[i]);
     table->SetValue(i,2,new_popular[i]);
     table->SetValue(i,3,periodical[i]);
     table->SetValue(i,4,audiobook[i]);
     table->SetValue(i,5,video[i]);
     }
+
+  // Set the Month Labels
+  chart->GetAxis(1)->SetTickLabels(arrMonthLabel);
+  chart->GetAxis(1)->SetTickPositions(arrXTickPositions);
+  chart->GetAxis(1)->SetMaximum(11);
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *stack = 0;
@@ -111,6 +130,7 @@ int TestStackedPlot( int argc, char * argv [] )
   stack = chart->AddPlot(vtkChart::STACKED);
   stack->SetInput(table, 0, 5);
   stack->SetColor(253, 158, 158, 255);
+
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
 
