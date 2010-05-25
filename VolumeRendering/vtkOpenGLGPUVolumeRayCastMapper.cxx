@@ -4771,7 +4771,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     input->GetSpacing(datasetSpacing);
 
     vtkMatrix4x4 *worldToDataset=vol->GetMatrix();
-    // Assuming spacing is positive.
     double minWorldSpacing=VTK_DOUBLE_MAX;
     int i=0;
     while(i<3)
@@ -4781,7 +4780,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
       tmp=worldToDataset->GetElement(1,i);
       tmp2+=tmp*tmp;
       tmp=worldToDataset->GetElement(2,i);
-      double worldSpacing=datasetSpacing[i]*sqrt(tmp2+tmp*tmp);
+
+      // we use fabs() in case the spacing is negative.
+      double worldSpacing=fabs(datasetSpacing[i]*sqrt(tmp2+tmp*tmp));
       if(worldSpacing<minWorldSpacing)
         {
         minWorldSpacing=worldSpacing;
