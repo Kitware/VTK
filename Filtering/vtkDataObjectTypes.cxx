@@ -242,7 +242,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     }
   else if(strcmp(type, "vtkReebGraph") == 0)
     {
-      return vtkReebGraph::New();
+    return vtkReebGraph::New();
     }
 #ifdef VTK_USE_N_WAY_ARRAYS
   else if(strcmp(type, "vtkArrayData") == 0)

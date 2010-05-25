@@ -160,9 +160,11 @@ int vtkAreaContourSpectrumFilter::RequestData(
             criticalPoints.second =
               (int) *(criticalPointIds->GetTuple(e.Target));
             }
-          else
+          else 
+            {
             // invalid Reeb graph
             return 0;
+            }
           }
       }while(eIt->HasNext());
 

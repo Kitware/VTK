@@ -229,6 +229,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
 
               subMesh->InsertNextCell(VTK_TRIANGLE, 3, vertexIds);
               free(vertexIds);
+              visitedTriangles[tId] = true;
               }
             }
           starTriangleList->Delete();
@@ -249,9 +250,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(
         arcSkeleton.push_back(arcEntry);
         free(criticalPoint);
 
-        if(vertexList->GetNumberOfTuples() > 50)
-          // very conservative safety margin, noticed some floating point 
-          // exception in the contouring filter otherwise.
+        if(vertexList->GetNumberOfTuples() > 1)
           {
           for(int i = 0; i < NumberOfSamples; i++)
             {

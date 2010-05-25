@@ -30,11 +30,11 @@
 // The filter outputs a vtkTable of points (double[3]). Each column contains the
 // samples (sorted by function value) of the corresponding arc. The first and
 // the last entry of the column corresponds to the critical nodes at the
-// extremity of the arc.
+// extremity of the arc (each column has NumberOfSamples + 2 entries).
 //
 // The skeleton can be rendered by linking the samples with geometrical
 // primitives (for instance, spheres at critical nodes and cylinders between
-// intermediary samples).
+// intermediary samples, see Graphics/Testing/Cxx/TestReebGraph.cxx).
 //
 
 #ifndef __vtkReebGraphSurfaceSkeletonFilter_h
@@ -52,7 +52,8 @@ class VTK_GRAPHICS_EXPORT vtkReebGraphSurfaceSkeletonFilter :
 {
 public:
   static vtkReebGraphSurfaceSkeletonFilter* New();
-  vtkTypeRevisionMacro(vtkReebGraphSurfaceSkeletonFilter, vtkDataObjectAlgorithm);
+  vtkTypeRevisionMacro(vtkReebGraphSurfaceSkeletonFilter, 
+    vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
