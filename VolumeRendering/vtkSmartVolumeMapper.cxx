@@ -612,4 +612,7 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << "FinalColorLevel: " << this->FinalColorLevel << endl;
   os << "RequestedRenderMode: " << this->RequestedRenderMode << endl;
   os << "InteractiveUpdateRate: " << this->InteractiveUpdateRate << endl;
+  os << "InterpolationMode: " << this->InterpolationMode << endl;
+  os << "MaxMemoryInBytes:" << this->MaxMemoryInBytes << endl;
+  os << "MaxMemoryFraction:" << this->MaxMemoryFraction << endl;
 }
