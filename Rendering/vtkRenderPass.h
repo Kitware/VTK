@@ -101,6 +101,11 @@ class VTK_RENDERING_EXPORT vtkRenderPass : public vtkObject
   // Call UpdateLights() on Renderer. See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
   void UpdateLights(vtkRenderer *renderer);
+
+  // Description:
+  // Call UpdateGeometry() on Renderer. See note about UpdateCamera().
+  // \pre renderer_exists: renderer!=0
+  void UpdateGeometry(vtkRenderer *renderer);
   
   // Description:
   // Modify protected member LastRenderingUsedDepthPeeling on Renderer.

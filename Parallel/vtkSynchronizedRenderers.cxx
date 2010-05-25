@@ -146,7 +146,7 @@ void vtkSynchronizedRenderers::HandleStartRender()
 void vtkSynchronizedRenderers::MasterStartRender()
 {
   RendererInfo renInfo;
-  renInfo.ImageReductionFactor = this->ImageReductionFactor;
+  renInfo.ImageReductionFactor = this->GetImageReductionFactor();
   renInfo.CopyFrom(this->Renderer);
   vtkMultiProcessStream stream;
   renInfo.Save(stream);
@@ -163,7 +163,7 @@ void vtkSynchronizedRenderers::SlaveStartRender()
   RendererInfo renInfo;
   renInfo.Restore(stream);
   renInfo.CopyTo(this->Renderer);
-  this->ImageReductionFactor = renInfo.ImageReductionFactor;
+  this->SetImageReductionFactor(renInfo.ImageReductionFactor);
 }
 
 //----------------------------------------------------------------------------

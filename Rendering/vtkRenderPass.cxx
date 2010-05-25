@@ -90,6 +90,16 @@ void vtkRenderPass::UpdateLights(vtkRenderer *renderer)
 
 // ----------------------------------------------------------------------------
 // Description:
+// Call UpdateGeometry() on Renderer. See note about UpdateCamera().
+// \pre renderer_exists: renderer!=0
+void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
+{
+  assert("pre: renderer_exists" && renderer!=0);
+  renderer->UpdateGeometry();
+}
+
+// ----------------------------------------------------------------------------
+// Description:
 // Modify protected member LastRenderingUsedDepthPeeling on Renderer.
 // See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0

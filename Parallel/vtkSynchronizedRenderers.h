@@ -46,13 +46,13 @@ public:
   // vtkSynchronizedRenderers instance can be used to synchronize exactly 1
   // renderer on each processes. You can create multiple instances on
   // vtkSynchronizedRenderers to synchronize multiple renderers.
-  void SetRenderer(vtkRenderer*);
+  virtual void SetRenderer(vtkRenderer*);
   vtkGetObjectMacro(Renderer, vtkRenderer);
 
   // Description:
   // Set the parallel message communicator. This is used to communicate among
   // processes.
-  void SetParallelController(vtkMultiProcessController*);
+  virtual void SetParallelController(vtkMultiProcessController*);
   vtkGetObjectMacro(ParallelController, vtkMultiProcessController);
 
   // Description:
