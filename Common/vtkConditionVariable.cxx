@@ -23,6 +23,13 @@ vtkStandardNewMacro(vtkConditionVariable);
 #endif
 
 #if ! defined(VTK_USE_PTHREADS) && ! defined(VTK_HP_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
+// Why is this encapsulated in a namespace?  Because you can get errors if
+// these symbols (particularly the typedef) are already defined.  We run
+// into this problem on a system that has pthread headers but no libraries
+// (which can happen when, for example, cross compiling).  By using the
+// namespace, we will at worst get a warning.
+namespace {
+
 typedef int pthread_condattr_t;
 
 int pthread_cond_init( vtkConditionType* cv, const pthread_condattr_t* )
@@ -63,6 +70,9 @@ int pthread_cond_wait( vtkConditionType* cv, vtkMutexType* lock )
 #else // VTK_USE_SPROC
   *lock = 1;
 #endif // VTK_USE_SPROC
+  return 0;
+}
+
 }
 #endif // ! defined(VTK_USE_PTHREADS) && ! defined(VTK_HP_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
 
