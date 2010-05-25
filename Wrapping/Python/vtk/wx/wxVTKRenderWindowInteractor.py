@@ -347,7 +347,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                 
                 # we now have 0xdeadbeef
                 # VTK wants it as: _deadbeef_void_p (pre-SWIG-1.3 style)
-                d = '_%s_%s' % (d[2:], 'void_p')
+                d = '_%s_%s\0' % (d[2:], 'void_p')
 
         return d
 
