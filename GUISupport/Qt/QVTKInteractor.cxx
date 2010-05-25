@@ -43,6 +43,10 @@
 # include "vtkTDxMacDevice.h"
 #endif
 
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+# include "vtkTDxUnixDevice.h"
+#endif
+
 #include <QEvent>
 #include <QSignalMapper>
 #include <QTimer>
@@ -91,6 +95,9 @@ QVTKInteractor::QVTKInteractor()
 #if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
   this->Device=vtkTDxMacDevice::New();
 #endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  this->Device=0;
+#endif
 }
 
 void QVTKInteractor::Initialize()
@@ -121,6 +128,23 @@ void QVTKInteractor::Initialize()
   this->Initialized = 1;
   this->Enable();
 }
+
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+// ----------------------------------------------------------------------------
+vtkTDxUnixDevice *QVTKInteractor::GetDevice()
+{
+  return this->Device;
+}
+
+// ----------------------------------------------------------------------------
+void QVTKInteractor::SetDevice(vtkTDxDevice *device)
+{
+  if(this->Device!=device)
+    {
+    this->Device=static_cast<vtkTDxUnixDevice *>(device);
+    }
+}
+#endif
 
 
 /*! start method for interactor
@@ -153,6 +177,12 @@ void QVTKInteractor::StartListening()
     this->Device->Initialize();
     }
 #endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  if(this->UseTDx && this->Device!=0)
+    {
+    this->Device->SetInteractor(this);
+    }
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -168,6 +198,14 @@ void QVTKInteractor::StopListening()
   if(this->UseTDx && this->Device->GetInitialized())
     {
     this->Device->Close();
+    }
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  if(this->UseTDx && this->Device!=0)
+    {
+    // this assumes that a outfocus event is emitted prior
+    // a infocus event on another widget.
+    this->Device->SetInteractor(0);
     }
 #endif
 }
@@ -199,6 +237,9 @@ QVTKInteractor::~QVTKInteractor()
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
   this->Device->Delete();
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  this->Device=0;
 #endif
 }
 

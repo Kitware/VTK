@@ -50,6 +50,10 @@ class vtkTDxWinDevice;
 #if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
 class vtkTDxMacDevice;
 #endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+class vtkTDxDevice;
+class vtkTDxUnixDevice;
+#endif
 
 
 class QVTKInteractorInternal;
@@ -86,6 +90,11 @@ public:
   // timer event slot
   virtual void TimerEvent(int timerId);
 
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  virtual vtkTDxUnixDevice *GetDevice();
+  virtual void SetDevice(vtkTDxDevice *device);
+#endif
+
 protected:
   // constructor
   QVTKInteractor();
@@ -101,6 +110,9 @@ protected:
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_WS_MAC)
   vtkTDxMacDevice *Device;
+#endif
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  vtkTDxUnixDevice *Device;
 #endif
 
 private:

@@ -60,6 +60,10 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+# include "vtkTDxUnixDevice.h"
+#endif
+
 // function to dirty cache when a render occurs.
 static void dirty_cache(vtkObject *, unsigned long, void *, void *);
 
@@ -125,6 +129,15 @@ void QVTKWidget::SetUseTDx(bool useTDx)
   if(useTDx!=this->UseTDx)
     {
     this->UseTDx=useTDx;
+    if(this->UseTDx)
+      {
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+      QObject::connect(QApplication::instance(),
+                       SIGNAL(CreateDevice(vtkTDxDevice *)),
+                       this,
+                       SLOT(setDevice(vtkTDxDevice *)));
+#endif
+      }
     }
 }
 
@@ -571,7 +584,7 @@ void QVTKWidget::focusInEvent(QFocusEvent* e)
   // does an update because the color group's 
   // active status changes.  We don't even use
   // color groups so we do nothing here.
-  
+
   // also pass to interactor
   mIrenAdapter->ProcessEvent(e, this->GetInteractor());
 }
@@ -583,7 +596,7 @@ void QVTKWidget::focusOutEvent(QFocusEvent* e)
   // does an update because the color group's 
   // active status changes.  We don't even use
   // color groups so we do nothing here.
-  
+
   // also pass to interactor
   mIrenAdapter->ProcessEvent(e, this->GetInteractor());
 }
@@ -654,6 +667,19 @@ QPaintEngine* QVTKWidget::paintEngine() const
 #endif
 #endif
 
+// Description:
+// Receive notification of the creation of the TDxDevice
+void QVTKWidget::setDevice(vtkTDxDevice *device)
+{
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  if(this->GetInteractor()->GetDevice()!=device)
+    {
+    this->GetInteractor()->SetDevice(device);
+    }
+#else
+  (void)device; // to avoid warnings.
+#endif
+}
 
 void QVTKWidget::x11_setup_window()
 {

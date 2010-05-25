@@ -68,6 +68,9 @@ public:
   // Initialization can fail (if the device is not present or the driver is
   // not running). You must look for the value of
   // GetInitialized() before processing further.
+  // This interactor does not have to be set  before calling Initialize().
+  // However, in order to handle the events the Interactor has to be set
+  // otherwise ProcessEvent will be a no-op.
   // \pre not_yet_initialized: !GetInitialized()
   // \pre valid_display: GetDisplayId()!=0
   // \pre valid_window: GetWindowId()!=0
@@ -83,6 +86,8 @@ public:
   // the device.
   // Return true if the event passed in argument was effectively an event from
   // the device, return false otherwise.
+  // The interactor has to be set in order to get some events, otherwise they
+  // will be ignored.
   // \pre initialized: GetInitialized()
   // \pre e_exists: e!=0
   // \pre e_is_client_message: e->type==ClientMessage

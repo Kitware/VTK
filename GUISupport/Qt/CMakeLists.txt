@@ -2,14 +2,18 @@
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
     vtkQtConnection.cxx
+    QVTKApplication.cxx
     QVTKInteractor.cxx
     QVTKWidget.cxx
+    vtkTDxQtUnixDevices.cxx
     )
 
 SET ( QVTKMocHeaders
+    QVTKApplication.h
     QVTKInteractor.h
     QVTKWidget.h
     vtkQtConnection.h
+    vtkTDxQtUnixDevices.h
     )
 
 SET ( QVTKNonMocHeaders
@@ -116,6 +120,19 @@ SET ( PluginMocHeaders
 # CMake apparently doesn't do this automatically
 SET_SOURCE_FILES_PROPERTIES(Q4VTKWidgetPlugin.cxx PROPERTIES 
                             OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
+
+# vtkConfigure.h is in ${VTK_BINARY_DIR}
+# vtkABI.h in in ${VTK_SOURCE_DIR}/Common
+# QVTKWin32Header.h is in ${VTK_SOURCE_DIR}/GUISupport/Qt
+# vtkTDxConfigure.h is in ${VTK_BINARY_DIR}/Rendering
+# qglobal.h (defines Q_WS_X11) is in ${QT_INCLUDE_DIR}/QtCore
+SET(MOC_INCLUDE_DIRS ${MOC_INCLUDE_DIRS}
+                     ${QT_INCLUDE_DIR}
+                     ${QT_INCLUDE_DIR}/QtCore
+                     ${VTK_BINARY_DIR}/Rendering
+                     ${VTK_SOURCE_DIR}/GUISupport/Qt
+                     ${VTK_BINARY_DIR}
+                     ${VTK_SOURCE_DIR}/Common)
 
 # Reduce the number of dirs that get included on moc command line
 # since it causes issues on Windows 2000.

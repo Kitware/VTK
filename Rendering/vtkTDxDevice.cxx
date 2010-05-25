@@ -54,10 +54,9 @@ vtkRenderWindowInteractor *vtkTDxDevice::GetInteractor() const
 // Set the interactor on which events will be invoked.
 // Initial value is 0.
 // Called by the Interactor itself ONLY.
-// \pre not_yet_initialized: !GetInitialized()
+// It can be called if the device is initialized or not.
 void vtkTDxDevice::SetInteractor(vtkRenderWindowInteractor *i)
 {
-  assert("pre: not_yet_initialized" && !this->GetInitialized());
   if(this->Interactor!=i)
     {
     this->Interactor=i;

@@ -122,7 +122,6 @@ void vtkTDxUnixDevice::Initialize()
   assert("pre: not_yet_initialized" && !this->GetInitialized());
   assert("pre: valid_display" && this->GetDisplayId()!=0);
   assert("pre: valid_window" && this->GetWindowId()!=0);
-  assert("pre: valid_interactor" && this->GetInteractor()!=0);
   
   int status=MagellanInit(static_cast<Display *>(this->DisplayId),
                           static_cast<Window>(this->WindowId));
@@ -213,22 +212,30 @@ bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
         motionInfo.AxisY=axis[1]/motionInfo.Angle;
         motionInfo.AxisZ=axis[2]/motionInfo.Angle;
         }
-      
-      this->Interactor->InvokeEvent(vtkCommand::TDxMotionEvent,&motionInfo);
+      if(this->Interactor!=0)
+        {
+        this->Interactor->InvokeEvent(vtkCommand::TDxMotionEvent,&motionInfo);
+        }
       result=true;
       break;
     case MagellanInputButtonPressEvent:
       vtkDebugMacro(<< "it is  MagellanInputButtonPressEvent");
       buttonInfo=info.MagellanButton;
-      this->Interactor->InvokeEvent(vtkCommand::TDxButtonPressEvent,
-                                    &buttonInfo);
+      if(this->Interactor!=0)
+        {
+        this->Interactor->InvokeEvent(vtkCommand::TDxButtonPressEvent,
+                                      &buttonInfo);
+        }
       result=true;
       break;
     case MagellanInputButtonReleaseEvent:
       vtkDebugMacro(<< "it is  MagellanInputButtonReleaseEvent");
       buttonInfo=info.MagellanButton;
-      this->Interactor->InvokeEvent(vtkCommand::TDxButtonReleaseEvent,
-                                    &buttonInfo);
+      if(this->Interactor!=0)
+        {
+        this->Interactor->InvokeEvent(vtkCommand::TDxButtonReleaseEvent,
+                                      &buttonInfo);
+        }
       result=true;
       break;
     default:

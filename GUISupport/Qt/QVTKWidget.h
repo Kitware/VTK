@@ -174,6 +174,11 @@ public Q_SLOTS:
   // the render window and the cachedImageClean() signal is emitted.
   void saveImageToCache();
 
+  // Description:
+  // Receive notification of the creation of the TDxDevice.
+  // Only relevant for Unix.
+  void setDevice(vtkTDxDevice *device);
+
 protected:
   // overloaded resize handler
   virtual void resizeEvent(QResizeEvent* event);
