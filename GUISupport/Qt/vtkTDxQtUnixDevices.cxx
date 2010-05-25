@@ -49,7 +49,6 @@ vtkTDxQtUnixDevices::vtkTDxQtUnixDevices()
 // ----------------------------------------------------------------------------
 vtkTDxQtUnixDevices::~vtkTDxQtUnixDevices()
 {
-  cout << "delete private" << endl;
   delete this->Private;
 }
 

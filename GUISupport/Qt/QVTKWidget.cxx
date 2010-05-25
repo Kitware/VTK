@@ -667,11 +667,12 @@ QPaintEngine* QVTKWidget::paintEngine() const
 #endif
 #endif
 
+#ifdef VTK_USE_TDX
 // Description:
 // Receive notification of the creation of the TDxDevice
 void QVTKWidget::setDevice(vtkTDxDevice *device)
 {
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#ifdef Q_WS_X11
   if(this->GetInteractor()->GetDevice()!=device)
     {
     this->GetInteractor()->SetDevice(device);
@@ -680,6 +681,7 @@ void QVTKWidget::setDevice(vtkTDxDevice *device)
   (void)device; // to avoid warnings.
 #endif
 }
+#endif
 
 void QVTKWidget::x11_setup_window()
 {

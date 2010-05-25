@@ -5,16 +5,27 @@ SET ( QVTKLibSrcs
     QVTKApplication.cxx
     QVTKInteractor.cxx
     QVTKWidget.cxx
-    vtkTDxQtUnixDevices.cxx
     )
+
+IF(VTK_USE_TDX)
+SET ( QVTKLibSrcs ${QVTKLibSrcs}
+    vtkTDxQtUnixDevices.cxx
+)
+ENDIF()
 
 SET ( QVTKMocHeaders
     QVTKApplication.h
     QVTKInteractor.h
     QVTKWidget.h
     vtkQtConnection.h
-    vtkTDxQtUnixDevices.h
     )
+
+IF(VTK_USE_TDX)
+SET ( QVTKMocHeaders ${QVTKMocHeaders}
+    vtkTDxQtUnixDevices.h
+)
+ENDIF()
+
 
 SET ( QVTKNonMocHeaders
     ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWin32Header.h

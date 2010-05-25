@@ -51,7 +51,8 @@ public:
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   virtual bool x11EventFilter(XEvent *event);
 #endif
-  
+
+#ifdef VTK_USE_TDX
 public Q_SLOTS:
 // Description:
 // Slot to receive signal CreateDevice coming from vtkTDxQtUnixDevices.
@@ -63,6 +64,7 @@ Q_SIGNALS:
 // Description:
 // Signal for VTKWidget slots.
    void CreateDevice(vtkTDxDevice *device);
+#endif
 
 protected:
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)

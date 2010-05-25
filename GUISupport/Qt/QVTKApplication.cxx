@@ -46,11 +46,13 @@ bool QVTKApplication::x11EventFilter(XEvent *event)
 }
 #endif
 
+#ifdef VTK_USE_TDX
 void QVTKApplication::setDevice(vtkTDxDevice *device)
 {
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#ifdef Q_WS_X11
   emit CreateDevice(device);
 #else
   (void)device; // to avoid warnings.
 #endif
 }
+#endif

@@ -64,6 +64,8 @@ class vtkImageData;
 
 #include "QVTKWin32Header.h"
 
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+
 //! QVTKWidget displays a VTK window in a Qt window.
 class QVTK_EXPORT QVTKWidget : public QWidget
 {
@@ -177,7 +179,9 @@ public Q_SLOTS:
   // Description:
   // Receive notification of the creation of the TDxDevice.
   // Only relevant for Unix.
+#ifdef VTK_USE_TDX
   void setDevice(vtkTDxDevice *device);
+#endif
 
 protected:
   // overloaded resize handler
