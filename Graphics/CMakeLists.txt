@@ -208,6 +208,7 @@ vtkRectilinearSynchronizedTemplates.cxx
 vtkRecursiveDividingCubes.cxx
 vtkReebGraphSurfaceSkeletonFilter.cxx
 vtkReebGraphToReebGraphPersistenceFilter.cxx
+vtkReebGraphVolumeSkeletonFilter.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx
 vtkReverseSense.cxx
