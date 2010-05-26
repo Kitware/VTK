@@ -212,15 +212,18 @@ bool CompareData(vtkTable* Output, vtkTable* Input)
 
 void InitializeData(vtkTree* Data)
 {
+  vtkPoints *pts = vtkPoints::New();
   vtkMutableDirectedGraph *g = vtkMutableDirectedGraph::New();
   for (vtkIdType i = 0; i < 5; ++i)
     {
     g->AddVertex();
+    pts->InsertNextPoint(i, 0, 0);
     }
   g->AddEdge(2, 0);
   g->AddEdge(0, 1);
   g->AddEdge(0, 3);
   g->AddEdge(0, 4);
+  g->SetPoints(pts);
 
   if (!Data->CheckedShallowCopy(g))
     {
@@ -228,6 +231,7 @@ void InitializeData(vtkTree* Data)
     }
 
   g->Delete();
+  pts->Delete();
 }
 
 bool CompareData(vtkTree* Output, vtkTree* Input)
@@ -247,8 +251,16 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
   if(Input->GetRoot() != Output->GetRoot())
     return false;
   
+  double inx[3];
+  double outx[3];
   for(vtkIdType child = 0; child != Input->GetNumberOfVertices(); ++child)
     {
+    Input->GetPoint(child, inx);
+    Output->GetPoint(child, outx);
+
+    if (inx[0] != outx[0] || inx[1] != outx[1] || inx[2] != outx[2])
+      return false;
+
     if(Input->GetParent(child) != Output->GetParent(child))
       return false;
     }
