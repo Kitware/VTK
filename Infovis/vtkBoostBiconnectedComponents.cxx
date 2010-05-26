@@ -74,6 +74,11 @@ int vtkBoostBiconnectedComponents::RequestData(
   // Create edge biconnected component array.
   // This will be populated directly by the boost algorithm.
   vtkSmartPointer<vtkIntArray> edgeCompArr = vtkSmartPointer<vtkIntArray>::New();
+  edgeCompArr->SetNumberOfTuples(input->GetNumberOfEdges());
+  for (vtkIdType i = 0; i < input->GetNumberOfEdges(); ++i)
+    {
+    edgeCompArr->SetValue(i, -1);
+    }
   if (this->OutputArrayName)
     {
     edgeCompArr->SetName(this->OutputArrayName);
@@ -126,14 +131,14 @@ int vtkBoostBiconnectedComponents::RequestData(
     {
     vtkIdType u = vertIt->Next();
     output->GetOutEdges(u, edgeIt);
-    int comp;
-    if (edgeIt->HasNext())
+    int comp = -1;
+    while (edgeIt->HasNext() && comp == -1)
       {
       vtkOutEdgeType e = edgeIt->Next();
       int value = edgeCompArr->GetValue(e.Id);
       comp = value;
       }
-    else
+    if (comp == -1)
       {
       comp = static_cast<int>(numComp);
       numComp++;
