@@ -41,6 +41,23 @@ vtkMutableUndirectedGraph::~vtkMutableUndirectedGraph()
 {
   this->GraphEdge->Delete();
 }
+
+//----------------------------------------------------------------------------
+vtkIdType vtkMutableUndirectedGraph::SetNumberOfVertices( vtkIdType numVerts )
+{
+  vtkIdType retval = -1;
+
+  if ( this->GetDistributedGraphHelper() )
+    {
+    vtkWarningMacro( "SetNumberOfVertices will not work on distributed graphs." );
+    return retval;
+    }
+
+  retval = static_cast<vtkIdType>( this->Internals->Adjacency.size() );
+  this->Internals->Adjacency.resize( numVerts );
+  return retval;
+}
+
 //----------------------------------------------------------------------------
 vtkIdType vtkMutableUndirectedGraph::AddVertex()
 {

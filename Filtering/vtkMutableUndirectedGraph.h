@@ -44,6 +44,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Allocates space for the specified number of vertices in the graph's
+  // internal data structures.
+  // The previous number of vertices is returned on success and -1
+  // is returned on failure.
+  //
+  // This has no effect on the number of vertex coordinate tuples or
+  // vertex attribute tuples allocated; you are responsible for
+  // guaranteeing these match.
+  // Also, this call is not implemented for distributed-memory graphs since
+  // the semantics are unclear; calling this function on a graph with a
+  // non-NULL DistributedGraphHelper will generate an error message,
+  // no allocation will be performed, and a value of -1 will be returned.
+  virtual vtkIdType SetNumberOfVertices( vtkIdType numVerts );
+
+  // Description:
   // Adds a vertex to the graph and returns the index of the new vertex.
   //
   // \note In a distributed graph (i.e. a graph whose DistributedHelper

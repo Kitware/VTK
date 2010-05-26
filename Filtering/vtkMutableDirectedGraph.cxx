@@ -42,6 +42,22 @@ vtkMutableDirectedGraph::~vtkMutableDirectedGraph()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkMutableDirectedGraph::SetNumberOfVertices( vtkIdType numVerts )
+{
+  vtkIdType retval = -1;
+
+  if ( this->GetDistributedGraphHelper() )
+    {
+    vtkWarningMacro( "SetNumberOfVertices will not work on distributed graphs." );
+    return retval;
+    }
+
+  retval = static_cast<vtkIdType>( this->Internals->Adjacency.size() );
+  this->Internals->Adjacency.resize( numVerts );
+  return retval;
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkMutableDirectedGraph::AddVertex()
 {
   if (this->Internals->UsingPedigreeIds && 
