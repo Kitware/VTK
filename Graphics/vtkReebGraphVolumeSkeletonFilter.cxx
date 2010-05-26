@@ -233,49 +233,6 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(
             }
           }
 
-        // test write out the subMesh
-/*        char* fileName = (char *) malloc(
-          sizeof(char)*(strlen("reebChunkXXXXX.vtk")));
-        sprintf(fileName, "reebChunk%d.vtk", e.Id);
-        FILE *f = fopen(fileName, "w");
-        fprintf(f, "# vtk DataFile Version 3.0\n");
-        fprintf(f, "vtk output\n");
-        fprintf(f, "ASCII\n");
-        fprintf(f, "DATASET UNSTRUCTURED_GRID\n");
-        fprintf(f, "POINTS %d float\n", subMesh->GetNumberOfPoints());
-        for(int i = 0; i < subMesh->GetNumberOfPoints(); i++)
-          {
-          subMesh->GetPoint(i, point);
-          fprintf(f, "%f %f %f\n", point[0], point[1], point[2]);
-          }
-
-        fprintf(f, "CELLS %d %d\n", subMesh->GetNumberOfCells(),
-          5*subMesh->GetNumberOfCells());
-        for(int i = 0; i < subMesh->GetNumberOfCells(); i++)
-          {
-          vtkCell *c = subMesh->GetCell(i);
-          fprintf(f, "%d ", c->GetPointIds()->GetNumberOfIds());
-          for(int j = 0; j < c->GetPointIds()->GetNumberOfIds(); j++)
-            {
-            fprintf(f, "%d ", c->GetPointIds()->GetId(j) - 1);
-            }
-          fprintf(f, "\n");
-          }
-
-        fprintf(f, "CELL_TYPES %d\n", subMesh->GetNumberOfCells());
-        for(int i = 0; i < subMesh->GetNumberOfCells(); i++)
-          fprintf(f, "10\n");
-
-        fprintf(f, "POINT_DATA %d\n", subMesh->GetNumberOfPoints());
-        fprintf(f, "FIELD FieldData 1\n");
-        fprintf(f, "MorseField 1 %d float\n", subMesh->GetNumberOfPoints());
-        for(int i = 0; i < subMesh->GetNumberOfPoints(); i++)
-          {
-          fprintf(f, "%f\n", subField->GetComponent(i, 0));
-          }
-
-        fclose(f);*/
-
         subField->Delete();
         subCoordinates->Delete();
         subPointSet->Delete();
