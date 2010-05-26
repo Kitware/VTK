@@ -7,7 +7,7 @@ SET ( QVTKLibSrcs
     QVTKWidget.cxx
     )
 
-IF(VTK_USE_TDX)
+IF(VTK_USE_X AND VTK_USE_TDX)
 SET ( QVTKLibSrcs ${QVTKLibSrcs}
     vtkTDxQtUnixDevices.cxx
 )
@@ -20,7 +20,7 @@ SET ( QVTKMocHeaders
     vtkQtConnection.h
     )
 
-IF(VTK_USE_TDX)
+IF(VTK_USE_X AND VTK_USE_TDX)
 SET ( QVTKMocHeaders ${QVTKMocHeaders}
     vtkTDxQtUnixDevices.h
 )

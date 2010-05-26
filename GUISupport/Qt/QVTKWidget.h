@@ -46,6 +46,9 @@ class vtkRenderWindow;
 class vtkImageData;
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+class vtkTDxDevice;
+#endif
 
 #if defined(Q_WS_MAC)
 # if defined(QT_MAC_USE_COCOA) && defined(VTK_USE_COCOA)
