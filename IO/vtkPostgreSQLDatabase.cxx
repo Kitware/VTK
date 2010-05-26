@@ -43,7 +43,7 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
 {
   this->Connection = 0;
   this->ConnectionMTime = this->MTime;
-  
+
   this->DatabaseType = 0;
   this->SetDatabaseType("psql");
   this->HostName = 0;
@@ -102,48 +102,48 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
-  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle );
   vtkStdString colTypeStr;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    
+    case vtkSQLDatabaseSchema::SERIAL:
       colTypeStr = "SERIAL";
       break;
-    case vtkSQLDatabaseSchema::SMALLINT:  
+    case vtkSQLDatabaseSchema::SMALLINT:
       colTypeStr = "SMALLINT";
       break;
-    case vtkSQLDatabaseSchema::INTEGER:   
+    case vtkSQLDatabaseSchema::INTEGER:
       colTypeStr = "INTEGER";
       break;
-    case vtkSQLDatabaseSchema::BIGINT:    
+    case vtkSQLDatabaseSchema::BIGINT:
       colTypeStr = "BIGINT";
       break;
-    case vtkSQLDatabaseSchema::VARCHAR:   
+    case vtkSQLDatabaseSchema::VARCHAR:
       colTypeStr = "VARCHAR";
       break;
-    case vtkSQLDatabaseSchema::TEXT:      
+    case vtkSQLDatabaseSchema::TEXT:
       colTypeStr = "TEXT";
       break;
-    case vtkSQLDatabaseSchema::REAL:      
+    case vtkSQLDatabaseSchema::REAL:
       colTypeStr = "REAL";
       break;
-    case vtkSQLDatabaseSchema::DOUBLE:    
+    case vtkSQLDatabaseSchema::DOUBLE:
       colTypeStr = "DOUBLE PRECISION";
       break;
-    case vtkSQLDatabaseSchema::BLOB:      
+    case vtkSQLDatabaseSchema::BLOB:
       colTypeStr = "BYTEA";
       break;
-    case vtkSQLDatabaseSchema::TIME:      
+    case vtkSQLDatabaseSchema::TIME:
       colTypeStr = "TIME";
       break;
-    case vtkSQLDatabaseSchema::DATE:      
+    case vtkSQLDatabaseSchema::DATE:
       colTypeStr = "DATE";
       break;
-    case vtkSQLDatabaseSchema::TIMESTAMP: 
+    case vtkSQLDatabaseSchema::TIMESTAMP:
       colTypeStr = "TIMESTAMP WITH TIME ZONE";
       break;
     }
-  
+
   if ( colTypeStr.size() )
     {
     queryStr << " " << colTypeStr;
@@ -153,45 +153,45 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
     return vtkStdString();
     }
-  
+
   // Decide whether size is allowed, required, or unused
   int colSizeType = 0;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    
+    case vtkSQLDatabaseSchema::SERIAL:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::SMALLINT:  
+    case vtkSQLDatabaseSchema::SMALLINT:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::INTEGER:   
+    case vtkSQLDatabaseSchema::INTEGER:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::BIGINT:    
+    case vtkSQLDatabaseSchema::BIGINT:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::VARCHAR:   
+    case vtkSQLDatabaseSchema::VARCHAR:
       colSizeType = -1;
       break;
-    case vtkSQLDatabaseSchema::TEXT:      
+    case vtkSQLDatabaseSchema::TEXT:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::REAL:      
+    case vtkSQLDatabaseSchema::REAL:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::DOUBLE:    
+    case vtkSQLDatabaseSchema::DOUBLE:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::BLOB:      
+    case vtkSQLDatabaseSchema::BLOB:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::TIME:      
+    case vtkSQLDatabaseSchema::TIME:
       colSizeType =  1;
       break;
-    case vtkSQLDatabaseSchema::DATE:      
+    case vtkSQLDatabaseSchema::DATE:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::TIMESTAMP: 
+    case vtkSQLDatabaseSchema::TIMESTAMP:
       colSizeType =  0;
       break;
     }
@@ -200,14 +200,14 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   if ( colSizeType )
     {
     int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
-    // IF size is provided but absurd, 
+    // IF size is provided but absurd,
     // OR, if size is required but not provided OR absurd,
     // THEN assign the default size.
     if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
       {
       colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
       }
-    
+
     // At this point, we have either a valid size if required, or a possibly null valid size
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
@@ -347,14 +347,14 @@ bool vtkPostgreSQLDatabase::HasError()
     }
   else
     {
-    return false; 
+    return false;
     }
 }
 
 // ----------------------------------------------------------------------
 const char* vtkPostgreSQLDatabase::GetLastErrorText()
 {
-  return this->LastErrorText; 
+  return this->LastErrorText;
 }
 
 // ----------------------------------------------------------------------
@@ -379,18 +379,19 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
 {
+  vtkstd::string urlstr( URL ? URL : "" );
   vtkstd::string protocol;
-  vtkstd::string username; 
+  vtkstd::string username;
   vtkstd::string unused;
-  vtkstd::string hostname; 
-  vtkstd::string dataport; 
+  vtkstd::string hostname;
+  vtkstd::string dataport;
   vtkstd::string database;
 
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL(
-      URL, protocol, username, unused, hostname, dataport, database) )
+      urlstr, protocol, username, unused, hostname, dataport, database) )
     {
-    vtkErrorMacro( "Invalid URL: " << URL );
+    vtkErrorMacro( "Invalid URL: \"" << urlstr.c_str() << "\"" );
     return false;
     }
 
@@ -471,7 +472,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord( const char* table )
   // Each row in the results that come back from this query
   // describes a single column in the table.
   vtkStringArray* results = vtkStringArray::New();
-    
+
   while ( query->NextRow() )
     {
     results->InsertNextValue( query->DataValue( 0 ).ToString() );
@@ -704,7 +705,7 @@ void vtkPostgreSQLDatabase::UpdateDataTypeMap()
     {
     return;
     }
-  
+
   this->Connection->DataTypeMap.clear();
 
   vtkSQLQuery *typeQuery = this->GetQueryInstance();
@@ -769,5 +770,5 @@ void vtkPostgreSQLDatabase::UpdateDataTypeMap()
       } // done looping over rows
     } // done with "query is successful"
   typeQuery->Delete();
-} 
-      
+}
+

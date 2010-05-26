@@ -79,9 +79,9 @@ void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(null)" << "\n";
     }
-  os << indent << "DatabaseType: " 
+  os << indent << "DatabaseType: "
     << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
-  os << indent << "DatabaseFileName: " 
+  os << indent << "DatabaseFileName: "
     << (this->DatabaseFileName ? this->DatabaseFileName : "NULL") << endl;
 }
 
@@ -94,47 +94,47 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
-  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle );
   vtkStdString colTypeStr;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    
+    case vtkSQLDatabaseSchema::SERIAL:
       colTypeStr = "INTEGER NOT NULL";
       break;
-    case vtkSQLDatabaseSchema::SMALLINT:  
+    case vtkSQLDatabaseSchema::SMALLINT:
       colTypeStr = "SMALLINT";
       break;
-    case vtkSQLDatabaseSchema::INTEGER:   
+    case vtkSQLDatabaseSchema::INTEGER:
       colTypeStr = "INTEGER";
       break;
-    case vtkSQLDatabaseSchema::BIGINT:    
+    case vtkSQLDatabaseSchema::BIGINT:
       colTypeStr = "BIGINT";
       break;
-    case vtkSQLDatabaseSchema::VARCHAR:   
+    case vtkSQLDatabaseSchema::VARCHAR:
       colTypeStr = "VARCHAR";
       break;
-    case vtkSQLDatabaseSchema::TEXT:      
+    case vtkSQLDatabaseSchema::TEXT:
       colTypeStr = "TEXT";
       break;
-    case vtkSQLDatabaseSchema::REAL:      
+    case vtkSQLDatabaseSchema::REAL:
       colTypeStr = "REAL";
       break;
-    case vtkSQLDatabaseSchema::DOUBLE:    
+    case vtkSQLDatabaseSchema::DOUBLE:
       colTypeStr = "DOUBLE";
       break;
-    case vtkSQLDatabaseSchema::BLOB:      
+    case vtkSQLDatabaseSchema::BLOB:
       colTypeStr = "BLOB";
       break;
-    case vtkSQLDatabaseSchema::TIME:      
+    case vtkSQLDatabaseSchema::TIME:
       colTypeStr = "TIME";
       break;
-    case vtkSQLDatabaseSchema::DATE:      
+    case vtkSQLDatabaseSchema::DATE:
       colTypeStr = "DATE";
       break;
-    case vtkSQLDatabaseSchema::TIMESTAMP: 
+    case vtkSQLDatabaseSchema::TIMESTAMP:
       colTypeStr = "TIMESTAMP";
     }
-  
+
   if ( colTypeStr.size() )
     {
     queryStr << " " << colTypeStr;
@@ -144,45 +144,45 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
     return vtkStdString();
     }
-  
+
   // Decide whether size is allowed, required, or unused
   int colSizeType = 0;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    
+    case vtkSQLDatabaseSchema::SERIAL:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::SMALLINT:  
+    case vtkSQLDatabaseSchema::SMALLINT:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::INTEGER:   
+    case vtkSQLDatabaseSchema::INTEGER:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::BIGINT:    
+    case vtkSQLDatabaseSchema::BIGINT:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::VARCHAR:   
+    case vtkSQLDatabaseSchema::VARCHAR:
       colSizeType = -1;
       break;
-    case vtkSQLDatabaseSchema::TEXT:      
+    case vtkSQLDatabaseSchema::TEXT:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::REAL:      
+    case vtkSQLDatabaseSchema::REAL:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::DOUBLE:    
+    case vtkSQLDatabaseSchema::DOUBLE:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::BLOB:      
+    case vtkSQLDatabaseSchema::BLOB:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::TIME:      
+    case vtkSQLDatabaseSchema::TIME:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::DATE:      
+    case vtkSQLDatabaseSchema::DATE:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::TIMESTAMP: 
+    case vtkSQLDatabaseSchema::TIMESTAMP:
       colSizeType =  0;
       break;
     }
@@ -191,14 +191,14 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
   if ( colSizeType )
     {
     int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
-    // IF size is provided but absurd, 
+    // IF size is provided but absurd,
     // OR, if size is required but not provided OR absurd,
     // THEN assign the default size.
     if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
       {
       colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
       }
-    
+
     // At this point, we have either a valid size if required, or a possibly null valid size
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
@@ -229,7 +229,7 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
     case VTK_SQL_FEATURE_TRANSACTIONS:
     case VTK_SQL_FEATURE_UNICODE:
       return true;
-      
+
     case VTK_SQL_FEATURE_BATCH_OPERATIONS:
     case VTK_SQL_FEATURE_QUERY_SIZE:
     case VTK_SQL_FEATURE_TRIGGERS:
@@ -311,8 +311,8 @@ bool vtkSQLiteDatabase::Open(const char* password, int mode)
 
   if (result != VTK_SQLITE_OK)
     {
-    vtkDebugMacro(<<"SQLite open() failed.  Error code is " 
-                  << result << " and message is " 
+    vtkDebugMacro(<<"SQLite open() failed.  Error code is "
+                  << result << " and message is "
                   << vtk_sqlite3_errmsg(this->SQLiteInstance) );
 
     vtk_sqlite3_close(this->SQLiteInstance);
@@ -414,11 +414,11 @@ vtkStringArray * vtkSQLiteDatabase::GetRecord(const char *table)
     // is as follows:
     //
     // columnID columnName columnType ??? defaultValue nullForbidden
-    // 
+    //
     // (I don't know what the ??? column is.  It's probably maximum
     // length.)
     vtkStringArray *results = vtkStringArray::New();
-    
+
     while (query->NextRow() )
       {
       results->InsertNextValue(query->DataValue(1).ToString() );
@@ -445,18 +445,19 @@ vtkStdString vtkSQLiteDatabase::GetURL()
 // ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::ParseURL(const char* URL)
 {
+  vtkstd::string urlstr( URL ? URL : "" );
   vtkstd::string protocol;
   vtkstd::string dataglom;
-  
-  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))
+
+  if ( ! vtksys::SystemTools::ParseURLProtocol( urlstr, protocol, dataglom))
     {
-    vtkErrorMacro( "Invalid URL: " << URL );
+    vtkErrorMacro( "Invalid URL: \"" << urlstr.c_str() << "\"" );
     return false;
     }
 
   if ( protocol == "sqlite" )
     {
-    this->SetDatabaseFileName(dataglom.c_str());
+    this->SetDatabaseFileName( dataglom.c_str() );
     return true;
     }
 
@@ -465,7 +466,7 @@ bool vtkSQLiteDatabase::ParseURL(const char* URL)
 
 // ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::HasError()
-{ 
+{
   return (vtk_sqlite3_errcode(this->SQLiteInstance)!=VTK_SQLITE_OK);
 }
 

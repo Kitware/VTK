@@ -46,7 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 
 
-class vtkSQLDatabase::vtkCallbackVector : 
+class vtkSQLDatabase::vtkCallbackVector :
   public vtkstd::vector<vtkSQLDatabase::CreateFunction>
 {
 public:
@@ -79,7 +79,7 @@ public:
     }
 };
 
-// Used to clean up the Callbacks 
+// Used to clean up the Callbacks
 static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
 
 vtkInformationKeyMacro(vtkSQLDatabase, DATABASE, ObjectBase);
@@ -147,48 +147,48 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
-  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle );
   vtkStdString colTypeStr;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    
+    case vtkSQLDatabaseSchema::SERIAL:
       colTypeStr = "INTEGER";
       break;
-    case vtkSQLDatabaseSchema::SMALLINT:  
+    case vtkSQLDatabaseSchema::SMALLINT:
       colTypeStr = "INTEGER";
       break;
-    case vtkSQLDatabaseSchema::INTEGER:   
+    case vtkSQLDatabaseSchema::INTEGER:
       colTypeStr = "INTEGER";
       break;
-    case vtkSQLDatabaseSchema::BIGINT:    
+    case vtkSQLDatabaseSchema::BIGINT:
       colTypeStr = "INTEGER";
       break;
-    case vtkSQLDatabaseSchema::VARCHAR:   
+    case vtkSQLDatabaseSchema::VARCHAR:
       colTypeStr = "VARCHAR";
       break;
-    case vtkSQLDatabaseSchema::TEXT:      
+    case vtkSQLDatabaseSchema::TEXT:
       colTypeStr = "VARCHAR";
       break;
-    case vtkSQLDatabaseSchema::REAL:      
+    case vtkSQLDatabaseSchema::REAL:
       colTypeStr = "FLOAT";
       break;
-    case vtkSQLDatabaseSchema::DOUBLE:    
+    case vtkSQLDatabaseSchema::DOUBLE:
       colTypeStr = "DOUBLE";
       break;
-    case vtkSQLDatabaseSchema::BLOB:      
+    case vtkSQLDatabaseSchema::BLOB:
       colTypeStr = "";
       break;
-    case vtkSQLDatabaseSchema::TIME:      
+    case vtkSQLDatabaseSchema::TIME:
       colTypeStr = "TIME";
       break;
-    case vtkSQLDatabaseSchema::DATE:      
+    case vtkSQLDatabaseSchema::DATE:
       colTypeStr = "DATE";
       break;
-    case vtkSQLDatabaseSchema::TIMESTAMP: 
+    case vtkSQLDatabaseSchema::TIMESTAMP:
       colTypeStr = "TIMESTAMP";
       break;
     }
-  
+
   if ( colTypeStr.size() )
     {
     queryStr << " " << colTypeStr;
@@ -198,45 +198,45 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
     return vtkStdString();
     }
-  
+
   // Decide whether size is allowed, required, or unused
   int colSizeType = 0;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    
+    case vtkSQLDatabaseSchema::SERIAL:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::SMALLINT:  
+    case vtkSQLDatabaseSchema::SMALLINT:
       colSizeType =  1;
       break;
-    case vtkSQLDatabaseSchema::INTEGER:   
+    case vtkSQLDatabaseSchema::INTEGER:
       colSizeType =  1;
       break;
-    case vtkSQLDatabaseSchema::BIGINT:    
+    case vtkSQLDatabaseSchema::BIGINT:
       colSizeType =  1;
       break;
-    case vtkSQLDatabaseSchema::VARCHAR:   
+    case vtkSQLDatabaseSchema::VARCHAR:
       colSizeType = -1;
       break;
-    case vtkSQLDatabaseSchema::TEXT:      
+    case vtkSQLDatabaseSchema::TEXT:
       colSizeType = -1;
       break;
-    case vtkSQLDatabaseSchema::REAL:      
+    case vtkSQLDatabaseSchema::REAL:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::DOUBLE:    
+    case vtkSQLDatabaseSchema::DOUBLE:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::BLOB:      
+    case vtkSQLDatabaseSchema::BLOB:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::TIME:      
+    case vtkSQLDatabaseSchema::TIME:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::DATE:      
+    case vtkSQLDatabaseSchema::DATE:
       colSizeType =  0;
       break;
-    case vtkSQLDatabaseSchema::TIMESTAMP: 
+    case vtkSQLDatabaseSchema::TIMESTAMP:
       colSizeType =  0;
       break;
     }
@@ -245,14 +245,14 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
   if ( colSizeType )
     {
     int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
-    // IF size is provided but absurd, 
+    // IF size is provided but absurd,
     // OR, if size is required but not provided OR absurd,
     // THEN assign the default size.
     if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
       {
       colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
       }
-    
+
     // At this point, we have either a valid size if required, or a possibly null valid size
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
@@ -290,7 +290,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
       skipped = false;
       break;
     case vtkSQLDatabaseSchema::INDEX:
-      // Not supported within a CREATE TABLE statement by all SQL backends: 
+      // Not supported within a CREATE TABLE statement by all SQL backends:
       // must be created later with a CREATE INDEX statement
       queryStr = "CREATE INDEX ";
       skipped = true;
@@ -298,7 +298,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
     default:
       return vtkStdString();
     }
-  
+
   // No index_name for PRIMARY KEYs nor UNIQUEs
   if ( skipped )
     {
@@ -313,7 +313,7 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
     }
 
   queryStr += " (";
-        
+
   // Loop over all column names of the index
   int numCnm = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
   if ( numCnm < 0 )
@@ -381,45 +381,46 @@ vtkStdString vtkSQLDatabase::GetTriggerSpecification( vtkSQLDatabaseSchema* sche
 
   return queryStr;
 }
- 
+
 // ----------------------------------------------------------------------
 vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 {
+  vtkstd::string urlstr( URL ? URL : "" );
   vtkstd::string protocol;
-  vtkstd::string username; 
+  vtkstd::string username;
   vtkstd::string unused;
-  vtkstd::string hostname; 
-  vtkstd::string dataport; 
+  vtkstd::string hostname;
+  vtkstd::string dataport;
   vtkstd::string database;
   vtkstd::string dataglom;
   vtkSQLDatabase* db = 0;
-  
+
   // SQLite is a bit special so lets get that out of the way :)
-  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom ))
+  if ( ! vtksys::SystemTools::ParseURLProtocol( urlstr, protocol, dataglom ))
     {
-    vtkGenericWarningMacro( "Invalid URL (no protocol found): " << URL );
+    vtkGenericWarningMacro( "Invalid URL (no protocol found): \"" << urlstr.c_str() << "\"" );
     return 0;
     }
   if ( protocol == "sqlite" )
     {
     db = vtkSQLiteDatabase::New();
-    db->ParseURL(URL);
+    db->ParseURL( URL );
     return db;
     }
-    
+
   // Okay now for all the other database types get more detailed info
-  if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
+  if ( ! vtksys::SystemTools::ParseURL( urlstr, protocol, username,
                                         unused, hostname, dataport, database) )
     {
-    vtkGenericWarningMacro( "Invalid URL (other components missing): " << URL );
+    vtkGenericWarningMacro( "Invalid URL (other components missing): \"" << urlstr.c_str() << "\"" );
     return 0;
     }
-  
+
 #ifdef VTK_USE_POSTGRES
   if ( protocol == "psql" )
     {
     db = vtkPostgreSQLDatabase::New();
-    db->ParseURL(URL);
+    db->ParseURL( URL );
     }
 #endif // VTK_USE_POSTGRES
 
@@ -427,7 +428,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   if ( protocol == "mysql" )
     {
     db = vtkMySQLDatabase::New();
-    db->ParseURL(URL);
+    db->ParseURL( URL );
     }
 #endif // VTK_USE_MYSQL
 
@@ -435,7 +436,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   if ( protocol == "odbc" )
     {
     db = vtkODBCDatabase::New();
-    db->ParseURL(URL);
+    db->ParseURL( URL );
     }
 #endif // VTK_USE_ODBC
 
@@ -443,10 +444,10 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   // provide us with the required implementation.
   if (!db && vtkSQLDatabase::Callbacks)
     {
-    db = vtkSQLDatabase::Callbacks->CreateFromURL(URL);
+    db = vtkSQLDatabase::Callbacks->CreateFromURL( URL );
     }
 
-  if (!db)
+  if ( ! db )
     {
     vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
     }
@@ -469,7 +470,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     vtkGenericWarningMacro( "Unable to effect the schema: unable to begin transaction" );
     return false;
     }
- 
+
   // Loop over preamble statements of the schema and execute them only if they are relevant
   int numPre = schema->GetNumberOfPreambles();
   for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
@@ -603,7 +604,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
         return false;
         }
       }
- 
+
     // Check out number of triggers
     int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
     if ( numTrg < 0 )
@@ -652,7 +653,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
 
     // If triggers are specified but not supported, don't quit, but let the user know it
-    else if ( numTrg ) 
+    else if ( numTrg )
       {
       vtkGenericWarningMacro( "Triggers are not supported by this SQL backend; ignoring them." );
       }
