@@ -20,8 +20,9 @@
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #endif
 
-QVTKApplication::QVTKApplication(int &argc, char **argv)
-  : QApplication(argc,argv)
+// ----------------------------------------------------------------------------
+QVTKApplication::QVTKApplication(int &Argc, char **Argv)
+  : QApplication(Argc,Argv)
 {
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   this->Devices=new vtkTDxQtUnixDevices;
@@ -29,6 +30,8 @@ QVTKApplication::QVTKApplication(int &argc, char **argv)
                    this,SLOT(setDevice(vtkTDxDevice *)));
 #endif
 }
+
+// ----------------------------------------------------------------------------
 QVTKApplication::~QVTKApplication()
 {
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
@@ -36,6 +39,7 @@ QVTKApplication::~QVTKApplication()
 #endif
 }
 
+// ----------------------------------------------------------------------------
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
 bool QVTKApplication::x11EventFilter(XEvent *event)
 { 
@@ -46,6 +50,7 @@ bool QVTKApplication::x11EventFilter(XEvent *event)
 }
 #endif
 
+// ----------------------------------------------------------------------------
 #ifdef VTK_USE_TDX
 void QVTKApplication::setDevice(vtkTDxDevice *device)
 {

@@ -45,10 +45,18 @@ class QVTK_EXPORT QVTKApplication : public QApplication
 {
    Q_OBJECT
 public:
-   QVTKApplication(int &argc, char **argv);
+   // Description:
+   // Constructor.
+   QVTKApplication(int &Argc, char **Argv);
+
+  // Description:
+  // Destructor.
   ~QVTKApplication();
   
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+  // Description:
+  // Intercept X11 events.
+  // Redefined from QApplication.
   virtual bool x11EventFilter(XEvent *event);
 #endif
 
