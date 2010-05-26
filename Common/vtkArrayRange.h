@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayRange.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -22,14 +22,15 @@
 // .NAME vtkArrayRange - Stores a half-open range of array coordinates.
 //
 // .SECTION Description
-// vtkArrayRange stores a half-open range of array coordinates along a single
-// dimension of a vtkArraySlice object.
+// vtkArrayRange stores a half-open range of array coordinates along a
+// single dimension of a vtkArraySlice object.
 //
 // .SECTION See Also
 // vtkArray, vtkArrayRange
 //
 // .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
+// Laboratories.
 
 #ifndef __vtkArrayRange_h
 #define __vtkArrayRange_h
@@ -42,16 +43,17 @@ public:
   // Description:
   // Creates an empty range.
   vtkArrayRange();
-  
+
   // Description:
-  // Creates a half-open range [begin, end).  Note that begin must be <= end,
+  // Creates a half-open range [begin, end).
+  // Note that begin must be <= end,
   // if not, creates the empty range [begin, begin).
   vtkArrayRange(vtkIdType begin, vtkIdType end);
 
   // Description:
   // Returns the beginning of the range
   vtkIdType GetBegin() const;
-  
+
   // Description:
   // Returns one-past-the-end of the range
   vtkIdType GetEnd() const;
@@ -61,7 +63,8 @@ public:
   vtkIdType GetSize() const;
 
   // Description:
-  // Returns true iff the given range is a non-overlapping subset of this range.
+  // Returns true iff the given range is a non-overlapping subset of this
+  // range.
   bool Contains(const vtkArrayRange& range) const;
 
   // Description:
@@ -81,7 +84,7 @@ private:
   // Description:
   // Stores the beginning of the range.
   vtkIdType Begin;
-  
+
   // Description:
   // Stores one-past-the-end of the range.
   vtkIdType End;

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayInterpolate.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -19,6 +19,10 @@
 
 =========================================================================*/
 
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
+// Laboratories.
+
 #ifndef __vtkArrayInterpolate_h
 #define __vtkArrayInterpolate_h
 
@@ -28,9 +32,6 @@ class vtkArrayExtents;
 class vtkArraySlices;
 class vtkArrayWeights;
 
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-
 // Description:
 // Computes the weighted sum of a collection of slices from a source
 // array, and stores the results in a slice of a target array.  Note that
@@ -39,7 +40,7 @@ class vtkArrayWeights;
 //
 // Note: The implementation assumes that operator*(T, double) is defined,
 // and that there is an implicit conversion from its result back to T.
-// 
+//
 // If you need to interpolate arrays of T other than double, you will
 // likely want to create your own specialization of this function.
 //

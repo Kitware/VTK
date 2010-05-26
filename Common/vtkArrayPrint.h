@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayPrint.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -25,12 +25,13 @@
 #include "vtkTypedArray.h"
 
 // .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
+// Laboratories.
 
 // Description:
-// Serializes the contents of an array to a stream as a series of coordinates.
-// For 2D arrays of double values, the output is compatible with the MatrixMarket
-// "Coordinate Text File" format.
+// Serializes the contents of an array to a stream as a series of
+// coordinates.  For 2D arrays of double values, the output is compatible
+// with the MatrixMarket "Coordinate Text File" format.
 template<typename T>
 void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array);
 

@@ -12,18 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArrayIterator - Abstract superclass to iterate over elements in 
-// an vtkAbstractArray. 
+
+// .NAME vtkArrayIterator - Abstract superclass to iterate over elements
+// in an vtkAbstractArray.
+//
 // .SECTION Description
-// vtkArrayIterator is used to iterate over elements in any vtkAbstractArray
-// subclass.
-// The vtkArrayIteratorTemplateMacro is used to centralize the set of types
-// supported by Execute methods.  It also avoids duplication of long
-// switch statement case lists.
-// Note that in this macro VTK_TT is defined to be the type of the iterator
-// for the given type of array. One must include the 
-// vtkArrayIteratorIncludes.h header file to provide for extending of this macro
-// by addition of new iterators.
+// vtkArrayIterator is used to iterate over elements in any
+// vtkAbstractArray subclass.  The vtkArrayIteratorTemplateMacro is used
+// to centralize the set of types supported by Execute methods.  It also
+// avoids duplication of long switch statement case lists.
+//
+// Note that in this macro VTK_TT is defined to be the type of the
+// iterator for the given type of array. One must include the
+// vtkArrayIteratorIncludes.h header file to provide for extending of
+// this macro by addition of new iterators.
 //
 // Example usage:
 // \code
@@ -49,7 +51,7 @@ public:
   // Description:
   // Set the array this iterator will iterate over.
   // After Initialize() has been called, the iterator is valid
-  // so long as the Array has not been modified 
+  // so long as the Array has not been modified
   // (except using the iterator itself).
   // If the array is modified, the iterator must be re-intialized.
   virtual void Initialize(vtkAbstractArray* array) = 0;
