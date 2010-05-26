@@ -36,6 +36,16 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 {
   bool status;
 
+  cerr << ">>>>> Testing bad input." << endl;
+
+  vtkSQLDatabase* db0 = vtkSQLDatabase::CreateFromURL( 0 );
+  if ( db0 )
+    {
+    cerr << "ERROR: Created a database from a NULL URL! How?" << endl;
+    db0->Delete();
+    return 1;
+    }
+
   cerr << ">>>>> Testing creation modes." << endl;
 
   vtkSQLiteDatabase* db1 = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://local.db" ) );
