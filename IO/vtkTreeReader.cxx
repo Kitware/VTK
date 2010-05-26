@@ -141,6 +141,9 @@ int vtkTreeReader::RequestData(
   vtkTree* const output = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkSmartPointer<vtkMutableDirectedGraph> builder =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+
   int done = 0;
   while(!done)
     {
@@ -152,7 +155,7 @@ int vtkTreeReader::RequestData(
     if(!strncmp(this->LowerCase(line), "field", 5))
       {
       vtkFieldData* const field_data = this->ReadFieldData();
-      output->SetFieldData(field_data);
+      builder->SetFieldData(field_data);
       field_data->Delete();
       continue;
       }
@@ -167,7 +170,7 @@ int vtkTreeReader::RequestData(
         return 1;
         }
 
-      this->ReadPoints(output, point_count);
+      this->ReadPoints(builder, point_count);
       continue;
       }
 
@@ -180,9 +183,6 @@ int vtkTreeReader::RequestData(
         this->CloseVTKFile();
         return 1;
         }
-
-      vtkSmartPointer<vtkMutableDirectedGraph> builder = 
-        vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
       // Create all of the tree vertices (number of edges + 1)
       for(int edge = 0; edge <= edge_count; ++edge)
