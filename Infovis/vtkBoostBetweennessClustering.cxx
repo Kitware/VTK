@@ -107,11 +107,12 @@ vtkStandardNewMacro(vtkBoostBetweennessClustering);
 
 //-----------------------------------------------------------------------------
 vtkBoostBetweennessClustering::vtkBoostBetweennessClustering() :
-  vtkGraphAlgorithm     (),
-  Threshold             (0),
-  UseEdgeWeightArray    (false),
-  InvertEdgeWeightArray (false),
-  EdgeWeightArrayName   (0)
+  vtkGraphAlgorithm       (),
+  Threshold               (0),
+  UseEdgeWeightArray      (false),
+  InvertEdgeWeightArray   (false),
+  EdgeWeightArrayName     (0),
+  EdgeCentralityArrayName (0)
 {
 }
 
@@ -132,6 +133,10 @@ void vtkBoostBetweennessClustering::PrintSelf(ostream &os, vtkIndent indent)
   (EdgeWeightArrayName) ?
     os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName << endl :
     os << indent << "EdgeWeightArrayName: NULL" << endl;
+
+  (EdgeCentralityArrayName) ?
+    os << indent << "EdgeCentralityArrayName: " << this->EdgeCentralityArrayName << endl :
+    os << indent << "EdgeCentralityArrayName: NULL" << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -173,7 +178,15 @@ int vtkBoostBetweennessClustering::RequestData(
     }
 
   vtkFloatArray* edgeCM = vtkFloatArray::New();
-  edgeCM->SetName("edge_centrality");
+  if(this->EdgeCentralityArrayName)
+    {
+    edgeCM->SetName(this->EdgeCentralityArrayName);
+    }
+  else
+    {
+    edgeCM->SetName("edge_centrality");
+    }
+
   boost::vtkGraphEdgePropertyMapHelper<vtkFloatArray*> helper(edgeCM);
 
 
@@ -197,7 +210,7 @@ int vtkBoostBetweennessClustering::RequestData(
 
       if(weights->GetNumberOfComponents() > 1)
         {
-        return 0;
+        return 1;
         }
 
       for(int i=0; i < weights->GetDataSize(); ++i)
@@ -210,7 +223,7 @@ int vtkBoostBetweennessClustering::RequestData(
       {
       vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
                     << " is set but not found.\n");
-      return 0;
+      return 1;
       }
     }
 

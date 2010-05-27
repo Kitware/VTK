@@ -59,6 +59,10 @@ public:
   vtkGetStringMacro(EdgeWeightArrayName);
   vtkSetStringMacro(EdgeWeightArrayName);
 
+  // Description:
+  // Set the edge centrality array name. If no output array name is
+  // set then the name "edge_centrality" is used.
+  vtkSetStringMacro(EdgeCentralityArrayName);
 
 protected:
 
@@ -73,6 +77,8 @@ private:
   bool    UseEdgeWeightArray;
   bool    InvertEdgeWeightArray;
   char*   EdgeWeightArrayName;
+
+  char*   EdgeCentralityArrayName;
 
   vtkBoostBetweennessClustering(const vtkBoostBetweennessClustering&); // Not implemented.
   void operator=(const vtkBoostBetweennessClustering&); // Not implemented.
