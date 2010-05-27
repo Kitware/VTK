@@ -261,7 +261,7 @@ void vtkKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
 
 // ----------------------------------------------------------------------
 bool vtkKMeansStatistics::SetParameter(
-  const char* parameter, int index, vtkVariant value )
+  const char* parameter, int vtkNotUsed(index), vtkVariant value )
 {
   if ( ! parameter )
     return false;
