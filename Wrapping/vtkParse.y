@@ -708,6 +708,10 @@ typecast_op_func:
       closeSig();
       currentFunction->IsOperator = 1;
       currentFunction->Name = "operator typecast";
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed operator", "operator typecast");
     };
 
@@ -716,6 +720,10 @@ op_func: op_sig { postSig(")"); } maybe_const
       postSig(";");
       closeSig();
       currentFunction->Name = $<str>1;
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed operator", $<str>1);
     }
   | op_sig pure_virtual
@@ -723,6 +731,10 @@ op_func: op_sig { postSig(")"); } maybe_const
       postSig(";");
       closeSig();
       currentFunction->Name = $<str>1;
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed operator", $<str>1);
       currentFunction->IsPureVirtual = 1;
       if (mainClass)
@@ -744,6 +756,10 @@ func: func_sig { postSig(")"); } maybe_const
       postSig(";");
       closeSig();
       currentFunction->Name = $<str>1;
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed func", $<str>1);
     }
   | func_sig pure_virtual
@@ -751,6 +767,10 @@ func: func_sig { postSig(")"); } maybe_const
       postSig(";");
       closeSig();
       currentFunction->Name = $<str>1;
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed func", $<str>1);
       currentFunction->IsPureVirtual = 1;
       if (mainClass)
@@ -784,6 +804,10 @@ constructor: constructor_sig { postSig(")"); } maybe_initializers
       postSig(";");
       closeSig();
       currentFunction->Name = $<str>1;
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed func", $<str>1);
     };
 
@@ -802,6 +826,10 @@ destructor: destructor_sig
       currentFunction->Name = (char *)malloc(strlen($<str>1) + 2);
       currentFunction->Name[0] = '~';
       strcpy(&currentFunction->Name[1], $<str>1);
+      if (HaveComment)
+        {
+        currentFunction->Comment = vtkstrdup(CommentText);
+        }
       vtkParseDebug("Parsed func", currentFunction->Name);
     };
 
@@ -1091,6 +1119,10 @@ macro:
    postSig("a);");
    sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgClasses[0] = vtkstrdup(getTypeId());
@@ -1103,6 +1135,10 @@ macro:
    postSig("();");
    sprintf(temps,"Get%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->ReturnType = $<integer>7;
    currentFunction->ReturnClass = vtkstrdup(getTypeId());
    output_function();
@@ -1112,6 +1148,10 @@ macro:
    postSig("(char *);");
    sprintf(temps,"Set%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = VTK_PARSE_CHAR_PTR;
    currentFunction->ArgClasses[0] = vtkstrdup("char");
@@ -1123,6 +1163,10 @@ macro:
    postSig("();");
    sprintf(temps,"Get%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_CHAR_PTR;
    currentFunction->ReturnClass = vtkstrdup("char");
@@ -1137,6 +1181,10 @@ macro:
    sprintf(currentFunction->Signature,"void Set%s(%s);",$<str>3,local);
    sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgClasses[0] = vtkstrdup(getTypeId());
@@ -1148,6 +1196,10 @@ macro:
    sprintf(currentFunction->Signature,"%sGet%sMinValue();",local,$<str>3);
    sprintf(temps,"Get%sMinValue",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->ReturnType = $<integer>6;
    currentFunction->ReturnClass = vtkstrdup(getTypeId());
    output_function();
@@ -1157,6 +1209,10 @@ macro:
    sprintf(currentFunction->Signature,"%sGet%sMaxValue();",local,$<str>3);
    sprintf(temps,"Get%sMaxValue",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->ReturnType = $<integer>6;
    currentFunction->ReturnClass = vtkstrdup(getTypeId());
    output_function();
@@ -1168,6 +1224,10 @@ macro:
    postSig("*);");
    sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
    currentFunction->ArgClasses[0] = vtkstrdup(getTypeId());
@@ -1180,6 +1240,10 @@ macro:
    postSig("();");
    sprintf(temps,"Get%s",$<str>4);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
    currentFunction->ReturnClass = vtkstrdup(getTypeId());
    output_function();
@@ -1188,6 +1252,10 @@ macro:
    {
    sprintf(temps,"%sOn",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    delSig();
    postSig("void ");
    postSig(temps);
@@ -1196,6 +1264,10 @@ macro:
 
    sprintf(temps,"%sOff",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    delSig();
    postSig("void ");
    postSig(temps);
@@ -1252,6 +1324,10 @@ macro:
            $<str>3, local, $<str>8);
    sprintf(temps,"Set%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = (VTK_PARSE_POINTER | $<integer>6);
    currentFunction->ArgClasses[0] = vtkstrdup(getTypeId());
@@ -1268,6 +1344,10 @@ macro:
    sprintf(currentFunction->Signature,"%s *Get%s();", local, $<str>3);
    sprintf(temps,"Get%s",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = (VTK_PARSE_POINTER | $<integer>6);
    currentFunction->ReturnClass = vtkstrdup(getTypeId());
@@ -1283,6 +1363,10 @@ macro:
 
      sprintf(temps,"Get%sCoordinate",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
      currentFunction->ReturnClass = "vtkCoordinate";
@@ -1294,6 +1378,10 @@ macro:
              $<str>3);
      sprintf(temps,"Set%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 2;
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE;
      currentFunction->ArgClasses[0] = vtkstrdup("double");
@@ -1308,6 +1396,10 @@ macro:
      sprintf(currentFunction->Signature,"void Set%s(double a[2]);",
              $<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE_PTR;
      currentFunction->ArgClasses[0] = vtkstrdup("double");
@@ -1319,6 +1411,10 @@ macro:
      sprintf(currentFunction->Signature,"double *Get%s();", $<str>3);
      sprintf(temps,"Get%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_DOUBLE_PTR;
      currentFunction->ReturnClass = vtkstrdup("double");
@@ -1333,6 +1429,10 @@ macro:
 
      sprintf(temps,"Get%sCoordinate",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
      currentFunction->ReturnClass = "vtkCoordinate";
@@ -1345,6 +1445,10 @@ macro:
              $<str>3);
      sprintf(temps,"Set%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 3;
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE;
      currentFunction->ArgClasses[0] = vtkstrdup("double");
@@ -1362,6 +1466,10 @@ macro:
      sprintf(currentFunction->Signature,"void Set%s(double a[3]);",
              $<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = VTK_PARSE_DOUBLE_PTR;
      currentFunction->ArgClasses[0] = vtkstrdup("double");
@@ -1373,6 +1481,10 @@ macro:
      sprintf(currentFunction->Signature,"double *Get%s();", $<str>3);
      sprintf(temps,"Get%s",$<str>3);
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = VTK_PARSE_DOUBLE_PTR;
      currentFunction->ReturnClass = vtkstrdup("double");
@@ -1387,6 +1499,10 @@ macro:
    sprintf(currentFunction->Signature, "const char *GetClassName();");
    sprintf(temps,"GetClassName");
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
    currentFunction->ReturnClass = vtkstrdup("char");
@@ -1397,6 +1513,10 @@ macro:
    sprintf(currentFunction->Signature, "int IsA(const char *name);");
    sprintf(temps,"IsA");
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
    currentFunction->ArgClasses[0] = vtkstrdup("char");
@@ -1409,6 +1529,10 @@ macro:
    sprintf(currentFunction->Signature, "%s *NewInstance();", $<str>3);
    sprintf(temps,"NewInstance");
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
    currentFunction->ReturnClass = vtkstrdup($<str>3);
@@ -1422,6 +1546,10 @@ macro:
              $<str>3);
      sprintf(temps,"SafeDownCast");
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
      currentFunction->ArgCounts[0] = 1;
@@ -1438,6 +1566,10 @@ macro:
    sprintf(currentFunction->Signature, "const char *GetClassName();");
    sprintf(temps,"GetClassName");
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
    currentFunction->ReturnClass = vtkstrdup("char");
@@ -1449,6 +1581,10 @@ macro:
            "int IsA(const char *name);");
    sprintf(temps,"IsA");
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR);
    currentFunction->ArgCounts[0] = 0;
@@ -1461,6 +1597,10 @@ macro:
    sprintf(currentFunction->Signature, "%s *NewInstance();", $<str>3);
    sprintf(temps,"NewInstance");
    currentFunction->Name = vtkstrdup(temps);
+   if (HaveComment)
+     {
+     currentFunction->Comment = vtkstrdup(CommentText);
+     }
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = VTK_PARSE_VTK_OBJECT_PTR;
    currentFunction->ReturnClass = vtkstrdup($<str>3);
@@ -1474,6 +1614,10 @@ macro:
              $<str>3);
      sprintf(temps,"SafeDownCast");
      currentFunction->Name = vtkstrdup(temps);
+     if (HaveComment)
+       {
+       currentFunction->Comment = vtkstrdup(CommentText);
+       }
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = VTK_PARSE_VTK_OBJECT_PTR;
      currentFunction->ArgCounts[0] = 1;
@@ -1743,11 +1887,6 @@ void output_function()
         currentFunction->ArrayFailure = 1;
         break;
       }
-    }
-
-  if (HaveComment)
-    {
-    currentFunction->Comment = vtkstrdup(CommentText);
     }
 
   if (mainClass)
