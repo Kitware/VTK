@@ -751,6 +751,12 @@ void outputFunction(FILE *fp, FileInfo *data)
       {
       args_ok = 0;
       }
+
+    /* don't allow "char []", only allow "char *" */
+    if (argType == VTK_PARSE_CHAR_PTR && currentFunction->ArgCounts[i] != 0)
+      {
+      args_ok = 0;
+      }
     }
 
   /* check the return type */
@@ -821,6 +827,12 @@ void outputFunction(FILE *fp, FileInfo *data)
     case VTK_PARSE_UNSIGNED___INT64_PTR:
       args_ok = currentFunction->HaveHint;
       break;
+    }
+
+  /* don't allow "char []", only allow "char *" */
+  if (returnType == VTK_PARSE_CHAR_PTR && currentFunction->HaveHint)
+    {
+    args_ok = 0;
     }
 
   /* check for methods that will be overriden especially for Tcl */
