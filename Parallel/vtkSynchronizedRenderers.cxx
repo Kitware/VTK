@@ -65,6 +65,8 @@ vtkStandardNewMacro(vtkSynchronizedRenderers);
 vtkCxxRevisionMacro(vtkSynchronizedRenderers, "$Revision$");
 vtkCxxSetObjectMacro(vtkSynchronizedRenderers, ParallelController,
   vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate,
+  vtkSynchronizedRenderers);
 //----------------------------------------------------------------------------
 vtkSynchronizedRenderers::vtkSynchronizedRenderers()
 {
@@ -78,11 +80,15 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
 
   this->WriteBackImages = true;
   this->RootProcessId = 0;
+
+  this->CaptureDelegate = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
 {
+  this->SetCaptureDelegate(0);
+
   this->Observer->Target = 0;
 
   this->SetRenderer(0);
@@ -209,18 +215,26 @@ void vtkSynchronizedRenderers::SlaveEndRender()
 }
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedRenderers::CaptureRenderedImage()
+vtkSynchronizedRenderers::vtkRawImage&
+vtkSynchronizedRenderers::CaptureRenderedImage()
 {
   vtkRawImage& rawImage =
     (this->ImageReductionFactor == 1)?
     this->FullImage : this->ReducedImage;
 
-  if (rawImage.IsValid())
+  if (!rawImage.IsValid())
     {
-    return;
+    if (this->CaptureDelegate)
+      {
+      rawImage = this->CaptureDelegate->CaptureRenderedImage();
+      }
+    else
+      {
+      rawImage.Capture(this->Renderer);
+      }
     }
 
-  rawImage.Capture(this->Renderer);
+  return rawImage;
 }
 
 //----------------------------------------------------------------------------

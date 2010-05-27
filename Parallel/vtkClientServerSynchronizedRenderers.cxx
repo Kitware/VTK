@@ -55,8 +55,8 @@ void vtkClientServerSynchronizedRenderers::SlaveEndRender()
 {
   assert(this->ParallelController->IsA("vtkSocketController"));
 
-  vtkRawImage rawImage;
-  rawImage.Capture(this->GetRenderer());
+  vtkRawImage &rawImage = this->CaptureRenderedImage();
+
   int header[4];
   header[0] = rawImage.IsValid()? 1 : 0;
   header[1] = rawImage.GetWidth();

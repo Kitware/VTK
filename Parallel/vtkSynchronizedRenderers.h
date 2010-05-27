@@ -88,6 +88,12 @@ public:
   // no-op.
   void ResetCamera();
 
+  // Description:
+  // When set, this->CaptureRenderedImage() does not capture image from the
+  // screen instead passes the call to the delegate.
+  virtual void SetCaptureDelegate(vtkSynchronizedRenderers*);
+  vtkGetObjectMacro(CaptureDelegate, vtkSynchronizedRenderers);
+
 //BTX
   enum 
     {
@@ -184,7 +190,7 @@ protected:
   // the image will be capture in this->ReducedImage, otherwise it will be
   // captured in this->FullImage (this->ReducedImage will be pointing to the
   // same image).
-  void CaptureRenderedImage();
+  virtual vtkRawImage& CaptureRenderedImage();
 
   // Description:
   // Can be used in HandleEndRender(), MasterEndRender() or SlaveEndRender()
@@ -192,6 +198,7 @@ protected:
   // this->FullImage info the viewport.
   void PushImageToScreen(); 
 
+  vtkSynchronizedRenderers* CaptureDelegate;
   vtkRawImage ReducedImage;
   vtkRawImage FullImage;
 
