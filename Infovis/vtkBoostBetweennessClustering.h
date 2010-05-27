@@ -44,6 +44,21 @@ public:
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
 
+  // Description:
+  // Get/Set the flag that sets the rule whether or not to use the
+  // edge weight array as set using \c SetEdgeWeightArrayName.
+  vtkSetMacro(UseEdgeWeightArray, bool);
+  vtkBooleanMacro(UseEdgeWeightArray, bool);
+
+  vtkSetMacro(InvertEdgeWeightArray, bool);
+  vtkBooleanMacro(InvertEdgeWeightArray, bool);
+
+  // Description:
+  // Get/Set the name of the array that needs to be used as the edge weight.
+  // The array should be a vtkDataArray.
+  vtkGetStringMacro(EdgeWeightArrayName);
+  vtkSetStringMacro(EdgeWeightArrayName);
+
 
 protected:
 
@@ -54,7 +69,10 @@ protected:
 
 private:
 
-  double Threshold;
+  double  Threshold;
+  bool    UseEdgeWeightArray;
+  bool    InvertEdgeWeightArray;
+  char*   EdgeWeightArrayName;
 
   vtkBoostBetweennessClustering(const vtkBoostBetweennessClustering&); // Not implemented.
   void operator=(const vtkBoostBetweennessClustering&); // Not implemented.
