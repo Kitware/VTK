@@ -91,8 +91,8 @@ void vtkTDxInteractorStyleGeo::OnMotionEvent(
   double zAxisEye[3];
   double zAxisWorld[3];
   zAxisEye[0]=0.0;
-  zAxisEye[0]=0.0;
-  zAxisEye[0]=1.0;
+  zAxisEye[1]=0.0;
+  zAxisEye[2]=1.0;
   
   this->Transform->TransformVector(zAxisEye,zAxisWorld);
   
