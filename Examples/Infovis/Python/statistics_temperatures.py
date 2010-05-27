@@ -11,9 +11,8 @@ databaseToTable = vtkSQLDatabaseTableSource()
 databaseToTable.SetURL("sqlite://" + sqlite_file)
 databaseToTable.SetQuery("select * from main_tbl")
 
-
-# Start with descriptive statistics
-print "# Start with descriptive statistics:"
+# Calculate descriptive statistics
+print "# Calculate descriptive statistics:"
 ds = vtkDescriptiveStatistics()
 ds.AddInputConnection(databaseToTable.GetOutputPort())
 ds.AddColumn("Temp1")
@@ -27,8 +26,8 @@ dPrimary.Dump( 15 )
 dDerived.Dump( 15 )
 print
 
-print "# Now calculate 5-point statistics:"
-# Now calculate 5-point statistics
+print "# Calculate 5-point statistics:"
+# Calculate 5-point statistics
 os = vtkOrderStatistics()
 os.AddInputConnection(databaseToTable.GetOutputPort())
 os.AddColumn("Temp1")
@@ -40,8 +39,8 @@ oPrimary = oStats.GetBlock(0)
 oPrimary.Dump( 15 )
 print
 
-print "# Continue with deciles:"
-# Continue with deciles
+print "# Calculate deciles:"
+# Calculate deciles
 os.SetNumberOfIntervals(10)
 os.Update()
 
@@ -50,8 +49,8 @@ oPrimary = oStats.GetBlock(0)
 oPrimary.Dump( 9 )
 print
 
-print "# Finally, calculate correlation and linear regression:"
-# Finally, calculate correlation and linear regression
+print "# Calculate correlation and linear regression:"
+# Calculate correlation and linear regression
 cs = vtkCorrelativeStatistics()
 cs.AddInputConnection(databaseToTable.GetOutputPort())
 cs.AddColumnPair("Temp1","Temp2")
@@ -65,8 +64,8 @@ cPrimary.Dump( 15 )
 cDerived.Dump( 15 )
 print
 
-print "# And report corresponding deviations (squared Mahalanobis distance):"
-# And report corresponding deviations (squared Mahalanobis distance):"
+print "# Report corresponding deviations (squared Mahalanobis distance):"
+# Report corresponding deviations (squared Mahalanobis distance):"
 cData = cs.GetOutput(0)
 cData.Dump( 15 )
 print
