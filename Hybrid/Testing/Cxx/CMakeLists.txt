@@ -14,6 +14,7 @@ IF (VTK_DATA_ROOT)
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
     TestVRMLNormals.cxx
+    TestTDxGeo.cxx
     )
   # Temporarily disable LIC tests on non-windows platforms
   IF (VTK_USE_GLSL_SHADERS AND WIN32)

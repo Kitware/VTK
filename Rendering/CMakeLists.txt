@@ -167,6 +167,7 @@ SET( Kit_SRCS
   vtkSurfaceLICPainter.cxx
   vtkTDxInteractorStyle.cxx
   vtkTDxInteractorStyleCamera.cxx
+  vtkTDxInteractorStyleGeo.cxx
   vtkTDxInteractorStyleSettings.cxx
   vtkTesting.cxx
   vtkTestingInteractor.cxx
