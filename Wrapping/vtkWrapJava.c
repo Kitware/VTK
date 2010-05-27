@@ -57,6 +57,8 @@ void output_proto_vars(FILE *fp, int i)
     }
 
   if ((aType == VTK_PARSE_INT_PTR) ||
+      (aType == VTK_PARSE_SHORT_PTR) ||
+      (aType == VTK_PARSE_SIGNED_CHAR_PTR) ||
       (aType == VTK_PARSE_LONG_PTR) ||
       (aType == VTK_PARSE_ID_TYPE_PTR) ||
       (aType == VTK_PARSE_LONG_LONG_PTR) ||
@@ -371,6 +373,7 @@ void get_args(FILE *fp, int i)
         }
       break;
     case VTK_PARSE_INT_PTR:
+    case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_LONG_PTR:
     case VTK_PARSE_ID_TYPE_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
@@ -424,6 +427,7 @@ void copy_and_release_args(FILE *fp, int i)
       break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_ID_TYPE_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
     case VTK_PARSE___INT64_PTR:
@@ -488,13 +492,108 @@ void do_return(FILE *fp)
     }
 }
 
+/* Check to see if two types will map to the same Java type,
+ * return 1 if type1 should take precedence,
+ * return 2 if type2 should take precedence,
+ * return 0 if the types do not map to the same type */
+static int CheckMatch(int type1, int type2, const char *c1, const char *c2)
+{
+  static int floatTypes[] = {
+    VTK_PARSE_DOUBLE, VTK_PARSE_FLOAT, 0 };
+
+  static int intTypes[] = {
+    VTK_PARSE_UNSIGNED_LONG_LONG, VTK_PARSE_UNSIGNED___INT64,
+    VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, VTK_PARSE_ID_TYPE,
+    VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_LONG,
+    VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT,
+    VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT,
+    VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
+
+  static int stringTypes[] = {
+    VTK_PARSE_CHAR_PTR, VTK_PARSE_STRING_REF, VTK_PARSE_STRING, 0 };
+
+  static int *numericTypes[] = { floatTypes, intTypes, 0 };
+
+  int i, j;
+  int hit1, hit2;
+
+  if ((type1 & VTK_PARSE_UNQUALIFIED_TYPE) ==
+      (type2 & VTK_PARSE_UNQUALIFIED_TYPE))
+    {
+    if ((type1 & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VTK_OBJECT)
+      {
+      if (strcmp(c1, c2) == 0)
+        {
+        return 1;
+        }
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
+    }
+
+  for (i = 0; numericTypes[i]; i++)
+    {
+    hit1 = 0;
+    hit2 = 0;
+    for (j = 0; numericTypes[i][j]; j++)
+      {
+      if ((type1 & VTK_PARSE_BASE_TYPE) == numericTypes[i][j])
+        {
+        hit1 = j+1;
+        }
+      if ((type2 & VTK_PARSE_BASE_TYPE) == numericTypes[i][j])
+        {
+        hit2 = j+1;
+        }
+      }
+    if (hit1 && hit2 &&
+        (type1 & VTK_PARSE_INDIRECT) == (type2 & VTK_PARSE_INDIRECT))
+      {
+      if (hit1 < hit2)
+        {
+        return 1;
+        }
+      else
+        {
+        return 2;
+        }
+      }
+    }
+
+  hit1 = 0;
+  hit2 = 0;
+  for (j = 0; stringTypes[j]; j++)
+    {
+    if ((type1 & VTK_PARSE_UNQUALIFIED_TYPE) == stringTypes[j])
+      {
+      hit1 = j+1;
+      }
+    if ((type2 & VTK_PARSE_UNQUALIFIED_TYPE) == stringTypes[j])
+      {
+      hit2 = j+1;
+      }
+    }
+  if (hit1 && hit2)
+    {
+    if (hit1 < hit2)
+      {
+      return 1;
+      }
+    else
+      {
+      return 2;
+      }
+    }
+
+  return 0;
+}
+
 /* have we done one of these yet */
 int DoneOne()
 {
-  int aType = 0;
-  int fType = 0;
-  int rType = 0;
-  int qType = 0;
   int i,j;
   int match;
   FunctionInfo *fi;
@@ -502,8 +601,6 @@ int DoneOne()
   for (i = 0; i < numberOfWrappedFunctions; i++)
     {
     fi = wrappedFunctions[i];
-    rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
-    qType = (fi->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
     if ((!strcmp(fi->Name,currentFunction->Name))
         &&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
@@ -511,181 +608,16 @@ int DoneOne()
       match = 1;
       for (j = 0; j < fi->NumberOfArguments; j++)
         {
-        aType = (currentFunction->ArgTypes[j] & VTK_PARSE_UNQUALIFIED_TYPE);
-        fType = (fi->ArgTypes[j] & VTK_PARSE_UNQUALIFIED_TYPE);
-
-        if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-            !(((fType == VTK_PARSE_FLOAT_PTR)&&
-               (aType == VTK_PARSE_DOUBLE_PTR)) ||
-              ((fType == VTK_PARSE_DOUBLE_PTR)&&
-               (aType == VTK_PARSE_FLOAT_PTR)) ||
-              ((fType == VTK_PARSE_INT_PTR)&&
-               (aType == VTK_PARSE_LONG_PTR)) ||
-              ((fType == VTK_PARSE_LONG_PTR)&&
-               (aType == VTK_PARSE_INT_PTR)) ||
-              ((fType == VTK_PARSE_ID_TYPE_PTR)&&
-               (aType == VTK_PARSE_INT_PTR)) ||
-              ((fType == VTK_PARSE_INT_PTR)&&
-               (aType == VTK_PARSE_ID_TYPE_PTR)) ||
-              ((fType == VTK_PARSE_ID_TYPE_PTR)&&
-               (aType == VTK_PARSE_LONG_PTR)) ||
-              ((fType == VTK_PARSE_LONG_PTR)&&
-               (aType == VTK_PARSE_ID_TYPE_PTR)) ||
-              ((fType == VTK_PARSE_LONG_LONG_PTR)&&
-               (aType == VTK_PARSE_INT_PTR)) ||
-              ((fType == VTK_PARSE_INT_PTR)&&
-               (aType == VTK_PARSE_LONG_LONG_PTR)) ||
-              ((fType == VTK_PARSE_LONG_LONG_PTR)&&
-               (aType == VTK_PARSE_LONG_PTR)) ||
-              ((fType == VTK_PARSE_LONG_PTR)&&
-               (aType == VTK_PARSE_LONG_LONG_PTR)) ||
-              ((fType == VTK_PARSE___INT64_PTR)&&
-               (aType == VTK_PARSE_INT_PTR)) ||
-              ((fType == VTK_PARSE_INT_PTR)&&
-               (aType == VTK_PARSE___INT64_PTR)) ||
-              ((fType == VTK_PARSE___INT64_PTR)&&
-               (aType == VTK_PARSE_LONG_PTR)) ||
-              ((fType == VTK_PARSE_LONG_PTR)&&
-               (aType == VTK_PARSE___INT64_PTR)) ||
-              ((fType == VTK_PARSE_FLOAT)&&
-               (aType == VTK_PARSE_DOUBLE)) ||
-              ((fType == VTK_PARSE_DOUBLE)&&
-               (aType == VTK_PARSE_FLOAT)) ||
-              ((fType == VTK_PARSE_INT)&&
-               (aType == VTK_PARSE_LONG)) ||
-              ((fType == VTK_PARSE_LONG)&&
-               (aType == VTK_PARSE_INT)) ||
-              ((fType == VTK_PARSE_INT)&&
-               (aType == VTK_PARSE_ID_TYPE)) ||
-              ((fType == VTK_PARSE_ID_TYPE)&&
-               (aType == VTK_PARSE_INT)) ||
-              ((fType == VTK_PARSE_ID_TYPE)&&
-               (aType == VTK_PARSE_LONG)) ||
-              ((fType == VTK_PARSE_LONG)&&
-               (aType == VTK_PARSE_ID_TYPE)) ||
-              ((fType == VTK_PARSE_INT)&&
-               (aType == VTK_PARSE_LONG_LONG)) ||
-              ((fType == VTK_PARSE_LONG_LONG)&&
-               (aType == VTK_PARSE_INT)) ||
-              ((fType == VTK_PARSE_LONG_LONG)&&
-               (aType == VTK_PARSE_LONG)) ||
-              ((fType == VTK_PARSE_LONG)&&
-               (aType == VTK_PARSE_LONG_LONG)) ||
-              ((fType == VTK_PARSE_INT)&&
-               (aType == VTK_PARSE___INT64)) ||
-              ((fType == VTK_PARSE___INT64)&&
-               (aType == VTK_PARSE_INT)) ||
-              ((fType == VTK_PARSE___INT64)&&
-               (aType == VTK_PARSE_LONG)) ||
-              ((fType == VTK_PARSE_LONG)&&
-               (aType == VTK_PARSE___INT64)) ||
-              ((fType == VTK_PARSE_CHAR_PTR)&&
-               (aType == VTK_PARSE_STRING_REF)) ||
-              ((fType == VTK_PARSE_STRING_REF)&&
-               (aType == VTK_PARSE_CHAR_PTR)) ||
-              ((fType == VTK_PARSE_CHAR_PTR)&&
-               (aType == VTK_PARSE_STRING)) ||
-              ((fType == VTK_PARSE_STRING)&&
-               (aType == VTK_PARSE_CHAR_PTR))))
+        if (!CheckMatch(currentFunction->ArgTypes[j], fi->ArgTypes[j],
+                        currentFunction->ArgClasses[j],fi->ArgClasses[j]))
           {
           match = 0;
           }
-        else
-          {
-          if (fType == VTK_PARSE_VTK_OBJECT_PTR)
-            {
-            if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
-              {
-              match = 0;
-              }
-            }
-          }
         }
-      if ((fi->ReturnType != currentFunction->ReturnType) &&
-          !(((qType == VTK_PARSE_FLOAT_PTR)&&
-             (rType == VTK_PARSE_DOUBLE_PTR)) ||
-            ((qType == VTK_PARSE_DOUBLE_PTR)&&
-             (rType == VTK_PARSE_FLOAT_PTR)) ||
-            ((qType == VTK_PARSE_INT_PTR)&&
-             (rType == VTK_PARSE_LONG_PTR)) ||
-            ((qType == VTK_PARSE_LONG_PTR)&&
-             (rType == VTK_PARSE_INT_PTR)) ||
-            ((qType == VTK_PARSE_INT_PTR)&&
-             (rType == VTK_PARSE_ID_TYPE_PTR)) ||
-            ((qType == VTK_PARSE_ID_TYPE_PTR)&&
-             (rType == VTK_PARSE_INT_PTR)) ||
-            ((qType == VTK_PARSE_LONG_PTR)&&
-             (rType == VTK_PARSE_ID_TYPE_PTR)) ||
-            ((qType == VTK_PARSE_ID_TYPE_PTR)&&
-             (rType == VTK_PARSE_LONG_PTR)) ||
-            ((qType == VTK_PARSE_INT_PTR)&&
-             (rType == VTK_PARSE_LONG_LONG_PTR)) ||
-            ((qType == VTK_PARSE_LONG_LONG_PTR)&&
-             (rType == VTK_PARSE_INT_PTR)) ||
-            ((qType == VTK_PARSE_LONG_PTR)&&
-             (rType == VTK_PARSE_LONG_LONG_PTR)) ||
-            ((qType == VTK_PARSE_LONG_LONG_PTR)&&
-             (rType == VTK_PARSE_LONG_PTR)) ||
-            ((qType == VTK_PARSE_INT_PTR)&&
-             (rType == VTK_PARSE___INT64_PTR)) ||
-            ((qType == VTK_PARSE___INT64_PTR)&&
-             (rType == VTK_PARSE_INT_PTR)) ||
-            ((qType == VTK_PARSE_LONG_PTR)&&
-             (rType == VTK_PARSE___INT64_PTR)) ||
-            ((qType == VTK_PARSE___INT64_PTR)&&
-             (rType == VTK_PARSE_LONG_PTR)) ||
-            ((qType == VTK_PARSE_CHAR_PTR)&&
-             (rType == VTK_PARSE_STRING_REF)) ||
-            ((qType == VTK_PARSE_STRING_REF)&&
-             (rType == VTK_PARSE_CHAR_PTR)) ||
-            ((qType == VTK_PARSE_CHAR_PTR)&&
-             (rType == VTK_PARSE_STRING)) ||
-            ((qType == VTK_PARSE_STRING)&&
-             (rType == VTK_PARSE_CHAR_PTR)) ||
-            ((qType == VTK_PARSE_FLOAT)&&
-             (rType == VTK_PARSE_DOUBLE)) ||
-            ((qType == VTK_PARSE_DOUBLE)&&
-             (rType == VTK_PARSE_FLOAT)) ||
-            ((qType == VTK_PARSE_INT)&&
-             (rType == VTK_PARSE_LONG)) ||
-            ((qType == VTK_PARSE_LONG)&&
-             (rType == VTK_PARSE_INT)) ||
-            ((qType == VTK_PARSE_ID_TYPE)&&
-             (rType == VTK_PARSE_LONG)) ||
-            ((qType == VTK_PARSE_LONG)&&
-             (rType == VTK_PARSE_ID_TYPE)) ||
-            ((qType == VTK_PARSE_INT)&&
-             (rType == VTK_PARSE_ID_TYPE)) ||
-            ((qType == VTK_PARSE_ID_TYPE)&&
-             (rType == VTK_PARSE_INT)) ||
-            ((qType == VTK_PARSE_LONG_LONG)&&
-             (rType == VTK_PARSE_LONG)) ||
-            ((qType == VTK_PARSE_LONG)&&
-             (rType == VTK_PARSE_LONG_LONG)) ||
-            ((qType == VTK_PARSE_INT)&&
-             (rType == VTK_PARSE_LONG_LONG)) ||
-            ((qType == VTK_PARSE_LONG_LONG)&&
-             (rType == VTK_PARSE_INT)) ||
-            ((qType == VTK_PARSE___INT64)&&
-             (rType == VTK_PARSE_LONG)) ||
-            ((qType == VTK_PARSE_LONG)&&
-             (rType == VTK_PARSE___INT64)) ||
-            ((qType == VTK_PARSE_INT)&&
-             (rType == VTK_PARSE___INT64)) ||
-            ((qType == VTK_PARSE___INT64)&&
-             (rType == VTK_PARSE_INT))))
+      if (!CheckMatch(currentFunction->ReturnType, fi->ReturnType,
+                      currentFunction->ReturnClass, fi->ReturnClass))
         {
         match = 0;
-        }
-      else
-        {
-        if (rType == VTK_PARSE_VTK_OBJECT_PTR)
-          {
-          if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
-            {
-            match = 0;
-            }
-          }
         }
       if (match) return 1;
       }
