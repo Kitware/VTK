@@ -597,13 +597,28 @@ bool vtkMySQLDatabase::CreateDatabase( const char* dbName, bool dropExisting = f
   vtkStdString queryStr;
   queryStr = "CREATE DATABASE ";
   queryStr += dbName;
-  vtkSQLQuery* query = this->GetQueryInstance();
-  query->SetQuery( queryStr.c_str() );
-  bool status = query->Execute();
-  query->Delete();
-  // Close and re-open in case we deleted and recreated the current database
-  this->Close();
-  this->Open( this->Password );
+  bool status = false;
+  char* tmpName = this->DatabaseName;
+  bool needToReopen = false;
+  if ( ! strcmp( dbName, tmpName ) )
+    {
+    this->Close();
+    this->DatabaseName = 0;
+    needToReopen = true;
+    }
+  if ( this->IsOpen() || this->Open( this->Password ) )
+    {
+    vtkSQLQuery* query = this->GetQueryInstance();
+    query->SetQuery( queryStr.c_str() );
+    status = query->Execute();
+    query->Delete();
+    }
+  if ( needToReopen )
+    {
+    this->Close();
+    this->DatabaseName = tmpName;
+    this->Open( this->Password );
+    }
   return status;
 }
 
@@ -612,10 +627,27 @@ bool vtkMySQLDatabase::DropDatabase( const char* dbName )
   vtkStdString queryStr;
   queryStr = "DROP DATABASE IF EXISTS ";
   queryStr += dbName;
-  vtkSQLQuery* query = this->GetQueryInstance();
-  query->SetQuery( queryStr.c_str() );
-  bool status = query->Execute();
-  query->Delete();
+  bool status = false;
+  char* tmpName = this->DatabaseName;
+  bool dropSelf = false;
+  if ( ! strcmp( dbName, tmpName ) )
+    {
+    this->Close();
+    this->DatabaseName = 0;
+    dropSelf = true;
+    }
+  if ( this->IsOpen() || this->Open( this->Password ) )
+    {
+    vtkSQLQuery* query = this->GetQueryInstance();
+    query->SetQuery( queryStr.c_str() );
+    status = query->Execute();
+    query->Delete();
+    }
+  if ( dropSelf )
+    {
+    this->Close();
+    this->DatabaseName = tmpName;
+    }
   return status;
 }
 

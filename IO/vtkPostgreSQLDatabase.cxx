@@ -644,10 +644,9 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
       }
     }
 
-  vtkstd::string qstr( "DROP DATABASE \"" );
+  vtkstd::string qstr( "DROP DATABASE IF EXISTS \"" );
   qstr += dbName;
   qstr += "\"";
-  //qstr += " IF EXISTS";
   vtkSQLQuery *query = this->GetQueryInstance();
   query->SetQuery(qstr.c_str());
   if (query->Execute() == false)
