@@ -339,7 +339,6 @@ void vtkRenderer::Render(void)
     s.SetPropArrayAndCount(this->PropArray,this->PropArrayCount);
     s.SetFrameBuffer(0);
     this->Pass->Render(&s);
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     }
   else
     {
@@ -403,6 +402,7 @@ void vtkRenderer::Render(void)
       }
     this->TimeFactor = this->AllocatedRenderTime/this->LastRenderTimeInSeconds;
     }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
 }
 
 // ----------------------------------------------------------------------------
@@ -586,7 +586,6 @@ int vtkRenderer::UpdateGeometry()
 
   if ( this->PropArrayCount == 0 )
     {
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     return 0;
     }
 
@@ -596,7 +595,6 @@ int vtkRenderer::UpdateGeometry()
     //we are doing a visible polygon selection instead of a normal render
     int ret = this->UpdateGeometryForSelection();
 
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     this->RenderTime.Modified();
 
     vtkDebugMacro( << "Rendered " <<
@@ -613,7 +611,6 @@ int vtkRenderer::UpdateGeometry()
     // Delegate the rendering of the props to the selector itself.
     this->NumberOfPropsRendered = this->Selector->Render(this,
       this->PropArray, this->PropArrayCount);
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     this->RenderTime.Modified();
     vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors" );
     return this->NumberOfPropsRendered;
@@ -663,7 +660,6 @@ int vtkRenderer::UpdateGeometry()
       this->PropArray[i]->RenderOverlay(this);
     }
 
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
   this->RenderTime.Modified();
 
   vtkDebugMacro( << "Rendered " <<
