@@ -130,6 +130,8 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     XtDestroyWidget(this->Top);
     }
 
+  delete this->Internal;
+
   if (vtkXRenderWindowInteractor::App)
     {
     if(vtkXRenderWindowInteractor::NumAppInitialized == 1)
@@ -142,8 +144,6 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
       }
     vtkXRenderWindowInteractor::NumAppInitialized--;
     }
-
-  delete this->Internal;
 }
 
 //-------------------------------------------------------------------------
