@@ -549,7 +549,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0)
     {
-    if(prog==0) // fixed-pipeline multitexturing
+    if(prog==0) // fixed-pipeline multitexturing or old XML shaders.
       {
       this->LoadMultiTexturingExtensions(ren);
       if (vtkgl::ActiveTexture)
@@ -622,7 +622,7 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
   int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0 && vtkgl::ActiveTexture)
     {
-    if(prog==0) // fixed-pipeline multitexturing
+    if(prog==0) // fixed-pipeline multitexturing or old XML shaders.
       {
       GLint numSupportedTextures;
       glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
