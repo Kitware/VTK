@@ -3223,11 +3223,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
           data->ClassName);
 
   /* is this isn't a vtkObjectBase-derived object, then it is special */
-  if (strcmp(data->ClassName,"vtkObjectBase") != 0 &&
-      data->NumberOfSuperClasses == 0)
-    {
-    is_vtkobject = 0;
-    }
+  is_vtkobject = data->IsVTKObject;
 
   /* add sstream header for special objects and vtkObjectBase*/
   if (strcmp(data->ClassName, "vtkObjectBase") == 0 ||
@@ -3258,14 +3254,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
 
   /* prototype for the docstring function */
-  if (data->NumberOfSuperClasses || !data->IsAbstract)
-    {
-    fprintf(fp,
-            "\n"
-            "static const char **%sDoc();\n"
-            "\n",
-            data->ClassName);
-    }
+  fprintf(fp,
+          "\n"
+          "static const char **%sDoc();\n"
+          "\n",
+          data->ClassName);
 
   /* check for New() function */
   for (i = 0; i < data->NumberOfFunctions; i++)

@@ -117,6 +117,7 @@ FileInfo data;
 FunctionInfo throwAwayFunction;
 FunctionInfo *currentFunction;
 
+char *hintFileName;
 FILE *fhint;
 char temps[2048];
 int  in_public;
@@ -1960,33 +1961,85 @@ void outputGetVectorMacro(
 
 extern void vtkParseOutput(FILE *,FileInfo *);
 
-int main(int argc,char *argv[])
+int check_options(int argc, char *argv[])
+{
+  int i;
+
+  data.IsConcrete = 1;
+  data.IsVTKObject = 1;
+  hintFileName = 0;
+
+  for (i = 1; i < argc && argv[i][0] == '-'; i++)
+    {
+    if (strcmp(argv[i], "--concrete") == 0)
+      {
+      data.IsConcrete = 1;
+      }
+    else if (strcmp(argv[i], "--abstract") == 0)
+      {
+      data.IsConcrete = 0;
+      }
+    else if (strcmp(argv[i], "--vtkobject") == 0)
+      {
+      data.IsVTKObject = 1;
+      }
+    else if (strcmp(argv[i], "--special") == 0)
+      {
+      data.IsVTKObject = 0;
+      }
+    else if (strcmp(argv[i], "--hints") == 0)
+      {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+        {
+        return -1;
+        }
+      hintFileName = argv[i];
+      }
+    }
+
+  return i;
+}
+
+int main(int argc, char *argv[])
 {
   int i, j;
+  int argi;
+  int has_options = 0;
   FILE *fin;
   int ret;
   FILE *fout;
 
-  if (argc < 4 || argc > 5)
+  argi = check_options(argc, argv);
+  if (argi > 1 && argc - argi == 2)
+    {
+    has_options = 1;
+    }
+  else if (argi < 0 || argc < 4 || argc > 5)
     {
     fprintf(stderr,
-            "Usage: %s input_file <hint_file> is_concrete output_file\n",argv[0]);
+            "Usage: %s [options] input_file output_file\n"
+            "  --concrete      concrete class (default)\n"
+            "  --abstract      abstract class\n"
+            "  --vtkobject     vtkObjectBase-derived class (default)\n"
+            "  --special       non-vtkObjectBase class\n"
+            "  --hints <file>  hints file\n",
+            argv[0]);
     exit(1);
     }
 
-  if (!(fin = fopen(argv[1],"r")))
-    {
-    fprintf(stderr,"Error opening input file %s\n",argv[1]);
-    exit(1);
-    }
-
-  fhint = 0;
-  data.FileName = argv[1];
+  data.FileName = argv[argi++];
   data.NameComment = NULL;
   data.Description = NULL;
   data.Caveats = NULL;
   data.SeeAlso = NULL;
   CommentState = 0;
+
+  if (!(fin = fopen(data.FileName, "r")))
+    {
+    fprintf(stderr,"Error opening input file %s\n", data.FileName);
+    exit(1);
+    }
 
   /* The class name should be the file name */
   i = strlen(data.FileName);
@@ -2013,18 +2066,19 @@ int main(int argc,char *argv[])
 
   currentFunction = &throwAwayFunction;
 
-  if (argc == 5)
+  if (!has_options)
     {
-    if (!(fhint = fopen(argv[2],"r")))
+    if (argc == 5)
       {
-      fprintf(stderr,"Error opening hint file %s\n",argv[2]);
-      exit(1);
+      hintFileName = argv[argi++];
       }
-    data.IsConcrete = atoi(argv[3]);
+    data.IsConcrete = atoi(argv[argi++]);
     }
-  else
+
+  if (!(fhint = fopen(hintFileName, "r")))
     {
-    data.IsConcrete = atoi(argv[2]);
+    fprintf(stderr, "Error opening hint file %s\n", hintFileName);
+    exit(1);
     }
 
   yyin = fin;
@@ -2033,29 +2087,22 @@ int main(int argc,char *argv[])
   if (ret)
     {
     fprintf(stdout,
-            "*** SYNTAX ERROR found in parsing the header file %s before line %d ***\n",
-            argv[1], yylineno);
+            "*** SYNTAX ERROR found in parsing the header file %s "
+            "before line %d ***\n",
+            data.FileName, yylineno);
     return ret;
     }
 
-  if (argc == 5)
-    {
-    fout = fopen(argv[4],"w");
-    data.OutputFileName = argv[4];
-    }
-  else
-    {
-    fout = fopen(argv[3],"w");
-    data.OutputFileName = argv[3];
-    }
+  data.OutputFileName = argv[argi++];
+  fout = fopen(data.OutputFileName, "w");
 
   if (!fout)
     {
-    fprintf(stderr,"Error opening output file %s\n",argv[3]);
+    fprintf(stderr, "Error opening output file %s\n", data.OutputFileName);
     exit(1);
     }
-  vtkParseOutput(fout,&data);
-  fclose (fout);
+  vtkParseOutput(fout, &data);
+  fclose(fout);
 
   return 0;
 }

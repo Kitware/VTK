@@ -43,6 +43,7 @@
     int   HasDelete;
     int   IsAbstract;
     int   IsConcrete;
+    int   IsVTKObject;
     char *ClassName;
     char *FileName;
     char *OutputFileName;
