@@ -167,15 +167,33 @@ Modify lex.yy.c:
 
 [A-Za-z0-9_]*"_EXPORT" ;
 
-"vtkNotUsed"[ ]*"("[^)]*")" ;
+"vtkNotUsed"[ ]*"("[^)]*")" {
+     int i; int j = 0;
+     while (yytext[j]!='(') { j++; }
+     j++; i = j;
+     while (yytext[j]!=')') { j++; }
+     yylval.str = (char *)malloc(j-i+1);
+     if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
+     yylval.str[j-i] = '\0';
+     return(ID);
+     };
 
 "["[\t\n\r\ ]*[1-9][0-9]*[\t\n\r ]*"]"  {
-   sscanf(yytext+1,"%d",&yylval.integer); return(ARRAY_NUM);}
+     sscanf(yytext+1,"%d",&yylval.integer);
+     return(ARRAY_NUM);
+     };
 
-("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"class"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" return(CLASS_REF);
-("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"struct"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" return(CLASS_REF);
+("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"class"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
+     return(CLASS_REF);
+     };
 
-"void"[\t\n\r ]*"("[\t\n\r ]*"*"[a-zA-Z0-9_]*[\t\n\r ]*")"[\t\n\r ]*"("[\t\n\r ]*"void"[\t\n\r ]*"*"[\n\t ]*")" return(VAR_FUNCTION);
+("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"struct"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
+     return(CLASS_REF);
+     };
+
+"void"[\t\n\r ]*"("[\t\n\r ]*"*"[a-zA-Z0-9_]*[\t\n\r ]*")"[\t\n\r ]*"("[\t\n\r ]*"void"[\t\n\r ]*"*"[\n\t ]*")" {
+     return(VAR_FUNCTION);
+     };
 
 "short"[\t\n\r ]*"int" return(SHORT);
 "long"[\t\n\r ]*"int"  return(LONG);
@@ -327,10 +345,14 @@ Modify lex.yy.c:
 "("[\t\n\r ]*"&"  return(LPAREN_AMPERSAND);
 "("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"*" {
                 int i = 1;
-                while (yytext[i]==' ' || yytext[i]=='\r' || yytext[i]=='\n')
-                  { i++; }
-                yylval.str = vtkstrdup(yytext + i);
-                yylval.str[strlen(yytext)-2] = '\0';
+                int j;
+                while (yytext[i]==' ' || yytext[i]=='\t' ||
+                       yytext[i]=='\r' || yytext[i]=='\n') { i++; }
+                i++; j = i;
+                while (yytext[j]!='*') { j++; }
+                yylval.str = (char *)malloc(j-i+1);
+                if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
+                yylval.str[j-i] = '\0';
                 return(LPAREN_POINTER);
                 }
 
