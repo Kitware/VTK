@@ -20,8 +20,11 @@ ds.AddColumn("Temp1")
 ds.AddColumn("Temp2")
 ds.Update()
 
-dStats = ds.GetOutput(1)
-dStats.Dump( 10 )
+dStats = ds.GetOutputDataObject( 1 )
+dPrimary = dStats.GetBlock(0)
+dDerived = dStats.GetBlock(1)
+dPrimary.Dump( 15 )
+dDerived.Dump( 15 )
 print
 
 print "# Now calculate 5-point statistics:"
@@ -32,8 +35,9 @@ os.AddColumn("Temp1")
 os.AddColumn("Temp2")
 os.Update()
 
-oStats = os.GetOutput(1)
-oStats.Dump( 15 )
+oStats = os.GetOutputDataObject( 1 )
+oPrimary = oStats.GetBlock(0)
+oPrimary.Dump( 15 )
 print
 
 print "# Continue with deciles:"
@@ -41,8 +45,9 @@ print "# Continue with deciles:"
 os.SetNumberOfIntervals(10)
 os.Update()
 
-oStats = os.GetOutput(1)
-oStats.Dump( 11 )
+oStats = os.GetOutputDataObject( 1 )
+oPrimary = oStats.GetBlock(0)
+oPrimary.Dump( 9 )
 print
 
 print "# Finally, calculate correlation and linear regression:"
@@ -53,12 +58,15 @@ cs.AddColumnPair("Temp1","Temp2")
 cs.SetAssessOption(1)
 cs.Update()
 
-cStats = cs.GetOutput(1)
-cStats.Dump( 10 )
+cStats = cs.GetOutputDataObject( 1 )
+cPrimary = cStats.GetBlock(0)
+cDerived = cStats.GetBlock(1)
+cPrimary.Dump( 15 )
+cDerived.Dump( 15 )
 print
 
 print "# And report corresponding deviations (squared Mahalanobis distance):"
 # And report corresponding deviations (squared Mahalanobis distance):"
 cData = cs.GetOutput(0)
-cData.Dump( 14 )
+cData.Dump( 15 )
 print
