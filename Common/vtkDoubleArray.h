@@ -121,14 +121,6 @@ public:
   // Get the maximum data value in its native type.
   static double GetDataTypeValueMax() { return VTK_DOUBLE_MAX; }
 
-//BTX
-  // Description:
-  // Get the data type range in its native type.
-  static void GetDataTypeValueRange(double range[2])
-    { range[0] = vtkDoubleArray::GetDataTypeValueMin();
-      range[1] = vtkDoubleArray::GetDataTypeValueMax(); }
-//ETX
-
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of

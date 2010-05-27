@@ -121,14 +121,6 @@ public:
   // Get the maximum data value in its native type.
   static unsigned char GetDataTypeValueMax() { return VTK_UNSIGNED_CHAR_MAX; }
 
-//BTX
-  // Description:
-  // Get the data type range in its native type.
-  static void GetDataTypeValueRange(unsigned char range[2])
-    { range[0] = vtkUnsignedCharArray::GetDataTypeValueMin();
-      range[1] = vtkUnsignedCharArray::GetDataTypeValueMax(); }
-//ETX
-
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of

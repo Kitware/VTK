@@ -117,12 +117,6 @@ public:
   // Description:
   // Get the maximum data value in its native type.
   static char GetDataTypeValueMax() { return VTK_CHAR_MAX; }
-
-  // Description:
-  // Get the data type range in its native type.
-  static void GetDataTypeValueRange(char range[2])
-    { range[0] = vtkCharArray::GetDataTypeValueMin();
-      range[1] = vtkCharArray::GetDataTypeValueMax(); }
 //ETX
 
   // Description:
