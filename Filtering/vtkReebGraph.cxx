@@ -26,7 +26,8 @@ vtkStandardNewMacro(vtkReebGraph);
 //----------------------------------------------------------------------------
 void vtkReebGraph::SetLabel(vtkIdType arcId,vtkReebLabelTag Label)
 {
-
+  inputMesh = NULL;
+  
   ResizeMainLabelTable(1);
   vtkIdType L;
   vtkReebGraphNewLabel(this,L);
@@ -183,9 +184,7 @@ vtkIdType vtkReebGraph::FindLess(vtkIdType nodeId, vtkIdType startingNodeId,
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkReebGraph::FindJoinNode(vtkIdType arcId,
-                                     double startingFunctionValue,
-                                     double persistenceFilter,
+vtkIdType vtkReebGraph::FindJoinNode(vtkIdType arcId, 
                                      vtkReebLabelTag label,
                                      bool onePathOnly)
 {
@@ -198,12 +197,8 @@ vtkIdType vtkReebGraph::FindJoinNode(vtkIdType arcId,
     //other labels or not final node
     return 0;
 
-  if (persistenceFilter && (vtkReebGraphGetNode(this,N)->Value
-    - startingFunctionValue) >= persistenceFilter)
-      return 0;
-
-  if (onePathOnly
-    && (vtkReebGraphGetArc(this, arcId)->ArcDwId0
+  if (onePathOnly 
+    && (vtkReebGraphGetArc(this, arcId)->ArcDwId0 
     || vtkReebGraphGetArc(this, arcId)->ArcUpId0))
     return 0;
 
@@ -218,8 +213,7 @@ vtkIdType vtkReebGraph::FindJoinNode(vtkIdType arcId,
   for (C=vtkReebGraphGetNode(this,N)->ArcUpId;
     C;C=vtkReebGraphGetArc(this,C)->ArcDwId0)
   {
-    Ret = FindJoinNode(C,
-      startingFunctionValue, persistenceFilter, label, onePathOnly);
+    Ret = FindJoinNode(C, label, onePathOnly);
 
     if (Ret)
     {
@@ -232,9 +226,7 @@ vtkIdType vtkReebGraph::FindJoinNode(vtkIdType arcId,
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkReebGraph::FindSplitNode(vtkIdType arcId,
-                                      double startingFunctionValue,
-                                      double persistenceFileter,
+vtkIdType vtkReebGraph::FindSplitNode(vtkIdType arcId, 
                                       vtkReebLabelTag label,
                                       bool onePathOnly)
 {
@@ -247,13 +239,8 @@ vtkIdType vtkReebGraph::FindSplitNode(vtkIdType arcId,
     //other labels or not final node
     return 0;
 
-  if (persistenceFileter
-    && (startingFunctionValue -vtkReebGraphGetNode(this,N)->Value)
-     >= persistenceFileter)
-      return 0;
-
-  if (onePathOnly
-    && (vtkReebGraphGetArc(this, arcId)->ArcDwId1
+  if (onePathOnly 
+    && (vtkReebGraphGetArc(this, arcId)->ArcDwId1 
     || vtkReebGraphGetArc(this, arcId)->ArcUpId1))
     return 0;
 
@@ -269,8 +256,7 @@ vtkIdType vtkReebGraph::FindSplitNode(vtkIdType arcId,
   for (C=vtkReebGraphGetNode(this,N)->ArcDownId;
     C;C=vtkReebGraphGetArc(this,C)->ArcDwId1)
   {
-    Ret = FindSplitNode(C, startingFunctionValue, persistenceFileter,
-      label, onePathOnly);
+    Ret = FindSplitNode(C, label, onePathOnly);
 
     if (Ret)
     {
@@ -284,7 +270,7 @@ vtkIdType vtkReebGraph::FindSplitNode(vtkIdType arcId,
 
 //----------------------------------------------------------------------------
 vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
-                                                 double functionScale)
+  double simplificationThreshold, vtkReebGraphSimplificationMetric *metric)
 {
   vtkReebPath entry;
   std::priority_queue<vtkReebPath> pq;
@@ -296,19 +282,29 @@ vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
   char* Ntouch=0;
   char* Atouch=0;
 
-  double coeff = 1.0f / (this->MaximumScalarValue - this->MinimumScalarValue);
-  double f0=vtkReebGraphGetNode(this,N0)->Value;
-  double f1=vtkReebGraphGetNode(this,N1)->Value;
+//  double simplificationValue = 0;
+  if((!inputMesh)||(!metric))
+    {
+    double f0=vtkReebGraphGetNode(this,N0)->Value;
+    double f1=vtkReebGraphGetNode(this,N1)->Value;
+    entry.SimplificationValue = (f1 - f0)
+      /(this->MaximumScalarValue - this->MinimumScalarValue);
+    }
+  else
+    {
+    entry.SimplificationValue = ComputeCustomMetric(metric,
+      vtkReebGraphGetArc(this, arcId));
+    }
 
   //the arc itself has a good persistence
-  if (functionScale && (f1-f0)>= functionScale)
+  if (simplificationThreshold 
+    && entry.SimplificationValue>= simplificationThreshold)
   {
   NOT_FOUND:
     if (Ntouch) free(Ntouch);
     if (Atouch) free(Atouch);
     vtkReebPath fake;memset(&fake,0,sizeof(vtkReebPath));
-    fake.MinimumScalarValue  =-1e18; //assume infinite persistence
-    fake.MaximumScalarValue  =+1e18;
+    fake.SimplificationValue = 1; 
     return fake;
   }
 
@@ -327,8 +323,6 @@ vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
   entry.NodeTable[0]=N0;
   entry.ArcNumber=0;
   entry.ArcTable =0;
-  entry.MinimumScalarValue=entry.MaximumScalarValue =
-    vtkReebGraphGetNode(this,N0)->Value;
   pq.push(entry);
 
   while (size=pq.size())
@@ -370,7 +364,6 @@ vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
           if (Ntouch) free(Ntouch);
           if (Atouch) free(Atouch);
 
-
           vtkIdType* tmp=new vtkIdType[entry.NodeNumber+1];
           memcpy(tmp,entry.NodeTable,sizeof(vtkIdType)*entry.NodeNumber);
           tmp[entry.NodeNumber]=N1;
@@ -380,17 +373,22 @@ vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
           return entry;
         }
 
-        // The loop persistence is greater than functionScale
-        double value   = vtkReebGraphGetNode(this,M)->Value;
-        double newminf = vtkReebGraphMin(entry.MinimumScalarValue,value);
-        double newmaxf = vtkReebGraphMax(entry.MaximumScalarValue, value);
-
-        if (functionScale && (newmaxf-newminf) >= functionScale)
+        if((!inputMesh)||(!metric))
+          {
+          entry.SimplificationValue += vtkReebGraphGetArcPersistence(this,
+            vtkReebGraphGetArc(this, A));
+          }
+        else{
+          entry.SimplificationValue += ComputeCustomMetric(metric,
+            vtkReebGraphGetArc(this, A));
+          }
+        // The loop persistence is greater than functionScale 
+        if(simplificationThreshold 
+          && entry.SimplificationValue >= simplificationThreshold)
           continue;
 
         vtkReebPath newentry;
-        newentry.MinimumScalarValue = newminf;
-        newentry.MaximumScalarValue = newmaxf;
+        newentry.SimplificationValue = entry.SimplificationValue;
         newentry.ArcNumber = entry.ArcNumber+1;
         newentry.ArcTable = new vtkIdType [newentry.ArcNumber];
         newentry.NodeNumber = entry.NodeNumber+1;
@@ -417,14 +415,12 @@ vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::FilterLoopsByPersistence(double functionScalePercentage)
+int vtkReebGraph::SimplifyLoops(double simplificationThreshold,
+  vtkReebGraphSimplificationMetric *simplificationMetric) 
 {
 
- double userfilter=
-   functionScalePercentage
-     *(this->MaximumScalarValue - this->MinimumScalarValue);
 
- if (!userfilter)
+ if (!simplificationThreshold)
    return 0;
 
  // refresh information about ArcLoopTable
@@ -442,29 +438,40 @@ int vtkReebGraph::FilterLoopsByPersistence(double functionScalePercentage)
    if (vtkReebGraphIsArcCleared(this,A))
      continue;
 
+   double simplificationValue = 0;
+   if((!inputMesh)||(!simplificationMetric))
+    {
+    vtkIdType N0 =vtkReebGraphGetArc(this,A)->NodeId0;
+    double f0=vtkReebGraphGetNode(this,N0)->Value;
+    vtkIdType N1 =vtkReebGraphGetArc(this,A)->NodeId1;
+    double f1=vtkReebGraphGetNode(this,N1)->Value;
+    simplificationValue = (f1 - f0)
+      /(this->MaximumScalarValue - this->MinimumScalarValue);
+    }
+   else
+    {
+    simplificationValue = ComputeCustomMetric(simplificationMetric,
+      vtkReebGraphGetArc(this, A));
+    }
 
-   vtkIdType N0 =vtkReebGraphGetArc(this,A)->NodeId0;
-   double f0=vtkReebGraphGetNode(this,N0)->Value;
-   vtkIdType N1 =vtkReebGraphGetArc(this,A)->NodeId1;
-   double f1=vtkReebGraphGetNode(this,N1)->Value;
 
-   if ((f1-f0)>=userfilter)
+   if(simplificationValue >= simplificationThreshold)
      continue;
 
-   vtkReebPath entry = this->FindPath(this->ArcLoopTable[n],userfilter);
+   vtkReebPath entry = this->FindPath(this->ArcLoopTable[n],
+    simplificationThreshold, simplificationMetric);
 
    //too high for persistence
-   if (!entry.NodeNumber
-     || (entry.MaximumScalarValue-entry.MinimumScalarValue)>=userfilter)
-     continue;
-
-
+   if(entry.SimplificationValue >= simplificationThreshold)
+     continue; 
+   
    //distribute its bucket to the loop and delete the arc
    this->FastArcSimplify(ArcLoopTable[n],entry.ArcNumber,entry.ArcTable);
    delete entry.ArcTable;
    delete entry.NodeTable;
 
    ++NumSimplified;
+   CommitSimplification();
  }
 
  //check for regular points
@@ -515,7 +522,44 @@ int vtkReebGraph::FilterLoopsByPersistence(double functionScalePercentage)
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
+double vtkReebGraph::ComputeCustomMetric(
+  vtkReebGraphSimplificationMetric *simplificationMetric, vtkReebArc *a)
+{
+  int edgeId = -1, start = -1, end = -1;
+
+  vtkDataArray *vertexInfo = vtkDataArray::SafeDownCast(
+    GetVertexData()->GetAbstractArray("Vertex Ids"));
+  if(!vertexInfo) return vtkReebGraphGetArcPersistence(this, a);
+
+  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+    GetEdgeData()->GetAbstractArray("Vertex Ids"));
+  if(!edgeInfo) return vtkReebGraphGetArcPersistence(this, a);
+
+  vtkEdgeListIterator *eIt = vtkEdgeListIterator::New();
+  GetEdges(eIt);
+ 
+  do
+    {
+    vtkEdgeType e = eIt->Next();
+    if(((*(vertexInfo->GetTuple(e.Source))) == GetNodeVertexId(a->NodeId0))
+      &&((*(vertexInfo->GetTuple(e.Target))) == GetNodeVertexId(a->NodeId1))){
+      edgeId = e.Id;
+      start = (*(vertexInfo->GetTuple(e.Source)));
+      end = (*(vertexInfo->GetTuple(e.Target)));
+      break;
+    }
+    }while(eIt->HasNext());
+  eIt->Delete();
+
+  vtkAbstractArray *vertexList = edgeInfo->GetPointer(edgeId)->ToArray();
+
+  return simplificationMetric->ComputeMetric(inputMesh, inputScalarField,
+    start, vertexList, end);
+}
+
+//----------------------------------------------------------------------------
+int vtkReebGraph::SimplifyBranches(double simplificationThreshold,
+  vtkReebGraphSimplificationMetric *simplificationMetric)
 {
   int N;
 
@@ -524,17 +568,15 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
   int  nstack,mstack=0;
   int* stack=0;
 
-  if (!functionScalePercentage)
+  if (!simplificationThreshold) 
     return 0;
-
-  double userfilter =
-    functionScalePercentage
-      *(this->MaximumScalarValue - this->MinimumScalarValue);
 
   int nsimp=0;
   int cont=0;
   const int step=10000;
   bool redo;
+
+  vtkDataSet *input = inputMesh;
 
   REDO:
 
@@ -559,10 +601,21 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
       for (int _A_=n->ArcUpId;_A_;_A_=vtkReebGraphGetArc(this,_A_)->ArcDwId0)
       {
         vtkReebArc* _a_=vtkReebGraphGetArc(this,_A_);
-        if (vtkReebGraphGetArcPersistence(this,_a_)<userfilter)
-        {
-          vtkReebGraphStackPush(_A_);
-        }
+        if((!inputMesh)||(!simplificationMetric))
+          {
+          if (vtkReebGraphGetArcPersistence(this,_a_)< simplificationThreshold) 
+            {
+            vtkReebGraphStackPush(_A_);
+            }
+          }
+        else
+          {
+          if(ComputeCustomMetric(simplificationMetric, _a_) 
+            < simplificationThreshold)
+            {
+            vtkReebGraphStackPush(_A_);
+            }
+          }
       }
     }
     else if (!n->ArcUpId)
@@ -571,7 +624,7 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
       for (int _A_=n->ArcDownId;_A_;_A_=vtkReebGraphGetArc(this,_A_)->ArcDwId1)
       {
         vtkReebArc* _a_=vtkReebGraphGetArc(this,_A_);
-        if (vtkReebGraphGetArcPersistence(this,_a_)<userfilter)
+        if (vtkReebGraphGetArcPersistence(this,_a_)< simplificationThreshold) 
         {
           vtkReebGraphStackPush(_A_);
         }
@@ -605,7 +658,7 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
     double persistence = vtkReebGraphGetArcPersistence(this,a);
 
     //is the actual persistence (in percentage) greater than the applied filter?
-    if (persistence>=userfilter)
+    if (persistence>=simplificationThreshold)
       continue;
 
     int Mdown,Nup,Ndown,Mup;
@@ -643,8 +696,7 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
     // M is a maximum
     if (!simplified && !Mup)
     {
-      if (Down=FindSplitNode(A,vtkReebGraphGetNode(this,M)->Value,
-        userfilter,RouteOld))
+      if (Down=FindSplitNode(A, RouteOld))
       {
         if (Up=FindGreater(Down,M,RouteNew))
         {
@@ -661,9 +713,8 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
 
     //N is a minimum
     if (!simplified && !Ndown)
-    {
-      if (Up= FindJoinNode(A,vtkReebGraphGetNode(this,N)->Value,
-        userfilter,RouteOld))
+    { 
+      if (Up= FindJoinNode(A,RouteOld))
       {
         if (Down=FindLess(Up,N,RouteNew))
         {
@@ -692,10 +743,22 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
             _A_;_A_=vtkReebGraphGetArc(this,_A_)->ArcDwId0)
           {
             vtkReebArc* _a_=vtkReebGraphGetArc(this,_A_);
-            if (vtkReebGraphGetArcPersistence(this,_a_)<userfilter)
-            {
-              vtkReebGraphStackPush(_A_);
-            }
+            if((!inputMesh)||(!simplificationMetric))
+              {
+              if (vtkReebGraphGetArcPersistence(this,_a_)
+                  < simplificationThreshold) 
+                {
+                vtkReebGraphStackPush(_A_);
+                }
+              }
+            else
+              {
+              if(ComputeCustomMetric(simplificationMetric, _a_) 
+                < simplificationThreshold)
+                {
+                vtkReebGraphStackPush(_A_);
+                }
+              }
           }
         }
       }
@@ -710,10 +773,22 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
             _A_;_A_=vtkReebGraphGetArc(this,_A_)->ArcDwId1)
           {
             vtkReebArc* _a_=vtkReebGraphGetArc(this,_A_);
-            if (vtkReebGraphGetArcPersistence(this,_a_)<userfilter)
-            {
-              vtkReebGraphStackPush(_A_);
-            }
+            if((!inputMesh)||(!simplificationMetric))
+              {
+              if (vtkReebGraphGetArcPersistence(this,_a_)
+                < simplificationThreshold) 
+                {
+                vtkReebGraphStackPush(_A_);
+                }
+              }
+            else
+              {
+              if(ComputeCustomMetric(simplificationMetric, _a_) 
+                < simplificationThreshold)
+                {
+                vtkReebGraphStackPush(_A_);
+                }
+              }
           }
         }
       }
@@ -721,13 +796,15 @@ int vtkReebGraph::FilterBranchesByPersistence(double functionScalePercentage)
       nsimp++;
       redo=true;
     }
-
+    CommitSimplification();  
   } //while
 
   if (redo)
     goto REDO;
 
   free(stack);
+
+  inputMesh = input;
 
   return nsimp;
 }
@@ -769,7 +846,7 @@ static bool vertexCmp(const std::pair<int, double> v0,
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::CommitFiltering()
+int vtkReebGraph::CommitSimplification()
 {
   // now re-construct the graph with projected deg-2 nodes.
   std::vector<std::pair<std::pair<int, int>, std::vector<int> > > before, after;
@@ -937,8 +1014,7 @@ int vtkReebGraph::CommitFiltering()
           }
         }
     }
-
-  // ensure the sorting on the arcs
+  // ensure the sorting on the arcs  
   for(int i = 0; i < after.size(); i++)
     {
     std::vector<std::pair<int, double> > scalarValues;
@@ -1024,11 +1100,14 @@ int vtkReebGraph::CommitFiltering()
     }
   deg2NodeIds->Delete();
 
+  cancellationHistory.clear();
+
   return 0;
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraph::FilterByPersistence(double functionScalePercentage)
+int vtkReebGraph::Simplify(double simplificationThreshold,
+  vtkReebGraphSimplificationMetric *simplificationMetric)
 {
   int deletionNumber = 0;
 
@@ -1038,11 +1117,14 @@ int vtkReebGraph::FilterByPersistence(double functionScalePercentage)
   this->ArcNumber = 0;
   this->NodeNumber = 0;
 
-  deletionNumber = this->FilterBranchesByPersistence(functionScalePercentage)
-    + this->FilterLoopsByPersistence(functionScalePercentage)
-    + this->FilterBranchesByPersistence(functionScalePercentage);
+  deletionNumber = 
+    this->SimplifyBranches(
+      simplificationThreshold, simplificationMetric) 
+    + this->SimplifyLoops(
+      simplificationThreshold, simplificationMetric); 
+    + this->SimplifyBranches(
+      simplificationThreshold, simplificationMetric);
 
-  this->CommitFiltering();
   historyOn = false;
 
   return deletionNumber;
@@ -1076,6 +1158,9 @@ void vtkReebGraph::DeepCopy(vtkReebGraph *src)
 
   MinimumScalarValue = src->MinimumScalarValue;
   MaximumScalarValue = src->MaximumScalarValue;
+
+  inputMesh = src->inputMesh;
+  inputScalarField = src->inputScalarField;
 
   ArcNumber = src->ArcNumber;
   NodeNumber = src->NodeNumber;
@@ -1349,8 +1434,9 @@ vtkReebGraph::vtkReebGraph()
   this->MainLabelTable.FreeZone=1;
   vtkReebGraphClearLabel(this,1);
   vtkReebGraphGetLabelArc(this,1)=0;
-
-  this->MinimumScalarValue = this->MaximumScalarValue =0;
+  
+  this->MinimumScalarValue = 0;
+  this->MaximumScalarValue = 0;
 
   this->ArcNumber = 0;
   this->NodeNumber = 0;
@@ -1515,6 +1601,7 @@ void vtkReebGraph::GetNodeUpArcIds(vtkIdType nodeId, vtkIdList *arcIdList)
 //----------------------------------------------------------------------------
 void vtkReebGraph::FindLoops()
 {
+
   if (this->ArcLoopTable)
   {
     free(this->ArcLoopTable);
@@ -1597,6 +1684,8 @@ void vtkReebGraph::FindLoops()
 //----------------------------------------------------------------------------
 vtkIdType vtkReebGraph::AddMeshVertex(vtkIdType vertexId, double scalar){
 
+  static bool firstVertex = true;
+
   ScalarField[vertexId] = scalar;
 
   vtkIdType N0;
@@ -1609,10 +1698,19 @@ vtkIdType vtkReebGraph::AddMeshVertex(vtkIdType vertexId, double scalar){
   node->ArcUpId=0;
   node->IsFinalized = false;
 
-  if((!this->MaximumScalarValue) || (node->Value > this->MaximumScalarValue))
-    this->MaximumScalarValue = node->Value;
-  if((!this->MinimumScalarValue) || (node->Value < this->MinimumScalarValue))
+  if(firstVertex) 
+    {
     this->MinimumScalarValue = node->Value;
+    this->MaximumScalarValue = node->Value;
+    }
+  else
+    {
+    if(node->Value > this->MaximumScalarValue) 
+      this->MaximumScalarValue = node->Value;
+    if(node->Value < this->MinimumScalarValue) 
+      this->MinimumScalarValue = node->Value;
+    }
+  firstVertex = false;
 
   return N0;
 }
@@ -2468,6 +2566,9 @@ int vtkReebGraph::Build(vtkPolyData *mesh, vtkDataArray *scalarField)
       scalarField->GetComponent(trianglePointList->GetId(2),0));
     }
 
+  inputMesh = mesh;
+  inputScalarField = scalarField;
+
   this->CloseStream();
 
   return 0;
@@ -2491,6 +2592,9 @@ int vtkReebGraph::Build(vtkUnstructuredGrid *mesh, vtkDataArray *scalarField)
       tetPointList->GetId(3),
       scalarField->GetComponent(tetPointList->GetId(3),0));
     }
+
+  inputMesh = mesh;
+  inputScalarField = scalarField;
 
   this->CloseStream();
 

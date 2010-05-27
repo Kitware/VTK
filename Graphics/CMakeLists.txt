@@ -206,8 +206,8 @@ vtkRectilinearGridGeometryFilter.cxx
 vtkRectilinearGridToTetrahedra.cxx
 vtkRectilinearSynchronizedTemplates.cxx
 vtkRecursiveDividingCubes.cxx
+vtkReebGraphSimplificationFilter.cxx
 vtkReebGraphSurfaceSkeletonFilter.cxx
-vtkReebGraphToReebGraphPersistenceFilter.cxx
 vtkReebGraphVolumeSkeletonFilter.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx

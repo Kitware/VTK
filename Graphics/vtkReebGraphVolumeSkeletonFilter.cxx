@@ -25,7 +25,7 @@ vtkReebGraphVolumeSkeletonFilter::vtkReebGraphVolumeSkeletonFilter()
 {
   this->SetNumberOfInputPorts(2);
   this->FieldId = 0;
-  this->NumberOfSamples = 10;
+  this->NumberOfSamples = 5;
   this->NumberOfSmoothingIterations = 30;
 }
 

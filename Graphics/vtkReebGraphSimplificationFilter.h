@@ -12,40 +12,46 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkReebGraphToReebGraphPersistenceFilter - filter an input Reeb graph
-// by Persistence.
+// .NAME vtkReebGraphSimplificationFilter - simplify an input Reeb graph.
 // .SECTION Description
 // The filter takes an input vtkReebGraph object and outputs a
 // vtkReebGraph object.
 
-#ifndef __vtkReebGraphToReebGraphPersistenceFilter_h
-#define __vtkReebGraphToReebGraphPersistenceFilter_h
+#ifndef __vtkReebGraphSimplificationFilter_h
+#define __vtkReebGraphSimplificationFilter_h
 
 #include "vtkDirectedGraphAlgorithm.h"
 #include "vtkReebGraph.h"
 
-class VTK_GRAPHICS_EXPORT vtkReebGraphToReebGraphPersistenceFilter :
+class VTK_GRAPHICS_EXPORT vtkReebGraphSimplificationFilter : 
   public vtkDirectedGraphAlgorithm
 {
 public:
-  static vtkReebGraphToReebGraphPersistenceFilter* New();
-  vtkTypeRevisionMacro(vtkReebGraphToReebGraphPersistenceFilter,
+  static vtkReebGraphSimplificationFilter* New();
+  vtkTypeRevisionMacro(vtkReebGraphSimplificationFilter, 
     vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the persistence threshold for simplification (from 0 to 1).
   // Default value: 0 (no simplification).
-  vtkSetMacro(PersistenceThreshold, double);
-  vtkGetMacro(PersistenceThreshold, double);
+  vtkSetMacro(SimplificationThreshold, double);
+  vtkGetMacro(SimplificationThreshold, double);
+
+  // Description:
+  // Set the persistence metric evaluation code 
+  // Default value: NULL (standard topological persistence).
+  void SetSimplificationMetric(vtkReebGraphSimplificationMetric *metric);
 
   vtkReebGraph* GetOutput();
 
 protected:
-  vtkReebGraphToReebGraphPersistenceFilter();
-  ~vtkReebGraphToReebGraphPersistenceFilter();
+  vtkReebGraphSimplificationFilter();
+  ~vtkReebGraphSimplificationFilter();
 
-  double PersistenceThreshold;
+  double SimplificationThreshold;
+
+  vtkReebGraphSimplificationMetric *SimplificationMetric;
 
   int FillInputPortInformation(int portNumber, vtkInformation *);
   int FillOutputPortInformation(int, vtkInformation *);
@@ -54,10 +60,10 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphToReebGraphPersistenceFilter(
-    const vtkReebGraphToReebGraphPersistenceFilter&);
+  vtkReebGraphSimplificationFilter(
+    const vtkReebGraphSimplificationFilter&);  
   // Not implemented.
-  void operator=(const vtkReebGraphToReebGraphPersistenceFilter&);
+  void operator=(const vtkReebGraphSimplificationFilter&);  
   // Not implemented.
 };
 

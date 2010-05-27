@@ -44,13 +44,32 @@
 // V. Pascucci, G. Scorzelli, P.-T. Bremer, and A. Mascarenhas,
 // ACM Transactions on Graphics, Proc. of SIGGRAPH 2007.
 //
-// vtkReebGraph provides methods for computing filtered topological
-// abstractions (filtered in the sense of persistent homology).
-//
-// Reference:
+// vtkReebGraph provides methods for computing multi-resolution topological
+// hierarchies through topological simplification.
+// Topoligical simplification can be either driven by persistence homology
+// concepts (default behavior) or by application specific metrics (see
+// vtkReebGraphSimplificationMetric).
+// In the latter case, designing customized simplification metric evaluation 
+// algorithms enables the user to control the definition of what should be 
+// considered as noise or signal in the topological filtering process.
+// 
+// References:
 // "Topological persistence and simplification",
 // H. Edelsbrunner, D. Letscher, and A. Zomorodian,
 // Discrete Computational Geometry, 28:511-533, 2002.
+// 
+// "Extreme elevation on a 2-manifold",
+// P.K. Agarwal, H. Edelsbrunner, J. Harer, and Y. Wang,
+// ACM Symposium on Computational Geometry, pp. 357-365, 2004.
+//
+// "Simplifying flexible isosurfaces using local geometric measures",
+// H. Carr, J. Snoeyink, M van de Panne,
+// IEEE Visualization, 497-504, 2004
+//
+// "Loop surgery for volumetric meshes: Reeb graphs reduced to contour trees",
+// J. Tierny, A. Gyulassy, E. Simon, V. Pascucci,
+// IEEE Trans. on Vis. and Comp. Graph. (Proc of IEEE VIS), 15:1177-1184, 2009.
+//
 //
 //
 // Reeb graphs can be computed from 2D data (vtkPolyData, with triangles only)
@@ -76,16 +95,17 @@
 // isosurface extraction or level set signature computation, for instance).
 //
 // See Graphics/Testing/Cxx/TestReebGraph.cxx for examples of traversals and
-// typical usages (skeletonization, contour spectra, etc.) of a vtkReebGraph 
-// object.
+// typical usages (customized simplification, skeletonization, contour spectra,
+//  etc.) of a vtkReebGraph object.
 //
 //
 // .SECTION See Also
-//      vtkPolyData vtkUnstructuredGrid vtkDataArray
+//      vtkReebGraphSimplificationMetric
 //      vtkPolyDataToReebGraphFilter
 //      vtkUnstructuredGridToReebGraphFilter
-//      vtkReebGraphToReebGraphPersistenceFilter
+//      vtkReebGraphSimplificationFilter
 //      vtkReebGraphSurfaceSkeletonFilter
+//      vtkReebGraphVolumeSkeletonFilter
 //      vtkAreaContourSpectrumFilter
 //      vtkVolumeContourSpectrumFilter
 //
@@ -106,8 +126,11 @@
 #include  "vtkObjectFactory.h"
 #include  "vtkPointData.h"
 #include  "vtkPolyData.h"
+#include  "vtkReebGraphSimplificationMetric.h"
 #include  "vtkUnstructuredGrid.h"
 #include  "vtkVariantArray.h"
+
+class vtkReebGraphSimplificationMetric;
 
 class VTK_FILTERING_EXPORT vtkReebGraph : public vtkMutableDirectedGraph
 {
@@ -277,7 +300,8 @@ public:
   void DeepCopy(vtkReebGraph *src);
 
   // Description:
-  // Simplify the Reeb graph given the scale 'functionScalePercentage'.
+  // Simplify the Reeb graph given a threshold 'simplificationThreshold' 
+  // (between 0 and 1).
   //
   // This method is the core feature for Reeb graph multi-resolution hierarchy
   // construction.
@@ -285,14 +309,18 @@ public:
   // Return the number of arcs that have been removed through the simplification
   // process.
   //
-  // 'functionScalePercentage' represents a "scale", under which each Reeb graph
-  // feature is considered as noise. 'functionScalePercentage' is expressed as a
+  // 'simplificationThreshold' represents a "scale", under which each Reeb graph
+  // feature is considered as noise. 'simplificationThreshold' is expressed as a
   // fraction of the scalar field overall span. It can vary from 0
   // (no simplification) to 1 (maximal simplification).
   //
-  // Notice that once the Reeb graph is simplified, you can retrieve the
-  // original Reeb graph back by calling this method with no simplification
-  // ('functionScalePercentage'=0).
+  // 'simplificationMetric' is an object in charge of evaluating the importance
+  // of a Reeb graph arc at each step of the simplification process.
+  // if 'simplificationMetric' is NULL, the default strategy (persitence of the
+  // scalar field) is used.
+  // Customized simplification metric evaluation algorithm can be designed (see
+  // vtkReebGraphSimplificationMetric), enabling the user to control the
+  // definition of what should be considered as noise or signal.
   //
   // References:
   //
@@ -304,7 +332,15 @@ public:
   // P.K. Agarwal, H. Edelsbrunner, J. Harer, and Y. Wang,
   // ACM Symposium on Computational Geometry, pp. 357-365, 2004.
   //
-  int FilterByPersistence(double functionScalePercentage);
+  // "Simplifying flexible isosurfaces using local geometric measures",
+  // H. Carr, J. Snoeyink, M van de Panne,
+  // IEEE Visualization, 497-504, 2004
+  //
+  // "Loop surgery for volumetric meshes: Reeb graphs reduced to contour trees",
+  // J. Tierny, A. Gyulassy, E. Simon, V. Pascucci,
+  // IEEE Trans. on Vis. and Comp. Graph. (Proc of IEEE VIS), 15:1177-1184,2009.
+  int Simplify(double simplificationThreshold,
+    vtkReebGraphSimplificationMetric *simplificationMetric);
 
 
 protected:
@@ -390,7 +426,8 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
 
   struct vtkReebPath
   {
-    double  MinimumScalarValue, MaximumScalarValue;
+//    double  MinimumScalarValue, MaximumScalarValue;
+    double  SimplificationValue;
     int  ArcNumber;
     vtkIdType*  ArcTable;
     int  NodeNumber;
@@ -398,22 +435,30 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
 
     inline bool operator<( struct vtkReebPath const &E ) const
     {
-      return !((
-          (MaximumScalarValue - MinimumScalarValue)
-            < (E.MaximumScalarValue - E.MinimumScalarValue)) ||
-             ((MaximumScalarValue - MinimumScalarValue)
-               == (E.MaximumScalarValue-E.MinimumScalarValue)
-                 && ArcNumber < E.ArcNumber) ||
+      return !(
+          (SimplificationValue < E.SimplificationValue) ||
+          (SimplificationValue == E.SimplificationValue 
+            && ArcNumber < E.ArcNumber) ||
+          (SimplificationValue == E.SimplificationValue
+            && ArcNumber == E.ArcNumber 
+            && NodeTable[NodeNumber - 1] < E.NodeTable[E.NodeNumber - 1]));
+/*      return !((
+          (MaximumScalarValue - MinimumScalarValue) 
+            < (E.MaximumScalarValue - E.MinimumScalarValue)) || 
+             ((MaximumScalarValue - MinimumScalarValue) 
+               == (E.MaximumScalarValue-E.MinimumScalarValue) 
+                 && ArcNumber < E.ArcNumber) || 
              ((MaximumScalarValue - MinimumScalarValue)
                == (E.MaximumScalarValue - E.MinimumScalarValue)
                  && ArcNumber == E.ArcNumber
                    && NodeTable[NodeNumber - 1]<E.NodeTable[E.NodeNumber - 1])
-           );
-
+           );*/
+    
     }
   };
 
-  vtkReebGraph::vtkReebPath FindPath(vtkIdType arcId, double functionScale);
+  vtkReebGraph::vtkReebPath FindPath(vtkIdType arcId, 
+    double simplificationThreshold, vtkReebGraphSimplificationMetric *metric);
 
   struct
   {
@@ -453,6 +498,9 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   std::map<int, double> ScalarField;
 
   vtkIdType currentNodeId, currentArcId;
+
+  vtkDataSet            *inputMesh;
+  vtkDataArray          *inputScalarField;
 
   // INTERNAL METHODS --------------------------------------------------------
 
@@ -505,23 +553,33 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   void FastArcSimplify(vtkIdType arcId, int arcNumber, vtkIdType* arcTable);
 
   // Description:
+  // Triggers customized code for simplification metric evaluation.
+  //
+  // INTERNAL USE ONLY!
+  double ComputeCustomMetric(
+    vtkReebGraphSimplificationMetric *simplificationMetric,
+    vtkReebArc *a);
+
+  // Description:
   // Remove arcs below the provided persistence.
   //
   // INTERNAL USE ONLY!
-  int FilterBranchesByPersistence(double functionScalePercentage);
+  int SimplifyBranches(double simplificationThreshold,
+    vtkReebGraphSimplificationMetric *simplificationMetric);
 
   // Description:
   // Remove the loops below the provided persistence.
   //
   // INTERNAL USE ONLY!
-  int FilterLoopsByPersistence(double functionScalePercentage);
+  int SimplifyLoops(double simplificationThreshold,
+    vtkReebGraphSimplificationMetric *simplificationMetric);
 
   // Description:
   // Update the vtkMutableDirectedGraph internal structure after filtering, with
   // deg-2 nodes maintaining.
   //
   // INTERNAL USE ONLY!
-  int CommitFiltering();
+  int CommitSimplification();
 
   // Description:
   // Retrieve downwards labels.
@@ -541,10 +599,8 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   // Find corresponding joining saddle node (persistence-based simplification).
   //
   // INTERNAL USE ONLY!
-  vtkIdType FindJoinNode(vtkIdType arcId, double startingFunctionValue,
-                         double persistenceFilter, vtkReebLabelTag label,
-                         bool onePathOnly=false);
-
+  vtkIdType FindJoinNode(vtkIdType arcId, 
+    vtkReebLabelTag label, bool onePathOnly=false);
 
   // Description:
   // Find smaller arc (persistence-based simplification).
@@ -564,9 +620,8 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   // simplification).
   //
   // INTERNAL USE ONLY!
-  vtkIdType FindSplitNode(vtkIdType arcId, double startingFunctionValue,
-                          double persistenceFileter, vtkReebLabelTag label,
-                          bool onePathOnly=false);
+  vtkIdType FindSplitNode(vtkIdType arcId, vtkReebLabelTag label,
+    bool onePathOnly=false);
 
   // Description:
   // Retrieve upwards labels.
@@ -706,8 +761,9 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
 ((!i)?(0):((rg)->MainLabelTable.Buffer+(i)))
 
 #define vtkReebGraphGetArcPersistence(rg,a)  \
-(vtkReebGraphGetNode(rg,a->NodeId1)->Value - \
-vtkReebGraphGetNode(rg,a->NodeId0)->Value)
+((vtkReebGraphGetNode(rg,a->NodeId1)->Value - \
+vtkReebGraphGetNode(rg,a->NodeId0)->Value) \
+/(this->MaximumScalarValue - this->MinimumScalarValue))
 
 
 #define vtkReebGraphGetDownArc(rg,N) \

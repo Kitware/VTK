@@ -12,28 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkReebGraphToReebGraphPersistenceFilter.h"
+#include  "vtkReebGraphSimplificationFilter.h"
 
 #include  "vtkInformation.h"
 #include  "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkReebGraphToReebGraphPersistenceFilter, "$Revision$");
-vtkStandardNewMacro(vtkReebGraphToReebGraphPersistenceFilter);
+vtkCxxRevisionMacro(vtkReebGraphSimplificationFilter, "$Revision$");
+vtkStandardNewMacro(vtkReebGraphSimplificationFilter);
 
 //----------------------------------------------------------------------------
-vtkReebGraphToReebGraphPersistenceFilter::vtkReebGraphToReebGraphPersistenceFilter()
+vtkReebGraphSimplificationFilter::vtkReebGraphSimplificationFilter()
 {
   this->SetNumberOfInputPorts(1);
-  this->PersistenceThreshold = 0;
+  this->SimplificationThreshold = 0;
+  this->SimplificationMetric = NULL;
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphToReebGraphPersistenceFilter::~vtkReebGraphToReebGraphPersistenceFilter()
+vtkReebGraphSimplificationFilter::~vtkReebGraphSimplificationFilter()
 {
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToReebGraphPersistenceFilter::FillInputPortInformation(
+void vtkReebGraphSimplificationFilter::SetSimplificationMetric(
+  vtkReebGraphSimplificationMetric *simplificationMetric)
+{
+  this->SimplificationMetric = simplificationMetric;
+}
+
+//----------------------------------------------------------------------------
+int vtkReebGraphSimplificationFilter::FillInputPortInformation(
   int portNumber, vtkInformation *info)
 {
   if(!portNumber){
@@ -44,7 +52,7 @@ int vtkReebGraphToReebGraphPersistenceFilter::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToReebGraphPersistenceFilter::FillOutputPortInformation(
+int vtkReebGraphSimplificationFilter::FillOutputPortInformation(
   int, vtkInformation *info)
 {
   info->Set(vtkDirectedGraph::DATA_TYPE_NAME(), "vtkReebGraph");
@@ -52,19 +60,19 @@ int vtkReebGraphToReebGraphPersistenceFilter::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkReebGraphToReebGraphPersistenceFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkReebGraphSimplificationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraph* vtkReebGraphToReebGraphPersistenceFilter::GetOutput()
+vtkReebGraph* vtkReebGraphSimplificationFilter::GetOutput()
 {
   return vtkReebGraph::SafeDownCast(this->GetOutputDataObject(0));
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToReebGraphPersistenceFilter::RequestData(
+int vtkReebGraphSimplificationFilter::RequestData(
   vtkInformation *request, vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -86,13 +94,13 @@ int vtkReebGraphToReebGraphPersistenceFilter::RequestData(
 
     if(output){
       output->DeepCopy(input);
-      output->FilterByPersistence(this->PersistenceThreshold);
+      output->Simplify(SimplificationThreshold, SimplificationMetric);
     }
 
     if(!output){
       output = vtkReebGraph::New();
       output->DeepCopy(input);
-      output->FilterByPersistence(this->PersistenceThreshold);
+      output->Simplify(SimplificationThreshold, SimplificationMetric);
       output->SetPipelineInformation(outInfo);
       output->Delete();
     }

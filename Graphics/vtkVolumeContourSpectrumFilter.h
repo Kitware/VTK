@@ -32,6 +32,11 @@
 // This filter is a typical example for designing your own contour signature
 // filter (with customized metrics). It also shows typical vtkReebGraph
 // traversals.
+//
+// Reference:
+// C. Bajaj, V. Pascucci, D. Schikore,
+// "The contour spectrum",
+// IEEE Visualization, 167-174, 1997.
 
 #ifndef __vtkVolumeContourSpectrumFilter_h
 #define __vtkVolumeContourSpectrumFilter_h

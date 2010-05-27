@@ -58,7 +58,7 @@ public:
 
   // Description:
   // Set the number of samples along each arc of the Reeb graph
-  // Default value: 10
+  // Default value: 5
   vtkSetMacro(NumberOfSamples, int);
   vtkGetMacro(NumberOfSamples, int);
 
