@@ -2709,6 +2709,34 @@ static void vtkWrapPython_ClassDoc(
 static void vtkWrapPython_GenerateSpecialHeaders(
   FILE *fp, FileInfo *data)
 {
+  /* Some special types aren't in header files named after themselves. */
+  /* Later, the wrappers will find these exceptions automatically. */
+  const char *headers[][2] = {
+    { "vtkCollectionSimpleIterator", "vtkCollection" },
+    { "vtkLibHandle", "vtkDynamicLoader" },
+    { "vtkMultiThreaderIDType", "vtkMultiThreader" },
+    { "vtkThreadFunctionType", "vtkMultiThreader" },
+    { "vtkEdgeType", "vtkGraph" },
+    { "vtkInEdgeType", "vtkGraph" },
+    { "vtkOutEdgeType", "vtkGraph" },
+    { "vtkVertexPedigreeIdDistribution", "vtkDistributedGraphHelper" },
+    { "vtkOpenGLExtensionManagerFunctionPointer", "vtkOpenGLExtensionManager"},
+    { "vtkExodusIICacheKey", "vtkExodusIICache" },
+    { "vtkProcessFunctionType", "vtkMultiProcessController" },
+    { "vtkRMIFunctionType", "vtkMultiProcessController" },
+    { "vtkContextMouseEvent", "vtkBlockItem" },
+    { "vtkColor3ub", "vtkColor" }, { "vtkColor4ub", "vtkColor" },
+    { "vtkColor3f", "vtkColor" }, { "vtkColor4f", "vtkColor" },
+    { "vtkColor3d", "vtkColor" }, { "vtkColor4d", "vtkColor" },
+    { "vtkVector2i", "vtkVector" }, { "vtkVector3i", "vtkVector" },
+    { "vtkVector2f", "vtkVector" }, { "vtkVector3f", "vtkVector" },
+    { "vtkVector2f", "vtkVector" }, { "vtkVector3d", "vtkVector" },
+    { "vtkRect", "vtkVector" }, { "vtkRecti", "vtkVector" },
+    { "vtkRectf", "vtkVector" }, { "vtkRectd", "vtkVector" },
+    { "vtkValue", "vtkDataValue" },
+    { 0, 0 }
+  };
+
   const char *types[1000];
   int numTypes = 0;
   FunctionInfo *currentFunction;
@@ -2773,9 +2801,22 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 
   for (i = 0; i < numTypes; i++)
     {
-    fprintf(fp,
-            "#include \"%s.h\"\n",
-            types[i]);
+    const char *incfile = types[i];
+
+    for (j = 0; headers[j][0] != 0; j++)
+      {
+      if (strcmp(types[i], headers[j][0]) == 0)
+        {
+        incfile = headers[j][1];
+        break;
+        }
+      }
+    if (strcmp(incfile, data->ClassName) != 0)
+      {
+      fprintf(fp,
+              "#include \"%s.h\"\n",
+              incfile);
+      }
     }
 }
 
