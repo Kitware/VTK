@@ -2075,10 +2075,13 @@ int main(int argc, char *argv[])
     data.IsConcrete = atoi(argv[argi++]);
     }
 
-  if (!(fhint = fopen(hintFileName, "r")))
+  if (hintFileName && hintFileName[0] != '\0')
     {
-    fprintf(stderr, "Error opening hint file %s\n", hintFileName);
-    exit(1);
+    if (!(fhint = fopen(hintFileName, "r")))
+      {
+      fprintf(stderr, "Error opening hint file %s\n", hintFileName);
+      exit(1);
+      }
     }
 
   yyin = fin;

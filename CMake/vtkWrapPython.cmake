@@ -72,6 +72,12 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         SET(TMP_SPECIAL "--vtkobject")
       ENDIF (TMP_WRAP_SPECIAL)
 
+      IF (VTK_WRAP_HINTS)
+        SET(TMP_HINTS "--hints" "${quote}${VTK_WRAP_HINTS}${quote}")
+      ELSE (VTK_WRAP_HINTS)
+        SET(TMP_HINTS)
+      ENDIF (VTK_WRAP_HINTS)
+
       # add the info to the init file
       SET(VTK_WRAPPER_INIT_DATA
         "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
@@ -88,7 +94,7 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         ARGS
         ${TMP_CONCRETE}
         ${TMP_SPECIAL}
-        "--hints" "${quote}${VTK_WRAP_HINTS}${quote}"
+        ${TMP_HINTS}
         "${quote}${TMP_INPUT}${quote}"
         "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
         COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"
