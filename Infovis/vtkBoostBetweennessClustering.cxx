@@ -15,6 +15,7 @@
 
 #include "vtkBoostBetweennessClustering.h"
 
+#include "vtkBoostConnectedComponents.h"
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDirectedGraph.h"
@@ -54,7 +55,7 @@ namespace boost
    * maximum centrality, the descriptor of the edge that will be
    * removed, and the graph @p g.
    *
-   * @param edge_centrality (UTIL/OUT) The property map that will store
+   * @param edge_centrality (UTIL/out2) The property map that will store
    * the betweenness centrality for each edge. When the algorithm
    * terminates, it will contain the edge centralities for the
    * graph. The type of this property map must model the
@@ -114,6 +115,7 @@ vtkBoostBetweennessClustering::vtkBoostBetweennessClustering() :
   EdgeWeightArrayName     (0),
   EdgeCentralityArrayName (0)
 {
+  this->SetNumberOfOutputPorts(2);
 }
 
 //-----------------------------------------------------------------------------
@@ -145,6 +147,9 @@ int vtkBoostBetweennessClustering::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  // Helpful vars.
+  bool isDirectedGraph (false);
+
   // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if(!inInfo)
@@ -153,31 +158,50 @@ int vtkBoostBetweennessClustering::RequestData(
     return 1;
     }
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  if(!outInfo)
+  vtkInformation* outInfo1 = outputVector->GetInformationObject(0);
+  if(!outInfo1)
     {
-    vtkErrorMacro("Failed to get output information.")
+    vtkErrorMacro("Failed get output1 on information first port.")
+    }
+
+  vtkInformation* outInfo2 = outputVector->GetInformationObject(1);
+  if(!outInfo2)
+    {
+    vtkErrorMacro("Failed to get output2 information on second port.")
     return 1;
     }
 
-  // Get the input and output
-  vtkGraph* input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // Get the input, output1 and output2.
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(
+    vtkDataObject::DATA_OBJECT()));
   if(!input)
     {
     vtkErrorMacro("Failed to get input graph.")
     return 1;
     }
 
-  vtkGraph* output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if(!output)
+  if(vtkDirectedGraph::SafeDownCast(input))
     {
-    vtkErrorMacro("Failed to get output graph.")
+    isDirectedGraph = true;
+    }
+
+  vtkGraph* output1 = vtkGraph::SafeDownCast(
+    outInfo1->Get(vtkDataObject::DATA_OBJECT()));
+  if(!output1)
+    {
+    vtkErrorMacro("Failed to get output1 graph.")
     return 1;
     }
 
-  vtkFloatArray* edgeCM = vtkFloatArray::New();
+  vtkGraph* output2 = vtkGraph::SafeDownCast(
+    outInfo2->Get(vtkDataObject::DATA_OBJECT()));
+  if(!output2)
+    {
+    vtkErrorMacro("Failed to get output2 graph.")
+    return 1;
+    }
+
+  vtkSmartPointer<vtkFloatArray> edgeCM = vtkSmartPointer<vtkFloatArray>::New();
   if(this->EdgeCentralityArrayName)
     {
     edgeCM->SetName(this->EdgeCentralityArrayName);
@@ -189,7 +213,6 @@ int vtkBoostBetweennessClustering::RequestData(
 
   boost::vtkGraphEdgePropertyMapHelper<vtkFloatArray*> helper(edgeCM);
 
-
   vtkSmartPointer<vtkDataArray> edgeWeight (0);
   if(this->UseEdgeWeightArray && this->EdgeWeightArrayName)
     {
@@ -200,7 +223,7 @@ int vtkBoostBetweennessClustering::RequestData(
     else
       {
       vtkDataArray* weights =
-          input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
+        input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
       edgeWeight.TakeReference(
         vtkDataArray::CreateDataArray(weights->GetDataType()));
@@ -210,6 +233,7 @@ int vtkBoostBetweennessClustering::RequestData(
 
       if(weights->GetNumberOfComponents() > 1)
         {
+        vtkErrorMacro("Only single componenet array  can be used for edge weight");
         return 1;
         }
 
@@ -227,54 +251,127 @@ int vtkBoostBetweennessClustering::RequestData(
       }
     }
 
-  if(vtkDirectedGraph::SafeDownCast(input))
+  // First compute the second output as result of it will be used for
+  // the first output.
+  if(isDirectedGraph)
     {
-    vtkMutableDirectedGraph* out  = vtkMutableDirectedGraph::New();
-    // Send the data to output.
-    out->DeepCopy(input);
+    vtkMutableDirectedGraph* out2  = vtkMutableDirectedGraph::New();
+
+    // Copy the data to the second output (as this algorithm most likely
+    // going to removed edges (and hence modifying the graph).
+    out2->DeepCopy(input);
 
     if(edgeWeight)
       {
       boost::vtkGraphEdgePropertyMapHelper<vtkDataArray*> helper2(edgeWeight);
-      boost::betweenness_centrality_clustering(
-        out, boost::bc_clustering_threshold<double>(
-        this->Threshold, out, false), helper, helper2,
-        boost::get(boost::vertex_index, out));
+      boost::betweenness_centrality_clustering(out2,
+        boost::bc_clustering_threshold<double>(this->Threshold, out2, false),
+        helper, helper2, boost::get(boost::vertex_index, out2));
       }
     else
       {
-      boost::betweenness_centrality_clustering(
-        out, boost::bc_clustering_threshold<double>(
-          this->Threshold, out, false), helper);
+      boost::betweenness_centrality_clustering(out2,
+        boost::bc_clustering_threshold<double>(
+        this->Threshold, out2, false), helper);
       }
-    out->GetEdgeData()->AddArray(edgeCM);
-    output->ShallowCopy(out);
-    out->Delete();
+    out2->GetEdgeData()->AddArray(edgeCM);
+
+    // Finally copy the results to the output.
+    output2->ShallowCopy(out2);
+
+    out2->Delete();
     }
   else
     {
-    vtkMutableUndirectedGraph* out = vtkMutableUndirectedGraph::New();
-    // Send the data to output.
-    out->DeepCopy(input);
+    vtkMutableUndirectedGraph* out2 = vtkMutableUndirectedGraph::New();
+
+    // Send the data to output2.
+    out2->DeepCopy(input);
 
     if(edgeWeight)
       {
       boost::vtkGraphEdgePropertyMapHelper<vtkDataArray*> helper2(edgeWeight);
-      boost::betweenness_centrality_clustering(out,
-        boost::bc_clustering_threshold<double>(this->Threshold, out,false),
-        helper, helper2, boost::get(boost::vertex_index, out));
+      boost::betweenness_centrality_clustering(out2,
+        boost::bc_clustering_threshold<double>(this->Threshold, out2,false),
+        helper, helper2, boost::get(boost::vertex_index, out2));
       }
     else
       {
-      boost::betweenness_centrality_clustering(
-        out, boost::bc_clustering_threshold<double>(this->Threshold, out,
-                                                    false), helper);
+      boost::betweenness_centrality_clustering(out2,
+        boost::bc_clustering_threshold<double>(this->Threshold, out2,false),
+        helper);
       }
-    out->GetEdgeData()->AddArray(edgeCM);
-    output->ShallowCopy(out);
-    out->Delete();
+    out2->GetEdgeData()->AddArray(edgeCM);
+
+    // Finally copy the results to the output.
+    output2->ShallowCopy(out2);
+
+    out2->Delete();
     }
 
-  edgeCM->Delete();
+  // Now take care of the first output.
+  vtkSmartPointer<vtkBoostConnectedComponents> bcc (
+    vtkSmartPointer<vtkBoostConnectedComponents>::New());
+
+  vtkSmartPointer<vtkGraph> output2Copy(0);
+
+  if(isDirectedGraph)
+    {
+    output2Copy = vtkSmartPointer<vtkDirectedGraph>::New();
+    }
+  else
+    {
+    output2Copy = vtkSmartPointer<vtkUndirectedGraph>::New();
+    }
+
+  output2Copy->ShallowCopy(output2);
+
+  bcc->SetInput(0, output2Copy);
+  bcc->Update();
+
+  vtkSmartPointer<vtkGraph> bccOut = bcc->GetOutput(0);
+
+  vtkSmartPointer<vtkAbstractArray> compArray (0);
+  if(isDirectedGraph)
+    {
+    vtkSmartPointer<vtkDirectedGraph> out1
+      (vtkSmartPointer<vtkDirectedGraph>::New());
+    out1->DeepCopy(input);
+
+    compArray = bccOut->GetVertexData()->GetAbstractArray("component");
+
+    out1->GetVertexData()->AddArray(compArray);
+
+    // Finally copy the output to the algorithm output.
+    output1->ShallowCopy(out1);
+    }
+  else
+    {
+    vtkSmartPointer<vtkUndirectedGraph> out1
+      (vtkSmartPointer<vtkUndirectedGraph>::New());
+    out1->ShallowCopy(input);
+
+    compArray = bccOut->GetVertexData()->GetAbstractArray("component");
+
+    out1->GetVertexData()->AddArray(compArray);
+
+    // Finally copy the output to the algorithm output.
+    output1->ShallowCopy(out1);
+    }
+
+  // Also add the components array to the second output.
+  output2->GetVertexData()->AddArray(compArray);
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkBoostBetweennessClustering::FillOutputPortInformation(
+  int port, vtkInformation* info)
+{
+  if(port == 0 || port == 1)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
+    }
   return 1;
 }

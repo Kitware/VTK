@@ -70,6 +70,8 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
 
 private:
 
