@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 // vtkBoostConnectedComponents discovers the connected regions of a vtkGraph.
-// Each vertex is assigned a component ID in the vertex array "components".
+// Each vertex is assigned a component ID in the vertex array "component".
 // If the graph is undirected, this is the natural connected components
 // of the graph.  If the graph is directed, this filter discovers the
 // strongly connected components of the graph (i.e. the maximal sets of
@@ -33,7 +33,7 @@
 
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm 
+class VTK_INFOVIS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm
 {
 public:
   static vtkBoostConnectedComponents *New();
@@ -45,7 +45,7 @@ protected:
   ~vtkBoostConnectedComponents();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
 private:
 
   vtkBoostConnectedComponents(const vtkBoostConnectedComponents&);  // Not implemented.
