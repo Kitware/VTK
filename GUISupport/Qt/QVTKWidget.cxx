@@ -132,10 +132,19 @@ void QVTKWidget::SetUseTDx(bool useTDx)
     if(this->UseTDx)
       {
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
-      QObject::connect(QApplication::instance(),
-                       SIGNAL(CreateDevice(vtkTDxDevice *)),
-                       this,
-                       SLOT(setDevice(vtkTDxDevice *)));
+       QByteArray theSignal=
+         QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
+      if(QApplication::instance()->metaObject()->indexOfSignal(theSignal)!=-1)
+        {
+        QObject::connect(QApplication::instance(),
+                         SIGNAL(CreateDevice(vtkTDxDevice *)),
+                         this,
+                         SLOT(setDevice(vtkTDxDevice *)));
+        }
+      else
+        {
+        vtkGenericWarningMacro("Missing signal CreateDevice on QApplication. 3DConnexion device will not work. Define it or derive your QApplication from QVTKApplication.");
+        }
 #endif
       }
     }
