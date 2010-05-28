@@ -1153,82 +1153,84 @@ void vtkReebGraph::FlushLabels()
 }
 
 //----------------------------------------------------------------------------
-void vtkReebGraph::DeepCopy(vtkReebGraph *src)
+void vtkReebGraph::DeepCopy(vtkDataObject *src)
 {
 
-  MinimumScalarValue = src->MinimumScalarValue;
-  MaximumScalarValue = src->MaximumScalarValue;
+  vtkReebGraph *srcG = vtkReebGraph::SafeDownCast(src);
 
-  inputMesh = src->inputMesh;
-  inputScalarField = src->inputScalarField;
+  MinimumScalarValue = srcG->MinimumScalarValue;
+  MaximumScalarValue = srcG->MaximumScalarValue;
 
-  ArcNumber = src->ArcNumber;
-  NodeNumber = src->NodeNumber;
-  LoopNumber = src->LoopNumber;
+  inputMesh = srcG->inputMesh;
+  inputScalarField = srcG->inputScalarField;
 
-  ScalarField = src->ScalarField;
+  ArcNumber = srcG->ArcNumber;
+  NodeNumber = srcG->NodeNumber;
+  LoopNumber = srcG->LoopNumber;
 
-  VertexStream = src->VertexStream;
+  ScalarField = srcG->ScalarField;
 
-  if (src->MainArcTable.Buffer)
+  VertexStream = srcG->VertexStream;
+
+  if (srcG->MainArcTable.Buffer)
   {
-    MainArcTable.Size = src->MainArcTable.Size;
-    MainArcTable.Number = src->MainArcTable.Number;
+    MainArcTable.Size = srcG->MainArcTable.Size;
+    MainArcTable.Number = srcG->MainArcTable.Number;
     this->MainArcTable.Buffer = (vtkReebArc*)malloc(
-      sizeof(vtkReebArc)*src->MainArcTable.Size);
+      sizeof(vtkReebArc)*srcG->MainArcTable.Size);
 
-    memcpy(this->MainArcTable.Buffer,src->MainArcTable.Buffer,
-      sizeof(vtkReebArc)*src->MainArcTable.Size);
+    memcpy(this->MainArcTable.Buffer,srcG->MainArcTable.Buffer,
+      sizeof(vtkReebArc)*srcG->MainArcTable.Size);
   }
 
-  if (src->MainNodeTable.Buffer)
+  if (srcG->MainNodeTable.Buffer)
   {
-    MainNodeTable.Size = src->MainNodeTable.Size;
-    MainNodeTable.Number = src->MainNodeTable.Number;
+    MainNodeTable.Size = srcG->MainNodeTable.Size;
+    MainNodeTable.Number = srcG->MainNodeTable.Number;
     this->MainNodeTable.Buffer = (vtkReebNode*)malloc(
-      sizeof(vtkReebNode)*src->MainNodeTable.Size);
+      sizeof(vtkReebNode)*srcG->MainNodeTable.Size);
 
-    memcpy(this->MainNodeTable.Buffer,src->MainNodeTable.Buffer,
-      sizeof(vtkReebNode)*src->MainNodeTable.Size);
+    memcpy(this->MainNodeTable.Buffer,srcG->MainNodeTable.Buffer,
+      sizeof(vtkReebNode)*srcG->MainNodeTable.Size);
   }
 
-  if (src->MainLabelTable.Buffer)
+  if (srcG->MainLabelTable.Buffer)
   {
-    MainLabelTable.Size = src->MainLabelTable.Size;
-    MainLabelTable.Number = src->MainLabelTable.Number;
+    MainLabelTable.Size = srcG->MainLabelTable.Size;
+    MainLabelTable.Number = srcG->MainLabelTable.Number;
 
     this->MainLabelTable.Buffer = (vtkReebLabel*)malloc(
-      sizeof(vtkReebLabel)*src->MainLabelTable.Size);
-    memcpy(this->MainLabelTable.Buffer,src->MainLabelTable.Buffer,
-      sizeof(vtkReebLabel)*src->MainLabelTable.Size);
+      sizeof(vtkReebLabel)*srcG->MainLabelTable.Size);
+    memcpy(this->MainLabelTable.Buffer,srcG->MainLabelTable.Buffer,
+      sizeof(vtkReebLabel)*srcG->MainLabelTable.Size);
   }
 
-  if (src->ArcLoopTable)
+  if (srcG->ArcLoopTable)
   {
-    this->ArcLoopTable=(vtkIdType *)malloc(sizeof(vtkIdType)*src->LoopNumber);
+    this->ArcLoopTable=(vtkIdType *)malloc(sizeof(vtkIdType)*srcG->LoopNumber);
     memcpy(this->ArcLoopTable,
-      src->ArcLoopTable,sizeof(vtkIdType)*src->LoopNumber);
+      srcG->ArcLoopTable,sizeof(vtkIdType)*srcG->LoopNumber);
   }
 
-	if(src->VertexMapSize){
-		this->VertexMapSize = src->VertexMapSize;
-		this->VertexMapAllocatedSize = src->VertexMapAllocatedSize;
+	if(srcG->VertexMapSize){
+		this->VertexMapSize = srcG->VertexMapSize;
+		this->VertexMapAllocatedSize = srcG->VertexMapAllocatedSize;
 		this->VertexMap = (vtkIdType *) malloc(
 			sizeof(vtkIdType)*this->VertexMapAllocatedSize);
-		memcpy(this->VertexMap, src->VertexMap,
-			sizeof(vtkIdType)*src->VertexMapAllocatedSize);
+		memcpy(this->VertexMap, srcG->VertexMap,
+			sizeof(vtkIdType)*srcG->VertexMapAllocatedSize);
 	}
 
-	if(src->TriangleVertexMapSize){
-		this->TriangleVertexMapSize = src->TriangleVertexMapSize;
-		this->TriangleVertexMapAllocatedSize = src->TriangleVertexMapAllocatedSize;
+	if(srcG->TriangleVertexMapSize){
+		this->TriangleVertexMapSize = srcG->TriangleVertexMapSize;
+		this->TriangleVertexMapAllocatedSize = srcG->TriangleVertexMapAllocatedSize;
 		this->TriangleVertexMap = (int *) malloc(
 			sizeof(int)*this->TriangleVertexMapAllocatedSize);
-		memcpy(this->TriangleVertexMap, src->TriangleVertexMap,
-			sizeof(int)*src->TriangleVertexMapAllocatedSize);
+		memcpy(this->TriangleVertexMap, srcG->TriangleVertexMap,
+			sizeof(int)*srcG->TriangleVertexMapAllocatedSize);
 	}
 
-  vtkMutableDirectedGraph::DeepCopy(src);
+  vtkMutableDirectedGraph::DeepCopy(srcG);
 }
 
 //----------------------------------------------------------------------------

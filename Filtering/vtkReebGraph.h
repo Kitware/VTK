@@ -297,7 +297,7 @@ public:
 
   // Descrition:
   // Implements deep copy
-  void DeepCopy(vtkReebGraph *src);
+  void DeepCopy(vtkDataObject *src);
 
   // Description:
   // Simplify the Reeb graph given a threshold 'simplificationThreshold' 
