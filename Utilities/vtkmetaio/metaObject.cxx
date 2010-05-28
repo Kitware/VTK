@@ -987,6 +987,7 @@ AcquisitionDate(const char * _acquisitionDate)
     {
     m_AcquisitionDate[i] = _acquisitionDate[i];
     }
+  m_AcquisitionDate[strlen( _acquisitionDate )] = '\0';
   }
       
 const char * MetaObject::AcquisitionDate(void) const
@@ -1334,6 +1335,7 @@ M_SetupWriteFields(void)
     mF = new MET_FieldRecordType;
     MET_InitWriteField(mF, "AcquisitionDate", MET_STRING,
                        strlen(m_AcquisitionDate), m_AcquisitionDate);
+    m_Fields.push_back(mF);
     }
 
   bool valSet = false;
@@ -1534,6 +1536,7 @@ M_Read(void)
       {
       m_AcquisitionDate[i] = ((char *)mF->value)[i];
       }
+    m_AcquisitionDate[strlen((char *)mF->value)] = '\0';
     }
 
   mF = MET_GetFieldRecord("CompressedData",  &m_Fields);
