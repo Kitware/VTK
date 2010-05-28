@@ -129,6 +129,7 @@ vtkBoostBreadthFirstSearchTree::~vtkBoostBreadthFirstSearchTree()
 void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkIdType index)
 {
   this->OriginVertexIndex = index;
+  this->ArrayNameSet = false;
   this->Modified();
 }
   
