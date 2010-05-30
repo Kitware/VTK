@@ -48,7 +48,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestFixedWidthTextReader
       TestRISReader
       TestStringToNumeric
-      TestTableToGraph
       TestTulipReader
       )
   ENDIF (VTK_DATA_ROOT)
@@ -63,6 +62,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
      IF (VTK_USE_VIEWS)
        SET(MyTests ${MyTests}
          TestBoostBrandesCentrality
+         TestTableToGraph
        )
     ENDIF (VTK_USE_VIEWS)
 
