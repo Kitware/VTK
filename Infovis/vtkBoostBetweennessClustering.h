@@ -41,6 +41,9 @@ public:
   vtkBoostBetweennessClustering();
   virtual ~vtkBoostBetweennessClustering();
 
+  // Description:
+  // Get/Set the threshold value. Algorithm terminats when the maximum edge
+  // centrality is below this threshold.
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
 
@@ -79,7 +82,6 @@ private:
   bool    UseEdgeWeightArray;
   bool    InvertEdgeWeightArray;
   char*   EdgeWeightArrayName;
-
   char*   EdgeCentralityArrayName;
 
   vtkBoostBetweennessClustering(const vtkBoostBetweennessClustering&); // Not implemented.

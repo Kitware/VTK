@@ -30,46 +30,44 @@
 
 #include <boost/graph/bc_clustering.hpp>
 
-//@Note: This piece of code is copied from boost graph library.
-// In the initial algorithm the weight map was not used and this
-// modified version allows the user to pass edge weight map.
+// @note: This piece of code is modification of algorithm from boost graph
+// library. This modified version allows the user to pass edge weight map
 namespace boost
 {
-  /** Graph clustering based on edge betweenness centrality.
-   *
-   * This algorithm implements graph clustering based on edge
-   * betweenness centrality. It is an iterative algorithm, where in each
-   * step it compute the edge betweenness centrality (via @ref
-   * brandes_betweenness_centrality) and removes the edge with the
-   * maximum betweenness centrality. The @p done function object
-   * determines when the algorithm terminates (the edge found when the
-   * algorithm terminates will not be removed).
-   *
-   * @param g The graph on which clustering will be performed. The type
-   * of this parameter (@c MutableGraph) must be a model of the
-   * VertexListGraph, IncidenceGraph, EdgeListGraph, and Mutable Graph
-   * concepts.
-   *
-   * @param done The function object that indicates termination of the
-   * algorithm. It must be a ternary function object thats accepts the
-   * maximum centrality, the descriptor of the edge that will be
-   * removed, and the graph @p g.
-   *
-   * @param edge_centrality (UTIL/out2) The property map that will store
-   * the betweenness centrality for each edge. When the algorithm
-   * terminates, it will contain the edge centralities for the
-   * graph. The type of this property map must model the
-   * ReadWritePropertyMap concept. Defaults to an @c
-   * iterator_property_map whose value type is
-   * @c Done::centrality_type and using @c get(edge_index, g) for the
-   * index map.
-   *
-   * @param vertex_index (IN) The property map that maps vertices to
-   * indices in the range @c [0, num_vertices(g)). This type of this
-   * property map must model the ReadablePropertyMap concept and its
-   * value type must be an integral type. Defaults to
-   * @c get(vertex_index, g).
-   */
+   // Graph clustering based on edge betweenness centrality.
+   //
+   // This algorithm implements graph clustering based on edge
+   // betweenness centrality. It is an iterative algorithm, where in each
+   // step it compute the edge betweenness centrality (via @ref
+   // brandes_betweenness_centrality) and removes the edge with the
+   // maximum betweenness centrality. The @p done function object
+   // determines when the algorithm terminates (the edge found when the
+   // algorithm terminates will not be removed).
+   //
+   // @param g The graph on which clustering will be performed. The type
+   // of this parameter (@c MutableGraph) must be a model of the
+   // VertexListGraph, IncidenceGraph, EdgeListGraph, and Mutable Graph
+   // concepts.
+   //
+   // @param done The function object that indicates termination of the
+   // algorithm. It must be a ternary function object thats accepts the
+   // maximum centrality, the descriptor of the edge that will be
+   // removed, and the graph @p g.
+   //
+   // @param edge_centrality (UTIL/out2) The property map that will store
+   // the betweenness centrality for each edge. When the algorithm
+   // terminates, it will contain the edge centralities for the
+   // graph. The type of this property map must model the
+   // ReadWritePropertyMap concept. Defaults to an @c
+   // iterator_property_map whose value type is
+   // @c Done::centrality_type and using @c get(edge_index, g) for the
+   // index map.
+   //
+   // @param vertex_index (IN) The property map that maps vertices to
+   // indices in the range @c [0, num_vertices(g)). This type of this
+   // property map must model the ReadablePropertyMap concept and its
+   // value type must be an integral type. Defaults to
+   // @c get(vertex_index, g).
   template<typename MutableGraph, typename Done, typename EdgeCentralityMap,
            typename EdgeWeightMap, typename VertexIndexMap>
   void
@@ -93,11 +91,12 @@ namespace boost
 
     bool is_done;
     do {
-      brandes_betweenness_centrality(g,
-                                     edge_centrality_map(edge_centrality)
-                                     .vertex_index_map(vertex_index).weight_map(edge_weight_map));
+      brandes_betweenness_centrality(g,edge_centrality_map(edge_centrality)
+                                     .vertex_index_map(vertex_index)
+                                     .weight_map(edge_weight_map));
       std::pair<edge_iterator, edge_iterator> edges_iters = edges(g);
-      edge_descriptor e = *max_element(edges_iters.first, edges_iters.second, cmp);
+      edge_descriptor e = *max_element(edges_iters.first, edges_iters.second,
+                                       cmp);
       is_done = done(get(edge_centrality, e), e, g);
       if (!is_done) remove_edge(e, g);
     } while (!is_done && !has_no_edges(g));
@@ -133,11 +132,13 @@ void vtkBoostBetweennessClustering::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "InvertEdgeWeightArray: " << this->InvertEdgeWeightArray
     << endl;
   (EdgeWeightArrayName) ?
-    os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName << endl :
+    os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName
+      << endl :
     os << indent << "EdgeWeightArrayName: NULL" << endl;
 
   (EdgeCentralityArrayName) ?
-    os << indent << "EdgeCentralityArrayName: " << this->EdgeCentralityArrayName << endl :
+    os << indent << "EdgeCentralityArrayName: " << this->EdgeCentralityArrayName
+      << endl :
     os << indent << "EdgeCentralityArrayName: NULL" << endl;
 }
 
@@ -233,7 +234,7 @@ int vtkBoostBetweennessClustering::RequestData(
 
       if(weights->GetNumberOfComponents() > 1)
         {
-        vtkErrorMacro("Only single componenet array  can be used for edge weight");
+        vtkErrorMacro("Expecting single component array.");
         return 1;
         }
 
@@ -251,14 +252,14 @@ int vtkBoostBetweennessClustering::RequestData(
       }
     }
 
-  // First compute the second output as result of it will be used for
-  // the first output.
+  // First compute the second output and the result will be used
+  // as input for the first output.
   if(isDirectedGraph)
     {
     vtkMutableDirectedGraph* out2  = vtkMutableDirectedGraph::New();
 
     // Copy the data to the second output (as this algorithm most likely
-    // going to removed edges (and hence modifying the graph).
+    // going to removed edges (and hence modifies the graph).
     out2->DeepCopy(input);
 
     if(edgeWeight)
@@ -336,9 +337,15 @@ int vtkBoostBetweennessClustering::RequestData(
     {
     vtkSmartPointer<vtkDirectedGraph> out1
       (vtkSmartPointer<vtkDirectedGraph>::New());
-    out1->DeepCopy(input);
+    out1->ShallowCopy(input);
 
     compArray = bccOut->GetVertexData()->GetAbstractArray("component");
+
+    if(!compArray)
+      {
+      vtkErrorMacro("Unable to get component array.")
+      return 1;
+      }
 
     out1->GetVertexData()->AddArray(compArray);
 
@@ -352,6 +359,12 @@ int vtkBoostBetweennessClustering::RequestData(
     out1->ShallowCopy(input);
 
     compArray = bccOut->GetVertexData()->GetAbstractArray("component");
+
+    if(!compArray)
+      {
+      vtkErrorMacro("Unable to get component array.")
+      return 1;
+      }
 
     out1->GetVertexData()->AddArray(compArray);
 
