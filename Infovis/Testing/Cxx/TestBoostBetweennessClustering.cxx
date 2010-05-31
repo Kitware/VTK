@@ -26,7 +26,8 @@
 
 #include <vtkstd/map>
 
-int TestBoostBetweennessClustering(int argc, char* argv[])
+int TestBoostBetweennessClustering(int vtkNotUsed(argc),
+                                   char* vtkNotUsed(argv)[])
 {
   // Create the test graph
   vtkSmartPointer<vtkMutableUndirectedGraph> g
