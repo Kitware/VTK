@@ -5,7 +5,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests
     TestArcEdges
     TestAssignCoordinates
-    TestBoostBetweennessClustering.cxx
     TestCollapseVerticesByArray
     TestContingencyStatistics
     TestCorrelativeStatistics
@@ -58,6 +57,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}
       TestBoostAdapter
       TestBoostAlgorithms
+      TestBoostBetweennessClustering.cxx
       )
 
      IF (VTK_USE_VIEWS)
