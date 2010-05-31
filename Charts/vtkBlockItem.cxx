@@ -96,6 +96,7 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
 bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   this->MouseOver = true;
+  this->GetScene()->SetDirty(true);
   return true;
 }
 
@@ -113,6 +114,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->Dimensions[0] += deltaX;
     this->Dimensions[1] += deltaY;
 
+    this->GetScene()->SetDirty(true);
     return true;
     }
   else if (this->MouseButtonPressed == 1)
@@ -123,6 +125,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->Dimensions[2] -= deltaX;
     this->Dimensions[3] -= deltaY;
 
+    this->GetScene()->SetDirty(true);
     return true;
     }
   else if (this->MouseButtonPressed == 2)
@@ -131,6 +134,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->Dimensions[2] += deltaX;
     this->Dimensions[3] += deltaY;
 
+    this->GetScene()->SetDirty(true);
     return true;
     }
   return false;
@@ -140,6 +144,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 bool vtkBlockItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   this->MouseOver = false;
+  this->GetScene()->SetDirty(true);
   return true;
 }
 
