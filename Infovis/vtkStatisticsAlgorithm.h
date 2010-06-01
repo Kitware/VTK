@@ -101,12 +101,14 @@ public:
     { this->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
 
   // Description:
-  // A convenience method for setting the input model (if one is expected or allowed).
+  // A convenience method for setting the input model connection (if one is expected or allowed).
   // It is equivalent to calling SetInputConnection( 2, model );
   virtual void SetInputModelConnection( vtkAlgorithmOutput* model )
     { this->SetInputConnection( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
 
   // Description:
+  // A convenience method for setting the input model (if one is expected or allowed).
+  // It is equivalent to calling SetInput( 2, model );
   virtual void SetInputModel( vtkDataObject* model )
     { this->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
 
