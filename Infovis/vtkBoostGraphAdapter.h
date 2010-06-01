@@ -51,8 +51,8 @@ namespace boost {
 
   // Forward declarations are required here, so that we aren't forced
   // to include boost/property_map.hpp.
-  template<typename> class property_traits;
-  class read_write_property_map_tag;
+  template<typename> struct property_traits;
+  struct read_write_property_map_tag;
 
 #define vtkPropertyMapMacro(T, V)                       \
   template <>                                           \
