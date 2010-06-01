@@ -23,17 +23,18 @@ PURPOSE.  See the above copyright notice for more information.
 // Given a selection of columns of interest in an input data table, this 
 // class provides the following functionalities, depending on the
 // execution mode it is executed in:
-// * Learn: calculate extremal values, arithmetic mean, unbiased variance 
-//   estimator, skewness estimator, and both sample and G2 estimation of the 
-//   kurtosis excess. More precisely, Learn calculates the sums; if
-//   \p finalize is set to true (default), the final statistics are calculated
-//   with CalculateFromSums. Otherwise, only raw sums are output; this 
-//   option is made for efficient parallel calculations.
-//   Note that CalculateFromSums is a static function, so that it can be used
-//   directly with no need to instantiate a vtkDescriptiveStatistics object.
-// * Assess: given an input data set in port INPUT_DATA, and a reference value x along
-//   with an acceptable deviation d>0, assess all entries in the data set which
-//   are outside of [x-d,x+d].
+// * Learn: calculate extremal values, sample mean, and M2, M3, and M4 aggregates
+//   (cf. P. Pebay, Formulas for robust, one-pass parallel computation of covariances
+//   and Arbitrary-Order Statistical Moments, Sandia Report SAND2008-6212, Sep 2008,
+//   http://infoserve.sandia.gov/sand_doc/2008/086212.pdf for details)
+// * Derive: calculated unbiased variance estimator, two skewness estimators, and
+//   two kurtosis excess estimators.
+// * Assess: given an input data set, and a reference value x along
+//   with an acceptable deviation d>0, assess all entries in the data set which are
+//   outside of [x-d,x+d]. By default, the reference value x and the deviation d are,
+//   respectively, the mean and the standard deviation of the input model.
+// * Test: calculate Jarque-Bera statistic and, if VTK to R interface is available,
+//   retrieve corresponding p-value for normality testing.
 //
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
