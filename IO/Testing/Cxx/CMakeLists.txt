@@ -35,11 +35,17 @@ ENDIF(VTK_USE_INFOVIS)
 IF(VTK_USE_METAIO)
   SET(ConditionalTests ${ConditionalTests} TestMetaIO.cxx)
 ENDIF(VTK_USE_METAIO)
-IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL AND POSTGRES_FOUND)
+IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
   SET(ConditionalTests ${ConditionalTests} TestPostgreSQLDatabase.cxx)
-ENDIF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL AND POSTGRES_FOUND)
+  IF (VTK_DATA_ROOT)
+    SET(ConditionalTests ${ConditionalTests} TestPostgreSQLTableReadWrite.cxx)
+  ENDIF (VTK_DATA_ROOT)
+ENDIF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
 IF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
   SET(ConditionalTests ${ConditionalTests} TestMySQLDatabase.cxx)
+  IF (VTK_DATA_ROOT)
+    SET(ConditionalTests ${ConditionalTests} TestMySQLTableReadWrite.cxx)
+  ENDIF (VTK_DATA_ROOT)
 ENDIF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
 IF(VTK_USE_ODBC AND VTK_ODBC_TEST_DSN)
   SET(ConditionalTests ${ConditionalTest} TestODBCDatabase.cxx)
@@ -70,6 +76,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
   TestSQLDatabaseSchema.cxx
+  TestSQLiteTableReadWrite.cxx
   TestImageReader2Factory.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
@@ -92,6 +99,8 @@ IF (VTK_DATA_ROOT)
     ${VTK_DATA_ROOT}/Data/sample.xml)
   ADD_TEST(TestImageReader2Factory ${CXX_TEST_PATH}/${KIT}CxxTests TestImageReader2Factory
     ${VTK_DATA_ROOT}/Baseline/${KIT}/TestHyperOctreeIO.png)
+  ADD_TEST(TestSQLiteTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+    TestSQLiteTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
   IF(VTK_USE_METAIO)
     ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
       ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
@@ -143,11 +152,19 @@ ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_HAS_UINT64_ARRAY)
   ADD_TEST(TestSQLiteDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestSQLiteDatabase)
 ENDIF(VTK_HAS_UINT64_ARRAY)
-IF(VTK_USE_POSTGRES AND POSTGRES_FOUND AND VTK_PSQL_TEST_URL)
+IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
   ADD_TEST(TestPostgreSQLDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestPostgreSQLDatabase)
-ENDIF(VTK_USE_POSTGRES AND POSTGRES_FOUND AND VTK_PSQL_TEST_URL)
+  IF (VTK_DATA_ROOT)
+    ADD_TEST(TestPostgreSQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+      TestPostgreSQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+  ENDIF (VTK_DATA_ROOT)
+ENDIF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
 IF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
   ADD_TEST(TestMySQLDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestMySQLDatabase)
+  IF (VTK_DATA_ROOT)
+    ADD_TEST(TestMySQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+      TestMySQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+  ENDIF (VTK_DATA_ROOT)
 ENDIF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
 IF(VTK_USE_OGGTHEORA_ENCODER)
   ADD_TEST(TestOggTheoraWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestOggTheoraWriter)

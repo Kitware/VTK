@@ -35,6 +35,7 @@ vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
 vtkCGMWriter.cxx
 vtkChacoReader.cxx
+vtkDatabaseToTableReader.cxx
 vtkDEMReader.cxx
 vtkDICOMImageReader.cxx
 vtkDataCompressor.cxx
@@ -116,6 +117,7 @@ vtkSLACReader.cxx
 vtkSQLDatabase.cxx
 vtkSQLDatabaseSchema.cxx
 vtkSQLiteDatabase.cxx
+vtkSQLiteToTableReader.cxx
 vtkSQLiteQuery.cxx
 vtkSQLQuery.cxx
 vtkSLCReader.cxx
@@ -129,6 +131,8 @@ vtkStructuredPointsReader.cxx
 vtkStructuredPointsWriter.cxx
 vtkTableReader.cxx
 vtkTableWriter.cxx
+vtkTableToDatabaseWriter.cxx
+vtkTableToSQLiteWriter.cxx
 vtkTecplotReader.cxx
 vtkTIFFReader.cxx
 vtkTIFFWriter.cxx
@@ -201,6 +205,7 @@ vtkZLibDataCompressor.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractParticleWriter
+vtkDatabaseToTableReader
 vtkDataCompressor
 vtkEnSightReader
 vtkGenericMovieWriter
@@ -208,6 +213,7 @@ vtkMoleculeReaderBase
 vtkRowQuery
 vtkSQLDatabase
 vtkSQLQuery
+vtkTableToDatabaseWriter
 vtkVolumeReader
 vtkWriter
 vtkXMLCompositeDataReader.cxx
@@ -330,6 +336,8 @@ IF ( VTK_USE_POSTGRES AND POSTGRES_FOUND )
     ${Kit_SRCS}
     vtkPostgreSQLDatabase.cxx
     vtkPostgreSQLQuery.cxx
+    vtkPostgreSQLToTableReader.cxx
+    vtkTableToPostgreSQLWriter.cxx
   )
   LINK_LIBRARIES( ${POSTGRES_LIBRARIES} )
 ENDIF ( VTK_USE_POSTGRES AND POSTGRES_FOUND )
@@ -356,6 +364,8 @@ IF ( VTK_USE_MYSQL AND MYSQL_FOUND )
     ${Kit_SRCS}
     vtkMySQLDatabase.cxx
     vtkMySQLQuery.cxx
+    vtkMySQLToTableReader.cxx
+    vtkTableToMySQLWriter.cxx
   )
   LINK_LIBRARIES( ${MYSQL_LIBRARY}  ${MYSQL_EXTRA_LIBRARIES} )
 ENDIF ( VTK_USE_MYSQL AND MYSQL_FOUND )

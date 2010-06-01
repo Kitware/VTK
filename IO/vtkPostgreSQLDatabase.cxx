@@ -53,6 +53,9 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
   this->ServerPort = -1;
   this->ConnectOptions = 0;
   this->LastErrorText = 0;
+  this->Tables = vtkStringArray::New();
+  this->Tables->Register(this);
+  this->Tables->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -69,6 +72,7 @@ vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
   this->SetConnectOptions( 0 );
   this->SetDatabaseType( 0 );
   this->SetLastErrorText( 0 );
+  this->Tables->UnRegister(this);
 }
 
 // ----------------------------------------------------------------------
@@ -260,10 +264,18 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
     options += " user=";
     options += this->User;
     }
-  if ( password && strlen( password ) > 0 )
+  if ( password && this->Password != password )
+    {
+    if ( this->Password )
+      {
+      delete [] this->Password;
+      }
+    this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
+    }
+  if ( this->Password && strlen( this->Password ) > 0 )
     {
     options += " password=";
-    options += password;
+    options += this->Password;
     }
   if ( this->ConnectOptions && strlen( this->ConnectOptions ) > 0 )
     {
@@ -278,14 +290,6 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
     if ( this->OpenInternal( options.c_str() ) )
       {
       this->SetLastErrorText( 0 );
-      if ( this->Password != password )
-        {
-        if ( this->Password )
-          {
-          delete [] this->Password;
-          }
-        this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
-        }
       return true;
       }
     }
@@ -295,14 +299,6 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
   if ( this->OpenInternal( options.c_str() ) )
     {
     this->SetLastErrorText( 0 );
-    if ( this->Password != password )
-      {
-      if ( this->Password )
-        {
-        delete this->Password;
-        }
-      this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
-      }
     return true;
     }
 
@@ -382,14 +378,14 @@ bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
   vtkstd::string urlstr( URL ? URL : "" );
   vtkstd::string protocol;
   vtkstd::string username;
-  vtkstd::string unused;
+  vtkstd::string password;
   vtkstd::string hostname;
   vtkstd::string dataport;
   vtkstd::string database;
 
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL(
-      urlstr, protocol, username, unused, hostname, dataport, database) )
+      urlstr, protocol, username, password, hostname, dataport, database) )
     {
     vtkErrorMacro( "Invalid URL: \"" << urlstr.c_str() << "\"" );
     return false;
@@ -398,6 +394,7 @@ bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
   if ( protocol == "psql" )
     {
     this->SetUser( username.empty() ? 0 : username.c_str() );
+    this->SetPassword( password.empty() ? 0 : password.c_str() );
     this->SetHostName( hostname.empty() ? 0 : hostname.c_str() );
     this->SetServerPort( atoi( dataport.c_str() ) );
     this->SetDatabaseName( database.empty() ? 0 : database.c_str() );
@@ -410,10 +407,11 @@ bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
 // ----------------------------------------------------------------------
 vtkStringArray* vtkPostgreSQLDatabase::GetTables()
 {
+  this->Tables->Resize(0);
   if ( ! this->Connection )
     {
     vtkErrorMacro(<< this->GetLastErrorText());
-    return 0;
+    return this->Tables;
     }
 
   // NB: Other columns of interest include table_catalog, table_schema, table_type,
@@ -431,17 +429,16 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
     vtkErrorMacro(<< "Database returned error: " << query->GetLastErrorText());
     this->SetLastErrorText(query->GetLastErrorText());
     query->Delete();
-    return 0;
+    return this->Tables;
     }
   vtkDebugMacro(<< "GetTables(): SQL query succeeded.");
-  vtkStringArray* results = vtkStringArray::New();
   while ( query->NextRow() )
     {
-    results->InsertNextValue( query->DataValue( 0 ).ToString() );
+    this->Tables->InsertNextValue( query->DataValue( 0 ).ToString() );
     }
   query->Delete();
   this->SetLastErrorText(NULL);
-  return results;
+  return this->Tables;
 }
 
 // ----------------------------------------------------------------------

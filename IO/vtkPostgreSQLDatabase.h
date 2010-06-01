@@ -203,6 +203,7 @@ protected:
   vtkTimeStamp URLMTime;
   vtkPostgreSQLDatabasePrivate *Connection; 
   vtkTimeStamp ConnectionMTime;
+  vtkStringArray *Tables;
   char* DatabaseType;
   char* HostName;
   char* User;

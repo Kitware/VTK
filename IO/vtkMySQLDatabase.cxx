@@ -349,13 +349,13 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
   vtkstd::string urlstr( URL ? URL : "" );
   vtkstd::string protocol;
   vtkstd::string username;
-  vtkstd::string unused;
+  vtkstd::string password;
   vtkstd::string hostname;
   vtkstd::string dataport;
   vtkstd::string database;
 
   if ( ! vtksys::SystemTools::ParseURL(
-      urlstr, protocol, username, unused, hostname, dataport, database) )
+      urlstr, protocol, username, password, hostname, dataport, database) )
     {
     vtkGenericWarningMacro( "Invalid URL: \"" << urlstr.c_str() << "\"" );
     return false;
@@ -366,6 +366,10 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
     if ( username.size() )
       {
       this->SetUser(username.c_str());
+      }
+    if ( password.size() )
+      {
+      this->SetPassword(password.c_str());
       }
     if ( dataport.size() )
       {
