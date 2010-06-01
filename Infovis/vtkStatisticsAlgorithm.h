@@ -42,8 +42,8 @@ PURPOSE.  See the above copyright notice for more information.
 // * 3 output port (called Output):
 //   * Data (annotated with assessments when the Assess option is ON).
 //   * Output model (identical to the the input model when Learn option is OFF).
-//   * Meta information about the model and/or the overall fit of the data to the
-//     model; is filled only when the Assess option is ON.
+//   * Output of statistical tests. Some engines do not offer such tests yet, in
+//     which case this output will always be empty even when the Test option is ON.
 //
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
