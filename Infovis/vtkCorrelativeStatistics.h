@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: given an input data set, two means and a 2x2 covariance matrix,
 //   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
 //   distance).
+// * Test: no statistical tests available yet.
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
