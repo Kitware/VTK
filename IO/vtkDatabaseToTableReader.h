@@ -24,7 +24,7 @@
 #include <vtkstd/vector>
 #include "vtkTableReader.h"
 
-class vtkSQLiteDatabase;
+class vtkSQLDatabase;
 class vtkStringArray;
 
 class VTK_IO_EXPORT vtkDatabaseToTableReader : public vtkTableReader
