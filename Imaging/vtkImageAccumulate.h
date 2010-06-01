@@ -53,7 +53,8 @@ public:
   // If the number of input scalar components are less than three,
   // then some of these spacing values are ignored.
   // For a 1D histogram with 10 bins spanning the values 1000 to 2000,
-  // this spacing should be set to 100, 0, 0
+  // this spacing should be set to 100, 0, 0.
+  // Initial value is (1.0,1.0,1.0).
   vtkSetVector3Macro(ComponentSpacing, double);
   vtkGetVector3Macro(ComponentSpacing, double);
 
@@ -63,7 +64,8 @@ public:
   // then this origin bin will not actually be in the output.
   // The origin of the output ends up being the same as the componenet origin.
   // For a 1D histogram with 10 bins spanning the values 1000 to 2000,
-  // this origin should be set to 1000, 0, 0
+  // this origin should be set to 1000, 0, 0.
+  // Initial value is (0.0,0.0,0.0).
   vtkSetVector3Macro(ComponentOrigin, double);
   vtkGetVector3Macro(ComponentOrigin, double);
 
@@ -73,6 +75,7 @@ public:
   // this extent should be set to 0, 9, 0, 0, 0, 0.
   // The extent specifies inclusive min/max values.
   // This implies that the top extent should be set to the number of bins - 1.
+  // Initial value is (0,255,0,0,0,0)
   void SetComponentExtent(int extent[6]);
   void SetComponentExtent(int minX, int maxX, int minY, int maxY,
         int minZ, int maxZ);
@@ -82,17 +85,22 @@ public:
 
   // Description:
   // Use a stencil to specify which voxels to accumulate.
+  // Backcompatible methods.
+  // It set and get the stencil on input port 1.
+  // Initial value is NULL.
   void SetStencil(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
   // Description:
-  // Reverse the stencil.
+  // Reverse the stencil. Initial value is false.
   vtkSetClampMacro(ReverseStencil, int, 0, 1);
   vtkBooleanMacro(ReverseStencil, int);
   vtkGetMacro(ReverseStencil, int);
 
   // Description:
   // Get the statistics information for the data.
+  // The values only make sense after the execution of the filter.
+  // Initial values are 0.
   vtkGetVector3Macro(Min, double);
   vtkGetVector3Macro(Max, double);
   vtkGetVector3Macro(Mean, double);
@@ -100,7 +108,7 @@ public:
   vtkGetMacro(VoxelCount, long int);
 
   // Description:
-  // Should the data with value 0 be ignored?
+  // Should the data with value 0 be ignored? Initial value is false.
   vtkSetClampMacro(IgnoreZero, int, 0, 1);
   vtkGetMacro(IgnoreZero, int);
   vtkBooleanMacro(IgnoreZero, int);
