@@ -1,3 +1,14 @@
+#=============================================================================
+# MetaIO
+# Copyright 2000-2010 Insight Software Consortium
+#
+# Distributed under the OSI-approved BSD License (the "License");
+# see accompanying file Copyright.txt for details.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for more information.
+#=============================================================================
 IF(VTK_VERSION)
   SET(METAIO_FOR_VTK 1)
   MARK_AS_ADVANCED( METAIO_FOR_VTK )
@@ -109,6 +120,10 @@ IF(METAIO_FOR_VTK)
             ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} 
                     COMPONENT Development
             )
+    #TODO: Install Copyright.txt
+    #INSTALL(FILES Copyright.txt
+    #        DESTINATION ${VTK_INSTALL_DOC_DIR_CM24}/vtkmetaio
+    #        COMPONENT RuntimeLibraries)
   ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     FILE(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
@@ -127,6 +142,7 @@ ELSE(METAIO_FOR_VTK)
               ARCHIVE DESTINATION ${ITK_INSTALL_LIB_DIR_CM24} 
                       COMPONENT Development
               )
+      #TODO: Install Copyright.txt
     ENDIF(NOT ITK_INSTALL_NO_LIBRARIES)
     IF(NOT ITK_INSTALL_NO_DEVELOPMENT)
       FILE(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
@@ -147,6 +163,7 @@ ELSE(METAIO_FOR_VTK)
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR_CM24} 
                     COMPONENT Development
             )
+    #TODO: Install Copyright.txt
     FILE(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
     INSTALL(FILES ${__files}
                   DESTINATION ${INSTALL_INCLUDE_DIR_CM24}/kwMetaIO
