@@ -316,6 +316,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         {
         this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
         }
+      break;
 
     // Requested GPU - OK as long as it is supported
     case vtkSmartVolumeMapper::GPURenderMode:
