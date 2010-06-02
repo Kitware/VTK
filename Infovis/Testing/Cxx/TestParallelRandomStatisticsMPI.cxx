@@ -613,14 +613,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pmcs->SetAssessOption( true );
   pmcs->Update();
 
-    // Synchronize and stop clock
+  // Get output meta tables
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pmcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
+  // Synchronize and stop clock
   com->Barrier();
   timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pmcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) ); 
-
     cout << "\n## Completed parallel calculation of multi-correlative statistics (with assessment):\n"
          << "   Total sample size: "
          << vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) )->GetValueByName( 0, "Entries").ToInt()
@@ -674,14 +675,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   pcas->SetAssessOption( true );
   pcas->Update();
 
+  // Get output meta tables
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
     // Synchronize and stop clock
   com->Barrier();
   timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) ); 
-
     cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
          << "   Total sample size: "
          << vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) )->GetValueByName( 0, "Entries").ToInt()
