@@ -27,7 +27,6 @@
 #include "vtkMySQLToTableReader.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMySQLToTableReader, "$Revision: 1.1 $");
 vtkStandardNewMacro(vtkMySQLToTableReader);
 
 //----------------------------------------------------------------------------

@@ -24,7 +24,6 @@
 #include "vtkTableToPostgreSQLWriter.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTableToPostgreSQLWriter, "$Revision: 1.1 $");
 vtkStandardNewMacro(vtkTableToPostgreSQLWriter);
 
 //----------------------------------------------------------------------------

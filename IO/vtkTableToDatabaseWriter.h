@@ -1,11 +1,11 @@
 /*=========================================================================
 
-  Program:   ParaView
-  Module:    $RCSfile: vtkTableToDatabaseWriter.h,v $
+  Program:   Visualization Toolkit
+  Module:    vtkTableToDatabaseWriter.h
 
-  Copyright (c) Kitware, Inc.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,8 +21,7 @@
 #ifndef __vtkTableToDatabaseWriter_h
 #define __vtkTableToDatabaseWriter_h
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <vtkstd/string> // STL Header
 #include "vtkTableWriter.h"
 
 class vtkSQLDatabase;

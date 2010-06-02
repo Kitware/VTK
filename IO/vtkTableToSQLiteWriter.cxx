@@ -24,7 +24,6 @@
 #include "vtkTableToSQLiteWriter.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTableToSQLiteWriter, "$Revision: 1.1 $");
 vtkStandardNewMacro(vtkTableToSQLiteWriter);
 
 //----------------------------------------------------------------------------

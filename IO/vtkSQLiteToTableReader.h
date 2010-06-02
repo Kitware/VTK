@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkSQLiteToTableReader :
 {
 public:
   static vtkSQLiteToTableReader *New();
-  vtkTypeRevisionMacro(vtkSQLiteToTableReader,vtkDatabaseToTableReader);
+  vtkTypeMacro(vtkSQLiteToTableReader,vtkDatabaseToTableReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -38,10 +38,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  // Not implemented.
-  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&);
-  // Not implemented.
-  void operator=(const vtkSQLiteToTableReader&);
+  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&); // Not implemented.
+  void operator=(const vtkSQLiteToTableReader&); // Not implemented.
 };
 
 #endif

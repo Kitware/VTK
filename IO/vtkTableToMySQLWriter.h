@@ -20,8 +20,6 @@
 #ifndef __vtkTableToMySQLWriter_h
 #define __vtkTableToMySQLWriter_h
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
 #include "vtkTableToDatabaseWriter.h"
 
 class vtkMySQLDatabase;
@@ -30,7 +28,7 @@ class VTK_IO_EXPORT vtkTableToMySQLWriter : public vtkTableToDatabaseWriter
 {
 public:
   static vtkTableToMySQLWriter *New();
-  vtkTypeRevisionMacro(vtkTableToMySQLWriter,vtkTableToDatabaseWriter);
+  vtkTypeMacro(vtkTableToMySQLWriter,vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

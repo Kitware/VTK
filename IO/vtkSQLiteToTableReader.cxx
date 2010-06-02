@@ -27,7 +27,6 @@
 #include "vtkSQLiteToTableReader.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLiteToTableReader, "$Revision: 1.1 $");
 vtkStandardNewMacro(vtkSQLiteToTableReader);
 
 //----------------------------------------------------------------------------

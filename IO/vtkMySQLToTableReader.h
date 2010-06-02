@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkMySQLToTableReader :
 {
 public:
   static vtkMySQLToTableReader *New();
-  vtkTypeRevisionMacro(vtkMySQLToTableReader,vtkDatabaseToTableReader);
+  vtkTypeMacro(vtkMySQLToTableReader,vtkDatabaseToTableReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -38,10 +38,9 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  // Not implemented.
-  vtkMySQLToTableReader(const vtkMySQLToTableReader&);
-  // Not implemented.
-  void operator=(const vtkMySQLToTableReader&);
+  vtkMySQLToTableReader(const vtkMySQLToTableReader&); // Not implemented.
+  void operator=(const vtkMySQLToTableReader&); // Not implemented
+
 };
 
 #endif

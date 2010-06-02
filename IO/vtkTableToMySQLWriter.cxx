@@ -24,7 +24,6 @@
 #include "vtkTableToMySQLWriter.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTableToMySQLWriter, "$Revision: 1.1 $");
 vtkStandardNewMacro(vtkTableToMySQLWriter);
 
 //----------------------------------------------------------------------------

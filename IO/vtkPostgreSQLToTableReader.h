@@ -29,7 +29,7 @@ class VTK_IO_EXPORT vtkPostgreSQLToTableReader :
 {
 public:
   static vtkPostgreSQLToTableReader *New();
-  vtkTypeRevisionMacro(vtkPostgreSQLToTableReader,vtkDatabaseToTableReader);
+  vtkTypeMacro(vtkPostgreSQLToTableReader,vtkDatabaseToTableReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -38,10 +38,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  // Not implemented.
-  vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&);
-  // Not implemented.
-  void operator=(const vtkPostgreSQLToTableReader&);
+  vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&); // Not implemented.
+  void operator=(const vtkPostgreSQLToTableReader&); // Not implemented.
 };
 
 #endif

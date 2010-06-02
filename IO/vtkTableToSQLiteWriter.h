@@ -20,8 +20,6 @@
 #ifndef __vtkTableToSQLiteWriter_h
 #define __vtkTableToSQLiteWriter_h
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
 #include "vtkTableToDatabaseWriter.h"
 
 class vtkSQLiteDatabase;
@@ -30,7 +28,7 @@ class VTK_IO_EXPORT vtkTableToSQLiteWriter : public vtkTableToDatabaseWriter
 {
 public:
   static vtkTableToSQLiteWriter *New();
-  vtkTypeRevisionMacro(vtkTableToSQLiteWriter,vtkTableToDatabaseWriter);
+  vtkTypeMacro(vtkTableToSQLiteWriter,vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

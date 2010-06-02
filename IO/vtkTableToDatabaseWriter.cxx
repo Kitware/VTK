@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTableToMySQLWriter.h
+  Module:    vtkTableToDatabaseWriter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -42,6 +42,10 @@ vtkTableToDatabaseWriter::~vtkTableToDatabaseWriter()
 //----------------------------------------------------------------------------
 bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase *db)
 {
+  if(!db)
+    {
+    return false;
+    }
   this->Database = db;
   if(this->Database->IsOpen() == false)
     {
@@ -54,6 +58,7 @@ bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase *db)
     {
     return this->TableNameIsNew();
     }
+  return true;
 }
 
 //----------------------------------------------------------------------------

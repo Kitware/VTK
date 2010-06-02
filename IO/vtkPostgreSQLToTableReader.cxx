@@ -27,7 +27,6 @@
 #include "vtkPostgreSQLToTableReader.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPostgreSQLToTableReader, "$Revision: 1.1 $");
 vtkStandardNewMacro(vtkPostgreSQLToTableReader);
 
 //----------------------------------------------------------------------------

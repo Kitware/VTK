@@ -20,8 +20,6 @@
 #ifndef __vtkTableToPostgreSQLWriter_h
 #define __vtkTableToPostgreSQLWriter_h
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
 #include "vtkTableToDatabaseWriter.h"
 
 class vtkPostgreSQLDatabase;
@@ -30,7 +28,7 @@ class VTK_IO_EXPORT vtkTableToPostgreSQLWriter : public vtkTableToDatabaseWriter
 {
 public:
   static vtkTableToPostgreSQLWriter *New();
-  vtkTypeRevisionMacro(vtkTableToPostgreSQLWriter,vtkTableToDatabaseWriter);
+  vtkTypeMacro(vtkTableToPostgreSQLWriter,vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -48,10 +46,8 @@ protected:
   vtkTable *Input;
 
 private:
-  // Not implemented.
-  vtkTableToPostgreSQLWriter(const vtkTableToPostgreSQLWriter&);
-  // Not implemented.
-  void operator=(const vtkTableToPostgreSQLWriter&);
+  vtkTableToPostgreSQLWriter(const vtkTableToPostgreSQLWriter&); // Not implemented.
+  void operator=(const vtkTableToPostgreSQLWriter&); // Not implemented.
 };
 
 #endif
