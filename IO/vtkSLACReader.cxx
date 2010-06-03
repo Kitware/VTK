@@ -659,7 +659,7 @@ int vtkSLACReader::RequestInformation(
         this->FrequencyModes = true;
         }
 
-      vtksys::RegularExpression imaginaryVar("_imag$");
+      //vtksys::RegularExpression imaginaryVar("_imag$");
 
       int ncoordDim;
       CALL_NETCDF(nc_inq_dimid(modeFD(), "ncoord", &ncoordDim));
@@ -680,7 +680,7 @@ int vtkSLACReader::RequestInformation(
         char name[NC_MAX_NAME+1];
         CALL_NETCDF(nc_inq_varname(modeFD(), i, name));
         if (strcmp(name, "coords") == 0) continue;
-        if (this->FrequencyModes && imaginaryVar.find(name)) continue;
+        //if (this->FrequencyModes && imaginaryVar.find(name)) continue;
 
         this->Internal->VariableArraySelection->AddArray(name);
         }
@@ -1217,10 +1217,12 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
       }
 
     // from the variable name, get the variable id
-    const char *name
+    const char * cname
       = this->Internal->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
-    CALL_NETCDF(nc_inq_varid(modeFD, name, &varId));
+    CALL_NETCDF(nc_inq_varid(modeFD, cname, &varId));
+
+    vtkStdString name(cname);
 
     // if this variable isn't 1d or 2d array, skip it.
     int numDims;
@@ -1239,9 +1241,7 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
     // Check for imaginary component of mode data.
     if (this->FrequencyModes)
       {
-      vtkStdString imagName = name;
-      imagName += "_imag";
-      if (nc_inq_varid(modeFD, imagName.c_str(), &varId) == NC_NOERR)
+      if (nc_inq_varid(modeFD, (name+"_imag").c_str(), &varId) == NC_NOERR)
         {
         // I am assuming here that the imaginary data (if it exists) has the
         // same dimensions as the real data.
@@ -1249,19 +1249,48 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
           = this->ReadPointDataArray(modeFD, varId);
         if (imagDataArray)
           {
+          // allocate space for complex magnitude data
+          vtkSmartPointer<vtkDataArray> cplxMagArray; 
+          cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
+          cplxMagArray->SetNumberOfComponents(1);
+          cplxMagArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
+
+          // allocate space for phase data
+          vtkSmartPointer<vtkDataArray> phaseArray; 
+          phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
+          phaseArray->SetNumberOfComponents(3);
+          phaseArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
+
           int numComponents = dataArray->GetNumberOfComponents();
           vtkIdType numTuples = dataArray->GetNumberOfTuples();
           for (vtkIdType i = 0; i < numTuples; i++)
             {
+            double accum_mag= 0.0;
             for (int j = 0; j < numComponents; j++)
               {
               double real = dataArray->GetComponent(i, j);
               double imag = imagDataArray->GetComponent(i, j);
-              double mag = sqrt(real*real + imag*imag);
+
+              double mag2 = real*real + imag*imag;
+              accum_mag += mag2;
+              double mag= sqrt(mag2);
+
               double startphase = atan2(imag, real);
               dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
+              phaseArray->SetComponent(i, j, startphase);
               }
+            cplxMagArray->SetComponent(i, 0, sqrt(accum_mag));
+            phaseArray->SetComponent(i, 0, sqrt(accum_mag));
             }
+
+          // add complex magnitude data to the point data
+          vtkStdString cplxMagName= name + "_cplx_mag";
+          cplxMagArray->SetName(cplxMagName);
+          pd->AddArray(cplxMagArray);
+
+          vtkStdString phaseName= name + "_phase";
+          phaseArray->SetName(phaseName);
+          pd->AddArray(phaseArray);
           }
         }
       }
@@ -1314,6 +1343,13 @@ int vtkSLACReader::ReadMidpointCoordinates(
 int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                                     MidpointIdMap &midpointIds)
 {
+  static bool GaveMidpointWarning = false;
+  if (!GaveMidpointWarning)
+    {
+    vtkWarningMacro(<< "Quadratic elements not displayed entirely correctly yet.  Quadratic triangles are drawn as 4 linear triangles.");
+    GaveMidpointWarning = true;
+    }
+
   // Get the point information from the data.
   vtkPoints *points = vtkPoints::SafeDownCast(
                         output->GetInformation()->Get(vtkSLACReader::POINTS()));
