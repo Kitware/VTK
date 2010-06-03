@@ -2640,6 +2640,7 @@ static void vtkWrapPython_ClassDoc(
 
   comment = (char *)malloc(n);
   cp = comment;
+  *cp = '\0';
 
   if (data->Description)
     {
