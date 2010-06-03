@@ -32,6 +32,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestHAVSVolumeMapper.cxx
       TestMinIntensityRendering.cxx
       TestProjectedTetrahedra.cxx
+      TestProjectedHexahedra.cxx
       TestSmartVolumeMapper.cxx
       TestSmartVolumeMapperWindowLevel.cxx
       TestTM3DLightComponents.cxx

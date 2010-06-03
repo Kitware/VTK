@@ -64,6 +64,7 @@ vtkUnstructuredGridVolumeZSweepMapper.cxx
 SET( KitOpenGL_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLHAVSVolumeMapper.cxx   
+  vtkOpenGLProjectedAAHexahedraMapper.cxx
   vtkOpenGLProjectedTetrahedraMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
