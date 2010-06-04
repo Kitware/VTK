@@ -29,7 +29,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTextureMapper3D.h"
-
+#include <cassert>
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
 
@@ -252,7 +252,7 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
     }
   else
     {
-    this->TextureMapper->SetInputConnection(this->GetInputConnection(0,0));
+    this->ConnectMapperInput(this->TextureMapper);
     this->TextureSupported = this->TextureMapper->IsRenderSupported(
       vol->GetProperty(),ren);
     }
@@ -375,7 +375,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
     {
     // We are rendering with the vtkFixedPointVolumeRayCastMapper
     case vtkSmartVolumeMapper::RayCastRenderMode:
-      this->RayCastMapper->SetInputConnection(this->GetInputConnection(0,0));
+      this->ConnectMapperInput(this->RayCastMapper);
       this->RayCastMapper->SetClippingPlanes(this->GetClippingPlanes());
       this->RayCastMapper->SetCropping(this->GetCropping());
       this->RayCastMapper->SetCroppingRegionPlanes(
@@ -389,7 +389,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       // We are rendering with the vtkVolumeTextureMapper3D
     case vtkSmartVolumeMapper::TextureRenderMode:
-      this->TextureMapper->SetInputConnection(this->GetInputConnection(0,0));
+      this->ConnectMapperInput(this->TextureMapper);
       if ( this->RequestedRenderMode == vtkSmartVolumeMapper::DefaultRenderMode ||
            this->RequestedRenderMode == vtkSmartVolumeMapper::RayCastAndTextureRenderMode )
         {
@@ -414,8 +414,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->GPUMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
       this->GPUMapper->SetSampleDistance(
         static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
-
-      this->GPUMapper->SetInputConnection(this->GetInputConnection(0,0));
+      this->ConnectMapperInput(this->GPUMapper);
       this->GPUMapper->SetClippingPlanes(this->GetClippingPlanes());
       this->GPUMapper->SetCropping(this->GetCropping());
       this->GPUMapper->SetCroppingRegionPlanes(
@@ -439,9 +438,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       if ( scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0 )
         {
         this->LowResGPUNecessary = 1;
-
-        this->GPUResampleFilter->SetInputConnection(
-          this->GetInputConnection(0,0));
+        this->ConnectFilterInput(this->GPUResampleFilter);
         this->GPUResampleFilter->SetInterpolationMode(this->InterpolationMode);
         this->GPUResampleFilter->SetAxisMagnificationFactor( 0, scale[0]/2.0 );
         this->GPUResampleFilter->SetAxisMagnificationFactor( 1, scale[1]/2.0 );
@@ -483,7 +480,58 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       vtkErrorMacro("Internal Error: Invalid CurrentRenderMode");
       break;
     }
+}
 
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
+{
+  assert("pre: m_exists" && m!=0);
+
+  vtkImageData *input2=m->GetInput();
+  bool needShallowCopy=false;
+  if(input2==0)
+    {
+    // make sure we not create a shallow copy each time to avoid
+    // performance penalty.
+    input2=vtkImageData::New();
+    m->SetInputConnection(input2->GetProducerPort());
+    input2->Delete();
+    needShallowCopy=true;
+    }
+  else
+    {
+    needShallowCopy=input2->GetMTime()<this->GetInput()->GetMTime();
+    }
+  if(needShallowCopy)
+    {
+    input2->ShallowCopy(this->GetInput());
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample *f)
+{
+  assert("pre: f_exists" && f!=0);
+
+  vtkImageData *input2=static_cast<vtkImageData *>(f->GetInput());
+  bool needShallowCopy=false;
+  if(input2==0)
+    {
+    // make sure we not create a shallow copy each time to avoid
+    // performance penalty.
+    input2=vtkImageData::New();
+    f->SetInputConnection(input2->GetProducerPort());
+    input2->Delete();
+    needShallowCopy=true;
+    }
+  else
+    {
+    needShallowCopy=input2->GetMTime()<this->GetInput()->GetMTime();
+    }
+  if(needShallowCopy)
+    {
+    input2->ShallowCopy(this->GetInput());
+    }
 }
 
 // ----------------------------------------------------------------------------

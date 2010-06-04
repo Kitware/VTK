@@ -266,6 +266,18 @@ protected:
   vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper();
 
+  // Description:
+  // Connect input of the vtkSmartVolumeMapper to the input of the
+  // internal volume mapper by doing a shallow to avoid memory leaks.
+  // \pre m_exists: m!=0
+  void ConnectMapperInput(vtkVolumeMapper *m);
+
+  // Description:
+  // Connect input of the vtkSmartVolumeMapper to the input of the
+  // internal resample filter by doing a shallow to avoid memory leaks.
+  // \pre m_exists: f!=0
+  void ConnectFilterInput(vtkImageResample *f);
+
   // Window / level ivars
   float   FinalColorWindow;
   float   FinalColorLevel;
