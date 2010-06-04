@@ -338,7 +338,7 @@ protected:
   // For efficient spinning
   double Centroid[3];
   void CalculateCentroid();
-  bool ProcessEvents;
+  int  ProcessEvents;
 
 private:
   vtkSplineWidget(const vtkSplineWidget&);  //Not implemented
