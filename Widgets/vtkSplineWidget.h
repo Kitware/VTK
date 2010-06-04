@@ -240,6 +240,13 @@ public:
   // remains unchanged.
   void InitializeHandles(vtkPoints* points);
 
+  // Description:
+  // Turn on / off event processing for this widget. If off, the widget will 
+  // not respond to user interaction
+  vtkSetClampMacro(ProcessEvents, int, 0, 1);
+  vtkGetMacro(ProcessEvents, int);
+  vtkBooleanMacro( ProcessEvents, int );
+
 protected:
   vtkSplineWidget();
   ~vtkSplineWidget();
@@ -259,12 +266,12 @@ protected:
 //ETX
 
   //handles the events
-  static void ProcessEvents(vtkObject* object,
-                            unsigned long event,
-                            void* clientdata,
-                            void* calldata);
+  static void ProcessEventsHandler(vtkObject* object,
+                                   unsigned long event,
+                                   void* clientdata,
+                                   void* calldata);
 
-  // ProcessEvents() dispatches to these methods.
+  // ProcessEventsHandler() dispatches to these methods.
   void OnLeftButtonDown();
   void OnLeftButtonUp();
   void OnMiddleButtonDown();
@@ -331,6 +338,7 @@ protected:
   // For efficient spinning
   double Centroid[3];
   void CalculateCentroid();
+  bool ProcessEvents;
 
 private:
   vtkSplineWidget(const vtkSplineWidget&);  //Not implemented

@@ -44,12 +44,15 @@ vtkCxxSetObjectMacro(vtkSplineWidget, SelectedLineProperty, vtkProperty);
 vtkSplineWidget::vtkSplineWidget()
 {
   this->State = vtkSplineWidget::Start;
-  this->EventCallbackCommand->SetCallback(vtkSplineWidget::ProcessEvents);
+  this->EventCallbackCommand->SetCallback(vtkSplineWidget::ProcessEventsHandler);
   this->ProjectToPlane = 0;  //default off
   this->ProjectionNormal = 0;  //default YZ not used
   this->ProjectionPosition = 0.0;
   this->PlaneSource = NULL;
   this->Closed = 0;
+
+  // Does this widget respond to interaction?
+  this->ProcessEvents = 1;
 
   // Build the representation of the widget
 
@@ -362,13 +365,19 @@ void vtkSplineWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkSplineWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
+void vtkSplineWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
                                   unsigned long event,
                                   void* clientdata,
                                   void* vtkNotUsed(calldata))
 {
   vtkSplineWidget* self = reinterpret_cast<vtkSplineWidget *>( clientdata );
 
+  // if ProcessEvents is Off, we ignore all interaction events.
+  if (!self->GetProcessEvents())
+    {
+    return;
+    }
+  
   // Okay, let's do the right thing
   switch(event)
     {
@@ -399,6 +408,9 @@ void vtkSplineWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 void vtkSplineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "ProcessEvents: " 
+    << (this->ProcessEvents? "On" : "Off") << "\n";
 
   if ( this->HandleProperty )
     {
