@@ -124,6 +124,7 @@ int vtkSplineFilter::RequestData(
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
     newTCoords->Allocate(numNewPts);
+    newTCoords->SetName("TCoords");
     outPD->CopyTCoordsOff();
     }
   outPD->InterpolateAllocate(pd,numNewPts);
