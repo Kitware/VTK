@@ -377,7 +377,7 @@ void vtkSplineWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
     {
     return;
     }
-  
+
   // Okay, let's do the right thing
   switch(event)
     {
@@ -409,7 +409,7 @@ void vtkSplineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "ProcessEvents: " 
+  os << indent << "ProcessEvents: "
     << (this->ProcessEvents? "On" : "Off") << "\n";
 
   if ( this->HandleProperty )
