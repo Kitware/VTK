@@ -543,19 +543,36 @@ vtkMySQLQuery::Execute()
     int result = mysql_query(db, this->Query);
     if (result == 0)
       {
-      // The query succeeded.
-      this->SetLastErrorText(NULL);
-      this->Active = true;
+      // The query probably succeeded.  
       this->Internals->Result = mysql_store_result(db);
-      return true;
+
+      // Statements like INSERT are supposed to return empty result sets,
+      // but sometimes it is an error for mysql_store_result to return null.
+      // If Result is null, but mysql_field_count is non-zero, it is an error.
+      // See: http://dev.mysql.com/doc/refman/5.0/en/null-mysql-store-result.html
+      if (this->Internals->Result || mysql_field_count(db) == 0)
+        {
+        // The query definitely succeeded.
+        this->SetLastErrorText(NULL);
+        this->Active = true;
+        return true;
+        }
+      else
+        {
+        // There was an error in mysql_query or mysql_store_result
+        this->Active = false;
+        this->SetLastErrorText(mysql_error(db));
+        vtkErrorMacro(<<"Query returned an error: "
+                      << this->GetLastErrorText());
+        return false;
+        }
       }
     else
       {
-      this->Active = false;
-      this->SetLastErrorText(mysql_error(db));
-      vtkErrorMacro(<<"Query returned an error: "
-                    << this->GetLastErrorText());
-      return false;
+      // result != 0; the query succeeded
+      this->SetLastErrorText(NULL);
+      this->Active = true;
+      return true;
       }
     }
   else
