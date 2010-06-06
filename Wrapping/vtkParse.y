@@ -126,8 +126,8 @@ int  HaveComment;
 char CommentText[50000];
 int CommentState;
 int sigClosed;
-int sigMark[10];
-int sigMarkDepth = 0;
+size_t sigMark[10];
+size_t sigMarkDepth = 0;
 unsigned int sigAllocatedLength;
 int mainClass;
 char *currentId = 0;
@@ -188,7 +188,7 @@ void preSig(const char *arg)
     }
   else if (!sigClosed)
     {
-    int m, n;
+    size_t m, n;
     char *cp;
     checkSigSize(arg);
     cp = currentFunction->Signature;
@@ -210,7 +210,7 @@ void postSig(const char *arg)
     }
   else if (!sigClosed)
     {
-    int m, n;
+    size_t m, n;
     char *cp;
     checkSigSize(arg);
     cp = currentFunction->Signature;
@@ -231,7 +231,7 @@ void preScopeSig(const char *arg)
     }
   else if (!sigClosed)
     {
-    int i, m, n, depth;
+    size_t i, m, n, depth;
     char *cp;
     checkSigSize(arg);
     cp = currentFunction->Signature;
@@ -308,7 +308,7 @@ void swapSig()
     }
   if (currentFunction->Signature && sigMark[sigMarkDepth] > 0)
     {
-    int i, m, n, nn;
+    size_t i, m, n, nn;
     char c;
     char *cp;
     cp = currentFunction->Signature;
@@ -337,7 +337,7 @@ void chopSig(void)
 {
   if (currentFunction->Signature)
     {
-    int n = strlen(currentFunction->Signature);
+    size_t n = strlen(currentFunction->Signature);
     if (n > 0)
       {
       currentFunction->Signature[n-1] = '\0';
