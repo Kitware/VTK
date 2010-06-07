@@ -83,7 +83,7 @@ Convert them to spaces (2 per TAB) before commit.'
 
 #-----------------------------------------------------------------------------
 # Check file modes.
-looks_executable() {
+mode_looks_exe() {
 	case "$1" in
 		*.bat) return 0 ;;
 		*.cmd) return 0 ;;
@@ -103,8 +103,8 @@ mode_non_file () {
 }
 check_mode() {
 	case "$dst_mode" in
-		100755) looks_executable "$file" "$dst_obj" || mode_bad_exe ;;
-		100644) looks_executable "$file" "$dst_obj" && mode_not_exe ;;
+		100755) mode_looks_exe "$file" "$dst_obj" || mode_bad_exe ;;
+		100644) mode_looks_exe "$file" "$dst_obj" && mode_not_exe ;;
 		160000) ;;
 		*)	mode_non_file ;;
 	esac
