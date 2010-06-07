@@ -2510,7 +2510,7 @@ YY_RULE_SETUP
                 int j;
                 while (yytext[i]==' ' || yytext[i]=='\t' ||
                        yytext[i]=='\r' || yytext[i]=='\n') { i++; }
-                i++; j = i;
+                j = i;
                 while (yytext[j]!='*') { j++; }
                 yylval.str = (char *)malloc(j-i+1);
                 if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
