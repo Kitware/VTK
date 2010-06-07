@@ -1123,8 +1123,8 @@ vtkSelection* vtkRenderedGraphRepresentation::ConvertSelection(
     // For all output selection nodes, select all the edges among selected vertices.
     for (unsigned int i = 0; i < vertexConverted->GetNumberOfNodes(); ++i)
       {
-      if (vertexConverted->GetNode(i)->GetSelectionList()->
-          GetNumberOfTuples() > 0)
+      if ((vertexConverted->GetNode(i)->GetSelectionList()->
+          GetNumberOfTuples() > 0) && (input->GetNumberOfEdges()) > 0)
         {
         // Get the list of selected vertices.
         selectedVerticesFound = true;
