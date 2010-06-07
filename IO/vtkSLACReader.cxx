@@ -1343,13 +1343,6 @@ int vtkSLACReader::ReadMidpointCoordinates(
 int vtkSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                                     MidpointIdMap &midpointIds)
 {
-  static bool GaveMidpointWarning = false;
-  if (!GaveMidpointWarning)
-    {
-    vtkWarningMacro(<< "Quadratic elements not displayed entirely correctly yet.  Quadratic triangles are drawn as 4 linear triangles.");
-    GaveMidpointWarning = true;
-    }
-
   // Get the point information from the data.
   vtkPoints *points = vtkPoints::SafeDownCast(
                         output->GetInformation()->Get(vtkSLACReader::POINTS()));
