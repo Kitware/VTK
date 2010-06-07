@@ -119,8 +119,7 @@ size_too_large() {
 	echo 'Run "git config hooks.MaxObjectKiB $KiB" to set local limit, 0 to disable.'
 }
 check_size() {
-	if test "$size_max_KiB" -gt "0" \
-	     -a "$dst_obj" != "$zero" -a "$dst_mode" != '160000'; then
+	if test "$size_max_KiB" -gt "0" -a "$dst_obj" != "$zero"; then
 		file_KiB=$(expr '(' $(git cat-file -s "$dst_obj") + 1023 ')' / 1024)
 		test "$file_KiB" -le "$size_max_KiB" || size_too_large
 	fi
@@ -131,6 +130,8 @@ sed -n '/^:[^:]/ {s/^://;p;}' |
 while read src_mode dst_mode src_obj dst_obj status file; do
 	if test "$src_mode" != "$dst_mode" -a "$dst_mode" != "000000"; then
 		check_mode
+	fi
+	if test "$dst_mode" != "160000" -a "$dst_mode" != '000000'; then
 		check_size
 	fi
 done)
