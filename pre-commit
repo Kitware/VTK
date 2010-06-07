@@ -10,6 +10,8 @@ die() {
 	exit 1
 }
 
+zero='0000000000000000000000000000000000000000'
+
 #-----------------------------------------------------------------------------
 # Check for committer identity.
 advice='
@@ -82,7 +84,7 @@ test -z "$bad" || die 'Leading TABs added in
 Convert them to spaces (2 per TAB) before commit.'
 
 #-----------------------------------------------------------------------------
-# Check file modes.
+# Check file modes and sizes.
 mode_looks_exe() {
 	case "$1" in
 		*.bat) return 0 ;;
@@ -109,11 +111,27 @@ check_mode() {
 		*)	mode_non_file ;;
 	esac
 }
+
+size_max_KiB=$(git config hooks.MaxObjectKiB)
+test -n "$size_max_KiB" || size_max_KiB=1024
+size_too_large() {
+	echo "The path '$file' has size $file_KiB KiB, greater than the maximum $size_max_KiB KiB."
+	echo 'Run "git config hooks.MaxObjectKiB $KiB" to set local limit, 0 to disable.'
+}
+check_size() {
+	if test "$size_max_KiB" -gt "0" \
+	     -a "$dst_obj" != "$zero" -a "$dst_mode" != '160000'; then
+		file_KiB=$(expr '(' $(git cat-file -s "$dst_obj") + 1023 ')' / 1024)
+		test "$file_KiB" -le "$size_max_KiB" || size_too_large
+	fi
+}
+
 bad=$(git diff-index --cached $against -- |
 sed -n '/^:[^:]/ {s/^://;p;}' |
 while read src_mode dst_mode src_obj dst_obj status file; do
 	if test "$src_mode" != "$dst_mode" -a "$dst_mode" != "000000"; then
 		check_mode
+		check_size
 	fi
 done)
 test -z "$bad" || die "$bad"
