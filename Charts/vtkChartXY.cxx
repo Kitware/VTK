@@ -150,7 +150,7 @@ vtkChartXY::~vtkChartXY()
 //-----------------------------------------------------------------------------
 void vtkChartXY::Update()
 {
-  // The Stack accumulator should be re-initialized at the start of every 
+  // The Stack accumulator should be re-initialized at the start of every
   // update cycle.
   this->ChartPrivate->StackedPlotAccumulator = NULL;
 
@@ -226,7 +226,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     recalculateTransform = true;
     }
 
-  if (this->ChartPrivate->plots[0]->GetData()->GetInput()->GetMTime() > this->MTime || 
+  if (this->ChartPrivate->plots[0]->GetData()->GetInput()->GetMTime() > this->MTime ||
       this->ChartPrivate->StackParticipantsChanged > this->MTime)
     {
     this->RecalculateBounds();
@@ -808,6 +808,12 @@ void vtkChartXY::ClearPlots()
     this->ChartPrivate->plots[i]->Delete();
     }
   this->ChartPrivate->plots.clear();
+  // Clear the corners too
+  for (int i = 0; i < 4; ++i)
+    {
+    this->ChartPrivate->PlotCorners[i].clear();
+    }
+
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
   // Mark the scene as dirty
@@ -884,32 +890,32 @@ void InitializeAccumulator(A *a, int n)
 //-----------------------------------------------------------------------------
 vtkDataArray *vtkChartXY::GetStackedPlotAccumulator(int dataType, int n)
 {
-  if (!this->ChartPrivate->StackedPlotAccumulator) 
+  if (!this->ChartPrivate->StackedPlotAccumulator)
     {
     this->ChartPrivate->StackedPlotAccumulator.TakeReference(vtkDataArray::SafeDownCast(vtkDataArray::CreateArray(dataType)));
-    if (!this->ChartPrivate->StackedPlotAccumulator) 
+    if (!this->ChartPrivate->StackedPlotAccumulator)
       {
       return NULL;
       }
     this->ChartPrivate->StackedPlotAccumulator->SetNumberOfTuples(n);
-    switch (dataType) 
+    switch (dataType)
       {
           vtkTemplateMacro(
             InitializeAccumulator(static_cast<VTK_TT*>(this->ChartPrivate->StackedPlotAccumulator->GetVoidPointer(0)),n));
       }
     return this->ChartPrivate->StackedPlotAccumulator;
     }
-  else 
+  else
     {
     if (this->ChartPrivate->StackedPlotAccumulator->GetDataType() != dataType)
       {
-      vtkErrorMacro("DataType of Accumulator " << this->ChartPrivate->StackedPlotAccumulator->GetDataType() << 
+      vtkErrorMacro("DataType of Accumulator " << this->ChartPrivate->StackedPlotAccumulator->GetDataType() <<
                     "does not match request " << dataType);
       return NULL;
       }
-    if (this->ChartPrivate->StackedPlotAccumulator->GetNumberOfTuples() != n) 
+    if (this->ChartPrivate->StackedPlotAccumulator->GetNumberOfTuples() != n)
       {
-      vtkErrorMacro("Number of tuples in Accumulator " << this->ChartPrivate->StackedPlotAccumulator->GetNumberOfTuples() << 
+      vtkErrorMacro("Number of tuples in Accumulator " << this->ChartPrivate->StackedPlotAccumulator->GetNumberOfTuples() <<
                     "does not match request " << n);
       return NULL;
       }
