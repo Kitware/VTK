@@ -21,6 +21,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include "vtkPointData.h"
+#include "vtkCellData.h"
+
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -263,11 +266,60 @@ int vtkImageAppend::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
+void vtkImageAppendGetContinuosIncrements
+  (int wExtent[6], int sExtent[6], vtkIdType nComp, bool forCells,
+   vtkIdType &incX,
+   vtkIdType &incY,
+   vtkIdType &incZ)
+{
+  //I can not use the one in vtkImageData, since that assumes point scalars
+  //and I need it to work for any point or cell array
+
+  int e0, e1, e2, e3;
+  incX = 0;
+  e0 = sExtent[0];
+  if (e0 < wExtent[0])
+    {
+    e0 = wExtent[0];
+    }
+  e1 = sExtent[1];
+  if (e1 > wExtent[1])
+    {
+    e1 = wExtent[1];
+    }
+  e2 = sExtent[2];
+  if (e2 < wExtent[2])
+    {
+    e2 = wExtent[2];
+    }
+  e3 = sExtent[3];
+  if (e3 > wExtent[3])
+    {
+    e3 = wExtent[3];
+    }
+
+  int ptAdjust = (forCells?0:1);
+  int idx;
+  vtkIdType increments[3];
+  for (idx = 0; idx < 3; ++idx)
+    {
+    increments[idx] = nComp;
+    nComp *= (wExtent[idx*2+1] - wExtent[idx*2] + ptAdjust);
+    }
+
+  incY = increments[1] - (e1 - e0 + ptAdjust)*increments[0];
+  incZ = increments[2] - (e3 - e2 + ptAdjust)*increments[1];
+}
+
+//----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageAppendExecute(vtkImageAppend *self, int id,
                            int inExt[6], vtkImageData *inData, T *inPtr,
-                           int outExt[6], vtkImageData *outData, T *outPtr)
+                           int outExt[6], vtkImageData *outData, T *outPtr,
+                           vtkIdType numComp,
+                           bool forCells,
+                           int nArrays)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -276,18 +328,27 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
+  double dnArrays = (double)nArrays;
 
-  // Get increments to march through data
-  inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  vtkImageAppendGetContinuosIncrements(inData->GetExtent(), inExt, numComp, forCells,
+                                       inIncX, inIncY, inIncZ);
+  vtkImageAppendGetContinuosIncrements(outData->GetExtent(), outExt, numComp, forCells,
+                                       outIncX, outIncY, outIncZ);
 
+  int ptAdjust = (forCells?0:1);
   // find the region to loop over
-  rowLength = (inExt[1] - inExt[0]+1)*inData->GetNumberOfScalarComponents();
+  rowLength = (inExt[1] - inExt[0]+forCells)*numComp;
   maxY = inExt[3] - inExt[2];
   maxZ = inExt[5] - inExt[4];
-  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
-  target++;
 
+  if (forCells)
+    {
+    maxY = maxY-1;
+    rowLength = rowLength-1;
+    }
+
+  target = static_cast<unsigned long>((maxZ+ptAdjust)*(maxY+ptAdjust)/50.0/dnArrays);
+  target++;
 
   // Loop through input pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -302,7 +363,7 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
           }
         count++;
         }
-      for (idxR = 0; idxR < rowLength; idxR++)
+      for (idxR = 0; idxR <= rowLength; idxR++)
         {
         // Pixel operation
         *outPtr = *inPtr;
@@ -328,6 +389,8 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
   unsigned char *outPtrZ, *outPtrY;
 
 
+  //TODO: This only bzero's the point scalars, other arrays should probably be
+  //cleared too.
   typeSize = outData->GetScalarSize();
   outPtrZ = static_cast<unsigned char *>(
     outData->GetScalarPointerForExtent(outExt));
@@ -356,6 +419,7 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
     outPtrZ += outIncZ;
     }
 }
+
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
@@ -371,8 +435,10 @@ void vtkImageAppend::ThreadedRequestData (
 {
   int idx1;
   int inExt[6], cOutExt[6];
+  int c_in[3], c_out[3];
   void *inPtr;
   void *outPtr;
+  int nArrays;
 
   this->InitOutput(outExt, outData[0]);
 
@@ -380,54 +446,127 @@ void vtkImageAppend::ThreadedRequestData (
     {
     if (inData[0][idx1] != NULL)
       {
+      nArrays = inData[0][idx1]->GetPointData()->GetNumberOfArrays() +
+        inData[0][idx1]->GetCellData()->GetNumberOfArrays();
+
       // Get the input extent and output extent
       // the real out extent for this input may be clipped.
       vtkInformation *inInfo =
         inputVector[0]->GetInformationObject(idx1);
       int *inWextent =
         inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+
       this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent, idx1);
+
       memcpy(cOutExt, inExt, 6*sizeof(int));
       cOutExt[this->AppendAxis*2] =
         inExt[this->AppendAxis*2] + this->Shifts[idx1];
       cOutExt[this->AppendAxis*2 + 1] =
         inExt[this->AppendAxis*2 + 1] + this->Shifts[idx1];
 
+      c_in[0] = inExt[0];
+      c_in[1] = inExt[2];
+      c_in[2] = inExt[4];
+
+      c_out[0] = cOutExt[0];
+      c_out[1] = cOutExt[2];
+      c_out[2] = cOutExt[4];
+
       // do a quick check to see if the input is used at all.
       if (inExt[this->AppendAxis*2] <= inExt[this->AppendAxis*2 + 1])
         {
-        inPtr = inData[0][idx1]->GetScalarPointerForExtent(inExt);
-        outPtr = outData[0]->GetScalarPointerForExtent(cOutExt);
-
-        if (inData[0][idx1]->GetNumberOfScalarComponents() !=
-            outData[0]->GetNumberOfScalarComponents())
+        //do point associated arrays
+        for (vtkIdType ai = 0;
+             ai < inData[0][idx1]->GetPointData()->GetNumberOfArrays();
+             ai++)
           {
-          vtkErrorMacro("Components of the inputs do not match");
-          return;
-          }
+          vtkDataArray *inArray = inData[0][idx1]->GetPointData()->GetArray(ai);
+          vtkDataArray *outArray = outData[0]->GetPointData()->GetArray(ai);
 
-        // this filter expects that input is the same type as output.
-        if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
-          {
-          vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
-                        << inData[0][idx1]->GetScalarType()
-                        << "), must match output ScalarType ("
-                        << outData[0]->GetScalarType() << ")");
-          return;
-          }
+          vtkIdType numComp = inArray->GetNumberOfComponents();
+          if (numComp != outArray->GetNumberOfComponents())
+            {
+            vtkErrorMacro("Components of the inputs do not match");
+            return;
+            }
 
-        switch (inData[0][idx1]->GetScalarType())
+          // this filter expects that input is the same type as output.
+          if (inArray->GetDataType() != outArray->GetDataType())
+            {
+            vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
+                          << inArray->GetDataType()
+                          << "), must match output ScalarType ("
+                          << outArray->GetDataType() << ")");
+            return;
+            }
+
+          vtkIdType ptId;
+          inPtr = inData[0][idx1]->GetArrayPointerForExtent(inArray, inExt);
+          outPtr = outData[0]->GetArrayPointerForExtent(outArray, cOutExt);
+
+          switch (inArray->GetDataType())
+            {
+            vtkTemplateMacro(
+                             vtkImageAppendExecute(this, id,
+                                                   inExt, inData[0][idx1],
+                                                   static_cast<VTK_TT *>(inPtr),
+                                                   cOutExt, outData[0],
+                                                   static_cast<VTK_TT *>(outPtr),
+                                                   numComp,
+                                                   false,
+                                                   nArrays));
+            default:
+              vtkErrorMacro(<< "Execute: Unknown ScalarType");
+              return;
+            }
+
+        //do cell associated arrays
+        for (vtkIdType ai = 0;
+             ai < inData[0][idx1]->GetCellData()->GetNumberOfArrays();
+             ai++)
           {
-          vtkTemplateMacro(
-            vtkImageAppendExecute(this, id,
-                                  inExt, inData[0][idx1],
-                                  static_cast<VTK_TT *>(inPtr),
-                                  cOutExt, outData[0],
-                                  static_cast<VTK_TT *>(outPtr)));
-          default:
-            vtkErrorMacro(<< "Execute: Unknown ScalarType");
-          return;
+          vtkDataArray *inArray = inData[0][idx1]->GetCellData()->GetArray(ai);
+          vtkDataArray *outArray = outData[0]->GetCellData()->GetArray(ai);
+
+          vtkIdType numComp = inArray->GetNumberOfComponents();
+          if (numComp != outArray->GetNumberOfComponents())
+            {
+            vtkErrorMacro("Components of the inputs do not match");
+            return;
+            }
+
+          // this filter expects that input is the same type as output.
+          if (inArray->GetDataType() != outArray->GetDataType())
+            {
+            vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
+                          << inArray->GetDataType()
+                          << "), must match output ScalarType ("
+                          << outArray->GetDataType() << ")");
+            return;
+            }
+
+          vtkIdType cellId;
+          cellId = vtkStructuredData::ComputeCellIdForExtent(inExt, c_in);
+          inPtr = inArray->GetVoidPointer(cellId*numComp);
+          cellId = vtkStructuredData::ComputeCellIdForExtent(outExt, c_out);
+          outPtr = outArray->GetVoidPointer(cellId*numComp);
+          switch (inArray->GetDataType())
+            {
+            vtkTemplateMacro(
+                             vtkImageAppendExecute(this, id,
+                                                   inExt, inData[0][idx1],
+                                                   static_cast<VTK_TT *>(inPtr),
+                                                   cOutExt, outData[0],
+                                                   static_cast<VTK_TT *>(outPtr),
+                                                   numComp,
+                                                   true,
+                                                   nArrays));
+            default:
+              vtkErrorMacro(<< "Execute: Unknown ScalarType");
+              return;
+            }
           }
+         }
         }
       }
     }
@@ -448,4 +587,71 @@ void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "AppendAxis: " << this->AppendAxis << endl;
   os << indent << "PreserveExtents: " << this->PreserveExtents << endl;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAppend::AllocateOutputData(vtkImageData *output,
+                                        int *uExtent)
+{
+  output->SetExtent(uExtent);
+
+  //compute number of cells and points in the uExtent
+  vtkIdType numpts = 1;
+  vtkIdType numcells = 1;
+  for (int i = 0; i < 3; i++)
+    {
+    if (uExtent[i*2+1] >= uExtent[i*2])
+      {
+      vtkIdType dim = uExtent[i*2+1]-uExtent[i*2];
+      numpts = numpts*(dim+1);
+      if (dim != 0)
+        {
+        numcells = numcells*dim;
+        }
+      }
+    }
+
+  //get a hold of any of my inputs to get arrays
+  vtkImageData *in = vtkImageData::SafeDownCast(this->GetInputDataObject(0,0));
+
+  vtkDataSetAttributes *ifd, *ofd;
+  ifd = in->GetPointData();
+  ofd = output->GetPointData();
+  if (ifd && ofd)
+    {
+    ofd->CopyAllOn();
+    ofd->CopyAllocate(ifd, numpts);
+    ofd->SetNumberOfTuples(numpts);
+    }
+  ifd = in->GetCellData();
+  ofd = output->GetCellData();
+  if (ifd && ofd)
+    {
+    ofd->CopyAllOn();
+    ofd->CopyAllocate(ifd, numcells);
+    ofd->SetNumberOfTuples(numcells);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageAppend::AllocateOutputData(vtkDataObject *output)
+{
+  //TODO: I am not sure when/how this signature is used so I have no idea
+  //if this is what is should do.
+  vtkImageData *oImageData = vtkImageData::SafeDownCast(output);
+  if (!oImageData)
+    {
+    return NULL;
+    }
+  this->AllocateOutputData(oImageData, oImageData->GetExtent());
+  return oImageData;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAppend::CopyAttributeData(vtkImageData *input,
+                                          vtkImageData *output,
+                                          vtkInformationVector **inputVector)
+{
+  //Do not simply shallow copy forward the data as other imaging filters do.
+  //We have to append instead.
 }

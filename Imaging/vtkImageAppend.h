@@ -106,6 +106,7 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id);
 
+
   // see vtkAlgorithm for docs.
   virtual int FillInputPortInformation(int, vtkInformation*);
 
@@ -113,6 +114,16 @@ protected:
 
   void InternalComputeInputUpdateExtent(
     int *inExt, int *outExt, int *inWextent, int whichInput);
+
+  // overridden to allocate all of the output arrays, not just active scalars
+  virtual void AllocateOutputData(vtkImageData *out,
+                                  int *uExtent);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
+
+  // overridden to prevent shallow copies across, since we have to do it elementwise
+  virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,
+                                 vtkInformationVector** inputVector);
+
 
 private:
   vtkImageAppend(const vtkImageAppend&);  // Not implemented.
