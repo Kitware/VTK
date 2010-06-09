@@ -40,7 +40,7 @@ def Usage( outModelPrefix, outDataName ):
     print "\t [-a <filename>]  name of CSV output data (annotated) file"
     print "\t [-t <filename>]  name of CSV statistical test results file"
     print "\t [-c <filename>]  name of CSV file specifying columns of interest. Default: all columns are of interest"
-    print "\t [-v]             Increase verbosity (0 = silent). Default:",verbosity
+    print "\t [-v]             Increase verbosity (from no flag = silent to -vvv = print all tables)"
     sys.exit( 1 )
 ############################################################
 
