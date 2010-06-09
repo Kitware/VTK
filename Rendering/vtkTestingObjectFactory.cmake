@@ -68,3 +68,4 @@ SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 )
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                        EXTRA_INCLUDE ${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.h)
+
