@@ -36,8 +36,13 @@ class VTK_RENDERING_EXPORT vtkShader2Collection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
+  // Modified GetMTime because the collection time depends on the
+  // content of the shaders.
+  unsigned long GetMTime();
+
+  // Description:
   // Add a shader to the list.
-  void AddItem(vtkShader2 *pass);
+  void AddItem(vtkShader2 *shader);
 
   // Description:
   // Get the next shader in the list.

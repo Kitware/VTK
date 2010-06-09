@@ -38,7 +38,25 @@ vtkShader2Collection::vtkShader2Collection()
 vtkShader2Collection::~vtkShader2Collection()
 {
 }
-  
+
+// ----------------------------------------------------------------------------
+unsigned long vtkShader2Collection::GetMTime()
+{
+  unsigned long result=this->Superclass::GetMTime();
+  this->InitTraversal();
+  vtkShader2 *s=this->GetNextShader();
+  while(s!=0)
+    {
+    unsigned long time=s->GetMTime();
+    if(time>result)
+      {
+      result=time;
+      }
+    s=this->GetNextShader();
+    }
+  return result;
+}
+
 // ----------------------------------------------------------------------------
 // hide the standard AddItem from the user and the compiler.
 void vtkShader2Collection::AddItem(vtkObject *o)
