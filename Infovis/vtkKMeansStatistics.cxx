@@ -25,8 +25,8 @@ vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFuncto
 vtkKMeansStatistics::vtkKMeansStatistics()
 {
   this->AssessNames->SetNumberOfValues( 2 );
-  this->AssessNames->SetValue( 0, "distance" );
-  this->AssessNames->SetValue( 1, "closest id" );
+  this->AssessNames->SetValue( 0, "Distance" );
+  this->AssessNames->SetValue( 1, "ClosestId" );
   this->DefaultNumberOfClusters = 3;
   this->Tolerance = 0.01;
   this->KValuesArrayName = 0;
@@ -674,7 +674,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
       {
       vtksys_ios::ostringstream assessColName;
       assessColName << this->AssessNames->GetValue( v )
-                    << " ("
+                    << "("
                     <<  i
                     << ")";
 
