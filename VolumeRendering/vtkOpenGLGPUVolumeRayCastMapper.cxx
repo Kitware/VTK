@@ -3360,6 +3360,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   // so that we are in the same coordinate system
   vol->GetMatrix( this->InvVolumeMatrix );
   this->InvVolumeMatrix->Invert();
+  // Normals should be transformed using the transpose of the
+  // invert of InvVolumeMatrix.
+  vtkMatrix4x4::Transpose(vol->GetMatrix(),this->TempMatrix[0]);
 
   if(this->BoxSource==0)
     {
@@ -3379,11 +3382,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   double camWorldRange[2];
   double camWorldPos[4];
   double camFocalWorldPoint[4];
-  double camWorldDirection[3];
-  double range[2];
+  double camWorldDirection[4];
   double camPos[4];
-  double focalPoint[4];
-  double direction[3];
+  double camPlaneNormal[4];
 
   cam->GetPosition(camWorldPos);
   camWorldPos[3] = 1.0;
@@ -3397,28 +3398,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
 
   cam->GetFocalPoint(camFocalWorldPoint);
   camFocalWorldPoint[3]=1.0;
-  this->InvVolumeMatrix->MultiplyPoint( camFocalWorldPoint,focalPoint );
-  if ( focalPoint[3] )
-    {
-    focalPoint[0] /= focalPoint[3];
-    focalPoint[1] /= focalPoint[3];
-    focalPoint[2] /= focalPoint[3];
-    }
 
-  // Compute the normalized view direction
-  direction[0] = focalPoint[0] - camPos[0];
-  direction[1] = focalPoint[1] - camPos[1];
-  direction[2] = focalPoint[2] - camPos[2];
-
-  vtkMath::Normalize(direction);
-  
   // The range (near/far) must also be transformed
   // into the local coordinate system.
   camWorldDirection[0] = camFocalWorldPoint[0] - camWorldPos[0];
   camWorldDirection[1] = camFocalWorldPoint[1] - camWorldPos[1];
   camWorldDirection[2] = camFocalWorldPoint[2] - camWorldPos[2];
+  camWorldDirection[3] = 1.0;
+
+  // Compute the normalized near plane normal
+  this->TempMatrix[0]->MultiplyPoint( camWorldDirection, camPlaneNormal );
+
   vtkMath::Normalize(camWorldDirection);
-  
+  vtkMath::Normalize(camPlaneNormal);
+
   double camNearWorldPoint[4];
   double camFarWorldPoint[4];
   double camNearPoint[4];
@@ -3441,29 +3434,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
     camNearPoint[1] /= camNearPoint[3];
     camNearPoint[2] /= camNearPoint[3];
     }
-  this->InvVolumeMatrix->MultiplyPoint( camFarWorldPoint, camFarPoint );
-  if (camFarPoint[3])
-    {
-    camFarPoint[0] /= camFarPoint[3];
-    camFarPoint[1] /= camFarPoint[3];
-    camFarPoint[2] /= camFarPoint[3];
-    }
-  range[0] = sqrt(vtkMath::Distance2BetweenPoints(camNearPoint, camPos));
-  range[1] = sqrt(vtkMath::Distance2BetweenPoints(camFarPoint, camPos));
+  //this->InvVolumeMatrix->MultiplyPoint( camFarWorldPoint, camFarPoint );
+  //if (camFarPoint[3])
+  //  {
+  //  camFarPoint[0] /= camFarPoint[3];
+  //  camFarPoint[1] /= camFarPoint[3];
+  //  camFarPoint[2] /= camFarPoint[3];
+  //  }
+  //double direction[3];
+  //direction[0] = camFarPoint[0] - camNearPoint[0];
+  //direction[1] = camFarPoint[1] - camNearPoint[1];
+  //direction[2] = camFarPoint[2] - camNearPoint[2];
+  //vtkMath::Normalize(direction);
+  //camNearPoint[0] += direction[0]*.00001;
+  //camNearPoint[1] += direction[1]*.00001;
+  //camNearPoint[2] += direction[2]*.00001;
 
-  //double nearPoint[3], farPoint[3];
-
-  double dist = range[1] - range[0];
-  range[0] += dist / (2<<16);
-  range[1] -= dist / (2<<16);
-  
   if(this->NearPlane==0)
     {
     this->NearPlane= vtkPlane::New();
     }
-  //this->NearPlane->SetOrigin( nearPoint );
   this->NearPlane->SetOrigin( camNearPoint );
-  this->NearPlane->SetNormal( direction );
+  this->NearPlane->SetNormal( camPlaneNormal );
   this->Planes->AddItem(this->NearPlane);
 
   if ( this->ClippingPlanes )
@@ -3472,33 +3464,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
     vtkPlane *plane;
     while ( (plane = this->ClippingPlanes->GetNextItem()) )
       {
-      // Planes are in world coordinates, we need to 
+      // Planes are in world coordinates, we need to
       // convert them in local coordinates
-      double planeOrigin[4], planeNormal[4], planeP1[4];
+      double planeOrigin[4], planeNormal[4];//, planeP1[4];
       plane->GetOrigin(planeOrigin);
       planeOrigin[3] = 1.;
       plane->GetNormal(planeNormal);
-      planeP1[0] = planeOrigin[0] + planeNormal[0];
-      planeP1[1] = planeOrigin[1] + planeNormal[1];
-      planeP1[2] = planeOrigin[2] + planeNormal[2];
-      planeP1[3] = 1.;
+      planeNormal[3] = 1.;
       this->InvVolumeMatrix->MultiplyPoint(planeOrigin, planeOrigin);
-      this->InvVolumeMatrix->MultiplyPoint(planeP1, planeP1);
       if( planeOrigin[3])
         {
         planeOrigin[0] /= planeOrigin[3];
         planeOrigin[1] /= planeOrigin[3];
         planeOrigin[2] /= planeOrigin[3];
         }
-      if( planeP1[3])
-        {
-        planeP1[0] /= planeP1[3];
-        planeP1[1] /= planeP1[3];
-        planeP1[2] /= planeP1[3];
-        }
-      planeNormal[0] = planeP1[0] - planeOrigin[0];
-      planeNormal[1] = planeP1[1] - planeOrigin[1];
-      planeNormal[2] = planeP1[2] - planeOrigin[2];
+      this->TempMatrix[0]->MultiplyPoint(planeNormal, planeNormal);
       vtkMath::Normalize(planeNormal);
       vtkPlane* localPlane = vtkPlane::New();
       localPlane->SetOrigin(planeOrigin);
