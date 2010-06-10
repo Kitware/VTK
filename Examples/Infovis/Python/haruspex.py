@@ -23,6 +23,7 @@ def Usage( outModelPrefix, outDataName ):
     print "Usage:"
     print "\t [-h]             Help: print this message and exit"
     print "\t -d <filename>    name of CSV input data file"
+    print "\t [-c <filename>]  name of CSV file specifying columns of interest. Default: all columns are of interest"
     print "\t -e <engine>      Type of statistics engine. Available engines are:"
     print "\t                    descriptive"
     print "\t                    order"
@@ -39,7 +40,6 @@ def Usage( outModelPrefix, outDataName ):
     print "\t [-s <prefix>]    prefix of CSV output model (statistics) file(s)"
     print "\t [-a <filename>]  name of CSV output data (annotated) file"
     print "\t [-t <filename>]  name of CSV statistical test results file"
-    print "\t [-c <filename>]  name of CSV file specifying columns of interest. Default: all columns are of interest"
     print "\t [-v]             Increase verbosity (from no flag = silent to -vvv = print all tables)"
     sys.exit( 1 )
 ############################################################
