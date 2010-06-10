@@ -500,7 +500,6 @@ void vtkImageAppend::ThreadedRequestData (
             return;
             }
 
-          vtkIdType ptId;
           inPtr = inData[0][idx1]->GetArrayPointerForExtent(inArray, inExt);
           outPtr = outData[0]->GetArrayPointerForExtent(outArray, cOutExt);
 
@@ -648,9 +647,9 @@ vtkImageData *vtkImageAppend::AllocateOutputData(vtkDataObject *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAppend::CopyAttributeData(vtkImageData *input,
-                                          vtkImageData *output,
-                                          vtkInformationVector **inputVector)
+void vtkImageAppend::CopyAttributeData(vtkImageData *vtkNotUsed(input),
+                                       vtkImageData *vtkNotUsed(output),
+                                       vtkInformationVector **vtkNotUsed(inputVector))
 {
   //Do not simply shallow copy forward the data as other imaging filters do.
   //We have to append instead.
