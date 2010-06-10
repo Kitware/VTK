@@ -3434,21 +3434,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
     camNearPoint[1] /= camNearPoint[3];
     camNearPoint[2] /= camNearPoint[3];
     }
-  //this->InvVolumeMatrix->MultiplyPoint( camFarWorldPoint, camFarPoint );
-  //if (camFarPoint[3])
-  //  {
-  //  camFarPoint[0] /= camFarPoint[3];
-  //  camFarPoint[1] /= camFarPoint[3];
-  //  camFarPoint[2] /= camFarPoint[3];
-  //  }
-  //double direction[3];
-  //direction[0] = camFarPoint[0] - camNearPoint[0];
-  //direction[1] = camFarPoint[1] - camNearPoint[1];
-  //direction[2] = camFarPoint[2] - camNearPoint[2];
-  //vtkMath::Normalize(direction);
-  //camNearPoint[0] += direction[0]*.00001;
-  //camNearPoint[1] += direction[1]*.00001;
-  //camNearPoint[2] += direction[2]*.00001;
 
   if(this->NearPlane==0)
     {
