@@ -106,6 +106,14 @@ vtkPolyDataSilhouette::~vtkPolyDataSilhouette()
     this->Camera->Delete();
     }
 
+  if (this->PreComp->edgeFlag)
+    {
+    delete [] this->PreComp->edgeFlag;
+    }
+  if (this->PreComp->lines)
+    {
+    this->PreComp->lines->Delete();
+    }
   delete this->PreComp;
 
   //Note: vtkProp3D is not deleted to avoid reference count cycle
