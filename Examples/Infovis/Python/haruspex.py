@@ -21,7 +21,7 @@ verbosity = 0
 # Usage function
 def Usage( outModelPrefix, outDataName ):
     print "Usage:"
-    print "\t -h               Help: print this message and exit"
+    print "\t [-h]             Help: print this message and exit"
     print "\t -d <filename>    name of CSV input data file"
     print "\t -e <engine>      Type of statistics engine. Available engines are:"
     print "\t                    descriptive"
