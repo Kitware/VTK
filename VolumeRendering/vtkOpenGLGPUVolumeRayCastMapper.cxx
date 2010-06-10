@@ -55,6 +55,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPoints.h"
+#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -3575,22 +3576,13 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
       // negative?
 
       double p1[3], p2[3], p3[3];
-      double v1[3], v2[3], v3[3], v4[3];
+      double v3[3], v4[3];
 
       points->GetPoint(pts[0], p1 );
       points->GetPoint(pts[1], p2 );
       points->GetPoint(pts[2], p3 );
 
-      v1[0] = p2[0] - p1[0];
-      v1[1] = p2[1] - p1[1];
-      v1[2] = p2[2] - p1[2];
-
-      v2[0] = p2[0] - p3[0];
-      v2[1] = p2[1] - p3[1];
-      v2[2] = p2[2] - p3[2];
-
-      vtkMath::Cross( v1, v2, v3 );
-      vtkMath::Normalize(v3);
+      vtkTriangle::ComputeNormal(p1, p2, p3, v3);
 
       v4[0] = p2[0] - center[0];
       v4[1] = p2[1] - center[1];
@@ -3598,8 +3590,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
       vtkMath::Normalize(v4);
 
       double dot = vtkMath::Dot( v3, v4 );
-
-      if (( dot < 0) && this->PreserveOrientation)
+      if ( this->PreserveOrientation ? ( dot >= -0.000001):(dot <= 0.000001))
         {
         start = 0;
         end = npts;
@@ -3675,7 +3666,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
-{  
+{
   // in OpenGL copy texture to texture does not exist but
   // framebuffer to texture exists (and our FB is an FBO).
   // we have to copy and not just to switch color textures because the
