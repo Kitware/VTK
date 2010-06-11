@@ -1514,9 +1514,12 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation(
     else
       {
       float lightIntensity = light[lightIndex]->GetIntensity();
-      double lightColor[3];
-      
-      light[lightIndex]->GetColor( lightColor );
+      double lightAmbColor[3];
+      double lightDiffColor[3];
+      double lightSpecColor[3];
+      light[lightIndex]->GetAmbientColor( lightAmbColor );
+      light[lightIndex]->GetDiffuseColor( lightDiffColor );
+      light[lightIndex]->GetSpecularColor( lightSpecColor );
       
       double lightPosition[3];
       double lightFocalPoint[3];
@@ -1532,14 +1535,20 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation(
       
       vtkMath::Normalize( dir );
       
-      lightDiffuseColor[lightIndex][0] = lightColor[0]*diffuse*lightIntensity;
-      lightDiffuseColor[lightIndex][1] = lightColor[1]*diffuse*lightIntensity;
-      lightDiffuseColor[lightIndex][2] = lightColor[2]*diffuse*lightIntensity;
+      lightDiffuseColor[lightIndex][0] = lightDiffColor[0]*diffuse
+        *lightIntensity;
+      lightDiffuseColor[lightIndex][1] = lightDiffColor[1]*diffuse
+        *lightIntensity;
+      lightDiffuseColor[lightIndex][2] = lightDiffColor[2]*diffuse
+        *lightIntensity;
       lightDiffuseColor[lightIndex][3] = 1.0;
       
-      lightSpecularColor[lightIndex][0]= lightColor[0]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][1]= lightColor[1]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][2]= lightColor[2]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][0]= lightSpecColor[0]*specular
+        *lightIntensity;
+      lightSpecularColor[lightIndex][1]= lightSpecColor[1]*specular
+        *lightIntensity;
+      lightSpecularColor[lightIndex][2]= lightSpecColor[2]*specular
+        *lightIntensity;
       lightSpecularColor[lightIndex][3] = 0.0;
 
       half[0] = dir[0] - viewDirection[0];
@@ -1548,9 +1557,9 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation(
       
       vtkMath::Normalize( half );
       
-      ambientColor[0] += ambient*lightColor[0];
-      ambientColor[1] += ambient*lightColor[1];
-      ambientColor[2] += ambient*lightColor[2];      
+      ambientColor[0] += ambient*lightAmbColor[0];
+      ambientColor[1] += ambient*lightAmbColor[1];
+      ambientColor[2] += ambient*lightAmbColor[2];
       }
 
     lightDirection[lightIndex][0] = (dir[0]+1.0)/2.0;
@@ -1641,9 +1650,12 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP(
     else
       {
       float lightIntensity = light[lightIndex]->GetIntensity();
-      double lightColor[3];
-      
-      light[lightIndex]->GetColor( lightColor );
+      double lightAmbColor[3];
+      double lightDiffColor[3];
+      double lightSpecColor[3];
+      light[lightIndex]->GetAmbientColor( lightAmbColor );
+      light[lightIndex]->GetDiffuseColor( lightDiffColor );
+      light[lightIndex]->GetSpecularColor( lightSpecColor );
       
       double lightPosition[3];
       double lightFocalPoint[3];
@@ -1659,14 +1671,20 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP(
       
       vtkMath::Normalize( dir );
       
-      lightDiffuseColor[lightIndex][0] = lightColor[0]*diffuse*lightIntensity;
-      lightDiffuseColor[lightIndex][1] = lightColor[1]*diffuse*lightIntensity;
-      lightDiffuseColor[lightIndex][2] = lightColor[2]*diffuse*lightIntensity;
+      lightDiffuseColor[lightIndex][0] = lightDiffColor[0]*diffuse
+        *lightIntensity;
+      lightDiffuseColor[lightIndex][1] = lightDiffColor[1]*diffuse
+        *lightIntensity;
+      lightDiffuseColor[lightIndex][2] = lightDiffColor[2]*diffuse
+        *lightIntensity;
       lightDiffuseColor[lightIndex][3] = 0.0;
       
-      lightSpecularColor[lightIndex][0]= lightColor[0]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][1]= lightColor[1]*specular*lightIntensity;
-      lightSpecularColor[lightIndex][2]= lightColor[2]*specular*lightIntensity;
+      lightSpecularColor[lightIndex][0]= lightSpecColor[0]*specular
+        *lightIntensity;
+      lightSpecularColor[lightIndex][1]= lightSpecColor[1]*specular
+        *lightIntensity;
+      lightSpecularColor[lightIndex][2]= lightSpecColor[2]*specular
+        *lightIntensity;
       lightSpecularColor[lightIndex][3] = 0.0;
 
       half[0] = dir[0] - viewDirection[0];
@@ -1675,9 +1693,9 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP(
       
       vtkMath::Normalize( half );
       
-      ambientColor[0] += ambient*lightColor[0];
-      ambientColor[1] += ambient*lightColor[1];
-      ambientColor[2] += ambient*lightColor[2];      
+      ambientColor[0] += ambient*lightAmbColor[0];
+      ambientColor[1] += ambient*lightAmbColor[1];
+      ambientColor[2] += ambient*lightAmbColor[2];      
       }
 
     lightDirection[lightIndex][0] = dir[0];
