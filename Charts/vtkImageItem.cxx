@@ -130,7 +130,8 @@ bool vtkImageItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   if (mouse.Button == 0) // Left mouse button - translate
     {
     // Move the block by this amount
-    this->Translate(deltaX, deltaY);
+    this->Dimensions[0] += deltaX;
+    this->Dimensions[1] += deltaY;
     return true;
     }
   else if (mouse.Button == 1)
