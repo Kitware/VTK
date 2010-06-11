@@ -104,7 +104,8 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
 
     for (int i = 0; i < n; ++i)
       {
-      painter->DrawRect(f[2*i]-(this->Width/2)-this->Offset, 0.0, this->Width, f[2*i+1] - (this->Width/2));
+      painter->DrawRect(f[2*i]-(this->Width/2)-this->Offset, 0.0,
+                        this->Width, f[2*i+1]);
       }
     }
 
