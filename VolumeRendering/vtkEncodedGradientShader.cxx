@@ -191,11 +191,15 @@ float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
   return this->ShadingTable[index][5];
 }
 
-void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren, 
-                                                   vtkVolume *vol,
-                                                   vtkEncodedGradientEstimator *gradest)
+void vtkEncodedGradientShader::UpdateShadingTable(
+  vtkRenderer *ren, 
+  vtkVolume *vol,
+  vtkEncodedGradientEstimator *gradest)
 {
-  double                 lightDirection[3], material[4], lightColor[3];
+  double                 lightDirection[3], material[4];
+  double                 lightAmbientColor[3];
+  double                 lightDiffuseColor[3];
+  double                 lightSpecularColor[3];
   double                 lightPosition[3], lightFocalPoint[3];
   double                 lightIntensity, viewDirection[3];
   double                 cameraPosition[3], cameraFocalPoint[3], mag;
@@ -320,7 +324,9 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
       }
     
     // Get the light color, position, focal point, and intensity
-    light->GetColor( lightColor );
+    light->GetAmbientColor(lightAmbientColor);
+    light->GetDiffuseColor(lightDiffuseColor);
+    light->GetSpecularColor(lightSpecularColor);
     light->GetTransformedPosition( lightPosition );
     light->GetTransformedFocalPoint( lightFocalPoint );
     lightIntensity = light->GetIntensity( );
@@ -346,10 +352,11 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
     lightDirection[2] = out[2] / out[3] - zero[2];
 
     // Build / Add to the shading table
-    this->BuildShadingTable( index, lightDirection, lightColor, 
-                             lightIntensity, viewDirection,
-                             material, ren->GetTwoSidedLighting(),
-                             gradest, update_flag );
+    this->BuildShadingTable(index, lightDirection, lightAmbientColor,
+                            lightDiffuseColor,lightSpecularColor,
+                            lightIntensity, viewDirection,
+                            material, ren->GetTwoSidedLighting(),
+                            gradest, update_flag );
       
     update_flag = 1;
     }//while there is a light in the list of lights
@@ -378,7 +385,9 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 // value indicates which index table is to be updated
 void vtkEncodedGradientShader::BuildShadingTable( int index,
                                                   double lightDirection[3],
-                                                  double lightColor[3],
+                                                  double lightAmbientColor[3],
+                                                  double lightDiffuseColor[3],
+                                                  double lightSpecularColor[3],
                                                   double lightIntensity,
                                                   double viewDirection[3],
                                                   double material[4],
@@ -387,8 +396,8 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
                                                   int   updateFlag )
 {
   double   lx, ly, lz; 
-  float    n_dot_l;   
-  float    n_dot_v;   
+  double    n_dot_l;   
+  double    n_dot_v;   
   int      i;
   float    *nptr;
   float    *sdr_ptr;
@@ -397,9 +406,9 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
   float    *ssr_ptr;
   float    *ssg_ptr;
   float    *ssb_ptr;
-  float    Ka, Es, Kd_intensity, Ks_intensity;
+  double    Ka, Es, Kd_intensity, Ks_intensity;
   double   half_x, half_y, half_z;
-  float    mag, n_dot_h, specular_value;
+  double    mag, n_dot_h, specular_value;
   int      norm_size;
 
   // Move to local variables
@@ -474,22 +483,25 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
         }
 
       // Now add in ambient
-      *(sdr_ptr) += Ka * lightColor[0];
-      *(sdg_ptr) += Ka * lightColor[1];
-      *(sdb_ptr) += Ka * lightColor[2];
+      *(sdr_ptr) += static_cast<float>(Ka * lightAmbientColor[0]);
+      *(sdg_ptr) += static_cast<float>(Ka * lightAmbientColor[1]);
+      *(sdb_ptr) += static_cast<float>(Ka * lightAmbientColor[2]);
 
       // Add in diffuse
-      *(sdr_ptr) += 
-        (Kd_intensity * this->ZeroNormalDiffuseIntensity * lightColor[0]);
-      *(sdg_ptr) += 
-        (Kd_intensity * this->ZeroNormalDiffuseIntensity * lightColor[1]);
-      *(sdb_ptr) += 
-        (Kd_intensity * this->ZeroNormalDiffuseIntensity * lightColor[2]);
-        
+      *(sdr_ptr) += static_cast<float>
+        (Kd_intensity * this->ZeroNormalDiffuseIntensity*lightDiffuseColor[0]);
+      *(sdg_ptr) += static_cast<float>
+        (Kd_intensity * this->ZeroNormalDiffuseIntensity*lightDiffuseColor[1]);
+      *(sdb_ptr) += static_cast<float>
+        (Kd_intensity * this->ZeroNormalDiffuseIntensity*lightDiffuseColor[2]);
+      
       // Add in specular
-      *(ssr_ptr) += this->ZeroNormalSpecularIntensity * lightColor[0];
-      *(ssg_ptr) += this->ZeroNormalSpecularIntensity * lightColor[1];
-      *(ssb_ptr) += this->ZeroNormalSpecularIntensity * lightColor[2];
+      *(ssr_ptr) += static_cast<float>(
+        this->ZeroNormalSpecularIntensity*lightSpecularColor[0]);
+      *(ssg_ptr) += static_cast<float>(
+        this->ZeroNormalSpecularIntensity*lightSpecularColor[1]);
+      *(ssb_ptr) += static_cast<float>(
+        this->ZeroNormalSpecularIntensity*lightSpecularColor[2]);
       }
     else
       {
@@ -521,35 +533,41 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
       // If we are updating, then begin by adding in ambient
       if ( updateFlag )
         {
-        *(sdr_ptr) += Ka * lightColor[0];
-        *(sdg_ptr) += Ka * lightColor[1];
-        *(sdb_ptr) += Ka * lightColor[2];
+        *(sdr_ptr) += static_cast<float>(Ka * lightAmbientColor[0]);
+        *(sdg_ptr) += static_cast<float>(Ka * lightAmbientColor[1]);
+        *(sdb_ptr) += static_cast<float>(Ka * lightAmbientColor[2]);
         }
       // Otherwise begin by setting the value to the ambient contribution
       else
         {
-        *(sdr_ptr) = Ka * lightColor[0];
-        *(sdg_ptr) = Ka * lightColor[1];
-        *(sdb_ptr) = Ka * lightColor[2];
-        *(ssr_ptr) = 0.0;
-        *(ssg_ptr) = 0.0;
-        *(ssb_ptr) = 0.0;
+        *(sdr_ptr) = static_cast<float>(Ka * lightAmbientColor[0]);
+        *(sdg_ptr) = static_cast<float>(Ka * lightAmbientColor[1]);
+        *(sdb_ptr) = static_cast<float>(Ka * lightAmbientColor[2]);
+        *(ssr_ptr) = 0.0f;
+        *(ssg_ptr) = 0.0f;
+        *(ssb_ptr) = 0.0f;
         }
 
       // If there is some diffuse contribution, add it in
       if ( n_dot_l > 0 )
         {
-        *(sdr_ptr) += (Kd_intensity * n_dot_l * lightColor[0]);
-        *(sdg_ptr) += (Kd_intensity * n_dot_l * lightColor[1]);
-        *(sdb_ptr) += (Kd_intensity * n_dot_l * lightColor[2]);
+        *(sdr_ptr) += static_cast<float>(
+          Kd_intensity * n_dot_l * lightDiffuseColor[0]);
+        *(sdg_ptr) += static_cast<float>(
+          Kd_intensity * n_dot_l * lightDiffuseColor[1]);
+        *(sdb_ptr) += static_cast<float>(
+          Kd_intensity * n_dot_l * lightDiffuseColor[2]);
         
         if ( n_dot_h > 0.001 )
           {
           specular_value = Ks_intensity * pow(static_cast<double>(n_dot_h),
                                               static_cast<double>(Es) );
-          *(ssr_ptr) += specular_value * lightColor[0];
-          *(ssg_ptr) += specular_value * lightColor[1];
-          *(ssb_ptr) += specular_value * lightColor[2];
+          *(ssr_ptr) += static_cast<float>(
+            specular_value * lightSpecularColor[0]);
+          *(ssg_ptr) += static_cast<float>(
+            specular_value * lightSpecularColor[1]);
+          *(ssb_ptr) += static_cast<float>(
+            specular_value * lightSpecularColor[2]);
           }      
         }
       }

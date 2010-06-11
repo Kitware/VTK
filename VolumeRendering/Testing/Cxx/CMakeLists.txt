@@ -13,7 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       PreIntegrationNonIncremental.cxx
       ProjectedTetrahedraZoomIn.cxx
       TestFinalColorWindowLevel.cxx
-#      TestFixedPointRayCastLightComponents.cxx
+      TestFixedPointRayCastLightComponents.cxx
       TestGPURayCastAdditive.cxx
       TestGPURayCastCompositeMaskBlend.cxx
       TestGPURayCastCompositeMask.cxx
@@ -34,6 +34,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestProjectedTetrahedra.cxx
       TestSmartVolumeMapper.cxx
       TestSmartVolumeMapperWindowLevel.cxx
+      TestTM3DLightComponents.cxx
       volProt.cxx
       ZsweepConcavities.cxx
       )

@@ -51,9 +51,9 @@ public:
   // Description:
   // Set / Get the intensity diffuse / specular light used for the
   // zero normals. 
-  vtkSetClampMacro( ZeroNormalDiffuseIntensity,  float, 0.0, 1.0);
+  vtkSetClampMacro( ZeroNormalDiffuseIntensity,  float, 0.0f, 1.0f);
   vtkGetMacro( ZeroNormalDiffuseIntensity, float );
-  vtkSetClampMacro( ZeroNormalSpecularIntensity, float, 0.0, 1.0);
+  vtkSetClampMacro( ZeroNormalSpecularIntensity, float, 0.0f, 1.0f);
   vtkGetMacro( ZeroNormalSpecularIntensity, float );
 
   // Description:
@@ -96,7 +96,9 @@ protected:
   // should be used. It is computed in the UpdateShadingTable method.
   void  BuildShadingTable( int index,
                            double lightDirection[3],
-                           double lightColor[3],
+                           double lightAmbientColor[3],
+                           double lightDiffuseColor[3],
+                           double lightSpecularColor[3],
                            double lightIntensity,
                            double viewDirection[3],
                            double material[4],
