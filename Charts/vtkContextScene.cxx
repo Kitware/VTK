@@ -202,7 +202,6 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
     }
   for (size_t i = 0; i < size; ++i)
     {
-    painter->SetTransform(this->Storage->items[i]->GetTransform());
     this->Storage->items[i]->Paint(painter);
     }
   if (size && this->Transform)
@@ -231,7 +230,6 @@ void vtkContextScene::PaintIds()
     }
   for (size_t i = 0; i < size; ++i)
     {
-    this->LastPainter->SetTransform(this->Storage->items[i]->GetTransform());
     this->LastPainter->ApplyId(i+1);
     this->Storage->items[i]->Paint(this->LastPainter);
     }
@@ -523,7 +521,6 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
         // Don't send the mouse move event twice...
         continue;
         }
-      this->PerformTransform(this->Storage->items[i]->GetTransform(), event);
 
       if (i==pickedItem)
         {
@@ -550,9 +547,6 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     // Check if there is a selected item that needs to receive a move event
     if (this->Storage->itemMousePressCurrent >= 0)
       {
-      this->PerformTransform(
-        this->Storage->items[this->Storage->itemMousePressCurrent]->GetTransform(),
-        event);
       this->Storage->items[this->Storage->itemMousePressCurrent]->MouseMoveEvent(event);
       }
     else
@@ -587,7 +581,6 @@ void vtkContextScene::ButtonPressEvent(int button, int x, int y)
   event.Button = button;
   for (int i = size-1; i >= 0; --i)
     {
-    this->PerformTransform(this->Storage->items[i]->GetTransform(), event);
     if (this->Storage->items[i]->Hit(event))
       {
       if (this->Storage->items[i]->MouseButtonPressEvent(event))
@@ -611,10 +604,8 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
     event.ScenePos[0] = x;
     event.ScenePos[1] = y;
     event.Button = button;
-    this->PerformTransform(
-        this->Storage->items[this->Storage->itemMousePressCurrent]->GetTransform(),
-        event);
-    this->Storage->items[this->Storage->itemMousePressCurrent]->MouseButtonReleaseEvent(event);
+    this->Storage->items[this->Storage->itemMousePressCurrent]
+        ->MouseButtonReleaseEvent(event);
     this->Storage->itemMousePressCurrent = -1;
     }
   this->Storage->Event.Button = -1;
@@ -631,7 +622,6 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
   //event.Button = 1;
   for (int i = size-1; i >= 0; --i)
     {
-    this->PerformTransform(this->Storage->items[i]->GetTransform(), event);
     if (this->Storage->items[i]->Hit(event))
       {
       if (this->Storage->items[i]->MouseWheelEvent(event, delta))

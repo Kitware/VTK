@@ -16,6 +16,7 @@ SET(KIT_LIBS vtkIO vtkftgl
 
 SET(Kit_SRCS
   vtkAbstractContextBufferId.cxx
+  vtkAbstractContextItem.cxx
   vtkAxis.cxx
   vtkBarMark.cxx
   vtkBlockItem.cxx
@@ -56,6 +57,7 @@ SET(Kit_SRCS
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
+  vtkAbstractContextItem
   vtkChart
   vtkContextDevice2D
   vtkContextItem

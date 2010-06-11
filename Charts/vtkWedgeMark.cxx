@@ -44,9 +44,9 @@ vtkWedgeMark::vtkWedgeMark()
   this->MouseOver=false;
   this->ActiveItem=-1;
   this->PaintIdMode=false;
-  
+
   // this->Information created in vtkMark
-  
+
   // add the default keys.
   this->AddWedgeDefault();
 }
@@ -65,12 +65,11 @@ void vtkWedgeMark::PaintIds()
 {
   assert("pre: not_yet" && !this->PaintIdMode);
   vtkDebugMacro("PaintId called.");
-  
-  this->Scene->GetLastPainter()->SetTransform(this->GetTransform());
+
   this->PaintIdMode=true;
   this->Paint(this->Scene->GetLastPainter());
   this->PaintIdMode=false;
-  
+
   assert("post: done" && !this->PaintIdMode);
 }
 
@@ -78,10 +77,10 @@ void vtkWedgeMark::PaintIds()
 void vtkWedgeMark::UpdateBufferId()
 {
   vtkAbstractContextBufferId *bi=this->Scene->GetBufferId();
-  
+
   int width=bi->GetWidth();
   int height=bi->GetHeight();
-  
+
   if(this->BufferId==0 || width!=this->BufferId->GetWidth() ||
      height!=this->BufferId->GetHeight())
     {
@@ -96,7 +95,7 @@ void vtkWedgeMark::UpdateBufferId()
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
-    
+
     this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
     this->Scene->GetLastPainter()->BufferIdModeEnd();
@@ -107,9 +106,9 @@ void vtkWedgeMark::UpdateBufferId()
 vtkIdType vtkWedgeMark::GetPickedItem(int x, int y)
 {
   this->UpdateBufferId();
-  
+
   vtkIdType result=this->BufferId->GetPickedItem(x,y);
-  
+
   assert("post: valid_result" && result>=-1 &&
          result<this->Data.GetData(this).GetNumberOfChildren());
   return result;
@@ -127,10 +126,10 @@ bool vtkWedgeMark::MouseEnterEvent(const vtkContextMouseEvent &
 bool vtkWedgeMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   bool result=false;
-  
+
   // we can have this->MouseOver false if the enter event have been caught
   // previously by another context item.
-  
+
   if(this->MouseOver)
     {
     vtkIdType numChildren=this->Data.GetData(this).GetNumberOfChildren();
@@ -138,7 +137,7 @@ bool vtkWedgeMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       {
       vtkIdType pickedItem=this->GetPickedItem(mouse.ScreenPos[0],
                                                mouse.ScreenPos[1]);
-      
+
       if(pickedItem!=-1)
         {
 //        cout << "picked sector is"<< pickedItem << endl;
@@ -157,7 +156,7 @@ bool vtkWedgeMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
         }
       }
     }
-  
+
   return result;
 }
 
@@ -185,28 +184,28 @@ void vtkWedgeMark::MouseLeaveEventOnSector(int sector)
 bool vtkWedgeMark::Hit(const vtkContextMouseEvent &mouse)
 {
   bool result;
-  
+
   // each sector can have different left/bottom outer/inner radius, so we
   // can't just try to hit a big bounding box first.
-  
+
   double* left = this->Left.GetArray(this);
   double* bottom = this->Bottom.GetArray(this);
   double* lineWidth = this->LineWidth.GetArray(this);
   double *outerRadius=this->OuterRadius.GetArray(this);
   double *innerRadius=this->InnerRadius.GetArray(this);
   double *angle=this->Angle.GetArray(this);
-  
+
   vtkIdType numChildren=this->Data.GetData(this).GetNumberOfChildren();
   double a0=0.0;
   double a1=0.0;
-  
+
   vtkIdType i=0;
   result=false;
   while(!result && i<numChildren)
     {
     a0=a1;
     a1=angle[i]+a0;
-    
+
     // four tests to test if the hit is inside:
     // 1. Is it outside the circle of center (left,bottom) and radius
     // innerRadius-lineWidth?
@@ -217,16 +216,16 @@ bool vtkWedgeMark::Hit(const vtkContextMouseEvent &mouse)
     // 4. Is it on the negative side of the start line shifted by lineWidth on
     // the negative side?
     // hit=test1 && test2 && test3 && test4.
-    
+
     // Test1
     double dx=mouse.Pos[0]-left[i];
     double dy=mouse.Pos[1]-bottom[i];
     double dot=dx*dx+dy*dy;
     double r=innerRadius[i]-lineWidth[i];
-    
+
     // distance between center and point is greater than radius
     result=dot>=r*r;
-    
+
     if(result)
       {
       // Test 2
@@ -236,23 +235,23 @@ bool vtkWedgeMark::Hit(const vtkContextMouseEvent &mouse)
         {
         // Test 3
          double a0r=vtkMath::RadiansFromDegrees(a0);
-         
+
          result=cos(a0r)*dy-sin(a0r)*dx+lineWidth[i]>=0;
          if(result)
            {
            // Test 4
            double a1r=vtkMath::RadiansFromDegrees(a1);
-           
+
            result=cos(a1r)*dy-sin(a1r)*dx-lineWidth[i]<=0;
            }
         }
       }
-      
+
     ++i;
     }
-  
+
 //  cout << "wedge hit=" << result << endl;
-  
+
   return result;
 }
 
@@ -262,7 +261,7 @@ void vtkWedgeMark::AddWedgeDefault()
   // 1. fill style is a categorial color
   this->Fields->Set(vtkWedgeMark::FILL_STYLE(),"categorial");
   // 2. no stroke
-  
+
   this->SetLineColor(vtkMarkUtil::DefaultSeriesColorFromIndex);
   this->SetFillColor(vtkMarkUtil::DefaultSeriesColorFromIndex);
 }
@@ -278,7 +277,7 @@ double vtkWedgeMark::GetMidAngle()
 {
   return 0.0;
 }
-  
+
 // ----------------------------------------------------------------------------
 double vtkWedgeMark::GetMidRadius()
 {
@@ -288,7 +287,7 @@ double vtkWedgeMark::GetMidRadius()
 //    }
   return 0.0;
 }
-  
+
 //-----------------------------------------------------------------------------
 bool vtkWedgeMark::Paint(vtkContext2D *painter)
 {
@@ -297,15 +296,15 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
   vtkColor* fillColor = this->FillColor.GetArray(this);
   vtkColor* lineColor = this->LineColor.GetArray(this);
   double* lineWidth = this->LineWidth.GetArray(this);
-  
+
   double *outerRadius=this->OuterRadius.GetArray(this);
   double *innerRadius=this->InnerRadius.GetArray(this);
 //  double *startAngle=this->StartAngle.GetArray(this);
 //  double *stopAngle=this->StopAngle.GetArray(this);
   double *angle=this->Angle.GetArray(this);
-  
+
   vtkIdType numChildren = this->Data.GetData(this).GetNumberOfChildren();
-  
+
   if(this->PaintIdMode)
     {
     if(numChildren>16777214) // 24-bit limit, 0 reserved for background encoding.
@@ -313,16 +312,16 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
       vtkWarningMacro(<<"picking will not work properly as there are too many children. Children over 16777214 will be ignored.");
       numChildren=16777214;
       }
-    
+
     }
-  
+
   double a0=0.0;
   double a1=0.0;
   for (vtkIdType i = 0; i < numChildren; ++i)
     {
     a0=a1;
     a1=angle[i]+a0;
-    
+
     painter->GetBrush()->SetColorF(fillColor[i].Red,
                                    fillColor[i].Green,
                                    fillColor[i].Blue,
@@ -331,10 +330,10 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
       {
       painter->ApplyId(i+1);
       }
-    
+
     painter->DrawWedge(left[i],bottom[i],outerRadius[i],innerRadius[i],
                        a0,a1);
-    
+
     if (lineWidth[i] > 0.0)
       {
       painter->GetPen()->SetWidth(lineWidth[i]);
@@ -342,10 +341,10 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
                                 lineColor[i].Green,
                                 lineColor[i].Blue,
                                 lineColor[i].Alpha);
-      
+
       double a0r=vtkMath::RadiansFromDegrees(a0);
       double a1r=vtkMath::RadiansFromDegrees(a1);
-      
+
       // bottom line of the wedge
       painter->DrawLine(left[i]+innerRadius[i]*cos(a0r),
                         bottom[i]+innerRadius[i]*sin(a0r),
@@ -356,7 +355,7 @@ bool vtkWedgeMark::Paint(vtkContext2D *painter)
                         bottom[i]+innerRadius[i]*sin(a1r),
                         left[i]+outerRadius[i]*cos(a1r),
                         bottom[i]+outerRadius[i]*sin(a1r));
-      
+
       // inside arc
       painter->DrawArc(left[i],bottom[i],innerRadius[i],a0,a1);
       // outside arc

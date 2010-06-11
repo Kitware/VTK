@@ -18,20 +18,14 @@
 // Get my new commands
 #include "vtkCommand.h"
 
-#include "vtkAnnotationLink.h"
 #include "vtkInteractorStyle.h"
 #include "vtkInteractorStyleRubberBand2D.h"
-#include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkContextItem, Transform, vtkTransform2D);
-
-//-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
 {
-  this->Transform = NULL;//vtkTransform2D::New();
   this->Scene = NULL;
   this->Visible = true;
   this->Opacity = 1.0;
@@ -40,17 +34,7 @@ vtkContextItem::vtkContextItem()
 //-----------------------------------------------------------------------------
 vtkContextItem::~vtkContextItem()
 {
-  if (this->Transform)
-    {
-    this->Transform->Delete();
-    this->Transform = NULL;
-    }
   this->SetScene(NULL);
-}
-
-//-----------------------------------------------------------------------------
-void vtkContextItem::Update()
-{
 }
 
 //-----------------------------------------------------------------------------
@@ -108,16 +92,6 @@ bool vtkContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 bool vtkContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
 {
   return false;
-}
-
-//-----------------------------------------------------------------------------
-void vtkContextItem::Translate(float dx, float dy)
-{
-  if (!this->Transform)
-    {
-    this->Transform = vtkTransform2D::New();
-    }
-  this->Transform->Translate(dx, dy);
 }
 
 // ----------------------------------------------------------------------------

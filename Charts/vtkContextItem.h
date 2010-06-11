@@ -22,7 +22,7 @@
 #ifndef __vtkContextItem_h
 #define __vtkContextItem_h
 
-#include "vtkObject.h"
+#include "vtkAbstractContextItem.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer references to the scene
 
 class vtkContext2D;
@@ -30,21 +30,11 @@ class vtkContextScene;
 class vtkTransform2D;
 class vtkContextMouseEvent;
 
-class VTK_CHARTS_EXPORT vtkContextItem : public vtkObject
+class VTK_CHARTS_EXPORT vtkContextItem : public vtkAbstractContextItem
 {
 public:
-  vtkTypeMacro(vtkContextItem, vtkObject);
+  vtkTypeMacro(vtkContextItem, vtkAbstractContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-
-  // Description:
-  // Perform any updates to the item that may be necessary before rendering.
-  // The scene should take care of calling this on all items before their
-  // Paint function is invoked.
-  virtual void Update();
-
-  // Description:
-  // Paint event for the item, called whenever the item needs to be drawn,
-  virtual bool Paint(vtkContext2D *painter) = 0;
 
 //BTX
   // Description:
@@ -89,14 +79,6 @@ public:
 //ETX
 
   // Description:
-  // Set the transform for the item.
-  virtual void SetTransform(vtkTransform2D *transform);
-
-  // Description:
-  // Set the transform for the item.
-  vtkGetObjectMacro(Transform, vtkTransform2D);
-
-  // Description:
   // Get the visibility of the item (should it be drawn).
   vtkGetMacro(Visible, bool);
 
@@ -113,34 +95,29 @@ public:
   vtkSetMacro(Opacity, double);
 
   // Description:
-  // Translate the item by the given dx, dy.
-  void Translate(float dx, float dy);
-
-  // Description:
   // Set the vtkContextScene for the item, always set for an item in a scene.
   virtual void SetScene(vtkContextScene *scene);
 
   // Description:
   // Get the vtkContextScene for the item, always set for an item in a scene.
   vtkContextScene* GetScene();
-  
+
   // Description:
   // Release graphics resources hold by the item. The default implementation
   // is empty.
   virtual void ReleaseGraphicsResources();
-  
+
 //BTX
 protected:
   vtkContextItem();
   ~vtkContextItem();
 
-  vtkTransform2D *Transform;
   vtkWeakPointer<vtkContextScene> Scene;
 
   bool Visible;
 
   double Opacity;
-  
+
 private:
   vtkContextItem(const vtkContextItem &); // Not implemented.
   void operator=(const vtkContextItem &);   // Not implemented.
