@@ -25,6 +25,7 @@
 
 class vtkPlot;
 class vtkAxis;
+class vtkTransform2D;
 class vtkPlotGrid;
 class vtkTable;
 class vtkChartLegend;
@@ -146,7 +147,7 @@ public:
   virtual void SetScene(vtkContextScene *scene);
 
   // Description:
-  // Return the Stacked plot accumulator so that each vtkPlotStacked can 
+  // Return the Stacked plot accumulator so that each vtkPlotStacked can
   // use it to determine its base and contribute to the position of the next
   // stacked plot.
   vtkDataArray *GetStackedPlotAccumulator(int dataType, int n);

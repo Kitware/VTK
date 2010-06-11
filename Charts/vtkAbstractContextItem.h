@@ -27,6 +27,7 @@
 #include "vtkObject.h"
 
 class vtkContext2D;
+class vtkContextMouseEvent;
 
 class VTK_CHARTS_EXPORT vtkAbstractContextItem : public vtkObject
 {
@@ -43,6 +44,53 @@ public:
   // Description:
   // Paint event for the item, called whenever the item needs to be drawn.
   virtual bool Paint(vtkContext2D *painter) = 0;
+
+  // Description:
+  // Release graphics resources hold by the item. The default implementation
+  // is empty.
+  virtual void ReleaseGraphicsResources();
+
+//BTX
+  // Description:
+  // Return true if the supplied x, y coordinate is inside the item.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse enter event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse leave event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse wheel event, positive delta indicates forward movement of the wheel.
+  // Return true if the item holds the event, false if the event can be
+  // propagated to other items.
+  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+//ETX
 
 //BTX
 protected:

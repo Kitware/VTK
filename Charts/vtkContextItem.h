@@ -25,58 +25,13 @@
 #include "vtkAbstractContextItem.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer references to the scene
 
-class vtkContext2D;
 class vtkContextScene;
-class vtkTransform2D;
-class vtkContextMouseEvent;
 
 class VTK_CHARTS_EXPORT vtkContextItem : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextItem, vtkAbstractContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-
-//BTX
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse enter event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse move event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse leave event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button down event
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button release event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse wheel event, positive delta indicates forward movement of the wheel.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
 
   // Description:
   // Get the visibility of the item (should it be drawn).
@@ -101,11 +56,6 @@ public:
   // Description:
   // Get the vtkContextScene for the item, always set for an item in a scene.
   vtkContextScene* GetScene();
-
-  // Description:
-  // Release graphics resources hold by the item. The default implementation
-  // is empty.
-  virtual void ReleaseGraphicsResources();
 
 //BTX
 protected:

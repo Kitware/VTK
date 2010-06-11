@@ -53,53 +53,6 @@ vtkContextScene* vtkContextItem::GetScene()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextItem::Hit(const vtkContextMouseEvent &)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextItem::MouseEnterEvent(const vtkContextMouseEvent &)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextItem::MouseMoveEvent(const vtkContextMouseEvent &)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextItem::MouseLeaveEvent(const vtkContextMouseEvent &)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
-{
-  return false;
-}
-
-// ----------------------------------------------------------------------------
-void vtkContextItem::ReleaseGraphicsResources()
-{
-}
-
-//-----------------------------------------------------------------------------
 void vtkContextItem::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

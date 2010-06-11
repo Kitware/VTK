@@ -138,7 +138,7 @@ public:
       }
     }
 
-  vtkstd::vector<vtkContextItem *> items;
+  vtkstd::vector<vtkAbstractContextItem *> items;
   vtkstd::vector<bool> itemState;
   int itemMousePressCurrent; // Index of the item with a current mouse down
   vtkContextMouseEvent Event; // Mouse event structure
@@ -237,10 +237,14 @@ void vtkContextScene::PaintIds()
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextScene::AddItem(vtkContextItem *item)
+void vtkContextScene::AddItem(vtkAbstractContextItem *item)
 {
   item->Register(this);
-  item->SetScene(this);
+  vtkContextItem *citem = vtkContextItem::SafeDownCast(item);
+  if (citem)
+    {
+    citem->SetScene(this);
+    }
   this->Storage->items.push_back(item);
   this->Storage->itemState.push_back(false);
 }
@@ -252,7 +256,7 @@ int vtkContextScene::GetNumberOfItems()
 }
 
 //-----------------------------------------------------------------------------
-vtkContextItem * vtkContextScene::GetItem(int index)
+vtkAbstractContextItem * vtkContextScene::GetItem(int index)
 {
   if (index < this->GetNumberOfItems())
     {
@@ -336,7 +340,7 @@ void vtkContextScene::ReleaseGraphicsResources()
     {
     this->BufferId->ReleaseGraphicsResources();
     }
-  vtkstd::vector<vtkContextItem *>::iterator it;
+  vtkstd::vector<vtkAbstractContextItem *>::iterator it;
   for (it = this->Storage->items.begin(); it != this->Storage->items.end(); ++it)
     {
     (*it)->ReleaseGraphicsResources();

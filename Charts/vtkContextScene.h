@@ -28,7 +28,7 @@
 #include "vtkVector.h" // Needed for vtkVector2f
 
 class vtkContext2D;
-class vtkContextItem;
+class vtkAbstractContextItem;
 class vtkTransform2D;
 class vtkContextMouseEvent;
 
@@ -54,14 +54,14 @@ public:
 
   // Description:
   // Add an item to the scene.
-  void AddItem(vtkContextItem *item);
+  void AddItem(vtkAbstractContextItem *item);
 
   // Description:
   // Get the number of items in the scene.
   int GetNumberOfItems();
 
   // Get the item at the specified index.
-  vtkContextItem * GetItem(int index);
+  vtkAbstractContextItem * GetItem(int index);
 
   // Description:
   // Set the vtkAnnotationLink for the chart.
@@ -122,7 +122,7 @@ public:
   // Description:
   // Release graphics resources hold by the scene.
   void ReleaseGraphicsResources();
-  
+
   // Description:
   // Last painter used.
   // Not part of the end-user API. Can be used by context items to
