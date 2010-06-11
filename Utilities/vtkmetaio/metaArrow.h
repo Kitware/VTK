@@ -74,6 +74,9 @@ class METAIO_EXPORT MetaArrow : public MetaObject
 
     void  Lenght(float length) {this->Length(length);}
     float Lenght(void) const {return Length();}
+    
+    void  Direction(const double *direction);
+    const double * Direction(void) const;
 
 
   ////
@@ -92,6 +95,10 @@ class METAIO_EXPORT MetaArrow : public MetaObject
     bool  M_Read(void);
 
     float M_Length; // default 1.0
+    
+    static const unsigned int MAX_DIMENSIONS = 10;  // the maximum vector size from metaObject 
+                                                    // is 10, so we'll use the same here
+    double M_Direction[MAX_DIMENSIONS];
 
   };
 
