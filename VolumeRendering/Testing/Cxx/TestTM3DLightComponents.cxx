@@ -104,6 +104,7 @@ int TestTM3DLightComponents(int argc,
   lights->AddItem(light);
   light->Delete();
   
+  renWin->Render(); // make sure we have an OpenGL context.
 
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
@@ -139,15 +140,24 @@ int TestTM3DLightComponents(int argc,
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
   
+  int valid=volumeMapper->IsRenderSupported(volumeProperty,ren1);
+
   int retVal;
-  
-  ren1->ResetCamera();
-  renWin->Render();
-  
-  retVal = vtkTesting::Test(argc, argv, renWin, 75);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  if(valid)
     {
-    iren->Start();
+    ren1->ResetCamera();
+    renWin->Render();
+
+    retVal = vtkTesting::Test(argc, argv, renWin, 75);
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
+    }
+  else
+    {
+    retVal=vtkTesting::PASSED;
+    cout << "Required extensions not supported." << endl;
     }
   
   volumeMapper->Delete();
