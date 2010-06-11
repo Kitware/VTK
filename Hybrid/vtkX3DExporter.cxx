@@ -323,7 +323,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 
   pos = aLight->GetPosition();
   focus = aLight->GetFocalPoint();
-  colord = aLight->GetColor();
+  colord = aLight->GetDiffuseColor();
 
   dir[0] = focus[0] - pos[0];
   dir[1] = focus[1] - pos[1];

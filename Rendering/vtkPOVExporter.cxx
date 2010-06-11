@@ -283,7 +283,7 @@ void vtkPOVExporter::WriteLight(vtkLight *light)
   fprintf(this->FilePtr, "\t<%f, %f, %f>\n", 
           position[0], position[1], position[2]);
   
-  double *color = light->GetColor();
+  double *color = light->GetDiffuseColor();
   fprintf(this->FilePtr, "\tcolor <%f, %f, %f>*%f\n", 
           color[0], color[1], color[2],
           light->GetIntensity());

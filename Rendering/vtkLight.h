@@ -90,8 +90,11 @@ public:
   vtkGetVectorMacro(SpecularColor,double,3);
   void SetColor(double, double, double); 
   void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); }
-  void GetColor(double rgb[3]);
-  double *GetColor();
+  
+  // Description:
+  // @deprecated Use GetDiffuseColor instead as of VTK 5.7.
+  VTK_LEGACY(void GetColor(double rgb[3]));
+  VTK_LEGACY(double *GetColor());
 
   // Description:
   // Set/Get the position of the light.

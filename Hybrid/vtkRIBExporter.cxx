@@ -372,7 +372,7 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
 
   // get required info from light
   Intensity = aLight->GetIntensity();
-  Color = aLight->GetColor();
+  Color = aLight->GetDiffuseColor();
   color[0] = Intensity * Color[0];
   color[1] = Intensity * Color[1];
   color[2] = Intensity * Color[2];
