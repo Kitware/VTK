@@ -15,14 +15,15 @@
 #include "vtkImageAppend.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 
 vtkStandardNewMacro(vtkImageAppend);
 
@@ -475,15 +476,20 @@ void vtkImageAppend::ThreadedRequestData (
       // do a quick check to see if the input is used at all.
       if (inExt[this->AppendAxis*2] <= inExt[this->AppendAxis*2 + 1])
         {
+        vtkIdType ai;
+        vtkDataArray *inArray;
+        vtkDataArray *outArray;
+        vtkIdType numComp;
+
         //do point associated arrays
-        for (vtkIdType ai = 0;
+        for (ai = 0;
              ai < inData[0][idx1]->GetPointData()->GetNumberOfArrays();
              ai++)
           {
-          vtkDataArray *inArray = inData[0][idx1]->GetPointData()->GetArray(ai);
-          vtkDataArray *outArray = outData[0]->GetPointData()->GetArray(ai);
+          inArray = inData[0][idx1]->GetPointData()->GetArray(ai);
+          outArray = outData[0]->GetPointData()->GetArray(ai);
 
-          vtkIdType numComp = inArray->GetNumberOfComponents();
+          numComp = inArray->GetNumberOfComponents();
           if (numComp != outArray->GetNumberOfComponents())
             {
             vtkErrorMacro("Components of the inputs do not match");
@@ -520,14 +526,14 @@ void vtkImageAppend::ThreadedRequestData (
             }
 
         //do cell associated arrays
-        for (vtkIdType ai = 0;
+        for (ai = 0;
              ai < inData[0][idx1]->GetCellData()->GetNumberOfArrays();
              ai++)
           {
-          vtkDataArray *inArray = inData[0][idx1]->GetCellData()->GetArray(ai);
-          vtkDataArray *outArray = outData[0]->GetCellData()->GetArray(ai);
+          inArray = inData[0][idx1]->GetCellData()->GetArray(ai);
+          outArray = outData[0]->GetCellData()->GetArray(ai);
 
-          vtkIdType numComp = inArray->GetNumberOfComponents();
+          numComp = inArray->GetNumberOfComponents();
           if (numComp != outArray->GetNumberOfComponents())
             {
             vtkErrorMacro("Components of the inputs do not match");
