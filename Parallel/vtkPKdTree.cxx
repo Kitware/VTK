@@ -3909,6 +3909,8 @@ void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MyId: " << this->MyId << endl;
 
   os << indent << "RegionAssignmentMap: " << this->RegionAssignmentMap << endl;
+  os << indent << "RegionAssignmentMapLength: "
+    << this->RegionAssignmentMapLength << endl;
   os << indent << "NumRegionsAssigned: " << this->NumRegionsAssigned << endl;
   os << indent << "NumProcessesInRegion: " << this->NumProcessesInRegion << endl;
   os << indent << "ProcessList: " << this->ProcessList << endl;
