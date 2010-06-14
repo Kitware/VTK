@@ -68,18 +68,39 @@ struct vtkSESAMETableDef
 
 static const vtkSESAMETableDef TableDefs[] =
 {
-    {301, 
+    {301,
       {"301: Total EOS (Pressure)",
        "301: Total EOS (Energy)",
        "301: Total EOS (Free Energy)",
       0}  // keep 0 last
     },
 
-    {304, 
+    {303,
+      {"303: Total EOS (Pressure)",
+       "303: Total EOS (Energy)",
+       "303: Total EOS (Free Energy)",
+      0}  // keep 0 last
+    },
+
+    {304,
       {"304: Electron EOS (Pressure)",
        "304: Electron EOS (Energy)",
        "304: Electron EOS (Free Energy)",
        0}  // keep 0 last
+    },
+
+    {305,
+      {"305: Total EOS (Pressure)",
+       "305: Total EOS (Energy)",
+       "305: Total EOS (Free Energy)",
+      0}  // keep 0 last
+    },
+
+    {306,
+      {"306: Total EOS (Pressure)",
+       "306: Total EOS (Energy)",
+       "306: Total EOS (Free Energy)",
+      0}  // keep 0 last
     },
 
     {502,
@@ -102,27 +123,27 @@ static const vtkSESAMETableDef TableDefs[] =
        0}  // keep 0 last
     },
 
-    {601, 
+    {601,
       {"601: Mean Ion Charge2",
        0}  // keep 0 last
     },
 
-    {602, 
+    {602,
       {"602: Electrical Conductivity",
        0}  // keep 0 last
     },
 
-    {603, 
+    {603,
       {"603: Thermal Conductivity",
        0}  // keep 0 last
     },
 
-    {604, 
+    {604,
       {"604: Thermoelectric Coefficient",
        0}  // keep 0 last
     },
 
-    {605, 
+    {605,
     {"605: Electron Conductive Opacity2",
     0}  // keep 0 last
     }
@@ -440,26 +461,28 @@ void vtkSESAMEReader::ReadTable()
   float v[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
   int datadims[2] = { 0, 0 };
   int numRead = 0;
+  int result=0;
 
+  result=ReadTableValueLine( &(v[0]), &(v[1]), &(v[2]), &(v[3]), &(v[4]) );
   // get the table header
-  if ( ReadTableValueLine( &(v[0]), &(v[1]), &(v[2]), &(v[3]), &(v[4]) ) != 0) 
+  if (result!= 0)
     {
     // dimensions of grid
     datadims[0] = (int)(v[0]);
     datadims[1] = (int)(v[1]);
-    output->SetDimensions( datadims[0], datadims[1], 1 ); 
+    output->SetDimensions( datadims[0], datadims[1], 1 );
 
     // allocate space
     xCoords->Allocate( datadims[0] );
     yCoords->Allocate( datadims[1] );
-    zCoords->Allocate( 1 ); 
-    zCoords->InsertNextTuple1( 0.0 ); 
+    zCoords->Allocate( 1 );
+    zCoords->InsertNextTuple1( 0.0 );
 
-    // the first three values are x samples ...
-    xCoords->InsertNextTuple1( v[2] );
-    xCoords->InsertNextTuple1( v[3] );
-    xCoords->InsertNextTuple1( v[4] );
-    numRead = 3;
+    // the first three values are x samples Update: this only works if X has at least 3 values.
+    //xCoords->InsertNextTuple1( v[2] );
+    //xCoords->InsertNextTuple1( v[3] );
+    //xCoords->InsertNextTuple1( v[4] );
+    //numRead = 3;
     }
   
   unsigned int i;
@@ -480,16 +503,47 @@ void vtkSESAMEReader::ReadTable()
   int scalarCount = 0;
   int readFromTable = 0;
 
-  while ( (readFromTable = ReadTableValueLine( &(v[0]), &(v[1]), &(v[2]), &(v[3]), 
+  if (result!= 0)
+  {
+    for (int k=0;k<3;k++)
+    {
+      if ( numRead < datadims[0] )
+      {
+        xCoords->InsertNextTuple1(  v[k] );
+      }
+      else if ( numRead < (datadims[0] + datadims[1]) )
+      {
+        yCoords->InsertNextTuple1(  v[k] );
+      }
+      else
+      {
+        scalarCount++;
+        if(scalarCount > datadims[0] * datadims[1])
+        {
+          scalarCount = 1;
+          scalarIndex++;
+        }
+        if(this->Internal->TableArrayStatus.size() > scalarIndex &&
+          this->Internal->TableArrayStatus[scalarIndex])
+        {
+          scalars[scalarIndex]->InsertNextTuple1(v[k]);
+        }
+      }
+      numRead++;
+    }
+  }
+
+
+  while ( (readFromTable = ReadTableValueLine( &(v[0]), &(v[1]), &(v[2]), &(v[3]),
       &(v[4])  )) != 0)
     {
-    for (int k=0;k<readFromTable;k++) 
+    for (int k=0;k<readFromTable;k++)
       {
-      if ( numRead < datadims[0] ) 
+      if ( numRead < datadims[0] )
         {
         xCoords->InsertNextTuple1(  v[k] );
         }
-      else if ( numRead < (datadims[0] + datadims[1]) ) 
+      else if ( numRead < (datadims[0] + datadims[1]) )
         {
         yCoords->InsertNextTuple1(  v[k] );
         }
@@ -548,7 +602,7 @@ void vtkSESAMEReader::ReadTable()
   output->Squeeze();
 }
 
-int vtkSESAMEReader::ReadTableValueLine ( float *v1, float *v2, 
+int vtkSESAMEReader::ReadTableValueLine ( float *v1, float *v2,
   float *v3, float *v4, float *v5)
 {
   // by definition, a line of this file is 80 characters long 
