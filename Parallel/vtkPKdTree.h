@@ -133,6 +133,16 @@ public:
   int AssignRegionsContiguous();
 
   // Description:
+  // Returns the region assignment map where index is the region and value is
+  // the processes id for that region.
+  const int* GetRegionAssignmentMap()
+    { return this->RegionAssignmentMap; }
+
+  // Description:
+  /// Returns the number of regions in the region assignment map.
+  vtkGetMacro(RegionAssignmentMapLength, int);
+
+  // Description:
   //    Writes the list of region IDs assigned to the specified
   //    process.  Regions IDs start at 0 and increase by 1 from there.
   //    Returns the number of regions in the list. 
