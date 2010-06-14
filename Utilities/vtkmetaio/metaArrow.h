@@ -96,9 +96,7 @@ class METAIO_EXPORT MetaArrow : public MetaObject
 
     float M_Length; // default 1.0
     
-    static const unsigned int MAX_DIMENSIONS = 10;  // the maximum vector size from metaObject 
-                                                    // is 10, so we'll use the same here
-    double M_Direction[MAX_DIMENSIONS];
+    double M_Direction[10];
 
   };
 

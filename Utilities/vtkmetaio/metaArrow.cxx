@@ -149,7 +149,7 @@ Clear(void)
   M_Length = 1;
   
   // zero out direction then set to (1,0,0)
-  memset(M_Direction, 0, MAX_DIMENSIONS*sizeof(double));
+  memset(M_Direction, 0, 10*sizeof(double));
   M_Direction[0] = 1.0;
 }
         
