@@ -193,7 +193,7 @@ void vtkSynchronizedRenderers::HandleEndRender()
 
   if (this->WriteBackImages)
     {
-    if (this->ImageReductionFactor && this->ParallelRendering)
+    if (this->ImageReductionFactor > 1 && this->ParallelRendering)
       {
       this->CaptureRenderedImage();
       }
@@ -472,8 +472,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   window_size[1] = ren->GetVTKWindow()->GetSize()[1];
 
   int image_size[2];
-  image_size[0] = window_size[0] * (viewport[2]-viewport[0]) + 1;
-  image_size[1] = window_size[1] * (viewport[3]-viewport[1]) + 1;
+  image_size[0] = window_size[0] * (viewport[2]-viewport[0]);
+  image_size[1] = window_size[1] * (viewport[3]-viewport[1]);
 
   // using RGBA always?
   this->Resize(image_size[0], image_size[1], 4);
@@ -481,8 +481,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   ren->GetRenderWindow()->GetRGBACharPixelData(
     window_size[0] * viewport[0],
     window_size[1] * viewport[1],
-    window_size[0] * viewport[2],
-    window_size[1] * viewport[3],
+    window_size[0] * viewport[2]-1,
+    window_size[1] * viewport[3]-1,
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
     this->GetRawPtr()); 
   this->MarkValid();
