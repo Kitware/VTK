@@ -11,6 +11,7 @@ IF (VTK_DATA_ROOT)
     TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
     TestLegendScaleActor.cxx
+    TestPolyDataSilhouette.cxx
     TestPieChartActor.cxx
     TestSpiderPlotActor.cxx
     TestVRMLNormals.cxx
@@ -27,24 +28,29 @@ IF (VTK_DATA_ROOT)
   ENDIF (VTK_USE_GLSL_SHADERS AND WIN32)
 ENDIF (VTK_DATA_ROOT)
 
-# remove some tests if there is no display
+# remove some tests if there is no display of if they need args
 IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests
     TestBarChartActor.cxx
     TestLegendScaleActor.cxx
     TestPieChartActor.cxx
+    TestPolyDataSilhouette.cxx
     TestSpiderPlotActor.cxx
     X3DTest.cxx     
     ) 
 ENDIF(NOT VTK_USE_DISPLAY)
  
-CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                       EXTRA_INCLUDE vtkTestDriver.h)
+IF (VTK_DATA_ROOT)
+  ADD_TEST(TestPolyDataSilhouette ${CXX_TEST_PATH}/${KIT}CxxTests
+           TestPolyDataSilhouette ${VTK_DATA_ROOT}/Data/cow.vtp)
+ENDIF (VTK_DATA_ROOT)
+
+INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid vtkRendering vtkImaging vtkIO )
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx TestImageStencilData.cxx)
+REMOVE (TestsToRun ${KIT}CxxTests.cxx TestPolyDataSilhouette.cxx TestImageStencilData.cxx)
 
 #
 # Add all the executables 
