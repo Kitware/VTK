@@ -228,6 +228,16 @@ public:
   vtkBSPCuts* GetCuts() {return this->UserCuts;}
   void SetCuts(vtkBSPCuts* cuts);
 
+  // Description:
+  // vtkBSPCuts doesn't have information about process assignments for the cuts.
+  // Typically D3 filter simply reassigns the processes for each cut. However,
+  // that may not always work, sometimes the processes have be pre-assigned and
+  // we want to preserve that partitioning. In that case, one sets the region
+  // assignments explicitly. Look at vtkPKdTree::AssignRegions for details about
+  // the arguments. Calling SetUserRegionAssignments(NULL, 0) will revert to
+  // default behavior i.e. letting the KdTree come up with the assignments.
+  void SetUserRegionAssignments(const int *map, int numRegions);
+  
 protected:
   vtkDistributedDataFilter();
   ~vtkDistributedDataFilter();
@@ -288,9 +298,9 @@ protected:
   // Description:
   // Implementation for request data.
   int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output);
+//BTX
 private:
 
-//BTX
   enum{
       DeleteNo = 0,
       DeleteYes = 1
@@ -309,7 +319,6 @@ private:
   enum{
       UnsetGhostLevel = 99
       };
-//ETX
 
   // Description:
   // ?
@@ -548,5 +557,9 @@ private:
 
   vtkDistributedDataFilter(const vtkDistributedDataFilter&); // Not implemented
   void operator=(const vtkDistributedDataFilter&); // Not implemented
+
+  class vtkInternals;
+  vtkInternals* Internals;
+//ETX
 };
 #endif
