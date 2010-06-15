@@ -468,8 +468,8 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   ren->GetViewport(viewport);
 
   int window_size[2];
-  window_size[0] = ren->GetVTKWindow()->GetSize()[0];
-  window_size[1] = ren->GetVTKWindow()->GetSize()[1];
+  window_size[0] = ren->GetVTKWindow()->GetActualSize()[0];
+  window_size[1] = ren->GetVTKWindow()->GetActualSize()[1];
 
   int image_size[2];
   image_size[0] = window_size[0] * (viewport[2]-viewport[0]);

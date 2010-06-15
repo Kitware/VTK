@@ -293,8 +293,8 @@ bool vtkSynchronizedRenderWindows::RenderWindowInfo::Restore(vtkMultiProcessStre
 void vtkSynchronizedRenderWindows::RenderWindowInfo::CopyFrom(
   vtkRenderWindow *win)
 {
-  this->WindowSize[0] = win->GetSize()[0];
-  this->WindowSize[1] = win->GetSize()[1];
+  this->WindowSize[0] = win->GetActualSize()[0];
+  this->WindowSize[1] = win->GetActualSize()[1];
   this->DesiredUpdateRate = win->GetDesiredUpdateRate();
   win->GetTileScale(this->TileScale);
   win->GetTileViewport(this->TileViewport);
