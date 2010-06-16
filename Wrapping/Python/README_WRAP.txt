@@ -69,7 +69,7 @@ And perhaps one of the most pleasant features of Python is that all
 type-checking is performed at run time, so the type casts that are
 often necessary in VTK-C++ are never needed in VTK-Python.
 
-Finally, a C++ method that requires a void * can be passed any
+Finally, a C++ method that requires a void * can be passed
 any python object that supports the "buffer" protocol, which
 include string objects, numpy arrays and even VTK arrays.
 No check is done to ensure that the string is the correct
@@ -135,22 +135,19 @@ from the built-in "docstrings":
 
 >>> help(vtk.vtkActor)
 >>> help(vtk.vtkActor.SetUserTransform)
-[ lots of info printed, try it yourself]
+[ lots of info printed, try it yourself ]
 
 For the method documentation, all the different 'signatures' for the
-method are given in both Python and in the original C++ format before
-the documentation itself is given.
+method are given in the original C++ format:
 
 >>> help(vtkActor.SetPosition)
-Python Library Documentation: built-in function SetPosition
+Help on built-in function SetPosition:
 
 SetPosition(...)
-    V.SetPosition(float, float, float)
-    C++: virtual void SetPosition (float _arg1, float _arg2, float _arg3);
-    V.SetPosition((float, float, float))
-    C++: virtual void SetPosition (float _arg[3]);
+    virtual void SetPosition(float _arg1, float _arg2, float _arg3)
+    virtual void SetPosition(float _arg[3])
 
-     Set/Get/Add the position of the Prop3D in world coordinates.
+    Set/Get/Add the position of the Prop3D in world coordinates.
 
 
 Peculiarities and special features
@@ -164,7 +161,7 @@ mechanism for automatic garbage collection.  The object will be
 deleted once there are no remaining references to it either from
 inside Python or from other VTK objects.  It is possible to get rid of
 the local reference to the object by using the python 'del' command,
-i.e. "del o", and this will results in a call to o->Delete() if the
+i.e. "del o", and this will result in a call to o->Delete() if the
 local reference to the object was the last remaining reference to the
 object from within Python.
 
@@ -264,7 +261,7 @@ dict keys.  Sorting requires the existence of comparison operators
 such as "< <= == != > >=" and these are not automatically wrapped.
 The use of an object as a dict key requires the computation of a
 hash.  Comparison and hashing are supported by vtkVariant and
-vtkTimeStamp, but will by supported by other types on a case-by-case
+vtkTimeStamp, and will be supported by other types on a case-by-case
 basis.
 
 The reason that all vtkObjects can be easily hashed, while vtk
