@@ -39,6 +39,10 @@ msg_first() {
 '"$line"'
 ------------------------------------------------------------------------------
 '
+	elif echo "$line" | grep "^[	 ]\|[	 ]$" >/dev/null 2>&1; then
+		die 'The first line may not have leading or trailing space:
+['"$line"']
+'
 	else
 		# first line okay
 		state=second
@@ -61,7 +65,7 @@ msg_rest() {
 # Pipe commit message into the state machine.
 state=first
 cat "$commit_msg" |
-while read line; do
+while IFS='' read line; do
 	msg_$state || break
 done &&
 rm -f "$commit_msg"
