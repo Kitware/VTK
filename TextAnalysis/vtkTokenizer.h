@@ -84,6 +84,7 @@ public:
   vtkTypeMacro(vtkTokenizer, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
   // Description:
   // Defines storage for a half-open range of Unicode characters [begin, end).
   typedef vtkstd::pair<vtkUnicodeString::value_type, vtkUnicodeString::value_type> DelimiterRange;
@@ -115,6 +116,7 @@ public:
   // Description:
   // Adds a collection of delimiter ranges to the set of "kept" delimiters.
   void AddKeptDelimiters(const DelimiterRanges& ranges);
+//ETX
 
   // Description:
   // Convenience functions to specify delimiters, mainly intended for use from Python and
