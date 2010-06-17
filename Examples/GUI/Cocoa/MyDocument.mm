@@ -33,7 +33,7 @@
     vtkSmartPointer<vtkActor>   coneActor = vtkSmartPointer<vtkActor>::New();
         coneActor->SetMapper(coneMapper);
     [leftVTKView getRenderer]->AddActor(coneActor);
-    
+
     // Tell the system that the view needs to be redrawn
     [leftVTKView setNeedsDisplay:YES];
 }
@@ -74,41 +74,41 @@
     return self;
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification
+- (void)close
 {
+    [super close];
+
     // Releases memory allocated in initializeVTKSupport.
     // In a way, calling these is pointless since the application is quitting anyway.
     [leftVTKView cleanUpVTKSupport];
     [rightVTKView cleanUpVTKSupport];
-    
+
     // If you have built vtk with VTK_DEBUG_LEAKS on then this method will print out any leaks
     // that exist.  The sample has been careful to cleanup after itself, so there should be no leaks.
     vtkDebugLeaks::PrintCurrentLeaks();
 }
 
-- (NSString *)windowNibName 
+- (NSString *)windowNibName
 {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"MyDocument";
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
+- (void)windowControllerDidLoadNib:(NSWindowController *)windowController
 {
     [super windowControllerDidLoadNib:windowController];
-    
+
     // vtk stuff
     [self setupLeftVTKView];
     [self setupRightVTKView];
-    
-    [NSApp setDelegate:self];
 }
 
 
 - (NSData *)dataRepresentationOfType:(NSString *)aType
 {
     // Insert code here to write your document from the given data.  You can also choose to override -fileWrapperRepresentationOfType: or -writeToFile:ofType: instead.
-    
+
     // For applications targeted for Tiger or later systems, you should use the new Tiger API -dataOfType:error:.  In this case you can also choose to override -writeToURL:ofType:error:, -fileWrapperOfType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
 
     return nil;
@@ -119,7 +119,7 @@
     // Insert code here to read your document from the given data.  You can also choose to override -loadFileWrapperRepresentation:ofType: or -readFromFile:ofType: instead.
 
     // For applications targeted for Tiger or later systems, you should use the new Tiger API readFromData:ofType:error:.  In this case you can also choose to override -readFromURL:ofType:error: or -readFromFileWrapper:ofType:error: instead.
-    
+
     return YES;
 }
 
