@@ -62,6 +62,15 @@ void vtkCameraPass::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+void vtkCameraPass::GetTiledSizeAndOrigin(
+  const vtkRenderState* render_state,
+  int* width, int* height, int *originX,
+  int* originY)
+{
+  vtkRenderer *ren = render_state->GetRenderer();
+  ren->GetTiledSizeAndOrigin(width, height, originX, originY);
+}
+
 // ----------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
@@ -104,7 +113,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     
     // find out if we should stereo render
     bool stereo = win->GetStereoRender()==1;
-    ren->GetTiledSizeAndOrigin(&usize,&vsize,lowerLeft,lowerLeft+1);
+    this->GetTiledSizeAndOrigin(s, &usize,&vsize,lowerLeft,lowerLeft+1);
     
     // if were on a stereo renderer draw to special parts of screen
     if(stereo)

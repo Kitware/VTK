@@ -73,7 +73,11 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkCameraPass();
-  
+  virtual void GetTiledSizeAndOrigin(
+    const vtkRenderState* render_state,
+    int* width, int* height, int *originX,
+    int* originY);
+
   vtkRenderPass *DelegatePass;
   
   double AspectRatioOverride;
