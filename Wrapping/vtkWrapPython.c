@@ -43,8 +43,7 @@ static void vtkWrapPython_CustomMethods(
 
 /* print out all methods and the method table */
 static void vtkWrapPython_GenerateMethods(
-  FILE *fp, FileInfo *data, int class_has_new,
-  int is_vtkobject, int do_constructors);
+  FILE *fp, FileInfo *data, int is_vtkobject, int do_constructors);
 
 /* make a temporary variable for an arg value or a return value */
 static void vtkWrapPython_MakeTempVariable(
@@ -732,7 +731,7 @@ static void vtkWrapPython_ReturnValue(
 static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 {
   static char result[1024];
-  int currPos = 0;
+  size_t currPos = 0;
   int argtype;
   int i, j;
   int typeChar;
@@ -875,7 +874,7 @@ static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction)
 {
   static char result[1024];
-  int currPos = 0;
+  size_t currPos = 0;
   int argtype;
   int i;
 
@@ -1608,8 +1607,7 @@ void vtkWrapPython_RemovePreceededMethods(
  * words, this poorly named function is "the big one". */
 
 static void vtkWrapPython_GenerateMethods(
-  FILE *fp, FileInfo *data, int class_has_new,
-  int is_vtkobject, int do_constructors)
+  FILE *fp, FileInfo *data, int is_vtkobject, int do_constructors)
 {
   int i, j, k, is_static, is_pure_virtual, fnum, occ;
   int numberOfSignatures, signatureCount;
@@ -3034,7 +3032,7 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
   int i;
 
   /* handle all constructors */
-  vtkWrapPython_GenerateMethods(fp, data, class_has_new, 0, 1);
+  vtkWrapPython_GenerateMethods(fp, data, 0, 1);
 
   /* the method table for the New method */
   fprintf(fp,
@@ -3316,7 +3314,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* now output all the methods are wrappable */
   if (is_vtkobject || !data->IsAbstract)
     {
-    vtkWrapPython_GenerateMethods(fp, data, class_has_new, is_vtkobject, 0);
+    vtkWrapPython_GenerateMethods(fp, data, is_vtkobject, 0);
     }
 
   /* output the class initilization function for VTK objects */

@@ -155,8 +155,8 @@ public:
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
   int penalty() { return m_penalty; };
-  int penalty(int penalty) {
-    if (penalty > m_penalty) { m_penalty = penalty; };
+  int penalty(int p) {
+    if (p > m_penalty) { m_penalty = p; };
     return m_penalty; };
 
 private:
@@ -233,6 +233,8 @@ int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 int vtkPythonIntPenalty(long tmpi, int penalty, char format)
 #endif
 {
+  tmpi; format; // avoid "unused parameter" compiler warnings
+
 #if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
   if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)
     {
@@ -573,10 +575,10 @@ int vtkPythonUtil::CheckArg(
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
 
           // Look up the required type in the map
-          vtkPythonSpecialTypeMap::iterator i;
+          vtkPythonSpecialTypeMap::iterator iter;
 
           if (level != 0 ||
-              (i = vtkPythonMap->SpecialTypeMap->find(classname)) ==
+              (iter = vtkPythonMap->SpecialTypeMap->find(classname)) ==
               vtkPythonMap->SpecialTypeMap->end())
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -584,7 +586,7 @@ int vtkPythonUtil::CheckArg(
           else
             {
             // Get info about the required type
-            PyVTKSpecialType *info = &i->second;
+            PyVTKSpecialType *info = &iter->second;
 
             // Try out all the constructor methods
             if (!vtkPythonUtil::FindConversionMethod(info->constructors, arg))
@@ -1514,7 +1516,7 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int n)
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
-    bool oldval = PyObject_IsTrue(oldobj);
+    bool oldval = (PyObject_IsTrue(oldobj) != 0);
     Py_DECREF(oldobj);
     changed |= (a[i] != oldval);
     }
