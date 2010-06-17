@@ -360,6 +360,7 @@ void vtkWindowToImageFilter::RequestData(
         {
         this->Input->Render();
         }
+      this->Input->MakeCurrent();
 
       int buffer = this->ReadFrontBuffer;
       if(!this->Input->GetDoubleBuffer())
