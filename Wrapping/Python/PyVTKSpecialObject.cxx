@@ -187,8 +187,8 @@ static long PyVTKSpecialObject_PyHash(PyVTKSpecialObject *self)
       return val;
       }
     }
-// python 2.6
-#if PY_VERSION_HEX >= 0x02060000
+// python 2.6b2
+#if PY_VERSION_HEX >= 0x020600B2
   return PyObject_HashNotImplemented((PyObject *)self);
 #else
   PyErr_SetString(PyExc_TypeError, (char *)"object is not hashable");
