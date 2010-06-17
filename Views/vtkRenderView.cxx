@@ -339,7 +339,8 @@ void vtkRenderView::SetRenderOnMouseMove(bool b)
 
 vtkInteractorObserver* vtkRenderView::GetInteractorStyle()
 {
-  return this->GetInteractor()->GetInteractorStyle();
+  return this->GetInteractor()? 
+    this->GetInteractor()->GetInteractorStyle() : NULL;
 }
 
 void vtkRenderView::AddLabels(vtkAlgorithmOutput* conn)
