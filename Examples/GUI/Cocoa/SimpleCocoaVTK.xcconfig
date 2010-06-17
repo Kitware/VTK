@@ -1,4 +1,4 @@
-INFOPLIST_FILE = Info.plist
+INFOPLIST_FILE = Info-Xcode.plist
 PRODUCT_NAME = SimpleCocoaVTK
 
 // Link to system zlib (if VTK_USE_SYSTEM_ZLIB was ON).
