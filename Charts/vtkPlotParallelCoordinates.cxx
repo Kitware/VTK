@@ -179,7 +179,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D *painter, float rect[4])
+bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D *painter, float rect[4], int )
 {
   painter->ApplyPen(this->Pen);
   painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
@@ -194,11 +194,11 @@ void vtkPlotParallelCoordinates::GetBounds(double *)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::GetNearestPoint(const vtkVector2f& ,
+int vtkPlotParallelCoordinates::GetNearestPoint(const vtkVector2f& ,
                                   const vtkVector2f& ,
                                   vtkVector2f* )
 {
-  return false;
+  return -1;
 }
 
 //-----------------------------------------------------------------------------

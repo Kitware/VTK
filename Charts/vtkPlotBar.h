@@ -23,11 +23,15 @@
 #define __vtkPlotBar_h
 
 #include "vtkPlot.h"
+#include "vtkSmartPointer.h" // Needed to hold ColorSeries
 
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
 class vtkStdString;
+class vtkColorSeries;
+
+class vtkPlotBarPrivate;
 
 class VTK_CHARTS_EXPORT vtkPlotBar : public vtkPlot
 {
@@ -48,7 +52,7 @@ public:
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4]);
+  virtual bool PaintLegend(vtkContext2D *painter, float rect[4], int legendIndex);
 
   // Description:
   // Set the plot color
@@ -69,15 +73,33 @@ public:
   vtkGetMacro(Offset, float);
 
   // Description:
-  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
   virtual void GetBounds(double bounds[4]);
 
+  // Description:
+  // When used to set additional arrays, stacked bars are created.
+  virtual void SetInputArray(int index, const char *name);
+
+  // Description:
+  // Set the color series to use if this becomes a stacked bar plot.
+  void SetColorSeries(vtkColorSeries *colorSeries);
+
+  // Description:
+  // Get the color series used if when this is a stacked bar plot.
+  vtkColorSeries *GetColorSeries();
+
+  // Description
+  // Get the plot labels.
+  virtual vtkStringArray *GetLabels();
+
 //BTX
-    // Description:
-    // Function to query a plot for the nearest point to the specified coordinate.
-    virtual bool GetNearestPoint(const vtkVector2f& point,
-                                 const vtkVector2f& tolerance,
-                                 vtkVector2f* location);
+  // Description:
+  // Function to query a plot for the nearest point to the specified coordinate.
+  // Returns the index of the data series with which the point is associated or 
+  // -1.
+  virtual int GetNearestPoint(const vtkVector2f& point,
+                               const vtkVector2f& tolerance,
+                               vtkVector2f* location);
 //ETX
 
 //BTX
@@ -102,9 +124,16 @@ protected:
   // The point cache is marked dirty until it has been initialized.
   vtkTimeStamp BuildTime;
 
+
+  // Description:
+  // The color series to use if this becomes a stacked bar
+  vtkSmartPointer<vtkColorSeries> ColorSeries;
+
 private:
   vtkPlotBar(const vtkPlotBar &); // Not implemented.
   void operator=(const vtkPlotBar &); // Not implemented.
+
+  vtkPlotBarPrivate *Private;
 
 //ETX
 };

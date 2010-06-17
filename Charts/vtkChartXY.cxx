@@ -1061,12 +1061,13 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
           vtkPlot* plot = this->ChartPrivate->PlotCorners[i][j];
           if (plot->GetVisible())
             {
-            bool found = plot->GetNearestPoint(position, tolerance, &plotPos);
-            if (found)
+            int seriesIndex = plot->GetNearestPoint(position, tolerance, &plotPos);
+            if (seriesIndex >= 0)
               {
+              const char *label = plot->GetLabel(seriesIndex);
               // We found a point, set up the tooltip and return
               vtksys_ios::ostringstream ostr;
-              ostr << plot->GetLabel() << ": " << plotPos.X() << ", " << plotPos.Y();
+              ostr << label << ": " << plotPos.X() << ", " << plotPos.Y();
               this->Tooltip->SetText(ostr.str().c_str());
               this->Tooltip->SetPosition(mouse.ScreenPos[0]+2, mouse.ScreenPos[1]+2);
               return true;

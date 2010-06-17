@@ -203,7 +203,7 @@ bool vtkPlotStacked::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, float rect[4])
+bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, float rect[4], int )
 {
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
@@ -286,7 +286,7 @@ bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
+int vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tol,
                                     vtkVector2f* location)
 {
@@ -295,12 +295,12 @@ bool vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
   // line plots.
   if (!this->BasePoints)
     {
-    return false;
+    return -1;
     }
   vtkIdType n = this->BasePoints->GetNumberOfPoints();
   if (n < 2)
     {
-    return false;
+    return -1;
     }
 
   // Sort the data if it has not been done already.  We need to sort it
@@ -339,7 +339,7 @@ bool vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
       // the "wedge" at the closest point, not the base or extent by themselves
       location->SetX(low->X());
       location->SetY(low->Z() - low->Y());
-      return true;
+      return 0;
       }
     else if (low->X() > highX)
       {
@@ -347,7 +347,7 @@ bool vtkPlotStacked::GetNearestPoint(const vtkVector2f& point,
       }
     ++low;
     }
-  return false;
+  return -1;
 }
 
 //-----------------------------------------------------------------------------

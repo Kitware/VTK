@@ -357,7 +357,7 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4])
+bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4], int )
 {
   painter->ApplyPen(this->Pen);
   painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
@@ -418,7 +418,7 @@ bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
+int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tol,
                                     vtkVector2f* location)
 {
@@ -427,12 +427,12 @@ bool vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
   // line plots.
   if (!this->Points)
     {
-    return false;
+    return -1;
     }
   vtkIdType n = this->Points->GetNumberOfPoints();
   if (n < 2)
     {
-    return false;
+    return -1;
     }
 
   // Sort the data if it has not been done already...
@@ -459,7 +459,7 @@ bool vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     if (inRange(point, tol, *low))
       {
       *location = *low;
-      return true;
+      return 0;
       }
     else if (low->X() > highX)
       {
@@ -467,7 +467,7 @@ bool vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
       }
     ++low;
     }
-  return false;
+  return -1;
 }
 
 //-----------------------------------------------------------------------------

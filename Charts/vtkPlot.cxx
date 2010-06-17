@@ -23,6 +23,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkContextMapper2D.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
 
 #include "vtkStdString.h"
 
@@ -36,7 +37,7 @@ vtkPlot::vtkPlot()
   this->Pen = vtkPen::New();
   this->Pen->SetWidth(2.0);
   this->Brush = vtkBrush::New();
-  this->Label = NULL;
+  this->Labels = NULL;
   this->UseIndexForXSeries = false;
   this->Data = vtkContextMapper2D::New();
   this->Selection = NULL;
@@ -57,6 +58,11 @@ vtkPlot::~vtkPlot()
     this->Brush->Delete();
     this->Brush = NULL;
     }
+  if (this->Labels)
+    {
+    this->Labels->Delete();
+    this->Labels = NULL;
+    }
   if (this->Data)
     {
     this->Data->Delete();
@@ -67,22 +73,22 @@ vtkPlot::~vtkPlot()
     this->Selection->Delete();
     this->Selection = NULL;
     }
-  this->SetLabel(NULL);
+  this->SetLabels(NULL);
   this->SetXAxis(NULL);
   this->SetYAxis(NULL);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlot::PaintLegend(vtkContext2D*, float*)
+bool vtkPlot::PaintLegend(vtkContext2D*, float*, int )
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
+int vtkPlot::GetNearestPoint(const vtkVector2f&, const vtkVector2f&,
                               vtkVector2f*)
 {
-  return false;
+  return -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -122,29 +128,73 @@ float vtkPlot::GetWidth()
   return this->Pen->GetWidth();
 }
 
+void vtkPlot::SetLabels(vtkStringArray *labels)
+{
+  if (this->Labels == labels)
+    {
+    return;
+    }
+
+  this->Labels = labels;
+  this->Modified();
+}
+
 //-----------------------------------------------------------------------------
-const char* vtkPlot::GetLabel()
+vtkStringArray *vtkPlot::GetLabels()
 {
   // If the label string is empty, return the y column name
-  if (this->Label)
+  if (this->Labels)
     {
-    return this->Label;
+    return this->Labels;
+    }
+  else if (this->AutoLabels)
+    {
+    return this->AutoLabels;
     }
   else if (this->Data->GetInput() &&
            this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
     {
-    return this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName();
+    this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
+    this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
+    return this->AutoLabels;
     }
   else
     {
     return NULL;
     }
 }
+//-----------------------------------------------------------------------------
+int vtkPlot::GetNumberOfLabels()
+{
+  vtkStringArray *labels = this->GetLabels();
+  if (labels)
+    {
+    return labels->GetNumberOfValues();
+    }
+  else
+    {
+    return 0;
+    }
+}
 
+//-----------------------------------------------------------------------------
+const char *vtkPlot::GetLabel(vtkIdType index)
+{
+  vtkStringArray *labels = this->GetLabels();
+  if (labels && index >= 0 && index < labels->GetNumberOfValues())
+    {
+    return labels->GetValue(index);
+    }
+  else 
+    {
+    return NULL;
+    }
+}
 //-----------------------------------------------------------------------------
 void vtkPlot::SetInput(vtkTable *table)
 {
   this->Data->SetInput(table);
+  this->AutoLabels = 0;  // No longer valid
 }
 
 //-----------------------------------------------------------------------------
@@ -165,6 +215,7 @@ void vtkPlot::SetInput(vtkTable *table, const char *xColumn,
   this->Data->SetInputArrayToProcess(1, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      yColumn);
+  this->AutoLabels = 0;  // No longer valid
 }
 
 //-----------------------------------------------------------------------------
@@ -188,6 +239,7 @@ void vtkPlot::SetInputArray(int index, const char *name)
   this->Data->SetInputArrayToProcess(index, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      name);
+  this->AutoLabels = 0; // No longer valid
 }
 
 //-----------------------------------------------------------------------------

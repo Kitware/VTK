@@ -22,6 +22,7 @@
 #define __vtkPlot_h
 
 #include "vtkContextItem.h"
+#include "vtkSmartPointer.h"  // Needed to hold AutoLabels
 
 class vtkVariant;
 class vtkTable;
@@ -31,6 +32,7 @@ class vtkPen;
 class vtkBrush;
 class vtkAxis;
 class vtkVector2f;
+class vtkStringArray;
 
 class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
 {
@@ -42,15 +44,19 @@ public:
   // Paint legend event for the XY plot, called whenever the legend needs the
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
-  // and 3). The plot can choose how to fill the space supplied.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4]);
+  // and 3). The plot can choose how to fill the space supplied. The index is used
+  // by Plots that return more than one label.
+  virtual bool PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex);
 
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  virtual bool GetNearestPoint(const vtkVector2f& point,
+  // Returns the index of the data series with which the point is associated or 
+  // -1.
+  virtual int GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
-                               vtkVector2f* location);
+                               vtkVector2f* location
+                               );
 
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 //ETX
@@ -81,12 +87,21 @@ public:
   vtkGetObjectMacro(Brush, vtkBrush);
 
   // Description:
-  // Set the plot label.
-  vtkSetStringMacro(Label);
+  // Set the plot labels.
+  void SetLabels(vtkStringArray *labels);
 
   // Description:
-  // Get the plot label.
-  const char* GetLabel();
+  // Get the plot labels.
+  virtual vtkStringArray *GetLabels();
+
+  // Description:
+  // Get the number of labels associated with this plot.
+  virtual int GetNumberOfLabels();
+
+
+  // Description:
+  // Get the label at the specified index.
+  const char *GetLabel(vtkIdType index);
 
   // Description:
   // Get the data object that the plot will draw.
@@ -158,8 +173,13 @@ protected:
   vtkBrush* Brush;
 
   // Description:
-  // Plot label, used by legend.
-  char *Label;
+  // Plot labels, used by legend.
+  vtkStringArray *Labels;
+
+  // Description:
+  // Holds Labels when they're auto-created
+  vtkSmartPointer<vtkStringArray> AutoLabels;
+
 
   // Description:
   // Use the Y array index for the X value. If true any X column setting will be
