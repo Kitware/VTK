@@ -305,7 +305,7 @@ Modify lex.yy.c:
                      return(INT_LITERAL);
                     }
 
-\"([^\"]|\\\")+\"      {
+\"([^\"]|\\\")*\"      {
                 yylval.str = (char *)malloc(yyleng + 1);
                 memcpy(yylval.str,yytext,yyleng);
                 yylval.str[yyleng] = '\0';
