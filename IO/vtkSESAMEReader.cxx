@@ -505,7 +505,7 @@ void vtkSESAMEReader::ReadTable()
 
   if (result!= 0)
   {
-    for (int k=0;k<3;k++)
+    for (int k=2;k<5;k++)
     {
       if ( numRead < datadims[0] )
       {
