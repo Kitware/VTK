@@ -617,11 +617,11 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   if (front)
     {
-    glDrawBuffer(GL_FRONT);
+    glDrawBuffer(this->GetFrontBuffer());
     }
   else
     {
-    glDrawBuffer(GL_BACK);
+    glDrawBuffer(this->GetBackBuffer());
     }
 
   if (y1 < y2)
@@ -962,11 +962,11 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   if (front)
     {
-    glDrawBuffer(GL_FRONT);
+    glDrawBuffer(this->GetFrontBuffer());
     }
   else
     {
-    glDrawBuffer(GL_BACK);
+    glDrawBuffer(this->GetBackBuffer());
     }
 
   if (y1 < y2)
@@ -1271,11 +1271,11 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 
   if (front)
     {
-    glDrawBuffer(GL_FRONT);
+    glDrawBuffer(this->GetFrontBuffer());
     }
   else
     {
-    glDrawBuffer(GL_BACK);
+    glDrawBuffer(this->GetFrontBuffer());
     }
 
 
