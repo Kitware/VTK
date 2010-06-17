@@ -1343,25 +1343,34 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 {
   int i;
   void *ptr;
+  char text[256];
   char typeCheck[256];
   typeCheck[0] = '\0';
 
   // Do some minimal checks that it might be a swig pointer.
   if (*len < 256 && *len > 4 && ptrText[0] == '_')
     {
-    // Verify that this is a terminated string
-    for (i = *len-1; i >= 0; --i)
+    strncpy(text, ptrText, *len);
+    text[*len] = '\0';
+    // Verify that there are no null bytes
+    for (i = *len; i > 0; i--)
       {
-      if (ptrText[i] == '\0')
+      if (text[i-1] == '\0')
         {
         break;
         }
       }
 
-    // If the string is terminated, do a full check for a swig pointer
-    if (i >= 0)
+    // If no null bytes, then do a full check for a swig pointer
+    if (i == 0)
       {
-      i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+      i = sscanf(text,"_%lx_%s",(long *)&ptr,typeCheck);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+      i = sscanf(text,"_%llx_%s",(long long *)&ptr,typeCheck);
+#elif defined(VTK_TYPE_USE___INT64)
+      i = sscanf(text,"_%I64x_%s",(__int64 *)&ptr,typeCheck);
+#endif
       if (strcmp(type,typeCheck) == 0)
         { // sucessfully unmangle
         *len = 0;
