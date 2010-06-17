@@ -226,6 +226,13 @@ int vtkBoostBetweennessClustering::RequestData(
       vtkDataArray* weights =
         input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
+      if(!weights)
+        {
+        vtkErrorMacro("Edge weight array " << this->EdgeWeightArrayName
+                      << " is not found or not a data array");
+        return 1;
+        }
+
       edgeWeight.TakeReference(
         vtkDataArray::CreateDataArray(weights->GetDataType()));
 
