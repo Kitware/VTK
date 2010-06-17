@@ -403,9 +403,9 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     }
 
   // FIXME: This will not work when non-power-of-two textures are not supported.
-  double viewport[4] = {0, 0, 1, 1};
-  ren->NormalizedDisplayToViewport(viewport[0], viewport[1]);
-  ren->NormalizedDisplayToViewport(viewport[2], viewport[3]);
+  double viewport[4];
+  ren->GetViewport(viewport);
+  const int* window_size = ren->GetVTKWindow()->GetActualSize();
 
   glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
@@ -414,9 +414,20 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  glDisable(GL_SCISSOR_TEST);
-  glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+  glEnable(GL_SCISSOR_TEST);
+  glViewport(
+    static_cast<GLint>(viewport[0]*window_size[0]),
+    static_cast<GLint>(viewport[1]*window_size[1]),
+    static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
+    static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
+  glScissor(
+    static_cast<GLint>(viewport[0]*window_size[0]),
+    static_cast<GLint>(viewport[1]*window_size[1]),
+    static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
+    static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
+  ren->Clear();
   glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
+
 
   GLuint tex=0;
   glGenTextures(1, &tex);
