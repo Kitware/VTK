@@ -227,15 +227,13 @@ bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
 //--------------------------------------------------------------------
 // If tmpi > VTK_INT_MAX, then penalize unless format == 'l'
 
+#if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
 #ifdef PY_LONG_LONG
 int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 #else
 int vtkPythonIntPenalty(long tmpi, int penalty, char format)
 #endif
 {
-  tmpi; format; // avoid "unused parameter" compiler warnings
-
-#if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
   if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)
     {
     if (format != 'l')
@@ -268,9 +266,19 @@ int vtkPythonIntPenalty(long tmpi, int penalty, char format)
         }
       }
     }
-#endif
   return penalty;
 }
+
+#else
+#ifdef PY_LONG_LONG
+int vtkPythonIntPenalty(PY_LONG_LONG, int penalty, char)
+#else
+int vtkPythonIntPenalty(long, int penalty, char)
+#endif
+{
+  return penalty;
+}
+#endif
 
 //--------------------------------------------------------------------
 // This must check the same format chars that are used by
