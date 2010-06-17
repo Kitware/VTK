@@ -41,6 +41,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRenderedRepresentation.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
@@ -158,6 +159,42 @@ vtkRenderView::~vtkRenderView()
     {
     this->IconTexture->Delete();
     }
+}
+
+void vtkRenderView::SetRenderWindow(vtkRenderWindow* win)
+{
+  if (!win)
+    {
+    vtkErrorMacro(<< "SetRenderWindow called with a null window pointer."
+                  << " That can't be right.");
+    return;
+    }
+
+  // get rid of the render observer on the current window
+  if (this->RenderWindow)
+    {
+    this->RenderWindow->RemoveObserver(this->GetObserver());
+    }
+
+  // move renderers to new window
+  vtkRendererCollection* rens = this->RenderWindow->GetRenderers();
+  while(rens->GetNumberOfItems())
+    {
+    vtkRenderer* ren = rens->GetFirstRenderer();
+    ren->SetRenderWindow(NULL);
+    win->AddRenderer(ren);
+    this->RenderWindow->RemoveRenderer(ren);
+    }
+
+  // move interactor to new window
+  vtkSmartPointer<vtkRenderWindowInteractor> iren = this->RenderWindow->GetInteractor();
+  this->RenderWindow->SetInteractor(NULL);
+  iren->SetRenderWindow(NULL);
+  win->SetInteractor(iren);
+  iren->SetRenderWindow(win);
+
+  this->RenderWindow = win;
+  this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
 }
 
 vtkRenderWindowInteractor* vtkRenderView::GetInteractor()

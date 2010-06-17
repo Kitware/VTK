@@ -68,6 +68,7 @@ public:
   // Description:
   // Get a handle to the render window.
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
+  virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
   // The render window interactor.
