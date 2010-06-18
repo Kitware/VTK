@@ -90,9 +90,11 @@ public:
   // Given a location in structured coordinates (i-j-k), and the extent
   // of the structured dataset, return the point id.
   static vtkIdType ComputeCellIdForExtent(int extent[6], int ijk[3]) {
-    vtkIdType ydim = static_cast<vtkIdType>(extent[3] - extent[2] + 1);
-    vtkIdType xdim = static_cast<vtkIdType>(extent[1] - extent[0] + 1);
-    return ((ijk[2] - extent[4])*(ydim - 1) + (ijk[1] - extent[2]))*(xdim - 1) 
+    vtkIdType ydim = static_cast<vtkIdType>(extent[3] - extent[2]);
+    if (ydim == 0) ydim = 1;
+    vtkIdType xdim = static_cast<vtkIdType>(extent[1] - extent[0]);
+    if (xdim == 0) xdim = 1;
+    return ((ijk[2] - extent[4])*(ydim) + (ijk[1] - extent[2]))*(xdim)
             + (ijk[0] - extent[0]); }
 
  // Description:
