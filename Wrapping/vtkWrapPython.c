@@ -1023,7 +1023,7 @@ const char *vtkWrapPython_FormatSignature(
     while (k-j < width && cp[i] != '\n' && cp[i] != '\0')
       {
       /* escape quotes */
-      if (cp[i] == '\"' || cp[i] == '\'')
+      if (cp[i] == '\"' || cp[i] == '\'' || cp[i] == '\\')
         {
         text[k++] = '\\';
         }
