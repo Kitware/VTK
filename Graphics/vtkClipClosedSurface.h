@@ -53,7 +53,7 @@ class vtkCCSEdgeLocator;
 enum {
   VTK_CCS_SCALAR_MODE_NONE = 0,
   VTK_CCS_SCALAR_MODE_COLORS = 1,
-  VTK_CCS_SCALAR_MODE_CATEGORIES = 2
+  VTK_CCS_SCALAR_MODE_LABELS = 2
 };
 
 class VTK_GRAPHICS_EXPORT vtkClipClosedSurface : public vtkPolyDataAlgorithm
@@ -105,13 +105,13 @@ public:
   // ActivePlane as set by the SetActivePlane() method.  The default
   // scalar mode is "None".
   vtkSetClampMacro(ScalarMode, int,
-    VTK_CCS_SCALAR_MODE_NONE, VTK_CCS_SCALAR_MODE_CATEGORIES);
+    VTK_CCS_SCALAR_MODE_NONE, VTK_CCS_SCALAR_MODE_LABELS);
   void SetScalarModeToNone() {
     this->SetScalarMode(VTK_CCS_SCALAR_MODE_NONE); };
   void SetScalarModeToColors() {
     this->SetScalarMode(VTK_CCS_SCALAR_MODE_COLORS); };
   void SetScalarModeToLabels() {
-    this->SetScalarMode(VTK_CCS_SCALAR_MODE_CATEGORIES); };
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_LABELS); };
   vtkGetMacro(ScalarMode, int);
   const char *GetScalarModeAsString();
 

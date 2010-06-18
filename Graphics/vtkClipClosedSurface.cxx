@@ -98,7 +98,7 @@ const char *vtkClipClosedSurface::GetScalarModeAsString()
     case VTK_CCS_SCALAR_MODE_COLORS:
       return "Colors";
       break;
-    case VTK_CCS_SCALAR_MODE_CATEGORIES:
+    case VTK_CCS_SCALAR_MODE_LABELS:
       return "Labels";
       break;
     }
@@ -415,7 +415,7 @@ int vtkClipClosedSurface::RequestData(
     this->CreateColorValues(this->BaseColor, this->ClipColor,
                             this->ActivePlaneColor, colors);
     }
-  else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_CATEGORIES)
+  else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_LABELS)
     {
     colors[0][0] = 0;
     colors[1][0] = 1;
@@ -782,7 +782,7 @@ int vtkClipClosedSurface::RequestData(
     scalars->SetName("Colors");
     output->GetCellData()->SetScalars(scalars);
     }
-  else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_CATEGORIES)
+  else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_LABELS)
     {
     // Don't use UNSIGNED_CHAR or they will look like color scalars
     vtkSignedCharArray *categories = vtkSignedCharArray::New();
