@@ -3245,7 +3245,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   /* lots of important utility functions are defined in vtkPythonUtil.h */
   fprintf(fp,
-          "#include \"vtkPythonUtil.h\"\n");
+          "#include \"vtkPythonUtil.h\"\n"
+          "#include <vtksys/ios/sstream>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */
   if (strcmp("vtkObject", data->ClassName) == 0)
