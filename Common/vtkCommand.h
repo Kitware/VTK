@@ -359,6 +359,9 @@ public:
     LoadStateEvent,
     SaveStateEvent,
     StateChangedEvent,
+    WindowMakeCurrentEvent,
+    WindowIsCurrentEvent,
+    WindowFrameEvent,
     UserEvent = 1000
   };
 //ETX

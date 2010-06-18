@@ -1,0 +1,104 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkRenderWindow.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkGenericOpenGLRenderWindow - platform independent render window
+
+// .SECTION Description
+// vtkGenericOpenGLRenderWindow provides a skeleton for implementing a render window
+// using one's own OpenGL context and drawable.
+// To be effective, one must register an observer for WindowMakeCurrentEvent,
+// WindowIsCurrentEvent and WindowFrameEvent.  When this class sends a WindowIsCurrentEvent,
+// the call data is an int* which one can use to return whether the context is current.
+
+#ifndef vtkGenericOpenGLRenderWindow_hpp
+#define vtkGenericOpenGLRenderWindow_hpp
+
+#include "vtkOpenGLRenderWindow.h"
+
+class vtkGenericOpenGLRenderWindow : public vtkOpenGLRenderWindow
+{
+public:
+  static vtkGenericOpenGLRenderWindow* New();
+  vtkTypeMacro(vtkGenericOpenGLRenderWindow, vtkOpenGLRenderWindow);
+protected:
+  vtkGenericOpenGLRenderWindow();
+  ~vtkGenericOpenGLRenderWindow();
+
+public:
+
+  //! Cleans up graphics resources allocated in the context for this VTK scene.
+  void Finalize();
+
+  //! Specific implementation for Render() to save/restore the OpenGL state.
+  void Render();
+
+  //! flush the pending drawing operations
+  //! Class user may to watch for WindowFrameEvent and act on it
+  void Frame();
+
+  //! Makes the context current.  It is the class user's
+  //! responsibility to watch for WindowMakeCurrentEvent and set it current.
+  void MakeCurrent();
+
+  //! Returns if the context is current.  It is the class user's
+  //! responsibility to watch for WindowIsCurrentEvent and set the integer flag
+  //! passed through the call data parameter.
+  bool IsCurrent();
+
+  //! Set the window id.  This does nothing but store the value.
+  void SetWindowId(void*);
+
+  //! Get the window id
+  void* GetGenericWindowId();
+
+  // {@
+  //! set the drawing buffers to use
+  void SetFrontBuffer(unsigned int);
+  void SetFrontLeftBuffer(unsigned int);
+  void SetFrontRightBuffer(unsigned int);
+  void SetBackBuffer(unsigned int);
+  void SetBackLeftBuffer(unsigned int);
+  void SetBackRightBuffer(unsigned int);
+  // }@
+
+  // {@
+  //! does nothing
+  void SetDisplayId(void*);
+  void SetParentId(void*);
+  void* GetGenericDisplayId();
+  void* GetGenericParentId();
+  void* GetGenericContext();
+  void* GetGenericDrawable();
+  void SetWindowInfo(char*);
+  void SetParentInfo(char*);
+  int* GetScreenSize();
+  void Start();
+  void HideCursor();
+  void ShowCursor();
+  void SetFullScreen(int);
+  void WindowRemap();
+  int  GetEventPending();
+  void SetNextWindowId(void*);
+  void SetNextWindowInfo(char*);
+  void CreateAWindow();
+  void DestroyWindow();
+  // }@
+
+
+protected:
+  void* WindowId;
+
+};
+
+#endif
