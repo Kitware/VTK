@@ -26,11 +26,12 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-class vtkGenericOpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTK_RENDERING_EXPORT vtkGenericOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkGenericOpenGLRenderWindow* New();
   vtkTypeMacro(vtkGenericOpenGLRenderWindow, vtkOpenGLRenderWindow);
+  void PrintSelf(ostream& os, vtkIndent indent);
 protected:
   vtkGenericOpenGLRenderWindow();
   ~vtkGenericOpenGLRenderWindow();
@@ -56,12 +57,6 @@ public:
   //! passed through the call data parameter.
   bool IsCurrent();
 
-  //! Set the window id.  This does nothing but store the value.
-  void SetWindowId(void*);
-
-  //! Get the window id
-  void* GetGenericWindowId();
-
   // {@
   //! set the drawing buffers to use
   void SetFrontBuffer(unsigned int);
@@ -74,6 +69,8 @@ public:
 
   // {@
   //! does nothing
+  void SetWindowId(void*);
+  void* GetGenericWindowId();
   void SetDisplayId(void*);
   void SetParentId(void*);
   void* GetGenericDisplayId();
@@ -95,10 +92,11 @@ public:
   void DestroyWindow();
   // }@
 
-
 protected:
-  void* WindowId;
 
+private:
+  vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkGenericOpenGLRenderWindow&);  // Not implemented.
 };
 
 #endif

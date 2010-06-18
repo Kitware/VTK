@@ -23,7 +23,6 @@ vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
 
 vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
 {
-  this->WindowId = NULL;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
@@ -38,6 +37,11 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
     {
     ren->SetRenderWindow(NULL);
     }
+}
+
+void vtkGenericOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }
 
 void vtkGenericOpenGLRenderWindow::SetFrontBuffer(unsigned int b)
@@ -135,15 +139,13 @@ bool vtkGenericOpenGLRenderWindow::IsCurrent()
 }
 
 
-void vtkGenericOpenGLRenderWindow::SetWindowId(void* w)
+void vtkGenericOpenGLRenderWindow::SetWindowId(void*)
 {
-  // user settable window id
-  this->WindowId = w;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericWindowId()
 {
-  return this->WindowId;
+  return NULL;
 }
 
 
