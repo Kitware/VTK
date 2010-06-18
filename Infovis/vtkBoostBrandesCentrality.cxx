@@ -100,6 +100,13 @@ int vtkBoostBrandesCentrality::RequestData(
       vtkDataArray* weights =
           input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
+      if(!weights)
+        {
+        vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
+                      << " is set but not found or not a data array.\n");
+        return 0;
+        }
+
       edgeWeight.TakeReference(
         vtkDataArray::CreateDataArray(weights->GetDataType()));
 
@@ -120,7 +127,7 @@ int vtkBoostBrandesCentrality::RequestData(
     if(!edgeWeight)
       {
       vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
-                    << " is set but not found.\n");
+                    << " is set but not found or not a data array.\n");
       return 0;
       }
     }
