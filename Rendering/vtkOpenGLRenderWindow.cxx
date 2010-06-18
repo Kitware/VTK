@@ -1275,7 +1275,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     }
   else
     {
-    glDrawBuffer(this->GetFrontBuffer());
+    glDrawBuffer(this->GetBackBuffer());
     }
 
 
