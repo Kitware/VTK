@@ -1360,13 +1360,16 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
     {
     strncpy(text, ptrText, *len);
     text[*len] = '\0';
-    // Verify that there are no null bytes
-    for (i = *len; i > 0; i--)
+    i = *len;
+    // Allow one null byte, in case trailing null is part of *len
+    if (i > 0 && text[i-1] == '\0')
       {
-      if (text[i-1] == '\0')
-        {
-        break;
-        }
+      i--;
+      }
+    // Verify that there are no other null bytes
+    while (i > 0 && text[i-1] != '\0')
+      {
+      i--;
       }
 
     // If no null bytes, then do a full check for a swig pointer
