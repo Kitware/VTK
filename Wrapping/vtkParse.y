@@ -989,13 +989,7 @@ maybe_scoped_id: ID {$<str>$ = $<str>1; postSig($<str>1);}
                | templated_id {$<str>$ = $<str>1;};
                | scoped_id {$<str>$ = $<str>1;};
 
-scoped_id: ID DOUBLE_COLON maybe_scoped_id
-           {
-             $<str>$ = (char *)malloc(strlen($<str>1)+strlen($<str>3)+3);
-             sprintf($<str>$, "%s::%s", $<str>1, $<str>3);
-             preScopeSig($<str>1);
-           }
-         | VTK_ID DOUBLE_COLON maybe_scoped_id
+scoped_id: class_id DOUBLE_COLON maybe_scoped_id
            {
              $<str>$ = (char *)malloc(strlen($<str>1)+strlen($<str>3)+3);
              sprintf($<str>$, "%s::%s", $<str>1, $<str>3);
@@ -1007,6 +1001,14 @@ scoped_id: ID DOUBLE_COLON maybe_scoped_id
              sprintf($<str>$, "%s::%s", $<str>1, $<str>3);
              preScopeSig("");
            };
+
+class_id: ID { $<str>$ = $<str>1; }
+        | VTK_ID { $<str>$ = $<str>1; }
+        | ISTREAM { $<str>$ = vtkstrdup("istream"); }
+        | OSTREAM { $<str>$ = vtkstrdup("ostream"); }
+        | StdString { $<str>$ = vtkstrdup("vtkStdString"); }
+        | UnicodeString { $<str>$ = vtkstrdup("vtkUnicodeString"); };
+
 
 /* &          is VTK_PARSE_REF
    *          is VTK_PARSE_POINTER
