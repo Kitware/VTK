@@ -214,7 +214,7 @@ struct yy_buffer_state
         /* Number of characters read into yy_ch_buf, not including EOB
          * characters.
          */
-        int yy_n_chars;
+        size_t yy_n_chars;
 
         /* Whether we "own" the buffer - i.e., we know we created it,
          * and can realloc() it to grow it, and should free() it to
@@ -284,7 +284,7 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static int yy_n_chars;                /* number of characters read into yy_ch_buf */
+static size_t yy_n_chars;                /* number of characters read into yy_ch_buf */
 int yyleng;
 
 /* Points to current character in buffer. */
@@ -2861,7 +2861,7 @@ static int yy_get_next_buffer (void)
 
         else
                 {
-                        int num_to_read =
+                        size_t num_to_read =
                         YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
                 while ( num_to_read <= 0 )
@@ -2906,7 +2906,7 @@ static int yy_get_next_buffer (void)
 
                 /* Read in more data. */
                 YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-                        (yy_n_chars), (size_t) num_to_read );
+                        (yy_n_chars), num_to_read );
 
                 YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
                 }

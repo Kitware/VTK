@@ -3021,7 +3021,7 @@ static void vtkWrapPython_GenerateObjectNew(
 /* -------------------------------------------------------------------- */
 /* generate extra functions for a special object */
 static void vtkWrapPython_GenerateSpecialObjectNew(
-  FILE *fp, FileInfo *data, int class_has_new)
+  FILE *fp, FileInfo *data)
 {
   static const char *compare_consts[6] = {
     "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
@@ -3326,7 +3326,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* output the class initilization function for special objects */
   else if (!data->IsAbstract)
     {
-    vtkWrapPython_GenerateSpecialObjectNew(fp, data, class_has_new);
+    vtkWrapPython_GenerateSpecialObjectNew(fp, data);
     }
 
   /* the New method for un-wrappable classes returns "NULL" */
