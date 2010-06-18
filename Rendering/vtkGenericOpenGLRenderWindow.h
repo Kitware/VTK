@@ -41,9 +41,6 @@ public:
   //! Cleans up graphics resources allocated in the context for this VTK scene.
   void Finalize();
 
-  //! Specific implementation for Render() to save/restore the OpenGL state.
-  void Render();
-
   //! flush the pending drawing operations
   //! Class user may to watch for WindowFrameEvent and act on it
   void Frame();

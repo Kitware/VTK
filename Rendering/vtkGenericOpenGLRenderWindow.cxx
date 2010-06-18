@@ -74,37 +74,6 @@ void vtkGenericOpenGLRenderWindow::SetBackRightBuffer(unsigned int b)
   this->BackRightBuffer = b;
 }
 
-void vtkGenericOpenGLRenderWindow::Render()
-{
-  // save/restore state as well as set up the state to what VTK assumes
-
-  glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ZERO);
-  glDepthFunc( GL_LEQUAL );
-  // OpenGLInit() has more ...  should fix this so we can call some code in vtkOpenGLRenderWindow to re-establish
-  // the OpenGL state that VTK wants.
-
-  this->Superclass::Render();
-
-  glPopClientAttrib();
-  glPopAttrib();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-}
-
 void vtkGenericOpenGLRenderWindow::Finalize()
 {
   // tell each of the renderers that this render window/graphics context
