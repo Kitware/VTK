@@ -228,8 +228,8 @@ int vtkBoostBetweennessClustering::RequestData(
 
       if(!weights)
         {
-        vtkErrorMacro("Edge weight array " << this->EdgeWeightArrayName
-                      << " is not found or not a data array");
+        vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
+                      << " is set but not found or not a data array.\n");
         return 1;
         }
 
@@ -254,7 +254,7 @@ int vtkBoostBetweennessClustering::RequestData(
     if(!edgeWeight)
       {
       vtkErrorMacro(<<"Error: Edge weight array " << this->EdgeWeightArrayName
-                    << " is set but not found.\n");
+                    << " is set but not found or not a data array.\n");
       return 1;
       }
     }
