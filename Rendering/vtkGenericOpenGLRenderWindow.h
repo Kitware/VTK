@@ -19,7 +19,7 @@
 // using one's own OpenGL context and drawable.
 // To be effective, one must register an observer for WindowMakeCurrentEvent,
 // WindowIsCurrentEvent and WindowFrameEvent.  When this class sends a WindowIsCurrentEvent,
-// the call data is an int* which one can use to return whether the context is current.
+// the call data is an bool* which one can use to return whether the context is current.
 
 #ifndef vtkGenericOpenGLRenderWindow_hpp
 #define vtkGenericOpenGLRenderWindow_hpp
@@ -53,7 +53,7 @@ public:
   void MakeCurrent();
 
   //! Returns if the context is current.  It is the class user's
-  //! responsibility to watch for WindowIsCurrentEvent and set the integer flag
+  //! responsibility to watch for WindowIsCurrentEvent and set the bool* flag
   //! passed through the call data parameter.
   bool IsCurrent();
 

@@ -133,7 +133,7 @@ void vtkGenericOpenGLRenderWindow::MakeCurrent()
 
 bool vtkGenericOpenGLRenderWindow::IsCurrent()
 {
-  int current = 0;
+  bool current = 0;
   this->InvokeEvent(vtkCommand::WindowIsCurrentEvent, &current);
   return current;
 }
