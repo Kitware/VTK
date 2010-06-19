@@ -734,7 +734,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
   size_t currPos = 0;
   int argtype;
   int i, j;
-  int typeChar;
+  char typeChar;
 
   if (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
     {
