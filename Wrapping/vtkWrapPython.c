@@ -1595,9 +1595,9 @@ void vtkWrapPython_RemovePreceededMethods(
           break;
           }
 
-        } // for (occ2 ...
-      } // if (sig1->Name ...
-    } // for (occ1 ...
+        } /* for (occ2 ... */
+      } /* if (sig1->Name ... */
+    } /* for (occ1 ... */
 }
 
 /* -------------------------------------------------------------------- */
