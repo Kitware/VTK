@@ -23,6 +23,10 @@ IF(VTK_USE_DISPLAY)
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
     TestGaussianBlurPass.cxx
+    TestGlyph3DMapper.cxx
+    TestGlyph3DMapperMasking.cxx
+    TestGlyph3DMapperOrientationArray.cxx
+    TestGlyph3DMapperPicking.cxx
     TestGPUInfo.cxx
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
@@ -62,6 +66,7 @@ IF(VTK_USE_DISPLAY)
       TestAreaSelections.cxx
       TestMultiTexturing.cxx
       TestMultiTexturingTransform.cxx
+      TestGlyph3DMapperArrow.cxx
       TestScenePicker.cxx
       TestTextureRGBA.cxx
       TestTextureRGBADepthPeeling.cxx

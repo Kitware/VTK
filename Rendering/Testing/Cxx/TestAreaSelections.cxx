@@ -45,7 +45,7 @@
 
 #include "vtkDataSetReader.h"
 
-vtkSmartPointer<vtkRenderer> renderer;
+static vtkSmartPointer<vtkRenderer> renderer;
 vtkSmartPointer<vtkSphereSource> SS1;
 vtkSmartPointer<vtkDataSetMapper> sMap;
 vtkSmartPointer<vtkPolyData> emptyPD;

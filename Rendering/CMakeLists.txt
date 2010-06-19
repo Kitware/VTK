@@ -62,6 +62,7 @@ SET( Kit_SRCS
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
+  vtkGlyph3DMapper.cxx
   vtkGPUInfo.cxx
   vtkGPUInfoList.cxx
   vtkGraphicsFactory.cxx
@@ -239,6 +240,7 @@ SET( KitOpenGL_SRCS
   vtkOpenGLCoincidentTopologyResolutionPainter.cxx
   vtkOpenGLDisplayListPainter.cxx
   vtkOpenGLExtensionManager.cxx
+  vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageActor.cxx
   vtkOpenGLImageMapper.cxx

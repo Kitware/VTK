@@ -26,6 +26,7 @@
 #include "vtkOpenGLClipPlanesPainter.h"
 #include "vtkOpenGLCoincidentTopologyResolutionPainter.h"
 #include "vtkOpenGLDisplayListPainter.h"
+#include "vtkOpenGLGlyph3DMapper.h"
 #include "vtkOpenGLImageActor.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLLightingPainter.h"
@@ -424,6 +425,16 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
         }
 #endif
       return vtkOpenGLTexture::New();
+      }
+    if(strcmp(vtkclassname, "vtkGlyph3DMapper") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return NULL;
+        }
+#endif
+      return vtkOpenGLGlyph3DMapper::New();
       }
     }
 #endif
