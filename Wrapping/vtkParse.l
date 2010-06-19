@@ -10,12 +10,15 @@ Run flex like this:
   flex --nounput -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
-  - remove TABs
-  - change yy_n_chars declarations from "int yy_n_chars;" to
+  - convert tabs to spaces (8 spaces per tab)
+  - remove extra space from end of lines
+  - remove blank lines from end of file
+  - try compiling with gcc and "-Wsign-compare"
+  - change "int" to "size_t" where necessary to eliminate warnings
+    (this will depend on the version of flex you used)
+  - e.g. change yy_n_chars declarations from "int yy_n_chars;" to
     "size_t yy_n_chars;" in both the yy_buffer_state structure
-    and the global scope.
-  - change num_to_read declaration from "int num_to_read;" to
-    "size_t num_to_read;" in yy_get_next_buffer function.
+    and the global scope, and in YY_INPUT change "int n" to "size_t n"
 
 */
 
