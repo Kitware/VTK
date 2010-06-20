@@ -70,9 +70,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHaloFinderP_h
 #define CosmoHaloFinderP_h
 
+#include "CosmoDefinition.h"
 #include "CosmoHaloFinder.h"
 #include "CosmoHalo.h"
-#include "CosmoDefinition.h"
+
 #include <string>
 #include <vector>
 

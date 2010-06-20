@@ -41,6 +41,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
+#include "CosmoHaloFinderP.h"
 
 #include <iostream>
 #include <fstream>
@@ -50,7 +51,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 
 #include "Partition.h"
-#include "CosmoHaloFinderP.h"
+
 
 using namespace std;
 

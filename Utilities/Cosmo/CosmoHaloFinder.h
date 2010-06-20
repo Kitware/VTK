@@ -106,9 +106,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHaloFinder_h
 #define CosmoHaloFinder_h
 
+#include "CosmoDefinition.h"
+
 #include <string>
 
-#include "CosmoDefinition.h"
+
 
 #define numDataDims 3
 #define dataX 0
