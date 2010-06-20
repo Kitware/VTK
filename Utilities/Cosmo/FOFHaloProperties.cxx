@@ -42,6 +42,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
+#include "FOFHaloProperties.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -50,7 +52,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 
 #include "Partition.h"
-#include "FOFHaloProperties.h"
+
 #ifndef USE_VTK_COSMO
 #include "Timings.h"
 #endif

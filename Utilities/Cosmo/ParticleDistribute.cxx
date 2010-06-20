@@ -42,6 +42,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
+#include "ParticleDistribute.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -56,7 +58,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "Partition.h"
-#include "ParticleDistribute.h"
+
 
 #ifdef USE_VTK_COSMO
 #include "vtkStdString.h"
