@@ -264,6 +264,14 @@ protected:
                       vtkIdToIdVectorMapType & pointToFacesMap,
                       vtkIdToIdMapType & pointIdMap);
 
+
+  // Check if the polyhedron cell intersect with the contour/clip function.
+  // If intersect, return 0. Otherwise return 1 or -1 when the polyhedron cell
+  // is on the positive or negative side of contour/clip function respectively.
+  int IntersectWithContour(double value, 
+                           int insideOut, 
+                           vtkDataArray *inScalars);
+
 private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
   void operator=(const vtkPolyhedron&);  // Not implemented.
