@@ -224,6 +224,8 @@ int vtkXMLTreeReader::RequestData(
   xmlNode *rootElement = xmlDocGetRootElement(doc);
   vtkXMLTreeReaderProcessElement(builder, -1, rootElement, this->ReadCharData, this->MaskArrays);
 
+  xmlFreeDoc(doc);
+
   // Make all the arrays the same size
   for (int i = 0; i < data->GetNumberOfArrays(); i++)
     {
