@@ -193,7 +193,9 @@ void vtkRenderView::SetRenderWindow(vtkRenderWindow* win)
   win->SetInteractor(iren);
   iren->SetRenderWindow(win);
 
+  this->RenderWindow->UnRegister(this);
   this->RenderWindow = win;
+  this->RenderWindow->Register(this);
   this->RenderWindow->AddObserver(vtkCommand::EndEvent, this->GetObserver());
 }
 
