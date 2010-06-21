@@ -1111,10 +1111,10 @@ void vtkOpenGLRenderer::Clear(void)
         glColor4d(this->Background[0],this->Background[1],this->Background[2],
                   0.0);
         glTexCoord2f(0.0, 0.0);
-        glVertex2f(-1.0, -1.0);
+        glVertex2f(0.0, 0.0);
 
         glTexCoord2f(1.0, 0.0);
-        glVertex2f(1.0, -1.0);
+        glVertex2f(1.0, 0);
 
         //bottom vertices
         glColor4d(this->Background2[0],this->Background2[1],
@@ -1123,7 +1123,7 @@ void vtkOpenGLRenderer::Clear(void)
         glVertex2f(1.0, 1.0);
 
         glTexCoord2f(0.0, 1.0);
-        glVertex2f(-1.0, 1.0);
+        glVertex2f(0.0, 1.0);
 
         glEnd();
       }
