@@ -1061,6 +1061,8 @@ void vtkOpenGLRenderer::Clear(void)
   if (!this->Transparent() &&
       (this->GradientBackground || this->TexturedBackground))
     {
+    double tile_viewport[4];
+    this->GetRenderWindow()->GetTileViewport(tile_viewport);
     glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
@@ -1078,7 +1080,12 @@ void vtkOpenGLRenderer::Clear(void)
       glPushMatrix();
       {
         glLoadIdentity();
-        glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
+        glOrtho(
+          tile_viewport[0],
+          tile_viewport[2],
+          tile_viewport[1],
+          tile_viewport[3],
+          -1.0, 1.0);
 
         //top vertices
         if(this->TexturedBackground && this->BackgroundTexture)
