@@ -457,14 +457,18 @@ void do_return(FILE *fp)
   switch (rType)
     {
     case VTK_PARSE_CHAR_PTR:
-    case VTK_PARSE_STRING:
       {
       fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i);\n", MAX_ARGS);
       break;
       }
+    case VTK_PARSE_STRING:
+      {
+      fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i.c_str());\n", MAX_ARGS);
+      break;
+      }
     case VTK_PARSE_STRING_REF:
       {
-      fprintf(fp,"  return vtkJavaMakeJavaString(env,*temp%i);\n", MAX_ARGS);
+      fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i->c_str());\n", MAX_ARGS);
       break;
       }
     case VTK_PARSE_VTK_OBJECT_PTR:

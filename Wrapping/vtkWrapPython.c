@@ -394,11 +394,13 @@ static void vtkWrapPython_ReturnValue(
   FILE *fp, FunctionInfo *currentFunction)
 {
   const char *deref = "";
+  const char *acces = ".";
 
   /* since refs are handled as pointers, they must be deref'd */
   if ((currentFunction->ReturnType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF)
     {
     deref = "*";
+    acces = "->";
     }
 
   /* for void, just return "None" */
@@ -691,8 +693,8 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_STRING_REF:
       {
       fprintf(fp,
-              "    result = PyString_FromString(%stemp%i);\n",
-              deref, MAX_ARGS);
+              "    result = PyString_FromString(temp%i%sc_str());\n",
+              MAX_ARGS, acces);
       break;
       }
 
@@ -702,17 +704,12 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_UNICODE_STRING:
     case VTK_PARSE_UNICODE_STRING_REF:
       {
-      const char *op = ".";
-      if (deref[0] == '*')
-        {
-        op = "->";
-        }
       fprintf(fp,
               "      {\n"
               "      const char *s = temp%i%sutf8_str();\n"
               "      result = PyUnicode_DecodeUTF8(s, strlen(s), \"strict\");\n"
               "      }\n",
-              MAX_ARGS, op);
+              MAX_ARGS, acces);
       break;
       }
     }
