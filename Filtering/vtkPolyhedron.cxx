@@ -1173,7 +1173,7 @@ int OrderDisconnectedContourPoints(vtkIdSetType & cpSet,
     }
   
   // now loop over contour points to order them. 
-  vtkIdVectorType angles;
+  vtkstd::vector<double> angles;
   angles.push_back(0.0);
   
   // choose to start from the first point
