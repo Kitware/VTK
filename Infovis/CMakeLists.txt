@@ -110,6 +110,7 @@ vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeRingToPolyData.cxx
+vtkThresholdGraph.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 vtkAttributeClustering2DLayoutStrategy.cxx
