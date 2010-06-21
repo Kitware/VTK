@@ -3193,6 +3193,14 @@ void vtkPolyhedron::Clip(double value,
 
   delete [] visited;
 
+  // not a valid output when the clip plane passes through the cell boundary
+  // faces.
+  if (faces.empty())
+    {
+    this->Internal->RestoreFaceArrayAndEdgeTable(this->Faces, this->EdgeTable);
+    return;
+    }
+ 
   vtkIdType numAllFaces = contourPolys->GetNumberOfCells() + 
                           static_cast<vtkIdType>(faces.size());
   cellVector.push_back(numAllFaces);
