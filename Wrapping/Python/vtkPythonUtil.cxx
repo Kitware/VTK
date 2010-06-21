@@ -35,12 +35,6 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-#if defined ( _MSC_VER )
-#  define vtkConvertPtrToLong(x) ((long)(PtrToUlong(x)))
-#else
-#  define vtkConvertPtrToLong(x) ((long)(x))
-#endif
-
 //--------------------------------------------------------------------
 // There are three maps associated with the Python wrappers
 
@@ -1340,8 +1334,17 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 {
   static char ptrText[128];
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
   sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          vtkConvertPtrToLong(ptr),type);
+          ((long)(ptr)),type);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+  sprintf(ptrText,"_%*.*llx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
+          ((long long)(ptr)),type);
+#elif defined(VTK_TYPE_USE___INT64)
+  sprintf(ptrText,"_%*.*I64x_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
+          ((__int64)(ptr)),type);
+#endif
+
   return ptrText;
 }
 
