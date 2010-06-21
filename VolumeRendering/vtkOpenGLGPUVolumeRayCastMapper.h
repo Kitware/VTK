@@ -66,6 +66,11 @@ public:
                                 vtkVolumeProperty *property);
 
   // Description:
+  // Delete OpenGL objects.
+  // \post done: this->OpenGLObjectsCreated==0
+  virtual void ReleaseGraphicsResources(vtkWindow *window);
+
+  // Description:
   // Return a string matching the OpenGL errorCode.
   // \post result_exists: result!=0
   static const char *OpenGLErrorMessage(unsigned int errorCode);
@@ -124,11 +129,6 @@ protected:
   // \pre extensions_loaded: this->LoadExtensionsSucceeded
   // \post done: this->OpenGLObjectsCreated==1
   void CreateOpenGLObjects();
-
-  // Description:
-  // Delete OpenGL objects.
-  // \post done: this->OpenGLObjectsCreated==0
-  void ReleaseGraphicsResources(vtkWindow *window);
 
   // Description:
   // Allocate memory on the GPU for the framebuffers according to the size of
