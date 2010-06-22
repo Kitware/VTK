@@ -100,6 +100,7 @@ vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
 vtkTableToTreeFilter.cxx
+vtkThresholdGraph.cxx
 vtkThresholdTable.cxx
 vtkTransferAttributes.cxx
 vtkTreeFieldAggregator.cxx
@@ -110,7 +111,6 @@ vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeRingToPolyData.cxx
-vtkThresholdGraph.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 vtkAttributeClustering2DLayoutStrategy.cxx
