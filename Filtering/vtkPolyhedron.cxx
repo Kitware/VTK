@@ -796,7 +796,7 @@ int CheckContourDimensions(vtkPoints* points, vtkIdType npts, vtkIdType * ptIds,
   // Extract axes (i.e., eigenvectors) from covariance matrix. 
   v[0] = v0; v[1] = v1; v[2] = v2; 
   vtkMath::Jacobi(a,eigValue,v);
-
+  
   int ret = 3;
   
   if ((eigValue[2] / eigValue[0]) < eigenvalueRatioThresh)
@@ -810,10 +810,35 @@ int CheckContourDimensions(vtkPoints* points, vtkIdType npts, vtkIdType * ptIds,
   
   if (normal)
     {
-    normal[0] = v2[0];
-    normal[1] = v2[1];
-    normal[2] = v2[2];
-    vtkMath::Normalize(normal);
+    for (i =0; i < 3; i++)
+      {
+      double norm = vtkMath::Norm(a[i], 3);
+      if (norm > 0.000001)
+        {
+        break;
+        }
+      }
+    if (i < 3)
+      {    
+      normal[0] = v2[0];
+      normal[1] = v2[1];
+      normal[2] = v2[2];
+      }
+    else
+      {
+      points->GetPoint(ptIds[0], v0);
+      points->GetPoint(ptIds[1], v1);
+      v0[0] = v0[0] - mean[0];
+      v0[1] = v0[1] - mean[1];
+      v0[2] = v0[2] - mean[2];
+      v1[0] = v1[0] - mean[0];
+      v1[1] = v1[1] - mean[1];
+      v1[2] = v1[2] - mean[2];
+      vtkMath::Normalize(v0);
+      vtkMath::Normalize(v1);
+      vtkMath::Cross(v0, v1, normal);
+      vtkMath::Normalize(normal);
+      }
     }
   if (center)
     {
@@ -898,6 +923,7 @@ void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   std::vector<double> extremePointAngles; // record the angles of extreme point
   vtkIdVectorType edges;
   size_t edgesSize = 0;
+  const double eps = 0.0000001;
   for (mapIt = cpMap.begin(); mapIt != cpMap.end(); ++mapIt)
     {
     vtkIdVectorType edges = mapIt->second;
@@ -951,11 +977,11 @@ void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
           vtkMath::Cross(n, e0, nn);
           angle = acos(vtkMath::Dot(nn, e1)) + vtkMath::Pi()/2.0;
           }
-        if (angle < 0)
+        if (angle < -eps)
           {
           angle += 2.0*vtkMath::Pi();
           }
-        if (angle > 2.0*vtkMath::Pi())
+        if (angle > 2.0*vtkMath::Pi()+eps)
           {
           angle -= 2.0*vtkMath::Pi();
           }
@@ -1045,6 +1071,7 @@ void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
     edges = cpMap.find(currPid)->second;
     edgesSize = edges.size();
     size_t i;
+    bool foundPrevPid = false;
     for (i = 0; i < edgesSize; i++)
       {
       if (edges[i] == prevPid)
@@ -1052,8 +1079,13 @@ void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
         inBoundary = static_cast<vtkIdType>(i);
         outBoundary = inBoundary + 1 >= static_cast<vtkIdType>(edgesSize) ? 
                         0 : inBoundary + 1;
+        foundPrevPid = true;
         break;
         }
+      }
+    if (!foundPrevPid) // traversing failed.
+      {
+      return;
       }
     prevPid = currPid;
     currPid = edges[outBoundary];
@@ -2673,21 +2705,19 @@ int vtkPolyhedron::InternalContour(double value,
 
     if (unexpectedCell)
       {
-      vtkWarningMacro("Find an unexpected case. The input polyhedron cell may "
-      "not be a water tight cell. Or the contouring function is non-planar and "
-      "intersects more than two edges and/or vertices on one face of the input "
-      "polyhedron cell. Contouring will continue, but this cell will be not be "
-      "processed.");
+      //vtkWarningMacro("Find an unexpected case. The input polyhedron cell may "
+      //"not be a water tight cell. Or the contouring function is non-planar and "
+      //"intersects more than two edges and/or vertices on one face of the input "
+      //"polyhedron cell. Contouring will continue, but this cell will be not be "
+      //"processed.");
 
       polygonVector.clear();
-      /*
       vtkIdVectorType polygon;
       if (this->Internal->OrderDisconnectedContourPoints(cpBackupSet, 
                                points, pointLabelVector, polygon))
          {
          polygonVector.push_back(polygon);
          }
-      */
       break;
       }
 
