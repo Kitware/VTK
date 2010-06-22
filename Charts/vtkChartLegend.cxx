@@ -109,7 +109,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
     {
     vtkStringArray *labels = this->Storage->ActivePlots[i]->GetLabels();
-    for (size_t l = 0; labels && (l < labels->GetNumberOfTuples()); l++)
+    for (vtkIdType l = 0; labels && (l < labels->GetNumberOfTuples()); l++)
       {
       painter->ComputeStringBounds(labels->GetValue(l),
                                    stringBounds->GetData());
@@ -151,7 +151,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
     {
     vtkStringArray *labels = this->Storage->ActivePlots[i]->GetLabels();
-    for (size_t l = 0; labels && (l < labels->GetNumberOfValues()); l++)
+    for (vtkIdType l = 0; labels && (l < labels->GetNumberOfValues()); l++)
       {
       // This is fairly hackish, but gets the text looking reasonable...
       // Calculate a height for a "normal" string, then if this height is greater

@@ -240,9 +240,11 @@ class vtkPlotBarPrivate {
       this->Segments.clear();
       }
 
-    vtkPlotBarSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array, vtkPlotBarSegment *prev=0)
+    vtkPlotBarSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array, 
+                                  vtkPlotBarSegment *prev=0)
       {
-      vtkSmartPointer<vtkPlotBarSegment> segment = vtkSmartPointer<vtkPlotBarSegment>::New();
+      vtkSmartPointer<vtkPlotBarSegment> segment = 
+        vtkSmartPointer<vtkPlotBarSegment>::New();
       segment->Configure(this->Bar,x_array,y_array,prev);
       this->Segments.push_back(segment);
       return segment;
@@ -251,10 +253,10 @@ class vtkPlotBarPrivate {
     void PaintSegments(vtkContext2D *painter, vtkColorSeries *colorSeries,
                        vtkPen *pen, vtkBrush *brush, float width, float offset)
       {
-      double color[3];
       int colorInSeries = 0;
       bool useColorSeries = this->Segments.size() > 1;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = this->Segments.begin();
+      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = 
+              this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
         if (useColorSeries)
@@ -270,7 +272,8 @@ class vtkPlotBarPrivate {
                                      float offset)
       {
       int index = 0;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = this->Segments.begin();
+      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = 
+              this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
         if ((*it)->GetNearestPoint(point,location,width,offset))
@@ -352,7 +355,8 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
     vtkDebugMacro("No selection set.");
     }
 
-  this->Private->PaintSegments(painter,this->ColorSeries,this->Pen,this->Brush,this->Width,this->Offset);
+  this->Private->PaintSegments(painter,this->ColorSeries,this->Pen,this->Brush,
+                                this->Width,this->Offset);
 
   return true;
 }
@@ -395,7 +399,8 @@ void vtkPlotBar::GetBounds(double bounds[4])
 
   double y_range[2];
   vtkstd::map< int, vtkstd::string >::iterator it;
-  for ( it = this->Private->AdditionalSeries.begin(); it != this->Private->AdditionalSeries.end(); ++it )
+  for ( it = this->Private->AdditionalSeries.begin(); it != 
+                  this->Private->AdditionalSeries.end(); ++it )
     {
     y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
     y->GetRange(y_range);
@@ -470,10 +475,12 @@ vtkStringArray *vtkPlotBar::GetLabels()
            this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
     {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
+    this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, 
+                                      this->Data->GetInput())->GetName());
 
     vtkstd::map< int, vtkstd::string >::iterator it;
-    for ( it = this->Private->AdditionalSeries.begin(); it != this->Private->AdditionalSeries.end(); ++it )
+    for ( it = this->Private->AdditionalSeries.begin(); 
+          it != this->Private->AdditionalSeries.end(); ++it )
       {
       this->AutoLabels->InsertNextValue((*it).second);
       }
@@ -515,7 +522,8 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
 
   vtkstd::map< int, vtkstd::string >::iterator it;
 
-  for ( it = this->Private->AdditionalSeries.begin(); it != this->Private->AdditionalSeries.end(); ++it )
+  for ( it = this->Private->AdditionalSeries.begin(); 
+        it != this->Private->AdditionalSeries.end(); ++it )
     {
     y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
     prev = this->Private->AddSegment(x,y,prev);
