@@ -147,12 +147,11 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
 
   threshold->AddNode(thresholdNode);
 
-  vtkDataObject* inputClone = inDataObj->NewInstance();
+  vtkSmartPointer<vtkDataObject> inputClone;
+  inputClone.TakeReference(inDataObj->NewInstance());
   inputClone->ShallowCopy(inDataObj);
 
   extractThreshold->SetInput(0, inputClone);
-  inputClone->Delete();
-
   extractThreshold->SetInput(1, threshold);
 
   extractThreshold->Update();
