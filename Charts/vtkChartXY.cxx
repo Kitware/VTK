@@ -70,8 +70,6 @@ public:
     this->PlotCorners.resize(4);
     this->PlotTransforms.resize(4);
     this->PlotTransforms[0] = vtkSmartPointer<vtkTransform2D>::New();
-    this->StackedPlotAccumulator = vtkSmartPointer<vtkDataArray>();
-    this->StackParticipantsChanged.Modified();
     }
 
   vtkstd::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
@@ -79,8 +77,6 @@ public:
   vtkstd::vector< vtkSmartPointer<vtkTransform2D> > PlotTransforms; // Transforms
   vtkstd::vector<vtkAxis *> axes; // Charts can contain multiple axes
   vtkSmartPointer<vtkColorSeries> Colors; // Colors in the chart
-  vtkSmartPointer<vtkDataArray> StackedPlotAccumulator;
-  vtkTimeStamp StackParticipantsChanged;   // Plot added or plot visibility changed
 };
 
 //-----------------------------------------------------------------------------
@@ -150,10 +146,6 @@ vtkChartXY::~vtkChartXY()
 //-----------------------------------------------------------------------------
 void vtkChartXY::Update()
 {
-  // The Stack accumulator should be re-initialized at the start of every
-  // update cycle.
-  this->ChartPrivate->StackedPlotAccumulator = NULL;
-
   // Perform any necessary updates that are not graphical
   // Update the plots if necessary
   for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
@@ -226,8 +218,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     recalculateTransform = true;
     }
 
-  if (this->ChartPrivate->plots[0]->GetData()->GetInput()->GetMTime() > this->MTime ||
-      this->ChartPrivate->StackParticipantsChanged > this->MTime)
+  if (this->ChartPrivate->plots[0]->GetData()->GetInput()->GetMTime() > this->MTime)
+      
     {
     this->RecalculateBounds();
     }
@@ -873,66 +865,6 @@ void vtkChartXY::SetScene(vtkContextScene *scene)
 {
   this->vtkContextItem::SetScene(scene);
   this->Tooltip->SetScene(scene);
-}
-//-----------------------------------------------------------------------------
-namespace {
-template <class A>
-void InitializeAccumulator(A *a, int n)
-{
-  for (int i = 0; i < n; ++i)
-    {
-    a[i] = 0;
-    }
-}
-
-}
-
-//-----------------------------------------------------------------------------
-vtkDataArray *vtkChartXY::GetStackedPlotAccumulator(int dataType, int n)
-{
-  if (!this->ChartPrivate->StackedPlotAccumulator)
-    {
-    this->ChartPrivate->StackedPlotAccumulator.TakeReference(vtkDataArray::SafeDownCast(vtkDataArray::CreateArray(dataType)));
-    if (!this->ChartPrivate->StackedPlotAccumulator)
-      {
-      return NULL;
-      }
-    this->ChartPrivate->StackedPlotAccumulator->SetNumberOfTuples(n);
-    switch (dataType)
-      {
-          vtkTemplateMacro(
-            InitializeAccumulator(static_cast<VTK_TT*>(this->ChartPrivate->StackedPlotAccumulator->GetVoidPointer(0)),n));
-      }
-    return this->ChartPrivate->StackedPlotAccumulator;
-    }
-  else
-    {
-    if (this->ChartPrivate->StackedPlotAccumulator->GetDataType() != dataType)
-      {
-      vtkErrorMacro("DataType of Accumulator " << this->ChartPrivate->StackedPlotAccumulator->GetDataType() <<
-                    "does not match request " << dataType);
-      return NULL;
-      }
-    if (this->ChartPrivate->StackedPlotAccumulator->GetNumberOfTuples() != n)
-      {
-      vtkErrorMacro("Number of tuples in Accumulator " << this->ChartPrivate->StackedPlotAccumulator->GetNumberOfTuples() <<
-                    "does not match request " << n);
-      return NULL;
-      }
-    return this->ChartPrivate->StackedPlotAccumulator;
-    }
-}
-
-//-----------------------------------------------------------------------------
-vtkTimeStamp vtkChartXY::GetStackParticipantsChanged()
-{
-  return this->ChartPrivate->StackParticipantsChanged;
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartXY::SetStackPartipantsChanged()
-{
-  this->ChartPrivate->StackParticipantsChanged.Modified();
 }
 
 //-----------------------------------------------------------------------------

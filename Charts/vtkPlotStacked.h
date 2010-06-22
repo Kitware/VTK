@@ -30,6 +30,9 @@ class vtkTable;
 class vtkPoints2D;
 class vtkStdString;
 class vtkImageData;
+class vtkColorSeries;
+
+class vtkPlotStackedPrivate;
 
 class VTK_CHARTS_EXPORT vtkPlotStacked : public vtkPlot
 {
@@ -69,6 +72,22 @@ public:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   virtual void GetBounds(double bounds[4]);
 
+  // Description:
+  // When used to set additional arrays, stacked bars are created.
+  virtual void SetInputArray(int index, const char *name);
+
+  // Description:
+  // Set the color series to use if this becomes a stacked bar plot.
+  void SetColorSeries(vtkColorSeries *colorSeries);
+
+  // Description:
+  // Get the color series used if when this is a stacked bar plot.
+  vtkColorSeries *GetColorSeries();
+
+  // Description
+  // Get the plot labels.
+  virtual vtkStringArray *GetLabels();
+
 
 //BTX
   // Description:
@@ -86,11 +105,6 @@ public:
   // Description:
   // Set the parent, required to accumlate base points when positioning is implicit
   virtual void SetParent(vtkChartXY *parent);
-
-  // Description:
-  // Make this plot visible or invisible
-  virtual void SetVisible(bool visible);
-    
 
 //BTX
 protected:
@@ -112,28 +126,6 @@ protected:
   void CalculateLogSeries();
 
   // Description:
-  // Find all of the "bad points" in the series. This is mainly used to cache
-  // bad points for performance reasons, but could also be used plot the bad
-  // points in the future.
-  void FindBadPoints();
-
-  // Description:
-  // Calculate the bounds of the plot, ignoring the bad points.
-  void CalculateBounds(vtkPoints2D *points, vtkIdTypeArray *badPoints, double bounds[4]);
-
-  // Description:
-  // Store a well packed set of XY coordinates for the base of this series
-  vtkPoints2D *BasePoints;
-  // Description:
-  // Store a well packed set of XY coordinates for the extent of this series
-  vtkPoints2D *ExtentPoints;
-
-  // Description:
-  // Sorted points, used when searching for the nearest point.
-  class VectorPIMPL;
-  VectorPIMPL* Sorted;
-
-  // Description:
   // An array containing the indices of all the "bad base points", meaning any x, y
   // pair that has an infinity, -infinity or not a number value.
   vtkIdTypeArray* BaseBadPoints;
@@ -153,9 +145,15 @@ protected:
   // The parent Chart of this Plot
   vtkChartXY *Parent;
 
+  // Description:
+  // The color series to use for each series.
+  vtkSmartPointer<vtkColorSeries> ColorSeries;
+
 private:
   vtkPlotStacked(const vtkPlotStacked &); // Not implemented.
   void operator=(const vtkPlotStacked &); // Not implemented.
+
+  vtkPlotStackedPrivate *Private;
 
 //ETX
 };

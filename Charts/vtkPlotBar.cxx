@@ -259,7 +259,7 @@ class vtkPlotBarPrivate {
               this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
-        if (useColorSeries)
+        if (useColorSeries && colorSeries)
           brush->SetColor(colorSeries->GetColorRepeating(colorInSeries++).GetData());
         (*it)->Paint(painter,pen,brush,width,offset);
         }

@@ -124,7 +124,6 @@ protected:
   // The point cache is marked dirty until it has been initialized.
   vtkTimeStamp BuildTime;
 
-
   // Description:
   // The color series to use if this becomes a stacked bar
   vtkSmartPointer<vtkColorSeries> ColorSeries;

@@ -20,6 +20,8 @@
 #include "vtkPlot.h"
 #include "vtkAxis.h"
 #include "vtkPlotStacked.h"
+#include "vtkColor.h"
+#include "vtkColorSeries.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
@@ -28,6 +30,9 @@
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
+
+
+
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -90,12 +95,11 @@ int TestStackedPlot( int argc, char * argv [] )
     arrMonthLabel->SetValue(i,month_labels[i]);
     arrXTickPositions->SetValue(i,i);
 
-    table->SetValue(i,0,i);
-    table->SetValue(i,1,book[i]);
-    table->SetValue(i,2,new_popular[i]);
-    table->SetValue(i,3,periodical[i]);
-    table->SetValue(i,4,audiobook[i]);
-    table->SetValue(i,5,video[i]);
+    arrBook->SetValue(i,book[i]);
+    arrNewPopularBook->SetValue(i,new_popular[i]);
+    arrPeriodical->SetValue(i,periodical[i]);
+    arrAudiobook->SetValue(i,audiobook[i]);
+    arrVideo->SetValue(i,video[i]);
     }
 
   // Set the Month Labels
@@ -104,33 +108,28 @@ int TestStackedPlot( int argc, char * argv [] )
   chart->GetAxis(1)->SetMaximum(11);
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *stack = 0;
+  vtkPlotStacked *stack = 0;
 
   // Books
-  stack = chart->AddPlot(vtkChart::STACKED);
-  stack->SetInput(table, 0, 1);
-  stack->SetColor(120, 120, 254, 255);
+  stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
+  stack->SetUseIndexForXSeries(true);
+  stack->SetInput(table);
+  stack->SetInputArray(1,"Books");
+  stack->SetInputArray(2,"New / Popular");
+  stack->SetInputArray(3,"Periodical");
+  stack->SetInputArray(4,"Audiobook");
+  stack->SetInputArray(5,"Video");
+
+  VTK_CREATE(vtkColorSeries,colorSeries);
+  colorSeries->ClearColors();
+  colorSeries->AddColor(vtkColor3ub(120,120,254));
+  colorSeries->AddColor(vtkColor3ub(254,118,118));
+  colorSeries->AddColor(vtkColor3ub(170,170,254));
+  colorSeries->AddColor(vtkColor3ub(91,91,254));
+  colorSeries->AddColor(vtkColor3ub(253,158,158));
+
+  stack->SetColorSeries(colorSeries);
  
-  // New / Popular 
-  stack = chart->AddPlot(vtkChart::STACKED);
-  stack->SetInput(table, 0, 2);
-  stack->SetColor(254, 118, 118, 255);
-
-  // Periodical
-  stack = chart->AddPlot(vtkChart::STACKED);
-  stack->SetInput(table, 0, 3);
-  stack->SetColor(170, 170, 254, 255);
-
-  // Audiobook
-  stack = chart->AddPlot(vtkChart::STACKED);
-  stack->SetInput(table, 0, 4);
-  stack->SetColor(91, 91, 254, 255);
-
-  // Video
-  stack = chart->AddPlot(vtkChart::STACKED);
-  stack->SetInput(table, 0, 5);
-  stack->SetColor(253, 158, 158, 255);
-
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
 
