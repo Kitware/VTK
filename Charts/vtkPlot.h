@@ -87,6 +87,14 @@ public:
   vtkGetObjectMacro(Brush, vtkBrush);
 
   // Description:
+  // Set a single label on this plot.
+  void SetLabel(const char *label);
+
+  // Description:
+  // Get the single label of this plot.
+  const char *GetLabel();
+
+  // Description:
   // Set the plot labels.
   void SetLabels(vtkStringArray *labels);
 
@@ -98,10 +106,10 @@ public:
   // Get the number of labels associated with this plot.
   virtual int GetNumberOfLabels();
 
-
   // Description:
   // Get the label at the specified index.
   const char *GetLabel(vtkIdType index);
+
 
   // Description:
   // Get the data object that the plot will draw.

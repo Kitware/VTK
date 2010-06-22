@@ -128,6 +128,24 @@ float vtkPlot::GetWidth()
   return this->Pen->GetWidth();
 }
 
+
+void vtkPlot::SetLabel(const char *label)
+{
+  vtkStringArray *labels = vtkStringArray::New();
+  labels->InsertNextValue(label);
+  this->SetLabels(labels);
+}
+
+//-----------------------------------------------------------------------------
+
+const char *vtkPlot::GetLabel()
+{
+  return this->GetLabel(0);
+}
+
+
+//-----------------------------------------------------------------------------
+
 void vtkPlot::SetLabels(vtkStringArray *labels)
 {
   if (this->Labels == labels)
