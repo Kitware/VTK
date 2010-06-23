@@ -26,7 +26,6 @@ SET ( QVTKMocHeaders ${QVTKMocHeaders}
 )
 ENDIF()
 
-
 SET ( QVTKNonMocHeaders
     ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWin32Header.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkEventQtSlotConnect.h
@@ -57,6 +56,17 @@ SET ( QVTKMocHeaders
     vtkQtTableModelAdapter.h
     vtkQtTreeModelAdapter.h
     )
+
+IF(VTK_USE_QVTK_QTOPENGL)
+  SET (QT_USE_QTOPENGL 1)
+  SET(QVTKMocHeaders ${QVTKMocHeaders}
+    QVTKGraphicsItem.h
+    )
+  SET ( QVTKLibSrcs ${QVTKLibSrcs}
+    QVTKGraphicsItem.cxx
+    )
+ENDIF(VTK_USE_QVTK_QTOPENGL)
+
 
 # add additional files depending on infovis and/or views
 IF(VTK_USE_VIEWS)
