@@ -64,7 +64,7 @@ using namespace std;
 //
 ////////////////////////////////////////////////////////////////////////////
 
-class CosmoHalo {
+class COSMO_EXPORT CosmoHalo {
 public:
   CosmoHalo(ID_T id, int alive, int dead)
                 {

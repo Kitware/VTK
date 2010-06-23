@@ -1,6 +1,7 @@
  
 project(Cosmo)
 
+ADD_DEFINITIONS("-DUSE_VTK_COSMO")
 
 #SET(Cosmo_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 SET(Cosmo_LIBS)
@@ -28,6 +29,7 @@ SET(Cosmo_SOURCES
   CosmoHaloFinderP.cxx
   FOFHaloProperties.cxx
   ChainingMesh.cxx
+  HaloCenterFinder.cxx
 )
 
 INCLUDE_DIRECTORIES (${Cosmo_SOURCE_DIR} ${Cosmo_BINARY_DIR})
@@ -50,6 +52,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${Cosmo_SOURCE_DIR}/CosmoHaloFinder.h
     ${Cosmo_SOURCE_DIR}/CosmoHaloFinderP.h
     ${Cosmo_SOURCE_DIR}/FOFHaloProperties.h
+    ${Cosmo_SOURCE_DIR}/HaloCenterFinder.h
     ${Cosmo_SOURCE_DIR}/Message.h
     ${Cosmo_SOURCE_DIR}/ParticleDistribute.h
     ${Cosmo_SOURCE_DIR}/ParticleExchange.h

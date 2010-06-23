@@ -128,7 +128,9 @@ public:
   void distributeParticles(
         Message* message1,      // Double buffering for reads
         Message* message2);     // Double buffering for reads
-  void collectLocalParticles(Message* message);
+  void collectLocalParticles(
+        Message* message1,      // Read buffer to extract local particles
+        Message* message2);     // Remaining particles put here for next send
 
   // Return data needed by other software
   int     getParticleCount()    { return this->particleCount; }
@@ -148,7 +150,7 @@ public:
   vector<POSVEL_T>* getXVelocity()      { return this->vx; }
   vector<POSVEL_T>* getYVelocity()      { return this->vy; }
   vector<POSVEL_T>* getZVelocity()      { return this->vz; }
-  vector<POSVEL_T>* getMass()           { return this->ms; }
+  vector<POSVEL_T>* getMass()		{ return this->ms; }
   vector<ID_T>* getTag()                { return this->tag; }
 
 private:

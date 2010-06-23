@@ -118,7 +118,7 @@ ChainingMesh::ChainingMesh(
 
     // How many chain mesh grids will fit
     this->meshSize[dim] = (int)((this->maxRange[dim] - this->minRange[dim]) / 
-                                this->chainSize) + 1;
+				this->chainSize) + 1;
   }
 
   // Create the chaining mesh
@@ -159,7 +159,7 @@ ChainingMesh::ChainingMesh(
     this->minRange[dim] = minLoc[dim];
     this->maxRange[dim] = maxLoc[dim];
     this->meshSize[dim] = (int)((this->maxRange[dim] - this->minRange[dim]) / 
-                                this->chainSize) + 1;
+				this->chainSize) + 1;
   }
 
   // Create the chaining mesh

@@ -90,12 +90,13 @@ class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgori
   vtkGetMacro(NP, int);
 
   // Description:
-  // Specify the physical box dimensions size (rL) (default 91)
+  // Specify the physical box dimensions size (rL) (default 90.140846)
   vtkSetMacro(RL, float);
   vtkGetMacro(RL, float);
 
   // Description:
-  // Specify the ghost cell spacing (edge boundary of box) (default 5)
+  // Specify the ghost cell spacing (edge boundary of processor box) 
+  // (default 5)
   vtkSetMacro(Overlap, float);
   vtkGetMacro(Overlap, float);
 
@@ -108,11 +109,6 @@ class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgori
   // Specify the linking length (bb)
   vtkSetMacro(BB, float);
   vtkGetMacro(BB, float);
-
-  // Description:
-  // Specify the particle mass
-  vtkSetMacro(ParticleMass, float);
-  vtkGetMacro(ParticleMass, float);
 
   // Description:
   // Copy the halo information to the original particles (Default on)
@@ -138,7 +134,6 @@ class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgori
   float Overlap; // The ghost cell boundary space
   int PMin; // The minimum particles for a halo
   float BB; // The linking length
-  float ParticleMass;
   int CopyHaloDataToParticles;
 
  private:

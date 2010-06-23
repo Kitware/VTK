@@ -42,8 +42,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-#ifndef Definition_h
-#define Definition_h
+#ifndef CosmoDefinition_h
+#define CosmoDefinition_h
 
 #include <vtksys/Configure.h>
 #include "vtkABI.h"
@@ -64,13 +64,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BasicDefinition.h"
 
 #ifndef USE_SERIAL_COSMO
-#ifdef USE_VTK_COSMO
 #include "vtkMPI.h"
-#else
-//#include <rru_mpi.h>
 #endif
-#endif
-
-
 
 #endif

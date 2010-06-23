@@ -66,7 +66,15 @@ Message::Message(int size)
   this->bufPos = 0;
 }
 
-#ifdef USE_VTK_COSMO
+void Message::manualPackAtPosition(char* data, int pos, int count, size_t size)
+{
+  for(int i = 0; i < count; i = i + 1) {
+    for(size_t j = 0; j < size; j = j + 1) {
+      this->buffer[pos++] = data[i * size + j];
+    }
+  }
+}
+
 void Message::manualPack(char* data, int count, size_t size)
 {
   for(int i = 0; i < count; i = i + 1) {
@@ -84,7 +92,6 @@ void Message::manualUnpack(char* data, int count, size_t size)
     }
   }
 }
-#endif
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -110,71 +117,47 @@ void Message::reset()
 
 ////////////////////////////////////////////////////////////////////////////
 //
+// Place an integer at a specific location in the buffer
+// Used to set a counter of particles in the first position when it is
+// only known after all the particles are packed
+//
+////////////////////////////////////////////////////////////////////////////
+void Message::putValueAtPosition(int* data, int pos, int count)
+{
+  manualPackAtPosition((char*)data, pos, count, sizeof(int));
+}
+////////////////////////////////////////////////////////////////////////////
+//
 // Packing of the buffer
 //
 ////////////////////////////////////////////////////////////////////////////
 void Message::putValue(int* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(int));
-#else
-  MPI_Pack(data, count, MPI_INTEGER, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 void Message::putValue(unsigned short* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(unsigned short));
-#else
-  MPI_Pack(data, count, MPI_UNSIGNED_SHORT, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 void Message::putValue(long int* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(long int));
-#else
-  MPI_Pack(data, count, MPI_LONG_INT, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 void Message::putValue(long long* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(long long));
-#else
-  MPI_Pack(data, count, MPI_LONG_LONG, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 void Message::putValue(float* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(float));
-#else
-  MPI_Pack(data, count, MPI_FLOAT, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 void Message::putValue(double* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(double));
-#else
-  MPI_Pack(data, count, MPI_DOUBLE, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 void Message::putValue(char* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualPack((char*)data, count, sizeof(char));
-#else
-  MPI_Pack(data, count, MPI_CHAR, 
-           this->buffer, this->bufSize, &this->bufPos, Partition::getComm());
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -184,66 +167,31 @@ void Message::putValue(char* data, int count)
 ////////////////////////////////////////////////////////////////////////////
 void Message::getValue(int* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(int));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_INTEGER, Partition::getComm());
-#endif
 }
 void Message::getValue(unsigned short* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(unsigned short));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_UNSIGNED_SHORT, Partition::getComm());
-#endif
 }
 void Message::getValue(long int* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(long int));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_LONG_INT, Partition::getComm());
-#endif
 }
 void Message::getValue(long long* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(long long));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_LONG_LONG, Partition::getComm());
-#endif
 }
 void Message::getValue(float* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(float));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_FLOAT, Partition::getComm());
-#endif
 }
 void Message::getValue(double* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(double));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_DOUBLE, Partition::getComm());
-#endif
 }
 void Message::getValue(char* data, int count)
 {
-#ifdef USE_VTK_COSMO
   manualUnpack((char*)data, count, sizeof(char));
-#else
-  MPI_Unpack(this->buffer, this->bufSize, &this->bufPos, 
-             data, count, MPI_CHAR, Partition::getComm());
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////

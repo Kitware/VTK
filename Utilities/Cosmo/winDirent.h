@@ -61,7 +61,6 @@
 #include <windows.h>
 #include <string.h>
 #include <assert.h>
-#include "BasicDefinition.h"
 
 typedef struct dirent
 {

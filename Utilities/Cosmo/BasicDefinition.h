@@ -45,15 +45,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BasicDefinition_h
 #define BasicDefinition_h
 
-
-#include "vtkType.h"
-
-#ifdef VTK_HAS_ID_TYPE
-#define USE_VTK_COSMO
-#endif
-
 #ifdef USE_VTK_COSMO
-
+#include "vtkType.h"
 #else
 #include <stdint.h>
 #endif
@@ -99,8 +92,8 @@ typedef uint16_t        MASK_T;   // Other particle information
 
 ///////////////////////////////////////////////////////////////////////////
 
-const float MAX_FLOAT   = 1.0e6;
-const float MIN_FLOAT   = -1.0e6;
+const float MAX_FLOAT   = 1.0e15;
+const float MIN_FLOAT   = -1.0e15;
 
 const int   RECORD      = 0;    // Input data is by particle record
 const int   BLOCK       = 1;    // Input data is blocked by variable
@@ -112,15 +105,18 @@ const int   BUF_SZ      = 512;  // Character buffer
 const double    CHAIN_SIZE = 2.0;               // Size for bucket mesh
 const double    RHO_C   = 2.77536627e11;        // Critical density
 const double    RHO_RATIO = 200.0;              // density/critical density
-const double    MIN_RADIUS_FACTOR = 1.0;        // Factor of initial SOD radius
+const double    MASS_FACTOR = 1.0e14;		// divide halo mass by this
+const double    MIN_RADIUS_FACTOR = 0.5;        // Factor of initial SOD radius
 const double    MAX_RADIUS_FACTOR = 2.0;        // Factor of initial SOD radius
 const int       MIN_SOD_SIZE = 1000;            // Min FOF halo for SOD
+const float     MIN_SOD_MASS = 5.0e12;          // Min FOF mass for SOD
 const int       NUM_SOD_BINS = 20;              // Log bins for SOD halo
 
 // Cosmology record data in .cosmo format
 const int   COSMO_FLOAT = 7;    // x,y,z location and velocity plus mass
 const int   COSMO_INT   = 1;    // Particle id
-const int   RECORD_SIZE = sizeof(POSVEL_T) * COSMO_FLOAT + sizeof(ID_T) * COSMO_INT;
+const int   RECORD_SIZE = sizeof(POSVEL_T) * COSMO_FLOAT + 
+                          sizeof(ID_T) * COSMO_INT;
 
 const bool  ENFORCE_MAX_READ = false;
 const int   MAX_READ    = 8000000;
@@ -142,6 +138,11 @@ const int   VALID       = 1;    // Mixed halo is recorded on processor
 const int   MASTER      = 0;    // Processor to do merge step
 
 const int   MERGE_COUNT = 20;   // Number of tags to merge on in mixed
+
+// Parameters for center finding
+const int   MBP_THRESHOLD = 5000; // Threshold between n^2 and AStar methods
+const int   MCP_THRESHOLD = 8000;// Threshold between n^2 and Chain methods
+const int   MCP_CHAIN_FACTOR = 5; // Subdivide bb for building chaining mesh
 
 //
 // Neighbors are enumerated so that particles can be attached to the correct

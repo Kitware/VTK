@@ -41,7 +41,6 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
-#include "CosmoHaloFinderP.h"
 
 #include <iostream>
 #include <fstream>
@@ -51,7 +50,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 
 #include "Partition.h"
-
+#include "CosmoHaloFinderP.h"
 
 using namespace std;
 
@@ -79,8 +78,8 @@ using namespace std;
 //
 /////////////////////////////////////////////////////////////////////////
 
-CosmoHaloFinderP::CosmoHaloFinderP() : haloData(NULL), haloSize(NULL), haloList(NULL), haloStart(NULL)
-{ 
+CosmoHaloFinderP::CosmoHaloFinderP()
+{
   // Get the number of processors and rank of this processor
   this->numProc = Partition::getNumProc();
   this->myProc = Partition::getMyProc();
@@ -109,25 +108,13 @@ CosmoHaloFinderP::~CosmoHaloFinderP()
   for (unsigned int i = 0; i < this->myMixedHalos.size(); i++)
     delete this->myMixedHalos[i];
 
-  if(this->haloList)
-    {
-    delete [] this->haloList;
-    }
-  if(this->haloStart)
-    {
-    delete [] this->haloStart;
-    }
-  if(this->haloSize)
-    {
-    delete [] this->haloSize;
-    }
+  delete [] this->haloList;
+  delete [] this->haloStart;
+  delete [] this->haloSize;
 
-  if(this->haloData)
-    {
-    for (int dim = 0; dim < DIMENSION; dim++)
-      delete this->haloData[dim];
-    delete [] this->haloData;
-    }
+  for (int dim = 0; dim < DIMENSION; dim++)
+    delete haloData[dim];
+  delete [] haloData;
 }
 
 /////////////////////////////////////////////////////////////////////////

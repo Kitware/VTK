@@ -50,10 +50,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "CosmoDefinition.h"
-
-#ifdef USE_SERIAL_COSMO
-
 #ifdef USE_VTK_COSMO
 #include "vtkstd/queue"
 
@@ -64,14 +60,7 @@ using namespace vtkstd;
 using namespace std;
 #endif
 
-#else
-#ifdef USE_VTK_COSMO
-#include "vtkMPI.h"
-#else
-#include <rru_mpi.h>
-#endif
-
-#endif
+#include "CosmoDefinition.h"
 
 class Message {
 public:
@@ -80,6 +69,7 @@ public:
    ~Message();
 
   // Put values into the MPI buffer
+  void putValueAtPosition(int* data, int pos, int count = 1);
   void putValue(int* data, int count = 1);
   void putValue(unsigned short* data, int count = 1);
   void putValue(long int* data, int count = 1);
@@ -97,10 +87,11 @@ public:
   void getValue(double* data, int count = 1);
   void getValue(char* data, int count = 1);
 
-#ifdef USE_VTK_COSMO // MPI_Pack seems to be broken on Snow Leopard
+  int getBufPos() { return this->bufPos; }
+
+  void manualPackAtPosition(char* data, int pos, int count, size_t size);
   void manualPack(char* data, int count, size_t size);
   void manualUnpack(char* data, int count, size_t size);
-#endif
 
   // Send nonblocking
   void send(

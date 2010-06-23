@@ -41,14 +41,15 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
-#include "CosmoDefinition.h"
-#include "CosmoHaloFinder.h"
 
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
+
+#include "CosmoDefinition.h"
+#include "CosmoHaloFinder.h"
 
 #ifndef USE_VTK_COSMO
 #ifdef DEBUG

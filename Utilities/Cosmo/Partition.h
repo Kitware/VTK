@@ -57,18 +57,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CosmoDefinition.h"
 
 #ifdef USE_VTK_COSMO
-#ifndef USE_SERIAL_COSMO
-#include "vtkMPI.h"
-#endif
 
 #include "vtkstd/string"
 #include "vtkstd/vector"
 
 using namespace vtkstd;
 #else
-#ifndef USE_SERIAL_COSMO
-#include <rru_mpi.h>
-#endif
 
 #include <string>
 #include <vector>

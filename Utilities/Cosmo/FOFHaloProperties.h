@@ -68,21 +68,32 @@ public:
         const string& outName,  // Base name of output halo files
         POSVEL_T rL,            // Box size of the physical problem
         POSVEL_T deadSize,      // Dead size used to normalize for non periodic
-        POSVEL_T particleMass,  // Mass of a single particle in system
-        POSVEL_T bb);           // Inter particle distance for halos
+	POSVEL_T bb);		// Inter particle distance for halos
 
   // Set alive particle vectors which were created elsewhere
   void setParticles(
         vector<POSVEL_T>* xLoc,
         vector<POSVEL_T>* yLoc,
-        vector<POSVEL_T>* zLod,
+        vector<POSVEL_T>* zLoc,
         vector<POSVEL_T>* xVel,
         vector<POSVEL_T>* yVel,
         vector<POSVEL_T>* zVel,
+        vector<POSVEL_T>* pmass,
         vector<POTENTIAL_T>* potential,
         vector<ID_T>* id,
         vector<MASK_T>* mask,
         vector<STATUS_T>* state);
+
+  void setParticles(
+	long count,
+        POSVEL_T* xLoc,
+        POSVEL_T* yLoc,
+        POSVEL_T* zLoc,
+        POSVEL_T* xVel,
+        POSVEL_T* yVel,
+        POSVEL_T* zVel,
+        POSVEL_T* pmass,
+        ID_T* id);
 
   // Set the halo information from the FOF halo finder
   void setHalos(
@@ -91,113 +102,10 @@ public:
         int* haloCount,         // Number of particles in the matching halo
         int* haloList);         // Chain of indices of all particles in halo
 
-  /////////////////////////////////////////////////////////////////////
-  //
-  // FOF (Friend of friends) center finding
-  //
-  /////////////////////////////////////////////////////////////////////
-
   // Find the halo centers (minimum potential) finding minimum of array
   void FOFHaloCenterMinimumPotential(vector<int>* haloCenter);
 
-  // Find the halo centers using most bound particle (N^2/2)
-  void FOFHaloCenterMBP(vector<int>* haloCenter);
-  int  mostBoundParticleN2(int h, POTENTIAL_T* minPotential);
-
-  // Initial guess of A* contains an actual part and an estimated part
-  int  mostBoundParticleAStar(int h);
-
-  // Calculate actual values between particles within a bucket
-  void aStarThisBucketPart(
-        ChainingMesh* haloChain,        // Buckets of particles
-        POSVEL_T* xLocHalo,             // Locations within buckets
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        int* bucketID,                  // Map from particle to bucket
-        POSVEL_T* estimate);            // Running minimum potential
-
-  // Calculate actual values for 26 neighbors in the center of halo
-  // Level 1 refinement done for initial guess
-  void aStarActualNeighborPart(
-        ChainingMesh* haloChain,        // Buckets of particles
-        int* minActual,                 // Range for doing actual vs estimated
-        int* maxActual,
-        POSVEL_T* xLocHalo,             // Locations within buckets
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        int* refineLevel,               // Refinement level of each particle
-        POSVEL_T* estimate);            // Running minimum potential
-
-  // Calculate estimated values for 26 neighbors around the edges of halo
-  // Level 0 refinement done for initial guess
-  void aStarEstimatedNeighborPart(
-        ChainingMesh* haloChain,        // Buckets of particles
-        int* minActual,                 // Range for doing actual vs estimated
-        int* maxActual,
-        POSVEL_T* xLocHalo,             // Locations within buckets
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        int* refineLevel,               // Refinement level of each particle
-        POSVEL_T* estimate,             // Running minimum potential
-        POSVEL_T boundarySize);         // Boundary around bucket for estimation
-
-  // Calculate estimates for all buckets beyond the 27 closest
-  void aStarEstimatedPart(
-        ChainingMesh* haloChain,        // Buckets of particles
-        POSVEL_T* xLocHalo,             // Locations within buckets
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        POSVEL_T* estimate);            // Running minimum potential
-
-  // Refinement of 0 to 1
-  void refineAStarLevel_1(
-        ChainingMesh* haloChain,        // Buckets of particles
-        int bi,                         // Bucket containing particle to refine
-        int bj,
-        int bk,
-        int* minActual,                 // Range for doing actual vs estimated
-        int* maxActual,
-        POSVEL_T* xLocHalo,             // Locations within buckets
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        int minParticle,                // Particle to refine
-        POSVEL_T* estimate,             // Running minimum potential
-        POSVEL_T boundarySize);         // Boundary around bucket for estimation
-
-  // Refinement of 1 to N
-  void refineAStarLevel_N(
-        ChainingMesh* haloChain,        // Buckets of particles
-        int bi,                         // Bucket containing particle to refine
-        int bj,
-        int bk,
-        POSVEL_T* xLocHalo,             // Locations within buckets
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        int minParticle,                // Particle to refine
-        POSVEL_T* estimate,             // Running minimum potential
-        int winDelta);                  // Number of buckets to refine out to
-
-  // Find the halo centers using most connected particle (N^2/2)
-  void FOFHaloCenterMCP(vector<int>* haloCenter);
-  int  mostConnectedParticleN2(int h);
-  int  mostConnectedParticleChainMesh(int h);
-
-  // Build a chaining mesh of halo particles
-  ChainingMesh* buildChainingMesh(
-        int halo,
-        POSVEL_T chainSize,
-        POSVEL_T* xLocHalo,
-        POSVEL_T* yLocHalo,
-        POSVEL_T* zLocHalo,
-        int* actualIndx);
-
-  /////////////////////////////////////////////////////////////////////
-  //
-  // FOF (Friend of friends) halo analysis
-  //
-  /////////////////////////////////////////////////////////////////////
-
-  // Find the mass of each halo
+  // Find the mass of each halo by accumulating individual particle masses
   void FOFHaloMass(
         vector<POSVEL_T>* haloMass);
 
@@ -229,10 +137,32 @@ public:
   // Incremental mean, possibly needed for very large halos
   POSVEL_T incrementalMean(int halo, POSVEL_T* data);
 
+  // Extract locations and tags for all particles in a halo
+  void extractLocation(
+	int halo,
+	int* actualIndx,
+	POSVEL_T* xLocHalo,
+	POSVEL_T* yLocHalo,
+	POSVEL_T* zLocHalo,
+	ID_T* tag);
+
+  void extractInformation(
+	int halo,
+	int* actualIndx,
+	POSVEL_T* xLocHalo,
+	POSVEL_T* yLocHalo,
+	POSVEL_T* zVelHalo,
+	POSVEL_T* xVelHalo,
+	POSVEL_T* yVelHalo,
+	POSVEL_T* zLocHalo,
+	POSVEL_T* pmass,
+	ID_T* tag);
+
 #ifndef USE_VTK_COSMO
   // Print information about halos for debugging and selection
   void FOFHaloCatalog(
-        vector<int>* haloCenter,
+	vector<int>* haloCenter,
+        vector<POSVEL_T>* haloMass,
         vector<POSVEL_T>* xVel,
         vector<POSVEL_T>* yVel,
         vector<POSVEL_T>* zVel);
@@ -250,8 +180,7 @@ private:
 
   POSVEL_T boxSize;             // Physical box size of the data set
   POSVEL_T deadSize;            // Border size for dead particles
-  POSVEL_T particleMass;        // Mass of a single particle
-  POSVEL_T bb;                  // Interparticle distance for halos
+  POSVEL_T bb;			// Interparticle distance for halos
 
   long   particleCount;         // Total particles on this processor
 
@@ -261,6 +190,7 @@ private:
   POSVEL_T* vx;                 // X velocity for particles on this processor
   POSVEL_T* vy;                 // Y velocity for particles on this processor
   POSVEL_T* vz;                 // Z velocity for particles on this processor
+  POSVEL_T* mass;		// mass of particles on this processor
   POTENTIAL_T* pot;             // Particle potential
   ID_T* tag;                    // Id tag for particles on this processor
   MASK_T* mask;                 // Particle information

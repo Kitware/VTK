@@ -99,7 +99,6 @@ vtkPCosmoHaloFinder::vtkPCosmoHaloFinder()
   this->Overlap = 5;
   this->BB = .2;
   this->PMin = 10;
-  this->ParticleMass = 1;
   this->CopyHaloDataToParticles = 1;
 }
 
@@ -128,7 +127,6 @@ void vtkPCosmoHaloFinder::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Overlap: " << this->Overlap << endl;
   os << indent << "bb: " << this->BB << endl;
   os << indent << "pmin: " << this->PMin << endl;
-  os << indent << "ParticleMass: " << this->ParticleMass << endl;
   os << indent << "CopyHaloDataToParticles: " << this->CopyHaloDataToParticles << endl;
 }
 
@@ -276,6 +274,7 @@ int vtkPCosmoHaloFinder::RequestData(
   // so that it can use vtkDataArray as is - ought to do that with the
   // reader as well
   if(!output->GetPointData()->HasArray("velocity") ||
+     !output->GetPointData()->HasArray("mass") ||
      !output->GetPointData()->HasArray("tag") ||
      !output->GetPointData()->HasArray("ghost"))
     {
@@ -287,16 +286,18 @@ int vtkPCosmoHaloFinder::RequestData(
   vtkPoints* points = output->GetPoints();
   vtkFloatArray* velocity = vtkFloatArray::SafeDownCast
     (output->GetPointData()->GetArray("velocity"));
+  vtkFloatArray* pmass = vtkFloatArray::SafeDownCast
+    (output->GetPointData()->GetArray("mass"));
   vtkIntArray* uid = vtkIntArray::SafeDownCast
     (output->GetPointData()->GetArray("tag"));
   vtkIntArray* owner = vtkIntArray::SafeDownCast
     (output->GetPointData()->GetArray("ghost"));
 
-  if(velocity == 0 || uid == 0 || owner == 0 || 
+  if(velocity == 0 || pmass == 0 || uid == 0 || owner == 0 || 
      velocity->GetNumberOfComponents() != DIMENSION) 
     {
     vtkErrorMacro(<< "One or more of the input point data arrays is" <<
-                  "malformed: velocity, tag, or ghost.");
+                  "malformed: velocity, mass, tag, or ghost.");
     return 0;
     }
 
@@ -312,6 +313,7 @@ int vtkPCosmoHaloFinder::RequestData(
   vector<POSVEL_T>* vx = new vector<POSVEL_T>;
   vector<POSVEL_T>* vy = new vector<POSVEL_T>;
   vector<POSVEL_T>* vz = new vector<POSVEL_T>;
+  vector<POSVEL_T>* mass = new vector<POSVEL_T>;
   vector<ID_T>* tag = new vector<ID_T>;
   vector<STATUS_T>* status = new vector<STATUS_T>;
 
@@ -333,6 +335,10 @@ int vtkPCosmoHaloFinder::RequestData(
     vy->push_back(vel[1]);
     vz->push_back(vel[2]);
 
+    // get and set the mass
+    vel[0] = pmass->GetValue(i);
+    mass->push_back(vel[0]);
+
     // get and set the tag
     int particle = uid->GetValue(i);
     tag->push_back(particle);
@@ -352,7 +358,8 @@ int vtkPCosmoHaloFinder::RequestData(
   // Merge the halos so that only one copy of each is written
   // Parallel halo finder must consult with each of the 26 possible neighbor
   // halo finders to see who will report a particular halo
-  haloFinder.setParticles(xx, yy, zz, vx, vy, vz, potential, tag, mask, status);
+  haloFinder.setParticles(xx, yy, zz, vx, vy, vz, 
+			  potential, tag, mask, status);
   haloFinder.executeHaloFinder();
   haloFinder.collectHalos();
   haloFinder.mergeHalos();
@@ -381,8 +388,8 @@ int vtkPCosmoHaloFinder::RequestData(
 
   FOFHaloProperties fof;
   fof.setHalos(numberOfFOFHalos, fofHalos, fofHaloCount, fofHaloList);
-  fof.setParameters("", this->RL, this->Overlap, this->ParticleMass, this->BB);
-  fof.setParticles(xx, yy, zz, vx, vy, vz, potential, tag, mask, status);
+  fof.setParameters("", this->RL, this->Overlap, this->BB);
+  fof.setParticles(xx, yy, zz, vx, vy, vz, mass, potential, tag, mask, status);
 
   // Find the average position of every FOF halo
   vector<POSVEL_T>* fofXPos = new vector<POSVEL_T>;
@@ -561,6 +568,7 @@ int vtkPCosmoHaloFinder::RequestData(
   delete vx;
   delete vy;
   delete vz;
+  delete mass;
   delete tag;
   delete status;
   delete potential;
