@@ -334,7 +334,7 @@ execute_process(COMMAND ${PERL}
   --baselinelinksuffix "${CVSWEB_DATA_SUFFIX}"
   --datamatch "\\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\\W"
   --dataicon "paper-clip.gif"
-  --dirmatch "^Examples\\$"
+  --dirmatch "^Examples$"
   --label "Examples"
   --link "${CVSWEB_CHECKOUT}"
   --linksuffix "${CVSWEB_SUFFIX}"
