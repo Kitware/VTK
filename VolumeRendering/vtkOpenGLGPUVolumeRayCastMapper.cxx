@@ -3377,7 +3377,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
   assert("pre: ren_exists" && ren!=0);
   assert("pre: vol_exists" && vol!=0);
 
-  double aspect[2];
   int  lowerLeft[2];
   int usize, vsize;
 
@@ -3397,28 +3396,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetupRender(vtkRenderer *ren,
   glClearColor(0.0, 0.0, 0.0, 0.0); // maxvalue is 1
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  ren->ComputeAspect();
-  ren->GetAspect(aspect);
-  double aspect2[2];
-  ren->vtkViewport::ComputeAspect();
-  ren->vtkViewport::GetAspect(aspect2);
-  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  //double aspect[2];
+  //ren->ComputeAspect();
+  //ren->GetAspect(aspect);
+  //double aspect2[2];
+  //ren->vtkViewport::ComputeAspect();
+  //ren->vtkViewport::GetAspect(aspect2);
+  //double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
 
-  vtkCamera *cam = ren->GetActiveCamera();
+  //vtkCamera *cam = ren->GetActiveCamera();
+  //glMatrixMode( GL_PROJECTION);
+  //if(usize && vsize)
+  //  {
+  //  this->TempMatrix[0]->DeepCopy(cam->GetProjectionTransformMatrix(
+  //                                  aspectModification*usize/vsize, -1,1));
+  //  this->TempMatrix[0]->Transpose();
+  //  glLoadMatrixd(this->TempMatrix[0]->Element[0]);
+  //  }
+  //else
+  //  {
+  //  glLoadIdentity();
 
-  glMatrixMode( GL_PROJECTION);
-  if(usize && vsize)
-    {
-    this->TempMatrix[0]->DeepCopy(cam->GetProjectionTransformMatrix(
-                                    aspectModification*usize/vsize, -1,1));
-    this->TempMatrix[0]->Transpose();
-    glLoadMatrixd(this->TempMatrix[0]->Element[0]);
-    }
-  else
-    {
-    glLoadIdentity();
-
-    }
+  //  }
 
   // push the model view matrix onto the stack, make sure we
   // adjust the mode first
