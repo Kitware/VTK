@@ -35,7 +35,7 @@ QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
   mIren = vtkSmartPointer<QVTKInteractor>::New();
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-  mConnect->Connect(mIren, vtkCommand::RenderEvent, this, SLOT(update()));
+  mConnect->Connect(mIren, vtkCommand::RenderEvent, this, SLOT(Update()));
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
   this->SetRenderWindow(win);
 
