@@ -167,7 +167,7 @@ void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*,
   if(!mWin)
     return;
 
-#ifdef QT_VERSION >= 0x040600
+#if QT_VERSION >= 0x040600
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
   painter->beginNativePainting();
@@ -207,7 +207,7 @@ void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*,
   glVertex2f(r.left(),r.bottom());
   glEnd();
 
-#ifdef QT_VERSION >= 0x040600
+#if QT_VERSION >= 0x040600
   painter->endNativePainting();
 #endif
 }

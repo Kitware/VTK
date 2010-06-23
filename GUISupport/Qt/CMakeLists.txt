@@ -165,6 +165,11 @@ QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
 SET_DIRECTORY_PROPERTIES(PROPERTIES INCLUDE_DIRECTORIES "${include_dirs_tmp}")
 
 ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
+# Add target specific compile flags for ABI setttings
+IF(VTK_ABI_CXX_FLAGS)
+  SET_PROPERTY(TARGET QVTK APPEND PROPERTY COMPILE_FLAGS "${VTK_ABI_CXX_FLAGS}")
+ENDIF(VTK_ABI_CXX_FLAGS)
+
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)

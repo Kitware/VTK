@@ -28,6 +28,7 @@
 #include <QtGui/QGraphicsWidget>
 #include <QtOpenGL/QGLContext>
 #include <vtkSmartPointer.h>
+#include "QVTKWin32Header.h"
 class vtkEventQtSlotConnect;
 class QGLFramebufferObject;
 class QVTKInteractorAdapter;
@@ -35,7 +36,7 @@ class QVTKInteractor;
 class vtkGenericOpenGLRenderWindow;
 class vtkObject;
 
-class QVTKGraphicsItem : public QGraphicsWidget
+class QVTK_EXPORT QVTKGraphicsItem : public QGraphicsWidget
 {
   Q_OBJECT
   public:
