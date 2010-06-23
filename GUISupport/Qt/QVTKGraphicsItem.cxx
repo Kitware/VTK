@@ -162,7 +162,11 @@ void QVTKGraphicsItem::IsCurrent(vtkObject*, unsigned long, void*, void* call_da
   }
 }
 
+#if QT_VERSION >= 0x040600
 void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
+#else
+void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*)
+#endif
 {
   if(!mWin)
     return;
