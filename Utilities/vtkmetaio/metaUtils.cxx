@@ -1048,11 +1048,11 @@ bool MET_Read(METAIO_STREAM::istream &fp,
     i = 0;
     c = fp.get();
     while(!fp.eof() && c != MET_SeperatorChar && c != ':'
-          && (c == '\n' || isspace(c)))
+          && (c == '\r' || c == '\n' || isspace(c)))
       {
       c = fp.get();
       }
-    while(!fp.eof() && c != MET_SeperatorChar && c != ':' && c != '\n' && i<500)
+    while(!fp.eof() && c != MET_SeperatorChar && c != ':' && c != '\r' && c != '\n' && i<500)
       {
       s[i++] = c;
       c = fp.get();

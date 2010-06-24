@@ -74,6 +74,9 @@ class METAIO_EXPORT MetaArrow : public MetaObject
 
     void  Lenght(float length) {this->Length(length);}
     float Lenght(void) const {return Length();}
+    
+    void  Direction(const double *direction);
+    const double * Direction(void) const;
 
 
   ////
@@ -92,6 +95,8 @@ class METAIO_EXPORT MetaArrow : public MetaObject
     bool  M_Read(void);
 
     float M_Length; // default 1.0
+    
+    double M_Direction[10];
 
   };
 
