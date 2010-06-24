@@ -517,7 +517,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 
         // multiply points and normals by resulting matrix
         // glFinish(); // for debug
-        // glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         double *mat = trans->GetMatrix()->Element[0];
         float mat2[16]; // transpose for OpenGL, float is native OpenGL
@@ -542,9 +542,9 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
         this->SourceMappers->Mappers[static_cast<size_t>(
                                        index)]->Render(ren,actor);
         // assume glMatrix(GL_MODELVIEW);
-        // glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
-        // glFinish(); // for debug
+        //glFinish(); // for debug
         }
       }
     trans->Delete();
