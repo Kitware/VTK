@@ -124,16 +124,7 @@ void QVTKGraphicsItem::Start()
     return;
   }
 
-  glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-
+  mWin->PushState();
   mWin->OpenGLInit();
 }
 
@@ -142,13 +133,7 @@ void QVTKGraphicsItem::End()
   if(!mFBO)
     return;
 
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-  glPopClientAttrib();
-  glPopAttrib();
+  mWin->PopState();
 
   mFBO->release();
 }

@@ -64,6 +64,11 @@ public:
   void SetBackRightBuffer(unsigned int);
   // }@
 
+  //! convenience function to push the state and push/init the tranform matrices
+  void PushState();
+  //! convenience function to pop the state and pop the tranform matrices
+  void PopState();
+
   // {@
   //! does nothing
   void SetWindowId(void*);

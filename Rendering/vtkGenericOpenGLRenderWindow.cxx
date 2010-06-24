@@ -107,6 +107,30 @@ bool vtkGenericOpenGLRenderWindow::IsCurrent()
   return current;
 }
 
+void vtkGenericOpenGLRenderWindow::PushState()
+{
+  glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+}
+
+void vtkGenericOpenGLRenderWindow::PopState()
+{
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+
+  glPopClientAttrib();
+  glPopAttrib();
+}
+
 
 void vtkGenericOpenGLRenderWindow::SetWindowId(void*)
 {
