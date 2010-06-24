@@ -26,6 +26,7 @@ OpenGLScene::OpenGLScene(QGLContext* ctx, QObject* p)
   QGraphicsProxyWidget* tmp = new QGraphicsProxyWidget;
   tmp->setWidget(new WebView);
   mWebView = tmp;
+  tmp->setOpacity(0.8);
   this->addItem(mWebView);
 
 
