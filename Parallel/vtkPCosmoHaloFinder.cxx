@@ -226,6 +226,11 @@ int vtkPCosmoHaloFinder::RequestData(
   vtkUnstructuredGrid* catalog = vtkUnstructuredGrid::SafeDownCast
     (catInfo->Get(vtkDataObject::DATA_OBJECT()));  
 
+  if(!input || !output || !catalog)
+    {
+    return 0;
+    }
+
   // check that the piece number is correct
   int updatePiece = 0;
   int updateTotal = 1;
