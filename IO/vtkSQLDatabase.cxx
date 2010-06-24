@@ -39,6 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkODBCDatabase.h"
 #endif // VTK_USE_ODBC
 
+#include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
@@ -395,6 +396,9 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   vtkstd::string dataglom;
   vtkSQLDatabase* db = 0;
 
+  static vtkSimpleCriticalSection dbURLCritSec;
+  dbURLCritSec.Lock();
+
   // SQLite is a bit special so lets get that out of the way :)
   if ( ! vtksys::SystemTools::ParseURLProtocol( urlstr, protocol, dataglom ))
     {
@@ -451,6 +455,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     {
     vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
     }
+  dbURLCritSec.Unlock();
   return db;
 }
 
