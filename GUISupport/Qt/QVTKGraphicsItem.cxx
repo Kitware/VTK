@@ -273,7 +273,7 @@ void QVTKGraphicsItem::resizeEvent(QGraphicsSceneResizeEvent* e)
   QResizeEvent e2(e->newSize().toSize(), e->oldSize().toSize());
   mIrenAdapter->ProcessEvent(&e2, mIren);
   if(mWin)
-    mWin->SetSize(e->newSize().width(), e->newSize().height());
+    mWin->SetSize(e2.size().width(), e2.size().height());
 
 }
 
@@ -282,7 +282,7 @@ void QVTKGraphicsItem::moveEvent(QGraphicsSceneMoveEvent* e)
   e->accept();
   QMoveEvent e2(e->newPos().toPoint(), e->oldPos().toPoint());
   if(mWin)
-    mWin->SetPosition(e->newPos().x(), e->newPos().y());
+    mWin->SetPosition(e2.pos().x(), e2.pos().y());
 }
 
 void QVTKGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* e)
