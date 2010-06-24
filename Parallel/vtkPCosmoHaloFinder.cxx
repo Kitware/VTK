@@ -259,6 +259,13 @@ int vtkPCosmoHaloFinder::RequestData(
   // shallow total point input to output
   output->ShallowCopy(input);
 
+  // code to short circuit if there are no points
+  if(output->GetPoints()->GetNumberOfPoints() < 1)
+    {
+    catalog->Allocate(0);
+    return 1;
+    }
+
   // RRU code
   // Initialize the partitioner which uses MPI Cartesian Topology
   Partition::initialize();

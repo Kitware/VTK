@@ -45,6 +45,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BasicDefinition_h
 #define BasicDefinition_h
 
+#define USE_VTK_COSMO
+
 #ifdef USE_VTK_COSMO
 #include "vtkType.h"
 #else
