@@ -61,9 +61,11 @@ IF(VTK_USE_QVTK_QTOPENGL)
   SET (QT_USE_QTOPENGL 1)
   SET(QVTKMocHeaders ${QVTKMocHeaders}
     QVTKGraphicsItem.h
+    QVTKWidget2.h
     )
   SET ( QVTKLibSrcs ${QVTKLibSrcs}
     QVTKGraphicsItem.cxx
+    QVTKWidget2.cxx
     )
 ENDIF(VTK_USE_QVTK_QTOPENGL)
 

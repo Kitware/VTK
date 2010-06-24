@@ -1,0 +1,137 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    QVTKWidget2.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME QVTKWidget2 - Display a vtkRenderWindow in a Qt's QGLWidget.
+// .SECTION Description
+// QVTKWidget2 provides a way to display VTK data in a Qt OpenGL widget.
+
+#ifndef Q_VTK_WIDGET2_H
+#define Q_VTK_WIDGET2_H
+
+#include <QtOpenGL/QGLWidget>
+#include "QVTKInteractor.h"
+#include "vtkSmartPointer.h"
+#include "QVTKWin32Header.h"
+
+class vtkGenericOpenGLRenderWindow;
+class vtkEventQtSlotConnect;
+
+#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+#ifdef VTK_USE_TDX
+class vtkTDxDevice;
+#endif
+
+//! QVTKWidget2 displays a VTK window in a Qt window.
+class QVTK_EXPORT QVTKWidget2 : public QGLWidget
+{
+  Q_OBJECT
+public:
+  //! constructor
+  QVTKWidget2(QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
+  QVTKWidget2(QGLContext* ctx, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
+  QVTKWidget2(const QGLFormat& fmt, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
+  //! destructor
+  virtual ~QVTKWidget2();
+
+  // Description:
+  // Set the vtk render window, if you wish to use your own vtkRenderWindow
+  virtual void SetRenderWindow(vtkGenericOpenGLRenderWindow*);
+
+  // Description:
+  // Get the vtk render window.
+  virtual vtkGenericOpenGLRenderWindow* GetRenderWindow();
+
+  // Description:
+  // Get the Qt/vtk interactor that was either created by default or set by the user
+  virtual QVTKInteractor* GetInteractor();
+
+  // Description:
+  // Use a 3DConnexion device. Initial value is false.
+  // If VTK is not build with the TDx option, this is no-op.
+  // If VTK is build with the TDx option, and a device is not connected,
+  // a warning is emitted.
+  // It is must be called before the first Render to be effective, otherwise
+  // it is ignored.
+  void SetUseTDx(bool useTDx);
+  bool GetUseTDx() const;
+
+public Q_SLOTS:
+
+  // Description:
+  // Receive notification of the creation of the TDxDevice.
+  // Only relevant for Unix.
+#ifdef VTK_USE_TDX
+  void setDevice(vtkTDxDevice *device);
+#endif
+
+protected Q_SLOTS:
+  // slot to make this vtk render window current
+  void MakeCurrent();
+  // slot called when vtk wants to know if the context is current
+  void IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
+  // slot called when vtk wants to frame the window
+  void Frame();
+
+protected:
+  // overloaded resize handler
+  virtual void resizeGL(int, int);
+  // overloaded paint handler
+  virtual void paintGL();
+  // overloaded move handler
+  virtual void moveEvent(QMoveEvent* event);
+
+  // overloaded mouse press handler
+  virtual void mousePressEvent(QMouseEvent* event);
+  // overloaded mouse move handler
+  virtual void mouseMoveEvent(QMouseEvent* event);
+  // overloaded mouse release handler
+  virtual void mouseReleaseEvent(QMouseEvent* event);
+  // overloaded key press handler
+  virtual void keyPressEvent(QKeyEvent* event);
+  // overloaded key release handler
+  virtual void keyReleaseEvent(QKeyEvent* event);
+  // overloaded enter event
+  virtual void enterEvent(QEvent*);
+  // overloaded leave event
+  virtual void leaveEvent(QEvent*);
+  // overload wheel mouse event
+  virtual void wheelEvent(QWheelEvent*);
+
+  // overload context menu event
+  virtual void contextMenuEvent(QContextMenuEvent*);
+  // overload drag enter event
+  virtual void dragEnterEvent(QDragEnterEvent*);
+  // overload drag move event
+  virtual void dragMoveEvent(QDragMoveEvent*);
+  // overload drag leave event
+  virtual void dragLeaveEvent(QDragLeaveEvent*);
+  // overload drop event
+  virtual void dropEvent(QDropEvent*);
+
+  // the vtk render window
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> mRenWin;
+  bool UseTDx;
+
+  QVTKInteractorAdapter* mIrenAdapter;
+  vtkSmartPointer<vtkEventQtSlotConnect> mConnect;
+
+private:
+  //! unimplemented operator=
+  QVTKWidget2 const& operator=(QVTKWidget2 const&);
+  //! unimplemented copy
+  QVTKWidget2(const QVTKWidget2&);
+
+};
+
+#endif
