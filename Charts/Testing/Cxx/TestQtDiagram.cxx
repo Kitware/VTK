@@ -26,6 +26,7 @@
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkOpenGLContextDevice2D.h"
+#include "vtkStdString.h"
 
 #include "vtkRegressionTestImage.h"
 

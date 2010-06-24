@@ -212,8 +212,6 @@ public:
   // Draw some text to the screen.
   void DrawString(vtkPoints2D *point, const vtkStdString &string);
   void DrawString(float x, float y, const vtkStdString &string);
-  void DrawString(vtkPoints2D *point, const char *string);
-  void DrawString(float x, float y, const char *string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -223,7 +221,6 @@ public:
   // NOTE: This function does not take account of the text rotation.
   void ComputeStringBounds(const vtkStdString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
-  void ComputeStringBounds(const char *string, float bounds[4]);
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as

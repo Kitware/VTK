@@ -23,6 +23,7 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
+#include "vtkStdString.h"
 
 #include "vtkObjectFactory.h"
 

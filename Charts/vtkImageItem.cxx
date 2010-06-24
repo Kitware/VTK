@@ -25,6 +25,7 @@
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkImageData.h"
+#include "vtkStdString.h"
 
 #include "vtkObjectFactory.h"
 

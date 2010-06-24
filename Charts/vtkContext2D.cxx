@@ -450,21 +450,6 @@ void vtkContext2D::DrawString(float x, float y, const vtkStdString &string)
 }
 
 //-----------------------------------------------------------------------------
-void vtkContext2D::DrawString(vtkPoints2D *point, const char *string)
-{
-  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
-  vtkStdString str = string;
-  this->DrawString(f[0], f[1], str);
-}
-
-//-----------------------------------------------------------------------------
-void vtkContext2D::DrawString(float x, float y, const char *string)
-{
-  vtkStdString str = string;
-  this->DrawString(x, y, str);
-}
-
-//-----------------------------------------------------------------------------
 void vtkContext2D::ComputeStringBounds(const vtkStdString &string,
                                        vtkPoints2D *bounds)
 {
@@ -483,13 +468,6 @@ void vtkContext2D::ComputeStringBounds(const vtkStdString &string,
     return;
     }
   this->Device->ComputeStringBounds(string, this->TextProp, bounds);
-}
-
-//-----------------------------------------------------------------------------
-void vtkContext2D::ComputeStringBounds(const char *string, float bounds[4])
-{
-  vtkStdString str = string;
-  this->ComputeStringBounds(str, bounds);
 }
 
 //-----------------------------------------------------------------------------
