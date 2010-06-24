@@ -1,6 +1,10 @@
 
 
-SUBDIRS(ImageViewer SimpleView Events GraphicsView)
+SUBDIRS(ImageViewer SimpleView Events)
+
+IF(VTK_USE_QVTK_QTOPENGL)
+  SUBDIRS(GraphicsView)
+ENDIF(VTK_USE_QVTK_QTOPENGL)
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY IMMEDIATE)
