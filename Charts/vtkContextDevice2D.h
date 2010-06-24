@@ -103,11 +103,11 @@ public:
 
   // Description:
   // Set the color for the device using unsigned char of length 4, RGBA.
-  virtual void SetColor4(unsigned char *color) = 0;
+  virtual void SetColor4(unsigned char color[4]) = 0;
 
   // Description:
   // Set the color for the device using unsigned char of length 3, RGB.
-  virtual void SetColor(unsigned char *color) = 0;
+  virtual void SetColor(unsigned char color[3]) = 0;
 
   // Description:
   // Set the point size for glyphs/sprites.
