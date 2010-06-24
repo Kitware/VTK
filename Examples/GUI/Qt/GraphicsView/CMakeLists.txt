@@ -11,9 +11,9 @@ if(NOT VTK_BINARY_DIR)
   include(${VTK_USE_FILE})
 endif(NOT VTK_BINARY_DIR)
 
-if(NOT VTK_USE_QVTK_QTOPENGL)
-  message(WARNING "VTK isn't configured to use QtOpenGL.  GraphicsView example is disabled.")
-else(NOT VTK_USE_QVTK_QTOPENGL)
+if(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND)
+  message(WARNING "VTK isn't configured to use QtOpenGL or QtWebKit wasn't found.  GraphicsView example is disabled.")
+else(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND)
 
 qt4_wrap_cpp(mocs
   OpenGLScene.hpp
