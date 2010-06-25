@@ -48,10 +48,10 @@ void readData(
       // Byte swap each integer
       char* dataPtr = (char*) data;
       char temp;
-      for (int item = 0; item < dataCount; item++) {
+      for (unsigned long item = 0; item < dataCount; item++) {
 
          // Do a byte-by-byte swap, reversing the order.
-         for (int i = 0; i < dataSize / 2; i++) {
+         for (unsigned long i = 0; i < dataSize / 2; i++) {
             temp = dataPtr[i];
             dataPtr[i] = dataPtr[dataSize - 1 - i];
             dataPtr[dataSize - 1 - i] = temp;
@@ -83,10 +83,10 @@ void readData(
       // Byte swap each integer
       char* dataPtr = (char*) data;
       char temp;
-      for (int item = 0; item < dataCount; item++) {
+      for (unsigned long item = 0; item < dataCount; item++) {
 
          // Do a byte-by-byte swap, reversing the order.
-         for (int i = 0; i < dataSize / 2; i++) {
+         for (unsigned long i = 0; i < dataSize / 2; i++) {
             temp = dataPtr[i];
             dataPtr[i] = dataPtr[dataSize - 1 - i];
             dataPtr[dataSize - 1 - i] = temp;
@@ -118,10 +118,10 @@ void readData(
       // Byte swap each float
       char* dataPtr = (char*) data;
       char temp;
-      for (int item = 0; item < dataCount; item++) {
+      for (unsigned long item = 0; item < dataCount; item++) {
 
          // Do a byte-by-byte swap, reversing the order.
-         for (int i = 0; i < dataSize / 2; i++) {
+         for (unsigned long i = 0; i < dataSize / 2; i++) {
             temp = dataPtr[i];
             dataPtr[i] = dataPtr[dataSize - 1 - i];
             dataPtr[dataSize - 1 - i] = temp;
@@ -153,10 +153,10 @@ void readData(
       // Byte swap each float
       char* dataPtr = (char*) data;
       char temp;
-      for (int item = 0; item < dataCount; item++) {
+      for (unsigned long item = 0; item < dataCount; item++) {
 
          // Do a byte-by-byte swap, reversing the order.
-         for (int i = 0; i < dataSize / 2; i++) {
+         for (unsigned long i = 0; i < dataSize / 2; i++) {
             temp = dataPtr[i];
             dataPtr[i] = dataPtr[dataSize - 1 - i];
             dataPtr[dataSize - 1 - i] = temp;

@@ -85,8 +85,8 @@ private:
 
 template< class basicType >
 void LoadData(
-int vizID,
-int simID,
+        int , //vizID,
+        int , //simID,
         float* varData,         // Grid over all parts to be filled
         int varOffset,          // Offset into the cached paraView block
                                 // Allows for ghost cells
