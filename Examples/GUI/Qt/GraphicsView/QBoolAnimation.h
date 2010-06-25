@@ -8,11 +8,11 @@ class QBoolAnimation : public QPropertyAnimation
 {
   Q_OBJECT
 public:
-    QBoolAnimation(double tipping_point, QObject* target, const QByteArray & propertyName, QObject * parent = 0 )
-      : QPropertyAnimation(target, propertyName, parent), mTippingPoint(tipping_point)
+    QBoolAnimation(double tipping_point, QObject* target, const QByteArray & prop, QObject * p = 0 )
+      : QPropertyAnimation(target, prop, p), mTippingPoint(tipping_point)
       {}
 protected:
-    QVariant interpolated(const QVariant& from, const QVariant& to, qreal progress)
+    QVariant interpolated(const QVariant& from, const QVariant& to, qreal progress) const
       {
       double f = from.toDouble();
       double t = to.toDouble();

@@ -33,24 +33,24 @@
 # include "vtkTDxUnixDevice.h"
 #endif
 
-QVTKWidget2::QVTKWidget2(QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(parent, shareWidget, f), mRenWin(NULL)
+QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
+  : QGLWidget(p, shareWidget, f), mRenWin(NULL)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
 }
 
-QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(ctx, parent, shareWidget, f), mRenWin(NULL)
+QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
+  : QGLWidget(ctx, p, shareWidget, f), mRenWin(NULL)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
 }
 
-QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(fmt, parent, shareWidget, f), mRenWin(NULL)
+QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
+  : QGLWidget(fmt, p, shareWidget, f), mRenWin(NULL)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
@@ -188,19 +188,19 @@ QVTKInteractor* QVTKWidget2::GetInteractor()
 
 /*! handle resize event
  */
-void QVTKWidget2::resizeGL(int x, int y)
+void QVTKWidget2::resizeGL(int w, int h)
 {
   if(!this->mRenWin)
     {
     return;
     }
 
-  this->mRenWin->SetSize(x,y);
+  this->mRenWin->SetSize(w,h);
 
   // and update the interactor
   if(this->mRenWin->GetInteractor())
     {
-    QResizeEvent e(QSize(), QSize(x,y));
+    QResizeEvent e(QSize(), QSize(w,h));
     mIrenAdapter->ProcessEvent(&e, this->mRenWin->GetInteractor());
     }
 }
@@ -389,7 +389,7 @@ void QVTKWidget2::MakeCurrent()
   this->makeCurrent();
 }
 
-void QVTKWidget2::IsCurrent(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data)
+void QVTKWidget2::IsCurrent(vtkObject*, unsigned long, void*, void* call_data)
 {
   bool* ptr = reinterpret_cast<bool*>(call_data);
   *ptr = QGLContext::currentContext() == this->context();

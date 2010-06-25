@@ -33,4 +33,4 @@ add_executable(qtgraphicsview
 target_link_libraries(qtgraphicsview QVTK vtkRendering)
 target_link_libraries(qtgraphicsview ${QT_LIBRARIES})
 
-endif(NOT VTK_USE_QVTK_QTOPENGL)
+endif(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND)
