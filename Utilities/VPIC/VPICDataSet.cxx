@@ -11,6 +11,7 @@ VPICDataSet::VPICDataSet()
    this->rank = 0;
    this->totalRank = 1;
    this->currentTimeStep = 0;
+   this->view = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -21,6 +22,8 @@ VPICDataSet::VPICDataSet()
 
 VPICDataSet::~VPICDataSet()
 {
+   if (this->view)
+      delete this->view;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -82,7 +85,6 @@ void VPICDataSet::setView(int* xExtent, int* yExtent, int* zExtent)
             return;
 
    // Fetch the global information about the problem size and decomposition
-   // int* layoutSize = this->global.getLayoutSize(); not used?
    int*** layoutID = this->global.getLayoutID();
    int* partSize = this->global.getPartSize();
    float* origin = this->global.getPhysicalOrigin();
@@ -142,6 +144,14 @@ void VPICDataSet::setView(int* xExtent, int* yExtent, int* zExtent)
                 this->global.getPartSize(),
                 subOrigin,
                 this->global.getPhysicalStep());
+
+   for (int i = 0; i < subLayoutSize[0]; i++) {
+      for (int j = 0; j < subLayoutSize[1]; j++)
+         delete [] subLayoutID[i][j];
+      delete [] subLayoutID[i];
+   }
+   delete [] subLayoutID;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -157,12 +167,15 @@ void VPICDataSet::setView(int* xExtent, int* yExtent, int* zExtent)
 
 void VPICDataSet::loadVariableData(
         float* varData,
+        int varOffset,
+        int* localDim,
         int timeStep,
         int variable,
         int component)
 {
    this->currentTimeStep = timeStep;
-   this->view->loadVariableData(varData, timeStep, variable, component);
+   this->view->loadVariableData(varData, varOffset,
+                                localDim, timeStep, variable, component);
 }
 
 //////////////////////////////////////////////////////////////////////////////

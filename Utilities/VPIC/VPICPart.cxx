@@ -85,6 +85,7 @@ void VPICPart::calculatePartLocation(int* stridedPartSize)
 
 void VPICPart::loadVariableData(
         float* varData,         // Grid over all parts to be filled
+        int varOffset,          // Offset into varData for loading
         int* subdimension,      // Subdimension for processor owning this part
         int fileKind,           // Field or species data
         int basicType,          // FLOAT or INTEGER
@@ -99,27 +100,27 @@ void VPICPart::loadVariableData(
    this->header.getGhostSize(ghostSize);
 
    if (basicType == FLOAT && byteCount == 4) {
-      float* block = NULL;
-      LoadData(varData, block, subdimension,
-               ghostSize, this->numberOfGhostGrids, 
+      float* block;
+      LoadData(vizID, simID, varData, varOffset, block, subdimension,
+               ghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
 
    } else if (basicType == FLOAT && byteCount == 8) {
-      double* block = NULL;
-      LoadData(varData, block, subdimension,
-               ghostSize, this->numberOfGhostGrids, 
+      double* block;
+      LoadData(vizID, simID, varData, varOffset, block, subdimension,
+               ghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
 
    } else if (basicType == INTEGER && byteCount == 4) {
-      int* block = NULL;
-      LoadData(varData, block, subdimension,
-               ghostSize, this->numberOfGhostGrids, 
+      int* block;
+      LoadData(vizID, simID, varData, varOffset, block, subdimension,
+               ghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
 
    } else if (basicType == INTEGER && byteCount == 2) {
-      short* block = NULL;
-      LoadData(varData, block, subdimension,
-               ghostSize, this->numberOfGhostGrids, 
+      short* block;
+      LoadData(vizID, simID, varData, varOffset, block, subdimension,
+               ghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
    }
 }
