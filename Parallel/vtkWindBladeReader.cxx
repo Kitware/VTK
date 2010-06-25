@@ -860,7 +860,7 @@ void vtkWindBladeReader::FillCoordinates()
     }
   }
 
-  // If dataset is topographic, x and y are constant spacing center on (0,0)
+  // If dataset is topographic, x and y are constant spacing
   // Z data is calculated from an x by y topographic data file
   else {
     int planeSize = this->Dimension[0] * this->Dimension[1];
@@ -887,17 +887,11 @@ void vtkWindBladeReader::CreateCoordinates()
 {
   // If dataset is flat, x and y are constant spacing, z is stretched
   if (this->UseTopographyFile == 0) {
-    float value = 0.0;
-    for (int i = 0; i < this->Dimension[0]; i++) {
-      this->xSpacing->InsertNextValue(value);
-      value += this->Step[0];
-    }
+    for (int i = 0; i < this->Dimension[0]; i++)
+      this->xSpacing->InsertNextValue(i * this->Step[0]);
 
-    value = 0.0;
-    for (int j = 0; j < this->Dimension[1]; j++) {
-      this->ySpacing->InsertNextValue(value);
-      value += this->Step[1];
-    }
+    for (int j = 0; j < this->Dimension[1]; j++)
+      this->ySpacing->InsertNextValue(j * this->Step[1]);
 
     double maxZ = this->Step[2] * this->Dimension[2];
     for (int k = 0; k < this->Dimension[2]; k++) {
@@ -907,16 +901,14 @@ void vtkWindBladeReader::CreateCoordinates()
     }
   }
 
-  // If dataset is topographic, x and y are constant spacing center on (0,0)
+  // If dataset is topographic, x and y are constant spacing
   // Z data is calculated from an x by y topographic data file
   else {
-    float xHalf = (((this->Dimension[0] + 1.0) / 2.0) - 1.0) * this->Step[0];
     for (int i = 0; i < this->Dimension[0]; i++)
-      this->xSpacing->InsertNextValue((i * this->Step[0]) - xHalf);
+      this->xSpacing->InsertNextValue(i * this->Step[0]);
 
-    float yHalf = (((this->Dimension[1] + 1.0) / 2.0) - 1.0) * this->Step[1];
     for (int j = 0; j < this->Dimension[1]; j++)
-      this->ySpacing->InsertNextValue((j * this->Step[1]) - yHalf);
+      this->ySpacing->InsertNextValue(j * this->Step[1]);
 
     this->zTopographicValues = new float[this->BlockSize];
     CreateZTopography(this->zTopographicValues);
@@ -1210,6 +1202,8 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
            << this->TurbineBladeName
            << this->TimeSteps[timeStep];
   ifstream inStr(fileName.str().c_str());
+  if (this->Rank == 0)
+    cout << "Load file " << fileName.str() << endl;
   char inBuf[LINE_SIZE];
 
   // Allocate space for points and cells
