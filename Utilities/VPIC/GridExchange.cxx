@@ -42,14 +42,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include <iostream>
-#include <iomanip>
-
 #include "GridExchange.h"
 
 #ifdef USE_PARALLEL_VPIC
 #include <vtkMPI.h>
 #endif
+
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
 
