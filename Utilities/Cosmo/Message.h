@@ -51,16 +51,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESSAGE_H
 
 #ifdef USE_VTK_COSMO
+#include "CosmoDefinition.h"
 #include "vtkstd/queue"
 
 using namespace vtkstd;
 #else
+#include "Definition.h"
 #include <queue>
 
 using namespace std;
 #endif
 
-#include "CosmoDefinition.h"
 
 class Message {
 public:

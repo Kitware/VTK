@@ -59,6 +59,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
+#ifndef USE_VTK_COSMO
+#define USE_VTK_COSMO
+#endif
+
 #include "vtkPCosmoReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkInformation.h"

@@ -54,23 +54,26 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef Partition_h
 #define Partition_h
 
-#include "CosmoDefinition.h"
 
 #ifdef USE_VTK_COSMO
-
+#include "CosmoDefinition.h"
 #include "vtkstd/string"
 #include "vtkstd/vector"
 
 using namespace vtkstd;
 #else
-
+#include "CosmoDefinition.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 #endif
 
+#ifdef USE_VTK_COSMO
 class COSMO_EXPORT Partition {
+#else
+class Partition {
+#endif
 public:
   Partition();
   ~Partition();

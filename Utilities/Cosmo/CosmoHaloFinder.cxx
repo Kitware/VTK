@@ -48,7 +48,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdlib>
 #include <algorithm>
 
-#include "CosmoDefinition.h"
 #include "CosmoHaloFinder.h"
 
 #ifndef USE_VTK_COSMO

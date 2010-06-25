@@ -66,22 +66,27 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ParticleExchange_h
 #define ParticleExchange_h
 
-#include "CosmoDefinition.h"
 #include "Message.h"
 
 #ifdef USE_VTK_COSMO 
+#include "CosmoDefinition.h"
 #include "vtkstd/string"
 #include "vtkstd/vector"
 
 using namespace vtkstd;
 #else
+#include "Definition.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 #endif 
 
+#ifdef USE_VTK_COSMO
 class COSMO_EXPORT ParticleExchange {
+#else
+class ParticleExchange {
+#endif
 public:
   ParticleExchange();
   ~ParticleExchange();

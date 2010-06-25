@@ -108,7 +108,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 
+#ifdef USE_VTK_COSMO
 #include "CosmoDefinition.h"
+#else
+#include "Definition.h"
+#endif
 
 #define numDataDims 3
 #define dataX 0
@@ -142,7 +146,11 @@ public:
 
 /****************************************************************************/
 
+#ifdef USE_VTK_COSMO
 class COSMO_EXPORT CosmoHaloFinder
+#else
+class CosmoHaloFinder
+#endif
 {
 public:
   // create a finder

@@ -58,24 +58,29 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ParticleDistribute_h
 #define ParticleDistribute_h
 
-#include "CosmoDefinition.h"
 #include "Message.h"
 
 #include <cstdlib>
 
 #ifdef USE_VTK_COSMO 
+#include "CosmoDefinition.h"
 #include "vtkstd/string"
 #include "vtkstd/vector"
 
 using namespace vtkstd;
 #else 
+#include "Definition.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 #endif
 
+#ifdef USE_VTK_COSMO
 class COSMO_EXPORT ParticleDistribute {
+#else
+class ParticleDistribute {
+#endif
 public:
   ParticleDistribute();
   ~ParticleDistribute();

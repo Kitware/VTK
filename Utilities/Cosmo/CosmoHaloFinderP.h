@@ -70,15 +70,25 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CosmoHaloFinderP_h
 #define CosmoHaloFinderP_h
 
+#ifdef USE_VTK_COSMO
+#include "CosmoDefinition.h"
+#else
+#include "Definition.h"
+#endif
+
 #include "CosmoHaloFinder.h"
 #include "CosmoHalo.h"
-#include "CosmoDefinition.h"
+
 #include <string>
 #include <vector>
 
 using namespace std;
 
+#ifdef USE_VTK_COSMO
 class COSMO_EXPORT CosmoHaloFinderP {
+#else
+class CosmoHaloFinderP {
+#endif
 public:
   CosmoHaloFinderP();
   ~CosmoHaloFinderP();

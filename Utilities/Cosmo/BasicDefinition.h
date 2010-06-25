@@ -45,13 +45,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BasicDefinition_h
 #define BasicDefinition_h
 
-// Win32 seems to have a problem with ADD_DEFINITION(-DUSE_VTK_COSMO)
-#ifdef _WIN32
-#ifndef USE_VTK_COSMO
-#define USE_VTK_COSMO
-#endif
-#endif
-
 #ifdef USE_VTK_COSMO
 #include "vtkType.h"
 #else
