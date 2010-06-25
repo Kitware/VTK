@@ -11,9 +11,9 @@ if(NOT VTK_BINARY_DIR)
   include(${VTK_USE_FILE})
 endif(NOT VTK_BINARY_DIR)
 
-if(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND)
-  message(WARNING "VTK isn't configured to use QtOpenGL or QtWebKit wasn't found.  GraphicsView example is disabled.")
-else(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND)
+if(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND OR QT_VERSION_MINOR LESS 6)
+  message(STATUS "VTK isn't configured to use QtOpenGL, QtWebKit wasn't found, or Qt 4.6 wasn't found.  GraphicsView example is disabled.")
+else(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND OR QT_VERSION_MINOR LESS 6)
 
 qt4_wrap_cpp(mocs
   OpenGLScene.hpp
@@ -33,4 +33,4 @@ add_executable(qtgraphicsview
 target_link_libraries(qtgraphicsview QVTK vtkRendering)
 target_link_libraries(qtgraphicsview ${QT_LIBRARIES})
 
-endif(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND)
+endif(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND OR QT_VERSION_MINOR LESS 6)
