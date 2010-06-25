@@ -45,6 +45,8 @@ public:
    // Have each part load data into appropriate part of viz data on processor
    void loadVariableData(
         float* varData,         // Pre allocated array to fill
+        int varOffset,          // Offset into varData
+        int* localDim,          // Local block enhanced with ghost
         int timeStep,           // Dump to load from
         int variable,           // Variable index to load
         int component);         // Component of variable to load
@@ -58,6 +60,8 @@ public:
 
    // Setting the stride requires recalculation of grid and extents
    void setStride(int s[]);
+
+   void getDecomposition(int decomp[]);
 
    void getGridSize(int gridsize[]);
    void getLayoutSize(int layout[]);
@@ -86,6 +90,7 @@ private:
    int   totalRank;                     // Number of graphics processors
 
    // Visualization information
+   int   decomposition[DIMENSION];      // Graphics processor layout sizes
    int   gridSize[DIMENSION];           // Visualization grid size for all parts
    int   ghostSize[DIMENSION];          // Visualization ghost grid size
 

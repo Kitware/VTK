@@ -28,6 +28,7 @@ public:
    // Load variable data from file part into array
    void loadVariableData(
         float* varData,         // Pre allocated array to fill
+        int varOffset,          // Offset into varData
         int* subdimension,      // Dimension on this processor
         int fileKind,           // Field or species
         int basicType,          // FLOAT or INTEGER
@@ -84,11 +85,15 @@ private:
 
 template< class basicType >
 void LoadData(
+int vizID,
+int simID,
         float* varData,         // Grid over all parts to be filled
+        int varOffset,          // Offset into the cached paraView block
+                                // Allows for ghost cells
         basicType* block,       // Type of data to read from file
         int* subdimension,      // Subdimension for processor owning this part
-        int* ghostSize,         // Dimension of data in the file
-        int numberOfGhostGrids, // Amount of data for variable in file
+        int* blockDim,          // Dimension of data in the file
+        int blockSize,          // Amount of data for variable in file
         int* gridOffset,        // Offset with total data on proc for this part
         string fileName,        // Field or species data file
         long int offset,        // Load data from this offset
@@ -97,11 +102,15 @@ void LoadData(
    // Get the file pointer to the offset for this variable and component
    // Read the contiguous variable data from the file
    FILE* filePtr = fopen(fileName.c_str(), "r");
+   if (filePtr == 0) {
+      cout << "Failed to open file " << fileName << endl;
+      return;
+   }
    fseek(filePtr, offset, SEEK_SET);
 
    // Data read in includes ghost cells
-   block = new basicType[numberOfGhostGrids];
-   fread(block, sizeof(basicType), numberOfGhostGrids, filePtr);
+   block = new basicType[blockSize];
+   fread(block, sizeof(basicType), blockSize, filePtr);
    fclose(filePtr);
 
    // Iterate over all data which includes ghost cells
@@ -113,23 +122,29 @@ void LoadData(
    int vx, vy, vz;      // Visualizer data index with no strides
 
    // Always skip the first ghost position because value is 0
-   for (bz = 1, vz = 0; bz < ghostSize[2]; bz += stride[2], vz++) {
+   for (bz = 1, vz = varOffset;
+        bz < (blockDim[2] - 1);
+        bz += stride[2], vz++) {
 
       // Offset into entire viz data block for this file's part of data
       int offsetz = gridOffset[2] + vz;
 
-      for (by = 1, vy = 0; by < ghostSize[1]; by += stride[1], vy++) {
+      for (by = 1, vy = varOffset;
+           by < (blockDim[1] - 1);
+           by += stride[1], vy++) {
 
          // Offset into entire viz data block for this file's part of data
          int offsety = gridOffset[1] + vy;
 
-         for (bx = 1, vx = 0; bx < ghostSize[0]; bx += stride[0], vx++) {
+         for (bx = 1, vx = varOffset;
+              bx < (blockDim[0] - 1);
+              bx += stride[0], vx++) {
 
             // Offset into entire viz data block for this file's part of data
             int offsetx = gridOffset[0] + vx;
 
-            blockIndex = (bz * ghostSize[0] * ghostSize[1]) +
-                         (by * ghostSize[0]) + bx;
+            blockIndex = (bz * blockDim[0] * blockDim[1]) +
+                         (by * blockDim[0]) + bx;
 
 
             // Calculate the index into the sub grid for this processor
@@ -142,6 +157,7 @@ void LoadData(
                            (offsety * subdimension[0]) + offsetx;
 
                 varData[varIndex] = (float) block[blockIndex];
+   //             varData[varIndex] = (float) simID;
             }
          }
       }

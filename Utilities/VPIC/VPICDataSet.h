@@ -34,6 +34,8 @@ public:
    // Have each part load data into appropriate part of viz data on processor
    void loadVariableData(
         float* varData,         // Pre allocated array to fill
+        int varOffset,          // Offset into varData from ParaView
+        int* localDim,          // Ghost enhanced block for local
         int timeStep,           // Dump to load from
         int variable,           // Variable index to load
         int component);         // Component of variable to load
@@ -65,6 +67,8 @@ public:
 
    // View specific information
    void setStride(int s[])              { this->view->setStride(s); }
+
+   void getDecomposition(int d[])       { this->view->getDecomposition(d); }
 
    void getGridSize(int grid[])         { this->view->getGridSize(grid); }
 

@@ -94,7 +94,7 @@ void VPICView::initialize(
       this->layoutID[i] = new int*[this->layoutSize[1]];
       for (int j = 0; j < this->layoutSize[1]; j++)
          this->layoutID[i][j] = new int[this->layoutSize[2]];
-   }      
+   }
 
    for (int k = 0; k < this->layoutSize[2]; k++)
       for (int j = 0; j < this->layoutSize[1]; j++)
@@ -132,13 +132,13 @@ void VPICView::partitionFiles()
 
    if (this->rank == 0) {
       cout << endl << "New partition of files" << endl;
-      cout << "File grid size: [" 
-           << this->partSize[0] << "," 
-           << this->partSize[1] << "," 
+      cout << "File grid size: ["
+           << this->partSize[0] << ","
+           << this->partSize[1] << ","
            << this->partSize[2] << "]" << endl;
-      cout << "Simulation decomposition: [" 
-           << this->layoutSize[0] << "," 
-           << this->layoutSize[1] << "," 
+      cout << "Simulation decomposition: ["
+           << this->layoutSize[0] << ","
+           << this->layoutSize[1] << ","
            << this->layoutSize[2] << "]" << endl;
    }
 
@@ -156,13 +156,13 @@ void VPICView::partitionFiles()
 
    // If the partitioned range has -1 in it, this processor is not used
    if (this->range[this->rank][0] != -1) {
-      for (int k = this->range[this->rank][4]; 
+      for (int k = this->range[this->rank][4];
                k <= this->range[this->rank][5]; k++, kindx++) {
          jindx = 0;
-         for (int j = this->range[this->rank][2]; 
+         for (int j = this->range[this->rank][2];
                   j <= this->range[this->rank][3]; j++, jindx++) {
             iindx = 0;
-            for (int i = this->range[this->rank][0]; 
+            for (int i = this->range[this->rank][0];
                      i <= this->range[this->rank][1]; i++, iindx++) {
 
                // Create the VPICPart for this processor which will have the
@@ -174,7 +174,7 @@ void VPICView::partitionFiles()
                getPartFileNames(partFileNames, this->currentTimeStep, part);
 
                VPICPart* vpicPart = new VPICPart(part);
-               vpicPart->setFiles(partFileNames, 
+               vpicPart->setFiles(partFileNames,
                                   this->global.getNumberOfDirectories());
                vpicPart->initialize();
                vpicPart->setVizID(this->rank);
@@ -196,14 +196,13 @@ void VPICView::partitionFiles()
 
 void VPICView::partition()
 {
-   int procLayout[DIMENSION];
    int totalParts = 1;
    for (int dim = 0; dim < DIMENSION; dim++)
       totalParts *= this->layoutSize[dim];
-  
+
    // One graphics processor gets entire range
    for (int dim = 0; dim < DIMENSION; dim++)
-      procLayout[dim] = 1;
+      this->decomposition[dim] = 1;
 
    // More than one graphics processors
    if (this->totalRank > 1) {
@@ -211,7 +210,7 @@ void VPICView::partition()
       // Number of graphics processor is <= number of parts
       if (totalParts <= this->totalRank) {
          for (int dim = 0; dim < DIMENSION; dim++)
-            procLayout[dim] = this->layoutSize[dim];
+            this->decomposition[dim] = this->layoutSize[dim];
       }
 
       // Number of graphics processors is > number of parts
@@ -240,10 +239,10 @@ void VPICView::partition()
 
             // Apply the GCD to the number of processor and selected dimension
             processorFactor /= maxGCD;
-            procLayout[maxGCDdim] *= maxGCD;
+            this->decomposition[maxGCDdim] *= maxGCD;
             rangeSize[maxGCDdim] = rangeSize[maxGCDdim] / maxGCD;
          }
-      
+
          // If only divisor is 1 then divide unevenly
          if (processorFactor > 1) {
             // Choose the largest part dimension for the remaining processors
@@ -255,21 +254,21 @@ void VPICView::partition()
                   maxDim = dim;
                }
             }
-            procLayout[maxDim] *= processorFactor;
+            this->decomposition[maxDim] *= processorFactor;
          }
          // Make sure processoLayout is not larger than file layoutSize
          for (int dim = 0; dim < DIMENSION; dim++)
-            if (procLayout[dim] > layoutSize[dim])
-               procLayout[dim] = layoutSize[dim];
+            if (this->decomposition[dim] > layoutSize[dim])
+               this->decomposition[dim] = layoutSize[dim];
       }
    }
    if (this->rank == 0) {
-      cout << "Graphics decomposition: [" 
-           << procLayout[0] << "," 
-           << procLayout[1] << "," 
-           << procLayout[2] << "]" << endl;
+      cout << "Graphics decomposition: ["
+           << this->decomposition[0] << ","
+           << this->decomposition[1] << ","
+           << this->decomposition[2] << "]" << endl;
    }
-      
+
    // Using the part partition and the processor partition assign
    // part ranges for each processor which will be used for subextents
    // Note that the order of processors assigned has to be kept which
@@ -286,35 +285,36 @@ void VPICView::partition()
    int needMore[DIMENSION];
    for (int dim = 0; dim < DIMENSION; dim++) {
       step[dim] = (int) floor((double) this->layoutSize[dim] /
-                              (double) procLayout[dim]);
-      needMore[dim] = this->layoutSize[dim] - (step[dim] * procLayout[dim]);
+                              (double) this->decomposition[dim]);
+      needMore[dim] = this->layoutSize[dim] -
+                      (step[dim] * this->decomposition[dim]);
    }
 
    int zStart = 0;
-   for (int z = 0; z < procLayout[2]; z++) {
+   for (int z = 0; z < this->decomposition[2]; z++) {
 
       int zStep = step[2];
       if (z < needMore[2])
          zStep++;
 
       int yStart = 0;
-      for (int y = 0; y < procLayout[1]; y++) {
+      for (int y = 0; y < this->decomposition[1]; y++) {
 
          int yStep = step[1];
          if (y < needMore[1])
             yStep++;
 
          int xStart = 0;
-         for (int x = 0; x < procLayout[0]; x++) {
+         for (int x = 0; x < this->decomposition[0]; x++) {
 
             int xStep = step[0];
             if (x < needMore[0])
                xStep++;
 
-            int proc = z * (procLayout[0] * procLayout[1]) +
-                       y * procLayout[0] + x;
+            int proc = z * (this->decomposition[0] * this->decomposition[1]) +
+                       y * this->decomposition[0] + x;
 
-            if (proc < totalRank) { 
+            if (proc < totalRank) {
                this->range[proc][0] = xStart;
                this->range[proc][1] = xStart + xStep - 1;
 
@@ -330,17 +330,8 @@ void VPICView::partition()
       }
       zStart += zStep;
    }
-/*
-   if (this->rank == 0) {
-      for (int proc = 0; proc < totalRank; proc++)
-         cout << "Proc " << proc << " Range [" 
-         << this->range[proc][0] << ":" << this->range[proc][1] << "  "
-         << this->range[proc][2] << ":" << this->range[proc][3] << "  "
-         << this->range[proc][4] << ":" << this->range[proc][5] << "]" << endl;
-   }
-*/
 }
-         
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Partitioning has already been done so calculate grid extents for this
@@ -393,14 +384,16 @@ void VPICView::calculateGridExtents()
             this->subextent[piece][last] = 0;
             this->subdimension[piece][dim] = 0;
          } else {
-            this->subextent[piece][first] = this->range[piece][first] * 
-                                            stridedPartSize[dim];
-            this->subextent[piece][last] = (this->range[piece][last] + 1) * 
-                                            stridedPartSize[dim];
+            this->subextent[piece][first] =
+              this->range[piece][first] * stridedPartSize[dim];
+            this->subextent[piece][last] =
+              (this->range[piece][last] + 1) * stridedPartSize[dim];
 
+            if (this->subextent[piece][first] < 0)
+               this->subextent[piece][first] = 0;
             if (this->subextent[piece][last] >= this->gridSize[dim])
                this->subextent[piece][last] = this->gridSize[dim] - 1;
-            this->subdimension[piece][dim] = this->subextent[piece][last] - 
+            this->subdimension[piece][dim] = this->subextent[piece][last] -
                                              this->subextent[piece][first] + 1;
          }
       }
@@ -413,18 +406,20 @@ void VPICView::calculateGridExtents()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//    
+//
 // Load the variable data for the given time step for this processor
 // Each processor has many file parts which supply pieces of data
 // Have each file part load into the overall data block by using its
 // offset into that data block.  Each data part has a set format but
 // in order to do different time steps, change the name of the file
 // which is to be accessed
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 void VPICView::loadVariableData(
         float* varData,
+        int varOffset,
+        int* subdimension,
         int timeStep,
         int var,
         int comp)
@@ -440,26 +435,18 @@ void VPICView::loadVariableData(
       for (int part = 0; part < this->numberOfMyParts; part++) {
          int id = this->myParts[part]->getSimID();
          getPartFileNames(partFileNames, this->currentTimeStep, id);
-         this->myParts[part]->setFiles(partFileNames, 
+         this->myParts[part]->setFiles(partFileNames,
                                        this->global.getNumberOfDirectories());
       }
       delete [] partFileNames;
    }
 
-   // Get the subextent and subdimension size for this processor
-   int subextent[6];
-   int subdimension[3];
-   getSubExtent(this->rank, subextent);
-   getSubDimension(this->rank, subdimension);
-
    // Read the variable data from file and store into overall var_array
    // Load the appropriate part of the data from the part
-
-   // long int offset = this->global.getVariableOffset(var, comp); not used?
-
    for (int part = 0; part < this->numberOfMyParts; part++) {
       this->myParts[part]->loadVariableData(
                             varData,
+                            varOffset,
                             subdimension,
                             this->global.getVariableKind(var),
                             this->global.getVariableType(var),
@@ -504,10 +491,16 @@ void VPICView::getPartFileNames(string* partFileName, int timeStep, int part)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//    
+//
 // Access methods
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
+
+void VPICView::getDecomposition(int decomp[])
+{
+   for (int dim = 0; dim < DIMENSION; dim++)
+      decomp[dim] = this->decomposition[dim];
+}
 
 void VPICView::getGridSize(int gridsize[])
 {
@@ -601,7 +594,7 @@ void VPICView::setStride(int s[])
    int oldStride[DIMENSION];
    for (int dim = 0; dim < DIMENSION; dim++)
       oldStride[dim] = this->stride[dim];
-   
+
    // Since we stride on individual file parts make sure requested stride fits
    for (int dim = 0; dim < DIMENSION; dim++) {
       this->stride[dim] = s[dim];
@@ -609,14 +602,14 @@ void VPICView::setStride(int s[])
          this->stride[dim] = this->partSize[dim];
    }
 
-   if (oldStride[0] != this->stride[0] || 
-       oldStride[1] != this->stride[1] || 
+   if (oldStride[0] != this->stride[0] ||
+       oldStride[1] != this->stride[1] ||
        oldStride[2] != this->stride[2])
          this->calculateGridNeeded = true;
 
    if (this->rank == 0)
       cout << "Stride set to (" << this->stride[0] << ","
-           << this->stride[1] << "," << this->stride[2] << ")" << endl; 
+           << this->stride[1] << "," << this->stride[2] << ")" << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////

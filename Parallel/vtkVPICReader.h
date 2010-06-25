@@ -37,6 +37,7 @@ class vtkMultiProcessController;
 class vtkInformation;
 //BTX
 class VPICDataSet;
+class GridExchange;
 //ETX
 class VTK_PARALLEL_EXPORT vtkVPICReader : public vtkImageAlgorithm
 {
@@ -93,6 +94,7 @@ protected:
   int UsedRank;                         // Number of processors used in display
 
   VPICDataSet* vpicData;                // Data structure controlling access
+  GridExchange* exchanger;		// Exchange ghost cells between procs
 
   int NumberOfPieces;                   // Number of files in dataset
   vtkIdType NumberOfNodes;              // Number of points in grid
@@ -113,6 +115,7 @@ protected:
 
   int NumberOfTimeSteps;                // Temporal domain
   double* TimeSteps;                    // Times available for request
+  int CurrentTimeStep;                  // Time currently displayed
 
   int Stride[3];                        // Stride over actual data 
   int XExtent[2];                       // Subview extent in files
@@ -120,6 +123,13 @@ protected:
   int ZExtent[2];                       // Subview extent in files
 
   vtkFloatArray** data;                 // Actual data arrays
+  int* dataLoaded;                      // Data is loaded for current time
+
+  int Start[3];                         // Start offset for processor w ghosts
+  int GhostDimension[3];                // Dimension including ghosts on proc
+  int NumberOfGhostTuples;              // Total ghost cells per component
+  int ghostLevel0;                      // Left plane number of ghosts
+  int ghostLevel1;                      // Right plane number of ghosts
 
   // Controlls initializing and querrying MPI
   vtkMultiProcessController * MPIController; 
@@ -136,6 +146,11 @@ protected:
                          vtkInformationVector *);
 
   void LoadVariableData(int var, int timeStep);
+  void LoadComponent(
+        float* varData,
+        float* block,
+        int comp,
+        int numberOfComponents);
 
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
                                 void* clientdata, void* calldata);

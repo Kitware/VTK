@@ -52,6 +52,60 @@ const int TENSOR9               = 4;
 const int FLOAT                 = 0;    // Basic data types
 const int INTEGER               = 1;
 
+typedef      float   GRID_T;
+
+//
+// Neighbors are enumerated so that particles can be attached to the correct
+// neighbor, but these pairs must be preserved for the ParticleExchange.
+// Every processor should be able to send and receive on every iteration of
+// the exchange, so if everyone sends RIGHT and receives LEFT it works
+//
+// Do not change this pairing order.
+//
+enum NEIGHBOR
+{
+  X0,                   // Left face
+  X1,                   // Right face
+
+  Y0,                   // Bottom face
+  Y1,                   // Top face
+
+  Z0,                   // Front face
+  Z1,                   // Back face
+
+  X0_Y0,                // Left   bottom edge
+  X1_Y1,                // Right  top    edge
+
+  X0_Y1,                // Left   top    edge
+  X1_Y0,                // Right  bottom edge
+
+  Y0_Z0,                // Bottom front  edge
+  Y1_Z1,                // Top    back   edge
+
+  Y0_Z1,                // Bottom back   edge
+  Y1_Z0,                // Top    front  edge
+
+  Z0_X0,                // Front  left   edge
+  Z1_X1,                // Back   right  edge
+
+  Z0_X1,                // Front  right  edge
+  Z1_X0,                // Back   left   edge
+
+  X0_Y0_Z0,             // Left  bottom front corner
+  X1_Y1_Z1,             // Right top    back  corner
+
+  X0_Y0_Z1,             // Left  bottom back  corner
+  X1_Y1_Z0,             // Right top    front corner
+
+  X0_Y1_Z0,             // Left  top    front corner
+  X1_Y0_Z1,             // Right bottom back  corner
+
+  X0_Y1_Z1,             // Left  top    back  corner
+  X1_Y0_Z0              // Right bottom front corner
+};
+
+const int NUM_OF_NEIGHBORS      = 26;
+
 // Read character string from file
 string readString(FILE* filePtr, int size);
 
