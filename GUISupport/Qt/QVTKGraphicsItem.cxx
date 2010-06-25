@@ -43,6 +43,9 @@ QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
   setFocusPolicy(Qt::ClickFocus);
   setAcceptHoverEvents(true);
   this->setSizePolicy(QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding));
+  QPalette pal = this->palette();
+  pal.setColor(QPalette::Window, QColor(255,255,255,255));
+  this->setPalette(pal);
 }
 
 QVTKGraphicsItem::~QVTKGraphicsItem()
@@ -180,11 +183,22 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, mFBO->texture());
 
-  glDisable(GL_BLEND);
 
   QRectF r = this->rect();
 
-  glColor4f(1,1,1,1);
+  QColor c = this->palette().color(QPalette::Window);
+  glColor4ub(c.red(),c.green(),c.blue(),c.alpha());
+
+  if(c.alpha() < 255)
+    {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
+  else
+    {
+    glDisable(GL_BLEND);
+    }
+
   glBegin(GL_QUADS);
   glTexCoord2i(0,1);
   glVertex2f(r.left(),r.top());

@@ -8,10 +8,15 @@
 #include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkViewTheme.h"
 #include "vtkTextProperty.h"
+#include "vtkRenderer.h"
 
 TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   : QVTKGraphicsItem(ctx, p)
 {
+  QPalette pal = this->palette();
+  pal.setColor(QPalette::Window, QColor(255,255,255,250));
+  this->setPalette(pal);
+
   TreeRingView.TakeReference(vtkTreeRingView::New());
   TreeRingView->SetInteractor(this->GetInteractor());
   TreeRingView->SetRenderWindow(this->GetRenderWindow());
@@ -60,6 +65,9 @@ TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   theme->GetPointTextProperty()->ShadowOn();
   TreeRingView->ApplyViewTheme(theme);
   theme->Delete();
+
+  this->TreeRingView->GetRenderer()->SetGradientBackground(0);
+  this->TreeRingView->GetRenderer()->SetBackground(0.1,0.1,0.1);
 
   TreeRingView->ResetCamera();
 
