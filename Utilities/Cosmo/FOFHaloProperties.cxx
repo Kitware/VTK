@@ -221,13 +221,13 @@ void FOFHaloProperties::FOFHaloCenterMinimumPotential(vector<int>* haloCenter)
 void FOFHaloProperties::FOFHaloMass(
                         vector<POSVEL_T>* haloMass)
 {
-  POSVEL_T mass;
+  POSVEL_T lmass;
   double mKahan;
 
   for (int halo = 0; halo < this->numberOfHalos; halo++) {
     mKahan = KahanSummation(halo, this->mass);
-    mass = (POSVEL_T) mKahan;
-    (*haloMass).push_back(mass);
+    lmass = (POSVEL_T) mKahan;
+    (*haloMass).push_back(lmass);
   }
 }
 

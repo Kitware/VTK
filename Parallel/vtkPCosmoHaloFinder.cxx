@@ -260,6 +260,13 @@ int vtkPCosmoHaloFinder::RequestData(
         Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
       }
     }
+  
+  if(updatePiece != this->Controller->GetLocalProcessId() ||
+     updateTotal != this->Controller->GetNumberOfProcesses())
+    {
+    vtkErrorMacro(<< "Piece number does not match process number.");
+    return 0;
+    }
 
   // shallow total point input to output
   output->ShallowCopy(input);
