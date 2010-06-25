@@ -272,9 +272,9 @@ int vtkPCosmoHaloFinder::RequestData(
   output->ShallowCopy(input);
 
   // code to short circuit if there are no points
-  if(output->GetPoints()->GetNumberOfPoints() < 1)
+  if(output->GetNumberOfPoints() < 1)
     {
-    catalog->Allocate(0);
+    catalog->Initialize();
     return 1;
     }
 
@@ -321,7 +321,7 @@ int vtkPCosmoHaloFinder::RequestData(
     }
 
   // create the empty ones
-  vtkIdType numberOfLocalPoints = output->GetPoints()->GetNumberOfPoints();
+  vtkIdType numberOfLocalPoints = output->GetNumberOfPoints();
   vector<POTENTIAL_T>* potential = new vector<POTENTIAL_T>(numberOfLocalPoints);
   vector<MASK_T>* mask = new vector<MASK_T>(numberOfLocalPoints);
 
