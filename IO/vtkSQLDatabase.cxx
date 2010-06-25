@@ -403,12 +403,14 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   if ( ! vtksys::SystemTools::ParseURLProtocol( urlstr, protocol, dataglom ))
     {
     vtkGenericWarningMacro( "Invalid URL (no protocol found): \"" << urlstr.c_str() << "\"" );
+    dbURLCritSec.Unlock();
     return 0;
     }
   if ( protocol == "sqlite" )
     {
     db = vtkSQLiteDatabase::New();
     db->ParseURL( URL );
+    dbURLCritSec.Unlock();
     return db;
     }
 
@@ -417,6 +419,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
                                         unused, hostname, dataport, database) )
     {
     vtkGenericWarningMacro( "Invalid URL (other components missing): \"" << urlstr.c_str() << "\"" );
+    dbURLCritSec.Unlock();
     return 0;
     }
 
