@@ -96,31 +96,31 @@ void VPICPart::loadVariableData(
    string name = this->fileName[fileKind];
 
    // Part stores data plus ghost cells, get all information about them
-   int ghostSize[DIMENSION];
-   this->header.getGhostSize(ghostSize);
+   int localghostSize[DIMENSION];
+   this->header.getGhostSize(localghostSize);
 
    if (basicType == FLOAT && byteCount == 4) {
-      float* block;
+      float* block = NULL;
       LoadData(vizID, simID, varData, varOffset, block, subdimension,
-               ghostSize, this->numberOfGhostGrids,
+               localghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
 
    } else if (basicType == FLOAT && byteCount == 8) {
-      double* block;
+      double* block = NULL;
       LoadData(vizID, simID, varData, varOffset, block, subdimension,
-               ghostSize, this->numberOfGhostGrids,
+               localghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
 
    } else if (basicType == INTEGER && byteCount == 4) {
-      int* block;
+      int* block = NULL;
       LoadData(vizID, simID, varData, varOffset, block, subdimension,
-               ghostSize, this->numberOfGhostGrids,
+               localghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
 
    } else if (basicType == INTEGER && byteCount == 2) {
-      short* block;
+      short* block = NULL;
       LoadData(vizID, simID, varData, varOffset, block, subdimension,
-               ghostSize, this->numberOfGhostGrids,
+               localghostSize, this->numberOfGhostGrids,
                this->gridOffset, name, offset, stride);
    }
 }

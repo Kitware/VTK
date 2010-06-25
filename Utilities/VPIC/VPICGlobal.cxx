@@ -221,7 +221,7 @@ void VPICGlobal::readFieldVariables(ifstream& inStr)
 void VPICGlobal::readSpeciesVariables(ifstream& inStr)
 {
   char inBuf[LINESIZE];
-  string keyword, rest;
+  string keyword, localrest;
   string structType, basicType;
 
   this->speciesDirectory = new string[this->speciesCount];
@@ -237,13 +237,13 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
   while (inStr.getline(inBuf, LINESIZE)) {
     if (inBuf[0] != '#' && inStr.gcount() > 1) {
 
-      getKeyword(inBuf, keyword, rest);
-      istringstream line(rest.c_str());
+      getKeyword(inBuf, keyword, localrest);
+      istringstream line(localrest.c_str());
 
       if (keyword == "SPECIES_DATA_DIRECTORY")
-        this->speciesDirectory[s] = rest;
+        this->speciesDirectory[s] = localrest;
       else if (keyword == "SPECIES_DATA_BASE_FILENAME")
-        this->speciesBaseName[s] = rest;
+        this->speciesBaseName[s] = localrest;
       else if (keyword == "HYDRO_DATA_VARIABLES") {
 
         line >> this->speciesVarCount[s];
@@ -266,11 +266,11 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
           this->speciesName[s][i] += ")";
 
           // Structure, number of components, type, number of bytes
-          string rest = varLine.substr(lastPos+1);
-          istringstream line(rest.c_str());
+          string localrest = varLine.substr(lastPos+1);
+          istringstream localline(localrest.c_str());
 
-          line >> structType;
-          line >> this->speciesCompSize[s][i];
+          localline >> structType;
+          localline >> this->speciesCompSize[s][i];
 
           if (structType == "SCALAR")
             this->speciesStructType[s][i] = SCALAR;
@@ -283,8 +283,8 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
           else
             cout << "Error in structure type " << structType << endl;
       
-          line >> basicType;
-          line >> this->speciesByteCount[s][i];
+          localline >> basicType;
+          localline >> this->speciesByteCount[s][i];
 
           if (basicType == "FLOATING_POINT")
             this->speciesBasicType[s][i] = FLOAT;
@@ -307,10 +307,10 @@ void VPICGlobal::readSpeciesVariables(ifstream& inStr)
 
 void VPICGlobal::getKeyword(char* inBuf, string& keyword, string& rest)
 {
-  string line(inBuf);
-  string::size_type keyPos = line.find(' ');
-  keyword = line.substr(0, keyPos);
-  rest = line.substr(keyPos + 1);
+  string localline(inBuf);
+  string::size_type keyPos = localline.find(' ');
+  keyword = localline.substr(0, keyPos);
+  rest = localline.substr(keyPos + 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -406,13 +406,13 @@ void VPICGlobal::buildFileNames()
      }
    }
    sort(fieldNames.begin(), fieldNames.end());
-   string fieldName = fieldNames[0];
+   string localfieldName = fieldNames[0];
 
    dir->Clear();
    delete dir;
 
    // Get the size of data per variable per part for calculating offsets
-   tempStr << Slash << fieldName;
+   tempStr << Slash << localfieldName;
    FILE* filePtr = fopen(tempStr.str().c_str(), "r");
    this->header.readHeader(filePtr);
    this->numberOfFiles = this->header.getTotalRank();
@@ -425,10 +425,10 @@ void VPICGlobal::buildFileNames()
    // Back up from that point to get the time field size
    // fields.tttttt.pppp for instance
    //
-   string::size_type ppos = fieldName.rfind(".");
-   this->procFieldLen = static_cast<int>(fieldName.size() - ppos - 1);
-   string::size_type tpos = fieldName.rfind(".", ppos-1);
-   this->timeFieldLen = static_cast<int>(fieldName.size() - tpos - this->procFieldLen - 2);
+   string::size_type ppos = localfieldName.rfind(".");
+   this->procFieldLen = static_cast<int>(localfieldName.size() - ppos - 1);
+   string::size_type tpos = localfieldName.rfind(".", ppos-1);
+   this->timeFieldLen = static_cast<int>(localfieldName.size() - tpos - this->procFieldLen - 2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
