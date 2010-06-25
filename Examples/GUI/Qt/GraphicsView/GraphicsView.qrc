@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/Data" >
+        <file>treetest.xml</file>
+        <file>vtkclasses.xml</file>
+        <file>vtklibrary.xml</file>
+    </qresource>
+</RCC>

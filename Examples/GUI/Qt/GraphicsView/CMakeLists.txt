@@ -15,6 +15,8 @@ if(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND OR QT_VERSION_MINOR LESS 6
   message(STATUS "VTK isn't configured to use QtOpenGL, QtWebKit wasn't found, or Qt 4.6 wasn't found.  GraphicsView example is disabled.")
 else(NOT VTK_USE_QVTK_QTOPENGL OR NOT QT_QTWEBKIT_FOUND OR QT_VERSION_MINOR LESS 6)
 
+qt4_add_resources(qrcfiles GraphicsView.qrc)
+
 qt4_wrap_cpp(mocs
   OpenGLScene.hpp
   QBoolAnimation.h
@@ -28,6 +30,7 @@ add_executable(qtgraphicsview
   GraphLayoutViewItem.cpp
   WebView.cpp
   ${mocs}
+  ${qrcfiles}
   )
 
 target_link_libraries(qtgraphicsview QVTK vtkRendering)

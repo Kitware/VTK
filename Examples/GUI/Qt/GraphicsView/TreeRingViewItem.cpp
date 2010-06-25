@@ -9,6 +9,7 @@
 #include "vtkViewTheme.h"
 #include "vtkTextProperty.h"
 #include "vtkRenderer.h"
+#include <QFile>
 
 TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   : QVTKGraphicsItem(ctx, p)
@@ -21,18 +22,22 @@ TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)
   TreeRingView->SetInteractor(this->GetInteractor());
   TreeRingView->SetRenderWindow(this->GetRenderWindow());
 
-  QString f1 = "/home/cjstimp/vtk/VTKData/Data/Infovis/XML/vtkclasses.xml";
-  QString f2 = "/home/cjstimp/vtk/VTKData/Data/Infovis/XML/vtklibrary.xml";
+  QFile f1(":/Data/vtkclasses.xml");
+  f1.open(QIODevice::ReadOnly);
+  QByteArray f1_data = f1.readAll();
 
+  QFile f2(":/Data/vtklibrary.xml");
+  f2.open(QIODevice::ReadOnly);
+  QByteArray f2_data = f2.readAll();
 
   vtkSmartPointer<vtkXMLTreeReader> reader1 = vtkSmartPointer<vtkXMLTreeReader>::New();
-  reader1->SetFileName(f1.toAscii().data());
+  reader1->SetXMLString(f1_data.data());
   reader1->SetEdgePedigreeIdArrayName("graph edge");
   reader1->GenerateVertexPedigreeIdsOff();
   reader1->SetVertexPedigreeIdArrayName("id");
 
   vtkSmartPointer<vtkXMLTreeReader> reader2 = vtkSmartPointer<vtkXMLTreeReader>::New();
-  reader2->SetFileName(f2.toAscii().data());
+  reader2->SetXMLString(f2_data.data());
   reader2->SetEdgePedigreeIdArrayName("tree edge");
   reader2->GenerateVertexPedigreeIdsOff();
   reader2->SetVertexPedigreeIdArrayName("id");

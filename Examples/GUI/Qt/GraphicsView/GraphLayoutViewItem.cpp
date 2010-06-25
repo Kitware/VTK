@@ -13,6 +13,7 @@
 #include "vtkStringToNumeric.h"
 #include "vtkViewTheme.h"
 #include "vtkTextProperty.h"
+#include <QFile>
 
 GraphLayoutViewItem::GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p)
   : QVTKGraphicsItem(ctx, p)
@@ -21,11 +22,12 @@ GraphLayoutViewItem::GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p)
   GraphLayoutView->SetInteractor(this->GetInteractor());
   GraphLayoutView->SetRenderWindow(this->GetRenderWindow());
 
-  QString f1 = "/home/cjstimp/vtk/VTKData/Data/treetest.xml";
-
+  QFile f1(":/Data/treetest.xml");
+  f1.open(QIODevice::ReadOnly);
+  QByteArray f1_data = f1.readAll();
 
   vtkSmartPointer<vtkXMLTreeReader> reader = vtkSmartPointer<vtkXMLTreeReader>::New();
-  reader->SetFileName(f1.toAscii().data());
+  reader->SetXMLString(f1_data.data());
   reader->SetMaskArrays(true);
   reader->Update();
   vtkTree* t = reader->GetOutput();
