@@ -220,7 +220,7 @@ void RemoveDuplicatedPointsFromFaceArrayAndEdgeTable(vtkPoints * points,
       vtkIdVectorType vVector;
       for (vtkIdType i = 0; i < faceIter.CurrentPolygonSize; i++)
         {
-        vtkIdType pid = pidMap.find(faceIter.Current[i])->second;
+        pid = pidMap.find(faceIter.Current[i])->second;
         vVector.push_back(pid);
         }
       bool dupPointRemoved = true;
@@ -926,8 +926,8 @@ void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   const double eps = 0.0000001;
   for (mapIt = cpMap.begin(); mapIt != cpMap.end(); ++mapIt)
     {
-    vtkIdVectorType edges = mapIt->second;
-    size_t edgesSize = edges.size();
+    edges = mapIt->second;
+    edgesSize = edges.size();
     
     // If the contour point is 2-connected we don't need to order them.
     if (edgesSize >=3 || mapIt->first == maxPid)
