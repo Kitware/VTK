@@ -97,6 +97,10 @@ static const char *vtkWrapPython_FormatComment(
 static const char *vtkWrapPython_FormatSignature(
   const char *signature, int width);
 
+/* return a python-ized signature */
+static const char *vtkWrapPython_PythonSignature(
+  FunctionInfo *currentFunction);
+
 /* -------------------------------------------------------------------- */
 /* Use the hints in the hints file to get the tuple size to use when
  * returning for a pointer-type return value.  The Python return value
@@ -997,13 +1001,286 @@ static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
 }
 
 /* -------------------------------------------------------------------- */
+/* The method signatures are for the python docstrings. */
+
+static void vtkWrapPython_AddToSignature(char *sig, const char *add, int *i)
+{
+  int j = 0;
+  char *cp = &sig[*i];
+  for (; add[j] != '\0'; j++)
+    {
+    // stop at the semicolon, there's often garbage after it
+    if ((cp[j] = add[j]) == ';')
+      {
+      cp[++j] = '\0';
+      break;
+      }
+    }
+  *i += j;
+}
+
+/* -------------------------------------------------------------------- */
+/* Create a signature for the python version of a method. */
+
+static const char *vtkWrapPython_PythonSignature(
+  FunctionInfo *currentFunction)
+{
+  static char result[1024];
+  int currPos = 0;
+  int argtype;
+  int i, j;
+
+  /* print out the name of the method */
+  vtkWrapPython_AddToSignature(result,"V.",&currPos);
+  vtkWrapPython_AddToSignature(result,currentFunction->Name,&currPos);
+
+  /* print the arg list */
+  vtkWrapPython_AddToSignature(result,"(",&currPos);
+
+  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+    {
+    if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+      {
+      vtkWrapPython_AddToSignature(result,"function",&currPos);
+      }
+
+    argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    if (i != 0)
+      {
+      vtkWrapPython_AddToSignature(result,", ",&currPos);
+      }
+
+    switch (argtype)
+      {
+      case VTK_PARSE_FLOAT_PTR:
+      case VTK_PARSE_DOUBLE_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+          vtkWrapPython_AddToSignature(result,"float",&currPos);
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_INT_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+          vtkWrapPython_AddToSignature(result,"int",&currPos);
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_ID_TYPE_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+#if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
+          vtkWrapPython_AddToSignature(result,"long",&currPos);
+#else
+          vtkWrapPython_AddToSignature(result,"int",&currPos);
+#endif
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_LONG_LONG_PTR:
+      case VTK_PARSE___INT64_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+          vtkWrapPython_AddToSignature(result,"long",&currPos);
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_VTK_OBJECT_REF:
+      case VTK_PARSE_VTK_OBJECT_PTR:
+      case VTK_PARSE_VTK_OBJECT:
+        vtkWrapPython_AddToSignature(result,currentFunction->ArgClasses[i],
+                                    &currPos);
+        break;
+      case VTK_PARSE_VOID_PTR:
+      case VTK_PARSE_CHAR_PTR:
+        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        break;
+      case VTK_PARSE_FLOAT:
+      case VTK_PARSE_DOUBLE:
+        vtkWrapPython_AddToSignature(result,"float",&currPos);
+        break;
+      case VTK_PARSE_SIGNED_CHAR:
+      case VTK_PARSE_ID_TYPE:
+      case VTK_PARSE_UNSIGNED_LONG_LONG:
+      case VTK_PARSE_LONG_LONG:
+      case VTK_PARSE_UNSIGNED___INT64:
+      case VTK_PARSE___INT64:
+      case VTK_PARSE_UNSIGNED_INT:
+      case VTK_PARSE_INT:
+      case VTK_PARSE_UNSIGNED_SHORT:
+      case VTK_PARSE_SHORT:
+      case VTK_PARSE_UNSIGNED_LONG:
+      case VTK_PARSE_LONG:
+        vtkWrapPython_AddToSignature(result,"int",&currPos);
+        break;
+      case VTK_PARSE_CHAR:
+        vtkWrapPython_AddToSignature(result,"char",&currPos);
+        break;
+      case VTK_PARSE_UNSIGNED_CHAR:
+        vtkWrapPython_AddToSignature(result,"int",&currPos);
+        break;
+      case VTK_PARSE_BOOL:
+        vtkWrapPython_AddToSignature(result,"bool",&currPos);
+        break;
+      case VTK_PARSE_STRING:
+        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        break;
+      case VTK_PARSE_UNICODE_STRING:
+        vtkWrapPython_AddToSignature(result,"unicode",&currPos);
+        break;
+      }
+    }
+
+  vtkWrapPython_AddToSignature(result,")",&currPos);
+
+  /* if this is a void method, we are finished */
+  /* otherwise, print "->" and the return type */
+  if (!((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VOID)
+      || (currentFunction->ReturnType & VTK_PARSE_INDIRECT))
+    {
+    vtkWrapPython_AddToSignature(result," -> ",&currPos);
+
+    switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
+      {
+      case VTK_PARSE_VOID_PTR:
+      case VTK_PARSE_CHAR_PTR:
+        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        break;
+      case VTK_PARSE_VTK_OBJECT_REF:
+      case VTK_PARSE_VTK_OBJECT_PTR:
+      case VTK_PARSE_VTK_OBJECT:
+        vtkWrapPython_AddToSignature(result,currentFunction->ReturnClass,
+                                    &currPos);
+        break;
+      case VTK_PARSE_FLOAT_PTR:
+      case VTK_PARSE_DOUBLE_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+          vtkWrapPython_AddToSignature(result,"float",&currPos);
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_INT_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+          vtkWrapPython_AddToSignature(result,"int",&currPos);
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_ID_TYPE_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+#if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
+          vtkWrapPython_AddToSignature(result,"long",&currPos);
+#else
+          vtkWrapPython_AddToSignature(result,"int",&currPos);
+#endif
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_LONG_LONG_PTR:
+      case VTK_PARSE___INT64_PTR:
+        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++)
+          {
+          if (j != 0)
+            {
+            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            }
+          vtkWrapPython_AddToSignature(result,"long",&currPos);
+          }
+        vtkWrapPython_AddToSignature(result,")",&currPos);
+        break;
+      case VTK_PARSE_FLOAT:
+      case VTK_PARSE_DOUBLE:
+        vtkWrapPython_AddToSignature(result,"float",&currPos);
+        break;
+      case VTK_PARSE_ID_TYPE:
+      case VTK_PARSE_LONG_LONG:
+      case VTK_PARSE___INT64:
+      case VTK_PARSE_SIGNED_CHAR:
+      case VTK_PARSE_UNSIGNED_LONG_LONG:
+      case VTK_PARSE_UNSIGNED___INT64:
+      case VTK_PARSE_UNSIGNED_CHAR:
+      case VTK_PARSE_UNSIGNED_INT:
+      case VTK_PARSE_UNSIGNED_SHORT:
+      case VTK_PARSE_UNSIGNED_LONG:
+      case VTK_PARSE_INT:
+      case VTK_PARSE_SHORT:
+      case VTK_PARSE_LONG:
+        vtkWrapPython_AddToSignature(result,"int",&currPos);
+        break;
+      case VTK_PARSE_CHAR:
+        vtkWrapPython_AddToSignature(result,"char",&currPos);
+        break;
+      case VTK_PARSE_BOOL:
+        vtkWrapPython_AddToSignature(result,"bool",&currPos);
+        break;
+      case VTK_PARSE_STRING:
+        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        break;
+      case VTK_PARSE_UNICODE_STRING:
+        vtkWrapPython_AddToSignature(result,"unicode",&currPos);
+        break;
+
+      }
+    }
+
+  if (currentFunction->Signature)
+    {
+    vtkWrapPython_AddToSignature(result,"\nC++: ",&currPos);
+    vtkWrapPython_AddToSignature(result,currentFunction->Signature,&currPos);
+    }
+
+  return result;
+}
+
+/* -------------------------------------------------------------------- */
 /* Format a signature to a 70 char linewidth */
 const char *vtkWrapPython_FormatSignature(
   const char *signature, int width)
 {
   static char text[2048];
-  int i, j, k, l;
+  int i, j, k, l, m;
   const char *cp = signature;
+  char delim;
 
   if (signature == 0)
     {
@@ -1020,16 +1297,43 @@ const char *vtkWrapPython_FormatSignature(
     while (k-j < width && cp[i] != '\n' && cp[i] != '\0')
       {
       /* escape quotes */
-      if (cp[i] == '\"' || cp[i] == '\'' || cp[i] == '\\')
+      if (cp[i] == '\"' || cp[i] == '\'')
         {
+        delim = cp[i];
         text[k++] = '\\';
+        text[k++] = cp[i++];
+        while (cp[i] != delim && cp[i] != '\0')
+          {
+          if (cp[i] == '\\')
+            {
+            text[k++] = '\\';
+            }
+          text[k++] = cp[i++];
+          }
+        if (cp[i] == delim)
+          {
+          text[k++] = '\\';
+          text[k++] = cp[i++];
+          }
         }
-      /* remove pure virtual indicator " = 0" */
-      if (cp[i] == ')' && strncmp(&cp[i], ") = 0", 5) == 0)
+      /* remove items that trail the closing parenthesis */
+      else if (cp[i] == ')')
         {
         text[k++] = cp[i++];
-        i += 5;
+        if (strncmp(&cp[i], " const", 6) == 0)
+          {
+          i += 6;
+          }
+        if (strncmp(&cp[i], " = 0", 4) == 0)
+          {
+          i += 4;
+          }
+        if (cp[i] == ';')
+          {
+          i++;
+          }
         }
+      /* anything else */
       else
         {
         text[k++] = cp[i++];
@@ -1040,29 +1344,64 @@ const char *vtkWrapPython_FormatSignature(
     if (cp[i] != '\n' && cp[i] != '\0')
       {
       l = k;
-      while (l > 0 && text[l-1] != '\\' && text[l-1] != ',') { l--; }
-      if (text[l-1] != ',') { l = k; }
 
-      if (k > l)
+      while (l > j && text[l-1] != '\n' && text[l-1] != ',' &&
+        text[l-1] != '(' && text[l-1] != ')')
         {
-        memmove(&text[l+5], &text[l], k-l);
-        k += 5;
+        /* treat each string as a unit */
+        if (l > 4 && (text[l-1] == '\'' || text[l-1] == '\"'))
+          {
+          delim = text[l-1];
+          l -= 2;
+          while (l > 3 && (text[l-1] != delim || text[l-3] == '\\'))
+            {
+            l--;
+            if (text[l-1] == '\\')
+              {
+              l--;
+              }
+            }
+          l -= 2;
+          }
+        else
+          {
+          l--;
+          }
         }
+
+      /* if none of these chars was found, split is impossible */
+      if (text[l-1] != ',' && text[l-1] != '(' &&
+          text[l-1] != ')' && text[l-1] != '\n')
+        {
+        j++;
+        }
+
       else
         {
-        k += 6;
+        if (k > l)
+          {
+          m = 0;
+          while (m < 6 && text[l+m] == ' ')
+            {
+            m++;
+            }
+          memmove(&text[l+6-m], &text[l], k-l);
+          k += 6-m;
+          }
+        else
+          {
+          k += 6;
+          }
+        text[l++] = '\\'; text[l++] = 'n';
+        j = l;
+        text[l++] = ' '; text[l++] = ' ';
+        text[l++] = ' '; text[l++] = ' ';
         }
-      text[l++] = '\\'; text[l++] = 'n';
-      j = l;
-      text[l++] = ' '; text[l++] = ' ';
-      text[l++] = ' '; text[l++] = ' ';
       }
-
-    /* reached end of line: remove semicolon and continue */
+    /* reached end of line: do next signature */
     else
       {
       while (k > 0 && (text[k-1] == ' ' || text[k-1] == '\r')) { k--; }
-      if (k > 0 && text[k-1] == ';') { k--; }
       if (cp[i] != '\0')
         {
         i++;
@@ -1614,6 +1953,7 @@ static void vtkWrapPython_GenerateMethods(
   FunctionInfo *wrappedFunctions[1000];
   FunctionInfo *theSignature;
   FunctionInfo *theFunc;
+  const char *ccp;
   int returnType = 0;
   int argType = 0;
   int potential_error = 0;
@@ -1633,6 +1973,9 @@ static void vtkWrapPython_GenerateMethods(
         !vtkWrapPython_IsDestructor(data, theFunc) &&
         (!vtkWrapPython_IsConstructor(data, theFunc) == !do_constructors))
       {
+      ccp = vtkWrapPython_PythonSignature(theFunc);
+      theFunc->Signature = (char *)malloc(strlen(ccp)+1);
+      strcpy(theFunc->Signature, ccp);
       wrappedFunctions[numberOfWrappedFunctions++] = theFunc;
       }
     }
@@ -2366,7 +2709,7 @@ static void vtkWrapPython_GenerateMethods(
     {
     fprintf(fp,
             "  {(char*)\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n"
-            "   (char*)\"unsigned long AddObserver(const char *event, vtkCommand *command, float priority=0.0f)\\nunsigned long AddObserver(const char *event, vtkCommand *command, float priority=0.0f)\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
+            "   (char*)\"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char *event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
             data->ClassName);
     }
 
@@ -2375,9 +2718,9 @@ static void vtkWrapPython_GenerateMethods(
     {
     fprintf(fp,
             "  {(char*)\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n"
-            "   (char*)\"const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n"
+            "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n"
             "  {(char*)\"PrintRevisions\",  (PyCFunction)Py%s_PrintRevisions, 1,\n"
-            "   (char*)\"const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
+            "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
             data->ClassName, data->ClassName);
     }
 
