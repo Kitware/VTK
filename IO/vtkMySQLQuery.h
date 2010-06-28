@@ -19,7 +19,7 @@
 // This is an implementation of vtkSQLQuery for MySQL databases.  See
 // the documentation for vtkSQLQuery for information about what the
 // methods do.
-// 
+//
 // .SECTION Bugs
 //
 // Since MySQL requires that all bound parameters be passed in a
