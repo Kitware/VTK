@@ -530,6 +530,20 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     strm << "FAILED" << endl;
     }
 
+  strm << "\tResize...";
+  ptr->SetNumberOfComponents(1);
+  ptr->SetNumberOfTuples(100);
+  int beforeArraySize = ptr->GetSize();
+  int newArraySize = beforeArraySize + 6;
+  ptr->Resize(newArraySize);
+  int afterArraySize = ptr->GetSize();
+  if (afterArraySize == newArraySize) strm << "OK" << endl;
+  else
+    {
+    errors++;
+    strm << "FAILED" << endl;
+    }
+
 
   farray->Delete();
   
