@@ -48,11 +48,6 @@ vtkContextView::vtkContextView()
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
 
-  // Set up our view to render on move, 2D interaction style
-  this->SetDisplayHoverText(false);
-  this->RenderOnMouseMoveOn();
-  this->SetInteractionModeTo2D();
-
   // Single color background
   this->Renderer->SetBackground(1.0, 1.0, 1.0);
   this->Renderer->SetBackground2(1.0, 1.0, 1.0);
@@ -75,13 +70,6 @@ vtkContextView::~vtkContextView()
 }
 
 //----------------------------------------------------------------------------
-void vtkContextView::SetInteractionMode(int mode)
-{
-  this->vtkRenderView::SetInteractionMode(mode);
-  this->Scene->SetInteractorStyle(
-      vtkInteractorStyle::SafeDownCast(this->RenderWindow->GetInteractor()->GetInteractorStyle()));
-}
-
 void vtkContextView::Render()
 {
   this->Update();

@@ -21,17 +21,17 @@
 #ifndef __vtkContextView_h
 #define __vtkContextView_h
 
-#include "vtkRenderView.h"
+#include "vtkRenderViewBase.h"
 
 class vtkContext2D;
 class vtkContextScene;
 class vtkRenderWindowInteractor;
 
-class VTK_CHARTS_EXPORT vtkContextView : public vtkRenderView
+class VTK_CHARTS_EXPORT vtkContextView : public vtkRenderViewBase
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkContextView,vtkRenderView);
+  vtkTypeMacro(vtkContextView,vtkRenderViewBase);
 
   static vtkContextView* New();
 
@@ -42,10 +42,6 @@ public:
   // Description:
   // Get the vtkContext2D for the view.
   vtkGetObjectMacro(Context, vtkContext2D);
-
-  // Description:
-  // Set the interaction mode, defaults to 2D here.
-  virtual void SetInteractionMode(int mode);
 
   // Description:
   // Get the scene of the view.
