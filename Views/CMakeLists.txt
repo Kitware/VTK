@@ -21,6 +21,7 @@ vtkRenderedRepresentation.cxx
 vtkRenderedTreeAreaRepresentation.cxx
 vtkRenderedHierarchyRepresentation.cxx
 vtkRenderView.cxx
+vtkRenderViewBase.cxx
 vtkTreeAreaView.cxx
 vtkTreeMapView.cxx
 vtkTreeRingView.cxx
