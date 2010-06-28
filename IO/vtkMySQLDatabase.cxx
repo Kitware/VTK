@@ -51,7 +51,7 @@ vtkMySQLDatabase::vtkMySQLDatabase() :
   this->User = 0;
   this->Password = 0;
   this->DatabaseName = 0;
-  this->ConnectOptions = 0;
+  this->Reconnect = 1;
   // Default: connect to local machine on standard port
   this->SetHostName( "localhost" );
   this->ServerPort = VTK_MYSQL_DEFAULT_PORT;
@@ -68,7 +68,6 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
   this->SetHostName( 0 );
   this->SetUser( 0 );
   this->SetDatabaseName( 0 );
-  this->SetConnectOptions( 0 );
   this->SetPassword( 0 );
 
   this->Tables->UnRegister(this);
@@ -86,7 +85,7 @@ void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Password: " << (this->Password ? "(hidden)":"(none)") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
-  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
+  os << indent << "Reconnect: " << (this->Reconnect ? "ON" : "OFF") << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -145,6 +144,12 @@ bool vtkMySQLDatabase::Open( const char* password )
     }
 
   assert(this->Private->Connection == NULL);
+
+  if ( this->Reconnect )
+    {
+    my_bool recon = true;
+    mysql_options( &this->Private->NullConnection, MYSQL_OPT_RECONNECT, &recon );
+    }
 
   this->Private->Connection =
     mysql_real_connect( &this->Private->NullConnection,

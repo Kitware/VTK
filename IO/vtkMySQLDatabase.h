@@ -60,7 +60,7 @@ public:
   // Description:
   // Close the connection to the database.
   void Close();
-  
+
   // Description:
   // Return whether the database has an open connection
   bool IsOpen();
@@ -68,11 +68,11 @@ public:
   // Description:
   // Return an empty query on this database.
   vtkSQLQuery* GetQueryInstance();
-  
+
   // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
-    
+
   // Description:
   // Get the list of fields for a particular table
   vtkStringArray* GetRecord(const char *table);
@@ -80,15 +80,15 @@ public:
   // Description:
   // Return whether a feature is supported by the database.
   bool IsSupported(int feature);
-  
+
   // Description:
   // Did the last operation generate an error
   bool HasError();
-  
+
   // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
-  
+
   // Description:
   // String representing database type (e.g. "mysql").
   vtkGetStringMacro(DatabaseType);
@@ -113,15 +113,18 @@ public:
   vtkGetStringMacro(DatabaseName);
 
   // Description:
-  // Additional options for the database.
-  vtkSetStringMacro(ConnectOptions);
-  vtkGetStringMacro(ConnectOptions);
+  // Should automatic reconnection be enabled?
+  // This defaults to true.
+  // If you change its value, you must do so before any call to Open().
+  vtkSetMacro(Reconnect,int);
+  vtkGetMacro(Reconnect,int);
+  vtkBooleanMacro(Reconnect,int);
 
   // Description:
   // The port used for connecting to the database.
   vtkSetClampMacro(ServerPort, int, 0, VTK_INT_MAX);
   vtkGetMacro(ServerPort, int);
-  
+
   // Description:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
@@ -132,7 +135,7 @@ public:
   // NB: this method implements the MySQL-specific IF NOT EXISTS syntax,
   // used when b = false.
   virtual vtkStdString GetTablePreamble( bool b ) { return b ? vtkStdString() :"IF NOT EXISTS "; }
- 
+
   // Description:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
@@ -146,7 +149,7 @@ public:
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
- 
+
   // Description:
   // Return the SQL string with the syntax to create an index inside a
   // "CREATE TABLE" SQL statement.
@@ -176,7 +179,7 @@ protected:
   ~vtkMySQLDatabase();
 
   // Description:
-  // Overridden to determine connection paramters given the URL. 
+  // Overridden to determine connection paramters given the URL.
   // This is called by CreateFromURL() to initialize the instance.
   // Look at CreateFromURL() for details about the URL format.
   virtual bool ParseURL(const char* url);
@@ -185,7 +188,7 @@ private:
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);
-  
+
   vtkStringArray *Tables;
   vtkStringArray *Record;
 
@@ -195,7 +198,7 @@ private:
   char* Password;
   char* DatabaseName;
   int ServerPort;
-  char* ConnectOptions;
+  int Reconnect;
 
 //BTX
   vtkMySQLDatabasePrivate* const Private;
