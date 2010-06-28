@@ -47,6 +47,7 @@ public:
   // Description:
   // Get a handle to the render window.
   virtual vtkRenderWindow* GetRenderWindow();
+
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
