@@ -33,7 +33,7 @@ namespace
 
 // Normalized the data in [0,1].
 vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
-{  
+{
   vtkSmartPointer<vtkDoubleArray> a=vtkSmartPointer<vtkDoubleArray>::New();
   double s=0.0;
   int c=d.GetNumberOfChildren();
@@ -53,7 +53,7 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   vtkDataElement result(a);
   return result;
 }
-  
+
   // Convert incoming data [0,1] to angles in degrees.
   double AngleFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   {
@@ -67,20 +67,21 @@ int TestMarksWedge(int argc, char* argv[])
   vtkSmartPointer<vtkContextView> view =
     vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(0.5, 0.0, 0.2);
+  view->GetRenderer()->SetGradientBackground(true);
   view->GetRenderWindow()->SetSize(400, 400);
   view->GetRenderWindow()->SetMultiSamples(0);
   vtkSmartPointer<vtkTable> t = vtkSmartPointer<vtkTable>::New();
   vtkSmartPointer<vtkDoubleArray> arr1 =
     vtkSmartPointer<vtkDoubleArray>::New();
   arr1->SetName("Array1");
-  
+
   double input[]={1, 1.2, 1.7, 1.5, .7};
-  
+
   for (vtkIdType i = 0; i < 5; ++i)
     {
     arr1->InsertNextValue(input[i]);
     }
-  
+
   t->AddColumn(arr1);
   vtkDataElement data(t);
   data.SetDimension(1); // ??
@@ -100,10 +101,10 @@ int TestMarksWedge(int argc, char* argv[])
   wedge->SetLineWidth(0.0);
   wedge->SetInnerRadius(100.0);
   wedge->SetOuterRadius(140.0);
-  
+
   wedge->SetAngle(AngleFunction);
   wedge->SetLineColor(vtkColor(1.0,1.0,1.0));
-  
+
   view->GetInteractor()->Initialize();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());

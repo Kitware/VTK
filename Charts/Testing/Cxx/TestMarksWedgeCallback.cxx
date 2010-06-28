@@ -40,7 +40,7 @@ namespace
 
 // Normalized the data in [0,1].
 vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
-{  
+{
   vtkSmartPointer<vtkDoubleArray> a=vtkSmartPointer<vtkDoubleArray>::New();
   double s=0.0;
   int c=d.GetNumberOfChildren();
@@ -60,21 +60,21 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   vtkDataElement result(a);
   return result;
 }
-  
+
   // Convert incoming data [0,1] to angles in degrees.
   double AngleFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
   {
     return d.GetValue().ToDouble()*360.0;
   }
-  
+
   double LeftFunction(vtkMark *m, vtkDataElement& vtkNotUsed(d))
   {
     vtkIdType i=m->GetIndex();
-    
+
     // this line assume that angle is independant of leftfunction.
     // otherwise, they will be an infinite recursion.
     double *angle=m->GetAngleHolder().GetArray(m);
-    
+
      // Compute start angle. Not efficient but the protovis sibling()
     // has not to been translated into VTK Marks.
     double a0=0.0;
@@ -86,18 +86,18 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
       a1=angle[j]+a0;
       ++j;
       }
-    
+
     vtkIdType o=static_cast<vtkIdType>(m->GetUserVariable("o").GetConstant());
     return 175.0+cos(vtkMath::RadiansFromDegrees(a0+angle[i]/2))*(o==i ? 10 : 0);
   }
   double BottomFunction(vtkMark *m, vtkDataElement& vtkNotUsed(d))
   {
     vtkIdType i=m->GetIndex();
-    
+
     // this line assume that angle is independant of leftfunction.
     // otherwise, they will be an infinite recursion.
     double *angle=m->GetAngleHolder().GetArray(m);
-    
+
     // Compute start angle. Not efficient but the protovis sibling()
     // has not to been translated into VTK Marks.
     double a0=0.0;
@@ -109,14 +109,14 @@ vtkDataElement DataFunction(vtkMark* vtkNotUsed(m), vtkDataElement& d)
       a1=angle[j]+a0;
       ++j;
       }
-    
+
     vtkIdType o=static_cast<vtkIdType>(m->GetUserVariable("o").GetConstant());
-    
+
     // protovis uses clockwise and radians.
     // VTK uses counterclockwise and degrees.
     return 175.0+sin(vtkMath::RadiansFromDegrees(a0+angle[i]/2))*(o==i ? 10 : 0);
   }
-  
+
 }
 
 class MyCommand : public vtkCommand
@@ -126,7 +126,7 @@ public:
     {
       return new MyCommand;
     }
-  void Execute(vtkObject *caller, unsigned long vtkNotUsed(eventId), 
+  void Execute(vtkObject *caller, unsigned long vtkNotUsed(eventId),
                void *callData)
     {
       assert("pre: callData_exists" && callData!=0);
@@ -145,22 +145,23 @@ int TestMarksWedgeCallback(int argc, char* argv[])
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view =
     vtkSmartPointer<vtkContextView>::New();
-  
+
   view->GetRenderer()->SetBackground(0.5, 0.0, 0.2);
+  view->GetRenderer()->SetGradientBackground(true);
   view->GetRenderWindow()->SetSize(400, 400);
   view->GetRenderWindow()->SetMultiSamples(0);
   vtkSmartPointer<vtkTable> t = vtkSmartPointer<vtkTable>::New();
   vtkSmartPointer<vtkDoubleArray> arr1 =
     vtkSmartPointer<vtkDoubleArray>::New();
   arr1->SetName("Array1");
-  
+
   double input[]={1, 1.2, 1.7, 1.5, .7};
-  
+
   for (vtkIdType i = 0; i < 5; ++i)
     {
     arr1->InsertNextValue(input[i]);
     }
-  
+
   t->AddColumn(arr1);
   vtkDataElement data(t);
   data.SetDimension(1); // ??
@@ -180,15 +181,15 @@ int TestMarksWedgeCallback(int argc, char* argv[])
   wedge->SetLineWidth(0.0);
   wedge->SetInnerRadius(100.0);
   wedge->SetOuterRadius(140.0);
-  
+
   wedge->SetAngle(AngleFunction);
   wedge->SetLineColor(vtkColor(1.0,1.0,1.0));
   wedge->SetUserVariable("o",vtkValue<double>(-1));
-  
+
   MyCommand *myCommand=MyCommand::New();
   wedge->AddObserver(vtkCommand::EnterEvent,myCommand);
   myCommand->Delete();
-  
+
   view->GetInteractor()->Initialize();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
