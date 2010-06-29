@@ -2051,9 +2051,23 @@ void vtkDataSetAttributes::FieldList::ClearFields()
   delete [] this->FieldComponents;
   this->FieldComponents = 0;
 
-  delete [] this->FieldComponentsNames;
-  this->FieldComponentsNames = 0;
-  
+  if ( this->FieldComponentsNames )
+    {
+    for (i=0; i<this->NumberOfFields; i++)
+      {
+      if ( this->FieldComponentsNames[i] )
+        {
+        for (int j=0; j<this->FieldComponentsNames[i]->size(); j++)
+          {
+          delete this->FieldComponentsNames[i]->at(j);
+          }
+        delete this->FieldComponentsNames[i];
+        }
+      }
+    delete [] this->FieldComponentsNames;
+    this->FieldComponentsNames = 0;
+    }
+
   delete [] this->FieldIndices;
   this->FieldIndices = 0;
 
@@ -2089,6 +2103,10 @@ void vtkDataSetAttributes::FieldList::SetField(
   //so we unallocate correctly
   if ( this->FieldComponentsNames[index] )
     {    
+    for (int i=0; i<this->FieldComponentsNames[index]->size(); i++)
+      {
+      delete this->FieldComponentsNames[index]->at(i);
+      }
     delete this->FieldComponentsNames[index];
     this->FieldComponentsNames[index] = NULL;    
     }
@@ -2148,7 +2166,7 @@ void vtkDataSetAttributes::FieldList::RemoveField(const char *name)
       this->FieldComponents[i] = 0;
       
       delete this->FieldComponentsNames[i];
-      this->FieldComponentsNames = 0;
+      this->FieldComponentsNames[i] = 0;
 
       this->FieldIndices[i] = -1;
       this->LUT[i] = 0;
