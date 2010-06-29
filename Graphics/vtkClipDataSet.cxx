@@ -341,9 +341,13 @@ int vtkClipDataSet::RequestData(
   // input scalars, we should pass them as well). If we are clipping by scalar
   // itself, then the scalar is passed only if this->GenerateClipScalars is on. 
   // Refer to BUG #8494.
-  if (this->ClipFunction && this->GenerateClipScalars)
+  if (!this->GenerateClipScalars && !this->ClipFunction)
     {
     outPD->CopyScalarsOff();
+    }
+  else
+    {
+    outPD->CopyScalarsOn();
     }
   vtkDataSetAttributes* tempDSA = vtkDataSetAttributes::New();
   tempDSA->InterpolateAllocate(inPD, 1, 2);
