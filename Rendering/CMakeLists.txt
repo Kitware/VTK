@@ -262,6 +262,7 @@ SET( KitOpenGL_SRCS
   vtkShader2.cxx
   vtkShader2Collection.cxx
   vtkShaderProgram2.cxx
+  vtkShadowMapBakerPass.cxx
   vtkShadowMapPass.cxx
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureUnitManager.cxx

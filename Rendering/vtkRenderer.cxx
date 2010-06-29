@@ -549,6 +549,7 @@ void vtkRenderer::AllocateTime()
     this->GetActiveCameraAndResetIfCreated();
     }
 
+#if 0
   vtkCollectionSimpleIterator sit;
   for (this->Cullers->InitTraversal(sit);
        (aCuller=this->Cullers->GetNextCuller(sit));)
@@ -556,7 +557,7 @@ void vtkRenderer::AllocateTime()
     totalTime =
       aCuller->Cull(this,this->PropArray, this->PropArrayCount,initialized );
     }
-
+#endif
   // loop through all props and set the AllocatedRenderTime
   for ( i = 0; i < this->PropArrayCount; i++ )
     {

@@ -53,6 +53,7 @@ class vtkImageExport;
 class vtkTextureObject;
 class vtkImplicitHalo;
 class vtkSampleFunction;
+class vtkShadowMapBakerPass;
 
 class VTK_RENDERING_EXPORT vtkShadowMapPass : public vtkRenderPass
 {
@@ -60,17 +61,6 @@ public:
   static vtkShadowMapPass *New();
   vtkTypeMacro(vtkShadowMapPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // If this key exists on the PropertyKeys of a prop, the prop is viewed as a
-  // light occluder (ie it casts shadows). This key is not mutually exclusive
-  // with the RECEIVER() key.
-  static vtkInformationIntegerKey *OCCLUDER();
-
-  // If this key exists on the Propertykeys of a prop, the prop is viewed as a
-  // light/shadow receiver. This key is not mutually exclusive with the
-  // OCCLUDER() key.
-  static vtkInformationIntegerKey *RECEIVER();
 
   //BTX
   // Description:
@@ -86,53 +76,13 @@ public:
   void ReleaseGraphicsResources(vtkWindow *w);
 
   // Description:
-  // Delegate for rendering the opaque polygonal geometry.
-  // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // It is usually set to a vtkTranslucentPass.
+  // Pass that generates the shadow maps.
+  // the vtkShadowMapPass will use the OpaquePass and Resolution ivar of
+  // this pass.
   // Initial value is a NULL pointer.
-  vtkGetObjectMacro(OpaquePass,vtkRenderPass);
-  virtual void SetOpaquePass(vtkRenderPass *opaquePass);
-
-  // Description:
-  // Delegate for rendering the opaque polygonal geometry.
-  // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // It is usually set to a vtkTranslucentPass.
-  // Initial value is a NULL pointer.
-  vtkGetObjectMacro(CompositeZPass,vtkRenderPass);
-  virtual void SetCompositeZPass(vtkRenderPass *opaquePass);
-
-  // Description:
-  // Set/Get the number of pixels in each dimension of the shadow maps
-  // (shadow maps are square). Initial value is 256. The greater the better.
-  // Resolution does not have to be a power-of-two value.
-  vtkSetMacro(Resolution,unsigned int);
-  vtkGetMacro(Resolution,unsigned int);
-
-  // Description:
-  // Factor used to scale the maximum depth slope of a polygon (definition
-  // from OpenGL 2.1 spec section 3.5.5 "Depth Offset" page 112). This is
-  // used during the creation the shadow maps (not during mapping of the
-  // shadow maps onto the geometry)
-  // Play with this value and PolygonOffsetUnits to solve self-shadowing.
-  // Valid values can be either positive or negative.
-  // Initial value is 1.1f (recommended by the nVidia presentation about
-  // Shadow Mapping by Cass Everitt). 3.1f works well with the regression test.
-  vtkSetMacro(PolygonOffsetFactor,float);
-  vtkGetMacro(PolygonOffsetFactor,float);
-
-  // Description:
-  // Factor used to scale an implementation dependent constant that relates
-  // to the usable resolution of the depth buffer (definition from OpenGL 2.1
-  // spec section 3.5.5 "Depth Offset" page 112). This is
-  // used during the creation the shadow maps (not during mapping of the
-  // shadow maps onto the geometry)
-  // Play with this value and PolygonOffsetFactor to solve self-shadowing.
-  // Valid values can be either positive or negative.
-  // Initial value is 4.0f (recommended by the nVidia presentation about
-  // Shadow Mapping by Cass Everitt). 10.0f works well with the regression
-  // test.
-  vtkSetMacro(PolygonOffsetUnits,float);
-  vtkGetMacro(PolygonOffsetUnits,float);
+  vtkGetObjectMacro(ShadowMapBakerPass,vtkShadowMapBakerPass);
+  virtual void SetShadowMapBakerPass(
+    vtkShadowMapBakerPass *shadowMapBakerPass);
 
  protected:
   // Description:
@@ -143,15 +93,6 @@ public:
   // Destructor.
   virtual ~vtkShadowMapPass();
 
-  //BTX
-  // Description:
-  // Build a camera from spot light parameters.
-  // \pre light_exists: light!=0
-  // \pre light_is_spotlight: light->GetConeAngle()<180.0
-  // \pre camera_exists: camera!=0
-  void BuildCameraLight(vtkLight *light, double *boundingBox, vtkCamera *lcamera);
-  //ETX
-
   // Description:
   // Build the intensity map.
   void BuildSpotLightIntensityMap();
@@ -161,12 +102,8 @@ public:
   // \pre w_exists: w!=0
   void CheckSupport(vtkOpenGLRenderWindow *w);
 
-  vtkRenderPass *OpaquePass;
-  vtkRenderPass *CompositeZPass;
-  unsigned int Resolution;
-
-  float PolygonOffsetFactor;
-  float PolygonOffsetUnits;
+  vtkShadowMapBakerPass *ShadowMapBakerPass;
+  vtkRenderPass *CompositeRGBAPass;
 
   // Description:
   // Graphics resources.

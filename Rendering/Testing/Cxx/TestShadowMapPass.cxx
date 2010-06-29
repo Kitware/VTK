@@ -49,6 +49,7 @@
 #include "vtkVolumetricPass.h"
 #include "vtkOverlayPass.h"
 #include "vtkRenderPassCollection.h"
+#include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
 #include "vtkConeSource.h"
 #include "vtkPlaneSource.h"
@@ -110,16 +111,20 @@ int TestShadowMapPass(int argc, char* argv[])
   
   vtkCameraPass *opaqueCameraPass=vtkCameraPass::New();
   opaqueCameraPass->SetDelegatePass(opaqueSequence);
-  vtkShadowMapPass *shadows=vtkShadowMapPass::New();
-  shadows->SetOpaquePass(opaqueCameraPass);
-  shadows->SetResolution(1024);
   
+  vtkShadowMapBakerPass *shadowsBaker=vtkShadowMapBakerPass::New();
+  shadowsBaker->SetOpaquePass(opaqueCameraPass);
+  shadowsBaker->SetResolution(1024);
   // To cancel self-shadowing.
-  shadows->SetPolygonOffsetFactor(3.1f);
-  shadows->SetPolygonOffsetUnits(10.0f);
+  shadowsBaker->SetPolygonOffsetFactor(3.1f);
+  shadowsBaker->SetPolygonOffsetUnits(10.0f);
+
+  vtkShadowMapPass *shadows=vtkShadowMapPass::New();
+  shadows->SetShadowMapBakerPass(shadowsBaker);
   
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
+  passes->AddItem(shadowsBaker);
   passes->AddItem(shadows);
   passes->AddItem(lights);
   passes->AddItem(peeling);
@@ -144,8 +149,8 @@ int TestShadowMapPass(int argc, char* argv[])
   
   vtkActor *rectangleActor=vtkActor::New();
   vtkInformation *rectangleKeyProperties=vtkInformation::New();
-  rectangleKeyProperties->Set(vtkShadowMapPass::OCCLUDER(),0); // dummy val.
-  rectangleKeyProperties->Set(vtkShadowMapPass::RECEIVER(),0); // dummy val.
+  rectangleKeyProperties->Set(vtkShadowMapBakerPass::OCCLUDER(),0); // dummy val.
+  rectangleKeyProperties->Set(vtkShadowMapBakerPass::RECEIVER(),0); // dummy val.
   rectangleActor->SetPropertyKeys(rectangleKeyProperties);
   rectangleKeyProperties->Delete();
   rectangleActor->SetMapper(rectangleMapper);
@@ -170,8 +175,8 @@ int TestShadowMapPass(int argc, char* argv[])
 
   vtkActor *boxActor=vtkActor::New();
   vtkInformation *boxKeyProperties=vtkInformation::New();
-  boxKeyProperties->Set(vtkShadowMapPass::OCCLUDER(),0); // dummy val.
-  boxKeyProperties->Set(vtkShadowMapPass::RECEIVER(),0); // dummy val.
+  boxKeyProperties->Set(vtkShadowMapBakerPass::OCCLUDER(),0); // dummy val.
+  boxKeyProperties->Set(vtkShadowMapBakerPass::RECEIVER(),0); // dummy val.
   boxActor->SetPropertyKeys(boxKeyProperties);
   boxKeyProperties->Delete();
   
@@ -191,8 +196,8 @@ int TestShadowMapPass(int argc, char* argv[])
 
   vtkActor *coneActor=vtkActor::New();
   vtkInformation *coneKeyProperties=vtkInformation::New();
-  coneKeyProperties->Set(vtkShadowMapPass::OCCLUDER(),0); // dummy val.
-  coneKeyProperties->Set(vtkShadowMapPass::RECEIVER(),0); // dummy val.
+  coneKeyProperties->Set(vtkShadowMapBakerPass::OCCLUDER(),0); // dummy val.
+  coneKeyProperties->Set(vtkShadowMapBakerPass::RECEIVER(),0); // dummy val.
   coneActor->SetPropertyKeys(coneKeyProperties);
   coneKeyProperties->Delete();
   coneActor->SetMapper(coneMapper);
@@ -212,8 +217,8 @@ int TestShadowMapPass(int argc, char* argv[])
 
   vtkActor *sphereActor=vtkActor::New();
   vtkInformation *sphereKeyProperties=vtkInformation::New();
-  sphereKeyProperties->Set(vtkShadowMapPass::OCCLUDER(),0); // dummy val.
-  sphereKeyProperties->Set(vtkShadowMapPass::RECEIVER(),0); // dummy val.
+  sphereKeyProperties->Set(vtkShadowMapBakerPass::OCCLUDER(),0); // dummy val.
+  sphereKeyProperties->Set(vtkShadowMapBakerPass::RECEIVER(),0); // dummy val.
   sphereActor->SetPropertyKeys(sphereKeyProperties);
   sphereKeyProperties->Delete();
   sphereActor->SetMapper(sphereMapper);
@@ -300,6 +305,7 @@ int TestShadowMapPass(int argc, char* argv[])
   passes->Delete();
   cameraP->Delete();
   lights->Delete();
+  shadowsBaker->Delete();
   
   return !retVal;
 }

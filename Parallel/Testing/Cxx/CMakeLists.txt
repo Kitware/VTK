@@ -95,7 +95,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     ADD_EXECUTABLE(TestDistributedDataShadowMapPass TestDistributedDataShadowMapPass.cxx)
     TARGET_LINK_LIBRARIES(TestDistributedDataShadowMapPass vtkParallel ${MPI_LIBRARIES})
-
+ADD_EXECUTABLE(TestDistributedDataDepthPeelingPass TestDistributedDataDepthPeelingPass.cxx)
+    TARGET_LINK_LIBRARIES(TestDistributedDataDepthPeelingPass vtkParallel ${MPI_LIBRARIES})
     ADD_EXECUTABLE(TestPCompositeZPass TestPCompositeZPass.cxx)
     TARGET_LINK_LIBRARIES(TestPCompositeZPass vtkParallel ${MPI_LIBRARIES})
 
@@ -321,6 +322,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestDistributedDataShadowMapPass.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+ ADD_TEST(TestDistributedDataDepthPeelingPass-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestDistributedDataDepthPeelingPass
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TestDistributedDataDepthPeelingPass.cxx.png
             ${VTK_MPI_POSTFLAGS})
 
           ADD_TEST(TestPCompositeZPass-image
