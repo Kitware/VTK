@@ -123,7 +123,7 @@ public:
   // Return true on success, false otherwise
   // This method is successful
   // only when FreeType version is >= 2.1.9
-  int GetGlyphIndex(vtkTextProperty *tprop, char c, FT_UInt *gindex);
+  int GetGlyphIndex(vtkTextProperty *tprop, FT_UInt32 c, FT_UInt *gindex);
 
   // Description:
   // Given a text property and a character, get the corresponding FreeType
@@ -199,7 +199,7 @@ public:
   // only when FreeType version is >= 2.1.9
   int GetSize(unsigned long tprop_cache_id, int font_size, FT_Size *size);
   int GetFace(unsigned long tprop_cache_id, FT_Face *face);
-  int GetGlyphIndex(unsigned long tprop_cache_id, char c, FT_UInt *gindex);
+  int GetGlyphIndex(unsigned long tprop_cache_id, FT_UInt32 c, FT_UInt *gindex);
   int GetGlyph(unsigned long tprop_cache_id, 
                int font_size, 
                FT_UInt gindex, 

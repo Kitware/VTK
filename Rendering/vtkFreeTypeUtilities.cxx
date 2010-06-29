@@ -663,7 +663,7 @@ int vtkFreeTypeUtilities::GetFace(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
-                                        char c, 
+                                        FT_UInt32 c,
                                         FT_UInt *gindex)
 {
 #if VTK_FTFC_DEBUG_CD
@@ -705,7 +705,7 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyphIndex(vtkTextProperty *tprop,
-                                        char c, 
+                                        FT_UInt32 c,
                                         FT_UInt *gindex)
 {
   if (!tprop)
@@ -929,7 +929,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       }
 
     // Get the glyph index
-    if (!this->GetGlyphIndex(tprop_cache_id, *str, &gindex))
+    if (!this->GetGlyphIndex(tprop_cache_id,(unsigned char)*str, &gindex))
       {
       continue;
       }
@@ -1169,7 +1169,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       }
 
     // Get the glyph index
-    if (!this->GetGlyphIndex(tprop_cache_id, *str, &gindex))
+    if (!this->GetGlyphIndex(tprop_cache_id, (unsigned char)*str, &gindex))
       {
       continue;
       }
