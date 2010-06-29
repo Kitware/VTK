@@ -504,10 +504,9 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
 {
   int size = static_cast<int>(this->Storage->items.size());
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos[0] = x;
-  event.ScreenPos[1] = y;
-  event.ScenePos[0] = x;
-  event.ScenePos[1] = y;
+  event.ScreenPos.Set(x, y);
+  event.ScenePos.Set(x, y);
+  event.Pos.Set(x, y);
 
   if(size != 0)
     {
@@ -567,10 +566,9 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     }
 
   // Update the last positions now
-  event.LastScreenPos[0] = event.ScreenPos[0];
-  event.LastScreenPos[1] = event.ScreenPos[1];
-  event.LastScenePos[0] = event.ScenePos[0];
-  event.LastScenePos[1] = event.ScenePos[1];
+  event.LastScreenPos = event.ScreenPos;
+  event.LastScenePos = event.ScenePos;
+  event.LastPos = event.Pos;
 }
 
 //-----------------------------------------------------------------------------
@@ -578,10 +576,12 @@ void vtkContextScene::ButtonPressEvent(int button, int x, int y)
 {
   int size = static_cast<int>(this->Storage->items.size());
   vtkContextMouseEvent &event = this->Storage->Event;
-  event.ScreenPos[0] = event.LastScreenPos[0] = x;
-  event.ScreenPos[1] = event.LastScreenPos[1] = y;
-  event.ScenePos[0] = event.LastScenePos[0] = x;
-  event.ScenePos[1] = event.LastScenePos[1] = y;
+  event.ScreenPos.Set(x, y);
+  event.LastScreenPos = event.ScreenPos;
+  event.ScenePos.Set(x, y);;
+  event.LastScenePos = event.ScenePos;
+  event.Pos.Set(x, y);
+  event.LastPos = event.Pos;
   event.Button = button;
   for (int i = size-1; i >= 0; --i)
     {
@@ -603,10 +603,9 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
   if (this->Storage->itemMousePressCurrent >= 0)
     {
     vtkContextMouseEvent &event = this->Storage->Event;
-    event.ScreenPos[0] = x;
-    event.ScreenPos[1] = y;
-    event.ScenePos[0] = x;
-    event.ScenePos[1] = y;
+    event.ScreenPos.Set(x, y);
+    event.ScenePos.Set(x, y);
+    event.Pos.Set(x, y);
     event.Button = button;
     this->Storage->items[this->Storage->itemMousePressCurrent]
         ->MouseButtonReleaseEvent(event);
