@@ -266,7 +266,7 @@ void MyProcess::Execute()
   
   renWin->AddRenderer(renderer);
 
-  renderer->SetBackground(0,0,0.5);
+  renderer->SetBackground(0,0,0);
   renWin->SetSize(300,300);
   renWin->SetPosition(0, 360*me);
 
