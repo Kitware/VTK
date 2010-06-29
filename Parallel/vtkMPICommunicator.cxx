@@ -29,6 +29,15 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtkstd/vector>
+#include <assert.h>
+
+static inline void  vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
+{
+  // If NDEBUG is defined, do nothing.
+#ifndef	NDEBUG
+  MPI_Barrier(*handle);
+#endif
+}
 
 vtkStandardNewMacro(vtkMPICommunicator);
 
@@ -1047,6 +1056,7 @@ void vtkMPICommunicator::Barrier()
 int vtkMPICommunicator::BroadcastVoidArray(void *data, vtkIdType length,
                                            int type, int root)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   if (!vtkMPICommunicatorCheckSize(type, length)) return 0;
   return CheckForMPIError(MPI_Bcast(data, length,
                                     vtkMPICommunicatorGetMPIType(type),
@@ -1059,6 +1069,7 @@ int vtkMPICommunicator::GatherVoidArray(const void *sendBuffer,
                                         vtkIdType length, int type,
                                         int destProcessId)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   int numProc;
   MPI_Comm_size(*this->MPIComm->Handle, &numProc);
   if (!vtkMPICommunicatorCheckSize(type, length*numProc)) return 0;
@@ -1077,6 +1088,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void *sendBuffer,
                                          vtkIdType *offsets, int type,
                                          int destProcessId)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   if (!vtkMPICommunicatorCheckSize(type, sendLength)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
@@ -1135,6 +1147,7 @@ int vtkMPICommunicator::ScatterVoidArray(const void *sendBuffer,
                                          vtkIdType length, int type,
                                          int srcProcessId)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   if (!vtkMPICommunicatorCheckSize(type, length)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   return CheckForMPIError(MPI_Scatter(const_cast<void *>(sendBuffer),
@@ -1151,6 +1164,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void *sendBuffer,
                                           vtkIdType recvLength, int type,
                                           int srcProcessId)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   if (!vtkMPICommunicatorCheckSize(type, recvLength)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
@@ -1208,6 +1222,7 @@ int vtkMPICommunicator::AllGatherVoidArray(const void *sendBuffer,
                                            void *recvBuffer,
                                            vtkIdType length, int type)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   int numProc;
   MPI_Comm_size(*this->MPIComm->Handle, &numProc);
   if (!vtkMPICommunicatorCheckSize(type, length*numProc)) return 0;
@@ -1225,6 +1240,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void *sendBuffer,
                                             vtkIdType *recvLengths,
                                             vtkIdType *offsets, int type)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   if (!vtkMPICommunicatorCheckSize(type, sendLength)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
@@ -1286,6 +1302,7 @@ int vtkMPICommunicator::ReduceVoidArray(const void *sendBuffer,
                                         vtkIdType length, int type,
                                         int operation, int destProcessId)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   MPI_Op mpiOp;
   switch (operation)
     {
@@ -1315,6 +1332,7 @@ int vtkMPICommunicator::ReduceVoidArray(
                                 vtkIdType length, int type,
                                 Operation *operation, int destProcessId)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   MPI_Op mpiOp;
   MPI_Op_create(vtkMPICommunicatorUserFunction, operation->Commutative(),
                 &mpiOp);
@@ -1339,6 +1357,7 @@ int vtkMPICommunicator::AllReduceVoidArray(const void *sendBuffer,
                                            vtkIdType length, int type,
                                            int operation)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   MPI_Op mpiOp;
   switch (operation)
     {
@@ -1370,6 +1389,7 @@ int vtkMPICommunicator::AllReduceVoidArray(
                                 vtkIdType length, int type,
                                 Operation *operation)
 {
+  vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   MPI_Op mpiOp;
   MPI_Op_create(vtkMPICommunicatorUserFunction, operation->Commutative(),
                 &mpiOp);
