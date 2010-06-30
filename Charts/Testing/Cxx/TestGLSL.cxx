@@ -99,6 +99,10 @@ int TestGLSL( int argc, char * argv [] )
   VTK_CREATE(GLSLTestItem, test);
   view->GetScene()->AddItem(test);
 
+  // Ensure that there is a valid OpenGL context - Mac inconsistent behavior.
+  view->GetRenderWindow()->SetMultiSamples(0);
+  view->Render();
+
   // Check if GLSL is supported
   if (!vtkShaderProgram2::IsSupported(dynamic_cast<vtkOpenGLRenderWindow*>(
                                       view->GetRenderWindow())))
@@ -106,8 +110,6 @@ int TestGLSL( int argc, char * argv [] )
       cout << "GLSL not supported." << endl;
       return 1;
     }
-
-  view->GetRenderWindow()->SetMultiSamples(0);
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
