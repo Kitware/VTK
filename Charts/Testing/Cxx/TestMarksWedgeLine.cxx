@@ -67,6 +67,7 @@ int TestMarksWedgeLine(int argc, char* argv[])
   vtkSmartPointer<vtkContextView> view =
     vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(0.5, 0.0, 0.2);
+  view->GetRenderer()->SetBackground2(1.0, 1.0, 1.0);
   view->GetRenderer()->SetGradientBackground(true);
   view->GetRenderWindow()->SetSize(400, 400);
   view->GetRenderWindow()->SetMultiSamples(0);
