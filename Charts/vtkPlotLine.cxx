@@ -44,7 +44,7 @@ class vtkPlotLine::VectorPIMPL : public vtkstd::vector<vtkVector2f>
 {
 public:
   VectorPIMPL(vtkVector2f* start, vtkVector2f* end)
-    : vtkstd::vector<vtkVector2f>::vector(start, end)
+    : vtkstd::vector<vtkVector2f>(start, end)
   {
   }
 };
