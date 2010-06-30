@@ -47,10 +47,12 @@ vtkContextView::vtkContextView()
   this->Scene->Register(this);
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
+  this->Scene->SetInteractorStyle(
+      vtkInteractorStyle::SafeDownCast(this->RenderWindow->GetInteractor()
+                                       ->GetInteractorStyle()));
 
   // Single color background
   this->Renderer->SetBackground(1.0, 1.0, 1.0);
-  this->Renderer->SetBackground2(1.0, 1.0, 1.0);
 }
 
 //----------------------------------------------------------------------------
