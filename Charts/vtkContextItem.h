@@ -25,8 +25,6 @@
 #include "vtkAbstractContextItem.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer references to the scene
 
-class vtkContextScene;
-
 class VTK_CHARTS_EXPORT vtkContextItem : public vtkAbstractContextItem
 {
 public:

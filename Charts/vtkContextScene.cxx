@@ -240,11 +240,7 @@ void vtkContextScene::PaintIds()
 void vtkContextScene::AddItem(vtkAbstractContextItem *item)
 {
   item->Register(this);
-  vtkContextItem *citem = vtkContextItem::SafeDownCast(item);
-  if (citem)
-    {
-    citem->SetScene(this);
-    }
+  item->SetScene(this);
   this->Storage->items.push_back(item);
   this->Storage->itemState.push_back(false);
 }
