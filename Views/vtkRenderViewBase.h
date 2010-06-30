@@ -54,6 +54,17 @@ public:
   virtual vtkRenderWindowInteractor* GetInteractor();
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
+  //BTX
+  enum
+    {
+    INTERACTION_MODE_2D,
+    INTERACTION_MODE_3D,
+    INTERACTION_MODE_UNKNOWN
+    };
+  //ETX
+  void SetInteractionMode(int mode);
+  vtkGetMacro(InteractionMode, int);
+
   // Description:
   // Updates the representations, then calls Render() on the render window
   // associated with this view.
@@ -69,6 +80,12 @@ public:
   // renderer associated with this view.
   virtual void ResetCameraClippingRange();
 
+  // Description:
+  // Whether to render on every mouse move.
+  void SetRenderOnMouseMove(bool b);
+  vtkGetMacro(RenderOnMouseMove, bool);
+  vtkBooleanMacro(RenderOnMouseMove, bool);
+
 protected:
   vtkRenderViewBase();
   ~vtkRenderViewBase();
@@ -79,10 +96,13 @@ protected:
 
   vtkRenderer* Renderer;
   vtkRenderWindow* RenderWindow;
+  int InteractionMode;
 
 private:
   vtkRenderViewBase(const vtkRenderViewBase&);  // Not implemented.
   void operator=(const vtkRenderViewBase&);  // Not implemented.
+
+  bool RenderOnMouseMove;
 };
 
 #endif

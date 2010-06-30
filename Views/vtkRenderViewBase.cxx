@@ -31,6 +31,8 @@ vtkStandardNewMacro(vtkRenderViewBase);
 
 vtkRenderViewBase::vtkRenderViewBase()
 {
+  this->RenderOnMouseMove = false;
+  this->InteractionMode = -1;
   this->Renderer = vtkRenderer::New();
   this->RenderWindow = vtkRenderWindow::New();
   this->RenderWindow->AddRenderer(this->Renderer);
@@ -44,6 +46,7 @@ vtkRenderViewBase::vtkRenderViewBase()
   iren->AddObserver(vtkCommand::StartInteractionEvent, this->GetObserver());
   iren->AddObserver(vtkCommand::EndInteractionEvent, this->GetObserver());
   this->RenderWindow->SetInteractor(iren);
+  this->SetInteractionMode(INTERACTION_MODE_2D);
 }
 
 vtkRenderViewBase::~vtkRenderViewBase()
@@ -124,6 +127,68 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
   interactor->AddObserver(vtkCommand::StartInteractionEvent, this->GetObserver());
   interactor->AddObserver(vtkCommand::EndInteractionEvent, this->GetObserver());
   this->RenderWindow->SetInteractor(interactor);
+}
+
+void vtkRenderViewBase::SetInteractionMode(int mode)
+{
+  if (this->InteractionMode != mode)
+    {
+    this->InteractionMode = mode;
+    vtkInteractorObserver* oldStyle = this->GetInteractor()->GetInteractorStyle();
+    if (mode == INTERACTION_MODE_2D)
+      {
+      if (oldStyle)
+        {
+        oldStyle->RemoveObserver(this->GetObserver());
+        }
+      vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
+      this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
+      style->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
+      style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+      this->Renderer->GetActiveCamera()->ParallelProjectionOn();
+      style->Delete();
+      }
+    else if (mode == INTERACTION_MODE_3D)
+      {
+      if (oldStyle)
+        {
+        oldStyle->RemoveObserver(this->GetObserver());
+        }
+      vtkInteractorStyleRubberBand3D* style = vtkInteractorStyleRubberBand3D::New();
+      this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
+      style->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
+      style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+      this->Renderer->GetActiveCamera()->ParallelProjectionOff();
+      style->Delete();
+      }
+    else
+      {
+      vtkErrorMacro("Unknown interaction mode.");
+      }
+    }
+}
+
+void vtkRenderViewBase::SetRenderOnMouseMove(bool b)
+{
+  if (b == this->RenderOnMouseMove)
+    {
+    return;
+    }
+
+  vtkInteractorObserver* style = this->GetInteractor()->GetInteractorStyle();
+  vtkInteractorStyleRubberBand2D* style2D =
+    vtkInteractorStyleRubberBand2D::SafeDownCast(style);
+  if (style2D)
+    {
+    style2D->SetRenderOnMouseMove(b);
+    }
+  vtkInteractorStyleRubberBand3D* style3D =
+    vtkInteractorStyleRubberBand3D::SafeDownCast(style);
+  if (style3D)
+    {
+    style3D->SetRenderOnMouseMove(b);
+    }
+  this->RenderOnMouseMove = b;
 }
 
 void vtkRenderViewBase::Render()
