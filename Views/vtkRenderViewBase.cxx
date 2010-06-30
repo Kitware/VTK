@@ -247,4 +247,6 @@ void vtkRenderViewBase::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+  os << indent << "InteractionMode: " << this->InteractionMode << endl;
+  os << indent << "RenderOnMouseMove: " << this->RenderOnMouseMove << endl;
 }
