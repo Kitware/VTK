@@ -74,7 +74,7 @@ public:
 
     this->push_back(item);
     this->State.push_back(false);
-    return this->size()-1;
+    return static_cast<unsigned int>(this->size()-1);
     }
 
   // Description:
