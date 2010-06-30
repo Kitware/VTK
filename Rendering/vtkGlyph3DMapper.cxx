@@ -337,6 +337,8 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
     << this->GetOrientationModeAsString() << "\n";
   os << indent << "SourceIndexing: "
     << (this->SourceIndexing? "On" : "Off") << endl;
+  os << indent << "SelectMode: " << this->SelectMode << endl;
+  os << indent << "SelectionColorId: " << this->SelectionColorId << endl;
   os << "Masking: " << (this->Masking? "On" : "Off") << endl;
   os << "NestedDisplayLists: " << (this->NestedDisplayLists? "On" : "Off") << endl;
 }

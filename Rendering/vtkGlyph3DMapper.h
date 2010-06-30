@@ -26,7 +26,7 @@
 #ifndef __vtkGlyph3DMapper_h
 #define __vtkGlyph3DMapper_h
 
-#include "vtkPolyDataMapper.h"
+#include "vtkMapper.h"
 #include "vtkGlyph3D.h" // for the constants (VTK_SCALE_BY_SCALAR, ...).
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
