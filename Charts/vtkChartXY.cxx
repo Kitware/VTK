@@ -219,7 +219,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     }
 
   if (this->ChartPrivate->plots[0]->GetData()->GetInput()->GetMTime() > this->MTime)
-      
+
     {
     this->RecalculateBounds();
     }
@@ -863,7 +863,7 @@ void vtkChartXY::RecalculateBounds()
 //-----------------------------------------------------------------------------
 void vtkChartXY::SetScene(vtkContextScene *scene)
 {
-  this->vtkContextItem::SetScene(scene);
+  this->vtkAbstractContextItem::SetScene(scene);
   this->Tooltip->SetScene(scene);
 }
 

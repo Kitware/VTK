@@ -106,7 +106,7 @@ public:
 
   // Description:
   // Set the vtkContextScene for the item, always set for an item in a scene.
-  void SetScene(vtkContextScene *scene);
+  virtual void SetScene(vtkContextScene *scene);
 
   // Description:
   // Get the vtkContextScene for the item, always set for an item in a scene.
