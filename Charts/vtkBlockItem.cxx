@@ -67,13 +67,18 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
 
   int x = static_cast<int>(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
   int y = static_cast<int>(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
-  painter->DrawString(x, y, this->Label);
+  if (this->Label)
+    {
+    painter->DrawString(x, y, this->Label);
+    }
 
   if (this->scalarFunction)
     {
     // We have a function pointer - do something...
     ;
     }
+
+  this->PaintChildren(painter);
   return true;
 }
 
@@ -89,7 +94,7 @@ bool vtkBlockItem::Hit(const vtkContextMouseEvent &mouse)
     }
   else
     {
-    return false;
+    return this->vtkAbstractContextItem::Hit(mouse);
     }
 }
 
@@ -104,12 +109,10 @@ bool vtkBlockItem::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  int deltaX = static_cast<int>(mouse.Pos[0] - this->LastPosition[0]);
-  int deltaY = static_cast<int>(mouse.Pos[1] - this->LastPosition[1]);
-  this->LastPosition[0] = mouse.Pos[0];
-  this->LastPosition[1] = mouse.Pos[1];
+  int deltaX = static_cast<int>(mouse.Pos[0] - mouse.LastPos[0]);
+  int deltaY = static_cast<int>(mouse.Pos[1] - mouse.LastPos[1]);
 
-  if (this->MouseButtonPressed == 0)
+  if (mouse.Button == mouse.LEFT_BUTTON)
     {
     // Move the block by this amount
     this->Dimensions[0] += deltaX;
@@ -118,7 +121,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->GetScene()->SetDirty(true);
     return true;
     }
-  else if (this->MouseButtonPressed == 1)
+  else if (mouse.Button == mouse.MIDDLE_BUTTON)
     {
     // Resize the block by this amount
     this->Dimensions[0] += deltaX;
@@ -129,7 +132,7 @@ bool vtkBlockItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->GetScene()->SetDirty(true);
     return true;
     }
-  else if (this->MouseButtonPressed == 2)
+  else if (mouse.Button == mouse.RIGHT_BUTTON)
     {
     // Resize the block by this amount
     this->Dimensions[2] += deltaX;

@@ -3,6 +3,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   SET(KIT Charts)
   # add tests that do not require data
   SET(MyTests
+    TestContextScene.cxx
     TestPCPlot.cxx
     TestDiagram.cxx
     TestLinePlot.cxx
