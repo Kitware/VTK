@@ -28,6 +28,8 @@
 
 class vtkContext2D;
 class vtkContextMouseEvent;
+class vtkContextScene;
+class vtkContextScenePrivate;
 
 class VTK_CHARTS_EXPORT vtkAbstractContextItem : public vtkObject
 {
@@ -43,12 +45,22 @@ public:
 
   // Description:
   // Paint event for the item, called whenever the item needs to be drawn.
-  virtual bool Paint(vtkContext2D *painter) = 0;
+  virtual bool Paint(vtkContext2D *painter);
+
+  // Description:
+  // Paint the children of the item, should be called whenever the children
+  // need to be rendered.
+  bool PaintChildren(vtkContext2D *painter);
 
   // Description:
   // Release graphics resources hold by the item. The default implementation
   // is empty.
   virtual void ReleaseGraphicsResources();
+
+  // Description:
+  // Add child items to this item.
+  // \return the index of the child item.
+  unsigned int AddItem(vtkAbstractContextItem* item);
 
 //BTX
   // Description:
@@ -92,10 +104,31 @@ public:
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
+  // Description:
+  // Set the vtkContextScene for the item, always set for an item in a scene.
+  void SetScene(vtkContextScene *scene);
+
+  // Description:
+  // Get the vtkContextScene for the item, always set for an item in a scene.
+  vtkContextScene* GetScene()
+    {
+    return this->Scene;
+    }
+
 //BTX
 protected:
   vtkAbstractContextItem();
   ~vtkAbstractContextItem();
+
+  // Description:
+  // Point to the scene the item is on - can be null.
+  vtkContextScene* Scene;
+
+  // Description:
+  // This structure provides a list of children, along with convenience
+  // functions to paint the children etc. It is derived from
+  // vtkstd::vector<vtkAbstractContextItem>, defined in a private header.
+  vtkContextScenePrivate* Children;
 
 private:
   vtkAbstractContextItem(const vtkAbstractContextItem &); // Not implemented.

@@ -49,20 +49,10 @@ public:
   // Set the opacity of the item.
   vtkSetMacro(Opacity, double);
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
-  virtual void SetScene(vtkContextScene *scene);
-
-  // Description:
-  // Get the vtkContextScene for the item, always set for an item in a scene.
-  vtkContextScene* GetScene();
-
 //BTX
 protected:
   vtkContextItem();
   ~vtkContextItem();
-
-  vtkWeakPointer<vtkContextScene> Scene;
 
   bool Visible;
 

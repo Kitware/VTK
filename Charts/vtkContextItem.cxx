@@ -26,7 +26,6 @@
 //-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
 {
-  this->Scene = NULL;
   this->Visible = true;
   this->Opacity = 1.0;
 }
@@ -34,22 +33,6 @@ vtkContextItem::vtkContextItem()
 //-----------------------------------------------------------------------------
 vtkContextItem::~vtkContextItem()
 {
-  this->SetScene(NULL);
-}
-
-//-----------------------------------------------------------------------------
-void vtkContextItem::SetScene(vtkContextScene *scene)
-{
-  // Cannot have a reference counted pointer to the scene as this causes a
-  // reference loop, where the scene and the item never get to a reference
-  // count of zero.
-  this->Scene = scene;
-}
-
-vtkContextScene* vtkContextItem::GetScene()
-{
-  // Return the underlying pointer
-  return this->Scene.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
