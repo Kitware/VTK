@@ -168,7 +168,7 @@ public:
   
   vtkCellArray *GetCells() {return this->Connectivity;};
   void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
-  int InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
+  vtkIdType InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
   void RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId);
   void AddReferenceToCell(vtkIdType ptId, vtkIdType cellId);
   void ResizeCellList(vtkIdType ptId, int size);
