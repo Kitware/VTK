@@ -109,6 +109,16 @@ public:
   // Set the color for the device using unsigned char of length 3, RGB.
   virtual void SetColor(unsigned char color[3]) = 0;
 
+  enum TextureProperty {
+    Nearest = 0x01,
+    Linear  = 0x02,
+    Stretch = 0x04,
+    Repeat  = 0x08
+  };
+  // Description:
+  // Set the texture for the device, it is used to fill the polygons
+  virtual void SetTexture(vtkImageData* image, int properties) = 0;
+
   // Description:
   // Set the point size for glyphs/sprites.
   virtual void SetPointSize(float size) = 0;

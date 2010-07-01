@@ -113,6 +113,10 @@ public:
   virtual void SetColor(unsigned char color[3]);
 
   // Description:
+  // Set the texture for the device, it is used to fill the polygons
+  virtual void SetTexture(vtkImageData* image, int properties);
+
+  // Description:
   // Set the point size for glyphs/sprites.
   virtual void SetPointSize(float size);
 

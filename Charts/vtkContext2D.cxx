@@ -581,6 +581,7 @@ inline void vtkContext2D::ApplyBrush()
   if(!this->GetBufferIdMode())
     {
     this->Device->SetColor4(this->Brush->GetColor());
+    this->Device->SetTexture(this->Brush->GetTexture(), this->Brush->GetTextureProperties());
     }
 }
 
