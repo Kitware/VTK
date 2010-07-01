@@ -8,6 +8,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestPCPlot.cxx
     TestDiagram.cxx
     TestLinePlot.cxx
+    TestScalarsToColors.cxx
     TestStackedPlot.cxx
     TestBarGraph.cxx
     TestStackedBarGraph.cxx
