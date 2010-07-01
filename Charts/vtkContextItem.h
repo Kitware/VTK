@@ -37,6 +37,7 @@ public:
 
   // Description:
   // Set the visibility of the item (should it be drawn).
+  // Visible by default
   vtkSetMacro(Visible, bool);
 
   // Description:
@@ -45,6 +46,7 @@ public:
 
   // Description:
   // Set the opacity of the item.
+  // 1. by default
   vtkSetMacro(Opacity, double);
 
 //BTX
