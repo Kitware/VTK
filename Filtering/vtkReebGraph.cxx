@@ -838,14 +838,6 @@ void vtkReebGraph::ResizeMainNodeTable(int newSize)
 }
 
 //----------------------------------------------------------------------------
-static bool vertexCmp(const std::pair<int, double> v0,
-  const std::pair<int, double> v1)
-{
-  return ((v0.second < v1.second)
-    || ((v0.second == v1.second)&&(v0.first < v1.first)));
-}
-
-//----------------------------------------------------------------------------
 int vtkReebGraph::CommitSimplification()
 {
   // now re-construct the graph with projected deg-2 nodes.
@@ -1030,7 +1022,7 @@ int vtkReebGraph::CommitSimplification()
         scalarValues.push_back(scalarVertex);
         }
       }
-    std::sort(scalarValues.begin(), scalarValues.end(), vertexCmp);
+    std::sort(scalarValues.begin(), scalarValues.end(), vtkReebGraphVertexSoS);
     for(int j = 0; j < after[i].second.size(); j++)
       after[i].second[j] = scalarValues[j].first;
     }
@@ -1231,6 +1223,12 @@ void vtkReebGraph::DeepCopy(vtkDataObject *src)
 	}
 
   vtkMutableDirectedGraph::DeepCopy(srcG);
+}
+
+//----------------------------------------------------------------------------
+void vtkReebGraph::Set(vtkMutableDirectedGraph *g)
+{
+  vtkMutableDirectedGraph::DeepCopy(g);
 }
 
 //----------------------------------------------------------------------------

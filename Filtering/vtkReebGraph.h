@@ -342,6 +342,10 @@ public:
   int Simplify(double simplificationThreshold,
     vtkReebGraphSimplificationMetric *simplificationMetric);
 
+  // Description:
+  // Use a pre-defined Reeb graph (post-processing).
+  // Use with caution!
+  void Set(vtkMutableDirectedGraph *g);
 
 protected:
 
@@ -948,4 +952,12 @@ private:
   void operator=(const vtkReebGraph&); // Not implemented.
 
 };
+
+//----------------------------------------------------------------------------
+inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
+  const std::pair<int, double> v1)
+{
+  return ((v0.second < v1.second)
+    || ((v0.second == v1.second)&&(v0.first < v1.first)));
+}
 #endif
