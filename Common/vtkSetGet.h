@@ -722,7 +722,6 @@ virtual double *Get##name() \
   vtkArrayIteratorTemplateMacroCase(VTK_SIGNED_CHAR, signed char, call);                 \
   vtkArrayIteratorTemplateMacroCase(VTK_UNSIGNED_CHAR, unsigned char, call);             \
   vtkArrayIteratorTemplateMacroCase(VTK_STRING, vtkStdString, call);                     \
-  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);                      \
   vtkTemplateMacroCase(VTK_BIT, vtkBitArrayIterator, call);
 
 // Add "long long" to the template macro if it is enabled.
