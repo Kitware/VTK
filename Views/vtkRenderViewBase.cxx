@@ -120,6 +120,11 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
     this->RenderWindow->GetInteractor()->RemoveObserver(this->GetObserver());
     }
 
+  // We need to preserve the interactor style currently present on the
+  // interactor.
+  vtkInteractorObserver *oldStyle = this->GetInteractorStyle();
+  oldStyle->Register(this);
+
   // We will handle all interactor renders by turning off rendering
   // in the interactor and listening to the interactor's render event.
   interactor->EnableRenderOff();
@@ -127,6 +132,51 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
   interactor->AddObserver(vtkCommand::StartInteractionEvent, this->GetObserver());
   interactor->AddObserver(vtkCommand::EndInteractionEvent, this->GetObserver());
   this->RenderWindow->SetInteractor(interactor);
+  interactor->SetInteractorStyle(oldStyle);
+  oldStyle->UnRegister(this);
+}
+
+vtkInteractorObserver* vtkRenderViewBase::GetInteractorStyle()
+{
+  return this->GetInteractor()->GetInteractorStyle();
+}
+
+void vtkRenderViewBase::SetInteractorStyle(vtkInteractorObserver* style)
+{
+  if (!style)
+    {
+    vtkErrorMacro("Interactor style must not be null.");
+    return;
+    }
+  vtkInteractorObserver* oldStyle = this->GetInteractorStyle();
+  if (style != oldStyle)
+    {
+    if (oldStyle)
+      {
+      oldStyle->RemoveObserver(this->GetObserver());
+      }
+    this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
+    style->AddObserver(
+      vtkCommand::SelectionChangedEvent, this->GetObserver());
+    vtkInteractorStyleRubberBand2D* style2D =
+      vtkInteractorStyleRubberBand2D::SafeDownCast(style);
+    vtkInteractorStyleRubberBand3D* style3D =
+      vtkInteractorStyleRubberBand3D::SafeDownCast(style);
+    if (style2D)
+      {
+      style2D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
+      this->InteractionMode = INTERACTION_MODE_2D;
+      }
+    else if (style3D)
+      {
+      style3D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
+      this->InteractionMode = INTERACTION_MODE_3D;
+      }
+    else
+      {
+      this->InteractionMode = INTERACTION_MODE_UNKNOWN;
+      }
+    }
 }
 
 void vtkRenderViewBase::SetInteractionMode(int mode)
