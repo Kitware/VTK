@@ -141,6 +141,7 @@ int TestMath(int,char *[])
   if (!fuzzyCompare(cf, ans1f))
     {
     vtkGenericWarningMacro("Float addition failed.");
+	cout << "Result: { " << cf[0] << ", " << cf[1] << ", " << cf[2] << " }" << endl;
     return 1;
     }
   vtkMath::Subtract(af, bf, cf);
