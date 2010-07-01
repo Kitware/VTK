@@ -419,6 +419,7 @@ public:
   vtkTimeStamp InformationTimeStamp;
  
   friend class vtkExodusIIReader;
+  friend class vtkPExodusIIReader;
 
   virtual void SetParser( vtkExodusIIReaderParser* );
   vtkGetObjectMacro(Parser,vtkExodusIIReaderParser);

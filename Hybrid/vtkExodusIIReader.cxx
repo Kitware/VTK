@@ -327,7 +327,6 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
-vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
 //-----------------------------------------------------------------------------
 vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
@@ -3141,6 +3140,20 @@ void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
 }
 
 //-----------------------------------------------------------------------------
+void vtkExodusIIReaderPrivate::SetParser(vtkExodusIIReaderParser *parser)
+{
+  // Properly sets the parser object but does not call Modified.  The parser
+  // represents the state of the data in files, not the state of this object.
+  if (this->Parser != parser)
+    {
+    vtkExodusIIReaderParser *oldParser = this->Parser;
+    this->Parser = parser;
+    if (this->Parser) this->Parser->Register(this);
+    if (oldParser) oldParser->UnRegister(this);
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::GetNumberOfParts()
 {
   return static_cast<int>( this->PartInfo.size() );
@@ -5759,11 +5772,9 @@ int vtkExodusIIReader::GetHasModeShapes()
 
 void vtkExodusIIReader::SetModeShapeTime( double phase )
 {
-  double x = phase < 0. ? 0. : ( phase > 1. ? 1. : phase );
-  if ( this->Metadata->ModeShapeTime == x )
-    {
-    return;
-    }
+  // Phase should repeat outside the bounds [0,1].  For example, 0.25 is
+  // equivalent to 1.25, 2.25, -0.75, and -1.75.
+  double x = phase - floor(phase);
   this->Metadata->SetModeShapeTime( x );
 }
 
