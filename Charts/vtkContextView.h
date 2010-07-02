@@ -15,23 +15,34 @@
 // .NAME vtkContextView - provides a view of the vtkContextScene.
 //
 // .SECTION Description
-// This class is derived from vtkRenderView and provides a view of a
-// vtkContextScene, with a default interactor style, renderer etc.
+// This class is derived from vtkRenderViewBase and provides a view of a
+// vtkContextScene, with a default interactor style, renderer etc. It is
+// the simplest way to create a vtkRenderWindow and display a 2D scene inside
+// of it.
+//
+// In order to use the view with a QVTKWidget the following code is required
+// to ensure the interactor and render window are initialized properly.
+// \code
+// QVTKWidget *widget = new QVTKWidget;
+// vtkContextView *view = vtkContextView::New();
+// view->SetInteractor(widget->GetInteractor());
+// widget->SetRenderWindow(view->GetRenderWindow());
+// \endcode
 
 #ifndef __vtkContextView_h
 #define __vtkContextView_h
 
 #include "vtkRenderViewBase.h"
+#include "vtkSmartPointer.h" // Needed for SP ivars
 
 class vtkContext2D;
 class vtkContextScene;
-class vtkRenderWindowInteractor;
 
 class VTK_CHARTS_EXPORT vtkContextView : public vtkRenderViewBase
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkContextView,vtkRenderViewBase);
+  vtkTypeMacro(vtkContextView, vtkRenderViewBase);
 
   static vtkContextView* New();
 
@@ -41,15 +52,15 @@ public:
 
   // Description:
   // Get the vtkContext2D for the view.
-  vtkGetObjectMacro(Context, vtkContext2D);
-
-  // Description:
-  // Get the scene of the view.
-  vtkGetObjectMacro(Scene, vtkContextScene);
+  virtual vtkContext2D* GetContext();
 
   // Description:
   // Set the scene object for the view.
   virtual void SetScene(vtkContextScene *scene);
+
+  // Description:
+  // Get the scene of the view.
+  virtual vtkContextScene* GetScene();
 
   // Description:
   // Updates the representations, then calls Render() on the render window
@@ -60,8 +71,8 @@ protected:
   vtkContextView();
   ~vtkContextView();
 
-  vtkContextScene *Scene;
-  vtkContext2D *Context;
+  vtkSmartPointer<vtkContextScene> Scene;
+  vtkSmartPointer<vtkContext2D> Context;
 
 private:
   vtkContextView(const vtkContextView&);  // Not implemented.

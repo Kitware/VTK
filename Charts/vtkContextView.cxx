@@ -35,7 +35,7 @@ vtkCxxSetObjectMacro(vtkContextView, Scene, vtkContextScene);
 //----------------------------------------------------------------------------
 vtkContextView::vtkContextView()
 {
-  this->Context = vtkContext2D::New();
+  this->Context = vtkSmartPointer<vtkContext2D>::New();
   vtkOpenGLContextDevice2D *pd = vtkOpenGLContextDevice2D::New();
   this->Context->Begin(pd);
   pd->Delete();
@@ -44,7 +44,6 @@ vtkContextView::vtkContextView()
   this->Renderer->AddActor(actor);
   actor->Delete();
   this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
-  this->Scene->Register(this);
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
   this->Scene->SetInteractorStyle(
@@ -58,17 +57,18 @@ vtkContextView::vtkContextView()
 //----------------------------------------------------------------------------
 vtkContextView::~vtkContextView()
 {
-  if (this->Context)
-    {
-    this->Context->Delete();
-    this->Context = NULL;
-    }
-  // The scene is owned by the context actor
-  if (this->Scene)
-    {
-    this->Scene->Delete();
-    this->Scene = NULL;
-    }
+}
+
+//----------------------------------------------------------------------------
+vtkContext2D* vtkContextView::GetContext()
+{
+  return this->Context;
+}
+
+//----------------------------------------------------------------------------
+vtkContextScene* vtkContextView::GetScene()
+{
+  return this->Scene;
 }
 
 //----------------------------------------------------------------------------
