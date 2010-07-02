@@ -307,6 +307,49 @@ void vtkContext2D::DrawQuad(float *p)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(float *x, float *y, int n)
+{
+  // Copy the points into an array and draw it.
+  float *p = new float[2*n];
+  for (int i = 0; i < n; ++i)
+    {
+    p[2*i]   = x[i];
+    p[2*i+1] = y[i];
+    }
+  this->DrawPolygon(&p[0], n);
+  delete[] p;}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(vtkPoints2D *points)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  this->DrawPolygon(f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(float *points, int n)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  // Draw the filled area of the polygon.
+  this->ApplyBrush();
+  this->Device->DrawPolygon(points, n);
+
+  // Draw the outline now.
+  this->ApplyPen();
+  this->Device->DrawPoly(points, n);
+  float closeLine[] = { points[0], points[1], points[2*n-2], points[2*n-1] };
+  this->Device->DrawPoly(&closeLine[0], 2);
+}
+
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
 {
   assert("pre: positive_rx" && rx>=0);

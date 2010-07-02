@@ -61,6 +61,10 @@ public:
   virtual void DrawQuad(float *, int) { ; }
 
   // Description:
+  // Draw a polygon using the specified number of points.
+  virtual void DrawPolygon(float *, int) { ; }
+
+  // Description:
   // Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,
   // inner radii inRx, inRy between angles startAngle and stopAngle
   // (expressed in degrees).

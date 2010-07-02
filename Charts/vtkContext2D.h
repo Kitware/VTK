@@ -151,6 +151,22 @@ public:
   void DrawQuad(float *p);
 
   // Description:
+  // Draw a polygon specified specified by the points using the x and y arrays
+  // supplied
+  void DrawPolygon(float *x, float *y, int n);
+
+  // Description:
+  // Draw a polygon defined by the specified points - fastest code path due to
+  // memory layout of the coordinates.
+  void DrawPolygon(vtkPoints2D *points);
+
+  // Description:
+  // Draw a polygon defined by the specified points, where the float array is
+  // of size 2*n and the points are packed x1, y1, x2, y2 etc.
+  // Note: Fastest code path - points packed in x and y.
+  void DrawPolygon(float *points, int n);
+
+  // Description:
   // Draw an ellipse with center at x, y and radii rx, ry.
   // \pre positive_rx: rx>=0
   // \pre positive_ry: ry>=0
