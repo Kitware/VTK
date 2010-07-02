@@ -364,18 +364,21 @@ void vtkChartXY::CalculateBarPlots()
   if (bars.size())
     {
     // We have some bar plots - work out offsets etc.
-    float barWidth = 0.0;
+    float barWidth = 0.1;
     vtkPlotBar* bar = bars[0];
     if (!bar->GetUseIndexForXSeries())
       {
       vtkTable *table = bar->GetData()->GetInput();
-      vtkDataArray* x = bar->GetData()->GetInputArrayToProcess(0, table);
-      if (x->GetSize() > 1)
+      if (table)
         {
-        double x0 = x->GetTuple1(0);
-        double x1 = x->GetTuple1(1);
-        float width = static_cast<float>((x1 - x0) * this->BarWidthFraction);
-        barWidth = width / bars.size();
+        vtkDataArray* x = bar->GetData()->GetInputArrayToProcess(0, table);
+        if (x && x->GetSize() > 1)
+          {
+          double x0 = x->GetTuple1(0);
+          double x1 = x->GetTuple1(1);
+          float width = static_cast<float>((x1 - x0) * this->BarWidthFraction);
+          barWidth = width / bars.size();
+          }
         }
       }
     else
