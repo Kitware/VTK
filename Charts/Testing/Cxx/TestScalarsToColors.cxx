@@ -21,6 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkLookupTableItem.h"
+#include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
 #include "vtkRegressionTestImage.h"
@@ -74,14 +75,19 @@ int TestScalarsToColors( int argc, char * argv [] )
   item3->SetOpacityFunction(opacityFunction);
   item3->SetOpacity(0.2);
   item3->SetMaskAboveCurve(true);
-  view->GetScene()->AddItem(item3);
+  //view->GetScene()->AddItem(item3);
 
   vtkSmartPointer<vtkPiecewiseFunctionItem> item4 =
     vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
   item4->SetPiecewiseFunction(opacityFunction);
   item4->SetColor(255,0,0);
-  //item4->SetMaskAboveCurve(true);
-  //view->GetScene()->AddItem(item4);
+  item4->SetMaskAboveCurve(true);
+  view->GetScene()->AddItem(item4);
+
+  vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
+    vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
+  item5->SetPiecewiseFunction(opacityFunction);
+  view->GetScene()->AddItem(item5);
 
   //Finally render the scene and compare the image to a reference image
   //view->GetRenderWindow()->SetMultiSamples(0);

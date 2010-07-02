@@ -40,6 +40,7 @@ SET(Kit_SRCS
   vtkContextScene.cxx
   vtkContextTransform.cxx
   vtkContextView.cxx
+  vtkControlPointsItem.cxx
   vtkDataElement.cxx
   vtkDataValue.cxx
   vtkImageItem.cxx
@@ -51,6 +52,7 @@ SET(Kit_SRCS
   vtkOpenGLContextDevice2D.cxx
   vtkPanelMark.cxx
   vtkPen.cxx
+  vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx
   vtkPlot.cxx
   vtkPlotBar.cxx
@@ -71,9 +73,10 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextDevice2D
   vtkContextItem
   vtkContextMapper2D
+  vtkControlPointsItem
   vtkDataValue
   vtkPlot
-  vtkScalarsToColorsItem.cxx
+  vtkScalarsToColorsItem
   ABSTRACT
   )
 
