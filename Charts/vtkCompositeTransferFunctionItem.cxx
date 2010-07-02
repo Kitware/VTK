@@ -18,6 +18,7 @@
 #include "vtkCompositeTransferFunctionItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints2D.h"
 
 #include <cassert>
 
@@ -28,6 +29,7 @@ vtkStandardNewMacro(vtkCompositeTransferFunctionItem);
 vtkCompositeTransferFunctionItem::vtkCompositeTransferFunctionItem()
 {
   this->OpacityFunction = 0;
+  this->MaskAboveCurve = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,6 +65,25 @@ void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* 
 }
 
 //-----------------------------------------------------------------------------
+void vtkCompositeTransferFunctionItem::SetMaskAboveCurve(bool mask)
+{
+  if (mask == this->MaskAboveCurve)
+    {
+    return;
+    }
+  if (mask == false)
+    {
+    this->Shape->SetNumberOfPoints(4);
+    this->Shape->SetPoint(0, 0.f, 0.f);
+    this->Shape->SetPoint(1, 100.f, 0.f);
+    this->Shape->SetPoint(2, 100.f, 100.f);
+    this->Shape->SetPoint(3, 0.f, 100.f);
+    }
+  this->MaskAboveCurve = mask;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkCompositeTransferFunctionItem::ComputeTexture()
 {
   this->Superclass::ComputeTexture();
@@ -80,9 +101,28 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   this->OpacityFunction->GetTable(range[0], range[1], dimension,  values);
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
-  for (int i = 0; i < dimension; ++i)
+  if (MaskAboveCurve)
     {
-    ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
-    ptr+=4;
+    this->Shape->SetNumberOfPoints(dimension+2);
+    this->Shape->SetPoint(0, 0.f, 0.f);
+    this->Shape->SetPoint(dimension + 1, 100.f, 0.f);
+    for (int i = 0; i < dimension; ++i)
+      {
+      ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
+      assert(values[i] <= 1. && values[i] >= 0.);
+      this->Shape->SetPoint(i+1,
+                            static_cast<float>(i) * 100.f / dimension,
+                            values[i] * 100.f);
+      ptr+=4;
+      }
+    }
+  else
+    {
+    for (int i = 0; i < dimension; ++i)
+      {
+      ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
+      assert(values[i] <= 1. && values[i] >= 0.);
+      ptr+=4;
+      }
     }
 }

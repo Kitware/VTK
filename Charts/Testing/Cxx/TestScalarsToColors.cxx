@@ -73,13 +73,15 @@ int TestScalarsToColors( int argc, char * argv [] )
   item3->SetColorTransferFunction(colorTransferFunction);
   item3->SetOpacityFunction(opacityFunction);
   item3->SetOpacity(0.2);
-  //view->GetScene()->AddItem(item3);
+  item3->SetMaskAboveCurve(true);
+  view->GetScene()->AddItem(item3);
 
   vtkSmartPointer<vtkPiecewiseFunctionItem> item4 =
     vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
   item4->SetPiecewiseFunction(opacityFunction);
   item4->SetColor(255,0,0);
-  view->GetScene()->AddItem(item4);
+  //item4->SetMaskAboveCurve(true);
+  //view->GetScene()->AddItem(item4);
 
   //Finally render the scene and compare the image to a reference image
   //view->GetRenderWindow()->SetMultiSamples(0);

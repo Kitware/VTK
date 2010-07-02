@@ -19,6 +19,7 @@
 #include "vtkScalarsToColorsItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPoints2D.h"
 
 #include <cassert>
 
@@ -27,6 +28,13 @@ vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 {
   this->Texture = 0;
   this->Interpolate = true;
+  this->Shape = vtkPoints2D::New();
+  this->Shape->SetDataTypeToFloat();
+  this->Shape->SetNumberOfPoints(4);
+  this->Shape->SetPoint(0, 0.f, 0.f);
+  this->Shape->SetPoint(1, 100.f, 0.f);
+  this->Shape->SetPoint(2, 100.f, 100.f);
+  this->Shape->SetPoint(3, 0.f, 100.f);
 }
 
 //-----------------------------------------------------------------------------
@@ -36,6 +44,11 @@ vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
     {
     this->Texture->Delete();
     this->Texture = 0;
+    }
+  if (this->Shape)
+    {
+    this->Shape->Delete();
+    this->Shape = 0;
     }
 }
 
@@ -60,5 +73,5 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   painter->GetBrush()->SetTextureProperties(
     (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
     vtkBrush::Stretch);
-  painter->DrawRect(0.f,0.f,100.f,100.f);
+  painter->DrawPolygon(this->Shape);
 }

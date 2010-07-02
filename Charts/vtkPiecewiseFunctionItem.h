@@ -33,6 +33,9 @@ public:
 
   vtkSetVector3Macro(Color, unsigned char);
   vtkGetVector3Macro(Color, unsigned char);
+
+  void SetMaskAboveCurve(bool mask);
+  vtkGetMacro(MaskAboveCurve, bool);
 protected:
   vtkPiecewiseFunctionItem();
   virtual ~vtkPiecewiseFunctionItem();
@@ -42,7 +45,8 @@ protected:
   virtual void ComputeTexture();
 
   vtkPiecewiseFunction* PiecewiseFunction;
-  unsigned char   Color[3];
+  unsigned char         Color[3];
+  bool                  MaskAboveCurve;
 };
 
 #endif

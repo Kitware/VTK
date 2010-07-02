@@ -30,6 +30,8 @@ public:
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
 
+  void SetMaskAboveCurve(bool mask);
+  vtkGetMacro(MaskAboveCurve, bool);
 protected:
   vtkCompositeTransferFunctionItem();
   virtual ~vtkCompositeTransferFunctionItem();
@@ -37,6 +39,7 @@ protected:
   virtual void ComputeTexture();
 
   vtkPiecewiseFunction* OpacityFunction;
+  bool                  MaskAboveCurve;
 };
 
 #endif

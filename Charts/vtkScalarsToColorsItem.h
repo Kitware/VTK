@@ -19,6 +19,7 @@
 #include "vtkContextItem.h"
 
 class vtkImageData;
+class vtkPoints2D;
 
 class VTK_CHARTS_EXPORT vtkScalarsToColorsItem: public vtkContextItem
 {
@@ -35,6 +36,7 @@ protected:
 
   vtkImageData*   Texture;
   bool            Interpolate;
+  vtkPoints2D*    Shape;
 private:
   vtkScalarsToColorsItem(const vtkScalarsToColorsItem &); // Not implemented.
   void operator=(const vtkScalarsToColorsItem &);   // Not implemented.
