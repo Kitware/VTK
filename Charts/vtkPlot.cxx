@@ -203,7 +203,7 @@ const char *vtkPlot::GetLabel(vtkIdType index)
     {
     return labels->GetValue(index);
     }
-  else 
+  else
     {
     return NULL;
     }
@@ -258,6 +258,17 @@ void vtkPlot::SetInputArray(int index, const char *name)
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      name);
   this->AutoLabels = 0; // No longer valid
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetProperty(const vtkStdString&, const vtkVariant&)
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkVariant vtkPlot::GetProperty(const vtkStdString&)
+{
+  return vtkVariant();
 }
 
 //-----------------------------------------------------------------------------

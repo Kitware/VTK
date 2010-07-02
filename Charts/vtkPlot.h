@@ -26,6 +26,7 @@
 
 class vtkVariant;
 class vtkTable;
+class vtkStdString;
 class vtkIdTypeArray;
 class vtkContextMapper2D;
 class vtkPen;
@@ -51,13 +52,15 @@ public:
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or 
+  // Returns the index of the data series with which the point is associated or
   // -1.
   virtual int GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
                                vtkVector2f* location
                                );
 
+  // Description:
+  // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 //ETX
 
@@ -163,8 +166,8 @@ public:
   // Description:
   // A General setter/getter that should be overridden. It can silently drop
   // options, case is important
-  void SetProperty(const char *property, vtkVariant *var);
-  vtkVariant GetProperty(const char *property);
+  void SetProperty(const vtkStdString& property, const vtkVariant& var);
+  vtkVariant GetProperty(const vtkStdString& property);
 //ETX
 
 //BTX
