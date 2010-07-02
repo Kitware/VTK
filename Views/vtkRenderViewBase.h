@@ -42,11 +42,11 @@ public:
 
   // Description:
   // Gets the renderer for this view.
-  vtkGetObjectMacro(Renderer, vtkRenderer);
+  virtual vtkRenderer* GetRenderer();
 
   // Description:
   // Get a handle to the render window.
-  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
+  virtual vtkRenderWindow* GetRenderWindow();
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
@@ -106,8 +106,8 @@ protected:
   // Called by the view when the renderer is about to render.
   virtual void PrepareForRendering();
 
-  vtkRenderer* Renderer;
-  vtkRenderWindow* RenderWindow;
+  vtkSmartPointer<vtkRenderer> Renderer;
+  vtkSmartPointer<vtkRenderWindow> RenderWindow;
   int InteractionMode;
 
 private:

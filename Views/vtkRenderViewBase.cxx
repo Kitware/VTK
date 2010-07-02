@@ -32,8 +32,8 @@ vtkRenderViewBase::vtkRenderViewBase()
 {
   this->RenderOnMouseMove = false;
   this->InteractionMode = -1;
-  this->Renderer = vtkRenderer::New();
-  this->RenderWindow = vtkRenderWindow::New();
+  this->Renderer = vtkSmartPointer<vtkRenderer>::New();
+  this->RenderWindow = vtkSmartPointer<vtkRenderWindow>::New();
   this->RenderWindow->AddRenderer(this->Renderer);
 
   // We will handle all interactor renders by turning off rendering
@@ -50,14 +50,16 @@ vtkRenderViewBase::vtkRenderViewBase()
 
 vtkRenderViewBase::~vtkRenderViewBase()
 {
-  if (this->Renderer)
-    {
-    this->Renderer->Delete();
-    }
-  if (this->RenderWindow)
-    {
-    this->RenderWindow->Delete();
-    }
+}
+
+vtkRenderer* vtkRenderViewBase::GetRenderer()
+{
+  return this->Renderer;
+}
+
+vtkRenderWindow* vtkRenderViewBase::GetRenderWindow()
+{
+  return this->RenderWindow;
 }
 
 void vtkRenderViewBase::SetRenderWindow(vtkRenderWindow* win)
