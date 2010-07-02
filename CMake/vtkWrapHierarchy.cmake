@@ -100,7 +100,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     )
 
   # ugly but necessary
-  ADD_DEPENDENCIES(vtk${KIT} ${VTK_WRAP_HIERARCHY_EXE})
+  ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
 
   # make a dummy target so that items that depend on the heirarchy
   # file will rebuild when the file changes, but will not have to
