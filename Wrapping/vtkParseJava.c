@@ -17,7 +17,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "vtkParse.h"
+#include "vtkParseMain.h"
+#include "vtkParseHierarchy.h"
 
+HierarchyInfo *hierarchyInfo = NULL;
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
 extern FunctionInfo *currentFunction;
@@ -360,7 +363,7 @@ int DoneOne()
   return 0;
 }
 
-void HandleDataReader(FILE *fp, FileInfo *data)
+void HandleDataReader(FILE *fp, ClassInfo *data)
 {
     fprintf(fp,"\n  private native void ");
     fprintf(fp,"%s_%i(byte id0[],int id1);\n",
@@ -372,47 +375,47 @@ void HandleDataReader(FILE *fp, FileInfo *data)
     data = 0;
 }
 
-void HandleDataArray(FILE *fp, FileInfo *data)
+void HandleDataArray(FILE *fp, ClassInfo *data)
 {
   const char *type = 0;
 
-  if (!strcmp("vtkCharArray",data->ClassName) )
+  if (!strcmp("vtkCharArray",data->Name) )
     {
     type = "char";
     }
-  else if (!strcmp("vtkDoubleArray",data->ClassName) )
+  else if (!strcmp("vtkDoubleArray",data->Name) )
     {
     type = "double";
     }
-  else if (!strcmp("vtkFloatArray",data->ClassName) )
+  else if (!strcmp("vtkFloatArray",data->Name) )
     {
     type = "float";
     }
-  else if (!strcmp("vtkIntArray",data->ClassName) )
+  else if (!strcmp("vtkIntArray",data->Name) )
     {
     type = "int";
     }
-  else if (!strcmp("vtkLongArray",data->ClassName) )
+  else if (!strcmp("vtkLongArray",data->Name) )
     {
     type = "long";
     }
-  else if (!strcmp("vtkShortArray",data->ClassName) )
+  else if (!strcmp("vtkShortArray",data->Name) )
     {
     type = "short";
     }
-  else if (!strcmp("vtkUnsignedCharArray",data->ClassName) )
+  else if (!strcmp("vtkUnsignedCharArray",data->Name) )
     {
     type = "byte";
     }
-  else if (!strcmp("vtkUnsignedIntArray",data->ClassName) )
+  else if (!strcmp("vtkUnsignedIntArray",data->Name) )
     {
     type = "int";
     }
-  else if (!strcmp("vtkUnsignedLongArray",data->ClassName) )
+  else if (!strcmp("vtkUnsignedLongArray",data->Name) )
     {
     type = "long";
     }
-  else if (!strcmp("vtkUnsignedShortArray",data->ClassName) )
+  else if (!strcmp("vtkUnsignedShortArray",data->Name) )
     {
     type = "short";
     }
@@ -431,7 +434,7 @@ void HandleDataArray(FILE *fp, FileInfo *data)
   fprintf(fp,"    { SetJavaArray_0(arr); }\n");
 }
 
-void outputFunction(FILE *fp, FileInfo *data)
+void outputFunction(FILE *fp, ClassInfo *data)
 {
   static int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
@@ -475,6 +478,13 @@ void outputFunction(FILE *fp, FileInfo *data)
     return ;
     }
 
+  /* The unwrappable methods in Filtering/vtkInformation.c */
+  if (strcmp(data->Name, "vtkInformation") == 0 &&
+      currentFunction->IsLegacy)
+    {
+    return;
+    }
+
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
@@ -488,6 +498,21 @@ void outputFunction(FILE *fp, FileInfo *data)
         if (baseType == supported_types[j]) { break; }
         }
       if (supported_types[j] == 0)
+        {
+        args_ok = 0;
+        }
+      }
+
+    if (baseType == VTK_PARSE_OBJECT)
+      {
+      if ((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+        {
+        args_ok = 0;
+        }
+      else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
+                 currentFunction->ArgClasses[i]) &&
+               !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+                 currentFunction->ArgClasses[i], "vtkObjectBase"))
         {
         args_ok = 0;
         }
@@ -518,7 +543,21 @@ void outputFunction(FILE *fp, FileInfo *data)
     args_ok = 0;
     }
 
-  if (rType == VTK_PARSE_VTK_OBJECT) args_ok = 0;
+  if (baseType == VTK_PARSE_OBJECT)
+    {
+    if ((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+      {
+      args_ok = 0;
+      }
+    else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
+               currentFunction->ReturnClass) &&
+             !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+               currentFunction->ReturnClass, "vtkObjectBase"))
+      {
+      args_ok = 0;
+      }
+    }
+
   if (((rType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       ((rType & VTK_PARSE_INDIRECT) != 0) &&
       (rType != VTK_PARSE_STRING_REF)) args_ok = 0;
@@ -567,7 +606,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     }
 
   /* make sure there isn't a Java-specific override */
-  if (!strcmp("vtkObject",data->ClassName))
+  if (!strcmp("vtkObject",data->Name))
     {
     /* remove the original vtkCommand observer methods */
     if (!strcmp(currentFunction->Name,"AddObserver") ||
@@ -586,7 +625,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       args_ok = 0;
       }
     }
-  else if (!strcmp("vtkObjectBase",data->ClassName))
+  else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
     if (!strcmp(currentFunction->Name,"PrintRevisions") ||
@@ -605,12 +644,12 @@ void outputFunction(FILE *fp, FileInfo *data)
 
   /* handle DataReader SetBinaryInputString as a special case */
   if (!strcmp("SetBinaryInputString",currentFunction->Name) &&
-      (!strcmp("vtkDataReader",data->ClassName) ||
-       !strcmp("vtkStructuredGridReader",data->ClassName) ||
-       !strcmp("vtkRectilinearGridReader",data->ClassName) ||
-       !strcmp("vtkUnstructuredGridReader",data->ClassName) ||
-       !strcmp("vtkStructuredPointsReader",data->ClassName) ||
-       !strcmp("vtkPolyDataReader",data->ClassName)))
+      (!strcmp("vtkDataReader",data->Name) ||
+       !strcmp("vtkStructuredGridReader",data->Name) ||
+       !strcmp("vtkRectilinearGridReader",data->Name) ||
+       !strcmp("vtkUnstructuredGridReader",data->Name) ||
+       !strcmp("vtkStructuredPointsReader",data->Name) ||
+       !strcmp("vtkPolyDataReader",data->Name)))
       {
           HandleDataReader(fp,data);
           wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
@@ -618,8 +657,8 @@ void outputFunction(FILE *fp, FileInfo *data)
       }
 
   if (currentFunction->IsPublic && args_ok &&
-      strcmp(data->ClassName,currentFunction->Name) &&
-      strcmp(data->ClassName, currentFunction->Name + 1))
+      strcmp(data->Name,currentFunction->Name) &&
+      strcmp(data->Name, currentFunction->Name + 1))
     {
     /* make sure we haven't already done one of these */
     if (!DoneOne())
@@ -720,19 +759,35 @@ void outputFunction(FILE *fp, FileInfo *data)
 }
 
 /* print the parsed structures */
-void vtkParseOutput(FILE *fp, FileInfo *data)
+void vtkParseOutput(FILE *fp, FileInfo *file_info)
 {
+  OptionInfo *options;
+  ClassInfo *data;
   int i;
 
-  fprintf(fp,"// java wrapper for %s object\n//\n",data->ClassName);
+  if ((data = file_info->MainClass) == NULL)
+    {
+    return;
+    }
+
+  /* get the command-line options */
+  options = vtkParse_GetCommandLineOptions();
+
+  /* get the hierarchy info for accurate typing */
+  if (options->HierarchyFileName)
+    {
+    hierarchyInfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    }
+
+  fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);
   fprintf(fp,"\npackage vtk;\n");
 
-  if (strcmp("vtkObjectBase",data->ClassName))
+  if (strcmp("vtkObjectBase",data->Name))
     {
     fprintf(fp,"import vtk.*;\n");
     }
-  fprintf(fp,"\npublic class %s",data->ClassName);
-  if (strcmp("vtkObjectBase",data->ClassName))
+  fprintf(fp,"\npublic class %s",data->Name);
+  if (strcmp("vtkObjectBase",data->Name))
     {
     if (data->NumberOfSuperClasses)
       {
@@ -744,7 +799,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
-    currentFunction = data->Functions + i;
+    currentFunction = data->Functions[i];
     outputFunction(fp, data);
     }
 
@@ -752,18 +807,18 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   if (!data->NumberOfSuperClasses)
     {
-    if (data->IsConcrete)
+    if (!data->IsAbstract)
       {
-      fprintf(fp,"\n  public %s() {", data->ClassName);
+      fprintf(fp,"\n  public %s() {", data->Name);
       fprintf(fp,"\n    this.vtkId = this.VTKInit();");
       fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
       fprintf(fp,"\n  }\n");
       }
     else
       {
-      fprintf(fp,"\n  public %s() { super(); }\n",data->ClassName);
+      fprintf(fp,"\n  public %s() { super(); }\n",data->Name);
       }
-    fprintf(fp,"\n  public %s(long id) {", data->ClassName);
+    fprintf(fp,"\n  public %s(long id) {", data->Name);
     fprintf(fp,"\n    super();");
     fprintf(fp,"\n    this.vtkId = id;");
     fprintf(fp,"\n    this.VTKRegister();");
@@ -791,29 +846,29 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }
     }
   /* Special case for vtkObject */
-  else if ( strcmp("vtkObject",data->ClassName) == 0 )
+  else if ( strcmp("vtkObject",data->Name) == 0 )
     {
-    fprintf(fp,"\n  public %s() {", data->ClassName);
+    fprintf(fp,"\n  public %s() {", data->Name);
     fprintf(fp,"\n    super();");
     fprintf(fp,"\n    this.vtkId = this.VTKInit();");
     fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
     fprintf(fp,"\n  }\n");
-    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->ClassName);
+    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->Name);
     }
   else
     {
-    fprintf(fp,"\n  public %s() { super(); }\n",data->ClassName);
-    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->ClassName);
+    fprintf(fp,"\n  public %s() { super(); }\n",data->Name);
+    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->Name);
     }
 
-  if (data->IsConcrete)
+  if (!data->IsAbstract)
     {
     fprintf(fp,"  public native long   VTKInit();\n");
     }
 
   /* fprintf(fp,"  protected native void   VTKCastInit();\n"); */
 
-  if (!strcmp("vtkObject",data->ClassName))
+  if (!strcmp("vtkObject",data->Name))
     {
     /* Add the Print method to vtkObject. */
     fprintf(fp,"  public native String Print();\n");
@@ -823,7 +878,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  public String toString() { return Print(); }\n");
     }
 
-  if (!strcmp("vtkObject",data->ClassName))
+  if (!strcmp("vtkObject",data->Name))
     {
     fprintf(fp,"  public native int AddObserver(String id0, Object id1, String id2);\n");
     }
@@ -835,7 +890,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   char *fname;
   /*const */char javaDone[] = "VTKJavaWrapped";
   FILE* tfp;
-  fname = data->OutputFileName;
+  fname = options->OutputFileName;
   dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
   sprintf(dir, "%s", fname);
   len = strlen(dir);

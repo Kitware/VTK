@@ -35,6 +35,18 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
   # start writing the input file for the init file
   SET(VTK_WRAPPER_INIT_DATA "${TARGET}")
 
+  IF (VTK_WRAP_HINTS)
+    SET(TMP_HINTS "--hints" "${quote}${VTK_WRAP_HINTS}${quote}")
+  ELSE (VTK_WRAP_HINTS)
+    SET(TMP_HINTS)
+  ENDIF (VTK_WRAP_HINTS)
+
+  IF (KIT_HIERARCHY_FILE)
+    SET(TMP_HIERARCHY "--hierarchy" "${quote}${KIT_HIERARCHY_FILE}${quote}")
+  ELSE (KIT_HIERARCHY_FILE)
+    SET(TMP_HIERARCHY)
+  ENDIF (KIT_HIERARCHY_FILE)
+
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
@@ -72,12 +84,6 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         SET(TMP_SPECIAL "--vtkobject")
       ENDIF (TMP_WRAP_SPECIAL)
 
-      IF (VTK_WRAP_HINTS)
-        SET(TMP_HINTS "--hints" "${quote}${VTK_WRAP_HINTS}${quote}")
-      ELSE (VTK_WRAP_HINTS)
-        SET(TMP_HINTS)
-      ENDIF (VTK_WRAP_HINTS)
-
       # add the info to the init file
       SET(VTK_WRAPPER_INIT_DATA
         "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
@@ -90,11 +96,13 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
         DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT}
+        ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
         ARGS
         ${TMP_CONCRETE}
         ${TMP_SPECIAL}
         ${TMP_HINTS}
+        ${TMP_HIERARCHY}
         "${quote}${TMP_INPUT}${quote}"
         "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
         COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"

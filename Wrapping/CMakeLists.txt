@@ -13,8 +13,13 @@ IF(NOT CMAKE_CROSSCOMPILING)
       )
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
+  IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+    ADD_EXECUTABLE(vtkWrapHierarchy vtkParse.tab.c vtkWrapHierarchy.c)
+  ENDIF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+
   IF (VTK_WRAP_TCL)
-    ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParse.tab.c)
+    ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
+                   vtkParseHierarchy.c)
     ADD_EXECUTABLE(vtkWrapTclInit vtkWrapTclInit.c)
     EXPORT(TARGETS vtkWrapTcl vtkWrapTclInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
@@ -28,7 +33,8 @@ IF(NOT CMAKE_CROSSCOMPILING)
   ENDIF (VTK_WRAP_TCL)
 
   IF (VTK_WRAP_PYTHON)
-    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkParse.tab.c)
+    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkParseMain.c vtkParse.tab.c
+                   vtkParseHierarchy.c)
     ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
     TARGET_LINK_LIBRARIES(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
     EXPORT(TARGETS vtkWrapPython vtkWrapPythonInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
@@ -43,8 +49,10 @@ IF(NOT CMAKE_CROSSCOMPILING)
   ENDIF (VTK_WRAP_PYTHON)
 
   IF (VTK_WRAP_JAVA)
-    ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParse.tab.c)
-    ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParse.tab.c)
+    ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParseMain.c vtkParse.tab.c
+                   vtkParseHierarchy.c)
+    ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
+                   vtkParseHierarchy.c)
     EXPORT(TARGETS vtkParseJava vtkWrapJava FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
       ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkParseJava vtkWrapJava)

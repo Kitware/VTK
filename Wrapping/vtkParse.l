@@ -13,12 +13,11 @@ Modify lex.yy.c:
   - convert tabs to spaces (8 spaces per tab)
   - remove extra space from end of lines
   - remove blank lines from end of file
-  - try compiling with gcc and "-Wsign-compare"
-  - change "int" to "size_t" where necessary to eliminate warnings
-    (this will depend on the version of flex you used)
-  - e.g. change yy_n_chars declarations from "int yy_n_chars;" to
+  - change yy_n_chars declarations from "int yy_n_chars;" to
     "size_t yy_n_chars;" in both the yy_buffer_state structure
-    and the global scope, and in YY_INPUT change "int n" to "size_t n"
+    and the global scope.
+  - in YY_INPUT change "int n" to "size_t n"
+  - compile with gcc and "-Wsign-compare", there should be no warnings
 
 */
 
@@ -45,6 +44,15 @@ Modify lex.yy.c:
 #pragma warning ( disable : 4786 )
 #endif
 
+#define SKIP_MATCH_MAXLEN 15
+
+/*
+ * Skip ahead until one of the strings is found,
+ * then skip to the end of the line.
+ */
+static int skip_ahead_multi(const char *strings[]);
+static int skip_ahead_until(const char *text);
+
 %}
 
 
@@ -64,43 +72,29 @@ Modify lex.yy.c:
      };
 
 ^[\t ]*"//BTX".*$ {
-       int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = input();
-       for (;;)
-         {
-         if (c5 == 0)
-           {
-           fprintf(yyout,"Cannot find matching //ETX.\n");
-           break;
-           }
-         if (c1 == '/' && c2 == '/' && c3 == 'E' && c4 == 'T' && c5 == 'X') break;
-         c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5 = input();
-         }
-       for (;;)
-         {
-         if (c5 == 0) break;
-         if (c5 == '\n') break;
-         c5 = input();
-         }
+       skip_ahead_until("//ETX");
      };
 
+
 ^[\t ]*"#ifdef"[\t ]*"VTK_WORKAROUND_WINDOWS_MANGLE".*$ {
-       int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = input();
-       for (;;)
-         {
-         if (c6 == 0)
-           {
-           fprintf(yyout,"Cannot find matching #endif.\n");
-           break;
-           }
-         if (c1 == '#' && c2 == 'e' && c3 == 'n' && c4 == 'd' && c5 == 'i' && c6 == 'f') break;
-         c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5 = c6; c6 = input();
-         }
-       for (;;)
-         {
-         if (c6 == 0) break;
-         if (c6 == '\n') break;
-         c6 = input();
-         }
+       const char *strings[] = {"#endif", "#elif", "#else", NULL};
+       skip_ahead_multi(strings);
+     };
+
+
+^[\t ]*"#ifdef "("WIN32"|"_WIN32").*$ {
+#ifndef _WIN32
+       const char *strings[] = {"#endif", "#elif", "#else", NULL};
+       skip_ahead_multi(strings);
+#endif
+     };
+
+^[\t ]*"#"("else"|"elif").*$ {
+       skip_ahead_until("#endif");
+     };
+
+^[\t ]*("@interface"|"@implementation") {
+       skip_ahead_until("@end");
      };
 
 ^[\t ]*"// .NAME".* {
@@ -168,6 +162,28 @@ Modify lex.yy.c:
 
 "//".* ;
 
+^"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
+                int i;
+                for (i = 0; i < yyleng && yytext[i] != 'V'; i++) { ; };
+                yylval.str = (char *)malloc(yyleng - i + 1);
+                memcpy(yylval.str, &yytext[i], yyleng-i);
+                yylval.str[yyleng-i] = '\0';
+                return (VTK_CONSTANT_DEF); }
+
+^"#"(\\\n|\\\r\n|[^\n])*$     ;
+
+\"([^\"]|\\\")*\"      {
+                yylval.str = (char *)malloc(yyleng + 1);
+                memcpy(yylval.str,yytext,yyleng);
+                yylval.str[yyleng] = '\0';
+                return(STRING_LITERAL); }
+
+\'([^\']|\\\')+\'      {
+                yylval.str = (char *)malloc(yyleng + 1);
+                memcpy(yylval.str,yytext,yyleng);
+                yylval.str[yyleng] = '\0';
+                return(CHAR_LITERAL); }
+
 [A-Za-z0-9_]*"_EXPORT" ;
 
 "vtkNotUsed"[ ]*"("[^)]*")" {
@@ -181,11 +197,6 @@ Modify lex.yy.c:
      return(ID);
      };
 
-"["[\t\n\r\ ]*[1-9][0-9]*[\t\n\r ]*"]"  {
-     sscanf(yytext+1,"%d",&yylval.integer);
-     return(ARRAY_NUM);
-     };
-
 ("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"class"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
      return(CLASS_REF);
      };
@@ -195,6 +206,14 @@ Modify lex.yy.c:
      };
 
 "void"[\t\n\r ]*"("[\t\n\r ]*"*"[a-zA-Z0-9_]*[\t\n\r ]*")"[\t\n\r ]*"("[\t\n\r ]*"void"[\t\n\r ]*"*"[\n\t ]*")" {
+     int i = 0; int j = 0;
+     while (yytext[j] != '*') { i++; j++; }
+     i++; j++;
+     while (yytext[i] != ' ' && yytext[i] != '\t' &&
+            yytext[i] != '\n' && yytext[i] != '\r' && yytext[i] != ')') {i++;}
+     yylval.str = (char *)malloc(i-j+1);
+     yylval.str[i-j] = '\0';
+     if (i > j) { strncpy(yylval.str, &yytext[j], i-j); }
      return(VAR_FUNCTION);
      };
 
@@ -207,15 +226,15 @@ Modify lex.yy.c:
 "int"[\t\n\r ]*"long"[\t\n\r ]*"long"  return(LONG_LONG);
 "long"[\t\n\r ]*"long"[\t\n\r ]*"int"  return(LONG_LONG);
 
-"__int64"  return(INT64__);
+"__int64"        return(INT64__);
 
 "signed"[\t\n\r ]*"char"  return(SIGNED_CHAR);
 
-"ostream"       return(OSTREAM);
-"istream"       return(ISTREAM);
+"size_t"        return(SIZE_T);
+"ssize_t"       return(SSIZE_T);
 
 "class"         return(CLASS);
-"struct"        return(CLASS);
+"struct"        return(STRUCT);
 "public"        return(PUBLIC);
 "private"       return(PRIVATE);
 "protected"     return(PROTECTED);
@@ -234,9 +253,11 @@ Modify lex.yy.c:
 "mutable"       return(MUTABLE);
 "operator"      return(OPERATOR);
 "unsigned"      return(UNSIGNED);
+"signed"        return(SIGNED);
 "friend"        return(FRIEND);
 "inline"        return(INLINE);
 "static"        return(STATIC);
+"extern"        return(EXTERN);
 "template"      return(TEMPLATE);
 "typename"      return(TYPENAME);
 "typedef"       return(TYPEDEF);
@@ -247,8 +268,6 @@ Modify lex.yy.c:
 
 "vtkFloatingPointType" return(DOUBLE);
 "vtkIdType"            return(IdType);
-"vtkStdString"         return(StdString);
-"vtkUnicodeString"     return(UnicodeString);
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
 "vtkSetStringMacro"    return(SetStringMacro);
@@ -290,62 +309,18 @@ Modify lex.yy.c:
 "*"[\r\n\t ]*"const"   return(CONST_PTR);
 "const"[\r\n\t ]*"="   return(CONST_EQUAL);
 
-[0-9]+"."[0-9]*([eE][+-]?[0-9]+)?[fFlL]?  {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
-                     return(FLOAT_LITERAL);
-                    }
-"0x"[0-9a-fA-F]+[uU]?[lL]?      {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
-                     return(HEX_LITERAL);
-                    }
-[0-9]+[uU]?[lL]?      { yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
-                     return(INT_LITERAL);
-                    }
+"("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"&" {
+                int i = 1;
+                int j;
+                while (yytext[i]==' ' || yytext[i]=='\t' ||
+                       yytext[i]=='\r' || yytext[i]=='\n') { i++; }
+                j = i;
+                while (yytext[j]!='&') { j++; }
+                yylval.str = (char *)malloc(j-i+1);
+                if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
+                yylval.str[j-i] = '\0';
+                return(LA); }
 
-\"([^\"]|\\\")*\"      {
-                yylval.str = (char *)malloc(yyleng + 1);
-                memcpy(yylval.str,yytext,yyleng);
-                yylval.str[yyleng] = '\0';
-                return(STRING_LITERAL);
-                }
-
-\'([^\']|\\\')+\'      {
-                yylval.str = (char *)malloc(yyleng + 1);
-                memcpy(yylval.str,yytext,yyleng);
-                yylval.str[yyleng] = '\0';
-                return(CHAR_LITERAL);
-                }
-
-^"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
-                int i;
-                for (i = 0; i < yyleng && yytext[i] != 'V'; i++) { ; };
-                yylval.str = (char *)malloc(yyleng - i + 1);
-                memcpy(yylval.str, &yytext[i], yyleng-i);
-                yylval.str[yyleng-i] = '\0';
-                return (VTK_CONSTANT_DEF); }
-
-^"#"(\\\n|\\\r\n|[^\n])*$     ;
-
-
-"vtk"[0-9a-zA-Z_]*  { yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
-                     return(VTK_ID);
-                    }
-
-[a-zA-Z_][0-9a-zA-Z_]*  { yylval.str = (char *)malloc(yyleng + 1);
-                          memcpy(yylval.str,yytext,yyleng);
-                          yylval.str[yyleng] = '\0';
-                          return(ID);
-                        }
-
-"("[\t\n\r ]*"&"  return(LPAREN_AMPERSAND);
 "("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"*" {
                 int i = 1;
                 int j;
@@ -356,8 +331,84 @@ Modify lex.yy.c:
                 yylval.str = (char *)malloc(j-i+1);
                 if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
                 yylval.str[j-i] = '\0';
-                return(LPAREN_POINTER);
-                }
+                return(LP); }
+
+"("[\t\n\r ]*("APIENTRY"|"CALLBACK"|"WINAPI")[\t\n\r ]*"*" {
+                yylval.str = (char *)malloc(1);
+                yylval.str[0] = '\0';
+                return(LP); }
+
+"("[\t\n\r ]*("APIENTRYP"|"CALLBACKP"|"WINAPIP") {
+                yylval.str = (char *)malloc(1);
+                yylval.str[0] = '\0';
+                return(LP); }
+
+("APIENTRYP"|"CALLBACKP"|"WINAPIP") { return('*'); }
+
+"APIENTRY" ;
+"CALLBACK" ;
+"WINAPI" ;
+
+("vtkstd::"|"std::")?"ostream" {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(OSTREAM); }
+
+("vtkstd::"|"std::")?"istream" {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(ISTREAM); }
+
+("vtkStdString"|("vtkstd::"|"std::")?"string") {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(StdString); }
+
+"vtkUnicodeString" { yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(UnicodeString); }
+
+"vtk"[0-9a-zA-Z_]* { yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(VTK_ID); }
+
+[a-zA-Z_][0-9a-zA-Z_]*  { yylval.str = (char *)malloc(yyleng + 1);
+                          memcpy(yylval.str,yytext,yyleng);
+                          yylval.str[yyleng] = '\0';
+                          return(ID); }
+
+[0-9]+"."[0-9]*([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(FLOAT_LITERAL); }
+
+"0"[xX][0-9a-fA-F]+[g-zG-Z_]*      {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(HEX_LITERAL); }
+
+"0"[0-9]+[a-zA-Z_]*   {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(OCT_LITERAL); }
+
+[1-9][0-9]*[a-zA-Z_]* {
+                     yylval.str = (char *)malloc(yyleng + 1);
+                     memcpy(yylval.str,yytext,yyleng);
+                     yylval.str[yyleng] = '\0';
+                     return(INT_LITERAL); }
+
+"0"                { yylval.str = (char *)malloc(2);
+                     strcpy(yylval.str, "0");
+                     return(ZERO); };
 
 [\t\n\r ] ;
 
@@ -396,3 +447,66 @@ Modify lex.yy.c:
 .                return(OTHER);
 %%
 
+/*
+ * Skip ahead until one of the strings is found,
+ * then skip to the end of the line.
+ */
+int skip_ahead_multi(const char *strings[])
+{
+  char textbuf[SKIP_MATCH_MAXLEN+1];
+  char c = 0;
+  int i;
+
+  for (i = 0; i < (SKIP_MATCH_MAXLEN+1); i++)
+    {
+    textbuf[i] = '\0';
+    }
+
+  for (;;)
+    {
+    for (i = 0; i < SKIP_MATCH_MAXLEN; i++)
+      {
+      textbuf[i] = textbuf[i+1];
+      }
+
+    if ((c = (char)input()) == '\0')
+      {
+      fprintf(yyout, "Cannot find matching %s.\n", strings[0]);
+      return 0;
+      }
+
+    textbuf[SKIP_MATCH_MAXLEN-1] = c;
+
+    for (i = 0; strings[i]; i++)
+      {
+      if (strcmp(&textbuf[SKIP_MATCH_MAXLEN-strlen(strings[i])],
+                 strings[i]) == 0)
+        {
+        break;
+        }
+      }
+    if (strings[i])
+      {
+      break;
+      }
+    }
+
+  while (c != '\0' && c != '\n')
+    {
+    c = (char)input();
+    }
+
+  return 0;
+}
+
+/*
+ * Skip ahead until the string is found,
+ */
+int skip_ahead_until(const char *text)
+{
+  const char *strings[2];
+  strings[0] = text;
+  strings[1] = NULL;
+
+  return skip_ahead_multi(strings);
+}

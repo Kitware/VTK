@@ -18,8 +18,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "vtkParse.h"
+#include "vtkParseMain.h"
+#include "vtkParseHierarchy.h"
 #include "vtkConfigure.h"
 
+HierarchyInfo *hierarchyInfo = NULL;
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
 extern FunctionInfo *currentFunction;
@@ -142,13 +145,13 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
     case VTK_PARSE_LONG:        fprintf(fp,"long   "); break;
     case VTK_PARSE_VOID:        fprintf(fp,"void   "); break;
     case VTK_PARSE_CHAR:        fprintf(fp,"char   "); break;
-    case VTK_PARSE_VTK_OBJECT:  fprintf(fp,"%s ",Id); break;
+    case VTK_PARSE_OBJECT:      fprintf(fp,"%s ",Id); break;
     case VTK_PARSE_ID_TYPE:     fprintf(fp,"vtkIdType "); break;
     case VTK_PARSE_LONG_LONG:   fprintf(fp,"long long "); break;
     case VTK_PARSE___INT64:     fprintf(fp,"__int64 "); break;
     case VTK_PARSE_SIGNED_CHAR: fprintf(fp,"signed char "); break;
     case VTK_PARSE_BOOL:        fprintf(fp,"bool "); break;
-    case VTK_PARSE_STRING:      fprintf(fp,"vtkStdString "); break;
+    case VTK_PARSE_STRING:      fprintf(fp,"%s ",Id); break;
     case VTK_PARSE_UNKNOWN:     return;
     }
 
@@ -476,7 +479,7 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case VTK_PARSE_VTK_OBJECT_PTR:
+    case VTK_PARSE_OBJECT_PTR:
       fprintf(fp,"      vtkTclGetObjectFromPointer(interp,(void *)(temp%i),\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
       break;
 
@@ -595,13 +598,13 @@ void get_args(FILE *fp, int i)
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
-    case VTK_PARSE_VTK_OBJECT_PTR:
+    case VTK_PARSE_OBJECT_PTR:
       fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],const_cast<char *>(\"%s\"),interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
               currentFunction->ArgClasses[i]);
       break;
     case VTK_PARSE_VOID:
-    case VTK_PARSE_VTK_OBJECT:
-    case VTK_PARSE_VTK_OBJECT_REF:
+    case VTK_PARSE_OBJECT:
+    case VTK_PARSE_OBJECT_REF:
       break;
     default:
       if (currentFunction->ArgCounts[i] > 1)
@@ -665,7 +668,7 @@ void get_args(FILE *fp, int i)
     }
 }
 
-void outputFunction(FILE *fp, FileInfo *data)
+void outputFunction(FILE *fp, ClassInfo *data)
 {
   static int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
@@ -680,7 +683,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 #ifdef VTK_TYPE_USE___INT64
     VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
 #endif
-    VTK_PARSE_VTK_OBJECT, VTK_PARSE_STRING,
+    VTK_PARSE_OBJECT, VTK_PARSE_STRING,
     0
   };
 
@@ -695,6 +698,13 @@ void outputFunction(FILE *fp, FileInfo *data)
       currentFunction->ArrayFailure ||
       !currentFunction->IsPublic ||
       !currentFunction->Name)
+    {
+    return;
+    }
+
+  /* The unwrappable methods in Filtering/vtkInformation.c */
+  if (strcmp(data->Name, "vtkInformation") == 0 &&
+      currentFunction->IsLegacy)
     {
     return;
     }
@@ -724,16 +734,25 @@ void outputFunction(FILE *fp, FileInfo *data)
       args_ok = 0;
       }
 
-    if (baseType == VTK_PARSE_VTK_OBJECT &&
-        (argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+    if (baseType == VTK_PARSE_OBJECT)
       {
-      args_ok = 0;
+      if ((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+        {
+        args_ok = 0;
+        }
+      else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
+                 currentFunction->ArgClasses[i]) &&
+               !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+                 currentFunction->ArgClasses[i], "vtkObjectBase"))
+        {
+        args_ok = 0;
+        }
       }
 
     /* if its a pointer arg make sure we have the ArgCount */
     if (((argType & VTK_PARSE_INDIRECT) != 0) &&
         (argType != VTK_PARSE_CHAR_PTR) &&
-        (baseType != VTK_PARSE_VTK_OBJECT))
+        (baseType != VTK_PARSE_OBJECT))
       {
       if (currentFunction->NumberOfArguments > 1 ||
           !currentFunction->ArgCounts[i])
@@ -779,10 +798,19 @@ void outputFunction(FILE *fp, FileInfo *data)
     args_ok = 0;
     }
 
-  if (baseType == VTK_PARSE_VTK_OBJECT &&
-      (returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+  if (baseType == VTK_PARSE_OBJECT)
     {
-    args_ok = 0;
+    if ((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
+      {
+      args_ok = 0;
+      }
+    else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
+               currentFunction->ReturnClass) &&
+             !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+               currentFunction->ReturnClass, "vtkObjectBase"))
+      {
+      args_ok = 0;
+      }
     }
 
   if (((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
@@ -836,7 +864,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     }
 
   /* check for methods that will be overriden especially for Tcl */
-  if (!strcmp("vtkObject",data->ClassName))
+  if (!strcmp("vtkObject",data->Name))
     {
     /* remove the original vtkCommand observer methods */
     if (!strcmp(currentFunction->Name,"AddObserver") ||
@@ -855,7 +883,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       args_ok = 0;
       }
     }
-  else if (!strcmp("vtkObjectBase",data->ClassName))
+  else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
     if (!strcmp(currentFunction->Name,"PrintRevisions") ||
@@ -867,8 +895,8 @@ void outputFunction(FILE *fp, FileInfo *data)
 
   /* if the args are OK and it is not a constructor or destructor */
   if (args_ok &&
-      strcmp(data->ClassName,currentFunction->Name) &&
-      strcmp(data->ClassName,currentFunction->Name + 1))
+      strcmp(data->Name,currentFunction->Name) &&
+      strcmp(data->Name,currentFunction->Name + 1))
     {
     int required_args = 0;
 
@@ -968,46 +996,63 @@ void outputFunction(FILE *fp, FileInfo *data)
 }
 
 /* print the parsed structures */
-void vtkParseOutput(FILE *fp, FileInfo *data)
+void vtkParseOutput(FILE *fp, FileInfo *file_info)
 {
+  OptionInfo *options;
+  ClassInfo *data;
   int i,j,k;
 
-  fprintf(fp,"// tcl wrapper for %s object\n//\n",data->ClassName);
+  /* get the main class */
+  if ((data = file_info->MainClass) == NULL)
+    {
+    return;
+    }
+
+  /* get the command-line options */
+  options = vtkParse_GetCommandLineOptions();
+
+  /* get the hierarchy info for accurate typing */
+  if (options->HierarchyFileName)
+    {
+    hierarchyInfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    }
+
+  fprintf(fp,"// tcl wrapper for %s object\n//\n",data->Name);
   fprintf(fp,"#define VTK_WRAPPING_CXX\n");
-  if (strcmp("vtkObjectBase",data->ClassName) != 0)
+  if (strcmp("vtkObjectBase",data->Name) != 0)
     {
       /* Block inclusion of full streams. */
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
     }
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
-  fprintf(fp,"#include \"%s.h\"\n\n",data->ClassName);
+  fprintf(fp,"#include \"%s.h\"\n\n",data->Name);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
   fprintf(fp,"#include \"vtkStdString.h\"\n");
   fprintf(fp,"#include <vtkstd/stdexcept>\n");
   fprintf(fp,"#include <vtksys/ios/sstream>\n");
-  if (data->IsConcrete)
+  if (!data->IsAbstract)
     {
-    if (strcmp(data->ClassName, "vtkRenderWindowInteractor") == 0)
+    if (strcmp(data->Name, "vtkRenderWindowInteractor") == 0)
       {
       fprintf(fp,"#include \"vtkToolkits.h\"\n");
       fprintf(fp,"#if defined( VTK_USE_X ) && defined( VTK_USE_TK )\n");
       fprintf(fp,"# include \"vtkXRenderWindowTclInteractor.h\"\n");
       fprintf(fp,"#endif\n");
 
-      fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
+      fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->Name);
 
       fprintf(fp,"#if defined( VTK_USE_X ) && defined( VTK_USE_TK )\n");
       fprintf(fp,"  %s *temp = vtkXRenderWindowTclInteractor::New();\n",
-              data->ClassName);
+              data->Name);
       fprintf(fp,"#else\n");
-      fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
+      fprintf(fp,"  %s *temp = %s::New();\n",data->Name,data->Name);
       fprintf(fp,"#endif\n");
       fprintf(fp,"  return static_cast<ClientData>(temp);\n}\n\n");
       }
     else
       {
-      fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
-      fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
+      fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->Name);
+      fprintf(fp,"  %s *temp = %s::New();\n",data->Name,data->Name);
       fprintf(fp,"  return static_cast<ClientData>(temp);\n}\n\n");
       }
     }
@@ -1016,14 +1061,14 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->SuperClasses[i],data->SuperClasses[i]);
     }
-  fprintf(fp,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->ClassName,data->ClassName);
-  fprintf(fp,"\nint VTKTCL_EXPORT %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->ClassName);
+  fprintf(fp,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->Name,data->Name);
+  fprintf(fp,"\nint VTKTCL_EXPORT %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name);
   fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete(interp))\n    {\n");
   fprintf(fp,"    Tcl_DeleteCommand(interp,argv[0]);\n");
   fprintf(fp,"    return TCL_OK;\n    }\n");
-  fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->ClassName,data->ClassName);
+  fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->Name,data->Name);
 
-  fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->ClassName,data->ClassName);
+  fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name,data->Name);
   fprintf(fp,"  int    tempi;\n");
   fprintf(fp,"  double tempd;\n");
   fprintf(fp,"  static char temps[80];\n");
@@ -1039,7 +1084,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  if (!interp)\n    {\n");
   fprintf(fp,"    if (!strcmp(\"DoTypecasting\",argv[0]))\n      {\n");
   fprintf(fp,"      if (!strcmp(\"%s\",argv[1]))\n        {\n",
-          data->ClassName);
+          data->Name);
   fprintf(fp,"        argv[2] = static_cast<char *>(static_cast<void *>(op));\n");
   fprintf(fp,"        return TCL_OK;\n        }\n");
 
@@ -1067,13 +1112,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
-    currentFunction = data->Functions + i;
+    currentFunction = data->Functions[i];
     outputFunction(fp, data);
     }
 
   /* add the ListInstances method */
   fprintf(fp,"\n  if (!strcmp(\"ListInstances\",argv[1]))\n    {\n");
-  fprintf(fp,"    vtkTclListInstances(interp,(ClientData)(%sCommand));\n",data->ClassName);
+  fprintf(fp,"    vtkTclListInstances(interp,(ClientData)(%sCommand));\n",data->Name);
   fprintf(fp,"    return TCL_OK;\n    }\n");
 
   /* add the ListMethods method */
@@ -1085,7 +1130,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->SuperClasses[i]);
     }
   /* now list our methods */
-  fprintf(fp,"    Tcl_AppendResult(interp,\"Methods from %s:\\n\",NULL);\n",data->ClassName);
+  fprintf(fp,"    Tcl_AppendResult(interp,\"Methods from %s:\\n\",NULL);\n",data->Name);
   fprintf(fp,"    Tcl_AppendResult(interp,\"  GetSuperClassName\\n\",NULL);\n");
   for (i = 0; i < numberOfWrappedFunctions; i++)
     {
@@ -1250,7 +1295,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
                 }
               fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
               break;
-            case VTK_PARSE_VTK_OBJECT_PTR:
+            case VTK_PARSE_OBJECT_PTR:
               fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", currentFunction->ArgClasses[i] );
               break;
             case VTK_PARSE_VOID_PTR:
@@ -1294,7 +1339,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
      fprintf(fp,"    /* Documentation for %s */\n", currentFunction->Name );
      fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( currentFunction->Comment, 500 ) );
      fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( currentFunction->Signature, 500 ) );
-     fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( data->ClassName, 500 ) );
+     fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( data->Name, 500 ) );
      fprintf(fp,"    /* Closing for %s */\n\n", currentFunction->Name );
      fprintf(fp,"    Tcl_DStringResult ( interp, &dString );\n" );
      fprintf(fp,"    Tcl_DStringFree ( &dString );\n" );
@@ -1322,7 +1367,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
 
   /* Add the Print method to vtkObjectBase. */
-  if (!strcmp("vtkObjectBase",data->ClassName))
+  if (!strcmp("vtkObjectBase",data->Name))
     {
     fprintf(fp,"  if ((!strcmp(\"Print\",argv[1]))&&(argc == 2))\n    {\n");
     fprintf(fp,"    vtksys_ios::ostringstream buf_with_warning_C4701;\n");
@@ -1342,7 +1387,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
 
   /* Add the AddObserver method to vtkObject. */
-  if (!strcmp("vtkObject",data->ClassName))
+  if (!strcmp("vtkObject",data->Name))
     {
     fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc >= 4))\n    {\n");
     fprintf(fp,"    error = 0;\n");

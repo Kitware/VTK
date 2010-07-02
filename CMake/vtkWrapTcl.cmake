@@ -33,7 +33,7 @@ MACRO(VTK_WRAP_TCL2 TARGET)
       ENDIF (MODE MATCHES SOURCE_LIST)
     ENDIF (NOT MODE_CHANGED)
   ENDFOREACH(ARG)
-  
+
   VTK_WRAP_TCL3(${TARGET} ${SOURCE_LIST_NAME} "${SOURCES}" "${COMMANDS}")
 ENDMACRO(VTK_WRAP_TCL2)
 
@@ -59,65 +59,79 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     SET(VTK_WRAP_TCL_CUSTOM_NAME ${TARGET})
     SET(VTK_WRAP_TCL_CUSTOM_LIST)
   ENDIF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
-  
+
   # start writing the input file for the init file
   SET(VTK_WRAPPER_INIT_DATA "${TARGET}")
   IF (${ARGC} GREATER 4)
     SET(VTK_WRAPPER_INIT_DATA
       "${VTK_WRAPPER_INIT_DATA}\nVERSION ${ARGV4}")
   ENDIF (${ARGC} GREATER 4)
-  
+
+  IF (VTK_WRAP_HINTS)
+    SET(TMP_HINTS "--hints" "${quote}${VTK_WRAP_HINTS}${quote}")
+  ELSE (VTK_WRAP_HINTS)
+    SET(TMP_HINTS)
+  ENDIF (VTK_WRAP_HINTS)
+
+  IF (KIT_HIERARCHY_FILE)
+    SET(TMP_HIERARCHY "--hierarchy" "${quote}${KIT_HIERARCHY_FILE}${quote}")
+  ELSE (KIT_HIERARCHY_FILE)
+    SET(TMP_HIERARCHY)
+  ENDIF (KIT_HIERARCHY_FILE)
+
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
     GET_SOURCE_FILE_PROPERTY(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
-    
+
     # if we should wrap it
     IF (NOT TMP_WRAP_EXCLUDE)
-      
+
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
-      
+
       # the input file might be full path so handle that
       GET_FILENAME_COMPONENT(TMP_FILEPATH ${FILE} PATH)
-      
+
       # compute the input filename
       IF (TMP_FILEPATH)
-        SET(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h) 
+        SET(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
       ELSE (TMP_FILEPATH)
         SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
       ENDIF (TMP_FILEPATH)
-      
+
       # is it abstract?
       GET_SOURCE_FILE_PROPERTY(TMP_ABSTRACT ${FILE} ABSTRACT)
       IF (TMP_ABSTRACT)
-        SET(TMP_CONCRETE 0)
+        SET(TMP_CONCRETE "--abstract")
       ELSE (TMP_ABSTRACT)
-        SET(TMP_CONCRETE 1)
+        SET(TMP_CONCRETE "--concrete")
         # add the info to the init file
         SET(VTK_WRAPPER_INIT_DATA
           "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
       ENDIF (TMP_ABSTRACT)
-      
+
       # new source file is nameTcl.cxx, add to resulting list
-      SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} 
+      SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
         ${TMP_FILENAME}Tcl.cxx)
-      
+
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
         DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS}
+        ${KIT_HIERARCHY_FILE}
         MAIN_DEPENDENCY "${TMP_INPUT}"
         COMMAND ${VTK_WRAP_TCL_EXE}
-        ARGS 
-        "${quote}${TMP_INPUT}${quote}" 
-        "${quote}${VTK_WRAP_HINTS}${quote}" 
+        ARGS
         ${TMP_CONCRETE}
+        ${TMP_HINTS}
+        ${TMP_HIERARCHY}
+        "${quote}${TMP_INPUT}${quote}"
         "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"
         COMMENT "Tcl Wrapping - generating ${TMP_FILENAME}Tcl.cxx"
         ${verbatim}
         )
-      
+
       # Add this output to a custom target if needed.
       IF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
         SET(VTK_WRAP_TCL_CUSTOM_LIST ${VTK_WRAP_TCL_CUSTOM_LIST}
@@ -133,33 +147,33 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       ENDIF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
     ENDIF (NOT TMP_WRAP_EXCLUDE)
   ENDFOREACH(FILE)
-  
-  # finish the data file for the init file        
+
+  # finish the data file for the init file
   FOREACH(CMD ${COMMANDS})
     SET(VTK_WRAPPER_INIT_DATA
       "${VTK_WRAPPER_INIT_DATA}\nCOMMAND ${CMD}")
   ENDFOREACH(CMD ${COMMANDS})
-  
+
   SET(dir ${CMAKE_CURRENT_SOURCE_DIR})
   CONFIGURE_FILE(
-    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in 
+    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COPY_ONLY
     IMMEDIATE
     )
-  
+
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
     DEPENDS ${VTK_WRAP_TCL_INIT_EXE}
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_TCL_INIT_EXE}
-    ARGS 
+    ARGS
     "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
     "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
     COMMENT "Tcl Wrapping - generating ${TARGET}Init.cxx"
     ${verbatim}
     )
-  
+
   # Create the Init File
   SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}Init.cxx)
 ENDMACRO(VTK_WRAP_TCL3)
