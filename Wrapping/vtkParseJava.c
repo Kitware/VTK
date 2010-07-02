@@ -509,12 +509,15 @@ void outputFunction(FILE *fp, ClassInfo *data)
         {
         args_ok = 0;
         }
-      else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
-                 currentFunction->ArgClasses[i]) &&
-               !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-                 currentFunction->ArgClasses[i], "vtkObjectBase"))
+      else if (hierarchyInfo)
         {
-        args_ok = 0;
+        if (vtkParseHierarchy_IsExtern(hierarchyInfo,
+              currentFunction->ArgClasses[i]) ||
+            !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+              currentFunction->ArgClasses[i], "vtkObjectBase"))
+          {
+          args_ok = 0;
+          }
         }
       }
 
@@ -549,12 +552,15 @@ void outputFunction(FILE *fp, ClassInfo *data)
       {
       args_ok = 0;
       }
-    else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
-               currentFunction->ReturnClass) &&
-             !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-               currentFunction->ReturnClass, "vtkObjectBase"))
+    else if (hierarchyInfo)
       {
-      args_ok = 0;
+      if (vtkParseHierarchy_IsExtern(hierarchyInfo,
+            currentFunction->ReturnClass) ||
+          !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+            currentFunction->ReturnClass, "vtkObjectBase"))
+        {
+        args_ok = 0;
+        }
       }
     }
 
