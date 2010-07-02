@@ -96,6 +96,13 @@ protected:
   ~vtkRenderViewBase();
 
   // Description:
+  // Called to process events.
+  // Captures StartEvent events from the renderer and calls Update().
+  // This may be overridden by subclasses to process additional events.
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
+                             void* callData);
+
+  // Description:
   // Called by the view when the renderer is about to render.
   virtual void PrepareForRendering();
 

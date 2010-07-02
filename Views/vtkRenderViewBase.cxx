@@ -24,8 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-
-#include <vtksys/ios/sstream>
+#include "vtkDataRepresentation.h"
 
 vtkStandardNewMacro(vtkRenderViewBase);
 
@@ -272,6 +271,32 @@ void vtkRenderViewBase::ResetCameraClippingRange()
 void vtkRenderViewBase::PrepareForRendering()
 {
   this->Update();
+}
+
+void vtkRenderViewBase::ProcessEvents(
+  vtkObject* caller, unsigned long eventId, void* callData)
+{
+  if (caller == this->GetInteractor() && eventId == vtkCommand::RenderEvent)
+    {
+    vtkDebugMacro(<< "interactor causing a render event.");
+    this->Render();
+    }
+  if (vtkDataRepresentation::SafeDownCast(caller) &&
+      eventId == vtkCommand::SelectionChangedEvent)
+    {
+    vtkDebugMacro("selection changed causing a render event");
+    this->Render();
+    }
+  else if (vtkDataRepresentation::SafeDownCast(caller) &&
+           eventId == vtkCommand::UpdateEvent)
+    {
+    // UpdateEvent is called from push pipeline executions from
+    // vtkExecutionScheduler. We want to automatically render the view
+    // when one of our representations is updated.
+    vtkDebugMacro("push pipeline causing a render event");
+    this->Render();
+    }
+  this->Superclass::ProcessEvents(caller, eventId, callData);
 }
 
 void vtkRenderViewBase::PrintSelf(ostream& os, vtkIndent indent)
