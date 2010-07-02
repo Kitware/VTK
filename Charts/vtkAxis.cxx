@@ -481,18 +481,26 @@ void vtkAxis::GenerateTickLabels(double min, double max)
 double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 {
   // First get the order of the range of the numbers
-  if (this->Maximum == this->Minimum)
+  if (min == max)
     {
-    this->Minimum *= 0.95;
-    this->Maximum *= 1.05;
+    if (fabs(min) < 1e-20 && fabs(max) < 1e-20)
+      {
+      min = -0.01;
+      max = 0.01;
+      }
+    else
+      {
+      min *= 0.95;
+      max *= 1.05;
+      }
     }
-  else if ((this->Maximum - this->Minimum) < 1.0e-20)
+  else if ((max - min) < 1.0e-20)
     {
-    this->Minimum *= 0.95;
-    this->Maximum *= 1.05;
+    min *= 0.95;
+    max *= 1.05;
     }
 
-  double range = this->Maximum - this->Minimum;
+  double range = max - min;
   bool isNegative = false;
   if (range < 0.0f)
     {
@@ -520,13 +528,13 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 
   if (isNegative)
     {
-    min = ceil(this->Minimum / niceTickSpacing) * niceTickSpacing;
-    max = floor(this->Maximum / niceTickSpacing) * niceTickSpacing;
+    min = ceil(min / niceTickSpacing) * niceTickSpacing;
+    max = floor(max / niceTickSpacing) * niceTickSpacing;
     }
   else
     {
-    min = floor(this->Minimum / niceTickSpacing) * niceTickSpacing;
-    max = ceil(this->Maximum / niceTickSpacing) * niceTickSpacing;
+    min = floor(min / niceTickSpacing) * niceTickSpacing;
+    max = ceil(max / niceTickSpacing) * niceTickSpacing;
     }
 
   float newRange = max - min;
