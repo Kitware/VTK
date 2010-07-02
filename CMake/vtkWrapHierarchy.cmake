@@ -114,6 +114,14 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     ARGS
     "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
     ${verbatim}
+
+    COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+    ARGS
+    "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
+    "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
+    ${OTHER_HIERARCHY_FILES}
+    COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
+    ${verbatim}
     )
 
 ENDMACRO(VTK_WRAP_HIERARCHY)
