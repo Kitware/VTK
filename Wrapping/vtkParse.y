@@ -591,7 +591,7 @@ void setTypeId(const char *text)
 /* set the signature and type together */
 void typeSig(const char *text)
 {
-  int n;
+  size_t n;
 
   postSig(text);
   postSig(" ");
@@ -1718,7 +1718,7 @@ literal:  literal2 {$<str>$ = $<str>1;}
 
 string_literal: STRING_LITERAL {$<str>$ = $<str>1;}
               | string_literal STRING_LITERAL {
-                int i = strlen($<str>1);
+                size_t i = strlen($<str>1);
                 char *cp = (char *)malloc(i + strlen($<str>2) + 1);
                 strcpy(cp, $<str>1);
                 strcpy(&cp[i], $<str>2);
@@ -2252,7 +2252,7 @@ vtk_constant_def: VTK_CONSTANT_DEF
   {
   static char name[256];
   static char value[256];
-  int i = 0;
+  size_t i = 0;
   char *cp = $<str>1;
   while ((*cp >= 'a' && *cp <= 'z') ||
          (*cp >= 'A' && *cp <= 'Z') ||
@@ -2922,7 +2922,7 @@ void handle_function_type(
   vtkParse_InitFunction(func);
   add_argument(func, VTK_PARSE_VOID_PTR, "void", 0);
   set_return(func, VTK_PARSE_VOID, "void", 0);
-  func->Signature = vtkstrdup(copySig());
+  func->Signature = vtkstrdup(funcSig);
   j = strlen(func->Signature);
   while (j > 0 && func->Signature[j-1] == ' ')
     {
@@ -3261,13 +3261,22 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
   FunctionInfo *func_info;
   ClassInfo *class_info;
   NamespaceInfo *contents;
-  int i, j;
+  int i, j, n;
+  int lineno = 0;
 
   contents = file_info->Contents;
 
   /* read each hint line in succession */
-  while (fscanf(hfile,"%s %s %x %i", h_cls, h_func, &h_type, &h_value) != EOF)
+  while ((n = fscanf(hfile,"%s %s %x %i", h_cls, h_func, &h_type, &h_value))
+         != EOF)
     {
+    lineno++;
+    if (n < 4)
+      {
+      fprintf(errfile, "Wrapping: error parsing hints file line %i\n", lineno);
+      exit(1);
+      }
+
     /* erase "ref" and qualifiers from hint type */
     h_type = ((h_type & VTK_PARSE_BASE_TYPE) |
               (h_type & VTK_PARSE_POINTER_LOWMASK));
@@ -3321,6 +3330,11 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
                                          Dimensions, vtkstrdup(text));
                   }
                 break;
+                }
+              default:
+                {
+                fprintf(errfile,
+                        "Wrapping: unhandled hint type %#x\n", h_type);
                 }
               }
             }

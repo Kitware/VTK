@@ -648,7 +648,7 @@ void setTypeId(const char *text)
 /* set the signature and type together */
 void typeSig(const char *text)
 {
-  int n;
+  size_t n;
 
   postSig(text);
   postSig(" ");
@@ -976,7 +976,7 @@ int add_indirection(int type1, int type2)
 typedef union YYSTYPE
 {
 
-/* Line 214 of yacc.c  */
+/* Line 222 of yacc.c  */
 #line 772 "vtkParse.y"
 
   char *str;
@@ -984,7 +984,7 @@ typedef union YYSTYPE
 
 
 
-/* Line 214 of yacc.c  */
+/* Line 222 of yacc.c  */
 #line 1108 "vtkParse.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -6144,7 +6144,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1720 "vtkParse.y"
     {
-                int i = strlen((yyvsp[(1) - (2)].str));
+                size_t i = strlen((yyvsp[(1) - (2)].str));
                 char *cp = (char *)malloc(i + strlen((yyvsp[(2) - (2)].str)) + 1);
                 strcpy(cp, (yyvsp[(1) - (2)].str));
                 strcpy(&cp[i], (yyvsp[(2) - (2)].str));
@@ -7237,7 +7237,7 @@ yyreduce:
     {
   static char name[256];
   static char value[256];
-  int i = 0;
+  size_t i = 0;
   char *cp = (yyvsp[(1) - (1)].str);
   while ((*cp >= 'a' && *cp <= 'z') ||
          (*cp >= 'A' && *cp <= 'Z') ||
@@ -8102,7 +8102,7 @@ void handle_function_type(
   vtkParse_InitFunction(func);
   add_argument(func, VTK_PARSE_VOID_PTR, "void", 0);
   set_return(func, VTK_PARSE_VOID, "void", 0);
-  func->Signature = vtkstrdup(copySig());
+  func->Signature = vtkstrdup(funcSig);
   j = strlen(func->Signature);
   while (j > 0 && func->Signature[j-1] == ' ')
     {
@@ -8441,13 +8441,22 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
   FunctionInfo *func_info;
   ClassInfo *class_info;
   NamespaceInfo *contents;
-  int i, j;
+  int i, j, n;
+  int lineno = 0;
 
   contents = file_info->Contents;
 
   /* read each hint line in succession */
-  while (fscanf(hfile,"%s %s %x %i", h_cls, h_func, &h_type, &h_value) != EOF)
+  while ((n = fscanf(hfile,"%s %s %x %i", h_cls, h_func, &h_type, &h_value))
+         != EOF)
     {
+    lineno++;
+    if (n < 4)
+      {
+      fprintf(errfile, "Wrapping: error parsing hints file line %i\n", lineno);
+      exit(1);
+      }
+
     /* erase "ref" and qualifiers from hint type */
     h_type = ((h_type & VTK_PARSE_BASE_TYPE) |
               (h_type & VTK_PARSE_POINTER_LOWMASK));
@@ -8501,6 +8510,11 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
                                          Dimensions, vtkstrdup(text));
                   }
                 break;
+                }
+              default:
+                {
+                fprintf(errfile,
+                        "Wrapping: unhandled hint type %#x\n", h_type);
                 }
               }
             }
