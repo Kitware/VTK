@@ -25,16 +25,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-static int skip_space(const char *text)
+static size_t skip_space(const char *text)
 {
-  int i = 0;
+  size_t i = 0;
   while (isspace(text[i]) && text[i] != '\n') { i++; }
   return i;
 }
 
-static int skip_name(const char *text)
+static size_t skip_name(const char *text)
 {
-  int i = 0;
+  size_t i = 0;
   if (isalpha(text[i]) || text[i] == '_' ||
       (text[i] == ':' && text[i+1] == ':'))
     {
@@ -57,7 +57,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
   int maxClasses = 512;
   FILE *fp;
   char line[2048];
-  int i, j, n;
+  size_t i, j, n;
 
   fp = fopen(filename, "r");
 
