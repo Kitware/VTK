@@ -162,7 +162,7 @@ static int skip_ahead_until(const char *text);
 
 "//".* ;
 
-^"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
+^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
                 int i;
                 for (i = 0; i < yyleng && yytext[i] != 'V'; i++) { ; };
                 yylval.str = (char *)malloc(yyleng - i + 1);
@@ -170,7 +170,7 @@ static int skip_ahead_until(const char *text);
                 yylval.str[yyleng-i] = '\0';
                 return (VTK_CONSTANT_DEF); }
 
-^"#"(\\\n|\\\r\n|[^\n])*$     ;
+^[\t ]*"#"(\\\n|\\\r\n|[^\n])*$     ;
 
 \"([^\"]|\\\")*\"      {
                 yylval.str = (char *)malloc(yyleng + 1);
