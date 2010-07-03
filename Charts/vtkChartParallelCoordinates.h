@@ -149,6 +149,7 @@ protected:
   void ResetSelection();
   void UpdateGeometry();
   void CalculatePlotTransform();
+  void SwapAxes(int a1, int a2);
 
 private:
   vtkChartParallelCoordinates(const vtkChartParallelCoordinates &); // Not implemented.

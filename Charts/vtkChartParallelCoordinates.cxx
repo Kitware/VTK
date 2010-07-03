@@ -445,15 +445,35 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
       }
     this->Scene->SetDirty(true);
     }
-  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     vtkAxis* axis = this->Storage->Axes[this->Storage->CurrentAxis];
     if (this->Storage->AxisResize == 0)
       {
       // Move the axis in x
       float deltaX = mouse.ScenePos.X() - mouse.LastScenePos.X();
+
       axis->SetPoint1(axis->GetPoint1()[0]+deltaX, axis->GetPoint1()[1]);
       axis->SetPoint2(axis->GetPoint2()[0]+deltaX, axis->GetPoint2()[1]);
+
+      vtkAxis* leftAxis = this->Storage->CurrentAxis > 0 ?
+        this->Storage->Axes[this->Storage->CurrentAxis-1] :
+        NULL;
+
+      vtkAxis* rightAxis = this->Storage->CurrentAxis < this->Storage->Axes.size()-1 ?
+        this->Storage->Axes[this->Storage->CurrentAxis+1] :
+        NULL;
+
+      if (leftAxis && axis->GetPoint1()[0] < leftAxis->GetPoint1()[0])
+        {
+        this->SwapAxes(this->Storage->CurrentAxis,this->Storage->CurrentAxis-1);
+        this->Storage->CurrentAxis--;
+        }
+      else if (rightAxis && axis->GetPoint1()[0] > rightAxis->GetPoint1()[0])
+        {
+        this->SwapAxes(this->Storage->CurrentAxis,this->Storage->CurrentAxis+1);
+        this->Storage->CurrentAxis++;
+        }
       }
     else if (this->Storage->AxisResize == 1)
       {
@@ -548,7 +568,7 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(
     this->Scene->SetDirty(true);
     return true;
     }
-  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     // Middle mouse button - move and zoom the axes
     // Iterate over the axes, see if we are within 10 pixels of an axis
@@ -652,7 +672,7 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
       }
     return true;
     }
-  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
     {
     this->Storage->CurrentAxis = -1;
     this->Storage->AxisResize = -1;
@@ -700,4 +720,26 @@ void vtkChartParallelCoordinates::ResetSelection()
 void vtkChartParallelCoordinates::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SwapAxes(int a1, int a2)
+{
+  // only neighboring axes
+  if (abs(a1-a2) != 1)
+    return;
+
+  vtkAxis* axisTmp = this->Storage->Axes[a1];
+  this->Storage->Axes[a1] = this->Storage->Axes[a2];
+  this->Storage->Axes[a2] = axisTmp;
+
+  vtkVector<float, 2> selTmp = this->Storage->AxesSelections[a1];
+  this->Storage->AxesSelections[a1] = this->Storage->AxesSelections[a2];
+  this->Storage->AxesSelections[a2] = selTmp;
+
+  vtkStdString colTmp = this->VisibleColumns->GetValue(a1);
+  this->VisibleColumns->SetValue(a1,this->VisibleColumns->GetValue(a2));
+  this->VisibleColumns->SetValue(a2,colTmp);
+
+  this->Storage->Plot->Update();
 }
