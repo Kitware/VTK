@@ -93,6 +93,18 @@ if ( VERDICT_ENABLE_TESTING )
   set_tests_properties( verdict_test PROPERTIES FAIL_REGULAR_EXPRESSION "FAILED" )
 endif ( VERDICT_ENABLE_TESTING )
 
+if (VTK_INSTALL_BIN_DIR_CM24)
+  set (verdict_INSTALL_BIN_DIR {VTK_INSTALL_BIN_DIR_CM24})
+endif(VTK_INSTALL_BIN_DIR_CM24)
+
+if(VTK_INSTALL_LIB_DIR_CM24)
+  set (verdict_INSTALL_LIB_DIR ${VTK_INSTALL_LIB_DIR_CM24})
+endif(VTK_INSTALL_LIB_DIR_CM24)
+
+if(VTK_INSTALL_INCLUDE_DIR)
+  set (verdict_INSTALL_INCLUDE_SUBDIR ${VTK_INSTALL_INCLUDE_DIR})
+endif(VTK_INSTALL_INCLUDE_DIR)
+
 if ( NOT verdict_INSTALL_DOC_DIR )
   set (verdict_INSTALL_DOC_DIR doc)
 endif( NOT verdict_INSTALL_DOC_DIR )
@@ -116,28 +128,31 @@ endif ( VERDICT_BUILD_DOC )
 #
 # Installation stuff
 #
-install(FILES 
-  README
-  Verdict.htm
-  Verdict.doc
-  verdict_test.cpp
-  DESTINATION ${verdict_INSTALL_DOC_DIR}/verdict/${verdict_VERSION}/
-  COMPONENT Development
-)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    README
+    Verdict.htm
+    Verdict.doc
+    verdict_test.cpp
+    DESTINATION ${verdict_INSTALL_DOC_DIR}/verdict/${verdict_VERSION}/
+    COMPONENT Development
+  )
 
-install(
-  FILES ${verdict_BINARY_DIR}/verdict.h
-  DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
-  COMPONENT Development
-)
-
-if ( VERDICT_MANGLE )
   install(
-    FILES ${verdict_BINARY_DIR}/verdict_mangle.h
+    FILES ${verdict_BINARY_DIR}/verdict.h
     DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
     COMPONENT Development
   )
-endif ( VERDICT_MANGLE )
+
+  if ( VERDICT_MANGLE )
+    install(
+      FILES ${verdict_BINARY_DIR}/verdict_mangle.h
+      DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
+      COMPONENT Development
+    )
+  endif ( VERDICT_MANGLE )
+
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 install(TARGETS ${verdict_LIBRARY}
       RUNTIME DESTINATION ${verdict_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries # .exe, .dll
