@@ -238,6 +238,12 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
         vtkArrayIteratorTemplateMacro(
           vtkDelimitedTextWriterGetDataString(static_cast<VTK_TT*>(iter->GetPointer()),
             index, this->Stream, this, &first));
+        case VTK_VARIANT:
+          {
+          vtkDelimitedTextWriterGetDataString(static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(iter->GetPointer()),
+            index, this->Stream, this, &first);
+          break;
+          }
         }
       }
     (*this->Stream) << "\n";
