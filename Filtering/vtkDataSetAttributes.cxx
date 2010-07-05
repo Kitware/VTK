@@ -2057,7 +2057,7 @@ void vtkDataSetAttributes::FieldList::ClearFields()
       {
       if ( this->FieldComponentsNames[i] )
         {
-        for (int j=0; j<this->FieldComponentsNames[i]->size(); j++)
+        for (size_t j=0; j<this->FieldComponentsNames[i]->size(); j++)
           {
           delete this->FieldComponentsNames[i]->at(j);
           }
@@ -2103,7 +2103,7 @@ void vtkDataSetAttributes::FieldList::SetField(
   //so we unallocate correctly
   if ( this->FieldComponentsNames[index] )
     {    
-    for (int i=0; i<this->FieldComponentsNames[index]->size(); i++)
+    for (size_t i=0; i<this->FieldComponentsNames[index]->size(); i++)
       {
       delete this->FieldComponentsNames[index]->at(i);
       }
