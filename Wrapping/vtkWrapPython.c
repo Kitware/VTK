@@ -1569,8 +1569,8 @@ const char *vtkWrapPython_FormatComment(
       /* handle quotes */
       if (cp[i] == '\"')
         {
-        int q = i;
-        int r = k;
+        size_t q = i;
+        size_t r = k;
 
         text[k++] = cp[i++];
         while (cp[i] != '\"' && cp[i] != '\r' &&
