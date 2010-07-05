@@ -66,6 +66,7 @@ class TestLinePlot(vtk.test.Testing.vtkTest):
         line.SetWidth(4.0)
 
         view.GetRenderWindow().SetMultiSamples(0)
+	view.GetRenderWindow().Render()
 
         img_file = "TestLinePlot.png"
         vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)

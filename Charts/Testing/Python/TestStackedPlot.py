@@ -94,7 +94,7 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         stack.SetColorSeries(colorSeries)
 
         view.GetRenderWindow().SetMultiSamples(0)
-        #view.GetRenderWindow().GetInteractor().Start()
+	view.GetRenderWindow().Render()
 
         img_file = "TestStackedPlot.png"
         vtk.test.Testing.compareImage(view.GetRenderWindow(),
