@@ -93,9 +93,13 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     ENDFOREACH (TMP_KIT_CHECK ${VTK_KITS})
   ENDFOREACH (TMP_LIB ${TMP_KIT_DEPENDS})
 
-  # build the hierarchy file when the kit library is built
+  # Build the hierarchy file when the kit library is built, this
+  # ensures that the file is built when kits in other libraries
+  # need it (i.e. they depend on this kits library, but if this
+  # kits library is built, then the hierarchy file is also built).
   ADD_CUSTOM_COMMAND(
-    TARGET vtk${KIT} PRE_BUILD
+    TARGET vtk${KIT} POST_BUILD
+
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
     ARGS
     "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
@@ -103,14 +107,20 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     ${OTHER_HIERARCHY_FILES}
     COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
     ${verbatim}
+
+    COMMAND ${CMAKE_COMMAND}
+    ARGS
+    "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
+    ${verbatim}
     )
 
-  # ugly but necessary
+  # Force the above custom command to execute if hierarchy tool changes
   ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
 
-  # make a dummy target so that items that depend on the heirarchy
-  # file will rebuild when the file changes, but will not have to
-  # rebuild every time the kit library is built
+  # Add a custom-command for when the hierarchy file is needed
+  # within its own kit.  A dummy target is needed because the
+  # vtkWrapHierarchy tool only changes the timestamp on the
+  # hierarchy file if the VTK hierarchy actually changes.
   ADD_CUSTOM_COMMAND(
     OUTPUT ${OUTPUT_DIR}/${TARGET}.target
     ${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt
