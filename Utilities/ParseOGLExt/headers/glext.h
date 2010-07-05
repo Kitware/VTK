@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2010-05-17 09:47:20 -0700 (Mon, 17 May 2010) $ */
+/* glext.h last updated $Date: 2010-06-15 23:46:28 -0700 (Tue, 15 Jun 2010) $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 62
+#define GL_GLEXT_VERSION 63
 /* Function declaration macros - to move into glplatform.h */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -4827,6 +4827,16 @@ extern "C" {
 #define GL_DEBUG_CATEGORY_OTHER_AMD       0x9150
 #endif
 
+#ifndef GL_NV_vdpau_interop
+#define GL_SURFACE_STATE_NV               0x86EB
+#define GL_SURFACE_REGISTERED_NV          0x86FD
+#define GL_SURFACE_MAPPED_NV              0x8700
+#define GL_WRITE_DISCARD_NV               0x88BE
+#endif
+
+#ifndef GL_AMD_transform_feedback3_lines_triangles
+#endif
+
 
 /*************************************************************/
 
@@ -4906,7 +4916,7 @@ typedef int64_t GLint64EXT;
 typedef uint64_t GLuint64EXT;
 #endif
 
-#ifndef ARB_sync
+#ifndef GL_ARB_sync
 typedef int64_t GLint64;
 typedef uint64_t GLuint64;
 typedef struct __GLsync *GLsync;
@@ -6533,7 +6543,7 @@ typedef GLint (APIENTRYP PFNGLGETFRAGDATAINDEXPROC) (GLuint program, const GLcha
 GLAPI void APIENTRY glGenSamplers (GLsizei count, GLuint *samplers);
 GLAPI void APIENTRY glDeleteSamplers (GLsizei count, const GLuint *samplers);
 GLAPI GLboolean APIENTRY glIsSampler (GLuint sampler);
-GLAPI void APIENTRY glBindSampler (GLenum unit, GLuint sampler);
+GLAPI void APIENTRY glBindSampler (GLuint unit, GLuint sampler);
 GLAPI void APIENTRY glSamplerParameteri (GLuint sampler, GLenum pname, GLint param);
 GLAPI void APIENTRY glSamplerParameteriv (GLuint sampler, GLenum pname, const GLint *param);
 GLAPI void APIENTRY glSamplerParameterf (GLuint sampler, GLenum pname, GLfloat param);
@@ -6548,7 +6558,7 @@ GLAPI void APIENTRY glGetSamplerParameterIfv (GLuint sampler, GLenum pname, GLfl
 typedef void (APIENTRYP PFNGLGENSAMPLERSPROC) (GLsizei count, GLuint *samplers);
 typedef void (APIENTRYP PFNGLDELETESAMPLERSPROC) (GLsizei count, const GLuint *samplers);
 typedef GLboolean (APIENTRYP PFNGLISSAMPLERPROC) (GLuint sampler);
-typedef void (APIENTRYP PFNGLBINDSAMPLERPROC) (GLenum unit, GLuint sampler);
+typedef void (APIENTRYP PFNGLBINDSAMPLERPROC) (GLuint unit, GLuint sampler);
 typedef void (APIENTRYP PFNGLSAMPLERPARAMETERIPROC) (GLuint sampler, GLenum pname, GLint param);
 typedef void (APIENTRYP PFNGLSAMPLERPARAMETERIVPROC) (GLuint sampler, GLenum pname, const GLint *param);
 typedef void (APIENTRYP PFNGLSAMPLERPARAMETERFPROC) (GLuint sampler, GLenum pname, GLfloat param);
@@ -9712,6 +9722,9 @@ GLAPI void APIENTRY glNamedBufferDataEXT (GLuint buffer, GLsizeiptr size, const 
 GLAPI void APIENTRY glNamedBufferSubDataEXT (GLuint buffer, GLintptr offset, GLsizeiptr size, const GLvoid *data);
 GLAPI GLvoid* APIENTRY glMapNamedBufferEXT (GLuint buffer, GLenum access);
 GLAPI GLboolean APIENTRY glUnmapNamedBufferEXT (GLuint buffer);
+GLAPI GLvoid* APIENTRY glMapNamedBufferRangeEXT (GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
+GLAPI void APIENTRY glFlushMappedNamedBufferRangeEXT (GLuint buffer, GLintptr offset, GLsizeiptr length);
+GLAPI void APIENTRY glNamedCopyBufferSubDataEXT (GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
 GLAPI void APIENTRY glGetNamedBufferParameterivEXT (GLuint buffer, GLenum pname, GLint *params);
 GLAPI void APIENTRY glGetNamedBufferPointervEXT (GLuint buffer, GLenum pname, GLvoid* *params);
 GLAPI void APIENTRY glGetNamedBufferSubDataEXT (GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data);
@@ -9899,6 +9912,9 @@ typedef void (APIENTRYP PFNGLNAMEDBUFFERDATAEXTPROC) (GLuint buffer, GLsizeiptr 
 typedef void (APIENTRYP PFNGLNAMEDBUFFERSUBDATAEXTPROC) (GLuint buffer, GLintptr offset, GLsizeiptr size, const GLvoid *data);
 typedef GLvoid* (APIENTRYP PFNGLMAPNAMEDBUFFEREXTPROC) (GLuint buffer, GLenum access);
 typedef GLboolean (APIENTRYP PFNGLUNMAPNAMEDBUFFEREXTPROC) (GLuint buffer);
+typedef GLvoid* (APIENTRYP PFNGLMAPNAMEDBUFFERRANGEEXTPROC) (GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
+typedef void (APIENTRYP PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEEXTPROC) (GLuint buffer, GLintptr offset, GLsizeiptr length);
+typedef void (APIENTRYP PFNGLNAMEDCOPYBUFFERSUBDATAEXTPROC) (GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
 typedef void (APIENTRYP PFNGLGETNAMEDBUFFERPARAMETERIVEXTPROC) (GLuint buffer, GLenum pname, GLint *params);
 typedef void (APIENTRYP PFNGLGETNAMEDBUFFERPOINTERVEXTPROC) (GLuint buffer, GLenum pname, GLvoid* *params);
 typedef void (APIENTRYP PFNGLGETNAMEDBUFFERSUBDATAEXTPROC) (GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data);
@@ -10269,6 +10285,10 @@ typedef void (APIENTRYP PFNGLTEXTUREBARRIERNVPROC) (void);
 
 #ifndef GL_AMD_name_gen_delete
 #define GL_AMD_name_gen_delete 1
+#endif
+
+#ifndef GL_AMD_transform_feedback3_lines_triangles
+#define GL_AMD_transform_feedback3_lines_triangles 1
 #endif
 
 
