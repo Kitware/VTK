@@ -121,13 +121,7 @@ int TestStackedPlot( int argc, char * argv [] )
   stack->SetInputArray(5,"Video");
 
   VTK_CREATE(vtkColorSeries,colorSeries);
-  colorSeries->ClearColors();
-  colorSeries->AddColor(vtkColor3ub(120,120,254));
-  colorSeries->AddColor(vtkColor3ub(254,118,118));
-  colorSeries->AddColor(vtkColor3ub(170,170,254));
-  colorSeries->AddColor(vtkColor3ub(91,91,254));
-  colorSeries->AddColor(vtkColor3ub(253,158,158));
-
+  colorSeries->SetColorScheme(vtkColorSeries::COOL);
   stack->SetColorSeries(colorSeries);
  
   //Finally render the scene and compare the image to a reference image

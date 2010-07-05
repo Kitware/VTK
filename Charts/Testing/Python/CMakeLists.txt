@@ -9,7 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${tests}
         TestBarGraph
         TestLinePlot
-#        TestStackedPlot
+        TestStackedPlot
       )
     ELSE()
       # Tests written in Python that do NOT require VTKData

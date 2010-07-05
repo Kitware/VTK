@@ -28,7 +28,7 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         chart = vtk.vtkChartXY()
         view.GetScene().AddItem(chart)
 
-        # Create a table with some points in it
+        # Create a table with some data in it
         table = vtk.vtkTable()
 
         arrMonthLabels = vtk.vtkStringArray()
@@ -72,46 +72,34 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         table.AddColumn(arrAudiobook)
         table.AddColumn(arrVideo)
 
-        # Now add the line plots with appropriate colors
+        # Set up the X Labels
 
         chart.GetAxis(1).SetTickLabels(arrMonthLabels)
         chart.GetAxis(1).SetTickPositions(arrMonthPositions)
         chart.GetAxis(1).SetMaximum(11)
 
-        # Books
-        line = chart.AddPlot(3)
-        line.SetInput(table,0,1)
-        line.SetColor(120,120,254,255)
+        # Create the stacked plot
+        stack = chart.AddPlot(3)
+        stack.SetUseIndexForXSeries(True)
+        stack.SetInput(table)
+        stack.SetInputArray(1,"Books")
+        stack.SetInputArray(2,"New / Popular")
+        stack.SetInputArray(3,"Periodical")
+        stack.SetInputArray(4,"Audiobook")
+        stack.SetInputArray(5,"Video")
 
-        # New / Popular
-        line = chart.AddPlot(3)
-        line.SetInput(table,0,2)
-        line.SetColor(254,118,118,255)
-
-        # Periodical
-        line = chart.AddPlot(3)
-        line.SetInput(table,0,3)
-        line.SetColor(170,170,254,255)
-
-        # Audiobook
-        line = chart.AddPlot(3)
-        line.SetInput(table,0,4)
-        line.SetColor(91,91,254,255)
-
-        # Video
-        line = chart.AddPlot(3)
-        line.SetInput(table,0,5)
-        line.SetColor(253,158,158,255)
+        # Set up a nice color series
+        colorSeries = vtk.vtkColorSeries()
+        colorSeries.SetColorScheme(2)
+        stack.SetColorSeries(colorSeries)
 
         view.GetRenderWindow().SetMultiSamples(0)
         #view.GetRenderWindow().GetInteractor().Start()
 
         img_file = "TestStackedPlot.png"
-        img_file2 = "TestStackedPlot0Hidden.png"
-        vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
-        vtk.test.Testing.interact()
-        chart.GetPlot(0).SetVisible(False)
-        vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file2),threshold=25)
+        vtk.test.Testing.compareImage(view.GetRenderWindow(),
+                                      vtk.test.Testing.getAbsImagePath(img_file),
+                                      threshold=25)
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":
