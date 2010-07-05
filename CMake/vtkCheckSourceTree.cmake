@@ -9,10 +9,10 @@ if(NOT VTK_IGNORE_HOOKS AND NOT VTK_FROM_CTEST AND
     message(FATAL_ERROR "
  Please initialize your local Git hooks, paste the following into a shell:
 
- $ cd ${VTK_SOURCE_DIR}/.git/hooks
- $ git init
- $ git pull .. remotes/origin/hooks
- $ cd ../..
+ cd ${VTK_SOURCE_DIR}/.git/hooks
+ git init
+ git pull .. remotes/origin/hooks
+ cd ../..
 
  See http://www.vtk.org/Wiki/VTK/Git#Hooks for more details.
 
