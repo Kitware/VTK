@@ -104,6 +104,8 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->DivideVariables->InsertNextValue("B-scale turbulence");
   this->DivideVariables->InsertNextValue("Oxygen");
 
+  this->data = 0;
+
   // Set rank and total number of processors
   this->MPIController = vtkMultiProcessController::GetGlobalController();
 
@@ -145,6 +147,18 @@ vtkWindBladeReader::~vtkWindBladeReader()
 
   this->Points->Delete();
   this->BPoints->Delete();
+
+  if (this->data)
+    {
+    for (int var = 0; var < this->NumberOfVariables; var++)
+      {
+      if (this->data[var])
+        {
+        this->data[var]->Delete();
+        }
+      }
+    delete [] this->data;
+    }
 
   this->SelectionObserver->Delete();
 
@@ -572,6 +586,10 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 //----------------------------------------------------------------------------
 void vtkWindBladeReader::LoadVariableData(int var)
 {
+  this->data[var]->Delete();
+  this->data[var] = vtkFloatArray::New();
+  this->data[var]->SetName(VariableName[var].c_str());
+
   // Skip to the appropriate variable block and read byte count
   // not used? int byteCount;
   fseek(this->FilePtr, this->VariableOffset[var], SEEK_SET);
