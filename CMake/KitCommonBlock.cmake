@@ -19,11 +19,11 @@ INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
 # if we are wrapping anything, then build hierarchy files
-IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-  SET(KIT_HIERARCHY_FILE vtk${KIT}Hierarchy.txt)
-  VTK_WRAP_HIERARCHY(vtk${KIT}Hierarchy
-    ${CMAKE_CURRENT_BINARY_DIR} "${Kit_SRCS}")
-ENDIF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+#IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+#  SET(KIT_HIERARCHY_FILE vtk${KIT}Hierarchy.txt)
+#  VTK_WRAP_HIERARCHY(vtk${KIT}Hierarchy
+#    ${CMAKE_CURRENT_BINARY_DIR} "${Kit_SRCS}")
+#ENDIF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
 
 # if we are wrapping into Tcl then add the library and extra
 # source files

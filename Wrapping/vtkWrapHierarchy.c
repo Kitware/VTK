@@ -51,7 +51,8 @@ static int vtkWrapHierarchy_ParseHeaderFile(
   char *cp;
   FileInfo *data;
   ClassInfo *class_info;
-  size_t i, j, k;
+  int i, j;
+  size_t k, n;
 
   /* the "concrete" flag doesn't matter, just set to zero */
   data = vtkParse_ParseFile(filename, 0, fp, stderr);
@@ -62,10 +63,10 @@ static int vtkWrapHierarchy_ParseHeaderFile(
     }
 
   /* find the last line in "lines" */
-  k = 0;
-  while (lines[k] != NULL)
+  n = 0;
+  while (lines[n] != NULL)
     {
-    k++;
+    n++;
     }
 
   cp = line;
@@ -94,17 +95,17 @@ static int vtkWrapHierarchy_ParseHeaderFile(
         }
       }
 
-    j = strlen(data->FileName) - 1;
-    while (j > 0 && data->FileName[j-1] != '/' && data->FileName[j-1] != '\\')
+    k = strlen(data->FileName) - 1;
+    while (k > 0 && data->FileName[k-1] != '/' && data->FileName[k-1] != '\\')
       {
-      j--;
+      k--;
       }
 
-    sprintf(cp, "; %s", &data->FileName[j]);
+    sprintf(cp, "; %s", &data->FileName[k]);
     cp = line;
-    lines[k] = (char *)malloc(strlen(cp)+1);
-    strcpy(lines[k++], cp);
-    lines[k] = NULL;
+    lines[n] = (char *)malloc(strlen(cp)+1);
+    strcpy(lines[n++], cp);
+    lines[n] = NULL;
     }
 
   vtkParse_Free(data);

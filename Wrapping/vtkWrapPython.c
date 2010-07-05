@@ -3188,6 +3188,34 @@ static void vtkWrapPython_GenerateSpecialHeaders(
       {
       incfile = vtkParseHierarchy_ClassHeader(hinfo, types[i]);
       }
+    else if (strcmp(types[i], "vtkArrayCoordinates") == 0)
+      {
+      incfile = "vtkArrayCoordinates.h";
+      }
+    else if (strcmp(types[i], "vtkArrayExtents") == 0)
+      {
+      incfile = "vtkArrayExtents.h";
+      }
+    else if (strcmp(types[i], "vtkArrayRange") == 0)
+      {
+      incfile = "vtkArrayRange.h";
+      }
+    else if (strcmp(types[i], "vtkTimeStamp") == 0)
+      {
+      incfile = "vtkTimeStamp.h";
+      }
+    else if (strcmp(types[i], "vtkVariant") == 0)
+      {
+      incfile = "vtkVariant.h";
+      }
+    else if (strcmp(types[i], "vtkStdString") == 0)
+      {
+      incfile = "vtkStdString.h";
+      }
+    else if (strcmp(types[i], "vtkUnicodeString") == 0)
+      {
+      incfile = "vtkUnicodeString.h";
+      }
     if (incfile)
       {
       /* make sure it doesn't share our header file */
