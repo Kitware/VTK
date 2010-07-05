@@ -33,6 +33,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <unistd.h>
+#endif
 
 #define MAX_NUM_CLASSES 10000
 
@@ -46,7 +51,7 @@ static int vtkWrapHierarchy_ParseHeaderFile(
   char *cp;
   FileInfo *data;
   ClassInfo *class_info;
-  int i, j, k;
+  size_t i, j, k;
 
   /* the "concrete" flag doesn't matter, just set to zero */
   data = vtkParse_ParseFile(filename, 0, fp, stderr);
@@ -113,7 +118,7 @@ static int vtkWrapHierarchy_ParseHeaderFile(
 static int vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char *lines[])
 {
   char line[2048];
-  int i, n;
+  size_t i, n;
 
   while (fgets(line, 2048, fp))
     {
@@ -167,7 +172,7 @@ static int vtkWrapHierarchy_CompareHierachyFile(FILE *fp, char *lines[])
 {
   char line[2048];
   unsigned char *matched;
-  int i, n;
+  size_t i, n;
 
   for (i = 0; lines[i] != NULL; i++) { ; };
   matched = (unsigned char *)malloc(i);
@@ -228,7 +233,7 @@ static int vtkWrapHierarchy_CompareHierachyFile(FILE *fp, char *lines[])
  */
 static int vtkWrapHierarchy_WriteHierarchyFile(FILE *fp, char *lines[])
 {
-  int i;
+  size_t i;
 
   for (i = 0; lines[i] != NULL; i++)
     {
@@ -317,11 +322,31 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(
 
   if (!matched)
     {
+    int tries = 1;
     output_file = fopen(file_name, "w");
+    while (!output_file && tries < 5)
+      {
+      /* There are two CMAKE_CUSTOM_COMMANDS for vtkWrapHierarchy,
+       * make sure they do not collide. */
+      tries++;
+#ifdef _WIN32
+      Sleep(1000);
+#else
+      sleep(1);
+#endif
+      output_file = fopen(file_name, "w");
+      if (output_file)
+        {
+        /* pretend that we wrote it, even though it was the other
+         * process that did */
+        fclose(output_file);
+        return 1;
+        }
+      }
     if (!output_file)
       {
-      fprintf(stderr, "vtkWrapHierarchy: error opening file %s\n",
-              file_name);
+      fprintf(stderr, "vtkWrapHierarchy: tried %i times to write %s\n",
+              tries, file_name);
       exit(1);
       }
     if (!vtkWrapHierarchy_WriteHierarchyFile(output_file, lines))
