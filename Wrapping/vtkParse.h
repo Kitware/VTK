@@ -48,9 +48,9 @@ typedef enum _parse_item_t
  */
 typedef enum _parse_access_t
 {
-  VTK_ACCESS_PUBLIC = 0,
+  VTK_ACCESS_PUBLIC    = 0,
   VTK_ACCESS_PROTECTED = 1,
-  VTK_ACCESS_PRIVATE = 2
+  VTK_ACCESS_PRIVATE   = 2
 } parse_access_t;
 
 struct _TemplateArgs;
@@ -62,17 +62,17 @@ struct _FunctionInfo;
 
 typedef struct _TemplateArg
 {
-  int   Type;         /* is zero for "typename", "class", "template" */
-  char *Class;        /* class name for type */
-  char *Name;         /* name of template arg */
-  char *Value;        /* default value */
+  unsigned int   Type;   /* is zero for "typename", "class", "template" */
+  char          *Class;  /* class name for type */
+  char          *Name;   /* name of template arg */
+  char          *Value;  /* default value */
   struct _TemplateArgs *Template; /* for templated template args */
 } TemplateArg;
 
 typedef struct _TemplateArgs
 {
-  int NumberOfArguments;
-  TemplateArg **Arguments;
+  int            NumberOfArguments;
+  TemplateArg  **Arguments;
 } TemplateArgs;
 
 /**
@@ -80,10 +80,10 @@ typedef struct _TemplateArgs
  */
 typedef struct _ItemInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;
-  char *Comment;
+  char          *Name;
+  char          *Comment;
 } ItemInfo;
 
 /**
@@ -96,19 +96,19 @@ typedef struct _ItemInfo
  */
 typedef struct _ValueInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;
-  char *Comment;
-  char *Value;               /* for vars or default arg values */
-  int   Type;                /* as defined in vtkParseType.h   */
-  char *Class;               /* classname for type */
-  int   Count;               /* total number of values, if known */
-  int   NumberOfDimensions;  /* dimensionality for arrays */
-  char **Dimensions;         /* dimensions for arrays */
+  char          *Name;
+  char          *Comment;
+  char          *Value;      /* for vars or default arg values */
+  unsigned int   Type;       /* as defined in vtkParseType.h   */
+  char          *Class;      /* classname for type */
+  int            Count;      /* total number of values, if known */
+  int            NumberOfDimensions;  /* dimensionality for arrays */
+  char         **Dimensions; /* dimensions for arrays */
   struct _FunctionInfo *Function;    /* for function pointer values */
-  int   IsStatic;            /* for class variables only */
-  int   IsEnum;              /* for constants only */
+  int            IsStatic;   /* for class variables only */
+  int            IsEnum;     /* for constants only */
 } ValueInfo;
 
 /**
@@ -116,32 +116,32 @@ typedef struct _ValueInfo
  */
 typedef struct _FunctionInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;
-  char *Comment;
-  char *Signature;           /* function signature as text */
-  TemplateArgs *Template;    /* template args, or NULL */
-  int   NumberOfArguments;
-  ValueInfo **Arguments;
-  ValueInfo *ReturnValue;    /* NULL for constructors and destructors */
-  int   IsOperator;
-  int   IsVariadic;
-  int   IsLegacy;            /* marked as a legacy method or function */
-  int   IsStatic;            /* methods only */
-  int   IsVirtual;           /* methods only */
-  int   IsPureVirtual;       /* methods only */
-  int   IsConst;             /* methods only */
-  int   ArgTypes[MAX_ARGS];  /* legacy */
-  char *ArgClasses[MAX_ARGS];/* legacy */
-  int   ArgCounts[MAX_ARGS]; /* legacy */
-  int   ReturnType;          /* legacy */
-  char *ReturnClass;         /* legacy */
-  int   HaveHint;            /* legacy */
-  int   HintSize;            /* legacy */
-  int   ArrayFailure;        /* legacy */
-  int   IsPublic;            /* legacy */
-  int   IsProtected;         /* legacy */
+  char          *Name;
+  char          *Comment;
+  char          *Signature;     /* function signature as text */
+  TemplateArgs  *Template;      /* template args, or NULL */
+  int            NumberOfArguments;
+  ValueInfo    **Arguments;
+  ValueInfo     *ReturnValue;   /* NULL for constructors and destructors */
+  int            IsOperator;
+  int            IsVariadic;
+  int            IsLegacy;      /* marked as a legacy method or function */
+  int            IsStatic;      /* methods only */
+  int            IsVirtual;     /* methods only */
+  int            IsPureVirtual; /* methods only */
+  int            IsConst;       /* methods only */
+  unsigned int   ArgTypes[MAX_ARGS];  /* legacy */
+  char          *ArgClasses[MAX_ARGS];/* legacy */
+  int            ArgCounts[MAX_ARGS]; /* legacy */
+  unsigned int   ReturnType;    /* legacy */
+  char          *ReturnClass;   /* legacy */
+  int            HaveHint;      /* legacy */
+  int            HintSize;      /* legacy */
+  int            ArrayFailure;  /* legacy */
+  int            IsPublic;      /* legacy */
+  int            IsProtected;   /* legacy */
 } FunctionInfo;
 
 /**
@@ -150,10 +150,10 @@ typedef struct _FunctionInfo
  */
 typedef struct _EnumInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;
-  char *Comment;
+  char          *Name;
+  char          *Comment;
 } EnumInfo;
 
 /**
@@ -161,12 +161,12 @@ typedef struct _EnumInfo
  */
 typedef struct _UnionInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;
-  char *Comment;
-  int NumberOfMembers;
-  ValueInfo **Members;
+  char          *Name;
+  char          *Comment;
+  int            NumberOfMembers;
+  ValueInfo    **Members;
 } UnionInfo;
 
 /**
@@ -174,23 +174,23 @@ typedef struct _UnionInfo
  */
 typedef struct _ClassInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;
-  char *Comment;
-  TemplateArgs *Template;
-  int   NumberOfSuperClasses;
-  char **SuperClasses;
-  int   NumberOfItems;
-  ItemInfo **Items;
-  int   NumberOfFunctions;
+  char          *Name;
+  char          *Comment;
+  TemplateArgs  *Template;
+  int            NumberOfSuperClasses;
+  char         **SuperClasses;
+  int            NumberOfItems;
+  ItemInfo     **Items;
+  int            NumberOfFunctions;
   FunctionInfo **Functions;
-  int   NumberOfConstants;
-  ValueInfo **Constants;
-  int   NumberOfEnums;
-  EnumInfo **Enums;
-  int   IsAbstract;
-  int   HasDelete;
+  int            NumberOfConstants;
+  ValueInfo    **Constants;
+  int            NumberOfEnums;
+  EnumInfo     **Enums;
+  int            IsAbstract;
+  int            HasDelete;
 } ClassInfo;
 
 /**
@@ -198,21 +198,21 @@ typedef struct _ClassInfo
  */
 typedef struct _NamespaceInfo
 {
-  parse_item_t ItemType;
+  parse_item_t   ItemType;
   parse_access_t Access;
-  char *Name;  /* NULL for global namespace */
-  char *Comment;
-  int   NumberOfItems;
-  ItemInfo **Items;
-  int   NumberOfClasses;
-  ClassInfo **Classes;
-  int   NumberOfFunctions;
+  char          *Name;  /* NULL for global namespace */
+  char          *Comment;
+  int            NumberOfItems;
+  ItemInfo     **Items;
+  int            NumberOfClasses;
+  ClassInfo    **Classes;
+  int            NumberOfFunctions;
   FunctionInfo **Functions;
-  int   NumberOfConstants;
-  ValueInfo **Constants;
-  int   NumberOfEnums;
-  EnumInfo **Enums;
-  int   NumberOfNamespaces;
+  int            NumberOfConstants;
+  ValueInfo    **Constants;
+  int            NumberOfEnums;
+  EnumInfo     **Enums;
+  int            NumberOfNamespaces;
   struct _NamespaceInfo **Namespaces;
 } NamespaceInfo;
 
@@ -221,13 +221,13 @@ typedef struct _NamespaceInfo
  */
 typedef struct _FileInfo
 {
-  char *FileName;
-  char *NameComment;
-  char *Description;
-  char *Caveats;
-  char *SeeAlso;
+  char          *FileName;
+  char          *NameComment;
+  char          *Description;
+  char          *Caveats;
+  char          *SeeAlso;
 
-  ClassInfo *MainClass;
+  ClassInfo     *MainClass;
   NamespaceInfo *Contents;
 } FileInfo;
 

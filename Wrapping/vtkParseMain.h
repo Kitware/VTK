@@ -40,15 +40,15 @@
  */
 typedef struct _OptionInfo
 {
-  char *InputFileName;
-  char *OutputFileName;
-  char *HintFileName;
-  char *HierarchyFileName;
-  int   IsVTKObject;
-  int   IsSpecialObject;
-  int   IsConcrete;
-  int   IsAbstract;
-  int   NumberOfIncludeDirectories;
+  char  *InputFileName;
+  char  *OutputFileName;
+  char  *HintFileName;
+  char  *HierarchyFileName;
+  int    IsVTKObject;
+  int    IsSpecialObject;
+  int    IsConcrete;
+  int    IsAbstract;
+  int    NumberOfIncludeDirectories;
   char **IncludeDirectories;
 } OptionInfo;
 

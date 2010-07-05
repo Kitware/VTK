@@ -118,16 +118,16 @@ char *vtkParse_FindPath(const char *filename)
   char *output;
   const char *sep;
 
-  for (i = -1; i < options.NumberOfIncludeDirectories; i++)
+  for (i = 0; i <= options.NumberOfIncludeDirectories; i++)
     {
-    if (i < 0)
+    if (i == 0)
       {
       /* try first with no path */
       strcpy(filepath, filename);
       }
     else
       {
-      directory = options.IncludeDirectories[i];
+      directory = options.IncludeDirectories[i-1];
       sep = "/";
       if (directory[strlen(directory)-1] == sep[0])
         {

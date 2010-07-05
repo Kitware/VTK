@@ -30,11 +30,11 @@ extern FunctionInfo *currentFunction;
 /* convert special characters in a string into their escape codes,
    so that the string can be quoted in a source file (the specified
    maxlen must be at least 32 chars)*/
-static const char *quote_string(const char *comment, int maxlen)
+static const char *quote_string(const char *comment, size_t maxlen)
 {
   static char *result = 0;
-  static int oldmaxlen = 0;
-  int i, j, n;
+  static size_t oldmaxlen = 0;
+  size_t i, j, n;
 
   if (maxlen > oldmaxlen)
     {
@@ -42,7 +42,7 @@ static const char *quote_string(const char *comment, int maxlen)
       {
       free(result);
       }
-    result = (char *)malloc((size_t)(maxlen+1));
+    result = (char *)malloc(maxlen+1);
     oldmaxlen = maxlen;
     }
 
@@ -53,7 +53,7 @@ static const char *quote_string(const char *comment, int maxlen)
 
   j = 0;
 
-  n = (int)strlen(comment);
+  n = strlen(comment);
 
   for (i = 0; i < n; i++)
     {
@@ -106,7 +106,8 @@ static const char *quote_string(const char *comment, int maxlen)
   return result;
 }
 
-void output_temp(FILE *fp, int i, int aType, char *Id, int count)
+void output_temp(FILE *fp, int i, unsigned int aType,
+                 char *Id, int count)
 {
   /* handle VAR FUNCTIONS */
   if (aType == VTK_PARSE_FUNCTION)
@@ -670,7 +671,7 @@ void get_args(FILE *fp, int i)
 
 void outputFunction(FILE *fp, ClassInfo *data)
 {
-  static int supported_types[] = {
+  static unsigned int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
     VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
     VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
@@ -689,9 +690,9 @@ void outputFunction(FILE *fp, ClassInfo *data)
 
   int i, j;
   int args_ok = 1;
-  int returnType = 0;
-  int argType = 0;
-  int baseType = 0;
+  unsigned int returnType = 0;
+  unsigned int argType = 0;
+  unsigned int baseType = 0;
 
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsOperator ||
@@ -1244,7 +1245,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
       fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
         {
-          int argtype;
+          unsigned int argtype;
 
           if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
             {

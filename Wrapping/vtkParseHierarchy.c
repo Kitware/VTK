@@ -34,14 +34,27 @@ static size_t skip_space(const char *text)
 
 static size_t skip_name(const char *text)
 {
+  unsigned int depth = 0;
   size_t i = 0;
+
   if (isalpha(text[i]) || text[i] == '_' ||
       (text[i] == ':' && text[i+1] == ':'))
     {
+    if (text[i] == ':') { i++; }
     i++;
     while (isalnum(text[i]) || text[i] == '_' ||
-           (text[i] == ':' && text[i+1] == ':'))
+           (text[i] == ':' && text[i+1] == ':') ||
+           text[i] == '<' || text[i] == '>')
       {
+      if (text[i] == '<')
+        {
+        while (text[i] != '\0' && text[i] != '\n')
+          {
+          if (text[i] == '<') { depth++; }
+          if (text[i] == '>') { if (--depth == 0) { break; } }
+          i++;
+          }
+        }
       if (text[i] == ':') { i++; }
       i++;
       }

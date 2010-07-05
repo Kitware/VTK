@@ -27,7 +27,8 @@ extern FunctionInfo *currentFunction;
 
 void output_temp(FILE *fp,int i)
 {
-  int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType =
+    (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* ignore void */
   if (aType == VTK_PARSE_VOID)
@@ -79,7 +80,8 @@ void output_temp(FILE *fp,int i)
 
 void return_result(FILE *fp)
 {
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   switch (rType)
     {
@@ -156,7 +158,8 @@ void return_result(FILE *fp)
 /* same as return_result except we return a long (the c++ pointer) rather than an object */
 void return_result_native(FILE *fp)
 {
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   switch (rType)
     {
@@ -234,12 +237,13 @@ void return_result_native(FILE *fp)
  * return 1 if type1 should take precedence,
  * return 2 if type2 should take precedence,
  * return 0 if the types do not map to the same type */
-static int CheckMatch(int type1, int type2, const char *c1, const char *c2)
+static int CheckMatch(
+  unsigned int type1, unsigned int type2, const char *c1, const char *c2)
 {
-  static int floatTypes[] = {
+  static unsigned int floatTypes[] = {
     VTK_PARSE_DOUBLE, VTK_PARSE_FLOAT, 0 };
 
-  static int intTypes[] = {
+  static unsigned int intTypes[] = {
     VTK_PARSE_UNSIGNED_LONG_LONG, VTK_PARSE_UNSIGNED___INT64,
     VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, VTK_PARSE_ID_TYPE,
     VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_LONG,
@@ -247,10 +251,10 @@ static int CheckMatch(int type1, int type2, const char *c1, const char *c2)
     VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT,
     VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
 
-  static int stringTypes[] = {
+  static unsigned int stringTypes[] = {
     VTK_PARSE_CHAR_PTR, VTK_PARSE_STRING_REF, VTK_PARSE_STRING, 0 };
 
-  static int *numericTypes[] = { floatTypes, intTypes, 0 };
+  static unsigned int *numericTypes[] = { floatTypes, intTypes, 0 };
 
   int i, j;
   int hit1, hit2;
@@ -436,7 +440,7 @@ void HandleDataArray(FILE *fp, ClassInfo *data)
 
 void outputFunction(FILE *fp, ClassInfo *data)
 {
-  static int supported_types[] = {
+  static unsigned int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
     VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
     VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
@@ -451,9 +455,10 @@ void outputFunction(FILE *fp, ClassInfo *data)
 
   int i, j;
   int args_ok = 1;
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
-  int aType = 0;
-  int baseType = 0;
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType = 0;
+  unsigned int baseType = 0;
 
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsOperator ||

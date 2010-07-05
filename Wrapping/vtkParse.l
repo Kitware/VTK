@@ -49,6 +49,7 @@ Modify lex.yy.c:
 /*
  * Skip ahead until one of the strings is found,
  * then skip to the end of the line.
+ * Return 0 if no match found.
  */
 static int skip_ahead_multi(const char *strings[]);
 static int skip_ahead_until(const char *text);
@@ -71,9 +72,13 @@ static int skip_ahead_until(const char *text);
          }
      };
 
-^[\t ]*"//BTX".*$ {
-       skip_ahead_until("//ETX");
+^[\t ]*"//BWX".*$ {
+       skip_ahead_until("//EWX");
      };
+
+
+^[\t ]*"//BTX".*$ ;
+^[\t ]*"//ETX".*$ ;
 
 
 ^[\t ]*"#ifdef"[\t ]*"VTK_WORKAROUND_WINDOWS_MANGLE".*$ {
@@ -98,7 +103,7 @@ static int skip_ahead_until(const char *text);
      };
 
 ^[\t ]*"// .NAME".* {
-     int pos = 1;
+     size_t pos = 1;
      while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
        {
        pos++;
@@ -145,7 +150,7 @@ static int skip_ahead_until(const char *text);
      };
 
 ^[\t ]*"//".*   {
-     int pos = 1;
+     size_t pos = 1;
      while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++;
      yylval.str = (char *)malloc(yyleng + 1 - pos - 1 + 1);
      memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
@@ -163,8 +168,9 @@ static int skip_ahead_until(const char *text);
 "//".* ;
 
 ^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
-                int i;
-                for (i = 0; i < yyleng && yytext[i] != 'V'; i++) { ; };
+                size_t i;
+                for (i = 0; i < (size_t)yyleng && yytext[i] != 'V'; i++)
+                  { ; };
                 yylval.str = (char *)malloc(yyleng - i + 1);
                 memcpy(yylval.str, &yytext[i], yyleng-i);
                 yylval.str[yyleng-i] = '\0';
@@ -187,7 +193,7 @@ static int skip_ahead_until(const char *text);
 [A-Za-z0-9_]*"_EXPORT" ;
 
 "vtkNotUsed"[ ]*"("[^)]*")" {
-     int i; int j = 0;
+     size_t i; size_t j = 0;
      while (yytext[j]!='(') { j++; }
      j++; i = j;
      while (yytext[j]!=')') { j++; }
@@ -206,7 +212,7 @@ static int skip_ahead_until(const char *text);
      };
 
 "void"[\t\n\r ]*"("[\t\n\r ]*"*"[a-zA-Z0-9_]*[\t\n\r ]*")"[\t\n\r ]*"("[\t\n\r ]*"void"[\t\n\r ]*"*"[\n\t ]*")" {
-     int i = 0; int j = 0;
+     size_t i = 0; size_t j = 0;
      while (yytext[j] != '*') { i++; j++; }
      i++; j++;
      while (yytext[i] != ' ' && yytext[i] != '\t' &&
@@ -310,8 +316,8 @@ static int skip_ahead_until(const char *text);
 "const"[\r\n\t ]*"="   return(CONST_EQUAL);
 
 "("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"&" {
-                int i = 1;
-                int j;
+                size_t i = 1;
+                size_t j;
                 while (yytext[i]==' ' || yytext[i]=='\t' ||
                        yytext[i]=='\r' || yytext[i]=='\n') { i++; }
                 j = i;
@@ -322,8 +328,8 @@ static int skip_ahead_until(const char *text);
                 return(LA); }
 
 "("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"*" {
-                int i = 1;
-                int j;
+                size_t i = 1;
+                size_t j;
                 while (yytext[i]==' ' || yytext[i]=='\t' ||
                        yytext[i]=='\r' || yytext[i]=='\n') { i++; }
                 j = i;
@@ -455,7 +461,7 @@ int skip_ahead_multi(const char *strings[])
 {
   char textbuf[SKIP_MATCH_MAXLEN+1];
   char c = 0;
-  int i;
+  size_t i;
 
   for (i = 0; i < (SKIP_MATCH_MAXLEN+1); i++)
     {
@@ -496,7 +502,7 @@ int skip_ahead_multi(const char *strings[])
     c = (char)input();
     }
 
-  return 0;
+  return 1;
 }
 
 /*

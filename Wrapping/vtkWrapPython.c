@@ -83,7 +83,8 @@ static char *vtkWrapPython_FormatString(
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePreceededMethods(
-  FunctionInfo *wrappedFunctions[], int numberWrapped, int fnum);
+  FunctionInfo *wrappedFunctions[],
+  int numberWrapped, int fnum);
 
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
@@ -91,15 +92,15 @@ static char *vtkWrapPython_ArgCheckString(
 
 /* quote a string for inclusion in a C string literal */
 static const char *vtkWrapPython_QuoteString(
-  const char *comment, int maxlen);
+  const char *comment, size_t maxlen);
 
 /* format a comment to a 70 char linewidth */
 static const char *vtkWrapPython_FormatComment(
-  const char *comment, int width);
+  const char *comment, size_t width);
 
 /* format a method signature to a 70 char linewidth */
 static const char *vtkWrapPython_FormatSignature(
-  const char *signature, int width);
+  const char *signature, size_t width);
 
 /* return a python-ized signature */
 static const char *vtkWrapPython_PythonSignature(
@@ -118,7 +119,7 @@ static const char *vtkWrapPython_PythonSignature(
 static void vtkWrapPython_ReturnHintedValue(
   FILE *fp, FunctionInfo *currentFunction)
 {
-  int  i;
+  int i;
   const char *c = 0;
 
   /* Get the char code for the return type */
@@ -207,7 +208,7 @@ static void vtkWrapPython_ReturnHintedValue(
 static void vtkWrapPython_MakeTempVariable(
   FILE *fp, FunctionInfo *currentFunction, int i)
 {
-  int aType = currentFunction->ReturnType;
+  unsigned int aType = currentFunction->ReturnType;
   char *Id = currentFunction->ReturnClass;
   int aCount = 0;
 
@@ -737,7 +738,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 {
   static char result[1024];
   size_t currPos = 0;
-  int argtype;
+  unsigned int argtype;
   int i, j;
   char typeChar;
 
@@ -880,7 +881,7 @@ static char *vtkWrapPython_ArgCheckString(
 {
   static char result[1024];
   size_t currPos = 0;
-  int argtype;
+  unsigned int argtype;
   int i;
 
   if (isvtkobjmethod)
@@ -941,11 +942,12 @@ static char *vtkWrapPython_ArgCheckString(
  * in a string into their escape codes, so that the string can be quoted
  * in a source file (the specified maxlen must be at least 32 chars)*/
 
-static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
+static const char *vtkWrapPython_QuoteString(
+  const char *comment, size_t maxlen)
 {
   static char *result = 0;
-  static int oldmaxlen = 0;
-  int i, j, n;
+  static size_t oldmaxlen = 0;
+  size_t i, j, n;
 
   if (maxlen > oldmaxlen)
     {
@@ -964,7 +966,7 @@ static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
 
   j = 0;
 
-  n = (int)strlen(comment);
+  n = strlen(comment);
   for (i = 0; i < n; i++)
     {
     if (comment[i] == '\"')
@@ -1007,9 +1009,10 @@ static const char *vtkWrapPython_QuoteString(const char *comment, int maxlen)
 /* -------------------------------------------------------------------- */
 /* The method signatures are for the python docstrings. */
 
-static void vtkWrapPython_AddToSignature(char *sig, const char *add, int *i)
+static void vtkWrapPython_AddToSignature(
+  char *sig, const char *add, size_t *i)
 {
-  int j = 0;
+  size_t j = 0;
   char *cp = &sig[*i];
   for (; add[j] != '\0'; j++)
     {
@@ -1030,8 +1033,8 @@ static const char *vtkWrapPython_PythonSignature(
   FunctionInfo *currentFunction)
 {
   static char result[1024];
-  int currPos = 0;
-  int argtype;
+  size_t currPos = 0;
+  unsigned int argtype;
   int i, j;
 
   /* print out the name of the method */
@@ -1279,10 +1282,10 @@ static const char *vtkWrapPython_PythonSignature(
 /* -------------------------------------------------------------------- */
 /* Format a signature to a 70 char linewidth */
 const char *vtkWrapPython_FormatSignature(
-  const char *signature, int width)
+  const char *signature, size_t width)
 {
   static char text[2048];
-  int i, j, k, l, m;
+  size_t i, j, k, l, m;
   const char *cp = signature;
   char delim;
 
@@ -1430,13 +1433,13 @@ const char *vtkWrapPython_FormatSignature(
  */
 
 const char *vtkWrapPython_FormatComment(
-  const char *comment, int width)
+  const char *comment, size_t width)
 {
   static size_t size = 0;
   static char *text = 0;
   const char *cp;
-  int i, j, k, l;
-  int indent = 0;
+  size_t i, j, k, l;
+  size_t indent = 0;
   int nojoin = 0;
   int start;
 
@@ -1583,8 +1586,8 @@ const char *vtkWrapPython_FormatComment(
         }
       else if (cp[i] == '\'')
         {
-        int q = i;
-        int r = k;
+        size_t q = i;
+        size_t r = k;
 
         text[k++] = cp[i++];
         while (cp[i] != '\'' && cp[i] != '\r' &&
@@ -1774,7 +1777,8 @@ const char *vtkWrapPython_FormatComment(
  */
 
 void vtkWrapPython_RemovePreceededMethods(
-  FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum)
+  FunctionInfo *wrappedFunctions[],
+  int numberOfWrappedFunctions, int fnum)
 {
   FunctionInfo *theFunc = wrappedFunctions[fnum];
   const char *name = theFunc->Name;
@@ -1783,9 +1787,9 @@ void vtkWrapPython_RemovePreceededMethods(
   int vote1 = 0;
   int vote2 = 0;
   int occ1, occ2;
-  int baseType1, baseType2;
-  int unsigned1, unsigned2;
-  int indirect1, indirect2;
+  unsigned int baseType1, baseType2;
+  unsigned int unsigned1, unsigned2;
+  unsigned int indirect1, indirect2;
   int i, n;
 
   if (!name)
@@ -1945,7 +1949,9 @@ static void vtkWrapPython_GenerateMethods(
   FILE *fp, ClassInfo *data, HierarchyInfo *hinfo,
   int is_vtkobject, int do_constructors)
 {
-  int i, j, k, is_static, is_pure_virtual, fnum, occ;
+  int i, j, k;
+  int is_static, is_pure_virtual;
+  int fnum, occ;
   int numberOfSignatures, signatureCount;
   char signatureSuffix[8];
   int all_legacy, all_static;
@@ -1954,8 +1960,8 @@ static void vtkWrapPython_GenerateMethods(
   FunctionInfo *theSignature;
   FunctionInfo *theFunc;
   const char *ccp;
-  int returnType = 0;
-  int argType = 0;
+  unsigned int returnType = 0;
+  unsigned int argType = 0;
   int potential_error = 0;
   int needs_cleanup = 0;
   char on_error[32];
@@ -2735,7 +2741,7 @@ static void vtkWrapPython_GenerateMethods(
 static int vtkWrapPython_IsDestructor(
   ClassInfo *data, FunctionInfo *currentFunction)
 {
-  int i;
+  size_t i;
   char *cp;
 
   if (data->Name && currentFunction->Name)
@@ -2772,7 +2778,7 @@ static int vtkWrapPython_IsConstructor(
 static int vtkWrapPython_MethodCheck(ClassInfo *data,
   FunctionInfo *currentFunction, HierarchyInfo *hinfo)
 {
-  static int supported_types[] = {
+  static unsigned int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
     VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
     VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
@@ -2794,9 +2800,9 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
 
   int i, j;
   int args_ok = 1;
-  int argType = 0;
-  int baseType = 0;
-  int returnType = 0;
+  unsigned int argType = 0;
+  unsigned int baseType = 0;
+  unsigned int returnType = 0;
 
   /* some functions will not get wrapped no matter what else,
      and some really common functions will appear only in vtkObjectPython */
@@ -3096,7 +3102,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
   int numTypes = 0;
   FunctionInfo *currentFunction;
   int i, j, k, n, m;
-  int aType;
+  unsigned int aType;
   const char *classname;
   const char *ownincfile = "";
 

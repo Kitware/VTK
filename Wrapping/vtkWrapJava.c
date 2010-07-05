@@ -28,7 +28,8 @@ ClassInfo *CurrentData;
 
 void output_proto_vars(FILE *fp, int i)
 {
-  int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType =
+    (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* ignore void */
   if (aType == VTK_PARSE_VOID)
@@ -97,7 +98,8 @@ void output_proto_vars(FILE *fp, int i)
 /* when the cpp file doesn't have enough info use the hint file */
 void use_hints(FILE *fp)
 {
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* use the hint */
   switch (rType)
@@ -178,7 +180,8 @@ void use_hints(FILE *fp)
 
 void return_result(FILE *fp)
 {
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   switch (rType)
     {
@@ -241,7 +244,7 @@ void return_result(FILE *fp)
 }
 
 
-void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
+void output_temp(FILE *fp, int i, unsigned int aType, char *Id, int aCount)
 {
   /* handle VAR FUNCTIONS */
   if (aType == VTK_PARSE_FUNCTION)
@@ -329,7 +332,8 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
 
 void get_args(FILE *fp, int i)
 {
-  int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType =
+    (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
   int j;
 
   /* handle VAR FUNCTIONS */
@@ -399,7 +403,8 @@ void get_args(FILE *fp, int i)
 
 void copy_and_release_args(FILE *fp, int i)
 {
-  int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType =
+    (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
   int j;
 
   /* handle VAR FUNCTIONS */
@@ -449,7 +454,8 @@ void copy_and_release_args(FILE *fp, int i)
 
 void do_return(FILE *fp)
 {
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* ignore void */
   if (rType == VTK_PARSE_VOID)
@@ -503,12 +509,13 @@ void do_return(FILE *fp)
  * return 1 if type1 should take precedence,
  * return 2 if type2 should take precedence,
  * return 0 if the types do not map to the same type */
-static int CheckMatch(int type1, int type2, const char *c1, const char *c2)
+static int CheckMatch(
+  unsigned int type1, unsigned int type2, const char *c1, const char *c2)
 {
-  static int floatTypes[] = {
+  static unsigned int floatTypes[] = {
     VTK_PARSE_DOUBLE, VTK_PARSE_FLOAT, 0 };
 
-  static int intTypes[] = {
+  static unsigned int intTypes[] = {
     VTK_PARSE_UNSIGNED_LONG_LONG, VTK_PARSE_UNSIGNED___INT64,
     VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, VTK_PARSE_ID_TYPE,
     VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_LONG,
@@ -516,10 +523,10 @@ static int CheckMatch(int type1, int type2, const char *c1, const char *c2)
     VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT,
     VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
 
-  static int stringTypes[] = {
+  static unsigned int stringTypes[] = {
     VTK_PARSE_CHAR_PTR, VTK_PARSE_STRING_REF, VTK_PARSE_STRING, 0 };
 
-  static int *numericTypes[] = { floatTypes, intTypes, 0 };
+  static unsigned int *numericTypes[] = { floatTypes, intTypes, 0 };
 
   int i, j;
   int hit1, hit2;
@@ -766,7 +773,7 @@ void HandleDataArray(FILE *fp, ClassInfo *data)
 
 void outputFunction(FILE *fp, ClassInfo *data)
 {
-  static int supported_types[] = {
+  static unsigned int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
     VTK_PARSE_CHAR, VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR,
     VTK_PARSE_INT, VTK_PARSE_UNSIGNED_INT,
@@ -779,9 +786,10 @@ void outputFunction(FILE *fp, ClassInfo *data)
     0
   };
 
-  int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
-  int aType = 0;
-  int baseType = 0;
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType = 0;
+  unsigned int baseType = 0;
   int i, j;
   int args_ok = 1;
   char *jniFunction = 0;

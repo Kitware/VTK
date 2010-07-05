@@ -67,7 +67,7 @@ Modify vtkParse.tab.c:
 #include "vtkParseInternal.h"
 #include "vtkType.h"
 
-static int vtkParseTypeMap[] =
+static unsigned int vtkParseTypeMap[] =
   {
   VTK_PARSE_VOID,               /* VTK_VOID                0 */
   0,                            /* VTK_BIT                 1 */
@@ -117,20 +117,20 @@ int yylex(void);
 FileInfo data;
 
 NamespaceInfo *currentNamespace = NULL;
-ClassInfo *currentClass = NULL;
-FunctionInfo *currentFunction = NULL;
-TemplateArgs *currentTemplate = NULL;
+ClassInfo     *currentClass = NULL;
+FunctionInfo  *currentFunction = NULL;
+TemplateArgs  *currentTemplate = NULL;
 
-char *currentEnumName = 0;
-char *currentEnumValue = 0;
+char          *currentEnumName = 0;
+char          *currentEnumValue = 0;
 
-int parseDebug;
-char temps[2048];
+int            parseDebug;
+char           temps[2048];
 parse_access_t access_level = VTK_ACCESS_PUBLIC;
-int  is_concrete;
-int  HaveComment;
-char CommentText[50000];
-int CommentState;
+int            is_concrete;
+int            HaveComment;
+char           CommentText[50000];
+int            CommentState;
 
 /* helper functions */
 void start_class(const char *classname, int is_struct);
@@ -138,27 +138,27 @@ void reject_class(const char *classname, int is_struct);
 void end_class();
 void output_function(void);
 void reject_function(void);
-void set_return(FunctionInfo *func, int type,
+void set_return(FunctionInfo *func, unsigned int type,
                 const char *typeclass, int count);
-void add_argument(FunctionInfo *func, int type,
+void add_argument(FunctionInfo *func, unsigned int type,
                   const char *classname, int count);
 void start_enum(const char *enumname);
 void add_enum(const char *name, const char *value);
 void end_enum();
 void add_constant(const char *name, const char *value,
-                  int type, const char *typeclass, int global);
+                  unsigned int type, const char *typeclass, int global);
 const char *add_const_scope(const char *name);
 void prepend_scope(char *cp, const char *arg);
-int add_indirection(int tval, int ptr);
-void handle_complex_type(ValueInfo *val, int datatype,
-                         int extra, const char *funcSig);
+unsigned int add_indirection(unsigned int tval, unsigned int ptr);
+void handle_complex_type(ValueInfo *val, unsigned int datatype,
+                         unsigned int extra, const char *funcSig);
 void handle_function_type(ValueInfo *arg, const char *name,
                           const char *funcSig);
 
-void outputSetVectorMacro(
-  const char *var, int argType, const char *typeText, int n);
-void outputGetVectorMacro(
-  const char *var, int argType, const char *typeText, int n);
+void outputSetVectorMacro(const char *var, unsigned int argType,
+                          const char *typeText, int n);
+void outputGetVectorMacro(const char *var, unsigned int argType,
+                          const char *typeText, int n);
 
 /* duplicate a string */
 char *vtkstrdup(const char *in)
@@ -264,8 +264,8 @@ void popTemplate()
 /* "private" variables */
 int sigClosed;
 size_t sigMark[10];
-size_t sigMarkDepth = 0;
-unsigned int sigAllocatedLength;
+size_t sigAllocatedLength;
+int sigMarkDepth = 0;
 
 /* start a new signature */
 void startSig()
@@ -448,16 +448,16 @@ void legacySig(void)
  */
 
 /* "private" variables */
-int storageType = 0;
+unsigned int storageType = 0;
 
 /* save the storage type */
-void setStorageType(int val)
+void setStorageType(unsigned int val)
 {
   storageType = val;
 }
 
 /* modify the indirection (pointers, refs) in the storage type */
-void setStorageTypeIndirection(int ind)
+void setStorageTypeIndirection(unsigned int ind)
 {
   storageType = (storageType & ~VTK_PARSE_INDIRECT);
   ind = (ind & VTK_PARSE_INDIRECT);
@@ -465,7 +465,7 @@ void setStorageTypeIndirection(int ind)
 }
 
 /* retrieve the storage type */
-int getStorageType()
+unsigned int getStorageType()
 {
   return storageType;
 }
@@ -687,7 +687,8 @@ FunctionInfo *getFunction()
 /* prepend a scope:: to a name */
 void prepend_scope(char *cp, const char *arg)
 {
-  size_t i, m, n, depth;
+  size_t i, m, n;
+  int depth;
 
   m = strlen(cp);
   n = strlen(arg);
@@ -727,12 +728,12 @@ void prepend_scope(char *cp, const char *arg)
 }
 
 /* expand a type by including pointers from another */
-int add_indirection(int type1, int type2)
+unsigned int add_indirection(unsigned int type1, unsigned int type2)
 {
-  int ptr1 = (type1 & VTK_PARSE_POINTER_MASK);
-  int ptr2 = (type2 & VTK_PARSE_POINTER_MASK);
-  int reverse = 0;
-  int result;
+  unsigned int ptr1 = (type1 & VTK_PARSE_POINTER_MASK);
+  unsigned int ptr2 = (type2 & VTK_PARSE_POINTER_MASK);
+  unsigned int reverse = 0;
+  unsigned int result;
 
   /* one of type1 or type2 will only have VTK_PARSE_INDIRECT, but
    * we don't know which one. */
@@ -770,8 +771,8 @@ int add_indirection(int type1, int type2)
 /* The parser will shift/reduce values <str> or <integer> */
 
 %union{
-  char *str;
-  int   integer;
+  char         *str;
+  unsigned int  integer;
 }
 
 /* Lexical tokens defined in in vtkParse.l */
@@ -1433,7 +1434,7 @@ var:   storage_type var_id_maybe_assign maybe_other_vars ';'
 
 var_id_maybe_assign: complex_var_id maybe_var_assign
      {
-       int type = getStorageType();
+       unsigned int type = getStorageType();
        if (getVarValue() && ((type & VTK_PARSE_CONST) != 0) &&
            ((type & VTK_PARSE_INDIRECT) == 0) && getArrayNDims() == 0)
          {
@@ -1609,7 +1610,7 @@ pointers:
     pointer_or_const_pointer { $<integer>$ = $<integer>1; }
   | pointers pointer_or_const_pointer
      {
-       int n;
+       unsigned int n;
        n = (($<integer>1 << 2) | $<integer>2);
        if ((n & VTK_PARSE_INDIRECT) != n)
          {
@@ -1945,7 +1946,7 @@ macro:
      currentFunction->Comment = vtkstrdup(CommentText);
      }
    add_argument(currentFunction, (VTK_PARSE_POINTER | $<integer>6),
-                getTypeId(), atol($<str>8));
+                getTypeId(), (int)strtol($<str>8, NULL, 0));
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    free(local);
@@ -1964,7 +1965,7 @@ macro:
      currentFunction->Comment = vtkstrdup(CommentText);
      }
    set_return(currentFunction, (VTK_PARSE_POINTER | $<integer>6),
-              getTypeId(), atol($<str>8));
+              getTypeId(), (int)strtol($<str>8, NULL, 0));
    output_function();
    free(local);
    }
@@ -2584,7 +2585,7 @@ void start_enum(const char *name)
   static char text[256];
   EnumInfo *item;
 
-  currentEnumName = NULL;
+  currentEnumName = "int";
   currentEnumValue = NULL;
   if (name)
     {
@@ -2616,7 +2617,8 @@ void end_enum()
 void add_enum(const char *name, const char *value)
 {
   static char text[256];
-  int i, j;
+  int i;
+  long j;
 
   if (value)
     {
@@ -2637,8 +2639,8 @@ void add_enum(const char *name, const char *value)
         {
         i--;
         }
-      j = atol(&currentEnumValue[i]);
-      sprintf(&currentEnumValue[i], "%i", j+1);
+      j = strtol(&currentEnumValue[i], NULL, 10);
+      sprintf(&currentEnumValue[i], "%li", j+1);
       }
     else
       {
@@ -2657,7 +2659,7 @@ void add_enum(const char *name, const char *value)
 
 /* add a constant to the current class or namespace */
 void add_constant(const char *name, const char *value,
-                  int type, const char *typeclass, int flag)
+                  unsigned int type, const char *typeclass, int flag)
 {
   ValueInfo *con = (ValueInfo *)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(con);
@@ -2742,7 +2744,7 @@ const char *add_const_scope(const char *name)
 }
 
 /* add an arg to a function */
-void add_argument(FunctionInfo *func, int type,
+void add_argument(FunctionInfo *func, unsigned int type,
                   const char *typeclass, int count)
 {
   int i = func->NumberOfArguments;
@@ -2771,7 +2773,7 @@ void add_argument(FunctionInfo *func, int type,
 }
 
 /* set the return type for the current function */
-void set_return(FunctionInfo *func, int type,
+void set_return(FunctionInfo *func, unsigned int type,
                 const char *typeclass, int count)
 {
   char text[64];
@@ -2800,7 +2802,7 @@ void set_return(FunctionInfo *func, int type,
 
 /* deal with types that include function pointers or arrays */
 void handle_complex_type(
-  ValueInfo *val, int datatype, int extra, const char *funcSig)
+  ValueInfo *val, unsigned int datatype, unsigned int extra, const char *funcSig)
 {
   FunctionInfo *func = 0;
   int i, n;
@@ -2895,7 +2897,7 @@ void handle_complex_type(
         while (*cp != '\0' && *cp >= '0' && *cp <= '9') { cp++; }
         if (*cp == '\0')
           {
-          n = (int)atol(val->Dimensions[i]);
+          n = (int)strtol(val->Dimensions[i], NULL, 0);
           }
         }
       val->Count *= n;
@@ -2908,7 +2910,7 @@ void handle_function_type(
   ValueInfo *arg, const char *name, const char *funcSig)
 {
   FunctionInfo *func;
-  int j;
+  size_t j;
 
   arg->Type = VTK_PARSE_FUNCTION;
   arg->Class = vtkstrdup("function");
@@ -2942,7 +2944,8 @@ void reject_function()
 /* a simple routine that updates a few variables */
 void output_function()
 {
-  int i, j, match;
+  int i, j;
+  int match;
 
   /* reject template specializations */
   if (currentFunction->Name[strlen(currentFunction->Name)-1] == '>')
@@ -3089,8 +3092,8 @@ void output_function()
   vtkParse_InitFunction(currentFunction);
 }
 
-void outputSetVectorMacro(
-  const char *var, int argType, const char *typeText, int n)
+void outputSetVectorMacro(const char *var, unsigned int argType,
+                          const char *typeText, int n)
 {
   char *local = vtkstrdup(typeText);
   char *name;
@@ -3127,8 +3130,8 @@ void outputSetVectorMacro(
   free(local);
 }
 
-void outputGetVectorMacro(
-  const char *var, int argType, const char *typeText, int n)
+void outputGetVectorMacro(const char *var, unsigned int argType,
+                          const char *typeText, int n)
 {
   char *local = vtkstrdup(typeText);
 
@@ -3142,7 +3145,8 @@ void outputGetVectorMacro(
 }
 
 /* Parse a header file and return a FileInfo struct */
-void vtkParse_AddPointerToArray(void *valueArray, int *count, void *value)
+void vtkParse_AddPointerToArray(
+  void *valueArray, int *count, void *value)
 {
   void **values = *(void ***)valueArray;
   int n = *count;
@@ -3167,7 +3171,8 @@ void vtkParse_AddPointerToArray(void *valueArray, int *count, void *value)
 FileInfo *vtkParse_ParseFile(
   const char *filename, int concrete, FILE *ifile, FILE *errfile)
 {
-  int i, j, lineno;
+  int i, j;
+  int lineno;
   int ret;
   FileInfo *file_info;
   char *main_class;
@@ -3254,15 +3259,16 @@ FileInfo *vtkParse_ParseFile(
 /* Read a hints file and update the FileInfo */
 int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
 {
-  char h_cls[80];
-  char h_func[80];
+  char h_cls[512];
+  char h_func[512];
   unsigned int h_type;
-  int  h_value;
+  int h_value;
   FunctionInfo *func_info;
   ClassInfo *class_info;
   NamespaceInfo *contents;
-  int i, j, n;
+  int i, j;
   int lineno = 0;
+  int n;
 
   contents = file_info->Contents;
 
@@ -3295,8 +3301,8 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
 
           if (func_info->HaveHint == 0 && func_info->Name &&
               (strcmp(h_func, func_info->Name) == 0) &&
-              ((int)h_type == ((func_info->ReturnType & ~VTK_PARSE_REF) &
-                               VTK_PARSE_UNQUALIFIED_TYPE)))
+              (h_type == ((func_info->ReturnType & ~VTK_PARSE_REF) &
+                          VTK_PARSE_UNQUALIFIED_TYPE)))
             {
             /* types that hints are accepted for */
             switch (func_info->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
