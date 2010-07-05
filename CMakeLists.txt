@@ -60,6 +60,9 @@ SET(CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 # Add supplemental compiler warnings, and GCC visibility support.
 INCLUDE(vtkCompilerExtras)
 
+# Check the source tree - right now just for local Git hooks.
+INCLUDE(vtkCheckSourceTree)
+
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
