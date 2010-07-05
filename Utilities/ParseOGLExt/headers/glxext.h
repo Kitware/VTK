@@ -48,9 +48,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2010/05/17 */
+/* glxext.h last updated 2010/06/15 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 28
+#define GLX_GLXEXT_VERSION 29
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -410,6 +410,19 @@ extern "C" {
 #ifndef GLX_NV_multisample_coverage
 #define GLX_COVERAGE_SAMPLES_NV            100001
 #define GLX_COLOR_SAMPLES_NV               0x20B3
+#endif
+
+#ifndef GLX_GLX_AMD_gpu_association
+#define GLX_GPU_VENDOR_AMD                 0x1F00
+#define GLX_GPU_RENDERER_STRING_AMD        0x1F01
+#define GLX_GPU_OPENGL_VERSION_STRING_AMD  0x1F02
+#define GLX_GPU_FASTEST_TARGET_GPUS_AMD    0x21A2
+#define GLX_GPU_RAM_AMD                    0x21A3
+#define GLX_GPU_CLOCK_AMD                  0x21A4
+#define GLX_GPU_NUM_PIPES_AMD              0x21A5
+#define GLX_GPU_NUM_SIMD_AMD               0x21A6
+#define GLX_GPU_NUM_RB_AMD                 0x21A7
+#define GLX_GPU_NUM_SPI_AMD                0x21A8
 #endif
 
 
