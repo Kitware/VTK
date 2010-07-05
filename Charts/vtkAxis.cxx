@@ -372,7 +372,8 @@ void vtkAxis::RecalculateTickSpacing()
   // discard the min and max in this case. TODO: Refactor the function called.
   if (this->Behavior < 2)
     {
-    double min, max;
+    double min=0;
+    double max=0;
     this->TickInterval = this->CalculateNiceMinMax(min, max);
     if (this->UsingNiceMinMax)
       {
