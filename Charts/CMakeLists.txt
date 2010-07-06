@@ -33,6 +33,7 @@ SET(Kit_SRCS
   vtkContextItem.cxx
   vtkContextMapper2D.cxx
   vtkContextScene.cxx
+  vtkContextTransform.cxx
   vtkContextView.cxx
   vtkDataElement.cxx
   vtkDataValue.cxx

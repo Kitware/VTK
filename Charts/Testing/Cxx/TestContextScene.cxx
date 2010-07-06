@@ -18,6 +18,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkBlockItem.h"
+#include "vtkContextTransform.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 
@@ -46,12 +47,20 @@ int TestContextScene( int argc, char * argv [] )
   child2->SetDimensions(150, 250, 86, 46);
   child2->SetLabel("Child2");
 
+  vtkSmartPointer<vtkContextTransform> transform =
+      vtkSmartPointer<vtkContextTransform>::New();
+  transform->AddItem(parent);
+  transform->Translate(50, -190);
+
   // Build up our multi-level scene
   view->GetScene()->AddItem(test);   // scene
   view->GetScene()->AddItem(test2);  // scene
   view->GetScene()->AddItem(parent); // scene
   parent->AddItem(child);            // scene->parent
   child->AddItem(child2);            // scene->parent->child
+
+  // Add our transformed item
+  view->GetScene()->AddItem(transform);
 
   // Turn off the color buffer
   view->GetScene()->SetUseBufferId(false);
