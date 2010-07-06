@@ -201,7 +201,7 @@ void vtkCompositeDataSet::CopyStructure(vtkCompositeDataSet* source)
       vtkInformation* info = vtkInformation::New();
       info->Copy(srcIter->MetaData, /*deep=*/0);
       myIter->MetaData = info;
-      info->Delete();
+      info->FastDelete();
       }
     }
   this->Modified();
@@ -440,7 +440,7 @@ void vtkCompositeDataSet::DeepCopy(vtkDataObject* src)
         vtkDataObject* toChild = fromChild->NewInstance();
         toChild->DeepCopy(fromChild);
         this->SetChild(cc, toChild);
-        toChild->Delete();
+        toChild->FastDelete();
         if (from->HasChildMetaData(cc))
           {
           vtkInformation* toInfo = this->GetChildMetaData(cc);

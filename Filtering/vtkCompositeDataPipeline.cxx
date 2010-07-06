@@ -667,7 +667,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
         if (outObj)
           {
           compositeOutput->SetDataSet(iter, outObj);
-          outObj->Delete();
+          outObj->FastDelete();
           }
         }
       }
@@ -928,7 +928,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithmTime(
         outputInitialized = 1;
         }
       temporalOutput->SetTimeStep(k, outCopy);
-      outCopy->Delete();
+      outCopy->FastDelete();
       }
     }
 

@@ -122,8 +122,6 @@ vtkDataObject::vtkDataObject()
   this->PipelineInformation = 0;
 
   this->Information = vtkInformation::New();
-  this->Information->Register(this);
-  this->Information->Delete();
 
   // We have to assume that if a user is creating the data on their own,
   // then they will fill it with valid data.
@@ -132,7 +130,7 @@ vtkDataObject::vtkDataObject()
   this->FieldData = NULL;
   vtkFieldData *fd = vtkFieldData::New();
   this->SetFieldData(fd);
-  fd->Delete();
+  fd->FastDelete();
 }
 
 //----------------------------------------------------------------------------
@@ -346,7 +344,7 @@ vtkAlgorithmOutput* vtkDataObject::GetProducerPort()
     {
     vtkTrivialProducer* tp = vtkTrivialProducer::New();
     tp->SetOutput(this);
-    tp->Delete();
+    tp->FastDelete();
     }
 
   // Get the port from the executive.
@@ -654,7 +652,7 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
       {
       info->Set(EDGE_DATA_VECTOR(), fieldDataInfoVector);
       }
-    fieldDataInfoVector->Delete();
+    fieldDataInfoVector->FastDelete();
     }
 
   // if we find a matching field, turn it on (active);  if another field of same
@@ -693,7 +691,7 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
       activeField->Set( FIELD_NAME(), attributeName );
       }
     fieldDataInfoVector->Append(activeField);
-    activeField->Delete();
+    activeField->FastDelete();
     }
 
   return activeField;
@@ -863,7 +861,7 @@ vtkStreamingDemandDrivenPipeline* vtkDataObject::TrySDDP(const char* method)
     {
     vtkTrivialProducer* tp = vtkTrivialProducer::New();
     tp->SetOutput(this);
-    tp->Delete();
+    tp->FastDelete();
     }
 
   // Try downcasting the executive to the proper type.
@@ -929,7 +927,7 @@ void vtkDataObject::ShallowCopy(vtkDataObject *src)
       vtkFieldData* fd = vtkFieldData::New();
       fd->ShallowCopy(src->FieldData);
       this->SetFieldData(fd);
-      fd->Delete();
+      fd->FastDelete();
       }
     }
 }
@@ -946,7 +944,7 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
     vtkFieldData *newFieldData = vtkFieldData::New();
     newFieldData->DeepCopy(srcFieldData);
     this->SetFieldData(newFieldData);
-    newFieldData->Delete();
+    newFieldData->FastDelete();
     }
   else
     {

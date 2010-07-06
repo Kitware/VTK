@@ -71,10 +71,10 @@ void vtkInformationInformationVectorKey::DeepCopy(vtkInformation* from,
     toInfo = vtkInformation::New();
     toInfo->Copy(fromVector->GetInformationObject(i), 1);
     toVector->Append(toInfo);
-    toInfo->Delete();
+    toInfo->FastDelete();
     }
   this->Set(to, toVector);
-  toVector->Delete();
+  toVector->FastDelete();
 }
 
 //----------------------------------------------------------------------------
