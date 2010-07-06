@@ -19,7 +19,6 @@ vtkBoxRepresentation                  GetBounds                         307  6
 vtkCamera                             GetOrientation                    307  3
 vtkCamera                             GetOrientationWXYZ                307  4
 vtkCell                               GetBounds                         307  6
-vtkCharArray                          GetValueRange                     303  2
 vtkColorTransferFunction              GetColor                          307  3
 vtkCompositePolyDataMapper2           GetBounds                         307  6
 vtkCompositePolyDataMapper            GetBounds                         307  6

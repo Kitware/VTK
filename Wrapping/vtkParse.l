@@ -72,12 +72,12 @@ static int skip_ahead_until(const char *text);
          }
      };
 
-^[\t ]*"//BWX".*$ {
-       skip_ahead_until("//EWX");
+^[\t ]*"//BTX".*$ {
+#ifndef VTK_IGNORE_BTX
+         skip_ahead_until("//ETX");
+#endif
      };
 
-
-^[\t ]*"//BTX".*$ ;
 ^[\t ]*"//ETX".*$ ;
 
 
@@ -89,6 +89,13 @@ static int skip_ahead_until(const char *text);
 
 ^[\t ]*"#ifdef "("WIN32"|"_WIN32").*$ {
 #ifndef _WIN32
+       const char *strings[] = {"#endif", "#elif", "#else", NULL};
+       skip_ahead_multi(strings);
+#endif
+     };
+
+^[\t ]*"#ifdef VTK_USE_64BIT_IDS".*$ {
+#ifndef VTK_USE_64BIT_IDS
        const char *strings[] = {"#endif", "#elif", "#else", NULL};
        skip_ahead_multi(strings);
 #endif

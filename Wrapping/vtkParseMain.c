@@ -163,6 +163,9 @@ int main(int argc, char *argv[])
   FILE *ifile;
   FILE *ofile;
   FILE *hfile = 0;
+  const char *cp;
+  char *classname;
+  size_t i;
   FileInfo *data;
 
   argi = check_options(argc, argv);
@@ -230,8 +233,22 @@ int main(int argc, char *argv[])
     exit(1);
     }
 
-  data = vtkParse_ParseFile(
-    options.InputFileName, options.IsConcrete, ifile, stderr);
+  if (options.IsConcrete)
+    {
+    cp = options.InputFileName;
+    i = strlen(cp);
+    classname = (char *)malloc(i+1);
+    while (i > 0 &&
+           cp[i-1] != '/' && cp[i-1] != '\\' && cp[i-1] != ':') { i--; }
+    strcpy(classname, &cp[i]);
+    i = 0;
+    while (classname[i] != '\0' && classname[i] != '.') { i++; }
+    classname[i] = '\0';
+
+    vtkParse_SetClassProperty(classname, "concrete");
+    }
+
+  data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
 
   if (!data)
     {

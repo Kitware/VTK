@@ -26,6 +26,11 @@
  format:
 
  classname [ : superclass ] ; header.h
+
+ For each typedef, the output file will have a line like this:
+
+ name = [2][3]* const type ; header.h
+
 */
 
 #include "vtkParse.h"
@@ -39,26 +44,63 @@
 # include <unistd.h>
 #endif
 
-#define MAX_NUM_CLASSES 10000
+/**
+ * Helper to append to a line, given the end marker
+ */
+static char *append_to_line(
+  char *line, const char *text, size_t *pos, size_t *maxlen)
+{
+  size_t n;
+
+  n = strlen(text);
+
+  if ((*pos) + n + 1 > (*maxlen))
+    {
+    *maxlen = ((*pos) + n + 1 + 2*(*maxlen));
+    line = (char *)realloc(line, (*maxlen));
+    }
+
+  strcpy(&line[*pos], text);
+  *pos = (*pos) + n;
+
+  return line;
+}
+
 
 /**
  * Read a header file with vtkParse.tab.c
+ *
+ * If "lines" is provided, the file contents
+ * will be appended to them.
  */
-static int vtkWrapHierarchy_ParseHeaderFile(
-  FILE *fp, const char *filename, char *lines[])
+static char **vtkWrapHierarchy_ParseHeaderFile(
+  FILE *fp, const char *filename, const char *flags, char **lines)
 {
-  char line[2048];
-  char *cp;
   FileInfo *data;
-  ClassInfo *class_info;
   int i, j;
   size_t k, n;
+  const char *tmpflags;
+  char *line;
+  size_t m, maxlen;
+
+  /* start with a buffer of 15 chars and grow from there */
+  maxlen = 1;
+  m = 0;
+  line = (char *)malloc(maxlen);
+
+  /* start with just a single output line and grow from there */
+  if (lines == NULL)
+    {
+    lines = (char **)malloc(sizeof(char *));
+    lines[0] = NULL;
+    }
 
   /* the "concrete" flag doesn't matter, just set to zero */
-  data = vtkParse_ParseFile(filename, 0, fp, stderr);
+  data = vtkParse_ParseFile(filename, fp, stderr);
 
   if (!data)
     {
+    free(lines);
     return 0;
     }
 
@@ -69,30 +111,125 @@ static int vtkWrapHierarchy_ParseHeaderFile(
     n++;
     }
 
-  cp = line;
-
   /* add a line for each class that is found */
-  for (i = 0; i < data->Contents->NumberOfClasses; i++)
+  for (i = 0; i < data->Contents->NumberOfItems; i++)
     {
-    class_info = data->Contents->Classes[i];
+    /* all but the main class in each file is excluded from wrapping */
+    tmpflags = "WRAP_EXCLUDE";
 
-    sprintf(cp, "%s ", class_info->Name);
-    cp += strlen(cp);
-    if (class_info->NumberOfSuperClasses)
-      {
-      sprintf(cp, ": ");
-      cp += strlen(cp);
-      }
+    m = 0;
+    line[m] = '\0';
 
-    for (j = 0; j < class_info->NumberOfSuperClasses; j++)
+    if (data->Contents->Items[i]->ItemType == VTK_CLASS_INFO ||
+        data->Contents->Items[i]->ItemType == VTK_STRUCT_INFO)
       {
-      sprintf(cp, "%s ", class_info->SuperClasses[j]);
-      cp += strlen(cp);
-      if (j+1 < class_info->NumberOfSuperClasses)
+      ClassInfo *class_info = (ClassInfo *)data->Contents->Items[i];
+
+      if (class_info == data->MainClass)
         {
-        sprintf(cp, ", ");
-        cp += strlen(cp);
+        tmpflags = flags;
         }
+
+      line = append_to_line(line, class_info->Name, &m, &maxlen);
+      line = append_to_line(line, " ", &m, &maxlen);
+      if (class_info->NumberOfSuperClasses)
+        {
+        line = append_to_line(line, ": ", &m, &maxlen);
+        }
+
+      for (j = 0; j < class_info->NumberOfSuperClasses; j++)
+        {
+        line = append_to_line(line, class_info->SuperClasses[j], &m, &maxlen);
+        line = append_to_line(line, " ", &m, &maxlen);
+        if (j+1 < class_info->NumberOfSuperClasses)
+          {
+          line = append_to_line(line, ", ", &m, &maxlen);
+          }
+        }
+
+      }
+    else if (data->Contents->Items[i]->ItemType == VTK_ENUM_INFO)
+      {
+      EnumInfo *enum_info = (EnumInfo *)data->Contents->Items[i];
+
+      line = append_to_line(line, enum_info->Name, &m, &maxlen);
+      line = append_to_line(line, " : int ", &m, &maxlen);
+      }
+    else if (data->Contents->Items[i]->ItemType == VTK_TYPEDEF_INFO)
+      {
+      ValueInfo *typedef_info = (ValueInfo *)data->Contents->Items[i];
+      unsigned int type;
+      int ndims;
+      int dim;
+
+      line = append_to_line(line, typedef_info->Name, &m, &maxlen);
+      line = append_to_line(line, " = ", &m, &maxlen);
+
+      type = typedef_info->Type;
+
+      if ((type & VTK_PARSE_REF) != 0)
+        {
+        line = append_to_line(line, "&", &m, &maxlen);
+        }
+
+      ndims = typedef_info->NumberOfDimensions;
+
+      for (dim = 0; dim < ndims; dim++)
+        {
+        line = append_to_line(line, "[", &m, &maxlen);
+        line = append_to_line(line, typedef_info->Dimensions[dim],
+                              &m, &maxlen);
+        line = append_to_line(line, "]", &m, &maxlen);
+        }
+
+      type = (type & VTK_PARSE_POINTER_MASK);
+      if (ndims > 0 && (type & VTK_PARSE_POINTER_LOWMASK) == VTK_PARSE_ARRAY)
+        {
+        type = ((type >> 2) & VTK_PARSE_POINTER_MASK);
+        }
+      else if (ndims == 1)
+        {
+        type = ((type >> 2) & VTK_PARSE_POINTER_MASK);
+        }
+
+      /* pointers are printed after brackets, and are intentionally
+       * printed in reverse order as compared to C++ declarations */
+      while (type)
+        {
+        unsigned int bits = (type & VTK_PARSE_POINTER_LOWMASK);
+        type = ((type >> 2) & VTK_PARSE_POINTER_MASK);
+
+        if (bits == VTK_PARSE_POINTER)
+          {
+          line = append_to_line(line, "*", &m, &maxlen);
+          }
+        else if (bits == VTK_PARSE_CONST_POINTER)
+          {
+          line = append_to_line(line, "const*", &m, &maxlen);
+          }
+        else
+          {
+          line = append_to_line(line, "[]", &m, &maxlen);
+          }
+        }
+
+      if (line[m-1] != ' ')
+        {
+        line = append_to_line(line, " ", &m, &maxlen);
+        }
+
+      if ((type & VTK_PARSE_CONST) != 0)
+        {
+        line = append_to_line(line, "const ", &m, &maxlen);
+        }
+
+      line = append_to_line(line, typedef_info->Class, &m, &maxlen);
+      line = append_to_line(line, " ", &m, &maxlen);
+      }
+    else
+      {
+      /* unhandled file element */
+      continue;
       }
 
     k = strlen(data->FileName) - 1;
@@ -101,29 +238,63 @@ static int vtkWrapHierarchy_ParseHeaderFile(
       k--;
       }
 
-    sprintf(cp, "; %s", &data->FileName[k]);
-    cp = line;
-    lines[n] = (char *)malloc(strlen(cp)+1);
-    strcpy(lines[n++], cp);
+    line = append_to_line(line, "; ", &m, &maxlen);
+    line = append_to_line(line, &data->FileName[k], &m, &maxlen);
+
+    if (tmpflags && tmpflags[0] != '\0')
+      {
+      line = append_to_line(line, " ; ", &m, &maxlen);
+      line = append_to_line(line, tmpflags, &m, &maxlen);
+      }
+
+    /* allocate more memory if n+1 is a power of two */
+    if (((n+1) & n) == 0)
+      {
+      lines = (char **)realloc(lines, (n+1)*2*sizeof(char *));
+      }
+
+    lines[n] = (char *)malloc(strlen(line)+1);
+    strcpy(lines[n++], line);
     lines[n] = NULL;
     }
 
+  free(line);
+
   vtkParse_Free(data);
 
-  return 1;
+  return lines;
 }
 
 /**
  * Read a hierarchy file into "lines" without duplicating lines
  */
-static int vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char *lines[])
+static char **vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char **lines)
 {
-  char line[2048];
+  char *line;
+  size_t maxlen = 15;
   size_t i, n;
 
-  while (fgets(line, 2048, fp))
+  line = (char *)malloc(maxlen);
+
+  if (lines == NULL)
+    {
+    lines = (char **)malloc(sizeof(char *));
+    lines[0] = NULL;
+    }
+
+  while (fgets(line, maxlen, fp))
     {
     n = strlen(line);
+
+    /* if buffer not long enough, increase it */
+    while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
+      {
+      maxlen *= 2;
+      line = (char *)realloc(line, maxlen);
+      if (!fgets(&line[n], maxlen-n, fp)) { break; }
+      n += strlen(&line[n]);
+      }
+
     while (n > 0 && isspace(line[n-1]))
       {
       n--;
@@ -145,25 +316,27 @@ static int vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char *lines[])
 
     if (lines[i] == NULL)
       {
-      if (i+1 >= MAX_NUM_CLASSES)
+      /* allocate more memory if n+1 is a power of two */
+      if (((i+1) & i) == 0)
         {
-        fclose(fp);
-        fprintf(stderr, "In vtkWrapHierarchy: "
-                "Number of classes exceeds MAX_NUM_CLASSES\n");
-        exit(1);
+        lines = (char **)realloc(lines, (i+1)*2*sizeof(char *));
         }
+
       lines[i] = (char *)malloc(n+1);
       strcpy(lines[i], line);
       lines[i+1] = NULL;
       }
     }
 
+  free(line);
+
   if (!feof(fp))
     {
+    free(lines);
     return 0;
     }
 
-  return 1;
+  return lines;
 }
 
 /**
@@ -171,17 +344,30 @@ static int vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char *lines[])
  */
 static int vtkWrapHierarchy_CompareHierachyFile(FILE *fp, char *lines[])
 {
-  char line[2048];
   unsigned char *matched;
+  char *line;
+  size_t maxlen = 15;
   size_t i, n;
+
+  line = (char *)malloc(maxlen);
 
   for (i = 0; lines[i] != NULL; i++) { ; };
   matched = (unsigned char *)malloc(i);
   memset(matched, 0, i);
 
-  while (fgets(line, 2048, fp))
+  while (fgets(line, maxlen, fp))
     {
     n = strlen(line);
+
+    /* if buffer not long enough, increase it */
+    while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
+      {
+      maxlen *= 2;
+      line = (char *)realloc(line, maxlen);
+      if (!fgets(&line[n], maxlen-n, fp)) { break; }
+      n += strlen(&line[n]);
+      }
+
     while (n > 0 && isspace(line[n-1]))
       {
       n--;
@@ -219,6 +405,7 @@ static int vtkWrapHierarchy_CompareHierachyFile(FILE *fp, char *lines[])
       }
     }
 
+  free(line);
   free(matched);
 
   if (!feof(fp))
@@ -250,8 +437,8 @@ static int vtkWrapHierarchy_WriteHierarchyFile(FILE *fp, char *lines[])
 /**
  * Try to parse a header file, print error and exit if fail
  */
-static int vtkWrapHierarchy_TryParseHeaderFile(
-  const char *file_name, char *lines[])
+static char **vtkWrapHierarchy_TryParseHeaderFile(
+  const char *file_name, const char *flags, char **lines)
 {
   FILE *input_file;
 
@@ -264,21 +451,24 @@ static int vtkWrapHierarchy_TryParseHeaderFile(
     exit(1);
     }
 
-  if (!vtkWrapHierarchy_ParseHeaderFile(input_file, file_name, lines))
+  lines = vtkWrapHierarchy_ParseHeaderFile(
+                 input_file, file_name, flags, lines);
+
+  if (!lines)
     {
     fclose(input_file);
     exit(1);
     }
   fclose(input_file);
 
-  return 0;
+  return lines;
 }
 
 /**
  * Try to read a file, print error and exit if fail
  */
-static int vtkWrapHierarchy_TryReadHierarchyFile(
-  const char *file_name, char *lines[])
+static char **vtkWrapHierarchy_TryReadHierarchyFile(
+  const char *file_name, char **lines)
 {
   FILE *input_file;
 
@@ -290,7 +480,8 @@ static int vtkWrapHierarchy_TryReadHierarchyFile(
     exit(1);
     }
 
-  if (!vtkWrapHierarchy_ReadHierarchyFile(input_file, lines))
+  lines = vtkWrapHierarchy_ReadHierarchyFile(input_file, lines);
+  if (!lines)
     {
     fclose(input_file);
     fprintf(stderr, "vtkWrapHierarchy: error reading file %s\n",
@@ -299,7 +490,7 @@ static int vtkWrapHierarchy_TryReadHierarchyFile(
     }
   fclose(input_file);
 
-  return 0;
+  return lines;
 }
 
 /**
@@ -335,13 +526,19 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(
 #else
       sleep(1);
 #endif
-      output_file = fopen(file_name, "w");
+      output_file = fopen(file_name, "r+");
+      if (output_file &&
+          vtkWrapHierarchy_CompareHierachyFile(output_file, lines))
+        {
+        /* if the contents match, no need to write it */
+        fclose(output_file);
+        return 0;
+        }
       if (output_file)
         {
-        /* pretend that we wrote it, even though it was the other
-         * process that did */
+        /* close and open in order to truncate the file */
         fclose(output_file);
-        return 1;
+        output_file = fopen(file_name, "w");
         }
       }
     if (!output_file)
@@ -363,15 +560,20 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(
   return 0;
 }
 
-#define MAX_INCLUDE_DIRS 255
+static int string_compare(const void *vp1, const void *vp2)
+{
+  return strcmp(*(const char **)vp1, *(const char **)vp2);
+}
 
 int main(int argc, char *argv[])
 {
   int usage_error = 0;
   char *output_filename = 0;
   int i, argi;
-  char **lines;
-  char **files;
+  size_t j, n;
+  char **lines = 0;
+  char **files = 0;
+  char *flags;
 
   /* parse command-line options */
   for (argi = 1; argi < argc && argv[argi][0] == '-'; argi++)
@@ -396,28 +598,37 @@ int main(int argc, char *argv[])
     exit(1);
     }
 
-  lines = (char **)malloc(sizeof(char **)*MAX_NUM_CLASSES);
-  lines[0] = NULL;
-  files = (char **)malloc(sizeof(char **)*MAX_NUM_CLASSES);
-  files[0] = NULL;
-
   /* read the data file */
-  vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], files);
+  files = vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], files);
 
   /* read in all the prior files */
   while (argi < argc)
     {
-    vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], lines);
+    lines = vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], lines);
     }
 
   /* merge the files listed in the data file */
   for (i = 0; files[i] != NULL; i++)
     {
-    vtkWrapHierarchy_TryParseHeaderFile(files[i], lines);
+    flags = files[i];
+    /* look for semicolon that marks start of flags */
+    while(*flags != ';' && *flags != '\0') { flags++; };
+    if (*flags == ';') { *flags++ = '\0'; }
+
+    lines = vtkWrapHierarchy_TryParseHeaderFile(files[i], flags, lines);
     }
+
+  /* sort the lines to ease lookups in the file */
+  for (n = 0; lines[n]; n++) { ; };
+  qsort(lines, n, sizeof(char *), &string_compare);
 
   /* write the file, if it has changed */
   vtkWrapHierarchy_TryWriteHierarchyFile(output_filename, lines);
+
+  for (j = 0; j < n; j++)
+    {
+    free(lines[j]);
+    }
 
   free(files);
   free(lines);

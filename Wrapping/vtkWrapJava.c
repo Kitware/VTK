@@ -827,6 +827,14 @@ void outputFunction(FILE *fp, ClassInfo *data)
     return;
     }
 
+  /* The GetInput() in vtkMapper cannot be overriden with a
+   * different return type, Java doesn't allow this */
+  if (strcmp(data->Name, "vtkMapper") == 0 &&
+      strcmp(currentFunction->Name, "GetInput") == 0)
+    {
+    return;
+    }
+
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
@@ -855,6 +863,8 @@ void outputFunction(FILE *fp, ClassInfo *data)
         {
         if (vtkParseHierarchy_IsExtern(hierarchyInfo,
               currentFunction->ArgClasses[i]) ||
+            vtkParseHierarchy_GetProperty(hierarchyInfo,
+              currentFunction->ArgClasses[i], "WRAP_EXCLUDE") ||
             !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
                currentFunction->ArgClasses[i], "vtkObjectBase"))
           {
@@ -897,6 +907,8 @@ void outputFunction(FILE *fp, ClassInfo *data)
       {
       if (vtkParseHierarchy_IsExtern(hierarchyInfo,
             currentFunction->ReturnClass) ||
+          vtkParseHierarchy_GetProperty(hierarchyInfo,
+            currentFunction->ReturnClass, "WRAP_EXCLUDE") ||
           !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
             currentFunction->ReturnClass, "vtkObjectBase"))
         {

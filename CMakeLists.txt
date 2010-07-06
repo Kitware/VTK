@@ -1089,17 +1089,22 @@ FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PA
 MARK_AS_ADVANCED(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------
+OPTION(VTK_IGNORE_BTX "Ignore BTX and ETX in header files." OFF)
+
+#-----------------------------------------------------------------------------
 # Hierarchy wrapping for type checking in the wrapper generators
-#IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-#  # CMake macro
-#  INCLUDE(vtkWrapHierarchy)
-#  # Wrapping executables.
-#  IF(CMAKE_CROSSCOMPILING)
-#    SET(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
-#  ELSE(CMAKE_CROSSCOMPILING)
-#    GET_TARGET_PROPERTY(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy LOCATION)
-#  ENDIF(CMAKE_CROSSCOMPILING)
-#ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+IF(VTK_IGNORE_BTX)
+IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+  # CMake macro
+  INCLUDE(vtkWrapHierarchy)
+  # Wrapping executables.
+  IF(CMAKE_CROSSCOMPILING)
+    SET(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
+  ELSE(CMAKE_CROSSCOMPILING)
+    GET_TARGET_PROPERTY(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy LOCATION)
+  ENDIF(CMAKE_CROSSCOMPILING)
+ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+ENDIF(VTK_IGNORE_BTX)
 
 #-----------------------------------------------------------------------------
 # Configure Tcl wrapping support, setup executables

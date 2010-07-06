@@ -26,8 +26,14 @@
 
  classname [ : superclass ] ; header.h
 
- In the future, the syntax could be expanded to also include
- typedef information.
+ For each typedef, the output file will have a line like this:
+
+ name = &[2][3]* const type ; header.h
+
+ For each enum, the output file will have:
+
+ enumname : int ; header.h
+
 */
 
 #ifndef VTK_PARSE_HIERARCHY_H
@@ -39,10 +45,13 @@
  */
 typedef struct _HierarchyEntry
 {
-  char *ClassName;
-  char *HeaderFile;
-  char *SuperClasses[10];
-  int SuperClassIndex[10];
+  char  *ClassName;
+  char  *HeaderFile;
+  int    NumberOfSuperClasses;
+  char **SuperClasses;
+  int   *SuperClassIndex;
+  int    NumberOfProperties;
+  char **Properties;
 } HierarchyEntry;
 
 /**
@@ -50,7 +59,7 @@ typedef struct _HierarchyEntry
  */
 typedef struct _HierarchyInfo
 {
-  int NumberOfClasses;
+  int             NumberOfClasses;
   HierarchyEntry *Classes;
 } HierarchyInfo;
 
@@ -93,6 +102,14 @@ const char *vtkParseHierarchy_ClassHeader(
  */
 const char *vtkParseHierarchy_ClassSuperClass(
   const HierarchyInfo *info, const char *classname, int i);
+
+/**
+ * Get properties for the class.  Returns NULL if the property
+ * is not set.  Only a few properties are supported so far:
+ * "WRAP_EXCLUDE", "WRAP_SPECIAL", and "ABSTRACT"
+ */
+const char *vtkParseHierarchy_GetProperty(
+  const HierarchyInfo *intp, const char *classname, const char *property);
 
 #ifdef __cplusplus
 } /* extern "C" */

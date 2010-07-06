@@ -2850,18 +2850,18 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     if (argType == VTK_PARSE_CHAR_PTR &&
         currentFunction->ArgCounts[i] > 0) args_ok = 0;
 
-    if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && hinfo &&
-        !vtkParseHierarchy_IsExtern(hinfo, currentFunction->ArgClasses[i]))
+    if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && hinfo)
       {
       if ((argType == VTK_PARSE_OBJECT_REF || argType == VTK_PARSE_OBJECT) &&
-          vtkParseHierarchy_IsTypeOf(hinfo, currentFunction->ArgClasses[i],
-                                     "vtkObjectBase"))
+          !vtkParseHierarchy_GetProperty(hinfo,
+            currentFunction->ArgClasses[i], "WRAP_SPECIAL"))
         {
         args_ok = 0;
         }
       else if ((argType == VTK_PARSE_OBJECT_PTR) &&
+          !vtkParseHierarchy_IsExtern(hinfo, currentFunction->ArgClasses[i])&&
           !vtkParseHierarchy_IsTypeOf(hinfo, currentFunction->ArgClasses[i],
-                                     "vtkObjectBase"))
+                                      "vtkObjectBase"))
         {
         args_ok = 0;
         }
@@ -2911,17 +2911,17 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
       ((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
       ((returnType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
-  if ((returnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && hinfo &&
-      !vtkParseHierarchy_IsExtern(hinfo, currentFunction->ReturnClass))
+  if ((returnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && hinfo)
     {
     if ((returnType == VTK_PARSE_OBJECT_REF ||
          returnType == VTK_PARSE_OBJECT) &&
-        vtkParseHierarchy_IsTypeOf(hinfo, currentFunction->ReturnClass,
-                                     "vtkObjectBase"))
+        !vtkParseHierarchy_GetProperty(hinfo,
+          currentFunction->ReturnClass, "WRAP_SPECIAL"))
       {
       args_ok = 0;
       }
     else if ((returnType == VTK_PARSE_OBJECT_PTR) &&
+        !vtkParseHierarchy_IsExtern(hinfo, currentFunction->ReturnClass) &&
         !vtkParseHierarchy_IsTypeOf(hinfo, currentFunction->ReturnClass,
                                    "vtkObjectBase"))
       {

@@ -53,26 +53,29 @@ typedef enum _parse_access_t
   VTK_ACCESS_PRIVATE   = 2
 } parse_access_t;
 
+
 struct _TemplateArgs;
 struct _FunctionInfo;
 
 /**
- * TemplateArgs holds template definitions
+ * TemplateArgs holds one template arg
  */
-
 typedef struct _TemplateArg
 {
-  unsigned int   Type;   /* is zero for "typename", "class", "template" */
-  char          *Class;  /* class name for type */
-  char          *Name;   /* name of template arg */
-  char          *Value;  /* default value */
+  unsigned int  Type;  /* is zero for "typename", "class", "template" */
+  char         *Class; /* class name for type */
+  char         *Name;  /* name of template arg */
+  char         *Value; /* default value */
   struct _TemplateArgs *Template; /* for templated template args */
 } TemplateArg;
 
+/**
+ * TemplateArgs holds template definitions
+ */
 typedef struct _TemplateArgs
 {
-  int            NumberOfArguments;
-  TemplateArg  **Arguments;
+  int           NumberOfArguments;
+  TemplateArg **Arguments;
 } TemplateArgs;
 
 /**
@@ -104,9 +107,9 @@ typedef struct _ValueInfo
   unsigned int   Type;       /* as defined in vtkParseType.h   */
   char          *Class;      /* classname for type */
   int            Count;      /* total number of values, if known */
-  int            NumberOfDimensions;  /* dimensionality for arrays */
+  int            NumberOfDimensions; /* dimensionality for arrays */
   char         **Dimensions; /* dimensions for arrays */
-  struct _FunctionInfo *Function;    /* for function pointer values */
+  struct _FunctionInfo *Function;  /* for function pointer values */
   int            IsStatic;   /* for class variables only */
   int            IsEnum;     /* for constants only */
 } ValueInfo;
@@ -120,28 +123,28 @@ typedef struct _FunctionInfo
   parse_access_t Access;
   char          *Name;
   char          *Comment;
-  char          *Signature;     /* function signature as text */
-  TemplateArgs  *Template;      /* template args, or NULL */
+  char          *Signature;   /* function signature as text */
+  TemplateArgs  *Template;    /* template args, or NULL */
   int            NumberOfArguments;
   ValueInfo    **Arguments;
-  ValueInfo     *ReturnValue;   /* NULL for constructors and destructors */
+  ValueInfo     *ReturnValue; /* NULL for constructors and destructors */
   int            IsOperator;
   int            IsVariadic;
-  int            IsLegacy;      /* marked as a legacy method or function */
-  int            IsStatic;      /* methods only */
-  int            IsVirtual;     /* methods only */
+  int            IsLegacy;    /* marked as a legacy method or function */
+  int            IsStatic;    /* methods only */
+  int            IsVirtual;   /* methods only */
   int            IsPureVirtual; /* methods only */
-  int            IsConst;       /* methods only */
+  int            IsConst;     /* methods only */
   unsigned int   ArgTypes[MAX_ARGS];  /* legacy */
   char          *ArgClasses[MAX_ARGS];/* legacy */
   int            ArgCounts[MAX_ARGS]; /* legacy */
-  unsigned int   ReturnType;    /* legacy */
-  char          *ReturnClass;   /* legacy */
-  int            HaveHint;      /* legacy */
-  int            HintSize;      /* legacy */
-  int            ArrayFailure;  /* legacy */
-  int            IsPublic;      /* legacy */
-  int            IsProtected;   /* legacy */
+  unsigned int   ReturnType;  /* legacy */
+  char          *ReturnClass; /* legacy */
+  int            HaveHint;    /* legacy */
+  int            HintSize;    /* legacy */
+  int            ArrayFailure;/* legacy */
+  int            IsPublic;    /* legacy */
+  int            IsProtected; /* legacy */
 } FunctionInfo;
 
 /**
@@ -189,6 +192,8 @@ typedef struct _ClassInfo
   ValueInfo    **Constants;
   int            NumberOfEnums;
   EnumInfo     **Enums;
+  int            NumberOfTypedefs;
+  ValueInfo    **Typedefs;
   int            IsAbstract;
   int            HasDelete;
 } ClassInfo;
@@ -212,6 +217,8 @@ typedef struct _NamespaceInfo
   ValueInfo    **Constants;
   int            NumberOfEnums;
   EnumInfo     **Enums;
+  int            NumberOfTypedefs;
+  ValueInfo    **Typedefs;
   int            NumberOfNamespaces;
   struct _NamespaceInfo **Namespaces;
 } NamespaceInfo;
@@ -221,13 +228,13 @@ typedef struct _NamespaceInfo
  */
 typedef struct _FileInfo
 {
-  char          *FileName;
-  char          *NameComment;
-  char          *Description;
-  char          *Caveats;
-  char          *SeeAlso;
+  char *FileName;
+  char *NameComment;
+  char *Description;
+  char *Caveats;
+  char *SeeAlso;
 
-  ClassInfo     *MainClass;
+  ClassInfo *MainClass;
   NamespaceInfo *Contents;
 } FileInfo;
 
@@ -236,10 +243,18 @@ extern "C" {
 #endif
 
 /**
+ * Add a hint about a class that will be parsed.  The only
+ * acknowledged hint is "concrete", which if set to "true"
+ * is a promise that the class is instantiable.
+ */
+void vtkParse_SetClassProperty(
+  const char *classname, const char *property);
+
+/**
  * Parse a header file and return a FileInfo struct
  */
 FileInfo *vtkParse_ParseFile(
-  const char *filename, int concrete, FILE *ifile, FILE *errfile);
+  const char *filename, FILE *ifile, FILE *errfile);
 
 /**
  * Read a hints file and update the FileInfo
