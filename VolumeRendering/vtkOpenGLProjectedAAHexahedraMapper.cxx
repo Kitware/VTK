@@ -193,8 +193,9 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
                                                  vtkVolume *volume)
 {
   if ( !this->Initialized )
+    {
     this->Initialize(renderer, volume);
-
+    }
   vtkUnstructuredGrid *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
 
@@ -237,17 +238,38 @@ void vtkOpenGLProjectedAAHexahedraMapper::Render(vtkRenderer *renderer,
           {
           input->GetPoint(pts[j], p);
 
-          if (p[0]<min[0]) min[0] = p[0];
-          if (p[1]<min[1]) min[1] = p[1];
-          if (p[2]<min[2]) min[2] = p[2];
-          if (p[0]>max[0]) max[0] = p[0];
-          if (p[1]>max[1]) max[1] = p[1];
-          if (p[2]>max[2]) max[2] = p[2];
+          if (p[0]<min[0])
+            {
+            min[0] = p[0];
+            }
+          if (p[1]<min[1])
+            {
+            min[1] = p[1];
+            }
+          if (p[2]<min[2])
+            {
+            min[2] = p[2];
+            }
+          if (p[0]>max[0])
+            {
+            max[0] = p[0];
+            }
+          if (p[1]>max[1])
+            {
+            max[1] = p[1];
+            }
+          if (p[2]>max[2])
+            {
+            max[2] = p[2];
+            }
           }
 
         float size = static_cast<float>(
           vtkMath::Distance2BetweenPoints(min, max));
-        if (size > this->MaxCellSize) this->MaxCellSize = size;
+        if (size > this->MaxCellSize)
+          {
+          this->MaxCellSize = size;
+          }
       }
 
     this->InputAnalyzedTime.Modified();
@@ -616,12 +638,30 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
           index = cells [ 9 * cell + 1 + j ];
 
           p = points + 3 * index;
-          if (p[0]<vmin[0]) vmin[0] = p[0];
-          if (p[1]<vmin[1]) vmin[1] = p[1];
-          if (p[2]<vmin[2]) vmin[2] = p[2];
-          if (p[0]>vmax[0]) vmax[0] = p[0];
-          if (p[1]>vmax[1]) vmax[1] = p[1];
-          if (p[2]>vmax[2]) vmax[2] = p[2];
+          if (p[0]<vmin[0])
+            {
+            vmin[0] = p[0];
+            }
+          if (p[1]<vmin[1])
+            {
+            vmin[1] = p[1];
+            }
+          if (p[2]<vmin[2])
+            {
+            vmin[2] = p[2];
+            }
+          if (p[0]>vmax[0])
+            {
+            vmax[0] = p[0];
+            }
+          if (p[1]>vmax[1])
+            {
+            vmax[1] = p[1];
+            }
+          if (p[2]>vmax[2])
+            {
+            vmax[2] = p[2];
+            }
           }
 
 
@@ -640,18 +680,30 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
           p = points + 3 * index;
           int corner = 0;
           if (p[0]==vmax[0])
+            {
             corner += 4;
+            }
           if (p[1]==vmax[1])
+            {
             corner += 2;
+            }
           if (p[2]==vmax[2])
+            {
             corner += 1;
+            }
           static const int corner_tbl[] = {0, 4, 1, 5, 3, 7, 2, 6};
 
           s = static_cast<float>(
             (scalars[index] * this->ScalarScale + this->ScalarShift + 0.5)
             /this->ScalarResolution);
-          if (s < mins) mins = s;
-          if (s > maxs) maxs = s;
+          if (s < mins)
+            {
+            mins = s;
+            }
+          if (s > maxs)
+            {
+            maxs = s;
+            }
 
           corner_scalars[corner_tbl[corner]] = s;
 
