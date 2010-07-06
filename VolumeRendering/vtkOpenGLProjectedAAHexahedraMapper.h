@@ -12,16 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+// .NAME vtkOpenGLProjectedAAHexahedraMapper - volume mapper for axis-aligned hexahedra
+// .SECTION Description
 // High quality volume renderer for axis-aligned hexahedra
+
+// .SECTION Implementation
 // Implementation by Stephane Marchesin (stephane.marchesin@gmail.com)
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
 // BP12, F-91297 Arpajon, France.
 //
-// This file implements the paper 
+// This mapper implements the paper
 // "High-Quality, Semi-Analytical Volume Rendering for AMR Data", 
 // Stephane Marchesin and Guillaume Colin de Verdiere, IEEE Vis 2009.
-
 
 #ifndef __vtkOpenGLProjectedAAHexahedraMapper_h
 #define __vtkOpenGLProjectedAAHexahedraMapper_h
@@ -43,42 +45,70 @@ public:
   static vtkOpenGLProjectedAAHexahedraMapper *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Algorithm used to sort the cells according to viewpoint of the camera.
+  // Initial value is a vtkCellCenterDepthSort object.
   virtual void SetVisibilitySort(vtkVisibilitySort *sort);
   vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
 
+  // Description:
+  // Check if the required OpenGL extensions are supported by the OpenGL
+  // context attached to the render window `w'.
   bool IsRenderSupported(vtkRenderWindow *w);
 
   void Render(vtkRenderer *renderer, vtkVolume *volume);
 
   void ReleaseGraphicsResources(vtkWindow *window);
 
+  // Description:
+  // DESCRIPTION MISSING.
   float* ConvertScalars(vtkDataArray* inScalars);
+
+  // Description:
+  // DESCRIPTION MISSING.
   float* ConvertPoints(vtkPoints* inPoints);
 
 protected:
   vtkOpenGLProjectedAAHexahedraMapper();
   ~vtkOpenGLProjectedAAHexahedraMapper();
 
-  vtkVisibilitySort *VisibilitySort;
- 
   // Description:
   // The visibility sort will probably make a reference loop by holding a
   // reference to the input.
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
+  // Description:
+  // DESCRIPTION MISSING.
   virtual void ProjectHexahedra(vtkRenderer *renderer, vtkVolume *volume);
-  bool              Initialized;
+
+  // Description:
+  // DESCRIPTION MISSING.
   void Initialize(vtkRenderer *renderer, vtkVolume *volume);
 
-private:
+  // Description:
+  // DESCRIPTION MISSING.
   void UpdatePreintegrationTexture(vtkVolume *vome, vtkDataArray *scalars);
-  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
-  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
+
+  // Description:
+  // DESCRIPTION MISSING.
   void CreateProgram();
+
+  // Description:
+  // DESCRIPTION MISSING.
   void SetState(double* observer);
-  inline void RenderHexahedron(float min[3], float max[3], float scalars[8]);
+
+  // Description:
+  // DESCRIPTION MISSING.
+  void RenderHexahedron(float min[3], float max[3], float scalars[8]);
+
+  // Description:
+  // DESCRIPTION MISSING.
   void UnsetState();
- 
+
+
+  bool              Initialized;
+  vtkVisibilitySort *VisibilitySort;
+
   int UsingCellColors;
 
   float MaxCellSize;
@@ -114,6 +144,9 @@ private:
   vtkFloatArray *ConvertedPoints;
   vtkFloatArray *ConvertedScalars;
 
+private:
+  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
+  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
 };
 
 #endif
