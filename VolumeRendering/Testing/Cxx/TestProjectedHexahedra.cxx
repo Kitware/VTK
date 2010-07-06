@@ -116,7 +116,7 @@ int TestProjectedHexahedra(int argc,
 
   // The volume holds the mapper and the property and can be used to
   // position/orient the volume
-  vtkVolume* volume = vtkVolume::New();
+  VTK_CREATE(vtkVolume,volume);
 #if 1
   volume->SetMapper(volumeMapperHex);
 #else
@@ -124,7 +124,7 @@ int TestProjectedHexahedra(int argc,
 #endif
   volume->SetProperty(volumeProperty);
 
-  int valid=volumeMapperHex->IsRenderSupported(renWin); //,volumeProperty);
+  int valid=volumeMapperHex->IsRenderSupported(renWin);
 
   int retVal;
   if(valid)
