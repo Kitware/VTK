@@ -64,6 +64,11 @@ namespace vtkgl
 // of the core-promoted extension.
 int LoadCorePromotedExtension(const char *name,
                               vtkOpenGLExtensionManager *manager);
+// Description:
+// Set the ARB function pointers with the function pointers
+// of a EXT extension.
+int LoadAsARBExtension(const char *name,
+                       vtkOpenGLExtensionManager *manager);
 }
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -420,6 +425,21 @@ void vtkOpenGLExtensionManager::LoadCorePromotedExtension(const char *name)
     }
   int success = vtkgl::LoadCorePromotedExtension(name, this);
   
+  if (!success)
+    {
+    vtkErrorMacro("Extension " << name << " could not be loaded.");
+    }
+}
+
+void vtkOpenGLExtensionManager::LoadAsARBExtension(const char *name)
+{
+  if (!this->ExtensionSupported(name))
+    {
+    vtkWarningMacro("Attempting to load " << name
+                    << ", which is not supported.");
+    }
+  int success = vtkgl::LoadAsARBExtension(name, this);
+
   if (!success)
     {
     vtkErrorMacro("Extension " << name << " could not be loaded.");
@@ -1357,5 +1377,31 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     return 1;
     }
   
+  return 0;
+}
+
+// ----------------------------------------------------------------------------
+int vtkgl::LoadAsARBExtension(const char *name,
+                              vtkOpenGLExtensionManager *manager)
+{
+  assert("pre: name_exists" && name!=NULL);
+  assert("pre: manager_exists" && manager!=NULL);
+
+  if (strcmp(name, "GL_EXT_geometry_shader4") == 0)
+    {
+    vtkgl::ProgramParameteriARB = reinterpret_cast<vtkgl::PFNGLPROGRAMPARAMETERIARBPROC>(manager->GetProcAddress("glProgramParameteriEXT"));
+
+    // FramebufferTextureEXT(), FramebufferTextureLayerEXT() and
+    // FramebufferTextureFaceEXT() are also define by extension
+    // GL_NV_geometry_program4. Weird. Spec mistake.
+
+    vtkgl::FramebufferTextureARB = reinterpret_cast<vtkgl::PFNGLFRAMEBUFFERTEXTUREARBPROC>(manager->GetProcAddress("glFramebufferTextureEXT"));
+
+    vtkgl::FramebufferTextureLayerARB = reinterpret_cast<vtkgl::PFNGLFRAMEBUFFERTEXTURELAYERARBPROC>(manager->GetProcAddress("glFramebufferTextureLayerEXT"));
+
+    vtkgl::FramebufferTextureFaceARB = reinterpret_cast<vtkgl::PFNGLFRAMEBUFFERTEXTUREFACEARBPROC>(manager->GetProcAddress("glFramebufferTextureFaceEXT"));
+
+    return 1;
+    }
   return 0;
 }

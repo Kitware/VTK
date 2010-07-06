@@ -255,6 +255,11 @@ public:
   // vtkgl::ActiveTexture(vtkgl::TEXTURE0);
   // \endcode
   virtual void LoadCorePromotedExtension(const char *name);
+
+  // Description:
+  // Similar to LoadCorePromotedExtension().
+  // It loads an EXT extension into the pointers of its ARB equivalent.
+  virtual void LoadAsARBExtension(const char *name);
 //BTX
 protected:
   vtkOpenGLExtensionManager();

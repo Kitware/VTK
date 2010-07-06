@@ -28,6 +28,34 @@
 #include <assert.h>
 #include "vtkStdString.h"
 
+GLenum vtkGeometryTypeInVTKToGL[5]={
+  GL_POINTS, // VTK_GEOMETRY_SHADER_IN_TYPE_POINTS=0
+  GL_LINES, // VTK_GEOMETRY_SHADER_IN_TYPE_LINES=1,
+  vtkgl::LINES_ADJACENCY_ARB, // VTK_GEOMETRY_SHADER_IN_TYPE_LINES_ADJACENCY=2
+  GL_TRIANGLES, // VTK_GEOMETRY_SHADER_IN_TYPE_TRIANGLES=3
+  vtkgl::TRIANGLES_ADJACENCY_ARB // VTK_GEOMETRY_SHADER_IN_TYPE_TRIANGLES_ADJACENCY=4
+};
+
+const char *vtkGeometryTypeInAsStringArray[5]={
+  "points",
+  "lines",
+  "lines with adjacency",
+  "triangles",
+  "triangles with adjacency"
+};
+
+GLenum vtkGeometryTypeOutVTKToGL[3]={
+  GL_POINTS, // VTK_GEOMETRY_SHADER_OUT_TYPE_POINTS=0
+  GL_LINE_STRIP, // VTK_GEOMETRY_SHADER_OUT_TYPE_LINE_STRIP=1,
+  GL_TRIANGLE_STRIP, // VTK_GEOMETRY_SHADER_OUT_TYPE_TRIANGLE_STRIP=2
+};
+
+const char *vtkGeometryTypeOutAsStringArray[3]={
+  "points",
+  "line strip",
+  "triangle strip"
+};
+
 vtkStandardNewMacro(vtkShaderProgram2);
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
@@ -43,6 +71,10 @@ vtkShaderProgram2::vtkShaderProgram2()
   
   this->LastBuildStatus=VTK_SHADER_PROGRAM2_COMPILE_FAILED;
   
+  this->GeometryTypeIn=VTK_GEOMETRY_SHADER_IN_TYPE_POINTS;
+  this->GeometryTypeOut=VTK_GEOMETRY_SHADER_OUT_TYPE_POINTS;
+  this->GeometryVerticesOut=1;
+
   // 8 as an initial capacity is nice because the allocation is aligned on
   // 32-bit or 64-bit architecture.
   
@@ -472,6 +504,17 @@ void vtkShaderProgram2::Build()
       {
       this->LastBuildStatus=VTK_SHADER_PROGRAM2_LINK_FAILED;
       
+      // It is required to pass geometry shader parameters before linking.
+      if(this->HasGeometryShaders())
+        {
+        vtkgl::ProgramParameteriARB(progId,vtkgl::GEOMETRY_INPUT_TYPE_ARB,
+                                    static_cast<GLint>(vtkGeometryTypeInVTKToGL[this->GeometryTypeIn]));
+        vtkgl::ProgramParameteriARB(progId,vtkgl::GEOMETRY_OUTPUT_TYPE_ARB,
+                                    static_cast<GLint>(vtkGeometryTypeOutVTKToGL[this->GeometryTypeOut]));
+        vtkgl::ProgramParameteriARB(progId,vtkgl::GEOMETRY_VERTICES_OUT_ARB,
+                                    this->GeometryVerticesOut);
+        }
+
       vtkgl::LinkProgram(progId);
       GLint value;
       vtkgl::GetProgramiv(progId,vtkgl::LINK_STATUS,&value);
@@ -1049,6 +1092,14 @@ void vtkShaderProgram2::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
 
   os << indent << "OpenGL Id: " << this->Id << endl;
+
+  os << indent << "GeometryTypeIn: " <<
+    vtkGeometryTypeInAsStringArray[this->GeometryTypeIn] << endl;
+
+  os << indent << "GeometryTypeOut: " <<
+    vtkGeometryTypeInAsStringArray[this->GeometryTypeOut] << endl;
+
+  os << indent << "GeometryVerticesOut: " << this->GeometryVerticesOut << endl;
 
   os << indent << "UniformVariables: ";
   if(this->UniformVariables!=0)
