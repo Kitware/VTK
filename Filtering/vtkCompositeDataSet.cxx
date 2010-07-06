@@ -485,6 +485,20 @@ vtkIdType vtkCompositeDataSet::GetNumberOfPoints()
 
 
 //----------------------------------------------------------------------------
+unsigned long vtkCompositeDataSet::GetActualMemorySize()
+{
+  unsigned long memSize = 0;
+  vtkCompositeDataIterator* iter = this->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkDataObject* dobj = iter->GetCurrentDataObject();
+    memSize += dobj->GetActualMemorySize();
+    }
+  iter->Delete();
+  return memSize;
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

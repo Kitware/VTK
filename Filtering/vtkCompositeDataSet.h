@@ -92,6 +92,11 @@ public:
   // using CopyStructure).
   virtual int HasMetaData(vtkCompositeDataIterator* iter);
 
+  // Description:
+  // Return the actual size of the data in kilobytes. This number
+  // is valid only after the pipeline has updated.
+  virtual unsigned long GetActualMemorySize();
+
   //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
