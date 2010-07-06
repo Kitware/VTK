@@ -346,8 +346,6 @@ void vtkOpenGLProjectedAAHexahedraMapper::UpdatePreintegrationTexture(
     (pi->GetIntegrationTableLengthResolution() - 2) /
     pi->GetIntegrationTableLengthScale());
 
-
-  glEnable(GL_TEXTURE_3D);
   glBindTexture(GL_TEXTURE_3D, this->PreintTexture);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -408,8 +406,6 @@ void vtkOpenGLProjectedAAHexahedraMapper::SetState(double *observer)
   glDisable( GL_DEPTH_TEST );
 
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_TEXTURE_3D);
   glBindTexture(vtkgl::TEXTURE_3D,this->PreintTexture);
 
   vtkUniformVariables *v=this->Shader->GetUniformVariables();
@@ -592,7 +588,6 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
     return;
     }
 
-  glDisable(GL_LIGHTING);
   glDepthMask(GL_FALSE);
 
   // save the default blend function.
@@ -721,11 +716,9 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
   // Restore the blend function.
   glPopAttrib();
 
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glDisable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_3D, 0);
 
   glDepthMask(GL_TRUE);
-  glEnable(GL_LIGHTING);
 
   this->UpdateProgress(1.0);
 }
