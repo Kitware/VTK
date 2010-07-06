@@ -36,6 +36,7 @@ class vtkUnsignedCharArray;
 class vtkVisibilitySort;
 class vtkVolumeProperty;
 class vtkRenderWindow;
+class vtkShaderProgram2;
 
 class VTK_VOLUMERENDERING_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkProjectedAAHexahedraMapper
 {
@@ -80,7 +81,7 @@ protected:
 
   // Description:
   // DESCRIPTION MISSING.
-  void CreateProgram();
+  void CreateProgram(vtkRenderWindow *w);
 
   // Description:
   // DESCRIPTION MISSING.
@@ -117,7 +118,7 @@ protected:
   static const int max_points = 4096;
 
   // our shader
-  unsigned int Shader; // vtkgl::handleARB
+  vtkShaderProgram2 *Shader;
 
   int GaveError;
 

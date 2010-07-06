@@ -51,6 +51,10 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 #include "vtkgl.h"
+#include "vtkShaderProgram2.h"
+#include "vtkShader2.h"
+#include "vtkUniformVariables.h"
+#include "vtkShader2Collection.h"
 
 #include <math.h>
 #include <vtkstd/algorithm>
@@ -77,7 +81,7 @@ vtkOpenGLProjectedAAHexahedraMapper::vtkOpenGLProjectedAAHexahedraMapper()
 
   this->GaveError = 0;
   this->Initialized=false;
-
+  this->Shader=0;
 }
 
 // ----------------------------------------------------------------------------
@@ -85,6 +89,10 @@ vtkOpenGLProjectedAAHexahedraMapper::~vtkOpenGLProjectedAAHexahedraMapper()
 {
   this->ConvertedPoints->Delete();
   this->ConvertedScalars->Delete();
+  if(this->Shader!=0)
+    {
+    this->Shader->Delete();
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -171,7 +179,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::Initialize(
     e->LoadExtension("GL_EXT_geometry_shader4");
 
     this->Initialized=true;
-    this->CreateProgram();
+    this->CreateProgram(ren->GetRenderWindow());
     pos_points = new float[3*max_points];
     min_points = new float[3*max_points];
     node_data1 = new float[4*max_points];
@@ -332,53 +340,40 @@ void vtkOpenGLProjectedAAHexahedraMapper::UpdatePreintegrationTexture(
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLProjectedAAHexahedraMapper::CreateProgram()
+void vtkOpenGLProjectedAAHexahedraMapper::CreateProgram(vtkRenderWindow *w)
 {
-  GLint ok;
+  this->Shader=vtkShaderProgram2::New();
+  this->Shader->SetContext(static_cast<vtkOpenGLRenderWindow *>(w));
 
-  vtkgl::GLhandleARB gs=vtkgl::CreateShader(vtkgl::GEOMETRY_SHADER_EXT);
-  vtkgl::GLhandleARB vs=vtkgl::CreateShader(vtkgl::VERTEX_SHADER_ARB);
-  vtkgl::GLhandleARB fs=vtkgl::CreateShader(vtkgl::FRAGMENT_SHADER_ARB);
+  vtkShader2Collection *shaders=this->Shader->GetShaders();
 
-  vtkgl::ShaderSource(gs, 1,
-                      const_cast<const vtkgl::GLchar**>(
-                        &vtkProjectedAAHexahedraMapper_GS),NULL);
-  vtkgl::ShaderSource(vs, 1,
-                      const_cast<const vtkgl::GLchar**>(
-                        &vtkProjectedAAHexahedraMapper_VS),NULL);
-  vtkgl::ShaderSource(fs, 1,
-                      const_cast<const vtkgl::GLchar**>(
-                        &vtkProjectedAAHexahedraMapper_FS),NULL);
+  vtkShader2 *vs=vtkShader2::New();
+  vs->SetType(VTK_SHADER_TYPE_VERTEX);
+  vs->SetContext(this->Shader->GetContext());
+  vs->SetSourceCode(vtkProjectedAAHexahedraMapper_VS);
+  shaders->AddItem(vs);
+  vs->Delete();
 
-  vtkgl::CompileShader(gs);
-  vtkgl::GetShaderiv(gs,vtkgl::COMPILE_STATUS,&ok);
-  if (!ok)
-    return;
-  vtkgl::CompileShader(vs);
-  vtkgl::GetShaderiv(vs,vtkgl::COMPILE_STATUS,&ok);
-  if (!ok)
-    return;
+  vtkShader2 *gs=vtkShader2::New();
+  gs->SetType(VTK_SHADER_TYPE_GEOMETRY);
+  gs->SetContext(this->Shader->GetContext());
+  gs->SetSourceCode(vtkProjectedAAHexahedraMapper_GS);
+  shaders->AddItem(gs);
+  gs->Delete();
 
-  vtkgl::CompileShader(fs);
-  vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&ok);
-  if (!ok)
-    return;
+  vtkShader2 *fs=vtkShader2::New();
+  fs->SetType(VTK_SHADER_TYPE_FRAGMENT);
+  fs->SetContext(this->Shader->GetContext());
+  fs->SetSourceCode(vtkProjectedAAHexahedraMapper_FS);
+  shaders->AddItem(fs);
+  fs->Delete();
 
-  vtkgl::GLhandleARB p = vtkgl::CreateProgram();
-  vtkgl::AttachShader(p,gs);
-  vtkgl::AttachShader(p,vs);
-  vtkgl::AttachShader(p,fs);
+  this->Shader->SetGeometryVerticesOut(24);
+  this->Shader->SetGeometryTypeIn(VTK_GEOMETRY_SHADER_IN_TYPE_POINTS);
+  this->Shader->SetGeometryTypeOut(
+    VTK_GEOMETRY_SHADER_OUT_TYPE_TRIANGLE_STRIP);
 
-  vtkgl::ProgramParameteriEXT(p,vtkgl::GEOMETRY_VERTICES_OUT_EXT,24);
-  vtkgl::ProgramParameteriEXT(p,vtkgl::GEOMETRY_INPUT_TYPE_EXT,GL_POINTS);
-  vtkgl::ProgramParameteriEXT(p,vtkgl::GEOMETRY_OUTPUT_TYPE_EXT,
-                              GL_TRIANGLE_STRIP);
-
-  vtkgl::LinkProgram(p);
-  vtkgl::GetProgramiv(p,vtkgl::OBJECT_LINK_STATUS_ARB,&ok);
-  if (!ok)
-    return;
-  Shader=p;
+  this->Shader->Build();
 }
 
 // ----------------------------------------------------------------------------
@@ -390,24 +385,28 @@ void vtkOpenGLProjectedAAHexahedraMapper::SetState(double *observer)
   glDepthFunc( GL_ALWAYS );
   glDisable( GL_DEPTH_TEST );
 
-  vtkgl::UseProgram(this->Shader);
+  vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_3D);
+  glBindTexture(vtkgl::TEXTURE_3D,this->PreintTexture);
 
-  vtkgl::ActiveTexture( vtkgl::TEXTURE0_ARB );
-  glDisable (GL_TEXTURE_2D);
-  glEnable (GL_TEXTURE_3D);
-  glBindTexture(GL_TEXTURE_3D, this->PreintTexture);
+  vtkUniformVariables *v=this->Shader->GetUniformVariables();
 
-  /* preintegration table */
-  vtkgl::Uniform1i(vtkgl::GetUniformLocation(this->Shader,
-                                             "preintegration_table"),0);
-  /* observer position */
-  vtkgl::Uniform3f(vtkgl::GetUniformLocation(this->Shader, "observer"),
-                   static_cast<GLfloat>(observer[0]),
-                   static_cast<GLfloat>(observer[1]),
-                   static_cast<GLfloat>(observer[2]));
-  /* max length of preint table */
-  vtkgl::Uniform1f(vtkgl::GetUniformLocation(this->Shader, "length_max"),
-                   this->LengthScale);
+  // preintegration table
+  int ivalue=0;
+  v->SetUniformi("preintegration_table",1,&ivalue);
+
+  // observer position
+  float fvalue[3];
+  fvalue[0]=static_cast<float>(observer[0]);
+  fvalue[1]=static_cast<float>(observer[1]);
+  fvalue[2]=static_cast<float>(observer[2]);
+  v->SetUniformf("observer",3,fvalue);
+
+  // max length of preint table
+  v->SetUniformf("length_max",1,&this->LengthScale);
+
+  this->Shader->Use();
 
   glEnableClientState( GL_VERTEX_ARRAY );
   glVertexPointer( 3, GL_FLOAT, 0, pos_points);
@@ -427,7 +426,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::SetState(double *observer)
   glEnableClientState( GL_TEXTURE_COORD_ARRAY );
   glTexCoordPointer( 4, GL_FLOAT, 0, node_data2);
 
-  num_points = 0;
+  this->num_points = 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -467,17 +466,17 @@ void vtkOpenGLProjectedAAHexahedraMapper::RenderHexahedron(float vmin[3],
 void vtkOpenGLProjectedAAHexahedraMapper::UnsetState()
 {
   // flush what remains of our points
-  if (num_points>0)
+  if (this->num_points>0)
     {
-    glDrawArrays(GL_POINTS, 0, num_points);
-    num_points = 0;
+    glDrawArrays(GL_POINTS, 0, this->num_points);
+    this->num_points = 0;
     }
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-  vtkgl::UseProgram(0);
+  this->Shader->Restore();
 }
 
 // ----------------------------------------------------------------------------
@@ -498,17 +497,17 @@ void vtkOpenGLProjectedAAHexahedraMapperConvertScalars(
 float* vtkOpenGLProjectedAAHexahedraMapper::ConvertScalars(
   vtkDataArray* inScalars)
 {
-  ConvertedScalars->SetNumberOfComponents(1);
-  ConvertedScalars->SetNumberOfTuples(inScalars->GetNumberOfTuples());
+  this->ConvertedScalars->SetNumberOfComponents(1);
+  this->ConvertedScalars->SetNumberOfTuples(inScalars->GetNumberOfTuples());
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(vtkOpenGLProjectedAAHexahedraMapperConvertScalars(
                        static_cast<const VTK_TT *>(
                          inScalars->GetVoidPointer(0)),
                        inScalars->GetNumberOfTuples(),
-                       ConvertedScalars->GetPointer(0) ) );
+                       this->ConvertedScalars->GetPointer(0) ) );
     }
-  return ConvertedScalars->GetPointer(0);
+  return this->ConvertedScalars->GetPointer(0);
 }
 
 // ----------------------------------------------------------------------------
@@ -528,17 +527,17 @@ void vtkOpenGLProjectedAAHexahedraMapperConvertPoints(
 // convert all our points to floating point
 float* vtkOpenGLProjectedAAHexahedraMapper::ConvertPoints(vtkPoints* inPoints)
 {
-  ConvertedPoints->SetNumberOfComponents(3);
-  ConvertedPoints->SetNumberOfTuples(inPoints->GetNumberOfPoints());
+  this->ConvertedPoints->SetNumberOfComponents(3);
+  this->ConvertedPoints->SetNumberOfTuples(inPoints->GetNumberOfPoints());
   switch (inPoints->GetDataType())
     {
     vtkTemplateMacro(vtkOpenGLProjectedAAHexahedraMapperConvertPoints(
                        static_cast<const VTK_TT *>(
                          inPoints->GetVoidPointer(0)),
                        inPoints->GetNumberOfPoints(),
-                       ConvertedPoints->GetPointer(0) ) );
+                       this->ConvertedPoints->GetPointer(0) ) );
     }
-  return ConvertedPoints->GetPointer(0);
+  return this->ConvertedPoints->GetPointer(0);
 }
 
 // ----------------------------------------------------------------------------
@@ -697,5 +696,9 @@ void vtkOpenGLProjectedAAHexahedraMapper::ReleaseGraphicsResources(
     delete[] node_data1;
     delete[] node_data2;
     this->Initialized=false;
+    }
+  if(this->Shader!=0)
+    {
+    this->Shader->ReleaseGraphicsResources();
     }
 }
