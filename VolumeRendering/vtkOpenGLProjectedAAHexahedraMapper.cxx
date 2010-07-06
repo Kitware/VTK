@@ -50,8 +50,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
-
-#include "vtkOpenGL.h"
+#include "vtkgl.h"
 
 #include <math.h>
 #include <vtkstd/algorithm>
@@ -126,7 +125,7 @@ bool vtkOpenGLProjectedAAHexahedraMapper::IsRenderSupported(vtkRenderWindow *w)
 
   bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4");
 
-  return multiTexture && glsl && geometry_shader;
+  return texture3D && multiTexture && glsl && geometry_shader;
 }
 
 //-----------------------------------------------------------------------------
@@ -148,7 +147,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::Initialize(vtkRenderer *ren, vtkVolume
                      e->ExtensionSupported("GL_ARB_fragment_shader"));
   bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4");
 
-  bool result=multiTexture && glsl && geometry_shader;
+  bool result=texture3D && multiTexture && glsl && geometry_shader;
 
   if(result)
     {

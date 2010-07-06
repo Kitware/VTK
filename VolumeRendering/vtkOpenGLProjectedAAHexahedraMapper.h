@@ -27,7 +27,6 @@
 #define __vtkOpenGLProjectedAAHexahedraMapper_h
 
 #include "vtkUnstructuredGridVolumeMapper.h"
-#include "vtkgl.h"
 
 class vtkFloatArray;
 class vtkPoints;
@@ -100,7 +99,7 @@ private:
   static const int max_points = 4096;
 
   // our shader
-  vtkgl::GLhandleARB Shader;
+  unsigned int Shader; // vtkgl::handleARB
 
   static const char *VertSource;
   static const char *GeomSource;
