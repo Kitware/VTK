@@ -119,9 +119,6 @@ protected:
   // our shader
   unsigned int Shader; // vtkgl::handleARB
 
-  static const char *VertSource;
-  static const char *GeomSource;
-  static const char *FragSource;
   int GaveError;
 
   float ScalarScale, ScalarShift, ScalarResolution;

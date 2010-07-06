@@ -124,6 +124,9 @@ set(KIT_GLSL_SRCS
   vtkGPUVolumeRayCastMapper_FourComponentsFS
   vtkGPUVolumeRayCastMapper_NoShadeFS
   vtkGPUVolumeRayCastMapper_ShadeFS
+  vtkProjectedAAHexahedraMapper_VS
+  vtkProjectedAAHexahedraMapper_GS
+  vtkProjectedAAHexahedraMapper_FS
   )
 
 # Create custom commands to encode each assembly file into a C string
