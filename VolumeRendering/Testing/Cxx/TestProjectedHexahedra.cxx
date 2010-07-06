@@ -33,18 +33,22 @@
 #include "vtkOpenGLProjectedAAHexahedraMapper.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSplitField.h"
 #include "vtkUnstructuredGridReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolumeProperty.h"
+#include "vtkTestUtilities.h"
+#include "vtkRegressionTestImage.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestProjectedHexahedra(int argc, char* argv[])
+int TestProjectedHexahedra(int argc,
+                           char *argv[])
 {
   VTK_CREATE(vtkRenderer, ren1);
   ren1->SetBackground( 0.0, 0.0, 0.0 );
@@ -58,10 +62,20 @@ int TestProjectedHexahedra(int argc, char* argv[])
   renWin->AddRenderer( ren1 );
   renWin->SetSize( 800, 800 );
 
+  vtkSmartPointer<vtkRenderWindowInteractor> iren=
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->SetRenderWindow(renWin);
+
+  // Make sure we have a OpenGL context created before checking that
+  // the volume mapper is supported by OpenGL.
+  renWin->Render();
+
   // Create the reader for the data
-  vtkStdString filename;
   VTK_CREATE(vtkUnstructuredGridReader, reader);
-  reader->SetFileName("/home/marchesi/VTKData/Data/hexa.vtk");
+
+  char *cfname=vtkTestUtilities::ExpandDataFileName(argc,argv,"Data/hexa.vtk");
+  reader->SetFileName(cfname);
+  delete [] cfname;
 
   // Create transfer mapping scalar value to opacity
   VTK_CREATE(vtkPiecewiseFunction, opacityTransferFunction);
@@ -110,24 +124,36 @@ int TestProjectedHexahedra(int argc, char* argv[])
 #endif
   volume->SetProperty(volumeProperty);
 
-  ren1->AddVolume(volume);
-    
-  while(true)
+  int valid=volumeMapperHex->IsRenderSupported(renWin); //,volumeProperty);
+
+  int retVal;
+  if(valid)
     {
-    // render the image
+    iren->Initialize();
+    ren1->AddVolume(volume);
+    ren1->ResetCamera();
     renWin->Render();
-    // rotate the active camera by one degree
-    ren1->GetActiveCamera()->Azimuth( 0.1 );
+
+    retVal = vtkTesting::Test(argc, argv, renWin, 75);
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
+    }
+  else
+    {
+    retVal=vtkTesting::PASSED;
+    cout << "Required extensions not supported." << endl;
     }
   
-  //
-  // Free up any objects we created. All instances in VTK are deleted by
-  // using the Delete() method.
-  //
-  ren1->Delete();
-  renWin->Delete();
-
-  return 0;
+  if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
 }
 
 

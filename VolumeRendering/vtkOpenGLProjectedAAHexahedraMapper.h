@@ -34,6 +34,7 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkVisibilitySort;
 class vtkVolumeProperty;
+class vtkRenderWindow;
 
 class VTK_VOLUMERENDERING_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -45,6 +46,8 @@ public:
 
   virtual void SetVisibilitySort(vtkVisibilitySort *sort);
   vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
+
+  bool IsRenderSupported(vtkRenderWindow *w);
 
   void Render(vtkRenderer *renderer, vtkVolume *volume);
 
@@ -65,7 +68,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
   virtual void ProjectHexahedra(vtkRenderer *renderer, vtkVolume *volume);
-  int              Initialized;
+  bool              Initialized;
   void Initialize(vtkRenderer *renderer, vtkVolume *volume);
 
 private:

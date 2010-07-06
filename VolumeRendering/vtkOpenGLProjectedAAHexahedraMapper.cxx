@@ -64,6 +64,7 @@ vtkCxxSetObjectMacro(vtkOpenGLProjectedAAHexahedraMapper,
 
 vtkStandardNewMacro(vtkOpenGLProjectedAAHexahedraMapper);
 
+// ----------------------------------------------------------------------------
 vtkOpenGLProjectedAAHexahedraMapper::vtkOpenGLProjectedAAHexahedraMapper()
 {
   this->VisibilitySort = vtkCellCenterDepthSort::New();
@@ -76,9 +77,11 @@ vtkOpenGLProjectedAAHexahedraMapper::vtkOpenGLProjectedAAHexahedraMapper()
   this->MaxCellSize = 0;
 
   this->GaveError = 0;
+  this->Initialized=false;
 
 }
 
+// ----------------------------------------------------------------------------
 vtkOpenGLProjectedAAHexahedraMapper::~vtkOpenGLProjectedAAHexahedraMapper()
 {
   this->SetVisibilitySort(NULL);
@@ -86,6 +89,7 @@ vtkOpenGLProjectedAAHexahedraMapper::~vtkOpenGLProjectedAAHexahedraMapper()
   this->ConvertedScalars->Delete();
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLProjectedAAHexahedraMapper::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -102,55 +106,88 @@ void vtkOpenGLProjectedAAHexahedraMapper::ReportReferences(vtkGarbageCollector *
   vtkGarbageCollectorReport(collector, this->VisibilitySort, "VisibilitySort");
 }
 
+// ----------------------------------------------------------------------------
+bool vtkOpenGLProjectedAAHexahedraMapper::IsRenderSupported(vtkRenderWindow *w)
+{
+  vtkOpenGLExtensionManager *e=
+    static_cast<vtkOpenGLRenderWindow *>(w)->GetExtensionManager();
+
+  bool texture3D=e->ExtensionSupported("GL_VERSION_1_2") ||
+    e->ExtensionSupported("GL_EXT_texture3D");
+
+  bool multiTexture=e->ExtensionSupported("GL_VERSION_1_3") ||
+    e->ExtensionSupported("GL_ARB_multitexture");
+
+  bool glsl=e->ExtensionSupported("GL_VERSION_2_0") ||
+    (e->ExtensionSupported("GL_ARB_shading_language_100") &&
+     e->ExtensionSupported("GL_ARB_shader_objects") &&
+     e->ExtensionSupported("GL_ARB_vertex_shader") &&
+     e->ExtensionSupported("GL_ARB_fragment_shader"));
+
+  bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4");
+
+  return multiTexture && glsl && geometry_shader;
+}
+
 //-----------------------------------------------------------------------------
 
 void vtkOpenGLProjectedAAHexahedraMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
 {
-  this->Initialized = 1;
-
-  vtkOpenGLExtensionManager *extensions=static_cast<vtkOpenGLRenderWindow *>(
+  vtkOpenGLExtensionManager *e=static_cast<vtkOpenGLRenderWindow *>(
     ren->GetRenderWindow())->GetExtensionManager();
-  
-  int supports_texture3D=extensions->ExtensionSupported( "GL_VERSION_1_2" );
-  if(supports_texture3D)
-    {
-    extensions->LoadExtension("GL_VERSION_1_2");
-    }
-  else
-    {
-    supports_texture3D=extensions->ExtensionSupported( "GL_EXT_texture3D" );
-    if(supports_texture3D)
-      {
-      extensions->LoadCorePromotedExtension("GL_EXT_texture3D");
-      }
-    }
-  int supports_multitexture=extensions->ExtensionSupported( "GL_VERSION_1_3" );
-  if(supports_multitexture)
-    {
-    extensions->LoadExtension("GL_VERSION_1_3");
-    }
-  else
-    {
-    supports_multitexture=
-      extensions->ExtensionSupported("GL_ARB_multitexture");
-    if(supports_multitexture)
-      {
-      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
-    }
 
-  if (extensions->ExtensionSupported( "GL_ARB_shader_objects" ))
-    extensions->LoadCorePromotedExtension("GL_ARB_shader_objects");
- 
-  if (extensions->ExtensionSupported( "GL_EXT_geometry_shader4" ))
-    extensions->LoadExtension("GL_EXT_geometry_shader4");
- 
-  this->CreateProgram();
+  bool gl12=e->ExtensionSupported("GL_VERSION_1_2")==1;
+  bool gl13=e->ExtensionSupported("GL_VERSION_1_3")==1;
+  bool gl20=e->ExtensionSupported("GL_VERSION_2_0")==1;
 
-  pos_points = new float[3*max_points];
-  min_points = new float[3*max_points];
-  node_data1 = new float[4*max_points];
-  node_data2 = new float[4*max_points];
+  bool texture3D=gl12 || e->ExtensionSupported("GL_EXT_texture3D");
+  bool multiTexture=gl13 || e->ExtensionSupported("GL_ARB_multitexture");
+  bool glsl=gl20 || (e->ExtensionSupported("GL_ARB_shading_language_100") &&
+                     e->ExtensionSupported("GL_ARB_shader_objects") &&
+                     e->ExtensionSupported("GL_ARB_vertex_shader") &&
+                     e->ExtensionSupported("GL_ARB_fragment_shader"));
+  bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4");
+
+  bool result=multiTexture && glsl && geometry_shader;
+
+  if(result)
+    {
+    if(gl12)
+      {
+      e->LoadExtension("GL_VERSION_1_2");
+      }
+    else
+      {
+      e->LoadCorePromotedExtension("GL_EXT_texture3D");
+      }
+    if(gl13)
+      {
+      e->LoadExtension("GL_VERSION_1_3");
+      }
+    else
+      {
+      e->LoadCorePromotedExtension("GL_ARB_multitexture");
+      }
+    if(gl20)
+      {
+      e->LoadExtension("GL_VERSION_2_0");
+      }
+    else
+      {
+      e->LoadCorePromotedExtension("GL_ARB_shading_language_100");
+      e->LoadCorePromotedExtension("GL_ARB_shader_objects");
+      e->LoadCorePromotedExtension("GL_ARB_vertex_shader");
+      e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
+      }
+    e->LoadExtension("GL_EXT_geometry_shader4");
+
+    this->Initialized=true;
+    this->CreateProgram();
+    pos_points = new float[3*max_points];
+    min_points = new float[3*max_points];
+    node_data1 = new float[4*max_points];
+    node_data2 = new float[4*max_points];
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -745,17 +782,17 @@ void vtkOpenGLProjectedAAHexahedraMapper::CreateProgram()
 	vtkgl::ShaderSource(fs, 1, &this->FragSource,NULL);
 
 	vtkgl::CompileShader(gs);
-	vtkgl::GetProgramiv(gs,vtkgl::OBJECT_COMPILE_STATUS_ARB,&ok);
+        vtkgl::GetShaderiv(gs,vtkgl::COMPILE_STATUS,&ok);
 	if (!ok)
 		return;
 
 	vtkgl::CompileShader(vs);
-	vtkgl::GetProgramiv(vs,vtkgl::OBJECT_COMPILE_STATUS_ARB,&ok);
+        vtkgl::GetShaderiv(vs,vtkgl::COMPILE_STATUS,&ok);
 	if (!ok)
 		return;
 
 	vtkgl::CompileShader(fs);
-	vtkgl::GetProgramiv(fs,vtkgl::OBJECT_COMPILE_STATUS_ARB,&ok);
+        vtkgl::GetShaderiv(fs,vtkgl::COMPILE_STATUS,&ok);
 	if (!ok)
 		return;
 
@@ -1067,11 +1104,14 @@ void vtkOpenGLProjectedAAHexahedraMapper::ReleaseGraphicsResources(vtkWindow *wi
     this->PreintTexture = 0;
     }
   this->Superclass::ReleaseGraphicsResources(win);
-  delete[] pos_points;
-  delete[] min_points;
-  delete[] node_data1;
-  delete[] node_data2;
-
+  if(this->Initialized)
+    {
+    delete[] pos_points;
+    delete[] min_points;
+    delete[] node_data1;
+    delete[] node_data2;
+    this->Initialized=false;
+    }
 }
 
 
