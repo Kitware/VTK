@@ -583,6 +583,8 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     {
     selector->EndRenderProp();
     }
+
+  this->UpdateProgress(1.0);
 }
 
 // ---------------------------------------------------------------------------
