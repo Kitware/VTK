@@ -54,6 +54,15 @@ public:
   virtual void Translate(float dx, float dy);
 
   // Description:
+  // Scale the item by the specified amounts dx and dy in the x and y
+  // directions.
+  virtual void Scale(float dx, float dy);
+
+  // Description:
+  // Rotate the item by the specified angle.
+  virtual void Rotate(float angle);
+
+  // Description:
   // Access the vtkTransform2D that controls object transformation.
   virtual vtkTransform2D* GetTransform();
 

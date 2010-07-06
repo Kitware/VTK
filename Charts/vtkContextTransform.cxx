@@ -56,6 +56,19 @@ void vtkContextTransform::Translate(float dx, float dy)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContextTransform::Scale(float dx, float dy)
+{
+  float d[] = { dx, dy };
+  this->Transform->Scale(d);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextTransform::Rotate(float angle)
+{
+  this->Transform->Rotate(double(angle));
+}
+
+//-----------------------------------------------------------------------------
 vtkTransform2D* vtkContextTransform::GetTransform()
 {
   return this->Transform;
