@@ -84,7 +84,6 @@ vtkOpenGLProjectedAAHexahedraMapper::~vtkOpenGLProjectedAAHexahedraMapper()
   this->SetVisibilitySort(NULL);
   this->ConvertedPoints->Delete();
   this->ConvertedScalars->Delete();
-  this->ReleaseGraphicsResources(NULL);
 }
 
 void vtkOpenGLProjectedAAHexahedraMapper::PrintSelf(ostream &os, vtkIndent indent)
