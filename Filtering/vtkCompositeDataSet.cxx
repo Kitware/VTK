@@ -401,10 +401,17 @@ void vtkCompositeDataSet::ShallowCopy(vtkDataObject* src)
       vtkDataObject* child = from->GetChild(cc);
       if (child)
         {
-        vtkDataObject* clone = child->NewInstance();
-        clone->ShallowCopy(child);
-        this->SetChild(cc, clone);
-        clone->Delete();
+        if (child->IsA("vtkCompositeDataSet"))
+          {
+          vtkDataObject* clone = child->NewInstance();
+          clone->ShallowCopy(child);
+          this->SetChild(cc, clone);
+          clone->FastDelete();
+          }
+        else
+          {
+          this->SetChild(cc, child);
+          }
         }
       if (from->HasChildMetaData(cc))
         {
