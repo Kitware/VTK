@@ -21,8 +21,6 @@
 
 vtkStandardNewMacro(vtkInformationIterator);
 
-vtkCxxSetObjectMacro(vtkInformationIterator, Information, vtkInformation);
-
 class vtkInformationIteratorInternals
 {
 public:
@@ -34,16 +32,50 @@ vtkInformationIterator::vtkInformationIterator()
 {
   this->Internal = new vtkInformationIteratorInternals;
   this->Information = 0;
+  this->ReferenceIsWeak = false;
 }
 
 //----------------------------------------------------------------------------
 vtkInformationIterator::~vtkInformationIterator()
 {
+  if (this->ReferenceIsWeak)
+    {
+    this->Information = 0;
+    }
   if (this->Information)
     {
     this->Information->Delete();
     }
   delete this->Internal;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationIterator::SetInformation(vtkInformation* inf)
+{
+  if (this->ReferenceIsWeak)
+    {
+    this->Information = 0;
+    }
+  this->ReferenceIsWeak = false;
+  vtkSetObjectBodyMacro(Information, vtkInformation, inf);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationIterator::SetInformationWeak(vtkInformation* inf)
+{
+  if (!this->ReferenceIsWeak)
+    {
+    this->SetInformation(0);
+    }
+
+  this->ReferenceIsWeak = true;
+
+  if (this->Information != inf)
+    {
+    this->Information = inf;
+    this->Modified();
+    }
+
 }
 
 //----------------------------------------------------------------------------

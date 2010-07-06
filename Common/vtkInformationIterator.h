@@ -43,6 +43,13 @@ public:
   vtkGetObjectMacro(Information, vtkInformation);
 
   // Description:
+  // Set the function to iterate over. The iterator
+  // will not hold a reference to the information object.
+  // Can be used to optimize certain places by avoiding
+  // garbage collection.
+  void SetInformationWeak(vtkInformation*);
+
+  // Description:
   // Move the iterator to the beginning of the collection.
   void InitTraversal() { this->GoToFirstItem(); }
 
@@ -70,6 +77,8 @@ protected:
 
   vtkInformation* Information;
   vtkInformationIteratorInternals* Internal;
+
+  bool ReferenceIsWeak;
 
 private:
   vtkInformationIterator(const vtkInformationIterator&);  // Not implemented.
