@@ -38,8 +38,8 @@ class vtkVolumeProperty;
 class VTK_VOLUMERENDERING_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLProjectedAAHexahedraMapper,
-                       vtkUnstructuredGridVolumeMapper);
+  vtkTypeMacro(vtkOpenGLProjectedAAHexahedraMapper,
+               vtkUnstructuredGridVolumeMapper);
   static vtkOpenGLProjectedAAHexahedraMapper *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 

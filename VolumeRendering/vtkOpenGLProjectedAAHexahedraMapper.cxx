@@ -57,9 +57,6 @@
 #include <vtkstd/algorithm>
 
 //-----------------------------------------------------------------------------
-
-vtkCxxRevisionMacro(vtkOpenGLProjectedAAHexahedraMapper, "$Revision: 1.11 $");
-
 vtkCxxSetObjectMacro(vtkOpenGLProjectedAAHexahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
 
