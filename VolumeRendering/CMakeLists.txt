@@ -30,6 +30,7 @@ vtkFixedPointVolumeRayCastMIPHelper.cxx
 vtkFixedPointVolumeRayCastMapper.cxx
 vtkGPUVolumeRayCastMapper.cxx
 vtkHAVSVolumeMapper.cxx
+vtkProjectedAAHexahedraMapper.cxx
 vtkProjectedTetrahedraMapper.cxx
 vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx

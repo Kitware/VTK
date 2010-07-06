@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLProjectedAAHexahedraMapper - volume mapper for axis-aligned hexahedra
+// .NAME vtkOpenGLProjectedAAHexahedraMapper - OpenGL implementation of a volume mapper for axis-aligned hexahedra
 // .SECTION Description
 // High quality volume renderer for axis-aligned hexahedra
 
@@ -22,13 +22,13 @@
 // BP12, F-91297 Arpajon, France.
 //
 // This mapper implements the paper
-// "High-Quality, Semi-Analytical Volume Rendering for AMR Data", 
+// "High-Quality, Semi-Analytical Volume Rendering for AMR Data",
 // Stephane Marchesin and Guillaume Colin de Verdiere, IEEE Vis 2009.
 
 #ifndef __vtkOpenGLProjectedAAHexahedraMapper_h
 #define __vtkOpenGLProjectedAAHexahedraMapper_h
 
-#include "vtkUnstructuredGridVolumeMapper.h"
+#include "vtkProjectedAAHexahedraMapper.h"
 
 class vtkFloatArray;
 class vtkPoints;
@@ -37,19 +37,13 @@ class vtkVisibilitySort;
 class vtkVolumeProperty;
 class vtkRenderWindow;
 
-class VTK_VOLUMERENDERING_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkUnstructuredGridVolumeMapper
+class VTK_VOLUMERENDERING_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkProjectedAAHexahedraMapper
 {
 public:
   vtkTypeMacro(vtkOpenGLProjectedAAHexahedraMapper,
-               vtkUnstructuredGridVolumeMapper);
+               vtkProjectedAAHexahedraMapper);
   static vtkOpenGLProjectedAAHexahedraMapper *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-
-  // Description:
-  // Algorithm used to sort the cells according to viewpoint of the camera.
-  // Initial value is a vtkCellCenterDepthSort object.
-  virtual void SetVisibilitySort(vtkVisibilitySort *sort);
-  vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
 
   // Description:
   // Check if the required OpenGL extensions are supported by the OpenGL
@@ -60,22 +54,17 @@ public:
 
   void ReleaseGraphicsResources(vtkWindow *window);
 
-  // Description:
+protected:
+  vtkOpenGLProjectedAAHexahedraMapper();
+  ~vtkOpenGLProjectedAAHexahedraMapper();
+
+   // Description:
   // DESCRIPTION MISSING.
   float* ConvertScalars(vtkDataArray* inScalars);
 
   // Description:
   // DESCRIPTION MISSING.
   float* ConvertPoints(vtkPoints* inPoints);
-
-protected:
-  vtkOpenGLProjectedAAHexahedraMapper();
-  ~vtkOpenGLProjectedAAHexahedraMapper();
-
-  // Description:
-  // The visibility sort will probably make a reference loop by holding a
-  // reference to the input.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
 
   // Description:
   // DESCRIPTION MISSING.
@@ -107,7 +96,6 @@ protected:
 
 
   bool              Initialized;
-  vtkVisibilitySort *VisibilitySort;
 
   int UsingCellColors;
 

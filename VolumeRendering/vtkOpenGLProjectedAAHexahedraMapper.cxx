@@ -18,8 +18,8 @@
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France
 // BP12, F-91297 Arpajon, France.
 //
-// This file implements the paper 
-// "High-Quality, Semi-Analytical Volume Rendering for AMR Data", 
+// This file implements the paper
+// "High-Quality, Semi-Analytical Volume Rendering for AMR Data",
 // Stephane Marchesin and Guillaume Colin de Verdiere, IEEE Vis 2009.
 
 
@@ -56,17 +56,12 @@
 #include <vtkstd/algorithm>
 
 // ----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkOpenGLProjectedAAHexahedraMapper,
-                     VisibilitySort, vtkVisibilitySort);
-
-// ----------------------------------------------------------------------------
 
 vtkStandardNewMacro(vtkOpenGLProjectedAAHexahedraMapper);
 
 // ----------------------------------------------------------------------------
 vtkOpenGLProjectedAAHexahedraMapper::vtkOpenGLProjectedAAHexahedraMapper()
 {
-  this->VisibilitySort = vtkCellCenterDepthSort::New();
   this->ConvertedPoints = vtkFloatArray::New();
   this->ConvertedScalars = vtkFloatArray::New();
 
@@ -83,7 +78,6 @@ vtkOpenGLProjectedAAHexahedraMapper::vtkOpenGLProjectedAAHexahedraMapper()
 // ----------------------------------------------------------------------------
 vtkOpenGLProjectedAAHexahedraMapper::~vtkOpenGLProjectedAAHexahedraMapper()
 {
-  this->SetVisibilitySort(NULL);
   this->ConvertedPoints->Delete();
   this->ConvertedScalars->Delete();
 }
@@ -93,17 +87,6 @@ void vtkOpenGLProjectedAAHexahedraMapper::PrintSelf(ostream &os,
                                                     vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "VisibilitySort: " << this->VisibilitySort << endl;
-
-}
-
-// ----------------------------------------------------------------------------
-void vtkOpenGLProjectedAAHexahedraMapper::ReportReferences(
-  vtkGarbageCollector *collector)
-{
-  this->Superclass::ReportReferences(collector);
-
-  vtkGarbageCollectorReport(collector, this->VisibilitySort, "VisibilitySort");
 }
 
 // ----------------------------------------------------------------------------

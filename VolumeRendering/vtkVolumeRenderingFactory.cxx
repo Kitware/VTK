@@ -24,6 +24,7 @@
 #if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkOpenGLHAVSVolumeMapper.h"
+#include "vtkOpenGLProjectedAAHexahedraMapper.h"
 #include "vtkOpenGLProjectedTetrahedraMapper.h"
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
@@ -74,6 +75,18 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
         }
 #endif
       return vtkOpenGLGPUVolumeRayCastMapper::New();
+      }
+
+    // Projected axis-aligned hexahedra mapper
+    if(strcmp(vtkclassname, "vtkProjectedAAHexahedraMapper") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if (vtkGraphicsFactory::GetUseMesaClasses())
+        {
+        vtkGenericWarningMacro("No support for mesa in vtkProjectedAAHexahedraMapper");
+        }
+#endif
+      return vtkOpenGLProjectedAAHexahedraMapper::New();
       }
 
     // Projected Tetrahedra Mapper

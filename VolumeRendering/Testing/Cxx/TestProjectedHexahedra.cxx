@@ -30,7 +30,7 @@
 #include "vtkMaskFields.h"
 #include "vtkMergeFields.h"
 #include "vtkOpenGLProjectedTetrahedraMapper.h"
-#include "vtkOpenGLProjectedAAHexahedraMapper.h"
+#include "vtkProjectedAAHexahedraMapper.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindowInteractor.h"
@@ -111,7 +111,7 @@ int TestProjectedHexahedra(int argc,
   volumeMapperTet->SetInputConnection(trifilter->GetOutputPort());
 
   // The mapper knows how to render the data
-  VTK_CREATE(vtkOpenGLProjectedAAHexahedraMapper, volumeMapperHex);
+  VTK_CREATE(vtkProjectedAAHexahedraMapper, volumeMapperHex);
   volumeMapperHex->SetInputConnection(reader->GetOutputPort());
 
   // The volume holds the mapper and the property and can be used to
