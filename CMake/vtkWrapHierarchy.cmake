@@ -118,43 +118,41 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     TARGET vtk${KIT} POST_BUILD
 
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-    ARGS
     "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
     "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
     ${OTHER_HIERARCHY_FILES}
-    COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
-    ${verbatim}
 
     COMMAND ${CMAKE_COMMAND}
-    ARGS
     "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
+
+    COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
     ${verbatim}
     )
 
   # Force the above custom command to execute if hierarchy tool changes
   ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
 
-  # Add a custom-command for when the hierarchy file is needed
-  # within its own kit.  A dummy target is needed because the
-  # vtkWrapHierarchy tool only changes the timestamp on the
-  # hierarchy file if the VTK hierarchy actually changes.
-  ADD_CUSTOM_COMMAND(
-    OUTPUT ${OUTPUT_DIR}/${TARGET}.target
-    ${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt
-    DEPENDS ${VTK_WRAP_HIERARCHY_EXE} ${OUTPUT_DIR}/${TARGET}.data
+  IF(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
+    # Add a custom-command for when the hierarchy file is needed
+    # within its own kit.  A dummy target is needed because the
+    # vtkWrapHierarchy tool only changes the timestamp on the
+    # hierarchy file if the VTK hierarchy actually changes.
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${OUTPUT_DIR}/${TARGET}.target
+      ${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt
+      DEPENDS ${VTK_WRAP_HIERARCHY_EXE} ${OUTPUT_DIR}/${TARGET}.data
 
-    COMMAND ${CMAKE_COMMAND}
-    ARGS
-    "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
-    ${verbatim}
+      COMMAND ${CMAKE_COMMAND}
+      "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
 
-    COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-    ARGS
-    "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
-    "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
-    ${OTHER_HIERARCHY_FILES}
-    COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
-    ${verbatim}
-    )
+      COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+      "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
+      "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
+      ${OTHER_HIERARCHY_FILES}
+
+      COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
+      ${verbatim}
+      )
+  ENDIF(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
 
 ENDMACRO(VTK_WRAP_HIERARCHY)
