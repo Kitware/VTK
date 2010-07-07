@@ -120,7 +120,7 @@ bool vtkOpenGLProjectedAAHexahedraMapper::IsRenderSupported(vtkRenderWindow *w)
      e->ExtensionSupported("GL_ARB_vertex_shader") &&
      e->ExtensionSupported("GL_ARB_fragment_shader"));
 
-  bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4");
+  bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4")==1;
 
   return texture3D && multiTexture && glsl && geometry_shader;
 }
@@ -143,7 +143,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::Initialize(
                      e->ExtensionSupported("GL_ARB_shader_objects") &&
                      e->ExtensionSupported("GL_ARB_vertex_shader") &&
                      e->ExtensionSupported("GL_ARB_fragment_shader"));
-  bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4");
+  bool geometry_shader=e->ExtensionSupported("GL_EXT_geometry_shader4")==1;
 
   bool result=texture3D && multiTexture && glsl && geometry_shader;
 
