@@ -400,6 +400,13 @@ void vtkOpenGLProjectedAAHexahedraMapper::CreateProgram(vtkRenderWindow *w)
 // ----------------------------------------------------------------------------
 void vtkOpenGLProjectedAAHexahedraMapper::SetState(double *observer)
 {
+  glDepthMask(GL_FALSE);
+
+  // save the default blend function.
+  glPushAttrib(GL_COLOR_BUFFER_BIT);
+
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CW);
   glCullFace(GL_BACK);
@@ -496,6 +503,13 @@ void vtkOpenGLProjectedAAHexahedraMapper::UnsetState()
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
   this->Shader->Restore();
+
+  // Restore the blend function.
+  glPopAttrib();
+
+  glBindTexture(vtkgl::TEXTURE_3D, 0);
+
+  glDepthMask(GL_TRUE);
 }
 
 // ----------------------------------------------------------------------------
@@ -588,13 +602,6 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
     {
     return;
     }
-
-  glDepthMask(GL_FALSE);
-
-  // save the default blend function.
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
-
-  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   this->SetState(observer);
 
@@ -713,13 +720,6 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
     }
 
   this->UnsetState();
-
-  // Restore the blend function.
-  glPopAttrib();
-
-  glBindTexture(vtkgl::TEXTURE_3D, 0);
-
-  glDepthMask(GL_TRUE);
 
   this->UpdateProgress(1.0);
 }
