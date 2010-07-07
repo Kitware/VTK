@@ -97,12 +97,12 @@ protected:
   vtkVoxel();
   ~vtkVoxel();
 
-  vtkLine *Line;
-  vtkPixel *Pixel;
-
 private:
   vtkVoxel(const vtkVoxel&);  // Not implemented.
   void operator=(const vtkVoxel&);  // Not implemented.
+
+  vtkLine *Line;
+  vtkPixel *Pixel;
 };
 
 #endif

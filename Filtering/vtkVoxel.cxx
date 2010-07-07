@@ -43,15 +43,21 @@ vtkVoxel::vtkVoxel()
     {
     this->PointIds->SetId(i,0);
     }
-  this->Line = vtkLine::New();
-  this->Pixel = vtkPixel::New();
+  this->Line = 0;
+  this->Pixel = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkVoxel::~vtkVoxel()
 {
-  this->Line->Delete();
-  this->Pixel->Delete();
+  if (this->Line)
+    {
+    this->Line->Delete();
+    }
+  if (this->Pixel)
+    {
+    this->Pixel->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -368,8 +374,13 @@ int *vtkVoxel::GetEdgeArray(int edgeId)
 //----------------------------------------------------------------------------
 vtkCell *vtkVoxel::GetEdge(int edgeId)
 {
+  if (!this->Line)
+    {
+    this->Line = vtkLine::New();
+    }
+
   int *verts;
-  
+
   verts = edges[edgeId];
 
   // load point id's
@@ -392,6 +403,11 @@ int *vtkVoxel::GetFaceArray(int faceId)
 //----------------------------------------------------------------------------
 vtkCell *vtkVoxel::GetFace(int faceId)
 {
+  if (!this->Pixel)
+    {
+    this->Pixel = vtkPixel::New();
+    }
+
   int *verts, i;
 
   verts = faces[faceId];
@@ -601,7 +617,21 @@ void vtkVoxel::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Line:\n";
-  this->Line->PrintSelf(os,indent.GetNextIndent());
+  if (this->Line)
+    {
+    this->Line->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "None\n";
+    }
   os << indent << "Pixel:\n";
-  this->Pixel->PrintSelf(os,indent.GetNextIndent());
+  if (this->Pixel)
+    {
+    this->Pixel->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "None\n";
+    }
 }
