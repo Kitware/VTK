@@ -197,21 +197,21 @@ vtkUnsignedCharArray* vtkGlyph3DMapper::GetColors(vtkDataSet* input)
 
 // ---------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3DMapper::SetSourceConnection(int id,
+void vtkGlyph3DMapper::SetSourceConnection(int idx,
   vtkAlgorithmOutput *algOutput)
 {
-  if (id < 0)
+  if (idx < 0)
     {
-    vtkErrorMacro("Bad index " << id << " for source.");
+    vtkErrorMacro("Bad index " << idx << " for source.");
     return;
     }
 
   int numConnections = this->GetNumberOfInputConnections(1);
-  if (id < numConnections)
+  if (idx < numConnections)
     {
-    this->SetNthInputConnection(1, id, algOutput);
+    this->SetNthInputConnection(1, idx, algOutput);
     }
-  else if (id == numConnections && algOutput)
+  else if (idx == numConnections && algOutput)
     {
     this->AddInputConnection(1, algOutput);
     }
@@ -225,11 +225,11 @@ void vtkGlyph3DMapper::SetSourceConnection(int id,
 
 // ---------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3DMapper::SetSource(int id, vtkPolyData *pd)
+void vtkGlyph3DMapper::SetSource(int idx, vtkPolyData *pd)
 {
-  if (id < 0)
+  if (idx < 0)
     {
-    vtkErrorMacro("Bad index " << id << " for source.");
+    vtkErrorMacro("Bad index " << idx << " for source.");
     return;
     }
 
@@ -245,14 +245,14 @@ void vtkGlyph3DMapper::SetSource(int id, vtkPolyData *pd)
     return;
     }
 
-  if (id < numConnections)
+  if (idx < numConnections)
     {
     if (algOutput)
       {
-      this->SetNthInputConnection(1, id, algOutput);
+      this->SetNthInputConnection(1, idx, algOutput);
       }
     }
-  else if (id == numConnections && algOutput)
+  else if (idx == numConnections && algOutput)
     {
     this->AddInputConnection(1, algOutput);
     }
@@ -268,15 +268,15 @@ void vtkGlyph3DMapper::SetSource(vtkPolyData *pd)
 
 // ---------------------------------------------------------------------------
 // Get a pointer to a source object at a specified table location.
-vtkPolyData *vtkGlyph3DMapper::GetSource(int id)
+vtkPolyData *vtkGlyph3DMapper::GetSource(int idx)
 {
-  if ( id < 0 || id >= this->GetNumberOfInputConnections(1) )
+  if ( idx < 0 || idx >= this->GetNumberOfInputConnections(1) )
     {
     return NULL;
     }
 
   return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, id));
+    this->GetExecutive()->GetInputData(1, idx));
 }
 
 // ---------------------------------------------------------------------------

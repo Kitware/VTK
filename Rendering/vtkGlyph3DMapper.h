@@ -50,7 +50,7 @@ public:
   // Specify a source object at a specified table location. New style.
   // Source connection is stored in port 1. This method is equivalent
   // to SetInputConnection(1, id, outputPort).
-  void SetSourceConnection(int id, vtkAlgorithmOutput* algOutput);
+  void SetSourceConnection(int idx, vtkAlgorithmOutput* algOutput);
   void SetSourceConnection(vtkAlgorithmOutput* algOutput)
     {
       this->SetSourceConnection(0, algOutput);
@@ -58,7 +58,7 @@ public:
 
   // Description:
   // Specify a source object at a specified table location.
-  void SetSource(int id, vtkPolyData *pd);
+  void SetSource(int idx, vtkPolyData *pd);
 
   // Description:
   // Set the source to use for he glyph. Old style. See SetSourceConnection.
@@ -66,7 +66,7 @@ public:
 
   // Description:
   // Get a pointer to a source object at a specified table location.
-  vtkPolyData *GetSource(int id=0);
+  vtkPolyData *GetSource(int idx=0);
 
   // Description:
   // Turn on/off scaling of source geometry. When turned on, ScaleFactor
