@@ -77,7 +77,7 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
   FILE *fp, const char *filename, const char *flags, char **lines)
 {
   FileInfo *data;
-  int i, j;
+  unsigned long i, j;
   size_t k, l, n;
   const char *tmpflags;
   char *line;
