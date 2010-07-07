@@ -460,9 +460,9 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
         this->Storage->Axes[this->Storage->CurrentAxis-1] :
         NULL;
 
-      vtkAxis* rightAxis = this->Storage->CurrentAxis < this->Storage->Axes.size()-1 ?
-        this->Storage->Axes[this->Storage->CurrentAxis+1] :
-        NULL;
+      vtkAxis* rightAxis =
+          this->Storage->CurrentAxis < static_cast<int>(this->Storage->Axes.size())-1 ?
+          this->Storage->Axes[this->Storage->CurrentAxis+1] : NULL;
 
       if (leftAxis && axis->GetPoint1()[0] < leftAxis->GetPoint1()[0])
         {
