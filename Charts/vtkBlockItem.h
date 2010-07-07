@@ -73,13 +73,17 @@ public:
   vtkGetStringMacro(Label);
 
   // Description:
-  // Set the dimensions of the block, elements 0 and 1 are the x and y coordinate
-  // of the bottom corner. Elements 2 and 3 are the width and height.
+  // Set the dimensions of the block, elements 0 and 1 are the x and y
+  // coordinate of the bottom corner. Elements 2 and 3 are the width and
+  // height.
+  // Initial value is (0,0,0,0).
   vtkSetVector4Macro(Dimensions, int);
 
   // Description:
-  // Get the dimensions of the block, elements 0 and 1 are the x and y coordinate
-  // of the bottom corner. Elements 2 and 3 are the width and height.
+  // Get the dimensions of the block, elements 0 and 1 are the x and y
+  // coordinate of the bottom corner. Elements 2 and 3 are the width and
+  // height.
+  // Initial value is (0,0,0,0)
   vtkGetVector4Macro(Dimensions, int);
 
 //BTX

@@ -37,6 +37,10 @@ vtkBlockItem::vtkBlockItem()
   this->MouseOver = false;
   this->MouseButtonPressed = -1;
   this->scalarFunction = NULL;
+  this->Dimensions[0]=0;
+  this->Dimensions[1]=0;
+  this->Dimensions[2]=0;
+  this->Dimensions[3]=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -62,14 +66,17 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
     {
     painter->GetBrush()->SetColor(0, 255, 0);
     }
-  painter->DrawRect(this->Dimensions[0], this->Dimensions[1],
-                    this->Dimensions[2], this->Dimensions[3]);
+  painter->DrawRect(static_cast<float>(this->Dimensions[0]),
+                    static_cast<float>(this->Dimensions[1]),
+                    static_cast<float>(this->Dimensions[2]),
+                    static_cast<float>(this->Dimensions[3]));
 
   int x = static_cast<int>(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
   int y = static_cast<int>(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
   if (this->Label)
     {
-    painter->DrawString(x, y, this->Label);
+    painter->DrawString(static_cast<float>(x),static_cast<float>(y),
+                        this->Label);
     }
 
   if (this->scalarFunction)
