@@ -96,6 +96,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
 
   # search through the libs to find kits we depend on
   SET(OTHER_HIERARCHY_FILES)
+  SET(OTHER_HIERARCHY_TARGETS)
   FOREACH (TMP_LIB ${TMP_KIT_DEPENDS})
     STRING(REGEX REPLACE "vtk(.*)" "\\1" TMP_KIT "${TMP_LIB}")
     IF(NOT "${TMP_KIT}" STREQUAL "${KIT}")
@@ -105,34 +106,36 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
         IF("${TMP_KIT_UPPER}" STREQUAL "${TMP_KIT_CHECK_UPPER}")
           SET(OTHER_HIERARCHY_FILES ${OTHER_HIERARCHY_FILES}
             "${quote}${VTK_BINARY_DIR}/${TMP_KIT}/vtk${TMP_KIT}Hierarchy.txt${quote}")
+          SET(OTHER_HIERARCHY_TARGETS ${OTHER_HIERARCHY_TARGETS}
+            vtk${TMP_KIT}Hierarchy)
         ENDIF("${TMP_KIT_UPPER}" STREQUAL "${TMP_KIT_CHECK_UPPER}")
       ENDFOREACH (TMP_KIT_CHECK ${VTK_KITS})
     ENDIF(NOT "${TMP_KIT}" STREQUAL "${KIT}")
   ENDFOREACH (TMP_LIB ${TMP_KIT_DEPENDS})
 
-  # Build the hierarchy file when the kit library is built, this
-  # ensures that the file is built when kits in other libraries
-  # need it (i.e. they depend on this kits library, but if this
-  # kits library is built, then the hierarchy file is also built).
-  ADD_CUSTOM_COMMAND(
-    TARGET vtk${KIT} POST_BUILD
-
-    COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-    "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
-    "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
-    ${OTHER_HIERARCHY_FILES}
-
-    COMMAND ${CMAKE_COMMAND}
-    "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
-
-    COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
-    ${verbatim}
-    )
-
-  # Force the above custom command to execute if hierarchy tool changes
-  ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
-
   IF(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
+    # Build the hierarchy file when the kit library is built, this
+    # ensures that the file is built when kits in other libraries
+    # need it (i.e. they depend on this kits library, but if this
+    # kits library is built, then the hierarchy file is also built).
+    ADD_CUSTOM_COMMAND(
+      TARGET vtk${KIT} POST_BUILD
+
+      COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+      "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
+      "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
+      ${OTHER_HIERARCHY_FILES}
+
+      COMMAND ${CMAKE_COMMAND}
+      "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
+
+      COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
+      ${verbatim}
+      )
+
+    # Force the above custom command to execute if hierarchy tool changes
+    ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
+
     # Add a custom-command for when the hierarchy file is needed
     # within its own kit.  A dummy target is needed because the
     # vtkWrapHierarchy tool only changes the timestamp on the
@@ -150,9 +153,28 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
 
-      COMMENT "Hierarchy Wrapping - generating vtk${KIT}Hierarchy.txt"
+      COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
       ${verbatim}
       )
+  ELSE(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
+    # On Visual Studio builds, the target-timestamp trick does not work,
+    # so re-parse the header files every time and create the hierarchy
+    # file if the VTK hierarchy has changed.
+    ADD_CUSTOM_TARGET(
+      ${TARGET} ALL
+      DEPENDS ${VTK_WRAP_HIERARCHY_EXE} ${OUTPUT_DIR}/${TARGET}.data
+      COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+      "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
+      "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
+      ${OTHER_HIERARCHY_FILES}
+
+      COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
+      ${verbatim}
+      SOURCES ${SOURCES}
+      )
+    # Set target-level dependencies to build in the correct order
+    ADD_DEPENDENCIES(${TARGET} vtkWrapHierarchy ${OTHER_HIERARCHY_TARGETS})
+    ADD_DEPENDENCIES(vtk${KIT} ${TARGET})
   ENDIF(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
 
 ENDMACRO(VTK_WRAP_HIERARCHY)
