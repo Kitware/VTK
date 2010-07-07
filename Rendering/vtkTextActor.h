@@ -66,8 +66,7 @@ public:
 
   // Description:
   // Set the text string to be displayed. "\n" is recognized
-  // as a carriage return/linefeed (line separator). Only 7-bit ASCII is
-  // allowed (anything else, such as Latin1 or UTF8, is not acceptable).
+  // as a carriage return/linefeed (line separator).
   // Convenience method to the underlying mapper
   void SetInput(const char *inputString);
   char *GetInput();

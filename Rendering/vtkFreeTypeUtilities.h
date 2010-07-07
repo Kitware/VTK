@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkFreeTypeUtilities provides low-level interface to the FreeType library,
 // including font-cache, rasterizing and vectorizing. FreeType cache-subsystem
-// is supported only when FreeType version is greater than 2.1.9. 
+// is supported only when FreeType version is greater than 2.1.9.
 // Internal use only.
 // EXPERIMENTAL for the moment. Also include the old cache.
 
@@ -64,7 +64,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This is a singleton pattern New. There will be only ONE reference 
+  // This is a singleton pattern New. There will be only ONE reference
   // to a vtkFreeTypeUtilities object per process.  Clients that
   // call this method must use Delete() on the object so that reference
   // counting will work. The single instance will be unreferenced when
@@ -86,7 +86,7 @@ public:
   FT_Library* GetLibrary();
 
   // Description:
-  // Set/Get the maximum number of faces (FT_Face), sizes (FT_Size) and 
+  // Set/Get the maximum number of faces (FT_Face), sizes (FT_Size) and
   // bytes used by the cache. These settings can be changed as long as
   // it is done prior to accessing any of the caches or the cache manager.
   vtkSetClampMacro(MaximumNumberOfFaces,unsigned int,1,VTK_UNSIGNED_INT_MAX);
@@ -103,14 +103,14 @@ public:
   // (a structure storing both a face and a specific size metric).
   // The size setting of the text property is used to set the size's face
   // to the corresponding size.
-  // Return true on success, false otherwise. 
+  // Return true on success, false otherwise.
   // This method is successful
   // only when FreeType version is >= 2.1.9
   int GetSize(vtkTextProperty *tprop, FT_Size *size);
 
   // Description:
-  // Given a text property, get the corresponding FreeType face. 
-  // The size parameter of the text property is ignored and a face with 
+  // Given a text property, get the corresponding FreeType face.
+  // The size parameter of the text property is ignored and a face with
   // unknown current size is returned. Use GetSize() to get a specific size.
   // Return true on success, false otherwise
   // This method is successful
@@ -123,61 +123,61 @@ public:
   // Return true on success, false otherwise
   // This method is successful
   // only when FreeType version is >= 2.1.9
-  int GetGlyphIndex(vtkTextProperty *tprop, char c, FT_UInt *gindex);
+  int GetGlyphIndex(vtkTextProperty *tprop, unsigned char c, FT_UInt *gindex);
 
   // Description:
   // Given a text property and a character, get the corresponding FreeType
   // glyph. The 'request' parameter can be used to request the glyph to be
   // in a specific format. If GLYPH_REQUEST_DEFAULT, the glyph might be either
   // an outline (most of the time) or a bitmap if the face includes a set of
-  // pre-rendered glyphs (called "strikes") for a given size. 
+  // pre-rendered glyphs (called "strikes") for a given size.
   // If GLYPH_REQUEST_BITMAP, the glyph is rendered immediately and can
-  // be safely cast to a FT_BitmapGlyph. If GLYPH_REQUEST_OUTLINE, no 
+  // be safely cast to a FT_BitmapGlyph. If GLYPH_REQUEST_OUTLINE, no
   // pre-rendered "strike" is considered, the glyph is an outline and can be
   // safely cast to a FT_OutlineGlyph.
   // Return true on success, false otherwise
   // This method is successful
   // only when FreeType version is >= 2.1.9
   //BTX
-  enum 
+  enum
   {
     GLYPH_REQUEST_DEFAULT = 0,
     GLYPH_REQUEST_BITMAP  = 1,
     GLYPH_REQUEST_OUTLINE = 2
   };
   //ETX
-  int GetGlyph(vtkTextProperty *tprop, 
-               char c, 
-               FT_Glyph *glyph, 
+  int GetGlyph(vtkTextProperty *tprop,
+               unsigned char c,
+               FT_Glyph *glyph,
                int request = GLYPH_REQUEST_DEFAULT);
 
   // Description:
-  // Given a text property and a string, get the bounding box [xmin, xmax] x 
+  // Given a text property and a string, get the bounding box [xmin, xmax] x
   // [ymin, ymax]. Note that this is the bounding box of the area
   // where actual pixels will be written, given a text/pen/baseline location
   // of (0,0).
-  // For example, if the string starts with a 'space', or depending on the 
+  // For example, if the string starts with a 'space', or depending on the
   // orientation, you can end up with a [-20, -10] x [5, 10] bbox (the math
   // to get the real bbox is straightforward).
   // Return 1 on success, 0 otherwise.
   // You can use IsBoundingBoxValid() to test if the computed bbox
-  // is valid (it may not if GetBoundingBox() failed or if the string 
+  // is valid (it may not if GetBoundingBox() failed or if the string
   // was empty).
   int GetBoundingBox(vtkTextProperty *tprop, const char *str, int bbox[4]);
   int IsBoundingBoxValid(int bbox[4]);
 
   // Description:
   // Given a text property and a string, this function initializes the
-  // vtkImageData *data and renders it in a vtkImageData. 
-  int RenderString(vtkTextProperty *tprop, 
-                   const char *str, 
+  // vtkImageData *data and renders it in a vtkImageData.
+  int RenderString(vtkTextProperty *tprop,
+                   const char *str,
                    vtkImageData *data);
 
   // Description:
   // Deprecated function signature.  int x, y are ignored.
-  int RenderString(vtkTextProperty *tprop, 
-                   const char *str, 
-                   int x, int y, 
+  int RenderString(vtkTextProperty *tprop,
+                   const char *str,
+                   int x, int y,
                    vtkImageData *data);
 
   // Description:
@@ -186,10 +186,10 @@ public:
   // In the same way, given a unique ID in our cache, retrieve the
   // corresponding text property and assign its parameters to 'tprop'.
   // Warning: there is no one to one mapping between a single text property
-  // the corresponding ID, and vice-versa. The ID is just a fast hash, a 
+  // the corresponding ID, and vice-versa. The ID is just a fast hash, a
   // binary mask concatenating the attributes of the text property that are
   // relevant to our cache (Color, Opacity, Justification setting are not
-  // stored). 
+  // stored).
   void MapTextPropertyToId(vtkTextProperty *tprop, unsigned long *tprop_cache_id);
   void MapIdToTextProperty(unsigned long tprop_cache_id, vtkTextProperty *tprop);
 
@@ -199,11 +199,12 @@ public:
   // only when FreeType version is >= 2.1.9
   int GetSize(unsigned long tprop_cache_id, int font_size, FT_Size *size);
   int GetFace(unsigned long tprop_cache_id, FT_Face *face);
-  int GetGlyphIndex(unsigned long tprop_cache_id, char c, FT_UInt *gindex);
-  int GetGlyph(unsigned long tprop_cache_id, 
-               int font_size, 
-               FT_UInt gindex, 
-               FT_Glyph *glyph, 
+  int GetGlyphIndex(unsigned long tprop_cache_id, unsigned char c,
+                    FT_UInt *gindex);
+  int GetGlyph(unsigned long tprop_cache_id,
+               int font_size,
+               FT_UInt gindex,
+               FT_Glyph *glyph,
                int request = GLYPH_REQUEST_DEFAULT);
 
   // Description:
@@ -249,7 +250,7 @@ public:
     float LargestDescender;
   };
 
-  vtkFreeTypeUtilities::Entry* GetFont(vtkTextProperty *tprop, 
+  vtkFreeTypeUtilities::Entry* GetFont(vtkTextProperty *tprop,
                                        double override_color[3] = NULL);
 
 protected:
@@ -270,7 +271,7 @@ private:
 
   // The cache manager, image cache and charmap cache
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   FTC_Manager *CacheManager;
   FTC_ImageCache *ImageCache;
   FTC_CMapCache  *CMapCache;

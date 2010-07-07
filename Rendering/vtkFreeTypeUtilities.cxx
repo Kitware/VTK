@@ -49,7 +49,7 @@ vtkFreeTypeUtilitiesCleanup vtkFreeTypeUtilities::Cleanup;
 
 //----------------------------------------------------------------------------
 // The embedded fonts
-// Create a lookup table between the text mapper attributes 
+// Create a lookup table between the text mapper attributes
 // and the font buffers.
 
 struct EmbeddedFontStruct
@@ -60,7 +60,7 @@ struct EmbeddedFontStruct
 
 //----------------------------------------------------------------------------
 // This callback will be called by the FTGLibrary singleton cleanup destructor
-// if it happens to be destroyed before our singleton (this order is not 
+// if it happens to be destroyed before our singleton (this order is not
 // deterministic). It will destroy our singleton, if needed.
 
 void vtkFreeTypeUtilitiesCleanupCallback ()
@@ -85,7 +85,7 @@ vtkFreeTypeUtilitiesCleanup::vtkFreeTypeUtilitiesCleanup()
 }
 
 //----------------------------------------------------------------------------
-// Delete the singleton cleanup 
+// Delete the singleton cleanup
 // The callback called here might have been called by the FTLibrary singleton
 // cleanup first (depending on the destruction order), but in case ours is
 // destroyed first, let's call it too.
@@ -145,7 +145,7 @@ vtkFreeTypeUtilities* vtkFreeTypeUtilities::New()
 }
 
 //----------------------------------------------------------------------------
-vtkFreeTypeUtilities::vtkFreeTypeUtilities() 
+vtkFreeTypeUtilities::vtkFreeTypeUtilities()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::vtkFreeTypeUtilities\n");
@@ -154,7 +154,7 @@ vtkFreeTypeUtilities::vtkFreeTypeUtilities()
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   this->CacheManager = NULL;
   this->ImageCache   = NULL;
   this->CMapCache    = NULL;
@@ -164,7 +164,7 @@ vtkFreeTypeUtilities::vtkFreeTypeUtilities()
 }
 
 //----------------------------------------------------------------------------
-vtkFreeTypeUtilities::~vtkFreeTypeUtilities() 
+vtkFreeTypeUtilities::~vtkFreeTypeUtilities()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::~vtkFreeTypeUtilities\n");
@@ -175,7 +175,7 @@ vtkFreeTypeUtilities::~vtkFreeTypeUtilities()
 }
 
 //----------------------------------------------------------------------------
-FT_Library* vtkFreeTypeUtilities::GetLibrary() 
+FT_Library* vtkFreeTypeUtilities::GetLibrary()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::GetLibrary\n");
@@ -191,8 +191,8 @@ FT_Library* vtkFreeTypeUtilities::GetLibrary()
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
-FTC_Manager* vtkFreeTypeUtilities::GetCacheManager() 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
+FTC_Manager* vtkFreeTypeUtilities::GetCacheManager()
 {
   if (!this->CacheManager)
     {
@@ -204,8 +204,8 @@ FTC_Manager* vtkFreeTypeUtilities::GetCacheManager()
 #endif
 
 //----------------------------------------------------------------------------
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
-FTC_ImageCache* vtkFreeTypeUtilities::GetImageCache() 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
+FTC_ImageCache* vtkFreeTypeUtilities::GetImageCache()
 {
   if (!this->ImageCache)
     {
@@ -217,8 +217,8 @@ FTC_ImageCache* vtkFreeTypeUtilities::GetImageCache()
 #endif
 
 //----------------------------------------------------------------------------
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
-FTC_CMapCache* vtkFreeTypeUtilities::GetCMapCache() 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
+FTC_CMapCache* vtkFreeTypeUtilities::GetCMapCache()
 {
   if (!this->CMapCache)
     {
@@ -230,8 +230,8 @@ FTC_CMapCache* vtkFreeTypeUtilities::GetCMapCache()
 #endif
 
 //----------------------------------------------------------------------------
-void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop, 
-                                               unsigned long *id) 
+void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop,
+                                               unsigned long *id)
 {
   if (!tprop || !id)
     {
@@ -239,7 +239,7 @@ void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop,
     return;
     }
 
-  // Set the first bit to avoid id = 0 
+  // Set the first bit to avoid id = 0
   // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid NULL)
 
   *id = 1;
@@ -266,7 +266,7 @@ void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop,
   // - 1/10th degree: 12 bits (11.8)
 
   int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
-  
+
   // We really should not use more than 32 bits
 
   // Now final id
@@ -276,7 +276,7 @@ void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 void vtkFreeTypeUtilities::MapIdToTextProperty(unsigned long id,
-                                               vtkTextProperty *tprop) 
+                                               vtkTextProperty *tprop)
 {
   if (!tprop)
     {
@@ -318,7 +318,7 @@ void vtkFreeTypeUtilities::MapIdToTextProperty(unsigned long id,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
 FT_CALLBACK_DEF(FT_Error)
 vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
                                   FT_Library lib,
@@ -331,7 +331,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
 
   FT_UNUSED(request_data);
 
-  vtkFreeTypeUtilities *self = 
+  vtkFreeTypeUtilities *self =
     reinterpret_cast<vtkFreeTypeUtilities*>(request_data);
 
   // Map the ID to a text property
@@ -340,13 +340,13 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
   self->MapIdToTextProperty(reinterpret_cast<unsigned long>(face_id), tprop);
 
   // Fonts, organized by [Family][Bold][Italic]
-    
-  static EmbeddedFontStruct EmbeddedFonts[3][2][2] = 
+
+  static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
     {
       {
         {
           { // VTK_ARIAL: Bold [ ] Italic [ ]
-            
+
             face_arial_buffer_length, face_arial_buffer
           },
           { // VTK_ARIAL: Bold [ ] Italic [x]
@@ -376,7 +376,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
             face_courier_bold_buffer_length, face_courier_bold_buffer
           },
           { // VTK_COURIER: Bold [x] Italic [x]
-            face_courier_bold_italic_buffer_length, 
+            face_courier_bold_italic_buffer_length,
             face_courier_bold_italic_buffer
           }
         }
@@ -400,7 +400,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
         }
       }
     };
-    
+
   FT_Long length = EmbeddedFonts
     [tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length;
   FT_Byte *ptr = EmbeddedFonts
@@ -413,7 +413,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
     {
     vtkErrorWithObjectMacro(
       tprop,
-      << "Unable to create font !" << " (family: " << tprop->GetFontFamily() 
+      << "Unable to create font !" << " (family: " << tprop->GetFontFamily()
       << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic()
       << ", length: " << length << ")");
     }
@@ -421,11 +421,11 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
     {
 #if VTK_FTFC_DEBUG
     cout << "Requested: " << *face
-         << " (F: " << tprop->GetFontFamily() 
-         << ", B: " << tprop->GetBold() 
+         << " (F: " << tprop->GetFontFamily()
+         << ", B: " << tprop->GetBold()
          << ", I: " << tprop->GetItalic()
          << ", O: " << tprop->GetOrientation() << ")" << endl;
-#endif    
+#endif
     if ( tprop->GetOrientation() != 0.0 )
       {
       // FreeType documentation says that the transform should not be set
@@ -433,7 +433,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
       // (face, orientation) cache entry
 
       FT_Matrix matrix;
-      float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() ); 
+      float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() );
       matrix.xx = (FT_Fixed)( cos(angle) * 0x10000L);
       matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
       matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
@@ -449,7 +449,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
 #endif
 
 //----------------------------------------------------------------------------
-void vtkFreeTypeUtilities::InitializeCacheManager() 
+void vtkFreeTypeUtilities::InitializeCacheManager()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::InitializeCacheManager()\n");
@@ -457,14 +457,14 @@ void vtkFreeTypeUtilities::InitializeCacheManager()
 
   this->ReleaseCacheManager();
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   FT_Error error;
 
   // Create the cache manager itself
-  
+
   this->CacheManager = new FTC_Manager;
 
-  error = FTC_Manager_New(*this->GetLibrary(), 
+  error = FTC_Manager_New(*this->GetLibrary(),
                           this->MaximumNumberOfFaces,
                           this->MaximumNumberOfSizes,
                           this->MaximumNumberOfBytes,
@@ -505,13 +505,13 @@ void vtkFreeTypeUtilities::InitializeCacheManager()
 }
 
 //----------------------------------------------------------------------------
-void vtkFreeTypeUtilities::ReleaseCacheManager() 
+void vtkFreeTypeUtilities::ReleaseCacheManager()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::ReleaseCacheManager()\n");
 #endif
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   if (this->CacheManager)
     {
     FTC_Manager_Done(*this->CacheManager);
@@ -549,7 +549,7 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
     return 0;
     }
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   FTC_Manager *manager = this->GetCacheManager();
   if (!manager)
     {
@@ -584,7 +584,7 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetSize(vtkTextProperty *tprop, 
+int vtkFreeTypeUtilities::GetSize(vtkTextProperty *tprop,
                                   FT_Size *size)
 {
   if (!tprop)
@@ -615,7 +615,7 @@ int vtkFreeTypeUtilities::GetFace(unsigned long tprop_cache_id,
     return 0;
     }
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   FTC_Manager *manager = this->GetCacheManager();
   if (!manager)
     {
@@ -663,7 +663,7 @@ int vtkFreeTypeUtilities::GetFace(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
-                                        char c, 
+                                        unsigned char c,
                                         FT_UInt *gindex)
 {
 #if VTK_FTFC_DEBUG_CD
@@ -676,7 +676,7 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
     return 0;
     }
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   FTC_CMapCache *cmap_cache = this->GetCMapCache();
   if (!cmap_cache)
     {
@@ -698,14 +698,14 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
     "Current version " << FREETYPE_MAJOR << "." << FREETYPE_MINOR
     << "." << FREETYPE_PATCH);
   (void)tprop_cache_id;
-  (void)c; 
+  (void)c;
   return 0;
 #endif
 }
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyphIndex(vtkTextProperty *tprop,
-                                        char c, 
+                                        unsigned char c,
                                         FT_UInt *gindex)
 {
   if (!tprop)
@@ -723,7 +723,7 @@ int vtkFreeTypeUtilities::GetGlyphIndex(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id, 
+int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
                                    int font_size,
                                    FT_UInt gindex,
                                    FT_Glyph *glyph,
@@ -739,7 +739,7 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
     return 0;
     }
 
-#ifdef VTK_FREETYPE_CACHING_SUPPORTED 
+#ifdef VTK_FREETYPE_CACHING_SUPPORTED
   FTC_ImageCache *image_cache = this->GetImageCache();
   if (!image_cache)
     {
@@ -787,7 +787,7 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyph(vtkTextProperty *tprop,
-                                   char c, 
+                                   unsigned char c,
                                    FT_Glyph *glyph,
                                    int request)
 {
@@ -810,7 +810,7 @@ int vtkFreeTypeUtilities::GetGlyph(vtkTextProperty *tprop,
     vtkErrorMacro(<< "Failed querying a glyph index");
     return 0;
     }
-  
+
   // Get the glyph
 
   return this->GetGlyph(
@@ -826,7 +826,7 @@ int vtkFreeTypeUtilities::IsBoundingBoxValid(int bbox[4])
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop, 
+int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
                                          const char *str,
                                          int bbox[4])
 {
@@ -836,7 +836,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
     return 0;
     }
-  
+
   // Initialize bbox to some large values
   bbox[0] = bbox[2] = VTK_INT_MAX;
   bbox[1] = bbox[3] = VTK_INT_MIN;
@@ -929,17 +929,18 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       }
 
     // Get the glyph index
-    if (!this->GetGlyphIndex(tprop_cache_id, *str, &gindex))
+    if (!this->GetGlyphIndex(tprop_cache_id, static_cast<unsigned char>(*str),
+                             &gindex))
       {
       continue;
       }
     *itr = *str;
 
     // Get the glyph as a bitmap
-    if (!this->GetGlyph(tprop_cache_id, 
-                        tprop->GetFontSize(), 
-                        gindex, 
-                        &glyph, 
+    if (!this->GetGlyph(tprop_cache_id,
+                        tprop->GetFontSize(),
+                        gindex,
+                        &glyph,
                         vtkFreeTypeUtilities::GLYPH_REQUEST_BITMAP) ||
         glyph->format != ft_glyph_format_bitmap)
       {
@@ -1041,7 +1042,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop, 
+int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
                                             const char *str,
                                             int x, int y,
                                             vtkImageData *data,
@@ -1169,23 +1170,24 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       }
 
     // Get the glyph index
-    if (!this->GetGlyphIndex(tprop_cache_id, *str, &gindex))
+    if (!this->GetGlyphIndex(tprop_cache_id, static_cast<unsigned char>(*str),
+                             &gindex))
       {
       continue;
       }
 
     // Get the glyph as a bitmap
 
-    if (!this->GetGlyph(tprop_cache_id, 
-                        tprop_font_size, 
-                        gindex, 
-                        &glyph, 
+    if (!this->GetGlyph(tprop_cache_id,
+                        tprop_font_size,
+                        gindex,
+                        &glyph,
                         vtkFreeTypeUtilities::GLYPH_REQUEST_BITMAP) ||
         glyph->format != ft_glyph_format_bitmap)
       {
       continue;
       }
-    
+
     *itr = *str;
 
     bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
@@ -1218,7 +1220,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
         pen_x = x + bitmap_glyph->left;
         }
       int pen_y = y + bitmap_glyph->top - 1;
-      
+
       // Add the kerning
 
       if (face_has_kerning && previous_gindex && gindex)
@@ -1254,7 +1256,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 
         for (i = 0; i < bitmap->width; i++)
           {
-          t_alpha = tprop_opacity * (*glyph_ptr / 255.0); 
+          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
           t_1_m_alpha = 1.0 - t_alpha;
           data_alpha = (data_ptr[3] - data_min) / data_range;
           *data_ptr = static_cast<unsigned char>(
@@ -1288,7 +1290,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop, 
+int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        const char *str,
                                        int x, int y,
                                        vtkImageData *data)
@@ -1300,7 +1302,7 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop, 
+int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        const char *str,
                                        vtkImageData *data)
 {
@@ -1344,20 +1346,20 @@ void vtkFreeTypeUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "MaximumNumberOfFaces: " 
+  os << indent << "MaximumNumberOfFaces: "
      << this->MaximumNumberOfFaces << endl;
 
-  os << indent << "MaximumNumberOfSizes: " 
+  os << indent << "MaximumNumberOfSizes: "
      << this->MaximumNumberOfSizes << endl;
 
-  os << indent << "MaximumNumberOfBytes: " 
+  os << indent << "MaximumNumberOfBytes: "
      << this->MaximumNumberOfBytes << endl;
 }
 
 //----------------------------------------------------------------------------
 // Print entry
 
-void vtkFreeTypeUtilities::PrintEntry(int i, char *msg) 
+void vtkFreeTypeUtilities::PrintEntry(int i, char *msg)
 {
   if (!this->Entries[i])
     {
@@ -1374,7 +1376,7 @@ void vtkFreeTypeUtilities::PrintEntry(int i, char *msg)
     double *color = tprop->GetColor();
     if (color)
       {
-      printf(" [RGBA: %.2f/%.2f/%.2f (%.2f)]", 
+      printf(" [RGBA: %.2f/%.2f/%.2f (%.2f)]",
              color[0], color[1], color[2], tprop->GetOpacity());
       }
 
@@ -1386,18 +1388,18 @@ void vtkFreeTypeUtilities::PrintEntry(int i, char *msg)
     else
     */
       {
-      printf(" [F: %d] [I: %d] [B: %d]", 
+      printf(" [F: %d] [I: %d] [B: %d]",
              tprop->GetFontFamily(), tprop->GetItalic(), tprop->GetBold());
       }
     }
-    
+
   if (this->Entries[i]->Font)
     {
     printf(" [F: %p]", static_cast<void *>(this->Entries[i]->Font));
-    printf("\n                                                [f: %p]", 
+    printf("\n                                                [f: %p]",
            static_cast<void*>(*(this->Entries[i]->Font->Face()->Face())));
     }
-  
+
   printf("\n");
   fflush(stdout);
 }
@@ -1405,7 +1407,7 @@ void vtkFreeTypeUtilities::PrintEntry(int i, char *msg)
 //----------------------------------------------------------------------------
 // Release entry
 
-void vtkFreeTypeUtilities::ReleaseEntry(int i) 
+void vtkFreeTypeUtilities::ReleaseEntry(int i)
 {
   if (!this->Entries[i])
     {
@@ -1427,7 +1429,7 @@ void vtkFreeTypeUtilities::ReleaseEntry(int i)
     delete this->Entries[i]->Font;
     this->Entries[i]->Font = NULL;
     }
-  
+
   delete this->Entries[i];
   this->Entries[i] = NULL;
 }
@@ -1435,11 +1437,11 @@ void vtkFreeTypeUtilities::ReleaseEntry(int i)
 //----------------------------------------------------------------------------
 // Initialize cache
 
-void vtkFreeTypeUtilities::InitializeCache() 
+void vtkFreeTypeUtilities::InitializeCache()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::InitializeCache()\n");
-#endif  
+#endif
   this->ReleaseCache();
 
   int i;
@@ -1452,11 +1454,11 @@ void vtkFreeTypeUtilities::InitializeCache()
 //----------------------------------------------------------------------------
 // Release cache
 
-void vtkFreeTypeUtilities::ReleaseCache() 
+void vtkFreeTypeUtilities::ReleaseCache()
 {
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeUtilities::ReleaseCache()\n");
-#endif  
+#endif
 
   int i;
   for (i = 0; i < this->NumberOfEntries; i++)
@@ -1476,8 +1478,8 @@ void vtkFreeTypeUtilities::ReleaseCache()
 // parameters. If override_color is true, then red, green, blue are used as
 // text color instead of the colors found in the vtkTextProperty.
 
-vtkFreeTypeUtilities::Entry* 
-vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop, 
+vtkFreeTypeUtilities::Entry*
+vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
                               double override_color[3])
 {
   int i, j;
@@ -1494,29 +1496,29 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
       }
     }
 
-  float tprop_opacity = 
+  float tprop_opacity =
     (tprop->GetOpacity() < 0.0) ? 1.0 : tprop->GetOpacity();
-  
+
   // Has the font been cached ?
-  
+
   for (i = 0; i < this->NumberOfEntries; i++)
     {
     vtkTextProperty *entry_tprop = this->Entries[i]->TextProperty;
     double *entry_tprop_color = entry_tprop->GetColor();
 
     if (
-      // If a face file name has been specified, it overrides the 
+      // If a face file name has been specified, it overrides the
       // font family as well as italic and bold attributes
 
       ((
         /*
-          !entry_tprop->GetFaceFileName() && !tprop->GetFaceFileName() && 
+          !entry_tprop->GetFaceFileName() && !tprop->GetFaceFileName() &&
         */
         entry_tprop->GetFontFamily() == tprop->GetFontFamily() &&
         entry_tprop->GetItalic()     == tprop->GetItalic() &&
         entry_tprop->GetBold()       == tprop->GetBold())
        /*
-        || (entry_tprop->GetFaceFileName() && tprop->GetFaceFileName() && 
+        || (entry_tprop->GetFaceFileName() && tprop->GetFaceFileName() &&
         !strcmp(entry_tprop->GetFaceFileName(), tprop->GetFaceFileName()))
        */
         )
@@ -1555,7 +1557,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
     if (!font->Open(tprop->GetFaceFileName(), false))
       {
       vtkErrorWithObjectMacro(
-        tprop, 
+        tprop,
         << "Unable to load font " << tprop->GetFaceFileName());
       delete font;
       return 0;
@@ -1574,7 +1576,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
       struct stat fs;
       if (stat(metrics, &fs) == 0)
         {
-        font->Attach(metrics); 
+        font->Attach(metrics);
         }
       delete [] metrics;
       }
@@ -1583,13 +1585,13 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
     */
     {
     // Fonts, organized by [Family][Bold][Italic]
-    
-    static EmbeddedFontStruct EmbeddedFonts[3][2][2] = 
+
+    static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
     {
       {
         {
           { // VTK_ARIAL: Bold [ ] Italic [ ]
-        
+
             face_arial_buffer_length, face_arial_buffer
           },
           { // VTK_ARIAL: Bold [ ] Italic [x]
@@ -1619,7 +1621,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
             face_courier_bold_buffer_length, face_courier_bold_buffer
           },
           { // VTK_COURIER: Bold [x] Italic [x]
-            face_courier_bold_italic_buffer_length, 
+            face_courier_bold_italic_buffer_length,
             face_courier_bold_italic_buffer
           }
         }
@@ -1643,7 +1645,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
         }
       }
     };
-    
+
     size_t length = EmbeddedFonts
       [tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length;
     unsigned char *ptr = EmbeddedFonts
@@ -1653,7 +1655,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
       {
       vtkErrorWithObjectMacro(
         tprop,
-        << "Unable to create font !" << " (family: " << tprop->GetFontFamily() 
+        << "Unable to create font !" << " (family: " << tprop->GetFontFamily()
         << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic()
         << ", length: " << length << ")");
       delete font;
@@ -1664,7 +1666,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
   // Set face size
 
   font->FaceSize(tprop->GetFontSize());
-  
+
   // We need to make room for a new font
 
   if (this->NumberOfEntries == VTK_FTFC_CACHE_CAPACITY)
@@ -1682,12 +1684,12 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
     this->ReleaseEntry(this->NumberOfEntries);
     }
   this->Entries[this->NumberOfEntries] = new vtkFreeTypeUtilities::Entry;
-  
+
   // Set the other info
 
   this->Entries[this->NumberOfEntries]->TextProperty = vtkTextProperty::New();
 
-  vtkTextProperty *entry_tprop = 
+  vtkTextProperty *entry_tprop =
     this->Entries[this->NumberOfEntries]->TextProperty;
 
   entry_tprop->ShallowCopy(tprop);
@@ -1717,7 +1719,7 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
 {
   vtkFreeTypeUtilities::Entry *entry = this->GetFont(tprop);
   FTFont *font = entry ? entry->Font : NULL;
-  if (!font) 
+  if (!font)
     {
     vtkErrorMacro(<<"No font");
     *height = *width = -1;
@@ -1726,11 +1728,11 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
   *height = 0;
   *width = 0;
   *descender = 0;
-  
+
   // The font global ascender and descender might just be too high
   // for given a face. Let's get a compromise by computing these values
   // from some usual ascii chars.
-  
+
   if (entry->LargestAscender < 0 || entry->LargestDescender < 0)
     {
     float llx, lly, llz, urx, ury, urz;
@@ -1738,7 +1740,7 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
     entry->LargestAscender = ury;
     entry->LargestDescender = lly;
     }
-  
+
   int strsize = strlen(str);
   char *currstr = new char[strsize+1];
   *currstr = '\0';
@@ -1829,11 +1831,11 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
 
     // I am going to let the texture map change the dimensions to power of 2.
     // I need the actual dimensions for alignment position.
-    //    new_img_dims[0] = text_size[0]+1; 
+    //    new_img_dims[0] = text_size[0]+1;
     // Had memory problems so increase by one.
     //    new_img_dims[1] = text_size[1]+1;
     new_img_dims[2] = 1;
-    if (new_img_dims[0] != img_dims[0] || 
+    if (new_img_dims[0] != img_dims[0] ||
         new_img_dims[1] != img_dims[1] ||
         new_img_dims[2] != img_dims[2])
       {
@@ -1850,7 +1852,7 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
   *x = (text_bbox[0] < 0 ? -text_bbox[0] : 0);
   *y = (text_bbox[2] < 0 ? -text_bbox[2] : 0);
 
-  memset(data->GetScalarPointer(), 0, 
+  memset(data->GetScalarPointer(), 0,
           (data->GetNumberOfPoints() *
             data->GetNumberOfScalarComponents()));
 }
@@ -1886,7 +1888,7 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
   transform->TransformPoint(size, size);
   size[0] = floor(size[0] + 0.5);
   size[1] = floor(size[1] + 0.5);
-  
+
   // Now get an estimate of the target font size using bissection
   // Based on experimentation with big and small font size increments,
   // ceil() gives the best result.
@@ -1911,7 +1913,7 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
 
   // While the size is too small increase it
   while (size[1] <= targetHeight &&
-         size[0] <= targetWidth && 
+         size[0] <= targetWidth &&
          fontSize < 100)
     {
     fontSize++;
@@ -1925,7 +1927,7 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     }
 
   // While the size is too large decrease it
-  while ((size[1] > targetHeight || size[0] > targetWidth) 
+  while ((size[1] > targetHeight || size[0] > targetWidth)
          && fontSize > 0)
     {
     fontSize--;
