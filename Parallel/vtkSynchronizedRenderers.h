@@ -83,10 +83,12 @@ public:
   vtkGetMacro(RootProcessId, int);
 
   // Description:
-  // Resets the camera on all renders synchronized by this class. This method
-  // must only be called on the root processes, on all other processes it's a
-  // no-op.
-  void ResetCamera();
+  // Computes visible prob bounds. This must be called on all processes at the
+  // same time. The collective result is made available on all processes once
+  // this method returns.
+  // Note that this method requires that bounds is initialized to some value.
+  // This expands the bounds to include the prop bounds.
+  void CollectiveExpandForVisiblePropBounds(double bounds[6]);
 
   // Description:
   // When set, this->CaptureRenderedImage() does not capture image from the
@@ -98,7 +100,8 @@ public:
   enum 
     {
     SYNC_RENDERER_TAG = 15101,
-    RESET_CAMERA_TAG  = 15102
+    RESET_CAMERA_TAG  = 15102,
+    COMPUTE_BOUNDS_TAG = 15103
     };
 
   /// vtkRawImage can be used to make it easier to deal with images for

@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkSynchronizedRenderers.h"
 
+#include "vtkBoundingBox.h"
+#include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkCommunicator.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkCamera.h"
 #include "vtkParallelRenderManager.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 
 #include "vtkgl.h"
 
@@ -252,20 +254,72 @@ void vtkSynchronizedRenderers::PushImageToScreen()
   rawImage.PushToViewport(this->Renderer);
 }
 
-//----------------------------------------------------------------------------
-void vtkSynchronizedRenderers::ResetCamera()
-{
-  if (!this->ParallelController)
-    {
-    vtkErrorMacro("No controller set.");
-    return;
-    }
+////----------------------------------------------------------------------------
+//void vtkSynchronizedRenderers::ResetCamera()
+//{
+//  if (!this->ParallelController)
+//    {
+//    vtkErrorMacro("No controller set.");
+//    return;
+//    }
+//
+//  if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
+//    {
+//    // TODO: gather information about bounds from every one and then reset the
+//    // camera on the root node alone. Other processes will get the updated
+//    // camera position when render gets called.
+//    }
+//}
 
-  if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
+//----------------------------------------------------------------------------
+void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
+  double bounds[6])
+{
+  // get local bounds.
+  double local_bounds[6];
+  this->Renderer->ComputeVisiblePropBounds(local_bounds);
+
+  // merge local bounds into the bounds passed in to this function call.
+  vtkBoundingBox box(local_bounds);
+  box.AddBounds(bounds);
+  box.GetBounds(bounds);
+
+  if (this->ParallelController->IsA("vtkMPIController"))
     {
-    // TODO: gather information about bounds from every one and then reset the
-    // camera on the root node alone. Other processes will get the updated
-    // camera position when render gets called.
+    double min_bounds[3] = {bounds[0], bounds[2], bounds[4]};
+    double max_bounds[3] = {bounds[1], bounds[3], bounds[5]};
+    double min_result[3], max_result[3];
+    this->ParallelController->AllReduce(min_bounds, min_result, 3,
+      vtkCommunicator::MIN_OP);
+    this->ParallelController->AllReduce(max_bounds, max_result, 3,
+      vtkCommunicator::MAX_OP);
+    bounds[0] = min_result[0];
+    bounds[2] = min_result[1];
+    bounds[4] = min_result[2];
+    bounds[1] = max_result[0];
+    bounds[3] = max_result[1];
+    bounds[5] = max_result[2];
+    }
+  else
+    {
+    // since vtkSocketController does not support such reduction operation, we
+    // simply use point-to-point communication.
+    double other_bounds[6];
+    if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
+      {
+      this->ParallelController->Send(bounds, 6, 1, COMPUTE_BOUNDS_TAG);
+      this->ParallelController->Receive(other_bounds, 6, 1, COMPUTE_BOUNDS_TAG);
+      }
+    else
+      {
+      this->ParallelController->Receive(other_bounds, 6, 1, COMPUTE_BOUNDS_TAG);
+      this->ParallelController->Send(bounds, 6, 1, COMPUTE_BOUNDS_TAG);
+      }
+
+    vtkBoundingBox bbox;
+    bbox.SetBounds(bounds);
+    bbox.AddBounds(other_bounds);
+    bbox.GetBounds(bounds);
     }
 }
 
