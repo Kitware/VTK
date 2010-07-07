@@ -346,13 +346,14 @@ void vtkOpenGLProjectedAAHexahedraMapper::UpdatePreintegrationTexture(
     (pi->GetIntegrationTableLengthResolution() - 2) /
     pi->GetIntegrationTableLengthScale());
 
-  glBindTexture(GL_TEXTURE_3D, this->PreintTexture);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  vtkgl::TexImage3D(GL_TEXTURE_3D, 0, vtkgl::RGBA16_EXT, ScalarSize,
+  glBindTexture(vtkgl::TEXTURE_3D, this->PreintTexture);
+  glTexParameteri(vtkgl::TEXTURE_3D,vtkgl::TEXTURE_WRAP_R,
+                  vtkgl::CLAMP_TO_EDGE);
+  glTexParameteri(vtkgl::TEXTURE_3D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
+  glTexParameteri(vtkgl::TEXTURE_3D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+  glTexParameteri(vtkgl::TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(vtkgl::TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, vtkgl::RGBA16_EXT, ScalarSize,
                     ScalarSize, LengthSize, 0, GL_RGBA, GL_FLOAT, table);
 
   pi->Delete();
@@ -716,7 +717,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
   // Restore the blend function.
   glPopAttrib();
 
-  glBindTexture(GL_TEXTURE_3D, 0);
+  glBindTexture(vtkgl::TEXTURE_3D, 0);
 
   glDepthMask(GL_TRUE);
 
