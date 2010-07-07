@@ -59,40 +59,42 @@ protected:
   vtkOpenGLProjectedAAHexahedraMapper();
   ~vtkOpenGLProjectedAAHexahedraMapper();
 
-   // Description:
-  // DESCRIPTION MISSING.
+  // Description:
+  // Convert the input scalar values to floats.
   float* ConvertScalars(vtkDataArray* inScalars);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Convert the input cell coordinates to floats.
   float* ConvertPoints(vtkPoints* inPoints);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Iterate over all the hexahedal input cells, 
+  // sort and render them.
   virtual void ProjectHexahedra(vtkRenderer *renderer, vtkVolume *volume);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Load the OpenGL extensions and allocate the vertex arrays.
   void Initialize(vtkRenderer *renderer, vtkVolume *volume);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Update the preintegration texture; this is needed whenever the mesh changes.
   void UpdatePreintegrationTexture(vtkVolume *vome, vtkDataArray *scalars);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Create the OpenGL geometry/vertex/fragment programs for 
+  // hexahedral cell rendering.
   void CreateProgram(vtkRenderWindow *w);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Set the OpenGL state for hexahedral cell rendering.
   void SetState(double* observer);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Render a single axis-aligned hexahedal cell.
   void RenderHexahedron(float min[3], float max[3], float scalars[8]);
 
   // Description:
-  // DESCRIPTION MISSING.
+  // Restore the OpenGL state touched by SetState().
   void UnsetState();
 
 
