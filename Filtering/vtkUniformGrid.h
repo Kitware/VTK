@@ -62,7 +62,7 @@ public:
     double *weights);
   virtual int GetCellType(vtkIdType cellId);
   virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
-    {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
+    {vtkStructuredData::GetCellPoints(cellId,ptIds,this->GetDataDescription(),
                                       this->GetDimensions());}
   virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
@@ -190,11 +190,13 @@ protected:
   void SetCellVisibility(vtkStructuredVisibilityConstraint *cellVisibility);
   vtkGetObjectMacro(CellVisibility, vtkStructuredVisibilityConstraint);
 
-  vtkEmptyCell *EmptyCell;
+  vtkEmptyCell* GetEmptyCell();
 
 private:
   vtkUniformGrid(const vtkUniformGrid&);  // Not implemented.
   void operator=(const vtkUniformGrid&);  // Not implemented.
+
+  vtkEmptyCell *EmptyCell;
 };
 
 

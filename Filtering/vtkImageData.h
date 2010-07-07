@@ -367,17 +367,10 @@ protected:
   vtkImageData();
   ~vtkImageData();
 
-  // for the GetCell method
-  vtkVertex *Vertex;
-  vtkLine *Line;
-  vtkPixel *Pixel;
-  vtkVoxel *Voxel;
-
   // The extent of what is currently in the structured grid.
   // Dimensions is just an array to return a value.
   // Its contents are out of data until GetDimensions is called.
   int Dimensions[3];
-  int DataDescription;
   vtkIdType Increments[3];
 
   double Origin[3];
@@ -390,9 +383,25 @@ protected:
 
   vtkTimeStamp ExtentComputeTime;
 
+  void SetDataDescription(int desc);
+  int GetDataDescription() { return this->DataDescription; }
+
 private:
   void InternalImageDataCopy(vtkImageData *src);
 private:
+
+  //BTX
+  friend class vtkUniformGrid;
+  //ETX
+
+  // for the GetCell method
+  vtkVertex *Vertex;
+  vtkLine *Line;
+  vtkPixel *Pixel;
+  vtkVoxel *Voxel;
+
+  int DataDescription;
+
   vtkImageData(const vtkImageData&);  // Not implemented.
   void operator=(const vtkImageData&);  // Not implemented.
 };

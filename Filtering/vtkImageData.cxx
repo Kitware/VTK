@@ -38,10 +38,10 @@ vtkImageData::vtkImageData()
 {
   int idx;
 
-  this->Vertex = vtkVertex::New();
-  this->Line = vtkLine::New();
-  this->Pixel = vtkPixel::New();
-  this->Voxel = vtkVoxel::New();
+  this->Vertex = 0;
+  this->Line = 0;
+  this->Pixel = 0;
+  this->Voxel = 0;
 
   this->DataDescription = VTK_EMPTY;
 
@@ -63,10 +63,22 @@ vtkImageData::vtkImageData()
 //----------------------------------------------------------------------------
 vtkImageData::~vtkImageData()
 {
-  this->Vertex->Delete();
-  this->Line->Delete();
-  this->Pixel->Delete();
-  this->Voxel->Delete();
+  if (this->Vertex)
+    {
+    this->Vertex->Delete();
+    }
+  if (this->Line)
+    {
+    this->Line->Delete();
+    }
+  if (this->Pixel)
+    {
+    this->Pixel->Delete();
+    }
+  if (this->Voxel)
+    {
+    this->Voxel->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -101,7 +113,6 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
       thisPInfo->CopyEntry(thatPInfo, CELL_DATA_VECTOR());
       }
     }
-  this->DataDescription = sPts->DataDescription;
   this->CopyInformation(sPts);
 }
 
@@ -751,7 +762,9 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
     return -1;
     }
 
-  this->Voxel->InterpolateFunctions(pcoords,weights);
+  // NOTE: Do not use the Voxel ivar for this. That ivar may be NULL
+  // if the dimensionality of the image data is less than 3.
+  vtkVoxel::InterpolationFunctions(pcoords,weights);
 
   //
   //  From this location get the cell id
@@ -1860,6 +1873,60 @@ void vtkImageData::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageData::SetDataDescription(int desc)
+{
+  if (desc == this->DataDescription)
+    {
+    return;
+    }
+
+  this->DataDescription = desc;
+
+  if (this->Vertex)
+    {
+    this->Vertex->Delete();
+    this->Vertex = 0;
+    }
+  if (this->Line)
+    {
+    this->Line->Delete();
+    this->Line = 0;
+    }
+  if (this->Pixel)
+    {
+    this->Pixel->Delete();
+    this->Pixel = 0;
+    }
+  if (this->Voxel)
+    {
+    this->Voxel->Delete();
+    this->Voxel = 0;
+    }
+  switch (this->DataDescription)
+    {
+    case VTK_SINGLE_POINT:
+      this->Vertex = vtkVertex::New();
+      break;
+
+    case VTK_X_LINE:
+    case VTK_Y_LINE:
+    case VTK_Z_LINE:
+      this->Line = vtkLine::New();
+      break;
+
+    case VTK_XY_PLANE:
+    case VTK_YZ_PLANE:
+    case VTK_XZ_PLANE:
+      this->Pixel = vtkPixel::New();
+      break;
+
+    case VTK_XYZ_GRID:
+      this->Voxel = vtkVoxel::New();;
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImageData::SetExtent(int *extent)
 {
   int description;
@@ -1875,7 +1942,7 @@ void vtkImageData::SetExtent(int *extent)
     return;
     }
 
-  this->DataDescription = description;
+  this->SetDataDescription(description);
 
   this->Modified();
 }
@@ -1991,7 +2058,6 @@ void vtkImageData::InternalImageDataCopy(vtkImageData *src)
 {
   int idx;
 
-  this->DataDescription = src->DataDescription;
   this->SetScalarType(src->GetScalarType());
   this->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
   for (idx = 0; idx < 3; ++idx)
@@ -2001,7 +2067,7 @@ void vtkImageData::InternalImageDataCopy(vtkImageData *src)
     this->Origin[idx] = src->Origin[idx];
     this->Spacing[idx] = src->Spacing[idx];
     }
-  memcpy(this->Extent, src->GetExtent(), 6*sizeof(int));
+  this->SetExtent(src->GetExtent());
 }
 
 
