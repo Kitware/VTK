@@ -78,7 +78,7 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
 {
   FileInfo *data;
   int i, j;
-  size_t k, n;
+  size_t k, l, n;
   const char *tmpflags;
   char *line;
   size_t m, maxlen;
@@ -247,15 +247,26 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
       line = append_to_line(line, tmpflags, &m, &maxlen);
       }
 
-    /* allocate more memory if n+1 is a power of two */
-    if (((n+1) & n) == 0)
+    /* check to make sure this line isn't a duplicate */
+    for (l = 0; l < n; l++)
       {
-      lines = (char **)realloc(lines, (n+1)*2*sizeof(char *));
+      if (strcmp(line, lines[l]) == 0)
+        {
+        break;
+        }
       }
+    if (l == n)
+      {
+      /* allocate more memory if n+1 is a power of two */
+      if (((n+1) & n) == 0)
+        {
+        lines = (char **)realloc(lines, (n+1)*2*sizeof(char *));
+        }
 
-    lines[n] = (char *)malloc(strlen(line)+1);
-    strcpy(lines[n++], line);
-    lines[n] = NULL;
+      lines[n] = (char *)malloc(strlen(line)+1);
+      strcpy(lines[n++], line);
+      lines[n] = NULL;
+      }
     }
 
   free(line);
@@ -342,7 +353,7 @@ static char **vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char **lines)
 /**
  * Compare a file to "lines", return 0 if they are different
  */
-static int vtkWrapHierarchy_CompareHierachyFile(FILE *fp, char *lines[])
+static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
 {
   unsigned char *matched;
   char *line;
@@ -503,7 +514,7 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(
   int matched = 0;
 
   output_file = fopen(file_name, "r");
-  if (output_file && vtkWrapHierarchy_CompareHierachyFile(output_file, lines))
+  if (output_file && vtkWrapHierarchy_CompareHierarchyFile(output_file, lines))
     {
     matched = 1;
     }
@@ -528,7 +539,7 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(
 #endif
       output_file = fopen(file_name, "r+");
       if (output_file &&
-          vtkWrapHierarchy_CompareHierachyFile(output_file, lines))
+          vtkWrapHierarchy_CompareHierarchyFile(output_file, lines))
         {
         /* if the contents match, no need to write it */
         fclose(output_file);
