@@ -955,14 +955,6 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
 //----------------------------------------------------------------------------
 void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 {
-  // If the input data object has pipeline information and this object
-  // does not, setup a trivial producer so that this object will have
-  // pipeline information into which to copy values.
-  if(src->GetPipelineInformation() && !this->GetPipelineInformation())
-    {
-    this->GetProducerPort();
-    }
-
   this->DataReleased = src->DataReleased;
   
   // Do not copy pipeline specific information from data object to
@@ -996,33 +988,6 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     this->Information->CopyEntry(src->Information, DATA_RESOLUTION(), 1);
     }
   
-  vtkInformation* thatPInfo = src->GetPipelineInformation();
-  vtkInformation* thisPInfo = this->GetPipelineInformation();
-  if(thisPInfo && thatPInfo)
-    {
-    // copy the pipeline info if it is available
-    if(thisPInfo)
-      {
-      // Do not override info if it exists. Normally WHOLE_EXTENT
-      // and MAXIMUM_NUMBER_OF_PIECES should not be copied here since
-      // they belong to the pipeline not the data object.
-      // However, removing the copy can break things in older filters
-      // that rely on ShallowCopy to set these (mostly, sources/filters
-      // that use another source/filter internally and shallow copy
-      // in RequestInformation). As a compromise, I changed the following
-      // code such that these entries are only copied if they do not
-      // exist in the output.
-      if (!thisPInfo->Has(SDDP::WHOLE_EXTENT()))
-        {
-        thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
-        }
-      if (!thisPInfo->Has(SDDP::MAXIMUM_NUMBER_OF_PIECES()))
-        {
-        thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
-        }
-      thisPInfo->CopyEntry(thatPInfo, vtkDemandDrivenPipeline::RELEASE_DATA());
-      }
-    }
   // This also caused a pipeline problem.
   // An input pipelineMTime was copied to output.  Pipeline did not execute...
   // We do not copy MTime of object, so why should we copy these.
