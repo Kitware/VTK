@@ -56,6 +56,43 @@ unsigned int vtkAbstractContextItem::AddItem(vtkAbstractContextItem* item)
 }
 
 //-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::RemoveItem(vtkAbstractContextItem* item)
+{
+  return this->Children->RemoveItem(item);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::RemoveItem(unsigned int index)
+{
+  return this->Children->RemoveItem(index);
+}
+
+//-----------------------------------------------------------------------------
+vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
+{
+  if (index < this->Children->size())
+    {
+    return this->Children->at(index);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+unsigned int vtkAbstractContextItem::GetNumberOfItems()
+{
+  return this->Children->size();
+}
+
+//-----------------------------------------------------------------------------
+void vtkAbstractContextItem::ClearItems()
+{
+  this->Children->Clear();
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &mouse)
 {
   for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
