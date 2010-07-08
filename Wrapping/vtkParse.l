@@ -230,18 +230,98 @@ static int skip_ahead_until(const char *text);
      return(VAR_FUNCTION);
      };
 
-"short"[\t\n\r ]*"int" return(SHORT);
-"long"[\t\n\r ]*"int"  return(LONG);
-"int"[\t\n\r ]*"short" return(SHORT);
-"int"[\t\n\r ]*"long"  return(LONG);
+"long"[\t\n\r ]*"double"                       return(LONG_DOUBLE);
+"double"                                       return(DOUBLE);
+"float"                                        return(FLOAT);
 
-"long"[\t\n\r ]*"long"  return(LONG_LONG);
-"int"[\t\n\r ]*"long"[\t\n\r ]*"long"  return(LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"int"  return(LONG_LONG);
+"unsigned"[\t\n\r ]*"__int64"                  return(UNSIGNED_INT64__);
+"__int64"[\t\n\r ]*"unsigned"                  return(UNSIGNED_INT64__);
 
-"__int64"        return(INT64__);
+"signed"[\t\n\r ]*"__int64"                    return(INT64__);
+"__int64"[\t\n\r ]*"signed"                    return(INT64__);
+"__int64"                                      return(INT64__);
 
-"signed"[\t\n\r ]*"char"  return(SIGNED_CHAR);
+"int"[\t\n\r ]*"unsigned"[\t\n\r ]*"long long" return(UNSIGNED_LONG_LONG);
+"unsigned"[\t\n\r ]*"int"[\t\n\r ]*"long long" return(UNSIGNED_LONG_LONG);
+"long long"[\t\n\r ]*"unsigned"[\t\n\r ]*"int" return(UNSIGNED_LONG_LONG);
+"long long"[\t\n\r ]*"int"[\t\n\r ]*"unsigned" return(UNSIGNED_LONG_LONG);
+"int"[\t\n\r ]*"long long"[\t\n\r ]*"unsigned" return(UNSIGNED_LONG_LONG);
+"unsigned"[\t\n\r ]*"long long"[\t\n\r ]*"int" return(UNSIGNED_LONG_LONG);
+"unsigned"[\t\n\r ]*"long long"                return(UNSIGNED_LONG_LONG);
+"long long"[\t\n\r ]*"unsigned"                return(UNSIGNED_LONG_LONG);
+
+"int"[\t\n\r ]*"signed"[\t\n\r ]*"long long"   return(LONG_LONG);
+"signed"[\t\n\r ]*"int"[\t\n\r ]*"long long"   return(LONG_LONG);
+"long long"[\t\n\r ]*"signed"[\t\n\r ]*"int"   return(LONG_LONG);
+"long long"[\t\n\r ]*"int"[\t\n\r ]*"signed"   return(LONG_LONG);
+"int"[\t\n\r ]*"long long"[\t\n\r ]*"signed"   return(LONG_LONG);
+"signed"[\t\n\r ]*"long long"[\t\n\r ]*"int"   return(LONG_LONG);
+"signed"[\t\n\r ]*"long long"                  return(LONG_LONG);
+"long long"[\t\n\r ]*"signed"                  return(LONG_LONG);
+"int"[\t\n\r ]*"long long"                     return(LONG_LONG);
+"long long"[\t\n\r ]*"int"                     return(LONG_LONG);
+"long long"                                    return(LONG_LONG);
+
+"int"[\t\n\r ]*"unsigned"[\t\n\r ]*"short"     return(UNSIGNED_SHORT);
+"unsigned"[\t\n\r ]*"int"[\t\n\r ]*"short"     return(UNSIGNED_SHORT);
+"short"[\t\n\r ]*"unsigned"[\t\n\r ]*"int"     return(UNSIGNED_SHORT);
+"short"[\t\n\r ]*"int"[\t\n\r ]*"unsigned"     return(UNSIGNED_SHORT);
+"int"[\t\n\r ]*"short"[\t\n\r ]*"unsigned"     return(UNSIGNED_SHORT);
+"unsigned"[\t\n\r ]*"short"[\t\n\r ]*"int"     return(UNSIGNED_SHORT);
+"unsigned"[\t\n\r ]*"short"                    return(UNSIGNED_SHORT);
+"short"[\t\n\r ]*"unsigned"                    return(UNSIGNED_SHORT);
+
+"int"[\t\n\r ]*"signed"[\t\n\r ]*"short"       return(SHORT);
+"signed"[\t\n\r ]*"int"[\t\n\r ]*"short"       return(SHORT);
+"short"[\t\n\r ]*"signed"[\t\n\r ]*"int"       return(SHORT);
+"short"[\t\n\r ]*"int"[\t\n\r ]*"signed"       return(SHORT);
+"int"[\t\n\r ]*"short"[\t\n\r ]*"signed"       return(SHORT);
+"signed"[\t\n\r ]*"short"[\t\n\r ]*"int"       return(SHORT);
+"signed"[\t\n\r ]*"short"                      return(SHORT);
+"short"[\t\n\r ]*"signed"                      return(SHORT);
+"int"[\t\n\r ]*"short"                         return(SHORT);
+"short"[\t\n\r ]*"int"                         return(SHORT);
+"short"                                        return(SHORT);
+
+"int"[\t\n\r ]*"unsigned"[\t\n\r ]*"long"      return(UNSIGNED_LONG);
+"unsigned"[\t\n\r ]*"int"[\t\n\r ]*"long"      return(UNSIGNED_LONG);
+"long"[\t\n\r ]*"unsigned"[\t\n\r ]*"int"      return(UNSIGNED_LONG);
+"long"[\t\n\r ]*"int"[\t\n\r ]*"unsigned"      return(UNSIGNED_LONG);
+"int"[\t\n\r ]*"long"[\t\n\r ]*"unsigned"      return(UNSIGNED_LONG);
+"unsigned"[\t\n\r ]*"long"[\t\n\r ]*"int"      return(UNSIGNED_LONG);
+"unsigned"[\t\n\r ]*"long"                     return(UNSIGNED_LONG);
+"long"[\t\n\r ]*"unsigned"                     return(UNSIGNED_LONG);
+
+"int"[\t\n\r ]*"signed"[\t\n\r ]*"long"        return(LONG);
+"signed"[\t\n\r ]*"int"[\t\n\r ]*"long"        return(LONG);
+"long"[\t\n\r ]*"signed"[\t\n\r ]*"int"        return(LONG);
+"long"[\t\n\r ]*"int"[\t\n\r ]*"signed"        return(LONG);
+"int"[\t\n\r ]*"long"[\t\n\r ]*"signed"        return(LONG);
+"signed"[\t\n\r ]*"long"[\t\n\r ]*"int"        return(LONG);
+"signed"[\t\n\r ]*"long"                       return(LONG);
+"long"[\t\n\r ]*"signed"                       return(LONG);
+"int"[\t\n\r ]*"long"                          return(LONG);
+"long"[\t\n\r ]*"int"                          return(LONG);
+"long"                                         return(LONG);
+
+"unsigned"[\t\n\r ]*"char"                     return(UNSIGNED_CHAR);
+"char"[\t\n\r ]*"unsigned"                     return(UNSIGNED_CHAR);
+"char"[\t\n\r ]*"signed"                       return(SIGNED_CHAR);
+"signed"[\t\n\r ]*"char"                       return(SIGNED_CHAR);
+"char"                                         return(CHAR);
+
+"unsigned"[\t\n\r ]*"int"                      return(UNSIGNED_INT);
+"int"[\t\n\r ]*"unsigned"                      return(UNSIGNED_INT);
+
+"signed"[\t\n\r ]*"int"                        return(INT);
+"int"[\t\n\r ]*"signed"                        return(INT);
+"int"                                          return(INT);
+
+"unsigned"      return(UNSIGNED);
+"signed"        return(SIGNED);
+
+"void"          return(VOID);
+"bool"          return(BOOL);
 
 "size_t"        return(SIZE_T);
 "ssize_t"       return(SSIZE_T);
@@ -251,22 +331,12 @@ static int skip_ahead_until(const char *text);
 "public"        return(PUBLIC);
 "private"       return(PRIVATE);
 "protected"     return(PROTECTED);
-"int"           return(INT);
-"float"         return(FLOAT);
-"short"         return(SHORT);
-"long"          return(LONG);
-"double"        return(DOUBLE);
-"void"          return(VOID);
-"char"          return(CHAR);
-"bool"          return(BOOL);
 "enum"          return(ENUM);
 "union"         return(UNION);
 "virtual"       return(VIRTUAL);
 "const"         return(CONST);
 "mutable"       return(MUTABLE);
 "operator"      return(OPERATOR);
-"unsigned"      return(UNSIGNED);
-"signed"        return(SIGNED);
 "friend"        return(FRIEND);
 "inline"        return(INLINE);
 "static"        return(STATIC);

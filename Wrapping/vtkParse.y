@@ -830,16 +830,23 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token <str> FLOAT_LITERAL
 %token <str> CHAR_LITERAL
 %token <str> ZERO
-%token INT
 %token FLOAT
-%token SHORT
-%token LONG
-%token LONG_LONG
-%token INT64__
 %token DOUBLE
-%token VOID
+%token LONG_DOUBLE
+%token INT
+%token UNSIGNED_INT
+%token SHORT
+%token UNSIGNED_SHORT
+%token LONG
+%token UNSIGNED_LONG
+%token LONG_LONG
+%token UNSIGNED_LONG_LONG
+%token INT64__
+%token UNSIGNED_INT64__
 %token CHAR
 %token SIGNED_CHAR
+%token UNSIGNED_CHAR
+%token VOID
 %token BOOL
 %token SSIZE_T
 %token SIZE_T
@@ -1700,12 +1707,9 @@ type_id:
 
 type_primitive:
   VOID   { typeSig("void"); $<integer>$ = VTK_PARSE_VOID;} |
-  FLOAT  { typeSig("float"); $<integer>$ = VTK_PARSE_FLOAT;} |
-  DOUBLE { typeSig("double"); $<integer>$ = VTK_PARSE_DOUBLE;} |
   BOOL { typeSig("bool"); $<integer>$ = VTK_PARSE_BOOL;} |
   SSIZE_T { typeSig("ssize_t"); $<integer>$ = VTK_PARSE_SSIZE_T;} |
   SIZE_T { typeSig("size_t"); $<integer>$ = VTK_PARSE_SIZE_T;} |
-  SIGNED_CHAR {typeSig("signed char"); $<integer>$ = VTK_PARSE_SIGNED_CHAR;} |
   TypeInt8 { typeSig("vtkTypeInt8"); $<integer>$ = VTK_PARSE_INT8; } |
   TypeUInt8 { typeSig("vtkTypeUInt8"); $<integer>$ = VTK_PARSE_UINT8; } |
   TypeInt16 { typeSig("vtkTypeInt16"); $<integer>$ = VTK_PARSE_INT16; } |
@@ -1716,19 +1720,31 @@ type_primitive:
   TypeUInt64 { typeSig("vtkTypeUInt64"); $<integer>$ = VTK_PARSE_UINT64; } |
   TypeFloat32 { typeSig("vtkTypeFloat32"); $<integer>$ = VTK_PARSE_FLOAT32; } |
   TypeFloat64 { typeSig("vtkTypeFloat64"); $<integer>$ = VTK_PARSE_FLOAT64; } |
-  SIGNED {typeSig("signed");} type_integer { $<integer>$ = $<integer>3;}; |
-  UNSIGNED {typeSig("unsigned");}
-   type_integer { $<integer>$ = (VTK_PARSE_UNSIGNED | $<integer>3);} |
-  type_integer { $<integer>$ = $<integer>1;};
-
-type_integer:
-  CHAR   { typeSig("char"); $<integer>$ = VTK_PARSE_CHAR;} |
-  INT    { typeSig("int"); $<integer>$ = VTK_PARSE_INT;} |
-  SHORT  { typeSig("short"); $<integer>$ = VTK_PARSE_SHORT;} |
-  LONG   { typeSig("long"); $<integer>$ = VTK_PARSE_LONG;} |
   IdType { typeSig("vtkIdType"); $<integer>$ = VTK_PARSE_ID_TYPE;} |
-  LONG_LONG { typeSig("long long"); $<integer>$ = VTK_PARSE_LONG_LONG;} |
-  INT64__ { typeSig("__int64"); $<integer>$ = VTK_PARSE___INT64;};
+  FLOAT  { typeSig("float"); $<integer>$ = VTK_PARSE_FLOAT;} |
+  DOUBLE { typeSig("double"); $<integer>$ = VTK_PARSE_DOUBLE;} |
+  LONG_DOUBLE { typeSig("long double"); $<integer>$ = VTK_PARSE_UNKNOWN;} |
+  CHAR   { typeSig("char"); $<integer>$ = VTK_PARSE_CHAR;} |
+  SIGNED_CHAR { typeSig("signed char"); $<integer>$ = VTK_PARSE_SIGNED_CHAR;} |
+  UNSIGNED_CHAR
+    { typeSig("unsigned char"); $<integer>$ = VTK_PARSE_UNSIGNED_CHAR;} |
+  INT    { typeSig("int"); $<integer>$ = VTK_PARSE_INT;} |
+  UNSIGNED_INT
+    { typeSig("unsigned int"); $<integer>$ = VTK_PARSE_UNSIGNED_INT;} |
+  SHORT  { typeSig("short"); $<integer>$ = VTK_PARSE_SHORT;} |
+  UNSIGNED_SHORT
+    { typeSig("unsigned short"); $<integer>$ = VTK_PARSE_UNSIGNED_SHORT;} |
+  LONG   { typeSig("long"); $<integer>$ = VTK_PARSE_LONG;} |
+  UNSIGNED_LONG
+    { typeSig("unsigned long"); $<integer>$ = VTK_PARSE_UNSIGNED_LONG;} |
+  LONG_LONG   { typeSig("long long"); $<integer>$ = VTK_PARSE_LONG_LONG;} |
+  UNSIGNED_LONG_LONG
+    {typeSig("unsigned long long");$<integer>$=VTK_PARSE_UNSIGNED_LONG_LONG;} |
+  INT64__ { typeSig("__int64"); $<integer>$ = VTK_PARSE___INT64;} |
+  UNSIGNED_INT64__
+    { typeSig("unsigned __int64"); $<integer>$ = VTK_PARSE_UNSIGNED___INT64;} |
+  SIGNED { typeSig("int"); $<integer>$ = VTK_PARSE_INT; }; |
+  UNSIGNED { typeSig("unsigned int"); $<integer>$ = VTK_PARSE_UNSIGNED_INT; };
 
 /*
  * Values
