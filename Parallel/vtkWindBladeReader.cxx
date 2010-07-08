@@ -391,7 +391,9 @@ int vtkWindBladeReader::RequestData(
   }
 
   // Request data is on blade
-  else if (port == 1) {
+  // hackish: answer regardless of port just to keep the temporal
+  // pipeline happy see SDDP::PREVIOUS_UPDATE_TIME_STEPS()
+  if (port == 0 || port == 1) {
     if (this->UseTurbineFile == 1 && this->Rank == 0) {
 
       vtkInformation* bladeInfo = outVector->GetInformationObject(1);
@@ -404,13 +406,14 @@ int vtkWindBladeReader::RequestData(
         static_cast<vtkInformationDoubleVectorKey*>
           (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
 
+      double dTime = 0.0;
       if (bladeInfo->Has(timeKey)) {
         numRequestedTimeSteps = bladeInfo->Length(timeKey);
         requestedTimeSteps = bladeInfo->Get(timeKey);
+        dTime = requestedTimeSteps[0];
       }
 
       // Actual time for the time step
-      double dTime = requestedTimeSteps[0];
       blade->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
 
       // Index of the time step to request
