@@ -293,7 +293,7 @@ static char **vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char **lines)
     lines[0] = NULL;
     }
 
-  while (fgets(line, maxlen, fp))
+  while (fgets(line, (int)maxlen, fp))
     {
     n = strlen(line);
 
@@ -302,7 +302,7 @@ static char **vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char **lines)
       {
       maxlen *= 2;
       line = (char *)realloc(line, maxlen);
-      if (!fgets(&line[n], maxlen-n, fp)) { break; }
+      if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }
       n += strlen(&line[n]);
       }
 
@@ -366,7 +366,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
   matched = (unsigned char *)malloc(i);
   memset(matched, 0, i);
 
-  while (fgets(line, maxlen, fp))
+  while (fgets(line, (int)maxlen, fp))
     {
     n = strlen(line);
 
@@ -375,7 +375,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
       {
       maxlen *= 2;
       line = (char *)realloc(line, maxlen);
-      if (!fgets(&line[n], maxlen-n, fp)) { break; }
+      if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }
       n += strlen(&line[n]);
       }
 

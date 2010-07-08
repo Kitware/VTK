@@ -115,7 +115,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
   info->NumberOfClasses = 0;
   info->Classes = (HierarchyEntry *)malloc(maxClasses*sizeof(HierarchyEntry));
 
-  while (fgets(line, maxlen, fp))
+  while (fgets(line, (int)maxlen, fp))
     {
     n = strlen(line);
 
@@ -124,7 +124,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
       {
       maxlen *= 2;
       line = (char *)realloc(line, maxlen);
-      if (!fgets(&line[n], maxlen-n, fp)) { break; }
+      if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }
       n += strlen(&line[n]);
       }
 
