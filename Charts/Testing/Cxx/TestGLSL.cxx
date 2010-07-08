@@ -101,15 +101,6 @@ int TestGLSL( int argc, char * argv [] )
 
   // Ensure that there is a valid OpenGL context - Mac inconsistent behavior.
   view->GetRenderWindow()->SetMultiSamples(0);
-  view->Render();
-
-  // Check if GLSL is supported
-  if (!vtkShaderProgram2::IsSupported(dynamic_cast<vtkOpenGLRenderWindow*>(
-                                      view->GetRenderWindow())))
-    {
-      cout << "GLSL not supported." << endl;
-      return 1;
-    }
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -209,6 +200,15 @@ void GLSLTestItem::BuildShader(vtkOpenGLRenderWindow* glContext)
     {
     return;
     }
+
+  // Check if GLSL is supported
+  if (!vtkShaderProgram2::IsSupported(glContext))
+    {
+    vtkErrorMacro("GLSL is not supported on this system.");
+    this->IsCompiled = false;
+    return;
+    }
+
   this->program = vtkSmartPointer<vtkShaderProgram2>::New();
   this->program->SetContext(glContext);
   this->program2 = vtkSmartPointer<vtkShaderProgram2>::New();
