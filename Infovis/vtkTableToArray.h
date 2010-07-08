@@ -29,7 +29,10 @@
 // .SECTION Description
 // Converts a vtkTable into a dense matrix.  Use AddColumn() to
 // designate one-to-many table columns that will become columns in the
-// output matrix.
+// output matrix.a
+//
+// Using AddColumn() it is possible to duplicate / reorder columns in
+// arbitrary ways.
 //
 // .SECTION Caveats
 // Only produces vtkDenseArray<double>, regardless of the input table column types.
@@ -45,10 +48,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the set of input table columns that will be mapped to columns
+  // Reset the list of input table columns that will be mapped to columns
   // in the output matrix.
   void ClearColumns();
+  // Description:
+  // Add a column by name to the list of input table columns that will be
+  // mapped to columns in the output matrix.
   void AddColumn(const char* name);
+  // Description:
+  // Add a column by index to the list of input table columns that will be
+  // mapped to columns in the output matrix.
+  void AddColumn(vtkIdType index);
+  // Description:
+  // Add every input table column to the output matrix.
+  void AddAllColumns();
 
 //BTX
 protected:
@@ -58,8 +71,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*);
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

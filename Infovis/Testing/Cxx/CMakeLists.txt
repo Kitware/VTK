@@ -33,6 +33,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestStringToCategory
     TestTable
     TestTableSplitColumnComponents.cxx
+    TestTableToArray.cxx
     TestTreeMapLayoutStrategy
     TestThresholdTable
     TestVariantArray
