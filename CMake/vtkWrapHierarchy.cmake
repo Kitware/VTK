@@ -170,7 +170,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
 
       COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
       ${verbatim}
-      SOURCES ${SOURCES}
+      SOURCES ${INPUT_FILES}
       )
     # Set target-level dependencies to build in the correct order
     ADD_DEPENDENCIES(${TARGET} vtkWrapHierarchy ${OTHER_HIERARCHY_TARGETS})
