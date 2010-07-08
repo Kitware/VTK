@@ -77,7 +77,8 @@ protected:
   void Initialize(vtkRenderer *renderer, vtkVolume *volume);
 
   // Description:
-  // Update the preintegration texture; this is needed whenever the mesh changes.
+  // Update the preintegration texture; this is needed whenever the mesh
+  // changes.
   void UpdatePreintegrationTexture(vtkVolume *vome, vtkDataArray *scalars);
 
   // Description:
