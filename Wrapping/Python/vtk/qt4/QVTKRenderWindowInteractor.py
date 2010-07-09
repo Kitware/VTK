@@ -155,8 +155,11 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        self._Iren = vtk.vtkGenericRenderWindowInteractor()
-        self._Iren.SetRenderWindow(self._RenderWindow)
+        if kw.has_key('iren'):
+            self._Iren = kw['iren']
+        else:
+            self._Iren = vtk.vtkGenericRenderWindowInteractor()
+            self._Iren.SetRenderWindow(self._RenderWindow)
 
         # do all the necessary qt setup
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
@@ -217,7 +220,7 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         return None
 
     def paintEvent(self, ev):
-        self._RenderWindow.Render()
+        self._Iren.Render()
 
     def resizeEvent(self, ev):
         w = self.width()
