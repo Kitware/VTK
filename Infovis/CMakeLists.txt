@@ -45,6 +45,8 @@ vtkCosmicTreeLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkDescriptiveStatistics.cxx
+vtkDIMACSGraphReader.cxx
+vtkDIMACSGraphWriter.cxx
 vtkEdgeCenters.cxx
 vtkEdgeLayout.cxx
 vtkEdgeLayoutStrategy.cxx
