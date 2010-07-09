@@ -1582,6 +1582,7 @@ void vtkImageData::AllocateScalars()
   // allocate the new scalars
   scalars = vtkDataArray::CreateDataArray(newType);
   scalars->SetNumberOfComponents(newNumComp);
+  scalars->SetName("ImageScalars");
 
   // allocate enough memory
   scalars->SetNumberOfTuples(imageSize);
