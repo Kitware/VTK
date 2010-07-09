@@ -32,6 +32,7 @@ vtkBitArrayIterator.cxx
 vtkBoundingBox.cxx
 vtkBox.cxx
 vtkBoxMuellerRandomSequence.cxx
+vtkBreakPoint.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
 vtkCharArray.cxx
@@ -376,6 +377,7 @@ ABSTRACT
 SET_SOURCE_FILES_PROPERTIES(
   vtkArrayIteratorTemplate.txx
   vtkBoundingBox.cxx
+  vtkBreakPoint.cxx
   vtkCallbackCommand.cxx
   vtkCommand.cxx
   vtkCommonInformationKeyManager.cxx
