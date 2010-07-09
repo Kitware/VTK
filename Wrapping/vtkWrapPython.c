@@ -940,7 +940,9 @@ static char *vtkWrapPython_ArgCheckString(
 /* -------------------------------------------------------------------- */
 /* For the purpose of the python docstrings, convert special characters
  * in a string into their escape codes, so that the string can be quoted
- * in a source file (the specified maxlen must be at least 32 chars)*/
+ * in a source file (the specified maxlen must be at least 32 chars, and
+ * should not be over 1000 since that is the maximum length of a string
+ * literal on some systems)*/
 
 static const char *vtkWrapPython_QuoteString(
   const char *comment, size_t maxlen)
@@ -1007,23 +1009,231 @@ static const char *vtkWrapPython_QuoteString(
 }
 
 /* -------------------------------------------------------------------- */
-/* The method signatures are for the python docstrings. */
+/* A simple string that grows as necessary. */
 
-static void vtkWrapPython_AddToSignature(
-  char *sig, const char *add, size_t *i)
+struct vtkWPString
 {
-  size_t j = 0;
-  char *cp = &sig[*i];
-  for (; add[j] != '\0'; j++)
+  char *str;
+  size_t len;
+  size_t maxlen;
+};
+
+/* -- append ---------- */
+static void vtkWPString_Append(
+  struct vtkWPString *str, const char *text)
+{
+  size_t n = strlen(text);
+
+  if (str->len + n + 1 > str->maxlen)
     {
-    // stop at the semicolon, there's often garbage after it
-    if ((cp[j] = add[j]) == ';')
+    str->maxlen = (str->len + n + 1 + 2*str->maxlen);
+    str->str = (char *)realloc(str->str, str->maxlen);
+    }
+
+  strncpy(&str->str[str->len], text, n);
+  str->len += n;
+  str->str[str->len] = '\0';
+}
+
+/* -- add a char ---------- */
+static void vtkWPString_PushChar(
+  struct vtkWPString *str, char c)
+{
+  if (str->len + 2 > str->maxlen)
+    {
+    str->maxlen = (str->len + 2 + 2*str->maxlen);
+    str->str = (char *)realloc(str->str, str->maxlen);
+    }
+
+  str->str[str->len++] = c;
+  str->str[str->len] = '\0';
+}
+
+/* -- strip any of the given chars from the end ---------- */
+static void vtkWPString_Strip(
+  struct vtkWPString *str, const char *trailers)
+{
+  size_t k = str->len;
+  char *cp = str->str;
+  size_t j = 0;
+  size_t n;
+
+  if (cp)
+    {
+    n = strlen(trailers);
+
+    while (k > 0 && j < n)
       {
-      cp[++j] = '\0';
-      break;
+      for (j = 0; j < n; j++)
+        {
+        if (cp[k-1] == trailers[j])
+          {
+          k--;
+          break;
+          }
+        }
+      }
+
+    str->len = k;
+    str->str[k] = '\0';
+    }
+}
+
+/* -- Return the last char ---------- */
+static char vtkWPString_LastChar(
+  struct vtkWPString *str)
+{
+  if (str->str && str->len > 0)
+    {
+    return str->str[str->len-1];
+    }
+  return '\0';
+}
+
+/* -- do a linebreak on a method declaration ---------- */
+static void vtkWPString_BreakSignatureLine(
+  struct vtkWPString *str, size_t *linestart, size_t indentation)
+{
+  size_t i = 0;
+  size_t m = 0;
+  size_t j = *linestart;
+  size_t l = str->len;
+  size_t k = str->len;
+  char *text = str->str;
+  char delim;
+
+  if (!text)
+    {
+    return;
+    }
+
+  while (l > j && text[l-1] != '\n' && text[l-1] != ',' &&
+    text[l-1] != '(' && text[l-1] != ')')
+    {
+    /* treat each string as a unit */
+    if (l > 4 && (text[l-1] == '\'' || text[l-1] == '\"'))
+      {
+      delim = text[l-1];
+      l -= 2;
+      while (l > 3 && (text[l-1] != delim || text[l-3] == '\\'))
+        {
+        l--;
+        if (text[l-1] == '\\')
+          {
+          l--;
+          }
+        }
+      l -= 2;
+      }
+    else
+      {
+      l--;
       }
     }
-  *i += j;
+
+  /* if none of these chars was found, split is impossible */
+  if (text[l-1] != ',' && text[l-1] != '(' &&
+      text[l-1] != ')' && text[l-1] != '\n')
+    {
+    j++;
+    }
+
+  else
+    {
+    /* Append some chars to guarantee size */
+    vtkWPString_PushChar(str, '\n');
+    vtkWPString_PushChar(str, '\n');
+    for (i = 0; i < indentation; i++)
+      {
+      vtkWPString_PushChar(str, ' ');
+      }
+    /* re-get the char pointer, it may have been reallocated */
+    text = str->str;
+
+    if (k > l)
+      {
+      m = 0;
+      while (m < indentation+2 && text[l+m] == ' ')
+        {
+        m++;
+        }
+      memmove(&text[l+indentation+2-m], &text[l], k-l);
+      k += indentation+2-m;
+      }
+    else
+      {
+      k += indentation+2;
+      }
+    text[l++] = '\\'; text[l++] = 'n';
+    j = l;
+    for (i = 0; i < indentation; i++)
+      {
+      text[l++] = ' ';
+      }
+    }
+
+  str->len = k;
+
+  /* return the new line start position */
+  *linestart = j;
+}
+
+/* -- do a linebreak on regular text ---------- */
+static void vtkWPString_BreakCommentLine(
+  struct vtkWPString *str, size_t *linestart, size_t indent)
+{
+  size_t i = 0;
+  size_t j = *linestart;
+  size_t l = str->len;
+  char *text = str->str;
+
+  if (!text)
+    {
+    return;
+    }
+
+  /* try to break the line at a word */
+  while (l > 0 && text[l-1] != ' ' && text[l-1] != '\n')
+    {
+    l--;
+    }
+  if (l > 0 && text[l-1] != '\n' && l-j > indent)
+    {
+    /* replace space with newline */
+    text[l-1] = '\n';
+    j = l;
+
+    /* Append some chars to guarantee size */
+    vtkWPString_PushChar(str, '\n');
+    vtkWPString_PushChar(str, '\n');
+    for (i = 0; i < indent; i++)
+      {
+      vtkWPString_PushChar(str, ' ');
+      }
+    /* re-get the char pointer, it may have been reallocated */
+    text = str->str;
+    str->len -= indent+2;
+
+    if (str->len > l && indent > 0)
+      {
+      memmove(&text[l+indent], &text[l], str->len-l);
+      memset(&text[l], ' ', indent);
+      str->len += indent;
+      }
+    }
+  else
+    {
+    /* long word, just split the word */
+    vtkWPString_PushChar(str, '\n');
+    j = str->len;
+    for (i = 0; i < indent; i++)
+      {
+      vtkWPString_PushChar(str, ' ');
+      }
+    }
+
+  /* return the new line start position */
+  *linestart = j;
 }
 
 /* -------------------------------------------------------------------- */
@@ -1032,101 +1242,104 @@ static void vtkWrapPython_AddToSignature(
 static const char *vtkWrapPython_PythonSignature(
   FunctionInfo *currentFunction)
 {
-  static char result[1024];
-  size_t currPos = 0;
+  /* string is intentionally not freed until the program exits */
+  static struct vtkWPString staticString = { NULL, 0, 0 };
+  struct vtkWPString *result;
   unsigned int argtype;
   int i, j;
 
+  result = &staticString;
+  result->len = 0;
+
   /* print out the name of the method */
-  vtkWrapPython_AddToSignature(result,"V.",&currPos);
-  vtkWrapPython_AddToSignature(result,currentFunction->Name,&currPos);
+  vtkWPString_Append(result, "V.");
+  vtkWPString_Append(result, currentFunction->Name);
 
   /* print the arg list */
-  vtkWrapPython_AddToSignature(result,"(",&currPos);
+  vtkWPString_Append(result, "(");
 
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
       {
-      vtkWrapPython_AddToSignature(result,"function",&currPos);
+      vtkWPString_Append(result, "function");
       }
 
     argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
     if (i != 0)
       {
-      vtkWrapPython_AddToSignature(result,", ",&currPos);
+      vtkWPString_Append(result, ", ");
       }
 
     switch (argtype)
       {
       case VTK_PARSE_FLOAT_PTR:
       case VTK_PARSE_DOUBLE_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->ArgCounts[i]; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
-          vtkWrapPython_AddToSignature(result,"float",&currPos);
+          vtkWPString_Append(result, "float");
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_INT_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->ArgCounts[i]; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
-          vtkWrapPython_AddToSignature(result,"int",&currPos);
+          vtkWPString_Append(result, "int");
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_ID_TYPE_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->ArgCounts[i]; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
 #if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
-          vtkWrapPython_AddToSignature(result,"long",&currPos);
+          vtkWPString_Append(result, "long");
 #else
-          vtkWrapPython_AddToSignature(result,"int",&currPos);
+          vtkWPString_Append(result, "int");
 #endif
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_LONG_LONG_PTR:
       case VTK_PARSE___INT64_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->ArgCounts[i]; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
-          vtkWrapPython_AddToSignature(result,"long",&currPos);
+          vtkWPString_Append(result, "long");
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_OBJECT_REF:
       case VTK_PARSE_OBJECT_PTR:
       case VTK_PARSE_OBJECT:
-        vtkWrapPython_AddToSignature(result,currentFunction->ArgClasses[i],
-                                    &currPos);
+        vtkWPString_Append(result, currentFunction->ArgClasses[i]);
         break;
       case VTK_PARSE_VOID_PTR:
       case VTK_PARSE_CHAR_PTR:
-        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        vtkWPString_Append(result, "string");
         break;
       case VTK_PARSE_FLOAT:
       case VTK_PARSE_DOUBLE:
-        vtkWrapPython_AddToSignature(result,"float",&currPos);
+        vtkWPString_Append(result, "float");
         break;
       case VTK_PARSE_SIGNED_CHAR:
       case VTK_PARSE_ID_TYPE:
@@ -1140,104 +1353,103 @@ static const char *vtkWrapPython_PythonSignature(
       case VTK_PARSE_SHORT:
       case VTK_PARSE_UNSIGNED_LONG:
       case VTK_PARSE_LONG:
-        vtkWrapPython_AddToSignature(result,"int",&currPos);
+        vtkWPString_Append(result, "int");
         break;
       case VTK_PARSE_CHAR:
-        vtkWrapPython_AddToSignature(result,"char",&currPos);
+        vtkWPString_Append(result, "char");
         break;
       case VTK_PARSE_UNSIGNED_CHAR:
-        vtkWrapPython_AddToSignature(result,"int",&currPos);
+        vtkWPString_Append(result, "int");
         break;
       case VTK_PARSE_BOOL:
-        vtkWrapPython_AddToSignature(result,"bool",&currPos);
+        vtkWPString_Append(result, "bool");
         break;
       case VTK_PARSE_STRING:
-        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        vtkWPString_Append(result, "string");
         break;
       case VTK_PARSE_UNICODE_STRING:
-        vtkWrapPython_AddToSignature(result,"unicode",&currPos);
+        vtkWPString_Append(result, "unicode");
         break;
       }
     }
 
-  vtkWrapPython_AddToSignature(result,")",&currPos);
+  vtkWPString_Append(result, ")");
 
   /* if this is a void method, we are finished */
   /* otherwise, print "->" and the return type */
   if (!((currentFunction->ReturnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_VOID)
       || (currentFunction->ReturnType & VTK_PARSE_INDIRECT))
     {
-    vtkWrapPython_AddToSignature(result," -> ",&currPos);
+    vtkWPString_Append(result, " -> ");
 
     switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
       {
       case VTK_PARSE_VOID_PTR:
       case VTK_PARSE_CHAR_PTR:
-        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        vtkWPString_Append(result, "string");
         break;
       case VTK_PARSE_OBJECT_REF:
       case VTK_PARSE_OBJECT_PTR:
       case VTK_PARSE_OBJECT:
-        vtkWrapPython_AddToSignature(result,currentFunction->ReturnClass,
-                                    &currPos);
+        vtkWPString_Append(result, currentFunction->ReturnClass);
         break;
       case VTK_PARSE_FLOAT_PTR:
       case VTK_PARSE_DOUBLE_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->HintSize; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
-          vtkWrapPython_AddToSignature(result,"float",&currPos);
+          vtkWPString_Append(result, "float");
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_INT_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->HintSize; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
-          vtkWrapPython_AddToSignature(result,"int",&currPos);
+          vtkWPString_Append(result, "int");
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_ID_TYPE_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->HintSize; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
 #if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
-          vtkWrapPython_AddToSignature(result,"long",&currPos);
+          vtkWPString_Append(result, "long");
 #else
-          vtkWrapPython_AddToSignature(result,"int",&currPos);
+          vtkWPString_Append(result, "int");
 #endif
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_LONG_LONG_PTR:
       case VTK_PARSE___INT64_PTR:
-        vtkWrapPython_AddToSignature(result,"(",&currPos);
+        vtkWPString_Append(result, "(");
         for (j = 0; j < currentFunction->HintSize; j++)
           {
           if (j != 0)
             {
-            vtkWrapPython_AddToSignature(result,", ",&currPos);
+            vtkWPString_Append(result, ", ");
             }
-          vtkWrapPython_AddToSignature(result,"long",&currPos);
+          vtkWPString_Append(result, "long");
           }
-        vtkWrapPython_AddToSignature(result,")",&currPos);
+        vtkWPString_Append(result, ")");
         break;
       case VTK_PARSE_FLOAT:
       case VTK_PARSE_DOUBLE:
-        vtkWrapPython_AddToSignature(result,"float",&currPos);
+        vtkWPString_Append(result, "float");
         break;
       case VTK_PARSE_ID_TYPE:
       case VTK_PARSE_LONG_LONG:
@@ -1252,19 +1464,19 @@ static const char *vtkWrapPython_PythonSignature(
       case VTK_PARSE_INT:
       case VTK_PARSE_SHORT:
       case VTK_PARSE_LONG:
-        vtkWrapPython_AddToSignature(result,"int",&currPos);
+        vtkWPString_Append(result, "int");
         break;
       case VTK_PARSE_CHAR:
-        vtkWrapPython_AddToSignature(result,"char",&currPos);
+        vtkWPString_Append(result, "char");
         break;
       case VTK_PARSE_BOOL:
-        vtkWrapPython_AddToSignature(result,"bool",&currPos);
+        vtkWPString_Append(result, "bool");
         break;
       case VTK_PARSE_STRING:
-        vtkWrapPython_AddToSignature(result,"string",&currPos);
+        vtkWPString_Append(result, "string");
         break;
       case VTK_PARSE_UNICODE_STRING:
-        vtkWrapPython_AddToSignature(result,"unicode",&currPos);
+        vtkWPString_Append(result, "unicode");
         break;
 
       }
@@ -1272,11 +1484,11 @@ static const char *vtkWrapPython_PythonSignature(
 
   if (currentFunction->Signature)
     {
-    vtkWrapPython_AddToSignature(result,"\nC++: ",&currPos);
-    vtkWrapPython_AddToSignature(result,currentFunction->Signature,&currPos);
+    vtkWPString_Append(result, "\nC++: ");
+    vtkWPString_Append(result, currentFunction->Signature);
     }
 
-  return result;
+  return result->str;
 }
 
 /* -------------------------------------------------------------------- */
@@ -1284,49 +1496,51 @@ static const char *vtkWrapPython_PythonSignature(
 const char *vtkWrapPython_FormatSignature(
   const char *signature, size_t width)
 {
-  static char text[2048];
-  size_t i, j, k, l, m;
+  static struct vtkWPString staticString = { NULL, 0, 0 };
+  struct vtkWPString *text;
+  size_t i, j;
   const char *cp = signature;
   char delim;
 
+  text = &staticString;
+  text->len = 0;
+
   if (signature == 0)
     {
-    text[0] = '\0';
-    return text;
+    return "";
     }
 
   i = 0;
   j = 0;
-  k = 0;
 
   while (cp[i] != '\0')
     {
-    while (k-j < width && cp[i] != '\n' && cp[i] != '\0')
+    while (text->len - j < width && cp[i] != '\n' && cp[i] != '\0')
       {
       /* escape quotes */
       if (cp[i] == '\"' || cp[i] == '\'')
         {
         delim = cp[i];
-        text[k++] = '\\';
-        text[k++] = cp[i++];
+        vtkWPString_PushChar(text, '\\');
+        vtkWPString_PushChar(text, cp[i++]);
         while (cp[i] != delim && cp[i] != '\0')
           {
           if (cp[i] == '\\')
             {
-            text[k++] = '\\';
+            vtkWPString_PushChar(text, '\\');
             }
-          text[k++] = cp[i++];
+          vtkWPString_PushChar(text, cp[i++]);
           }
         if (cp[i] == delim)
           {
-          text[k++] = '\\';
-          text[k++] = cp[i++];
+          vtkWPString_PushChar(text, '\\');
+          vtkWPString_PushChar(text, cp[i++]);
           }
         }
       /* remove items that trail the closing parenthesis */
       else if (cp[i] == ')')
         {
-        text[k++] = cp[i++];
+        vtkWPString_PushChar(text, cp[i++]);
         if (strncmp(&cp[i], " const", 6) == 0)
           {
           i += 6;
@@ -1343,85 +1557,33 @@ const char *vtkWrapPython_FormatSignature(
       /* anything else */
       else
         {
-        text[k++] = cp[i++];
+        vtkWPString_PushChar(text, cp[i++]);
         }
       }
 
     /* break the line (try to break after a comma) */
     if (cp[i] != '\n' && cp[i] != '\0')
       {
-      l = k;
-
-      while (l > j && text[l-1] != '\n' && text[l-1] != ',' &&
-        text[l-1] != '(' && text[l-1] != ')')
-        {
-        /* treat each string as a unit */
-        if (l > 4 && (text[l-1] == '\'' || text[l-1] == '\"'))
-          {
-          delim = text[l-1];
-          l -= 2;
-          while (l > 3 && (text[l-1] != delim || text[l-3] == '\\'))
-            {
-            l--;
-            if (text[l-1] == '\\')
-              {
-              l--;
-              }
-            }
-          l -= 2;
-          }
-        else
-          {
-          l--;
-          }
-        }
-
-      /* if none of these chars was found, split is impossible */
-      if (text[l-1] != ',' && text[l-1] != '(' &&
-          text[l-1] != ')' && text[l-1] != '\n')
-        {
-        j++;
-        }
-
-      else
-        {
-        if (k > l)
-          {
-          m = 0;
-          while (m < 6 && text[l+m] == ' ')
-            {
-            m++;
-            }
-          memmove(&text[l+6-m], &text[l], k-l);
-          k += 6-m;
-          }
-        else
-          {
-          k += 6;
-          }
-        text[l++] = '\\'; text[l++] = 'n';
-        j = l;
-        text[l++] = ' '; text[l++] = ' ';
-        text[l++] = ' '; text[l++] = ' ';
-        }
+      vtkWPString_BreakSignatureLine(text, &j, 4);
       }
     /* reached end of line: do next signature */
     else
       {
-      while (k > 0 && (text[k-1] == ' ' || text[k-1] == '\r')) { k--; }
+      vtkWPString_Strip(text, " \r\t");
       if (cp[i] != '\0')
         {
         i++;
-        text[k++] = '\\'; text[k++] = 'n';
+        vtkWPString_PushChar(text, '\\');
+        vtkWPString_PushChar(text, 'n');
         }
-      j = k;
+      /* mark the position of the start of the line */
+      j = text->len;
       }
     }
 
-  while (k > 0 && (text[k-1] == ' ' || text[k-1] == '\r')) { k--; }
-  text[k] = '\0';
+  vtkWPString_Strip(text, " \r\t");
 
-  return text;
+  return text->str;
 }
 
 /* -------------------------------------------------------------------- */
@@ -1435,64 +1597,86 @@ const char *vtkWrapPython_FormatSignature(
 const char *vtkWrapPython_FormatComment(
   const char *comment, size_t width)
 {
-  static size_t size = 0;
-  static char *text = 0;
+  static struct vtkWPString staticString = { NULL, 0, 0 };
+  struct vtkWPString *text;
   const char *cp;
-  size_t i, j, k, l;
+  size_t i, j, l;
   size_t indent = 0;
   int nojoin = 0;
   int start;
 
-  if (text == 0)
-    {
-    size = 2048;
-    text = (char *)malloc(size);
-    }
+  text = &staticString;
+  text->len = 0;
 
   if (comment == 0)
     {
-    text[0] = '\0';
-    return text;
+    return "";
     }
 
-  i = 0; j = 0; k = 0; l = 0;
+  i = 0; j = 0; l = 0;
   start = 1;
   cp = comment;
 
   /* skip any leading whitespace */
   while (cp[i] == '\n' || cp[i] == '\r' ||
-         cp[i] == '\t' || cp[i] == ' ') { i++; }
+         cp[i] == '\t' || cp[i] == ' ')
+    {
+    i++;
+    }
 
   while (cp[i] != '\0')
     {
     /* Add characters until the output line is complete */
-    while (cp[i] != '\0' && k-j < width)
+    while (cp[i] != '\0' && text->len-j < width)
       {
       /* if the end of the line was found, see how next line begins */
       if (start)
         {
         /* eat the leading space */
-        if (cp[i] == ' ') { i++; }
+        if (cp[i] == ' ')
+          {
+          i++;
+          }
 
         /* skip ahead to find any interesting first characters */
         l = i;
-        while (cp[l] == ' ' || cp[l] == '\t' || cp[l] == '\r') { l++; }
+        while (cp[l] == ' ' || cp[l] == '\t' || cp[l] == '\r')
+          {
+          l++;
+          }
 
         /* check for new section */
         if (cp[l] == '.' && strncmp(&cp[l], ".SECTION", 8) == 0)
           {
-          while (k > 0 && text[k-1] == '\n') { k--; }
-          if (k > 0) { text[k++] = '\n'; text[k++] = '\n'; }
+          vtkWPString_Strip(text, "\n");
+          if (text->len > 0)
+            {
+            vtkWPString_PushChar(text, '\n');
+            vtkWPString_PushChar(text, '\n');
+            }
           i = l+8;
-          while (cp[i] == '\r' || cp[i] == '\t' || cp[i] == ' ') { i++; }
-          while (cp[i] != '\n' && cp[i] != '\0') { text[k++] = cp[i++]; }
-          while (k > 0 && (text[k-1] == ' ' || text[k-1] == '\r' ||
-                           text[k-1] == '\t')) { k--; }
-          if (k > 0 && text[k-1] != ':') { text[k++] = ':'; }
-          text[k++] = '\n'; text[k++] = '\n';
-          j = k;
+          while (cp[i] == '\r' || cp[i] == '\t' || cp[i] == ' ')
+            {
+            i++;
+            }
+          while (cp[i] != '\n' && cp[i] != '\0')
+            {
+            vtkWPString_PushChar(text, cp[i++]);
+            }
+          vtkWPString_Strip(text, " \t\r");
+
+          if (vtkWPString_LastChar(text) != ':')
+            {
+            vtkWPString_PushChar(text, ':');
+            }
+          vtkWPString_PushChar(text, '\n');
+          vtkWPString_PushChar(text, '\n');
+          j = text->len;
           indent = 0;
-          if (cp[i] == '\n') { i++; }
+          if (cp[i] == '\n')
+            {
+            i++;
+            }
           start = 1;
           continue;
           }
@@ -1513,8 +1697,11 @@ const char *vtkWrapPython_FormatComment(
             {
             nojoin = 2;
             indent = 4;
-            if (k > 0 && text[k-1] != '\n') { text[k++] = '\n'; }
-            j = k;
+            if (text->len > 0 && vtkWPString_LastChar(text) != '\n')
+              {
+              vtkWPString_PushChar(text, '\n');
+              }
+            j = text->len;
             i = l;
             }
           }
@@ -1525,10 +1712,16 @@ const char *vtkWrapPython_FormatComment(
                   (cp[l+1] == ')' || cp[l+1] == '.') && cp[l+2] == ' '))
           {
           indent = 0;
-          while (indent < 3 && cp[l+indent] != ' ') { indent++; }
+          while (indent < 3 && cp[l+indent] != ' ')
+            {
+            indent++;
+            }
           indent++;
-          if (k > 0 && text[k-1] != '\n') { text[k++] = '\n'; }
-          j = k;
+          if (text->len > 0 && vtkWPString_LastChar(text) != '\n')
+            {
+            vtkWPString_PushChar(text, '\n');
+            }
+          j = text->len;
           i = l;
           }
 
@@ -1536,11 +1729,15 @@ const char *vtkWrapPython_FormatComment(
         else if (cp[l] == '\n')
           {
           i = l+1;
-          while (k > 0 && text[k-1] == '\n') { k--; }
-          if (k > 0) { text[k++] = '\n'; text[k++] = '\n'; }
+          vtkWPString_Strip(text, "\n");
+          if (text->len > 0)
+            {
+            vtkWPString_PushChar(text, '\n');
+            vtkWPString_PushChar(text, '\n');
+            }
           nojoin = 0;
           indent = 0;
-          j = k;
+          j = text->len;
           start = 1;
           continue;
           }
@@ -1554,15 +1751,15 @@ const char *vtkWrapPython_FormatComment(
             nojoin = 0;
             indent = 0;
             }
-          text[k++] = '\n';
-          j = k;
+          vtkWPString_PushChar(text, '\n');
+          j = text->len;
           }
 
         /* do line joining */
-        else if (k > 0 && text[k-1] != '\n')
+        else if (text->len > 0 && vtkWPString_LastChar(text) != '\n')
           {
           i = l;
-          text[k++] = ' ';
+          vtkWPString_PushChar(text, ' ');
           }
         }
 
@@ -1570,35 +1767,39 @@ const char *vtkWrapPython_FormatComment(
       if (cp[i] == '\"')
         {
         size_t q = i;
-        size_t r = k;
+        size_t r = text->len;
 
-        text[k++] = cp[i++];
+        /* try to keep the quote whole */
+        vtkWPString_PushChar(text, cp[i++]);
         while (cp[i] != '\"' && cp[i] != '\r' &&
                cp[i] != '\n' && cp[i] != '\0')
           {
-          text[k++] = cp[i++];
+          vtkWPString_PushChar(text, cp[i++]);
           }
+        /* if line ended before quote did, then reset */
         if (cp[i] != '\"')
           {
           i = q;
-          k = r;
+          text->len = r;
           }
         }
       else if (cp[i] == '\'')
         {
         size_t q = i;
-        size_t r = k;
+        size_t r = text->len;
 
-        text[k++] = cp[i++];
+        /* try to keep the quote whole */
+        vtkWPString_PushChar(text, cp[i++]);
         while (cp[i] != '\'' && cp[i] != '\r' &&
                cp[i] != '\n' && cp[i] != '\0')
           {
-          text[k++] = cp[i++];
+          vtkWPString_PushChar(text, cp[i++]);
           }
+        /* if line ended before quote did, then reset */
         if (cp[i] != '\'')
           {
           i = q;
-          k = r;
+          text->len = r;
           }
         }
 
@@ -1615,13 +1816,17 @@ const char *vtkWrapPython_FormatComment(
               (cp[i+1] == 'b' && cp[i+2] == 'r') ||
               (cp[i+1] == 'B' && cp[i+2] == 'R'))
             {
-            while (k > 0 && (text[k-1] == ' ' || text[k-1] == '\n')) { k--; }
-            text[k++] = '\n'; text[k++] = '\n';
-            j = k;
+            vtkWPString_Strip(text, " \n");
+            vtkWPString_PushChar(text, '\n');
+            vtkWPString_PushChar(text, '\n');
+            j = text->len;
             indent = 0;
             }
           i = l+1;
-          while (cp[i] == '\r' || cp[i] == '\t' || cp[i] == ' ') { i++; }
+          while (cp[i] == '\r' || cp[i] == '\t' || cp[i] == ' ')
+            {
+            i++;
+            }
           }
         }
       else if (cp[i] == '\\' || cp[i] == '@')
@@ -1640,11 +1845,21 @@ const char *vtkWrapPython_FormatComment(
                  strncmp(&cp[i+1], "f[", 2) == 0 ||
                  strncmp(&cp[i+1], "f]", 2) == 0)
           {
-          if (i > 0 && cp[i-1] != ' ') { text[k++] = ' '; }
+          if (i > 0 && cp[i-1] != ' ')
+            {
+            vtkWPString_PushChar(text, ' ');
+            }
           if (cp[i+1] == 'f')
             {
-            if (cp[i+2] == '$') { text[k++] = '$'; }
-            else { text[k++] = '\\'; text[k++] = cp[i+2]; }
+            if (cp[i+2] == '$')
+              {
+              vtkWPString_PushChar(text, '$');
+              }
+            else
+              {
+              vtkWPString_PushChar(text, '\\');
+              vtkWPString_PushChar(text, cp[i+2]);
+              }
             }
           i += 3;
           }
@@ -1656,30 +1871,37 @@ const char *vtkWrapPython_FormatComment(
           }
         else if (cp[i+1] == 'n')
           {
-          while (k > 0 && (text[k-1] == ' ' || text[k-1] == '\n')) { k--; }
-          text[k++] = '\n'; text[k++] = '\n';
+          vtkWPString_Strip(text, " \n");
+          vtkWPString_PushChar(text, '\n');
+          vtkWPString_PushChar(text, '\n');
           indent = 0;
           i += 2;
-          j = k;
+          j = text->len;
           }
         else if (strncmp(&cp[i+1], "code", 4) == 0)
           {
           nojoin = 1;
           i += 5;
           while (cp[i] == ' ' || cp[i] == '\r' ||
-                 cp[i] == '\t' || cp[i] == '\n') { i++; }
+                 cp[i] == '\t' || cp[i] == '\n')
+            {
+            i++;
+            }
           }
         else if (strncmp(&cp[i+1], "endcode", 7) == 0)
           {
           nojoin = 0;
           i += 8;
           l = i;
-          while (cp[l] == ' ' || cp[l] == '\t' || cp[l] == '\r') { l++; }
+          while (cp[l] == ' ' || cp[l] == '\t' || cp[l] == '\r')
+            {
+            l++;
+            }
           if (cp[l] == '\n')
             {
             i = l;
-            text[k++] = '\n';
-            j = k;
+            vtkWPString_PushChar(text, '\n');
+            j = text->len;
             }
           }
         else if (strncmp(&cp[i+1], "verbatim", 8) == 0)
@@ -1688,23 +1910,30 @@ const char *vtkWrapPython_FormatComment(
           while (cp[i] != '\0' && ((cp[i] != '@' && cp[i] != '\\') ||
                  strncmp(&cp[i+1], "endverbatim", 11) != 0))
             {
-            if (cp[i] != '\r') { text[k++] = cp[i]; };
-            if (cp[i] == '\n') { j = k; }
-            i++;
-            if (size - k < 1024)
+            if (cp[i] != '\r')
               {
-              size *= 2;
-              text = (char *)realloc(text, size);
+              vtkWPString_PushChar(text, cp[i]);
               }
+            if (cp[i] == '\n')
+              {
+              j = text->len;
+              }
+            i++;
             }
-          if (cp[i] != '\0') { i += 12; }
+          if (cp[i] != '\0')
+            {
+            i += 12;
+            }
           }
         }
 
       /* search for newline */
       start = 0;
       l = i;
-      while (cp[l] == ' ' || cp[l] == '\t' || cp[l] == '\r') { l++; }
+      while (cp[l] == ' ' || cp[l] == '\t' || cp[l] == '\r')
+        {
+        l++;
+        }
       if (cp[l] == '\n')
         {
         i = l+1;
@@ -1714,57 +1943,24 @@ const char *vtkWrapPython_FormatComment(
       /* append */
       else if (cp[i] != '\0')
         {
-        text[k++] = cp[i++];
+        vtkWPString_PushChar(text, cp[i++]);
         }
 
-      /* resize if there is not much space left */
-      if (size - k < 1024)
-        {
-        size *= 2;
-        text = (char *)realloc(text, size);
-        }
+      } /* while (cp[i] != '\0' && text->len-j < width) */
 
-      } /* while (cp[i] != '\0' && k-j < width) */
-
-    if (cp[i] == '\0') { break; }
-
-    /* try to break the line at a word */
-    l = k;
-    while (l > 0 && text[l-1] != ' ' && text[l-1] != '\n')
+    if (cp[i] == '\0')
       {
-      l--;
+      break;
       }
-    if (l > 0 && text[l-1] != '\n' && l-j > indent)
-      {
-      /* replace space with newline */
-      text[l-1] = '\n';
-      j = l;
-      if (k > l && indent > 0)
-        {
-        memmove(&text[l+indent], &text[l], k-l);
-        memset(&text[l], ' ', indent);
-        k += indent;
-        }
-      }
-    else
-      {
-      /* long word, just split the word */
-      text[k++] = '\n';
-      j = k;
-      if (indent > 0)
-        {
-        memset(&text[k], ' ', indent);
-        k += indent;
-        }
-      }
+
+    vtkWPString_BreakCommentLine(text, &j, indent);
     }
 
   /* remove any trailing blank lines */
-  while (k > 0 && text[k-1] == '\n') { k--; }
-  text[k++] = '\n';
-  text[k] = '\0';
+  vtkWPString_Strip(text, "\n");
+  vtkWPString_PushChar(text, '\n');
 
-  return text;
+  return text->str;
 }
 
 /* -------------------------------------------------------------------- */
@@ -1956,7 +2152,7 @@ static void vtkWrapPython_GenerateMethods(
   char signatureSuffix[8];
   int all_legacy, all_static;
   int numberOfWrappedFunctions = 0;
-  FunctionInfo *wrappedFunctions[1000];
+  FunctionInfo **wrappedFunctions;
   FunctionInfo *theSignature;
   FunctionInfo *theFunc;
   const char *ccp;
@@ -1965,6 +2161,9 @@ static void vtkWrapPython_GenerateMethods(
   int potential_error = 0;
   int needs_cleanup = 0;
   char on_error[32];
+
+  wrappedFunctions = (FunctionInfo **)malloc(
+    data->NumberOfFunctions*sizeof(FunctionInfo *));
 
   /* output any custom methods */
   vtkWrapPython_CustomMethods(fp, data, do_constructors);
@@ -2671,6 +2870,7 @@ static void vtkWrapPython_GenerateMethods(
   /* the method table for constructors is produced elsewhere */
   if (do_constructors)
     {
+    free(wrappedFunctions);
     return;
     }
 
@@ -2735,6 +2935,8 @@ static void vtkWrapPython_GenerateMethods(
           "  {NULL,                       NULL, 0, NULL}\n"
           "};\n"
           "\n");
+
+  free(wrappedFunctions);
 }
 
 /* -------------------------------------------------------------------- */
@@ -3097,14 +3299,15 @@ static void vtkWrapPython_ClassDoc(
 static void vtkWrapPython_GenerateSpecialHeaders(
   FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
 {
-#define MAX_PYTHON_TYPES 1024
-  const char *types[MAX_PYTHON_TYPES];
+  const char **types;
   int numTypes = 0;
   FunctionInfo *currentFunction;
   int i, j, k, n, m;
   unsigned int aType;
   const char *classname;
   const char *ownincfile = "";
+
+  types = (const char **)malloc(1000*sizeof(const char *));
 
   n = data->NumberOfFunctions;
   for (i = 0; i < n; i++)
@@ -3157,11 +3360,10 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 
           if (k == numTypes)
             {
-            if (k+1 >= MAX_PYTHON_TYPES)
+            if (numTypes > 0 && (numTypes % 1000) == 0)
               {
-              fprintf(stderr, "vtkWrapPython -- too many types used in file"
-                              ", increase MAX_PYTHON_TYPES\n");
-              exit(1);
+              types = (const char **)realloc(types,
+                (numTypes + 1000)*sizeof(const char *));
               }
             types[numTypes++] = classname;
             }
@@ -3227,6 +3429,8 @@ static void vtkWrapPython_GenerateSpecialHeaders(
         }
       }
     }
+
+  free(types);
 }
 
 /* -------------------------------------------------------------------- */
@@ -3790,4 +3994,3 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
             "\n");
     }
 }
-
