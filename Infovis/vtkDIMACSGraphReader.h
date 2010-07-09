@@ -36,7 +36,7 @@
 #define _vtkDIMACSGraphReader_h
 
 #include "vtkGraphAlgorithm.h"
-#include "vtkStdString.h"
+#include "vtkStdString.h" // For string API
 
 class VTK_INFOVIS_EXPORT vtkDIMACSGraphReader : public vtkGraphAlgorithm
 {
@@ -44,7 +44,7 @@ class VTK_INFOVIS_EXPORT vtkDIMACSGraphReader : public vtkGraphAlgorithm
 public:
 
   static vtkDIMACSGraphReader *New();
-  vtkTypeRevisionMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
+  vtkTypeMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

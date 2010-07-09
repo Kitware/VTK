@@ -31,7 +31,6 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkDIMACSGraphWriter, "$Revision: 11068 $");
 vtkStandardNewMacro(vtkDIMACSGraphWriter);
 
 void vtkDIMACSGraphWriter::WriteData()

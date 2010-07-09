@@ -42,7 +42,7 @@ class VTK_INFOVIS_EXPORT vtkDIMACSGraphWriter : public vtkDataWriter
 {
 public:
   static vtkDIMACSGraphWriter *New();
-  vtkTypeRevisionMacro(vtkDIMACSGraphWriter,vtkDataWriter);
+  vtkTypeMacro(vtkDIMACSGraphWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

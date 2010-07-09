@@ -43,7 +43,6 @@ using vtksys_ios::istringstream;
 
 typedef enum problemTypes { GENERIC, COLORING, MAXFLOW } problemTypes;
 
-vtkCxxRevisionMacro(vtkDIMACSGraphReader, "$Revision: 18258 $");
 vtkStandardNewMacro(vtkDIMACSGraphReader);
 
 vtkDIMACSGraphReader::vtkDIMACSGraphReader()
