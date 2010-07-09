@@ -654,3 +654,175 @@ vtkObserverMediator *vtkRenderWindowInteractor::GetObserverMediator()
 
   return this->ObserverMediator;
 }
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::MouseMoveEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::RightButtonPressEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::RightButtonReleaseEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::LeftButtonPressEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::LeftButtonReleaseEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::MiddleButtonPressEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::MiddleButtonReleaseEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::MouseWheelForwardEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::MouseWheelBackwardEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::ExposeEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::ExposeEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::ConfigureEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::EnterEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::EnterEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::LeaveEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::LeaveEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::KeyPressEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::KeyReleaseEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::CharEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::CharEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::ExitEvent()
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+}
+
+
