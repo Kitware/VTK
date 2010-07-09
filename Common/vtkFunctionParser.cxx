@@ -2133,6 +2133,7 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
     case VTK_PARSER_HYPERBOLIC_COSINE:
     case VTK_PARSER_HYPERBOLIC_TANGENT:
     case VTK_PARSER_NORMALIZE:
+    case VTK_PARSER_SIGN:
       return 4;
     case VTK_PARSER_FLOOR:
     case VTK_PARSER_LOGARITHM10:
