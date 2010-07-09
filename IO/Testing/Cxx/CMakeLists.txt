@@ -161,15 +161,25 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 IF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
   ADD_TEST(TestPostgreSQLDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestPostgreSQLDatabase)
   IF (VTK_DATA_ROOT)
-    ADD_TEST(TestPostgreSQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
-      TestPostgreSQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+    IF (WIN32)
+      ADD_TEST(TestPostgreSQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+        TestPostgreSQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table_win.vtk)
+    ELSE (WIN32)
+      ADD_TEST(TestPostgreSQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+        TestPostgreSQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+    ENDIF (WIN32)
   ENDIF (VTK_DATA_ROOT)
 ENDIF(VTK_USE_POSTGRES AND VTK_PSQL_TEST_URL)
 IF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
   ADD_TEST(TestMySQLDatabase ${CXX_TEST_PATH}/${KIT}CxxTests TestMySQLDatabase)
   IF (VTK_DATA_ROOT)
-    ADD_TEST(TestMySQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
-      TestMySQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+    IF (WIN32)
+      ADD_TEST(TestMySQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+        TestMySQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table_win.vtk)
+    ELSE (WIN32)
+      ADD_TEST(TestMySQLTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+        TestMySQLTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+    ENDIF (WIN32)
   ENDIF (VTK_DATA_ROOT)
 ENDIF(VTK_USE_MYSQL AND VTK_MYSQL_TEST_URL)
 IF(VTK_USE_OGGTHEORA_ENCODER)
