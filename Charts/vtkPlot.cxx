@@ -58,11 +58,6 @@ vtkPlot::~vtkPlot()
     this->Brush->Delete();
     this->Brush = NULL;
     }
-  if (this->Labels)
-    {
-    this->Labels->Delete();
-    this->Labels = NULL;
-    }
   if (this->Data)
     {
     this->Data->Delete();
