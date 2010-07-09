@@ -99,8 +99,14 @@ IF (VTK_DATA_ROOT)
     ${VTK_DATA_ROOT}/Data/sample.xml)
   ADD_TEST(TestImageReader2Factory ${CXX_TEST_PATH}/${KIT}CxxTests TestImageReader2Factory
     ${VTK_DATA_ROOT}/Baseline/${KIT}/TestHyperOctreeIO.png)
-  ADD_TEST(TestSQLiteTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
-    TestSQLiteTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+  IF (WIN32)
+    ADD_TEST(TestSQLiteTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+      TestSQLiteTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table_win.vtk)
+  ELSE (WIN32)
+    ADD_TEST(TestSQLiteTableReadWrite ${CXX_TEST_PATH}/${KIT}CxxTests
+      TestSQLiteTableReadWrite ${VTK_DATA_ROOT}/Baseline/IO/simple_table.vtk)
+  ENDIF (WIN32)
+
   IF(VTK_USE_METAIO)
     ADD_TEST(TestMetaIO ${CXX_TEST_PATH}/${KIT}CxxTests TestMetaIO
       ${VTK_DATA_ROOT}/Data/HeadMRVolume.mhd)
