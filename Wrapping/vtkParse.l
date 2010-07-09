@@ -73,9 +73,9 @@ static int skip_ahead_until(const char *text);
      };
 
 ^[\t ]*"//BTX".*$ {
-#ifndef VTK_IGNORE_BTX
+       if (!IgnoreBTX) {
          skip_ahead_until("//ETX");
-#endif
+       }
      };
 
 ^[\t ]*"//ETX".*$ ;

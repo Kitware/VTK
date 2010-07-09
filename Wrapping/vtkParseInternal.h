@@ -51,7 +51,7 @@ extern "C" {
  */
 void vtkParse_AddPointerToArray(void *valueArray, int *count, void *value);
 
-/***
+/**
  * Initializer methods
  */
 /*@{*/
@@ -64,6 +64,11 @@ void vtkParse_InitEnum(EnumInfo *item);
 void vtkParse_InitTemplateArgs(TemplateArgs *arg);
 void vtkParse_InitTemplateArg(TemplateArg *arg);
 /*@}*/
+
+/**
+ * Ignore BTX/ETX markers
+ */
+void vtkParse_SetIgnoreBTX(int option);
 
 #ifdef __cplusplus
 } /* extern "C" */

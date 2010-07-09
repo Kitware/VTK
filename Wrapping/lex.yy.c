@@ -2457,9 +2457,9 @@ YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
 #line 75 "vtkParse.l"
 {
-#ifndef VTK_IGNORE_BTX
+       if (!IgnoreBTX) {
          skip_ahead_until("//ETX");
-#endif
+       }
      };
         YY_BREAK
 case 3:

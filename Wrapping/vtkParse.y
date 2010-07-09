@@ -133,6 +133,7 @@ parse_access_t access_level = VTK_ACCESS_PUBLIC;
 int            HaveComment;
 char           CommentText[50000];
 int            CommentState;
+int            IgnoreBTX = 0;
 
 /* helper functions */
 void start_class(const char *classname, int is_struct);
@@ -157,7 +158,6 @@ void handle_complex_type(ValueInfo *val, unsigned int datatype,
                          unsigned int extra, const char *funcSig);
 void handle_function_type(ValueInfo *arg, const char *name,
                           const char *funcSig);
-
 void outputSetVectorMacro(const char *var, unsigned int argType,
                           const char *typeText, int n);
 void outputGetVectorMacro(const char *var, unsigned int argType,
@@ -3191,6 +3191,19 @@ void vtkParse_AddPointerToArray(
   values[n++] = value;
   *count = n;
   *(void ***)valueArray = values;
+}
+
+/* Set a flag to ignore BTX/ETX markers in the files */
+void vtkParse_SetIgnoreBTX(int option)
+{
+  if (option)
+    {
+    IgnoreBTX = 1;
+    }
+  else
+    {
+    IgnoreBTX = 0;
+    }
 }
 
 /* Parse a header file and return a FileInfo struct */
