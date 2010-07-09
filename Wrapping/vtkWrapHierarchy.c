@@ -34,6 +34,7 @@
 */
 
 #include "vtkParse.h"
+#include "vtkParseInternal.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -94,6 +95,12 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
     lines = (char **)malloc(sizeof(char *));
     lines[0] = NULL;
     }
+
+#ifdef VTK_IGNORE_BTX
+  vtkParse_SetIgnoreBTX(1);
+#else
+  vtkParse_SetIgnoreBTX(0);
+#endif
 
   /* the "concrete" flag doesn't matter, just set to zero */
   data = vtkParse_ParseFile(filename, fp, stderr);
