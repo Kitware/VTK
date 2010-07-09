@@ -1365,9 +1365,11 @@ static const char *vtkWrapPython_PythonSignature(
         vtkWPString_Append(result, "bool");
         break;
       case VTK_PARSE_STRING:
+      case VTK_PARSE_STRING_REF:
         vtkWPString_Append(result, "string");
         break;
       case VTK_PARSE_UNICODE_STRING:
+      case VTK_PARSE_UNICODE_STRING_REF:
         vtkWPString_Append(result, "unicode");
         break;
       }
