@@ -33,6 +33,7 @@ IF(PYTHON_EXECUTABLE)
     vtkArrayWeights.h
     vtkAssemblyPaths.h
     vtkBoundingBox.h
+    vtkBreakPoint.h
     vtkByteSwap.h
     vtkCallbackCommand.h
     vtkCommand.h
