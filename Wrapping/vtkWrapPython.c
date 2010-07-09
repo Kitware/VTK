@@ -3364,7 +3364,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
             {
             if (numTypes > 0 && (numTypes % 1000) == 0)
               {
-              types = (const char **)realloc(types,
+              types = (const char **)realloc((char **)types,
                 (numTypes + 1000)*sizeof(const char *));
               }
             types[numTypes++] = classname;
@@ -3432,7 +3432,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
       }
     }
 
-  free(types);
+  free((char **)types);
 }
 
 /* -------------------------------------------------------------------- */
