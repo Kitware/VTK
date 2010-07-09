@@ -25,7 +25,7 @@ void vtkBreakPoint::Break()
   int i=0;
   char hostname[256];
   gethostname(hostname,sizeof(hostname));
-  cout << "PID" << getpid() << " on " << hostname << " ready for attach"
+  cout << "PID " << getpid() << " on " << hostname << " ready for attach"
        << endl;
   while(i==0)
     {
