@@ -546,8 +546,12 @@ void vtkRenderView::Render()
   // to create context if it is not yet created and to make it current
   // this is required for HoverWidget to be active after the first
   // render.
-  this->RenderWindow->GetInteractor()->Initialize();
-  
+  // If using the TestingInteractor, skip the Initialize()
+  if (strcmp(this->RenderWindow->GetInteractor()->GetClassName(),
+             "vtkTestingInteractor") != 0)
+    {
+    this->RenderWindow->GetInteractor()->Initialize();
+    }
   this->Update();
   this->PrepareForRendering();
   this->Renderer->ResetCameraClippingRange();
