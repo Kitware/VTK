@@ -160,6 +160,31 @@ void vtkChartXY::Update()
     {
     this->Legend->Update();
     }
+
+  // Update the selections if necessary.
+  if (this->AnnotationLink)
+    {
+    this->AnnotationLink->Update();
+    vtkSelection *selection =
+        vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
+    if (selection->GetNumberOfNodes())
+      {
+      vtkSelectionNode *node = selection->GetNode(0);
+      vtkIdTypeArray *idArray =
+          vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      // Now iterate through the plots to update selection data
+      vtkstd::vector<vtkPlot*>::iterator it =
+          this->ChartPrivate->plots.begin();
+      for ( ; it != this->ChartPrivate->plots.end(); ++it)
+        {
+        (*it)->SetSelection(idArray);
+        }
+      }
+    }
+  else
+    {
+    vtkDebugMacro("No annotation link set.");
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -289,23 +314,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkChartXY::RenderPlots(vtkContext2D *painter)
 {
-  vtkIdTypeArray *idArray = 0;
-  if (this->AnnotationLink)
-    {
-    this->AnnotationLink->Update();
-    vtkSelection *selection =
-        vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
-    if (selection->GetNumberOfNodes())
-      {
-      vtkSelectionNode *node = selection->GetNode(0);
-      idArray = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-      }
-    }
-  else
-    {
-    vtkDebugMacro("No annotation link set.");
-    }
-
   // Clip drawing while plotting
   float clip[] = { this->Point1[0], this->Point1[1],
                  this->Point2[0]-this->Point1[0],
@@ -320,17 +328,6 @@ void vtkChartXY::RenderPlots(vtkContext2D *painter)
                   static_cast<int>(clip[2]),
                   static_cast<int>(clip[3]) };
   painter->GetDevice()->SetClipping(clipi);
-
-  // Now iterate through the plots to update selection data
-  if (idArray)
-    {
-    vtkstd::vector<vtkPlot*>::iterator it =
-        this->ChartPrivate->plots.begin();
-    for ( ; it != this->ChartPrivate->plots.end(); ++it)
-      {
-      (*it)->SetSelection(idArray);
-      }
-    }
 
   // Use the scene to paint the plots.
   this->PaintChildren(painter);
