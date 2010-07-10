@@ -63,6 +63,15 @@ public:
   bool Execute();
 
   // Description:
+  // Begin, commit, or roll back a transaction.
+  //
+  // Calling any of these methods will overwrite the current query text
+  // and call Execute() so any previous query text and results will be lost.
+  virtual bool BeginTransaction();
+  virtual bool CommitTransaction();
+  virtual bool RollbackTransaction();
+
+  // Description:
   // The number of fields in the query result.
   int GetNumberOfFields();
 
