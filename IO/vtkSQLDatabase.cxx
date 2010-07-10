@@ -587,6 +587,25 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
     queryStr += ")";
 
+    // Add options to the end of the CREATE TABLE statement
+    int numOpt = schema->GetNumberOfOptionsInTable( tblHandle );
+    if ( numOpt < 0 )
+      {
+      query->RollbackTransaction();
+      query->Delete();
+      return false;
+      }
+    for ( int optHandle = 0; optHandle < numOpt; ++ optHandle )
+      {
+      vtkStdString optBackend = schema->GetOptionBackendFromHandle( tblHandle, optHandle );
+      if ( strcmp( optBackend, VTK_SQL_ALLBACKENDS ) && strcmp( optBackend, this->GetClassName() ) )
+        {
+        continue;
+        }
+      queryStr += " ";
+      queryStr += schema->GetOptionTextFromHandle( tblHandle, optHandle );
+      }
+
     // Execute the CREATE TABLE query
     query->SetQuery( queryStr );
     if ( ! query->Execute() )

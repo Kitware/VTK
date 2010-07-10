@@ -34,12 +34,12 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // The subclass should also provide API to set connection parameters.
 //
-// This class also provides the function EffectSchema to transform a 
+// This class also provides the function EffectSchema to transform a
 // database schema into a SQL database.
 //
 // .SECTION Thanks
 // Thanks to Andrew Wilson from Sandia National Laboratories for his work
-// on the database classes and for the SQLite example. Thanks to David Thompson 
+// on the database classes and for the SQLite example. Thanks to David Thompson
 // and Philippe Pebay from Sandia National Laboratories for implementing
 // this class.
 //
@@ -61,7 +61,7 @@ class vtkStringArray;
 
 // This is a list of features that each database may or may not
 // support.  As yet (April 2008) we don't provide access to most of
-// them.  
+// them.
 #define VTK_SQL_FEATURE_TRANSACTIONS            1000
 #define VTK_SQL_FEATURE_QUERY_SIZE              1001
 #define VTK_SQL_FEATURE_BLOB                    1002
@@ -73,7 +73,7 @@ class vtkStringArray;
 #define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
 #define VTK_SQL_FEATURE_TRIGGERS                1009 // supported
 
-// Default size for columns types which require a size to be specified 
+// Default size for columns types which require a size to be specified
 // (i.e., VARCHAR), when no size has been specified
 #define VTK_SQL_DEFAULT_COLUMN_SIZE 32
 
@@ -93,7 +93,7 @@ public:
   // Description:
   // Close the connection to the database.
   virtual void Close() = 0;
-  
+
   // Description:
   // Return whether the database has an open connection.
   virtual bool IsOpen() = 0;
@@ -101,11 +101,11 @@ public:
   // Description:
   // Return an empty query on this database.
   virtual vtkSQLQuery* GetQueryInstance() = 0;
-  
+
   // Description:
   // Did the last operation generate an error
   virtual bool HasError() = 0;
-  
+
   // Description:
   // Get the last error text from the database
   // I'm using const so that people do NOT
@@ -113,15 +113,15 @@ public:
   // implementation, because 99% of the time that
   // will not be the correct thing to do...
   virtual const char* GetLastErrorText() = 0;
-  
+
   // Description:
   // Get the type of the database (e.g. mysql, psql,..).
   virtual char* GetDatabaseType() = 0;
-  
+
   // Description:
   // Get the list of tables from the database.
   virtual vtkStringArray* GetTables() = 0;
-    
+
   // Description:
   // Get the list of fields for a particular table.
   virtual vtkStringArray* GetRecord(const char *table) = 0;
@@ -129,7 +129,7 @@ public:
   // Description:
   // Return whether a feature is supported by the database.
   virtual bool IsSupported(int vtkNotUsed(feature)) { return false; }
-  
+
   // Description:
   // Get the URL of the database.
   virtual vtkStdString GetURL() = 0;
@@ -141,34 +141,34 @@ public:
   // It must be overwritten for those SQL backends which allow such
   // preambles such as, e.g., MySQL.
   virtual vtkStdString GetTablePreamble( bool ) { return vtkStdString(); }
- 
+
   // Description:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
   // NB: this method implements the following minimally-portable syntax:
   // <column name> <column type> <column attributes>
-  // It must be overwritten for those SQL backends which have a different 
+  // It must be overwritten for those SQL backends which have a different
   // syntax such as, e.g., MySQL.
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
- 
+
   // Description:
   // Return the SQL string with the syntax to create an index inside a
   // "CREATE TABLE" SQL statement.
   // NB1: this method implements the following minimally-portable syntax:
   // <index type> [<index name>] (<column name 1>,... )
-  // It must be overwritten for those SQL backends which have a different 
+  // It must be overwritten for those SQL backends which have a different
   // syntax such as, e.g., MySQL.
   // NB2: this method does not assume that INDEX creation is supported
   // within a CREATE TABLE statement. Therefore, should such an INDEX arise
-  // in the schema, a CREATE INDEX statement is returned and skipped is 
+  // in the schema, a CREATE INDEX statement is returned and skipped is
   // set to true. Otherwise, skipped will always be returned false.
   virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                               int tblHandle,
                                               int idxHandle,
                                               bool& skipped );
- 
+
   // Description:
   // Return the SQL string with the syntax to create a trigger using a
   // "CREATE TRIGGER" SQL statement.
@@ -176,12 +176,12 @@ public:
   // a supported feature. Not all backends (e.g., SQLite) support it.
   // NB2: this method implements the following minimally-portable syntax:
   // <trigger name> {BEFORE | AFTER} <event> ON <table name> FOR EACH ROW <trigger action>
-  // It must be overwritten for those SQL backends which have a different 
+  // It must be overwritten for those SQL backends which have a different
   // syntax such as, e.g., PostgreSQL.
   virtual vtkStdString GetTriggerSpecification( vtkSQLDatabaseSchema* schema,
                                                 int tblHandle,
                                                 int trgHandle );
- 
+
   // Description:
   // Create a the proper subclass given a URL.
   // The URL format for SQL databases is a true URL of the form:
@@ -209,9 +209,9 @@ public:
   // Description:
   // Stores the database class pointer as an information key. This is currently
   // used to store database pointers as part of 'data on demand' data objects.
-  // For example: The application may have a table/tree/whatever of documents, 
-  // the data structure is storing the meta-data but not the full text. Further 
-  // down the pipeline algorithms or views may want to retrieve additional 
+  // For example: The application may have a table/tree/whatever of documents,
+  // the data structure is storing the meta-data but not the full text. Further
+  // down the pipeline algorithms or views may want to retrieve additional
   // information (full text)for specific documents.
   static vtkInformationObjectBaseKey* DATABASE();
 
@@ -219,7 +219,7 @@ public:
 protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
-  
+
   // Description:
   // Subclasses should override this method to determine connection paramters
   // given the URL. This is called by CreateFromURL() to initialize the instance.
