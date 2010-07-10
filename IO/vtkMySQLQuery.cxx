@@ -441,6 +441,9 @@ bool vtkMySQLQueryInternals::BindParametersToStatement()
 
 bool vtkMySQLQueryInternals::ValidPreparedStatementSQL(const char *query)
 {
+  if ( ! query )
+    return false;
+
   if (!LOWERCASE_COMPARE("call", query))
     {
     return true;
@@ -606,6 +609,25 @@ vtkMySQLQuery::Execute()
       return false;
       }
     }
+}
+
+// ----------------------------------------------------------------------
+bool vtkMySQLQuery::BeginTransaction()
+{
+  this->SetQuery( "START TRANSACTION" );
+  return this->Execute();
+}
+
+bool vtkMySQLQuery::CommitTransaction()
+{
+  this->SetQuery( "COMMIT" );
+  return this->Execute();
+}
+
+bool vtkMySQLQuery::RollbackTransaction()
+{
+  this->SetQuery( "ROLLBACK" );
+  return this->Execute();
 }
 
 // ----------------------------------------------------------------------
