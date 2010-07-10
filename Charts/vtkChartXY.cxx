@@ -23,6 +23,7 @@
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
+#include "vtkContextClip.h"
 #include "vtkPoints2D.h"
 #include "vtkVector.h"
 
@@ -68,12 +69,14 @@ public:
   vtkChartXYPrivate()
     {
     this->Colors = vtkSmartPointer<vtkColorSeries>::New();
+    this->Clip = vtkSmartPointer<vtkContextClip>::New();
     }
 
   vtkstd::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
   vtkstd::vector<vtkContextTransform *> PlotCorners; // Stored by corner...
   vtkstd::vector<vtkAxis *> axes; // Charts can contain multiple axes
   vtkSmartPointer<vtkColorSeries> Colors; // Colors in the chart
+  vtkSmartPointer<vtkContextClip> Clip; // Colors in the chart
 };
 
 //-----------------------------------------------------------------------------
@@ -83,12 +86,13 @@ vtkStandardNewMacro(vtkChartXY);
 vtkChartXY::vtkChartXY()
 {
   this->ChartPrivate = new vtkChartXYPrivate;
+  this->AddItem(this->ChartPrivate->Clip);
   // Set up the bottom-left transform, the rest are often not required (set up
   // on demand if used later). Add it as a child item, rendered automatically.
   vtkSmartPointer<vtkContextTransform> corner =
       vtkSmartPointer<vtkContextTransform>::New();
   this->ChartPrivate->PlotCorners.push_back(corner);
-  this->AddItem(corner); // Child list maintains ownership.
+  this->ChartPrivate->Clip->AddItem(corner); // Child list maintains ownership.
 
   this->Legend = vtkChartLegend::New();
   this->Legend->SetChart(this);
@@ -314,26 +318,12 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 void vtkChartXY::RenderPlots(vtkContext2D *painter)
 {
-  // Clip drawing while plotting
-  float clip[] = { this->Point1[0], this->Point1[1],
-                 this->Point2[0]-this->Point1[0],
-                 this->Point2[1]-this->Point1[1] };
-  // Check whether the scene has a transform - use it if so
-  if (this->Scene->HasTransform())
-    {
-    this->Scene->GetTransform()->InverseTransformPoints(clip, clip, 2);
-    }
-  int clipi[] = { static_cast<int>(clip[0]),
-                  static_cast<int>(clip[1]),
-                  static_cast<int>(clip[2]),
-                  static_cast<int>(clip[3]) };
-  painter->GetDevice()->SetClipping(clipi);
+  this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
+                                    this->Point2[0]-this->Point1[0],
+                                    this->Point2[1]-this->Point1[1]);
 
   // Use the scene to paint the plots.
   this->PaintChildren(painter);
-
-  // Stop clipping of the plot area and reset back to screen coordinates
-  painter->GetDevice()->DisableClipping();
 }
 
 //-----------------------------------------------------------------------------
@@ -560,7 +550,7 @@ void vtkChartXY::SetPlotCorner(vtkPlot *plot, int corner)
       vtkSmartPointer<vtkContextTransform> transform =
         vtkSmartPointer<vtkContextTransform>::New();
       this->ChartPrivate->PlotCorners.push_back(transform);
-      this->AddItem(transform); // Child list maintains ownership.
+      this->ChartPrivate->Clip->AddItem(transform); // Clip maintains ownership.
       }
     }
   this->ChartPrivate->PlotCorners[corner]->AddItem(plot);
