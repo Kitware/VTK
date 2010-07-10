@@ -219,10 +219,6 @@ private:
   vtkChartXYPrivate *ChartPrivate; // Private class where I hide my STL containers
 
   // Description:
-  // Private functions to render different parts of the chart
-  void RenderPlots(vtkContext2D *painter);
-
-  // Description:
   // Figure out the spacing between the bar chart plots, and their offsets.
   void CalculateBarPlots();
 

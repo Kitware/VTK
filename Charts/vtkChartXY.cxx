@@ -86,6 +86,12 @@ vtkStandardNewMacro(vtkChartXY);
 vtkChartXY::vtkChartXY()
 {
   this->ChartPrivate = new vtkChartXYPrivate;
+
+  // The grid is drawn first.
+  this->Grid = vtkPlotGrid::New();
+  this->AddItem(this->Grid);
+
+  // The plots are drawn on top of the grid, in a clipped, transformed area.
   this->AddItem(this->ChartPrivate->Clip);
   // Set up the bottom-left transform, the rest are often not required (set up
   // on demand if used later). Add it as a child item, rendered automatically.
@@ -94,13 +100,13 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate->PlotCorners.push_back(corner);
   this->ChartPrivate->Clip->AddItem(corner); // Child list maintains ownership.
 
-  this->Legend = vtkChartLegend::New();
-  this->Legend->SetChart(this);
+  // Next is the axes
   for (int i = 0; i < 4; ++i)
     {
     this->ChartPrivate->axes.push_back(vtkAxis::New());
     // By default just show the left and bottom axes
     this->ChartPrivate->axes.back()->SetVisible(i < 2 ? true : false);
+    this->AddItem(this->ChartPrivate->axes.back());
     }
   this->ChartPrivate->axes[vtkAxis::LEFT]->SetPosition(vtkAxis::LEFT);
   this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetPosition(vtkAxis::BOTTOM);
@@ -111,9 +117,14 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate->axes[vtkAxis::LEFT]->SetTitle("Y Axis");
   this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetTitle("X Axis");
 
-  this->Grid = vtkPlotGrid::New();
   this->Grid->SetXAxis(this->ChartPrivate->axes[1]);
   this->Grid->SetYAxis(this->ChartPrivate->axes[0]);
+
+  // Then the legend is drawn
+  this->Legend = vtkChartLegend::New();
+  this->Legend->SetChart(this);
+  this->Legend->SetVisible(false);
+  this->AddItem(this->Legend);
 
   this->PlotTransformValid = false;
 
@@ -160,10 +171,8 @@ void vtkChartXY::Update()
     {
     this->ChartPrivate->plots[i]->Update();
     }
-  if (this->ShowLegend)
-    {
-    this->Legend->Update();
-    }
+  this->Legend->Update();
+  this->Legend->SetVisible(this->ShowLegend);
 
   // Update the selections if necessary.
   if (this->AnnotationLink)
@@ -189,6 +198,8 @@ void vtkChartXY::Update()
     {
     vtkDebugMacro("No annotation link set.");
     }
+
+  this->CalculateBarPlots();
 }
 
 //-----------------------------------------------------------------------------
@@ -223,7 +234,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   this->Update();
 
   bool recalculateTransform = false;
-  this->CalculateBarPlots();
 
   if (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1] ||
       this->MTime > this->ChartPrivate->axes[0]->GetMTime())
@@ -251,6 +261,17 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     recalculateTransform = true;
     }
 
+  // Update the axes in the chart
+  for (int i = 0; i < 4; ++i)
+    {
+    this->ChartPrivate->axes[i]->Update();
+    }
+
+  // Update the clipping if necessary
+  this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
+                                    this->Point2[0]-this->Point1[0],
+                                    this->Point2[1]-this->Point1[1]);
+
   // Recalculate the plot transform, min and max values if necessary
   if (!this->PlotTransformValid)
     {
@@ -262,32 +283,8 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->RecalculatePlotTransforms();
     }
 
-  // Update the axes in the chart
-  for (int i = 0; i < 4; ++i)
-    {
-    this->ChartPrivate->axes[i]->Update();
-    }
-
-  // Draw the grid - the axes take care of its color and visibility
-  this->Grid->Paint(painter);
-
-  // Plot the series of the chart
-  this->RenderPlots(painter);
-
-  // Set the color and width, draw the axes, color and width push to axis props
-  painter->GetPen()->SetColorF(0.0, 0.0, 0.0, 1.0);
-  painter->GetPen()->SetWidth(1.0);
-
-  // Paint the axes in the chart
-  for (int i = 0; i < 4; ++i)
-    {
-    this->ChartPrivate->axes[i]->Paint(painter);
-    }
-
-  if (this->ShowLegend)
-    {
-    this->Legend->Paint(painter);
-    }
+  // Use the scene to render most of the chart.
+  this->PaintChildren(painter);
 
   // Draw the selection box if necessary
   if (this->DrawBox)
@@ -313,17 +310,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   this->Tooltip->Paint(painter);
 
   return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartXY::RenderPlots(vtkContext2D *painter)
-{
-  this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
-                                    this->Point2[0]-this->Point1[0],
-                                    this->Point2[1]-this->Point1[1]);
-
-  // Use the scene to paint the plots.
-  this->PaintChildren(painter);
 }
 
 //-----------------------------------------------------------------------------
