@@ -261,12 +261,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     recalculateTransform = true;
     }
 
-  // Update the axes in the chart
-  for (int i = 0; i < 4; ++i)
-    {
-    this->ChartPrivate->axes[i]->Update();
-    }
-
   // Update the clipping if necessary
   this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
                                     this->Point2[0]-this->Point1[0],
@@ -281,6 +275,12 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   else if (recalculateTransform)
     {
     this->RecalculatePlotTransforms();
+    }
+
+  // Update the axes in the chart
+  for (int i = 0; i < 4; ++i)
+    {
+    this->ChartPrivate->axes[i]->Update();
     }
 
   // Use the scene to render most of the chart.
