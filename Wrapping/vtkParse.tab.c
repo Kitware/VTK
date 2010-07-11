@@ -174,7 +174,7 @@ int yylex(void);
 FileInfo data;
 
 int            NumberOfConcreteClasses = 0;
-char         **ConcreteClasses;
+const char   **ConcreteClasses;
 
 NamespaceInfo *currentNamespace = NULL;
 ClassInfo     *currentClass = NULL;
@@ -861,8 +861,8 @@ void clearArray(void)
 /* add another dimension */
 void pushArraySize(const char *size)
 {
-  vtkParse_AddPointerToArray(&arrayDimensions, &numberOfDimensions,
-                             vtkstrdup(size));
+  vtkParse_AddStringToArray(&arrayDimensions, &numberOfDimensions,
+                            vtkstrdup(size));
 }
 
 /* add another dimension to the front */
@@ -870,7 +870,7 @@ void pushArrayFront(const char *size)
 {
   int i;
 
-  vtkParse_AddPointerToArray(&arrayDimensions, &numberOfDimensions, 0);
+  vtkParse_AddStringToArray(&arrayDimensions, &numberOfDimensions, 0);
 
   for (i = numberOfDimensions-1; i > 0; i--)
     {
@@ -8035,7 +8035,8 @@ void add_argument(FunctionInfo *func, unsigned int type,
     {
     arg->Count = count;
     sprintf(text, "%i", count);
-    vtkParse_AddItemMacro2(arg, Dimensions, vtkstrdup(text));
+    vtkParse_AddStringToArray(&arg->Dimensions, &arg->NumberOfDimensions,
+                              vtkstrdup(text));
     }
 
   func->ArgTypes[i] = arg->Type;
@@ -8063,7 +8064,8 @@ void set_return(FunctionInfo *func, unsigned int type,
     {
     val->Count = count;
     sprintf(text, "%i", count);
-    vtkParse_AddItemMacro2(val, Dimensions, vtkstrdup(text));
+    vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions,
+                              vtkstrdup(text));
     func->HaveHint = 1;
     }
 
@@ -8445,6 +8447,14 @@ void vtkParse_AddPointerToArray(
   *(void ***)valueArray = values;
 }
 
+/* Utility method to add a const char pointer to an array */
+void vtkParse_AddStringToArray(
+  const char ***valueArray, int *count, const char *value)
+{
+  vtkParse_AddPointerToArray((char ***)valueArray, count, (char *)value);
+}
+
+
 /* Set a flag to ignore BTX/ETX markers in the files */
 void vtkParse_SetIgnoreBTX(int option)
 {
@@ -8623,8 +8633,10 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
                   func_info->HintSize = h_value;
                   func_info->ReturnValue->Count = h_value;
                   sprintf(text, "%i", h_value);
-                  vtkParse_AddItemMacro2(func_info->ReturnValue,
-                                         Dimensions, vtkstrdup(text));
+                  vtkParse_AddStringToArray(
+                    &func_info->ReturnValue->Dimensions,
+                    &func_info->ReturnValue->NumberOfDimensions,
+                    vtkstrdup(text));
                   }
                 break;
                 }
@@ -8659,8 +8671,8 @@ void vtkParse_SetClassProperty(
        strcmp(property, "CONCRETE") == 0 ||
        strcmp(property, "Concrete") == 0)
      {
-     vtkParse_AddPointerToArray(&ConcreteClasses,
-                                &NumberOfConcreteClasses,
-                                vtkstrdup(classname));
+     vtkParse_AddStringToArray(&ConcreteClasses,
+                               &NumberOfConcreteClasses,
+                               vtkstrdup(classname));
      }
 }

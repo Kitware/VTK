@@ -53,6 +53,12 @@ void vtkParse_AddPointerToArray(void *valueArray, int *count,
                                 const void *value);
 
 /**
+ * String-specific version to avoid const warnings.
+ */
+void vtkParse_AddStringToArray(const char ***valueArray, int *count,
+                               const char *value);
+
+/**
  * Initializer methods
  */
 /*@{*/
