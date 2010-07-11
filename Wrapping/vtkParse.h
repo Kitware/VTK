@@ -63,9 +63,9 @@ struct _FunctionInfo;
 typedef struct _TemplateArg
 {
   unsigned int  Type;  /* is zero for "typename", "class", "template" */
-  char         *Class; /* class name for type */
-  char         *Name;  /* name of template arg */
-  char         *Value; /* default value */
+  const char   *Class; /* class name for type */
+  const char   *Name;  /* name of template arg */
+  const char   *Value; /* default value */
   struct _TemplateArgs *Template; /* for templated template args */
 } TemplateArg;
 
@@ -85,8 +85,8 @@ typedef struct _ItemInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;
-  char          *Comment;
+  const char    *Name;
+  const char    *Comment;
 } ItemInfo;
 
 /**
@@ -101,14 +101,14 @@ typedef struct _ValueInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;
-  char          *Comment;
-  char          *Value;      /* for vars or default arg values */
+  const char    *Name;
+  const char    *Comment;
+  const char    *Value;      /* for vars or default arg values */
   unsigned int   Type;       /* as defined in vtkParseType.h   */
-  char          *Class;      /* classname for type */
+  const char    *Class;      /* classname for type */
   int            Count;      /* total number of values, if known */
   int            NumberOfDimensions; /* dimensionality for arrays */
-  char         **Dimensions; /* dimensions for arrays */
+  const char   **Dimensions; /* dimensions for arrays */
   struct _FunctionInfo *Function;  /* for function pointer values */
   int            IsStatic;   /* for class variables only */
   int            IsEnum;     /* for constants only */
@@ -121,9 +121,9 @@ typedef struct _FunctionInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;
-  char          *Comment;
-  char          *Signature;   /* function signature as text */
+  const char    *Name;
+  const char    *Comment;
+  const char    *Signature;   /* function signature as text */
   TemplateArgs  *Template;    /* template args, or NULL */
   int            NumberOfArguments;
   ValueInfo    **Arguments;
@@ -136,10 +136,10 @@ typedef struct _FunctionInfo
   int            IsPureVirtual; /* methods only */
   int            IsConst;     /* methods only */
   unsigned int   ArgTypes[MAX_ARGS];  /* legacy */
-  char          *ArgClasses[MAX_ARGS];/* legacy */
+  const char    *ArgClasses[MAX_ARGS];/* legacy */
   int            ArgCounts[MAX_ARGS]; /* legacy */
   unsigned int   ReturnType;  /* legacy */
-  char          *ReturnClass; /* legacy */
+  const char    *ReturnClass; /* legacy */
   int            HaveHint;    /* legacy */
   int            HintSize;    /* legacy */
   int            ArrayFailure;/* legacy */
@@ -155,8 +155,8 @@ typedef struct _EnumInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;
-  char          *Comment;
+  const char    *Name;
+  const char    *Comment;
 } EnumInfo;
 
 /**
@@ -166,8 +166,8 @@ typedef struct _UnionInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;
-  char          *Comment;
+  const char    *Name;
+  const char    *Comment;
   int            NumberOfMembers;
   ValueInfo    **Members;
 } UnionInfo;
@@ -179,8 +179,8 @@ typedef struct _ClassInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;
-  char          *Comment;
+  const char    *Name;
+  const char    *Comment;
   TemplateArgs  *Template;
   int            NumberOfSuperClasses;
   char         **SuperClasses;
@@ -205,8 +205,8 @@ typedef struct _NamespaceInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  char          *Name;  /* NULL for global namespace */
-  char          *Comment;
+  const char    *Name;  /* NULL for global namespace */
+  const char    *Comment;
   int            NumberOfItems;
   ItemInfo     **Items;
   int            NumberOfClasses;
@@ -228,11 +228,11 @@ typedef struct _NamespaceInfo
  */
 typedef struct _FileInfo
 {
-  char *FileName;
-  char *NameComment;
-  char *Description;
-  char *Caveats;
-  char *SeeAlso;
+  const char *FileName;
+  const char *NameComment;
+  const char *Description;
+  const char *Caveats;
+  const char *SeeAlso;
 
   ClassInfo *MainClass;
   NamespaceInfo *Contents;

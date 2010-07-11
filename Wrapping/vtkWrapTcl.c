@@ -107,7 +107,7 @@ static const char *quote_string(const char *comment, size_t maxlen)
 }
 
 void output_temp(FILE *fp, int i, unsigned int aType,
-                 char *Id, int count)
+                 const char *Id, int count)
 {
   /* handle VAR FUNCTIONS */
   if (aType == VTK_PARSE_FUNCTION)

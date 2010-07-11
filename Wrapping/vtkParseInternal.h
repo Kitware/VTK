@@ -49,7 +49,8 @@ extern "C" {
 /**
  * This function is the back-end to vtkParse_AddItemMacro()
  */
-void vtkParse_AddPointerToArray(void *valueArray, int *count, void *value);
+void vtkParse_AddPointerToArray(void *valueArray, int *count,
+                                const void *value);
 
 /**
  * Initializer methods

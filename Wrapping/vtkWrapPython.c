@@ -209,7 +209,7 @@ static void vtkWrapPython_MakeTempVariable(
   FILE *fp, FunctionInfo *currentFunction, int i)
 {
   unsigned int aType = currentFunction->ReturnType;
-  char *Id = currentFunction->ReturnClass;
+  const char *Id = currentFunction->ReturnClass;
   int aCount = 0;
 
   if (i < MAX_ARGS)
@@ -2158,6 +2158,7 @@ static void vtkWrapPython_GenerateMethods(
   FunctionInfo *theSignature;
   FunctionInfo *theFunc;
   const char *ccp;
+  char *cp;
   unsigned int returnType = 0;
   unsigned int argType = 0;
   int potential_error = 0;
@@ -2181,8 +2182,9 @@ static void vtkWrapPython_GenerateMethods(
         (!vtkWrapPython_IsConstructor(data, theFunc) == !do_constructors))
       {
       ccp = vtkWrapPython_PythonSignature(theFunc);
-      theFunc->Signature = (char *)malloc(strlen(ccp)+1);
-      strcpy(theFunc->Signature, ccp);
+      cp = (char *)malloc(strlen(ccp)+1);
+      strcpy(cp, ccp);
+      theFunc->Signature = cp;
       wrappedFunctions[numberOfWrappedFunctions++] = theFunc;
       }
     }
@@ -2858,12 +2860,11 @@ static void vtkWrapPython_GenerateMethods(
 
           /* memory leak here but ... */
           theSignature->Name = NULL;
-          theFunc->Signature = (char *)
-            realloc(theFunc->Signature,siglen+2+
-                    strlen(theSignature->Signature));
-          strcpy(&theFunc->Signature[siglen],"\n");
-          strcpy(&theFunc->Signature[siglen+1],
-                 theSignature->Signature);
+          cp = (char *)malloc(siglen+2+ strlen(theSignature->Signature));
+          strcpy(cp, theFunc->Signature);
+          strcpy(&cp[siglen],"\n");
+          strcpy(&cp[siglen+1], theSignature->Signature);
+          theFunc->Signature = cp;
           }
         }
       } /* is this method non NULL */
@@ -2946,7 +2947,7 @@ static int vtkWrapPython_IsDestructor(
   ClassInfo *data, FunctionInfo *currentFunction)
 {
   size_t i;
-  char *cp;
+  const char *cp;
 
   if (data->Name && currentFunction->Name)
     {

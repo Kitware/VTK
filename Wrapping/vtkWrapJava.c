@@ -244,7 +244,8 @@ void return_result(FILE *fp)
 }
 
 
-void output_temp(FILE *fp, int i, unsigned int aType, char *Id, int aCount)
+void output_temp(FILE *fp, int i, unsigned int aType, const char *Id,
+                 int aCount)
 {
   /* handle VAR FUNCTIONS */
   if (aType == VTK_PARSE_FUNCTION)
@@ -792,9 +793,10 @@ void outputFunction(FILE *fp, ClassInfo *data)
   unsigned int baseType = 0;
   int i, j;
   int args_ok = 1;
-  char *jniFunction = 0;
-  char *begPtr = 0;
-  char *endPtr = 0;
+  const char *jniFunction = 0;
+  char *jniFunctionNew = 0;
+  const char *begPtr = 0;
+  const char *endPtr = 0;
   CurrentData = data;
 
   /* some functions will not get wrapped no matter what else */
@@ -1041,16 +1043,17 @@ void outputFunction(FILE *fp, ClassInfo *data)
       endPtr = strchr(begPtr, '_');
       if(endPtr)
         {
-        jniFunction = (char *)malloc(2*strlen(currentFunction->Name) + 1);
-        jniFunction[0] = '\0';
+        jniFunctionNew = (char *)malloc(2*strlen(currentFunction->Name) + 1);
+        jniFunctionNew[0] = '\0';
         while (endPtr)
           {
-          strncat(jniFunction, begPtr, endPtr - begPtr + 1);
-          strcat(jniFunction, "1");
+          strncat(jniFunctionNew, begPtr, endPtr - begPtr + 1);
+          strcat(jniFunctionNew, "1");
           begPtr = endPtr + 1;
           endPtr = strchr(begPtr, '_');
           }
-        strcat(jniFunction, begPtr);
+        strcat(jniFunctionNew, begPtr);
+        jniFunction = jniFunctionNew;
         }
 
       if(currentFunction->IsLegacy)
@@ -1149,9 +1152,10 @@ void outputFunction(FILE *fp, ClassInfo *data)
 
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
-      if (jniFunction != currentFunction->Name)
+      if (jniFunctionNew)
         {
-        free(jniFunction);
+        free(jniFunctionNew);
+        jniFunctionNew = 0;
         }
     } /* isDone() */
   } /* isAbstract */

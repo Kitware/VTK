@@ -115,86 +115,56 @@ static int skip_ahead_until(const char *text);
        {
        pos++;
        }
-     yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
-     memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
-     yylval.str[yyleng - pos - 1] = '\0';
-     data.NameComment = vtkstrdup(yylval.str);
+     data.NameComment = vtkstrndup(&yytext[pos + 1], yyleng - pos - 1);
      };
 
-^[\t ]*"// .SECTION Description".* {
-     CommentState = 1;
-     data.Description = (char*)malloc(100000);
-     data.Description[0] = '\0';
-     };
-
-^[\t ]*"// .SECTION See Also".* {
-     CommentState = 3;
-     data.SeeAlso = (char*)malloc(100000);
-     data.SeeAlso[0] = '\0';
-     };
-
-^[\t ]*"// .SECTION see also".* {
-     CommentState = 3;
-     data.SeeAlso = (char*)malloc(100000);
-     data.SeeAlso[0] = '\0';
-     };
-
-^[\t ]*"// .SECTION Caveats".* {
-     CommentState = 4;
-     data.Caveats = (char*)malloc(100000);
-     data.Caveats[0] = '\0';
-     };
-
-^[\t ]*"// Description:".* {
-     CommentState = 2;
-     HaveComment = 1;
-     CommentText[0] = '\0';
-     };
-
-^[\t ]*[\r\n]  {
-     HaveComment = 0;
-     CommentState = 0;
-     };
-
-^[\t ]*"//".*   {
-     size_t pos = 1;
-     while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++;
-     yylval.str = (char *)malloc(yyleng + 1 - pos - 1 + 1);
-     memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
-     yylval.str[yyleng - pos - 1] = '\n';
-     yylval.str[yyleng - pos] = '\0';
-     switch (CommentState)
-       {
-       case 1: strcat(data.Description,yylval.str); break;
-       case 2: strcat(CommentText,yylval.str); break;
-       case 3: strcat(data.SeeAlso,yylval.str); break;
-       case 4: strcat(data.Caveats,yylval.str); break;
-       }
+^[\t ]*"// Description:".*         { setCommentState(1); };
+^[\t ]*"// .SECTION Description".* { setCommentState(2); };
+^[\t ]*"// .SECTION See Also".*    { setCommentState(3); };
+^[\t ]*"// .SECTION see also".*    { setCommentState(3); };
+^[\t ]*"// .SECTION Caveats".*     { setCommentState(4); };
+^[\t ]*[\r\n]                      { closeOrClearComment(); };
+^[\t ]*"//".*  {
+     size_t pos = 2;
+     while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
+     addCommentLine(&yytext[pos], yyleng - pos);
      };
 
 "//".* ;
 
 ^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
-                size_t i;
-                for (i = 0; i < (size_t)yyleng && yytext[i] != 'V'; i++)
-                  { ; };
-                yylval.str = (char *)malloc(yyleng - i + 1);
-                memcpy(yylval.str, &yytext[i], yyleng-i);
-                yylval.str[yyleng-i] = '\0';
-                return (VTK_CONSTANT_DEF); }
+     const char *name;
+     size_t i = 0;
+     size_t j = 0;
+     while (yytext[i] != 'V') { i++; }
+     j = i;
+     while ((yytext[j] >= 'a' && yytext[j] <= 'z') ||
+            (yytext[j] >= 'A' && yytext[j] <= 'Z') ||
+            (yytext[j] >= '0' && yytext[j] <= '9') ||
+            yytext[j] == '_') { j++; }
+     name = vtkstrndup(&yytext[i], j-i);
+     while (yytext[j] == ' ' || yytext[j] == '\t') { j++; }
+     i = yyleng;
+     while (i > 0 && (yytext[i-1] == '\n' || yytext[i-1] == '\r' ||
+                      yytext[i-1] == '\t' || yytext[i-1] == ' ')) { i--; }
+     if (i > j)
+       {
+       add_constant(name, vtkstrndup(&yytext[j], i-j), 0, NULL, 1);
+       }
+     else
+       {
+       add_constant(name, "", 0, NULL, 1);
+       }
+     };
 
 ^[\t ]*"#"(\\\n|\\\r\n|[^\n])*$     ;
 
 \"([^\"]|\\\")*\"      {
-                yylval.str = (char *)malloc(yyleng + 1);
-                memcpy(yylval.str,yytext,yyleng);
-                yylval.str[yyleng] = '\0';
+                yylval.str = vtkstrndup(yytext, yyleng);
                 return(STRING_LITERAL); }
 
 \'([^\']|\\\')+\'      {
-                yylval.str = (char *)malloc(yyleng + 1);
-                memcpy(yylval.str,yytext,yyleng);
-                yylval.str[yyleng] = '\0';
+                yylval.str = vtkstrndup(yytext, yyleng);
                 return(CHAR_LITERAL); }
 
 [A-Za-z0-9_]*"_EXPORT" ;
@@ -204,9 +174,7 @@ static int skip_ahead_until(const char *text);
      while (yytext[j]!='(') { j++; }
      j++; i = j;
      while (yytext[j]!=')') { j++; }
-     yylval.str = (char *)malloc(j-i+1);
-     if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
-     yylval.str[j-i] = '\0';
+     yylval.str = vtkstrndup(&yytext[i], j-i);
      return(ID);
      };
 
@@ -224,9 +192,7 @@ static int skip_ahead_until(const char *text);
      i++; j++;
      while (yytext[i] != ' ' && yytext[i] != '\t' &&
             yytext[i] != '\n' && yytext[i] != '\r' && yytext[i] != ')') {i++;}
-     yylval.str = (char *)malloc(i-j+1);
-     yylval.str[i-j] = '\0';
-     if (i > j) { strncpy(yylval.str, &yytext[j], i-j); }
+     yylval.str = vtkstrndup(&yytext[j], i-j);
      return(VAR_FUNCTION);
      };
 
@@ -399,9 +365,7 @@ static int skip_ahead_until(const char *text);
                        yytext[i]=='\r' || yytext[i]=='\n') { i++; }
                 j = i;
                 while (yytext[j]!='&') { j++; }
-                yylval.str = (char *)malloc(j-i+1);
-                if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
-                yylval.str[j-i] = '\0';
+                yylval.str = vtkstrndup(&yytext[i], j-i);
                 return(LA); }
 
 "("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"*" {
@@ -411,19 +375,15 @@ static int skip_ahead_until(const char *text);
                        yytext[i]=='\r' || yytext[i]=='\n') { i++; }
                 j = i;
                 while (yytext[j]!='*') { j++; }
-                yylval.str = (char *)malloc(j-i+1);
-                if (j > i) { strncpy(yylval.str, &yytext[i], j-i); }
-                yylval.str[j-i] = '\0';
+                yylval.str = vtkstrndup(&yytext[i], j-i);
                 return(LP); }
 
 "("[\t\n\r ]*("APIENTRY"|"CALLBACK"|"WINAPI")[\t\n\r ]*"*" {
-                yylval.str = (char *)malloc(1);
-                yylval.str[0] = '\0';
+                yylval.str = "";
                 return(LP); }
 
 "("[\t\n\r ]*("APIENTRYP"|"CALLBACKP"|"WINAPIP") {
-                yylval.str = (char *)malloc(1);
-                yylval.str[0] = '\0';
+                yylval.str = "";
                 return(LP); }
 
 ("APIENTRYP"|"CALLBACKP"|"WINAPIP") { return('*'); }
@@ -433,64 +393,43 @@ static int skip_ahead_until(const char *text);
 "WINAPI" ;
 
 ("vtkstd::"|"std::")?"ostream" {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(OSTREAM); }
 
 ("vtkstd::"|"std::")?"istream" {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(ISTREAM); }
 
 ("vtkStdString"|("vtkstd::"|"std::")?"string") {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(StdString); }
 
-"vtkUnicodeString" { yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+"vtkUnicodeString" { yylval.str = vtkstrndup(yytext, yyleng);
                      return(UnicodeString); }
 
-"vtk"[0-9a-zA-Z_]* { yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+"vtk"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
                      return(VTK_ID); }
 
-[a-zA-Z_][0-9a-zA-Z_]*  { yylval.str = (char *)malloc(yyleng + 1);
-                          memcpy(yylval.str,yytext,yyleng);
-                          yylval.str[yyleng] = '\0';
+[a-zA-Z_][0-9a-zA-Z_]*  { yylval.str = vtkstrndup(yytext, yyleng);
                           return(ID); }
 
 [0-9]+"."[0-9]*([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(FLOAT_LITERAL); }
 
 "0"[xX][0-9a-fA-F]+[g-zG-Z_]*      {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(HEX_LITERAL); }
 
 "0"[0-9]+[a-zA-Z_]*   {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(OCT_LITERAL); }
 
 [1-9][0-9]*[a-zA-Z_]* {
-                     yylval.str = (char *)malloc(yyleng + 1);
-                     memcpy(yylval.str,yytext,yyleng);
-                     yylval.str[yyleng] = '\0';
+                     yylval.str = vtkstrndup(yytext, yyleng);
                      return(INT_LITERAL); }
 
-"0"                { yylval.str = (char *)malloc(2);
-                     strcpy(yylval.str, "0");
+"0"                { yylval.str = vtkstrndup(yytext, yyleng);
                      return(ZERO); };
 
 [\t\n\r ] ;
