@@ -83,7 +83,7 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
 //-----------------------------------------------------------------------------
 unsigned int vtkAbstractContextItem::GetNumberOfItems()
 {
-  return this->Children->size();
+  return static_cast<unsigned int>(this->Children->size());
 }
 
 //-----------------------------------------------------------------------------
