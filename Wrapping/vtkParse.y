@@ -1351,9 +1351,9 @@ scope_list_item: maybe_scoped_id
   | PROTECTED maybe_scoped_id
   | PUBLIC maybe_scoped_id
     {
-      vtkParse_AddPointerToArray(&currentClass->SuperClasses,
-                                 &currentClass->NumberOfSuperClasses,
-                                 vtkstrdup($<str>2));
+      vtkParse_AddStringToArray(&currentClass->SuperClasses,
+                                &currentClass->NumberOfSuperClasses,
+                                vtkstrdup($<str>2));
     };
 
 scope_type: PUBLIC {access_level = VTK_ACCESS_PUBLIC;}
@@ -2596,7 +2596,7 @@ void FreeNamespace(NamespaceInfo *namespace_info)
     m = class_info->NumberOfSuperClasses;
     if (m > 0)
       {
-      free(class_info->SuperClasses);
+      free((char **)class_info->SuperClasses);
       }
 
     m = class_info->NumberOfFunctions;

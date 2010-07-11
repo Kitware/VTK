@@ -183,7 +183,7 @@ typedef struct _ClassInfo
   const char    *Comment;
   TemplateArgs  *Template;
   int            NumberOfSuperClasses;
-  char         **SuperClasses;
+  const char   **SuperClasses;
   int            NumberOfItems;
   ItemInfo     **Items;
   int            NumberOfFunctions;

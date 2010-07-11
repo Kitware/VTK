@@ -4601,9 +4601,9 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1353 "vtkParse.y"
     {
-      vtkParse_AddPointerToArray(&currentClass->SuperClasses,
-                                 &currentClass->NumberOfSuperClasses,
-                                 vtkstrdup((yyvsp[(2) - (2)].str)));
+      vtkParse_AddStringToArray(&currentClass->SuperClasses,
+                                &currentClass->NumberOfSuperClasses,
+                                vtkstrdup((yyvsp[(2) - (2)].str)));
     }
     break;
 
@@ -7701,7 +7701,7 @@ void FreeNamespace(NamespaceInfo *namespace_info)
     m = class_info->NumberOfSuperClasses;
     if (m > 0)
       {
-      free(class_info->SuperClasses);
+      free((char **)class_info->SuperClasses);
       }
 
     m = class_info->NumberOfFunctions;
