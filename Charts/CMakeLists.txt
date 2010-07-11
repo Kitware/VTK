@@ -29,6 +29,7 @@ SET(Kit_SRCS
   vtkContext2D.cxx
   vtkContextActor.cxx
   vtkContextBufferId.cxx
+  vtkContextClip.cxx
   vtkContextDevice2D.cxx
   vtkContextItem.cxx
   vtkContextMapper2D.cxx

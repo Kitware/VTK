@@ -55,6 +55,7 @@ public:
   // Description:
   // A few standard defines
   typedef vtkstd::vector<vtkAbstractContextItem*>::const_iterator const_iterator;
+  typedef vtkstd::vector<vtkAbstractContextItem*>::iterator iterator;
 
   // Description:
   // Paint all items in the list.
@@ -78,12 +79,39 @@ public:
     }
 
   // Description:
+  // Remove an item from the list.
+  bool RemoveItem(vtkAbstractContextItem* item)
+    {
+    for(iterator it = this->begin(); it != this->end(); ++it)
+      {
+      if (item == *it)
+        {
+        (*it)->Delete();
+        this->erase(it);
+        return true;
+        }
+      }
+    return false;
+    }
+
+  // Description:
+  // Remove an item from the list.
+  bool RemoveItem(unsigned int index)
+    {
+    if (index < this->size())
+      {
+      return this->RemoveItem(this->at(index));
+      }
+    return false;
+    }
+
+  // Description:
   // Clear all items from the list - unregister.
   void Clear()
     {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
       {
-        (*it)->Delete();
+      (*it)->Delete();
       }
     this->clear();
     this->State.clear();

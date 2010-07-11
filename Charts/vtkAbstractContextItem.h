@@ -58,9 +58,34 @@ public:
   virtual void ReleaseGraphicsResources();
 
   // Description:
-  // Add child items to this item.
+  // Add child items to this item. Increments reference count of item.
   // \return the index of the child item.
   unsigned int AddItem(vtkAbstractContextItem* item);
+
+  // Description:
+  // Remove child item from this item. Decrements reference count of item.
+  // \param item the item to be removed.
+  // \return true on success, false otherwise.
+  bool RemoveItem(vtkAbstractContextItem* item);
+
+  // Description:
+  // Remove child item from this item. Decrements reference count of item.
+  // \param index of the item to be removed.
+  // \return true on success, false otherwise.
+  bool RemoveItem(unsigned int index);
+
+  // Description:
+  // Get the item at the specified index.
+  // \return the item at the specified index (null if index is invalid).
+  vtkAbstractContextItem* GetItem(unsigned int index);
+
+  // Description:
+  // Get the number of child items.
+  unsigned int GetNumberOfItems();
+
+  // Description:
+  // Remove all child items from this item.
+  void ClearItems();
 
 //BTX
   // Description:

@@ -90,6 +90,11 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkChartLegend.");
 
+  if (!this->Visible)
+    {
+    return true;
+    }
+
   painter->GetPen()->SetWidth(1.0);
   vtkTextProperty *prop = painter->GetTextProp();
   prop->SetFontSize(this->LabelSize);
