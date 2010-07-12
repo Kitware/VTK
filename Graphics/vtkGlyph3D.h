@@ -91,6 +91,8 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
+class vtkTransform;
+
 class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
 {
 public:
@@ -233,6 +235,17 @@ public:
   // blanked. Default implementation is to always return 1;
   virtual int IsPointVisible(vtkDataSet*, vtkIdType) {return 1;};
 
+  // Description:
+  // When set, this is use to transform the source polydata before using it to
+  // generate the glyph. This is useful if one wanted to reorient the source,
+  // for example.
+  void SetSourceTransform(vtkTransform*);
+  vtkGetObjectMacro(SourceTransform, vtkTransform);
+
+  // Description:
+  // Overridden to include SourceTransform's MTime.
+  virtual unsigned long GetMTime();
+
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
@@ -256,6 +269,7 @@ protected:
   int GeneratePointIds; // produce input points ids for each output point
   int FillCellData; // whether to fill output cell data
   char *PointIdsName;
+  vtkTransform* SourceTransform;
 
 private:
   vtkGlyph3D(const vtkGlyph3D&);  // Not implemented.

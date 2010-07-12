@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkGlyph3D.h"
 
-#include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
@@ -26,11 +26,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkGlyph3D);
+vtkCxxSetObjectMacro(vtkGlyph3D, SourceTransform, vtkTransform);
 
 //----------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -54,6 +56,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->SetPointIdsName("InputPointIds");
   this->SetNumberOfInputPorts(2);
   this->FillCellData = 0;
+  this->SourceTransform = 0;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -76,6 +79,20 @@ vtkGlyph3D::~vtkGlyph3D()
     {
     delete []PointIdsName;
     }
+  this->SetSourceTransform(NULL);
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkGlyph3D::GetMTime()
+{
+  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long time;
+  if ( this->SourceTransform != NULL )
+    {
+    time = this->SourceTransform ->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+  return mTime;
 }
 
 //----------------------------------------------------------------------------
@@ -105,6 +122,7 @@ int vtkGlyph3D::RequestData(
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
   int index;
   vtkPoints *sourcePts = NULL;
+  vtkSmartPointer<vtkPoints> transformedSourcePts = vtkSmartPointer<vtkPoints>::New();
   vtkPoints *newPts;
   vtkDataArray *newScalars=NULL;
   vtkDataArray *newVectors=NULL;
@@ -358,6 +376,9 @@ int vtkGlyph3D::RequestData(
                      3*numPts*numSourceCells, numPts*numSourceCells);
     }
 
+  transformedSourcePts->SetDataTypeToDouble();
+  transformedSourcePts->Allocate(numSourcePts);
+
   // Traverse all Input points, transforming Source points and copying
   // point attributes.
   //
@@ -479,7 +500,7 @@ int vtkGlyph3D::RequestData(
     
     // Now begin copying/transforming glyph
     trans->Identity();
-    
+
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
@@ -585,9 +606,18 @@ int vtkGlyph3D::RequestData(
         }
       trans->Scale(scalex,scaley,scalez);
       }
-    
+
     // multiply points and normals by resulting matrix
-    trans->TransformPoints(sourcePts,newPts);
+    if (this->SourceTransform)
+      {
+      transformedSourcePts->Reset();
+      this->SourceTransform->TransformPoints(sourcePts, transformedSourcePts);
+      trans->TransformPoints(transformedSourcePts, newPts);
+      }
+    else
+      {
+      trans->TransformPoints(sourcePts,newPts);
+      }
     
     if ( haveNormals )
       {
@@ -801,6 +831,17 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Fill Cell Data: " << (this->FillCellData ? "On\n" : "Off\n");
+
+  os << indent << "SourceTransform: ";
+  if (this->SourceTransform)
+    {
+    os << endl;
+    this->SourceTransform->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
 int vtkGlyph3D::RequestUpdateExtent(
