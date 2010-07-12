@@ -477,9 +477,10 @@ int vtkPCosmoHaloFinder::RequestData(
   // calculate MCP or MBP
   int* mbpCenter = 0;
   int* mcpCenter = 0;
-  int mbpOn = this->ComputeMostConnectedParticle ||
+  int mbpOn = this->ComputeMostBoundParticle ||
+    this->HaloPositionType == 2;
+  int mcpOn = this->ComputeMostConnectedParticle ||
     this->HaloPositionType == 3;
-  int mcpOn = this->ComputeMostBoundParticle || this->HaloPositionType == 2;
   if(mbpOn)
     {
     mbpCenter = new int[numberOfFOFHalos];
