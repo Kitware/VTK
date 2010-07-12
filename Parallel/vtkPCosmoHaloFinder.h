@@ -115,6 +115,24 @@ class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgori
   vtkSetMacro(CopyHaloDataToParticles, int);
   vtkGetMacro(CopyHaloDataToParticles, int);
 
+  // Description:
+  // Turn on calculation of the most bound particle (center finding)
+  // (Default off)
+  vtkSetMacro(ComputeMostBoundParticle, int);
+  vtkGetMacro(ComputeMostBoundParticle, int);
+
+  // Description:
+  // Turn on calculation of the most connect particle (center finding)
+  // (Default off)
+  vtkSetMacro(ComputeMostConnectedParticle, int);
+  vtkGetMacro(ComputeMostConnectedParticle, int);
+
+  // Description:
+  // Set the halo position type
+  // 0 = average, 1 = center of mass, 2 = MBP, 3 = MCP
+  vtkSetMacro(HaloPositionType, int);
+  vtkGetMacro(HaloPositionType, int);
+
  protected:
   vtkPCosmoHaloFinder();
   ~vtkPCosmoHaloFinder();
@@ -134,7 +152,10 @@ class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgori
   float Overlap; // The ghost cell boundary space
   int PMin; // The minimum particles for a halo
   float BB; // The linking length
-  int CopyHaloDataToParticles;
+  int CopyHaloDataToParticles; // Copy halo information to original data
+  int ComputeMostBoundParticle; // Turn on MBP finding
+  int ComputeMostConnectedParticle; // Turn on MCP finding
+  int HaloPositionType; // Set the halo position in the catalog
 
  private:
   vtkPCosmoHaloFinder(const vtkPCosmoHaloFinder&);  // Not implemented.

@@ -62,7 +62,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace vtkstd;
 #else
-#include "CosmoDefinition.h"
+#include "Definition.h"
 #include <string>
 #include <vector>
 

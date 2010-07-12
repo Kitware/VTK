@@ -233,6 +233,44 @@ void FOFHaloProperties::FOFHaloMass(
 
 /////////////////////////////////////////////////////////////////////////
 //
+// Calculate the center of mass of every FOF halo
+//
+// x_FOF = ((Sum i=1 to n_FOF) x_i * x_mass) / n_mass
+//    x_FOF is the center of mass vector
+//    n_mass is the total mass of particles in the halo
+//    x_i is the position vector of particle i
+//
+/////////////////////////////////////////////////////////////////////////
+
+void FOFHaloProperties::FOFCenterOfMass(
+                        vector<POSVEL_T>* xCenterOfMass,
+                        vector<POSVEL_T>* yCenterOfMass,
+                        vector<POSVEL_T>* zCenterOfMass)
+{
+  POSVEL_T xCofMass, yCofMass, zCofMass;
+  double xKahan, yKahan, zKahan;
+
+  for (int halo = 0; halo < this->numberOfHalos; halo++) {
+
+    double totalMass = KahanSummation(halo, this->mass);
+
+    xKahan = KahanSummation2(halo, this->xx, this->mass);
+    yKahan = KahanSummation2(halo, this->yy, this->mass);
+    zKahan = KahanSummation2(halo, this->zz, this->mass);
+
+    xCofMass = (POSVEL_T) (xKahan / totalMass);
+    yCofMass = (POSVEL_T) (yKahan / totalMass);
+    zCofMass = (POSVEL_T) (zKahan / totalMass);
+
+    (*xCenterOfMass).push_back(xCofMass);
+    (*yCenterOfMass).push_back(yCofMass);
+    (*zCenterOfMass).push_back(zCofMass);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+//
 // Calculate the average position of particles of every FOF halo
 //
 // x_FOF = ((Sum i=1 to n_FOF) x_i) / n_FOF
@@ -389,6 +427,38 @@ POSVEL_T FOFHaloProperties::KahanSummation(int halo, POSVEL_T* data)
 }
 
 /////////////////////////////////////////////////////////////////////////
+//                      
+// Calculate the Kahan summation on two variables multiplied
+// Reduces roundoff error in floating point arithmetic
+//                      
+/////////////////////////////////////////////////////////////////////////
+                        
+POSVEL_T FOFHaloProperties::KahanSummation2(int halo, 
+                                            POSVEL_T* data1, POSVEL_T* data2)
+{                       
+  POSVEL_T dataSum, dataRem, v, w;
+                        
+  // First particle in halo and first step in Kahan summation
+  int p = this->halos[halo];
+  dataSum = data1[p] * data2[p];
+  dataRem = 0.0;
+  
+  // Next particle
+  p = this->haloList[p];
+  
+  // Remaining steps in Kahan summation
+  while (p != -1) {
+    v = (data1[p] * data2[p]) - dataRem;
+    w = dataSum + v;
+    dataRem = (w - dataSum) - v;
+    dataSum = w;
+
+    p = this->haloList[p];
+  }
+  return dataSum;
+}
+
+/////////////////////////////////////////////////////////////////////////
 //
 // Calculate the incremental mean using Kahan summation
 //
@@ -505,6 +575,8 @@ void FOFHaloProperties::printHaloSizes(int minSize)
            << " Halo " << i 
            << " size = " << this->haloCount[i] << endl;
 }
+
+#endif
  
 /////////////////////////////////////////////////////////////////////////
 //
@@ -563,6 +635,8 @@ void FOFHaloProperties::extractInformation(
     p = this->haloList[p];
   }
 }
+
+#ifndef USE_VTK_COSMO
 
 /////////////////////////////////////////////////////////////////////////
 //

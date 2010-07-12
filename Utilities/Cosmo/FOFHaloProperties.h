@@ -51,14 +51,23 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef FOFHaloProperties_h
 #define FOFHaloProperties_h
 
+#ifdef USE_VTK_COSMO
 #include "CosmoDefinition.h"
+#else
+#include "Definition.h"
+#endif
+
 #include "ChainingMesh.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 
+#ifdef USE_VTK_COSMO
 class COSMO_EXPORT FOFHaloProperties {
+#else
+class FOFHaloProperties {
+#endif
 public:
   FOFHaloProperties();
   ~FOFHaloProperties();
@@ -115,6 +124,12 @@ public:
         vector<POSVEL_T>* yPos,
         vector<POSVEL_T>* zPos);
 
+  // Find the center of mass of FOF halo particles
+  void FOFCenterOfMass(
+        vector<POSVEL_T>* xCofMass,
+        vector<POSVEL_T>* yCofMass,
+        vector<POSVEL_T>* zCofMass);
+
   // Find the average velocity of FOF halo particles
   void FOFVelocity(
         vector<POSVEL_T>* xVel,
@@ -130,6 +145,7 @@ public:
 
   // Kahan summation of floating point numbers to reduce roundoff error
   POSVEL_T KahanSummation(int halo, POSVEL_T* data);
+  POSVEL_T KahanSummation2(int halo, POSVEL_T* data1, POSVEL_T* data2);
 
   // Dot product
   POSVEL_T dotProduct(POSVEL_T x, POSVEL_T y, POSVEL_T z);
