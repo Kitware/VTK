@@ -7,7 +7,7 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex like this:
 
-  flex --nounput -olex.yy.c vtkParse.l
+  flex --nounput --nodefault -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
   - convert tabs to spaces (8 spaces per tab)

@@ -1326,7 +1326,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 typedef union YYSTYPE
 {
 
-/* Line 222 of yacc.c  */
+/* Line 214 of yacc.c  */
 #line 1116 "vtkParse.y"
 
   const char   *str;
@@ -1334,7 +1334,7 @@ typedef union YYSTYPE
 
 
 
-/* Line 222 of yacc.c  */
+/* Line 214 of yacc.c  */
 #line 1464 "vtkParse.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -8451,7 +8451,23 @@ void vtkParse_AddPointerToArray(
 void vtkParse_AddStringToArray(
   const char ***valueArray, int *count, const char *value)
 {
-  vtkParse_AddPointerToArray((char ***)valueArray, count, (char *)value);
+  const char **values = *valueArray;
+  int n = *count;
+
+  /* if empty, alloc for the first time */
+  if (n == 0)
+    {
+    values = (const char **)malloc(1*sizeof(void*));
+    }
+  /* if count is power of two, reallocate with double size */
+  else if ((n & (n-1)) == 0)
+    {
+    values = (const char **)realloc((char **)values, (n << 1)*sizeof(char*));
+    }
+
+  values[n++] = value;
+  *count = n;
+  *valueArray = values;
 }
 
 

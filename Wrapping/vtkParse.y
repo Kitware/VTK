@@ -3346,7 +3346,23 @@ void vtkParse_AddPointerToArray(
 void vtkParse_AddStringToArray(
   const char ***valueArray, int *count, const char *value)
 {
-  vtkParse_AddPointerToArray((char ***)valueArray, count, (char *)value);
+  const char **values = *valueArray;
+  int n = *count;
+
+  /* if empty, alloc for the first time */
+  if (n == 0)
+    {
+    values = (const char **)malloc(1*sizeof(void*));
+    }
+  /* if count is power of two, reallocate with double size */
+  else if ((n & (n-1)) == 0)
+    {
+    values = (const char **)realloc((char **)values, (n << 1)*sizeof(char*));
+    }
+
+  values[n++] = value;
+  *count = n;
+  *valueArray = values;
 }
 
 

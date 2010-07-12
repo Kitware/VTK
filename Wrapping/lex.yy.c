@@ -2107,7 +2107,7 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex like this:
 
-  flex --nounput -olex.yy.c vtkParse.l
+  flex --nounput --nodefault -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
   - convert tabs to spaces (8 spaces per tab)
@@ -3771,7 +3771,7 @@ return(OTHER);
 case 221:
 YY_RULE_SETUP
 #line 470 "vtkParse.l"
-ECHO;
+YY_FATAL_ERROR( "flex scanner jammed" );
         YY_BREAK
 #line 3777 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
