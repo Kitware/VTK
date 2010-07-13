@@ -399,6 +399,7 @@ void MyProcess::Execute()
   opaqueCameraPass->Delete();
   opaqueSequence->Delete();
   passes2->Delete();
+  shadowsBaker->Delete();
   shadows->Delete();
   opaque->Delete();
   peeling->Delete();
