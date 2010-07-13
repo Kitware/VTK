@@ -370,17 +370,17 @@ public:
     this->Body->SetNumberOfValues(bodyLength);
   }
 
-  // GetSize() returns all allocated size (Size) while GetDataSize()
-  // returns actually used size (MaxId * nComponents)
-  int GetBodySize() const
-  {
-    return this->Body->GetSize();
-  }
   // note that vtkIntArray::Resize() allocates (current size + new
-  // size) bytes if current size < new size
+  // size) bytes if current size < new size until 2010-06-27
+  // cf. commit c869c3d5875f503e757b64f2fd1ec349aee859bf
   void ResizeBody(const int bodyLength)
   {
     this->Body->Resize(bodyLength);
+  }
+  int *WritePointer(const int i, const int bodyI, const int number)
+  {
+    return this->Body->WritePointer(*this->Indices->GetPointer(i) = bodyI,
+        number);
   }
   int *SetIndex(const int i, const int bodyI)
   {
@@ -389,6 +389,10 @@ public:
   void SetValue(const int bodyI, int value)
   {
     this->Body->SetValue(bodyI, value);
+  }
+  void InsertValue(const int bodyI, int value)
+  {
+    this->Body->InsertValue(bodyI, value);
   }
   const int *operator[](const int i) const
   {
@@ -2345,13 +2349,9 @@ public:
             throw vtkFoamError() << "List size must not be negative: size = "
             << sizeJ;
             }
-          if (bodyI + sizeJ > this->Superclass::LabelListListPtr->GetBodySize())
-            {
-            const int newSize =
-                this->Superclass::LabelListListPtr->GetBodySize() + sizeJ;
-            this->Superclass::LabelListListPtr->ResizeBody(newSize);
-            }
-          int *listI = this->Superclass::LabelListListPtr->SetIndex(i, bodyI);
+          int *listI = this->Superclass::LabelListListPtr->WritePointer(i,
+              bodyI, sizeJ);
+
           if (io.GetFormat() == vtkFoamIOobject::ASCII)
             {
             io.ReadExpecting('(');
@@ -2383,14 +2383,8 @@ public:
               throw vtkFoamError() << "Expected an integer, found "
               << currToken;
               }
-            if (bodyI >= this->LabelListListPtr->GetBodySize())
-              {
-              const int newSize =
-                  this->Superclass::LabelListListPtr->GetBodySize() + 1;
-              this->Superclass::LabelListListPtr->ResizeBody(newSize);
-              }
             this->Superclass::LabelListListPtr
-            ->SetValue(bodyI++, currToken.To<int>());
+            ->InsertValue(bodyI++, currToken.To<int>());
             }
           }
         else
