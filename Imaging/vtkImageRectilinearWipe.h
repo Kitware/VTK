@@ -68,6 +68,12 @@ public:
   vtkGetVectorMacro(Position,int,2);
 
   // Description:
+  // Set/Get the location of the wipe axes. The default is X,Y (ie vector
+  // values of 0 and 1).
+  vtkSetVector2Macro(Axis,int);
+  vtkGetVectorMacro(Axis,int,2);
+
+  // Description:
   // Set the two inputs to this filter.
   virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
   virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
@@ -119,6 +125,7 @@ protected:
 
   int Position[2];
   int Wipe;
+  int Axis[2];
 
 private:
   vtkImageRectilinearWipe(const vtkImageRectilinearWipe&);  // Not implemented.

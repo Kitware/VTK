@@ -27,6 +27,8 @@ vtkImageRectilinearWipe::vtkImageRectilinearWipe()
 {
   this->Position[0] = 0;
   this->Position[1] = 0;
+  this->Axis[0] = 0;
+  this->Axis[1] = 1;
   this->Wipe = VTK_WIPE_QUAD;
   this->SetNumberOfInputPorts(2);
 }
@@ -178,12 +180,11 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
 
   // Each quadrant is processed separately
   // lower left
-  wipeExt[0] = wholeExt[0];
-  wipeExt[1] = wholeExt[0] + this->Position[0];
-  wipeExt[2] = wholeExt[2];
-  wipeExt[3] = wholeExt[2] + this->Position[1];
-  wipeExt[4] = wholeExt[4];
-  wipeExt[5] = wholeExt[5];
+
+  memcpy (wipeExt, wholeExt, 6 * sizeof (int));
+  wipeExt[2*this->Axis[0]+1] += this->Position[this->Axis[0]];
+  wipeExt[2*this->Axis[1]+1] += this->Position[this->Axis[1]];
+
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
 
@@ -228,7 +229,13 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
         return;
       }
     }
+
   // lower right
+  memcpy (wipeExt, wholeExt, 6 * sizeof (int));
+  wipeExt[2*this->Axis[0]] += (this->Position[this->Axis[0]]+1);
+  wipeExt[2*this->Axis[1]+1] =
+    wipeExt[2*this->Axis[1]] + this->Position[this->Axis[1]];
+
   wipeExt[0] = wholeExt[0] + this->Position[0] + 1;
   wipeExt[1] = wholeExt[1];
   wipeExt[2] = wholeExt[2];
@@ -277,13 +284,12 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
         return;
       }
     }
+
   // upper left
-  wipeExt[0] = wholeExt[0];
-  wipeExt[1] = wholeExt[0] + this->Position[0];
-  wipeExt[2] = wholeExt[2] + this->Position[1] + 1;
-  wipeExt[3] = wholeExt[3];
-  wipeExt[4] = wholeExt[4];
-  wipeExt[5] = wholeExt[5];
+  memcpy (wipeExt, wholeExt, 6 * sizeof (int));
+  wipeExt[2*this->Axis[0]+1] = wipeExt[2*this->Axis[0]] + this->Position[this->Axis[0]];
+  wipeExt[2*this->Axis[1]] += (this->Position[this->Axis[1]] + 1);
+
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
 
@@ -327,13 +333,12 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
         return;
       }
     }
+
   // upper right
-  wipeExt[0] = wholeExt[0] + this->Position[0] + 1;
-  wipeExt[1] = wholeExt[1];
-  wipeExt[2] = wholeExt[2] + this->Position[1] + 1;
-  wipeExt[3] = wholeExt[3];
-  wipeExt[4] = wholeExt[4];
-  wipeExt[5] = wholeExt[5];
+  memcpy (wipeExt, wholeExt, 6 * sizeof (int));
+  wipeExt[2*this->Axis[0]] += (this->Position[this->Axis[0]] + 1);
+  wipeExt[2*this->Axis[1]] += (this->Position[this->Axis[1]] + 1);
+
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
     switch (this->Wipe)
