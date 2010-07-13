@@ -64,15 +64,18 @@
 // For vtkShadowMapBakerPassTextures, vtkShadowMapBakerPassLightCameras
 #include "vtkShadowMapPassInternal.h"
 #include "vtkShadowMapBakerPass.h"
-
+#include "vtkMatrixToLinearTransform.h"
 
 // debugging
 #include "vtkOpenGLState.h"
 #include "vtkTimerLog.h"
+//#include "vtkBreakPoint.h"
 
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,ShadowMapBakerPass,
                      vtkShadowMapBakerPass);
+vtkCxxSetObjectMacro(vtkShadowMapPass,OpaquePass,
+                     vtkRenderPass);
 
 extern const char *vtkShadowMapPassShader_fs;
 extern const char *vtkShadowMapPassShader_vs;
@@ -82,6 +85,7 @@ extern const char *vtkLighting_s;
 vtkShadowMapPass::vtkShadowMapPass()
 {
   this->ShadowMapBakerPass=0;
+  this->OpaquePass=0;
 
   this->Program=0;
 
@@ -97,6 +101,10 @@ vtkShadowMapPass::~vtkShadowMapPass()
   if(this->ShadowMapBakerPass!=0)
     {
     this->ShadowMapBakerPass->Delete();
+    }
+  if(this->OpaquePass!=0)
+    {
+    this->OpaquePass->Delete();
     }
 
   if(this->Program!=0)
@@ -139,6 +147,15 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" <<endl;
     }
+  os << indent << "OpaquePass: ";
+  if(this->OpaquePass!=0)
+    {
+    this->OpaquePass->PrintSelf(os,indent);
+    }
+  else
+    {
+    os << "(none)" <<endl;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -159,7 +176,8 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 #endif
 
   if(this->ShadowMapBakerPass!=0 &&
-     this->ShadowMapBakerPass->GetOpaquePass()!=0)
+//     this->ShadowMapBakerPass->GetOpaquePass()!=0
+     this->OpaquePass!=0)
     {
      // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
@@ -190,17 +208,17 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
     if(!supported)
       {
-      this->ShadowMapBakerPass->GetOpaquePass()->Render(s);
+      this->OpaquePass->Render(s);
       this->NumberOfRenderedProps+=
-        this->ShadowMapBakerPass->GetOpaquePass()->GetNumberOfRenderedProps();
+        this->OpaquePass->GetNumberOfRenderedProps();
       return;
       }
 
     if(!this->ShadowMapBakerPass->GetHasShadows())
       {
-      this->ShadowMapBakerPass->GetOpaquePass()->Render(s);
+      this->OpaquePass->Render(s);
       this->NumberOfRenderedProps+=
-        this->ShadowMapBakerPass->GetOpaquePass()->GetNumberOfRenderedProps();
+        this->OpaquePass->GetNumberOfRenderedProps();
       return;
       }
 
@@ -284,9 +302,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
     // render for real for non shadowing lights.
     // note this time we use the list of props after culling.
-    this->ShadowMapBakerPass->GetOpaquePass()->Render(s);
+    this->OpaquePass->Render(s);
     this->NumberOfRenderedProps+=
-      this->ShadowMapBakerPass->GetOpaquePass()->GetNumberOfRenderedProps();
+      this->OpaquePass->GetNumberOfRenderedProps();
 
     #ifdef VTK_SHADOW_MAP_PASS_DEBUG
     cout << "finish after rendering geometry without shadowing lights" << endl;
@@ -434,8 +452,34 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
     vtkMatrix4x4 *tmp=vtkMatrix4x4::New();
 
-    vtkLinearTransform *viewCamera_Inv=r->GetActiveCamera()
-      ->GetViewTransformObject()->GetLinearInverse();
+    // WE CANNOT USE THIS WITH Ice-T
+//    vtkLinearTransform *viewCamera_Inv=r->GetActiveCamera()
+//      ->GetViewTransformObject()->GetLinearInverse();
+//    vtkBreakPoint::Break();
+    // REQUIRED with Ice-T
+    // We assume that at this point of the execution
+    // modelview matrix  is actually on the view matrix, that is
+    // model matrix is identity.
+
+    GLfloat m[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX,m);
+    vtkMatrix4x4 *mat=vtkMatrix4x4::New();
+    int row=0;
+    while(row<4)
+      {
+      int column=0;
+      while(column<4)
+        {
+        mat->SetElement(row,column,static_cast<double>(m[column*4+row]));
+        ++column;
+        }
+      ++row;
+      }
+    mat->Invert();
+    vtkMatrixToLinearTransform *viewCamera_Inv
+      =vtkMatrixToLinearTransform::New();
+    viewCamera_Inv->SetInput(mat);
+    mat->Delete();
 
     vtkPerspectiveTransform *transform=vtkPerspectiveTransform::New();
 
@@ -450,6 +494,10 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     l=lights2->GetNextItem();
     lightIndex=0;
     int shadowingLightIndex=0;
+
+    GLint savedMatrixMode;
+    glGetIntegerv(GL_MATRIX_MODE,&savedMatrixMode);
+
     while(l!=0)
       {
       if(lightSwitches[lightIndex] &&
@@ -507,6 +555,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
       ++lightIndex;
       }
 
+    // Ice-T
+    viewCamera_Inv->Delete();
+
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+
                          static_cast<GLenum>(shadowingLightIndex));
     this->IntensityMap->Bind();
@@ -536,11 +587,11 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     bool rendererEraseFlag=r->GetErase()==1;
     r->SetErase(0);
 
-    glMatrixMode(GL_MODELVIEW); // cancel texture matrix mode
+    glMatrixMode(savedMatrixMode);
 
-    this->ShadowMapBakerPass->GetOpaquePass()->Render(&s2);
+    this->OpaquePass->Render(&s2);
     this->NumberOfRenderedProps+=
-      this->ShadowMapBakerPass->GetOpaquePass()->GetNumberOfRenderedProps();
+      this->OpaquePass->GetNumberOfRenderedProps();
 
     requiredKeys->Delete();
 
@@ -566,7 +617,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
     r->SetShaderProgram(0);
 
-    glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(savedMatrixMode);
 
 #ifdef DONT_DUPLICATE_LIGHTS
     if(this->CompositeZPass==0)

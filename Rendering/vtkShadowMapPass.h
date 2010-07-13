@@ -77,12 +77,22 @@ public:
 
   // Description:
   // Pass that generates the shadow maps.
-  // the vtkShadowMapPass will use the OpaquePass and Resolution ivar of
+  // the vtkShadowMapPass will use the Resolution ivar of
   // this pass.
   // Initial value is a NULL pointer.
   vtkGetObjectMacro(ShadowMapBakerPass,vtkShadowMapBakerPass);
   virtual void SetShadowMapBakerPass(
     vtkShadowMapBakerPass *shadowMapBakerPass);
+
+  // Description:
+  // Pass that render the opaque geometry, with no camera pass (otherwise
+  // it does not work with Ice-T).
+  // Initial value is a NULL pointer.
+  // Typically a sequence pass with a light pass and opaque pass.
+  // This should be the Opaque pass of the vtkShadowMapBakerPass without the
+  // vtkCameraPass.
+  vtkGetObjectMacro(OpaquePass,vtkRenderPass);
+  virtual void SetOpaquePass(vtkRenderPass *opaquePass);
 
  protected:
   // Description:
@@ -104,6 +114,8 @@ public:
 
   vtkShadowMapBakerPass *ShadowMapBakerPass;
   vtkRenderPass *CompositeRGBAPass;
+
+  vtkRenderPass *OpaquePass;
 
   // Description:
   // Graphics resources.

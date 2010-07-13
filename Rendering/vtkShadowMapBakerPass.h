@@ -84,7 +84,8 @@ public:
   // Description:
   // Delegate for rendering the opaque polygonal geometry.
   // If it is NULL, nothing will be rendered and a warning will be emitted.
-  // It is usually set to a sequence of vtkLightPass/vtkOpaquePass.
+  // It is usually set to a vtkCameraPass with a sequence of
+  // vtkLightPass/vtkOpaquePass.
   // Initial value is a NULL pointer.
   vtkGetObjectMacro(OpaquePass,vtkRenderPass);
   virtual void SetOpaquePass(vtkRenderPass *opaquePass);
@@ -148,6 +149,7 @@ public:
   // \pre l_exists: l!=0
   bool LightCreatesShadow(vtkLight *l);
 
+//BTX
   // Description:
   // INTERNAL USE ONLY
   // Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
@@ -161,7 +163,7 @@ public:
   //
   // Give access the cameras builds from the ligths.
   vtkShadowMapBakerPassLightCameras *GetLightCameras();
-
+//ETX
 
   // Description:
   // INTERNAL USE ONLY.

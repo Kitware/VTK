@@ -121,6 +121,7 @@ int TestShadowMapPass(int argc, char* argv[])
 
   vtkShadowMapPass *shadows=vtkShadowMapPass::New();
   shadows->SetShadowMapBakerPass(shadowsBaker);
+  shadows->SetOpaquePass(opaqueSequence);
   
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
