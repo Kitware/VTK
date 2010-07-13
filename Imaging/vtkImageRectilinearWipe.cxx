@@ -39,7 +39,7 @@ vtkImageRectilinearWipe::vtkImageRectilinearWipe()
 template <class T>
 void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
                            vtkImageData *inData, T *inPtr,
-                           vtkImageData *outData, 
+                           vtkImageData *outData,
                            T *outPtr,
                            int outExt[6], int id)
 {
@@ -53,13 +53,13 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
 
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-    
+
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
@@ -68,7 +68,7 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
     {
     for (idxY = 0; idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -97,7 +97,7 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
 int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
 {
   int status = 1;
-  
+
   for (int i = 0; i < 3; i++)
     {
     // the lower and upper extents cannot be below the lower output extent
@@ -128,10 +128,10 @@ int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs based on the Wipe ivar.
 void vtkImageRectilinearWipe::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -140,14 +140,14 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
   int wipeExt[6];
   int wholeExt[6];
   int whichInput = 0;
-  
+
   // Make sure the inputs/output are valid
   if (inData[0][0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
     }
-  
+
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
@@ -165,7 +165,7 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     }
 
   // this filter expects that inputs that have the same number of components
-  if (inData[0][0]->GetNumberOfScalarComponents() != 
+  if (inData[0][0]->GetNumberOfScalarComponents() !=
       inData[1][0]->GetNumberOfScalarComponents())
     {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
@@ -174,7 +174,7 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
                   << inData[1][0]->GetNumberOfScalarComponents());
     return;
     }
-  
+
   // Wipe pattern depends on the whole extent.
   outData[0]->GetWholeExtent(wholeExt);
 
@@ -274,9 +274,9 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
-                                        inData[whichInput][0], 
+                                        inData[whichInput][0],
                                         static_cast<VTK_TT *>(inPtr),
-                                        outData[0], 
+                                        outData[0],
                                         static_cast<VTK_TT *>(outPtr),
                                         wipeExt, id));
       default:
@@ -323,9 +323,9 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
-                                        inData[whichInput][0], 
+                                        inData[whichInput][0],
                                         static_cast<VTK_TT *>(inPtr),
-                                        outData[0], 
+                                        outData[0],
                                         static_cast<VTK_TT *>(outPtr),
                                         wipeExt, id));
       default:
@@ -371,9 +371,9 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
-                                        inData[whichInput][0], 
+                                        inData[whichInput][0],
                                         static_cast<VTK_TT *>(inPtr),
-                                        outData[0], 
+                                        outData[0],
                                         static_cast<VTK_TT *>(outPtr),
                                         wipeExt, id));
       default:
@@ -388,6 +388,8 @@ void vtkImageRectilinearWipe::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Position: (" << this->Position[0] << ", "
      << this->Position[1] << ")\n";
+  os << indent << "Position: (" << this->Axis[0] << ", "
+     << this->Axis[1] << ", " << this->Axis[1] << ")\n";
   os << indent << "Wipe: ";
   switch (this->Wipe)
     {
