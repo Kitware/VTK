@@ -185,7 +185,7 @@ protected:
 
   // Description:
   // Plot labels, used by legend.
-  vtkStringArray *Labels;
+  vtkSmartPointer<vtkStringArray> Labels;
 
   // Description:
   // Holds Labels when they're auto-created
