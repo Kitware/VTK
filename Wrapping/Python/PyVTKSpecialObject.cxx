@@ -337,8 +337,11 @@ PyObject *PyVTKSpecialType_New(
     vtkPythonUtil::AddSpecialTypeToMap(
       classname, docstring, methods, constructors, smethods);
 
-  // Add the built docstring to the method
-  newmethod->ml_doc = PyString_AsString(info->docstring);
+  if (info)
+    {
+    // Add the built docstring to the method
+    newmethod->ml_doc = PyString_AsString(info->docstring);
+    }
 
   // Returns a function.  Returning a type object would be nicer.
   return PyCFunction_New(newmethod, Py_None);
