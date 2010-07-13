@@ -127,10 +127,11 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
     m = 0;
     line[m] = '\0';
 
-    if (data->Contents->Items[i]->ItemType == VTK_CLASS_INFO ||
-        data->Contents->Items[i]->ItemType == VTK_STRUCT_INFO)
+    if (data->Contents->Items[i].Type == VTK_CLASS_INFO ||
+        data->Contents->Items[i].Type == VTK_STRUCT_INFO)
       {
-      ClassInfo *class_info = (ClassInfo *)data->Contents->Items[i];
+      ClassInfo *class_info = data->Contents->Classes[
+        data->Contents->Items[i].Index];
 
       if (class_info == data->MainClass)
         {
@@ -155,16 +156,18 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
         }
 
       }
-    else if (data->Contents->Items[i]->ItemType == VTK_ENUM_INFO)
+    else if (data->Contents->Items[i].Type == VTK_ENUM_INFO)
       {
-      EnumInfo *enum_info = (EnumInfo *)data->Contents->Items[i];
+      EnumInfo *enum_info = data->Contents->Enums[
+        data->Contents->Items[i].Index];
 
       line = append_to_line(line, enum_info->Name, &m, &maxlen);
       line = append_to_line(line, " : int ", &m, &maxlen);
       }
-    else if (data->Contents->Items[i]->ItemType == VTK_TYPEDEF_INFO)
+    else if (data->Contents->Items[i].Type == VTK_TYPEDEF_INFO)
       {
-      ValueInfo *typedef_info = (ValueInfo *)data->Contents->Items[i];
+      ValueInfo *typedef_info = data->Contents->Typedefs[
+        data->Contents->Items[i].Index];
       unsigned int type;
       int ndims;
       int dim;

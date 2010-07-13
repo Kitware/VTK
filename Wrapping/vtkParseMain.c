@@ -93,9 +93,9 @@ static int check_options(int argc, char *argv[])
         {
         return -1;
         }
-      vtkParse_AddPointerToArray(&options.IncludeDirectories,
-                                 &options.NumberOfIncludeDirectories,
-                                 argv[i]);
+      vtkParse_AddStringToArray(&options.IncludeDirectories,
+                                &options.NumberOfIncludeDirectories,
+                                argv[i]);
       }
     }
 

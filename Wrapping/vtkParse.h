@@ -58,7 +58,7 @@ struct _TemplateArgs;
 struct _FunctionInfo;
 
 /**
- * TemplateArgs holds one template arg
+ * TemplateArg holds one template arg
  */
 typedef struct _TemplateArg
 {
@@ -74,20 +74,9 @@ typedef struct _TemplateArg
  */
 typedef struct _TemplateArgs
 {
-  int           NumberOfArguments;
+  int            NumberOfArguments;
   TemplateArg **Arguments;
 } TemplateArgs;
-
-/**
- * ItemInfo is a "base class" for items in the header file
- */
-typedef struct _ItemInfo
-{
-  parse_item_t   ItemType;
-  parse_access_t Access;
-  const char    *Name;
-  const char    *Comment;
-} ItemInfo;
 
 /**
  * ValueInfo is for typedefs, constants, variables,
@@ -106,8 +95,8 @@ typedef struct _ValueInfo
   const char    *Value;      /* for vars or default arg values */
   unsigned int   Type;       /* as defined in vtkParseType.h   */
   const char    *Class;      /* classname for type */
-  int            Count;      /* total number of values, if known */
-  int            NumberOfDimensions; /* dimensionality for arrays */
+  int             Count;      /* total number of values, if known */
+  int             NumberOfDimensions; /* dimensionality for arrays */
   const char   **Dimensions; /* dimensions for arrays */
   struct _FunctionInfo *Function;  /* for function pointer values */
   int            IsStatic;   /* for class variables only */
@@ -125,7 +114,7 @@ typedef struct _FunctionInfo
   const char    *Comment;
   const char    *Signature;   /* function signature as text */
   TemplateArgs  *Template;    /* template args, or NULL */
-  int            NumberOfArguments;
+  int             NumberOfArguments;
   ValueInfo    **Arguments;
   ValueInfo     *ReturnValue; /* NULL for constructors and destructors */
   int            IsOperator;
@@ -137,11 +126,11 @@ typedef struct _FunctionInfo
   int            IsConst;     /* methods only */
   unsigned int   ArgTypes[MAX_ARGS];  /* legacy */
   const char    *ArgClasses[MAX_ARGS];/* legacy */
-  int            ArgCounts[MAX_ARGS]; /* legacy */
+  int             ArgCounts[MAX_ARGS]; /* legacy */
   unsigned int   ReturnType;  /* legacy */
   const char    *ReturnClass; /* legacy */
   int            HaveHint;    /* legacy */
-  int            HintSize;    /* legacy */
+  int             HintSize;    /* legacy */
   int            ArrayFailure;/* legacy */
   int            IsPublic;    /* legacy */
   int            IsProtected; /* legacy */
@@ -168,9 +157,18 @@ typedef struct _UnionInfo
   parse_access_t Access;
   const char    *Name;
   const char    *Comment;
-  int            NumberOfMembers;
+  int             NumberOfMembers;
   ValueInfo    **Members;
 } UnionInfo;
+
+/**
+ * ItemInfo just contains an index
+ */
+typedef struct _ItemInfo
+{
+  parse_item_t   Type;
+  int            Index;
+} ItemInfo;
 
 /**
  * ClassInfo is for classes and structs
@@ -182,17 +180,23 @@ typedef struct _ClassInfo
   const char    *Name;
   const char    *Comment;
   TemplateArgs  *Template;
-  int            NumberOfSuperClasses;
+  int             NumberOfSuperClasses;
   const char   **SuperClasses;
-  int            NumberOfItems;
-  ItemInfo     **Items;
-  int            NumberOfFunctions;
+  int             NumberOfItems;
+  ItemInfo      *Items;
+  int             NumberOfClasses;
+  struct _ClassInfo **Classes;
+  int             NumberOfFunctions;
   FunctionInfo **Functions;
-  int            NumberOfConstants;
+  int             NumberOfConstants;
   ValueInfo    **Constants;
-  int            NumberOfEnums;
+  int             NumberOfVariables;
+  ValueInfo    **Variables;
+  int             NumberOfEnums;
   EnumInfo     **Enums;
-  int            NumberOfTypedefs;
+  int             NumberOfUnions;
+  UnionInfo    **Unions;
+  int             NumberOfTypedefs;
   ValueInfo    **Typedefs;
   int            IsAbstract;
   int            HasDelete;
@@ -207,19 +211,23 @@ typedef struct _NamespaceInfo
   parse_access_t Access;
   const char    *Name;  /* NULL for global namespace */
   const char    *Comment;
-  int            NumberOfItems;
-  ItemInfo     **Items;
-  int            NumberOfClasses;
+  int             NumberOfItems;
+  ItemInfo      *Items;
+  int             NumberOfClasses;
   ClassInfo    **Classes;
-  int            NumberOfFunctions;
+  int             NumberOfFunctions;
   FunctionInfo **Functions;
-  int            NumberOfConstants;
+  int             NumberOfConstants;
   ValueInfo    **Constants;
-  int            NumberOfEnums;
+  int             NumberOfVariables;
+  ValueInfo    **Variables;
+  int             NumberOfEnums;
   EnumInfo     **Enums;
-  int            NumberOfTypedefs;
+  int             NumberOfUnions;
+  UnionInfo    **Unions;
+  int             NumberOfTypedefs;
   ValueInfo    **Typedefs;
-  int            NumberOfNamespaces;
+  int             NumberOfNamespaces;
   struct _NamespaceInfo **Namespaces;
 } NamespaceInfo;
 
