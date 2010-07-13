@@ -129,6 +129,7 @@ void vtkPlot::SetLabel(const char *label)
   vtkStringArray *labels = vtkStringArray::New();
   labels->InsertNextValue(label);
   this->SetLabels(labels);
+  labels->Delete();
 }
 
 //-----------------------------------------------------------------------------
