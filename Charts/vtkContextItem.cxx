@@ -120,6 +120,11 @@ void vtkContextItem::Translate(float dx, float dy)
   this->Transform->Translate(dx, dy);
 }
 
+// ----------------------------------------------------------------------------
+void vtkContextItem::ReleaseGraphicsResources()
+{
+}
+
 //-----------------------------------------------------------------------------
 void vtkContextItem::PrintSelf(ostream &os, vtkIndent indent)
 {
