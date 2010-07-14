@@ -109,7 +109,7 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
       pc1 = pc[1];
       if (closestPoint)
         {
-        for (int j = 0; j <= 3; j++ )
+        for (int j = 0; j <3; j++ )
           {
           closestPoint[j] = closest[j];
           }
