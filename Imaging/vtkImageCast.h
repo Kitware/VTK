@@ -18,6 +18,11 @@
 // the image processing pipeline.  The filter does nothing if the input
 // already has the correct type.  To specify the "CastTo" type,
 // use "SetOutputScalarType" method.
+//
+// .SECTION Warning
+// As vtkImageCast only casts values without rescaling them, its use is not a
+// recommented. vtkImageShiftScale is the recommented way to change the type
+// of an image data.
 
 // .SECTION See Also
 // vtkImageThreshold vtkImageShiftScale
