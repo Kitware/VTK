@@ -166,7 +166,7 @@ public:
   // Set the current text message associated with the progress state.
   // This may be used by a calling process/GUI.
   // Note: Because SetProgressText() is called from inside RequestData()
-  // it does not modify the algorithm object. Algorithms are not 
+  // it does not modify the algorithm object. Algorithms are not
   // allowed to modify themselves from inside RequestData().
   void SetProgressText(const char* ptext);
   vtkGetStringMacro(ProgressText);
@@ -189,7 +189,7 @@ public:
   static vtkInformationIntegerKey* INPUT_PORT();
   static vtkInformationIntegerKey* INPUT_CONNECTION();
 
-  
+
   // Description:
   // Set the input data arrays that this algorithm will
   // process. Specifically the idx array that this algorithm will process
@@ -197,11 +197,11 @@ public:
   // association and name or attribute type (such as SCALARS). The
   // fieldAssociation refers to which field in the data object the array is
   // stored. See vtkDataObject::FieldAssociations for detail.
-  virtual void SetInputArrayToProcess(int idx, int port, int connection, 
-                              int fieldAssociation, 
+  virtual void SetInputArrayToProcess(int idx, int port, int connection,
+                              int fieldAssociation,
                               const char *name);
-  virtual void SetInputArrayToProcess(int idx, int port, int connection, 
-                              int fieldAssociation, 
+  virtual void SetInputArrayToProcess(int idx, int port, int connection,
+                              int fieldAssociation,
                               int fieldAttributeType);
   virtual void SetInputArrayToProcess(int idx, vtkInformation *info);
 
@@ -227,18 +227,18 @@ public:
   // @endverbatim
   // If the last argument is not an attribute type, it is assumed to
   // be an array name.
-  virtual void SetInputArrayToProcess(int idx, int port, int connection, 
-                              const char* fieldAssociation, 
+  virtual void SetInputArrayToProcess(int idx, int port, int connection,
+                              const char* fieldAssociation,
                               const char* attributeTypeorName);
 
   // Description:
   // Get the info object for the specified input array to this algorithm
   vtkInformation *GetInputArrayInformation(int idx);
-  
+
   // from here down are convenience methods that really are executive methods
-  
-  
-  
+
+
+
   // Description:
   // Remove all the input data.
   void RemoveAllInputs();
@@ -247,13 +247,13 @@ public:
   // Get the data object that will contain the algorithm output for
   // the given port.
   vtkDataObject* GetOutputDataObject(int port);
-  
+
   // Description:
   // Get the data object that will contain the algorithm input for the given
   // port and given connection.
   vtkDataObject *GetInputDataObject(int port,
                                     int connection);
-  
+
   // Description:
   // Set the connection for the given input port index.  Each input
   // port of a filter has a specific purpose.  A port may have zero or
@@ -333,7 +333,7 @@ public:
   //you are using these calls there are better ways to do it in the new
   //pipeline
   //======================================================================
-  
+
   // Description:
   // Turn release data flag on or off for all output ports.
   virtual void SetReleaseDataFlag(int);
@@ -342,10 +342,10 @@ public:
   void ReleaseDataFlagOff();
 
   //========================================================================
-  
+
   // Description:
   // This detects when the UpdateExtent will generate no data
-  // This condition is satisfied when the UpdateExtent has 
+  // This condition is satisfied when the UpdateExtent has
   // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
   // The source uses this call to determine whether to call Execute.
   int UpdateExtentIsEmpty(vtkDataObject *output);
@@ -357,13 +357,13 @@ public:
   static void SetDefaultExecutivePrototype(vtkExecutive* proto);
 
   // Description:
-  // Returns the priority of the piece described by the current update 
-  // extent. The priority is a number between 0.0 and 1.0 with 0 meaning 
-  // skippable (REQUEST_DATA not needed) and 1.0 meaning important. 
+  // Returns the priority of the piece described by the current update
+  // extent. The priority is a number between 0.0 and 1.0 with 0 meaning
+  // skippable (REQUEST_DATA not needed) and 1.0 meaning important.
   virtual double ComputePriority();
 
   // Description:
-  // These are flags that can be set that let the pipeline keep accurate 
+  // These are flags that can be set that let the pipeline keep accurate
   // meta-information for ComputePriority.
   static vtkInformationIntegerKey* PRESERVES_DATASET();
   static vtkInformationIntegerKey* PRESERVES_GEOMETRY();
@@ -408,9 +408,29 @@ protected:
   int OutputPortIndexInRange(int index, const char* action);
 
   // Description:
+  // Get the assocition of the actual data array for the input array specified
+  // by idx, this is only reasonable during the REQUEST_DATA pass.
+  int GetInputArrayAssociation(int idx, vtkInformationVector **inputVector);
+
+  // Description:
+  // Filters that have multiple connections on one port can use
+  // this signature. This will override the connection id that the
+  // user set in SetInputArrayToProcess() with the connection id
+  // passed. This way, the user specifies one array to process and
+  // that information is used to obtain arrays for all the connection
+  // on the port with the appropriate connection id substituted.
+  int GetInputArrayAssociation(int idx, int connection,
+                               vtkInformationVector **inputVector);
+  int GetInputArrayAssociation(int idx, vtkDataObject* input);
+
+
+  // Description:
   // Get the actual data array for the input array specified by idx, this is
   // only reasonable during the REQUEST_DATA pass
   vtkDataArray *GetInputArrayToProcess(int idx,vtkInformationVector **inputVector);
+  vtkDataArray *GetInputArrayToProcess(int idx,
+                                       vtkInformationVector **inputVector,
+                                       int& association);
 
   // Description:
   // Filters that have multiple connections on one port can use
@@ -422,14 +442,23 @@ protected:
   vtkDataArray *GetInputArrayToProcess(int idx,
                                        int connection,
                                        vtkInformationVector **inputVector);
-  vtkDataArray *GetInputArrayToProcess(int idx, 
+  vtkDataArray *GetInputArrayToProcess(int idx,
+                                       int connection,
+                                       vtkInformationVector **inputVector,
+                                       int& association);
+  vtkDataArray *GetInputArrayToProcess(int idx,
                                        vtkDataObject* input);
+  vtkDataArray *GetInputArrayToProcess(int idx,
+                                       vtkDataObject* input,
+                                       int& association);
 
 
   // Description:
   // Get the actual data array for the input array specified by idx, this is
   // only reasonable during the REQUEST_DATA pass
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,vtkInformationVector **inputVector);
+  vtkAbstractArray *GetInputAbstractArrayToProcess
+    (int idx, vtkInformationVector **inputVector, int& association);
 
   // Description:
   // Filters that have multiple connections on one port can use
@@ -441,21 +470,28 @@ protected:
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
                                        int connection,
                                        vtkInformationVector **inputVector);
-  vtkAbstractArray *GetInputAbstractArrayToProcess(int idx, 
+  vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
+                                       int connection,
+                                       vtkInformationVector **inputVector,
+                                       int& association);
+  vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
                                        vtkDataObject* input);
+  vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
+                                       vtkDataObject* input,
+                                       int& association);
 
 
-  
+
   // Description:
   // This method takes in an index (as specified in SetInputArrayToProcess)
   // and a pipeline information vector. It then finds the information about
   // input array idx and then uses that information to find the field
   // information from the relevent field in the pifo vector (as done by
   // vtkDataObject::GetActiveFieldInformation)
-  vtkInformation *GetInputArrayFieldInformation(int idx, 
+  vtkInformation *GetInputArrayFieldInformation(int idx,
                                                 vtkInformationVector **inputVector);
-  
-    
+
+
   // Description:
   // Create a default executive.
   // If the DefaultExecutivePrototype is set, a copy of it is created
@@ -477,7 +513,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
 
   // executive methods below
-  
+
   // Description:
   // Replace the Nth connection on the given input port.  For use only
   // by this class and subclasses.  If this is used to store a NULL
