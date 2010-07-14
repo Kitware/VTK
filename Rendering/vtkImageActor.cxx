@@ -246,7 +246,7 @@ int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
     this->ComputedDisplayExtent[2] = wExtent[2];
     this->ComputedDisplayExtent[3] = wExtent[3];
     this->ComputedDisplayExtent[4] = wExtent[4];
-    this->ComputedDisplayExtent[5] = wExtent[4];
+    this->ComputedDisplayExtent[5] = wExtent[5];
     }
   input->SetUpdateExtent(this->ComputedDisplayExtent);
   input->PropagateUpdateExtent();
@@ -289,7 +289,7 @@ double *vtkImageActor::GetDisplayBounds()
     this->ComputedDisplayExtent[2] = wExtent[2];
     this->ComputedDisplayExtent[3] = wExtent[3];
     this->ComputedDisplayExtent[4] = wExtent[4];
-    this->ComputedDisplayExtent[5] = wExtent[4];
+    this->ComputedDisplayExtent[5] = wExtent[5];
     }
   if (spacing[0] >= 0)
     {
