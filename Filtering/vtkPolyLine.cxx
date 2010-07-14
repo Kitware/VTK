@@ -60,6 +60,9 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
   double p[3], pNext[3];
   double c[3], f1, f2;
   int i, j, largeRotation;
+  sNext[0]=0.0;
+  sNext[1]=0.0;
+  sNext[2]=0.0;
 
   //  Loop over all lines
   // 
