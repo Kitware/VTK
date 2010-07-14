@@ -2676,6 +2676,7 @@ void vtkCCSPrepareForPolyInPoly(
 
   if (n == 0)
     {
+    tol2=0.0; // to avoid false positive warning about uninitialized value.
     return;
     }
 
