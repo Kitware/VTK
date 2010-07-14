@@ -34,7 +34,9 @@
 static inline void  vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 {
   // If NDEBUG is defined, do nothing.
-#ifndef	NDEBUG
+#ifdef NDEBUG
+  (void)handle; // to avoid warning about unused parameter
+#else
   MPI_Barrier(*handle);
 #endif
 }
