@@ -428,12 +428,6 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
     else:
-        # There is an initial model: must be a vtkMultiBlockDataSet
-        inModelType = haruspex.GetOutputDataObject( 1 ).GetClassName()
-        if inModelType != "vtkMultiBlockDataSet":
-            print "ERROR: unsupported type of input model!"
-            sys.exit( 1 )
-
         # The model table inModel must become the first block of a vtkMultiBlockDataSet
         inModelMB = vtkMultiBlockDataSet()
         inModelMB.SetNumberOfBlocks( 1 )
