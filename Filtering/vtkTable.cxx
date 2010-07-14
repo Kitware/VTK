@@ -145,6 +145,7 @@ void vtkTable::Dump( unsigned int colWidth )
     }
 
   cout << lineStr;
+  cout.flush();
 }
  
 //----------------------------------------------------------------------------
