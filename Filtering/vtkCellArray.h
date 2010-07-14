@@ -313,6 +313,8 @@ inline int vtkCellArray::GetNextCell(vtkIdType& npts, vtkIdType* &pts)
     this->TraversalLocation += npts;
     return 1;
     }
+  npts=0;
+  pts=0;
   return 0;
 }
 
