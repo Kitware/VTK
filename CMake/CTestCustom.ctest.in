@@ -229,6 +229,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "boost.*warning.*unreferenced formal parameter"
   "boost.*warning.*signed/unsigned mismatch"
   "boost.*warning.*conversion from .* to .*, possible loss of data"
+  "boost.*warning.*declaration of .* shadows a member of"
 
   "Utilities.vtklibproj4.*warning.*defined but not used"
   "Utilities.vtklibproj4.*warning.*initialization discards qualifiers from pointer target type"
