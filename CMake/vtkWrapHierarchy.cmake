@@ -129,7 +129,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       COMMAND ${CMAKE_COMMAND}
       "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
 
-      COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
+      COMMENT "Hierarchy Wrapping - updating vtk${KIT}Hierarchy.txt"
       ${verbatim}
       )
 
@@ -153,7 +153,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
 
-      COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
+      COMMENT "Hierarchy Wrapping - updating vtk${KIT}Hierarchy.txt"
       ${verbatim}
       )
   ELSE(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
@@ -168,7 +168,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
 
-      COMMENT "Hierarchy Wrapping - checking vtk${KIT}Hierarchy.txt"
+      COMMENT "Hierarchy Wrapping - updating vtk${KIT}Hierarchy.txt"
       ${verbatim}
       SOURCES ${INPUT_FILES}
       )
