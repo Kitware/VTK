@@ -33,7 +33,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestStringToCategory
     TestTable
     TestTableSplitColumnComponents.cxx
-    TestTableToArray.cxx
     TestTreeMapLayoutStrategy
     TestThresholdTable
     TestVariantArray
@@ -210,6 +209,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayTableToSparseArray.cxx
     ArrayToTable.cxx
     ArrayTransposeMatrix.cxx
+    TestTableToArray.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )
 
