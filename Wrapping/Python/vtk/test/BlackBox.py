@@ -17,7 +17,7 @@ class Tester:
         self.parser.parse_methods(obj)
         self.obj = obj
 
-    def testGetSet(self, obj):
+    def testGetSet(self, obj, excluded_methods=[]):
         """ Testing Get/Set methods."""
         if obj != self.obj:
             self.testParse(obj)
@@ -25,6 +25,8 @@ class Tester:
         toggle = map(lambda x: x[:-2], self.parser.toggle_methods())
         methods.extend(toggle)
         for method in methods:
+            if method in excluded_methods:
+                continue
             setm = "Set%s"%method
             getm = "Get%s"%method
             val = eval("obj.%s()"%getm)
@@ -42,13 +44,17 @@ class Tester:
                       "After Set, value = %(val1)s"%locals()
                 raise AssertionError, msg
 
-    def testBoolean(self, obj):
+    def testBoolean(self, obj, excluded_methods=[]):
         """ Testing boolean (On/Off) methods."""
         if obj != self.obj:
             self.testParse(obj)
         methods = self.parser.toggle_methods()
         for method1 in methods:
             method = method1[:-2]
+
+            if method in excluded_methods:
+                continue
+
             getm = "Get%s"%method
 
             orig_val = eval("obj.%s()"%getm)

@@ -122,18 +122,18 @@ class vtkTest(unittest.TestCase):
         them and sorts them into different classes of objects."""
         self._blackbox.testParse(obj)
 
-    def _testGetSet(self, obj):
+    def _testGetSet(self, obj, excluded_methods=[]):
         """Checks the Get/Set method pairs by setting the value using
         the current state and making sure that it equals the value it
         was originally.  This effectively calls _testParse
         internally. """
-        self._blackbox.testGetSet(obj)
+        self._blackbox.testGetSet(obj, excluded_methods)
 
-    def _testBoolean(self, obj):
+    def _testBoolean(self, obj, excluded_methods=[]):
         """Checks the Boolean methods by setting the value on and off
         and making sure that the GetMethod returns the the set value.
         This effectively calls _testParse internally. """
-        self._blackbox.testBoolean(obj)
+        self._blackbox.testBoolean(obj, excluded_methods)
 
 
 

@@ -52,7 +52,7 @@ class TestTkRenderWidget(Testing.vtkTest):
 
     def testGetSet(self):
         "Testing Get/Set methods"
-        self._testGetSet(self.act)
+        self._testGetSet(self.act, excluded_methods="AllocatedRenderTime")
 
     def testBoolean(self):
         "Testing Boolean methods"
