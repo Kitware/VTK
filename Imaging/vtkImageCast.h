@@ -20,7 +20,7 @@
 // use "SetOutputScalarType" method.
 //
 // .SECTION Warning
-// As vtkImageCast only casts values without rescaling them, its use is not a
+// As vtkImageCast only casts values without rescaling them, its use is not
 // recommented. vtkImageShiftScale is the recommented way to change the type
 // of an image data.
 
