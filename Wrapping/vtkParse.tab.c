@@ -8518,7 +8518,7 @@ void vtkParse_AddPointerToArray(
 /* Utility method to add an item to an array */
 void vtkParse_AddItemToArray(
   ItemInfo **valueArray, int *count,
-  parse_item_t type, int index)
+  parse_item_t type, int idx)
 {
   size_t n = *count;
   ItemInfo *values = *valueArray;
@@ -8526,7 +8526,7 @@ void vtkParse_AddItemToArray(
   values = (ItemInfo *)array_size_check(values, sizeof(ItemInfo), n);
 
   values[n].Type = type;
-  values[n].Index = index;
+  values[n].Index = idx;
   *count = n+1;
   *valueArray = values;
 }

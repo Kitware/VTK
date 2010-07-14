@@ -53,7 +53,7 @@ void vtkParse_AddStringToArray(
  * Expand the Item array for classes and namespaces.
  */
 void vtkParse_AddItemToArray(
-  ItemInfo **valueArray, int *count, parse_item_t type, int index);
+  ItemInfo **valueArray, int *count, parse_item_t type, int idx);
 
 
 /**
