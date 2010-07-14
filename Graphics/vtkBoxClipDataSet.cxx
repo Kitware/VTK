@@ -3884,7 +3884,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
-  vtkIdType     tab_id[6];
+  vtkIdType     tab_id[3];
   vtkIdType     ptstriangle = 3;
   
   int i,j;
@@ -3898,6 +3898,11 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   double v[3],x[3];
   double v_triangle[3][3];
   
+  // To avoid false positive warning.
+  tab_id[0]=0;
+  tab_id[1]=0;
+  tab_id[2]=0;
+
   for (i=0; i<npts; i++)
     {
     cellptId[i] = cellIds->GetId(i);
@@ -4223,7 +4228,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
-  vtkIdType     tab_id[6];
+  vtkIdType     tab_id[3];
   vtkIdType     ptstriangle = 3;
 
   int i,j;
@@ -4237,6 +4242,11 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   double t, *p1, *p2;
   double v[3],x[3];
   double v_triangle[3][3];
+
+  // To avoid false positive warning.
+  tab_id[0]=0;
+  tab_id[1]=0;
+  tab_id[2]=0;
 
   for (i=0; i<npts; i++)
     {
@@ -4626,7 +4636,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
-  vtkIdType     tab_id[6];
+  vtkIdType     tab_id[3];
   vtkIdType     ptstriangle = 3;
 
   int i,j,k;
@@ -4641,6 +4651,11 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   double v[3],x[3];
   double p[6];
   double v_triangle[3][3];
+
+  // To avoid false positive warning.
+  tab_id[0]=0;
+  tab_id[1]=0;
+  tab_id[2]=0;
 
   for (i=0; i<npts; i++)
     {
@@ -4969,7 +4984,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[3];
-  vtkIdType     tab_id[6];
+  vtkIdType     tab_id[3];
   vtkIdType     ptstriangle = 3;
 
   int i,j, k;
@@ -4984,6 +4999,11 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   double v[3],x[3];
   double p[6];
   double v_triangle[3][3];
+
+  // To avoid false positive warning.
+  tab_id[0]=0;
+  tab_id[1]=0;
+  tab_id[2]=0;
 
   for (i=0; i<npts; i++)
     {
