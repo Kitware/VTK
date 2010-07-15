@@ -391,15 +391,18 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
 void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                 float *points, int n)
 {
-  if (sprite && points && n > 0)
+  if (points && n > 0)
     {
-    if (!this->Storage->Texture)
+    if (sprite)
       {
-      this->Storage->Texture = vtkTexture::New();
-      this->Storage->Texture->SetRepeat(false);
+      if (!this->Storage->Texture)
+        {
+        this->Storage->Texture = vtkTexture::New();
+        this->Storage->Texture->SetRepeat(false);
+        }
+      this->Storage->Texture->SetInput(sprite);
+      this->Storage->Texture->Render(this->Renderer);
       }
-    this->Storage->Texture->SetInput(sprite);
-    this->Storage->Texture->Render(this->Renderer);
     if (this->Storage->OpenGL15)
       {
       // We can actually use point sprites here
@@ -455,8 +458,11 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       }
-    this->Storage->Texture->PostRender(this->Renderer);
-    glDisable(GL_TEXTURE_2D);
+    if (sprite)
+      {
+      this->Storage->Texture->PostRender(this->Renderer);
+      glDisable(GL_TEXTURE_2D);
+      }
     }
   else
     {
