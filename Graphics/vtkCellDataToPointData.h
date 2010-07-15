@@ -60,6 +60,10 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  // Special traversal algorithm for unstructured grid
+  int RequestDataForUnstructuredGrid
+    (vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+
   int PassCellData;
 private:
   vtkCellDataToPointData(const vtkCellDataToPointData&);  // Not implemented.
