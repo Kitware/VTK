@@ -1089,7 +1089,7 @@ MARK_AS_ADVANCED(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------
 #OPTION(VTK_IGNORE_BTX "Ignore BTX and ETX in header files." ON)
-SET(VTK_IGNORE_BTX ON CACHE BOOLEAN "Ignore BTX and ETX in header files." FORCE)
+SET(VTK_IGNORE_BTX ON CACHE BOOL "Ignore BTX and ETX in header files." FORCE)
 
 #-----------------------------------------------------------------------------
 # Hierarchy wrapping for type checking in the wrapper generators
