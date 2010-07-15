@@ -204,6 +204,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.vtksqlite.vtk_sqlite3.c.*note: expected .* but argument is of type .*"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: negative integer implicitly converted to unsigned type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning: assuming signed overflow"
+  "Utilities.vtksqlite.vtk_sqlite3.c.*warning: .* may be used uninitialized in this function"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*initialization discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
