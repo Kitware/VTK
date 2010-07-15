@@ -52,6 +52,9 @@ vtkStandardNewMacro(vtkContingencyStatistics);
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
 {
+  // This engine has 2 primary tables: summary and contingency.
+  this->NumberOfPrimaryTables = 2;
+
   this->AssessNames->SetNumberOfValues( 4 );
   this->AssessNames->SetValue( 0, "P" );
   this->AssessNames->SetValue( 1, "Py|x" );
