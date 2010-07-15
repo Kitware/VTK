@@ -119,7 +119,8 @@ my %default =
    title => "Class To Examples",
    to => "../../../VTK-doxygen",
    unique => "e",
-   weight => 90000
+   weight => 90000,
+   remove_leading_slash => 0
   );
 
 # -------------------------------------------------------------------------
@@ -185,14 +186,14 @@ sub parse {
 
 my %args;
 # Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "baselinedir=s", "baselineicon=s", "datamatch=s", "baselinelink=s", "baselinelinksuffix=s", "dataicon=s", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i", "parser=s@");
+GetOptions (\%args, "help", "verbose|v", "baselinedir=s", "baselineicon=s", "datamatch=s", "baselinelink=s", "baselinelinksuffix=s", "dataicon=s", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i", "parser=s@", "remove_leading_slash");
 
 my $available_parser = join(", ", keys %parsers);
 
 if (exists $args{"help"}) {
     print <<"EOT";
 by $AUTHOR
-Usage : $PROGNAME [--help] [--verbose|-v] [--baselinedir path] [--baselineicon filename] [--baselinelink url] [--baselinelinksuffix url] [--datamatch string] [--dataicon filename] [--dirmatch string] [--label string] [--limit n] [--link url] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
+Usage : $PROGNAME [--help] [--verbose|-v] [--baselinedir path] [--baselineicon filename] [--baselinelink url] [--baselinelinksuffix url] [--datamatch string] [--dataicon filename] [--dirmatch string] [--label string] [--limit n] [--link url] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [--remove_leading_slash] [directories...]
   --help          : this message
   --verbose|-v    : verbose (display filenames/classes while processing)
   --baselinedir d : use 'd' as baseline directory
@@ -213,6 +214,7 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--baselinedir path] [--baselineicon f
   --to path       : use 'path' as destination directory (default : $default{to})
   --unique str    : use string as a unique page identifier among "Class To..." pages (otherwise MD5) (default : $default{unique})
   --weight n      : use 'n' as an approximation of the maximum page weight (default : $default{weight})
+  --remove_leading_slash: remove any leading slash in filename used after --link and before --linksuffix (default: $default{remove_leading_slash})
 
 Example:
   $PROGNAME --verbose
@@ -244,6 +246,7 @@ $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
 $args{"unique"} = $default{"unique"} if ! exists $args{"unique"};
 $args{"weight"} = $default{"weight"} if ! exists $args{"weight"};
+$args{"remove_leading_slash"} = $default{"remove_leading_slash"} if ! exists $args{"remove_leading_slash"};
 
 # Select parsers
 
@@ -402,6 +405,7 @@ foreach my $filename (@parsable) {
               if -e $args{"baselinedir"} . "/$pic";
         }
     }
+    $shorter_filename{$filename} =~ s/^\/// if exists $args{"remove_leading_slash"};
     
     # Check for data
     
@@ -582,7 +586,7 @@ sub word_section_doc {
             if (exists $args{"link"}) {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} .  
-                  $shorter_filename{$file} . $args{"linksuffix"} . '&content-type=text/plain">@endhtmlonly ' . $shorter_filename{$file} . 
+                  $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} .
                     '@htmlonly</A></TT> @endhtmlonly ' . 
                       $has_data . $has_baseline_picture;
             } else {

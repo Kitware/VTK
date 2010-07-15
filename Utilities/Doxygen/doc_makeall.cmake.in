@@ -81,27 +81,27 @@ set(INTERMEDIATE_DOX_DIR "${DOXTEMP}/dox")
 #
 set(DATA_ROOT "@VTK_DATA_ROOT@")
 
-# CVSWEB, CVSWEB_SUFFIX, CVSWEB__CHECKOUT, 
-# CVSWEB_DATA, CVSWEB_DATA_SUFFIX, CVSWEB_DATA_CHECKOUT:
-# URL to the CVSWeb of the project + same in checkout mode (i.e. appending a 
+# GITWEB, GITWEB_SUFFIX, GITWEB_CHECKOUT,
+# GITWEB_DATA, GITWEB_DATA_SUFFIX, GITWEB_DATA_CHECKOUT:
+# URL to the GITWeb of the project + same in checkout mode (i.e. appending a
 # file  name to this URL will retrieve the contents of the file). In the same way
-# CVSWEB_SUFFIX will be appended to the result. 
-# Same applies to CVSWEB_DATA, which is the URL to the CVSWeb
+# GITWEB_SUFFIX will be appended to the result.
+# Same applies to GITWEB_DATA, which is the URL to the GITWeb
 # of the Data's project.
 # Example: 
-#   CVSWEB=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTK
-#   CVSWEB_SUFFIX=?cvsroot=VTK
-#   CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
-#   CVSWEB_DATA=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTKData
-#   CVSWEB_DATA_SUFFIX=?cvsroot=VTK
-#   CVSWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTKData
+#   GITWEB=http://public.kitware.com/cgi-bin/viewcvs.cgi
+#   GITWEB_SUFFIX=?root=VTK
+#   GITWEB_CHECKOUT=http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*
+#   GITWEB_DATA=http://public.kitware.com/cgi-bin/viewcvs.cgi
+#   GITWEB_DATA_SUFFIX=?root=VTKData
+#   GITWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*
 #
-set(CVSWEB http://public.kitware.com/cgi-bin/viewcvs.cgi)
-set(CVSWEB_SUFFIX ?root=VTK)
-set(CVSWEB_CHECKOUT http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*)
-set(CVSWEB_DATA http://public.kitware.com/cgi-bin/viewcvs.cgi)
-set(CVSWEB_DATA_SUFFIX ?root=VTKData)
-set(CVSWEB_DATA_CHECKOUT http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*)
+set(GITWEB http://vtk.org/gitweb) # not used
+set(GITWEB_SUFFIX ) #empty for git ?p=VTK)
+set(GITWEB_CHECKOUT http://vtk.org/gitweb?p=VTK.git;a=blob;f=)
+set(GITWEB_DATA http://vtk.org/gitweb)
+set(GITWEB_DATA_SUFFIX ) # empty for git ?p=VTKData)
+set(GITWEB_DATA_CHECKOUT http://vtk.org/gitweb?p=VTKData.git;a=blob;f=)
 
 # DOXYFILE:
 # Path to the Doxygen configuration file (i.e. doxyfile).
@@ -237,12 +237,12 @@ foreach(var
   DOXTEMP
   INTERMEDIATE_DOX_DIR
   DATA_ROOT
-  CVSWEB
-  CVSWEB_SUFFIX
-  CVSWEB_CHECKOUT
-  CVSWEB_DATA
-  CVSWEB_DATA_SUFFIX
-  CVSWEB_DATA_CHECKOUT
+  GITWEB
+  GITWEB_SUFFIX
+  GITWEB_CHECKOUT
+  GITWEB_DATA
+  GITWEB_DATA_SUFFIX
+  GITWEB_DATA_CHECKOUT
   DOXYFILE
   OUTPUT_DIRECTORY
   ALLOW_ERASE_OUTPUT_DIRECTORY
@@ -330,19 +330,20 @@ execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2example.pl"
   --baselinedir "${DATA_ROOT}/Baseline"
   --baselineicon "pic.gif"
-  --baselinelink "${CVSWEB_DATA_CHECKOUT}/Baseline"
-  --baselinelinksuffix "${CVSWEB_DATA_SUFFIX}"
+  --baselinelink "${GITWEB_DATA_CHECKOUT}Baseline"
+  --baselinelinksuffix "${GITWEB_DATA_SUFFIX}"
   --datamatch "\\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\\W"
   --dataicon "paper-clip.gif"
   --dirmatch "^Examples$"
   --label "Examples"
-  --link "${CVSWEB_CHECKOUT}"
-  --linksuffix "${CVSWEB_SUFFIX}"
+  --link "${GITWEB_CHECKOUT}"
+  --linksuffix "${GITWEB_SUFFIX}"
   --project "${PROJECT_NAME}"
   --store "doc_${PROJECT_NAME}_class2examples.dox"
   --title "Class To Examples"
   --to "${INTERMEDIATE_DOX_DIR}"
   --unique "e"
+  --remove_leading_slash=1
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}"
   RESULT_VARIABLE rv
 )
@@ -356,19 +357,20 @@ execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2example.pl"
   --baselinedir "${DATA_ROOT}/Baseline"
   --baselineicon "pic.gif"
-  --baselinelink "${CVSWEB_DATA_CHECKOUT}/Baseline"
-  --baselinelinksuffix "${CVSWEB_DATA_SUFFIX}"
+  --baselinelink "${GITWEB_DATA_CHECKOUT}Baseline"
+  --baselinelinksuffix "${GITWEB_DATA_SUFFIX}"
   --datamatch "\\W(VTK_DATA_ROOT|VTKData|(vtk)?GetDataRoot|ExpandDataFileName)\\W"
   --dataicon "paper-clip.gif"
   --dirmatch "^Testing$"
   --label "Tests"
-  --link "${CVSWEB_CHECKOUT}"
-  --linksuffix "${CVSWEB_SUFFIX}"
+  --link "${GITWEB_CHECKOUT}"
+  --linksuffix "${GITWEB_SUFFIX}"
   --project "${PROJECT_NAME}"
   --store "doc_${PROJECT_NAME}_class2tests.dox"
   --title "Class To Tests"
   --to "${INTERMEDIATE_DOX_DIR}"
   --unique "t"
+  --remove_leading_slash=1
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}"
   RESULT_VARIABLE rv
 )
