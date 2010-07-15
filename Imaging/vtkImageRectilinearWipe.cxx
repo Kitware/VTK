@@ -182,8 +182,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
   // lower left
 
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
-  wipeExt[2*this->Axis[0]+1] += this->Position[this->Axis[0]];
-  wipeExt[2*this->Axis[1]+1] += this->Position[this->Axis[1]];
+  wipeExt[2*this->Axis[0]+1] += this->Position[0];
+  wipeExt[2*this->Axis[1]+1] += this->Position[1];
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
@@ -232,16 +232,10 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
 
   // lower right
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
-  wipeExt[2*this->Axis[0]] += (this->Position[this->Axis[0]]+1);
+  wipeExt[2*this->Axis[0]] += (this->Position[0]+1);
   wipeExt[2*this->Axis[1]+1] =
-    wipeExt[2*this->Axis[1]] + this->Position[this->Axis[1]];
+    wipeExt[2*this->Axis[1]] + this->Position[1];
 
-  wipeExt[0] = wholeExt[0] + this->Position[0] + 1;
-  wipeExt[1] = wholeExt[1];
-  wipeExt[2] = wholeExt[2];
-  wipeExt[3] = wholeExt[2] + this->Position[1];
-  wipeExt[4] = wholeExt[4];
-  wipeExt[5] = wholeExt[5];
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
     switch (this->Wipe)
@@ -287,8 +281,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
 
   // upper left
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
-  wipeExt[2*this->Axis[0]+1] = wipeExt[2*this->Axis[0]] + this->Position[this->Axis[0]];
-  wipeExt[2*this->Axis[1]] += (this->Position[this->Axis[1]] + 1);
+  wipeExt[2*this->Axis[0]+1] = wipeExt[2*this->Axis[0]] + this->Position[0];
+  wipeExt[2*this->Axis[1]] += (this->Position[1] + 1);
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
@@ -336,8 +330,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
 
   // upper right
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
-  wipeExt[2*this->Axis[0]] += (this->Position[this->Axis[0]] + 1);
-  wipeExt[2*this->Axis[1]] += (this->Position[this->Axis[1]] + 1);
+  wipeExt[2*this->Axis[0]] += (this->Position[0] + 1);
+  wipeExt[2*this->Axis[1]] += (this->Position[1] + 1);
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
     {
