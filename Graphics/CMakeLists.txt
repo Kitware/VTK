@@ -32,6 +32,7 @@ vtkButtonSource.cxx
 vtkCellCenters.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
+vtkCellQuality.cxx
 vtkCleanPolyData.cxx
 vtkClipClosedSurface.cxx
 vtkClipConvexPolyData.cxx
@@ -153,6 +154,7 @@ vtkMaskFields.cxx
 vtkMaskPoints.cxx
 vtkMaskPolyData.cxx
 vtkMassProperties.cxx
+vtkMatrixMathFilter.cxx
 vtkMergeCells.cxx
 vtkMergeDataObjectFilter.cxx
 vtkMergeFields.cxx
