@@ -45,6 +45,8 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->DeriveOption = true;
   this->AssessOption = false;
   this->TestOption = false;
+  // Most engines have only 1 primary table.
+  this->NumberOfPrimaryTables = 1;
   this->AssessParameters = 0;
   this->AssessNames = vtkStringArray::New();
   this->Internals = new vtkStatisticsAlgorithmPrivate;
@@ -66,6 +68,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Derive: " << this->DeriveOption << endl;
   os << indent << "Assess: " << this->AssessOption << endl;
   os << indent << "Test: " << this->TestOption << endl;
+  os << indent << "NumberOfPrimaryTables: " << this->NumberOfPrimaryTables << endl;
   if ( this->AssessParameters )
     {
     this->AssessParameters->PrintSelf( os, indent.GetNextIndent() );

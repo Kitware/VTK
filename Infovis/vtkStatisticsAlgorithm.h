@@ -134,6 +134,11 @@ public:
   vtkGetMacro( TestOption, bool );
 
   // Description:
+  // Set/Get the number of tables in the primary model.
+  vtkSetMacro( NumberOfPrimaryTables, vtkIdType );
+  vtkGetMacro( NumberOfPrimaryTables, vtkIdType );
+
+  // Description:
   // Set/get assessment parameters.
   virtual void SetAssessParameters( vtkStringArray* );
   vtkGetObjectMacro(AssessParameters,vtkStringArray);
@@ -277,6 +282,7 @@ protected:
                                     AssessFunctor*& dfunc ) = 0;
   //ETX
 
+  int NumberOfPrimaryTables;
   bool LearnOption;
   bool DeriveOption;
   bool AssessOption;
