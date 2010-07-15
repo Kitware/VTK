@@ -466,9 +466,7 @@ void vtkChartXY::RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   transform->Translate(this->Point1[0], this->Point1[1]);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale);
-  transform->Translate(
-      -this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetMinimum(),
-      -this->ChartPrivate->axes[vtkAxis::LEFT]->GetMinimum());
+  transform->Translate(-x->GetMinimum(), -y->GetMinimum());
 
   // Move the axes if necessary and if the draw axes at origin ivar is true.
   if (this->DrawAxesAtOrigin && x == this->ChartPrivate->axes[vtkAxis::BOTTOM] &&
@@ -659,7 +657,7 @@ void vtkChartXY::RecalculatePlotBounds()
       }
     if ((corner == 2 || corner == 3)) // top
       {
-      if (!initialized[1])
+      if (!initialized[3])
         {
         x2[0] = bounds[0];
         x2[1] = bounds[1];
