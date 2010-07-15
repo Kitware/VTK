@@ -14,6 +14,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 #    TestAppendPolyData.cxx #pending a bug fix
     TestAssignAttribute.cxx
     TestBSPTree.cxx
+    TestCellDataToPointData.cxx
     TestDensifyPolyData.cxx
     TestClipHyperOctree.cxx
     TestConvertSelection.cxx
