@@ -15,8 +15,6 @@
 
 #include "vtkAbstractContextBufferId.h"
 
-vtkCxxRevisionMacro(vtkAbstractContextBufferId, "1.1");
-
 // ----------------------------------------------------------------------------
 vtkAbstractContextBufferId::vtkAbstractContextBufferId()
 {

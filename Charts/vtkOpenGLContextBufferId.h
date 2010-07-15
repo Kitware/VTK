@@ -30,7 +30,7 @@ class vtkOpenGLRenderWindow;
 class VTK_CHARTS_EXPORT vtkOpenGLContextBufferId : public vtkAbstractContextBufferId
 {
 public:
-  vtkTypeRevisionMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);
+  vtkTypeMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
