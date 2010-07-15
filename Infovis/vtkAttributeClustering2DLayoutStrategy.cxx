@@ -136,7 +136,7 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
   
   this->Modified();
 
-  if(this->Graph)
+  if(att && this->Graph)
     {
     this->Initialize();
     }
