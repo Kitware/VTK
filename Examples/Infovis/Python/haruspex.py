@@ -175,33 +175,31 @@ def InstantiateStatistics( haruspexName ):
 ############################################################
 
 ############################################################
-# Read input CSV model as input port
-def ReadInModel( inModelPrefix ):
+# Read input CSV model table as input port
+def ReadInModelTable( inModelPrefix, tabIndex ):
     # Declare use of global variable
     global verbosity
 
     if verbosity > 0:
-        print "# Reading input model:"
+        print "# Reading input model table", tabIndex
 
     # Set CSV reader parameters
-    inModelReader = vtkDelimitedTextReader()
-    inModelReader.SetFieldDelimiterCharacters(",")
-    inModelReader.SetHaveHeaders( True )
-    inModelReader.SetDetectNumericColumns( True )
-    inModelReader.SetFileName( inModelPrefix + "-0.csv" )
-    inModelReader.Update()
+    inTableReader = vtkDelimitedTextReader()
+    inTableReader.SetFieldDelimiterCharacters(",")
+    inTableReader.SetHaveHeaders( True )
+    inTableReader.SetDetectNumericColumns( True )
+    inTableReader.SetFileName( inModelPrefix + "-" + str(tabIndex) + ".csv" )
+    inTableReader.Update()
 
     if verbosity > 0:
-        table = inModelReader.GetOutput()
+        table = inTableReader.GetOutput()
         print "  Number of columns:", table.GetNumberOfColumns()
         print "  Number of rows:", table.GetNumberOfRows()
-        print
         if verbosity > 1:
-            print "# Input Model:"
-            inModelReader.GetOutput().Dump( 16 )
-            print
-    
-    return inModelReader
+            inTableReader.GetOutput().Dump( 16 )
+        print
+
+    return inTableReader
 ############################################################
 
 ############################################################
@@ -211,7 +209,7 @@ def ReadInData( inDataName ):
     global verbosity
 
     if verbosity > 0:
-        print "# Reading input data:"
+        print "# Reading input data"
 
     # Set CSV reader parameters
     inDataReader = vtkDelimitedTextReader()
@@ -357,12 +355,6 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
     # Get the output table of the data reader, which becomes the input data
     inData = inDataReader.GetOutput()
 
-    # Get the output table of the model reader, which becomes the input model (if available)
-    if inModelReader != None:
-        inModel = inModelReader.GetOutput()
-    else:
-        inModel = None
-
     # Figure number of columns of interest. If no list was provided, use them all
     if columnsList == []:
         columnsList = range( 0, inData.GetNumberOfColumns() )
@@ -421,19 +413,26 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         print
 
     # If an input model was provided, then update it first, otherwise run in a single pass
-    if inModel == None:
-        # No initial model: then Learn, Derive, and possibly Assess in a single pass
+    if inModelReader == None:
+        # No model reader: then Learn, Derive, and possibly Assess in a single pass
         haruspex.SetLearnOption( True )
         haruspex.SetDeriveOption( True )
         haruspex.SetAssessOption( assessOption )
         haruspex.Update()
     else:
-        # The model table inModel must become the first block of a vtkMultiBlockDataSet
-        inModelMB = vtkMultiBlockDataSet()
-        inModelMB.SetNumberOfBlocks( 1 )
-        inModelMB.SetBlock( 0, inModel )
-        inModel = inModelMB
-            
+        # Model readers are available: decide how many tables will be fetched
+        nPrimaryTables = haruspex.GetNumberOfPrimaryTables()
+
+        # Then create vtkMultiBlockDataSet with correspondingly many blocks
+        inModel = vtkMultiBlockDataSet()
+        inModel.SetNumberOfBlocks( nPrimaryTables )
+
+        # Now iterate over all readers to obtain tables
+        for t in range( 0, nPrimaryTables ):
+            inTableReader = inModelReader[t]
+            inTable = inTableReader.GetOutput()
+            inModel.SetBlock( t, inTable )
+
         # If model update is required, then learn new model and aggregate, otherwise assess directly
         if updateModel == True:
             # Store model it for subsequent aggregation
@@ -488,9 +487,13 @@ def main():
     # Set input data reader
     inDataReader = ReadInData( inDataName )
 
-    # Set input model reader if prefix was provided
+    # Set input model readers if prefix was provided
     if inModelPrefix != "":
-        inModelReader = ReadInModel( inModelPrefix )
+        inModelReader = []
+        nPrimaryTables = haruspex.GetNumberOfPrimaryTables()
+        for t in range( 0, nPrimaryTables ):
+            tableReader = ReadInModelTable( inModelPrefix, t )
+            inModelReader.append( tableReader )
     else:
         inModelReader = None
         
