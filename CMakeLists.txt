@@ -1088,8 +1088,7 @@ FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PA
 MARK_AS_ADVANCED(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------
-#OPTION(VTK_IGNORE_BTX "Ignore BTX and ETX in header files." ON)
-SET(VTK_IGNORE_BTX ON CACHE BOOL "Ignore BTX and ETX in header files." FORCE)
+OPTION(VTK_IGNORE_BTX "Ignore BTX and ETX in header files." ON)
 
 #-----------------------------------------------------------------------------
 # Hierarchy wrapping for type checking in the wrapper generators
