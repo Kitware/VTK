@@ -90,6 +90,13 @@ vtkChartXY::vtkChartXY()
   // The grid is drawn first.
   this->Grid = vtkPlotGrid::New();
   this->AddItem(this->Grid);
+  this->Grid->Delete();
+  vtkPlotGrid *grid1 = this->Grid;
+
+  // The second grid for the far side/top axis
+  this->Grid = vtkPlotGrid::New();
+  this->AddItem(this->Grid);
+  vtkPlotGrid *grid2 = this->Grid;
 
   // The plots are drawn on top of the grid, in a clipped, transformed area.
   this->AddItem(this->ChartPrivate->Clip);
@@ -117,8 +124,10 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate->axes[vtkAxis::LEFT]->SetTitle("Y Axis");
   this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetTitle("X Axis");
 
-  this->Grid->SetXAxis(this->ChartPrivate->axes[1]);
-  this->Grid->SetYAxis(this->ChartPrivate->axes[0]);
+  grid1->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
+  grid1->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
+  grid2->SetXAxis(this->ChartPrivate->axes[vtkAxis::TOP]);
+  grid2->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
 
   // Then the legend is drawn
   this->Legend = vtkChartLegend::New();

@@ -20,6 +20,7 @@
 #include "vtkPen.h"
 #include "vtkAxis.h"
 #include "vtkFloatArray.h"
+#include "vtkVector.h"
 
 #include "vtkObjectFactory.h"
 
@@ -34,10 +35,6 @@ vtkPlotGrid::vtkPlotGrid()
 {
   this->XAxis = NULL;
   this->YAxis = NULL;
-  this->Point1[0] = 0.0;
-  this->Point1[1] = 0.0;
-  this->Point2[0] = 0.0;
-  this->Point2[1] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -56,10 +53,12 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
     vtkDebugMacro(<<"No axes set and so grid lines cannot be drawn.");
     return false;
     }
-  float ignored; // Values I want to ignore when getting others
-  this->XAxis->GetPoint1(&this->Point1[0]);
-  this->XAxis->GetPoint2(this->Point2[0], ignored);
-  this->YAxis->GetPoint2(ignored, this->Point2[1]);
+
+  vtkVector2f x1, x2, y1, y2;
+  this->XAxis->GetPoint1(x1.GetData());
+  this->XAxis->GetPoint2(x2.GetData());
+  this->YAxis->GetPoint1(y1.GetData());
+  this->YAxis->GetPoint2(y2.GetData());
 
   // in x
   if (this->XAxis->GetGridVisible())
@@ -69,8 +68,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
     float *xPositions = xLines->GetPointer(0);
     for (int i = 0; i < xLines->GetNumberOfTuples(); ++i)
       {
-      painter->DrawLine(xPositions[i], this->Point1[1],
-                        xPositions[i], this->Point2[1]);
+      painter->DrawLine(xPositions[i], y1.GetY(), xPositions[i], y2.GetY());
       }
     }
 
@@ -82,8 +80,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
     float *yPositions = yLines->GetPointer(0);
     for (int i = 0; i < yLines->GetNumberOfTuples(); ++i)
       {
-      painter->DrawLine(this->Point1[0], yPositions[i],
-                        this->Point2[0], yPositions[i]);
+      painter->DrawLine(x1.GetX(), yPositions[i], x2.GetX(), yPositions[i]);
       }
     }
 
