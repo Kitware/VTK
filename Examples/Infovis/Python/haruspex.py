@@ -188,7 +188,7 @@ def ReadInModelTable( inModelPrefix, tabIndex ):
     inTableReader.SetFieldDelimiterCharacters(",")
     inTableReader.SetHaveHeaders( True )
     inTableReader.SetDetectNumericColumns( True )
-    inTableReader.SetFileName( inModelPrefix + "-" + str(tabIndex) + ".csv" )
+    inTableReader.SetFileName( inModelPrefix + "-" + str( tabIndex ) + ".csv" )
     inTableReader.Update()
 
     if verbosity > 0:
