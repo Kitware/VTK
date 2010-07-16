@@ -3,3 +3,4 @@
 *.sh             crlf=input
 newalpha         crlf=input
 newversion       crlf=input
+pre-commit       crlf=input
