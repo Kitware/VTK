@@ -64,10 +64,6 @@ protected:
   vtkAxis *XAxis;
   vtkAxis *YAxis;
 
-  // These variables are not publicly accessible - cached for convenience
-  float Point1[2];       // The position of the grid origin
-  float Point2[2];       // Maximum positions in x and y (top corner of the grid
-
 private:
   vtkPlotGrid(const vtkPlotGrid &); // Not implemented.
   void operator=(const vtkPlotGrid &);   // Not implemented.
