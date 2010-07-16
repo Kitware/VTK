@@ -36,11 +36,11 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkContourWidget's widget events:
 // <pre>
-//   vtkWidgetEvent::Select 
-//        widget state is: 
+//   vtkWidgetEvent::Select
+//        widget state is:
 //            Start or
 //            Define: If we already have at least 2 nodes, test
 //                 whether the current (X,Y) location is near an existing
@@ -49,11 +49,11 @@
 //                 location.
 //            Manipulate: If this (X,Y) location activates a node, then
 //                 set the current operation to Translate. Otherwise, if
-//                 this location is near the contour, attempt to add a 
+//                 this location is near the contour, attempt to add a
 //                 new node on the contour at this (X,Y) location.
 //
 //   vtkWidgetEvent::AddFinalPoint
-//        widget state is: 
+//        widget state is:
 //            Start: Do nothing.
 //            Define: If we already have at least 2 nodes, test
 //                 whether the current (X,Y) location is near an existing
@@ -64,23 +64,23 @@
 //            Manipulate: Do nothing.
 //
 //   vtkWidgetEvent::Move
-//        widget state is: 
+//        widget state is:
 //            Start or
 //            Define: Do nothing.
 //            Manipulate: If our operation is Translate, then invoke
-//                  WidgetInteraction() on the representation. If our 
+//                  WidgetInteraction() on the representation. If our
 //                  operation is Inactive, then just attempt to activate
 //                  a node at this (X,Y) location.
 //
 //   vtkWidgetEvent::EndSelect
-//        widget state is: 
+//        widget state is:
 //            Start or
 //            Define: Do nothing.
 //            Manipulate: If our operation is not Inactive, set it to
 //                  Inactive.
 //
 //   vtkWidgetEvent::Delete
-//        widget state is: 
+//        widget state is:
 //            Start: Do nothing.
 //            Define: Remove the last point on the contour.
 //            Manipulate: Attempt to activate a node at (X,Y). If
@@ -88,10 +88,10 @@
 //                   have less than 3 nodes, go back to Define state.
 //
 //   vtkWidgetEvent::Reset
-//        widget state is: 
+//        widget state is:
 //            Start: Do nothing.
 //            Define: Remove all points and line segments of the contour.
-//                 Essentially calls Intialize(NULL) 
+//                 Essentially calls Intialize(NULL)
 //            Manipulate: Do nothing.
 // </pre>
 //
@@ -101,14 +101,14 @@
 //   vtkCommand::StartInteractionEvent (beginning to interact)
 //   vtkCommand::EndInteractionEvent (completing interaction)
 //   vtkCommand::InteractionEvent (moving after selecting something)
-//   vtkCommand::PlacePointEvent (after point is positioned; 
+//   vtkCommand::PlacePointEvent (after point is positioned;
 //                                call data includes handle id (0,1))
 //   vtkCommand::WidgetValueChangedEvent (Invoked when the contour is closed
 //                                        for the first time. )
 // </pre>
 
 // .SECTION See Also
-// vtkHandleWidget 
+// vtkHandleWidget
 
 
 #ifndef __vtkContourWidget_h
@@ -145,12 +145,20 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
   // Description:
   // Convenient method to close the contour loop.
   void CloseLoop();
+
+  // Description:
+  // Convenient method to change what state the widget is in.
+  vtkSetMacro(WidgetState,int);
+
+  // Description:
+  // Convenient method to determine the state of the method
+  vtkGetMacro(WidgetState,int);
 
   // Description:
   // Set / Get the AllowNodePicking value. This ivar indicates whether the nodes
@@ -175,8 +183,8 @@ public:
   // Releasing the left mouse button switches into a snap drawing mode.
   // Terminate the contour by pressing the right mouse button.  If you
   // do not want to see the nodes as they are added to the contour, set the
-  // opacity to 0 of the representation's property.  If you do not want to 
-  // see the last active node as it is being added, set the opacity to 0 
+  // opacity to 0 of the representation's property.  If you do not want to
+  // see the last active node as it is being added, set the opacity to 0
   // of the representation's active property.
   vtkSetMacro( ContinuousDraw, int );
   vtkGetMacro( ContinuousDraw, int );
