@@ -3102,6 +3102,7 @@ void handle_complex_type(
   /* copy contents of all brackets to the ArgDimensions */
   val->NumberOfDimensions = getArrayNDims();
   val->Dimensions = getArray();
+  clearArray();
 
   /* count is the product of the dimensions */
   val->Count = 0;
