@@ -87,6 +87,8 @@ vtkChartXY::vtkChartXY()
 {
   this->ChartPrivate = new vtkChartXYPrivate;
 
+  this->AutoAxes = true;
+
   // The grid is drawn first.
   this->Grid = vtkPlotGrid::New();
   this->AddItem(this->Grid);
@@ -209,6 +211,40 @@ void vtkChartXY::Update()
     }
 
   this->CalculateBarPlots();
+
+  if (this->AutoAxes)
+    {
+    for (int i = 0; i < 4; ++i)
+      {
+      this->ChartPrivate->axes[i]->SetVisible(false);
+      }
+    for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+      {
+      int visible = 0;
+      for (unsigned int j = 0;
+           j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
+        {
+        if (vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j))->GetVisible())
+          {
+          ++visible;
+          }
+        }
+      if (visible)
+        {
+        cout << "Corner " << i << " was found to be visible" << endl;
+        if (i < 3)
+          {
+          this->ChartPrivate->axes[i]->SetVisible(true);
+          this->ChartPrivate->axes[i+1]->SetVisible(true);
+          }
+        else
+          {
+          this->ChartPrivate->axes[0]->SetVisible(true);
+          this->ChartPrivate->axes[3]->SetVisible(true);
+          }
+        }
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -450,9 +486,7 @@ void vtkChartXY::RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   transform->Translate(this->Point1[0], this->Point1[1]);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale);
-  transform->Translate(
-      -this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetMinimum(),
-      -this->ChartPrivate->axes[vtkAxis::LEFT]->GetMinimum());
+  transform->Translate(-x->GetMinimum(), -y->GetMinimum());
 
   // Move the axes if necessary and if the draw axes at origin ivar is true.
   if (this->DrawAxesAtOrigin && x == this->ChartPrivate->axes[vtkAxis::BOTTOM] &&
@@ -658,7 +692,7 @@ void vtkChartXY::RecalculatePlotBounds()
       }
     if ((corner == 2 || corner == 3)) // top
       {
-      if (!initialized[1])
+      if (!initialized[3])
         {
         x2[0] = bounds[0];
         x2[1] = bounds[1];

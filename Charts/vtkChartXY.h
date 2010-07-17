@@ -104,6 +104,12 @@ public:
   vtkGetMacro(DrawAxesAtOrigin, bool);
 
   // Description:
+  // If true then the axes will be turned on and off depending upon whether
+  // any plots are in that corner. Defaults to true.
+  vtkSetMacro(AutoAxes, bool);
+  vtkGetMacro(AutoAxes, bool);
+
+  // Description:
   // Set the width fraction for any bar charts drawn in this chart. It is
   // assumed that all bar plots will use the same array for the X axis, and that
   // this array is regularly spaced. The delta between the first two x values is
@@ -206,6 +212,10 @@ protected:
   // at the origin, i.e. 0.0, 0.0 for the chart. This is often the preferred
   // way of drawing scientific/mathematical charts.
   bool DrawAxesAtOrigin;
+
+  // Description:
+  // Should axes be turned on and off automatically - defaults to on.
+  bool AutoAxes;
 
   // Description:
   // The fraction of the interval taken up along the x axis by any bars that are
