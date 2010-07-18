@@ -750,6 +750,10 @@ void outputFunction(FILE *fp, ClassInfo *data)
         }
       }
 
+    if (((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
+        ((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
+        ((argType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
+
     /* if its a pointer arg make sure we have the ArgCount */
     if (((argType & VTK_PARSE_INDIRECT) != 0) &&
         (argType != VTK_PARSE_CHAR_PTR) &&
