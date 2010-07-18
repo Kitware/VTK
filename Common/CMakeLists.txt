@@ -403,9 +403,6 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkArrayCoordinates.cxx
-  vtkArrayExtents.cxx
-  vtkArrayRange.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
 
@@ -444,6 +441,13 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkArrayWeights.cxx
     WRAP_EXCLUDE
     )
+
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkArrayCoordinates.cxx
+    vtkArrayExtents.cxx
+    vtkArrayRange.cxx
+    PROPERTIES WRAP_SPECIAL 1
+  )
 
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 
