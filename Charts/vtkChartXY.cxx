@@ -231,7 +231,6 @@ void vtkChartXY::Update()
         }
       if (visible)
         {
-        cout << "Corner " << i << " was found to be visible" << endl;
         if (i < 3)
           {
           this->ChartPrivate->axes[i]->SetVisible(true);
