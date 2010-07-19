@@ -129,7 +129,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       COMMAND ${CMAKE_COMMAND}
       "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
 
-      COMMENT "Hierarchy Wrapping - updating vtk${KIT}Hierarchy.txt"
+      COMMENT "vtk${KIT} - updating vtk${KIT}Hierarchy.txt"
       ${verbatim}
       )
 
@@ -143,7 +143,8 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     ADD_CUSTOM_COMMAND(
       OUTPUT ${OUTPUT_DIR}/${TARGET}.target
       ${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt
-      DEPENDS ${VTK_WRAP_HIERARCHY_EXE} ${OUTPUT_DIR}/${TARGET}.data
+      DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
+      ${OUTPUT_DIR}/${TARGET}.data ${INPUT_FILES}
 
       COMMAND ${CMAKE_COMMAND}
       "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
