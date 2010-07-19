@@ -72,36 +72,36 @@ static int skip_ahead_until(const char *text);
          }
      };
 
-^[\t ]*"//BTX".*$ {
+^[\t ]*"//BTX".* {
        if (!IgnoreBTX) {
          skip_ahead_until("//ETX");
        }
      };
 
-^[\t ]*"//ETX".*$ ;
+^[\t ]*"//ETX".* ;
 
 
-^[\t ]*"#ifdef"[\t ]*"VTK_WORKAROUND_WINDOWS_MANGLE".*$ {
+^[\t ]*"#ifdef"[\t ]*"VTK_WORKAROUND_WINDOWS_MANGLE".* {
        const char *strings[] = {"#endif", "#elif", "#else", NULL};
        skip_ahead_multi(strings);
      };
 
 
-^[\t ]*"#ifdef "("WIN32"|"_WIN32").*$ {
+^[\t ]*"#ifdef "("WIN32"|"_WIN32").* {
 #ifndef _WIN32
        const char *strings[] = {"#endif", "#elif", "#else", NULL};
        skip_ahead_multi(strings);
 #endif
      };
 
-^[\t ]*"#ifdef VTK_USE_64BIT_IDS".*$ {
+^[\t ]*"#ifdef VTK_USE_64BIT_IDS".* {
 #ifndef VTK_USE_64BIT_IDS
        const char *strings[] = {"#endif", "#elif", "#else", NULL};
        skip_ahead_multi(strings);
 #endif
      };
 
-^[\t ]*"#"("else"|"elif").*$ {
+^[\t ]*"#"("else"|"elif").* {
        skip_ahead_until("#endif");
      };
 
@@ -132,7 +132,7 @@ static int skip_ahead_until(const char *text);
 
 "//".* ;
 
-^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.*$ {
+^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+.* {
      const char *name;
      size_t i = 0;
      size_t j = 0;
@@ -157,7 +157,7 @@ static int skip_ahead_until(const char *text);
        }
      };
 
-^[\t ]*"#"(\\\n|\\\r\n|[^\n])*$     ;
+^[\t ]*"#"(\\\n|\\\r\n|[^\n])*     ;
 
 \"([^\"]|\\\")*\"      {
                 yylval.str = vtkstrndup(yytext, yyleng);
