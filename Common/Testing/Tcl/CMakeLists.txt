@@ -15,6 +15,8 @@ ADD_TEST(TestArrays ${VTK_EXECUTABLE}
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ADD_TEST(TestString ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestString.tcl)
+ADD_TEST(TestIgnoreBTX ${VTK_EXECUTABLE}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestIgnoreBTX.tcl)
 ADD_TEST(TestAmoebaMinimizer ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestAmoebaMinimizer.tcl)
 ADD_TEST(PrintSelf-Common ${TCL_TCLSH}
