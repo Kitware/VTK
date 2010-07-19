@@ -107,6 +107,17 @@ public:
   // Overridden to pass the state to component widgets.
   virtual void SetProcessEvents(int);
 
+  // Description:
+  // Set the state of the widget to "defined" (in case its widget and its
+  // representation were initialized programmatically). This must generally
+  // be followed by a Render() for things to visually take effect.
+  virtual void WidgetIsDefined();
+
+  // Description:
+  // Has the widget been defined completely yet ? ie. Have the end points been
+  // laid and is it in Manipulate mode ?
+  virtual int IsWidgetDefined();
+
 protected:
   vtkDistanceWidget();
   ~vtkDistanceWidget();

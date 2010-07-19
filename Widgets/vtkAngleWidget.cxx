@@ -578,6 +578,23 @@ void vtkAngleWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------
+void vtkAngleWidget::WidgetIsDefined()
+{
+  this->WidgetState = vtkAngleWidget::Manipulate;
+  this->CurrentHandle = -1;
+  this->ReleaseFocus();
+  this->GetRepresentation()->BuildRepresentation(); // update this->Angle
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
+}
+
+//----------------------------------------------------------------------
+int vtkAngleWidget::IsWidgetDefined()
+{
+  return this->WidgetState == vtkAngleWidget::Manipulate;
+}
+
+
+//----------------------------------------------------------------------
 void vtkAngleWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

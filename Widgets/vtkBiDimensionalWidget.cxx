@@ -744,6 +744,28 @@ void vtkBiDimensionalWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------
+void vtkBiDimensionalWidget::WidgetIsDefined()
+{
+  this->WidgetState = vtkBiDimensionalWidget::Manipulate;
+  this->CurrentHandle = -1;
+  this->HandleLine1Selected = 0;
+  this->HandleLine2Selected = 0;
+  this->Line1InnerSelected = 0;
+  this->Line1OuterSelected = 0;
+  this->Line2InnerSelected = 0;
+  this->Line2OuterSelected = 0;
+  this->CenterSelected = 0;
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
+  this->ReleaseFocus();
+}
+
+//----------------------------------------------------------------------
+int vtkBiDimensionalWidget::IsWidgetDefined()
+{
+  return this->WidgetState == vtkBiDimensionalWidget::Manipulate;
+}
+
+//----------------------------------------------------------------------
 void vtkBiDimensionalWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

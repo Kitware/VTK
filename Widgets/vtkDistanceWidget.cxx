@@ -424,8 +424,24 @@ void vtkDistanceWidget::SetProcessEvents(int pe)
 
   this->Point1Widget->SetProcessEvents(pe);
   this->Point2Widget->SetProcessEvents(pe);
-
 }
+
+//----------------------------------------------------------------------
+void vtkDistanceWidget::WidgetIsDefined()
+{
+  this->WidgetState = vtkDistanceWidget::Manipulate;
+  this->CurrentHandle = -1;
+  this->ReleaseFocus();
+  this->GetRepresentation()->BuildRepresentation(); // update this->Distance
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
+}
+
+//----------------------------------------------------------------------
+int vtkDistanceWidget::IsWidgetDefined()
+{
+  return this->WidgetState == vtkDistanceWidget::Manipulate;
+}
+
 
 //----------------------------------------------------------------------
 void vtkDistanceWidget::PrintSelf(ostream& os, vtkIndent indent)
