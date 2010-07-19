@@ -14,6 +14,14 @@
 =========================================================================*/
 #include "vtkImageOcclusionSpectrum.h"
 
+#include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+
 vtkStandardNewMacro(vtkImageOcclusionSpectrum);
 
 //----------------------------------------------------------------------------
@@ -51,6 +59,9 @@ int vtkImageOcclusionSpectrum::RequestInformation
   return 1;
 }
 
+#include <algorithm>
+#include <iterator>
+
 int vtkImageOcclusionSpectrum::RequestUpdateExtent
 (vtkInformation*,
  vtkInformationVector** inputVector,
@@ -64,9 +75,15 @@ int vtkImageOcclusionSpectrum::RequestUpdateExtent
   int wholeExtent [6] = {0};
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
 
+  cout << "Input whole extent ";
+  for (int i = 0; i < 6; ++i) { cout << wholeExtent[i] << " "; } cout << endl;
+
   // Get the requested update extent from the output.
   int updateExtent [6] = {0};
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
+
+  cout << "Output initial update extent ";
+  for (int i = 0; i < 6; ++i) { cout << updateExtent[i] << " "; } cout << endl;
 
   // Radii of the neighboring sphere
   this->Radii[0] = .3 * (wholeExtent[1]-wholeExtent[0]);
@@ -98,60 +115,10 @@ int vtkImageOcclusionSpectrum::RequestUpdateExtent
   return 1;
 }
 
-void vtkImageOcclusionSpectrum::ThreadedRequestData
-(vtkInformation*, vtkInformationVector**, vtkInformationVector*,
- vtkImageData*** inData, vtkImageData** outData, int outExt [6],
- int threadId)
-{
-  if (3 != this->GetDimensionality)
-    {
-    vtkErrorMacro("vtkImageOcclusionSpectrum only works with 3D volume data.");
-    return;
-    }
-
-  // Get the input and output data objects.
-  vtkImageData* input  = **inData;
-  vtkImageData* output = *outData;
-
-  // The ouptut scalar type must be double to store proper gradients.
-  if (output->GetScalarType() != VTK_DOUBLE)
-    {
-    vtkErrorMacro("Execute: output ScalarType is "
-                  << output->GetScalarType() << " but must be double.");
-    return;
-    }
-
-  vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (!inputArray)
-    {
-    vtkErrorMacro("No input array was found. Cannot execute");
-    return;
-    }
-
-  if (inputArray->GetNumberOfComponents() != 1)
-    {
-    vtkErrorMacro(
-      "Execute: input has more than one component. "
-      "The input to occlusion spectrum should be a single component image.");
-    return;
-    }
-
-  switch (inputArray->GetDataType())
-    {
-    vtkTemplateMacro(Execute(this,
-      input ,static_cast<VTK_TT*>(inputArray->GetVoidPointer(0)),
-      output,static_cast<double*>(output->GetScalarPointerForExtent(outExt)),
-      outExt,threadId));
-    default :
-      vtkErrorMacro("Execute: Unknown ScalarType " << input->GetScalarType());
-      return;
-    }
-}
-
 namespace
 {
   template <typename T>
-  void Execute
+  void vtkImageOcclusionSpectrumExecute
   (vtkImageOcclusionSpectrum* const self,
    vtkImageData* const inData , T     * const inPtr,
    vtkImageData* const outData, double* const outPtr,
@@ -162,6 +129,7 @@ namespace
     vtkIdType const* const inIncs   = inData->GetIncrements();
 
     int       const* const outExtent= outData->GetExtent();
+    vtkIdType const* const outIncs  = outData->GetIncrements();
 
     // Loop through all voxels in the rectangular output extent.
     for (int z = outExt[4]; z <= outExt[5]; ++z)
@@ -171,9 +139,9 @@ namespace
         // Get the extent of the neighbor box.
         int extent [6] =
         {
-          x - this->Radii[0], x + this->Radii[0],
-          y - this->Radii[1], y + this->Radii[1],
-          z - this->Radii[2], z + this->Radii[2],
+          x - self->Radii[0], x + self->Radii[0],
+          y - self->Radii[1], y + self->Radii[1],
+          z - self->Radii[2], z + self->Radii[2],
         };
 
         // Adjust the extent to make sure it falls into the input extent.
@@ -212,4 +180,48 @@ namespace
         outPtr[z*outIncs[2]+y*outIncs[1]+x*outIncs[0]] = sum;
       }
   }
+}
+
+void vtkImageOcclusionSpectrum::ThreadedRequestData
+(vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*,
+ vtkImageData*** inData, vtkImageData** outData, int outExt [6],
+ int threadId)
+{
+  // Get the input and output data objects.
+  vtkImageData* input  = **inData;
+  vtkImageData* output = *outData;
+
+  // The ouptut scalar type must be double to store proper gradients.
+  if (output->GetScalarType() != VTK_DOUBLE)
+    {
+    vtkErrorMacro("Execute: output ScalarType is "
+                  << output->GetScalarType() << " but must be double.");
+    return;
+    }
+
+  vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
+  if (!inputArray)
+    {
+    vtkErrorMacro("No input array was found. Cannot execute");
+    return;
+    }
+
+  if (inputArray->GetNumberOfComponents() != 1)
+    {
+    vtkErrorMacro(
+      "Execute: input has more than one component. "
+      "The input to occlusion spectrum should be a single component image.");
+    return;
+    }
+
+  switch (inputArray->GetDataType())
+    {
+    vtkTemplateMacro(vtkImageOcclusionSpectrumExecute(this,
+      input ,static_cast<VTK_TT*>(inputArray->GetVoidPointer(0)),
+      output,static_cast<double*>(output->GetScalarPointerForExtent(outExt)),
+      outExt,threadId));
+    default :
+      vtkErrorMacro("Execute: Unknown ScalarType " << input->GetScalarType());
+      return;
+    }
 }

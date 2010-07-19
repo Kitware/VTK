@@ -56,6 +56,7 @@ protected :
                            int outExt [6],
                            int threadId);
 
+public :
   int Radii [3];
 
 private :
