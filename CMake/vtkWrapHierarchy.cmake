@@ -129,7 +129,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       COMMAND ${CMAKE_COMMAND}
       "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
 
-      COMMENT "vtk${KIT} - updating vtk${KIT}Hierarchy.txt"
+      COMMENT "For vtk${KIT} - updating vtk${KIT}Hierarchy.txt"
       ${verbatim}
       )
 
