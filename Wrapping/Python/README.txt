@@ -264,12 +264,10 @@ Information for packagers
 This section provides some details on how best to package VTK-Python
 in the form of Debian, RPM and other packages.
 
-  1. VTK releases by default have `VTK_USE_RPATH` set to `OFF`.
-     However, VTK from CVS defaults to `ON`.  Therefore, it is
-     important to make sure that `VTK_USE_RPATH` is `OFF`.
-     `VTK_USE_RPATH` is handy for developers who build VTK from CVS
-     and do not install it system wide.  It is not handy for
-     packagers.
+  1. The binaries in the Build tree of VTK have RPATH information
+     embeded. When an install is performed with 'make install' or
+     when CPACK is used, all RPATH information is stripped from the
+     binaries.
 
   2. VTK libraries (starting with VTK-5.0) are versioned.
      Therefore, it is safe to install multiple versions of VTK.
@@ -324,25 +322,18 @@ script you get a traceback with this error:
  ValueError: method requires a VTK object.
 
 This error occurs if you have two copies of the VTK libraries on
-your system. These copies need not be in your linkers path.  VTK
-from CVS defaults to building libraries with an rpath flag (under
-Unix).  This is necessary to be able to test the build in place.
-When you install VTK into another directory in your linkers path and
-then run a Python script, the Python modules remember the old path
-and load the libraries in the build directory as well. This triggers
-the above error since the object you passed the method was
-instantiated from the other copy.
+your system. These copies need not be in your linkers path. This is
+necessary to be able to test the build in place. When you install
+VTK into another directory in your linkers path and then run a Python
+script, the Python modules remember the old path and load the libraries
+in the build directory as well. This triggers the above error since
+the object you passed the method was instantiated from the other copy.
 
 So how do you fix it? The easiest solution is to simply delete the
 copy of the libraries inside your build directory or move the build
 directory to another place. For example, if you build the libraries
 in `VTK/bin` then move `VTK/bin` to `VTK/bin1` or remove all the
 `VTK/bin/*.so` files. The error should no longer occur.
-
-Another way to fix the error is to turn the `VTK_USE_RPATH` boolean
-to `OFF` in your `CMakeCache.txt` file and then rebuild VTK. You
-shouldn't have to rebuild all of VTK, just delete the libraries
-(`*.so` files) and then re-run cmake and make.
 
 Alternatively, starting with recent VTK CVS versions (post Dec. 6,
 2002) and with VTK versions greater than 4.1 (i.e. 4.2 and beyond)

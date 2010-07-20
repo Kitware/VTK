@@ -377,39 +377,9 @@ sentence, so additional documentation is provided here:
     systems) or DYLD_LIBRARY_PATH (Mac OSX) to look for shared
     libraries.  In order to run VTK executables from the build tree
     one must set the appropriate environment variable to point at the
-    directory containing the VTK shared libraries (unless
-    VTK_USE_RPATH is ON, see below).  The same environment setting
-    must be used for running outside projects build against the shared
-    VTK libraries.
-    </p>
-  </li>
-
-  <li><b>VTK_USE_RPATH</b><br>
-    <p>
-    This option is available on non-Windows platforms when the
-    BUILD_SHARED_LIBS option is set to ON.  It enables/disables the
-    use of the <i>rpath</i> (runtime-path) feature available on most
-    UNIX-style platforms.  If this option is enabled VTK libraries and
-    executables will be linked with an rpath pointing at the location
-    in the build tree containing them (usually the bin subdirectory).
-    This allows them to run from the build tree without setting any
-    environment variables to help the dynamic loader find the needed
-    shared libraries.
-    </p>
-    <p>
-    Warning: When using CMake prior to 2.4 enabling
-    VTK_USE_RPATH <b>DISABLES THE INSTALL TARGET</b>
-    so that the build cannot be used to install VTK!  This is
-    necessary because the installed executables and libraries would
-    contain references back to the build tree.  Running them would
-    load libraries from the build tree, which may have been updated or
-    built with an incompatible configuration since the last
-    installation.  VTK release versions set this option to OFF by
-    default so that it is easy to build and install VTK from a source
-    distribution.  VTK development versions set this option to ON by
-    default so that dashboard builds and developers (which typically
-    have many VTK build trees) can run without setting any environment
-    variables for the dynamic loader.
+    directory containing the VTK shared libraries.  The same environment
+    setting must be used for running outside projects build against the
+    shared VTK libraries.
     </p>
   </li>
 
