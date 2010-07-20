@@ -17,10 +17,16 @@
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
+#include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+
+#include <algorithm>
+#include <iterator>
+#include <numeric>
 
 vtkStandardNewMacro(vtkImageOcclusionSpectrum);
 
@@ -57,9 +63,6 @@ int vtkImageOcclusionSpectrum::RequestInformation
 
   return 1;
 }
-
-#include <algorithm>
-#include <iterator>
 
 int vtkImageOcclusionSpectrum::RequestUpdateExtent
 (vtkInformation*,
@@ -148,31 +151,41 @@ namespace
   template <typename T, typename Functor>
   void __execute
   (Functor const& M, vtkImageOcclusionSpectrum* const self,
-   vtkImageData* const IData, T const* const IPointer,
-   vtkImageData* const OData, double * OPointer,
-   int OExtent [6], int const tid)
+   vtkImageData* const IData, T const* IPtr,
+   vtkImageData* const OData, double * OPtr,
+   int OExt [6], int const tid)
   {
-    // Local data structure to hold related information together for ease of
-    // manipulation.
-    struct
+    // Build inclusive prefix sum volume that speed up later computation by N.
+    vtkSmartPointer<vtkImageData> SData = vtkSmartPointer<vtkImageData>::New();
+
+    // Make sure the prefix sum volume has EXACTLY the same shape
+    // as the input update extent of the input volume.
+    SData->SetExtent(IData->GetUpdateExtent());
+    SData->SetNumberOfScalarComponents(IData->GetNumberOfScalarComponents());
+    SData->SetScalarType(IData->GetScalarType());
+
+    // Generate prefix sum volume.
+    // Get the pointers to the first element that we should work on.
+    int const* const IExt = IData->GetExtent();
+    int const* const SExt = SData->GetExtent();
+
+    IPtr += (SExt[0] - IExt[0]) * IData->GetIncrements()[0]
+          + (SExt[2] - IExt[2]) * IData->GetIncrements()[1]
+          + (SExt[4] - IExt[4]) * IData->GetIncrements()[2];
+    T* SPtr = static_cast<T*>
+              (SData->GetPointData()->GetScalars()->GetVoidPointer(0));
+
+    vtkIdType IIncs [3] = {0};
+    IData->GetContinuousIncrements
+      (const_cast<int*>(SExt), IIncs[0], IIncs[1], IIncs[2]);
+
+    // Loop through each ROW in the input extent of the volume.
+    for (int z = IExt[4]; z <= IExt[5]; ++z, IPtr += IIncs[2])
+    for (int y = IExt[2]; y <= IExt[3]; ++y, IPtr += IIncs[1])
       {
-      int      * ext; // extent of the data
-      vtkIdType* inc; // increment to get to the memory location of
-                      // the next logical element if the data memory extent
-                      // and dimension extent are the same.
-                      // X == 0
-                      // Y == ext[0]
-                      // Z == ext[0] * ext[1]
-      vtkIdType jmp [3]; // increment to get to the memory location of
-                         // the next logical element if the data memory
-                         // extent and dimension extent are different
-                         // which means there are "gaps" after each line
-                         // and each slice and we need to jump.
+      // Generate prefix sum array by accumulating along x direction.
+      SPtr = vtkstd::partial_sum(IPtr + IExt[0], IPtr + IExt[1] + 1, SPtr);
       }
-    I = { IData->GetExtent(), IData->GetIncrements() },
-    O = { OExtent           , OData->GetIncrements() };
-    IData->GetContinuousIncrements(OExtent, I.jmp[0], I.jmp[1], I.jmp[2]);
-    OData->GetContinuousIncrements(OExtent, O.jmp[0], O.jmp[1], O.jmp[2]);
 
     // if (0 == tid)
     // {
@@ -192,13 +205,18 @@ namespace
     // cout << endl;
     // }
 
-    // Loop through all voxels in the rectangular output extent.
-    for (int z = OExtent[4]; z <= OExtent[5]; ++z, OPointer+=O.jmp[2])
-    for (int y = OExtent[2]; y <= OExtent[3]; ++y, OPointer+=O.jmp[1])
-    for (int x = OExtent[0]; x <= OExtent[1]; ++x, ++OPointer)
+    int const __r2 = self->Radius * self->Radius;
+
+    vtkIdType OIncs [3] = {0};
+    OData->GetContinuousIncrements(OExt, OIncs[0], OIncs[1], OIncs[2]);
+
+    // Loop through all points in the output extent of the output volume.
+    for (int z = OExt[4]; z <= OExt[5]; ++z, OPtr += OIncs[2])
+    for (int y = OExt[2]; y <= OExt[3]; ++y, OPtr += OIncs[1])
+    for (int x = OExt[0]; x <= OExt[1]; ++x, ++OPtr)
       {
       // Get the extent of the neighbor box of the current voxel.
-      int NExtent [6] =
+      int NExt [6] =
         {
         x - self->Radius, x + self->Radius,
         y - self->Radius, y + self->Radius,
@@ -212,51 +230,95 @@ namespace
         int const l = i*2;
         int const u = l+1;
 
-        if (NExtent[l] < I.ext[l])
+        if (NExt[l] < IExt[l])
           {
-          NExtent[l] = I.ext[l];
+          NExt[l] = IExt[l];
           }
-        if (NExtent[u] > I.ext[u])
+        if (NExt[u] > IExt[u])
           {
-          NExtent[u] = I.ext[u];
+          NExt[u] = IExt[u];
           }
         }
 
       // if (0 == tid)
       // {
       // cout << "voxel : " << x << " " << y << " " << z << "\n";
-      // cout << "NExt  : " << NExtent[0] << " " << NExtent[1] << " " << NExtent[2] << " "
-      //                    << NExtent[3] << " " << NExtent[4] << " " << NExtent[5] << "\n";
+      // cout << "NExt  : " << NExt[0] << " " << NExt[1] << " " << NExt[2] << " "
+      //                    << NExt[3] << " " << NExt[4] << " " << NExt[5] << "\n";
       // cout << "IExt  : " << I.ext[0] << " " << I.ext[1] << " " << I.ext[2] << " "
       //                    << I.ext[3] << " " << I.ext[4] << " " << I.ext[5] << "\n";
       // cout << endl;
       // }
 
       // Advance input data pointer to the start location of neighbor extent.
-      T const* __IPointer = IPointer
-                          + (NExtent[0] - I.ext[0]) * I.inc[0]
-                          + (NExtent[2] - I.ext[2]) * I.inc[1]
-                          + (NExtent[4] - I.ext[4]) * I.inc[2];
-      vtkIdType __jmp [3] = {0}; // Jumping in the neighbor extent
-      IData->GetContinuousIncrements(NExtent, __jmp[0], __jmp[1], __jmp[2]);
+      // T const* __IPtr = IPtr
+      //                 + (NExt[0] - I.ext[0]) * I.inc[0]
+      //                 + (NExt[2] - I.ext[2]) * I.inc[1]
+      //                 + (NExt[4] - I.ext[4]) * I.inc[2];
+      // vtkIdType __I [3] = {0}; // Jumping in the neighbor extent
+      // IData->GetContinuousIncrements(NExt,__I[0],__I[1],__I[2]);
 
-      // Loop through each grid point in the neighbor extent
+      // Since we have the prefix sum volume so that we can speed up
+      // the following process by a factor of N.
+      // For each point in the output extent of the output volume.
+      // [0] Generate its neighbor sphere.
+      // [1] Project its neighbor sphere onto YOZ plane,
+      //     i.e., compress in X direction.
+      // [2] For each point that lays in or on the projected disk.
+      // [2.1] Compute the span in X direction of the intersection of
+      //       the neighbor sphere and the prefix sum volume.
+      // [2.2] The difference between the two intersection points are the sum of
+      //       all points that lay on the intersected row. Make sure to use the
+      //       point of larger X index to minus the one of smaller X index.
+
       T   sum = 0; // T used to avoid unnecessary cast on every accumulation.
       int num = 0;
-      for (int k = NExtent[4]; k <= NExtent[5]; ++k, __IPointer+=__jmp[2])
-      for (int j = NExtent[2]; j <= NExtent[3]; ++j, __IPointer+=__jmp[1])
-      for (int i = NExtent[0]; i <= NExtent[1]; ++i, ++__IPointer)
+
+      int const* SIncs = SData->GetIncrements();
+      T* SPtr = static_cast<T*>
+                (SData->GetPointData()->GetScalars()->GetVoidPointer(0));
+
+      // Loop through each grid point in the projected disk
+      // of the neighbor sphere.
+      for (int k = NExt[4]; k <= NExt[5]; ++k)
+      for (int j = NExt[2]; j <= NExt[3]; ++j)
         {
-        // MUST be within a spherical neighborhood.
-        if (((x-i)*(x-i)+(y-j)*(y-j)+(z-k)*(z-k)) <= self->Radius*self->Radius)
+        int const t = k * SIncs[2] + j * SIncs[1];
+        if (int const radius = x + sqrt(__r2 - (y-j)*(y-j) - (z-k)*(z-k)))
           {
-          sum += M(*__IPointer);
+          int l = x - radius;
+          int u = x + radius;
+
+          // Make sure we do not fall off the prefix sum volume whole extent.
+          if (l < SExt[0])
+            {
+            l = SExt[0];
+            }
+          if (u > SExt[1])
+            {
+            u = SExt[1];
+            }
+
+          sum += SPtr[t+u] - SPtr[t+l];
+          num += 2*radius + 1;
+          }
+        else
+          {
+          if (0 == x)
+            {
+            sum += SPtr[t];
+            }
+          else
+            {
+            sum += SPtr[t+x] - SPtr[t+x-1];
+            }
           ++num;
           }
         }
 
-      // Generate the corresponding output data.
-      *OPointer = num ? (double)sum / num : 0; // Cast only once here.
+      // Generate the corresponding output occlusion spectrum.
+      // Guard against divide by zero and cast only once here.
+      *OPtr = num ? (double)sum / num : 0;
       }
   }
 }
