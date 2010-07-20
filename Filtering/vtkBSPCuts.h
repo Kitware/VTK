@@ -33,17 +33,16 @@
 #ifndef __vtkBSPCuts_h
 #define __vtkBSPCuts_h
 
-#include "vtkObject.h"
+#include "vtkDataObject.h"
 
 class vtkKdNode;
 
-class VTK_FILTERING_EXPORT vtkBSPCuts : public vtkObject
+class VTK_FILTERING_EXPORT vtkBSPCuts : public vtkDataObject
 {
 public:
-  vtkTypeMacro(vtkBSPCuts, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   static vtkBSPCuts *New();
+  vtkTypeMacro(vtkBSPCuts, vtkDataObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   //   Initialize the cuts with arrays of information.  This type of
@@ -97,6 +96,23 @@ public:
 
   void PrintTree();
   void PrintArrays();
+
+  //BTX
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkBSPCuts* GetData(vtkInformation* info);
+  static vtkBSPCuts* GetData(vtkInformationVector* v, int i=0);
+  //ETX
+
+  // Description:
+  // Restore data object to initial state,
+  virtual void Initialize();
+
+  // Description:
+  // Shallow copy.  These copy the data, but not any of the
+  // pipeline connections.
+  virtual void ShallowCopy(vtkDataObject *src);
+  virtual void DeepCopy(vtkDataObject *src);
 
 protected:
 
