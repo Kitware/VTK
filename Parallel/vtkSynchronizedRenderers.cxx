@@ -279,7 +279,8 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
   this->Renderer->ComputeVisiblePropBounds(local_bounds);
 
   // merge local bounds into the bounds passed in to this function call.
-  vtkBoundingBox box(local_bounds);
+  vtkBoundingBox box;
+  box.AddBounds(local_bounds);
   box.AddBounds(bounds);
   box.GetBounds(bounds);
 
@@ -316,7 +317,7 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
       }
 
     vtkBoundingBox bbox;
-    bbox.SetBounds(bounds);
+    bbox.AddBounds(bounds);
     bbox.AddBounds(other_bounds);
     bbox.GetBounds(bounds);
     }
