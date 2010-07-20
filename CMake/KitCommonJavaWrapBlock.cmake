@@ -1,5 +1,7 @@
 VTK_WRAP_JAVA3(vtk${KIT}Java KitJava_SRCS "${Kit_SRCS};${Kit_JAVA_EXTRA_WRAP_SRCS}")
 ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+# Force JavaClasses to build in the right order by adding a depenency.
+ADD_DEPENDENCIES(vtk${KIT}JavaJavaClasses vtk${KIT}Java)
 SET(KIT_LIBRARY_TARGETS ${KIT_LIBRARY_TARGETS} vtk${KIT}Java)
 TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
