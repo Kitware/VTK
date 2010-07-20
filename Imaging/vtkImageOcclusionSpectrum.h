@@ -57,7 +57,7 @@ protected :
                            int threadId);
 
 public :
-  int Radii [3];
+  int Radius;
 
 private :
   vtkImageOcclusionSpectrum (const vtkImageOcclusionSpectrum&);
