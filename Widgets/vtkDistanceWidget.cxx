@@ -143,6 +143,13 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       }
     else
       {
+      // The interactor must be set prior to enabling the widget.
+      if (this->Interactor)
+        {
+        this->Point1Widget->SetInteractor(this->Interactor);
+        this->Point2Widget->SetInteractor(this->Interactor);
+        }
+
       this->Point1Widget->SetEnabled(1);
       this->Point2Widget->SetEnabled(1);
       }

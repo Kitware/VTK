@@ -198,22 +198,20 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
         vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
           Line2VisibilityOn();
         }
-      if (this->Point1Widget)
+
+      // The interactor must be set prior to enabling the widget.
+      if (this->Interactor)
         {
-        this->Point1Widget->SetEnabled(1);
+        this->Point1Widget->SetInteractor(this->Interactor);
+        this->Point2Widget->SetInteractor(this->Interactor);
+        this->Point3Widget->SetInteractor(this->Interactor);
+        this->Point4Widget->SetInteractor(this->Interactor);
         }
-      if (this->Point2Widget)
-        {
-        this->Point2Widget->SetEnabled(1);
-        }
-      if (this->Point3Widget)
-        {
-        this->Point3Widget->SetEnabled(1);
-        }
-      if (this->Point4Widget)
-        {
-        this->Point4Widget->SetEnabled(1);
-        }
+
+      this->Point1Widget->SetEnabled(1);
+      this->Point2Widget->SetEnabled(1);
+      this->Point3Widget->SetEnabled(1);
+      this->Point4Widget->SetEnabled(1);
       }
     }
 

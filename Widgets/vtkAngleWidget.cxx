@@ -174,18 +174,18 @@ void vtkAngleWidget::SetEnabled(int enabling)
         reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
           ArcVisibilityOn();
         }
-      if (this->Point1Widget)
+
+      // The interactor must be set prior to enabling the widget.
+      if (this->Interactor)
         {
-        this->Point1Widget->SetEnabled(1);
+        this->Point1Widget->SetInteractor(this->Interactor);
+        this->CenterWidget->SetInteractor(this->Interactor);
+        this->Point2Widget->SetInteractor(this->Interactor);
         }
-      if (this->CenterWidget)
-        {
-        this->CenterWidget->SetEnabled(1);
-        }
-      if (this->Point2Widget)
-        {
-        this->Point2Widget->SetEnabled(1);
-        }
+
+      this->Point1Widget->SetEnabled(1);
+      this->CenterWidget->SetEnabled(1);
+      this->Point2Widget->SetEnabled(1);
       }
     }
 
