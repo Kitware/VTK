@@ -192,7 +192,7 @@ int vtkPassInputTypeAlgorithm::RequestDataObject(
   vtkInformationVector** inputVector , 
   vtkInformationVector* outputVector)
 {
-  if (this->GetNumberOfInputPorts() == 0)
+  if (this->GetNumberOfInputPorts() == 0 || this->GetNumberOfOutputPorts() == 0)
     {
     return 1;
     }
