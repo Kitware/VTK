@@ -15,6 +15,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ${ConditionalTests} 
     TestHyperOctreeIO.cxx 
     TestPLYReader.cxx
+    TestTecplotReader.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
     )
@@ -122,6 +123,10 @@ IF (VTK_DATA_ROOT)
          TestPLYReader -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
+    ADD_TEST(TestTecplotReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestTecplotReader -D ${VTK_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestTecplotReader.png)
   ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
 
