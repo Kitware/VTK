@@ -255,7 +255,7 @@ public:
   // VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_LONG,
   // VTK_UNSIGNED_LONG, VTK_DOUBLE, VTK_DOUBLE, VTK_ID_TYPE,
   // VTK_STRING.
-  // Note that the data array returned has be deleted by the
+  // Note that the data array returned has to be deleted by the
   // user.
   static vtkAbstractArray* CreateArray(int dataType);
 
