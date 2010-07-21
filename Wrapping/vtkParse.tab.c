@@ -4558,7 +4558,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1334 "vtkParse.y"
     { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; output_function(); currentClass = tmpc; }
+     currentClass = NULL; reject_function(); currentClass = tmpc; }
     break;
 
   case 55:
@@ -4580,7 +4580,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 1338 "vtkParse.y"
     { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; output_function(); currentClass = tmpc; }
+     currentClass = NULL; reject_function(); currentClass = tmpc; }
     break;
 
   case 58:

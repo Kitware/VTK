@@ -445,6 +445,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
   SET_SOURCE_FILES_PROPERTIES(
     vtkArrayCoordinates.cxx
     vtkArrayExtents.cxx
+    vtkArrayExtentsList.cxx
     vtkArrayRange.cxx
     PROPERTIES WRAP_SPECIAL 1
   )

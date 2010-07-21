@@ -3388,7 +3388,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
   for (i = 0; i < numTypes; i++)
     {
     const char *incfile = 0;
-    /* try to look up its header file */
+    /* look up the header file, automatic if "hinfo" is present */
     if (hinfo)
       {
       incfile = vtkParseHierarchy_ClassHeader(hinfo, types[i]);
@@ -3400,6 +3400,10 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     else if (strcmp(types[i], "vtkArrayExtents") == 0)
       {
       incfile = "vtkArrayExtents.h";
+      }
+    else if (strcmp(types[i], "vtkArrayExtentsList") == 0)
+      {
+      incfile = "vtkArrayExtentsList.h";
       }
     else if (strcmp(types[i], "vtkArrayRange") == 0)
       {
@@ -3638,7 +3642,7 @@ static void vtkWrapPython_GenerateObjectNew(
 /* -------------------------------------------------------------------- */
 /* generate extra functions for a special object */
 static void vtkWrapPython_GenerateSpecialObjectNew(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
+  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
 {
   static const char *compare_consts[6] = {
     "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
@@ -3646,6 +3650,7 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
     "<", "<=", "==", "!=", ">", ">=" };
   int compare_ops = 0;
   int has_hash = 0;
+  int has_print = 0;
   int i;
   FunctionInfo *func;
 
@@ -3686,17 +3691,37 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
           "\n",
           data->Name, data->Name);
 
+  /* look in the file for "operator<<" for printing */
+  for (i = 0; i < finfo->Contents->NumberOfFunctions; i++)
+    {
+    func = finfo->Contents->Functions[i];
+    if (func->Name && func->IsOperator &&
+        strcmp(func->Name, "operator<<") == 0)
+      {
+      if (func->NumberOfArguments == 2 &&
+          (func->ArgTypes[0] & VTK_PARSE_UNQUALIFIED_TYPE) ==
+              VTK_PARSE_OSTREAM_REF &&
+          (func->ArgTypes[1] & VTK_PARSE_BASE_TYPE) ==
+              VTK_PARSE_OBJECT &&
+          (func->ArgTypes[1] & VTK_PARSE_POINTER_MASK) == 0 &&
+          strcmp(func->ArgClasses[1], data->Name) == 0)
+        {
+        has_print = 1;
+        }
+      }
+    }
+
   /* the printer */
   fprintf(fp,
           "static void vtkSpecial_%sPrint(ostream &os, const void *obj)\n"
           "{\n"
           "  if (obj)\n"
           "    {\n"
-          "    os << *static_cast<const %s *>(obj);\n"
+          "    os << %sstatic_cast<const %s *>(obj);\n"
           "    }\n"
           "}\n"
           "\n",
-          data->Name, data->Name);
+          data->Name, (has_print ? "*" : ""), data->Name);
 
   /* look for comparison operator methods */
   compare_ops = 0;
@@ -3984,7 +4009,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   /* output the class initilization function for special objects */
   else if (!data->IsAbstract)
     {
-    vtkWrapPython_GenerateSpecialObjectNew(fp, data, hinfo);
+    vtkWrapPython_GenerateSpecialObjectNew(fp, data, file_info, hinfo);
     }
 
   /* the New method for un-wrappable classes returns "NULL" */

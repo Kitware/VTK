@@ -1332,11 +1332,11 @@ class_def_item:
    | CLASS_REF
    | operator func_body { output_function(); }
    | FRIEND operator func_body { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; output_function(); currentClass = tmpc; }
+     currentClass = NULL; reject_function(); currentClass = tmpc; }
    | template operator func_body { output_function(); }
    | method func_body { output_function(); }
    | FRIEND method func_body { ClassInfo *tmpc = currentClass;
-     currentClass = NULL; output_function(); currentClass = tmpc; }
+     currentClass = NULL; reject_function(); currentClass = tmpc; }
    | template method func_body { output_function(); }
    | legacy_method func_body { legacySig(); output_function(); }
    | VTK_BYTE_SWAP_DECL '(' maybe_other ')' ';'
