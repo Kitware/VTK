@@ -334,21 +334,23 @@ int vtkClipDataSet::RequestData(
       return 1;
       }
     }
-   
-  // Typically we pass input scalars to the output unharmed. If
-  // this->GenerateClipScalars is on, then the input scalars are replaced by the
-  // "ClipDataSetScalars" array (I am not convinced we really want replace the
-  // input scalars, we should pass them as well). If we are clipping by scalar
-  // itself, then the scalar is passed only if this->GenerateClipScalars is on. 
-  // Refer to BUG #8494.
-  if (!this->GenerateClipScalars && !this->ClipFunction)
-    {
-    outPD->CopyScalarsOff();
-    }
-  else
-    {
-    outPD->CopyScalarsOn();
-    }
+
+  // Refer to BUG #8494 and BUG #11016. I cannot see any reason why one would
+  // want to turn CopyScalars Off. My understanding is that this was done to
+  // avoid copying of "ClipDataSetScalars" to the output when
+  // this->GenerateClipScalars is false. But, if GenerateClipScalars is false,
+  // then "ClipDataSetScalars" is not added as scalars to the input at all
+  // (refer to code above) so it's a non-issue. Leaving CopyScalars untouched
+  // i.e. ON avoids dropping of arrays (#8484) as well as segfaults (#11016).
+  //if ( !this->GenerateClipScalars &&
+  //  !this->GetInputArrayToProcess(0,inputVector))
+  //  {
+  //  outPD->CopyScalarsOff();
+  //  }
+  //else
+  //  {
+  //  outPD->CopyScalarsOn();
+  //  }
   vtkDataSetAttributes* tempDSA = vtkDataSetAttributes::New();
   tempDSA->InterpolateAllocate(inPD, 1, 2);
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
