@@ -3166,14 +3166,21 @@ void reject_function()
 /* a simple routine that updates a few variables */
 void output_function()
 {
+  size_t n;
   int i, j;
   int match;
 
   /* reject template specializations */
-  if (currentFunction->Name[strlen(currentFunction->Name)-1] == '>')
+  n = strlen(currentFunction->Name);
+  if (currentFunction->Name[n-1] == '>')
     {
-    reject_function();
-    return;
+    /* make sure there is a matching angle bracket */
+    while (n > 0 && currentFunction->Name[n-1] != '<') { n--; }
+    if (n > 0)
+      {
+      reject_function();
+      return;
+      }
     }
 
   /* static */
