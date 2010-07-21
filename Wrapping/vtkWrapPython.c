@@ -3647,6 +3647,7 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
   int compare_ops = 0;
   int has_hash = 0;
   int i;
+  FunctionInfo *func;
 
   /* handle all constructors */
   vtkWrapPython_GenerateMethods(fp, data, hinfo, 0, 1);
@@ -3697,17 +3698,38 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
           "\n",
           data->Name, data->Name);
 
-  /* hard-code comparison operators until vtkParse provides
-   * operator information */
-  if (strcmp(data->Name, "vtkVariant") == 0)
+  /* look for comparison operator methods */
+  compare_ops = 0;
+  for (i = 0; i < data->NumberOfFunctions; i++)
     {
-    compare_ops =
-     ( (1 << Py_LT) | (1 << Py_LE) | (1 << Py_EQ) |
-       (1 << Py_NE) | (1 << Py_GT) | (1 << Py_GE));
-    }
-  else if (strcmp(data->Name, "vtkTimeStamp") == 0)
-    {
-    compare_ops = ( (1 << Py_LT) | (1 << Py_GT) );
+    func = data->Functions[i];
+    if (func->IsOperator && func->Name != NULL)
+      {
+      if (strcmp(func->Name, "operator<") == 0)
+        {
+        compare_ops = (compare_ops | (1 << Py_LT));
+        }
+      else if (strcmp(func->Name, "operator<=") == 0)
+        {
+        compare_ops = (compare_ops | (1 << Py_LE));
+        }
+      else if (strcmp(func->Name, "operator==") == 0)
+        {
+        compare_ops = (compare_ops | (1 << Py_EQ));
+        }
+      else if (strcmp(func->Name, "operator!=") == 0)
+        {
+        compare_ops = (compare_ops | (1 << Py_NE));
+        }
+      else if (strcmp(func->Name, "operator>") == 0)
+        {
+        compare_ops = (compare_ops | (1 << Py_GT));
+        }
+      else if (strcmp(func->Name, "operator>=") == 0)
+        {
+        compare_ops = (compare_ops | (1 << Py_GE));
+        }
+      }
     }
 
   /* the compare function */
