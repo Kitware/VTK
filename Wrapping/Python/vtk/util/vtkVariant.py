@@ -6,6 +6,7 @@ import vtk
 import vtkConstants
 
 _variant_type_map = {
+    'void' : vtkConstants.VTK_VOID,
     'char' : vtkConstants.VTK_CHAR,
     'unsigned char' : vtkConstants.VTK_UNSIGNED_CHAR,
     'signed char' : vtkConstants.VTK_SIGNED_CHAR,
@@ -28,6 +29,7 @@ _variant_type_map = {
 }
 
 _variant_method_map = {
+    vtk.VTK_VOID : '',
     vtk.VTK_CHAR : 'ToChar',
     vtk.VTK_UNSIGNED_CHAR : 'ToUnsignedChar',
     vtk.VTK_SIGNED_CHAR : 'ToSignedChar',
@@ -49,6 +51,7 @@ _variant_method_map = {
 }
 
 _variant_check_map = {
+    vtk.VTK_VOID : 'IsValid',
     vtk.VTK_CHAR : 'IsChar',
     vtk.VTK_UNSIGNED_CHAR : 'IsUnsignedChar',
     vtk.VTK_SIGNED_CHAR : 'IsSignedChar',
@@ -78,9 +81,9 @@ def vtkVariantCreate(v, t):
     integer VTK type constant for the type.
     """
     if not issubclass(type(t), int):
-        i = _variant_type_map[t]
+        t = _variant_type_map[t]
 
-    return vtk.vtkVariant(v, i)
+    return vtk.vtkVariant(v, t)
 
 
 def vtkVariantExtract(v, t=None):
@@ -91,6 +94,8 @@ def vtkVariantExtract(v, t=None):
     integer VTK type constant for the type.  Set the type to 'None" to
     extract the value in its native type.
     """
+    v = vtk.vtkVariant(v)
+
     if t == None:
         t = v.GetType()
     elif not issubclass(type(t), int):
@@ -112,7 +117,7 @@ def vtkVariantCast(v, t):
     if not issubclass(type(t), int):
         t = _variant_type_map[t]
 
-    v = vtk.vtkVariant(v, i)
+    v = vtk.vtkVariant(v, t)
 
     if v.IsValid():
         return getattr(v, _variant_method_map[t])()
@@ -127,6 +132,9 @@ def vtkVariantStrictWeakOrder(s1, s2):
     python list sort() method.  This is in contrast with the C++ version,
     which returns true or false.
     """
+    s1 = vtk.vtkVariant(s1)
+    s2 = vtk.vtkVariant(s2)
+
     t1 = s1.GetType()
     t2 = s2.GetType()
 
@@ -158,6 +166,9 @@ def vtkVariantStrictEquality(s1, s2):
     """
     Check two variants for strict equality of type and value.
     """
+    s1 = vtk.vtkVariant(s1)
+    s2 = vtk.vtkVariant(s2)
+
     t1 = s1.GetType()
     t2 = s2.GetType()
 
@@ -185,11 +196,11 @@ def vtkVariantLessThan(s1, s2):
     """
     Return true if s1 < s2.  This isn't very useful in Python.
     """
-    return (s1 < s2)
+    return (vtk.vtkVariant(s1) < vtk.vtkVariant(s2))
 
 
 def vtkVariantEqual(s1, s2):
     """
     Return true if s1 == s2.  This isn't very useful in Python.
     """
-    return (s1 == s2)
+    return (vtk.vtkVariant(s1) == vtk.vtkVariant(s2))
