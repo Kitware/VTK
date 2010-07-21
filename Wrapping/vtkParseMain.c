@@ -249,12 +249,10 @@ int main(int argc, char *argv[])
     }
 
   vtkParse_SetIgnoreBTX(0);
-#ifdef VTK_IGNORE_BTX
   if (options.HierarchyFileName)
     {
     vtkParse_SetIgnoreBTX(1);
     }
-#endif
 
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
 
