@@ -701,6 +701,16 @@ void vtkTecplotReader::GetArraysFromPointPackingZone
     } 
   
   pointers.clear();
+
+  //remove all the float arrays from vector so they won't leak
+  for ( unsigned int i=0; i < zoneData.size(); ++i)
+    {
+    vtkFloatArray *fa = zoneData.at(i);
+    if ( fa )
+      {
+      fa->FastDelete();
+      }
+    }
   zoneData.clear();
   
   delete [] anyCoord;
@@ -827,7 +837,16 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
     
     zArrayId += int(    !(  !( anyCoord[v] + selected[v] )  )    );
     } 
-    
+
+  //remove all the float arrays from vector so they won't leak
+  for ( unsigned int i=0; i < zoneData.size(); ++i)
+    {
+    vtkFloatArray *fa = zoneData.at(i);
+    if ( fa )
+      {
+      fa->FastDelete();
+      }
+    }
   zoneData.clear();
   attribut[0] = attribut[1] = NULL;
   
