@@ -35,9 +35,9 @@ namespace
         {
         for_(x,0,dim[0])
           {
-          // cout << vtkstd::fixed << vtkstd::showpos << vtkstd::setprecision(5)
-          //     << *pointer++;
-          cout << (*pointer++ ? '+' : '-');
+          cout << vtkstd::fixed << vtkstd::showpos << vtkstd::setprecision(5)
+               << *pointer++;
+          // cout << (*pointer++ ? '+' : '-');
           }
         cout << endl;
         }
@@ -48,6 +48,8 @@ namespace
 
 int TestImageOcclusionSpectrum (int , char**)
 {
+  cout << vtkstd::fixed << vtkstd::showpos;
+
   int const dim [3] = {64,64,64};
   vsp(ImageData, image);
     {
@@ -60,9 +62,8 @@ int TestImageOcclusionSpectrum (int , char**)
       {
       image->SetScalarComponentFromDouble(x,y,z,0,0);
       }
-    image->SetScalarComponentFromDouble(0,0,0,0,1);
-    // print(dim, static_cast<double*>
-    //   (image->GetPointData()->GetScalars()->GetVoidPointer(0)));
+    image->SetScalarComponentFromDouble(32,32,32,0,1);
+    // print(dim, static_cast<double*>(image->GetOutput()->GetScalarPointer()));
     }
 
   vsp(ImageOcclusionSpectrum, os);
@@ -70,9 +71,7 @@ int TestImageOcclusionSpectrum (int , char**)
     os->SetInput(image);
     os->Update();
     // os->PrintSelf(cout, vtkIndent());
-
-    print(dim, static_cast<double*>
-      (os->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0)));
+    print(dim, static_cast<double*>(os->GetOutput()->GetScalarPointer()));
     }
 
   return 0;

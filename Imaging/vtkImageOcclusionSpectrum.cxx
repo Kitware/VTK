@@ -15,12 +15,13 @@
 #include "vtkImageOcclusionSpectrum.h"
 
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -39,7 +40,7 @@ vtkImageOcclusionSpectrum::vtkImageOcclusionSpectrum()
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
 
-  this->SetNumberOfThreads(8);
+  this->SetNumberOfThreads(1);
 }
 
 //----------------------------------------------------------------------------
@@ -148,115 +149,97 @@ namespace
   //   }
   // };
 
+//   template <typename T>
+//   void print (int const* ext, T const* data)
+//   {
+// #define for_(i, x, y) for (int i = x, I = y; i < I; ++i)
+//     for_(z,ext[4],ext[5])
+//       {
+//       for_(y,ext[2],ext[3])
+//         {
+//         data = printv(data, ext[0], ext[1]);
+//         cout << endl;
+//         }
+//       cout << endl;
+//       }
+// #undef for_
+//   }
+//
+//   template <typename T>
+//   T const* printv (T const* data, int b = 0, int e = 2)
+//   {
+//     for (; b <= e; ++b, ++data)
+//       {
+//       cout << *data;
+//       }
+//     return data;
+//   }
+
+  template <typename T>
+  vtkSmartPointer<vtkImageData> prefix_sum
+  (vtkImageData* const iimg, T const* idat)
+  {
+    // Build inclusive prefix sum volume which can speed up computation by N.
+    vtkSmartPointer<vtkImageData> simg = vtkSmartPointer<vtkImageData>::New();
+
+    // Make sure the prefix sum volume has EXACTLY the same shape and type
+    // as the input update extent.
+    simg->SetExtent(iimg->GetUpdateExtent());
+    simg->SetNumberOfScalarComponents(iimg->GetNumberOfScalarComponents());
+    simg->SetScalarType(iimg->GetScalarType());
+    simg->AllocateScalars();
+
+    int const* const iext = iimg->GetExtent();
+    int const* const sext = simg->GetExtent();
+
+    // Beginning of input and output.
+    idat += (sext[0] - iext[0]) * iimg->GetIncrements()[0]
+          + (sext[2] - iext[2]) * iimg->GetIncrements()[1]
+          + (sext[4] - iext[4]) * iimg->GetIncrements()[2];
+    T* sdat = static_cast<T*>(simg->GetScalarPointer());
+
+    // Loop through each ROW in the input extent of the volume.
+    vtkIdType iinc [3] = {0};
+    iimg->GetContinuousIncrements
+      (const_cast<int*>(sext), iinc[0], iinc[1], iinc[2]);
+    for (int z = iext[4]; z <= iext[5]; ++z, idat += iinc[2])
+    for (int y = iext[2]; y <= iext[3]; ++y, idat += iinc[1])
+      {
+      // Generate prefix sum array and advance output pointer.
+      sdat = vtkstd::partial_sum(idat+iext[0], idat+iext[1]+1, sdat);
+      idat+= iext[1]-iext[0]+1; // advance input pointer.
+      }
+    return simg;
+  }
+
   template <typename T, typename Functor>
   void __execute
   (Functor const& M, vtkImageOcclusionSpectrum* const self,
-   vtkImageData* const IData, T const* IPtr,
-   vtkImageData* const OData, double * OPtr,
-   int OExt [6], int const tid)
+   vtkImageData* const iimg, T const* idat,
+   vtkImageData* const oimg, double * odat,
+   int const oext [6], int const tid)
   {
-    // Build inclusive prefix sum volume that speed up later computation by N.
-    vtkSmartPointer<vtkImageData> SData = vtkSmartPointer<vtkImageData>::New();
+    // Prefix sum volume
+    vtkSmartPointer<vtkImageData> simg = prefix_sum(iimg, idat);
 
-    // Make sure the prefix sum volume has EXACTLY the same shape
-    // as the input update extent of the input volume.
-    SData->SetExtent(IData->GetUpdateExtent());
-    SData->SetNumberOfScalarComponents(IData->GetNumberOfScalarComponents());
-    SData->SetScalarType(IData->GetScalarType());
-
-    // Generate prefix sum volume.
-    // Get the pointers to the first element that we should work on.
-    int const* const IExt = IData->GetExtent();
-    int const* const SExt = SData->GetExtent();
-
-    IPtr += (SExt[0] - IExt[0]) * IData->GetIncrements()[0]
-          + (SExt[2] - IExt[2]) * IData->GetIncrements()[1]
-          + (SExt[4] - IExt[4]) * IData->GetIncrements()[2];
-    T* SPtr = static_cast<T*>
-              (SData->GetPointData()->GetScalars()->GetVoidPointer(0));
-
-    vtkIdType IIncs [3] = {0};
-    IData->GetContinuousIncrements
-      (const_cast<int*>(SExt), IIncs[0], IIncs[1], IIncs[2]);
-
-    // Loop through each ROW in the input extent of the volume.
-    for (int z = IExt[4]; z <= IExt[5]; ++z, IPtr += IIncs[2])
-    for (int y = IExt[2]; y <= IExt[3]; ++y, IPtr += IIncs[1])
-      {
-      // Generate prefix sum array by accumulating along x direction.
-      SPtr = vtkstd::partial_sum(IPtr + IExt[0], IPtr + IExt[1] + 1, SPtr);
-      }
-
-    // if (0 == tid)
-    // {
-    // cout << "thread id : " << tid << "\n";
-    // cout << " input : \n"
-    //      << "  ext : " << I.ext[0] << " " << I.ext[1] << " "
-    //                    << I.ext[2] << " " << I.ext[3] << " "
-    //                    << I.ext[4] << " " << I.ext[5] << "\n"
-    //      << "  inc : " << I.inc[0] << " " << I.inc[1] << " " << I.inc[2] << "\n"
-    //      << "  jmp : " << I.jmp[0] << " " << I.jmp[1] << " " << I.jmp[2] << "\n";
-    // cout << " output: \n"
-    //      << "  ext : " << O.ext[0] << " " << O.ext[1] << " "
-    //                    << O.ext[2] << " " << O.ext[3] << " "
-    //                    << O.ext[4] << " " << O.ext[5] << "\n"
-    //      << "  inc : " << O.inc[0] << " " << O.inc[1] << " " << O.inc[2] << "\n"
-    //      << "  jmp : " << O.jmp[0] << " " << O.jmp[1] << " " << O.jmp[2] << "\n";
-    // cout << endl;
-    // }
-
-    int const __r2 = self->Radius * self->Radius;
-
-    vtkIdType OIncs [3] = {0};
-    OData->GetContinuousIncrements(OExt, OIncs[0], OIncs[1], OIncs[2]);
+    int const r2 = self->Radius * self->Radius;
+    int const* iext = iimg->GetExtent();
 
     // Loop through all points in the output extent of the output volume.
-    for (int z = OExt[4]; z <= OExt[5]; ++z, OPtr += OIncs[2])
-    for (int y = OExt[2]; y <= OExt[3]; ++y, OPtr += OIncs[1])
-    for (int x = OExt[0]; x <= OExt[1]; ++x, ++OPtr)
+    vtkIdType oinc [3] = {0};
+    oimg->GetContinuousIncrements
+      (const_cast<int*>(oext), oinc[0], oinc[1], oinc[2]);
+    for (int z = oext[4]; z <= oext[5]; ++z, odat += oinc[2])
+    for (int y = oext[2]; y <= oext[3]; ++y, odat += oinc[1])
+    for (int x = oext[0]; x <= oext[1]; ++x, ++odat)
       {
-      // Get the extent of the neighbor box of the current voxel.
-      int NExt [6] =
+      // Adjust it if it falls out of the input extent in any dimension.
+      int const next [6] = // Short for nExtent, not "next"
         {
-        x - self->Radius, x + self->Radius,
-        y - self->Radius, y + self->Radius,
-        z - self->Radius, z + self->Radius,
+        vtkstd::max(x-self->Radius,iext[0]),vtkstd::min(x+self->Radius,iext[1]),
+        vtkstd::max(y-self->Radius,iext[2]),vtkstd::min(y+self->Radius,iext[3]),
+        vtkstd::max(z-self->Radius,iext[4]),vtkstd::min(z+self->Radius,iext[5]),
         };
-
-      // Adjust neighbor extent to make sure
-      // it falls into the input extent in all dimension.
-      for (int i = 0; i < 3; ++i)
-        {
-        int const l = i*2;
-        int const u = l+1;
-
-        if (NExt[l] < IExt[l])
-          {
-          NExt[l] = IExt[l];
-          }
-        if (NExt[u] > IExt[u])
-          {
-          NExt[u] = IExt[u];
-          }
-        }
-
-      // if (0 == tid)
-      // {
-      // cout << "voxel : " << x << " " << y << " " << z << "\n";
-      // cout << "NExt  : " << NExt[0] << " " << NExt[1] << " " << NExt[2] << " "
-      //                    << NExt[3] << " " << NExt[4] << " " << NExt[5] << "\n";
-      // cout << "IExt  : " << I.ext[0] << " " << I.ext[1] << " " << I.ext[2] << " "
-      //                    << I.ext[3] << " " << I.ext[4] << " " << I.ext[5] << "\n";
-      // cout << endl;
-      // }
-
-      // Advance input data pointer to the start location of neighbor extent.
-      // T const* __IPtr = IPtr
-      //                 + (NExt[0] - I.ext[0]) * I.inc[0]
-      //                 + (NExt[2] - I.ext[2]) * I.inc[1]
-      //                 + (NExt[4] - I.ext[4]) * I.inc[2];
-      // vtkIdType __I [3] = {0}; // Jumping in the neighbor extent
-      // IData->GetContinuousIncrements(NExt,__I[0],__I[1],__I[2]);
 
       // Since we have the prefix sum volume so that we can speed up
       // the following process by a factor of N.
@@ -274,51 +257,35 @@ namespace
       T   sum = 0; // T used to avoid unnecessary cast on every accumulation.
       int num = 0;
 
-      int const* SIncs = SData->GetIncrements();
-      T* SPtr = static_cast<T*>
-                (SData->GetPointData()->GetScalars()->GetVoidPointer(0));
+      int const* const sinc = simg->GetIncrements();
+      int const* const sext = simg->GetExtent();
+      T   const* const sdat = static_cast<T*>(simg->GetScalarPointer());
 
       // Loop through each grid point in the projected disk
       // of the neighbor sphere.
-      for (int k = NExt[4]; k <= NExt[5]; ++k)
-      for (int j = NExt[2]; j <= NExt[3]; ++j)
+      for (int k = next[4]; k <= next[5]; ++k)
+      for (int j = next[2]; j <= next[3]; ++j)
         {
-        int const t = k * SIncs[2] + j * SIncs[1];
-        if (int const radius = x + sqrt(__r2 - (y-j)*(y-j) - (z-k)*(z-k)))
+        int i = r2 - (y-j)*(y-j) - (z-k)*(z-k);
+        if (i < 0) // In box neighbor, but not in spherical neighbor.
           {
-          int l = x - radius;
-          int u = x + radius;
-
-          // Make sure we do not fall off the prefix sum volume whole extent.
-          if (l < SExt[0])
-            {
-            l = SExt[0];
-            }
-          if (u > SExt[1])
-            {
-            u = SExt[1];
-            }
-
-          sum += SPtr[t+u] - SPtr[t+l];
-          num += 2*radius + 1;
+          continue;
           }
-        else
-          {
-          if (0 == x)
-            {
-            sum += SPtr[t];
-            }
-          else
-            {
-            sum += SPtr[t+x] - SPtr[t+x-1];
-            }
-          ++num;
-          }
+
+        int const t = k * sinc[2] + j * sinc[1];
+        i = sqrt(i);
+
+        // Make sure we do not fall off the prefix sum volume whole extent.
+        int const i0 = vtkstd::max(x-i, sext[0]); // lower bound
+        int const i1 = vtkstd::min(x+i, sext[1]); // upper bound
+
+        // sum of every thing in [i0,i1]
+        sum += sdat[t+i1] - (0==i0 ? 0:sdat[t+i0-1]);
+        num += i1-i0+1;
         }
 
-      // Generate the corresponding output occlusion spectrum.
       // Guard against divide by zero and cast only once here.
-      *OPtr = num ? (double)sum / num : 0;
+      *odat = num ? (double)sum / num : 0;
       }
   }
 }
