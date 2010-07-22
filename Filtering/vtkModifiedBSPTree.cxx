@@ -785,7 +785,7 @@ vtkIdListCollection *vtkModifiedBSPTree::GetLeafNodeCellInformation()
   vtkIdListCollection *LeafCellsList = vtkIdListCollection::New();
   nodestack ns;
   BSPNode   *node;
-  ns.push(mRoot);
+  if (mRoot) ns.push(mRoot);
   //
   while (!ns.empty())  {
     node = ns.top();
