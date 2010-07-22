@@ -106,7 +106,7 @@ int vtkTIFFReaderInternal::Open( const char *filename )
 //-------------------------------------------------------------------------
 void vtkTIFFReaderInternal::Clean()
 {
-  if ( this->Image ) 
+  if ( this->Image )
     {
     TIFFClose(this->Image);
     }
@@ -225,9 +225,9 @@ int vtkTIFFReaderInternal::Initialize()
       TIFFSetDirectory(this->Image,0);
       }
 
-      // TIFFTAG_ORIENTATION tag from the image 
+      // TIFFTAG_ORIENTATION tag from the image
       // data and use it if available. If the tag is not found in the image data,
-      // use ORIENTATION_BOTLEFT by default. 
+      // use ORIENTATION_BOTLEFT by default.
       int status =  TIFFGetField(this->Image, TIFFTAG_ORIENTATION,
                             &this->Orientation);
       if( ! status )
@@ -235,17 +235,17 @@ int vtkTIFFReaderInternal::Initialize()
         this->Orientation = ORIENTATION_BOTLEFT;
         }
 
-    TIFFGetFieldDefaulted(this->Image, TIFFTAG_SAMPLESPERPIXEL, 
+    TIFFGetFieldDefaulted(this->Image, TIFFTAG_SAMPLESPERPIXEL,
                           &this->SamplesPerPixel);
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_COMPRESSION, &this->Compression);
-    TIFFGetFieldDefaulted(this->Image, TIFFTAG_BITSPERSAMPLE, 
+    TIFFGetFieldDefaulted(this->Image, TIFFTAG_BITSPERSAMPLE,
                           &this->BitsPerSample);
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_PLANARCONFIG, &this->PlanarConfig);
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_SAMPLEFORMAT, &this->SampleFormat);
 
-    // If TIFFGetField returns false, there's no Photometric Interpretation 
+    // If TIFFGetField returns false, there's no Photometric Interpretation
     // set for this image, but that's a required field so we set a warning flag.
-    // (Because the "Photometrics" field is an enum, we can't rely on setting 
+    // (Because the "Photometrics" field is an enum, we can't rely on setting
     // this->Photometrics to some signal value.)
     if (TIFFGetField(this->Image, TIFFTAG_PHOTOMETRIC, &this->Photometrics))
       {
@@ -268,9 +268,9 @@ int vtkTIFFReaderInternal::Initialize()
 int vtkTIFFReaderInternal::CanRead()
 {
   return ( this->Image && ( this->Width > 0 ) && ( this->Height > 0 ) &&
-           ( this->SamplesPerPixel > 0 ) && 
-           ( this->Compression == COMPRESSION_NONE || 
-             this->Compression == COMPRESSION_PACKBITS || 
+           ( this->SamplesPerPixel > 0 ) &&
+           ( this->Compression == COMPRESSION_NONE ||
+             this->Compression == COMPRESSION_PACKBITS ||
              this->Compression == COMPRESSION_LZW
              ) &&
            ( this->HasValidPhotometricInterpretation ) &&
@@ -342,7 +342,7 @@ void vtkTIFFReader::ExecuteInformation()
 
   if( !SpacingSpecifiedFlag )
     {
-    this->DataSpacing[0] = 1.0; 
+    this->DataSpacing[0] = 1.0;
     this->DataSpacing[1] = 1.0;
 
   // If we have some spacing information we use it
@@ -353,13 +353,13 @@ void vtkTIFFReader::ExecuteInformation()
       {
       if(this->GetInternalImage()->ResolutionUnit == 2) // inches
         {
-        this->DataSpacing[0] = 25.4/this->GetInternalImage()->XResolution; 
-        this->DataSpacing[1] = 25.4/this->GetInternalImage()->YResolution; 
+        this->DataSpacing[0] = 25.4/this->GetInternalImage()->XResolution;
+        this->DataSpacing[1] = 25.4/this->GetInternalImage()->YResolution;
         }
       else if(this->GetInternalImage()->ResolutionUnit == 3) // cm
         {
-        this->DataSpacing[0] = 10.0/this->GetInternalImage()->XResolution; 
-        this->DataSpacing[1] = 10.0/this->GetInternalImage()->YResolution; 
+        this->DataSpacing[0] = 10.0/this->GetInternalImage()->XResolution;
+        this->DataSpacing[1] = 10.0/this->GetInternalImage()->YResolution;
         }
       }
     }
@@ -437,7 +437,7 @@ void vtkTIFFReader::ExecuteInformation()
     return;
     }
 
-  // We check if we have a Zeiss image. 
+  // We check if we have a Zeiss image.
   // Meaning that the SamplesPerPixel is 2 but the image should be treated as
   // an RGB image.
   if(this->GetInternalImage()->SamplesPerPixel == 2)
@@ -502,7 +502,7 @@ void vtkTIFFReader::ExecuteInformation()
 //ORIENTATION_LEFTTOP         5       (row 0 lhs, col 0 top)
 //ORIENTATION_RIGHTTOP        6       (row 0 rhs, col 0 top)
 //ORIENTATION_RIGHTBOT        7       (row 0 rhs, col 0 bottom)
-//ORIENTATION_LEFTBOT         8       (row 0 lhs, col 0 bottom) */ 
+//ORIENTATION_LEFTBOT         8       (row 0 lhs, col 0 bottom) */
 void vtkTIFFReader::SetOrientationType( unsigned int orientationType )
 {
   if ( orientationType < 1 || orientationType > 8 )
@@ -527,10 +527,10 @@ void vtkTIFFReader::SetOrientationType( unsigned int orientationType )
 
 //-------------------------------------------------------------------------
 template <class OT>
-void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
-                          int *outExt, vtkIdType* vtkNotUsed(outInc), long) 
+void vtkTIFFReaderUpdate2(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
+                          OT *outPtr, int *outExt)
 {
-  if ( !self->GetInternalImage()->Open(self->GetInternalFileName()) )
+  if ( !reader->Open(self->GetInternalFileName()) )
     {
     return;
     }
@@ -538,23 +538,23 @@ void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
   // read from the tiff image
   if( self->GetOrientationTypeSpecifiedFlag())
     {
-    self->GetInternalImage()->Orientation = self->GetOrientationType();
+    reader->Orientation = self->GetOrientationType();
     }
 
- 
+
   self->InitializeColors();
-  self->ReadImageInternal(self->GetInternalImage()->Image,
-                          outPtr, outExt, sizeof(OT) );
+  self->ReadImageInternal(reader->Image, outPtr, outExt, sizeof(OT) );
 
   // close the file
-  self->GetInternalImage()->Clean();
+  reader->Clean();
 }
 
 //----------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, OT *outPtr) 
+void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkTIFFReaderInternal *reader,
+                         vtkImageData *data, OT *outPtr)
 {
   vtkIdType outIncr[3];
   int outExtent[6];
@@ -563,26 +563,24 @@ void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, OT *outPtr)
   data->GetExtent(outExtent);
   data->GetIncrements(outIncr);
 
-  long pixSize = data->GetNumberOfScalarComponents()*sizeof(OT);
-
   // multiple number of pages
-  if(self->GetInternalImage()->NumberOfPages>1 )
+  if(reader->NumberOfPages>1 )
     {
     self->ReadVolume( outPtr );
     return;
     }
 
   // tiled image
-  if(self->GetInternalImage()->NumberOfTiles>0 )
+  if(reader->NumberOfTiles>0 )
     {
     self->ReadTiles( outPtr );
     return;
     }
 
-  //The input tiff dataset is neither multiple pages and nor 
+  //The input tiff dataset is neither multiple pages and nor
   //tiled. Hence close the image and start reading each TIFF
-  //file 
-  self->GetInternalImage()->Clean();
+  //file
+  reader->Clean();
 
   outPtr2 = outPtr;
   int idx2;
@@ -590,7 +588,7 @@ void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, OT *outPtr)
     {
     self->ComputeInternalFileName(idx2);
     // read in a TIFF file
-    vtkTIFFReaderUpdate2(self, outPtr2, outExtent, outIncr, pixSize);
+    vtkTIFFReaderUpdate2(self, reader, outPtr2, outExtent);
     self->UpdateProgress((idx2 - outExtent[4])/
                          (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
@@ -604,6 +602,7 @@ void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, OT *outPtr)
 void vtkTIFFReader::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
+  vtkTIFFReaderInternal *reader = this->GetInternalImage();
 
   if (this->InternalFileName == NULL)
     {
@@ -621,9 +620,10 @@ void vtkTIFFReader::ExecuteData(vtkDataObject *output)
   // Needed deep in reading for finding the correct starting location.
   this->OutputIncrements = data->GetIncrements();
 
-  switch (data->GetScalarType()) 
+  switch (data->GetScalarType())
     {
-    vtkTemplateMacro(vtkTIFFReaderUpdate(this, data, (VTK_TT *)(outPtr)));
+    vtkTemplateMacro(vtkTIFFReaderUpdate(this, reader, data,
+                                         (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro("UpdateFromFile: Unknown data type");
     }
@@ -656,7 +656,7 @@ unsigned int vtkTIFFReader::GetFormat()
         {
         unsigned short red, green, blue;
         this->GetColor( cc, &red, &green, &blue );
-        if ( red != green || red != blue ) 
+        if ( red != green || red != blue )
           {
           this->ImageFormat = vtkTIFFReader::PALETTE_RGB;
           return this->ImageFormat;
@@ -709,7 +709,7 @@ void vtkTIFFReader::GetColor( int index, unsigned short *red,
 
   unsigned short *red_orig, *green_orig, *blue_orig;
 
-  switch (this->GetInternalImage()->BitsPerSample) 
+  switch (this->GetInternalImage()->BitsPerSample)
     {
     case 1: case 2: case 4:
     case 8: case 16:
@@ -755,21 +755,18 @@ void vtkTIFFReader::InitializeColors()
 
 //-------------------------------------------------------------------------
 template <typename T>
-void ReadTiledImage(vtkTIFFReader *self, void *out,
+void ReadTiledImage(vtkTIFFReader *self, TIFF *tiff, void *out,
                     unsigned int width,
                     unsigned int height,
-                    unsigned int vtkNotUsed(size),
+                    unsigned int pixelDepth,
                     int *internalExtents)
 {
-  TIFF *tiff;
   uint32 tileWidth, tileLength, x, y, yi, rows, cols, tileSize;
   int xx,yy;
-  int pixelDepth = self->GetInternalImage()->SamplesPerPixel;
   T *image;
   uint32 imagepos;
 
   image = (T*)out;
-  tiff = self->GetInternalImage()->Image;
   TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth);
   TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength);
   tileSize = TIFFTileSize(tiff);
@@ -784,7 +781,7 @@ void ReadTiledImage(vtkTIFFReader *self, void *out,
       if (tileWidth > width - x)
         {
         cols = width-x;
-        } 
+        }
       else
         {
         cols = tileWidth;
@@ -822,10 +819,11 @@ void ReadTiledImage(vtkTIFFReader *self, void *out,
 
 //-------------------------------------------------------------------------
 template<typename T>
-void ReadScanlineImage(vtkTIFFReader *self, void *out,
+void ReadScanlineImage(vtkTIFFReader *self, TIFF *tiff, void *out,
                        unsigned int vtkNotUsed(width),
                        unsigned height,
                        unsigned int vtkNotUsed(size),
+                       unsigned int pixelDepth,
                        int *internalExtents)
 {
   unsigned int isize = TIFFScanlineSize(self->GetInternalImage()->Image);
@@ -834,40 +832,32 @@ void ReadScanlineImage(vtkTIFFReader *self, void *out,
   int xx=0, yy=0;
   tdata_t buf = _TIFFmalloc(isize);
   T *image = (T *)out;
-  unsigned int c_inc = 
-    self->GetInternalImage()->SamplesPerPixel; // * self->GetInternalImage()->BitsPerSample;
-  if ( self->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG )
-    {
-    for ( row = height-1; row >= 0; row -- )
-      {
-      if (TIFFReadScanline(self->GetInternalImage()->Image, buf, row, 0) <= 0)
-        {
-        cerr << "Problem reading the row in ReadScalineImage method:" << endl;
-        break;
-        }
 
-      for (cc = 0; cc < isize; cc += c_inc )
-        {
-        if ( xx >= internalExtents[0] &&
-             xx <= internalExtents[1] &&
-             yy >= internalExtents[2] &&
-             yy <= internalExtents[3] )
-          {
-          //unsigned char *c = static_cast<unsigned char *>(buf)+cc;
-          inc = self->EvaluateImageAt( image,
-                                       static_cast<T*>(buf) + cc
-                                       );
-          image += inc;
-          }
-        xx++;
-        }
-      xx=0;
-      yy++;
-      }
-    }
-  else
+  for ( row = height-1; row >= 0; row -- )
     {
-    cerr << "This TIFF reader can only do PLANARCONFIG_CONTIG" << endl;
+    if (TIFFReadScanline(tiff, buf, row, 0) <= 0)
+      {
+      cerr << "Problem reading the row in ReadScalineImage method:" << endl;
+      break;
+      }
+
+    for (cc = 0; cc < isize; cc += pixelDepth )
+      {
+      if ( xx >= internalExtents[0] &&
+           xx <= internalExtents[1] &&
+           yy >= internalExtents[2] &&
+           yy <= internalExtents[3] )
+        {
+        //unsigned char *c = static_cast<unsigned char *>(buf)+cc;
+        inc = self->EvaluateImageAt( image,
+                                     static_cast<T*>(buf) + cc
+                                     );
+        image += inc;
+        }
+      xx++;
+      }
+    xx=0;
+    yy++;
     }
 
   _TIFFfree(buf);
@@ -878,7 +868,7 @@ void ReadScanlineImage(vtkTIFFReader *self, void *out,
 void vtkTIFFReader::ReadVolume(void* buffer)
 {
 
-  if ( this->GetInternalImage()->Compression == COMPRESSION_OJPEG ) 
+  if ( this->GetInternalImage()->Compression == COMPRESSION_OJPEG )
     {
     vtkErrorMacro("This reader cannot read old JPEG compression");
     return;
@@ -996,7 +986,7 @@ void vtkTIFFReader::ReadVolume(void* buffer)
             ssimage ++;
             }
           }
-        }      
+        }
       else if(this->GetDataScalarType() == VTK_CHAR)
         {
         char *fimage = (char *)buffer;
@@ -1094,7 +1084,7 @@ void vtkTIFFReader::ReadVolume(void* buffer)
 /** Read a tiled tiff */
 void vtkTIFFReader::ReadTiles(void* buffer)
 {
-  if ( this->GetInternalImage()->Compression == COMPRESSION_OJPEG ) 
+  if ( this->GetInternalImage()->Compression == COMPRESSION_OJPEG )
     {
     vtkErrorMacro("This reader cannot read old JPEG compression");
     return;
@@ -1138,8 +1128,8 @@ void vtkTIFFReader::ReadTiles(void* buffer)
 
 /** To Support Zeiss images that contains only 2 samples per pixel but are actually
  *  RGB images */
-void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out, 
-                                               unsigned int width, 
+void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out,
+                                               unsigned int width,
                                                unsigned int height )
 {
   unsigned int isize = TIFFScanlineSize(this->GetInternalImage()->Image);
@@ -1152,7 +1142,7 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out,
   if(this->GetDataScalarType() == VTK_UNSIGNED_CHAR)
     {
     unsigned char* image;
-     if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG) 
+     if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG)
       {
       for ( row = 0; row < (int)height; row ++ )
         {
@@ -1224,7 +1214,7 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out,
     {
     isize /= 2;
     unsigned short* image;
-    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG) 
+    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG)
       {
       for ( row = 0; row < (int)height; row ++ )
         {
@@ -1277,7 +1267,7 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out,
             }
           // We translate the output pixel to be on the right RGB
           image += s;
-          for (cc = 0; cc < isize; 
+          for (cc = 0; cc < isize;
                cc += 1)
             {
             (*image) = *(static_cast<unsigned short *>(buf) + cc);
@@ -1288,12 +1278,12 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out,
         }
       }
     }
-  _TIFFfree(buf); 
+  _TIFFfree(buf);
 }
 
 
-void vtkTIFFReader::ReadGenericImage( void *out, 
-                                      unsigned int, 
+void vtkTIFFReader::ReadGenericImage( void *out,
+                                      unsigned int,
                                       unsigned int height )
 {
   unsigned int isize = TIFFScanlineSize(this->GetInternalImage()->Image);
@@ -1314,7 +1304,7 @@ void vtkTIFFReader::ReadGenericImage( void *out,
     case vtkTIFFReader::PALETTE_GRAYSCALE:
       inc = 1;
       break;
-    case vtkTIFFReader::RGB: 
+    case vtkTIFFReader::RGB:
       inc = this->GetInternalImage()->SamplesPerPixel;
       break;
     case vtkTIFFReader::PALETTE_RGB:
@@ -1327,21 +1317,21 @@ void vtkTIFFReader::ReadGenericImage( void *out,
   // so i added this test.  It might be better as a warning.
   if (inc != this->OutputIncrements[0])
     {
-    vtkDebugMacro("Computed increment " << inc 
-                  << " does not match information increment " 
+    vtkDebugMacro("Computed increment " << inc
+                  << " does not match information increment "
                   << this->OutputIncrements[0]);
     }
-  
+
   if(this->GetDataScalarType() == VTK_UNSIGNED_CHAR)
     {
     unsigned char* image;
-    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG) 
+    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG)
       {
       for ( row = this->OutputExtent[2]; row <= this->OutputExtent[3]; row ++ )
         {
         // Flip from lower left origin to upper left if necessary.
         if (this->GetInternalImage()->Orientation == ORIENTATION_TOPLEFT)
-          {      
+          {
           fileRow = row;
           }
         else
@@ -1353,14 +1343,14 @@ void vtkTIFFReader::ReadGenericImage( void *out,
           vtkErrorMacro( << "Problem reading the row: " << fileRow );
           break;
           }
-        image = reinterpret_cast<unsigned char*>(out) 
+        image = reinterpret_cast<unsigned char*>(out)
           + (row-this->OutputExtent[2])*this->OutputIncrements[1];
 
         // Copy the pixels into the output buffer
         cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
         for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
           {
-          inc = this->EvaluateImageAt( image, 
+          inc = this->EvaluateImageAt( image,
                                        static_cast<unsigned char *>(buf) +
                                        cc );
           image += this->OutputIncrements[0];
@@ -1390,14 +1380,14 @@ void vtkTIFFReader::ReadGenericImage( void *out,
             vtkErrorMacro( << "Problem reading the row: " << fileRow );
             break;
             }
-          
+
           inc = 3;
-          image = reinterpret_cast<unsigned char*>(out) 
+          image = reinterpret_cast<unsigned char*>(out)
             + (row-this->OutputExtent[2])*this->OutputIncrements[1];
           cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
           for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
             {
-            inc = this->EvaluateImageAt( image, 
+            inc = this->EvaluateImageAt( image,
                                          static_cast<unsigned char *>(buf) +
                                          cc );
             image += this->OutputIncrements[0];
@@ -1410,7 +1400,7 @@ void vtkTIFFReader::ReadGenericImage( void *out,
   else if(this->GetDataScalarType() == VTK_CHAR)
     {
     char* image;
-     if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG) 
+     if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG)
       {
       for ( row = this->OutputExtent[2]; row <= this->OutputExtent[3]; row ++ )
         {
@@ -1428,12 +1418,12 @@ void vtkTIFFReader::ReadGenericImage( void *out,
           break;
           }
 
-        image = reinterpret_cast<char*>(out) 
+        image = reinterpret_cast<char*>(out)
           + (row-this->OutputExtent[2])*this->OutputIncrements[1];
         cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
         for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
           {
-          inc = this->EvaluateImageAt( image, 
+          inc = this->EvaluateImageAt( image,
                                        static_cast<char *>(buf) +
                                        cc );
           image += this->OutputIncrements[0];
@@ -1463,14 +1453,14 @@ void vtkTIFFReader::ReadGenericImage( void *out,
             vtkErrorMacro( << "Problem reading the row: " << fileRow );
             break;
             }
-          
+
           inc = 3;
-          image = reinterpret_cast<char*>(out) 
+          image = reinterpret_cast<char*>(out)
             + (row-this->OutputExtent[2])*this->OutputIncrements[1];
           cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
           for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
             {
-            inc = this->EvaluateImageAt( image, 
+            inc = this->EvaluateImageAt( image,
                                          static_cast<char *>(buf) +
                                          cc );
             image += this->OutputIncrements[0];
@@ -1484,7 +1474,7 @@ void vtkTIFFReader::ReadGenericImage( void *out,
     {
     isize /= 2;
     unsigned short* image;
-    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG) 
+    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG)
       {
       for ( row = this->OutputExtent[2]; row <= this->OutputExtent[3]; row ++ )
         {
@@ -1502,12 +1492,12 @@ void vtkTIFFReader::ReadGenericImage( void *out,
           break;
           }
 
-        image = reinterpret_cast<unsigned short*>(out) 
+        image = reinterpret_cast<unsigned short*>(out)
           + (row-this->OutputExtent[2])*this->OutputIncrements[1];
         cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
         for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
           {
-          inc = this->EvaluateImageAt( image, 
+          inc = this->EvaluateImageAt( image,
                                        static_cast<unsigned short *>(buf) +
                                        cc );
           image += this->OutputIncrements[0];
@@ -1536,12 +1526,12 @@ void vtkTIFFReader::ReadGenericImage( void *out,
             vtkErrorMacro( << "Problem reading the row: " << fileRow );
             break;
             }
-          image = reinterpret_cast<unsigned short*>(out) 
+          image = reinterpret_cast<unsigned short*>(out)
             + (row-this->OutputExtent[2])*this->OutputIncrements[1];
           cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
           for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
             {
-            inc = this->EvaluateImageAt( image, 
+            inc = this->EvaluateImageAt( image,
                                          static_cast<unsigned short *>(buf) +
                                          cc );
             image += this->OutputIncrements[0];
@@ -1556,7 +1546,7 @@ void vtkTIFFReader::ReadGenericImage( void *out,
     {
     isize /= 2;
     short* image;
-    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG) 
+    if (this->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG)
       {
       for ( row = this->OutputExtent[2]; row <= this->OutputExtent[3]; row ++ )
         {
@@ -1573,13 +1563,13 @@ void vtkTIFFReader::ReadGenericImage( void *out,
           vtkErrorMacro( << "Problem reading the row: " << fileRow );
           break;
           }
-          
-        image = reinterpret_cast<short*>(out) 
+
+        image = reinterpret_cast<short*>(out)
           + (row-this->OutputExtent[2])*this->OutputIncrements[1];
         cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
         for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
           {
-          inc = this->EvaluateImageAt(image, 
+          inc = this->EvaluateImageAt(image,
                                       static_cast<short *>(buf) +
                                       cc );
           image += this->OutputIncrements[0];
@@ -1609,12 +1599,12 @@ void vtkTIFFReader::ReadGenericImage( void *out,
             break;
             }
 
-          image = reinterpret_cast<short*>(out) 
+          image = reinterpret_cast<short*>(out)
             + (row-this->OutputExtent[2])*this->OutputIncrements[1];
           cc = this->OutputExtent[0] * this->GetInternalImage()->SamplesPerPixel;
           for (int ix = this->OutputExtent[0]; ix <= this->OutputExtent[1]; ++ix)
             {
-            inc = this->EvaluateImageAt( image, 
+            inc = this->EvaluateImageAt( image,
                                          static_cast<short *>(buf) +
                                          cc );
             image += this->OutputIncrements[0];
@@ -1624,7 +1614,7 @@ void vtkTIFFReader::ReadGenericImage( void *out,
         }
       }
     }
-  _TIFFfree(buf); 
+  _TIFFfree(buf);
 }
 
 
@@ -1698,7 +1688,7 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
 
   unsigned int format = this->GetFormat();
 
-  switch ( format ) 
+  switch ( format )
     {
     case vtkTIFFReader::GRAYSCALE:
     case vtkTIFFReader::RGB:
@@ -1718,7 +1708,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
   unsigned char *source = (unsigned char *)in;
   int increment;
   unsigned short red, green, blue, alpha;
-  switch ( this->GetFormat() ) 
+  switch ( this->GetFormat() )
     {
     case vtkTIFFReader::GRAYSCALE:
       if ( this->GetInternalImage()->Photometrics == PHOTOMETRIC_MINISBLACK )
@@ -1745,7 +1735,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
           {
           *image = *source;
           }
-        } 
+        }
       else
         {
         *image = ~( *source );
@@ -1803,7 +1793,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
         *(image)   = static_cast<unsigned char>(red >> 8);
         *(image+1) = static_cast<unsigned char>(green >> 8);
         *(image+2) = static_cast<unsigned char>(blue >> 8);
-        }   
+        }
       increment = 3;
       break;
     default:
@@ -1819,7 +1809,7 @@ int vtkTIFFReader::CanReadFile(const char* fname)
   vtkTIFFReaderInternal tf;
   int res = tf.Open(fname);
   tf.Clean();
-  if (res) 
+  if (res)
     {
     return 3;
     }

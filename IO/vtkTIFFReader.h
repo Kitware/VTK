@@ -62,7 +62,7 @@ public:
   void InitializeColors();
 
   // Description:
-  // Reads 3D data from multi-pages tiff. 
+  // Reads 3D data from multi-pages tiff.
   virtual void ReadVolume(void* buffer);
 
   // Description:
@@ -70,7 +70,7 @@ public:
   virtual void ReadTiles(void* buffer);
 
   // Description:
-  // Set orientation type 
+  // Set orientation type
   // ORIENTATION_TOPLEFT         1       (row 0 top, col 0 lhs)
   // ORIENTATION_TOPRIGHT        2       (row 0 top, col 0 rhs)
   // ORIENTATION_BOTRIGHT        3       (row 0 bottom, col 0 rhs)
@@ -86,47 +86,45 @@ public:
   // Description:
   // Get method to check if orientation type is specified
   vtkGetMacro( OrientationTypeSpecifiedFlag, bool );
-  
+
   // Description:
   // Set/get methods to see if manual Origin/Spacing have
   // been set.
   vtkSetMacro( OriginSpecifiedFlag, bool );
   vtkGetMacro( OriginSpecifiedFlag, bool );
   vtkBooleanMacro( OriginSpecifiedFlag, bool );
-  
+
   // Description:
-  // 
+  //
   vtkSetMacro( SpacingSpecifiedFlag, bool );
   vtkGetMacro( SpacingSpecifiedFlag, bool );
   vtkBooleanMacro( SpacingSpecifiedFlag, bool );
-  
-  //BTX
-  enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
-
-  void ReadImageInternal( void *, void *outPtr,
-                          int *outExt, unsigned int size );
 
   // Description:
-  // Method to access internal image. Not to be used outside the class.
-  vtkTIFFReaderInternal *GetInternalImage() { return this->InternalImage; }
-
-  int EvaluateImageAt( void*, void* );
-  //ETX
+  // Internal method, do not use.
+  void ReadImageInternal( void *, void *outPtr,
+                          int *outExt, unsigned int size );
 
 protected:
   vtkTIFFReader();
   ~vtkTIFFReader();
 
+  enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
+
+  vtkTIFFReaderInternal *GetInternalImage() { return this->InternalImage; }
+
+  int EvaluateImageAt( void*, void* );
+
   void GetColor( int index,
                  unsigned short *r, unsigned short *g, unsigned short *b );
 
-  void ReadGenericImage( void *out, 
-                         unsigned int vtkNotUsed(width), 
+  void ReadGenericImage( void *out,
+                         unsigned int vtkNotUsed(width),
                          unsigned int height );
 
   // To support Zeiss images
-  void ReadTwoSamplesPerPixelImage( void *out, 
-                         unsigned int vtkNotUsed(width), 
+  void ReadTwoSamplesPerPixelImage( void *out,
+                         unsigned int vtkNotUsed(width),
                          unsigned int height );
 
   unsigned int  GetFormat();
@@ -151,5 +149,3 @@ private:
   bool SpacingSpecifiedFlag;
 };
 #endif
-
-
