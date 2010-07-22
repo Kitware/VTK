@@ -159,7 +159,7 @@ vtkContextScene::vtkContextScene()
   this->Geometry[1] = 0;
   this->BufferId=0;
   this->BufferIdDirty=true;
-  this->UseBufferId = true;
+  this->UseBufferId = false;
   this->Transform = NULL;
 }
 
