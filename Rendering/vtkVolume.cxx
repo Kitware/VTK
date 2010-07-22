@@ -47,6 +47,7 @@ vtkVolume::vtkVolume()
     this->RGBArray[i]                    = NULL;
     this->GrayArray[i]                   = NULL;
     this->CorrectedScalarOpacityArray[i] = NULL;
+    this->GradientOpacityConstant[i]     = 0;
     }
   
   this->CorrectedStepSize           = -1;

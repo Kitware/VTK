@@ -805,6 +805,16 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->FinalColorLevel            = 0.5;
   
   this->FlipMIPComparison = 0;
+
+  this->TableShift[0] = 0;
+  this->TableShift[1] = 0;
+  this->TableShift[2] = 0;
+  this->TableShift[3] = 0;
+
+  this->TableScale[0] = 1;
+  this->TableScale[1] = 1;
+  this->TableScale[2] = 1;
+  this->TableScale[3] = 1;
 }
 
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
