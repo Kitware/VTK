@@ -47,6 +47,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include <ctype.h> // for isspace(), isalnum()
 
 vtkStandardNewMacro( vtkTecplotReader );
@@ -930,8 +932,7 @@ void vtkTecplotReader::GetStructuredGridFromPointPackingZone
     {
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 1 );
     }
-  else 
-  if ( kDimSize == 1 )
+  else if ( kDimSize == 1 )
     {
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 2 );
     }
@@ -1065,29 +1066,25 @@ void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
     theCellType = VTK_HEXAHEDRON;
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 3 );
     }
-  else 
-  if (  strcmp( cellTypeStr, "TRIANGLE" ) == 0  )
+  else if (  strcmp( cellTypeStr, "TRIANGLE" ) == 0  )
     {
     numCellPnts = 3;
     theCellType = VTK_TRIANGLE;
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 2 );
     }
-  else
-  if (  strcmp( cellTypeStr, "QUADRILATERAL" ) == 0  )
+  else if (  strcmp( cellTypeStr, "QUADRILATERAL" ) == 0  )
     {
     numCellPnts = 4;
     theCellType = VTK_QUAD;
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 2 );
     }
-  else 
-  if ( strcmp( cellTypeStr, "TETRAHEDRON" ) == 0  )
+  else if ( strcmp( cellTypeStr, "TETRAHEDRON" ) == 0  )
     {
     numCellPnts = 4;
     theCellType = VTK_TETRA;
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 3 );
     }
-  else 
-  if (  strcmp( cellTypeStr, "POINT" ) == 0 || strcmp( cellTypeStr, "" ) == 0  )
+  else if (  strcmp( cellTypeStr, "POINT" ) == 0 || strcmp( cellTypeStr, "" ) == 0  )
     {
     numCellPnts = 1;
     theCellType = VTK_VERTEX;
@@ -1193,13 +1190,11 @@ void vtkTecplotReader::GetDataArraysList()
       {
       // whitespace: do nothing
       }
-    else 
-    if ( theTpToken == "TITLE" )
+    else if ( theTpToken == "TITLE" )
       { 
       this->Internal->GetNextToken();
       }
-    else 
-    if ( theTpToken == "VARIABLES" )
+    else if ( theTpToken == "VARIABLES" )
       {
       theTpToken = this->Internal->GetNextToken();
       
@@ -1212,13 +1207,11 @@ void vtkTecplotReader::GetDataArraysList()
             {
             theTpToken[i] = '[';
             }
-          else 
-          if ( theTpToken[i] == ')' )
+          else if ( theTpToken[i] == ')' )
             {
             theTpToken[i] = ']';
             }
-          else 
-          if ( theTpToken[i] == '/' )
+          else if ( theTpToken[i] == '/' )
             {
             theTpToken[i] = '_';
             }
@@ -1361,13 +1354,11 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       {
       // whitespace: do nothing
       }
-    else 
-    if ( tok == "TITLE" )
+    else if ( tok == "TITLE" )
       {
       this->DataTitle = this->Internal->GetNextToken();
       }
-    else 
-    if ( tok == "GEOMETRY" )
+    else if ( tok == "GEOMETRY" )
       {
       // unsupported
       tok = this->Internal->GetNextToken();
@@ -1378,8 +1369,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         }
       tokenReady = true;
       }
-    else 
-    if ( tok == "TEXT" )
+    else if ( tok == "TEXT" )
       {
       // unsupported
       tok = this->Internal->GetNextToken();
@@ -1390,8 +1380,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         }
       tokenReady = true;
       }
-    else 
-    if ( tok == "VARIABLES" )
+    else if ( tok == "VARIABLES" )
       {
       int guessedXindex = -1;
       int guessedYindex = -1;
@@ -1514,8 +1503,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
 
       tokenReady = true;
       }
-    else 
-    if ( tok == "ZONE" )
+    else if ( tok == "ZONE" )
       {
       int      numI = 1;
       int      numJ = 1;
@@ -1556,80 +1544,120 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
                            << "quoted." );
             }
           }
-        else 
-        if ( tok == "I" )
+        else if ( tok == "I" )
           {
           numI = atoi( this->Internal->GetNextToken().c_str() );
           }
-        else 
-        if ( tok == "J" )
+        else if ( tok == "J" )
           {
           numJ = atoi( this->Internal->GetNextToken().c_str() );
           }
-        else 
-        if ( tok == "K" )
+        else if ( tok == "K" )
           {
           numK = atoi( this->Internal->GetNextToken().c_str() );
           }
-        else 
-        if ( tok == "N" )
+        else if ( tok == "N" )
           {
           numNodes = atoi( this->Internal->GetNextToken().c_str() );
           }
-        else 
-        if ( tok == "E" )
+        else if ( tok == "E" )
           {
           numElements = atoi( this->Internal->GetNextToken().c_str() );
           }
-        else 
-        if ( tok == "ET" )
+        else if ( tok == "ET" )
           {
           elemType = this->Internal->GetNextToken();
           }
-        else 
-        if ( tok == "F" || tok == "DATAPACKING" )
+        else if ( tok == "F" || tok == "DATAPACKING" )
           {
           format = this->Internal->GetNextToken();
           }
-        else 
-        if ( tok == "VARLOCATION" )
+        else if ( tok == "VARLOCATION" )
           {
           vtkstd::string  centering;
           this->CellBased.clear();
           this->CellBased.resize( this->NumberOfVariables, 0 );
-          
-          for ( int i = 0; i < this->NumberOfVariables; i ++ )
+
+          //read token to ascertain VARLOCATION syntax usage
+          vtkstd::string var_format_type = this->Internal->GetNextToken();
+
+          //if each variable will have data type specified explicitly (as is handled in old Tecplot reader),
+          //else a range is specified for CELLCENTERED only, with NODAL values assumed implicitly
+          if ( var_format_type == "NODAL" || var_format_type == "CELLCENTERED" )
             {
-            centering = this->Internal->GetNextToken();
-            if ( centering == "CELLCENTERED" )
+            if ( var_format_type == "CELLCENTERED" )
               {
-              this->CellBased[i] = 1;
+              this->CellBased[0] = 1;
+              }
+            for ( int i = 1; i < this->NumberOfVariables; i ++ )
+              {
+              centering = this->Internal->GetNextToken();
+              if ( centering == "CELLCENTERED" )
+                {
+                this->CellBased[i] = 1;
+                }
               }
             }
+          else
+            {
+            do
+              {
+              //remove left square bracket, if it exists
+              int brack_pos = var_format_type.find("[");
+              if ( brack_pos != vtkstd::string::npos )
+                var_format_type.erase(brack_pos, brack_pos+1);
+
+              //remove right square bracket, if it exists
+              brack_pos = var_format_type.find("]");
+              if ( brack_pos != vtkstd::string::npos )
+                var_format_type.erase(brack_pos,brack_pos+1);
+
+              //if a range is defined, then split again, convert to int and set to cell data
+              //else if a single value is defined, then just set the flag directly
+              if ( var_format_type.find("-") != vtkstd::string::npos )
+                {
+                std::vector<vtkstd::string> var_range;
+                vtksys::SystemTools::Split(var_format_type.c_str(), var_range, '-');
+
+                int cell_start = atoi(var_range[0].c_str()) - 1;
+                int cell_end = atoi(var_range[1].c_str());
+                for ( int i = cell_start; i != cell_end; ++i )
+                  {
+                  this->CellBased[i] = 1;
+                  }
+                }
+              else
+                {
+                int index = atoi(var_format_type.c_str())-1;
+                this->CellBased[index] = 1;
+                }
+
+              //get next value
+              var_format_type = this->Internal->GetNextToken();
+
+              //continue until the CELLCENTERED keyword is found
+              } while ( var_format_type != "CELLCENTERED" );
+            }
           }
-        else 
-        if ( tok == "DT" )
+        else if ( tok == "DT" )
           {
           for ( int i = 0; i < this->NumberOfVariables; i ++ )
             {
             this->Internal->GetNextToken();
             }
           }
-        else 
-        if ( tok == "D" )
+        else if ( tok == "D" )
           {                    
           vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'D' is currently unsupported." );
           }
-        else 
-        if ( tok == "STRANDID" )
+        else if ( tok == "STRANDID" )
           {                    
           vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'STRANDID' is currently unsupported." );
           this->Internal->GetNextToken();
           }
-        else 
-        if ( tok == "SOLUTIONTIME" )
+        else if ( tok == "SOLUTIONTIME" )
           {                    
           vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'SOLUTIONTIME' is currently unsupported." );
@@ -1647,26 +1675,22 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         this->GetUnstructuredGridFromBlockPackingZone( numNodes, numElements,
               elemType.c_str(), zoneIndex, ZoneName.c_str(),  multZone );
         }
-      else 
-      if ( format == "FEPOINT" )
+      else if ( format == "FEPOINT" )
         {
         this->GetUnstructuredGridFromPointPackingZone( numNodes, numElements, 
               elemType.c_str(), zoneIndex, ZoneName.c_str(),  multZone );
         }
-      else 
-      if ( format == "BLOCK" )
+      else if ( format == "BLOCK" )
         {
         this->GetStructuredGridFromBlockPackingZone
               ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
         }
-      else 
-      if ( format == "POINT" )
+      else if ( format == "POINT" )
         {
         this->GetStructuredGridFromPointPackingZone
               ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
         }
-      else 
-      if ( format == "" )
+      else if ( format == "" )
         {
         // No format given; we will assume we got a POINT format
         this->GetStructuredGridFromPointPackingZone
@@ -1681,8 +1705,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         
       zoneIndex ++;
       }
-    else 
-    if( tok == "DATASETAUXDATA" )
+    else if( tok == "DATASETAUXDATA" )
       {
       int   tokIndex       = 0;
       bool  haveVectorExpr = false;
@@ -1694,8 +1717,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
           {
           haveVectorExpr = ( tok == "VECTOR" );
           }
-        else 
-        if( tokIndex == 1 )
+        else if( tokIndex == 1 )
           {
           if( haveVectorExpr )
             {
@@ -1735,8 +1757,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
 
       tokenReady = true;
       }
-    else 
-    if ( firstToken && this->Internal->TokenIsString )
+    else if ( firstToken && this->Internal->TokenIsString )
       {
       // Robust: assume it's a title
       this->DataTitle = tok;
