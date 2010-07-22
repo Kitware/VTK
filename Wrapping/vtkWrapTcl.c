@@ -741,12 +741,17 @@ void outputFunction(FILE *fp, ClassInfo *data)
         {
         args_ok = 0;
         }
-      else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
-                 currentFunction->ArgClasses[i]) &&
-               !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-                 currentFunction->ArgClasses[i], "vtkObjectBase"))
+      else if (hierarchyInfo &&
+               !vtkParseHierarchy_IsExtern(hierarchyInfo,
+                 currentFunction->ArgClasses[i]))
         {
-        args_ok = 0;
+        if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+              currentFunction->ArgClasses[i], "vtkObjectBase") ||
+            vtkParseHierarchy_GetProperty(hierarchyInfo,
+              currentFunction->ArgClasses[i], "WRAP_EXCLUDE"))
+          {
+          args_ok = 0;
+          }
         }
       }
 
@@ -809,12 +814,17 @@ void outputFunction(FILE *fp, ClassInfo *data)
       {
       args_ok = 0;
       }
-    else if (hierarchyInfo && !vtkParseHierarchy_IsExtern(hierarchyInfo,
-               currentFunction->ReturnClass) &&
-             !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-               currentFunction->ReturnClass, "vtkObjectBase"))
+    else if (hierarchyInfo &&
+             !vtkParseHierarchy_IsExtern(hierarchyInfo,
+               currentFunction->ReturnClass))
       {
-      args_ok = 0;
+      if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
+            currentFunction->ReturnClass, "vtkObjectBase") ||
+          vtkParseHierarchy_GetProperty(hierarchyInfo,
+            currentFunction->ReturnClass, "WRAP_EXCLUDE"))
+        {
+        args_ok = 0;
+        }
       }
     }
 
