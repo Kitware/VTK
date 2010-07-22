@@ -65,8 +65,6 @@ void vtkImporter::Read ()
     this->Renderer = vtkRenderer::New ();
     renderer = this->Renderer;
     this->RenderWindow->AddRenderer (renderer);
-    this->Renderer->UnRegister(NULL);
-
     }
   else
     {
