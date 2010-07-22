@@ -780,12 +780,15 @@ bool vtkModifiedBSPTree::InsideCellBounds(double x[3], vtkIdType cell_ID)
 //----------------------------------------------------------------------------
 vtkIdListCollection *vtkModifiedBSPTree::GetLeafNodeCellInformation()
 {
+  if (!mRoot) {
+    return NULL;
+  }
   this->BuildLocatorIfNeeded();
   //
   vtkIdListCollection *LeafCellsList = vtkIdListCollection::New();
   nodestack ns;
   BSPNode   *node;
-  if (mRoot) ns.push(mRoot);
+  ns.push(mRoot);
   //
   while (!ns.empty())  {
     node = ns.top();
