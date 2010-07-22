@@ -77,6 +77,8 @@ vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
   this->SaveUserArray = 0;
   this->DeleteMethod = VTK_DATA_ARRAY_FREE;
   this->Lookup = 0;
+  this->ValueRange[0] = 0;
+  this->ValueRange[1] = 1;
 }
 
 //----------------------------------------------------------------------------
