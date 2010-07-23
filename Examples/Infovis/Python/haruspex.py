@@ -442,26 +442,43 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
                     input = convertContingencyTab.GetInput()
                     output = convertContingencyTab.GetOutput()
 
+                    # Create columns with appropriate names and formats
                     kCol = vtkIdTypeArray()
                     kCol.SetName( "Key" )
                     output.AddColumn( kCol )
-                    xCol = vtkDoubleArray()
+                    xCol = vtkStringArray()
                     xCol.SetName( "x" )
                     output.AddColumn( xCol )
-                    yCol = vtkDoubleArray()
+                    yCol = vtkStringArray()
                     yCol.SetName( "y" )
                     output.AddColumn( yCol )
                     cCol = vtkIdTypeArray()
                     cCol.SetName( "Cardinality" )
                     output.AddColumn( cCol )
 
+                    # Loop over all input rows and create output rows
+                    nRow = input.GetNumberOfRows()
+                    row = vtkVariantArray()
+                    row.SetNumberOfValues( 4 )
+                    for r in range( 0, nRow ):
+                        # Retrieve primary statistics and convert to correct type
+                        k = input.GetValueByName( r, "Key" ).ToInt()
+                        row.SetValue( 0, k )
+                        x = input.GetValueByName( r, "x" ).ToString()
+                        row.SetValue( 1, x )
+                        y = input.GetValueByName( r, "y" ).ToString()
+                        row.SetValue( 2, y )
+                        c = input.GetValueByName( r, "Cardinality" ).ToInt()
+                        row.SetValue( 3, c )
+
+                        output.InsertNextRow( row )
+
                 # Set callback and run programmable filer
                 convertContingencyTab.SetExecuteMethod( ConvertContingencyTableCallback )
                 convertContingencyTab.Update()
 
                 # Retrieve converted table from filter output
-                table = convertContingencyTab.GetOutput()
-                table.Dump( 16 )
+                inTable = convertContingencyTab.GetOutput()
 
             # Set retrieved table to corresponding model block
             inModel.SetBlock( t, inTable )
