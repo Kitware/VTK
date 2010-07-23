@@ -17,13 +17,13 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkBoostBrandesCentrality - Compute Brandes betweenness centrality 
+// .NAME vtkBoostBrandesCentrality - Compute Brandes betweenness centrality
 // on a vtkGraph
 
 // .SECTION Description
 
 // This vtk class uses the Boost brandes_betweeness_centrality
-// generic algorithm to compute betweenness centrality on 
+// generic algorithm to compute betweenness centrality on
 // the input graph (a vtkGraph).
 
 // .SECTION See Also
@@ -36,7 +36,7 @@
 
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostBrandesCentrality : public vtkGraphAlgorithm 
+class VTK_INFOVIS_EXPORT vtkBoostBrandesCentrality : public vtkGraphAlgorithm
 {
 public:
   static vtkBoostBrandesCentrality *New();
@@ -58,11 +58,6 @@ public:
   vtkGetStringMacro(EdgeWeightArrayName);
   vtkSetStringMacro(EdgeWeightArrayName);
 
-  bool UseEdgeWeightArray;
-  bool InvertEdgeWeightArray;
-  char* EdgeWeightArrayName;
-
-
 protected:
   vtkBoostBrandesCentrality();
   ~vtkBoostBrandesCentrality();
@@ -73,20 +68,9 @@ protected:
 
 private:
 
-  vtkIdType OriginVertexIndex;
-  char* ArrayName;
-  vtkVariant OriginValue;
-  bool ArrayNameSet;
-  
-  // Description:
-  // Using the convenience function for set strings internally
-  vtkSetStringMacro(ArrayName);
-  
-  // Description:
-  // This method is basically a helper function to find
-  // the index of a specific value within a specific array
-  vtkIdType GetVertexIndex(
-    vtkAbstractArray *abstract,vtkVariant value);
+  bool        UseEdgeWeightArray;
+  bool        InvertEdgeWeightArray;
+  char*       EdgeWeightArrayName;
 
   vtkBoostBrandesCentrality(const vtkBoostBrandesCentrality&);  // Not implemented.
   void operator=(const vtkBoostBrandesCentrality&);  // Not implemented.

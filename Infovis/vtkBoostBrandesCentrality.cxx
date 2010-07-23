@@ -43,21 +43,35 @@ using namespace boost;
 
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
-// Constructor/Destructor
+//-----------------------------------------------------------------------------
 vtkBoostBrandesCentrality::vtkBoostBrandesCentrality() :
-  UseEdgeWeightArray(0),
-  InvertEdgeWeightArray(0),
-  EdgeWeightArrayName(0)
+  UseEdgeWeightArray    (false),
+  InvertEdgeWeightArray (false),
+  EdgeWeightArrayName   (NULL)
 {
-
 }
 
+//-----------------------------------------------------------------------------
 vtkBoostBrandesCentrality::~vtkBoostBrandesCentrality()
 {
-
+  this->SetEdgeWeightArrayName(0);
 }
 
+//-----------------------------------------------------------------------------
+void vtkBoostBrandesCentrality::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "UseEdgeWeightArray: " << this->UseEdgeWeightArray << endl;
+
+  os << indent << "InvertEdgeWeightArray: " << this->InvertEdgeWeightArray
+    << endl;
+
+  os << indent << "this->EdgeWeightArrayName: " <<
+    (this->EdgeWeightArrayName ?  this->EdgeWeightArrayName : "NULL") << endl;
+}
+
+//-----------------------------------------------------------------------------
 int vtkBoostBrandesCentrality::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -175,17 +189,4 @@ int vtkBoostBrandesCentrality::RequestData(
   edgeCMap->Delete();
 
   return 1;
-}
-
-void vtkBoostBrandesCentrality::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "UseEdgeWeightArray: " << this->UseEdgeWeightArray << endl;
-
-  os << indent << "InvertEdgeWeightArray: " << this->InvertEdgeWeightArray
-    << endl;
-
-  os << indent << "this->EdgeWeightArrayName: " <<
-    (this->EdgeWeightArrayName ?  this->EdgeWeightArrayName : "NULL") << endl;
 }
