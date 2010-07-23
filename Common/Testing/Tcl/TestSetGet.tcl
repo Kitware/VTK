@@ -25,11 +25,12 @@ vtkXMesaRenderWindow-GetEventPending
 vtkMPICommunicator-GetWorldCommunicator
 vtkMPICommunicator-GetLocalProcessId
 vtkMPICommunicator-GetNumberOfProcesses
+vtkMPICommunicator-GetMPIComm
 }
 
 proc TestOne {cname} {
    global exceptions
-   $cname b 
+   $cname b
    puts "Testing Class $cname"
    set methods [b ListMethods]
    # look for a Get Set pair
@@ -39,7 +40,7 @@ proc TestOne {cname} {
          if {($i == $len - 1) || ($i < $len - 1 && [lindex $methods [expr $i + 1]] != "with")} {
             if {[lsearch $exceptions "$cname-[lindex $methods $i]"] == -1} {
                # invoke the GetMethod
-	       puts "  Invoking Get$name"
+               puts "  Invoking Get$name"
                set tmp [b Get$name]
                # find matching set method
                for {set j 0} {$j < $len} {incr j} {
@@ -78,8 +79,8 @@ proc TestOne {cname} {
       catch { b $SetMethod $tmp }
     }
   }
-  
-  
+
+
   # Test the PrintRevisions method.
   b PrintRevisions
   b Delete
@@ -105,7 +106,7 @@ set classExceptions {
    vtkXMLFileOutputWindow
 }
 
-proc rtSetGetTest { fileid } { 
+proc rtSetGetTest { fileid } {
    global classExceptions
    set totalTime 0.0
    # for every class
@@ -114,18 +115,18 @@ proc rtSetGetTest { fileid } {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
          timer StartTimer
-         
+
          TestOne $a
-         
+
          timer StopTimer
-	     set elapsedTime [timer GetElapsedTime]
-	     set totalTime [expr $totalTime + $elapsedTime]
-	   
-	     if { $elapsedTime > 1.0 } {
-	       puts "Elapsed Time: $elapsedTime and took longer than 1 second."
-	     } else {
-	       puts "Elapsed Time: $elapsedTime"
-	     }
+             set elapsedTime [timer GetElapsedTime]
+             set totalTime [expr $totalTime + $elapsedTime]
+
+             if { $elapsedTime > 1.0 } {
+               puts "Elapsed Time: $elapsedTime and took longer than 1 second."
+             } else {
+               puts "Elapsed Time: $elapsedTime"
+             }
          puts "Total Elapsed Time: $totalTime"
       }
    }
