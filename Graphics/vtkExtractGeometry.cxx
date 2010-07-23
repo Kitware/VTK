@@ -103,6 +103,11 @@ int vtkExtractGeometry::RequestData(
     return 1;
     }
 
+  // As this filter is doing a subsetting operation, set the Copy Tuple flag
+  // for GlobalIds array so that, if present, it will be copied to the output.
+  outputPD->CopyGlobalIdsOn();
+  outputCD->CopyGlobalIdsOn();
+
   newCellPts = vtkIdList::New();
   newCellPts->Allocate(VTK_CELL_SIZE);
 
