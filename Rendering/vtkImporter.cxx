@@ -68,6 +68,10 @@ void vtkImporter::Read ()
     }
   else
     {
+    if (this->Renderer)
+      {
+      this->Renderer->UnRegister(NULL);
+      }
     this->Renderer = renderer;
     this->Renderer->Register( this );
     }
