@@ -120,6 +120,8 @@ vtkBoostBetweennessClustering::vtkBoostBetweennessClustering() :
 //-----------------------------------------------------------------------------
 vtkBoostBetweennessClustering::~vtkBoostBetweennessClustering()
 {
+  this->SetEdgeWeightArrayName(0);
+  this->SetEdgeCentralityArrayName(0);
 }
 
 //-----------------------------------------------------------------------------
