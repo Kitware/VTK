@@ -431,6 +431,39 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         for t in range( 0, nPrimaryTables ):
             inTableReader = inModelReader[t]
             inTable = inTableReader.GetOutput()
+            # Handle special case of second table of contingency statistics
+            if ( t > 0 and haruspex.GetClassName() == "vtkContingencyStatistics" ):
+                # Create a programmable filter whose input is the contingency table
+                convertContingencyTab = vtkProgrammableFilter()
+                convertContingencyTab.SetInput( inTable )
+
+                # Define table converter callback for programmable filter
+                def ConvertContingencyTableCallback():
+                    input = convertContingencyTab.GetInput()
+                    output = convertContingencyTab.GetOutput()
+
+                    kCol = vtkIdTypeArray()
+                    kCol.SetName( "Key" )
+                    output.AddColumn( kCol )
+                    xCol = vtkDoubleArray()
+                    xCol.SetName( "x" )
+                    output.AddColumn( xCol )
+                    yCol = vtkDoubleArray()
+                    yCol.SetName( "y" )
+                    output.AddColumn( yCol )
+                    cCol = vtkIdTypeArray()
+                    cCol.SetName( "Cardinality" )
+                    output.AddColumn( cCol )
+
+                # Set callback and run programmable filer
+                convertContingencyTab.SetExecuteMethod( ConvertContingencyTableCallback )
+                convertContingencyTab.Update()
+
+                # Retrieve converted table from filter output
+                table = convertContingencyTab.GetOutput()
+                table.Dump( 16 )
+
+            # Set retrieved table to corresponding model block
             inModel.SetBlock( t, inTable )
 
         # If model update is required, then learn new model and aggregate, otherwise assess directly
@@ -494,6 +527,7 @@ def main():
         for t in range( 0, nPrimaryTables ):
             tableReader = ReadInModelTable( inModelPrefix, t )
             inModelReader.append( tableReader )
+
     else:
         inModelReader = None
         
