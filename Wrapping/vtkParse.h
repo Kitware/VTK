@@ -124,6 +124,7 @@ typedef struct _FunctionInfo
   int            IsVirtual;   /* methods only */
   int            IsPureVirtual; /* methods only */
   int            IsConst;     /* methods only */
+  int            IsExplicit;  /* constructors only */
   unsigned int   ArgTypes[MAX_ARGS];  /* legacy */
   const char    *ArgClasses[MAX_ARGS];/* legacy */
   int            ArgCounts[MAX_ARGS]; /* legacy */

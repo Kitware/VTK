@@ -884,6 +884,11 @@ static char *vtkWrapPython_ArgCheckString(
   unsigned int argtype;
   int i;
 
+  if (currentFunction->IsExplicit)
+    {
+    result[currPos++] = '-';
+    }
+
   if (isvtkobjmethod)
     {
     result[currPos++] = '@';

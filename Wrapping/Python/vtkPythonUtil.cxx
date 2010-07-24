@@ -163,8 +163,14 @@ private:
 // Construct the object with a penalty of VTK_PYTHON_EXACT_MATCH
 void vtkPythonOverloadHelper::initialize(bool selfIsClass, const char *format)
 {
+  // remove the "explicit" marker for constructors
+  if (*format == '-')
+    {
+    format++;
+    }
+
   // remove the first arg check if "self" is not a PyVTKClass
-  if (format[0] == '@' && !selfIsClass)
+  if (*format == '@' && !selfIsClass)
     {
     format++;
     }
@@ -801,29 +807,34 @@ PyMethodDef *vtkPythonUtil::FindConversionMethod(
 
   for (PyMethodDef *meth = methods; meth->ml_meth != NULL; meth++)
     {
-    // If meth only takes one arg
-    helper.initialize(0, meth->ml_doc);
-    if (helper.next(&format, &classname) &&
-        !helper.next(&dummy1, &dummy2))
+    // If method has "explicit" marker, don't use for conversions
+    if (meth->ml_doc[0] == '-')
       {
-      // If the constructor accepts the arg without
-      // additional conversion, then we found a match
-      int penalty = vtkPythonUtil::CheckArg(arg, format, classname, 1);
+      // If meth only takes one arg
+      helper.initialize(0, meth->ml_doc);
+      if (helper.next(&format, &classname) &&
+          !helper.next(&dummy1, &dummy2))
+        {
+        // If the constructor accepts the arg without
+        // additional conversion, then we found a match
+        int penalty = vtkPythonUtil::CheckArg(arg, format, classname, 1);
 
-      if (penalty < minPenalty)
-        {
-        matchCount = 1;
-        minPenalty = penalty;
-        method = meth;
-        }
-      else if (meth && penalty == minPenalty)
-        {
-        matchCount++;
+        if (penalty < minPenalty)
+          {
+          matchCount = 1;
+          minPenalty = penalty;
+          method = meth;
+          }
+        else if (meth && penalty == minPenalty)
+          {
+          matchCount++;
+          }
         }
       }
     }
 
-  // if matchCount > 1, there was ambiguity
+  // if matchCount > 1, there was ambiguity, but we silently use
+  // the first match that was found instead of raising an error
 
   return method;
 }

@@ -1182,6 +1182,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token VTK_LEGACY
 %token NEW
 %token DELETE
+%token EXPLICIT
 %token OP_LSHIFT_EQ
 %token OP_RSHIFT_EQ
 %token OP_LSHIFT
@@ -1546,6 +1547,13 @@ method: '~' destructor {openSig(); preSig("~"); closeSig();}
          }
       | constructor
       | INLINE constructor
+      | explicit_mod constructor
+         {
+         openSig();
+         preSig("explicit ");
+         closeSig();
+         currentFunction->IsExplicit = 1;
+         }
       | storage_type func
       | VIRTUAL storage_type func
          {
@@ -1554,6 +1562,8 @@ method: '~' destructor {openSig(); preSig("~"); closeSig();}
          closeSig();
          currentFunction->IsVirtual = 1;
          };
+
+explicit_mod: EXPLICIT | INLINE EXPLICIT | EXPLICIT INLINE;
 
 scoped_operator: class_id DOUBLE_COLON typecast_op_func
       | storage_type scope op_func;
@@ -2488,6 +2498,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->IsOperator = 0;
   func->IsVariadic = 0;
   func->IsConst = 0;
+  func->IsExplicit = 0;
   func->ReturnType = VTK_PARSE_VOID;
   func->ReturnClass = NULL;
   func->HaveHint = 0;

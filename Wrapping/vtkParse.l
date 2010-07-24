@@ -314,6 +314,23 @@ static int skip_ahead_until(const char *text);
 "using"         return(USING);
 "new"           return(NEW);
 "delete"        return(DELETE);
+"explicit"      return(EXPLICIT);
+
+"auto"          ;
+"register"      ;
+"volatile"      ;
+
+"and"           return(OP_LOGIC_AND);
+"and_eq"        return(OP_AND_EQ);
+"or"            return(OP_LOGIC_OR);
+"or_eq"         return(OP_OR_EQ);
+"not"           return('!');
+"not_eq"        return(OP_LOGIC_NEQ);
+"xor"           return('^');
+"xor_eq"        return(OP_XOR_EQ);
+"bitand"        return('&');
+"bitor"         return('|');
+"compl"         return('~');
 
 "vtkFloatingPointType" return(DOUBLE);
 "vtkIdType"            return(IdType);
