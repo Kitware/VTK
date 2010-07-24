@@ -808,7 +808,7 @@ PyMethodDef *vtkPythonUtil::FindConversionMethod(
   for (PyMethodDef *meth = methods; meth->ml_meth != NULL; meth++)
     {
     // If method has "explicit" marker, don't use for conversions
-    if (meth->ml_doc[0] == '-')
+    if (meth->ml_doc[0] != '-')
       {
       // If meth only takes one arg
       helper.initialize(0, meth->ml_doc);
