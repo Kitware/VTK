@@ -27,7 +27,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestParallelCoordinates
       TestQuadricLODActor
       TestStyleTerrain
-      TestTiling
       TestTriangleStripCellColor
       TestWindowToImageTransparency
       TexturedSphere
