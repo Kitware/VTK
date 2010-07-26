@@ -13,6 +13,10 @@
 
 =========================================================================*/
 
+#include "vtkChartXY.h"
+#include "vtkPlot.h"
+#include "vtkTable.h"
+#include "vtkChartXY.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkColorTransferFunctionItem.h"
 #include "vtkCompositeTransferFunctionItem.h"
@@ -29,6 +33,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkIntArray.h"
+
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
 int TestScalarsToColors( int argc, char * argv [] )
@@ -38,20 +47,13 @@ int TestScalarsToColors( int argc, char * argv [] )
       vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
-  //vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
-  //view->GetScene()->AddItem(chart);
+  vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+  chart->SetTitle("Chart");
+  view->GetScene()->AddItem(chart);
 
   vtkSmartPointer<vtkLookupTable> lookupTable =
     vtkSmartPointer<vtkLookupTable>::New();
   lookupTable->Build();
-  //vtkSmartPointer<vtkLookupTableChart> lChart =
-  //  vtkSmartPointer<vtkLookupTableChart>::New();
-  //lChart->SetLookupTable(lookupTable);
-  //lChart->SetChart(chart);
-  vtkSmartPointer<vtkLookupTableItem> item =
-    vtkSmartPointer<vtkLookupTableItem>::New();
-  item->SetLookupTable(lookupTable);
-  //view->GetScene()->AddItem(item);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     vtkSmartPointer<vtkColorTransferFunction>::New();
@@ -60,37 +62,28 @@ int TestScalarsToColors( int argc, char * argv [] )
   colorTransferFunction->AddHSVSegment(0.6666,0.6666,1.,1.,1.,0.,1.,1.);
 
   colorTransferFunction->Build();
-  vtkSmartPointer<vtkColorTransferFunctionItem> item2 =
-    vtkSmartPointer<vtkColorTransferFunctionItem>::New();
-  item2->SetColorTransferFunction(colorTransferFunction);
-  //view->GetScene()->AddItem(item2);
 
   vtkSmartPointer<vtkPiecewiseFunction> opacityFunction =
     vtkSmartPointer<vtkPiecewiseFunction>::New();
   opacityFunction->AddPoint(0.,0.);
+  opacityFunction->AddPoint(0.5,0.5);
   opacityFunction->AddPoint(1.,1.);
-  vtkSmartPointer<vtkCompositeTransferFunctionItem> item3 =
-    vtkSmartPointer<vtkCompositeTransferFunctionItem>::New();
+
+  vtkCompositeTransferFunctionItem* item3 =
+    vtkCompositeTransferFunctionItem::New();
   item3->SetColorTransferFunction(colorTransferFunction);
   item3->SetOpacityFunction(opacityFunction);
   item3->SetOpacity(0.2);
   item3->SetMaskAboveCurve(true);
-  //view->GetScene()->AddItem(item3);
+  chart->AddPlot(item3);
 
-  vtkSmartPointer<vtkPiecewiseFunctionItem> item4 =
-    vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
-  item4->SetPiecewiseFunction(opacityFunction);
-  item4->SetColor(255,0,0);
-  item4->SetMaskAboveCurve(true);
-  view->GetScene()->AddItem(item4);
-
-  vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
-    vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
+  vtkPiecewiseControlPointsItem* item5 =
+    vtkPiecewiseControlPointsItem::New();
   item5->SetPiecewiseFunction(opacityFunction);
-  view->GetScene()->AddItem(item5);
+  chart->AddPlot(item5);
 
   //Finally render the scene and compare the image to a reference image
-  //view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetRenderWindow()->SetMultiSamples(0);
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {

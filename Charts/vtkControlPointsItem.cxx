@@ -16,6 +16,7 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextScene.h"
 #include "vtkControlPointsItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -28,6 +29,11 @@
 //-----------------------------------------------------------------------------
 vtkControlPointsItem::vtkControlPointsItem()
 {
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+  this->Pen->SetWidth(1.);
+  this->Pen->SetColorF(1., 1., 1.);
+  this->Brush->SetColorF(0.85, 0.85, 1., 0.75);
+
   this->Points = vtkPoints2D::New();
   this->HighlightPoints = vtkPoints2D::New();
   this->Callback = vtkCallbackCommand::New();
@@ -63,20 +69,25 @@ void vtkControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkControlPointsItem::GetBounds(double bounds[4])
+{
+  this->Points->GetBounds(bounds);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Paint(vtkContext2D* painter)
 {
   if (this->Points->GetNumberOfPoints())
     {
-    painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
-    painter->GetPen()->SetColorF(1., 1., 1.);
-    painter->GetBrush()->SetColorF(0.85, 0.85, 0.85, 0.85);
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
     this->DrawPoints(painter, this->Points);
     }
   if (this->HighlightPoints->GetNumberOfPoints())
     {
     painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
-    painter->GetPen()->SetColorF(0.9, 0.9, 1.);
-    painter->GetBrush()->SetColorF(0.65, 0.65, 0.95, 0.95);
+    painter->GetPen()->SetColorF(0.87, 0.87, 1.);
+    painter->GetBrush()->SetColorF(0.65, 0.65, 0.95, 0.55);
     this->DrawPoints(painter, this->HighlightPoints);
     }
 }
@@ -94,25 +105,31 @@ void vtkControlPointsItem::CallComputePoints(
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::ComputePoints()
 {
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::DrawPoints(vtkContext2D* painter, vtkPoints2D* points)
 {
-  const int count = points->GetNumberOfPoints();
-  double point[2];
+  vtkTransform2D* sceneTransform = painter->GetTransform();
   vtkSmartPointer<vtkTransform2D> translation =
     vtkSmartPointer<vtkTransform2D>::New();
+
+  double point[2];
+  double transformedPoint[2];
+
+  const int count = points->GetNumberOfPoints();
   for (int i = 0; i < count; ++i)
     {
-    points->GetPoint(i,point);
+    points->GetPoint(i, point);
+    sceneTransform->TransformPoints(point, transformedPoint, 1);
+
     painter->PushMatrix();
     translation->Identity();
-    // TODO, use world coordinates, not local coordinates
-    translation->Translate(point[0]*100.f, point[1]*100.f);
+    translation->Translate(transformedPoint[0], transformedPoint[1]);
     painter->SetTransform(translation);
-    painter->DrawWedge(0.f, 0.f, 5.f, 0.f, 0.f, 360.f);
-    painter->DrawArc(0.f, 0.f, 5.f, 0.f, 360.f);
+    painter->DrawWedge(0.f, 0.f, 6.f, 0.f, 0.f, 360.f);
+    painter->DrawArc(0.f, 0.f, 6.f, 0.f, 360.f);
     painter->PopMatrix();
     }
 }

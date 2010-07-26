@@ -37,7 +37,9 @@ protected:
   virtual ~vtkCompositeTransferFunctionItem();
 
   virtual void ComputeTexture();
-
+  virtual void ScalarsToColorsModified(vtkObject* object,
+                                       unsigned long eid,
+                                       void* calldata);
   vtkPiecewiseFunction* OpacityFunction;
   bool                  MaskAboveCurve;
 };

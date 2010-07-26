@@ -35,7 +35,9 @@ protected:
   virtual ~vtkLookupTableItem();
 
   virtual void ComputeTexture();
-
+  virtual void ScalarsToColorsModified(vtkObject* object,
+                                            unsigned long eid,
+                                            void* calldata);
   vtkLookupTable* LookupTable;
 };
 

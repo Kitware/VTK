@@ -14,27 +14,39 @@
 =========================================================================*/
 
 #include "vtkBrush.h"
+#include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextScene.h"
 #include "vtkImageData.h"
 #include "vtkScalarsToColorsItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
+#include "vtkSmartPointer.h"
+#include "vtkTransform2D.h"
 
 #include <cassert>
 
 //-----------------------------------------------------------------------------
 vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 {
+  this->Pen->SetWidth(0.0);
+  this->Pen->SetLineType(vtkPen::NO_PEN);
+
   this->Texture = 0;
   this->Interpolate = true;
   this->Shape = vtkPoints2D::New();
   this->Shape->SetDataTypeToFloat();
   this->Shape->SetNumberOfPoints(4);
   this->Shape->SetPoint(0, 0.f, 0.f);
-  this->Shape->SetPoint(1, 100.f, 0.f);
-  this->Shape->SetPoint(2, 100.f, 100.f);
-  this->Shape->SetPoint(3, 0.f, 100.f);
+  this->Shape->SetPoint(1, 1.f, 0.f);
+  this->Shape->SetPoint(2, 1.f, 1.f);
+  this->Shape->SetPoint(3, 0.f, 1.f);
+
+  this->Callback = vtkCallbackCommand::New();
+  this->Callback->SetClientData(this);
+  this->Callback->SetCallback(
+    vtkScalarsToColorsItem::OnScalarsToColorsModified);
 }
 
 //-----------------------------------------------------------------------------
@@ -50,6 +62,11 @@ vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
     this->Shape->Delete();
     this->Shape = 0;
     }
+  if (this->Callback)
+    {
+    this->Callback->Delete();
+    this->Callback = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -60,6 +77,12 @@ void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::GetBounds(double bounds[4])
+{
+  this->Shape->GetBounds(bounds);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 {
   if (this->Texture == 0 ||
@@ -67,11 +90,31 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     {
     this->ComputeTexture();
     }
-  painter->GetPen()->SetLineType(vtkPen::NO_PEN);
+  painter->ApplyPen(this->Pen);
   painter->GetBrush()->SetColorF(1., 1., 1., 1.);
   painter->GetBrush()->SetTexture(this->Texture);
   painter->GetBrush()->SetTextureProperties(
     (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
     vtkBrush::Stretch);
+
   painter->DrawPolygon(this->Shape);
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::OnScalarsToColorsModified(vtkObject* caller,
+                                                       unsigned long eid,
+                                                       void *clientdata,
+                                                       void* calldata)
+{
+  vtkScalarsToColorsItem* self =
+    reinterpret_cast<vtkScalarsToColorsItem*>(clientdata);
+  self->ScalarsToColorsModified(caller, eid, calldata);
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::ScalarsToColorsModified(vtkObject* object,
+                                                     unsigned long eid,
+                                                     void* calldata)
+{
+  this->Modified();
 }

@@ -16,19 +16,21 @@
 #ifndef __vtkControlPointsItem_h
 #define __vtkControlPointsItem_h
 
-#include "vtkContextItem.h"
+#include "vtkPlot.h"
 
 class vtkCallbackCommand;
 class vtkContext2D;
 class vtkPoints2D;
 
-class VTK_CHARTS_EXPORT vtkControlPointsItem: public vtkContextItem
+class VTK_CHARTS_EXPORT vtkControlPointsItem: public vtkPlot
 {
 public:
-  vtkTypeMacro(vtkControlPointsItem, vtkContextItem);
+  vtkTypeMacro(vtkControlPointsItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  virtual void GetBounds(double bounds[4]);
   virtual bool Paint(vtkContext2D *painter);
+
 protected:
   vtkControlPointsItem();
   virtual ~vtkControlPointsItem();

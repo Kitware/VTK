@@ -43,6 +43,9 @@ protected:
   // Description
   // Compute the texture from the PiecewiseFunction
   virtual void ComputeTexture();
+  virtual void ScalarsToColorsModified(vtkObject* object,
+                                       unsigned long eid,
+                                       void* calldata);
 
   vtkPiecewiseFunction* PiecewiseFunction;
   unsigned char         Color[3];

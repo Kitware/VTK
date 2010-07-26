@@ -16,27 +16,33 @@
 #ifndef __vtkScalarsToColorsItem_h
 #define __vtkScalarsToColorsItem_h
 
-#include "vtkContextItem.h"
+//#include "vtkContextItem.h"
+#include "vtkPlot.h"
 
+class vtkCallbackCommand;
 class vtkImageData;
 class vtkPoints2D;
 
-class VTK_CHARTS_EXPORT vtkScalarsToColorsItem: public vtkContextItem
+class VTK_CHARTS_EXPORT vtkScalarsToColorsItem: public vtkPlot
 {
 public:
-  vtkTypeMacro(vtkScalarsToColorsItem, vtkContextItem);
+  vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  virtual void GetBounds(double bounds[4]);
   virtual bool Paint(vtkContext2D *painter);
 protected:
   vtkScalarsToColorsItem();
   virtual ~vtkScalarsToColorsItem();
 
   virtual void ComputeTexture() = 0;
+  static void OnScalarsToColorsModified(vtkObject* caller, unsigned long eid, void *clientdata, void* calldata);
+  virtual void ScalarsToColorsModified(vtkObject* caller, unsigned long eid, void* calldata);
 
-  vtkImageData*   Texture;
-  bool            Interpolate;
-  vtkPoints2D*    Shape;
+  vtkImageData*       Texture;
+  bool                Interpolate;
+  vtkPoints2D*        Shape;
+  vtkCallbackCommand* Callback;
 private:
   vtkScalarsToColorsItem(const vtkScalarsToColorsItem &); // Not implemented.
   void operator=(const vtkScalarsToColorsItem &);   // Not implemented.
