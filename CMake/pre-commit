@@ -2,10 +2,10 @@
 echo 'Please initialize your local Git hooks.
 Paste the following commands into a shell:
 
- $ cd "'$(pwd)'/.git/hooks"
- $ git init
- $ git pull .. remotes/origin/hooks
- $ cd ../..
+ cd "'$(pwd)'/.git/hooks"
+ git init
+ git pull .. remotes/origin/hooks
+ cd ../..
 
 See http://www.vtk.org/Wiki/VTK/Git#Hooks for more details.'
 exit 1
