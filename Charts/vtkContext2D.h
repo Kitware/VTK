@@ -276,7 +276,10 @@ public:
   // matrix of the transform. Note, this is set immediately, later changes to
   // the matrix will have no effect until it is set again.
   void SetTransform(vtkTransform2D *transform);
-  vtkGetObjectMacro(Transform, vtkTransform2D);
+
+  // Description:
+  // Compute the current transform applied to the context.
+  vtkTransform2D* GetTransform();
 
   // Description:
   // Append the transform for the context, the underlying device will use the
@@ -304,7 +307,7 @@ protected:
   vtkPen *Pen;                // Outlining
   vtkBrush *Brush;            // Fills
   vtkTextProperty *TextProp;  // Text property
-  vtkTransform2D *Transform;  // The painter transform
+  vtkTransform2D *Transform;  // Current transform
 
   vtkAbstractContextBufferId *BufferId;
 

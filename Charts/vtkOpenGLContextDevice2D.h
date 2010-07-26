@@ -141,6 +141,10 @@ public:
   virtual void SetMatrix(vtkMatrix3x3 *m);
 
   // Description:
+  // Set the model view matrix for the display
+  virtual void GetMatrix(vtkMatrix3x3 *m);
+
+  // Description:
   // Push the current matrix onto the stack.
   virtual void PushMatrix();
 

@@ -542,20 +542,17 @@ void vtkContext2D::ApplyTextProp(vtkTextProperty *prop)
 //-----------------------------------------------------------------------------
 void vtkContext2D::SetTransform(vtkTransform2D *transform)
 {
-  if(transform != this->Transform && transform)
-    {
-    transform->Register(this);
-    }
-
-  if (this->Transform && (this->Transform != transform))
-    {
-    this->Transform->Delete();
-    }
-  this->Transform = transform;
   if (transform)
     {
     this->Device->SetMatrix(transform->GetMatrix());
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkTransform2D* vtkContext2D::GetTransform()
+{
+  this->Device->GetMatrix(this->Transform->GetMatrix());
+  return this->Transform;
 }
 
 //-----------------------------------------------------------------------------
@@ -635,7 +632,7 @@ vtkContext2D::vtkContext2D()
   this->Pen = vtkPen::New();
   this->Brush = vtkBrush::New();
   this->TextProp = vtkTextProperty::New();
-  this->Transform = NULL;
+  this->Transform = vtkTransform2D::New();
   this->BufferId=0;
 }
 

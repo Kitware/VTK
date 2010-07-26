@@ -148,6 +148,10 @@ public:
   virtual void SetMatrix(vtkMatrix3x3 *m) = 0;
 
   // Description:
+  // Set the model view matrix for the display
+  virtual void GetMatrix(vtkMatrix3x3 *m) = 0;
+
+  // Description:
   // Multiply the current model view matrix by the supplied one
   virtual void MultiplyMatrix(vtkMatrix3x3 *m) = 0;
 

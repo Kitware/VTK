@@ -941,6 +941,29 @@ void vtkOpenGLContextDevice2D::SetMatrix(vtkMatrix3x3 *m)
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::GetMatrix(vtkMatrix3x3 *m)
+{
+  assert("pre: non_null" && m != NULL);
+  // We must construct a 4x4 matrix from the 3x3 matrix for OpenGL
+  double *M = m->GetData();
+  double matrix[16];
+  glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
+
+  // Convert from row major (C++ two dimensional arrays) to OpenGL
+  M[0] = matrix[0];
+  M[1] = matrix[4];
+  M[2] = matrix[12];
+  M[3] = matrix[1];
+  M[4] = matrix[5];
+  M[5] = matrix[13];
+  M[6] = matrix[3];
+  M[7] = matrix[7];
+  M[8] = matrix[15];
+
+  m->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::PushMatrix()
 {
   glMatrixMode( GL_MODELVIEW );
