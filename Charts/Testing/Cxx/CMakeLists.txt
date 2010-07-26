@@ -23,6 +23,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestMarksWedgeLine.cxx
     TestMultipleChartRenderers.cxx
     TestMultipleRenderers.cxx
+    TestMultipleScalarsToColors.cxx
     )
 
   IF (VTK_DATA_ROOT)
