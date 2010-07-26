@@ -741,7 +741,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
     return;
     }
     
-  int     i,  v;
+  int     v;
   int     zArrayId;        // indexing zoneData
   int     arraySiz;
   int     isXcoord;
@@ -795,7 +795,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
       zoneData.push_back( theArray );
     
       arrayPtr = static_cast< float * > (  theArray->GetVoidPointer( 0 )  );
-      for ( i = 0; i < arraySiz; i ++ )
+      for (int i = 0; i < arraySiz; i ++ )
         {
         arrayPtr[i] = atof( this->Internal->GetNextToken().c_str() );
         }
@@ -805,7 +805,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
       if ( anyCoord[v] )
         {
         float * coordPtr = cordsPtr + isYcoord + ( isZcoord << 1 );
-        for ( i = 0; i < arraySiz; i ++, coordPtr += 3 )
+        for (int i = 0; i < arraySiz; i ++, coordPtr += 3 )
           {
           *coordPtr = arrayPtr[i];
           }
@@ -818,7 +818,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
       {
       // this block contains an un-selected data attribute and we
       // need to read but ignore the values
-      for ( i = 0; i < arraySiz; i ++ )
+      for (int i = 0; i < arraySiz; i ++ )
         {
         this->Internal->GetNextToken();
         }
