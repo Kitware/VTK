@@ -123,21 +123,11 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
 
   while (pyclass != NULL)
     {
-    PyMethodDef *meth;
     PyObject *value;
+    PyObject *dict;
 
-    if (pyclass->vtk_dict == NULL)
-      {
-      pyclass->vtk_dict = PyDict_New();
-
-      for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
-        {
-        PyDict_SetItemString(pyclass->vtk_dict,meth->ml_name,
-                             PyCFunction_New(meth, (PyObject *)pyclass));
-        }
-      }
-
-    value = PyDict_GetItem(pyclass->vtk_dict, attr);
+    dict = PyVTKClass_GetDict((PyObject *)pyclass);
+    value = PyDict_GetItem(dict, attr);
 
     if (value)
       {
@@ -315,6 +305,27 @@ static PyTypeObject PyVTKClassType = {
 int PyVTKClass_Check(PyObject *obj)
 {
   return (obj->ob_type == &PyVTKClassType);
+}
+
+PyObject *PyVTKClass_GetDict(PyObject *obj)
+{
+  PyMethodDef *meth;
+  PyVTKClass *pyclass;
+
+  pyclass = (PyVTKClass *)obj;
+
+  if (pyclass->vtk_dict == NULL)
+    {
+    pyclass->vtk_dict = PyDict_New();
+
+    for (meth = pyclass->vtk_methods; meth && meth->ml_name; meth++)
+      {
+      PyDict_SetItemString(pyclass->vtk_dict,meth->ml_name,
+                           PyCFunction_New(meth, (PyObject *)pyclass));
+      }
+    }
+
+  return pyclass->vtk_dict;
 }
 
 PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,

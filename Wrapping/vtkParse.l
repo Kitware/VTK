@@ -144,7 +144,10 @@ static int skip_ahead_until(const char *text);
             yytext[j] == '_') { j++; }
      name = vtkstrndup(&yytext[i], j-i);
      while (yytext[j] == ' ' || yytext[j] == '\t') { j++; }
-     i = yyleng;
+     for (i = j; i < (size_t)yyleng; i++)
+       {
+       if (yytext[i] == '/' && (yytext[i+1] == '*' || yytext[i+1] == '/')) { break; }
+       }
      while (i > 0 && (yytext[i-1] == '\n' || yytext[i-1] == '\r' ||
                       yytext[i-1] == '\t' || yytext[i-1] == ' ')) { i--; }
      if (i > j)

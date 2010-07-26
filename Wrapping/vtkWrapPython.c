@@ -3880,6 +3880,149 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
           data->Name, data->Name);
 }
 
+
+/* -------------------------------------------------------------------- */
+/* This method adds constants defined in the file to the module */
+
+void vtkWrapPython_AddConstant(
+  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
+  ValueInfo *val)
+{
+  unsigned int valtype;
+  const char *valstring;
+  int objcreated = 0;
+
+  valtype = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
+  valstring = val->Value;
+
+  if (valtype == 0 && (valstring == NULL || valstring[0] == '\0'))
+    {
+    valtype = VTK_PARSE_VOID;
+    }
+  else if (strcmp(valstring, "NULL") == 0)
+    {
+    valtype = VTK_PARSE_VOID;
+    }
+
+  if (valtype == 0 || val->Name == NULL)
+    {
+    return;
+    }
+
+  switch (valtype)
+    {
+    case VTK_PARSE_VOID:
+      fprintf(fp,
+              "%sPy_INCREF(Py_None);\n"
+              "%s%s = Py_None;\n",
+              indent, indent, objvar);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_CHAR_PTR:
+      fprintf(fp,
+              "%s%s = PyString_FromString((char *)(%s));\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_FLOAT:
+    case VTK_PARSE_DOUBLE:
+      fprintf(fp,
+              "%s%s = PyFloat_FromDouble(%s);\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_INT:
+#if (VTK_SIZEOF_INT < VTK_SIZEOF_LONG)
+    case VTK_PARSE_UNSIGNED_INT:
+#endif
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_CHAR:
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_CHAR:
+      fprintf(fp,
+              "%s%s = PyInt_FromLong(%s);\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_UNSIGNED_LONG:
+#if (VTK_SIZEOF_INT == VTK_SIZEOF_LONG)
+    case VTK_PARSE_UNSIGNED_INT:
+#endif
+      fprintf(fp,
+              "#if (PY_VERSION_HEX >= 0x02020000)\n"
+              "%s%s = PyLong_FromUnsignedLong(%s);\n"
+              "#else\n"
+              "%s%s = PyInt_FromLong((long)(%s));\n"
+              "#endif\n",
+              indent, objvar, valstring, indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+#ifdef PY_LONG_LONG
+#ifdef VTK_TYPE_USE___INT64
+    case VTK_PARSE___INT64:
+      fprintf(fp,
+              "%s%s = PyLong_FromLongLong(%s);\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_UNSIGNED___INT64:
+      fprintf(fp,
+              "%s%s = PyLong_FromUnsignedLongLong(%s);\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+#endif
+
+#ifdef VTK_TYPE_USE_LONG_LONG
+    case VTK_PARSE_LONG_LONG:
+      fprintf(fp,
+              "%s%s = PyLong_FromLongLong(%s);\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+      fprintf(fp,
+              "%s%s = PyLong_FromUnsignedLongLong(%s);\n",
+              indent, objvar, valstring);
+      objcreated = 1;
+      break;
+#endif
+#endif
+
+    case VTK_PARSE_BOOL:
+      fprintf(fp,
+              "#if PY_VERSION_HEX >= 0x02030000\n"
+              "%s%s = PyBool_FromLong((long)(%s));\n"
+              "#else\n"
+              "%s%s = PyInt_FromLong((long)(%s));\n"
+              "#endif\n",
+              indent, objvar, valstring, indent, objvar, valstring);
+      objcreated = 1;
+      break;
+    }
+
+  if (objcreated)
+    {
+    fprintf(fp,
+            "%sif (%s && PyDict_SetItemString(%s, (char *)\"%s\", %s) != 0)\n"
+            "%s  {\n"
+            "%s  Py_DECREF(%s);\n"
+            "%s  }\n",
+            indent, objvar, dictvar, val->Name, objvar,
+            indent, indent, objvar, indent);
+    }
+}
+
+
 /* -------------------------------------------------------------------- */
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
@@ -3887,6 +4030,7 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
 void vtkParseOutput(FILE *fp, FileInfo *file_info)
 {
   ClassInfo *data;
+  NamespaceInfo *contents;
   OptionInfo *options;
   HierarchyInfo *hinfo = 0;
   int class_has_new = 0;
@@ -3894,10 +4038,14 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   int i;
 
   /* get the main class */
-  if ((data = file_info->MainClass) == NULL)
+  data = file_info->MainClass;
+  if (data == NULL)
     {
     return;
     }
+
+  /* get the global namespace */
+  contents = file_info->Contents;
 
   /* get the command-line options */
   options = vtkParse_GetCommandLineOptions();
@@ -3964,14 +4112,15 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
   /* do the export of the main entry point */
   fprintf(fp,
-          "\n"
           "#if defined(WIN32)\n"
+          "extern \"C\" { __declspec( dllexport ) void PyVTKAddFile_%s(PyObject *, const char *); }\n"
           "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
           "#else\n"
+          "extern \"C\" { void PyVTKAddFile_%s(PyObject *, const char *); }\n"
           "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
           "#endif\n"
           "\n",
-          data->Name, data->Name);
+          data->Name, data->Name, data->Name, data->Name);
 
   /* bring in all the superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
@@ -4028,6 +4177,67 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
             "\n",
             data->Name);
     }
+
+  /* The function for adding everything to the module dict */
+  fprintf(fp,
+          "void PyVTKAddFile_%s(\n"
+          "  PyObject *dict, const char *modulename)\n"
+          "{\n"
+          "  PyObject *o;\n"
+          "  o = PyVTKClass_%sNew(modulename);\n"
+          "\n"
+          "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+          "    {\n"
+          "    Py_DECREF(o);\n"
+          "    }\n",
+          data->Name, data->Name, data->Name);
+
+  if (is_vtkobject)
+    {
+    int has_constants = 0;
+    for (i = 0; i < data->NumberOfConstants; i++)
+      {
+      if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
+        {
+        has_constants = 1;
+        break;
+        }
+      }
+
+    if (has_constants)
+      {
+      fprintf(fp,
+              "  else\n"
+              "    {\n"
+              "    PyObject *d = PyVTKClass_GetDict(o);\n"
+              "\n");
+
+      /* add any constants defined in the class */
+      for (i = 0; i < data->NumberOfConstants; i++)
+        {
+        if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
+          {
+          vtkWrapPython_AddConstant(fp, "    ", "d", "o", data->Constants[i]);
+          fprintf(fp, "\n");
+          }
+        }
+
+      fprintf(fp,
+              "    }\n"
+              "\n");
+      }
+    }
+
+  /* add any constants defined in the file */
+  for (i = 0; i < contents->NumberOfConstants; i++)
+    {
+    vtkWrapPython_AddConstant(fp, "  ", "dict", "o", contents->Constants[i]);
+    fprintf(fp, "\n");
+    }
+
+  /* close the AddFile function */
+  fprintf(fp,
+          "}\n\n");
 
   /* the docstring for the class, as a static var ending in "Doc" */
   if (is_vtkobject || !data->IsAbstract)

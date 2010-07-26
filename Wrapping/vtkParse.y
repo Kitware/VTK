@@ -145,7 +145,7 @@ void start_enum(const char *enumname);
 void add_enum(const char *name, const char *value);
 void end_enum();
 void add_constant(const char *name, const char *value,
-                  unsigned int type, const char *typeclass, int global);
+                  unsigned int type, const char *typeclass, int flag);
 const char *add_const_scope(const char *name);
 void prepend_scope(char *cp, const char *arg);
 unsigned int add_indirection(unsigned int tval, unsigned int ptr);
@@ -1381,7 +1381,8 @@ enum_item: any_id {add_enum($<str>1, NULL);}
          | any_id '=' integer_expression {add_enum($<str>1, $<str>3);};
 
 integer_value: integer_literal {postSig($<str>1);}
-             | any_id | scoped_id | templated_id;
+             | any_id {$<str>$ = vtkstrdup(add_const_scope($<str>1));}
+             | scoped_id | templated_id;
 
 integer_literal: ZERO | INT_LITERAL | OCT_LITERAL | HEX_LITERAL | CHAR_LITERAL;
 
@@ -2884,6 +2885,130 @@ void add_enum(const char *name, const char *value)
   add_constant(name, currentEnumValue, VTK_PARSE_INT, currentEnumName, 2);
 }
 
+/* for a macro constant, guess the constant type, doesn't do any math */
+unsigned int guess_constant_type(const char *valstring)
+{
+  unsigned int valtype = 0;
+  size_t k;
+  int i;
+
+  if (valstring == NULL || valstring[0] == '\0')
+    {
+    valtype = 0;
+    }
+  else if (strcmp(valstring, "true") == 0 || strcmp(valstring, "false") == 0)
+    {
+    valtype = VTK_PARSE_BOOL;
+    }
+  else if (valstring[0] == '_' ||
+           (valstring[0] >= 'a' && valstring[0] <= 'z') ||
+           (valstring[0] >= 'A' && valstring[0] <= 'Z'))
+    {
+    NamespaceInfo *scope = currentNamespace;
+    if (namespaceDepth > 0)
+      {
+      scope = namespaceStack[0];
+      }
+
+    for (i = 0; i < scope->NumberOfConstants; i++)
+      {
+      if (strcmp(scope->Constants[i]->Name, valstring) == 0)
+        {
+        valtype = scope->Constants[i]->Type;
+        }
+      }
+    }
+  else if (valstring[0] == '\"')
+    {
+    valtype = VTK_PARSE_CHAR_PTR;
+    }
+  else if (valstring[0] == '\'')
+    {
+    valtype = VTK_PARSE_CHAR;
+    }
+  else if (valstring[0] == '-' || valstring[0] == '+' ||
+           (valstring[0] >= '0' && valstring[0] <= '9'))
+    {
+    k = 0;
+    if (valstring[0] == '-' || valstring[0] == '+')
+      {
+      k++;
+      while (valstring[k] == ' ' || valstring[k] == '\t') { k++; }
+      }
+    if (valstring[k] >= '0' && valstring[k] <= '9')
+      {
+     /* guess "int" first */
+      valtype = VTK_PARSE_INT;
+
+      if (valstring[k+1] == 'x' || valstring[k+1] == 'X')
+        {
+        k += 2;
+        while ((valstring[k] >= '0' && valstring[k] <= '9') ||
+               (valstring[k] >= 'a' && valstring[k] <= 'f') ||
+               (valstring[k] >= 'A' && valstring[k] <= 'F'))
+          {
+          k++;
+          }
+        }
+      else
+        {
+        while ((valstring[k] >= '0' && valstring[k] <= '9') ||
+               valstring[k] == '.' ||
+               valstring[k] == 'e' || valstring[k] == 'E' ||
+               valstring[k] == '-' || valstring[k] == '+')
+          {
+          if (valstring[k] == '.' ||
+              valstring[k] == 'e' || valstring[k] == 'E')
+            {
+            valtype = VTK_PARSE_DOUBLE;
+            }
+          k++;
+          }
+        }
+
+      /* look for type suffixes */
+      if (valtype == VTK_PARSE_DOUBLE)
+        {
+        if (valstring[k] == 'f')
+          {
+          valtype = VTK_PARSE_FLOAT;
+          }
+        }
+      else
+        {
+        while (valstring[k] != '\0')
+          {
+          if (valstring[k] == 'u' || valstring[k] == 'U')
+            {
+            valtype = (valtype | VTK_PARSE_UNSIGNED);
+            }
+          else if (valstring[k] == 'l' || valstring[k] == 'L')
+            {
+            if (valstring[k+1] == 'l' || valstring[k+1] == 'L')
+              {
+              k++;
+              valtype = ((valtype & ~VTK_PARSE_UNSIGNED) | VTK_PARSE_LONG_LONG);
+              }
+            else
+              {
+              valtype = ((valtype & ~VTK_PARSE_UNSIGNED) | VTK_PARSE_LONG);
+              }
+            }
+          else if (valstring[k] == 'i' && valstring[k+1] == '6' &&
+                   valstring[k+2] == '4')
+            {
+            k += 2;
+            valtype = ((valtype & ~VTK_PARSE_UNSIGNED) | VTK_PARSE___INT64);
+            }
+          k++;
+          }
+        }
+      }
+    }
+
+  return valtype;
+}
+
 /* add a constant to the current class or namespace */
 void add_constant(const char *name, const char *value,
                   unsigned int type, const char *typeclass, int flag)
@@ -2898,6 +3023,7 @@ void add_constant(const char *name, const char *value,
     {
     con->Class = vtkstrdup(typeclass);
     }
+
   if (flag == 2)
     {
     con->IsEnum = 1;
@@ -2906,11 +3032,16 @@ void add_constant(const char *name, const char *value,
   if (flag == 1)
     {
     con->Access = VTK_ACCESS_PUBLIC;
+    if (con->Type == 0)
+      {
+      con->Type = guess_constant_type(con->Value);
+      }
     vtkParse_AddConstantToNamespace(data.Contents, con);
     }
   else if (currentClass)
     {
     con->Access = access_level;
+
     vtkParse_AddConstantToClass(currentClass, con);
     }
   else
