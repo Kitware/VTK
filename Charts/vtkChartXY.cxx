@@ -566,7 +566,7 @@ void vtkChartXY::SetPlotCorner(vtkPlot *plot, int corner)
                     << corner);
     return;
     }
-  if (!this->RemovePlotFromConers(plot))
+  if (!this->RemovePlotFromCorners(plot))
     {
     vtkWarningMacro("Error removing plot from corners.");
     }
@@ -805,7 +805,7 @@ bool vtkChartXY::RemovePlot(vtkIdType index)
 {
   if (index < static_cast<vtkIdType>(this->ChartPrivate->plots.size()))
     {
-    this->RemovePlotFromConers(this->ChartPrivate->plots[index]);
+    this->RemovePlotFromCorners(this->ChartPrivate->plots[index]);
     this->ChartPrivate->plots[index]->Delete();
     this->ChartPrivate->plots.erase(this->ChartPrivate->plots.begin()+index);
 
@@ -1266,7 +1266,7 @@ void vtkChartXY::ProcessSelectionEvent(vtkObject* , void* )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::RemovePlotFromConers(vtkPlot *plot)
+bool vtkChartXY::RemovePlotFromCorners(vtkPlot *plot)
 {
   // We know the plot will only ever be in one of the corners
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
