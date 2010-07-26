@@ -268,7 +268,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
       ++visiblePlots;
       }
     }
-
   if (visiblePlots == 0)
     {
     // Nothing to plot, so don't draw anything.
@@ -788,16 +787,33 @@ vtkPlot * vtkChartXY::AddPlot(int type)
     default:
       plot = NULL;
     }
+  if (plot)
+    {
+    this->AddPlot(plot);
+    plot->Delete();
+    }
+  return plot;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::AddPlot(vtkPlot * plot)
+{
+  if (plot == NULL)
+    {
+    return -1;
+    }
+  plot->Register(this);
   // Add the plot to the default corner
   plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
   plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
   this->ChartPrivate->plots.push_back(plot);
+  vtkIdType plotIndex = this->ChartPrivate->plots.size() - 1;
   this->ChartPrivate->PlotCorners[0]->AddItem(plot);
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
-  return plot;
+  return plotIndex;
 }
 
 //-----------------------------------------------------------------------------
