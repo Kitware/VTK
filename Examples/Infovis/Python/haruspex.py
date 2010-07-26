@@ -431,8 +431,12 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
         for t in range( 0, nPrimaryTables ):
             inTableReader = inModelReader[t]
             inTable = inTableReader.GetOutput()
+
             # Handle special case of second table of contingency statistics
             if ( t > 0 and haruspex.GetClassName() == "vtkContingencyStatistics" ):
+                if verbosity > 0:
+                    print "# Converting input contingency table to appropriate column types"
+
                 # Create a programmable filter whose input is the contingency table
                 convertContingencyTab = vtkProgrammableFilter()
                 convertContingencyTab.SetInput( inTable )
@@ -479,6 +483,8 @@ def CalculateStatistics( inDataReader, inModelReader, updateModel, columnsList, 
 
                 # Retrieve converted table from filter output
                 inTable = convertContingencyTab.GetOutput()
+                if verbosity > 1:
+                    inTable.Dump( 16 )
 
             # Set retrieved table to corresponding model block
             inModel.SetBlock( t, inTable )
