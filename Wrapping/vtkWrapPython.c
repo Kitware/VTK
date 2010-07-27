@@ -98,9 +98,9 @@ static const char *vtkWrapPython_QuoteString(
 static const char *vtkWrapPython_FormatComment(
   const char *comment, size_t width);
 
-/* format a method signature to a 70 char linewidth */
+/* format a method signature to a 70 char linewidth and char limit */
 static const char *vtkWrapPython_FormatSignature(
-  const char *signature, size_t width);
+  const char *signature, size_t width, size_t maxlen);
 
 /* return a python-ized signature */
 static const char *vtkWrapPython_PythonSignature(
@@ -946,7 +946,7 @@ static char *vtkWrapPython_ArgCheckString(
 /* For the purpose of the python docstrings, convert special characters
  * in a string into their escape codes, so that the string can be quoted
  * in a source file (the specified maxlen must be at least 32 chars, and
- * should not be over 1000 since that is the maximum length of a string
+ * should not be over 2047 since that is the maximum length of a string
  * literal on some systems)*/
 
 static const char *vtkWrapPython_QuoteString(
@@ -1499,15 +1499,17 @@ static const char *vtkWrapPython_PythonSignature(
 }
 
 /* -------------------------------------------------------------------- */
-/* Format a signature to a 70 char linewidth */
+/* Format a signature to a 70 char linewidth and char limit */
 const char *vtkWrapPython_FormatSignature(
-  const char *signature, size_t width)
+  const char *signature, size_t width, size_t maxlen)
 {
   static struct vtkWPString staticString = { NULL, 0, 0 };
   struct vtkWPString *text;
-  size_t i, j;
+  size_t i, j, n;
   const char *cp = signature;
   char delim;
+  size_t lastSigStart = 0;
+  size_t sigCount = 0;
 
   text = &staticString;
   text->len = 0;
@@ -1579,6 +1581,18 @@ const char *vtkWrapPython_FormatSignature(
       vtkWPString_Strip(text, " \r\t");
       if (cp[i] != '\0')
         {
+        sigCount++;
+        /* if sig count is even, check length against maxlen */
+        if ((sigCount & 1) == 0)
+          {
+          n = strlen(text->str);
+          if (n >= maxlen)
+            {
+            break;
+            }
+          lastSigStart = n;
+          }
+
         i++;
         vtkWPString_PushChar(text, '\\');
         vtkWPString_PushChar(text, 'n');
@@ -1589,6 +1603,12 @@ const char *vtkWrapPython_FormatSignature(
     }
 
   vtkWPString_Strip(text, " \r\t");
+
+  if (strlen(text->str) >= maxlen)
+    {
+    /* terminate before the current signature */
+    text->str[lastSigStart] = '\0';
+    }
 
   return text->str;
 }
@@ -2896,20 +2916,27 @@ static void vtkWrapPython_GenerateMethods(
       }
     if (wrappedFunctions[fnum]->Name)
       {
+      /* string literals must be under 2048 chars */
+      size_t maxlen = 2040;
       const char *comment;
+      const char *signatures;
 
-      /* format the comment nicely */
+      /* format the comment nicely to a 66 char width */
+      signatures = vtkWrapPython_FormatSignature(
+        wrappedFunctions[fnum]->Signature, 66, maxlen - 32);
       comment = vtkWrapPython_FormatComment(
         wrappedFunctions[fnum]->Comment, 66);
+      comment = vtkWrapPython_QuoteString(
+        comment, maxlen - strlen(signatures));
 
       fprintf(fp,
-              "  {(char*)\"%s\",                (PyCFunction)Py%s_%s, 1,\n"
-              "   (char*)\"%s\\n\\n%s\"},\n",
+              "  {(char*)\"%s\",                (PyCFunction)Py%s_%s, 1,\n",
               wrappedFunctions[fnum]->Name, data->Name,
-              wrappedFunctions[fnum]->Name,
-              vtkWrapPython_FormatSignature(
-                wrappedFunctions[fnum]->Signature, 66),
-              vtkWrapPython_QuoteString(comment,1000));
+              wrappedFunctions[fnum]->Name);
+
+      fprintf(fp,
+              "   (char*)\"%s\\n\\n%s\"},\n",
+              signatures, comment);
       }
     if(wrappedFunctions[fnum]->IsLegacy)
       {
@@ -3296,7 +3323,7 @@ static void vtkWrapPython_ClassDoc(
         {
         fprintf(fp,"    \"%s\\n\",\n",
                 vtkWrapPython_FormatSignature(
-                  data->Functions[j]->Signature, 70));
+                  data->Functions[j]->Signature, 70, 2000));
         }
       }
     }
