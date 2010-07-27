@@ -146,7 +146,7 @@ void vtkChart::SetRightBorder(int border)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart::SetBorders(int left, int right, int top, int bottom)
+void vtkChart::SetBorders(int left, int bottom, int right, int top)
 {
   this->SetLeftBorder(left);
   this->SetRightBorder(right);

@@ -70,6 +70,10 @@ public:
     {
     this->Colors = vtkSmartPointer<vtkColorSeries>::New();
     this->Clip = vtkSmartPointer<vtkContextClip>::New();
+    this->Borders[0] = 60;
+    this->Borders[1] = 50;
+    this->Borders[2] = 20;
+    this->Borders[3] = 20;
     }
 
   vtkstd::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
@@ -77,6 +81,7 @@ public:
   vtkstd::vector<vtkAxis *> axes; // Charts can contain multiple axes
   vtkSmartPointer<vtkColorSeries> Colors; // Colors in the chart
   vtkSmartPointer<vtkContextClip> Clip; // Colors in the chart
+  int Borders[4];
 };
 
 //-----------------------------------------------------------------------------
@@ -150,6 +155,7 @@ vtkChartXY::vtkChartXY()
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip);
   this->Tooltip->Delete();
+  this->LayoutChanged = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -242,6 +248,26 @@ void vtkChartXY::Update()
           }
         }
       }
+    for (int i = 0; i < 4; ++i)
+      {
+      int border = 20;
+      if (this->ChartPrivate->axes[i]->GetVisible())
+        {
+        if (i == 1 || i == 3)
+          {
+          border = 50;
+          }
+        else
+          {
+          border = 60;
+          }
+        }
+      if (this->ChartPrivate->Borders[i] != border)
+        {
+        this->ChartPrivate->Borders[i] = border;
+        this->LayoutChanged = true;
+        }
+      }
     }
 }
 
@@ -279,11 +305,15 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   bool recalculateTransform = false;
 
   if (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1] ||
-      this->MTime > this->ChartPrivate->axes[0]->GetMTime())
+      this->MTime > this->ChartPrivate->axes[0]->GetMTime() ||
+      this->LayoutChanged)
     {
     // Take up the entire window right now, this could be made configurable
     this->SetGeometry(geometry);
-    this->SetBorders(60, 20, 20, 50);
+    this->SetBorders(this->ChartPrivate->Borders[0],
+                     this->ChartPrivate->Borders[1],
+                     this->ChartPrivate->Borders[2],
+                     this->ChartPrivate->Borders[3]);
     // This is where we set the axes up too
     // Y axis (left)
     this->ChartPrivate->axes[0]->SetPoint1(this->Point1[0], this->Point1[1]);
@@ -302,6 +332,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
+    this->LayoutChanged = false;
     }
 
   // Update the clipping if necessary

@@ -218,6 +218,11 @@ protected:
   // drawn on the chart.
   float BarWidthFraction;
 
+  // Description:
+  // Indicate if the layout has changed in some way that would require layout
+  // code to be called.
+  bool LayoutChanged;
+
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.
   void operator=(const vtkChartXY &);   // Not implemented.
