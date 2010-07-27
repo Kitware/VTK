@@ -48,9 +48,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2010/06/15 */
+/* glxext.h last updated 2010/07/26 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 29
+#define GLX_GLXEXT_VERSION 30
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -145,6 +145,13 @@ extern "C" {
 #define GLX_CONTEXT_CORE_PROFILE_BIT_ARB   0x00000001
 #define GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
 #define GLX_CONTEXT_PROFILE_MASK_ARB       0x9126
+#endif
+
+#ifndef GLX_ARB_create_context_robustness
+#define GLX_CONTEXT_ROBUST_ACCESS_BIT_ARB  0x00000004
+#define GLX_LOSE_CONTEXT_ON_RESET_ARB      0x8252
+#define GLX_CONTEXT_RESET_NOTIFICATION_STRATEGY_ARB 0x8256
+#define GLX_NO_RESET_NOTIFICATION_ARB      0x8261
 #endif
 
 #ifndef GLX_SGIS_multisample
