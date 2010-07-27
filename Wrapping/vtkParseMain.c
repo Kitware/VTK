@@ -220,18 +220,6 @@ int main(int argc, char *argv[])
     }
 
   options.OutputFileName = argv[argi++];
-  ofile = fopen(options.OutputFileName, "w");
-
-  if (!ofile)
-    {
-    fprintf(stderr, "Error opening output file %s\n", options.OutputFileName);
-    fclose(ifile);
-    if (hfile)
-      {
-      fclose(hfile);
-      }
-    exit(1);
-    }
 
   if (options.IsConcrete)
     {
@@ -255,11 +243,10 @@ int main(int argc, char *argv[])
     }
 
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
+  fclose(ifile);
 
   if (!data)
     {
-    fclose(ifile);
-    fclose(ofile);
     if (hfile)
       {
       fclose(hfile);
@@ -270,6 +257,7 @@ int main(int argc, char *argv[])
   if (hfile)
     {
     vtkParse_ReadHints(data, hfile, stderr);
+    fclose(hfile);
     }
 
   if (options.IsConcrete && data->MainClass)
@@ -279,6 +267,14 @@ int main(int argc, char *argv[])
   else if (options.IsAbstract && data->MainClass)
     {
     data->MainClass->IsAbstract = 1;
+    }
+
+  ofile = fopen(options.OutputFileName, "w");
+
+  if (!ofile)
+    {
+    fprintf(stderr, "Error opening output file %s\n", options.OutputFileName);
+    exit(1);
     }
 
   vtkParseOutput(ofile, data);
