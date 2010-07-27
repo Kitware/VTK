@@ -148,10 +148,6 @@ public:
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
-  virtual void SetScene(vtkContextScene *scene);
-
 //BTX
 protected:
   vtkChartXY();

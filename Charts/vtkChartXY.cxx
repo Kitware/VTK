@@ -148,6 +148,8 @@ vtkChartXY::vtkChartXY()
 
   this->Tooltip = vtkTooltipItem::New();
   this->Tooltip->SetVisible(false);
+  this->AddItem(this->Tooltip);
+  this->Tooltip->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -168,9 +170,6 @@ vtkChartXY::~vtkChartXY()
   this->Grid = 0;
   this->Legend->Delete();
   this->Legend = 0;
-
-  this->Tooltip->Delete();
-  this->Tooltip = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -349,9 +348,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->DrawStringRect(rect, this->Title);
     rect->Delete();
     }
-
-  // Draw in the current mouse location...
-  this->Tooltip->Paint(painter);
 
   return true;
 }
@@ -887,13 +883,6 @@ void vtkChartXY::RecalculateBounds()
   this->PlotTransformValid = false;
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartXY::SetScene(vtkContextScene *scene)
-{
-  this->vtkAbstractContextItem::SetScene(scene);
-  this->Tooltip->SetScene(scene);
 }
 
 //-----------------------------------------------------------------------------
