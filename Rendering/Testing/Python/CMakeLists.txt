@@ -59,7 +59,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           TestOnePoint
           TestParallelCoordinates
           #TestStyleTerrain  -- file source
-          TestTiling
+          #TestTiling
           TestTriangleStripCellColor
           )
         SET(tests ${tests}
