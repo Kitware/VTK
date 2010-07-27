@@ -1121,7 +1121,15 @@ void OrderTwoConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   // traverse the edge graph to remove all incoming boundary edges.
   while (currPid != startPid)
     {
-    edges = cpMap.find(currPid)->second;
+    mapIt = cpMap.find(currPid);
+    if (mapIt == cpMap.end())
+      {
+      cout << "Find an unexpected case. The input polyhedron cell may not be a "
+        << "water tight or the polygonal faces may not be planar. Contouring "
+        << "will continue, but this cell may not be processed correctly." << endl;
+      break;
+      }
+    edges = mapIt->second;
     if (edges[0] == prevPid)
       {
       inBoundary = 0;
