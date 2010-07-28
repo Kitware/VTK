@@ -503,17 +503,6 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 namespace {
 
 // Copy the two arrays into the points array
-template<class A>
-void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
-{
-  switch(b->GetDataType())
-    {
-    vtkTemplateMacro(
-        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
-    }
-}
-
-// Copy the two arrays into the points array
 template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
 {
@@ -536,6 +525,17 @@ void CopyToPoints(vtkPoints2D *points, A *a, int n)
     {
     data[2*i] = static_cast<float>(i);
     data[2*i+1] = a[i];
+    }
+}
+
+// Copy the two arrays into the points array
+template<class A>
+void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
+{
+  switch(b->GetDataType())
+    {
+    vtkTemplateMacro(
+        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
     }
 }
 

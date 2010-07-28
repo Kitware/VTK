@@ -84,21 +84,10 @@ bool compVector3fX(const vtkVector3f& v1, const vtkVector3f& v2)
     }
 }
 
-
-// Copy the two arrays into the points array
-template<class A>
-void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, vtkDataArray *b, int n)
-{
-  switch(b->GetDataType())
-    {
-    vtkTemplateMacro(
-        CopyToPoints(points,previous_points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
-    }
-}
-
 // Copy the two arrays into the points array
 template<class A, class B>
-void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b, int n)
+void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b,
+                  int n)
 {
   points->SetNumberOfPoints(n);
   for (int i = 0; i < n; ++i)
@@ -124,6 +113,19 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, int n
     }
 }
 
+// Copy the two arrays into the points array
+template<class A>
+void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a,
+                        vtkDataArray *b, int n)
+{
+  switch(b->GetDataType())
+    {
+    vtkTemplateMacro(
+        CopyToPoints(points,previous_points, a,
+                     static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
+    }
+}
+
 } // namespace
 
 class vtkPlotStackedSegment : public vtkObject {
@@ -140,7 +142,7 @@ class vtkPlotStackedSegment : public vtkObject {
       this->Sorted = false;
       }
 
-    void Configure(vtkPlotStacked *stacked,vtkDataArray *x_array, vtkDataArray *y_array,vtkPlotStackedSegment *prev) 
+    void Configure(vtkPlotStacked *stacked,vtkDataArray *x_array, vtkDataArray *y_array,vtkPlotStackedSegment *prev)
       {
       this->Stacked = stacked;
       this->Sorted = false;
@@ -151,7 +153,7 @@ class vtkPlotStackedSegment : public vtkObject {
         this->Points = vtkSmartPointer<vtkPoints2D>::New();
         }
 
-      if (x_array) 
+      if (x_array)
         {
         switch (x_array->GetDataType())
           {
@@ -360,7 +362,7 @@ class vtkPlotStackedSegment : public vtkObject {
 
         for (int i = 0; i < (n - 1); ++i)
           {
-          if (data_base) 
+          if (data_base)
             {
             poly_points[0] = data_base[2*i];
             poly_points[1] = data_base[2*i+1];
@@ -384,9 +386,9 @@ class vtkPlotStackedSegment : public vtkObject {
         }
       }
 
-    bool GetNearestPoint(const vtkVector2f& point, 
-                         const vtkVector2f& tol, 
-                         vtkVector2f* location) 
+    bool GetNearestPoint(const vtkVector2f& point,
+                         const vtkVector2f& tol,
+                         vtkVector2f* location)
       {
       // Right now doing a simple bisector search of the array. This should be
       // revisited. Assumes the x axis is sorted, which should always be true for
@@ -437,8 +439,8 @@ class vtkPlotStackedSegment : public vtkObject {
       return false;
       }
 
-    void SelectPoints(const vtkVector2f& min, 
-                      const vtkVector2f& max, 
+    void SelectPoints(const vtkVector2f& min,
+                      const vtkVector2f& max,
                       vtkIdTypeArray *selection)
       {
       if (!this->Points)
@@ -502,9 +504,9 @@ class vtkPlotStackedPrivate {
       }
 
 
-    int GetNearestPoint(const vtkVector2f& point, 
-                        const vtkVector2f& tol, 
-                        vtkVector2f* location) 
+    int GetNearestPoint(const vtkVector2f& point,
+                        const vtkVector2f& tol,
+                        vtkVector2f* location)
       {
       // Depends on the fact that we check the segments in order. Each
       // Segment only worrys about its own total extent from the base.
@@ -550,8 +552,8 @@ class vtkPlotStackedPrivate {
       }
 
 
-    void SelectPoints(const vtkVector2f& min, 
-                      const vtkVector2f& max, 
+    void SelectPoints(const vtkVector2f& min,
+                      const vtkVector2f& max,
                       vtkIdTypeArray *selection)
       {
       for (vtkstd::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();

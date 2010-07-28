@@ -54,19 +54,9 @@ bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
 }
 
 // Copy the two arrays into the points array
-template<class A>
-void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, vtkDataArray *b, int n)
-{
-  switch(b->GetDataType())
-    {
-    vtkTemplateMacro(
-        CopyToPoints(points,previous_points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
-    }
-}
-
-// Copy the two arrays into the points array
 template<class A, class B>
-void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b, int n)
+void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, B *b,
+                  int n)
 {
   points->SetNumberOfPoints(n);
   for (int i = 0; i < n; ++i)
@@ -92,6 +82,19 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previous_points, A *a, int n
     }
 }
 
+// Copy the two arrays into the points array
+template<class A>
+void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previous_points, A *a,
+                        vtkDataArray *b, int n)
+{
+  switch(b->GetDataType())
+    {
+    vtkTemplateMacro(
+        CopyToPoints(points,previous_points, a,
+                     static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
+    }
+}
+
 } // namespace
 
 //-----------------------------------------------------------------------------
@@ -109,7 +112,7 @@ class vtkPlotBarSegment : public vtkObject {
       this->Previous = 0;
       }
 
-    void Configure(vtkPlotBar *bar,vtkDataArray *x_array, vtkDataArray *y_array,vtkPlotBarSegment *prev) 
+    void Configure(vtkPlotBar *bar,vtkDataArray *x_array, vtkDataArray *y_array,vtkPlotBarSegment *prev)
       {
       this->Bar = bar;
       this->Sorted = false;
@@ -119,7 +122,7 @@ class vtkPlotBarSegment : public vtkObject {
         this->Points = vtkSmartPointer<vtkPoints2D>::New();
         }
 
-      if (x_array) 
+      if (x_array)
         {
         switch (x_array->GetDataType())
           {
@@ -160,7 +163,7 @@ class vtkPlotBarSegment : public vtkObject {
         }
       }
 
-    bool GetNearestPoint(const vtkVector2f& point, 
+    bool GetNearestPoint(const vtkVector2f& point,
                                      vtkVector2f* location,
                                      float width,
                                      float offset)
@@ -188,7 +191,7 @@ class vtkPlotBarSegment : public vtkObject {
         vtkstd::sort(v.begin(), v.end(), compVector2fX);
         this->Sorted = true;
         }
-      
+
       // The extent of any given bar is half a width on either
       // side of the point with which it is associated.
       float halfWidth = width / 2.0;
@@ -240,10 +243,10 @@ class vtkPlotBarPrivate {
       this->Segments.clear();
       }
 
-    vtkPlotBarSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array, 
+    vtkPlotBarSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array,
                                   vtkPlotBarSegment *prev=0)
       {
-      vtkSmartPointer<vtkPlotBarSegment> segment = 
+      vtkSmartPointer<vtkPlotBarSegment> segment =
         vtkSmartPointer<vtkPlotBarSegment>::New();
       segment->Configure(this->Bar,x_array,y_array,prev);
       this->Segments.push_back(segment);
@@ -255,7 +258,7 @@ class vtkPlotBarPrivate {
       {
       int colorInSeries = 0;
       bool useColorSeries = this->Segments.size() > 1;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = 
+      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
               this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
@@ -266,13 +269,13 @@ class vtkPlotBarPrivate {
       }
 
 
-    int GetNearestPoint(const vtkVector2f& point, 
+    int GetNearestPoint(const vtkVector2f& point,
                                      vtkVector2f* location,
                                      float width,
                                      float offset)
       {
       int index = 0;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it = 
+      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
               this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
@@ -399,7 +402,7 @@ void vtkPlotBar::GetBounds(double bounds[4])
 
   double y_range[2];
   vtkstd::map< int, vtkstd::string >::iterator it;
-  for ( it = this->Private->AdditionalSeries.begin(); it != 
+  for ( it = this->Private->AdditionalSeries.begin(); it !=
                   this->Private->AdditionalSeries.end(); ++it )
     {
     y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
@@ -475,11 +478,11 @@ vtkStringArray *vtkPlotBar::GetLabels()
            this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
     {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, 
+    this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1,
                                       this->Data->GetInput())->GetName());
 
     vtkstd::map< int, vtkstd::string >::iterator it;
-    for ( it = this->Private->AdditionalSeries.begin(); 
+    for ( it = this->Private->AdditionalSeries.begin();
           it != this->Private->AdditionalSeries.end(); ++it )
       {
       this->AutoLabels->InsertNextValue((*it).second);
@@ -522,7 +525,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
 
   vtkstd::map< int, vtkstd::string >::iterator it;
 
-  for ( it = this->Private->AdditionalSeries.begin(); 
+  for ( it = this->Private->AdditionalSeries.begin();
         it != this->Private->AdditionalSeries.end(); ++it )
     {
     y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
