@@ -691,14 +691,17 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
 
       cerr << "* bS1 = " << bS1 << "\n";
       cerr << "* bS2 = " << bS2 << "\n";
-      jbs = 0.; // FIXME
+
+      // Finally, calculate Jarque-Bera-Srivastava statistic
+      tmp = bS2 - 3.;
+      jbs = static_cast<double>( n ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
       }
     else
       {
       jbs = vtkMath::Nan();
       }
 
-    // Insert variable name and calculated Jarque-Bera statistic
+    // Insert variable name and calculated Jarque-Bera-Srivastava statistic
     // NB: R will be invoked only once at the end for efficiency
     nameColX->InsertNextValue( varNameX );
     nameColY->InsertNextValue( varNameY );
