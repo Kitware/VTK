@@ -148,10 +148,6 @@ public:
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
-  virtual void SetScene(vtkContextScene *scene);
-
 //BTX
 protected:
   vtkChartXY();
@@ -221,6 +217,11 @@ protected:
   // The fraction of the interval taken up along the x axis by any bars that are
   // drawn on the chart.
   float BarWidthFraction;
+
+  // Description:
+  // Indicate if the layout has changed in some way that would require layout
+  // code to be called.
+  bool LayoutChanged;
 
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.
