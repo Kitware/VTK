@@ -28,8 +28,12 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#ifdef VTK_USE_GNU_R
+#include <vtkRInterface.h>
+#endif // VTK_USE_GNU_R
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -481,6 +485,169 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // Clean up
   derivedTab->Delete();
   delete [] derivedVals;
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::Test( vtkTable* inData,
+                                     vtkMultiBlockDataSet* inMeta,
+                                     vtkTable* outMeta )
+{
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
+    return;
+    }
+
+  if ( ! outMeta )
+    {
+    return;
+    }
+
+  // Prepare columns for the test:
+  // 0: variable name
+  // 1: Multivariate Jarque-Bera-Srivastava statistic
+  // 2: Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
+  // NB: These are not added to the output table yet, for they will be filled individually first
+  //     in order that R be invoked only once.
+  vtkStringArray* nameCol = vtkStringArray::New();
+  nameCol->SetName( "Variable" );
+
+  vtkDoubleArray* statCol = vtkDoubleArray::New();
+  statCol->SetName( "Jarque-Bera-Srivastava" );
+
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+
+  // Loop over requests
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      continue;
+      }
+
+    // Find the model row that corresponds to the variable of the request
+    vtkIdType r = 0;
+    while ( r < nRow && vars->GetValue( r ) != varName )
+      {
+      ++ r;
+      }
+    if ( r >= nRow )
+      {
+      vtkErrorMacro( "Incomplete input: model does not have a row "
+                     << varName.c_str()
+                     <<". Cannot test." );
+      return;
+      }
+
+    // Retrieve model statistics necessary for Jarque-Bera testing
+    double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
+    double m2 = primaryTab->GetValueByName( r, "M2" ).ToDouble();
+    double m3 = primaryTab->GetValueByName( r, "M3" ).ToDouble();
+    double m4 = primaryTab->GetValueByName( r, "M4" ).ToDouble();
+
+    // Now calculate Jarque-Bera statistic
+    double jb;
+
+    // Eliminate extremely small variances
+    if ( m2 > 1.e-100 )
+      {
+      double m22 = m2 * m2;
+      double s = 0.0;
+      double k = 0.0;
+
+      s = sqrt( n / ( m22 * m2 ) ) * m3;
+      k = n * m4 / m22 - 3.;
+
+      jb = n * ( s * s + .25 * k * k ) / 6.;
+      }
+    else
+      {
+      jb = vtkMath::Nan();
+      }
+
+    // Insert variable name and calculated Jarque-Bera statistic
+    // NB: R will be invoked only once at the end for efficiency
+    nameCol->InsertNextValue( varName );
+    statCol->InsertNextTuple1( jb );
+    } // rit
+
+  // Now, add the already prepared columns to the output table
+  outMeta->AddColumn( nameCol );
+  outMeta->AddColumn( statCol );
+
+  // Last phase: compute the p-values or assign invalid value if they cannot be computed
+  vtkDoubleArray* testCol = 0;
+  bool calculatedP = false;
+
+  // If available, use R to obtain the p-values for the Chi square distribution with 2 DOFs
+#ifdef VTK_USE_GNU_R
+  // Prepare VTK - R interface
+  vtkRInterface* ri = vtkRInterface::New();
+
+  // Use the calculated Jarque-Bera statistics as input to the Chi square function
+  ri->AssignVTKDataArrayToRVariable( statCol, "jb" );
+
+  // Calculate the p-values
+  ri->EvalRscript( "p=1-pchisq(jb,2)" );
+
+  // Retrieve the p-values
+  testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
+    {
+    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
+    }
+  else
+    {
+    // Test values have been calculated by R: the test column can be added to the output table
+    outMeta->AddColumn( testCol );
+    calculatedP = true;
+    }
+
+  // Clean up
+  ri->Delete();
+#endif // VTK_USE_GNU_R
+
+  // Use the invalid value of -1 for p-values if R is absent or there was an R error
+  if ( ! calculatedP )
+    {
+    // A column must be created first
+    testCol = vtkDoubleArray::New();
+
+    // Fill this column
+    vtkIdType n = statCol->GetNumberOfTuples();
+    testCol->SetNumberOfTuples( n );
+    for ( vtkIdType r = 0; r < n; ++ r )
+      {
+      testCol->SetTuple1( r, -1 );
+      }
+
+    // Now add the column of invalid values to the output table
+    outMeta->AddColumn( testCol );
+
+    // Clean up
+    testCol->Delete();
+    }
+
+  // The test column name can only be set after the column has been obtained from R
+  testCol->SetName( "P" );
+
+  // Clean up
+  nameCol->Delete();
+  statCol->Delete();
 }
 
 // ----------------------------------------------------------------------
