@@ -509,12 +509,12 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( nRow != derivedTab->GetNumberOfRows() )
+  vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  if ( nRowPrim != derivedTab->GetNumberOfRows() )
     {
     vtkErrorMacro( "Inconsistent input: primary model has "
-                   << nRow
-                   << " rows and derived model has "
+                   << nRowPrim
+                   << " rows but derived model has "
                    << derivedTab->GetNumberOfRows()
                    <<". Cannot test." );
     return;
@@ -546,6 +546,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   vtkStringArray* varsY = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable Y" ) );
 
   // Loop over requests
+  vtkIdType nRowData = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -572,13 +573,13 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
 
     // Find the model row that corresponds to the variable pair of the request
     vtkIdType r = 0;
-    while ( r < nRow
+    while ( r < nRowPrim
             && varsX->GetValue( r ) != varNameX
             && varsY->GetValue( r ) != varNameY )
       {
       ++ r;
       }
-    if ( r >= nRow )
+    if ( r >= nRowPrim )
       {
       vtkErrorMacro( "Incomplete input: model does not have a row for pair"
                      << varNameX.c_str()
@@ -590,36 +591,46 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
 
     // Retrieve model statistics necessary for Jarque-Bera-Srivastava testing
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    double mx = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
-    double my = primaryTab->GetValueByName( r, "Mean Y" ).ToDouble();
-    double sx2 = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
-    double sy2 = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
-    double sxy = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
+    if ( n != nRowData )
+      {
+      vtkErrorMacro( "Inconsistent input: dat has "
+                     << nRowData
+                     << " rows but primary model has cardinality "
+                     << n
+                     <<". Cannot test." );
+      return;
+      }
+
+    double mX = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
+    double mY = primaryTab->GetValueByName( r, "Mean Y" ).ToDouble();
+    double sX2 = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
+    double sY2 = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
+    double sXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
 
     // Now calculate Jarque-Bera-Srivastava statistic
     double jbs;
 
     // Eliminate near degenerate covariance matrices
-    double sxy2 = sxy * sxy;
-    double detS = sx2 * sy2 - sxy2;
+    double sXY2 = sXY * sXY;
+    double detS = sX2 * sY2 - sXY2;
     if ( detS > 1.e-100
-         && sx2 > 0.
-         && sy2 > 0. )
+         && sX2 > 0.
+         && sY2 > 0. )
       {
       // Calculate trace, discriminant, and eigenvalues of covariance matrix S
-      double trS = sx2 + sy2;
+      double trS = sX2 + sY2;
       double sqdS = sqrt( trS * trS - 4 * detS );
       double eigS1 = .5 * ( trS + sqdS );
       double eigS2 = .5 * ( trS - sqdS );
 
       // Calculate transformation matrix P so S = P diag(eigSi) Pt
-      double w = .5 * ( sx2 - sy2 - sqdS );
-      double f = 1. / sqrt ( sxy2 + w * w );
+      double w = .5 * ( sX2 - sY2 - sqdS );
+      double f = 1. / sqrt ( sXY2 + w * w );
 
-      double p11 = f * sxy;
-      double p21 = f * ( eigS1 - sx2 );
+      double p11 = f * sXY;
+      double p21 = f * ( eigS1 - sX2 );
 
-      double p12 = f * ( eigS2 - sy2 );
+      double p12 = f * ( eigS2 - sY2 );
       double p22 = p11;
 
       cerr << "P = \n"
@@ -633,20 +644,53 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
            << p22
            << "\n";
 
-      // Transform mean coordinates into eigenbasis
-      cerr << "Old means: "
-           << mx
-           << "  "
-           << my
-           << "\n";
-      double t1 = p11 * mx + p21* my;
-      double t2 = p12 * mx + p22* my;
-      cerr << "New means: "
-           << t1
-           << "  "
-           << t2
-           << "\n";
+      // Now iterate over all observations
+      double sum3X = 0.;
+      double sum3Y = 0.;
+      double sum4X = 0.;
+      double sum4Y = 0.;
+      double x, y, tmp, t1, t2;
+      for ( vtkIdType j = 0; j < nRowData; ++ j )
+        {
+        // Read and center observation
+        x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
+        y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
+        cerr << "Raw: "
+             << x
+             << "  "
+             << y
+             << "\n";
 
+        // Transform coordinates into eigencoordinates
+        t1 = p11 * x + p21 * y;
+        t2 = p12 * x + p22 * y;
+        cerr << "Transformed: "
+             << t1
+             << "  "
+             << t2
+             << "\n";
+
+        // Update third and fourth order sums for each eigencoordinate
+        tmp = t1 * t1;
+        sum3X += tmp * t1;
+        sum4X += tmp * tmp;
+        tmp = t2 * t2;
+        sum3Y += tmp * t2;
+        sum4Y += tmp * tmp;
+        }
+
+      // Normalize all sums with corresponding eigenvalues and powers
+      sum3X /= pow( eigS1, 1.5 );
+      sum3Y /= pow( eigS2, 1.5 );
+      sum4X /= ( eigS1 * eigS1 );
+      sum4Y /= ( eigS2 * eigS2 );
+
+      // Calculate Srivastava skewness and kurtosis
+      double bS1 = ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) ) / ( 2. * n * n );
+      double bS2 = ( sum4X +  sum4Y ) / ( 2. * n );
+
+      cerr << "* bS1 = " << bS1 << "\n";
+      cerr << "* bS2 = " << bS2 << "\n";
       jbs = 0.; // FIXME
       }
     else
