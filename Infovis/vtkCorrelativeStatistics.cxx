@@ -600,9 +600,53 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double jbs;
 
     // Eliminate near degenerate covariance matrices
-    double ds = sx2 * sy2 - sxy * sxy;
-    if ( ds > 1.e-100 )
+    double sxy2 = sxy * sxy;
+    double detS = sx2 * sy2 - sxy2;
+    if ( detS > 1.e-100
+         && sx2 > 0.
+         && sy2 > 0. )
       {
+      // Calculate trace, discriminant, and eigenvalues of covariance matrix S
+      double trS = sx2 + sy2;
+      double sqdS = sqrt( trS * trS - 4 * detS );
+      double eigS1 = .5 * ( trS + sqdS );
+      double eigS2 = .5 * ( trS - sqdS );
+
+      // Calculate transformation matrix P so S = P diag(eigSi) Pt
+      double w = .5 * ( sx2 - sy2 - sqdS );
+      double f = 1. / sqrt ( sxy2 + w * w );
+
+      double p11 = f * sxy;
+      double p21 = f * ( eigS1 - sx2 );
+
+      double p12 = f * ( eigS2 - sy2 );
+      double p22 = p11;
+
+      cerr << "P = \n"
+           << "    "
+           << p11
+           << "  "
+           << p12
+           << "\n    "
+           << p21
+           << "  "
+           << p22
+           << "\n";
+
+      // Transform mean coordinates into eigenbasis
+      cerr << "Old means: "
+           << mx
+           << "  "
+           << my
+           << "\n";
+      double t1 = p11 * mx + p21* my;
+      double t2 = p12 * mx + p22* my;
+      cerr << "New means: "
+           << t1
+           << "  "
+           << t2
+           << "\n";
+
       jbs = 0.; // FIXME
       }
     else
