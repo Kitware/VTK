@@ -314,6 +314,9 @@ int TestCorrelativeStatistics( int, char *[] )
     testStatus = 1;
     }
 
+  // Clean up
+  cs1->Delete();
+
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
 
@@ -379,6 +382,9 @@ int TestCorrelativeStatistics( int, char *[] )
       }
     cout << "\n";
     }
+
+  // Clean up
+  cs2->Delete();
 
   // Now build a data object collection of the two obtained models
   vtkDataObjectCollection* doc = vtkDataObjectCollection::New();
@@ -476,7 +482,6 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Clean up
   cs0->Delete();
-  cs1->Delete();
   cs2->Delete();
   doc->Delete();
   aggregated->Delete();
