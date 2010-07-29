@@ -363,6 +363,7 @@ void return_result(FILE *fp)
     case VTK_PARSE_ID_TYPE:
 #endif
     case VTK_PARSE_SIGNED_CHAR:
+      /* rely on promotion to integer, since "%hhi" is non-standard */
       fprintf(fp,"    char tempResult[1024];\n");
       fprintf(fp,"    sprintf(tempResult,\"%%i\",temp%i);\n",
               MAX_ARGS);
@@ -433,8 +434,9 @@ void return_result(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case VTK_PARSE_UNSIGNED_CHAR:
+      /* rely on promotion to integer, since "%hhu" is non-standard */
       fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"%%hu\",temp%i);\n",
+      fprintf(fp,"    sprintf(tempResult,\"%%i\",temp%i);\n",
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
