@@ -2436,6 +2436,7 @@ int vtkPKdTree::BuildGlobalIndexLists(vtkIdType numMyCells)
 void vtkPKdTree::InitializeRegionAssignmentLists()
 {
   this->RegionAssignmentMap = NULL;
+  this->RegionAssignmentMapLength = 0;
   this->ProcessAssignmentMap = NULL;
   this->NumRegionsAssigned  = NULL;
 }
