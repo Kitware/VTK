@@ -244,7 +244,7 @@ int TestCorrelativeStatistics( int, char *[] )
     }
 
   // Check some results of the Test option
-  cout << "\n## Calculated the following Jarque-Bera statistics:\n";
+  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics:\n";
   for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -486,13 +486,13 @@ int TestCorrelativeStatistics( int, char *[] )
   // ************** Pseudo-random sample to exercise Jarque-Bera-Srivastava test *********
   int nVals = 10000;
 
-  vtkDoubleArray* datasetNormal0 = vtkDoubleArray::New();
-  datasetNormal0->SetNumberOfComponents( 1 );
-  datasetNormal0->SetName( "Standard Normal 0" );
+  vtkDoubleArray* datasetBinormalX = vtkDoubleArray::New();
+  datasetBinormalX->SetNumberOfComponents( 1 );
+  datasetBinormalX->SetName( "Standard Binormal X" );
 
-  vtkDoubleArray* datasetNormal1 = vtkDoubleArray::New();
-  datasetNormal1->SetNumberOfComponents( 1 );
-  datasetNormal1->SetName( "Standard Normal 1" );
+  vtkDoubleArray* datasetBinormalY = vtkDoubleArray::New();
+  datasetBinormalY->SetNumberOfComponents( 1 );
+  datasetBinormalY->SetName( "Standard Binormal Y" );
 
   vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
   datasetUniform->SetNumberOfComponents( 1 );
@@ -505,35 +505,40 @@ int TestCorrelativeStatistics( int, char *[] )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
+  // Pre-set Pearson correlation coefficient
+  double rho = .8;
+  double ror = sqrt( 1. - rho * rho );
+  double x, y;
   for ( int i = 0; i < nVals; ++ i )
     {
-    datasetNormal0->InsertNextValue( vtkMath::Gaussian() );
-    datasetNormal1->InsertNextValue( vtkMath::Gaussian() );
+    x = vtkMath::Gaussian();
+    y = rho * x + ror * vtkMath::Gaussian();
+    datasetBinormalX->InsertNextValue( x );
+    datasetBinormalY->InsertNextValue( y );
     datasetUniform->InsertNextValue( vtkMath::Random() );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
     }
 
-  vtkTable* gaussianTable = vtkTable::New();
-  gaussianTable->AddColumn( datasetNormal0 );
-  datasetNormal0->Delete();
-  gaussianTable->AddColumn( datasetNormal1 );
-  datasetNormal1->Delete();
-  gaussianTable->AddColumn( datasetUniform );
+  vtkTable* testTable = vtkTable::New();
+  testTable->AddColumn( datasetBinormalX );
+  datasetBinormalX->Delete();
+  testTable->AddColumn( datasetBinormalY );
+  datasetBinormalY->Delete();
+  testTable->AddColumn( datasetUniform );
   datasetUniform->Delete();
-  gaussianTable->AddColumn( datasetLaplace );
+  testTable->AddColumn( datasetLaplace );
   datasetLaplace->Delete();
 
   // Set descriptive statistics algorithm and its input data port
   vtkCorrelativeStatistics* cs4 = vtkCorrelativeStatistics::New();
-  cs4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
-  gaussianTable->Delete();
+  cs4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, testTable );
+  testTable->Delete();
 
   // Select Column Pairs of Interest ( Learn Mode )
-  cs4->AddColumnPair( "Standard Normal 0", "Standard Normal 1" );
-  //  cs4->AddColumnPair( "Standard Normal 0", "Standard Normal 0" );
-  cs4->AddColumnPair( "Standard Normal 0", "Standard Uniform" );
-  cs4->AddColumnPair( "Standard Laplace", "Standard Normal 1" );
+  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y" );
+  cs4->AddColumnPair( "Standard Binormal X", "Standard Uniform" );
+  cs4->AddColumnPair( "Standard Laplace", "Standard Binormal Y" );
   cs4->AddColumnPair( "Standard Uniform", "Standard Laplace" );
 
   // Test Learn, Derive, and Test options only
@@ -584,7 +589,7 @@ int TestCorrelativeStatistics( int, char *[] )
     }
 
   // Check some results of the Test option
-  cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
+  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
        << nVals
        << "):\n";
 
