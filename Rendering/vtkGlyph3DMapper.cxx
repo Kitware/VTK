@@ -135,7 +135,7 @@ vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
     return this->GetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION,
       input);
     }
-  return false;
+  return NULL;
 }
 
 // ---------------------------------------------------------------------------
