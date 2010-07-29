@@ -19,6 +19,7 @@
 #include "vtkContext2D.h"
 #include "vtkTransform2D.h"
 #include "vtkMatrix3x3.h"
+#include "vtkContextScenePrivate.h"
 
 // Get my new commands
 #include "vtkCommand.h"
@@ -130,16 +131,8 @@ public:
     }
   ~Private()
     {
-    size_t size = this->items.size();
-    for (size_t i = 0; i < size; ++i)
-      {
-      this->items[i]->Delete();
-      this->items[i] = NULL;
-      }
     }
 
-  vtkstd::vector<vtkAbstractContextItem *> items;
-  vtkstd::vector<bool> itemState;
   int itemMousePressCurrent; // Index of the item with a current mouse down
   vtkContextMouseEvent Event; // Mouse event structure
   bool IsDirty;
@@ -163,6 +156,8 @@ vtkContextScene::vtkContextScene()
   this->BufferIdSupported=false;
   this->UseBufferId = true;
   this->Transform = NULL;
+  this->Children = new vtkContextScenePrivate;
+  this->Children->SetScene(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -181,6 +176,7 @@ vtkContextScene::~vtkContextScene()
     {
     this->Transform->Delete();
     }
+  delete this->Children;
 }
 
 //-----------------------------------------------------------------------------
@@ -194,16 +190,13 @@ void vtkContextScene::SetRenderer(vtkRenderer *r)
 bool vtkContextScene::Paint(vtkContext2D *painter)
 {
   vtkDebugMacro("Paint event called.");
-  size_t size = this->Storage->items.size();
+  size_t size = this->Children->size();
   if (size && this->Transform)
     {
     painter->PushMatrix();
     painter->SetTransform(this->Transform);
     }
-  for (size_t i = 0; i < size; ++i)
-    {
-    this->Storage->items[i]->Paint(painter);
-    }
+  this->Children->PaintItems(painter);
   if (size && this->Transform)
     {
     painter->PopMatrix();
@@ -221,7 +214,7 @@ bool vtkContextScene::Paint(vtkContext2D *painter)
 void vtkContextScene::PaintIds()
 {
   vtkDebugMacro("PaintId called.");
-  size_t size = this->Storage->items.size();
+  size_t size = this->Children->size();
 
   if(size>16777214) // 24-bit limit, 0 reserved for background encoding.
     {
@@ -231,38 +224,54 @@ void vtkContextScene::PaintIds()
   for (size_t i = 0; i < size; ++i)
     {
     this->LastPainter->ApplyId(i+1);
-    this->Storage->items[i]->Paint(this->LastPainter);
+    (*this->Children)[i]->Paint(this->LastPainter);
     }
   this->Storage->IsDirty = false;
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextScene::AddItem(vtkAbstractContextItem *item)
+unsigned int vtkContextScene::AddItem(vtkAbstractContextItem *item)
 {
-  item->Register(this);
-  item->SetScene(this);
-  this->Storage->items.push_back(item);
-  this->Storage->itemState.push_back(false);
+  return this->Children->AddItem(item);
 }
 
 //-----------------------------------------------------------------------------
-int vtkContextScene::GetNumberOfItems()
+bool vtkContextScene::RemoveItem(vtkAbstractContextItem* item)
 {
-  return static_cast<int>(this->Storage->items.size());
+  return this->Children->RemoveItem(item);
 }
 
 //-----------------------------------------------------------------------------
-vtkAbstractContextItem * vtkContextScene::GetItem(int index)
+bool vtkContextScene::RemoveItem(unsigned int index)
 {
-  if (index < this->GetNumberOfItems())
+  return this->Children->RemoveItem(index);
+}
+
+//-----------------------------------------------------------------------------
+vtkAbstractContextItem * vtkContextScene::GetItem(unsigned int index)
+{
+  if (index < this->Children->size())
     {
-    return this->Storage->items[index];
+    return this->Children->at(index);
     }
   else
     {
-    return NULL;
+    return 0;
     }
 }
+
+//-----------------------------------------------------------------------------
+unsigned int vtkContextScene::GetNumberOfItems()
+{
+  return this->Children->size();
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextScene::ClearItems()
+{
+  this->Children->Clear();
+}
+
 
 //-----------------------------------------------------------------------------
 int vtkContextScene::GetViewWidth()
@@ -336,8 +345,8 @@ void vtkContextScene::ReleaseGraphicsResources()
     {
     this->BufferId->ReleaseGraphicsResources();
     }
-  vtkstd::vector<vtkAbstractContextItem *>::iterator it;
-  for (it = this->Storage->items.begin(); it != this->Storage->items.end(); ++it)
+  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
+    it != this->Children->end(); ++it)
     {
     (*it)->ReleaseGraphicsResources();
     }
@@ -464,11 +473,12 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
     }
   else
     {
-    int size = static_cast<int>(this->Storage->items.size());
+    size_t i = this->Children->size();
     vtkContextMouseEvent &event = this->Storage->Event;
-    for (int i = size-1; i >= 0; --i)
+    for(vtkContextScenePrivate::const_iterator it = this->Children->end();
+        it != this->Children->begin(); --it, --i)
       {
-      if (this->Storage->items[i]->Hit(event))
+      if ((*it)->Hit(event))
         {
         result = static_cast<vtkIdType>(i);
         break;
@@ -498,7 +508,7 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
 //-----------------------------------------------------------------------------
 void vtkContextScene::MouseMoveEvent(int x, int y)
 {
-  int size = static_cast<int>(this->Storage->items.size());
+  int size = static_cast<int>(this->Children->size());
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos.Set(x, y);
   event.ScenePos.Set(x, y);
@@ -508,10 +518,6 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     {
     // Fire mouse enter and leave event prior to firing a mouse event.
     vtkIdType pickedItem=this->GetPickedItem(x,y);
-//    if(pickedItem>=0)
-//      {
-//      cout << "item i="<< pickedItem << " is under the mouse cursor."<< endl;
-//      }
 
     for (int i = size-1; i >= 0; --i)
       {
@@ -523,19 +529,19 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
 
       if (i==pickedItem)
         {
-        if (!this->Storage->itemState[i] && this->Storage->itemMousePressCurrent < 0)
+        if (!this->Children->State[i] && this->Storage->itemMousePressCurrent < 0)
           {
-          this->Storage->itemState[i] = true;
-          this->Storage->items[i]->MouseEnterEvent(event);
+          this->Children->State[i] = true;
+          (*this->Children)[i]->MouseEnterEvent(event);
 //          cout << "enter" << endl;
           }
         }
       else
         {
-        if (this->Storage->itemState[i])
+        if (this->Children->State[i])
           {
-          this->Storage->itemState[i] = false;
-          this->Storage->items[i]->MouseLeaveEvent(event);
+          this->Children->State[i] = false;
+          (*this->Children)[i]->MouseLeaveEvent(event);
 //          cout << "leave" << endl;
           }
         }
@@ -546,14 +552,15 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     // Check if there is a selected item that needs to receive a move event
     if (this->Storage->itemMousePressCurrent >= 0)
       {
-      this->Storage->items[this->Storage->itemMousePressCurrent]->MouseMoveEvent(event);
+      (*this->Children)[this->Storage->itemMousePressCurrent]
+          ->MouseMoveEvent(event);
       }
     else
       {
       // Propagate mouse move events
       for (int i = size-1; i >= 0; --i)
         {
-        if (this->Storage->items[i]->MouseMoveEvent(event))
+        if ((*this->Children)[i]->MouseMoveEvent(event))
           {
           break;
           }
@@ -570,7 +577,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
 //-----------------------------------------------------------------------------
 void vtkContextScene::ButtonPressEvent(int button, int x, int y)
 {
-  int size = static_cast<int>(this->Storage->items.size());
+  int size = static_cast<int>(this->Children->size());
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos.Set(x, y);
   event.LastScreenPos = event.ScreenPos;
@@ -581,9 +588,9 @@ void vtkContextScene::ButtonPressEvent(int button, int x, int y)
   event.Button = button;
   for (int i = size-1; i >= 0; --i)
     {
-    if (this->Storage->items[i]->Hit(event))
+    if ((*this->Children)[i]->Hit(event))
       {
-      if (this->Storage->items[i]->MouseButtonPressEvent(event))
+      if ((*this->Children)[i]->MouseButtonPressEvent(event))
         {
         // The event was accepted - stop propagating
         this->Storage->itemMousePressCurrent = i;
@@ -603,7 +610,7 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
     event.ScenePos.Set(x, y);
     event.Pos.Set(x, y);
     event.Button = button;
-    this->Storage->items[this->Storage->itemMousePressCurrent]
+    (*this->Children)[this->Storage->itemMousePressCurrent]
         ->MouseButtonReleaseEvent(event);
     this->Storage->itemMousePressCurrent = -1;
     }
@@ -612,7 +619,7 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
 
 void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
 {
-  int size = static_cast<int>(this->Storage->items.size());
+  int size = static_cast<int>(this->Children->size());
   vtkContextMouseEvent &event = this->Storage->Event;
   event.ScreenPos[0] = event.LastScreenPos[0] = x;
   event.ScreenPos[1] = event.LastScreenPos[1] = y;
@@ -621,9 +628,9 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
   //event.Button = 1;
   for (int i = size-1; i >= 0; --i)
     {
-    if (this->Storage->items[i]->Hit(event))
+    if ((*this->Children)[i]->Hit(event))
       {
-      if (this->Storage->items[i]->MouseWheelEvent(event, delta))
+      if ((*this->Children)[i]->MouseWheelEvent(event, delta))
         {
         // The event was accepted - stop propagating
         break;
