@@ -624,6 +624,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   cout << "\n";
 
+  // Clean up
   ds3->Delete();
 
   // ************** Pseudo-random sample to exercise Jarque-Bera test ********* 
@@ -785,6 +786,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 #endif // VTK_USE_GNU_R
   
+  // Clean up
   ds4->Delete();
 
   return testStatus;
