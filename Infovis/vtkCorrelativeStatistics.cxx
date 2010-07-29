@@ -698,6 +698,9 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   outMeta->AddColumn( nameColX );
   outMeta->AddColumn( nameColY );
   outMeta->AddColumn( statCol );
+  outMeta->AddColumn( statCol );
+  outMeta->AddColumn( bS1Col );
+  outMeta->AddColumn( bS2Col );
 
   // Last phase: compute the p-values or assign invalid value if they cannot be computed
   vtkDoubleArray* testCol = 0;
