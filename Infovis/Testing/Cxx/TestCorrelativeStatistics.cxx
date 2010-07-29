@@ -167,10 +167,11 @@ int TestCorrelativeStatistics( int, char *[] )
   // 3: an invalid pair
   cs1->AddColumnPair( "Metric 1", "Metric 3" ); 
 
-  // Test Learn, Derive, and Assess options
+  // Test Learn, Derive, Test, and Assess options
   cs1->SetLearnOption( true );
   cs1->SetDeriveOption( true );
   cs1->SetAssessOption( true );
+  cs1->SetTestOption( true );
   cs1->Update();
 
   // Get output data and meta tables
@@ -178,6 +179,7 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkMultiBlockDataSet* outputMetaDS1 = vtkMultiBlockDataSet::SafeDownCast( cs1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputPrimary1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 0 ) );
   vtkTable* outputDerived1 = vtkTable::SafeDownCast( outputMetaDS1->GetBlock( 1 ) );
+  vtkTable* outputTest1 = cs1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "## Calculated the following primary statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
@@ -236,6 +238,22 @@ int TestCorrelativeStatistics( int, char *[] )
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
       }
+    cout << "\n";
+    }
+
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Jarque-Bera statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest1->GetColumnName( i )
+           << "="
+           << outputTest1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
     cout << "\n";
     }
 
