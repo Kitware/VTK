@@ -12,9 +12,11 @@
 
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkStringArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkTable.h"
+#include "vtkTimerLog.h"
 #include "vtkCorrelativeStatistics.h"
 
 //=============================================================================
@@ -314,9 +316,6 @@ int TestCorrelativeStatistics( int, char *[] )
     testStatus = 1;
     }
 
-  // Clean up
-  cs1->Delete();
-
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
 
@@ -382,9 +381,6 @@ int TestCorrelativeStatistics( int, char *[] )
       }
     cout << "\n";
     }
-
-  // Clean up
-  cs2->Delete();
 
   // Now build a data object collection of the two obtained models
   vtkDataObjectCollection* doc = vtkDataObjectCollection::New();
@@ -482,9 +478,165 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Clean up
   cs0->Delete();
+  cs1->Delete();
   cs2->Delete();
   doc->Delete();
   aggregated->Delete();
+
+  // ************** Pseudo-random sample to exercise Jarque-Bera-Srivastava test *********
+  int nVals = 10000;
+
+  vtkDoubleArray* datasetNormal0 = vtkDoubleArray::New();
+  datasetNormal0->SetNumberOfComponents( 1 );
+  datasetNormal0->SetName( "Standard Normal 0" );
+
+  vtkDoubleArray* datasetNormal1 = vtkDoubleArray::New();
+  datasetNormal1->SetNumberOfComponents( 1 );
+  datasetNormal1->SetName( "Standard Normal 1" );
+
+  vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
+  datasetUniform->SetNumberOfComponents( 1 );
+  datasetUniform->SetName( "Standard Uniform" );
+
+  vtkDoubleArray* datasetLaplace = vtkDoubleArray::New();
+  datasetLaplace->SetNumberOfComponents( 1 );
+  datasetLaplace->SetName( "Standard Laplace" );
+
+  // Seed random number generator
+  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
+
+  for ( int i = 0; i < nVals; ++ i )
+    {
+    datasetNormal0->InsertNextValue( vtkMath::Gaussian() );
+    datasetNormal1->InsertNextValue( vtkMath::Gaussian() );
+    datasetUniform->InsertNextValue( vtkMath::Random() );
+    double u = vtkMath::Random() - .5;
+    datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
+    }
+
+  vtkTable* gaussianTable = vtkTable::New();
+  gaussianTable->AddColumn( datasetNormal0 );
+  datasetNormal0->Delete();
+  gaussianTable->AddColumn( datasetNormal1 );
+  datasetNormal1->Delete();
+  gaussianTable->AddColumn( datasetUniform );
+  datasetUniform->Delete();
+  gaussianTable->AddColumn( datasetLaplace );
+  datasetLaplace->Delete();
+
+  // Set descriptive statistics algorithm and its input data port
+  vtkCorrelativeStatistics* cs4 = vtkCorrelativeStatistics::New();
+  cs4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
+  gaussianTable->Delete();
+
+  // Select Column Pairs of Interest ( Learn Mode )
+  cs4->AddColumnPair( "Standard Normal 0", "Standard Normal 1" );
+  //  cs4->AddColumnPair( "Standard Normal 0", "Standard Normal 0" );
+  cs4->AddColumnPair( "Standard Normal 0", "Standard Uniform" );
+  cs4->AddColumnPair( "Standard Laplace", "Standard Normal 1" );
+  cs4->AddColumnPair( "Standard Uniform", "Standard Laplace" );
+
+  // Test Learn, Derive, and Test options only
+  cs4->SetLearnOption( true );
+  cs4->SetDeriveOption( true );
+  cs4->SetTestOption( true );
+  cs4->SetAssessOption( false );
+  cs4->Update();
+
+  // Get output data and meta tables
+  vtkMultiBlockDataSet* outputMetaCS4 = vtkMultiBlockDataSet::SafeDownCast( cs4->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary4 = vtkTable::SafeDownCast( outputMetaCS4->GetBlock( 0 ) );
+  vtkTable* outputDerived4 = vtkTable::SafeDownCast( outputMetaCS4->GetBlock( 1 ) );
+  vtkTable* outputTest4 = cs4->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
+
+  cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="
+       << nVals
+       << "):\n";
+  for ( vtkIdType r = 0; r < outputPrimary4->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputPrimary4->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputPrimary4->GetColumnName( i )
+           << "="
+           << outputPrimary4->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
+  cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
+       << nVals
+       << "):\n";
+  for ( vtkIdType r = 0; r < outputDerived4->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputDerived4->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputDerived4->GetColumnName( i )
+           << "="
+           << outputDerived4->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
+       << nVals
+       << "):\n";
+
+#ifdef VTK_USE_GNU_R
+  int nNonGaussian = 3;
+  int nRejected = 0;
+  double alpha = .01;
+#endif // VTK_USE_GNU_R
+
+  // Loop over Test table
+  for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int c = 0; c < outputTest4->GetNumberOfColumns(); ++ c )
+      {
+      cout << outputTest4->GetColumnName( c )
+           << "="
+           << outputTest4->GetValue( r, c ).ToString()
+           << "  ";
+      }
+
+#ifdef VTK_USE_GNU_R
+    // Check if null hypothesis is rejected at specified significance level
+    double p = outputTest4->GetValueByName( r, "P" ).ToDouble();
+    // Must verify that p value is valid (it is set to -1 if R has failed)
+    if ( p > -1 && p < alpha )
+      {
+      cout << "Null hypothesis (normality) rejected at "
+           << alpha
+           << " significance level";
+
+      ++ nRejected;
+      }
+#endif // VTK_USE_GNU_R
+
+    cout << "\n";
+    }
+
+#ifdef VTK_USE_GNU_R
+  if ( nRejected < nNonGaussian )
+    {
+    vtkGenericWarningMacro("Rejected only "
+                           << nRejected
+                           << " null hypotheses of normality whereas "
+                           << nNonGaussian
+                           << " variables are not Gaussian");
+    testStatus = 1;
+    }
+#endif // VTK_USE_GNU_R
+
+  // Clean up
+  cs4->Delete();
 
   return testStatus;
 }
