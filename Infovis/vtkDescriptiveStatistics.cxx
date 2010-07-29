@@ -608,7 +608,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   // Use the calculated Jarque-Bera statistics as input to the Chi square function
   ri->AssignVTKDataArrayToRVariable( statCol, "jb" );
 
-  // Calculate the p-values
+  // Calculate the p-values (p+1=2 degrees of freedom)
   ri->EvalRscript( "p=1-pchisq(jb,2)" );
 
   // Retrieve the p-values
