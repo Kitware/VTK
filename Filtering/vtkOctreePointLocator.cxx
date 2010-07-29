@@ -137,6 +137,7 @@ vtkOctreePointLocator::vtkOctreePointLocator()
   this->LocatorIds = NULL;
   this->LeafNodeList = NULL;
   this->CreateCubicOctants = 1;
+  this->NumberOfLeafNodes = 0;
 }
 
 //----------------------------------------------------------------------------
