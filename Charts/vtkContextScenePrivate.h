@@ -71,7 +71,8 @@ public:
   // Add an item to the list - ensure it is not already in the list.
   unsigned int AddItem(vtkAbstractContextItem* item)
     {
-    item->Register(Scene);
+    item->Register(this->Scene);
+    item->SetScene(this->Scene);
 
     this->push_back(item);
     this->State.push_back(false);
