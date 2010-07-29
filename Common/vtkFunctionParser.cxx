@@ -552,7 +552,7 @@ bool vtkFunctionParser::Evaluate()
           this->Immediates[numImmediatesProcessed++];
         break;
       case VTK_PARSER_UNARY_MINUS:
-        this->Stack[stackPosition] =- this->Stack[stackPosition];
+        this->Stack[stackPosition] = -(this->Stack[stackPosition]);
         break;
       case VTK_PARSER_ADD:
         this->Stack[stackPosition-1] += this->Stack[stackPosition];
