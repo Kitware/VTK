@@ -538,6 +538,12 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   vtkStringArray* nameColY = vtkStringArray::New();
   nameColY->SetName( "Variable Y" );
 
+  vtkDoubleArray* bS1Col = vtkDoubleArray::New();
+  bS1Col->SetName( "Srivastava Skewness" );
+
+  vtkDoubleArray* bS2Col = vtkDoubleArray::New();
+  bS2Col->SetName( "Srivastava Kurtosis" );
+
   vtkDoubleArray* statCol = vtkDoubleArray::New();
   statCol->SetName( "Jarque-Bera-Srivastava" );
 
@@ -607,7 +613,9 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double sY2 = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
     double sXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
 
-    // Now calculate Jarque-Bera-Srivastava statistic
+    // Now calculate Jarque-Bera-Srivastava and ancillary statistics
+    double bS1;
+    double bS2;
     double jbs;
 
     // Eliminate near degenerate covariance matrices
@@ -633,17 +641,6 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       double p12 = f * ( eigS2 - sY2 );
       double p22 = p11;
 
-      cerr << "P = \n"
-           << "    "
-           << p11
-           << "  "
-           << p12
-           << "\n    "
-           << p21
-           << "  "
-           << p22
-           << "\n";
-
       // Now iterate over all observations
       double sum3X = 0.;
       double sum3Y = 0.;
@@ -655,20 +652,10 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         // Read and center observation
         x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
         y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
-        cerr << "Raw: "
-             << x
-             << "  "
-             << y
-             << "\n";
 
         // Transform coordinates into eigencoordinates
         t1 = p11 * x + p21 * y;
         t2 = p12 * x + p22 * y;
-        cerr << "Transformed: "
-             << t1
-             << "  "
-             << t2
-             << "\n";
 
         // Update third and fourth order sums for each eigencoordinate
         tmp = t1 * t1;
@@ -686,11 +673,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       sum4Y /= ( eigS2 * eigS2 );
 
       // Calculate Srivastava skewness and kurtosis
-      double bS1 = ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) ) / ( 2. * n * n );
-      double bS2 = ( sum4X +  sum4Y ) / ( 2. * n );
-
-      cerr << "* bS1 = " << bS1 << "\n";
-      cerr << "* bS2 = " << bS2 << "\n";
+      bS1 = ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) ) / ( 2. * n * n );
+      bS2 = ( sum4X +  sum4Y ) / ( 2. * n );
 
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
@@ -705,6 +689,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     // NB: R will be invoked only once at the end for efficiency
     nameColX->InsertNextValue( varNameX );
     nameColY->InsertNextValue( varNameY );
+    bS1Col->InsertNextTuple1( bS1 );
+    bS2Col->InsertNextTuple1( bS2 );
     statCol->InsertNextTuple1( jbs );
     } // rit
 
@@ -773,6 +759,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   nameColX->Delete();
   nameColY->Delete();
   statCol->Delete();
+  bS1Col->Delete();
+  bS2Col->Delete();
 }
 
 // ----------------------------------------------------------------------
