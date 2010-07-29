@@ -90,6 +90,7 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
     painter->GetBrush()->SetColorF(0.65, 0.65, 0.95, 0.55);
     this->DrawPoints(painter, this->HighlightPoints);
     }
+  return true;
 }
 
 //-----------------------------------------------------------------------------

@@ -98,6 +98,8 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     vtkBrush::Stretch);
 
   painter->DrawPolygon(this->Shape);
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
