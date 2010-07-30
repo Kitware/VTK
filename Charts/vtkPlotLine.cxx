@@ -26,6 +26,7 @@ vtkStandardNewMacro(vtkPlotLine);
 //-----------------------------------------------------------------------------
 vtkPlotLine::vtkPlotLine()
 {
+  this->MarkerStyle = vtkPlotPoints::NONE;
 }
 
 //-----------------------------------------------------------------------------
@@ -47,7 +48,6 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   // Draw the line between the points
   painter->ApplyPen(this->Pen);
   painter->DrawPoly(this->Points);
-  painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
 
   return this->vtkPlotPoints::Paint(painter);
 }
