@@ -176,7 +176,7 @@ protected:
 
   int AlwaysOnTop;
 
-  void BuildLines();
+  virtual void BuildLines();
   
 private:
   vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
