@@ -59,6 +59,10 @@ public:
   virtual vtkPlot * AddPlot(int type);
 
   // Description:
+  // Adds a plot to the chart
+  virtual vtkIdType AddPlot(vtkPlot* plot);
+
+  // Description:
   // Remove the plot at the specified index, returns true if successful,
   // false if the index was invalid.
   virtual bool RemovePlot(vtkIdType index);
@@ -239,7 +243,7 @@ private:
 
   // Description:
   // Remove the plot from the plot corners list.
-  bool RemovePlotFromConers(vtkPlot *plot);
+  bool RemovePlotFromCorners(vtkPlot *plot);
 
   void ZoomInAxes(vtkAxis *x, vtkAxis *y, float *orign, float *max);
 

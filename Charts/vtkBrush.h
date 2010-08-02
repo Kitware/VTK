@@ -28,6 +28,8 @@
 #include "vtkObject.h"
 #include "vtkColor.h" // Needed for vtkColor4ub
 
+class vtkImageData;
+
 class VTK_CHARTS_EXPORT vtkBrush : public vtkObject
 {
 public:
@@ -90,6 +92,38 @@ public:
   unsigned char * GetColor() { return &this->Color[0]; }
 
   // Description:
+  // Set the texture that will be used to fill polygons
+  // By default, no texture is set. The image will be registered with the brush
+  // (ref count is incremented)
+  // To disable the texture, set Texture to 0.
+  void SetTexture(vtkImageData* image);
+
+  // Description
+  // Get the texture that is used to fill polygons
+  vtkGetObjectMacro(Texture, vtkImageData);
+
+  // Description
+  // Texture properties
+  enum TextureProperty {
+    Nearest = 0x01,
+    Linear  = 0x02,
+    Stretch = 0x04,
+    Repeat  = 0x08
+  };
+
+  // Description
+  // Set properties to the texture
+  // By default, the texture is linearly stretched.
+  // The behavior is undefined when Linear and Nearest are both set
+  // The behavior is undefined when Stretch and Repeat are both set
+  // The behavior is undefined if TextureProperties is 0
+  vtkSetMacro(TextureProperties, int);
+
+  // Description
+  // Get the properties associated to the texture
+  vtkGetMacro(TextureProperties, int);
+
+  // Description:
   // Make a deep copy of the supplied brush.
   void DeepCopy(vtkBrush *brush);
 
@@ -100,7 +134,9 @@ protected:
 
   // Storage of the color in RGBA format (0-255 per channel).
   unsigned char* Color;
-  vtkColor4ub BrushColor;
+  vtkColor4ub    BrushColor;
+  vtkImageData*  Texture;
+  int            TextureProperties;
 
 private:
   vtkBrush(const vtkBrush &); // Not implemented.

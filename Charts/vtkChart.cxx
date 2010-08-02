@@ -60,6 +60,12 @@ vtkPlot * vtkChart::AddPlot(int)
 }
 
 //-----------------------------------------------------------------------------
+vtkIdType vtkChart::AddPlot(vtkPlot*)
+{
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChart::RemovePlot(vtkIdType)
 {
   return false;

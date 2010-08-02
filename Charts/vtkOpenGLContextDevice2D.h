@@ -63,6 +63,10 @@ public:
   virtual void DrawQuad(float *points, int n);
 
   // Description:
+  // Draw a polygon using the specified number of points.
+  virtual void DrawPolygon(float *, int);
+
+  // Description:
   // Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,
   // inner radii inRx, inRy between angles startAngle and stopAngle
   // (expressed in degrees).
@@ -113,6 +117,10 @@ public:
   virtual void SetColor(unsigned char color[3]);
 
   // Description:
+  // Set the texture for the device, it is used to fill the polygons
+  virtual void SetTexture(vtkImageData* image, int properties);
+
+  // Description:
   // Set the point size for glyphs/sprites.
   virtual void SetPointSize(float size);
 
@@ -131,6 +139,10 @@ public:
   // Description:
   // Set the model view matrix for the display
   virtual void SetMatrix(vtkMatrix3x3 *m);
+
+  // Description:
+  // Set the model view matrix for the display
+  virtual void GetMatrix(vtkMatrix3x3 *m);
 
   // Description:
   // Push the current matrix onto the stack.

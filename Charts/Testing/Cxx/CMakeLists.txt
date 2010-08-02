@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestDiagram.cxx
     TestLinePlot.cxx
     TestScatterPlot.cxx
+    TestScalarsToColors.cxx
     TestStackedPlot.cxx
     TestBarGraph.cxx
     TestStackedBarGraph.cxx
@@ -23,6 +24,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     TestMarksWedgeLine.cxx
     TestMultipleChartRenderers.cxx
     TestMultipleRenderers.cxx
+    TestMultipleScalarsToColors.cxx
     )
 
   IF (VTK_DATA_ROOT)
