@@ -490,13 +490,13 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetBinormalX->SetNumberOfComponents( 1 );
   datasetBinormalX->SetName( "Standard Binormal X" );
 
-  vtkDoubleArray* datasetBinormalY = vtkDoubleArray::New();
-  datasetBinormalY->SetNumberOfComponents( 1 );
-  datasetBinormalY->SetName( "Standard Binormal Y" );
+  vtkDoubleArray* datasetBinormalY1 = vtkDoubleArray::New();
+  datasetBinormalY1->SetNumberOfComponents( 1 );
+  datasetBinormalY1->SetName( "Standard Binormal Y1" );
 
-  vtkDoubleArray* datasetBinormalZ = vtkDoubleArray::New();
-  datasetBinormalZ->SetNumberOfComponents( 1 );
-  datasetBinormalZ->SetName( "Standard Binormal Z" );
+  vtkDoubleArray* datasetBinormalY2 = vtkDoubleArray::New();
+  datasetBinormalY2->SetNumberOfComponents( 1 );
+  datasetBinormalY2->SetName( "Standard Binormal Y2" );
 
   vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
   datasetUniform->SetNumberOfComponents( 1 );
@@ -510,19 +510,19 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
   // Pre-set Pearson correlation coefficients
-  double rhoXY = .5; // X and Y are highly linearly correlated
-  double rhoXZ = .5; // X and Z are weakly linearly correlated
-  double rorXY = sqrt( 1. - rhoXY * rhoXY );
-  double rorXZ = sqrt( 1. - rhoXZ * rhoXZ );
-  double x, y, z;
+  double rhoXY1 = .6; // X and Y1 are highly linearly correlated
+  double rhoXY2 = .4; // X and Y2 are weakly linearly correlated
+  double rorXY1 = sqrt( 1. - rhoXY1 * rhoXY1 );
+  double rorXY2 = sqrt( 1. - rhoXY2 * rhoXY2 );
+  double x, y1, y2;
   for ( int i = 0; i < nVals; ++ i )
     {
     x = vtkMath::Gaussian();
-    y = rhoXY * x + rorXY * vtkMath::Gaussian();
-    z = rhoXZ * x + rorXZ * vtkMath::Gaussian();
+    y1 = rhoXY1 * x + rorXY1 * vtkMath::Gaussian();
+    y2 = rhoXY2 * x + rorXY2 * vtkMath::Gaussian();
     datasetBinormalX->InsertNextValue( x );
-    datasetBinormalY->InsertNextValue( y );
-    datasetBinormalZ->InsertNextValue( z );
+    datasetBinormalY1->InsertNextValue( y1 );
+    datasetBinormalY2->InsertNextValue( y2 );
     datasetUniform->InsertNextValue( vtkMath::Random() );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
@@ -531,10 +531,10 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkTable* testTable = vtkTable::New();
   testTable->AddColumn( datasetBinormalX );
   datasetBinormalX->Delete();
-  testTable->AddColumn( datasetBinormalY );
-  datasetBinormalY->Delete();
-  testTable->AddColumn( datasetBinormalZ );
-  datasetBinormalZ->Delete();
+  testTable->AddColumn( datasetBinormalY1 );
+  datasetBinormalY1->Delete();
+  testTable->AddColumn( datasetBinormalY2 );
+  datasetBinormalY2->Delete();
   testTable->AddColumn( datasetUniform );
   datasetUniform->Delete();
   testTable->AddColumn( datasetLaplace );
@@ -546,11 +546,10 @@ int TestCorrelativeStatistics( int, char *[] )
   testTable->Delete();
 
   // Select Column Pairs of Interest ( Learn Mode )
-  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y" );
-  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Z" );
-  cs4->AddColumnPair( "Standard Binormal Z", "Standard Binormal Y" );
-  cs4->AddColumnPair( "Standard Binormal Z", "Standard Uniform" );
-  cs4->AddColumnPair( "Standard Laplace", "Standard Binormal Y" );
+  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y1" );
+  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y2" );
+  cs4->AddColumnPair( "Standard Binormal X", "Standard Uniform" );
+  cs4->AddColumnPair( "Standard Laplace", "Standard Binormal Y1" );
   cs4->AddColumnPair( "Standard Uniform", "Standard Laplace" );
 
   // Test Learn, Derive, and Test options only
@@ -602,14 +601,18 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
-       << nVals
-       << "):\n";
+       << nVals;
 
 #ifdef VTK_USE_GNU_R
   int nNonGaussian = 3;
   int nRejected = 0;
   double alpha = .01;
+
+  cout << ", null hypothesis: binormality, significance level="
+       << alpha;
 #endif // VTK_USE_GNU_R
+
+  cout << "):\n";
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
@@ -629,9 +632,7 @@ int TestCorrelativeStatistics( int, char *[] )
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
       {
-      cout << "Null hypothesis (binormality) rejected at "
-           << alpha
-           << " significance level";
+      cout << "N.H. rejected";
 
       ++ nRejected;
       }
