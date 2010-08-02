@@ -737,13 +737,17 @@ int TestDescriptiveStatistics( int, char *[] )
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
        << nVals
-       << "):\n";
   
 #ifdef VTK_USE_GNU_R
   int nNonGaussian = 3;
   int nRejected = 0;
   double alpha = .01;
+
+  cout << ", null hypothesis: normality, significance level="
+       << alpha;
 #endif // VTK_USE_GNU_R
+
+  cout << "):\n";
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++ r )
@@ -763,9 +767,7 @@ int TestDescriptiveStatistics( int, char *[] )
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
       {
-      cout << "Null hypothesis (normality) rejected at "
-           << alpha
-           << " significance level";
+      cout << "N.H. rejected";
 
       ++ nRejected;
       }
