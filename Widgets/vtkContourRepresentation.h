@@ -408,7 +408,7 @@ protected:
   void GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
                                     double worldOrient[9], double displayPos[2] );
   
-  void UpdateLines( int index );
+  virtual void UpdateLines( int index );
   void UpdateLine( int idx1, int idx2 );
 
   virtual int FindClosestPointOnContour( int X, int Y, 
