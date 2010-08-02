@@ -736,7 +736,7 @@ int TestDescriptiveStatistics( int, char *[] )
   
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
-       << nVals
+       << nVals;
   
 #ifdef VTK_USE_GNU_R
   int nNonGaussian = 3;
