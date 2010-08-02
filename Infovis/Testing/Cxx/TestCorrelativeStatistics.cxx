@@ -646,9 +646,9 @@ int TestCorrelativeStatistics( int, char *[] )
     {
     vtkGenericWarningMacro("Rejected only "
                            << nRejected
-                           << " null hypotheses of normality whereas "
+                           << " null hypotheses of binormality whereas "
                            << nNonGaussian
-                           << " variables are not Gaussian");
+                           << " variable pairs are not Gaussian");
     testStatus = 1;
     }
 #endif // VTK_USE_GNU_R
