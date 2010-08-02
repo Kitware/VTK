@@ -123,6 +123,7 @@ int vtkImageOcclusionSpectrum::RequestUpdateExtent
 namespace
 {
   // A list of possible choices of M
+  // Please refer the original paper for what is M
   struct LinearRamp
   {
     template <typename T>
@@ -131,49 +132,6 @@ namespace
       return x;
     }
   };
-  struct TruncatedLinearRamp
-  {
-    template <typename T>
-    T operator () (T x) const
-    {
-      static T const l = 0, u = 1; // This choice of values are arbitrary.
-      return l < x && x < u ? x : 0;
-    }
-  };
-  // struct DistanceWeighted
-  // {
-  //   template <typename T>
-  //   T operator () (T x) const
-  //   {
-  //     return x * exp();
-  //   }
-  // };
-
-//   template <typename T>
-//   void print (int const* ext, T const* data)
-//   {
-// #define for_(i, x, y) for (int i = x, I = y; i < I; ++i)
-//     for_(z,ext[4],ext[5])
-//       {
-//       for_(y,ext[2],ext[3])
-//         {
-//         data = printv(data, ext[0], ext[1]);
-//         cout << endl;
-//         }
-//       cout << endl;
-//       }
-// #undef for_
-//   }
-//
-//   template <typename T>
-//   T const* printv (T const* data, int b = 0, int e = 2)
-//   {
-//     for (; b <= e; ++b, ++data)
-//       {
-//       cout << *data;
-//       }
-//     return data;
-//   }
 
   template <typename T>
   vtkSmartPointer<vtkImageData> prefix_sum
@@ -214,7 +172,7 @@ namespace
 
   template <typename T, typename Functor>
   void __execute
-  (Functor const& M, vtkImageOcclusionSpectrum* const self,
+  (Functor const& M, vtkImageOcclusionSpectrum* const me,
    vtkImageData* const iimg, T const* idat,
    vtkImageData* const oimg, double * odat,
    int const oext [6], int const tid)
@@ -222,7 +180,7 @@ namespace
     // Prefix sum volume
     vtkSmartPointer<vtkImageData> simg = prefix_sum(iimg, idat);
 
-    int const r2 = self->Radius * self->Radius;
+    int const  r2   = me->Radius * me->Radius;
     int const* iext = iimg->GetExtent();
 
     // Loop through all points in the output extent of the output volume.
@@ -236,13 +194,14 @@ namespace
       // Adjust it if it falls out of the input extent in any dimension.
       int const next [6] = // Short for nExtent, not "next"
         {
-        vtkstd::max(x-self->Radius,iext[0]),vtkstd::min(x+self->Radius,iext[1]),
-        vtkstd::max(y-self->Radius,iext[2]),vtkstd::min(y+self->Radius,iext[3]),
-        vtkstd::max(z-self->Radius,iext[4]),vtkstd::min(z+self->Radius,iext[5]),
+        vtkstd::max(x-me->Radius,iext[0]),vtkstd::min(x+me->Radius,iext[1]),
+        vtkstd::max(y-me->Radius,iext[2]),vtkstd::min(y+me->Radius,iext[3]),
+        vtkstd::max(z-me->Radius,iext[4]),vtkstd::min(z+me->Radius,iext[5]),
         };
 
-      // Since we have the prefix sum volume so that we can speed up
-      // the following process by a factor of N.
+      // Since we have the prefix sum volume so that we can speed up the
+      // following process by a factor of N which is the number of points in the
+      // X direction.
       // For each point in the output extent of the output volume.
       // [0] Generate its neighbor sphere.
       // [1] Project its neighbor sphere onto YOZ plane,
@@ -251,8 +210,9 @@ namespace
       // [2.1] Compute the span in X direction of the intersection of
       //       the neighbor sphere and the prefix sum volume.
       // [2.2] The difference between the two intersection points are the sum of
-      //       all points that lay on the intersected row. Make sure to use the
-      //       point of larger X index to minus the one of smaller X index.
+      //       all points that lay on the intersected row in X direction. Make
+      //       sure to use the point of larger X index to minus the one of
+      //       smaller X index, otherwise we get the negative sum.
 
       T   sum = 0; // T used to avoid unnecessary cast on every accumulation.
       int num = 0;
@@ -261,8 +221,8 @@ namespace
       int const* const sext = simg->GetExtent();
       T   const* const sdat = static_cast<T*>(simg->GetScalarPointer());
 
-      // Loop through each grid point in the projected disk
-      // of the neighbor sphere.
+      // Loop through each grid point in the projected disk of the neighbor
+      // sphere.
       for (int k = next[4]; k <= next[5]; ++k)
       for (int j = next[2]; j <= next[3]; ++j)
         {
@@ -272,14 +232,17 @@ namespace
           continue;
           }
 
+        // The row offset in the volume.
         int const t = k * sinc[2] + j * sinc[1];
+
+        // The radius of the intersection in X direction.
         i = sqrt(i);
 
         // Make sure we do not fall off the prefix sum volume whole extent.
         int const i0 = vtkstd::max(x-i, sext[0]); // lower bound
         int const i1 = vtkstd::min(x+i, sext[1]); // upper bound
 
-        // sum of every thing in [i0,i1]
+        // sum of everything in [i0,i1]
         sum += sdat[t+i1] - (0==i0 ? 0:sdat[t+i0-1]);
         num += i1-i0+1;
         }
@@ -300,7 +263,7 @@ void vtkImageOcclusionSpectrum::ThreadedRequestData
   vtkImageData* input  = **inData;
   vtkImageData* output = *outData;
 
-  // The ouptut scalar type must be double to store proper gradients.
+  // The ouptut scalar type must be double to store proper occlusion spectrum.
   if (output->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro("Execute: output ScalarType is "
