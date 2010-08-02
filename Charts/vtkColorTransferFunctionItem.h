@@ -39,6 +39,9 @@ protected:
                                        unsigned long eid,
                                        void* calldata);
   vtkColorTransferFunction* ColorTransferFunction;
+private:
+  vtkColorTransferFunctionItem(const vtkColorTransferFunctionItem&); // Not implemented
+  void operator=(const vtkColorTransferFunctionItem&); // Not implemented
 };
 
 #endif

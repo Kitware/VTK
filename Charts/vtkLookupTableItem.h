@@ -36,9 +36,13 @@ protected:
 
   virtual void ComputeTexture();
   virtual void ScalarsToColorsModified(vtkObject* object,
-                                            unsigned long eid,
-                                            void* calldata);
+                                       unsigned long eid,
+                                       void* calldata);
   vtkLookupTable* LookupTable;
+
+private:
+  vtkLookupTableItem(const vtkLookupTableItem &); // Not implemented.
+  void operator=(const vtkLookupTableItem &); // Not implemented.
 };
 
 #endif

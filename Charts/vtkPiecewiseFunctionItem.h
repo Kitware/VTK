@@ -50,6 +50,10 @@ protected:
   vtkPiecewiseFunction* PiecewiseFunction;
   unsigned char         Color[3];
   bool                  MaskAboveCurve;
+
+private:
+  vtkPiecewiseFunctionItem(const vtkPiecewiseFunctionItem &); // Not implemented.
+  void operator=(const vtkPiecewiseFunctionItem &); // Not implemented.
 };
 
 #endif
