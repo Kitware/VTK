@@ -494,6 +494,10 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetBinormalY->SetNumberOfComponents( 1 );
   datasetBinormalY->SetName( "Standard Binormal Y" );
 
+  vtkDoubleArray* datasetBinormalZ = vtkDoubleArray::New();
+  datasetBinormalZ->SetNumberOfComponents( 1 );
+  datasetBinormalZ->SetName( "Standard Binormal Z" );
+
   vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
   datasetUniform->SetNumberOfComponents( 1 );
   datasetUniform->SetName( "Standard Uniform" );
@@ -505,16 +509,20 @@ int TestCorrelativeStatistics( int, char *[] )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
-  // Pre-set Pearson correlation coefficient
-  double rho = .8;
-  double ror = sqrt( 1. - rho * rho );
-  double x, y;
+  // Pre-set Pearson correlation coefficients
+  double rhoXY = .5; // X and Y are highly linearly correlated
+  double rhoXZ = .5; // X and Z are weakly linearly correlated
+  double rorXY = sqrt( 1. - rhoXY * rhoXY );
+  double rorXZ = sqrt( 1. - rhoXZ * rhoXZ );
+  double x, y, z;
   for ( int i = 0; i < nVals; ++ i )
     {
     x = vtkMath::Gaussian();
-    y = rho * x + ror * vtkMath::Gaussian();
+    y = rhoXY * x + rorXY * vtkMath::Gaussian();
+    z = rhoXZ * x + rorXZ * vtkMath::Gaussian();
     datasetBinormalX->InsertNextValue( x );
     datasetBinormalY->InsertNextValue( y );
+    datasetBinormalZ->InsertNextValue( z );
     datasetUniform->InsertNextValue( vtkMath::Random() );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
@@ -525,6 +533,8 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetBinormalX->Delete();
   testTable->AddColumn( datasetBinormalY );
   datasetBinormalY->Delete();
+  testTable->AddColumn( datasetBinormalZ );
+  datasetBinormalZ->Delete();
   testTable->AddColumn( datasetUniform );
   datasetUniform->Delete();
   testTable->AddColumn( datasetLaplace );
@@ -537,7 +547,9 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Select Column Pairs of Interest ( Learn Mode )
   cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y" );
-  cs4->AddColumnPair( "Standard Binormal X", "Standard Uniform" );
+  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Z" );
+  cs4->AddColumnPair( "Standard Binormal Z", "Standard Binormal Y" );
+  cs4->AddColumnPair( "Standard Binormal Z", "Standard Uniform" );
   cs4->AddColumnPair( "Standard Laplace", "Standard Binormal Y" );
   cs4->AddColumnPair( "Standard Uniform", "Standard Laplace" );
 
@@ -617,7 +629,7 @@ int TestCorrelativeStatistics( int, char *[] )
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
       {
-      cout << "Null hypothesis (normality) rejected at "
+      cout << "Null hypothesis (binormality) rejected at "
            << alpha
            << " significance level";
 
