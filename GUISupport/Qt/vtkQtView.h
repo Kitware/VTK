@@ -26,11 +26,7 @@
 
 #include <QObject>
 
-class QVTK_EXPORT vtkQtView :
-//BTX
-  public QObject,
-//ETX
-  public vtkView
+class QVTK_EXPORT vtkQtView : public QObject, public vtkView
 {
 //BTX
 Q_OBJECT

@@ -68,6 +68,10 @@ static void vtkWrapPython_GenerateSpecialType(
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
+/* Make a guess about whether a class is wrapped */
+int vtkWrapPython_IsClassWrapped(
+  const char *classname, HierarchyInfo *hinfo);
+
 /* check whether a method is wrappable */
 static int vtkWrapPython_MethodCheck(
   ClassInfo *data, FunctionInfo *currentFunction, HierarchyInfo *hinfo);
@@ -117,6 +121,30 @@ typedef struct _SpecialTypeInfo
   int has_print;    /* there is "<<" stream operator */
   int has_compare;  /* there are comparison operators e.g. "<" */
 } SpecialTypeInfo;
+
+/* -------------------------------------------------------------------- */
+/* Make a guess about whether a class is wrapped */
+int vtkWrapPython_IsClassWrapped(
+  const char *classname, HierarchyInfo *hinfo)
+{
+  if (hinfo)
+    {
+    if (!vtkParseHierarchy_IsExtern(hinfo, classname) &&
+        (!vtkParseHierarchy_GetProperty(
+           hinfo, classname, "WRAP_EXCLUDE") ||
+         vtkParseHierarchy_GetProperty(
+           hinfo, classname, "WRAP_SPECIAL")))
+      {
+      return 1;
+      }
+    else if (strncmp("vtk", classname, 3) == 0)
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+}
 
 /* -------------------------------------------------------------------- */
 /* Use the hints in the hints file to get the tuple size to use when
@@ -3296,12 +3324,20 @@ static void vtkWrapPython_ClassDoc(
             vtkWrapPython_QuoteString(data->Name, 500));
     }
 
+  /* only consider superclasses that are wrapped */
+  for (j = 0; j < data->NumberOfSuperClasses; j++)
+    {
+    if (vtkWrapPython_IsClassWrapped(data->SuperClasses[j], hinfo))
+      {
+      break;
+      }
+    }
 
-  if (data->NumberOfSuperClasses > 0)
+  if (j < data->NumberOfSuperClasses)
     {
     fprintf(fp,
             "    \"Superclass: %s\\n\\n\",\n",
-            vtkWrapPython_QuoteString(data->SuperClasses[0], 500));
+            vtkWrapPython_QuoteString(data->SuperClasses[j], 500));
     }
 
   n = 100;
@@ -3677,8 +3713,10 @@ static void vtkWrapPython_CustomMethods(
 /* -------------------------------------------------------------------- */
 /* generate the New method for a vtkObjectBase object */
 static void vtkWrapPython_GenerateObjectNew(
-  FILE *fp, ClassInfo *data, int class_has_new)
+  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo, int class_has_new)
 {
+  int i;
+
   if (class_has_new)
     {
     fprintf(fp,
@@ -3713,15 +3751,28 @@ static void vtkWrapPython_GenerateObjectNew(
           "                        %sDoc(),",
           data->Name, data->Name, data->Name);
 
-  if (strcmp(data->Name,"vtkObjectBase") == 0)
+  /* find the first superclass that is a VTK class */
+  for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp, "0);\n");
+    if (vtkWrapPython_IsClassWrapped(data->SuperClasses[i], hinfo))
+      {
+      if (hinfo == 0 || vtkParseHierarchy_IsTypeOf(
+                          hinfo, data->SuperClasses[i], "vtkObjectBase"))
+        {
+        break;
+        }
+      }
     }
-  else
+
+  if (i < data->NumberOfSuperClasses)
     {
     fprintf(fp, "\n"
             "                        PyVTKClass_%sNew(modulename));\n",
-            data->SuperClasses[0]);
+            data->SuperClasses[i]);
+    }
+  else
+    {
+    fprintf(fp, "0);\n");
     }
 
   fprintf(fp,
@@ -4445,9 +4496,16 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     /* bring in all the superclasses */
     for (i = 0; i < data->NumberOfSuperClasses; i++)
       {
-      fprintf(fp,
-             "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
-              data->SuperClasses[i]);
+      if (vtkWrapPython_IsClassWrapped(data->SuperClasses[i], hinfo))
+        {
+        if (hinfo == 0 || vtkParseHierarchy_IsTypeOf(
+                            hinfo, data->SuperClasses[i], "vtkObjectBase"))
+          {
+          fprintf(fp,
+            "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
+            data->SuperClasses[i]);
+          }
+        }
       }
     }
 
@@ -4478,7 +4536,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   /* output the class initilization function for VTK objects */
   if (is_vtkobject)
     {
-    vtkWrapPython_GenerateObjectNew(fp, data, class_has_new);
+    vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
     }
 
   /* output the class initilization function for special objects */
