@@ -98,6 +98,12 @@ int TestDecimatePolylineFilter(int, char *[])
   renwin->Delete();
   ren->Delete();
 
+  d_actor->Delete();
+  d_mapper->Delete();
+
+  c_actor->Delete();
+  c_mapper->Delete();
+
   decimate->Delete();
   circle->Delete();
 
