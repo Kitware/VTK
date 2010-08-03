@@ -1290,7 +1290,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
       Py_DECREF(args);
       }
 
-    if (sobj && PyVTKSpecialObject_Check(sobj))
+    if (sobj)
       {
       *newobj = sobj;
       return ((PyVTKSpecialObject *)sobj)->vtk_ptr;

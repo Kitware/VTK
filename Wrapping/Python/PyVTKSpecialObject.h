@@ -64,8 +64,6 @@ struct PyVTKSpecialObject {
   long vtk_hash;
 };
 
-extern VTK_PYTHON_EXPORT PyTypeObject PyVTKSpecialObject_Type;
-
 extern "C"
 {
 VTK_PYTHON_EXPORT
@@ -74,16 +72,15 @@ PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
   const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
 
 VTK_PYTHON_EXPORT
-int PyVTKSpecialObject_Check(PyObject *obj);
-
-VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr);
 
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr);
 
+#if PY_VERSION_HEX < 0x02020000
 VTK_PYTHON_EXPORT
 PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr);
+#endif
 }
 
 #endif

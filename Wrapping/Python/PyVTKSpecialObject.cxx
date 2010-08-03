@@ -55,15 +55,7 @@ PyVTKSpecialType::PyVTKSpecialType(
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKSpecialObject_Repr(PyObject *self)
-{
-  vtksys_ios::ostringstream os;
-  os << "(" << self->ob_type->tp_name << ")";
-  const vtksys_stl::string &s = os.str();
-  return PyString_FromStringAndSize(s.data(), s.size());
-}
-
-//--------------------------------------------------------------------
+#if PY_VERSION_HEX < 0x02020000
 PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr)
 {
   PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
@@ -129,84 +121,7 @@ PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr)
   PyErr_SetString(PyExc_AttributeError, name);
   return NULL;
 }
-
-//--------------------------------------------------------------------
-static void PyVTKSpecialObject_Delete(PyObject *self)
-{
-#if PY_MAJOR_VERSION >= 2
-  PyObject_Del(self);
-#else
-  PyMem_DEL(self);
 #endif
-}
-
-//--------------------------------------------------------------------
-static long PyVTKSpecialObject_Hash(PyObject *self)
-{
-#if PY_VERSION_HEX >= 0x020600B2
-  return PyObject_HashNotImplemented(self);
-#else
-  char text[256];
-  sprintf(text, "object of type %s is not hashable", self->ob_type->tp_name);
-  PyErr_SetString(PyExc_TypeError, text);
-  return -1;
-#endif
-}
-
-//--------------------------------------------------------------------
-PyTypeObject PyVTKSpecialObject_Type = {
-  PyObject_HEAD_INIT(&PyType_Type)
-  0,
-  (char*)"vtkspecialobject",             // tp_name
-  sizeof(PyVTKSpecialObject),            // tp_basicsize
-  0,                                     // tp_itemsize
-  PyVTKSpecialObject_Delete,             // tp_dealloc
-  0,                                     // tp_print
-  0,                                     // tp_getattr
-  0,                                     // tp_setattr
-  0,                                     // tp_compare
-  PyVTKSpecialObject_Repr,               // tp_repr
-  0,                                     // tp_as_number
-  0,                                     // tp_as_sequence
-  0,                                     // tp_as_mapping
-  PyVTKSpecialObject_Hash,               // tp_hash
-  0,                                     // tp_call
-  0,                                     // tp_string
-  PyVTKSpecialObject_GetAttr,            // tp_getattro
-  0,                                     // tp_setattro
-  0,                                     // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,// tp_flags
-#else
-  Py_TPFLAGS_DEFAULT,                    // tp_flags
-#endif
-  (char*)"vtkspecialobject - a vtk object not derived from vtkObjectBase.", // tp_doc
-  0,                                     // tp_traverse
-  0,                                     // tp_clear
-  0,                                     // tp_richcompare
-  0,                                     // tp_weaklistoffset
-  VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
-};
-
-//--------------------------------------------------------------------
-int PyVTKSpecialObject_Check(PyObject *op)
-{
-#if PY_VERSION_HEX >= 0x02020000
-  return PyObject_TypeCheck(op, &PyVTKSpecialObject_Type);
-#else
-  PyVTKSpecialType *info;
-  if (op->ob_type == &PyVTKSpecialObject_Type)
-    {
-    return 1;
-    }
-  info = vtkPythonUtil::FindSpecialType(op->ob_type->tp_name);
-  if (info && info->py_type == op->ob_type)
-    {
-    return 1;
-    }
-  return 0;
-#endif
-}
 
 //--------------------------------------------------------------------
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
