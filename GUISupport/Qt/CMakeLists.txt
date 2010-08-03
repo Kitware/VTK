@@ -380,9 +380,9 @@ if(VTK_WRAP_PYTHON_SIP)
   set(SIP_FILES ${SIP_FILES} ${MODULE_SIP_FILE})
 
   find_path(SIP_PYQT_DIR NAMES QtCore/QtCoremod.sip
-    PATH_SUFFIXES sip/PyQt4
-    PATHS /usr/share
-    PATHS /usr/local/share
+    PATHS ${PYTHON_INCLUDE_PATH}/../Lib/site-packages/PyQt4/sip/PyQt4
+          /usr/share/sip/PyQt4
+          /usr/local/share/sip/PyQt4
     DOC "Root directory containing all PyQt4 sip files."
     )
 
@@ -403,7 +403,7 @@ if(VTK_WRAP_PYTHON_SIP)
 
   add_custom_command(
     OUTPUT ${SIP_OUT}
-    COMMAND ${VTK_WRAP_PYTHON_SIP_EXE}
+    COMMAND ${SIP_EXECUTABLE}
     ARGS -c "${CMAKE_CURRENT_BINARY_DIR}" ${SIP_FLAGS} ${MODULE_SIP_FILE}
     DEPENDS ${SIP_FILES}
     )

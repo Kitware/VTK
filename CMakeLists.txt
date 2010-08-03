@@ -490,7 +490,9 @@ OPTION(VTK_WRAP_PYTHON "Wrap VTK classes into the Python language." OFF)
 OPTION(VTK_WRAP_JAVA "Wrap VTK classes into the Java language." OFF)
 OPTION(VTK_WRAP_PYTHON_SIP "Make python wrapped classes available to SIP/PyQt." OFF)
 IF(VTK_WRAP_PYTHON_SIP)
-  FIND_PROGRAM(VTK_WRAP_PYTHON_SIP_EXE NAMES sip DOC "Path to sip executable")
+  FIND_PROGRAM(SIP_EXECUTABLE NAMES sip DOC "Path to sip executable")
+  FIND_PATH(SIP_INCLUDE_DIR NAMES sip.h
+    PATHS "${PYTHON_INCLUDE_PATH}" "${PYTHON_INCLUDE_PATH}/../Lib/site-packages/PyQt4/include")
 ENDIF(VTK_WRAP_PYTHON_SIP)
 
 # Python requires shared libraries.
