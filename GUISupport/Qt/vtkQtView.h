@@ -12,7 +12,7 @@
 // .NAME vtkQtView - Superclass for Qt widget-based views.
 //
 // .SECTION Description
-// This abstract superclass provides common api to integrate a Qt widget 
+// This abstract superclass provides common api to integrate a Qt widget
 // into the VTK view framework. Not much here yet, but in the future there
 // could be methods around selection, event-handling, drag-and-drop, etc.
 //
@@ -26,14 +26,20 @@
 
 #include <QObject>
 
-class QVTK_EXPORT vtkQtView : public QObject, public vtkView
+class QVTK_EXPORT vtkQtView :
+//BTX
+  public QObject,
+//ETX
+  public vtkView
 {
+//BTX
 Q_OBJECT
+//ETX
 public:
 
   vtkTypeMacro(vtkQtView, vtkView);
   void PrintSelf(ostream& os, vtkIndent indent);
-      
+
   // Description:
   // Get the main container of this view (a  QWidget).
   // The application typically places the view with a call
@@ -57,7 +63,7 @@ public:
   // be determined from the filename.  Qt's image format support may vary, usually
   // bmp, jpg, ppm, or png is a safe choice.  Returns false if there was a failure.
   virtual bool SaveImage(const char* fileName);
-  
+
 protected:
   vtkQtView();
   ~vtkQtView();
@@ -65,7 +71,7 @@ protected:
 private:
   vtkQtView(const vtkQtView&);  // Not implemented.
   void operator=(const vtkQtView&);  // Not implemented.
-  
+
 };
 
 #endif

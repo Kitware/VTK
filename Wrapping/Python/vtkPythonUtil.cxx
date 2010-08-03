@@ -21,11 +21,16 @@
 #include "vtkSmartPointerBase.h"
 #include "vtkVariant.h"
 #include "vtkWindows.h"
+#include "vtkToolkits.h"
 
 #include <vtksys/ios/sstream>
 #include <vtkstd/map>
 #include <vtkstd/string>
 #include <vtkstd/utility>
+
+#ifdef VTK_WRAP_PYTHON_SIP
+#include "sip.h"
+#endif
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
@@ -1760,5 +1765,107 @@ void vtkPythonVoidFuncArgDelete(void *arg)
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
 #endif
+#endif
+}
+
+
+
+
+#ifdef VTK_WRAP_PYTHON_SIP
+// utilities to provide access to Python objects wrapped with SIP
+static const sipAPIDef *get_sip_api()
+{
+  static PyObject *c_api = NULL;
+
+  if(!c_api)
+    {
+    PyObject *sip_module;
+    PyObject *sip_module_dict;
+
+    /* Import the SIP module. */
+    sip_module = PyImport_ImportModule("sip");
+
+    if (sip_module == NULL)
+      return NULL;
+
+    /* Get the module's dictionary. */
+    sip_module_dict = PyModule_GetDict(sip_module);
+
+    /* Get the "_C_API" attribute. */
+    c_api = PyDict_GetItemString(sip_module_dict, "_C_API");
+
+    if (c_api == NULL)
+      return NULL;
+
+    /* Sanity check that it is the right type. */
+    if (!PyCObject_Check(c_api))
+      return NULL;
+    }
+
+  /* Get the actual pointer from the object. */
+  return (const sipAPIDef *)PyCObject_AsVoidPtr(c_api);
+}
+#endif
+
+void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classname)
+{
+#ifdef VTK_WRAP_PYTHON_SIP
+  const sipAPIDef * api = get_sip_api();
+  const sipTypeDef * td = api ? api->api_find_type(classname) : NULL;
+
+  if(!td)
+    {
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
+    return NULL;
+    }
+
+  if(!api->api_can_convert_to_type(obj, td, 0))
+    {
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
+    return NULL;
+    }
+
+  int iserr = 0;
+  void* ptr = api->api_convert_to_type(obj, td, NULL, 0, NULL, &iserr);
+  if(iserr)
+    {
+    PyErr_SetString(PyExc_TypeError, "Error doing SIP conversion");
+    return NULL;
+    }
+  return ptr;
+#else
+  obj = obj;
+  classname = classname;
+  PyErr_SetString(PyExc_TypeError, "method requires VTK built with SIP support");
+  return NULL;
+#endif
+}
+
+
+PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* classname, bool is_new)
+{
+#ifdef VTK_WRAP_PYTHON_SIP
+  const sipAPIDef * api = get_sip_api();
+  const sipTypeDef * td = api ? api->api_find_type(classname) : NULL;
+
+  if(!td)
+    {
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
+    return NULL;
+    }
+
+  if(is_new)
+    {
+    return api->api_convert_from_new_type(const_cast<void*>(ptr), td, NULL);
+    }
+
+  return api->api_convert_from_type(const_cast<void*>(ptr), td, NULL);
+
+#else
+  ptr = ptr;
+  classname = classname;
+  is_new = is_new;
+  PyErr_SetString(PyExc_TypeError, "method requires VTK built with SIP support");
+  return NULL;
 #endif
 }

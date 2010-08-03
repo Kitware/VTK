@@ -283,6 +283,7 @@ static void vtkWrapPython_MakeTempVariable(
     case VTK_PARSE_BOOL:        fprintf(fp,"bool "); break;
     case VTK_PARSE_STRING:      fprintf(fp,"%s ",Id); break;
     case VTK_PARSE_UNICODE_STRING: fprintf(fp,"vtkUnicodeString "); break;
+    case VTK_PARSE_QOBJECT:      fprintf(fp,"%s ",Id); break;
     case VTK_PARSE_UNKNOWN:     return;
     }
 
@@ -290,7 +291,7 @@ static void vtkWrapPython_MakeTempVariable(
   switch (aType & VTK_PARSE_INDIRECT)
     {
     case VTK_PARSE_REF:
-      if (((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT) ||
+      if (((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT || (aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT) ||
            (i == MAX_ARGS))
         {
         fprintf(fp, "*"); /* refs are converted to pointers */
@@ -299,6 +300,7 @@ static void vtkWrapPython_MakeTempVariable(
     case VTK_PARSE_POINTER:
       if ((i == MAX_ARGS) ||
           ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT) ||
+          ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT) ||
           ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR_PTR) ||
           ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_VOID_PTR))
         {
@@ -316,8 +318,9 @@ static void vtkWrapPython_MakeTempVariable(
     }
 
   /* handle non-vtkObjectBase object arguments as pointers */
-  if ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT &&
-      i != MAX_ARGS)
+  if (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT ||
+      (aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT )
+      && i != MAX_ARGS)
     {
     fprintf(fp, "*");
     }
@@ -329,6 +332,7 @@ static void vtkWrapPython_MakeTempVariable(
   if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
       (i != MAX_ARGS) &&
       ((aType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT) &&
+      ((aType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_QOBJECT) &&
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_CHAR_PTR) &&
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_VOID_PTR))
     {
@@ -356,7 +360,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* for VTK_OBJECT arguments, a PyObject temp is also needed */
   if ((i != MAX_ARGS) &&
-      ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT))
+      (((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT) ||
+      ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT)))
     {
     fprintf(fp,
             "  PyObject *tempH%d = 0;\n",
@@ -461,6 +466,22 @@ static void vtkWrapPython_ReturnValue(
       fprintf(fp,
               "    result = vtkPythonUtil::GetObjectFromPointer((vtkObjectBase *)temp%i);\n",
               MAX_ARGS);
+      break;
+      }
+
+    case VTK_PARSE_QOBJECT_PTR:
+    case VTK_PARSE_QOBJECT_REF:
+      {
+      fprintf(fp,
+              "    result = vtkPythonUtil::SIPGetObjectFromPointer(temp%i, \"%s\", false);\n",
+              MAX_ARGS, currentFunction->ReturnClass);
+      break;
+      }
+    case VTK_PARSE_QOBJECT:
+      {
+      fprintf(fp,
+              "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
+              currentFunction->ReturnClass, MAX_ARGS, currentFunction->ReturnClass);
       break;
       }
 
@@ -768,6 +789,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     switch ( (argtype & VTK_PARSE_BASE_TYPE) )
       {
       case VTK_PARSE_OBJECT:
+      case VTK_PARSE_QOBJECT:
         result[currPos++] = 'O';
         break;
       case VTK_PARSE_FLOAT:
@@ -839,7 +861,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
       }
 
     if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER &&
-        argtype != VTK_PARSE_OBJECT_PTR)
+        argtype != VTK_PARSE_OBJECT_PTR && argtype != VTK_PARSE_OBJECT_PTR)
       {
       /* back up and replace the char */
       --currPos;
@@ -935,14 +957,17 @@ static char *vtkWrapPython_ArgCheckString(
 
     if (argtype == VTK_PARSE_OBJECT_REF ||
         argtype == VTK_PARSE_OBJECT_PTR ||
-        argtype == VTK_PARSE_OBJECT)
+        argtype == VTK_PARSE_OBJECT ||
+        argtype == VTK_PARSE_QOBJECT ||
+        argtype == VTK_PARSE_QOBJECT_REF ||
+        argtype == VTK_PARSE_QOBJECT_PTR)
       {
       result[currPos++] = ' ';
-      if (argtype == VTK_PARSE_OBJECT_REF)
+      if (argtype == VTK_PARSE_OBJECT_REF || argtype == VTK_PARSE_QOBJECT_REF)
         {
         result[currPos++] = '&';
         }
-      else if (argtype == VTK_PARSE_OBJECT_PTR)
+      else if (argtype == VTK_PARSE_OBJECT_PTR || argtype == VTK_PARSE_QOBJECT_PTR)
         {
         result[currPos++] = '*';
         }
@@ -2404,7 +2429,9 @@ static void vtkWrapPython_GenerateMethods(
             argType = (theSignature->ArgTypes[i] &
                        VTK_PARSE_UNQUALIFIED_TYPE);
 
-            if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT)
+            if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT ||
+                (argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT
+                )
               {
               fprintf(fp,", &tempH%d",i);
               }
@@ -2466,6 +2493,21 @@ static void vtkWrapPython_GenerateMethods(
               fprintf(fp,
                       "    temp%d = (%s *)vtkPythonUtil::GetPointerFromObject(\n"
                       "      tempH%d,\"%s\");\n",
+                      i, theSignature->ArgClasses[i], i,
+                      theSignature->ArgClasses[i]);
+              fprintf(fp,
+                      "    if (!temp%d && tempH%d != Py_None)\n"
+                      "      {\n"
+                      "      %s;\n"
+                      "      }\n",
+                      i, i, on_error);
+
+              potential_error = 1;
+              }
+            else if (argType == VTK_PARSE_QOBJECT_PTR || argType == VTK_PARSE_QOBJECT || argType == VTK_PARSE_QOBJECT_REF)
+              {
+              fprintf(fp,
+                      "    temp%d = (%s *)vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\");\n",
                       i, theSignature->ArgClasses[i], i,
                       theSignature->ArgClasses[i]);
               fprintf(fp,
@@ -2666,7 +2708,9 @@ static void vtkWrapPython_GenerateMethods(
                 fprintf(fp,",");
                 }
               if (argType == VTK_PARSE_OBJECT_REF ||
-                  argType == VTK_PARSE_OBJECT)
+                  argType == VTK_PARSE_OBJECT ||
+                  argType == VTK_PARSE_QOBJECT_REF ||
+                  argType == VTK_PARSE_QOBJECT)
                 {
                 fprintf(fp,"*(temp%i)",i);
                 }
@@ -3044,6 +3088,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
 #ifdef Py_USING_UNICODE
     VTK_PARSE_UNICODE_STRING,
 #endif
+    VTK_PARSE_QOBJECT,
     0
   };
 
@@ -3134,6 +3179,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     if (((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
         (currentFunction->ArgCounts[i] <= 0) &&
         (argType != VTK_PARSE_OBJECT_PTR) &&
+        (argType != VTK_PARSE_QOBJECT_PTR) &&
         (argType != VTK_PARSE_CHAR_PTR) &&
         (argType != VTK_PARSE_VOID_PTR)) args_ok = 0;
     }

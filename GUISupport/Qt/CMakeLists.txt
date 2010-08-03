@@ -16,6 +16,7 @@ ENDIF()
 SET ( QVTKMocHeaders
     QVTKApplication.h
     QVTKInteractor.h
+    QVTKInteractorInternal.h
     QVTKWidget.h
     vtkQtConnection.h
     )
@@ -45,9 +46,9 @@ SET ( QVTKLibSrcs
     vtkQtSQLQuery.cxx
     vtkQtTableModelAdapter.cxx
     vtkQtTimePointUtility.cxx
-    vtkQtTreeModelAdapter.cxx 
+    vtkQtTreeModelAdapter.cxx
     )
-    
+
 SET ( QVTKMocHeaders
     ${QVTKMocHeaders}
     QFilterTreeProxyModel.h
@@ -86,7 +87,7 @@ IF(VTK_USE_VIEWS)
     vtkQtTableView.cxx
     vtkQtTreeView.cxx
     vtkQtView.cxx
-    ) 
+    )
   SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
   SET ( QVTKMocHeaders ${QVTKMocHeaders}
     vtkQtAnnotationView.h
@@ -122,7 +123,7 @@ IF(VTK_USE_VIEWS)
     ENDIF( VTK_QT_USE_WEBKIT )
   ENDIF(QT_QTWEBKIT_FOUND)
 ENDIF(VTK_USE_VIEWS)
-  
+
 # help CMake find QtDesigner on Mac (binary install)
 FIND_PATH(QT_QTDESIGNER_INCLUDE_DIR QDesignerComponents
           PATHS ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
@@ -141,7 +142,7 @@ SET ( PluginMocHeaders
       )
 
 # CMake apparently doesn't do this automatically
-SET_SOURCE_FILES_PROPERTIES(Q4VTKWidgetPlugin.cxx PROPERTIES 
+SET_SOURCE_FILES_PROPERTIES(Q4VTKWidgetPlugin.cxx PROPERTIES
                             OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
 
 # vtkConfigure.h is in ${VTK_BINARY_DIR}
@@ -178,11 +179,11 @@ IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(QVTK PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 ENDIF(VTK_LIBRARY_PROPERTIES)
 
-TARGET_LINK_LIBRARIES( QVTK 
+TARGET_LINK_LIBRARIES( QVTK
   ${QT_LIBRARIES}
-  vtkRendering 
+  vtkRendering
   vtkGraphics
-  vtkImaging 
+  vtkImaging
   vtkCommon)
 
 # add extra dependencies if necessary
@@ -205,7 +206,7 @@ ENDIF(APPLE)
 SET(QT_PLUGIN_LIBS ${QT_LIBRARIES})
 
 ADD_DEFINITIONS(-DQT_PLUGIN)
-# A release build of the designer must have 
+# A release build of the designer must have
 # a release build of this plugin to work properly
 # if the QtGui exists, a release build of the designer is assumed
 IF(QT_QTGUI_LIBRARY)
@@ -218,7 +219,7 @@ ENDIF(QT_QTGUI_LIBRARY)
 INCLUDE_DIRECTORIES(${QT_QTDESIGNER_INCLUDE_DIR})
 QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
 
-# add QVTK plugin from sources 
+# add QVTK plugin from sources
 # stand-alone as it doesn't depend on QVTK library
 ADD_LIBRARY ( QVTKWidgetPlugin
   SHARED
@@ -227,7 +228,7 @@ ADD_LIBRARY ( QVTKWidgetPlugin
 )
 
 # link with release version of Qt libs
-TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
+TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
   ${QT_PLUGIN_LIBS}
 )
 
@@ -308,4 +309,122 @@ SUBDIRS(Chart)
 IF(BUILD_TESTING)
   SUBDIRS(Testing/Cxx)
 ENDIF(BUILD_TESTING)
+
+if(VTK_WRAP_PYTHON_SIP)
+
+  #### wrap vtkObject derived classes with the VTK python wrapper generator
+  # list header files here for wrapping
+  set(QVTK_PythonHeaders
+    QVTKInteractor.h
+    vtkQtAnnotationView.h
+    vtkQtBarChartView.h
+    vtkQtChartView.h
+    vtkQtLineChartView.h
+    vtkQtListView.h
+    vtkQtSQLDatabase.h
+    vtkQtSQLQuery.h
+    vtkQtStackedChartView.h
+    vtkQtStatisticalBoxChartView.h
+    vtkQtRecordView.h
+    vtkQtTableView.h
+    vtkQtTimePointUtility.h
+    vtkQtTreeView.h
+    vtkQtView.h
+
+    vtkQtTableRepresentation.h
+    vtkQtChartRepresentation.h
+    )
+  IF(VTK_QT_USE_WEBKIT)
+    set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
+    vtkQtRichTextView.h
+    )
+  ENDIF(VTK_QT_USE_WEBKIT)
+  VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
+  ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
+  TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK vtkViewsPythonD vtkRenderingPythonD vtkPythonCore)
+
+  PYTHON_ADD_MODULE(vtkQtPython vtkQtPythonInit.cxx)
+  TARGET_LINK_LIBRARIES(vtkQtPython vtkQtPythonD)
+
+  IF(NOT VTK_INSTALL_NO_LIBRARIES)
+    INSTALL(TARGETS vtkQtPython vtkQtPythonD
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+
+
+  #### wrap QObject derived classes with SIP
+  # list .sip files here for wrapping
+  set(SIP_FILES
+    QVTKWidget.sip
+    QVTKWidget2.sip
+    QVTKInteractor.sip
+    )
+
+  set(SIP_MODULE QVTKPython)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in
+    "%Module ${SIP_MODULE} 0\n\n")
+
+  set(SIP_OUT)
+  foreach(f ${SIP_FILES})
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in "%Include ${f}\n")
+    get_filename_component(f1 "${f}" NAME_WE)
+    set(SIP_OUT ${SIP_OUT} ${CMAKE_CURRENT_BINARY_DIR}/sip${SIP_MODULE}${f1}.cpp)
+  endforeach(f ${SIP_FILES})
+
+  set(MODULE_SIP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip)
+  configure_file(${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in ${MODULE_SIP_FILE} COPY_ONLY)
+
+  set(SIP_OUT ${SIP_OUT} ${CMAKE_CURRENT_BINARY_DIR}/sip${SIP_MODULE}cmodule.cpp)
+  set(SIP_FILES ${SIP_FILES} ${MODULE_SIP_FILE})
+
+  find_path(SIP_PYQT_DIR NAMES QtCore/QtCoremod.sip
+    PATH_SUFFIXES sip/PyQt4
+    PATHS /usr/share
+    PATHS /usr/local/share
+    DOC "Root directory containing all PyQt4 sip files."
+    )
+
+  if(Q_WS_X11)
+    set(SIP_FLAGS ${SIP_FLAGS} -t WS_X11)
+  elseif(Q_WS_WIN)
+    set(SIP_FLAGS ${SIP_FLAGS} -t WS_WIN)
+  elseif(Q_WS_MAC)
+    set(SIP_FLAGS ${SIP_FLAGS} -t WS_MAC)
+  endif()
+  set(SIP_FLAGS ${SIP_FLAGS} -t Qt_${QT_VERSION_MAJOR}_${QT_VERSION_MINOR}_${QT_VERSION_PATCH})
+  set(SIP_FLAGS ${SIP_FLAGS}
+    -I ${SIP_PYQT_DIR}
+    -I ${CMAKE_CURRENT_SOURCE_DIR}
+    -I ${VTK_BINARY_DIR}/Rendering
+    -I ${VTK_BINARY_DIR}/Views
+    )
+
+  add_custom_command(
+    OUTPUT ${SIP_OUT}
+    COMMAND ${VTK_WRAP_PYTHON_SIP_EXE}
+    ARGS -c "${CMAKE_CURRENT_BINARY_DIR}" ${SIP_FLAGS} ${MODULE_SIP_FILE}
+    DEPENDS ${SIP_FILES}
+    )
+
+  add_library(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
+  target_link_libraries(${SIP_MODULE} QVTK vtkRenderingPythonD)
+  set_target_properties(${SIP_MODULE} PROPERTIES PREFIX "")
+  IF(WIN32 AND NOT CYGWIN)
+    SET_TARGET_PROPERTIES(${SIP_MODULE} PROPERTIES SUFFIX ".pyd")
+  ENDIF(WIN32 AND NOT CYGWIN)
+
+  IF(NOT VTK_INSTALL_NO_LIBRARIES)
+    INSTALL(TARGETS QVTKPython
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+
+  IF(BUILD_TESTING)
+    ADD_SUBDIRECTORY(Testing/Python)
+  ENDIF(BUILD_TESTING)
+
+endif(VTK_WRAP_PYTHON_SIP)
 

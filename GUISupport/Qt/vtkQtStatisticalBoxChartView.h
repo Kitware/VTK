@@ -30,7 +30,9 @@ class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtStatisticalBoxChartView : public vtkQtChartView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   static vtkQtStatisticalBoxChartView *New();

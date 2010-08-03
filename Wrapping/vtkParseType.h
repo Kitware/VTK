@@ -166,6 +166,7 @@
 #define VTK_PARSE_OSTREAM             0x23
 #define VTK_PARSE_ISTREAM             0x24
 #define VTK_PARSE_FUNCTION            0x25
+#define VTK_PARSE_QOBJECT             0x26
 
 /**
  * Basic pointer types
@@ -198,6 +199,7 @@
 #define VTK_PARSE_OSTREAM_PTR             0x223
 #define VTK_PARSE_ISTREAM_PTR             0x224
 #define VTK_PARSE_FUNCTION_PTR            0x225
+#define VTK_PARSE_QOBJECT_PTR             0x226
 
 /**
  * Basic reference types
@@ -229,6 +231,7 @@
 #define VTK_PARSE_UNICODE_STRING_REF      0x122
 #define VTK_PARSE_OSTREAM_REF             0x123
 #define VTK_PARSE_ISTREAM_REF             0x124
+#define VTK_PARSE_QOBJECT_REF             0x126
 
 /**
  * For backwards compatibility

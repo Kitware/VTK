@@ -38,9 +38,6 @@
 
 #include <vtkRenderWindowInteractor.h>
 #include "QVTKWin32Header.h"
-#include "vtkstd/map"
-class QSignalMapper;
-class QTimer;
 #include <QtCore/QObject>
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
@@ -89,11 +86,12 @@ public:
 
   // timer event slot
   virtual void TimerEvent(int timerId);
-
+//BTX
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   virtual vtkTDxUnixDevice *GetDevice();
   virtual void SetDevice(vtkTDxDevice *device);
 #endif
+//ETX
 
 protected:
   // constructor
@@ -126,6 +124,8 @@ private:
 
 };
 
+//BTX
+
 // .NAME QVTKInteractorAdapter - A QEvent translator.
 // .SECTION Description
 // QVTKInteractorAdapter translates QEvents and send them to a
@@ -147,22 +147,6 @@ public:
   // returns whether the event was recognized and processed
   bool ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren);
 };
-
-
-// internal class, do not use
-class QVTKInteractorInternal : public QObject
-{
-  Q_OBJECT
-public:
-  QVTKInteractorInternal(QVTKInteractor* p);
-  ~QVTKInteractorInternal();
-public Q_SLOTS:
-  void TimerEvent(int id);
-public:
-  QSignalMapper* SignalMapper;
-  typedef vtkstd::map<int, QTimer*> TimerMap;
-  TimerMap Timers;
-  QVTKInteractor* Parent;
-};
+//ETX
 
 #endif

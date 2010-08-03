@@ -61,6 +61,7 @@
 #cmakedefine VTK_WRAP_TCL
 #cmakedefine VTK_WRAP_PYTHON
 #cmakedefine VTK_WRAP_JAVA
+#cmakedefine VTK_WRAP_PYTHON_SIP
 
 /*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */

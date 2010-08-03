@@ -33,6 +33,7 @@
 #include "vtkQtView.h"
 
 #include <QPointer>
+#include <QImage>
 #include <QSortFilterProxyModel>
 #include "vtkQtAbstractModelAdapter.h"
 #include "vtkSmartPointer.h"
@@ -45,7 +46,9 @@ class vtkQtTableModelAdapter;
 
 class QVTK_EXPORT vtkQtListView : public vtkQtView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   static vtkQtListView *New();
@@ -131,8 +134,10 @@ protected:
   virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
+//BTX
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+//ETX
 
 private:
   void SetVTKSelection();

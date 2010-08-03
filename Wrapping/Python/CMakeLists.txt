@@ -329,6 +329,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/views
     vtk/volumerendering
     vtk/widgets
+    vtk/qvtk
     )
 
 # vtk.util package

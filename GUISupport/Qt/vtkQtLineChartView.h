@@ -36,7 +36,9 @@ class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtLineChartView : public vtkQtChartView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   static vtkQtLineChartView *New();

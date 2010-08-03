@@ -430,6 +430,9 @@ static int skip_ahead_until(const char *text);
 "vtk"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
                      return(VTK_ID); }
 
+"Q"[A-Z][0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
+                     return(QT_ID); }
+
 [a-zA-Z_][0-9a-zA-Z_]*  { yylval.str = vtkstrndup(yytext, yyleng);
                           return(ID); }
 

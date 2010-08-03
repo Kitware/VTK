@@ -41,7 +41,9 @@ class vtkDataObjectToTable;
 
 class QVTK_EXPORT vtkQtRecordView : public vtkQtView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   static vtkQtRecordView *New();

@@ -33,6 +33,7 @@
 #endif
 
 #include "QVTKInteractor.h"
+#include "QVTKInteractorInternal.h"
 #include "QVTKWidget.h"  // for custom event types  -- should change?
 
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)

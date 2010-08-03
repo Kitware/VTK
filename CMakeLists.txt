@@ -488,6 +488,10 @@ INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|D|Q|verdict).*|${VTK_REGEX}|${V
 OPTION(VTK_WRAP_TCL "Wrap VTK classes into the TCL language." OFF)
 OPTION(VTK_WRAP_PYTHON "Wrap VTK classes into the Python language." OFF)
 OPTION(VTK_WRAP_JAVA "Wrap VTK classes into the Java language." OFF)
+OPTION(VTK_WRAP_PYTHON_SIP "Make python wrapped classes available to SIP/PyQt." OFF)
+IF(VTK_WRAP_PYTHON_SIP)
+  FIND_PROGRAM(VTK_WRAP_PYTHON_SIP_EXE NAMES sip DOC "Path to sip executable")
+ENDIF(VTK_WRAP_PYTHON_SIP)
 
 # Python requires shared libraries.
 IF(VTK_WRAP_PYTHON AND VTK_TARGET_SUPPORTS_SHARED_LIBS AND NOT BUILD_SHARED_LIBS )

@@ -45,7 +45,9 @@ class vtkTable;
 
 class QVTK_EXPORT vtkQtChartView : public vtkQtView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   vtkTypeMacro(vtkQtChartView, vtkQtView);

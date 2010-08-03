@@ -1211,6 +1211,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token DOUBLE_COLON
 %token <str> LP
 %token <str> LA
+%token <str> QT_ID
 
 /* type tokens */
 %token <str> StdString
@@ -1284,6 +1285,7 @@ file_item:
    | class_id ';'
    | ID '(' maybe_other ')'
    | VTK_ID '(' maybe_other ')'
+   | QT_ID '(' maybe_other ')'
    | ';';
 
 /*
@@ -1865,6 +1867,7 @@ array_size: {pushArraySize("");}
  */
 
 any_id: VTK_ID {postSig($<str>1);}
+     | QT_ID {postSig($<str>1);}
      | ID {postSig($<str>1);}
      | ISTREAM {postSig($<str>1);}
      | OSTREAM {postSig($<str>1);}
@@ -1915,11 +1918,15 @@ templated_id:
  | ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
      {chopSig(); if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();};
+ | QT_ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
+     {chopSig(); if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
+      postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();};
 
 types: type | type ',' {postSig(", ");} types;
 
 maybe_scoped_id: VTK_ID {postSig($<str>1);}
                | ID {postSig($<str>1);}
+               | QT_ID {postSig($<str>1);}
                | ISTREAM {postSig($<str>1);}
                | OSTREAM {postSig($<str>1);}
                | StdString {postSig($<str>1);}
@@ -1938,7 +1945,7 @@ scoped_id: class_id DOUBLE_COLON maybe_scoped_id
              preScopeSig("");
            };
 
-class_id: ID | VTK_ID | ISTREAM | OSTREAM | StdString | UnicodeString;
+class_id: ID | QT_ID | VTK_ID | ISTREAM | OSTREAM | StdString | UnicodeString;
 
 
 /* &          is VTK_PARSE_REF
@@ -1983,8 +1990,10 @@ type_red2:
  | STRUCT type_id { $<integer>$ = $<integer>2; }
  | UNION ID { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; }
  | UNION VTK_ID { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; }
+ | UNION QT_ID { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; }
  | ENUM ID { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; }
  | ENUM VTK_ID { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; };
+ | ENUM QT_ID { typeSig($<str>2); $<integer>$ = VTK_PARSE_UNKNOWN; };
 
 type_simple:
    type_primitive { $<integer>$ = $<integer>1;}
@@ -1997,6 +2006,7 @@ type_id:
  | ISTREAM { typeSig($<str>1); $<integer>$ = VTK_PARSE_ISTREAM; }
  | ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_UNKNOWN; }
  | VTK_ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_OBJECT; }
+ | QT_ID { typeSig($<str>1); $<integer>$ = VTK_PARSE_QOBJECT; }
 
 type_primitive:
   VOID   { typeSig("void"); $<integer>$ = VTK_PARSE_VOID;} |
@@ -2101,6 +2111,8 @@ literal2:   ZERO {$<str>$ = $<str>1; postSig($<str>1);}
           | ID {$<str>$ = vtkstrdup(add_const_scope($<str>1));
                 postSig($<str>1);}
           | VTK_ID {$<str>$ = vtkstrdup(add_const_scope($<str>1));
+                postSig($<str>1);};
+          | QT_ID {$<str>$ = vtkstrdup(add_const_scope($<str>1));
                 postSig($<str>1);};
 
 /*
@@ -2455,7 +2467,7 @@ other_stuff_no_semi : OTHER | braces | parens | brackets | TYPEDEF
    | STRING_LITERAL | CLASS_REF | CONST | CONST_PTR | CONST_EQUAL | STRUCT
    | OPERATOR | STATIC | INLINE | VIRTUAL | ENUM | UNION | TYPENAME
    | ZERO | VAR_FUNCTION | ELLIPSIS | PUBLIC | PROTECTED | PRIVATE
-   | NAMESPACE | USING | EXTERN | ID | VTK_ID ;
+   | NAMESPACE | USING | EXTERN | ID | VTK_ID | QT_ID ;
 
 braces: '{' maybe_other '}';
 brackets: '[' maybe_other ']';

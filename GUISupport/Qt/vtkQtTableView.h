@@ -47,7 +47,9 @@ class vtkQtTableModelAdapter;
 
 class QVTK_EXPORT vtkQtTableView : public vtkQtView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   static vtkQtTableView *New();
@@ -187,8 +189,10 @@ protected:
   virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
+//BTX
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
+//ETX
 
 private:
   void SetVTKSelection();

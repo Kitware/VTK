@@ -39,7 +39,9 @@ class QUrl;
 
 class QVTK_EXPORT vtkQtRichTextView : public vtkQtView
 {
+//BTX
 Q_OBJECT
+//ETX
 
 public:
   static vtkQtRichTextView *New();
@@ -103,6 +105,7 @@ public:
   // Updates the view.
   virtual void Update();
 
+//BTX
 protected slots:
   void onBack();
   void onForward();
@@ -111,6 +114,7 @@ protected slots:
   void onZoomOut();
   void onLoadProgress(int progress);
   void onLinkClicked(const QUrl &url);
+//ETX
 
 protected:
   vtkQtRichTextView();
