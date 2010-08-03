@@ -28,6 +28,8 @@ SET(Kit_SRCS
   vtkChartPie.cxx
   vtkPlotPie.cxx
   vtkColorSeries.cxx
+  vtkColorTransferFunctionItem.cxx
+  vtkCompositeTransferFunctionItem.cxx
   vtkContext2D.cxx
   vtkContextActor.cxx
   vtkContextBufferId.cxx
@@ -38,16 +40,20 @@ SET(Kit_SRCS
   vtkContextScene.cxx
   vtkContextTransform.cxx
   vtkContextView.cxx
+  vtkControlPointsItem.cxx
   vtkDataElement.cxx
   vtkDataValue.cxx
   vtkImageItem.cxx
   vtkLineMark.cxx
+  vtkLookupTableItem.cxx
   vtkMark.cxx
   vtkMarkUtil.cxx
   vtkOpenGLContextBufferId.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkPanelMark.cxx
   vtkPen.cxx
+  vtkPiecewiseControlPointsItem.cxx
+  vtkPiecewiseFunctionItem.cxx
   vtkPlot.cxx
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
@@ -55,6 +61,7 @@ SET(Kit_SRCS
   vtkPlotStacked.cxx
   vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
+  vtkScalarsToColorsItem.cxx
   vtkTooltipItem.cxx
   vtkWedgeMark.cxx
   )
@@ -66,8 +73,10 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextDevice2D
   vtkContextItem
   vtkContextMapper2D
+  vtkControlPointsItem
   vtkDataValue
   vtkPlot
+  vtkScalarsToColorsItem
   ABSTRACT
   )
 

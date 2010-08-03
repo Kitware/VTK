@@ -293,7 +293,6 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
       ++visiblePlots;
       }
     }
-
   if (visiblePlots == 0)
     {
     // Nothing to plot, so don't draw anything.
@@ -593,7 +592,7 @@ void vtkChartXY::SetPlotCorner(vtkPlot *plot, int corner)
                     << corner);
     return;
     }
-  if (!this->RemovePlotFromConers(plot))
+  if (!this->RemovePlotFromCorners(plot))
     {
     vtkWarningMacro("Error removing plot from corners.");
     }
@@ -815,16 +814,33 @@ vtkPlot * vtkChartXY::AddPlot(int type)
     default:
       plot = NULL;
     }
+  if (plot)
+    {
+    this->AddPlot(plot);
+    plot->Delete();
+    }
+  return plot;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::AddPlot(vtkPlot * plot)
+{
+  if (plot == NULL)
+    {
+    return -1;
+    }
+  plot->Register(this);
   // Add the plot to the default corner
   plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
   plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
   this->ChartPrivate->plots.push_back(plot);
+  vtkIdType plotIndex = this->ChartPrivate->plots.size() - 1;
   this->ChartPrivate->PlotCorners[0]->AddItem(plot);
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
-  return plot;
+  return plotIndex;
 }
 
 //-----------------------------------------------------------------------------
@@ -832,7 +848,7 @@ bool vtkChartXY::RemovePlot(vtkIdType index)
 {
   if (index < static_cast<vtkIdType>(this->ChartPrivate->plots.size()))
     {
-    this->RemovePlotFromConers(this->ChartPrivate->plots[index]);
+    this->RemovePlotFromCorners(this->ChartPrivate->plots[index]);
     this->ChartPrivate->plots[index]->Delete();
     this->ChartPrivate->plots.erase(this->ChartPrivate->plots.begin()+index);
 
@@ -1286,7 +1302,7 @@ void vtkChartXY::ProcessSelectionEvent(vtkObject* , void* )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartXY::RemovePlotFromConers(vtkPlot *plot)
+bool vtkChartXY::RemovePlotFromCorners(vtkPlot *plot)
 {
   // We know the plot will only ever be in one of the corners
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
