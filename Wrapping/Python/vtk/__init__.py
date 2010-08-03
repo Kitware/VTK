@@ -117,11 +117,11 @@ try:
 except ImportError, exc:
     __helper.refine_import_err('parallel', 'vtkParallelPython', exc)
 
-try:
-    from qvtk import *
-    kits.append('qvtk')
-except ImportError, exc:
-    __helper.refine_import_err('qvtk', 'vtkQtPython', exc)
+#try:
+#    from qvtk import *
+#    kits.append('qvtk')
+#except ImportError, exc:
+#    __helper.refine_import_err('qvtk', 'vtkQtPython', exc)
 
 # import useful VTK related constants.
 from util.vtkConstants import *
