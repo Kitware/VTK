@@ -37,9 +37,13 @@
 #ifndef __vtkDecimatePolylineFilter_h
 #define __vtkDecimatePolylineFilter_h
 
+#include <vtkSmartPointer.h>
+
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkstd/map"
 
 class vtkPriorityQueue;
+
 
 class VTK_GRAPHICS_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
 {
@@ -66,7 +70,16 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
+  double ComputeError( vtkPolyData* input, int prev, int id, int next );
+  void UpdateError( vtkPolyData* input, const int& iId );
+
+  int GetPrev( const int& iId );
+  int GetNext( const int& iId );
+
+  bool Closed;
   double TargetReduction;
+  vtkstd::map< int, double > VertexErrorMap;
+  vtkSmartPointer< vtkPriorityQueue > PriorityQueue;
 
 private:
   vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&);  // Not implemented.

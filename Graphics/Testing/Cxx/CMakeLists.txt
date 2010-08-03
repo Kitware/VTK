@@ -35,6 +35,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestTessellatedBoxSource.cxx
     TestTessellator.cxx
     TestUncertaintyTubeFilter.cxx
+    TestDecimatePolylineFilter.cxx
     )
 
   # Add Matlab Engine and Matlab Mex related tests.
