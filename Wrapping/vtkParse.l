@@ -295,6 +295,12 @@ static int skip_ahead_until(const char *text);
 "size_t"        return(SIZE_T);
 "ssize_t"       return(SSIZE_T);
 
+"Q_OBJECT"                     ;
+"public"[\t\n\r ]*"slots"/:    return(PUBLIC);
+"private"[\t\n\r ]*"slots"/:   return(PRIVATE);
+"protected"[\t\n\r ]*"slots"/: return(PROTECTED);
+"signals"/:                    return(PROTECTED);
+
 "class"         return(CLASS);
 "struct"        return(STRUCT);
 "public"        return(PUBLIC);
