@@ -34,6 +34,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -43,9 +44,15 @@
 static vtkstd::string trim(vtkstd::string s)
 {
   size_t start = 0;
-  while ((start < s.length()) && (s[start] == ' ')) start++;
+  while ((start < s.length()) && (isspace(s[start])))
+    {
+    start++;
+    }
   size_t end = s.length();
-  while ((end > start) && (s[end-1] == ' ')) end--;
+  while ((end > start) && (isspace(s[end-1])))
+    {
+    end--;
+    }
   return s.substr(start, end-start);
 }
 
@@ -56,17 +63,17 @@ static vtkstd::vector<vtkstd::string> split(vtkstd::string s)
   size_t startValue = 0;
   while (true)
     {
-    while ((startValue != s.npos) && (s[startValue] == ' ')) startValue++;
-    if (startValue == s.npos) return result;
-    size_t endValue = s.find(' ', startValue);
-    if (endValue != s.npos)
+    while ((startValue < s.length()) && isspace(s[startValue]))
       {
-      result.push_back(s.substr(startValue, endValue-startValue));
+      startValue++;
       }
-    else
+    if (startValue >= s.length()) return result;
+    size_t endValue = startValue;
+    while ((endValue < s.length()) && !isspace(s[endValue]))
       {
-      result.push_back(s.substr(startValue));
+      endValue++;
       }
+    result.push_back(s.substr(startValue, endValue-startValue));
     startValue = endValue;
     }
 }
@@ -189,7 +196,7 @@ static int NrrdType2VTKType(vtkstd::string nrrdType)
     }
   else
     {
-    vtkGenericWarningMacro(<< "Unknown type: " << nrrdType);
+    vtkGenericWarningMacro(<< "Unknown type: '" << nrrdType << "'");
     return VTK_VOID;
     }
 }
@@ -336,7 +343,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
       {
       // A field/description pair.
       vtkstd::string field = line.substr(0, delm);
-      vtkstd::string description = line.substr(delm+2);
+      vtkstd::string description = trim(line.substr(delm+2));
       if (field == "dimension")
         {
         numDimensions = atoi(description.c_str());
@@ -470,11 +477,27 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         }
       else if (field == "endian")
         {
+        if (description == "little")
+          {
 #ifdef VTK_WORDS_BIGENDIAN
-        this->SwapBytes = static_cast<int>(description == "little");
+          this->SwapBytes = 1;
 #else
-        this->SwapBytes = static_cast<int>(description == "big");
+          this->SwapBytes = 0;
 #endif
+          }
+        else if (description == "big")
+          {
+#ifdef VTK_WORDS_BIGENDIAN
+          this->SwapBytes = 0;
+#else
+          this->SwapBytes = 1;
+#endif
+          }
+        else
+          {
+          vtkErrorMacro(<< "Unknown endian: '" << description << "'");
+          return 0;
+          }
         }
       else if ((field == "line skip") || (field == "lineskip"))
         {
