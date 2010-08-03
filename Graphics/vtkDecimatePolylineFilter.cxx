@@ -116,12 +116,12 @@ int vtkDecimatePolylineFilter::RequestData(
   vtkIdType i, cellId = 0, newId;
   double error;
 
-  for ( i = 0; i < numPts; i++ )
+  for ( i = 0; i < numPts; ++i )
     {
     this->VertexErrorMap[i] = 0.;
     }
 
-  for ( i = 0; i < numPts; i++ )
+  for ( i = 0; i < numPts; ++i )
     {
     error = ComputeError( input, GetPrev(i), i, GetNext(i) );
     this->VertexErrorMap[i] = error;
@@ -137,7 +137,7 @@ int vtkDecimatePolylineFilter::RequestData(
           currentNumPts > 2 )
     {
     i = this->PriorityQueue->Pop( );
-    currentNumPts--;
+    --currentNumPts;
     UpdateError( input, i );
     this->VertexErrorMap.erase( i );
     }
@@ -174,7 +174,7 @@ int vtkDecimatePolylineFilter::RequestData(
   return 1;
 }
 //---------------------------------------------------------------------
-int vtkDecimatePolylineFilter::GetPrev( const int& iId )
+int vtkDecimatePolylineFilter::GetPrev( int iId )
 {
   std::map< int, double >::iterator it = this->VertexErrorMap.find( iId );
 
@@ -183,7 +183,7 @@ int vtkDecimatePolylineFilter::GetPrev( const int& iId )
     if( this->Closed )
       {
       it = this->VertexErrorMap.end();
-      it--;
+      --it;
       return it->first;
       }
     else
@@ -193,12 +193,12 @@ int vtkDecimatePolylineFilter::GetPrev( const int& iId )
     }
   else
     {
-    it--;
+    --it;
     return it->first;
     }
 }
 //---------------------------------------------------------------------
-int vtkDecimatePolylineFilter::GetNext( const int& iId )
+int vtkDecimatePolylineFilter::GetNext( int iId )
 {
   std::map< int, double >::iterator it = this->VertexErrorMap.find( iId );
   std::map< int, double >::iterator end_it = this->VertexErrorMap.end();
@@ -216,12 +216,12 @@ int vtkDecimatePolylineFilter::GetNext( const int& iId )
     }
   else
     {
-    it++;
+    ++it;
     return it->first;
     }
 }
 //---------------------------------------------------------------------
-void vtkDecimatePolylineFilter::UpdateError( vtkPolyData* input, const int& iId )
+void vtkDecimatePolylineFilter::UpdateError( vtkPolyData* input, int iId )
 {
   int prev = GetPrev( iId );
   int prev_prev = GetPrev( prev );

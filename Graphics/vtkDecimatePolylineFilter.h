@@ -71,10 +71,10 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double ComputeError( vtkPolyData* input, int prev, int id, int next );
-  void UpdateError( vtkPolyData* input, const int& iId );
+  void UpdateError( vtkPolyData* input, int iId );
 
-  int GetPrev( const int& iId );
-  int GetNext( const int& iId );
+  int GetPrev( int iId );
+  int GetNext( int iId );
 
   bool Closed;
   double TargetReduction;
