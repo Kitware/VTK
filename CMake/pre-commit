@@ -2,7 +2,7 @@
 echo 'Please initialize your local Git hooks.
 Paste the following commands into a shell:
 
- cd "'$(pwd)'/.git/hooks"
+ cd "'$PWD'/.git/hooks"
  git init
  git pull .. remotes/origin/hooks
  cd ../..
