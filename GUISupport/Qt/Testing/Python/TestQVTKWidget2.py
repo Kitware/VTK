@@ -8,16 +8,16 @@ import vtk
 from vtk.test import Testing
 
 class TestQVTKWidget(Testing.vtkTest):
-  def testQVTKWidget(self):
+  def testQVTKWidget2(self):
 
-    w2 = vtk.QVTKWidget()
+    w2 = vtk.QVTKWidget2()
     w2.resize(500,500)
 
     ren = vtk.vtkRenderer()
     ren.SetBackground(0,0,0)
     ren.SetBackground2(1,1,1)
     ren.SetGradientBackground(1)
-    win2 = vtk.vtkRenderWindow()
+    win2 = vtk.vtkGenericOpenGLRenderWindow()
     win2.AddRenderer(ren)
     w2.SetRenderWindow(win2)
 
@@ -33,7 +33,6 @@ class TestQVTKWidget(Testing.vtkTest):
     w2.show()
     if Testing.isInteractive():
       PyQt4.QtGui.qApp.exec_()
-
 
 if __name__ == "__main__":
   app = PyQt4.QtGui.QApplication(sys.argv)

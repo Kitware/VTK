@@ -358,9 +358,14 @@ if(VTK_WRAP_PYTHON_SIP)
   # list .sip files here for wrapping
   set(SIP_FILES
     QVTKWidget.sip
-    QVTKWidget2.sip
     QVTKInteractor.sip
     )
+  if(VTK_USE_QVTK_QTOPENGL)
+    set(SIP_FILES
+      ${SIP_FILES}
+      QVTKWidget2.sip
+      )
+  endif(VTK_USE_QVTK_QTOPENGL)
 
   set(SIP_MODULE QVTKPython)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in
