@@ -37,7 +37,7 @@
 #ifndef __vtkDecimatePolylineFilter_h
 #define __vtkDecimatePolylineFilter_h
 
-#include <vtkSmartPointer.h>
+#include "vtkSmartPointer.h" // Needed for SP ivars
 
 #include "vtkPolyDataAlgorithm.h"
 
