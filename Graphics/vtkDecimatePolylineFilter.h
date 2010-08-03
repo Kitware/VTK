@@ -40,7 +40,6 @@
 #include <vtkSmartPointer.h>
 
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkstd/map"
 
 class vtkPriorityQueue;
 
@@ -76,10 +75,12 @@ protected:
   int GetPrev( int iId );
   int GetNext( int iId );
 
-  bool Closed;
-  double TargetReduction;
-  vtkstd::map< int, double > VertexErrorMap;
-  vtkSmartPointer< vtkPriorityQueue > PriorityQueue;
+  struct    vtkDecimatePolylineVertexErrorSTLMap;
+  vtkDecimatePolylineVertexErrorSTLMap*  ErrorMap;
+
+  vtkSmartPointer< vtkPriorityQueue >   PriorityQueue;
+  bool                                  Closed;
+  double                                TargetReduction;
 
 private:
   vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&);  // Not implemented.

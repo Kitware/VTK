@@ -29,6 +29,13 @@
 #include "vtkPriorityQueue.h"
 #include <vtkstd/vector>
 #include <vtkstd/queue>
+#include <vtkstd/map>
+
+struct vtkDecimatePolylineFilter::vtkDecimatePolylineVertexErrorSTLMap
+{
+  vtkstd::map< int, double > VertexErrorMap;
+};
+
 
 vtkStandardNewMacro(vtkDecimatePolylineFilter);
 
@@ -39,11 +46,13 @@ vtkDecimatePolylineFilter::vtkDecimatePolylineFilter()
   this->TargetReduction = 0.90;
   this->Closed = true;
   this->PriorityQueue = vtkSmartPointer< vtkPriorityQueue >::New();
+  this->ErrorMap = new vtkDecimatePolylineVertexErrorSTLMap;
 }
 
 //---------------------------------------------------------------------
 vtkDecimatePolylineFilter::~vtkDecimatePolylineFilter()
 {
+  delete this->ErrorMap;
 }
 
 //---------------------------------------------------------------------
@@ -118,13 +127,13 @@ int vtkDecimatePolylineFilter::RequestData(
 
   for ( i = 0; i < numPts; ++i )
     {
-    this->VertexErrorMap[i] = 0.;
+    this->ErrorMap->VertexErrorMap[i] = 0.;
     }
 
   for ( i = 0; i < numPts; ++i )
     {
     error = ComputeError( input, GetPrev(i), i, GetNext(i) );
-    this->VertexErrorMap[i] = error;
+    this->ErrorMap->VertexErrorMap[i] = error;
     this->PriorityQueue->Insert( error, i );
     }//for all points in polyline
 
@@ -139,26 +148,27 @@ int vtkDecimatePolylineFilter::RequestData(
     i = this->PriorityQueue->Pop( );
     --currentNumPts;
     UpdateError( input, i );
-    this->VertexErrorMap.erase( i );
+    this->ErrorMap->VertexErrorMap.erase( i );
     }
 
   // What's left over is now spit out as a new polyline
   newId = newLines->InsertNextCell( currentNumPts + 1);
   outCD->CopyData( inCD, cellId, newId );
 
-  for( std::map< int, double >::iterator it = this->VertexErrorMap.begin();
-       it != this->VertexErrorMap.end();
-      ++it )
+  std::map< int, double >::iterator it = this->ErrorMap->VertexErrorMap.begin();
+
+  while( it != this->ErrorMap->VertexErrorMap.end() )
     {
     newId = newPts->InsertNextPoint( inputPoints->GetPoint( it->first ) );
     newLines->InsertCellPoint( newId );
     outPD->CopyData( inPD, it->first, newId );
+    ++it;
     }
   if( this->Closed )
     {
     newId = newPts->InsertNextPoint( newPts->GetPoint( 0 ) );
     newLines->InsertCellPoint( 0 );
-    outPD->CopyData( inPD, this->VertexErrorMap.begin()->first, newId );
+    outPD->CopyData( inPD, this->ErrorMap->VertexErrorMap.begin()->first, newId );
     }
 
   // Clean up in preparation for the next line
@@ -176,13 +186,13 @@ int vtkDecimatePolylineFilter::RequestData(
 //---------------------------------------------------------------------
 int vtkDecimatePolylineFilter::GetPrev( int iId )
 {
-  std::map< int, double >::iterator it = this->VertexErrorMap.find( iId );
+  vtkstd::map< int, double >::iterator it = this->ErrorMap->VertexErrorMap.find( iId );
 
-  if( it == this->VertexErrorMap.begin() )
+  if( it == this->ErrorMap->VertexErrorMap.begin() )
     {
     if( this->Closed )
       {
-      it = this->VertexErrorMap.end();
+      it = this->ErrorMap->VertexErrorMap.end();
       --it;
       return it->first;
       }
@@ -200,14 +210,16 @@ int vtkDecimatePolylineFilter::GetPrev( int iId )
 //---------------------------------------------------------------------
 int vtkDecimatePolylineFilter::GetNext( int iId )
 {
-  std::map< int, double >::iterator it = this->VertexErrorMap.find( iId );
-  std::map< int, double >::iterator end_it = this->VertexErrorMap.end();
+  vtkstd::map< int, double >::iterator
+    it = this->ErrorMap->VertexErrorMap.find( iId );
+  vtkstd::map< int, double >::iterator
+    end_it = this->ErrorMap->VertexErrorMap.end();
   --end_it;
   if( it == end_it )
     {
     if( this->Closed )
       {
-      return this->VertexErrorMap.begin()->first;
+      return this->ErrorMap->VertexErrorMap.begin()->first;
       }
     else
       {
@@ -229,12 +241,12 @@ void vtkDecimatePolylineFilter::UpdateError( vtkPolyData* input, int iId )
   int next_next = GetNext( next );
 
   double prev_error = ComputeError( input, prev_prev, prev, next );
-  this->VertexErrorMap[prev] = prev_error;
+  this->ErrorMap->VertexErrorMap[prev] = prev_error;
   this->PriorityQueue->DeleteId( prev );
   this->PriorityQueue->Insert( prev_error, prev );
 
   double next_error = ComputeError( input, prev, next, next_next );
-  this->VertexErrorMap[next] = next_error;
+  this->ErrorMap->VertexErrorMap[next] = next_error;
   this->PriorityQueue->DeleteId( next );
   this->PriorityQueue->Insert( next_error, next );
 }
