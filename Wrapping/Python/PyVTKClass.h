@@ -44,11 +44,12 @@ struct PyVTKClass {
   vtknewfunc vtk_new;
 };
 
+extern VTK_PYTHON_EXPORT PyTypeObject PyVTKClass_Type;
+
+#define PyVTKClass_Check(obj) ((obj)->ob_type == &PyVTKClass_Type)
+
 extern "C"
 {
-VTK_PYTHON_EXPORT
-int PyVTKClass_Check(PyObject *obj);
-
 VTK_PYTHON_EXPORT
 PyObject *PyVTKClass_GetDict(PyObject *obj);
 

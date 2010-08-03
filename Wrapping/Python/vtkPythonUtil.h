@@ -109,8 +109,8 @@ public:
   // Add a special VTK type to the type lookup table, this allows us to
   // later create object given only the class name.
   static PyVTKSpecialType *AddSpecialTypeToMap(
-    const char *classname, const char *docstring[], PyMethodDef *methods,
-    PyMethodDef *constructors, PyVTKSpecialMethods *smethods);
+    PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
+    const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
 
   // Description:
   // Get information about a special VTK type, given the type name.
@@ -118,21 +118,14 @@ public:
 
   // Description:
   // Given a PyObject, convert it into a "result_type" object, where
-  // "result_type" must have been wrapped.  The C object is returned
-  // as a void *, while the python object is returned in "newobj" unless
-  // the original object was already of the correct type, in which case
-  // newobj is set to NULL.  If a python exception was raised, NULL will be
-  // returned.
+  // "result_type" must be a wrapped type.  The C object is returned
+  // as a void *, which must be cast to a pointer of the desired type.
+  // If conversion was necessary, then the created python object is
+  // returned in "newobj", but if the original python object was
+  // already of the correct type, then "newobj" will be set to NULL.
+  // If a python exception was raised, NULL will be returned.
   static void *GetPointerFromSpecialObject(
     PyObject *obj, const char *result_type, PyObject **newobj);
-
-  // Description:
-  // Convert a pointer to an object of special wrapped type "class_type"
-  // into a PyObject of that type.  If the given pointer is NULL, then
-  // Py_None will be returned with no error.  If the given pointer is
-  // of the wrong type, expect fireworks.
-  static PyObject *GetSpecialObjectFromPointer(const void *ptr,
-    const char *class_type);
 
   // Description:
   // Utility function to build a docstring by concatenating a series
@@ -200,14 +193,20 @@ extern VTK_PYTHON_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 #if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
+#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
+  0, 0,
 #elif   PY_VERSION_HEX >= 0x02030000
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,
+#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
+  0,
 #elif PY_VERSION_HEX >= 0x02020000
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
+#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 #else
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
+#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 #endif
 
 #if PY_VERSION_HEX < 0x02050000

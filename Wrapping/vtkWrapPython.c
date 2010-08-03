@@ -61,6 +61,9 @@ static void vtkWrapPython_ReturnValue(
 static void vtkWrapPython_ReturnHintedValue(
   FILE *fp, FunctionInfo *currentFunction);
 
+/* write out a python type object */
+static void vtkWrapPython_GenerateSpecialType(
+  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
@@ -105,6 +108,15 @@ static const char *vtkWrapPython_FormatSignature(
 /* return a python-ized signature */
 static const char *vtkWrapPython_PythonSignature(
   FunctionInfo *currentFunction);
+
+/* -------------------------------------------------------------------- */
+/* A struct for special types to store info about the type, it is fairly
+ * small because not many operators or special features are wrapped */
+typedef struct _SpecialTypeInfo
+{
+  int has_print;    /* there is "<<" stream operator */
+  int has_compare;  /* there are comparison operators e.g. "<" */
+} SpecialTypeInfo;
 
 /* -------------------------------------------------------------------- */
 /* Use the hints in the hints file to get the tuple size to use when
@@ -183,7 +195,7 @@ static void vtkWrapPython_ReturnHintedValue(
 
     for (i = 0; i < currentFunction->HintSize; i++)
       {
-      fprintf(fp, ",temp%i[%d]",MAX_ARGS,i);
+      fprintf(fp, ",temp%i[%d]", MAX_ARGS, i);
       }
     fprintf(fp, ");\n"
             "      }\n"
@@ -456,8 +468,8 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_OBJECT_REF:
       {
       fprintf(fp,
-              "    result = vtkPythonUtil::GetSpecialObjectFromPointer(temp%i, \"%s\");\n",
-              MAX_ARGS, currentFunction->ReturnClass);
+              "    result = PyVTKSpecialObject_CopyNew(\"%s\", temp%i);\n",
+              currentFunction->ReturnClass, MAX_ARGS);
       break;
       }
 
@@ -465,8 +477,8 @@ static void vtkWrapPython_ReturnValue(
     case VTK_PARSE_OBJECT:
       {
       fprintf(fp,
-              "    result = vtkPythonUtil::GetSpecialObjectFromPointer(&temp%i, \"%s\");\n",
-              MAX_ARGS, currentFunction->ReturnClass);
+              "    result = PyVTKSpecialObject_CopyNew(\"%s\", &temp%i);\n",
+              currentFunction->ReturnClass, MAX_ARGS);
       break;
       }
 
@@ -2815,7 +2827,7 @@ static void vtkWrapPython_GenerateMethods(
             }
 
           fprintf(fp,
-                  "  {NULL, (PyCFunction)Py%s_%s%s, 1,\n"
+                  "  {NULL, Py%s_%s%s, 1,\n"
                   "   (char*)\"%s\"},\n",
                   data->Name, wrappedFunctions[occ]->Name,
                   signatureSuffix,
@@ -2930,7 +2942,7 @@ static void vtkWrapPython_GenerateMethods(
         comment, maxlen - strlen(signatures));
 
       fprintf(fp,
-              "  {(char*)\"%s\",                (PyCFunction)Py%s_%s, 1,\n",
+              "  {(char*)\"%s\", Py%s_%s, 1,\n",
               wrappedFunctions[fnum]->Name, data->Name,
               wrappedFunctions[fnum]->Name);
 
@@ -2949,7 +2961,7 @@ static void vtkWrapPython_GenerateMethods(
   if (strcmp("vtkObject", data->Name) == 0)
     {
     fprintf(fp,
-            "  {(char*)\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n"
+            "  {(char*)\"AddObserver\",  Py%s_AddObserver, 1,\n"
             "   (char*)\"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char *event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
             data->Name);
     }
@@ -2958,9 +2970,9 @@ static void vtkWrapPython_GenerateMethods(
   else if (strcmp("vtkObjectBase", data->Name) == 0)
     {
     fprintf(fp,
-            "  {(char*)\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n"
+            "  {(char*)\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
             "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n"
-            "  {(char*)\"PrintRevisions\",  (PyCFunction)Py%s_PrintRevisions, 1,\n"
+            "  {(char*)\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
             "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
             data->Name, data->Name);
     }
@@ -3673,55 +3685,51 @@ static void vtkWrapPython_GenerateObjectNew(
 
 /* -------------------------------------------------------------------- */
 /* generate extra functions for a special object */
-static void vtkWrapPython_GenerateSpecialObjectNew(
-  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
+static void vtkWrapPython_SpecialObjectProtocols(
+  FILE *fp, ClassInfo *data, FileInfo *finfo, SpecialTypeInfo *info)
 {
   static const char *compare_consts[6] = {
     "Py_LT", "Py_LE", "Py_EQ", "Py_NE", "Py_GT", "Py_GE" };
   static const char *compare_tokens[6] = {
     "<", "<=", "==", "!=", ">", ">=" };
   int compare_ops = 0;
-  int has_hash = 0;
-  int has_print = 0;
   int i;
   FunctionInfo *func;
 
-  /* handle all constructors */
-  vtkWrapPython_GenerateMethods(fp, data, hinfo, 0, 1);
+  /* clear all info about the type */
+  info->has_print = 0;
+  info->has_compare = 0;
 
-  /* the method table for the New method */
+  /* the new method for python versions >= 2.2 */
   fprintf(fp,
-          "static PyMethodDef Py%sNewMethod = \\\n"
-          "{ (char*)\"%s\",  (PyCFunction)Py%s_%s, 1,\n"
-          "  (char*)\"\" };\n"
-          "\n",
-          data->Name, data->Name, data->Name,
-          data->Name);
+    "#if PY_VERSION_HEX >= 0x02020000\n"
+    "static PyObject *Py%s_New(PyTypeObject *,"
+    "  PyObject *args, PyObject *)\n"
+    "{\n"
+    "  PyMethodDef *methods = Py%s_%sMethods;\n"
+    "  return vtkPythonUtil::CallOverloadedMethod(methods, NULL, args);\n"
+    "}\n"
+    "#endif\n"
+    "\n",
+    data->Name, data->Name, data->Name);
 
-  /* the copy constructor */
+  /* the delete method */
   fprintf(fp,
-         "static void *vtkSpecial_%sCopy(const void *obj)\n"
-          "{\n"
-          "  if (obj)\n"
-          "    {\n"
-          "    return new %s(*static_cast<const %s*>(obj));\n"
-          "    }\n"
-          "  return 0;\n"
-          "}\n"
-          "\n",
-          data->Name, data->Name, data->Name);
-
-  /* the destructor */
-  fprintf(fp,
-          "static void vtkSpecial_%sDelete(void *obj)\n"
-          "{\n"
-          "  if (obj)\n"
-          "    {\n"
-          "    delete static_cast<%s *>(obj);\n"
-          "    }\n"
-          "}\n"
-          "\n",
-          data->Name, data->Name);
+    "static void Py%s_Delete(PyObject *self)\n"
+    "{\n"
+    "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
+    "  if (obj->vtk_ptr)\n"
+    "    {\n"
+    "    delete static_cast<%s *>(obj->vtk_ptr);\n"
+    "    }\n"
+    "#if PY_MAJOR_VERSION >= 2\n"
+    "  PyObject_Del(self);\n"
+    "#else\n"
+    "  PyMem_DEL(self);\n"
+    "#endif\n"
+    "}\n"
+    "\n",
+    data->Name, data->Name);
 
   /* look in the file for "operator<<" for printing */
   for (i = 0; i < finfo->Contents->NumberOfFunctions; i++)
@@ -3738,22 +3746,47 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
           (func->ArgTypes[1] & VTK_PARSE_POINTER_MASK) == 0 &&
           strcmp(func->ArgClasses[1], data->Name) == 0)
         {
-        has_print = 1;
+        info->has_print = 1;
         }
       }
     }
 
-  /* the printer */
+  /* the repr function */
   fprintf(fp,
-          "static void vtkSpecial_%sPrint(ostream &os, const void *obj)\n"
-          "{\n"
-          "  if (obj)\n"
-          "    {\n"
-          "    os << %sstatic_cast<const %s *>(obj);\n"
-          "    }\n"
-          "}\n"
-          "\n",
-          data->Name, (has_print ? "*" : ""), data->Name);
+    "static PyObject *Py%s_Repr(PyObject *self)\n"
+    "{\n"
+    "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
+    "  vtksys_ios::ostringstream os;\n"
+    "  const char *name = self->ob_type->tp_name;\n"
+    "  os << \"(\" << name << \")\";\n"
+    "  if (obj->vtk_ptr)\n"
+    "    {\n"
+    "    os << %sstatic_cast<const %s *>(obj->vtk_ptr);\n"
+    "    }\n"
+    "  const vtksys_stl::string &s = os.str();\n"
+    "  return PyString_FromStringAndSize(s.data(), s.size());\n"
+    "}\n"
+    "\n",
+    data->Name, (info->has_print ? "*" : ""), data->Name);
+
+  /* the str function */
+  if (info->has_print)
+    {
+    fprintf(fp,
+      "static PyObject *Py%s_String(PyObject *self)\n"
+      "{\n"
+      "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
+      "  vtksys_ios::ostringstream os;\n"
+      "  if (obj->vtk_ptr)\n"
+      "    {\n"
+      "    os << *static_cast<const %s *>(obj->vtk_ptr);\n"
+      "    }\n"
+      "  const vtksys_stl::string &s = os.str();\n"
+      "  return PyString_FromStringAndSize(s.data(), s.size());\n"
+      "}\n"
+      "\n",
+      data->Name, data->Name);
+    }
 
   /* look for comparison operator methods */
   compare_ops = 0;
@@ -3764,27 +3797,27 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
       {
       if (strcmp(func->Name, "operator<") == 0)
         {
-        compare_ops = (compare_ops | (1 << Py_LT));
+        compare_ops = (compare_ops | (1 << 0));
         }
       else if (strcmp(func->Name, "operator<=") == 0)
         {
-        compare_ops = (compare_ops | (1 << Py_LE));
+        compare_ops = (compare_ops | (1 << 1));
         }
       else if (strcmp(func->Name, "operator==") == 0)
         {
-        compare_ops = (compare_ops | (1 << Py_EQ));
+        compare_ops = (compare_ops | (1 << 2));
         }
       else if (strcmp(func->Name, "operator!=") == 0)
         {
-        compare_ops = (compare_ops | (1 << Py_NE));
+        compare_ops = (compare_ops | (1 << 3));
         }
       else if (strcmp(func->Name, "operator>") == 0)
         {
-        compare_ops = (compare_ops | (1 << Py_GT));
+        compare_ops = (compare_ops | (1 << 4));
         }
       else if (strcmp(func->Name, "operator>=") == 0)
         {
-        compare_ops = (compare_ops | (1 << Py_GE));
+        compare_ops = (compare_ops | (1 << 5));
         }
       }
     }
@@ -3792,119 +3825,325 @@ static void vtkWrapPython_GenerateSpecialObjectNew(
   /* the compare function */
   if (compare_ops != 0)
     {
-    fprintf(fp,
-            "static int vtkSpecial_%sCompare(const void *o1, const void *o2, int opid)\n"
-            "{\n"
-            "  const %s &so1 = *static_cast<const %s *>(o1);\n"
-            "  const %s &so2 = *static_cast<const %s *>(o2);\n"
-            "  switch (opid)\n"
-            "    {\n",
-            data->Name, data->Name, data->Name,
-            data->Name, data->Name);
+    info->has_compare = 1;
 
-    for (i = Py_LT; i <= Py_GE; i++)
+    fprintf(fp,
+      "#if PY_VERSION_HEX >= 0x02010000\n"
+      "static PyObject *Py%s_RichCompare(\n"
+      "  PyObject *o1, PyObject *o2, int opid)\n"
+      "{\n"
+      "  PyObject *n1 = NULL;\n"
+      "  PyObject *n2 = NULL;\n"
+      "  const %s *so1 = NULL;\n"
+      "  const %s *so2 = NULL;\n"
+      "  int result = -1;\n"
+      "\n",
+      data->Name, data->Name, data->Name);
+
+    for (i = 1; i <= 2; i++)
+      {
+      /* use GetPointerFromSpecialObject to do type conversion, but
+       * at least one of the args will already be the correct type */
+      fprintf(fp,
+        "  if (o%d->ob_type == &Py%s_Type)\n"
+        "    {\n"
+        "    PyVTKSpecialObject *s%d = (PyVTKSpecialObject *)o%d;\n"
+        "    so%d = static_cast<const %s *>(s%d->vtk_ptr);\n"
+        "    }\n"
+        "  else\n"
+        "    {\n"
+        "    so%d = static_cast<const %s *>(\n"
+        "      vtkPythonUtil::GetPointerFromSpecialObject(\n"
+        "        o%d, \"%s\", &n%d));\n"
+        "    if (so%d == NULL)\n"
+        "      {\n"
+        "      PyErr_Clear();\n"
+        "      Py_INCREF(Py_NotImplemented);\n"
+        "      return Py_NotImplemented;\n"
+        "      }\n"
+        "    }\n"
+        "\n",
+        i, data->Name, i, i, i, data->Name, i, i, data->Name,
+        i, data->Name, i, i);
+      }
+
+    /* the switch statement for all possible compare ops */
+    fprintf(fp,
+      "  switch (opid)\n"
+      "    {\n");
+
+    for (i = 0; i < 6; i++)
       {
       if ( ((compare_ops >> i) & 1) != 0 )
         {
         fprintf(fp,
           "    case %s:\n"
-          "      return (so1 %s so2);\n",
-          compare_consts[i-Py_LT], compare_tokens[i-Py_LT]);
+          "      result = ((*so1) %s (*so2));\n"
+          "      break;\n",
+          compare_consts[i], compare_tokens[i]);
+        }
+      else
+        {
+        fprintf(fp,
+          "    case %s:\n"
+          "      break;\n",
+          compare_consts[i]);
         }
       }
 
     fprintf(fp,
-          "  }"
-          "  return -1;\n"
-          "}\n"
-          "\n");
+      "    }\n"
+      "\n");
+
+    /* delete temporary objects, there will be at most one */
+    fprintf(fp,
+      "  if (n1)\n"
+      "    {\n"
+      "    Py_DECREF(n1);\n"
+      "    }\n"
+      "  else if (n2)\n"
+      "    {\n"
+      "    Py_DECREF(n2);\n"
+      "    }\n"
+      "\n");
+
+    /* return the result */
+    fprintf(fp,
+      "  if (result == 0)\n"
+      "    {\n"
+      "    Py_INCREF(Py_False);\n"
+      "    return Py_False;\n"
+      "    }\n"
+      "  else if (result != -1)\n"
+      "    {\n"
+      "    Py_INCREF(Py_True);\n"
+      "    return Py_True;\n"
+      "    }\n"
+      "\n"
+      "  PyErr_SetString(PyExc_TypeError, (char *)\"operation not available\");\n"
+      "  return NULL;\n"
+      "}\n"
+      "#endif\n"
+      "\n");
     }
 
-  /* the hash function for vtkTimeStamp */
+  /* the hash function, defined only for specific types */
+  fprintf(fp,
+    "static long Py%s_Hash(PyObject *self)\n",
+    data->Name);
+
   if (strcmp(data->Name, "vtkTimeStamp") == 0)
     {
-    has_hash = 1;
-
+    /* hash for vtkTimeStamp is just the timestamp itself */
     fprintf(fp,
-            "static long vtkSpecial_%sHash(const void *self, int *immutable)\n"
-            "{\n"
-            "  unsigned long mtime = *(static_cast<const vtkTimeStamp *>(self));\n"
-            "  long h = (long)mtime;\n"
-            "  *immutable = 0;\n"
-            "  if (h != -1) { return h; };\n"
-            "  return -1;\n"
-            "}\n"
-            "\n",
-            data->Name);
+      "{\n"
+      "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
+      "  const vtkTimeStamp *op = static_cast<const vtkTimeStamp *>(obj->vtk_ptr);\n"
+      "  unsigned long mtime = *op;\n"
+      "  long h = (long)mtime;\n"
+      "  if (h != -1) { return h; }\n"
+      "  return -2;\n"
+      "}\n"
+      "\n");
     }
-
-  /* the hash function for vtkVariant */
-  if (strcmp(data->Name, "vtkVariant") == 0)
+  else if (strcmp(data->Name, "vtkVariant") == 0)
     {
-    has_hash = 1;
-
+    /* hash for vtkVariant is cached to avoid recomputation, this is
+     * safe because vtkVariant is an immutable object, and is necessary
+     * because computing the hash for vtkVariant is very expensive */
     fprintf(fp,
-            "static long vtkSpecial_%sHash(const void *self, int *immutable)\n"
-            "{\n"
-            "  long h = vtkPythonUtil::VariantHash(static_cast<const vtkVariant *>(self));\n"
-            "  *immutable = 1;\n"
-            "  return h;\n"
-            "}\n"
-            "\n",
-            data->Name);
+      "{\n"
+      "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
+      "  const vtkVariant *op = static_cast<const vtkVariant *>(obj->vtk_ptr);\n"
+      "  long h = obj->vtk_hash;\n"
+      "  if (h != -1)\n"
+      "    {\n"
+      "    return h;\n"
+      "    }\n"
+      "  h = vtkPythonUtil::VariantHash(op);\n"
+      "  obj->vtk_hash = h;\n"
+      "  return h;\n"
+      "}\n"
+      "\n");
     }
+  else
+    {
+    /* if hash is not implemented, raise an exception */
+    fprintf(fp,
+      "{\n"
+      "#if PY_VERSION_HEX >= 0x020600B2\n"
+      "  return PyObject_HashNotImplemented(self);\n"
+      "#else\n"
+      "  char text[256];\n"
+      "  sprintf(text, \"object of type %%s is not hashable\", self->ob_type->tp_name);\n"
+      "  PyErr_SetString(PyExc_TypeError, text);\n"
+      "  return -1;\n"
+      "#endif\n"
+      "}\n"
+      "\n");
+    }
+}
 
-  /* the table to hold these special methods */
+/* -------------------------------------------------------------------- */
+/* write out a special type object */
+static void vtkWrapPython_GenerateSpecialType(
+  FILE *fp, ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
+{
+  SpecialTypeInfo info;
+
+  /* forward declaration of the type object */
   fprintf(fp,
-            "static PyVTKSpecialMethods vtkSpecial_%sSpecialMethods =\n"
-            "{\n"
-            "  &vtkSpecial_%sCopy,\n"
-            "  &vtkSpecial_%sDelete,\n"
-            "  &vtkSpecial_%sPrint,\n",
-            data->Name, data->Name, data->Name,
-            data->Name);
+    "extern PyTypeObject Py%s_Type;\n"
+    "\n",
+    data->Name);
 
-  if (compare_ops != 0)
+  /* generate all constructor methods */
+  vtkWrapPython_GenerateMethods(fp, data, hinfo, 0, 1);
+
+  /* generate the method table for the New method */
+  fprintf(fp,
+    "static PyMethodDef Py%sNewMethod = \\\n"
+    "{ (char*)\"%s\", Py%s_%s, 1,\n"
+    "  (char*)\"\" };\n"
+    "\n",
+    data->Name, data->Name, data->Name,
+    data->Name);
+
+  /* generate all functions and protocols needed for the type */
+  vtkWrapPython_SpecialObjectProtocols(fp, data, finfo, &info);
+
+  /* Generate the TypeObject */
+  fprintf(fp,
+    "PyTypeObject Py%s_Type = {\n"
+    "  PyObject_HEAD_INIT(&PyType_Type)\n"
+    "  0,\n"
+    "  (char*)\"%s\", // tp_name\n"
+    "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
+    "  0, // tp_itemsize\n"
+    "  Py%s_Delete, // tp_dealloc\n"
+    "  0, // tp_print\n"
+    "  0, // tp_getattr\n"
+    "  0, // tp_setattr\n"
+    "  0, // tp_compare\n"
+    "  Py%s_Repr, // tp_repr\n",
+    data->Name, data->Name, data->Name, data->Name);
+
+  fprintf(fp,
+    "  0, // tp_as_number\n"
+    "  0, // tp_as_sequence\n"
+    "  0, // tp_as_mapping\n"
+    "  Py%s_Hash, // tp_hash\n"
+    "  0, // tp_call\n",
+    data->Name);
+
+  if (info.has_print)
     {
     fprintf(fp,
-            "  &vtkSpecial_%sCompare,\n",
-            data->Name);
+      "  Py%s_String, // tp_str\n",
+      data->Name);
     }
   else
     {
     fprintf(fp,
-            "  0,\n");
+      "  0, // tp_str\n");
     }
 
-  if (has_hash)
+  fprintf(fp,
+    "#if PY_VERSION_HEX >= 0x02020000\n"
+    "  PyObject_GenericGetAttr, // tp_getattro\n"
+    "#else\n"
+    "  PyVTKSpecialObject_GetAttr, // tp_getattro\n"
+    "#endif\n"
+    "  0, // tp_setattro\n"
+    "  0, // tp_as_buffer\n"
+    "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
+    "  0, // tp_doc\n"
+    "  0, // tp_traverse\n"
+    "  0, // tp_clear\n");
+
+  if (info.has_compare)
     {
     fprintf(fp,
-            "  &vtkSpecial_%sHash,\n",
-            data->Name);
+      "#if PY_VERSION_HEX >= 0x02010000\n"
+      "  Py%s_RichCompare, // tp_richcompare\n"
+      "#else\n"
+      "  0, // tp_richcompare\n"
+      "#endif\n",
+      data->Name);
     }
   else
     {
     fprintf(fp,
-            "  0,\n");
+      "  0, // tp_richcompare\n");
     }
 
   fprintf(fp,
-          "};\n"
-          "\n");
+    "  0, // tp_weaklistoffset\n"
+    "#if PY_VERSION_HEX >= 0x02020000\n"
+    "  0, // tp_iter\n"
+    "  0, // tp_iternext\n");
 
-  /* the exported New method */
+  /* class methods introduced in python 2.2 */
   fprintf(fp,
-          "PyObject *PyVTKClass_%sNew(const char *)\n"
-          "{\n"
-          "  return PyVTKSpecialType_New(\n"
-          "      &Py%sNewMethod, Py%sMethods, Py%s_%sMethods,\n"
-          "      \"%s\", %sDoc(),\n"
-          "      &vtkSpecial_%sSpecialMethods);\n"
-          "}\n"
-          "\n",
-          data->Name, data->Name, data->Name,
-          data->Name, data->Name, data->Name,
-          data->Name, data->Name);
+    "  Py%sMethods, // tp_methods\n"
+    "  0, // tp_members\n"
+    "  0, // tp_getset\n"
+    "  &PyVTKSpecialObject_Type, // tp_base\n"
+    "  0, // tp_dict\n"
+    "  0, // tp_descr_get\n"
+    "  0, // tp_descr_set\n"
+    "  0, // tp_dictoffset\n"
+    "  0, // tp_init\n"
+    "  0, // tp_alloc\n"
+    "  Py%s_New, // tp_new\n"
+    "  _PyObject_Del, // tp_free\n"
+    "  0, // tp_is_gc\n",
+    data->Name, data->Name);
+
+  /* fields set by python itself */
+  fprintf(fp,
+    "  0, // tp_bases\n"
+    "  0, // tp_mro\n"
+    "  0, // tp_cache\n"
+    "  0, // tp_subclasses\n"
+    "  0, // tp_weaklist\n"
+    "#endif\n");
+
+  /* internal struct members */
+  fprintf(fp,
+    "  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED\n"
+    "};\n"
+    "\n");
+
+  /* generate the copy constructor helper function */
+  fprintf(fp,
+    "static void *%s_Copy(const void *obj)\n"
+    "{\n"
+    "  if (obj)\n"
+    "    {\n"
+    "    return new %s(*static_cast<const %s*>(obj));\n"
+    "    }\n"
+    "  return 0;\n"
+    "}\n"
+    "\n",
+    data->Name, data->Name, data->Name);
+
+  /* the method for adding the VTK extras to the type,
+   * the unused "const char *" arg is the module name */
+  fprintf(fp,
+    "static PyObject *Py%s_TypeNew(const char *)\n"
+    "{\n"
+    "  return PyVTKSpecialType_New(\n"
+    "    &Py%s_Type,\n"
+    "    Py%sMethods,\n"
+    "    Py%s_%sMethods,\n"
+    "    &Py%sNewMethod,\n"
+    "    %sDoc(), &%s_Copy);\n"
+    "}\n"
+    "\n",
+    data->Name, data->Name, data->Name,
+    data->Name, data->Name, data->Name,
+    data->Name, data->Name);
 }
 
 
@@ -4049,7 +4288,6 @@ void vtkWrapPython_AddConstant(
     }
 }
 
-
 /* -------------------------------------------------------------------- */
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
@@ -4061,6 +4299,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   OptionInfo *options;
   HierarchyInfo *hinfo = 0;
   int class_has_new = 0;
+  int has_constants = 0;
   int is_vtkobject = 1;
   int i;
 
@@ -4141,20 +4380,29 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,
           "#if defined(WIN32)\n"
           "extern \"C\" { __declspec( dllexport ) void PyVTKAddFile_%s(PyObject *, const char *); }\n"
-          "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
           "#else\n"
           "extern \"C\" { void PyVTKAddFile_%s(PyObject *, const char *); }\n"
-          "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
-          "#endif\n"
-          "\n",
-          data->Name, data->Name, data->Name, data->Name);
+          "#endif\n",
+          data->Name, data->Name);
 
-  /* bring in all the superclasses */
-  for (i = 0; i < data->NumberOfSuperClasses; i++)
+  if (is_vtkobject)
     {
     fprintf(fp,
-           "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
-            data->SuperClasses[i]);
+            "#if defined(WIN32)\n"
+            "extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(const char *); }\n"
+            "#else\n"
+            "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
+            "#endif\n"
+            "\n",
+            data->Name, data->Name);
+
+    /* bring in all the superclasses */
+    for (i = 0; i < data->NumberOfSuperClasses; i++)
+      {
+      fprintf(fp,
+             "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
+              data->SuperClasses[i]);
+      }
     }
 
   /* prototype for the docstring function */
@@ -4190,19 +4438,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   /* output the class initilization function for special objects */
   else if (!data->IsAbstract)
     {
-    vtkWrapPython_GenerateSpecialObjectNew(fp, data, file_info, hinfo);
-    }
-
-  /* the New method for un-wrappable classes returns "NULL" */
-  else
-    {
-    fprintf(fp,
-            "PyObject *PyVTKClass_%sNew(const char *)\n"
-            "{\n"
-            "  return NULL;\n"
-            "}\n"
-            "\n",
-            data->Name);
+    vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
     }
 
   /* The function for adding everything to the module dict */
@@ -4210,18 +4446,20 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "void PyVTKAddFile_%s(\n"
           "  PyObject *dict, const char *modulename)\n"
           "{\n"
-          "  PyObject *o;\n"
-          "  o = PyVTKClass_%sNew(modulename);\n"
-          "\n"
-          "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
-          "    {\n"
-          "    Py_DECREF(o);\n"
-          "    }\n",
-          data->Name, data->Name, data->Name);
+          "  PyObject *o;\n",
+          data->Name);
 
   if (is_vtkobject)
     {
-    int has_constants = 0;
+    fprintf(fp,
+            "  o = PyVTKClass_%sNew(modulename);\n"
+            "\n"
+            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "    {\n"
+            "    Py_DECREF(o);\n"
+            "    }\n",
+            data->Name, data->Name);
+
     for (i = 0; i < data->NumberOfConstants; i++)
       {
       if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
@@ -4253,6 +4491,17 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
               "    }\n"
               "\n");
       }
+    }
+  else /* not is_vtkobject */
+    {
+    fprintf(fp,
+            "  o = Py%s_TypeNew(modulename);\n"
+            "\n"
+            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "    {\n"
+            "    Py_DECREF(o);\n"
+            "    }\n",
+            data->Name, data->Name);
     }
 
   /* add any constants defined in the file */

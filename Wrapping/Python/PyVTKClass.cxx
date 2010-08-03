@@ -32,8 +32,9 @@
 #include "vtkPythonUtil.h"
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClass_PyString(PyVTKClass *self)
+static PyObject *PyVTKClass_String(PyObject *op)
 {
+  PyVTKClass *self = (PyVTKClass *)op;
   char buf[255];
   sprintf(buf,"%s.%s",
           PyString_AsString(self->vtk_module),
@@ -43,10 +44,11 @@ static PyObject *PyVTKClass_PyString(PyVTKClass *self)
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClass_PyRepr(PyVTKClass *self)
+static PyObject *PyVTKClass_Repr(PyObject *op)
 {
+  PyVTKClass *self = (PyVTKClass *)op;
   char buf[255];
-  sprintf(buf,"<%s %s.%s at %p>",self->ob_type->tp_name,
+  sprintf(buf,"<%s %s.%s at %p>",op->ob_type->tp_name,
           PyString_AsString(self->vtk_module),
           PyString_AsString(self->vtk_name),
           self);
@@ -55,12 +57,12 @@ static PyObject *PyVTKClass_PyRepr(PyVTKClass *self)
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClass_PyCall(PyVTKClass *self, PyObject *arg,
-                                   PyObject *kw)
+static PyObject *PyVTKClass_Call(PyObject *op, PyObject *arg, PyObject *kw)
 {
+  PyVTKClass *self = (PyVTKClass *)op;
   static PyObject *initstr = 0;
 
-  if (((PyVTKClass *)self)->vtk_dict)
+  if (self->vtk_dict)
     {
     if (initstr == 0)
       {
@@ -115,10 +117,10 @@ static PyObject *PyVTKClass_PyCall(PyVTKClass *self, PyObject *arg,
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
+static PyObject *PyVTKClass_GetAttr(PyObject *op, PyObject *attr)
 {
   char *name = PyString_AsString(attr);
-  PyVTKClass *pyclass = self;
+  PyVTKClass *pyclass = (PyVTKClass *)op;
   PyObject *bases;
 
   while (pyclass != NULL)
@@ -145,7 +147,7 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
 
   if (name[0] == '_')
     {
-    pyclass = (PyVTKClass *)self;
+    pyclass = (PyVTKClass *)op;
 
     if (strcmp(name,"__bases__") == 0)
       {
@@ -183,8 +185,10 @@ static PyObject *PyVTKClass_PyGetAttr(PyVTKClass *self, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
-static void PyVTKClass_PyDelete(PyVTKClass *self)
+static void PyVTKClass_Delete(PyObject *op)
 {
+  PyVTKClass *self = (PyVTKClass *)op;
+
   Py_XDECREF(self->vtk_bases);
   Py_XDECREF(self->vtk_dict);
   Py_XDECREF(self->vtk_name);
@@ -196,7 +200,7 @@ static void PyVTKClass_PyDelete(PyVTKClass *self)
   Py_XDECREF(self->vtk_module);
   Py_XDECREF(self->vtk_doc);
 
-#if (PY_MAJOR_VERSION >= 2)
+#if PY_MAJOR_VERSION >= 2
   PyObject_Del(self);
 #else
   PyMem_DEL(self);
@@ -204,8 +208,11 @@ static void PyVTKClass_PyDelete(PyVTKClass *self)
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClassMetaType_GetAttr(PyTypeObject *t, char *name)
+static PyObject *PyVTKClassMetaType_GetAttr(PyObject *op, PyObject *attr)
 {
+  PyTypeObject *t = (PyTypeObject *)op;
+  const char *name = PyString_AsString(attr);
+
   if (strcmp(name, "__name__") == 0)
     {
     return PyString_FromString(t->tp_name);
@@ -229,10 +236,10 @@ static PyObject *PyVTKClassMetaType_GetAttr(PyTypeObject *t, char *name)
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClassMetaType_Repr(PyTypeObject *v)
+static PyObject *PyVTKClassMetaType_Repr(PyObject *op)
 {
   char buf[100];
-  sprintf(buf, "<type '%.80s'>", v->tp_name);
+  sprintf(buf, "<type '%.80s'>", ((PyTypeObject *)op)->tp_name);
   return PyString_FromString(buf);
 }
 
@@ -241,57 +248,57 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *self, PyObject *args,
                                         PyObject *kw);
 
 //--------------------------------------------------------------------
-PyTypeObject PyVTKClassMetaType = {
+static PyTypeObject PyVTKClassMetaType = {
   PyObject_HEAD_INIT(&PyType_Type)
-  0,                        /* Number of items for varobject */
-  (char*)"vtkclass type",   /* Name of this type */
-  sizeof(PyTypeObject),     /* Basic object size */
-  0,                        /* Item size for varobject */
-  0,                        /*tp_dealloc*/
-  0,                        /*tp_print*/
-  (getattrfunc)PyVTKClassMetaType_GetAttr, /*tp_getattr*/
-  0,                        /*tp_setattr*/
-  0,                        /*tp_compare*/
-  (reprfunc)PyVTKClassMetaType_Repr,        /*tp_repr*/
-  0,                        /*tp_as_number*/
-  0,                        /*tp_as_sequence*/
-  0,                        /*tp_as_mapping*/
-  0,                        /*tp_hash*/
-  (ternaryfunc)PyVTKClass_NewSubclass, /*tp_call*/
-  0,                        /*tp_str*/
-  0,                        /*tp_xxx1*/
-  0,                        /*tp_xxx2*/
-  0,                        /*tp_xxx3*/
-  0,                        /*tp_xxx4*/
+  0,
+  (char*)"vtkclass type",                // tp_name
+  sizeof(PyTypeObject),                  // tp_basicsize
+  0,                                     // tp_itemsize
+  0,                                     // tp_dealloc
+  0,                                     // tp_print
+  0,                                     // tp_getattr
+  0,                                     // tp_setattr
+  0,                                     // tp_compare
+  PyVTKClassMetaType_Repr,               // tp_repr
+  0,                                     // tp_as_number
+  0,                                     // tp_as_sequence
+  0,                                     // tp_as_mapping
+  0,                                     // tp_hash
+  PyVTKClass_NewSubclass,                // tp_call
+  0,                                     // tp_string
+  PyVTKClassMetaType_GetAttr,            // tp_getattro
+  0,                                     // tp_setattro
+  0,                                     // tp_as_buffer
+  0,                                     // tp_flags
   (char*)"Define the behavior of a particular type of object.",
-  0,                        // tp_traverse
-  0,                        // tp_clear
-  0,                        // tp_richcompare
-  0,                        // tp_weaklistoffset
+  0,                                     // tp_traverse
+  0,                                     // tp_clear
+  0,                                     // tp_richcompare
+  0,                                     // tp_weaklistoffset
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
 //--------------------------------------------------------------------
-static PyTypeObject PyVTKClassType = {
+PyTypeObject PyVTKClass_Type = {
   PyObject_HEAD_INIT(&PyVTKClassMetaType)
   0,
   (char*)"vtkclass",                     // tp_name
   sizeof(PyVTKClass),                    // tp_basicsize
   0,                                     // tp_itemsize
-  (destructor)PyVTKClass_PyDelete,       // tp_dealloc
-  (printfunc)0,                          // tp_print
-  (getattrfunc)0,                        // tp_getattr
-  (setattrfunc)0,                        // tp_setattr
-  (cmpfunc)0,                            // tp_compare
-  (reprfunc)PyVTKClass_PyRepr,           // tp_repr
+  PyVTKClass_Delete,                     // tp_dealloc
+  0,                                     // tp_print
+  0,                                     // tp_getattr
+  0,                                     // tp_setattr
+  0,                                     // tp_compare
+  PyVTKClass_Repr,                       // tp_repr
   0,                                     // tp_as_number
   0,                                     // tp_as_sequence
   0,                                     // tp_as_mapping
-  (hashfunc)0,                           // tp_hash
-  (ternaryfunc)PyVTKClass_PyCall,        // tp_call
-  (reprfunc)PyVTKClass_PyString,         // tp_string
-  (getattrofunc)PyVTKClass_PyGetAttr,    // tp_getattro
-  (setattrofunc)0,                       // tp_setattro
+  0,                                     // tp_hash
+  PyVTKClass_Call,                       // tp_call
+  PyVTKClass_String,                     // tp_string
+  PyVTKClass_GetAttr,                    // tp_getattro
+  0,                                     // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   (char*)"A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), and __module__ (module that the class is defined in).", // tp_doc
@@ -301,11 +308,6 @@ static PyTypeObject PyVTKClassType = {
   0,                                     // tp_weaklistoffset
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
-
-int PyVTKClass_Check(PyObject *obj)
-{
-  return (obj->ob_type == &PyVTKClassType);
-}
 
 PyObject *PyVTKClass_GetDict(PyObject *obj)
 {
@@ -345,10 +347,10 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
     }
   else
     {
-#if (PY_MAJOR_VERSION >= 2)
-    PyVTKClass *class_self = PyObject_New(PyVTKClass, &PyVTKClassType);
+#if PY_MAJOR_VERSION >= 2
+    PyVTKClass *class_self = PyObject_New(PyVTKClass, &PyVTKClass_Type);
 #else
-    PyVTKClass *class_self = PyObject_NEW(PyVTKClass, &PyVTKClassType);
+    PyVTKClass *class_self = PyObject_NEW(PyVTKClass, &PyVTKClass_Type);
 #endif
     self = (PyObject *)class_self;
 
@@ -450,10 +452,10 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       return NULL;
       }
 
-#if (PY_MAJOR_VERSION >= 2)
-    newclass = PyObject_New(PyVTKClass, &PyVTKClassType);
+#if PY_MAJOR_VERSION >= 2
+    newclass = PyObject_New(PyVTKClass, &PyVTKClass_Type);
 #else
-    newclass = PyObject_NEW(PyVTKClass, &PyVTKClassType);
+    newclass = PyObject_NEW(PyVTKClass, &PyVTKClass_Type);
 #endif
 
     Py_INCREF(bases);

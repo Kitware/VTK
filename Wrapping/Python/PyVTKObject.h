@@ -36,11 +36,12 @@ struct PyVTKObject {
 #endif
 };
 
+extern VTK_PYTHON_EXPORT PyTypeObject PyVTKObject_Type;
+
+#define PyVTKObject_Check(obj) ((obj)->ob_type == &PyVTKObject_Type)
+
 extern "C"
 {
-VTK_PYTHON_EXPORT
-int PyVTKObject_Check(PyObject *obj);
-
 VTK_PYTHON_EXPORT
 PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObjectBase *ptr);
 }

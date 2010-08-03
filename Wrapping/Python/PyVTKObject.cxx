@@ -36,9 +36,9 @@
 #include <vtksys/ios/sstream>
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKObject_PyString(PyVTKObject *self)
+static PyObject *PyVTKObject_String(PyObject *op)
 {
-  PyObject *func = PyObject_GetAttrString((PyObject *)self, (char*)"__str__");
+  PyObject *func = PyObject_GetAttrString(op, (char*)"__str__");
 
   if (func)
     {
@@ -49,16 +49,16 @@ static PyObject *PyVTKObject_PyString(PyVTKObject *self)
   PyErr_Clear();
 
   vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
-  self->vtk_ptr->Print(vtkmsg_with_warning_C4701);
+  ((PyVTKObject *)op)->vtk_ptr->Print(vtkmsg_with_warning_C4701);
   vtkmsg_with_warning_C4701.put('\0');
   PyObject *res = PyString_FromString(vtkmsg_with_warning_C4701.str().c_str());
   return res;
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKObject_PyRepr(PyVTKObject *self)
+static PyObject *PyVTKObject_Repr(PyObject *op)
 {
-  PyObject *func = PyObject_GetAttrString((PyObject *)self, (char*)"__repr__");
+  PyObject *func = PyObject_GetAttrString(op, (char*)"__repr__");
 
   if (func)
     {
@@ -70,15 +70,16 @@ static PyObject *PyVTKObject_PyRepr(PyVTKObject *self)
 
   char buf[255];
   sprintf(buf,"(%s)%p",
-          PyString_AS_STRING(self->vtk_class->vtk_name), self);
+          PyString_AS_STRING(((PyVTKObject *)op)->vtk_class->vtk_name),
+          op);
 
   return PyString_FromString(buf);
 }
 
 //--------------------------------------------------------------------
-int PyVTKObject_PySetAttr(PyVTKObject *self, PyObject *attr,
-                          PyObject *value)
+int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
 {
+  PyVTKObject *self = (PyVTKObject *)op;
   char *name = PyString_AsString(attr);
 
   if (name[0] == '_' && name[1] == '_')
@@ -140,8 +141,9 @@ int PyVTKObject_PySetAttr(PyVTKObject *self, PyObject *attr,
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
+static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 {
+  PyVTKObject *self = (PyVTKObject *)op;
   char *name = PyString_AsString(attr);
   PyVTKClass *pyclass = self->vtk_class;
   PyObject *bases;
@@ -215,7 +217,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
       return value;
       }
 
-    bases = ((PyVTKClass *)pyclass)->vtk_bases;
+    bases = pyclass->vtk_bases;
     pyclass = NULL;
     if (PyTuple_Size(bases))
       {
@@ -238,22 +240,25 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
-static void PyVTKObject_PyDelete(PyVTKObject *self)
+static void PyVTKObject_Delete(PyObject *op)
 {
+  PyVTKObject *self = (PyVTKObject *)op;
+
 #if PY_VERSION_HEX >= 0x02010000
   if (self->vtk_weakreflist != NULL)
     {
-    PyObject_ClearWeakRefs((PyObject *) self);
+    PyObject_ClearWeakRefs(op);
     }
 #endif
 
   // A python object owning a VTK object reference is getting
   // destroyed.  Remove the python object's VTK object reference.
-  vtkPythonUtil::RemoveObjectFromMap((PyObject *)self);
+  vtkPythonUtil::RemoveObjectFromMap(op);
 
   Py_DECREF((PyObject *)self->vtk_class);
   Py_DECREF(self->vtk_dict);
-#if (PY_MAJOR_VERSION >= 2)
+
+#if PY_MAJOR_VERSION >= 2
   PyObject_Del(self);
 #else
   PyMem_DEL(self);
@@ -267,10 +272,9 @@ static void PyVTKObject_PyDelete(PyVTKObject *self)
 
 //--------------------------------------------------------------------
 static Py_ssize_t
-PyVTKObject_AsBuffer_GetSegCount(
-  PyObject *pself, Py_ssize_t *lenp)
+PyVTKObject_AsBuffer_GetSegCount(PyObject *op, Py_ssize_t *lenp)
 {
-  PyVTKObject *self = (PyVTKObject*)pself;
+  PyVTKObject *self = (PyVTKObject*)op;
   vtkDataArray *da = vtkDataArray::SafeDownCast(self->vtk_ptr);
   if (da)
     {
@@ -294,7 +298,7 @@ PyVTKObject_AsBuffer_GetSegCount(
 //--------------------------------------------------------------------
 static Py_ssize_t
 PyVTKObject_AsBuffer_GetReadBuf(
-  PyObject *pself, Py_ssize_t segment, void **ptrptr)
+  PyObject *op, Py_ssize_t segment, void **ptrptr)
 {
   if (segment != 0)
     {
@@ -303,7 +307,7 @@ PyVTKObject_AsBuffer_GetReadBuf(
     return -1;
     }
 
-  PyVTKObject *self = (PyVTKObject*)pself;
+  PyVTKObject *self = (PyVTKObject*)op;
   vtkDataArray *da = vtkDataArray::SafeDownCast(self->vtk_ptr);
   if (da)
     {
@@ -318,58 +322,51 @@ PyVTKObject_AsBuffer_GetReadBuf(
 //--------------------------------------------------------------------
 static Py_ssize_t
 PyVTKObject_AsBuffer_GetWriteBuf(
-  PyObject *pself, Py_ssize_t segment, void **ptrptr)
+  PyObject *op, Py_ssize_t segment, void **ptrptr)
 {
-  return PyVTKObject_AsBuffer_GetReadBuf(pself, segment, ptrptr);
-}
-
-//--------------------------------------------------------------------
-static Py_ssize_t
-PyVTKObject_AsBuffer_GetCharBuf(PyObject *, Py_ssize_t , const char **)
-{
-  return -1;
+  return PyVTKObject_AsBuffer_GetReadBuf(op, segment, ptrptr);
 }
 
 //--------------------------------------------------------------------
 static PyBufferProcs PyVTKObject_AsBuffer = {
 #if PY_VERSION_HEX >= 0x02050000
-  (readbufferproc)PyVTKObject_AsBuffer_GetReadBuf,     // bf_getreadbuffer
-  (writebufferproc)PyVTKObject_AsBuffer_GetWriteBuf,   // bf_getwritebuffer
-  (segcountproc)PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
-  (charbufferproc)PyVTKObject_AsBuffer_GetCharBuf,     // bf_getcharbuffer
+  PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
+  PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
+  PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
+  0,                                     // bf_getcharbuffer
  #if PY_VERSION_HEX >= 0x02060000
-  (getbufferproc)0,                                    // bf_getbuffer
-  (releasebufferproc)0                                 // bf_releasebuffer
+  0,                                     // bf_getbuffer
+  0                                      // bf_releasebuffer
  #endif
 #else
-  (getreadbufferproc)PyVTKObject_AsBuffer_GetReadBuf,  // bf_getreadbuffer
-  (getwritebufferproc)PyVTKObject_AsBuffer_GetWriteBuf,// bf_getwritebuffer
-  (getsegcountproc)PyVTKObject_AsBuffer_GetSegCount,   // bf_getsegcount
-  (getcharbufferproc)PyVTKObject_AsBuffer_GetCharBuf,  // bf_getcharbuffer
+  PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
+  PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
+  PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
+  0,                                     // bf_getcharbuffer
 #endif
 };
 
 //--------------------------------------------------------------------
-static PyTypeObject PyVTKObjectType = {
+PyTypeObject PyVTKObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
   (char*)"vtkobject",                    // tp_name
   sizeof(PyVTKObject),                   // tp_basicsize
   0,                                     // tp_itemsize
-  (destructor)PyVTKObject_PyDelete,      // tp_dealloc
-  (printfunc)0,                          // tp_print
-  (getattrfunc)0,                        // tp_getattr
-  (setattrfunc)0,                        // tp_setattr
-  (cmpfunc)0,                            // tp_compare
-  (reprfunc)PyVTKObject_PyRepr,          // tp_repr
+  PyVTKObject_Delete,                    // tp_dealloc
+  0,                                     // tp_print
+  0,                                     // tp_getattr
+  0,                                     // tp_setattr
+  0,                                     // tp_compare
+  PyVTKObject_Repr,                      // tp_repr
   0,                                     // tp_as_number
   0,                                     // tp_as_sequence
   0,                                     // tp_as_mapping
-  (hashfunc)0,                           // tp_hash
-  (ternaryfunc)0,                        // tp_call
-  (reprfunc)PyVTKObject_PyString,        // tp_string
-  (getattrofunc)PyVTKObject_PyGetAttr,   // tp_getattro
-  (setattrofunc)PyVTKObject_PySetAttr,   // tp_setattro
+  0,                                     // tp_hash
+  0,                                     // tp_call
+  PyVTKObject_String,                    // tp_string
+  PyVTKObject_GetAttr,                   // tp_getattro
+  PyVTKObject_SetAttr,                   // tp_setattro
   &PyVTKObject_AsBuffer,                 // tp_as_buffer
 #if PY_VERSION_HEX >= 0x02010000
   Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
@@ -387,11 +384,6 @@ static PyTypeObject PyVTKObjectType = {
 #endif
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
-
-int PyVTKObject_Check(PyObject *obj)
-{
-  return (obj->ob_type == &PyVTKObjectType);
-}
 
 PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
 {
@@ -413,11 +405,13 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
       return 0;
       }
     }
-#if (PY_MAJOR_VERSION >= 2)
-  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObjectType);
+
+#if PY_MAJOR_VERSION >= 2
+  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObject_Type);
 #else
-  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
+  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObject_Type);
 #endif
+
   self->vtk_ptr = ptr;
   PyObject *cls = vtkPythonUtil::FindClass(ptr->GetClassName());
   self->vtk_class = (PyVTKClass *)cls;

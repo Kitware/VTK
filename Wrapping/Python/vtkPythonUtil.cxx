@@ -298,6 +298,7 @@ int vtkPythonUtil::CheckArg(
     case 'h':
     case 'l':
     case 'i':
+#if PY_VERSION_HEX >= 0x02030000
       if (PyBool_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
@@ -306,7 +307,9 @@ int vtkPythonUtil::CheckArg(
           penalty++;
           }
         }
-      else if (PyInt_Check(arg))
+      else
+#endif
+      if (PyInt_Check(arg))
         {
 #if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
         if (*format != 'i')
@@ -574,10 +577,7 @@ int vtkPythonUtil::CheckArg(
           }
 
         // Check for an exact match
-        if (!PyVTKSpecialObject_Check(arg) ||
-            strncmp(PyString_AS_STRING(
-                      ((PyVTKSpecialObject *)arg)->vtk_info->classname),
-                    classname, 127) != 0)
+        if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
           {
           // If it didn't match, then maybe conversion is possible
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
@@ -714,7 +714,11 @@ PyObject *vtkPythonUtil::CallOverloadedMethod(
               // useful error will be reported to the user.  Also, we want
               // to mimic C++ semantics, and C++ doesn't care about the
               // size of arrays when it resolves overloads.
+#if PY_MAJOR_VERSION >= 2
               Py_ssize_t m = PySequence_Size(arg);
+#else
+              Py_ssize_t m = PySequence_Length(arg);
+#endif
               for (Py_ssize_t j = 0;; j++)
                 {
                 if (!helper->next(&format, &classname))
@@ -885,9 +889,11 @@ vtkObjectBase *vtkPythonUtil::VTKParseTuple(
 
 //--------------------------------------------------------------------
 PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
-  const char *classname, const char *docstring[], PyMethodDef *methods,
-  PyMethodDef *constructors, PyVTKSpecialMethods *smethods)
+  PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
+  const char *docstring[], PyVTKSpecialCopyFunc copyfunc)
 {
+  const char *classname = pytype->tp_name;
+
   if (vtkPythonMap == NULL)
     {
     vtkPythonMap = new vtkPythonUtil();
@@ -912,8 +918,8 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   i = vtkPythonMap->SpecialTypeMap->insert(i,
     vtkPythonSpecialTypeMap::value_type(
       classname,
-      PyVTKSpecialType(classname, docstring, methods,
-                       constructors, smethods)));
+      PyVTKSpecialType(pytype, methods, constructors,
+                       docstring, copyfunc)));
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Added type to map type = " << typeObject);
@@ -1235,52 +1241,23 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 }
 
 //--------------------------------------------------------------------
-PyObject *vtkPythonUtil::GetSpecialObjectFromPointer(
-  const void *ptr, const char *classname)
-{
-  PyObject *obj = NULL;
-
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr);
-#endif
-
-  if (ptr)
-    {
-    obj = PyVTKSpecialObject_CopyNew(classname, ptr);
-    }
-  else
-    {
-    Py_INCREF(Py_None);
-    obj = Py_None;
-    }
-
-  return obj;
-}
-
-//--------------------------------------------------------------------
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
   // Clear newobj, it will only be set if a new obj is created
   *newobj = 0;
 
-  // The type name, for diagnostics
+  // The type name
   const char *object_type = obj->ob_type->tp_name;
 
-  // check to ensure it is a vtk special object
-  if (PyVTKSpecialObject_Check(obj))
+  // check to make sure that it is the right type
+  if (strcmp(object_type, result_type) == 0)
     {
-    // check to make sure that it is the right type
-    object_type =
-      PyString_AS_STRING(((PyVTKSpecialObject *)obj)->vtk_info->classname);
-
-    if (strcmp(object_type, result_type) == 0)
-      {
-      return ((PyVTKSpecialObject *)obj)->vtk_ptr;
-      }
+    return ((PyVTKSpecialObject *)obj)->vtk_ptr;
     }
   else if (PyVTKObject_Check(obj))
     {
+    // use the VTK type name, instead of "vtkobject"
     object_type =
       PyString_AS_STRING(((PyVTKObject *)obj)->vtk_class->vtk_name);
     }
@@ -1667,10 +1644,15 @@ long vtkPythonUtil::VariantHash(const vtkVariant *v)
     {
     case VTK_OBJECT:
       {
+#if PY_MAJOR_VERSION >= 2
       h = _Py_HashPointer(v->ToVTKObject());
+#else
+      h = (long)(v->ToVTKObject());
+#endif
       break;
       }
 
+#ifdef Py_USING_UNICODE
     case VTK_UNICODE_STRING:
       {
       vtkUnicodeString u = v->ToUnicodeString();
@@ -1685,6 +1667,7 @@ long vtkPythonUtil::VariantHash(const vtkVariant *v)
       Py_DECREF(tmp);
       break;
       }
+#endif
 
     default:
       {
