@@ -42,6 +42,10 @@ protected:
                                        void* calldata);
   vtkPiecewiseFunction* OpacityFunction;
   bool                  MaskAboveCurve;
+
+private:
+  vtkCompositeTransferFunctionItem(const vtkCompositeTransferFunctionItem&); // Not implemented.
+  void operator=(const vtkCompositeTransferFunctionItem&); // Not implemented
 };
 
 #endif
