@@ -495,13 +495,13 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
   // As a workaround, any value out of the scope of
   // [-1,this->GetNumberOfItems()-1] is set to -1 (<=> no hit)
 
-  if(result<-1 || result>=this->GetNumberOfItems())
+  if(result<-1 || result>=static_cast<vtkIdType>(this->GetNumberOfItems()))
     {
     result=-1;
     }
 
   assert("post: valid_result" && result>=-1 &&
-         result<this->GetNumberOfItems());
+         result<static_cast<vtkIdType>(this->GetNumberOfItems()));
   return result;
 }
 
