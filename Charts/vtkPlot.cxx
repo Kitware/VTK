@@ -112,6 +112,16 @@ void vtkPlot::GetColor(double rgb[3])
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlot::GetColor(unsigned char rgb[3])
+{
+  double rgbF[3];
+  this->GetColor(rgbF);
+  rgb[0] = static_cast<unsigned char>(255. * rgbF[0] + 0.5);
+  rgb[1] = static_cast<unsigned char>(255. * rgbF[1] + 0.5);
+  rgb[2] = static_cast<unsigned char>(255. * rgbF[2] + 0.5);
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlot::SetWidth(float width)
 {
   this->Pen->SetWidth(width);
@@ -123,7 +133,7 @@ float vtkPlot::GetWidth()
   return this->Pen->GetWidth();
 }
 
-
+//-----------------------------------------------------------------------------
 void vtkPlot::SetLabel(const char *label)
 {
   vtkStringArray *labels = vtkStringArray::New();
