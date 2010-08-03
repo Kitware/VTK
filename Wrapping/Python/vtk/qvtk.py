@@ -3,9 +3,11 @@ its namespace.  This is an optional module."""
 
 import os
 
-from QVTKPython import *
-
+# library for VTK classes with Qt support (load first)
 if os.name == 'posix':
     from libvtkQtPython import *
 else:
     from vtkQtPython import *
+
+# library for Qt classes with VTK support
+from QVTKPython import *
