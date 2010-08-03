@@ -1,4 +1,5 @@
 /* changed by ndfabia: replace all instances of 'sqlite' with 'vtk_sqlite' */
+/* changed by dgobbi: expandBlob() macro changed to "if" */
 
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from Vtk_Sqlite
@@ -46084,7 +46085,11 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeCopyFile(Btree *pTo, Btree *pFrom){
 ** Call vtk_sqlite3VdbeMemExpandBlob() on the supplied value (type Mem*)
 ** P if required.
 */
-#define expandBlob(P) (((P)->flags&MEM_Zero)?vtk_sqlite3VdbeMemExpandBlob(P):0)
+/*
+** OLD MACRO DEFINITION CHANGED BECAUSE OF COMPILER WARNING
+** (((P)->flags&MEM_Zero)?vtk_sqlite3VdbeMemExpandBlob(P):0)
+*/
+#define expandBlob(P) { if ((P)->flags&MEM_Zero) { vtk_sqlite3VdbeMemExpandBlob(P); } }
 
 /*
 ** If pMem is an object with a valid string representation, this routine
@@ -53916,8 +53921,8 @@ case OP_Ge: {             /* same as TK_GE, jump, in1, in3 */
     }
 
     assert( pOp->p4type==P4_COLLSEQ || pOp->p4.pColl==0 );
-    ExpandBlob(pIn1);
-    ExpandBlob(pIn3);
+    expandBlob(pIn1);
+    expandBlob(pIn3);
     u.ai.res = vtk_sqlite3MemCompare(pIn3, pIn1, pOp->p4.pColl);
   }
   switch( pOp->opcode ){
@@ -54499,7 +54504,7 @@ case OP_Affinity: {
   pIn1 = &aMem[pOp->p1];
   while( (u.an.cAff = *(u.an.zAffinity++))!=0 ){
     assert( pIn1 <= &p->aMem[p->nMem] );
-    ExpandBlob(pIn1);
+    expandBlob(pIn1);
     applyAffinity(pIn1, u.an.cAff, encoding);
     pIn1++;
   }
@@ -55478,7 +55483,7 @@ case OP_SeekGt: {       /* jump, in3 */
       assert( u.az.oc!=OP_SeekLt || u.az.r.flags==0 );
 
       u.az.r.aMem = &aMem[pOp->p3];
-      ExpandBlob(u.az.r.aMem);
+      expandBlob(u.az.r.aMem);
       rc = vtk_sqlite3BtreeMovetoUnpacked(u.az.pC->pCursor, &u.az.r, 0, 0, &u.az.res);
       if( rc!=VTK_SQLITE_OK ){
         goto abort_due_to_error;
@@ -55610,7 +55615,7 @@ case OP_Found: {        /* jump, in3 */
       u.bb.pIdxKey = &u.bb.r;
     }else{
       assert( pIn3->flags & MEM_Blob );
-      ExpandBlob(pIn3);
+      expandBlob(pIn3);
       u.bb.pIdxKey = vtk_sqlite3VdbeRecordUnpack(u.bb.pC->pKeyInfo, pIn3->n, pIn3->z,
                                         u.bb.aTempRec, sizeof(u.bb.aTempRec));
       if( u.bb.pIdxKey==0 ){
@@ -61029,7 +61034,9 @@ static Expr *exprDup(vtk_sqlite3 *db, Expr *p, int flags, u8 **pzBuffer){
       }else{
         int nSize = exprStructSize(p);
         memcpy(zAlloc, p, nSize);
-        memset(&zAlloc[nSize], 0, EXPR_FULLSIZE-nSize);
+        if (nSize < (int)EXPR_FULLSIZE){
+          memset(&zAlloc[nSize], 0, EXPR_FULLSIZE-nSize);
+        }
       }
 
       /* Set the EP_Reduced, EP_TokenOnly, and EP_Static flags appropriately. */
