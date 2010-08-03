@@ -70,6 +70,7 @@ public:
                         unsigned char a);
   virtual void SetColor(double r,  double g, double b);
   virtual void GetColor(double rgb[3]);
+  void GetColor(unsigned char rgb[3]);
 
   // Description:
   // Set the width of the line.

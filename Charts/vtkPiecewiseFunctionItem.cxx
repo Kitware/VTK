@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkPiecewiseFunctionItem);
 vtkPiecewiseFunctionItem::vtkPiecewiseFunctionItem()
 {
   this->PiecewiseFunction = 0;
-  this->Color[0] = 255; this->Color[1] = 255; this->Color[2] = 255;
+  this->SetColor(1., 1., 1.);
   this->MaskAboveCurve = false;
 }
 
@@ -129,9 +129,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     this->Shape->SetPoint(dimension + 1, 1.f, 0.f);
     for (int i = 0; i < dimension; ++i)
       {
-      ptr[0] = this->Color[0];
-      ptr[1] = this->Color[1];
-      ptr[2] = this->Color[2];
+      this->Pen->GetColor(ptr);
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255 + 0.5);
       assert(values[i] <= 1. && values[i] >= 0.);
       this->Shape->SetPoint(i + 1, static_cast<float>(i) * 1.f / (dimension-1),
@@ -143,9 +141,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     {
     for (int i = 0; i < dimension; ++i)
       {
-      ptr[0] = this->Color[0];
-      ptr[1] = this->Color[1];
-      ptr[2] = this->Color[2];
+      this->Pen->GetColor(ptr);
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255 + 0.5);
       assert(values[i] <= 1. && values[i] >= 0.);
       ptr+=4;

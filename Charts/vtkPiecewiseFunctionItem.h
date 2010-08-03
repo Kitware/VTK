@@ -21,6 +21,7 @@
 class vtkPiecewiseFunction;
 class vtkImageData;
 
+/// vtkPiecewiseFunctionItem internall uses vtkPlot::Color, white by default
 class VTK_CHARTS_EXPORT vtkPiecewiseFunctionItem: public vtkScalarsToColorsItem
 {
 public:
@@ -30,9 +31,6 @@ public:
 
   void SetPiecewiseFunction(vtkPiecewiseFunction* t);
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
-
-  vtkSetVector3Macro(Color, unsigned char);
-  vtkGetVector3Macro(Color, unsigned char);
 
   void SetMaskAboveCurve(bool mask);
   vtkGetMacro(MaskAboveCurve, bool);
@@ -48,7 +46,6 @@ protected:
                                        void* calldata);
 
   vtkPiecewiseFunction* PiecewiseFunction;
-  unsigned char         Color[3];
   bool                  MaskAboveCurve;
 
 private:

@@ -114,9 +114,9 @@ void vtkScalarsToColorsItem::OnScalarsToColorsModified(vtkObject* caller,
 }
 
 //-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::ScalarsToColorsModified(vtkObject* object,
-                                                     unsigned long eid,
-                                                     void* calldata)
+void vtkScalarsToColorsItem::ScalarsToColorsModified(vtkObject* vtkNotUsed(object),
+                                                     unsigned long vtkNotUsed(eid),
+                                                     void* vtkNotUsed(calldata))
 {
   this->Modified();
 }

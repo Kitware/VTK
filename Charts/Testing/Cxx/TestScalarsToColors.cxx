@@ -69,16 +69,16 @@ int TestScalarsToColors( int argc, char * argv [] )
   opacityFunction->AddPoint(0.5,0.5);
   opacityFunction->AddPoint(1.,1.);
 
-  vtkCompositeTransferFunctionItem* item3 =
-    vtkCompositeTransferFunctionItem::New();
+  vtkSmartPointer<vtkCompositeTransferFunctionItem> item3 =
+    vtkSmartPointer<vtkCompositeTransferFunctionItem>::New();
   item3->SetColorTransferFunction(colorTransferFunction);
   item3->SetOpacityFunction(opacityFunction);
   item3->SetOpacity(0.2);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
 
-  vtkPiecewiseControlPointsItem* item5 =
-    vtkPiecewiseControlPointsItem::New();
+  vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
+    vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
   item5->SetPiecewiseFunction(opacityFunction);
   chart->AddPlot(item5);
 
