@@ -536,17 +536,17 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   window_size[1] = ren->GetVTKWindow()->GetActualSize()[1];
 
   int image_size[2];
-  image_size[0] = window_size[0] * (viewport[2]-viewport[0]);
-  image_size[1] = window_size[1] * (viewport[3]-viewport[1]);
+  image_size[0] = static_cast<int>(window_size[0] * (viewport[2]-viewport[0]));
+  image_size[1] = static_cast<int>(window_size[1] * (viewport[3]-viewport[1]));
 
   // using RGBA always?
   this->Resize(image_size[0], image_size[1], 4);
 
   ren->GetRenderWindow()->GetRGBACharPixelData(
-    window_size[0] * viewport[0],
-    window_size[1] * viewport[1],
-    window_size[0] * viewport[2]-1,
-    window_size[1] * viewport[3]-1,
+    static_cast<int>(window_size[0] * viewport[0]),
+    static_cast<int>(window_size[1] * viewport[1]),
+    static_cast<int>(window_size[0] * viewport[2])-1,
+    static_cast<int>(window_size[1] * viewport[3])-1,
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
     this->GetRawPtr()); 
   this->MarkValid();
