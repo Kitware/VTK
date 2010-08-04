@@ -36,7 +36,6 @@ public:
   queue<vtkTreeBFSIteratorPosition> Queue;
 };
 
-vtkCxxRevisionMacro(vtkTreeBFSIterator, "$Revision: 1.8 $");
 vtkStandardNewMacro(vtkTreeBFSIterator);
 
 vtkTreeBFSIterator::vtkTreeBFSIterator()
