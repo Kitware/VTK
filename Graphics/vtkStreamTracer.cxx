@@ -58,9 +58,9 @@ vtkStreamTracer::vtkStreamTracer()
     {
     this->StartPosition[i] = 0.0;
     }
-  
+
   this->MaximumPropagation     = 1.0;
-  this->IntegrationStepUnit    = CELL_LENGTH_UNIT; 
+  this->IntegrationStepUnit    = CELL_LENGTH_UNIT;
   this->InitialIntegrationStep = 0.5;
   this->MinimumIntegrationStep = 1.0E-2;
   this->MaximumIntegrationStep = 1.0;
@@ -77,7 +77,7 @@ vtkStreamTracer::vtkStreamTracer()
   this->GenerateNormalsInIntegrate = true;
 
   this->InterpolatorPrototype = 0;
-  
+
   this->SetNumberOfInputPorts(2);
 
   // by default process active point vectors
@@ -86,7 +86,7 @@ vtkStreamTracer::vtkStreamTracer()
 }
 
 vtkStreamTracer::~vtkStreamTracer()
-{ 
+{
   this->SetIntegrator(0);
   this->SetInterpolatorPrototype(0);
 }
@@ -137,7 +137,7 @@ void vtkStreamTracer::SetInterpolatorTypeToDataSetPointLocator()
   this->SetInterpolatorType
     (  static_cast<int> ( INTERPOLATOR_WITH_DATASET_POINT_LOCATOR )  );
 }
-  
+
 void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
 {
   this->SetInterpolatorType
@@ -151,12 +151,12 @@ void vtkStreamTracer::SetInterpolatorType( int interpType )
     // create an interpolator equipped with a cell locator
     vtkSmartPointer< vtkCellLocatorInterpolatedVelocityField > cellLoc =
     vtkSmartPointer< vtkCellLocatorInterpolatedVelocityField >::New();
-    
-    // specify the type of the cell locator attached to the interpolator                     
-    vtkSmartPointer< vtkModifiedBSPTree > cellLocType = 
+
+    // specify the type of the cell locator attached to the interpolator
+    vtkSmartPointer< vtkModifiedBSPTree > cellLocType =
     vtkSmartPointer< vtkModifiedBSPTree >::New();
     cellLoc->SetCellLocatorPrototype( cellLocType.GetPointer() );
-    
+
     this->SetInterpolatorPrototype( cellLoc.GetPointer() );
     }
   else
@@ -193,59 +193,19 @@ void vtkStreamTracer::SetIntegratorType(int type)
     }
 }
 
-void vtkStreamTracer::SetMaximumPropagation( double max )
-{   
-  if ( max == this->MaximumPropagation )
-    {
-    return;
-    }
-  this->MaximumPropagation = max; 
-  this->Modified();
-}
-
 void vtkStreamTracer::SetIntegrationStepUnit( int unit )
-{ 
+{
   if ( unit != LENGTH_UNIT && unit != CELL_LENGTH_UNIT )
     {
     unit = CELL_LENGTH_UNIT;
     }
-    
+
   if ( unit == this->IntegrationStepUnit )
     {
     return;
     }
-  
-  this->IntegrationStepUnit = unit; 
-  this->Modified();
-}   
 
-void vtkStreamTracer::SetMinimumIntegrationStep( double step )
-{
-  if ( step == this->MinimumIntegrationStep )
-    {
-    return;
-    }
-  this->MinimumIntegrationStep = step;
-  this->Modified();
-}
-
-void vtkStreamTracer::SetMaximumIntegrationStep( double step )
-{
-  if ( step == this->MaximumIntegrationStep )
-    {
-    return;
-    }
-  this->MaximumIntegrationStep = step;
-  this->Modified();
-}
-
-void vtkStreamTracer::SetInitialIntegrationStep( double step )
-{
-  if ( step == this->InitialIntegrationStep )
-    {
-    return;
-    }
-  this->InitialIntegrationStep = step;
+  this->IntegrationStepUnit = unit;
   this->Modified();
 }
 
@@ -271,19 +231,19 @@ double vtkStreamTracer::ConvertToLength(
   return ConvertToLength( interval.Interval, interval.Unit, cellLength );
 }
 
-void vtkStreamTracer::ConvertIntervals( double& step, double& minStep, 
+void vtkStreamTracer::ConvertIntervals( double& step, double& minStep,
   double& maxStep, int direction, double cellLength )
 {
-  minStep = maxStep = step = 
+  minStep = maxStep = step =
     direction * this->ConvertToLength( this->InitialIntegrationStep,
                                        this->IntegrationStepUnit, cellLength );
- 
+
   if ( this->MinimumIntegrationStep > 0.0 )
     {
     minStep = this->ConvertToLength( this->MinimumIntegrationStep,
                                      this->IntegrationStepUnit, cellLength );
     }
-  
+
   if ( this->MaximumIntegrationStep > 0.0 )
     {
     maxStep = this->ConvertToLength( this->MaximumIntegrationStep,
@@ -291,9 +251,9 @@ void vtkStreamTracer::ConvertIntervals( double& step, double& minStep,
     }
 }
 
-void vtkStreamTracer::CalculateVorticity(vtkGenericCell* cell, 
+void vtkStreamTracer::CalculateVorticity(vtkGenericCell* cell,
                                          double pcoords[3],
-                                         vtkDoubleArray* cellVectors, 
+                                         vtkDoubleArray* cellVectors,
                                          double vorticity[3])
 {
   double* cellVel;
@@ -304,7 +264,7 @@ void vtkStreamTracer::CalculateVorticity(vtkGenericCell* cell,
   vorticity[0] = derivs[7] - derivs[5];
   vorticity[1] = derivs[2] - derivs[6];
   vorticity[2] = derivs[3] - derivs[1];
-  
+
 }
 
 void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
@@ -400,7 +360,7 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
     }
 }
 
-int vtkStreamTracer::SetupOutput(vtkInformation* inInfo, 
+int vtkStreamTracer::SetupOutput(vtkInformation* inInfo,
                                  vtkInformation* outInfo)
 {
   int piece=outInfo->Get(
@@ -412,7 +372,7 @@ int vtkStreamTracer::SetupOutput(vtkInformation* inInfo,
 
   vtkCompositeDataSet *hdInput = vtkCompositeDataSet::SafeDownCast(input);
   vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
-  if (hdInput) 
+  if (hdInput)
     {
     this->InputData = hdInput;
     hdInput->Register(this);
@@ -437,7 +397,7 @@ int vtkStreamTracer::SetupOutput(vtkInformation* inInfo,
                   << (input?input->GetClassName():"(none)"));
     return 0;
     }
-    
+
 }
 
 int vtkStreamTracer::RequestData(
@@ -467,7 +427,7 @@ int vtkStreamTracer::RequestData(
   vtkIdList* seedIds = 0;
   vtkIntArray* integrationDirections = 0;
   this->InitializeSeeds(seeds, seedIds, integrationDirections, source);
-  
+
   if (seeds)
     {
     double lastPoint[3];
@@ -501,8 +461,8 @@ int vtkStreamTracer::RequestData(
       double propagation = 0;
       vtkIdType numSteps = 0;
       this->Integrate(input0, output,
-                      seeds, seedIds, 
-                      integrationDirections, 
+                      seeds, seedIds,
+                      integrationDirections,
                       lastPoint, func,
                       maxCellSize, vecName,
                       propagation, numSteps);
@@ -535,17 +495,17 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     {
     return VTK_ERROR;
     }
-  
+
   // Set the function set to be integrated
   if ( !this->InterpolatorPrototype )
     {
     func = vtkInterpolatedVelocityField::New();
-    
-    // turn on the following segment, in place of the above line, if an 
+
+    // turn on the following segment, in place of the above line, if an
     // interpolator equipped with a cell locator is dedired as the default
     //
     // func = vtkCellLocatorInterpolatedVelocityField::New();
-    // vtkSmartPointer< vtkModifiedBSPTree > locator = 
+    // vtkSmartPointer< vtkModifiedBSPTree > locator =
     // vtkSmartPointer< vtkModifiedBSPTree >::New();
     // vtkCellLocatorInterpolatedVelocityField::SafeDownCast( func )
     //   ->SetCellLocatorPrototype( locator.GetPointer() );
@@ -563,7 +523,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     }
   const char *vecName = vectors->GetName();
   func->SelectVectors(vecName);
- 
+
   // Add all the inputs ( except source, of course ) which
   // have the appropriate vectors and compute the maximum
   // cell size.
@@ -601,7 +561,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
 
 void vtkStreamTracer::Integrate(vtkDataSet *input0,
                                 vtkPolyData* output,
-                                vtkDataArray* seedSource, 
+                                vtkDataArray* seedSource,
                                 vtkIdList* seedIds,
                                 vtkIntArray* integrationDirections,
                                 double lastPoint[3],
@@ -637,11 +597,11 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     return;
     }
 
-  // Used in GetCell() 
+  // Used in GetCell()
   vtkGenericCell* cell = vtkGenericCell::New();
 
   // Create a new integrator, the type is the same as Integrator
-  vtkInitialValueProblemSolver* integrator = 
+  vtkInitialValueProblemSolver* integrator =
     this->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
@@ -671,7 +631,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     cellVectors = vtkDoubleArray::New();
     cellVectors->SetNumberOfComponents(3);
     cellVectors->Allocate(3*VTK_CELL_SIZE);
-    
+
     vorticity = vtkDoubleArray::New();
     vorticity->SetName("Vorticity");
     vorticity->SetNumberOfComponents(3);
@@ -682,9 +642,9 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     angularVel = vtkDoubleArray::New();
     angularVel->SetName("AngularVelocity");
     }
-  
-  // We will interpolate all point attributes of the input on each point of 
-  // the output (unless they are turned off). Note that we are using only 
+
+  // We will interpolate all point attributes of the input on each point of
+  // the output (unless they are turned off). Note that we are using only
   // the first input, if there are more than one, the attributes have to match.
   //
   // Note: We have to use a specific value (safe to employ the maximum number
@@ -693,12 +653,12 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
   //       "insufficient memory") in the parallel mode. This is the case when
   //       a streamline intensely shuttles between two processes in an exactly
   //       interleaving fashion --- only one point is produced on each process
-  //       (and actually two points, after point duplication, are saved to a 
+  //       (and actually two points, after point duplication, are saved to a
   //       vtkPolyData in vtkDistributedStreamTracer::NoBlockProcessTask) and
   //       as a consequence a large number of such small vtkPolyData objects
   //       are needed to represent a streamline, consuming up the memory before
   //       the intermediate memory is timely released.
-  outputPD->InterpolateAllocate( input0->GetPointData(), 
+  outputPD->InterpolateAllocate( input0->GetPointData(),
                                  this->MaximumNumberOfSteps );
 
   vtkIdType numPtsTotal=0;
@@ -725,7 +685,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // temporary variables used in the integration
     double point1[3], point2[3], pcoords[3], vort[3], omega;
     vtkIdType index, numPts=0;
-    
+
     // Clear the last cell to avoid starting a search from
     // the last point in the streamline
     func->ClearLastCellId();
@@ -737,7 +697,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       {
       continue;
       }
-    
+
     if ( propagation >= this->MaximumPropagation ||
          numSteps    >  this->MaximumNumberOfSteps)
       {
@@ -748,9 +708,9 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     numPtsTotal++;
     vtkIdType nextPoint = outputPoints->InsertNextPoint(point1);
     time->InsertNextValue(0.0);
-    
+
     // We will always pass an arc-length step size to the integrator.
-    // If the user specifies a step size in cell length unit, we will 
+    // If the user specifies a step size in cell length unit, we will
     // have to convert it to arc length.
     IntervalInformation stepSize;  // either positive or negative
     stepSize.Unit  = LENGTH_UNIT;
@@ -761,7 +721,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     double stepTaken, accumTime=0;
     double speed;
     double cellLength;
-    int retVal=OUT_OF_LENGTH, tmp; 
+    int retVal=OUT_OF_LENGTH, tmp;
 
     // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
     input = func->GetLastDataSet();
@@ -775,14 +735,14 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // Never call conversion methods if speed == 0
     if ( speed != 0.0 )
       {
-      this->ConvertIntervals( stepSize.Interval, minStep, maxStep, 
+      this->ConvertIntervals( stepSize.Interval, minStep, maxStep,
                               direction, cellLength );
       }
 
     // Interpolate all point attributes on first point
     func->GetLastWeights(weights);
     outputPD->InterpolatePoint(inputPD, nextPoint, cell->PointIds, weights);
-    
+
     // Compute vorticity if required
     // This can be used later for streamribbon generation.
     if (this->ComputeVorticity)
@@ -808,7 +768,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       }
 
     double error = 0;
-    // Integrate until the maximum propagation length is reached, 
+    // Integrate until the maximum propagation length is reached,
     // maximum number of steps is reached or until a boundary is encountered.
     // Begin Integration
     while ( propagation < this->MaximumPropagation )
@@ -822,7 +782,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
 
       if ( numSteps++ % 1000 == 1 )
         {
-        progress = 
+        progress =
           ( currentLine + propagation / this->MaximumPropagation ) / numLines;
         this->UpdateProgress(progress);
 
@@ -843,7 +803,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       // If, with the next step, propagation will be larger than
       // max, reduce it so that it is (approximately) equal to max.
       aStep.Interval = fabs( stepSize.Interval );
-        
+
       if ( ( propagation + aStep.Interval ) > this->MaximumPropagation )
         {
         aStep.Interval = this->MaximumPropagation - propagation;
@@ -858,12 +818,12 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         maxStep = stepSize.Interval;
         }
       this->LastUsedStepSize = stepSize.Interval;
-      
+
       // Calculate the next step using the integrator provided
       // Break if the next point is out of bounds.
       func->SetNormalizeVector( true );
-      tmp = integrator->ComputeNextStep( point1, point2, 0, stepSize.Interval, 
-                                         stepTaken, minStep, maxStep, 
+      tmp = integrator->ComputeNextStep( point1, point2, 0, stepSize.Interval,
+                                         stepTaken, minStep, maxStep,
                                          this->MaximumError, error );
       func->SetNormalizeVector( false );
       if ( tmp != 0 )
@@ -872,7 +832,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         memcpy(lastPoint, point2, 3*sizeof(double));
         break;
         }
-      
+
       // It is not enough to use the starting point for stagnation calculation
       // Use delX/stepSize to calculate speed and check if it is below
       // stagnation threshold
@@ -881,7 +841,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         {
         disp[i] = point2[i] - point1[i];
         }
-      if ( (stepSize.Interval == 0) ||  
+      if ( (stepSize.Interval == 0) ||
            (vtkMath::Norm(disp) / fabs(stepSize.Interval) <= this->TerminalSpeed) )
         {
         retVal = STAGNATION;
@@ -940,7 +900,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         omega *= this->RotationScale;
         index = angularVel->InsertNextValue(omega);
         rotation->InsertNextValue(rotation->GetValue(index-1) +
-                                  (angularVel->GetValue(index-1) + omega)/2 * 
+                                  (angularVel->GetValue(index-1) + omega)/2 *
                                   (accumTime - time->GetValue(index-1)));
         }
 
@@ -956,7 +916,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
 
 
       // If the solver is adaptive and the next step size (stepSize.Interval)
-      // that the solver wants to use is smaller than minStep or larger 
+      // that the solver wants to use is smaller than minStep or larger
       // than maxStep, re-adjust it. This has to be done every step
       // because minStep and maxStep can change depending on the cell
       // size (unless it is specified in arc-length unit)
@@ -964,12 +924,12 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         {
         if (fabs(stepSize.Interval) < fabs(minStep))
           {
-          stepSize.Interval = fabs( minStep ) * 
+          stepSize.Interval = fabs( minStep ) *
                                 stepSize.Interval / fabs( stepSize.Interval );
           }
         else if (fabs(stepSize.Interval) > fabs(maxStep))
           {
-          stepSize.Interval = fabs( maxStep ) * 
+          stepSize.Interval = fabs( maxStep ) *
                                 stepSize.Interval / fabs( stepSize.Interval );
           }
         }
@@ -1017,7 +977,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       outputPD->AddArray(rotation);
       outputPD->AddArray(angularVel);
       }
-    
+
     vtkIdType numPts = outputPoints->GetNumberOfPoints();
     if ( numPts > 1 )
       {
@@ -1055,12 +1015,12 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
   cell->Delete();
 
   delete[] weights;
-  
+
   output->Squeeze();
   return;
 }
 
-void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
+void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
                                       const char *vecName)
 {
   // Useful pointers
@@ -1080,7 +1040,7 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
       vtkDoubleArray* normals = vtkDoubleArray::New();
       normals->SetNumberOfComponents(3);
       normals->SetNumberOfTuples(numPts);
-      // Make sure the normals are initialized in case 
+      // Make sure the normals are initialized in case
       // GenerateSlidingNormals() fails and returns before
       // creating all normals
       for(vtkIdType idx=0; idx<numPts; idx++)
@@ -1099,7 +1059,7 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
       double normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
       double velocity[3];
       normals->SetName("Normals");
-      vtkDataArray* newVectors = 
+      vtkDataArray* newVectors =
         outputPD->GetVectors(vecName);
       for(i=0; i<numPts; i++)
         {
@@ -1137,8 +1097,8 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
 // This is used by sub-classes in certain situations. It
 // does a lot less (for example, does not compute attributes)
 // than Integrate.
-void vtkStreamTracer::SimpleIntegrate(double seed[3], 
-                                      double lastPoint[3], 
+void vtkStreamTracer::SimpleIntegrate(double seed[3],
+                                      double lastPoint[3],
                                       double stepSize,
                                       vtkAbstractInterpolatedVelocityField* func)
 {
@@ -1156,7 +1116,7 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
   memcpy(point1, lastPoint, 3*sizeof(double));
 
   // Create a new integrator, the type is the same as Integrator
-  vtkInitialValueProblemSolver* integrator = 
+  vtkInitialValueProblemSolver* integrator =
     this->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
@@ -1171,7 +1131,7 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
     // Calculate the next step using the integrator provided
     // Break if the next point is out of bounds.
     func->SetNormalizeVector( true );
-    stepResult = integrator->ComputeNextStep( point1, point2, 0, stepSize, 
+    stepResult = integrator->ComputeNextStep( point1, point2, 0, stepSize,
                                               stepTaken, 0, 0, 0, error );
     func->SetNormalizeVector( false );
     if ( stepResult != 0 )
@@ -1226,22 +1186,22 @@ int vtkStreamTracer::FillInputPortInformation(int port, vtkInformation *info)
 void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Start position: " 
+  os << indent << "Start position: "
      << this->StartPosition[0] << " "
      << this->StartPosition[1] << " "
      << this->StartPosition[2] << endl;
   os << indent << "Terminal speed: " << this->TerminalSpeed << endl;
-  
+
   os << indent << "Maximum propagation: " << this->MaximumPropagation
      << " unit: length." << endl;
-  
+
   os << indent << "Integration step unit: "
      << ( ( this->IntegrationStepUnit == LENGTH_UNIT )
           ? "length." : "cell length." ) << endl;
-     
+
   os << indent << "Initial integration step: "
      << this->InitialIntegrationStep << endl;
-  
+
   os << indent << "Minimum integration step: "
      << this->MinimumIntegrationStep << endl;
 
@@ -1265,9 +1225,9 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Integrator: " << this->Integrator << endl;
   os << indent << "Maximum error: " << this->MaximumError << endl;
-  os << indent << "Maximum number of steps: " << this->MaximumNumberOfSteps 
+  os << indent << "Maximum number of steps: " << this->MaximumNumberOfSteps
      << endl;
-  os << indent << "Vorticity computation: " 
+  os << indent << "Vorticity computation: "
      << (this->ComputeVorticity ? " On" : " Off") << endl;
   os << indent << "Rotation scale: " << this->RotationScale << endl;
 }

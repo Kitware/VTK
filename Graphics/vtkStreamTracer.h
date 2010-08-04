@@ -16,34 +16,34 @@
 // .SECTION Description
 // vtkStreamTracer is a filter that integrates a vector field to generate
 // streamlines. The integration is performed using a specified integrator,
-// by default Runge-Kutta2. 
-// 
+// by default Runge-Kutta2.
+//
 // vtkStreamTracer produces polylines as the output, with each cell (i.e.,
 // polyline) representing a streamline. The attribute values associated
 // with each streamline are stored in the cell data, whereas those
 // associated with streamline-points are stored in the point data.
 //
 // vtkStreamTracer supports forward (the default), backward, and combined
-// (i.e., BOTH) integration. The length of a streamline is governed by 
+// (i.e., BOTH) integration. The length of a streamline is governed by
 // specifying a maximum value either in physical arc length or in (local)
 // cell length. Otherwise, the integration terminates upon exiting the
 // flow field domain, or if the particle speed is reduced to a value less
-// than a specified terminal speed, or when a maximum number of steps is 
-// completed. The specific reason for the termination is stored in a cell 
+// than a specified terminal speed, or when a maximum number of steps is
+// completed. The specific reason for the termination is stored in a cell
 // array named ReasonForTermination.
 //
 // Note that normalized vectors are adopted in streamline integration,
 // which achieves high numerical accuracy/smoothness of flow lines that is
 // particularly guranteed for Runge-Kutta45 with adaptive step size and
 // error control). In support of this feature, the underlying step size is
-// ALWAYS in arc length unit (LENGTH_UNIT) while the 'real' time interval 
-// (virtual for steady flows) that a particle actually takes to trave in a 
-// single step is obtained by dividing the arc length by the LOCAL speed. 
-// The overall elapsed time (i.e., the life span) of the particle is the 
+// ALWAYS in arc length unit (LENGTH_UNIT) while the 'real' time interval
+// (virtual for steady flows) that a particle actually takes to trave in a
+// single step is obtained by dividing the arc length by the LOCAL speed.
+// The overall elapsed time (i.e., the life span) of the particle is the
 // sum of those individual step-wise time intervals.
 //
 // The quality of streamline integration can be controlled by setting the
-// initial integration step (InitialIntegrationStep), particularly for 
+// initial integration step (InitialIntegrationStep), particularly for
 // Runge-Kutta2 and Runge-Kutta4 (with a fixed step size), and in the case
 // of Runge-Kutta45 (with an adaptive step size and error control) the
 // minimum integration step, the maximum integration step, and the maximum
@@ -68,11 +68,11 @@
 // that is inside the dataset.
 //
 // .SECTION See Also
-// vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver 
+// vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkTemporalStreamTracer
 // vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
 // vtkCellLocatorInterpolatedVelocityField
-//  
+//
 
 #ifndef __vtkStreamTracer_h
 #define __vtkStreamTracer_h
@@ -100,10 +100,10 @@ public:
   // Construct object to start from position (0,0,0), with forward
   // integration, terminal speed 1.0E-12, vorticity computation on,
   // integration step size 0.5 (in cell length unit), maximum number
-  // of steps 2000, using Runge-Kutta2, and maximum propagation 1.0 
+  // of steps 2000, using Runge-Kutta2, and maximum propagation 1.0
   // (in arc length unit).
   static vtkStreamTracer *New();
-  
+
   // Description:
   // Specify the starting point (seed) of a streamline in the global
   // coordinate system. Search must be performed to find the initial cell
@@ -125,11 +125,11 @@ public:
 //BTX
   // The previously-supported TIME_UNIT is excluded in this current
   // enumeration definition because the underlying step size is ALWAYS in
-  // arc length unit (LENGTH_UNIT) while the 'real' time interval (virtual 
+  // arc length unit (LENGTH_UNIT) while the 'real' time interval (virtual
   // for steady flows) that a particle actually takes to trave in a single
   // step is obtained by dividing the arc length by the LOCAL speed. The
   // overall elapsed time (i.e., the life span) of the particle is the sum
-  // of those individual step-wise time intervals. The arc-length-to-time 
+  // of those individual step-wise time intervals. The arc-length-to-time
   // convertion only occurs for vorticity computation and for generating a
   // point data array named 'IntegrationTime'.
   enum Units
@@ -159,9 +159,9 @@ public:
 //ETX
 
   // Description:
-  // Set/get the integrator type to be used for streamline generation. 
-  // The object passed is not actually used but is cloned with 
-  // NewInstance in the process of integration  (prototype pattern). 
+  // Set/get the integrator type to be used for streamline generation.
+  // The object passed is not actually used but is cloned with
+  // NewInstance in the process of integration  (prototype pattern).
   // The default is Runge-Kutta2. The integrator can also be changed
   // using SetIntegratorType. The recognized solvers are:
   // RUNGE_KUTTA2  = 0
@@ -177,12 +177,12 @@ public:
     {this->SetIntegratorType(RUNGE_KUTTA4);};
   void SetIntegratorTypeToRungeKutta45()
     {this->SetIntegratorType(RUNGE_KUTTA45);};
-    
+
   // Description:
   // Set the velocity field interpolator type to the one involving
   // a dataset point locator.
   void SetInterpolatorTypeToDataSetPointLocator();
-  
+
   // Description:
   // Set the velocity field interpolator type to the one involving
   // a cell locator.
@@ -190,41 +190,41 @@ public:
 
   // Description:
   // Specify the maximum length of a streamline expressed in LENGTH_UNIT.
-  void SetMaximumPropagation(double max);
-  double GetMaximumPropagation() { return this->MaximumPropagation; }       
+  vtkSetMacro(MaximumPropagation, double);
+  vtkGetMacro(MaximumPropagation, double);
 
   // Description:
-  // Specify a uniform integration step unit for MinimumIntegrationStep, 
+  // Specify a uniform integration step unit for MinimumIntegrationStep,
   // InitialIntegrationStep, and MaximumIntegrationStep. NOTE: The valid
   // unit is now limited to only LENGTH_UNIT (1) and CELL_LENGTH_UNIT (2),
-  // EXCLUDING the previously-supported TIME_UNIT.  
+  // EXCLUDING the previously-supported TIME_UNIT.
   void SetIntegrationStepUnit( int unit );
-  int  GetIntegrationStepUnit() { return this->IntegrationStepUnit; } 
-  
+  int  GetIntegrationStepUnit() { return this->IntegrationStepUnit; }
+
   // Description:
   // Specify the Initial step size used for line integration, expressed in:
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // (either the starting size for an adaptive integrator, e.g., RK45,
   // or the constant / fixed size for non-adaptive ones, i.e., RK2 and RK4)
-  void SetInitialIntegrationStep(double step);
-  double GetInitialIntegrationStep() { return this->InitialIntegrationStep; }
-  
+  vtkSetMacro(InitialIntegrationStep, double);
+  vtkGetMacro(InitialIntegrationStep, double);
+
   // Description:
   // Specify the Minimum step size used for line integration, expressed in:
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // (Only valid for an adaptive integrator, e.g., RK45)
-  void SetMinimumIntegrationStep( double step );
-  double GetMinimumIntegrationStep() { return this->MinimumIntegrationStep; }
+  vtkSetMacro(MinimumIntegrationStep, double);
+  vtkGetMacro(MinimumIntegrationStep, double);
 
   // Description:
   // Specify the Maximum step size used for line integration, expressed in:
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // (Only valid for an adaptive integrator, e.g., RK45)
-  void SetMaximumIntegrationStep( double step );
-  double GetMaximumIntegrationStep() { return this->MaximumIntegrationStep; }
+  vtkSetMacro(MaximumIntegrationStep, double);
+  vtkGetMacro(MaximumIntegrationStep, double);
 
   // Description
   // Specify the maximum error tolerated throughout streamline integration.
@@ -240,7 +240,7 @@ public:
   // Specify the terminal speed value, below which integration is terminated.
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
-  
+
 //BTX
   enum
   {
@@ -248,7 +248,7 @@ public:
     BACKWARD,
     BOTH
   };
-  
+
   enum
   {
     INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
@@ -266,7 +266,7 @@ public:
   void SetIntegrationDirectionToBackward()
     {this->SetIntegrationDirection(BACKWARD);};
   void SetIntegrationDirectionToBoth()
-    {this->SetIntegrationDirection(BOTH);};  
+    {this->SetIntegrationDirection(BOTH);};
 
   // Description
   // Turn on/off vorticity computation at streamline points
@@ -285,7 +285,7 @@ public:
   // The object used to interpolate the velocity field during
   // integration is of the same class as this prototype.
   void SetInterpolatorPrototype( vtkAbstractInterpolatedVelocityField * ivf );
-  
+
   // Description:
   // Set the type of the velocity field interpolator to determine whether
   // vtkInterpolatedVelocityField (INTERPOLATOR_WITH_DATASET_POINT_LOCATOR) or
@@ -305,9 +305,9 @@ protected:
   virtual vtkExecutive* CreateDefaultExecutive();
 
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *) 
+  void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 
@@ -315,7 +315,7 @@ protected:
                            vtkDoubleArray* cellVectors, double vorticity[3] );
   void Integrate(vtkDataSet *input,
                  vtkPolyData* output,
-                 vtkDataArray* seedSource, 
+                 vtkDataArray* seedSource,
                  vtkIdList* seedIds,
                  vtkIntArray* integrationDirections,
                  double lastPoint[3],
@@ -324,8 +324,8 @@ protected:
                  const char *vecFieldName,
                  double& propagation,
                  vtkIdType& numSteps);
-  void SimpleIntegrate(double seed[3], 
-                       double lastPoint[3], 
+  void SimpleIntegrate(double seed[3],
+                       double lastPoint[3],
                        double stepSize,
                        vtkAbstractInterpolatedVelocityField* func);
   int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
@@ -358,16 +358,16 @@ protected:
                         int direction, double cellLength );
   static double ConvertToLength( double interval, int unit, double cellLength );
   static double ConvertToLength( IntervalInformation& interval, double cellLength );
-  
+
 //ETX
 
-  int SetupOutput(vtkInformation* inInfo, 
+  int SetupOutput(vtkInformation* inInfo,
                   vtkInformation* outInfo);
   void InitializeSeeds(vtkDataArray*& seeds,
                        vtkIdList*& seedIds,
                        vtkIntArray*& integrationDirections,
                        vtkDataSet *source);
-  
+
   int IntegrationStepUnit;
   int IntegrationDirection;
 
