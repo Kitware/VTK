@@ -106,7 +106,7 @@ public:
 
   /// vtkRawImage can be used to make it easier to deal with images for
   /// compositing/communicating over client-server etc.
-  class VTK_PARALLEL_EXPORT vtkRawImage
+  struct VTK_PARALLEL_EXPORT vtkRawImage
     {
   public:
     vtkRawImage()
