@@ -1803,7 +1803,7 @@ static const sipAPIDef *get_sip_api()
       sip_api = (sipAPIDef *)PyCObject_AsVoidPtr(c_api);
 
     /* some versions of SIP use PyCapsule instead of PyCObject */
-#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 7
+#if PY_VERSION_HEX >= 0x02070000
     if (PyCapsule_CheckExact(c_api))
       sip_api = (sipAPIDef *)PyCapsule_GetPointer(c_api, "sip._C_API");
 #endif
