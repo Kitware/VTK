@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSocket - BSD socket encapsulation.
 // .SECTION Description
-// This abstract class encapsulates a BSD socket. It provides an API for  
+// This abstract class encapsulates a BSD socket. It provides an API for
 // basic socket operations.
 
 #ifndef __vtkSocket_h
@@ -37,7 +37,7 @@ public:
   // Description:
   // Close the socket.
   void CloseSocket() {this->CloseSocket(this->SocketDescriptor);}
- 
+
   // ------ Communication API ---
   // Description:
   // These methods send data over the socket.
@@ -53,17 +53,27 @@ public:
   // vtkCommand::ErrorEvent is raised.
   int Receive(void* data, int length, int readFully=1);
 
+  // Description:
+  // Provides access to  the internal socket descriptor. This is valid only when
+  // GetConnected() returns true.
+  vtkGetMacro(SocketDescriptor, int);
+
+  // Description:
+  // Selects set of sockets. Returns 0 on timeout, -1 on error.
+  // 1 on success. Selected socket's index is returned thru
+  // selected_index
+  static int SelectSockets(const int* sockets_to_select, int size,
+    unsigned long msec, int* selected_index);
 protected:
   vtkSocket();
   ~vtkSocket();
 
   int SocketDescriptor;
-  vtkGetMacro(SocketDescriptor, int);
 
   //BTX
   friend class vtkSocketCollection;
   //ETX
- 
+
   // Description:
   // Creates an endpoint for communication and returns the descriptor.
   // -1 indicates error.
@@ -102,12 +112,6 @@ protected:
   // 0 on error.
   int GetPort(int socketdescriptor);
 
-  // Description:
-  // Selects set of sockets. Returns 0 on timeout, -1 on error.
-  // 1 on success. Selected socket's index is returned thru 
-  // selected_index
-  static int SelectSockets(const int* sockets_to_select, int size,
-    unsigned long msec, int* selected_index);
 private:
   vtkSocket(const vtkSocket&); // Not implemented.
   void operator=(const vtkSocket&); // Not implemented.

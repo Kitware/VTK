@@ -88,7 +88,7 @@ public:
   // Description:
   // Open a connection to a give machine, forwarded
   // to the communicator
-  virtual int ConnectTo( char* hostName, int port );
+  virtual int ConnectTo(const char* hostName, int port );
 
   int GetSwapBytesInReceivedData();
 

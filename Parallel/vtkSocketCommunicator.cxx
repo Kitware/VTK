@@ -674,7 +674,7 @@ void vtkSocketCommunicator::CloseConnection()
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
+int vtkSocketCommunicator::ConnectTo (const char* hostName, int port )
 {
 
   if ( this->GetIsConnected() )

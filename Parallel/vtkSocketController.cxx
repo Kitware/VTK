@@ -103,7 +103,7 @@ void vtkSocketController::CloseConnection()
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketController::ConnectTo( char* hostName, int port )
+int vtkSocketController::ConnectTo(const char* hostName, int port )
 { 
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
     ConnectTo(hostName, port); 

@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Open a connection to host.
-  virtual int ConnectTo( char* hostName, int port);
+  virtual int ConnectTo(const char* hostName, int port);
 
   // Description:
   // Returns 1 if bytes must be swapped in received ints, floats, etc
