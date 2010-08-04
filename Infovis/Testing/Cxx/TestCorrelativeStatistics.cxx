@@ -520,6 +520,10 @@ int TestCorrelativeStatistics( int, char *[] )
          << " N(0,1)_2";
   datasetNormalZ2->SetName( z2Name.str().c_str() );
 
+  vtkDoubleArray* datasetNormalZ3 = vtkDoubleArray::New();
+  datasetNormalZ3->SetNumberOfComponents( 1 );
+  datasetNormalZ3->SetName( "5 N(0,1)_1 - 2" );
+
   vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
   datasetUniform->SetNumberOfComponents( 1 );
   datasetUniform->SetName( "Standard Uniform" );
@@ -532,17 +536,19 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
   // Generate pseudo-random vectors
-  double x, y, z1, z2;
+  double x, y, z1, z2, z3;
   for ( int i = 0; i < nVals; ++ i )
     {
     x = vtkMath::Gaussian();
     y = vtkMath::Gaussian();
     z1 = rhoXZ1 * x + rorXZ1 * y;
     z2 = rhoXZ2 * x + rorXZ2 * y;
+    z3 = 5. * x - 2.;
     datasetNormalX->InsertNextValue( x );
     datasetNormalY->InsertNextValue( y );
     datasetNormalZ1->InsertNextValue( z1 );
     datasetNormalZ2->InsertNextValue( z2 );
+    datasetNormalZ3->InsertNextValue( z3 );
     datasetUniform->InsertNextValue( vtkMath::Random() );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
@@ -557,6 +563,8 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetNormalZ1->Delete();
   testTable->AddColumn( datasetNormalZ2 );
   datasetNormalZ2->Delete();
+  testTable->AddColumn( datasetNormalZ3 );
+  datasetNormalZ3->Delete();
   testTable->AddColumn( datasetUniform );
   datasetUniform->Delete();
   testTable->AddColumn( datasetLaplace );
@@ -569,6 +577,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Select Column Pairs of Interest ( Learn Mode )
   cs4->AddColumnPair( "N(0,1)_1", "N(0,1)_2" );
+  cs4->AddColumnPair( "N(0,1)_2", "5 N(0,1)_1 - 2" );
   cs4->AddColumnPair( "N(0,1)_1", z1Name.str().c_str() );
   cs4->AddColumnPair( "N(0,1)_1", z2Name.str().c_str() );
   cs4->AddColumnPair( "N(0,1)_1", "Standard Uniform" );
