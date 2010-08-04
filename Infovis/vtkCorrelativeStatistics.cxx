@@ -631,14 +631,13 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       double eigS1 = .5 * ( trS + sqdS );
       double eigS2 = .5 * ( trS - sqdS );
 
-      // Calculate transformation matrix P so S = P diag(eigSi) Pt
+      // Calculate transformation matrix H so S = H diag(eigSi) H^t
       double w = .5 * ( sX2 - sY2 - sqdS );
       double f = 1. / sqrt ( sXY2 + w * w );
 
-      double p11 = f * sXY;
-      double p21 = f * ( eigS1 - sX2 );
-      double p12 = f * ( eigS2 - sY2 );
-      double p22 = p11;
+      double hd = f * sXY; // Diagonal terms of H are identical
+      double h21 = f * ( eigS1 - sX2 );
+      double h12 = f * ( eigS2 - sY2 );
 
       // Now iterate over all observations
       double sum3X = 0.;
@@ -653,8 +652,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
 
         // Transform coordinates into eigencoordinates
-        t1 = p11 * x + p21 * y;
-        t2 = p12 * x + p22 * y;
+        t1 = hd * x + h21 * y;
+        t2 = h12 * x + hd * y;
 
         // Update third and fourth order sums for each eigencoordinate
         tmp = t1 * t1;
