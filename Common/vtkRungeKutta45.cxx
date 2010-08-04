@@ -21,36 +21,36 @@ vtkStandardNewMacro(vtkRungeKutta45);
 
 //----------------------------------------------------------------------------
 // Cash-Karp parameters
-double vtkRungeKutta45::A[5] = { 1.0L/5.0, 3.0L/10.0, 3.0L/5.0, 1.0, 
+double vtkRungeKutta45::A[5] = { 1.0L/5.0, 3.0L/10.0, 3.0L/5.0, 1.0,
                  7.0L/8.0 };
 double vtkRungeKutta45::B[5][5] = { { 1.0L/5.0, 0, 0, 0, 0 },
                     { 3.0L/40.0, 9.0L/40.0,  0, 0, 0 },
                     { 3.0L/10.0, -9.0L/10.0, 6.0L/5.0, 0, 0 },
-                    { -11.0L/54.0, 
-                      5.0L/2.0, 
-                      -70.0L/27.0, 
-                      35.0L/27.0, 
+                    { -11.0L/54.0,
+                      5.0L/2.0,
+                      -70.0L/27.0,
+                      35.0L/27.0,
                       0 },
-                    { 1631.0L/55296.0, 
-                      175.0/512.0, 
-                      575.0/13824.0, 
-                      44275.0/110592.0, 
+                    { 1631.0L/55296.0,
+                      175.0/512.0,
+                      575.0/13824.0,
+                      44275.0/110592.0,
                       253.0L/4096.0 } };
-double vtkRungeKutta45::C[6] = {37.0L/378.0, 
-                0, 
-                250.0L/621.0, 
-                125.0L/594.0, 
-                0, 
+double vtkRungeKutta45::C[6] = {37.0L/378.0,
+                0,
+                250.0L/621.0,
+                125.0L/594.0,
+                0,
                 512.0L/1771.0 };
-double vtkRungeKutta45::DC[6] = { 37.0L/378.0 - 2825.0L/27648.0, 
-                  0, 
-                  250.0L/621.0 - 18575.0L/48384.0, 
-                  125.0L/594.0 - 13525.0L/55296, 
-                  -277.0L/14336.0, 
+double vtkRungeKutta45::DC[6] = { 37.0L/378.0 - 2825.0L/27648.0,
+                  0,
+                  250.0L/621.0 - 18575.0L/48384.0,
+                  125.0L/594.0 - 13525.0L/55296,
+                  -277.0L/14336.0,
                   512.0L/1771.0 - 1.0L/4.0};
 
 //----------------------------------------------------------------------------
-vtkRungeKutta45::vtkRungeKutta45() 
+vtkRungeKutta45::vtkRungeKutta45()
 {
   for(int i=0; i<6; i++)
     {
@@ -60,7 +60,7 @@ vtkRungeKutta45::vtkRungeKutta45()
 }
 
 //----------------------------------------------------------------------------
-vtkRungeKutta45::~vtkRungeKutta45() 
+vtkRungeKutta45::~vtkRungeKutta45()
 {
   for(int i=0; i<6; i++)
     {
@@ -80,16 +80,16 @@ void vtkRungeKutta45::Initialize()
   // Allocate memory for temporary derivatives array
   for(int i=0; i<6; i++)
     {
-    this->NextDerivs[i] = 
+    this->NextDerivs[i] =
       new double[this->FunctionSet->GetNumberOfFunctions()];
     }
 }
 
 //----------------------------------------------------------------------------
-int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev, 
+int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
                                      double* xnext, double t, double& delT,
                                      double& delTActual,
-                                     double minStep, double maxStep, 
+                                     double minStep, double maxStep,
                                      double maxError, double& estErr )
 {
   estErr = VTK_DOUBLE_MAX;
@@ -108,7 +108,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
 
   // No step size control if minStep == maxStep == delT
   double absDT = fabs(delT);
-  if ( ((minStep == absDT) && (maxStep == absDT)) || 
+  if ( ((minStep == absDT) && (maxStep == absDT)) ||
        (maxError <= 0.0) )
     {
     return this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr);
@@ -124,7 +124,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
   // Reduce the step size until estimated error <= maximum allowed error
   while ( estErr > maxError )
     {
-    if ((retVal = 
+    if ((retVal =
      this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)))
       {
       delTActual = delT;
@@ -143,7 +143,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
     // 0.9 is a safety factor to prevent infinite loops (see reference)
     if ( errRatio == 0.0 ) // avoid pow errors
       {
-      tmp = minStep;  // arbitrarily set to minStep
+      tmp = delT < 0 ? -minStep : minStep;  // arbitrarily set to minStep
       }
     else if ( errRatio > 1 )
       {
@@ -154,7 +154,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
       tmp = 0.9*delT*pow(errRatio, -0.2);
       }
     tmp2 = fabs(tmp);
-    
+
     // Re-adjust step size if it exceeds the bounds
     // If this happens, calculate once with the extrama step
     // size and break (flagged by setting shouldBreak, see below)
@@ -182,12 +182,12 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
       return UNEXPECTED_VALUE;
       }
 
-    // If the new step size is equal to min or max, 
-    // calculate once with the extrama step size and break 
+    // If the new step size is equal to min or max,
+    // calculate once with the extrama step size and break
     // (flagged by setting shouldBreak, see above)
     if (shouldBreak)
       {
-      if ( (retVal = 
+      if ( (retVal =
             this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)) )
         {
         delTActual = delT;
@@ -203,8 +203,8 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
 
 //----------------------------------------------------------------------------
 // Calculate next time step
-int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev, 
-                  double* xnext, double t, double& delT, 
+int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
+                  double* xnext, double t, double& delT,
                   double& error)
 {
   int i, j, k, numDerivs, numVals;
@@ -222,7 +222,7 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
     return NOT_INITIALIZED;
     }
 
-  
+
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
   numVals = numDerivs + 1;
   for(i=0; i<numVals-1; i++)
@@ -239,7 +239,7 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
       this->NextDerivs[0][i] = dxprev[i];
       }
     }
-  else if ( !this->FunctionSet->FunctionValues(this->Vals, 
+  else if ( !this->FunctionSet->FunctionValues(this->Vals,
                            this->NextDerivs[0]) )
     {
     for(i=0; i<numVals-1; i++)
@@ -264,8 +264,8 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
       this->Vals[j] = xprev[j] + delT*sum;
       }
     this->Vals[numVals-1] = t + delT*A[i-1];
-    
-    if ( !this->FunctionSet->FunctionValues(this->Vals, 
+
+    if ( !this->FunctionSet->FunctionValues(this->Vals,
                                             this->NextDerivs[i]) )
       {
       for(i=0; i<numVals-1; i++)
@@ -273,7 +273,7 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
         xnext[i] = this->Vals[i];
         }
       return OUT_OF_DOMAIN;
-      }    
+      }
     }
 
 
