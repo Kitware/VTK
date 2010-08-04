@@ -146,6 +146,7 @@ public:
 
     void Allocate(int dx, int dy, int numcomps);
     };
+//ETX
 protected:
   vtkSynchronizedRenderers();
   ~vtkSynchronizedRenderers();
@@ -219,7 +220,6 @@ private:
   friend class vtkObserver;
 
   double LastViewport[4];
-  //ETX
 };
 
 #endif
