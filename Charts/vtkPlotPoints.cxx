@@ -49,7 +49,7 @@ vtkPlotPoints::vtkPlotPoints()
   this->Points = NULL;
   this->Sorted = NULL;
   this->BadPoints = NULL;
-  this->MarkerStyle = vtkPlotPoints::NONE;
+  this->MarkerStyle = vtkPlotPoints::CIRCLE;
   this->LogX = false;
   this->LogY = false;
   this->Marker = NULL;
