@@ -22,7 +22,7 @@
  * "  --vtkobject     vtkObjectBase-derived class"
  * "  --special       non-vtkObjectBase class"
  * "  --hints <file>  hints file"
- * "  --hierarchy <file>  hierarchy file"
+ * "  --types <file>  type hierarchy file"
  * "  -I <dir>        add an include directory"
  *
  * After parsing the options, main() will call

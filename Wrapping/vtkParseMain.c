@@ -77,7 +77,7 @@ static int check_options(int argc, char *argv[])
         }
       options.HintFileName = argv[i];
       }
-    else if (strcmp(argv[i], "--hierarchy") == 0)
+    else if (strcmp(argv[i], "--types") == 0)
       {
       i++;
       if (i >= argc || argv[i][0] == '-')
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
             "  --vtkobject     vtkObjectBase-derived class\n"
             "  --special       non-vtkObjectBase class\n"
             "  --hints <file>  hints file\n"
-            "  --hierarchy <file>  hierarchy file\n"
+            "  --types <file>  type hierarchy file\n"
             "  -I <dir>        add an include directory\n",
             argv[0]);
     exit(1);

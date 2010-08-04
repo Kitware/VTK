@@ -134,7 +134,9 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       )
 
     # Force the above custom command to execute if hierarchy tool changes
+    IF(NOT ${KIT} STREQUAL "Qt")
     ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
+    ENDIF(NOT ${KIT} STREQUAL "Qt")
 
     # Add a custom-command for when the hierarchy file is needed
     # within its own kit.  A dummy target is needed because the
