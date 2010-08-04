@@ -137,10 +137,10 @@ int vtkWrapPython_IsClassWrapped(
       {
       return 1;
       }
-    else if (strncmp("vtk", classname, 3) == 0)
-      {
-      return 1;
-      }
+    }
+  else if (strncmp("vtk", classname, 3) == 0)
+    {
+    return 1;
     }
 
   return 0;
@@ -319,7 +319,8 @@ static void vtkWrapPython_MakeTempVariable(
   switch (aType & VTK_PARSE_INDIRECT)
     {
     case VTK_PARSE_REF:
-      if (((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT || (aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT) ||
+      if (((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT ||
+           (aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT) ||
            (i == MAX_ARGS))
         {
         fprintf(fp, "*"); /* refs are converted to pointers */
@@ -509,7 +510,8 @@ static void vtkWrapPython_ReturnValue(
       {
       fprintf(fp,
               "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
-              currentFunction->ReturnClass, MAX_ARGS, currentFunction->ReturnClass);
+              currentFunction->ReturnClass, MAX_ARGS,
+              currentFunction->ReturnClass);
       break;
       }
 
@@ -991,11 +993,13 @@ static char *vtkWrapPython_ArgCheckString(
         argtype == VTK_PARSE_QOBJECT_PTR)
       {
       result[currPos++] = ' ';
-      if (argtype == VTK_PARSE_OBJECT_REF || argtype == VTK_PARSE_QOBJECT_REF)
+      if (argtype == VTK_PARSE_OBJECT_REF ||
+          argtype == VTK_PARSE_QOBJECT_REF)
         {
         result[currPos++] = '&';
         }
-      else if (argtype == VTK_PARSE_OBJECT_PTR || argtype == VTK_PARSE_QOBJECT_PTR)
+      else if (argtype == VTK_PARSE_OBJECT_PTR ||
+               argtype == VTK_PARSE_QOBJECT_PTR)
         {
         result[currPos++] = '*';
         }
@@ -2532,7 +2536,9 @@ static void vtkWrapPython_GenerateMethods(
 
               potential_error = 1;
               }
-            else if (argType == VTK_PARSE_QOBJECT_PTR || argType == VTK_PARSE_QOBJECT || argType == VTK_PARSE_QOBJECT_REF)
+            else if (argType == VTK_PARSE_QOBJECT_PTR ||
+                     argType == VTK_PARSE_QOBJECT ||
+                     argType == VTK_PARSE_QOBJECT_REF)
               {
               fprintf(fp,
                       "    temp%d = (%s *)vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\");\n",
