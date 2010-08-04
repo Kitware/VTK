@@ -88,13 +88,12 @@ void vtkRenderViewBase::SetRenderWindow(vtkRenderWindow* win)
     }
 
   // move interactor to new window
-  // FIXME: Qt doesn't like interactor being initialized here.
-  //vtkSmartPointer<vtkRenderWindowInteractor> iren =
-  //    this->RenderWindow->GetInteractor();
-  //this->RenderWindow->SetInteractor(NULL);
-  //iren->SetRenderWindow(NULL);
-  //win->SetInteractor(iren);
-  //iren->SetRenderWindow(win);
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+      this->RenderWindow->GetInteractor();
+  this->RenderWindow->SetInteractor(NULL);
+  iren->SetRenderWindow(NULL);
+  win->SetInteractor(iren);
+  iren->SetRenderWindow(win);
 
   this->RenderWindow->UnRegister(this);
   this->RenderWindow = win;
