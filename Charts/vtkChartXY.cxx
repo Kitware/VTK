@@ -1160,6 +1160,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
               vtkSelection* selection = vtkSelection::New();
               vtkSelectionNode* node = vtkSelectionNode::New();
               selection->AddNode(node);
+              node->SetContentType(vtkSelectionNode::INDICES);
+              node->SetFieldType(vtkSelectionNode::POINT);
               node->SetSelectionList(plot->GetSelection());
               this->AnnotationLink->SetCurrentSelection(selection);
               node->Delete();
