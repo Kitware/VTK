@@ -21,6 +21,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestHigherOrderCell.cxx  
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx  
+  TestTreeBFSIterator.cxx
   TestTriangle.cxx
   TestPolygon.cxx
   EXTRA_INCLUDE vtkTestDriver.h

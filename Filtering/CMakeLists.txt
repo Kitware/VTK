@@ -226,6 +226,7 @@ vtkThreadedImageAlgorithm.cxx
 vtkThreadedStreamingPipeline.cxx
 vtkTreeAlgorithm.cxx
 vtkTree.cxx
+vtkTreeBFSIterator.cxx
 vtkTreeDFSIterator.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
