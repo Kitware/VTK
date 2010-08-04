@@ -550,8 +550,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* varsX = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varsY = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable Y" ) );
-  primaryTab->Dump();
-  derivedTab->Dump();
+
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
