@@ -169,6 +169,27 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
+bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4])
+{
+  if (this->MarkerStyle)
+    {
+    float width = this->Pen->GetWidth() * 2.3;
+    if (width < 8.0)
+      {
+      width = 8.0;
+      }
+    this->GeneraterMarker(static_cast<int>(width));
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
+    painter->GetPen()->SetWidth(width);
+
+    float point[] = { rect[0]+0.5*rect[2], rect[1]+0.5*rect[3] };
+    painter->DrawPointSprites(this->Marker, point, 1);
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
 {
   // Set up the image data, if highlight then the mark shape is different
@@ -354,15 +375,6 @@ void vtkPlotPoints::GeneraterMarker(int width, bool highlight)
         }
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4])
-{
-  painter->ApplyPen(this->Pen);
-  painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
-                    rect[0]+rect[2], rect[1]+0.5*rect[3]);
-  return true;
 }
 
 //-----------------------------------------------------------------------------

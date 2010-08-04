@@ -59,6 +59,7 @@ bool vtkPlotLine::PaintLegend(vtkContext2D *painter, float rect[4])
   painter->ApplyPen(this->Pen);
   painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
                     rect[0]+rect[2], rect[1]+0.5*rect[3]);
+  this->Superclass::PaintLegend(painter, rect);
   return true;
 }
 
