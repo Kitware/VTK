@@ -64,7 +64,6 @@ public:
 };
 
 vtkStandardNewMacro(vtkSynchronizedRenderers);
-vtkCxxRevisionMacro(vtkSynchronizedRenderers, "$Revision$");
 vtkCxxSetObjectMacro(vtkSynchronizedRenderers, ParallelController,
   vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate,

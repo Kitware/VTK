@@ -20,7 +20,6 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkClientServerSynchronizedRenderers);
-vtkCxxRevisionMacro(vtkClientServerSynchronizedRenderers, "$Revision$");
 //----------------------------------------------------------------------------
 vtkClientServerSynchronizedRenderers::vtkClientServerSynchronizedRenderers()
 {

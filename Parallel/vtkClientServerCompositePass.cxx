@@ -20,7 +20,6 @@
 #include "vtkRenderState.h"
 
 vtkStandardNewMacro(vtkClientServerCompositePass);
-vtkCxxRevisionMacro(vtkClientServerCompositePass, "$Revision$");
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, RenderPass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, PostProcessingRenderPass, vtkRenderPass);

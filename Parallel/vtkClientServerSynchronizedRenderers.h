@@ -27,7 +27,7 @@ class VTK_PARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
 {
 public:
   static vtkClientServerSynchronizedRenderers* New();
-  vtkTypeRevisionMacro(vtkClientServerSynchronizedRenderers, vtkSynchronizedRenderers);
+  vtkTypeMacro(vtkClientServerSynchronizedRenderers, vtkSynchronizedRenderers);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX

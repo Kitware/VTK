@@ -29,7 +29,7 @@ class VTK_PARALLEL_EXPORT vtkClientServerCompositePass : public vtkRenderPass
 {
 public:
   static vtkClientServerCompositePass* New();
-  vtkTypeRevisionMacro(vtkClientServerCompositePass, vtkRenderPass);
+  vtkTypeMacro(vtkClientServerCompositePass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX

@@ -38,7 +38,7 @@ class VTK_PARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
 {
 public:
   static vtkSynchronizedRenderers* New();
-  vtkTypeRevisionMacro(vtkSynchronizedRenderers, vtkObject);
+  vtkTypeMacro(vtkSynchronizedRenderers, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
