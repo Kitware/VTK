@@ -1775,10 +1775,11 @@ void vtkPythonVoidFuncArgDelete(void *arg)
 // utilities to provide access to Python objects wrapped with SIP
 static const sipAPIDef *get_sip_api()
 {
-  static PyObject *c_api = NULL;
+  static sipAPIDef *sip_api = NULL;
 
-  if(!c_api)
+  if(!sip_api)
     {
+    PyObject *c_api = NULL;
     PyObject *sip_module;
     PyObject *sip_module_dict;
 
@@ -1798,12 +1799,18 @@ static const sipAPIDef *get_sip_api()
       return NULL;
 
     /* Sanity check that it is the right type. */
-    if (!PyCObject_Check(c_api))
-      return NULL;
+    if (PyCObject_Check(c_api))
+      sip_api = (sipAPIDef *)PyCObject_AsVoidPtr(c_api);
+
+    /* some versions of SIP use PyCapsule instead of PyCObject */
+#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 7
+    if (PyCapsule_CheckExact(c_api))
+      sip_api = (sipAPIDef *)PyCapsule_GetPointer(c_api, "sip._C_API");
+#endif
     }
 
   /* Get the actual pointer from the object. */
-  return (const sipAPIDef *)PyCObject_AsVoidPtr(c_api);
+  return sip_api;
 }
 #endif
 
@@ -1811,11 +1818,16 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
 {
 #ifdef VTK_WRAP_PYTHON_SIP
   const sipAPIDef * api = get_sip_api();
-  const sipTypeDef * td = api ? api->api_find_type(classname) : NULL;
+  if(!api)
+    {
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without api");
+    return NULL;
+    }
 
+  const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
     {
-    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
     return NULL;
     }
 
@@ -1846,11 +1858,16 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
 {
 #ifdef VTK_WRAP_PYTHON_SIP
   const sipAPIDef * api = get_sip_api();
-  const sipTypeDef * td = api ? api->api_find_type(classname) : NULL;
+  if(!api)
+    {
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without api");
+    return NULL;
+    }
 
+  const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
     {
-    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
+    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
     return NULL;
     }
 
