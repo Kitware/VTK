@@ -402,7 +402,7 @@ if(VTK_WRAP_PYTHON_SIP)
   elseif(Q_WS_WIN)
     set(SIP_FLAGS ${SIP_FLAGS} -t WS_WIN)
   elseif(Q_WS_MAC)
-    set(SIP_FLAGS ${SIP_FLAGS} -t WS_MAC)
+    set(SIP_FLAGS ${SIP_FLAGS} -t WS_MACX)
   endif()
   set(SIP_FLAGS ${SIP_FLAGS} -t Qt_${QT_VERSION_MAJOR}_${QT_VERSION_MINOR}_${QT_VERSION_PATCH})
   set(SIP_FLAGS ${SIP_FLAGS}
