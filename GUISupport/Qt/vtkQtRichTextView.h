@@ -39,9 +39,7 @@ class QUrl;
 
 class QVTK_EXPORT vtkQtRichTextView : public vtkQtView
 {
-//BTX
 Q_OBJECT
-//ETX
 
 public:
   static vtkQtRichTextView *New();
@@ -55,7 +53,6 @@ public:
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
 
-//BTX
   enum
     {
     FIELD_DATA = 0,
@@ -65,7 +62,6 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-//ETX
 
   // Description:
   // The field type to copy into the output table.
@@ -105,7 +101,6 @@ public:
   // Updates the view.
   virtual void Update();
 
-//BTX
 protected slots:
   void onBack();
   void onForward();
@@ -114,7 +109,6 @@ protected slots:
   void onZoomOut();
   void onLoadProgress(int progress);
   void onLinkClicked(const QUrl &url);
-//ETX
 
 protected:
   vtkQtRichTextView();

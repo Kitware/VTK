@@ -46,9 +46,7 @@ class vtkQtTableModelAdapter;
 
 class QVTK_EXPORT vtkQtListView : public vtkQtView
 {
-//BTX
 Q_OBJECT
-//ETX
 
 public:
   static vtkQtListView *New();
@@ -62,7 +60,6 @@ public:
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
 
-  //BTX
   enum
     {
     FIELD_DATA = 0,
@@ -72,7 +69,6 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-  //ETX
   
   // Description:
   // The field type to copy into the output table.
@@ -134,10 +130,8 @@ protected:
   virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
-//BTX
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
-//ETX
 
 private:
   void SetVTKSelection();
@@ -162,10 +156,8 @@ private:
   int FieldType;
   int VisibleColumn;
   
-//BTX
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
-//ETX
 
   vtkQtListView(const vtkQtListView&);  // Not implemented.
   void operator=(const vtkQtListView&);  // Not implemented.

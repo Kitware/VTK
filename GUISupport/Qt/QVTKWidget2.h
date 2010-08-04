@@ -20,12 +20,14 @@
 #define Q_VTK_WIDGET2_H
 
 #include <QtOpenGL/QGLWidget>
-#include "QVTKInteractor.h"
 #include "vtkSmartPointer.h"
 #include "QVTKWin32Header.h"
 
 class vtkGenericOpenGLRenderWindow;
 class vtkEventQtSlotConnect;
+class QVTKInteractorAdapter;
+class QVTKInteractor;
+class vtkObject;
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX

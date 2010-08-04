@@ -4,6 +4,7 @@ SET ( QVTKLibSrcs
     vtkQtConnection.cxx
     QVTKApplication.cxx
     QVTKInteractor.cxx
+    QVTKInteractorAdapter.cxx
     QVTKWidget.cxx
     )
 
@@ -15,7 +16,7 @@ ENDIF()
 
 SET ( QVTKMocHeaders
     QVTKApplication.h
-    QVTKInteractor.h
+    QVTKInteractorAdapter.h
     QVTKInteractorInternal.h
     QVTKWidget.h
     vtkQtConnection.h

@@ -62,22 +62,18 @@ public:
   virtual void SetColorColumnName(const char* name);
   void SetIconIndexColumnName(const char* name);
 
-//BTX
   enum 
   {
     HEADER = 0,
     ITEM = 1
   };
-//ETX
 
-//BTX
   enum 
   {
     COLORS = 0,
     ICONS = 1,
     NONE = 2
   };
-//ETX
 
   // Description:
   // Specify how to color rows if colors are provided by SetColorColumnName().

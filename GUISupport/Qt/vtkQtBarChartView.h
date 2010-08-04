@@ -36,9 +36,7 @@ class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtBarChartView : public vtkQtChartView
 {
-//BTX
 Q_OBJECT
-//ETX
 
 public:
   static vtkQtBarChartView *New();
@@ -65,7 +63,6 @@ public:
   // Sets the bar width fraction.
   void SetBarWidthFraction(float fraction);
 
-  //BTX
   // Description:
   // Adds bar chart selection handlers to the mouse selection.
   virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
@@ -77,7 +74,6 @@ public:
   // Description:
   // Gets the chart series layer
   virtual vtkQtChartSeriesLayer* GetChartSeriesLayer();
-  //ETX
 
   // Description:
   // Gets the series options.

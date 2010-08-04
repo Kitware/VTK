@@ -41,9 +41,7 @@ class vtkDataObjectToTable;
 
 class QVTK_EXPORT vtkQtRecordView : public vtkQtView
 {
-//BTX
 Q_OBJECT
-//ETX
 
 public:
   static vtkQtRecordView *New();
@@ -57,7 +55,6 @@ public:
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
 
-  //BTX
   enum
     {
     FIELD_DATA = 0,
@@ -67,7 +64,6 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-  //ETX
   
   // Description:
   // The field type to copy into the output table.
@@ -90,9 +86,7 @@ protected:
   virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
     
-//BTX
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
-//ETX
 
   QPointer<QTextEdit> TextWidget;
 

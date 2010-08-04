@@ -34,7 +34,8 @@
 
 #include "QVTKWidget.h"
 
-# include "QVTKPaintEngine.h"
+#include "QVTKPaintEngine.h"
+#include "QVTKInteractorAdapter.h"
 
 #include "qevent.h"
 #include "qapplication.h"

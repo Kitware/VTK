@@ -28,9 +28,7 @@
 
 class QVTK_EXPORT vtkQtView : public QObject, public vtkView
 {
-//BTX
 Q_OBJECT
-//ETX
 public:
 
   vtkTypeMacro(vtkQtView, vtkView);

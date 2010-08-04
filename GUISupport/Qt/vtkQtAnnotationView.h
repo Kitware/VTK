@@ -40,9 +40,7 @@ class QTableView;
 
 class QVTK_EXPORT vtkQtAnnotationView : public vtkQtView
 {
-//BTX
 Q_OBJECT
-//ETX
 
 public:
   static vtkQtAnnotationView *New();
@@ -64,10 +62,8 @@ protected:
   vtkQtAnnotationView();
   ~vtkQtAnnotationView();
 
-//BTX
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
-//ETX
 
 private:
   unsigned long LastInputMTime;

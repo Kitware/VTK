@@ -38,6 +38,7 @@
 
 #include <QtGui/QWidget>
 #include "QVTKInteractor.h"
+class QVTKInteractorAdapter;
 
 class vtkRenderWindow;
 #include <vtkCommand.h>

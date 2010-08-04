@@ -30,9 +30,7 @@ class vtkQtChartSeriesOptions;
 
 class QVTK_EXPORT vtkQtStatisticalBoxChartView : public vtkQtChartView
 {
-//BTX
 Q_OBJECT
-//ETX
 
 public:
   static vtkQtStatisticalBoxChartView *New();
@@ -59,7 +57,6 @@ public:
   // Sets the box width fraction.
   void SetBoxWidthFraction(float fraction);
 
-  //BTX
   // Description:
   // Adds box chart selection handlers to the mouse selection.
   virtual void AddChartSelectionHandlers(vtkQtChartMouseSelection* selector);
@@ -75,7 +72,6 @@ public:
   // Description:
   // Gets the statistical box chart series options.
   virtual vtkQtChartSeriesOptions* GetChartSeriesOptions(int series);
-  //ETX
 
 protected:
   vtkQtStatisticalBoxChartView();

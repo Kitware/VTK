@@ -50,14 +50,12 @@ class QItemSelectionModel;
 
 class QVTK_EXPORT vtkQtTreeView : public vtkQtView
 {
-//BTX
 Q_OBJECT
 
 signals:
   void expanded(const QModelIndex&);
   void collapsed(const QModelIndex&);
   void updatePreviewWidget(const QModelIndex&);
-//ETX
 
 public:
   static vtkQtTreeView *New();
@@ -169,10 +167,8 @@ protected:
   virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
 
-//BTX
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
-//ETX
 
 private:
   void SetVTKSelection();
@@ -193,9 +189,7 @@ private:
   char* ColorArrayNameInternal;
   QFilterTreeProxyModel* TreeFilter;
   
-//BTX
   vtkSmartPointer<vtkApplyColors> ApplyColors;
-//ETX
   
   vtkQtTreeView(const vtkQtTreeView&);  // Not implemented.
   void operator=(const vtkQtTreeView&);  // Not implemented.

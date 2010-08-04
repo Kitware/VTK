@@ -67,9 +67,7 @@ public:
 
   // Description:
   // Return data in current row, field c
-//BTX
   virtual vtkVariant DataValue(vtkIdType c);
-//ETX
   
   // Description:
   // Returns true if an error is set, otherwise false.
@@ -83,10 +81,8 @@ protected:
   vtkQtSQLQuery();
   ~vtkQtSQLQuery();
 
-//BTX
   vtkQtSQLQueryInternals* Internals;
   friend class vtkQtSQLDatabase;
-//ETX
 
 private:
 

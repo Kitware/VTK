@@ -134,7 +134,6 @@ public:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
 
-//BTX
 protected:
   vtkQtSQLDatabase();
   ~vtkQtSQLDatabase();
@@ -171,7 +170,6 @@ private:
   
   vtkQtSQLDatabase(const vtkQtSQLDatabase &); // Not implemented.
   void operator=(const vtkQtSQLDatabase &); // Not implemented.
-//ETX
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

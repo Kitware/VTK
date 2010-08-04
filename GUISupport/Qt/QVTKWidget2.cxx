@@ -28,6 +28,8 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkGenericOpenGLRenderWindow.h"
+#include "QVTKInteractorAdapter.h"
+#include "QVTKInteractor.h"
 
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
 # include "vtkTDxUnixDevice.h"

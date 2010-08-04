@@ -24,6 +24,7 @@
 #include <QGraphicsScene>
 
 #include "QVTKInteractor.h"
+#include "QVTKInteractorAdapter.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
 #include "vtkgl.h"
