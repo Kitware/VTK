@@ -27,6 +27,7 @@ IF(PYTHON_EXECUTABLE)
     vtkOpenGLStateCache.h
     vtkPythagoreanQuadruples.h
     vtkRenderState.h
+    vtkShadowMapPassInternal.h
     vtkTDxMotionEventInfo.h
     vtkTkImageViewerWidget.h
     vtkTkInternals.h
