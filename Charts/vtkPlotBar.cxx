@@ -276,17 +276,6 @@ bool vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
 namespace {
 
 // Copy the two arrays into the points array
-template<class A>
-void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
-{
-  switch(b->GetDataType())
-    {
-    vtkTemplateMacro(
-        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
-    }
-}
-
-// Copy the two arrays into the points array
 template<class A, class B>
 void CopyToPoints(vtkPoints2D *points, A *a, B *b, int n)
 {
@@ -305,6 +294,17 @@ void CopyToPoints(vtkPoints2D *points, A *a, int n)
   for (int i = 0; i < n; ++i)
     {
     points->SetPoint(i, i, a[i]);
+    }
+}
+
+// Copy the two arrays into the points array
+template<class A>
+void CopyToPointsSwitch(vtkPoints2D *points, A *a, vtkDataArray *b, int n)
+{
+  switch(b->GetDataType())
+    {
+    vtkTemplateMacro(
+        CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n));
     }
 }
 
