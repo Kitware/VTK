@@ -517,7 +517,14 @@ void vtkContext2D::ComputeStringBounds(const vtkStdString &string,
 void vtkContext2D::DrawImage(float x, float y, vtkImageData *image)
 {
   float p[] = { x, y };
-  this->Device->DrawImage(&p[0], 1, image);
+  this->Device->DrawImage(&p[0], 1.0, image);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawImage(float x, float y, float scale, vtkImageData *image)
+{
+  float p[] = { x, y };
+  this->Device->DrawImage(&p[0], scale, image);
 }
 
 //-----------------------------------------------------------------------------

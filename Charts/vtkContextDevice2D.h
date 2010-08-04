@@ -102,8 +102,9 @@ public:
                                    float bounds[4]) = 0;
 
   // Description:
-  // Draw the supplied image at the given x, y (p[0], p[1]) location(s) (bottom corner).
-  virtual void DrawImage(float *, int , vtkImageData *) {;}
+  // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
+  // scaled by scale (1.0 would match the image).
+  virtual void DrawImage(float p[2], float scale, vtkImageData *image) = 0;
 
   // Description:
   // Set the color for the device using unsigned char of length 4, RGBA.

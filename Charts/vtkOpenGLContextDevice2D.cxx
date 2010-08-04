@@ -766,16 +766,17 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawImage(float *p, int, vtkImageData *image)
+void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
+                                         vtkImageData *image)
 {
   vtkTexture *tex =vtkTexture::New();
   tex->SetInput(image);
   tex->Render(this->Renderer);
   int *extent = image->GetExtent();
-  float points[] = { p[0]          , p[1],
-                     p[0]+extent[1], p[1],
-                     p[0]+extent[1], p[1]+extent[3],
-                     p[0]          , p[1]+extent[3] };
+  float points[] = { p[0]                , p[1],
+                     p[0]+scale*extent[1], p[1],
+                     p[0]+scale*extent[1], p[1]+scale*extent[3],
+                     p[0]                , p[1]+scale*extent[3] };
 
   float texCoord[] = { 0.0, 0.0,
                        1.0, 0.0,

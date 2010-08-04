@@ -219,6 +219,11 @@ public:
   void DrawImage(float x, float y, vtkImageData *image);
 
   // Description:
+  // Draw the supplied image at the given x, y location (bottom corner).
+  // Scale the supplied image by scale.
+  void DrawImage(float x, float y, float scale, vtkImageData *image);
+
+  // Description:
   // Draw some text to the screen in a bounding rectangle with the alignment
   // of the text properties respecting the rectangle. The points should be
   // supplied as bottom corner (x, y), width, height.
