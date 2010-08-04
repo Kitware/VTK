@@ -326,6 +326,44 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
 void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "ImageReductionFactor: " << this->ImageReductionFactor
+       << endl;
+
+  os << indent << "WriteBackImages: " << this->WriteBackImages << endl;
+  os << indent << "RootProcessId: " << this->RootProcessId << endl;
+  os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
+
+  os << indent << "CaptureDelegate: ";
+  if(this->CaptureDelegate==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->CaptureDelegate << endl;
+    }
+
+  os << indent << "Renderer: ";
+  if(this->Renderer==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->Renderer << endl;
+    }
+
+  os << indent << "ParallelController: ";
+  if(this->ParallelController==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->ParallelController << endl;
+    }
+
 }
 
 //----------------------------------------------------------------------------

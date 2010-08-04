@@ -120,5 +120,37 @@ void vtkClientServerCompositePass::Render(const vtkRenderState *s)
 void vtkClientServerCompositePass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Controller: ";
+  if(this->Controller==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->Controller << endl;
+    }
+
+  os << indent << "ServerSideRendering: " << this->ServerSideRendering << endl;
+  os << indent << "ProcessIsServer: " << this->ProcessIsServer << endl;
+
+  os << indent << "RenderPass: ";
+  if(this->RenderPass==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->RenderPass << endl;
+    }
+  os << indent << "PostProcessingRenderPass: ";
+  if(this->PostProcessingRenderPass==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->PostProcessingRenderPass << endl;
+    }
+
 }
 

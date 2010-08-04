@@ -251,6 +251,29 @@ void vtkSynchronizedRenderWindows::SlaveStartRender()
 void vtkSynchronizedRenderWindows::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Identifier: " << this->Identifier << endl;
+  os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
+  os << indent << "RootProcessId: " << this->RootProcessId << endl;
+  os << indent << "RenderEventPropagation: " << this->RenderEventPropagation
+     << endl;
+
+  os << indent << "RenderWindow: ";
+  if(this->RenderWindow==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->RenderWindow << endl;
+    }
+  if(this->ParallelController==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->ParallelController << endl;
+    }
 }
 
 //----------------------------------------------------------------------------
