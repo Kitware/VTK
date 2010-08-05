@@ -140,7 +140,7 @@ public:
 
   // Description:
   // Set/get the borders of the chart (space in pixels around the chart).
-  void SetBorders(int left, int right, int top, int bottom);
+  void SetBorders(int left, int bottom, int right, int top);
 
 //BTX
 protected:
