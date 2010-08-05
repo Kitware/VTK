@@ -79,7 +79,6 @@ vtkImageMirrorPad.cxx
 vtkImageNoiseSource.cxx
 vtkImageNonMaximumSuppression.cxx
 vtkImageNormalize.cxx
-vtkImageOcclusionSpectrum.cxx
 vtkImageOpenClose3D.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
