@@ -71,7 +71,7 @@ int TestImageOcclusionSpectrum (int argc, char* argv [])
     os->SetInput(image);
     os->Update();
     // os->PrintSelf(cout, vtkIndent());
-    print(dim, static_cast<double*>(os->GetOutput()->GetScalarPointer()));
+    // print(dim, static_cast<double*>(os->GetOutput()->GetScalarPointer()));
     }
 
   return 0;
