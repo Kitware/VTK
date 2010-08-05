@@ -25,7 +25,9 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+
 #include <algorithm>
+#include <functional>
 
 vtkStandardNewMacro(vtkCellDataToPointData);
 
