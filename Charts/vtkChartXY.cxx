@@ -102,8 +102,11 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetTitle("X Axis");
 
   this->Grid = vtkPlotGrid::New();
-  this->Grid->SetXAxis(this->ChartPrivate->axes[1]);
-  this->Grid->SetYAxis(this->ChartPrivate->axes[0]);
+  this->Grid->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
+  this->Grid->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
+  this->Grid2 = vtkPlotGrid::New();
+  this->Grid2->SetXAxis(this->ChartPrivate->axes[vtkAxis::TOP]);
+  this->Grid2->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
 
   this->PlotTransformValid = false;
 
@@ -133,7 +136,8 @@ vtkChartXY::~vtkChartXY()
   this->ChartPrivate = 0;
 
   this->Grid->Delete();
-  this->Grid = 0;
+  this->Grid2->Delete();
+
   this->Legend->Delete();
   this->Legend = 0;
 
@@ -240,6 +244,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   // Draw the grid - the axes take care of its color and visibility
   this->Grid->Paint(painter);
+  this->Grid2->Paint(painter);
 
   // Plot the series of the chart
   this->RenderPlots(painter);

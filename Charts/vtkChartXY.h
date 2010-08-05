@@ -170,6 +170,7 @@ protected:
   // Description:
   // The grid for the chart.
   vtkPlotGrid *Grid;
+  vtkPlotGrid *Grid2;
 
   // Description:
   // The legend for the chart.
