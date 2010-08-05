@@ -80,6 +80,7 @@ vtkImageNoiseSource.cxx
 vtkImageNonMaximumSuppression.cxx
 vtkImageNormalize.cxx
 vtkImageOpenClose3D.cxx
+vtkImageOcclusionSpectrum.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
 vtkImageQuantizeRGBToIndex.cxx
