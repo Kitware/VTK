@@ -214,8 +214,8 @@ public:
   // are geometries that are not supported by this filter currently, future
   // implementation might include support for them. The defalut value for
   // UnsupportedGeometry is -1.
-  vtkSetMacro(UnsupportedGeometry, int);
-  vtkGetMacro(UnsupportedGeometry, int);
+  vtkSetMacro(UnsupportedGeometry, double);
+  vtkGetMacro(UnsupportedGeometry, double);
 
   // Description:
   // Set/Get the return value for undefined quality. Undefined quality
@@ -223,8 +223,8 @@ public:
   // defined for the particular geometry of cell in question, e.g. a
   // volume query for a triangle. Undefined quality will always be undefined.
   // The default value for UndefinedQuality is -1.
-  vtkSetMacro(UndefinedQuality, int);
-  vtkGetMacro(UndefinedQuality, int);
+  vtkSetMacro(UndefinedQuality, double);
+  vtkGetMacro(UndefinedQuality, double);
 
   double TriangleStripArea (vtkCell*);
   double PixelArea (vtkCell*);
