@@ -29,7 +29,7 @@
 #define vsp(type, name) \
         vtkSmartPointer<vtk##type> name = vtkSmartPointer<vtk##type>::New()
 
-int TestCellDataToPointData (int argc, char** argv)
+int TestCellDataToPointData (int argc, char* argv [])
 {
   char const name [] = "RTData";
   vsp(RTAnalyticSource, wavelet);

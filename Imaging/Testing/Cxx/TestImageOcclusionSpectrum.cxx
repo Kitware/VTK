@@ -46,7 +46,7 @@ namespace
   }
 }
 
-int TestImageOcclusionSpectrum (int , char**)
+int TestImageOcclusionSpectrum (int argc, char* argv [])
 {
   cout << vtkstd::fixed << vtkstd::showpos;
 
