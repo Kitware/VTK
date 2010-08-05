@@ -32,14 +32,6 @@
 #include "sip.h"
 #endif
 
-// Silence warning like
-// "dereferencing type-punned pointer will break strict-aliasing rules"
-// it happens because this kind of expression: (long *)&ptr
-// pragma GCC diagnostic is available since gcc>=4.2
-#if defined(__GNUG__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#endif
-
 //--------------------------------------------------------------------
 // There are three maps associated with the Python wrappers
 
@@ -1203,25 +1195,67 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
     }
 }
 
+//----------------
+// union of long int and pointer
+union vtkPythonUtilPointerUnion
+{
+  void *p;
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+  unsigned long l;
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+  unsigned long long l;
+#elif defined(VTK_TYPE_USE___INT64)
+  unsigned __int64 l;
+#endif
+};
+
+//----------------
+// union of long int and pointer
+union vtkPythonUtilConstPointerUnion
+{
+  const void *p;
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+  unsigned long l;
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+  unsigned long long l;
+#elif defined(VTK_TYPE_USE___INT64)
+  unsigned __int64 l;
+#endif
+};
+
 //--------------------------------------------------------------------
 PyObject *vtkPythonUtil::GetObjectFromObject(
   PyObject *arg, const char *type)
 {
+  union vtkPythonUtilPointerUnion u;
+
   if (PyString_Check(arg))
     {
+    vtkObjectBase *ptr;
     char *ptrText = PyString_AsString(arg);
 
-    vtkObjectBase *ptr;
     char typeCheck[256];  // typeCheck is currently not used
-    int i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+    int i = sscanf(ptrText,"_%lx_%s", &u.l, typeCheck);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+    int i = sscanf(ptrText,"_%llx_%s", &u.l, typeCheck);
+#elif defined(VTK_TYPE_USE___INT64)
+    int i = sscanf(ptrText,"_%I64x_%s", &u.l, typeCheck);
+#endif
 
     if (i <= 0)
       {
-      i = sscanf(ptrText,"Addr=0x%lx",(long *)&ptr);
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+      i = sscanf(ptrText,"Addr=0x%lx", &u.l);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+      i = sscanf(ptrText,"Addr=0x%llx", &u.l);
+#elif defined(VTK_TYPE_USE___INT64)
+      i = sscanf(ptrText,"Addr=0x%I64x", &u.l);
+#endif
       }
     if (i <= 0)
       {
-      i = sscanf(ptrText,"%p",&ptr);
+      i = sscanf(ptrText, "%p", &u.p);
       }
     if (i <= 0)
       {
@@ -1229,11 +1263,13 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
       return NULL;
       }
 
+    ptr = static_cast<vtkObjectBase *>(u.p);
+
     if (!ptr->IsA(type))
       {
       char error_string[256];
       sprintf(error_string,"method requires a %s address, a %s address was provided.",
-              type,((vtkObjectBase *)ptr)->GetClassName());
+              type, ptr->GetClassName());
       PyErr_SetString(PyExc_TypeError,error_string);
       return NULL;
       }
@@ -1327,15 +1363,15 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 {
   static char ptrText[128];
+  int ndigits = 2*(int)sizeof(void *);
+  union vtkPythonUtilConstPointerUnion u;
+  u.p = ptr;
 #if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
-  sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          ((long)(ptr)),type);
+  sprintf(ptrText, "_%*.*lx_%s", ndigits, ndigits, u.l, type);
 #elif defined(VTK_TYPE_USE_LONG_LONG)
-  sprintf(ptrText,"_%*.*llx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          ((long long)(ptr)),type);
+  sprintf(ptrText, "_%*.*llx_%s", ndigits, ndigits, u.l, type);
 #elif defined(VTK_TYPE_USE___INT64)
-  sprintf(ptrText,"_%*.*I64x_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          ((__int64)(ptr)),type);
+  sprintf(ptrText, "_%*.*I64x_%s", ndigits, ndigits, u.l, type);
 #endif
 
   return ptrText;
@@ -1346,7 +1382,7 @@ char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 {
   int i;
-  void *ptr;
+  union vtkPythonUtilPointerUnion u;
   char text[256];
   char typeCheck[256];
   typeCheck[0] = '\0';
@@ -1372,16 +1408,16 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
     if (i == 0)
       {
 #if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
-      i = sscanf(text,"_%lx_%s",(long *)&ptr,typeCheck);
+      i = sscanf(text, "_%lx_%s", &u.l ,typeCheck);
 #elif defined(VTK_TYPE_USE_LONG_LONG)
-      i = sscanf(text,"_%llx_%s",(long long *)&ptr,typeCheck);
+      i = sscanf(text, "_%llx_%s", &u.l ,typeCheck);
 #elif defined(VTK_TYPE_USE___INT64)
-      i = sscanf(text,"_%I64x_%s",(__int64 *)&ptr,typeCheck);
+      i = sscanf(text, "_%I64x_%s", &u.l ,typeCheck);
 #endif
       if (strcmp(type,typeCheck) == 0)
         { // sucessfully unmangle
         *len = 0;
-        return ptr;
+        return u.p;
         }
       else if (i == 2)
         { // mangled pointer of wrong type
