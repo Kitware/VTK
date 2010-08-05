@@ -2118,8 +2118,8 @@ literal2:   ZERO {$<str>$ = $<str>1; postSig($<str>1);}
           | FLOAT_LITERAL {$<str>$ = $<str>1; postSig($<str>1);}
           | CHAR_LITERAL {$<str>$ = $<str>1; postSig($<str>1);}
           | maybe_scoped_id
-            { $<str>$ = vtkstrdup(add_const_scope($<str>1));
-              postSig($<str>1); };
+            { $<str>$ = vtkstrdup(add_const_scope($<str>1)); };
+
 
 /*
  * VTK Macros

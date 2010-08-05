@@ -6709,8 +6709,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 2121 "vtkParse.y"
-    { (yyval.str) = vtkstrdup(add_const_scope((yyvsp[(1) - (1)].str)));
-              postSig((yyvsp[(1) - (1)].str)); }
+    { (yyval.str) = vtkstrdup(add_const_scope((yyvsp[(1) - (1)].str))); }
     break;
 
   case 411:
@@ -7559,7 +7558,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 7694 "vtkParse.tab.c"
+#line 7693 "vtkParse.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
