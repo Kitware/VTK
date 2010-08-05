@@ -48,6 +48,7 @@ SET ( QVTKNonMocHeaders
 
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
+# add additional files if the user will allow Qt's OpenGL support
 IF(VTK_USE_QVTK_QTOPENGL)
   SET (QT_USE_QTOPENGL 1)
   SET(QVTKMocHeaders ${QVTKMocHeaders}
@@ -271,6 +272,8 @@ if(VTK_WRAP_PYTHON_SIP)
   find_path(SIP_PYQT_DIR NAMES QtCore/QtCoremod.sip
     PATHS ${PYTHON_INCLUDE_PATH}/../Lib/site-packages/PyQt4/sip/PyQt4
           ${PYTHON_INCLUDE_PATH}/../sip/PyQt4
+          ${PYTHON_INCLUDE_PATH}/../Versions/2.5/share/sip/PyQt4
+          ${PYTHON_INCLUDE_PATH}/../share/sip/PyQt4
           /usr/share/sip/PyQt4
           /usr/local/share/sip/PyQt4
     DOC "Root directory containing all PyQt4 sip files."
