@@ -236,7 +236,7 @@ namespace
         int const t = k * sinc[2] + j * sinc[1];
 
         // The radius of the intersection in X direction.
-        i = sqrt((float)i);
+        i = (int)sqrt((float)i);
 
         // Make sure we do not fall off the prefix sum volume whole extent.
         int const i0 = vtkstd::max(x-i, sext[0]); // lower bound
