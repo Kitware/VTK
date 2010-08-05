@@ -217,7 +217,7 @@ namespace
       T   sum = 0; // T used to avoid unnecessary cast on every accumulation.
       int num = 0;
 
-      int const* const sinc = simg->GetIncrements();
+      vtkIdType* const sinc = simg->GetIncrements();
       int const* const sext = simg->GetExtent();
       T   const* const sdat = static_cast<T*>(simg->GetScalarPointer());
 
@@ -236,7 +236,7 @@ namespace
         int const t = k * sinc[2] + j * sinc[1];
 
         // The radius of the intersection in X direction.
-        i = sqrt(i);
+        i = sqrt((float)i);
 
         // Make sure we do not fall off the prefix sum volume whole extent.
         int const i0 = vtkstd::max(x-i, sext[0]); // lower bound
