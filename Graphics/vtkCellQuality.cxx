@@ -96,6 +96,9 @@ void vtkCellQuality::PrintSelf (ostream& os, vtkIndent indent)
   os << indent << "HexQualityMeasure : " << name << endl;
   os << indent << "TriangleStripQualityMeasure : " << name << endl;
   os << indent << "PixelQualityMeasure : " << name << endl;
+
+  os << indent << "UnsupportedGeometry : " << this->UnsupportedGeometry << endl;
+  os << indent << "UndefinedQuality : " << this->UndefinedQuality << endl;
 }
 
 int vtkCellQuality::RequestData

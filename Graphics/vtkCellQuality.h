@@ -363,8 +363,8 @@ private:
   vtkIdList* PointIds;
   vtkPoints* Points;
 
-  vtkCellQuality (const vtkCellQuality&);
-  void operator = (const vtkCellQuality&);
+  vtkCellQuality(const vtkCellQuality&); // Not implemented
+  void operator=(const vtkCellQuality&); // Not implemented
 };
 
 #endif // vtkCellQuality_h
