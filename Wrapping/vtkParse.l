@@ -325,6 +325,11 @@ static int skip_ahead_until(const char *text);
 "delete"        return(DELETE);
 "explicit"      return(EXPLICIT);
 
+"static_cast"   return(STATIC_CAST);
+"dynamic_cast"  return(DYNAMIC_CAST);
+"const_cast"    return(CONST_CAST);
+"reinterpret_cast" return(REINTERPRET_CAST);
+
 "auto"          ;
 "register"      ;
 "volatile"      ;

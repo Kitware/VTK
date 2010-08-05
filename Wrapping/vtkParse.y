@@ -1183,6 +1183,10 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token NEW
 %token DELETE
 %token EXPLICIT
+%token STATIC_CAST
+%token DYNAMIC_CAST
+%token CONST_CAST
+%token REINTERPRET_CAST
 %token OP_LSHIFT_EQ
 %token OP_RSHIFT_EQ
 %token OP_LSHIFT
@@ -2076,7 +2080,7 @@ literal:  literal2 {$<str>$ = $<str>1;}
              }
           | string_literal {$<str>$ = $<str>1; postSig($<str>1);}
           | '(' {postSig("(");} literal ')' {postSig(")"); $<str>$ = $<str>3;}
-          | ID '<' {postSig($<str>1); postSig("<");}
+          | any_cast '<' {postSig($<str>1); postSig("<");}
             type_red '>' '('
              {
              chopSig();
@@ -2098,6 +2102,11 @@ literal:  literal2 {$<str>$ = $<str>1;}
                }
              };
 
+any_cast: STATIC_CAST { $<str>$ = "static_cast"; }
+        | CONST_CAST { $<str>$ = "const_cast"; }
+        | DYNAMIC_CAST { $<str>$ = "dynamic_cast"; }
+        | REINTERPRET_CAST { $<str>$ = "reinterpret_cast"; };
+
 string_literal: STRING_LITERAL {$<str>$ = $<str>1;}
               | string_literal STRING_LITERAL
                 { $<str>$ = vtkstrcat($<str>1, $<str>2); };
@@ -2108,12 +2117,9 @@ literal2:   ZERO {$<str>$ = $<str>1; postSig($<str>1);}
           | HEX_LITERAL {$<str>$ = $<str>1; postSig($<str>1);}
           | FLOAT_LITERAL {$<str>$ = $<str>1; postSig($<str>1);}
           | CHAR_LITERAL {$<str>$ = $<str>1; postSig($<str>1);}
-          | ID {$<str>$ = vtkstrdup(add_const_scope($<str>1));
-                postSig($<str>1);}
-          | VTK_ID {$<str>$ = vtkstrdup(add_const_scope($<str>1));
-                postSig($<str>1);};
-          | QT_ID {$<str>$ = vtkstrdup(add_const_scope($<str>1));
-                postSig($<str>1);};
+          | maybe_scoped_id
+            { $<str>$ = vtkstrdup(add_const_scope($<str>1));
+              postSig($<str>1); };
 
 /*
  * VTK Macros
@@ -2467,7 +2473,8 @@ other_stuff_no_semi : OTHER | braces | parens | brackets | TYPEDEF
    | STRING_LITERAL | CLASS_REF | CONST | CONST_PTR | CONST_EQUAL | STRUCT
    | OPERATOR | STATIC | INLINE | VIRTUAL | ENUM | UNION | TYPENAME
    | ZERO | VAR_FUNCTION | ELLIPSIS | PUBLIC | PROTECTED | PRIVATE
-   | NAMESPACE | USING | EXTERN | ID | VTK_ID | QT_ID ;
+   | NAMESPACE | USING | EXTERN | ID | VTK_ID | QT_ID
+   | CONST_CAST | DYNAMIC_CAST | STATIC_CAST | REINTERPRET_CAST;
 
 braces: '{' maybe_other '}';
 brackets: '[' maybe_other ']';
