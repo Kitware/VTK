@@ -242,7 +242,7 @@ private:
 
   // Description:
   // Remove the plot from the plot corners list.
-  bool RemovePlotFromConers(vtkPlot *plot);
+  bool RemovePlotFromCorners(vtkPlot *plot);
 
   void ZoomInAxes(vtkAxis *x, vtkAxis *y, float *orign, float *max);
 
