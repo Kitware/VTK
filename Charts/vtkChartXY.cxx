@@ -86,6 +86,9 @@ vtkChartXY::vtkChartXY()
   this->Legend = vtkChartLegend::New();
   this->Legend->SetChart(this);
   this->ChartPrivate = new vtkChartXYPrivate;
+
+  this->AutoAxes = true;
+
   for (int i = 0; i < 4; ++i)
     {
     this->ChartPrivate->axes.push_back(vtkAxis::New());
@@ -158,6 +161,40 @@ void vtkChartXY::Update()
     {
     this->Legend->Update();
     }
+
+  if (this->AutoAxes)
+    {
+    for (int i = 0; i < 4; ++i)
+      {
+      this->ChartPrivate->axes[i]->SetVisible(false);
+      }
+    for (int i = 0; i < 4; ++i)
+      {
+      int visible = 0;
+      for (unsigned int j = 0;
+           j < this->ChartPrivate->PlotCorners[i].size(); ++j)
+        {
+        if (this->ChartPrivate->PlotCorners[i][j]->GetVisible())
+          {
+          ++visible;
+          }
+        }
+      if (visible)
+        {
+        if (i < 3)
+          {
+          this->ChartPrivate->axes[i]->SetVisible(true);
+          this->ChartPrivate->axes[i+1]->SetVisible(true);
+          }
+        else
+          {
+          this->ChartPrivate->axes[0]->SetVisible(true);
+          this->ChartPrivate->axes[3]->SetVisible(true);
+          }
+        }
+      }
+    }
+
 }
 
 //-----------------------------------------------------------------------------
