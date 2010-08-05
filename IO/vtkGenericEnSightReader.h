@@ -26,8 +26,23 @@ class vtkCallbackCommand;
 class vtkDataArrayCollection;
 class vtkDataArraySelection;
 class vtkIdListCollection;
+
 //BTX
 class TranslationTableType;
+//ETX
+
+//BTX
+// Cell/Point Ids store mode:
+// Sparse Mode is supposed to be for a large number of distributed processes (Unstructured)
+// Non Sparse Mode is supposed to be for a small number of distributed processes (Unstructured)
+// Implicit Mode is for Structured Data
+enum EnsightReaderCellIdMode
+    {
+    SINGLE_PROCESS_MODE,
+    SPARSE_MODE,
+    NON_SPARSE_MODE,
+    IMPLICIT_STRUCTURED_MODE
+    };
 //ETX
 
 class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetAlgorithm
@@ -46,7 +61,11 @@ public:
   // Set/Get the file path.
   vtkSetStringMacro(FilePath);
   vtkGetStringMacro(FilePath);
-  
+
+  // Description:
+  // Get the EnSight file version being read.
+  vtkGetMacro(EnSightVersion, int);
+
   // Description:
   // Get the number of variables listed in the case file.
   vtkGetMacro(NumberOfVariables, int);
@@ -71,11 +90,11 @@ public:
   // Description:
   // Get the nth description for a non-complex variable.
   const char* GetDescription(int n);
-  
+
   // Description:
   // Get the nth description for a complex variable.
   const char* GetComplexDescription(int n);
-  
+
   // Description:
   // Get the nth description of a particular variable type.  Returns NULL if no
   // variable of this type exists in this data set.
@@ -86,12 +105,12 @@ public:
   // COMPLEX_SCALAR_PER_NODE = 8; COMPLEX_VECTOR_PER_NODE 9;
   // COMPLEX_SCALAR_PER_ELEMENT  = 10; COMPLEX_VECTOR_PER_ELEMENT = 11
   const char* GetDescription(int n, int type);
-  
+
   // Description:
   // Get the variable type of variable n.
   int GetVariableType(int n);
   int GetComplexVariableType(int n);
-  
+
   // Description:
   // Set/Get the time value at which to get the value.
   virtual void SetTimeValue(float value);
@@ -101,7 +120,7 @@ public:
   // Get the minimum or maximum time value for this data set.
   vtkGetMacro(MinimumTimeValue, float);
   vtkGetMacro(MaximumTimeValue, float);
-  
+
   // Description:
   // Get the time values per time set
   vtkGetObjectMacro(TimeSets, vtkDataArrayCollection);
@@ -118,32 +137,32 @@ public:
   vtkBooleanMacro(ReadAllVariables, int);
   vtkSetMacro(ReadAllVariables, int);
   vtkGetMacro(ReadAllVariables, int);
-  
+
   // Description:
   // Get the data array selection tables used to configure which data
   // arrays are loaded by the reader.
   vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
-  
-  // Description:  
+
+  // Description:
   // Get the number of point or cell arrays available in the input.
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
-  
+
   // Description:
   // Get the name of the point or cell array with the given index in
   // the input.
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
-  
+
   // Description:
   // Get/Set whether the point or cell array with the given name is to
   // be read.
   int GetPointArrayStatus(const char* name);
   int GetCellArrayStatus(const char* name);
-  void SetPointArrayStatus(const char* name, int status);  
-  void SetCellArrayStatus(const char* name, int status);  
-  
+  void SetPointArrayStatus(const char* name, int status);
+  void SetCellArrayStatus(const char* name, int status);
+
   //BTX
   enum FileTypes
   {
@@ -167,7 +186,7 @@ public:
   const char *GetByteOrderAsString();
 
 //BTX
-  enum 
+  enum
   {
     FILE_BIG_ENDIAN=0,
     FILE_LITTLE_ENDIAN=1,
@@ -176,7 +195,7 @@ public:
 //ETX
 
   // Description:
-  // Get the Geometry file name. Made public to allow access from 
+  // Get the Geometry file name. Made public to allow access from
   // apps requiring detailed info about the Data contents
   vtkGetStringMacro(GeometryFileName);
 
@@ -200,18 +219,22 @@ public:
   // valid EnSight case file.
   static int CanReadFile(const char *casefilename);
 
+//THIB
+vtkGenericEnSightReader* GetReader() { return this->Reader; }
+
+
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
 
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int RequestInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*);
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*);
-  
+
   // Description:
   // Internal function to read in a line up to 256 characters.
   // Returns zero if there was an error.
@@ -221,7 +244,7 @@ protected:
   // Internal function to read up to 80 characters from a binary file.
   // Returns zero if there was an error.
   int ReadBinaryLine(char result[80]);
-  
+
   // Internal function that skips blank lines and reads the 1st
   // non-blank line it finds (up to 256 characters).
   // Returns 0 is there was an error.
@@ -230,7 +253,7 @@ protected:
   // Description:
   // Set the geometry file name.
   vtkSetStringMacro(GeometryFileName);
-  
+
   // Description:
   // Add a variable description to the appropriate array.
   void AddVariableDescription(const char* description);
@@ -238,20 +261,20 @@ protected:
 
   // Description:
   // Add a variable type to the appropriate array.
-  void AddVariableType(int variableType); 
+  void AddVariableType(int variableType);
   void AddComplexVariableType(int variableType);
 
   // Description:
   // Replace the wildcards in the geometry file name with appropriate filename
   // numbers as specified in the time set or file set.
-  int  ReplaceWildcards(char* fileName, int timeSet, int fileSet);    
+  int  ReplaceWildcards(char* fileName, int timeSet, int fileSet);
   void ReplaceWildcardsHelper(char* fileName, int num);
-  
+
   // Callback registered with the SelectionObserver.
   static void SelectionModifiedCallback(vtkObject* caller, unsigned long eid,
                                         void* clientdata, void* calldata);
   void SelectionModified();
-  
+
   // Utility to create argument for vtkDataArraySelection::SetArrays.
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
@@ -259,19 +282,19 @@ protected:
   // Fill the vtkDataArraySelection objects with the current set of
   // EnSight variables.
   void SetDataArraySelectionSetsFromVariables();
-  
+
   // Fill the vtkDataArraySelection objects with the current set of
   // arrays in the internal EnSight reader.
   void SetDataArraySelectionSetsFromReader();
-  
+
   // Fill the internal EnSight reader's vtkDataArraySelection objects
   // from those in this object.
   void SetReaderDataArraySelectionSetsFromSelf();
-  
+
   istream* IS;
   FILE *IFile;
   vtkGenericEnSightReader *Reader;
-  
+
   char* CaseFileName;
   char* GeometryFileName;
   char* FilePath;
@@ -279,14 +302,14 @@ protected:
   // array of types (one entry per instance of variable type in case file)
   int* VariableTypes;
   int* ComplexVariableTypes;
-  
+
   // pointers to lists of descriptions
   char** VariableDescriptions;
   char** ComplexVariableDescriptions;
-  
+
   int NumberOfVariables;
   int NumberOfComplexVariables;
-  
+
   // number of file names / descriptions per type
   int NumberOfScalarsPerNode;
   int NumberOfVectorsPerNode;
@@ -297,17 +320,17 @@ protected:
   int NumberOfScalarsPerMeasuredNode;
   int NumberOfVectorsPerMeasuredNode;
   int NumberOfComplexScalarsPerNode;
-  int NumberOfComplexVectorsPerNode;  
+  int NumberOfComplexVectorsPerNode;
   int NumberOfComplexScalarsPerElement;
   int NumberOfComplexVectorsPerElement;
-  
+
   float TimeValue;
   float MinimumTimeValue;
   float MaximumTimeValue;
-  
+
   // Flag for whether TimeValue has been set.
   int TimeValueInitialized;
-  
+
   vtkDataArrayCollection *TimeSets;
   virtual void SetTimeSets(vtkDataArrayCollection*);
 
@@ -315,20 +338,20 @@ protected:
 
   int ByteOrder;
   int ParticleCoordinatesByIndex;
-  
+
   // The EnSight file version being read.  Valid after
   // UpdateInformation.  Value is -1 for unknown version.
   int EnSightVersion;
-  
+
   // The array selections.  These map over the variables and complex
   // variables to hide the details of EnSight behind VTK terminology.
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
-  
+
   // The observer to modify this object when the array selections are
   // modified.
   vtkCallbackCommand* SelectionObserver;
-  
+
   // Whether the SelectionModified callback should invoke Modified.
   // This is used when we are copying to/from the internal reader.
   int SelectionModifiedDoNotCallModified;
@@ -336,10 +359,8 @@ protected:
   // Insert a partId and return the 'realId' that should be used.
   int InsertNewPartId(int partId);
 
-//BTX
   // Wrapper around an stl map
   TranslationTableType *TranslationTable;
-//ETX
 
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.

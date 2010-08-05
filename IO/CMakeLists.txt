@@ -56,6 +56,7 @@ vtkFLUENTReader.cxx
 vtkFacetWriter.cxx
 vtkGenericDataObjectReader.cxx
 vtkGenericDataObjectWriter.cxx
+vtkGenericEnSightReader.cxx
 vtkGESignaReader.cxx
 vtkGAMBITReader.cxx
 vtkGaussianCubeReader.cxx
