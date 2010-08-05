@@ -31,6 +31,8 @@ public:
   virtual void GetBounds(double bounds[4]);
   virtual bool Paint(vtkContext2D *painter);
 
+  void HighlightCurrentPoint(double* currentPoint);
+
 protected:
   vtkControlPointsItem();
   virtual ~vtkControlPointsItem();

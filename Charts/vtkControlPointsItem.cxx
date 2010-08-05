@@ -134,3 +134,26 @@ void vtkControlPointsItem::DrawPoints(vtkContext2D* painter, vtkPoints2D* points
     painter->PopMatrix();
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::HighlightCurrentPoint(double* currentPoint)
+{
+  // initialize local variables...
+  double* point = NULL;
+  int numberOfPoints = this->HighlightPoints->GetNumberOfPoints();
+  int i = 0;
+  // Is the current point highlighted?
+  // ->invert state
+  while(i<numberOfPoints)
+    {
+    point = this->HighlightPoints->GetPoint(i);
+    if(point[0] == currentPoint[0])
+      {
+      this->HighlightPoints->GetData()->RemoveTuple(i);
+      return;
+      }
+    ++i;
+    }
+  // If we are here: point not found : add it
+  this->HighlightPoints->InsertNextPoint(currentPoint);
+}

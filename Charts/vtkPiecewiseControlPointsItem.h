@@ -35,7 +35,37 @@ protected:
   virtual ~vtkPiecewiseControlPointsItem();
 
   virtual void ComputePoints();
+
+  // Description:
+  // Returns true if the supplied x, y coordinate is inside the item.
+  virtual bool Hit(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse enter event.
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse move event.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse leave event.
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button down event.
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+
+  // Description:
+  // Mouse button release event.
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+
   vtkPiecewiseFunction* PiecewiseFunction;
+
+  float LastPosition[2];
+
+  int MouseOver;
+  int MouseButtonPressed;
 
 private:
   vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.
