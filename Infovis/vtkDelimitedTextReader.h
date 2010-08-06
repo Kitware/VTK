@@ -60,7 +60,7 @@ public:
   vtkTypeMacro(vtkDelimitedTextReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Descriptin:
+  // Description:
   // Specifies the delimited text file to be loaded.
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
