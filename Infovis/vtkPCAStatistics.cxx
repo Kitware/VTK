@@ -60,6 +60,7 @@ public:
   vtkIdType BasisSize;
 };
 
+// ----------------------------------------------------------------------
 vtkPCAAssessFunctor* vtkPCAAssessFunctor::New()
 {
   return new vtkPCAAssessFunctor;
@@ -174,6 +175,7 @@ bool vtkPCAAssessFunctor::InitializePCA(
   return true;
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
   vtkIdType i;
@@ -609,6 +611,13 @@ void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 }
 
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::Test( vtkTable* inData,
+                             vtkMultiBlockDataSet* inMeta,
+                             vtkTable* outMeta )
+
+{
+}
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
                                vtkMultiBlockDataSet* inMeta, 
