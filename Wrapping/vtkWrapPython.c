@@ -941,7 +941,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     result[currPos++] = vtkWrapPython_FormatChar(argtype);
 
     if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER &&
-        argtype != VTK_PARSE_OBJECT_PTR && argtype != VTK_PARSE_OBJECT_PTR)
+        argtype != VTK_PARSE_OBJECT_PTR && argtype != VTK_PARSE_QOBJECT_PTR)
       {
       /* back up and replace the char */
       --currPos;

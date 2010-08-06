@@ -602,6 +602,27 @@ int vtkPythonUtil::CheckArg(
           }
         }
 
+      // Check for Qt types
+      else if (classname[0] == '*' && classname[1] == 'Q' &&
+        (classname[2] == 't' || classname[2] == toupper(classname[2])))
+        {
+        classname++;
+
+        if (arg == Py_None)
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        void* qobj = SIPGetPointerFromObject(arg, classname);
+        if(!qobj)
+          {
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        else
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        }
+
       // An array
       else if (classname[0] == '*')
         {
@@ -1886,6 +1907,12 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   if(!td)
     {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
+    return NULL;
+    }
+
+  if(sipTypeIsEnum(td))
+    {
+    PyErr_SetString(PyExc_TypeError, "Converting to SIP type enum not supported yet.");
     return NULL;
     }
 
