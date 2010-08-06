@@ -627,7 +627,7 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     return;
     }
 
-  // For each request, add test columns to the related derived model block.
+  // For each block, add test columns to the related derived model block.
   vtkIdType nRowData = inData->GetNumberOfRows();
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
 
@@ -635,12 +635,36 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     {
     vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
     derivedTab->Dump();
+
+    // Silenty ignore empty blocks
     if ( ! derivedTab )
-      { // Silently skip invalid entries.
+      {
       continue;
       }
 
-    } // for ( int b = 1; b < nBlocks; ++ b )
+    // But return informative message when cardinalities do not match.
+    if ( derivedTab->GetValueByName( 2, "Mean" ).ToInt() != nRowData )
+      {
+      vtkWarningMacro( "Inconsistent input: input data has "
+                       << nRowData
+                       << " rows but primary model has cardinality "
+                       << derivedTab->GetValueByName( 2, "Mean" ).ToInt()
+                       << " for block "
+                       << b
+                       <<". Cannot test." );
+      continue;
+      }
+
+    // Now, figure dimensionality; it is assumed that the 2 first columns
+    // are what they should be: namely, Column and Mean.
+    int p = derivedTab->GetNumberOfColumns() - 2;
+    cerr << "p = " << p << "\n";
+    // Create and fill entries of mean vector
+    double *mX = new double[p];
+
+    // Clean up
+    delete [] mX;
+    } // b
 
 }
 // ----------------------------------------------------------------------
