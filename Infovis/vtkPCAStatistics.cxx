@@ -617,6 +617,16 @@ void vtkPCAStatistics::Test( vtkTable* inData,
                              vtkTable* outMeta )
 
 {
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  if ( ! outMeta )
+    {
+    return;
+    }
+
 }
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
