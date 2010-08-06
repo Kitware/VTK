@@ -554,10 +554,10 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
       }
     if ( r >= nRow )
       {
-      vtkErrorMacro( "Incomplete input: model does not have a row "
-                     << varName.c_str()
-                     <<". Cannot test." );
-      return;
+      vtkWarningMacro( "Incomplete input: model does not have a row "
+		       << varName.c_str()
+		       <<". Cannot test." );
+      continue;
       }
     
     // Retrieve model statistics necessary for Jarque-Bera testing
