@@ -355,7 +355,8 @@ void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
   assert("pre: positive_rx" && rx>=0);
   assert("pre: positive_ry" && ry>=0);
 
-  this->DrawEllipticArc(x,y,rx,ry,0.0,360.0);
+  this->DrawEllipseWedge(x, y, rx, ry, 0.0, 0.0, 0.0, 360.0);
+  this->DrawEllipticArc(x, y, rx, ry, 0.0, 360.0);
 }
 
 //-----------------------------------------------------------------------------
