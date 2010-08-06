@@ -602,6 +602,28 @@ int vtkPythonUtil::CheckArg(
           }
         }
 
+      // An array
+      else if (classname[0] == '*')
+        {
+        // incompatible unless the type checks out
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        if (PySequence_Check(arg))
+          {
+#if PY_MAJOR_VERSION >= 2
+          Py_ssize_t m = PySequence_Size(arg);
+#else
+          Py_ssize_t m = PySequence_Length(arg);
+#endif
+          if (m > 0)
+            {
+            // the "bool" is really just a dummy
+            PyObject *sarg = PySequence_GetItem(arg, 0);
+            penalty = vtkPythonUtil::CheckArg(sarg, &classname[1], "bool");
+            Py_DECREF(sarg);
+            }
+          }
+        }
+
       // An object of unrecognized type
       else
         {
