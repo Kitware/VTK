@@ -90,9 +90,6 @@ extern "C" void vtkXTclTimerProc(ClientData clientData)
 class vtkXRenderWindowTclInteractorInternals
 {
 public:
-
-  int BreakLoopFlag;
-
   vtkXTclTimer* CreateTimer(vtkRenderWindowInteractor* iren,
     int timerId, unsigned long duration)
     {
@@ -163,7 +160,6 @@ extern "C" int vtkTclEventProc(XtPointer clientData, XEvent *event)
 vtkXRenderWindowTclInteractor::vtkXRenderWindowTclInteractor()
 {
   this->Internal = new vtkXRenderWindowTclInteractorInternals;
-  this->Internal->BreakLoopFlag = 0;
 }
 
 
@@ -300,24 +296,12 @@ void vtkXRenderWindowTclInteractor::Start()
     return;
     }
 
-  this->Internal->BreakLoopFlag = 0;
+  this->BreakLoopFlag = 0;
   do
     {
     Tk_DoOneEvent(0);
     }
-  while (this->Internal->BreakLoopFlag == 0);
-}
-
-void vtkXRenderWindowTclInteractor::TerminateApp()
-{
-  if(this->Internal->BreakLoopFlag)
-    {
-    return;
-    }
-
-  this->Internal->BreakLoopFlag = 1;
-
-  this->Superclass::TerminateApp();
+  while (this->BreakLoopFlag == 0);
 }
 
 //-------------------------------------------------------------------------

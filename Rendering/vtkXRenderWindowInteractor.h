@@ -68,11 +68,10 @@ public:
   // Setting it to anything other than zero will cause
   // the interactor loop to terminate and return to the
   // calling function.
-  // @deprecated - use TerminateApp() instead.
-  VTK_LEGACY(int GetBreakLoopFlag());
-  VTK_LEGACY(void SetBreakLoopFlag(int));
-  VTK_LEGACY(void BreakLoopFlagOff());
-  VTK_LEGACY(void BreakLoopFlagOn());
+  vtkGetMacro(BreakLoopFlag, int);
+  void SetBreakLoopFlag(int);
+  void BreakLoopFlagOff();
+  void BreakLoopFlagOn();
 
   // Description:
   // Initializes the event handlers using an XtAppContext that you have
@@ -190,6 +189,8 @@ protected:
                           XtTimerCallbackProc proc, XtPointer client_data) ;
   void Timer(XtPointer client_data, XtIntervalId *id);
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
+
+  int BreakLoopFlag;
 
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
