@@ -991,11 +991,11 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 
 /* -------------------------------------------------------------------- */
 /* Create a string to describe the signature of a method.
- * If isvtkobject is set the string will start with an ampersand.
+ * If isvtkobject is set the string will start with an "at" symbol.
  * Following the optional space will be a ParseTuple format string,
  * followed by the names of any VTK classes required.  The optional
- * ampersand indicates that methods like vtkClass.Method(self, arg1,...)
- * are possible, and the ampersand is a placeholder for "self". */
+ * "at" symbol indicates that methods like vtkClass.Method(self, arg1,...)
+ * are possible, so the "at" is a placeholder for "self". */
 
 static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction)
@@ -4589,16 +4589,40 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   NamespaceInfo *contents;
   OptionInfo *options;
   HierarchyInfo *hinfo = 0;
+  const char *name;
+  char *name_from_file = 0;
   int class_has_new = 0;
   int has_constants = 0;
   int is_vtkobject = 1;
   int i;
+  size_t j, m;
 
   /* get the main class */
   data = file_info->MainClass;
-  if (data == NULL)
+  if (data)
     {
-    return;
+    name = data->Name;
+    }
+  /* if no class, use the file name */
+  else
+    {
+    name = file_info->FileName;
+    m = strlen(name);
+    for (j = m; j > 0; j--)
+      {
+      if (name[j] == '.') { break; }
+      }
+    if (j > 0) { m = j; }
+    for (j = m; j > 0; j--)
+      {
+      if (!((name[j-1] >= 'a' && name[j-1] <= 'z') ||
+            (name[j-1] >= 'A' && name[j-1] <= 'Z') ||
+            name[j-1] == '_')) { break; }
+      }
+    name_from_file = (char *)malloc(m - j + 1);
+    strncpy(name_from_file, &name[j], m - j);
+    name_from_file[m-j] = '\0';
+    name = name_from_file;
     }
 
   /* get the global namespace */
@@ -4615,12 +4639,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
   /* the VTK_WRAPPING_CXX tells header files where they're included from */
   fprintf(fp,
-          "// python wrapper for %s object\n//\n"
+          "// python wrapper for %s\n//\n"
           "#define VTK_WRAPPING_CXX\n",
-          data->Name);
+          name);
 
   /* unless this is vtkObjectBase, define VTK_STREAMS_FWD_ONLY */
-  if (strcmp("vtkObjectBase",data->Name) != 0)
+  if (strcmp("vtkObjectBase", name) != 0)
     {
     /* Block inclusion of full streams.  */
     fprintf(fp,
@@ -4641,26 +4665,29 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#include <vtksys/ios/sstream>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */
-  if (strcmp("vtkObject", data->Name) == 0)
+  if (strcmp("vtkObject", name) == 0)
     {
     fprintf(fp,
           "#include \"vtkPythonCommand.h\"\n");
     }
 
-  /* generate includes for any special types that are used */
-  vtkWrapPython_GenerateSpecialHeaders(fp, data, hinfo);
+  if (data)
+    {
+    /* generate includes for any special types that are used */
+    vtkWrapPython_GenerateSpecialHeaders(fp, data, hinfo);
+    }
 
   /* the header file for the wrapped class */
   fprintf(fp,
           "#include \"%s.h\"\n",
-          data->Name);
+          name);
 
   /* is this isn't a vtkObjectBase-derived object, then it is special */
   is_vtkobject = options->IsVTKObject;
 
   /* add sstream header for special objects and vtkObjectBase*/
-  if (strcmp(data->Name, "vtkObjectBase") == 0 ||
-      (!is_vtkobject && !data->IsAbstract))
+  if (data && (strcmp(data->Name, "vtkObjectBase") == 0 ||
+               (!is_vtkobject && !data->IsAbstract)))
     {
     fprintf(fp,
             "\n"
@@ -4674,9 +4701,9 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#else\n"
           "extern \"C\" { void PyVTKAddFile_%s(PyObject *, const char *); }\n"
           "#endif\n",
-          data->Name, data->Name);
+          name, name);
 
-  if (is_vtkobject)
+  if (data && is_vtkobject)
     {
     fprintf(fp,
             "#if defined(WIN32)\n"
@@ -4704,39 +4731,42 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     }
 
   /* prototype for the docstring function */
-  fprintf(fp,
-          "\n"
-          "static const char **%sDoc();\n"
-          "\n",
-          data->Name);
-
-  /* check for New() function */
-  for (i = 0; i < data->NumberOfFunctions; i++)
+  if (data)
     {
-    if (data->Functions[i]->Name &&
-        strcmp("New",data->Functions[i]->Name) == 0 &&
-        data->Functions[i]->NumberOfArguments == 0)
+    fprintf(fp,
+            "\n"
+            "static const char **%sDoc();\n"
+            "\n",
+            data->Name);
+
+    /* check for New() function */
+    for (i = 0; i < data->NumberOfFunctions; i++)
       {
-      class_has_new = 1;
+      if (data->Functions[i]->Name &&
+          strcmp("New",data->Functions[i]->Name) == 0 &&
+          data->Functions[i]->NumberOfArguments == 0)
+        {
+        class_has_new = 1;
+        }
       }
-    }
 
-  /* now output all the methods are wrappable */
-  if (is_vtkobject || !data->IsAbstract)
-    {
-    vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
-    }
+    /* now output all the methods are wrappable */
+    if (is_vtkobject || !data->IsAbstract)
+      {
+      vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
+      }
 
-  /* output the class initilization function for VTK objects */
-  if (is_vtkobject)
-    {
-    vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
-    }
+    /* output the class initilization function for VTK objects */
+    if (is_vtkobject)
+      {
+      vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
+      }
 
-  /* output the class initilization function for special objects */
-  else if (!data->IsAbstract)
-    {
-    vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
+    /* output the class initilization function for special objects */
+    else if (!data->IsAbstract)
+      {
+      vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
+      }
     }
 
   /* The function for adding everything to the module dict */
@@ -4745,9 +4775,9 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "  PyObject *dict, const char *modulename)\n"
           "{\n"
           "  PyObject *o;\n",
-          data->Name);
+          name);
 
-  if (is_vtkobject)
+  if (data && is_vtkobject)
     {
     fprintf(fp,
             "  o = PyVTKClass_%sNew(modulename);\n"
@@ -4790,7 +4820,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
               "\n");
       }
     }
-  else /* not is_vtkobject */
+  else if (data) /* not is_vtkobject */
     {
     fprintf(fp,
             "  o = Py%s_TypeNew(modulename);\n"
@@ -4814,7 +4844,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "}\n\n");
 
   /* the docstring for the class, as a static var ending in "Doc" */
-  if (is_vtkobject || !data->IsAbstract)
+  if (data && (is_vtkobject || !data->IsAbstract))
     {
     fprintf(fp,
             "const char **%sDoc()\n"
@@ -4831,5 +4861,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
             "  return docstring;\n"
             "}\n"
             "\n");
+    }
+
+  if (name_from_file)
+    {
+    free(name_from_file);
     }
 }
