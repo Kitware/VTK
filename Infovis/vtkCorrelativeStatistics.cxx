@@ -596,13 +596,12 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       }
 
     // Retrieve model statistics necessary for Jarque-Bera-Srivastava testing
-    double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    if ( n != nRowData )
+    if ( primaryTab->GetValueByName( r, "Cardinality" ).ToInt() != nRowData )
       {
       vtkWarningMacro( "Inconsistent input: input data has "
                        << nRowData
                        << " rows but primary model has cardinality "
-                       << n
+                       << primaryTab->GetValueByName( r, "Cardinality" ).ToDouble()
                        << " for pair "
                        << varNameX.c_str()
                        << ", "
@@ -624,6 +623,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     // Eliminate near degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
+    double invn = 1. / nRowData;
     if ( detS > 1.e-100
          && sX2 > 0.
          && sY2 > 0. )
@@ -674,12 +674,12 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       sum4Y /= ( eigS2 * eigS2 );
 
       // Calculate Srivastava skewness and kurtosis
-      bS1 = ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) ) / ( 2. * n * n );
-      bS2 = ( sum4X +  sum4Y ) / ( 2. * n );
+      bS1 = .5 * invn * invn * ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) );
+      bS2 = .5 * invn * ( sum4X +  sum4Y );
 
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
-      jbs = static_cast<double>( n ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
+      jbs = static_cast<double>( nRowData ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
       }
     else
       {
