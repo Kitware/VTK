@@ -63,6 +63,10 @@ public:
   // our ExitCallback method.
   virtual void Start();
 
+  // Description:
+  // Break the event loop on 'q','e' keypress. Want more ???
+  void TerminateApp();
+
 protected:
   vtkXRenderWindowTclInteractor();
   ~vtkXRenderWindowTclInteractor();

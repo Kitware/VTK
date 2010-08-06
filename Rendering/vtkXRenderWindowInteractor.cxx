@@ -117,7 +117,6 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->OwnTop = 0;
   this->OwnApp = 0;
   this->TopLevelShell = NULL;
-  this->BreakLoopFlag = 1;
 }
 
 //-------------------------------------------------------------------------
@@ -206,12 +205,14 @@ void vtkXRenderWindowInteractor::SetTopLevelShell(Widget topLevel)
 // This results in Start() returning to its caller.
 void vtkXRenderWindowInteractor::TerminateApp()
 {
-  if(this->BreakLoopFlag)
+  if(vtkXRenderWindowInteractor::App)
     {
-    return;
+    if(XtAppGetExitFlag(vtkXRenderWindowInteractor::App))
+      {
+      return;
+      }
+    XtAppSetExitFlag(vtkXRenderWindowInteractor::App);
     }
-
-  this->BreakLoopFlag = 1;
 
 #ifdef VTK_USE_TDX
   // 3DConnexion device
@@ -246,22 +247,23 @@ void vtkXRenderWindowInteractor::TerminateApp()
   XFlush(client.display);
 }
 
+#ifndef VTK_LEGACY_REMOVE
 void vtkXRenderWindowInteractor::SetBreakLoopFlag(int f)
 {
   if(f)
     {
-    this->BreakLoopFlagOn();
+    this->TerminateApp();
+    this->Modified();
     }
-  else
-    {
-    this->BreakLoopFlagOff();
-    }
+}
+
+int vtkXRenderWindowInteractor::GetBreakLoopFlag()
+{
+  return static_cast<int>(XtAppGetExitFlag(vtkXRenderWindowInteractor::App));
 }
 
 void vtkXRenderWindowInteractor::BreakLoopFlagOff()
 {
-  this->BreakLoopFlag = 0;
-  this->Modified();
 }
 
 void vtkXRenderWindowInteractor::BreakLoopFlagOn()
@@ -269,6 +271,7 @@ void vtkXRenderWindowInteractor::BreakLoopFlagOn()
   this->TerminateApp();
   this->Modified();
 }
+#endif
 
 //-------------------------------------------------------------------------
 // This will start up the X event loop. If you
@@ -292,15 +295,7 @@ void vtkXRenderWindowInteractor::Start()
     return;
     }
 
-  this->BreakLoopFlag = 0;
-  do
-    {
-    XEvent event;
-    XtAppNextEvent(vtkXRenderWindowInteractor::App, &event);
-    XtDispatchEvent(&event);
-    }
-  while (this->BreakLoopFlag == 0);
-
+  XtAppMainLoop(vtkXRenderWindowInteractor::App);
 }
 
 //-------------------------------------------------------------------------
@@ -540,9 +535,6 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "App: (none)\n";
     }
-    
-  os << indent << "BreakLoopFlag: "                                                           
-     << (this->BreakLoopFlag ? "On\n" : "Off\n");     
 }
 
 //-------------------------------------------------------------------------
