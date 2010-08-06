@@ -599,14 +599,14 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
     if ( n != nRowData )
       {
-      vtkWarningMacro( "Inconsistent input: data has "
+      vtkWarningMacro( "Inconsistent input: input data has "
                        << nRowData
-                       << " rows for pair "
+                       << " rows but primary model has cardinality "
+                       << n
+                       << " for pair "
                        << varNameX.c_str()
                        << ", "
                        << varNameY.c_str()
-                       << " but primary model has cardinality "
-                       << n
                        <<". Cannot test." );
       continue;
       }
