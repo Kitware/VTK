@@ -21,6 +21,7 @@
 #include "vtkContextDevice2D.h"
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkPoints2D.h"
 
 #include "vtkPlotPie.h"

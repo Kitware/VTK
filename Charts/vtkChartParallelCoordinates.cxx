@@ -19,6 +19,7 @@
 #include "vtkBrush.h"
 #include "vtkPen.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkTextProperty.h"
 #include "vtkAxis.h"
 #include "vtkPlotParallelCoordinates.h"
