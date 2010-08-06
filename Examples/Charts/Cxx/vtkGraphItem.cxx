@@ -23,6 +23,7 @@
 
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
