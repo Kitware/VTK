@@ -627,6 +627,21 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     return;
     }
 
+  // For each request, add test columns to the related derived model block.
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+
+  for ( unsigned int b = 1; b < nBlocks; ++ b )
+    {
+    vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
+    derivedTab->Dump();
+    if ( ! derivedTab )
+      { // Silently skip invalid entries.
+      continue;
+      }
+
+    } // for ( int b = 1; b < nBlocks; ++ b )
+
 }
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
