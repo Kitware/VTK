@@ -113,6 +113,7 @@ ENDIF(VTK_USE_QT)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(Kit_HDRS
     vtkColor.h
+    vtkContextMouseEvent.h
     vtkVector.h
     )
   INSTALL(FILES ${Kit_HDRS}
