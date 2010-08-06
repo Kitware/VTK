@@ -190,7 +190,7 @@ protected:
   void Timer(XtPointer client_data, XtIntervalId *id);
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 
-  int BreakLoopFlag;
+  static int BreakLoopFlag;
 
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
