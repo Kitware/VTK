@@ -17,6 +17,7 @@
 
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkMarkUtil.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -37,7 +38,7 @@ vtkBarMark::vtkBarMark()
   this->MouseOver=false;
   this->ActiveItem=-1;
 //  this->PaintIdMode=false;
-  
+
   this->SetFillColor(vtkMarkUtil::DefaultSeriesColorFromParent);
   this->SetLineWidth(1);
   this->SetLineColor(vtkColor(0.0, 0.0, 0.0, 1.0));
@@ -57,7 +58,7 @@ void vtkBarMark::PaintIds()
 {
   assert("pre: not_yet" && !this->PaintIdMode);
   vtkDebugMacro("PaintId called.");
-  
+
   // this call happens in the mark template, not in the mark instances.
   if(this->Parent!=0)
     {
@@ -66,12 +67,12 @@ void vtkBarMark::PaintIds()
 //    this->PaintIdMode=false;
 //    this->MarkInstances[j*numChildren + i]->Paint(painter);
     }
-  
+
 //  this->Scene->GetLastPainter()->SetTransform(this->GetTransform());
 //  this->PaintIdMode=true;
 //  this->Paint(this->Scene->GetLastPainter());
 //  this->PaintIdMode=false;
-  
+
   assert("post: done" && !this->PaintIdMode);
 }
 
@@ -79,10 +80,10 @@ void vtkBarMark::PaintIds()
 void vtkBarMark::UpdateBufferId()
 {
   vtkAbstractContextBufferId *bi=this->Scene->GetBufferId();
-  
+
   int width=bi->GetWidth();
   int height=bi->GetHeight();
-  
+
   if(this->BufferId==0 || width!=this->BufferId->GetWidth() ||
      height!=this->BufferId->GetHeight())
     {
@@ -97,7 +98,7 @@ void vtkBarMark::UpdateBufferId()
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
-    
+
     this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
     this->Scene->GetLastPainter()->BufferIdModeEnd();
@@ -108,9 +109,9 @@ void vtkBarMark::UpdateBufferId()
 vtkIdType vtkBarMark::GetPickedItem(int x, int y)
 {
   this->UpdateBufferId();
-  
+
   vtkIdType result=this->BufferId->GetPickedItem(x,y);
-  
+
   assert("post: valid_result" && result>=-1 &&
          result<this->Data.GetData(this).GetNumberOfChildren());
   return result;
@@ -128,10 +129,10 @@ bool vtkBarMark::MouseEnterEvent(const vtkContextMouseEvent &
 bool vtkBarMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   bool result=false;
-  
+
   // we can have this->MouseOver false if the enter event have been caught
   // previously by another context item.
-  
+
   if(this->MouseOver)
     {
     vtkIdType numChildren=this->Data.GetData(this).GetNumberOfChildren();
@@ -139,7 +140,7 @@ bool vtkBarMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       {
       vtkIdType pickedItem=this->GetPickedItem(mouse.ScreenPos[0],
                                                mouse.ScreenPos[1]);
-      
+
       if(pickedItem!=-1)
         {
 //        cout << "picked sector is"<< pickedItem << endl;
@@ -158,7 +159,7 @@ bool vtkBarMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
         }
       }
     }
-  
+
   return result;
 }
 
@@ -205,7 +206,7 @@ bool vtkBarMark::Paint(vtkContext2D *painter)
   vtkColor* lineColor = this->LineColor.GetArray(this);
   double* lineWidth = this->LineWidth.GetArray(this);
   vtkIdType numChildren = this->Data.GetData(this).GetNumberOfChildren();
-  
+
   if(this->PaintIdMode)
     {
     if(numChildren>16777214) // 24-bit limit, 0 reserved for background encoding.
@@ -214,8 +215,8 @@ bool vtkBarMark::Paint(vtkContext2D *painter)
       numChildren=16777214;
       }
     }
-  
-  
+
+
   for (vtkIdType i = 0; i < numChildren; ++i)
     {
     painter->GetBrush()->SetColor(ConvertColor(fillColor[i].Red),
@@ -226,12 +227,12 @@ bool vtkBarMark::Paint(vtkContext2D *painter)
                                 ConvertColor(lineColor[i].Green),
                                 ConvertColor(lineColor[i].Blue),
                                 ConvertColor(lineColor[i].Alpha));
-    
+
     if(this->PaintIdMode)
       {
       painter->ApplyId(i+1);
       }
-    
+
     if (lineWidth[i] > 0.0)
       {
       painter->GetPen()->SetWidth(lineWidth[i]);

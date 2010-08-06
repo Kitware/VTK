@@ -20,6 +20,7 @@
 #include "vtkTransform2D.h"
 #include "vtkMatrix3x3.h"
 #include "vtkContextScenePrivate.h"
+#include "vtkContextMouseEvent.h"
 
 // Get my new commands
 #include "vtkCommand.h"

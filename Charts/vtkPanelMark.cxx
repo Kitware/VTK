@@ -21,6 +21,7 @@
 #include <cassert>
 #include "vtkContextBufferId.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPanelMark);
@@ -62,10 +63,10 @@ vtkMark* vtkPanelMark::Add(int type)
 vtkIdType vtkPanelMark::FindIndex(vtkMark *m)
 {
   assert("pre: m_exists" && m!=0);
-  
+
   vtkIdType result=0;
   vtkIdType size=static_cast<vtkIdType>(this->Marks.size());
-  
+
   bool found=false;
   while(!found && result<size)
     {
@@ -80,9 +81,9 @@ vtkIdType vtkPanelMark::FindIndex(vtkMark *m)
     {
     result=-1;
     }
-  
+
   assert("post: valid_result" && result>=-1 && result<size);
-  
+
   return result;
 }
 
@@ -93,14 +94,14 @@ void vtkPanelMark::Update()
   this->Left.Update(this);
   this->Right.Update(this);
   this->Top.Update(this);
-  this->Bottom.Update(this);  
+  this->Bottom.Update(this);
   vtkIdType numMarks = static_cast<vtkIdType>(this->Marks.size());
-  
-  // Create only a single instance if no real data is set on panel. 
-  vtkIdType numChildren = 1; 
+
+  // Create only a single instance if no real data is set on panel.
+  vtkIdType numChildren = 1;
   vtkDataElement data = this->Data.GetData(this);
   if(data.IsValid())
-    {    
+    {
     numChildren = data.GetNumberOfChildren();
     }
   for (vtkIdType j = 0; j < numMarks; ++j) // types
@@ -125,13 +126,13 @@ void vtkPanelMark::Update()
 void vtkPanelMark::PaintIds()
 {
   vtkDebugMacro("PaintId called.");
-  
+
   this->PaintIdMode=true;
   this->Paint(this->Scene->GetLastPainter());
   this->PaintIdMode=false;
 #if 0
   size_t size = this->Marks.size();
-  
+
   if(size>16777214) // 24-bit limit, 0 reserved for background encoding.
     {
     vtkWarningMacro(<<"picking will not work properly as there are two many items. Items over 16777214 will be ignored.");
@@ -150,10 +151,10 @@ void vtkPanelMark::PaintIds()
 void vtkPanelMark::UpdateBufferId()
 {
   vtkAbstractContextBufferId *bi=this->Scene->GetBufferId();
-  
+
   int width=bi->GetWidth();
   int height=bi->GetHeight();
-  
+
   if(this->BufferId==0 || width!=this->BufferId->GetWidth() ||
      height!=this->BufferId->GetHeight())
     {
@@ -164,7 +165,7 @@ void vtkPanelMark::UpdateBufferId()
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
     this->BufferId->Allocate();
-    
+
     this->Scene->GetLastPainter()->BufferIdModeBegin(this->BufferId);
     this->PaintIds();
     this->Scene->GetLastPainter()->BufferIdModeEnd();
@@ -175,9 +176,9 @@ void vtkPanelMark::UpdateBufferId()
 vtkIdType vtkPanelMark::GetPickedItem(int x, int y)
 {
   this->UpdateBufferId();
-  
+
   vtkIdType result=this->BufferId->GetPickedItem(x,y);
-  
+
   assert("post: valid_result" && result>=-1 &&
          result<static_cast<vtkIdType>(this->Marks.size()));
   return result;
@@ -195,10 +196,10 @@ bool vtkPanelMark::MouseEnterEvent(const vtkContextMouseEvent &
 bool vtkPanelMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   bool result=false;
-  
+
   // we can have this->MouseOver false if the enter event have been caught
   // previously by another context item.
-  
+
   if(this->MouseOver)
     {
     vtkIdType numMarks=static_cast<vtkIdType>(this->Marks.size());
@@ -206,7 +207,7 @@ bool vtkPanelMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       {
       vtkIdType pickedItem=this->GetPickedItem(mouse.ScreenPos[0],
                                                mouse.ScreenPos[1]);
-      
+
       if(this->ActiveItem!=pickedItem)
         {
         if(this->ActiveItem!=-1)
@@ -219,7 +220,7 @@ bool vtkPanelMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
           this->Marks[this->ActiveItem]->MouseEnterEvent(mouse);
           }
         }
-      
+
       // propagate mouse move events
       size_t size = this->Marks.size();
       for (size_t i = 0; i < size; ++i)
@@ -228,7 +229,7 @@ bool vtkPanelMark::MouseMoveEvent(const vtkContextMouseEvent &mouse)
         }
       }
     }
-  
+
   return result;
 }
 
@@ -239,10 +240,10 @@ bool vtkPanelMark::MouseLeaveEvent(const vtkContextMouseEvent &
   this->MouseOver=false;
   return false;
 }
-  
+
 // ----------------------------------------------------------------------------
 bool vtkPanelMark::Hit(const vtkContextMouseEvent &mouse)
-{ 
+{
   // propagate to all the contained marks
   vtkIdType numMarks=static_cast<vtkIdType>(this->Marks.size());
   vtkIdType j=0;
@@ -269,16 +270,16 @@ bool vtkPanelMark::Paint(vtkContext2D* painter)
     }
 
   double* left = this->Left.GetArray(this);
-  double* bottom = this->Bottom.GetArray(this);  
+  double* bottom = this->Bottom.GetArray(this);
   size_t numMarks = this->Marks.size();
-  
+
   vtkDataElement data = this->Data.GetData(this);
   vtkIdType numChildren = 1;
   if(data.IsValid())
     {
     numChildren = data.GetNumberOfChildren();
     }
-  
+
   if(this->PaintIdMode)
     {
     if(numMarks>16777214) // 24-bit limit, 0 reserved for background encoding.
@@ -287,7 +288,7 @@ bool vtkPanelMark::Paint(vtkContext2D* painter)
       numMarks=16777214;
       }
     }
-  
+
   for (size_t j = 0; j < numMarks; ++j)
     {
     if(this->PaintIdMode)
@@ -297,8 +298,8 @@ bool vtkPanelMark::Paint(vtkContext2D* painter)
     for (vtkIdType i = 0; i < numChildren; ++i)
       {
       this->Index = i;
-      painter->GetTransform()->Translate(left[i], bottom[i]);            
-      painter->SetTransform(painter->GetTransform());      
+      painter->GetTransform()->Translate(left[i], bottom[i]);
+      painter->SetTransform(painter->GetTransform());
       this->MarkInstances[j*numChildren + i]->Paint(painter);
       painter->GetTransform()->Translate(-left[i], -bottom[i]);
       painter->SetTransform(painter->GetTransform());
@@ -311,14 +312,14 @@ bool vtkPanelMark::Paint(vtkContext2D* painter)
 void vtkPanelMark::PaintIdsOfMark(vtkMark *m)
 {
   assert("pre: m_exists" && m!=0);
-  
+
   vtkIdType idx=this->FindIndex(m);
-  
+
   //TODO: Be smarter about the update
   this->Update();
 
   vtkContext2D *painter=this->Scene->GetLastPainter();
-  
+
   if (!painter->GetTransform())
     {
     vtkSmartPointer<vtkTransform2D> trans = vtkSmartPointer<vtkTransform2D>::New();
@@ -328,14 +329,14 @@ void vtkPanelMark::PaintIdsOfMark(vtkMark *m)
 
   double* left = this->Left.GetArray(this);
   double* bottom = this->Bottom.GetArray(this);
-  
+
   vtkDataElement data = this->Data.GetData(this);
   vtkIdType numChildren = 1;
   if(data.IsValid())
     {
     numChildren = data.GetNumberOfChildren();
     }
-  
+
   size_t j=static_cast<size_t>(idx);
   for (vtkIdType i = 0; i < numChildren; ++i)
     {

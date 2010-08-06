@@ -14,6 +14,7 @@ IF(PYTHON_EXECUTABLE)
     "${VTK_SOURCE_DIR}/Charts"
     VTK_CHARTS_EXPORT
     vtkColor.h
+    vtkContextMouseEvent.h
     vtkContextScenePrivate.h
     vtkDataElement.h
     vtkDataValue.h

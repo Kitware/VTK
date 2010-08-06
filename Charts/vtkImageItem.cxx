@@ -20,6 +20,7 @@
 
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkTransform2D.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"

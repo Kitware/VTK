@@ -22,6 +22,7 @@
 #include "vtkContextDevice2D.h"
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextTransform.h"
 #include "vtkContextClip.h"
 #include "vtkPoints2D.h"
