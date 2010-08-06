@@ -97,6 +97,12 @@ static bool ReadTextAttribute(int ncFD, int varId, const char *name,
 vtkNetCDFCFReader::vtkDimensionInfo::vtkDimensionInfo(int ncFD, int id)
 {
   this->DimId = id;
+
+  this->Units = UNDEFINED_UNITS;
+  this->HasRegularSpacing = true;
+  this->Origin = 0.0;
+  this->Spacing = 1.0;
+
   this->LoadMetaData(ncFD);
 }
 
@@ -535,6 +541,7 @@ vtkNetCDFCFReader::vtkNetCDFCFReader()
   this->SphericalCoordinates = 1;
   this->VerticalScale = 1.0;
   this->VerticalBias = 0.0;
+  this->OutputType = -1;
 
   this->DimensionInfo = new vtkDimensionInfoVector;
   this->DependentDimensionInfo = new vtkDependentDimensionInfoVector;
@@ -553,6 +560,7 @@ void vtkNetCDFCFReader::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "SphericalCoordinates: " << this->SphericalCoordinates <<endl;
   os << indent << "VerticalScale: " << this->VerticalScale <<endl;
   os << indent << "VerticalBias: " << this->VerticalBias <<endl;
+  os << indent << "OutputType: " << this->OutputType <<endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -574,6 +582,29 @@ int vtkNetCDFCFReader::CanReadFile(const char *filename)
 }
 
 //-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::SetOutputType(int type)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "):"
+                " setting OutputType to " << type);
+  if (this->OutputType != type)
+    {
+    bool typeValid = (   (type == -1)
+                      || (type == VTK_IMAGE_DATA)
+                      || (type == VTK_RECTILINEAR_GRID)
+                      || (type == VTK_STRUCTURED_GRID) );
+    if (typeValid)
+      {
+      this->OutputType = type;
+      this->Modified();
+      }
+    else
+      {
+      vtkErrorMacro(<< "Invalid OutputType: " << type);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkNetCDFCFReader::RequestDataObject(
                                  vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **vtkNotUsed(inputVector),
@@ -587,7 +618,9 @@ int vtkNetCDFCFReader::RequestDataObject(
   // of the RequestInformation to get the appropriate meta data.
   if (!this->UpdateMetaData()) return 0;
 
-  int dataType = VTK_IMAGE_DATA;
+  // Check that the dataType is correct or automatically set it if it is set to
+  // -1.
+  int dataType = this->OutputType;
 
   int ncFD;
   CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
@@ -619,13 +652,24 @@ int vtkNetCDFCFReader::RequestDataObject(
       }
 
     // Check to see if the dimensions fit spherical coordinates.
-    if (this->SphericalCoordinates)
+    if (this->CoordinatesAreSpherical(currentDimensions))
       {
-      if (this->CoordinatesAreSpherical(currentDimensions->GetPointer(0),
-                                        currentNumDims))
+      if (dataType == -1)
         {
+        // Automatically choose structured grid.
         dataType = VTK_STRUCTURED_GRID;
         break;
+        }
+      else if (dataType == VTK_STRUCTURED_GRID)
+        {
+        // Verified that the data can correctly hold spherical coordinates.
+        break;
+        }
+      else
+        {
+        vtkWarningMacro(<< "You have set the OutputType to a data type that"
+                        << " cannot hold spherical coordinates.  The"
+                        << " SphericalCoordinates flag will be ignored.");
         }
       }
 
@@ -635,11 +679,36 @@ int vtkNetCDFCFReader::RequestDataObject(
       int dimId = currentDimensions->GetValue(i);
       if (!this->GetDimensionInfo(dimId)->GetHasRegularSpacing())
         {
-        dataType = VTK_RECTILINEAR_GRID;
-        break;
+        if (dataType == -1)
+          {
+          // Automatically choose rectilinear grid.
+          dataType = VTK_RECTILINEAR_GRID;
+          break;
+          }
+        else if (   (dataType == VTK_RECTILINEAR_GRID)
+                 || (dataType == VTK_STRUCTURED_GRID) )
+          {
+          // Verified that the data can correctly hold irregular coordinates.
+          break;
+          }
+        else
+          {
+          vtkWarningMacro(<< "OutputType is set to image data, but not all of"
+                          << " the coordinates have uniform spacing.  Because"
+                          << " image data cannot handle uniform spacing, the"
+                          << " coordinate positions will not be accurate.");
+          }
         }
       }
 
+    if (dataType == -1)
+      {
+      dataType = VTK_IMAGE_DATA;
+      }
+
+    // That's right, break.  We really only want to look at the dimensions of
+    // the first valid loaded variable.  If we got here, we found a variable.
+    // The loop is really only for the continues at the top.
     break;
     }
 
@@ -661,7 +730,7 @@ int vtkNetCDFCFReader::RequestDataObject(
       output->Delete();   // Not really deleted.
       }
     }
-  else // dataType == VTK_STRUCTURED_GRID
+  else if (dataType == VTK_STRUCTURED_GRID)
     {
     if (!output || !output->IsA("vtkStructuredGrid"))
       {
@@ -669,6 +738,15 @@ int vtkNetCDFCFReader::RequestDataObject(
       output->SetPipelineInformation(outInfo);
       output->Delete();   // Not really deleted.
       }
+    }
+  else if (dataType == -1)
+    {
+    vtkErrorMacro(<< "Could not determine data type based in input variables.");
+    }
+  else
+    {
+    vtkErrorMacro(<< "Sanity check failed: bad internal type.");
+    return 0;
     }
 
   return 1;
@@ -690,80 +768,167 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
   vtkImageData *imageOutput = vtkImageData::GetData(outputVector);
   if (imageOutput)
     {
-    double origin[3];
-    origin[0] = origin[1] = origin[2] = 0.0;
-    double spacing[3];
-    spacing[0] = spacing[1] = spacing[2] = 1.0;
-
-    int numDim = this->LoadingDimensions->GetNumberOfTuples();
-    if (numDim >= 3) numDim = 3;
-
-    for (int i = 0; i < numDim; i++)
-      {
-      // Remember that netCDF dimension ordering is backward from VTK.
-      int dim = this->LoadingDimensions->GetValue(numDim-i-1);
-      origin[i] = this->GetDimensionInfo(dim)->GetOrigin();
-      spacing[i] = this->GetDimensionInfo(dim)->GetSpacing();
-      }
+    this->AddRectilinearCoordinates(imageOutput);
     }
 
-  vtkRectilinearGrid *rectOutput = vtkRectilinearGrid::GetData(outputVector);
-  if (rectOutput)
+  vtkRectilinearGrid *rectilinearOutput
+    = vtkRectilinearGrid::GetData(outputVector);
+  if (rectilinearOutput)
     {
-    int extent[6];
-    rectOutput->GetExtent(extent);
-
-    int numDim = this->LoadingDimensions->GetNumberOfTuples();
-    for (int i = 0; i < 3; i++)
-      {
-      vtkSmartPointer<vtkDoubleArray> coords;
-      if (i < numDim)
-        {
-        // Remember that netCDF dimension ordering is backward from VTK.
-        int dim = this->LoadingDimensions->GetValue(numDim-i-1);
-        coords = this->GetDimensionInfo(dim)->GetCoordinates();
-        int extLow = extent[2*i];
-        int extHi = extent[2*i+1];
-        if ((extLow != 0) || (extHi != coords->GetNumberOfTuples()-1))
-          {
-          // Getting a subset of this dimension.
-          VTK_CREATE(vtkDoubleArray, newcoords);
-          newcoords->SetNumberOfComponents(1);
-          newcoords->SetNumberOfTuples(extHi-extLow+1);
-          memcpy(newcoords->GetPointer(0), coords->GetPointer(extLow),
-                 (extHi-extLow+1)*sizeof(double));
-          coords = newcoords;
-          }
-        }
-      else
-        {
-        coords = vtkSmartPointer<vtkDoubleArray>::New();
-        coords->SetNumberOfTuples(1);
-        coords->SetComponent(0, 0, 0.0);
-        }
-      switch (i)
-        {
-        case 0: rectOutput->SetXCoordinates(coords);  break;
-        case 1: rectOutput->SetYCoordinates(coords);  break;
-        case 2: rectOutput->SetZCoordinates(coords);  break;
-        }
-      }
+    this->AddRectilinearCoordinates(rectilinearOutput);
     }
 
   vtkStructuredGrid *structOutput = vtkStructuredGrid::GetData(outputVector);
   if (structOutput)
     {
-    if (this->FindDependentDimensionInfo(this->LoadingDimensions))
+    bool shouldUseSphericalCoordinates =
+      this->CoordinatesAreSpherical(this->LoadingDimensions);
+    if (shouldUseSphericalCoordinates)
       {
-      this->Add2DSphericalCoordinates(structOutput);
+      if (this->FindDependentDimensionInfo(this->LoadingDimensions))
+        {
+        this->Add2DSphericalCoordinates(structOutput);
+        }
+      else
+        {
+        this->Add1DSphericalCoordinates(structOutput);
+        }
       }
     else
       {
-      this->Add1DSphericalCoordinates(structOutput);
+      this->AddRectilinearCoordinates(structOutput);
       }
     }
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkImageData *imageOutput)
+{
+  double origin[3];
+  origin[0] = origin[1] = origin[2] = 0.0;
+  double spacing[3];
+  spacing[0] = spacing[1] = spacing[2] = 1.0;
+
+  int numDim = this->LoadingDimensions->GetNumberOfTuples();
+  if (numDim >= 3) numDim = 3;
+
+  for (int i = 0; i < numDim; i++)
+    {
+    // Remember that netCDF dimension ordering is backward from VTK.
+    int dim = this->LoadingDimensions->GetValue(numDim-i-1);
+    vtkDimensionInfo *dimInfo = this->GetDimensionInfo(dim);
+    origin[i] = dimInfo->GetOrigin();
+    spacing[i] = dimInfo->GetSpacing();
+    }
+
+  imageOutput->SetOrigin(origin);
+  imageOutput->SetSpacing(spacing);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::AddRectilinearCoordinates(
+                                          vtkRectilinearGrid *rectilinearOutput)
+{
+  int extent[6];
+  rectilinearOutput->GetExtent(extent);
+
+  int numDim = this->LoadingDimensions->GetNumberOfTuples();
+  for (int i = 0; i < 3; i++)
+    {
+    vtkSmartPointer<vtkDoubleArray> coords;
+    if (i < numDim)
+      {
+      // Remember that netCDF dimension ordering is backward from VTK.
+      int dim = this->LoadingDimensions->GetValue(numDim-i-1);
+      coords = this->GetDimensionInfo(dim)->GetCoordinates();
+      int extLow = extent[2*i];
+      int extHi = extent[2*i+1];
+      if ((extLow != 0) || (extHi != coords->GetNumberOfTuples()-1))
+        {
+        // Getting a subset of this dimension.
+        VTK_CREATE(vtkDoubleArray, newcoords);
+        newcoords->SetNumberOfComponents(1);
+        newcoords->SetNumberOfTuples(extHi-extLow+1);
+        memcpy(newcoords->GetPointer(0), coords->GetPointer(extLow),
+               (extHi-extLow+1)*sizeof(double));
+        coords = newcoords;
+        }
+      }
+    else
+      {
+      coords = vtkSmartPointer<vtkDoubleArray>::New();
+      coords->SetNumberOfTuples(1);
+      coords->SetComponent(0, 0, 0.0);
+      }
+    switch (i)
+      {
+      case 0: rectilinearOutput->SetXCoordinates(coords);  break;
+      case 1: rectilinearOutput->SetYCoordinates(coords);  break;
+      case 2: rectilinearOutput->SetZCoordinates(coords);  break;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::AddRectilinearCoordinates(
+                                            vtkStructuredGrid *structuredOutput)
+{
+  int extent[6];
+  structuredOutput->GetExtent(extent);
+
+  VTK_CREATE(vtkPoints, points);
+  points->SetDataTypeToDouble();
+  points->SetNumberOfPoints(  (extent[1]-extent[0]+1)
+                            * (extent[3]-extent[2]+1)
+                            * (extent[5]-extent[4]+1) );
+  vtkDataArray *pointData = points->GetData();
+
+  int numDimNetCDF = this->LoadingDimensions->GetNumberOfTuples();
+  for (int dimVTK = 0; dimVTK < 3; dimVTK++)
+    {
+    vtkSmartPointer<vtkDoubleArray> coords;
+    if (dimVTK < numDimNetCDF)
+      {
+      // Remember that netCDF dimension ordering is backward from VTK.
+      int dimNetCDF = this->LoadingDimensions->GetValue(numDimNetCDF-dimVTK-1);
+      coords = this->GetDimensionInfo(dimNetCDF)->GetCoordinates();
+
+      int ijk[3];
+      vtkIdType pointIdx = 0;
+      for (ijk[2] = extent[2*2]; ijk[2] <= extent[2*2+1]; ijk[2]++)
+        {
+        for (ijk[1] = extent[1*2]; ijk[1] <= extent[1*2+1]; ijk[1]++)
+          {
+          for (ijk[0] = extent[0*2]; ijk[0] <= extent[0*2+1]; ijk[0]++)
+            {
+            pointData->SetComponent(pointIdx, dimVTK,
+                                    coords->GetValue(ijk[dimVTK]));
+            pointIdx++;
+            }
+          }
+        }
+      }
+    else
+      {
+      int ijk[3];
+      vtkIdType pointIdx = 0;
+      for (ijk[2] = extent[2*2]; ijk[2] <= extent[2*2+1]; ijk[2]++)
+        {
+        for (ijk[1] = extent[1*2]; ijk[1] <= extent[1*2+1]; ijk[1]++)
+          {
+          for (ijk[0] = extent[0*2]; ijk[0] <= extent[0*2+1]; ijk[0]++)
+            {
+            pointData->SetComponent(pointIdx, dimVTK, 0.0);
+            pointIdx++;
+            }
+          }
+        }
+      }
+    }
+
+  structuredOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------
@@ -781,10 +946,8 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(
     }
 
   int longitudeDim, latitudeDim, verticalDim;
-  this->IdentifySphericalCoordinates(
-                                   this->LoadingDimensions->GetPointer(0),
-                                   this->LoadingDimensions->GetNumberOfTuples(),
-                                   longitudeDim, latitudeDim, verticalDim);
+  this->IdentifySphericalCoordinates(this->LoadingDimensions,
+                                     longitudeDim, latitudeDim, verticalDim);
 
   VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
@@ -1028,23 +1191,16 @@ vtkNetCDFCFReader::GetDimensionInfo(int dimension)
 vtkNetCDFCFReader::vtkDependentDimensionInfo *
 vtkNetCDFCFReader::FindDependentDimensionInfo(vtkIntArray *dims)
 {
-  return this->FindDependentDimensionInfo(dims->GetPointer(0),
-                                          dims->GetNumberOfTuples());
-}
-
-vtkNetCDFCFReader::vtkDependentDimensionInfo *
-vtkNetCDFCFReader::FindDependentDimensionInfo(const int *dims, int numDims)
-{
   for (size_t i = 0; i < this->DependentDimensionInfo->v.size(); i++)
     {
     vtkIntArray *dependentDims
       = this->DependentDimensionInfo->v[i].GetGridDimensions();
-    if (numDims == dependentDims->GetNumberOfTuples())
+    if (dims->GetNumberOfTuples() == dependentDims->GetNumberOfTuples())
       {
       bool same = true;
-      for (vtkIdType j = 0; j < numDims; j++)
+      for (vtkIdType j = 0; j < dims->GetNumberOfTuples(); j++)
         {
-        if (dims[j] != dependentDims->GetValue(j))
+        if (dims->GetValue(j) != dependentDims->GetValue(j))
           {
           same = false;
           break;
@@ -1057,16 +1213,15 @@ vtkNetCDFCFReader::FindDependentDimensionInfo(const int *dims, int numDims)
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFCFReader::IdentifySphericalCoordinates(const int *dimensions,
-                                                     int numDimensions,
+void vtkNetCDFCFReader::IdentifySphericalCoordinates(vtkIntArray *dimensions,
                                                      int &longitudeDim,
                                                      int &latitudeDim,
                                                      int &verticalDim)
 {
   longitudeDim = latitudeDim = verticalDim = -1;
-  for (int i = 0; i < numDimensions; i++)
+  for (int i = 0; i < dimensions->GetNumberOfTuples(); i++)
     {
-    switch (this->GetDimensionInfo(dimensions[i])->GetUnits())
+    switch (this->GetDimensionInfo(dimensions->GetValue(i))->GetUnits())
       {
       case vtkDimensionInfo::LONGITUDE_UNITS:
         longitudeDim = i;
@@ -1081,3 +1236,43 @@ void vtkNetCDFCFReader::IdentifySphericalCoordinates(const int *dimensions,
     }
 }
 
+//-----------------------------------------------------------------------------
+bool vtkNetCDFCFReader::CoordinatesAreSpherical(vtkIntArray *dimensions)
+{
+  if (!this->SphericalCoordinates)
+    {
+    return false;
+    }
+
+  if (this->FindDependentDimensionInfo(dimensions) != NULL)
+    {
+    return true;
+    }
+
+  int longitudeDim, latitudeDim, verticalDim;
+  this->IdentifySphericalCoordinates(dimensions,
+                                     longitudeDim, latitudeDim, verticalDim);
+  if (   (longitudeDim != -1) && (latitudeDim != -1)
+      && ((dimensions->GetNumberOfTuples() == 2) || (verticalDim != -1)) )
+    {
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkNetCDFCFReader::DimensionsAreForPointData(vtkIntArray *dimensions)
+{
+    if (!this->CoordinatesAreSpherical(dimensions)) return true;
+
+    // If the coordiantes are spherical, then the variable is cell data UNLESS
+    // the coordinates are given as 2D depenent coordinates without bounds.
+    vtkDependentDimensionInfo *info
+      = this->FindDependentDimensionInfo(dimensions);
+    if (info && !info->GetHasBounds()) return true;
+
+    return false;
+}

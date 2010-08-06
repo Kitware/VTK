@@ -185,8 +185,7 @@ protected:
   // dimensions should be loaded as point data (return true) or cell data
   // (return false).  The implementation in this class always returns true.
   // Subclasses should override to load cell data for some or all variables.
-  virtual bool DimensionsAreForPointData(const int *vtkNotUsed(dimensions),
-                                         int vtkNotUsed(numDimensions)) {
+  virtual bool DimensionsAreForPointData(vtkIntArray *vtkNotUsed(dimensions)) {
     return true;
   }
 

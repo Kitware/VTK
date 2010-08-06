@@ -35,6 +35,8 @@
 
 #include <vtkStdString.h> // Used for ivars.
 
+class vtkImageData;
+class vtkRectilinearGrid;
 class vtkStructuredGrid;
 
 class VTK_IO_EXPORT vtkNetCDFCFReader : public vtkNetCDFReader
@@ -68,6 +70,19 @@ public:
   vtkSetMacro(VerticalBias, double);
 
   // Description:
+  // Set/get the data type of the output.  The index used is taken from the list
+  // of VTK data types in vtkType.h.  Valid types are VTK_IMAGE_DATA,
+  // VTK_RECTILINEAR_GRID, and VTK_STRUCTURED_GRID.  In addition you can set
+  // the type to -1 (the default), and this reader will pick the data type
+  // best suited for the dimensions being read.
+  vtkGetMacro(OutputType, int);
+  virtual void SetOutputType(int type);
+  void SetOutputTypeToAutomatic() { this->SetOutputType(-1); }
+  void SetOutputTypeToImage() { this->SetOutputType(VTK_IMAGE_DATA); }
+  void SetOutputTypeToRectilinear() {this->SetOutputType(VTK_RECTILINEAR_GRID);}
+  void SetOutputTypeToStructured() { this->SetOutputType(VTK_STRUCTURED_GRID); }
+
+  // Description:
   // Returns true if the given file can be read.
   static int CanReadFile(const char *filename);
 
@@ -79,6 +94,8 @@ protected:
 
   double VerticalScale;
   double VerticalBias;
+
+  int OutputType;
 
   virtual int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
@@ -171,16 +188,13 @@ protected:
   // Finds the dependent dimension information for the given set of dimensions.
   // Returns NULL if no information has been recorded.
   vtkDependentDimensionInfo *FindDependentDimensionInfo(vtkIntArray *dims);
-  vtkDependentDimensionInfo *FindDependentDimensionInfo(const int *dims,
-                                                        int numDims);
 //ETX
 
   // Description:
   // Given the list of dimensions, identify the longitude, latitude, and
   // vertical dimensions.  -1 is returned for any not found.  The results depend
   // on the values in this->DimensionInfo.
-  virtual void IdentifySphericalCoordinates(const int *dimensions,
-                                            int numDimensions,
+  virtual void IdentifySphericalCoordinates(vtkIntArray *dimensions,
                                             int &longitudeDim,
                                             int &latitudeDim,
                                             int &verticalDim);
@@ -188,43 +202,17 @@ protected:
   // Description:
   // Convienience function that returns true if the given dimensions can be
   // used as spherical coordinates, false otherwise.
-  bool CoordinatesAreSpherical(const int *dimensions, int numDimensions)
-  {
-    if (this->FindDependentDimensionInfo(dimensions, numDimensions) != NULL)
-      {
-      return true;
-      }
-
-    int longitudeDim, latitudeDim, verticalDim;
-    this->IdentifySphericalCoordinates(dimensions, numDimensions,
-                                       longitudeDim, latitudeDim, verticalDim);
-    if (   (longitudeDim != -1) && (latitudeDim != -1)
-        && ((numDimensions == 2) || (verticalDim != -1)) )
-      {
-      return true;
-      }
-    else
-      {
-      return false;
-      }
-  }
+  bool CoordinatesAreSpherical(vtkIntArray *dimensions);
 
   // Description:
   // Returns false for spherical dimensions, which should use cell data.
-  virtual bool DimensionsAreForPointData(const int *dimensions,
-                                         int numDimensions)
-  {
-    if (!this->SphericalCoordinates) return true;
-    if (!this->CoordinatesAreSpherical(dimensions, numDimensions)) return true;
+  virtual bool DimensionsAreForPointData(vtkIntArray *dimensions);
 
-    // If the coordiantes are spherical, then the variable is cell data UNLESS
-    // the coordinates are given as 2D depenent coordinates without bounds.
-    vtkDependentDimensionInfo *info
-      = this->FindDependentDimensionInfo(dimensions, numDimensions);
-    if (info && !info->GetHasBounds()) return true;
-
-    return false;
-  }
+  // Description:
+  // Internal methods for setting rectilinear coordinates.
+  void AddRectilinearCoordinates(vtkImageData *imageOutput);
+  void AddRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
+  void AddRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
 
   // Description:
   // Internal methods for setting spherical coordiantes.
@@ -234,7 +222,7 @@ protected:
 
 private:
   vtkNetCDFCFReader(const vtkNetCDFCFReader &); // Not implemented
-  void operator=(const vtkNetCDFCFReader &);        // Not implemented
+  void operator=(const vtkNetCDFCFReader &);    // Not implemented
 };
 
 #endif //__vtkNetCDFCFReader_h

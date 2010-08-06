@@ -231,9 +231,7 @@ int vtkNetCDFReader::RequestInformation(
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
   if (output && (output->GetExtentType() == VTK_3D_EXTENT))
     {
-    bool pointData = this->DimensionsAreForPointData(
-                                  this->LoadingDimensions->GetPointer(0),
-                                  this->LoadingDimensions->GetNumberOfTuples());
+    bool pointData = this->DimensionsAreForPointData(this->LoadingDimensions);
     int extent[6];
     for (int i = 0 ; i < 3; i++)
       {
@@ -614,8 +612,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
     }
 
   bool loadingPointData = this->DimensionsAreForPointData(
-                                  this->LoadingDimensions->GetPointer(0),
-                                  this->LoadingDimensions->GetNumberOfTuples());
+                                                       this->LoadingDimensions);
 
   // Set up read indices.  Also check to make sure the dimensions are consistent
   // with other loaded variables.
