@@ -587,24 +587,28 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       }
     if ( r >= nRowPrim )
       {
-      vtkErrorMacro( "Incomplete input: model does not have a row for pair"
+      vtkWarningMacro( "Incomplete input: model does not have a row for pair"
                      << varNameX.c_str()
                      << ", "
                      << varNameY.c_str()
                      <<". Cannot test." );
-      return;
+      continue;
       }
 
     // Retrieve model statistics necessary for Jarque-Bera-Srivastava testing
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
     if ( n != nRowData )
       {
-      vtkErrorMacro( "Inconsistent input: dat has "
-                     << nRowData
-                     << " rows but primary model has cardinality "
-                     << n
-                     <<". Cannot test." );
-      return;
+      vtkWarningMacro( "Inconsistent input: data has "
+                       << nRowData
+                       << " rows for pair "
+                       << varNameX.c_str()
+                       << ", "
+                       << varNameY.c_str()
+                       << " but primary model has cardinality "
+                       << n
+                       <<". Cannot test." );
+      continue;
       }
 
     double mX = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
