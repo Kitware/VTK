@@ -1423,6 +1423,8 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->CaseFileName ? this->CaseFileName : "(none)") << endl;
   os << indent << "FilePath: "
      << (this->FilePath ? this->FilePath : "(none)") << endl;
+  os << indent << "EnSight Version: "
+     <<  this->EnSightVersion << endl;
   os << indent << "NumberOfComplexVariables: "
      << this->NumberOfComplexVariables << endl;
   os << indent << "NumberOfVariables: "
