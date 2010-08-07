@@ -2756,7 +2756,7 @@ static void vtkWrapPython_GenerateMethods(
                       "            PyErr_SetString(PyExc_TypeError, \"cannot get items from sequence\");\n"
                       "            break;\n"
                       "            }\n"
-                      "          typesAreOk = PyArg_Parse(item, \"%c\", &temp%d[i]);\n"
+                      "          typesAreOk = PyArg_Parse(item, (char *)\"%c\", &temp%d[i]);\n"
                       "          Py_DECREF(item);\n"
                       "          }\n"
                       "        }\n",
