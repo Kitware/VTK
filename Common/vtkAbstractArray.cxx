@@ -441,3 +441,23 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
     this->Information->PrintSelf( os, indent.GetNextIndent() );
     }
 }
+
+//--------------------------------------------------------------------------
+void vtkAbstractArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  if ( id >= this->Size )
+    {
+    int status = this->Resize(id+1);
+    if (!status)
+      {
+      vtkErrorMacro(<<"FAILED to extend array to accommodate new ID "
+                    << id);
+      return;
+      }
+    }
+  if ( id > this->MaxId )
+    {
+    this->MaxId = id;
+    }
+  this->SetVariantValue(id, value);
+}

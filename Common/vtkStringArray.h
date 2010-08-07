@@ -182,8 +182,9 @@ public:
   void InsertValue(vtkIdType id, const char *val);
 
   // Description:
+  // Set a value in the array form a variant.
   // Insert a value into the array from a variant.
-  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  void SetVariantValue(vtkIdType idx, vtkVariant value);
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.

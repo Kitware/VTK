@@ -198,7 +198,7 @@ public:
 
   // Description:
   // Insert a value into the array from a variant.
-  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  void SetVariantValue(vtkIdType idx, vtkVariant value);
 
   // Description:
   // Expand the array by one and set the value at that location.
