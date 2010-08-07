@@ -4617,6 +4617,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
       {
       if (!((name[j-1] >= 'a' && name[j-1] <= 'z') ||
             (name[j-1] >= 'A' && name[j-1] <= 'Z') ||
+            (name[j-1] >= '0' && name[j-1] <= '9') ||
             name[j-1] == '_')) { break; }
       }
     name_from_file = (char *)malloc(m - j + 1);
