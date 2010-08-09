@@ -557,7 +557,7 @@ void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       vtksys_ios::ostringstream pcaCompName;
       pcaCompName << VTK_PCA_COMPCOLUMN << " " << i;
       row->SetValue( 0, pcaCompName.str().c_str() );
-      row->SetValue( 1, s(i) );
+      row->SetValue( 1, s( i ) );
       for ( j = 0; j < m; ++ j )
         {
         // transpose the matrix so basis is row vectors (and thus
@@ -627,10 +627,12 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     return;
     }
 
-  // For each block, add test columns to the related derived model block.
+  // Set some global quantities
   vtkIdType nRowData = inData->GetNumberOfRows();
-  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+  double invn = 1. / nRowData;
 
+  // For each block, add test columns to the related derived model block.
+  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 1; b < nBlocks; ++ b )
     {
     vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
@@ -642,30 +644,99 @@ void vtkPCAStatistics::Test( vtkTable* inData,
       continue;
       }
 
-    // But return informative message when cardinalities do not match.
-    if ( derivedTab->GetValueByName( 2, "Mean" ).ToInt() != nRowData )
+    // Figure out dimensionality; it is assumed that the 2 first columns
+    // are what they should be: namely, Column and Mean.
+    int p = derivedTab->GetNumberOfColumns() - 2;
+
+    // Return informative message when cardinalities do not match.
+    if ( derivedTab->GetValueByName( p, "Mean" ).ToInt() != nRowData )
       {
       vtkWarningMacro( "Inconsistent input: input data has "
                        << nRowData
                        << " rows but primary model has cardinality "
-                       << derivedTab->GetValueByName( 2, "Mean" ).ToInt()
+                       << derivedTab->GetValueByName( p, "Mean" ).ToInt()
                        << " for block "
                        << b
                        <<". Cannot test." );
       continue;
       }
 
-    // Now, figure dimensionality; it is assumed that the 2 first columns
-    // are what they should be: namely, Column and Mean.
-    int p = derivedTab->GetNumberOfColumns() - 2;
-    cerr << "p = " << p << "\n";
-    // Create and fill entries of mean vector
+    // Create and fill entries of name and mean vectors
+    vtkStdString *varNameX = new vtkStdString[p];
     double *mX = new double[p];
+    for ( int i = 0; i < p; ++ i )
+      {
+      varNameX[i] = derivedTab->GetValueByName( i, "Column" ).ToString();
+      mX[i] = derivedTab->GetValueByName( i, "Mean" ).ToDouble();
+      cerr << varNameX[i] << ": " << mX[i] << "\n";
+      }
+
+    // Create and fill entries of eigenvalue vector and change of basis matrix
+    double *wX = new double[p];
+    double *P = new double[p * p];
+    for ( int i = 0; i < p; ++ i )
+      {
+      // Skip p + 1 (Means and Cholesky) rows and 1 column (Column)
+      wX[i] = derivedTab->GetValue( i + p + 1, 1).ToDouble();
+
+      cerr << "v" << i << ": ";
+      for ( int j = 0; j < p; ++ j )
+        {
+        // Skip p + 1 (Means and Cholesky) rows and 2 columns (Column and Mean)
+        P[p * i + j] = derivedTab->GetValue( i + p + 1, j + 2).ToDouble();
+        cerr << P[p * i + j] << " ";
+        }
+      cerr << "\n";
+      }
+
+    for ( int i = 0; i < p; ++ i )
+      {
+      cerr << "wX" << i << " = " << wX[i] << "\n";
+      }
+    // Now iterate over all observations
+    double sum3 = 0.;
+    double sum4 = 0.;
+    double tmp, t;
+    double *x = new double[p];
+    for ( vtkIdType j = 0; j < nRowData; ++ j )
+      {
+      // Read and center observation
+      for ( int i = 0; i < p; ++ i )
+        {
+        x[i] = inData->GetValueByName( j, varNameX[i] ).ToDouble() - mX[i];
+        }
+
+      // Now calculate skewness and kurtosis per component
+      for ( int i = 0; i < p; ++ i )
+        {
+        // Transform coordinate into eigencoordinates
+        t = 0.;
+        for ( int j = 0; j < p; ++ j )
+          {
+          // Pij = P[p*i+j]
+          t += P[p * i + j] * x[j];
+          }
+
+        // Update third and fourth order sums for each eigencoordinate
+        // while normalizing with corresponding eigenvalues and powers
+        tmp = t * t;
+        sum3 += tmp * t / pow( wX[i], 1.5 );
+        tmp /= wX[i];
+        sum4 += tmp * tmp;
+        }
+      }
+
+    // Calculate Srivastava skewness and kurtosis
+    cerr << "bS1 = " << invn * invn * sum3 * sum3 / p << "\n";
+    cerr << "bS2 = " << invn * sum4 / p << "\n";
 
     // Clean up
+    delete [] x;
+    delete [] P;
+    delete [] wX;
     delete [] mX;
+    delete [] varNameX;
     } // b
-
 }
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
