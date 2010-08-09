@@ -114,18 +114,3 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
-
-IF (VTK_WRAP_JAVA)
-   ADD_EXECUTABLE(TestJavaProgrammableFilter TestJavaProgrammableFilter.cxx)
-   ADD_TEST(TestJavaProgrammableFilter
-     ${CXX_TEST_PATH}/TestJavaProgrammableFilter
-     -j ${LIBRARY_OUTPUT_PATH}/vtk.jar
-     -cp ${LIBRARY_OUTPUT_PATH}/vtk.jar
-     -class vtk/SampleAlgorithm
-      )
-  TARGET_LINK_LIBRARIES(TestJavaProgrammableFilter
-    vtkGraphicsJava
-    ${JAVA_AWT_LIBRARY}
-    ${JAVA_JVM_LIBRARY}
-    )
-ENDIF (VTK_WRAP_JAVA)

@@ -157,10 +157,8 @@ IF(JAVA_COMPILE)
     ADD_DEPENDENCIES(VTKJavaImaging VTKJavaFiltering)
 
     SET(VTK_JAVA_DEPENDENCIES
-      Algorithm
       CellType
       DynamicClassLoader
-      SampleAlgorithm
       vtkGlobalJavaHash
       vtkJavaGarbageCollector
       vtkNativeLibrary
@@ -204,7 +202,7 @@ IF(JAVA_COMPILE)
         TARGET VTKJavaJar
         SOURCE ${dst}
         OUTPUTS ${class}
-        DEPENDS ${VTK_JAVA_HOME}/vtkPanel.java ${VTK_JAVA_HOME}/Algorithm.java
+        DEPENDS ${VTK_JAVA_HOME}/vtkPanel.java
         COMMAND ${JAVA_COMPILE}
         ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
         )
