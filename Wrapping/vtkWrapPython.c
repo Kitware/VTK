@@ -68,6 +68,15 @@ static void vtkWrapPython_GenerateSpecialType(
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
+static int vtkWrapPython_IsQtEnum(const char* type)
+{
+  if(type[0] == 'Q' && type[1] == 't' && type[2] == ':' && type[3] == ':')
+    {
+    return 1;
+    }
+  return 0;
+}
+
 /* Make a guess about whether a class is wrapped */
 int vtkWrapPython_IsClassWrapped(
   const char *classname, HierarchyInfo *hinfo);
@@ -373,7 +382,7 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* handle non-vtkObjectBase object arguments as pointers */
   if (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT ||
-      (aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT )
+      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT && !vtkWrapPython_IsQtEnum(Id)) )
       && i != MAX_ARGS)
     {
     fprintf(fp, "*");
@@ -548,10 +557,19 @@ static void vtkWrapPython_ReturnValue(
       }
     case VTK_PARSE_QOBJECT:
       {
-      fprintf(fp,
-              "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
-              currentFunction->ReturnClass, MAX_ARGS,
-              currentFunction->ReturnClass);
+      if(vtkWrapPython_IsQtEnum(currentFunction->ReturnClass))
+        {
+        fprintf(fp,
+                "    result = vtkPythonUtil::SIPGetObjectFromPointer(temp%i, \"%s\", true);\n",
+                MAX_ARGS, currentFunction->ReturnClass);
+        }
+      else
+        {
+        fprintf(fp,
+                "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
+                currentFunction->ReturnClass, MAX_ARGS,
+                currentFunction->ReturnClass);
+        }
       break;
       }
 
@@ -2648,18 +2666,20 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_QOBJECT ||
                      argType == VTK_PARSE_QOBJECT_REF)
               {
-              fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\");\n",
-                      i, theSignature->ArgClasses[i], i,
-                      theSignature->ArgClasses[i]);
-              fprintf(fp,
-                      "    if (!temp%d && tempH%d != Py_None)\n"
-                      "      {\n"
-                      "      %s;\n"
-                      "      }\n",
-                      i, i, on_error);
-
-              potential_error = 1;
+              if(vtkWrapPython_IsQtEnum(theSignature->ArgClasses[i]))
+                {
+                fprintf(fp,
+                        "    temp%d = static_cast<%s>(reinterpret_cast<size_t>(vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\")));\n",
+                        i, theSignature->ArgClasses[i], i,
+                        theSignature->ArgClasses[i]);
+                }
+              else
+                {
+                fprintf(fp,
+                        "    temp%d = (%s *)vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\");\n",
+                        i, theSignature->ArgClasses[i], i,
+                        theSignature->ArgClasses[i]);
+                }
               }
             else if (argType == VTK_PARSE_OBJECT ||
                      argType == VTK_PARSE_OBJECT_REF)
@@ -2915,8 +2935,8 @@ static void vtkWrapPython_GenerateMethods(
                 }
               if (argType == VTK_PARSE_OBJECT_REF ||
                   argType == VTK_PARSE_OBJECT ||
-                  argType == VTK_PARSE_QOBJECT_REF ||
-                  argType == VTK_PARSE_QOBJECT)
+                  ((argType == VTK_PARSE_QOBJECT_REF || argType == VTK_PARSE_QOBJECT) && !vtkWrapPython_IsQtEnum(theSignature->ArgClasses[i]))
+                  )
                 {
                 fprintf(fp,"*(temp%i)",i);
                 }

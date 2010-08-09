@@ -1912,8 +1912,13 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
 
   if(sipTypeIsEnum(td))
     {
-    PyErr_SetString(PyExc_TypeError, "Converting to SIP type enum not supported yet.");
-    return NULL;
+    ssize_t v = PyInt_AsLong(obj);
+    if(v == -1)
+      {
+      PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP enum type");
+      return NULL;
+      }
+    return reinterpret_cast<void*>(v);
     }
 
   if(!api->api_can_convert_to_type(obj, td, 0))
@@ -1954,6 +1959,12 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
     {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
     return NULL;
+    }
+
+  if(sipTypeIsEnum(td))
+    {
+    size_t v = reinterpret_cast<size_t>(ptr);
+    return api->api_convert_from_enum(v, td);
     }
 
   if(is_new)

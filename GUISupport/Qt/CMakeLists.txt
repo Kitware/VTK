@@ -198,6 +198,7 @@ if(VTK_WRAP_PYTHON_SIP)
   # list header files here for wrapping
   set(QVTK_PythonHeaders
     QVTKInteractor.h
+    vtkEventQtSlotConnect.h
     vtkQtAnnotationView.h
     vtkQtBarChartView.h
     vtkQtChartRepresentation.h
