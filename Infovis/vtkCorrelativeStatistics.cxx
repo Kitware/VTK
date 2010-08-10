@@ -615,6 +615,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double sX2 = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
     double sY2 = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
     double sXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
+
     // Now calculate Jarque-Bera-Srivastava and ancillary statistics
     double bS1;
     double bS2;
@@ -624,6 +625,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
     double invn = 1. / nRowData;
+    double halfinvn = .5 * invn;
     if ( detS > 1.e-100
          && sX2 > 0.
          && sY2 > 0. )
@@ -668,14 +670,19 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         }
 
       // Normalize all sums with corresponding eigenvalues and powers
-      sum3X /= pow( eigS1, 1.5 );
-      sum3Y /= pow( eigS2, 1.5 );
-      sum4X /= ( eigS1 * eigS1 );
-      sum4Y /= ( eigS2 * eigS2 );
+      sum3X *= sum3X;
+      tmp = eigS1 * eigS1;
+      sum3X /= ( tmp * eigS1 );
+      sum4X /= tmp;
+
+      sum3Y *= sum3Y;
+      tmp = eigS2 * eigS2;
+      sum3Y /= ( tmp * eigS2 );
+      sum4Y /= tmp;
 
       // Calculate Srivastava skewness and kurtosis
-      bS1 = .5 * invn * invn * ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) );
-      bS2 = .5 * invn * ( sum4X +  sum4Y );
+      bS1 = halfinvn * invn * ( sum3X +  sum3Y );
+      bS2 = halfinvn * ( sum4X +  sum4Y );
 
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
