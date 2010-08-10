@@ -105,6 +105,11 @@ public:
   // Description:
   // Scale text (font size along each dimension).
   virtual void SetLabelTextScale( double scale[3] );
+  void SetLabelTextScale(double x, double y, double z)
+  {
+    double scale[3] = {x, y, z};
+    this->SetLabelTextScale(scale);
+  }
   virtual double * GetLabelTextScale();
 
   // Description:
@@ -122,7 +127,8 @@ public:
   vtkSetMacro( HandleVisibility, int );
   vtkGetMacro( HandleVisibility, int );
   vtkBooleanMacro( HandleVisibility, int );
-  
+
+  void Highlight(int highlight);
 protected:
   vtkAbstractPolygonalHandleRepresentation3D();
   ~vtkAbstractPolygonalHandleRepresentation3D();
@@ -142,7 +148,6 @@ protected:
   int                          WaitCount;
   int                          HandleVisibility;
 
-  void Highlight(int highlight);
 
   // Methods to manipulate the cursor
   virtual void Translate(double *p1, double *p2);

@@ -166,6 +166,8 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
+
+  void Highlight(int highlight);
   
 protected:
   vtkPointHandleRepresentation3D();
@@ -175,7 +177,7 @@ protected:
   vtkActor          *Actor;
   vtkPolyDataMapper *Mapper;
   vtkCursor3D       *Cursor3D;
-  void Highlight(int highlight);
+
 
   // Do the picking
   vtkCellPicker *CursorPicker;
