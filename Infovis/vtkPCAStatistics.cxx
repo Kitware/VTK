@@ -667,7 +667,6 @@ void vtkPCAStatistics::Test( vtkTable* inData,
       {
       varNameX[i] = derivedTab->GetValueByName( i, "Column" ).ToString();
       mX[i] = derivedTab->GetValueByName( i, "Mean" ).ToDouble();
-      cerr << varNameX[i] << ": " << mX[i] << "\n";
       }
 
     // Create and fill entries of eigenvalue vector and change of basis matrix
@@ -678,14 +677,11 @@ void vtkPCAStatistics::Test( vtkTable* inData,
       // Skip p + 1 (Means and Cholesky) rows and 1 column (Column)
       wX[i] = derivedTab->GetValue( i + p + 1, 1).ToDouble();
 
-      cerr << "v" << i << ": ";
       for ( int j = 0; j < p; ++ j )
         {
         // Skip p + 1 (Means and Cholesky) rows and 2 columns (Column and Mean)
         P[p * i + j] = derivedTab->GetValue( i + p + 1, j + 2).ToDouble();
-        cerr << P[p * i + j] << " ";
         }
-      cerr << "\n";
       }
 
     // Now iterate over all observations
