@@ -250,6 +250,7 @@ if(VTK_WRAP_PYTHON_SIP)
     set(SIP_FILES
       ${SIP_FILES}
       QVTKWidget2.sip
+      QVTKGraphicsItem.sip
       )
   endif(VTK_USE_QVTK_QTOPENGL)
 
@@ -292,6 +293,7 @@ if(VTK_WRAP_PYTHON_SIP)
     -I ${SIP_PYQT_DIR}
     -I ${CMAKE_CURRENT_SOURCE_DIR}
     -I ${VTK_BINARY_DIR}/Rendering
+    -I ${VTK_BINARY_DIR}/Common
     )
   IF(VTK_USE_VIEWS)
     set(SIP_FLAGS ${SIP_FLAGS}
