@@ -629,7 +629,6 @@ void vtkPCAStatistics::Test( vtkTable* inData,
 
   // Set some global quantities
   vtkIdType nRowData = inData->GetNumberOfRows();
-  double invn = 1. / nRowData;
 
   // For each block, add test columns to the related derived model block.
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
@@ -689,15 +688,16 @@ void vtkPCAStatistics::Test( vtkTable* inData,
       cerr << "\n";
       }
 
-    for ( int i = 0; i < p; ++ i )
-      {
-      cerr << "wX" << i << " = " << wX[i] << "\n";
-      }
     // Now iterate over all observations
-    double sum3 = 0.;
-    double sum4 = 0.;
     double tmp, t;
     double *x = new double[p];
+    double *sum3 = new double[p];
+    double *sum4 = new double[p];
+    for ( int i = 0; i < p; ++ i )
+      {
+      sum3[i] = 0.;
+      sum4[i] = 0.;
+      }
     for ( vtkIdType j = 0; j < nRowData; ++ j )
       {
       // Read and center observation
@@ -718,19 +718,31 @@ void vtkPCAStatistics::Test( vtkTable* inData,
           }
 
         // Update third and fourth order sums for each eigencoordinate
-        // while normalizing with corresponding eigenvalues and powers
         tmp = t * t;
-        sum3 += tmp * t / pow( wX[i], 1.5 );
-        tmp /= wX[i];
-        sum4 += tmp * tmp;
+        sum3[i] += tmp * t;
+        sum4[i] += tmp * tmp;
         }
       }
 
+    // Finally calculate moments by normalizing sums with corresponding eigenvalues and powers
+    double bS1 = 0.;
+    double bS2 = 0.;
+    for ( int i = 0; i < p; ++ i )
+      {
+      tmp = wX[i] * wX[i];
+      bS1 += sum3[i] * sum3[i] / ( tmp * wX[i] );
+      bS2 += sum4[i] / tmp;
+      }
+    bS1 /= ( nRowData * nRowData * p );
+    bS2 /= ( nRowData * p );
+
     // Calculate Srivastava skewness and kurtosis
-    cerr << "bS1 = " << invn * invn * sum3 * sum3 / p << "\n";
-    cerr << "bS2 = " << invn * sum4 / p << "\n";
+    cerr << "bS1 = " << bS1 << "\n";
+    cerr << "bS2 = " << bS2 << "\n";
 
     // Clean up
+    delete [] sum3;
+    delete [] sum4;
     delete [] x;
     delete [] P;
     delete [] wX;
