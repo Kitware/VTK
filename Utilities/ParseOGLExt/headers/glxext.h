@@ -48,9 +48,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2010/07/26 */
+/* glxext.h last updated 2010/08/06 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 30
+#define GLX_GLXEXT_VERSION 32
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -131,6 +131,10 @@ extern "C" {
 #ifndef GLX_ARB_fbconfig_float
 #define GLX_RGBA_FLOAT_TYPE_ARB            0x20B9
 #define GLX_RGBA_FLOAT_BIT_ARB             0x00000004
+#endif
+
+#ifndef GLX_ARB_framebuffer_sRGB
+#define GLX_FRAMEBUFFER_SRGB_CAPABLE_ARB   0x20B2
 #endif
 
 #ifndef GLX_ARB_create_context
@@ -419,7 +423,7 @@ extern "C" {
 #define GLX_COLOR_SAMPLES_NV               0x20B3
 #endif
 
-#ifndef GLX_GLX_AMD_gpu_association
+#ifndef GLX_AMD_gpu_association
 #define GLX_GPU_VENDOR_AMD                 0x1F00
 #define GLX_GPU_RENDERER_STRING_AMD        0x1F01
 #define GLX_GPU_OPENGL_VERSION_STRING_AMD  0x1F02
@@ -430,6 +434,10 @@ extern "C" {
 #define GLX_GPU_NUM_SIMD_AMD               0x21A6
 #define GLX_GPU_NUM_RB_AMD                 0x21A7
 #define GLX_GPU_NUM_SPI_AMD                0x21A8
+#endif
+
+#ifndef GLX_EXT_create_context_es2_profile
+#define GLX_CONTEXT_ES2_PROFILE_BIT_EXT    0x00000004
 #endif
 
 
@@ -576,6 +584,10 @@ typedef __GLXextFuncPtr ( * PFNGLXGETPROCADDRESSARBPROC) (const GLubyte *procNam
 #define GLX_ARB_fbconfig_float 1
 #endif
 
+#ifndef GLX_ARB_framebuffer_sRGB
+#define GLX_ARB_framebuffer_sRGB 1
+#endif
+
 #ifndef GLX_ARB_create_context
 #define GLX_ARB_create_context 1
 #ifdef GLX_GLXEXT_PROTOTYPES
@@ -586,6 +598,10 @@ typedef GLXContext ( * PFNGLXCREATECONTEXTATTRIBSARBPROC) (Display *dpy, GLXFBCo
 
 #ifndef GLX_ARB_create_context_profile
 #define GLX_ARB_create_context_profile 1
+#endif
+
+#ifndef GLX_ARB_create_context_robustness
+#define GLX_ARB_create_context_robustness 1
 #endif
 
 #ifndef GLX_SGIS_multisample
