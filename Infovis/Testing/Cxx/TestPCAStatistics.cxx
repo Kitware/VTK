@@ -141,11 +141,11 @@ int TestPCAStatistics( int argc, char* argv[] )
 
     if ( b == 0 )
       {
-      cout << "Raw sums\n";
+      cout << "Primary Model\n";
       }
     else
       {
-      cout << "Request " << ( b - 1 ) << "\n";
+      cout << "Derived Model " << ( b - 1 ) << "\n";
       }
 
     outputMeta->Dump();
