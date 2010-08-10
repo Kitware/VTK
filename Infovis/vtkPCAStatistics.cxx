@@ -755,7 +755,7 @@ void vtkPCAStatistics::Test( vtkTable* inData,
 
     // Finally, calculate Jarque-Bera-Srivastava statistic
     tmp = bS2 - 3.;
-    double jbs = static_cast<double>( nRowData ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
+    double jbs = static_cast<double>( nRowData * p ) * ( bS1 / 6. + ( tmp * tmp ) / 24. );
 
     // Insert variable name and calculated Jarque-Bera-Srivastava statistic
     // NB: R will be invoked only once at the end for efficiency
