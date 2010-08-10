@@ -128,27 +128,47 @@ int TestPCAStatistics( int argc, char* argv[] )
   pcas->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
   // pcas->RequestSelectedColumns(); will get called in RequestData()
 
-  // -- Test Learn Mode -- 
+  // Test all options but Assess
   pcas->SetLearnOption( true );
   pcas->SetDeriveOption( true );
+  pcas->SetTestOption( true );
   pcas->SetAssessOption( false );
-
   pcas->Update();
+
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputTest = pcas->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
+
+  cout << "## Calculated the following statistics for data set:\n";
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
 
     if ( b == 0 )
       {
-      cout << "Raw sums\n";
+      cout << "Primary Statistics\n";
       }
     else
       {
-      cout << "Request " << ( b - 1 ) << "\n";
+      cout << "Derived Statistics " << ( b - 1 ) << "\n";
       }
 
     outputMeta->Dump();
+    }
+
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest->GetColumnName( i )
+           << "="
+           << outputTest->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
     }
 
   // -- Test Assess Mode -- 
@@ -158,13 +178,14 @@ int TestPCAStatistics( int argc, char* argv[] )
   pcas->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
 
-  // Test Assess only (Do not recalculate nor rederive a model)
-  // Use SetParameter method
-  pcas->SetParameter( "Learn", 0, false );
-  pcas->SetParameter( "Derive", 0, false );
-  pcas->SetParameter( "Assess", 0, true );
+  // Test Assess only (Do not recalculate nor rederive nor retest a model)
+  pcas->SetLearnOption( false );
+  pcas->SetDeriveOption( false );
+  pcas->SetTestOption( false );
+  pcas->SetAssessOption( true );
   pcas->Update();
 
+  cout << "\n## Assessment results:\n";
   vtkTable* outputData = pcas->GetOutput();
   outputData->Dump();
 
