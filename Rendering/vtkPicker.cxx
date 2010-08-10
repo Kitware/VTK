@@ -118,7 +118,7 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   vtkCamera *camera;
   vtkAbstractMapper3D *mapper = NULL;
   double p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
-  int *winSize;
+  int winSize[2] = {1, 1};
   double x, y, t;
   double *viewport;
   double cameraPos[4], cameraFP[4];
@@ -231,7 +231,15 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   // multiplying by the tolerance.
   //
   viewport = renderer->GetViewport();
-  winSize = renderer->GetRenderWindow()->GetSize();
+  if (renderer->GetRenderWindow())
+    {
+    int *winSizePtr = renderer->GetRenderWindow()->GetSize();
+    if (winSizePtr)
+      {
+      winSize[0] = winSizePtr[0];
+      winSize[1] = winSizePtr[1];
+      }
+    }
   x = winSize[0] * viewport[0];
   y = winSize[1] * viewport[1];
   renderer->SetDisplayPoint(x, y, selectionZ);
