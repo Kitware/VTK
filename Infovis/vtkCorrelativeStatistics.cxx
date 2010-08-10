@@ -528,8 +528,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   // Prepare columns for the test:
   // 0: variable X name
   // 1: variable Y name
-  // 2: Srivastava skewness
-  // 3: Srivastava kurtosis
+  // 2: bivariate Srivastava skewness
+  // 3: bivariate Srivastava kurtosis
   // 4: bivariate Jarque-Bera-Srivastava statistic
   // 5: bivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
   // NB: These are not added to the output table yet, for they will be filled individually first
@@ -770,9 +770,9 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   // Clean up
   nameColX->Delete();
   nameColY->Delete();
-  statCol->Delete();
   bS1Col->Delete();
   bS2Col->Delete();
+  statCol->Delete();
 }
 
 // ----------------------------------------------------------------------
