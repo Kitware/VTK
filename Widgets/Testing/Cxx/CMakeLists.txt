@@ -37,6 +37,33 @@ SET(MyTests
   TestDijkstraGraphGeodesicPath.cxx
   TestParallelopipedWidget.cxx
   TestSeedWidgetNonUniformRepresentations.cxx
+  vtkAngleWidgetTest1.cxx
+  vtkBiDimensionalWidgetTest1.cxx
+  vtkImplicitPlaneWidget2Test1.cxx
+  vtkLineWidget2Test1.cxx
+  vtkSeedWidgetTest1.cxx
+  vtkSplineWidget2Test1.cxx
+  vtkBorderWidgetTest1.cxx
+  vtkCaptionWidgetTest1.cxx
+  vtkTextWidgetTest1.cxx
+  vtkHoverWidgetTest1.cxx
+  vtkBalloonWidgetTest1.cxx
+  vtkAngleRepresentation2DTest1.cxx
+  vtkAngleRepresentation3DTest1.cxx
+  vtkBalloonRepresentationTest1.cxx
+  vtkBiDimensionalRepresentation2DTest1.cxx
+  vtkCaptionRepresentationTest1.cxx
+  vtkTextRepresentationTest1.cxx
+  vtkImplicitPlaneRepresentationTest1.cxx
+  vtkLineRepresentationTest1.cxx
+  vtkSplineRepresentationTest1.cxx
+  vtkSeedRepresentationTest1.cxx
+#  vtkPointHandleRepresentation2DTest1.cxx
+#  vtkPointHandleRepresentation3DTest1.cxx
+#  vtkConstrainedPointHandleRepresentationTest1
+#  vtkSphereHandleRepresentationTest1.cxx
+#  vtkPolygonalHandleRepresentation3DTest1.cxx
+#  vtkOrientedPolygonalHandleRepresentation3DTest1.cxx
   )
 
 IF (VTK_DATA_ROOT)
