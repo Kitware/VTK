@@ -125,8 +125,61 @@ check_size() {
 	fi
 }
 
-bad=$(git diff-index --cached $against -- |
-sed -n '/^:[^:]/ {s/^://;p;}' |
+short_commit() {
+	git rev-parse --short "$1" 2>/dev/null || echo "$1"
+}
+
+lookup_config_module_update() {
+	# Format is "aaaaaa..bbbbbb" for update aaaaaa => bbbbbb.
+	# Convert to regex "^aaaaaa[a-z0-9]* bbbbbb[a-z0-9]*$".
+	sha1ex='[a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9]*'
+	regex='^\('"$sha1ex"'\)\.\.\('"$sha1ex"'\)$'
+	git config "hooks.$1.update" |
+	sed -n "/$regex/ {s/$regex/"'^\1[a-z0-9]* \2[a-z0-9]*$/;p;}' |
+	grep '.' # Return false if result is empty.
+}
+
+check_module() {
+	# Allow module-only commits without extra work.
+	test -z "$diffs_normal" && return
+
+	# Check if module update is allowed with other changes.
+	allow=$(lookup_config_module_update "$file") || allow='none'
+	if echo "$src_obj $dst_obj" | grep "$allow" > /dev/null; then
+		return
+	fi
+	src_short=$(short_commit "$src_obj")
+	dst_short=$(short_commit "$dst_obj")
+	echo 'A submodule link is staged for commit (among other changes):
+
+  "'"$file"'"  '"$src_short => $dst_short"'
+
+This may occur by accident so we require an extra step to commit.
+If you intend to include this change in your commit, run
+
+  git config "hooks.'"$file"'.update" '"$src_short..$dst_short"'
+
+to explicitly allow the change and try the commit again.  Otherwise run
+
+  git reset HEAD -- "'"$file"'"
+
+to unstage the change.  Furthermore, if you did not intend to modify
+the submodule at all, also run
+
+  git submodule update -- "'"$file"'"
+
+to checkout the current version of the submodule in your work tree.
+Test your changes again to see if they still work with the module.
+Finally, try the commit again.
+'
+}
+
+diffs=$(git diff-index --cached $against -- |
+        sed -n '/^:[^:]/ {s/^://;p;}')
+diffs_normal=$(echo "$diffs" | grep -v '^...... 160000')
+diffs_module=$(echo "$diffs" | grep    '^...... 160000')
+bad=$(
+test -n "$diffs_normal" && echo "$diffs_normal" |
 while read src_mode dst_mode src_obj dst_obj status file; do
 	if test "$src_mode" != "$dst_mode" -a "$dst_mode" != "000000"; then
 		check_mode
@@ -134,5 +187,10 @@ while read src_mode dst_mode src_obj dst_obj status file; do
 	if test "$dst_mode" != "160000" -a "$dst_mode" != '000000'; then
 		check_size
 	fi
-done)
+done
+test -n "$diffs_module" && echo "$diffs_module" |
+while read src_mode dst_mode src_obj dst_obj status file; do
+	check_module
+done
+)
 test -z "$bad" || die "$bad"
