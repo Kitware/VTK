@@ -1,6 +1,7 @@
 #include "vtkPCAStatistics.h"
 
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatisticsAssessFunctor.h"
@@ -627,6 +628,26 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     return;
     }
 
+  // Prepare columns for the test:
+  // 0: (derived) model block index
+  // 1: multivariate Srivastava skewness
+  // 2: multivariate Srivastava kurtosis
+  // 3: multivariate Jarque-Bera-Srivastava statistic
+  // 4: multivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
+  // NB: These are not added to the output table yet, for they will be filled individually first
+  //     in order that R be invoked only once.
+  vtkIdTypeArray* blockCol = vtkIdTypeArray::New();
+  blockCol->SetName( "Block" );
+
+  vtkDoubleArray* bS1Col = vtkDoubleArray::New();
+  bS1Col->SetName( "Srivastava Skewness" );
+
+  vtkDoubleArray* bS2Col = vtkDoubleArray::New();
+  bS2Col->SetName( "Srivastava Kurtosis" );
+
+  vtkDoubleArray* statCol = vtkDoubleArray::New();
+  statCol->SetName( "Jarque-Bera-Srivastava" );
+
   // Set some global quantities
   vtkIdType nRowData = inData->GetNumberOfRows();
 
@@ -732,9 +753,16 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     bS1 /= ( nRowData * nRowData * p );
     bS2 /= ( nRowData * p );
 
-    // Calculate Srivastava skewness and kurtosis
-    cerr << "bS1 = " << bS1 << "\n";
-    cerr << "bS2 = " << bS2 << "\n";
+    // Finally, calculate Jarque-Bera-Srivastava statistic
+    tmp = bS2 - 3.;
+    double jbs = static_cast<double>( nRowData ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
+
+    // Insert variable name and calculated Jarque-Bera-Srivastava statistic
+    // NB: R will be invoked only once at the end for efficiency
+    blockCol->InsertNextValue( b );
+    bS1Col->InsertNextTuple1( bS1 );
+    bS2Col->InsertNextTuple1( bS2 );
+    statCol->InsertNextTuple1( jbs );
 
     // Clean up
     delete [] sum3;
@@ -745,6 +773,18 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     delete [] mX;
     delete [] varNameX;
     } // b
+
+  // Now, add the already prepared columns to the output table
+  outMeta->AddColumn( blockCol );
+  outMeta->AddColumn( bS1Col );
+  outMeta->AddColumn( bS2Col );
+  outMeta->AddColumn( statCol );
+
+  // Clean up
+  blockCol->Delete();
+  bS1Col->Delete();
+  bS2Col->Delete();
+  statCol->Delete();
 }
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
