@@ -528,8 +528,10 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   // Prepare columns for the test:
   // 0: variable X name
   // 1: variable Y name
-  // 2: bivariate Jarque-Bera-Srivastava statistic
-  // 3: bivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
+  // 2: Srivastava skewness
+  // 3: Srivastava kurtosis
+  // 4: bivariate Jarque-Bera-Srivastava statistic
+  // 5: bivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
   // NB: These are not added to the output table yet, for they will be filled individually first
   //     in order that R be invoked only once.
   vtkStringArray* nameColX = vtkStringArray::New();
