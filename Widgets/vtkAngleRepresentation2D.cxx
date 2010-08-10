@@ -70,24 +70,50 @@ double vtkAngleRepresentation2D::GetAngle()
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint1WorldPosition(double pos[3])
 {
-  this->Point1Representation->GetWorldPosition(pos);
+  if (this->Point1Representation)
+    {
+    this->Point1Representation->GetWorldPosition(pos);
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetCenterWorldPosition(double pos[3])
 {
-  this->CenterRepresentation->GetWorldPosition(pos);
+  if ( this->CenterRepresentation)
+    {
+    this->CenterRepresentation->GetWorldPosition(pos);
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint2WorldPosition(double pos[3])
 {
-  this->Point2Representation->GetWorldPosition(pos);
+  if (this->Point2Representation)
+    {
+    this->Point2Representation->GetWorldPosition(pos);
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
 {
+  if (!this->Point1Representation)
+    {
+    vtkErrorMacro("SetPoint1DisplayPosition: no point1 representation");
+    return;
+    }
   this->Point1Representation->SetDisplayPosition(x);
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
@@ -100,6 +126,11 @@ void vtkAngleRepresentation2D::SetPoint1DisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
 {
+  if (!this->CenterRepresentation)
+    {
+    vtkErrorMacro("SetCenterDisplayPosition: no center representation");
+    return;
+    }
   this->CenterRepresentation->SetDisplayPosition(x);
   double p[3];
   this->CenterRepresentation->GetWorldPosition(p);
@@ -113,6 +144,11 @@ void vtkAngleRepresentation2D::SetCenterDisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
 {
+  if (!this->Point2Representation)
+    {
+    vtkErrorMacro("SetPoint2DisplayPosition: no point2 representation");
+    return;
+    }
   this->Point2Representation->SetDisplayPosition(x);
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
@@ -125,29 +161,62 @@ void vtkAngleRepresentation2D::SetPoint2DisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint1DisplayPosition(double pos[3])
 {
-  this->Point1Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
+  if (this->Point1Representation)
+    {
+    this->Point1Representation->GetDisplayPosition(pos);
+    pos[2] = 0.0;
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetCenterDisplayPosition(double pos[3])
 {
-  this->CenterRepresentation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
+  if (this->CenterRepresentation)
+    {
+    this->CenterRepresentation->GetDisplayPosition(pos);
+    pos[2] = 0.0;
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::GetPoint2DisplayPosition(double pos[3])
 {
-  this->Point2Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
+  if (this->Point2Representation)
+    {
+    this->Point2Representation->GetDisplayPosition(pos);
+    pos[2] = 0.0;
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime ||
-       this->Point1Representation->GetMTime() > this->BuildTime ||
+  if ( this->GetMTime() <= this->BuildTime)
+    {
+    return;
+    }
+  if (this->Point1Representation == NULL ||
+      this->CenterRepresentation == NULL ||
+      this->Point2Representation == NULL ||
+      this->Arc == NULL)
+    {
+    // for now, return. Could create defaults here.
+    return;
+    }
+      
+  if ( this->Point1Representation->GetMTime() > this->BuildTime ||
        this->CenterRepresentation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
@@ -252,9 +321,18 @@ void vtkAngleRepresentation2D::BuildRepresentation()
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 {
-  this->Ray1->ReleaseGraphicsResources(w);
-  this->Ray2->ReleaseGraphicsResources(w);
-  this->Arc->ReleaseGraphicsResources(w);
+  if (this->Ray1)
+    {
+    this->Ray1->ReleaseGraphicsResources(w);
+    }
+  if (this->Ray2)
+    {
+    this->Ray2->ReleaseGraphicsResources(w);
+    }
+  if (this->Arc)
+    {
+    this->Arc->ReleaseGraphicsResources(w);
+    }
 }
 
 //----------------------------------------------------------------------
@@ -263,15 +341,15 @@ int vtkAngleRepresentation2D::RenderOverlay(vtkViewport *v)
   this->BuildRepresentation();
 
   int count=0;
-  if ( this->Ray1Visibility )
+  if ( this->Ray1 && this->Ray1Visibility )
     {
     count += this->Ray1->RenderOverlay(v);
     }
-  if ( this->Ray2Visibility )
+  if ( this->Ray2 && this->Ray2Visibility )
     {
     count += this->Ray2->RenderOverlay(v);
     }
-  if ( this->ArcVisibility )
+  if ( this->Arc && this->ArcVisibility )
     {
     count += this->Arc->RenderOverlay(v);
     }

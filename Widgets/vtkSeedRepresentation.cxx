@@ -78,6 +78,11 @@ vtkHandleRepresentation *vtkSeedRepresentation
     }
   else //create one
     {
+    if (this->HandleRepresentation == NULL)
+      {
+      vtkErrorMacro("GetHandleRepresentation " << num << ", no handle representation has been set yet, cannot create a new handle.");
+      return NULL;
+      }
     vtkHandleRepresentation *rep = this->HandleRepresentation->NewInstance();
     rep->DeepCopy(this->HandleRepresentation);
     this->Handles->push_back( rep );
@@ -177,6 +182,11 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
 
   vtkHandleRepresentation *rep = this->GetHandleRepresentation(
     static_cast<int>(this->Handles->size()));
+  if (rep == NULL)
+    {
+    vtkErrorMacro("CreateHandle: no handle representation set yet! Cannot create a new handle.");
+    return -1;
+    }
   rep->SetDisplayPosition(pos);
   this->ActiveHandle = static_cast<int>(this->Handles->size()) - 1;
   return this->ActiveHandle;
