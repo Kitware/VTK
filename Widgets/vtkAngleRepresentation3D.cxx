@@ -104,24 +104,50 @@ double vtkAngleRepresentation3D::GetAngle()
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint1WorldPosition(double pos[3])
 {
-  this->Point1Representation->GetWorldPosition(pos);
+  if (this->Point1Representation)
+    {
+    this->Point1Representation->GetWorldPosition(pos);
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetCenterWorldPosition(double pos[3])
 {
-  this->CenterRepresentation->GetWorldPosition(pos);
+  if (this->CenterRepresentation)
+    {
+    this->CenterRepresentation->GetWorldPosition(pos);
+     }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint2WorldPosition(double pos[3])
 {
-  this->Point2Representation->GetWorldPosition(pos);
+  if (this->Point2Representation)
+    {
+    this->Point2Representation->GetWorldPosition(pos);
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint1WorldPosition(double x[3])
 {
+  if (!this->Point1Representation)
+    {
+    vtkErrorMacro("SetPoint1WorldPosition: null point 1 representation");
+    return;
+    }
   this->Point1Representation->SetWorldPosition(x);
   this->Line1Source->SetPoint1(x);
   this->Modified();
@@ -131,6 +157,11 @@ void vtkAngleRepresentation3D::SetPoint1WorldPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetCenterWorldPosition(double x[3])
 {
+   if (!this->CenterRepresentation)
+    {
+    vtkErrorMacro("SetCenterWorldPosition: null center representation");
+    return;
+    }
   this->CenterRepresentation->SetWorldPosition(x);
   this->Line1Source->SetPoint2(x);
   this->Line2Source->SetPoint1(x);
@@ -141,6 +172,11 @@ void vtkAngleRepresentation3D::SetCenterWorldPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint2WorldPosition(double x[3])
 {
+   if (!this->Point2Representation)
+    {
+    vtkErrorMacro("SetPoint2WorldPosition: null point 2 representation");
+    return;
+    }
   this->Point2Representation->SetWorldPosition(x);
   this->Line2Source->SetPoint2(x);
   this->Modified();
@@ -150,6 +186,11 @@ void vtkAngleRepresentation3D::SetPoint2WorldPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint1DisplayPosition(double x[3])
 {
+  if (!this->Point1Representation)
+    {
+    vtkErrorMacro("SetPoint1DisplayPosition: null point 1 representation");
+    return;
+    }
   this->Point1Representation->SetDisplayPosition(x);
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
@@ -162,6 +203,11 @@ void vtkAngleRepresentation3D::SetPoint1DisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetCenterDisplayPosition(double x[3])
 {
+  if (!this->CenterRepresentation)
+    {
+    vtkErrorMacro("SetCenterDisplayPosition: null center point representation");
+    return;
+    }
   this->CenterRepresentation->SetDisplayPosition(x);
   double p[3];
   this->CenterRepresentation->GetWorldPosition(p);
@@ -175,6 +221,11 @@ void vtkAngleRepresentation3D::SetCenterDisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint2DisplayPosition(double x[3])
 {
+  if (!this->Point2Representation)
+    {
+    vtkErrorMacro("SetPoint2DisplayPosition: null point 2 representation");
+    return;
+    }
   this->Point2Representation->SetDisplayPosition(x);
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
@@ -187,33 +238,65 @@ void vtkAngleRepresentation3D::SetPoint2DisplayPosition(double x[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint1DisplayPosition(double pos[3])
 {
-  this->Point1Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
+  if (this->Point1Representation)
+    {
+    this->Point1Representation->GetDisplayPosition(pos);
+    pos[2] = 0.0;
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetCenterDisplayPosition(double pos[3])
 {
-  this->CenterRepresentation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
+  if (this->CenterRepresentation)
+    {
+    this->CenterRepresentation->GetDisplayPosition(pos);
+    pos[2] = 0.0;
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint2DisplayPosition(double pos[3])
 {
-  this->Point2Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
+  if (this->Point2Representation)
+    {
+    this->Point2Representation->GetDisplayPosition(pos);
+    pos[2] = 0.0;
+    }
+  else
+    {
+    pos[0] = pos[1] = pos[2] = 0.0;
+    }
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime ||
-       this->Point1Representation->GetMTime() > this->BuildTime ||
-       this->CenterRepresentation->GetMTime() > this->BuildTime ||
-       this->Point2Representation->GetMTime() > this->BuildTime ||
-       (this->Renderer && this->Renderer->GetVTKWindow() &&
-        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
+  if ( this->GetMTime() <= this->BuildTime)
+    {
+    return;
+    }
+  if (this->Point1Representation == NULL ||
+      this->CenterRepresentation == NULL ||
+      this->Point2Representation == NULL ||
+      this->ArcSource == NULL)
+    {
+    // for now, return. Could create defaults here.
+    return;
+    }
+  if (this->Point1Representation->GetMTime() > this->BuildTime ||
+      this->CenterRepresentation->GetMTime() > this->BuildTime ||
+      this->Point2Representation->GetMTime() > this->BuildTime ||
+      (this->Renderer && this->Renderer->GetVTKWindow() &&
+       this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
     this->Superclass::BuildRepresentation();
 

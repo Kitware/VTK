@@ -959,6 +959,12 @@ void vtkBiDimensionalRepresentation2D::GetLabelPosition(double pos[3])
 void vtkBiDimensionalRepresentation2D::GetWorldLabelPosition(double pos[3])
 {
   double viewportPos[3], worldPos[4];
+  pos[0] = pos[1] = pos[2] = 0.0;
+  if (!this->Renderer)
+    {
+    vtkErrorMacro("GetWorldLabelPosition: no renderer!");
+    return;
+  }
   this->TextActor->GetPositionCoordinate()->GetValue(viewportPos);
   this->Renderer->ViewportToNormalizedViewport(viewportPos[0], viewportPos[1]);
   this->Renderer->NormalizedViewportToView(viewportPos[0], viewportPos[1], viewportPos[2]);
@@ -966,9 +972,16 @@ void vtkBiDimensionalRepresentation2D::GetWorldLabelPosition(double pos[3])
   this->Renderer->ViewToWorld();
   this->Renderer->GetWorldPoint(worldPos);
 
-  pos[0] = worldPos[0]/worldPos[3];
-  pos[1] = worldPos[1]/worldPos[3];
-  pos[2] = worldPos[2]/worldPos[3];
+  if (worldPos[3] != 0.0)
+    {
+    pos[0] = worldPos[0]/worldPos[3];
+    pos[1] = worldPos[1]/worldPos[3];
+    pos[2] = worldPos[2]/worldPos[3];
+    }
+  else
+    {
+    vtkErrorMacro("GetWorldLabelPosition: world position at index 3 is 0, not dividing by 0");
+    }
 }
 
 //----------------------------------------------------------------------

@@ -28,7 +28,6 @@
 
 vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
-
 //----------------------------------------------------------------------
 vtkAngleRepresentation::vtkAngleRepresentation()
 {
@@ -177,9 +176,35 @@ void vtkAngleRepresentation::BuildRepresentation()
 {
   // We don't worry about mtime 'cause the subclass deals with that
   // Make sure the handles are up to date
-  this->Point1Representation->BuildRepresentation();
-  this->CenterRepresentation->BuildRepresentation();
-  this->Point2Representation->BuildRepresentation();
+  bool nullHandle = false;
+  if (this->Point1Representation)
+    {
+    this->Point1Representation->BuildRepresentation();
+    }
+  else
+    {
+    nullHandle = true;
+    }
+  if (this->CenterRepresentation)
+    {
+    this->CenterRepresentation->BuildRepresentation();
+    }
+  else
+    {
+    nullHandle = true;
+    }
+  if (this->Point2Representation)
+    {
+    this->Point2Representation->BuildRepresentation();
+    }
+  else
+    {
+    nullHandle = true;
+    }
+  if (nullHandle)
+    {
+    vtkErrorMacro("BuildRepresentation: at least one handle representation is null, set it first before trying to build the representation");
+    }
 }
 
 //----------------------------------------------------------------------
