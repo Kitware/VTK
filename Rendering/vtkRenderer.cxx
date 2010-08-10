@@ -1358,6 +1358,12 @@ void vtkRenderer::WorldToView(double &x, double &y, double &z)
   double     view[4];
 
   // get the perspective transformation from the active camera
+  if (!this->ActiveCamera)
+    {
+    vtkErrorMacro("WorldToView: no active camera, cannot compute world to view, returning 0,0,0");
+    x = y = z = 0.0;
+    return;
+    }
   matrix->DeepCopy(this->ActiveCamera->
                 GetCompositeProjectionTransformMatrix(
                   this->GetTiledAspectRatio(),0,1));
