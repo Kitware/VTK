@@ -189,10 +189,14 @@ void vtkViewport::DisplayToView()
     {
     double vx,vy,vz;
     int sizex,sizey;
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
+    if (size == NULL)
+      {
+      return;
+      }
     sizex = size[0];
     sizey = size[1];
 
@@ -214,10 +218,14 @@ void vtkViewport::ViewToDisplay()
     {
     double dx,dy;
     int sizex,sizey;
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
+    if (!size)
+      {
+      return;
+      }
     sizex = size[0];
     sizey = size[1];
 
@@ -308,15 +316,17 @@ double *vtkViewport::GetCenter()
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     // get physical window dimensions
     size = this->GetVTKWindow()->GetSize();
-
-    this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
-                       /2.0*size[0]);
-    this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
-                       /2.0*size[1]);
+    if (!size)
+      {
+      this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
+                         /2.0*size[0]);
+      this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
+                         /2.0*size[1]);
+      }
     }
   else
     {
@@ -332,17 +342,19 @@ int vtkViewport::IsInViewport(int x,int y)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     // get physical window dimensions
     size = this->GetVTKWindow()->GetSize();
-
+    if (size)
+      {
     if ((this->Viewport[0]*size[0] <= x)&&
         (this->Viewport[2]*size[0] >= x)&&
         (this->Viewport[1]*size[1] <= y)&&
         (this->Viewport[3]*size[1] >= y))
       {
       return 1;
+      }
       }
     }
 
@@ -407,12 +419,14 @@ void vtkViewport::LocalDisplayToDisplay(double &vtkNotUsed(u), double &v)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
-
-    v = size[1] - v - 1;
+    if (size)
+      {
+      v = size[1] - v - 1;
+      }
     }
 }
 
@@ -421,12 +435,14 @@ void vtkViewport::DisplayToLocalDisplay(double &vtkNotUsed(u), double &v)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
-
-    v = size[1] - v - 1;
+    if (size)
+      {
+      v = size[1] - v - 1;
+      }
     }
 }
 
@@ -435,13 +451,18 @@ void vtkViewport::DisplayToNormalizedDisplay(double &u, double &v)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
 
-    u = u/size[0];
-    v = v/size[1];
+    if (size &&
+        size[0] != 0 &&
+        size[1] != 0)
+      {
+      u = u/size[0];
+      v = v/size[1];
+      }
     }
 }
 
@@ -470,7 +491,7 @@ void vtkViewport::ViewportToNormalizedViewport(double &u, double &v)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
 /*
@@ -483,8 +504,13 @@ void vtkViewport::ViewportToNormalizedViewport(double &u, double &v)
   v = v/(vpsizev - 1.0);
 */
     size = this->GetSize();
-    u = u/(size[0] - 1.0);
-    v = v/(size[1] - 1.0);
+    if (size &&
+        size[0] != 0 &&
+        size[1] != 0)
+      {
+      u = u/(size[0] - 1.0);
+      v = v/(size[1] - 1.0);
+      }
     }
 }
 
@@ -536,13 +562,15 @@ void vtkViewport::NormalizedDisplayToDisplay(double &u, double &v)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
     size = this->VTKWindow->GetSize();
-
-    u = u*size[0];
-    v = v*size[1];
+    if (size)
+      {
+      u = u*size[0];
+      v = v*size[1];
+      }
     }
 }
 
@@ -574,7 +602,7 @@ void vtkViewport::NormalizedViewportToViewport(double &u, double &v)
 {
   if ( this->VTKWindow )
     {
-    int *size;
+    int *size = NULL;
 
     /* get physical window dimensions */
 /*
@@ -586,8 +614,11 @@ void vtkViewport::NormalizedViewportToViewport(double &u, double &v)
   v = v * (vpsizev - 1.0);
 */
     size = this->GetSize();
-    u = u * (size[0] - 1.0);
-    v = v * (size[1] - 1.0);
+    if (size)
+      {
+      u = u * (size[0] - 1.0);
+      v = v * (size[1] - 1.0);
+      }
     }
 }
 
@@ -642,11 +673,14 @@ void vtkViewport::ComputeAspect()
     {
     double aspect[2];
     double *vport;
-    int  *size, lowerLeft[2], upperRight[2];
+    int  *size = NULL, lowerLeft[2], upperRight[2];
 
     // get the bounds of the window
     size = this->VTKWindow->GetSize();
-
+    if (!size)
+      {
+      return;
+      }
     vport = this->GetViewport();
 
     lowerLeft[0] = static_cast<int>(vport[0]*size[0] + 0.5);
