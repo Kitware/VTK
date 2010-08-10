@@ -201,6 +201,14 @@ public:
   
   // Description:
   // Scale text (font size along each dimension).
+  void SetDistanceAnnotationScale(double x, double y, double z)
+  {
+    double scale[3];
+    scale[0] = x;
+    scale[1] = y;
+    scale[2] = z;
+    this->SetDistanceAnnotationScale(scale);
+  }
   virtual void SetDistanceAnnotationScale( double scale[3] );
   virtual double * GetDistanceAnnotationScale();
 

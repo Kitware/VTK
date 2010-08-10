@@ -98,8 +98,11 @@ public:
   // These are methods specific to vtkSeedRepresentation and which are
   // invoked from vtkSeedWidget.
   virtual int GetActiveHandle();
-  virtual int CreateHandle( double e[2] ); //returns the id of the seed created
-  virtual void RemoveLastHandle(); //delete last handle created
+  // Returns the id of the seed created, -1 on failure. e is the display position.
+  virtual int CreateHandle( double e[2] );
+  // Delete last handle created
+  virtual void RemoveLastHandle();
+  // Delete the currently active handle
   virtual void RemoveActiveHandle();
 
   // Description:
