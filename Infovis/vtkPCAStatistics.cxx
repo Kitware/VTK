@@ -6,6 +6,9 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatisticsAssessFunctor.h"
 #include "vtkObjectFactory.h"
+#ifdef VTK_USE_GNU_R
+#include <vtkRInterface.h>
+#endif // VTK_USE_GNU_R
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
@@ -634,6 +637,7 @@ void vtkPCAStatistics::Test( vtkTable* inData,
   // 2: multivariate Srivastava kurtosis
   // 3: multivariate Jarque-Bera-Srivastava statistic
   // 4: multivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
+  // 5: number of degrees of freedom of Chi square distribution
   // NB: These are not added to the output table yet, for they will be filled individually first
   //     in order that R be invoked only once.
   vtkIdTypeArray* blockCol = vtkIdTypeArray::New();
@@ -648,10 +652,13 @@ void vtkPCAStatistics::Test( vtkTable* inData,
   vtkDoubleArray* statCol = vtkDoubleArray::New();
   statCol->SetName( "Jarque-Bera-Srivastava" );
 
-  // Set some global quantities
+  vtkIdTypeArray* dimCol = vtkIdTypeArray::New();
+  dimCol->SetName( "d" );
+
+  // Retain data cardinality to check that models are applicable
   vtkIdType nRowData = inData->GetNumberOfRows();
 
-  // For each block, add test columns to the related derived model block.
+  // Now iterate over model blocks
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 1; b < nBlocks; ++ b )
     {
@@ -758,11 +765,11 @@ void vtkPCAStatistics::Test( vtkTable* inData,
     double jbs = static_cast<double>( nRowData * p ) * ( bS1 / 6. + ( tmp * tmp ) / 24. );
 
     // Insert variable name and calculated Jarque-Bera-Srivastava statistic
-    // NB: R will be invoked only once at the end for efficiency
     blockCol->InsertNextValue( b );
     bS1Col->InsertNextTuple1( bS1 );
     bS2Col->InsertNextTuple1( bS2 );
     statCol->InsertNextTuple1( jbs );
+    dimCol->InsertNextTuple1( p + 1 );
 
     // Clean up
     delete [] sum3;
@@ -779,12 +786,79 @@ void vtkPCAStatistics::Test( vtkTable* inData,
   outMeta->AddColumn( bS1Col );
   outMeta->AddColumn( bS2Col );
   outMeta->AddColumn( statCol );
+  outMeta->AddColumn( dimCol );
+
+  // Last phase: compute the p-values or assign invalid value if they cannot be computed
+  vtkDoubleArray* testCol = 0;
+  bool calculatedP = false;
+
+  // If available, use R to obtain the p-values for the Chi square distribution with 2 DOFs
+#ifdef VTK_USE_GNU_R
+  // Prepare VTK - R interface
+  vtkRInterface* ri = vtkRInterface::New();
+
+  // Use the calculated Jarque-Bera-Srivastava statistics as input to the Chi square function
+  ri->AssignVTKDataArrayToRVariable( statCol, "jbs" );
+  ri->AssignVTKDataArrayToRVariable( dimCol, "d" );
+
+  // Calculate the p-values (p+1 degrees of freedom)
+  // Now prepare R script and calculate the p-values (in a single R script evaluation for efficiency)
+  vtksys_ios::ostringstream rs;
+  rs << "p<-c();"
+     << "for(i in 1:"
+     << dimCol->GetNumberOfTuples()
+     << "){"
+     << "p<-c(p,1-pchisq(jbs[i],d[i]));"
+     << "}";
+  ri->EvalRscript( rs.str().c_str() );
+
+  // Retrieve the p-values
+  testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
+    {
+    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
+    }
+  else
+    {
+    // Test values have been calculated by R: the test column can be added to the output table
+    outMeta->AddColumn( testCol );
+    calculatedP = true;
+    }
+
+  // Clean up
+  ri->Delete();
+#endif // VTK_USE_GNU_R
+
+  // Use the invalid value of -1 for p-values if R is absent or there was an R error
+  if ( ! calculatedP )
+    {
+    // A column must be created first
+    testCol = vtkDoubleArray::New();
+
+    // Fill this column
+    vtkIdType n = statCol->GetNumberOfTuples();
+    testCol->SetNumberOfTuples( n );
+    for ( vtkIdType r = 0; r < n; ++ r )
+      {
+      testCol->SetTuple1( r, -1 );
+      }
+
+    // Now add the column of invalid values to the output table
+    outMeta->AddColumn( testCol );
+
+    // Clean up
+    testCol->Delete();
+    }
+
+  // The test column name can only be set after the column has been obtained from R
+  testCol->SetName( "P" );
 
   // Clean up
   blockCol->Delete();
   bS1Col->Delete();
   bS2Col->Delete();
   statCol->Delete();
+  dimCol->Delete();
 }
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::Assess( vtkTable* inData, 
