@@ -17,7 +17,7 @@
 // vtkPolyDataConnectivityFilter is a filter that extracts cells that
 // share common points and/or satisfy a scalar threshold
 // criterion. (Such a group of cells is called a region.) The filter
-// works in one of six ways: 1) extract the largest connected region
+// works in one of six ways: 1) extract the largest (most points) connected region
 // in the dataset; 2) extract specified region numbers; 3) extract all
 // regions sharing specified point ids; 4) extract all regions sharing
 // specified cell ids; 5) extract the region closest to the specified
