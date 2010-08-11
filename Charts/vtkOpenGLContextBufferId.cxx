@@ -72,12 +72,7 @@ vtkOpenGLRenderWindow *vtkOpenGLContextBufferId::GetContext()
 bool vtkOpenGLContextBufferId::IsSupported()
 {
   assert("pre: context_is_set" && this->GetContext()!=0);
-  if(this->Texture==0)
-    {
-    this->Texture=vtkTextureObject::New();
-    this->Texture->SetContext(this->Context);
-    }
-  return this->Texture->IsSupported(this->Context);
+  return vtkTextureObject::IsSupported(this->Context);
 }
 
 // ----------------------------------------------------------------------------
