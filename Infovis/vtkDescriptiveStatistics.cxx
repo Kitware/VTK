@@ -510,6 +510,23 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     return;
     }
 
+  vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! derivedTab )
+    {
+    return;
+    }
+
+  vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  if ( nRowPrim != derivedTab->GetNumberOfRows() )
+    {
+    vtkErrorMacro( "Inconsistent input: primary model has "
+                   << nRowPrim
+                   << " rows but derived model has "
+                   << derivedTab->GetNumberOfRows()
+                   <<". Cannot test." );
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -531,7 +548,6 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   
   // Loop over requests
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -548,11 +564,11 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
 
     // Find the model row that corresponds to the variable of the request
     vtkIdType r = 0;
-    while ( r < nRow && vars->GetValue( r ) != varName )
+    while ( r < nRowPrim && vars->GetValue( r ) != varName )
       {
       ++ r;
       }
-    if ( r >= nRow )
+    if ( r >= nRowPrim )
       {
       vtkWarningMacro( "Incomplete input: model does not have a row "
 		       << varName.c_str()
@@ -562,29 +578,11 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     
     // Retrieve model statistics necessary for Jarque-Bera testing
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    double m2 = primaryTab->GetValueByName( r, "M2" ).ToDouble();
-    double m3 = primaryTab->GetValueByName( r, "M3" ).ToDouble();
-    double m4 = primaryTab->GetValueByName( r, "M4" ).ToDouble();
+    double skew = derivedTab->GetValueByName( r, "g1 Skewness" ).ToDouble();
+    double kurt = derivedTab->GetValueByName( r, "g2 Kurtosis" ).ToDouble();
 
     // Now calculate Jarque-Bera statistic
-    double jb;
-
-    // Eliminate extremely small variances
-    if ( m2 > 1.e-100 )
-      {
-      double m22 = m2 * m2;
-      double s = 0.0;
-      double k = 0.0;
-      
-      s = sqrt( n / ( m22 * m2 ) ) * m3;
-      k = n * m4 / m22 - 3.;
-
-      jb = n * ( s * s + .25 * k * k ) / 6.;
-      }
-    else
-      {
-      jb = vtkMath::Nan();
-      }
+    double jb = n * ( skew * skew + .25 * kurt * kurt ) / 6.;
     
     // Insert variable name and calculated Jarque-Bera statistic 
     // NB: R will be invoked only once at the end for efficiency
