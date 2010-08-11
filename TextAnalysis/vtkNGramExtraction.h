@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkNGramExtraction_h
-#define __vtkNGramExtraction_h
-
-#include <vtkTableAlgorithm.h>
-
 // .NAME vtkNGramExtraction - Converts a collection of tokens into a collection of N-grams.
 //
 // .SECTION Description
@@ -43,6 +38,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkNGramExtraction_h
+#define __vtkNGramExtraction_h
+
+#include <vtkTableAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkNGramExtraction :
   public vtkTableAlgorithm

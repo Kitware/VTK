@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkFeatureDictionary_h
-#define __vtkFeatureDictionary_h
-
-#include <vtkTableAlgorithm.h>
-
 // .NAME vtkFeatureDictionary - Generates a dictionary of unique terms.
 //
 // .SECTION Description
@@ -44,6 +39,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkFeatureDictionary_h
+#define __vtkFeatureDictionary_h
+
+#include <vtkTableAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkFeatureDictionary :
   public vtkTableAlgorithm

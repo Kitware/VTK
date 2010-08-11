@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkSelectArraySlices_h
-#define __vtkSelectArraySlices_h
-
-#include <vtkSelectionAlgorithm.h>
-
 // .NAME vtkSelectArraySlices - Produces a selection based on array slice values
 //
 // Inputs:
@@ -35,6 +30,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkSelectArraySlices_h
+#define __vtkSelectArraySlices_h
+
+#include <vtkSelectionAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkSelectArraySlices :
   public vtkSelectionAlgorithm

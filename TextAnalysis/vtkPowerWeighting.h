@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
-#ifndef __vtkPowerWeighting_h
-#define __vtkPowerWeighting_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkPowerWeighting - Given an arbitrary-dimension array of doubles,
 // replaces each value x with x^Power.
 
 // .SECTION Thanks
 // Developed by Jason Shepherd (jfsheph@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkPowerWeighting_h
+#define __vtkPowerWeighting_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkPowerWeighting : public vtkArrayDataAlgorithm
 {

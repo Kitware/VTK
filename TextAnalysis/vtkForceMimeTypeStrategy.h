@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef _vtkForceMimeTypeStrategy_h
-#define _vtkForceMimeTypeStrategy_h
-
-#include <vtkMimeTypeStrategy.h>
-
 // .NAME vtkForceMimeTypeStrategy - Returns a specific mime type no matter what
 //
 // .SECTION Description
@@ -34,6 +29,11 @@
 //
 // .SECTION Thanks 
 // Developed by Andy Wilson (atwilso@sandia.gov) at Sandia National Laboratories.
+
+#ifndef _vtkForceMimeTypeStrategy_h
+#define _vtkForceMimeTypeStrategy_h
+
+#include <vtkMimeTypeStrategy.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkForceMimeTypeStrategy :
   public vtkMimeTypeStrategy

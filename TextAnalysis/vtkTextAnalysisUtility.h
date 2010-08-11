@@ -18,17 +18,17 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef _vtkTextAnalysisUtility_h
-#define _vtkTextAnalysisUtility_h
-
-#include "vtkSystemIncludes.h"
-
 // .NAME vtkTextAnalysisUtility
 //
 // .SECTION Description
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef _vtkTextAnalysisUtility_h
+#define _vtkTextAnalysisUtility_h
+
+#include "vtkSystemIncludes.h"
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkTextAnalysisUtility
 {

@@ -18,12 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkTokenizer_h
-#define __vtkTokenizer_h
-
-#include <vtkTableAlgorithm.h>
-#include <vtkUnicodeString.h> //Needed for delimiter specification
-
 // .NAME vtkTokenizer - Converts a document collection into a term collection.
 //
 // .SECTION Description
@@ -75,6 +69,12 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTokenizer_h
+#define __vtkTokenizer_h
+
+#include <vtkTableAlgorithm.h>
+#include <vtkUnicodeString.h> //Needed for delimiter specification
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkTokenizer :
   public vtkTableAlgorithm

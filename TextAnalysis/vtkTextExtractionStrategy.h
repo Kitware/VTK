@@ -18,17 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef _vtkTextExtractionStrategy_h
-#define _vtkTextExtractionStrategy_h
-
-#include <vtkObject.h>
-
-class vtkIdTypeArray;
-class vtkStdString;
-class vtkStringArray;
-class vtkUnicodeString;
-class vtkUnicodeStringArray;
-
 // .NAME vtkTextExtractionStrategy - Abstract interface for an object that can extract
 // tagged text from a resource.
 //
@@ -40,6 +29,17 @@ class vtkUnicodeStringArray;
 // vtkTextExtraction, vtkPlainTextExtractionStrategy.
 //
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef _vtkTextExtractionStrategy_h
+#define _vtkTextExtractionStrategy_h
+
+#include <vtkObject.h>
+
+class vtkIdTypeArray;
+class vtkStdString;
+class vtkStringArray;
+class vtkUnicodeString;
+class vtkUnicodeStringArray;
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkTextExtractionStrategy :
   public vtkObject
