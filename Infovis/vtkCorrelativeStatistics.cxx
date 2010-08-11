@@ -692,6 +692,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       }
     else
       {
+      bS1 = vtkMath::Nan();
+      bS2 = vtkMath::Nan();
       jbs = vtkMath::Nan();
       }
 
