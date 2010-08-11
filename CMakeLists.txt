@@ -130,6 +130,22 @@ CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
 SET(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 
 #-----------------------------------------------------------------------------
+# Does the const_reverse_iterator have the comparison operators? Before GCC
+# 4.1 they were not present.
+INCLUDE(CheckCXXSourceCompiles)
+SET(VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE
+"#include <vector>
+int main()
+{
+  std::vector<int> test;
+  std::vector<int>::const_reverse_iterator it = test.rbegin();
+  it != test.rend();
+  return 0;
+}")
+CHECK_CXX_SOURCE_COMPILES("${VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE}"
+  VTK_CONST_REVERSE_ITERATOR_COMPARISON)
+
+#-----------------------------------------------------------------------------
 # Discover the name of the runtime library path environment variable
 # and put the result in SHARED_LIBRARY_PATH_VAR_NAME.
 # The result depends on the platform and on some platforms it depends on
@@ -169,7 +185,7 @@ ENDIF(NOT VTK_INSTALL_INCLUDE_DIR)
 
 # The location in which to install VTK libraries.
 IF(NOT VTK_INSTALL_LIB_DIR)
-  SET(VTK_INSTALL_LIB_DIR 
+  SET(VTK_INSTALL_LIB_DIR
     ${VTK_INSTALL_ROOT}/lib/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
     )
 ENDIF(NOT VTK_INSTALL_LIB_DIR)
@@ -278,10 +294,10 @@ VTK_DEPENDENT_OPTION(VTK_USE_CHARTS "Build VTK chart support (OpenGL based)" ON
 
 SET(VTK_DEFAULT_SHADERS_DIR
    "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
-   CACHE INTERNAL 
+   CACHE INTERNAL
    "The directory in which code for Shaders is provided.")
 
-SET(VTK_MATERIALS_DIRS 
+SET(VTK_MATERIALS_DIRS
   ${VTK_DEFAULT_SHADERS_DIR}
   CACHE STRING
   "; separated directories to search for materials/shaders")
@@ -673,7 +689,7 @@ VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL_BGL
                      "Use the Parallel Boost Graph Library"
                      OFF
-                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;VTK_USE_64BIT_IDS" 
+                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;VTK_USE_64BIT_IDS"
                      OFF)
 
 SET(VTK_CAN_USE_TK OFF)
@@ -736,13 +752,13 @@ IF(VTK_USE_RENDERING)
   # used, one has to set the libs and include dir manually, which is
   # exactly what we are going to do below.
   IF(APPLE AND VTK_USE_X)
-    FIND_PATH(OPENGL_INCLUDE_DIR GL/gl.h 
+    FIND_PATH(OPENGL_INCLUDE_DIR GL/gl.h
       /usr/X11R6/include)
-    FIND_PATH(OPENGL_xmesa_INCLUDE_DIR GL/xmesa.h 
+    FIND_PATH(OPENGL_xmesa_INCLUDE_DIR GL/xmesa.h
       /usr/X11R6/include)
-    FIND_LIBRARY(OPENGL_gl_LIBRARY NAMES GL MesaGL 
+    FIND_LIBRARY(OPENGL_gl_LIBRARY NAMES GL MesaGL
       PATHS /usr/lib /usr/local/lib /usr/X11R6/lib)
-    FIND_LIBRARY(OPENGL_glu_LIBRARY NAMES GLU MesaGLU 
+    FIND_LIBRARY(OPENGL_glu_LIBRARY NAMES GLU MesaGLU
       PATHS ${OPENGL_gl_LIBRARY} /usr/lib /usr/local/lib /usr/X11R6/lib)
   ENDIF(APPLE AND VTK_USE_X)
   FIND_PACKAGE(OpenGL)
@@ -841,7 +857,7 @@ IF(VTK_USE_MPI)
       SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     ELSE(NOT ${MPI_NUMPROC_FLAG})
       SET(VTK_MPI_NUMPROC_FLAG ${MPIEXEC_NUMPROC_FLAG} CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
-    ENDIF(NOT ${MPI_NUMPROC_FLAG})    
+    ENDIF(NOT ${MPI_NUMPROC_FLAG})
     SET(VTK_MPI_PREFLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the executable that is being run by VTK_MPIRUN_EXE. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     SET(VTK_MPI_POSTFLAGS ${MPIEXEC_POSTFLAGS} CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     SET(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
@@ -854,7 +870,7 @@ IF(VTK_USE_MPI)
     SET(VTK_MPI_POSTFLAGS "" CACHE STRING "These flags will come after all flags given to MPIRun.(see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
     SET(VTK_MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)")
   ENDIF(${MPIEXEC})
-  
+
   MARK_AS_ADVANCED(
     VTK_MPI_PRENUMPROC_FLAGS VTK_MPI_NUMPROC_FLAG VTK_MPIRUN_EXE VTK_MPI_PREFLAGS VTK_MPI_POSTFLAGS VTK_MPI_MAX_NUMPROCS)
   SEPARATE_ARGUMENTS(VTK_MPI_PRENUMPROC_FLAGS)
@@ -926,19 +942,19 @@ ENDIF(BUILD_TESTING OR VTK_WRAP_PYTHON)
 # cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData login
 # (respond with password vtk)
 # cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData checkout VTKData
-FIND_PATH(VTK_DATA_ROOT VTKData.readme 
-  ${VTK_SOURCE_DIR}/VTKData 
-  ${VTK_SOURCE_DIR}/../VTKData 
-  ${VTK_SOURCE_DIR}/../../VTKData 
+FIND_PATH(VTK_DATA_ROOT VTKData.readme
+  ${VTK_SOURCE_DIR}/VTKData
+  ${VTK_SOURCE_DIR}/../VTKData
+  ${VTK_SOURCE_DIR}/../../VTKData
   $ENV{VTK_DATA_ROOT}
   DOC "The repository for data used for testing.  To obtain from CVS: \"cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK co VTKData\"")
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK__LARGE_DATA_ROOT for the location of VTKLargeData.
-FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme 
-  ${VTK_SOURCE_DIR}/VTKLargeData 
-  ${VTK_SOURCE_DIR}/../VTKLargeData 
-  ${VTK_SOURCE_DIR}/../../VTKLargeData 
+FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
+  ${VTK_SOURCE_DIR}/VTKLargeData
+  ${VTK_SOURCE_DIR}/../VTKLargeData
+  ${VTK_SOURCE_DIR}/../../VTKLargeData
   $ENV{VTK_LARGE_DATA_ROOT}
   DOC "The repository for large data used for testing.  To check out this repository from CVS, first run
 
@@ -1151,11 +1167,11 @@ IF(VTK_WRAP_PYTHON)
   ENDIF(CMAKE_CROSSCOMPILING)
 
   # Save these in cache as other projects including VTK (such as ParaView) may
-  # want to use these. 
-  SET(VTK_WRAP_PYTHON_EXE 
+  # want to use these.
+  SET(VTK_WRAP_PYTHON_EXE
     "${VTK_WRAP_PYTHON_EXE}"
     CACHE INTERNAL "Location of program to do Python wrapping")
-  SET(VTK_WRAP_PYTHON_INIT_EXE 
+  SET(VTK_WRAP_PYTHON_INIT_EXE
     "${VTK_WRAP_PYTHON_INIT_EXE}"
     CACHE INTERNAL "Location of program to do Python wrapping")
 
@@ -1441,7 +1457,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${VTK_CMAKE_DIR}/VTKVersionMacros.cmake
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake 
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake
     COMPONENT Development
     )
 
