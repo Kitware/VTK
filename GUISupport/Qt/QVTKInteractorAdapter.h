@@ -46,7 +46,7 @@ class QEvent;
 // .SECTION Description
 // QVTKInteractorAdapter translates QEvents and send them to a
 // vtkRenderWindowInteractor.
-class QVTKInteractorAdapter : public QObject
+class QVTK_EXPORT QVTKInteractorAdapter : public QObject
 {
   Q_OBJECT
 public:

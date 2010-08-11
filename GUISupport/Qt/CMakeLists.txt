@@ -156,34 +156,6 @@ IF(APPLE)
   ENDIF(VTK_USE_CARBON)
 ENDIF(APPLE)
 
-
-# build plugin
-
-SET ( PluginLibSrcs
-      Q4VTKWidgetPlugin.cxx
-      )
-
-SET ( PluginMocHeaders
-      Q4VTKWidgetPlugin.h
-      )
-
-ADD_DEFINITIONS(-DQT_PLUGIN)
-INCLUDE_DIRECTORIES(${QT_QTDESIGNER_INCLUDE_DIR})
-QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
-
-# add QVTK plugin from sources
-# stand-alone as it doesn't depend on QVTK library
-ADD_LIBRARY ( QVTKWidgetPlugin
-  SHARED
-  ${PluginLibSrcs}
-  ${PluginMocSrcs}
-)
-
-# link with Qt libs
-TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
-  ${QT_LIBRARIES}
-)
-
 # recurse into Chart directory
 SUBDIRS(Chart)
 
@@ -192,6 +164,7 @@ IF(BUILD_TESTING)
   SUBDIRS(Testing/Cxx)
 ENDIF(BUILD_TESTING)
 
+# wrapping for python
 if(VTK_WRAP_PYTHON_SIP)
 
   #### wrap vtkObject derived classes with the VTK python wrapper generator
@@ -221,6 +194,7 @@ if(VTK_WRAP_PYTHON_SIP)
     vtkQtRichTextView.h
     )
   ENDIF(VTK_QT_USE_WEBKIT)
+
   VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
   ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
   TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK vtkViewsPythonD vtkRenderingPythonD vtkPythonCore)
@@ -245,6 +219,11 @@ if(VTK_WRAP_PYTHON_SIP)
   set(SIP_FILES
     QVTKWidget.sip
     QVTKInteractor.sip
+    QVTKInteractorAdapter.sip
+    vtkQtAbstractModelAdapter.sip
+    vtkQtAnnotationLayersModelAdapter.sip
+    vtkQtTableModelAdapter.sip
+    vtkQtTreeModelAdapter.sip
     )
   if(VTK_USE_QVTK_QTOPENGL)
     set(SIP_FILES
@@ -254,6 +233,7 @@ if(VTK_WRAP_PYTHON_SIP)
       )
   endif(VTK_USE_QVTK_QTOPENGL)
 
+  # auto generate the module .sip file from the list of .sip files above
   set(SIP_MODULE QVTKPython)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in
     "%Module ${SIP_MODULE} 0\n\n")
@@ -271,6 +251,7 @@ if(VTK_WRAP_PYTHON_SIP)
   set(SIP_OUT ${SIP_OUT} ${CMAKE_CURRENT_BINARY_DIR}/sip${SIP_MODULE}cmodule.cpp)
   set(SIP_FILES ${SIP_FILES} ${MODULE_SIP_FILE})
 
+  # find .sip files for Qt
   find_path(SIP_PYQT_DIR NAMES QtCore/QtCoremod.sip
     PATHS ${PYTHON_INCLUDE_PATH}/../Lib/site-packages/PyQt4/sip/PyQt4
           ${PYTHON_INCLUDE_PATH}/../sip/PyQt4
@@ -281,6 +262,7 @@ if(VTK_WRAP_PYTHON_SIP)
     DOC "Root directory containing all PyQt4 sip files."
     )
 
+  # build command args for sip
   if(Q_WS_X11)
     set(SIP_FLAGS ${SIP_FLAGS} -t WS_X11)
   elseif(Q_WS_WIN)
@@ -293,6 +275,7 @@ if(VTK_WRAP_PYTHON_SIP)
     -I ${SIP_PYQT_DIR}
     -I ${CMAKE_CURRENT_SOURCE_DIR}
     -I ${VTK_BINARY_DIR}/Rendering
+    -I ${VTK_BINARY_DIR}/Filtering
     -I ${VTK_BINARY_DIR}/Common
     )
   IF(VTK_USE_VIEWS)
@@ -301,6 +284,7 @@ if(VTK_WRAP_PYTHON_SIP)
       )
   ENDIF(VTK_USE_VIEWS)
 
+  # call sip on our files
   add_custom_command(
     OUTPUT ${SIP_OUT}
     COMMAND ${SIP_EXECUTABLE}
@@ -308,6 +292,7 @@ if(VTK_WRAP_PYTHON_SIP)
     DEPENDS ${SIP_FILES}
     )
 
+  # create the sip module
   add_library(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
   target_link_libraries(${SIP_MODULE} QVTK vtkRenderingPythonD)
   set_target_properties(${SIP_MODULE} PROPERTIES PREFIX "")
@@ -332,6 +317,36 @@ endif(VTK_WRAP_PYTHON_SIP)
 # Configure the VTKConfigQt.cmake support file.
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
                ${VTK_BINARY_DIR}/VTKConfigQt.cmake @ONLY IMMEDIATE)
+
+# build plugin
+
+SET ( PluginLibSrcs
+      Q4VTKWidgetPlugin.cxx
+      )
+
+SET ( PluginMocHeaders
+      Q4VTKWidgetPlugin.h
+      )
+
+ADD_DEFINITIONS(-DQT_PLUGIN)
+INCLUDE_DIRECTORIES(${QT_QTDESIGNER_INCLUDE_DIR})
+QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
+
+# add QVTK plugin from sources
+# stand-alone as it doesn't depend on QVTK library
+ADD_LIBRARY ( QVTKWidgetPlugin
+  SHARED
+  ${PluginLibSrcs}
+  ${PluginMocSrcs}
+)
+
+SET_TARGET_PROPERTIES(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
+
+# link with Qt libs
+TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
+  ${QT_QTGUI_LIBRARY}
+  ${QT_QTCORE_LIBRARY}
+)
 
 # install rules
 
@@ -395,4 +410,3 @@ ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY IMMEDIATE)
-
