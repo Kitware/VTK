@@ -476,8 +476,8 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
     {
     size_t i = this->Children->size();
     vtkContextMouseEvent &event = this->Storage->Event;
-    for(vtkContextScenePrivate::const_iterator it = this->Children->end();
-        it != this->Children->begin(); --it, --i)
+    for(vtkContextScenePrivate::const_reverse_iterator it =
+        this->Children->rbegin(); it != this->Children->rend(); ++it, --i)
       {
       if ((*it)->Hit(event))
         {

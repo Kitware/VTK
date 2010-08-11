@@ -54,8 +54,13 @@ public:
 
   // Description:
   // A few standard defines
-  typedef vtkstd::vector<vtkAbstractContextItem*>::const_iterator const_iterator;
+  typedef vtkstd::vector<vtkAbstractContextItem*>::const_iterator
+    const_iterator;
   typedef vtkstd::vector<vtkAbstractContextItem*>::iterator iterator;
+  typedef vtkstd::vector<vtkAbstractContextItem*>::const_reverse_iterator
+    const_reverse_iterator;
+  typedef vtkstd::vector<vtkAbstractContextItem*>::reverse_iterator
+    reverse_iterator;
 
   // Description:
   // Paint all items in the list.
