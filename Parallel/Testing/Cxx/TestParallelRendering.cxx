@@ -92,7 +92,6 @@ vtkStandardNewMacro(MyProcess);
 
 void MyProcess::Execute()
 {
-  int num_procs = this->Controller->GetNumberOfProcesses();
   int my_id = this->Controller->GetLocalProcessId();
 
   vtkRenderWindow* renWin = vtkRenderWindow::New();
@@ -155,7 +154,6 @@ int main(int argc, char **argv)
 
 
   int numProcs = contr->GetNumberOfProcesses();
-  int me = contr->GetLocalProcessId();
 
   if (numProcs < 2 && false)
     {
