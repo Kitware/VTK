@@ -3512,8 +3512,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
   vtkIdType i, j;
 
   double center[3] = {0,0,0};
-  double min[3] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX};
-  double max[3] = {VTK_DOUBLE_MIN, VTK_DOUBLE_MIN, VTK_DOUBLE_MIN};
 
   // First compute center point
   npts = points->GetNumberOfPoints();
@@ -3523,14 +3521,16 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
     points->GetPoint( i, pt );
     for ( j = 0; j < 3; j++ )
       {
-      min[j] = (pt[j]<min[j])?(pt[j]):(min[j]);
-      max[j] = (pt[j]>max[j])?(pt[j]):(max[j]);
+      center[j] += pt[j];
       }
     }
 
-  center[0] = 0.5*(min[0]+max[0]);
-  center[1] = 0.5*(min[1]+max[1]);
-  center[2] = 0.5*(min[2]+max[2]);
+  if(npts>0)
+    {
+    center[0]/=static_cast<double>(npts);
+    center[1]/=static_cast<double>(npts);
+    center[2]/=static_cast<double>(npts);
+    }
 
   double *loadedBounds=0;
   vtkIdType *loadedExtent=0;
