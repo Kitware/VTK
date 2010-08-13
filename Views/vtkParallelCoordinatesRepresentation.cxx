@@ -217,6 +217,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->Axes = NULL;
   this->NumberOfAxisLabels = 2;
 
+
   this->PlotTitleMapper = vtkSmartPointer<vtkTextMapper>::New();
   this->PlotTitleMapper->SetInput("Parallel Coordinates Plot");
   this->PlotTitleMapper->GetTextProperty()->SetJustificationToCentered();
@@ -262,6 +263,11 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->FontSize = 1.0;
 
   // Apply default theme
+  this->LineOpacity = 1.0;
+  this->LineColor[0] = this->LineColor[1] = this->LineColor[2] = 0.0;
+  this->AxisColor[0] = this->AxisColor[1] = this->AxisColor[2] = 0.0;
+  this->AxisLabelColor[0] = this->AxisLabelColor[1] = this->AxisLabelColor[2] = 0.0;
+
   vtkViewTheme* theme = vtkViewTheme::New();
   theme->SetCellOpacity(1.0);
   theme->SetCellColor(1.0,1.0,1.0);
