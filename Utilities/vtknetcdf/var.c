@@ -2,18 +2,17 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: var.c,v 1.136 2010/04/11 04:15:43 dmh Exp $ */
 
 #include "nc.h"
+#include "rename.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "ncx.h"
 #include "rnd.h"
+#include "utf8proc.h"
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
-#endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
 
 /*
  * Free var
@@ -31,8 +30,8 @@ free_NC_var(NC_var *varp)
 }
 
 
-/* 
- * Common code for new_NC_var() 
+/*
+ * Common code for new_NC_var()
  * and ncx_get_NC_var()
  */
 NC_var *
@@ -79,13 +78,17 @@ new_x_NC_var(
 NC_new_var()
  */
 static NC_var *
-new_NC_var(const char *name, nc_type type,
+new_NC_var(const char *uname, nc_type type,
   size_t ndims, const int *dimids)
 {
   NC_string *strp;
   NC_var *varp;
 
+  char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
+  if(name == NULL)
+      return NULL;
   strp = new_NC_string(strlen(name), name);
+  free(name);
   if(strp == NULL)
     return NULL;
 
@@ -95,7 +98,7 @@ new_NC_var(const char *name, nc_type type,
     free_NC_string(strp);
     return NULL;
   }
-  
+
   varp->type = type;
 
   if( ndims != 0 && dimids != NULL)
@@ -113,7 +116,7 @@ dup_NC_var(const NC_var *rvarp)
   if(varp == NULL)
     return NULL;
 
-  
+
   if(dup_NC_attrarrayV(&varp->attrs, &rvarp->attrs) != NC_NOERR)
   {
     free_NC_var(varp);
@@ -171,7 +174,7 @@ void
 free_NC_vararrayV(NC_vararray *ncap)
 {
   assert(ncap != NULL);
-  
+
   if(ncap->nalloc == 0)
     return;
 
@@ -296,11 +299,12 @@ elem_NC_vararray(const NC_vararray *ncap, size_t elem)
 NC_hvarid
  */
 int
-NC_findvar(const NC_vararray *ncap, const char *name, NC_var **varpp)
+NC_findvar(const NC_vararray *ncap, const char *uname, NC_var **varpp)
 {
   NC_var **loc;
   size_t slen;
   int varid;
+  char *name;
 
   assert(ncap != NULL);
 
@@ -309,28 +313,28 @@ NC_findvar(const NC_vararray *ncap, const char *name, NC_var **varpp)
 
   loc = (NC_var **) ncap->value;
 
+  /* normalized version of uname */
+  name = (char *)utf8proc_NFC((const unsigned char *)uname);
+  if(name == NULL)
+      return NC_ENOMEM;
   slen = strlen(name);
 
   for(varid = 0; (size_t) varid < ncap->nelems; varid++, loc++)
   {
-    /* NOTE: The [slen-1] check is a specific optimization for
-     * exodusII files with many blocks and variables. Because
-     * names usually end with a different suffix, check that
-     * before comparing entire string.
-     */
     if(strlen((*loc)->name->cp) == slen &&
-       name[slen-1]==(*loc)->name->cp[slen-1] &&
-       strncmp((*loc)->name->cp, name, slen) == 0)
+      strncmp((*loc)->name->cp, name, slen) == 0)
     {
       if(varpp != NULL)
         *varpp = *loc;
+      free(name);
       return(varid); /* Normal return */
     }
   }
+  free(name);
   return(-1); /* not found */
 }
 
-/* 
+/*
  * For a netcdf type
  *  return the size of one element in the external representation.
  * Note that arrays get rounded up to X_ALIGN boundaries.
@@ -351,14 +355,12 @@ ncx_szof(nc_type type)
     return X_SIZEOF_INT;
   case NC_FLOAT:
     return X_SIZEOF_FLOAT;
-  case NC_DOUBLE : 
+  case NC_DOUBLE :
     return X_SIZEOF_DOUBLE;
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_szof invalid type" == 0);
+          return 0;
   }
-  /* default */
-  assert("ncx_szof invalid type" == 0);
-  return 0;
 }
 
 
@@ -374,7 +376,7 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
   int *ip;
   const NC_dim *dimp;
   size_t product = 1;
-  
+
   varp->xsz = ncx_szof(varp->type);
 
   if(varp->ndims == 0)
@@ -391,50 +393,58 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
   {
     if(*ip < 0 || (size_t) (*ip) >= ((dims != NULL) ? dims->nelems : 1) )
       return NC_EBADDIM;
-    
+
     dimp = elem_NC_dimarray(dims, (size_t)*ip);
     *op = dimp->size;
     if(*op == NC_UNLIMITED && ip != varp->dimids)
       return NC_EUNLIMPOS;
   }
 
-  /* 
+  /*
    * Compute the dsizes
    */
         /* ndims is > 0 here */
   for(shp = varp->shape + varp->ndims -1,
         dsp = varp->dsizes + varp->ndims -1;
-      shp >= varp->shape;
+       shp >= varp->shape;
       shp--, dsp--)
   {
     if(!(shp == varp->shape && IS_RECVAR(varp)))
-      product *= *shp;
+    {
+      if( *shp <= X_UINT_MAX / product )
+      {
+        product *= *shp;
+      } else
+      {
+        product = X_UINT_MAX ;
+      }
+    }
     *dsp = product;
   }
 
 
 out :
-    if( varp->xsz <= X_UINT_MAX / product ) /* if integer multiply will not overflow */
+    if( varp->xsz <= (X_UINT_MAX - 1) / product ) /* if integer multiply will not overflow */
   {
           varp->len = product * varp->xsz;
+    switch(varp->type) {
+    case NC_BYTE :
+    case NC_CHAR :
+    case NC_SHORT :
+            if( varp->len%4 != 0 )
+      {
+              varp->len += 4 - varp->len%4; /* round up */
+    /*    *dsp += 4 - *dsp%4; */
+        }
+        break;
+    default:
+      /* already aligned */
+      break;
+    }
         } else
-  { /* OK for last var to be "too big", indicated by this special len */
+  {  /* OK for last var to be "too big", indicated by this special len */
           varp->len = X_UINT_MAX;
         }
-  switch(varp->type) {
-  case NC_BYTE :
-  case NC_CHAR :
-  case NC_SHORT :
-    if( varp->len%4 != 0 )
-    {
-      varp->len += 4 - varp->len%4; /* round up */
-  /*    *dsp += 4 - *dsp%4; */
-    }
-    break;
-  default:
-    /* already aligned */
-    break;
-  }
 #if 0
   arrayp("\tshape", varp->ndims, varp->shape);
   arrayp("\tdsizes", varp->ndims, varp->dsizes);
@@ -451,17 +461,18 @@ out :
  */
 int
 NC_check_vlen(NC_var *varp, size_t vlen_max) {
-  size_t prod=varp->xsz;  /* product of xsz and dimensions so far */
+    size_t prod=varp->xsz;  /* product of xsz and dimensions so far */
 
-  int ii;
+    int ii;
 
-  for(ii = IS_RECVAR(varp) ? 1 : 0; ii < (int)varp->ndims; ii++) {
-    if (varp->shape[ii] > vlen_max / prod) {
-      return 0;   /* size in bytes won't fit in a 32-bit int */
-    }
-    prod *= varp->shape[ii];
+    assert(varp != NULL);
+    for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
+  if (varp->shape[ii] > vlen_max / prod) {
+      return 0;    /* size in bytes won't fit in a 32-bit int */
   }
-  return 1;     /* OK */
+  prod *= varp->shape[ii];
+    }
+    return 1;      /* OK */
 }
 
 
@@ -497,7 +508,7 @@ NC_lookupvar(NC *ncp, int varid)
 /* Public */
 
 int
-nc_def_var( int ncid, const char *name, nc_type type,
+DISPNAME(def_var)( int ncid, const char *name, nc_type type,
    int ndims, const int *dimids, int *varidp)
 {
   int status;
@@ -505,7 +516,7 @@ nc_def_var( int ncid, const char *name, nc_type type,
   int varid;
   NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -526,7 +537,7 @@ nc_def_var( int ncid, const char *name, nc_type type,
   if((unsigned long) ndims > X_INT_MAX) /* Backward compat */
   {
     return NC_EINVAL;
-  } 
+  }
 
   if(ncp->vars.nelems >= NC_MAX_VARS)
   {
@@ -538,7 +549,7 @@ nc_def_var( int ncid, const char *name, nc_type type,
   {
     return NC_ENAMEINUSE;
   }
-  
+
   varp = new_NC_var(name, type, ndims, dimids);
   if(varp == NULL)
     return NC_ENOMEM;
@@ -564,14 +575,14 @@ nc_def_var( int ncid, const char *name, nc_type type,
 
 
 int
-nc_inq_varid(int ncid, const char *name, int *varid_ptr)
+DISPNAME(inq_varid)(int ncid, const char *name, int *varid_ptr)
 {
   int status;
   NC *ncp;
   NC_var *varp;
   int varid;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -587,7 +598,7 @@ nc_inq_varid(int ncid, const char *name, int *varid_ptr)
 
 
 int
-nc_inq_var(int ncid,
+DISPNAME(inq_var)(int ncid,
   int varid,
   char *name,
   nc_type *typep,
@@ -600,7 +611,7 @@ nc_inq_var(int ncid,
   NC_var *varp;
   size_t ii;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -636,14 +647,14 @@ nc_inq_var(int ncid,
 }
 
 
-int 
+int
 nc_inq_varname(int ncid, int varid, char *name)
 {
   int status;
   NC *ncp;
   NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -660,14 +671,14 @@ nc_inq_varname(int ncid, int varid, char *name)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_vartype(int ncid, int varid, nc_type *typep)
 {
   int status;
   NC *ncp;
   NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -681,14 +692,14 @@ nc_inq_vartype(int ncid, int varid, nc_type *typep)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_varndims(int ncid, int varid, int *ndimsp)
 {
   int status;
   NC *ncp;
   NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -705,7 +716,7 @@ nc_inq_varndims(int ncid, int varid, int *ndimsp)
 }
 
 
-int 
+int
 nc_inq_vardimid(int ncid, int varid, int *dimids)
 {
   int status;
@@ -713,7 +724,7 @@ nc_inq_vardimid(int ncid, int varid, int *dimids)
   NC_var *varp;
   size_t ii;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -733,7 +744,7 @@ nc_inq_vardimid(int ncid, int varid, int *dimids)
 }
 
 
-int 
+int
 nc_inq_varnatts(int ncid, int varid, int *nattsp)
 {
   int status;
@@ -743,7 +754,7 @@ nc_inq_varnatts(int ncid, int varid, int *nattsp)
   if(varid == NC_GLOBAL)
     return  nc_inq_natts(ncid, nattsp);
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -760,15 +771,16 @@ nc_inq_varnatts(int ncid, int varid, int *nattsp)
 }
 
 int
-nc_rename_var(int ncid, int varid, const char *newname)
+DISPNAME(rename_var)(int ncid, int varid, const char *unewname)
 {
   int status;
   NC *ncp;
   NC_var *varp;
   NC_string *old, *newStr;
   int other;
+  char *newname;    /* normalized */
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -777,17 +789,17 @@ nc_rename_var(int ncid, int varid, const char *newname)
     return NC_EPERM;
   }
 
-  status = NC_check_name(newname);
+  status = NC_check_name(unewname);
   if(status != NC_NOERR)
     return status;
 
   /* check for name in use */
-  other = NC_findvar(&ncp->vars, newname, &varp);
+  other = NC_findvar(&ncp->vars, unewname, &varp);
   if(other != -1)
   {
     return NC_ENAMEINUSE;
   }
-  
+
   varp = NC_lookupvar(ncp, varid);
   if(varp == NULL)
   {
@@ -796,9 +808,13 @@ nc_rename_var(int ncid, int varid, const char *newname)
   }
 
   old = varp->name;
+  newname = (char *)utf8proc_NFC((const unsigned char *)unewname);
+  if(newname == NULL)
+      return NC_ENOMEM;
   if(NC_indef(ncp))
   {
     newStr = new_NC_string(strlen(newname),newname);
+    free(newname);
     if(newStr == NULL)
       return(-1);
     varp->name = newStr;
@@ -808,6 +824,7 @@ nc_rename_var(int ncid, int varid, const char *newname)
 
   /* else, not in define mode */
   status = set_NC_string(varp->name, newname);
+  free(newname);
   if(status != NC_NOERR)
     return status;
 

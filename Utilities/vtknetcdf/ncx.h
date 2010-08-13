@@ -2,7 +2,7 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *  See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* "Id" */
+/* "$Id: ncx.h,v 1.62 2008/09/23 13:58:44 ed Exp $" */
 
 #ifndef _NCX_H_
 #define _NCX_H_
@@ -12,17 +12,17 @@
  *
  * This started out as a general replacement for ONC XDR,
  * specifically, the xdrmem family of functions.
- * 
+ *
  * We eventually realized that we could write more portable
  * code if we decoupled any association between the 'C' types
  * and the external types. (XDR has this association between the 'C'
  * types and the external representations, like xdr_int() takes
- * an int argument and goes to an external int representation.) 
+ * an int argument and goes to an external int representation.)
  * So, now there is a matrix of functions.
- * 
+ *
  */
 
-#include "ncconfig.h" /* output of 'configure' */
+#include <ncconfig.h> /* output of 'configure' */
 #include "rnd.h"
 #include <stddef.h> /* size_t */
 #include <errno.h>
@@ -31,11 +31,24 @@
 #endif /* NO_SYS_TYPES_H */
 #include "netcdf.h"
 
+/* Define uchar if it is not defined on this system. */
+#ifndef HAVE_UCHAR
+typedef unsigned char uchar;
+#endif
+
 #if defined(_CRAY) && !defined(_CRAYIEEE) && !defined(__crayx1)
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #elif defined(_SX) && defined(_FLOAT2)  /* NEC SUPER-UX in CRAY mode */
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #endif
+
+
+#if defined(DLL_NETCDF) /* define when library is a DLL */
+#include <io.h>
+#define lseek _lseeki64
+#define off_t __int64
+#define _OFF_T_DEFINED
+#endif  /* defined(DLL_NETCDF) */
 
 /*
  * The integer return code for the conversion routines
@@ -56,65 +69,65 @@
 /*
  * External sizes of the primitive elements.
  */
-#define X_SIZEOF_CHAR   1
+#define X_SIZEOF_CHAR    1
 #define X_SIZEOF_SHORT    2
-#define X_SIZEOF_INT    4 /* xdr_int */
+#define X_SIZEOF_INT    4  /* xdr_int */
 #if 0
-#define X_SIZEOF_LONG   8 */  /* xdr_long_long */
+#define X_SIZEOF_LONG    8 */  /* xdr_long_long */
 #endif
 #define X_SIZEOF_FLOAT    4
-#define X_SIZEOF_DOUBLE   8
+#define X_SIZEOF_DOUBLE    8
 
 /*
  * For now, netcdf is limited to 32 bit sizes,
  * If compiled with support for "large files", then
  * netcdf will use a 64 bit off_t and it can then write a file
- * using 64 bit offsets. 
+ * using 64 bit offsets.
  *  see also X_SIZE_MAX, X_OFF_MAX below
  */
 #define X_SIZEOF_OFF_T    (sizeof(off_t))
-#define X_SIZEOF_SIZE_T   X_SIZEOF_INT
+#define X_SIZEOF_SIZE_T    X_SIZEOF_INT
 
 /*
  * limits of the external representation
  */
-#define X_SCHAR_MIN (-128)
-#define X_SCHAR_MAX 127
-#define X_UCHAR_MAX 255U
-#define X_SHORT_MIN (-32768)
-#define X_SHRT_MIN  X_SHORT_MIN /* alias compatible with limits.h */
-#define X_SHORT_MAX 32767
-#define X_SHRT_MAX  X_SHORT_MAX /* alias compatible with limits.h */
+#define X_SCHAR_MIN  (-128)
+#define X_SCHAR_MAX  127
+#define X_UCHAR_MAX  255U
+#define X_SHORT_MIN  (-32768)
+#define X_SHRT_MIN  X_SHORT_MIN  /* alias compatible with limits.h */
+#define X_SHORT_MAX  32767
+#define X_SHRT_MAX  X_SHORT_MAX  /* alias compatible with limits.h */
 #define X_USHORT_MAX  65535U
-#define X_USHRT_MAX X_USHORT_MAX  /* alias compatible with limits.h */
-#define X_INT_MIN (-2147483647-1)
-#define X_INT_MAX 2147483647
+#define X_USHRT_MAX  X_USHORT_MAX  /* alias compatible with limits.h */
+#define X_INT_MIN  (-2147483647-1)
+#define X_INT_MAX  2147483647
 #define X_UINT_MAX  4294967295U
-#define X_FLOAT_MAX 3.402823466e+38f
-#define X_FLOAT_MIN (-X_FLOAT_MAX)
-#define X_FLT_MAX X_FLOAT_MAX /* alias compatible with limits.h */
+#define X_FLOAT_MAX  3.402823466e+38f
+#define X_FLOAT_MIN  (-X_FLOAT_MAX)
+#define X_FLT_MAX  X_FLOAT_MAX  /* alias compatible with limits.h */
 #if CRAYFLOAT
 /* ldexp(1. - ldexp(.5 , -46), 1024) */
 #define X_DOUBLE_MAX    1.79769313486230e+308
 #else
 /* scalb(1. - scalb(.5 , -52), 1024) */
-#define X_DOUBLE_MAX  1.7976931348623157e+308 
+#define X_DOUBLE_MAX  1.7976931348623157e+308
 #endif
 #define X_DOUBLE_MIN  (-X_DOUBLE_MAX)
-#define X_DBL_MAX X_DOUBLE_MAX  /* alias compatible with limits.h */
+#define X_DBL_MAX  X_DOUBLE_MAX  /* alias compatible with limits.h */
 
 #define X_SIZE_MAX  X_UINT_MAX
-#define X_OFF_MAX X_INT_MAX
+#define X_OFF_MAX  X_INT_MAX
 
 
 /* Begin ncx_len */
 
 /*
- * ncx_len_xxx() interfaces are defined as macros below, 
+ * ncx_len_xxx() interfaces are defined as macros below,
  * These give the length of an array of nelems of the type.
  * N.B. The 'char' and 'short' interfaces give the X_ALIGNED length.
  */
-#define X_ALIGN     4 /* a.k.a. BYTES_PER_XDR_UNIT */
+#define X_ALIGN      4  /* a.k.a. BYTES_PER_XDR_UNIT */
 
 #define ncx_len_char(nelems) \
   _RNDUP((nelems), X_ALIGN)
@@ -225,7 +238,7 @@ ncx_put_schar_float(void *xp, const float *ip);
 extern int
 ncx_put_schar_double(void *xp, const double *ip);
 #endif
- 
+
 
 extern int
 ncx_get_short_schar(const void *xp, schar *ip);
@@ -256,7 +269,7 @@ extern int
 ncx_put_short_float(void *xp, const float *ip);
 extern int
 ncx_put_short_double(void *xp, const double *ip);
- 
+
 
 extern int
 ncx_get_int_schar(const void *xp, schar *ip);
@@ -287,7 +300,7 @@ extern int
 ncx_put_int_float(void *xp, const float *ip);
 extern int
 ncx_put_int_double(void *xp, const double *ip);
- 
+
 
 extern int
 ncx_get_float_schar(const void *xp, schar *ip);
@@ -318,7 +331,7 @@ extern int
 ncx_put_float_float(void *xp, const float *ip);
 extern int
 ncx_put_float_double(void *xp, const double *ip);
- 
+
 
 extern int
 ncx_get_double_schar(const void *xp, schar *ip);
@@ -349,7 +362,7 @@ extern int
 ncx_put_double_float(void *xp, const float *ip);
 extern int
 ncx_put_double_double(void *xp, const double *ip);
- 
+
 
 /*
  * Other primitive conversion functions
@@ -405,7 +418,7 @@ ncx_put_off_t(void **xpp, const off_t *lp, size_t sizeof_off_t);
  * The `ip' argument should point to an array of `nelems' of
  * internal_type.
  *
- * Range errors (NC_ERANGE) for a individual values in the array 
+ * Range errors (NC_ERANGE) for a individual values in the array
  * DO NOT terminate the array conversion. All elements are converted,
  * with some having undefined values.
  * If any range error occurs, the function returns NC_ERANGE.
@@ -456,7 +469,7 @@ extern int
 ncx_putn_schar_float(void **xpp, size_t nelems, const float *ip);
 extern int
 ncx_putn_schar_double(void **xpp, size_t nelems, const double *ip);
- 
+
 extern int
 ncx_pad_putn_schar_schar(void **xpp, size_t nelems, const schar *ip);
 extern int
@@ -517,7 +530,7 @@ extern int
 ncx_putn_short_float(void **xpp, size_t nelems, const float *ip);
 extern int
 ncx_putn_short_double(void **xpp, size_t nelems, const double *ip);
- 
+
 extern int
 ncx_pad_putn_short_schar(void **xpp, size_t nelems, const schar *ip);
 extern int
@@ -563,7 +576,7 @@ extern int
 ncx_putn_int_float(void **xpp, size_t nelems, const float *ip);
 extern int
 ncx_putn_int_double(void **xpp, size_t nelems, const double *ip);
- 
+
 
 extern int
 ncx_getn_float_schar(const void **xpp, size_t nelems, schar *ip);
@@ -594,7 +607,7 @@ extern int
 ncx_putn_float_float(void **xpp, size_t nelems, const float *ip);
 extern int
 ncx_putn_float_double(void **xpp, size_t nelems, const double *ip);
- 
+
 
 extern int
 ncx_getn_double_schar(const void **xpp, size_t nelems, schar *ip);
@@ -625,7 +638,7 @@ extern int
 ncx_putn_double_float(void **xpp, size_t nelems, const float *ip);
 extern int
 ncx_putn_double_double(void **xpp, size_t nelems, const double *ip);
- 
+
 
 /*
  * Other aggregate conversion functions.

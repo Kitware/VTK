@@ -2,20 +2,16 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *  See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: ncio.h,v 1.27 2006/01/03 04:56:28 russ Exp $ */
 
 #ifndef _NCIO_H_
 #define _NCIO_H_
 
-#include "ncconfig.h"
-
-#include <stddef.h> /* size_t */
-#ifndef NO_SYS_TYPES_H
-#  include <sys/types.h>  /* off_t */
-#endif /* NO_SYS_TYPES_H */
+#include <stddef.h>  /* size_t */
+#include <sys/types.h>  /* off_t */
 #include "netcdf.h"
 
-typedef struct ncio ncio; /* forward reference */
+typedef struct ncio ncio;  /* forward reference */
 
 /*
  * A value which is an invalid off_t
@@ -26,15 +22,15 @@ typedef struct ncio ncio; /* forward reference */
  * Flags used by the region layer,
  *  'rflags' argument to ncio.rel() and ncio.get().
  */
-#define RGN_NOLOCK  0x1 /* Don't lock region.
+#define RGN_NOLOCK  0x1  /* Don't lock region.
          * Used when contention control handled
          * elsewhere.
          */
-#define RGN_NOWAIT  0x2 /* return immediate if can't lock, else wait */
+#define RGN_NOWAIT  0x2  /* return immediate if can't lock, else wait */
 
-#define RGN_WRITE 0x4 /* we intend to modify, else read only */
+#define RGN_WRITE  0x4  /* we intend to modify, else read only */
 
-#define RGN_MODIFIED  0x8 /* we did modify, else, discard */
+#define RGN_MODIFIED  0x8  /* we did modify, else, discard */
 
 
 /*
@@ -73,7 +69,7 @@ typedef int ncio_movefunc(ncio *const nciop, off_t to, off_t from,
 typedef int ncio_syncfunc(ncio *const nciop);
 
   /*
-   * Don't call this. 
+   * Don't call this.
    * Internal function called at close to
    * free up anything hanging off pvt;
    */
@@ -139,7 +135,7 @@ ncio_open(const char *path,
   off_t igeto, size_t igetsz, size_t *sizehintp,
   ncio **nciopp, void **const igetvpp);
 
-extern int 
+extern int
 ncio_close(ncio *nciop, int doUnlink);
 
 extern int

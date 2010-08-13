@@ -2,16 +2,16 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: v2i.c,v 1.52 2009/02/20 22:00:46 dmh Exp $ */
 
-#include "ncconfig.h"
+#ifndef NO_NETCDF_2
+
+#include <ncconfig.h>
 #include <stdlib.h>
 #ifndef NO_SYS_TYPES_H
 #  include <sys/types.h> /* Keep before netcdf.h or Win64 gets confused. */
 #endif /* NO_SYS_TYPES_H */
 #include "netcdf.h"
-
-#ifndef NO_NETCDF_2
 
 #if SIZEOF_LONG == SIZEOF_SIZE_T
 /*
@@ -26,8 +26,8 @@
 # define A_FREE(name)
 
 # define A_INIT(lhs, type, ndims, rhs)
-  
-#else 
+
+#else
 /*
  * We do have to copy the arguments to switch from 'long'
  * to 'size_t' or 'ptrdiff_t'. In my tests on an SGI,
@@ -82,42 +82,42 @@ typedef signed char schar;
 static int
 numrecvars(int ncid, int *nrecvarsp, int *recvarids)
 {
-  int status;
-  int nvars = 0;
-  int ndims = 0;
-  int nrecvars;
-  int varid;
-  int recdimid;
-  int dimids[MAX_NC_DIMS];
+    int status;
+    int nvars = 0;
+    int ndims = 0;
+    int nrecvars = 0;
+    int varid;
+    int recdimid;
+    int dimids[MAX_NC_DIMS];
 
-  status = nc_inq_nvars(ncid, &nvars); 
-  if(status != NC_NOERR)
-    return status;
-
-  status = nc_inq_unlimdim(ncid, &recdimid); 
-  if(status != NC_NOERR)
-    return status;
-
-  if (recdimid == -1) {
-    *nrecvarsp = 0;
-    return NC_NOERR;
-  }
-  nrecvars = 0;
-  for (varid = 0; varid < nvars; varid++) {
-    status = nc_inq_varndims(ncid, varid, &ndims); 
+    status = nc_inq_nvars(ncid, &nvars);
     if(status != NC_NOERR)
-      return status;
-    status = nc_inq_vardimid(ncid, varid, dimids); 
+  return status;
+
+    status = nc_inq_unlimdim(ncid, &recdimid);
     if(status != NC_NOERR)
+  return status;
+
+    if (recdimid == -1) {
+  *nrecvarsp = 0;
+  return NC_NOERR;
+    }
+    nrecvars = 0;
+    for (varid = 0; varid < nvars; varid++) {
+  status = nc_inq_varndims(ncid, varid, &ndims);
+  if(status != NC_NOERR)
       return status;
-    if (ndims > 0 && dimids[0] == recdimid) {
+  status = nc_inq_vardimid(ncid, varid, dimids);
+  if(status != NC_NOERR)
+      return status;
+  if (ndims > 0 && dimids[0] == recdimid) {
       if (recvarids != NULL)
         recvarids[nrecvars] = varid;
       nrecvars++;
-    }
   }
-  *nrecvarsp = nrecvars;
-  return NC_NOERR;
+    }
+    *nrecvarsp = nrecvars;
+    return NC_NOERR;
 }
 
 
@@ -137,16 +137,16 @@ ncrecsize(int ncid, int varid, size_t *recsizep)
     size_t size;
 
     *recsizep = 0;
-    status = nc_inq_unlimdim(ncid, &recdimid); 
+    status = nc_inq_unlimdim(ncid, &recdimid);
     if(status != NC_NOERR)
   return status;
-    status = nc_inq_vartype(ncid, varid, &type); 
+    status = nc_inq_vartype(ncid, varid, &type);
     if(status != NC_NOERR)
   return status;
-    status = nc_inq_varndims(ncid, varid, &ndims); 
+    status = nc_inq_varndims(ncid, varid, &ndims);
     if(status != NC_NOERR)
   return status;
-    status = nc_inq_vardimid(ncid, varid, dimids); 
+    status = nc_inq_vardimid(ncid, varid, dimids);
     if(status != NC_NOERR)
   return status;
     if (ndims == 0 || dimids[0] != recdimid) {
@@ -177,10 +177,10 @@ dimsizes(int ncid, int varid, size_t *sizes)
     int id;
     int dimids[MAX_NC_DIMS];
 
-    status = nc_inq_varndims(ncid, varid, &ndims); 
+    status = nc_inq_varndims(ncid, varid, &ndims);
     if(status != NC_NOERR)
   return status;
-    status = nc_inq_vardimid(ncid, varid, dimids); 
+    status = nc_inq_vardimid(ncid, varid, dimids);
     if(status != NC_NOERR)
   return status;
     if (ndims == 0 || sizes == NULL)
@@ -215,18 +215,18 @@ nc_inq_rec(
     int rvarids[MAX_NC_VARS];
     int nrvars = 0;
 
-    status = nc_inq_nvars(ncid, &nvars); 
+    status = nc_inq_nvars(ncid, &nvars);
     if(status != NC_NOERR)
   return status;
 
-    status = nc_inq_unlimdim(ncid, &recdimid); 
+    status = nc_inq_unlimdim(ncid, &recdimid);
     if(status != NC_NOERR)
   return status;
 
     *nrecvarsp = 0;
     if (recdimid == -1)
   return NC_NOERR;
-    
+
     status = numrecvars(ncid, &nrvars, rvarids);
     if(status != NC_NOERR)
   return status;
@@ -285,12 +285,12 @@ nc_put_rec(
       if(status != NC_NOERR)
     return status;
 
-      edges[0] = 1;   /* only 1 record's worth */
+      edges[0] = 1;    /* only 1 record's worth */
       status = nc_put_vara(ncid, rvarids[varid], start, edges, datap[varid]);
       if(status != NC_NOERR)
     return status;
   }
-    }    
+    }
     return 0;
 }
 
@@ -330,12 +330,12 @@ nc_get_rec(
       status = dimsizes(ncid, rvarids[varid], edges);
       if(status != NC_NOERR)
     return status;
-      edges[0] = 1;   /* only 1 record's worth */
+      edges[0] = 1;    /* only 1 record's worth */
       status = nc_get_vara(ncid, rvarids[varid], start, edges, datap[varid]);
       if(status != NC_NOERR)
     return status;
   }
-    }    
+    }
     return 0;
 }
 
@@ -345,6 +345,7 @@ nc_get_rec(
 /*
  * Error code
  */
+#ifndef DLL_NETCDF /* define when library is not a DLL */
 int ncerr = NC_NOERR ;
 
 
@@ -353,6 +354,7 @@ int ncerr = NC_NOERR ;
  * They call exit() when NC_FATAL bit is on.
  */
 int ncopts = (NC_FATAL | NC_VERBOSE) ;
+#endif
 
 /* End globals */
 
@@ -459,7 +461,7 @@ ncclose(int ncid)
   {
     nc_advise("ncclose", status, "ncid %d", ncid);
     return -1;
-    
+
   }
   return 0;
 }
@@ -467,10 +469,10 @@ ncclose(int ncid)
 
 int
 ncinquire(
-    int   ncid,
+    int    ncid,
     int*  ndims,
     int*  nvars,
-    int*  natts, 
+    int*  natts,
     int*  recdim
 )
 {
@@ -505,7 +507,7 @@ ncsync(int ncid)
   {
     nc_advise("ncsync", status, "ncid %d", ncid);
     return -1;
-    
+
   }
   return 0;
 }
@@ -526,8 +528,8 @@ ncabort(int ncid)
 
 int
 ncdimdef(
-    int   ncid,
-    const char* name,
+    int    ncid,
+    const char*  name,
     long  length
 )
 {
@@ -549,7 +551,7 @@ ncdimdef(
 
 
 int
-ncdimid(int ncid, const char* name)
+ncdimid(int ncid, const char*  name)
 {
   int dimid;
   const int status =  nc_inq_dimid(ncid, name, &dimid);
@@ -564,10 +566,10 @@ ncdimid(int ncid, const char* name)
 
 int
 ncdiminq(
-    int   ncid,
-    int   dimid,
-    char* name,
-    long* length
+    int    ncid,
+    int    dimid,
+    char*  name,
+    long*  length
 )
 {
   size_t ll;
@@ -579,7 +581,7 @@ ncdiminq(
     return -1;
   }
   /* else */
-  
+
   if(length != NULL)
     *length = (int) ll;
 
@@ -589,9 +591,9 @@ ncdiminq(
 
 int
 ncdimrename(
-    int   ncid,
-    int   dimid,
-    const char* name
+    int    ncid,
+    int    dimid,
+    const char*  name
 )
 {
   const int status = nc_rename_dim(ncid, dimid, name);
@@ -606,10 +608,10 @@ ncdimrename(
 
 int
 ncvardef(
-    int   ncid,
-    const char* name,
-    nc_type datatype, 
-    int   ndims,
+    int    ncid,
+    const char*  name,
+    nc_type  datatype,
+    int    ndims,
     const int*  dim
 )
 {
@@ -626,8 +628,8 @@ ncvardef(
 
 int
 ncvarid(
-    int   ncid,
-    const char* name
+    int    ncid,
+    const char*  name
 )
 {
   int varid = -1;
@@ -643,9 +645,9 @@ ncvarid(
 
 int
 ncvarinq(
-    int   ncid,
-    int   varid,
-    char* name,
+    int    ncid,
+    int    varid,
+    char*  name,
     nc_type*  datatype,
     int*  ndims,
     int*  dim,
@@ -662,7 +664,7 @@ ncvarinq(
     return -1;
   }
   /* else */
-  
+
   if(ndims != NULL)
     *ndims = (int) nd;
 
@@ -675,10 +677,10 @@ ncvarinq(
 
 int
 ncvarput1(
-    int   ncid,
-    int   varid,
-    const long* index,
-    const void* value
+    int    ncid,
+    int    varid,
+    const long*  index,
+    const void*  value
 )
 {
   NDIMS_DECL
@@ -699,10 +701,10 @@ ncvarput1(
 
 int
 ncvarget1(
-    int   ncid,
-    int   varid,
-    const long* index,
-    void* value
+    int    ncid,
+    int    varid,
+    const long*  index,
+    void*  value
 )
 {
   NDIMS_DECL
@@ -723,11 +725,11 @@ ncvarget1(
 
 int
 ncvarput(
-    int   ncid,
-    int   varid,
-    const long* start,
-    const long* count, 
-    const void* value
+    int    ncid,
+    int    varid,
+    const long*  start,
+    const long*  count,
+    const void*  value
 )
 {
   NDIMS_DECL
@@ -751,11 +753,11 @@ ncvarput(
 
 int
 ncvarget(
-    int   ncid,
-    int   varid,
-    const long* start,
-    const long* count, 
-    void* value
+    int    ncid,
+    int    varid,
+    const long*  start,
+    const long*  count,
+    void*  value
 )
 {
   NDIMS_DECL
@@ -779,12 +781,12 @@ ncvarget(
 
 int
 ncvarputs(
-    int   ncid,
-    int   varid,
-    const long* start,
-    const long* count,
-    const long* stride,
-    const void* value
+    int    ncid,
+    int    varid,
+    const long*  start,
+    const long*  count,
+    const long*  stride,
+    const void*  value
 )
 {
   if(stride == NULL)
@@ -816,12 +818,12 @@ ncvarputs(
 
 int
 ncvargets(
-    int   ncid,
-    int   varid,
-    const long* start,
-    const long* count,
-    const long* stride,
-    void* value
+    int    ncid,
+    int    varid,
+    const long*  start,
+    const long*  count,
+    const long*  stride,
+    void*  value
 )
 {
   if(stride == NULL)
@@ -853,12 +855,12 @@ ncvargets(
 
 int
 ncvarputg(
-    int   ncid,
-    int   varid,
-    const long* start,
-    const long* count,
-    const long* stride,
-    const long* map,
+    int    ncid,
+    int    varid,
+    const long*  start,
+    const long*  count,
+    const long*  stride,
+    const long*  map,
     const void* value
 )
 {
@@ -895,13 +897,13 @@ ncvarputg(
 
 int
 ncvargetg(
-    int   ncid,
-    int   varid,
-    const long* start,
-    const long* count,
-    const long* stride,
-    const long* map,
-    void* value
+    int    ncid,
+    int    varid,
+    const long*  start,
+    const long*  count,
+    const long*  stride,
+    const long*  map,
+    void*  value
 )
 {
   if(map == NULL)
@@ -937,9 +939,9 @@ ncvargetg(
 
 int
 ncvarrename(
-    int   ncid,
-    int   varid,
-    const char* name
+    int    ncid,
+    int    varid,
+    const char*  name
 )
 {
   const int status = nc_rename_var(ncid, varid, name);
@@ -954,12 +956,12 @@ ncvarrename(
 
 int
 ncattput(
-    int   ncid,
-    int   varid,
-    const char* name, 
-    nc_type datatype,
-    int   len,
-    const void* value
+    int    ncid,
+    int    varid,
+    const char*  name,
+    nc_type  datatype,
+    int    len,
+    const void*  value
 )
 {
   const int status = nc_put_att(ncid, varid, name, datatype, len, value);
@@ -974,9 +976,9 @@ ncattput(
 
 int
 ncattinq(
-    int   ncid,
-    int   varid,
-    const char* name, 
+    int    ncid,
+    int    varid,
+    const char*  name,
     nc_type*  datatype,
     int*  len
 )
@@ -990,7 +992,7 @@ ncattinq(
         ncid, varid, name);
     return -1;
   }
-  
+
   if(len != NULL)
     *len = (int) ll;
 
@@ -1001,10 +1003,10 @@ ncattinq(
 
 int
 ncattget(
-    int   ncid,
-    int   varid,
-    const char* name, 
-    void* value
+    int    ncid,
+    int    varid,
+    const char*  name,
+    void*  value
 )
 {
   const int status = nc_get_att(ncid, varid, name, value);
@@ -1019,11 +1021,11 @@ ncattget(
 
 int
 ncattcopy(
-    int   ncid_in,
-    int   varid_in,
-    const char* name, 
-    int   ncid_out,
-    int   varid_out
+    int    ncid_in,
+    int    varid_in,
+    const char*  name,
+    int    ncid_out,
+    int    varid_out
 )
 {
   const int status = nc_copy_att(ncid_in, varid_in, name, ncid_out, varid_out);
@@ -1038,10 +1040,10 @@ ncattcopy(
 
 int
 ncattname(
-    int   ncid,
-    int   varid,
-    int   attnum,
-    char* name
+    int    ncid,
+    int    varid,
+    int    attnum,
+    char*  name
 )
 {
   const int status = nc_inq_attname(ncid, varid, attnum, name);
@@ -1056,10 +1058,10 @@ ncattname(
 
 int
 ncattrename(
-    int   ncid,
-    int   varid,
-    const char* name, 
-    const char* newname
+    int    ncid,
+    int    varid,
+    const char*  name,
+    const char*  newname
 )
 {
   const int status = nc_rename_att(ncid, varid, name, newname);
@@ -1074,9 +1076,9 @@ ncattrename(
 
 int
 ncattdel(
-    int   ncid,
-    int   varid,
-    const char* name
+    int    ncid,
+    int    varid,
+    const char*  name
 )
 {
    const int status = nc_del_att(ncid, varid, name);
@@ -1094,8 +1096,8 @@ ncattdel(
 
 int
 ncsetfill(
-    int   ncid,
-    int   fillmode
+    int    ncid,
+    int    fillmode
 )
 {
   int oldmode = -1;
@@ -1111,10 +1113,10 @@ ncsetfill(
 
 int
 ncrecinq(
-    int   ncid,
+    int    ncid,
     int*  nrecvars,
     int*  recvarids,
-    long* recsizes
+    long*  recsizes
 )
 {
   size_t nrv = 0;
@@ -1144,7 +1146,7 @@ ncrecinq(
 
 int
 ncrecget(
-    int   ncid,
+    int    ncid,
     long  recnum,
     void**  datap
 )
@@ -1161,7 +1163,7 @@ ncrecget(
 
 int
 ncrecput(
-    int   ncid,
+    int    ncid,
     long  recnum,
     void* const* datap
 )

@@ -2,6 +2,9 @@ PROJECT(VTKNETCDF)
 
 INCLUDE_REGULAR_EXPRESSION(".*")
 
+SET(VERSION "4.1.1")
+SET(PACKAGE "netcdf")
+
 SET(netcdf_SRCS
   attr.c
   dim.c
@@ -12,6 +15,7 @@ SET(netcdf_SRCS
   ncx.c
   putget.c
   string.c
+  utf8proc.c
   v1hpg.c
   v2i.c
   var.c
@@ -117,6 +121,7 @@ FOREACH(file
     "string.h"
     "stddef.h"
     "stdint.h"
+    "inttypes.h"
     )
   CHECK_INCLUDE_FILE_CONCAT("${file}")
 ENDFOREACH(file)
@@ -237,9 +242,9 @@ ENDIF(NOT HAVE_SIZEOF_SSIZE_T)
 IF(NOT HAVE_SIZEOF_PTRDIFF_T)
   SET(ptrdiff_t int)
 ENDIF(NOT HAVE_SIZEOF_PTRDIFF_T)
-IF(NOT HAVE_SIZEOF_UCHAR)
-  SET(uchar "unsigned char")
-ENDIF(NOT HAVE_SIZEOF_UCHAR)
+#IF(NOT HAVE_SIZEOF_UCHAR)
+#  SET(uchar "unsigned char")
+#ENDIF(NOT HAVE_SIZEOF_UCHAR)
 
 # use the same name for the variable as in VTK, so the result is reused
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)

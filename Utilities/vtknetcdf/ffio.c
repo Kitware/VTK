@@ -2,7 +2,7 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *  See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: ffio.c,v 1.56 2006/09/15 20:40:30 ed Exp $ */
 /* addition by O. Heudecker, AWI-Bremerhaven, 12.3.1998 */
 /* added correction by John Sheldon and Hans Vahlenkamp 15.4.1998*/
 
@@ -125,7 +125,7 @@ fgrow2(const int fd, const off_t len)
 /* Begin ffio */
 
 static int
-ffio_pgout(ncio *const nciop, 
+ffio_pgout(ncio *const nciop,
   off_t const offset,  const size_t extent,
   const void *const vp, off_t *posp)
 {
@@ -195,7 +195,7 @@ ffio_pgin(ncio *const nciop,
 typedef struct ncio_ffio {
   off_t pos;
   /* buffer */
-  off_t bf_offset; 
+  off_t  bf_offset;
   size_t  bf_extent;
   size_t  bf_cnt;
   void  *bf_base;
@@ -243,7 +243,7 @@ ncio_ffio_get(ncio *const nciop,
 #ifdef X_ALIGN
   size_t rem;
 #endif
-  
+
   if(fIsSet(rflags, RGN_WRITE) && !fIsSet(nciop->ioflags, NC_WRITE))
     return EPERM; /* attempt to write readonly file */
 
@@ -317,7 +317,7 @@ ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
       size_t nbytes, int rflags)
 {
   int status = ENOERR;
-  off_t lower = from; 
+  off_t lower = from;
   off_t upper = to;
   char *base;
   size_t diff = upper - lower;
@@ -327,11 +327,11 @@ ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
 
   if(to == from)
     return ENOERR; /* NOOP */
-  
+
   if(to > from)
   {
     /* growing */
-    lower = from; 
+    lower = from;
     upper = to;
   }
   else
@@ -351,10 +351,10 @@ ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
     return status;
 
   if(to > from)
-    (void) memmove(base + diff, base, nbytes); 
+    (void) memmove(base + diff, base, nbytes);
   else
-    (void) memmove(base, base + diff, nbytes); 
-    
+    (void) memmove(base, base + diff, nbytes);
+
   (void) ncio_ffio_rel(nciop, lower, RGN_MODIFIED);
 
   return status;
@@ -368,8 +368,8 @@ ncio_ffio_move(ncio *const nciop, off_t to, off_t from,
 static int
 ncio_ffio_sync_noffflush(ncio *const nciop)
 {
-  struct ffc_stat_s si; /* for call to fffcntl() */
-  struct ffsw ffstatus; /* to return ffsw.sw_error */
+  struct ffc_stat_s si;  /* for call to fffcntl() */
+  struct ffsw ffstatus;  /* to return ffsw.sw_error */
   /* run some innocuous ffio routine to get if any errno */
   if(fffcntl(nciop->fd, FC_STAT, &si, &ffstatus) < 0)
     return ffstatus.sw_error;
@@ -471,7 +471,7 @@ ncio_free(ncio *nciop)
 
   if(nciop->free != NULL)
     nciop->free(nciop->pvt);
-  
+
   free(nciop);
 }
 
@@ -483,7 +483,7 @@ ncio_new(const char *path, int ioflags)
   size_t sz_path = M_RNDUP(strlen(path) +1);
   size_t sz_ncio_pvt;
   ncio *nciop;
- 
+
 #if ALWAYS_NC_SHARE /* DEBUG */
   fSet(ioflags, NC_SHARE);
 #endif
@@ -496,7 +496,7 @@ ncio_new(const char *path, int ioflags)
   nciop = (ncio *) malloc(sz_ncio + sz_path + sz_ncio_pvt);
   if(nciop == NULL)
     return NULL;
-  
+
   nciop->ioflags = ioflags;
   *((int *)&nciop->fd) = -1; /* cast away const */
 
@@ -552,17 +552,17 @@ ncio_ffio_assign(const char *filename) {
 /* see if the user has "assigned" to this file */
   ASNQFILE(fnp, fbp, &istat);
 #endif
-  if (istat == 0) { /* user has already specified an assign */
+  if (istat == 0) {  /* user has already specified an assign */
     return buffer;
-  } else if (istat > 0 || istat < -1) { /* error occured */
+  } else if (istat > 0 || istat < -1) {  /* error occured */
     errno = EINVAL;
     return (const char *) NULL;
   } /* istat = -1 -> no assign for file */
   envstr = getenv("NETCDF_FFIOSPEC");
   if(envstr == (char *) NULL) {
-     envstr = "bufa:336:2";   /* this should be macroized */
+     envstr = "bufa:336:2";    /* this should be macroized */
   }
-  
+
   /* Insertion by Olaf Heudecker, AWI-Bremerhaven, 12.8.1998
      to allow more versatile FFIO-assigns */
   /* this is unnecessary and could have been included
@@ -583,7 +583,7 @@ ncio_ffio_assign(const char *filename) {
   fbp = _cptofcd(buffer, strlen(buffer));
   ASNFILE(fnp, fbp, &istat);
 #endif
-  if (istat == 0) { /* success */
+  if (istat == 0) {  /* success */
     return buffer;
   } else {    /* error */
     errno = EINVAL;
@@ -777,8 +777,8 @@ unwind_new:
 }
 
 
-/* 
- * Get file size in bytes.  
+/*
+ * Get file size in bytes.
  * Is use of ffseek() really necessary, or could we use standard fstat() call
  * and get st_size member?
  */
@@ -792,7 +792,7 @@ ncio_filesize(ncio *nciop, off_t *filesizep)
 
     current = ffseek(nciop->fd, 0, SEEK_CUR);  /* save current */
     *filesizep = ffseek(nciop->fd, 0, SEEK_END); /* get size */
-    reset = ffseek(nciop->fd, current, SEEK_SET); /* reset */ 
+    reset = ffseek(nciop->fd, current, SEEK_SET); /* reset */
 
     if(reset != current)
   return EINVAL;
@@ -829,7 +829,7 @@ ncio_pad_length(ncio *nciop, off_t length)
 }
 
 
-int 
+int
 ncio_close(ncio *nciop, int doUnlink)
 {
   /*
@@ -846,7 +846,7 @@ ncio_close(ncio *nciop, int doUnlink)
   status = nciop->sync(nciop);
 
   (void) ffclose(nciop->fd);
-  
+
   if(doUnlink)
     (void) unlink(nciop->path);
 

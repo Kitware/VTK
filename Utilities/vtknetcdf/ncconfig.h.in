@@ -3,6 +3,9 @@
 #ifndef _NCCONFIG_H_
 #define _NCCONFIG_H_
 
+/* Version number of package */
+#cmakedefine VERSION "@VERSION@"
+
 /* Define if this is a shared build */
 #cmakedefine BUILD_SHARED_LIBS
 #if defined( BUILD_SHARED_LIBS ) && defined( _WIN32 )
@@ -47,6 +50,11 @@
 #  define WORDS_BIGENDIAN 1
 #endif
 
+/* Define if you have <inttypes.h>
+#cmakedefine HAVE_INTTYPES_H @HAVE_INTTYPES_H@
+
+/* Define if you have <stdint.h>
+#cmakedefine HAVE_STDINT_H @HAVE_STDINT_H@
 
 /* Define if you don't have the <stdlib.h>.  */
 #cmakedefine NO_STDLIB_H @NO_STDLIB_H@
@@ -75,8 +83,9 @@
 /* Define to `int' if system doesn't define.  */
 #cmakedefine ptrdiff_t @ptrdiff_t@
 
-/* Define to `unsigned char' if system doesn't define.  */
-#cmakedefine uchar @uchar@
+/* Define to 1 if the system has the type uchar. */
+#cmakedefine HAVE_UCHAR
+
 
 /* Define if the system does not use IEEE floating point representation */
 #cmakedefine NO_IEEE_FLOAT @NO_IEEE_FLOAT@
