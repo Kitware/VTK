@@ -21,6 +21,11 @@ SET(netcdf_SRCS
   var.c
   )
 
+SET(netcdfcpp_SRCS
+  netcdf.cpp
+  ncvalues.cpp
+  )
+
 IF(APPLE)
   SET_SOURCE_FILES_PROPERTIES(
     v2i.c
@@ -75,7 +80,7 @@ ENDMACRO(CHECK_TYPE_SIZE_EX)
 
 MACRO(C_SOURCE_COMPILES SOURCE VAR)
   IF("${VAR}" MATCHES "^${VAR}$")
-    SET(MACRO_CHECK_FUNCTION_DEFINITIONS 
+    SET(MACRO_CHECK_FUNCTION_DEFINITIONS
       "-D${VAR} ${CMAKE_REQUIRED_FLAGS}")
     IF(CMAKE_REQUIRED_LIBRARIES)
       SET(C_SOURCE_COMPILES_ADD_LIBRARIES
@@ -88,20 +93,20 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
     TRY_COMPILE(${VAR}
       ${CMAKE_BINARY_DIR}
       ${CMAKE_BINARY_DIR}/CMakeTmp/src.c
-      CMAKE_FLAGS 
+      CMAKE_FLAGS
       "${C_SOURCE_COMPILES_ADD_LIBRARIES}"
       OUTPUT_VARIABLE OUTPUT)
     IF(${VAR})
       SET(${VAR} 1 CACHE INTERNAL "NetCDF test ${FUNCTION}")
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Success")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log 
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Performing C SOURCE FILE Test ${VAR} succeded with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n" APPEND)
     ELSE(${VAR})
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Failed")
       SET(${VAR} "" CACHE INTERNAL "NetCDF test ${FUNCTION}")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log 
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Performing C SOURCE FILE Test ${VAR} failed with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n" APPEND)
@@ -110,7 +115,7 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
 ENDMACRO(C_SOURCE_COMPILES)
 
 CHECK_INCLUDE_FILES("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
-FOREACH(file 
+FOREACH(file
     "alloca.h"
     "stdlib.h"
     "sys/types.h"
@@ -162,7 +167,7 @@ IF(HAVE_SYS_STAT_H)
   C_SOURCE_COMPILES("${testsrc}" HAVE_ST_BLKSIZE)
 ENDIF(HAVE_SYS_STAT_H)
 
-# 
+#
 SET(testsrc
   "main()
 {
@@ -257,6 +262,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
 
 ADD_LIBRARY(vtkNetCDF
   ${netcdf_SRCS})
+
+ADD_LIBRARY(vtkNetCDF_c++ ${netcdfcpp_SRCS})
 
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
