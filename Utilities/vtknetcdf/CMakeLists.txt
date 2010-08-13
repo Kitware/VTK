@@ -122,6 +122,7 @@ FOREACH(file
     "stddef.h"
     "stdint.h"
     "inttypes.h"
+    "stdbool.h"
     )
   CHECK_INCLUDE_FILE_CONCAT("${file}")
 ENDFOREACH(file)
@@ -142,6 +143,7 @@ FOREACH(type
     "long"
     "short"
     "uchar"
+    "_Bool"
     )
   CHECK_TYPE_SIZE_EX("${type}")
 ENDFOREACH(type)
