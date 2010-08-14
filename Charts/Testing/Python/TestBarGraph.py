@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Run this test like so:
 # vtkpython TestBarGraph.py  -D $VTK_DATA_ROOT \
@@ -9,9 +10,9 @@ import vtk
 import vtk.test.Testing
 import math
 
-data_2008 = [10822, 10941, 9979, 10370, 9460, 11228, 15093, 12231, 10160, 9816, 9384, 7892];
-data_2009 = [9058, 9474, 9979, 9408, 8900, 11569, 14688, 12231, 10294, 9585, 8957, 8590];
-data_2010 = [9058, 10941, 9979, 10270, 8900, 11228, 14688, 12231, 10160, 9585, 9384, 8590];
+data_2008 = [10822, 10941, 9979, 10370, 9460, 11228, 15093, 12231, 10160, 9816, 9384, 7892]
+data_2009 = [9058, 9474, 9979, 9408, 8900, 11569, 14688, 12231, 10294, 9585, 8957, 8590]
+data_2010 = [9058, 10941, 9979, 10270, 8900, 11228, 14688, 12231, 10160, 9585, 9384, 8590]
 
 class TestBarGraph(vtk.test.Testing.vtkTest):
     def testBarGraph(self):
@@ -59,14 +60,14 @@ class TestBarGraph(vtk.test.Testing.vtkTest):
 
         line = chart.AddPlot(2)
         line.SetInput(table,0,2)
-        line.SetColor(255,0,0,255);
+        line.SetColor(255,0,0,255)
 
         line = chart.AddPlot(2)
         line.SetInput(table,0,3)
-        line.SetColor(0,0,255,255);
+        line.SetColor(0,0,255,255)
 
         view.GetRenderWindow().SetMultiSamples(0)
-	view.GetRenderWindow().Render()
+        view.GetRenderWindow().Render()
 
         img_file = "TestBarGraph.png"
         vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)

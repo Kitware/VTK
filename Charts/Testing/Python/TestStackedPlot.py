@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Run this test like so:
 # vtkpython TestStackedPlot.py  -D $VTK_DATA_ROOT \
@@ -9,13 +10,13 @@ import vtk
 import vtk.test.Testing
 import math
 
-month_labels =  ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-book =       [5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946, 5526, 5166];
-new_popular = [701,  687,  736,  696,  750,  814,  923,  860,  786,  735,  680,  741];
-periodical =  [184,  176,  166,  131,  171,  191,  231,  166,  197,  162,  152,  143];
-audiobook =   [903, 1038,  987, 1073, 1144, 1203, 1173, 1196, 1213, 1076,  926,  874];
-video =      [1524, 1565, 1627, 1445, 1179, 1816, 2293, 1811, 1588, 1561, 1542, 1563];
+month_labels =  ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+book =       [5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946, 5526, 5166]
+new_popular = [701,  687,  736,  696,  750,  814,  923,  860,  786,  735,  680,  741]
+periodical =  [184,  176,  166,  131,  171,  191,  231,  166,  197,  162,  152,  143]
+audiobook =   [903, 1038,  987, 1073, 1144, 1203, 1173, 1196, 1213, 1076,  926,  874]
+video =      [1524, 1565, 1627, 1445, 1179, 1816, 2293, 1811, 1588, 1561, 1542, 1563]
 
 class TestStackedPlot(vtk.test.Testing.vtkTest):
     def testStackedPlot(self):
@@ -56,7 +57,7 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
 
         for i in range(0,numMonths):
             arrMonthLabels.InsertNextValue(month_labels[i])
-            arrMonthPositions.InsertNextValue(float(i));
+            arrMonthPositions.InsertNextValue(float(i))
 
             arrMonth.InsertNextValue(i)
             arrBooks.InsertNextValue(book[i])
@@ -94,7 +95,7 @@ class TestStackedPlot(vtk.test.Testing.vtkTest):
         stack.SetColorSeries(colorSeries)
 
         view.GetRenderWindow().SetMultiSamples(0)
-	view.GetRenderWindow().Render()
+        view.GetRenderWindow().Render()
 
         img_file = "TestStackedPlot.png"
         vtk.test.Testing.compareImage(view.GetRenderWindow(),
