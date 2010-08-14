@@ -4,6 +4,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   # add tests that do not require data
   SET(MyTests
     TestContextScene.cxx
+    #    TestContextUnicode.cxx # Disabled until Freetype unicode works
     TestPieChart.cxx
     TestPCPlot.cxx
     TestDiagram.cxx
@@ -39,6 +40,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     INCLUDE(${QT_USE_FILE})
     SET(MyTests ${MyTests}
       TestQtDiagram.cxx
+      TestQtContextUnicode.cxx
       )
     ENDIF(VTK_USE_QT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}

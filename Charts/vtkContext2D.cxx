@@ -16,6 +16,7 @@
 #include "vtkContext2D.h"
 
 #include "vtkPoints2D.h"
+#include "vtkVector.h"
 #include "vtkTransform2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkPen.h"
@@ -433,45 +434,22 @@ void vtkContext2D::DrawEllipticArc(float x, float y, float rX, float rY,
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawStringRect(vtkPoints2D *rect, const vtkStdString &string)
 {
-  // Draw the text at the appropriate point inside the rect for the alignment
-  // specified. This is a convenience when an area of the screen should have
-  // text drawn that is aligned to the entire area.
-  if (rect->GetNumberOfPoints() < 2)
-    {
-    return;
-    }
+  vtkVector2f p = this->CalculateTextPosition(rect);
+  this->DrawString(p.GetX(), p.GetY(), string);
+}
 
-  float x = 0.0;
-  float y = 0.0;
-  float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawStringRect(vtkPoints2D *rect,
+                                  const vtkUnicodeString &string)
+{
+  vtkVector2f p = this->CalculateTextPosition(rect);
+  this->DrawString(p.GetX(), p.GetY(), string);
+}
 
-  if (this->TextProp->GetJustification() == VTK_TEXT_LEFT)
-    {
-    x = f[0];
-    }
-  else if (this->TextProp->GetJustification() == VTK_TEXT_CENTERED)
-    {
-    x = f[0] + 0.5f*f[2];
-    }
-  else
-    {
-    x = f[0] + f[2];
-    }
-
-  if (this->TextProp->GetVerticalJustification() == VTK_TEXT_BOTTOM)
-    {
-    y = f[1];
-    }
-  else if (this->TextProp->GetVerticalJustification() == VTK_TEXT_CENTERED)
-    {
-    y = f[1] + 0.5f*f[3];
-    }
-  else
-    {
-    y = f[1] + f[3];
-    }
-
-  this->DrawString(x, y, string);
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawStringRect(vtkPoints2D *rect, const char* string)
+{
+  this->DrawStringRect(rect, vtkStdString(string));
 }
 
 //-----------------------------------------------------------------------------
@@ -490,7 +468,39 @@ void vtkContext2D::DrawString(float x, float y, const vtkStdString &string)
     return;
     }
   float f[] = { x, y };
+  this->Device->DrawString(f, this->TextProp, string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawString(vtkPoints2D *point, const vtkUnicodeString &string)
+{
+  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  this->DrawString(f[0], f[1], string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawString(float x, float y, const vtkUnicodeString &string)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  float f[] = { x, y };
   this->Device->DrawString(&f[0], this->TextProp, string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawString(vtkPoints2D *point, const char* string)
+{
+  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  this->DrawString(f[0], f[1], vtkStdString(string));
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawString(float x, float y, const char* string)
+{
+  this->DrawString(x, y, vtkStdString(string));
 }
 
 //-----------------------------------------------------------------------------
@@ -512,6 +522,41 @@ void vtkContext2D::ComputeStringBounds(const vtkStdString &string,
     return;
     }
   this->Device->ComputeStringBounds(string, this->TextProp, bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::ComputeStringBounds(const vtkUnicodeString &string,
+                                       vtkPoints2D *bounds)
+{
+  bounds->SetNumberOfPoints(2);
+  float *f = vtkFloatArray::SafeDownCast(bounds->GetData())->GetPointer(0);
+  this->ComputeStringBounds(string, f);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::ComputeStringBounds(const vtkUnicodeString &string,
+                                       float bounds[4])
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  this->Device->ComputeStringBounds(string, this->TextProp, bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::ComputeStringBounds(const char* string,
+                                       vtkPoints2D *bounds)
+{
+  this->ComputeStringBounds(vtkStdString(string), bounds);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::ComputeStringBounds(const char* string,
+                                       float bounds[4])
+{
+  this->ComputeStringBounds(vtkStdString(string), bounds);
 }
 
 //-----------------------------------------------------------------------------
@@ -629,8 +674,51 @@ inline void vtkContext2D::ApplyBrush()
   if(!this->GetBufferIdMode())
     {
     this->Device->SetColor4(this->Brush->GetColor());
-    this->Device->SetTexture(this->Brush->GetTexture(), this->Brush->GetTextureProperties());
+    this->Device->SetTexture(this->Brush->GetTexture(),
+                             this->Brush->GetTextureProperties());
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
+{
+  // Draw the text at the appropriate point inside the rect for the alignment
+  // specified. This is a convenience when an area of the screen should have
+  // text drawn that is aligned to the entire area.
+  if (rect->GetNumberOfPoints() < 2)
+    {
+    return vtkVector2f();
+    }
+
+  vtkVector2f p;
+  float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
+
+  if (this->TextProp->GetJustification() == VTK_TEXT_LEFT)
+    {
+    p.SetX(f[0]);
+    }
+  else if (this->TextProp->GetJustification() == VTK_TEXT_CENTERED)
+    {
+    p.SetX(f[0] + 0.5f*f[2]);
+    }
+  else
+    {
+    p.SetX(f[0] + f[2]);
+    }
+
+  if (this->TextProp->GetVerticalJustification() == VTK_TEXT_BOTTOM)
+    {
+    p.SetY(f[1]);
+    }
+  else if (this->TextProp->GetVerticalJustification() == VTK_TEXT_CENTERED)
+    {
+    p.SetY(f[1] + 0.5f*f[3]);
+    }
+  else
+    {
+    p.SetY(f[1] + f[3]);
+    }
+  return p;
 }
 
 //-----------------------------------------------------------------------------
