@@ -14,7 +14,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestBarGraph.cxx
       TestContext.cxx
       TestDiagram.cxx
-      TestGLSL.cxx
       TestLinePlot.cxx
       TestMarks.cxx
       TestMarksCallback.cxx
@@ -31,6 +30,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
       )
+    IF(VTK_USE_GLSL_SHADERS)
+      SET(MyTests ${MyTests}
+        TestGLSL.cxx
+        )
+    ENDIF(VTK_USE_GLSL_SHADERS)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)
