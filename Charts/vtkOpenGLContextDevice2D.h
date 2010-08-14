@@ -105,6 +105,21 @@ public:
                                    float bounds[4]);
 
   // Description:
+  // Draw some text to the screen.
+  virtual void DrawString(float *point, vtkTextProperty *tprop,
+                          const vtkUnicodeString &string);
+
+  // Description:
+  // Compute the bounds of the supplied string. The bounds will be copied to the
+  // supplied bounds variable, the first two elements are the bottom corner of
+  // the string, and the second two elements are the width and height of the
+  // bounding box.
+  // NOTE: This function does not take account of the text rotation.
+  virtual void ComputeStringBounds(const vtkUnicodeString &string,
+                                   vtkTextProperty *tprop,
+                                   float bounds[4]);
+
+  // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
   // scaled by scale (1.0 would match the image).
   virtual void DrawImage(float p[2], float scale, vtkImageData *image);
