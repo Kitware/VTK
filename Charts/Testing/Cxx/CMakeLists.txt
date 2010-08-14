@@ -4,45 +4,45 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   # add tests that do not require data
   SET(MyTests
     TestContextScene.cxx
-    #    TestContextUnicode.cxx # Disabled until Freetype unicode works
-    TestPieChart.cxx
-    TestPCPlot.cxx
-    TestDiagram.cxx
-    TestLinePlot.cxx
-    TestScatterPlot.cxx
-    TestScalarsToColors.cxx
-    TestStackedPlot.cxx
-    TestBarGraph.cxx
-    TestStackedBarGraph.cxx
-    TestContext.cxx
-    TestGLSL.cxx
     TestVector.cxx
-    TestMarks.cxx
-    TestMarksCallback.cxx
-    TestMarksGanttChart.cxx
-    TestMarksWedge.cxx
-    TestMarksWedgeCallback.cxx
-    TestMarksWedgeLine.cxx
-    TestMultipleChartRenderers.cxx
-    TestMultipleRenderers.cxx
-    TestMultipleScalarsToColors.cxx
     )
 
   IF (VTK_DATA_ROOT)
     # add tests that require data
-#    SET(MyTests ${MyTests}
-#      TestSpanTreeLayoutStrategy.cxx
-#      )
+    SET(MyTests ${MyTests}
+      #    TestContextUnicode.cxx # Disabled until Freetype unicode works
+      TestBarGraph.cxx
+      TestContext.cxx
+      TestDiagram.cxx
+      TestGLSL.cxx
+      TestLinePlot.cxx
+      TestMarks.cxx
+      TestMarksCallback.cxx
+      TestMarksWedge.cxx
+      TestMarksWedgeCallback.cxx
+      TestMarksWedgeLine.cxx
+      TestMultipleChartRenderers.cxx
+      TestMultipleRenderers.cxx
+      TestMultipleScalarsToColors.cxx
+      TestParallelCoordinates.cxx
+      TestPieChart.cxx
+      TestScalarsToColors.cxx
+      TestScatterPlot.cxx
+      TestStackedBarGraph.cxx
+      TestStackedPlot.cxx
+      )
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)
     #add tests that require Qt
     INCLUDE(${QT_USE_FILE})
-    SET(MyTests ${MyTests}
-      TestQtDiagram.cxx
-      TestQtContextUnicode.cxx
-      )
-    ENDIF(VTK_USE_QT)
+    IF (VTK_DATA_ROOT)
+      SET(MyTests ${MyTests}
+        TestQtDiagram.cxx
+        TestQtContextUnicode.cxx
+        )
+    ENDIF (VTK_DATA_ROOT)
+  ENDIF(VTK_USE_QT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
     EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})

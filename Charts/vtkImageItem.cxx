@@ -50,6 +50,7 @@ vtkImageItem::vtkImageItem()
 vtkImageItem::~vtkImageItem()
 {
   this->SetLabel(NULL);
+  this->SetImage(NULL);
 }
 
 //-----------------------------------------------------------------------------

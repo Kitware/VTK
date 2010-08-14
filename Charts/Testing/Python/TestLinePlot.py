@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Run this test like so:
 # vtkpython TestLinePlot.py  -D $VTK_DATA_ROOT \
@@ -57,16 +58,16 @@ class TestLinePlot(vtk.test.Testing.vtkTest):
 
         line = chart.AddPlot(0)
         line.SetInput(table,0,2)
-        line.SetColor(255,0,0,255);
+        line.SetColor(255,0,0,255)
         line.SetWidth(5.0)
 
         line = chart.AddPlot(0)
         line.SetInput(table,0,3)
-        line.SetColor(0,0,255,255);
+        line.SetColor(0,0,255,255)
         line.SetWidth(4.0)
 
         view.GetRenderWindow().SetMultiSamples(0)
-	view.GetRenderWindow().Render()
+        view.GetRenderWindow().Render()
 
         img_file = "TestLinePlot.png"
         vtk.test.Testing.compareImage(view.GetRenderWindow(),vtk.test.Testing.getAbsImagePath(img_file),threshold=25)
