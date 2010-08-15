@@ -893,7 +893,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
   itr = currentLine;
   bool firstTime = true;
   // Render char by char
-  for (; *str; str++)
+  for (; *str; ++str)
     {
     if(*str == '\n')
       {
@@ -1011,7 +1011,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     // Advance to next char
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
-    itr++;
+    ++itr;
     firstTime = false;
     }
 
@@ -1049,12 +1049,10 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
                                             int use_shadow_color)
 {
   // Map the text property to a unique id that will be used as face id
-
   unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   // Get the face
-
   FT_Face face;
   if (!this->GetFace(tprop_cache_id, &face))
     {
@@ -1065,14 +1063,12 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
   int face_has_kerning = FT_HAS_KERNING(face);
 
   // Text property size and opacity
-
   int tprop_font_size = tprop->GetFontSize();
 
   float tprop_opacity = tprop->GetOpacity();
 
   // Text color (get the shadow color if we are actually drawing the shadow)
   // Also compute the luminance, if we are drawing to a grayscale image
-
   double color[3];
   if (use_shadow_color)
     {
@@ -1132,7 +1128,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
     }
   bool firstTime = true;
   // Render char by char
-  for (; *str; str++)
+  for (; *str; ++str)
     {
     if(*str == '\n')
       {
@@ -1222,7 +1218,6 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       int pen_y = y + bitmap_glyph->top - 1;
 
       // Add the kerning
-
       if (face_has_kerning && previous_gindex && gindex)
         {
         FT_Get_Kerning(
@@ -1234,7 +1229,6 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       previous_gindex = gindex;
 
       // Render
-
       unsigned char *data_ptr =
         static_cast<unsigned char *>(data->GetScalarPointer(pen_x, pen_y, 0));
       if( !data_ptr )
@@ -1249,29 +1243,28 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 
       float t_alpha, data_alpha, t_1_m_alpha;
 
-      int i, j;
-      for (j = 0; j < bitmap->rows; j++)
+      for (int j = 0; j < bitmap->rows; ++j)
         {
         glyph_ptr = glyph_ptr_row;
 
-        for (i = 0; i < bitmap->width; i++)
+        for (int i = 0; i < bitmap->width; ++i)
           {
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
           t_1_m_alpha = 1.0 - t_alpha;
           data_alpha = (data_ptr[3] - data_min) / data_range;
           *data_ptr = static_cast<unsigned char>(
             data_min + data_range * tprop_r);
-          data_ptr++;
+          ++data_ptr;
           *data_ptr = static_cast<unsigned char>(
             data_min + data_range * tprop_g);
-          data_ptr++;
+          ++data_ptr;
           *data_ptr = static_cast<unsigned char>(
             data_min + data_range * tprop_b);
-          data_ptr++;
+          ++data_ptr;
           *data_ptr = static_cast<unsigned char>(
             data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-          data_ptr++;
-          glyph_ptr++;
+          ++data_ptr;
+          ++glyph_ptr;
           }
         glyph_ptr_row += bitmap->pitch;
         data_ptr += data_pitch;
@@ -1279,10 +1272,9 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       }
 
     // Advance to next char
-
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
-    itr++;
+    ++itr;
     firstTime = false;
     }
   delete [] currentLine;
@@ -1292,12 +1284,9 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        const char *str,
-                                       int x, int y,
+                                       int, int,
                                        vtkImageData *data)
 {
-  //just to avoid the warning...
-  x = y;
-  y = x;
   return this->RenderString(tprop, str, data);
 }
 
@@ -1325,7 +1314,6 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
   this->PrepareImageData(data, tprop, str, &x, &y);
 
   // Execute shadow
-
   int res = 1;
 
   if (tprop->GetShadow())
@@ -1769,9 +1757,9 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
     else
       {
       *itr = *str;
-      itr++;
+      ++itr;
       }
-    str++;
+    ++str;
     }
   *itr = '\0';
 
@@ -1815,7 +1803,6 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
 
   // If the current image data is too small to render the text,
   // or more than twice as big (too hungry), then resize
-
   int img_dims[3], new_img_dims[3];
   data->GetDimensions(img_dims);
 
@@ -1848,7 +1835,6 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
     }
 
   // Render inside the image data
-
   *x = (text_bbox[0] < 0 ? -text_bbox[0] : 0);
   *y = (text_bbox[2] < 0 ? -text_bbox[2] : 0);
 
