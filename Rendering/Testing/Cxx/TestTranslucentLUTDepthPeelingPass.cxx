@@ -46,9 +46,34 @@
 #include "vtkOverlayPass.h"
 #include "vtkRenderPassCollection.h"
 
+#include "vtkgl.h"
+
 // Make sure to have a valid OpenGL context current on the calling thread
-// before calling it. Defined in TestGenericVertexAttributesGLSLAlphaBlending.
-bool MesaHasVTKBug8135();
+// before calling it.
+bool MesaHasVTKBug8135()
+{
+  // GL_VENDOR cannot be used because it can be "Brian Paul" or "Mesa project"
+  // GL_RENDERER cannot be used because it can be "Software Rasterizer" or
+  // "Mesa X11"
+  // GL_VERSION is more robust. It has things like "2.0 Mesa 7.0.4" or
+  // "2.1 Mesa 7.2" or "2.1 Mesa 7.3-devel"
+
+  bool result=false;
+  const char *gl_version=
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  const char *mesa_version=strstr(gl_version,"Mesa");
+
+  if(mesa_version!=0)
+    {
+    int mesa_major=0;
+    int mesa_minor=0;
+    if(sscanf(mesa_version,"Mesa %d.%d",&mesa_major, &mesa_minor)>=2)
+      {
+      result=mesa_major<7 || (mesa_major==7 && mesa_minor<3);
+      }
+    }
+  return result;
+}
 
 int TestTranslucentLUTDepthPeelingPass(int argc, char* argv[])
 {
