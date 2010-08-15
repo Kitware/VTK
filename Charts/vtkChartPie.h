@@ -52,13 +52,9 @@ public:
   virtual vtkPlot * AddPlot(int type);
 
   // Description:
-  // Remove the plot at the specified index, returns true if successful,
-  // false if the index was invalid.
-  virtual bool RemovePlot(vtkIdType index);
-
-  // Description:
-  // Remove all plots from the chart.
-  virtual void ClearPlots();
+  // Add a plot to the chart. Return the index of the plot, -1 if it failed.
+  virtual vtkIdType AddPlot(vtkPlot* plot)
+    { return Superclass::AddPlot(plot); }
 
   // Description:
   // Get the plot at the specified index, returns null if the index is invalid.

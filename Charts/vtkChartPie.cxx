@@ -145,17 +145,6 @@ vtkPlot * vtkChartPie::AddPlot(int /* type */)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartPie::RemovePlot(vtkIdType /* index */)
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartPie::ClearPlots()
-{
-}
-
-//-----------------------------------------------------------------------------
 vtkPlot* vtkChartPie::GetPlot(vtkIdType index)
 {
   if (index == 0)
