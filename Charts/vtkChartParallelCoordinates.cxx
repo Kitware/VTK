@@ -280,23 +280,6 @@ bool vtkChartParallelCoordinates::GetColumnVisibility(const char* name)
 }
 
 //-----------------------------------------------------------------------------
-vtkPlot * vtkChartParallelCoordinates::AddPlot(int)
-{
-  return NULL;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkChartParallelCoordinates::RemovePlot(vtkIdType)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartParallelCoordinates::ClearPlots()
-{
-}
-
-//-----------------------------------------------------------------------------
 vtkPlot* vtkChartParallelCoordinates::GetPlot(vtkIdType)
 {
   return this->Storage->Plot;
