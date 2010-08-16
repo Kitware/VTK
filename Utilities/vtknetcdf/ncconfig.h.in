@@ -13,7 +13,7 @@
 #endif
 
 #ifdef vtkNetCDF_EXPORTS
-#  define DLL_EXPORT 
+#  define DLL_EXPORT
 #endif
 
 /* Define if you're on an HP-UX system. */
@@ -82,6 +82,15 @@
 
 /* Define if you have the strerror function  */
 #cmakedefine HAVE_STRERROR @HAVE_STRERROR@
+
+/* Define if you have the <hdf5.h> header file. */
+#cmakedefine HAVE_HDF5_H
+
+/* Define if you have the `hdf5' library (-lhdf5). */
+#cmakedefine HAVE_LIBHDF5
+
+/* Define if you have the `hdf5_hl' library (-lhdf5_hl). */
+#cmakedefine HAVE_LIBHDF5_HL
 
 /* Define to `int' if system doesn't define.  */
 #cmakedefine ssize_t @ssize_t@
