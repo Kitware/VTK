@@ -19,6 +19,16 @@
 #include <unistd.h>
 #endif
 
+#ifdef __BORLANDC__
+#  pragma warn -8004 /* "assigned a value that is never used" */
+#  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
+#endif
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#  pragma warning ( disable : 4127 ) /* conditional expression is constant */
+#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
+#endif /* MSVC 7.1 */
+
 /* list of open netcdf's */
 static NC *NClist = NULL;
 
