@@ -156,7 +156,21 @@ int TestPCAStatistics( int argc, char* argv[] )
     }
 
   // Check some results of the Test option
-  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics:\n";
+  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
+       << nVals;
+
+#ifdef VTK_USE_GNU_R
+  int nNonGaussian = 1;
+  int nRejected = 0;
+  double alpha = .01;
+
+  cout << ", null hypothesis: binormality, significance level="
+       << alpha;
+#endif // VTK_USE_GNU_R
+
+  cout << "):\n";
+
+  // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -168,8 +182,32 @@ int TestPCAStatistics( int argc, char* argv[] )
            << "  ";
       }
 
+#ifdef VTK_USE_GNU_R
+    // Check if null hypothesis is rejected at specified significance level
+    double p = outputTest->GetValueByName( r, "P" ).ToDouble();
+    // Must verify that p value is valid (it is set to -1 if R has failed)
+    if ( p > -1 && p < alpha )
+      {
+      cout << "N.H. rejected";
+
+      ++ nRejected;
+      }
+#endif // VTK_USE_GNU_R
+
     cout << "\n";
     }
+
+#ifdef VTK_USE_GNU_R
+  if ( nRejected < nNonGaussian )
+    {
+    vtkGenericWarningMacro("Rejected only "
+                           << nRejected
+                           << " null hypotheses of binormality whereas "
+                           << nNonGaussian
+                           << " variable pairs are not Gaussian");
+    testStatus = 1;
+    }
+#endif // VTK_USE_GNU_R
 
   // -- Test Assess Mode -- 
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
