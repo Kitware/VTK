@@ -209,7 +209,7 @@ int TestPCAStatistics( int argc, char* argv[] )
     }
 #endif // VTK_USE_GNU_R
 
-  // -- Test Assess Mode -- 
+  // Test Assess option
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
