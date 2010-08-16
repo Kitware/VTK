@@ -264,6 +264,7 @@ ADD_LIBRARY(vtkNetCDF
   ${netcdf_SRCS})
 
 ADD_LIBRARY(vtkNetCDF_c++ ${netcdfcpp_SRCS})
+TARGET_LINK_LIBRARIES(vtkNetCDF_c++ vtkNetCDF)
 
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
