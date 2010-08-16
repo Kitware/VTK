@@ -847,14 +847,47 @@ this->ComputeProjectionTransform(aspect,nearz,farz);
 }
 #endif
 
+void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
+                            double x10,  double x11,  double x12, double x13,
+                            double x20,  double x21,  double x22, double x23,
+                            double x30,  double x31,  double x32, double x33 )
+{
+    vtkMatrix4x4 * mat = vtkMatrix4x4::New();
+
+    mat->SetElement( 0,0,x00 );
+    mat->SetElement( 0,1,x01 );
+    mat->SetElement( 0,2,x02 );
+    mat->SetElement( 0,3,x03 );
+
+    mat->SetElement( 1,0,x10 );
+    mat->SetElement( 1,1,x11 );
+    mat->SetElement( 1,2,x12 );
+    mat->SetElement( 1,3,x13 );
+
+    mat->SetElement( 2,0,x20 );
+    mat->SetElement( 2,1,x21 );
+    mat->SetElement( 2,2,x22 );
+    mat->SetElement( 2,3,x23 );
+
+    mat->SetElement( 3,0,x30 );
+    mat->SetElement( 3,1,x31 );
+    mat->SetElement( 3,2,x32 );
+    mat->SetElement( 3,3,x33 );
+
+    this->SetHeadPose( mat );
+    DebugOn();
+    vtkDebugMacro( << "Head matrix set (" << mat<< ")");
+    DebugOff();
+    mat->Delete();
+}
 //------------------------------------------------------------------HeadTracked
 // This calculates sets head tracking mode for the camera and sets the
 // respective model-view and projection matrix parameters that should
 // be used with a head tracked camera
-void vtkCamera::SetHeadPos( vtkMatrix4x4 *headMat )
+void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
 {
 // If HeadTracked not set then set it to true
-if ( !this->HeadTracked ) this->HeadTracked = true;
+//if ( !this->HeadTracked ) this->HeadTracked = true;
 
 // Compute Projection Matrix Parameters using head
 vtkMatrix4x4 *eyePosMat = vtkMatrix4x4::New();
@@ -897,8 +930,6 @@ this->EyePos[0] = eyePosMat->GetElement( 0, 3 );
 this->EyePos[1] = eyePosMat->GetElement( 1, 3 );
 this->EyePos[2] = eyePosMat->GetElement( 1, 3 );
 }
-
-
 
 
 //----------------------------------------------------------------------------

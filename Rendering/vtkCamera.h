@@ -415,13 +415,20 @@ vtkSetMacro(LeftEye,int);
 vtkGetMacro(LeftEye,int);
 
 // Description:
+// Convenince method to set the values in the matrix
+void SetHeadPose( double x00,  double x01,  double x02,  double x03,
+double x10,  double x11,  double x12,  double x13,
+double x20,  double x21,  double x22,  double x23,
+double x30,  double x31,  double x32,  double x33);
+
+// Description:
 // This function does 3  things.
 // 1. It sets the camera mode to head tracked i.e ensures that the
 // Asymmetric Frustuma are uses.
 // 2. It sets variables like AsymLeft,AsymRight, AsymBottom and Asym
 // to set the HeadTracked Projection Matrix.
 // 3. It sets the View matrix
-void SetHeadPos( vtkMatrix4x4 *head );
+void SetHeadPose( vtkMatrix4x4 *head );
 
 // Description:
 // Set the Left Eye setting
