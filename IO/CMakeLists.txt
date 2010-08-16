@@ -54,12 +54,11 @@ vtkEnSightMasterServerReader.cxx
 vtkEnSightReader.cxx
 vtkFLUENTReader.cxx
 vtkFacetWriter.cxx
-vtkGenericDataObjectReader.cxx
-vtkGenericDataObjectWriter.cxx
-vtkGenericEnSightReader.cxx
 vtkGESignaReader.cxx
 vtkGAMBITReader.cxx
 vtkGaussianCubeReader.cxx
+vtkGenericDataObjectReader.cxx
+vtkGenericDataObjectWriter.cxx
 vtkGenericEnSightReader.cxx
 vtkGenericMovieWriter.cxx
 vtkGlobFileNames.cxx
