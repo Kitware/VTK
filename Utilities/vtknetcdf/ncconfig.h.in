@@ -80,6 +80,9 @@
 /* Define if you don't have the strerror function  */
 #cmakedefine NO_STRERROR @NO_STRERROR@
 
+/* Define if you have the strerror function  */
+#cmakedefine HAVE_STRERROR @HAVE_STRERROR@
+
 /* Define to `int' if system doesn't define.  */
 #cmakedefine ssize_t @ssize_t@
 
