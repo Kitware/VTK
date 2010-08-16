@@ -14,11 +14,14 @@
 =========================================================================*/
 #include "vtkCompositePolyDataMapper2.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePainter.h"
+#include "vtkDefaultPainter.h"
+#include "vtkDisplayListPainter.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -27,8 +30,6 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
-#include "vtkDisplayListPainter.h"
-#include "vtkDefaultPainter.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 //----------------------------------------------------------------------------
@@ -160,52 +161,36 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   // If we don't have hierarchical data, test to see if we have
   // plain old polydata. In this case, the bounds are simply
   // the bounds of the input polydata.
-  if(!input) 
+  if (!input)
     {
     this->Superclass::GetBounds();
     return;
     }
 
-  input->Update();
+  this->Update();
+  input = vtkCompositeDataSet::SafeDownCast(
+    this->GetInputDataObject(0, 0));
 
   // We do have hierarchical data - so we need to loop over
   // it and get the total bounds.
   vtkCompositeDataIterator* iter = input->NewIterator();
-  iter->GoToFirstItem();  
-  double bounds[6];
-  int i;
-  
-  while (!iter->IsDoneWithTraversal())
+  vtkBoundingBox bbox;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());    
+    vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
     if (pd)
       {
       // If this isn't the first time through, expand bounds
       // we've compute so far based on the bounds of this
       // block
-      if ( vtkMath::AreBoundsInitialized(this->Bounds) )
-        {
-        pd->GetBounds(bounds);
-        for(i=0; i<3; i++)
-          {
-          this->Bounds[i*2] = 
-            (bounds[i*2]<this->Bounds[i*2])?
-            (bounds[i*2]):(this->Bounds[i*2]);
-          this->Bounds[i*2+1] = 
-            (bounds[i*2+1]>this->Bounds[i*2+1])?
-            (bounds[i*2+1]):(this->Bounds[i*2+1]);
-          }
-        }
-      // If this is our first time through, just get the bounds
-      // of the data as the initial bounds
-      else
-        {
-        pd->GetBounds(this->Bounds);
-        }
+      double bounds[6];
+      pd->GetBounds(bounds);
+      bbox.AddBounds(bounds);
       }
     iter->GoToNextItem();
     }
   iter->Delete();
+  bbox.GetBounds(this->Bounds);
   this->BoundsMTime.Modified();
 }
 
