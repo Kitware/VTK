@@ -103,11 +103,6 @@ this->UserTransform = NULL;
 this->UserViewTransform = NULL;
 this->UserViewTransformCallbackCommand = NULL;
 
-// initialize the ViewTransform
-this->ComputeViewTransform();
-this->ComputeDistance();
-this->ComputeCameraLightTransform();
-
 // Head tracking
 HeadTracked = false;
 
@@ -131,6 +126,10 @@ O2Bottom = 0.0;
 EyeOffset = 0.0;
 ScaleFactor =0.0;
 
+// initialize the ViewTransform
+this->ComputeViewTransform();
+this->ComputeDistance();
+this->ComputeCameraLightTransform();
 }
 
 //----------------------------------------------------------------------------
