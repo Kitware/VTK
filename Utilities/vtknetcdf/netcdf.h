@@ -223,6 +223,11 @@ typedef enum {
 #  else
 #   define MSC_EXTRA __declspec(dllimport)
 #  endif
+#  if defined(vtkNetCDF_cxx_EXPORTS)
+#   define MSCPP_EXTRA __declspec(dllexport)
+#  else
+#   define MSCPP_EXTRA __declspec(dllimport)
+#  endif
 #include <io.h>
 /*#define lseek _lseeki64
 #define off_t __int64
