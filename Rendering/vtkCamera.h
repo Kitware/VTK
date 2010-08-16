@@ -424,7 +424,8 @@ public:
   void SetHeadPos( vtkMatrix4x4 *head );
 
   // Description:
-  // Set the Left Eye setting
+  // HeadTracker mode. It impacts on the computation of the transforms.
+  // Initial value is false.
   vtkSetMacro(HeadTracked,bool);
   vtkGetMacro(HeadTracked,bool);
 

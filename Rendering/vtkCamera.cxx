@@ -104,27 +104,27 @@ vtkCamera::vtkCamera()
   this->UserViewTransformCallbackCommand = NULL;
 
 // Head tracking
-  HeadTracked = false;
+  this->HeadTracked = false;
 
 // HeadTracked Projection parameters
-  AsymLeft  = 0.0;
-  AsymRight = 0.0;
-  AsymBottom= 0.0;
-  AsymTop = 0.0;
+  this->AsymLeft  = 0.0;
+  this->AsymRight = 0.0;
+  this->AsymBottom= 0.0;
+  this->AsymTop = 0.0;
 
 // HeadTracked View Parameters
-  EyePos[0] = 0.0;
-  EyePos[1] = 0.0;
-  EyePos[2] = 0.0;
+  this->EyePos[0] = 0.0;
+  this->EyePos[1] = 0.0;
+  this->EyePos[2] = 0.0;
 
 // HeadTracked Config parameters to be set from config file
-  O2Screen = 0.0;
-  O2Right  = 0.0;
-  O2Left   = 0.0;
-  O2Top    = 0.0;
-  O2Bottom = 0.0;
-  EyeOffset = 0.0;
-  ScaleFactor =0.0;
+  this->O2Screen = 0.0;
+  this->O2Right  = 0.0;
+  this->O2Left   = 0.0;
+  this->O2Top    = 0.0;
+  this->O2Bottom = 0.0;
+  this->EyeOffset = 0.0;
+  this->ScaleFactor =0.0;
 
 // initialize the ViewTransform
   this->ComputeViewTransform();
@@ -853,8 +853,10 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 void vtkCamera::SetHeadPos( vtkMatrix4x4 *headMat )
 {
 // If HeadTracked not set then set it to true
-  if ( !this->HeadTracked ) this->HeadTracked = true;
-
+  if ( !this->HeadTracked )
+    {
+    this->HeadTracked = true;
+    }
 // Compute Projection Matrix Parameters using head
   vtkMatrix4x4 *eyePosMat = vtkMatrix4x4::New();
   vtkMatrix4x4 *eyeOffsetMat = vtkMatrix4x4::New();
