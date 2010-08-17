@@ -62,6 +62,10 @@ public:
   virtual void DrawQuad(float *, int) { ; }
 
   // Description:
+  // Draw a quad using the specified number of points.
+  virtual void DrawQuadStrip(float *, int) { ; }
+
+  // Description:
   // Draw a polygon using the specified number of points.
   virtual void DrawPolygon(float *, int) { ; }
 
