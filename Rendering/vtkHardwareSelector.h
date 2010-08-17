@@ -302,6 +302,7 @@ protected:
   unsigned char* PixBuffer[10];
   int ProcessID;
   int CurrentPass;
+  int InPropRender;
 private:
   vtkHardwareSelector(const vtkHardwareSelector&); // Not implemented.
   void operator=(const vtkHardwareSelector&); // Not implemented.

@@ -64,6 +64,7 @@ vtkHardwareSelector::vtkHardwareSelector()
     }
   this->CurrentPass = -1;
   this->ProcessID = -1;
+  this->InPropRender = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -235,6 +236,11 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::BeginRenderProp()
 {
+  this->InPropRender++;
+  if (this->InPropRender != 1)
+    {
+    return;
+    }
   // Ensure that blending/lighting/multisampling is off.
   vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
@@ -271,16 +277,30 @@ void vtkHardwareSelector::BeginRenderProp()
     this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
+  else
+    {
+    float color[3] = {0, 0, 0};
+    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::EndRenderProp()
 {
-  vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
-    GetPainterDeviceAdapter();
-  device->MakeMultisampling(this->Internals->OriginalMultisample);
-  device->MakeLighting(this->Internals->OriginalLighting);
-  device->MakeBlending(this->Internals->OriginalBlending);
+  if (this->InPropRender)
+    {
+    this->InPropRender--;
+    if (this->InPropRender != 0)
+      {
+      return;
+      }
+    vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
+      GetPainterDeviceAdapter();
+    device->MakeMultisampling(this->Internals->OriginalMultisample);
+    device->MakeLighting(this->Internals->OriginalLighting);
+    device->MakeBlending(this->Internals->OriginalBlending);
+    }
 }
 
 //----------------------------------------------------------------------------

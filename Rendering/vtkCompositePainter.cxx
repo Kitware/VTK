@@ -65,6 +65,7 @@ void vtkCompositePainter::RenderInternal(vtkRenderer* renderer,
       {
       if (selector)
         {
+        selector->BeginRenderProp();
         // If hardware selection is in progress, we need to pass the composite
         // index to the selection framework,
         selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
@@ -75,6 +76,11 @@ void vtkCompositePainter::RenderInternal(vtkRenderer* renderer,
       this->Superclass::RenderInternal(renderer, actor, typeflags,
                                        forceCompileOnly);
       this->OutputData = 0;
+
+      if (selector)
+        {
+        selector->EndRenderProp();
+        }
       }
     }
   iter->Delete();
