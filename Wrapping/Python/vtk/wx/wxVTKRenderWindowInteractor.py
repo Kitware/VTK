@@ -383,7 +383,7 @@ class wxVTKRenderWindowInteractor(baseClass):
 
             # on relevant platforms, set the X11 Display ID
             d = self.GetDisplayId()
-            if d:
+            if d and self.__has_painted:
                 self._Iren.GetRenderWindow().SetDisplayId(d)
 
             # store the handle
