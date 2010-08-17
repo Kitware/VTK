@@ -387,7 +387,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkBoundingBox.cxx
   vtkBreakPoint.cxx
   vtkCallbackCommand.cxx
-  vtkCommand.cxx
   vtkCommonInformationKeyManager.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
