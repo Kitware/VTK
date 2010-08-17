@@ -86,36 +86,36 @@ int TestRRandomTableSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         {
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Mean").ToDouble(),mean_nd,1.0));
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Standard Deviation").ToDouble(),sd_nd,1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g1 Skewness").ToDouble(),0.0,1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g2 Kurtosis").ToDouble(),0.0,1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Skewness").ToDouble(),0.0,1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Kurtosis").ToDouble(),0.0,1.0));
         }
       else if(!strcmp(outputMeta->GetValueByName(r, "Variable").ToString(),"Poisson"))
         {
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Mean").ToDouble(),lambda_pd,1.0));
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt(lambda_pd),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g1 Skewness").ToDouble(),1.0/sqrt(lambda_pd),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g2 Kurtosis").ToDouble(),1.0/lambda_pd,1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Skewness").ToDouble(),1.0/sqrt(lambda_pd),1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Kurtosis").ToDouble(),1.0/lambda_pd,1.0));
         }
       else if(!strcmp(outputMeta->GetValueByName(r, "Variable").ToString(),"Chi-Square"))
         {
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Mean").ToDouble(),k_csd,1.0));
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt(2.0*k_csd),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g1 Skewness").ToDouble(),sqrt(8.0/k_csd),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g2 Kurtosis").ToDouble(),12.0/k_csd,2.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Skewness").ToDouble(),sqrt(8.0/k_csd),1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Kurtosis").ToDouble(),12.0/k_csd,2.0));
         }
       else if(!strcmp(outputMeta->GetValueByName(r, "Variable").ToString(),"Uniform"))
         {
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Mean").ToDouble(),0.5*(lb_ud+ub_ud),1.0));
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt((1.0/12.0)*pow((ub_ud-lb_ud),2)),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g1 Skewness").ToDouble(),0.0,1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g2 Kurtosis").ToDouble(),-(6.0/5.0),1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Skewness").ToDouble(),0.0,1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Kurtosis").ToDouble(),-(6.0/5.0),1.0));
         }
       else if(!strcmp(outputMeta->GetValueByName(r, "Variable").ToString(),"Binomial"))
         {
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Mean").ToDouble(),nt_bd*ps_bd,1.0));
         test_expression(doubleEquals(outputMeta->GetValueByName(r,"Standard Deviation").ToDouble(),sqrt(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g1 Skewness").ToDouble(),(1.0 - 2.0*ps_bd)/sqrt(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
-        test_expression(doubleEquals(outputMeta->GetValueByName(r,"g2 Kurtosis").ToDouble(),(1.0 - 6.0*ps_bd*(1.0 - ps_bd))/(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Skewness").ToDouble(),(1.0 - 2.0*ps_bd)/sqrt(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
+        test_expression(doubleEquals(outputMeta->GetValueByName(r,"Kurtosis").ToDouble(),(1.0 - 6.0*ps_bd*(1.0 - ps_bd))/(nt_bd*ps_bd*(1.0 - ps_bd)),1.0));
         }
       }
 
