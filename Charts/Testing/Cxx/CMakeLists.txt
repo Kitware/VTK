@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   SET(MyTests
     TestContextScene.cxx
     TestVector.cxx
+    TestFreeTypeRender.cxx
     )
 
   IF (VTK_DATA_ROOT)
@@ -13,6 +14,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       #    TestContextUnicode.cxx # Disabled until Freetype unicode works
       TestBarGraph.cxx
       TestContext.cxx
+      TestContextImage.cxx
       TestDiagram.cxx
       TestLinePlot.cxx
       TestMarks.cxx
