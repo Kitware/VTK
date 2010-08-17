@@ -387,13 +387,11 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  int numDoubles = 7;
+  int numDoubles = 5;
   vtkStdString doubleNames[] = { "Standard Deviation",
                                  "Variance",
-                                 "g1 Skewness",
-                                 "G1 Skewness",
-                                 "g2 Kurtosis",
-                                 "G2 Kurtosis",
+                                 "Skewness",
+                                 "Kurtosis",
                                  "Sum" };
 
   // Create table for derived statistics
@@ -412,7 +410,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  // Storage for standard deviation, variance, skewness, G1, kurtosis, G2, sum
+  // Storage for standard deviation, variance, skewness,  kurtosis, sum
   double* derivedVals = new double[numDoubles]; 
 
   for ( int i = 0; i < nRow; ++ i )
@@ -430,7 +428,6 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       derivedVals[2] = 0.;
       derivedVals[3] = 0.;
       derivedVals[4] = 0.;
-      derivedVals[5] = 0.;
       }
     else
       {
@@ -455,32 +452,23 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       double var_inv = nm1 / mom2;
       double nvar_inv = var_inv * inv_n;
       derivedVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
-      derivedVals[4] = nvar_inv * var_inv * mom4 - 3.;
-      if ( n > 2 )
+      derivedVals[3] = nvar_inv * var_inv * mom4 - 3.;
+
+      if ( this->G1Skewness && n > 2 )
         {
         // G1 skewness estimate
-        double nm2 = nm1 - 1.;
-        derivedVals[3] = ( n * n ) / ( nm1 * nm2 ) * derivedVals[2];
- 
-        if ( n > 3 )
-          { 
-          // G2 kurtosis estimate
-          derivedVals[5] = ( ( n + 1. ) * derivedVals[4] + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
-          }
-        else
-          {
-          derivedVals[5] = derivedVals[4];
-          }
+        derivedVals[2] *= ( n * n ) / ( nm1 * ( nm1 - 1. ) );
         }
-      else
+
+      if ( this->G2Kurtosis && n > 3 )
         {
-        derivedVals[3] = derivedVals[2];
-        derivedVals[5] = derivedVals[4];
+        // G2 kurtosis estimate
+        derivedVals[3] *= ( ( n + 1. ) * derivedVals[4] + 6. ) * nm1 / ( ( nm1 - 1. ) * ( nm1 - 2. ) );
         }
       }
 
     // Sum
-    derivedVals[6] = numSamples * primaryTab->GetValueByName( i, "Mean" ).ToDouble();
+    derivedVals[4] = numSamples * primaryTab->GetValueByName( i, "Mean" ).ToDouble();
 
     for ( int j = 0; j < numDoubles; ++ j )
       {
@@ -582,8 +570,8 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     
     // Retrieve model statistics necessary for Jarque-Bera testing
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    double skew = derivedTab->GetValueByName( r, "g1 Skewness" ).ToDouble();
-    double kurt = derivedTab->GetValueByName( r, "g2 Kurtosis" ).ToDouble();
+    double skew = derivedTab->GetValueByName( r, "Skewness" ).ToDouble();
+    double kurt = derivedTab->GetValueByName( r, "Kurtosis" ).ToDouble();
 
     // Now calculate Jarque-Bera statistic
     double jb = n * ( skew * skew + .25 * kurt * kurt ) / 6.;
