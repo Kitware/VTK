@@ -326,7 +326,6 @@ CONFIGURE_FILE(
 SET(Kit_WRAP_HEADERS
   vtkSystemIncludes.h
   vtkType.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${VTK_BINARY_DIR}/vtkConfigure.h
   )
