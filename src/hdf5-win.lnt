@@ -1,0 +1,39 @@
+// Define the __FUNCTION__ so we don't get warnings about using it.
+-d__FUNCTION__="NoFunctionName"
+
+// Turn off warnings about "Ignoring return value of function" for
+// H5open() in public error macros
+-emacro(534, H5Epush_ret, H5Epush_goto)
+
+// Suppress message about "Suspicious cast" in FUNC_ENTER* macros
+-emacro(611,FUNC_ENTER_API,FUNC_ENTER_NOAPI)
+
+// Suppress message about "Boolean within 'if' always evaluates false" in FUNC_ENTER* macros
+-emacro(774,FUNC_ENTER_API,FUNC_ENTER_NOAPI)
+
+// Suppress message about "Static variable found within inline function" in FUNC_ENTER* macros
+-emacro(1534,FUNC_ENTER_NOINIT)
+
+// Suppress message about "Shift right of signed quantity" in H5I_GRP macro
+-emacro(702,H5I_GRP)
+
+// Suppress message about "Constant expression evaluates to 0 in expression" in H5FL_ARR* macros
+-emacro(778,H5FL_ARR_DEFINE_COMMON)
+
+// Suppress message about "Union initialization" in H5FL_ARR* macros
+-emacro(708,H5FL_ARR_DEFINE_COMMON)
+
+// Suppress message about "enum constant not used within defaulted switch"
+-e788
+
+// Indicate functions that are like printf()
+-printf(2,HDfprintf)
+
+// Tell lint about additional printf() format codes that HDfprintf understands
+-printf_code(a,haddr_t)
+-printf_code(Hu,hsize_t)
+-printf_code(Hd,hssize_t)
+-printf_code(Zu,size_t)
+-printf_code(Zd,ssize_t)
+
+

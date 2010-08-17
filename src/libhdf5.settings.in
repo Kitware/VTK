@@ -1,0 +1,69 @@
+	    SUMMARY OF THE HDF5 CONFIGURATION
+	    =================================
+
+General Information:
+-------------------
+		   HDF5 Version: @H5_VERSION@
+		  Configured on: @CONFIG_DATE@
+		  Configured by: @CONFIG_USER@
+		 Configure mode: @CONFIG_MODE@
+		    Host system: @host_cpu@-@host_vendor@-@host_os@
+	      Uname information: @UNAME_INFO@
+		       Byte sex: @BYTESEX@
+		      Libraries: @STATIC_SHARED@
+	     Installation point: @prefix@
+
+Compiling Options:
+------------------
+               Compilation Mode: @CONFIG_MODE@
+                     C Compiler: @CC_VERSION@
+                         CFLAGS: @CFLAGS@
+                      H5_CFLAGS: @H5_CFLAGS@
+                      AM_CFLAGS: @AM_CFLAGS@
+                       CPPFLAGS: @CPPFLAGS@
+                    H5_CPPFLAGS: @H5_CPPFLAGS@
+                    AM_CPPFLAGS: @AM_CPPFLAGS@
+               Shared Libraries: @enable_shared@
+               Static Libraries: @enable_static@
+  Statically Linked Executables: @STATIC_EXEC@
+                        LDFLAGS: @LDFLAGS@
+                     AM_LDFLAGS: @AM_LDFLAGS@
+ 	 	Extra libraries: @LIBS@
+ 		       Archiver: @AR@
+ 		 	 Ranlib: @RANLIB@
+ 	      Debugged Packages: @DEBUG_PKG@
+		    API Tracing: @TRACE_API@
+
+Languages:
+----------
+                        Fortran: @HDF_FORTRAN@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               Fortran Compiler: @FC_VERSION@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@                  Fortran Flags: @FCFLAGS@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               H5 Fortran Flags: @H5_FCFLAGS@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               AM Fortran Flags: @AM_FCFLAGS@
+                            C++: @HDF_CXX@
+@BUILD_CXX_CONDITIONAL_TRUE@                   C++ Compiler: @CXX_VERSION@
+@BUILD_CXX_CONDITIONAL_TRUE@                      C++ Flags: @CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @H5_CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@                   AM C++ Flags: @AM_CXXFLAGS@
+
+Features:
+---------
+                  Parallel HDF5: @PARALLEL@
+             High Level library: @HDF5_HL@
+                   Threadsafety: @THREADSAFE@
+            Default API Mapping: @DEFAULT_API_VERSION@
+ With Deprecated Public Symbols: @DEPRECATED_SYMBOLS@
+         I/O filters (external): @EXTERNAL_FILTERS@
+         I/O filters (internal): @FILTERS@
+                            MPE: @MPE@
+                     Direct VFD: @DIRECT_VFD@
+                        dmalloc: @HAVE_DMALLOC@
+Clear file buffers before write: @CLEARFILEBUF@
+           Using memory checker: @USINGMEMCHECKER@
+         Function Stack Tracing: @CODESTACK@
+                           GPFS: @GPFS@
+      Strict File Format Checks: @STRICT_FORMAT_CHECKS@
+   Optimization Instrumentation: @INSTRUMENT@
+       Large File Support (LFS): @LARGEFILE@
+             H5dump Packed Bits: @PACKED_BITS@

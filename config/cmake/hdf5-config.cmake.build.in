@@ -1,0 +1,50 @@
+#-----------------------------------------------------------------------------
+# HDF5 Config file for compiling against hdf5 build directory
+#-----------------------------------------------------------------------------
+GET_FILENAME_COMPONENT (SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+#-----------------------------------------------------------------------------
+# User Options
+#-----------------------------------------------------------------------------
+SET (HDF5_ENABLE_PARALLEL @HDF5_ENABLE_PARALLEL@)
+SET (HDF5_BUILD_FORTRAN   @HDF5_BUILD_FORTRAN@)
+SET (HDF5_BUILD_CPP_LIB   @HDF5_BUILD_CPP_LIB@)
+SET (HDF5_BUILD_TOOLS     @HDF5_BUILD_TOOLS@)
+SET (HDF5_BUILD_HL_LIB    @HDF5_BUILD_HL_LIB@)
+
+#-----------------------------------------------------------------------------
+# Directories
+#-----------------------------------------------------------------------------
+SET (HDF5_INCLUDE_DIR "@HDF5_INCLUDES_BUILD_TIME@")
+
+IF (HDF5_BUILD_FORTRAN)
+  SET (HDF5_INCLUDE_DIR_FORTRAN "@CMAKE_Fortran_MODULE_DIRECTORY@" )
+ENDIF (HDF5_BUILD_FORTRAN)
+  
+IF (HDF5_BUILD_CPP_LIB)
+  SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR} )
+ENDIF (HDF5_BUILD_CPP_LIB)
+
+IF (HDF5_BUILD_HL_LIB)
+  SET (HDF5_INCLUDE_DIR_HL ${HDF5_INCLUDE_DIR} )
+ENDIF (HDF5_BUILD_HL_LIB)
+
+IF (HDF5_BUILD_TOOLS)
+  SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR} )
+ENDIF (HDF5_BUILD_TOOLS)
+
+#-----------------------------------------------------------------------------
+# Version Strings
+#-----------------------------------------------------------------------------
+SET (HDF5_VERSION_STRING @HDF5_VERSION_STRING@)
+SET (HDF5_VERSION_MAJOR  @HDF5_VERSION_MAJOR@)
+SET (HDF5_VERSION_MINOR  @HDF5_VERSION_MINOR@)
+
+#-----------------------------------------------------------------------------
+# Don't include targets if this file is being picked up by another
+# project which has already build hdf5 as a subproject
+#-----------------------------------------------------------------------------
+IF (NOT TARGET "hdf5")
+  GET_FILENAME_COMPONENT (SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+  INCLUDE (${SELF_DIR}/hdf5-targets.cmake)
+ENDIF (NOT TARGET "hdf5")

@@ -1,0 +1,148 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Copyright by The HDF Group.                                               *
+ * Copyright by the Board of Trustees of the University of Illinois.         *
+ * All rights reserved.                                                      *
+ *                                                                           *
+ * This file is part of HDF5.  The full HDF5 copyright notice, including     *
+ * terms governing use, modification, and redistribution, is contained in    *
+ * the files COPYING and Copyright.html.  COPYING can be found at the root   *
+ * of the source code distribution tree; Copyright.html can be found at the  *
+ * root level of an installed copy of the electronic HDF5 document set and   *
+ * is linked from the top-level documents page.  It can also be found at     *
+ * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
+ * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *              Wednesday, July 9, 2003
+ *
+ * Purpose:	File object debugging functions.
+ */
+
+#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
+#define H5G_PACKAGE		/*suppress error about including H5Gpkg   */
+
+
+#include "H5private.h"		/* Generic Functions			*/
+#include "H5Eprivate.h"		/* Error handling		        */
+#include "H5Fpkg.h"             /* File access				*/
+#include "H5Gpkg.h"		/* Groups		  		*/
+#include "H5Iprivate.h"		/* ID Functions		                */
+#include "H5Pprivate.h"		/* Property lists			*/
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_debug
+ *
+ * Purpose:	Prints a file header to the specified stream.  Each line
+ *		is indented and the field name occupies the specified width
+ *		number of characters.
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ * Programmer:	Robb Matzke
+ *		matzke@llnl.gov
+ *		Aug  1 1997
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5F_debug(H5F_t *f, FILE *stream, int indent, int fwidth)
+{
+    H5P_genplist_t *plist;              /* File creation property list */
+    hsize_t userblock_size;             /* Userblock size */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(H5F_debug, FAIL)
+
+    /* check args */
+    HDassert(f);
+    HDassert(stream);
+    HDassert(indent >= 0);
+    HDassert(fwidth >= 0);
+
+    /* Get property list */
+    if(NULL == (plist = (H5P_genplist_t *)H5I_object(f->shared->fcpl_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
+
+    /* Retrieve file creation properties */
+    if(H5P_get(plist, H5F_CRT_USER_BLOCK_NAME, &userblock_size) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get userblock size")
+
+    /* debug */
+    HDfprintf(stream, "%*sFile Super Block...\n", indent, "");
+
+    HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+	      "File name (as opened):", H5F_OPEN_NAME(f));
+    HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+	      "File name (after resolving symlinks):", H5F_ACTUAL_NAME(f));
+    HDfprintf(stream, "%*s%-*s 0x%08x\n", indent, "", fwidth,
+	      "File access flags", f->shared->flags);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "File open reference count:", f->shared->nrefs);
+    HDfprintf(stream, "%*s%-*s %a (abs)\n", indent, "", fwidth,
+	      "Address of super block:", f->shared->sblock->base_addr);
+    HDfprintf(stream, "%*s%-*s %Hu bytes\n", indent, "", fwidth,
+	      "Size of userblock:", userblock_size);
+
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Superblock version number:", f->shared->sblock->super_vers);
+
+    /* Hard-wired versions */
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Free list version number:", (unsigned)HDF5_FREESPACE_VERSION);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Root group symbol table entry version number:", (unsigned)HDF5_OBJECTDIR_VERSION);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Shared header version number:", (unsigned)HDF5_SHAREDHEADER_VERSION);
+
+    HDfprintf(stream, "%*s%-*s %u bytes\n", indent, "", fwidth,
+	      "Size of file offsets (haddr_t type):", (unsigned) f->shared->sizeof_addr);
+    HDfprintf(stream, "%*s%-*s %u bytes\n", indent, "", fwidth,
+	      "Size of file lengths (hsize_t type):", (unsigned) f->shared->sizeof_size);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Symbol table leaf node 1/2 rank:", f->shared->sblock->sym_leaf_k);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Symbol table internal node 1/2 rank:", f->shared->sblock->btree_k[H5B_SNODE_ID]);
+    HDfprintf(stream, "%*s%-*s 0x%02x\n", indent, "", fwidth,
+	      "File status flags:", (unsigned)(f->shared->sblock->status_flags));
+    HDfprintf(stream, "%*s%-*s %a (rel)\n", indent, "", fwidth,
+	      "Superblock extension address:", f->shared->sblock->ext_addr);
+    HDfprintf(stream, "%*s%-*s %a (rel)\n", indent, "", fwidth,
+	      "Shared object header message table address:", f->shared->sohm_addr);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Shared object header message version number:", (unsigned) f->shared->sohm_vers);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Number of shared object header message indexes:", (unsigned) f->shared->sohm_nindexes);
+
+    HDfprintf(stream, "%*s%-*s %a (rel)\n", indent, "", fwidth,
+	      "Address of driver information block:", f->shared->sblock->driver_addr);
+
+    HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+	      "Root group symbol table entry:",
+	      f->shared->root_grp ? "" : "(none)");
+    if(f->shared->root_grp) {
+        if(f->shared->sblock->root_ent) /* Use real root group symbol table entry */
+            H5G_ent_debug(f->shared->sblock->root_ent, stream, indent + 3, MAX(0, fwidth - 3), NULL);
+        else {
+            H5O_loc_t *root_oloc;   /* Root object location */
+            H5G_entry_t root_ent;   /* Constructed root symbol table entry */
+
+            /* Reset the root group entry */
+            H5G_ent_reset(&root_ent);
+
+            /* Build up a simulated root group symbol table entry */
+            root_oloc = H5G_oloc(f->shared->root_grp);
+            HDassert(root_oloc);
+            root_ent.type = H5G_NOTHING_CACHED;
+            root_ent.header = root_oloc->addr;
+
+            /* Display root group symbol table entry info */
+            H5G_ent_debug(&root_ent, stream, indent + 3, MAX(0, fwidth - 3), NULL);
+        } /* end else */
+    } /* end if */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F_debug() */
+

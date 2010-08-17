@@ -1,0 +1,24 @@
+// Define the __func__ macro so we don't get warnings about using it.
+-d__func__="NoFunctionName"
+
+// Needed for gcc assert() macro
+-function(exit,__assert_fail)
+
+// Needed to allow 'long long' with gcc
++fll
+
+// Suppress message about "Constant value boolean" in assert macros
+-emacro(506,assert)
+
+// Turn off warnings about not using the return value from these functions:
+-emacro(534,HDfflush,HDgetrusage,HDgettimeofday,HDputc)
+
+// Turn off warnings about converting an enum to an int
+-emacro(641,H5_INC_ENUM,H5_DEC_ENUM)
+
+// Suppress message about "Expression with side effects passed to repeated parameter 1 in macro 'assert'"
+-esym(666,assert)
+
+// Include shared lint options file
+hdf5.lnt
+
