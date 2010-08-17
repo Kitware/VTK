@@ -229,10 +229,10 @@ typedef enum {
 #   define MSCPP_EXTRA __declspec(dllimport)
 #  endif
 #include <io.h>
-#define lseek _lseeki64
+/*#define lseek _lseeki64
 #define off_t __int64
 #define stat __stat64
-#define fstat _fstat64
+#define fstat _fstat64*/
 #else
 #define MSC_EXTRA
 #define MSCPP_EXTRA
