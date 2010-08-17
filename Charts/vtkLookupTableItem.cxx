@@ -67,6 +67,7 @@ void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
     {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(this->LookupTable, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -129,6 +130,7 @@ void vtkLookupTableItem::ScalarsToColorsModified(vtkObject* object,
     this->Shape->SetPoint(1, range[0], bounds[3]);
     this->Shape->SetPoint(2, range[1], bounds[3]);
     this->Shape->SetPoint(3, range[1], bounds[2]);
+    this->Shape->Modified();
     }
   // Internally calls modified to ask for a refresh of the item
   this->Superclass::ScalarsToColorsModified(object, eid, calldata);

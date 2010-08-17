@@ -69,6 +69,7 @@ void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* 
     {
     opacity->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(this->OpacityFunction, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -159,6 +160,7 @@ void vtkCompositeTransferFunctionItem::ScalarsToColorsModified(vtkObject* object
     this->Shape->SetPoint(1, newRange[0], 1.);
     this->Shape->SetPoint(2, newRange[1], 1.);
     this->Shape->SetPoint(3, newRange[1], 0.);
+    this->Shape->Modified();
     }
   // Internally calls modified to ask for a refresh of the item
   this->vtkScalarsToColorsItem::ScalarsToColorsModified(object, eid, calldata);

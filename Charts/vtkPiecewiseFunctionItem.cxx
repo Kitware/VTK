@@ -71,6 +71,7 @@ void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
     {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(this->PiecewiseFunction, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -87,6 +88,7 @@ void vtkPiecewiseFunctionItem::SetMaskAboveCurve(bool mask)
     this->Shape->SetPoint(1, 1.f, 0.f);
     this->Shape->SetPoint(2, 1.f, 1.f);
     this->Shape->SetPoint(3, 0.f, 1.f);
+    this->Shape->Modified();
     }
   this->MaskAboveCurve = mask;
   this->Modified();
@@ -124,19 +126,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   if (MaskAboveCurve)
     {
-    /*
-      this->Shape->SetNumberOfPoints(dimension + 4);
-      this->Shape->SetPoint(0, 0.f, 0.f);
-      this->Shape->SetPoint(1, 0.f, values[0]);
-      this->Shape->SetPoint(dimension + 2, 1.f, values[dimension-1]);
-      this->Shape->SetPoint(dimension + 3, 1.f, 0.f);
-    */
     this->Shape->SetNumberOfPoints(dimension);
-    /*
-    this->Shape->SetNumberOfPoints(dimension + 2);
-    this->Shape->SetPoint(0, bounds[0], 0.f);
-    this->Shape->SetPoint(dimension + 1, bounds[1], 0.f);
-    */
     for (int i = 0; i < dimension; ++i)
       {
       this->Pen->GetColor(ptr);
@@ -146,6 +136,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
                             values[i] * 1.f);
       ptr+=4;
       }
+    this->Shape->Modified();
     }
   else
     {
@@ -180,6 +171,7 @@ void vtkPiecewiseFunctionItem::ScalarsToColorsModified(vtkObject* object,
     this->Shape->SetPoint(1, range[0], 1.);
     this->Shape->SetPoint(2, range[1], 1.);
     this->Shape->SetPoint(3, range[1], 0.);
+    this->Shape->Modified();
     }
   // Internally calls modified to ask for a refresh of the item
   this->Superclass::ScalarsToColorsModified(object, eid, calldata);

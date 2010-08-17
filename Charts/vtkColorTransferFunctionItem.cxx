@@ -69,6 +69,7 @@ void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunc
     {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(t, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,7 +87,6 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     vtkWarningMacro(<< "The color transfer function seems empty");
     return;
     }
-
   // Could depend of the screen resolution
   const int dimension = 256;
   double* values = new double[dimension];
@@ -134,6 +134,7 @@ void vtkColorTransferFunctionItem::ScalarsToColorsModified(vtkObject* object,
     this->Shape->SetPoint(1, range[0], bounds[3]);
     this->Shape->SetPoint(2, range[1], bounds[3]);
     this->Shape->SetPoint(3, range[1], bounds[2]);
+    this->Shape->Modified();
     }
   // Internally calls modified to ask for a refresh of the item
   this->Superclass::ScalarsToColorsModified(object, eid, calldata);
