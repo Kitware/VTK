@@ -18,7 +18,6 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkContext2D.h"
-#include "vtkContextDevice2D.h"
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
@@ -29,16 +28,13 @@
 #include "vtkChartLegend.h"
 #include "vtkTooltipItem.h"
 
-
 #include "vtksys/ios/sstream"
-
 
 class vtkChartPiePrivate
 {
   public:
     vtkChartPiePrivate()
       {
-      this->Plot = 0;
       }
 
   vtkSmartPointer<vtkPlotPie> Plot;
@@ -55,6 +51,7 @@ vtkChartPie::vtkChartPie()
   this->Legend->SetChart(this);
   this->Legend->SetVisible(false);
   this->AddItem(this->Legend);
+  this->Legend->Delete();
 
   this->Tooltip = vtkTooltipItem::New();
   this->Tooltip->SetVisible(false);
@@ -65,14 +62,8 @@ vtkChartPie::vtkChartPie()
 //-----------------------------------------------------------------------------
 vtkChartPie::~vtkChartPie()
 {
-  this->Legend->Delete();
-  this->Legend = 0;
-
   this->Tooltip->Delete();
-  this->Tooltip = 0;
-
   delete this->Private;
-  this->Private = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -114,7 +105,8 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
     // Set the dimensions of the Plot
     if (this->Private->Plot)
       {
-      this->Private->Plot->SetDimensions(20,20,this->Geometry[0]-40, this->Geometry[1]-40);
+      this->Private->Plot->SetDimensions(20, 20, this->Geometry[0]-40,
+                                         this->Geometry[1]-40);
       }
     }
 
@@ -130,17 +122,26 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
     rect->Delete();
     }
 
-  // Draw in the current mouse location...
   this->Tooltip->Paint(painter);
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartPie::SetScene(vtkContextScene *scene)
+{
+  this->vtkAbstractContextItem::SetScene(scene);
+  this->Tooltip->SetScene(scene);
+}
+
+//-----------------------------------------------------------------------------
 vtkPlot * vtkChartPie::AddPlot(int /* type */)
 {
-  this->Private->Plot = vtkSmartPointer<vtkPlotPie>::New();
-  this->AddItem(this->Private->Plot);
+  if (!this->Private->Plot)
+    {
+    this->Private->Plot = vtkSmartPointer<vtkPlotPie>::New();
+    this->AddItem(this->Private->Plot);
+    }
   return this->Private->Plot;
 }
 
@@ -167,14 +168,6 @@ vtkIdType vtkChartPie::GetNumberOfPlots()
     return 0;
     }
 }
-
-//-----------------------------------------------------------------------------
-void vtkChartPie::SetScene(vtkContextScene *scene)
-{
-  this->vtkAbstractContextItem::SetScene(scene);
-  this->Tooltip->SetScene(scene);
-}
-
 //-----------------------------------------------------------------------------
 bool vtkChartPie::Hit(const vtkContextMouseEvent &mouse)
 {

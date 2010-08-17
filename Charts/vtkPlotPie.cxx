@@ -82,6 +82,8 @@ vtkPlotPie::vtkPlotPie()
   this->ColorSeries = vtkSmartPointer<vtkColorSeries>::New();
   this->Points = 0;
   this->Private = new vtkPlotPiePrivate();
+  this->Dimensions[0] = this->Dimensions[0] = this->Dimensions[0] =
+    this->Dimensions[0] = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +125,8 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
 
   for (int i = 0; i < this->Points->GetNumberOfPoints(); ++i)
     {
-    painter->GetBrush()->SetColor(this->ColorSeries->GetColorRepeating(i).GetData());
+    painter->GetBrush()
+        ->SetColor(this->ColorSeries->GetColorRepeating(i).GetData());
 
     painter->DrawEllipseWedge(this->Private->CenterX, this->Private->CenterY,
                               this->Private->Radius, this->Private->Radius,
@@ -141,7 +144,8 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
 bool vtkPlotPie::PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex)
 {
   if (this->ColorSeries)
-    this->Brush->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
+    this->Brush
+      ->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
 
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
@@ -163,8 +167,8 @@ void vtkPlotPie::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 
     this->Private->CenterX = this->Dimensions[0] + 0.5 * this->Dimensions[2];
     this->Private->CenterY = this->Dimensions[1] + 0.5 * this->Dimensions[3];
-    this->Private->Radius  = this->Dimensions[2] < this->Dimensions[3] ? 0.5 * this->Dimensions[2]
-                                                                       : 0.5 * this->Dimensions[3];
+    this->Private->Radius  = this->Dimensions[2] < this->Dimensions[3]
+        ? 0.5 * this->Dimensions[2] : 0.5 * this->Dimensions[3];
     this->Modified();
     }
 }
@@ -213,7 +217,8 @@ int vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f&,
     int ret = lbound - angles;  // Location in the array
     ret = ret / 2;              // There are two of each angle in the array (start,end for each point)
 
-    vtkDataArray* data = this->Data->GetInputArrayToProcess(0, this->Data->GetInput());
+    vtkDataArray* data = this->Data->GetInputArrayToProcess(0,
+                                                            this->Data->GetInput());
 
     if (data)
       {
