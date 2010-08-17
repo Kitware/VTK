@@ -14,15 +14,15 @@
 =========================================================================*/
 // .NAME vtkFFMPEGWriter - Uses the FFMPEG library to write video files.
 // .SECTION Description
-// vtkFFMPEGWriter is an adapter that allows VTK to use the LGPL'd FFMPEG 
+// vtkFFMPEGWriter is an adapter that allows VTK to use the LGPL'd FFMPEG
 // library to write movie files. FFMPEG can create a variety of multimedia
-// file formats and can use a variety of encoding algorithms (codecs). 
-// This class creates .avi files containing MP43 encoded video without 
+// file formats and can use a variety of encoding algorithms (codecs).
+// This class creates .avi files containing MP43 encoded video without
 // audio.
-// 
-// The FFMPEG multimedia library source code can be obtained from 
+//
+// The FFMPEG multimedia library source code can be obtained from
 // the sourceforge web site at http://ffmpeg.sourceforge.net/download.php
-// or is a tarball along with installation instructions at 
+// or is a tarball along with installation instructions at
 // http://www.vtk.org/files/support/ffmpeg_source.tar.gz
 //
 // .SECTION See Also vtkGenericMovieWriter vtkAVIWriter vtkMPEG2Writer
@@ -59,6 +59,17 @@ public:
   // Set/Get the frame rate, in frame/s.
   vtkSetClampMacro(Rate, int , 1, 5000);
   vtkGetMacro(Rate, int);
+
+  // Description:
+  // Set/Get the bit-rate
+  vtkSetMacro(BitRate, int);
+  vtkGetMacro(BitRate, int);
+
+  // Description:
+  // Set/Get the bit-rate tolerance
+  vtkSetMacro(BitRateTolerance, int);
+  vtkGetMacro(BitRateTolerance, int);
+
 protected:
   vtkFFMPEGWriter();
   ~vtkFFMPEGWriter();
@@ -68,6 +79,8 @@ protected:
   int Initialized;
   int Quality;
   int Rate;
+  int BitRate;
+  int BitRateTolerance;
 
 private:
   vtkFFMPEGWriter(const vtkFFMPEGWriter&); // Not implemented
