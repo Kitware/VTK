@@ -101,36 +101,16 @@ static void print_preprocessor_error(int result, const char *cp, size_t n);
 "//".* ;
 
 ^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+[^(](\\\n|\\\r\n|[^\n])*  {
-     const char *name;
-     size_t i = 0;
-     size_t j = 0;
-
-     vtkParsePreprocess_HandleDirective(&preprocessor, yytext);
-
-     while (yytext[i] != 'V') { i++; }
-     j = i;
-     while ((yytext[j] >= 'a' && yytext[j] <= 'z') ||
-            (yytext[j] >= 'A' && yytext[j] <= 'Z') ||
-            (yytext[j] >= '0' && yytext[j] <= '9') ||
-            yytext[j] == '_') { j++; }
-     name = vtkstrndup(&yytext[i], j-i);
-     while (yytext[j] == ' ' || yytext[j] == '\t') { j++; }
-     for (i = j; i < (size_t)yyleng; i++)
+     int result;
+     MacroInfo *macro;
+     result = vtkParsePreprocess_HandleDirective(&preprocessor, yytext);
+     if (result == VTK_PARSE_OK)
        {
-       if (yytext[i] == '/' && (yytext[i+1] == '*' || yytext[i+1] == '/'))
+       macro = preprocessor.Macros[preprocessor.NumberOfMacros-1];
+       if (!macro->IsFunction)
          {
-         break;
+         add_constant(macro->Name, vtkstrdup(macro->Definition), 0, NULL, 1);
          }
-       }
-     while (i > 0 && (yytext[i-1] == '\n' || yytext[i-1] == '\r' ||
-                      yytext[i-1] == '\t' || yytext[i-1] == ' ')) { i--; }
-     if (i > j)
-       {
-       add_constant(name, vtkstrndup(&yytext[j], i-j), 0, NULL, 1);
-       }
-     else
-       {
-       add_constant(name, "", 0, NULL, 1);
        }
      };
 

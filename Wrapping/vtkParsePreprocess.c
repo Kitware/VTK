@@ -1077,7 +1077,7 @@ static int preproc_evaluate_equal(
     op = tokens->tok;
     if (op != TOK_EQ && op != TOK_NE)
       {
-      return 1;
+      return result;
       }
 
     preproc_next(tokens);
@@ -1483,7 +1483,7 @@ static int preproc_evaluate_define(
   int is_function;
   const char *name;
   size_t namelen;
-  const char *definition;
+  const char *definition = "";
   int i;
   int n = 0;
   const char **args = NULL;
@@ -1538,9 +1538,13 @@ static int preproc_evaluate_define(
           return VTK_PARSE_SYNTAX_ERROR;
           }
         }
+      preproc_next(tokens);
       }
 
-    definition = tokens->text;
+    if (tokens->tok)
+      {
+      definition = tokens->text;
+      }
     if (preproc_find_macro(info, name, &i))
       {
       if (args) { free((char **)args); }

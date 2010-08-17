@@ -2226,7 +2226,7 @@ literal:  literal2 {$<str>$ = $<str>1;}
              if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
              postSig(">(");
              }
-            literal2 ')'
+            literal ')'
              {
              postSig(")");
              if (getTypeId()[strlen(getTypeId())-1] == '>')
