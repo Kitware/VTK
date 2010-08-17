@@ -21,28 +21,26 @@
 
 /**
   This file provides subroutines to assist in preprocessing
-  a C/C++ header file.  It evaluates preprocessor directives
-  and stores a list of all preprocessor symbols.
+  C/C++ header files.  It evaluates preprocessor directives
+  and stores a list of all preprocessor macros.
 
-  The preprocessing is meant to be done in-line while the file
-  is being parsed, rather than being done ahead of time.  The
-  macros stored but not expanded.  Macro-like macros can be
-  evaluated using integer math, function-like macros cannot
-  be evaluated.
+  The preprocessing is done in-line while the file is being
+  parsed.  Macros that are defined in the file are stored but
+  are not automatically expanded.  The parser can query the
+  macro definitions, or can ask the preprocessor to evaluate
+  them and return an integer result.  Function-like macros
+  are not yet supported.  Since true macro expansion is not
+  done, things like symbol concatenation and conversion to
+  strings are not possible.
 
-  Since macro expansion is not done, things like concatenation
-  and conversion to strings are not possible.  The #include
-  directive cannot contain any macros.
-
-  The typical usage of this preprocessor is that the tokenizer
-  of the main parser will pass it any preprocessor directives,
-  i.e. any lines that begin with '#'.  These lines will be
-  evaluated by the preprocessor.  Conditional directives
-  will provide a "0" or "1" return value.  All directives are
-  passed as raw text.  The text can include any comments and
-  escaped newlines, and need not be null-terminated.  The
-  preprocessor will automatically stop at the first non-escaped
-  newline or null character.
+  The typical usage of this preprocessor is that the main
+  parser will pass any lines that begin with '#' to the
+  vtkParsePreprocess_HandleDirective() function, which will
+  evaluate the line and provide a return code.  The return
+  code will tell the main parser if a syntax error or macro
+  lookup error occurred, and will also let the parser know
+  if an #if or #else directive requires that the next block
+  of code be skipped.
 
   No checks are done for recursively-defined macros.  If they
   occur, the preprocessor will crash.
@@ -70,10 +68,10 @@ typedef struct _MacroInfo
   const char    *Name;
   const char    *Definition;
   const char    *Comment; /* unused */
-  int            NumberOfArguments; /* if IsFunction (unused) */
-  const char   **Arguments;  /* symbols for arguments (unused) */
-  int            IsFunction; /* is a function macro */
-  int            IsExternal; /* was from an included file */
+  int            NumberOfArguments; /* only if IsFunction == 1 */
+  const char   **Arguments;  /* symbols for arguments */
+  int            IsFunction; /* this macro takes arguments */
+  int            IsExternal; /* this macro is from an included file */
 } MacroInfo;
 
 /**
@@ -82,16 +80,16 @@ typedef struct _MacroInfo
  */
 typedef struct _PreprocessInfo
 {
-  const char    *FileName;
+  const char    *FileName;         /* the file that is being parsed */
   int            NumberOfMacros;
   MacroInfo    **Macros;
   int            NumberOfIncludeDirectories;
   const char   **IncludeDirectories;
-  int            NumberOfIncludeFiles;
+  int            NumberOfIncludeFiles; /* all included files */
   const char   **IncludeFiles;
-  int            IsExternal;
-  int            ConditionalDepth;
-  int            ConditionalDone;
+  int            IsExternal;       /* label all macros as "external" */
+  int            ConditionalDepth; /* internal state variable */
+  int            ConditionalDone;  /* internal state variable */
 } PreprocessInfo;
 
 /**
@@ -128,13 +126,14 @@ extern "C" {
 #endif
 
 /**
- * Handle a preprocessor directive.  A return value of 1 means
- * "skip all code until the next directive", a return value of 0
- * indicates a successful evaluation, and any other return value
- * indicates an error.  The preprocessor has an internal state
+ * Handle a preprocessor directive.  Return value VTK_PARSE_OK
+ * means that no errors occurred, while VTK_PARSE_SKIP means that
+ * a conditional directive was encountered and the next code
+ * block should be skipped.  The preprocessor has an internal state
  * machine that keeps track of conditional if/else/endif directives.
- * The directive string must end either with a non-escaped newline
- * or with a null.
+ * All other return values indicate errors, and it is up to the
+ * parser to decide which errors are fatal.  The preprocessor
+ * only considers syntax errors and I/O errors to be fatal.
  */
 int vtkParsePreprocess_HandleDirective(
   PreprocessInfo *info, const char *directive);
@@ -142,7 +141,11 @@ int vtkParsePreprocess_HandleDirective(
 /**
  * Evaluate a preprocessor expression, providing an integer result
  * in "val", and whether it is unsigned in "is_unsigned".  A return
- * value of 0 means that no errors occurred.
+ * value of VTK_PARSE_OK means that no errors occurred, while
+ * VTK_PREPROC_DOUBLE, VTK_PREPROC_FLOAT, and VTK_PREPROC_STRING
+ * indicate that the preprocessor encountered a non-integer value.
+ * Error return values are VTK_PARSE_MACRO_UNDEFINED and
+ * VTK_PARSE_SYNTAX_ERRORS.  Undefined macros evaluate to zero.
  */
 int vtkParsePreprocess_EvaluateExpression(
   PreprocessInfo *info, const char *text,
@@ -150,21 +153,22 @@ int vtkParsePreprocess_EvaluateExpression(
 
 /**
  * Add all standard preprocessor symbols. Use VTK_PARSE_NATIVE
- * as the platform unless you are crosscompiling.
+ * as the platform.  In the future, other platform specifiers
+ * might be added to allow crosscompiling.
  */
 void vtkParsePreprocess_AddStandardMacros(
   PreprocessInfo *info, int platform);
 
 /**
- * Add a preprocessor symbol, including a definition.  A non-zero
- * return value means that the symbol was already present.
+ * Add a preprocessor symbol, including a definition.  Return
+ * values are VTK_PARSE_OK and VTK_PARSE_MACRO_REDEFINED.
  */
 int vtkParsePreprocess_AddMacro(
   PreprocessInfo *info, const char *name, const char *definition);
 
 /**
- * Remove a preprocessor symbol.  A non-zero return value means that
- * the symbol was not present.
+ * Remove a preprocessor symbol.  Return values are VTK_PARSE_OK
+ * and VTK_PARSE_MACRO_UNDEFINED.
  */
 int vtkParsePreprocess_RemoveMacro(
   PreprocessInfo *info, const char *name);
@@ -184,9 +188,10 @@ void vtkParsePreprocess_IncludeDirectory(
 
 /**
  * Find an include file in the path.  If system_first is set, then
- * the current directory is ignored unless it is explicitly in the path.
- * A null return value indicates that the file was not found.
- * If already_loaded is set, then the file was already loaded.
+ * the current directory is ignored unless it is explicitly in the
+ * path.  A null return value indicates that the file was not found.
+ * If already_loaded is set, then the file was already loaded.  This
+ * preprocessor never loads the same file twice.
  */
 const char *vtkParsePreprocess_FindIncludeFile(
   PreprocessInfo *info, const char *filename, int system_first,
