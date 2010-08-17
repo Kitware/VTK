@@ -255,7 +255,7 @@ int vtkAppendFilter::RequestData(
           {
           vtkIdType nfaces, *facePtIds;
           ug->GetFaceStream(cellId,nfaces,facePtIds);
-          for(vtkIdType i=0; i < nfaces; ++i)
+          for(vtkIdType id=0; id < nfaces; ++id)
             {
             vtkIdType nPoints = *facePtIds;
             newPtIds->InsertNextId(nPoints);
@@ -475,7 +475,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
           vtkUnstructuredGrid * ug = vtkUnstructuredGrid::SafeDownCast(ds);
           vtkIdType nfaces, *facePtIds;
           ug->GetFaceStream(cellId, nfaces, facePtIds);
-          for (vtkIdType i = 0; i < nfaces; i++)
+          for (vtkIdType id = 0; id < nfaces; id++)
             {
             vtkIdType nPoints = facePtIds[0];
             newPtIds->InsertNextId(nPoints);
