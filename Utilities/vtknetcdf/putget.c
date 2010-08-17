@@ -11494,7 +11494,7 @@ RENAME(get_varm )(
 {
   int status;
   nc_type vartype;
-  size_t varndims;
+  int varndims;
   ptrdiff_t *cvtmap = NULL;
 
   status = nc_inq_vartype(ncid, varid, &vartype);
@@ -11591,7 +11591,7 @@ nc_put_varm (
 {
   int status;
   nc_type vartype;
-  size_t varndims;
+  int varndims;
   ptrdiff_t *cvtmap = NULL;
 
   status = nc_inq_vartype(ncid, varid, &vartype);
