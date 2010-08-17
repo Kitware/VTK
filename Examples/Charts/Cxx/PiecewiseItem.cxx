@@ -30,6 +30,7 @@ int main(int, char *[])
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
+  view->GetRenderWindow()->SetMultiSamples(0);
 
   vtkSmartPointer<vtkPiecewiseFunction> source = vtkSmartPointer<vtkPiecewiseFunction>::New();
   source->AddPoint(0,0);
