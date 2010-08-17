@@ -2,29 +2,24 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: nc.h,v 2.90 2009/02/24 21:12:40 dmh Exp $ */
 #ifndef _NC_H_
 #define _NC_H_
 
 /*
  *  netcdf library 'private' data structures, objects and interfaces
  */
-#include "ncconfig.h"
-
-/* If netcdf-4 is in use, rename all nc_ functions to nc3_ functions. */
-#ifdef USE_NETCDF4
-#include <netcdf3.h>
-#include <nc3convert.h>
-#endif
+#include <ncconfig.h>
 
 #include  <stddef.h>  /* size_t */
-#ifndef NO_SYS_TYPES_H
-#  include <sys/types.h> /* off_t */
-#endif /* NO_SYS_TYPES_H */
+#include  <sys/types.h>  /* off_t */
 #include  "netcdf.h"
 #include  "ncio.h"  /* ncio */
 #include  "fbits.h"
 
+/*#ifndef HAVE_SSIZE_T
+#define ssize_t int
+#endif*/
 
 #ifndef NC_ARRAY_GROWBY
 #define NC_ARRAY_GROWBY 4
@@ -44,10 +39,10 @@ typedef struct NC NC; /* forward reference */
  */
 typedef enum {
   NC_UNSPECIFIED = 0,
-/* future NC_BITFIELD = 7, */
-/*  NC_STRING = 8,  */
+/* future  NC_BITFIELD = 7, */
+/*  NC_STRING =  8,  */
   NC_DIMENSION =  10,
-  NC_VARIABLE = 11,
+  NC_VARIABLE =  11,
   NC_ATTRIBUTE =  12
 } NCtype;
 
@@ -124,12 +119,12 @@ elem_NC_dimarray(const NC_dimarray *ncap, size_t elem);
  * NC attribute
  */
 typedef struct {
-  size_t xsz;   /* amount of space at xvalue */
+  size_t xsz;    /* amount of space at xvalue */
   /* below gets xdr'd */
   NC_string *name;
-  nc_type type;   /* the discriminant */
+  nc_type type;    /* the discriminant */
   size_t nelems;    /* length of the array */
-  void *xvalue;   /* the actual data, in external representation */
+  void *xvalue;    /* the actual data, in external representation */
 } NC_attr;
 
 typedef struct NC_attrarray {
@@ -175,17 +170,17 @@ elem_NC_attrarray(const NC_attrarray *ncap, size_t elem);
  * NC variable: description and data
  */
 typedef struct {
-  size_t xsz;   /* xszof 1 element */
+  size_t xsz;    /* xszof 1 element */
   size_t *shape; /* compiled info: dim->size of each dim */
   size_t *dsizes; /* compiled info: the right to left product of shape */
   /* below gets xdr'd */
   NC_string *name;
   /* next two: formerly NC_iarray *assoc */ /* user definition */
-  size_t ndims; /* assoc->count */
+  size_t ndims;  /* assoc->count */
   int *dimids;  /* assoc->value */
   NC_attrarray attrs;
-  nc_type type;   /* the discriminant */
-  size_t len;   /* the total length originally allocated */
+  nc_type type;    /* the discriminant */
+  size_t len;    /* the total length originally allocated */
   off_t begin;
 } NC_var;
 
@@ -241,7 +236,7 @@ NC_lookupvar(NC *ncp, int varid);
  * for whenever the SHMEM functions can handle other than shorts
  */
 typedef unsigned short int  ushmem_t;
-typedef short int    shmem_t;
+typedef short int     shmem_t;
 #endif
 
 struct NC {
@@ -253,15 +248,19 @@ struct NC {
   /* flags */
 #define NC_CREAT 2  /* in create phase, cleared by ncendef */
 #define NC_INDEF 8  /* in define mode, cleared by ncendef */
-#define NC_NSYNC 0x10 /* synchronise numrecs on change */
-#define NC_HSYNC 0x20 /* synchronise whole header on change */
+#define NC_NSYNC 0x10  /* synchronise numrecs on change */
+#define NC_HSYNC 0x20  /* synchronise whole header on change */
 #define NC_NDIRTY 0x40  /* numrecs has changed */
 #define NC_HDIRTY 0x80  /* header info has changed */
 /*  NC_NOFILL in netcdf.h, historical interface */
   int flags;
   ncio *nciop;
-  size_t chunk; /* largest extent this layer will request from ncio->get() */
-  size_t xsz; /* external size of this header, == var[0].begin */
+#ifdef USE_DAP
+  struct NCDRNO* drno;
+  struct NC_Dispatch3* dispatch;
+#endif
+  size_t chunk;  /* largest extent this layer will request from ncio->get() */
+  size_t xsz;  /* external size of this header, == var[0].begin */
   off_t begin_var; /* position of the first (non-record) var */
   off_t begin_rec; /* position of the first 'record' */
         /* don't constrain maximum size of record unnecessarily */
@@ -279,9 +278,9 @@ struct NC {
 /* size and named indexes for the lock array protecting NC.numrecs */
 #  define LOCKNUMREC_DIM  4
 #  define LOCKNUMREC_VALUE  0
-#  define LOCKNUMREC_LOCK 1
+#  define LOCKNUMREC_LOCK  1
 #  define LOCKNUMREC_SERVING  2
-#  define LOCKNUMREC_BASEPE 3
+#  define LOCKNUMREC_BASEPE  3
   /* Used on Cray T3E MPP to maintain the
    * integrity of numrecs for an unlimited dimension
    */
@@ -296,7 +295,7 @@ struct NC {
   fIsSet((ncp)->flags, NC_CREAT)
 
 #define NC_indef(ncp) \
-  (NC_IsNew(ncp) || fIsSet((ncp)->flags, NC_INDEF)) 
+  (NC_IsNew(ncp) || fIsSet((ncp)->flags, NC_INDEF))
 
 #define set_NC_ndirty(ncp) \
   fSet((ncp)->flags, NC_NDIRTY)

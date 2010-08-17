@@ -2,7 +2,7 @@
  *  Copyright 1997, University Corporation for Atmospheric Research
  *  See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: onstack.h,v 2.7 2006/09/15 20:40:39 ed Exp $ */
 
 #ifndef _ONSTACK_H_
 #define _ONSTACK_H_
@@ -12,11 +12,11 @@
  * "allocate" arrays on the stack where possible.
  * (Where not possible, malloc and free are used.)
  *
- * The macro ALLOC_ONSTACK(name, type, nelems) is used to declare 
+ * The macro ALLOC_ONSTACK(name, type, nelems) is used to declare
  * an array of 'type' named 'name' which is 'nelems' long.
  * FREE_ONSTACK(name) is placed at the end of the scope of 'name'
  * to call 'free' if necessary.
- * 
+ *
  * The macro ALLOC_ONSTACK wraps a call to alloca() on most systems.
  */
 
@@ -68,5 +68,5 @@
   free(name)
 
 #endif
-  
+
 #endif /* _ONSTACK_H_ */

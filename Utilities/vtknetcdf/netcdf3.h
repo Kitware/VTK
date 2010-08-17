@@ -1,9 +1,9 @@
 /*
  * Copyright 1993-1996 University Corporation for Atmospheric Research/Unidata
- * 
- * Portions of this software were developed by the Unidata Program at the 
+ *
+ * Portions of this software were developed by the Unidata Program at the
  * University Corporation for Atmospheric Research.
- * 
+ *
  * Access and use of this software shall impose the following obligations
  * and understandings on the user. The user is granted the right, without
  * any fee or cost, to use, copy, modify, alter, enhance and distribute
@@ -20,7 +20,7 @@
  * any support, consulting, training or assistance of any kind with regard
  * to the use, operation and performance of this software nor to provide
  * the user with any updates, revisions, new versions or "bug fixes."
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY UCAR/UNIDATA "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,8 +30,8 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-/* "Id" */
-
+/* "$Id: netcdf3.h,v 2.3 2008/03/28 20:50:28 dmh Exp $" */
+
 #ifndef _NETCDF3_
 #define _NETCDF3_
 
@@ -74,7 +74,7 @@ EXTERNL int
 nc3_create(const char *path, int cmode, int *ncidp);
 
 EXTERNL int
-nc3__open(const char *path, int mode, 
+nc3__open(const char *path, int mode,
   size_t *chunksizehintp, int *ncidp);
 
 EXTERNL int
@@ -111,16 +111,16 @@ nc3_close(int ncid);
 EXTERNL int
 nc3_inq(int ncid, int *ndimsp, int *nvarsp, int *nattsp, int *unlimdimidp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_ndims(int ncid, int *ndimsp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_nvars(int ncid, int *nvarsp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_natts(int ncid, int *nattsp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_unlimdim(int ncid, int *unlimdimidp);
 
 /* Begin _dim */
@@ -134,10 +134,10 @@ nc3_inq_dimid(int ncid, const char *name, int *idp);
 EXTERNL int
 nc3_inq_dim(int ncid, int dimid, char *name, size_t *lenp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_dimname(int ncid, int dimid, char *name);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_dimlen(int ncid, int dimid, size_t *lenp);
 
 EXTERNL int
@@ -150,13 +150,13 @@ EXTERNL int
 nc3_inq_att(int ncid, int varid, const char *name,
    nc_type *xtypep, size_t *lenp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_attid(int ncid, int varid, const char *name, int *idp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_atttype(int ncid, int varid, const char *name, nc_type *xtypep);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_attlen(int ncid, int varid, const char *name, size_t *lenp);
 
 EXTERNL int
@@ -173,6 +173,13 @@ nc3_del_att(int ncid, int varid, const char *name);
 
 /* End _att */
 /* Begin {put,get}_att */
+
+EXTERNL int
+nc3_put_att(int ncid, int varid, const char *name, nc_type datatype,
+     size_t len, const void *value);
+
+EXTERNL int
+nc3_get_att(int ncid, int varid, const char *name, void *value);
 
 EXTERNL int
 nc3_put_att_text(int ncid, int varid, const char *name,
@@ -244,19 +251,19 @@ nc3_inq_var(int ncid, int varid, char *name,
 EXTERNL int
 nc3_inq_varid(int ncid, const char *name, int *varidp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_varname(int ncid, int varid, char *name);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_vartype(int ncid, int varid, nc_type *xtypep);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_varndims(int ncid, int varid, int *ndimsp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_vardimid(int ncid, int varid, int *dimidsp);
 
-EXTERNL int 
+EXTERNL int
 nc3_inq_varnatts(int ncid, int varid, int *nattsp);
 
 EXTERNL int
@@ -271,6 +278,12 @@ nc3_copy_var(int ncid_in, int varid, int ncid_out);
 
 /* End _var */
 /* Begin {put,get}_var1 */
+
+EXTERNL int
+nc3_put_var1(int ncid, int varid, const size_t *indexp, const void *value);
+
+EXTERNL int
+nc3_get_var1(int ncid, int varid, const size_t *indexp, void *value);
 
 EXTERNL int
 nc3_put_var1_text(int ncid, int varid, const size_t *indexp, const char *op);
@@ -328,6 +341,14 @@ nc3_get_var1_double(int ncid, int varid, const size_t *indexp, double *ip);
 
 /* End {put,get}_var1 */
 /* Begin {put,get}_vara */
+
+EXTERNL int
+nc3_put_vara(int ncid, int varid,
+   const size_t *start, const size_t *count, const void *value);
+
+EXTERNL int
+nc3_get_vara(int ncid, int varid,
+   const size_t *start, const size_t *count, void *value);
 
 EXTERNL int
 nc3_put_vara_text(int ncid, int varid,
@@ -395,6 +416,22 @@ nc3_get_vara_double(int ncid, int varid,
 
 /* End {put,get}_vara */
 /* Begin {put,get}_vars */
+
+/* Why were these two not here originally?*/
+EXTERNL int
+nc3_put_vars(int ncid, int varid,
+   const size_t *start, const size_t *count, const ptrdiff_t *stride,
+   const void * value);
+
+EXTERNL int
+nc3_get_vars(int ncid, int varid,
+   const size_t *start, const size_t *count, const ptrdiff_t *stride,
+   void * value);
+
+EXTERNL int
+nc_put_vars_text(int ncid, int varid,
+  const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
+  const char *op);
 
 EXTERNL int
 nc3_put_vars_text(int ncid, int varid,
@@ -480,99 +517,108 @@ nc3_get_vars_double(int ncid, int varid,
 /* Begin {put,get}_varm */
 
 EXTERNL int
+nc3_put_varm(int ncid, int varid, const size_t *start, const size_t *count,
+            const ptrdiff_t *stride, const ptrdiff_t *imapp,
+      const void *value);
+
+EXTERNL int
+nc3_get_varm(int ncid, int varid, const size_t *start, const size_t *count,
+      const ptrdiff_t *stride, const ptrdiff_t *imapp, void *value);
+
+EXTERNL int
 nc3_put_varm_text(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const char *op);
 
 EXTERNL int
 nc3_get_varm_text(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   char *ip);
 
 EXTERNL int
 nc3_put_varm_uchar(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const unsigned char *op);
 
 EXTERNL int
 nc3_get_varm_uchar(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   unsigned char *ip);
 
 EXTERNL int
 nc3_put_varm_schar(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const signed char *op);
 
 EXTERNL int
 nc3_get_varm_schar(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   signed char *ip);
 
 EXTERNL int
 nc3_put_varm_short(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const short *op);
 
 EXTERNL int
 nc3_get_varm_short(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   short *ip);
 
 EXTERNL int
 nc3_put_varm_int(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const int *op);
 
 EXTERNL int
 nc3_get_varm_int(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   int *ip);
 
 EXTERNL int
 nc3_put_varm_long(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const long *op);
 
 EXTERNL int
 nc3_get_varm_long(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   long *ip);
 
 EXTERNL int
 nc3_put_varm_float(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const float *op);
 
 EXTERNL int
 nc3_get_varm_float(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   float *ip);
 
 EXTERNL int
 nc3_put_varm_double(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t *imapp, 
+  const ptrdiff_t *imapp,
   const double *op);
 
 EXTERNL int
 nc3_get_varm_double(int ncid, int varid,
   const size_t *startp, const size_t *countp, const ptrdiff_t *stridep,
-  const ptrdiff_t * imap, 
+  const ptrdiff_t * imap,
   double *ip);
 
 /* End {put,get}_varm */
@@ -664,13 +710,15 @@ nc3_inq_base_pe(int ncid, int *pe);
 
 
 /* Begin v2.4 backward compatiblity */
+#ifndef NO_NETCDF_2
+
 EXTERNL void
 nc3_advise(const char *cdf_routine_name, int err, const char *fmt,...);
 
 /*
  * C data type corresponding to a netCDF NC_LONG argument,
  * a signed 32 bit object.
- * 
+ *
  * This is the only thing in this file which architecture dependent.
  */
 
@@ -761,7 +809,7 @@ nc3varput(int ncid, int varid, const long *startp, const long *countp,
   const void *op);
 
 EXTERNL int
-nc3varget(int ncid, int varid, const long *startp, const long *countp, 
+nc3varget(int ncid, int varid, const long *startp, const long *countp,
   void *ip);
 
 EXTERNL int
@@ -797,5 +845,6 @@ nc3recput(int ncid, long recnum, void *const *datap);
 
 #if defined(__cplusplus)
 }
+#endif
 #endif
 

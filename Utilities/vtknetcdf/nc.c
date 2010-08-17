@@ -2,9 +2,10 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: nc.c,v 2.159 2010/04/11 04:15:39 dmh Exp $ */
 
 #include "nc.h"
+#include "rename.h"
 #include "rnd.h"
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,9 @@
 #if defined(LOCKNUMREC) /* && _CRAYMPP */
 #  include <mpp/shmem.h>
 #  include <intrinsics.h>
+#endif
+#ifdef HAVE_UNISTD
+#include <unistd.h>
 #endif
 
 #ifdef __BORLANDC__
@@ -24,7 +28,6 @@
 #  pragma warning ( disable : 4127 ) /* conditional expression is constant */
 #  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
 #endif /* MSVC 7.1 */
-
 
 /* list of open netcdf's */
 static NC *NClist = NULL;
@@ -128,7 +131,7 @@ new_NC(const size_t *chunkp)
 
   ncp->xsz = MIN_NC_XSZ;
   assert(ncp->xsz == ncx_len_NC(ncp,0));
-  
+
   ncp->chunk = chunkp != NULL ? *chunkp : NC_SIZEHINT_DEFAULT;
 
   return ncp;
@@ -185,8 +188,6 @@ nc_cktype(nc_type type)
   case NC_FLOAT:
   case NC_DOUBLE:
     return(NC_NOERR);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
   }
   return(NC_EBADTYPE);
 }
@@ -211,14 +212,13 @@ ncx_howmany(nc_type type, size_t xbufsize)
     return xbufsize/X_SIZEOF_FLOAT;
   case NC_DOUBLE:
     return xbufsize/X_SIZEOF_DOUBLE;
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_howmany: Bad type" == 0);
+    return(0);
   }
-  assert("ncx_howmany: Bad type" == 0);
-  return(0);
 }
 
-#define D_RNDUP(x, align) _RNDUP(x, (off_t)(align))
+#define  D_RNDUP(x, align) _RNDUP(x, (off_t)(align))
 
 /*
  * Compute each variable's 'begin' offset,
@@ -231,7 +231,7 @@ NC_begins(NC *ncp,
 {
   size_t ii;
   int sizeof_off_t;
-  off_t index2;
+  off_t index = 0;
   NC_var **vpp;
   NC_var *last = NULL;
 
@@ -245,25 +245,25 @@ NC_begins(NC *ncp,
   } else {
     sizeof_off_t = 4;
   }
-  
+
   ncp->xsz = ncx_len_NC(ncp,sizeof_off_t);
 
-  if(ncp->vars.nelems == 0) 
+  if(ncp->vars.nelems == 0)
     return NC_NOERR;
 
   /* only (re)calculate begin_var if there is not sufficient space in header
      or start of non-record variables is not aligned as requested by valign */
-  if ((size_t)ncp->begin_var < ncp->xsz + h_minfree ||
-      ncp->begin_var != D_RNDUP(ncp->begin_var, v_align) ) 
+  if (ncp->begin_var < ncp->xsz + h_minfree ||
+      ncp->begin_var != D_RNDUP(ncp->begin_var, v_align) )
   {
-    index2 = (off_t) ncp->xsz;
-    ncp->begin_var = D_RNDUP(index2, v_align);
-    if(ncp->begin_var < index2 + (off_t)h_minfree)
+    index = (off_t) ncp->xsz;
+    ncp->begin_var = D_RNDUP(index, v_align);
+    if(ncp->begin_var < index + h_minfree)
     {
-      ncp->begin_var = D_RNDUP(index2 + (off_t)h_minfree, v_align);
+      ncp->begin_var = D_RNDUP(index + (off_t)h_minfree, v_align);
     }
   }
-  index2 = ncp->begin_var;
+  index = ncp->begin_var;
 
   /* loop thru vars, first pass is for the 'non-record' vars */
   vpp = ncp->vars.value;
@@ -275,29 +275,29 @@ NC_begins(NC *ncp,
       continue;
     }
 #if 0
-fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index2);
+fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 #endif
-                if( sizeof_off_t == 4 && (index2 > X_OFF_MAX || index2 < 0) ) 
+                if( sizeof_off_t == 4 && (index > X_OFF_MAX || index < 0) )
     {
         return NC_EVARSIZE;
                 }
-    (*vpp)->begin = index2;
-    index2 += (*vpp)->len;
+    (*vpp)->begin = index;
+    index += (*vpp)->len;
   }
 
   /* only (re)calculate begin_rec if there is not sufficient
      space at end of non-record variables or if start of record
      variables is not aligned as requested by r_align */
-  if (ncp->begin_rec < index2 + (off_t)v_minfree ||
+  if (ncp->begin_rec < index + v_minfree ||
       ncp->begin_rec != D_RNDUP(ncp->begin_rec, r_align) )
   {
-    ncp->begin_rec = D_RNDUP(index2, r_align);
-    if(ncp->begin_rec < index2 + (off_t)v_minfree)
+    ncp->begin_rec = D_RNDUP(index, r_align);
+    if(ncp->begin_rec < index + v_minfree)
     {
-      ncp->begin_rec = D_RNDUP(index2 + (off_t)v_minfree, r_align);
+      ncp->begin_rec = D_RNDUP(index + (off_t)v_minfree, r_align);
     }
   }
-  index2 = ncp->begin_rec;
+  index = ncp->begin_rec;
 
   ncp->recsize = 0;
 
@@ -312,14 +312,14 @@ fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index2);
     }
 
 #if 0
-fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index2);
+fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 #endif
-                if( sizeof_off_t == 4 && (index2 > X_OFF_MAX || index2 < 0) ) 
+                if( sizeof_off_t == 4 && (index > X_OFF_MAX || index < 0) )
     {
         return NC_EVARSIZE;
                 }
-    (*vpp)->begin = index2;
-    index2 += (*vpp)->len;
+    (*vpp)->begin = index;
+    index += (*vpp)->len;
     /* check if record size must fit in 32-bits */
 #if SIZEOF_OFF_T == SIZEOF_SIZE_T && SIZEOF_SIZE_T == 4
     if( ncp->recsize > X_UINT_MAX - (*vpp)->len )
@@ -350,7 +350,7 @@ fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index2);
 int
 read_numrecs(NC *ncp)
 {
-  int status;
+  int status = NC_NOERR;
   const void *xp = NULL;
   size_t nrecs = NC_get_numrecs(ncp);
 
@@ -385,7 +385,7 @@ read_numrecs(NC *ncp)
 int
 write_numrecs(NC *ncp)
 {
-  int status;
+  int status = NC_NOERR;
   void *xp = NULL;
 
   assert(!NC_readonly(ncp));
@@ -417,7 +417,7 @@ write_numrecs(NC *ncp)
 static int
 read_NC(NC *ncp)
 {
-  int status;
+  int status = NC_NOERR;
 
   free_NC_dimarrayV(&ncp->dims);
   free_NC_attrarrayV(&ncp->attrs);
@@ -438,7 +438,7 @@ read_NC(NC *ncp)
 static int
 write_NC(NC *ncp)
 {
-  int status;
+  int status = NC_NOERR;
 
   assert(!NC_readonly(ncp));
 
@@ -513,42 +513,39 @@ static int
 fill_added_recs(NC *gnu, NC *old)
 {
   NC_var ** const gnu_varpp = (NC_var **)gnu->vars.value;
-  /* NC_var *const *const gnu_end = &gnu_varpp[gnu->vars.nelems]; */
 
   const int old_nrecs = (int) NC_get_numrecs(old);
   int recno = 0;
   NC_var **vpp = gnu_varpp;
   NC_var *const *const end = &vpp[gnu->vars.nelems];
   int numrecvars = 0;
-  NC_var *recvarp;
 
   /* Determine if there is only one record variable.  If so, we
      must treat as a special case because there's no record padding */
   for(; vpp < end; vpp++) {
       if(IS_RECVAR(*vpp)) {
-        recvarp = *vpp;
-        numrecvars++;
+    numrecvars++;
       }
   }
 
   for(; recno < old_nrecs; recno++)
       {
-      int varid = (int)old->vars.nelems;
-      for(; varid < (int)gnu->vars.nelems; varid++)
+    int varid = (int)old->vars.nelems;
+    for(; varid < (int)gnu->vars.nelems; varid++)
         {
-        const NC_var *const gnu_varp = *(gnu_varpp + varid);
-        if(!IS_RECVAR(gnu_varp))
+      const NC_var *const gnu_varp = *(gnu_varpp + varid);
+      if(!IS_RECVAR(gnu_varp))
           {
-          /* skip non-record variables */
-          continue;
+        /* skip non-record variables */
+        continue;
           }
-        /* else */
-          {
+      /* else */
+      {
           size_t varsize = numrecvars == 1 ? gnu->recsize :  gnu_varp->len;
           const int status = fill_NC_var(gnu, gnu_varp, varsize, recno);
           if(status != NC_NOERR)
-            return status;
-          }
+        return status;
+      }
         }
       }
   return NC_NOERR;
@@ -583,7 +580,7 @@ fill_added(NC *gnu, NC *old)
 
 
 /*
- * Move the records "out". 
+ * Move the records "out".
  * Fill as needed.
  */
 static int
@@ -599,7 +596,7 @@ move_recs_r(NC *gnu, NC *old)
   off_t gnu_off;
   off_t old_off;
   const size_t old_nrecs = NC_get_numrecs(old);
-  
+
   /* Don't parallelize this loop */
   for(recno = (int)old_nrecs -1; recno >= 0; recno--)
   {
@@ -623,13 +620,13 @@ move_recs_r(NC *gnu, NC *old)
       continue;   /* nothing to do */
 
     assert(gnu_off > old_off);
-  
+
     status = gnu->nciop->move(gnu->nciop, gnu_off, old_off,
        old_varp->len, 0);
 
     if(status != NC_NOERR)
       return status;
-    
+
   }
   }
 
@@ -640,7 +637,7 @@ move_recs_r(NC *gnu, NC *old)
 
 
 /*
- * Move the "non record" variables "out". 
+ * Move the "non record" variables "out".
  * Fill as needed.
  */
 static int
@@ -654,7 +651,7 @@ move_vars_r(NC *gnu, NC *old)
   NC_var *old_varp;
   off_t gnu_off;
   off_t old_off;
-  
+
   /* Don't parallelize this loop */
   for(varid = (int)old->vars.nelems -1;
      varid >= 0; varid--)
@@ -670,7 +667,7 @@ move_vars_r(NC *gnu, NC *old)
     old_varp = *(old_varpp + varid);
     gnu_off = gnu_varp->begin;
     old_off = old_varp->begin;
-  
+
     if(gnu_off == old_off)
       continue;   /* nothing to do */
 
@@ -681,7 +678,7 @@ move_vars_r(NC *gnu, NC *old)
 
     if(status != NC_NOERR)
       return status;
-    
+
   }
 
   return NC_NOERR;
@@ -689,7 +686,7 @@ move_vars_r(NC *gnu, NC *old)
 
 
 /*
- * Given a valid ncp, return NC_EVARSIZE if any variable has a bad len 
+ * Given a valid ncp, return NC_EVARSIZE if any variable has a bad len
  * (product of non-rec dim sizes too large), else return NC_NOERR.
  */
 static int
@@ -705,15 +702,15 @@ NC_check_vlens(NC *ncp)
     size_t rec_vars_count;
     int last = 0;
 
-    if(ncp->vars.nelems == 0) 
-      return NC_NOERR;
+    if(ncp->vars.nelems == 0)
+  return NC_NOERR;
 
     if ((ncp->flags & NC_64BIT_OFFSET) && sizeof(off_t) > 4) {
-      /* CDF2 format and LFS */
-      vlen_max = X_UINT_MAX - 3; /* "- 3" handles rounded-up size */
+  /* CDF2 format and LFS */
+  vlen_max = X_UINT_MAX - 3; /* "- 3" handles rounded-up size */
     } else {
-      /* CDF1 format */
-      vlen_max = X_INT_MAX - 3;
+  /* CDF1 format */
+  vlen_max = X_INT_MAX - 3;
     }
     /* Loop through vars, first pass is for non-record variables.   */
     large_vars_count = 0;
@@ -730,13 +727,13 @@ NC_check_vlens(NC *ncp)
     rec_vars_count++;
   }
     }
-    /* OK if last non-record variable size too large, since not used to 
+    /* OK if last non-record variable size too large, since not used to
        compute an offset */
     if( large_vars_count > 1) { /* only one "too-large" variable allowed */
       return NC_EVARSIZE;
     }
-    /* and it has to be the last one */ 
-    if( large_vars_count == 1 && last == 0) { 
+    /* and it has to be the last one */
+    if( large_vars_count == 1 && last == 0) {
       return NC_EVARSIZE;
     }
     if( rec_vars_count > 0 ) {
@@ -756,13 +753,13 @@ NC_check_vlens(NC *ncp)
     }
       }
   }
-  /* OK if last record variable size too large, since not used to 
+  /* OK if last record variable size too large, since not used to
      compute an offset */
   if( large_vars_count > 1) { /* only one "too-large" variable allowed */
       return NC_EVARSIZE;
   }
-  /* and it has to be the last one */ 
-  if( large_vars_count == 1 && last == 0) { 
+  /* and it has to be the last one */
+  if( large_vars_count == 1 && last == 0) {
       return NC_EVARSIZE;
   }
     }
@@ -780,7 +777,7 @@ NC_endef(NC *ncp,
   size_t h_minfree, size_t v_align,
   size_t v_minfree, size_t r_align)
 {
-  int status;
+  int status = NC_NOERR;
 
   assert(!NC_readonly(ncp));
   assert(NC_indef(ncp));
@@ -812,11 +809,11 @@ NC_endef(NC *ncp,
         status = move_vars_r(ncp, ncp->old);
         if(status != NC_NOERR)
           return status;
-      } 
+      }
       /* else if (ncp->begin_var == ncp->old->begin_var) { NOOP } */
     }
     else
-    { /* Even if (ncp->begin_rec == ncp->old->begin_rec)
+    {  /* Even if (ncp->begin_rec == ncp->old->begin_rec)
          and     (ncp->begin_var == ncp->old->begin_var)
          might still have added a new record variable */
             if(ncp->recsize > ncp->old->recsize)
@@ -840,7 +837,7 @@ NC_endef(NC *ncp,
       status = fillerup(ncp);
       if(status != NC_NOERR)
         return status;
-      
+
     }
     else if(ncp->vars.nelems > ncp->old->vars.nelems)
     {
@@ -889,36 +886,32 @@ NC_calcsize(NC *ncp, off_t *calcsizep)
   NC_var **vpp = (NC_var **)ncp->vars.value;
   NC_var *const *const end = &vpp[ncp->vars.nelems];
   NC_var *last_fix = NULL;  /* last "non-record" var */
-  NC_var *last_rec;         /* last "record" var */
-  /*NC_var *last_var;*/
   int status;
-  int numrecvars = 0; /* number of record variables */
+  int numrecvars = 0;  /* number of record variables */
 
-  if(ncp->vars.nelems == 0) { /* no non-record variables and 
+  if(ncp->vars.nelems == 0) { /* no non-record variables and
                no record variables */
       *calcsizep = ncp->xsz; /* size of header */
       return NC_NOERR;
   }
 
   for( /*NADA*/; vpp < end; vpp++) {
-    status = NC_var_shape(*vpp, &ncp->dims);
-    if(status != NC_NOERR)
-      return status;
-    if(IS_RECVAR(*vpp)) {
-      last_rec = *vpp;
-      numrecvars++;
-    } else {
-      last_fix = *vpp;
-    }
+      status = NC_var_shape(*vpp, &ncp->dims);
+      if(status != NC_NOERR)
+    return status;
+      if(IS_RECVAR(*vpp)) {
+    numrecvars++;
+      } else {
+    last_fix = *vpp;
+      }
   }
 
   if(numrecvars == 0) {
-    assert(last_fix != NULL);
-    *calcsizep = last_fix->begin + last_fix->len;
-    /*last_var = last_fix;*/
+      assert(last_fix != NULL);
+      *calcsizep = last_fix->begin + last_fix->len;
+      /*last_var = last_fix;*/
   } else {       /* we have at least one record variable */
-    *calcsizep = ncp->begin_rec + ncp->numrecs * ncp->recsize;
-    /*last_var = last_rec;*/
+      *calcsizep = ncp->begin_rec + ncp->numrecs * ncp->recsize;
   }
 
   return NC_NOERR;
@@ -935,13 +928,13 @@ nc__create(const char * path, int ioflags, size_t initialsz,
 }
 
 int
-nc__create_mp(const char * path, int ioflags, size_t initialsz, int basepe,
+RENAME(_create_mp)(const char * path, int ioflags, size_t initialsz, int basepe,
   size_t *chunksizehintp, int *ncid_ptr)
 {
   NC *ncp;
   int status;
   void *xp = NULL;
-  int sizeof_off_t;
+  int sizeof_off_t = 0;
 
 #if ALWAYS_NC_SHARE /* DEBUG */
   fSet(ioflags, NC_SHARE);
@@ -977,7 +970,7 @@ nc__create_mp(const char * path, int ioflags, size_t initialsz, int basepe,
   }
 
   assert(ncp->xsz == ncx_len_NC(ncp,sizeof_off_t));
-  
+
   status = ncio_create(path, ioflags,
     initialsz,
     0, ncp->xsz, &ncp->chunk,
@@ -1064,7 +1057,7 @@ nc__open(const char * path, int ioflags,
 }
 
 int
-nc__open_mp(const char * path, int ioflags, int basepe,
+RENAME(_open_mp)(const char * path, int ioflags, int basepe,
   size_t *chunksizehintp, int *ncid_ptr)
 {
   NC *ncp;
@@ -1138,14 +1131,14 @@ nc_open(const char * path, int ioflags, int *ncid_ptr)
 
 
 int
-nc__enddef(int ncid,
+RENAME(_enddef)(int ncid,
   size_t h_minfree, size_t v_align,
   size_t v_minfree, size_t r_align)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1156,12 +1149,12 @@ nc__enddef(int ncid,
 }
 
 int
-nc_enddef(int ncid)
+RENAME(enddef)(int ncid)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1174,12 +1167,12 @@ nc_enddef(int ncid)
 
 
 int
-nc_close(int ncid)
+RENAME(close)(int ncid)
 {
-  int status;
-  NC *ncp; 
+  int status = NC_NOERR;
+  NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1199,14 +1192,14 @@ nc_close(int ncid)
     (void) ncp->nciop->sync(ncp->nciop);
   }
 
-  /* 
+  /*
    * If file opened for writing and filesize is less than
    * what it should be (due to previous use of NOFILL mode),
    * pad it to correct size, as reported by NC_calcsize().
    */
   if (status == ENOERR) {
       off_t filesize;   /* current size of open file */
-      off_t calcsize; /* calculated file size, from header */
+      off_t calcsize;  /* calculated file size, from header */
       status = ncio_filesize(ncp->nciop, &filesize);
       if(status != ENOERR)
     return status;
@@ -1247,7 +1240,7 @@ nc_delete_mp(const char * path, int basepe)
   ncp = new_NC(&chunk);
   if(ncp == NULL)
     return NC_ENOMEM;
-  
+
 #if defined(LOCKNUMREC) /* && _CRAYMPP */
   if (status = NC_init_pe(ncp, basepe)) {
     return status;
@@ -1293,13 +1286,13 @@ unwind_alloc:
  * In create, remove the file.
  */
 int
-nc_abort(int ncid)
+RENAME(abort)(int ncid)
 {
   int status;
   NC *ncp;
-  int doUnlink;
+  int doUnlink = 0;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1334,12 +1327,12 @@ nc_abort(int ncid)
 
 
 int
-nc_redef(int ncid)
+RENAME(redef)(int ncid)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1349,7 +1342,7 @@ nc_redef(int ncid)
   if(NC_indef(ncp))
     return NC_EINDEFINE;
 
-  
+
   if(fIsSet(ncp->nciop->ioflags, NC_SHARE))
   {
     /* read in from disk */
@@ -1369,7 +1362,7 @@ nc_redef(int ncid)
 
 
 int
-nc_inq(int ncid,
+DISPNAME(inq)(int ncid,
   int *ndimsp,
   int *nvarsp,
   int *nattsp,
@@ -1378,7 +1371,7 @@ nc_inq(int ncid,
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1394,13 +1387,13 @@ nc_inq(int ncid,
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_ndims(int ncid, int *ndimsp)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1410,13 +1403,13 @@ nc_inq_ndims(int ncid, int *ndimsp)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_nvars(int ncid, int *nvarsp)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1426,13 +1419,13 @@ nc_inq_nvars(int ncid, int *nvarsp)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_natts(int ncid, int *nattsp)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1442,13 +1435,13 @@ nc_inq_natts(int ncid, int *nattsp)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_unlimdim(int ncid, int *xtendimp)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1460,12 +1453,12 @@ nc_inq_unlimdim(int ncid, int *xtendimp)
 
 
 int
-nc_sync(int ncid)
+RENAME(sync)(int ncid)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1482,19 +1475,33 @@ nc_sync(int ncid)
   if(status != NC_NOERR)
     return status;
 
-  return ncp->nciop->sync(ncp->nciop);
+  status = ncp->nciop->sync(ncp->nciop);
+  if(status != NC_NOERR)
+    return status;
+
+#ifdef USE_FSYNC
+  /* may improve concurrent access, but slows performance if
+   * called frequently */
+#ifndef WIN32
+  status = fsync(ncp->nciop->fd);
+#else
+  status = _commit(ncp->nciop->fd);
+#endif  /* WIN32 */
+#endif  /* USE_FSYNC */
+
+  return status;
 }
 
 
 int
-nc_set_fill(int ncid,
+DISPNAME(set_fill)(int ncid,
   int fillmode, int *old_mode_ptr)
 {
   int status;
   NC *ncp;
   int oldmode;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -1562,7 +1569,7 @@ void NC_increase_numrecs(NC *ncp, size_t nrecs) {
 /* everyone in communicator group will be executing this */
 /*ARGSUSED*/
 int
-nc_set_base_pe(int ncid, int pe)
+DISPNAME(set_base_pe)(int ncid, int pe)
 {
 #if _CRAYMPP && defined(LOCKNUMREC)
   int status;
@@ -1596,16 +1603,14 @@ nc_set_base_pe(int ncid, int pe)
 
   /* complete transition */
   ncp->lock[LOCKNUMREC_BASEPE] = (ushmem_t) pe;
-#else /* _CRAYMPP && defined(LOCKNUMREC) */
-  (void)ncid;
-  (void)pe;
+
 #endif /* _CRAYMPP && LOCKNUMREC */
   return NC_NOERR;
 }
 
 /*ARGSUSED*/
 int
-nc_inq_base_pe(int ncid, int *pe)
+DISPNAME(inq_base_pe)(int ncid, int *pe)
 {
 #if _CRAYMPP && defined(LOCKNUMREC)
   int status;
@@ -1621,24 +1626,126 @@ nc_inq_base_pe(int ncid, int *pe)
    * !_CRAYMPP, only pe 0 is valid
    */
   *pe = 0;
-  (void)ncid;
 #endif /* _CRAYMPP && LOCKNUMREC */
   return NC_NOERR;
 }
 
 int
-nc_inq_format(int ncid, int *formatp)
+DISPNAME(inq_format)(int ncid, int *formatp)
 {
   int status;
   NC *ncp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
-  /* only need to check for netCDF-3 variants, since this is never called for netCDF-4 
+  /* only need to check for netCDF-3 variants, since this is never called for netCDF-4
      files */
-  *formatp = fIsSet(ncp->flags, NC_64BIT_OFFSET) ? NC_FORMAT_64BIT 
-      : NC_FORMAT_CLASSIC; 
+  *formatp = fIsSet(ncp->flags, NC_64BIT_OFFSET) ? NC_FORMAT_64BIT
+      : NC_FORMAT_CLASSIC;
   return NC_NOERR;
 }
+
+
+#ifdef USE_DAP
+/*
+Following routines need to be externally accessible by drno code
+1. add_to_NCList
+2. del_from_NCList
+3. free_NC
+4. new_NC
+Also need to be able to set the size of unlimited.
+=> extra function
+*/
+
+void
+drno_add_to_NCList(NC *ncp)
+{
+    add_to_NCList(ncp);
+}
+
+void
+drno_del_from_NCList(NC *ncp)
+{
+    del_from_NCList(ncp);
+}
+
+void
+drno_free_NC(NC *ncp)
+{
+    free_NC(ncp);
+}
+
+NC *
+drno_new_NC(const size_t *chunkp)
+{
+    return new_NC(chunkp);
+}
+
+void
+drno_set_numrecs(NC* ncp, size_t size)
+{
+    NC_set_numrecs(ncp,size);
+}
+
+size_t
+drno_get_numrecs(NC* ncp)
+{
+    return NC_get_numrecs(ncp);
+}
+
+int
+drno_ncio_open(NC* ncp, const char* path, int mode)
+{
+    int ncstat;
+    ncio* nciop = NULL;
+    size_t sizehint = NC_SIZEHINT_DEFAULT;
+    off_t igeto = 0;
+    size_t igetsz = 0;
+    void* ignore = (void*)17;
+    ncstat = ncio_open(path,mode,igeto,igetsz,&sizehint,&nciop,&ignore);
+    if(ncstat != NC_NOERR) nciop = NULL;
+    ncp->nciop = nciop;
+    return ncstat;
+}
+
+#endif
+
+#ifndef USE_NETCDF4
+
+/* The sizes of types may vary from platform to platform, but within
+ * netCDF files, type sizes are fixed. */
+#define NC_BYTE_LEN 1
+#define NC_CHAR_LEN 1
+#define NC_SHORT_LEN 2
+#define NC_INT_LEN 4
+#define NC_FLOAT_LEN 4
+#define NC_DOUBLE_LEN 8
+#define NUM_ATOMIC_TYPES 6
+
+/* This netCDF-4 function proved so popular that a netCDF-classic
+ * version is provided. You're welcome. */
+int
+DISPNAME(inq_type)(int ncid, nc_type typeid, char *name, size_t *size)
+{
+   int atomic_size[NUM_ATOMIC_TYPES] = {NC_BYTE_LEN, NC_CHAR_LEN, NC_SHORT_LEN,
+          NC_INT_LEN, NC_FLOAT_LEN, NC_DOUBLE_LEN};
+   char atomic_name[NUM_ATOMIC_TYPES][NC_MAX_NAME + 1] = {"byte", "char", "short",
+                "int", "float", "double"};
+
+   /* Only netCDF classic model needs to be handled. */
+   if (typeid < NC_BYTE || typeid > NC_DOUBLE)
+      return NC_EBADTYPE;
+
+   /* Give the user the values they want. Subtract one because types
+    * are numbered starting at 1, not 0. */
+   if (name)
+      strcpy(name, atomic_name[typeid - 1]);
+   if (size)
+      *size = atomic_size[typeid - 1];
+
+   return NC_NOERR;
+}
+
+#endif /* USE_NETCDF4 */

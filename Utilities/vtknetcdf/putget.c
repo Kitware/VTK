@@ -3,9 +3,10 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: putget.m4,v 2.68 2010/04/11 04:15:41 dmh Exp $ */
 
 #include "nc.h"
+#include "rename.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -42,10 +43,10 @@ void
 arrayp(const char *label, size_t count, const size_t *array)
 {
   (void) fprintf(stderr, "%s", label);
-  (void) fputc('\t',stderr);  
+  (void) fputc('\t',stderr);
   for(; count > 0; count--, array++)
     (void) fprintf(stderr," %lu", (unsigned long)*array);
-  (void) fputc('\n',stderr);  
+  (void) fputc('\n',stderr);
 }
 #endif /* ODEBUG */
 
@@ -56,7 +57,7 @@ arrayp(const char *label, size_t count, const size_t *array)
  *   ncvarget(cdfid, varid, cor, edg, vals);
  */
 int
-nctypelen(nc_type type) 
+nctypelen(nc_type type)
 {
   switch(type){
   case NC_BYTE :
@@ -68,13 +69,11 @@ nctypelen(nc_type type)
     return((int)sizeof(int));
   case NC_FLOAT :
     return((int)sizeof(float));
-  case NC_DOUBLE : 
+  case NC_DOUBLE :
     return((int)sizeof(double));
-  case NC_NAT:
-    break; /* some compilers complain if enums are missing from a switch */
+  default:
+          return -1;
   }
-
-  return -1;
 }
 
 
@@ -82,15 +81,15 @@ nctypelen(nc_type type)
 /*
  * This is tunable parameter.
  * It essentially controls the tradeoff between the number of times
- * memcpy() gets called to copy the external data to fill 
+ * memcpy() gets called to copy the external data to fill
  * a large buffer vs the number of times its called to
  * prepare the external data.
  */
-#if _SX
+#if  _SX
 /* NEC SX specific optimization */
-#define NFILL 2048
+#define  NFILL  2048
 #else
-#define NFILL 16
+#define  NFILL  16
 #endif
 
 
@@ -111,7 +110,7 @@ NC_fill_schar(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    schar *vp = fillp; /* lower bound of area to be filled */
+    schar *vp = fillp;  /* lower bound of area to be filled */
     const schar *const end = vp + nelems;
     while(vp < end)
     {
@@ -131,7 +130,7 @@ NC_fill_char(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    char *vp = fillp; /* lower bound of area to be filled */
+    char *vp = fillp;  /* lower bound of area to be filled */
     const char *const end = vp + nelems;
     while(vp < end)
     {
@@ -151,7 +150,7 @@ NC_fill_short(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    short *vp = fillp; /* lower bound of area to be filled */
+    short *vp = fillp;  /* lower bound of area to be filled */
     const short *const end = vp + nelems;
     while(vp < end)
     {
@@ -173,7 +172,7 @@ NC_fill_int(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    int *vp = fillp; /* lower bound of area to be filled */
+    int *vp = fillp;  /* lower bound of area to be filled */
     const int *const end = vp + nelems;
     while(vp < end)
     {
@@ -194,7 +193,7 @@ NC_fill_int(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    long *vp = fillp; /* lower bound of area to be filled */
+    long *vp = fillp;  /* lower bound of area to be filled */
     const long *const end = vp + nelems;
     while(vp < end)
     {
@@ -218,7 +217,7 @@ NC_fill_float(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    float *vp = fillp; /* lower bound of area to be filled */
+    float *vp = fillp;  /* lower bound of area to be filled */
     const float *const end = vp + nelems;
     while(vp < end)
     {
@@ -238,7 +237,7 @@ NC_fill_double(
   assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
 
   {
-    double *vp = fillp; /* lower bound of area to be filled */
+    double *vp = fillp;  /* lower bound of area to be filled */
     const double *const end = vp + nelems;
     while(vp < end)
     {
@@ -252,7 +251,7 @@ NC_fill_double(
 
 
 
-/* 
+/*
  * Fill the external space for variable 'varp' values at 'recno' with
  * the appropriate value. If 'varp' is not a record variable, fill the
  * whole thing.  For the special case when 'varp' is the only record
@@ -268,12 +267,12 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
   const size_t step = varp->xsz;
   const size_t nelems = sizeof(xfillp)/step;
   const size_t xsz = varp->xsz * nelems;
-  NC_attr **attrpp;
+  NC_attr **attrpp = NULL;
   off_t offset;
   size_t remaining = varsize;
 
   void *xp;
-  int status;
+  int status = NC_NOERR;
 
   /*
    * Set up fill value
@@ -303,12 +302,12 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
   else
   {
     /* use the default */
-    
+
     assert(xsz % X_ALIGN == 0);
     assert(xsz <= sizeof(xfillp));
-  
+
     xp = xfillp;
-  
+
     switch(varp->type){
     case NC_BYTE :
       status = NC_fill_schar(&xp, nelems);
@@ -325,7 +324,7 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
     case NC_FLOAT :
       status = NC_fill_float(&xp, nelems);
       break;
-    case NC_DOUBLE : 
+    case NC_DOUBLE :
       status = NC_fill_double(&xp, nelems);
       break;
     default :
@@ -335,7 +334,7 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
     }
     if(status != NC_NOERR)
       return status;
-  
+
     assert(xp == xfillp + xsz);
   }
 
@@ -362,7 +361,7 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
     size_t ii;
 
     status = ncp->nciop->get(ncp->nciop, offset, chunksz,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(status != NC_NOERR)
     {
       return status;
@@ -419,7 +418,7 @@ NCfillrecord(NC *ncp, const NC_var *const *varpp, size_t recno)
   {
     if( !IS_RECVAR(*varpp) )
     {
-      continue; /* skip non-record variables */
+      continue;  /* skip non-record variables */
     }
     {
     const int status = fill_NC_var(ncp, *varpp, (*varpp)->len, recno);
@@ -462,14 +461,14 @@ NCtouchlast(NC *ncp, const NC_var *const *varpp, size_t recno)
 {
   int status = NC_NOERR;
   const NC_var *varp = NULL;
-  
+
   {
   size_t ii = 0;
   for(; ii < ncp->vars.nelems; ii++, varpp++)
   {
     if( !IS_RECVAR(*varpp) )
     {
-      continue; /* skip non-record variables */
+      continue;  /* skip non-record variables */
     }
     varp = *varpp;
   }
@@ -484,7 +483,7 @@ NCtouchlast(NC *ncp, const NC_var *const *varpp, size_t recno)
 
 
     status = ncp->nciop->get(ncp->nciop, offset, varp->xsz,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(status != NC_NOERR)
       return status;
     (void)memset(xp, 0, varp->xsz);
@@ -524,7 +523,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
 #endif
     /* work-around for non-unique tickets */
     if (nowserving > myticket && nowserving < myticket + numpe ) {
-      /* get a new ticket ... you've been bypassed */ 
+      /* get a new ticket ... you've been bypassed */
       /* and handle the unlikely wrap-around effect */
       myticket = shmem_short_finc(
         (shmem_t *) ncp->lock + LOCKNUMREC_LOCK,
@@ -559,17 +558,17 @@ NCvnrecs(NC *ncp, size_t numrecs)
     }
     else
     {
-        /* Treat two cases differently: 
+        /* Treat two cases differently:
             - exactly one record variable (no padding)
-                        - multiple record variables (each record padded 
+                        - multiple record variables (each record padded
                           to 4-byte alignment)
         */
         NC_var **vpp = (NC_var **)ncp->vars.value;
         NC_var *const *const end = &vpp[ncp->vars.nelems];
-        NC_var *recvarp = NULL; /* last record var */
+        NC_var *recvarp = NULL;  /* last record var */
         int numrecvars = 0;
         size_t cur_nrecs;
-        
+
         /* determine how many record variables */
         for( /*NADA*/; vpp < end; vpp++) {
       if(IS_RECVAR(*vpp)) {
@@ -577,7 +576,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
           numrecvars++;
       }
         }
-        
+
         if (numrecvars != 1) { /* usual case */
       /* Fill each record out to numrecs */
       while((cur_nrecs = NC_get_numrecs(ncp)) < numrecs)
@@ -608,7 +607,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
       }
       if(status != NC_NOERR)
         goto common_return;
-      
+
         }
     }
 
@@ -628,7 +627,7 @@ common_return:
 }
 
 
-/* 
+/*
  * Check whether 'coord' values are valid for the variable.
  */
 static int
@@ -666,7 +665,7 @@ NCcoordck(NC *ncp, const NC_var *varp, const size_t *coord)
     ip = coord;
     up = varp->shape;
   }
-  
+
 #ifdef CDEBUG
 fprintf(stderr,"  NCcoordck: coord %ld, count %d, ip %ld\n",
     coord, varp->ndims, ip );
@@ -689,7 +688,7 @@ fprintf(stderr,"  NCcoordck: ip %p, *ip %ld, up %p, *up %lu\n",
 }
 
 
-/* 
+/*
  * Check whether 'edges' are valid for the variable and 'start'
  */
 /*ARGSUSED*/
@@ -699,7 +698,6 @@ NCedgeck(const NC *ncp, const NC_var *varp,
 {
   const size_t *const end = start + varp->ndims;
   const size_t *shp = varp->shape;
-  (void)ncp;
 
   if(varp->ndims == 0)
     return NC_NOERR;  /* 'scalar' variable */
@@ -724,7 +722,7 @@ NCedgeck(const NC *ncp, const NC_var *varp,
 }
 
 
-/* 
+/*
  * Translate the (variable, coord) pair into a seek index
  */
 static off_t
@@ -748,7 +746,7 @@ NC_varoffset(const NC *ncp, const NC_var *varp, const size_t *coord)
     size_t *up = varp->dsizes +1;
     const size_t *ip = coord;
     const size_t *const end = varp->dsizes + varp->ndims;
-    
+
     if(IS_RECVAR(varp))
       up++, ip++;
 
@@ -756,10 +754,10 @@ NC_varoffset(const NC *ncp, const NC_var *varp, const size_t *coord)
       lcoord += *up * *ip;
 
     lcoord *= varp->xsz;
-    
+
     if(IS_RECVAR(varp))
       lcoord += (off_t)(*coord) * ncp->recsize;
-    
+
     lcoord += varp->begin;
     return lcoord;
   }
@@ -787,10 +785,10 @@ putNCvx_char_char(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_char_char(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -799,7 +797,7 @@ putNCvx_char_char(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -833,10 +831,10 @@ putNCvx_schar_schar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_schar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -845,7 +843,7 @@ putNCvx_schar_schar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -878,10 +876,10 @@ putNCvx_schar_uchar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_uchar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -890,7 +888,7 @@ putNCvx_schar_uchar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -923,10 +921,10 @@ putNCvx_schar_short(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_short(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -935,7 +933,7 @@ putNCvx_schar_short(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -968,10 +966,10 @@ putNCvx_schar_int(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_int(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -980,7 +978,7 @@ putNCvx_schar_int(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1013,10 +1011,10 @@ putNCvx_schar_long(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_long(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1025,7 +1023,7 @@ putNCvx_schar_long(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1058,10 +1056,10 @@ putNCvx_schar_float(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_float(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1070,7 +1068,7 @@ putNCvx_schar_float(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1103,10 +1101,10 @@ putNCvx_schar_double(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_schar_double(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1115,7 +1113,7 @@ putNCvx_schar_double(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1149,10 +1147,10 @@ putNCvx_short_schar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_schar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1161,7 +1159,7 @@ putNCvx_short_schar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1194,10 +1192,10 @@ putNCvx_short_uchar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_uchar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1206,7 +1204,7 @@ putNCvx_short_uchar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1239,10 +1237,10 @@ putNCvx_short_short(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_short(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1251,7 +1249,7 @@ putNCvx_short_short(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1284,10 +1282,10 @@ putNCvx_short_int(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_int(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1296,7 +1294,7 @@ putNCvx_short_int(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1329,10 +1327,10 @@ putNCvx_short_long(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_long(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1341,7 +1339,7 @@ putNCvx_short_long(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1374,10 +1372,10 @@ putNCvx_short_float(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_float(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1386,7 +1384,7 @@ putNCvx_short_float(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1419,10 +1417,10 @@ putNCvx_short_double(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_short_double(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1431,7 +1429,7 @@ putNCvx_short_double(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1465,10 +1463,10 @@ putNCvx_int_schar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_schar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1477,7 +1475,7 @@ putNCvx_int_schar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1510,10 +1508,10 @@ putNCvx_int_uchar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_uchar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1522,7 +1520,7 @@ putNCvx_int_uchar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1555,10 +1553,10 @@ putNCvx_int_short(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_short(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1567,7 +1565,7 @@ putNCvx_int_short(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1600,10 +1598,10 @@ putNCvx_int_int(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_int(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1612,7 +1610,7 @@ putNCvx_int_int(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1645,10 +1643,10 @@ putNCvx_int_long(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_long(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1657,7 +1655,7 @@ putNCvx_int_long(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1690,10 +1688,10 @@ putNCvx_int_float(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_float(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1702,7 +1700,7 @@ putNCvx_int_float(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1735,10 +1733,10 @@ putNCvx_int_double(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_int_double(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1747,7 +1745,7 @@ putNCvx_int_double(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1781,10 +1779,10 @@ putNCvx_float_schar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_schar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1793,7 +1791,7 @@ putNCvx_float_schar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1826,10 +1824,10 @@ putNCvx_float_uchar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_uchar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1838,7 +1836,7 @@ putNCvx_float_uchar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1871,10 +1869,10 @@ putNCvx_float_short(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_short(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1883,7 +1881,7 @@ putNCvx_float_short(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1916,10 +1914,10 @@ putNCvx_float_int(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_int(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1928,7 +1926,7 @@ putNCvx_float_int(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -1961,10 +1959,10 @@ putNCvx_float_long(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_long(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -1973,7 +1971,7 @@ putNCvx_float_long(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2006,10 +2004,10 @@ putNCvx_float_float(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_float(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2018,7 +2016,7 @@ putNCvx_float_float(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2051,10 +2049,10 @@ putNCvx_float_double(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_float_double(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2063,7 +2061,7 @@ putNCvx_float_double(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2097,10 +2095,10 @@ putNCvx_double_schar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_schar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2109,7 +2107,7 @@ putNCvx_double_schar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2142,10 +2140,10 @@ putNCvx_double_uchar(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_uchar(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2154,7 +2152,7 @@ putNCvx_double_uchar(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2187,10 +2185,10 @@ putNCvx_double_short(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_short(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2199,7 +2197,7 @@ putNCvx_double_short(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2232,10 +2230,10 @@ putNCvx_double_int(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_int(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2244,7 +2242,7 @@ putNCvx_double_int(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2277,10 +2275,10 @@ putNCvx_double_long(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_long(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2289,7 +2287,7 @@ putNCvx_double_long(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2322,10 +2320,10 @@ putNCvx_double_float(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_float(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2334,7 +2332,7 @@ putNCvx_double_float(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2367,10 +2365,10 @@ putNCvx_double_double(NC *ncp, const NC_var *varp,
     size_t nput = ncx_howmany(varp->type, extent);
 
     int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-         RGN_WRITE, &xp); 
+         RGN_WRITE, &xp);
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_putn_double_double(&xp, nput, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
     {
@@ -2379,7 +2377,7 @@ putNCvx_double_double(NC *ncp, const NC_var *varp,
     }
 
     (void) ncp->nciop->rel(ncp->nciop, offset,
-         RGN_MODIFIED); 
+         RGN_MODIFIED);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2423,11 +2421,13 @@ putNCv_schar(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_schar(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_schar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2451,11 +2451,13 @@ putNCv_uchar(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_uchar(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_uchar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2479,11 +2481,13 @@ putNCv_short(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_short(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_short(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2507,11 +2511,13 @@ putNCv_int(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_int(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_int(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2535,11 +2541,13 @@ putNCv_long(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_long(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_long(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2563,11 +2571,13 @@ putNCv_float(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_float(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_float(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2591,11 +2601,13 @@ putNCv_double(NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return putNCvx_float_double(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return putNCvx_double_double(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -2626,12 +2638,12 @@ getNCvx_char_char(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_char_char(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2667,12 +2679,12 @@ getNCvx_schar_schar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_schar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2707,12 +2719,12 @@ getNCvx_schar_uchar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_uchar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2747,12 +2759,12 @@ getNCvx_schar_short(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_short(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2787,12 +2799,12 @@ getNCvx_schar_int(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_int(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2827,12 +2839,12 @@ getNCvx_schar_long(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_long(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2867,12 +2879,12 @@ getNCvx_schar_float(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_float(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2907,12 +2919,12 @@ getNCvx_schar_double(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_schar_double(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2948,12 +2960,12 @@ getNCvx_short_schar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_schar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -2988,12 +3000,12 @@ getNCvx_short_uchar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_uchar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3028,12 +3040,12 @@ getNCvx_short_short(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_short(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3068,12 +3080,12 @@ getNCvx_short_int(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_int(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3108,12 +3120,12 @@ getNCvx_short_long(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_long(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3148,12 +3160,12 @@ getNCvx_short_float(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_float(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3188,12 +3200,12 @@ getNCvx_short_double(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_short_double(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3229,12 +3241,12 @@ getNCvx_int_schar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_schar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3269,12 +3281,12 @@ getNCvx_int_uchar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_uchar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3309,12 +3321,12 @@ getNCvx_int_short(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_short(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3349,12 +3361,12 @@ getNCvx_int_int(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_int(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3389,12 +3401,12 @@ getNCvx_int_long(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_long(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3429,12 +3441,12 @@ getNCvx_int_float(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_float(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3469,12 +3481,12 @@ getNCvx_int_double(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_int_double(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3510,12 +3522,12 @@ getNCvx_float_schar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_schar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3550,12 +3562,12 @@ getNCvx_float_uchar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_uchar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3590,12 +3602,12 @@ getNCvx_float_short(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_short(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3630,12 +3642,12 @@ getNCvx_float_int(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_int(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3670,12 +3682,12 @@ getNCvx_float_long(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_long(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3710,12 +3722,12 @@ getNCvx_float_float(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_float(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3750,12 +3762,12 @@ getNCvx_float_double(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_float_double(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3791,12 +3803,12 @@ getNCvx_double_schar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_schar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3831,12 +3843,12 @@ getNCvx_double_uchar(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_uchar(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3871,12 +3883,12 @@ getNCvx_double_short(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_short(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3911,12 +3923,12 @@ getNCvx_double_int(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_int(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3951,12 +3963,12 @@ getNCvx_double_long(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_long(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -3991,12 +4003,12 @@ getNCvx_double_float(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_float(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -4031,12 +4043,12 @@ getNCvx_double_double(const NC *ncp, const NC_var *varp,
          0, (void **)&xp);  /* cast away const */
     if(lstatus != NC_NOERR)
       return lstatus;
-    
+
     lstatus = ncx_getn_double_double(&xp, nget, value);
     if(lstatus != NC_NOERR && status == NC_NOERR)
       status = lstatus;
 
-    (void) ncp->nciop->rel(ncp->nciop, offset, 0);  
+    (void) ncp->nciop->rel(ncp->nciop, offset, 0);
 
     remaining -= extent;
     if(remaining == 0)
@@ -4070,11 +4082,13 @@ getNCv_schar(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_schar(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_schar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4098,11 +4112,13 @@ getNCv_uchar(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_uchar(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_uchar(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4126,11 +4142,13 @@ getNCv_short(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_short(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_short(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4154,11 +4172,13 @@ getNCv_int(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_int(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_int(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4182,11 +4202,13 @@ getNCv_long(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_long(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_long(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4210,11 +4232,13 @@ getNCv_float(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_float(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_float(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4238,11 +4262,13 @@ getNCv_double(const NC *ncp, const NC_var *varp,
   case NC_FLOAT:
     return getNCvx_float_double(ncp, varp, start, nelems,
       value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return getNCvx_double_double(ncp, varp, start, nelems,
       value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+          return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -4281,15 +4307,15 @@ NCxvarcpy(NC *inncp, NC_var *invp, size_t *incoord,
     const size_t extent = MIN(nbytes, chunk);
 
     status = inncp->nciop->get(inncp->nciop, inoffset, extent,
-         0, &inxp); 
+         0, &inxp);
     if(status != NC_NOERR)
       return status;
 
     status = outncp->nciop->get(outncp->nciop, outoffset, extent,
-         RGN_WRITE, &outxp);  
+         RGN_WRITE, &outxp);
     if(status != NC_NOERR)
     {
-      (void) inncp->nciop->rel(inncp->nciop, inoffset, 0);  
+      (void) inncp->nciop->rel(inncp->nciop, inoffset, 0);
       break;
     }
 
@@ -4297,14 +4323,14 @@ NCxvarcpy(NC *inncp, NC_var *invp, size_t *incoord,
 
     status = outncp->nciop->rel(outncp->nciop, outoffset,
        RGN_MODIFIED);
-    (void) inncp->nciop->rel(inncp->nciop, inoffset, 0);  
+    (void) inncp->nciop->rel(inncp->nciop, inoffset, 0);
 
     nbytes -= extent;
     if(nbytes == 0)
       break; /* normal loop exit */
     inoffset += extent;
     outoffset += extent;
-    
+
   } while (status == NC_NOERR);
 
   return status;
@@ -4372,16 +4398,16 @@ NCiocount(const NC *const ncp, const NC_var *const varp,
    *
    * Or there is only one dimension.
    * If there is only one dimension and it is 'non record' dimension,
-   *  edp is &edges[0] and we will return -1.
+   *   edp is &edges[0] and we will return -1.
    * If there is only one dimension and and it is a "record dimension",
    *  edp is &edges[1] (out of bounds) and we will return 0;
    */
-  assert(shp >= varp->shape + varp->ndims -1 
+  assert(shp >= varp->shape + varp->ndims -1
     || *(edp +1) == *(shp +1));
 
   /* now accumulate max count for a single io operation */
   for(*iocountp = 1, edp0 = edp;
-      edp0 < edges + varp->ndims;
+       edp0 < edges + varp->ndims;
       edp0++)
   {
     *iocountp *= *edp0;
@@ -4418,7 +4444,7 @@ set_upper(size_t *upp, /* modified on return */
  * For some ii,
  * upp == &upper[ii]
  * cdp == &coord[ii]
- * 
+ *
  * Running this routine increments *cdp.
  *
  * If after the increment, *cdp is equal to *upp
@@ -4426,9 +4452,9 @@ set_upper(size_t *upp, /* modified on return */
  * *cdp is "zeroed" to the starting value and
  * we need to "carry", eg, increment one place to
  * the left.
- * 
+ *
  * TODO: Some architectures hate recursion?
- *  Reimplement non-recursively.
+ *   Reimplement non-recursively.
  */
 static void
 odo1(const size_t *const start, const size_t *const upper,
@@ -4439,7 +4465,7 @@ odo1(const size_t *const start, const size_t *const upper,
   assert(coord <= cdp && cdp <= coord + NC_MAX_VAR_DIMS);
   assert(upper <= upp && upp <= upper + NC_MAX_VAR_DIMS);
   assert(upp - upper == cdp - coord);
-  
+
   assert(*cdp <= *upp);
 
   (*cdp)++;
@@ -4467,7 +4493,7 @@ nc_put_var1_text(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4507,7 +4533,7 @@ nc_put_var1_uchar(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4546,7 +4572,7 @@ nc_put_var1_schar(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4585,7 +4611,7 @@ nc_put_var1_short(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4624,7 +4650,7 @@ nc_put_var1_int(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4663,7 +4689,7 @@ nc_put_var1_long(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4702,7 +4728,7 @@ nc_put_var1_float(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4741,7 +4767,7 @@ nc_put_var1_double(int ncid, int varid, const size_t *coord,
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4775,13 +4801,13 @@ nc_put_var1_double(int ncid, int varid, const size_t *coord,
 
 
 int
-nc_get_var1_text(int ncid, int varid, const size_t *coord, char *value)
+RENAME(get_var1_text)(int ncid, int varid, const size_t *coord, char *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4804,13 +4830,13 @@ nc_get_var1_text(int ncid, int varid, const size_t *coord, char *value)
 
 
 int
-nc_get_var1_uchar(int ncid, int varid, const size_t *coord, uchar *value)
+RENAME(get_var1_uchar)(int ncid, int varid, const size_t *coord, uchar *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4832,13 +4858,13 @@ nc_get_var1_uchar(int ncid, int varid, const size_t *coord, uchar *value)
 }
 
 int
-nc_get_var1_schar(int ncid, int varid, const size_t *coord, schar *value)
+RENAME(get_var1_schar)(int ncid, int varid, const size_t *coord, schar *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4860,13 +4886,13 @@ nc_get_var1_schar(int ncid, int varid, const size_t *coord, schar *value)
 }
 
 int
-nc_get_var1_short(int ncid, int varid, const size_t *coord, short *value)
+RENAME(get_var1_short)(int ncid, int varid, const size_t *coord, short *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4888,13 +4914,13 @@ nc_get_var1_short(int ncid, int varid, const size_t *coord, short *value)
 }
 
 int
-nc_get_var1_int(int ncid, int varid, const size_t *coord, int *value)
+RENAME(get_var1_int)(int ncid, int varid, const size_t *coord, int *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4916,13 +4942,13 @@ nc_get_var1_int(int ncid, int varid, const size_t *coord, int *value)
 }
 
 int
-nc_get_var1_long(int ncid, int varid, const size_t *coord, long *value)
+RENAME(get_var1_long)(int ncid, int varid, const size_t *coord, long *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4944,13 +4970,13 @@ nc_get_var1_long(int ncid, int varid, const size_t *coord, long *value)
 }
 
 int
-nc_get_var1_float(int ncid, int varid, const size_t *coord, float *value)
+RENAME(get_var1_float)(int ncid, int varid, const size_t *coord, float *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -4972,13 +4998,13 @@ nc_get_var1_float(int ncid, int varid, const size_t *coord, float *value)
 }
 
 int
-nc_get_var1_double(int ncid, int varid, const size_t *coord, double *value)
+RENAME(get_var1_double)(int ncid, int varid, const size_t *coord, double *value)
 {
   int status;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5011,7 +5037,7 @@ nc_put_vara_text(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5071,7 +5097,7 @@ nc_put_vara_text(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5097,7 +5123,7 @@ nc_put_vara_text(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5118,7 +5144,7 @@ nc_put_vara_uchar(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5178,7 +5204,7 @@ nc_put_vara_uchar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5204,7 +5230,7 @@ nc_put_vara_uchar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5224,7 +5250,7 @@ nc_put_vara_schar(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5284,7 +5310,7 @@ nc_put_vara_schar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5310,7 +5336,7 @@ nc_put_vara_schar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5330,7 +5356,7 @@ nc_put_vara_short(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5390,7 +5416,7 @@ nc_put_vara_short(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5416,7 +5442,7 @@ nc_put_vara_short(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5436,7 +5462,7 @@ nc_put_vara_int(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5496,7 +5522,7 @@ nc_put_vara_int(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5522,7 +5548,7 @@ nc_put_vara_int(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5542,7 +5568,7 @@ nc_put_vara_long(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5602,7 +5628,7 @@ nc_put_vara_long(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5628,7 +5654,7 @@ nc_put_vara_long(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5648,7 +5674,7 @@ nc_put_vara_float(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5708,7 +5734,7 @@ nc_put_vara_float(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5734,7 +5760,7 @@ nc_put_vara_float(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5754,7 +5780,7 @@ nc_put_vara_double(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5814,7 +5840,7 @@ nc_put_vara_double(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5840,7 +5866,7 @@ nc_put_vara_double(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5854,7 +5880,7 @@ nc_put_vara_double(int ncid, int varid,
 
 
 int
-nc_get_vara_text(int ncid, int varid,
+RENAME(get_vara_text)(int ncid, int varid,
    const size_t *start, const size_t *edges, char *value)
 {
   int status = NC_NOERR;
@@ -5863,7 +5889,7 @@ nc_get_vara_text(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -5917,7 +5943,7 @@ nc_get_vara_text(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5943,7 +5969,7 @@ nc_get_vara_text(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -5955,7 +5981,7 @@ nc_get_vara_text(int ncid, int varid,
 
 
 int
-nc_get_vara_uchar(int ncid, int varid,
+RENAME(get_vara_uchar)(int ncid, int varid,
    const size_t *start, const size_t *edges, uchar *value)
 {
   int status = NC_NOERR;
@@ -5964,7 +5990,7 @@ nc_get_vara_uchar(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6018,7 +6044,7 @@ nc_get_vara_uchar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6044,7 +6070,7 @@ nc_get_vara_uchar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6055,7 +6081,7 @@ nc_get_vara_uchar(int ncid, int varid,
 }
 
 int
-nc_get_vara_schar(int ncid, int varid,
+RENAME(get_vara_schar)(int ncid, int varid,
    const size_t *start, const size_t *edges, schar *value)
 {
   int status = NC_NOERR;
@@ -6064,7 +6090,7 @@ nc_get_vara_schar(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6118,7 +6144,7 @@ nc_get_vara_schar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6144,7 +6170,7 @@ nc_get_vara_schar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6155,7 +6181,7 @@ nc_get_vara_schar(int ncid, int varid,
 }
 
 int
-nc_get_vara_short(int ncid, int varid,
+RENAME(get_vara_short)(int ncid, int varid,
    const size_t *start, const size_t *edges, short *value)
 {
   int status = NC_NOERR;
@@ -6164,7 +6190,7 @@ nc_get_vara_short(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6218,7 +6244,7 @@ nc_get_vara_short(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6244,7 +6270,7 @@ nc_get_vara_short(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6255,7 +6281,7 @@ nc_get_vara_short(int ncid, int varid,
 }
 
 int
-nc_get_vara_int(int ncid, int varid,
+RENAME(get_vara_int)(int ncid, int varid,
    const size_t *start, const size_t *edges, int *value)
 {
   int status = NC_NOERR;
@@ -6264,7 +6290,7 @@ nc_get_vara_int(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6318,7 +6344,7 @@ nc_get_vara_int(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6344,7 +6370,7 @@ nc_get_vara_int(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6355,7 +6381,7 @@ nc_get_vara_int(int ncid, int varid,
 }
 
 int
-nc_get_vara_long(int ncid, int varid,
+RENAME(get_vara_long)(int ncid, int varid,
    const size_t *start, const size_t *edges, long *value)
 {
   int status = NC_NOERR;
@@ -6364,7 +6390,7 @@ nc_get_vara_long(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6418,7 +6444,7 @@ nc_get_vara_long(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6444,7 +6470,7 @@ nc_get_vara_long(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6455,7 +6481,7 @@ nc_get_vara_long(int ncid, int varid,
 }
 
 int
-nc_get_vara_float(int ncid, int varid,
+RENAME(get_vara_float)(int ncid, int varid,
    const size_t *start, const size_t *edges, float *value)
 {
   int status = NC_NOERR;
@@ -6464,7 +6490,7 @@ nc_get_vara_float(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6518,7 +6544,7 @@ nc_get_vara_float(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6544,7 +6570,7 @@ nc_get_vara_float(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6555,7 +6581,7 @@ nc_get_vara_float(int ncid, int varid,
 }
 
 int
-nc_get_vara_double(int ncid, int varid,
+RENAME(get_vara_double)(int ncid, int varid,
    const size_t *start, const size_t *edges, double *value)
 {
   int status = NC_NOERR;
@@ -6564,7 +6590,7 @@ nc_get_vara_double(int ncid, int varid,
   int ii;
   size_t iocount;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6618,7 +6644,7 @@ nc_get_vara_double(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index2 = ii;
+  const size_t index = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6644,7 +6670,7 @@ nc_get_vara_double(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index2], &coord[index2]);
+    odo1(start, upper, coord, &upper[index], &coord[index]);
   }
 
   FREE_ONSTACK(upper);
@@ -6660,11 +6686,7 @@ nc_get_vara_double(int ncid, int varid,
 /* C++ consts default to internal linkage and must be initialized */
 const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
 #else
-#  if defined(_MSC_VER) && _MSC_VER >= 1300
-static const size_t coord_zero[NC_MAX_VAR_DIMS] = { 0 };
-#  else
 static const size_t coord_zero[NC_MAX_VAR_DIMS];
-#  endif
 #endif
 
 
@@ -6675,7 +6697,7 @@ nc_put_var_text(int ncid, int varid, const char *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6754,7 +6776,7 @@ nc_put_var_uchar(int ncid, int varid, const uchar *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6832,7 +6854,7 @@ nc_put_var_schar(int ncid, int varid, const schar *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6910,7 +6932,7 @@ nc_put_var_short(int ncid, int varid, const short *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -6988,7 +7010,7 @@ nc_put_var_int(int ncid, int varid, const int *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7066,7 +7088,7 @@ nc_put_var_long(int ncid, int varid, const long *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7144,7 +7166,7 @@ nc_put_var_float(int ncid, int varid, const float *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7222,7 +7244,7 @@ nc_put_var_double(int ncid, int varid, const double *value)
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7297,13 +7319,13 @@ nc_put_var_double(int ncid, int varid, const double *value)
 
 
 int
-nc_get_var_text(int ncid, int varid, char *value)
+RENAME(get_var_text)(int ncid, int varid, char *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7374,13 +7396,13 @@ nc_get_var_text(int ncid, int varid, char *value)
 
 
 int
-nc_get_var_uchar(int ncid, int varid, uchar *value)
+RENAME(get_var_uchar)(int ncid, int varid, uchar *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7450,13 +7472,13 @@ nc_get_var_uchar(int ncid, int varid, uchar *value)
 }
 
 int
-nc_get_var_schar(int ncid, int varid, schar *value)
+RENAME(get_var_schar)(int ncid, int varid, schar *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7526,13 +7548,13 @@ nc_get_var_schar(int ncid, int varid, schar *value)
 }
 
 int
-nc_get_var_short(int ncid, int varid, short *value)
+RENAME(get_var_short)(int ncid, int varid, short *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7602,13 +7624,13 @@ nc_get_var_short(int ncid, int varid, short *value)
 }
 
 int
-nc_get_var_int(int ncid, int varid, int *value)
+RENAME(get_var_int)(int ncid, int varid, int *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7678,13 +7700,13 @@ nc_get_var_int(int ncid, int varid, int *value)
 }
 
 int
-nc_get_var_long(int ncid, int varid, long *value)
+RENAME(get_var_long)(int ncid, int varid, long *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7754,13 +7776,13 @@ nc_get_var_long(int ncid, int varid, long *value)
 }
 
 int
-nc_get_var_float(int ncid, int varid, float *value)
+RENAME(get_var_float)(int ncid, int varid, float *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7830,13 +7852,13 @@ nc_get_var_float(int ncid, int varid, float *value)
 }
 
 int
-nc_get_var_double(int ncid, int varid, double *value)
+RENAME(get_var_double)(int ncid, int varid, double *value)
 {
   int status = NC_NOERR;
   NC *ncp;
   const NC_var *varp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -7912,7 +7934,7 @@ nc_get_var_double(int ncid, int varid, double *value)
 
 
 int
-nc_get_vars_text (
+RENAME(get_vars_text)(
   int ncid,
   int varid,
   const size_t * start,
@@ -7926,7 +7948,7 @@ nc_get_vars_text (
 
 
 int
-nc_get_vars_uchar (
+RENAME(get_vars_uchar)(
   int ncid,
   int varid,
   const size_t * start,
@@ -7939,7 +7961,7 @@ nc_get_vars_uchar (
 }
 
 int
-nc_get_vars_schar (
+RENAME(get_vars_schar)(
   int ncid,
   int varid,
   const size_t * start,
@@ -7952,7 +7974,7 @@ nc_get_vars_schar (
 }
 
 int
-nc_get_vars_short (
+RENAME(get_vars_short)(
   int ncid,
   int varid,
   const size_t * start,
@@ -7965,7 +7987,7 @@ nc_get_vars_short (
 }
 
 int
-nc_get_vars_int (
+RENAME(get_vars_int)(
   int ncid,
   int varid,
   const size_t * start,
@@ -7978,7 +8000,7 @@ nc_get_vars_int (
 }
 
 int
-nc_get_vars_long (
+RENAME(get_vars_long)(
   int ncid,
   int varid,
   const size_t * start,
@@ -7991,7 +8013,7 @@ nc_get_vars_long (
 }
 
 int
-nc_get_vars_float (
+RENAME(get_vars_float)(
   int ncid,
   int varid,
   const size_t * start,
@@ -8004,7 +8026,7 @@ nc_get_vars_float (
 }
 
 int
-nc_get_vars_double (
+RENAME(get_vars_double)(
   int ncid,
   int varid,
   const size_t * start,
@@ -8131,7 +8153,7 @@ nc_put_vars_double (
  */
 
 int
-nc_get_varm_text(int ncid, int varid,
+RENAME(get_varm_text)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -8169,7 +8191,7 @@ nc_get_varm_text(int ncid, int varid,
      */
     return getNCv_text (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -8179,8 +8201,8 @@ nc_get_varm_text(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -8248,7 +8270,7 @@ nc_get_varm_text(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -8266,7 +8288,7 @@ nc_get_varm_text(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_text()
@@ -8287,7 +8309,7 @@ nc_get_varm_text(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_text (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -8319,7 +8341,7 @@ nc_get_varm_text(int ncid, int varid,
 
 
 int
-nc_get_varm_uchar(int ncid, int varid,
+RENAME(get_varm_uchar)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -8357,7 +8379,7 @@ nc_get_varm_uchar(int ncid, int varid,
      */
     return getNCv_uchar (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -8367,8 +8389,8 @@ nc_get_varm_uchar(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -8436,7 +8458,7 @@ nc_get_varm_uchar(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -8454,7 +8476,7 @@ nc_get_varm_uchar(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_uchar()
@@ -8475,7 +8497,7 @@ nc_get_varm_uchar(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_uchar (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -8506,7 +8528,7 @@ nc_get_varm_uchar(int ncid, int varid,
 }
 
 int
-nc_get_varm_schar(int ncid, int varid,
+RENAME(get_varm_schar)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -8544,7 +8566,7 @@ nc_get_varm_schar(int ncid, int varid,
      */
     return getNCv_schar (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -8554,8 +8576,8 @@ nc_get_varm_schar(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -8623,7 +8645,7 @@ nc_get_varm_schar(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -8641,7 +8663,7 @@ nc_get_varm_schar(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_schar()
@@ -8662,7 +8684,7 @@ nc_get_varm_schar(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_schar (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -8693,7 +8715,7 @@ nc_get_varm_schar(int ncid, int varid,
 }
 
 int
-nc_get_varm_short(int ncid, int varid,
+RENAME(get_varm_short)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -8731,7 +8753,7 @@ nc_get_varm_short(int ncid, int varid,
      */
     return getNCv_short (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -8741,8 +8763,8 @@ nc_get_varm_short(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -8810,7 +8832,7 @@ nc_get_varm_short(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -8828,7 +8850,7 @@ nc_get_varm_short(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_short()
@@ -8849,7 +8871,7 @@ nc_get_varm_short(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_short (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -8880,7 +8902,7 @@ nc_get_varm_short(int ncid, int varid,
 }
 
 int
-nc_get_varm_int(int ncid, int varid,
+RENAME(get_varm_int)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -8918,7 +8940,7 @@ nc_get_varm_int(int ncid, int varid,
      */
     return getNCv_int (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -8928,8 +8950,8 @@ nc_get_varm_int(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -8997,7 +9019,7 @@ nc_get_varm_int(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -9015,7 +9037,7 @@ nc_get_varm_int(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_int()
@@ -9036,7 +9058,7 @@ nc_get_varm_int(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_int (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -9067,7 +9089,7 @@ nc_get_varm_int(int ncid, int varid,
 }
 
 int
-nc_get_varm_long(int ncid, int varid,
+RENAME(get_varm_long)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -9105,7 +9127,7 @@ nc_get_varm_long(int ncid, int varid,
      */
     return getNCv_long (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -9115,8 +9137,8 @@ nc_get_varm_long(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -9184,7 +9206,7 @@ nc_get_varm_long(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -9202,7 +9224,7 @@ nc_get_varm_long(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_long()
@@ -9223,7 +9245,7 @@ nc_get_varm_long(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_long (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -9254,7 +9276,7 @@ nc_get_varm_long(int ncid, int varid,
 }
 
 int
-nc_get_varm_float(int ncid, int varid,
+RENAME(get_varm_float)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -9292,7 +9314,7 @@ nc_get_varm_float(int ncid, int varid,
      */
     return getNCv_float (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -9302,8 +9324,8 @@ nc_get_varm_float(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -9371,7 +9393,7 @@ nc_get_varm_float(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -9389,7 +9411,7 @@ nc_get_varm_float(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_float()
@@ -9410,7 +9432,7 @@ nc_get_varm_float(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_float (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -9441,7 +9463,7 @@ nc_get_varm_float(int ncid, int varid,
 }
 
 int
-nc_get_varm_double(int ncid, int varid,
+RENAME(get_varm_double)(int ncid, int varid,
   const size_t *start, const size_t *edges,
   const ptrdiff_t *stride,
   const ptrdiff_t *map,
@@ -9479,7 +9501,7 @@ nc_get_varm_double(int ncid, int varid,
      */
     return getNCv_double (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -9489,8 +9511,8 @@ nc_get_varm_double(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -9558,7 +9580,7 @@ nc_get_varm_double(int ncid, int varid,
      */
     for (idim = maxidim; idim >= 0; --idim)
     {
-      size_t dimlen = 
+      size_t dimlen =
         idim == 0 && IS_RECVAR (varp)
           ? NC_get_numrecs(ncp)
             : varp->shape[idim];
@@ -9576,7 +9598,7 @@ nc_get_varm_double(int ncid, int varid,
 
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_get_vara_double()
@@ -9597,7 +9619,7 @@ nc_get_varm_double(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_get_vara_double (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -9678,7 +9700,7 @@ nc_put_varm_text(int ncid, int varid,
      */
     return putNCv_text (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -9688,8 +9710,8 @@ nc_put_varm_text(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -9769,7 +9791,7 @@ nc_put_varm_text(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_text()
@@ -9790,7 +9812,7 @@ nc_put_varm_text(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_text (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -9861,7 +9883,7 @@ nc_put_varm_uchar(int ncid, int varid,
      */
     return putNCv_uchar (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -9871,8 +9893,8 @@ nc_put_varm_uchar(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -9952,7 +9974,7 @@ nc_put_varm_uchar(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_uchar()
@@ -9973,7 +9995,7 @@ nc_put_varm_uchar(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_uchar (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -10043,7 +10065,7 @@ nc_put_varm_schar(int ncid, int varid,
      */
     return putNCv_schar (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -10053,8 +10075,8 @@ nc_put_varm_schar(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -10134,7 +10156,7 @@ nc_put_varm_schar(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_schar()
@@ -10155,7 +10177,7 @@ nc_put_varm_schar(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_schar (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -10225,7 +10247,7 @@ nc_put_varm_short(int ncid, int varid,
      */
     return putNCv_short (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -10235,8 +10257,8 @@ nc_put_varm_short(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -10316,7 +10338,7 @@ nc_put_varm_short(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_short()
@@ -10337,7 +10359,7 @@ nc_put_varm_short(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_short (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -10407,7 +10429,7 @@ nc_put_varm_int(int ncid, int varid,
      */
     return putNCv_int (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -10417,8 +10439,8 @@ nc_put_varm_int(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -10498,7 +10520,7 @@ nc_put_varm_int(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_int()
@@ -10519,7 +10541,7 @@ nc_put_varm_int(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_int (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -10589,7 +10611,7 @@ nc_put_varm_long(int ncid, int varid,
      */
     return putNCv_long (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -10599,8 +10621,8 @@ nc_put_varm_long(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -10680,7 +10702,7 @@ nc_put_varm_long(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_long()
@@ -10701,7 +10723,7 @@ nc_put_varm_long(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_long (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -10771,7 +10793,7 @@ nc_put_varm_float(int ncid, int varid,
      */
     return putNCv_float (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -10781,8 +10803,8 @@ nc_put_varm_float(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -10862,7 +10884,7 @@ nc_put_varm_float(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_float()
@@ -10883,7 +10905,7 @@ nc_put_varm_float(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_float (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -10953,7 +10975,7 @@ nc_put_varm_double(int ncid, int varid,
      */
     return putNCv_double (ncp, varp, start, 1, value);
   }
-  
+
   /*
    * else
    * The variable is an array.
@@ -10963,8 +10985,8 @@ nc_put_varm_double(int ncid, int varid,
     size_t *mystart = NULL;
     size_t *myedges;
     size_t *iocount;  /* count vector */
-    size_t *stop; /* stop indexes */
-    size_t *length; /* edge lengths in bytes */
+    size_t *stop;  /* stop indexes */
+    size_t *length;  /* edge lengths in bytes */
     ptrdiff_t *mystride;
     ptrdiff_t *mymap;
 
@@ -11044,7 +11066,7 @@ nc_put_varm_double(int ncid, int varid,
       }
     }
     /*
-     * As an optimization, adjust I/O parameters when the fastest 
+     * As an optimization, adjust I/O parameters when the fastest
      * dimension has unity stride both externally and internally.
      * In this case, the user could have called a simpler routine
      * (i.e. ncvarnc_put_vara_double()
@@ -11065,7 +11087,7 @@ nc_put_varm_double(int ncid, int varid,
       /* TODO: */
       int lstatus = nc_put_vara_double (ncid, varid, mystart, iocount,
             value);
-      if (lstatus != NC_NOERR 
+      if (lstatus != NC_NOERR
         && (status == NC_NOERR || lstatus != NC_ERANGE))
         status = lstatus;
 
@@ -11109,7 +11131,7 @@ nc_copy_var(int ncid_in, int varid, int ncid_out)
   NC *inncp, *outncp;
   NC_var *invp, *outvp;
 
-  status = NC_check_id(ncid_in, &inncp); 
+  status = NC_check_id(ncid_in, &inncp);
   if(status != NC_NOERR)
     return status;
 
@@ -11119,7 +11141,7 @@ nc_copy_var(int ncid_in, int varid, int ncid_out)
     return NC_EINDEFINE;
   }
 
-  status = NC_check_id(ncid_out, &outncp); 
+  status = NC_check_id(ncid_out, &outncp);
   if(status != NC_NOERR)
     return status;
 
@@ -11172,7 +11194,7 @@ nc_copy_var(int ncid_in, int varid, int ncid_out)
   (void) memcpy(coord, invp->shape, invp->ndims * sizeof(size_t));
   if(IS_RECVAR(invp))
     *coord = nrecs;
-  
+
   {
   size_t ii = 0;
   for(; ii < invp->ndims; ii++)
@@ -11187,7 +11209,7 @@ nc_copy_var(int ncid_in, int varid, int ncid_out)
   /* else */
 
   (void) memset(coord, 0, invp->ndims * sizeof(size_t));
-  
+
   if(!IS_RECVAR(invp))
   {
     status = NCxvarcpy(inncp, invp, coord,
@@ -11251,7 +11273,9 @@ nc_get_att(int ncid, int varid, const char *name, void *value)
     return nc_get_att_double(ncid, varid, name,
       (double *)value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -11291,19 +11315,21 @@ nc_put_att(
     return nc_put_att_double(ncid, varid, name, type, nelems,
       (double *)value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
 
 
 int
-nc_get_var1(int ncid, int varid, const size_t *coord, void *value)
+RENAME(get_var1)(int ncid, int varid, const size_t *coord, void *value)
 {
   int status;
   nc_type vartype;
 
-  status = nc_inq_vartype(ncid, varid, &vartype); 
+  status = nc_inq_vartype(ncid, varid, &vartype);
   if(status != NC_NOERR)
     return status;
 
@@ -11323,11 +11349,13 @@ nc_get_var1(int ncid, int varid, const size_t *coord, void *value)
   case NC_FLOAT:
     return nc_get_var1_float(ncid, varid, coord,
       (float *) value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return nc_get_var1_double(ncid, varid, coord,
       (double *) value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -11339,7 +11367,7 @@ nc_put_var1(int ncid, int varid, const size_t *coord, const void *value)
   int status;
   nc_type vartype;
 
-  status = nc_inq_vartype(ncid, varid, &vartype); 
+  status = nc_inq_vartype(ncid, varid, &vartype);
   if(status != NC_NOERR)
     return status;
 
@@ -11359,24 +11387,26 @@ nc_put_var1(int ncid, int varid, const size_t *coord, const void *value)
   case NC_FLOAT:
     return nc_put_var1_float(ncid, varid, coord,
       (const float *) value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return nc_put_var1_double(ncid, varid, coord,
       (const double *) value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
 
 
 int
-nc_get_vara(int ncid, int varid,
+RENAME(get_vara)(int ncid, int varid,
    const size_t *start, const size_t *edges, void *value)
 {
   int status;
   nc_type vartype;
 
-  status = nc_inq_vartype(ncid, varid, &vartype); 
+  status = nc_inq_vartype(ncid, varid, &vartype);
   if(status != NC_NOERR)
     return status;
 
@@ -11403,11 +11433,13 @@ nc_get_vara(int ncid, int varid,
   case NC_FLOAT:
     return nc_get_vara_float(ncid, varid, start, edges,
       (float *) value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return nc_get_vara_double(ncid, varid, start, edges,
       (double *) value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
@@ -11419,7 +11451,7 @@ nc_put_vara(int ncid, int varid,
   int status;
   nc_type vartype;
 
-  status = nc_inq_vartype(ncid, varid, &vartype); 
+  status = nc_inq_vartype(ncid, varid, &vartype);
   if(status != NC_NOERR)
     return status;
 
@@ -11439,17 +11471,19 @@ nc_put_vara(int ncid, int varid,
   case NC_FLOAT:
     return nc_put_vara_float(ncid, varid, start, edges,
       (const float *) value);
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     return nc_put_vara_double(ncid, varid, start, edges,
       (const double *) value);
   case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+    return NC_EBADTYPE;
+  default:
+    break;
   }
   return NC_EBADTYPE;
 }
 
 int
-nc_get_varm (
+RENAME(get_varm )(
   int ncid,
   int varid,
   const size_t * start,
@@ -11463,11 +11497,11 @@ nc_get_varm (
   int varndims;
   ptrdiff_t *cvtmap = NULL;
 
-  status = nc_inq_vartype(ncid, varid, &vartype); 
+  status = nc_inq_vartype(ncid, varid, &vartype);
   if(status != NC_NOERR)
     return status;
 
-  status = nc_inq_varndims(ncid, varid, &varndims); 
+  status = nc_inq_varndims(ncid, varid, &varndims);
   if(status != NC_NOERR)
     return status;
 
@@ -11481,9 +11515,9 @@ nc_get_varm (
     cvtmap = (ptrdiff_t *)calloc(varndims, sizeof(ptrdiff_t));
     if(cvtmap == NULL)
       return NC_ENOMEM;
-    for(ii = 0; (int)ii < varndims; ii++)
+    for(ii = 0; ii < varndims; ii++)
     {
-      if(imapp[ii] % szof != 0) 
+      if(imapp[ii] % szof != 0)
       {
         free(cvtmap);
         return NC_EINVAL;
@@ -11527,7 +11561,7 @@ nc_get_varm (
       stride, imapp,
       (float *) value);
     break;
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     status = nc_get_varm_double(ncid, varid, start, edges,
       stride, imapp,
       (double *) value);
@@ -11560,11 +11594,11 @@ nc_put_varm (
   int varndims;
   ptrdiff_t *cvtmap = NULL;
 
-  status = nc_inq_vartype(ncid, varid, &vartype); 
+  status = nc_inq_vartype(ncid, varid, &vartype);
   if(status != NC_NOERR)
     return status;
 
-  status = nc_inq_varndims(ncid, varid, &varndims); 
+  status = nc_inq_varndims(ncid, varid, &varndims);
   if(status != NC_NOERR)
     return status;
 
@@ -11578,9 +11612,9 @@ nc_put_varm (
     cvtmap = (ptrdiff_t *)calloc(varndims, sizeof(ptrdiff_t));
     if(cvtmap == NULL)
       return NC_ENOMEM;
-    for(ii = 0; (int)ii < varndims; ii++)
+    for(ii = 0; ii < varndims; ii++)
     {
-      if(imapp[ii] % szof != 0) 
+      if(imapp[ii] % szof != 0)
       {
         free(cvtmap);
         return NC_EINVAL;
@@ -11624,7 +11658,7 @@ nc_put_varm (
       stride, imapp,
       (const float *) value);
     break;
-  case NC_DOUBLE: 
+  case NC_DOUBLE:
     status = nc_put_varm_double(ncid, varid, start, edges,
       stride, imapp,
       (const double *) value);
@@ -11642,7 +11676,7 @@ nc_put_varm (
 }
 
 int
-nc_get_vars (
+RENAME(get_vars)(
   int ncid,
   int varid,
   const size_t * start,

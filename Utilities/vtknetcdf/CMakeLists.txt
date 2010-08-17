@@ -2,6 +2,9 @@ PROJECT(VTKNETCDF)
 
 INCLUDE_REGULAR_EXPRESSION(".*")
 
+SET(VERSION "4.1.1")
+SET(PACKAGE "netcdf")
+
 SET(netcdf_SRCS
   attr.c
   dim.c
@@ -12,9 +15,15 @@ SET(netcdf_SRCS
   ncx.c
   putget.c
   string.c
+  utf8proc.c
   v1hpg.c
   v2i.c
   var.c
+  )
+
+SET(netcdfcxx_SRCS
+  netcdf.cpp
+  ncvalues.cpp
   )
 
 IF(APPLE)
@@ -71,7 +80,7 @@ ENDMACRO(CHECK_TYPE_SIZE_EX)
 
 MACRO(C_SOURCE_COMPILES SOURCE VAR)
   IF("${VAR}" MATCHES "^${VAR}$")
-    SET(MACRO_CHECK_FUNCTION_DEFINITIONS 
+    SET(MACRO_CHECK_FUNCTION_DEFINITIONS
       "-D${VAR} ${CMAKE_REQUIRED_FLAGS}")
     IF(CMAKE_REQUIRED_LIBRARIES)
       SET(C_SOURCE_COMPILES_ADD_LIBRARIES
@@ -84,20 +93,20 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
     TRY_COMPILE(${VAR}
       ${CMAKE_BINARY_DIR}
       ${CMAKE_BINARY_DIR}/CMakeTmp/src.c
-      CMAKE_FLAGS 
+      CMAKE_FLAGS
       "${C_SOURCE_COMPILES_ADD_LIBRARIES}"
       OUTPUT_VARIABLE OUTPUT)
     IF(${VAR})
       SET(${VAR} 1 CACHE INTERNAL "NetCDF test ${FUNCTION}")
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Success")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log 
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Performing C SOURCE FILE Test ${VAR} succeded with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n" APPEND)
     ELSE(${VAR})
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Failed")
       SET(${VAR} "" CACHE INTERNAL "NetCDF test ${FUNCTION}")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log 
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Performing C SOURCE FILE Test ${VAR} failed with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n" APPEND)
@@ -106,7 +115,7 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
 ENDMACRO(C_SOURCE_COMPILES)
 
 CHECK_INCLUDE_FILES("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
-FOREACH(file 
+FOREACH(file
     "alloca.h"
     "stdlib.h"
     "sys/types.h"
@@ -117,6 +126,8 @@ FOREACH(file
     "string.h"
     "stddef.h"
     "stdint.h"
+    "inttypes.h"
+    "stdbool.h"
     )
   CHECK_INCLUDE_FILE_CONCAT("${file}")
 ENDFOREACH(file)
@@ -137,6 +148,7 @@ FOREACH(type
     "long"
     "short"
     "uchar"
+    "_Bool"
     )
   CHECK_TYPE_SIZE_EX("${type}")
 ENDFOREACH(type)
@@ -155,7 +167,7 @@ IF(HAVE_SYS_STAT_H)
   C_SOURCE_COMPILES("${testsrc}" HAVE_ST_BLKSIZE)
 ENDIF(HAVE_SYS_STAT_H)
 
-# 
+#
 SET(testsrc
   "main()
 {
@@ -237,9 +249,9 @@ ENDIF(NOT HAVE_SIZEOF_SSIZE_T)
 IF(NOT HAVE_SIZEOF_PTRDIFF_T)
   SET(ptrdiff_t int)
 ENDIF(NOT HAVE_SIZEOF_PTRDIFF_T)
-IF(NOT HAVE_SIZEOF_UCHAR)
-  SET(uchar "unsigned char")
-ENDIF(NOT HAVE_SIZEOF_UCHAR)
+#IF(NOT HAVE_SIZEOF_UCHAR)
+#  SET(uchar "unsigned char")
+#ENDIF(NOT HAVE_SIZEOF_UCHAR)
 
 # use the same name for the variable as in VTK, so the result is reused
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
@@ -250,6 +262,9 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
 
 ADD_LIBRARY(vtkNetCDF
   ${netcdf_SRCS})
+
+ADD_LIBRARY(vtkNetCDF_cxx ${netcdfcxx_SRCS})
+TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
 
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")

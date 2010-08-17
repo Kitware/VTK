@@ -6,21 +6,26 @@
 
 /*LINTLIBRARY*/
 
-#include "ncconfig.h"
+#include <ncconfig.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
-/* If netcdf-4 is in use, rename all nc_ functions to nc3_ functions. */
-#ifdef USE_NETCDF4
-#include <netcdf3.h>
-#include <nc3convert.h>
-#else
-#include "netcdf.h"
-#endif
+#include "rename.h"
 
-#ifndef NO_STRERROR
+#ifdef HAVE_STRERROR
 #include <string.h> /* contains prototype for ansi libc function strerror() */
+#else
+#if defined DLL_NETCDF || defined _WIN32_WCE /* define when library is a DLL */
+/* provide a strerror function for older windows systems */
+
+char w32_tmp[NC_MAX_NAME];
+static char *
+strerror(int errnum)
+{
+  sprintf(w32_tmp, "Windows: %d", errnum);
+  return w32_tmp;
+}
 #else
 /* provide a strerror function for older unix systems */
 static char *
@@ -31,8 +36,9 @@ strerror(int errnum)
 
     if(errnum < 0 || errnum >= sys_nerr) return NULL;
     /* else */
-    return sys_errlist[errnum];
+  return (char *)(sys_errlist[errnum]);
 }
+#endif
 #endif /* NO_STRERROR */
 
 
@@ -60,7 +66,7 @@ vms_strerror( int status )
 
   msgbuf[0] = 0;
   ret = SYS$GETMSG(status, &msglen, &message, 15, 0);
-  
+
   if(ret != SS$_BUFFEROVF && ret != SS$_NORMAL) {
     (void) strcpy(msgbuf, "EVMSERR");
   }
@@ -76,11 +82,11 @@ const char *
 nc_strerror(int err)
 {
 
-#ifdef vms 
+#ifdef vms
   if(err == EVMSERR)
   {
     return vms_strerror(err);
-  } 
+  }
   /* else */
 #endif /* vms */
 
@@ -161,6 +167,28 @@ nc_strerror(int err)
       return "NetCDF: Invalid dimension size";
   case NC_ETRUNC:
       return "NetCDF: File likely truncated or possibly corrupted";
+  case NC_EAXISTYPE:
+      return "NetCDF: Illegal axis type";
+  case NC_EDAP:
+      return "NetCDF: DAP failure";
+  case NC_ECURL:
+      return "NetCDF: libcurl failure";
+  case NC_EIO:
+      return "NetCDF: I/O failure";
+  case NC_ENODATA:
+      return "NetCDF: Variable has no data in DAP request";
+  case NC_EDAPSVC:
+      return "NetCDF: DAP server error";
+  case NC_EDAS:
+      return "NetCDF: Malformed or inaccessible DAP DAS";
+  case NC_EDDS:
+      return "NetCDF: Malformed or inaccessible DAP DDS";
+  case NC_EDATADDS:
+      return "NetCDF: Malformed or inaccessible DAP DATADDS";
+  case NC_EDAPURL:
+      return "NetCDF: Malformed DAP URL";
+  case NC_EDAPCONSTRAINT:
+      return "NetCDF: Malformed DAP Constraint";
   }
   /* default */
   return unknown;

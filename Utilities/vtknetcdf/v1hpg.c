@@ -2,9 +2,10 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: v1hpg.c,v 1.69 2009/02/20 20:35:04 dmh Exp $ */
 
 #include "nc.h"
+#include "rename.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,8 +16,8 @@
 /*
  * This module defines the external representation
  * of the "header" of a netcdf version one file and
- * the version two variant that uses 64-bit file 
- * offsets instead of the 32-bit file offsets in version 
+ * the version two variant that uses 64-bit file
+ * offsets instead of the 32-bit file offsets in version
  * one files.
  * For each of the components of the NC structure,
  * There are (static) ncx_len_XXX(), v1h_put_XXX()
@@ -46,11 +47,11 @@ static const schar ncmagic1[] = {'C', 'D', 'F', 0x01};
  */
 typedef struct v1hs {
   ncio *nciop;
-  off_t offset; /* argument to nciop->get() */
+  off_t offset;  /* argument to nciop->get() */
   size_t extent;  /* argument to nciop->get() */
   int flags;  /* set to RGN_WRITE for write */
         int version;    /* format variant: NC_FORMAT_CLASSIC or NC_FORMAT_64BIT */
-  void *base; /* beginning of current buffer */
+  void *base;  /* beginning of current buffer */
   void *pos;  /* current position in buffer */
   void *end;  /* end of current buffer = base + extent */
 } v1hs;
@@ -91,12 +92,12 @@ fault_v1hs(v1hs *gsp, size_t extent)
       return status;
     gsp->offset += incr;
   }
-  
+
   if(extent > gsp->extent)
-    gsp->extent = extent; 
+    gsp->extent = extent;
 
   status = gsp->nciop->get(gsp->nciop,
-      gsp->offset, gsp->extent,
+       gsp->offset, gsp->extent,
       gsp->flags, &gsp->base);
   if(status)
     return status;
@@ -244,7 +245,7 @@ ncx_len_NC_string(const NC_string *ncstrp)
 
   assert(ncstrp != NULL);
 
-  if(ncstrp->nchars != 0) 
+  if(ncstrp->nchars != 0)
   {
 #if 0
     assert(ncstrp->nchars % X_ALIGN == 0);
@@ -305,7 +306,7 @@ v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
   assert(ncstrp->nchars % X_ALIGN == 0);
   status = check_v1hs(gsp, ncstrp->nchars);
 #else
-  
+
   status = check_v1hs(gsp, _RNDUP(ncstrp->nchars, X_ALIGN));
 #endif
   if(status != ENOERR)
@@ -323,7 +324,7 @@ v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
 unwind_alloc:
   free_NC_string(ncstrp);
   return status;
-  
+
 }
 
 /* End NC_string */
@@ -495,7 +496,7 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
   status = v1h_get_size_t(gsp, &ncap->nelems);
   if(status != ENOERR)
     return status;
-  
+
   if(ncap->nelems == 0)
     return ENOERR;
   /* else */
@@ -566,24 +567,24 @@ v1h_put_NC_attrV(v1hs *psp, const NC_attr *attrp)
   const size_t perchunk =  psp->extent;
   size_t remaining = attrp->xsz;
   void *value = attrp->xvalue;
-  size_t nbytes; 
+  size_t nbytes;
 
   assert(psp->extent % X_ALIGN == 0);
-  
+
   do {
     nbytes = MIN(perchunk, remaining);
-  
+
     status = check_v1hs(psp, nbytes);
     if(status != ENOERR)
       return status;
-  
+
     (void) memcpy(psp->pos, value, nbytes);
 
     psp->pos = (void *)((char *)psp->pos + nbytes);
     value = (void *)((char *)value + nbytes);
     remaining -= nbytes;
 
-  } while(remaining != 0); 
+  } while(remaining != 0);
 
   return ENOERR;
 }
@@ -626,22 +627,22 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
   const size_t perchunk =  gsp->extent;
   size_t remaining = attrp->xsz;
   void *value = attrp->xvalue;
-  size_t nget; 
+  size_t nget;
 
   do {
     nget = MIN(perchunk, remaining);
-  
+
     status = check_v1hs(gsp, nget);
     if(status != ENOERR)
       return status;
-  
+
     (void) memcpy(value, gsp->pos, nget);
 
     gsp->pos = (void *)((char *)gsp->pos + nget);
     value = (void *)((char *)value + nget);
     remaining -= nget;
 
-  } while(remaining != 0); 
+  } while(remaining != 0);
 
   return ENOERR;
 }
@@ -675,7 +676,7 @@ v1h_get_NC_attr(v1hs *gsp, NC_attr **attrpp)
     status = NC_ENOMEM;
     goto unwind_name;
   }
-  
+
   status = v1h_get_NC_attrV(gsp, attrp);
   if(status != ENOERR)
   {
@@ -786,7 +787,7 @@ v1h_get_NC_attrarray(v1hs *gsp, NC_attrarray *ncap)
   status = v1h_get_size_t(gsp, &ncap->nelems);
   if(status != ENOERR)
     return status;
-  
+
   if(ncap->nelems == 0)
     return ENOERR;
   /* else */
@@ -940,7 +941,7 @@ v1h_get_NC_var(v1hs *gsp, NC_var **varpp)
              &varp->begin, gsp->version == 1 ? 4 : 8);
   if(status != ENOERR)
      goto unwind_alloc;
-  
+
   *varpp = varp;
   return ENOERR;
 
@@ -1044,11 +1045,11 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
   status = v1h_get_NCtype(gsp, &type);
   if(status != ENOERR)
     return status;
-  
+
   status = v1h_get_size_t(gsp, &ncap->nelems);
   if(status != ENOERR)
     return status;
-  
+
   if(ncap->nelems == 0)
     return ENOERR;
   /* else */
@@ -1096,8 +1097,8 @@ NC_computeshapes(NC *ncp)
 {
   NC_var **vpp = (NC_var **)ncp->vars.value;
   NC_var *const *const end = &vpp[ncp->vars.nelems];
-  NC_var *first_var = NULL; /* first "non-record" var */
-  NC_var *first_rec = NULL; /* first "record" var */
+  NC_var *first_var = NULL;  /* first "non-record" var */
+  NC_var *first_rec = NULL;  /* first "record" var */
   int status;
 
   ncp->begin_var = (off_t) ncp->xsz;
@@ -1106,16 +1107,16 @@ NC_computeshapes(NC *ncp)
 
   if(ncp->vars.nelems == 0)
     return(0);
-  
+
   for( /*NADA*/; vpp < end; vpp++)
   {
     status = NC_var_shape(*vpp, &ncp->dims);
     if(status != ENOERR)
       return(status);
 
-      if(IS_RECVAR(*vpp)) 
+      if(IS_RECVAR(*vpp))
     {
-        if(first_rec == NULL) 
+        if(first_rec == NULL)
         first_rec = *vpp;
       ncp->recsize += (*vpp)->len;
     }
@@ -1136,8 +1137,8 @@ NC_computeshapes(NC *ncp)
     assert(ncp->begin_rec <= first_rec->begin);
     ncp->begin_rec = first_rec->begin;
     /*
-     * for special case of exactly one record variable, pack value
-     */
+      * for special case of exactly one record variable, pack value
+      */
     if(ncp->recsize == first_rec->len)
       ncp->recsize = *first_rec->dsizes * first_rec->xsz;
   }
@@ -1155,7 +1156,7 @@ NC_computeshapes(NC *ncp)
   assert(ncp->xsz <= (size_t)ncp->begin_var);
   assert(ncp->begin_rec > 0);
   assert(ncp->begin_var <= ncp->begin_rec);
-  
+
   return(ENOERR);
 }
 
@@ -1167,7 +1168,7 @@ ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
   size_t xlen = sizeof(ncmagic);
 
   assert(ncp != NULL);
-  
+
   xlen += X_SIZEOF_SIZE_T; /* numrecs */
   xlen += ncx_len_NC_dimarray(&ncp->dims);
   xlen += ncx_len_NC_attrarray(&ncp->attrs);
@@ -1181,7 +1182,7 @@ ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
 int
 ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 {
-  int status;
+  int status = ENOERR;
   v1hs ps; /* the get stream */
 
   assert(ncp != NULL);
@@ -1193,7 +1194,7 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 
   if (ncp->flags & NC_64BIT_OFFSET)
     ps.version = 2;
-  else 
+  else
     ps.version = 1;
 
   if(xpp == NULL)
@@ -1215,7 +1216,7 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
     {
       extent = ncp->chunk;
     }
-    
+
     ps.offset = 0;
     ps.extent = extent;
     ps.base = NULL;
@@ -1292,23 +1293,28 @@ nc_get_NC(NC *ncp)
     /*
      * Come up with a reasonable stream read size.
      */
-    off_t filesize;
-    size_t extent;
-    
+          off_t filesize;
+    size_t extent = MIN_NC_XSZ;
+
     extent = ncp->xsz;
     if(extent <= MIN_NC_XSZ)
     {
-      status = ncio_filesize(ncp->nciop, &filesize);
+            status = ncio_filesize(ncp->nciop, &filesize);
       if(status)
           return status;
+      if(filesize < sizeof(ncmagic)) { /* too small, not netcdf */
+
+          status = NC_ENOTNC;
+          return status;
+      }
       /* first time read */
       extent = ncp->chunk;
       /* Protection for when ncp->chunk is huge;
        * no need to read hugely. */
-      if(extent > 4096)
+            if(extent > 4096)
         extent = 4096;
-      if(extent > (size_t)filesize)
-        extent = filesize;
+      if(extent > filesize)
+              extent = (size_t)filesize;
     }
     else if(extent > ncp->chunk)
     {
@@ -1339,7 +1345,7 @@ nc_get_NC(NC *ncp)
       (const void **)(&gs.pos), sizeof(magic), magic);
     if(status != ENOERR)
       goto unwind_get;
-  
+
     if(memcmp(magic, ncmagic, sizeof(ncmagic)-1) != 0)
     {
       status = NC_ENOTNC;
@@ -1362,7 +1368,7 @@ nc_get_NC(NC *ncp)
       goto unwind_get;
     }
   }
-  
+
   {
   size_t nrecs = 0;
   status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
@@ -1384,7 +1390,7 @@ nc_get_NC(NC *ncp)
   status = v1h_get_NC_vararray(&gs, &ncp->vars);
   if(status != ENOERR)
     goto unwind_get;
-    
+
   ncp->xsz = ncx_len_NC(ncp, (gs.version == 1) ? 4 : 8);
 
   status = NC_computeshapes(ncp);
