@@ -76,7 +76,14 @@ int TestScalarsToColors( int argc, char * argv [] )
   item3->SetOpacity(0.2);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
-
+/*
+  vtkSmartPointer<vtkPiecewiseFunctionItem> item3 =
+    vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
+  item3->SetPiecewiseFunction(opacityFunction);
+  item3->SetColor(0.,0.,0.);
+  item3->SetMaskAboveCurve(true);
+  chart->AddPlot(item3);
+*/
   vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
     vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
   item5->SetPiecewiseFunction(opacityFunction);

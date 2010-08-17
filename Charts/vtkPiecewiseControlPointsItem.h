@@ -41,16 +41,8 @@ protected:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
-  // Mouse enter event.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
   // Mouse move event.
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse leave event.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
 
   // Description:
   // Mouse button down event.
@@ -62,10 +54,8 @@ protected:
 
   vtkPiecewiseFunction* PiecewiseFunction;
 
-  float LastPosition[2];
-
-  int MouseOver;
-  int MouseButtonPressed;
+  float     ButtonPressPosition[2];
+  vtkIdType MouseOver;
 
 private:
   vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.

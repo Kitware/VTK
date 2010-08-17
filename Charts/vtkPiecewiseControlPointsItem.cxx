@@ -16,6 +16,7 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkIdTypeArray.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkObjectFactory.h"
@@ -38,7 +39,6 @@ vtkPiecewiseControlPointsItem::vtkPiecewiseControlPointsItem()
   this->PiecewiseFunction = 0;
 
   MouseOver = -1;
-  MouseButtonPressed = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,111 +76,151 @@ void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t
 }
 
 //-----------------------------------------------------------------------------
-// good or not...?
 void vtkPiecewiseControlPointsItem::ComputePoints()
 {
-  const int size = this->PiecewiseFunction ? this->PiecewiseFunction->GetSize() : 0;
+  int size = this->PiecewiseFunction ? this->PiecewiseFunction->GetSize() : 0;
   this->Points->SetNumberOfPoints(size);
   if (!size)
     {
+    this->Selection->SetNumberOfTuples(0);
+    this->SelectedPoints->SetNumberOfPoints(0);
     return;
     }
   double node[4];
-  for (int i = 0; i < size; ++i)
+  for (vtkIdType i = 0; i < size; ++i)
     {
     this->PiecewiseFunction->GetNodeValue(i,node);
     this->Points->SetPoint(i, node[0], node[1]);
     }
+  size = this->Selection->GetNumberOfTuples();
+  if (size)
+    {
+    vtkIdTypeArray* oldSelection = this->Selection;
+    vtkPoints2D* oldSelectedPoints = this->SelectedPoints;
+    this->Selection = vtkIdTypeArray::New();
+    this->SelectedPoints = vtkPoints2D::New();
+    for (vtkIdType i = 0; i < size; ++i)
+      {
+      this->SelectPoint(oldSelection->GetValue(i));
+      }
+    oldSelection->Delete();
+    oldSelectedPoints->Delete();
+    }
+  this->Superclass::ComputePoints();
 }
 
 //-----------------------------------------------------------------------------
 bool vtkPiecewiseControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
 {
-  if(this->MouseOver >= 0)
-    {
-    return true;
-    }
-
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPiecewiseControlPointsItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
-{
-  // Not efficient enough there must be a better way ...
-  // Get the index of the current point
-  double x = mouse.Pos[0];
-  int numberOfNodes = this->PiecewiseFunction->GetSize();
-  double val[4];
-  double closeVal = std::numeric_limits<double>::max();
-  double closeID;
-  double diff;
-
-  for(int i=0; i< numberOfNodes; ++i)
-    {
-    this->PiecewiseFunction->GetNodeValue(i, val);
-    diff = abs(val[0]-x);
-    if(diff < closeVal)
-      {
-      closeVal = diff;
-      this->MouseOver = i;
-      }
-    }
-
-  return true;
+  double pos[2];
+  pos[0] = mouse.Pos[0];
+  pos[1] = mouse.Pos[1];
+  return this->GetPointId(pos) != -1;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkPiecewiseControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if(this->MouseButtonPressed >= 0)
+  if (mouse.Button != vtkContextMouseEvent::LEFT_BUTTON)
     {
-    double currentPoint[4] = {0.0};
+    return false;
+    }
+  if (this->MouseOver >= 0)
+    {
+    double currentPoint[4] = {0.0, 0.0, 0.0, 0.0};
     this->PiecewiseFunction->GetNodeValue(this->MouseOver, currentPoint);
-    this->PiecewiseFunction->RemovePoint(currentPoint[0]);
-    this->PiecewiseFunction->AddPoint(mouse.Pos[0], mouse.Pos[1]);
-    // Update this->Highlight
-    //this->PiecewiseFunction->Update();
-    //this->Update();
+    currentPoint[0] = mouse.Pos[0];
+    currentPoint[1] = mouse.Pos[1];
+    this->PiecewiseFunction->SetNodeValue(this->MouseOver, currentPoint);
     return true;
     }
-
+  else // should only happen on a draw mode
+    {
+    //this->PiecewiseFunction->AddPoint(mouse.Pos[0], mouse.Pos[1]);
+    }
   return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkPiecewiseControlPointsItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
-{
-  this->MouseOver = -1;
-
-  return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkPiecewiseControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
-  this->LastPosition[0] = mouse.Pos[0];
-  this->LastPosition[1] = mouse.Pos[1];
-  this->MouseButtonPressed = mouse.Button;
+  if (mouse.Button != vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    return false;
+    }
+  this->ButtonPressPosition[0] = mouse.Pos[0];
+  this->ButtonPressPosition[1] = mouse.Pos[1];
 
+  double pos[2];
+  pos[0] = mouse.Pos[0];
+  pos[1] = mouse.Pos[1];
+  this->MouseOver = this->GetPointId(pos);
+  if (this->MouseOver == -1)
+    {
+    this->DeselectAllPoints();
+    this->GetScene()->SetDirty(true);
+    return false;
+    }
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkPiecewiseControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
-  int deltaX = static_cast<int>(mouse.Pos[0] - this->LastPosition[0]);
-  int deltaY = static_cast<int>(mouse.Pos[1] - this->LastPosition[1]);
-
-  // If there is a point under the mouse, invert its state (highlight or not)
-  if((this->MouseOver >= 0) && (deltaX == 0) && (deltaY == 0))
+  if (mouse.Button != vtkContextMouseEvent::LEFT_BUTTON)
     {
-    double currentPoint[4] = {0.0};
-    // Get the coordinates of the current point
-    this->PiecewiseFunction->GetNodeValue(this->MouseOver, currentPoint);
-    HighlightCurrentPoint(currentPoint);
+    return false;
     }
+  int deltaX = static_cast<int>(mouse.Pos[0] - this->ButtonPressPosition[0]);
+  int deltaY = static_cast<int>(mouse.Pos[1] - this->ButtonPressPosition[1]);
 
-  this->MouseButtonPressed = -1;
-  return true;
+  double point[2];
+  point[0] = mouse.Pos[0];
+  point[1] = mouse.Pos[1];
+  // If there is a point under the mouse, invert its state (highlight or not)
+  if (this->MouseOver != -1 &&
+      (deltaX * deltaX + deltaY * deltaY < this->ItemPointRadius2))
+    {
+    vtkIdType pointId = this->GetPointId(point);
+    if (pointId != -1)
+      {
+      this->ToggleSelectPoint(pointId);
+      this->GetScene()->SetDirty(true);
+      this->MouseOver = -1;
+      return true;
+      }
+    }
+  if (this->MouseOver == -1)
+    {
+    // offset all the point ids
+    vtkIdType nextPointId = -1;
+    int size = this->Points->GetNumberOfPoints();
+    for (vtkIdType i = 0; i < size; ++i)
+      {
+      double* point = this->Points->GetPoint(i);
+      if (point[0] > mouse.Pos[0])
+        {
+        nextPointId = i;
+        break;
+        }
+      }
+    if (nextPointId != -1)
+      {
+      size = this->Selection->GetNumberOfTuples();
+      for (vtkIdType i = 0; i < size; ++i)
+        {
+        vtkIdType pointId = this->Selection->GetValue(i);
+        if (pointId > nextPointId)
+          {
+          this->Selection->SetValue(i, ++pointId);
+          }
+        }
+      }
+    this->PiecewiseFunction->AddPoint(mouse.Pos[0], mouse.Pos[1]);
+    // TBD should the point be selected by default ?
+    //this->DeselectAllPoints();
+    return true;
+    }
+  this->MouseOver = -1;
+  return false;
 }
