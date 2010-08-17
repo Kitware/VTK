@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-// .NAME vtkChartPie - Factory class for drawing Pie charts
+// .NAME vtkChartPie - Factory class for drawing pie charts
 //
 // .SECTION Description
-// This class implements an XY chart.
+// This class implements an pie chart.
 
 #ifndef __vtkChartPie_h
 #define __vtkChartPie_h
@@ -64,6 +64,10 @@ public:
   // Get the number of plots the chart contains.
   virtual vtkIdType GetNumberOfPlots();
 
+  // Description:
+  // Set the vtkContextScene for the item, always set for an item in a scene.
+  virtual void SetScene(vtkContextScene *scene);
+
 //BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
@@ -94,10 +98,6 @@ public:
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
 //ETX
 
-  // Description:
-  // Set the vtkContextScene for the item, always set for an item in a scene.
-  virtual void SetScene(vtkContextScene *scene);
-
 //BTX
 protected:
   vtkChartPie();
@@ -122,10 +122,6 @@ protected:
 private:
   vtkChartPie(const vtkChartPie &); // Not implemented.
   void operator=(const vtkChartPie &);   // Not implemented.
-
-  // Description:
-  // Private functions to render different parts of the chart
-  void RenderPlots(vtkContext2D *painter);
 
   // Description:
   // Try to locate a point within the plots to display in a tooltip
