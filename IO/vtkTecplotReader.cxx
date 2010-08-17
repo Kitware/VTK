@@ -1603,7 +1603,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
             do
               {
               //remove left square bracket, if it exists
-              int brack_pos = var_format_type.find("[");
+              unsigned int brack_pos = var_format_type.find("[");
               if ( brack_pos != vtkstd::string::npos )
                 var_format_type.erase(brack_pos, brack_pos+1);
 
