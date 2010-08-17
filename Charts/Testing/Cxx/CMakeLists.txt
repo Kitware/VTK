@@ -5,7 +5,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   SET(MyTests
     TestContextScene.cxx
     TestVector.cxx
-    TestFreeTypeRender.cxx
     )
 
   IF (VTK_DATA_ROOT)
