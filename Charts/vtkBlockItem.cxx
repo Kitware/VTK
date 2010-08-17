@@ -36,7 +36,7 @@ vtkBlockItem::vtkBlockItem()
 {
   this->Label = NULL;
   this->MouseOver = false;
-  this->MouseButtonPressed = -1;
+  this->MouseButtonPressed = vtkContextMouseEvent::NO_BUTTON;
   this->scalarFunction = NULL;
   this->Dimensions[0]=0;
   this->Dimensions[1]=0;
@@ -172,7 +172,7 @@ bool vtkBlockItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
-  this->MouseButtonPressed = -1;
+  this->MouseButtonPressed = vtkContextMouseEvent::NO_BUTTON;
   return true;
 }
 
