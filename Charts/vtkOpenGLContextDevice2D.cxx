@@ -580,7 +580,7 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     this->Storage->Texture->PostRender(this->Renderer);
     glDisable(GL_TEXTURE_2D);
-    delete texCoord;
+    delete [] texCoord;
     }
 }
 //-----------------------------------------------------------------------------
