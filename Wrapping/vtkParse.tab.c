@@ -8670,21 +8670,41 @@ void add_enum(const char *name, const char *value)
   add_constant(name, currentEnumValue, VTK_PARSE_INT, currentEnumName, 2);
 }
 
-/* for a macro constant, guess the constant type, doesn't do any math */
+/* for a macro constant, guess the constant type */
 unsigned int guess_constant_type(const char *valstring)
 {
   unsigned int valtype = 0;
   size_t k;
   int i;
+  int is_name = 0;
 
   if (valstring == NULL || valstring[0] == '\0')
     {
     return 0;
     }
 
+  if (valstring[0] < '0' || valstring[0] > '9')
+    {
+    k = 0;
+    while ((valstring[k] >= '0' && valstring[k] <= '9') ||
+           (valstring[k] >= 'a' && valstring[k] <= 'z') ||
+           (valstring[k] >= 'A' && valstring[k] <= 'Z') ||
+           valstring[k] == '_') { k++; }
+
+    if (valstring[k] == '\0')
+      {
+      is_name = 1;
+      }
+    }
+
   if (strcmp(valstring, "true") == 0 || strcmp(valstring, "false") == 0)
     {
     return VTK_PARSE_BOOL;
+    }
+
+  if (valstring[0] == '\'')
+    {
+    return VTK_PARSE_CHAR;
     }
 
   if (strncmp(valstring, "VTK_TYPE_CAST(", 14) == 0 ||
@@ -8754,11 +8774,37 @@ unsigned int guess_constant_type(const char *valstring)
       }
     }
 
-  if (valstring[0] == '\'')
+  /* check the current scope */
+  if (is_name)
     {
-    return VTK_PARSE_CHAR;
+    NamespaceInfo *scope = currentNamespace;
+    if (namespaceDepth > 0)
+      {
+      scope = namespaceStack[0];
+      }
+
+    for (i = 0; i < scope->NumberOfConstants; i++)
+      {
+      if (strcmp(scope->Constants[i]->Name, valstring) == 0)
+        {
+        return scope->Constants[i]->Type;
+        }
+      }
     }
-  else
+
+  /* check for preprocessor macros */
+  if (is_name)
+    {
+    MacroInfo *macro = vtkParsePreprocess_GetMacro(
+      &preprocessor, valstring);
+
+    if (macro && !macro->IsFunction)
+      {
+      return guess_constant_type(macro->Definition);
+      }
+    }
+
+  /* fall back to the preprocessor to evaluate the constant */
     {
     preproc_int_t val;
     int is_unsigned;
@@ -8812,25 +8858,6 @@ unsigned int guess_constant_type(const char *valstring)
           return VTK_PARSE_LONG;
 #endif
           }
-        }
-      }
-    }
-
-  if (valstring[0] == '_' ||
-      (valstring[0] >= 'a' && valstring[0] <= 'z') ||
-      (valstring[0] >= 'A' && valstring[0] <= 'Z'))
-    {
-    NamespaceInfo *scope = currentNamespace;
-    if (namespaceDepth > 0)
-      {
-      scope = namespaceStack[0];
-      }
-
-    for (i = 0; i < scope->NumberOfConstants; i++)
-      {
-      if (strcmp(scope->Constants[i]->Name, valstring) == 0)
-        {
-        return scope->Constants[i]->Type;
         }
       }
     }
