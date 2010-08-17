@@ -382,7 +382,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* handle non-vtkObjectBase object arguments as pointers */
   if (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT ||
-      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT && !vtkWrapPython_IsQtEnum(Id)) )
+      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT &&
+       !vtkWrapPython_IsQtEnum(Id)) )
       && i != MAX_ARGS)
     {
     fprintf(fp, "*");
@@ -2935,7 +2936,9 @@ static void vtkWrapPython_GenerateMethods(
                 }
               if (argType == VTK_PARSE_OBJECT_REF ||
                   argType == VTK_PARSE_OBJECT ||
-                  ((argType == VTK_PARSE_QOBJECT_REF || argType == VTK_PARSE_QOBJECT) && !vtkWrapPython_IsQtEnum(theSignature->ArgClasses[i]))
+                  ((argType == VTK_PARSE_QOBJECT_REF ||
+                    argType == VTK_PARSE_QOBJECT) &&
+                   !vtkWrapPython_IsQtEnum(theSignature->ArgClasses[i]))
                   )
                 {
                 fprintf(fp,"*(temp%i)",i);
