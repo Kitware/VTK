@@ -17,15 +17,14 @@
 // scene.
 //
 // .SECTION Description
-// This vtkContextItem draws the supplied image in the scene. Optionally showing
-// the label as a tooltip on mouse over.
+// This vtkContextItem draws the supplied image in the scene.
 
 #ifndef __vtkImageItem_h
 #define __vtkImageItem_h
 
 #include "vtkContextItem.h"
+#include "vtkSmartPointer.h" // For SP ivars.
 
-class vtkContext2D;
 class vtkImageData;
 
 class VTK_CHARTS_EXPORT vtkImageItem : public vtkContextItem
@@ -40,40 +39,6 @@ public:
   // Paint event for the item.
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
-  // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse enter event.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse move event.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse leave event.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button down event.
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button release event.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-//ETX
-
-  // Description:
-  // Set the mouse over label for the item.
-  vtkSetStringMacro(Label);
-
-  // Description:
-  // Get the mouse over label for the item.
-  vtkGetStringMacro(Label);
-
   // Description:
   // Set the image of the item.
   void SetImage(vtkImageData *image);
@@ -83,34 +48,21 @@ public:
   vtkGetObjectMacro(Image, vtkImageData);
 
   // Description:
-  // Set the dimensions of the item, bottom corner, width, height.
-  vtkSetVector4Macro(Dimensions, int);
+  // Set the position of the bottom corner of the image.
+  vtkSetVector2Macro(Position, float);
 
   // Description:
-  // Get the dimensions of the item, bottom corner, width, height.
-  vtkGetVector4Macro(Dimensions, int);
-
-//BTX
-  void SetScalarFunctor(double (*scalarFunction)(double, double));
-//ETX
+  // Get the position of the bottom corner of the image.
+  vtkGetVector2Macro(Position, float);
 
 //BTX
 protected:
   vtkImageItem();
   ~vtkImageItem();
 
-  int Dimensions[4];
+  float Position[2];
 
-  int LastPosition[2];
-
-  char *Label;
   vtkImageData *Image;
-
-  bool MouseOver;
-  int MouseButtonPressed;
-
-  // Some function pointers to optionally do funky things...
-  double (*ScalarFunction)(double, double);
 
 private:
   vtkImageItem(const vtkImageItem &); // Not implemented.
