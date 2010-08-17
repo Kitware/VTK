@@ -55,6 +55,8 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
   this->AssessParameters->SetValue( 0, "Mean" );
   this->AssessParameters->SetValue( 1, "Standard Deviation" );
   this->UnbiasedVariance = 1; // By default, use unbiased estimator of the variance (divided by cardinality-1)
+  this->G1Skewness = 0; // By default, use g1 estimator of the skewness (G1 otherwise)
+  this->G2Kurtosis = 0; // By default, use g2 estimator of the kurtosis (G2 otherwise)
   this->SignedDeviations = 0; // By default, use unsigned deviation (1D Mahlanobis distance)
 }
 
@@ -68,6 +70,8 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "UnbiasedVariance: " << this->UnbiasedVariance << "\n";
+  os << indent << "G1Skewness: " << this->G1Skewness << "\n";
+  os << indent << "G2Kurtosis: " << this->G2Kurtosis << "\n";
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
 }
 
