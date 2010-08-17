@@ -322,6 +322,15 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
   )
 
+# header files that have constants that can be wrapped
+SET(Kit_WRAP_HEADERS
+  vtkSystemIncludes.h
+  vtkType.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  ${VTK_BINARY_DIR}/vtkConfigure.h
+  )
+
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractArray

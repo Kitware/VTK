@@ -1,7 +1,6 @@
 """
-Miscellaneous constants copied from vtkSystemIncludes.h and vtkType.h
-(It would be nice if this file were automatically generated,
-but the constants don't change very often)
+This file is obsolete.
+All the constants are part of the base vtk module.
 """
 
 # Some constants used throughout code

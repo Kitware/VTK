@@ -1,5 +1,6 @@
 # Create custom commands to generate the python wrappers for this kit.
-VTK_WRAP_PYTHON3(vtk${KIT}Python KitPython_SRCS "${Kit_SRCS}")
+SET(TMP_WRAP_FILES ${Kit_SRCS} ${Kit_WRAP_HEADERS})
+VTK_WRAP_PYTHON3(vtk${KIT}Python KitPython_SRCS "${TMP_WRAP_FILES}")
 
 # Create a shared library containing the python wrappers.  Executables
 # can link to this but it is not directly loaded dynamically as a

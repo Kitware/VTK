@@ -355,6 +355,10 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 
+SET(Kit_WRAP_HEADERS
+  vtkCellType.h
+  )
+
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
