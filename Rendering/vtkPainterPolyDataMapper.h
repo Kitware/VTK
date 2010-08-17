@@ -53,12 +53,6 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Re-implement the superclass GetBounds method.
-  virtual void GetBounds(double bounds[6])
-    { this->Superclass::GetBounds(bounds); }
-  virtual double *GetBounds();
-
-  // Description:
   // Select a data array from the point/cell data
   // and map it to a generic vertex attribute. 
   // vertexAttributeName is the name of the vertex attribute.
@@ -100,6 +94,12 @@ public:
 protected:
   vtkPainterPolyDataMapper();
   ~vtkPainterPolyDataMapper();
+
+  // Description:
+  // Called in GetBounds(). When this method is called, the consider the input
+  // to be updated depending on whether this->Static is set or not. This method
+  // simply obtains the bounds from the data-object and returns it.
+  virtual void ComputeBounds();
 
   // Description:
   // Called when the PainterInformation becomes obsolete. 

@@ -73,6 +73,7 @@ public:
     {
     bool Valid;
     int ProcessID;
+    int PropID;
     vtkProp* Prop;
     unsigned int CompositeID;
     vtkIdType AttributeID;

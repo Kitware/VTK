@@ -35,7 +35,12 @@ vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
-  this->ColorBlocks = 0;
+  // Insert the vtkCompositePainter in the selection pipeline, so that the
+  // selection painter can handle composite datasets as well.
+  vtkCompositePainter* selectionPainter = vtkCompositePainter::New();
+  selectionPainter->SetDelegatePainter(this->SelectionPainter);
+  this->SetSelectionPainter(selectionPainter);
+  selectionPainter->FastDelete();
 }
 
 //----------------------------------------------------------------------------
@@ -47,7 +52,8 @@ vtkCompositePolyDataMapper2::~vtkCompositePolyDataMapper2()
 int vtkCompositePolyDataMapper2::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -55,99 +61,6 @@ int vtkCompositePolyDataMapper2::FillInputPortInformation(
 vtkExecutive* vtkCompositePolyDataMapper2::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::RenderPiece(vtkRenderer* ren, vtkActor* act)
-{
-  vtkDataObject* inputDO = this->GetInputDataObject(0, 0);
-  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::SafeDownCast(inputDO);
-
-  if (!inputCD)
-    {
-    this->Superclass::RenderPiece(ren, act);
-    return;
-    }
-
-  //
-  // make sure that we've been properly initialized
-  //
-  if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
-    return;
-    }
-
-  if ( inputCD == NULL ) 
-    {
-    vtkErrorMacro(<< "No input!");
-    return;
-    }
-
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
-  if (!this->Static)
-    {
-    inputCD->Update();
-    }
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
-  // make sure our window is current
-  ren->GetRenderWindow()->MakeCurrent();
-  this->TimeToDraw = 0.0;
-  if (this->Painter)
-    {
-    // Update Painter information if obsolete.
-    if (this->PainterUpdateTime < this->GetMTime())
-      {
-      this->UpdatePainterInformation();
-      this->PainterUpdateTime.Modified();
-      }
-
-    // Pass polydata if changed.
-    if (this->Painter->GetInput() != inputDO)
-      {
-      this->Painter->SetInput(inputDO);
-      }
-    this->Painter->Render(ren, act, 0xff,this->ForceCompileOnly==1);
-    this->TimeToDraw = this->Painter->GetTimeToDraw();
-    }
-
-  // If the timer is not accurate enough, set it to a small
-  // time so that it is not zero
-  if ( this->TimeToDraw == 0.0 )
-    {
-    this->TimeToDraw = 0.0001;
-    }
-
-  this->UpdateProgress(1.0);
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::Render(vtkRenderer *ren, vtkActor *act) 
-{
-  if (this->Static)
-    {
-    this->RenderPiece(ren,act);
-    return;
-    }
-  
-  int currentPiece, nPieces;
-  vtkDataObject *input = this->GetInputDataObject(0, 0);
-  
-  if (input == NULL)
-    {
-    vtkErrorMacro("Mapper has no input.");
-    return;
-    }
-  
-  nPieces = this->NumberOfPieces * this->NumberOfSubPieces;
-
-  for(int i=0; i<this->NumberOfSubPieces; i++)
-    {
-    // If more than one pieces, render in loop.
-    currentPiece = this->NumberOfSubPieces * this->Piece + i;
-    input->SetUpdateExtent(currentPiece, nPieces, this->GhostLevel);
-    this->RenderPiece(ren, act);
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -163,13 +76,9 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   // the bounds of the input polydata.
   if (!input)
     {
-    this->Superclass::GetBounds();
+    this->Superclass::ComputeBounds();
     return;
     }
-
-  this->Update();
-  input = vtkCompositeDataSet::SafeDownCast(
-    this->GetInputDataObject(0, 0));
 
   // We do have hierarchical data - so we need to loop over
   // it and get the total bounds.
@@ -191,52 +100,12 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
     }
   iter->Delete();
   bbox.GetBounds(this->Bounds);
-  this->BoundsMTime.Modified();
-}
-
-//-----------------------------------------------------------------------------
-double *vtkCompositePolyDataMapper2::GetBounds()
-{ 
-  if ( !this->GetExecutive()->GetInputData(0, 0) ) 
-    {
-    vtkMath::UninitializeBounds(this->Bounds);
-    return this->Bounds;
-    }
-  else
-    {
-
-    if (!this->Static)
-      {
-      this->Update();
-      }
-    
-    //only compute bounds when the input data has changed
-    vtkCompositeDataPipeline * executive =
-      vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
-    if( executive->GetPipelineMTime() >= this->BoundsMTime.GetMTime() )
-      {
-      this->ComputeBounds();
-      }
-    return this->Bounds;
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::UpdatePainterInformation()
-{
-  vtkInformation* info = this->PainterInformation;
-  this->Superclass::UpdatePainterInformation();
-  if (this->ColorBlocks)
-    {
-    info->Set(vtkScalarsToColorsPainter::SCALAR_VISIBILITY(), 0);
-    }
-  info->Set(vtkCompositePainter::COLOR_LEAVES(), this->ColorBlocks);
+//  this->BoundsMTime.Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "ColorBlocks: " << this->ColorBlocks << endl;
 }
 
