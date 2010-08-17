@@ -97,6 +97,7 @@ herr_t
 H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
 {
     H5G_loc_t   root_loc;               /* Root location information */
+    H5G_obj_create_t gcrt_info;         /* Root group object creation info */
     htri_t      stab_exists = -1;       /* Whether the symbol table exists */
     hbool_t     sblock_dirty = FALSE;   /* Whether superblock was dirtied */
     hbool_t     path_init = FALSE;      /* Whether path was initialized */
@@ -140,7 +141,9 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
     if(create_root) {
         /* Create root group */
         /* (Pass the FCPL which is a sub-class of the group creation property class) */
-	if(H5G_obj_create(f, dxpl_id, f->shared->fcpl_id, root_loc.oloc/*out*/) < 0)
+        gcrt_info.gcpl_id = f->shared->fcpl_id;
+        gcrt_info.cache_type = H5G_NOTHING_CACHED;
+	if(H5G_obj_create(f, dxpl_id, &gcrt_info, root_loc.oloc/*out*/) < 0)
 	    HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group entry")
 	if(1 != H5O_link(root_loc.oloc, 1, dxpl_id))
 	    HGOTO_ERROR(H5E_SYM, H5E_LINKCOUNT, FAIL, "internal error (wrong link count)")
@@ -156,7 +159,9 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
                 HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, "can't allocate space for symbol table entry")
 
             /* Initialize the root group symbol table entry */
-            f->shared->sblock->root_ent->type = H5G_NOTHING_CACHED; /* We will cache the stab later */
+            f->shared->sblock->root_ent->type = gcrt_info.cache_type;
+            if(gcrt_info.cache_type != H5G_NOTHING_CACHED)
+                f->shared->sblock->root_ent->cache = gcrt_info.cache;
             f->shared->sblock->root_ent->name_off = 0;  /* No name (yet) */
             f->shared->sblock->root_ent->header = root_loc.oloc->addr;
         } /* end if */

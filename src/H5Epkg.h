@@ -68,15 +68,20 @@
 /****************************/
 
 /* Some syntactic sugar to make the compiler happy with two different kinds of callbacks */
-typedef struct {
-    unsigned vers;              /* Which version callback to use */
-    union {
 #ifndef H5_NO_DEPRECATED_SYMBOLS
-        H5E_auto1_t func1;      /* Old-style callback, NO error stack param. */
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-        H5E_auto2_t func2;      /* New-style callback, with error stack param. */
-    }u;
+typedef struct {
+    unsigned    vers;       /* Which version callback to use */
+    hbool_t     user_set;   /* If the printing function has been set. */
+    H5E_auto1_t func1;      /* Old-style callback, NO error stack param. */
+    H5E_auto2_t func2;      /* New-style callback, with error stack param. */
 } H5E_auto_op_t;
+#else
+typedef struct {
+    unsigned    vers;       /* Which version callback to use */
+    hbool_t     user_set;   /* If the printing function has been set. */
+    H5E_auto_t  func2;      /* Only the new style callback function is available. */
+} H5E_auto_op_t;
+#endif
 
 /* Some syntactic sugar to make the compiler happy with two different kinds of callbacks */
 typedef struct {

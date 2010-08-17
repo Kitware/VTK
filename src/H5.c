@@ -210,7 +210,7 @@ H5_term_library(void)
     int	pending, ntries = 0, n;
     size_t	at = 0;
     char	loop[1024];
-    H5E_auto2_t func;
+    H5E_auto_t  func;
 
 #ifdef H5_HAVE_THREADSAFE
     /* explicit locking of the API */
@@ -223,8 +223,11 @@ H5_term_library(void)
 	goto done;
 
     /* Check if we should display error output */
-    (void)H5Eget_auto2(H5E_DEFAULT, &func, NULL);
-
+#ifdef H5_USE_16_API_DEFAULT
+    (void)H5Eget_auto(&func, NULL);
+#else
+    (void)H5Eget_auto(H5E_DEFAULT, &func, NULL);
+#endif
     /*
      * Terminate each interface. The termination functions return a positive
      * value if they do something that might affect some other interface in a

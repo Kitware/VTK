@@ -333,7 +333,6 @@ H5B2_test_crt_dbg_context(H5F_t *f, hid_t UNUSED dxpl_id, haddr_t UNUSED addr)
 
     /* Sanity check */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
 
     /* Allocate callback context */
     if(NULL == (ctx = H5FL_MALLOC(H5B2_test_ctx_t)))

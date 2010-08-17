@@ -168,13 +168,16 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-/* ARGSUSED */
 static herr_t
 H5D_compact_construct(H5F_t *f, H5D_t *dset)
 {
     hssize_t stmp_size;         /* Temporary holder for raw data size */
     hsize_t tmp_size;           /* Temporary holder for raw data size */
     hsize_t max_comp_data_size; /* Max. allowed size of compact data */
+    hsize_t dim[H5O_LAYOUT_NDIMS];      /* Current size of data in elements */
+    hsize_t max_dim[H5O_LAYOUT_NDIMS];  /* Maximum size of data in elements */
+    int ndims;                          /* Rank of dataspace */
+    int i;                              /* Local index variable */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5D_compact_construct)
@@ -182,6 +185,13 @@ H5D_compact_construct(H5F_t *f, H5D_t *dset)
     /* Sanity checks */
     HDassert(f);
     HDassert(dset);
+
+    /* Check for invalid dataset dimensions */
+    if((ndims = H5S_get_simple_extent_dims(dset->shared->space, dim, max_dim)) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get dataspace dimensions")
+    for(i = 0; i < ndims; i++)
+        if(max_dim[i] > dim[i])
+            HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "extendible compact dataset")
 
     /*
      * Compact dataset is stored in dataset object header message of
@@ -548,17 +558,14 @@ H5D_compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst,
     storage_dst->dirty = TRUE;
 
 done:
-    if(buf_sid > 0 && H5I_dec_ref(buf_sid, FALSE) < 0)
+    if(buf_sid > 0 && H5I_dec_ref(buf_sid) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "can't decrement temporary dataspace ID")
-    if(tid_src > 0)
-        if(H5I_dec_ref(tid_src, FALSE) < 0)
-            HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
-    if(tid_dst > 0)
-        if(H5I_dec_ref(tid_dst, FALSE) < 0)
-            HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
-    if(tid_mem > 0)
-        if(H5I_dec_ref(tid_mem, FALSE) < 0)
-            HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
+    if(tid_src > 0 && H5I_dec_ref(tid_src) < 0)
+        HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
+    if(tid_dst > 0 && H5I_dec_ref(tid_dst) < 0)
+        HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
+    if(tid_mem > 0 && H5I_dec_ref(tid_mem) < 0)
+        HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
     if(buf)
         buf = H5FL_BLK_FREE(type_conv, buf);
     if(reclaim_buf)

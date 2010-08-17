@@ -30,7 +30,7 @@ IF (HDF5_BUILD_HL_LIB)
 ENDIF (HDF5_BUILD_HL_LIB)
 
 IF (HDF5_BUILD_TOOLS)
-  SET (HDF5_INCLUDE_DIR_CPP "@CMAKE_INSTALL_PREFIX@/include/tools" )
+  SET (HDF5_INCLUDE_DIR_TOOLS "@CMAKE_INSTALL_PREFIX@/include/tools" )
 ENDIF (HDF5_BUILD_TOOLS)
 
 #-----------------------------------------------------------------------------

@@ -1716,7 +1716,10 @@ H5L_link_cb(H5G_loc_t *grp_loc/*in*/, const char *name, const H5O_link_t UNUSED 
     udata->lnk->name = (char *)name;
 
     /* Insert link into group */
-    if(H5G_obj_insert(grp_loc->oloc, name, udata->lnk, TRUE, udata->dxpl_id) < 0)
+    if(H5G_obj_insert(grp_loc->oloc, name, udata->lnk, TRUE,
+            udata->ocrt_info ? udata->ocrt_info->obj_type : H5O_TYPE_UNKNOWN,
+            udata->ocrt_info ? udata->ocrt_info->crt_info : NULL,
+            udata->dxpl_id) < 0)
         HGOTO_ERROR(H5E_LINK, H5E_CANTINIT, FAIL, "unable to create new link for object")
 
     /* Set object's path if it has been passed in and is not set */
@@ -1762,7 +1765,7 @@ H5L_link_cb(H5G_loc_t *grp_loc/*in*/, const char *name, const H5O_link_t UNUSED 
 done:
     /* Close the location given to the user callback if it was created */
     if(grp_id >= 0) {
-        if(H5I_dec_ref(grp_id, TRUE) < 0)
+        if(H5I_dec_app_ref(grp_id) < 0)
             HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
     } /* end if */
     else if(grp != NULL) {
@@ -2418,7 +2421,8 @@ H5L_move_dest_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
     udata->lnk->name = (char *)name;
 
     /* Insert the link into the group */
-    if(H5G_obj_insert(grp_loc->oloc, name, udata->lnk, TRUE, udata->dxpl_id) < 0)
+    if(H5G_obj_insert(grp_loc->oloc, name, udata->lnk, TRUE, H5O_TYPE_UNKNOWN,
+            NULL, udata->dxpl_id) < 0)
         HGOTO_ERROR(H5E_LINK, H5E_CANTINIT, FAIL, "unable to create new link to object")
 
     /* If the link was a user-defined link, call its move callback if it has one */
@@ -2464,7 +2468,7 @@ H5L_move_dest_cb(H5G_loc_t *grp_loc/*in*/, const char *name,
 done:
     /* Close the location given to the user callback if it was created */
     if(grp_id >= 0) {
-        if(H5I_dec_ref(grp_id, TRUE) < 0)
+        if(H5I_dec_app_ref(grp_id) < 0)
             HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
     } /* end if */
     else if(grp != NULL) {

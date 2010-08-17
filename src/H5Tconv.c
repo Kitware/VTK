@@ -1783,9 +1783,9 @@ H5T_conv_struct_free(H5T_conv_struct_t *priv)
 
     for (i=0; i<priv->src_nmembs; i++)
         if (src2dst[i] >= 0) {
-            status = H5I_dec_ref(src_memb_id[i], FALSE);
+            status = H5I_dec_ref(src_memb_id[i]);
             HDassert(status >= 0);
-            status = H5I_dec_ref(dst_memb_id[src2dst[i]], FALSE);
+            status = H5I_dec_ref(dst_memb_id[src2dst[i]]);
             HDassert(status >= 0);
         }
 
@@ -3173,9 +3173,9 @@ H5T_conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
             /* Release the temporary datatype IDs used */
             if(tsrc_id >= 0)
-                H5I_dec_ref(tsrc_id, FALSE);
+                H5I_dec_ref(tsrc_id);
             if(tdst_id >= 0)
-                H5I_dec_ref(tdst_id, FALSE);
+                H5I_dec_ref(tdst_id);
             break;
 
         default:    /* Some other command we don't know about yet.*/
@@ -3325,9 +3325,9 @@ H5T_conv_array(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
             /* Release the temporary datatype IDs used */
             if(tsrc_id >= 0)
-                H5I_dec_ref(tsrc_id, FALSE);
+                H5I_dec_ref(tsrc_id);
             if(tdst_id >= 0)
-                H5I_dec_ref(tdst_id, FALSE);
+                H5I_dec_ref(tdst_id);
             break;
 
         default:    /* Some other command we don't know about yet.*/

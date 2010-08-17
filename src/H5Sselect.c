@@ -189,10 +189,10 @@ H5S_select_get_seq_list(const H5S_t *space, unsigned flags,
 
     FUNC_ENTER_NOAPI_NOFUNC(H5S_select_get_seq_list)
 
-    assert(space);
+    HDassert(space);
 
     /* Call the selection type's get_seq_list function */
-    ret_value=(*space->select.type->get_seq_list)(space,flags,iter,maxseq,maxbytes,nseq,nbytes,off,len);
+    ret_value = (*space->select.type->get_seq_list)(space, flags, iter, maxseq, maxbytes, nseq, nbytes, off, len);
 
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* end H5S_select_get_seq_list() */

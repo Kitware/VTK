@@ -172,9 +172,7 @@ H5I_init_interface(void)
  *
  * 		Failure:	Negative.
  *
- * Programmer:
- *
- * Modifications:
+ * Programmer:	Unknown
  *
  *-------------------------------------------------------------------------
  */
@@ -224,14 +222,11 @@ H5I_term_interface(void)
  *		the type.
  *
  * Return:	Success:	Type ID of the new type
- *
  *		Failure:	H5I_BADID
  *
  * Programmers:	Nathaniel Furrer
- *				James Laird
+ *		James Laird
  *		Friday, April 30, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -270,21 +265,8 @@ done:
  *		Failure:	H5I_BADID
  *
  * Programmers:	Nathaniel Furrer
- *				James Laird
+ *		James Laird
  *		Friday, April 30, 2004
- *
- * Modifications: The initialization section of this function was formerly
- *					H5I_init_type, programmed by Robb Matzke on February 19,
- *					1999.
- *
- * 		Bill Wendling, 2000-05-05
- * 		Instead of the ugly test of whether hash_size is a power of
- * 		two, I placed it in a macro POWER_OF_TWO which uses the fact
- * 		that a number that is a power of two has only 1 bit set.
- *
- * 		Bill Wendling, 2000-05-09
- * 		Changed POWER_OF_TWO macro to allow 1 as a valid power of two.
- * 		Changed test below accordingly.
  *
  *-------------------------------------------------------------------------
  */
@@ -394,14 +376,11 @@ done:
  *              currently registered with the library.
  *
  * Return:	Success:        1 if the type is registered, 0 if it is not
- *
  *		Failure:	Negative
  *
  * Programmer:	James Laird
  *		Nathaniel Furrer
  *              Tuesday, June 29, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -433,18 +412,11 @@ done:
  *              private interface, which will just return 0.
  *
  * Return:	Success:	Zero
- *
  *		Failure:	Negative
  *
  * Programmer:	James Laird
  *		Nathaniel Furrer
  *              Friday, April 23, 2004
- *
- * Modifications:
- *              June 29, 2004
- *              Nat Furrer and James Laird
- *              Changed function signature to return the number of members
- *              by reference.
  *
  *-------------------------------------------------------------------------
  */
@@ -495,8 +467,6 @@ done:
  * Programmer:	Robb Matzke
  *              Wednesday, March 24, 1999
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -528,14 +498,12 @@ done:
  *		Public interface to H5I_clear_type.
  *
  * Return:	Success:	Non-negative
- *
  *		Failure:	negative
  *
  * Programmer:	James Laird
- *				Nathaniel Furrer
+ *		Nathaniel Furrer
  *              Friday, April 23, 2004
  *
- * Modifications:
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -563,7 +531,6 @@ done:
  *		function for each object regardless of the reference count.
  *
  * Return:	Success:	Non-negative
- *
  *		Failure:	negative
  *
  * Programmer:	Robb Matzke
@@ -727,8 +694,6 @@ done:
  * Programmer:	Nathaniel Furrer
  *		James Laird
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -761,8 +726,6 @@ done:
  *
  * Programmer:	Nathaniel Furrer
  *		James Laird
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -801,13 +764,10 @@ done:
  * Purpose:	Public interface to H5I_register.
  *
  * Return:	Success:	New object id.
- *
  *		Failure:	Negative
  *
  * Programmer:	Nathaniel Furrer
- *				James Laird
- *
- * Modifications:
+ *		James Laird
  *
  *-------------------------------------------------------------------------
  */
@@ -841,7 +801,6 @@ done:
  *		the ID which is returned to the user.
  *
  * Return:	Success:	New object id.
- *
  *		Failure:	Negative
  *
  * Programmer:	Unknown
@@ -1016,12 +975,9 @@ done:
  *
  * Return:	Success:	Non-null object pointer associated with the
  *				specified ID.
- *
  *		Failure:	NULL
  *
- * Programmer:
- *
- * Modifications:
+ * Programmer:	Unknown
  *
  *-------------------------------------------------------------------------
  */
@@ -1054,14 +1010,11 @@ done:
  *
  * Return:	Success:	Non-null object pointer associated with the
  *				specified ID.
- *
  *		Failure:	NULL
  *
  * Programmer:	Nathaniel Furrer
  *		James Laird
  *		Friday, April 23, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1093,13 +1046,10 @@ done:
  *
  * Return:	Success:	Non-null object pointer associated with the
  *				specified ID.
- *
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
  *		Wednesday, July 31, 2002
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1134,13 +1084,10 @@ done:
  *		in the object ID.
  *
  * Return:	Success:	A valid type number
- *
  *		Failure:	H5I_BADID, a negative value.
  *
  * Programmer:	Robb Matzke
  *		Friday, February 19, 1999
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1170,15 +1117,10 @@ done:
  *		encoded as part of the ID.
  *
  * Return:	Success:	Type number
- *
  *		Failure:	H5I_BADID, a negative value
  *
- * Programmer:
+ * Programmer:	Unknown
  *
- * Modifications:
- *		Robb Matzke, 1999-08-23
- *		Also fails if the ID has a valid type but no longer exists
- *		in the ID tables.
  *-------------------------------------------------------------------------
  */
 H5I_type_t
@@ -1209,13 +1151,10 @@ done:
  * Return:	Success:	A pointer to the object that was removed, the
  *				same pointer which would have been found by
  *				calling H5I_object().
- *
  *		Failure:	NULL
  *
  * Programmer:	James Laird
- *				Nathaniel Furrer
- *
- * Modifications:
+ *		Nathaniel Furrer
  *
  *-------------------------------------------------------------------------
  */
@@ -1246,13 +1185,10 @@ done:
  * Return:	Success:	A pointer to the object that was removed, the
  *				same pointer which would have been found by
  *				calling H5I_object().
- *
  *		Failure:	NULL
  *
  * Programmer:	James Laird
- *				Nat Furrer
- *
- * Modifications:
+ *		Nat Furrer
  *
  *-------------------------------------------------------------------------
  */
@@ -1283,12 +1219,9 @@ done:
  * Return:	Success:	A pointer to the object that was removed, the
  *				same pointer which would have been found by
  *				calling H5I_object().
- *
  *		Failure:	NULL
  *
- * Programmer:
- *
- * Modifications:
+ * Programmer:	Unknown
  *
  *-------------------------------------------------------------------------
  */
@@ -1403,7 +1336,7 @@ H5Idec_ref(hid_t id)
 	HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "invalid ID")
 
     /* Do actual decrement operation */
-    if((ret_value = H5I_dec_ref(id, TRUE)) < 0)
+    if((ret_value = H5I_dec_app_ref(id)) < 0)
         HGOTO_ERROR(H5E_ATOM, H5E_CANTDEC, FAIL, "can't decrement ID ref count")
 
 done:
@@ -1426,36 +1359,10 @@ done:
  *
  * Programmer:	Unknown
  *
- * Modifications:
- *
- *	Robb Matzke, 19 Feb 1998
- *	It is no longer an error when the reference count of an item reaches
- *	zero and no `free' function has been defined.  The object is still
- *	removed from the list.
- *
- *	Robb Matzke, 30 Dec 1998
- *	Fixed a bug where the return value was always zero instead of the new
- *	reference count.
- *
- *	Robb Matzke, 19 Feb 1999
- *	If the free method is defined and fails then the object is not
- *	removed from the type and its reference count is not decremented.
- *	The type number is now passed to the free method.
- *
- *	Raymond, 11 Dec 2001
- *	If the freeing function fails, return failure instead of reference
- *	count 1.  This feature is needed by file close with H5F_CLOSE_SEMI
- *	value.
- *
- *  Neil Fortner, 7 Aug 2008
- *  Added app_ref parameter and support for the app_count field, to
- *  distiguish between reference count from the library and from the
- *  application.
- *
  *-------------------------------------------------------------------------
  */
 int
-H5I_dec_ref(hid_t id, hbool_t app_ref)
+H5I_dec_ref(hid_t id)
 {
     H5I_type_t		type;		/*type the object is in*/
     H5I_id_type_t	*type_ptr;	/*ptr to the type	*/
@@ -1476,7 +1383,7 @@ H5I_dec_ref(hid_t id, hbool_t app_ref)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
 
     /* General lookup of the ID */
-    if(NULL == (id_ptr=H5I_find_id(id)))
+    if(NULL == (id_ptr = H5I_find_id(id)))
 	HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't locate ID")
 
     /*
@@ -1488,6 +1395,11 @@ H5I_dec_ref(hid_t id, hbool_t app_ref)
      * reference count without calling the free method.
      *
      * Beware: the free method may call other H5I functions.
+     * 
+     * If an object is closing, we can remove the ID even though the free 
+     * method might fail.  This can happen when a mandatory filter fails to
+     * write when a dataset is closed and the chunk cache is flushed to the 
+     * file.  We have to close the dataset anyway. (SLU - 2010/9/7)
      */
     if(1 == id_ptr->count) {
         /* (Casting away const OK -QAK) */
@@ -1500,15 +1412,105 @@ H5I_dec_ref(hid_t id, hbool_t app_ref)
     } /* end if */
     else {
         --(id_ptr->count);
-        if(app_ref)
-            --(id_ptr->app_count);
-        HDassert(id_ptr->count >= id_ptr->app_count);
-        ret_value = (int)(app_ref ? id_ptr->app_count : id_ptr->count);
-    }
+        ret_value = (int)id_ptr->count;
+    } /* end else */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5I_dec_ref() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5I_dec_app_ref
+ *
+ * Purpose:	H5I_dec_ref wrapper for case of modifying the application ref.
+ *		count for an ID as well as normal reference count.
+ *
+ * Return:	Success:	New app. reference count.
+ *		Failure:	Negative
+ *
+ * Programmer:  Quincey Koziol
+ *              Sept 16, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+H5I_dec_app_ref(hid_t id)
+{
+    H5I_id_info_t	*id_ptr;	/*ptr to the new ID	*/
+    int ret_value;                      /* Return value */
+
+    FUNC_ENTER_NOAPI(H5I_dec_app_ref, FAIL)
+
+    /* Sanity check */
+    HDassert(id >= 0);
+
+    /* Call regular decrement reference count routine */
+    if((ret_value = H5I_dec_ref(id)) < 0)
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTDEC, FAIL, "can't decrement ID ref count")
+
+    /* Check if the ID still exists */
+    if(ret_value > 0) {
+        /* General lookup of the ID */
+        if(NULL == (id_ptr = H5I_find_id(id)))
+            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't locate ID")
+
+        /* Adjust app_ref */
+        --(id_ptr->app_count);
+        HDassert(id_ptr->count >= id_ptr->app_count);
+
+        /* Set return value */
+        ret_value = (int)id_ptr->app_count;
+    } /* end if */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5I_dec_app_ref() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5I_dec_app_ref_always_close
+ *
+ * Purpose:	H5I_dec_app_ref wrapper for case of always closing the ID,
+ *		even when the free routine fails
+ *
+ * Return:	Success:	New app. reference count.
+ *		Failure:	Negative
+ *
+ * Programmer:  Quincey Koziol
+ *              Sept 16, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+H5I_dec_app_ref_always_close(hid_t id)
+{
+    int ret_value;                      /* Return value */
+
+    FUNC_ENTER_NOAPI(H5I_dec_app_ref_always_close, FAIL)
+
+    /* Sanity check */
+    HDassert(id >= 0);
+
+    /* Call application decrement reference count routine */
+    ret_value = H5I_dec_app_ref(id);
+
+    /* Check for failure */
+    if(ret_value < 0) {
+        /*
+         * If an object is closing, we can remove the ID even though the free 
+         * method might fail.  This can happen when a mandatory filter fails to
+         * write when a dataset is closed and the chunk cache is flushed to the 
+         * file.  We have to close the dataset anyway. (SLU - 2010/9/7)
+         */
+        H5I_remove(id);
+
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTDEC, FAIL, "can't decrement ID ref count")
+    } /* end if */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5I_dec_app_ref_always_close() */
 
 
 /*-------------------------------------------------------------------------
@@ -1521,8 +1523,6 @@ done:
  *
  * Programmer:  Quincey Koziol
  *              Dec  7, 2003
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1553,7 +1553,6 @@ done:
  * Purpose:	Increment the reference count for an object.
  *
  * Return:	Success:	The new reference count.
- *
  *		Failure:	Negative
  *
  * Programmer:	Robb Matzke
@@ -1617,8 +1616,6 @@ done:
  * Programmer:  Quincey Koziol
  *              Dec  7, 2003
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -1648,7 +1645,6 @@ done:
  * Purpose:	Retrieve the reference count for an object.
  *
  * Return:	Success:	The reference count.
- *
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
@@ -1705,10 +1701,8 @@ done:
  *		Failure:	Negative
  *
  * Programmer:  Nat Furrer
- *				James Laird
+ *		James Laird
  *              April 30, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1742,14 +1736,11 @@ done:
  * Purpose:	Increment the reference count for an ID type.
  *
  * Return:	Success:	The new reference count.
- *
  *		Failure:	Negative
  *
  * Programmer:	James Laird
- *				Nat Furrer
+ *		Nat Furrer
  *              Friday, April 30, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1795,9 +1786,7 @@ done:
  * Return:	Number of references to type on success/Negative on failure
  *
  * Programmer:	Nathaniel Furrer
- *				James Laird
- *
- * Modifications:
+ *		James Laird
  *
  *-------------------------------------------------------------------------
  */
@@ -1836,11 +1825,6 @@ done:
  * Return:	Number of references to type on success/Negative on failure
  *
  * Programmer:	Unknown
- *
- * Modifications:
- *
- *	Robb Matzke, 25 Feb 1998
- *	IDs are freed when a type is destroyed.
  *
  *-------------------------------------------------------------------------
  */
@@ -1888,10 +1872,8 @@ done:
  *		Failure:	Negative
  *
  * Programmer:  Nat Furrer
- *				James Laird
+ *		James Laird
  *              April 30, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1929,10 +1911,8 @@ done:
  *		Failure:	Negative
  *
  * Programmer:  Nat Furrer
- *				James Laird
+ *		James Laird
  *              April 30, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1973,12 +1953,6 @@ done:
  * Programmer:  Neil Fortner
  *              Friday, October 31, 2008 (boo)
  *
- * Modifications:
- *              Raymond Lu
- *              1 April 2009 (Believe it or not!)
- *              Moved the argument check down to H5I_find_id because other
- *              caller functions may pass in some invalid IDs to H5I_find_id.
- *              It used to do assertion check.
  *-------------------------------------------------------------------------
  */
 htri_t
@@ -2059,7 +2033,6 @@ done:
  * Return:	Success:	The first object in the type for which FUNC
  *				returns non-zero. NULL if FUNC returned zero
  *				for every object in the type.
- *
  *		Failure:	NULL
  *
  * Programmer:	Robb Matzke
@@ -2122,12 +2095,8 @@ done:
  *
  *		Failure:	NULL
  *
- * Programmer:
+ * Programmer:	Unknown
  *
- * Modifications:
- *              Raymond Lu
- *              1 April 2009 (Believe it or not!)
- *              Added argument check, took away assertion check.
  *-------------------------------------------------------------------------
  */
 static H5I_id_info_t *
@@ -2239,8 +2208,6 @@ done:
  * Programmer:  Raymond Lu
  *              Oct 27, 2003
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 hid_t
@@ -2311,21 +2278,15 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function: H5I_debug
+ * Function:	H5I_debug
  *
- * Purpose: Dump the contents of a type to stderr for debugging.
+ * Purpose:	Dump the contents of a type to stderr for debugging.
  *
- * Return: Success: Non-negative
+ * Return:	Success: Non-negative
+ *		Failure: Negative
  *
- *   Failure: Negative
- *
- * Programmer: Robb Matzke
- *  Friday, February 19, 1999
- *
- * Modifications:
- *
- *      Pedro Vicente, <pvn@ncsa.uiuc.edu> 22 Aug 2002
- *      Added `id to name' support.
+ * Programmer:	Robb Matzke
+ *		Friday, February 19, 1999
  *
  *-------------------------------------------------------------------------
  */

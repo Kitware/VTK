@@ -1272,7 +1272,7 @@ H5O_dtype_size(const H5F_t *f, const void *_mesg)
                     /* (starting with version 3 of the datatype message, use the minimum # of bytes required) */
                     if(dt->shared->version >= H5O_DTYPE_VERSION_3)
                         ret_value += offset_nbytes; 	/*member offset*/
-                    if(dt->shared->version >= H5O_DTYPE_VERSION_2)
+                    else if(dt->shared->version == H5O_DTYPE_VERSION_2)
                         ret_value += 4; 	/*member offset*/
                     else
                         ret_value += 4 +	/*member offset*/

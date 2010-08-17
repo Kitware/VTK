@@ -637,7 +637,7 @@ H5Z_prepare_prelude_callback_dcpl(hid_t dcpl_id, hid_t type_id, H5Z_prelude_type
     } /* end if */
 
 done:
-    if(space_id > 0 && H5I_dec_ref(space_id, FALSE) < 0)
+    if(space_id > 0 && H5I_dec_ref(space_id) < 0)
         HDONE_ERROR(H5E_PLINE, H5E_CANTRELEASE, FAIL, "unable to close dataspace")
 
     FUNC_LEAVE_NOAPI(ret_value)

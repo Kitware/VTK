@@ -81,7 +81,7 @@ H5CS_get_stack(void)
 
     FUNC_ENTER_NOAPI_NOFUNC_NOFS(H5CS_get_stack);
 
-    fstack = pthread_getspecific(H5TS_funcstk_key_g);
+    fstack = H5TS_get_thread_local_value(H5TS_funcstk_key_g);
     if (!fstack) {
         /* no associated value with current thread - create one */
         fstack = (H5CS_t *)HDmalloc(sizeof(H5CS_t));  /* Don't use H5MM_malloc() here, it causes infinite recursion */
@@ -94,7 +94,7 @@ H5CS_get_stack(void)
          *      released by the "key destructor" set up in the H5TS
          *      routines.  See calls to pthread_key_create() in H5TS.c -QAK)
          */
-        pthread_setspecific(H5TS_funcstk_key_g, (void *)fstack);
+        H5TS_set_thread_local_value(H5TS_funcstk_key_g, (void *)fstack);
     }
 
     FUNC_LEAVE_NOAPI_NOFS(fstack);

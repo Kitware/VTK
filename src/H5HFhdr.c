@@ -552,6 +552,9 @@ H5HF_hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t addr, H5AC_protect_t rw)
     /* Set the header's address */
     hdr->heap_addr = addr;
 
+    /* Update header's file pointer */
+    hdr->f = f;
+
     /* Set the return value */
     ret_value = hdr;
 

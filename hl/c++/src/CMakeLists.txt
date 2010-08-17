@@ -4,10 +4,11 @@ PROJECT (HDF5_HL_CPP_SRC)
 #-----------------------------------------------------------------------------
 # Define Sources
 #-----------------------------------------------------------------------------
+INCLUDE_DIRECTORIES (${HDF5_HL_SRC_DIR}/src)
+INCLUDE_DIRECTORIES (${HDF5_HL_CPP_SRC_SOURCE_DIR})
+
 SET (HDF5_HL_CPP_SRCS ${HDF5_HL_CPP_SRC_SOURCE_DIR}/H5PacketTable.cpp)
 SET (HDF5_HL_CPP_HDRS ${HDF5_HL_CPP_SRC_SOURCE_DIR}/H5PacketTable.h)
-INCLUDE_DIRECTORIES (${HDF5_HL_SOURCE_DIR}/src)
-INCLUDE_DIRECTORIES (${HDF5_HL_CPP_SRC_SOURCE_DIR})
 
 ADD_LIBRARY ( ${HDF5_HL_CPP_LIB_TARGET} ${LIB_TYPE} ${HDF5_HL_CPP_SRCS})
 TARGET_LINK_LIBRARIES (
@@ -25,7 +26,7 @@ INSTALL (
     FILES
         ${HDF5_HL_CPP_HDRS}
     DESTINATION
-        include/hl/cpp
+        ${HDF5_INSTALL_INCLUDE_DIR}/hl/cpp
     COMPONENT
         hlcppheaders
 )
@@ -39,8 +40,8 @@ IF (HDF5_EXPORTED_TARGETS)
           ${HDF5_HL_CPP_LIB_TARGET}
       EXPORT
           ${HDF5_EXPORTED_TARGETS}
-      LIBRARY DESTINATION lib COMPONENT hlcpplibraries
-      ARCHIVE DESTINATION lib COMPONENT hlcpplibraries
-      RUNTIME DESTINATION bin COMPONENT hlcpplibraries
+      LIBRARY DESTINATION ${HDF5_INSTALL_LIB_DIR} COMPONENT hlcpplibraries
+      ARCHIVE DESTINATION ${HDF5_INSTALL_LIB_DIR} COMPONENT hlcpplibraries
+      RUNTIME DESTINATION ${HDF5_INSTALL_BIN_DIR} COMPONENT hlcpplibraries
   )
 ENDIF (HDF5_EXPORTED_TARGETS)

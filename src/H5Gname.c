@@ -461,12 +461,12 @@ H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
 
         /* Search for name of object */
         if((len = H5G_get_name_by_addr(file, lapl_id, dxpl_id, loc->oloc, name, size)) < 0) {
-            H5I_dec_ref(file, FALSE);
+            H5I_dec_ref(file);
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't determine name")
         } /* end if */
 
         /* Close file ID used for search */
-        if(H5I_dec_ref(file, FALSE) < 0)
+        if(H5I_dec_ref(file) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTCLOSEFILE, FAIL, "can't determine name")
 
         /* Indicate that the name is _not_ cached, if requested */

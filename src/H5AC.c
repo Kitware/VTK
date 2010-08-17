@@ -374,26 +374,26 @@ done:
 int
 H5AC_term_interface(void)
 {
-    int		n=0;
+    int	n = 0;
 
     FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5AC_term_interface)
 
     if (H5_interface_initialize_g) {
 #ifdef H5_HAVE_PARALLEL
-        if(H5AC_dxpl_id>0 || H5AC_noblock_dxpl_id>0 || H5AC_ind_dxpl_id>0) {
+        if(H5AC_dxpl_id > 0 || H5AC_noblock_dxpl_id > 0 || H5AC_ind_dxpl_id > 0) {
             /* Indicate more work to do */
             n = 1; /* H5I */
 
             /* Close H5AC dxpl */
-            if (H5I_dec_ref(H5AC_dxpl_id, FALSE) < 0 ||
-                    H5I_dec_ref(H5AC_noblock_dxpl_id, FALSE) < 0 ||
-                    H5I_dec_ref(H5AC_ind_dxpl_id, FALSE) < 0)
+            if(H5I_dec_ref(H5AC_dxpl_id) < 0 ||
+                    H5I_dec_ref(H5AC_noblock_dxpl_id) < 0 ||
+                    H5I_dec_ref(H5AC_ind_dxpl_id) < 0)
                 H5E_clear_stack(NULL); /*ignore error*/
             else {
                 /* Reset static IDs */
-                H5AC_dxpl_id=(-1);
-                H5AC_noblock_dxpl_id=(-1);
-                H5AC_ind_dxpl_id=(-1);
+                H5AC_dxpl_id = (-1);
+                H5AC_noblock_dxpl_id = (-1);
+                H5AC_ind_dxpl_id = (-1);
 
                 /* Reset interface initialization flag */
                 H5_interface_initialize_g = 0;

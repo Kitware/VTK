@@ -1742,7 +1742,7 @@ H5SM_delete_from_index(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
         /* If this returns failure, it means that the message wasn't found.
          * If it succeeds, a copy of the modified message will be returned.
          */
-        if(H5B2_modify(bt2, dxpl_id, &key, H5SM_decr_ref, &message) <0)
+        if(H5B2_modify(bt2, dxpl_id, &key, H5SM_decr_ref, &message) < 0)
 	    HGOTO_ERROR(H5E_SOHM, H5E_NOTFOUND, FAIL, "message not in index")
 
         /* Point to the message */

@@ -125,7 +125,8 @@ static herr_t H5G_obj_remove_update_linfo(H5O_loc_t *oloc, H5O_linfo_t *linfo,
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_obj_create(H5F_t *f, hid_t dxpl_id, hid_t gcpl_id, H5O_loc_t *oloc/*out*/)
+H5G_obj_create(H5F_t *f, hid_t dxpl_id, H5G_obj_create_t *gcrt_info,
+    H5O_loc_t *oloc/*out*/)
 {
     H5P_genplist_t  *gc_plist;          /* Group creation property list */
     H5O_ginfo_t ginfo;                  /* Group info */
@@ -142,7 +143,7 @@ H5G_obj_create(H5F_t *f, hid_t dxpl_id, hid_t gcpl_id, H5O_loc_t *oloc/*out*/)
     HDassert(oloc);
 
     /* Get the property list */
-    if(NULL == (gc_plist = (H5P_genplist_t *)H5I_object(gcpl_id)))
+    if(NULL == (gc_plist = (H5P_genplist_t *)H5I_object(gcrt_info->gcpl_id)))
         HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, FAIL, "not a property list")
 
     /* Get the group info property */
@@ -158,7 +159,8 @@ H5G_obj_create(H5F_t *f, hid_t dxpl_id, hid_t gcpl_id, H5O_loc_t *oloc/*out*/)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get group info")
 
     /* Call the "real" group creation routine now */
-    if(H5G_obj_create_real(f, dxpl_id, &ginfo, &linfo, &pline, gcpl_id, oloc) < 0)
+    if(H5G_obj_create_real(f, dxpl_id, &ginfo, &linfo, &pline, gcrt_info, oloc)
+            < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTCREATE, FAIL, "unable to create group")
 
 done:
@@ -181,11 +183,12 @@ done:
  */
 herr_t
 H5G_obj_create_real(H5F_t *f, hid_t dxpl_id, const H5O_ginfo_t *ginfo,
-    const H5O_linfo_t *linfo, const H5O_pline_t *pline, hid_t gcpl_id,
-    H5O_loc_t *oloc/*out*/)
+    const H5O_linfo_t *linfo, const H5O_pline_t *pline,
+    H5G_obj_create_t *gcrt_info, H5O_loc_t *oloc/*out*/)
 {
     size_t hdr_size;                    /* Size of object header to request */
     hbool_t use_latest_format;          /* Flag indicating the new group format should be used */
+    hid_t gcpl_id = gcrt_info->gcpl_id; /* Group creation property list ID */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(H5G_obj_create_real, FAIL)
@@ -284,6 +287,11 @@ H5G_obj_create_real(H5F_t *f, hid_t dxpl_id, const H5O_ginfo_t *ginfo,
         /* The group doesn't currently have a 'stab' message, go create one */
         if(H5G_stab_create(oloc, dxpl_id, ginfo, &stab) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create symbol table")
+
+        /* Cache the symbol table information */
+        gcrt_info->cache_type = H5G_CACHED_STAB;
+        gcrt_info->cache.stab.btree_addr = stab.btree_addr;
+        gcrt_info->cache.stab.heap_addr = stab.heap_addr;
     } /* end else */
 
 done:
@@ -420,7 +428,8 @@ H5G_obj_stab_to_new_cb(const H5O_link_t *lnk, void *_udata)
 
     /* Insert link into group */
     /* (Casting away const OK - QAK) */
-    if(H5G_obj_insert(udata->grp_oloc, lnk->name, (H5O_link_t *)lnk, FALSE, udata->dxpl_id) < 0)
+    if(H5G_obj_insert(udata->grp_oloc, lnk->name, (H5O_link_t *)lnk, FALSE,
+            H5O_TYPE_UNKNOWN, NULL, udata->dxpl_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, H5_ITER_ERROR, "can't insert link into group")
 
 done:
@@ -447,7 +456,7 @@ done:
  */
 herr_t
 H5G_obj_insert(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *obj_lnk,
-    hbool_t adj_link, hid_t dxpl_id)
+    hbool_t adj_link, H5O_type_t obj_type, const void *crt_info, hid_t dxpl_id)
 {
     H5O_pline_t tmp_pline;      /* Pipeline message */
     H5O_pline_t *pline = NULL;  /* Pointer to pipeline message */
@@ -570,7 +579,8 @@ H5G_obj_insert(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *obj_lnk,
              *  group is in the "new format" now and the link info should be
              *  set up, etc.
              */
-            if(H5G_obj_insert(grp_oloc, name, obj_lnk, adj_link, dxpl_id) < 0)
+            if(H5G_obj_insert(grp_oloc, name, obj_lnk, adj_link, obj_type,
+                    crt_info, dxpl_id) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "unable to insert link into group")
 
             /* Done with insertion now */
@@ -583,7 +593,8 @@ H5G_obj_insert(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *obj_lnk,
     /* Insert into symbol table or "dense" storage */
     if(use_old_format) {
         /* Insert into symbol table */
-        if(H5G_stab_insert(grp_oloc, name, obj_lnk, dxpl_id) < 0)
+        if(H5G_stab_insert(grp_oloc, name, obj_lnk, obj_type, crt_info, dxpl_id)
+                < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "unable to insert entry into symbol table")
     } /* end if */
     else {

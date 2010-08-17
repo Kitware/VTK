@@ -17,7 +17,15 @@ MESSAGE (STATUS "  GetConsoleScreenBufferInfo function for Windows")
 # Always SET this for now IF we are on an OS X box
 #-----------------------------------------------------------------------------
 IF (APPLE)
-  SET (H5_AC_APPLE_UNIVERSAL_BUILD 1)
+  LIST(LENGTH CMAKE_OSX_ARCHITECTURES ARCH_LENGTH)
+  IF(ARCH_LENGTH GREATER 1)
+    set (CMAKE_OSX_ARCHITECTURES "" CACHE STRING "" FORCE)
+    message(FATAL_ERROR "Building Universal Binaries on OS X is NOT supported by the HDF5 project. This is"
+    "due to technical reasons. The best approach would be build each architecture in separate directories"
+    "and use the 'lipo' tool to combine them into a single executable or library. The 'CMAKE_OSX_ARCHITECTURES'"
+    "variable has been set to a blank value which will build the default architecture for this system.")
+  ENDIF()
+  SET (H5_AC_APPLE_UNIVERSAL_BUILD 0)
 ENDIF (APPLE)
 
 #-----------------------------------------------------------------------------
@@ -27,6 +35,7 @@ OPTION (HDF5_Enable_Clear_File_Buffers "Securely clear file buffers before writi
 IF (HDF5_Enable_Clear_File_Buffers)
   SET (H5_CLEAR_MEMORY 1)
 ENDIF (HDF5_Enable_Clear_File_Buffers)
+MARK_AS_ADVANCED (HDF5_Enable_Clear_File_Buffers)
 
 #-----------------------------------------------------------------------------
 # Option for --enable-instrument
@@ -38,6 +47,7 @@ OPTION (HDF5_Enable_Instrument "Instrument The library" HDF5_Enable_Instrument)
 IF (HDF5_Enable_Instrument)
   SET (H5_HAVE_INSTRUMENTED_LIBRARY 1)
 ENDIF (HDF5_Enable_Instrument)
+MARK_AS_ADVANCED (HDF5_Enable_Instrument)
 
 #-----------------------------------------------------------------------------
 # Option for --enable-strict-format-checks
@@ -46,6 +56,7 @@ OPTION (HDF5_STRICT_FORMAT_CHECKS "Whether to perform strict file format checks"
 IF (HDF5_STRICT_FORMAT_CHECKS)
   SET (H5_STRICT_FORMAT_CHECKS 1)
 ENDIF (HDF5_STRICT_FORMAT_CHECKS)
+MARK_AS_ADVANCED (HDF5_STRICT_FORMAT_CHECKS)
 
 #-----------------------------------------------------------------------------
 # Option for --enable-metadata-trace-file
@@ -54,6 +65,7 @@ OPTION (HDF5_METADATA_TRACE_FILE "Enable metadata trace file collection" OFF)
 IF (HDF5_METADATA_TRACE_FILE)
   SET (H5_METADATA_TRACE_FILE 1)
 ENDIF (HDF5_METADATA_TRACE_FILE)
+MARK_AS_ADVANCED (HDF5_METADATA_TRACE_FILE)
 
 # ----------------------------------------------------------------------
 # Decide whether the data accuracy has higher priority during data
@@ -65,6 +77,7 @@ OPTION (HDF5_WANT_DATA_ACCURACY "IF data accuracy is guaranteed during data conv
 IF (HDF5_WANT_DATA_ACCURACY)
   SET (H5_WANT_DATA_ACCURACY 1)
 ENDIF(HDF5_WANT_DATA_ACCURACY)
+MARK_AS_ADVANCED (HDF5_WANT_DATA_ACCURACY)
 
 # ----------------------------------------------------------------------
 # Decide whether the presence of user's exception handling functions is
@@ -76,24 +89,16 @@ OPTION (HDF5_WANT_DCONV_EXCEPTION "exception handling functions is checked durin
 IF (HDF5_WANT_DCONV_EXCEPTION)
   SET (H5_WANT_DCONV_EXCEPTION 1)
 ENDIF (HDF5_WANT_DCONV_EXCEPTION)
+MARK_AS_ADVANCED (HDF5_WANT_DCONV_EXCEPTION)
 
-SET (LINUX_LFS 0)
-SET (HDF5_EXTRA_FLAGS)
-IF (CMAKE_SYSTEM MATCHES "Linux-([3-9]\\.[0-9]|2\\.[4-9])\\.")
-  # Linux Specific flags
-  ADD_DEFINITIONS (-D_POSIX_SOURCE -D_BSD_SOURCE)
-  OPTION (HDF5_ENABLE_LARGE_FILE "Enable support for large (64-bit) files on Linux." ON)
-  IF (HDF5_ENABLE_LARGE_FILE)
-    SET (LARGEFILE 1)
-    SET (HDF5_EXTRA_FLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
-    SET (CMAKE_REQUIRED_DEFINITIONS ${HDF5_EXTRA_FLAGS})
-  ENDIF (HDF5_ENABLE_LARGE_FILE)
-ENDIF (CMAKE_SYSTEM MATCHES "Linux-([3-9]\\.[0-9]|2\\.[4-9])\\.")
-IF (LINUX_LFS)
-  SET (HDF5_EXTRA_FLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
-  SET (CMAKE_REQUIRED_DEFINITIONS ${HDF5_EXTRA_FLAGS})
-ENDIF (LINUX_LFS)
-ADD_DEFINITIONS (${HDF5_EXTRA_FLAGS})
+# ----------------------------------------------------------------------
+# Check if they would like the function stack support compiled in
+#
+OPTION (HDF5_ENABLE_CODESTACK "Enable the function stack tracing (for developer debugging)." OFF)
+IF (HDF5_ENABLE_CODESTACK)
+  SET (H5_HAVE_CODESTACK 1)
+ENDIF (HDF5_ENABLE_CODESTACK)
+MARK_AS_ADVANCED (HDF5_ENABLE_CODESTACK)
 
 #IF (WIN32)
 #  SET (DEFAULT_STREAM_VFD OFF)
@@ -243,6 +248,28 @@ IF (H5_HAVE_STDINT_H AND CMAKE_CXX_COMPILER_LOADED)
     SET (H5_HAVE_STDINT_H "" CACHE INTERNAL "Have includes HAVE_STDINT_H")
   ENDIF (NOT H5_HAVE_STDINT_H_CXX)
 ENDIF (H5_HAVE_STDINT_H AND CMAKE_CXX_COMPILER_LOADED)
+
+#-----------------------------------------------------------------------------
+#  Check for large file support
+#-----------------------------------------------------------------------------
+
+SET (LINUX_LFS 0)
+SET (HDF5_EXTRA_FLAGS)
+IF (CMAKE_SYSTEM MATCHES "Linux-([3-9]\\.[0-9]|2\\.[4-9])\\.")
+  # Linux Specific flags
+  ADD_DEFINITIONS (-D_POSIX_SOURCE -D_BSD_SOURCE)
+  OPTION (HDF5_ENABLE_LARGE_FILE "Enable support for large (64-bit) files on Linux." ON)
+  IF (HDF5_ENABLE_LARGE_FILE)
+    SET (LARGEFILE 1)
+    SET (HDF5_EXTRA_FLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
+    SET (CMAKE_REQUIRED_DEFINITIONS ${HDF5_EXTRA_FLAGS})
+  ENDIF (HDF5_ENABLE_LARGE_FILE)
+ENDIF (CMAKE_SYSTEM MATCHES "Linux-([3-9]\\.[0-9]|2\\.[4-9])\\.")
+IF (LINUX_LFS)
+  SET (HDF5_EXTRA_FLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
+  SET (CMAKE_REQUIRED_DEFINITIONS ${HDF5_EXTRA_FLAGS})
+ENDIF (LINUX_LFS)
+ADD_DEFINITIONS (${HDF5_EXTRA_FLAGS})
 
 #-----------------------------------------------------------------------------
 #  Check the size in bytes of all the int and float types
@@ -493,6 +520,7 @@ ENDMACRO (HDF5_FUNCTION_TEST)
 IF (WINDOWS)
   SET (H5_HAVE_TIMEZONE 1)
   SET (H5_HAVE_FUNCTION 1)
+  SET (H5_LONE_COLON 0)
 ELSE (WINDOWS)
   FOREACH (test
       TIME_WITH_SYS_TIME
@@ -515,10 +543,23 @@ ELSE (WINDOWS)
       HAVE_C99_FUNC
       HAVE_C99_DESIGNATED_INITIALIZER
       CXX_HAVE_OFFSETOF
+      LONE_COLON
   )
     HDF5_FUNCTION_TEST (${test})
   ENDFOREACH (test)
 ENDIF (WINDOWS)
+
+#-----------------------------------------------------------------------------
+# Option to see if GPFS is available on this filesystem --enable-gpfs
+#-----------------------------------------------------------------------------
+OPTION (HDF5_ENABLE_GPFS "Enable GPFS hints for the MPI/POSIX file driver" OFF)
+IF (HDF5_ENABLE_GPFS)
+  CHECK_INCLUDE_FILE_CONCAT ("gpfs.h"        HAVE_GPFS)
+  IF (HAVE_GPFS)
+    HDF5_FUNCTION_TEST (HAVE_GPFS)  
+  ENDIF (HAVE_GPFS)
+ENDIF (HDF5_ENABLE_GPFS)
+MARK_AS_ADVANCED (HDF5_ENABLE_GPFS)
 
 #-----------------------------------------------------------------------------
 # Look for 64 bit file stream capability
@@ -552,8 +593,7 @@ ENDIF (INLINE_TEST___inline__)
 #-----------------------------------------------------------------------------
 # Check how to print a Long Long integer
 #-----------------------------------------------------------------------------
-SET (H5_PRINTF_LL_WIDTH "H5_PRINTF_LL_WIDTH")
-IF (H5_PRINTF_LL_WIDTH MATCHES "^H5_PRINTF_LL_WIDTH$")
+IF (NOT H5_PRINTF_LL_WIDTH OR H5_PRINTF_LL_WIDTH MATCHES "unknown")
   SET (PRINT_LL_FOUND 0)
   MESSAGE (STATUS "Checking for appropriate format for 64 bit long:")
   FOREACH (HDF5_PRINTF_LL l64 l L q I64 ll)
@@ -589,7 +629,7 @@ IF (H5_PRINTF_LL_WIDTH MATCHES "^H5_PRINTF_LL_WIDTH$")
         "Width for printf for type `long long' or `__int64', us. `ll"
     )
   ENDIF (PRINT_LL_FOUND)
-ENDIF (H5_PRINTF_LL_WIDTH MATCHES "^H5_PRINTF_LL_WIDTH$")
+ENDIF (NOT H5_PRINTF_LL_WIDTH OR H5_PRINTF_LL_WIDTH MATCHES "unknown")
 
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can handle converting

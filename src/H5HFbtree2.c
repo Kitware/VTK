@@ -287,7 +287,6 @@ H5HF_huge_bt2_crt_dbg_context(H5F_t *f, hid_t UNUSED dxpl_id, haddr_t UNUSED add
 
     /* Sanity check */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
 
     /* Allocate callback context */
     if(NULL == (ctx = H5FL_MALLOC(H5HF_huge_bt2_ctx_t)))

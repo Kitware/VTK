@@ -44,7 +44,7 @@ static size_t H5O_stab_size(const H5F_t *f, hbool_t disable_shared, const void *
 static herr_t H5O_stab_free(void *_mesg);
 static herr_t H5O_stab_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg);
 static void *H5O_stab_copy_file(H5F_t *file_src, void *native_src,
-    H5F_t *file_dst, hbool_t *recompute_size, H5O_copy_t *cpy_info, void *udata,
+    H5F_t *file_dst, hbool_t *recompute_size, H5O_copy_t *cpy_info, void *_udata,
     hid_t dxpl_id);
 static herr_t H5O_stab_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src, H5O_loc_t *dst_oloc,
     void *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
@@ -307,11 +307,12 @@ done:
  */
 static void *
 H5O_stab_copy_file(H5F_t *file_src, void *native_src, H5F_t *file_dst,
-    hbool_t UNUSED *recompute_size, H5O_copy_t UNUSED *cpy_info, void UNUSED *udata,
+    hbool_t UNUSED *recompute_size, H5O_copy_t UNUSED *cpy_info, void *_udata,
     hid_t dxpl_id)
 {
     H5O_stab_t          *stab_src = (H5O_stab_t *) native_src;
     H5O_stab_t          *stab_dst = NULL;
+    H5G_copy_file_ud_t  *udata = (H5G_copy_file_ud_t *)_udata;
     size_t              size_hint;              /* Local heap initial size */
     void                *ret_value;             /* Return value */
 
@@ -332,6 +333,11 @@ H5O_stab_copy_file(H5F_t *file_src, void *native_src, H5F_t *file_dst,
     /* Create components of symbol table message */
     if(H5G_stab_create_components(file_dst, stab_dst, size_hint, dxpl_id) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "can't create symbol table components")
+
+    /* Cache stab in udata */
+    udata->cache_type = H5G_CACHED_STAB;
+    udata->cache.stab.btree_addr = stab_dst->btree_addr;
+    udata->cache.stab.heap_addr = stab_dst->heap_addr;
 
     /* Set return value */
     ret_value = stab_dst;

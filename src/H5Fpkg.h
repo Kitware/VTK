@@ -140,6 +140,8 @@ typedef struct H5F_meta_accum_t {
     haddr_t             loc;            /* File location (offset) of the accumulated metadata */
     size_t              size;           /* Size of the accumulated metadata buffer used (in bytes) */
     size_t              alloc_size;     /* Size of the accumulated metadata buffer allocated (in bytes) */
+    size_t              dirty_off;      /* Offset of the dirty region in the accumulator buffer */
+    size_t              dirty_len;      /* Length of the dirty region in the accumulator buffer */
     hbool_t             dirty;          /* Flag to indicate that the accumulated metadata is dirty */
 } H5F_meta_accum_t;
 

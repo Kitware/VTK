@@ -364,3 +364,22 @@ int main(void)
 }
 #endif
 
+#ifdef LONE_COLON
+int main(int argc, char * argv) 
+{
+  return 0;
+}
+#endif
+
+#ifdef HAVE_GPFS
+
+#include <gpfs.h>
+int main ()
+{
+    int fd = 0; 
+    gpfs_fcntl(fd, (void *)0);
+}
+
+#endif /* HAVE_GPFS */
+
+

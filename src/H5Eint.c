@@ -892,11 +892,11 @@ H5E_clear_entries(H5E_t *estack, size_t nentries)
 
         /* Decrement the IDs to indicate that they are no longer used by this stack */
         /* (In reverse order that they were incremented, so that reference counts work well) */
-        if(H5I_dec_ref(error->min_num, FALSE) < 0)
+        if(H5I_dec_ref(error->min_num) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error message")
-        if(H5I_dec_ref(error->maj_num, FALSE) < 0)
+        if(H5I_dec_ref(error->maj_num) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error message")
-        if(H5I_dec_ref(error->cls_id, FALSE) < 0)
+        if(H5I_dec_ref(error->cls_id) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error class")
 
         /* Release strings */
@@ -1013,15 +1013,15 @@ H5E_dump_api_stack(int is_api)
         HDassert(estack);
         if(estack->auto_op.vers == 1) {
 #ifndef H5_NO_DEPRECATED_SYMBOLS
-            if(estack->auto_op.u.func1)
-                (void)((estack->auto_op.u.func1)(estack->auto_data));
+            if(estack->auto_op.func1)
+                (void)((estack->auto_op.func1)(estack->auto_data));
 #else /* H5_NO_DEPRECATED_SYMBOLS */
             HDassert(0 && "version 1 error stack dump without deprecated symbols!");
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
         } /* end if */
         else {
-            if(estack->auto_op.u.func2)
-                (void)((estack->auto_op.u.func2)(H5E_DEFAULT, estack->auto_data));
+            if(estack->auto_op.func2)
+                (void)((estack->auto_op.func2)(H5E_DEFAULT, estack->auto_data));
         } /* end else */
     } /* end if */
 

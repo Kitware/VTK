@@ -612,10 +612,8 @@ void DataSpace::close()
 	{
 	    throw DataSpaceIException("DataSpace::close", "H5Sclose failed");
 	}
-	// reset the id when the dataspace that it represents is no longer
-	// referenced
-	if (getCounter() == 0)
-	    id = 0;
+	// reset the id
+	id = 0;
     }
 }
 

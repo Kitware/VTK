@@ -355,7 +355,7 @@ done:
 herr_t
 H5Sclose(hid_t space_id)
 {
-    herr_t ret_value=SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED;   /* Return value */
 
     FUNC_ENTER_API(H5Sclose, FAIL)
     H5TRACE1("e", "i", space_id);
@@ -365,12 +365,12 @@ H5Sclose(hid_t space_id)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace")
 
     /* When the reference count reaches zero the resources are freed */
-    if (H5I_dec_ref(space_id, TRUE) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "problem freeing id")
+    if(H5I_dec_app_ref(space_id) < 0)
+        HGOTO_ERROR(H5E_DATASPACE, H5E_CANTDEC, FAIL, "problem freeing id")
 
 done:
     FUNC_LEAVE_API(ret_value)
-}
+} /* end H5Sclose() */
 
 
 /*-------------------------------------------------------------------------

@@ -333,6 +333,8 @@ typedef struct H5O_addr_map_t {
     haddr_t     dst_addr;               /* Address of object in destination file */
     hbool_t     is_locked;              /* Indicate that the destination object is locked currently */
     hsize_t     inc_ref_count;          /* Number of deferred increments to reference count */
+    H5O_obj_class_t *obj_class;         /* Object class */
+    void        *udata;                 /* Object class copy file udata */
 } H5O_addr_map_t;
 
 /* Stack of continuation messages to interpret */

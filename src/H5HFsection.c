@@ -2335,7 +2335,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5HF_sect_indirect_row
+ * Function:	H5HF_sect_indirect_for_row
  *
  * Purpose:	Create the underlying indirect section for a new row section
  *
@@ -2924,6 +2924,7 @@ H5HF_sect_indirect_reduce_row(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_
     unsigned start_col;                 /* Start column in indirect block */
     unsigned end_entry;                 /* Entry for last block covered */
     unsigned end_row;                   /* End row in indirect block */
+    H5HF_free_section_t *peer_sect = NULL; /* Peer indirect section */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5HF_sect_indirect_reduce_row)
@@ -3053,7 +3054,6 @@ H5HF_sect_indirect_reduce_row(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_
             } /* end if */
         } /* end if */
         else {
-            H5HF_free_section_t *peer_sect;     /* Peer indirect section */
             H5HF_indirect_t *iblock;    /* Pointer to indirect block for this section */
             hsize_t iblock_off;         /* Section's indirect block's offset in "heap space" */
             unsigned peer_nentries;     /* Number of entries in new peer indirect section */
@@ -3090,11 +3090,11 @@ H5HF_sect_indirect_reduce_row(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't create indirect section")
 
             /* Set up direct row & indirect entry information for peer section */
-            peer_sect->u.indirect.dir_nrows = peer_dir_nrows;
-            if(NULL == (peer_sect->u.indirect.dir_rows = (H5HF_free_section_t **)H5MM_malloc(sizeof(H5HF_free_section_t *) * peer_dir_nrows)))
-                HGOTO_ERROR(H5E_HEAP, H5E_NOSPACE, FAIL, "allocation failed for row section pointer array")
             peer_sect->u.indirect.indir_nents = 0;
             peer_sect->u.indirect.indir_ents = NULL;
+            peer_sect->u.indirect.dir_nrows = peer_dir_nrows;
+            if(NULL == (peer_sect->u.indirect.dir_rows = (H5HF_free_section_t **)H5MM_malloc(sizeof(H5HF_free_section_t *) * peer_dir_nrows)))
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "allocation failed for row section pointer array")
 
             /* Transfer row sections between current & peer sections */
             HDmemcpy(&peer_sect->u.indirect.dir_rows[0],
@@ -3137,6 +3137,9 @@ H5HF_sect_indirect_reduce_row(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_
                     (sect->u.indirect.indir_nents + sect->u.indirect.dir_nrows));
             HDassert(peer_sect->u.indirect.rc ==
                     (peer_sect->u.indirect.indir_nents + peer_sect->u.indirect.dir_nrows));
+
+            /* Reset the peer_sect variable, to indicate that it has been hooked into the data structures correctly and shouldn't be freed */
+            peer_sect = NULL;
         } /* end else */
     } /* end if */
     else {
@@ -3150,6 +3153,16 @@ H5HF_sect_indirect_reduce_row(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_
     } /* end else */
 
 done:
+    /* Free allocated peer_sect.  Note that this is necessary for all failures until peer_sect is linked
+     * into the main free space structures (via the direct blocks), and the reference count is updated. */
+    if(peer_sect) {
+        /* Sanity check - we should only be here if an error occurred */
+        HDassert(ret_value < 0);
+
+        if(H5HF_sect_indirect_free(peer_sect) < 0)
+            HDONE_ERROR(H5E_HEAP, H5E_CANTRELEASE, FAIL, "can't free indirect section node")
+    } /* end if */
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF_sect_indirect_reduce_row() */
 
@@ -3178,6 +3191,7 @@ H5HF_sect_indirect_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *s
     unsigned start_col;                 /* Start column in indirect block */
     unsigned end_entry;                 /* Entry for last block covered */
     unsigned end_row;                   /* End row in indirect block */
+    H5HF_free_section_t *peer_sect = NULL; /* Peer indirect section */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5HF_sect_indirect_reduce)
@@ -3264,7 +3278,6 @@ H5HF_sect_indirect_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *s
                 sect->u.indirect.indir_ents = (H5HF_free_section_t **)H5MM_xfree(sect->u.indirect.indir_ents);
         } /* end if */
         else {
-            H5HF_free_section_t *peer_sect;     /* Peer indirect section */
             H5HF_indirect_t *iblock;    /* Pointer to indirect block for this section */
             hsize_t iblock_off;         /* Section's indirect block's offset in "heap space" */
             haddr_t peer_sect_addr;     /* Address of new peer section in "heap space" */
@@ -3320,7 +3333,7 @@ H5HF_sect_indirect_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *s
             peer_sect->u.indirect.dir_rows = NULL;
             peer_sect->u.indirect.indir_nents = peer_nentries;
             if(NULL == (peer_sect->u.indirect.indir_ents = (H5HF_free_section_t **)H5MM_malloc(sizeof(H5HF_free_section_t *) * peer_nentries)))
-                HGOTO_ERROR(H5E_HEAP, H5E_NOSPACE, FAIL, "allocation failed for indirect section pointer array")
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "allocation failed for indirect section pointer array")
 
             /* Transfer child indirect sections between current & peer sections */
             HDmemcpy(&peer_sect->u.indirect.indir_ents[0],
@@ -3335,10 +3348,6 @@ H5HF_sect_indirect_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *s
             /* Re-target transferred row sections to point to new underlying indirect section */
             for(u = 0; u < peer_nentries; u++)
                 peer_sect->u.indirect.indir_ents[u]->u.indirect.parent = peer_sect;
-
-            /* Make new "first row" in peer section */
-            if(H5HF_sect_indirect_first(hdr, dxpl_id, peer_sect->u.indirect.indir_ents[0]) < 0)
-                HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't make new 'first row' for peer indirect section")
 
             /* Adjust reference counts for current & peer sections */
             peer_sect->u.indirect.rc = peer_nentries;
@@ -3355,6 +3364,13 @@ H5HF_sect_indirect_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *s
                     (sect->u.indirect.indir_nents + sect->u.indirect.dir_nrows));
             HDassert(peer_sect->u.indirect.rc ==
                     (peer_sect->u.indirect.indir_nents + peer_sect->u.indirect.dir_nrows));
+
+            /* Make new "first row" in peer section */
+            if(H5HF_sect_indirect_first(hdr, dxpl_id, peer_sect->u.indirect.indir_ents[0]) < 0)
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't make new 'first row' for peer indirect section")
+
+            /* Reset the peer_sect variable, to indicate that it has been hooked into the data structures correctly and shouldn't be freed */
+            peer_sect = NULL;
         } /* end else */
     } /* end if */
     else {
@@ -3373,6 +3389,16 @@ H5HF_sect_indirect_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *s
         HGOTO_ERROR(H5E_HEAP, H5E_CANTRELEASE, FAIL, "can't decrement section's ref. count ")
 
 done:
+    /* Free allocated peer_sect.  Note that this is necessary for all failures until peer_sect is linked
+     * into the main free space structures (via the direct blocks), and the reference count is updated. */
+    if(peer_sect) {
+        /* Sanity check - we should only be here if an error occurred */
+        HDassert(ret_value < 0);
+
+        if(H5HF_sect_indirect_free(peer_sect) < 0)
+            HDONE_ERROR(H5E_HEAP, H5E_CANTRELEASE, FAIL, "can't free indirect section node")
+    } /* end if */
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF_sect_indirect_reduce() */
 

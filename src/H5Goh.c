@@ -263,7 +263,7 @@ H5O_group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
     HDassert(obj_loc);
 
     /* Create the the group */
-    if(NULL == (grp = H5G_create(f, crt_info->gcpl_id, dxpl_id)))
+    if(NULL == (grp = H5G_create(f, crt_info, dxpl_id)))
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "unable to create group")
 
     /* Set up the new group's location */

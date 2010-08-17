@@ -309,7 +309,7 @@ H5SM_message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
         *raw++ = 0;     /* reserved (possible flags byte) */
         *raw++ = (uint8_t)message->msg_type_id;
         UINT16ENCODE(raw, message->u.mesg_loc.index);
-        H5F_addr_encode_len(ctx->sizeof_addr, &raw, message->u.mesg_loc.oh_addr);
+        H5F_addr_encode_len((size_t)ctx->sizeof_addr, &raw, message->u.mesg_loc.oh_addr);
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -350,7 +350,7 @@ H5SM_message_decode(const uint8_t *raw, void *_nrecord, void *_ctx)
         raw++;          /* reserved */
         message->msg_type_id = *raw++;
         UINT16DECODE(raw, message->u.mesg_loc.index);
-        H5F_addr_decode_len(ctx->sizeof_addr, &raw, &message->u.mesg_loc.oh_addr);
+        H5F_addr_decode_len((size_t)ctx->sizeof_addr, &raw, &message->u.mesg_loc.oh_addr);
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)

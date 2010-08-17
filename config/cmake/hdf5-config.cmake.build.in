@@ -30,7 +30,7 @@ IF (HDF5_BUILD_HL_LIB)
 ENDIF (HDF5_BUILD_HL_LIB)
 
 IF (HDF5_BUILD_TOOLS)
-  SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR} )
+  SET (HDF5_INCLUDE_DIR_TOOLS ${HDF5_INCLUDE_DIR} )
 ENDIF (HDF5_BUILD_TOOLS)
 
 #-----------------------------------------------------------------------------
@@ -45,6 +45,5 @@ SET (HDF5_VERSION_MINOR  @HDF5_VERSION_MINOR@)
 # project which has already build hdf5 as a subproject
 #-----------------------------------------------------------------------------
 IF (NOT TARGET "hdf5")
-  GET_FILENAME_COMPONENT (SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
   INCLUDE (${SELF_DIR}/hdf5-targets.cmake)
 ENDIF (NOT TARGET "hdf5")

@@ -453,7 +453,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 
 done:
     /* Release resources */
-    if(fapl_id > 0 && H5I_dec_ref(fapl_id, FALSE) < 0)
+    if(fapl_id > 0 && H5I_dec_ref(fapl_id) < 0)
         HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for file access property list")
     if(ext_file && H5F_try_close(ext_file) < 0)
         HDONE_ERROR(H5E_LINK, H5E_CANTCLOSEFILE, FAIL, "problem closing external file")
@@ -465,7 +465,7 @@ done:
 
     if(ret_value < 0) {
         /* Close object if it's open and something failed */
-        if(ext_obj >= 0 && H5I_dec_ref(ext_obj, FALSE) < 0)
+        if(ext_obj >= 0 && H5I_dec_ref(ext_obj) < 0)
             HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for external object")
     } /* end if */
 

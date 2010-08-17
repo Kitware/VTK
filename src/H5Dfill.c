@@ -332,9 +332,9 @@ H5D_fill(const void *fill, const H5T_t *fill_type, void *buf,
     } /* end else */
 
 done:
-    if(src_id != (-1) && H5I_dec_ref(src_id, FALSE) < 0)
+    if(src_id != (-1) && H5I_dec_ref(src_id) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
-    if(dst_id != (-1) && H5I_dec_ref(dst_id, FALSE) < 0)
+    if(dst_id != (-1) && H5I_dec_ref(dst_id) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
     if(tmp_buf)
         tmp_buf = H5FL_BLK_FREE(type_conv, tmp_buf);
@@ -585,7 +585,8 @@ H5D_fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts, hid_t dxpl_id)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTCONVERT, FAIL, "data type conversion failed")
 
     /* Replicate the fill value into the cached buffer */
-    H5V_array_fill(fb_info->fill_buf, fb_info->fill_buf, fb_info->mem_elmt_size, nelmts);
+    if(nelmts > 1)
+        H5V_array_fill((void *)((unsigned char *)fb_info->fill_buf + fb_info->mem_elmt_size), fb_info->fill_buf, fb_info->mem_elmt_size, (nelmts - 1));
 
     /* Reset the entire background buffer, if necessary */
     if(H5T_path_bkg(fb_info->mem_to_dset_tpath))
@@ -606,12 +607,16 @@ H5D_fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts, hid_t dxpl_id)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTCONVERT, FAIL, "data type conversion failed")
 
 done:
-    if (buf) {
+    if(buf) {
         /* Free dynamically allocated VL elements in fill buffer */
-        if (fb_info->fill->type)
-            H5T_vlen_reclaim_elmt(buf, fb_info->fill->type, dxpl_id);
-        else
-            H5T_vlen_reclaim_elmt(buf, fb_info->mem_type, dxpl_id);
+        if(fb_info->fill->type) {
+            if(H5T_vlen_reclaim_elmt(buf, fb_info->fill->type, dxpl_id) < 0)
+                HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "can't reclaim vlen element")
+        } /* end if */
+        else {
+            if(H5T_vlen_reclaim_elmt(buf, fb_info->mem_type, dxpl_id) < 0)
+                HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "can't reclaim vlen element")
+        } /* end else */
 
         /* Free temporary fill buffer */
         if(fb_info->fill_free_func)
@@ -688,7 +693,7 @@ H5D_fill_term(H5D_fill_buf_info_t *fb_info)
     /* Free other resources for vlen fill values */
     if(fb_info->has_vlen_fill_type) {
         if(fb_info->mem_tid > 0)
-            H5I_dec_ref(fb_info->mem_tid, FALSE);
+            H5I_dec_ref(fb_info->mem_tid);
         else if(fb_info->mem_type)
             H5T_close(fb_info->mem_type);
         if(fb_info->bkg_buf)

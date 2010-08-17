@@ -438,10 +438,16 @@ H5HL_prefix_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr,
 
         /* Check if the local heap is a single object in cache */
         if(heap->single_cache_obj) {
-            /* Set p to the start of the data block.  This is necessary because
-             * there may be a gap between the used portion of the prefix and the
-             * data block due to alignment constraints. */
-            p = buf + heap->prfx_size;
+            if((p - buf) < heap->prfx_size) {
+                size_t gap;         /* Size of gap between prefix and data block */
+
+                /* Set p to the start of the data block.  This is necessary because
+                 * there may be a gap between the used portion of the prefix and the
+                 * data block due to alignment constraints. */
+                gap = heap->prfx_size - (p - buf);
+                HDmemset(p, 0, gap);
+                p += gap;
+            } /* end if */
 
             /* Serialize the free list into the heap data's image */
             H5HL_fl_serialize(heap);

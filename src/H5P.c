@@ -1379,21 +1379,21 @@ done:
 herr_t
 H5Pclose(hid_t plist_id)
 {
-    herr_t ret_value=SUCCEED;      /* return value */
+    herr_t ret_value = SUCCEED;      /* return value */
 
     FUNC_ENTER_API(H5Pclose, FAIL);
     H5TRACE1("e", "i", plist_id);
 
-    if(plist_id==H5P_DEFAULT)
-        HGOTO_DONE(SUCCEED);
+    /* Allow default property lists to pass through without throwing an error */
+    if(H5P_DEFAULT != plist_id) {
+        /* Check arguments. */
+        if(H5I_GENPROP_LST != H5I_get_type(plist_id))
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
 
-    /* Check arguments. */
-    if(H5I_GENPROP_LST != H5I_get_type(plist_id))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list");
-
-    /* Close the property list */
-    if(H5I_dec_ref(plist_id, TRUE) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "can't close");
+        /* Close the property list */
+        if(H5I_dec_app_ref(plist_id) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "can't close")
+    } /* end if */
 
 done:
     FUNC_LEAVE_API(ret_value);
@@ -1522,13 +1522,13 @@ H5Pclose_class(hid_t cls_id)
 
     /* Check arguments */
     if(H5I_GENPROP_CLS != H5I_get_type(cls_id))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list class");
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list class")
 
     /* Close the property list class */
-    if(H5I_dec_ref(cls_id, TRUE) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "can't close");
+    if(H5I_dec_app_ref(cls_id) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "can't close")
 
 done:
-    FUNC_LEAVE_API(ret_value);
+    FUNC_LEAVE_API(ret_value)
 }   /* H5Pclose_class() */
 

@@ -447,6 +447,8 @@ H5F_sblock_load(H5F_t *f, hid_t dxpl_id, haddr_t UNUSED addr, void *_udata)
         /* Get the B-tree internal node values, etc */
         if(H5P_get(c_plist, H5F_CRT_BTREE_RANK_NAME, sblock->btree_k) < 0)
             HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "unable to get rank for btree internal nodes")
+        if(H5P_get(c_plist, H5F_CRT_SYM_LEAF_NAME, &sblock->sym_leaf_k) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "unable to get rank for btree internal nodes")
     } /* end else */
 
     /*
@@ -557,12 +559,6 @@ H5F_sblock_load(H5F_t *f, hid_t dxpl_id, haddr_t UNUSED addr, void *_udata)
                 HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, NULL, "unable to set rank for btree internal nodes")
             if(H5P_set(c_plist, H5F_CRT_SYM_LEAF_NAME, &btreek.sym_leaf_k) < 0)
                 HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, NULL, "unable to set rank for symbol table leaf nodes")
-        } /* end if */
-        else {
-            /* No non-default v1 B-tree 'K' value info in file, use defaults */
-            sblock->btree_k[H5B_CHUNK_ID] = HDF5_BTREE_CHUNK_IK_DEF;
-            sblock->btree_k[H5B_SNODE_ID] = HDF5_BTREE_SNODE_IK_DEF;
-            sblock->sym_leaf_k = H5F_CRT_SYM_LEAF_DEF;
         } /* end if */
 
         /* Close superblock extension */

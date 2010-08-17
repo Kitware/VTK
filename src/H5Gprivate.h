@@ -141,11 +141,6 @@ typedef struct {
     H5G_name_t *path;                   /* Group hierarchy path              */
 } H5G_loc_t;
 
-/* Callback information for copying groups */
-typedef struct H5G_copy_file_ud_t {
-    H5O_copy_file_ud_common_t common;   /* Shared information (must be first) */
-} H5G_copy_file_ud_t;
-
 typedef struct H5G_t H5G_t;
 typedef struct H5G_shared_t H5G_shared_t;
 typedef struct H5G_entry_t H5G_entry_t;

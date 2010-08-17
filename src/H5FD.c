@@ -396,29 +396,27 @@ done:
  * Programmer:	Robb Matzke
  *              Monday, July 26, 1999
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5FDunregister(hid_t driver_id)
 {
-    herr_t      ret_value=SUCCEED;       /* Return value */
+    herr_t      ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_API(H5FDunregister, FAIL)
     H5TRACE1("e", "i", driver_id);
 
     /* Check arguments */
-    if(NULL==H5I_object_verify(driver_id,H5I_VFL))
+    if(NULL == H5I_object_verify(driver_id, H5I_VFL))
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file driver")
 
     /* The H5FD_class_t struct will be freed by this function */
-    if(H5I_dec_ref(driver_id, TRUE) < 0)
-	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to unregister file driver")
+    if(H5I_dec_app_ref(driver_id) < 0)
+	HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "unable to unregister file driver")
 
 done:
     FUNC_LEAVE_API(ret_value)
-}
+} /* end H5FDunregister() */
 
 
 /*-------------------------------------------------------------------------
@@ -660,7 +658,7 @@ H5FD_pl_close(hid_t driver_id, herr_t (*free_func)(void *), void *pl)
 	H5MM_xfree(pl);
 
     /* Decrement reference count for driver */
-    if(H5I_dec_ref(driver_id, FALSE) < 0)
+    if(H5I_dec_ref(driver_id) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't decrement reference count for driver")
 
 done:
@@ -1187,7 +1185,7 @@ H5FD_close(H5FD_t *file)
 
     /* Prepare to close file by clearing all public fields */
     driver = file->cls;
-    if(H5I_dec_ref(file->driver_id, FALSE) < 0)
+    if(H5I_dec_ref(file->driver_id) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID")
 
     /*

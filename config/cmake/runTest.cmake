@@ -50,9 +50,9 @@ IF (TEST_APPEND)
   FILE (APPEND ${TEST_OUTPUT} "${TEST_APPEND} ${TEST_RESULT}\n") 
 ENDIF (TEST_APPEND)
 
-# if the return value is !=0 bail out
+# if the return value is !=${TEST_EXPECT} bail out
 IF (NOT ${TEST_RESULT} STREQUAL ${TEST_EXPECT})
-  MESSAGE ( FATAL_ERROR "Failed: Test program ${TEST_PROGRAM} exited != 0.\n${TEST_ERROR}")
+  MESSAGE ( FATAL_ERROR "Failed: Test program ${TEST_PROGRAM} exited != ${TEST_EXPECT}.\n${TEST_ERROR}")
 ENDIF (NOT ${TEST_RESULT} STREQUAL ${TEST_EXPECT})
 
 MESSAGE (STATUS "COMMAND Error: ${TEST_ERROR}")

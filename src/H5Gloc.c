@@ -609,7 +609,7 @@ done:
  */
 herr_t
 H5G_loc_insert(H5G_loc_t *grp_loc, const char *name, H5G_loc_t *obj_loc,
-    hid_t dxpl_id)
+    H5O_type_t obj_type, const void *crt_info, hid_t dxpl_id)
 {
     H5O_link_t  lnk;                    /* Link for object to insert */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -631,7 +631,8 @@ H5G_loc_insert(H5G_loc_t *grp_loc, const char *name, H5G_loc_t *obj_loc,
     lnk.u.hard.addr = obj_loc->oloc->addr;
 
     /* Insert new group into current group's symbol table */
-    if(H5G_obj_insert(grp_loc->oloc, name, &lnk, TRUE, dxpl_id) < 0)
+    if(H5G_obj_insert(grp_loc->oloc, name, &lnk, TRUE, obj_type, crt_info,
+            dxpl_id) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "unable to insert object")
 
     /* Set the name of the object location */

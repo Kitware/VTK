@@ -78,8 +78,8 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5_buffer_dump(FILE *stream, int indent, uint8_t *buf,
-    uint8_t *marker, size_t buf_offset, size_t buf_size)
+H5_buffer_dump(FILE *stream, int indent, const uint8_t *buf,
+    const uint8_t *marker, size_t buf_offset, size_t buf_size)
 {
     size_t	u, v;                   /* Local index variable */
 
@@ -102,7 +102,7 @@ H5_buffer_dump(FILE *stream, int indent, uint8_t *buf,
     for(u = 0; u < buf_size; u += 16) {
         uint8_t		c;
 
-	HDfprintf(stream, "%*s %8d: ", indent, "", u);
+	HDfprintf(stream, "%*s %8d: ", indent, "", u + buf_offset);
 
         /* Print the hex values */
 	for(v = 0; v < 16; v++) {
@@ -119,6 +119,7 @@ H5_buffer_dump(FILE *stream, int indent, uint8_t *buf,
 	    if(7 == v)
 		HDfputc(' ', stream);
 	} /* end for */
+        HDfputc(' ', stream);
 
         /* Print the character values */
 	for(v = 0; v < 16; v++) {
@@ -133,6 +134,8 @@ H5_buffer_dump(FILE *stream, int indent, uint8_t *buf,
 			HDfputc('.', stream);
 		} /* end else */
 	    } /* end if */
+	    if(7 == v)
+		HDfputc(' ', stream);
 	} /* end for */
 
 	HDfputc('\n', stream);

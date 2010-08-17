@@ -781,10 +781,8 @@ void DataType::close()
 	{
 	    throw DataTypeIException(inMemFunc("close"), "H5Tclose failed");
 	}
-	// reset the id when the datatype that it represents is no longer
-	// referenced
-	if (getCounter() == 0)
-	    id = 0;
+	// reset the id
+	id = 0;
     }
 }
 

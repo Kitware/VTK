@@ -120,3 +120,39 @@ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
 
 ENDMACRO (H5_SET_LIB_OPTIONS)
 
+#-------------------------------------------------------------------------------
+MACRO (TARGET_WIN_PROPERTIES target)
+  IF (WIN32)
+    IF (MSVC)
+      IF (NOT BUILD_SHARED_LIBS)
+        SET_TARGET_PROPERTIES (${target}
+            PROPERTIES
+                LINK_FLAGS "/NODEFAULTLIB:MSVCRT"
+        ) 
+      ENDIF (NOT BUILD_SHARED_LIBS)
+    ENDIF (MSVC)
+  ENDIF (WIN32)
+ENDMACRO (TARGET_WIN_PROPERTIES)
+
+#-------------------------------------------------------------------------------
+MACRO (TARGET_FORTRAN_WIN_PROPERTIES target)
+  IF (WIN32)
+    IF (BUILD_SHARED_LIBS)
+      IF (MSVC)
+        SET_TARGET_PROPERTIES (${target}
+            PROPERTIES
+                COMPILE_FLAGS "/dll"
+                LINK_FLAGS "/SUBSYSTEM:CONSOLE"
+        ) 
+      ENDIF (MSVC)
+    ELSE (BUILD_SHARED_LIBS)
+      IF (MSVC)
+        SET_TARGET_PROPERTIES (${target}
+            PROPERTIES
+                LINK_FLAGS "/NODEFAULTLIB:MSVCRT"
+        ) 
+      ENDIF (MSVC)
+    ENDIF (BUILD_SHARED_LIBS)
+  ENDIF (WIN32)
+ENDMACRO (TARGET_FORTRAN_WIN_PROPERTIES)
+

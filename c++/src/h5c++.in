@@ -32,6 +32,25 @@ HL="@HL@"
 
 ############################################################################
 ##                                                                        ##
+## Things You Can Modify to Override HDF5 Library Build Components:       ##
+##                                                                        ##
+## (Advanced usage - know what you're doing - you're on your own here.)   ##
+## The four variables below can be used to insert paths and flags in      ##
+## CPPFLAGS, CXXFLAGS, LDFLAGS, or LIBS in the h5cc compile line:         ##
+##    $CLINKER $H5BLD_CPPFLAGS $CPPFLAGS $H5BLD_CXXFLAGS $CXXFLAGS        ##
+##    $LDFLAGS $LIBS $clibpath $link_objs $link_args $shared_link         ##
+##                                                                        ##
+## These settings can be overriden by setting HDF5_CXXFLAGS,              ##
+## HDF5_CPPFLAGS, HDF5_LDFLAGS, or HDF5_LIBS in the environment.          ##
+##                                                                        ##
+############################################################################
+CXXFLAGSBASE=""
+CPPFLAGSBASE=""
+LDFLAGSBASE=""
+LIBSBASE=""
+
+############################################################################
+##                                                                        ##
 ## You shouldn't have to modify anything below this line.                 ##
 ##                                                                        ##
 ############################################################################
@@ -60,13 +79,26 @@ get_output_file="no"
 SHOW="eval"
 CXXBASE="@CXX@"
 CXXLINKERBASE="@CXX@"
-CXXFLAGS="@AM_CXXFLAGS@ @CXXFLAGS@"
-CPPFLAGS="@AM_CPPFLAGS@ @CPPFLAGS@"
-LDFLAGS="@AM_LDFLAGS@ @LDFLAGS@"
-LIBS="@LIBS@"
+
+# CXXFLAGS, CPPFLAGS and LDFLAGS are reserved for use by the script user.
+# FLAGS brought from the hdf5 build are put in H5BLD_*FLAGS.
+
+# User's CPPFLAGS and CXXFLAGS come after their H5BLD counterparts to override
+# them.  User's LDFLAGS come just before clibpath, user's LIBS come after
+# $link_objs and before the hdf5 libraries in $link_args, followed by any
+# external library paths and libraries from AM_LDFLAGS, LDFLAGS, AM_LIBS
+# or LIBS carried in from the hdf5 build.
+H5BLD_CXXFLAGS="@AM_CXXFLAGS@ @CXXFLAGS@"
+H5BLD_CPPFLAGS="@AM_CPPFLAGS@ @CPPFLAGS@"
+H5BLD_LDFLAGS="@AM_LDFLAGS@ @LDFLAGS@"
+H5BLD_LIBS="@LIBS@"
 
 CXX="${HDF5_CXX:-$CXXBASE}"
 CXXLINKER="${HDF5_CLINKER:-$CXXLINKERBASE}"
+CXXFLAGS="${HDF5_CXXFLAGS:-$CXXFLAGSBASE}"
+CPPFLAGS="${HDF5_CPPFLAGS:-$CPPFLAGSBASE}"
+LDFLAGS="${HDF5_LDFLAGS:-$LDFLAGSBASE}"
+LIBS="${HDF5_LIBS:-$LIBSBASE}"
 
 USE_SHARED_LIB="${HDF5_USE_SHLIB:-no}"
 
@@ -94,6 +126,18 @@ usage() {
   echo " "
   echo "   HDF5_CXX                 -  use a different C++ compiler"
   echo "   HDF5_CXXLINKER           -  use a different linker"
+  echo " You can also add or change paths and flags to the compile line using"
+  echo " the following environment varibles or by assigning them to their counterparts"
+  echo " in the 'Things You Can Modify to Override...'" section of $prog_name
+  echo " "
+  echo "  Variable              Current value to be replaced"
+  echo "  HDF5_CPPFLAGS         \"$CPPFLAGSBASE\""
+  echo "  HDF5_CXXFLAGS         \"$CXXFLAGSBASE\""
+  echo "  HDF5_LDFLAGS          \"$LDFLAGSBASE\""
+  echo "  HDF5_LIBS             \"$LIBSBASE\""
+  echo " "
+  echo " Note that adding library paths to HDF5_LDFLAGS where another hdf5 version"
+  echo " is located may link your program with that other hdf5 library version."
   echo " "
   exit $EXIT_FAILURE
 }
@@ -244,7 +288,7 @@ if test "x$do_compile" = "xyes"; then
     compile_args="-c $compile_args"
   fi
 
-  $SHOW $CXX -I$includedir $CPPFLAGS $CXXFLAGS $compile_args
+  $SHOW $CXX -I$includedir $H5BLD_CPPFLAGS $CPPFLAGS $H5BLD_CXXFLAGS $CXXFLAGS $compile_args
   status=$?
 
   if test "$status" != "0"; then
@@ -319,9 +363,15 @@ if test "x$do_link" = "xyes"; then
 
   # The LIBS are just a bunch of -l* libraries necessary for the HDF5
   # module. It's okay if they're included twice in the compile line.
-  link_args="$link_args $LIBS"
+  link_args="$link_args $H5BLD_LDFLAGS $H5BLD_LIBS"
 
-  $SHOW $CXXLINKER $CPPFLAGS $CXXFLAGS $clibpath $link_objs $link_args $shared_link $LDFLAGS
+  # User's CPPFLAGS and CXXFLAGS come after their H5BLD counterparts to override
+  # them.  User's LDFLAGS come just before clibpath, user's LIBS come after
+  # $link_objs and before the hdf5 libraries in $link_args, followed by any
+  # external library paths and libraries from AM_LDFLAGS, LDFLAGS, AM_LIBS
+  # or LIBS carried in from the hdf5 build.
+
+  $SHOW $CXXLINKER $H5BLD_CPPFLAGS $CPPFLAGS $H5BLD_CXXFLAGS $CXXFLAGS $LDFLAGS $clibpath $link_objs $LIBS $link_args $shared_link
 
   status=$?
 fi

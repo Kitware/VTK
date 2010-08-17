@@ -629,7 +629,7 @@ H5O_link_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *_mesg)
 
         /* Get the link class for this type of link. */
         if(NULL == (link_class = H5L_find_class(lnk->type)))
-            HGOTO_ERROR(H5E_LINK, H5E_NOTREGISTERED, FAIL, "link class not registered")
+            HGOTO_ERROR(H5E_OHDR, H5E_NOTREGISTERED, FAIL, "link class not registered")
 
         /* Check for delete callback */
         if(link_class->del_func) {
@@ -641,12 +641,12 @@ H5O_link_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *_mesg)
 
             /* Call user-defined link's 'delete' callback */
             if((link_class->del_func)(lnk->name, file_id, lnk->u.ud.udata, lnk->u.ud.size) < 0) {
-                H5I_dec_ref(file_id, FALSE);
+                H5I_dec_ref(file_id);
                 HGOTO_ERROR(H5E_OHDR, H5E_CALLBACK, FAIL, "link deletion callback returned failure")
             } /* end if */
 
             /* Release the file ID */
-            if(H5I_dec_ref(file_id, FALSE) < 0)
+            if(H5I_dec_ref(file_id) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTCLOSEFILE, FAIL, "can't close file")
         } /* end if */
     } /* end if */

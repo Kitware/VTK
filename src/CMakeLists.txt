@@ -657,7 +657,7 @@ IF (NOT HDF5_INSTALL_NO_DEVELOPMENT)
       COMPONENT
           headers
   )
-ENDIF ()
+ENDIF (NOT HDF5_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects

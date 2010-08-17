@@ -101,9 +101,9 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
 
         /* Set the uncompression parameters */
 	HDmemset(&z_strm, 0, sizeof(z_strm));
-	z_strm.next_in = *buf;
+	z_strm.next_in = (Bytef *)*buf;
         H5_ASSIGN_OVERFLOW(z_strm.avail_in,nbytes,size_t,unsigned);
-	z_strm.next_out = outbuf;
+	z_strm.next_out = (Bytef *)outbuf;
         H5_ASSIGN_OVERFLOW(z_strm.avail_out,nalloc,size_t,unsigned);
 
         /* Initialize the uncompression routines */
@@ -155,7 +155,7 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
 
         /* Finish uncompressing the stream */
 	(void)inflateEnd(&z_strm);
-    }
+    } /* end if */
     else {
 	/*
 	 * Output; compress but fail if the result would be larger than the
@@ -172,19 +172,20 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
         H5_ASSIGN_OVERFLOW(aggression,cd_values[0],unsigned,int);
 
         /* Allocate output (compressed) buffer */
-	if (NULL==(z_dst=outbuf=H5MM_malloc(z_dst_nbytes)))
+	if(NULL == (outbuf = H5MM_malloc(z_dst_nbytes)))
 	    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "unable to allocate deflate destination buffer")
+        z_dst = (Bytef *)outbuf;
 
         /* Perform compression from the source to the destination buffer */
-	status = compress2 (z_dst, &z_dst_nbytes, z_src, z_src_nbytes, aggression);
+	status = compress2(z_dst, &z_dst_nbytes, z_src, z_src_nbytes, aggression);
 
         /* Check for various zlib errors */
-	if (Z_BUF_ERROR==status)
+	if(Z_BUF_ERROR == status)
 	    HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "overflow")
-	else if (Z_MEM_ERROR==status)
-	    HGOTO_ERROR (H5E_PLINE, H5E_CANTINIT, 0, "deflate memory error")
-	else if (Z_OK!=status)
-	    HGOTO_ERROR (H5E_PLINE, H5E_CANTINIT, 0, "other deflate error")
+	else if(Z_MEM_ERROR == status)
+	    HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "deflate memory error")
+	else if(Z_OK != status)
+	    HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "other deflate error")
         /* Successfully uncompressed the buffer */
         else {
             /* Free the input buffer */
@@ -195,8 +196,8 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
 	    outbuf = NULL;
 	    *buf_size = nbytes;
 	    ret_value = z_dst_nbytes;
-	}
-    }
+	} /* end else */
+    } /* end else */
 
 done:
     if(outbuf)

@@ -664,7 +664,8 @@ H5Tget_create_plist(hid_t dtype_id)
 done:
     if(ret_value < 0)
         if(new_tcpl_id > 0)
-            (void)H5I_dec_ref(new_tcpl_id, TRUE);
+            if(H5I_dec_app_ref(new_tcpl_id) < 0)
+                HDONE_ERROR(H5E_DATATYPE, H5E_CANTDEC, FAIL, "unable to close temporary object")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_create_plist() */

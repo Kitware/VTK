@@ -1057,7 +1057,7 @@ H5Oclose(hid_t object_id)
         case H5I_DATASET:
             if(H5I_object(object_id) == NULL)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a valid object")
-            if(H5I_dec_ref(object_id, TRUE) < 0)
+            if(H5I_dec_app_ref(object_id) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to close object")
             break;
 
@@ -3330,7 +3330,7 @@ H5O_visit(hid_t loc_id, const char *obj_name, H5_index_t idx_type,
 
 done:
     if(obj_id > 0) {
-        if(H5I_dec_ref(obj_id, TRUE) < 0)
+        if(H5I_dec_app_ref(obj_id) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to close object")
     } /* end if */
     else if(loc_found && H5G_loc_free(&obj_loc) < 0)

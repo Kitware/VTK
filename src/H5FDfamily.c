@@ -468,11 +468,11 @@ static herr_t
 H5FD_family_fapl_free(void *_fa)
 {
     H5FD_family_fapl_t	*fa = (H5FD_family_fapl_t*)_fa;
-    herr_t ret_value=SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED;   /* Return value */
 
     FUNC_ENTER_NOAPI(H5FD_family_fapl_free, FAIL)
 
-    if(H5I_dec_ref(fa->memb_fapl_id, FALSE)<0)
+    if(H5I_dec_ref(fa->memb_fapl_id) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID")
     H5MM_xfree(fa);
 
@@ -554,11 +554,11 @@ static herr_t
 H5FD_family_dxpl_free(void *_dx)
 {
     H5FD_family_dxpl_t	*dx = (H5FD_family_dxpl_t*)_dx;
-    herr_t ret_value=SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED;   /* Return value */
 
     FUNC_ENTER_NOAPI(H5FD_family_dxpl_free, FAIL)
 
-    if(H5I_dec_ref(dx->memb_dxpl_id, FALSE)<0)
+    if(H5I_dec_ref(dx->memb_dxpl_id) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID")
     H5MM_xfree(dx);
 
@@ -855,29 +855,30 @@ H5FD_family_open(const char *name, unsigned flags, hid_t fapl_id,
 
 done:
     /* Cleanup and fail */
-    if (ret_value==NULL && file!=NULL) {
-        unsigned nerrors=0;     /* Number of errors closing member files */
+    if(ret_value == NULL && file != NULL) {
+        unsigned nerrors = 0;   /* Number of errors closing member files */
         unsigned u;             /* Local index variable */
 
         /* Close as many members as possible. Use private function here to avoid clearing
          * the error stack. We need the error message to indicate wrong member file size. */
-        for (u=0; u<file->nmembs; u++)
-            if (file->memb[u])
-                if (H5FD_close(file->memb[u])<0)
+        for(u = 0; u < file->nmembs; u++)
+            if(file->memb[u])
+                if(H5FD_close(file->memb[u]) < 0)
                     nerrors++;
-        if (nerrors)
+        if(nerrors)
             HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, NULL, "unable to close member files")
 
-        if (file->memb)
+        if(file->memb)
             H5MM_xfree(file->memb);
-        if(H5I_dec_ref(file->memb_fapl_id, FALSE)<0)
+        if(H5I_dec_ref(file->memb_fapl_id) < 0)
             HDONE_ERROR(H5E_VFL, H5E_CANTDEC, NULL, "can't close driver ID")
-        if (file->name)
+        if(file->name)
             H5MM_xfree(file->name);
         H5MM_xfree(file);
-    }
+    } /* end if */
+
     FUNC_LEAVE_NOAPI(ret_value)
-}
+} /* end H5FD_family_open() */
 
 
 /*-------------------------------------------------------------------------
@@ -921,7 +922,7 @@ H5FD_family_close(H5FD_t *_file)
         HDONE_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "unable to close member files")
 
     /* Clean up other stuff */
-    if(H5I_dec_ref(file->memb_fapl_id, FALSE) < 0)
+    if(H5I_dec_ref(file->memb_fapl_id) < 0)
         /* Push error, but keep going*/
         HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID")
     H5MM_xfree(file->memb);

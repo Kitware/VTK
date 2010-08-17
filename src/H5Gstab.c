@@ -221,7 +221,8 @@ done:
  */
 herr_t
 H5G_stab_insert_real(H5F_t *f, H5O_stab_t *stab, const char *name,
-    H5O_link_t *obj_lnk, hid_t dxpl_id)
+    H5O_link_t *obj_lnk, H5O_type_t obj_type, const void *crt_info,
+    hid_t dxpl_id)
 {
     H5HL_t       *heap = NULL;          /* Pointer to local heap */
     H5G_bt_ins_t udata;		        /* Data to pass through B-tree	*/
@@ -243,6 +244,8 @@ H5G_stab_insert_real(H5F_t *f, H5O_stab_t *stab, const char *name,
     udata.common.name = name;
     udata.common.heap = heap;
     udata.lnk = obj_lnk;
+    udata.obj_type = obj_type;
+    udata.crt_info = crt_info;
 
     /* Insert into symbol table */
     if(H5B_insert(f, dxpl_id, H5B_SNODE, stab->btree_addr, &udata) < 0)
@@ -273,7 +276,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_stab_insert(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *obj_lnk,
+H5G_stab_insert(const H5O_loc_t *grp_oloc, const char *name,
+    H5O_link_t *obj_lnk, H5O_type_t obj_type, const void *crt_info,
     hid_t dxpl_id)
 {
     H5O_stab_t		stab;		/* Symbol table message		*/
@@ -290,7 +294,8 @@ H5G_stab_insert(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *obj_lnk
     if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab, dxpl_id))
         HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "not a symbol table")
 
-    if(H5G_stab_insert_real(grp_oloc->file, &stab, name, obj_lnk, dxpl_id) < 0)
+    if(H5G_stab_insert_real(grp_oloc->file, &stab, name, obj_lnk, obj_type,
+            crt_info, dxpl_id) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5_ITER_ERROR, "unable to insert the name")
 
 done:

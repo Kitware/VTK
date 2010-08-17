@@ -891,9 +891,8 @@ H5R_get_name(H5F_t *f, hid_t lapl_id, hid_t dxpl_id, hid_t id, H5R_type_t ref_ty
 
 done:
     /* Close file ID used for search */
-    if(file_id > 0)
-        if(H5I_dec_ref(file_id, FALSE) < 0)
-            HDONE_ERROR(H5E_REFERENCE, H5E_CANTCLOSEFILE, FAIL, "can't determine name")
+    if(file_id > 0 && H5I_dec_ref(file_id) < 0)
+        HDONE_ERROR(H5E_REFERENCE, H5E_CANTDEC, FAIL, "can't decrement ref count of temp ID")
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5R_get_name() */

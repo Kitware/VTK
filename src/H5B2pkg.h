@@ -346,13 +346,13 @@ H5_DLL herr_t H5B2_delete_node(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 
 /* Debugging routines for dumping file structures */
 H5_DLL herr_t H5B2_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
-    FILE *stream, int indent, int fwidth, const H5B2_class_t *type);
+    FILE *stream, int indent, int fwidth, const H5B2_class_t *type, haddr_t obj_addr);
 H5_DLL herr_t H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5B2_class_t *type,
-    haddr_t hdr_addr, unsigned nrec, unsigned depth);
+    haddr_t hdr_addr, unsigned nrec, unsigned depth, haddr_t obj_addr);
 H5_DLL herr_t H5B2_leaf_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5B2_class_t *type,
-    haddr_t hdr_addr, unsigned nrec);
+    haddr_t hdr_addr, unsigned nrec, haddr_t obj_addr);
 
 /* Testing routines */
 #ifdef H5B2_TESTING

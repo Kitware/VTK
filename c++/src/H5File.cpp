@@ -772,10 +772,8 @@ void H5File::close()
 	{
 	    throw FileIException("H5File::close", "H5Fclose failed");
 	}
-	// reset the id when the file that it represents is no longer
-	// referenced
-	if (getCounter() == 0)
-	    id = 0;
+	// reset the id
+	id = 0;
     }
 }
 

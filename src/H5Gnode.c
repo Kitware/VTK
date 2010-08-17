@@ -640,7 +640,8 @@ H5G_node_insert(H5F_t *f, hid_t dxpl_id, haddr_t addr,
     idx += cmp > 0 ? 1 : 0;
 
     /* Convert link information & name to symbol table entry */
-    if(H5G_ent_convert(f, dxpl_id, udata->common.heap, udata->common.name, udata->lnk, &ent) < 0)
+    if(H5G_ent_convert(f, dxpl_id, udata->common.heap, udata->common.name,
+            udata->lnk, udata->obj_type, udata->crt_info, &ent) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTCONVERT, H5B_INS_ERROR, "unable to convert link")
 
     /* Determine where to place entry in node */
@@ -778,7 +779,7 @@ H5G_node_remove(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_lt_key/*in,out*/,
     /* "Normal" removal of a single entry from the symbol table node */
     if(udata->common.name != NULL) {
         H5O_link_t lnk;         /* Constructed link for replacement */
-        size_t len;             /* Length of string in local heap */
+        size_t link_name_len;   /* Length of string in local heap */
         const char *base;       /* Base of heap */
 
         /* Get base address of heap */
@@ -804,6 +805,7 @@ H5G_node_remove(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_lt_key/*in,out*/,
         /* Get a pointer to the name of the link */
         if(NULL == (lnk.name = (char *)H5HL_offset_into(udata->common.heap, sn->entry[idx].name_off)))
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5B_INS_ERROR, "unable to get link name")
+        link_name_len = HDstrlen(lnk.name) + 1;
 
         /* Set up rest of link structure */
         lnk.corder_valid = FALSE;
@@ -837,15 +839,16 @@ H5G_node_remove(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_lt_key/*in,out*/,
         else {
             /* Remove the soft link's value from the local heap */
             if(lnk.u.soft.name) {
-                len = HDstrlen(lnk.u.soft.name) + 1;
-                if(H5HL_remove(f, dxpl_id, udata->common.heap, sn->entry[idx].cache.slink.lval_offset, len) < 0)
+                size_t soft_link_len;   /* Length of string in local heap */
+
+                soft_link_len = HDstrlen(lnk.u.soft.name) + 1;
+                if(H5HL_remove(f, dxpl_id, udata->common.heap, sn->entry[idx].cache.slink.lval_offset, soft_link_len) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, H5B_INS_ERROR, "unable to remove soft link from local heap")
             } /* end if */
         } /* end else */
 
         /* Remove the link's name from the local heap */
-        len = HDstrlen(lnk.name) + 1;
-        if(H5HL_remove(f, dxpl_id, udata->common.heap, sn->entry[idx].name_off, len) < 0)
+        if(H5HL_remove(f, dxpl_id, udata->common.heap, sn->entry[idx].name_off, link_name_len) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, H5B_INS_ERROR, "unable to remove link name from local heap")
 
         /* Remove the entry from the symbol table node */
@@ -1236,6 +1239,9 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
         H5O_link_t  lnk;                /* Link to insert */
         const char  *name;              /* Name of source object */
         H5G_entry_t tmp_src_ent;        /* Temperary copy. Change will not affect the cache */
+        H5O_type_t  obj_type;           /* Target object type */
+        H5G_copy_file_ud_t *cpy_udata;  /* Copy file udata */
+        H5G_obj_create_t gcrt_info;     /* Group creation info */
 
         /* expand soft link */
         if(H5G_CACHED_SLINK == src_ent->type && cpy_info->expand_soft_link) {
@@ -1279,8 +1285,18 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
             tmp_src_oloc.addr = src_ent->header;
 
             /* Copy the shared object from source to destination */
-            if(H5O_copy_header_map(&tmp_src_oloc, &new_dst_oloc, dxpl_id, cpy_info, TRUE) < 0)
+            if(H5O_copy_header_map(&tmp_src_oloc, &new_dst_oloc, dxpl_id,
+                    cpy_info, TRUE, &obj_type, (void **)&cpy_udata) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, H5_ITER_ERROR, "unable to copy object")
+
+            /* Set up object creation info for symbol table insertion.  Only
+             * case so far is for inserting old-style groups (for caching stab
+             * info). */
+            if(obj_type == H5O_TYPE_GROUP) {
+                gcrt_info.gcpl_id = H5P_DEFAULT;
+                gcrt_info.cache_type = cpy_udata->cache_type;
+                gcrt_info.cache = cpy_udata->cache;
+            } /* end if */
 
             /* Construct link information for eventual insertion */
             lnk.type = H5L_TYPE_HARD;
@@ -1288,6 +1304,8 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
         } /* ( H5F_addr_defined(src_ent->header)) */
         else if(H5G_CACHED_SLINK == src_ent->type) {
             /* it is a soft link */
+            /* Set object type to unknown */
+            obj_type = H5O_TYPE_UNKNOWN;
 
             /* Construct link information for eventual insertion */
             lnk.type = H5L_TYPE_SOFT;
@@ -1308,7 +1326,9 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
 
         /* Insert the new object in the destination file's group */
         /* (Don't increment the link count - that's already done above for hard links) */
-        if(H5G_stab_insert_real(udata->dst_file, udata->dst_stab, name, &lnk, dxpl_id) < 0)
+        if(H5G_stab_insert_real(udata->dst_file, udata->dst_stab, name, &lnk,
+                obj_type, (obj_type == H5O_TYPE_GROUP ? &gcrt_info : NULL),
+                dxpl_id) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5_ITER_ERROR, "unable to insert the name")
     } /* end of for (i=0; i<sn->nsyms; i++) */
 
