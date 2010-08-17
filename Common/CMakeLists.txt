@@ -173,6 +173,7 @@ vtkSphericalTransform.cxx
 vtkStdString.cxx
 vtkStringArray.cxx
 vtkStructuredData.cxx
+vtkStructuredExtent.cxx
 vtkStructuredVisibilityConstraint.cxx
 vtkTableExtentTranslator.cxx
 vtkTensor.cxx
