@@ -67,6 +67,24 @@ class vtkTextureObject;
 class VTK_RENDERING_EXPORT vtkHardwareSelector : public vtkObject
 {
 public:
+  // Description:
+  // Struct used to return information about a pixel location.
+  struct PixelInformation
+    {
+    bool Valid;
+    int ProcessID;
+    vtkProp* Prop;
+    unsigned int CompositeID;
+    vtkIdType AttributeID;
+    PixelInformation():
+      Valid(false),
+      ProcessID(-1),
+      Prop(NULL),
+      CompositeID(0),
+      AttributeID(-1) {}
+    };
+
+public:
   static vtkHardwareSelector* New();
   vtkTypeMacro(vtkHardwareSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -107,15 +125,31 @@ public:
   // The optional final parameter maxDist will look for a cell within the specified
   // number of pixels from display_position.
   bool CaptureBuffers();
-  bool GetPixelInformation(unsigned int display_position[2],
-    int& processId,
-    vtkIdType& attrId, vtkProp*& prop)
-    { return this->GetPixelInformation(display_position, processId, attrId, prop, 0); }
-  bool GetPixelInformation(unsigned int display_position[2],
-    int& processId,
-    vtkIdType& attrId, vtkProp*& prop, int maxDist);
+  PixelInformation GetPixelInformation(unsigned int display_position[2])
+    { return this->GetPixelInformation(display_position, 0); }
+  PixelInformation GetPixelInformation(unsigned int display_position[2],
+    int maxDist);
   void ClearBuffers()
     { this->ReleasePixBuffers(); }
+
+  // Description:
+  // @deprecated Replaced by
+  // PixelInformation* GetPixelInformation(unsigned int position[2]);
+  VTK_LEGACY(
+    bool GetPixelInformation(unsigned int display_position[2],
+      int& processId, vtkIdType& attrId, vtkProp*& prop));
+
+  // Description:
+  // @deprecated Replaced by
+  // PixelInformation* GetPixelInformation(unsigned int position[2], int maxDist);
+  VTK_LEGACY(
+    bool GetPixelInformation(unsigned int display_position[2],
+      int& processId, vtkIdType& attrId, vtkProp*& prop, int maxDist));
+
+  // Description:
+  // Called by any vtkMapper or vtkProp subclass to render a composite-index.
+  // Currently indices > 0xffffff are not supported.
+  void RenderCompositeIndex(unsigned int index);
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render an attribute's id.
@@ -162,6 +196,7 @@ public:
     {
     PROCESS_PASS,
     ACTOR_PASS,
+    COMPOSITE_INDEX_PASS,
     ID_LOW24,
     ID_MID24,
     ID_HIGH16,
@@ -200,6 +235,8 @@ protected:
     return val;
     }
 
+  int Convert(unsigned int pos[2], unsigned char* pb)
+    { return this->Convert(pos[0], pos[1], pb); }
   int Convert(int xx, int yy, unsigned char* pb)
     {
     if (!pb)

@@ -283,6 +283,33 @@ void vtkHardwareSelector::EndRenderProp()
 }
 
 //----------------------------------------------------------------------------
+void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
+{
+
+  if (index > 0xffffff)
+    {
+    vtkErrorMacro("Indices > 0xffffff are not supported.");
+    return;
+    }
+
+  // For composite-index, we don't bother offsetting for 0, since 0 composite
+  // index is nonsensical anyways. 0 composite index means non-composite dataset
+  // which is default, so we need not bother rendering it.
+  if (index == 0)
+    {
+    return;
+    }
+
+  if (this->CurrentPass == COMPOSITE_INDEX_PASS)
+    {
+    float color[3];
+    vtkHardwareSelector::Convert(static_cast<int>(0xffffff & index), color);
+    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
+    }
+}
+
+//----------------------------------------------------------------------------
 // TODO: make inline
 void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
 {
@@ -362,10 +389,8 @@ bool vtkHardwareSelector::IsPropHit(int id)
 }
 
 //----------------------------------------------------------------------------
-bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
-  int& processid,
-  vtkIdType& attrId, vtkProp*& prop,
-  int maxDist)
+vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
+  unsigned int display_position[2], int maxDist)
 {
   // Base case
   if (maxDist == 0)
@@ -373,48 +398,52 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
     if (display_position[0] < this->Area[0] || display_position[0] > this->Area[2] ||
       display_position[1] < this->Area[1] || display_position[1] > this->Area[3])
       {
-      processid=-1;
-      attrId=-1;
-      prop = 0;
-      return false;
+      return PixelInformation();
       }
 
-    int actorid = this->Convert(display_position[0], display_position[1], this->PixBuffer[ACTOR_PASS]);
+    int actorid = this->Convert(display_position, this->PixBuffer[ACTOR_PASS]);
     if (actorid <= 0)
       {
       // the pixel did not hit any actor.
-      processid=-1;
-      attrId=-1;
-      prop = 0;
-      return false;
+      return PixelInformation();
       }
-    actorid--;
-    prop = this->Internals->Props[actorid];
 
-    int low24 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_LOW24]);
-    int mid24 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_MID24]);
-    int high16 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_HIGH16]);
+    PixelInformation info;
+    info.Valid = true;
+
+    actorid--;
+    info.Prop = this->Internals->Props[actorid];
+
+    int composite_id = this->Convert(display_position,
+      this->PixBuffer[COMPOSITE_INDEX_PASS]);
+    if (composite_id < 0 || composite_id > 0xffffff)
+      {
+      composite_id = 0;
+      }
+    info.CompositeID = static_cast<unsigned int>(composite_id);
+
+    int low24 = this->Convert(display_position, this->PixBuffer[ID_LOW24]);
+    int mid24 = this->Convert(display_position, this->PixBuffer[ID_MID24]);
+    int high16 = this->Convert(display_position, this->PixBuffer[ID_HIGH16]);
     // id 0 is reserved for nothing present.
-    attrId = this->GetID(low24, mid24, high16);
-    attrId = (attrId - ID_OFFSET);
-    if (attrId < 0)
+    info.AttributeID = (this->GetID(low24, mid24, high16) - ID_OFFSET);
+    if (info.AttributeID < 0)
       {
       // the pixel did not hit any cell.
-      processid=-1;
-      attrId=-1;
-      prop = 0;
-      return false;
+      return PixelInformation();
       }
 
-    processid = this->Convert(display_position[0], display_position[1], this->PixBuffer[PROCESS_PASS]);
-    processid--;
-    return true;
+    info.ProcessID = this->Convert(display_position[0], display_position[1],
+      this->PixBuffer[PROCESS_PASS]);
+    info.ProcessID--;
+    return info;
     }
 
   // Iterate over successively growing boxes.
   // They recursively call the base case to handle single pixels.
   int disp_pos[2] = {display_position[0], display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
+  PixelInformation info;
   for (int dist = 0; dist < maxDist; ++dist)
     {
     // Vertical sides of box.
@@ -422,14 +451,17 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
       {
       cur_pos[0] = static_cast<unsigned int>(disp_pos[0] - dist);
       cur_pos[1] = static_cast<unsigned int>(y);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       cur_pos[0] = static_cast<unsigned int>(disp_pos[0] + dist);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       }
     // Horizontal sides of box.
@@ -437,24 +469,49 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
       {
       cur_pos[0] = static_cast<unsigned int>(x);
       cur_pos[1] = static_cast<unsigned int>(disp_pos[1] - dist);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       cur_pos[1] = static_cast<unsigned int>(disp_pos[1] + dist);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       }
     }
 
   // nothing hit.
-  processid=-1;
-  attrId=-1;
-  prop = 0;
-  return false;
+  return PixelInformation();
 }
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
+  int& processid,
+  vtkIdType& attrId, vtkProp*& prop,
+  int maxDist)
+{
+  PixelInformation info = this->GetPixelInformation(display_position, maxDist);
+  processid = info.ProcessID;
+  attrId = info.AttributeID;
+  prop = info.Prop;
+  return info.Valid;
+}
+
+bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
+  int& processid, vtkIdType& attrId, vtkProp*& prop)
+{
+  PixelInformation info = this->GetPixelInformation(display_position, 0);
+  processid = info.ProcessID;
+  attrId = info.AttributeID;
+  prop = info.Prop;
+  return info.Valid;
+}
+
+#endif // !defined(VTK_LEGACY_REMOVE)
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkHardwareSelector::GenerateSelection(
