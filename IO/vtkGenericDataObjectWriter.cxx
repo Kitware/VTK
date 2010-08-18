@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkGenericDataObjectWriter.h"
 
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataWriter.h"
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
 #include "vtkGraph.h"
@@ -92,8 +94,8 @@ void vtkGenericDataObjectWriter::WriteData()
       writer = CreateWriter<vtkStructuredPointsWriter, vtkImageData>(input);
       break;
     case VTK_MULTIBLOCK_DATA_SET:
-      vtkErrorMacro(<< "Cannot write multiblock data set");
-      return;
+      writer = CreateWriter<vtkCompositeDataWriter, vtkCompositeDataSet>(input);
+      break;
     case VTK_MULTIGROUP_DATA_SET:
       vtkErrorMacro(<< "Cannot write multigroup data set");
       return;

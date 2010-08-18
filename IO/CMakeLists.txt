@@ -36,6 +36,8 @@ vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
 vtkCGMWriter.cxx
 vtkChacoReader.cxx
+vtkCompositeDataReader.cxx
+vtkCompositeDataWriter.cxx
 vtkDatabaseToTableReader.cxx
 vtkDEMReader.cxx
 vtkDICOMImageReader.cxx

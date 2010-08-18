@@ -13,12 +13,17 @@
 
 =========================================================================*/
 #include "vtkGenericDataObjectReader.h"
+
+#include "vtkCompositeDataReader.h"
 #include "vtkDirectedGraph.h"
 #include "vtkGraph.h"
 #include "vtkGraphReader.h"
+#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
@@ -148,6 +153,9 @@ int vtkGenericDataObjectReader::RequestDataObject(
       case VTK_UNSTRUCTURED_GRID:
         output = vtkUnstructuredGrid::New();
         break;
+      case VTK_MULTIBLOCK_DATA_SET:
+        output = vtkMultiBlockDataSet::New();
+        break;
       default:
         return 0;
       }
@@ -204,6 +212,11 @@ int vtkGenericDataObjectReader::RequestInformation(
       break;
     case VTK_UNSTRUCTURED_GRID:
       reader = vtkUnstructuredGridReader::New();
+      break;
+    case VTK_MULTIBLOCK_DATA_SET:
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+    case VTK_MULTIPIECE_DATA_SET:
+      reader = vtkCompositeDataReader::New();
       break;
     default:
       reader = NULL;
@@ -284,6 +297,24 @@ int vtkGenericDataObjectReader::RequestData(
       ReadData<vtkUnstructuredGridReader, vtkUnstructuredGrid>("vtkUnstructuredGrid", this, this->MTime, output);
       return 1;
       }
+    case VTK_MULTIBLOCK_DATA_SET:
+      {
+      ReadData<vtkCompositeDataReader, vtkMultiBlockDataSet>(
+        "vtkMultiBlockDataSet", this, this->MTime, output);
+      return 1;
+      }
+    case VTK_MULTIPIECE_DATA_SET:
+      {
+      ReadData<vtkCompositeDataReader, vtkMultiPieceDataSet>(
+        "vtkMultiPieceDataSet", this, this->MTime, output);
+      return 1;
+      }
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+      {
+      ReadData<vtkCompositeDataReader, vtkHierarchicalBoxDataSet>(
+        "vtkHierarchicalBoxDataSet", this, this->MTime, output);
+      return 1;
+      }
     default:
         vtkErrorMacro("Could not read file " << this->FileName);
     }
@@ -357,6 +388,19 @@ int vtkGenericDataObjectReader::ReadOutputType()
     if(!strncmp(this->LowerCase(line), "unstructured_grid",17))
       {
       return VTK_UNSTRUCTURED_GRID;
+      }
+    if(!strncmp(this->LowerCase(line), "multiblock", strlen("multiblock")))
+      {
+      return VTK_MULTIBLOCK_DATA_SET;
+      }
+    if(!strncmp(this->LowerCase(line), "multipiece", strlen("multipiece")))
+      {
+      return VTK_MULTIPIECE_DATA_SET;
+      }
+    if(!strncmp(this->LowerCase(line), "hierarchical_box",
+        strlen("hierarchical_box")))
+      {
+      return VTK_HIERARCHICAL_BOX_DATA_SET;
       }
 
     vtkDebugMacro(<< "Cannot read dataset type: " << line);
