@@ -421,12 +421,21 @@ public:
   // 2. It sets variables like AsymLeft,AsymRight, AsymBottom and Asym
   // to set the HeadTracked Projection Matrix.
   // 3. It sets the View matrix
-  void SetHeadPos( vtkMatrix4x4 *head );
+  void SetHeadPose( vtkMatrix4x4 *head );
+
+        // Description:
+        // This function is a convinience function intended for the Paraview
+        // ServerManager
+        void SetHeadPose( double x00,  double x01,  double x02, double x03,
+                                                                                double x10,  double x11,  double x12, double x13,
+                                                                                double x20,  double x21,  double x22, double x23,
+                                                                                double x30,  double x31,  double x32, double x33 );
 
   // Description:
   // HeadTracker mode. It impacts on the computation of the transforms.
   // Initial value is false.
-  vtkSetMacro(HeadTracked,bool);
+  //vtkSetMacro(HeadTracked,bool);
+        void SetHeadTracked( int val);
   vtkGetMacro(HeadTracked,bool);
 
   // Description:
@@ -531,7 +540,7 @@ protected:
   vtkTimeStamp ViewingRaysMTime;
 
   // Asymmetric Frustum
-  bool HeadTracked;
+  int HeadTracked;
   double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
   double EyePos[3];
   double O2Screen;
