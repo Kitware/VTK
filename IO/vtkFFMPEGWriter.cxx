@@ -542,4 +542,6 @@ void vtkFFMPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Quality: " << this->Quality << endl;
   os << indent << "Rate: " << this->Rate << endl;
+  os << indent << "BitRate: " << this->BitRate << endl;
+  os << indent << "BitRateTolerance: " << this->BitRateTolerance << endl;
 }
