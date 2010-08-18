@@ -747,12 +747,17 @@ void outputFunction(FILE *fp, ClassInfo *data)
                !vtkParseHierarchy_IsExtern(hierarchyInfo,
                  currentFunction->ArgClasses[i]))
         {
+        /* only allow non-excluded vtkObjects as args */
         if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-              currentFunction->ArgClasses[i], "vtkObjectBase") ||
+              currentFunction->ArgClasses[i], "vtkObject") ||
             vtkParseHierarchy_GetProperty(hierarchyInfo,
               currentFunction->ArgClasses[i], "WRAP_EXCLUDE"))
           {
-          args_ok = 0;
+          /* make a special exemption for vtkObjectBase */
+          if (strcmp(currentFunction->ArgClasses[i], "vtkObjectBase") != 0)
+            {
+            args_ok = 0;
+            }
           }
         }
       }
@@ -820,12 +825,17 @@ void outputFunction(FILE *fp, ClassInfo *data)
              !vtkParseHierarchy_IsExtern(hierarchyInfo,
                currentFunction->ReturnClass))
       {
+      /* only allow non-excluded vtkObjects as return values */
       if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-            currentFunction->ReturnClass, "vtkObjectBase") ||
+            currentFunction->ReturnClass, "vtkObject") ||
           vtkParseHierarchy_GetProperty(hierarchyInfo,
             currentFunction->ReturnClass, "WRAP_EXCLUDE"))
         {
-        args_ok = 0;
+        /* make a special exemption for vtkObjectBase */
+        if (strcmp(currentFunction->ReturnClass, "vtkObjectBase") != 0)
+          {
+          args_ok = 0;
+          }
         }
       }
     }
@@ -883,19 +893,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
   /* check for methods that will be overriden especially for Tcl */
   if (!strcmp("vtkObject",data->Name))
     {
-    /* remove the original vtkCommand observer methods */
-    if (!strcmp(currentFunction->Name,"AddObserver") ||
-        !strcmp(currentFunction->Name,"GetCommand") ||
-        (!strcmp(currentFunction->Name,"RemoveObserver") &&
-         (currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG)) ||
-        ((!strcmp(currentFunction->Name,"RemoveObservers") ||
-          !strcmp(currentFunction->Name,"HasObserver")) &&
-         (((currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG) &&
-           (currentFunction->ArgTypes[0] !=
-            (VTK_PARSE_CHAR_PTR|VTK_PARSE_CONST))) ||
-          (currentFunction->NumberOfArguments > 1))) ||
-        (!strcmp(currentFunction->Name,"RemoveAllObservers") &&
-         (currentFunction->NumberOfArguments > 0)))
+    if (!strcmp(currentFunction->Name,"AddObserver"))
       {
       args_ok = 0;
       }
