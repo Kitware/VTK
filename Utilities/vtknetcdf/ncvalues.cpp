@@ -14,11 +14,13 @@
 
 #include "ncvalues.h"
 
+#pragma GCC diagnostic ignored "-Wtype-limits"
+
 NcValues::NcValues( void ) : the_type(ncNoType), the_number(0)
 {}
 
-NcValues::NcValues(NcType type, long num)
-  : the_type(type), the_number(num)
+NcValues::NcValues(NcType type, long Num)
+  : the_type(type), the_number(Num)
 {}
 
 NcValues::~NcValues( void )

@@ -69,8 +69,8 @@ class MSCPP_EXTRA NcVal(TYPE) : public NcValues                \
 {                        \
   public:                      \
     NcVal(TYPE)( void );                  \
-    NcVal(TYPE)(long num);                  \
-    NcVal(TYPE)(long num, const TYPE* vals);              \
+    NcVal(TYPE)(long Num);                  \
+    NcVal(TYPE)(long Num, const TYPE* vals);              \
     NcVal(TYPE)(const NcVal(TYPE)&);                \
     virtual NcVal(TYPE)& operator=(const NcVal(TYPE)&);            \
     virtual ~NcVal(TYPE)( void );                \
@@ -105,16 +105,16 @@ NcVal(TYPE)::NcVal(TYPE)( void )                \
   : NcValues(NcTypeEnum(TYPE), 0), the_values(0)            \
 {}                        \
                         \
-NcVal(TYPE)::NcVal(TYPE)(long num, const TYPE* vals)            \
-  : NcValues(NcTypeEnum(TYPE), num)              \
+NcVal(TYPE)::NcVal(TYPE)(long Num, const TYPE* vals)            \
+  : NcValues(NcTypeEnum(TYPE), Num)              \
 {                        \
-    the_values = new TYPE[num];                  \
-    for(int i = 0; i < num; i++)                \
+    the_values = new TYPE[Num];                  \
+    for(int i = 0; i < Num; i++)                \
       the_values[i] = vals[i];                  \
 }                        \
                         \
-NcVal(TYPE)::NcVal(TYPE)(long num)                \
-  : NcValues(NcTypeEnum(TYPE), num), the_values(new TYPE[num])        \
+NcVal(TYPE)::NcVal(TYPE)(long Num)                \
+  : NcValues(NcTypeEnum(TYPE), Num), the_values(new TYPE[Num])        \
 {}                        \
                         \
 NcVal(TYPE)::NcVal(TYPE)(const NcVal(TYPE)& v) :            \
