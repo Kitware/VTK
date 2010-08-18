@@ -23,6 +23,8 @@
 class VTK_COMMON_PYTHON_EXPORT vtkPythonCommand : public vtkCommand
 {
 public:
+  vtkTypeMacro(vtkPythonCommand,vtkCommand);
+
   static vtkPythonCommand *New() { return new vtkPythonCommand; };
 
   void SetObject(PyObject *o);

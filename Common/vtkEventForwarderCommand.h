@@ -30,6 +30,8 @@
 class VTK_COMMON_EXPORT vtkEventForwarderCommand : public vtkCommand
 {
 public:
+  vtkTypeMacro(vtkEventForwarderCommand,vtkCommand);
+
   static vtkEventForwarderCommand *New() 
     {return new vtkEventForwarderCommand;};
 

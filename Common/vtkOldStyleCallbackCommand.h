@@ -37,6 +37,8 @@
 class VTK_COMMON_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 {
 public:
+  vtkTypeMacro(vtkOldStyleCallbackCommand,vtkCommand);
+
   static vtkOldStyleCallbackCommand *New() 
     {return new vtkOldStyleCallbackCommand;};
 
