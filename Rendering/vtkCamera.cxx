@@ -850,39 +850,40 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 // This is to enable headtracking of the camera.
 void vtkCamera::SetHeadTracked(int val )
 {
-                this->HeadTracked = val;
+    this->HeadTracked = val;
 }
+
 //------------------------------------------------------------------HeadTracked
 void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
                             double x10,  double x11,  double x12, double x13,
                             double x20,  double x21,  double x22, double x23,
                             double x30,  double x31,  double x32, double x33 )
 {
-    vtkMatrix4x4 * mat = vtkMatrix4x4::New();
+  vtkMatrix4x4 * mat = vtkMatrix4x4::New();
 
-    mat->SetElement( 0,0,x00 );
-    mat->SetElement( 0,1,x01 );
-    mat->SetElement( 0,2,x02 );
-    mat->SetElement( 0,3,x03 );
+  mat->SetElement( 0,0,x00 );
+  mat->SetElement( 0,1,x01 );
+  mat->SetElement( 0,2,x02 );
+  mat->SetElement( 0,3,x03 );
 
-    mat->SetElement( 1,0,x10 );
-    mat->SetElement( 1,1,x11 );
-    mat->SetElement( 1,2,x12 );
-    mat->SetElement( 1,3,x13 );
+  mat->SetElement( 1,0,x10 );
+  mat->SetElement( 1,1,x11 );
+  mat->SetElement( 1,2,x12 );
+  mat->SetElement( 1,3,x13 );
 
-    mat->SetElement( 2,0,x20 );
-    mat->SetElement( 2,1,x21 );
-    mat->SetElement( 2,2,x22 );
-    mat->SetElement( 2,3,x23 );
+  mat->SetElement( 2,0,x20 );
+  mat->SetElement( 2,1,x21 );
+  mat->SetElement( 2,2,x22 );
+  mat->SetElement( 2,3,x23 );
 
-    mat->SetElement( 3,0,x30 );
-    mat->SetElement( 3,1,x31 );
-    mat->SetElement( 3,2,x32 );
-    mat->SetElement( 3,3,x33 );
+  mat->SetElement( 3,0,x30 );
+  mat->SetElement( 3,1,x31 );
+  mat->SetElement( 3,2,x32 );
+  mat->SetElement( 3,3,x33 );
 
-    this->SetHeadPose( mat );
-                mat->PrintSelf(std::cout, ( vtkIndent ) 1 );
-    mat->Delete();
+  this->SetHeadPose( mat );
+  mat->PrintSelf(std::cout, ( vtkIndent ) 1 );
+  mat->Delete();
 }
 //------------------------------------------------------------------HeadTracked
 // This calculates sets head tracking mode for the camera and sets the
