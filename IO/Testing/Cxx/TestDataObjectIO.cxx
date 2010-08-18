@@ -23,6 +23,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkVariant.h>
 #include <vtkMultiBlockDataSet.h>
+#include <vtkMultiPieceDataSet.h>
 
 void InitializeData(vtkDirectedGraph* Data)
 {
@@ -313,13 +314,13 @@ void InitializeData(vtkMultiBlockDataSet* data)
   child0->SetBlock(0, block0);
   block0->Delete();
 
-  vtkMultiBlockDataSet* child1 = vtkMultiBlockDataSet::New();
+  vtkMultiPieceDataSet* child1 = vtkMultiPieceDataSet::New();
   child0->SetBlock(1, child1);
   child1->Delete();
 
-  child1->SetBlock(0, block1);
+  child1->SetPiece(0, block1);
   block1->Delete();
-  child1->SetBlock(1, block2);
+  child1->SetPiece(1, block2);
   block2->Delete();
 
   data->SetBlock(1, block3);

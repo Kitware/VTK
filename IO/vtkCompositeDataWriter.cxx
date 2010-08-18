@@ -41,7 +41,7 @@ vtkCompositeDataSet* vtkCompositeDataWriter::GetInput()
 //----------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataWriter::GetInput(int port)
 {
-  return vtkCompositeDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
+  return vtkCompositeDataSet::SafeDownCast(this->GetInputDataObject(port, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -85,23 +85,30 @@ void vtkCompositeDataWriter::WriteData()
   if (mb)
     {
     *fp << "DATASET MULTIBLOCK\n";
-    this->WriteCompositeData(fp, mb);
+    if (!this->WriteCompositeData(fp, mb))
+      {
+      vtkErrorMacro("Error writing multiblock dataset.");
+      }
     }
   else if (hb)
     {
-    *fp << "DATASET HIERARCHICAL BOX\n";
-    this->WriteCompositeData(fp, hb);
+    *fp << "DATASET HIERARCHICAL_BOX\n";
+    if (!this->WriteCompositeData(fp, hb))
+      {
+      vtkErrorMacro("Error writing hierarchical-box dataset.");
+      }
     }
   else if (mp)
     {
     *fp << "DATASET MULTIPIECE\n";
-    this->WriteCompositeData(fp, mp);
+    if (!this->WriteCompositeData(fp, mp))
+      {
+      vtkErrorMacro("Error writing multi-piece dataset.");
+      }
     }
   else
     {
     vtkErrorMacro("Unsupported input type: " << input->GetClassName());
-    this->CloseVTKFile(fp);
-    return;
     }
 
   this->CloseVTKFile(fp);
@@ -133,13 +140,31 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
   vtkMultiPieceDataSet* mp)
 {
-  return false;
+  *fp << "CHILDREN " << mp->GetNumberOfPieces() << "\n";
+  for (unsigned int cc=0; cc < mp->GetNumberOfPieces(); cc++)
+    {
+    vtkDataObject* child = mp->GetPieceAsDataObject(cc);
+    *fp << "CHILD " << (child? child->GetDataObjectType() : -1) << "\n";
+    if (child)
+      {
+      if (!this->WriteBlock(fp, child))
+        {
+        return false;
+        }
+      }
+    *fp << "ENDCHILD\n";
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
   vtkHierarchicalBoxDataSet* hb)
 {
+  (void)fp;
+  (void)hb;
+  vtkErrorMacro("This isn't supported yet.");
   return false;
 }
 

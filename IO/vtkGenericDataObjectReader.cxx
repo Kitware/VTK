@@ -156,6 +156,12 @@ int vtkGenericDataObjectReader::RequestDataObject(
       case VTK_MULTIBLOCK_DATA_SET:
         output = vtkMultiBlockDataSet::New();
         break;
+      case VTK_MULTIPIECE_DATA_SET:
+        output = vtkMultiPieceDataSet::New();
+        break;
+      case VTK_HIERARCHICAL_BOX_DATA_SET:
+        output = vtkHierarchicalBoxDataSet::New();
+        break;
       default:
         return 0;
       }

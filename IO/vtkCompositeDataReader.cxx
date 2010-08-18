@@ -156,6 +156,15 @@ int vtkCompositeDataReader::ReadOutputType()
       {
       return VTK_MULTIBLOCK_DATA_SET;
       }
+    if (strncmp(this->LowerCase(line), "multipiece", strlen("multipiece")) == 0)
+      {
+      return VTK_MULTIPIECE_DATA_SET;
+      }
+    if (strncmp(this->LowerCase(line), "hierarchical_box",
+        strlen("hierarchical_box")) == 0)
+      {
+      return VTK_HIERARCHICAL_BOX_DATA_SET;
+      }
     }
 
   return -1;
@@ -266,13 +275,71 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
 //----------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* hb)
 {
+  (void)hb;
+  vtkErrorMacro("This isn't supported yet.");
   return false;
 }
 
 //----------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkMultiPieceDataSet* mp)
 {
-  return false;
+  char line[256];
+  if (!this->ReadString(line))
+    {
+    vtkErrorMacro("Failed to read block-count");
+    return false;
+    }
+
+  if (strncmp(this->LowerCase(line), "children", strlen("children")) != 0)
+    {
+    vtkErrorMacro("Failed to read CHILDREN.");
+    return false;
+    }
+
+  unsigned int num_pieces = 0;
+  if (!this->Read(&num_pieces))
+    {
+    vtkErrorMacro("Failed to read number of pieces.");
+    return false;
+    }
+
+  mp->SetNumberOfPieces(num_pieces);
+  for (unsigned int cc=0; cc < num_pieces; cc++)
+    {
+    if (!this->ReadString(line))
+      {
+      vtkErrorMacro("Failed to read 'CHILD <type>' line");
+      return false;
+      }
+
+    int type;
+    if (!this->Read(&type))
+      {
+      vtkErrorMacro("Failed to read child type.");
+      return false;
+      }
+    // eat up the "\n" and other whitespace at the end of CHILD <type>.
+    this->ReadLine(line);
+
+    if (type != -1)
+      {
+      vtkDataObject* child = this->ReadChild();
+      if (!child)
+        {
+        vtkErrorMacro("Failed to read child.");
+        return false;
+        }
+      mp->SetPiece(cc, child);
+      child->FastDelete();
+      }
+    else
+      {
+      // eat up the ENDCHILD marker.
+      this->ReadString(line);
+      }
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
