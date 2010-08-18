@@ -101,7 +101,7 @@ find_NC_Udim(const NC_dimarray *ncap, NC_dim **dimpp)
     return -1;
 
   {
-  int dimid = 0;
+  size_t dimid = 0;
   NC_dim **loc = ncap->value;
 
   for(; (size_t) dimid < ncap->nelems
@@ -130,7 +130,7 @@ static int
 NC_finddim(const NC_dimarray *ncap, const char *uname, NC_dim **dimpp)
 {
 
-   int dimid;
+   size_t dimid;
    size_t slen;
    NC_dim ** loc;
    char *name;

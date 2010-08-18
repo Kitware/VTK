@@ -496,8 +496,8 @@ NcBool NcDim::sync(void)
     return FALSE;
 }
 
-NcDim::NcDim(NcFile* nc, int id)
-  : the_file(nc), the_id(id)
+NcDim::NcDim(NcFile* nc, int Id)
+  : the_file(nc), the_id(Id)
 {
     char nam[NC_MAX_NAME];
     if (the_file && NcError::set_err(
@@ -510,15 +510,15 @@ NcDim::NcDim(NcFile* nc, int id)
     }
 }
 
-NcDim::NcDim(NcFile* nc, NcToken name, long sz)
+NcDim::NcDim(NcFile* nc, NcToken Name, long sz)
   : the_file(nc)
 {
     size_t dimlen = sz;
     if(NcError::set_err(
-      nc_def_dim(the_file->id(), name, dimlen, &the_id)
+      nc_def_dim(the_file->id(), Name, dimlen, &the_id)
       ) == NC_NOERR) {
-  the_name = new char[strlen(name) + 1];
-  strcpy(the_name, name);
+  the_name = new char[strlen(Name) + 1];
+  strcpy(the_name, Name);
     } else {
   the_name = 0;
     }
@@ -648,12 +648,18 @@ int NcVar::num_atts( void ) const // handles variable and global atts
 {
     int natt = 0;
     if (the_file->is_valid())
+      {
       if (the_id == ncGlobal)
-  natt = the_file->num_atts();
+        {
+        natt = the_file->num_atts();
+        }
       else
+        {
   NcError::set_err(
        nc_inq_varnatts(the_file->id(), the_id, &natt)
        );
+        }
+      }
     return natt;
 }
 
@@ -1444,8 +1450,8 @@ NcBool NcVar::sync(void)
 }
 
 
-NcVar::NcVar(NcFile* nc, int id)
-   : NcTypedComponent(nc), the_id(id)
+NcVar::NcVar(NcFile* nc, int Id)
+   : NcTypedComponent(nc), the_id(Id)
 {
     char nam[NC_MAX_NAME];
     if (the_file
@@ -1474,13 +1480,13 @@ int NcVar::attnum( NcToken attrname ) const
     return num;      // num_atts() if no such attribute
 }
 
-NcToken NcVar::attname( int attnum ) const // caller must delete[]
+NcToken NcVar::attname( int Attnum ) const // caller must delete[]
 {
-    if (attnum < 0 || attnum >= num_atts())
+    if (Attnum < 0 || Attnum >= num_atts())
       return 0;
     char aname[NC_MAX_NAME];
     if (NcError::set_err(
-       nc_inq_attname(the_file->id(), the_id, attnum, aname)
+       nc_inq_attname(the_file->id(), the_id, Attnum, aname)
        ) != NC_NOERR)
       return 0;
     char* rname = new char[1 + strlen(aname)];
@@ -1496,18 +1502,18 @@ void NcVar::init_cur( void )
   the_cur[i] = 0; cur_rec[i] = 0; }
 }
 
-NcAtt::NcAtt(NcFile* nc, const NcVar* var, NcToken name)
+NcAtt::NcAtt(NcFile* nc, const NcVar* var, NcToken Name)
    : NcTypedComponent(nc), the_variable(var)
 {
-    the_name = new char[1 + strlen(name)];
-    strcpy(the_name, name);
+    the_name = new char[1 + strlen(Name)];
+    strcpy(the_name, Name);
 }
 
-NcAtt::NcAtt(NcFile* nc, NcToken name)
+NcAtt::NcAtt(NcFile* nc, NcToken Name)
    : NcTypedComponent(nc), the_variable(NULL)
 {
-    the_name = new char[1 + strlen(name)];
-    strcpy(the_name, name);
+    the_name = new char[1 + strlen(Name)];
+    strcpy(the_name, Name);
 }
 
 NcAtt::~NcAtt( void )

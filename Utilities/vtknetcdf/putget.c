@@ -11515,7 +11515,7 @@ RENAME(get_varm )(
     cvtmap = (ptrdiff_t *)calloc(varndims, sizeof(ptrdiff_t));
     if(cvtmap == NULL)
       return NC_ENOMEM;
-    for(ii = 0; ii < varndims; ii++)
+    for(ii = 0; ii < (size_t) varndims; ii++)
     {
       if(imapp[ii] % szof != 0)
       {
@@ -11612,7 +11612,7 @@ nc_put_varm (
     cvtmap = (ptrdiff_t *)calloc(varndims, sizeof(ptrdiff_t));
     if(cvtmap == NULL)
       return NC_ENOMEM;
-    for(ii = 0; ii < varndims; ii++)
+    for(ii = 0; ii < (size_t) varndims; ii++)
     {
       if(imapp[ii] % szof != 0)
       {
