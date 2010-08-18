@@ -38,7 +38,7 @@ public:
 class vtkObjectBaseToWeakPointerBaseFriendship
 {
 public:
-  static void ClearPointer(vtkWeakPointerBase *p, vtkObjectBase *obj)
+  static void ClearPointer(vtkWeakPointerBase *p)
     {
     p->Object = NULL;
     }
@@ -91,7 +91,7 @@ vtkObjectBase::~vtkObjectBase()
     vtkWeakPointerBase **p = this->WeakPointers;
     while (*p)
       {
-      vtkObjectBaseToWeakPointerBaseFriendship::ClearPointer(*p++, this);
+      vtkObjectBaseToWeakPointerBaseFriendship::ClearPointer(*p++);
       }
     delete [] this->WeakPointers;
     }
