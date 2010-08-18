@@ -263,8 +263,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
 ADD_LIBRARY(vtkNetCDF
   ${netcdf_SRCS})
 
-ADD_LIBRARY(vtkNetCDF_cpp ${netcdfcxx_SRCS})
-TARGET_LINK_LIBRARIES(vtkNetCDF_cpp vtkNetCDF)
+ADD_LIBRARY(vtkNetCDF_cxx ${netcdfcxx_SRCS})
+TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
 
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
