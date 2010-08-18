@@ -252,7 +252,6 @@ vtkMPASReader::vtkMPASReader()
 vtkMPASReader::~vtkMPASReader()
 {
   vtkDebugMacro(<< "Destructing vtkMPASReader..." << endl);
-  delete this->Internals;
 
   if (this->FileName)
     {
@@ -311,6 +310,9 @@ vtkMPASReader::~vtkMPASReader()
     {
     this->SelectionObserver->Delete();
     }
+
+  delete this->Internals;
+
   vtkDebugMacro(<< "Destructed vtkMPASReader" << endl);
 }
 
