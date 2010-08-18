@@ -229,6 +229,8 @@ vtkMPASReader::vtkMPASReader()
   this->VerticalLevelRange[1] = 1;
   this->VerticalLevelSelected = 0;
 
+  this->TimeSteps = NULL;
+
   // Setup selection callback to modify this object when array selection changes
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(&vtkMPASReader::SelectionCallback);
@@ -297,10 +299,6 @@ vtkMPASReader::~vtkMPASReader()
     {
     free (this->primalPointVarData);
     }
-  if (this->TimeSteps)
-    {
-    delete [] this->TimeSteps;
-    }
   if (this->PointDataArraySelection)
     {
     this->PointDataArraySelection->Delete();
@@ -313,7 +311,6 @@ vtkMPASReader::~vtkMPASReader()
     {
     this->SelectionObserver->Delete();
     }
-
   vtkDebugMacro(<< "Destructed vtkMPASReader" << endl);
 }
 
@@ -427,10 +424,13 @@ int vtkMPASReader::RequestInformation(
 
     // Collect temporal information
     this->NumberOfTimeSteps = this->Internals->Time->size();
-    this->TimeSteps = NULL;
 
     // At this time, MPAS doesn't have fine-grained time value, just
     // the number of the step, so that is what I store here for TimeSteps.
+    if (this->TimeSteps != NULL)
+      {
+      delete[] this->TimeSteps;
+      }
     this->TimeSteps = new double[this->NumberOfTimeSteps];
     for (int step = 0; step < this->NumberOfTimeSteps; step++)
       {
@@ -1148,4 +1148,9 @@ void vtkMPASReader::SetVerticalLevel(int level)
 void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "FileName: " << (this->FileName?this->FileName:"NULL") << "\n";
+  os << indent << "VerticalLevelRange: " << this->VerticalLevelRange << "\n";
+  os << indent << "NumberOfVariables: " << this->NumberOfVariables << "\n";
+  os << indent << "NumberOfDualPoints: " << this->NumberOfDualPoints << "\n";
+  os << indent << "NumberOfDualCells: " << this->NumberOfDualCells << "\n";
 }
