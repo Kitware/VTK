@@ -26,6 +26,7 @@
 
 #include <vtksys/ios/sstream>
 #include <vtkstd/map>
+#include <vtkstd/vector>
 #include <vtkstd/string>
 #include <vtkstd/utility>
 
@@ -1054,6 +1055,9 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
     // if the VTK object still exists, then make a ghost
     if (wptr.GetPointer())
       {
+      // List of attrs to be deleted
+      vtkstd::vector<PyObject*> delList;
+
       // Erase ghosts of VTK objects that have been deleted
       vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
         vtkPythonMap->GhostMap->begin();
@@ -1061,8 +1065,8 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
         {
         if (!i->second.vtk_ptr.GetPointer())
           {
-          Py_DECREF(i->second.vtk_class);
-          Py_DECREF(i->second.vtk_dict);
+          delList.push_back((PyObject *)i->second.vtk_class);
+          delList.push_back(i->second.vtk_dict);
           vtkPythonMap->GhostMap->erase(i++);
           }
         else
@@ -1078,6 +1082,12 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
       g.vtk_dict = pobj->vtk_dict;
       Py_INCREF(g.vtk_class);
       Py_INCREF(g.vtk_dict);
+
+      // Delete attrs of erased objects.  Must be done at the end.
+      for (size_t j = 0; j < delList.size(); j++)
+        {
+        Py_DECREF(delList[j]);
+        }
       }
     }
 }
