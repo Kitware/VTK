@@ -98,18 +98,22 @@ void vtkColorTransferFunctionItem::ComputeTexture()
   this->Texture->SetScalarTypeToUnsignedChar();
   this->Texture->AllocateScalars();
 
-  unsigned char* ptr =
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   for (int i = 0; i < dimension; ++i)
     {
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
-    ptr[3] = static_cast<unsigned char>(this->Opacity * 255 + 0.5);
-    ptr+=4;
     }
+  unsigned char* ptr =
+    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   this->ColorTransferFunction->MapScalarsThroughTable2(
-    values,
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0)),
-    VTK_DOUBLE,dimension,1,4);
+    values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  if (this->Opacity != 1.0)
+    {
+    for (int i = 0; i < dimension; ++i)
+      {
+      ptr[3] = static_cast<unsigned char>(this->Opacity * ptr[3]);
+      ptr+=4;
+      }
+    }
   delete [] values;
 }
 

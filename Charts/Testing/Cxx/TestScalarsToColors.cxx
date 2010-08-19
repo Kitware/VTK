@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkChartXY.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
 #include "vtkChartXY.h"
