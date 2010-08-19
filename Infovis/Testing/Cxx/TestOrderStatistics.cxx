@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories 
+// Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkDoubleArray.h"
@@ -22,7 +22,7 @@ int TestOrderStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  double mingledData[] = 
+  double mingledData[] =
     {
     46,
     45,
@@ -149,7 +149,7 @@ int TestOrderStatistics( int, char *[] )
   // Offset between baseline values for each variable
   int valsOffset = 6;
 
-  double valsTest1 [] = 
+  double valsTest1 [] =
     { 0.,
       32., 46., 47., 49., 51.5, 54.,
       32., 45., 47., 49., 52., 54.,
@@ -186,7 +186,7 @@ int TestOrderStatistics( int, char *[] )
   os->SetAssessOption( true );
   os->Update();
 
-  double valsTest2 [] = 
+  double valsTest2 [] =
     { 0.,
       32., 46., 47., 49., 51., 54.,
       32., 45., 47., 49., 52., 54.,
@@ -228,21 +228,21 @@ int TestOrderStatistics( int, char *[] )
     }
 
   int cpt[] = { 0, 0 };
-  cout << "## Calculated the following histograms:\n";
+  cout << "\n## Calculated the following histograms:\n";
   for ( int i = 0; i < 2; ++ i )
     {
     cout << "   "
          << outputData->GetColumnName( i )
          << ":\n";
 
-    for ( vtkstd::map<int,int>::iterator it = histoMetric[i].begin(); 
+    for ( vtkstd::map<int,int>::iterator it = histoMetric[i].begin();
           it != histoMetric[i].end(); ++ it )
       {
       cpt[i] += it->second;
       cout << "    "
-           << it->first 
-           << " |-> " 
-           << it->second 
+           << it->first
+           << " |-> "
+           << it->second
            << "\n";
       }
 
@@ -278,58 +278,18 @@ int TestOrderStatistics( int, char *[] )
     }
 
   // Test Learn option for quartiles with non-numeric ordinal data
-  vtkStdString text[] = { 
-    "an", 
-    "ordinal", 
-    "scale", 
-    "defines", 
-    "a", 
-    "total", 
-    "preorder", 
-    "of", 
-    "objects", 
-    "the", 
-    "scale", 
-    "values", 
-    "themselves", 
-    "have", 
-    "a", 
-    "total", 
-    "order", 
-    "names", 
-    "may", 
-    "be", 
-    "used", 
-    "like", 
-    "bad", 
-    "medium", 
-    "good", 
-    "if", 
-    "numbers", 
-    "are", 
-    "used", 
-    "they", 
-    "are", 
-    "only", 
-    "relevant", 
-    "up", 
-    "to", 
-    "strictly", 
-    "monotonically", 
-    "increasing", 
-    "transformations", 
-    "order", 
-    "isomorphism"
-  };
-  int textLength = 41;
-    
+  vtkStdString text(
+    "an ordinal scale defines a total preorder of objects the scale values themselves have a total order names may be used like bad medium good if numbers are used they are only relevant up to strictly monotonically increasing transformations also known as order isomorphisms" );
+  int textLength = text.size();
+
   vtkStringArray* textArr = vtkStringArray::New();
   textArr->SetNumberOfComponents( 1 );
   textArr->SetName( "Text" );
 
   for ( int i = 0; i < textLength; ++ i )
     {
-    textArr->InsertNextValue( text[i] );
+    char c = text[i];
+    textArr->InsertNextValue( &c );
     }
 
   vtkTable* textTable = vtkTable::New();
@@ -352,19 +312,19 @@ int TestOrderStatistics( int, char *[] )
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
-  cout << "## Calculated the following 5-points statistics with non-numerical ordinal data (letters):\n";
-  for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
+  cout << "## Input text (punctuation omitted):\n   "
+       << text
+       << "\n";
+
+  cout << "\n## Calculated the following 5-points statistics with non-numerical ordinal data (letters):\n   ";
+  for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
     {
-    cout << "   ";
-    for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputPrimary->GetColumnName( i )
-           << "="
-           << outputPrimary->GetValue( r, i ).ToString()
-           << "  ";
-      }
-    cout << "\n";
+    cout << outputPrimary->GetColumnName( i )
+         << "="
+         << outputPrimary->GetValue( 0, i ).ToString()
+         << "  ";
     }
+  cout << "\n";
 
   vtkstd::map<int,int> histoText;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
@@ -373,21 +333,31 @@ int TestOrderStatistics( int, char *[] )
     }
 
   int sum = 0;
-  cout << "## Calculated the following histogram:\n";
-  cout << "   "
-       << outputData->GetColumnName( 0 )
-       << ":\n";
+  cout << "\n## Calculated the following histogram:\n";
 
   for ( vtkstd::map<int,int>::iterator it = histoText.begin(); it != histoText.end(); ++ it )
     {
-    sum += it->second;
-    cout << "    "
-         << it->first 
-         << " |-> " 
-         << it->second 
+    int lowerBnd = it->first;
+    int upperBnd = it->second;
+    sum += upperBnd;
+
+    const char* lowerVal = outputPrimary->GetValue( 0, lowerBnd + 1 ).ToString();
+    const char* upperVal = outputPrimary->GetValue( 0, lowerBnd + 2 ).ToString();
+    char midVal = ( *lowerVal + *upperVal ) / 2 ;
+
+    cout << "   interval "
+         << lowerBnd
+         << ( lowerBnd > 1 ? ": ]" : ": [" )
+         << *lowerVal
+         << " - "
+         << *upperVal
+         << "] represented by "
+         << midVal
+         << " with frequency "
+         << upperBnd
          << "\n";
     }
-  
+
   if ( sum != outputData->GetNumberOfRows() )
     {
     vtkGenericWarningMacro("Incorrect histogram count: " << sum << " != " << outputData->GetNumberOfRows() << ".");
