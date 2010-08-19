@@ -232,7 +232,6 @@ int TestKMeansStatistics( int, char *[] )
     cout << "\n";
     }
 
-  // -- Test Assess Mode -- 
   cout << "=================== ASSESS ==================== " << endl;
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
