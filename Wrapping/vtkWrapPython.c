@@ -4821,10 +4821,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   /* The function for adding everything to the module dict */
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
-          "  PyObject *dict, const char *modulename)\n"
+          "  PyObject *dict, const char *%s)\n"
           "{\n"
           "  PyObject *o;\n",
-          name);
+          name, (data ? "modulename" : ""));
 
   if (data && is_vtkobject)
     {
