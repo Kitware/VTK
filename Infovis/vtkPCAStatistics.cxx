@@ -721,12 +721,12 @@ void vtkPCAStatistics::Test( vtkTable* inData,
       sum3[i] = 0.;
       sum4[i] = 0.;
       }
-    for ( vtkIdType j = 0; j < nRowData; ++ j )
+    for ( vtkIdType r = 0; r < nRowData; ++ r )
       {
       // Read and center observation
       for ( int i = 0; i < p; ++ i )
         {
-        x[i] = inData->GetValueByName( j, varNameX[i] ).ToDouble() - mX[i];
+        x[i] = inData->GetValueByName( r, varNameX[i] ).ToDouble() - mX[i];
         }
 
       // Now calculate skewness and kurtosis per component
