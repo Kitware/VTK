@@ -137,7 +137,7 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   vtkHardwareSelector* selector = renderer->GetSelector();
   int attributeMode = selector->GetFieldAssociation();
   if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-    selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS &&
+    selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24 &&
     this->EnableSelection)
     {
     mode = VTK_POLY_VERTEX;
