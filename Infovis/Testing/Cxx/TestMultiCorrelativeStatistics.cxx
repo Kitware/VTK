@@ -58,21 +58,6 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     47, 47
     };
   int nVals = 32;
-  /*
-  double mingledData[] =
-    {
-    1,
-    5,
-    11,
-    10,
-    9,
-    7,
-    11,
-    11
-    };
-  int nVals = 4;
-  */
-
 
   const char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
