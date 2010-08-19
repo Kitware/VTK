@@ -85,12 +85,14 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextBufferId
   vtkBarMark
   vtkChartColors
+  vtkContext2D
   vtkDataElement
   vtkDataValue
   vtkLineMark
   vtkMark
   vtkMarkUtil
   vtkOpenGLContextBufferId
+  vtkOpenGLContextDevice2D
   vtkPanelMark
   vtkValueHolder
   vtkWedgeMark
