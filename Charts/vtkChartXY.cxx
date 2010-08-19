@@ -94,6 +94,7 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate = new vtkChartXYPrivate;
 
   this->AutoAxes = true;
+  this->HiddenAxisBorder = 20;
 
   // The grid is drawn first.
   this->Grid = vtkPlotGrid::New();
@@ -249,25 +250,39 @@ void vtkChartXY::Update()
           }
         }
       }
-    for (int i = 0; i < 4; ++i)
+    }
+  for (int i = 0; i < 4; ++i)
+    {
+    int border = this->HiddenAxisBorder;
+    if (this->ChartPrivate->axes[i]->GetVisible())
       {
-      int border = 20;
-      if (this->ChartPrivate->axes[i]->GetVisible())
-        {
-        if (i == 1 || i == 3)
+      if (i == 1 || i == 3)
+        {// Horizontal axes
+        if (this->ChartPrivate->axes[i]->GetTitle())
           {
           border = 50;
           }
         else
-          {
-          border = 60;
+          {// no title, no need to waste space for it
+          border = 20;
           }
         }
-      if (this->ChartPrivate->Borders[i] != border)
-        {
-        this->ChartPrivate->Borders[i] = border;
-        this->LayoutChanged = true;
+      else
+        {// Vertical axes
+        if (this->ChartPrivate->axes[i]->GetTitle())
+          {
+          border = 50;
+          }
+        else
+          {// no title, no need to waste space for it
+          border = 45;
+          }
         }
+      }
+    if (this->ChartPrivate->Borders[i] != border)
+      {
+      this->ChartPrivate->Borders[i] = border;
+      this->LayoutChanged = true;
       }
     }
 }
