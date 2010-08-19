@@ -19,6 +19,7 @@
 
 #include "vtkObject.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkWeakPointerBase.h"
 #include "vtkVariant.h"
 #include "vtkWindows.h"
 #include "vtkToolkits.h"
@@ -32,11 +33,63 @@
 #include "sip.h"
 #endif
 
+
 //--------------------------------------------------------------------
-// There are three maps associated with the Python wrappers
+// A ghost object, can be used to recreate a deleted PyVTKObject
+class PyVTKObjectGhost
+{
+public:
+  PyVTKObjectGhost() : vtk_ptr(), vtk_class(0), vtk_dict(0){};
+  PyVTKObjectGhost(vtkWeakPointerBase &p, PyVTKClass *c, PyObject *d) :
+    vtk_ptr(p)
+    {
+    Py_INCREF(c);
+    Py_INCREF(d);
+    this->vtk_class = c;
+    this->vtk_dict = d;
+    };
+  PyVTKObjectGhost(const PyVTKObjectGhost& o)
+    {
+    this->vtk_ptr = o.vtk_ptr;
+    this->vtk_class = o.vtk_class;
+    this->vtk_dict = o.vtk_dict;
+    Py_XINCREF(this->vtk_class);
+    Py_XINCREF(this->vtk_dict);
+    };
+  PyVTKObjectGhost &operator=(const PyVTKObjectGhost& o)
+    {
+    this->vtk_ptr = o.vtk_ptr;
+    this->vtk_class = o.vtk_class;
+    this->vtk_dict = o.vtk_dict;
+    Py_XINCREF(this->vtk_class);
+    Py_XINCREF(this->vtk_dict);
+    return *this;
+    };
+
+  ~PyVTKObjectGhost()
+    {
+    Py_XDECREF(this->vtk_class);
+    Py_XDECREF(this->vtk_dict);
+    };
+
+  // copy constructor and assignment operator !!!
+  // they should steal the references
+
+  vtkWeakPointerBase vtk_ptr;
+  PyVTKClass *vtk_class;
+  PyObject *vtk_dict;
+};
+
+//--------------------------------------------------------------------
+// There are four maps associated with the Python wrappers
 
 class vtkPythonObjectMap
   : public vtkstd::map<vtkSmartPointerBase, PyObject*>
+{
+};
+
+class vtkPythonGhostMap
+  : public vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>
 {
 };
 
@@ -66,6 +119,7 @@ void vtkPythonUtilDelete()
 vtkPythonUtil::vtkPythonUtil()
 {
   this->ObjectMap = new vtkPythonObjectMap;
+  this->GhostMap = new vtkPythonGhostMap;
   this->ClassMap = new vtkPythonClassMap;
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
 }
@@ -74,6 +128,7 @@ vtkPythonUtil::vtkPythonUtil()
 vtkPythonUtil::~vtkPythonUtil()
 {
   delete this->ObjectMap;
+  delete this->GhostMap;
   delete this->ClassMap;
   delete this->SpecialTypeMap;
 }
@@ -1010,16 +1065,48 @@ void vtkPythonUtil::AddObjectToMap(PyObject *obj, vtkObjectBase *ptr)
 //--------------------------------------------------------------------
 void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
 {
-  vtkObjectBase *ptr = ((PyVTKObject *)obj)->vtk_ptr;
+  PyVTKObject *pobj = (PyVTKObject *)obj;
 
 #ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Deleting an object from map obj = " << obj << " "
-                         << obj->vtk_ptr);
+  vtkGenericWarningMacro("Deleting an object from map obj = "
+                         << pobj << " " << pobj->vtk_ptr);
 #endif
 
   if (vtkPythonMap)
     {
-    vtkPythonMap->ObjectMap->erase(ptr);
+    vtkWeakPointerBase wptr;
+
+    // check for customized class or dict
+    if (pobj->vtk_class->vtk_methods == 0 ||
+        PyDict_Size(pobj->vtk_dict))
+      {
+      wptr = pobj->vtk_ptr;
+      }
+
+    vtkPythonMap->ObjectMap->erase(pobj->vtk_ptr);
+
+    // if the VTK object still exists, then make a ghost
+    if (wptr.GetPointer())
+      {
+      // Erase ghosts of VTK objects that have been deleted
+      vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
+        vtkPythonMap->GhostMap->begin();
+      while (i != vtkPythonMap->GhostMap->end())
+        {
+        if (!i->second.vtk_ptr.GetPointer())
+          {
+          vtkPythonMap->GhostMap->erase(i++);
+          }
+        else
+          {
+          ++i;
+          }
+        }
+
+      // Add this new ghost to the map
+      (*vtkPythonMap->GhostMap)[pobj->vtk_ptr] =
+        PyVTKObjectGhost(wptr, pobj->vtk_class, pobj->vtk_dict);
+      }
     }
 }
 
@@ -1028,51 +1115,59 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 {
   PyObject *obj = NULL;
 
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr);
-#endif
-
   if (ptr)
     {
     vtkstd::map<vtkSmartPointerBase, PyObject*>::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
-    if(i != vtkPythonMap->ObjectMap->end())
+    if (i != vtkPythonMap->ObjectMap->end())
       {
       obj = i->second;
       }
     if (obj)
       {
       Py_INCREF(obj);
+      return obj;
       }
     }
   else
     {
     Py_INCREF(Py_None);
-    obj = Py_None;
+    return Py_None;
     }
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
-#endif
+
+  // search weak list for object, resurrect if it is there
+  vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
+    vtkPythonMap->GhostMap->find(ptr);
+  if (i != vtkPythonMap->GhostMap->end())
+    {
+    if (i->second.vtk_ptr.GetPointer())
+      {
+      obj = PyVTKObject_New((PyObject *)i->second.vtk_class,
+                            i->second.vtk_dict, ptr);
+      }
+    vtkPythonMap->GhostMap->erase(i);
+    }
 
   if (obj == NULL)
     {
+    // create a new object
     PyObject *vtkclass = NULL;
     vtkstd::map<vtkstd::string, PyObject*>::iterator i =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
-    if(i != vtkPythonMap->ClassMap->end())
+    if (i != vtkPythonMap->ClassMap->end())
       {
       vtkclass = i->second;
       }
 
-      // if the class was not in the map, then find the nearest base class
-      // that is and associate ptr->GetClassName() with that base class
+    // if the class was not in the map, then find the nearest base class
+    // that is and associate ptr->GetClassName() with that base class
     if (vtkclass == NULL)
       {
       vtkclass = vtkPythonUtil::FindNearestBaseClass(ptr);
       vtkPythonUtil::AddClassToMap(vtkclass, ptr->GetClassName());
       }
 
-    obj = PyVTKObject_New(vtkclass, ptr);
+    obj = PyVTKObject_New(vtkclass, NULL, ptr);
     }
 
   return obj;

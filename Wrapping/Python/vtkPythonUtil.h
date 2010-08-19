@@ -21,6 +21,7 @@
 #include "PyVTKSpecialObject.h"
 
 class vtkPythonObjectMap;
+class vtkPythonGhostMap;
 class vtkPythonClassMap;
 class vtkPythonSpecialTypeMap;
 class vtkVariant;
@@ -187,6 +188,7 @@ private:
   void operator=(const vtkPythonUtil&);  // Not implemented.
 
   vtkPythonObjectMap *ObjectMap;
+  vtkPythonGhostMap *GhostMap;
   vtkPythonClassMap *ClassMap;
   vtkPythonSpecialTypeMap *SpecialTypeMap;
 

@@ -4,6 +4,7 @@
 IF (VTK_PYTHON_EXE)
   FOREACH ( tfile
       PythonSmoke
+      TestGhost
       TestWeakref
       TestNumpySupport
       TestTerminationCrash
