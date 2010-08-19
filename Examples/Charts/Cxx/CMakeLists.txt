@@ -27,4 +27,11 @@ IF(VTK_USE_QVTK)
     vtkRendering
     vtkCharts
   )
+  ADD_EXECUTABLE(QScalarsToColors QScalarsToColors.cxx)
+  TARGET_LINK_LIBRARIES(QScalarsToColors
+    QVTK
+    ${QT_LIBRARIES}
+    vtkRendering
+    vtkCharts
+  )
 ENDIF(VTK_USE_QVTK)
