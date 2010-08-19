@@ -64,8 +64,6 @@ int TestKMeansStatistics( int, char *[] )
   vtkDoubleArray* paramArray;
   const int numRuns = 5;
   const int numClustersInRun[] = { 5, 2, 3, 4, 5 };
-  //const int numRuns = 1;
-  //const int numClustersInRun[] = { 3 };
   paramCluster = vtkIdTypeArray::New();
   paramCluster->SetName( "K" );
 
