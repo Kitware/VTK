@@ -300,10 +300,11 @@ int TestOrderStatistics( int, char *[] )
   textTable->Delete();
   os->ResetAllColumnStates(); // Clear list of columns of interest
   os->AddColumn( "Text" ); // Add column of interest
+  os->RequestSelectedColumns();
 
-  // Test Learn and Assess with 4 intervals (use SetParameter method for Learn parameters)
+  // Test Learn and Assess with 12 intervals
   os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
-  os->SetParameter( "NumberOfIntervals", 0, 4 );
+  os->SetParameter( "NumberOfIntervals", 0, 12 );
   os->SetLearnOption( true );
   os->SetAssessOption( true );
   os->Update();
@@ -316,34 +317,30 @@ int TestOrderStatistics( int, char *[] )
        << text
        << "\n";
 
-  cout << "\n## Calculated the following 5-points statistics with non-numerical ordinal data (letters):\n   ";
-  for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
-    {
-    cout << outputPrimary->GetColumnName( i )
-         << "="
-         << outputPrimary->GetValue( 0, i ).ToString()
-         << "  ";
-    }
-  cout << "\n";
-
-  vtkstd::map<int,int> histoText;
+  // Calculate histogram
+  vtkstd::map<int,int> histo12Text;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    ++ histoText[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    ++ histo12Text[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
 
-  int sum = 0;
-  cout << "\n## Calculated the following histogram:\n";
+  int sum12 = 0;
+  cout << "\n## Calculated the following histogram with "
+       << os->GetNumberOfIntervals()
+       << "-quantiles:\n";
 
-  for ( vtkstd::map<int,int>::iterator it = histoText.begin(); it != histoText.end(); ++ it )
+  // Calculate representatives
+  vtkstd::map<int,char> histo12Repr;
+  for ( vtkstd::map<int,int>::iterator it = histo12Text.begin(); it != histo12Text.end(); ++ it )
     {
     int lowerBnd = it->first;
     int upperBnd = it->second;
-    sum += upperBnd;
+    sum12 += upperBnd;
 
     const char* lowerVal = outputPrimary->GetValue( 0, lowerBnd + 1 ).ToString();
     const char* upperVal = outputPrimary->GetValue( 0, lowerBnd + 2 ).ToString();
-    char midVal = ( *lowerVal + *upperVal ) / 2 ;
+    char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
+    histo12Repr[lowerBnd] = midVal;
 
     cout << "   interval "
          << lowerBnd
@@ -358,11 +355,96 @@ int TestOrderStatistics( int, char *[] )
          << "\n";
     }
 
-  if ( sum != outputData->GetNumberOfRows() )
+  // Verify that we retrieve the total count
+  if ( sum12 != outputData->GetNumberOfRows() )
     {
-    vtkGenericWarningMacro("Incorrect histogram count: " << sum << " != " << outputData->GetNumberOfRows() << ".");
+    vtkGenericWarningMacro("Incorrect histogram count: " << sum12 << " != " << outputData->GetNumberOfRows() << ".");
     testStatus = 1;
     }
+
+  // Quantize text and print it
+  cout << "\n## Quantized text with "
+       << histo12Text.size()
+       << " quantizers based on "
+       << os->GetNumberOfIntervals()
+       << "-quantiles :\n   ";
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    cerr << histo12Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    }
+  cerr << "\n";
+
+  // Learn and Assess again but with with 100 intervals this time
+  os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
+  os->SetParameter( "NumberOfIntervals", 0, 100 );
+  os->SetLearnOption( true );
+  os->SetAssessOption( true );
+  os->Update();
+
+  // Get calculated model
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+
+  cout << "## Input text (punctuation omitted):\n   "
+       << text
+       << "\n";
+
+  // Calculate histogram
+  vtkstd::map<int,int> histo100Text;
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    ++ histo100Text[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    }
+
+  int sum100 = 0;
+  cout << "\n## Calculated the following histogram with "
+       << os->GetNumberOfIntervals()
+       << "-quantiles:\n";
+
+  // Calculate representatives
+  vtkstd::map<int,char> histo100Repr;
+  for ( vtkstd::map<int,int>::iterator it = histo100Text.begin(); it != histo100Text.end(); ++ it )
+    {
+    int lowerBnd = it->first;
+    int upperBnd = it->second;
+    sum100 += upperBnd;
+
+    const char* lowerVal = outputPrimary->GetValue( 0, lowerBnd + 1 ).ToString();
+    const char* upperVal = outputPrimary->GetValue( 0, lowerBnd + 2 ).ToString();
+    char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
+    histo100Repr[lowerBnd] = midVal;
+
+    cout << "   interval "
+         << lowerBnd
+         << ( lowerBnd > 1 ? ": ]" : ": [" )
+         << *lowerVal
+         << " - "
+         << *upperVal
+         << "] represented by "
+         << midVal
+         << " with frequency "
+         << upperBnd
+         << "\n";
+    }
+
+  // Verify that we retrieve the total count
+  if ( sum100 != outputData->GetNumberOfRows() )
+    {
+    vtkGenericWarningMacro("Incorrect histogram count: " << sum100 << " != " << outputData->GetNumberOfRows() << ".");
+    testStatus = 1;
+    }
+
+  // Quantize text and print it
+  cout << "\n## Quantized text with "
+       << histo100Text.size()
+       << " quantizers based on "
+       << os->GetNumberOfIntervals()
+       << "-quantiles :\n   ";
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    cerr << histo100Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    }
+  cerr << "\n";
 
   os->Delete();
 
