@@ -21,7 +21,7 @@
 // To Do:
 // - Add option to pre-multiply EigenVectors by normalization coeffs
 // - In vtkPCAAssessFunctor, pre-multiply EigenVectors by normalization coeffs (if req)
-// - 
+// -
 
 #define VTK_PCA_NORMCOLUMN "PCA Cov Norm"
 #define VTK_PCA_COMPCOLUMN "PCA"
@@ -70,16 +70,21 @@ vtkPCAAssessFunctor* vtkPCAAssessFunctor::New()
   return new vtkPCAAssessFunctor;
 }
 
-bool vtkPCAAssessFunctor::InitializePCA(
-                                        vtkTable* inData, vtkTable* reqModel,
-                                        int normScheme, int basisScheme, int fixedBasisSize, double fixedBasisEnergy )
+// ----------------------------------------------------------------------
+bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
+                                         vtkTable* reqModel,
+                                         int normScheme,
+                                         int basisScheme,
+                                         int fixedBasisSize,
+                                         double fixedBasisEnergy )
 {
-  if ( ! this->vtkMultiCorrelativeAssessFunctor::Initialize(
-                                                            inData, reqModel, false /* no Cholesky decomp */ ) )
+  if ( ! this->vtkMultiCorrelativeAssessFunctor::Initialize( inData,
+                                                             reqModel,
+                                                             false /* no Cholesky decomp */ ) )
     {
     return false;
     }
-  
+
   // Put the PCA basis into a matrix form we can use.
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
   vtkDoubleArray* evalm = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
@@ -88,39 +93,41 @@ bool vtkPCAAssessFunctor::InitializePCA(
     vtkGenericWarningMacro( "No \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column in request." );
     return false;
     }
+
   // Check that the derived model includes additional rows specifying the
   // normalization as required.
   vtkIdType mrmr = reqModel->GetNumberOfRows(); // actual number of rows
   vtkIdType ermr; // expected number of rows
   switch ( normScheme )
     {
-  case vtkPCAStatistics::NONE:
-    // m+1 covariance/Cholesky rows, m eigenvector rows, no normalization factors
-    ermr = 2 * m + 1;
-    break;
-  case vtkPCAStatistics::DIAGONAL_SPECIFIED:
-  case vtkPCAStatistics::DIAGONAL_VARIANCE:
-    // m+1 covariance/Cholesky rows, m eigenvector rows, 1 normalization factor row
-    ermr = 2 * m + 2;
-    break;
-  case vtkPCAStatistics::TRIANGLE_SPECIFIED:
-    // m+1 covariance/Cholesky rows, m eigenvector rows, m normalization factor rows
-    ermr = 3 * m + 1;
-    break;
-  case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
-  default:
+    case vtkPCAStatistics::NONE:
+      // m+1 covariance/Cholesky rows, m eigenvector rows, no normalization factors
+      ermr = 2 * m + 1;
+      break;
+    case vtkPCAStatistics::DIAGONAL_SPECIFIED:
+    case vtkPCAStatistics::DIAGONAL_VARIANCE:
+      // m+1 covariance/Cholesky rows, m eigenvector rows, 1 normalization factor row
+      ermr = 2 * m + 2;
+      break;
+    case vtkPCAStatistics::TRIANGLE_SPECIFIED:
+      // m+1 covariance/Cholesky rows, m eigenvector rows, m normalization factor rows
+      ermr = 3 * m + 1;
+      break;
+    case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
+    default:
       {
       vtkGenericWarningMacro( "The normalization scheme specified (" << normScheme << ") is invalid." );
       return false;
       }
-    break;
+      break;
     }
+
   // Allow derived classes to add rows, but never allow fewer than required.
   if ( mrmr < ermr )
     {
     vtkGenericWarningMacro(
-      "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
-      << reqModel->GetNumberOfRows() << "." );
+                           "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
+                           << reqModel->GetNumberOfRows() << "." );
     return false;
     }
 
@@ -165,6 +172,7 @@ bool vtkPCAAssessFunctor::InitializePCA(
       }
       break;
     }
+
   // FIXME: Offer mode to include normalization factors (none,diag,triang)?
   // Could be done here by pre-multiplying this->EigenVectors by factors.
   for ( i = 0; i < this->BasisSize; ++ i )
@@ -338,10 +346,10 @@ int vtkPCAStatistics::FillInputPortInformation( int port, vtkInformation* info )
 }
 
 // ----------------------------------------------------------------------
-static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData, 
+static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
                                            ap::real_2d_array& cov,
-                                           vtkTable* normSpec, 
-                                           vtkTable* reqModel, 
+                                           vtkTable* normSpec,
+                                           vtkTable* reqModel,
                                            bool triangle )
 {
   vtkIdType i, j;
@@ -456,7 +464,7 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
 }
 
 // ----------------------------------------------------------------------
-static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData, 
+static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData,
                                                ap::real_2d_array& cov )
 {
   vtkIdType i, j;
@@ -860,8 +868,8 @@ void vtkPCAStatistics::Test( vtkTable* inData,
   dimCol->Delete();
 }
 // ----------------------------------------------------------------------
-void vtkPCAStatistics::Assess( vtkTable* inData, 
-                               vtkMultiBlockDataSet* inMeta, 
+void vtkPCAStatistics::Assess( vtkTable* inData,
+                               vtkMultiBlockDataSet* inMeta,
                                vtkTable* outData )
 {
   if ( ! inData )
@@ -889,9 +897,9 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       continue;
       }
 
-    this->SelectAssessFunctor( inData, 
-                               reqModel, 
-                               0, 
+    this->SelectAssessFunctor( inData,
+                               reqModel,
+                               0,
                                dfunc );
 
     vtkPCAAssessFunctor* pcafunc = static_cast<vtkPCAAssessFunctor*>( dfunc );
@@ -946,9 +954,9 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData, 
+void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData,
                                             vtkDataObject* inMetaDO,
-                                            vtkStringArray* vtkNotUsed(rowNames), 
+                                            vtkStringArray* vtkNotUsed(rowNames),
                                             AssessFunctor*& dfunc )
 {
   dfunc = 0;
@@ -969,4 +977,3 @@ void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData,
 
   dfunc = pcafunc;
 }
-
