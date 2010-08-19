@@ -39,41 +39,7 @@
 class PyVTKObjectGhost
 {
 public:
-  PyVTKObjectGhost() : vtk_ptr(), vtk_class(0), vtk_dict(0){};
-  PyVTKObjectGhost(vtkWeakPointerBase &p, PyVTKClass *c, PyObject *d) :
-    vtk_ptr(p)
-    {
-    Py_INCREF(c);
-    Py_INCREF(d);
-    this->vtk_class = c;
-    this->vtk_dict = d;
-    };
-  PyVTKObjectGhost(const PyVTKObjectGhost& o)
-    {
-    this->vtk_ptr = o.vtk_ptr;
-    this->vtk_class = o.vtk_class;
-    this->vtk_dict = o.vtk_dict;
-    Py_XINCREF(this->vtk_class);
-    Py_XINCREF(this->vtk_dict);
-    };
-  PyVTKObjectGhost &operator=(const PyVTKObjectGhost& o)
-    {
-    this->vtk_ptr = o.vtk_ptr;
-    this->vtk_class = o.vtk_class;
-    this->vtk_dict = o.vtk_dict;
-    Py_XINCREF(this->vtk_class);
-    Py_XINCREF(this->vtk_dict);
-    return *this;
-    };
-
-  ~PyVTKObjectGhost()
-    {
-    Py_XDECREF(this->vtk_class);
-    Py_XDECREF(this->vtk_dict);
-    };
-
-  // copy constructor and assignment operator !!!
-  // they should steal the references
+  PyVTKObjectGhost() : vtk_ptr(), vtk_class(0), vtk_dict(0) {};
 
   vtkWeakPointerBase vtk_ptr;
   PyVTKClass *vtk_class;
@@ -1095,6 +1061,8 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
         {
         if (!i->second.vtk_ptr.GetPointer())
           {
+          Py_DECREF(i->second.vtk_class);
+          Py_DECREF(i->second.vtk_dict);
           vtkPythonMap->GhostMap->erase(i++);
           }
         else
@@ -1104,8 +1072,12 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
         }
 
       // Add this new ghost to the map
-      (*vtkPythonMap->GhostMap)[pobj->vtk_ptr] =
-        PyVTKObjectGhost(wptr, pobj->vtk_class, pobj->vtk_dict);
+      PyVTKObjectGhost &g = (*vtkPythonMap->GhostMap)[pobj->vtk_ptr];
+      g.vtk_ptr = wptr;
+      g.vtk_class = pobj->vtk_class;
+      g.vtk_dict = pobj->vtk_dict;
+      Py_INCREF(g.vtk_class);
+      Py_INCREF(g.vtk_dict);
       }
     }
 }
@@ -1145,6 +1117,8 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
       obj = PyVTKObject_New((PyObject *)i->second.vtk_class,
                             i->second.vtk_dict, ptr);
       }
+    Py_DECREF(i->second.vtk_class);
+    Py_DECREF(i->second.vtk_dict);
     vtkPythonMap->GhostMap->erase(i);
     }
 
