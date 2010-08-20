@@ -204,7 +204,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     )
 
   ADD_EXECUTABLE(ArrayIOCxxTests ${ArrayIOTests})
-  TARGET_LINK_LIBRARIES(ArrayIOCxxTests vtkIO)
+  TARGET_LINK_LIBRARIES(ArrayIOCxxTests vtkIO vtkGraphics)
 
   SET(ArrayTestsToRun ${ArrayIOTests})
   REMOVE(ArrayTestsToRun ArrayIOCxxTests.cxx)
