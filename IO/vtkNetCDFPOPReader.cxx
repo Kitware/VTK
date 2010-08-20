@@ -154,6 +154,7 @@ int vtkNetCDFPOPReader::RequestInformation(
     if(finaldim == 3){
     strcpy(this->VariableArrayInfo[this->nvarspw], this->VariableName[i]);
     this->nvarspw++;
+    this->data[i] = 1;
     for(int m=0;m<finaldim;m++){
       CALL_NETCDF(nc_inq_dimlen(this->ncFD, dimidsp[m], (size_t*) &Dimensions[m])); //acquire variable dimensions
     }
