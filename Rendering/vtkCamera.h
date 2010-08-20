@@ -15,10 +15,10 @@
 // .NAME vtkCamera - a virtual camera for 3D rendering
 // .SECTION Description
 // vtkCamera is a virtual camera for 3D rendering. It provides methods
-// to position and orient the view point and focal point. Convenience 
-// methods for moving about the focal point also are provided. More 
+// to position and orient the view point and focal point. Convenience
+// methods for moving about the focal point also are provided. More
 // complex methods allow the manipulation of the computer graphics
-// model including view up vector, clipping planes, and 
+// model including view up vector, clipping planes, and
 // camera perspective.
 // .SECTION See Also
 // vtkPerspectiveTransform
@@ -38,13 +38,13 @@ class vtkCameraCallbackCommand;
 
 class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 {
- public:
+public:
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkCamera,vtkObject);
 
   // Description:
-  // Construct camera instance with its focal point at the origin, 
-  // and position=(0,0,1). The view up is along the y-axis, 
+  // Construct camera instance with its focal point at the origin,
+  // and position=(0,0,1). The view up is along the y-axis,
   // view angle is 30 degrees, and the clipping range is (.1,1000).
   static vtkCamera *New();
 
@@ -186,7 +186,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get the location of the near and far clipping planes along the
   // direction of projection.  Both of these values must be positive.
-  // How the clipping planes are set can have a large impact on how 
+  // How the clipping planes are set can have a large impact on how
   // well z-buffering works.  In particular the front clipping
   // plane can make a very big difference. Setting it to 0.01 when it
   // really could be 1.0 can have a big impact on your z-buffer resolution
@@ -197,7 +197,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetVector2Macro(ClippingRange,double);
 
   // Description:
-  // Set the distance between clipping planes.  This method adjusts the 
+  // Set the distance between clipping planes.  This method adjusts the
   // far clipping plane to be set a distance 'thickness' beyond the
   // near clipping plane.
   void SetThickness(double);
@@ -215,12 +215,12 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // Get/Set the oblique viewing angles.  The first angle, alpha, is the
   // angle (measured from the horizontal) that rays along the direction
-  // of projection will follow once projected onto the 2D screen.  
+  // of projection will follow once projected onto the 2D screen.
   // The second angle, beta, is the angle between the view plane and
   // the direction of projection.  This creates a shear transform
   // x' = x + dz*cos(alpha)/tan(beta), y' = dz*sin(alpha)/tan(beta)
   // where dz is the distance of the point from the focal plane.
-  // The angles are (45,90) by default.  Oblique projections 
+  // The angles are (45,90) by default.  Oblique projections
   // commonly use (30,63.435).
   void SetObliqueAngles(double alpha, double beta);
 
@@ -275,7 +275,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
     {
       return this->ViewTransform;
     }
-  
+
   // Description:
   // Return the projection transform matrix, which converts from camera
   // coordinates to viewport coordinates.  The 'aspect' is the
@@ -289,7 +289,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   VTK_LEGACY(virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
                                                                  double nearz,
                                                                  double farz));
-  
+
   // Description:
   // Return the projection transform matrix, which converts from camera
   // coordinates to viewport coordinates.  The 'aspect' is the
@@ -297,10 +297,10 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates of a point located inside the frustum are in the
   // range ([-1,+1],[-1,+1],[nearz,farz]).
-   virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
-                                                      double nearz,
-                                                      double farz);
-  
+  virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
+                                                     double nearz,
+                                                     double farz);
+
   // Description:
   // Return the projection transform matrix, which converts from camera
   // coordinates to viewport coordinates.  The 'aspect' is the
@@ -311,7 +311,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   virtual vtkPerspectiveTransform *GetProjectionTransformObject(double aspect,
                                                                 double nearz,
                                                                 double farz);
-  
+
 
   // Description:
   // Return the concatenation of the ViewTransform and the
@@ -330,7 +330,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
                double aspect,
                double nearz,
                double farz));
-  
+
   // Description:
   // Return the concatenation of the ViewTransform and the
   // ProjectionTransform.  This transform will convert world
@@ -343,7 +343,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
                                                               double nearz,
                                                               double farz);
 
-  
+
   // Description:
   // In addition to the instance variables such as position and orientation,
   // you can add an additional transformation for your own use.  This
@@ -415,19 +415,48 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkGetMacro(LeftEye,int);
 
   // Description:
+  // This function does 3  things.
+  // 1. It sets the camera mode to head tracked i.e ensures that the
+  // Asymmetric Frustuma are uses.
+  // 2. It sets variables like AsymLeft,AsymRight, AsymBottom and Asym
+  // to set the HeadTracked Projection Matrix.
+  // 3. It sets the View matrix
+  void SetHeadPose( vtkMatrix4x4 *head );
+
+  // Description:
+  // Setting the configuration parameters for head tracked camera
+  void SetConfigParams( double o2screen, double o2right, double o2left,
+                        double o2top, double o2bottom , double interOccDist,
+                        double scale, vtkMatrix4x4 * surfaceRot );
+  // Description:
+  // This function is a convinience function intended for the Paraview
+  // ServerManager
+  void SetHeadPose( double x00,  double x01,  double x02, double x03,
+                    double x10,  double x11,  double x12, double x13,
+                    double x20,  double x21,  double x22, double x23,
+                    double x30,  double x31,  double x32, double x33 );
+
+  // Description:
+  // HeadTracker mode. It impacts on the computation of the transforms.
+  // Initial value is false.
+  //vtkSetMacro(HeadTracked,bool);
+  void SetHeadTracked( int val);
+  vtkGetMacro(HeadTracked,bool);
+
+  // Description:
   // Copy the properties of `source' into `this'.
   // Copy pointers of matrices.
   // \pre source_exists!=0
   // \pre not_this: source!=this
   void ShallowCopy(vtkCamera *source);
-  
+
   // Description:
   // Copy the properties of `source' into `this'.
   // Copy the contents of the matrices.
   // \pre source_exists!=0
   // \pre not_this: source!=this
   void DeepCopy(vtkCamera *source);
-  
+
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -436,14 +465,14 @@ protected:
   // These methods should only be used within vtkCamera.cxx.
   void ComputeDistance();
   void ComputeViewTransform();
-  
+
 #ifndef VTK_LEGACY_REMOVE
   // Description:
   // @deprecated Replaced by ComputeProjectionTransform() as of VTK 5.4.
   void ComputePerspectiveTransform(double aspect,
                                    double nearz,
                                    double farz);
-  
+
   // Description:
   // @deprecated Replaced by ComputeCompositeProjectionTransform() as of
   // VTK 5.4.
@@ -451,21 +480,30 @@ protected:
                                             double nearz,
                                             double farz);
 #endif
-  
+
   // Description:
   // These methods should only be used within vtkCamera.cxx.
   void ComputeProjectionTransform(double aspect,
                                   double nearz,
                                   double farz);
-  
+
   // Description:
   // These methods should only be used within vtkCamera.cxx.
   void ComputeCompositeProjectionTransform(double aspect,
                                            double nearz,
                                            double farz);
-  
-  
+
+  // Description:
+  // This is aconvenience function to get Identity matrix with
+  // translation set to given values
+  vtkMatrix4x4* SetTranslation( vtkMatrix4x4 mat );
+
   void ComputeCameraLightTransform();
+
+  // Description:
+  // This method is used to set the transfromation matrix from Display
+  // Surface coordinates wrt the Room Base coordinates
+  void SetSurface2Base( vtkMatrix4x4 *head );
 
   // Description:
   // Copy the ivars. Do nothing for the matrices.
@@ -473,7 +511,7 @@ protected:
   // \pre source_exists!=0
   // \pre not_this: source!=this
   void PartialCopy(vtkCamera *source);
-  
+
   double WindowCenter[2];
   double ObliqueAngles[2];
   double FocalPoint[3];
@@ -501,15 +539,33 @@ protected:
   vtkTransform *CameraLightTransform;
 
   double FocalDisk;
-  //BTX
+//BTX
   vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;
-  //ETX
+//ETX
 
-  // ViewingRaysMtime keeps track of camera modifications which will 
-  // change the calculation of viewing rays for the camera before it is 
-  // transformed to the camera's location and orientation. 
+  // ViewingRaysMtime keeps track of camera modifications which will
+  // change the calculation of viewing rays for the camera before it is
+  // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
+
+  // Asymmetric Frustum
+  int HeadTracked;
+  vtkTransform *Surface2Base;
+  double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
+  double EyePos[3];
+  double O2Screen;
+  double O2Right;
+  double O2Left;
+  double O2Top;
+  double O2Bottom;
+  double EyeOffset;
+  double ScaleFactor;
+
+  // temp
+  vtkMatrix4x4 *eyePosMat;
+  vtkMatrix4x4 *eyeOffsetMat;
+
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
   void operator=(const vtkCamera&);  // Not implemented.

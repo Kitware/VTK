@@ -51,8 +51,8 @@ protected:
 };
 
 //----------------------------------------------------------------------------
-// Construct camera instance with its focal point at the origin, 
-// and position=(0,0,1). The view up is along the y-axis, 
+// Construct camera instance with its focal point at the origin,
+// and position=(0,0,1). The view up is along the y-axis,
 // view angle is 30 degrees, and the clipping range is (.1,1000).
 vtkCamera::vtkCamera()
 {
@@ -88,7 +88,7 @@ vtkCamera::vtkCamera()
 
   this->WindowCenter[0] = 0.0;
   this->WindowCenter[1] = 0.0;
-  
+
   this->ViewShear[0] = 0.0;
   this->ViewShear[1] = 0.0;
   this->ViewShear[2] = 1.0;
@@ -102,6 +102,34 @@ vtkCamera::vtkCamera()
   this->UserTransform = NULL;
   this->UserViewTransform = NULL;
   this->UserViewTransformCallbackCommand = NULL;
+
+  // Head tracking
+  this->HeadTracked = 0;
+
+  // HeadTracked Projection parameters
+  this->AsymLeft  = 0.0;
+  this->AsymRight = 0.0;
+  this->AsymBottom= 0.0;
+  this->AsymTop = 0.0;
+
+  // HeadTracked View Parameters
+  this->EyePos[0] = 0.0;
+  this->EyePos[1] = 0.0;
+  this->EyePos[2] = 0.0;
+
+  // HeadTracked Config parameters to be set from config file
+  this->Surface2Base = vtkTransform::New();
+  this->O2Screen = 0.0;
+  this->O2Right  = 0.0;
+  this->O2Left   = 0.0;
+  this->O2Top    = 0.0;
+  this->O2Bottom = 0.0;
+  this->EyeOffset = 0.0;
+  this->ScaleFactor =0.0;
+
+  // temp
+  eyePosMat = vtkMatrix4x4::New();
+  eyeOffsetMat = vtkMatrix4x4::New();
 
   // initialize the ViewTransform
   this->ComputeViewTransform();
@@ -132,13 +160,16 @@ vtkCamera::~vtkCamera()
     {
     this->UserViewTransformCallbackCommand->Delete();
     }
+  this->Surface2Base->Delete();
+  this->eyePosMat->Delete();
+  this->eyeOffsetMat->Delete();
 }
 
 //----------------------------------------------------------------------------
-// return the correct type of Camera 
+// return the correct type of Camera
 vtkCamera *vtkCamera::New()
 {
-  // First try to create the object from the vtkObjectFactory
+// First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkCamera");
   return static_cast<vtkCamera *>(ret);
 }
@@ -147,7 +178,7 @@ vtkCamera *vtkCamera::New()
 //----------------------------------------------------------------------------
 // The first set of methods deal exclusively with the ViewTransform, which
 // is the only transform which is set up entirely in the camera.  The
-// perspective transform must be set up by the Renderer because the 
+// perspective transform must be set up by the Renderer because the
 // Camera doesn't know the Renderer's aspect ratio.
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -155,22 +186,22 @@ vtkCamera *vtkCamera::New()
 //----------------------------------------------------------------------------
 void vtkCamera::SetPosition(double x, double y, double z)
 {
-  if (x == this->Position[0] && 
+  if (x == this->Position[0] &&
       y == this->Position[1] &&
       z == this->Position[2])
     {
     return;
     }
-  
+
   this->Position[0] = x;
   this->Position[1] = y;
   this->Position[2] = z;
 
-  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", " 
+  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
                 << this->Position[1] << ", " << this->Position[2] << ")");
 
   this->ComputeViewTransform();
-  // recompute the focal distance
+// recompute the focal distance
   this->ComputeDistance();
   this->ComputeCameraLightTransform();
 
@@ -180,11 +211,11 @@ void vtkCamera::SetPosition(double x, double y, double z)
 //----------------------------------------------------------------------------
 void vtkCamera::SetUserTransform(vtkHomogeneousTransform *transform)
 {
-  if (transform == this->UserTransform) 
-    { 
-    return; 
+  if (transform == this->UserTransform)
+    {
+    return;
     }
-  if (this->UserTransform) 
+  if (this->UserTransform)
     {
     this->UserTransform->Delete();
     this->UserTransform = NULL;
@@ -200,11 +231,11 @@ void vtkCamera::SetUserTransform(vtkHomogeneousTransform *transform)
 //----------------------------------------------------------------------------
 void vtkCamera::SetUserViewTransform(vtkHomogeneousTransform *transform)
 {
-  if (transform == this->UserViewTransform) 
-    { 
-    return; 
+  if (transform == this->UserViewTransform)
+    {
+    return;
     }
-  if (this->UserViewTransform) 
+  if (this->UserViewTransform)
     {
     this->UserViewTransform->RemoveObserver(
       this->UserViewTransformCallbackCommand);
@@ -233,21 +264,21 @@ void vtkCamera::SetUserViewTransform(vtkHomogeneousTransform *transform)
 //----------------------------------------------------------------------------
 void vtkCamera::SetFocalPoint(double x, double y, double z)
 {
-  if (x == this->FocalPoint[0] && 
-      y == this->FocalPoint[1] && 
+  if (x == this->FocalPoint[0] &&
+      y == this->FocalPoint[1] &&
       z == this->FocalPoint[2])
     {
     return;
     }
 
-  this->FocalPoint[0] = x; 
-  this->FocalPoint[1] = y; 
+  this->FocalPoint[0] = x;
+  this->FocalPoint[1] = y;
   this->FocalPoint[2] = z;
 
   vtkDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", " << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
 
   this->ComputeViewTransform();
-  // recompute the focal distance
+// recompute the focal distance
   this->ComputeDistance();
   this->ComputeCameraLightTransform();
 
@@ -257,23 +288,23 @@ void vtkCamera::SetFocalPoint(double x, double y, double z)
 //----------------------------------------------------------------------------
 void vtkCamera::SetViewUp(double x, double y, double z)
 {
-  // normalize ViewUp, but do _not_ orthogonalize it by default
+// normalize ViewUp, but do _not_ orthogonalize it by default
   double norm = sqrt(x*x + y*y + z*z);
-  
-  if(norm != 0) 
+
+  if(norm != 0)
     {
-    x /= norm; 
-    y /= norm; 
+    x /= norm;
+    y /= norm;
     z /= norm;
     }
-  else 
+  else
     {
-    x = 0; 
-    y = 1; 
+    x = 0;
+    y = 1;
     z = 0;
     }
-  
-  if (x == this->ViewUp[0] && 
+
+  if (x == this->ViewUp[0] &&
       y == this->ViewUp[1] &&
       z == this->ViewUp[2])
     {
@@ -285,7 +316,7 @@ void vtkCamera::SetViewUp(double x, double y, double z)
   this->ViewUp[2] = z;
 
   vtkDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", "
-    << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
+                << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
 
   this->ComputeViewTransform();
   this->ComputeCameraLightTransform();
@@ -298,13 +329,25 @@ void vtkCamera::SetViewUp(double x, double y, double z)
 // simply for the sake of the users' convenience.
 void vtkCamera::ComputeViewTransform()
 {
-  // main view through the camera
+// main view through the camera
   this->Transform->Identity();
   if (this->UserViewTransform)
     {
     this->Transform->Concatenate(this->UserViewTransform);
     }
-  this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+  if ( this->HeadTracked )
+    {
+    double inverseEyePos[3];
+    for (int i = 0; i < 3; ++i)
+      {
+      inverseEyePos[i] = -1 * this->EyePos[i];
+      }
+    this->Transform->Translate(inverseEyePos );
+    }
+  else
+    {
+    this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+    }
   this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
 }
 
@@ -314,7 +357,7 @@ void vtkCamera::ComputeCameraLightTransform()
   vtkTransform *t;
   double d;
 
-  // assumes a valid view transform and valid camera distance
+// assumes a valid view transform and valid camera distance
 
   t = this->CameraLightTransform;
   t->Identity();
@@ -329,7 +372,7 @@ void vtkCamera::ComputeCameraLightTransform()
 //----------------------------------------------------------------------------
 void vtkCamera::OrthogonalizeViewUp()
 {
-  // the orthogonalized ViewUp is just the second row of the view matrix
+// the orthogonalized ViewUp is just the second row of the view matrix
   vtkMatrix4x4 *matrix = this->ViewTransform->GetMatrix();
   this->ViewUp[0] = matrix->GetElement(1,0);
   this->ViewUp[1] = matrix->GetElement(1,1);
@@ -350,17 +393,17 @@ void vtkCamera::SetDistance(double d)
 
   this->Distance = d;
 
-  // Distance should be greater than .0002
+// Distance should be greater than .0002
   if (this->Distance < 0.0002)
     {
     this->Distance = 0.0002;
     vtkDebugMacro(<< " Distance is set to minimum.");
     }
 
-  // we want to keep the camera pointing in the same direction
+// we want to keep the camera pointing in the same direction
   double *vec = this->DirectionOfProjection;
 
-  // recalculate FocalPoint
+// recalculate FocalPoint
   this->FocalPoint[0] = this->Position[0] + vec[0]*this->Distance;
   this->FocalPoint[1] = this->Position[1] + vec[1]*this->Distance;
   this->FocalPoint[2] = this->Position[2] + vec[2]*this->Distance;
@@ -382,14 +425,14 @@ void vtkCamera::ComputeDistance()
 
   this->Distance = sqrt(dx*dx + dy*dy + dz*dz);
 
-  if (this->Distance < 1e-20) 
+  if (this->Distance < 1e-20)
     {
     this->Distance = 1e-20;
     vtkDebugMacro(<< " Distance is set to minimum.");
 
     double *vec = this->DirectionOfProjection;
 
-    // recalculate FocalPoint
+// recalculate FocalPoint
     this->FocalPoint[0] = this->Position[0] + vec[0]*this->Distance;
     this->FocalPoint[1] = this->Position[1] + vec[1]*this->Distance;
     this->FocalPoint[2] = this->Position[2] + vec[2]*this->Distance;
@@ -413,7 +456,7 @@ void vtkCamera::Dolly(double amount)
     return;
     }
 
-  // dolly moves the camera towards the focus
+// dolly moves the camera towards the focus
   double d = this->Distance/amount;
 
   this->SetPosition(this->FocalPoint[0] - d*this->DirectionOfProjection[0],
@@ -425,10 +468,10 @@ void vtkCamera::Dolly(double amount)
 // Set the roll angle of the camera about the direction of projection
 void vtkCamera::SetRoll(double roll)
 {
-  // roll is a rotation of camera view up about the direction of projection
+// roll is a rotation of camera view up about the direction of projection
   vtkDebugMacro(<< " Setting Roll to " << roll << "");
 
-  // subtract the current roll
+// subtract the current roll
   roll -= this->GetRoll();
 
   if (fabs(roll) < 0.00001)
@@ -455,11 +498,11 @@ void vtkCamera::Roll(double angle)
   double newViewUp[3];
   this->Transform->Identity();
 
-  // rotate ViewUp about the Direction of Projection
+// rotate ViewUp about the Direction of Projection
   this->Transform->RotateWXYZ(angle,this->DirectionOfProjection);
 
-  // okay, okay, TransformPoint shouldn't be used on vectors -- but
-  // the transform is rotation with no translation so this works fine.
+// okay, okay, TransformPoint shouldn't be used on vectors -- but
+// the transform is rotation with no translation so this works fine.
   this->Transform->TransformPoint(this->ViewUp,newViewUp);
   this->SetViewUp(newViewUp);
 }
@@ -473,14 +516,14 @@ void vtkCamera::Yaw(double angle)
   double *pos = this->Position;
   this->Transform->Identity();
 
-  // translate the camera to the origin,
-  // rotate about axis,
-  // translate back again
+// translate the camera to the origin,
+// rotate about axis,
+// translate back again
   this->Transform->Translate(+pos[0],+pos[1],+pos[2]);
   this->Transform->RotateWXYZ(angle,this->ViewUp);
   this->Transform->Translate(-pos[0],-pos[1],-pos[2]);
 
-  // now transform focal point
+// now transform focal point
   this->Transform->TransformPoint(this->FocalPoint,newFocalPoint);
   this->SetFocalPoint(newFocalPoint);
 }
@@ -494,19 +537,19 @@ void vtkCamera::Pitch(double angle)
   double *pos = this->Position;
   this->Transform->Identity();
 
-  // the axis is the first row of the view transform matrix
+// the axis is the first row of the view transform matrix
   axis[0] = this->ViewTransform->GetMatrix()->GetElement(0,0);
   axis[1] = this->ViewTransform->GetMatrix()->GetElement(0,1);
   axis[2] = this->ViewTransform->GetMatrix()->GetElement(0,2);
 
-  // translate the camera to the origin,
-  // rotate about axis,
-  // translate back again
+// translate the camera to the origin,
+// rotate about axis,
+// translate back again
   this->Transform->Translate(+pos[0],+pos[1],+pos[2]);
   this->Transform->RotateWXYZ(angle,axis);
   this->Transform->Translate(-pos[0],-pos[1],-pos[2]);
 
-  // now transform focal point
+// now transform focal point
   this->Transform->TransformPoint(this->FocalPoint,newFocalPoint);
   this->SetFocalPoint(newFocalPoint);
 }
@@ -519,14 +562,14 @@ void vtkCamera::Azimuth(double angle)
   double *fp = this->FocalPoint;
   this->Transform->Identity();
 
-  // translate the focal point to the origin,
-  // rotate about view up,
-  // translate back again
+// translate the focal point to the origin,
+// rotate about view up,
+// translate back again
   this->Transform->Translate(+fp[0],+fp[1],+fp[2]);
   this->Transform->RotateWXYZ(angle,this->ViewUp);
   this->Transform->Translate(-fp[0],-fp[1],-fp[2]);
 
-  // apply the transform to the position
+// apply the transform to the position
   this->Transform->TransformPoint(this->Position,newPosition);
   this->SetPosition(newPosition);
 }
@@ -540,19 +583,19 @@ void vtkCamera::Elevation(double angle)
   double *fp = this->FocalPoint;
   this->Transform->Identity();
 
-  // snatch the axis from the view transform matrix
+// snatch the axis from the view transform matrix
   axis[0] = -this->ViewTransform->GetMatrix()->GetElement(0,0);
   axis[1] = -this->ViewTransform->GetMatrix()->GetElement(0,1);
   axis[2] = -this->ViewTransform->GetMatrix()->GetElement(0,2);
 
-  // translate the focal point to the origin,
-  // rotate about axis,
-  // translate back again
+// translate the focal point to the origin,
+// rotate about axis,
+// translate back again
   this->Transform->Translate(+fp[0],+fp[1],+fp[2]);
   this->Transform->RotateWXYZ(angle,axis);
   this->Transform->Translate(-fp[0],-fp[1],-fp[2]);
 
-  // now transform position
+// now transform position
   this->Transform->TransformPoint(this->Position,newPosition);
   this->SetPosition(newPosition);
 }
@@ -670,7 +713,7 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
 {
   double thickness;
 
-  // check the order
+// check the order
   if ( nearz > farz )
     {
     vtkDebugMacro(<< " Front and back clipping range reversed");
@@ -679,7 +722,7 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
     farz = temp;
     }
 
-  // front should be greater than 1e-20
+// front should be greater than 1e-20
   if (nearz < 1e-20)
     {
     farz += 1e-20 - nearz;
@@ -689,13 +732,13 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
 
   thickness = farz - nearz;
 
-  // thickness should be greater than 1e-20
+// thickness should be greater than 1e-20
   if (thickness < 1e-20)
     {
     thickness = 1e-20;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
 
-    // set back plane
+// set back plane
     farz = nearz + thickness;
     }
 
@@ -711,7 +754,7 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
   this->Thickness = thickness;
 
   vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0]
-    << ", "  << this->ClippingRange[1] << ")");
+                << ", "  << this->ClippingRange[1] << ")");
 
   this->Modified();
 }
@@ -729,18 +772,18 @@ void vtkCamera::SetThickness(double s)
 
   this->Thickness = s;
 
-  // thickness should be greater than 1e-20
+// thickness should be greater than 1e-20
   if (this->Thickness < 1e-20)
     {
     this->Thickness = 1e-20;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     }
 
-  // set back plane
+// set back plane
   this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
 
   vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0]
-    << ", " << this->ClippingRange[1] << ")");
+                << ", " << this->ClippingRange[1] << ")");
 
   this->Modified();
 }
@@ -811,6 +854,113 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 }
 #endif
 
+//------------------------------------------------------------------HeadTracked
+// This is to enable headtracking of the camera.
+void vtkCamera::SetHeadTracked(int val )
+{
+    this->HeadTracked = val;
+}
+
+//------------------------------------------------------------------HeadTracked
+void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
+                            double x10,  double x11,  double x12, double x13,
+                            double x20,  double x21,  double x22, double x23,
+                            double x30,  double x31,  double x32, double x33 )
+{
+  vtkMatrix4x4 * mat = vtkMatrix4x4::New();
+
+  mat->SetElement( 0,0,x00 );
+  mat->SetElement( 0,1,x01 );
+  mat->SetElement( 0,2,x02 );
+  mat->SetElement( 0,3,x03 );
+
+  mat->SetElement( 1,0,x10 );
+  mat->SetElement( 1,1,x11 );
+  mat->SetElement( 1,2,x12 );
+  mat->SetElement( 1,3,x13 );
+
+  mat->SetElement( 2,0,x20 );
+  mat->SetElement( 2,1,x21 );
+  mat->SetElement( 2,2,x22 );
+  mat->SetElement( 2,3,x23 );
+
+  mat->SetElement( 3,0,x30 );
+  mat->SetElement( 3,1,x31 );
+  mat->SetElement( 3,2,x32 );
+  mat->SetElement( 3,3,x33 );
+
+  this->SetHeadPose( mat );
+  mat->PrintSelf(std::cout, ( vtkIndent ) 1 );
+  mat->Delete();
+}
+//------------------------------------------------------------------HeadTracked
+// This calculates sets head tracking mode for the camera and sets the
+// respective model-view and projection matrix parameters that should
+// be used with a head tracked camera
+void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
+{
+// Compute Projection Matrix Parameters using head
+  if ( this->LeftEye )
+    {
+    eyeOffsetMat->SetElement( 0, 3, -this->EyeOffset );
+    vtkMatrix4x4::Multiply4x4( headMat, eyeOffsetMat, eyePosMat );
+    }
+  else
+    {
+    eyeOffsetMat->SetElement( 0, 3, this->EyeOffset );
+    vtkMatrix4x4::Multiply4x4( headMat, eyeOffsetMat, eyePosMat );
+    }
+
+// Get eye position on the surface of the screen which is nothing
+// but the translation component of the eyePosMat
+  double eyeSurface[3];
+  eyeSurface[0] = eyePosMat->GetElement( 0, 3 );
+  eyeSurface[1] = eyePosMat->GetElement( 1, 3 );
+  eyeSurface[2] = eyePosMat->GetElement( 2, 3 );
+
+  double e2Screen = ( this->ScaleFactor * this->O2Screen ) + eyeSurface[3];
+  double e2Right  = ( this->ScaleFactor * this->O2Right )  - eyeSurface[0];
+  double e2Left   = ( this->ScaleFactor * this->O2Right )  + eyeSurface[0];
+  double e2Top    = ( this->ScaleFactor * this->O2Top )    - eyeSurface[1];
+  double e2Bottom = ( this->ScaleFactor * this->O2Bottom ) + eyeSurface[1];
+
+  double o2Near = this->ClippingRange[0] / e2Screen;
+
+// Setting the Projection matrix parameters for HeadTracked Camera
+  this->AsymLeft   = -( e2Left * o2Near ) ;
+  this->AsymRight  =   e2Right * o2Near ;
+  this->AsymTop    =     e2Top * o2Near;
+  this->AsymBottom = -(  e2Top * o2Near );
+
+// Setting the View (ModelView) matrix for HeadTracked Camera
+  this->EyePos[0] = eyePosMat->GetElement( 0, 3 );
+  this->EyePos[1] = eyePosMat->GetElement( 1, 3 );
+  this->EyePos[2] = eyePosMat->GetElement( 1, 3 );
+}
+
+//------------------------------------------------------------------HeadTracked
+void vtkCamera::SetConfigParams( double o2screen, double o2right, double o2left,
+                                 double o2top, double o2bottom , double interOccDist,
+                                 double scale, vtkMatrix4x4 * surfaceRot )
+{
+  this->O2Screen = o2screen;
+  this->O2Right = o2right;
+  this->O2Left = o2left;
+  this->O2Top = o2top;
+  this->O2Bottom = o2bottom;
+  this->SetSurface2Base( surfaceRot );
+  this->ScaleFactor = scale;
+  this->EyeOffset = ( interOccDist*scale )/2.0;
+}
+//------------------------------------------------------------------HeadTracked
+void vtkCamera::SetSurface2Base( vtkMatrix4x4 *surfaceRot )
+{
+  // Invert the surfaceRot matrix to get Surface2Base
+  this->Surface2Base->SetMatrix( surfaceRot );
+  this->Surface2Base->Inverse();
+}
+
+
 //----------------------------------------------------------------------------
 // Compute the projection transform matrix. This is used in converting
 // between view and world coordinates.
@@ -819,18 +969,18 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
 {
   this->ProjectionTransform->Identity();
 
-  // apply user defined transform last if there is one
+// apply user defined transform last if there is one
   if ( this->UserTransform )
     {
     this->ProjectionTransform->Concatenate( this->UserTransform->GetMatrix() );
     }
 
-  // adjust Z-buffer range
+// adjust Z-buffer range
   this->ProjectionTransform->AdjustZBuffer( -1, +1, nearz, farz );
 
   if ( this->ParallelProjection)
     {
-    // set up a rectangular parallelipiped
+// set up a rectangular parallelipiped
 
     double width = this->ParallelScale * aspect;
     double height = this->ParallelScale;
@@ -846,44 +996,54 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
     }
   else
     {
-    // set up a perspective frustum
-
-    double tmp = tan( vtkMath::RadiansFromDegrees( this->ViewAngle ) / 2. );
-    double width;
-    double height;
-    if ( this->UseHorizontalViewAngle )
+    if ( this->HeadTracked )
       {
-      width = this->ClippingRange[0] * tmp;
-      height = this->ClippingRange[0] * tmp / aspect;
+      this->ProjectionTransform->Frustum( this->AsymLeft,  this->AsymRight,
+                                          this->AsymBottom,  this->AsymTop,
+                                          this->ClippingRange[0],
+                                          this->ClippingRange[1] );
       }
     else
       {
-      width = this->ClippingRange[0] * tmp * aspect;
-      height = this->ClippingRange[0] * tmp;
+// set up a perspective frustum
+
+      double tmp = tan( vtkMath::RadiansFromDegrees( this->ViewAngle ) / 2. );
+      double width;
+      double height;
+      if ( this->UseHorizontalViewAngle )
+        {
+        width = this->ClippingRange[0] * tmp;
+        height = this->ClippingRange[0] * tmp / aspect;
+        }
+      else
+        {
+        width = this->ClippingRange[0] * tmp * aspect;
+        height = this->ClippingRange[0] * tmp;
+        }
+
+      double xmin = ( this->WindowCenter[0] - 1.0 ) * width;
+      double xmax = ( this->WindowCenter[0] + 1.0 ) * width;
+      double ymin = ( this->WindowCenter[1] - 1.0 ) * height;
+      double ymax = ( this->WindowCenter[1] + 1.0 ) * height;
+
+      this->ProjectionTransform->Frustum( xmin, xmax, ymin, ymax,
+                                          this->ClippingRange[0],
+                                          this->ClippingRange[1] );
       }
-
-    double xmin = ( this->WindowCenter[0] - 1.0 ) * width;
-    double xmax = ( this->WindowCenter[0] + 1.0 ) * width;
-    double ymin = ( this->WindowCenter[1] - 1.0 ) * height;
-    double ymax = ( this->WindowCenter[1] + 1.0 ) * height;
-
-    this->ProjectionTransform->Frustum( xmin, xmax, ymin, ymax,
-                                        this->ClippingRange[0],
-                                        this->ClippingRange[1] );
     }
 
   if ( this->Stereo )
     {
-    // set up a shear for stereo views
+// set up a shear for stereo views
     if ( this->LeftEye )
       {
       this->ProjectionTransform->Stereo( -this->EyeAngle/2,
-                                          this->Distance );
+                                         this->Distance );
       }
     else
       {
       this->ProjectionTransform->Stereo( +this->EyeAngle/2,
-                                          this->Distance );
+                                         this->Distance );
       }
     }
 
@@ -893,7 +1053,6 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                       this->ViewShear[1],
                                       this->ViewShear[2] * this->Distance );
     }
-
 }
 
 #ifndef VTK_LEGACY_REMOVE
@@ -917,7 +1076,7 @@ vtkMatrix4x4 *vtkCamera::GetProjectionTransformMatrix(double aspect,
 {
   this->ComputeProjectionTransform(aspect, nearz, farz);
 
-  // return the transform
+// return the transform
   return this->ProjectionTransform->GetMatrix();
 }
 
@@ -929,7 +1088,7 @@ vtkPerspectiveTransform *vtkCamera::GetProjectionTransformObject(double aspect,
 {
   this->ComputeProjectionTransform(aspect, nearz, farz);
 
-  // return the transform
+// return the transform
   return this->ProjectionTransform;
 }
 
@@ -953,8 +1112,8 @@ vtkMatrix4x4 *vtkCamera::GetCompositeProjectionTransformMatrix(double aspect,
                                                                double nearz,
                                                                double farz)
 {
-  // turn off stereo, the CompositeProjectionTransformMatrix is used for
-  // picking, not for rendering.
+// turn off stereo, the CompositeProjectionTransformMatrix is used for
+// picking, not for rendering.
   int stereo = this->Stereo;
   this->Stereo = 0;
 
@@ -966,7 +1125,7 @@ vtkMatrix4x4 *vtkCamera::GetCompositeProjectionTransformMatrix(double aspect,
 
   this->Stereo = stereo;
 
-  // return the transform
+// return the transform
   return this->Transform->GetMatrix();
 }
 
@@ -974,7 +1133,7 @@ vtkMatrix4x4 *vtkCamera::GetCompositeProjectionTransformMatrix(double aspect,
 // Return the attached light transform matrix.
 vtkMatrix4x4 *vtkCamera::GetCameraLightTransformMatrix()
 {
-  // return the transform
+// return the transform
   return this->CameraLightTransform->GetMatrix();
 }
 
@@ -984,18 +1143,18 @@ void vtkCamera::ComputeViewPlaneNormal()
 {
   if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0)
     {
-    // set the VPN in camera coordinates
+// set the VPN in camera coordinates
     this->ViewPlaneNormal[0] = this->ViewShear[0];
     this->ViewPlaneNormal[1] = this->ViewShear[1];
     this->ViewPlaneNormal[2] = 1.0;
-    // transform the VPN to world coordinates using inverse of view transform
+// transform the VPN to world coordinates using inverse of view transform
     this->ViewTransform->GetLinearInverse()->TransformNormal(
-                                              this->ViewPlaneNormal,
-                                              this->ViewPlaneNormal);
+      this->ViewPlaneNormal,
+      this->ViewPlaneNormal);
     }
   else
     {
-    // VPN is -DOP
+// VPN is -DOP
     this->ViewPlaneNormal[0] = -this->DirectionOfProjection[0];
     this->ViewPlaneNormal[1] = -this->DirectionOfProjection[1];
     this->ViewPlaneNormal[2] = -this->DirectionOfProjection[2];
@@ -1009,14 +1168,14 @@ void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x),
                                    double vtkNotUsed(z))
 {
   vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, "
-    "the view plane normal is calculated automatically.");
+                  "the view plane normal is calculated automatically.");
 }
 
 //----------------------------------------------------------------------------
 void vtkCamera::SetViewPlaneNormal(const double [3])
 {
   vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, "
-    "the view plane normal is calculated automatically.");
+                  "the view plane normal is calculated automatically.");
 }
 #endif
 
@@ -1028,26 +1187,26 @@ void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
   int i;
   double f, normals[6][4], matrix[4][4];
 
-  // set up the normals
+// set up the normals
   for (i = 0; i < 6; i++)
     {
     normals[i][0] = 0.0;
     normals[i][1] = 0.0;
     normals[i][2] = 0.0;
     normals[i][3] = 1.0;
-    // if i is even set to -1, if odd set to +1 
+// if i is even set to -1, if odd set to +1
     normals[i][i/2] = 1 - (i%2)*2;
     }
 
-  // get the composite perspective matrix
+// get the composite perspective matrix
   vtkMatrix4x4::DeepCopy(
-    *matrix, 
+    *matrix,
     this->GetCompositeProjectionTransformMatrix(aspect,-1,+1));
-  
-  // transpose the matrix for use with normals
+
+// transpose the matrix for use with normals
   vtkMatrix4x4::Transpose(*matrix,*matrix);
-  
-  // transform the normals to world coordinates
+
+// transform the normals to world coordinates
   for (i = 0; i < 6; i++)
     {
     vtkMatrix4x4::MultiplyPoint(*matrix,normals[i],normals[i]);
@@ -1055,7 +1214,7 @@ void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
     f = 1.0/sqrt(normals[i][0]*normals[i][0] +
                  normals[i][1]*normals[i][1] +
                  normals[i][2]*normals[i][2]);
-    
+
     planes[4*i + 0] = normals[i][0]*f;
     planes[4*i + 1] = normals[i][1]*f;
     planes[4*i + 2] = normals[i][2]*f;
@@ -1085,10 +1244,10 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
 {
   assert("pre: source_exists" && source!=0);
   assert("pre: not_this" && source!=this);
-  
+
   this->PartialCopy(source);
-  
-  // Shallow copy of matrices:
+
+// Shallow copy of matrices:
   if(this->UserTransform!=0)
     {
     this->UserTransform->Delete();
@@ -1107,7 +1266,7 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     {
     this->UserViewTransform->Register(this);
     }
-  
+
   if(this->ViewTransform!=0)
     {
     this->ViewTransform->Delete();
@@ -1117,7 +1276,7 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     {
     this->ViewTransform->Register(this);
     }
-  
+
   if(this->ProjectionTransform!=0)
     {
     this->ProjectionTransform->Delete();
@@ -1127,7 +1286,7 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     {
     this->ProjectionTransform->Register(this);
     }
-  
+
   if(this->Transform!=0)
     {
     this->Transform->Delete();
@@ -1137,7 +1296,7 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     {
     this->Transform->Register(this);
     }
-  
+
   if(this->CameraLightTransform!=0)
     {
     this->CameraLightTransform->Delete();
@@ -1148,7 +1307,7 @@ void vtkCamera::ShallowCopy(vtkCamera *source)
     this->CameraLightTransform->Register(this);
     }
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Copy the properties of `source' into `this'.
@@ -1159,10 +1318,10 @@ void vtkCamera::DeepCopy(vtkCamera *source)
 {
   assert("pre: source_exists" && source!=0);
   assert("pre: not_this" && source!=this);
-  
+
   this->PartialCopy(source);
-  
-  // Deep copy the matrices:
+
+// Deep copy the matrices:
   if(source->UserTransform==0)
     {
     if(this->UserTransform!=0)
@@ -1179,7 +1338,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkHomogeneousTransform *>(
           source->UserTransform->MakeTransform());
       }
-     this->UserTransform->DeepCopy(source->UserTransform);
+    this->UserTransform->DeepCopy(source->UserTransform);
     }
 
   if(source->UserViewTransform==0)
@@ -1198,9 +1357,9 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkHomogeneousTransform *>(
           source->UserViewTransform->MakeTransform());
       }
-     this->UserViewTransform->DeepCopy(source->UserViewTransform);
+    this->UserViewTransform->DeepCopy(source->UserViewTransform);
     }
-  
+
   if(source->ViewTransform==0)
     {
     if(this->ViewTransform!=0)
@@ -1217,9 +1376,9 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkTransform *>(
           source->ViewTransform->MakeTransform());
       }
-     this->ViewTransform->DeepCopy(source->ViewTransform);
+    this->ViewTransform->DeepCopy(source->ViewTransform);
     }
-  
+
   if(source->ProjectionTransform==0)
     {
     if(this->ProjectionTransform!=0)
@@ -1236,9 +1395,9 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkPerspectiveTransform *>(
           source->ProjectionTransform->MakeTransform());
       }
-     this->ProjectionTransform->DeepCopy(source->ProjectionTransform);
+    this->ProjectionTransform->DeepCopy(source->ProjectionTransform);
     }
-  
+
   if(source->Transform==0)
     {
     if(this->Transform!=0)
@@ -1255,9 +1414,9 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkPerspectiveTransform *>(
           source->Transform->MakeTransform());
       }
-     this->Transform->DeepCopy(source->Transform);
+    this->Transform->DeepCopy(source->Transform);
     }
-  
+
   if(source->CameraLightTransform==0)
     {
     if(this->CameraLightTransform!=0)
@@ -1274,7 +1433,7 @@ void vtkCamera::DeepCopy(vtkCamera *source)
         static_cast<vtkTransform *>(
           source->CameraLightTransform->MakeTransform());
       }
-     this->CameraLightTransform->DeepCopy(source->CameraLightTransform);
+    this->CameraLightTransform->DeepCopy(source->CameraLightTransform);
     }
 }
 
@@ -1288,9 +1447,9 @@ void vtkCamera::PartialCopy(vtkCamera *source)
 {
   assert("pre: source_exists" && source!=0);
   assert("pre: not_this" && source!=this);
-  
+
   int i;
-  
+
   i=0;
   while(i<2)
     {
@@ -1310,7 +1469,7 @@ void vtkCamera::PartialCopy(vtkCamera *source)
     this->ViewShear[i]=source->ViewShear[i];
     ++i;
     }
-  
+
   this->ViewAngle=source->ViewAngle;
   this->EyeAngle=source->EyeAngle;
   this->ParallelProjection=source->ParallelProjection;
@@ -1383,7 +1542,7 @@ vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 { return this->ViewTransform->GetMatrix(); }
 
 double *vtkCamera::GetOrientation()
-{ return this->ViewTransform->GetOrientation(); };
+{ return this->ViewTransform->GetOrientation(); }
 
 double *vtkCamera::GetOrientationWXYZ()
-{ return this->ViewTransform->GetOrientationWXYZ(); };
+{ return this->ViewTransform->GetOrientationWXYZ(); }
