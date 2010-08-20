@@ -1118,29 +1118,29 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     }
 
   // search weak list for object, resurrect if it is there
-  vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
+  vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator j =
     vtkPythonMap->GhostMap->find(ptr);
-  if (i != vtkPythonMap->GhostMap->end())
+  if (j != vtkPythonMap->GhostMap->end())
     {
-    if (i->second.vtk_ptr.GetPointer())
+    if (j->second.vtk_ptr.GetPointer())
       {
-      obj = PyVTKObject_New((PyObject *)i->second.vtk_class,
-                            i->second.vtk_dict, ptr);
+      obj = PyVTKObject_New((PyObject *)j->second.vtk_class,
+                            j->second.vtk_dict, ptr);
       }
-    Py_DECREF(i->second.vtk_class);
-    Py_DECREF(i->second.vtk_dict);
-    vtkPythonMap->GhostMap->erase(i);
+    Py_DECREF(j->second.vtk_class);
+    Py_DECREF(j->second.vtk_dict);
+    vtkPythonMap->GhostMap->erase(j);
     }
 
   if (obj == NULL)
     {
     // create a new object
     PyObject *vtkclass = NULL;
-    vtkstd::map<vtkstd::string, PyObject*>::iterator i =
+    vtkstd::map<vtkstd::string, PyObject*>::iterator k =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
-    if (i != vtkPythonMap->ClassMap->end())
+    if (k != vtkPythonMap->ClassMap->end())
       {
-      vtkclass = i->second;
+      vtkclass = k->second;
       }
 
     // if the class was not in the map, then find the nearest base class
