@@ -32,6 +32,7 @@ vtkButtonSource.cxx
 vtkCellCenters.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
+vtkCellLocatorInterpolatedVelocityField.cxx
 vtkCellQuality.cxx
 vtkCleanPolyData.cxx
 vtkClipClosedSurface.cxx
@@ -161,6 +162,7 @@ vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
+vtkModifiedBSPTree.cxx
 vtkMultiBlockDataGroupFilter.cxx
 vtkMultiBlockMergeFilter.cxx
 vtkMultiThreshold.cxx
