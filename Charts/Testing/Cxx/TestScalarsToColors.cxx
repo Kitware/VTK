@@ -85,11 +85,7 @@ int TestScalarsToColors( int argc, char * argv [] )
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
+  view->GetInteractor()->Start();
 
   return !retVal;
 }

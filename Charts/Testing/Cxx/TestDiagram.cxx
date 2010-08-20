@@ -67,11 +67,7 @@ int TestDiagram( int argc, char * argv [] )
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage(renderWindow);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    interactor->Start();
-    }
-
+  interactor->Start();
   return !retVal;
 }
 

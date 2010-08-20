@@ -68,13 +68,7 @@ int TestParallelCoordinates(int argc, char* argv[])
 
   view->GetRenderWindow()->SetMultiSamples(0);
   //Finally render the scene and compare the image to a reference image
-  //int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
-
+  view->GetInteractor()->Start();
   return !retVal;
 }

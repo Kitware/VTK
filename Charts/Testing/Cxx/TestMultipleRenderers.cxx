@@ -76,7 +76,6 @@ int TestMultipleRenderers( int argc, char * argv [] )
   ren2d->AddActor(chartActor);
   chartScene->SetRenderer( ren2d );
 
-
   // Create a table with some points in it...
   VTK_CREATE(vtkTable, table);
   VTK_CREATE(vtkFloatArray, arrX);
@@ -121,10 +120,7 @@ int TestMultipleRenderers( int argc, char * argv [] )
   ren2d->SetViewport(0,0.5,1,1);
 
   int retVal = vtkRegressionTestImage(iren->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
   return !retVal;
 }

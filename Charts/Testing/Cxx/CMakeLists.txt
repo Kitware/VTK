@@ -1,5 +1,7 @@
 # if we have rendering and views add the following tests
 IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
+
+
   SET(KIT Charts)
   # add tests that do not require data
   SET(MyTests
@@ -16,6 +18,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestContextImage.cxx
       TestDiagram.cxx
       TestLinePlot.cxx
+      TestLinePlotInteraction.cxx
       TestMarks.cxx
       TestMarksCallback.cxx
       TestMarksWedge.cxx
@@ -48,8 +51,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
         )
     ENDIF (VTK_DATA_ROOT)
   ENDIF(VTK_USE_QT)
-  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-    EXTRA_INCLUDE vtkTestDriver.h)
+  # Use the testing object factory, to reduce boilerplate code in tests.
+  INCLUDE("${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake")
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCharts)
 
