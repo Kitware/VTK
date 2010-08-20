@@ -20,28 +20,31 @@
 // This test draws a stick with non-finite values.  The topology of the stick is
 // as follows.
 //
-//  +---+  NAN
+//  +---+  INF  Red
 //  |   |
-//  +---+  INF
+//  +---+  1.0  Red
 //  |   |
-//  +---+  1.0
+//  +---+  0.5  Green
 //  |   |
-//  +---+  0.5
+//  +---+  NAN  Magenta
 //  |   |
-//  +---+  0.0
+//  +---+  0.5  Green
 //  |   |
-//  +---+  -INF
+//  +---+  0.0  Blue
+//  |   |
+//  +---+  -INF Blue
 //
-// These values are mapped to the spectrum colors from red (low) to blue (high).
+// These values are mapped to the spectrum colors from blue (low) to red (high).
 // -INF should be blue, INF should be red.  Since these are near extrema,
-// whatever interpolation used should be constant.  NAN should be drawn as grey.
-// The interpolation to NAN is ill defined in a texture map.  I would expect a
-// sharp transition to the NAN color, but that might depend on graphics
+// whatever interpolation used should be constant.  NAN should be drawn as
+// magenta.  The interpolation to NAN is ill defined in a texture map.  I would
+// expect a sharp transition to the NAN color, but that might depend on graphics
 // hardware.
 
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -59,10 +62,10 @@
 // Create the data described above.
 static vtkSmartPointer<vtkPolyData> CreateData()
 {
-  const int cellsHigh = 5;
+  const int cellsHigh = 6;
   const int pointsHigh = cellsHigh + 1;
   const double pointValues[pointsHigh] = {
-    vtkMath::NegInf(), 0.0, 0.5, 1.0, vtkMath::Inf(), vtkMath::Nan()
+    vtkMath::NegInf(), 0.0, 0.5, vtkMath::Nan(), 0.5, 1.0, vtkMath::Inf()
   };
 
   VTK_CREATE(vtkPolyData, polyData);
@@ -100,11 +103,26 @@ static vtkSmartPointer<vtkPolyData> CreateData()
   return polyData;
 }
 
+static vtkSmartPointer<vtkLookupTable> CreateLookupTable()
+{
+  VTK_CREATE(vtkLookupTable, lut);
+
+  lut->SetRampToLinear();
+  lut->SetScaleToLinear();
+  lut->SetTableRange(0.0, 1.0);
+  lut->SetHueRange(0.6, 0.0);
+  lut->SetNanColor(1.0, 0.0, 1.0, 1.0);
+
+  return lut;
+}
+
 static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
+                                                   vtkScalarsToColors *lut,
                                                    int interpolate)
 {
   VTK_CREATE(vtkPolyDataMapper, mapper);
   mapper->SetInput(input);
+  mapper->SetLookupTable(lut);
   mapper->SetInterpolateScalarsBeforeMapping(interpolate);
 
   VTK_CREATE(vtkActor, actor);
@@ -126,11 +144,11 @@ int RenderNonFinite(int argc, char *argv[])
 
   vtkSmartPointer<vtkRenderer> renderer;
 
-  renderer = CreateRenderer(input, 0);
+  renderer = CreateRenderer(input, CreateLookupTable(), 0);
   renderer->SetViewport(0.0, 0.0, 0.5, 1.0);
   renwin->AddRenderer(renderer);
 
-  renderer = CreateRenderer(input, 1);
+  renderer = CreateRenderer(input, CreateLookupTable(), 1);
   renderer->SetViewport(0.5, 0.0, 1.0, 1.0);
   renwin->AddRenderer(renderer);
 
