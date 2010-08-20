@@ -423,19 +423,24 @@ public:
   // 3. It sets the View matrix
   void SetHeadPose( vtkMatrix4x4 *head );
 
-        // Description:
-        // This function is a convinience function intended for the Paraview
-        // ServerManager
-        void SetHeadPose( double x00,  double x01,  double x02, double x03,
-                                                                                double x10,  double x11,  double x12, double x13,
-                                                                                double x20,  double x21,  double x22, double x23,
-                                                                                double x30,  double x31,  double x32, double x33 );
+  // Description:
+  // Setting the configuration parameters for head tracked camera
+  void SetConfigParams( double o2screen, double o2right, double o2left,
+                        double o2top, double o2bottom , double interOccDist,
+                        double scale, vtkMatrix4x4 * surfaceRot );
+  // Description:
+  // This function is a convinience function intended for the Paraview
+  // ServerManager
+  void SetHeadPose( double x00,  double x01,  double x02, double x03,
+                    double x10,  double x11,  double x12, double x13,
+                    double x20,  double x21,  double x22, double x23,
+                    double x30,  double x31,  double x32, double x33 );
 
   // Description:
   // HeadTracker mode. It impacts on the computation of the transforms.
   // Initial value is false.
   //vtkSetMacro(HeadTracked,bool);
-        void SetHeadTracked( int val);
+  void SetHeadTracked( int val);
   vtkGetMacro(HeadTracked,bool);
 
   // Description:
@@ -496,6 +501,11 @@ protected:
   void ComputeCameraLightTransform();
 
   // Description:
+  // This method is used to set the transfromation matrix from Display
+  // Surface coordinates wrt the Room Base coordinates
+  void SetSurface2Base( vtkMatrix4x4 *head );
+
+  // Description:
   // Copy the ivars. Do nothing for the matrices.
   // Called by ShallowCopy() and DeepCopy()
   // \pre source_exists!=0
@@ -541,6 +551,7 @@ protected:
 
   // Asymmetric Frustum
   int HeadTracked;
+  vtkTransform *Surface2Base;
   double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
   double EyePos[3];
   double O2Screen;
@@ -550,6 +561,10 @@ protected:
   double O2Bottom;
   double EyeOffset;
   double ScaleFactor;
+
+  // temp
+  vtkMatrix4x4 *eyePosMat;
+  vtkMatrix4x4 *eyeOffsetMat;
 
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.

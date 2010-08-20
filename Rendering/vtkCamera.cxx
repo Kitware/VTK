@@ -103,21 +103,22 @@ vtkCamera::vtkCamera()
   this->UserViewTransform = NULL;
   this->UserViewTransformCallbackCommand = NULL;
 
-// Head tracking
+  // Head tracking
   this->HeadTracked = 0;
 
-// HeadTracked Projection parameters
+  // HeadTracked Projection parameters
   this->AsymLeft  = 0.0;
   this->AsymRight = 0.0;
   this->AsymBottom= 0.0;
   this->AsymTop = 0.0;
 
-// HeadTracked View Parameters
+  // HeadTracked View Parameters
   this->EyePos[0] = 0.0;
   this->EyePos[1] = 0.0;
   this->EyePos[2] = 0.0;
 
-// HeadTracked Config parameters to be set from config file
+  // HeadTracked Config parameters to be set from config file
+  this->Surface2Base = vtkTransform::New();
   this->O2Screen = 0.0;
   this->O2Right  = 0.0;
   this->O2Left   = 0.0;
@@ -126,7 +127,11 @@ vtkCamera::vtkCamera()
   this->EyeOffset = 0.0;
   this->ScaleFactor =0.0;
 
-// initialize the ViewTransform
+  // temp
+  eyePosMat = vtkMatrix4x4::New();
+  eyeOffsetMat = vtkMatrix4x4::New();
+
+  // initialize the ViewTransform
   this->ComputeViewTransform();
   this->ComputeDistance();
   this->ComputeCameraLightTransform();
@@ -155,6 +160,9 @@ vtkCamera::~vtkCamera()
     {
     this->UserViewTransformCallbackCommand->Delete();
     }
+  this->Surface2Base->Delete();
+  this->eyePosMat->Delete();
+  this->eyeOffsetMat->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -891,12 +899,7 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
 // be used with a head tracked camera
 void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
 {
-// If HeadTracked not set then set it to true
-//if ( !this->HeadTracked ) this->HeadTracked = true;
-
 // Compute Projection Matrix Parameters using head
-  vtkMatrix4x4 *eyePosMat = vtkMatrix4x4::New();
-  vtkMatrix4x4 *eyeOffsetMat = vtkMatrix4x4::New();
   if ( this->LeftEye )
     {
     eyeOffsetMat->SetElement( 0, 3, -this->EyeOffset );
@@ -907,7 +910,6 @@ void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
     eyeOffsetMat->SetElement( 0, 3, this->EyeOffset );
     vtkMatrix4x4::Multiply4x4( headMat, eyeOffsetMat, eyePosMat );
     }
-  eyeOffsetMat->Delete();
 
 // Get eye position on the surface of the screen which is nothing
 // but the translation component of the eyePosMat
@@ -934,6 +936,28 @@ void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
   this->EyePos[0] = eyePosMat->GetElement( 0, 3 );
   this->EyePos[1] = eyePosMat->GetElement( 1, 3 );
   this->EyePos[2] = eyePosMat->GetElement( 1, 3 );
+}
+
+//------------------------------------------------------------------HeadTracked
+void vtkCamera::SetConfigParams( double o2screen, double o2right, double o2left,
+                                 double o2top, double o2bottom , double interOccDist,
+                                 double scale, vtkMatrix4x4 * surfaceRot )
+{
+  this->O2Screen = o2screen;
+  this->O2Right = o2right;
+  this->O2Left = o2left;
+  this->O2Top = o2top;
+  this->O2Bottom = o2bottom;
+  this->SetSurface2Base( surfaceRot );
+  this->ScaleFactor = scale;
+  this->EyeOffset = ( interOccDist*scale )/2.0;
+}
+//------------------------------------------------------------------HeadTracked
+void vtkCamera::SetSurface2Base( vtkMatrix4x4 *surfaceRot )
+{
+  // Invert the surfaceRot matrix to get Surface2Base
+  this->Surface2Base->SetMatrix( surfaceRot );
+  this->Surface2Base->Inverse();
 }
 
 
