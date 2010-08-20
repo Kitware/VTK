@@ -59,11 +59,7 @@ int TestContext( int argc, char * argv [] )
   view->GetRenderWindow()->Render();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
+  view->GetInteractor()->Start();
   return !retVal;
 }
 

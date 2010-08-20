@@ -54,12 +54,8 @@ int TestQtContextUnicode(int argc, char * argv [])
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
 
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
+  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 30);
+  view->GetInteractor()->Start();
   return !retVal;
 }
 

@@ -38,7 +38,7 @@
 
 
 // Monthly checkout data
-static const char *month_labels[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+static const char *month_labels[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 static int book[] =       {5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946, 5526, 5166};
 static int new_popular[] = {701,  687,  736,  696,  750,  814,  923,  860,  786,  735,  680,  741};
@@ -123,16 +123,12 @@ int TestStackedPlot( int argc, char * argv [] )
   VTK_CREATE(vtkColorSeries,colorSeries);
   colorSeries->SetColorScheme(vtkColorSeries::COOL);
   stack->SetColorSeries(colorSeries);
- 
+
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
 
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
+  view->GetInteractor()->Start();
 
   return !retVal;
 }
