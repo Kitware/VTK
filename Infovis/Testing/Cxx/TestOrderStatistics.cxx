@@ -288,7 +288,7 @@ int TestOrderStatistics( int, char *[] )
 
   for ( int i = 0; i < textLength; ++ i )
     {
-    char c = text[i];
+    char c = text.at(i);
     textArr->InsertNextValue( &c );
     }
 
