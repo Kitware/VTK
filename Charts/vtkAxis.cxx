@@ -381,13 +381,27 @@ void vtkAxis::RecalculateTickSpacing()
       }
     else
       {
-      while (min < this->Minimum)
+      if (this->Minimum < this->Maximum)
         {
-        min += this->TickInterval;
+        while (min < this->Minimum)
+          {
+          min += this->TickInterval;
+          }
+        while (max > this->Maximum)
+          {
+          max -= this->TickInterval;
+          }
         }
-      while (max > this->Maximum)
+      else
         {
-        max -= this->TickInterval;
+        while (min > this->Minimum)
+          {
+          min -= this->TickInterval;
+          }
+        while (max < this->Maximum)
+          {
+          max += this->TickInterval;
+          }
         }
       this->GenerateTickLabels(min, max);
       }
@@ -444,10 +458,12 @@ void vtkAxis::GenerateTickLabels(double min, double max)
   // Now calculate the tick labels, and positions within the axis range
   this->TickPositions->SetNumberOfTuples(0);
   this->TickLabels->SetNumberOfTuples(0);
-  int n = static_cast<int>((max - min) / this->TickInterval);
+  double mult = max > min ? 1.0 : -1.0;
+  double range = mult > 0.0 ? max - min : min - max;
+  int n = static_cast<int>(range / this->TickInterval);
   for (int i = 0; i <= n && i < 200; ++i)
     {
-    double value = min + double(i) * this->TickInterval;
+    double value = min + double(i) * mult * this->TickInterval;
     this->TickPositions->InsertNextValue(value);
     // Make a tick mark label for the tick
     if (this->LogScale)
