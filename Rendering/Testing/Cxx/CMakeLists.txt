@@ -40,6 +40,7 @@ IF(VTK_USE_DISPLAY)
     TestManyActors.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
+    TestOpenGLPolyDataMapper.cxx
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
     TestResetCameraVerticalAspectRatio.cxx
