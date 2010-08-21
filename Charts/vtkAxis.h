@@ -39,7 +39,6 @@ public:
   vtkTypeMacro(vtkAxis, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   // Description:
   // Enumeration of the axis locations in a conventional XY chart. Other
   // layouts are possible.
@@ -50,14 +49,13 @@ public:
     TOP,
     PARALLEL
   };
-//ETX
 
   // Description:
   // Creates a 2D Chart object.
   static vtkAxis *New();
 
   // Description:
-  // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP).
+  // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP, PARALLEL).
   vtkSetMacro(Position, int);
   vtkGetMacro(Position, int);
 
@@ -140,9 +138,25 @@ public:
   vtkGetMacro(Precision, int);
 
   // Description:
+  // Enumeration of the axis notations available.
+  enum {
+    STANDARD = 0,
+    SCIENTIFIC,
+    MIXED
+  };
+
+  // Description:
   // Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
   virtual void SetNotation(int notation);
   vtkGetMacro(Notation, int);
+
+  // Description:
+  // Enumeration of the axis behaviors.
+  enum {
+    AUTO = 0,
+    FIXED,
+    CUSTOM
+  };
 
   // Description:
   // Get/set the behavior of the axis (auto, fixed, custom). Default is 0 (auto).
