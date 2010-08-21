@@ -26,6 +26,14 @@
 #ifndef _H5private_H
 #define _H5private_H
 
+/* Prevent compile errors with GCC 4.3 on Solaris 2.10:
+ * Compilation with -std=c99 sets _STRICT_STDC which in turn causes a big part of
+ * /usr/include/limits.h being skipped, including the definition of PATH_MAX,
+ * realpath etc. */
+#if defined (__SVR4) && defined (__sun) && defined (__GNUC__)
+#   define __EXTENSIONS__
+#endif
+
 #include "H5public.h"		/* Include Public Definitions		*/
 
 /* include the pthread header */
@@ -131,6 +139,16 @@
  */
 #ifdef H5_HAVE_SYS_SYSINFO_H
 #   include <sys/sysinfo.h>
+#endif
+/* Prevent compile errors with GCC 4.3 on Solaris 2.10 */
+#if defined (__SVR4) && defined (__sun)
+/* In file included from /usr/include/sys/klwp.h:19,
+ *                  from /usr/include/sys/thread.h:13,
+ *                  from /usr/include/sys/proc.h:20,
+ *                  from .../src/H5private.h:136,
+ *                  from .../src/H5detect.c:57:
+ * /usr/include/sys/ucontext.h:69: error: expected specifier-qualifier-list before 'stack_t' */
+#   undef H5_HAVE_SYS_PROC_H
 #endif
 #ifdef H5_HAVE_SYS_PROC_H
 #   include <sys/proc.h>
