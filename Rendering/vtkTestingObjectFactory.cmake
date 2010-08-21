@@ -38,6 +38,13 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
         ++ii;
         continue;
         }
+      if ( strcmp(av[ii],\"-E\") == 0)
+        {
+        vtkTestingInteractor::ErrorThreshold =
+          static_cast<double>(atof(av[ii+1]));
+        ++ii;
+        continue;
+        }
       }
     vtkSmartPointer<vtkTestingObjectFactory> factory = vtkSmartPointer<vtkTestingObjectFactory>::New();
     if (!interactive)

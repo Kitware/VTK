@@ -20,10 +20,11 @@
 
 vtkStandardNewMacro(vtkTestingInteractor);
 
-int         vtkTestingInteractor::TestReturnStatus = -1;
-std::string vtkTestingInteractor::ValidBaseline;
-std::string vtkTestingInteractor::TempDirectory;
-std::string vtkTestingInteractor::DataDirectory;
+int          vtkTestingInteractor::TestReturnStatus = -1;
+double       vtkTestingInteractor::ErrorThreshold = 40.0;
+std::string  vtkTestingInteractor::ValidBaseline;
+std::string  vtkTestingInteractor::TempDirectory;
+std::string  vtkTestingInteractor::DataDirectory;
 
 // Start normally starts an event loop. This interator uses vtkTesting
 // to grab the render window and compare the results to a baseline image
@@ -47,5 +48,5 @@ void vtkTestingInteractor::Start()
   testing->AddArgument(valid.c_str());
 
   // Regression test the image
-  vtkTestingInteractor::TestReturnStatus = testing->RegressionTest(40);
+  vtkTestingInteractor::TestReturnStatus = testing->RegressionTest(vtkTestingInteractor::ErrorThreshold);
 }
