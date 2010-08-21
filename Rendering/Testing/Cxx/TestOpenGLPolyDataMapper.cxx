@@ -72,6 +72,4 @@ int TestOpenGLPolyDataMapper(int argc, char *argv[])
     }
 
   return !retVal;
-
-  return EXIT_SUCCESS;
 }
