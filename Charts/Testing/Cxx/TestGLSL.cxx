@@ -101,19 +101,18 @@ int TestGLSL( int argc, char * argv [] )
 
   // Ensure that there is a valid OpenGL context - Mac inconsistent behavior.
   view->GetRenderWindow()->SetMultiSamples(0);
-
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  view->GetInteractor()->Start();
+  // Need to attempt at least one render, to see if the GLSL can compile.
+  view->Render();
 
   if (test->IsCompiled)
     {
-    return !retVal;
+    view->GetInteractor()->Start();
     }
   else
     {
     cout << "GLSL 1.20 required, shader failed to compile." << endl;
-    return 0;
     }
+  return EXIT_SUCCESS;
 }
 
 // Make our new derived class to draw a diagram
