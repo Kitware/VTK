@@ -129,7 +129,6 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkPiecewiseFunctionItem> item =
           vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
         item->SetPiecewiseFunction(opacityFunction);
-        item->SetMaskAboveCurve(true);
         item->SetColor(1., 0, 0);
         chart->AddPlot(item);
         vtkSmartPointer<vtkPiecewiseControlPointsItem> controlPointsItem =

@@ -72,7 +72,6 @@ int TestScalarsToColors( int argc, char * argv [] )
     vtkSmartPointer<vtkCompositeTransferFunctionItem>::New();
   item3->SetColorTransferFunction(colorTransferFunction);
   item3->SetOpacityFunction(opacityFunction);
-  item3->SetOpacity(0.2);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
 /*
