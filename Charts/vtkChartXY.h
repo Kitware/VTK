@@ -177,10 +177,6 @@ protected:
   void RecalculatePlotBounds();
 
   // Description:
-  // Process a rubber band selection event.
-  virtual void ProcessSelectionEvent(vtkObject* caller, void* callData);
-
-  // Description:
   // The grid for the chart.
   vtkPlotGrid *Grid;
 

@@ -1329,11 +1329,6 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartXY::ProcessSelectionEvent(vtkObject* , void* )
-{
-}
-
-//-----------------------------------------------------------------------------
 bool vtkChartXY::RemovePlotFromCorners(vtkPlot *plot)
 {
   // We know the plot will only ever be in one of the corners
