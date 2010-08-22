@@ -19,7 +19,7 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
-#include "vtkContextDevice2D.h"
+
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
@@ -28,7 +28,6 @@
 #include "vtkPoints2D.h"
 #include "vtkVector.h"
 
-#include "vtkPlot.h"
 #include "vtkPlotBar.h"
 #include "vtkPlotStacked.h"
 #include "vtkPlotLine.h"
@@ -41,9 +40,6 @@
 #include "vtkTooltipItem.h"
 
 #include "vtkTable.h"
-#include "vtkAbstractArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 
 #include "vtkAnnotationLink.h"
@@ -61,7 +57,7 @@
 #include "vtkDataArray.h"
 
 // My STL containers
-#include <vtkstd/vector>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 class vtkChartXYPrivate
@@ -77,9 +73,9 @@ public:
     this->Borders[3] = 20;
     }
 
-  vtkstd::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
-  vtkstd::vector<vtkContextTransform *> PlotCorners; // Stored by corner...
-  vtkstd::vector<vtkAxis *> axes; // Charts can contain multiple axes
+  std::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
+  std::vector<vtkContextTransform *> PlotCorners; // Stored by corner...
+  std::vector<vtkAxis *> axes; // Charts can contain multiple axes
   vtkSmartPointer<vtkColorSeries> Colors; // Colors in the chart
   vtkSmartPointer<vtkContextClip> Clip; // Colors in the chart
   int Borders[4];
@@ -204,7 +200,7 @@ void vtkChartXY::Update()
       vtkIdTypeArray *idArray =
           vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
       // Now iterate through the plots to update selection data
-      vtkstd::vector<vtkPlot*>::iterator it =
+      std::vector<vtkPlot*>::iterator it =
           this->ChartPrivate->plots.begin();
       for ( ; it != this->ChartPrivate->plots.end(); ++it)
         {
@@ -403,7 +399,7 @@ void vtkChartXY::CalculateBarPlots()
 {
   // Calculate the width, spacing and offsets for the bar plot - they are grouped
   size_t n = this->ChartPrivate->plots.size();
-  vtkstd::vector<vtkPlotBar *> bars;
+  std::vector<vtkPlotBar *> bars;
   for (size_t i = 0; i < n; ++i)
     {
     vtkPlotBar* bar = vtkPlotBar::SafeDownCast(this->ChartPrivate->plots[i]);
@@ -655,7 +651,7 @@ void vtkChartXY::RecalculatePlotBounds()
   // Store whether the ranges have been initialized - follows same order
   bool initialized[] = { false, false, false, false };
 
-  vtkstd::vector<vtkPlot*>::iterator it;
+  std::vector<vtkPlot*>::iterator it;
   double bounds[4] = { 0.0, 0.0, 0.0, 0.0 };
   for (it = this->ChartPrivate->plots.begin();
        it != this->ChartPrivate->plots.end(); ++it)
