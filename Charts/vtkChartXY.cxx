@@ -972,31 +972,9 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   // Iterate through each corner, and check for a nearby point
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
     {
-    int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
-                                 ->GetNumberOfItems());
-    if (items)
+    if (this->ChartPrivate->PlotCorners[i]->MouseMoveEvent(mouse))
       {
-      vtkVector2f plotPos, position;
-      vtkContextMouseEvent plotMouse = mouse;
-      vtkTransform2D* transform =
-        this->ChartPrivate->PlotCorners[i]->GetTransform();
-      transform->InverseTransformPoints(mouse.Pos.GetData(),
-                                        plotMouse.Pos.GetData(), 1);
-      transform->InverseTransformPoints(mouse.LastPos.GetData(),
-                                        plotMouse.LastPos.GetData(), 1);
-      // Iterate through the visible plots and return on the first hit
-      for (int j = items-1; j >= 0; --j)
-        {
-        vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
-                                              PlotCorners[i]->GetItem(j));
-        if (plot && plot->GetVisible())
-          {
-          if (plot->MouseMoveEvent(plotMouse))
-            {
-            return true;
-            }
-          }
-        }
+      return true;
       }
     }
 
@@ -1135,31 +1113,9 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
   // Iterate through each corner, and check for a nearby point
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
     {
-    int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
-                                 ->GetNumberOfItems());
-    if (items)
+    if (this->ChartPrivate->PlotCorners[i]->MouseButtonPressEvent(mouse))
       {
-      vtkVector2f plotPos, position;
-      vtkContextMouseEvent plotMouse = mouse;
-      vtkTransform2D* transform =
-        this->ChartPrivate->PlotCorners[i]->GetTransform();
-      transform->InverseTransformPoints(mouse.Pos.GetData(),
-                                        plotMouse.Pos.GetData(), 1);
-      transform->InverseTransformPoints(mouse.LastPos.GetData(),
-                                        plotMouse.LastPos.GetData(), 1);
-      // Iterate through the visible plots and return on the first hit
-      for (int j = items-1; j >= 0; --j)
-        {
-        vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
-                                              PlotCorners[i]->GetItem(j));
-        if (plot && plot->GetVisible())
-          {
-          if (plot->MouseButtonPressEvent(plotMouse))
-            {
-            return true;
-            }
-          }
-        }
+      return true;
       }
     }
   if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
@@ -1197,31 +1153,9 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
   // Iterate through each corner, and check for a nearby point
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
     {
-    int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
-                                 ->GetNumberOfItems());
-    if (items)
+    if (this->ChartPrivate->PlotCorners[i]->MouseButtonReleaseEvent(mouse))
       {
-      vtkVector2f plotPos, position;
-      vtkContextMouseEvent plotMouse = mouse;
-      vtkTransform2D* transform =
-        this->ChartPrivate->PlotCorners[i]->GetTransform();
-      transform->InverseTransformPoints(mouse.Pos.GetData(),
-                                        plotMouse.Pos.GetData(), 1);
-      transform->InverseTransformPoints(mouse.LastPos.GetData(),
-                                        plotMouse.LastPos.GetData(), 1);
-      // Iterate through the visible plots and return on the first hit
-      for (int j = items-1; j >= 0; --j)
-        {
-        vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
-                                              PlotCorners[i]->GetItem(j));
-        if (plot && plot->GetVisible())
-          {
-          if (plot->MouseButtonReleaseEvent(plotMouse))
-            {
-            return true;
-            }
-          }
-        }
+      return true;
       }
     }
   if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
