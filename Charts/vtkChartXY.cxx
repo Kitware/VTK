@@ -94,6 +94,7 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate = new vtkChartXYPrivate;
 
   this->AutoAxes = true;
+  this->HiddenAxisBorder = 20;
 
   // The grid is drawn first.
   this->Grid = vtkPlotGrid::New();
@@ -249,25 +250,39 @@ void vtkChartXY::Update()
           }
         }
       }
-    for (int i = 0; i < 4; ++i)
+    }
+  for (int i = 0; i < 4; ++i)
+    {
+    int border = this->HiddenAxisBorder;
+    if (this->ChartPrivate->axes[i]->GetVisible())
       {
-      int border = 20;
-      if (this->ChartPrivate->axes[i]->GetVisible())
-        {
-        if (i == 1 || i == 3)
+      if (i == 1 || i == 3)
+        {// Horizontal axes
+        if (this->ChartPrivate->axes[i]->GetTitle())
           {
           border = 50;
           }
         else
-          {
-          border = 60;
+          {// no title, no need to waste space for it
+          border = 20;
           }
         }
-      if (this->ChartPrivate->Borders[i] != border)
-        {
-        this->ChartPrivate->Borders[i] = border;
-        this->LayoutChanged = true;
+      else
+        {// Vertical axes
+        if (this->ChartPrivate->axes[i]->GetTitle())
+          {
+          border = 50;
+          }
+        else
+          {// no title, no need to waste space for it
+          border = 45;
+          }
         }
+      }
+    if (this->ChartPrivate->Borders[i] != border)
+      {
+      this->ChartPrivate->Borders[i] = border;
+      this->LayoutChanged = true;
       }
     }
 }
@@ -948,13 +963,21 @@ bool vtkChartXY::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   // Find the nearest point on the curves and snap to it
   this->DrawNearestPoint = true;
-
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
+  // Iterate through each corner, and check for a nearby point
+  for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+    {
+    if (this->ChartPrivate->PlotCorners[i]->MouseMoveEvent(mouse))
+      {
+      return true;
+      }
+    }
+
   if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
     // Figure out how much the mouse has moved by in plot coordinates - pan
@@ -1087,6 +1110,14 @@ bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
   this->Tooltip->SetVisible(false);
+  // Iterate through each corner, and check for a nearby point
+  for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+    {
+    if (this->ChartPrivate->PlotCorners[i]->MouseButtonPressEvent(mouse))
+      {
+      return true;
+      }
+    }
   if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
     {
     // The mouse panning action.
@@ -1119,6 +1150,14 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
+  // Iterate through each corner, and check for a nearby point
+  for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+    {
+    if (this->ChartPrivate->PlotCorners[i]->MouseButtonReleaseEvent(mouse))
+      {
+      return true;
+      }
+    }
   if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
     {
     // Check whether a valid selection box was drawn

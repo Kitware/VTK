@@ -308,6 +308,29 @@ void vtkContext2D::DrawQuad(float *p)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawQuadStrip(vtkPoints2D *points)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  this->DrawQuadStrip(f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawQuadStrip(float *points, int n)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  // Draw the filled area of the polygon.
+  this->ApplyBrush();
+  this->Device->DrawQuadStrip(points, n);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawPolygon(float *x, float *y, int n)
 {
   // Copy the points into an array and draw it.

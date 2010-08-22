@@ -114,6 +114,11 @@ public:
   vtkGetMacro(AutoAxes, bool);
 
   // Description:
+  // Border size of the axes that are hidden (vtkAxis::GetVisible())
+  vtkSetMacro(HiddenAxisBorder, int);
+  vtkGetMacro(HiddenAxisBorder, int);
+
+  // Description:
   // Set the width fraction for any bar charts drawn in this chart. It is
   // assumed that all bar plots will use the same array for the X axis, and that
   // this array is regularly spaced. The delta between the first two x values is
@@ -216,6 +221,10 @@ protected:
   // Description:
   // Should axes be turned on and off automatically - defaults to on.
   bool AutoAxes;
+
+  // Description:
+  // Size of the border when an axis is hidden
+  int HiddenAxisBorder;
 
   // Description:
   // The fraction of the interval taken up along the x axis by any bars that are

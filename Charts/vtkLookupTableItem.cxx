@@ -67,6 +67,7 @@ void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
     {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(this->LookupTable, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -94,18 +95,22 @@ void vtkLookupTableItem::ComputeTexture()
     vtkWarningMacro(<< "The lookuptable seems empty");
     return;
     }
-  unsigned char* ptr =
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   for (int i = 0; i < dimension; ++i)
     {
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
-    ptr[3] = static_cast<unsigned char>(this->Opacity * 255 + 0.5);
-    ptr+=4;
     }
+  unsigned char* ptr =
+    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   this->LookupTable->MapScalarsThroughTable2(
-    values,
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0)),
-    VTK_DOUBLE, dimension, 1, 4);
+    values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  if (this->Opacity != 1.)
+    {
+    for (int i = 0; i < dimension; ++i)
+      {
+      ptr[3] = static_cast<unsigned char>(this->Opacity * ptr[3]);
+      ptr+=4;
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -129,6 +134,7 @@ void vtkLookupTableItem::ScalarsToColorsModified(vtkObject* object,
     this->Shape->SetPoint(1, range[0], bounds[3]);
     this->Shape->SetPoint(2, range[1], bounds[3]);
     this->Shape->SetPoint(3, range[1], bounds[2]);
+    this->Shape->Modified();
     }
   // Internally calls modified to ask for a refresh of the item
   this->Superclass::ScalarsToColorsModified(object, eid, calldata);

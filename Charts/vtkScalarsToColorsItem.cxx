@@ -91,14 +91,32 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     this->ComputeTexture();
     }
   painter->ApplyPen(this->Pen);
+  painter->GetBrush()->SetColorF(0., 0.,0.,1.);
   painter->GetBrush()->SetColorF(1., 1., 1., 1.);
   painter->GetBrush()->SetTexture(this->Texture);
   painter->GetBrush()->SetTextureProperties(
     (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
     vtkBrush::Stretch);
-
-  painter->DrawPolygon(this->Shape);
-
+  const int size = this->Shape->GetNumberOfPoints();
+  if (size == 4)
+    {
+    painter->DrawPolygon(this->Shape);
+    }
+  else
+    {
+    vtkPoints2D* trapezoids = vtkPoints2D::New();
+    trapezoids->SetNumberOfPoints(2*size);
+    double point[2];
+    vtkIdType j = -1;
+    for (vtkIdType i = 0; i < size; ++i)
+      {
+      this->Shape->GetPoint(i, point);
+      trapezoids->SetPoint(++j, point[0], 0.);
+      trapezoids->SetPoint(++j, point);
+      }
+    painter->DrawQuadStrip(trapezoids);
+    trapezoids->Delete();
+    }
   return true;
 }
 

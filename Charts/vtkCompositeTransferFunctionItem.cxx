@@ -69,6 +69,7 @@ void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* 
     {
     opacity->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(this->OpacityFunction, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -109,14 +110,12 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   // TBD: maybe the shape should be defined somewhere else...
   if (MaskAboveCurve)
     {
-    this->Shape->SetNumberOfPoints(dimension+2);
-    this->Shape->SetPoint(0, 0.f, 0.f);
-    this->Shape->SetPoint(dimension + 1, 1.f, 0.f);
+    this->Shape->SetNumberOfPoints(dimension);
     for (int i = 0; i < dimension; ++i)
       {
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
       assert(values[i] <= 1. && values[i] >= 0.);
-      this->Shape->SetPoint(i+1,
+      this->Shape->SetPoint(i,
                             static_cast<float>(i) * 1.f / (dimension - 1),
                             values[i] * 1.f);
       ptr+=4;
@@ -161,6 +160,7 @@ void vtkCompositeTransferFunctionItem::ScalarsToColorsModified(vtkObject* object
     this->Shape->SetPoint(1, newRange[0], 1.);
     this->Shape->SetPoint(2, newRange[1], 1.);
     this->Shape->SetPoint(3, newRange[1], 0.);
+    this->Shape->Modified();
     }
   // Internally calls modified to ask for a refresh of the item
   this->vtkScalarsToColorsItem::ScalarsToColorsModified(object, eid, calldata);
