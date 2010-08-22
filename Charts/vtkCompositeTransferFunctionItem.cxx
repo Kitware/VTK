@@ -131,7 +131,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       ptr+=4;
       }
     }
-  delete values;
+  delete [] values;
 }
 
 //-----------------------------------------------------------------------------

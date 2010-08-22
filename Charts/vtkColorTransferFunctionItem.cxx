@@ -110,7 +110,7 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     values,
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0)),
     VTK_DOUBLE,dimension,1,4);
-  delete values;
+  delete [] values;
 }
 
 //-----------------------------------------------------------------------------

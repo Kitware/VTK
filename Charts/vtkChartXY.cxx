@@ -593,10 +593,7 @@ void vtkChartXY::SetPlotCorner(vtkPlot *plot, int corner)
                     << corner);
     return;
     }
-  if (!this->RemovePlotFromCorners(plot))
-    {
-    vtkWarningMacro("Error removing plot from corners.");
-    }
+  this->RemovePlotFromCorners(plot);
   // Grow the plot corners if necessary
   if (int(this->ChartPrivate->PlotCorners.size()) <= corner)
     {
@@ -831,12 +828,9 @@ vtkIdType vtkChartXY::AddPlot(vtkPlot * plot)
     return -1;
     }
   plot->Register(this);
-  // Add the plot to the default corner
-  plot->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
-  plot->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
   this->ChartPrivate->plots.push_back(plot);
   vtkIdType plotIndex = this->ChartPrivate->plots.size() - 1;
-  this->ChartPrivate->PlotCorners[0]->AddItem(plot);
+  this->SetPlotCorner(plot, 0);
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
   // Mark the scene as dirty
@@ -1021,7 +1015,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
-  else if (mouse.Button < 0)
+  else if (mouse.Button == vtkContextMouseEvent::NO_BUTTON)
     {
     this->Scene->SetDirty(true);
     this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
