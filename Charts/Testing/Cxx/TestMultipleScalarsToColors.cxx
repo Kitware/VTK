@@ -95,7 +95,6 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkLookupTableItem> item =
           vtkSmartPointer<vtkLookupTableItem>::New();
         item->SetLookupTable(lookupTable);
-        //chartScene->AddItem(item);
         chart->AddPlot(item);
         chart->SetAutoAxes(false);
         chart->GetAxis(0)->SetVisible(false);
@@ -108,6 +107,7 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkColorTransferFunctionItem> item =
           vtkSmartPointer<vtkColorTransferFunctionItem>::New();
         item->SetColorTransferFunction(colorTransferFunction);
+        // opacity is added on the item, not on the transfer function
         item->SetOpacity(0.8);
         chart->AddPlot(item);
         chart->SetTitle("vtkColorTransferFunction");
@@ -129,8 +129,8 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkPiecewiseFunctionItem> item =
           vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
         item->SetPiecewiseFunction(opacityFunction);
-        item->SetColor(255,0,0);
         item->SetMaskAboveCurve(true);
+        item->SetColor(1., 0, 0);
         chart->AddPlot(item);
         vtkSmartPointer<vtkPiecewiseControlPointsItem> controlPointsItem =
           vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
