@@ -22,9 +22,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
+#include "vtkContextScene.h"
 
 // to handle mouse.GetButton
-#include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 
 #include <cassert>
 #include <limits>
