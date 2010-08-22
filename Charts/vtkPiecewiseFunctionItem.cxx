@@ -32,9 +32,9 @@ vtkStandardNewMacro(vtkPiecewiseFunctionItem);
 //-----------------------------------------------------------------------------
 vtkPiecewiseFunctionItem::vtkPiecewiseFunctionItem()
 {
+  this->PolyLinePen->SetLineType(vtkPen::SOLID_LINE);
   this->PiecewiseFunction = 0;
   this->SetColor(1., 1., 1.);
-  this->MaskAboveCurve = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,6 +64,17 @@ void vtkPiecewiseFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkPiecewiseFunctionItem::GetBounds(double* bounds)
+{
+  this->Superclass::GetBounds(bounds);
+  if (this->PiecewiseFunction)
+    {
+    double* range = this->PiecewiseFunction->GetRange();
+    bounds[0] = range[0];
+    bounds[1] = range[1];
+    }
+}
+//-----------------------------------------------------------------------------
 void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
@@ -72,26 +83,6 @@ void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
   this->ScalarsToColorsModified(this->PiecewiseFunction, vtkCommand::ModifiedEvent, 0);
-}
-
-//-----------------------------------------------------------------------------
-void vtkPiecewiseFunctionItem::SetMaskAboveCurve(bool mask)
-{
-  if (mask == this->MaskAboveCurve)
-    {
-    return;
-    }
-  if (mask == false)
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, 0.f, 0.f);
-    this->Shape->SetPoint(1, 1.f, 0.f);
-    this->Shape->SetPoint(2, 1.f, 1.f);
-    this->Shape->SetPoint(3, 0.f, 1.f);
-    this->Shape->Modified();
-    }
-  this->MaskAboveCurve = mask;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -124,7 +115,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
   this->PiecewiseFunction->GetTable(bounds[0], bounds[1], dimension,  values);
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
-  if (MaskAboveCurve)
+  if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
     {
     this->Shape->SetNumberOfPoints(dimension);
     for (int i = 0; i < dimension; ++i)
@@ -148,31 +139,4 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
       ptr+=4;
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-void vtkPiecewiseFunctionItem::ScalarsToColorsModified(vtkObject* object,
-                                                     unsigned long eid,
-                                                     void* calldata)
-{
-  if (object != this->PiecewiseFunction)
-    {
-    vtkErrorMacro("The callback sender object is not the lookup table object ");
-    return;
-    }
-  //Update shape based on the potentially new range.
-  double* range = this->PiecewiseFunction->GetRange();
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] != range[0] || bounds[1] != range[1])
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, range[0], 0.);
-    this->Shape->SetPoint(1, range[0], 1.);
-    this->Shape->SetPoint(2, range[1], 1.);
-    this->Shape->SetPoint(3, range[1], 0.);
-    this->Shape->Modified();
-    }
-  // Internally calls modified to ask for a refresh of the item
-  this->Superclass::ScalarsToColorsModified(object, eid, calldata);
 }

@@ -62,6 +62,18 @@ void vtkColorTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkColorTransferFunctionItem::GetBounds(double* bounds)
+{
+  this->Superclass::GetBounds(bounds);
+  if (this->ColorTransferFunction)
+    {
+    double* range = this->ColorTransferFunction->GetRange();
+    bounds[0] = range[0];
+    bounds[1] = range[1];
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunction* t)
 {
   vtkSetObjectBodyMacro(ColorTransferFunction, vtkColorTransferFunction, t);
@@ -115,31 +127,4 @@ void vtkColorTransferFunctionItem::ComputeTexture()
       }
     }
   delete [] values;
-}
-
-//-----------------------------------------------------------------------------
-void vtkColorTransferFunctionItem::ScalarsToColorsModified(vtkObject* object,
-                                                     unsigned long eid,
-                                                     void* calldata)
-{
-  if (object != this->ColorTransferFunction)
-    {
-    vtkErrorMacro("The callback sender object is not the lookup table object ");
-    return;
-    }
-  //Update shape based on the potentially new range.
-  double* range = this->ColorTransferFunction->GetRange();
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] != range[0] || bounds[1] != range[1])
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, range[0], bounds[2]);
-    this->Shape->SetPoint(1, range[0], bounds[3]);
-    this->Shape->SetPoint(2, range[1], bounds[3]);
-    this->Shape->SetPoint(3, range[1], bounds[2]);
-    this->Shape->Modified();
-    }
-  // Internally calls modified to ask for a refresh of the item
-  this->Superclass::ScalarsToColorsModified(object, eid, calldata);
 }

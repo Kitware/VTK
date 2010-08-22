@@ -29,11 +29,13 @@ public:
   vtkTypeMacro(vtkPiecewiseFunctionItem, vtkScalarsToColorsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Reimplemented to return the range of the piecewise function
+  virtual void GetBounds(double bounds[4]);
+
   void SetPiecewiseFunction(vtkPiecewiseFunction* t);
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
 
-  void SetMaskAboveCurve(bool mask);
-  vtkGetMacro(MaskAboveCurve, bool);
 protected:
   vtkPiecewiseFunctionItem();
   virtual ~vtkPiecewiseFunctionItem();
@@ -41,12 +43,8 @@ protected:
   // Description
   // Compute the texture from the PiecewiseFunction
   virtual void ComputeTexture();
-  virtual void ScalarsToColorsModified(vtkObject* object,
-                                       unsigned long eid,
-                                       void* calldata);
 
   vtkPiecewiseFunction* PiecewiseFunction;
-  bool                  MaskAboveCurve;
 
 private:
   vtkPiecewiseFunctionItem(const vtkPiecewiseFunctionItem &); // Not implemented.
