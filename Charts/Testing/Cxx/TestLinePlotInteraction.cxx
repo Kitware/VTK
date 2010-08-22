@@ -125,7 +125,7 @@ char TestLinePlotInteractionLog[] =
 "ExitEvent 395 300 0 0 0 0 0";
 
 //----------------------------------------------------------------------------
-int TestLinePlotInteraction(int argc, char * argv[])
+int TestLinePlotInteraction(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkSmartPointer<vtkContextView> view =

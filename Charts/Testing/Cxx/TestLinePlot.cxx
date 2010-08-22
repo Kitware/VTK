@@ -25,7 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlot( int argc, char * argv [] )
+int TestLinePlot( int, char * [] )
 {
   // Set up a 2D scene, add an XY chart to it
   vtkSmartPointer<vtkContextView> view =

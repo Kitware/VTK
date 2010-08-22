@@ -44,7 +44,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestDiagram( int argc, char * argv [] )
+int TestDiagram( int, char * [] )
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
   VTK_CREATE(vtkContextActor, actor);

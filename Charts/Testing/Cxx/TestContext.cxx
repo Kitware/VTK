@@ -42,7 +42,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestContext( int argc, char * argv [] )
+int TestContext( int, char * [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();

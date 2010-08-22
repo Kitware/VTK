@@ -90,7 +90,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestGLSL( int argc, char * argv [] )
+int TestGLSL( int, char * [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
   VTK_CREATE(vtkContextView, view);
