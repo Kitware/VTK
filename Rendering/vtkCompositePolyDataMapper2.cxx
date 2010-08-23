@@ -80,8 +80,6 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
     return;
     }
 
-  // We do have hierarchical data - so we need to loop over
-  // it and get the total bounds.
   vtkCompositeDataIterator* iter = input->NewIterator();
   vtkBoundingBox bbox;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -89,14 +87,10 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
     vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
     if (pd)
       {
-      // If this isn't the first time through, expand bounds
-      // we've compute so far based on the bounds of this
-      // block
       double bounds[6];
       pd->GetBounds(bounds);
       bbox.AddBounds(bounds);
       }
-    iter->GoToNextItem();
     }
   iter->Delete();
   bbox.GetBounds(this->Bounds);
