@@ -773,7 +773,7 @@ void vtkUniformGrid::ComputeScalarRange()
 // Turn off a particular data point.
 void vtkUniformGrid::BlankPoint(vtkIdType ptId)
 {
-  this->PointVisibility->Initialize(this->Dimensions);
+  this->PointVisibility->Initialize(this->GetDimensions());
   this->PointVisibility->Blank(ptId);
 }
 
@@ -781,7 +781,7 @@ void vtkUniformGrid::BlankPoint(vtkIdType ptId)
 // Turn on a particular data point.
 void vtkUniformGrid::UnBlankPoint(vtkIdType ptId)
 {
-  this->PointVisibility->Initialize(this->Dimensions);
+  this->PointVisibility->Initialize(this->GetDimensions());
   this->PointVisibility->UnBlank(ptId);
 }
 
@@ -801,7 +801,7 @@ vtkUnsignedCharArray* vtkUniformGrid::GetPointVisibilityArray()
 // Turn off a particular data cell.
 void vtkUniformGrid::BlankCell(vtkIdType cellId)
 {
-  this->CellVisibility->Initialize(this->Dimensions);
+  this->CellVisibility->Initialize(this->GetDimensions());
   this->CellVisibility->Blank(cellId);
 }
 
@@ -809,7 +809,7 @@ void vtkUniformGrid::BlankCell(vtkIdType cellId)
 // Turn on a particular data cell.
 void vtkUniformGrid::UnBlankCell(vtkIdType cellId)
 {
-  this->CellVisibility->Initialize(this->Dimensions);
+  this->CellVisibility->Initialize(this->GetDimensions());
   this->CellVisibility->UnBlank(cellId);
 }
 
