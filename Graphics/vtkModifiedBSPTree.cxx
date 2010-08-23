@@ -1251,10 +1251,12 @@ bool BSPNode::RayMinMaxT(const double origin[3],
     tT = (bounds[4] - origin[2]) / dir[2];
     if (tT < rTmin)
       {
-      }      return (false);
+      return (false);
+      }
     if (tT <= rTmax)
       {
-      }      rTmax = tT;
+      rTmax = tT;
+      }
     tT = (bounds[5] - origin[2]) / dir[2];
     if (tT >= rTmin)
       {
