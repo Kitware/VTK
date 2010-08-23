@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
@@ -30,7 +29,6 @@ int TestLinePlot( int, char * [] )
   // Set up a 2D scene, add an XY chart to it
   vtkSmartPointer<vtkContextView> view =
       vtkSmartPointer<vtkContextView>::New();
-  view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart);
