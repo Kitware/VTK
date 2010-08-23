@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
 #include <vtksys/stl/set>
-#include <vtksys/ios/sstream> 
+#include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkOrderStatistics);
 
@@ -78,7 +78,7 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
                        <<". Ignoring it." );
       return;
     }
-  
+
   this->QuantileDefinition =  static_cast<vtkOrderStatistics::QuantileDefinitionType>( qd );
   this->Modified();
 
@@ -141,7 +141,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     {
     variantCol = vtkVariantArray::New();
     div_t q = div( i << 2, this->NumberOfIntervals );
-    
+
     if ( q.rem )
       {
       variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
@@ -176,7 +176,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
@@ -194,11 +194,11 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
     // A row contains: variable name, cardinality, and NumberOfIntervals + 1 quantile values
     row->SetNumberOfValues( this->NumberOfIntervals + 3 );
-    
+
     int i = 0;
     row->SetValue( i ++, col );
     row->SetValue( i ++, nRow );
-    
+
     vtksys_stl::vector<double> quantileThresholds;
     double dh = nRow / static_cast<double>( this->NumberOfIntervals );
     for ( int j = 0; j < this->NumberOfIntervals; ++ j )
@@ -209,7 +209,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     // Try to downcast column to eith data or string arrays for efficient data access
     vtkAbstractArray* arr = inData->GetColumnByName( col );
 
-    if ( arr->IsA("vtkDataArray") ) 
+    if ( arr->IsA("vtkDataArray") )
       {
       vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
 
@@ -239,13 +239,13 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
             }
           }
         }
-    
+
       row->SetValue( i, distr.rbegin()->first );
       primaryTab->InsertNextRow( row );
       }
-    else if ( arr->IsA("vtkStringArray") ) 
+    else if ( arr->IsA("vtkStringArray") )
       {
-      vtkStringArray* sarr = vtkStringArray::SafeDownCast( arr ); 
+      vtkStringArray* sarr = vtkStringArray::SafeDownCast( arr );
       vtksys_stl::map<vtkStdString,vtkIdType> distr;
       for ( vtkIdType r = 0; r < nRow; ++ r )
         {
@@ -262,7 +262,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           row->SetValue( i ++, mit->first );
           }
         }
-      
+
       row->SetValue( i, distr.rbegin()->first );
       primaryTab->InsertNextRow( row );
       }
@@ -314,6 +314,43 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     return;
     }
 
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+
+  // Loop over requests
+  vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+        rit != this->Internals->Requests.end(); ++ rit )
+    {
+    // Each request contains only one column of interest (if there are others, they are ignored)
+    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      continue;
+      }
+
+    // Find the model row that corresponds to the variable of the request
+    vtkIdType r = 0;
+    while ( r < nRowPrim && vars->GetValue( r ) != varName )
+      {
+      ++ r;
+      }
+    if ( r >= nRowPrim )
+      {
+      vtkWarningMacro( "Incomplete input: model does not have a row "
+                       << varName.c_str()
+                       <<". Cannot test." );
+      continue;
+      }
+
+    // Retrieve model statistics necessary for Jarque-Bera testing
+    double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
+    cerr << "* Model has cardinality " << n << "\n";
+    } // rit
 }
 
 // ----------------------------------------------------------------------
@@ -352,7 +389,7 @@ public:
       }
 
     result->SetNumberOfValues( 1 );
-    result->SetValue( 0, q - 2 ); 
+    result->SetValue( 0, q - 2 );
   }
 };
 
@@ -365,8 +402,8 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta
        || inMeta->GetNumberOfBlocks() < 1 )
-    { 
-    return; 
+    {
+    return;
     }
 
   vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
