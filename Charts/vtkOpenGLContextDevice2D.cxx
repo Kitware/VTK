@@ -1117,6 +1117,10 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
     {
     this->Storage->Texture->ReleaseGraphicsResources(window);
     }
+  if (this->Storage->SpriteTexture)
+    {
+    this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
+    }
 }
 
 //----------------------------------------------------------------------------

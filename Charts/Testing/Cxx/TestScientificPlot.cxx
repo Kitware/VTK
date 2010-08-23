@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkAxis.h"
@@ -24,10 +23,9 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
-int TestScientificPlot(int argc, char * argv [])
+int TestScientificPlot(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkSmartPointer<vtkContextView> view =
@@ -67,15 +65,12 @@ int TestScientificPlot(int argc, char * argv [])
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
   line->SetInput(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
-  line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::LINE);
   line->SetInput(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
-  line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::POINTS);
   line->SetInput(table, 0, 3);
   line->SetColor(0, 0, 255, 255);
-  line->SetWidth(1.0);
 
   // Set up a scientific plot...
   chart->SetDrawAxesAtOrigin(true);
