@@ -19,7 +19,7 @@
 
 =========================================================================*/
 
-// .NAME vtkArraySort - Controls sorting of sparse array coordinsates.
+// .NAME vtkArraySort - Controls sorting of sparse array coordinates.
 //
 // .SECTION Description
 // vtkArraySort stores an ordered set of dimensions along which the
@@ -69,8 +69,8 @@ public:
 
   // Description:
   // Set the number of dimensions to be sorted.  Note that this method
-  // resets every to zero, so you must set every dimension explicitly
-  // using operator[] after calling SetDimensions().
+  // resets every dimension to zero, so you must set every dimension
+  // explicitly using operator[] after calling SetDimensions().
   void SetDimensions(vtkIdType dimensions);
 
   // Description:
@@ -89,6 +89,9 @@ public:
   // Description:
   // Inequality comparison
   bool operator!=(const vtkArraySort& rhs) const;
+
+  // Description:
+  // Serialization
   friend ostream& operator<<(
     ostream& stream, const vtkArraySort& rhs);
 

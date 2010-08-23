@@ -19,10 +19,10 @@
 
 =========================================================================*/
 
-// .NAME vtkArrayExtentsList - Stores a collection of vtkArraySlice objects.
+// .NAME vtkArrayExtentsList - Stores a collection of vtkArrayExtents objects.
 //
 // .SECTION Description
-// vtkArrayExtentsList provides storage for a collection of vtkArraySlice
+// vtkArrayExtentsList provides storage for a collection of vtkArrayExtents
 // instances.  Constructors are provided for creating collections
 // containing one, two, three, or four slices.  To work with larger
 // numbers of slices, use the default constructor, the SetCount() method,
@@ -32,7 +32,7 @@
 // function, which is used to computed weighted sums of vtkArray slices.
 //
 // .SECTION See Also
-// vtkArray, vtkSlice
+// vtkArray, vtkExtents
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
@@ -72,9 +72,9 @@ public:
   vtkIdType GetCount() const;
 
   // Description:
-  // Sets the number of slices stored in this collection.  Note: all
-  // slices will be empty after calling SetSliceCount(), use operator[]
-  // to assign each slice.
+  // Sets the number of extents stored in this collection.  Note: all
+  // extents will be empty after calling SetCount(), use operator[]
+  // to assign extents to each item in the collection.
   void SetCount(vtkIdType count);
 
 

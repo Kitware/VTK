@@ -71,7 +71,7 @@ public:
   vtkArrayExtents();
 
   // Description:
-  // Create one-dimensional extents.  This constructor is shorthand for
+  // Create zero-based one-dimensional extents.  This constructor is shorthand for
   // vtkArrayExtents(vtkArrayRange(0, i)).
   explicit vtkArrayExtents(const vtkIdType i);
   // Description:
@@ -79,7 +79,7 @@ public:
   explicit vtkArrayExtents(const vtkArrayRange& i);
 
   // Description:
-  // Create two-dimensional extents.  This constructor is shorthand for
+  // Create zero-based two-dimensional extents.  This constructor is shorthand for
   // vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)).
   vtkArrayExtents(const vtkIdType i, const vtkIdType j);
   // Description:
@@ -87,17 +87,17 @@ public:
   vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j);
 
   // Description:
-  // Create three-dimensional extents.  This constructor is shorthand for
+  // Create zero-based three-dimensional extents.  This constructor is shorthand for
   // vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j),
   // vtkArrayRange(0, k)).
   vtkArrayExtents(const vtkIdType i, const vtkIdType j, const vtkIdType k);
   // Description:
-  // Create two-dimensional extents.
+  // Create three-dimensional extents.
   vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
 
   // Description:
   // Create n-dimensional extents with extent [0, m) along each dimension.
-  // This // is useful for creating e.g: a square matrix.
+  // This is useful for creating e.g: a square matrix.
   static const vtkArrayExtents Uniform(vtkIdType n, vtkIdType m);
 
   // Description:
@@ -157,15 +157,16 @@ public:
   // Description:
   // Returns coordinates that reference the n-th value in the extents,
   // where n is in the range [0, GetSize()).  The returned coordinates
-  // will be ordered so that the left-most indices vary fastest.  The is
+  // will be ordered so that the left-most indices vary fastest.  This is
   // equivalent to column-major ordering for matrices, and corresponds to
   // the order in which consecutive array values would be stored in
   // languages such as Fortran, MATLAB, Octave, and R.
   void GetLeftToRightCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const;
+
   // Description:
   // Returns coordinates that reference the n-th value in the extents,
   // where n is in the range [0, GetSize()).  The returned coordinates
-  // will be ordered so that the right-most indices vary fastest.  The is
+  // will be ordered so that the right-most indices vary fastest.  This is
   // equivalent to row-major ordering for matrices, and corresponds to
   // the order in which consecutive array values would be stored in
   // languages including C and C++.
