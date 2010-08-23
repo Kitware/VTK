@@ -91,6 +91,10 @@ typedef int   int32_t;
 #endif
 #include <limits.h>
 
+#ifndef SIZE_MAX
+#define SIZE_MAX UINT_MAX
+#endif
+
 #ifndef HAVE_SSIZE_T
 #define ssize_t int
 #endif
