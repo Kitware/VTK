@@ -264,7 +264,7 @@ vtkAbstractContextItem * vtkContextScene::GetItem(unsigned int index)
 //-----------------------------------------------------------------------------
 unsigned int vtkContextScene::GetNumberOfItems()
 {
-  return this->Children->size();
+  return static_cast<unsigned int>(this->Children->size());
 }
 
 //-----------------------------------------------------------------------------
