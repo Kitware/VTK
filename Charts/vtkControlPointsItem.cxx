@@ -138,7 +138,6 @@ void vtkControlPointsItem::DrawPoints(vtkContext2D* painter, vtkPoints2D* points
   double pointInScene[2];
 
   const int count = points->GetNumberOfPoints();
-  const int excludeCount = pointsToExclude ? pointsToExclude->GetNumberOfTuples(): 0;
   for (vtkIdType i = 0; i < count; ++i)
     {
     vtkIdType idx = pointsToExclude ? pointsToExclude->LookupValue(i) : -1;

@@ -24,6 +24,8 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkLookupTableItem.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
@@ -42,6 +44,15 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
   renwin->SetSize(800, 640);
+  vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(renwin);
+  if (!openGLRenWin ||
+      !openGLRenWin->GetExtensionManager() ||
+      !openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
+    {
+    // we might be able to support GL Version 1.1 but it requires some modifications
+    // on how to apply 1D textures.
+    return EXIT_SUCCESS;
+    }
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
