@@ -24,6 +24,8 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkLookupTableItem.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
@@ -42,6 +44,15 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
   renwin->SetSize(800, 640);
+  vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(renwin);
+  if (!openGLRenWin ||
+      !openGLRenWin->GetExtensionManager() ||
+      !openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
+    {
+    // we might be able to support GL Version 1.1 but it requires some modifications
+    // on how to apply 1D textures.
+    return EXIT_SUCCESS;
+    }
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
@@ -95,7 +106,6 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkLookupTableItem> item =
           vtkSmartPointer<vtkLookupTableItem>::New();
         item->SetLookupTable(lookupTable);
-        //chartScene->AddItem(item);
         chart->AddPlot(item);
         chart->SetAutoAxes(false);
         chart->GetAxis(0)->SetVisible(false);
@@ -108,6 +118,7 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkColorTransferFunctionItem> item =
           vtkSmartPointer<vtkColorTransferFunctionItem>::New();
         item->SetColorTransferFunction(colorTransferFunction);
+        // opacity is added on the item, not on the transfer function
         item->SetOpacity(0.8);
         chart->AddPlot(item);
         chart->SetTitle("vtkColorTransferFunction");
@@ -129,8 +140,7 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkPiecewiseFunctionItem> item =
           vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
         item->SetPiecewiseFunction(opacityFunction);
-        item->SetColor(255,0,0);
-        item->SetMaskAboveCurve(true);
+        item->SetColor(1., 0, 0);
         chart->AddPlot(item);
         vtkSmartPointer<vtkPiecewiseControlPointsItem> controlPointsItem =
           vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();

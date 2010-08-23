@@ -17,11 +17,12 @@
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
+#include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkScalarsToColorsItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
+#include "vtkScalarsToColorsItem.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
 
@@ -30,28 +31,33 @@
 //-----------------------------------------------------------------------------
 vtkScalarsToColorsItem::vtkScalarsToColorsItem()
 {
-  this->Pen->SetWidth(0.0);
-  this->Pen->SetLineType(vtkPen::NO_PEN);
+  this->PolyLinePen = vtkPen::New();
+  this->PolyLinePen->SetWidth(2.);
+  this->PolyLinePen->SetColor(64, 64, 72); // Payne's grey, why not
+  this->PolyLinePen->SetLineType(vtkPen::NO_PEN);
 
   this->Texture = 0;
   this->Interpolate = true;
   this->Shape = vtkPoints2D::New();
   this->Shape->SetDataTypeToFloat();
-  this->Shape->SetNumberOfPoints(4);
-  this->Shape->SetPoint(0, 0.f, 0.f);
-  this->Shape->SetPoint(1, 1.f, 0.f);
-  this->Shape->SetPoint(2, 1.f, 1.f);
-  this->Shape->SetPoint(3, 0.f, 1.f);
+  this->Shape->SetNumberOfPoints(0);
 
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(
     vtkScalarsToColorsItem::OnScalarsToColorsModified);
+
+  this->MaskAboveCurve = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 {
+  if (this->PolyLinePen)
+    {
+    this->PolyLinePen->Delete();
+    this->PolyLinePen = 0;
+    }
   if (this->Texture)
     {
     this->Texture->Delete();
@@ -79,7 +85,10 @@ void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkScalarsToColorsItem::GetBounds(double bounds[4])
 {
-  this->Shape->GetBounds(bounds);
+  bounds[0] = 0.;
+  bounds[1] = 1.;
+  bounds[2] = 0.;
+  bounds[3] = 1.;
 }
 
 //-----------------------------------------------------------------------------
@@ -90,7 +99,9 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     {
     this->ComputeTexture();
     }
-  painter->ApplyPen(this->Pen);
+  vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
+  transparentPen->SetLineType(vtkPen::NO_PEN);
+  painter->ApplyPen(transparentPen);
   painter->GetBrush()->SetColorF(0., 0.,0.,1.);
   painter->GetBrush()->SetColorF(1., 1., 1., 1.);
   painter->GetBrush()->SetTexture(this->Texture);
@@ -98,9 +109,14 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     (this->Interpolate ? vtkBrush::Nearest : vtkBrush::Linear) |
     vtkBrush::Stretch);
   const int size = this->Shape->GetNumberOfPoints();
-  if (size == 4)
+  if (!this->MaskAboveCurve || size < 2)
     {
-    painter->DrawPolygon(this->Shape);
+    double bounds[4];
+    this->GetBounds(bounds);
+    painter->DrawQuad(bounds[0], bounds[2],
+                      bounds[0], bounds[3],
+                      bounds[1], bounds[3],
+                      bounds[1], bounds[2]);
     }
   else
     {
@@ -117,6 +133,13 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     painter->DrawQuadStrip(trapezoids);
     trapezoids->Delete();
     }
+
+  if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
+    {
+    painter->ApplyPen(this->PolyLinePen);
+    painter->DrawPoly(this->Shape);
+    }
+
   return true;
 }
 

@@ -198,8 +198,8 @@ bool vtkPiecewiseControlPointsItem::MouseButtonReleaseEvent(const vtkContextMous
     int size = this->Points->GetNumberOfPoints();
     for (vtkIdType i = 0; i < size; ++i)
       {
-      double* point = this->Points->GetPoint(i);
-      if (point[0] > mouse.Pos[0])
+      double* p = this->Points->GetPoint(i);
+      if (p[0] > mouse.Pos[0])
         {
         nextPointId = i;
         break;

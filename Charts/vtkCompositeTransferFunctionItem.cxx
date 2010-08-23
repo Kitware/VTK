@@ -20,6 +20,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeTransferFunctionItem.h"
 #include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 
@@ -31,8 +32,8 @@ vtkStandardNewMacro(vtkCompositeTransferFunctionItem);
 //-----------------------------------------------------------------------------
 vtkCompositeTransferFunctionItem::vtkCompositeTransferFunctionItem()
 {
+  this->PolyLinePen->SetLineType(vtkPen::SOLID_LINE);
   this->OpacityFunction = 0;
-  this->MaskAboveCurve = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -62,6 +63,18 @@ void vtkCompositeTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkCompositeTransferFunctionItem::GetBounds(double* bounds)
+{
+  this->Superclass::GetBounds(bounds);
+  if (this->OpacityFunction)
+    {
+    double* opacityRange = this->ColorTransferFunction->GetRange();
+    bounds[0] = bounds[0] < opacityRange[0] ? bounds[0] : opacityRange[0];;
+    bounds[1] = bounds[1] < opacityRange[1] ? bounds[1] : opacityRange[1];
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* opacity)
 {
   vtkSetObjectBodyMacro(OpacityFunction, vtkPiecewiseFunction, opacity);
@@ -70,25 +83,6 @@ void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* 
     opacity->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
   this->ScalarsToColorsModified(this->OpacityFunction, vtkCommand::ModifiedEvent, 0);
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositeTransferFunctionItem::SetMaskAboveCurve(bool mask)
-{
-  if (mask == this->MaskAboveCurve)
-    {
-    return;
-    }
-  if (mask == false)
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, 0.f, 0.f);
-    this->Shape->SetPoint(1, 1.f, 0.f);
-    this->Shape->SetPoint(2, 1.f, 1.f);
-    this->Shape->SetPoint(3, 0.f, 1.f);
-    }
-  this->MaskAboveCurve = mask;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -108,16 +102,15 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   // TBD: maybe the shape should be defined somewhere else...
-  if (MaskAboveCurve)
+  if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::SOLID_LINE)
     {
     this->Shape->SetNumberOfPoints(dimension);
+    double step = (bounds[1] - bounds[0]) / dimension;
     for (int i = 0; i < dimension; ++i)
       {
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
       assert(values[i] <= 1. && values[i] >= 0.);
-      this->Shape->SetPoint(i,
-                            static_cast<float>(i) * 1.f / (dimension - 1),
-                            values[i] * 1.f);
+      this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
       ptr+=4;
       }
     }
@@ -131,37 +124,4 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       }
     }
   delete [] values;
-}
-
-//-----------------------------------------------------------------------------
-void vtkCompositeTransferFunctionItem::ScalarsToColorsModified(vtkObject* object,
-                                                     unsigned long eid,
-                                                     void* calldata)
-{
-  if (object != this->ColorTransferFunction &&
-      object != this->OpacityFunction)
-    {
-    vtkErrorMacro("The callback sender object is not the color transfer "
-                  "function nor the opacity function");
-    return;
-    }
-  //Update shape based on the potentially new range.
-  double* range = this->ColorTransferFunction->GetRange();
-  double* opacityRange = this->ColorTransferFunction->GetRange();
-  double bounds[4];
-  this->GetBounds(bounds);
-  double newRange[2];
-  newRange[0] = range[0] < opacityRange[0] ? range[0] : opacityRange[0];
-  newRange[1] = range[1] < opacityRange[1] ? range[1] : opacityRange[1];
-  if (bounds[0] != newRange[0] || bounds[1] != newRange[1])
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, newRange[0], 0.);
-    this->Shape->SetPoint(1, newRange[0], 1.);
-    this->Shape->SetPoint(2, newRange[1], 1.);
-    this->Shape->SetPoint(3, newRange[1], 0.);
-    this->Shape->Modified();
-    }
-  // Internally calls modified to ask for a refresh of the item
-  this->vtkScalarsToColorsItem::ScalarsToColorsModified(object, eid, calldata);
 }

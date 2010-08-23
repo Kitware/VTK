@@ -60,6 +60,18 @@ void vtkLookupTableItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkLookupTableItem::GetBounds(double* bounds)
+{
+  this->Superclass::GetBounds(bounds);
+  if (this->LookupTable)
+    {
+    double* range = this->LookupTable->GetRange();
+    bounds[0] = range[0];
+    bounds[1] = range[1];
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
 {
   vtkSetObjectBodyMacro(LookupTable, vtkLookupTable, t);
@@ -111,31 +123,4 @@ void vtkLookupTableItem::ComputeTexture()
       ptr+=4;
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-void vtkLookupTableItem::ScalarsToColorsModified(vtkObject* object,
-                                                 unsigned long eid,
-                                                 void* calldata)
-{
-  if (object != this->LookupTable)
-    {
-    vtkErrorMacro("The callback sender object is not the lookup table object ");
-    return;
-    }
-  //Update shape based on the potentially new range.
-  double* range = this->LookupTable->GetRange();
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] != range[0] || bounds[1] != range[1])
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, range[0], bounds[2]);
-    this->Shape->SetPoint(1, range[0], bounds[3]);
-    this->Shape->SetPoint(2, range[1], bounds[3]);
-    this->Shape->SetPoint(3, range[1], bounds[2]);
-    this->Shape->Modified();
-    }
-  // Internally calls modified to ask for a refresh of the item
-  this->Superclass::ScalarsToColorsModified(object, eid, calldata);
 }
