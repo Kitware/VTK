@@ -43,6 +43,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellArray.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
@@ -116,6 +117,19 @@ static vtkSmartPointer<vtkLookupTable> CreateLookupTable()
   return lut;
 }
 
+static vtkSmartPointer<vtkColorTransferFunction> CreateColorTransferFunction()
+{
+  VTK_CREATE(vtkColorTransferFunction, ctf);
+
+  ctf->SetColorSpaceToHSV();
+  ctf->HSVWrapOff();
+  ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0,
+                     1.0, 0.0, 1.0, 1.0);
+  ctf->SetNanColor(1.0, 0.0, 1.0);
+
+  return ctf;
+}
+
 static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
                                                    vtkScalarsToColors *lut,
                                                    int interpolate)
@@ -145,11 +159,19 @@ int RenderNonFinite(int argc, char *argv[])
   vtkSmartPointer<vtkRenderer> renderer;
 
   renderer = CreateRenderer(input, CreateLookupTable(), 0);
-  renderer->SetViewport(0.0, 0.0, 0.5, 1.0);
+  renderer->SetViewport(0.0, 0.0, 0.25, 1.0);
   renwin->AddRenderer(renderer);
 
   renderer = CreateRenderer(input, CreateLookupTable(), 1);
-  renderer->SetViewport(0.5, 0.0, 1.0, 1.0);
+  renderer->SetViewport(0.25, 0.0, 0.5, 1.0);
+  renwin->AddRenderer(renderer);
+
+  renderer = CreateRenderer(input, CreateColorTransferFunction(), 0);
+  renderer->SetViewport(0.5, 0.0, 0.75, 1.0);
+  renwin->AddRenderer(renderer);
+
+  renderer = CreateRenderer(input, CreateColorTransferFunction(), 1);
+  renderer->SetViewport(0.75, 0.0, 1.0, 1.0);
   renwin->AddRenderer(renderer);
 
   int retVal = vtkRegressionTestImage(renwin);
