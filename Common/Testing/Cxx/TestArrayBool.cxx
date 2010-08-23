@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayBool.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -37,7 +37,7 @@
     } \
 }
 
-int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -50,7 +50,7 @@ int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(dense->GetValue(1, 1) == 0);
     dense->SetValue(1, 1, 1);
     test_expression(dense->GetValue(1, 1) == 1);
-    
+
     test_expression(dense->GetValue(0, 1) == 0);
     test_expression(dense_ref[vtkArrayCoordinates(0, 1)] == 0);
     dense_ref[vtkArrayCoordinates(0, 1)] = 1;
@@ -64,7 +64,7 @@ int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(sparse->GetValue(1, 1) == 0);
     sparse->SetValue(1, 1, 1);
     test_expression(sparse->GetValue(1, 1) == 1);
-    
+
     return 0;
     }
   catch(vtkstd::exception& e)
@@ -73,4 +73,3 @@ int ArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

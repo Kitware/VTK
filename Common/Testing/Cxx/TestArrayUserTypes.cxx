@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayUserTypes.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -72,7 +72,7 @@ inline vtkVariant vtkVariantCreate<UserType>(const UserType& value)
   return vtkVariant(value.Value);
 }
 
-int ArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -113,4 +113,3 @@ int ArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

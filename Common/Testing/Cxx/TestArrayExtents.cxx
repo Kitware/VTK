@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayExtents.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -37,7 +37,7 @@
     } \
 }
 
-int ArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -79,4 +79,3 @@ int ArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

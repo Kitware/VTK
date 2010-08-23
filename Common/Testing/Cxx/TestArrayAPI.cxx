@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayAPI.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -37,7 +37,7 @@
     } \
 }
 
-int ArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -95,14 +95,14 @@ int ArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         test_expression(array->GetVariantValue(5) == sample_values[value_type]);
         }
       }
-   
-    // Do some spot-checking to see that the actual type matches what we expect ... 
+
+    // Do some spot-checking to see that the actual type matches what we expect ...
     array.TakeReference(vtkArray::CreateArray(vtkArray::DENSE, VTK_DOUBLE));
     test_expression(vtkDenseArray<double>::SafeDownCast(array));
-    
+
     array.TakeReference(vtkArray::CreateArray(vtkArray::SPARSE, VTK_STRING));
     test_expression(vtkSparseArray<vtkStdString>::SafeDownCast(array));
-    
+
     return 0;
     }
   catch(vtkstd::exception& e)
@@ -111,4 +111,3 @@ int ArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

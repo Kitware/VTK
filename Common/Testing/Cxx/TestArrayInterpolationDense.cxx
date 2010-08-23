@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayInterpolationDense.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -32,7 +32,7 @@ void test_expression(const bool expression, const vtkstd::string& message)
     throw vtkstd::runtime_error(message);
 }
 
-int ArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -82,4 +82,3 @@ int ArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

@@ -102,7 +102,7 @@ void TestNewPoints(vtkPoints* v, const char* expectedClassName)
 }
 
 
-int ObjectFactory(int, char *[])
+int TestObjectFactory(int, char *[])
 {
   vtkOutputWindow::GetInstance()->PromptUserOff();
   vtkGenericWarningMacro("Test Generic Warning");

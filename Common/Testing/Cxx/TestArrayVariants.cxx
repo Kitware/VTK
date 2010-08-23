@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayVariants.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -36,7 +36,7 @@
     } \
 }
 
-int ArrayVariants(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayVariants(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -75,4 +75,3 @@ int ArrayVariants(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

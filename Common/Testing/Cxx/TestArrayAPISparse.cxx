@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayAPISparse.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -31,7 +31,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -39,7 +39,7 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
     array->Resize(vtkArrayExtents::Uniform(3, 0));
     test_expression(array);
-    
+
     // Test to ensure that casting works correctly ...
     test_expression(vtkTypedArray<double>::SafeDownCast(array));
     test_expression(vtkArray::SafeDownCast(array));
@@ -123,7 +123,7 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Verify that deep-copy works correctly ...
     array->SetNullValue(1.0);
-    
+
     vtkSmartPointer<vtkSparseArray<double> > deep_copy;
     deep_copy.TakeReference(vtkSparseArray<double>::SafeDownCast(array->DeepCopy()));
     test_expression(deep_copy->GetDimensions() == array->GetDimensions());
@@ -146,7 +146,7 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->SetValue(vtkArrayCoordinates(0, 1, 2), 1.1);
     array->SetValue(vtkArrayCoordinates(1, 2, 3), 2.2);
     array->SetValue(vtkArrayCoordinates(0, 1, 1), 3.3);
-  
+
     test_expression(array->GetSize() == 24);
     test_expression(array->GetNonNullSize() == 3);
     test_expression(array->GetValue(vtkArrayCoordinates(0, 1, 2)) == 1.1);
@@ -161,4 +161,3 @@ int ArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

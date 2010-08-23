@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayAPIConvenience.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -36,7 +36,7 @@
     } \
 }
 
-int ArrayAPIConvenience(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayAPIConvenience(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -46,27 +46,27 @@ int ArrayAPIConvenience(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     a->Resize(5);
     b->Resize(vtkArrayExtents(5));
     test_expression(a->GetExtents() == b->GetExtents());
-   
+
     a->SetValue(2, 3);
     b->SetValue(vtkArrayCoordinates(2), 3);
-    test_expression(a->GetValue(2) == b->GetValue(vtkArrayCoordinates(2))); 
-    
+    test_expression(a->GetValue(2) == b->GetValue(vtkArrayCoordinates(2)));
+
     a->Resize(5, 6);
     b->Resize(vtkArrayExtents(5, 6));
-    test_expression(a->GetExtents() == b->GetExtents()); 
-    
+    test_expression(a->GetExtents() == b->GetExtents());
+
     a->SetValue(2, 3, 4);
     b->SetValue(vtkArrayCoordinates(2, 3), 4);
-    test_expression(a->GetValue(2, 3) == b->GetValue(vtkArrayCoordinates(2, 3))); 
-    
+    test_expression(a->GetValue(2, 3) == b->GetValue(vtkArrayCoordinates(2, 3)));
+
     a->Resize(5, 6, 7);
     b->Resize(vtkArrayExtents(5, 6, 7));
-    test_expression(a->GetExtents() == b->GetExtents()); 
-    
+    test_expression(a->GetExtents() == b->GetExtents());
+
     a->SetValue(2, 3, 4, 5);
     b->SetValue(vtkArrayCoordinates(2, 3, 4), 5);
-    test_expression(a->GetValue(2, 3, 4) == b->GetValue(vtkArrayCoordinates(2, 3, 4))); 
-    
+    test_expression(a->GetValue(2, 3, 4) == b->GetValue(vtkArrayCoordinates(2, 3, 4)));
+
     return 0;
     }
   catch(vtkstd::exception& e)
@@ -75,4 +75,3 @@ int ArrayAPIConvenience(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayNullValues.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -37,20 +37,20 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
     {
     throw vtkstd::runtime_error("Incorrect default NULL value for " + vtkstd::string(array->GetClassName()));
     }
-    
+
   // Verify that GetValue() returns the default NULL value for NULL elements ...
   if(array->GetValue(1) != DefaultNull)
     {
     throw vtkstd::runtime_error("Empty value did not return default NULL for " + vtkstd::string(array->GetClassName()));
     }
-    
+
   // Verify that we can override the default NULL value ...
   array->SetNullValue(AlternateNull);
   if(array->GetNullValue() != AlternateNull)
     {
     throw vtkstd::runtime_error("Error overriding NULL value for " + vtkstd::string(array->GetClassName()));
     }
-    
+
   // Verify that GetValue() returns the alternate NULL value forr NULL elements ...
   if(array->GetValue(1) != AlternateNull)
     {
@@ -58,7 +58,7 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
     }
 }
 
-int ArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -72,7 +72,7 @@ int ArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     VerifyType<vtkTypeFloat64>(0.0, 1);
     VerifyType<vtkIdType>(0, 1);
     VerifyType<vtkStdString>(vtkStdString(""), vtkStdString("foo"));
-   
+
     return 0;
     }
   catch(vtkstd::exception& e)
@@ -81,4 +81,3 @@ int ArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

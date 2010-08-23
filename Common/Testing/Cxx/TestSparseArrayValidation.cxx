@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    SparseArrayValidation.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -32,7 +32,7 @@
     throw vtkstd::runtime_error("Expression failed: " #expression); \
 }
 
-int SparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -68,4 +68,3 @@ int SparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-

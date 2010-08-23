@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayAPIDense.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -36,7 +36,7 @@
     } \
 }
 
-int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {
@@ -44,7 +44,7 @@ int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkDenseArray<double> > array = vtkSmartPointer<vtkDenseArray<double> >::New();
     array->Resize(vtkArrayExtents::Uniform(3, 0));
     test_expression(array);
-    
+
     // Test to ensure that casting works correctly ...
     test_expression(vtkTypedArray<double>::SafeDownCast(array));
     test_expression(vtkArray::SafeDownCast(array));
@@ -126,7 +126,7 @@ int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     // Test unordered access ...
     for(vtkIdType n = 0; n != array->GetNonNullSize(); ++n)
       test_expression(array->GetValueN(n) == 19700827);
-   
+
     // Verify that deep-copy works correctly ...
     vtkSmartPointer<vtkDenseArray<double> > deep_copy;
     deep_copy.TakeReference(vtkDenseArray<double>::SafeDownCast(array->DeepCopy()));
@@ -156,7 +156,7 @@ int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->ExternalStorage(vtkArrayExtents(2, 2), new vtkDenseArray<double>::StaticMemoryBlock(b));
     test_expression(array->GetValue(0, 0) == 5);
     test_expression(array->GetValue(1, 0) == 6);
-    
+
     return 0;
     }
   catch(vtkstd::exception& e)
@@ -165,4 +165,3 @@ int ArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-
