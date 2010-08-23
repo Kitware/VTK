@@ -177,6 +177,12 @@ protected:
   void RecalculatePlotBounds();
 
   // Description:
+  // Update the layout of the chart, this may require the vtkContext2D in order
+  // to get font metrics etc. Initially this was added to resize the charts
+  // according in response to the size of the axes.
+  void UpdateLayout(vtkContext2D* painter);
+
+  // Description:
   // The grid for the chart.
   vtkPlotGrid *Grid;
 

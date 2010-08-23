@@ -227,7 +227,8 @@ void vtkChartXY::Update()
       for (unsigned int j = 0;
            j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
         {
-        if (vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j))->GetVisible())
+        if (vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]
+                                  ->GetItem(j))->GetVisible())
           {
           ++visible;
           }
@@ -245,40 +246,6 @@ void vtkChartXY::Update()
           this->ChartPrivate->axes[3]->SetVisible(true);
           }
         }
-      }
-    }
-  for (int i = 0; i < 4; ++i)
-    {
-    int border = this->HiddenAxisBorder;
-    if (this->ChartPrivate->axes[i]->GetVisible())
-      {
-      if (i == 1 || i == 3)
-        {// Horizontal axes
-        if (this->ChartPrivate->axes[i]->GetTitle())
-          {
-          border = 50;
-          }
-        else
-          {// no title, no need to waste space for it
-          border = 20;
-          }
-        }
-      else
-        {// Vertical axes
-        if (this->ChartPrivate->axes[i]->GetTitle())
-          {
-          border = 50;
-          }
-        else
-          {// no title, no need to waste space for it
-          border = 45;
-          }
-        }
-      }
-    if (this->ChartPrivate->Borders[i] != border)
-      {
-      this->ChartPrivate->Borders[i] = border;
-      this->LayoutChanged = true;
       }
     }
 }
@@ -312,61 +279,36 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     }
 
   this->Update();
-
   bool recalculateTransform = false;
 
   if (geometry[0] != this->Geometry[0] || geometry[1] != this->Geometry[1] ||
-      this->MTime > this->ChartPrivate->axes[0]->GetMTime() ||
-      this->LayoutChanged)
+      this->MTime > this->ChartPrivate->axes[0]->GetMTime())
     {
     // Take up the entire window right now, this could be made configurable
     this->SetGeometry(geometry);
-    this->SetBorders(this->ChartPrivate->Borders[0],
-                     this->ChartPrivate->Borders[1],
-                     this->ChartPrivate->Borders[2],
-                     this->ChartPrivate->Borders[3]);
-    // This is where we set the axes up too
-    // Y axis (left)
-    this->ChartPrivate->axes[0]->SetPoint1(this->Point1[0], this->Point1[1]);
-    this->ChartPrivate->axes[0]->SetPoint2(this->Point1[0], this->Point2[1]);
-    // X axis (bottom)
-    this->ChartPrivate->axes[1]->SetPoint1(this->Point1[0], this->Point1[1]);
-    this->ChartPrivate->axes[1]->SetPoint2(this->Point2[0], this->Point1[1]);
-    // Y axis (right)
-    this->ChartPrivate->axes[2]->SetPoint1(this->Point2[0], this->Point1[1]);
-    this->ChartPrivate->axes[2]->SetPoint2(this->Point2[0], this->Point2[1]);
-    // X axis (top)
-    this->ChartPrivate->axes[3]->SetPoint1(this->Point1[0], this->Point2[1]);
-    this->ChartPrivate->axes[3]->SetPoint2(this->Point2[0], this->Point2[1]);
 
-    // Put the legend in the top corner of the chart
-    this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
-    this->LayoutChanged = false;
+    this->LayoutChanged = true;
     }
+
+  this->UpdateLayout(painter);
+  // Recalculate the plot transform, min and max values if necessary
+  if (!this->PlotTransformValid)
+    {
+    this->RecalculatePlotBounds();
+    recalculateTransform = true;
+    }
+  if (recalculateTransform)
+    {
+    this->RecalculatePlotTransforms();
+    }
+  this->UpdateLayout(painter);
 
   // Update the clipping if necessary
   this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
                                     this->Point2[0]-this->Point1[0],
                                     this->Point2[1]-this->Point1[1]);
-
-  // Recalculate the plot transform, min and max values if necessary
-  if (!this->PlotTransformValid)
-    {
-    this->RecalculatePlotBounds();
-    this->RecalculatePlotTransforms();
-    }
-  else if (recalculateTransform)
-    {
-    this->RecalculatePlotTransforms();
-    }
-
-  // Update the axes in the chart
-  for (int i = 0; i < 4; ++i)
-    {
-    this->ChartPrivate->axes[i]->Update();
-    }
 
   // Use the scene to render most of the chart.
   this->PaintChildren(painter);
@@ -524,41 +466,6 @@ void vtkChartXY::RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale);
   transform->Translate(-x->GetMinimum(), -y->GetMinimum());
-
-  // Move the axes if necessary and if the draw axes at origin ivar is true.
-  if (this->DrawAxesAtOrigin && x == this->ChartPrivate->axes[vtkAxis::BOTTOM] &&
-      y == this->ChartPrivate->axes[vtkAxis::LEFT])
-    {
-    // Get the screen coordinates for the origin, and move the axes there.
-    float origin[2] = { 0.0, 0.0 };
-    transform->TransformPoints(origin, origin, 1);
-    // Need to clamp the axes in the plot area.
-    if (int(origin[0]) < this->Point1[0])
-      {
-      origin[0] = this->Point1[0];
-      }
-    if (int(origin[0]) > this->Point2[0])
-      {
-      origin[0] = this->Point2[0];
-      }
-    if (int(origin[1]) < this->Point1[1])
-      {
-      origin[1] = this->Point1[1];
-      }
-    if (int(origin[1]) > this->Point2[1])
-      {
-      origin[1] = this->Point2[1];
-      }
-
-    this->ChartPrivate->axes[vtkAxis::BOTTOM]
-        ->SetPoint1(this->Point1[0], origin[1]);
-    this->ChartPrivate->axes[vtkAxis::BOTTOM]
-        ->SetPoint2(this->Point2[0], origin[1]);
-    this->ChartPrivate->axes[vtkAxis::LEFT]
-        ->SetPoint1(origin[0], this->Point1[1]);
-    this->ChartPrivate->axes[vtkAxis::LEFT]
-        ->SetPoint2(origin[0], this->Point2[1]);
-    }
 
   this->PlotTransformValid = true;
 }
@@ -777,6 +684,108 @@ void vtkChartXY::RecalculatePlotBounds()
     }
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::UpdateLayout(vtkContext2D* painter)
+{
+  // The main use of this method is currently to query the visible axes for
+  // their bounds, and to udpate the chart in response to that.
+  bool changed = false;
+  for (int i = 0; i < 4; ++i)
+    {
+    int border = this->HiddenAxisBorder;
+    vtkAxis* axis = this->ChartPrivate->axes[i];
+    axis->Update();
+    if (axis->GetVisible())
+      {
+      vtkRectf bounds = axis->GetBoundingRect(painter);
+      if (i == 1 || i == 3)
+        {// Horizontal axes
+        border = bounds.GetHeight() < this->HiddenAxisBorder ?
+              this->HiddenAxisBorder : bounds.GetHeight();
+        }
+      else
+        {// Vertical axes
+        border = bounds.GetWidth() < this->HiddenAxisBorder ?
+              this->HiddenAxisBorder : bounds.GetWidth();
+        }
+      }
+    if (this->ChartPrivate->Borders[i] != border)
+      {
+      this->ChartPrivate->Borders[i] = border;
+      changed = true;
+      }
+    }
+
+  if (this->LayoutChanged || changed)
+    {
+    if (this->DrawAxesAtOrigin)
+      {
+      this->SetBorders(this->HiddenAxisBorder,
+                       this->HiddenAxisBorder,
+                       this->ChartPrivate->Borders[2],
+                       this->ChartPrivate->Borders[3]);
+      // Get the screen coordinates for the origin, and move the axes there.
+      vtkVector2f origin;
+      vtkTransform2D* transform =
+          this->ChartPrivate->PlotCorners[0]->GetTransform();
+      transform->TransformPoints(origin.GetData(), origin.GetData(), 1);
+      // Need to clamp the axes in the plot area.
+      if (int(origin[0]) < this->Point1[0])
+        {
+        origin[0] = this->Point1[0];
+        }
+      if (int(origin[0]) > this->Point2[0])
+        {
+        origin[0] = this->Point2[0];
+        }
+      if (int(origin[1]) < this->Point1[1])
+        {
+        origin[1] = this->Point1[1];
+        }
+      if (int(origin[1]) > this->Point2[1])
+        {
+        origin[1] = this->Point2[1];
+        }
+
+      this->ChartPrivate->axes[vtkAxis::BOTTOM]
+          ->SetPoint1(this->Point1[0], origin[1]);
+      this->ChartPrivate->axes[vtkAxis::BOTTOM]
+          ->SetPoint2(this->Point2[0], origin[1]);
+      this->ChartPrivate->axes[vtkAxis::LEFT]
+          ->SetPoint1(origin[0], this->Point1[1]);
+      this->ChartPrivate->axes[vtkAxis::LEFT]
+          ->SetPoint2(origin[0], this->Point2[1]);
+      }
+    else
+      {
+      this->SetBorders(this->ChartPrivate->Borders[0],
+                       this->ChartPrivate->Borders[1],
+                       this->ChartPrivate->Borders[2],
+                       this->ChartPrivate->Borders[3]);
+      // This is where we set the axes up too
+      // Y axis (left)
+      this->ChartPrivate->axes[0]->SetPoint1(this->Point1[0], this->Point1[1]);
+      this->ChartPrivate->axes[0]->SetPoint2(this->Point1[0], this->Point2[1]);
+      // X axis (bottom)
+      this->ChartPrivate->axes[1]->SetPoint1(this->Point1[0], this->Point1[1]);
+      this->ChartPrivate->axes[1]->SetPoint2(this->Point2[0], this->Point1[1]);
+      }
+    // Y axis (right)
+    this->ChartPrivate->axes[2]->SetPoint1(this->Point2[0], this->Point1[1]);
+    this->ChartPrivate->axes[2]->SetPoint2(this->Point2[0], this->Point2[1]);
+    // X axis (top)
+    this->ChartPrivate->axes[3]->SetPoint1(this->Point1[0], this->Point2[1]);
+    this->ChartPrivate->axes[3]->SetPoint2(this->Point2[0], this->Point2[1]);
+
+    for (int i = 0; i < 4; ++i)
+      {
+      this->ChartPrivate->axes[i]->Update();
+      }
+    }
+  // Put the legend in the top corner of the chart
+  this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
 }
 
 //-----------------------------------------------------------------------------
