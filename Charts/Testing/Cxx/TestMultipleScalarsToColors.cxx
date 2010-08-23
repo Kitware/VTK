@@ -56,6 +56,7 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
   // Lookup Table
   vtkSmartPointer<vtkLookupTable> lookupTable =
     vtkSmartPointer<vtkLookupTable>::New();
+  lookupTable->SetAlpha(0.5);
   lookupTable->Build();
   // Color transfer function
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
@@ -107,7 +108,7 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
         vtkSmartPointer<vtkColorTransferFunctionItem> item =
           vtkSmartPointer<vtkColorTransferFunctionItem>::New();
         item->SetColorTransferFunction(colorTransferFunction);
-        item->SetOpacity(0.9);
+        item->SetOpacity(0.8);
         chart->AddPlot(item);
         chart->SetTitle("vtkColorTransferFunction");
         break;

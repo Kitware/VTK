@@ -556,6 +556,34 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
+{
+  if (!f || n <= 0)
+    {
+    vtkWarningMacro(<< "Points supplied that were not of type float.");
+    return;
+    }
+  float* texCoord = 0;
+  if (this->Storage->Texture)
+    {
+    this->Storage->Texture->Render(this->Renderer);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    texCoord = this->Storage->TexCoords(f, n);
+    glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
+    }
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, f);
+  glDrawArrays(GL_QUAD_STRIP, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (this->Storage->Texture)
+    {
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    this->Storage->Texture->PostRender(this->Renderer);
+    glDisable(GL_TEXTURE_2D);
+    delete [] texCoord;
+    }
+}
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
 {
   if (!f || n <= 0)

@@ -153,6 +153,11 @@ public:
   void DrawQuad(float *p);
 
   // Description:
+  // Draw a strip of quads
+  void DrawQuadStrip(vtkPoints2D *points);
+  void DrawQuadStrip(float *p, int n);
+
+  // Description:
   // Draw a polygon specified specified by the points using the x and y arrays
   // supplied
   void DrawPolygon(float *x, float *y, int n);

@@ -114,6 +114,11 @@ public:
   vtkGetMacro(AutoAxes, bool);
 
   // Description:
+  // Border size of the axes that are hidden (vtkAxis::GetVisible())
+  vtkSetMacro(HiddenAxisBorder, int);
+  vtkGetMacro(HiddenAxisBorder, int);
+
+  // Description:
   // Set the width fraction for any bar charts drawn in this chart. It is
   // assumed that all bar plots will use the same array for the X axis, and that
   // this array is regularly spaced. The delta between the first two x values is
@@ -172,8 +177,10 @@ protected:
   void RecalculatePlotBounds();
 
   // Description:
-  // Process a rubber band selection event.
-  virtual void ProcessSelectionEvent(vtkObject* caller, void* callData);
+  // Update the layout of the chart, this may require the vtkContext2D in order
+  // to get font metrics etc. Initially this was added to resize the charts
+  // according in response to the size of the axes.
+  void UpdateLayout(vtkContext2D* painter);
 
   // Description:
   // The grid for the chart.
@@ -216,6 +223,10 @@ protected:
   // Description:
   // Should axes be turned on and off automatically - defaults to on.
   bool AutoAxes;
+
+  // Description:
+  // Size of the border when an axis is hidden
+  int HiddenAxisBorder;
 
   // Description:
   // The fraction of the interval taken up along the x axis by any bars that are

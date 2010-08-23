@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinePlot.cxx
+  Module:    $RCSfile$
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,46 +13,52 @@
 
 =========================================================================*/
 
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkChartXY.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkColorTransferFunctionItem.h"
-#include "vtkCompositeTransferFunctionItem.h"
-#include "vtkContextScene.h"
-#include "vtkContextView.h"
 #include "vtkFloatArray.h"
-#include "vtkLookupTable.h"
-#include "vtkLookupTableItem.h"
-#include "vtkPiecewiseControlPointsItem.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkPiecewiseFunctionItem.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkMath.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkIntArray.h"
 
+#include "vtkSmartPointer.h"
+
+#include "vtkColorTransferFunction.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkCompositeTransferFunctionItem.h"
+#include "vtkContextView.h"
+#include "vtkContextScene.h"
+#include "vtkChartXY.h"
+#include "vtkPlot.h"
+
+#include "vtkTimerLog.h"
+
+#include <QApplication>
+#include <QWidget>
+#include <QMainWindow>
+#include <QHBoxLayout>
+
+#include "QVTKWidget.h"
+#include "vtkQtTableView.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestScalarsToColors( int argc, char * argv [] )
+int main( int argc, char * argv [] )
 {
-  // Set up a 2D scene, add an XY chart to it
-  vtkSmartPointer<vtkContextView> view =
-      vtkSmartPointer<vtkContextView>::New();
-  view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(400, 300);
+  // Qt initialization
+  QApplication app(argc, argv);
+
+  // QVTK set up and initialization
+  QVTKWidget qvtkWidget(0);
+
+  // Set up my 2D world...
+  VTK_CREATE(vtkContextView, view); // This contains a chart object
+  view->SetInteractor(qvtkWidget.GetInteractor());
+  qvtkWidget.SetRenderWindow(view->GetRenderWindow());
+
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   chart->SetTitle("Chart");
   view->GetScene()->AddItem(chart);
-
-  vtkSmartPointer<vtkLookupTable> lookupTable =
-    vtkSmartPointer<vtkLookupTable>::New();
-  lookupTable->Build();
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     vtkSmartPointer<vtkColorTransferFunction>::New();
@@ -75,23 +81,16 @@ int TestScalarsToColors( int argc, char * argv [] )
   item3->SetOpacity(0.2);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
-/*
-  vtkSmartPointer<vtkPiecewiseFunctionItem> item3 =
-    vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
-  item3->SetPiecewiseFunction(opacityFunction);
-  item3->SetColor(0.,0.,0.);
-  item3->SetMaskAboveCurve(true);
-  chart->AddPlot(item3);
-*/
-  vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
-    vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
-  item5->SetPiecewiseFunction(opacityFunction);
-  chart->AddPlot(item5);
 
-  //Finally render the scene and compare the image to a reference image
-  view->GetRenderWindow()->SetMultiSamples(0);
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  view->GetInteractor()->Start();
+  // Now lets try to add a table view
+  //QWidget *widget = new QWidget(mainWindow);
+  //QHBoxLayout *layout = new QHBoxLayout(widget);
+  //layout->addWidget(qvtkWidget);
+  //mainWindow->setCentralWidget(widget);
 
-  return !retVal;
+  // Now show the application and start the event loop
+  qvtkWidget.show();
+  //view->GetRenderWindow()->SetMultiSamples(0);
+
+  return app.exec();
 }
