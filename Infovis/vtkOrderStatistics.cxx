@@ -293,6 +293,29 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* vtkNotUsed( inMeta ) )
 }
 
 // ----------------------------------------------------------------------
+void vtkOrderStatistics::Test( vtkTable* inData,
+                               vtkMultiBlockDataSet* inMeta,
+                               vtkTable* outMeta )
+{
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab )
+    {
+    return;
+    }
+
+  if ( ! outMeta )
+    {
+    return;
+    }
+
+}
+
+// ----------------------------------------------------------------------
 class TableColumnBucketingFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:

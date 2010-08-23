@@ -108,7 +108,7 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) { return; };
+                     vtkTable* );
 
 //BTX
   // Description:
