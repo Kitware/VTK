@@ -31,6 +31,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestPieChart.cxx
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
+      TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
       )
