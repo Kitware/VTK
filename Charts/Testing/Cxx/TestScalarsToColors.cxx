@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkAxis.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
 #include "vtkChartXY.h"
@@ -32,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
 #include "vtkIntArray.h"
 
 
@@ -64,7 +66,7 @@ int TestScalarsToColors( int argc, char * argv [] )
 
   vtkSmartPointer<vtkPiecewiseFunction> opacityFunction =
     vtkSmartPointer<vtkPiecewiseFunction>::New();
-  opacityFunction->AddPoint(0.,0.);
+  opacityFunction->AddPoint(0.2, 0.);
   opacityFunction->AddPoint(0.5,0.5);
   opacityFunction->AddPoint(1.,1.);
 
@@ -74,14 +76,15 @@ int TestScalarsToColors( int argc, char * argv [] )
   item3->SetOpacityFunction(opacityFunction);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
-/*
+  /*
   vtkSmartPointer<vtkPiecewiseFunctionItem> item3 =
     vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
   item3->SetPiecewiseFunction(opacityFunction);
-  item3->SetColor(0.,0.,0.);
+  item3->SetColor(247,180,0,255);
   item3->SetMaskAboveCurve(true);
   chart->AddPlot(item3);
-*/
+  */
+
   vtkSmartPointer<vtkPiecewiseControlPointsItem> item5 =
     vtkSmartPointer<vtkPiecewiseControlPointsItem>::New();
   item5->SetPiecewiseFunction(opacityFunction);

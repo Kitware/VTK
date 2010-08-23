@@ -118,13 +118,13 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
   if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
     {
     this->Shape->SetNumberOfPoints(dimension);
+    double step = (bounds[1] - bounds[0]) / dimension;
     for (int i = 0; i < dimension; ++i)
       {
       this->Pen->GetColor(ptr);
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255 + 0.5);
       assert(values[i] <= 1. && values[i] >= 0.);
-      this->Shape->SetPoint(i, static_cast<float>(i) * 1.f / (dimension-1),
-                            values[i] * 1.f);
+      this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
       ptr+=4;
       }
     this->Shape->Modified();
