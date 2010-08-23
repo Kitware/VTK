@@ -290,6 +290,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* vtkNotUsed( inMeta ) )
 {
+  // There are no derived statistics for this engine.
 }
 
 // ----------------------------------------------------------------------
