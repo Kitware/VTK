@@ -474,7 +474,7 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
     }
   else
     {
-    size_t i = this->Children->size();
+    size_t i = this->Children->size()-1;
     vtkContextMouseEvent &event = this->Storage->Event;
     for(vtkContextScenePrivate::const_reverse_iterator it =
         this->Children->rbegin(); it != this->Children->rend(); ++it, --i)
@@ -518,7 +518,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
   if(size != 0)
     {
     // Fire mouse enter and leave event prior to firing a mouse event.
-    vtkIdType pickedItem=this->GetPickedItem(x,y);
+    vtkIdType pickedItem = this->GetPickedItem(x,y);
 
     for (int i = size-1; i >= 0; --i)
       {
@@ -534,7 +534,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
           {
           this->Children->State[i] = true;
           (*this->Children)[i]->MouseEnterEvent(event);
-//          cout << "enter" << endl;
+          vtkDebugMacro("Enter item " << i);
           }
         }
       else
@@ -543,7 +543,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
           {
           this->Children->State[i] = false;
           (*this->Children)[i]->MouseLeaveEvent(event);
-//          cout << "leave" << endl;
+          vtkDebugMacro("Leave item " << i);
           }
         }
       }
