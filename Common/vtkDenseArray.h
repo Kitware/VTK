@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkDenseArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -55,25 +55,29 @@ class vtkDenseArray :
 public:
   static vtkDenseArray<T>* New();
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
+  typedef typename vtkArray::CoordinateT CoordinateT;
+  typedef typename vtkArray::DimensionT DimensionT;
+  typedef typename vtkArray::SizeT SizeT;
+
   // vtkArray API
   bool IsDense();
   const vtkArrayExtents& GetExtents();
-  vtkIdType GetNonNullSize();
-  void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates);
+  SizeT GetNonNullSize();
+  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates);
   vtkArray* DeepCopy();
 
   // vtkTypedArray API
-  const T& GetValue(vtkIdType i);
-  const T& GetValue(vtkIdType i, vtkIdType j);
-  const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k);
+  const T& GetValue(CoordinateT i);
+  const T& GetValue(CoordinateT i, CoordinateT j);
+  const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k);
   const T& GetValue(const vtkArrayCoordinates& coordinates);
-  const T& GetValueN(const vtkIdType n);
-  void SetValue(vtkIdType i, const T& value);
-  void SetValue(vtkIdType i, vtkIdType j, const T& value);
-  void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
+  const T& GetValueN(const SizeT n);
+  void SetValue(CoordinateT i, const T& value);
+  void SetValue(CoordinateT i, CoordinateT j, const T& value);
+  void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value);
   void SetValue(const vtkArrayCoordinates& coordinates, const T& value);
-  void SetValueN(const vtkIdType n, const T& value);
+  void SetValueN(const SizeT n, const T& value);
 
   // vtkDenseArray API
 
@@ -148,7 +152,7 @@ public:
   // Returns a read-only reference to the underlying storage.  Values are stored
   // contiguously with fortran ordering.
   const T* GetStorage() const;
-  
+
   // Description:
   // Returns a mutable reference to the underlying storage.  Values are stored
   // contiguously with fortran ordering.  Use at your own risk!
@@ -163,11 +167,11 @@ private:
   void operator=(const vtkDenseArray&); // Not implemented
 
   void InternalResize(const vtkArrayExtents& extents);
-  void InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label);
-  vtkStdString InternalGetDimensionLabel(vtkIdType i);
-  inline vtkIdType MapCoordinates(vtkIdType i);
-  inline vtkIdType MapCoordinates(vtkIdType i, vtkIdType j);
-  inline vtkIdType MapCoordinates(vtkIdType i, vtkIdType j, vtkIdType k);
+  void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label);
+  vtkStdString InternalGetDimensionLabel(DimensionT i);
+  inline vtkIdType MapCoordinates(CoordinateT i);
+  inline vtkIdType MapCoordinates(CoordinateT i, CoordinateT j);
+  inline vtkIdType MapCoordinates(CoordinateT i, CoordinateT j, CoordinateT k);
   inline vtkIdType MapCoordinates(const vtkArrayCoordinates& coordinates);
 
   void Reconfigure(const vtkArrayExtents& extents, MemoryBlock* storage);
@@ -177,15 +181,15 @@ private:
   // Description:
   // Stores the current array extents (its size along each dimension)
   vtkArrayExtents Extents;
-  
+
   // Description:
   // Stores labels for each array dimension
-  vtkstd::vector<vtkStdString> DimensionLabels;
+  std::vector<vtkStdString> DimensionLabels;
 
   // Description:
   // Manages array value memory storage.
   MemoryBlock* Storage;
-  
+
   // Description:
   // Stores array values using a contiguous range of memory
   // with constant-time value lookup.
@@ -194,10 +198,10 @@ private:
 
   // Description:
   // Stores the offset along each array dimension (used for fast lookups).
-  vtkstd::vector<vtkIdType> Offsets;
+  std::vector<vtkIdType> Offsets;
   // Description:
   // Stores the stride along each array dimension (used for fast lookups).
-  vtkstd::vector<vtkIdType> Strides;
+  std::vector<vtkIdType> Strides;
 };
 
 #include "vtkDenseArray.txx"

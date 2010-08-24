@@ -59,13 +59,15 @@
 
 #include "vtkSystemIncludes.h"
 #include "vtkArrayRange.h"
-#include <vtksys/stl/vector> // STL Header
-
-class vtkArrayCoordinates;
+#include <vector> // STL Header
 
 class VTK_COMMON_EXPORT vtkArrayExtents
 {
 public:
+  typedef vtkArrayCoordinates::DimensionT DimensionT;
+  typedef vtkArrayCoordinates::CoordinateT CoordinateT;
+  typedef vtkTypeUInt64 SizeT;
+
   // Description:
   // Create zero-dimensional extents.
   vtkArrayExtents();
@@ -73,7 +75,7 @@ public:
   // Description:
   // Create zero-based one-dimensional extents.  This constructor is shorthand for
   // vtkArrayExtents(vtkArrayRange(0, i)).
-  explicit vtkArrayExtents(const vtkIdType i);
+  explicit vtkArrayExtents(const CoordinateT i);
   // Description:
   // Create one-dimensional extents.
   explicit vtkArrayExtents(const vtkArrayRange& i);
@@ -81,7 +83,7 @@ public:
   // Description:
   // Create zero-based two-dimensional extents.  This constructor is shorthand for
   // vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)).
-  vtkArrayExtents(const vtkIdType i, const vtkIdType j);
+  vtkArrayExtents(const CoordinateT i, const CoordinateT j);
   // Description:
   // Create two-dimensional extents.
   vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j);
@@ -90,7 +92,7 @@ public:
   // Create zero-based three-dimensional extents.  This constructor is shorthand for
   // vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j),
   // vtkArrayRange(0, k)).
-  vtkArrayExtents(const vtkIdType i, const vtkIdType j, const vtkIdType k);
+  vtkArrayExtents(const CoordinateT i, const CoordinateT j, const CoordinateT k);
   // Description:
   // Create three-dimensional extents.
   vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
@@ -98,7 +100,7 @@ public:
   // Description:
   // Create n-dimensional extents with extent [0, m) along each dimension.
   // This is useful for creating e.g: a square matrix.
-  static const vtkArrayExtents Uniform(vtkIdType n, vtkIdType m);
+  static const vtkArrayExtents Uniform(DimensionT n, CoordinateT m);
 
   // Description:
   // Grow the number of dimensions by one, specifying the extent
@@ -107,28 +109,28 @@ public:
 
   // Description:
   // Return the current number of dimensions.
-  vtkIdType GetDimensions() const;
+  DimensionT GetDimensions() const;
 
   // Description:
   // Return the number of values that *could* be stored using the
   // current extents.  This is equal to the product of the size of the
   // extent along each dimension.
-  vtkTypeUInt64 GetSize() const;
+  SizeT GetSize() const;
 
   // Description:
   // Set the current number of dimensions.  Note that this method
   // resets the extent along each dimension to an empty range, so you
   // must assign each dimension's extent explicitly using operator[]
   // after calling SetDimensions().
-  void SetDimensions(vtkIdType dimensions);
+  void SetDimensions(DimensionT dimensions);
 
   // Description:
   // Accesses the extent of the i-th dimension.
-  vtkArrayRange& operator[](vtkIdType i);
+  vtkArrayRange& operator[](DimensionT i);
 
   // Description:
   // Accesses the extent of the i-th dimension.
-  const vtkArrayRange& operator[](vtkIdType i) const;
+  const vtkArrayRange& operator[](DimensionT i) const;
 
   // Description:
   // Equality comparison
@@ -161,7 +163,7 @@ public:
   // equivalent to column-major ordering for matrices, and corresponds to
   // the order in which consecutive array values would be stored in
   // languages such as Fortran, MATLAB, Octave, and R.
-  void GetLeftToRightCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const;
+  void GetLeftToRightCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) const;
 
   // Description:
   // Returns coordinates that reference the n-th value in the extents,
@@ -170,7 +172,7 @@ public:
   // equivalent to row-major ordering for matrices, and corresponds to
   // the order in which consecutive array values would be stored in
   // languages including C and C++.
-  void GetRightToLeftCoordinatesN(vtkIdType n, vtkArrayCoordinates& coordinates) const;
+  void GetRightToLeftCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) const;
 
   // Description:
   // Returns true if the given extents are a non-overlapping subset of
@@ -192,9 +194,8 @@ public:
 
 private:
   //BTX
-  vtksys_stl::vector<vtkArrayRange> Storage;
+  std::vector<vtkArrayRange> Storage;
   //ETX
 };
 
 #endif
-

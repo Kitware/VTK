@@ -25,20 +25,20 @@ vtkArrayCoordinates::vtkArrayCoordinates()
 {
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(vtkIdType i) :
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i) :
   Storage(1)
 {
   this->Storage[0] = i;
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(vtkIdType i, vtkIdType j) :
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j) :
   Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
 
-vtkArrayCoordinates::vtkArrayCoordinates(vtkIdType i, vtkIdType j, vtkIdType k) :
+vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, CoordinateT k) :
   Storage(3)
 {
   this->Storage[0] = i;
@@ -46,22 +46,22 @@ vtkArrayCoordinates::vtkArrayCoordinates(vtkIdType i, vtkIdType j, vtkIdType k) 
   this->Storage[2] = k;
 }
 
-vtkIdType vtkArrayCoordinates::GetDimensions() const
+vtkArrayCoordinates::DimensionT vtkArrayCoordinates::GetDimensions() const
 {
   return this->Storage.size();
 }
 
-void vtkArrayCoordinates::SetDimensions(vtkIdType dimensions)
+void vtkArrayCoordinates::SetDimensions(DimensionT dimensions)
 {
   this->Storage.assign(dimensions, 0);
 }
 
-vtkIdType& vtkArrayCoordinates::operator[](vtkIdType i)
+vtkArrayCoordinates::CoordinateT& vtkArrayCoordinates::operator[](DimensionT i)
 {
   return this->Storage[i];
 }
 
-const vtkIdType& vtkArrayCoordinates::operator[](vtkIdType i) const
+const vtkArrayCoordinates::CoordinateT& vtkArrayCoordinates::operator[](DimensionT i) const
 {
   return this->Storage[i];
 }
@@ -78,13 +78,13 @@ bool vtkArrayCoordinates::operator!=(const vtkArrayCoordinates& rhs) const
 
 ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 {
-  for(vtkIdType i = 0; i != rhs.GetDimensions(); ++i)
+  for(vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
     {
     if(i)
       stream << ",";
     stream << rhs[i];
     }
-  
+
   return stream;
 }
 
