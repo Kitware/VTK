@@ -17,7 +17,7 @@
 #include "vtkMultiBlockDataSet.h"
 
 #include <vtkstd/map>
-#include <vtksys/stl/vector>
+#include <vtkstd/vector>
 
 //=============================================================================
 int TestOrderStatistics( int, char *[] )
@@ -282,13 +282,13 @@ int TestOrderStatistics( int, char *[] )
   // Test Learn option for quartiles with non-numeric ordinal data
   vtkStdString text(
     "an ordinal scale defines a total preorder of objects the scale values themselves have a total order names may be used like bad medium good if numbers are used they are only relevant up to strictly monotonically increasing transformations also known as order isomorphisms" );
-  vtksys_stl::vector<int>::size_type textLength = text.size();
+  vtkstd::vector<int>::size_type textLength = text.size();
 
   vtkStringArray* textArr = vtkStringArray::New();
   textArr->SetNumberOfComponents( 1 );
   textArr->SetName( "Text" );
 
-  for ( vtksys_stl::vector<int>::size_type i = 0; i < textLength; ++ i )
+  for ( vtkstd::vector<int>::size_type i = 0; i < textLength; ++ i )
     {
     char c = text.at(i);
     textArr->InsertNextValue( &c );
