@@ -75,6 +75,7 @@ vtkAxis::vtkAxis()
   this->TickLabels = vtkSmartPointer<vtkStringArray>::New();
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
+  this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -215,7 +216,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     else if (this->Position == vtkAxis::PARALLEL)
       {
       x = static_cast<int>(this->Point1[0]);
-      y = static_cast<int>(this->Point1[1] - this->MaxLabel[1]);
+      y = static_cast<int>(this->Point1[1] - this->MaxLabel[1] - 15);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToTop();
       }
