@@ -348,8 +348,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       }
 
     // Retrieve model statistics necessary for Jarque-Bera testing
-    double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    cerr << "* Model has cardinality " << n << "\n";
+    //double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
     } // rit
 }
 
