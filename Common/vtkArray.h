@@ -128,7 +128,7 @@ public:
   // extents.  This is equal to the number of values stored in a  dense
   // array, but may be larger than the number of values stored in a
   // sparse array.
-  vtkIdType GetSize();
+  vtkTypeUInt64 GetSize();
 
   // Description:
   // Returns the number of non-null values stored in the array.  Note

@@ -113,7 +113,7 @@ public:
   // Return the number of values that *could* be stored using the
   // current extents.  This is equal to the product of the size of the
   // extent along each dimension.
-  vtkIdType GetSize() const;
+  vtkTypeUInt64 GetSize() const;
 
   // Description:
   // Set the current number of dimensions.  Note that this method

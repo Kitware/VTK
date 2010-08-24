@@ -91,6 +91,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     TestArrayExtents.cxx
     TestArrayUserTypes.cxx
     TestArrayVariants.cxx
+    TestArraySize.cxx
     TestSparseArrayValidation.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )

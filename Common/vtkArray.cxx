@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArray.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -50,15 +50,15 @@ void vtkArray::PrintSelf(ostream &os, vtkIndent indent)
   Superclass::PrintSelf(os, indent);
 
   os << indent << "Name: " << this->Name << endl;
-  
+
   os << indent << "Dimensions: " << this->GetDimensions() << endl;
   os << indent << "Extents: " << this->GetExtents() << endl;
-  
+
   os << indent << "DimensionLabels:";
   for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
     os << " " << this->GetDimensionLabel(i);
   os << endl;
-  
+
   os << indent << "Size: " << this->GetSize() << endl;
   os << indent << "NonNullSize: " << this->GetNonNullSize() << endl;
 }
@@ -168,7 +168,7 @@ void vtkArray::Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkA
 }
 
 void vtkArray::Resize(const vtkArrayExtents& extents)
-{    
+{
   this->InternalResize(extents);
 }
 
@@ -182,7 +182,7 @@ vtkIdType vtkArray::GetDimensions()
   return this->GetExtents().GetDimensions();
 }
 
-vtkIdType vtkArray::GetSize()
+vtkTypeUInt64 vtkArray::GetSize()
 {
   return this->GetExtents().GetSize();
 }
@@ -193,7 +193,7 @@ void vtkArray::SetName(const vtkStdString& raw_name)
   vtkStdString name(raw_name);
   name.erase(vtkstd::remove(name.begin(), name.end(), '\r'), name.end());
   name.erase(vtkstd::remove(name.begin(), name.end(), '\n'), name.end());
-  
+
   this->Name = name;
 }
 
@@ -228,5 +228,3 @@ vtkStdString vtkArray::GetDimensionLabel(vtkIdType i)
 
   return this->InternalGetDimensionLabel(i);
 }
-
-

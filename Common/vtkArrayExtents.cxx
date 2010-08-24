@@ -97,12 +97,12 @@ vtkIdType vtkArrayExtents::GetDimensions() const
   return this->Storage.size();
 }
 
-vtkIdType vtkArrayExtents::GetSize() const
+vtkTypeUInt64 vtkArrayExtents::GetSize() const
 {
   if(this->Storage.empty())
     return 0;
 
-  vtkIdType size = 1;
+  vtkTypeUInt64 size = 1;
   for(size_t i = 0; i != this->Storage.size(); ++i)
     size *= this->Storage[i].GetSize();
 
