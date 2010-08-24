@@ -81,6 +81,10 @@ public:
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
                              vtkInformationVector *);
 
+  //BTX
+  // Don't use directly. Meant for internal ReadData() function.
+  vtkSetStringMacro(Header);
+  //ETX
 protected:
   vtkGenericDataObjectReader();
   ~vtkGenericDataObjectReader();

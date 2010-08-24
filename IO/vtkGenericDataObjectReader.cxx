@@ -45,7 +45,7 @@
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
 template<typename ReaderT, typename DataT>
-void ReadData(const char* DataClass, vtkDataReader* Owner, vtkTimeStamp& MTime, vtkDataObject* Output)
+void ReadData(const char* DataClass, vtkGenericDataObjectReader* Owner, vtkTimeStamp& MTime, vtkDataObject* Output)
 {
   ReaderT* const reader = ReaderT::New();
   
@@ -69,7 +69,10 @@ void ReadData(const char* DataClass, vtkDataReader* Owner, vtkTimeStamp& MTime, 
   reader->SetReadAllTCoords(Owner->GetReadAllTCoords());
   reader->SetReadAllFields(Owner->GetReadAllFields());
   reader->Update();
-  
+
+  // copy the header from  the reader.
+  Owner->SetHeader(reader->GetHeader());
+
   // Can we use the old output?
   if(!(Output && strcmp(Output->GetClassName(), DataClass) == 0))
     {
