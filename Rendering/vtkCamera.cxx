@@ -105,6 +105,7 @@ vtkCamera::vtkCamera()
 
   // Head tracking
   this->HeadTracked = 0;
+  this->HeadPose = vtkMatrix4x4::New();
 
   // HeadTracked Projection parameters
   this->AsymLeft  = 0.0;
@@ -119,6 +120,7 @@ vtkCamera::vtkCamera()
 
   // HeadTracked Config parameters to be set from config file
   this->Surface2Base = vtkTransform::New();
+  this->HeadTrackedViewMat = vtkMatrix4x4::New();
   this->O2Screen = 0.0;
   this->O2Right  = 0.0;
   this->O2Left   = 0.0;
@@ -129,6 +131,7 @@ vtkCamera::vtkCamera()
 
   // temp
   eyePosMat = vtkMatrix4x4::New();
+  negEyePosMat = vtkMatrix4x4::New();
   eyeOffsetMat = vtkMatrix4x4::New();
 
   // initialize the ViewTransform
@@ -160,8 +163,11 @@ vtkCamera::~vtkCamera()
     {
     this->UserViewTransformCallbackCommand->Delete();
     }
+  this->HeadPose->Delete();
   this->Surface2Base->Delete();
+  this->HeadTrackedViewMat->Delete();
   this->eyePosMat->Delete();
+  this->negEyePosMat->Delete();
   this->eyeOffsetMat->Delete();
 }
 
@@ -335,20 +341,9 @@ void vtkCamera::ComputeViewTransform()
     {
     this->Transform->Concatenate(this->UserViewTransform);
     }
-  if ( this->HeadTracked )
-    {
-    double inverseEyePos[3];
-    for (int i = 0; i < 3; ++i)
-      {
-      inverseEyePos[i] = -1 * this->EyePos[i];
-      }
-    this->Transform->Translate(inverseEyePos );
-    }
-  else
-    {
-    this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
-    }
-  this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
+  this->ViewTransform->SetMatrix( this->HeadTrackedViewMat);
+  //this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+  //this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
 }
 
 //----------------------------------------------------------------------------
@@ -867,64 +862,75 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
                             double x20,  double x21,  double x22, double x23,
                             double x30,  double x31,  double x32, double x33 )
 {
-  vtkMatrix4x4 * mat = vtkMatrix4x4::New();
 
-  mat->SetElement( 0,0,x00 );
-  mat->SetElement( 0,1,x01 );
-  mat->SetElement( 0,2,x02 );
-  mat->SetElement( 0,3,x03 );
 
-  mat->SetElement( 1,0,x10 );
-  mat->SetElement( 1,1,x11 );
-  mat->SetElement( 1,2,x12 );
-  mat->SetElement( 1,3,x13 );
+  this->HeadPose->SetElement( 0,0,x00 );
+  this->HeadPose->SetElement( 0,1,x01 );
+  this->HeadPose->SetElement( 0,2,x02 );
+  this->HeadPose->SetElement( 0,3,x03 );
 
-  mat->SetElement( 2,0,x20 );
-  mat->SetElement( 2,1,x21 );
-  mat->SetElement( 2,2,x22 );
-  mat->SetElement( 2,3,x23 );
+  this->HeadPose->SetElement( 1,0,x10 );
+  this->HeadPose->SetElement( 1,1,x11 );
+  this->HeadPose->SetElement( 1,2,x12 );
+  this->HeadPose->SetElement( 1,3,x13 );
 
-  mat->SetElement( 3,0,x30 );
-  mat->SetElement( 3,1,x31 );
-  mat->SetElement( 3,2,x32 );
-  mat->SetElement( 3,3,x33 );
+  this->HeadPose->SetElement( 2,0,x20 );
+  this->HeadPose->SetElement( 2,1,x21 );
+  this->HeadPose->SetElement( 2,2,x22 );
+  this->HeadPose->SetElement( 2,3,x23 );
 
-  this->SetHeadPose( mat );
-  mat->PrintSelf(std::cout, ( vtkIndent ) 1 );
-  mat->Delete();
+  this->HeadPose->SetElement( 3,0,x30 );
+  this->HeadPose->SetElement( 3,1,x31 );
+  this->HeadPose->SetElement( 3,2,x32 );
+  this->HeadPose->SetElement( 3,3,x33 );
+  std::cout << "HeadPose (";
+  this->HeadPose->PrintSelf(std::cout, ( vtkIndent ) 1 );
+  std::cout << ")" << endl;
 }
+
 //------------------------------------------------------------------HeadTracked
 // This calculates sets head tracking mode for the camera and sets the
 // respective model-view and projection matrix parameters that should
 // be used with a head tracked camera
-void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
+void vtkCamera::ComputeProjAndViewParams()
 {
+  this->eyeOffsetMat->Identity();
+  this->eyePosMat->Identity();
+  this->negEyePosMat->Identity();
+  this->HeadTrackedViewMat->Identity();
+
 // Compute Projection Matrix Parameters using head
   if ( this->LeftEye )
     {
     eyeOffsetMat->SetElement( 0, 3, -this->EyeOffset );
-    vtkMatrix4x4::Multiply4x4( headMat, eyeOffsetMat, eyePosMat );
+    vtkMatrix4x4::Multiply4x4( this->HeadPose, eyeOffsetMat, eyePosMat );
     }
   else
     {
     eyeOffsetMat->SetElement( 0, 3, this->EyeOffset );
-    vtkMatrix4x4::Multiply4x4( headMat, eyeOffsetMat, eyePosMat );
+    vtkMatrix4x4::Multiply4x4( this->HeadPose, eyeOffsetMat, eyePosMat );
     }
 
 // Get eye position on the surface of the screen which is nothing
 // but the translation component of the eyePosMat
-  double eyeSurface[3];
+  double eyeSurface[4];
   eyeSurface[0] = eyePosMat->GetElement( 0, 3 );
   eyeSurface[1] = eyePosMat->GetElement( 1, 3 );
   eyeSurface[2] = eyePosMat->GetElement( 2, 3 );
+  eyeSurface[3] = 0.0;
+  eyePosMat->MultiplyPoint( eyeSurface, eyeSurface );
 
-  double e2Screen = ( this->ScaleFactor * this->O2Screen ) + eyeSurface[3];
+  std::cout << " Eye Surface ( "<< eyeSurface[0] << " "
+    << eyeSurface[1] << " "<< eyeSurface[2] << ")" <<endl;
+
+  double e2Screen = ( this->ScaleFactor * this->O2Screen ) + eyeSurface[2];
   double e2Right  = ( this->ScaleFactor * this->O2Right )  - eyeSurface[0];
-  double e2Left   = ( this->ScaleFactor * this->O2Right )  + eyeSurface[0];
+  double e2Left   = ( this->ScaleFactor * this->O2Left )   + eyeSurface[0];
   double e2Top    = ( this->ScaleFactor * this->O2Top )    - eyeSurface[1];
   double e2Bottom = ( this->ScaleFactor * this->O2Bottom ) + eyeSurface[1];
 
-  double o2Near = this->ClippingRange[0] / e2Screen;
+  // double o2Near = this->ClippingRange[0] / e2Screen;
+  double o2Near = 0.1 / e2Screen;
 
 // Setting the Projection matrix parameters for HeadTracked Camera
   this->AsymLeft   = -( e2Left * o2Near ) ;
@@ -932,10 +938,32 @@ void vtkCamera::SetHeadPose( vtkMatrix4x4 *headMat )
   this->AsymTop    =     e2Top * o2Near;
   this->AsymBottom = -(  e2Top * o2Near );
 
+  std::cout << "Left   : " << this->AsymLeft <<std::endl;
+  std::cout << "Right  : " << this->AsymRight <<std::endl;
+  std::cout << "Bottom : " << this->AsymBottom <<std::endl;
+  std::cout << "Top    : " << this->AsymTop <<std::endl;
+  std::cout << "Near   : " << this->ClippingRange[0] <<std::endl;
+  std::cout << "Far    : " << this->ClippingRange[1] <<std::endl;
+
+  std::cout << "Projection Transform (";
+  this->ProjectionTransform->GetMatrix()->PrintSelf( std::cout, ( vtkIndent )1 );
+  std::cout<<")"<<endl;
+
 // Setting the View (ModelView) matrix for HeadTracked Camera
   this->EyePos[0] = eyePosMat->GetElement( 0, 3 );
   this->EyePos[1] = eyePosMat->GetElement( 1, 3 );
-  this->EyePos[2] = eyePosMat->GetElement( 1, 3 );
+  this->EyePos[2] = eyePosMat->GetElement( 2, 3 );
+
+  negEyePosMat->SetElement( 0, 3, this->EyePos[0]*-1 );
+  negEyePosMat->SetElement( 1, 3, this->EyePos[1]*-1 );
+  negEyePosMat->SetElement( 2, 3, this->EyePos[2]*-1 );
+  vtkMatrix4x4::Multiply4x4( this->Surface2Base->GetMatrix(),
+                             this->negEyePosMat,
+                             this->HeadTrackedViewMat);
+
+  std::cout<< "View Matrix (";
+  this->HeadTrackedViewMat->PrintSelf( std::cout,  ( vtkIndent )1 );
+  std::cout<<std::endl;
 }
 
 //------------------------------------------------------------------HeadTracked
@@ -951,7 +979,18 @@ void vtkCamera::SetConfigParams( double o2screen, double o2right, double o2left,
   this->SetSurface2Base( surfaceRot );
   this->ScaleFactor = scale;
   this->EyeOffset = ( interOccDist*scale )/2.0;
+
+  std::cout
+      << "O2Screen " << this->O2Screen <<endl
+      << "O2Right  " << this->O2Right  <<endl
+      << "O2Left   " << this->O2Left   <<endl
+      << "O2Top    " << this->O2Top    <<endl
+      << "O2Bottom " << this->O2Bottom <<endl;
+  //     << "Surface2Base (" << endl;
+  // this->Surface2Base->GetMatrix()->PrintSelf( std::cout, ( vtkIndent )1 );
+  // std::cout<<")"<<endl;
 }
+
 //------------------------------------------------------------------HeadTracked
 void vtkCamera::SetSurface2Base( vtkMatrix4x4 *surfaceRot )
 {
@@ -1000,13 +1039,13 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
       {
       this->ProjectionTransform->Frustum( this->AsymLeft,  this->AsymRight,
                                           this->AsymBottom,  this->AsymTop,
-                                          this->ClippingRange[0],
-                                          this->ClippingRange[1] );
+                                          0.1, 10000.0 );
+                                          // this->ClippingRange[0],
+                                          // this->ClippingRange[1] );
       }
     else
       {
 // set up a perspective frustum
-
       double tmp = tan( vtkMath::RadiansFromDegrees( this->ViewAngle ) / 2. );
       double width;
       double height;

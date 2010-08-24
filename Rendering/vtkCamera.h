@@ -420,8 +420,8 @@ public:
   // Asymmetric Frustuma are uses.
   // 2. It sets variables like AsymLeft,AsymRight, AsymBottom and Asym
   // to set the HeadTracked Projection Matrix.
-  // 3. It sets the View matrix
-  void SetHeadPose( vtkMatrix4x4 *head );
+  // 3. It sets the View matrix Params
+  void ComputeProjAndViewParams( );
 
   // Description:
   // Setting the configuration parameters for head tracked camera
@@ -551,7 +551,10 @@ protected:
 
   // Asymmetric Frustum
   int HeadTracked;
+  vtkMatrix4x4 *HeadPose;
   vtkTransform *Surface2Base;
+  vtkMatrix4x4 *HeadTrackedViewMat;
+
   double AsymLeft, AsymRight,  AsymBottom,  AsymTop;
   double EyePos[3];
   double O2Screen;
@@ -564,6 +567,7 @@ protected:
 
   // temp
   vtkMatrix4x4 *eyePosMat;
+  vtkMatrix4x4 *negEyePosMat;
   vtkMatrix4x4 *eyeOffsetMat;
 
 private:
