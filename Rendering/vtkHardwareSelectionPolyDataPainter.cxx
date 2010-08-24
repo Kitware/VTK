@@ -86,6 +86,14 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
     }
   vtkPolyData* pd = this->GetInputAsPolyData();
   this->TotalCells = vtkHardwareSelectionPolyDataPainterGetTotalCells(pd, typeflags);
+
+  if (this->TotalCells == 0)
+    {
+    // skip empty polydatas.
+    this->TimeToDraw = 0;
+    return;
+    }
+
   this->Timer->StartTimer();
   vtkIdType startCell = 0;
 
