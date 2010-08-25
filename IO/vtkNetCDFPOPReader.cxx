@@ -223,10 +223,10 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   vtkRectilinearGrid *rgrid = vtkRectilinearGrid::SafeDownCast(output);
   rgrid->SetExtent(subext);
 
-  int rStride[3];
-  rStride[0] = this->Stride[2];
-  rStride[1] = this->Stride[1];
-  rStride[2] = this->Stride[0];
+  ptrdiff_t rStride[3];
+  rStride[0] = (ptrdiff_t)this->Stride[2];
+  rStride[1] = (ptrdiff_t)this->Stride[1];
+  rStride[2] = (ptrdiff_t)this->Stride[0];
 
   //reads data and draws rectilinear grid
   int counter=0;
