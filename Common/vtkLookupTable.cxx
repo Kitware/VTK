@@ -960,6 +960,9 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << this->ValueRange[1] << ")\n";
   os << indent << "AlphaRange: (" << this->AlphaRange[0] << ", "
      << this->AlphaRange[1] << ")\n";
+  os << indent << "NanColor: (" << this->NanColor[0] << ", "
+     << this->NanColor[1] << ", " << this->NanColor[2] << ", "
+     << this->NanColor[3] << ")\n";
   os << indent << "NumberOfTableValues: "
      << this->GetNumberOfTableValues() << "\n";
   os << indent << "NumberOfColors: " << this->NumberOfColors << "\n";

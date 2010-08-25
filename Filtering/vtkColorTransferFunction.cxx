@@ -1589,6 +1589,10 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars << endl;
 
+  os << indent << "NanColor: "
+     << this->NanColor[0] << ", " << this->NanColor[1] << ", "
+     << this->NanColor[2] << ", " << this->NanColor[3] << endl;
+
   unsigned int i;
   for( i = 0; i < this->Internal->Nodes.size(); i++ )
     {
