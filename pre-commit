@@ -114,14 +114,49 @@ check_mode() {
 
 size_max_KiB=$(git config hooks.MaxObjectKiB)
 test -n "$size_max_KiB" || size_max_KiB=1024
+size_too_large_once=""
+size_too_large_once() {
+	test -z "$size_too_large_once" || return ; size_too_large_once=done
+	echo 'At least one file is staged for commit with size larger than its limit.
+We prefer to keep large files out of the main source tree, especially
+binary files that do not compress well.  This hook disallows large files
+by default but can be configured.  A limit for specific files or patterns
+may be set in ".gitattributes" with the "hooks.MaxObjectKiB" attribute.
+For example, the line
+
+  *.c              hooks.MaxObjectKiB=2048
+
+sets a limit of 2048 KiB for C source files.  See "git help attributes"
+for details on the .gitattributes format.  If no attribute has been set
+for a given file then its size is limited by the local default.  Run
+
+  git config hooks.MaxObjectKiB $KiB
+
+to set the local default limit (0 to disable).
+'
+}
 size_too_large() {
-	echo "The path '$file' has size $file_KiB KiB, greater than the maximum $size_max_KiB KiB."
-	echo 'Run "git config hooks.MaxObjectKiB $KiB" to set local limit, 0 to disable.'
+	size_too_large_once
+	echo "The path '$file' has size $file_KiB KiB, greater than allowed $max_KiB KiB."
+}
+size_validate_max_KiB() {
+	test "$max_KiB" -ge "0" 2>/dev/null && return 0
+	echo "The path '$file' has invalid attribute \"hooks-MaxObjectKiB=$max_KiB\"."
+	return 1
 }
 check_size() {
-	if test "$size_max_KiB" -gt "0" -a "$dst_obj" != "$zero"; then
+	test "$dst_obj" != "$zero" || return
+	max_KiB=$(git check-attr hooks.MaxObjectKiB -- "$file" |
+		  sed 's/^[^:]*: hooks.MaxObjectKiB: //')
+	case "$max_KiB" in
+		'unset')       return ;; # No maximum for this object.
+		'set')         max_KiB="$size_max_KiB" ;; # Use local default.
+		'unspecified') max_KiB="$size_max_KiB" ;; # Use local default.
+		*) size_validate_max_KiB || return ;;
+	esac
+	if test "$max_KiB" -gt "0"; then
 		file_KiB=$(expr '(' $(git cat-file -s "$dst_obj") + 1023 ')' / 1024)
-		test "$file_KiB" -le "$size_max_KiB" || size_too_large
+		test "$file_KiB" -le "$max_KiB" || size_too_large
 	fi
 }
 
