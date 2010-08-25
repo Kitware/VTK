@@ -163,6 +163,12 @@ public:
   void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); };
   void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); };
   vtkGetMacro(Scale,int);
+
+  // Description:
+  // Set the color to use when a NaN (not a number) is encountered.  This is an
+  // RGB 3-tuple color of doubles in the range [0,1].
+  vtkSetVector3Macro(NanColor, double);
+  vtkGetVector3Macro(NanColor, double);
     
   // Description:
   // Returns a list of all nodes
@@ -203,6 +209,9 @@ protected:
 
   // The color interpolation scale (linear or logarithmic).
   int Scale;
+
+  // The color to use for not-a-number.
+  double NanColor[3];
   
   double     *Function;
   

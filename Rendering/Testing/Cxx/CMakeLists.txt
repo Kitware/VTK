@@ -83,6 +83,7 @@ IF(VTK_USE_DISPLAY)
   IF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
   SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
+      RenderNonFinite.cxx
       SurfacePlusEdges.cxx
       TestLabelPlacementMapper.cxx
       )
