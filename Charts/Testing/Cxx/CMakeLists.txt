@@ -43,6 +43,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     # Set the tolerance higher for a few tests that need it
     SET(TestLinePlotError 25)
     SET(TestLinePlotInteractionError 25)
+    SET(TestMultipleRenderersError 25)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)
