@@ -64,6 +64,7 @@ int TestDiagram( int, char * [] )
   VTK_CREATE(vtkRenderWindowInteractor, interactor);
   interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
+  interactor->Initialize();
   interactor->Start();
   return EXIT_SUCCESS;
 }

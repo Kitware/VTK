@@ -106,6 +106,7 @@ int TestGLSL( int, char * [] )
 
   if (test->IsCompiled)
     {
+    view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
     }
   else

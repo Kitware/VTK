@@ -196,6 +196,7 @@ int TestLinePlotInteraction(int, char * [])
   // testing option fails.
   recorder->Off();
 
+  view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
 
   return EXIT_SUCCESS;
