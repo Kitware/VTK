@@ -60,7 +60,7 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->Filename = NULL;
+  this->FileName = NULL;
   this->Stride[0] = this->Stride[1] = this->Stride[2] = 1;
   this->VariableArraySelection =
     vtkSmartPointer<vtkDataArraySelection>::New();
@@ -81,9 +81,9 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
 //delete filename and netcdf file descriptor
 vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
 {
-  if (this->Filename)
+  if (this->FileName)
     {
-    delete[] this->Filename;
+    delete[] this->FileName;
     }
   nc_close(this->NCDFFD);
   this->SelectionObserver->Delete();
@@ -95,7 +95,7 @@ void vtkNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "FileName: "
-     << (this->Filename ? this->Filename : "(NULL)") << endl;
+     << (this->FileName ? this->FileName : "(NULL)") << endl;
 
   os << indent << "VariableArraySelection:" << endl;
 
@@ -117,7 +117,7 @@ int vtkNetCDFPOPReader::RequestInformation(
     vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  int retval = nc_open(this->Filename, NC_NOWRITE, &this->NCDFFD);//read file
+  int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
   if (retval != NC_NOERR)//checks if read file error
     {
     vtkErrorMacro(<< "can't read file " << nc_strerror(retval));

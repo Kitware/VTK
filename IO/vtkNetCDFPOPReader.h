@@ -43,8 +43,8 @@ public:
 
   //Description:
   //The file to open
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   //Description:
   //Enable subsampling in i,j and k dimensions
@@ -86,7 +86,7 @@ protected:
   //if 0, don't draw, if set to 1, draw out the rectilinear grid
   vtkCallbackCommand* SelectionObserver;
 
-  char *Filename;
+  char *FileName;
 
   int NCDFFD; //netcdf file descriptor
   int NVarsp; //number of variables
