@@ -29,13 +29,9 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
-
-
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 
 // Monthly checkout data
 static const char *month_labels[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -126,9 +122,8 @@ int TestStackedPlot( int argc, char * argv [] )
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
-
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
+  view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

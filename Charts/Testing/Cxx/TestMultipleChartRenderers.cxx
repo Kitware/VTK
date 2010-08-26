@@ -20,7 +20,6 @@
 #include "vtkContextActor.h"
 #include "vtkFloatArray.h"
 #include "vtkPlot.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
@@ -108,8 +107,8 @@ int TestMultipleChartRenderers( int argc, char * argv [] )
     line->SetWidth(4.0);
     }
 
-  int retVal = vtkRegressionTestImage(iren->GetRenderWindow());
+  iren->Initialize();
   iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

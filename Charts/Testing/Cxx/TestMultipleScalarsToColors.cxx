@@ -29,7 +29,6 @@
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -154,12 +153,8 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
       }
     }
 
-  int retVal = vtkRegressionTestImage(renwin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Initialize();
-    iren->Start();
-    }
+  iren->Initialize();
+  iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }
