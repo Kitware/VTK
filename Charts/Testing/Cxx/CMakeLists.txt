@@ -40,6 +40,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
         TestGLSL.cxx
         )
     ENDIF(VTK_USE_GLSL_SHADERS)
+    # Set the tolerance higher for a few tests that need it
+    SET(TestLinePlotError 25)
+    SET(TestLinePlotInteractionError 25)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)
@@ -68,10 +71,16 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   FOREACH (test ${TestsToRun})
     GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
     IF (VTK_DATA_ROOT)
+      IF(${${TName}Error})
+        SET(_error_threshold ${${TName}Error})
+      ELSE()
+        SET(_error_threshold 10)
+      ENDIF()
       ADD_TEST(Charts-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_BINARY_DIR}/Testing/Temporary
-        -V Baseline/${KIT}/${TName}.png)
+        -V Baseline/${KIT}/${TName}.png
+        -E ${_error_threshold})
     ELSE (VTK_DATA_ROOT)
       ADD_TEST(Charts-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
     ENDIF (VTK_DATA_ROOT)
