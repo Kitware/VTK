@@ -30,8 +30,7 @@ std::string  vtkTestingInteractor::DataDirectory;
 // to grab the render window and compare the results to a baseline image
 void vtkTestingInteractor::Start()
 {
-  vtkSmartPointer<vtkTesting> testing =
-    vtkSmartPointer<vtkTesting>::New();
+  vtkSmartPointer<vtkTesting> testing = vtkSmartPointer<vtkTesting>::New();
   testing->SetRenderWindow(this->GetRenderWindow());
 
   // Location of the temp directory for testing
@@ -48,5 +47,6 @@ void vtkTestingInteractor::Start()
   testing->AddArgument(valid.c_str());
 
   // Regression test the image
-  vtkTestingInteractor::TestReturnStatus = testing->RegressionTest(vtkTestingInteractor::ErrorThreshold);
+  vtkTestingInteractor::TestReturnStatus =
+      testing->RegressionTest(vtkTestingInteractor::ErrorThreshold);
 }
