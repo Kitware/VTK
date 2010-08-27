@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # From Gerrit Code Review 2.1.5
 #
 # Part of Gerrit Code Review (http://code.google.com/p/gerrit/)
