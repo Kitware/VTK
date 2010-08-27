@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#
-# Copy or link this file as ".git/hooks/pre-commit".
 
 # Prepare a copy of the message:
 #  - strip comment lines

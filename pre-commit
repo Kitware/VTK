@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#
-# Copy or link this file as ".git/hooks/pre-commit".
 
 die() {
 	echo 'pre-commit hook failure' 1>&2
