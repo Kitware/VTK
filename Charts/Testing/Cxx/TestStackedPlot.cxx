@@ -43,7 +43,7 @@ static int audiobook[] =   {903, 1038,  987, 1073, 1144, 1203, 1173, 1196, 1213,
 static int video[] =      {1524, 1565, 1627, 1445, 1179, 1816, 2293, 1811, 1588, 1561, 1542, 1563};
 
 //----------------------------------------------------------------------------
-int TestStackedPlot( int argc, char * argv [] )
+int TestStackedPlot(int , char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   VTK_CREATE(vtkContextView, view);

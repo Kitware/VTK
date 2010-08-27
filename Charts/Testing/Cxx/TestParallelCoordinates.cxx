@@ -29,7 +29,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestParallelCoordinates(int argc, char* argv[])
+int TestParallelCoordinates(int , char* [])
 {
   // Set up a 2D scene, add an XY chart to it
   VTK_CREATE(vtkContextView, view);

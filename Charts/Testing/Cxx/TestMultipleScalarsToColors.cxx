@@ -38,7 +38,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestMultipleScalarsToColors( int argc, char * argv [] )
+int TestMultipleScalarsToColors(int , char * [])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
