@@ -31,7 +31,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestMultipleChartRenderers( int argc, char * argv [] )
+int TestMultipleChartRenderers(int , char * [])
 {
 
   VTK_CREATE(vtkRenderWindow, renwin);

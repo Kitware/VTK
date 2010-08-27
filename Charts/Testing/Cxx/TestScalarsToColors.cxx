@@ -39,7 +39,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestScalarsToColors( int argc, char * argv [] )
+int TestScalarsToColors(int ,  char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkSmartPointer<vtkContextView> view =
