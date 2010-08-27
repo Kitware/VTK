@@ -320,7 +320,7 @@ double *vtkViewport::GetCenter()
 
     // get physical window dimensions
     size = this->GetVTKWindow()->GetSize();
-    if (!size)
+    if (size)
       {
       this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
                          /2.0*size[0]);
