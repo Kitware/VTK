@@ -44,6 +44,7 @@ ENDIF()
 SET ( QVTKNonMocHeaders
     QVTKWin32Header.h
     vtkEventQtSlotConnect.h
+    QVTKInteractor.h
     )
 
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )

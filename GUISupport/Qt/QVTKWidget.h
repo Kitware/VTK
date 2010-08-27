@@ -37,7 +37,7 @@
 #define Q_VTK_WIDGET_H
 
 #include <QtGui/QWidget>
-#include "QVTKInteractor.h"
+class QVTKInteractor;
 class QVTKInteractorAdapter;
 
 class vtkRenderWindow;
