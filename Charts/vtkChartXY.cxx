@@ -703,13 +703,13 @@ void vtkChartXY::UpdateLayout(vtkContext2D* painter)
       float hiddenBorder(this->HiddenAxisBorder);
       if (i == 1 || i == 3)
         {// Horizontal axes
-        border = bounds.GetHeight() < hiddenBorder ? hiddenBorder :
-                                                     bounds.GetHeight();
+        border = int(bounds.GetHeight() < hiddenBorder ? hiddenBorder :
+                                                         bounds.GetHeight());
         }
       else
         {// Vertical axes
-        border = bounds.GetWidth() < hiddenBorder ? hiddenBorder :
-                                                    bounds.GetWidth();
+        border = int(bounds.GetWidth() < hiddenBorder ? hiddenBorder :
+                                                        bounds.GetWidth());
         }
       }
     if (this->ChartPrivate->Borders[i] != border)
