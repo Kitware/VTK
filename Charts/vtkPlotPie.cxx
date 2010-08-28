@@ -82,8 +82,8 @@ vtkPlotPie::vtkPlotPie()
   this->ColorSeries = vtkSmartPointer<vtkColorSeries>::New();
   this->Points = 0;
   this->Private = new vtkPlotPiePrivate();
-  this->Dimensions[0] = this->Dimensions[0] = this->Dimensions[0] =
-    this->Dimensions[0] = 0;
+  this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] =
+    this->Dimensions[3] = 0;
 }
 
 //-----------------------------------------------------------------------------
