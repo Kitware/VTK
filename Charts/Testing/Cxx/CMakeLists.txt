@@ -44,6 +44,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     SET(TestLinePlotError 25)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)
+    SET(TestMultipleScalarsToColorsError 25)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)
@@ -54,6 +55,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
         TestQtDiagram.cxx
         TestQtContextUnicode.cxx
         )
+      SET(TestQtDiagramError 25)
+      SET(TestQtContextUnicodeError 30)
     ENDIF (VTK_DATA_ROOT)
   ENDIF(VTK_USE_QT)
   # Use the testing object factory, to reduce boilerplate code in tests.
