@@ -108,6 +108,7 @@ vtkParticleReader.cxx
 vtkPolyDataReader.cxx
 vtkPolyDataWriter.cxx
 vtkPostScriptWriter.cxx
+vtkProStarReader.cxx
 vtkRectilinearGridReader.cxx
 vtkRectilinearGridWriter.cxx
 vtkRTXMLPolyDataReader.cxx
