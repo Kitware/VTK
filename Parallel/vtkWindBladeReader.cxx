@@ -177,14 +177,6 @@ void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "FileName: "
      << (this->Filename ? this->Filename : "(NULL)") << endl;
 
-  os << indent << "WholeExent: {" << this->WholeExtent[0] << ", "
-     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
-     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << "}" << endl;
-  os << indent << "SubExtent: {" << this->SubExtent[0] << ", "
-     << this->SubExtent[1] << ", " << this->SubExtent[2] << ", "
-     << this->SubExtent[3] << ", " << this->SubExtent[4] << ", "
-     << this->SubExtent[5] << "}" << endl;
   os << indent << "VariableArraySelection:" << endl;
   this->PointDataArraySelection->PrintSelf(os, indent.GetNextIndent());
 }

@@ -75,6 +75,8 @@ vtkNetCDFPOPReader::vtkNetCDFPOPReader()
     //records what variable to output, default is 0, to output is 1
     this->Draw[f]=0;
     }
+  this->NVarspw=0;
+
 }
 
 //----------------------------------------------------------------------------
