@@ -79,4 +79,44 @@ cat "$commit_msg" |
 while IFS='' read line; do
 	msg_$state || break
 done &&
-rm -f "$commit_msg"
+rm -f "$commit_msg" || exit 1
+
+#-----------------------------------------------------------------------------
+# Optionally run Gerrit's commit-msg hook to add a Change-Id line.
+
+gerrit_advice() {
+	gerrits=$(git config -l |grep '^remote\.[^=]\+url=.*review.*$')
+	test "x$gerrits" != "x" || return
+
+	echo 'Some config values look like Gerrit Code Review URLs:'
+	echo ''
+	echo "$gerrits" | sed 's/^/  /'
+	echo '
+This hook can automatically add a "Change-Id" footer to commit messages
+to make interaction with Gerrit easier.  To enable this feature, run
+
+  git config hooks.GerritId true
+
+Then run "git commit --amend" to fix this commit.  Otherwise, run
+
+  git config hooks.GerritId false
+
+to disable the feature and this message.'
+}
+
+gerrit_error() {
+	die 'non-bool config value hooks.GerritId = '"$hooks_GerritId"
+}
+
+gerrit_hook() {
+	"$GIT_DIR/hooks/gerrit/commit-msg" "$@" ||
+	die 'gerrit/commit-msg failed'
+}
+
+hooks_GerritId=$(git config --get hooks.GerritId)
+case "$hooks_GerritId" in
+	'true')  gerrit_hook "$@" ;;
+	'false') ;;
+	'')      gerrit_advice ;;
+	*)       gerrit_error ;;
+esac
