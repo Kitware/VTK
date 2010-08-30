@@ -68,33 +68,30 @@ fi
 # Builtin whitespace checks.
 bad=$(git diff-index --check --cached $against --) || die "$bad"
 
-#-----------------------------------------------------------------------------
-# Reject leading TABs.
+# Approximate whitespace=tab-in-indent check with Git < 1.7.2.
 check_tab() {
-	git diff-index -p --cached $against -- "$1" |
-	grep '^+	' > /dev/null &&
-	echo "  $1"
+	lines=$(git diff-index -p --cached $against -- "$1" |
+	        grep '^+	') &&
+	echo "$lines" |
+	while read line; do
+		echo "$1: tab in indent." &&
+		echo "$line"
+	done
 }
-check_file() {
-	case "$1" in
-		*.c)		check_tab "$1" ;;
-		*.h)		check_tab "$1" ;;
-		*.cxx)		check_tab "$1" ;;
-		*.txx)		check_tab "$1" ;;
-		*.hxx)		check_tab "$1" ;;
-		*.htm)		check_tab "$1" ;;
-		*.html)		check_tab "$1" ;;
-		*.txt)		check_tab "$1" ;;
-		*.cmake)	check_tab "$1" ;;
+approx_tab_in_indent() {
+	ws=$(git check-attr whitespace -- "$file" |
+	     sed 's/^[^:]*: whitespace: //')
+	case ",$ws," in
+		*,tab-in-indent,*) check_tab "$1" ;;
 	esac
 }
-bad=$(git diff-index --name-only --cached $against -- |
-while read file; do
-	check_file "$file"
-done)
-test -z "$bad" || die 'Leading TABs added in
-'"$bad"'
-Convert them to spaces (2 per TAB) before commit.'
+if git --version | grep " \(1\.[0-6]\|1\.7\.[01]\)" >/dev/null; then
+	bad=$(git diff-index --name-only --cached $against -- |
+	while read file; do
+		approx_tab_in_indent "$file"
+	done)
+	test -z "$bad" || die "$bad"
+fi
 
 #-----------------------------------------------------------------------------
 # Check file modes and sizes.
