@@ -57,7 +57,28 @@ vtkVPICReader::vtkVPICReader()
                                              this->SelectionObserver);
   // External VPICDataSet for actually reading files
   this->vpicData = 0;
-  
+  this->exchanger = 0;
+  this->VariableName = 0;
+  this->VariableStruct = 0;
+  this->TimeSteps = 0;
+  this->dataLoaded = 0;
+  this->data = 0;
+
+  // One overlap cell on first plane and one extra on last plane
+  this->ghostLevel0 = 1;
+  this->ghostLevel1 = 2;
+
+  this->Stride[0] = 1;
+  this->Stride[1] = 1;
+  this->Stride[2] = 1;
+
+  this->XLayout[0] = 1;
+  this->YLayout[0] = 1;
+  this->ZLayout[0] = 1;
+  this->XLayout[1] = -1;
+  this->YLayout[1] = -1;
+  this->ZLayout[1] = -1;
+
   this->MPIController = vtkMultiProcessController::GetGlobalController();
   
   if(this->MPIController)

@@ -95,6 +95,7 @@ vtkPCosmoHaloFinder::vtkPCosmoHaloFinder()
       this->SetController(vtkSmartPointer<vtkDummyController>::New());
     }
 
+  this->NP = 0;
   this->RL = 90.140846;
   this->Overlap = 5;
   this->BB = .2;
