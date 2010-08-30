@@ -26,7 +26,8 @@ die() {
 	echo '-----------------------' 1>&2
 	echo '' 1>&2
 	echo "$@" 1>&2
-	echo 'To continue editing, run the command
+	echo '
+To continue editing, run the command
   git commit -e -F '"$commit_msg"'
 (assuming your working directory is at the top).' 1>&2
 	exit 1
@@ -44,18 +45,15 @@ msg_first() {
 		die 'The first line must be at least 8 characters:
 --------
 '"$line"'
---------
-'
+--------'
 	elif test $len -gt 78; then
 		die 'The first line may be at most 78 characters:
 ------------------------------------------------------------------------------
 '"$line"'
-------------------------------------------------------------------------------
-'
+------------------------------------------------------------------------------'
 	elif echo "$line" | grep "^[	 ]\|[	 ]$" >/dev/null 2>&1; then
 		die 'The first line may not have leading or trailing space:
-['"$line"']
-'
+['"$line"']'
 	else
 		# first line okay
 		state=second
