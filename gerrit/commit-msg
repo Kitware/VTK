@@ -83,6 +83,7 @@ add_ChangeId() {
 		$_ = join("\n", @message, @footer);
 		open(O, ">$MSG"); print O; close O;
 	' "$MSG" "$id" "$CHANGE_ID_AFTER"
+	echo "Added Change-Id: I$id"
 }
 _gen_ChangeIdInput() {
 	echo "tree $(git write-tree)"
