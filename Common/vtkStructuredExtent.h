@@ -25,7 +25,7 @@
 
 #include "vtkObject.h"
 
-class VTK_HYBRID_EXPORT vtkStructuredExtent : public vtkObject
+class VTK_COMMON_EXPORT vtkStructuredExtent : public vtkObject
 {
 public:
   static vtkStructuredExtent* New();

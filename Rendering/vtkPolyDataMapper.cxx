@@ -44,6 +44,7 @@ vtkPolyDataMapper::vtkPolyDataMapper()
   this->GhostLevel = 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act) 
 {
   if (this->Static)
@@ -53,7 +54,7 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     }
   
   int currentPiece, nPieces;
-  vtkPolyData *input = this->GetInput();
+  vtkDataObject *input = this->GetInputDataObject(0, 0);
   
   if (input == NULL)
     {
@@ -142,7 +143,7 @@ double *vtkPolyDataMapper::GetBounds()
 
       this->Update();
       }
-    this->GetInput()->GetBounds(this->Bounds);
+    this->ComputeBounds();
 
     // if the bounds indicate NAN and subpieces are being used then 
     // return NULL
@@ -153,6 +154,11 @@ double *vtkPolyDataMapper::GetBounds()
       }
     return this->Bounds;
     }
+}
+
+void vtkPolyDataMapper::ComputeBounds()
+{
+  this->GetInput()->GetBounds(this->Bounds);
 }
 
 void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)

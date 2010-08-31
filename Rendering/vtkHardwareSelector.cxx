@@ -28,6 +28,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
+#include "vtkStructuredExtent.h"
 
 #include <vtkstd/set>
 #include <vtkstd/map>
@@ -63,6 +64,7 @@ vtkHardwareSelector::vtkHardwareSelector()
     }
   this->CurrentPass = -1;
   this->ProcessID = -1;
+  this->InPropRender = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -234,6 +236,11 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::BeginRenderProp()
 {
+  this->InPropRender++;
+  if (this->InPropRender != 1)
+    {
+    return;
+    }
   // Ensure that blending/lighting/multisampling is off.
   vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
@@ -270,16 +277,57 @@ void vtkHardwareSelector::BeginRenderProp()
     this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
+  else
+    {
+    float color[3] = {0, 0, 0};
+    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::EndRenderProp()
 {
-  vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
-    GetPainterDeviceAdapter();
-  device->MakeMultisampling(this->Internals->OriginalMultisample);
-  device->MakeLighting(this->Internals->OriginalLighting);
-  device->MakeBlending(this->Internals->OriginalBlending);
+  if (this->InPropRender)
+    {
+    this->InPropRender--;
+    if (this->InPropRender != 0)
+      {
+      return;
+      }
+    vtkPainterDeviceAdapter* device = this->Renderer->GetRenderWindow()->
+      GetPainterDeviceAdapter();
+    device->MakeMultisampling(this->Internals->OriginalMultisample);
+    device->MakeLighting(this->Internals->OriginalLighting);
+    device->MakeBlending(this->Internals->OriginalBlending);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
+{
+
+  if (index > 0xffffff)
+    {
+    vtkErrorMacro("Indices > 0xffffff are not supported.");
+    return;
+    }
+
+  // For composite-index, we don't bother offsetting for 0, since 0 composite
+  // index is nonsensical anyways. 0 composite index means non-composite dataset
+  // which is default, so we need not bother rendering it.
+  if (index == 0)
+    {
+    return;
+    }
+
+  if (this->CurrentPass == COMPOSITE_INDEX_PASS)
+    {
+    float color[3];
+    vtkHardwareSelector::Convert(static_cast<int>(0xffffff & index), color);
+    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -362,10 +410,8 @@ bool vtkHardwareSelector::IsPropHit(int id)
 }
 
 //----------------------------------------------------------------------------
-bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
-  int& processid,
-  vtkIdType& attrId, vtkProp*& prop,
-  int maxDist)
+vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
+  unsigned int display_position[2], int maxDist)
 {
   // Base case
   if (maxDist == 0)
@@ -373,48 +419,53 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
     if (display_position[0] < this->Area[0] || display_position[0] > this->Area[2] ||
       display_position[1] < this->Area[1] || display_position[1] > this->Area[3])
       {
-      processid=-1;
-      attrId=-1;
-      prop = 0;
-      return false;
+      return PixelInformation();
       }
 
-    int actorid = this->Convert(display_position[0], display_position[1], this->PixBuffer[ACTOR_PASS]);
+    int actorid = this->Convert(display_position, this->PixBuffer[ACTOR_PASS]);
     if (actorid <= 0)
       {
       // the pixel did not hit any actor.
-      processid=-1;
-      attrId=-1;
-      prop = 0;
-      return false;
+      return PixelInformation();
       }
-    actorid--;
-    prop = this->Internals->Props[actorid];
 
-    int low24 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_LOW24]);
-    int mid24 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_MID24]);
-    int high16 = this->Convert(display_position[0], display_position[1], this->PixBuffer[ID_HIGH16]);
+    PixelInformation info;
+    info.Valid = true;
+
+    actorid--;
+    info.PropID = actorid;
+    info.Prop = this->Internals->Props[actorid];
+
+    int composite_id = this->Convert(display_position,
+      this->PixBuffer[COMPOSITE_INDEX_PASS]);
+    if (composite_id < 0 || composite_id > 0xffffff)
+      {
+      composite_id = 0;
+      }
+    info.CompositeID = static_cast<unsigned int>(composite_id);
+
+    int low24 = this->Convert(display_position, this->PixBuffer[ID_LOW24]);
+    int mid24 = this->Convert(display_position, this->PixBuffer[ID_MID24]);
+    int high16 = this->Convert(display_position, this->PixBuffer[ID_HIGH16]);
     // id 0 is reserved for nothing present.
-    attrId = this->GetID(low24, mid24, high16);
-    attrId = (attrId - ID_OFFSET);
-    if (attrId < 0)
+    info.AttributeID = (this->GetID(low24, mid24, high16) - ID_OFFSET);
+    if (info.AttributeID < 0)
       {
       // the pixel did not hit any cell.
-      processid=-1;
-      attrId=-1;
-      prop = 0;
-      return false;
+      return PixelInformation();
       }
 
-    processid = this->Convert(display_position[0], display_position[1], this->PixBuffer[PROCESS_PASS]);
-    processid--;
-    return true;
+    info.ProcessID = this->Convert(display_position[0], display_position[1],
+      this->PixBuffer[PROCESS_PASS]);
+    info.ProcessID--;
+    return info;
     }
 
   // Iterate over successively growing boxes.
   // They recursively call the base case to handle single pixels.
   int disp_pos[2] = {display_position[0], display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
+  PixelInformation info;
   for (int dist = 0; dist < maxDist; ++dist)
     {
     // Vertical sides of box.
@@ -422,14 +473,17 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
       {
       cur_pos[0] = static_cast<unsigned int>(disp_pos[0] - dist);
       cur_pos[1] = static_cast<unsigned int>(y);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       cur_pos[0] = static_cast<unsigned int>(disp_pos[0] + dist);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       }
     // Horizontal sides of box.
@@ -437,23 +491,79 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
       {
       cur_pos[0] = static_cast<unsigned int>(x);
       cur_pos[1] = static_cast<unsigned int>(disp_pos[1] - dist);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       cur_pos[1] = static_cast<unsigned int>(disp_pos[1] + dist);
-      if (this->GetPixelInformation(cur_pos, processid, attrId, prop, 0))
+      info = this->GetPixelInformation(cur_pos, 0);
+      if (info.Valid)
         {
-        return true;
+        return info;
         }
       }
     }
 
   // nothing hit.
-  processid=-1;
-  attrId=-1;
-  prop = 0;
-  return false;
+  return PixelInformation();
+}
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
+  int& processid,
+  vtkIdType& attrId, vtkProp*& prop,
+  int maxDist)
+{
+  PixelInformation info = this->GetPixelInformation(display_position, maxDist);
+  processid = info.ProcessID;
+  attrId = info.AttributeID;
+  prop = info.Prop;
+  return info.Valid;
+}
+
+bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
+  int& processid, vtkIdType& attrId, vtkProp*& prop)
+{
+  PixelInformation info = this->GetPixelInformation(display_position, 0);
+  processid = info.ProcessID;
+  attrId = info.AttributeID;
+  prop = info.Prop;
+  return info.Valid;
+}
+
+#endif // !defined(VTK_LEGACY_REMOVE)
+
+namespace
+{
+  class PixelInformationComparator
+    {
+  public:
+    bool operator() (const vtkHardwareSelector::PixelInformation& a,
+      const vtkHardwareSelector::PixelInformation& b)
+      {
+      if (a.Valid != b.Valid)
+        {
+        return a.Valid < b.Valid;
+        }
+      if (a.ProcessID != b.ProcessID)
+        {
+        return a.ProcessID < b.ProcessID;
+        }
+      if (a.Prop != b.Prop)
+        {
+        return a.Prop < b.Prop;
+        }
+      if (a.PropID != b.PropID)
+        {
+        return a.PropID < b.PropID;
+        }
+      return a.CompositeID < b.CompositeID;
+
+      // We don't consider AttributeID in this comparison
+      }
+    };
 }
 
 //----------------------------------------------------------------------------
@@ -461,99 +571,80 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
   unsigned int x1, unsigned int y1,
   unsigned int x2, unsigned int y2)
 {
-  // Clamp to saved region
-  x1 = x1 < this->Area[0] ? this->Area[0] : x1;
-  x1 = x1 > this->Area[2] ? this->Area[2] : x1;
-  x2 = x2 < this->Area[0] ? this->Area[0] : x2;
-  x2 = x2 > this->Area[2] ? this->Area[2] : x2;
-  y1 = y1 < this->Area[1] ? this->Area[1] : y1;
-  y1 = y1 > this->Area[3] ? this->Area[3] : y1;
-  y2 = y2 < this->Area[1] ? this->Area[1] : y2;
-  y2 = y2 > this->Area[3] ? this->Area[3] : y2;
+  int extent[6] = { x1, x2, y1, y2, 0, 0};
+  int whole_extent[6] = {this->Area[0], this->Area[2], this->Area[1],
+    this->Area[3], 0, 0};
+  vtkStructuredExtent::Clamp(extent, whole_extent);
 
-  typedef vtkstd::map<int, vtkstd::map<int, vtkstd::set<vtkIdType> > > MapType;
-  MapType dataMap;
+  typedef vtkstd::map<PixelInformation, vtkstd::set<vtkIdType>,
+          PixelInformationComparator> MapOfAttributeIds;
+  MapOfAttributeIds dataMap;
 
-  typedef vtkstd::map<int, vtkstd::map<int, vtkIdType> > PixelCountType;
+  typedef vtkstd::map<PixelInformation, vtkIdType, PixelInformationComparator> PixelCountType;
   PixelCountType pixelCounts;
 
   for (int yy = y1 - Area[1]; yy <= static_cast<int>(y2 - this->Area[1]); yy++)
     {
     for (int xx = x1 - Area[0]; xx <= static_cast<int>(x2 - this->Area[0]); xx++)
       {
-      int processid = this->Convert(xx, yy, this->PixBuffer[PROCESS_PASS]);
-      processid--;
-
-      int actorid = this->Convert(xx, yy, this->PixBuffer[ACTOR_PASS]);
-      if (actorid <= 0)
+      unsigned int pos[2] = {xx, yy};
+      PixelInformation info = this->GetPixelInformation(pos, 0);
+      if (info.Valid)
         {
-        // the pixel did not hit any actor.
-        continue;
+        dataMap[info].insert(info.AttributeID);
+        pixelCounts[info]++;
         }
-      actorid--;
-
-      int low24 = this->Convert(xx, yy, this->PixBuffer[ID_LOW24]); 
-      int mid24 = this->Convert(xx, yy, this->PixBuffer[ID_MID24]);
-      int high16 = this->Convert(xx, yy, this->PixBuffer[ID_HIGH16]);
-      // id 0 is reserved for nothing present.
-      vtkIdType elemid = this->GetID(low24, mid24, high16);
-      elemid = (elemid - ID_OFFSET);
-      if (elemid < 0)
-        {
-        continue;
-        }
-      dataMap[processid][actorid].insert(elemid);
-      pixelCounts[processid][actorid]++;
       }
     }
 
   vtkSelection* sel = vtkSelection::New();
 
-  MapType::iterator procIter;
-  for (procIter = dataMap.begin(); procIter != dataMap.end(); ++procIter)
+  MapOfAttributeIds::iterator iter;
+  for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
     {
-    int processid = procIter->first;
-    vtkstd::map<int, vtkstd::set<vtkIdType> >::iterator iter;
-    for (iter = procIter->second.begin(); iter != procIter->second.end(); ++iter)
+    const PixelInformation &key = iter->first;
+    vtkstd::set<vtkIdType> &id_values = iter->second;
+    vtkSelectionNode* child = vtkSelectionNode::New();
+    child->SetContentType(vtkSelectionNode::INDICES);
+    switch (this->FieldAssociation)
       {
-      vtkSelectionNode* child = vtkSelectionNode::New();
-      child->SetContentType(vtkSelectionNode::INDICES);
-      switch (this->FieldAssociation)
-        {
-      case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-        child->SetFieldType(vtkSelectionNode::CELL);
-        break;
+    case vtkDataObject::FIELD_ASSOCIATION_CELLS:
+      child->SetFieldType(vtkSelectionNode::CELL);
+      break;
 
-      case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-        child->SetFieldType(vtkSelectionNode::POINT);
-        break;
-        }
-      child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), iter->first);
-      child->GetProperties()->Set(vtkSelectionNode::PROP(),
-        this->Internals->Props[iter->first]);
-      child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(),
-        pixelCounts[processid][iter->first]);
-      if (processid >= 0)
-        {
-        child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(), processid);
-        }
-
-      vtkIdTypeArray* ids = vtkIdTypeArray::New();
-      ids->SetName("SelectedIds");
-      ids->SetNumberOfComponents(1);
-      ids->SetNumberOfTuples(iter->second.size());
-      vtkstd::set<vtkIdType>::iterator idIter;
-      vtkIdType cc=0;
-      for (idIter = iter->second.begin(); idIter != iter->second.end();
-        ++idIter, ++cc)
-        {
-        ids->SetValue(cc, *idIter);
-        }
-      child->SetSelectionList(ids);
-      ids->Delete();
-      sel->AddNode(child);
-      child->Delete();
+    case vtkDataObject::FIELD_ASSOCIATION_POINTS:
+      child->SetFieldType(vtkSelectionNode::POINT);
+      break;
       }
+    child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), key.PropID);
+    child->GetProperties()->Set(vtkSelectionNode::PROP(), key.Prop);
+    child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(), pixelCounts[key]);
+    if (key.ProcessID >= 0)
+      {
+      child->GetProperties()->Set(vtkSelectionNode::PROCESS_ID(),
+        key.ProcessID);
+      }
+    if (key.CompositeID > 0)
+      {
+      child->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
+        key.CompositeID);
+      }
+
+    vtkIdTypeArray* ids = vtkIdTypeArray::New();
+    ids->SetName("SelectedIds");
+    ids->SetNumberOfComponents(1);
+    ids->SetNumberOfTuples(iter->second.size());
+    vtkIdType* ptr = ids->GetPointer(0);
+    vtkstd::set<vtkIdType>::iterator idIter;
+    vtkIdType cc=0;
+    for (idIter = id_values.begin(); idIter != id_values.end(); ++idIter, ++cc)
+      {
+      ptr[cc] = *idIter;
+      }
+    child->SetSelectionList(ids);
+    ids->FastDelete();
+    sel->AddNode(child);
+    child->FastDelete();
     }
 
   return sel;

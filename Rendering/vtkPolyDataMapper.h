@@ -108,6 +108,12 @@ protected:
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};
 
+  // Description:
+  // Called in GetBounds(). When this method is called, the consider the input
+  // to be updated depending on whether this->Static is set or not. This method
+  // simply obtains the bounds from the data-object and returns it.
+  virtual void ComputeBounds();
+
   int Piece;
   int NumberOfPieces;
   int NumberOfSubPieces;
