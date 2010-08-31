@@ -38,11 +38,10 @@
 #include "vtkPolyDataCollection.h"
 #include "vtkTriangleFilter.h"
 #include "vtkImageResample.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkHandleWidget.h"
 #include "vtkSphereHandleRepresentation.h"
 #include "vtkTestUtilities.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTesting.h"
 
 char TestSphereHandleWidgetEventLog[] =
 "# StreamVersion 1\n"
@@ -328,8 +327,8 @@ int TestSphereHandleWidget(int argc, char*argv[])
   vtkSmartPointer<vtkHandleWidget> widget =
     vtkSmartPointer<vtkHandleWidget>::New();
   widget->SetInteractor(iren);
-  vtkSphereHandleRepresentation *rep =
-      vtkSphereHandleRepresentation::New();
+  vtkSmartPointer<vtkSphereHandleRepresentation> rep =
+    vtkSmartPointer<vtkSphereHandleRepresentation>::New();
   widget->SetRepresentation( rep );
 
   // Let the surface constrained point-placer be the sole constraint dictating 
@@ -345,36 +344,13 @@ int TestSphereHandleWidget(int argc, char*argv[])
   rep->GetSelectedProperty()->SetColor( 0.2, 0.0, 1.0 );
 
   renWin->Render();
-
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);
-#ifdef RECORD
-  recorder->SetFileName("record.log");
-  recorder->SetEnabled(true);
-  recorder->Record();
-#else
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestSphereHandleWidgetEventLog);
-#endif
   
   iren->Initialize();
   widget->EnabledOn();
   renWin->Render();
   ren1->ResetCamera();
   ren1->ResetCameraClippingRange();
-
-#ifdef RECORD
-#else
-  recorder->Play();
-
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
-#endif
   
-  iren->Start();
-
-  return EXIT_SUCCESS;
+  return vtkTesting::InteractorEventLoop(
+      argc, argv, iren, TestSphereHandleWidgetEventLog );
 }
-

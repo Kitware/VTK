@@ -166,8 +166,8 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   vtkSmartPointer<vtkHandleWidget> widget =
     vtkSmartPointer<vtkHandleWidget>::New();
   widget->SetInteractor(iren);
-  vtkPolygonalHandleRepresentation3D *rep =
-    vtkPolygonalHandleRepresentation3D::New();
+  vtkSmartPointer<vtkPolygonalHandleRepresentation3D> rep =
+    vtkSmartPointer<vtkPolygonalHandleRepresentation3D>::New();
   widget->SetRepresentation( rep );
 
   vtkSmartPointer<vtkSphereSource> sphere =

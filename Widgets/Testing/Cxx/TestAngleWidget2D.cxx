@@ -17,7 +17,6 @@
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
-
 #include "vtkAngleWidget.h"
 #include "vtkAngleRepresentation2D.h"
 #include "vtkSphereSource.h"
@@ -27,13 +26,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkCoordinate.h"
 #include "vtkMath.h"
 #include "vtkHandleWidget.h"
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkAxisActor2D.h"
 #include "vtkProperty2D.h"
+#include "vtkTesting.h"
 
 char TestAngleWidget2DEventLog[] =
   "# StreamVersion 1\n"
@@ -402,33 +401,43 @@ int TestAngleWidget2D( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer< vtkRenderer > ren1
+    = vtkSmartPointer< vtkRenderer >::New();
+  vtkSmartPointer< vtkRenderWindow > renWin
+    = vtkSmartPointer< vtkRenderWindow >::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer< vtkRenderWindowInteractor > iren
+    = vtkSmartPointer< vtkRenderWindowInteractor >::New();
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer< vtkSphereSource > ss
+    = vtkSmartPointer< vtkSphereSource >::New();
+  vtkSmartPointer< vtkPolyDataMapper > mapper
+    = vtkSmartPointer< vtkPolyDataMapper >::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer< vtkActor > actor
+    = vtkSmartPointer< vtkActor >::New();
   actor->SetMapper(mapper);
 
   // Create the widget and its representation
-  vtkPointHandleRepresentation2D *handle = vtkPointHandleRepresentation2D::New();
+  vtkSmartPointer< vtkPointHandleRepresentation2D > handle
+    = vtkSmartPointer< vtkPointHandleRepresentation2D >::New();
   handle->GetProperty()->SetColor(1,0,0);
-  vtkAngleRepresentation2D *rep = vtkAngleRepresentation2D::New();
+  vtkSmartPointer< vtkAngleRepresentation2D > rep
+    = vtkSmartPointer< vtkAngleRepresentation2D >::New();
   rep->SetHandleRepresentation(handle);
 
-  vtkAngleWidget *widget = vtkAngleWidget::New();
+  vtkSmartPointer< vtkAngleWidget > widget
+    = vtkSmartPointer< vtkAngleWidget >::New();
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-  vtkAngleCallback *mcbk = vtkAngleCallback::New();
+  vtkSmartPointer< vtkAngleCallback > mcbk
+    = vtkSmartPointer< vtkAngleCallback >::New();
   mcbk->Rep = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
   widget->AddObserver(vtkCommand::InteractionEvent,mcbk);
@@ -439,23 +448,12 @@ int TestAngleWidget2D( int argc, char *argv[] )
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
 
-  // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
-  recorder->SetInteractor(iren);
-  //recorder->SetFileName("/tmp/record.log");
-  recorder->On();
-  //recorder->Record();
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestAngleWidget2DEventLog);
-
   // render the image
   //
   iren->Initialize();
-  renWin->Render();
   widget->On();
-  recorder->Play();
+  renWin->Render();
 
-  iren->Start();
-  
-  return EXIT_SUCCESS;
+  return vtkTesting::InteractorEventLoop(
+      argc, argv, iren, TestAngleWidget2DEventLog );
 }
