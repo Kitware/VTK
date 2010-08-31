@@ -382,6 +382,15 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       sum += tmp;
       }
 
+    // Sanity check: verify that CDF = 1
+    if ( fabs( sum - 1. ) > 1.e-6 )
+      {
+      vtkWarningMacro( "Incorrect empirical CDF for variable:"
+                       << varName.c_str()
+                       << ". Ignoring it." );
+
+      continue;
+      }
     } // rit
 }
 
