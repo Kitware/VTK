@@ -321,6 +321,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  vtkIdType nRowData = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -355,10 +356,32 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     CDF cdfModel;
     for ( vtkIdType i = 0; i < nq; ++ i )
       {
+      // Read quantile and update PDF
       double quantile = primaryTab->GetValue( r, i + 2 ).ToDouble();
 
       cdfModel[quantile] = fac * ( i + 1. );
       }
+
+    // First iterate over all observations to calculate empirical PDF
+    double inc = 1. / nRowData;
+    CDF cdfEmpirical;
+    for ( vtkIdType j = 0; j < nRowData; ++ j )
+      {
+      // Read observation and update PDF
+      double x = inData->GetValueByName( j, varName ).ToDouble();
+
+      cdfEmpirical[x] += inc;
+      }
+
+    // Now integrate to obtain empirical CDF
+    double sum = 0.;
+    for ( CDF::iterator it = cdfEmpirical.begin(); it != cdfEmpirical.end(); ++ it )
+      {
+      double tmp = it->second;
+      it->second += sum;
+      sum += tmp;
+      }
+
     } // rit
 }
 
