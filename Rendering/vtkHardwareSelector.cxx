@@ -541,7 +541,7 @@ namespace
     {
   public:
     bool operator() (const vtkHardwareSelector::PixelInformation& a,
-      const vtkHardwareSelector::PixelInformation& b)
+      const vtkHardwareSelector::PixelInformation& b) const
       {
       if (a.Valid != b.Valid)
         {
