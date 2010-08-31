@@ -38,6 +38,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
 
+typedef vtksys_stl::map<double,double> CDF;
+
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -347,8 +349,16 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       continue;
       }
 
-    // Retrieve model statistics necessary for Jarque-Bera testing
-    //double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
+    // Retrieve quantiles and calculate model CDF necessary for Kolmogorov-Smirnov testing
+    vtkIdType nq = primaryTab->GetNumberOfColumns() - 2;
+    double fac =  1. / nq;
+    CDF cdfModel;
+    for ( vtkIdType i = 0; i < nq; ++ i )
+      {
+      double quantile = primaryTab->GetValue( r, i + 2 ).ToDouble();
+
+      cdfModel[quantile] = fac * ( i + 1. );
+      }
     } // rit
 }
 
