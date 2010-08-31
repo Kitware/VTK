@@ -419,7 +419,7 @@ vtkDataObject* vtkCompositeDataReader::ReadChild()
 
   vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();
   reader->SetBinaryInputString(child_data.str().c_str(),
-    child_data.str().size());
+    static_cast<int>(child_data.str().size()));
   reader->ReadFromInputStringOn();
   reader->Update();
   vtkDataObject* child = reader->GetOutput(0)->NewInstance();
