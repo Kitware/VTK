@@ -86,7 +86,7 @@ rm -f "$commit_msg" || exit 1
 
 gerrit_advice() {
 	gerrits=$(git config -l |grep '^remote\.[^=]\+url=.*review.*$')
-	test "x$gerrits" != "x" || return
+	test "x$gerrits" != "x" || return 0
 
 	echo 'Some config values look like Gerrit Code Review URLs:'
 	echo ''
