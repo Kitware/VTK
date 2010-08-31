@@ -80,11 +80,7 @@ public:
   // See vtkAlgorithm for information.
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
                              vtkInformationVector *);
-
-  //BTX
-  // Don't use directly. Meant for internal ReadData() function.
-  vtkSetStringMacro(Header);
-  //ETX
+//BTX
 protected:
   vtkGenericDataObjectReader();
   ~vtkGenericDataObjectReader();
@@ -100,6 +96,12 @@ protected:
 private:
   vtkGenericDataObjectReader(const vtkGenericDataObjectReader&);  // Not implemented.
   void operator=(const vtkGenericDataObjectReader&);  // Not implemented.
+
+  template<typename ReaderT, typename DataT>
+    void ReadData(const char* dataClass, vtkDataObject* output);
+
+  vtkSetStringMacro(Header);
+//ETX
 };
 
 #endif

@@ -45,44 +45,44 @@
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
 template<typename ReaderT, typename DataT>
-void ReadData(const char* DataClass, vtkGenericDataObjectReader* Owner, vtkTimeStamp& MTime, vtkDataObject* Output)
+void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* Output)
 {
   ReaderT* const reader = ReaderT::New();
   
-  reader->SetFileName(Owner->GetFileName());
-  reader->SetInputArray(Owner->GetInputArray());
-  reader->SetInputString(Owner->GetInputString(),
-                          Owner->GetInputStringLength());
-  reader->SetReadFromInputString(Owner->GetReadFromInputString());
-  reader->SetScalarsName(Owner->GetScalarsName());
-  reader->SetVectorsName(Owner->GetVectorsName());
-  reader->SetNormalsName(Owner->GetNormalsName());
-  reader->SetTensorsName(Owner->GetTensorsName());
-  reader->SetTCoordsName(Owner->GetTCoordsName());
-  reader->SetLookupTableName(Owner->GetLookupTableName());
-  reader->SetFieldDataName(Owner->GetFieldDataName());
-  reader->SetReadAllScalars(Owner->GetReadAllScalars());
-  reader->SetReadAllVectors(Owner->GetReadAllVectors());
-  reader->SetReadAllNormals(Owner->GetReadAllNormals());
-  reader->SetReadAllTensors(Owner->GetReadAllTensors());
-  reader->SetReadAllColorScalars(Owner->GetReadAllColorScalars());
-  reader->SetReadAllTCoords(Owner->GetReadAllTCoords());
-  reader->SetReadAllFields(Owner->GetReadAllFields());
+  reader->SetFileName(this->GetFileName());
+  reader->SetInputArray(this->GetInputArray());
+  reader->SetInputString(this->GetInputString(),
+                          this->GetInputStringLength());
+  reader->SetReadFromInputString(this->GetReadFromInputString());
+  reader->SetScalarsName(this->GetScalarsName());
+  reader->SetVectorsName(this->GetVectorsName());
+  reader->SetNormalsName(this->GetNormalsName());
+  reader->SetTensorsName(this->GetTensorsName());
+  reader->SetTCoordsName(this->GetTCoordsName());
+  reader->SetLookupTableName(this->GetLookupTableName());
+  reader->SetFieldDataName(this->GetFieldDataName());
+  reader->SetReadAllScalars(this->GetReadAllScalars());
+  reader->SetReadAllVectors(this->GetReadAllVectors());
+  reader->SetReadAllNormals(this->GetReadAllNormals());
+  reader->SetReadAllTensors(this->GetReadAllTensors());
+  reader->SetReadAllColorScalars(this->GetReadAllColorScalars());
+  reader->SetReadAllTCoords(this->GetReadAllTCoords());
+  reader->SetReadAllFields(this->GetReadAllFields());
   reader->Update();
 
   // copy the header from  the reader.
-  Owner->SetHeader(reader->GetHeader());
+  this->SetHeader(reader->GetHeader());
 
   // Can we use the old output?
   if(!(Output && strcmp(Output->GetClassName(), DataClass) == 0))
     {
     // Hack to make sure that the object is not modified
     // with SetNthOutput. Otherwise, extra executions occur.
-    const vtkTimeStamp mtime = MTime;
+    const vtkTimeStamp mtime = this->MTime;
     Output = DataT::New();
-    Owner->GetExecutive()->SetOutputData(0, Output);
+    this->GetExecutive()->SetOutputData(0, Output);
     Output->Delete();
-    MTime = mtime;
+    this->MTime = mtime;
     }
   Output->ShallowCopy(reader->GetOutput());
   Output->GetPipelineInformation()->CopyEntry(
@@ -258,70 +258,70 @@ int vtkGenericDataObjectReader::RequestData(
     {
     case VTK_DIRECTED_GRAPH:
       {
-      ReadData<vtkGraphReader, vtkDirectedGraph>("vtkDirectedGraph", this, this->MTime, output);
+      this->ReadData<vtkGraphReader, vtkDirectedGraph>("vtkDirectedGraph", output);
       return 1;
       }
     case VTK_UNDIRECTED_GRAPH:
       {
-      ReadData<vtkGraphReader, vtkUndirectedGraph>("vtkUndirectedGraph", this, this->MTime, output);
+      this->ReadData<vtkGraphReader, vtkUndirectedGraph>("vtkUndirectedGraph", output);
       return 1;
       }
     case VTK_IMAGE_DATA:
       {
-      ReadData<vtkStructuredPointsReader, vtkImageData>("vtkImageData", this, this->MTime, output);
+      this->ReadData<vtkStructuredPointsReader, vtkImageData>("vtkImageData", output);
       return 1;
       }
     case VTK_POLY_DATA:
       {
-      ReadData<vtkPolyDataReader, vtkPolyData>("vtkPolyData", this, this->MTime, output);
+      this->ReadData<vtkPolyDataReader, vtkPolyData>("vtkPolyData", output);
       return 1;
       }
     case VTK_RECTILINEAR_GRID:
       {
-      ReadData<vtkRectilinearGridReader, vtkRectilinearGrid>("vtkRectilinearGrid", this, this->MTime, output);
+      this->ReadData<vtkRectilinearGridReader, vtkRectilinearGrid>("vtkRectilinearGrid", output);
       return 1;
       }
     case VTK_STRUCTURED_GRID:
       {
-      ReadData<vtkStructuredGridReader, vtkStructuredGrid>("vtkStructuredGrid", this, this->MTime, output);
+      this->ReadData<vtkStructuredGridReader, vtkStructuredGrid>("vtkStructuredGrid", output);
       return 1;
       }
     case VTK_STRUCTURED_POINTS:
       {
-      ReadData<vtkStructuredPointsReader, vtkStructuredPoints>("vtkStructuredPoints", this, this->MTime, output);
+      this->ReadData<vtkStructuredPointsReader, vtkStructuredPoints>("vtkStructuredPoints", output);
       return 1;
       }
     case VTK_TABLE:
       {
-      ReadData<vtkTableReader, vtkTable>("vtkTable", this, this->MTime, output);
+      this->ReadData<vtkTableReader, vtkTable>("vtkTable", output);
       return 1;
       }
     case VTK_TREE:
       {
-      ReadData<vtkTreeReader, vtkTree>("vtkTree", this, this->MTime, output);
+      this->ReadData<vtkTreeReader, vtkTree>("vtkTree", output);
       return 1;
       }
     case VTK_UNSTRUCTURED_GRID:
       {
-      ReadData<vtkUnstructuredGridReader, vtkUnstructuredGrid>("vtkUnstructuredGrid", this, this->MTime, output);
+      this->ReadData<vtkUnstructuredGridReader, vtkUnstructuredGrid>("vtkUnstructuredGrid", output);
       return 1;
       }
     case VTK_MULTIBLOCK_DATA_SET:
       {
-      ReadData<vtkCompositeDataReader, vtkMultiBlockDataSet>(
-        "vtkMultiBlockDataSet", this, this->MTime, output);
+      this->ReadData<vtkCompositeDataReader, vtkMultiBlockDataSet>(
+        "vtkMultiBlockDataSet", output);
       return 1;
       }
     case VTK_MULTIPIECE_DATA_SET:
       {
-      ReadData<vtkCompositeDataReader, vtkMultiPieceDataSet>(
-        "vtkMultiPieceDataSet", this, this->MTime, output);
+      this->ReadData<vtkCompositeDataReader, vtkMultiPieceDataSet>(
+        "vtkMultiPieceDataSet", output);
       return 1;
       }
     case VTK_HIERARCHICAL_BOX_DATA_SET:
       {
-      ReadData<vtkCompositeDataReader, vtkHierarchicalBoxDataSet>(
-        "vtkHierarchicalBoxDataSet", this, this->MTime, output);
+      this->ReadData<vtkCompositeDataReader, vtkHierarchicalBoxDataSet>(
+        "vtkHierarchicalBoxDataSet", output);
       return 1;
       }
     default:
