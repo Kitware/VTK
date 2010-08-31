@@ -30,8 +30,6 @@
 #include "vtkImageActor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 

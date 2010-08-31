@@ -30,8 +30,6 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
 
@@ -45,7 +43,7 @@ public:
       vtkBalloonWidget *balloonWidget = reinterpret_cast<vtkBalloonWidget*>(caller);
       if ( balloonWidget->GetCurrentProp() != NULL )
         {
-        cout << "Prop selected\n";
+        std::cout << "Prop selected\n";
         }
     }
 };
@@ -130,15 +128,11 @@ int TestBalloonWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
   delete [] fname;
 
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
 

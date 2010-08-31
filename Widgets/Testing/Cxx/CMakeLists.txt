@@ -10,24 +10,25 @@ IF(VTK_USE_DISPLAY)
 SET(MyTests     
   BoxWidget.cxx
   BoxWidget2.cxx
-#  TestAffineWidget.cxx
+  TestAffineWidget.cxx
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
   TestBalloonWidget.cxx
-#  TestBorderWidget.cxx
-#  TestCameraWidget.cxx
+  TestBorderWidget.cxx
+  TestCameraWidget.cxx
   TestCaptionWidget.cxx
+  TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
   TestHandleWidget.cxx
-#  TestHandleWidget2D.cxx
+  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
   TestImplicitPlaneWidget2.cxx
   TestImplicitPlaneWidget2b.cxx
-#  TestLogoWidget.cxx
+  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
-#  TestPlaybackWidget.cxx
+  TestPlaybackWidget.cxx
   TestRectilinearWipeWidget.cxx
   TestSeedWidget.cxx
   TestSliderWidget.cxx
@@ -46,13 +47,13 @@ IF (VTK_DATA_ROOT)
     TestBiDimensionalWidget.cxx
     TestDijkstraImageGeodesicPath.cxx
     TestImageActorContourWidget.cxx
-#    TestConstrainedHandleWidget.cxx
+    TestConstrainedHandleWidget.cxx
     TestSurfaceConstrainedHandleWidget.cxx
     TestPolygonalRepresentationHandleWidget.cxx
     TestPolygonalHandleRepresentations.cxx
     TestSphereHandleWidget.cxx
-#    TestFocalPlaneContour.cxx
-#    TestOrientedGlyphContour.cxx
+    TestFocalPlaneContour.cxx
+    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx
     TestLineWidget.cxx
     TestLineWidget2.cxx
@@ -62,7 +63,7 @@ IF (VTK_DATA_ROOT)
     TestPlaneWidget.cxx
     TestPointWidget.cxx
     TestScalarBarWidget.cxx
-#    TestSeedWidget2.cxx
+    TestSeedWidget2.cxx
     TestSplineWidget.cxx
     TestTensorProbeWidget.cxx
     )

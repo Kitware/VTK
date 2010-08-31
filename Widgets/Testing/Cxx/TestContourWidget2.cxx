@@ -14,14 +14,14 @@
 =========================================================================*/
 // Test functionality to initialize a contour widget from user supplied
 // polydata. Here we will create closed circle and initialize it from that.
+#include "vtkSmartPointer.h"
+
 #include "vtkContourWidget.h"
 #include "vtkOrientedGlyphContourRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkTestUtilities.h"
 #include "vtkCamera.h"
 #include "vtkPlane.h"
@@ -36,18 +36,23 @@ int TestContourWidget2( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(600, 600);
 
-  vtkOrientedGlyphContourRepresentation *contourRep = vtkOrientedGlyphContourRepresentation::New();
-  vtkContourWidget *contourWidget = vtkContourWidget::New();
+  vtkSmartPointer<vtkOrientedGlyphContourRepresentation> contourRep =
+    vtkSmartPointer<vtkOrientedGlyphContourRepresentation>::New();
+  vtkSmartPointer<vtkContourWidget> contourWidget =
+    vtkSmartPointer<vtkContourWidget>::New();
   contourWidget->SetInteractor(iren);
   contourWidget->SetRepresentation(contourRep);
   contourWidget->On();
@@ -73,10 +78,13 @@ int TestContourWidget2( int argc, char *argv[] )
     }
 
 
-  vtkPolyData * pd = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData>  pd =
+    vtkSmartPointer<vtkPolyData>::New();
 
-  vtkPoints    *points      = vtkPoints::New();
-  vtkCellArray *lines       = vtkCellArray::New();
+  vtkSmartPointer<vtkPoints>    points      =
+    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkCellArray> lines       =
+    vtkSmartPointer<vtkCellArray>::New();
   vtkIdType    *lineIndices = new vtkIdType[21];
   for (int i = 0; i< 20; i++)
     {
@@ -91,8 +99,6 @@ int TestContourWidget2( int argc, char *argv[] )
   delete [] lineIndices;
   pd->SetPoints(points);
   pd->SetLines(lines);
-  points->Delete();
-  lines->Delete();
 
   contourWidget->Initialize(pd);
   contourWidget->Render();
@@ -100,22 +106,9 @@ int TestContourWidget2( int argc, char *argv[] )
   renWin->Render();
     
   iren->Initialize();
+  iren->Start();
   
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  pd->Delete();
-  contourWidget->Off();
-  contourWidget->Delete();
-  contourRep->Delete();
-  ren1->Delete();
-  renWin->Delete();
-  iren->Delete();
-  
-  return !retVal;
+  return EXIT_SUCCESS;
 }
 
 

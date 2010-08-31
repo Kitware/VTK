@@ -16,6 +16,8 @@
 // This example tests the vtkHandleWidget with a 2D representation
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkContourWidget.h"
 #include "vtkOrientedGlyphContourRepresentation.h"
 #include "vtkCoordinate.h"
@@ -25,8 +27,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkImageActor.h"
 #include "vtkVolume16Reader.h"
 #include "vtkImageShiftScale.h"
@@ -38,8 +38,9 @@
 int TestFocalPlaneContour( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
-   
-  vtkVolume16Reader* v16 = vtkVolume16Reader::New();
+
+  vtkSmartPointer<vtkVolume16Reader> v16 =
+    vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange(1, 93);
@@ -49,31 +50,36 @@ int TestFocalPlaneContour( int argc, char *argv[] )
   v16->SetDataMask(0x7fff);
   v16->Update();
   delete[] fname;
-    
+
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
-  vtkImageShiftScale* shifter = vtkImageShiftScale::New();
+  vtkSmartPointer<vtkImageShiftScale> shifter =
+    vtkSmartPointer<vtkImageShiftScale>::New();
   shifter->SetShift(-1.0*range[0]);
   shifter->SetScale(255.0/(range[1]-range[0]));
   shifter->SetOutputScalarTypeToUnsignedChar();
   shifter->SetInputConnection(v16->GetOutputPort());
   shifter->ReleaseDataFlagOff();
   shifter->Update();
-  
-  vtkImageActor* imageActor = vtkImageActor::New();
+
+  vtkSmartPointer<vtkImageActor> imageActor =
+    vtkSmartPointer<vtkImageActor>::New();
   imageActor->SetInput(shifter->GetOutput());
   imageActor->VisibilityOn();
   imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
   imageActor->InterpolateOn();
-    
+
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Add the actors to the renderer, set the background and size
@@ -81,40 +87,23 @@ int TestFocalPlaneContour( int argc, char *argv[] )
   ren1->SetBackground(0.1, 0.2, 0.4);
   ren1->AddActor(imageActor);
   renWin->SetSize(600, 600);
-  
+
   // render the image
   //
   ren1->GetActiveCamera()->SetPosition(0,0,0);
-  ren1->GetActiveCamera()->SetFocalPoint(0,0,1);  
+  ren1->GetActiveCamera()->SetFocalPoint(0,0,1);
   ren1->GetActiveCamera()->SetViewUp(0,1,0);
   ren1->ResetCamera();
   renWin->Render();
 
-  vtkContourWidget *contourWidget = vtkContourWidget::New();  
+  vtkSmartPointer<vtkContourWidget> contourWidget =
+    vtkSmartPointer<vtkContourWidget>::New();
   contourWidget->SetInteractor(iren);
   contourWidget->On();
 
   iren->Initialize();
-  
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  v16->Delete();
-  shifter->Delete();
-  imageActor->Delete();
-  
-  contourWidget->Off();
-  contourWidget->Delete();
-  
-  ren1->Delete();
-  renWin->Delete();
-  iren->Delete();
-  
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
-
-

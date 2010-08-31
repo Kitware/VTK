@@ -27,8 +27,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkCoordinate.h"
 #include "vtkMath.h"
 #include "vtkHandleWidget.h"
@@ -958,15 +956,9 @@ int TestDistanceWidget( int argc, char *argv[] )
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
   recorder->Off();
-  widget->Off();
-  widget->RemoveObserver(mcbk);
   
-  return !retVal;
+  return EXIT_SUCCESS;
 }

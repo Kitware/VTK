@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSmartPointer.h"
 
 #include "vtkCommand.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkParallelopipedWidget.h"
 #include "vtkParallelopipedRepresentation.h"
 #include "vtkConeSource.h"
@@ -36,31 +36,39 @@
 //----------------------------------------------------------------------------
 int TestParallelopipedWidget( int argc, char *argv[] )
 {
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->AddRenderer(renderer);
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  iren->SetRenderWindow(renWin);
   renderer->SetBackground(0.8,0.8,1.0);
   renWin->SetSize(800,600);
 
-  vtkConeSource *cone = vtkConeSource::New();
-    cone->SetResolution(6);
-  vtkSphereSource *sphere = vtkSphereSource::New();
-    sphere->SetThetaResolution(8); sphere->SetPhiResolution(8);
-  vtkGlyph3D *glyph = vtkGlyph3D::New();
-    glyph->SetInputConnection(sphere->GetOutputPort());
-    glyph->SetSource(cone->GetOutput());
-    glyph->SetVectorModeToUseNormal();
-    glyph->SetScaleModeToScaleByVector();
-    glyph->SetScaleFactor(0.25);
+  vtkSmartPointer<vtkConeSource> cone =
+    vtkSmartPointer<vtkConeSource>::New();
+  cone->SetResolution(6);
+  vtkSmartPointer<vtkSphereSource> sphere =
+    vtkSmartPointer<vtkSphereSource>::New();
+  sphere->SetThetaResolution(8); sphere->SetPhiResolution(8);
+  vtkSmartPointer<vtkGlyph3D> glyph =
+    vtkSmartPointer<vtkGlyph3D>::New();
+  glyph->SetInputConnection(sphere->GetOutputPort());
+  glyph->SetSource(cone->GetOutput());
+  glyph->SetVectorModeToUseNormal();
+  glyph->SetScaleModeToScaleByVector();
+  glyph->SetScaleFactor(0.25);
                                                         
-  vtkAppendPolyData *append = vtkAppendPolyData::New();
-    append->AddInput(glyph->GetOutput());
-    append->AddInput(sphere->GetOutput());
-    append->Update();
+  vtkSmartPointer<vtkAppendPolyData> append =
+    vtkSmartPointer<vtkAppendPolyData>::New();
+  append->AddInput(glyph->GetOutput());
+  append->AddInput(sphere->GetOutput());
+  append->Update();
   
-  vtkCubeSource * cube = vtkCubeSource::New();
+  vtkSmartPointer<vtkCubeSource>  cube =
+    vtkSmartPointer<vtkCubeSource>::New();
   double bounds[6];
   append->GetOutput()->GetBounds(bounds);
   bounds[0] -= (bounds[1]-bounds[0])*0.25;
@@ -77,31 +85,37 @@ int TestParallelopipedWidget( int argc, char *argv[] )
   bounds[5] = 1.0;
   cube->SetBounds(bounds);
   
-  vtkMatrix4x4 * affineMatrix = vtkMatrix4x4::New();
+  vtkSmartPointer<vtkMatrix4x4>  affineMatrix =
+    vtkSmartPointer<vtkMatrix4x4>::New();
   const double m[] = { 1.0,  0.1,  0.2,  0.0,
                        0.1,  1.0,  0.1,  0.0,
                        0.2,  0.1,  1.0,  0.0,
                        0.0,  0.0,  0.0,  1.0 };
   affineMatrix->DeepCopy( m );
-  vtkMatrixToLinearTransform * transform = vtkMatrixToLinearTransform::New();
+  vtkSmartPointer<vtkMatrixToLinearTransform>  transform =
+    vtkSmartPointer<vtkMatrixToLinearTransform>::New();
   transform->SetInput(affineMatrix);
   transform->Update();
-  vtkTransformPolyDataFilter * transformFilter = vtkTransformPolyDataFilter::New();
+  vtkSmartPointer<vtkTransformPolyDataFilter>  transformFilter =
+    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   transformFilter->SetTransform(transform);
   transformFilter->SetInput(cube->GetOutput());
   transformFilter->Update();
   
-  vtkPoints * parallelopipedPoints = vtkPoints::New();
+  vtkSmartPointer<vtkPoints>  parallelopipedPoints =
+    vtkSmartPointer<vtkPoints>::New();
   parallelopipedPoints->DeepCopy(transformFilter->GetOutput()->GetPoints());
   
   transformFilter->SetInput(append->GetOutput());
   transformFilter->Update();
   
-  vtkPolyDataMapper *maceMapper = vtkPolyDataMapper::New();
-    maceMapper->SetInputConnection(transformFilter->GetOutputPort());
+  vtkSmartPointer<vtkPolyDataMapper> maceMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  maceMapper->SetInputConnection(transformFilter->GetOutputPort());
 
-  vtkActor *maceActor = vtkActor::New();
-    maceActor->SetMapper(maceMapper);
+  vtkSmartPointer<vtkActor> maceActor =
+    vtkSmartPointer<vtkActor>::New();
+  maceActor->SetMapper(maceMapper);
 
   renderer->AddActor(maceActor);
 
@@ -115,8 +129,10 @@ int TestParallelopipedWidget( int argc, char *argv[] )
   parallelopipedPoints->GetPoint(6, parallelopipedPts[7]);
   parallelopipedPoints->GetPoint(7, parallelopipedPts[6]);
 
-  vtkParallelopipedWidget *widget = vtkParallelopipedWidget::New();
-  vtkParallelopipedRepresentation *rep = vtkParallelopipedRepresentation::New();
+  vtkSmartPointer<vtkParallelopipedWidget> widget =
+    vtkSmartPointer<vtkParallelopipedWidget>::New();
+  vtkSmartPointer<vtkParallelopipedRepresentation> rep =
+    vtkSmartPointer<vtkParallelopipedRepresentation>::New();
   widget->SetRepresentation(rep);
   widget->SetInteractor( iren );
   rep->SetPlaceFactor( 0.5 );
@@ -127,39 +143,16 @@ int TestParallelopipedWidget( int argc, char *argv[] )
 
   widget->EnabledOn();
   
-  vtkCubeAxesActor2D *axes = vtkCubeAxesActor2D::New();
-      axes ->SetInput (transformFilter-> GetOutput());
-      axes ->SetCamera (renderer-> GetActiveCamera());
-      axes ->SetLabelFormat ("%6.1f");
-      axes ->SetFlyModeToOuterEdges();
-      axes ->SetFontFactor (0.8);
+  vtkSmartPointer<vtkCubeAxesActor2D> axes =
+    vtkSmartPointer<vtkCubeAxesActor2D>::New();
+  axes ->SetInput (transformFilter-> GetOutput());
+  axes ->SetCamera (renderer-> GetActiveCamera());
+  axes ->SetLabelFormat ("%6.1f");
+  axes ->SetFlyModeToOuterEdges();
+  axes ->SetFontFactor (0.8);
   renderer-> AddViewProp( axes );
   
-  //-----------------------------------------------------------------------------------------------
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  // Clean ups
-  transform->Delete();
-  axes->Delete();
-  rep->Delete();
-  widget->Delete();
-  transformFilter->Delete();
-  affineMatrix->Delete();
-  cube->Delete();
-  sphere->Delete();
-  cone->Delete();
-  glyph->Delete();
-  append->Delete();
-  maceMapper->Delete();
-  maceActor->Delete();
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  parallelopipedPoints->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

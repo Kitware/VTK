@@ -20,6 +20,7 @@
 // constraints on the movement of the handle. You can move the plane around 
 // interactively. It exercises the class vtkBoundedPlanePointPlacer.
 
+#include "vtkSmartPointer.h"
 
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
@@ -35,7 +36,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkDebugLeaks.h"
 #include "vtkOutlineFilter.h"
 #include "vtkImplicitPlaneWidget2.h"
 #include "vtkImplicitPlaneRepresentation.h"
@@ -45,7 +45,6 @@
 #include "vtkPlane.h"
 #include "vtkProperty.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 // -----------------------------------------------------------------------
 // This does the actual work: updates the vtkPline implicit function.
@@ -74,8 +73,8 @@ public:
 };
 
 // -----------------------------------------------------------------------
-char HandleWidgetLog[] = 
-"# StreamVersion 1\n"
+char HandleWidgetLog[] =
+"# StreamVersion> 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
@@ -576,9 +575,12 @@ int TestHandleWidget( int argc, char *argv[] )
 {
   // Create a mace out of filters.
   //
-  vtkSphereSource *sphere = vtkSphereSource::New();
-  vtkConeSource *cone = vtkConeSource::New();
-  vtkGlyph3D *glyph = vtkGlyph3D::New();
+  vtkSmartPointer<vtkSphereSource> sphere =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkConeSource> cone =
+    vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkGlyph3D> glyph =
+    vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
   glyph->SetSource(cone->GetOutput());
   glyph->SetVectorModeToUseNormal();
@@ -587,39 +589,49 @@ int TestHandleWidget( int argc, char *argv[] )
 
   // The sphere and spikes are appended into a single polydata. 
   // This just makes things simpler to manage.
-  vtkAppendPolyData *apd = vtkAppendPolyData::New();
+  vtkSmartPointer<vtkAppendPolyData> apd =
+    vtkSmartPointer<vtkAppendPolyData>::New();
   apd->AddInput(glyph->GetOutput());
   apd->AddInput(sphere->GetOutput());
 
   // This portion of the code clips the mace with the vtkPlanes 
   // implicit function. The cut region is colored green.
-  vtkTIPW3Callback *myCallback = vtkTIPW3Callback::New();
-  vtkCutter *cutter = vtkCutter::New();
+  vtkSmartPointer<vtkTIPW3Callback> myCallback =
+    vtkSmartPointer<vtkTIPW3Callback>::New();
+  vtkSmartPointer<vtkCutter> cutter =
+    vtkSmartPointer<vtkCutter>::New();
   cutter->SetInputConnection(apd->GetOutputPort());
   cutter->SetCutFunction( myCallback->Plane );
 
-  vtkPolyDataMapper *selectMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> selectMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   selectMapper->SetInputConnection(cutter->GetOutputPort());
 
-  vtkLODActor *selectActor = vtkLODActor::New();
+  vtkSmartPointer<vtkLODActor> selectActor =
+    vtkSmartPointer<vtkLODActor>::New();
   selectActor->SetMapper(selectMapper);
   selectActor->GetProperty()->SetColor(0,1,0);
   selectActor->VisibilityOff();
   selectActor->SetScale(1.01, 1.01, 1.01);  
   
-  vtkOutlineFilter* outline = vtkOutlineFilter::New();
+  vtkSmartPointer<vtkOutlineFilter> outline =
+    vtkSmartPointer<vtkOutlineFilter>::New();
     outline->SetInputConnection(apd->GetOutputPort());
-  vtkPolyDataMapper* outlineMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
     outlineMapper->SetInputConnection(outline->GetOutputPort());
-  vtkActor* outlineActor =  vtkActor::New();
+  vtkSmartPointer<vtkActor> outlineActor =
+    vtkSmartPointer<vtkActor>::New();
     outlineActor->SetMapper( outlineMapper);
 
-  vtkImplicitPlaneRepresentation *rep = vtkImplicitPlaneRepresentation::New();
+  vtkSmartPointer<vtkImplicitPlaneRepresentation> rep =
+    vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
   rep->SetPlaceFactor(0.7);
   rep->GetPlaneProperty()->SetAmbientColor(0.0, 0.5, 0.5);
   rep->GetPlaneProperty()->SetOpacity(0.3);
   rep->PlaceWidget(outline->GetOutput()->GetBounds());  
-  vtkImplicitPlaneWidget2 *planeWidget = vtkImplicitPlaneWidget2::New();
+  vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget =
+    vtkSmartPointer<vtkImplicitPlaneWidget2>::New();
   planeWidget->SetRepresentation(rep);
 
   myCallback->Actor = selectActor;
@@ -629,24 +641,28 @@ int TestHandleWidget( int argc, char *argv[] )
 
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
   // and the widget representation that defines how the widget appears in the scene 
   // (i.e., matters pertaining to geometry).
-  vtkPointHandleRepresentation3D *handleRep 
-    = vtkPointHandleRepresentation3D::New();
+  vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep =
+    vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   handleRep->SetPlaceFactor(2.5);
   handleRep->PlaceWidget(outlineActor->GetBounds());
   handleRep->SetHandleSize(10);
 
-  vtkHandleWidget *handleWidget = vtkHandleWidget::New();
+  vtkSmartPointer<vtkHandleWidget> handleWidget =
+    vtkSmartPointer<vtkHandleWidget>::New();
   handleWidget->SetInteractor(iren);
   planeWidget->SetInteractor(iren);
   handleWidget->SetRepresentation(handleRep);
@@ -658,7 +674,8 @@ int TestHandleWidget( int argc, char *argv[] )
   //
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
 //  recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -686,55 +703,48 @@ int TestHandleWidget( int argc, char *argv[] )
   
   if (constrainHandlesToObliquePlane)
     {
-    vtkBoundedPlanePointPlacer *placer = vtkBoundedPlanePointPlacer::New();
+    vtkSmartPointer<vtkBoundedPlanePointPlacer> placer =
+      vtkSmartPointer<vtkBoundedPlanePointPlacer>::New();
 
-    // Define the the plane as the image plane widget's plane
+    // Defin the the plane as the image plane widget's plane
     placer->SetProjectionNormalToOblique();
     placer->SetObliquePlane(myCallback->Plane);
 
     // Also add bounding planes for the bounds of the dataset.
     double bounds[6];
     outline->GetOutput()->GetBounds(bounds);
-    vtkPlane *plane;
-    plane = vtkPlane::New();
+    vtkSmartPointer<vtkPlane> plane =
+      vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 1.0, 0.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    plane->Delete();
     
-    plane = vtkPlane::New();
+    plane = vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
     plane->SetNormal( -1.0, 0.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    plane->Delete();
       
-    plane = vtkPlane::New();
+    plane =  vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 0.0, 1.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    plane->Delete();
     
-    plane = vtkPlane::New();
+    plane = vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
     plane->SetNormal( 0.0, -1.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    plane->Delete();
     
-    plane = vtkPlane::New();
+    plane =  vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 0.0, 0.0, 1.0 );
     placer->AddBoundingPlane( plane );
-    plane->Delete();
     
-    plane = vtkPlane::New();
+    plane = vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
     plane->SetNormal( 0.0, 0.0, -1.0 );
     placer->AddBoundingPlane( plane );
-    plane->Delete();
 
     handleRep->SetPointPlacer(placer);
-    placer->Delete();
-
     }
 
   iren->Initialize();
@@ -748,34 +758,10 @@ int TestHandleWidget( int argc, char *argv[] )
   renWin->Render();
 
   recorder->Play();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
 
-  recorder->Off();
-  recorder->Delete();
-  apd->Delete();
-  planeWidget->Delete();
-  glyph->Delete();
-  sphere->Delete();
-  cone->Delete();
-  rep->Delete();
-  myCallback->Delete();
-  selectMapper->Delete();
-  selectActor->Delete();
-  cutter->Delete();
-  outline->Delete();
-  outlineMapper->Delete();
-  outlineActor->Delete();
-  handleWidget->Delete();
-  handleRep->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
+  iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
 
