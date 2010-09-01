@@ -319,9 +319,16 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
 
+  // Prepare storage for quantiles and model CDFs
+  vtkIdType nQuant = primaryTab->GetNumberOfColumns() - 2;
+  double* quantiles = new double[nQuant];
+  double* mCDF = new double[nQuant];
+
   // Loop over requests
   vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
   vtkIdType nRowData = inData->GetNumberOfRows();
+  double fac =  1. / nQuant;
+  double inc = 1. / nRowData;
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -351,19 +358,14 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       }
 
     // Retrieve quantiles and calculate model CDF necessary for Kolmogorov-Smirnov testing
-    vtkIdType nq = primaryTab->GetNumberOfColumns() - 2;
-    double fac =  1. / nq;
-    CDF cdfModel;
-    for ( vtkIdType i = 0; i < nq; ++ i )
+    for ( vtkIdType i = 0; i < nQuant; ++ i )
       {
       // Read quantile and update PDF
-      double quantile = primaryTab->GetValue( r, i + 2 ).ToDouble();
-
-      cdfModel[quantile] = fac * ( i + 1. );
+      quantiles[i] = primaryTab->GetValue( r, i + 2 ).ToDouble();
+      mCDF[i] = fac * ( i + 1. );
       }
 
     // First iterate over all observations to calculate empirical PDF
-    double inc = 1. / nRowData;
     CDF cdfEmpirical;
     for ( vtkIdType j = 0; j < nRowData; ++ j )
       {
@@ -375,14 +377,13 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 
     // Now integrate to obtain empirical CDF
     double sum = 0.;
-    for ( CDF::iterator it = cdfEmpirical.begin(); it != cdfEmpirical.end(); ++ it )
+    for ( CDF::iterator cit = cdfEmpirical.begin(); cit != cdfEmpirical.end(); ++ cit )
       {
-      double tmp = it->second;
-      it->second += sum;
-      sum += tmp;
+      sum += cit->second;
+      cit->second = sum;
       }
 
-    // Sanity check: verify that CDF = 1
+    // Sanity check: verify that empirical CDF = 1
     if ( fabs( sum - 1. ) > 1.e-6 )
       {
       vtkWarningMacro( "Incorrect empirical CDF for variable:"
@@ -391,7 +392,43 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 
       continue;
       }
+
+    // Iterate over all empirical CDF jump values
+    int currentQ = 1;
+    double mcdf = 0.;
+    for ( CDF::iterator it = cdfEmpirical.begin(); it != cdfEmpirical.end(); ++ it )
+      {
+      // If observation is larger than maximum then model CDF there is 1
+      if ( it->first >= quantiles[nQuant - 1] )
+        {
+        mcdf = 1.;
+        }
+      else
+        {
+        // If observation is smaller than minimum then there is nothing to do
+        if ( it->first >= quantiles[0] )
+          {
+          while ( it->first < quantiles[currentQ] )
+            {
+            ++ currentQ;
+            }
+          mcdf = mCDF[currentQ - 1];
+          }
+        }
+
+      cerr << it->first
+           << " "
+           << it->second
+           << " "
+           << mcdf
+           << "\n";
+      }
+
     } // rit
+
+  // Clean up
+  delete [] mCDF;
+  delete [] quantiles;
 }
 
 // ----------------------------------------------------------------------
