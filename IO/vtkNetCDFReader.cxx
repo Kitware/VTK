@@ -97,6 +97,8 @@ vtkNetCDFReader::vtkNetCDFReader()
   cbc->SetClientData(this);
   this->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent, cbc);
 
+  this->AllVariableArrayNames = vtkStringArray::New();
+
   this->VariableDimensions = vtkStringArray::New();
   this->AllDimensions = vtkStringArray::New();
 }
@@ -119,6 +121,8 @@ void vtkNetCDFReader::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "VariableArraySelection:" << endl;
   this->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "AllVariableArrayNames:" << endl;
+  this->GetAllVariableArrayNames()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VariableDimensions: " << this->VariableDimensions << endl;
   os << indent << "AllDimensions: " << this->AllDimensions << endl;
 }
@@ -408,6 +412,20 @@ void vtkNetCDFReader::SetVariableArrayStatus(const char* name, int status)
     {
     this->VariableArraySelection->DisableArray(name);
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkStringArray *vtkNetCDFReader::GetAllVariableArrayNames()
+{
+  int numArrays = this->GetNumberOfVariableArrays();
+  this->AllVariableArrayNames->SetNumberOfValues(numArrays);
+  for (int arrayIdx = 0; arrayIdx < numArrays; arrayIdx++)
+    {
+    const char *arrayName = this->GetVariableArrayName(arrayIdx);
+    this->AllVariableArrayNames->SetValue(arrayIdx, arrayName);
+    }
+
+  return this->AllVariableArrayNames;
 }
 
 //-----------------------------------------------------------------------------
