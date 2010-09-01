@@ -322,13 +322,12 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   // Prepare storage for quantiles and model CDFs
   vtkIdType nQuant = primaryTab->GetNumberOfColumns() - 2;
   double* quantiles = new double[nQuant];
-  double* mCDF = new double[nQuant];
 
   // Loop over requests
   vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
   vtkIdType nRowData = inData->GetNumberOfRows();
-  double fac =  1. / nQuant;
-  double inc = 1. / nRowData;
+  double inv_nq =  1. / nQuant;
+  double inv_card = 1. / nRowData;
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -357,14 +356,6 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       continue;
       }
 
-    // Retrieve quantiles and calculate model CDF necessary for Kolmogorov-Smirnov testing
-    for ( vtkIdType i = 0; i < nQuant; ++ i )
-      {
-      // Read quantile and update PDF
-      quantiles[i] = primaryTab->GetValue( r, i + 2 ).ToDouble();
-      mCDF[i] = fac * ( i + 1. );
-      }
-
     // First iterate over all observations to calculate empirical PDF
     CDF cdfEmpirical;
     for ( vtkIdType j = 0; j < nRowData; ++ j )
@@ -372,7 +363,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       // Read observation and update PDF
       double x = inData->GetValueByName( j, varName ).ToDouble();
 
-      cdfEmpirical[x] += inc;
+      cdfEmpirical[x] += inv_card;
       }
 
     // Now integrate to obtain empirical CDF
@@ -393,27 +384,51 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       continue;
       }
 
-    // Iterate over all empirical CDF jump values
-    int currentQ = 1;
+    // Retrieve quantiles to calculate model CDF and insert value into empirical CDF
+    for ( vtkIdType i = 0; i < nQuant; ++ i )
+      {
+      // Read quantile and update CDF
+      quantiles[i] = primaryTab->GetValue( r, i + 2 ).ToDouble();
+
+      // Update empirical CDF if new value found (with unknown ECDF)
+      vtksys_stl::pair<CDF::iterator,bool> result
+        = cdfEmpirical.insert( vtksys_stl::pair<double,double>( quantiles[i], -1 ) );
+      if ( result.second == true )
+        {
+        CDF::iterator it = result.first;
+        -- it;
+        result.first->second = it->second;
+        }
+      }
+
+    // Iterate over all CDF jump values
+    int currentQ = 0;
     double mcdf = 0.;
+    double Dmn = 0.;
     for ( CDF::iterator it = cdfEmpirical.begin(); it != cdfEmpirical.end(); ++ it )
       {
-      // If observation is larger than maximum then model CDF there is 1
-      if ( it->first >= quantiles[nQuant - 1] )
+      // If observation is smaller than minimum then there is nothing to do
+      if ( it->first >= quantiles[0] )
         {
-        mcdf = 1.;
-        }
-      else
-        {
-        // If observation is smaller than minimum then there is nothing to do
-        if ( it->first >= quantiles[0] )
+        while ( it->first >= quantiles[currentQ] && currentQ < nQuant )
           {
-          while ( it->first < quantiles[currentQ] )
-            {
-            ++ currentQ;
-            }
-          mcdf = mCDF[currentQ - 1];
+          ++ currentQ;
           }
+        if ( currentQ == nQuant )
+          {
+          mcdf = 1.;
+          }
+        else
+          {
+          mcdf = currentQ * inv_nq;
+          }
+        }
+
+      // Calculate vertical distance between CDFs and update maximum if needed
+      double d = fabs( it->second - mcdf );
+      if ( d > Dmn )
+        {
+        Dmn =  d;
         }
 
       cerr << it->first
@@ -421,13 +436,18 @@ void vtkOrderStatistics::Test( vtkTable* inData,
            << it->second
            << " "
            << mcdf
+           << " "
+           << d
            << "\n";
       }
+    cerr << "Max vertical distance: "
+         << Dmn
+         << "\n";
+
 
     } // rit
 
   // Clean up
-  delete [] mCDF;
   delete [] quantiles;
 }
 
