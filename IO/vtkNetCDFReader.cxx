@@ -43,6 +43,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtkstd/algorithm>
+#include <vtkstd/set>
 #include <vtksys/SystemTools.hxx>
 
 #include <netcdf.h>
@@ -472,22 +473,53 @@ vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD,
 //-----------------------------------------------------------------------------
 int vtkNetCDFReader::ReadMetaData(int ncFD)
 {
-  int i;
-
   vtkDebugMacro("ReadMetaData");
 
-  // Look at all variables and record them so that the user can select
-  // which ones he wants.
-  this->VariableArraySelection->RemoveAllArrays();
+  // Look at all variables and record them so that the user can select which
+  // ones he wants.  This oddness of adding and removing from
+  // VariableArraySelection is to preserve any current settings for variables.
+  typedef vtkstd::set<vtkStdString> stringSet;
+  stringSet variablesToAdd;
+  stringSet variablesToRemove;
+
+  // Initialize variablesToRemove with all the variables.  Then remove them from
+  // the list as we find them.
+  for (int i = 0; i < this->VariableArraySelection->GetNumberOfArrays(); i++)
+    {
+    variablesToRemove.insert(this->VariableArraySelection->GetArrayName(i));
+    }
 
   int numVariables;
   CALL_NETCDF(nc_inq_nvars(ncFD, &numVariables));
 
-  for (i = 0; i < numVariables; i++)
+  for (int i = 0; i < numVariables; i++)
     {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, i, name));
-    this->VariableArraySelection->AddArray(name);
+    if (variablesToRemove.find(name) == variablesToRemove.end())
+      {
+      // Variable not already here.  Insert it in the variables to add.
+      variablesToAdd.insert(name);
+      }
+    else
+      {
+      // Variable already exists.  Leave it be.  Remove it from the
+      // variablesToRemove list.
+      variablesToRemove.erase(name);
+      }
+    }
+
+  // Add and remove variables.  This will be a no-op if the variables have not
+  // changed.
+  for (stringSet::iterator removeItr = variablesToRemove.begin();
+       removeItr != variablesToRemove.end(); removeItr++)
+    {
+    this->VariableArraySelection->RemoveArrayByName(removeItr->c_str());
+    }
+  for (stringSet::iterator addItr = variablesToAdd.begin();
+       addItr != variablesToAdd.end(); addItr++)
+    {
+    this->VariableArraySelection->AddArray(addItr->c_str());
     }
 
   return 1;
