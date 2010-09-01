@@ -227,7 +227,11 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
       if (val > 0)
         {
         val--;
-        this->Internals->HitProps.insert(val);
+        if (this->Internals->HitProps.find(val) ==
+          this->Internals->HitProps.end())
+          {
+          this->Internals->HitProps.insert(val);
+          }
         }
       }
     }
@@ -411,16 +415,21 @@ bool vtkHardwareSelector::IsPropHit(int id)
 
 //----------------------------------------------------------------------------
 vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
-  unsigned int display_position[2], int maxDist)
+  unsigned int in_display_position[2], int maxDist)
 {
   // Base case
   if (maxDist == 0)
     {
-    if (display_position[0] < this->Area[0] || display_position[0] > this->Area[2] ||
-      display_position[1] < this->Area[1] || display_position[1] > this->Area[3])
+    if (in_display_position[0] < this->Area[0] || in_display_position[0] > this->Area[2] ||
+      in_display_position[1] < this->Area[1] || in_display_position[1] > this->Area[3])
       {
       return PixelInformation();
       }
+
+    // offset in_display_position based on the lower-left-corner of the Area.
+    unsigned int display_position[2] = {
+      in_display_position[0] - this->Area[0],
+      in_display_position[1] - this->Area[1]};
 
     int actorid = this->Convert(display_position, this->PixBuffer[ACTOR_PASS]);
     if (actorid <= 0)
@@ -463,7 +472,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 
   // Iterate over successively growing boxes.
   // They recursively call the base case to handle single pixels.
-  int disp_pos[2] = {display_position[0], display_position[1]};
+  int disp_pos[2] = {in_display_position[0], in_display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
   PixelInformation info;
   for (int dist = 0; dist < maxDist; ++dist)
@@ -583,9 +592,9 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
   typedef vtkstd::map<PixelInformation, vtkIdType, PixelInformationComparator> PixelCountType;
   PixelCountType pixelCounts;
 
-  for (int yy = y1 - Area[1]; yy <= static_cast<int>(y2 - this->Area[1]); yy++)
+  for (unsigned int yy = y1; yy <= y2; yy++)
     {
-    for (int xx = x1 - Area[0]; xx <= static_cast<int>(x2 - this->Area[0]); xx++)
+    for (unsigned int xx = x1; xx <= x2; xx++)
       {
       unsigned int pos[2] = {xx, yy};
       PixelInformation info = this->GetPixelInformation(pos, 0);

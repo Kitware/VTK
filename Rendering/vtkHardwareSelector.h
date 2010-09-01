@@ -234,6 +234,8 @@ protected:
     return val;
     }
 
+  // Description:
+  // \c pos must be relative to the lower-left corner of this->Area.
   int Convert(unsigned int pos[2], unsigned char* pb)
     { return this->Convert(pos[0], pos[1], pb); }
   int Convert(int xx, int yy, unsigned char* pb)
