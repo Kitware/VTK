@@ -414,14 +414,9 @@ void vtkOrderStatistics::Test( vtkTable* inData,
           {
           ++ currentQ;
           }
-        if ( currentQ == nQuant )
-          {
-          mcdf = 1.;
-          }
-        else
-          {
-          mcdf = currentQ * inv_nq;
-          }
+
+        // Calculate model CDF at observation
+        mcdf = currentQ * inv_nq;
         }
 
       // Calculate vertical distance between CDFs and update maximum if needed
