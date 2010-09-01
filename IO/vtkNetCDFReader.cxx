@@ -97,7 +97,7 @@ vtkNetCDFReader::vtkNetCDFReader()
   cbc->SetClientData(this);
   this->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent, cbc);
 
-  this->AllVariableArrayNames = vtkStringArray::New();
+  this->AllVariableArrayNames = vtkSmartPointer<vtkStringArray>::New();
 
   this->VariableDimensions = vtkStringArray::New();
   this->AllDimensions = vtkStringArray::New();
