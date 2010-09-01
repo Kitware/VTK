@@ -316,6 +316,21 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     return;
     }
 
+  // Prepare columns for the test:
+  // 0: variable name
+  // 1: Maximum vertical distance between CDFs
+  // 2: Kolmogorov-Smirnov test statistic (the above times the square root of the cardinality
+  // NB: These are not added to the output table yet, for they will be filled individually first
+  //     in order that R be invoked only once.
+  vtkStringArray* nameCol = vtkStringArray::New();
+  nameCol->SetName( "Variable" );
+
+  vtkDoubleArray* distCol = vtkDoubleArray::New();
+  distCol->SetName( "Maximum Distance" );
+
+  vtkDoubleArray* statCol = vtkDoubleArray::New();
+  statCol->SetName( "Kolomogorov-Smirnov" );
+
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
 
@@ -396,8 +411,16 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       if ( result.second == true )
         {
         CDF::iterator it = result.first;
-        -- it;
-        result.first->second = it->second;
+        // Check if new value has no predecessor, in which case CDF = 0
+        if ( it ==  cdfEmpirical.begin() )
+          {
+          result.first->second = 0.;
+          }
+        else
+          {
+          -- it;
+          result.first->second = it->second;
+          }
         }
       }
 
@@ -425,25 +448,25 @@ void vtkOrderStatistics::Test( vtkTable* inData,
         {
         Dmn =  d;
         }
-
-      cerr << it->first
-           << " "
-           << it->second
-           << " "
-           << mcdf
-           << " "
-           << d
-           << "\n";
       }
-    cerr << "Max vertical distance: "
-         << Dmn
-         << "\n";
 
-
+    // Insert variable name and calculated Kolmogorov-Smirnov statistic
+    // NB: R will be invoked only once at the end for efficiency
+    nameCol->InsertNextValue( varName );
+    distCol->InsertNextTuple1( Dmn );
+    statCol->InsertNextTuple1( 0. );
     } // rit
+
+  // Now, add the already prepared columns to the output table
+  outMeta->AddColumn( nameCol );
+  outMeta->AddColumn( distCol );
+  outMeta->AddColumn( statCol );
 
   // Clean up
   delete [] quantiles;
+  nameCol->Delete();
+  distCol->Delete();
+  statCol->Delete();
 }
 
 // ----------------------------------------------------------------------
