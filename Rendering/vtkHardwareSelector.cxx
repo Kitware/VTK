@@ -519,7 +519,6 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 }
 
 //----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
 bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   int& processid,
   vtkIdType& attrId, vtkProp*& prop,
@@ -532,6 +531,7 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   return info.Valid;
 }
 
+//----------------------------------------------------------------------------
 bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   int& processid, vtkIdType& attrId, vtkProp*& prop)
 {
@@ -542,8 +542,7 @@ bool vtkHardwareSelector::GetPixelInformation(unsigned int display_position[2],
   return info.Valid;
 }
 
-#endif // !defined(VTK_LEGACY_REMOVE)
-
+//----------------------------------------------------------------------------
 namespace
 {
   class PixelInformationComparator
