@@ -35,7 +35,7 @@
 #include "vtkPolyDataCollection.h"
 #include "vtkTriangleFilter.h"
 #include "vtkImageResample.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTesting.h"
 
 #include "vtkContourWidget.h"
 #include "vtkOrientedGlyphContourRepresentation.h"
@@ -278,15 +278,14 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
   rep->GetLinesProperty()->SetColor(1, 0.2, 0);
   rep->GetLinesProperty()->SetLineWidth(3.0);
 
-  vtkPolygonalSurfacePointPlacer * pointPlacer 
-    = vtkPolygonalSurfacePointPlacer::New();
+  vtkSmartPointer<vtkPolygonalSurfacePointPlacer> pointPlacer
+    = vtkSmartPointer<vtkPolygonalSurfacePointPlacer>::New();
   pointPlacer->AddProp(demActor);
   pointPlacer->GetPolys()->AddItem( pd );
   rep->SetPointPlacer(pointPlacer);
 
-  vtkSmartPointer<vtkPolygonalSurfaceContourLineInterpolator>  interpolator =
-    vtkSmartPointer<
-    vtkPolygonalSurfaceContourLineInterpolator>::New();
+  vtkSmartPointer<vtkPolygonalSurfaceContourLineInterpolator> interpolator =
+    vtkSmartPointer<vtkPolygonalSurfaceContourLineInterpolator>::New();
   interpolator->GetPolys()->AddItem( pd );
   rep->SetLineInterpolator(interpolator);
   if (distanceOffsetSpecified)
@@ -295,21 +294,10 @@ int TestDijkstraGraphGeodesicPath(int argc, char*argv[])
     interpolator->SetDistanceOffset( distanceOffset );
     }
   
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestDijkstraGraphGeodesicPathLog); 
-  recorder->EnabledOn();
-
   renWin->Render();
   iren->Initialize();
-
   contourWidget->EnabledOn();
-
-  recorder->Play();
     
-  iren->Start();
-
-  return EXIT_SUCCESS;
+  return vtkTesting::InteractorEventLoop(
+      argc, argv, iren, TestDijkstraGraphGeodesicPathLog );
 }

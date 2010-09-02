@@ -209,8 +209,8 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   // The line interpolator defines how intermediate points are
   // generated between the representations nodes.  This 
   // interpolator uses Dijkstra's shortest path algorithm.
-  vtkDijkstraImageContourLineInterpolator *interpolator =
-    vtkDijkstraImageContourLineInterpolator::New();
+  vtkSmartPointer< vtkDijkstraImageContourLineInterpolator > interpolator =
+    vtkSmartPointer< vtkDijkstraImageContourLineInterpolator >::New();
   interpolator->SetCostImage( gradInvert->GetOutput() );
 
   vtkDijkstraImageGeodesicPath *path =
@@ -231,7 +231,6 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   renderer->ResetCamera();
   iren->Initialize();
 
-  vtkTesting::InteractorEventLoop( argc, argv, iren, TestDijkstraImageGeodesicPathLog );
-
-  return EXIT_SUCCESS;
+  return vtkTesting::InteractorEventLoop(
+      argc, argv, iren, TestDijkstraImageGeodesicPathLog );
 }
