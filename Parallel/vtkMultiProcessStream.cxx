@@ -206,10 +206,14 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (vtkTypeUInt64 value)
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator << (const vtkstd::string& value)
 {
+  // for strings push the length first.
+  unsigned int size = value.size();
+  *this << size;
+
   this->Internals->Data.push_back(vtkInternals::string_value);
-  const char* c_value = value.c_str();
+  const char* c_value = value.data();
   this->Internals->Push(reinterpret_cast<const unsigned char*>(c_value),
-    strlen(c_value)+1);
+    value.size());
   return (*this);
 }
 
@@ -306,18 +310,20 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeUInt64 &value)
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkstd::string& value)
 {
-  value = "";
+  value.clear();
+
+  unsigned int size;
+  *this >> size;
+
+  value.resize(size);
+
   assert(this->Internals->Data.front() == vtkInternals::string_value);
   this->Internals->Data.pop_front();
-  while (true)
+  for (unsigned int cc=0; cc < size; cc++)
     {
     char c_value;
     this->Internals->Pop(reinterpret_cast<unsigned char*>(&c_value), sizeof(char));
-    if (c_value == 0x0)
-      {
-      break;
-      }
-    value += c_value;
+    value[cc] = c_value;
     }
   return (*this);
 }
