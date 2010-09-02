@@ -28,6 +28,7 @@
 class vtkWindow;
 class vtkViewport;
 class vtkStdString;
+class vtkUnicodeString;
 class vtkTextProperty;
 class vtkPoints2D;
 class vtkImageData;
@@ -59,6 +60,10 @@ public:
   // Description:
   // Draw a quad using the specified number of points.
   virtual void DrawQuad(float *, int) { ; }
+
+  // Description:
+  // Draw a quad using the specified number of points.
+  virtual void DrawQuadStrip(float *, int) { ; }
 
   // Description:
   // Draw a polygon using the specified number of points.
@@ -98,6 +103,21 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkStdString &string,
+                                   vtkTextProperty *tprop,
+                                   float bounds[4]) = 0;
+
+  // Description:
+  // Draw some text to the screen.
+  virtual void DrawString(float *point, vtkTextProperty *tprop,
+                          const vtkUnicodeString &string) = 0;
+
+  // Description:
+  // Compute the bounds of the supplied string. The bounds will be copied to the
+  // supplied bounds variable, the first two elements are the bottom corner of
+  // the string, and the second two elements are the width and height of the
+  // bounding box.
+  // NOTE: This function does not take account of the text rotation.
+  virtual void ComputeStringBounds(const vtkUnicodeString &string,
                                    vtkTextProperty *tprop,
                                    float bounds[4]) = 0;
 

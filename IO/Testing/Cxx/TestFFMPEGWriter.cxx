@@ -58,6 +58,8 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   w->SetInputConnection(colorize->GetOutputPort());
   w->SetFileName("TestFFMPEGWriter.avi");
   cout << "Writing file TestFFMPEGWriter.avi..." << endl;
+  w->SetBitRate(1024*1024*30);
+  w->SetBitRateTolerance(1024*1024*3);
   w->Start();
   for ( cc = 2; cc < 99; cc ++ )
     {

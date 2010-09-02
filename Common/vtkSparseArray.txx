@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkSparseArray.txx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -55,16 +55,16 @@ const vtkArrayExtents& vtkSparseArray<T>::GetExtents()
 }
 
 template<typename T>
-vtkIdType vtkSparseArray<T>::GetNonNullSize()
+typename vtkSparseArray<T>::SizeT vtkSparseArray<T>::GetNonNullSize()
 {
   return this->Values.size();
 }
 
 template<typename T>
-void vtkSparseArray<T>::GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates)
+void vtkSparseArray<T>::GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates)
 {
   coordinates.SetDimensions(this->GetDimensions());
-  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+  for(DimensionT i = 0; i != this->GetDimensions(); ++i)
     coordinates[i] = this->Coordinates[i][n];
 }
 
@@ -84,7 +84,7 @@ vtkArray* vtkSparseArray<T>::DeepCopy()
 }
 
 template<typename T>
-const T& vtkSparseArray<T>::GetValue(vtkIdType i)
+const T& vtkSparseArray<T>::GetValue(CoordinateT i)
 {
   if(1 != this->GetDimensions())
     {
@@ -92,7 +92,7 @@ const T& vtkSparseArray<T>::GetValue(vtkIdType i)
     return this->NullValue;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     if(i != this->Coordinates[0][row])
@@ -100,12 +100,12 @@ const T& vtkSparseArray<T>::GetValue(vtkIdType i)
 
     return this->Values[row];
     }
-  
+
   return this->NullValue;
 }
 
 template<typename T>
-const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j)
+const T& vtkSparseArray<T>::GetValue(CoordinateT i, CoordinateT j)
 {
   if(2 != this->GetDimensions())
     {
@@ -113,7 +113,7 @@ const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j)
     return this->NullValue;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     if(i != this->Coordinates[0][row])
@@ -124,12 +124,12 @@ const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j)
 
     return this->Values[row];
     }
-  
+
   return this->NullValue;
 }
 
 template<typename T>
-const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
+const T& vtkSparseArray<T>::GetValue(CoordinateT i, CoordinateT j, CoordinateT k)
 {
   if(3 != this->GetDimensions())
     {
@@ -137,7 +137,7 @@ const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
     return this->NullValue;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     if(i != this->Coordinates[0][row])
@@ -151,7 +151,7 @@ const T& vtkSparseArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
 
     return this->Values[row];
     }
-  
+
   return this->NullValue;
 }
 
@@ -164,10 +164,10 @@ const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
     return this->NullValue;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
-    for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
+    for(DimensionT column = 0; column != this->GetDimensions(); ++column)
       {
       if(coordinates[column] != this->Coordinates[column][row])
         break;
@@ -176,18 +176,18 @@ const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
         return this->Values[row];
       }
     }
-  
+
   return this->NullValue;
 }
 
 template<typename T>
-const T& vtkSparseArray<T>::GetValueN(const vtkIdType n)
+const T& vtkSparseArray<T>::GetValueN(const SizeT n)
 {
   return this->Values[n];
 }
 
 template<typename T>
-void vtkSparseArray<T>::SetValue(vtkIdType i, const T& value)
+void vtkSparseArray<T>::SetValue(CoordinateT i, const T& value)
 {
   if(1 != this->GetDimensions())
     {
@@ -195,7 +195,7 @@ void vtkSparseArray<T>::SetValue(vtkIdType i, const T& value)
     return;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     if(i != this->Coordinates[0][row])
@@ -210,7 +210,7 @@ void vtkSparseArray<T>::SetValue(vtkIdType i, const T& value)
 }
 
 template<typename T>
-void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
+void vtkSparseArray<T>::SetValue(CoordinateT i, CoordinateT j, const T& value)
 {
   if(2 != this->GetDimensions())
     {
@@ -218,7 +218,7 @@ void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
     return;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     if(i != this->Coordinates[0][row])
@@ -236,7 +236,7 @@ void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
 }
 
 template<typename T>
-void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
+void vtkSparseArray<T>::SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value)
 {
   if(3 != this->GetDimensions())
     {
@@ -244,7 +244,7 @@ void vtkSparseArray<T>::SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T&
     return;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     if(i != this->Coordinates[0][row])
@@ -273,10 +273,10 @@ void vtkSparseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T
     return;
     }
 
-  // Do a naive linear-search for the time-being ... 
+  // Do a naive linear-search for the time-being ...
   for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
-    for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
+    for(DimensionT column = 0; column != this->GetDimensions(); ++column)
       {
       if(coordinates[column] != this->Coordinates[column][row])
         break;
@@ -294,7 +294,7 @@ void vtkSparseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T
 }
 
 template<typename T>
-void vtkSparseArray<T>::SetValueN(const vtkIdType n, const T& value)
+void vtkSparseArray<T>::SetValueN(const SizeT n, const T& value)
 {
   this->Values[n] = value;
 }
@@ -314,9 +314,9 @@ const T& vtkSparseArray<T>::GetNullValue()
 template<typename T>
 void vtkSparseArray<T>::Clear()
 {
-  for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
+  for(DimensionT column = 0; column != this->GetDimensions(); ++column)
     this->Coordinates[column].clear();
-  
+
   this->Values.clear();
 }
 
@@ -343,10 +343,10 @@ struct SortCoordinates
 
       return coordinates[sort[i]][lhs] < coordinates[sort[i]][rhs];
       }
-      
+
     return false;
   }
-  
+
   const vtkArraySort* Sort;
   const vtkstd::vector<vtkstd::vector<vtkIdType > >* Coordinates;
 };
@@ -359,7 +359,7 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
     vtkErrorMacro(<< "Sort must order at least one dimension.");
     return;
     }
-    
+
   for(vtkIdType i = 0; i != sort.GetDimensions(); ++i)
     {
     if(sort[i] < 0 || sort[i] >= this->GetDimensions())
@@ -369,7 +369,7 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
       }
     }
 
-  const vtkIdType count = this->GetNonNullSize();
+  const SizeT count = this->GetNonNullSize();
   vtkstd::vector<vtkIdType> sort_order(count);
   for(vtkIdType i = 0; i != count; ++i)
     sort_order[i] = i;
@@ -390,22 +390,22 @@ void vtkSparseArray<T>::Sort(const vtkArraySort& sort)
 }
 
 template<typename T>
-vtkstd::vector<vtkIdType> vtkSparseArray<T>::GetUniqueCoordinates(vtkIdType dimension)
+vtkstd::vector<typename vtkSparseArray<T>::CoordinateT> vtkSparseArray<T>::GetUniqueCoordinates(DimensionT dimension)
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
     {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
-    return vtkstd::vector<vtkIdType>();
+    return vtkstd::vector<CoordinateT>();
     }
 
-  vtkstd::vector<vtkIdType> results(this->Coordinates[dimension]);
+  vtkstd::vector<CoordinateT> results(this->Coordinates[dimension]);
   vtkstd::sort(results.begin(), results.end());
   results.erase(vtkstd::unique(results.begin(), results.end()), results.end());
   return results;
 }
 
 template<typename T>
-const vtkIdType* vtkSparseArray<T>::GetCoordinateStorage(vtkIdType dimension) const
+const typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateStorage(DimensionT dimension) const
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
     {
@@ -417,7 +417,7 @@ const vtkIdType* vtkSparseArray<T>::GetCoordinateStorage(vtkIdType dimension) co
 }
 
 template<typename T>
-vtkIdType* vtkSparseArray<T>::GetCoordinateStorage(vtkIdType dimension)
+typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateStorage(DimensionT dimension)
 {
   if(dimension < 0 || dimension >= this->GetDimensions())
     {
@@ -441,11 +441,11 @@ T* vtkSparseArray<T>::GetValueStorage()
 }
 
 template<typename T>
-void vtkSparseArray<T>::ReserveStorage(const vtkIdType value_count)
+void vtkSparseArray<T>::ReserveStorage(const SizeT value_count)
 {
-  for(vtkIdType dimension = 0; dimension != this->GetDimensions(); ++dimension)
+  for(DimensionT dimension = 0; dimension != this->GetDimensions(); ++dimension)
     this->Coordinates[dimension].resize(value_count);
-  
+
   this->Values.resize(value_count);
 }
 
@@ -456,8 +456,8 @@ void vtkSparseArray<T>::SetExtentsFromContents()
 
   const vtkIdType row_begin = 0;
   const vtkIdType row_end = row_begin + this->Values.size();
-  const vtkIdType dimension_count = this->GetDimensions();
-  for(vtkIdType dimension = 0; dimension != dimension_count; ++dimension)
+  const DimensionT dimension_count = this->GetDimensions();
+  for(DimensionT dimension = 0; dimension != dimension_count; ++dimension)
     {
     vtkIdType range_begin = std::numeric_limits<vtkIdType>::max();
     vtkIdType range_end = -std::numeric_limits<vtkIdType>::max();
@@ -485,19 +485,19 @@ void vtkSparseArray<T>::SetExtents(const vtkArrayExtents& extents)
 }
 
 template<typename T>
-void vtkSparseArray<T>::AddValue(vtkIdType i, const T& value)
+void vtkSparseArray<T>::AddValue(CoordinateT i, const T& value)
 {
   this->AddValue(vtkArrayCoordinates(i), value);
 }
 
 template<typename T>
-void vtkSparseArray<T>::AddValue(vtkIdType i, vtkIdType j, const T& value)
+void vtkSparseArray<T>::AddValue(CoordinateT i, CoordinateT j, const T& value)
 {
   this->AddValue(vtkArrayCoordinates(i, j), value);
 }
 
 template<typename T>
-void vtkSparseArray<T>::AddValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
+void vtkSparseArray<T>::AddValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value)
 {
   this->AddValue(vtkArrayCoordinates(i, j, k), value);
 }
@@ -513,7 +513,7 @@ void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T
 
   this->Values.push_back(value);
 
-  for(vtkIdType i = 0; i != coordinates.GetDimensions(); ++i)
+  for(DimensionT i = 0; i != coordinates.GetDimensions(); ++i)
     this->Coordinates[i].push_back(coordinates[i]);
 }
 
@@ -535,7 +535,7 @@ bool vtkSparseArray<T>::Validate()
   vtkstd::vector<vtkIdType> sort_order(count);
   for(vtkIdType i = 0; i != count; ++i)
     sort_order[i] = i;
-    
+
   vtkstd::sort(sort_order.begin(), sort_order.end(), SortCoordinates(sort, this->Coordinates));
 
   // Now, look for duplicates ...
@@ -600,16 +600,15 @@ void vtkSparseArray<T>::InternalResize(const vtkArrayExtents& extents)
 }
 
 template<typename T>
-void vtkSparseArray<T>::InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label)
+void vtkSparseArray<T>::InternalSetDimensionLabel(DimensionT i, const vtkStdString& label)
 {
   this->DimensionLabels[i] = label;
 }
 
 template<typename T>
-vtkStdString vtkSparseArray<T>::InternalGetDimensionLabel(vtkIdType i)
+vtkStdString vtkSparseArray<T>::InternalGetDimensionLabel(DimensionT i)
 {
   return this->DimensionLabels[i];
 }
 
 #endif
-

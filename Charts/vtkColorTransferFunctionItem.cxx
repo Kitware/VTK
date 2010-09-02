@@ -62,6 +62,18 @@ void vtkColorTransferFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkColorTransferFunctionItem::GetBounds(double* bounds)
+{
+  this->Superclass::GetBounds(bounds);
+  if (this->ColorTransferFunction)
+    {
+    double* range = this->ColorTransferFunction->GetRange();
+    bounds[0] = range[0];
+    bounds[1] = range[1];
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunction* t)
 {
   vtkSetObjectBodyMacro(ColorTransferFunction, vtkColorTransferFunction, t);
@@ -69,6 +81,7 @@ void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunc
     {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     }
+  this->ScalarsToColorsModified(t, vtkCommand::ModifiedEvent, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,7 +99,6 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     vtkWarningMacro(<< "The color transfer function seems empty");
     return;
     }
-
   // Could depend of the screen resolution
   const int dimension = 256;
   double* values = new double[dimension];
@@ -98,43 +110,21 @@ void vtkColorTransferFunctionItem::ComputeTexture()
   this->Texture->SetScalarTypeToUnsignedChar();
   this->Texture->AllocateScalars();
 
-  unsigned char* ptr =
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   for (int i = 0; i < dimension; ++i)
     {
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
-    ptr[3] = static_cast<unsigned char>(this->Opacity * 255 + 0.5);
-    ptr+=4;
     }
+  unsigned char* ptr =
+    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
   this->ColorTransferFunction->MapScalarsThroughTable2(
-    values,
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0)),
-    VTK_DOUBLE,dimension,1,4);
-  delete values;
-}
-
-//-----------------------------------------------------------------------------
-void vtkColorTransferFunctionItem::ScalarsToColorsModified(vtkObject* object,
-                                                     unsigned long eid,
-                                                     void* calldata)
-{
-  if (object != this->ColorTransferFunction)
+    values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  if (this->Opacity != 1.0)
     {
-    vtkErrorMacro("The callback sender object is not the lookup table object ");
-    return;
+    for (int i = 0; i < dimension; ++i)
+      {
+      ptr[3] = static_cast<unsigned char>(this->Opacity * ptr[3]);
+      ptr+=4;
+      }
     }
-  //Update shape based on the potentially new range.
-  double* range = this->ColorTransferFunction->GetRange();
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] != range[0] || bounds[1] != range[1])
-    {
-    this->Shape->SetNumberOfPoints(4);
-    this->Shape->SetPoint(0, range[0], bounds[2]);
-    this->Shape->SetPoint(1, range[0], bounds[3]);
-    this->Shape->SetPoint(2, range[1], bounds[3]);
-    this->Shape->SetPoint(3, range[1], bounds[2]);
-    }
-  // Internally calls modified to ask for a refresh of the item
-  this->Superclass::ScalarsToColorsModified(object, eid, calldata);
+  delete [] values;
 }

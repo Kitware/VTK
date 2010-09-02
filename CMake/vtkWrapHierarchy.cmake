@@ -17,6 +17,24 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     SET(quote "")
   ENDIF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
 
+  # all the compiler "-D" args
+  GET_DIRECTORY_PROPERTY(TMP_DEF_LIST DEFINITION COMPILE_DEFINITIONS)
+  SET(TMP_DEFINITIONS)
+  FOREACH(TMP_DEF ${TMP_DEF_LIST})
+    SET(TMP_DEFINITIONS ${TMP_DEFINITIONS} -D "${quote}${TMP_DEF}${quote}")
+  ENDFOREACH(TMP_DEF ${TMP_DEF_LIST})
+
+  # all the include directories
+  IF(VTK_WRAP_INCLUDE_DIRS)
+    SET(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+  ELSE(VTK_WRAP_INCLUDE_DIRS)
+    SET(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+  ENDIF(VTK_WRAP_INCLUDE_DIRS)
+  SET(TMP_INCLUDE)
+  FOREACH(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+    SET(TMP_INCLUDE ${TMP_INCLUDE} -I "${quote}${INCLUDE_DIR}${quote}")
+  ENDFOREACH(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+
   # be bold and parse all files, not just indicated ones
   SET(IGNORE_WRAP_EXCLUDE ON)
 
@@ -122,6 +140,8 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       TARGET vtk${KIT} POST_BUILD
 
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+      ${TMP_DEFINITIONS}
+      ${TMP_INCLUDE}
       "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
@@ -134,9 +154,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       )
 
     # Force the above custom command to execute if hierarchy tool changes
-    IF(NOT ${KIT} STREQUAL "Qt")
     ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy)
-    ENDIF(NOT ${KIT} STREQUAL "Qt")
 
     # Add a custom-command for when the hierarchy file is needed
     # within its own kit.  A dummy target is needed because the
@@ -152,6 +170,8 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
 
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+      ${TMP_DEFINITIONS}
+      ${TMP_INCLUDE}
       "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
@@ -167,6 +187,8 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       ${TARGET} ALL
       DEPENDS ${VTK_WRAP_HIERARCHY_EXE} ${OUTPUT_DIR}/${TARGET}.data
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
+      ${TMP_DEFINITIONS}
+      ${TMP_INCLUDE}
       "-o" "${quote}${OUTPUT_DIR}/vtk${KIT}Hierarchy.txt${quote}"
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}

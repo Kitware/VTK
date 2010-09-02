@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkPointwiseMutualInformation_h
-#define __vtkPointwiseMutualInformation_h
-
-#include "vtkArrayDataAlgorithm.h"
-
 // .NAME vtkPointwiseMutualInformation - Computes pointwise mutual information.
 //
 // .SECTION Description
@@ -32,6 +27,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkPointwiseMutualInformation_h
+#define __vtkPointwiseMutualInformation_h
+
+#include "vtkArrayDataAlgorithm.h"
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkPointwiseMutualInformation : public vtkArrayDataAlgorithm
 {

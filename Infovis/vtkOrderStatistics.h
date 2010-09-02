@@ -20,16 +20,17 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkOrderStatistics - A class for univariate order statistics
 //
 // .SECTION Description
-// Given a selection of columns of interest in an input data table, this 
+// Given a selection of columns of interest in an input data table, this
 // class provides the following functionalities, depending on the
 // execution mode it is executed in:
-// * Learn: calculate 5-point statistics (minimum, 1st quartile, median, third
-//   quartile, maximum) and all other deciles (1,2,3,4,6,7,8,9).
-// * Assess: given an input data set in port INPUT_DATA, and two percentiles p1 < p2,
-//   assess all entries in the data set which are outside of [p1,p2].
+// * Learn: calculate arbitrary quantiles. Provide specific names when 5-point
+//   statistics (minimum, 1st quartile, median, third quartile, maximum) requested.
+// * Assess: given an input data set and a set of q-quantiles, label each datum
+//   either with the quantile interval to which it belongs, or 0 if it is smaller
+//   than smaller quantile, or q if it is larger than largest quantile.
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 
 #ifndef __vtkOrderStatistics_h
@@ -76,7 +77,7 @@ public:
   vtkIdType GetQuantileDefinition() { return static_cast<vtkIdType>( this->QuantileDefinition ); }
 
   // Description:
-  // A convenience method (in particular for access from other applications) to 
+  // A convenience method (in particular for access from other applications) to
   // set parameter values.
   // Return true if setting of requested parameter name was excuted, false otherwise.
   virtual bool SetParameter( const char* parameter,
@@ -107,12 +108,12 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) { return; };
+                     vtkTable* );
 
-//BTX  
+//BTX
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
+  virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
@@ -127,4 +128,3 @@ private:
 };
 
 #endif
-

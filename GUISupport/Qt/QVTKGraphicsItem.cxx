@@ -68,6 +68,7 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 
   mIren->SetRenderWindow(win);
   mWin = win;
+  mIren->Initialize();
 
   if(mWin)
   {
@@ -97,7 +98,10 @@ QVTKInteractor* QVTKGraphicsItem::GetInteractor() const
 
 void QVTKGraphicsItem::Update()
 {
-  this->update(boundingRect());
+  if(this->mWin && this->mFBO)
+    {
+    this->update(boundingRect());
+    }
 };
 
 void QVTKGraphicsItem::MakeCurrent()
@@ -166,7 +170,7 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   painter->beginNativePainting();
 #endif
 
-  if(!mFBO || this->size().toSize() != mFBO->size())
+  if(!mFBO || this->size().toSize() != mFBO->size() || mWin->GetNeverRendered())
   {
     // first time or is enabled
     // if its not the first time and it is disabled, don't update the scene

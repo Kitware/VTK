@@ -40,6 +40,7 @@ IF(VTK_USE_DISPLAY)
     TestManyActors.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
+    TestOpenGLPolyDataMapper.cxx
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
     TestResetCameraVerticalAspectRatio.cxx
@@ -82,6 +83,7 @@ IF(VTK_USE_DISPLAY)
   IF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
   SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
+      RenderNonFinite.cxx
       SurfacePlusEdges.cxx
       TestLabelPlacementMapper.cxx
       )

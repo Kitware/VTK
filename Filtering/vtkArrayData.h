@@ -19,14 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayData_h
-#define __vtkArrayData_h
-
-#include "vtkArray.h"
-#include "vtkDataObject.h"
-
-class vtkArray;
-
 // .NAME vtkArrayData - Pipeline data object that contains multiple vtkArray objects.
 //
 // .SECTION Description
@@ -41,6 +33,14 @@ class vtkArray;
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkArrayData_h
+#define __vtkArrayData_h
+
+#include "vtkArray.h"
+#include "vtkDataObject.h"
+
+class vtkArray;
 
 class VTK_FILTERING_EXPORT vtkArrayData : public vtkDataObject
 {

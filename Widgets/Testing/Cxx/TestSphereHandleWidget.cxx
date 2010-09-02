@@ -16,6 +16,8 @@
 // See also TestPolygonalRepresentationHandleWidget.cxx to plug in any
 // generic polydata as a handle.
 //
+#include "vtkSmartPointer.h"
+
 #include "vtkDEMReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -36,12 +38,10 @@
 #include "vtkPolyDataCollection.h"
 #include "vtkTriangleFilter.h"
 #include "vtkImageResample.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkHandleWidget.h"
 #include "vtkSphereHandleRepresentation.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTesting.h"
 
 char TestSphereHandleWidgetEventLog[] =
 "# StreamVersion 1\n"
@@ -234,9 +234,9 @@ int TestSphereHandleWidget(int argc, char*argv[])
 {
   if (argc < 2)
     {
-    cerr
+    std::cerr
       << "Sphere widget with a sphere handle representation."
-      << endl;
+      << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -246,26 +246,31 @@ int TestSphereHandleWidget(int argc, char*argv[])
 
   // Read height field.
   //
-  vtkDEMReader *demReader = vtkDEMReader::New();
+  vtkSmartPointer<vtkDEMReader> demReader =
+    vtkSmartPointer<vtkDEMReader>::New();
   demReader->SetFileName(fname);
   delete [] fname;
 
-  vtkImageResample * resample = vtkImageResample::New();
+  vtkSmartPointer<vtkImageResample>  resample =
+    vtkSmartPointer<vtkImageResample>::New();
   resample->SetInput(demReader->GetOutput());
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,1);
   resample->SetAxisMagnificationFactor(1,1);
 
   // Extract geometry
-  vtkImageDataGeometryFilter *surface = vtkImageDataGeometryFilter::New();
+  vtkSmartPointer<vtkImageDataGeometryFilter> surface =
+    vtkSmartPointer<vtkImageDataGeometryFilter>::New();
   surface->SetInput(resample->GetOutput());
 
   // The Dijkistra interpolator will not accept cells that aren't triangles
-  vtkTriangleFilter *triangleFilter = vtkTriangleFilter::New();
+  vtkSmartPointer<vtkTriangleFilter> triangleFilter =
+    vtkSmartPointer<vtkTriangleFilter>::New();
   triangleFilter->SetInput( surface->GetOutput() );
   triangleFilter->Update();
 
-  vtkWarpScalar *warp = vtkWarpScalar::New();
+  vtkSmartPointer<vtkWarpScalar> warp =
+    vtkSmartPointer<vtkWarpScalar>::New();
   warp->SetInput(triangleFilter->GetOutput());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
@@ -277,27 +282,34 @@ int TestSphereHandleWidget(int argc, char*argv[])
   double lo = demReader->GetOutput()->GetScalarRange()[0];
   double hi = demReader->GetOutput()->GetScalarRange()[1];
 
-  vtkLookupTable *lut = vtkLookupTable::New();
+  vtkSmartPointer<vtkLookupTable> lut =
+    vtkSmartPointer<vtkLookupTable>::New();
   lut->SetHueRange(0.6, 0);
   lut->SetSaturationRange(1.0, 0);
   lut->SetValueRange(0.5, 1.0);
 
-  vtkPolyDataNormals *normals = vtkPolyDataNormals::New();
+  vtkSmartPointer<vtkPolyDataNormals> normals =
+    vtkSmartPointer<vtkPolyDataNormals>::New();
 
-  vtkPolyDataMapper *demMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> demMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   demMapper->SetInput(warp->GetPolyDataOutput());
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 
-  vtkActor *demActor = vtkActor::New();
+  vtkSmartPointer<vtkActor> demActor =
+    vtkSmartPointer<vtkActor>::New();
   demActor->SetMapper(demMapper);
 
   // Create the RenderWindow, Renderer and the DEM + path actors.
 
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Add the actors to the renderer, set the background and size
@@ -312,10 +324,11 @@ int TestSphereHandleWidget(int argc, char*argv[])
 
   // Here comes the surface constrained handle widget stuff.....
 
-  vtkHandleWidget *widget = vtkHandleWidget::New();
+  vtkSmartPointer<vtkHandleWidget> widget =
+    vtkSmartPointer<vtkHandleWidget>::New();
   widget->SetInteractor(iren);
-  vtkSphereHandleRepresentation *rep =
-      vtkSphereHandleRepresentation::New();
+  vtkSmartPointer<vtkSphereHandleRepresentation> rep =
+    vtkSmartPointer<vtkSphereHandleRepresentation>::New();
   widget->SetRepresentation( rep );
 
   // Let the surface constrained point-placer be the sole constraint dictating 
@@ -331,56 +344,13 @@ int TestSphereHandleWidget(int argc, char*argv[])
   rep->GetSelectedProperty()->SetColor( 0.2, 0.0, 1.0 );
 
   renWin->Render();
-
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
-  recorder->SetInteractor(iren);
-#ifdef RECORD
-  recorder->SetFileName("record.log");
-  recorder->SetEnabled(true);
-  recorder->Record();
-#else
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestSphereHandleWidgetEventLog);
-#endif
   
   iren->Initialize();
   widget->EnabledOn();
   renWin->Render();
   ren1->ResetCamera();
   ren1->ResetCameraClippingRange();
-
-#ifdef RECORD
-#else
-  recorder->Play();
-
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
-#endif
   
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  // Cleanups
-  recorder->Delete();
-  rep->Delete();
-  triangleFilter->Delete();
-  resample->Delete();
-  demMapper->Delete();
-  surface->Delete();
-  lut->Delete();
-  normals->Delete();
-  warp->Delete();
-  widget->Delete();
-  demReader->Delete();
-  demActor->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-
-  return !retVal;
+  return vtkTesting::InteractorEventLoop(
+      argc, argv, iren, TestSphereHandleWidgetEventLog );
 }
-

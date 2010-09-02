@@ -20,6 +20,8 @@
 
 class vtkPiecewiseFunction;
 
+// Description:
+// vtkPlot::Color and vtkPlot::Brush have no effect here.
 class VTK_CHARTS_EXPORT vtkCompositeTransferFunctionItem: public vtkColorTransferFunctionItem
 {
 public:
@@ -27,21 +29,19 @@ public:
   vtkTypeMacro(vtkCompositeTransferFunctionItem, vtkColorTransferFunctionItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Reimplemented to return the range of the piecewise function
+  virtual void GetBounds(double bounds[4]);
+
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
 
-  void SetMaskAboveCurve(bool mask);
-  vtkGetMacro(MaskAboveCurve, bool);
 protected:
   vtkCompositeTransferFunctionItem();
   virtual ~vtkCompositeTransferFunctionItem();
 
   virtual void ComputeTexture();
-  virtual void ScalarsToColorsModified(vtkObject* object,
-                                       unsigned long eid,
-                                       void* calldata);
   vtkPiecewiseFunction* OpacityFunction;
-  bool                  MaskAboveCurve;
 
 private:
   vtkCompositeTransferFunctionItem(const vtkCompositeTransferFunctionItem&); // Not implemented.

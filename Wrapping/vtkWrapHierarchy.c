@@ -35,6 +35,7 @@
 
 #include "vtkParse.h"
 #include "vtkParseInternal.h"
+#include "vtkParsePreprocess.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -96,7 +97,11 @@ static char **vtkWrapHierarchy_ParseHeaderFile(
     lines[0] = NULL;
     }
 
+#ifdef VTK_IGNORE_BTX
   vtkParse_SetIgnoreBTX(1);
+#else
+  vtkParse_SetIgnoreBTX(0);
+#endif
 
   /* the "concrete" flag doesn't matter, just set to zero */
   data = vtkParse_ParseFile(filename, fp, stderr);
@@ -591,19 +596,53 @@ int main(int argc, char *argv[])
   char **lines = 0;
   char **files = 0;
   char *flags;
+  char *option;
+  char *optionarg;
+  const char *optionargval;
 
   /* parse command-line options */
   for (argi = 1; argi < argc && argv[argi][0] == '-'; argi++)
     {
-    if (strcmp(argv[argi], "-o") == 0)
+    if (strncmp(argv[argi], "-o", 2) == 0 ||
+        strncmp(argv[argi], "-I", 2) == 0 ||
+        strncmp(argv[argi], "-D", 2) == 0 ||
+        strncmp(argv[argi], "-U", 2) == 0)
       {
-      argi++;
-      if (argi >= argc || argv[argi][0] == '-')
+      option = argv[argi];
+      optionarg = &argv[argi][2];
+      if (argv[argi][2] == '\0')
         {
-        usage_error = 1;
-        break;
+        argi++;
+        if (argi >= argc || argv[argi][0] == '-')
+          {
+          usage_error = 1;
+          break;
+          }
+        optionarg = argv[argi];
         }
-      output_filename = argv[argi];
+      if (strncmp(option, "-o", 2) == 0)
+        {
+        output_filename = optionarg;
+        }
+      else if (strncmp(option, "-I", 2) == 0)
+        {
+        vtkParse_IncludeDirectory(optionarg);
+        }
+      else if (strncmp(option, "-D", 2) == 0)
+        {
+        optionargval = "1";
+        j = 0;
+        while (optionarg[j] != '\0' && optionarg[j] != '=') { j++; }
+        if (optionarg[j] == '=')
+          {
+          optionargval = &optionarg[j+1];
+          }
+        vtkParse_DefineMacro(optionarg, optionargval);
+        }
+      else if (strncmp(option, "-U", 2) == 0)
+        {
+        vtkParse_UndefineMacro(optionarg);
+        }
       }
     }
 

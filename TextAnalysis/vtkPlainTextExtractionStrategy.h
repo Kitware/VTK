@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef _vtkPlainTextExtractionStrategy_h
-#define _vtkPlainTextExtractionStrategy_h
-
-#include <vtkTextExtractionStrategy.h>
-
 // .NAME vtkPlainTextExtractionStrategy - text extraction strategy that works with text/* data.
 //
 // .SECTION Description
@@ -37,6 +32,11 @@
 // vtkTextExtraction, vtkTextExtractionStrategy.
 //
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef _vtkPlainTextExtractionStrategy_h
+#define _vtkPlainTextExtractionStrategy_h
+
+#include <vtkTextExtractionStrategy.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkPlainTextExtractionStrategy :
   public vtkTextExtractionStrategy

@@ -68,6 +68,15 @@ static void vtkWrapPython_GenerateSpecialType(
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
+static int vtkWrapPython_IsQtEnum(const char* type)
+{
+  if(type[0] == 'Q' && type[1] == 't' && type[2] == ':' && type[3] == ':')
+    {
+    return 1;
+    }
+  return 0;
+}
+
 /* Make a guess about whether a class is wrapped */
 int vtkWrapPython_IsClassWrapped(
   const char *classname, HierarchyInfo *hinfo);
@@ -83,6 +92,10 @@ static int vtkWrapPython_IsConstructor(
 /* is the method a destructor of the class */
 static int vtkWrapPython_IsDestructor(
   ClassInfo *data, FunctionInfo *currentFunction);
+
+/* Get the python format char for the give type */
+static char vtkWrapPython_FormatChar(
+  unsigned int argtype);
 
 /* create a format string for PyArg_ParseTuple */
 static char *vtkWrapPython_FormatString(
@@ -161,6 +174,7 @@ static void vtkWrapPython_ReturnHintedValue(
 {
   int i;
   const char *c = 0;
+  const char *sizeMethod = "GetNumberOfComponents";
 
   /* Get the char code for the return type */
   switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
@@ -211,21 +225,41 @@ static void vtkWrapPython_ReturnHintedValue(
     /* Check to make sure the pointer is not NULL */
     fprintf(fp,
             "    if(temp%i)\n"
-            "      {\n"
-            "      result = Py_BuildValue((char*)\"",
+            "      {\n",
             MAX_ARGS);
 
-    for (i = 0; i < currentFunction->HintSize; i++)
+    if (currentFunction->HintSize == -1)
       {
-      fprintf(fp, "%s", c);
+      fprintf(fp,
+              "      vtkIdType nc = op->%s();\n"
+              "      result = PyTuple_New(nc);\n"
+              "      for (vtkIdType ic = 0; ic < nc; ic++)\n"
+              "        {\n"
+              "        PyTuple_SET_ITEM(result, ic,\n"
+              "                         Py_BuildValue((char *)\"%s\",temp%i[ic]));\n"
+              "        }\n",
+              sizeMethod, c, MAX_ARGS);
       }
-    fprintf(fp, "\"");
+    else
+      {
+      /* Handle return values of constant size */
+      fprintf(fp,
+              "      result = Py_BuildValue((char*)\"");
 
-    for (i = 0; i < currentFunction->HintSize; i++)
-      {
-      fprintf(fp, ",temp%i[%d]", MAX_ARGS, i);
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp, "%s", c);
+        }
+      fprintf(fp, "\"");
+
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp, ",temp%i[%d]", MAX_ARGS, i);
+        }
+      fprintf(fp, ");\n");
       }
-    fprintf(fp, ");\n"
+
+    fprintf(fp,
             "      }\n"
             "    else\n");
     }
@@ -348,7 +382,8 @@ static void vtkWrapPython_MakeTempVariable(
 
   /* handle non-vtkObjectBase object arguments as pointers */
   if (((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT ||
-      (aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT )
+      ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_QOBJECT &&
+       !vtkWrapPython_IsQtEnum(Id)) )
       && i != MAX_ARGS)
     {
     fprintf(fp, "*");
@@ -365,7 +400,14 @@ static void vtkWrapPython_MakeTempVariable(
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_CHAR_PTR) &&
       ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_VOID_PTR))
     {
-    fprintf(fp,"[%i]",aCount);
+    if (aCount == -1)
+      {
+      fprintf(fp, "[%i]", 20);
+      }
+    else
+      {
+      fprintf(fp, "[%i]", aCount);
+      }
     }
 
   /* finish off with a semicolon */
@@ -376,6 +418,14 @@ static void vtkWrapPython_MakeTempVariable(
   else
     {
     fprintf(fp, "; // arg %d\n", i);
+    }
+
+  /* for arrays of dynamic size (Count == -1), need a tuple */
+  if (aCount == -1)
+    {
+    fprintf(fp,
+            "  PyObject *tempT%d = 0;\n",
+            i);
     }
 
   /* for "void *", add another temp to hold the size of the argument */
@@ -508,10 +558,19 @@ static void vtkWrapPython_ReturnValue(
       }
     case VTK_PARSE_QOBJECT:
       {
-      fprintf(fp,
-              "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
-              currentFunction->ReturnClass, MAX_ARGS,
-              currentFunction->ReturnClass);
+      if(vtkWrapPython_IsQtEnum(currentFunction->ReturnClass))
+        {
+        fprintf(fp,
+                "    result = vtkPythonUtil::SIPGetObjectFromPointer(temp%i, \"%s\", true);\n",
+                MAX_ARGS, currentFunction->ReturnClass);
+        }
+      else
+        {
+        fprintf(fp,
+                "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
+                currentFunction->ReturnClass, MAX_ARGS,
+                currentFunction->ReturnClass);
+        }
       break;
       }
 
@@ -787,6 +846,89 @@ static void vtkWrapPython_ReturnValue(
     }
 }
 
+/* -------------------------------------------------------------------- */
+/* Get the python format char for the give type, after retrieving the
+ * base type from the type */
+static char vtkWrapPython_FormatChar(unsigned int argtype)
+{
+  char typeChar = 'O';
+
+  switch ( (argtype & VTK_PARSE_BASE_TYPE) )
+    {
+    case VTK_PARSE_OBJECT:
+    case VTK_PARSE_QOBJECT:
+      typeChar = 'O';
+      break;
+    case VTK_PARSE_FLOAT:
+      typeChar = 'f';
+      break;
+    case VTK_PARSE_DOUBLE:
+      typeChar = 'd';
+      break;
+    case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_INT:
+      typeChar = 'i';
+      break;
+    case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_SHORT:
+      typeChar = 'h';
+      break;
+    case VTK_PARSE_UNSIGNED_LONG:
+    case VTK_PARSE_LONG:
+      typeChar = 'l';
+      break;
+    case VTK_PARSE_UNSIGNED_ID_TYPE:
+    case VTK_PARSE_ID_TYPE:
+#ifdef VTK_USE_64BIT_IDS
+#ifdef PY_LONG_LONG
+      typeChar = 'L';
+#else
+      typeChar = 'l';
+#endif
+#else
+      typeChar = 'i';
+#endif
+      break;
+#ifdef PY_LONG_LONG
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+      typeChar = 'L';
+      break;
+#else
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+      typeChar = 'l';
+      break;
+#endif
+    case VTK_PARSE_SIGNED_CHAR:
+      typeChar = 'b';
+      break;
+    case VTK_PARSE_CHAR:
+      typeChar = 'c';
+      break;
+    case VTK_PARSE_UNSIGNED_CHAR:
+      typeChar = 'b';
+      break;
+    case VTK_PARSE_BOOL:
+      typeChar = 'O';
+      break;
+    case VTK_PARSE_STRING:
+      typeChar = 's';
+      break;
+    case VTK_PARSE_UNICODE_STRING:
+      typeChar = 'O';
+      break;
+    default:
+      typeChar = 'O';
+      break;
+    }
+
+  return typeChar;
+}
 
 /* -------------------------------------------------------------------- */
 /* Create a format string for PyArg_ParseTuple(), see the python
@@ -815,83 +957,10 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     argtype = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
-
-    switch ( (argtype & VTK_PARSE_BASE_TYPE) )
-      {
-      case VTK_PARSE_OBJECT:
-      case VTK_PARSE_QOBJECT:
-        result[currPos++] = 'O';
-        break;
-      case VTK_PARSE_FLOAT:
-        result[currPos++] = 'f';
-        break;
-      case VTK_PARSE_DOUBLE:
-        result[currPos++] = 'd';
-        break;
-      case VTK_PARSE_UNSIGNED_INT:
-      case VTK_PARSE_INT:
-        result[currPos++] = 'i';
-        break;
-      case VTK_PARSE_UNSIGNED_SHORT:
-      case VTK_PARSE_SHORT:
-        result[currPos++] = 'h';
-        break;
-      case VTK_PARSE_UNSIGNED_LONG:
-      case VTK_PARSE_LONG:
-        result[currPos++] = 'l';
-        break;
-      case VTK_PARSE_UNSIGNED_ID_TYPE:
-      case VTK_PARSE_ID_TYPE:
-#ifdef VTK_USE_64BIT_IDS
-#ifdef PY_LONG_LONG
-        result[currPos++] = 'L';
-#else
-        result[currPos++] = 'l';
-#endif
-#else
-        result[currPos++] = 'i';
-#endif
-        break;
-#ifdef PY_LONG_LONG
-      case VTK_PARSE_UNSIGNED_LONG_LONG:
-      case VTK_PARSE_UNSIGNED___INT64:
-      case VTK_PARSE_LONG_LONG:
-      case VTK_PARSE___INT64:
-        result[currPos++] = 'L';
-        break;
-#else
-      case VTK_PARSE_UNSIGNED_LONG_LONG:
-      case VTK_PARSE_UNSIGNED___INT64:
-      case VTK_PARSE_LONG_LONG:
-      case VTK_PARSE___INT64:
-        result[currPos++] = 'l';
-        break;
-#endif
-      case VTK_PARSE_SIGNED_CHAR:
-        result[currPos++] = 'b';
-        break;
-      case VTK_PARSE_CHAR:
-        result[currPos++] = 'c';
-        break;
-      case VTK_PARSE_UNSIGNED_CHAR:
-        result[currPos++] = 'b';
-        break;
-      case VTK_PARSE_BOOL:
-        result[currPos++] = 'O';
-        break;
-      case VTK_PARSE_STRING:
-        result[currPos++] = 's';
-        break;
-      case VTK_PARSE_UNICODE_STRING:
-        result[currPos++] = 'O';
-        break;
-      default:
-        result[currPos++] = 'O';
-        break;
-      }
+    result[currPos++] = vtkWrapPython_FormatChar(argtype);
 
     if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER &&
-        argtype != VTK_PARSE_OBJECT_PTR && argtype != VTK_PARSE_OBJECT_PTR)
+        argtype != VTK_PARSE_OBJECT_PTR && argtype != VTK_PARSE_QOBJECT_PTR)
       {
       /* back up and replace the char */
       --currPos;
@@ -918,12 +987,19 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
           typeChar = 'i';
           }
 
-        result[currPos++] = '(';
-        for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+        if (currentFunction->ArgCounts[i] == -1)
           {
-          result[currPos++] = typeChar;
+          result[currPos++] = 'O';
           }
-        result[currPos++] = ')';
+        else
+          {
+          result[currPos++] = '(';
+          for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+            {
+            result[currPos++] = typeChar;
+            }
+          result[currPos++] = ')';
+          }
         }
       }
     }
@@ -934,11 +1010,11 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 
 /* -------------------------------------------------------------------- */
 /* Create a string to describe the signature of a method.
- * If isvtkobject is set the string will start with an ampersand.
+ * If isvtkobject is set the string will start with an "at" symbol.
  * Following the optional space will be a ParseTuple format string,
  * followed by the names of any VTK classes required.  The optional
- * ampersand indicates that methods like vtkClass.Method(self, arg1,...)
- * are possible, and the ampersand is a placeholder for "self". */
+ * "at" symbol indicates that methods like vtkClass.Method(self, arg1,...)
+ * are possible, so the "at" is a placeholder for "self". */
 
 static char *vtkWrapPython_ArgCheckString(
   int isvtkobjmethod, FunctionInfo *currentFunction)
@@ -978,14 +1054,14 @@ static char *vtkWrapPython_ArgCheckString(
       currPos += 5;
       }
 
-    if (argtype == VTK_PARSE_UNICODE_STRING ||
+    else if (argtype == VTK_PARSE_UNICODE_STRING ||
         argtype == VTK_PARSE_UNICODE_STRING_REF)
       {
       strcpy(&result[currPos], " unicode");
       currPos += 8;
       }
 
-    if (argtype == VTK_PARSE_OBJECT_REF ||
+    else if (argtype == VTK_PARSE_OBJECT_REF ||
         argtype == VTK_PARSE_OBJECT_PTR ||
         argtype == VTK_PARSE_OBJECT ||
         argtype == VTK_PARSE_QOBJECT ||
@@ -1005,6 +1081,14 @@ static char *vtkWrapPython_ArgCheckString(
         }
       strcpy(&result[currPos], currentFunction->ArgClasses[i]);
       currPos += strlen(currentFunction->ArgClasses[i]);
+      }
+
+    else if (currentFunction->ArgCounts[i] == -1)
+      {
+      result[currPos++] = ' ';
+      result[currPos++] = '*';
+      result[currPos++] = vtkWrapPython_FormatChar(argtype);
+      result[currPos] = '\0';
       }
     }
 
@@ -2255,6 +2339,8 @@ static void vtkWrapPython_GenerateMethods(
   char *cp;
   unsigned int returnType = 0;
   unsigned int argType = 0;
+  char typeChar = 0;
+  const char *sizeMethod = "GetNumberOfComponents";
   int potential_error = 0;
   int needs_cleanup = 0;
   char on_error[32];
@@ -2269,6 +2355,43 @@ static void vtkWrapPython_GenerateMethods(
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     theFunc = data->Functions[i];
+
+    /* add hints for array GetTuple methods */
+    if (strcmp(data->Name, "vtkDataArray") == 0 || (hinfo &&
+        vtkParseHierarchy_IsTypeOf(hinfo, data->Name, "vtkDataArray")))
+      {
+      if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
+           strcmp(theFunc->Name, "GetTupleValue") == 0) &&
+          theFunc->HaveHint == 0 &&
+          theFunc->NumberOfArguments == 1 &&
+          theFunc->ArgTypes[0] == VTK_PARSE_ID_TYPE &&
+          (theFunc->ReturnType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_CHAR)
+        {
+        theFunc->HaveHint = 1;
+        theFunc->HintSize = -1;
+        }
+      else if ((strcmp(theFunc->Name, "SetTuple") == 0 ||
+                strcmp(theFunc->Name, "SetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "GetTuple") == 0 ||
+                strcmp(theFunc->Name, "GetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "InsertTuple") == 0 ||
+                strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
+               theFunc->NumberOfArguments == 2 &&
+               theFunc->ArgTypes[0] == VTK_PARSE_ID_TYPE &&
+               theFunc->ArgCounts[1] == 0 &&
+               (theFunc->ArgTypes[1] & VTK_PARSE_BASE_TYPE) != VTK_PARSE_CHAR)
+        {
+        theFunc->ArgCounts[1] = -1;
+        }
+      else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
+                strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
+               theFunc->NumberOfArguments == 1 &&
+               theFunc->ArgCounts[0] == 0 &&
+               (theFunc->ArgTypes[0] & VTK_PARSE_BASE_TYPE) != VTK_PARSE_CHAR)
+        {
+        theFunc->ArgCounts[0] = -1;
+        }
+      }
 
     /* check for wrappability */
     if (vtkWrapPython_MethodCheck(data, theFunc, hinfo) &&
@@ -2488,11 +2611,15 @@ static void vtkWrapPython_GenerateMethods(
               }
             else
               {
-              if (theSignature->ArgCounts[i])
+              if (theSignature->ArgCounts[i] == -1)
+                {
+                fprintf(fp,", &tempT%d",i);
+                }
+              else if (theSignature->ArgCounts[i])
                 {
                 for (j = 0; j < theSignature->ArgCounts[i]; j++)
                   {
-                  fprintf(fp,", temp%d + %d",i,j);
+                  fprintf(fp,", &temp%d[%d]",i,j);
                   }
                 }
               else
@@ -2540,18 +2667,20 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_QOBJECT ||
                      argType == VTK_PARSE_QOBJECT_REF)
               {
-              fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\");\n",
-                      i, theSignature->ArgClasses[i], i,
-                      theSignature->ArgClasses[i]);
-              fprintf(fp,
-                      "    if (!temp%d && tempH%d != Py_None)\n"
-                      "      {\n"
-                      "      %s;\n"
-                      "      }\n",
-                      i, i, on_error);
-
-              potential_error = 1;
+              if(vtkWrapPython_IsQtEnum(theSignature->ArgClasses[i]))
+                {
+                fprintf(fp,
+                        "    temp%d = static_cast<%s>(reinterpret_cast<size_t>(vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\")));\n",
+                        i, theSignature->ArgClasses[i], i,
+                        theSignature->ArgClasses[i]);
+                }
+              else
+                {
+                fprintf(fp,
+                        "    temp%d = (%s *)vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\");\n",
+                        i, theSignature->ArgClasses[i], i,
+                        theSignature->ArgClasses[i]);
+                }
               }
             else if (argType == VTK_PARSE_OBJECT ||
                      argType == VTK_PARSE_OBJECT_REF)
@@ -2609,6 +2738,70 @@ static void vtkWrapPython_GenerateMethods(
                       i, i, i, i, i, i, on_error);
               }
 #endif
+            else if (theSignature->ArgCounts[i] == -1)
+              {
+              /* go through the tuple and set the array */
+              typeChar = vtkWrapPython_FormatChar(theSignature->ArgTypes[i]);
+              if ((theSignature->ArgTypes[i] & VTK_PARSE_BASE_TYPE)
+                  == VTK_PARSE_BOOL)
+                {
+                typeChar = 'i';
+                }
+
+              fprintf(fp,
+                      "    if (PySequence_Check(tempT%d))\n"
+                      "      {\n"
+                      "      int typesAreOk = 1;\n"
+                      "      Py_ssize_t n = op->%s();\n"
+                      "#if PY_MAJOR_VERSION >= 2\n"
+                      "      Py_ssize_t m = PySequence_Size(tempT%d);\n"
+                      "#else\n"
+                      "      Py_ssize_t m = PySequence_Length(tempT%d);\n"
+                      "#endif\n"
+                      "      if (m > 20)\n"
+                      "        {\n"
+                      "        PyErr_SetString(PyExc_TypeError,\n"
+                      "          \"VTK-python cannot unpack sequences of more than 20 items\");\n"
+                      "        }\n",
+                      i, sizeMethod, i, i);
+
+              fprintf(fp,
+                      "      else if (n == m)\n"
+                      "        {\n"
+                      "        for (Py_ssize_t i = 0; i < n && typesAreOk; i++)\n"
+                      "          {\n"
+                      "          PyObject *item = PySequence_GetItem(tempT%d, i);\n"
+                      "          if (item == NULL)\n"
+                      "            {\n"
+                      "            PyErr_Clear();\n"
+                      "            PyErr_SetString(PyExc_TypeError, \"cannot get items from sequence\");\n"
+                      "            break;\n"
+                      "            }\n"
+                      "          typesAreOk = PyArg_Parse(item, (char *)\"%c\", &temp%d[i]);\n"
+                      "          Py_DECREF(item);\n"
+                      "          }\n"
+                      "        }\n",
+                      i, typeChar, i);
+
+              fprintf(fp,
+                      "      else\n"
+                      "        {\n"
+                      "        char text[128];\n"
+                      "        sprintf(text, \"must be a sequence of length %%li, not %%li\", (long)n, (long)m);\n"
+                      "        PyErr_SetString(PyExc_TypeError, text);\n"
+                      "        }\n"
+                      "      }\n"
+                      "    else\n"
+                      "      {\n"
+                      "      PyErr_SetString(PyExc_TypeError, \"a sequence is required\");\n"
+                      "      }\n"
+                      "    if (PyErr_Occurred())\n"
+                      "      {\n"
+                      "      %s;\n"
+                      "      }\n"
+                      "  \n",
+                      on_error);
+              }
             }
           /* make sure passed method is callable  for VAR functions */
           if (theSignature->NumberOfArguments == 1 &&
@@ -2743,8 +2936,10 @@ static void vtkWrapPython_GenerateMethods(
                 }
               if (argType == VTK_PARSE_OBJECT_REF ||
                   argType == VTK_PARSE_OBJECT ||
-                  argType == VTK_PARSE_QOBJECT_REF ||
-                  argType == VTK_PARSE_QOBJECT)
+                  ((argType == VTK_PARSE_QOBJECT_REF ||
+                    argType == VTK_PARSE_QOBJECT) &&
+                   !vtkWrapPython_IsQtEnum(theSignature->ArgClasses[i]))
+                  )
                 {
                 fprintf(fp,"*(temp%i)",i);
                 }
@@ -2792,11 +2987,24 @@ static void vtkWrapPython_GenerateMethods(
                 ((theSignature->ArgTypes[i] & VTK_PARSE_CONST) == 0))
               {
               fprintf(fp,
-                      "    if (vtkPythonUtil::CheckArray(args,%d,temp%d,%d))\n"
+                      "    if (vtkPythonUtil::CheckArray(args,%d,temp%d,",
+                      i, i);
+
+              if (theSignature->ArgCounts[i] == -1)
+                {
+                fprintf(fp, "\n"
+                        "          op->%s()", sizeMethod);
+                }
+              else
+                {
+                fprintf(fp, "%d", theSignature->ArgCounts[i]);
+                }
+
+              fprintf(fp, "))\n"
                       "      {\n"
                       "      %s;\n"
                       "      }\n",
-                      i, i, theSignature->ArgCounts[i], on_error);
+                      on_error);
 
               potential_error = 1;
               }
@@ -3211,7 +3419,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     argType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
     if (((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
-        (currentFunction->ArgCounts[i] <= 0) &&
+        (currentFunction->ArgCounts[i] == 0) &&
         (argType != VTK_PARSE_OBJECT_PTR) &&
         (argType != VTK_PARSE_QOBJECT_PTR) &&
         (argType != VTK_PARSE_CHAR_PTR) &&
@@ -3270,20 +3478,23 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
 
   /* if we need a return type hint make sure we have one */
-  switch (returnType)
+  if (args_ok)
     {
-    case VTK_PARSE_FLOAT_PTR:
-    case VTK_PARSE_DOUBLE_PTR:
-    case VTK_PARSE_ID_TYPE_PTR:
-    case VTK_PARSE_LONG_LONG_PTR:
-    case VTK_PARSE___INT64_PTR:
-    case VTK_PARSE_SIGNED_CHAR_PTR:
-    case VTK_PARSE_BOOL_PTR:
-    case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_LONG_PTR:
-      args_ok = currentFunction->HaveHint;
+    switch (returnType)
+      {
+      case VTK_PARSE_FLOAT_PTR:
+      case VTK_PARSE_DOUBLE_PTR:
+      case VTK_PARSE_ID_TYPE_PTR:
+      case VTK_PARSE_LONG_LONG_PTR:
+      case VTK_PARSE___INT64_PTR:
+      case VTK_PARSE_SIGNED_CHAR_PTR:
+      case VTK_PARSE_BOOL_PTR:
+      case VTK_PARSE_INT_PTR:
+      case VTK_PARSE_SHORT_PTR:
+      case VTK_PARSE_LONG_PTR:
+        args_ok = currentFunction->HaveHint;
       break;
+      }
     }
 
   /* char * is always treated as a string, not an array */
@@ -3610,7 +3821,9 @@ static void vtkWrapPython_CustomMethods(
             "static PyObject *PyvtkObject_AddObserver(PyObject *self, PyObject *args)\n"
             "{\n"
             "  vtkObject *op;\n"
-            "  char *temp0; // arg 0\n"
+            "  PyObject *temp0; // arg 0\n"
+            "  const char *temp0s = 0;\n"
+            "  int temp0i = 0;\n"
             "  PyObject *temp1; // arg 1\n"
             "  float temp2 = 0.0f; // arg 2\n"
             "  unsigned long temp20 = 0; // return value\n"
@@ -3618,21 +3831,44 @@ static void vtkWrapPython_CustomMethods(
 
     fprintf(fp,
             "  op = static_cast<vtkObject *>(vtkPythonUtil::VTKParseTuple(\n"
-            "    self, args, \"zO|f:AddObserver\", &temp0, &temp1, &temp2));\n"
+            "    self, args, \"OO|f:AddObserver\", &temp0, &temp1, &temp2));\n"
             "\n"
             "  if (op)\n"
             "    {\n"
+            "    if (PyString_Check(temp0))\n"
+            "      {\n"
+            "      temp0s = PyString_AsString(temp0);\n"
+            "      }\n"
+            "    else if (PyInt_Check(temp0))\n"
+            "      {\n"
+            "      temp0i = (int)PyInt_AsLong(temp0);\n"
+            "      }\n"
+            "    else\n"
+            "      {\n"
+            "      PyErr_SetString(PyExc_ValueError,\n"
+            "        \"first arg of AddObserver must be string or int.\");\n"
+            "      return NULL;\n"
+            "      }\n"
             "    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n"
             "      {\n"
             "      PyErr_SetString(PyExc_ValueError,\n"
             "        \"vtk callback method passed to AddObserver was not callable.\");\n"
             "      return NULL;\n"
-            "      }\n"
+            "      }\n");
+
+    fprintf(fp,
             "    Py_INCREF(temp1);\n"
             "    vtkPythonCommand *cbc = vtkPythonCommand::New();\n"
             "    cbc->SetObject(temp1);\n"
             "    cbc->SetThreadState(PyThreadState_Get());\n"
-            "    temp20 = op->AddObserver(temp0,cbc,temp2);\n"
+            "    if (temp0s)\n"
+            "      {\n"
+            "      temp20 = op->AddObserver(temp0s,cbc,temp2);\n"
+            "      }\n"
+            "    else\n"
+            "      {\n"
+            "      temp20 = op->AddObserver(temp0i,cbc,temp2);\n"
+            "      }\n"
             "    cbc->Delete();\n"
             "#if (PY_VERSION_HEX >= 0x02020000)\n"
             "    if ((long)(temp20) >= 0)\n"
@@ -4401,16 +4637,41 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   NamespaceInfo *contents;
   OptionInfo *options;
   HierarchyInfo *hinfo = 0;
+  const char *name;
+  char *name_from_file = 0;
   int class_has_new = 0;
   int has_constants = 0;
   int is_vtkobject = 1;
   int i;
+  size_t j, m;
 
   /* get the main class */
   data = file_info->MainClass;
-  if (data == NULL)
+  if (data)
     {
-    return;
+    name = data->Name;
+    }
+  /* if no class, use the file name */
+  else
+    {
+    name = file_info->FileName;
+    m = strlen(name);
+    for (j = m; j > 0; j--)
+      {
+      if (name[j] == '.') { break; }
+      }
+    if (j > 0) { m = j; }
+    for (j = m; j > 0; j--)
+      {
+      if (!((name[j-1] >= 'a' && name[j-1] <= 'z') ||
+            (name[j-1] >= 'A' && name[j-1] <= 'Z') ||
+            (name[j-1] >= '0' && name[j-1] <= '9') ||
+            name[j-1] == '_')) { break; }
+      }
+    name_from_file = (char *)malloc(m - j + 1);
+    strncpy(name_from_file, &name[j], m - j);
+    name_from_file[m-j] = '\0';
+    name = name_from_file;
     }
 
   /* get the global namespace */
@@ -4427,12 +4688,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
   /* the VTK_WRAPPING_CXX tells header files where they're included from */
   fprintf(fp,
-          "// python wrapper for %s object\n//\n"
+          "// python wrapper for %s\n//\n"
           "#define VTK_WRAPPING_CXX\n",
-          data->Name);
+          name);
 
   /* unless this is vtkObjectBase, define VTK_STREAMS_FWD_ONLY */
-  if (strcmp("vtkObjectBase",data->Name) != 0)
+  if (strcmp("vtkObjectBase", name) != 0)
     {
     /* Block inclusion of full streams.  */
     fprintf(fp,
@@ -4453,26 +4714,29 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#include <vtksys/ios/sstream>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */
-  if (strcmp("vtkObject", data->Name) == 0)
+  if (strcmp("vtkObject", name) == 0)
     {
     fprintf(fp,
           "#include \"vtkPythonCommand.h\"\n");
     }
 
-  /* generate includes for any special types that are used */
-  vtkWrapPython_GenerateSpecialHeaders(fp, data, hinfo);
+  if (data)
+    {
+    /* generate includes for any special types that are used */
+    vtkWrapPython_GenerateSpecialHeaders(fp, data, hinfo);
+    }
 
   /* the header file for the wrapped class */
   fprintf(fp,
           "#include \"%s.h\"\n",
-          data->Name);
+          name);
 
   /* is this isn't a vtkObjectBase-derived object, then it is special */
   is_vtkobject = options->IsVTKObject;
 
   /* add sstream header for special objects and vtkObjectBase*/
-  if (strcmp(data->Name, "vtkObjectBase") == 0 ||
-      (!is_vtkobject && !data->IsAbstract))
+  if (data && (strcmp(data->Name, "vtkObjectBase") == 0 ||
+               (!is_vtkobject && !data->IsAbstract)))
     {
     fprintf(fp,
             "\n"
@@ -4486,9 +4750,9 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "#else\n"
           "extern \"C\" { void PyVTKAddFile_%s(PyObject *, const char *); }\n"
           "#endif\n",
-          data->Name, data->Name);
+          name, name);
 
-  if (is_vtkobject)
+  if (data && is_vtkobject)
     {
     fprintf(fp,
             "#if defined(WIN32)\n"
@@ -4516,50 +4780,53 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     }
 
   /* prototype for the docstring function */
-  fprintf(fp,
-          "\n"
-          "static const char **%sDoc();\n"
-          "\n",
-          data->Name);
-
-  /* check for New() function */
-  for (i = 0; i < data->NumberOfFunctions; i++)
+  if (data)
     {
-    if (data->Functions[i]->Name &&
-        strcmp("New",data->Functions[i]->Name) == 0 &&
-        data->Functions[i]->NumberOfArguments == 0)
+    fprintf(fp,
+            "\n"
+            "static const char **%sDoc();\n"
+            "\n",
+            data->Name);
+
+    /* check for New() function */
+    for (i = 0; i < data->NumberOfFunctions; i++)
       {
-      class_has_new = 1;
+      if (data->Functions[i]->Name &&
+          strcmp("New",data->Functions[i]->Name) == 0 &&
+          data->Functions[i]->NumberOfArguments == 0)
+        {
+        class_has_new = 1;
+        }
       }
-    }
 
-  /* now output all the methods are wrappable */
-  if (is_vtkobject || !data->IsAbstract)
-    {
-    vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
-    }
+    /* now output all the methods are wrappable */
+    if (is_vtkobject || !data->IsAbstract)
+      {
+      vtkWrapPython_GenerateMethods(fp, data, hinfo, is_vtkobject, 0);
+      }
 
-  /* output the class initilization function for VTK objects */
-  if (is_vtkobject)
-    {
-    vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
-    }
+    /* output the class initilization function for VTK objects */
+    if (is_vtkobject)
+      {
+      vtkWrapPython_GenerateObjectNew(fp, data, hinfo, class_has_new);
+      }
 
-  /* output the class initilization function for special objects */
-  else if (!data->IsAbstract)
-    {
-    vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
+    /* output the class initilization function for special objects */
+    else if (!data->IsAbstract)
+      {
+      vtkWrapPython_GenerateSpecialType(fp, data, file_info, hinfo);
+      }
     }
 
   /* The function for adding everything to the module dict */
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
-          "  PyObject *dict, const char *modulename)\n"
+          "  PyObject *dict, const char *%s)\n"
           "{\n"
           "  PyObject *o;\n",
-          data->Name);
+          name, (data ? "modulename" : ""));
 
-  if (is_vtkobject)
+  if (data && is_vtkobject)
     {
     fprintf(fp,
             "  o = PyVTKClass_%sNew(modulename);\n"
@@ -4602,7 +4869,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
               "\n");
       }
     }
-  else /* not is_vtkobject */
+  else if (data) /* not is_vtkobject */
     {
     fprintf(fp,
             "  o = Py%s_TypeNew(modulename);\n"
@@ -4626,7 +4893,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "}\n\n");
 
   /* the docstring for the class, as a static var ending in "Doc" */
-  if (is_vtkobject || !data->IsAbstract)
+  if (data && (is_vtkobject || !data->IsAbstract))
     {
     fprintf(fp,
             "const char **%sDoc()\n"
@@ -4643,5 +4910,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
             "  return docstring;\n"
             "}\n"
             "\n");
+    }
+
+  if (name_from_file)
+    {
+    free(name_from_file);
     }
 }

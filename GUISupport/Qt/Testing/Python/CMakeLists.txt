@@ -3,6 +3,7 @@ set(TESTS
     TestTimeUtility
     TestQVTKWidget
     TestvtkQtTableView
+    TestConnection
     )
 
 IF(VTK_USE_QVTK_QTOPENGL)

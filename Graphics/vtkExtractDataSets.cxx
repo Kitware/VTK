@@ -135,7 +135,7 @@ int vtkExtractDataSets::RequestData(
     }
 
   // regenerate blanking.
-//  output->GenerateVisibilityArrays();
+  output->GenerateVisibilityArrays();
   return 1;
 }
 

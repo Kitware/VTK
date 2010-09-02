@@ -16,6 +16,7 @@
 #include "vtkWedgeMark.h"
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkMarkUtil.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"

@@ -135,7 +135,7 @@ int vtkExtractSelectedRows::RequestData(
           (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 && 
           a->GetInformation()->Has(vtkAnnotation::HIDE()) && 
-          a->GetInformation()->Get(vtkAnnotation::HIDE())==0))
+          a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
         {
         continue;
         }
@@ -182,14 +182,33 @@ int vtkExtractSelectedRows::RequestData(
       vtkIdTypeArray* list = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
       if (list)
         {
-        vtkIdType numTuples = list->GetNumberOfTuples();
-        for (vtkIdType j = 0; j < numTuples; ++j)
+        int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
+        if (inverse)
           {
-          vtkIdType val = list->GetValue(j);
-          output->InsertNextRow(input->GetRow(val));
-          if (this->AddOriginalRowIdsArray)
+          vtkIdType numRows = input->GetNumberOfRows();  //How many rows are in the whole dataset
+          for (vtkIdType j = 0; j < numRows; ++j)
             {
-            originalRowIds->InsertNextValue(val);
+            if(list->LookupValue(j) < 0)
+              {
+              output->InsertNextRow(input->GetRow(j));
+              if (this->AddOriginalRowIdsArray)
+                {
+                originalRowIds->InsertNextValue(j);
+                }
+              }
+            }
+          }
+        else
+          {
+          vtkIdType numTuples = list->GetNumberOfTuples();
+          for (vtkIdType j = 0; j < numTuples; ++j)
+            {
+            vtkIdType val = list->GetValue(j);
+            output->InsertNextRow(input->GetRow(val));
+            if (this->AddOriginalRowIdsArray)
+              {
+              originalRowIds->InsertNextValue(val);
+              }
             }
           }
         }

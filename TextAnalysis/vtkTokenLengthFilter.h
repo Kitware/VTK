@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkTokenLengthFilter_h
-#define __vtkTokenLengthFilter_h
-
-#include <vtkTableAlgorithm.h>
-
 // .NAME vtkTokenLengthFilter - Filters tokens based on their length (number of characters).
 //
 // .SECTION Description
@@ -41,6 +36,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTokenLengthFilter_h
+#define __vtkTokenLengthFilter_h
+
+#include <vtkTableAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkTokenLengthFilter :
   public vtkTableAlgorithm

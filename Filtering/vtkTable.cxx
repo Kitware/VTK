@@ -403,7 +403,7 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
     vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
     if (comps == 1)
       {
-      data->SetTuple1(row, value.ToDouble());
+      data->SetVariantValue(row, value);
       }
     else
       {

@@ -28,9 +28,6 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
-
 // Callback for the interaction
 class vtkBWCallback : public vtkCommand
 {
@@ -47,9 +44,6 @@ public:
   vtkTransform *Transform;
   vtkActor     *Actor;
 };
-
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 
 char BoxWidgetEventLog[] =
   "# StreamVersion 1\n"

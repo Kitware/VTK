@@ -27,8 +27,6 @@
 #include "vtkCommand.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkCoordinate.h"
 #include "vtkMath.h"
 #include "vtkHandleWidget.h"
@@ -36,6 +34,7 @@
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkAxisActor2D.h"
 #include "vtkProperty2D.h"
+#include "vtkTesting.h"
 
 char TestAngleWidget3DEventLog[] =
 "# StreamVersion 1\n"
@@ -649,7 +648,7 @@ public:
     {
       if ( eid == vtkCommand::PlacePointEvent )
         {
-        cout << "point placed\n";
+        std::cout << "point placed\n";
         }
       else if ( eid == vtkCommand::InteractionEvent )
         {
@@ -657,7 +656,7 @@ public:
         this->Rep->GetPoint1WorldPosition(point1);
         this->Rep->GetCenterWorldPosition(center);
         this->Rep->GetPoint2WorldPosition(point2);
-        cout << "Angle between " << "("
+        std::cout << "Angle between " << "("
              << point1[0] << ","
              << point1[1] << ","
              << point1[2] << "), ("
@@ -667,7 +666,7 @@ public:
              << point2[0] << ","
              << point2[1] << ","
              << point2[2] << ") is "
-             << this->Rep->GetAngle() << " radians." << endl;
+             << this->Rep->GetAngle() << " radians." << std::endl;
         }
     }
   vtkAngleRepresentation3D *Rep;

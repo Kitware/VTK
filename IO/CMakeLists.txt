@@ -18,7 +18,8 @@ SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
 SET(KIT_INTERFACE_LIBRARIES vtkFiltering)
-SET(KIT_LIBS vtkDICOMParser vtkNetCDF ${_VTK_METAIO_LIB} vtksqlite
+SET(KIT_LIBS vtkDICOMParser vtkNetCDF vtkNetCDF_cxx
+  ${_VTK_METAIO_LIB} vtksqlite
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES} ${VTK_OGGTHEORA_LIBRARIES}
   ${KWSYS_NAMESPACE})
@@ -35,6 +36,8 @@ vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
 vtkCGMWriter.cxx
 vtkChacoReader.cxx
+vtkCompositeDataReader.cxx
+vtkCompositeDataWriter.cxx
 vtkDatabaseToTableReader.cxx
 vtkDEMReader.cxx
 vtkDICOMImageReader.cxx
@@ -54,11 +57,11 @@ vtkEnSightMasterServerReader.cxx
 vtkEnSightReader.cxx
 vtkFLUENTReader.cxx
 vtkFacetWriter.cxx
-vtkGenericDataObjectReader.cxx
-vtkGenericDataObjectWriter.cxx
 vtkGESignaReader.cxx
 vtkGAMBITReader.cxx
 vtkGaussianCubeReader.cxx
+vtkGenericDataObjectReader.cxx
+vtkGenericDataObjectWriter.cxx
 vtkGenericEnSightReader.cxx
 vtkGenericMovieWriter.cxx
 vtkGlobFileNames.cxx
@@ -84,6 +87,7 @@ ${_VTK_METAIO_SOURCES}
 vtkMINCImageAttributes.cxx
 vtkMINCImageReader.cxx
 vtkMINCImageWriter.cxx
+vtkMPASReader.cxx
 vtkMultiBlockPLOT3DReader.cxx
 vtkMoleculeReaderBase.cxx
 vtkNetCDFCFReader.cxx
@@ -106,6 +110,7 @@ vtkParticleReader.cxx
 vtkPolyDataReader.cxx
 vtkPolyDataWriter.cxx
 vtkPostScriptWriter.cxx
+vtkProStarReader.cxx
 vtkRectilinearGridReader.cxx
 vtkRectilinearGridWriter.cxx
 vtkRTXMLPolyDataReader.cxx
@@ -255,28 +260,6 @@ IF(WIN32)
     SET(KIT_LIBS ${KIT_LIBS} vfw32)
   ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
 ENDIF(WIN32)
-
-IF(NOT WIN32)
-  IF(VTK_BUILD_MPAS_READER)
-    FIND_PATH(NETCDF_C_INCLUDES netcdf.h
-      ${NETCDF}/include
-    )
-
-    FIND_PATH(NETCDF_CPP_INCLUDES netcdfcpp.h
-      ${NETCDF}/include
-    )
-
-    FIND_LIBRARY(NETCDF_C_LIBRARY netcdf
-      ${NETCDF}/lib
-    )
-
-    FIND_LIBRARY(NETCDF_CPP_LIBRARY netcdf_c++
-      ${NETCDF}/lib
-    )
-
-    INCLUDE_DIRECTORIES(${NETCDF_C_INCLUDES} ${NETCDF_CPP_INCLUDES})
-  ENDIF(VTK_BUILD_MPAS_READER)
-ENDIF(NOT WIN32)
 
 #-----------------------------------------------------------------------------
 # FFMPEG
@@ -436,6 +419,8 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 #-----------------------------------------------------------------------------
+
+INCLUDE_DIRECTORIES(${VTKNETCDF_BINARY_DIR})
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)

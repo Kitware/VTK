@@ -203,13 +203,14 @@
 #define __vtkCommand_h
 
 #include "vtkObjectBase.h"
-
-class vtkObject;
+#include "vtkObject.h" // Need vtkTypeMacro
 
 // The superclass that all commands should be subclasses of
 class VTK_COMMON_EXPORT vtkCommand : public vtkObjectBase
 {
 public:
+  vtkTypeMacro(vtkCommand,vtkObjectBase);
+
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference

@@ -3,15 +3,17 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: attr.m4,v 2.33 2010/04/11 04:15:37 dmh Exp $ */
 
 #include "nc.h"
+#include "rename.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "ncx.h"
 #include "fbits.h"
 #include "rnd.h"
+#include "utf8proc.h"
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
 #  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
@@ -52,11 +54,9 @@ ncx_len_NC_attrV(nc_type type, size_t nelems)
     return ncx_len_float(nelems);
   case NC_DOUBLE:
     return ncx_len_double(nelems);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_len_NC_attr bad type" == 0);
   }
-  /* default */
-  assert("ncx_len_NC_attr bad type" == 0);
   return 0;
 }
 
@@ -99,19 +99,23 @@ NC_new_attr(name,type,count,value)
  */
 static NC_attr *
 new_NC_attr(
-  const char *name,
+  const char *uname,
   nc_type type,
   size_t nelems)
 {
   NC_string *strp;
   NC_attr *attrp;
 
+  char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
+  if(name == NULL)
+      return NULL;
   assert(name != NULL && *name != 0);
 
   strp = new_NC_string(strlen(name), name);
+  free(name);
   if(strp == NULL)
     return NULL;
-  
+
   attrp = new_x_NC_attr(strp, type, nelems);
   if(attrp == NULL)
   {
@@ -172,7 +176,7 @@ void
 free_NC_attrarrayV(NC_attrarray *ncap)
 {
   assert(ncap != NULL);
-  
+
   if(ncap->nalloc == 0)
     return;
 
@@ -261,7 +265,7 @@ incr_NC_attrarray(NC_attrarray *ncap, NC_attr *newelemp)
       (ncap->nalloc + NC_ARRAY_GROWBY) * sizeof(NC_attr *));
     if(vp == NULL)
       return NC_ENOMEM;
-  
+
     ncap->value = vp;
     ncap->nalloc += NC_ARRAY_GROWBY;
   }
@@ -318,14 +322,15 @@ NC_attrarray0( NC *ncp, int varid)
 
 /*
  * Step thru NC_ATTRIBUTE array, seeking match on name.
- *  return match or NULL if Not Found.
+ *  return match or NULL if Not Found or out of memory.
  */
 NC_attr **
-NC_findattr(const NC_attrarray *ncap, const char *name)
+NC_findattr(const NC_attrarray *ncap, const char *uname)
 {
   NC_attr **attrpp;
   size_t attrid;
   size_t slen;
+  char *name;
 
   assert(ncap != NULL);
 
@@ -334,6 +339,10 @@ NC_findattr(const NC_attrarray *ncap, const char *name)
 
   attrpp = (NC_attr **) ncap->value;
 
+  /* normalized version of uname */
+  name = (char *)utf8proc_NFC((const unsigned char *)uname);
+  if(name == NULL)
+      return NULL; /* TODO: need better way to indicate no memory */
   slen = strlen(name);
 
   for(attrid = 0; attrid < ncap->nelems; attrid++, attrpp++)
@@ -341,9 +350,11 @@ NC_findattr(const NC_attrarray *ncap, const char *name)
     if(strlen((*attrpp)->name->cp) == slen &&
       strncmp((*attrpp)->name->cp, name, slen) == 0)
     {
+            free(name);
       return(attrpp); /* Normal return */
     }
   }
+  free(name);
   return(NULL);
 }
 
@@ -351,7 +362,7 @@ NC_findattr(const NC_attrarray *ncap, const char *name)
 /*
  * Look up by ncid, varid and name, return NULL if not found
  */
-static int 
+static int
 NC_lookupattr(int ncid,
   int varid,
   const char *name, /* attribute name */
@@ -383,7 +394,7 @@ NC_lookupattr(int ncid,
 /* Public */
 
 int
-nc_inq_attname(int ncid, int varid, int attnum, char *name)
+DISPNAME(inq_attname)(int ncid, int varid, int attnum, char *name)
 {
   int status;
   NC *ncp;
@@ -409,8 +420,8 @@ nc_inq_attname(int ncid, int varid, int attnum, char *name)
 }
 
 
-int 
-nc_inq_attid(int ncid, int varid, const char *name, int *attnump)
+int
+DISPNAME(inq_attid)(int ncid, int varid, const char *name, int *attnump)
 {
   int status;
   NC *ncp;
@@ -424,7 +435,7 @@ nc_inq_attid(int ncid, int varid, const char *name, int *attnump)
   ncap = NC_attrarray0(ncp, varid);
   if(ncap == NULL)
     return NC_ENOTVAR;
-  
+
 
   attrpp = NC_findattr(ncap, name);
   if(attrpp == NULL)
@@ -436,7 +447,7 @@ nc_inq_attid(int ncid, int varid, const char *name, int *attnump)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_atttype(int ncid, int varid, const char *name, nc_type *datatypep)
 {
   int status;
@@ -452,7 +463,7 @@ nc_inq_atttype(int ncid, int varid, const char *name, nc_type *datatypep)
   return NC_NOERR;
 }
 
-int 
+int
 nc_inq_attlen(int ncid, int varid, const char *name, size_t *lenp)
 {
   int status;
@@ -469,7 +480,7 @@ nc_inq_attlen(int ncid, int varid, const char *name, size_t *lenp)
 }
 
 int
-nc_inq_att(int ncid,
+DISPNAME(inq_att)(int ncid,
   int varid,
   const char *name, /* input, attribute name */
   nc_type *datatypep,
@@ -492,7 +503,7 @@ nc_inq_att(int ncid,
 
 
 int
-nc_rename_att( int ncid, int varid, const char *name, const char *newname)
+DISPNAME(rename_att)( int ncid, int varid, const char *name, const char *unewname)
 {
   int status;
   NC *ncp;
@@ -500,6 +511,7 @@ nc_rename_att( int ncid, int varid, const char *name, const char *newname)
   NC_attr **tmp;
   NC_attr *attrp;
   NC_string *newStr, *old;
+  char *newname;  /* normalized version */
 
       /* sortof inline clone of NC_lookupattr() */
   status = NC_check_id(ncid, &ncp);
@@ -513,7 +525,7 @@ nc_rename_att( int ncid, int varid, const char *name, const char *newname)
   if(ncap == NULL)
     return NC_ENOTVAR;
 
-  status = NC_check_name(newname);
+  status = NC_check_name(unewname);
   if(status != NC_NOERR)
     return status;
 
@@ -523,16 +535,20 @@ nc_rename_att( int ncid, int varid, const char *name, const char *newname)
   attrp = *tmp;
       /* end inline clone NC_lookupattr() */
 
-  if(NC_findattr(ncap, newname) != NULL)
+  if(NC_findattr(ncap, unewname) != NULL)
   {
     /* name in use */
     return NC_ENAMEINUSE;
   }
 
   old = attrp->name;
+  newname = (char *)utf8proc_NFC((const unsigned char *)unewname);
+  if(newname == NULL)
+      return NC_EBADNAME;
   if(NC_indef(ncp))
   {
     newStr = new_NC_string(strlen(newname), newname);
+    free(newname);
     if( newStr == NULL)
       return NC_ENOMEM;
     attrp->name = newStr;
@@ -541,6 +557,7 @@ nc_rename_att( int ncid, int varid, const char *name, const char *newname)
   }
   /* else */
   status = set_NC_string(old, newname);
+  free(newname);
   if( status != NC_NOERR)
     return status;
 
@@ -589,18 +606,18 @@ nc_copy_att(int ncid_in, int varid_in, const char *name, int ncid_out, int ovari
     if(!NC_indef(ncp) )
     {
       attrp = *attrpp; /* convenience */
-  
+
       if(iattrp->xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = iattrp->xsz;
       attrp->type = iattrp->type;
       attrp->nelems = iattrp->nelems;
 
       (void) memcpy(attrp->xvalue, iattrp->xvalue,
         iattrp->xsz);
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -614,7 +631,7 @@ nc_copy_att(int ncid_in, int varid_in, const char *name, int ncid_out, int ovari
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -652,7 +669,7 @@ nc_copy_att(int ncid_in, int varid_in, const char *name, int ncid_out, int ovari
 
 
 int
-nc_del_att(int ncid, int varid, const char *name)
+DISPNAME(del_att)(int ncid, int varid, const char *uname)
 {
   int status;
   NC *ncp;
@@ -673,18 +690,25 @@ nc_del_att(int ncid, int varid, const char *name)
   if(ncap == NULL)
     return NC_ENOTVAR;
 
+  {
+  char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
+  if(name == NULL)
+      return NC_ENOMEM;
+
       /* sortof inline NC_findattr() */
   slen = strlen(name);
 
   attrpp = (NC_attr **) ncap->value;
   for(attrid = 0; (size_t) attrid < ncap->nelems; attrid++, attrpp++)
-  {
+      {
     if( slen == (*attrpp)->name->nchars &&
       strncmp(name, (*attrpp)->name->cp, slen) == 0)
     {
       old = *attrpp;
       break;
     }
+      }
+  free(name);
   }
   if( (size_t) attrid == ncap->nelems )
     return NC_ENOTATT;
@@ -722,10 +746,9 @@ ncx_pad_putn_Iuchar(void **xpp, size_t nelems, const uchar *tp, nc_type type)
     return ncx_putn_float_uchar(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_uchar(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Iuchar invalid type" == 0);
   }
-  assert("ncx_pad_putn_Iuchar invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -745,10 +768,9 @@ ncx_pad_getn_Iuchar(const void **xpp, size_t nelems, uchar *tp, nc_type type)
     return ncx_getn_float_uchar(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_uchar(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Iuchar invalid type" == 0);
   }
-  assert("ncx_pad_getn_Iuchar invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -769,10 +791,9 @@ ncx_pad_putn_Ischar(void **xpp, size_t nelems, const schar *tp, nc_type type)
     return ncx_putn_float_schar(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_schar(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Ischar invalid type" == 0);
   }
-  assert("ncx_pad_putn_Ischar invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -792,10 +813,9 @@ ncx_pad_getn_Ischar(const void **xpp, size_t nelems, schar *tp, nc_type type)
     return ncx_getn_float_schar(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_schar(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Ischar invalid type" == 0);
   }
-  assert("ncx_pad_getn_Ischar invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -816,10 +836,9 @@ ncx_pad_putn_Ishort(void **xpp, size_t nelems, const short *tp, nc_type type)
     return ncx_putn_float_short(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_short(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Ishort invalid type" == 0);
   }
-  assert("ncx_pad_putn_Ishort invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -839,10 +858,9 @@ ncx_pad_getn_Ishort(const void **xpp, size_t nelems, short *tp, nc_type type)
     return ncx_getn_float_short(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_short(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Ishort invalid type" == 0);
   }
-  assert("ncx_pad_getn_Ishort invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -863,10 +881,9 @@ ncx_pad_putn_Iint(void **xpp, size_t nelems, const int *tp, nc_type type)
     return ncx_putn_float_int(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_int(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Iint invalid type" == 0);
   }
-  assert("ncx_pad_putn_Iint invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -886,10 +903,9 @@ ncx_pad_getn_Iint(const void **xpp, size_t nelems, int *tp, nc_type type)
     return ncx_getn_float_int(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_int(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Iint invalid type" == 0);
   }
-  assert("ncx_pad_getn_Iint invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -910,10 +926,9 @@ ncx_pad_putn_Ilong(void **xpp, size_t nelems, const long *tp, nc_type type)
     return ncx_putn_float_long(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_long(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Ilong invalid type" == 0);
   }
-  assert("ncx_pad_putn_Ilong invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -933,10 +948,9 @@ ncx_pad_getn_Ilong(const void **xpp, size_t nelems, long *tp, nc_type type)
     return ncx_getn_float_long(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_long(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Ilong invalid type" == 0);
   }
-  assert("ncx_pad_getn_Ilong invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -957,10 +971,9 @@ ncx_pad_putn_Ifloat(void **xpp, size_t nelems, const float *tp, nc_type type)
     return ncx_putn_float_float(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_float(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Ifloat invalid type" == 0);
   }
-  assert("ncx_pad_putn_Ifloat invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -980,10 +993,9 @@ ncx_pad_getn_Ifloat(const void **xpp, size_t nelems, float *tp, nc_type type)
     return ncx_getn_float_float(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_float(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Ifloat invalid type" == 0);
   }
-  assert("ncx_pad_getn_Ifloat invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -1004,10 +1016,9 @@ ncx_pad_putn_Idouble(void **xpp, size_t nelems, const double *tp, nc_type type)
     return ncx_putn_float_double(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_putn_double_double(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+                assert("ncx_pad_putn_Idouble invalid type" == 0);
   }
-  assert("ncx_pad_putn_Idouble invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -1027,10 +1038,9 @@ ncx_pad_getn_Idouble(const void **xpp, size_t nelems, double *tp, nc_type type)
     return ncx_getn_float_double(xpp, nelems, tp);
   case NC_DOUBLE:
     return ncx_getn_double_double(xpp, nelems, tp);
-  case NC_NAT:
-    break; /* Some compilers complain if enums are missing from a switch */
+  default:
+          assert("ncx_pad_getn_Idouble invalid type" == 0);
   }
-  assert("ncx_pad_getn_Idouble invalid type" == 0);
   return NC_EBADTYPE;
 }
 
@@ -1076,11 +1086,11 @@ nc_put_att_text(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(NC_CHAR, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = NC_CHAR;
       attrp->nelems = nelems;
@@ -1092,7 +1102,7 @@ nc_put_att_text(int ncid, int varid, const char *name,
         if(status != NC_NOERR)
           return status;
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1106,7 +1116,7 @@ nc_put_att_text(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -1217,11 +1227,11 @@ nc_put_att_schar(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -1232,7 +1242,7 @@ nc_put_att_schar(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Ischar(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1250,7 +1260,7 @@ nc_put_att_schar(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -1364,11 +1374,11 @@ nc_put_att_uchar(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -1379,7 +1389,7 @@ nc_put_att_uchar(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Iuchar(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1397,7 +1407,7 @@ nc_put_att_uchar(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -1511,11 +1521,11 @@ nc_put_att_short(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -1526,7 +1536,7 @@ nc_put_att_short(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Ishort(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1544,7 +1554,7 @@ nc_put_att_short(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -1658,11 +1668,11 @@ nc_put_att_int(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -1673,7 +1683,7 @@ nc_put_att_int(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Iint(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1691,7 +1701,7 @@ nc_put_att_int(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -1805,11 +1815,11 @@ nc_put_att_long(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -1820,7 +1830,7 @@ nc_put_att_long(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Ilong(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1838,7 +1848,7 @@ nc_put_att_long(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -1952,11 +1962,11 @@ nc_put_att_float(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -1967,7 +1977,7 @@ nc_put_att_float(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Ifloat(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -1985,7 +1995,7 @@ nc_put_att_float(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))
@@ -2099,11 +2109,11 @@ nc_put_att_double(int ncid, int varid, const char *name,
     {
       const size_t xsz = ncx_len_NC_attrV(type, nelems);
       attrp = *attrpp; /* convenience */
-  
+
       if(xsz > attrp->xsz)
         return NC_ENOTINDEFINE;
       /* else, we can reuse existing without redef */
-      
+
       attrp->xsz = xsz;
       attrp->type = type;
       attrp->nelems = nelems;
@@ -2114,7 +2124,7 @@ nc_put_att_double(int ncid, int varid, const char *name,
         status = ncx_pad_putn_Idouble(&xp, nelems,
           value, type);
       }
-      
+
       set_NC_hdirty(ncp);
 
       if(NC_doHsync(ncp))
@@ -2132,7 +2142,7 @@ nc_put_att_double(int ncid, int varid, const char *name,
     }
     /* else, redefine using existing array slot */
     old = *attrpp;
-  } 
+  }
   else
   {
     if(!NC_indef(ncp))

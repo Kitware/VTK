@@ -18,14 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef _vtkMimeTypes_h
-#define _vtkMimeTypes_h
-
-#include <vtkObject.h>
-#include <vtkStdString.h> //Needed for lookup
-
-class vtkMimeTypeStrategy;
-
 // .NAME vtkMimeTypes - Determines the MIME type of a resource.
 //
 // .SECTION Description
@@ -49,6 +41,14 @@ class vtkMimeTypeStrategy;
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef _vtkMimeTypes_h
+#define _vtkMimeTypes_h
+
+#include <vtkObject.h>
+#include <vtkStdString.h> //Needed for lookup
+
+class vtkMimeTypeStrategy;
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkMimeTypes :
   public vtkObject

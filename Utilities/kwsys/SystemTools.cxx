@@ -1405,6 +1405,10 @@ kwsys_stl::vector<kwsys::String> SystemTools::SplitString(const char* p, char se
 {
   kwsys_stl::string path = p;
   kwsys_stl::vector<kwsys::String> paths;
+  if(path.empty())
+    {
+    return paths;
+    }
   if(isPath && path[0] == '/')
     {
     path.erase(path.begin());
@@ -3059,39 +3063,50 @@ kwsys_stl::string SystemTools::RelativePath(const char* local, const char* remot
 static int GetCasePathName(const kwsys_stl::string & pathIn,
                             kwsys_stl::string & casePath)
 {
-  kwsys_stl::string::size_type iFound = pathIn.rfind('/');
-  if (iFound > 1  && iFound != pathIn.npos)
+  kwsys_stl::vector<kwsys_stl::string> path_components;
+  SystemTools::SplitPath(pathIn.c_str(), path_components);
+  if(path_components[0].empty()) // First component always exists.
     {
-    // recurse to peel off components
-    //
-    if (GetCasePathName(pathIn.substr(0, iFound), casePath) > 0)
-      {
-      casePath += '/';
-      if (pathIn[1] != '/')
-        {
-        WIN32_FIND_DATA findData;
-
-        // append the long component name to the path
-        //
-        HANDLE hFind = ::FindFirstFile(pathIn.c_str(), &findData);
-        if (INVALID_HANDLE_VALUE != hFind)
-          {
-          casePath += findData.cFileName;
-          ::FindClose(hFind);
-          }
-        else
-          {
-          // if FindFirstFile fails, return the error code
-          //
-          casePath = "";
-          return 0;
-          }
-        }
-      }
+    // Relative paths cannot be converted.
+    casePath = "";
+    return 0;
     }
-  else
+
+  // Start with root component.
+  kwsys_stl::vector<kwsys_stl::string>::size_type idx = 0;
+  casePath = path_components[idx++];
+  const char* sep = "";
+
+  // If network path, fill casePath with server/share so FindFirstFile
+  // will work after that.  Maybe someday call other APIs to get
+  // actual case of servers and shares.
+  if(path_components.size() > 2 && path_components[0] == "//")
     {
-    casePath = pathIn;
+    casePath += path_components[idx++];
+    casePath += "/";
+    casePath += path_components[idx++];
+    sep = "/";
+    }
+
+  for(; idx < path_components.size(); idx++)
+    {
+    casePath += sep;
+    sep = "/";
+    kwsys_stl::string test_str = casePath;
+    test_str += path_components[idx];
+
+    WIN32_FIND_DATA findData;
+    HANDLE hFind = ::FindFirstFile(test_str.c_str(), &findData);
+    if (INVALID_HANDLE_VALUE != hFind)
+      {
+      casePath += findData.cFileName;
+      ::FindClose(hFind);
+      }
+    else
+      {
+      casePath = "";
+      return 0;
+      }
     }
   return (int)casePath.size();
 }
@@ -3104,28 +3119,29 @@ kwsys_stl::string SystemTools::GetActualCaseForPath(const char* p)
 #ifndef _WIN32
   return p;
 #else
-  // Check to see if actual case has already been called
-  // for this path, and the result is stored in the LongPathMap
-  SystemToolsTranslationMap::iterator i = 
-    SystemTools::LongPathMap->find(p);
-  if(i != SystemTools::LongPathMap->end())
-    {
-    return i->second;
-    }
-  kwsys_stl::string casePath;
-  int len = GetCasePathName(p, casePath);
-  if(len == 0 || len > MAX_PATH+1)
-    {
-    return p;
-    }
+  kwsys_stl::string casePath = p;
   // make sure drive letter is always upper case
   if(casePath.size() > 1 && casePath[1] == ':')
     {
     casePath[0] = toupper(casePath[0]);
     }
+
+  // Check to see if actual case has already been called
+  // for this path, and the result is stored in the LongPathMap
+  SystemToolsTranslationMap::iterator i =
+    SystemTools::LongPathMap->find(casePath);
+  if(i != SystemTools::LongPathMap->end())
+    {
+    return i->second;
+    }
+  int len = GetCasePathName(p, casePath);
+  if(len == 0 || len > MAX_PATH+1)
+    {
+    return p;
+    }
   (*SystemTools::LongPathMap)[p] = casePath;
   return casePath;
-#endif  
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -3143,9 +3159,9 @@ const char* SystemTools::SplitPathRootComponent(const char* p,
       }
     c += 2;
     }
-  else if(c[0] == '/')
+  else if(c[0] == '/' || c[0] == '\\')
     {
-    // Unix path.
+    // Unix path (or Windows path w/out drive letter).
     if(root)
       {
       *root = "/";

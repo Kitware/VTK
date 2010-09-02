@@ -4,7 +4,7 @@ SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
 IF(JAVA_AWT_LIBRARY)
-  SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY} ${JAVA_JVM_LIBRARY})
+  SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY})
 ENDIF(JAVA_AWT_LIBRARY)
 SET(KIT_INTERFACE_LIBRARIES vtkFiltering)
 SET(KIT_LIBS vtkverdict )
@@ -32,6 +32,8 @@ vtkButtonSource.cxx
 vtkCellCenters.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
+vtkCellLocatorInterpolatedVelocityField.cxx
+vtkCellQuality.cxx
 vtkCleanPolyData.cxx
 vtkClipClosedSurface.cxx
 vtkClipConvexPolyData.cxx
@@ -153,12 +155,14 @@ vtkMaskFields.cxx
 vtkMaskPoints.cxx
 vtkMaskPolyData.cxx
 vtkMassProperties.cxx
+vtkMatrixMathFilter.cxx
 vtkMergeCells.cxx
 vtkMergeDataObjectFilter.cxx
 vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
+vtkModifiedBSPTree.cxx
 vtkMultiBlockDataGroupFilter.cxx
 vtkMultiBlockMergeFilter.cxx
 vtkMultiThreshold.cxx
@@ -326,13 +330,6 @@ SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS)
 SET(Kit_PYTHON_EXTRA_SRCS)
-SET(Kit_JAVA_EXTRA_WRAP_SRCS
-  vtkJavaProgrammableFilter.cxx
-  )
-SET(Kit_JAVA_EXTRA_SRCS
-  ${Kit_JAVA_EXTRA_WRAP_SRCS}
-  vtkJVMManager.cxx
-  )
 SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)

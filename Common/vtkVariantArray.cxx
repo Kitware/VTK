@@ -557,9 +557,9 @@ void vtkVariantArray::InsertValue(vtkIdType id, vtkVariant value)
 }
 
 //----------------------------------------------------------------------------
-void vtkVariantArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+void vtkVariantArray::SetVariantValue(vtkIdType id, vtkVariant value)
 {
-  this->InsertValue(id, value);
+  this->SetValue(id, value);
 }
 
 //----------------------------------------------------------------------------

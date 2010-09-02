@@ -205,6 +205,8 @@ public:
   // Description:
   // Remove an array (with the given name) from the list of arrays.
   virtual void RemoveArray(const char *name);
+  virtual void RemoveArray(int index);
+
 
   // Description:
   // Given an integer attribute type, this static method returns a string type
@@ -578,8 +580,6 @@ protected:
   vtkFieldData::BasicIterator RequiredArrays;
 
   int* TargetIndices;
-
-  virtual void RemoveArray(int index);
 
   static const int NumberOfAttributeComponents[NUM_ATTRIBUTES];
   static const int AttributeLimits[NUM_ATTRIBUTES];

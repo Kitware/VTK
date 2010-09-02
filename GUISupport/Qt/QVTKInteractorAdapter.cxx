@@ -33,6 +33,7 @@
 #endif
 
 #include "QVTKInteractorAdapter.h"
+#include "QVTKInteractor.h"
 #include "QVTKWidget.h" // for event types.  needs change?
 
 #include <QEvent>

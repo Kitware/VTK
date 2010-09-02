@@ -16,6 +16,8 @@
 // This example tests the vtkCameraWidget.
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkCameraWidget.h"
 #include "vtkCameraRepresentation.h"
 #include "vtkSphereSource.h"
@@ -26,33 +28,39 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 
 int TestCameraWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkSphereSource> ss =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Create the widget
-  vtkCameraRepresentation *rep = vtkCameraRepresentation::New();
+  vtkSmartPointer<vtkCameraRepresentation> rep =
+    vtkSmartPointer<vtkCameraRepresentation>::New();
   rep->SetNumberOfFrames(2400);
 
-  vtkCameraWidget *widget = vtkCameraWidget::New();
+  vtkSmartPointer<vtkCameraWidget> widget =
+    vtkSmartPointer<vtkCameraWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
@@ -63,7 +71,8 @@ int TestCameraWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -82,24 +91,9 @@ int TestCameraWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  ss->Delete();
-  mapper->Delete();
-  actor->Delete();
-  widget->Off();
-  widget->Delete();
-  rep->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
-  
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
 

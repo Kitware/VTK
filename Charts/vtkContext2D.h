@@ -29,9 +29,11 @@
 class vtkWindow;
 
 class vtkStdString;
+class vtkUnicodeString;
 class vtkTextProperty;
 
 class vtkPoints2D;
+class vtkVector2f;
 class vtkContextDevice2D;
 class vtkPen;
 class vtkBrush;
@@ -151,6 +153,11 @@ public:
   void DrawQuad(float *p);
 
   // Description:
+  // Draw a strip of quads
+  void DrawQuadStrip(vtkPoints2D *points);
+  void DrawQuadStrip(float *p, int n);
+
+  // Description:
   // Draw a polygon specified specified by the points using the x and y arrays
   // supplied
   void DrawPolygon(float *x, float *y, int n);
@@ -228,11 +235,17 @@ public:
   // of the text properties respecting the rectangle. The points should be
   // supplied as bottom corner (x, y), width, height.
   void DrawStringRect(vtkPoints2D *rect, const vtkStdString &string);
+  void DrawStringRect(vtkPoints2D *rect, const vtkUnicodeString &string);
+  void DrawStringRect(vtkPoints2D *rect, const char* string);
 
   // Description:
   // Draw some text to the screen.
   void DrawString(vtkPoints2D *point, const vtkStdString &string);
   void DrawString(float x, float y, const vtkStdString &string);
+  void DrawString(vtkPoints2D *point, const vtkUnicodeString &string);
+  void DrawString(float x, float y, const vtkUnicodeString &string);
+  void DrawString(vtkPoints2D *point, const char* string);
+  void DrawString(float x, float y, const char* string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -242,6 +255,10 @@ public:
   // NOTE: This function does not take account of the text rotation.
   void ComputeStringBounds(const vtkStdString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
+  void ComputeStringBounds(const vtkUnicodeString &string, vtkPoints2D *bounds);
+  void ComputeStringBounds(const vtkUnicodeString &string, float bounds[4]);
+  void ComputeStringBounds(const char* string, vtkPoints2D *bounds);
+  void ComputeStringBounds(const char* string, float bounds[4]);
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
@@ -320,10 +337,17 @@ private:
   vtkContext2D(const vtkContext2D &); // Not implemented.
   void operator=(const vtkContext2D &);   // Not implemented.
 
+  // Description:
   // Apply the pen settings to the context
   void ApplyPen();
+
+  // Description:
   // Apply the brush settings to the context
   void ApplyBrush();
+
+  // Description:
+  // Calculate position of text for rendering in a rectangle.
+  vtkVector2f CalculateTextPosition(vtkPoints2D* rect);
 
 //ETX
 };

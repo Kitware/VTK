@@ -22,6 +22,8 @@
 #include <vtkUndirectedGraph.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVariant.h>
+#include <vtkMultiBlockDataSet.h>
+#include <vtkMultiPieceDataSet.h>
 
 void InitializeData(vtkDirectedGraph* Data)
 {
@@ -291,6 +293,46 @@ bool CompareData(vtkUnstructuredGrid* Output, vtkUnstructuredGrid* Input)
   return true;
 }
 
+void InitializeData(vtkMultiBlockDataSet* data)
+{
+  vtkPolyData* block0 = vtkPolyData::New();
+  InitializeData(block0);
+
+  vtkUnstructuredGrid* block1 = vtkUnstructuredGrid::New();
+  InitializeData(block1);
+
+  vtkPolyData* block2 = vtkPolyData::New();
+  InitializeData(block2);
+
+  vtkImageData* block3 = vtkImageData::New();
+  InitializeData(block3);
+
+  vtkMultiBlockDataSet* child0 = vtkMultiBlockDataSet::New();
+  data->SetBlock(0, child0);
+  child0->Delete();
+
+  child0->SetBlock(0, block0);
+  block0->Delete();
+
+  vtkMultiPieceDataSet* child1 = vtkMultiPieceDataSet::New();
+  child0->SetBlock(1, child1);
+  child1->Delete();
+
+  child1->SetPiece(0, block1);
+  block1->Delete();
+  child1->SetPiece(1, block2);
+  block2->Delete();
+
+  data->SetBlock(1, block3);
+  block3->Delete();
+}
+
+bool CompareData(vtkMultiBlockDataSet*, vtkMultiBlockDataSet*)
+{
+  return true;
+}
+
+
 template<typename DataT>
 bool TestDataObjectSerialization()
 {
@@ -329,7 +371,13 @@ bool TestDataObjectSerialization()
 int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 {
   int result = 0;
-  
+
+ if(!TestDataObjectSerialization<vtkMultiBlockDataSet>())
+    {
+    cerr << "Error: failure serializing vtkMultiBlockDataSet" << endl;
+    result = 1;
+    }
+
   if(!TestDataObjectSerialization<vtkDirectedGraph>())
     {
     cerr << "Error: failure serializing vtkDirectedGraph" << endl;

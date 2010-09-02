@@ -74,7 +74,7 @@ static PyObject *PyVTKClass_Call(PyObject *op, PyObject *arg, PyObject *kw)
 
     if (initfunc)
       {
-      PyObject *obj = PyVTKObject_New((PyObject *)self, NULL);
+      PyObject *obj = PyVTKObject_New((PyObject *)self, NULL, NULL);
       PyObject *cinitfunc = PyObject_GetAttr(obj, initstr);
       PyObject *res = PyEval_CallObjectWithKeywords(cinitfunc, arg, kw);
       if (res == NULL)
@@ -101,7 +101,7 @@ static PyObject *PyVTKClass_Call(PyObject *op, PyObject *arg, PyObject *kw)
     }
   if (PyArg_ParseTuple(arg,(char*)""))
     {
-    return PyVTKObject_New((PyObject *)self, NULL);
+    return PyVTKObject_New((PyObject *)self, NULL, NULL);
     }
   PyErr_Clear();
   if (PyArg_ParseTuple(arg,(char*)"O", &arg))

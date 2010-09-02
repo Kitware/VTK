@@ -865,9 +865,9 @@ void vtkStringArray::InsertValue( vtkIdType id, const char *value )
   this->InsertValue( id, vtkStdString( value ) );
 }
 
-void vtkStringArray::InsertVariantValue( vtkIdType id, vtkVariant value )
+void vtkStringArray::SetVariantValue( vtkIdType id, vtkVariant value )
 {
-  this->InsertValue( id, value.ToString() );
+  this->SetValue( id, value.ToString() );
 }
 
 vtkIdType vtkStringArray::InsertNextValue( const char *value )

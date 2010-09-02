@@ -189,6 +189,12 @@ protected:
   virtual void Derive( vtkMultiBlockDataSet* inMeta );
 
   // Description:
+  // Execute the calculations required by the Test option.
+  virtual void Test( vtkTable*,
+                     vtkMultiBlockDataSet*,
+                     vtkTable* );
+
+  // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*, 
                        vtkMultiBlockDataSet*, 

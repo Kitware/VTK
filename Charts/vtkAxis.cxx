@@ -18,6 +18,7 @@
 #include "vtkContext2D.h"
 #include "vtkPen.h"
 #include "vtkTextProperty.h"
+#include "vtkVector.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
@@ -74,6 +75,7 @@ vtkAxis::vtkAxis()
   this->TickLabels = vtkSmartPointer<vtkStringArray>::New();
   this->UsingNiceMinMax = false;
   this->TickMarksDirty = true;
+  this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -184,7 +186,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     if (this->Position == vtkAxis::LEFT)
       {
       // Draw the axis label
-      x = static_cast<int>(this->Point1[0] - 35);
+      x = static_cast<int>(this->Point1[0] - this->MaxLabel[0] - 10);
       y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
       prop->SetOrientation(90.0);
       prop->SetVerticalJustificationToBottom();
@@ -192,7 +194,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     else if (this->Position == vtkAxis::RIGHT)
       {
       // Draw the axis label
-      x = static_cast<int>(this->Point1[0] + 45);
+      x = static_cast<int>(this->Point1[0] + this->MaxLabel[0] + 10);
       y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
       prop->SetOrientation(90.0);
       prop->SetVerticalJustificationToTop();
@@ -200,21 +202,21 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     else if (this->Position == vtkAxis::BOTTOM)
       {
       x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
-      y = static_cast<int>(this->Point1[1] - 30);
+      y = static_cast<int>(this->Point1[1] - this->MaxLabel[1] - 10);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToTop();
       }
     else if (this->Position == vtkAxis::TOP)
       {
       x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
-      y = static_cast<int>(this->Point1[1] + 30);
+      y = static_cast<int>(this->Point1[1] + this->MaxLabel[1] + 10);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToBottom();
       }
     else if (this->Position == vtkAxis::PARALLEL)
       {
       x = static_cast<int>(this->Point1[0]);
-      y = static_cast<int>(this->Point1[1] - 10);
+      y = static_cast<int>(this->Point1[1] - this->MaxLabel[1] - 15);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToTop();
       }
@@ -379,15 +381,33 @@ void vtkAxis::RecalculateTickSpacing()
       {
       this->GenerateTickLabels(this->Minimum, this->Maximum);
       }
+    else if (this->TickInterval == 0.0)
+      {
+      return;
+      }
     else
       {
-      while (min < this->Minimum)
+      if (this->Minimum < this->Maximum)
         {
-        min += this->TickInterval;
+        while (min < this->Minimum)
+          {
+          min += this->TickInterval;
+          }
+        while (max > this->Maximum)
+          {
+          max -= this->TickInterval;
+          }
         }
-      while (max > this->Maximum)
+      else
         {
-        max -= this->TickInterval;
+        while (min > this->Minimum)
+          {
+          min -= this->TickInterval;
+          }
+        while (max < this->Maximum)
+          {
+          max += this->TickInterval;
+          }
         }
       this->GenerateTickLabels(min, max);
       }
@@ -439,15 +459,68 @@ void vtkAxis::SetTickLabels(vtkStringArray* array)
 }
 
 //-----------------------------------------------------------------------------
+vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
+{
+  bool vertical = false;
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT ||
+      this->Position == vtkAxis::PARALLEL)
+    {
+    vertical = true;
+    }
+  // First, calculate the widest tick label
+  float widest = 0.0;
+  // Second, calculate the tallest tick label
+  float tallest = 0.0;
+  vtkRectf bounds;
+  for(vtkIdType i = 0; i < this->TickLabels->GetNumberOfTuples(); ++i)
+    {
+    painter->ApplyTextProp(this->LabelProperties);
+    painter->ComputeStringBounds(this->TickLabels->GetValue(i),
+                                 bounds.GetData());
+    widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
+    tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+    }
+  this->MaxLabel[0] = widest;
+  this->MaxLabel[1] = tallest;
+
+  // Then, if there is an axis label, add that in.
+  vtkRectf titleBounds;
+  if (this->Title && this->Title[0])
+    {
+    painter->ApplyTextProp(this->TitleProperties);
+    painter->ComputeStringBounds(this->Title,
+                                 titleBounds.GetData());
+    }
+
+  if (vertical)
+    {
+    bounds.SetWidth(widest + titleBounds.GetHeight() + 15);
+    float range = this->Point1[1] < this->Point2[1] ?
+          this->Point2[1] - this->Point1[1] : this->Point1[1] - this->Point2[1];
+    bounds.SetHeight(range + tallest + 5);
+    }
+  else
+    {
+    float range = this->Point1[0] < this->Point2[0] ?
+          this->Point2[0] - this->Point1[0] : this->Point1[0] - this->Point2[0];
+    bounds.SetWidth(range + widest + 5);
+    bounds.SetHeight(tallest + titleBounds.GetHeight() + 15);
+    }
+  return bounds;
+}
+
+//-----------------------------------------------------------------------------
 void vtkAxis::GenerateTickLabels(double min, double max)
 {
   // Now calculate the tick labels, and positions within the axis range
   this->TickPositions->SetNumberOfTuples(0);
   this->TickLabels->SetNumberOfTuples(0);
-  int n = static_cast<int>((max - min) / this->TickInterval);
+  double mult = max > min ? 1.0 : -1.0;
+  double range = mult > 0.0 ? max - min : min - max;
+  int n = static_cast<int>(range / this->TickInterval);
   for (int i = 0; i <= n && i < 200; ++i)
     {
-    double value = min + double(i) * this->TickInterval;
+    double value = min + double(i) * mult * this->TickInterval;
     this->TickPositions->InsertNextValue(value);
     // Make a tick mark label for the tick
     if (this->LogScale)

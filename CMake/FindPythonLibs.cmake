@@ -20,7 +20,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the License for more information.
 #=============================================================================
-# (To distributed this file outside of CMake, substitute the full
+# (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
 INCLUDE(CMakeFindFrameworks)
@@ -105,11 +105,9 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(PythonLibs DEFAULT_MSG PYTHON_LIBRARIES PYTHON
 # PYTHON_ADD_MODULE(<name> src1 src2 ... srcN) is used to build modules for python.
 # PYTHON_WRITE_MODULES_HEADER(<filename>) writes a header file you can include 
 # in your sources to initialize the static python modules
-
-GET_PROPERTY(_TARGET_SUPPORTS_SHARED_LIBS
-  GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
-
 FUNCTION(PYTHON_ADD_MODULE _NAME )
+  GET_PROPERTY(_TARGET_SUPPORTS_SHARED_LIBS
+    GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
   OPTION(PYTHON_ENABLE_MODULE_${_NAME} "Add module ${_NAME}" TRUE)
   OPTION(PYTHON_MODULE_${_NAME}_BUILD_SHARED
     "Add module ${_NAME} shared" ${_TARGET_SUPPORTS_SHARED_LIBS})

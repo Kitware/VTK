@@ -2,6 +2,9 @@ PROJECT(VTKNETCDF)
 
 INCLUDE_REGULAR_EXPRESSION(".*")
 
+SET(VERSION "4.1.1")
+SET(PACKAGE "netcdf")
+
 SET(netcdf_SRCS
   attr.c
   dim.c
@@ -12,9 +15,15 @@ SET(netcdf_SRCS
   ncx.c
   putget.c
   string.c
+  utf8proc.c
   v1hpg.c
   v2i.c
   var.c
+  )
+
+SET(netcdfcxx_SRCS
+  netcdf.cpp
+  ncvalues.cpp
   )
 
 IF(APPLE)
@@ -71,7 +80,7 @@ ENDMACRO(CHECK_TYPE_SIZE_EX)
 
 MACRO(C_SOURCE_COMPILES SOURCE VAR)
   IF("${VAR}" MATCHES "^${VAR}$")
-    SET(MACRO_CHECK_FUNCTION_DEFINITIONS 
+    SET(MACRO_CHECK_FUNCTION_DEFINITIONS
       "-D${VAR} ${CMAKE_REQUIRED_FLAGS}")
     IF(CMAKE_REQUIRED_LIBRARIES)
       SET(C_SOURCE_COMPILES_ADD_LIBRARIES
@@ -84,20 +93,20 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
     TRY_COMPILE(${VAR}
       ${CMAKE_BINARY_DIR}
       ${CMAKE_BINARY_DIR}/CMakeTmp/src.c
-      CMAKE_FLAGS 
+      CMAKE_FLAGS
       "${C_SOURCE_COMPILES_ADD_LIBRARIES}"
       OUTPUT_VARIABLE OUTPUT)
     IF(${VAR})
       SET(${VAR} 1 CACHE INTERNAL "NetCDF test ${FUNCTION}")
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Success")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log 
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Performing C SOURCE FILE Test ${VAR} succeded with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n" APPEND)
     ELSE(${VAR})
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Failed")
       SET(${VAR} "" CACHE INTERNAL "NetCDF test ${FUNCTION}")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log 
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Performing C SOURCE FILE Test ${VAR} failed with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n" APPEND)
@@ -106,7 +115,7 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
 ENDMACRO(C_SOURCE_COMPILES)
 
 CHECK_INCLUDE_FILES("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
-FOREACH(file 
+FOREACH(file
     "alloca.h"
     "stdlib.h"
     "sys/types.h"
@@ -117,6 +126,8 @@ FOREACH(file
     "string.h"
     "stddef.h"
     "stdint.h"
+    "inttypes.h"
+    "stdbool.h"
     )
   CHECK_INCLUDE_FILE_CONCAT("${file}")
 ENDFOREACH(file)
@@ -137,6 +148,7 @@ FOREACH(type
     "long"
     "short"
     "uchar"
+    "_Bool"
     )
   CHECK_TYPE_SIZE_EX("${type}")
 ENDFOREACH(type)
@@ -155,7 +167,7 @@ IF(HAVE_SYS_STAT_H)
   C_SOURCE_COMPILES("${testsrc}" HAVE_ST_BLKSIZE)
 ENDIF(HAVE_SYS_STAT_H)
 
-# 
+#
 SET(testsrc
   "main()
 {
@@ -237,9 +249,9 @@ ENDIF(NOT HAVE_SIZEOF_SSIZE_T)
 IF(NOT HAVE_SIZEOF_PTRDIFF_T)
   SET(ptrdiff_t int)
 ENDIF(NOT HAVE_SIZEOF_PTRDIFF_T)
-IF(NOT HAVE_SIZEOF_UCHAR)
-  SET(uchar "unsigned char")
-ENDIF(NOT HAVE_SIZEOF_UCHAR)
+#IF(NOT HAVE_SIZEOF_UCHAR)
+#  SET(uchar "unsigned char")
+#ENDIF(NOT HAVE_SIZEOF_UCHAR)
 
 # use the same name for the variable as in VTK, so the result is reused
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
@@ -248,8 +260,37 @@ SET(WORDS_BIGENDIAN ${CMAKE_WORDS_BIGENDIAN})
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/ncconfig.h @ONLY IMMEDIATE)
 
+#-----------------------------------------------------------------------------
+# Option to allow the user to disable compiler warnings
+#-----------------------------------------------------------------------------
+OPTION (NETCDF_DISABLE_COMPILER_WARNINGS "Disable compiler warnings" ON)
+MARK_AS_ADVANCED(NETCDF_DISABLE_COMPILER_WARNINGS)
+IF (NETCDF_DISABLE_COMPILER_WARNINGS)
+  # MSVC uses /w to suppress warnings.  It also complains if another
+  # warning level is given, so remove it.
+  IF (MSVC)
+    STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
+        CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
+        CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /w")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w")
+  # Borland uses -w- to suppress warnings.
+  ELSEIF (BORLAND)
+    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w-")
+  ELSE ()
+  # Most compilers use -w to suppress warnings.
+    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w")
+  ENDIF ()
+ENDIF (NETCDF_DISABLE_COMPILER_WARNINGS)
+
 ADD_LIBRARY(vtkNetCDF
   ${netcdf_SRCS})
+
+ADD_LIBRARY(vtkNetCDF_cxx ${netcdfcxx_SRCS})
+TARGET_LINK_LIBRARIES(vtkNetCDF_cxx vtkNetCDF)
 
 # Take care of symbol export/import on Windows
 ADD_DEFINITIONS("-DNC_DLL_EXPORT")
@@ -266,7 +307,7 @@ IF(NOT VTK_INSTALL_NO_LIBRARIES)
   IF(NOT VTK_INSTALL_LIB_DIR_CM24)
     SET(VTK_INSTALL_LIB_DIR_CM24 ${CMAKE_INSTALL_PREFIX}/lib)
   ENDIF(NOT VTK_INSTALL_LIB_DIR_CM24)
-  INSTALL(TARGETS vtkNetCDF
+  INSTALL(TARGETS vtkNetCDF vtkNetCDF_cxx
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)

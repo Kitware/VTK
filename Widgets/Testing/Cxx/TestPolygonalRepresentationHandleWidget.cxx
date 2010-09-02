@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSmartPointer.h"
+
 #include "vtkDEMReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -39,18 +41,17 @@
 #include "vtkPolygonalSurfacePointPlacer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
 {
   if (argc < 2)
     {
-    cerr
+    std::cerr
       << "Demonstrates interaction of a handle, represented be a user \n"
       << "specified polygonal shape, so that it is constrained \n"
       << "to lie on a polygonal surface.\n\n"
       << "Usage args: [-DistanceOffset height_offset]."
-      << endl;
+      << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -60,26 +61,31 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
 
   // Read height field.
   //
-  vtkDEMReader *demReader = vtkDEMReader::New();
+  vtkSmartPointer<vtkDEMReader> demReader =
+    vtkSmartPointer<vtkDEMReader>::New();
   demReader->SetFileName(fname);
   delete [] fname;
 
-  vtkImageResample * resample = vtkImageResample::New();
+  vtkSmartPointer<vtkImageResample>  resample =
+    vtkSmartPointer<vtkImageResample>::New();
   resample->SetInput(demReader->GetOutput());
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,1);
   resample->SetAxisMagnificationFactor(1,1);
 
   // Extract geometry
-  vtkImageDataGeometryFilter *surface = vtkImageDataGeometryFilter::New();
+  vtkSmartPointer<vtkImageDataGeometryFilter> surface =
+    vtkSmartPointer<vtkImageDataGeometryFilter>::New();
   surface->SetInput(resample->GetOutput());
 
   // The Dijkistra interpolator will not accept cells that aren't triangles
-  vtkTriangleFilter *triangleFilter = vtkTriangleFilter::New();
+  vtkSmartPointer<vtkTriangleFilter> triangleFilter =
+    vtkSmartPointer<vtkTriangleFilter>::New();
   triangleFilter->SetInput( surface->GetOutput() );
   triangleFilter->Update();
 
-  vtkWarpScalar *warp = vtkWarpScalar::New();
+  vtkSmartPointer<vtkWarpScalar> warp =
+    vtkSmartPointer<vtkWarpScalar>::New();
   warp->SetInput(triangleFilter->GetOutput());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
@@ -91,12 +97,14 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   double lo = demReader->GetOutput()->GetScalarRange()[0];
   double hi = demReader->GetOutput()->GetScalarRange()[1];
 
-  vtkLookupTable *lut = vtkLookupTable::New();
+  vtkSmartPointer<vtkLookupTable> lut =
+    vtkSmartPointer<vtkLookupTable>::New();
   lut->SetHueRange(0.6, 0);
   lut->SetSaturationRange(1.0, 0);
   lut->SetValueRange(0.5, 1.0);
 
-  vtkPolyDataNormals *normals = vtkPolyDataNormals::New();
+  vtkSmartPointer<vtkPolyDataNormals> normals =
+    vtkSmartPointer<vtkPolyDataNormals>::New();
 
   bool   distanceOffsetSpecified = false;
   double distanceOffset = 0.0;
@@ -120,22 +128,27 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
     }
 
   vtkPolyData *pd = (distanceOffsetSpecified) ? normals->GetOutput()
-                                            : warp->GetPolyDataOutput();
+    : warp->GetPolyDataOutput();
 
-  vtkPolyDataMapper *demMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> demMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   demMapper->SetInput(pd);
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 
-  vtkActor *demActor = vtkActor::New();
+  vtkSmartPointer<vtkActor> demActor =
+    vtkSmartPointer<vtkActor>::New();
   demActor->SetMapper(demMapper);
 
   // Create the RenderWindow, Renderer and the DEM + path actors.
 
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Add the actors to the renderer, set the background and size
@@ -150,21 +163,23 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
 
   // Here comes the surface constrained handle widget stuff.....
 
-  vtkHandleWidget *widget = vtkHandleWidget::New();
+  vtkSmartPointer<vtkHandleWidget> widget =
+    vtkSmartPointer<vtkHandleWidget>::New();
   widget->SetInteractor(iren);
-  vtkPolygonalHandleRepresentation3D *rep =
-      vtkPolygonalHandleRepresentation3D::New();
+  vtkSmartPointer<vtkPolygonalHandleRepresentation3D> rep =
+    vtkSmartPointer<vtkPolygonalHandleRepresentation3D>::New();
   widget->SetRepresentation( rep );
 
-  vtkSphereSource *sphere = vtkSphereSource::New();
+  vtkSmartPointer<vtkSphereSource> sphere =
+    vtkSmartPointer<vtkSphereSource>::New();
   sphere->SetThetaResolution(10);
   sphere->SetPhiResolution(10);
   sphere->SetRadius(300.0);
   sphere->Update();
   rep->SetHandle(sphere->GetOutput());
 
-  vtkPolygonalSurfacePointPlacer * pointPlacer
-        = vtkPolygonalSurfacePointPlacer::New();
+  vtkSmartPointer<vtkPolygonalSurfacePointPlacer>  pointPlacer =
+    vtkSmartPointer<vtkPolygonalSurfacePointPlacer>::New();
   pointPlacer->AddProp(demActor);
   pointPlacer->GetPolys()->AddItem( pd );
   rep->SetPointPlacer(pointPlacer);
@@ -190,30 +205,7 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   iren->Initialize();
   widget->EnabledOn();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  // Cleanups
-  rep->Delete();
-  sphere->Delete();
-  triangleFilter->Delete();
-  resample->Delete();
-  demMapper->Delete();
-  surface->Delete();
-  lut->Delete();
-  normals->Delete();
-  warp->Delete();
-  widget->Delete();
-  pointPlacer->Delete();
-  demReader->Delete();
-  demActor->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }
-

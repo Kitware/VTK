@@ -14,6 +14,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 #    TestAppendPolyData.cxx #pending a bug fix
     TestAssignAttribute.cxx
     TestBSPTree.cxx
+    TestCellDataToPointData.cxx
     TestDensifyPolyData.cxx
     TestClipHyperOctree.cxx
     TestConvertSelection.cxx
@@ -62,6 +63,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       BoxClipPolyData.cxx
       BoxClipTetrahedra.cxx
       BoxClipTriangulateAndInterpolate.cxx
+      MeshQuality.cxx
       TestActor2DTextures.cxx
       TestArrayCalculator.cxx
       TestGradientAndVorticity.cxx
@@ -75,11 +77,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       UnstructuredGridCellGradients.cxx
       UnstructuredGridFastGradients.cxx
       )
-    IF (VTK_USE_VERDICT)
-      SET(MyTests ${MyTests}
-        MeshQuality.cxx
-        )
-    ENDIF (VTK_USE_VERDICT)
     IF (VTK_USE_PARALLEL)
       SET(MyTests ${MyTests}
         TemporalStatistics.cxx
@@ -113,18 +110,3 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
-
-IF (VTK_WRAP_JAVA)
-   ADD_EXECUTABLE(TestJavaProgrammableFilter TestJavaProgrammableFilter.cxx)
-   ADD_TEST(TestJavaProgrammableFilter
-     ${CXX_TEST_PATH}/TestJavaProgrammableFilter
-     -j ${LIBRARY_OUTPUT_PATH}/vtk.jar
-     -cp ${LIBRARY_OUTPUT_PATH}/vtk.jar
-     -class vtk/SampleAlgorithm
-      )
-  TARGET_LINK_LIBRARIES(TestJavaProgrammableFilter
-    vtkGraphicsJava
-    ${JAVA_AWT_LIBRARY}
-    ${JAVA_JVM_LIBRARY}
-    )
-ENDIF (VTK_WRAP_JAVA)

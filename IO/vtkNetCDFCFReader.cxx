@@ -1101,8 +1101,6 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(
 //-----------------------------------------------------------------------------
 int vtkNetCDFCFReader::ReadMetaData(int ncFD)
 {
-  int i;
-
   vtkDebugMacro("ReadMetaData");
 
   int numDimensions;
@@ -1111,7 +1109,7 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
 
   vtkstd::set<vtkStdString> specialVariables;
 
-  for (i = 0; i < numDimensions; i++)
+  for (int i = 0; i < numDimensions; i++)
     {
     this->DimensionInfo->v[i] = vtkDimensionInfo(ncFD, i);
 
@@ -1128,7 +1126,7 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   CALL_NETCDF(nc_inq_nvars(ncFD, &numVariables));
 
   // Check all variables for special 2D coordinates.
-  for (i = 0; i < numVariables; i++)
+  for (int i = 0; i < numVariables; i++)
     {
     vtkDependentDimensionInfo info(ncFD, i, this);
     if (!info.GetValid()) continue;
@@ -1147,20 +1145,51 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
       }
     }
 
-  // Look at all variables and record them so that the user can select
-  // which ones he wants.
-  this->VariableArraySelection->RemoveAllArrays();
+  // Look at all variables and record them so that the user can select which
+  // ones he wants.  This oddness of adding and removing from
+  // VariableArraySelection is to preserve any current settings for variables.
+  typedef vtkstd::set<vtkStdString> stringSet;
+  stringSet variablesToAdd;
+  stringSet variablesToRemove;
 
-  for (i = 0; i < numVariables; i++)
+  // Initialize variablesToRemove with all the variables.  Then remove them from
+  // the list as we find them.
+  for (int i = 0; i < this->VariableArraySelection->GetNumberOfArrays(); i++)
+    {
+    variablesToRemove.insert(this->VariableArraySelection->GetArrayName(i));
+    }
+
+  for (int i = 0; i < numVariables; i++)
     {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, i, name));
-    // Make sure this is not a special variable that describes a dimension
-    // before exposing it.
     if (specialVariables.find(name) == specialVariables.end())
       {
-      this->VariableArraySelection->AddArray(name);
+      if (variablesToRemove.find(name) == variablesToRemove.end())
+        {
+        // Variable not already here.  Insert it in the variables to add.
+        variablesToAdd.insert(name);
+        }
+      else
+        {
+        // Variable already exists.  Leave it be.  Remove it from the
+        // variablesToRemove list.
+        variablesToRemove.erase(name);
+        }
       }
+    }
+
+  // Add and remove variables.  This will be a no-op if the variables have not
+  // changed.
+  for (stringSet::iterator removeItr = variablesToRemove.begin();
+       removeItr != variablesToRemove.end(); removeItr++)
+    {
+    this->VariableArraySelection->RemoveArrayByName(removeItr->c_str());
+    }
+  for (stringSet::iterator addItr = variablesToAdd.begin();
+       addItr != variablesToAdd.end(); addItr++)
+    {
+    this->VariableArraySelection->AddArray(addItr->c_str());
     }
 
   return 1;

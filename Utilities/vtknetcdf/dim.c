@@ -2,14 +2,16 @@
  *  Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* Id */
+/* $Id: dim.c,v 1.79 2010/04/11 04:15:38 dmh Exp $ */
 
 #include "nc.h"
+#include "rename.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "ncx.h"
 #include "fbits.h"
+#include "utf8proc.h"
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
 #  pragma warning ( disable : 4127 ) /* conditional expression is constant */
@@ -48,15 +50,19 @@ new_x_NC_dim(NC_string *name)
 
 /*
  * Formerly
-NC_new_dim(const char *name, long size)
+NC_new_dim(const char *uname, long size)
  */
 static NC_dim *
-new_NC_dim(const char *name, size_t size)
+new_NC_dim(const char *uname, size_t size)
 {
   NC_string *strp;
   NC_dim *dimp;
 
+  char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
+  if(name == NULL)
+      return NULL;
   strp = new_NC_string(strlen(name), name);
+  free(name);
   if(strp == NULL)
     return NULL;
 
@@ -95,7 +101,7 @@ find_NC_Udim(const NC_dimarray *ncap, NC_dim **dimpp)
     return -1;
 
   {
-  int dimid = 0;
+  size_t dimid = 0;
   NC_dim **loc = ncap->value;
 
   for(; (size_t) dimid < ncap->nelems
@@ -103,7 +109,7 @@ find_NC_Udim(const NC_dimarray *ncap, NC_dim **dimpp)
   {
     /*EMPTY*/
   }
-  if((size_t)dimid >= ncap->nelems)
+  if(dimid >= ncap->nelems)
     return(-1); /* not found */
   /* else, normal return */
   if(dimpp != NULL)
@@ -114,40 +120,50 @@ find_NC_Udim(const NC_dimarray *ncap, NC_dim **dimpp)
 
 
 /*
- * Step thru NC_DIMENSION array, seeking match on name.
+ * Step thru NC_DIMENSION array, seeking match on uname.
  * Return dimid or -1 on not found.
  * *dimpp is set to the appropriate NC_dim.
  * The loop structure is odd. In order to parallelize,
  * we moved a clearer 'break' inside the loop body to the loop test.
  */
 static int
-NC_finddim(const NC_dimarray *ncap, const char *name, NC_dim **dimpp)
+NC_finddim(const NC_dimarray *ncap, const char *uname, NC_dim **dimpp)
 {
 
-  assert(ncap != NULL);
+   size_t dimid;
+   size_t slen;
+   NC_dim ** loc;
+   char *name;
 
-  if(ncap->nelems == 0)
-    return -1;
+   assert(ncap != NULL);
 
-  {
-  size_t slen = strlen(name);
-  int dimid = 0;
-  NC_dim **loc = (NC_dim **) ncap->value;
+   if(ncap->nelems == 0)
+      return -1;
 
-  for(; (size_t) dimid < ncap->nelems
-      && (strlen((*loc)->name->cp) != slen
-        || strncmp((*loc)->name->cp, name, slen) != 0);
-     dimid++, loc++)
-  {
-    /*EMPTY*/
-  }
-  if((size_t)dimid >= ncap->nelems)
-    return(-1); /* not found */
-  /* else, normal return */
-  if(dimpp != NULL)
-      *dimpp = *loc;
-  return(dimid);
-  }
+   {
+      dimid = 0;
+      loc = (NC_dim **) ncap->value;
+      /* normalized version of uname */
+      name = (char *)utf8proc_NFC((const unsigned char *)uname);
+      if(name == NULL)
+   return NC_ENOMEM;
+      slen = strlen(name);
+
+      for(; (size_t) dimid < ncap->nelems
+       && (strlen((*loc)->name->cp) != slen
+     || strncmp((*loc)->name->cp, name, slen) != 0);
+    dimid++, loc++)
+      {
+   /*EMPTY*/
+      }
+      free(name);
+      if(dimid >= ncap->nelems)
+   return(-1); /* not found */
+      /* else, normal return */
+      if(dimpp != NULL)
+   *dimpp = *loc;
+      return(dimid);
+   }
 }
 
 
@@ -190,7 +206,7 @@ void
 free_NC_dimarrayV(NC_dimarray *ncap)
 {
   assert(ncap != NULL);
-  
+
   if(ncap->nalloc == 0)
     return;
 
@@ -307,14 +323,14 @@ elem_NC_dimarray(const NC_dimarray *ncap, size_t elem)
 /* Public */
 
 int
-nc_def_dim(int ncid, const char *name, size_t size, int *dimidp)
+DISPNAME(def_dim)(int ncid, const char *name, size_t size, int *dimidp)
 {
   int status;
   NC *ncp;
   int dimid;
   NC_dim *dimp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -351,7 +367,7 @@ nc_def_dim(int ncid, const char *name, size_t size, int *dimidp)
   dimid = NC_finddim(&ncp->dims, name, &dimp);
   if(dimid != -1)
     return NC_ENAMEINUSE;
-  
+
   dimp = new_NC_dim(name, size);
   if(dimp == NULL)
     return NC_ENOMEM;
@@ -369,13 +385,13 @@ nc_def_dim(int ncid, const char *name, size_t size, int *dimidp)
 
 
 int
-nc_inq_dimid(int ncid, const char *name, int *dimid_ptr)
+DISPNAME(inq_dimid)(int ncid, const char *name, int *dimid_ptr)
 {
   int status;
   NC *ncp;
   int dimid;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -396,7 +412,7 @@ nc_inq_dim(int ncid, int dimid, char *name, size_t *sizep)
   NC *ncp;
   NC_dim *dimp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -406,7 +422,7 @@ nc_inq_dim(int ncid, int dimid, char *name, size_t *sizep)
 
   if(name != NULL)
   {
-    (void)strncpy(name, dimp->name->cp, 
+    (void)strncpy(name, dimp->name->cp,
       dimp->name->nchars);
     name[dimp->name->nchars] = 0;
   }
@@ -415,20 +431,20 @@ nc_inq_dim(int ncid, int dimid, char *name, size_t *sizep)
     if(dimp->size == NC_UNLIMITED)
       *sizep = NC_get_numrecs(ncp);
     else
-      *sizep = dimp->size;  
+      *sizep = dimp->size;
   }
   return NC_NOERR;
 }
 
 
-int 
+int
 nc_inq_dimname(int ncid, int dimid, char *name)
 {
   int status;
   NC *ncp;
   NC_dim *dimp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -438,7 +454,7 @@ nc_inq_dimname(int ncid, int dimid, char *name)
 
   if(name != NULL)
   {
-    (void)strncpy(name, dimp->name->cp, 
+    (void)strncpy(name, dimp->name->cp,
       dimp->name->nchars);
     name[dimp->name->nchars] = 0;
   }
@@ -447,14 +463,14 @@ nc_inq_dimname(int ncid, int dimid, char *name)
 }
 
 
-int 
+int
 nc_inq_dimlen(int ncid, int dimid, size_t *lenp)
 {
   int status;
   NC *ncp;
   NC_dim *dimp;
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
@@ -467,32 +483,33 @@ nc_inq_dimlen(int ncid, int dimid, size_t *lenp)
     if(dimp->size == NC_UNLIMITED)
       *lenp = NC_get_numrecs(ncp);
     else
-      *lenp = dimp->size; 
+      *lenp = dimp->size;
   }
   return NC_NOERR;
 }
 
 
 int
-nc_rename_dim( int ncid, int dimid, const char *newname)
+DISPNAME(rename_dim)( int ncid, int dimid, const char *unewname)
 {
   int status;
   NC *ncp;
   int existid;
   NC_dim *dimp;
+  char *newname;    /* normalized */
 
-  status = NC_check_id(ncid, &ncp); 
+  status = NC_check_id(ncid, &ncp);
   if(status != NC_NOERR)
     return status;
 
   if(NC_readonly(ncp))
     return NC_EPERM;
 
-  status = NC_check_name(newname);
+  status = NC_check_name(unewname);
   if(status != NC_NOERR)
     return status;
 
-  existid = NC_finddim(&ncp->dims, newname, &dimp);
+  existid = NC_finddim(&ncp->dims, unewname, &dimp);
   if(existid != -1)
     return NC_ENAMEINUSE;
 
@@ -500,10 +517,14 @@ nc_rename_dim( int ncid, int dimid, const char *newname)
   if(dimp == NULL)
     return NC_EBADDIM;
 
+  newname = (char *)utf8proc_NFC((const unsigned char *)unewname);
+  if(newname == NULL)
+      return NC_ENOMEM;
   if(NC_indef(ncp))
   {
     NC_string *old = dimp->name;
     NC_string *newStr = new_NC_string(strlen(newname), newname);
+    free(newname);
     if(newStr == NULL)
       return NC_ENOMEM;
     dimp->name = newStr;
@@ -514,6 +535,7 @@ nc_rename_dim( int ncid, int dimid, const char *newname)
   /* else, not in define mode */
 
   status = set_NC_string(dimp->name, newname);
+  free(newname);
   if(status != NC_NOERR)
     return status;
 

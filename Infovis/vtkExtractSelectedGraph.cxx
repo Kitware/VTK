@@ -176,7 +176,7 @@ int vtkExtractSelectedGraph::RequestData(
           (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 && 
           a->GetInformation()->Has(vtkAnnotation::HIDE()) && 
-          a->GetInformation()->Get(vtkAnnotation::HIDE())==0))
+          a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
         {
         continue;
         }

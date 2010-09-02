@@ -7,7 +7,7 @@ INCLUDE(${VTK_USE_FILE})
 ENDIF(NOT VTK_BINARY_DIR)
 
 ADD_EXECUTABLE(DumpXMLFile DumpXMLFile.cxx)
-TARGET_LINK_LIBRARIES(DumpXMLFile vtkIO)
+TARGET_LINK_LIBRARIES(DumpXMLFile vtkIO vtkGraphics)
 
 ADD_EXECUTABLE(ParticleReader ParticleReader.cxx)
 TARGET_LINK_LIBRARIES(ParticleReader vtkHybrid)

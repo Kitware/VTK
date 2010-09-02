@@ -28,6 +28,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPCAStatistics
     TestPruneTreeFilter
     TestRandomGraphSource
+    TestRemoveIsolatedVertices
     TestSimple3DCirclesStrategy
     TestStreamGraph
     TestStringToCategory

@@ -21,6 +21,9 @@
 class vtkColorTransferFunction;
 class vtkImageData;
 
+// Description:
+// vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
+// vtkScalarsToColors::MaskAboveCurve have no effect here.
 class VTK_CHARTS_EXPORT vtkColorTransferFunctionItem: public vtkScalarsToColorsItem
 {
 public:
@@ -28,16 +31,18 @@ public:
   vtkTypeMacro(vtkColorTransferFunctionItem, vtkScalarsToColorsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Reimplemented to return the range of the lookup table
+  virtual void GetBounds(double bounds[4]);
+
   void SetColorTransferFunction(vtkColorTransferFunction* t);
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
+
 protected:
   vtkColorTransferFunctionItem();
   virtual ~vtkColorTransferFunctionItem();
 
   virtual void ComputeTexture();
-  virtual void ScalarsToColorsModified(vtkObject* object,
-                                       unsigned long eid,
-                                       void* calldata);
   vtkColorTransferFunction* ColorTransferFunction;
 private:
   vtkColorTransferFunctionItem(const vtkColorTransferFunctionItem&); // Not implemented

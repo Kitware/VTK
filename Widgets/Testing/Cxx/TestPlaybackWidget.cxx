@@ -16,6 +16,8 @@
 // This example tests the vtkPlaybackWidget.
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkPlaybackWidget.h"
 #include "vtkPlaybackRepresentation.h"
 #include "vtkSphereSource.h"
@@ -26,19 +28,17 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 
 class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {
 public:
   static vtkSubclassPlaybackRepresentation *New() {return new vtkSubclassPlaybackRepresentation;}
-  virtual void Play() {cout << "play\n";}
-  virtual void Stop() {cout << "stop\n";}
-  virtual void ForwardOneFrame() {cout << "forward one frame\n";}
-  virtual void BackwardOneFrame() {cout << "backward one frame\n";}
-  virtual void JumpToBeginning() {cout << "jump to beginning\n";}
-  virtual void JumpToEnd() {cout << "jump to end\n";}
+  virtual void Play() {std::cout << "play\n";}
+  virtual void Stop() {std::cout << "stop\n";}
+  virtual void ForwardOneFrame() {std::cout << "forward one frame\n";}
+  virtual void BackwardOneFrame() {std::cout << "backward one frame\n";}
+  virtual void JumpToBeginning() {std::cout << "jump to beginning\n";}
+  virtual void JumpToEnd() {std::cout << "jump to end\n";}
 };
 
 
@@ -46,25 +46,33 @@ int TestPlaybackWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkSphereSource> ss =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Create the widget
-  vtkSubclassPlaybackRepresentation *rep = vtkSubclassPlaybackRepresentation::New();
+  vtkSmartPointer<vtkSubclassPlaybackRepresentation> rep =
+    vtkSmartPointer<vtkSubclassPlaybackRepresentation>::New();
 
-  vtkPlaybackWidget *widget = vtkPlaybackWidget::New();
+  vtkSmartPointer<vtkPlaybackWidget> widget =
+    vtkSmartPointer<vtkPlaybackWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
@@ -75,7 +83,8 @@ int TestPlaybackWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -93,25 +102,8 @@ int TestPlaybackWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  ss->Delete();
-  mapper->Delete();
-  actor->Delete();
-  widget->Off();
-  widget->Delete();
-  rep->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
+  iren->Start();
   
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
-
-

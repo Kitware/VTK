@@ -16,6 +16,8 @@
 // This example tests the vtkTextWidget
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkTextWidget.h"
 #include "vtkTextActor.h"
 #include "vtkSphereSource.h"
@@ -30,40 +32,46 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 
 int TestTextWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkSphereSource> ss =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *actor = vtkActor::New();
+  vtkSmartPointer<vtkActor> actor =
+    vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Create the widget
-  vtkTextActor *ta = vtkTextActor::New();
+  vtkSmartPointer<vtkTextActor> ta =
+    vtkSmartPointer<vtkTextActor>::New();
   ta->SetInput("This is a test");
   ta->GetTextProperty()->SetColor( 0.0, 1.0, 0.0 );
 
-  vtkTextWidget *widget = vtkTextWidget::New();
+  vtkSmartPointer<vtkTextWidget> widget =
+    vtkSmartPointer<vtkTextWidget>::New();
 
-  vtkTextRepresentation *rep = vtkTextRepresentation::New();
+  vtkSmartPointer<vtkTextRepresentation> rep =
+    vtkSmartPointer<vtkTextRepresentation>::New();
   rep->GetPositionCoordinate()->SetValue( .15, .15 );
   rep->GetPosition2Coordinate()->SetValue( .7, .2 );
   widget->SetRepresentation( rep );
-  rep->Delete();
 
   widget->SetInteractor(iren);
   widget->SetTextActor(ta);
@@ -76,7 +84,8 @@ int TestTextWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -95,24 +104,9 @@ int TestTextWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  ss->Delete();
-  mapper->Delete();
-  actor->Delete();
-  ta->Delete();
-  widget->Off();
-  widget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
+  iren->Start();
   
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
 

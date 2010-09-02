@@ -19,12 +19,14 @@
 
 #include "vtkObject.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkWeakPointerBase.h"
 #include "vtkVariant.h"
 #include "vtkWindows.h"
 #include "vtkToolkits.h"
 
 #include <vtksys/ios/sstream>
 #include <vtkstd/map>
+#include <vtkstd/vector>
 #include <vtkstd/string>
 #include <vtkstd/utility>
 
@@ -32,19 +34,29 @@
 #include "sip.h"
 #endif
 
-// Silence warning like
-// "dereferencing type-punned pointer will break strict-aliasing rules"
-// it happens because this kind of expression: (long *)&ptr
-// pragma GCC diagnostic is available since gcc>=4.2
-#if defined(__GNUG__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#endif
 
 //--------------------------------------------------------------------
-// There are three maps associated with the Python wrappers
+// A ghost object, can be used to recreate a deleted PyVTKObject
+class PyVTKObjectGhost
+{
+public:
+  PyVTKObjectGhost() : vtk_ptr(), vtk_class(0), vtk_dict(0) {};
+
+  vtkWeakPointerBase vtk_ptr;
+  PyVTKClass *vtk_class;
+  PyObject *vtk_dict;
+};
+
+//--------------------------------------------------------------------
+// There are four maps associated with the Python wrappers
 
 class vtkPythonObjectMap
   : public vtkstd::map<vtkSmartPointerBase, PyObject*>
+{
+};
+
+class vtkPythonGhostMap
+  : public vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>
 {
 };
 
@@ -74,6 +86,7 @@ void vtkPythonUtilDelete()
 vtkPythonUtil::vtkPythonUtil()
 {
   this->ObjectMap = new vtkPythonObjectMap;
+  this->GhostMap = new vtkPythonGhostMap;
   this->ClassMap = new vtkPythonClassMap;
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
 }
@@ -82,6 +95,7 @@ vtkPythonUtil::vtkPythonUtil()
 vtkPythonUtil::~vtkPythonUtil()
 {
   delete this->ObjectMap;
+  delete this->GhostMap;
   delete this->ClassMap;
   delete this->SpecialTypeMap;
 }
@@ -610,6 +624,49 @@ int vtkPythonUtil::CheckArg(
           }
         }
 
+      // Check for Qt types
+      else if (classname[0] == '*' && classname[1] == 'Q' &&
+        (classname[2] == 't' || classname[2] == toupper(classname[2])))
+        {
+        classname++;
+
+        if (arg == Py_None)
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        void* qobj = SIPGetPointerFromObject(arg, classname);
+        if(!qobj)
+          {
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        else
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        }
+
+      // An array
+      else if (classname[0] == '*')
+        {
+        // incompatible unless the type checks out
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        if (PySequence_Check(arg))
+          {
+#if PY_MAJOR_VERSION >= 2
+          Py_ssize_t m = PySequence_Size(arg);
+#else
+          Py_ssize_t m = PySequence_Length(arg);
+#endif
+          if (m > 0)
+            {
+            // the "bool" is really just a dummy
+            PyObject *sarg = PySequence_GetItem(arg, 0);
+            penalty = vtkPythonUtil::CheckArg(sarg, &classname[1], "bool");
+            Py_DECREF(sarg);
+            }
+          }
+        }
+
       // An object of unrecognized type
       else
         {
@@ -975,16 +1032,63 @@ void vtkPythonUtil::AddObjectToMap(PyObject *obj, vtkObjectBase *ptr)
 //--------------------------------------------------------------------
 void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
 {
-  vtkObjectBase *ptr = ((PyVTKObject *)obj)->vtk_ptr;
+  PyVTKObject *pobj = (PyVTKObject *)obj;
 
 #ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Deleting an object from map obj = " << obj << " "
-                         << obj->vtk_ptr);
+  vtkGenericWarningMacro("Deleting an object from map obj = "
+                         << pobj << " " << pobj->vtk_ptr);
 #endif
 
   if (vtkPythonMap)
     {
-    vtkPythonMap->ObjectMap->erase(ptr);
+    vtkWeakPointerBase wptr;
+
+    // check for customized class or dict
+    if (pobj->vtk_class->vtk_methods == 0 ||
+        PyDict_Size(pobj->vtk_dict))
+      {
+      wptr = pobj->vtk_ptr;
+      }
+
+    vtkPythonMap->ObjectMap->erase(pobj->vtk_ptr);
+
+    // if the VTK object still exists, then make a ghost
+    if (wptr.GetPointer())
+      {
+      // List of attrs to be deleted
+      vtkstd::vector<PyObject*> delList;
+
+      // Erase ghosts of VTK objects that have been deleted
+      vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
+        vtkPythonMap->GhostMap->begin();
+      while (i != vtkPythonMap->GhostMap->end())
+        {
+        if (!i->second.vtk_ptr.GetPointer())
+          {
+          delList.push_back((PyObject *)i->second.vtk_class);
+          delList.push_back(i->second.vtk_dict);
+          vtkPythonMap->GhostMap->erase(i++);
+          }
+        else
+          {
+          ++i;
+          }
+        }
+
+      // Add this new ghost to the map
+      PyVTKObjectGhost &g = (*vtkPythonMap->GhostMap)[pobj->vtk_ptr];
+      g.vtk_ptr = wptr;
+      g.vtk_class = pobj->vtk_class;
+      g.vtk_dict = pobj->vtk_dict;
+      Py_INCREF(g.vtk_class);
+      Py_INCREF(g.vtk_dict);
+
+      // Delete attrs of erased objects.  Must be done at the end.
+      for (size_t j = 0; j < delList.size(); j++)
+        {
+        Py_DECREF(delList[j]);
+        }
+      }
     }
 }
 
@@ -993,51 +1097,61 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 {
   PyObject *obj = NULL;
 
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr);
-#endif
-
   if (ptr)
     {
     vtkstd::map<vtkSmartPointerBase, PyObject*>::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
-    if(i != vtkPythonMap->ObjectMap->end())
+    if (i != vtkPythonMap->ObjectMap->end())
       {
       obj = i->second;
       }
     if (obj)
       {
       Py_INCREF(obj);
+      return obj;
       }
     }
   else
     {
     Py_INCREF(Py_None);
-    obj = Py_None;
+    return Py_None;
     }
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
-#endif
+
+  // search weak list for object, resurrect if it is there
+  vtkstd::map<vtkObjectBase*, PyVTKObjectGhost>::iterator j =
+    vtkPythonMap->GhostMap->find(ptr);
+  if (j != vtkPythonMap->GhostMap->end())
+    {
+    if (j->second.vtk_ptr.GetPointer())
+      {
+      obj = PyVTKObject_New((PyObject *)j->second.vtk_class,
+                            j->second.vtk_dict, ptr);
+      }
+    Py_DECREF(j->second.vtk_class);
+    Py_DECREF(j->second.vtk_dict);
+    vtkPythonMap->GhostMap->erase(j);
+    }
 
   if (obj == NULL)
     {
+    // create a new object
     PyObject *vtkclass = NULL;
-    vtkstd::map<vtkstd::string, PyObject*>::iterator i =
+    vtkstd::map<vtkstd::string, PyObject*>::iterator k =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
-    if(i != vtkPythonMap->ClassMap->end())
+    if (k != vtkPythonMap->ClassMap->end())
       {
-      vtkclass = i->second;
+      vtkclass = k->second;
       }
 
-      // if the class was not in the map, then find the nearest base class
-      // that is and associate ptr->GetClassName() with that base class
+    // if the class was not in the map, then find the nearest base class
+    // that is and associate ptr->GetClassName() with that base class
     if (vtkclass == NULL)
       {
       vtkclass = vtkPythonUtil::FindNearestBaseClass(ptr);
       vtkPythonUtil::AddClassToMap(vtkclass, ptr->GetClassName());
       }
 
-    obj = PyVTKObject_New(vtkclass, ptr);
+    obj = PyVTKObject_New(vtkclass, NULL, ptr);
     }
 
   return obj;
@@ -1203,25 +1317,67 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
     }
 }
 
+//----------------
+// union of long int and pointer
+union vtkPythonUtilPointerUnion
+{
+  void *p;
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+  unsigned long l;
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+  unsigned long long l;
+#elif defined(VTK_TYPE_USE___INT64)
+  unsigned __int64 l;
+#endif
+};
+
+//----------------
+// union of long int and pointer
+union vtkPythonUtilConstPointerUnion
+{
+  const void *p;
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+  unsigned long l;
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+  unsigned long long l;
+#elif defined(VTK_TYPE_USE___INT64)
+  unsigned __int64 l;
+#endif
+};
+
 //--------------------------------------------------------------------
 PyObject *vtkPythonUtil::GetObjectFromObject(
   PyObject *arg, const char *type)
 {
+  union vtkPythonUtilPointerUnion u;
+
   if (PyString_Check(arg))
     {
+    vtkObjectBase *ptr;
     char *ptrText = PyString_AsString(arg);
 
-    vtkObjectBase *ptr;
     char typeCheck[256];  // typeCheck is currently not used
-    int i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+    int i = sscanf(ptrText,"_%lx_%s", &u.l, typeCheck);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+    int i = sscanf(ptrText,"_%llx_%s", &u.l, typeCheck);
+#elif defined(VTK_TYPE_USE___INT64)
+    int i = sscanf(ptrText,"_%I64x_%s", &u.l, typeCheck);
+#endif
 
     if (i <= 0)
       {
-      i = sscanf(ptrText,"Addr=0x%lx",(long *)&ptr);
+#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
+      i = sscanf(ptrText,"Addr=0x%lx", &u.l);
+#elif defined(VTK_TYPE_USE_LONG_LONG)
+      i = sscanf(ptrText,"Addr=0x%llx", &u.l);
+#elif defined(VTK_TYPE_USE___INT64)
+      i = sscanf(ptrText,"Addr=0x%I64x", &u.l);
+#endif
       }
     if (i <= 0)
       {
-      i = sscanf(ptrText,"%p",&ptr);
+      i = sscanf(ptrText, "%p", &u.p);
       }
     if (i <= 0)
       {
@@ -1229,11 +1385,13 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
       return NULL;
       }
 
+    ptr = static_cast<vtkObjectBase *>(u.p);
+
     if (!ptr->IsA(type))
       {
       char error_string[256];
       sprintf(error_string,"method requires a %s address, a %s address was provided.",
-              type,((vtkObjectBase *)ptr)->GetClassName());
+              type, ptr->GetClassName());
       PyErr_SetString(PyExc_TypeError,error_string);
       return NULL;
       }
@@ -1327,15 +1485,15 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 {
   static char ptrText[128];
+  int ndigits = 2*(int)sizeof(void *);
+  union vtkPythonUtilConstPointerUnion u;
+  u.p = ptr;
 #if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
-  sprintf(ptrText,"_%*.*lx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          ((long)(ptr)),type);
+  sprintf(ptrText, "_%*.*lx_%s", ndigits, ndigits, u.l, type);
 #elif defined(VTK_TYPE_USE_LONG_LONG)
-  sprintf(ptrText,"_%*.*llx_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          ((long long)(ptr)),type);
+  sprintf(ptrText, "_%*.*llx_%s", ndigits, ndigits, u.l, type);
 #elif defined(VTK_TYPE_USE___INT64)
-  sprintf(ptrText,"_%*.*I64x_%s",2*(int)sizeof(void *),2*(int)sizeof(void *),
-          ((__int64)(ptr)),type);
+  sprintf(ptrText, "_%*.*I64x_%s", ndigits, ndigits, u.l, type);
 #endif
 
   return ptrText;
@@ -1346,7 +1504,7 @@ char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 {
   int i;
-  void *ptr;
+  union vtkPythonUtilPointerUnion u;
   char text[256];
   char typeCheck[256];
   typeCheck[0] = '\0';
@@ -1372,16 +1530,16 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
     if (i == 0)
       {
 #if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG
-      i = sscanf(text,"_%lx_%s",(long *)&ptr,typeCheck);
+      i = sscanf(text, "_%lx_%s", &u.l ,typeCheck);
 #elif defined(VTK_TYPE_USE_LONG_LONG)
-      i = sscanf(text,"_%llx_%s",(long long *)&ptr,typeCheck);
+      i = sscanf(text, "_%llx_%s", &u.l ,typeCheck);
 #elif defined(VTK_TYPE_USE___INT64)
-      i = sscanf(text,"_%I64x_%s",(__int64 *)&ptr,typeCheck);
+      i = sscanf(text, "_%I64x_%s", &u.l ,typeCheck);
 #endif
       if (strcmp(type,typeCheck) == 0)
         { // sucessfully unmangle
         *len = 0;
-        return ptr;
+        return u.p;
         }
       else if (i == 2)
         { // mangled pointer of wrong type
@@ -1831,6 +1989,17 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
     return NULL;
     }
 
+  if(sipTypeIsEnum(td))
+    {
+    ssize_t v = PyInt_AsLong(obj);
+    if(v == -1)
+      {
+      PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP enum type");
+      return NULL;
+      }
+    return reinterpret_cast<void*>(v);
+    }
+
   if(!api->api_can_convert_to_type(obj, td, 0))
     {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
@@ -1869,6 +2038,12 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
     {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
     return NULL;
+    }
+
+  if(sipTypeIsEnum(td))
+    {
+    size_t v = reinterpret_cast<size_t>(ptr);
+    return api->api_convert_from_enum(v, td);
     }
 
   if(is_new)

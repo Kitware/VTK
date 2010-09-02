@@ -18,12 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkAssignMimeType_h
-#define __vtkAssignMimeType_h
-
-#include "vtkTableAlgorithm.h"
-class vtkMimeTypes;
-
 // .NAME vtkAssignMimeType - Assigns MIME types to a collection of documents.
 //
 // .SECTION Description
@@ -50,6 +44,12 @@ class vtkMimeTypes;
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkAssignMimeType_h
+#define __vtkAssignMimeType_h
+
+#include "vtkTableAlgorithm.h"
+class vtkMimeTypes;
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkAssignMimeType :
   public vtkTableAlgorithm

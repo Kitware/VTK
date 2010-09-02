@@ -18,13 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkDocumentReader_h
-#define __vtkDocumentReader_h
-
-#include <vtkTableAlgorithm.h>
-
-class vtkStdString;
-
 // .NAME vtkDocumentReader - Reads documents into memory for text analysis.
 //
 // .SECTION Description
@@ -49,6 +42,13 @@ class vtkStdString;
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkDocumentReader_h
+#define __vtkDocumentReader_h
+
+#include <vtkTableAlgorithm.h>
+
+class vtkStdString;
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkDocumentReader :
   public vtkTableAlgorithm

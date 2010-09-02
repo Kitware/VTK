@@ -85,12 +85,14 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextBufferId
   vtkBarMark
   vtkChartColors
+  vtkContext2D
   vtkDataElement
   vtkDataValue
   vtkLineMark
   vtkMark
   vtkMarkUtil
   vtkOpenGLContextBufferId
+  vtkOpenGLContextDevice2D
   vtkPanelMark
   vtkValueHolder
   vtkWedgeMark
@@ -113,6 +115,7 @@ ENDIF(VTK_USE_QT)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   SET(Kit_HDRS
     vtkColor.h
+    vtkContextMouseEvent.h
     vtkVector.h
     )
   INSTALL(FILES ${Kit_HDRS}

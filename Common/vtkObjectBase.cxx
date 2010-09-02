@@ -16,6 +16,7 @@
 #include "vtkObjectBase.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
+#include "vtkWeakPointerBase.h"
 
 #include <vtksys/ios/sstream>
 
@@ -31,6 +32,15 @@ public:
   static int TakeReference(vtkObjectBase* obj)
     {
     return vtkGarbageCollector::TakeReference(obj);
+    }
+};
+
+class vtkObjectBaseToWeakPointerBaseFriendship
+{
+public:
+  static void ClearPointer(vtkWeakPointerBase *p)
+    {
+    p->Object = NULL;
     }
 };
 
@@ -64,7 +74,7 @@ ostream& operator<<(ostream& os, vtkObjectBase& o)
 vtkObjectBase::vtkObjectBase()
 {
   this->ReferenceCount = 1;
-  // initial reference count = 1 and reference counting on.
+  this->WeakPointers = 0;
 }
 
 vtkObjectBase::~vtkObjectBase() 
@@ -74,6 +84,16 @@ vtkObjectBase::~vtkObjectBase()
   if ( this->ReferenceCount > 0)
     {
     vtkGenericWarningMacro(<< "Trying to delete object with non-zero reference count.");
+    }
+  // clear all weak pointers to this object
+  if ( this->WeakPointers )
+    {
+    vtkWeakPointerBase **p = this->WeakPointers;
+    while (*p)
+      {
+      vtkObjectBaseToWeakPointerBaseFriendship::ClearPointer(*p++);
+      }
+    delete [] this->WeakPointers;
     }
 }
 

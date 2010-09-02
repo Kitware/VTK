@@ -3,6 +3,9 @@
 #ifndef _NCCONFIG_H_
 #define _NCCONFIG_H_
 
+/* Version number of package */
+#cmakedefine VERSION "@VERSION@"
+
 /* Define if this is a shared build */
 #cmakedefine BUILD_SHARED_LIBS
 #if defined( BUILD_SHARED_LIBS ) && defined( _WIN32 )
@@ -10,7 +13,7 @@
 #endif
 
 #ifdef vtkNetCDF_EXPORTS
-#  define DLL_EXPORT 
+#  define DLL_EXPORT
 #endif
 
 /* Define if you're on an HP-UX system. */
@@ -31,7 +34,9 @@
 #cmakedefine size_t @size_t@
 
 /* Define if you have the ANSI C header files.  */
+#ifndef STDC_HEADERS
 #cmakedefine STDC_HEADERS @STDC_HEADERS@
+#endif
 
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
@@ -47,6 +52,11 @@
 #  define WORDS_BIGENDIAN 1
 #endif
 
+/* Define if you have <inttypes.h>  */
+#cmakedefine HAVE_INTTYPES_H @HAVE_INTTYPES_H@
+
+/* Define if you have <stdint.h>  */
+#cmakedefine HAVE_STDINT_H @HAVE_STDINT_H@
 
 /* Define if you don't have the <stdlib.h>.  */
 #cmakedefine NO_STDLIB_H @NO_STDLIB_H@
@@ -66,8 +76,23 @@
 /* Define if you have <unistd.h> and it should be used (not on Ultrix).  */
 #cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
 
+/* Define if stdbool.h conforms to C99. */
+#cmakedefine HAVE_STDBOOL_H @HAVE_STDBOOL_H@
+
 /* Define if you don't have the strerror function  */
 #cmakedefine NO_STRERROR @NO_STRERROR@
+
+/* Define if you have the strerror function  */
+#cmakedefine HAVE_STRERROR @HAVE_STRERROR@
+
+/* Define if you have the <hdf5.h> header file. */
+#cmakedefine HAVE_HDF5_H
+
+/* Define if you have the `hdf5' library (-lhdf5). */
+#cmakedefine HAVE_LIBHDF5
+
+/* Define if you have the `hdf5_hl' library (-lhdf5_hl). */
+#cmakedefine HAVE_LIBHDF5_HL
 
 /* Define to `int' if system doesn't define.  */
 #cmakedefine ssize_t @ssize_t@
@@ -75,8 +100,12 @@
 /* Define to `int' if system doesn't define.  */
 #cmakedefine ptrdiff_t @ptrdiff_t@
 
-/* Define to `unsigned char' if system doesn't define.  */
-#cmakedefine uchar @uchar@
+/* Define to 1 if the system has the type uchar. */
+#cmakedefine HAVE_UCHAR
+
+/* Define to 1 if the system has the type `_Bool'. */
+#cmakedefine HAVE__BOOL
+
 
 /* Define if the system does not use IEEE floating point representation */
 #cmakedefine NO_IEEE_FLOAT @NO_IEEE_FLOAT@

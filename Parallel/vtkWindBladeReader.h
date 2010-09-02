@@ -63,12 +63,6 @@ public:
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
-  vtkSetVector6Macro(WholeExtent, int);
-  vtkGetVector6Macro(WholeExtent, int);
-
-  vtkSetVector6Macro(SubExtent, int);
-  vtkGetVector6Macro(SubExtent, int);
-
   // Description:
   // Get the reader's output
   vtkStructuredGrid *GetFieldOutput();

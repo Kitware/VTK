@@ -64,7 +64,6 @@ vtkRIBLight.cxx
 vtkRIBProperty.cxx
 vtkRenderLargeImage.cxx
 vtkSpiderPlotActor.cxx
-vtkStructuredExtent.cxx
 vtkStructuredGridLIC2D.cxx
 vtkTemporalDataSetCache.cxx
 vtkTemporalInterpolator.cxx

@@ -265,14 +265,15 @@ public:
   virtual int IsNumeric() = 0;
 
   // Description:
-  // Subclasses must override this method and provide the right 
-  // kind of templated vtkArrayIteratorTemplate.
+  // Subclasses must override this method and provide the right kind
+  // of templated vtkArrayIteratorTemplate.
   virtual vtkArrayIterator* NewIterator() = 0;
 
   // Description:
-  // Returns the size of the data in DataTypeSize units. Thus, the number of bytes
-  // for the data can be computed by GetDataSize() * GetDataTypeSize(). Non-contiguous 
-  // or variable- size arrays  need to override this method.
+  // Returns the size of the data in DataTypeSize units. Thus, the
+  // number of bytes for the data can be computed by GetDataSize() *
+  // GetDataTypeSize(). Non-contiguous or variable- size arrays need
+  // to override this method.
   virtual vtkIdType GetDataSize()
     {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
@@ -288,8 +289,14 @@ public:
   virtual vtkVariant GetVariantValue(vtkIdType idx);
 
   // Description:
-  // Insert a value into the array from a variant.
-  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
+  // Insert a value into the array from a variant.  This method does
+  // bounds checking.
+  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
+
+  // Description:
+  // Set a value in the array from a variant.  This method does NOT do
+  // bounds checking.
+  virtual void SetVariantValue(vtkIdType idx, vtkVariant value) = 0;
 
   // Description:
   // Tell the array explicitly that the data has changed.

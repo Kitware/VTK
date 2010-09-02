@@ -43,7 +43,8 @@ extern VTK_PYTHON_EXPORT PyTypeObject PyVTKObject_Type;
 extern "C"
 {
 VTK_PYTHON_EXPORT
-PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObjectBase *ptr);
+PyObject *PyVTKObject_New(
+  PyObject *vtkclass, PyObject *pydict, vtkObjectBase *ptr);
 }
 
 #endif

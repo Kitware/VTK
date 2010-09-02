@@ -27,7 +27,6 @@ Created by Prabhu Ramachandran in Feb. 2008.
 """
 
 import vtk
-import vtkConstants
 import numpy
 
 # Useful constants for VTK arrays.
@@ -49,19 +48,19 @@ elif VTK_LONG_TYPE_SIZE == 8:
 def get_vtk_array_type(numpy_array_type):
     """Returns a VTK typecode given a numpy array."""
     # This is a Mapping from numpy array types to VTK array types.
-    _np_vtk = {numpy.character:vtkConstants.VTK_UNSIGNED_CHAR,
-                numpy.uint8:vtkConstants.VTK_UNSIGNED_CHAR,
-                numpy.uint16:vtkConstants.VTK_UNSIGNED_SHORT,
-                numpy.uint32:vtkConstants.VTK_UNSIGNED_INT,
-                ULONG_TYPE_CODE:vtkConstants.VTK_UNSIGNED_LONG,
-                numpy.int8:vtkConstants.VTK_CHAR,
-                numpy.int16:vtkConstants.VTK_SHORT,
-                numpy.int32:vtkConstants.VTK_INT,
-                LONG_TYPE_CODE:vtkConstants.VTK_LONG,
-                numpy.float32:vtkConstants.VTK_FLOAT,
-                numpy.float64:vtkConstants.VTK_DOUBLE,
-                numpy.complex64:vtkConstants.VTK_FLOAT,
-                numpy.complex128:vtkConstants.VTK_DOUBLE}
+    _np_vtk = {numpy.character:vtk.VTK_UNSIGNED_CHAR,
+                numpy.uint8:vtk.VTK_UNSIGNED_CHAR,
+                numpy.uint16:vtk.VTK_UNSIGNED_SHORT,
+                numpy.uint32:vtk.VTK_UNSIGNED_INT,
+                ULONG_TYPE_CODE:vtk.VTK_UNSIGNED_LONG,
+                numpy.int8:vtk.VTK_CHAR,
+                numpy.int16:vtk.VTK_SHORT,
+                numpy.int32:vtk.VTK_INT,
+                LONG_TYPE_CODE:vtk.VTK_LONG,
+                numpy.float32:vtk.VTK_FLOAT,
+                numpy.float64:vtk.VTK_DOUBLE,
+                numpy.complex64:vtk.VTK_FLOAT,
+                numpy.complex128:vtk.VTK_DOUBLE}
     try:
         return _np_vtk[numpy_array_type]
     except KeyError:
@@ -71,18 +70,18 @@ def get_vtk_array_type(numpy_array_type):
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
-    _vtk_np = {vtkConstants.VTK_BIT:numpy.bool,
-                vtkConstants.VTK_CHAR:numpy.int8,
-                vtkConstants.VTK_UNSIGNED_CHAR:numpy.uint8,
-                vtkConstants.VTK_SHORT:numpy.int16,
-                vtkConstants.VTK_UNSIGNED_SHORT:numpy.uint16,
-                vtkConstants.VTK_INT:numpy.int32,
-                vtkConstants.VTK_UNSIGNED_INT:numpy.uint32,
-                vtkConstants.VTK_LONG:LONG_TYPE_CODE,
-                vtkConstants.VTK_UNSIGNED_LONG:ULONG_TYPE_CODE,
-                vtkConstants.VTK_ID_TYPE:ID_TYPE_CODE,
-                vtkConstants.VTK_FLOAT:numpy.float32,
-                vtkConstants.VTK_DOUBLE:numpy.float64}
+    _vtk_np = {vtk.VTK_BIT:numpy.bool,
+                vtk.VTK_CHAR:numpy.int8,
+                vtk.VTK_UNSIGNED_CHAR:numpy.uint8,
+                vtk.VTK_SHORT:numpy.int16,
+                vtk.VTK_UNSIGNED_SHORT:numpy.uint16,
+                vtk.VTK_INT:numpy.int32,
+                vtk.VTK_UNSIGNED_INT:numpy.uint32,
+                vtk.VTK_LONG:LONG_TYPE_CODE,
+                vtk.VTK_UNSIGNED_LONG:ULONG_TYPE_CODE,
+                vtk.VTK_ID_TYPE:ID_TYPE_CODE,
+                vtk.VTK_FLOAT:numpy.float32,
+                vtk.VTK_DOUBLE:numpy.float64}
     return _vtk_np
 
 
@@ -184,7 +183,7 @@ def numpy_to_vtkIdTypeArray(num_array, deep=0):
             raise ValueError, \
              'Expecting a numpy.int64 array, got %s instead.' % (str(dtype))
 
-    return numpy_to_vtk(num_array, deep, vtkConstants.VTK_ID_TYPE)
+    return numpy_to_vtk(num_array, deep, vtk.VTK_ID_TYPE)
 
 def vtk_to_numpy(vtk_array):
     """Converts a VTK data array to a numpy array.
@@ -206,7 +205,7 @@ def vtk_to_numpy(vtk_array):
     typ = vtk_array.GetDataType()
     assert typ in get_vtk_to_numpy_typemap().keys(), \
            "Unsupported array type %s"%typ
-    assert typ != vtkConstants.VTK_BIT, 'Bit arrays are not supported.'
+    assert typ != vtk.VTK_BIT, 'Bit arrays are not supported.'
 
     shape = vtk_array.GetNumberOfTuples(), \
             vtk_array.GetNumberOfComponents()

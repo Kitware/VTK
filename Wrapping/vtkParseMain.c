@@ -39,6 +39,7 @@ extern void vtkParseOutput(FILE *, FileInfo *);
 static int check_options(int argc, char *argv[])
 {
   int i;
+  size_t j;
 
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
@@ -48,7 +49,6 @@ static int check_options(int argc, char *argv[])
   options.IsSpecialObject = 0;
   options.HierarchyFileName = 0;
   options.HintFileName = 0;
-  options.NumberOfIncludeDirectories = 0;
 
   for (i = 1; i < argc && argv[i][0] == '-'; i++)
     {
@@ -93,9 +93,28 @@ static int check_options(int argc, char *argv[])
         {
         return -1;
         }
-      vtkParse_AddStringToArray(&options.IncludeDirectories,
-                                &options.NumberOfIncludeDirectories,
-                                argv[i]);
+      vtkParse_IncludeDirectory(argv[i]);
+      }
+    else if (strcmp(argv[i], "-D") == 0)
+      {
+      i++;
+      j = 0;
+      if (i >= argc || argv[i][0] == '-')
+        {
+        return -1;
+        }
+      while (argv[i][j] != '\0' && argv[i][j] != '=') { j++; }
+      if (argv[i][j] == '=') { j++; }
+      vtkParse_DefineMacro(argv[i], &argv[i][j]);
+      }
+    else if (strcmp(argv[i], "-U") == 0)
+      {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+        {
+        return -1;
+        }
+      vtkParse_UndefineMacro(argv[i]);
       }
     }
 
@@ -106,54 +125,6 @@ static int check_options(int argc, char *argv[])
 OptionInfo *vtkParse_GetCommandLineOptions()
 {
   return &options;
-}
-
-/* Find a filename, given the "-I" options from the command line */
-char *vtkParse_FindPath(const char *filename)
-{
-  int i;
-  struct stat fs;
-  char filepath[512];
-  const char *directory;
-  char *output;
-  const char *sep;
-
-  for (i = 0; i <= options.NumberOfIncludeDirectories; i++)
-    {
-    if (i == 0)
-      {
-      /* try first with no path */
-      strcpy(filepath, filename);
-      }
-    else
-      {
-      directory = options.IncludeDirectories[i-1];
-      sep = "/";
-      if (directory[strlen(directory)-1] == sep[0])
-        {
-        sep = "";
-        }
-      sprintf(filepath, "%s%s%s", directory, sep, filename);
-      }
-
-    if (stat(filepath, &fs) == 0)
-      {
-      output = (char *)malloc(strlen(filepath)+1);
-      strcpy(output, filepath);
-      return output;
-      }
-    }
-
-  return NULL;
-}
-
-/* Free a path returned by FindPath */
-void vtkParse_FreePath(char *filepath)
-{
-  if (filepath)
-    {
-    free(filepath);
-    }
 }
 
 int main(int argc, char *argv[])
@@ -183,7 +154,8 @@ int main(int argc, char *argv[])
             "  --special       non-vtkObjectBase class\n"
             "  --hints <file>  hints file\n"
             "  --types <file>  type hierarchy file\n"
-            "  -I <dir>        add an include directory\n",
+            "  -I <dir>        add an include directory\n"
+            "  -D <macro>      define a preprocessor macro\n",
             argv[0]);
     exit(1);
     }
@@ -220,6 +192,18 @@ int main(int argc, char *argv[])
     }
 
   options.OutputFileName = argv[argi++];
+  ofile = fopen(options.OutputFileName, "w");
+
+  if (!ofile)
+    {
+    fprintf(stderr, "Error opening output file %s\n", options.OutputFileName);
+    fclose(ifile);
+    if (hfile)
+      {
+      fclose(hfile);
+      }
+    exit(1);
+    }
 
   if (options.IsConcrete)
     {
@@ -243,10 +227,11 @@ int main(int argc, char *argv[])
     }
 
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
-  fclose(ifile);
 
   if (!data)
     {
+    fclose(ifile);
+    fclose(ofile);
     if (hfile)
       {
       fclose(hfile);
@@ -257,7 +242,6 @@ int main(int argc, char *argv[])
   if (hfile)
     {
     vtkParse_ReadHints(data, hfile, stderr);
-    fclose(hfile);
     }
 
   if (options.IsConcrete && data->MainClass)
@@ -267,14 +251,6 @@ int main(int argc, char *argv[])
   else if (options.IsAbstract && data->MainClass)
     {
     data->MainClass->IsAbstract = 1;
-    }
-
-  ofile = fopen(options.OutputFileName, "w");
-
-  if (!ofile)
-    {
-    fprintf(stderr, "Error opening output file %s\n", options.OutputFileName);
-    exit(1);
     }
 
   vtkParseOutput(ofile, data);

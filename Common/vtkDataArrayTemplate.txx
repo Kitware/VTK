@@ -897,18 +897,18 @@ void vtkDataArrayTemplate<T>::InsertValue(vtkIdType id, T f)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::InsertVariantValue(vtkIdType id, vtkVariant value)
+void vtkDataArrayTemplate<T>::SetVariantValue(vtkIdType id, vtkVariant value)
 {
   T* dummyPtr = 0;
   bool valid;
   T toInsert = value.ToNumeric(&valid, dummyPtr);
   if (valid)
     {
-    this->InsertValue(id, toInsert);
+    this->SetValue(id, toInsert);
     }
   else
     {
-    vtkErrorMacro("unable to insert value of type " << value.GetType());
+    vtkErrorMacro("unable to set value of type " << value.GetType());
     }
 }
 

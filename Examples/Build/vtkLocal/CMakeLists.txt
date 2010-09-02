@@ -53,7 +53,7 @@ ELSE(BUILD_SHARED_LIBS)
   SET(VTKLOCAL_BUILD_SHARED_LIBS_CONFIG 0)
 ENDIF(BUILD_SHARED_LIBS)
 
-IF(VTK_BINARY_DIR)
+IF(VTK_FOUND)
   # If this is a build tree, provide an option for putting this
   # project's executables and libraries in with VTK's.
   IF (EXISTS ${VTK_DIR}/bin)
@@ -151,4 +151,4 @@ IF(VTK_BINARY_DIR)
   ENDIF(VTK_WRAP_JAVA)
 
   SUBDIRS(Testing)
-ENDIF(VTK_BINARY_DIR)
+ENDIF(VTK_FOUND)

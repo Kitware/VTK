@@ -30,8 +30,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkCoordinate.h"
 #include "vtkMath.h"
 #include "vtkHandleWidget.h"
@@ -59,7 +57,7 @@ public:
     vtkSeedWidget *sw = vtkSeedWidget::SafeDownCast(o);
     if (sw && event == vtkCommand::PlacePointEvent)
       {
-      cout << "Point placed, total of:" << this->SeedRepresentation->GetNumberOfSeeds() << "\n";
+      std::cout << "Point placed, total of:" << this->SeedRepresentation->GetNumberOfSeeds() << "\n";
       }
     }
 
@@ -171,13 +169,9 @@ int TestSeedWidgetNonUniformRepresentations( int argc, char *argv[] )
   // Render..
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }
 
 

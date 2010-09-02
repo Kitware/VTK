@@ -18,13 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkTokenValueFilter_h
-#define __vtkTokenValueFilter_h
-
-#include <vtkTableAlgorithm.h>
-
-class vtkUnicodeString;
-
 // .NAME vtkTokenValueFilter - Filters tokens based on their value.
 //
 // .SECTION Description
@@ -46,6 +39,13 @@ class vtkUnicodeString;
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTokenValueFilter_h
+#define __vtkTokenValueFilter_h
+
+#include <vtkTableAlgorithm.h>
+
+class vtkUnicodeString;
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkTokenValueFilter :
   public vtkTableAlgorithm

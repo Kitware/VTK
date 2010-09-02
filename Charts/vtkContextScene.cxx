@@ -20,6 +20,7 @@
 #include "vtkTransform2D.h"
 #include "vtkMatrix3x3.h"
 #include "vtkContextScenePrivate.h"
+#include "vtkContextMouseEvent.h"
 
 // Get my new commands
 #include "vtkCommand.h"
@@ -78,26 +79,26 @@ public:
           this->Target->MouseMoveEvent(x, y);
           break;
         case vtkCommand::LeftButtonPressEvent :
-          this->Target->ButtonPressEvent(0, x, y);
+          this->Target->ButtonPressEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
           break;
         case vtkCommand::MiddleButtonPressEvent :
-          this->Target->ButtonPressEvent(1, x, y);
+          this->Target->ButtonPressEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
           break;
         case vtkCommand::RightButtonPressEvent :
-          this->Target->ButtonPressEvent(2, x, y);
+          this->Target->ButtonPressEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
           break;
         case vtkCommand::LeftButtonReleaseEvent :
-          this->Target->ButtonReleaseEvent(0, x, y);
+          this->Target->ButtonReleaseEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
           break;
         case vtkCommand::MiddleButtonReleaseEvent :
-          this->Target->ButtonReleaseEvent(1, x, y);
+          this->Target->ButtonReleaseEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
           break;
         case vtkCommand::RightButtonReleaseEvent :
-          this->Target->ButtonReleaseEvent(2, x, y);
+          this->Target->ButtonReleaseEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
           break;
         case vtkCommand::MouseWheelForwardEvent :
           // There is a forward and a backward event - not clear on deltas...
-          this->Target->MouseWheelEvent(1, x, y);
+          this->Target->MouseWheelEvent(+1, x, y);
           break;
         case vtkCommand::MouseWheelBackwardEvent :
           // There is a forward and a backward event - not clear on deltas...
@@ -125,8 +126,8 @@ class vtkContextScene::Private
 public:
   Private()
     {
-    this->itemMousePressCurrent = -1;
-    this->Event.Button = -1;
+      this->itemMousePressCurrent = -1;
+    this->Event.Button = vtkContextMouseEvent::NO_BUTTON;
     this->IsDirty = true;
     }
   ~Private()
@@ -263,7 +264,7 @@ vtkAbstractContextItem * vtkContextScene::GetItem(unsigned int index)
 //-----------------------------------------------------------------------------
 unsigned int vtkContextScene::GetNumberOfItems()
 {
-  return this->Children->size();
+  return static_cast<unsigned int>(this->Children->size());
 }
 
 //-----------------------------------------------------------------------------
@@ -473,10 +474,10 @@ vtkIdType vtkContextScene::GetPickedItem(int x, int y)
     }
   else
     {
-    size_t i = this->Children->size();
+    size_t i = this->Children->size()-1;
     vtkContextMouseEvent &event = this->Storage->Event;
-    for(vtkContextScenePrivate::const_iterator it = this->Children->end();
-        it != this->Children->begin(); --it, --i)
+    for(vtkContextScenePrivate::const_reverse_iterator it =
+        this->Children->rbegin(); it != this->Children->rend(); ++it, --i)
       {
       if ((*it)->Hit(event))
         {
@@ -517,7 +518,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
   if(size != 0)
     {
     // Fire mouse enter and leave event prior to firing a mouse event.
-    vtkIdType pickedItem=this->GetPickedItem(x,y);
+    vtkIdType pickedItem = this->GetPickedItem(x,y);
 
     for (int i = size-1; i >= 0; --i)
       {
@@ -533,7 +534,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
           {
           this->Children->State[i] = true;
           (*this->Children)[i]->MouseEnterEvent(event);
-//          cout << "enter" << endl;
+          vtkDebugMacro("Enter item " << i);
           }
         }
       else
@@ -542,7 +543,7 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
           {
           this->Children->State[i] = false;
           (*this->Children)[i]->MouseLeaveEvent(event);
-//          cout << "leave" << endl;
+          vtkDebugMacro("Leave item " << i);
           }
         }
       }
@@ -614,7 +615,7 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
         ->MouseButtonReleaseEvent(event);
     this->Storage->itemMousePressCurrent = -1;
     }
-  this->Storage->Event.Button = -1;
+  this->Storage->Event.Button = vtkContextMouseEvent::NO_BUTTON;
 }
 
 void vtkContextScene::MouseWheelEvent(int delta, int x, int y)

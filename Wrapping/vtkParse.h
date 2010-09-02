@@ -40,7 +40,8 @@ typedef enum _parse_item_t
   VTK_FUNCTION_INFO  = 6,
   VTK_VARIABLE_INFO  = 7,
   VTK_CONSTANT_INFO  = 8,
-  VTK_TYPEDEF_INFO   = 9
+  VTK_TYPEDEF_INFO   = 9,
+  VTK_USING_INFO     = 10
 } parse_item_t;
 
 /**
@@ -99,8 +100,8 @@ typedef struct _ValueInfo
   int            NumberOfDimensions; /* dimensionality for arrays */
   const char   **Dimensions; /* dimensions for arrays */
   struct _FunctionInfo *Function;  /* for function pointer values */
-  int           IsStatic;   /* for class variables only */
-  int           IsEnum;     /* for constants only */
+  int            IsStatic;   /* for class variables only */
+  int            IsEnum;     /* for constants only */
 } ValueInfo;
 
 /**
@@ -112,6 +113,7 @@ typedef struct _FunctionInfo
   parse_access_t Access;
   const char    *Name;
   const char    *Comment;
+  const char    *Class;       /* class name for methods */
   const char    *Signature;   /* function signature as text */
   TemplateArgs  *Template;    /* template args, or NULL */
   int            NumberOfArguments;
@@ -150,17 +152,16 @@ typedef struct _EnumInfo
 } EnumInfo;
 
 /**
- * UnionInfo is for unions (not implemented yet)
+ * UsingInfo is for using directives (not implemented yet)
  */
-typedef struct _UnionInfo
+typedef struct _UsingInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
-  const char    *Name;
+  const char    *Name;     /* null for using whole namespace */
   const char    *Comment;
-  int            NumberOfMembers;
-  ValueInfo    **Members;
-} UnionInfo;
+  const char    *Scope;    /* the namespace or class */
+} UsingInfo;
 
 /**
  * ItemInfo just contains an index
@@ -172,7 +173,7 @@ typedef struct _ItemInfo
 } ItemInfo;
 
 /**
- * ClassInfo is for classes and structs
+ * ClassInfo is for classes, structs, and unions
  */
 typedef struct _ClassInfo
 {
@@ -195,10 +196,10 @@ typedef struct _ClassInfo
   ValueInfo    **Variables;
   int            NumberOfEnums;
   EnumInfo     **Enums;
-  int            NumberOfUnions;
-  UnionInfo    **Unions;
   int            NumberOfTypedefs;
   ValueInfo    **Typedefs;
+  int            NumberOfUsings;
+  UsingInfo    **Usings;
   int            IsAbstract;
   int            HasDelete;
 } ClassInfo;
@@ -224,10 +225,10 @@ typedef struct _NamespaceInfo
   ValueInfo    **Variables;
   int            NumberOfEnums;
   EnumInfo     **Enums;
-  int            NumberOfUnions;
-  UnionInfo    **Unions;
   int            NumberOfTypedefs;
   ValueInfo    **Typedefs;
+  int            NumberOfUsings;
+  UsingInfo    **Usings;
   int            NumberOfNamespaces;
   struct _NamespaceInfo **Namespaces;
 } NamespaceInfo;
@@ -258,6 +259,26 @@ extern "C" {
  */
 void vtkParse_SetClassProperty(
   const char *classname, const char *property);
+
+/**
+ * Define a preprocessor macro. Function macros are not supported.
+ */
+void vtkParse_DefineMacro(const char *name, const char *definition);
+
+/**
+ * Undefine a preprocessor macro.
+ */
+void vtkParse_UndefineMacro(const char *name);
+
+/**
+ * Add an include directory, for use with the "-I" option.
+ */
+void vtkParse_IncludeDirectory(const char *dirname);
+
+/**
+ * Return the full path to a header file.
+ */
+const char *vtkParse_FindIncludeFile(const char *filename);
 
 /**
  * Parse a header file and return a FileInfo struct

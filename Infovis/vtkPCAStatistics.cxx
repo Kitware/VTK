@@ -1,10 +1,14 @@
 #include "vtkPCAStatistics.h"
 
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatisticsAssessFunctor.h"
 #include "vtkObjectFactory.h"
+#ifdef VTK_USE_GNU_R
+#include <vtkRInterface.h>
+#endif // VTK_USE_GNU_R
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
@@ -17,11 +21,10 @@
 // To Do:
 // - Add option to pre-multiply EigenVectors by normalization coeffs
 // - In vtkPCAAssessFunctor, pre-multiply EigenVectors by normalization coeffs (if req)
-// - 
+// -
 
 #define VTK_PCA_NORMCOLUMN "PCA Cov Norm"
 #define VTK_PCA_COMPCOLUMN "PCA"
-
 
 vtkStandardNewMacro(vtkPCAStatistics);
 
@@ -61,21 +64,27 @@ public:
   vtkIdType BasisSize;
 };
 
+// ----------------------------------------------------------------------
 vtkPCAAssessFunctor* vtkPCAAssessFunctor::New()
 {
   return new vtkPCAAssessFunctor;
 }
 
-bool vtkPCAAssessFunctor::InitializePCA(
-                                        vtkTable* inData, vtkTable* reqModel,
-                                        int normScheme, int basisScheme, int fixedBasisSize, double fixedBasisEnergy )
+// ----------------------------------------------------------------------
+bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
+                                         vtkTable* reqModel,
+                                         int normScheme,
+                                         int basisScheme,
+                                         int fixedBasisSize,
+                                         double fixedBasisEnergy )
 {
-  if ( ! this->vtkMultiCorrelativeAssessFunctor::Initialize(
-                                                            inData, reqModel, false /* no Cholesky decomp */ ) )
+  if ( ! this->vtkMultiCorrelativeAssessFunctor::Initialize( inData,
+                                                             reqModel,
+                                                             false /* no Cholesky decomp */ ) )
     {
     return false;
     }
-  
+
   // Put the PCA basis into a matrix form we can use.
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
   vtkDoubleArray* evalm = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
@@ -84,39 +93,41 @@ bool vtkPCAAssessFunctor::InitializePCA(
     vtkGenericWarningMacro( "No \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column in request." );
     return false;
     }
+
   // Check that the derived model includes additional rows specifying the
   // normalization as required.
   vtkIdType mrmr = reqModel->GetNumberOfRows(); // actual number of rows
   vtkIdType ermr; // expected number of rows
   switch ( normScheme )
     {
-  case vtkPCAStatistics::NONE:
-    // m+1 covariance/Cholesky rows, m eigenvector rows, no normalization factors
-    ermr = 2 * m + 1;
-    break;
-  case vtkPCAStatistics::DIAGONAL_SPECIFIED:
-  case vtkPCAStatistics::DIAGONAL_VARIANCE:
-    // m+1 covariance/Cholesky rows, m eigenvector rows, 1 normalization factor row
-    ermr = 2 * m + 2;
-    break;
-  case vtkPCAStatistics::TRIANGLE_SPECIFIED:
-    // m+1 covariance/Cholesky rows, m eigenvector rows, m normalization factor rows
-    ermr = 3 * m + 1;
-    break;
-  case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
-  default:
+    case vtkPCAStatistics::NONE:
+      // m+1 covariance/Cholesky rows, m eigenvector rows, no normalization factors
+      ermr = 2 * m + 1;
+      break;
+    case vtkPCAStatistics::DIAGONAL_SPECIFIED:
+    case vtkPCAStatistics::DIAGONAL_VARIANCE:
+      // m+1 covariance/Cholesky rows, m eigenvector rows, 1 normalization factor row
+      ermr = 2 * m + 2;
+      break;
+    case vtkPCAStatistics::TRIANGLE_SPECIFIED:
+      // m+1 covariance/Cholesky rows, m eigenvector rows, m normalization factor rows
+      ermr = 3 * m + 1;
+      break;
+    case vtkPCAStatistics::NUM_NORMALIZATION_SCHEMES:
+    default:
       {
       vtkGenericWarningMacro( "The normalization scheme specified (" << normScheme << ") is invalid." );
       return false;
       }
-    break;
+      break;
     }
+
   // Allow derived classes to add rows, but never allow fewer than required.
   if ( mrmr < ermr )
     {
     vtkGenericWarningMacro(
-      "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
-      << reqModel->GetNumberOfRows() << "." );
+                           "Expected " << ( 2 * m + 1 ) << " or more columns in request but found "
+                           << reqModel->GetNumberOfRows() << "." );
     return false;
     }
 
@@ -161,6 +172,7 @@ bool vtkPCAAssessFunctor::InitializePCA(
       }
       break;
     }
+
   // FIXME: Offer mode to include normalization factors (none,diag,triang)?
   // Could be done here by pre-multiplying this->EigenVectors by factors.
   for ( i = 0; i < this->BasisSize; ++ i )
@@ -175,6 +187,7 @@ bool vtkPCAAssessFunctor::InitializePCA(
   return true;
 }
 
+// ----------------------------------------------------------------------
 void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
   vtkIdType i;
@@ -333,10 +346,10 @@ int vtkPCAStatistics::FillInputPortInformation( int port, vtkInformation* info )
 }
 
 // ----------------------------------------------------------------------
-static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData, 
+static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
                                            ap::real_2d_array& cov,
-                                           vtkTable* normSpec, 
-                                           vtkTable* reqModel, 
+                                           vtkTable* normSpec,
+                                           vtkTable* reqModel,
                                            bool triangle )
 {
   vtkIdType i, j;
@@ -451,7 +464,7 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
 }
 
 // ----------------------------------------------------------------------
-static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData, 
+static void vtkPCAStatisticsNormalizeVariance( vtkVariantArray* normData,
                                                ap::real_2d_array& cov )
 {
   vtkIdType i, j;
@@ -556,7 +569,7 @@ void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       vtksys_ios::ostringstream pcaCompName;
       pcaCompName << VTK_PCA_COMPCOLUMN << " " << i;
       row->SetValue( 0, pcaCompName.str().c_str() );
-      row->SetValue( 1, s(i) );
+      row->SetValue( 1, s( i ) );
       for ( j = 0; j < m; ++ j )
         {
         // transpose the matrix so basis is row vectors (and thus
@@ -611,8 +624,252 @@ void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAStatistics::Assess( vtkTable* inData, 
-                               vtkMultiBlockDataSet* inMeta, 
+void vtkPCAStatistics::Test( vtkTable* inData,
+                             vtkMultiBlockDataSet* inMeta,
+                             vtkTable* outMeta )
+
+{
+  if ( ! inMeta )
+    {
+    return;
+    }
+
+  if ( ! outMeta )
+    {
+    return;
+    }
+
+  // Prepare columns for the test:
+  // 0: (derived) model block index
+  // 1: multivariate Srivastava skewness
+  // 2: multivariate Srivastava kurtosis
+  // 3: multivariate Jarque-Bera-Srivastava statistic
+  // 4: multivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
+  // 5: number of degrees of freedom of Chi square distribution
+  // NB: These are not added to the output table yet, for they will be filled individually first
+  //     in order that R be invoked only once.
+  vtkIdTypeArray* blockCol = vtkIdTypeArray::New();
+  blockCol->SetName( "Block" );
+
+  vtkDoubleArray* bS1Col = vtkDoubleArray::New();
+  bS1Col->SetName( "Srivastava Skewness" );
+
+  vtkDoubleArray* bS2Col = vtkDoubleArray::New();
+  bS2Col->SetName( "Srivastava Kurtosis" );
+
+  vtkDoubleArray* statCol = vtkDoubleArray::New();
+  statCol->SetName( "Jarque-Bera-Srivastava" );
+
+  vtkIdTypeArray* dimCol = vtkIdTypeArray::New();
+  dimCol->SetName( "d" );
+
+  // Retain data cardinality to check that models are applicable
+  vtkIdType nRowData = inData->GetNumberOfRows();
+
+  // Now iterate over model blocks
+  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+  for ( unsigned int b = 1; b < nBlocks; ++ b )
+    {
+    vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
+
+    // Silenty ignore empty blocks
+    if ( ! derivedTab )
+      {
+      continue;
+      }
+
+    // Figure out dimensionality; it is assumed that the 2 first columns
+    // are what they should be: namely, Column and Mean.
+    int p = derivedTab->GetNumberOfColumns() - 2;
+
+    // Return informative message when cardinalities do not match.
+    if ( derivedTab->GetValueByName( p, "Mean" ).ToInt() != nRowData )
+      {
+      vtkWarningMacro( "Inconsistent input: input data has "
+                       << nRowData
+                       << " rows but primary model has cardinality "
+                       << derivedTab->GetValueByName( p, "Mean" ).ToInt()
+                       << " for block "
+                       << b
+                       <<". Cannot test." );
+      continue;
+      }
+
+    // Create and fill entries of name and mean vectors
+    vtkStdString *varNameX = new vtkStdString[p];
+    double *mX = new double[p];
+    for ( int i = 0; i < p; ++ i )
+      {
+      varNameX[i] = derivedTab->GetValueByName( i, "Column" ).ToString();
+      mX[i] = derivedTab->GetValueByName( i, "Mean" ).ToDouble();
+      }
+
+    // Create and fill entries of eigenvalue vector and change of basis matrix
+    double *wX = new double[p];
+    double *P = new double[p * p];
+    for ( int i = 0; i < p; ++ i )
+      {
+      // Skip p + 1 (Means and Cholesky) rows and 1 column (Column)
+      wX[i] = derivedTab->GetValue( i + p + 1, 1).ToDouble();
+
+      for ( int j = 0; j < p; ++ j )
+        {
+        // Skip p + 1 (Means and Cholesky) rows and 2 columns (Column and Mean)
+        P[p * i + j] = derivedTab->GetValue( i + p + 1, j + 2).ToDouble();
+        }
+      }
+
+    // Now iterate over all observations
+    double tmp, t;
+    double *x = new double[p];
+    double *sum3 = new double[p];
+    double *sum4 = new double[p];
+    for ( int i = 0; i < p; ++ i )
+      {
+      sum3[i] = 0.;
+      sum4[i] = 0.;
+      }
+    for ( vtkIdType r = 0; r < nRowData; ++ r )
+      {
+      // Read and center observation
+      for ( int i = 0; i < p; ++ i )
+        {
+        x[i] = inData->GetValueByName( r, varNameX[i] ).ToDouble() - mX[i];
+        }
+
+      // Now calculate skewness and kurtosis per component
+      for ( int i = 0; i < p; ++ i )
+        {
+        // Transform coordinate into eigencoordinates
+        t = 0.;
+        for ( int j = 0; j < p; ++ j )
+          {
+          // Pij = P[p*i+j]
+          t += P[p * i + j] * x[j];
+          }
+
+        // Update third and fourth order sums for each eigencoordinate
+        tmp = t * t;
+        sum3[i] += tmp * t;
+        sum4[i] += tmp * tmp;
+        }
+      }
+
+    // Finally calculate moments by normalizing sums with corresponding eigenvalues and powers
+    double bS1 = 0.;
+    double bS2 = 0.;
+    for ( int i = 0; i < p; ++ i )
+      {
+      tmp = wX[i] * wX[i];
+      bS1 += sum3[i] * sum3[i] / ( tmp * wX[i] );
+      bS2 += sum4[i] / tmp;
+      }
+    bS1 /= ( nRowData * nRowData * p );
+    bS2 /= ( nRowData * p );
+
+    // Finally, calculate Jarque-Bera-Srivastava statistic
+    tmp = bS2 - 3.;
+    double jbs = static_cast<double>( nRowData * p ) * ( bS1 / 6. + ( tmp * tmp ) / 24. );
+
+    // Insert variable name and calculated Jarque-Bera-Srivastava statistic
+    blockCol->InsertNextValue( b );
+    bS1Col->InsertNextTuple1( bS1 );
+    bS2Col->InsertNextTuple1( bS2 );
+    statCol->InsertNextTuple1( jbs );
+    dimCol->InsertNextTuple1( p + 1 );
+
+    // Clean up
+    delete [] sum3;
+    delete [] sum4;
+    delete [] x;
+    delete [] P;
+    delete [] wX;
+    delete [] mX;
+    delete [] varNameX;
+    } // b
+
+  // Now, add the already prepared columns to the output table
+  outMeta->AddColumn( blockCol );
+  outMeta->AddColumn( bS1Col );
+  outMeta->AddColumn( bS2Col );
+  outMeta->AddColumn( statCol );
+  outMeta->AddColumn( dimCol );
+
+  // Last phase: compute the p-values or assign invalid value if they cannot be computed
+  vtkDoubleArray* testCol = 0;
+  bool calculatedP = false;
+
+  // If available, use R to obtain the p-values for the Chi square distribution with 2 DOFs
+#ifdef VTK_USE_GNU_R
+  // Prepare VTK - R interface
+  vtkRInterface* ri = vtkRInterface::New();
+
+  // Use the calculated Jarque-Bera-Srivastava statistics as input to the Chi square function
+  ri->AssignVTKDataArrayToRVariable( statCol, "jbs" );
+  ri->AssignVTKDataArrayToRVariable( dimCol, "d" );
+
+  // Calculate the p-values (p+1 degrees of freedom)
+  // Now prepare R script and calculate the p-values (in a single R script evaluation for efficiency)
+  vtksys_ios::ostringstream rs;
+  rs << "p<-c();"
+     << "for(i in 1:"
+     << dimCol->GetNumberOfTuples()
+     << "){"
+     << "p<-c(p,1-pchisq(jbs[i],d[i]));"
+     << "}";
+  ri->EvalRscript( rs.str().c_str() );
+
+  // Retrieve the p-values
+  testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
+    {
+    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
+    }
+  else
+    {
+    // Test values have been calculated by R: the test column can be added to the output table
+    outMeta->AddColumn( testCol );
+    calculatedP = true;
+    }
+
+  // Clean up
+  ri->Delete();
+#endif // VTK_USE_GNU_R
+
+  // Use the invalid value of -1 for p-values if R is absent or there was an R error
+  if ( ! calculatedP )
+    {
+    // A column must be created first
+    testCol = vtkDoubleArray::New();
+
+    // Fill this column
+    vtkIdType n = statCol->GetNumberOfTuples();
+    testCol->SetNumberOfTuples( n );
+    for ( vtkIdType r = 0; r < n; ++ r )
+      {
+      testCol->SetTuple1( r, -1 );
+      }
+
+    // Now add the column of invalid values to the output table
+    outMeta->AddColumn( testCol );
+
+    // Clean up
+    testCol->Delete();
+    }
+
+  // The test column name can only be set after the column has been obtained from R
+  testCol->SetName( "P" );
+
+  // Clean up
+  blockCol->Delete();
+  bS1Col->Delete();
+  bS2Col->Delete();
+  statCol->Delete();
+  dimCol->Delete();
+}
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::Assess( vtkTable* inData,
+                               vtkMultiBlockDataSet* inMeta,
                                vtkTable* outData )
 {
   if ( ! inData )
@@ -640,9 +897,9 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       continue;
       }
 
-    this->SelectAssessFunctor( inData, 
-                               reqModel, 
-                               0, 
+    this->SelectAssessFunctor( inData,
+                               reqModel,
+                               0,
                                dfunc );
 
     vtkPCAAssessFunctor* pcafunc = static_cast<vtkPCAAssessFunctor*>( dfunc );
@@ -697,9 +954,9 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData, 
+void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData,
                                             vtkDataObject* inMetaDO,
-                                            vtkStringArray* vtkNotUsed(rowNames), 
+                                            vtkStringArray* vtkNotUsed(rowNames),
                                             AssessFunctor*& dfunc )
 {
   dfunc = 0;
@@ -720,4 +977,3 @@ void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData,
 
   dfunc = pcafunc;
 }
-

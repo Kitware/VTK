@@ -19,6 +19,7 @@
 #include "vtkBrush.h"
 #include "vtkPen.h"
 #include "vtkContextScene.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkTextProperty.h"
 #include "vtkAxis.h"
 #include "vtkPlotParallelCoordinates.h"
@@ -276,23 +277,6 @@ bool vtkChartParallelCoordinates::GetColumnVisibility(const char* name)
       }
     }
   return false;
-}
-
-//-----------------------------------------------------------------------------
-vtkPlot * vtkChartParallelCoordinates::AddPlot(int)
-{
-  return NULL;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkChartParallelCoordinates::RemovePlot(vtkIdType)
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartParallelCoordinates::ClearPlots()
-{
 }
 
 //-----------------------------------------------------------------------------

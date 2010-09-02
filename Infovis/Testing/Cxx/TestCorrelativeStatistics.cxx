@@ -19,6 +19,8 @@
 #include "vtkTimerLog.h"
 #include "vtkCorrelativeStatistics.h"
 
+#include <vtksys/ios/sstream>
+
 //=============================================================================
 int TestCorrelativeStatistics( int, char *[] )
 {
@@ -486,17 +488,41 @@ int TestCorrelativeStatistics( int, char *[] )
   // ************** Pseudo-random sample to exercise Jarque-Bera-Srivastava test *********
   int nVals = 10000;
 
-  vtkDoubleArray* datasetBinormalX = vtkDoubleArray::New();
-  datasetBinormalX->SetNumberOfComponents( 1 );
-  datasetBinormalX->SetName( "Standard Binormal X" );
+  // Pre-set Pearson correlation coefficients
+  double rhoXZ1 = .8; // X and Y1 are highly linearly correlated
+  double rhoXZ2 = .2; // X and Y2 are weakly linearly correlated
+  double rorXZ1 = sqrt( 1. - rhoXZ1 * rhoXZ1 );
+  double rorXZ2 = sqrt( 1. - rhoXZ2 * rhoXZ2 );
 
-  vtkDoubleArray* datasetBinormalY1 = vtkDoubleArray::New();
-  datasetBinormalY1->SetNumberOfComponents( 1 );
-  datasetBinormalY1->SetName( "Standard Binormal Y1" );
+  vtkDoubleArray* datasetNormalX = vtkDoubleArray::New();
+  datasetNormalX->SetNumberOfComponents( 1 );
+  datasetNormalX->SetName( "N(0,1)_1" );
 
-  vtkDoubleArray* datasetBinormalY2 = vtkDoubleArray::New();
-  datasetBinormalY2->SetNumberOfComponents( 1 );
-  datasetBinormalY2->SetName( "Standard Binormal Y2" );
+  vtkDoubleArray* datasetNormalY = vtkDoubleArray::New();
+  datasetNormalY->SetNumberOfComponents( 1 );
+  datasetNormalY->SetName( "N(0,1)_2" );
+
+  vtkDoubleArray* datasetNormalZ1 = vtkDoubleArray::New();
+  datasetNormalZ1->SetNumberOfComponents( 1 );
+  vtksys_ios::ostringstream z1Name;
+  z1Name << rhoXZ1
+         << " N(0,1)_1 + "
+         << rorXZ1
+         << " N(0,1)_2";
+  datasetNormalZ1->SetName( z1Name.str().c_str() );
+
+  vtkDoubleArray* datasetNormalZ2 = vtkDoubleArray::New();
+  datasetNormalZ2->SetNumberOfComponents( 1 );
+  vtksys_ios::ostringstream z2Name;
+  z2Name << rhoXZ2
+         << " N(0,1)_1 + "
+         << rorXZ2
+         << " N(0,1)_2";
+  datasetNormalZ2->SetName( z2Name.str().c_str() );
+
+  vtkDoubleArray* datasetNormalZ3 = vtkDoubleArray::New();
+  datasetNormalZ3->SetNumberOfComponents( 1 );
+  datasetNormalZ3->SetName( "5 N(0,1)_1 - 2" );
 
   vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
   datasetUniform->SetNumberOfComponents( 1 );
@@ -509,32 +535,36 @@ int TestCorrelativeStatistics( int, char *[] )
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
 
-  // Pre-set Pearson correlation coefficients
-  double rhoXY1 = .6; // X and Y1 are highly linearly correlated
-  double rhoXY2 = .4; // X and Y2 are weakly linearly correlated
-  double rorXY1 = sqrt( 1. - rhoXY1 * rhoXY1 );
-  double rorXY2 = sqrt( 1. - rhoXY2 * rhoXY2 );
-  double x, y1, y2;
+  // Generate pseudo-random vectors
+  double x, y, z1, z2, z3;
   for ( int i = 0; i < nVals; ++ i )
     {
     x = vtkMath::Gaussian();
-    y1 = rhoXY1 * x + rorXY1 * vtkMath::Gaussian();
-    y2 = rhoXY2 * x + rorXY2 * vtkMath::Gaussian();
-    datasetBinormalX->InsertNextValue( x );
-    datasetBinormalY1->InsertNextValue( y1 );
-    datasetBinormalY2->InsertNextValue( y2 );
+    y = vtkMath::Gaussian();
+    z1 = rhoXZ1 * x + rorXZ1 * y;
+    z2 = rhoXZ2 * x + rorXZ2 * y;
+    z3 = 5. * x - 2.;
+    datasetNormalX->InsertNextValue( x );
+    datasetNormalY->InsertNextValue( y );
+    datasetNormalZ1->InsertNextValue( z1 );
+    datasetNormalZ2->InsertNextValue( z2 );
+    datasetNormalZ3->InsertNextValue( z3 );
     datasetUniform->InsertNextValue( vtkMath::Random() );
     double u = vtkMath::Random() - .5;
     datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
     }
 
   vtkTable* testTable = vtkTable::New();
-  testTable->AddColumn( datasetBinormalX );
-  datasetBinormalX->Delete();
-  testTable->AddColumn( datasetBinormalY1 );
-  datasetBinormalY1->Delete();
-  testTable->AddColumn( datasetBinormalY2 );
-  datasetBinormalY2->Delete();
+  testTable->AddColumn( datasetNormalX );
+  datasetNormalX->Delete();
+  testTable->AddColumn( datasetNormalY );
+  datasetNormalY->Delete();
+  testTable->AddColumn( datasetNormalZ1 );
+  datasetNormalZ1->Delete();
+  testTable->AddColumn( datasetNormalZ2 );
+  datasetNormalZ2->Delete();
+  testTable->AddColumn( datasetNormalZ3 );
+  datasetNormalZ3->Delete();
   testTable->AddColumn( datasetUniform );
   datasetUniform->Delete();
   testTable->AddColumn( datasetLaplace );
@@ -546,10 +576,12 @@ int TestCorrelativeStatistics( int, char *[] )
   testTable->Delete();
 
   // Select Column Pairs of Interest ( Learn Mode )
-  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y1" );
-  cs4->AddColumnPair( "Standard Binormal X", "Standard Binormal Y2" );
-  cs4->AddColumnPair( "Standard Binormal X", "Standard Uniform" );
-  cs4->AddColumnPair( "Standard Laplace", "Standard Binormal Y1" );
+  cs4->AddColumnPair( "N(0,1)_1", "N(0,1)_2" );
+  cs4->AddColumnPair( "N(0,1)_2", "5 N(0,1)_1 - 2" );
+  cs4->AddColumnPair( "N(0,1)_1", z1Name.str().c_str() );
+  cs4->AddColumnPair( "N(0,1)_1", z2Name.str().c_str() );
+  cs4->AddColumnPair( "N(0,1)_1", "Standard Uniform" );
+  cs4->AddColumnPair( "Standard Laplace", "N(0,1)_2" );
   cs4->AddColumnPair( "Standard Uniform", "Standard Laplace" );
 
   // Test Learn, Derive, and Test options only

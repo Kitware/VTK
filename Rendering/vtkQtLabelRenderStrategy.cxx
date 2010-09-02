@@ -47,6 +47,8 @@
 
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
+namespace
+{
 struct vtkQtLabelMapEntry
 {
   QString Text;
@@ -84,6 +86,7 @@ bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
     }
   return a.Font < other.Font;
   }
+} // End of anonymous namespace
 
 class vtkQtLabelRenderStrategy::Internals
 {

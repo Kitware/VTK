@@ -18,14 +18,20 @@ SET(LOCALUSERMACRODEFINED 0)
 INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
-# if we are wrapping anything, then build hierarchy files
-IF(VTK_IGNORE_BTX)
 IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+  # set the include directories for the wrappers
+  SET(VTK_WRAP_INCLUDE_DIRS
+    ${VTK_INCLUDE_DIRS_BUILD_TREE}
+    ${VTK_INCLUDE_DIRS_SOURCE_TREE}
+    ${VTK_INCLUDE_DIRS_SYSTEM}
+  )
+  # if we are wrapping anything, then build hierarchy files
+  IF(VTK_IGNORE_BTX)
   SET(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/vtk${KIT}Hierarchy.txt)
   VTK_WRAP_HIERARCHY(vtk${KIT}Hierarchy
     ${CMAKE_CURRENT_BINARY_DIR} "${Kit_SRCS}")
+  ENDIF(VTK_IGNORE_BTX)
 ENDIF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-ENDIF(VTK_IGNORE_BTX)
 
 # if we are wrapping into Tcl then add the library and extra
 # source files
@@ -71,7 +77,11 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
-VTK_EXPORT_KIT("${KIT}" "${UKIT}" "${Kit_SRCS}")
+IF(Kit_WRAP_HEADERS)
+  SET_SOURCE_FILES_PROPERTIES(${Kit_WRAP_HEADERS} PROPERTIES WRAP_HEADER 1)
+ENDIF(Kit_WRAP_HEADERS)
+SET(TMP_FILES ${Kit_SRCS} ${Kit_WRAP_HEADERS})
+VTK_EXPORT_KIT("${KIT}" "${UKIT}" "${TMP_FILES}")
 
 # If the user defined a custom macro, execute it now and pass in all the srcs
 #

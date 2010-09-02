@@ -366,7 +366,7 @@ void vtkMultiProcessStream::SetRawData(const unsigned char* data,
     unsigned char endianness = data[0];
     this->Internals->Data.resize(size-1);
     int cc=0;
-    for (;cc < size-1; cc++)
+    for (;cc < static_cast<int>(size-1); cc++)
       {
       this->Internals->Data[cc] = data[cc+1];
       }

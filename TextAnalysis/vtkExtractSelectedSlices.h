@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkExtractSelectedSlices_h
-#define __vtkExtractSelectedSlices_h
-
-#include <vtkArrayDataAlgorithm.h>
-
 // .NAME vtkExtractSelectedSlices - Extract selected slices from a vtkArray
 //
 // Inputs:
@@ -41,6 +36,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkExtractSelectedSlices_h
+#define __vtkExtractSelectedSlices_h
+
+#include <vtkArrayDataAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkExtractSelectedSlices :
   public vtkArrayDataAlgorithm

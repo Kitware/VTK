@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
@@ -23,15 +22,13 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlot( int argc, char * argv [] )
+int TestLinePlot( int, char * [] )
 {
   // Set up a 2D scene, add an XY chart to it
   vtkSmartPointer<vtkContextView> view =
       vtkSmartPointer<vtkContextView>::New();
-  view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart);
@@ -78,13 +75,7 @@ int TestLinePlot( int argc, char * argv [] )
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
-  //int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
-
-  return !retVal;
+  view->GetInteractor()->Initialize();
+  view->GetInteractor()->Start();
+  return EXIT_SUCCESS;
 }

@@ -279,13 +279,14 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
 //-----------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 {
-  vtkPolyData *input= this->GetInput();
-  
-   vtkStandardPolyDataPainter * painter = 
+  vtkDataObject *input= this->GetInputDataObject(0, 0);
+
+   vtkStandardPolyDataPainter * painter =
     vtkStandardPolyDataPainter::SafeDownCast(this->Painter);
-  if(painter != NULL)
+  if (painter != NULL && vtkPolyData::SafeDownCast(input))
     {
-    vtkInformationVector *inArrayVec = 
+    // FIXME: This is not supported currently for composite datasets.
+    vtkInformationVector *inArrayVec =
       this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
     int numArrays = inArrayVec->GetNumberOfInformationObjects();
 
@@ -294,7 +295,6 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
       painter->AddMultiTextureCoordsArray(this->GetInputArrayToProcess(i,input));
       }
     }
-  
 
   //
   // make sure that we've been properly initialized
@@ -303,7 +303,8 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
     {
     return;
     }
-  if ( input == NULL ) 
+
+  if ( input == NULL )
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -317,12 +318,15 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
-    vtkIdType numPts = input->GetNumberOfPoints();
-    if (numPts == 0)
-      {
-      vtkDebugMacro(<< "No points!");
-      return;
-      }
+    // This check is unnecessary since the mapper will be cropped out by culling
+    // if it returns invalid bounds which is what will happen when input has no
+    // points.
+    // vtkIdType numPts = input->GetNumberOfPoints();
+    // if (numPts == 0)
+    //   {
+    //   vtkDebugMacro(<< "No points!");
+    //   return;
+    //   }
     }
 
   // Update Painter information if obsolete.
@@ -369,56 +373,21 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 }
 
 //-------------------------------------------------------------------------
-double* vtkPainterPolyDataMapper::GetBounds()
+void vtkPainterPolyDataMapper::ComputeBounds()
 {
-  // do we have an input
-  if ( ! this->GetNumberOfInputConnections(0) )
+  this->GetInput()->GetBounds(this->Bounds);
+
+  // if the mapper has a painter, update the bounds in the painter
+  vtkPainter *painter = this->GetPainter();
+  if (painter)
     {
-    vtkMath::UninitializeBounds(this->Bounds);
-    return this->Bounds;
-    }
-  else
-    {
-    if (!this->Static)
+    // Update Painter information if obsolete.
+    if (this->PainterUpdateTime < this->GetMTime())
       {
-      // For proper clipping, this would be this->Piece,
-      // this->NumberOfPieces.
-      // But that removes all benefites of streaming.
-      // Update everything as a hack for paraview streaming.
-      // This should not affect anything else, because no one uses this.
-      // It should also render just the same.
-      // Just remove this lie if we no longer need streaming in paraview :)
-      //this->GetInput()->SetUpdateExtent(0, 1, 0);
-      //this->GetInput()->Update();
-
-      // first get the bounds from the input
-      this->Update();
+      this->UpdatePainterInformation();
+      this->PainterUpdateTime.Modified();
       }
-
-    this->GetInput()->GetBounds(this->Bounds);
-
-    // if the mapper has a painter, update the bounds in the painter
-    vtkPainter *painter = this->GetPainter();
-
-    if (painter)
-      {  
-      // Update Painter information if obsolete.
-      if (this->PainterUpdateTime < this->GetMTime())
-        {
-        this->UpdatePainterInformation();
-        this->PainterUpdateTime.Modified();
-        }
-      painter->UpdateBounds(this->Bounds);
-      }
-
-    // if the bounds indicate NAN and subpieces are being used then
-    // return NULL
-    if (!vtkMath::AreBoundsInitialized(this->Bounds)
-      && this->NumberOfSubPieces > 1)
-      {
-      return NULL;
-      }
-    return this->Bounds;
+    painter->UpdateBounds(this->Bounds);
     }
 }
 

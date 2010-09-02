@@ -18,13 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkTextExtraction_h
-#define __vtkTextExtraction_h
-
-#include <vtkTableAlgorithm.h>
-
-class vtkTextExtractionStrategy;
-
 // .NAME vtkTextExtraction - Extracts text from documents based on their MIME type.
 //
 // .SECTION Description
@@ -68,6 +61,13 @@ class vtkTextExtractionStrategy;
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkTextExtraction_h
+#define __vtkTextExtraction_h
+
+#include <vtkTableAlgorithm.h>
+
+class vtkTextExtractionStrategy;
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkTextExtraction :
   public vtkTableAlgorithm

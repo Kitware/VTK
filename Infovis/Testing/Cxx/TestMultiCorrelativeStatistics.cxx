@@ -58,21 +58,6 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     47, 47
     };
   int nVals = 32;
-  /*
-  double mingledData[] =
-    {
-    1,
-    5,
-    11,
-    10,
-    9,
-    7,
-    11,
-    11
-    };
-  int nVals = 4;
-  */
-
 
   const char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
@@ -142,16 +127,19 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
   mcs->Update();
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( mcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
+  cout << "## Calculated the following statistics for data set:\n";
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
+
     if ( b == 0 )
       {
-      cout << "Raw sums\n";
+      cout << "Primary Statistics\n";
       }
     else
       {
-      cout << "Request " << ( b - 1 ) << "\n";
+      cout << "Derived Statistics " << ( b - 1 ) << "\n";
       }
 
     outputMeta->Dump();

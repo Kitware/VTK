@@ -59,19 +59,6 @@ public:
   vtkGetObjectMacro(VisibleColumns, vtkStringArray);
 
   // Description:
-  // Add a plot to the chart, defaults to using the name of the y column
-  virtual vtkPlot* AddPlot(int type);
-
-  // Description:
-  // Remove the plot at the specified index, returns true if successful,
-  // false if the index was invalid.
-  virtual bool RemovePlot(vtkIdType index);
-
-  // Description:
-  // Remove all plots from the chart.
-  virtual void ClearPlots();
-
-  // Description:
   // Get the plot at the specified index, returns null if the index is invalid.
   virtual vtkPlot* GetPlot(vtkIdType index);
 

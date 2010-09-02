@@ -18,11 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifndef __vtkFoldCase_h
-#define __vtkFoldCase_h
-
-#include <vtkTableAlgorithm.h>
-
 // .NAME vtkFoldCase - Converts a collection of strings to lower-case.
 //
 // .SECTION Description
@@ -41,6 +36,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkFoldCase_h
+#define __vtkFoldCase_h
+
+#include <vtkTableAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkFoldCase :
   public vtkTableAlgorithm

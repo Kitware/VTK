@@ -70,16 +70,16 @@ protected:
   virtual void Derive( vtkMultiBlockDataSet* );
 
   // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable* inData,
-                       vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ); 
-  
-  // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable* inData,
                      vtkMultiBlockDataSet* inMeta,
                      vtkTable* outMeta ); 
+
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void Assess( vtkTable* inData,
+                       vtkMultiBlockDataSet* inMeta,
+                       vtkTable* outData );
 
 //BTX  
   // Description:

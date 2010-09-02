@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkConcatenateArray_h
-#define __vtkConcatenateArray_h
-
-#include <vtkArrayDataAlgorithm.h>
-
 // .NAME vtkConcatenateArray - Merge two arrays into one.
 //
 // .SECTION Description
@@ -40,6 +35,11 @@
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkConcatenateArray_h
+#define __vtkConcatenateArray_h
+
+#include <vtkArrayDataAlgorithm.h>
 
 class VTK_TEXT_ANALYSIS_EXPORT vtkConcatenateArray : public vtkArrayDataAlgorithm
 {

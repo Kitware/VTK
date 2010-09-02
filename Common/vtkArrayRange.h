@@ -36,10 +36,13 @@
 #define __vtkArrayRange_h
 
 #include "vtkSystemIncludes.h"
+#include "vtkArrayCoordinates.h"
 
 class VTK_COMMON_EXPORT vtkArrayRange
 {
 public:
+  typedef vtkArrayCoordinates::CoordinateT CoordinateT;
+
   // Description:
   // Creates an empty range.
   vtkArrayRange();
@@ -48,19 +51,19 @@ public:
   // Creates a half-open range [begin, end).
   // Note that begin must be <= end,
   // if not, creates the empty range [begin, begin).
-  vtkArrayRange(vtkIdType begin, vtkIdType end);
+  vtkArrayRange(CoordinateT begin, CoordinateT end);
 
   // Description:
   // Returns the beginning of the range
-  vtkIdType GetBegin() const;
+  CoordinateT GetBegin() const;
 
   // Description:
   // Returns one-past-the-end of the range
-  vtkIdType GetEnd() const;
+  CoordinateT GetEnd() const;
 
   // Description:
   // Returns the size of the range (the distance End - Begin).
-  vtkIdType GetSize() const;
+  CoordinateT GetSize() const;
 
   // Description:
   // Returns true iff the given range is a non-overlapping subset of this
@@ -69,7 +72,7 @@ public:
 
   // Description:
   // Returns true iff the given coordinate falls within this range.
-  bool Contains(const vtkIdType coordinate) const;
+  bool Contains(const CoordinateT coordinate) const;
 
   // Description:
   // Equality comparisons.
@@ -83,12 +86,11 @@ public:
 private:
   // Description:
   // Stores the beginning of the range.
-  vtkIdType Begin;
+  CoordinateT Begin;
 
   // Description:
   // Stores one-past-the-end of the range.
-  vtkIdType End;
+  CoordinateT End;
 };
 
 #endif
-

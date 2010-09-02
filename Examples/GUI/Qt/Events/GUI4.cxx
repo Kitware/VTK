@@ -44,6 +44,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkTDxInteractorStyleCamera.h"
 #include "vtkTDxInteractorStyleSettings.h"
+#include "QVTKInteractor.h"
 
 GUI4::GUI4()
 {

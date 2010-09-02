@@ -42,11 +42,14 @@
 #define __vtkArrayCoordinates_h
 
 #include "vtkSystemIncludes.h"
-#include <vtksys/stl/vector>
+#include <vector>
 
 class VTK_COMMON_EXPORT vtkArrayCoordinates
 {
 public:
+  typedef vtkIdType CoordinateT;
+  typedef vtkIdType DimensionT;
+
   // Description:
   // Create an empty set of coordinates.  Use SetDimensions() and
   // operator[] to populate the coordinates.
@@ -54,33 +57,33 @@ public:
 
   // Description:
   // Create coordinates for a one-dimensional array.
-  explicit vtkArrayCoordinates(vtkIdType i);
+  explicit vtkArrayCoordinates(CoordinateT i);
 
   // Description:
   // Create coordinates for a two-dimensional array.
-  vtkArrayCoordinates(vtkIdType i, vtkIdType j);
+  vtkArrayCoordinates(CoordinateT i, CoordinateT j);
 
   // Description:
   // Create coordinates for a three-dimensional array.
-  vtkArrayCoordinates(vtkIdType i, vtkIdType j, vtkIdType k);
+  vtkArrayCoordinates(CoordinateT i, CoordinateT j, CoordinateT k);
 
   // Description:
   // Return the number of dimensions contained in the coordinates.
-  vtkIdType GetDimensions() const;
+  DimensionT GetDimensions() const;
 
   // Description:
   // Set the number of dimensions.  Note that this method resets the
   // coordinate along each dimension to zero, so you must set every
   // coordinate explicitly using operator[] after calling SetDimensions().
-  void SetDimensions(vtkIdType dimensions);
+  void SetDimensions(DimensionT dimensions);
 
   // Description:
   // Returns the index of the i-th dimension.
-  vtkIdType& operator[](vtkIdType i);
+  CoordinateT& operator[](DimensionT i);
 
   // Description:
   // Returns the index of the i-th dimension.
-  const vtkIdType& operator[](vtkIdType i) const;
+  const CoordinateT& operator[](DimensionT i) const;
 
   // Description:
   // Equality comparison
@@ -94,7 +97,7 @@ public:
 
 private:
   //BTX
-  vtkstd::vector<vtkIdType> Storage;
+  std::vector<CoordinateT> Storage;
   //ETX
 };
 

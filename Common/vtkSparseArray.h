@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkSparseArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -77,24 +77,28 @@ public:
   static vtkSparseArray<T>* New();
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // vtkArray API 
+  typedef typename vtkArray::CoordinateT CoordinateT;
+  typedef typename vtkArray::DimensionT DimensionT;
+  typedef typename vtkArray::SizeT SizeT;
+
+  // vtkArray API
   bool IsDense();
   const vtkArrayExtents& GetExtents();
-  vtkIdType GetNonNullSize();
-  void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates);
+  SizeT GetNonNullSize();
+  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates);
   vtkArray* DeepCopy();
-    
+
   // vtkTypedArray API
-  const T& GetValue(vtkIdType i);
-  const T& GetValue(vtkIdType i, vtkIdType j);
-  const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k);
+  const T& GetValue(CoordinateT i);
+  const T& GetValue(CoordinateT i, CoordinateT j);
+  const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k);
   const T& GetValue(const vtkArrayCoordinates& coordinates);
-  const T& GetValueN(const vtkIdType n);
-  void SetValue(vtkIdType i, const T& value);
-  void SetValue(vtkIdType i, vtkIdType j, const T& value);
-  void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
+  const T& GetValueN(const SizeT n);
+  void SetValue(CoordinateT i, const T& value);
+  void SetValue(CoordinateT i, CoordinateT j, const T& value);
+  void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value);
   void SetValue(const vtkArrayCoordinates& coordinates, const T& value);
-  void SetValueN(const vtkIdType n, const T& value);
+  void SetValueN(const SizeT n, const T& value);
 
   // vtkSparseArray API
 
@@ -119,35 +123,35 @@ public:
   void Sort(const vtkArraySort& sort);
 
   // Description:
-  // Returns the set of unique coordinates along the given dimension. 
-  vtkstd::vector<vtkIdType> GetUniqueCoordinates(vtkIdType dimension); 
+  // Returns the set of unique coordinates along the given dimension.
+  vtkstd::vector<CoordinateT> GetUniqueCoordinates(DimensionT dimension);
 
   // Description:
   // Return a read-only reference to the underlying coordinate storage.  Coordinates
   // for each dimension are stored contiguously as a one-dimensional array.  The ordering
   // of coordinates within the array depends on the order in which values were added to
   // the array.
-  const vtkIdType* GetCoordinateStorage(vtkIdType dimension) const;
- 
+  const CoordinateT* GetCoordinateStorage(DimensionT dimension) const;
+
   // Description:
   // Return a mutable reference to the underlying coordinate storage.  Coordinates
   // for each dimension are stored contiguously as a one-dimensional array.  The ordering
   // of coordinates within the array depends on the order in which values were added to
   // the array, and any subsequent sorting.  Use at your own risk!
-  vtkIdType* GetCoordinateStorage(vtkIdType dimension);
-  
+  CoordinateT* GetCoordinateStorage(DimensionT dimension);
+
   // Description:
   // Return a read-only reference to the underlying value storage.  Values are stored
   // contiguously, but in arbitrary order.  Use GetCoordinateStorage() if you need to
   // get the corresponding coordinates for a value.
   const T* GetValueStorage() const;
-  
+
   // Description:
   // Return a mutable reference to the underlying value storage.  Values are stored
   // contiguously, but in arbitrary order.  Use GetCoordinateStorage() if you need to
   // get the corresponding coordinates for a value.  Use at your own risk!
   T* GetValueStorage();
-  
+
   // Description:
   // Reserve storage for a specific number of values.  This is useful for reading external
   // data using GetCoordinateStorage() and GetValueStorage(), when the total
@@ -155,7 +159,7 @@ public:
   // calling ReserveStorage(), all coordinates and values will be undefined, so you must
   // ensure that every set of coordinates and values is overwritten.  It is the caller's
   // responsibility to ensure that duplicate coordinates are not inserted into the array.
-  void ReserveStorage(const vtkIdType value_count);
+  void ReserveStorage(const SizeT value_count);
 
   // Description:
   // Update the array extents to match its contents, so that the extent along each dimension
@@ -167,15 +171,15 @@ public:
   // stored in the array.  The number of dimensions in the supplied extents must match the
   // number of dimensions currently stored in the array.
   void SetExtents(const vtkArrayExtents& extents);
-  
+
   // Description:
   // Adds a new non-null element to the array.  Does not test to see if an element with
   // matching coordinates already exists.  Useful for providing fast initialization of the
   // array as long as the caller is prepared to guarantee that no duplicate coordinates are
   // ever used.
-  inline void AddValue(vtkIdType i, const T& value);
-  inline void AddValue(vtkIdType i, vtkIdType j, const T& value);
-  inline void AddValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value);
+  inline void AddValue(CoordinateT i, const T& value);
+  inline void AddValue(CoordinateT i, CoordinateT j, const T& value);
+  inline void AddValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value);
   void AddValue(const vtkArrayCoordinates& coordinates, const T& value);
 
   // Description:
@@ -197,15 +201,15 @@ private:
   void operator=(const vtkSparseArray&); // Not implemented
 
   void InternalResize(const vtkArrayExtents& extents);
-  void InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label);
-  vtkStdString InternalGetDimensionLabel(vtkIdType i);
+  void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label);
+  vtkStdString InternalGetDimensionLabel(DimensionT i);
 
   typedef vtkSparseArray<T> ThisT;
 
   // Description:
   // Stores the current array extents (size along each dimension)
   vtkArrayExtents Extents;
-  
+
   // Description:
   // Stores a label for each array dimension
   vtkstd::vector<vtkStdString> DimensionLabels;
@@ -213,8 +217,8 @@ private:
   // Description:
   // Stores the coordinates of each non-null element within the array,
   // using one contiguous array to store the coordinates for each dimension.
-  vtkstd::vector<vtkstd::vector<vtkIdType> > Coordinates;
-  
+  vtkstd::vector<vtkstd::vector<CoordinateT> > Coordinates;
+
   // Description:
   // Stores the value of each non-null element within the array
   vtkstd::vector<T> Values;
@@ -228,4 +232,3 @@ private:
 #include "vtkSparseArray.txx"
 
 #endif
-

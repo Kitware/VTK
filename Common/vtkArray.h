@@ -63,6 +63,10 @@ public:
   vtkTypeMacro(vtkArray, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
+  typedef vtkArrayExtents::CoordinateT CoordinateT;
+  typedef vtkArrayExtents::DimensionT DimensionT;
+  typedef vtkArrayExtents::SizeT SizeT;
+
 //BTX
   enum
   {
@@ -99,9 +103,9 @@ public:
   // should initialize its contents accordingly.  In particular,
   // dimension-labels will be undefined, dense array values will be
   // undefined, and sparse arrays will be empty.
-  void Resize(const vtkIdType i);
-  void Resize(const vtkIdType i, const vtkIdType j);
-  void Resize(const vtkIdType i, const vtkIdType j, const vtkIdType k);
+  void Resize(const CoordinateT i);
+  void Resize(const CoordinateT i, const CoordinateT j);
+  void Resize(const CoordinateT i, const CoordinateT j, const CoordinateT k);
   void Resize(const vtkArrayRange& i);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j);
   void Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
@@ -110,7 +114,7 @@ public:
   // Description:
   // Returns the extent (valid coordinate range) along the given
   // dimension.
-  const vtkArrayRange GetExtent(vtkIdType dimension);
+  const vtkArrayRange GetExtent(DimensionT dimension);
   // Description:
   // Returns the extents (the number of dimensions and size along each
   // dimension) of the array.
@@ -119,7 +123,7 @@ public:
   // Description:
   // Returns the number of dimensions stored in the array.  Note that
   // this is the same as calling GetExtents().GetDimensions().
-  vtkIdType GetDimensions();
+  DimensionT GetDimensions();
 
   // Description:
   // Returns the number of values stored in the array.  Note that this is
@@ -128,13 +132,13 @@ public:
   // extents.  This is equal to the number of values stored in a  dense
   // array, but may be larger than the number of values stored in a
   // sparse array.
-  vtkIdType GetSize();
+  SizeT GetSize();
 
   // Description:
   // Returns the number of non-null values stored in the array.  Note
   // that this value will equal GetSize() for dense arrays, and will be
   // less-than-or-equal to GetSize() for sparse arrays.
-  virtual vtkIdType GetNonNullSize() = 0;
+  virtual SizeT GetNonNullSize() = 0;
 
   // Description:
   // Sets the array name.
@@ -145,11 +149,11 @@ public:
 
   // Description:
   // Sets the label for the i-th array dimension.
-  void SetDimensionLabel(vtkIdType i, const vtkStdString& label);
+  void SetDimensionLabel(DimensionT i, const vtkStdString& label);
 
   // Description:
   // Returns the label for the i-th array dimension.
-  vtkStdString GetDimensionLabel(vtkIdType i);
+  vtkStdString GetDimensionLabel(DimensionT i);
 
   // Description:
   // Returns the coordinates of the n-th value in the array, where n is
@@ -157,15 +161,15 @@ public:
   // coordinates are visited is undefined, but is guaranteed to match the
   // order in which values are visited using vtkTypedArray::GetValueN()
   // and vtkTypedArray::SetValueN().
-  virtual void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates) = 0;
+  virtual void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) = 0;
 
   // Description:
   // Returns the value stored in the array at the given coordinates.
   // Note that the number of dimensions in the supplied coordinates must
   // match the number of dimensions in the array.
-  inline vtkVariant GetVariantValue(vtkIdType i);
-  inline vtkVariant GetVariantValue(vtkIdType i, vtkIdType j);
-  inline vtkVariant GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k);
+  inline vtkVariant GetVariantValue(CoordinateT i);
+  inline vtkVariant GetVariantValue(CoordinateT i, CoordinateT j);
+  inline vtkVariant GetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k);
   virtual vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) = 0;
 
   // Description:
@@ -174,15 +178,15 @@ public:
   // visiting every value in the array.  Note that the order in which
   // values are visited is undefined, but is guaranteed to match the
   // order used by vtkArray::GetCoordinatesN().
-  virtual vtkVariant GetVariantValueN(const vtkIdType n) = 0;
+  virtual vtkVariant GetVariantValueN(const SizeT n) = 0;
 
   // Description:
   // Overwrites the value stored in the array at the given coordinates.
   // Note that the number of dimensions in the supplied coordinates must
   // match the number of dimensions in the array.
-  inline void SetVariantValue(vtkIdType i, const vtkVariant& value);
-  inline void SetVariantValue(vtkIdType i, vtkIdType j, const vtkVariant& value);
-  inline void SetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k, const vtkVariant& value);
+  inline void SetVariantValue(CoordinateT i, const vtkVariant& value);
+  inline void SetVariantValue(CoordinateT i, CoordinateT j, const vtkVariant& value);
+  inline void SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, const vtkVariant& value);
   virtual void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value) = 0;
 
   // Description:
@@ -191,14 +195,14 @@ public:
   // visiting every value in the array.  Note that the order in which
   // values are visited is undefined, but is guaranteed to match the
   // order used by vtkArray::GetCoordinatesN().
-  virtual void SetVariantValueN(const vtkIdType n, const vtkVariant& value) = 0;
+  virtual void SetVariantValueN(const SizeT n, const vtkVariant& value) = 0;
 
   // Description:
   // Overwrites a value with a value retrieved from another array.  Both
   // arrays must store the same data types.
   virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) = 0;
-  virtual void CopyValue(vtkArray* source, const vtkIdType source_index, const vtkArrayCoordinates& target_coordinates) = 0;
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkIdType target_index) = 0;
+  virtual void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) = 0;
+  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) = 0;
 
   // Description:
   // Returns a new array that is a deep copy of this array.
@@ -223,39 +227,39 @@ private:
 
   // Description:
   // Implemented in concrete derivatives to set dimension labels.
-  virtual void InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label) = 0;
+  virtual void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) = 0;
 
   // Description:
   // Implemented in concrete derivatives to get dimension labels.
-  virtual vtkStdString InternalGetDimensionLabel(vtkIdType i) = 0;
+  virtual vtkStdString InternalGetDimensionLabel(DimensionT i) = 0;
 };
 
-vtkVariant vtkArray::GetVariantValue(vtkIdType i)
+vtkVariant vtkArray::GetVariantValue(CoordinateT i)
 {
   return this->GetVariantValue(vtkArrayCoordinates(i));
 }
 
-vtkVariant vtkArray::GetVariantValue(vtkIdType i, vtkIdType j)
+vtkVariant vtkArray::GetVariantValue(CoordinateT i, CoordinateT j)
 {
   return this->GetVariantValue(vtkArrayCoordinates(i, j));
 }
 
-vtkVariant vtkArray::GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k)
+vtkVariant vtkArray::GetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k)
 {
   return this->GetVariantValue(vtkArrayCoordinates(i, j, k));
 }
 
-void vtkArray::SetVariantValue(vtkIdType i, const vtkVariant& value)
+void vtkArray::SetVariantValue(CoordinateT i, const vtkVariant& value)
 {
   this->SetVariantValue(vtkArrayCoordinates(i), value);
 }
 
-void vtkArray::SetVariantValue(vtkIdType i, vtkIdType j, const vtkVariant& value)
+void vtkArray::SetVariantValue(CoordinateT i, CoordinateT j, const vtkVariant& value)
 {
   this->SetVariantValue(vtkArrayCoordinates(i, j), value);
 }
 
-void vtkArray::SetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k, const vtkVariant& value)
+void vtkArray::SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, const vtkVariant& value)
 {
   this->SetVariantValue(vtkArrayCoordinates(i, j, k), value);
 }

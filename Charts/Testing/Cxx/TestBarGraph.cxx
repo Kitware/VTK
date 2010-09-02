@@ -35,7 +35,7 @@ static int data_2009[] = {9058, 9474, 9979, 9408, 8900, 11569, 14688, 12231, 102
 static int data_2010[] = {9058, 10941, 9979, 10270, 8900, 11228, 14688, 12231, 10160, 9585, 9384, 8590};
 
 //----------------------------------------------------------------------------
-int TestBarGraph( int argc, char * argv [] )
+int TestBarGraph(int , char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   VTK_CREATE(vtkContextView, view);
@@ -89,13 +89,8 @@ int TestBarGraph( int argc, char * argv [] )
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
-  //int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
+  view->GetInteractor()->Initialize();
+  view->GetInteractor()->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

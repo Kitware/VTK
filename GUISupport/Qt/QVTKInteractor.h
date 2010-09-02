@@ -87,12 +87,10 @@ public:
   // timer event slot
   virtual void TimerEvent(int timerId);
 
-//BTX
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   virtual vtkTDxUnixDevice *GetDevice();
   virtual void SetDevice(vtkTDxDevice *device);
 #endif
-//ETX
 
 protected:
   // constructor
@@ -104,7 +102,6 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   // destroy a Qt Timer
   virtual int InternalDestroyTimer(int platformTimerId);
-//BTX
 #if defined(VTK_USE_TDX) && defined(Q_WS_WIN)
   vtkTDxWinDevice *Device;
 #endif
@@ -114,7 +111,6 @@ protected:
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   vtkTDxUnixDevice *Device;
 #endif
-//ETX
 
 private:
 

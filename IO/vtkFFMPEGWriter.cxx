@@ -157,29 +157,43 @@ int vtkFFMPEGWriterInternal::Start()
   //change DIV3 to MP43 fourCC to be easily playable on windows
   //c->codec_tag = ('3'<<24) + ('4'<<16) + ('P'<<8) + 'M';
   //to do playback at actual recorded rate, this will need more work see also below
-  c->time_base.den = this->FrameRate; 
+  c->time_base.den = this->FrameRate;
   c->time_base.num = 1;
   //about one full frame per second
-  c->gop_size = this->FrameRate; 
-  
-  //allow a variable quality/size tradeoff
-  switch (this->Writer->GetQuality()) 
+  c->gop_size = this->FrameRate;
+
+  if( !this->Writer->GetBitRate() )
     {
-    case 0:
-      c->bit_rate = 3*1024*1024;
-      break;
-    case 1:
-      c->bit_rate = 6*1024*1024;
-      break;
-    default:
-      c->bit_rate = 12*1024*1024;
-      break;
+    //allow a variable quality/size tradeoff
+    switch (this->Writer->GetQuality())
+      {
+      case 0:
+        c->bit_rate = 3*1024*1024;
+        break;
+      case 1:
+        c->bit_rate = 6*1024*1024;
+        break;
+      default:
+        c->bit_rate = 12*1024*1024;
+        break;
+      }
+    }
+  else
+    {
+    c->bit_rate = this->Writer->GetBitRate();
     }
 
-  c->bit_rate_tolerance = c->bit_rate/this->FrameRate;
+  if(!this->Writer->GetBitRateTolerance())
+    {
+    c->bit_rate_tolerance = c->bit_rate/this->FrameRate;
+    }
+  else
+    {
+    c->bit_rate_tolerance = this->Writer->GetBitRateTolerance();
+    }
 
   //apply the chosen parameters
-  if (av_set_parameters(this->avFormatContext, NULL) < 0) 
+  if (av_set_parameters(this->avFormatContext, NULL) < 0)
     {
     vtkGenericWarningMacro (<< "Invalid output format parameters." );
     return 0;
@@ -413,6 +427,8 @@ vtkFFMPEGWriter::vtkFFMPEGWriter()
   this->Internals = 0;
   this->Quality = 2;
   this->Rate = 25;
+  this->BitRate = 0;
+  this->BitRateTolerance = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -526,4 +542,6 @@ void vtkFFMPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Quality: " << this->Quality << endl;
   os << indent << "Rate: " << this->Rate << endl;
+  os << indent << "BitRate: " << this->BitRate << endl;
+  os << indent << "BitRateTolerance: " << this->BitRateTolerance << endl;
 }

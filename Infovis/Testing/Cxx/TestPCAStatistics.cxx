@@ -128,43 +128,102 @@ int TestPCAStatistics( int argc, char* argv[] )
   pcas->SetColumnStatus( "Metric 3", 1 ); // An invalid name. This should result in a request for metric 1's self-correlation.
   // pcas->RequestSelectedColumns(); will get called in RequestData()
 
-  // -- Test Learn Mode -- 
+  // Test all options but Assess
   pcas->SetLearnOption( true );
   pcas->SetDeriveOption( true );
+  pcas->SetTestOption( true );
   pcas->SetAssessOption( false );
-
   pcas->Update();
+
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcas->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputTest = pcas->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
+
+  cout << "## Calculated the following statistics for data set:\n";
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
 
     if ( b == 0 )
       {
-      cout << "Raw sums\n";
+      cout << "Primary Statistics\n";
       }
     else
       {
-      cout << "Request " << ( b - 1 ) << "\n";
+      cout << "Derived Statistics " << ( b - 1 ) << "\n";
       }
 
     outputMeta->Dump();
     }
 
-  // -- Test Assess Mode -- 
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
+       << nVals;
+
+#ifdef VTK_USE_GNU_R
+  int nNonGaussian = 1;
+  int nRejected = 0;
+  double alpha = .01;
+
+  cout << ", null hypothesis: binormality, significance level="
+       << alpha;
+#endif // VTK_USE_GNU_R
+
+  cout << "):\n";
+
+  // Loop over Test table
+  for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest->GetColumnName( i )
+           << "="
+           << outputTest->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+#ifdef VTK_USE_GNU_R
+    // Check if null hypothesis is rejected at specified significance level
+    double p = outputTest->GetValueByName( r, "P" ).ToDouble();
+    // Must verify that p value is valid (it is set to -1 if R has failed)
+    if ( p > -1 && p < alpha )
+      {
+      cout << "N.H. rejected";
+
+      ++ nRejected;
+      }
+#endif // VTK_USE_GNU_R
+
+    cout << "\n";
+    }
+
+#ifdef VTK_USE_GNU_R
+  if ( nRejected < nNonGaussian )
+    {
+    vtkGenericWarningMacro("Rejected only "
+                           << nRejected
+                           << " null hypotheses of binormality whereas "
+                           << nNonGaussian
+                           << " variable pairs are not Gaussian");
+    testStatus = 1;
+    }
+#endif // VTK_USE_GNU_R
+
+  // Test Assess option
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
   pcas->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
 
-  // Test Assess only (Do not recalculate nor rederive a model)
-  // Use SetParameter method
-  pcas->SetParameter( "Learn", 0, false );
-  pcas->SetParameter( "Derive", 0, false );
-  pcas->SetParameter( "Assess", 0, true );
+  // Test Assess only (Do not recalculate nor rederive nor retest a model)
+  pcas->SetLearnOption( false );
+  pcas->SetDeriveOption( false );
+  pcas->SetTestOption( false );
+  pcas->SetAssessOption( true );
   pcas->Update();
 
+  cout << "\n## Assessment results:\n";
   vtkTable* outputData = pcas->GetOutput();
   outputData->Dump();
 

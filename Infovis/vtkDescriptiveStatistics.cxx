@@ -55,6 +55,8 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
   this->AssessParameters->SetValue( 0, "Mean" );
   this->AssessParameters->SetValue( 1, "Standard Deviation" );
   this->UnbiasedVariance = 1; // By default, use unbiased estimator of the variance (divided by cardinality-1)
+  this->G1Skewness = 0; // By default, use g1 estimator of the skewness (G1 otherwise)
+  this->G2Kurtosis = 0; // By default, use g2 estimator of the kurtosis (G2 otherwise)
   this->SignedDeviations = 0; // By default, use unsigned deviation (1D Mahlanobis distance)
 }
 
@@ -68,6 +70,8 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "UnbiasedVariance: " << this->UnbiasedVariance << "\n";
+  os << indent << "G1Skewness: " << this->G1Skewness << "\n";
+  os << indent << "G2Kurtosis: " << this->G2Kurtosis << "\n";
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
 }
 
@@ -383,13 +387,11 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  int numDoubles = 7;
+  int numDoubles = 5;
   vtkStdString doubleNames[] = { "Standard Deviation",
                                  "Variance",
-                                 "g1 Skewness",
-                                 "G1 Skewness",
-                                 "g2 Kurtosis",
-                                 "G2 Kurtosis",
+                                 "Skewness",
+                                 "Kurtosis",
                                  "Sum" };
 
   // Create table for derived statistics
@@ -408,7 +410,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  // Storage for standard deviation, variance, skewness, G1, kurtosis, G2, sum
+  // Storage for standard deviation, variance, skewness,  kurtosis, sum
   double* derivedVals = new double[numDoubles]; 
 
   for ( int i = 0; i < nRow; ++ i )
@@ -426,7 +428,6 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       derivedVals[2] = 0.;
       derivedVals[3] = 0.;
       derivedVals[4] = 0.;
-      derivedVals[5] = 0.;
       }
     else
       {
@@ -451,32 +452,23 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       double var_inv = nm1 / mom2;
       double nvar_inv = var_inv * inv_n;
       derivedVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
-      derivedVals[4] = nvar_inv * var_inv * mom4 - 3.;
-      if ( n > 2 )
+      derivedVals[3] = nvar_inv * var_inv * mom4 - 3.;
+
+      if ( this->G1Skewness && n > 2 )
         {
         // G1 skewness estimate
-        double nm2 = nm1 - 1.;
-        derivedVals[3] = ( n * n ) / ( nm1 * nm2 ) * derivedVals[2];
- 
-        if ( n > 3 )
-          { 
-          // G2 kurtosis estimate
-          derivedVals[5] = ( ( n + 1. ) * derivedVals[4] + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
-          }
-        else
-          {
-          derivedVals[5] = derivedVals[4];
-          }
+        derivedVals[2] *= ( n * n ) / ( nm1 * ( nm1 - 1. ) );
         }
-      else
+
+      if ( this->G2Kurtosis && n > 3 )
         {
-        derivedVals[3] = derivedVals[2];
-        derivedVals[5] = derivedVals[4];
+        // G2 kurtosis estimate
+        derivedVals[3] *= ( ( n + 1. ) * derivedVals[4] + 6. ) * nm1 / ( ( nm1 - 1. ) * ( nm1 - 2. ) );
         }
       }
 
     // Sum
-    derivedVals[6] = numSamples * primaryTab->GetValueByName( i, "Mean" ).ToDouble();
+    derivedVals[4] = numSamples * primaryTab->GetValueByName( i, "Mean" ).ToDouble();
 
     for ( int j = 0; j < numDoubles; ++ j )
       {
@@ -510,6 +502,23 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     return;
     }
 
+  vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! derivedTab )
+    {
+    return;
+    }
+
+  vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  if ( nRowPrim != derivedTab->GetNumberOfRows() )
+    {
+    vtkErrorMacro( "Inconsistent input: primary model has "
+                   << nRowPrim
+                   << " rows but derived model has "
+                   << derivedTab->GetNumberOfRows()
+                   <<". Cannot test." );
+    return;
+    }
+
   if ( ! outMeta )
     {
     return;
@@ -531,7 +540,6 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
   
   // Loop over requests
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -548,43 +556,25 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
 
     // Find the model row that corresponds to the variable of the request
     vtkIdType r = 0;
-    while ( r < nRow && vars->GetValue( r ) != varName )
+    while ( r < nRowPrim && vars->GetValue( r ) != varName )
       {
       ++ r;
       }
-    if ( r >= nRow )
+    if ( r >= nRowPrim )
       {
-      vtkErrorMacro( "Incomplete input: model does not have a row "
-                     << varName.c_str()
-                     <<". Cannot test." );
-      return;
+      vtkWarningMacro( "Incomplete input: model does not have a row "
+		       << varName.c_str()
+		       <<". Cannot test." );
+      continue;
       }
     
     // Retrieve model statistics necessary for Jarque-Bera testing
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    double m2 = primaryTab->GetValueByName( r, "M2" ).ToDouble();
-    double m3 = primaryTab->GetValueByName( r, "M3" ).ToDouble();
-    double m4 = primaryTab->GetValueByName( r, "M4" ).ToDouble();
+    double skew = derivedTab->GetValueByName( r, "Skewness" ).ToDouble();
+    double kurt = derivedTab->GetValueByName( r, "Kurtosis" ).ToDouble();
 
     // Now calculate Jarque-Bera statistic
-    double jb;
-
-    // Eliminate extremely small variances
-    if ( m2 > 1.e-100 )
-      {
-      double m22 = m2 * m2;
-      double s = 0.0;
-      double k = 0.0;
-      
-      s = sqrt( n / ( m22 * m2 ) ) * m3;
-      k = n * m4 / m22 - 3.;
-
-      jb = n * ( s * s + .25 * k * k ) / 6.;
-      }
-    else
-      {
-      jb = vtkMath::Nan();
-      }
+    double jb = n * ( skew * skew + .25 * kurt * kurt ) / 6.;
     
     // Insert variable name and calculated Jarque-Bera statistic 
     // NB: R will be invoked only once at the end for efficiency

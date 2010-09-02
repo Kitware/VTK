@@ -4,9 +4,11 @@ SET(AUTO_TESTS
   TestConcatenateArray
   TestDocumentReader
   TestExtractSelectedSlices
+  TestMatrixWeighting
   TestMimeTypes
   TestNGramExtraction
   TestPointwiseMutualInformation
+  TestPowerWeighting
   TestScaleDimension
   TestSelectArraySlices
   TestTermDictionary
@@ -15,7 +17,6 @@ SET(AUTO_TESTS
   TestTokenValueFilter
   TestTokenizer
   TestTokenizerRanges
-  TestMatrixWeighting
   )
 
 SET(AUTO_TEST_LIBRARIES

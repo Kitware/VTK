@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkDenseArray.txx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -99,18 +99,18 @@ const vtkArrayExtents& vtkDenseArray<T>::GetExtents()
 }
 
 template<typename T>
-vtkIdType vtkDenseArray<T>::GetNonNullSize()
+typename vtkDenseArray<T>::SizeT vtkDenseArray<T>::GetNonNullSize()
 {
   return this->Extents.GetSize();
 }
 
 template<typename T>
-void vtkDenseArray<T>::GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates)
+void vtkDenseArray<T>::GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates)
 {
   coordinates.SetDimensions(this->GetDimensions());
 
   vtkIdType divisor = 1;
-  for(vtkIdType i = 0; i < this->GetDimensions(); ++i)
+  for(DimensionT i = 0; i < this->GetDimensions(); ++i)
     {
     coordinates[i] = ((n / divisor) % this->Extents[i].GetSize()) + this->Extents[i].GetBegin();
     divisor *= this->Extents[i].GetSize();
@@ -125,13 +125,13 @@ vtkArray* vtkDenseArray<T>::DeepCopy()
   copy->SetName(this->GetName());
   copy->Resize(this->Extents);
   copy->DimensionLabels = this->DimensionLabels;
-  vtkstd::copy(this->Begin, this->End, copy->Begin);    
+  std::copy(this->Begin, this->End, copy->Begin);
 
   return copy;
 }
 
 template<typename T>
-const T& vtkDenseArray<T>::GetValue(vtkIdType i)
+const T& vtkDenseArray<T>::GetValue(CoordinateT i)
 {
   if(1 != this->GetDimensions())
     {
@@ -144,7 +144,7 @@ const T& vtkDenseArray<T>::GetValue(vtkIdType i)
 }
 
 template<typename T>
-const T& vtkDenseArray<T>::GetValue(vtkIdType i, vtkIdType j)
+const T& vtkDenseArray<T>::GetValue(CoordinateT i, CoordinateT j)
 {
   if(2 != this->GetDimensions())
     {
@@ -157,7 +157,7 @@ const T& vtkDenseArray<T>::GetValue(vtkIdType i, vtkIdType j)
 }
 
 template<typename T>
-const T& vtkDenseArray<T>::GetValue(vtkIdType i, vtkIdType j, vtkIdType k)
+const T& vtkDenseArray<T>::GetValue(CoordinateT i, CoordinateT j, CoordinateT k)
 {
   if(3 != this->GetDimensions())
     {
@@ -183,44 +183,44 @@ const T& vtkDenseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
 }
 
 template<typename T>
-const T& vtkDenseArray<T>::GetValueN(const vtkIdType n)
+const T& vtkDenseArray<T>::GetValueN(const SizeT n)
 {
   return this->Begin[n];
 }
 
 template<typename T>
-void vtkDenseArray<T>::SetValue(vtkIdType i, const T& value)
+void vtkDenseArray<T>::SetValue(CoordinateT i, const T& value)
 {
   if(1 != this->GetDimensions())
     {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
     }
- 
+
   this->Begin[this->MapCoordinates(i)] = value;
 }
 
 template<typename T>
-void vtkDenseArray<T>::SetValue(vtkIdType i, vtkIdType j, const T& value)
+void vtkDenseArray<T>::SetValue(CoordinateT i, CoordinateT j, const T& value)
 {
   if(2 != this->GetDimensions())
     {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
     }
- 
+
   this->Begin[this->MapCoordinates(i, j)] = value;
 }
 
 template<typename T>
-void vtkDenseArray<T>::SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value)
+void vtkDenseArray<T>::SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value)
 {
   if(3 != this->GetDimensions())
     {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
     }
- 
+
   this->Begin[this->MapCoordinates(i, j, k)] = value;
 }
 
@@ -232,12 +232,12 @@ void vtkDenseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T&
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return;
     }
- 
+
   this->Begin[this->MapCoordinates(coordinates)] = value;
 }
 
 template<typename T>
-void vtkDenseArray<T>::SetValueN(const vtkIdType n, const T& value)
+void vtkDenseArray<T>::SetValueN(const SizeT n, const T& value)
 {
   this->Begin[n] = value;
 }
@@ -251,7 +251,7 @@ void vtkDenseArray<T>::ExternalStorage(const vtkArrayExtents& extents, MemoryBlo
 template<typename T>
 void vtkDenseArray<T>::Fill(const T& value)
 {
-  vtkstd::fill(this->Begin, this->End, value);
+  std::fill(this->Begin, this->End, value);
 }
 
 template<typename T>
@@ -263,7 +263,7 @@ T& vtkDenseArray<T>::operator[](const vtkArrayCoordinates& coordinates)
     vtkErrorMacro(<< "Index-array dimension mismatch.");
     return temp;
     }
- 
+
   return this->Begin[this->MapCoordinates(coordinates)];
 }
 
@@ -304,31 +304,31 @@ void vtkDenseArray<T>::InternalResize(const vtkArrayExtents& extents)
 }
 
 template<typename T>
-void vtkDenseArray<T>::InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label)
+void vtkDenseArray<T>::InternalSetDimensionLabel(DimensionT i, const vtkStdString& label)
 {
   this->DimensionLabels[i] = label;
 }
 
 template<typename T>
-vtkStdString vtkDenseArray<T>::InternalGetDimensionLabel(vtkIdType i)
+vtkStdString vtkDenseArray<T>::InternalGetDimensionLabel(DimensionT i)
 {
   return this->DimensionLabels[i];
 }
 
 template<typename T>
-vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i)
+vtkIdType vtkDenseArray<T>::MapCoordinates(CoordinateT i)
 {
   return ((i + this->Offsets[0]) * this->Strides[0]);
 }
 
 template<typename T>
-vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i, vtkIdType j)
+vtkIdType vtkDenseArray<T>::MapCoordinates(CoordinateT i, CoordinateT j)
 {
   return ((i + this->Offsets[0]) * this->Strides[0]) + ((j + this->Offsets[1]) * this->Strides[1]);
 }
 
 template<typename T>
-vtkIdType vtkDenseArray<T>::MapCoordinates(vtkIdType i, vtkIdType j, vtkIdType k)
+vtkIdType vtkDenseArray<T>::MapCoordinates(CoordinateT i, CoordinateT j, CoordinateT k)
 {
   return ((i + this->Offsets[0]) * this->Strides[0]) + ((j + this->Offsets[1]) * this->Strides[1]) + ((k + this->Offsets[2]) * this->Strides[2]);
 }
@@ -352,16 +352,16 @@ void vtkDenseArray<T>::Reconfigure(const vtkArrayExtents& extents, MemoryBlock* 
   delete this->Storage;
   this->Storage = storage;
   this->Begin = storage->GetAddress();
-  this->End = this->Begin + extents.GetSize(); 
+  this->End = this->Begin + extents.GetSize();
 
   this->Offsets.resize(extents.GetDimensions());
-  for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
+  for(DimensionT i = 0; i != extents.GetDimensions(); ++i)
     {
     this->Offsets[i] = -extents[i].GetBegin();
     }
 
   this->Strides.resize(extents.GetDimensions());
-  for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
+  for(DimensionT i = 0; i != extents.GetDimensions(); ++i)
     {
     if(i == 0)
       this->Strides[i] = 1;
@@ -371,4 +371,3 @@ void vtkDenseArray<T>::Reconfigure(const vtkArrayExtents& extents, MemoryBlock* 
 }
 
 #endif
-

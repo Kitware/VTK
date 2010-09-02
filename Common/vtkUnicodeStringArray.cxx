@@ -276,9 +276,9 @@ void vtkUnicodeStringArray::LookupValue(vtkVariant value, vtkIdList* ids)
     }
 }
 
-void vtkUnicodeStringArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+void vtkUnicodeStringArray::SetVariantValue(vtkIdType id, vtkVariant value)
 {
-  this->InsertValue( id, value.ToUnicodeString() );
+  this->SetValue( id, value.ToUnicodeString() );
 }
 
 void vtkUnicodeStringArray::DataChanged()

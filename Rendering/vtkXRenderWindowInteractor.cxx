@@ -100,6 +100,7 @@ private:
 // Initialize static members:
 int vtkXRenderWindowInteractor::NumAppInitialized = 0;
 XtAppContext vtkXRenderWindowInteractor::App = 0;
+int vtkXRenderWindowInteractor::BreakLoopFlag = 1;
 
 
 typedef struct
@@ -117,7 +118,6 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->OwnTop = 0;
   this->OwnApp = 0;
   this->TopLevelShell = NULL;
-  this->BreakLoopFlag = 1;
 }
 
 //-------------------------------------------------------------------------

@@ -16,7 +16,6 @@
 #ifndef __vtkScalarsToColorsItem_h
 #define __vtkScalarsToColorsItem_h
 
-//#include "vtkContextItem.h"
 #include "vtkPlot.h"
 
 class vtkCallbackCommand;
@@ -31,6 +30,15 @@ public:
 
   virtual void GetBounds(double bounds[4]);
   virtual bool Paint(vtkContext2D *painter);
+
+  // Description:
+  // Get a pointer to the vtkPen object that controls the was this plot draws
+  // lines.
+  vtkGetObjectMacro(PolyLinePen, vtkPen);
+
+  vtkSetMacro(MaskAboveCurve, bool);
+  vtkGetMacro(MaskAboveCurve, bool);
+
 protected:
   vtkScalarsToColorsItem();
   virtual ~vtkScalarsToColorsItem();
@@ -43,6 +51,9 @@ protected:
   bool                Interpolate;
   vtkPoints2D*        Shape;
   vtkCallbackCommand* Callback;
+
+  vtkPen*             PolyLinePen;
+  bool                MaskAboveCurve;
 private:
   vtkScalarsToColorsItem(const vtkScalarsToColorsItem &); // Not implemented.
   void operator=(const vtkScalarsToColorsItem &);   // Not implemented.

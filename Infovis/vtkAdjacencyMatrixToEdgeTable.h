@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkAdjacencyMatrixToEdgeTable_h
-#define __vtkAdjacencyMatrixToEdgeTable_h
-
-#include "vtkTableAlgorithm.h"
-
 // .NAME vtkAdjacencyMatrixToEdgeTable
 
 // .SECTION Description
@@ -32,6 +27,11 @@
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkAdjacencyMatrixToEdgeTable_h
+#define __vtkAdjacencyMatrixToEdgeTable_h
+
+#include "vtkTableAlgorithm.h"
 
 class VTK_INFOVIS_EXPORT vtkAdjacencyMatrixToEdgeTable : public vtkTableAlgorithm
 {

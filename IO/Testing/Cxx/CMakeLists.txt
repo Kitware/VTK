@@ -11,15 +11,16 @@ IF(VTK_USE_FFMPEG_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestFFMPEGWriter.cxx)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
-  SET(ConditionalTests 
-    ${ConditionalTests} 
-    TestHyperOctreeIO.cxx 
+  SET(ConditionalTests
+    ${ConditionalTests}
+    TestHyperOctreeIO.cxx
     TestPLYReader.cxx
+    TestProStarReader.cxx
     TestTecplotReader.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
     )
-    
+
 IF(NOT WIN32)
   SET(ConditionalTests
     ${ConditionalTests}
@@ -123,6 +124,10 @@ IF (VTK_DATA_ROOT)
          TestPLYReader -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
+    ADD_TEST(TestProStarReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestProStarReader -D ${VTK_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestProStarReader.png)
     ADD_TEST(TestTecplotReader ${CXX_TEST_PATH}/${KIT}CxxTests
          TestTecplotReader -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -204,7 +209,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     )
 
   ADD_EXECUTABLE(ArrayIOCxxTests ${ArrayIOTests})
-  TARGET_LINK_LIBRARIES(ArrayIOCxxTests vtkIO)
+  TARGET_LINK_LIBRARIES(ArrayIOCxxTests vtkIO vtkGraphics)
 
   SET(ArrayTestsToRun ${ArrayIOTests})
   REMOVE(ArrayTestsToRun ArrayIOCxxTests.cxx)

@@ -551,10 +551,38 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     this->Storage->Texture->PostRender(this->Renderer);
     glDisable(GL_TEXTURE_2D);
-    delete texCoord;
+    delete [] texCoord;
     }
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
+{
+  if (!f || n <= 0)
+    {
+    vtkWarningMacro(<< "Points supplied that were not of type float.");
+    return;
+    }
+  float* texCoord = 0;
+  if (this->Storage->Texture)
+    {
+    this->Storage->Texture->Render(this->Renderer);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    texCoord = this->Storage->TexCoords(f, n);
+    glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
+    }
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, f);
+  glDrawArrays(GL_QUAD_STRIP, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (this->Storage->Texture)
+    {
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    this->Storage->Texture->PostRender(this->Renderer);
+    glDisable(GL_TEXTURE_2D);
+    delete [] texCoord;
+    }
+}
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
 {
@@ -580,7 +608,7 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     this->Storage->Texture->PostRender(this->Renderer);
     glDisable(GL_TEXTURE_2D);
-    delete texCoord;
+    delete [] texCoord;
     }
 }
 
@@ -751,6 +779,41 @@ void vtkOpenGLContextDevice2D::DrawString(float *point, vtkTextProperty *prop,
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
+                                                   vtkTextProperty *prop,
+                                                   float bounds[4])
+{
+  double b[4];
+  this->TextRenderer->ComputeLabelBounds(prop, string, b);
+
+  // Go from the format used in the label render strategy (x1, x2, y1, y2)
+  // to the format specified by this function (x, y, w, h).
+  bounds[0] = static_cast<float>(b[0]);
+  bounds[1] = static_cast<float>(b[2]);
+  bounds[2] = static_cast<float>(b[1] - b[0]);
+  bounds[3] = static_cast<float>(b[3] - b[2]);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawString(float *point, vtkTextProperty *prop,
+                                          const vtkUnicodeString &string)
+{
+  if (!this->IsTextDrawn)
+    {
+    this->IsTextDrawn = true;
+    this->TextRenderer->StartFrame();
+    }
+
+  int p[] = { static_cast<int>(point[0]),
+              static_cast<int>(point[1]) };
+
+  //TextRenderer draws in window, not viewport coords
+  p[0]+=this->Storage->Offset.GetX();
+  p[1]+=this->Storage->Offset.GetY();
+  this->TextRenderer->RenderLabel(&p[0], prop, string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &string,
                                                    vtkTextProperty *prop,
                                                    float bounds[4])
 {
@@ -1053,6 +1116,10 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
   if (this->Storage->Texture)
     {
     this->Storage->Texture->ReleaseGraphicsResources(window);
+    }
+  if (this->Storage->SpriteTexture)
+    {
+    this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
     }
 }
 

@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtkSmartPointer.h"
+
 #include "vtkContourWidget.h"
 #include "vtkDijkstraImageContourLineInterpolator.h"
 #include "vtkDijkstraImageGeodesicPath.h"
@@ -34,79 +36,79 @@
 #include "vtkTestUtilities.h"
 
 char TestDijkstraImageGeodesicPathLog[] =
-"# StreamVersion 1 i\n"
-"RenderEvent 0 0 0 0 0 0 0 i\n"
-"EnterEvent 399 96 0 0 0 0 0 i\n"
-"MouseMoveEvent 321 96 0 0 0 0 0 i\n"
-"RightButtonPressEvent 321 96 0 0 0 0 0 i\n"
-"StartInteractionEvent 321 96 0 0 0 0 0 i\n"
-"MouseMoveEvent 321 97 0 0 0 0 0 i\n"
-"RenderEvent 321 97 0 0 0 0 0 i\n"
-"MouseMoveEvent 316 169 0 0 0 0 0 i\n"
-"RenderEvent 316 169 0 0 0 0 0 i\n"
-"RightButtonReleaseEvent 316 169 0 0 0 0 0 i\n"
-"EndInteractionEvent 316 169 0 0 0 0 0 i\n"
-"RenderEvent 316 169 0 0 0 0 0 i\n"
-"MouseMoveEvent 190 356 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 190 356 0 0 0 0 0 i\n"
-"RenderEvent 190 356 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 190 356 0 0 0 0 0 i\n"
-"MouseMoveEvent 61 226 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 61 226 0 0 0 0 0 i\n"
-"RenderEvent 61 226 0 0 0 0 0 i\n"
-"MouseMoveEvent 62 226 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 62 226 0 0 0 0 0 i\n"
-"MouseMoveEvent 131 49 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 131 49 0 0 0 0 0 i\n"
-"RenderEvent 131 49 0 0 0 0 0 i\n"
-"MouseMoveEvent 131 50 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 131 50 0 0 0 0 0 i\n"
-"MouseMoveEvent 292 69 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 292 69 0 0 0 0 0 i\n"
-"RenderEvent 292 69 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 292 69 0 0 0 0 0 i\n"
-"MouseMoveEvent 347 189 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 347 189 0 0 0 0 0 i\n"
-"RenderEvent 347 189 0 0 0 0 0 i\n"
-"MouseMoveEvent 347 190 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 347 190 0 0 0 0 0 i\n"
-"MouseMoveEvent 300 302 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 300 302 0 0 0 0 0 i\n"
-"RenderEvent 300 302 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 300 302 0 0 0 0 0 i\n"
-"MouseMoveEvent 191 354 0 0 0 0 0 i\n"
-"RightButtonPressEvent 191 354 0 0 0 0 0 i\n"
-"RenderEvent 191 354 0 0 0 0 0 i\n"
-"RightButtonReleaseEvent 191 354 0 0 0 0 0 i\n"
-"MouseMoveEvent 63 225 0 0 0 0 0 i\n"
-"LeftButtonPressEvent 63 225 0 0 0 0 0 i\n"
-"MouseMoveEvent 63 226 0 0 0 0 0 i\n"
-"RenderEvent 63 226 0 0 0 0 0 i\n"
-"MouseMoveEvent 63 238 0 0 0 0 0 i\n"
-"RenderEvent 63 238 0 0 0 0 0 i\n"
-"MouseMoveEvent 63 239 0 0 0 0 0 i\n"
-"RenderEvent 63 239 0 0 0 0 0 i\n"
-"LeftButtonReleaseEvent 63 239 0 0 0 0 0 i\n"
-"MouseMoveEvent 127 47 0 0 0 0 0 i\n"
-"KeyPressEvent 127 47 0 0 0 1 Delete i\n"
-"RenderEvent 127 47 0 0 0 1 Delete  i\n"
-"KeyReleaseEvent 127 47 0 0 0 1 Delete i\n"
-"MouseMoveEvent 286 71 0 0 0 0 Delete i\n"
-"RenderEvent 286 71 0 0 0 0 Delete i\n"
-"MouseMoveEvent 287 68 0 0 0 0 Delete i\n"
-"KeyPressEvent 287 68 0 0 0 1 Delete i\n"
-"RenderEvent 287 68 0 0 0 1 Delete i\n"
-"KeyReleaseEvent 287 68 0 0 0 1 Delete i\n"
-"MouseMoveEvent 179 218 0 0 0 0 Delete i\n"
-"LeftButtonPressEvent 179 218 0 0 0 0 Delete i\n"
-"MouseMoveEvent 78 122 0 0 0 0 Delete i\n"
-"RenderEvent 78 122 0 0 0 0 Delete i\n"
-"LeftButtonReleaseEvent 78 122 0 0 0 0 Delete i\n"
-"MouseMoveEvent 154 106 0 0 0 0 Delete i\n"
-"KeyPressEvent 154 106 0 0 113 1 q i\n"
-"CharEvent 154 106 0 0 113 1 q i\n"
-"ExitEvent 154 106 0 0 113 1 q i\n"
-;
+  "# StreamVersion 1 i\n"
+  "RenderEvent 0 0 0 0 0 0 0 i\n"
+  "EnterEvent 399 96 0 0 0 0 0 i\n"
+  "MouseMoveEvent 321 96 0 0 0 0 0 i\n"
+  "RightButtonPressEvent 321 96 0 0 0 0 0 i\n"
+  "StartInteractionEvent 321 96 0 0 0 0 0 i\n"
+  "MouseMoveEvent 321 97 0 0 0 0 0 i\n"
+  "RenderEvent 321 97 0 0 0 0 0 i\n"
+  "MouseMoveEvent 316 169 0 0 0 0 0 i\n"
+  "RenderEvent 316 169 0 0 0 0 0 i\n"
+  "RightButtonReleaseEvent 316 169 0 0 0 0 0 i\n"
+  "EndInteractionEvent 316 169 0 0 0 0 0 i\n"
+  "RenderEvent 316 169 0 0 0 0 0 i\n"
+  "MouseMoveEvent 190 356 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 190 356 0 0 0 0 0 i\n"
+  "RenderEvent 190 356 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 190 356 0 0 0 0 0 i\n"
+  "MouseMoveEvent 61 226 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 61 226 0 0 0 0 0 i\n"
+  "RenderEvent 61 226 0 0 0 0 0 i\n"
+  "MouseMoveEvent 62 226 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 62 226 0 0 0 0 0 i\n"
+  "MouseMoveEvent 131 49 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 131 49 0 0 0 0 0 i\n"
+  "RenderEvent 131 49 0 0 0 0 0 i\n"
+  "MouseMoveEvent 131 50 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 131 50 0 0 0 0 0 i\n"
+  "MouseMoveEvent 292 69 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 292 69 0 0 0 0 0 i\n"
+  "RenderEvent 292 69 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 292 69 0 0 0 0 0 i\n"
+  "MouseMoveEvent 347 189 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 347 189 0 0 0 0 0 i\n"
+  "RenderEvent 347 189 0 0 0 0 0 i\n"
+  "MouseMoveEvent 347 190 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 347 190 0 0 0 0 0 i\n"
+  "MouseMoveEvent 300 302 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 300 302 0 0 0 0 0 i\n"
+  "RenderEvent 300 302 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 300 302 0 0 0 0 0 i\n"
+  "MouseMoveEvent 191 354 0 0 0 0 0 i\n"
+  "RightButtonPressEvent 191 354 0 0 0 0 0 i\n"
+  "RenderEvent 191 354 0 0 0 0 0 i\n"
+  "RightButtonReleaseEvent 191 354 0 0 0 0 0 i\n"
+  "MouseMoveEvent 63 225 0 0 0 0 0 i\n"
+  "LeftButtonPressEvent 63 225 0 0 0 0 0 i\n"
+  "MouseMoveEvent 63 226 0 0 0 0 0 i\n"
+  "RenderEvent 63 226 0 0 0 0 0 i\n"
+  "MouseMoveEvent 63 238 0 0 0 0 0 i\n"
+  "RenderEvent 63 238 0 0 0 0 0 i\n"
+  "MouseMoveEvent 63 239 0 0 0 0 0 i\n"
+  "RenderEvent 63 239 0 0 0 0 0 i\n"
+  "LeftButtonReleaseEvent 63 239 0 0 0 0 0 i\n"
+  "MouseMoveEvent 127 47 0 0 0 0 0 i\n"
+  "KeyPressEvent 127 47 0 0 0 1 Delete i\n"
+  "RenderEvent 127 47 0 0 0 1 Delete  i\n"
+  "KeyReleaseEvent 127 47 0 0 0 1 Delete i\n"
+  "MouseMoveEvent 286 71 0 0 0 0 Delete i\n"
+  "RenderEvent 286 71 0 0 0 0 Delete i\n"
+  "MouseMoveEvent 287 68 0 0 0 0 Delete i\n"
+  "KeyPressEvent 287 68 0 0 0 1 Delete i\n"
+  "RenderEvent 287 68 0 0 0 1 Delete i\n"
+  "KeyReleaseEvent 287 68 0 0 0 1 Delete i\n"
+  "MouseMoveEvent 179 218 0 0 0 0 Delete i\n"
+  "LeftButtonPressEvent 179 218 0 0 0 0 Delete i\n"
+  "MouseMoveEvent 78 122 0 0 0 0 Delete i\n"
+  "RenderEvent 78 122 0 0 0 0 Delete i\n"
+  "LeftButtonReleaseEvent 78 122 0 0 0 0 Delete i\n"
+  "MouseMoveEvent 154 106 0 0 0 0 Delete i\n"
+  "KeyPressEvent 154 106 0 0 113 1 q i\n"
+  "CharEvent 154 106 0 0 113 1 q i\n"
+  "ExitEvent 154 106 0 0 113 1 q i\n"
+  ;
 
 int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 {
@@ -119,19 +121,22 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   char* fname = 
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
   
-  vtkPNGReader *reader = vtkPNGReader::New();
+  vtkSmartPointer<vtkPNGReader> reader =
+    vtkSmartPointer<vtkPNGReader>::New();
   reader->SetFileName( fname );
   delete [] fname;
 
   // Smooth the image
-  vtkImageAnisotropicDiffusion2D *diffusion = vtkImageAnisotropicDiffusion2D::New();
+  vtkSmartPointer<vtkImageAnisotropicDiffusion2D> diffusion =
+    vtkSmartPointer<vtkImageAnisotropicDiffusion2D>::New();
   diffusion->SetInputConnection( reader->GetOutputPort() );
   diffusion->SetDiffusionFactor( 1.0 );
   diffusion->SetDiffusionThreshold( 200.0 );
   diffusion->SetNumberOfIterations( 5 );
   
   // Gradient magnitude for edges
-  vtkImageGradientMagnitude *grad = vtkImageGradientMagnitude::New();
+  vtkSmartPointer<vtkImageGradientMagnitude> grad =
+    vtkSmartPointer<vtkImageGradientMagnitude>::New();
   grad->SetDimensionality( 2 );
   grad->HandleBoundariesOn();
   grad->SetInputConnection( diffusion->GetOutputPort() );
@@ -141,32 +146,38 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   
   // Invert the gradient magnitude so that low costs are
   // associated with strong edges and scale from 0 to 1
-  vtkImageShiftScale *gradInvert = vtkImageShiftScale::New();
+  vtkSmartPointer<vtkImageShiftScale> gradInvert =
+    vtkSmartPointer<vtkImageShiftScale>::New();
   gradInvert->SetShift( -1.0*range[ 1 ] );
   gradInvert->SetScale( 1.0 /( range[ 0 ] - range[ 1 ] ) );
   gradInvert->SetOutputScalarTypeToFloat();
   gradInvert->SetInputConnection( grad->GetOutputPort() );
   gradInvert->Update();
   
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer( renderer );
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow( renWin );
-  vtkInteractorStyleImage* style = vtkInteractorStyleImage::New();
+  vtkSmartPointer<vtkInteractorStyleImage> style =
+    vtkSmartPointer<vtkInteractorStyleImage>::New();
   iren->SetInteractorStyle( style );
-  style->Delete();
   
   // The color map will accept any scalar image type and convert to
   // unsigned char for the image actor
-  vtkImageMapToWindowLevelColors *colorMap = vtkImageMapToWindowLevelColors::New();
+  vtkSmartPointer<vtkImageMapToWindowLevelColors> colorMap =
+    vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
   colorMap->SetInputConnection( gradInvert->GetOutputPort() );
 
   range = gradInvert->GetOutput()->GetScalarRange();
   colorMap->SetWindow(1.0);
   colorMap->SetLevel(0.5);
 
-  vtkImageActor *actor = vtkImageActor::New();
+  vtkSmartPointer<vtkImageActor> actor =
+    vtkSmartPointer<vtkImageActor>::New();
   actor->SetInput( colorMap->GetOutput() );
   actor->SetDisplayExtent( 0, 255, 0, 255, 0, 0 );
 
@@ -176,10 +187,12 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   renWin->SetSize(400,400);
 
   // Contour widget for interactive path definition
-  vtkContourWidget *contourWidget = vtkContourWidget::New();
+  vtkSmartPointer<vtkContourWidget> contourWidget =
+    vtkSmartPointer<vtkContourWidget>::New();
   contourWidget->SetInteractor( iren );
 
-  vtkOrientedGlyphContourRepresentation *rep = vtkOrientedGlyphContourRepresentation::New();
+  vtkSmartPointer<vtkOrientedGlyphContourRepresentation> rep =
+    vtkSmartPointer<vtkOrientedGlyphContourRepresentation>::New();
   contourWidget->SetRepresentation( rep );
   contourWidget->SetFollowCursor( followCursor );
 
@@ -188,7 +201,8 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   rep->GetLinesProperty()->SetLineWidth( 3 );
 
   // The contour rep requires a suitable point placer
-  vtkImageActorPointPlacer *placer = vtkImageActorPointPlacer::New();
+  vtkSmartPointer<vtkImageActorPointPlacer> placer =
+    vtkSmartPointer<vtkImageActorPointPlacer>::New();
   placer->SetImageActor( actor );
   rep->SetPointPlacer( placer );
 
@@ -199,8 +213,8 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
     vtkDijkstraImageContourLineInterpolator::New();
   interpolator->SetCostImage( gradInvert->GetOutput() );
 
-  vtkDijkstraImageGeodesicPath* path = 
-      interpolator->GetDijkstraImageGeodesicPath();
+  vtkDijkstraImageGeodesicPath *path =
+    interpolator->GetDijkstraImageGeodesicPath();
   path->StopWhenEndReachedOn();
   // prevent contour segments from overlapping
   path->RepelPathFromVerticesOn();
@@ -219,21 +233,5 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 
   vtkTesting::InteractorEventLoop( argc, argv, iren, TestDijkstraImageGeodesicPathLog );
 
-  // Cleanups
-  contourWidget->Delete();
-  placer->Delete();
-  reader->Delete();
-  actor->Delete();
-  iren->Delete();
-  renWin->Delete();
-  renderer->Delete();
-  grad->Delete();
-  gradInvert->Delete();
-  interpolator->Delete();
-  rep->Delete();
-  diffusion->Delete();
-  colorMap->Delete();
-  
   return EXIT_SUCCESS;
 }
-

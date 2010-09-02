@@ -45,6 +45,8 @@
 
 class vtkGarbageCollector;
 class vtkGarbageCollectorToObjectBaseFriendship;
+class vtkWeakPointerBase;
+class vtkWeakPointerBaseToObjectBaseFriendship;
 
 class VTK_COMMON_EXPORT vtkObjectBase
 {
@@ -159,7 +161,8 @@ protected:
 
   virtual void CollectRevisions(ostream& os);
   
-  int ReferenceCount;      // Number of uses of this object by other objects
+  int ReferenceCount;
+  vtkWeakPointerBase **WeakPointers;
 
   // Internal Register/UnRegister implementation that accounts for
   // possible garbage collection participation.  The second argument
@@ -169,10 +172,12 @@ protected:
 
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector*);
+
 private:
   //BTX
   friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
   friend class vtkGarbageCollectorToObjectBaseFriendship;
+  friend class vtkWeakPointerBaseToObjectBaseFriendship;
   //ETX
 protected:
 //BTX

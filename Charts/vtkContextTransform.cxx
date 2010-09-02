@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkContextScenePrivate.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 

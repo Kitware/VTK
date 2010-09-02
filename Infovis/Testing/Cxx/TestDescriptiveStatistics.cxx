@@ -547,8 +547,8 @@ int TestDescriptiveStatistics( int, char *[] )
 
   double mean = 4.5;
   double variance = 9.16666666666667;
-  double g1 = 0.;
-  double g2 = -1.56163636363636;
+  double skewness = 0.;
+  double kurtosis = -1.56163636363636;
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
@@ -611,15 +611,15 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
   
-  if ( fabs ( outputDerived3->GetValueByName( 0, "g1 Skewness" ).ToDouble() - g1 ) > 1.e-6 )
+  if ( fabs ( outputDerived3->GetValueByName( 0, "Skewness" ).ToDouble() - skewness ) > 1.e-6 )
     {
-    vtkGenericWarningMacro("Incorrect g1 skewness");
+    vtkGenericWarningMacro("Incorrect skewness");
     testStatus = 1;
     }
   
-  if ( fabs ( outputDerived3->GetValueByName( 0, "g2 Kurtosis" ).ToDouble() - g2 ) > 1.e-6 )
+  if ( fabs ( outputDerived3->GetValueByName( 0, "Kurtosis" ).ToDouble() - kurtosis ) > 1.e-6 )
     {
-    vtkGenericWarningMacro("Incorrect g2 kurtosis");
+    vtkGenericWarningMacro("Incorrect kurtosis");
     testStatus = 1;
     }
   cout << "\n";

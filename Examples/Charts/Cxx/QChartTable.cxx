@@ -45,11 +45,11 @@ int main( int argc, char * argv [] )
 {
   // Qt initialization
   QApplication app(argc, argv);
-  QMainWindow *mainWindow = new QMainWindow;
-  mainWindow->setGeometry(0, 0, 1150, 600);
+  QMainWindow mainWindow;
+  mainWindow.setGeometry(0, 0, 1150, 600);
 
   // QVTK set up and initialization
-  QVTKWidget *qvtkWidget = new QVTKWidget(mainWindow);
+  QVTKWidget *qvtkWidget = new QVTKWidget(&mainWindow);
 
   // Set up my 2D world...
   VTK_CREATE(vtkContextView, view); // This contains a chart object
@@ -107,7 +107,7 @@ int main( int argc, char * argv [] )
   line->SetWidth(2.0);
 */
   // Now lets try to add a table view
-  QWidget *widget = new QWidget(mainWindow);
+  QWidget *widget = new QWidget(&mainWindow);
   QHBoxLayout *layout = new QHBoxLayout(widget);
   VTK_CREATE(vtkQtTableView, tableView);
   tableView->SetSplitMultiComponentColumns(true);
@@ -116,10 +116,10 @@ int main( int argc, char * argv [] )
   layout->addWidget(qvtkWidget, 2);
   //layout->addWidget(qtChart, 2);
   layout->addWidget(tableView->GetWidget());
-  mainWindow->setCentralWidget(widget);
+  mainWindow.setCentralWidget(widget);
 
   // Now show the application and start the event loop
-  mainWindow->show();
+  mainWindow.show();
 
   return app.exec();
 }

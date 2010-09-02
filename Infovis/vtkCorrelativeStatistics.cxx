@@ -528,8 +528,10 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   // Prepare columns for the test:
   // 0: variable X name
   // 1: variable Y name
-  // 2: bivariate Jarque-Bera-Srivastava statistic
-  // 3: bivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
+  // 2: bivariate Srivastava skewness
+  // 3: bivariate Srivastava kurtosis
+  // 4: bivariate Jarque-Bera-Srivastava statistic
+  // 5: bivariate Jarque-Bera-Srivastava p-value (calculated only if R is available, filled with -1 otherwise)
   // NB: These are not added to the output table yet, for they will be filled individually first
   //     in order that R be invoked only once.
   vtkStringArray* nameColX = vtkStringArray::New();
@@ -580,31 +582,34 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     // Find the model row that corresponds to the variable pair of the request
     vtkIdType r = 0;
     while ( r < nRowPrim
-            && varsX->GetValue( r ) != varNameX
-            && varsY->GetValue( r ) != varNameY )
+            && ( varsX->GetValue( r ) != varNameX
+                 || varsY->GetValue( r ) != varNameY ) )
       {
       ++ r;
       }
     if ( r >= nRowPrim )
       {
-      vtkErrorMacro( "Incomplete input: model does not have a row for pair"
+      vtkWarningMacro( "Incomplete input: model does not have a row for pair"
                      << varNameX.c_str()
                      << ", "
                      << varNameY.c_str()
                      <<". Cannot test." );
-      return;
+      continue;
       }
 
     // Retrieve model statistics necessary for Jarque-Bera-Srivastava testing
-    double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
-    if ( n != nRowData )
+    if ( primaryTab->GetValueByName( r, "Cardinality" ).ToInt() != nRowData )
       {
-      vtkErrorMacro( "Inconsistent input: dat has "
-                     << nRowData
-                     << " rows but primary model has cardinality "
-                     << n
-                     <<". Cannot test." );
-      return;
+      vtkWarningMacro( "Inconsistent input: input data has "
+                       << nRowData
+                       << " rows but primary model has cardinality "
+                       << primaryTab->GetValueByName( r, "Cardinality" ).ToDouble()
+                       << " for pair "
+                       << varNameX.c_str()
+                       << ", "
+                       << varNameY.c_str()
+                       <<". Cannot test." );
+      continue;
       }
 
     double mX = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
@@ -621,6 +626,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
     // Eliminate near degenerate covariance matrices
     double sXY2 = sXY * sXY;
     double detS = sX2 * sY2 - sXY2;
+    double invn = 1. / nRowData;
+    double halfinvn = .5 * invn;
     if ( detS > 1.e-100
          && sX2 > 0.
          && sY2 > 0. )
@@ -631,15 +638,13 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
       double eigS1 = .5 * ( trS + sqdS );
       double eigS2 = .5 * ( trS - sqdS );
 
-      // Calculate transformation matrix P so S = P diag(eigSi) Pt
+      // Calculate transformation matrix H so S = H diag(eigSi) H^t
       double w = .5 * ( sX2 - sY2 - sqdS );
       double f = 1. / sqrt ( sXY2 + w * w );
 
-      double p11 = f * sXY;
-      double p21 = f * ( eigS1 - sX2 );
-
-      double p12 = f * ( eigS2 - sY2 );
-      double p22 = p11;
+      double hd = f * sXY; // Diagonal terms of H are identical
+      double h21 = f * ( eigS1 - sX2 );
+      double h12 = f * ( eigS2 - sY2 );
 
       // Now iterate over all observations
       double sum3X = 0.;
@@ -654,8 +659,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
 
         // Transform coordinates into eigencoordinates
-        t1 = p11 * x + p21 * y;
-        t2 = p12 * x + p22 * y;
+        t1 = hd * x + h21 * y;
+        t2 = h12 * x + hd * y;
 
         // Update third and fourth order sums for each eigencoordinate
         tmp = t1 * t1;
@@ -667,21 +672,28 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         }
 
       // Normalize all sums with corresponding eigenvalues and powers
-      sum3X /= pow( eigS1, 1.5 );
-      sum3Y /= pow( eigS2, 1.5 );
-      sum4X /= ( eigS1 * eigS1 );
-      sum4Y /= ( eigS2 * eigS2 );
+      sum3X *= sum3X;
+      tmp = eigS1 * eigS1;
+      sum3X /= ( tmp * eigS1 );
+      sum4X /= tmp;
+
+      sum3Y *= sum3Y;
+      tmp = eigS2 * eigS2;
+      sum3Y /= ( tmp * eigS2 );
+      sum4Y /= tmp;
 
       // Calculate Srivastava skewness and kurtosis
-      bS1 = ( ( sum3X * sum3X ) +  ( sum3Y * sum3Y ) ) / ( 2. * n * n );
-      bS2 = ( sum4X +  sum4Y ) / ( 2. * n );
+      bS1 = halfinvn * invn * ( sum3X +  sum3Y );
+      bS2 = halfinvn * ( sum4X +  sum4Y );
 
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
-      jbs = static_cast<double>( n ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
+      jbs = static_cast<double>( nRowData ) * ( bS1 / 3. + ( tmp * tmp ) / 12. );
       }
     else
       {
+      bS1 = vtkMath::Nan();
+      bS2 = vtkMath::Nan();
       jbs = vtkMath::Nan();
       }
 
@@ -760,9 +772,9 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   // Clean up
   nameColX->Delete();
   nameColY->Delete();
-  statCol->Delete();
   bS1Col->Delete();
   bS2Col->Delete();
+  statCol->Delete();
 }
 
 // ----------------------------------------------------------------------

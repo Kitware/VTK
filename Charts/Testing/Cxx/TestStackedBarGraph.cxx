@@ -25,7 +25,6 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkColorSeries.h"
 
 #define VTK_CREATE(type, name) \
@@ -57,7 +56,7 @@ void build_array(const char *name, vtkIntArray *array, int c_array[])
 }
 
 //----------------------------------------------------------------------------
-int TestStackedBarGraph( int argc, char * argv [] )
+int TestStackedBarGraph(int , char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   VTK_CREATE(vtkContextView, view);
@@ -141,13 +140,8 @@ int TestStackedBarGraph( int argc, char * argv [] )
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
-  //int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
+  view->GetInteractor()->Initialize();
+  view->GetInteractor()->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

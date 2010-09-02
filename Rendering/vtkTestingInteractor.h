@@ -37,7 +37,8 @@ public:
   vtkTypeMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
   virtual void Start();
 
-  static int      TestReturnStatus;  // Return status of the test
+  static int         TestReturnStatus;  // Return status of the test
+  static double      ErrorThreshold;    // Error Threshold
   static std::string ValidBaseline;     // Name of the Baseline image
   static std::string TempDirectory;     // Location of Testing/Temporary
   static std::string DataDirectory;     // Location of VTKData

@@ -385,7 +385,8 @@ PyTypeObject PyVTKObject_Type = {
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
-PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
+PyObject *PyVTKObject_New(
+  PyObject *pyvtkclass, PyObject *pydict, vtkObjectBase *ptr)
 {
   PyVTKClass *vtkclass = (PyVTKClass *)pyvtkclass;
   bool haveRef = false;
@@ -413,19 +414,38 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
 #endif
 
   self->vtk_ptr = ptr;
-  PyObject *cls = vtkPythonUtil::FindClass(ptr->GetClassName());
-  self->vtk_class = (PyVTKClass *)cls;
+  self->vtk_class = NULL;
 
-  // If the class was not in the dictionary (i.e. if there is no 'python'
-  // level class to support the VTK level class) we fall back to this.
-  if (self->vtk_class == NULL || vtkclass->vtk_methods == NULL)
+  // We want to find the class that best matches GetClassName(), since
+  // the object might have been created by a factory and might therefore
+  // not be of the type of the class that New() was called on.
+  // There are two situations where we don't want to do this, though.
+  // If pydict is set, then the object is being recreated from a ghost
+  // and we must keep the original class. Also, if vtk_methods is NULL
+  // then the class is a special custom class and must be kept.
+  if (pydict == NULL && vtkclass->vtk_methods != NULL)
+    {
+    PyObject *cls = vtkPythonUtil::FindClass(ptr->GetClassName());
+    self->vtk_class = (PyVTKClass *)cls;
+    }
+
+  // Use the class that was passed as an argument
+  if (self->vtk_class == NULL)
     {
     self->vtk_class = vtkclass;
     }
 
   Py_INCREF(self->vtk_class);
 
-  self->vtk_dict = PyDict_New();
+  if (pydict)
+    {
+    Py_INCREF(pydict);
+    self->vtk_dict = pydict;
+    }
+  else
+    {
+    self->vtk_dict = PyDict_New();
+    }
 
 #if PY_VERSION_HEX >= 0x02010000
   self->vtk_weakreflist = NULL;

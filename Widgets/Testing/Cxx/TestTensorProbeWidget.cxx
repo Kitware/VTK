@@ -21,7 +21,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkTensorProbeRepresentation.h"
 #include "vtkTensorProbeWidget.h"
 #include "vtkCamera.h"
@@ -31,7 +30,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-
+#include "vtkTesting.h"
 
 const char TestTensorProbeWidgetEventLog[] =
   "# StreamVersion 1 i\n"

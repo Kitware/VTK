@@ -25,7 +25,6 @@
 
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer to the window.
-#include "vtkVector.h" // Needed for vtkVector2f
 
 class vtkContext2D;
 class vtkAbstractContextItem;
@@ -267,49 +266,5 @@ private:
   void operator=(const vtkContextScene &);   // Not implemented.
 //ETX
 };
-
-//BTX
-// Description:
-// Data structure to store context scene mouse events to be passed to items.
-class vtkContextMouseEvent
-{
-public:
-  // Description:
-  // Enumeration of mouse buttons.
-  enum {
-    LEFT_BUTTON = 0,
-    MIDDLE_BUTTON,
-    RIGHT_BUTTON
-  };
-
-  // Description:
-  // Position of the mouse in item coordinate system.
-  vtkVector2f Pos;
-
-  // Description:
-  // Position of the mouse the scene coordinate system.
-  vtkVector2f ScenePos;
-
-  // Description:
-  // Position of the mouse in screen coordinates
-  vtkVector2i ScreenPos;
-
-  // Description:
-  // `Pos' at the previous mouse event.
-  vtkVector2f LastPos;
-
-  // Description:
-  // `ScenePos'at the previous mouse event.
-  vtkVector2f LastScenePos;
-
-  // Description:
-  // `ScreenPos' at the previous mouse event.
-  vtkVector2i LastScreenPos;
-
-  // Description:
-  // Mouse button that was pressed, using the anonymous enumeration.
-  int Button;
-};
-//ETX
 
 #endif //__vtkContextScene_h
