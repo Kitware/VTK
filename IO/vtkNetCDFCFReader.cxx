@@ -736,6 +736,13 @@ int vtkNetCDFCFReader::RequestDataObject(
     break;
     }
 
+  if (dataType == -1)
+    {
+    // Either no variables are selected or only variables with no dimensions.
+    // In either case, an image data should be fine.
+    dataType = VTK_IMAGE_DATA;
+    }
+
   if (dataType == VTK_IMAGE_DATA)
     {
     if (!output || !output->IsA("vtkImageData"))
@@ -762,10 +769,6 @@ int vtkNetCDFCFReader::RequestDataObject(
       output->SetPipelineInformation(outInfo);
       output->Delete();   // Not really deleted.
       }
-    }
-  else if (dataType == -1)
-    {
-    vtkErrorMacro(<< "Could not determine data type based in input variables.");
     }
   else
     {
