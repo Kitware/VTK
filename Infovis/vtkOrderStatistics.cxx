@@ -319,7 +319,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   // Prepare columns for the test:
   // 0: variable name
   // 1: Maximum vertical distance between CDFs
-  // 2: Kolmogorov-Smirnov test statistic (the above times the square root of the cardinality
+  // 2: Kolmogorov-Smirnov test statistic (the above times the square root of the cardinality)
   // NB: These are not added to the output table yet, for they will be filled individually first
   //     in order that R be invoked only once.
   vtkStringArray* nameCol = vtkStringArray::New();
