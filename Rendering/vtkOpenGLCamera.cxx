@@ -123,6 +123,13 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->vtkViewport::GetAspect(aspect2);
   double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
 
+  // Check if headtracked
+  if(this->HeadTracked)
+    {
+    this->ComputeProjAndViewParams();
+    this->ComputeViewTransform();
+    }
+
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {

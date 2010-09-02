@@ -345,12 +345,12 @@ void vtkCamera::ComputeViewTransform()
     {
     this->ViewTransform->Identity();
     this->ViewTransform->SetMatrix(this->HeadTrackedViewMat);
-    this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+    this->Transform->SetupCamera(this->Position,this->FocalPoint,this->ViewUp);
     this->ViewTransform->Concatenate(this->Transform->GetMatrix());
     }
   else
     {
-    this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
+    this->Transform->SetupCamera(this->Position,this->FocalPoint,this->ViewUp);
     this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
     }
 }
@@ -892,8 +892,8 @@ void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
   this->HeadPose->SetElement( 3,1,x31 );
   this->HeadPose->SetElement( 3,2,x32 );
   this->HeadPose->SetElement( 3,3,x33 );
-  this->ComputeProjAndViewParams();
-  this->ComputeViewTransform();
+  // this->ComputeProjAndViewParams();
+  // this->ComputeViewTransform();
 }
 
 //------------------------------------------------------------------HeadTracked
@@ -978,7 +978,7 @@ void vtkCamera::SetSurface2Base( vtkMatrix4x4 *surfaceRot )
 {
   // Invert the surfaceRot matrix to get Surface2Base
   this->Surface2Base->SetMatrix( surfaceRot );
-  this->Surface2Base->Inverse();
+  //  this->Surface2Base->Inverse();
 }
 
 
@@ -986,7 +986,7 @@ void vtkCamera::SetSurface2Base( vtkMatrix4x4 *surfaceRot )
 // Compute the projection transform matrix. This is used in converting
 // between view and world coordinates.
 void vtkCamera::ComputeProjectionTransform(double aspect,
-                                           double nearz, double farz)
+double nearz, double farz)
 {
   this->ProjectionTransform->Identity();
 
@@ -1020,10 +1020,10 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
     if ( this->HeadTracked )
       {
       this->ProjectionTransform->Frustum( this->AsymLeft,  this->AsymRight,
-                                          this->AsymBottom,  this->AsymTop,
+                                          this->AsymBottom, this->AsymTop,
                                           0.01, 10000.0 );
-                                          // this->ClippingRange[0],
-                                          // this->ClippingRange[1] );
+      // this->ClippingRange[0],
+      // this->ClippingRange[1] );
       }
     else
       {
@@ -1048,18 +1048,18 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
       double ymax = ( this->WindowCenter[1] + 1.0 ) * height;
 
       this->ProjectionTransform->Frustum( xmin, xmax, ymin, ymax,
-                                          this->ClippingRange[0],
-                                          this->ClippingRange[1] );
+      this->ClippingRange[0],
+      this->ClippingRange[1] );
       }
     }
 
-  if ( this->Stereo )
+  if ( this->Stereo && !this->HeadTracked )
     {
     // set up a shear for stereo views
     if ( this->LeftEye )
       {
       this->ProjectionTransform->Stereo( -this->EyeAngle/2,
-                                         this->Distance );
+                                          this->Distance );
       }
     else
       {
