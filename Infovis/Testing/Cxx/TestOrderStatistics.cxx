@@ -16,8 +16,8 @@
 #include "vtkOrderStatistics.h"
 #include "vtkMultiBlockDataSet.h"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
+#include <vtksys/stl/vector>
+#include <vtksys/stl/map>
 
 //=============================================================================
 int TestOrderStatistics( int, char *[] )
@@ -159,7 +159,8 @@ int TestOrderStatistics( int, char *[] )
       32., -1., -1., -1., -1., -1.,
     };
 
-  // Get calculated model
+  // Get output data and meta tables
+  vtkTable* outputData = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
@@ -187,6 +188,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   cout << "\n## Calculated the following histograms:\n";
+  vtksys_stl::map<vtkStdString,vtkIdType> cpt1;
   for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -198,7 +200,25 @@ int TestOrderStatistics( int, char *[] )
            << "  ";
       }
 
+    cpt1[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
+      += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
+
     cout << "\n";
+    }
+
+  // Check whether total cardinalities are correct
+  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt1.begin();
+          it != cpt1.end(); ++ it )
+    {
+    if ( it->second != outputData->GetNumberOfRows() )
+      {
+      vtkGenericWarningMacro("Incorrect histogram count: "
+                             << it->second
+                             << " != "
+                             << outputData->GetNumberOfRows()
+                             << ".");
+      testStatus = 1;
+      }
     }
 
   // Check some results of the Test option
@@ -256,6 +276,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   cout << "\n## Calculated the following histograms:\n";
+  vtksys_stl::map<vtkStdString,vtkIdType> cpt2;
   for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -267,42 +288,23 @@ int TestOrderStatistics( int, char *[] )
            << "  ";
       }
 
+    cpt2[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
+      += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
+
     cout << "\n";
     }
 
-  // Get output (annotated) data
-  vtkTable* outputData = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkstd::map<int,int> histoMetric[2];
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  // Check whether total cardinalities are correct
+  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt2.begin();
+          it != cpt2.end(); ++ it )
     {
-    ++ histoMetric[0][outputData->GetValueByName( r, "Quantile(Metric 0)" ).ToInt()];
-    ++ histoMetric[1][outputData->GetValueByName( r, "Quantile(Metric 1)" ).ToInt()];
-    }
-
-  // Calculate quantile-based histogram
-  int cpt[] = { 0, 0 };
-  cout << "\n## Calculated the following histograms from quantiles:\n";
-  for ( int i = 0; i < 2; ++ i )
-    {
-    cout << "   "
-         << outputData->GetColumnName( i )
-         << ":\n";
-
-    for ( vtkstd::map<int,int>::iterator it = histoMetric[i].begin();
-          it != histoMetric[i].end(); ++ it )
+    if ( it->second != outputData->GetNumberOfRows() )
       {
-      cpt[i] += it->second;
-
-      cout << "   inter-quantile interval "
-           << it->first
-           << " with frequency "
-           << it->second
-           << "\n";
-      }
-
-    if ( cpt[i] != outputData->GetNumberOfRows() )
-      {
-      vtkGenericWarningMacro("Incorrect histogram count: " << cpt[i] << " != " << outputData->GetNumberOfRows() << ".");
+      vtkGenericWarningMacro("Incorrect histogram count: "
+                             << it->second
+                             << " != "
+                             << outputData->GetNumberOfRows()
+                             << ".");
       testStatus = 1;
       }
     }
@@ -334,13 +336,13 @@ int TestOrderStatistics( int, char *[] )
   // Test Learn option for quartiles with non-numeric ordinal data
   vtkStdString text(
     "an ordinal scale defines a total preorder of objects the scale values themselves have a total order names may be used like bad medium good if numbers are used they are only relevant up to strictly monotonically increasing transformations also known as order isomorphisms" );
-  vtkstd::vector<int>::size_type textLength = text.size();
+  vtksys_stl::vector<int>::size_type textLength = text.size();
 
   vtkStringArray* textArr = vtkStringArray::New();
   textArr->SetNumberOfComponents( 1 );
   textArr->SetName( "Text" );
 
-  for ( vtkstd::vector<int>::size_type i = 0; i < textLength; ++ i )
+  for ( vtksys_stl::vector<int>::size_type i = 0; i < textLength; ++ i )
     {
     char c = text.at(i);
     textArr->InsertNextValue( &c );
