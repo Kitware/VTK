@@ -237,9 +237,11 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
-  // Test Learn and Assess options for quartiles with InverseCDF quantile definition
+  // Test Learn and Test options with InverseCDF quantile definition
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
-  os->SetAssessOption( true );
+  os->SetLearnOption( true );
+  os->SetTestOption( true );
+  os->SetAssessOption( false );
   os->Update();
 
   double valsTest2 [] =
@@ -309,6 +311,22 @@ int TestOrderStatistics( int, char *[] )
       }
     }
 
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest->GetColumnName( i )
+           << "="
+           << outputTest->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
   // Test Learn option for deciles with InverseCDF quantile definition (as with Octave)
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   os->SetNumberOfIntervals( 10 );
@@ -333,6 +351,25 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest->GetColumnName( i )
+           << "="
+           << outputTest->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cout << "\n";
+    }
+
+  // Clean up
+  os->Delete();
+
   // Test Learn option for quartiles with non-numeric ordinal data
   vtkStdString text(
     "an ordinal scale defines a total preorder of objects the scale values themselves have a total order names may be used like bad medium good if numbers are used they are only relevant up to strictly monotonically increasing transformations also known as order isomorphisms" );
@@ -352,38 +389,42 @@ int TestOrderStatistics( int, char *[] )
   textTable->AddColumn( textArr );
   textArr->Delete();
 
-  os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
+  // Set order statistics engine
+  vtkOrderStatistics* os2 = vtkOrderStatistics::New();
+
+  os2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
-  os->ResetAllColumnStates(); // Clear list of columns of interest
-  os->AddColumn( "Text" ); // Add column of interest
-  os->RequestSelectedColumns();
+  os2->ResetAllColumnStates(); // Clear list of columns of interest
+  os2->AddColumn( "Text" ); // Add column of interest
+  os2->RequestSelectedColumns();
 
-  // Test Learn and Assess with 12 intervals
-  os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
-  os->SetParameter( "NumberOfIntervals", 0, 12 );
-  os->SetLearnOption( true );
-  os->SetTestOption( false );
-  os->SetAssessOption( true );
-  os->Update();
+  // Learn, Test, and Assess with 12 intervals
+  os2->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
+  os2->SetParameter( "NumberOfIntervals", 0, 12 );
+  os2->SetLearnOption( true );
+  os2->SetTestOption( true );
+  os2->SetAssessOption( true );
+  os2->Update();
 
-  // Get calculated model
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  // Get output data and meta tables
+  vtkTable* outputData2 = os2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
+  vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 0 ) );
 
-  cout << "## Input text (punctuation omitted):\n   "
+  cout << "\n## Input text (punctuation omitted):\n   "
        << text
        << "\n";
 
   // Calculate quantile-based histogram
   vtkstd::map<int,int> histo12Text;
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
-    ++ histo12Text[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    ++ histo12Text[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
 
   int sum12 = 0;
   cout << "\n## Calculated the following histogram from "
-       << os->GetNumberOfIntervals()
+       << os2->GetNumberOfIntervals()
        << "-quantiles:\n";
 
   // Calculate representatives
@@ -394,8 +435,8 @@ int TestOrderStatistics( int, char *[] )
     int upperBnd = it->second;
     sum12 += upperBnd;
 
-    const char* lowerVal = outputQuantiles->GetValue( 0, lowerBnd + 1 ).ToString();
-    const char* upperVal = outputQuantiles->GetValue( 0, lowerBnd + 2 ).ToString();
+    const char* lowerVal = outputQuantiles2->GetValue( 0, lowerBnd + 1 ).ToString();
+    const char* upperVal = outputQuantiles2->GetValue( 0, lowerBnd + 2 ).ToString();
     char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
     histo12Repr[lowerBnd] = midVal;
 
@@ -413,9 +454,9 @@ int TestOrderStatistics( int, char *[] )
     }
 
   // Verify that we retrieve the total count
-  if ( sum12 != outputData->GetNumberOfRows() )
+  if ( sum12 != outputData2->GetNumberOfRows() )
     {
-    vtkGenericWarningMacro("Incorrect histogram count: " << sum12 << " != " << outputData->GetNumberOfRows() << ".");
+    vtkGenericWarningMacro("Incorrect histogram count: " << sum12 << " != " << outputData2->GetNumberOfRows() << ".");
     testStatus = 1;
     }
 
@@ -423,40 +464,40 @@ int TestOrderStatistics( int, char *[] )
   cout << "\n## Quantized text with "
        << histo12Text.size()
        << " quantizers based on "
-       << os->GetNumberOfIntervals()
+       << os2->GetNumberOfIntervals()
        << "-quantiles :\n   ";
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
-    cout << histo12Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    cout << histo12Repr[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
   cout << "\n";
 
-  // Learn and Assess again but with with 100 intervals this time
-  os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
-  os->SetParameter( "NumberOfIntervals", 0, 100 );
-  os->SetLearnOption( true );
-  os->SetTestOption( false );
-  os->SetAssessOption( true );
-  os->Update();
+  // Learn, Assess, and Test again but with with 100 intervals this time
+  os2->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
+  os2->SetParameter( "NumberOfIntervals", 0, 100 );
+  os2->SetLearnOption( true );
+  os2->SetTestOption( true );
+  os2->SetAssessOption( true );
+  os2->Update();
 
   // Get calculated model
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
-  cout << "## Input text (punctuation omitted):\n   "
+  cout << "\n## Input text (punctuation omitted):\n   "
        << text
        << "\n";
 
   // Calculate quantile-based histogram
   vtkstd::map<int,int> histo100Text;
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
-    ++ histo100Text[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    ++ histo100Text[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
 
   int sum100 = 0;
   cout << "\n## Calculated the following histogram with "
-       << os->GetNumberOfIntervals()
+       << os2->GetNumberOfIntervals()
        << "-quantiles:\n";
 
   // Calculate representatives
@@ -467,8 +508,8 @@ int TestOrderStatistics( int, char *[] )
     int upperBnd = it->second;
     sum100 += upperBnd;
 
-    const char* lowerVal = outputQuantiles->GetValue( 0, lowerBnd + 1 ).ToString();
-    const char* upperVal = outputQuantiles->GetValue( 0, lowerBnd + 2 ).ToString();
+    const char* lowerVal = outputQuantiles2->GetValue( 0, lowerBnd + 1 ).ToString();
+    const char* upperVal = outputQuantiles2->GetValue( 0, lowerBnd + 2 ).ToString();
     char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
     histo100Repr[lowerBnd] = midVal;
 
@@ -486,9 +527,9 @@ int TestOrderStatistics( int, char *[] )
     }
 
   // Verify that we retrieve the total count
-  if ( sum100 != outputData->GetNumberOfRows() )
+  if ( sum100 != outputData2->GetNumberOfRows() )
     {
-    vtkGenericWarningMacro("Incorrect histogram count: " << sum100 << " != " << outputData->GetNumberOfRows() << ".");
+    vtkGenericWarningMacro("Incorrect histogram count: " << sum100 << " != " << outputData2->GetNumberOfRows() << ".");
     testStatus = 1;
     }
 
@@ -496,15 +537,16 @@ int TestOrderStatistics( int, char *[] )
   cout << "\n## Quantized text with "
        << histo100Text.size()
        << " quantizers based on "
-       << os->GetNumberOfIntervals()
+       << os2->GetNumberOfIntervals()
        << "-quantiles :\n   ";
-  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
-    cout << histo100Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    cout << histo100Repr[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
   cout << "\n";
 
-  os->Delete();
+  // Clean up
+  os2->Delete();
 
   return testStatus;
 }
