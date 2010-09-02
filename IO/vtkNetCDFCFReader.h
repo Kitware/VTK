@@ -212,10 +212,11 @@ protected:
   // Internal methods for setting rectilinear coordinates.
   void AddRectilinearCoordinates(vtkImageData *imageOutput);
   void AddRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
-  void AddRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
+  void Add1DRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
+  void Add2DRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
 
   // Description:
-  // Internal methods for setting spherical coordiantes.
+  // Internal methods for setting spherical coordinates.
   void Add1DSphericalCoordinates(vtkStructuredGrid *structOutput);
   void Add2DSphericalCoordinates(vtkStructuredGrid *structOutput);
 

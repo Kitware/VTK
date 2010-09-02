@@ -673,6 +673,30 @@ int vtkNetCDFCFReader::RequestDataObject(
         }
       }
 
+    // Check to see if using 2D coordinate bounds lookup.
+    if (this->FindDependentDimensionInfo(currentDimensions))
+      {
+      if (dataType == -1)
+        {
+        // Automatically choose structured grid.
+        dataType = VTK_STRUCTURED_GRID;
+        break;
+        }
+      else if (dataType == VTK_STRUCTURED_GRID)
+        {
+        // Verified that the data can correctly hold spherical coordinates.
+        break;
+        }
+      else
+        {
+        vtkWarningMacro(<< "You have set the OutputType to a data type that"
+                        << " cannot handle the multidimensional coordinate"
+                        << " data specified for the currently selected"
+                        << " variables.  This coordinate data will be"
+                        << " ignored.");
+        }
+      }
+
     // Check to see if any dimension has irregular spacing.
     for (int i = 0; i < currentNumDims; i++)
       {
@@ -796,7 +820,14 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
       }
     else
       {
-      this->AddRectilinearCoordinates(structOutput);
+      if (this->FindDependentDimensionInfo(this->LoadingDimensions))
+        {
+        this->Add2DRectilinearCoordinates(structOutput);
+        }
+      else
+        {
+        this->Add1DRectilinearCoordinates(structOutput);
+        }
       }
     }
 
@@ -872,7 +903,7 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFCFReader::AddRectilinearCoordinates(
+void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
                                             vtkStructuredGrid *structuredOutput)
 {
   int extent[6];
@@ -929,6 +960,64 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(
     }
 
   structuredOutput->SetPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
+                                                vtkStructuredGrid *structOutput)
+{
+  vtkDependentDimensionInfo *info
+    = this->FindDependentDimensionInfo(this->LoadingDimensions);
+
+  int extent[6];
+  structOutput->GetExtent(extent);
+
+  VTK_CREATE(vtkPoints, points);
+  points->SetDataTypeToDouble();
+  points->Allocate(  (extent[1]-extent[0]+1)
+                   * (extent[3]-extent[2]+1)
+                   * (extent[5]-extent[4]+1) );
+
+  vtkDoubleArray *longitudeCoordinates = info->GetLongitudeCoordinates();
+  vtkDoubleArray *latitudeCoordinates = info->GetLatitudeCoordinates();
+
+  vtkDoubleArray *verticalCoordinates = NULL;
+  if (this->LoadingDimensions->GetNumberOfTuples() == 3)
+    {
+    int vertDim = this->LoadingDimensions->GetValue(0);
+    if (info->GetHasBounds())
+      {
+      verticalCoordinates = this->GetDimensionInfo(vertDim)->GetBounds();
+      }
+    else
+      {
+      verticalCoordinates = this->GetDimensionInfo(vertDim)->GetCoordinates();
+      }
+    }
+
+  for (int k = extent[4]; k <= extent[5]; k++)
+    {
+    double h;
+    if (verticalCoordinates)
+      {
+      h = verticalCoordinates->GetValue(k);
+      }
+    else
+      {
+      h = 0.0;
+      }
+    for (int j = extent[2]; j <= extent[3]; j++)
+      {
+      for (int i = extent[0]; i <= extent[1]; i++)
+        {
+        double lon = longitudeCoordinates->GetComponent(j, i);
+        double lat = latitudeCoordinates->GetComponent(j, i);
+        points->InsertNextPoint(lon, lat, h);
+        }
+      }
+    }
+
+  structOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------
