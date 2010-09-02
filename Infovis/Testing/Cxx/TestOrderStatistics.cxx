@@ -143,8 +143,9 @@ int TestOrderStatistics( int, char *[] )
     os->AddColumn( columns[i] );
     }
 
-  // Test Learn only (Derive does not do anything for order statistics)
+  // Test Learn and Test options (Derive does not do anything for order statistics)
   os->SetLearnOption( true );
+  os->SetTestOption( true );
   os->SetAssessOption( false );
   os->Update();
 
@@ -161,6 +162,7 @@ int TestOrderStatistics( int, char *[] )
   // Get calculated model
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputTest = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition):\n";
   for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
@@ -180,6 +182,22 @@ int TestOrderStatistics( int, char *[] )
         testStatus = 1;
         }
       }
+    cout << "\n";
+    }
+
+  // Check some results of the Test option
+  cout << "\n## Calculated the following Kolmogorov-Smirnov statistics:\n";
+  for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputTest->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputTest->GetColumnName( i )
+           << "="
+           << outputTest->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
     cout << "\n";
     }
 
@@ -308,6 +326,7 @@ int TestOrderStatistics( int, char *[] )
   os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
   os->SetParameter( "NumberOfIntervals", 0, 12 );
   os->SetLearnOption( true );
+  os->SetTestOption( false );
   os->SetAssessOption( true );
   os->Update();
 
@@ -380,6 +399,7 @@ int TestOrderStatistics( int, char *[] )
   os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
   os->SetParameter( "NumberOfIntervals", 0, 100 );
   os->SetLearnOption( true );
+  os->SetTestOption( false );
   os->SetAssessOption( true );
   os->Update();
 
