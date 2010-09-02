@@ -247,8 +247,9 @@ int TestOrderStatistics( int, char *[] )
     ++ histoMetric[1][outputData->GetValueByName( r, "Quantile(Metric 1)" ).ToInt()];
     }
 
+  // Calculate quantile-based histogram
   int cpt[] = { 0, 0 };
-  cout << "\n## Calculated the following histograms:\n";
+  cout << "\n## Calculated the following histograms from quantiles:\n";
   for ( int i = 0; i < 2; ++ i )
     {
     cout << "   "
@@ -338,7 +339,7 @@ int TestOrderStatistics( int, char *[] )
        << text
        << "\n";
 
-  // Calculate histogram
+  // Calculate quantile-based histogram
   vtkstd::map<int,int> histo12Text;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
@@ -346,7 +347,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   int sum12 = 0;
-  cout << "\n## Calculated the following histogram with "
+  cout << "\n## Calculated the following histogram from "
        << os->GetNumberOfIntervals()
        << "-quantiles:\n";
 
@@ -411,7 +412,7 @@ int TestOrderStatistics( int, char *[] )
        << text
        << "\n";
 
-  // Calculate histogram
+  // Calculate quantile-based histogram
   vtkstd::map<int,int> histo100Text;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {

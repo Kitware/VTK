@@ -452,16 +452,16 @@ void vtkOrderStatistics::Test( vtkTable* inData,
         = cdfEmpirical.insert( vtksys_stl::pair<double,double>( quantiles[i], -1 ) );
       if ( result.second == true )
         {
-        CDF::iterator it = result.first;
+        CDF::iterator eit = result.first;
         // Check if new value has no predecessor, in which case CDF = 0
-        if ( it ==  cdfEmpirical.begin() )
+        if ( eit ==  cdfEmpirical.begin() )
           {
           result.first->second = 0.;
           }
         else
           {
-          -- it;
-          result.first->second = it->second;
+          -- eit;
+          result.first->second = eit->second;
           }
         }
       }
