@@ -343,7 +343,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   vtkIdType nRowData = inData->GetNumberOfRows();
   double inv_nq =  1. / nQuant;
   double inv_card = 1. / nRowData;
-  double sqrt_card = sqrt( nRowData );
+  double sqrt_card = sqrt( static_cast<double>( nRowData ) );
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
