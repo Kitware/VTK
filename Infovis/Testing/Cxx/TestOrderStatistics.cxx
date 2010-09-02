@@ -161,27 +161,43 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
   vtkTable* outputTest = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition):\n";
-  for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputQuantiles->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary->GetColumnName( i )
+      cout << outputQuantiles->GetColumnName( i )
            << "="
-           << outputPrimary->GetValue( r, i ).ToString()
+           << outputQuantiles->GetValue( r, i ).ToString()
            << "  ";
 
       // Verify some of the calculated primary statistics
-      if ( i && outputPrimary->GetValue( r, i ).ToDouble() - valsTest1[r * valsOffset + i] > 1.e-6 )
+      if ( i && outputQuantiles->GetValue( r, i ).ToDouble() - valsTest1[r * valsOffset + i] > 1.e-6 )
         {
         vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest1[r * valsOffset + i] << ".");
         testStatus = 1;
         }
       }
+    cout << "\n";
+    }
+
+  cout << "\n## Calculated the following histograms:\n";
+  for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputHistogram->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputHistogram->GetColumnName( i )
+           << "="
+           << outputHistogram->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
     cout << "\n";
     }
 
@@ -215,26 +231,42 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
   cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition:\n";
-  for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputQuantiles->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary->GetColumnName( i )
+      cout << outputQuantiles->GetColumnName( i )
            << "="
-           << outputPrimary->GetValue( r, i ).ToString()
+           << outputQuantiles->GetValue( r, i ).ToString()
            << "  ";
 
       // Verify some of the calculated primary statistics
-      if ( i && outputPrimary->GetValue( r, i ).ToDouble() - valsTest1[r * valsOffset + i] > 1.e-6 )
+      if ( i && outputQuantiles->GetValue( r, i ).ToDouble() - valsTest1[r * valsOffset + i] > 1.e-6 )
         {
         vtkGenericWarningMacro("Incorrect 5-points statistics: " << valsTest2[r * valsOffset + i] << ".");
         testStatus = 1;
         }
       }
+    cout << "\n";
+    }
+
+  cout << "\n## Calculated the following histograms:\n";
+  for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputHistogram->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputHistogram->GetColumnName( i )
+           << "="
+           << outputHistogram->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
     cout << "\n";
     }
 
@@ -260,9 +292,10 @@ int TestOrderStatistics( int, char *[] )
           it != histoMetric[i].end(); ++ it )
       {
       cpt[i] += it->second;
-      cout << "    "
+
+      cout << "   inter-quantile interval "
            << it->first
-           << " |-> "
+           << " with frequency "
            << it->second
            << "\n";
       }
@@ -282,17 +315,17 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
   cout << "## Calculated the following deciles with InverseCDF quantile definition:\n";
-  for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputQuantiles->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary->GetColumnName( i )
+      cout << outputQuantiles->GetColumnName( i )
            << "="
-           << outputPrimary->GetValue( r, i ).ToString()
+           << outputQuantiles->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";
@@ -333,7 +366,7 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
   cout << "## Input text (punctuation omitted):\n   "
        << text
@@ -359,8 +392,8 @@ int TestOrderStatistics( int, char *[] )
     int upperBnd = it->second;
     sum12 += upperBnd;
 
-    const char* lowerVal = outputPrimary->GetValue( 0, lowerBnd + 1 ).ToString();
-    const char* upperVal = outputPrimary->GetValue( 0, lowerBnd + 2 ).ToString();
+    const char* lowerVal = outputQuantiles->GetValue( 0, lowerBnd + 1 ).ToString();
+    const char* upperVal = outputQuantiles->GetValue( 0, lowerBnd + 2 ).ToString();
     char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
     histo12Repr[lowerBnd] = midVal;
 
@@ -392,9 +425,9 @@ int TestOrderStatistics( int, char *[] )
        << "-quantiles :\n   ";
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    cerr << histo12Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    cout << histo12Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
-  cerr << "\n";
+  cout << "\n";
 
   // Learn and Assess again but with with 100 intervals this time
   os->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
@@ -406,7 +439,7 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputPrimary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
   cout << "## Input text (punctuation omitted):\n   "
        << text
@@ -432,8 +465,8 @@ int TestOrderStatistics( int, char *[] )
     int upperBnd = it->second;
     sum100 += upperBnd;
 
-    const char* lowerVal = outputPrimary->GetValue( 0, lowerBnd + 1 ).ToString();
-    const char* upperVal = outputPrimary->GetValue( 0, lowerBnd + 2 ).ToString();
+    const char* lowerVal = outputQuantiles->GetValue( 0, lowerBnd + 1 ).ToString();
+    const char* upperVal = outputQuantiles->GetValue( 0, lowerBnd + 2 ).ToString();
     char midVal = ( *lowerVal + *upperVal + 1 ) / 2 ;
     histo100Repr[lowerBnd] = midVal;
 
@@ -465,9 +498,9 @@ int TestOrderStatistics( int, char *[] )
        << "-quantiles :\n   ";
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    cerr << histo100Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    cout << histo100Repr[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
     }
-  cerr << "\n";
+  cout << "\n";
 
   os->Delete();
 
