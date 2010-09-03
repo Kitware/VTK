@@ -209,7 +209,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    // An quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
+    // A quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
     vtkVariantArray* rowQuant = vtkVariantArray::New();
     rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
 
@@ -290,11 +290,18 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         ++ distr[sarr->GetValue( r )];
         }
 
+      // Store histogram and calculate quantiles at the same time
       vtkIdType sum = 0;
       vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
       for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = distr.begin();
             mit != distr.end(); ++ mit  )
         {
+        // First store histogram row
+        rowHisto->SetValue( 1, mit->first );
+        rowHisto->SetValue( 2, mit->second );
+        histoTab->InsertNextRow( rowHisto );
+
+        // Then calculate quantiles
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
           {
           rowQuant->SetValue( i ++, mit->first );

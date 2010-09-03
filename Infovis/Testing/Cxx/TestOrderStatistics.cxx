@@ -188,7 +188,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   cout << "\n## Calculated the following histograms:\n";
-  vtksys_stl::map<vtkStdString,vtkIdType> cpt1;
+  vtksys_stl::map<vtkStdString,vtkIdType> cpt0;
   for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -200,15 +200,15 @@ int TestOrderStatistics( int, char *[] )
            << "  ";
       }
 
-    cpt1[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
+    cpt0[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
       += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
 
     cout << "\n";
     }
 
   // Check whether total cardinalities are correct
-  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt1.begin();
-          it != cpt1.end(); ++ it )
+  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt0.begin();
+          it != cpt0.end(); ++ it )
     {
     if ( it->second != outputData->GetNumberOfRows() )
       {
@@ -286,7 +286,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   cout << "\n## Calculated the following histograms:\n";
-  vtksys_stl::map<vtkStdString,vtkIdType> cpt2;
+  vtksys_stl::map<vtkStdString,vtkIdType> cpt1;
   for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -298,15 +298,15 @@ int TestOrderStatistics( int, char *[] )
            << "  ";
       }
 
-    cpt2[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
+    cpt1[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
       += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
 
     cout << "\n";
     }
 
   // Check whether total cardinalities are correct
-  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt2.begin();
-          it != cpt2.end(); ++ it )
+  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt1.begin();
+          it != cpt1.end(); ++ it )
     {
     if ( it->second != outputData->GetNumberOfRows() )
       {
@@ -417,10 +417,45 @@ int TestOrderStatistics( int, char *[] )
   vtkTable* outputData2 = os2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 0 ) );
+  vtkTable* outputHistogram2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 1 ) );
 
   cout << "\n## Input text (punctuation omitted):\n   "
        << text
        << "\n";
+
+  cout << "\n## Calculated the following histogram:\n";
+  vtksys_stl::map<vtkStdString,vtkIdType> cpt2;
+  for ( vtkIdType r = 0; r < outputHistogram2->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputHistogram2->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputHistogram2->GetColumnName( i )
+           << "="
+           << outputHistogram2->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    cpt2[outputHistogram2->GetValueByName( r, "Variable" ).ToString()]
+      += outputHistogram2->GetValueByName( r, "Cardinality" ).ToInt();
+
+    cout << "\n";
+    }
+
+  // Check whether total cardinalities are correct
+  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt2.begin();
+          it != cpt2.end(); ++ it )
+    {
+    if ( it->second != outputData2->GetNumberOfRows() )
+      {
+      vtkGenericWarningMacro("Incorrect histogram count: "
+                             << it->second
+                             << " != "
+                             << outputData2->GetNumberOfRows()
+                             << ".");
+      testStatus = 1;
+      }
+    }
 
   // Calculate quantile-based histogram
   vtkstd::map<int,int> histo12Text;
