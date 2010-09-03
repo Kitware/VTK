@@ -355,14 +355,12 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     rowQuant->Delete();
     }
 
-  // Finally set first and second blocks of output meta port
-  outMeta->SetNumberOfBlocks( 3 );
+  // Finally set summary and histogram blocks of output meta port
+  outMeta->SetNumberOfBlocks( 2 );
   outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Summary" );
   outMeta->SetBlock( 0, summaryTab );
   outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Histogram" );
   outMeta->SetBlock( 1, histogramTab );
-  outMeta->GetMetaData( static_cast<unsigned>( 2 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
-  outMeta->SetBlock( 2, quantTab );
 
   // Clean up
   summaryTab->Delete();
@@ -529,22 +527,45 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Then calculate quantiles
     vtkIdType sum = 0;
     int j = 2;
+    bool midPt = ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps ? 1 : 0 );
     vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
     for ( vtksys_stl::map<vtkVariant,vtkIdType>::iterator nit = mit->second.begin();
           nit != mit->second.end(); ++ nit  )
       {
       for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
+      // Mid-point interpolation will make sense for types which can be cast to double only
+      if ( midPt && sum == *qit )
+        {
+        vtksys_stl::map<vtkVariant,vtkIdType>::iterator oit = nit;
+        vtkVariant v( ( (++ oit)->first.ToDouble() + nit->first.ToDouble() ) * .5 );
+        rowQuant->SetValue( j ++, v );
+        }
+      else
         {
         rowQuant->SetValue( j ++, nit->first );
         }
       } // nit
 
-    // Finally store quantiles for this variable
+    // Finally store quantiles for this variable after a last sanity check
+    if ( j != this->NumberOfIntervals + 2 )
+      {
+      vtkErrorMacro( "Inconsistent quantile table: calculated "
+                     << j - 1
+                     << " quantiles != "
+                     << this->NumberOfIntervals + 1
+                     <<". Cannot derive model." );
+      return;
+      }
+
     rowQuant->SetValue( j, mit->second.rbegin()->first );
     quantileTab->InsertNextRow( rowQuant );
     } // mit
 
-  quantileTab->Dump();
+  // Resize output meta so quantile table can be appended
+  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+  inMeta->SetNumberOfBlocks( nBlocks + 1 );
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
+  inMeta->SetBlock( nBlocks, quantileTab );
 
   // Clean up
   rowQuant->Delete();

@@ -143,8 +143,9 @@ int TestOrderStatistics( int, char *[] )
     os->AddColumn( columns[i] );
     }
 
-  // Test Learn and Test options (Derive does not do anything for order statistics)
+  // Test Learn, Derive, and Test options
   os->SetLearnOption( true );
+  os->SetDeriveOption( true );
   os->SetTestOption( true );
   os->SetAssessOption( false );
   os->Update();
@@ -255,9 +256,10 @@ int TestOrderStatistics( int, char *[] )
     os->AddColumn( columns[i] );
     }
 
-  // Test Learn and Test options with InverseCDF quantile definition
+  // Test Learn, Derive, and Test options with InverseCDF quantile definition
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
   os->SetLearnOption( true );
+  os->SetDeriveOption( true );
   os->SetTestOption( true );
   os->SetAssessOption( false );
   os->Update();
@@ -312,10 +314,9 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
-  // Test Learn option for deciles with InverseCDF quantile definition (as with Octave)
+  // Test Learn, Derive, and Test option for deciles with InverseCDF quantile definition (as with Octave)
   os->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   os->SetNumberOfIntervals( 10 );
-  os->SetAssessOption( false );
   os->Update();
 
   // Get calculated model
