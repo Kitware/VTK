@@ -161,6 +161,7 @@ extern const char *vtkGPUVolumeRayCastMapper_MinIPFourDependentNoCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_MinIPCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_MinIPNoCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_CompositeMaskFS;
+extern const char *vtkGPUVolumeRayCastMapper_CompositeBinaryMaskFS;
 extern const char *vtkGPUVolumeRayCastMapper_NoShadeFS;
 extern const char *vtkGPUVolumeRayCastMapper_ShadeFS;
 extern const char *vtkGPUVolumeRayCastMapper_OneComponentFS;
@@ -185,6 +186,7 @@ enum
   vtkOpenGLGPUVolumeRayCastMapperMethodMinIP,
   vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent,
   vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask,
+  vtkOpenGLGPUVolumeRayCastMapperMethodCompositeBinaryMask,
   vtkOpenGLGPUVolumeRayCastMapperMethodAdditive
 };
 
@@ -3184,7 +3186,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateColorTransferFunction(
     vtkgl::ActiveTexture( vtkgl::TEXTURE0);
     }
 
-  if(this->MaskInput!=0)
+  if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
     {
     vtkVolumeProperty *volumeProperty=vol->GetProperty();
     vtkColorTransferFunction *c=volumeProperty->GetRGBTransferFunction(1);
@@ -4026,7 +4028,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     this->RGBTable=new vtkRGBTable;
     }
 
-  if(this->MaskInput!=0)
+  if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
     {
     if(this->Mask1RGBTable==0)
       {
@@ -4130,10 +4132,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
           assert("check: impossible case" && false);
           break;
         }
-      if(this->MaskInput!=0)
+
+      // If we are using a mask to limit the volume rendering to or blend using a
+      // label map mask..
+      if (this->MaskInput != 0)
         {
-        rayCastMethod=
-          vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask;
+        if (this->MaskType == vtkGPUVolumeRayCastMapper::BinaryMaskType)
+          {
+          rayCastMethod
+            = vtkOpenGLGPUVolumeRayCastMapperMethodCompositeBinaryMask;
+          }
+        else if (this->MaskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+          {
+          rayCastMethod = vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask;
+          }
         }
       else
         {
@@ -4227,7 +4239,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     vtkgl::ActiveTexture(vtkgl::TEXTURE1);
     this->RGBTable->Bind();
 
-     if(this->MaskInput!=0)
+     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
        {
        vtkgl::ActiveTexture(vtkgl::TEXTURE8);
        this->Mask1RGBTable->Bind();
@@ -4253,7 +4265,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     ivalue=1;
     v->SetUniformi("colorTexture",1,&ivalue);
 
-    if(this->MaskInput!=0)
+    if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
       ivalue=8;
       v->SetUniformi("mask1ColorTexture",1,&ivalue);
@@ -6311,6 +6323,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
         break;
       case vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask:
         methodCode=vtkGPUVolumeRayCastMapper_CompositeMaskFS;
+        break;
+      case vtkOpenGLGPUVolumeRayCastMapperMethodCompositeBinaryMask:
+        methodCode=vtkGPUVolumeRayCastMapper_CompositeBinaryMaskFS;
         break;
       case vtkOpenGLGPUVolumeRayCastMapperMethodMinIP:
         methodCode=vtkGPUVolumeRayCastMapper_MinIPFS;

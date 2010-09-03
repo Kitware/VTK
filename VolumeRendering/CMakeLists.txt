@@ -102,6 +102,7 @@ set(KIT_GLSL_SRCS
   vtkGPUVolumeRayCastMapper_AdditiveNoCroppingFS
   vtkGPUVolumeRayCastMapper_CompositeFS
   vtkGPUVolumeRayCastMapper_CompositeMaskFS
+  vtkGPUVolumeRayCastMapper_CompositeBinaryMaskFS
   vtkGPUVolumeRayCastMapper_CompositeCroppingFS
   vtkGPUVolumeRayCastMapper_CompositeNoCroppingFS
   vtkGPUVolumeRayCastMapper_HeaderFS

@@ -17,6 +17,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestGPURayCastAdditive.cxx
       TestGPURayCastCompositeMaskBlend.cxx
       TestGPURayCastCompositeMask.cxx
+      TestGPURayCastCompositeBinaryMask.cxx
       TestGPURayCastCompositeShadeMask.cxx
       TestGPURayCastCompositeToMIP.cxx
       TestGPURayCastCropping.cxx
@@ -44,14 +45,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       )
   ENDIF (VTK_DATA_ROOT)
 
-# Force to not enable floating point exception as we hit some exception
-# inside the OpenGL driver at vtkgl::LinkProgram() (nVidia 185.18.36).
-set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN)
-set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "${CMAKE_TESTDRIVER_BEFORE_TESTMAIN}
+  # use the testing interactor.
+  INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+
+  # Force to not enable floating point exception as we hit some exception
+  # inside the OpenGL driver at vtkgl::LinkProgram() (nVidia 185.18.36).
+  set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "${CMAKE_TESTDRIVER_BEFORE_TESTMAIN}
     try {")
 
-  CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                         EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ${MyTestSupport} )
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkVolumeRendering)
   SET (TestsToRun ${Tests})
