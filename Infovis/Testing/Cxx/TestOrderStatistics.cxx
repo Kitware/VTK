@@ -162,8 +162,8 @@ int TestOrderStatistics( int, char *[] )
   // Get output data and meta tables
   vtkTable* outputData = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
   vtkTable* outputTest = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition):\n";
@@ -261,8 +261,8 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
   cout << "\n## Calculated the following 5-points statistics with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
@@ -343,7 +343,7 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
   cout << "\n## Calculated the following deciles with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
@@ -416,8 +416,8 @@ int TestOrderStatistics( int, char *[] )
   // Get output data and meta tables
   vtkTable* outputData2 = os2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 0 ) );
-  vtkTable* outputHistogram2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 1 ) );
+  vtkTable* outputHistogram2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 0 ) );
+  vtkTable* outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 1 ) );
 
   cout << "\n## Input text (punctuation omitted):\n   "
        << text
@@ -524,7 +524,7 @@ int TestOrderStatistics( int, char *[] )
 
   // Get calculated model
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
   cout << "\n## Input text (punctuation omitted):\n   "
        << text

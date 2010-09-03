@@ -128,7 +128,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
   vtkTable* quantTab = vtkTable::New();
 
   // The histogram table
-  vtkTable* histoTab = vtkTable::New();
+  vtkTable* primaryTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -142,17 +142,17 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
   stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  histoTab->AddColumn( stringCol );
+  primaryTab->AddColumn( stringCol );
   stringCol->Delete();
 
   vtkVariantArray* variantCol = vtkVariantArray::New();
   variantCol->SetName( "Value" );
-  histoTab->AddColumn( variantCol );
+  primaryTab->AddColumn( variantCol );
   variantCol->Delete();
 
   idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
-  histoTab->AddColumn( idTypeCol );
+  primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
@@ -255,7 +255,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         // First store histogram row
         rowHisto->SetValue( 1, mit->first );
         rowHisto->SetValue( 2, mit->second );
-        histoTab->InsertNextRow( rowHisto );
+        primaryTab->InsertNextRow( rowHisto );
 
         // Then calculate quantiles
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
@@ -299,7 +299,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         // First store histogram row
         rowHisto->SetValue( 1, mit->first );
         rowHisto->SetValue( 2, mit->second );
-        histoTab->InsertNextRow( rowHisto );
+        primaryTab->InsertNextRow( rowHisto );
 
         // Then calculate quantiles
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
@@ -325,22 +325,44 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
   // Finally set first and second blocks of output meta port to order statistics and histogram
   outMeta->SetNumberOfBlocks( 2 );
-  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
-  outMeta->SetBlock( 0, quantTab );
-  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Histogram" );
-  outMeta->SetBlock( 1, histoTab );
+  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
+  outMeta->SetBlock( 0, primaryTab );
+  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
+  outMeta->SetBlock( 1, quantTab );
 
   // Clean up
   quantTab->Delete();
-  histoTab->Delete();
+  primaryTab->Delete();
 
   return;
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* vtkNotUsed( inMeta ) )
+void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  // There are no derived statistics for this engine.
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
+    {
+    return;
+    }
+
+  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! primaryTab  )
+    {
+    return;
+    }
+
+  // Create table for derived statistics
+  vtkIdType nRow = primaryTab->GetNumberOfRows();
+  vtkTable* derivedTab = vtkTable::New();
+
+  // Iterate over rows of primary table
+  for ( int i = 0; i < nRow; ++ i )
+    {
+    // Do nothing for now
+    }
+
+  // Clean up
+  derivedTab->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -353,7 +375,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
   if ( ! quantTab )
     {
     return;
@@ -571,7 +593,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
   if ( ! quantTab )
     {
     return;
