@@ -432,21 +432,6 @@ int TestOrderStatistics( int, char *[] )
   for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator it = cpt2.begin();
           it != cpt2.end(); ++ it )
     {
-    if ( it->second != outputData->GetNumberOfRows() )
-      {
-      vtkGenericWarningMacro("Incorrect histogram count: "
-                             << it->second
-                             << " != "
-                             << outputData->GetNumberOfRows()
-                             << ".");
-      testStatus = 1;
-      }
-    }
-
-  // Check whether total cardinalities are correct
-  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator it = cpt2.begin();
-          it != cpt2.end(); ++ it )
-    {
     if ( it->second != outputData2->GetNumberOfRows() )
       {
       vtkGenericWarningMacro("Incorrect histogram count: "
