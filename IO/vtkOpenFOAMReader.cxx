@@ -5828,7 +5828,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     if (startFace < 0 || nFaces < 0)
       {
       vtkErrorMacro(<<"Neither of startFace " << startFace << " nor nFaces "
-          << nFaces << " can be nagative for patch " << beI.BoundaryName.c_str());
+          << nFaces << " can be negative for patch " << beI.BoundaryName.c_str());
       return NULL;
       }
     if (previousEndFace >= 0 && previousEndFace != startFace)

@@ -385,7 +385,7 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
     //                     this->InPD, this->OutPD, this->InPD,
     //                     this->InCellCount, this->OutCD);
     // Contour the voxel our self.
-    // Some voxels will be degenerate with points shared between corners.
+    // Some voxels will be degenerated with points shared between corners.
     // Appropriate faces will always line up. 
     vtkMarchingCubesTriangleCases *triCase;
     EDGE_LIST  *edge;

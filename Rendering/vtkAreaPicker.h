@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Perform pick operation in volume behind the given screen coordinates.
-  // Props intersecting the selection frustum will be accesible via GetProp3D.
+  // Props intersecting the selection frustum will be accessible via GetProp3D.
   // GetPlanes returns a vtkImplicitFunciton suitable for vtkExtractGeometry.
   virtual int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *renderer = NULL);
 

@@ -684,7 +684,7 @@ int main()
   int retVal = 0;
   if (result)
     {
-    // really shouldn't be calle dunless somehting else failed
+    // really shouldn't be called unless something else failed
     // just want to make the compiler think it might get called
     // all this will be yanked once I see the results of this test
     TestDriverDebugReport(0, "a temp test", &retVal);
