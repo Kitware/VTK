@@ -205,6 +205,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayIOTests ArrayIOCxxTests.cxx
     TestArraySerialization.cxx
+    TestArrayDenormalized.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )
 
