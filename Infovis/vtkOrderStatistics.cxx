@@ -347,7 +347,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     else // column is of type vtkVariantArray, which is not supported by this filter
       {
       vtkWarningMacro("Type vtkVariantArray of column "
-                      <<col.c_str()
+                      << col.c_str()
                       << " not supported. Ignoring it." );
       }
 

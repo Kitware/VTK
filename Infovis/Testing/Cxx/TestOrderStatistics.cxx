@@ -188,7 +188,7 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
-  cout << "\n## Calculated the following histograms:\n";
+  cout << "\n## Calculated the following histogram:\n";
 
   // Skip first row which contains data set cardinality
   vtkIdType key;
@@ -367,7 +367,7 @@ int TestOrderStatistics( int, char *[] )
   for ( vtksys_stl::vector<int>::size_type i = 0; i < textLength; ++ i )
     {
     char c = text.at(i);
-    textArr->InsertNextValue( &c );
+    textArr->InsertNextValue( vtkStdString( &c ) );
     }
 
   vtkTable* textTable = vtkTable::New();
@@ -401,7 +401,7 @@ int TestOrderStatistics( int, char *[] )
        << text
        << "\n";
 
-  cout << "\n## Calculated the following histograms:\n";
+  cout << "\n## Calculated the following histogram:\n";
 
   // Skip first row which contains data set cardinality
   vtksys_stl::map<vtkIdType,vtkIdType> cpt2;
