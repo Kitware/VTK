@@ -514,9 +514,9 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   vtkVariantArray* rowQuant = vtkVariantArray::New();
   rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
 
-  // Finally calculate quantiles and store them
+  // Finally calculate quantiles and store them iterating over variables
   vtkStdString col;
-  for ( vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkVariant,vtkIdType> >::iterator mit = marginalCounts.begin();
+  for ( vtksys_stl::map<vtkIdType,vtksys_stl::map<vtkVariant,vtkIdType> >::iterator mit = marginalCounts.begin();
         mit != marginalCounts.end(); ++ mit  )
     {
     // Get variable and name and set corresponding row value
@@ -527,16 +527,24 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     rowQuant->SetValue( 1, n );
 
     // Then calculate quantiles
-//     for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
-//       {
-//           rowQuant->SetValue( i ++, mit->first );
-//       }
+    vtkIdType sum = 0;
+    int j = 2;
+    vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
+    for ( vtksys_stl::map<vtkVariant,vtkIdType>::iterator nit = mit->second.begin();
+          nit != mit->second.end(); ++ nit  )
+      {
+      for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
+        {
+        rowQuant->SetValue( j ++, nit->first );
+        }
+      } // nit
 
-//     rowQuant->SetValue( i, distr.rbegin()->first );
+    // Finally store quantiles for this variable
+    rowQuant->SetValue( j, mit->second.rbegin()->first );
     quantileTab->InsertNextRow( rowQuant );
     } // mit
 
-  //quantileTab->Dump();
+  quantileTab->Dump();
 
   // Clean up
   rowQuant->Delete();
