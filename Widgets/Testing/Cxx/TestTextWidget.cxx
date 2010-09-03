@@ -33,7 +33,7 @@
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 
-int TestTextWidget( int argc, char *argv[] )
+int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //

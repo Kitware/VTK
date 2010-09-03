@@ -67,7 +67,7 @@ public:
 
 
 // The actual test function
-int TestSeedWidgetNonUniformRepresentations( int argc, char *argv[] )
+int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   VTK_CREATE( vtkSphereSource, ss );
   VTK_CREATE( vtkPolyDataMapper, mapper );

@@ -433,7 +433,7 @@ public:
 
 };
 
-int TestImplicitPlaneWidget( int argc, char *argv[] )
+int TestImplicitPlaneWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create a mace out of filters.
   //

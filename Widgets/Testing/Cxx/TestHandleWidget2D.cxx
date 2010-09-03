@@ -50,7 +50,7 @@ public:
   vtkActor2D *Actor;
 };
 
-int TestHandleWidget2D( int argc, char *argv[] )
+int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create two widgets
   //

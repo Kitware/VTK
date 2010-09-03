@@ -42,7 +42,7 @@ public:
 };
 
 
-int TestPlaybackWidget( int argc, char *argv[] )
+int TestPlaybackWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //

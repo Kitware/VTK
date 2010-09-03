@@ -56,7 +56,7 @@ public:
   vtkGlyph3D *Glyph;
 };
 
-int TestCenteredSliderWidget2D( int argc, char *argv[] )
+int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create a mace out of filters.
   vtkSmartPointer<vtkSphereSource> sphereSource =

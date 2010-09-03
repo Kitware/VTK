@@ -516,7 +516,7 @@ public:
   vtkGlyph3D *Glyph;
 };
 
-int TestSliderWidget( int argc, char *argv[] )
+int TestSliderWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create a mace out of filters.
   //

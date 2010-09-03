@@ -29,7 +29,7 @@
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 
-int TestCameraWidget( int argc, char *argv[] )
+int TestCameraWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //

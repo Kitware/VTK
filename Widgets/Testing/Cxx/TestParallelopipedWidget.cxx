@@ -34,7 +34,7 @@
 #include "vtkCubeAxesActor2D.h"
 
 //----------------------------------------------------------------------------
-int TestParallelopipedWidget( int argc, char *argv[] )
+int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();

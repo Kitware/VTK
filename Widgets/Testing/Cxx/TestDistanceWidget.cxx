@@ -890,7 +890,7 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 }
 
 // The actual test function
-int TestDistanceWidget( int argc, char *argv[] )
+int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //

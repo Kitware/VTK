@@ -466,7 +466,7 @@ public:
 
 
 // The actual test function
-int TestSeedWidget( int argc, char *argv[] )
+int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
