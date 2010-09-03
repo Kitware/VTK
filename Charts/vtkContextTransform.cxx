@@ -84,6 +84,14 @@ bool vtkContextTransform::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
+vtkAbstractContextItem* vtkContextTransform::GetPickedItem(const vtkContextMouseEvent &mouse)
+{
+  vtkContextMouseEvent event = mouse;
+  this->TransformMouse(mouse, event);
+  return this->Superclass::GetPickedItem(event);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkContextTransform::MouseEnterEvent(const vtkContextMouseEvent &mouse)
 {
   vtkContextMouseEvent event = mouse;

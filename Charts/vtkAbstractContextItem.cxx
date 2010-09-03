@@ -21,7 +21,8 @@
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
   this->Scene = NULL;
-  this->Children = new vtkContextScenePrivate;
+  this->Parent = NULL;
+  this->Children = new vtkContextScenePrivate(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -192,6 +193,21 @@ bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &mouse,
 }
 
 // ----------------------------------------------------------------------------
+vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(const vtkContextMouseEvent &mouse)
+{
+  for (int i = this->Children->size()-1; i >= 0; --i)
+    {
+    vtkAbstractContextItem* item = (*this->Children)[i]->GetPickedItem(mouse);
+    if (item)
+      {
+      return item;
+      }
+    }
+
+  return this->Hit(mouse) ? this : NULL;
+}
+
+// ----------------------------------------------------------------------------
 void vtkAbstractContextItem::ReleaseGraphicsResources()
 {
   for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
@@ -206,6 +222,12 @@ void vtkAbstractContextItem::SetScene(vtkContextScene* scene)
 {
   this->Scene = scene;
   this->Children->SetScene(scene);
+}
+
+// ----------------------------------------------------------------------------
+void vtkAbstractContextItem::SetParent(vtkAbstractContextItem* parent)
+{
+  this->Parent = parent;
 }
 
 //-----------------------------------------------------------------------------

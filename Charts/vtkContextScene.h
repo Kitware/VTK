@@ -209,11 +209,17 @@ protected:
   // Description:
   // Test if BufferId is supported by the OpenGL context.
   void TestBufferIdSupport();
+
   // Description:
   // Return the item id under mouse cursor at position (x,y).
   // Return -1 if there is no item under the mouse cursor.
   // \post valid_result: result>=-1 && result<this->GetNumberOfItems()
   vtkIdType GetPickedItem(int x, int y);
+
+  // Description:
+  // Return the item under the mouse.
+  // If no item is under the mouse, the method returns a null pointer.
+  vtkAbstractContextItem* GetPickedItem();
 
   // Description:
   // Make sure the buffer id used for picking is up-to-date.

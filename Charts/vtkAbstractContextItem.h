@@ -93,6 +93,11 @@ public:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Return the item under the mouse.
+  // If no item is under the mouse, the method returns a null pointer.
+  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
+
+  // Description:
   // Mouse enter event.
   // Return true if the item holds the event, false if the event can be
   // propagated to other items.
@@ -140,6 +145,19 @@ public:
     return this->Scene;
     }
 
+  // Description:
+  // Set the parent item. The parent will be set for all items except top
+  // level items in a scene.
+  virtual void SetParent(vtkAbstractContextItem *parent);
+
+  // Description:
+  // Get the parent item. The parent will be set for all items except top
+  // level items in a tree.
+  vtkAbstractContextItem* GetParent()
+    {
+    return this->Parent;
+    }
+
 //BTX
 protected:
   vtkAbstractContextItem();
@@ -148,6 +166,10 @@ protected:
   // Description:
   // Point to the scene the item is on - can be null.
   vtkContextScene* Scene;
+
+  // Description:
+  // Point to the parent item - can be null.
+  vtkAbstractContextItem* Parent;
 
   // Description:
   // This structure provides a list of children, along with convenience

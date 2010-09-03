@@ -72,6 +72,11 @@ public:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Return the item under the mouse.
+  // If no item is under the mouse, the method returns a null pointer.
+  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
+
+  // Description:
   // Mouse enter event.
   // Return true if the item holds the event, false if the event can be
   // propagated to other items.
