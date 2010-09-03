@@ -161,9 +161,10 @@ int TestOrderStatistics( int, char *[] )
 
   // Get output data and meta tables
   vtkTable* outputData = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputSummary = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
+  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 1 ) );
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( 2 ) );
   vtkTable* outputTest = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition):\n";
@@ -188,27 +189,36 @@ int TestOrderStatistics( int, char *[] )
     }
 
   cout << "\n## Calculated the following histograms:\n";
-  vtksys_stl::map<vtkStdString,vtkIdType> cpt0;
-  for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
+
+  // Skip first row which contains data set cardinality
+  vtkIdType key;
+  vtksys_stl::map<vtkIdType,vtkIdType> cpt1;
+  for ( vtkIdType r = 1; r < outputHistogram->GetNumberOfRows(); ++ r )
     {
-    cout << "   ";
-    for ( int i = 0; i < outputHistogram->GetNumberOfColumns(); ++ i )
+    key = outputHistogram->GetValue( r, 0 ).ToInt();
+    cout << "   "
+         << outputSummary->GetValue( key, 0 ).ToString()
+         << " = "
+         << outputHistogram->GetValue( r, 1 ).ToString();
+
+    for ( vtkIdType c = 2; c < outputHistogram->GetNumberOfColumns(); ++ c )
       {
-      cout << outputHistogram->GetColumnName( i )
+      cout << ", "
+           << outputHistogram->GetColumnName( c )
            << "="
-           << outputHistogram->GetValue( r, i ).ToString()
-           << "  ";
+           << outputHistogram->GetValue( r, c ).ToDouble();
       }
 
-    cpt0[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
-      += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
-
     cout << "\n";
+
+    // Update total cardinality
+    cpt1[outputHistogram->GetValueByName( r, "Key" ).ToInt()]
+      += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
     }
 
   // Check whether total cardinalities are correct
-  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt0.begin();
-          it != cpt0.end(); ++ it )
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator it = cpt1.begin();
+          it != cpt1.end(); ++ it )
     {
     if ( it->second != outputData->GetNumberOfRows() )
       {
@@ -260,9 +270,10 @@ int TestOrderStatistics( int, char *[] )
     };
 
   // Get calculated model
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  outputModelDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputSummary = vtkTable::SafeDownCast( outputModelDS->GetBlock( 0 ) );
+  outputHistogram = vtkTable::SafeDownCast( outputModelDS->GetBlock( 1 ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( 2 ) );
 
   cout << "\n## Calculated the following 5-points statistics with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
@@ -283,40 +294,6 @@ int TestOrderStatistics( int, char *[] )
         }
       }
     cout << "\n";
-    }
-
-  cout << "\n## Calculated the following histograms:\n";
-  vtksys_stl::map<vtkStdString,vtkIdType> cpt1;
-  for ( vtkIdType r = 0; r < outputHistogram->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputHistogram->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputHistogram->GetColumnName( i )
-           << "="
-           << outputHistogram->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
-    cpt1[outputHistogram->GetValueByName( r, "Variable" ).ToString()]
-      += outputHistogram->GetValueByName( r, "Cardinality" ).ToInt();
-
-    cout << "\n";
-    }
-
-  // Check whether total cardinalities are correct
-  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt1.begin();
-          it != cpt1.end(); ++ it )
-    {
-    if ( it->second != outputData->GetNumberOfRows() )
-      {
-      vtkGenericWarningMacro("Incorrect histogram count: "
-                             << it->second
-                             << " != "
-                             << outputData->GetNumberOfRows()
-                             << ".");
-      testStatus = 1;
-      }
     }
 
   // Check some results of the Test option
@@ -342,8 +319,8 @@ int TestOrderStatistics( int, char *[] )
   os->Update();
 
   // Get calculated model
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  outputModelDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputQuantiles = vtkTable::SafeDownCast( outputModelDS->GetBlock( 2 ) );
 
   cout << "\n## Calculated the following deciles with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
@@ -415,35 +392,59 @@ int TestOrderStatistics( int, char *[] )
 
   // Get output data and meta tables
   vtkTable* outputData2 = os2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
-  vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputHistogram2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 0 ) );
-  vtkTable* outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS2->GetBlock( 1 ) );
+  vtkMultiBlockDataSet* outputModelDS2 = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputSummary2 = vtkTable::SafeDownCast( outputModelDS2->GetBlock( 0 ) );
+  vtkTable* outputHistogram2 = vtkTable::SafeDownCast( outputModelDS2->GetBlock( 1 ) );
+  vtkTable* outputQuantiles2 = vtkTable::SafeDownCast( outputModelDS2->GetBlock( 2 ) );
 
   cout << "\n## Input text (punctuation omitted):\n   "
        << text
        << "\n";
 
-  cout << "\n## Calculated the following histogram:\n";
-  vtksys_stl::map<vtkStdString,vtkIdType> cpt2;
-  for ( vtkIdType r = 0; r < outputHistogram2->GetNumberOfRows(); ++ r )
+  cout << "\n## Calculated the following histograms:\n";
+
+  // Skip first row which contains data set cardinality
+  vtksys_stl::map<vtkIdType,vtkIdType> cpt2;
+  for ( vtkIdType r = 1; r < outputHistogram2->GetNumberOfRows(); ++ r )
     {
-    cout << "   ";
-    for ( int i = 0; i < outputHistogram2->GetNumberOfColumns(); ++ i )
+    key = outputHistogram2->GetValue( r, 0 ).ToInt();
+    cout << "   "
+         << outputSummary2->GetValue( key, 0 ).ToString()
+         << " = "
+         << outputHistogram2->GetValue( r, 1 ).ToString();
+
+    for ( vtkIdType c = 2; c < outputHistogram2->GetNumberOfColumns(); ++ c )
       {
-      cout << outputHistogram2->GetColumnName( i )
+      cout << ", "
+           << outputHistogram2->GetColumnName( c )
            << "="
-           << outputHistogram2->GetValue( r, i ).ToString()
-           << "  ";
+           << outputHistogram2->GetValue( r, c ).ToString();
       }
 
-    cpt2[outputHistogram2->GetValueByName( r, "Variable" ).ToString()]
-      += outputHistogram2->GetValueByName( r, "Cardinality" ).ToInt();
-
     cout << "\n";
+
+    // Update total cardinality
+    cpt2[outputHistogram2->GetValueByName( r, "Key" ).ToInt()]
+      += outputHistogram2->GetValueByName( r, "Cardinality" ).ToInt();
     }
 
   // Check whether total cardinalities are correct
-  for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator it = cpt2.begin();
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator it = cpt2.begin();
+          it != cpt2.end(); ++ it )
+    {
+    if ( it->second != outputData->GetNumberOfRows() )
+      {
+      vtkGenericWarningMacro("Incorrect histogram count: "
+                             << it->second
+                             << " != "
+                             << outputData->GetNumberOfRows()
+                             << ".");
+      testStatus = 1;
+      }
+    }
+
+  // Check whether total cardinalities are correct
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator it = cpt2.begin();
           it != cpt2.end(); ++ it )
     {
     if ( it->second != outputData2->GetNumberOfRows() )
@@ -523,8 +524,8 @@ int TestOrderStatistics( int, char *[] )
   os2->Update();
 
   // Get calculated model
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputQuantiles2 = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
+  outputModelDS = vtkMultiBlockDataSet::SafeDownCast( os2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputQuantiles2 = vtkTable::SafeDownCast( outputModelDS->GetBlock( 2 ) );
 
   cout << "\n## Input text (punctuation omitted):\n   "
        << text

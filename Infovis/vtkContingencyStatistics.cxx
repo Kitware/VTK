@@ -131,7 +131,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   contingencyTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
-  // Row to be used to insert into summary and table
+  // Row to be used to insert into summary table
   vtkVariantArray* row2 = vtkVariantArray::New();
   row2->SetNumberOfValues( 2 );
 
@@ -147,7 +147,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   // by the user).
   vtkStdString zString = vtkStdString( "" );
   row4->SetValue( 0, -1 );
-  row4->SetValue( 1,  zString );
+  row4->SetValue( 1, zString );
   row4->SetValue( 2, zString );
   row4->SetValue( 3, -1 );
   contingencyTab->InsertNextRow( row4 );
@@ -212,7 +212,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       }
     }
 
-  // Finally set blocks of the output meta information
+  // Finally set blocks of the output meta port
   outMeta->SetNumberOfBlocks( 2 );
   outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Summary" );
   outMeta->SetBlock( 0, summaryTab );
@@ -221,8 +221,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 
   // Clean up
   summaryTab->Delete();
-  row2->Delete();
   contingencyTab->Delete();
+  row2->Delete();
   row4->Delete();
 }
 

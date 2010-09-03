@@ -124,35 +124,63 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // The quantiles table
-  vtkTable* quantTab = vtkTable::New();
-
-  // The histogram table
-  vtkTable* primaryTab = vtkTable::New();
+  // Summary table: assigns a unique key to each variable
+  vtkTable* summaryTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  quantTab->AddColumn( stringCol );
+  summaryTab->AddColumn( stringCol );
   stringCol->Delete();
+
+  // The actual histogram table, indexed by the key of the summary
+  vtkTable* histogramTab = vtkTable::New();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Cardinality" );
-  quantTab->AddColumn( idTypeCol );
+  idTypeCol->SetName( "Key" );
+  histogramTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
-
-  stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
-  primaryTab->AddColumn( stringCol );
-  stringCol->Delete();
 
   vtkVariantArray* variantCol = vtkVariantArray::New();
   variantCol->SetName( "Value" );
-  primaryTab->AddColumn( variantCol );
+  histogramTab->AddColumn( variantCol );
   variantCol->Delete();
 
   idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
-  primaryTab->AddColumn( idTypeCol );
+  histogramTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  // Row to be used to insert into summary table
+  vtkVariantArray* row1 = vtkVariantArray::New();
+  row1->SetNumberOfValues( 1 );
+
+  // Row to be used to insert into histogram table
+  vtkVariantArray* row3 = vtkVariantArray::New();
+  row3->SetNumberOfValues( 3 );
+
+  // Insert first row which will always contain the data set cardinality, with key -1
+  // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
+  // learn mode to make it clear that it is not a correct value. This is an issue of database
+  // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
+  // when the input meta table is calculated by something else than the learn mode (e.g., is specified
+  // by the user).
+  vtkStdString zString = vtkStdString( "" );
+  row3->SetValue( 0, -1 );
+  row3->SetValue( 1, zString );
+  row3->SetValue( 2, -1 );
+  histogramTab->InsertNextRow( row3 );
+
+  // The quantiles table
+  vtkTable* quantTab = vtkTable::New();
+
+  stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  quantTab->AddColumn( stringCol );
+  stringCol->Delete();
+
+  idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  quantTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
@@ -209,17 +237,20 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       continue;
       }
 
+    // Create entry in summary for variable col and set its index to be the key
+    // for values of col in the histogram table
+    row1->SetValue( 0, col );
+
+    row3->SetValue( 0, summaryTab->GetNumberOfRows() );
+
+    summaryTab->InsertNextRow( row1 );
+
     // A quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
     vtkVariantArray* rowQuant = vtkVariantArray::New();
     rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
 
-    // A histogram row contains: variable name, variable value, and cardinality thereof
-    vtkVariantArray* rowHisto = vtkVariantArray::New();
-    rowHisto->SetNumberOfValues( 3 );
-
     // Set known row values
     int i = 0;
-    rowHisto->SetValue( i, col );
     rowQuant->SetValue( i ++, col );
     rowQuant->SetValue( i ++, nRow );
 
@@ -253,9 +284,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
             mit != distr.end(); ++ mit  )
         {
         // First store histogram row
-        rowHisto->SetValue( 1, mit->first );
-        rowHisto->SetValue( 2, mit->second );
-        primaryTab->InsertNextRow( rowHisto );
+        row3->SetValue( 1, mit->first );
+        row3->SetValue( 2, mit->second );
+
+        histogramTab->InsertNextRow( row3 );
 
         // Then calculate quantiles
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
@@ -297,9 +329,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
             mit != distr.end(); ++ mit  )
         {
         // First store histogram row
-        rowHisto->SetValue( 1, mit->first );
-        rowHisto->SetValue( 2, mit->second );
-        primaryTab->InsertNextRow( rowHisto );
+        row3->SetValue( 1, mit->first );
+        row3->SetValue( 2, mit->second );
+
+        histogramTab->InsertNextRow( row3 );
 
         // Then calculate quantiles
         for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
@@ -320,19 +353,23 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
     // Clean up
     rowQuant->Delete();
-    rowHisto->Delete();
     }
 
-  // Finally set first and second blocks of output meta port to order statistics and histogram
-  outMeta->SetNumberOfBlocks( 2 );
-  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
-  outMeta->SetBlock( 0, primaryTab );
-  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
-  outMeta->SetBlock( 1, quantTab );
+  // Finally set first and second blocks of output meta port
+  outMeta->SetNumberOfBlocks( 3 );
+  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Summary" );
+  outMeta->SetBlock( 0, summaryTab );
+  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Histogram" );
+  outMeta->SetBlock( 1, histogramTab );
+  outMeta->GetMetaData( static_cast<unsigned>( 2 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
+  outMeta->SetBlock( 2, quantTab );
 
   // Clean up
+  summaryTab->Delete();
+  histogramTab->Delete();
+  row1->Delete();
+  row3->Delete();
   quantTab->Delete();
-  primaryTab->Delete();
 
   return;
 }
@@ -340,19 +377,25 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 1 )
+  if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
     }
 
-  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-  if ( ! primaryTab  )
+  vtkTable* summaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! summaryTab  )
+    {
+    return;
+    }
+
+  vtkTable* histogramTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  if ( ! histogramTab  )
     {
     return;
     }
 
   // Create table for derived statistics
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
+  vtkIdType nRow = histogramTab->GetNumberOfRows();
   vtkTable* derivedTab = vtkTable::New();
 
   // Iterate over rows of primary table
@@ -375,7 +418,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
   if ( ! quantTab )
     {
     return;
@@ -593,7 +636,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
+  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
   if ( ! quantTab )
     {
     return;
