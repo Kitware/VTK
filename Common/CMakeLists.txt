@@ -495,6 +495,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkABI.h
     vtkArrayIteratorTemplate.h
     vtkDataArrayTemplate.h
+    vtkDenseArray.h
     vtkIOStream.h
     vtkIOStreamFwd.h
     vtkSetGet.h
@@ -502,8 +503,12 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkSystemIncludes.h
     vtkTemplateAliasMacro.h
     vtkType.h
+    vtkTypedArray.h
+    vtkTypeTemplate.h
     vtkTypeTraits.h
+    vtkVariantCast.h
     vtkVariantInlineOperators.h
+    vtkVariantCreate.h
     vtkWeakPointer.h
     vtkWin32Header.h
     vtkWindows.h
@@ -542,6 +547,8 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkArrayIteratorTemplateImplicit.txx
     vtkDataArrayTemplate.txx
     vtkDataArrayTemplateImplicit.txx
+    vtkDenseArray.txx
+    vtkTypedArray.txx
     ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkTestUtilities.h)
 
   INSTALL(FILES ${__inst_files}
