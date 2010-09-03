@@ -237,6 +237,14 @@ int TestOrderStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Select Columns of Interest (no more bogus columns)
+  os->ResetAllColumnStates();
+  os->ResetRequests();
+  for ( int i = 0; i< nMetrics; ++ i )
+    {  // Try to add all valid indices once more
+    os->AddColumn( columns[i] );
+    }
+
   // Test Learn and Test options with InverseCDF quantile definition
   os->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
   os->SetLearnOption( true );
@@ -256,7 +264,7 @@ int TestOrderStatistics( int, char *[] )
   outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
 
-  cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition:\n";
+  cout << "\n## Calculated the following 5-points statistics with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -337,7 +345,7 @@ int TestOrderStatistics( int, char *[] )
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
 
-  cout << "## Calculated the following deciles with InverseCDF quantile definition:\n";
+  cout << "\n## Calculated the following deciles with InverseCDF quantile definition:\n";
   for ( vtkIdType r = 0; r < outputQuantiles->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
@@ -394,7 +402,6 @@ int TestOrderStatistics( int, char *[] )
 
   os2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
-  os2->ResetAllColumnStates(); // Clear list of columns of interest
   os2->AddColumn( "Text" ); // Add column of interest
   os2->RequestSelectedColumns();
 
