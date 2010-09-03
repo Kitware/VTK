@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
 
+typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<double,double> CDF;
 
 vtkStandardNewMacro(vtkOrderStatistics);
@@ -394,18 +395,130 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  // Create table for derived statistics
-  vtkIdType nRow = histogramTab->GetNumberOfRows();
-  vtkTable* derivedTab = vtkTable::New();
+  // Create quantiles table
+  vtkTable* quantileTab = vtkTable::New();
 
-  // Iterate over rows of primary table
-  for ( int i = 0; i < nRow; ++ i )
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  quantileTab->AddColumn( stringCol );
+  stringCol->Delete();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  quantileTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  double dq = 1. / static_cast<double>( this->NumberOfIntervals );
+  for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
     {
-    // Do nothing for now
+    vtkVariantArray* variantCol = vtkVariantArray::New();
+
+    // Handle special case of quartiles and median for convenience
+    div_t q = div( i << 2, this->NumberOfIntervals );
+    if ( q.rem )
+      {
+      // General case
+      variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+      }
+    else
+      {
+      // Case where q is a multiple of 4
+      switch ( q.quot )
+        {
+        case 0:
+          variantCol->SetName( "Minimum" );
+          break;
+        case 1:
+          variantCol->SetName( "First Quartile" );
+          break;
+        case 2:
+          variantCol->SetName( "Median" );
+          break;
+        case 3:
+          variantCol->SetName( "Third Quartile" );
+          break;
+        case 4:
+          variantCol->SetName( "Maximum" );
+          break;
+        default:
+          variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+          break;
+        }
+      }
+    quantileTab->AddColumn( variantCol );
+    variantCol->Delete();
     }
 
+  // Downcast columns to string arrays for efficient data access
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable" ) );
+
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Key" ) );
+  vtkStringArray* vals = vtkStringArray::SafeDownCast( histogramTab->GetColumnByName( "Value" ) );
+  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
+
+  // A quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
+  vtkVariantArray* rowQuant = vtkVariantArray::New();
+  rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
+
+  // Temporary counters, used to check that all variables have indeed the same number of observations
+  vtksys_stl::map<vtkIdType,vtkIdType> cardinality;
+
+  // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
+  vtksys_stl::map<vtkStdString,vtksys_stl::pair<vtkStdString,vtkStdString> > marginalToPair;
+  vtksys_stl::map<vtkStdString,Counts> marginalCounts;
+  vtkStdString x, col;
+  vtkIdType key, c;
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  vtkIdType nRowCont = histogramTab->GetNumberOfRows();
+  for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+    {
+    // Find the variable to which the key corresponds
+    key = keys->GetValue( r );
+
+    if ( key < 0 || key >= nRowSumm )
+      {
+      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
+                     <<  key
+                     <<". Cannot derive model." );
+      return;
+      }
+
+    // Get variable and name and set corresponding row value
+    col = vars->GetValue( key );
+    rowQuant->SetValue( 0, col );
+
+
+//    x = vals->GetValue( r );
+    c = card->GetValue( r );
+    cardinality[key] += c;
+
+    }
+
+  // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
+  // have the same cardinality.
+  vtkIdType n = cardinality[0];
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
+        iit != cardinality.end(); ++ iit )
+    {
+    if ( iit->second != n )
+      {
+      vtkErrorMacro( "Inconsistent input: variables do not have equal cardinalities: "
+                     << iit->first
+                     << " != "
+                     << n
+                     <<". Cannot derive model." );
+      return;
+      }
+    }
+
+  // We have a unique value for the cardinality and can henceforth proceed
+  histogramTab->SetValueByName( 0, "Cardinality", n );
+
+  histogramTab->Dump();
+
   // Clean up
-  derivedTab->Delete();
+  rowQuant->Delete();
+  quantileTab->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -418,8 +531,8 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     return;
     }
 
-  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
-  if ( ! quantTab )
+  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
+  if ( ! quantileTab )
     {
     return;
     }
@@ -445,14 +558,14 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   statCol->SetName( "Kolomogorov-Smirnov" );
 
   // Downcast columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( quantTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( quantileTab->GetColumnByName( "Variable" ) );
 
   // Prepare storage for quantiles and model CDFs
-  vtkIdType nQuant = quantTab->GetNumberOfColumns() - 2;
+  vtkIdType nQuant = quantileTab->GetNumberOfColumns() - 2;
   double* quantiles = new double[nQuant];
 
   // Loop over requests
-  vtkIdType nRowQuant = quantTab->GetNumberOfRows();
+  vtkIdType nRowQuant = quantileTab->GetNumberOfRows();
   vtkIdType nRowData = inData->GetNumberOfRows();
   double inv_nq =  1. / nQuant;
   double inv_card = 1. / nRowData;
@@ -517,7 +630,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     for ( vtkIdType i = 0; i < nQuant; ++ i )
       {
       // Read quantile and update CDF
-      quantiles[i] = quantTab->GetValue( r, i + 2 ).ToDouble();
+      quantiles[i] = quantileTab->GetValue( r, i + 2 ).ToDouble();
 
       // Update empirical CDF if new value found (with unknown ECDF)
       vtksys_stl::pair<CDF::iterator,bool> result
@@ -636,8 +749,8 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  vtkTable* quantTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
-  if ( ! quantTab )
+  vtkTable* quantileTab = vtkTable::SafeDownCast( inMeta->GetBlock( 2 ) );
+  if ( ! quantileTab )
     {
     return;
     }
@@ -645,7 +758,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( quantTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( quantileTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     dfunc = 0;
@@ -653,7 +766,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     }
 
   // Loop over parameters table until the requested variable is found
-  vtkIdType nRowP = quantTab->GetNumberOfRows();
+  vtkIdType nRowP = quantileTab->GetNumberOfRows();
   for ( int r = 0; r < nRowP; ++ r )
     {
     if ( vars->GetValue( r ) == varName )
@@ -666,7 +779,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      dfunc = new TableColumnBucketingFunctor( vals, quantTab->GetRow( r ) );
+      dfunc = new TableColumnBucketingFunctor( vals, quantileTab->GetRow( r ) );
       return;
       }
     }
