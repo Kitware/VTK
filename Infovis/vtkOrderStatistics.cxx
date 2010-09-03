@@ -38,7 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
 
-typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<double,double> CDF;
 
 vtkStandardNewMacro(vtkOrderStatistics);
@@ -449,27 +448,19 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     variantCol->Delete();
     }
 
-  // Downcast columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable" ) );
+  // Downcast columns to typed arrays for efficient data access
+  vtkStringArray*  vars = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable" ) );
+  vtkIdTypeArray*  keys = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Key" ) );
+  vtkVariantArray* vals = vtkVariantArray::SafeDownCast( histogramTab->GetColumnByName( "Value" ) );
+  vtkIdTypeArray*  card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
 
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Key" ) );
-  vtkStringArray* vals = vtkStringArray::SafeDownCast( histogramTab->GetColumnByName( "Value" ) );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
-
-  // A quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
-  vtkVariantArray* rowQuant = vtkVariantArray::New();
-  rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
-
-  // Temporary counters, used to check that all variables have indeed the same number of observations
-  vtksys_stl::map<vtkIdType,vtkIdType> cardinality;
-
-  // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
-  vtksys_stl::map<vtkStdString,vtksys_stl::pair<vtkStdString,vtkStdString> > marginalToPair;
-  vtksys_stl::map<vtkStdString,Counts> marginalCounts;
-  vtkStdString x, col;
+  // Calculate variable cardinalities (which must all be indentical) and value marginal counts
+  vtksys_stl::map<vtkIdType,vtkIdType> cardinalities;
+  vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkVariant,vtkIdType> >marginalCounts;
   vtkIdType key, c;
-  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
+  vtkVariant x;
   vtkIdType nRowCont = histogramTab->GetNumberOfRows();
+  vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
     // Find the variable to which the key corresponds
@@ -483,27 +474,24 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       return;
       }
 
-    // Get variable and name and set corresponding row value
-    col = vars->GetValue( key );
-    rowQuant->SetValue( 0, col );
-
-
-//    x = vals->GetValue( r );
+    // Update cardinalities and marginal counts
+    x = vals->GetValue( r );
     c = card->GetValue( r );
-    cardinality[key] += c;
-
+    cardinalities[key] += c;
+    // It is assumed that the histogram be consistent (no repeated values for a given variable)
+    marginalCounts[key][x] = c;
     }
 
   // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
   // have the same cardinality.
-  vtkIdType n = cardinality[0];
-  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
-        iit != cardinality.end(); ++ iit )
+  vtkIdType n = cardinalities[0];
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator cit = cardinalities.begin();
+        cit != cardinalities.end(); ++ cit )
     {
-    if ( iit->second != n )
+    if ( cit->second != n )
       {
       vtkErrorMacro( "Inconsistent input: variables do not have equal cardinalities: "
-                     << iit->first
+                     << cit->first
                      << " != "
                      << n
                      <<". Cannot derive model." );
@@ -514,7 +502,41 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // We have a unique value for the cardinality and can henceforth proceed
   histogramTab->SetValueByName( 0, "Cardinality", n );
 
-  histogramTab->Dump();
+  // Now calculate and store quantile thresholds
+  vtksys_stl::vector<double> quantileThresholds;
+  double dh = n / static_cast<double>( this->NumberOfIntervals );
+  for ( int j = 0; j < this->NumberOfIntervals; ++ j )
+    {
+    quantileThresholds.push_back( j * dh );
+    }
+
+  // A quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
+  vtkVariantArray* rowQuant = vtkVariantArray::New();
+  rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
+
+  // Finally calculate quantiles and store them
+  vtkStdString col;
+  for ( vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkVariant,vtkIdType> >::iterator mit = marginalCounts.begin();
+        mit != marginalCounts.end(); ++ mit  )
+    {
+    // Get variable and name and set corresponding row value
+    col = vars->GetValue( mit->first );
+    rowQuant->SetValue( 0, col );
+
+    // Also set cardinality which is known
+    rowQuant->SetValue( 1, n );
+
+    // Then calculate quantiles
+//     for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
+//       {
+//           rowQuant->SetValue( i ++, mit->first );
+//       }
+
+//     rowQuant->SetValue( i, distr.rbegin()->first );
+    quantileTab->InsertNextRow( rowQuant );
+    } // mit
+
+  //quantileTab->Dump();
 
   // Clean up
   rowQuant->Delete();
@@ -655,12 +677,12 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     int currentQ = 0;
     double mcdf = 0.;
     double Dmn = 0.;
-    for ( CDF::iterator it = cdfEmpirical.begin(); it != cdfEmpirical.end(); ++ it )
+    for ( CDF::iterator cit = cdfEmpirical.begin(); cit != cdfEmpirical.end(); ++ cit )
       {
       // If observation is smaller than minimum then there is nothing to do
-      if ( it->first >= quantiles[0] )
+      if ( cit->first >= quantiles[0] )
         {
-        while ( it->first >= quantiles[currentQ] && currentQ < nQuant )
+        while ( cit->first >= quantiles[currentQ] && currentQ < nQuant )
           {
           ++ currentQ;
           }
@@ -670,7 +692,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
         }
 
       // Calculate vertical distance between CDFs and update maximum if needed
-      double d = fabs( it->second - mcdf );
+      double d = fabs( cit->second - mcdf );
       if ( d > Dmn )
         {
         Dmn =  d;
