@@ -383,10 +383,11 @@ int TestOrderStatistics( int, char *[] )
   os2->AddColumn( "Text" ); // Add column of interest
   os2->RequestSelectedColumns();
 
-  // Learn, Test, and Assess with 12 intervals
+  // Learn, Derive, Test, and Assess with 12 intervals
   os2->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
   os2->SetParameter( "NumberOfIntervals", 0, 12 );
   os2->SetLearnOption( true );
+  os2->SetDeriveOption( true );
   os2->SetTestOption( true );
   os2->SetAssessOption( true );
   os2->Update();
@@ -501,10 +502,11 @@ int TestOrderStatistics( int, char *[] )
     }
   cout << "\n";
 
-  // Learn, Assess, and Test again but with with 100 intervals this time
+  // Learn, Derive, Assess, and Test again but with with 100 intervals this time
   os2->SetParameter( "QuantileDefinition", 0, 0 ); // Does not matter and should be ignored by the engine as the column contains strings
   os2->SetParameter( "NumberOfIntervals", 0, 100 );
   os2->SetLearnOption( true );
+  os2->SetDeriveOption( true );
   os2->SetTestOption( true );
   os2->SetAssessOption( true );
   os2->Update();

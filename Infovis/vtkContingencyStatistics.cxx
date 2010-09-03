@@ -182,9 +182,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     // for (colX,colY) values in the contingency table
     row2->SetValue( 0, colX );
     row2->SetValue( 1, colY );
-
     row4->SetValue( 0, summaryTab->GetNumberOfRows() );
-
     summaryTab->InsertNextRow( row2 );
 
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
@@ -266,7 +264,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  // Create table for derived statistics
+  // Create columns of derived statistics
   int nDerivedVals = 4;
   vtkStdString derivedNames[] = { "P",
                                   "Py|x",
@@ -286,10 +284,9 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  // Downcast columns to string arrays for efficient data access
+  // Downcast columns to typed arrays for efficient data access
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
-
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
   vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
@@ -572,7 +569,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   vtkDoubleArray* chi2yCol = vtkDoubleArray::New();
   chi2yCol->SetName( "Chi2 Yates" );
 
-  // Downcast columns to string arrays for efficient data access
+  // Downcast columns to typed arrays for efficient data access
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
