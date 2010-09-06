@@ -1277,7 +1277,7 @@ xmlSchematronReportOutput(xmlSchematronValidCtxtPtr ctxt ATTRIBUTE_UNUSED,
  * Build the string being reported to the user.
  *
  * Returns a report string or NULL in case of error. The string needs
- *         to be deallocated by teh caller
+ *         to be deallocated by the caller
  */
 static xmlChar *
 xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, 
