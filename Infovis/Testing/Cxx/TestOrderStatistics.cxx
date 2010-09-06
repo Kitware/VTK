@@ -367,8 +367,9 @@ int TestOrderStatistics( int, char *[] )
 
   for ( vtksys_stl::vector<int>::size_type i = 0; i < textLength; ++ i )
     {
-    char c = text.at(i);
-    textArr->InsertNextValue( vtkStdString( &c ) );
+    vtkStdString s( "" );
+    s += text.at(i);
+    textArr->InsertNextValue( s );
     }
 
   vtkTable* textTable = vtkTable::New();
