@@ -317,6 +317,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTKNETCDF_BINARY_DIR}/ncconfig.h
     ${VTKNETCDF_SOURCE_DIR}/netcdf.h
     ${VTKNETCDF_SOURCE_DIR}/netcdf3.h
+    ${VTKNETCDF_SOURCE_DIR}/netcdfcpp.h
     ${VTKNETCDF_SOURCE_DIR}/vtk_netcdf_mangle.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf
     COMPONENT Development)
