@@ -145,13 +145,6 @@ int TestBSPTree(int argc, char* argv[])
     }
     cout << "maxI = " << maxI << " At seed " << bestSeed << endl << endl;
 
-  #ifdef WIN32
-      if (kbhit()) {
-        char c = getch();
-        if (c=='A') break; 
-      }
-  #endif
-
 #ifndef TESTING_LOOP
     //
     // Render cloud of target spheres
