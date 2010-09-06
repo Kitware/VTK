@@ -603,7 +603,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       // If observation is smaller than minimum then there is nothing to do
       if ( cit->first >= quantiles[0] )
         {
-        while ( cit->first >= quantiles[currentQ] && currentQ < nQuant )
+        while ( currentQ < nQuant && cit->first >= quantiles[currentQ] )
           {
           ++ currentQ;
           }
