@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPContingencyStatistics - A class for parallel univariate contingency statistics
+// .NAME vtkPContingencyStatistics - A class for parallel bivariate contingency statistics
 // .SECTION Description
 // vtkPContingencyStatistics is vtkContingencyStatistics subclass for parallel datasets.
 // It learns and derives the global statistical model on each node, but assesses each 
