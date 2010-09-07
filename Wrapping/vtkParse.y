@@ -3661,11 +3661,8 @@ void output_function()
   if (currentFunction->NumberOfArguments
       && (currentFunction->Arguments[0]->Type == VTK_PARSE_FUNCTION))
     {
-    if (currentFunction->NumberOfArguments == 2)
-      {
-      currentFunction->NumberOfArguments = 1;
-      }
-    else
+    if (currentFunction->NumberOfArguments != 2 ||
+        currentFunction->Arguments[1]->Type != VTK_PARSE_VOID_PTR)
       {
       currentFunction->ArrayFailure = 1;
       }
