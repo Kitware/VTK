@@ -335,7 +335,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   timerB->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
-  // Finally, fill the new, global contigency table (everyone does this so everyone ends up with the same model)
+  // Finally, fill the new, global contingency table (everyone does this so everyone ends up with the same model)
   vtkVariantArray* row4 = vtkVariantArray::New();
   row4->SetNumberOfValues( 4 );
 
