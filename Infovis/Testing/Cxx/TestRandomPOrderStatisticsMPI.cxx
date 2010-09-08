@@ -123,6 +123,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Now perform verifications
+  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 1 ) );
   vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
 
   int testIntValue;
@@ -154,7 +155,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << ", grand total = "
            << GT_g[i]
            << ", histogram size = "
-           << outputQuantiles->GetNumberOfRows()
+           << outputHistogram->GetNumberOfRows()
            << "\n";
 
       if ( GT_g[i] != testIntValue )
