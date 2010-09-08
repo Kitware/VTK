@@ -150,6 +150,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define nc_inq_ndims vtk_netcdf_nc_inq_ndims
 #define nc_inq_nvars vtk_netcdf_nc_inq_nvars
 #define nc_inq_rec vtk_netcdf_nc_inq_rec
+#define nc_inq_type vtk_netcdf_nc_inq_type
 #define ncinquire vtk_netcdf_ncinquire
 #define nc_inq_unlimdim vtk_netcdf_nc_inq_unlimdim
 #define nc_inq_vardimid vtk_netcdf_nc_inq_vardimid
@@ -429,6 +430,8 @@ used when the shared library is loaded/unloaded from an executable.
 #define new_x_NC_attr vtk_netcdf_new_x_NC_attr
 #define new_x_NC_dim vtk_netcdf_new_x_NC_dim
 #define new_x_NC_var vtk_netcdf_new_x_NC_var
+#define nextUTF8 vtk_netcdf_nextUTF8
+#define nulldup vtk_netcdf_nulldup
 #define read_numrecs vtk_netcdf_read_numrecs
 #define set_NC_string vtk_netcdf_set_NC_string
 #define write_numrecs vtk_netcdf_write_numrecs
