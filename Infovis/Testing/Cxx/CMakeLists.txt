@@ -118,6 +118,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ADD_EXECUTABLE(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
+    # TestRandomPOrderStatisticsMPI:
+    # MPI test of parallel order statistics
+    ADD_EXECUTABLE(TestRandomPOrderStatisticsMPI TestRandomPOrderStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPOrderStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
+
     # TestParallelKMeansStatisticsMPI:
     # MPI test of parallel KMeans statistics
     ADD_EXECUTABLE(TestParallelKMeansStatisticsMPI TestParallelKMeansStatisticsMPI.cxx)
@@ -135,6 +140,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
         ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestRandomPContingencyStatisticsMPI
+        ${VTK_MPI_POSTFLAGS}
+        )
+
+      ADD_TEST(TestRandomPOrderStatisticsMPI
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestRandomPOrderStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
 
