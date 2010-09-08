@@ -115,8 +115,15 @@ void main( void )
   int  bReset = 1 - (  ( uStepType + 1 ) / 2  ) * ( 1 - uStepType / 2 );
    
   // obtain the actual texture coordinate
-  vec2 tcord0 = float(     bReset ) * gl_TexCoord[1].st +
-                float( 1 - bReset ) * texture2D( texTCoords, gl_TexCoord[0].st ).rg;
+  vec2 tcord0;
+  if(bReset==1)
+    {
+    tcord0=gl_TexCoord[1].st;
+    }
+  else
+    {
+    tcord0=texture2D( texTCoords, gl_TexCoord[0].st ).rg;
+    }
 
   // normalize the contribution of this streamline point to the center ask the 
   // streamline center to contribute half the texture value per time (the stream-

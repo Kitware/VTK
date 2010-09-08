@@ -17,15 +17,15 @@ IF (VTK_DATA_ROOT)
     TestVRMLNormals.cxx
     TestTDxGeo.cxx
     )
-  # Temporarily disable LIC tests on non-windows platforms
-  IF (VTK_USE_GLSL_SHADERS AND WIN32)
+  # Temporarily disable LIC tests on Mac platforms
+  IF (VTK_USE_GLSL_SHADERS AND NOT APPLE)
     SET(MyTests ${MyTests}
       TestImageDataLIC2D.cxx
       TestStructuredGridLIC2DXSlice.cxx
       TestStructuredGridLIC2DYSlice.cxx
       TestStructuredGridLIC2DZSlice.cxx
       )
-  ENDIF (VTK_USE_GLSL_SHADERS AND WIN32)
+  ENDIF ()
 ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display of if they need args
