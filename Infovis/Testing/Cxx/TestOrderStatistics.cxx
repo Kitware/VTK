@@ -147,7 +147,7 @@ int TestOrderStatistics( int, char *[] )
   os->SetLearnOption( true );
   os->SetDeriveOption( true );
   os->SetTestOption( true );
-  os->SetAssessOption( false );
+  os->SetAssessOption( true );
   os->Update();
 
   // Offset between baseline values for each variable

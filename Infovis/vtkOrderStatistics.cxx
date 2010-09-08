@@ -604,19 +604,19 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-class TableColumnBucketingFunctor : public vtkStatisticsAlgorithm::AssessFunctor
+class StringColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
   vtkStringArray* Data;
   vtkVariantArray* Quantiles;
 
-  TableColumnBucketingFunctor( vtkStringArray* vals,
-                               vtkVariantArray* quantiles )
+  StringColumnQuantizationFunctor( vtkAbstractArray* vals,
+                                   vtkVariantArray* quantiles )
   {
-    this->Data = vals;
+    this->Data = vtkStringArray::SafeDownCast( vals );
     this->Quantiles = quantiles;
   }
-  virtual ~TableColumnBucketingFunctor() { }
+  virtual ~StringColumnQuantizationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
@@ -634,6 +634,46 @@ public:
     vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
     vtkIdType q = 3;
     while ( q < n && x > this->Quantiles->GetValue( q ).ToString() )
+      {
+      ++ q;
+      }
+
+    result->SetNumberOfValues( 1 );
+    result->SetValue( 0, q - 2 );
+  }
+};
+
+// ----------------------------------------------------------------------
+class NumericColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
+{
+public:
+  vtkDataArray* Data;
+  vtkVariantArray* Quantiles;
+
+  NumericColumnQuantizationFunctor( vtkAbstractArray* vals,
+                                    vtkVariantArray* quantiles )
+  {
+    this->Data = vtkDataArray::SafeDownCast( vals );
+    this->Quantiles = quantiles;
+  }
+  virtual ~NumericColumnQuantizationFunctor() { }
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
+  {
+    double x = this->Data->GetTuple1( id );
+
+    if ( x < this->Quantiles->GetValue( 2 ).ToDouble() ) // Value #0 is the variable name and #1 is the cardinality
+      {
+      // x is smaller than lower bound
+      result->SetNumberOfValues( 1 );
+      result->SetValue( 0, 0 );
+
+      return;
+      }
+
+    vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
+    vtkIdType q = 3;
+    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
       {
       ++ q;
       }
@@ -679,22 +719,26 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     if ( vars->GetValue( r ) == varName )
       {
       // Grab the data for the requested variable
-      vtkAbstractArray* arr = outData->GetColumnByName( varName );
-      if ( ! arr )
-        {
-        dfunc = 0;
-        return;
-        }
-
-      // For descriptive statistics, type must be convertible to StringArray
-      vtkStringArray* vals = vtkStringArray::SafeDownCast( arr );
+      vtkAbstractArray* vals = outData->GetColumnByName( varName );
       if ( ! vals )
         {
         dfunc = 0;
         return;
         }
 
-      dfunc = new TableColumnBucketingFunctor( vals, quantileTab->GetRow( r ) );
+      // Select assess functor depending on column type
+      if ( vals->IsA( "vtkDataArray" ) )
+        {
+        dfunc = new NumericColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
+        }
+      else if ( vals->IsA( "vtkStringArray" ) )
+        {
+        dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
+        }
+      else
+        {
+        dfunc = 0;
+        }
       return;
       }
     }
