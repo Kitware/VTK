@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // For debugging purposes, output message sizes and intermediate timings
-#define DEBUG_PARALLEL_ORDER_STATISTICS 1
+#define DEBUG_PARALLEL_ORDER_STATISTICS 0
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
 #include "vtkTimerLog.h"
