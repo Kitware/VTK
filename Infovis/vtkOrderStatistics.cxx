@@ -607,13 +607,13 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 class StringColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
-  vtkStringArray* Data;
+  vtkAbstractArray* Data;
   vtkVariantArray* Quantiles;
 
   StringColumnQuantizationFunctor( vtkAbstractArray* vals,
                                    vtkVariantArray* quantiles )
   {
-    this->Data = vtkStringArray::SafeDownCast( vals );
+    this->Data = vals;
     this->Quantiles = quantiles;
   }
   virtual ~StringColumnQuantizationFunctor() { }
@@ -729,15 +729,13 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
       // Select assess functor depending on column type
       if ( vals->IsA( "vtkDataArray" ) )
         {
+        // If numeric type then use order on real numbers
         dfunc = new NumericColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
-        }
-      else if ( vals->IsA( "vtkStringArray" ) )
-        {
-        dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
         }
       else
         {
-        dfunc = 0;
+        // If non-numeric type then use order on strings
+        dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
         }
       return;
       }
