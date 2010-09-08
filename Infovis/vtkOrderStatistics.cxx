@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream>
 
-typedef vtksys_stl::map<double,double> CDF;
+typedef vtksys_stl::map<vtkStdString,double> CDF;
 
 vtkStandardNewMacro(vtkOrderStatistics);
 
@@ -470,7 +470,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 
   // Prepare storage for quantiles and model CDFs
   vtkIdType nQuant = quantileTab->GetNumberOfColumns() - 2;
-  double* quantiles = new double[nQuant];
+  vtkStdString* quantiles = new vtkStdString[nQuant];
 
   // Loop over requests
   vtkIdType nRowQuant = quantileTab->GetNumberOfRows();
@@ -511,9 +511,8 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     for ( vtkIdType j = 0; j < nRowData; ++ j )
       {
       // Read observation and update PDF
-      double x = inData->GetValueByName( j, varName ).ToDouble();
-
-      cdfEmpirical[x] += inv_card;
+      cdfEmpirical
+        [inData->GetValueByName( j, varName ).ToString()] += inv_card;
       }
 
     // Now integrate to obtain empirical CDF
@@ -538,11 +537,11 @@ void vtkOrderStatistics::Test( vtkTable* inData,
     for ( vtkIdType i = 0; i < nQuant; ++ i )
       {
       // Read quantile and update CDF
-      quantiles[i] = quantileTab->GetValue( r, i + 2 ).ToDouble();
+      quantiles[i] = quantileTab->GetValue( r, i + 2 ).ToString();
 
       // Update empirical CDF if new value found (with unknown ECDF)
       vtksys_stl::pair<CDF::iterator,bool> result
-        = cdfEmpirical.insert( vtksys_stl::pair<double,double>( quantiles[i], -1 ) );
+        = cdfEmpirical.insert( vtksys_stl::pair<vtkStdString,double>( quantiles[i], -1 ) );
       if ( result.second == true )
         {
         CDF::iterator eit = result.first;
