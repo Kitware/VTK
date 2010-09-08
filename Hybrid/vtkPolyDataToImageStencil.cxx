@@ -100,12 +100,13 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
   // great source to connect to some sort of writer or viewer, it
   // should only be connected to multiple-input filters that take
   // compute their output extent from one of the other inputs.
-  this->OutputWholeExtent[0] = 0;
-  this->OutputWholeExtent[1] = VTK_LARGE_INTEGER >> 2;
-  this->OutputWholeExtent[2] = 0;
-  this->OutputWholeExtent[3] = VTK_LARGE_INTEGER >> 2;
-  this->OutputWholeExtent[4] = 0;
-  this->OutputWholeExtent[5] = VTK_LARGE_INTEGER >> 2;
+  const int extentMax = (VTK_LARGE_INTEGER >> 2) -2;
+  this->OutputWholeExtent[0] = -extentMax;
+  this->OutputWholeExtent[1] = extentMax;
+  this->OutputWholeExtent[2] = -extentMax;
+  this->OutputWholeExtent[3] = extentMax;
+  this->OutputWholeExtent[4] = -extentMax;
+  this->OutputWholeExtent[5] = extentMax;
 
   this->Tolerance = 1e-3;
 }
