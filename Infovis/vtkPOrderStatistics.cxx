@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // For debugging purposes, output message sizes and intermediate timings
-#define DEBUG_PARALLEL_ORDER_STATISTICS 0
+#define DEBUG_PARALLEL_ORDER_STATISTICS 1
 
 #if DEBUG_PARALLEL_ORDER_STATISTICS
 #include "vtkTimerLog.h"
@@ -311,7 +311,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
   // Broadcasting step: broadcast reduced histogram table to all processes
-  vtkstd::vector<vtkStdString> xValues_l; // local consecutive x pairs
+  vtkstd::vector<vtkStdString> xValues_l; // local consecutive x values
   if ( this->Broadcast( xSizeTotal,
                         xPacked_l,
                         xValues_l,
@@ -335,38 +335,42 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
   timerB->Delete();
 #endif //DEBUG_PARALLEL_ORDER_STATISTICS
 
-  // Finally, fill the new, global contigency table (everyone does this so everyone ends up with the same model)
-  vtkVariantArray* row4 = vtkVariantArray::New();
-  row4->SetNumberOfValues( 4 );
+  // Finally, fill the new, global histogram (everyone does this so everyone ends up with the same model)
+  vtkVariantArray* row3 = vtkVariantArray::New();
+  row3->SetNumberOfValues( 3 );
 
   vtkstd::vector<vtkStdString>::iterator xit = xValues_l.begin();
   vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
+  cerr << "** " <<  xValues_l.size() << " " << kcValues_l.size() << " " << nRowCont << "\n";
 
   // First replace existing rows
   // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
-  for ( vtkIdType r = 1 ; r < nRowCont; ++ r, xit += 2, kcit += 2 )
+  for ( vtkIdType r = 1 ; r < nRowCont; ++ r, xit ++, kcit += 2 )
     {
-    row4->SetValue( 0, *kcit );
-    row4->SetValue( 1, *xit );
-    row4->SetValue( 2, *(xit + 1) );
-    row4->SetValue( 3, *(kcit + 1) );
+    cerr << r << " " << *kcit << " " << *xit << " " << *(kcit + 1) << "\n";
 
-    orderTab->SetRow( r, row4 );
+    row3->SetValue( 0, *kcit );
+    row3->SetValue( 1, *xit );
+    row3->SetValue( 2, *(kcit + 1) );
+
+    orderTab->SetRow( r, row3 );
     }
 
+  cerr << "NEW:\n";
   // Then insert new rows
-  for ( ; xit != xValues_l.end() ; xit += 2, kcit += 2 )
+  for ( ; xit != xValues_l.end() ; xit ++, kcit += 2 )
     {
-    row4->SetValue( 0, *kcit );
-    row4->SetValue( 1, *xit );
-    row4->SetValue( 2, *(xit + 1) );
-    row4->SetValue( 3, *(kcit + 1) );
+    cerr << *kcit << " " << *xit << " " << *(kcit + 1) << "\n";
 
-    orderTab->InsertNextRow( row4 );
+    row3->SetValue( 0, *kcit );
+    row3->SetValue( 1, *xit );
+    row3->SetValue( 2, *(kcit + 1) );
+
+    orderTab->InsertNextRow( row3 );
     }
 
   // Clean up
-  row4->Delete();
+  row3->Delete();
 
   if ( myRank == reduceProc )
     {
@@ -449,15 +453,15 @@ bool vtkPOrderStatistics::Reduce( vtkIdType& xSizeTotal,
   vtkstd::vector<vtkStdString> xValues_g;
   UnpackUnivariateValues( vtkStdString ( xPacked_g, xSizeTotal ), xValues_g );
 
-  // Second, check consistency: we must have the same number of x and kc entries
-  if ( vtkIdType( xValues_g.size() ) != kcSizeTotal )
+  // Second, check consistency: we must have half as many x than kc entries
+  if ( 2 * vtkIdType( xValues_g.size() ) != kcSizeTotal )
     {
     vtkErrorMacro("Reduction error on process "
                   << this->Controller->GetCommunicator()->GetLocalProcessId()
                   << ": inconsistent number of x values and (k,c) pairs: "
                   << xValues_g.size()
                   << " <> "
-                  << kcSizeTotal
+                  << kcSizeTotal / 2
                   << ".");
 
     return true;

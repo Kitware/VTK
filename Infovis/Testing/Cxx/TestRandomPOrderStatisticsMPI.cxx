@@ -125,7 +125,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Now perform verifications
   vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
   vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
-
+  outputHistogram->Dump();
   vtkIdType nRowSumm = outputSummary->GetNumberOfRows();
   int testIntValue;
   double testDoubleValue1;
@@ -245,7 +245,8 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomOrderStatisticsArgs args;
 
-  args.nVals = 1000000;
+//  args.nVals = 1000000;
+  args.nVals = 100;
   args.stdev = 5.;
   args.absTol = 1.e-6;
   args.retVal = &testValue;
