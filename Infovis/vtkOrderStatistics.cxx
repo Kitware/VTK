@@ -140,10 +140,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
   histogramTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
-  vtkVariantArray* variantCol = vtkVariantArray::New();
-  variantCol->SetName( "Value" );
-  histogramTab->AddColumn( variantCol );
-  variantCol->Delete();
+  stringCol = vtkStringArray::New();
+  stringCol->SetName( "Value" );
+  histogramTab->AddColumn( stringCol );
+  stringCol->Delete();
 
   idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
@@ -192,60 +192,24 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     row3->SetValue( 0, summaryTab->GetNumberOfRows() );
     summaryTab->InsertNextRow( row1 );
 
-    // Try to downcast column to either data or string arrays for efficient data access
-    vtkAbstractArray* arr = inData->GetColumnByName( col );
+    vtkAbstractArray* vals = inData->GetColumnByName( col );
 
-    // Handle case where input is a data array
-    if ( arr->IsA("vtkDataArray") )
+    // Calculate histogram
+    vtksys_stl::map<vtkStdString,vtkIdType> histogram;
+    for ( vtkIdType r = 0; r < nRow; ++ r )
       {
-      vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
-
-      // Calculate histogram
-      vtksys_stl::map<double,vtkIdType> distr;
-      for ( vtkIdType r = 0; r < nRow; ++ r )
-        {
-        ++ distr[darr->GetTuple1( r )];
-        }
-
-      // Calculate histogram
-      for ( vtksys_stl::map<double,vtkIdType>::iterator mit = distr.begin();
-            mit != distr.end(); ++ mit  )
-        {
-        // Store histogram row
-        row3->SetValue( 1, mit->first );
-        row3->SetValue( 2, mit->second );
-        histogramTab->InsertNextRow( row3 );
-        }
-      }
-    // Handle case where input is a string array
-    else if ( arr->IsA("vtkStringArray") )
-      {
-      vtkStringArray* sarr = vtkStringArray::SafeDownCast( arr );
-
-      // Calculate histogram
-      vtksys_stl::map<vtkStdString,vtkIdType> distr;
-      for ( vtkIdType r = 0; r < nRow; ++ r )
-        {
-        ++ distr[sarr->GetValue( r )];
-        }
-
-      // Calculate histogram
-      for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = distr.begin();
-            mit != distr.end(); ++ mit  )
-        {
-        // Store histogram row
-        row3->SetValue( 1, mit->first );
-        row3->SetValue( 2, mit->second );
-        histogramTab->InsertNextRow( row3 );
-        }
-      }
-    else // column is of type vtkVariantArray, which is not supported by this filter
-      {
-      vtkWarningMacro("Type vtkVariantArray of column "
-                      << col.c_str()
-                      << " not supported. Ignoring it." );
+      ++ histogram
+        [vals->GetVariantValue( r ).ToString()];
       }
 
+    // Store histogram row
+    for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
+          mit != histogram.end(); ++ mit  )
+      {
+      row3->SetValue( 1, mit->first );
+      row3->SetValue( 2, mit->second );
+      histogramTab->InsertNextRow( row3 );
+      }
     }
 
   // Finally set summary and histogram blocks of output meta port
@@ -300,14 +264,14 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
     {
-    vtkVariantArray* variantCol = vtkVariantArray::New();
+    stringCol = vtkStringArray::New();
 
     // Handle special case of quartiles and median for convenience
     div_t q = div( i << 2, this->NumberOfIntervals );
     if ( q.rem )
       {
       // General case
-      variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+      stringCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
       }
     else
       {
@@ -315,40 +279,40 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       switch ( q.quot )
         {
         case 0:
-          variantCol->SetName( "Minimum" );
+          stringCol->SetName( "Minimum" );
           break;
         case 1:
-          variantCol->SetName( "First Quartile" );
+          stringCol->SetName( "First Quartile" );
           break;
         case 2:
-          variantCol->SetName( "Median" );
+          stringCol->SetName( "Median" );
           break;
         case 3:
-          variantCol->SetName( "Third Quartile" );
+          stringCol->SetName( "Third Quartile" );
           break;
         case 4:
-          variantCol->SetName( "Maximum" );
+          stringCol->SetName( "Maximum" );
           break;
         default:
-          variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+          stringCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
           break;
         }
       }
-    quantileTab->AddColumn( variantCol );
-    variantCol->Delete();
+    quantileTab->AddColumn( stringCol );
+    stringCol->Delete();
     }
 
   // Downcast columns to typed arrays for efficient data access
-  vtkStringArray*  vars = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable" ) );
-  vtkIdTypeArray*  keys = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Key" ) );
-  vtkVariantArray* vals = vtkVariantArray::SafeDownCast( histogramTab->GetColumnByName( "Value" ) );
-  vtkIdTypeArray*  card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable" ) );
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Key" ) );
+  vtkStringArray* vals = vtkStringArray::SafeDownCast( histogramTab->GetColumnByName( "Value" ) );
+  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
 
   // Calculate variable cardinalities (which must all be indentical) and value marginal counts
   vtksys_stl::map<vtkIdType,vtkIdType> cardinalities;
-  vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkVariant,vtkIdType> >marginalCounts;
+  vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkStdString,vtkIdType> >marginalCounts;
   vtkIdType key, c;
-  vtkVariant x;
+  vtkStdString x;
   vtkIdType nRowCont = histogramTab->GetNumberOfRows();
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -406,7 +370,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   // Finally calculate quantiles and store them iterating over variables
   vtkStdString col;
-  for ( vtksys_stl::map<vtkIdType,vtksys_stl::map<vtkVariant,vtkIdType> >::iterator mit = marginalCounts.begin();
+  for ( vtksys_stl::map<vtkIdType,vtksys_stl::map<vtkStdString,vtkIdType> >::iterator mit = marginalCounts.begin();
         mit != marginalCounts.end(); ++ mit  )
     {
     // Get variable and name and set corresponding row value
@@ -421,21 +385,22 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     int j = 2;
     bool midPt = ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps ? 1 : 0 );
     vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
-    for ( vtksys_stl::map<vtkVariant,vtkIdType>::iterator nit = mit->second.begin();
+    for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator nit = mit->second.begin();
           nit != mit->second.end(); ++ nit  )
       {
       for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
-      // Mid-point interpolation will make sense for types which can be cast to double only
-      if ( midPt && sum == *qit )
-        {
-        vtksys_stl::map<vtkVariant,vtkIdType>::iterator oit = nit;
-        vtkVariant v( ( (++ oit)->first.ToDouble() + nit->first.ToDouble() ) * .5 );
-        rowQuant->SetValue( j ++, v );
-        }
-      else
-        {
-        rowQuant->SetValue( j ++, nit->first );
-        }
+        // Mid-point interpolation will make sense for types which can be cast to double only
+        if ( midPt && sum == *qit )
+          {
+          // Attempt to cast string interval bounds  to real numbers
+          vtksys_stl::map<vtkStdString,vtkIdType>::iterator oit = nit;
+          double midVal = ( atof( (++ oit)->first.c_str() ) + atof( nit->first.c_str() ) ) * .5;
+          rowQuant->SetValue( j ++, midVal );
+          }
+        else
+          {
+          rowQuant->SetValue( j ++, nit->first );
+          }
       } // nit
 
     // Finally store quantiles for this variable after a last sanity check
@@ -643,10 +608,10 @@ void vtkOrderStatistics::Test( vtkTable* inData,
 class TableColumnBucketingFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
-  vtkAbstractArray* Data;
+  vtkStringArray* Data;
   vtkVariantArray* Quantiles;
 
-  TableColumnBucketingFunctor( vtkAbstractArray* vals,
+  TableColumnBucketingFunctor( vtkStringArray* vals,
                                vtkVariantArray* quantiles )
   {
     this->Data = vals;
@@ -656,9 +621,9 @@ public:
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
-    vtkVariant x = this->Data->GetVariantValue( id );
+    vtkStdString x = this->Data->GetVariantValue( id ).ToString();
 
-    if ( x < this->Quantiles->GetValue( 2 ) ) // Value #0 is the variable name and #1 is the cardinality
+    if ( x < this->Quantiles->GetValue( 2 ).ToString() ) // Value #0 is the variable name and #1 is the cardinality
       {
       // x is smaller than lower bound
       result->SetNumberOfValues( 1 );
@@ -669,7 +634,7 @@ public:
 
     vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
     vtkIdType q = 3;
-    while ( q < n && x > this->Quantiles->GetValue( q ) )
+    while ( q < n && x > this->Quantiles->GetValue( q ).ToString() )
       {
       ++ q;
       }
@@ -715,7 +680,15 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
     if ( vars->GetValue( r ) == varName )
       {
       // Grab the data for the requested variable
-      vtkAbstractArray* vals = outData->GetColumnByName( varName );
+      vtkAbstractArray* arr = outData->GetColumnByName( varName );
+      if ( ! arr )
+        {
+        dfunc = 0;
+        return;
+        }
+
+      // For descriptive statistics, type must be convertible to StringArray
+      vtkStringArray* vals = vtkStringArray::SafeDownCast( arr );
       if ( ! vals )
         {
         dfunc = 0;
