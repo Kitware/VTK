@@ -65,7 +65,7 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void PackValues( const vtkstd::vector<vtkStdString>& values, 
+void PackValues( const vtkstd::vector<vtkStdString>& values,
                  vtkStdString& buffer )
 {
     buffer.clear();
@@ -219,7 +219,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     }
 
   // NB: Use process 0 as sole reducer for now
-  vtkIdType reduceProc = 0; 
+  vtkIdType reduceProc = 0;
 
   // (All) gather all xy and kc sizes
   vtkIdType xySize_l = xyPacked_l.size();
@@ -260,7 +260,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
     xyPacked_g = new char[xySizeTotal];
     kcValues_g = new vtkIdType[kcSizeTotal];
     }
-  
+
   // Gather all xyPacked and kcValues on process reduceProc
   // NB: GatherV because the packets have variable lengths
   if ( ! com->GatherV( &(*xyPacked_l.begin()),
@@ -276,7 +276,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 
     return;
     }
-  
+
   if ( ! com->GatherV( &(*kcValues_l.begin()),
                        kcValues_g,
                        kcSize_l,
@@ -331,7 +331,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
        << timerB->GetElapsedTime()
        << " seconds."
        << "\n";
-  
+
   timerB->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
@@ -364,7 +364,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 
    contingencyTab->InsertNextRow( row4 );
    }
-    
+
   // Clean up
   row4->Delete();
 
@@ -388,7 +388,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
        << timer->GetElapsedTime()
        << " seconds."
        << "\n";
-  
+
   timer->Delete();
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 }
@@ -448,9 +448,9 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> xyValues_g; 
+  vtkstd::vector<vtkStdString> xyValues_g;
   UnpackValues( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
-  
+
   // Second, check consistency: we must have the same number of xy and kc entries
   if ( vtkIdType( xyValues_g.size() ) != kcSizeTotal )
     {
@@ -476,10 +476,10 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
     contingencyTable
       [kcValues_g[i]]
       [*vit]
-      [*(vit + 1)] 
+      [*(vit + 1)]
       += kcValues_g[i + 1];
     }
-    
+
   // Fourth, prepare send buffers of (global) xy and kc values
   vtkstd::vector<vtkStdString> xyValues_l;
   kcValues_l.clear();
@@ -497,7 +497,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
         // Push back x and y to list of strings
         xyValues_l.push_back( bit->first );  // x
         xyValues_l.push_back( dit->first );  // y
-          
+
         // Push back (X,Y) index and #(x,y) to list of strings
         kcValues_l.push_back( ait->first );  // k
         kcValues_l.push_back( dit->second ); // c
@@ -505,7 +505,7 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
       }
     }
   PackValues( xyValues_l, xyPacked_l );
-    
+
   // Last, update xy and kc buffer sizes (which have changed because of the reduction)
   xySizeTotal = xyPacked_l.size();
   kcSizeTotal = kcValues_l.size();
@@ -543,7 +543,7 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (x,y) buffer size.");
-    
+
     return true;
     }
 
@@ -554,10 +554,10 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (k,c) buffer size.");
-    
+
     return true;
     }
-  
+
   // Resize vectors so they can receive the broadcasted xy and kc values
   xyPacked.resize( xySizeTotal );
   kcValues.resize( kcSizeTotal );
@@ -570,10 +570,10 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (x,y) values.");
-    
+
     return true;
     }
-  
+
   if ( ! com->Broadcast( &(*kcValues.begin()),
                          kcSizeTotal,
                          reduceProc ) )
@@ -581,12 +581,12 @@ bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast (k,c) values.");
-    
+
     return true;
     }
-  
+
   // Unpack the packet of strings
   UnpackValues( xyPacked, xyValues );
 
   return false;
-} 
+}
