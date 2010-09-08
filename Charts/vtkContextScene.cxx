@@ -543,7 +543,12 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
       {
       // BUG: Event is currently not in the right coordinate system
       // BUG: Event should propagate up the scene tree
-      this->Storage->itemPicked->MouseLeaveEvent(event);
+
+      // Make sure last picked object is still part of this scene.
+      if (this->Storage->itemPicked->GetScene() == this)
+        {
+        this->Storage->itemPicked->MouseLeaveEvent(event);
+        }
       }
     }
 
