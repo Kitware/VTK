@@ -66,52 +66,13 @@ public:
   // Access the vtkTransform2D that controls object transformation.
   virtual vtkTransform2D* GetTransform();
 
-//BTX
   // Description:
-  // Return true if the supplied x, y coordinate is inside the item.
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  // Transforms a point to the parent coordinate system.
+  virtual void ToParent(const float point[2], float parentPoint[2]);
 
   // Description:
-  // Return the item under the mouse.
-  // If no item is under the mouse, the method returns a null pointer.
-  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse enter event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse move event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse leave event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button down event
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse button release event.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-
-  // Description:
-  // Mouse wheel event, positive delta indicates forward movement of the wheel.
-  // Return true if the item holds the event, false if the event can be
-  // propagated to other items.
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
+  // Transforms a point from the parent coordinate system.
+  virtual void FromParent(const float parentPoint[2], float point[2]);
 
 //BTX
 protected:
@@ -123,9 +84,6 @@ protected:
 private:
   vtkContextTransform(const vtkContextTransform &); // Not implemented.
   void operator=(const vtkContextTransform &);   // Not implemented.
-
-  void TransformMouse(const vtkContextMouseEvent &mouse,
-                      vtkContextMouseEvent &event);
 //ETX
 };
 

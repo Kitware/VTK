@@ -38,7 +38,6 @@
 #include "vtkSmartPointer.h"
 
 // My STL containers
-#include <vtkstd/vector>
 #include <assert.h>
 
 //-----------------------------------------------------------------------------
@@ -535,19 +534,38 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     {
     if (newItemPicked)
       {
-      // BUG: Event is currently not in the right coordinate system
-      // BUG: Event should propagate up the scene tree
-      newItemPicked->MouseEnterEvent(event);
+      vtkContextMouseEvent itemEvent = event;
+      vtkAbstractContextItem* cur = newItemPicked;
+      cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+      cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+      while (cur && !cur->MouseEnterEvent(event))
+        {
+        cur = cur->GetParent();
+        if (cur)
+          {
+          cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+          cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+          }
+        }
       }
     if (this->Storage->itemPicked.GetPointer())
       {
-      // BUG: Event is currently not in the right coordinate system
-      // BUG: Event should propagate up the scene tree
-
       // Make sure last picked object is still part of this scene.
       if (this->Storage->itemPicked->GetScene() == this)
         {
-        this->Storage->itemPicked->MouseLeaveEvent(event);
+        vtkContextMouseEvent itemEvent = event;
+        vtkAbstractContextItem* cur = this->Storage->itemPicked;
+        cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+        cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+        while (cur && !cur->MouseLeaveEvent(event))
+          {
+          cur = cur->GetParent();
+          if (cur)
+            {
+            cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+            cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+            }
+          }
         }
       }
     }
@@ -557,13 +575,38 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
   // Fire mouse move event regardless of where it occurred.
 
   // Check if there is a selected item that needs to receive a move event
-  if (this->Storage->itemMousePressCurrent.GetPointer())
+  if (this->Storage->itemMousePressCurrent.GetPointer() &&
+      this->Storage->itemMousePressCurrent->GetScene() == this)
     {
-    this->Storage->itemMousePressCurrent->MouseMoveEvent(event);
+    vtkContextMouseEvent itemEvent = event;
+    vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
+    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    while (cur && !cur->MouseMoveEvent(event))
+      {
+      cur = cur->GetParent();
+      if (cur)
+        {
+        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        }
+      }
     }
   else if (this->Storage->itemPicked.GetPointer())
     {
-    this->Storage->itemPicked->MouseMoveEvent(event);
+    vtkContextMouseEvent itemEvent = event;
+    vtkAbstractContextItem* cur = this->Storage->itemPicked;
+    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    while (cur && !cur->MouseMoveEvent(event))
+      {
+      cur = cur->GetParent();
+      if (cur)
+        {
+        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        }
+      }
     }
 
   // Update the last positions now
@@ -587,9 +630,19 @@ void vtkContextScene::ButtonPressEvent(int button, int x, int y)
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
     {
-    // BUG: Event is currently not in the right coordinate system
-    // BUG: Event should propagate up the scene tree
-    newItemPicked->MouseButtonPressEvent(event);
+    vtkContextMouseEvent itemEvent = event;
+    vtkAbstractContextItem* cur = newItemPicked;
+    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    while (cur && !cur->MouseButtonPressEvent(event))
+      {
+      cur = cur->GetParent();
+      if (cur)
+        {
+        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        }
+      }
     }
   this->Storage->itemMousePressCurrent = newItemPicked;
 }
@@ -604,7 +657,19 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
     event.ScenePos.Set(x, y);
     event.Pos.Set(x, y);
     event.Button = button;
-    this->Storage->itemMousePressCurrent->MouseButtonReleaseEvent(event);
+    vtkContextMouseEvent itemEvent = event;
+    vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
+    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    while (cur && !cur->MouseButtonReleaseEvent(event))
+      {
+      cur = cur->GetParent();
+      if (cur)
+        {
+        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        }
+      }
     this->Storage->itemMousePressCurrent = NULL;
     }
   this->Storage->Event.Button = vtkContextMouseEvent::NO_BUTTON;
@@ -624,9 +689,19 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
   if (newItemPicked)
     {
-    // BUG: Event is currently not in the right coordinate system
-    // BUG: Event should propagate up the scene tree
-    newItemPicked->MouseWheelEvent(event, delta);
+    vtkContextMouseEvent itemEvent = event;
+    vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
+    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    while (cur && !cur->MouseWheelEvent(event, delta))
+      {
+      cur = cur->GetParent();
+      if (cur)
+        {
+        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        }
+      }
     }
 
   if (this->Renderer)

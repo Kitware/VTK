@@ -158,6 +158,56 @@ public:
     return this->Parent;
     }
 
+  // Description:
+  // Transforms a point to the parent coordinate system.
+  virtual void ToParent(const float point[2], float parentPoint[2])
+    {
+    parentPoint[0] = point[0];
+    parentPoint[1] = point[1];
+    }
+
+  // Description:
+  // Transforms a point from the parent coordinate system.
+  virtual void FromParent(const float parentPoint[2], float point[2])
+    {
+    point[0] = parentPoint[0];
+    point[1] = parentPoint[1];
+    }
+
+  // Description:
+  // Transforms a point to the scene coordinate system.
+  virtual void ToScene(const float point[2], float scenePoint[2])
+    {
+    if (this->Parent)
+      {
+      float parentPoint[2];
+      this->ToParent(point, parentPoint);
+      this->Parent->ToScene(parentPoint, scenePoint);
+      }
+    else
+      {
+      scenePoint[0] = point[0];
+      scenePoint[1] = point[1];
+      }
+    }
+
+  // Description:
+  // Transforms a point from the scene coordinate system.
+  virtual void FromScene(const float scenePoint[2], float point[2])
+    {
+    if (this->Parent)
+      {
+      float parentPoint[2];
+      this->Parent->FromScene(scenePoint, parentPoint);
+      this->FromParent(parentPoint, point);
+      }
+    else
+      {
+      point[0] = scenePoint[0];
+      point[1] = scenePoint[1];
+      }
+    }
+
 //BTX
 protected:
   vtkAbstractContextItem();
