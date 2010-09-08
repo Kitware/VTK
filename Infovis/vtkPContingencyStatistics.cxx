@@ -68,21 +68,13 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 void PackValues( const vtkstd::vector<vtkStdString>& values, 
                  vtkStdString& buffer )
 {
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-    buffer.resize( 0 );
-#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
     buffer.clear();
-#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
 
   for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
        it != values.end(); ++ it )
     {
     buffer.append( *it );
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-    buffer.append( 1, 0 );
-#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
     buffer.push_back( 0 );
-#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
     }
 }
 
@@ -90,11 +82,7 @@ void PackValues( const vtkstd::vector<vtkStdString>& values,
 void UnpackValues( const vtkStdString& buffer,
                    vtkstd::vector<vtkStdString>& values )
 {
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-    values.resize( 0 );
-#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
     values.clear();
-#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
 
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
