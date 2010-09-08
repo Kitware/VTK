@@ -110,7 +110,7 @@ int TestOrderStatistics( int, char *[] )
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset3Arr->InsertNextValue( -1. );
+    dataset3Arr->InsertNextValue( static_cast<double>( i ) );
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -157,7 +157,7 @@ int TestOrderStatistics( int, char *[] )
     { 0.,
       32., 46., 47., 49., 51.5, 54.,
       32., 45., 47., 49., 52., 54.,
-      32., -1., -1., -1., -1., -1.,
+      32., 0., 7., 15., 23., 31.,
     };
 
   // Get output data and meta tables
@@ -268,7 +268,7 @@ int TestOrderStatistics( int, char *[] )
     { 0.,
       32., 46., 47., 49., 51., 54.,
       32., 45., 47., 49., 52., 54.,
-      32., -1., -1., -1., -1., -1.,
+      32., 0., 7., 15., 23., 31.,
     };
 
   // Get calculated model
