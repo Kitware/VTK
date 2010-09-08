@@ -68,21 +68,13 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 void PackUnivariateValues( const vtkstd::vector<vtkStdString>& values,
                            vtkStdString& buffer )
 {
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-  buffer.resize( 0 );
-#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
   buffer.clear();
-#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
 
   for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
        it != values.end(); ++ it )
     {
     buffer.append( *it );
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-    buffer.append( 1, 0 );
-#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
     buffer.push_back( 0 );
-#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
     }
 }
 
@@ -90,11 +82,7 @@ void PackUnivariateValues( const vtkstd::vector<vtkStdString>& values,
 void UnpackUnivariateValues( const vtkStdString& buffer,
                              vtkstd::vector<vtkStdString>& values )
 {
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-  values.resize( 0 );
-#else // defined(_MSC_VER) && (_MSC_VER <= 1200)
   values.clear();
-#endif // defined(_MSC_VER) && (_MSC_VER <= 1200)
 
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
@@ -551,7 +539,7 @@ bool vtkPOrderStatistics::Broadcast( vtkIdType xSizeTotal,
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
-                  << " could not broadcast (x,y) buffer size.");
+                  << " could not broadcast x buffer size.");
 
     return true;
     }
@@ -578,7 +566,7 @@ bool vtkPOrderStatistics::Broadcast( vtkIdType xSizeTotal,
     {
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
-                  << " could not broadcast (x,y) values.");
+                  << " could not broadcast x values.");
 
     return true;
     }
