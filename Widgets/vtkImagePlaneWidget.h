@@ -388,6 +388,11 @@ public:
   vtkGetMacro(CurrentImageValue,double);
 
   // Description:
+  // Get the current reslice class and reslice axes
+  vtkGetObjectMacro( ResliceAxes, vtkMatrix4x4 );
+  vtkGetObjectMacro( Reslice, vtkImageReslice );
+
+  // Description:
   // Choose between voxel centered or continuous cursor probing.  With voxel
   // centered probing, the cursor snaps to the nearest voxel and the reported
   // cursor coordinates are extent based.  With continuous probing, voxel data
