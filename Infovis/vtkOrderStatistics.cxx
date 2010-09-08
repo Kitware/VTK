@@ -202,7 +202,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         [vals->GetVariantValue( r ).ToString()];
       }
 
-    // Store histogram row
+    // Store histogram
     for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
           mit != histogram.end(); ++ mit  )
       {

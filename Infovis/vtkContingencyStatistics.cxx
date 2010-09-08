@@ -13,7 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2010 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
@@ -188,6 +188,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );
 
+    // Calculate contingency table
     vtksys_stl::map<vtkStdString,Counts> contingencyTable;
     for ( vtkIdType r = 0; r < nRow; ++ r )
       {
@@ -196,6 +197,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
         [valsY->GetVariantValue( r ).ToString()];
       }
 
+    // Store contingency table
     for ( vtksys_stl::map<vtkStdString,Counts>::iterator mit = contingencyTable.begin();
           mit != contingencyTable.end(); ++ mit )
       {
