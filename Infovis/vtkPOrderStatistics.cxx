@@ -69,7 +69,6 @@ void PackUnivariateValues( const vtkstd::vector<vtkStdString>& values,
                            vtkStdString& buffer )
 {
   buffer.clear();
-
   for( vtkstd::vector<vtkStdString>::const_iterator it = values.begin();
        it != values.end(); ++ it )
     {
@@ -149,7 +148,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Determine how many (X,Y) variable pairs are present
+  // Determine how many variables are present
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   if ( nRowSumm <= 0 )
     {
@@ -162,8 +161,8 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     }
 
   // Get a hold of the histogram table
-  vtkTable* orderTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
-  if ( ! orderTab )
+  vtkTable* histoTab = vtkTable::SafeDownCast( outMeta->GetBlock( 1 ) );
+  if ( ! histoTab )
     {
 #if DEBUG_PARALLEL_ORDER_STATISTICS
     timer->Delete();
@@ -172,9 +171,9 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Determine number of (x,y) realizations are present
-  vtkIdType nRowCont = orderTab->GetNumberOfRows();
-  if ( nRowCont <= 0 )
+  // Determine how many realizations are present
+  vtkIdType nRowHisto = histoTab->GetNumberOfRows();
+  if ( nRowHisto <= 0 )
     {
     // No statistics were calculated in serial.
 #if DEBUG_PARALLEL_ORDER_STATISTICS
@@ -204,10 +203,10 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
   vtkIdType myRank = com->GetLocalProcessId();
 
-  // Packing step: concatenate all (x,y) pairs in a single string and all (k,c) pairs in single vector
+  // Packing step: concatenate all x values in a single string and all (k,c) pairs in single vector
   vtkStdString xPacked_l;
   vtkstd::vector<vtkIdType> kcValues_l;
-  if ( this->Pack( orderTab,
+  if ( this->Pack( histoTab,
                    xPacked_l,
                    kcValues_l ) )
     {
@@ -272,7 +271,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     {
     vtkErrorMacro("Process "
                   << myRank
-                  << "could not gather (x,y) values.");
+                  << "could not gather x values.");
 
     return;
     }
@@ -341,32 +340,26 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
   vtkstd::vector<vtkStdString>::iterator xit = xValues_l.begin();
   vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
-  cerr << "** " <<  xValues_l.size() << " " << kcValues_l.size() << " " << nRowCont << "\n";
 
   // First replace existing rows
   // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
-  for ( vtkIdType r = 1 ; r < nRowCont; ++ r, xit ++, kcit += 2 )
+  for ( vtkIdType r = 1 ; r < nRowHisto; ++ r, xit ++, kcit += 2 )
     {
-    cerr << r << " " << *kcit << " " << *xit << " " << *(kcit + 1) << "\n";
-
     row3->SetValue( 0, *kcit );
     row3->SetValue( 1, *xit );
     row3->SetValue( 2, *(kcit + 1) );
 
-    orderTab->SetRow( r, row3 );
+    histoTab->SetRow( r, row3 );
     }
 
-  cerr << "NEW:\n";
   // Then insert new rows
   for ( ; xit != xValues_l.end() ; xit ++, kcit += 2 )
     {
-    cerr << *kcit << " " << *xit << " " << *(kcit + 1) << "\n";
-
     row3->SetValue( 0, *kcit );
     row3->SetValue( 1, *xit );
     row3->SetValue( 2, *(kcit + 1) );
 
-    orderTab->InsertNextRow( row3 );
+    histoTab->InsertNextRow( row3 );
     }
 
   // Clean up
@@ -398,14 +391,14 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-bool vtkPOrderStatistics::Pack( vtkTable* orderTab,
+bool vtkPOrderStatistics::Pack( vtkTable* histoTab,
                                 vtkStdString& xPacked,
                                 vtkstd::vector<vtkIdType>& kcValues )
 {
   // Downcast meta columns to string arrays for efficient data access
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( orderTab->GetColumnByName( "Key" ) );
-  vtkStringArray* vals = vtkStringArray::SafeDownCast( orderTab->GetColumnByName( "Value" ) );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( orderTab->GetColumnByName( "Cardinality" ) );
+  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( histoTab->GetColumnByName( "Key" ) );
+  vtkStringArray* vals = vtkStringArray::SafeDownCast( histoTab->GetColumnByName( "Value" ) );
+  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histoTab->GetColumnByName( "Cardinality" ) );
   if ( ! keys || ! vals || ! card )
     {
     return true;
@@ -413,8 +406,8 @@ bool vtkPOrderStatistics::Pack( vtkTable* orderTab,
 
   vtkstd::vector<vtkStdString> xValues; // consecutive x values
 
-  vtkIdType nRowCont = orderTab->GetNumberOfRows();
-  for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
+  vtkIdType nRowHisto = histoTab->GetNumberOfRows();
+  for ( vtkIdType r = 1; r < nRowHisto; ++ r ) // Skip first row which is reserved for data set cardinality
     {
     // Push back x to list of strings
     xValues.push_back( vals->GetValue( r ) );
@@ -469,42 +462,35 @@ bool vtkPOrderStatistics::Reduce( vtkIdType& xSizeTotal,
 
   // Third, reduce to the global histogram table
   typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
-  typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
-  vtkstd::map<vtkIdType,Bidistribution> orderTable;
+  vtkstd::map<vtkIdType,Distribution> histoTable;
 
   vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = xValues_g.begin(); vit != xValues_g.end(); vit += 2, i += 2 )
+  for ( vtkstd::vector<vtkStdString>::iterator vit = xValues_g.begin(); vit != xValues_g.end(); vit ++, i += 2 )
     {
-    orderTable
+    histoTable
       [kcValues_g[i]]
       [*vit]
-      [*(vit + 1)]
       += kcValues_g[i + 1];
     }
 
   // Fourth, prepare send buffers of (global) x and kc values
   vtkstd::vector<vtkStdString> xValues_l;
   kcValues_l.clear();
-  for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = orderTable.begin();
-        ait != orderTable.end(); ++ ait )
+  for ( vtkstd::map<vtkIdType,Distribution>::iterator mit = histoTable.begin();
+        mit != histoTable.end(); ++ mit )
     {
-    Bidistribution bidi = ait->second;
-    for ( Bidistribution::iterator bit = bidi.begin();
-          bit != bidi.end(); ++ bit )
+    Distribution histogram = mit->second;
+    for ( Distribution::iterator hit = histogram.begin();
+          hit != histogram.end(); ++ hit )
       {
-      Distribution di = bit->second;
-      for ( Distribution::iterator dit = di.begin();
-            dit != di.end(); ++ dit )
-        {
-        // Push back x to list of strings
-        xValues_l.push_back( bit->first );  // x
+      // Push back x to list of strings
+      xValues_l.push_back( hit->first );  // x
 
-        // Push back X index and #(x) to list of strings
-        kcValues_l.push_back( ait->first );  // k
-        kcValues_l.push_back( dit->second ); // c
-        }
+      // Push back X index and #(x) to list of strings
+      kcValues_l.push_back( mit->first );  // k
+      kcValues_l.push_back( hit->second ); // c
       }
-    }
+    } // mit
   PackUnivariateValues( xValues_l, xPacked_l );
 
   // Last, update x and kc buffer sizes (which have changed because of the reduction)

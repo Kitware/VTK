@@ -123,23 +123,19 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Now perform verifications
-  vtkTable* outputSummary = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
-  vtkTable* outputHistogram = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
-  outputHistogram->Dump();
-  vtkIdType nRowSumm = outputSummary->GetNumberOfRows();
+  vtkTable* outputQuantiles = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
+
   int testIntValue;
-  double testDoubleValue1;
-  double testDoubleValue2;
   int numProcs = controller->GetNumberOfProcesses();
 
-  // Verify that all processes have the same grand total and order tables size
+  // Verify that all processes have the same grand total and histograms size
   if ( com->GetLocalProcessId() == args->ioRank )
     {
-    cout << "\n## Verifying that all processes have the same grand total and order tables size.\n";
+    cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
     }
 
   // Gather all grand totals
-  int GT_l = outputHistogram->GetValueByName( 0, "Cardinality" ).ToInt();
+  int GT_l = outputQuantiles->GetValueByName( 0, "Cardinality" ).ToInt();
   int* GT_g = new int[numProcs];
   com->AllGather( &GT_l,
                   GT_g,
@@ -157,8 +153,8 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
            << i
            << ", grand total = "
            << GT_g[i]
-           << ", order table size = "
-           << outputHistogram->GetNumberOfRows()
+           << ", histogram size = "
+           << outputQuantiles->GetNumberOfRows()
            << "\n";
 
       if ( GT_g[i] != testIntValue )
@@ -245,8 +241,7 @@ int main( int argc, char** argv )
   int testValue = 0;
   RandomOrderStatisticsArgs args;
 
-//  args.nVals = 1000000;
-  args.nVals = 100;
+  args.nVals = 1000000;
   args.stdev = 5.;
   args.absTol = 1.e-6;
   args.retVal = &testValue;
