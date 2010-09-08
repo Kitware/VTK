@@ -1129,19 +1129,8 @@ ENDIF(VTK_IGNORE_BTX)
 # Configure Tcl wrapping support, setup executables
 IF(VTK_WRAP_TCL)
   # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
-    SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-  ELSE(CMAKE_CROSSCOMPILING)
-    # The LOCATION doesn't seem to work on Visual Studio 7
-    IF(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-      SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
-      SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-    ELSE(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-      GET_TARGET_PROPERTY(VTK_WRAP_TCL_EXE      vtkWrapTcl     LOCATION)
-      GET_TARGET_PROPERTY(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit LOCATION)
-    ENDIF(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
+  SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
 
   # VTK tcl executables.
   SET(VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)
@@ -1159,27 +1148,8 @@ ENDIF(VTK_WRAP_TCL)
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support, setup the wrapper executables
 IF(VTK_WRAP_PYTHON)
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-    SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-  ELSE(CMAKE_CROSSCOMPILING)
-    IF(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-      SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-      SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-    ELSE(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-      GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_EXE vtkWrapPython LOCATION)
-      GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit LOCATION)
-    ENDIF(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-  ENDIF(CMAKE_CROSSCOMPILING)
-
-  # Save these in cache as other projects including VTK (such as ParaView) may
-  # want to use these.
-  SET(VTK_WRAP_PYTHON_EXE
-    "${VTK_WRAP_PYTHON_EXE}"
-    CACHE INTERNAL "Location of program to do Python wrapping")
-  SET(VTK_WRAP_PYTHON_INIT_EXE
-    "${VTK_WRAP_PYTHON_INIT_EXE}"
-    CACHE INTERNAL "Location of program to do Python wrapping")
+  SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
+  SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
 
   # VTK python executables.
   SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
@@ -1193,18 +1163,8 @@ ENDIF(VTK_WRAP_PYTHON)
 # Configure Java wrapping support, setup executables
 IF(VTK_WRAP_JAVA)
   # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-    SET(VTK_PARSE_JAVA_EXE vtkParseJava)
-  ELSE(CMAKE_CROSSCOMPILING)
-    IF(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-      SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-      SET(VTK_PARSE_JAVA_EXE vtkParseJava)
-    ELSE(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-      GET_TARGET_PROPERTY(VTK_WRAP_JAVA_EXE  vtkWrapJava  LOCATION)
-      GET_TARGET_PROPERTY(VTK_PARSE_JAVA_EXE vtkParseJava LOCATION)
-    ENDIF(CMAKE_GENERATOR MATCHES "Visual Studio 7.*")
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
+  SET(VTK_PARSE_JAVA_EXE vtkParseJava)
 
   # Java package location.
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
@@ -1213,6 +1173,10 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
+
+#-----------------------------------------------------------------------------
+# Set the encoder for shader programs
+SET(VTK_ENCODESTRING_EXE vtkEncodeString)
 
 #-----------------------------------------------------------------------------
 # Add the option to use Boost
