@@ -123,7 +123,9 @@ void output_temp(FILE *fp, int i, unsigned int aType,
     }
 
   /* for const * return types prototype with const */
-  if ((i == MAX_ARGS) && ((aType & VTK_PARSE_CONST) != 0))
+  if ((i == MAX_ARGS) &&
+      ((aType & VTK_PARSE_INDIRECT) != 0) &&
+      ((aType & VTK_PARSE_CONST) != 0))
     {
     fprintf(fp,"    const ");
     }
