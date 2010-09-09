@@ -14,7 +14,7 @@
 =========================================================================*/
 // This test covers intersection of a ray with many polygons
 // using the vtkModifiedBSPTree class.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -47,18 +47,17 @@
 #include "vtkSelectionSource.h"
 #include "vtkExtractSelection.h"
 
-#ifdef WIN32
-  #include <conio.h>
-#endif
-
 //#define TESTING_LOOP
 
 int TestBSPTree(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkSmartPointer<vtkRenderer>           renderer = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow>         renWin = vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renWin->AddRenderer(renderer);
   iren->SetRenderWindow(renWin);
 
@@ -66,7 +65,7 @@ int TestBSPTree(int argc, char* argv[])
   int bestSeed = 0;
   for (int s=931; s<=931; s++) {
     renderer->RemoveAllViewProps();
-    
+
     //
     // Create random point cloud
     //
@@ -83,14 +82,14 @@ int TestBSPTree(int argc, char* argv[])
     sphere->SetCenter(0.0,0.0,0.0);
     sphere->SetThetaResolution(16);
     sphere->SetPhiResolution(16);
-       
+
     //
     // Glyph many small spheres over point cloud
     //
     vtkSmartPointer<vtkGlyph3D> glyph = vtkSmartPointer<vtkGlyph3D>::New();
     glyph->SetInputConnection(0,points->GetOutputPort(0));
     glyph->SetSourceConnection(sphere->GetOutputPort(0));
-    glyph->SetScaling(0); 
+    glyph->SetScaling(0);
     glyph->Update();
 
     double bounds[6];
@@ -101,94 +100,98 @@ int TestBSPTree(int argc, char* argv[])
     //
     // Intersect Ray with BSP tree full of spheres
     //
-    vtkSmartPointer<vtkModifiedBSPTree> BSPTree = vtkSmartPointer<vtkModifiedBSPTree>::New();
-    BSPTree->SetDataSet(glyph->GetOutput(0));
-    BSPTree->SetMaxLevel(12);
-    BSPTree->SetNumberOfCellsPerNode(16);
-    BSPTree->BuildLocator();
+    vtkSmartPointer<vtkModifiedBSPTree> bspTree =
+      vtkSmartPointer<vtkModifiedBSPTree>::New();
+    bspTree->SetDataSet(glyph->GetOutput(0));
+    bspTree->SetMaxLevel(12);
+    bspTree->SetNumberOfCellsPerNode(16);
+    bspTree->BuildLocator();
 
-    vtkSmartPointer<vtkPoints>   verts = vtkSmartPointer<vtkPoints>::New();
+    vtkSmartPointer<vtkPoints> verts = vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
     double p1[3] = {-0.1, -0.1, -0.1} , p2[3] = {0.1, 0.1, 0.1};
-    BSPTree->IntersectWithLine(p1, p2, tol, verts, cellIds);
+    bspTree->IntersectWithLine(p1, p2, tol, verts, cellIds);
 
     vtkSmartPointer<vtkPolyData> intersections = vtkSmartPointer<vtkPolyData>::New();
     vtkSmartPointer<vtkCellArray>     vertices = vtkSmartPointer<vtkCellArray>::New();
-    vtkIdType N = verts->GetNumberOfPoints();
-    vtkIdType *cells = vertices->WritePointer(0, N*2);
-    for (int i=0; i<N; i++) {
-      cells[i*2]   = 1;  
-      cells[i*2+1] = i;  
+    vtkIdType n = verts->GetNumberOfPoints();
+    vtkIdType *cells = vertices->WritePointer(0, n*2);
+    for (int i=0; i<n; i++) {
+      cells[i*2]   = 1;
+      cells[i*2+1] = i;
     }
     intersections->SetPoints(verts);
     intersections->SetVerts(vertices);
 
-    cout << "Seed = " << s << " Number of intersections is " << N << endl;
+    std::cout << "Seed = " << s << " Number of intersections is " << N << std::endl;
 
     vtkSmartPointer<vtkSelectionSource> selection = vtkSmartPointer<vtkSelectionSource>::New();
     vtkSmartPointer<vtkExtractSelection>  extract = vtkSmartPointer<vtkExtractSelection>::New();
     selection->SetContentType(vtkSelectionNode::INDICES);
     selection->SetFieldType(vtkSelectionNode::CELL);
-    for (int I=0; I<cellIds->GetNumberOfIds(); I++) {
-      cout << cellIds->GetId(I) << ",";
-      selection->AddID(-1, cellIds->GetId(I));
+    for (int i=0; i<cellIds->GetNumberOfIds(); i++) {
+      std::cout << cellIds->GetId(i) << ",";
+      selection->AddID(-1, cellIds->GetId(i));
     }
-    cout << endl;
+    std::cout << std::endl;
     //
     extract->SetInputConnection(glyph->GetOutputPort());
     extract->SetSelectionConnection(selection->GetOutputPort());
     extract->Update();
 
-    if (N>maxI) {
-      maxI = N;
+    if (n>maxi) {
+      maxI = n;
       bestSeed = s;
     }
-    cout << "maxI = " << maxI << " At seed " << bestSeed << endl << endl;
+    std::cout << "maxI = " << maxI << " At seed " << bestSeed << std::endl << std::endl;
 
 #ifndef TESTING_LOOP
     //
     // Render cloud of target spheres
     //
-    vtkSmartPointer<vtkPolyDataMapper> Smapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    Smapper->SetInputConnection(glyph->GetOutputPort(0));
-      
-    vtkSmartPointer<vtkProperty> Sproperty = vtkSmartPointer<vtkProperty>::New();
-    Sproperty->SetColor(1.0, 1.0, 1.0);
-//    Sproperty->SetOpacity(0.25);
-    Sproperty->SetAmbient(0.0);
-    Sproperty->SetBackfaceCulling(1);
-    Sproperty->SetFrontfaceCulling(0);
-    Sproperty->SetRepresentationToPoints();
-    Sproperty->SetInterpolationToFlat();
+    vtkSmartPointer<vtkPolyDataMapper> smapper =
+      vtkSmartPointer<vtkPolyDataMapper>::New();
+    smapper->SetInputConnection(glyph->GetOutputPort(0));
 
-    vtkSmartPointer<vtkActor> Sactor = vtkSmartPointer<vtkActor>::New();
-    Sactor->SetMapper(Smapper);
-    Sactor->SetProperty(Sproperty);
-    renderer->AddActor(Sactor);
+    vtkSmartPointer<vtkProperty> sproperty = vtkSmartPointer<vtkProperty>::New();
+    sproperty->SetColor(1.0, 1.0, 1.0);
+//  sproperty->SetOpacity(0.25);
+    sproperty->SetAmbient(0.0);
+    sproperty->SetBackfaceCulling(1);
+    sproperty->SetFrontfaceCulling(0);
+    sproperty->SetRepresentationToPoints();
+    sproperty->SetInterpolationToFlat();
+
+    vtkSmartPointer<vtkActor> sactor =
+      vtkSmartPointer<vtkActor>::New();
+    sactor->SetMapper(smapper);
+    sactor->SetProperty(sproperty);
+    renderer->AddActor(sactor);
 
     //
     // Render Intersection points
     //
-    vtkSmartPointer<vtkGlyph3D> Iglyph = vtkSmartPointer<vtkGlyph3D>::New();
-    Iglyph->SetInput(0,intersections);
-    Iglyph->SetSourceConnection(sphere->GetOutputPort(0));
-    Iglyph->SetScaling(1); 
-    Iglyph->SetScaleFactor(0.05); 
-    Iglyph->Update();
+    vtkSmartPointer<vtkGlyph3D> iglyph = vtkSmartPointer<vtkGlyph3D>::New();
+    iglyph->SetInput(0,intersections);
+    iglyph->SetSourceConnection(sphere->GetOutputPort(0));
+    iglyph->SetScaling(1);
+    iglyph->SetScaleFactor(0.05);
+    iglyph->Update();
 
-    vtkSmartPointer<vtkPolyDataMapper> Imapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    Imapper->SetInputConnection(Iglyph->GetOutputPort(0));
+    vtkSmartPointer<vtkPolyDataMapper> imapper =
+      vtkSmartPointer<vtkPolyDataMapper>::New();
+    imapper->SetInputConnection(iglyph->GetOutputPort(0));
 
-    vtkSmartPointer<vtkProperty> Iproperty = vtkSmartPointer<vtkProperty>::New();
-    Iproperty->SetOpacity(1.0);
-    Iproperty->SetColor(0.0, 0.0, 1.0);
-    Iproperty->SetBackfaceCulling(1);
-    Iproperty->SetFrontfaceCulling(0);
+    vtkSmartPointer<vtkProperty> iproperty = vtkSmartPointer<vtkProperty>::New();
+    iproperty->SetOpacity(1.0);
+    iproperty->SetColor(0.0, 0.0, 1.0);
+    iproperty->SetBackfaceCulling(1);
+    iproperty->SetFrontfaceCulling(0);
 
-    vtkSmartPointer<vtkActor> Iactor = vtkSmartPointer<vtkActor>::New();
-    Iactor->SetMapper(Imapper);
-    Iactor->SetProperty(Iproperty);
-    renderer->AddActor(Iactor);
+    vtkSmartPointer<vtkActor> iactor = vtkSmartPointer<vtkActor>::New();
+    iactor->SetMapper(imapper);
+    iactor->SetProperty(iproperty);
+    renderer->AddActor(iactor);
 
     //
     // Render Ray
@@ -197,32 +200,32 @@ int TestBSPTree(int argc, char* argv[])
     ray->SetPoint1(p1);
     ray->SetPoint2(p2);
 
-    vtkSmartPointer<vtkPolyDataMapper> Rmapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    Rmapper->SetInputConnection(ray->GetOutputPort(0));
+    vtkSmartPointer<vtkPolyDataMapper> rmapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    rmapper->SetInputConnection(ray->GetOutputPort(0));
 
-    vtkSmartPointer<vtkActor> Lactor = vtkSmartPointer<vtkActor>::New();
-    Lactor->SetMapper(Rmapper);
-    renderer->AddActor(Lactor);
+    vtkSmartPointer<vtkActor> lactor = vtkSmartPointer<vtkActor>::New();
+    lactor->SetMapper(rmapper);
+    renderer->AddActor(lactor);
 
     //
     // Render Intersected Cells (extracted using selection)
     //
-    vtkSmartPointer<vtkDataSetMapper> Cmapper = vtkSmartPointer<vtkDataSetMapper>::New();
-    Cmapper->SetInputConnection(extract->GetOutputPort(0));
+    vtkSmartPointer<vtkDataSetMapper> cmapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    cmapper->SetInputConnection(extract->GetOutputPort(0));
 
-    vtkSmartPointer<vtkProperty> Cproperty = vtkSmartPointer<vtkProperty>::New();
-    Cproperty->SetColor(0.0, 1.0, 1.0);
-    Cproperty->SetBackfaceCulling(0);
-    Cproperty->SetFrontfaceCulling(0);
-    Cproperty->SetAmbient(1.0);
-    Cproperty->SetLineWidth(3.0);
-    Cproperty->SetRepresentationToWireframe();
-    Cproperty->SetInterpolationToFlat();
+    vtkSmartPointer<vtkProperty> cproperty = vtkSmartPointer<vtkProperty>::New();
+    cproperty->SetColor(0.0, 1.0, 1.0);
+    cproperty->SetBackfaceCulling(0);
+    cproperty->SetFrontfaceCulling(0);
+    cproperty->SetAmbient(1.0);
+    cproperty->SetLineWidth(3.0);
+    cproperty->SetRepresentationToWireframe();
+    cproperty->SetInterpolationToFlat();
 
-    vtkSmartPointer<vtkActor> Cactor = vtkSmartPointer<vtkActor>::New();
-    Cactor->SetMapper(Cmapper);
-    Cactor->SetProperty(Cproperty);
-    renderer->AddActor(Cactor);
+    vtkSmartPointer<vtkActor> cactor = vtkSmartPointer<vtkActor>::New();
+    cactor->SetMapper(cmapper);
+    cactor->SetProperty(cproperty);
+    renderer->AddActor(cactor);
 
     //
     // Standard testing code.
