@@ -132,11 +132,7 @@ MACRO(get_modules modules prefix files )
 ENDMACRO(get_modules)
 
 SET(CMD_DEP ProcessShader)
-IF(CMAKE_CROSSCOMPILING)
-  SET(CMD ProcessShader)
-ELSE(CMAKE_CROSSCOMPILING)
-  GET_TARGET_PROPERTY(CMD ProcessShader LOCATION)
-ENDIF(CMAKE_CROSSCOMPILING)
+SET(CMD ProcessShader)
 
 IF (VTK_USE_CG_SHADERS)
   # Create the Cg library.

@@ -48,15 +48,9 @@ ELSE (NOT UNIX)
     ENDIF(COMPILE_TOOLS_TARGET)
   ENDIF(NOT CMAKE_CROSSCOMPILING)
 
-  IF(CMAKE_CROSSCOMPILING)
-    SET(vtkmkg3statesExe vtkmkg3states)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(vtkmkg3statesExe vtkmkg3states LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
-
   ADD_CUSTOM_COMMAND(
     OUTPUT ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-    COMMAND ${vtkmkg3statesExe}
+    COMMAND vtkmkg3states
     ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
     DEPENDS vtkmkg3states
     )

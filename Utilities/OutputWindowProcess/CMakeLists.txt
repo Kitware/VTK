@@ -30,17 +30,20 @@ ELSE(NOT VTK_OWP_BUILD_INNER)
   PROJECT(VTK_OWP_INNER)
 
   ADD_EXECUTABLE(vtkWin32OutputWindowProcess WIN32 vtkWin32OutputWindowProcess.c)
-  GET_TARGET_PROPERTY(VTK_OWP_EXE vtkWin32OutputWindowProcess LOCATION)
+  SET(VTK_OWP_EXE vtkWin32OutputWindowProcess)
+  # Rely on VTKs executable output directory
+  SET(VTK_OWP_EXE_PATH ${EXECUTABLE_OUTPUT_PATH}/vtkWin32OutputWindowProcess)
+
   IF(NOT BORLAND)
     TARGET_LINK_LIBRARIES(vtkWin32OutputWindowProcess gdi32)
   ENDIF(NOT BORLAND)
 
   ADD_EXECUTABLE(vtkEncodeExecutable vtkEncodeExecutable.c)
-  GET_TARGET_PROPERTY(VTK_ENCODE_EXE vtkEncodeExecutable LOCATION)
+  SET(VTK_ENCODE_EXE vtkEncodeExecutable)
   ADD_CUSTOM_COMMAND(
     OUTPUT ${VTK_OWP_OUTPUT}
     COMMAND ${VTK_ENCODE_EXE}
-    ARGS ${VTK_OWP_EXE} ${VTK_OWP_OUTPUT} ${VTK_OWP_NAME}
+    ARGS ${VTK_OWP_EXE_PATH} ${VTK_OWP_OUTPUT} ${VTK_OWP_NAME}
     DEPENDS ${VTK_OWP_EXE} ${VTK_ENCODE_EXE}
     )
 
