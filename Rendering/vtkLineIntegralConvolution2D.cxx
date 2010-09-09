@@ -257,13 +257,24 @@ int vtkLineIntegralConvolution2D::Execute( int extent[4] )
 
 // ----------------------------------------------------------------------------
 // checks if the context supports the required extensions
-bool vtkLineIntegralConvolution2D::IsSupported( vtkRenderWindow * renWin )
+bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
 {
-  return (   vtkTextureObject::IsSupported( renWin ) &&
-             vtkFrameBufferObject::IsSupported( renWin ) &&
-             vtkShaderProgram2::IsSupported
-             (  static_cast< vtkOpenGLRenderWindow * >( renWin )  )
-         );
+  vtkOpenGLRenderWindow *w=static_cast<vtkOpenGLRenderWindow *>(renWin);
+
+  // As we cannot figure out more accurately why the LIC algorithm does not
+  // work on OpenGL 2.1/DX9 GPU, we discriminate an OpenGL3.0/DX10 GPU
+  // (like a nVidia GeForce 8) against an OpenGL 2.1/DX9 GPU (like an nVidia
+  // GeForce 6) by testing for geometry shader support, even if we are not
+  // using any geometry shader in the LIC algorithm.
+
+  vtkOpenGLExtensionManager *e=w->GetExtensionManager();
+  bool supportGS=e->ExtensionSupported("GL_VERSION_3_0")==1 ||
+    e->ExtensionSupported("GL_ARB_geometry_shader4")==1 ||
+    e->ExtensionSupported("GL_EXT_geometry_shader4")==1;
+
+  return supportGS && vtkTextureObject::IsSupported(renWin) &&
+    vtkFrameBufferObject::IsSupported(renWin) &&
+    vtkShaderProgram2::IsSupported(w);
 }
 
 // ----------------------------------------------------------------------------
