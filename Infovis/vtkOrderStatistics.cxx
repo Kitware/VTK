@@ -61,6 +61,7 @@ vtkOrderStatistics::~vtkOrderStatistics()
 void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "NumericType: " << this->NumericType << endl;
   os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
 }
