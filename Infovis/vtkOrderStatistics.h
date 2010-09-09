@@ -60,11 +60,18 @@ public:
   //ETX
 
   // Description:
-  // Set the number of quantiles (with uniform spacing).
-  vtkSetMacro( NumberOfIntervals, vtkIdType );
+  // Set/get whether it should be attempted to use the order on real numbers, or if
+  // the lexicographic order will be used for Derive and Assess; in Learn, the
+  // primary model (histogram) is always constructed using the lexicographic order.
+  // The default is that the order on real numbers will be used, which can produce
+  // unexpected results for non-numeric types.
+  vtkSetMacro(OrderOnReals,int);
+  vtkGetMacro(OrderOnReals,int);
+  vtkBooleanMacro(OrderOnReals,int);
 
   // Description:
-  // Get the number of quantiles (with uniform spacing).
+  // Set/Get the number of quantiles (with uniform spacing).
+  vtkSetMacro( NumberOfIntervals, vtkIdType );
   vtkGetMacro( NumberOfIntervals, vtkIdType );
 
   // Description:
@@ -119,6 +126,7 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
+  int OrderOnReals;
   int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 
