@@ -347,7 +347,6 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
       // Update cardinalities and marginal counts
       x = atof( vals->GetValue( r ).c_str() );
-      cerr << "* " << vals->GetValue( r ).c_str() << " " << x << "\n";
       c = card->GetValue( r );
       cardinalities[key] += c;
       // It is assumed that the histogram be consistent (no repeated values for a given variable)
@@ -403,7 +402,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
             nit != mit->second.end(); ++ nit  )
         {
         for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
-          // Mid-point interpolation will make sense for types which can be cast to double only
+          // Mid-point interpolation when such is requested
           if ( midPt && sum == *qit )
             {
             vtksys_stl::map<double,vtkIdType>::iterator oit = nit;
@@ -506,10 +505,10 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
               nit != mit->second.end(); ++ nit  )
           {
           for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
-            // Mid-point interpolation will make sense for types which can be cast to double only
+            // Mid-point interpolation may not make sense for non-numeric types
             if ( midPt && sum == *qit )
               {
-              // Attempt to cast string interval bounds  to real numbers
+              // Attempt to cast string interval bounds to real numbers
               vtksys_stl::map<vtkStdString,vtkIdType>::iterator oit = nit;
               double midVal = ( atof( (++ oit)->first.c_str() ) + atof( nit->first.c_str() ) ) * .5;
               rowQuant->SetValue( j ++, midVal );
