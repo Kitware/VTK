@@ -32,7 +32,12 @@ namespace {
 template<typename T>
 static void WriteValue(std::ostream& stream, const T& value)
 {
-  if(std::numeric_limits<T>::is_specialized && (std::abs(value) < std::numeric_limits<T>::min()))
+  stream << value;
+}
+
+static void WriteValue(std::ostream& stream, const double& value)
+{
+  if(std::abs(value) < std::numeric_limits<double>::min())
     stream << 0;
   else
     stream << value;
