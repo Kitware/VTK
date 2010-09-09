@@ -36,7 +36,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
 #include <vtksys/stl/set>
-#include <vtksys/ios/sstream>
 
 typedef vtksys_stl::map<vtkStdString,double> CDF;
 
@@ -50,7 +49,7 @@ vtkOrderStatistics::vtkOrderStatistics()
 
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "Quantile" );
-  this->OrderOnReals = 1; // By default, use order on reals (for Derive and Assess)
+  this->NumericType = 0; // By default, treat values as strings (which will always work)
 }
 
 // ----------------------------------------------------------------------
@@ -93,9 +92,9 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
                                        int vtkNotUsed( index ),
                                        vtkVariant value )
 {
-  if ( ! strcmp( parameter, "OrderOnReals" ) )
+  if ( ! strcmp( parameter, "NumericType" ) )
     {
-    this->SetOrderOnReals( value.ToInt() );
+    this->SetNumericType( value.ToInt() );
 
     return true;
     }
@@ -327,7 +326,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
 
   // Decide (once and not for each data point for efficiency) whether lexicographic or numeric order is to be used
-  if ( this->OrderOnReals )
+  if ( this->NumericType )
     {
     // Use order on real numbers
     double x;
@@ -431,7 +430,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       rowQuant->SetValue( j, mit->second.rbegin()->first );
       quantileTab->InsertNextRow( rowQuant );
       } // mit
-    } // if ( this->OrderOnReals )
+    } // if ( this->NumericType )
   else
     {
     // Use lexicographic order
@@ -501,25 +500,14 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       // Then calculate quantiles
       vtkIdType sum = 0;
       int j = 2;
-      bool midPt = ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps ? 1 : 0 );
       vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
       for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator nit = mit->second.begin();
             nit != mit->second.end(); ++ nit  )
         {
         for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
           {
-          // Mid-point interpolation may not make sense for non-numeric types
-          if ( midPt && sum == *qit )
-            {
-            // Attempt to cast string interval bounds to real numbers
-            vtksys_stl::map<vtkStdString,vtkIdType>::iterator oit = nit;
-            double midVal = ( atof( (++ oit)->first.c_str() ) + atof( nit->first.c_str() ) ) * .5;
-            rowQuant->SetValue( j ++, midVal );
-            }
-          else
-            {
-            rowQuant->SetValue( j ++, nit->first );
-            }
+          // No mid-point interpolation for non-numeric types
+          rowQuant->SetValue( j ++, nit->first );
           } // qit
         } // nit
 
@@ -537,7 +525,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       rowQuant->SetValue( j, mit->second.rbegin()->first );
       quantileTab->InsertNextRow( rowQuant );
       } // mit
-    } // else ( this->OrderOnReals )
+    } // else ( this->NumericType )
 
   // Resize output meta so quantile table can be appended
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
@@ -888,7 +876,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
         }
 
       // Select assess functor depending on column type and requested order
-      if ( this->OrderOnReals )
+      if ( this->NumericType )
         {
         if ( vals->IsA( "vtkDataArray" ) )
           {
@@ -901,7 +889,7 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
           dfunc = new StringColumnToDoubleQuantizationFunctor( vals, quantileTab->GetRow( r ) );
           }
         }
-      else //  if ( this->OrderOnReals )
+      else //  if ( this->NumericType )
         {
         // If non-numeric ordering requested then treat everything as strings
         dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );

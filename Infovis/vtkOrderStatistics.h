@@ -55,19 +55,19 @@ public:
   //BTX
   enum QuantileDefinitionType {
     InverseCDF              = 0,
-    InverseCDFAveragedSteps = 1
+    InverseCDFAveragedSteps = 1 // Ignored for non-numeric types
     };
   //ETX
 
   // Description:
-  // Set/get whether it should be attempted to use the order on real numbers, or if
-  // the lexicographic order will be used for Derive and Assess; in Learn, the
-  // primary model (histogram) is always constructed using the lexicographic order.
-  // The default is that the order on real numbers will be used, which can produce
-  // unexpected results for non-numeric types.
-  vtkSetMacro(OrderOnReals,int);
-  vtkGetMacro(OrderOnReals,int);
-  vtkBooleanMacro(OrderOnReals,int);
+  // Set/get whether histograms and assessment data should be treated as numeric data.
+  // Otherwise, then everything is treated as strings, which always works, and is thus the
+  // the default.
+  // Note that if the data is indeed numeric but this is not set, some strange results will
+  // occur because of the use of the lexicographic order instead of the order on reals.
+  vtkSetMacro( NumericType, int );
+  vtkGetMacro( NumericType, int );
+  vtkBooleanMacro( NumericType, int );
 
   // Description:
   // Set/Get the number of quantiles (with uniform spacing).
@@ -126,7 +126,7 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  int OrderOnReals;
+  int NumericType;
   int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 

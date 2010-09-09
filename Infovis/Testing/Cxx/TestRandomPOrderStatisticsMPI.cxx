@@ -96,19 +96,20 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   timer->StartTimer();
 
   // Instantiate a parallel order statistics engine and set its ports
-  vtkPOrderStatistics* pcs = vtkPOrderStatistics::New();
-  pcs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pcs->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkPOrderStatistics* pos = vtkPOrderStatistics::New();
+  pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
-  pcs->AddColumn( columnNames[0] );
+  pos->AddColumn( columnNames[0] );
 
   // Test (in parallel) with Learn, Derive, and Assess options turned on
-  pcs->SetLearnOption( true );
-  pcs->SetDeriveOption( true );
-  pcs->SetAssessOption( true );
-  pcs->SetTestOption( false );
-  pcs->Update();
+  pos->SetLearnOption( true );
+  pos->SetDeriveOption( true );
+  pos->SetAssessOption( true );
+  pos->SetTestOption( false );
+  pos->SetNumericType( true ); // Data set is numeric
+  pos->Update();
 
   // Synchronize and stop clock
   com->Barrier();
@@ -167,7 +168,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     }
 
   // Clean up
-  pcs->Delete();
+  pos->Delete();
   inputData->Delete();
   timer->Delete();
 }
