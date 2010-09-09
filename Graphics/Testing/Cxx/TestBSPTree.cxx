@@ -123,7 +123,7 @@ int TestBSPTree(int argc, char* argv[])
     intersections->SetPoints(verts);
     intersections->SetVerts(vertices);
 
-    std::cout << "Seed = " << s << " Number of intersections is " << N << std::endl;
+    std::cout << "Seed = " << s << " Number of intersections is " << n << std::endl;
 
     vtkSmartPointer<vtkSelectionSource> selection = vtkSmartPointer<vtkSelectionSource>::New();
     vtkSmartPointer<vtkExtractSelection>  extract = vtkSmartPointer<vtkExtractSelection>::New();
@@ -139,7 +139,7 @@ int TestBSPTree(int argc, char* argv[])
     extract->SetSelectionConnection(selection->GetOutputPort());
     extract->Update();
 
-    if (n>maxi) {
+    if (n>maxI) {
       maxI = n;
       bestSeed = s;
     }
