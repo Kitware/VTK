@@ -3239,11 +3239,11 @@ unsigned int guess_constant_type(const char *valstring)
 
     if (result == VTK_PARSE_PREPROC_DOUBLE)
       {
-      return VTK_DOUBLE;
+      return VTK_PARSE_DOUBLE;
       }
     else if (result == VTK_PARSE_PREPROC_FLOAT)
       {
-      return VTK_FLOAT;
+      return VTK_PARSE_FLOAT;
       }
     else if (result == VTK_PARSE_PREPROC_STRING)
       {
