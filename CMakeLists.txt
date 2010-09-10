@@ -161,6 +161,14 @@ ENDIF(NOT LIBRARY_OUTPUT_PATH)
 IF(NOT EXECUTABLE_OUTPUT_PATH)
   SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
 ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
+
+#-----------------------------------------------------------------------------
+# Directories with the configuration subdir, for advanced use only.
+# These are only used when passing arguments to custom commands,
+# or when writing config files for use by external projects.
+# In other circumstances, the build system will handle the config
+# subdirectory automatically.
+
 IF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
   SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})
   SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH})
@@ -168,6 +176,9 @@ ELSE("${CMAKE_CFG_INTDIR}" STREQUAL ".")
   SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
   SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+
+#-----------------------------------------------------------------------------
+# Where the cxx tests are, for use in ADD_TEST
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
 #-----------------------------------------------------------------------------
