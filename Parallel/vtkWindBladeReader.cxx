@@ -39,6 +39,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/string>
 #include <vtksys/ios/sstream>
 #include <vtksys/ios/iostream>
+#include <cstring>
+#include <cmath>
 
 #include "vtkMultiProcessController.h"
 
@@ -120,6 +122,9 @@ vtkWindBladeReader::vtkWindBladeReader()
     this->TotalRank = 1;
     }
 
+  // by default don't skip any lines because normal wind files do not
+  // have a header
+  this->NumberLinesToSkip = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1164,7 +1169,7 @@ void vtkWindBladeReader::SetupBladeData()
            << this->TurbineTowerName;
   ifstream inStr(fileName.str().c_str());
   if (!inStr)
-    cout << "Could not open " << fileName << endl;
+    cout << "Could not open " << fileName.str().c_str() << endl;
 
   // File is ASCII text so read until EOF
   char inBuf[LINE_SIZE];
@@ -1172,6 +1177,25 @@ void vtkWindBladeReader::SetupBladeData()
   float angularVelocity, angleBlade1;
   int numberOfBlades;
   int towerID;
+  // all header stuff is here to deal with wind data format changes
+  // number of columns tells us if the turbine tower file has at least 13
+  // columns. if so then we are dealing with a wind data format that has
+  // an extra header in the turbine blade files
+  int numColumns = 0;
+
+  // test first line in turbine tower file to see if it has at least 13th column
+  // if so then this is indication of "new" format
+  if (inStr.getline(inBuf, LINE_SIZE)) {
+    unsigned int len = strlen(inBuf);
+    // number of lines corresponds to number of spaces
+    for (unsigned int i = 0; i < len; i++)
+      if (inBuf[i] == ' ')
+        numColumns++;
+  }
+  else
+    std::cout << fileName.str().c_str() << " is empty!\n";
+  // reset seek position
+  inStr.seekg(ios_base::beg);
 
   while (inStr.getline(inBuf, LINE_SIZE)) {
 
@@ -1194,10 +1218,38 @@ void vtkWindBladeReader::SetupBladeData()
             << this->TurbineDirectory << Slash
             << this->TurbineBladeName << this->TimeStepFirst;
   ifstream inStr2(fileName2.str().c_str());
-  if (!inStr2)
-    cout << "Could not open " << fileName2 << endl;
+  if (!inStr2) {
+    cout << "Could not open blade file: " << fileName2.str().c_str() <<
+            " to calculate blade cells...\n";
+    for (int i = this->TimeStepFirst + this->TimeStepDelta; i <= this->TimeStepLast;
+         i += this->TimeStepDelta) {
+      ostringstream fileName3;
+      fileName3 << this->RootDirectory << Slash
+                  << this->TurbineDirectory << Slash
+                  << this->TurbineBladeName << i;
+      std::cout << "Trying " << fileName3.str().c_str() << "...";
+      inStr2.open(fileName3.str().c_str());
+      if(inStr2.good()) {
+        std::cout << "success.\n";
+        break;
+      }
+      else
+        std::cout << "failure.\n";
+    }
+  }
 
   this->NumberOfBladeCells = 0;
+  // if we have at least 13 columns, then this is the new format with a header in the
+  // turbine blade file
+  if (numColumns >= 13 && inStr2) {
+    int linesSkipped = 0;
+    // each blade tower tries to split the columns such that there are
+    // five items per line in header, so skip those lines
+    this->NumberLinesToSkip = this->NumberOfBladeTowers*(int)ceil(numColumns/5.0);
+    // now skip the first few lines based on header, if that applies
+    while(inStr2.getline(inBuf, LINE_SIZE) && linesSkipped < NumberLinesToSkip)
+      linesSkipped++;
+  }
   while (inStr2.getline(inBuf, LINE_SIZE))
     this->NumberOfBladeCells++;
   inStr2.close();
@@ -1261,8 +1313,11 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   float x, y, z;
   vtkIdType cell[NUM_BASE_SIDES];
 
+  int linesRead = 0;
   while (inStr.getline(inBuf, LINE_SIZE)) {
-
+    // continue around header if need be
+    linesRead++;
+    if (linesRead <= this->NumberLinesToSkip) continue;
     istringstream line(inBuf);
     line >> turbineID >> bladeID >> partID;
 
