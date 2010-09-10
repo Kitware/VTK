@@ -108,7 +108,9 @@ vtkDataArray* vtkGlyph3DMapper::GetMaskArray(vtkDataSet* input)
 {
   if (this->Masking)
     {
-    return this->GetInputArrayToProcess(vtkGlyph3DMapper::MASK, input);
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+    return this->GetInputArrayToProcess(vtkGlyph3DMapper::MASK,
+      input, association);
     }
   return 0;
 }
@@ -132,8 +134,9 @@ vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
 {
   if (this->Orient)
     {
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
     return this->GetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION,
-      input);
+      input, association);
     }
   return NULL;
 }
@@ -157,7 +160,9 @@ vtkDataArray* vtkGlyph3DMapper::GetScaleArray(vtkDataSet* input)
 {
   if (this->Scaling && this->ScaleMode != vtkGlyph3DMapper::NO_DATA_SCALING)
     {
-    vtkDataArray* arr = this->GetInputArrayToProcess(vtkGlyph3DMapper::SCALE, input);
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+    vtkDataArray* arr = this->GetInputArrayToProcess(vtkGlyph3DMapper::SCALE,
+      input, association);
     return arr;
     }
   return 0;
@@ -182,8 +187,9 @@ vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
 {
   if (this->SourceIndexing)
     {
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
     return this->GetInputArrayToProcess(
-      vtkGlyph3DMapper::SOURCE_INDEX, input);
+      vtkGlyph3DMapper::SOURCE_INDEX, input, association);
     }
   return 0;
 }
