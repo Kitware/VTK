@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkWindBladeReader is a source object that reads WindBlade files
 // which are block binary files with tags before and after each block
-// giving the number of bytes within the block.  The number of data 
+// giving the number of bytes within the block.  The number of data
 // variables dumped varies.  The data is 3D rectilinear with irregular
 // spacing on the Z dimension.
 //
@@ -53,15 +53,21 @@ class vtkUnstructuredGrid;
 class vtkMultiBlockDataSetAglorithm;
 class vtkStructuredGridAlgorithm;
 
-class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm 
+class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkWindBladeReader *New();
   vtkTypeMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+
+  vtkSetVector6Macro(WholeExtent, int);
+  vtkGetVector6Macro(WholeExtent, int);
+
+  vtkSetVector6Macro(SubExtent, int);
+  vtkGetVector6Macro(SubExtent, int);
 
   // Description:
   // Get the reader's output
@@ -154,6 +160,8 @@ protected:
   vtkStdString TurbineDirectory; // Turbine unstructured data
   vtkStdString TurbineTowerName; // Name of tower file
   vtkStdString TurbineBladeName; // Base name of time series blade data
+  int NumberLinesToSkip;        // New format has lines that need to skipped
+                                // in blade files
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
@@ -162,7 +170,7 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   // Controlls initializing and querrying MPI
-  vtkMultiProcessController * MPIController; 
+  vtkMultiProcessController * MPIController;
 
   // Read the header file describing the dataset
   void ReadGlobalData();
@@ -192,7 +200,7 @@ protected:
   void CalculatePressure(int pres, int prespre, int tempg, int density);
 
   virtual int RequestData(
-    vtkInformation* request, 
+    vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -202,13 +210,13 @@ protected:
     vtkInformationVector* outputVector);
 
   static void SelectionCallback(
-    vtkObject *caller, 
+    vtkObject *caller,
     unsigned long eid,
-    void *clientdata, 
+    void *clientdata,
     void *calldata);
 
   static void EventCallback(
-    vtkObject* caller, 
+    vtkObject* caller,
     unsigned long eid,
     void* clientdata, void* calldata);
 
