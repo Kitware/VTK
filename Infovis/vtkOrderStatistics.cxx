@@ -718,23 +718,30 @@ class NumericColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFu
 {
 public:
   vtkDataArray* Data;
-  vtkVariantArray* Quantiles;
+  double* Quantix;
   vtkIdType NumberOfValues;
 
   NumericColumnQuantizationFunctor( vtkAbstractArray* vals,
                                     vtkVariantArray* quantiles )
   {
     this->Data = vtkDataArray::SafeDownCast( vals );
-    this->Quantiles = quantiles;
-    this->NumberOfValues = this->Quantiles->GetNumberOfValues() + 2;
+    this->NumberOfValues = quantiles->GetNumberOfValues() - 2;
+    this->Quantix = new double[quantiles->GetNumberOfValues()];
+    for ( int q = 0; q < this->NumberOfValues; ++ q )
+      {
+      this->Quantix[q] = quantiles->GetValue( q + 2 ).ToDouble();
+      }
   }
-  virtual ~NumericColumnQuantizationFunctor() { }
+  virtual ~NumericColumnQuantizationFunctor()
+  {
+    delete [] this->Quantix;
+  }
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
     double x = this->Data->GetTuple1( id );
 
-    if ( x < this->Quantiles->GetValue( 2 ).ToDouble() ) // Value #0 is the variable name and #1 is the cardinality
+    if ( x < this->Quantix[0] )
       {
       // x is smaller than lower bound
       result->SetNumberOfValues( 1 );
@@ -743,14 +750,14 @@ public:
       return;
       }
 
-    vtkIdType q = 3;
-    while ( q < this->NumberOfValues && x > this->Quantiles->GetValue( q ).ToDouble() )
+    vtkIdType q = 1;
+    while ( q < this->NumberOfValues && x > this->Quantix[q] )
       {
       ++ q;
       }
 
     result->SetNumberOfValues( 1 );
-    result->SetValue( 0, q - 2 );
+    result->SetValue( 0, q );
   }
 };
 
@@ -759,23 +766,30 @@ class StringColumnToDoubleQuantizationFunctor : public vtkStatisticsAlgorithm::A
 {
 public:
   vtkAbstractArray* Data;
-  vtkVariantArray* Quantiles;
+  double* Quantix;
   vtkIdType NumberOfValues;
 
   StringColumnToDoubleQuantizationFunctor( vtkAbstractArray* vals,
                                            vtkVariantArray* quantiles )
   {
     this->Data = vals;
-    this->Quantiles = quantiles;
-    this->NumberOfValues = this->Quantiles->GetNumberOfValues() + 2;
+    this->NumberOfValues = quantiles->GetNumberOfValues() - 2;
+    this->Quantix = new double[quantiles->GetNumberOfValues()];
+    for ( int q = 0; q < this->NumberOfValues; ++ q )
+      {
+      this->Quantix[q] = quantiles->GetValue( q + 2 ).ToDouble();
+      }
   }
-  virtual ~StringColumnToDoubleQuantizationFunctor() { }
+  virtual ~StringColumnToDoubleQuantizationFunctor()
+  {
+    delete [] this->Quantix;
+  }
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
     double x = this->Data->GetVariantValue( id ).ToDouble();
 
-    if ( x < this->Quantiles->GetValue( 2 ).ToDouble() ) // Value #0 is the variable name and #1 is the cardinality
+    if ( x < this->Quantix[0] )
       {
       // x is smaller than lower bound
       result->SetNumberOfValues( 1 );
@@ -784,14 +798,14 @@ public:
       return;
       }
 
-    vtkIdType q = 3;
-    while ( q < this->NumberOfValues && x > this->Quantiles->GetValue( q ).ToDouble() )
+    vtkIdType q = 1;
+    while ( q < this->NumberOfValues && x > this->Quantix[q] )
       {
       ++ q;
       }
 
     result->SetNumberOfValues( 1 );
-    result->SetValue( 0, q - 2 );
+    result->SetValue( 0, q );
   }
 };
 
@@ -800,23 +814,30 @@ class StringColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFun
 {
 public:
   vtkAbstractArray* Data;
-  vtkVariantArray* Quantiles;
+  vtkStdString* Quantix;
   vtkIdType NumberOfValues;
 
   StringColumnQuantizationFunctor( vtkAbstractArray* vals,
                                    vtkVariantArray* quantiles )
   {
     this->Data = vals;
-    this->Quantiles = quantiles;
-    this->NumberOfValues = this->Quantiles->GetNumberOfValues() + 2;
+    this->NumberOfValues = quantiles->GetNumberOfValues() - 2;
+    this->Quantix = new vtkStdString[quantiles->GetNumberOfValues()];
+    for ( int q = 0; q < this->NumberOfValues; ++ q )
+      {
+      this->Quantix[q] = quantiles->GetValue( q + 2 ).ToString();
+      }
   }
-  virtual ~StringColumnQuantizationFunctor() { }
+  virtual ~StringColumnQuantizationFunctor()
+  {
+    delete [] this->Quantix;
+  }
   virtual void operator() ( vtkVariantArray* result,
                             vtkIdType id )
   {
     vtkStdString x = this->Data->GetVariantValue( id ).ToString();
 
-    if ( x < this->Quantiles->GetValue( 2 ).ToString() ) // Value #0 is the variable name and #1 is the cardinality
+    if ( x < this->Quantix[0] )
       {
       // x is smaller than lower bound
       result->SetNumberOfValues( 1 );
@@ -825,14 +846,14 @@ public:
       return;
       }
 
-    vtkIdType q = 3;
-    while ( q < this->NumberOfValues && x > this->Quantiles->GetValue( q ).ToString() )
+    vtkIdType q = 1;
+    while ( q < this->NumberOfValues && x > this->Quantix[q] )
       {
       ++ q;
       }
 
     result->SetNumberOfValues( 1 );
-    result->SetValue( 0, q - 2 );
+    result->SetValue( 0, q );
   }
 };
 
