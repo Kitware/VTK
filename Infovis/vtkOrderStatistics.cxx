@@ -719,12 +719,14 @@ class NumericColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFu
 public:
   vtkDataArray* Data;
   vtkVariantArray* Quantiles;
+  vtkIdType NumberOfValues;
 
   NumericColumnQuantizationFunctor( vtkAbstractArray* vals,
                                     vtkVariantArray* quantiles )
   {
     this->Data = vtkDataArray::SafeDownCast( vals );
     this->Quantiles = quantiles;
+    this->NumberOfValues = this->Quantiles->GetNumberOfValues() + 2;
   }
   virtual ~NumericColumnQuantizationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -741,9 +743,8 @@ public:
       return;
       }
 
-    vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
     vtkIdType q = 3;
-    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
+    while ( q < this->NumberOfValues && x > this->Quantiles->GetValue( q ).ToDouble() )
       {
       ++ q;
       }
@@ -759,12 +760,14 @@ class StringColumnToDoubleQuantizationFunctor : public vtkStatisticsAlgorithm::A
 public:
   vtkAbstractArray* Data;
   vtkVariantArray* Quantiles;
+  vtkIdType NumberOfValues;
 
   StringColumnToDoubleQuantizationFunctor( vtkAbstractArray* vals,
                                            vtkVariantArray* quantiles )
   {
     this->Data = vals;
     this->Quantiles = quantiles;
+    this->NumberOfValues = this->Quantiles->GetNumberOfValues() + 2;
   }
   virtual ~StringColumnToDoubleQuantizationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -781,9 +784,8 @@ public:
       return;
       }
 
-    vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
     vtkIdType q = 3;
-    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
+    while ( q < this->NumberOfValues && x > this->Quantiles->GetValue( q ).ToDouble() )
       {
       ++ q;
       }
@@ -799,12 +801,14 @@ class StringColumnQuantizationFunctor : public vtkStatisticsAlgorithm::AssessFun
 public:
   vtkAbstractArray* Data;
   vtkVariantArray* Quantiles;
+  vtkIdType NumberOfValues;
 
   StringColumnQuantizationFunctor( vtkAbstractArray* vals,
                                    vtkVariantArray* quantiles )
   {
     this->Data = vals;
     this->Quantiles = quantiles;
+    this->NumberOfValues = this->Quantiles->GetNumberOfValues() + 2;
   }
   virtual ~StringColumnQuantizationFunctor() { }
   virtual void operator() ( vtkVariantArray* result,
@@ -821,9 +825,8 @@ public:
       return;
       }
 
-    vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
     vtkIdType q = 3;
-    while ( q < n && x > this->Quantiles->GetValue( q ).ToString() )
+    while ( q < this->NumberOfValues && x > this->Quantiles->GetValue( q ).ToString() )
       {
       ++ q;
       }

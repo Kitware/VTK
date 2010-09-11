@@ -108,6 +108,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   pos->SetDeriveOption( true );
   pos->SetAssessOption( true );
   pos->SetTestOption( false );
+  //pos->SetNumericType( false ); // Data set is not numeric
   pos->SetNumericType( true ); // Data set is numeric
   pos->Update();
 
