@@ -145,6 +145,7 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(const vtkContextMo
   this->FromParent(mouse.LastPos.GetData(), childMouse.LastPos.GetData());
   for (int i = this->Children->size()-1; i >= 0; --i)
     {
+    //cerr << "checking child " << i << ": " << (*this->Children)[i]->GetClassName() << endl;
     vtkAbstractContextItem* item = (*this->Children)[i]->GetPickedItem(childMouse);
     if (item)
       {

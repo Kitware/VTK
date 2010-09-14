@@ -530,24 +530,18 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
   event.Pos.Set(x, y);
 
   vtkAbstractContextItem* newItemPicked = this->GetPickedItem();
+#if 0
+  if (newItemPicked)
+    {
+    cerr << "picked a " << newItemPicked->GetClassName() << endl;
+    }
+  else
+    {
+    cerr << "picked nothing" << endl;
+    }
+#endif
   if (this->Storage->itemPicked.GetPointer() != newItemPicked)
     {
-    if (newItemPicked)
-      {
-      vtkContextMouseEvent itemEvent = event;
-      vtkAbstractContextItem* cur = newItemPicked;
-      cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-      cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
-      while (cur && !cur->MouseEnterEvent(event))
-        {
-        cur = cur->GetParent();
-        if (cur)
-          {
-          cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-          cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
-          }
-        }
-      }
     if (this->Storage->itemPicked.GetPointer())
       {
       // Make sure last picked object is still part of this scene.
@@ -565,6 +559,22 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
             cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
             cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
             }
+          }
+        }
+      }
+    if (newItemPicked)
+      {
+      vtkContextMouseEvent itemEvent = event;
+      vtkAbstractContextItem* cur = newItemPicked;
+      cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
+      cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+      while (cur && !cur->MouseEnterEvent(event))
+        {
+        cur = cur->GetParent();
+        if (cur)
+          {
+          cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
+          cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
           }
         }
       }
@@ -690,7 +700,7 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
   if (newItemPicked)
     {
     vtkContextMouseEvent itemEvent = event;
-    vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
+    vtkAbstractContextItem* cur = newItemPicked;
     cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
     cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
     while (cur && !cur->MouseWheelEvent(event, delta))
