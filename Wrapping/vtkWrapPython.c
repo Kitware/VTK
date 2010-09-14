@@ -859,7 +859,7 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       }
 
     /* Support for vtkIdType depends on config and capabilities */
-#if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != 8)
+#if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG)
     case VTK_PARSE_ID_TYPE:
     case VTK_PARSE_ID_TYPE_REF:
       {
@@ -909,7 +909,7 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
 
     /* support for "long long" depends on config and capabilities */
 #if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
-# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != 8)
+# if defined(PY_LONG_LONG)
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE_LONG_LONG_REF:
     case VTK_PARSE___INT64:
@@ -1670,7 +1670,7 @@ static const char *vtkWrapPython_PythonSignature(
             {
             vtkWPString_Append(result, ", ");
             }
-#if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
+#if defined(VTK_USE_64BIT_IDS)
           vtkWPString_Append(result, "long");
 #else
           vtkWPString_Append(result, "int");
@@ -1791,7 +1791,7 @@ static const char *vtkWrapPython_PythonSignature(
             {
             vtkWPString_Append(result, ", ");
             }
-#if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
+#if defined(VTK_USE_64BIT_IDS)
           vtkWPString_Append(result, "long");
 #else
           vtkWPString_Append(result, "int");
