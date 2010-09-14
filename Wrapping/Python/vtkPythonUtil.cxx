@@ -314,9 +314,13 @@ int vtkPythonUtil::CheckArg(
   switch (*format)
     {
     case 'b':
+    case 'B':
     case 'h':
+    case 'H':
     case 'l':
+    case 'k':
     case 'i':
+    case 'I':
 #if PY_VERSION_HEX >= 0x02030000
       if (PyBool_Check(arg))
         {
@@ -383,6 +387,7 @@ int vtkPythonUtil::CheckArg(
 
 #ifdef PY_LONG_LONG
     case 'L':
+    case 'K':
       if (!PyLong_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;

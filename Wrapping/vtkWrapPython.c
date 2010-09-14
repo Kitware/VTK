@@ -358,17 +358,23 @@ static void vtkWrapPython_ReturnHintedValue(FILE *fp, ValueInfo *val)
 #ifdef PY_LONG_LONG
     case VTK_PARSE_LONG_LONG_PTR: { c = "L"; break; }
     case VTK_PARSE___INT64_PTR: { c = "L"; break; }
+#if PY_VERSION_HEX >= 0x02030000
+    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR: { c = "K"; break; }
+    case VTK_PARSE_UNSIGNED___INT64_PTR: { c = "K"; break; }
+#endif
 #else
     case VTK_PARSE_LONG_LONG_PTR: { c = "l"; break; }
     case VTK_PARSE___INT64_PTR: { c = "l"; break; }
+#if PY_VERSION_HEX >= 0x02030000
+    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR: { c = "k"; break; }
+    case VTK_PARSE_UNSIGNED___INT64_PTR: { c = "k"; break; }
+#endif
 #endif
 
-    /* These should be added with appropriate compile-time checks */
-    case VTK_PARSE_UNSIGNED_INT_PTR:
-    case VTK_PARSE_UNSIGNED_LONG_PTR:
-    case VTK_PARSE_UNSIGNED___INT64_PTR:
-    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
-      break;
+#if PY_VERSION_HEX >= 0x02030000
+    case VTK_PARSE_UNSIGNED_INT_PTR: { c = "I"; break; }
+    case VTK_PARSE_UNSIGNED_LONG_PTR: { c = "k"; break; }
+#endif
     }
 
   if (c)
@@ -1019,18 +1025,41 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       typeChar = 'd';
       break;
     case VTK_PARSE_UNSIGNED_INT:
+#if PY_VERSION_HEX >= 0x02030000
+      typeChar = 'I';
+      break;
+#endif
     case VTK_PARSE_INT:
       typeChar = 'i';
       break;
     case VTK_PARSE_UNSIGNED_SHORT:
+#if PY_VERSION_HEX >= 0x02030000
+      typeChar = 'H';
+      break;
+#endif
     case VTK_PARSE_SHORT:
       typeChar = 'h';
       break;
     case VTK_PARSE_UNSIGNED_LONG:
+#if PY_VERSION_HEX >= 0x02030000
+      typeChar = 'k';
+      break;
+#endif
     case VTK_PARSE_LONG:
       typeChar = 'l';
       break;
     case VTK_PARSE_UNSIGNED_ID_TYPE:
+#if PY_VERSION_HEX >= 0x02030000
+#ifdef VTK_USE_64BIT_IDS
+#ifdef PY_LONG_LONG
+      typeChar = 'K';
+#else
+      typeChar = 'k';
+#endif
+#else
+      typeChar = 'I';
+#endif
+#endif
     case VTK_PARSE_ID_TYPE:
 #ifdef VTK_USE_64BIT_IDS
 #ifdef PY_LONG_LONG
@@ -1045,6 +1074,10 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 #ifdef PY_LONG_LONG
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
+#if PY_VERSION_HEX >= 0x02030000
+      typeChar = 'K';
+      break;
+#endif
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
       typeChar = 'L';
@@ -1052,13 +1085,21 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 #else
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
+#if PY_VERSION_HEX >= 0x02030000
+      typeChar = 'k';
+      break;
+#endif
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
       typeChar = 'l';
       break;
 #endif
     case VTK_PARSE_SIGNED_CHAR:
+#if PY_VERSION_HEX >= 0x02030000
+      typeChar = 'B';
+#else
       typeChar = 'b';
+#endif
       break;
     case VTK_PARSE_CHAR:
       typeChar = 'c';
@@ -3606,12 +3647,15 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     if (argType == VTK_PARSE_OBJECT_PTR &&
         !vtkWrapPython_IsObjectBaseType(hinfo, argClass)) args_ok = 0;
 
+#if PY_VERSION_HEX < 0x02030000
     if (argType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
+#endif
+
     if (argType == VTK_PARSE_STRING_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
     }
@@ -3664,6 +3708,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   if (returnType == VTK_PARSE_OBJECT_PTR &&
       !vtkWrapPython_IsObjectBaseType(hinfo, returnClass)) args_ok = 0;
 
+#if PY_VERSION_HEX < 0x02030000
   /* eliminate "unsigned char *" and "unsigned short *" */
   if (returnType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
@@ -3671,6 +3716,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   if (returnType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
+#endif
 
   if (returnType == VTK_PARSE_STRING_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
@@ -3680,16 +3726,23 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     {
     switch (returnType)
       {
+      case VTK_PARSE_BOOL_PTR:
       case VTK_PARSE_FLOAT_PTR:
       case VTK_PARSE_DOUBLE_PTR:
+      case VTK_PARSE_SIGNED_CHAR_PTR:
       case VTK_PARSE_ID_TYPE_PTR:
       case VTK_PARSE_LONG_LONG_PTR:
       case VTK_PARSE___INT64_PTR:
-      case VTK_PARSE_SIGNED_CHAR_PTR:
-      case VTK_PARSE_BOOL_PTR:
       case VTK_PARSE_INT_PTR:
       case VTK_PARSE_SHORT_PTR:
       case VTK_PARSE_LONG_PTR:
+      case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
+      case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
+      case VTK_PARSE_UNSIGNED___INT64_PTR:
+      case VTK_PARSE_UNSIGNED_INT_PTR:
+      case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      case VTK_PARSE_UNSIGNED_LONG_PTR:
         args_ok = (currentFunction->ReturnValue->Count != 0);
       break;
       }
