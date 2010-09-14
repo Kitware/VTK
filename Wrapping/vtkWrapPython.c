@@ -68,18 +68,9 @@ static void vtkWrapPython_GenerateSpecialType(
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
-static int vtkWrapPython_IsQtEnum(const char* type)
-{
-  if(type[0] == 'Q' && type[1] == 't' && type[2] == ':' && type[3] == ':')
-    {
-    return 1;
-    }
-  return 0;
-}
-
 /* Make a guess about whether a class is wrapped */
 int vtkWrapPython_IsClassWrapped(
-  const char *classname, HierarchyInfo *hinfo);
+  HierarchyInfo *hinfo, const char *classname);
 
 /* check whether a method is wrappable */
 static int vtkWrapPython_MethodCheck(
@@ -126,6 +117,10 @@ static const char *vtkWrapPython_FormatSignature(
 static const char *vtkWrapPython_PythonSignature(
   FunctionInfo *currentFunction);
 
+/* expand all typedef types that are used in function arguments */
+static void vtkWrapPython_ExpandTypedefs(
+  ClassInfo *data, HierarchyInfo *hinfo);
+
 /* -------------------------------------------------------------------- */
 /* A struct for special types to store info about the type, it is fairly
  * small because not many operators or special features are wrapped */
@@ -135,20 +130,24 @@ typedef struct _SpecialTypeInfo
   int has_compare;  /* there are comparison operators e.g. "<" */
 } SpecialTypeInfo;
 
+
 /* -------------------------------------------------------------------- */
 /* Make a guess about whether a class is wrapped */
 int vtkWrapPython_IsClassWrapped(
-  const char *classname, HierarchyInfo *hinfo)
+  HierarchyInfo *hinfo, const char *classname)
 {
   if (hinfo)
     {
-    if (!vtkParseHierarchy_IsExtern(hinfo, classname) &&
-        (!vtkParseHierarchy_GetProperty(
-           hinfo, classname, "WRAP_EXCLUDE") ||
-         vtkParseHierarchy_GetProperty(
-           hinfo, classname, "WRAP_SPECIAL")))
+    HierarchyEntry *entry;
+    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+
+    if (entry)
       {
-      return 1;
+      if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+          vtkParseHierarchy_GetProperty(entry, "WRAP_SPECIAL"))
+        {
+        return 1;
+        }
       }
     }
   else if (strncmp("vtk", classname, 3) == 0)
@@ -158,6 +157,151 @@ int vtkWrapPython_IsClassWrapped(
 
   return 0;
 }
+
+/* -------------------------------------------------------------------- */
+/* Check if the class is derived from superclass */
+static int vtkWrapPython_IsTypeOf(
+  HierarchyInfo *hinfo, const char *classname, const char *superclass)
+{
+  HierarchyEntry *entry;
+
+  if (strcmp(classname, superclass) == 0)
+    {
+    return 1;
+    }
+
+  if (hinfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+    if (entry && vtkParseHierarchy_IsTypeOf(hinfo, entry, superclass))
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* Check if the WRAP_SPECIAL flag is set for the class. */
+static int vtkWrapPython_IsSpecialType(
+  HierarchyInfo *hinfo, const char *classname)
+{
+  HierarchyEntry *entry;
+
+  if (hinfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+    if (vtkParseHierarchy_GetProperty(entry, "WRAP_SPECIAL"))
+      {
+      return 1;
+      }
+    return 0;
+    }
+
+  /* fallback if no HierarchyInfo */
+  if (strncmp("vtk", classname, 3) == 0)
+    {
+    return -1;
+    }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* Check whether the class is derived from vtkObjectBase. */
+static int vtkWrapPython_IsObjectBaseType(
+  HierarchyInfo *hinfo, const char *classname)
+{
+  HierarchyEntry *entry;
+
+  if (hinfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+    if (entry)
+      {
+      if (vtkParseHierarchy_IsTypeOf(hinfo, entry, "vtkObjectBase"))
+        {
+        return 1;
+        }
+      return 0;
+      }
+    }
+
+  /* fallback if no HierarchyInfo */
+  if (strncmp("vtk", classname, 3) == 0)
+    {
+    return 1;
+    }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* A type starting with "Qt::" is assumed to be a Qt enum */
+static int vtkWrapPython_IsQtEnum(const char* type)
+{
+  if(type[0] == 'Q' && type[1] == 't' && type[2] == ':' && type[3] == ':')
+    {
+    return 1;
+    }
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* Get the header file for the specified class */
+static const char *vtkWrapPython_ClassHeader(
+  HierarchyInfo *hinfo, const char *classname)
+{
+  HierarchyEntry *entry;
+
+  /* if "hinfo" is present, use it to find the file */
+  if (hinfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+    if (entry)
+      {
+      return entry->HeaderFile;
+      }
+    }
+
+  /* otherwise, use these hard-coded entries */
+  if (strcmp(classname, "vtkArrayCoordinates") == 0)
+    {
+    return "vtkArrayCoordinates.h";
+    }
+  else if (strcmp(classname, "vtkArrayExtents") == 0)
+    {
+    return "vtkArrayExtents.h";
+    }
+  else if (strcmp(classname, "vtkArrayExtentsList") == 0)
+    {
+    return "vtkArrayExtentsList.h";
+    }
+  else if (strcmp(classname, "vtkArrayRange") == 0)
+    {
+    return "vtkArrayRange.h";
+    }
+  else if (strcmp(classname, "vtkTimeStamp") == 0)
+    {
+    return "vtkTimeStamp.h";
+    }
+  else if (strcmp(classname, "vtkVariant") == 0)
+    {
+    return "vtkVariant.h";
+    }
+  else if (strcmp(classname, "vtkStdString") == 0)
+    {
+    return "vtkStdString.h";
+    }
+  else if (strcmp(classname, "vtkUnicodeString") == 0)
+    {
+    return "vtkUnicodeString.h";
+    }
+
+  return 0;
+}
+
 
 /* -------------------------------------------------------------------- */
 /* Use the hints in the hints file to get the tuple size to use when
@@ -2382,8 +2526,7 @@ static void vtkWrapPython_GenerateMethods(
     theFunc = data->Functions[i];
 
     /* add hints for array GetTuple methods */
-    if (strcmp(data->Name, "vtkDataArray") == 0 || (hinfo &&
-        vtkParseHierarchy_IsTypeOf(hinfo, data->Name, "vtkDataArray")))
+    if (vtkWrapPython_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
       {
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
            strcmp(theFunc->Name, "GetTupleValue") == 0) &&
@@ -3393,6 +3536,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   int i, j;
   int args_ok = 1;
   unsigned int argType = 0;
+  const char *argClass = NULL;
   unsigned int baseType = 0;
   unsigned int returnType = 0;
   const char *returnClass = NULL;
@@ -3427,6 +3571,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   /* check to see if we can handle all the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
+    argClass = currentFunction->Arguments[i]->Class;
     argType = (currentFunction->Arguments[i]->Type &
                VTK_PARSE_UNQUALIFIED_TYPE);
     baseType = (argType & VTK_PARSE_BASE_TYPE);
@@ -3454,24 +3599,12 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     if (argType == VTK_PARSE_CHAR_PTR &&
         currentFunction->Arguments[i]->Count > 0) args_ok = 0;
 
-    if ((argType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && hinfo)
-      {
-      if ((argType == VTK_PARSE_OBJECT_REF || argType == VTK_PARSE_OBJECT) &&
-          !vtkParseHierarchy_GetProperty(hinfo,
-            currentFunction->Arguments[i]->Class, "WRAP_SPECIAL"))
-        {
-        args_ok = 0;
-        }
-      else if ((argType == VTK_PARSE_OBJECT_PTR) &&
-          !vtkParseHierarchy_IsExtern(hinfo,
-                                      currentFunction->Arguments[i]->Class) &&
-          !vtkParseHierarchy_IsTypeOf(hinfo,
-                                      currentFunction->Arguments[i]->Class,
-                                      "vtkObjectBase"))
-        {
-        args_ok = 0;
-        }
-      }
+    if ((argType == VTK_PARSE_OBJECT_REF ||
+         argType == VTK_PARSE_OBJECT) &&
+        !vtkWrapPython_IsSpecialType(hinfo, argClass)) args_ok = 0;
+
+    if (argType == VTK_PARSE_OBJECT_PTR &&
+        !vtkWrapPython_IsObjectBaseType(hinfo, argClass)) args_ok = 0;
 
     if (argType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_INT_PTR) args_ok = 0;
@@ -3524,21 +3657,12 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   if (currentFunction->ReturnValue &&
       currentFunction->ReturnValue->NumberOfDimensions > 1) args_ok = 0;
 
-  if ((returnType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT && hinfo)
-    {
-    if ((returnType == VTK_PARSE_OBJECT_REF ||
-         returnType == VTK_PARSE_OBJECT) &&
-        !vtkParseHierarchy_GetProperty(hinfo, returnClass, "WRAP_SPECIAL"))
-      {
-      args_ok = 0;
-      }
-    else if ((returnType == VTK_PARSE_OBJECT_PTR) &&
-        !vtkParseHierarchy_IsExtern(hinfo, returnClass) &&
-        !vtkParseHierarchy_IsTypeOf(hinfo, returnClass, "vtkObjectBase"))
-      {
-      args_ok = 0;
-      }
-    }
+  if ((returnType == VTK_PARSE_OBJECT_REF ||
+       returnType == VTK_PARSE_OBJECT) &&
+      !vtkWrapPython_IsSpecialType(hinfo, returnClass)) args_ok = 0;
+
+  if (returnType == VTK_PARSE_OBJECT_PTR &&
+      !vtkWrapPython_IsObjectBaseType(hinfo, returnClass)) args_ok = 0;
 
   /* eliminate "unsigned char *" and "unsigned short *" */
   if (returnType == VTK_PARSE_UNSIGNED_CHAR_PTR) args_ok = 0;
@@ -3617,7 +3741,7 @@ static void vtkWrapPython_ClassDoc(
   /* only consider superclasses that are wrapped */
   for (j = 0; j < data->NumberOfSuperClasses; j++)
     {
-    if (vtkWrapPython_IsClassWrapped(data->SuperClasses[j], hinfo))
+    if (vtkWrapPython_IsClassWrapped(hinfo, data->SuperClasses[j]))
       {
       break;
       }
@@ -3796,60 +3920,19 @@ static void vtkWrapPython_GenerateSpecialHeaders(
       }
     }
 
-  /* try to get our own include file */
-  if (hinfo)
-    {
-    if ((ownincfile = vtkParseHierarchy_ClassHeader(hinfo, data->Name)) == 0)
-      {
-      ownincfile = "";
-      }
-    }
+  /* get our own include file (returns NULL if hinfo is NULL) */
+  ownincfile = vtkWrapPython_ClassHeader(hinfo, data->Name);
 
   /* for each unique type found in the file */
   for (i = 0; i < numTypes; i++)
     {
-    const char *incfile = 0;
-    /* look up the header file, automatic if "hinfo" is present */
-    if (hinfo)
-      {
-      incfile = vtkParseHierarchy_ClassHeader(hinfo, types[i]);
-      }
-    else if (strcmp(types[i], "vtkArrayCoordinates") == 0)
-      {
-      incfile = "vtkArrayCoordinates.h";
-      }
-    else if (strcmp(types[i], "vtkArrayExtents") == 0)
-      {
-      incfile = "vtkArrayExtents.h";
-      }
-    else if (strcmp(types[i], "vtkArrayExtentsList") == 0)
-      {
-      incfile = "vtkArrayExtentsList.h";
-      }
-    else if (strcmp(types[i], "vtkArrayRange") == 0)
-      {
-      incfile = "vtkArrayRange.h";
-      }
-    else if (strcmp(types[i], "vtkTimeStamp") == 0)
-      {
-      incfile = "vtkTimeStamp.h";
-      }
-    else if (strcmp(types[i], "vtkVariant") == 0)
-      {
-      incfile = "vtkVariant.h";
-      }
-    else if (strcmp(types[i], "vtkStdString") == 0)
-      {
-      incfile = "vtkStdString.h";
-      }
-    else if (strcmp(types[i], "vtkUnicodeString") == 0)
-      {
-      incfile = "vtkUnicodeString.h";
-      }
+    const char *incfile;
+    incfile = vtkWrapPython_ClassHeader(hinfo, types[i]);
+
     if (incfile)
       {
       /* make sure it doesn't share our header file */
-      if (strcmp(incfile, ownincfile) != 0)
+      if (ownincfile == 0 || strcmp(incfile, ownincfile) != 0)
         {
         fprintf(fp,
                "#include \"%s\"\n",
@@ -4075,13 +4158,9 @@ static void vtkWrapPython_GenerateObjectNew(
   /* find the first superclass that is a VTK class */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    if (vtkWrapPython_IsClassWrapped(data->SuperClasses[i], hinfo))
+    if (vtkWrapPython_IsObjectBaseType(hinfo, data->SuperClasses[i]))
       {
-      if (hinfo == 0 || vtkParseHierarchy_IsTypeOf(
-                          hinfo, data->SuperClasses[i], "vtkObjectBase"))
-        {
-        break;
-        }
+      break;
       }
     }
 
@@ -4707,6 +4786,34 @@ void vtkWrapPython_AddConstant(
 }
 
 /* -------------------------------------------------------------------- */
+/* Expand all typedef types that are used in function arguments */
+static void vtkWrapPython_ExpandTypedefs(
+  ClassInfo *data, HierarchyInfo *hinfo)
+{
+  int i, j, n;
+  FunctionInfo *funcInfo;
+
+  n = data->NumberOfFunctions;
+  for (i = 0; i < n; i++)
+    {
+    funcInfo = data->Functions[i];
+    if (funcInfo->Access == VTK_ACCESS_PUBLIC)
+      {
+      for (j = 0; j < funcInfo->NumberOfArguments; j++)
+        {
+        vtkParseHierarchy_ExpandTypedefs(
+          hinfo, funcInfo->Arguments[j], data->Name);
+        }
+      if (funcInfo->ReturnValue)
+        {
+        vtkParseHierarchy_ExpandTypedefs(
+          hinfo, funcInfo->ReturnValue, data->Name);
+        }
+      }
+    }
+}
+
+/* -------------------------------------------------------------------- */
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
 
@@ -4763,6 +4870,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   if (options->HierarchyFileName)
     {
     hinfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    }
+
+  /* use the hierarchy file to expand typedefs */
+  if (data && hinfo)
+    {
+    vtkWrapPython_ExpandTypedefs(data, hinfo);
     }
 
   /* the VTK_WRAPPING_CXX tells header files where they're included from */
@@ -4845,15 +4958,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     /* bring in all the superclasses */
     for (i = 0; i < data->NumberOfSuperClasses; i++)
       {
-      if (vtkWrapPython_IsClassWrapped(data->SuperClasses[i], hinfo))
+      if (vtkWrapPython_IsClassWrapped(hinfo, data->SuperClasses[i]) &&
+          vtkWrapPython_IsObjectBaseType(hinfo, data->SuperClasses[i]))
         {
-        if (hinfo == 0 || vtkParseHierarchy_IsTypeOf(
-                            hinfo, data->SuperClasses[i], "vtkObjectBase"))
-          {
-          fprintf(fp,
-            "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
-            data->SuperClasses[i]);
-          }
+        fprintf(fp,
+          "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n",
+          data->SuperClasses[i]);
         }
       }
     }

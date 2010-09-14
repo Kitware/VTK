@@ -274,6 +274,25 @@ int DoneOne()
   return 0;
 }
 
+static int isClassWrapped(const char *classname)
+{
+  HierarchyEntry *entry;
+
+  if (hierarchyInfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
+
+    if (entry == 0 ||
+        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+        !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObjectBase"))
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
 int checkFunctionSignature(ClassInfo *data)
 {
   static unsigned int supported_types[] = {
@@ -364,17 +383,9 @@ int checkFunctionSignature(ClassInfo *data)
         {
         args_ok = 0;
         }
-      else if (hierarchyInfo)
+      else if (!isClassWrapped(currentFunction->ArgClasses[i]))
         {
-        if (vtkParseHierarchy_IsExtern(hierarchyInfo,
-              currentFunction->ArgClasses[i]) ||
-            vtkParseHierarchy_GetProperty(hierarchyInfo,
-              currentFunction->ArgClasses[i], "WRAP_EXCLUDE") ||
-            !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-              currentFunction->ArgClasses[i], "vtkObjectBase"))
-          {
-          args_ok = 0;
-          }
+        args_ok = 0;
         }
       }
 
@@ -409,17 +420,9 @@ int checkFunctionSignature(ClassInfo *data)
       {
       args_ok = 0;
       }
-    else if (hierarchyInfo)
+    else if (!isClassWrapped(currentFunction->ReturnClass))
       {
-      if (vtkParseHierarchy_IsExtern(hierarchyInfo,
-            currentFunction->ReturnClass) ||
-          vtkParseHierarchy_GetProperty(hierarchyInfo,
-            currentFunction->ReturnClass, "WRAP_EXCLUDE") ||
-          !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-            currentFunction->ReturnClass, "vtkObjectBase"))
-        {
-        args_ok = 0;
-        }
+      args_ok = 0;
       }
     }
 

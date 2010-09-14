@@ -673,6 +673,34 @@ void get_args(FILE *fp, int i)
     }
 }
 
+/* make a guess about whether a class is wrapped */
+static int isClassWrapped(const char *classname)
+{
+  HierarchyEntry *entry;
+
+  if (hierarchyInfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
+
+    if (entry)
+      {
+      /* only allow non-excluded vtkObjects as args */
+      if (vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+          !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObject"))
+        {
+        /* make a special exemption for vtkObjectBase */
+        if (strcmp(classname, "vtkObjectBase") != 0)
+          {
+          return 0;
+          }
+        }
+      }
+    }
+
+  return 1;
+}
+
+/* check whether a function is wrappable */
 int checkFunctionSignature(ClassInfo *data)
 {
   static unsigned int supported_types[] = {
@@ -752,22 +780,9 @@ int checkFunctionSignature(ClassInfo *data)
         {
         args_ok = 0;
         }
-      else if (hierarchyInfo &&
-               !vtkParseHierarchy_IsExtern(hierarchyInfo,
-                 currentFunction->ArgClasses[i]))
+      else if (!isClassWrapped(currentFunction->ArgClasses[i]))
         {
-        /* only allow non-excluded vtkObjects as args */
-        if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-              currentFunction->ArgClasses[i], "vtkObject") ||
-            vtkParseHierarchy_GetProperty(hierarchyInfo,
-              currentFunction->ArgClasses[i], "WRAP_EXCLUDE"))
-          {
-          /* make a special exemption for vtkObjectBase */
-          if (strcmp(currentFunction->ArgClasses[i], "vtkObjectBase") != 0)
-            {
-            args_ok = 0;
-            }
-          }
+        args_ok = 0;
         }
       }
 
@@ -830,22 +845,9 @@ int checkFunctionSignature(ClassInfo *data)
       {
       args_ok = 0;
       }
-    else if (hierarchyInfo &&
-             !vtkParseHierarchy_IsExtern(hierarchyInfo,
-               currentFunction->ReturnClass))
+    else if (!isClassWrapped(currentFunction->ReturnClass))
       {
-      /* only allow non-excluded vtkObjects as return values */
-      if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-            currentFunction->ReturnClass, "vtkObject") ||
-          vtkParseHierarchy_GetProperty(hierarchyInfo,
-            currentFunction->ReturnClass, "WRAP_EXCLUDE"))
-        {
-        /* make a special exemption for vtkObjectBase */
-        if (strcmp(currentFunction->ReturnClass, "vtkObjectBase") != 0)
-          {
-          args_ok = 0;
-          }
-        }
+      args_ok = 0;
       }
     }
 

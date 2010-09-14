@@ -4035,6 +4035,101 @@ void vtkParse_AddStringToArray(
   (*valueArray)[(*count)++] = value;
 }
 
+/* duplicate the first n bytes of a string and terminate */
+const char *vtkParse_DuplicateString(const char *cp, size_t n)
+{
+  char *res = NULL;
+
+  res = vtkstralloc(n);
+  strncpy(res, cp, n);
+  res[n] = '\0';
+
+  return res;
+}
+
+/* Expand a typedef within a type declaration. */
+void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
+{
+  const char *classname;
+  unsigned int baseType;
+  unsigned int pointers;
+  unsigned int qualifiers;
+  unsigned int tmp1, tmp2;
+  int i;
+
+  classname = typedefinfo->Class;
+  baseType = (typedefinfo->Type & VTK_PARSE_BASE_TYPE);
+  pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
+  qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
+
+  /* handle const */
+  if ((valinfo->Type & VTK_PARSE_CONST) != 0)
+    {
+    if ((pointers & VTK_PARSE_POINTER_LOWMASK) != 0)
+      {
+      if ((pointers & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_ARRAY)
+        {
+        /* const turns into const pointer */
+        pointers = (pointers & ~VTK_PARSE_POINTER_LOWMASK);
+        pointers = (pointers | VTK_PARSE_CONST_POINTER);
+        }
+      }
+    else
+      {
+      /* const remains as const value */
+      qualifiers = (qualifiers | VTK_PARSE_CONST);
+      }
+    }
+
+  /* make a reversed copy of the pointer bitfield */
+  tmp1 = (valinfo->Type & VTK_PARSE_POINTER_MASK);
+  tmp2 = 0;
+  while (tmp1)
+    {
+    tmp2 = ((tmp2 << 2) | (tmp1 & VTK_PARSE_POINTER_LOWMASK));
+    tmp1 = ((tmp1 >> 2) & VTK_PARSE_POINTER_MASK);
+    }
+
+  /* turn pointers into zero-element arrays where necessary */
+  if ((pointers & VTK_PARSE_POINTER_LOWMASK) == VTK_PARSE_ARRAY)
+    {
+    tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
+    while (tmp2)
+      {
+      vtkParse_AddStringToArray(
+        &valinfo->Dimensions, &valinfo->NumberOfDimensions, "");
+      tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
+      }
+    }
+  else
+    {
+    /* combine the pointers */
+    while (tmp2)
+      {
+      pointers = ((pointers << 2) | (tmp2 & VTK_PARSE_POINTER_LOWMASK));
+      tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
+      }
+    }
+
+  /* combine the arrays */
+  for (i = 0; i < typedefinfo->NumberOfDimensions; i++)
+    {
+    vtkParse_AddStringToArray(
+      &valinfo->Dimensions, &valinfo->NumberOfDimensions,
+      typedefinfo->Dimensions[i]);
+    }
+  if (valinfo->NumberOfDimensions > 1)
+    {
+    pointers = ((pointers & ~VTK_PARSE_POINTER_LOWMASK) | VTK_PARSE_ARRAY);
+    }
+
+  /* put everything together */
+  valinfo->Type = (baseType | pointers | qualifiers);
+  valinfo->Class = classname;
+  valinfo->Function = typedefinfo->Function;
+  valinfo->Count *= typedefinfo->Count;
+}
+
 /* Set a flag to ignore BTX/ETX markers in the files */
 void vtkParse_SetIgnoreBTX(int option)
 {
@@ -4295,4 +4390,14 @@ const char *vtkParse_FindIncludeFile(const char *filename)
 {
   int val;
   return vtkParsePreprocess_FindIncludeFile(&preprocessor, filename, 0, &val);
+}
+
+/** Simple utility for mapping VTK types to VTK_PARSE types */
+unsigned int vtkParse_MapType(int vtktype)
+{
+  if (vtktype > 0 && vtktype <= VTK_UNICODE_STRING)
+    {
+    return vtkParseTypeMap[vtktype];
+    }
+  return 0;
 }
