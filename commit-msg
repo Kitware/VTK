@@ -36,6 +36,11 @@ To continue editing, run the command
 #-----------------------------------------------------------------------------
 # Check the commit message layout with a simple state machine.
 
+msg_is_merge() {
+	test -f "$GIT_DIR/MERGE_HEAD" &&
+	echo "$line" | grep "^Merge " >/dev/null 2>&1
+}
+
 msg_first() {
 	len=$(echo -n "$line" | wc -c)
 	if test $len -eq 0; then
@@ -46,7 +51,7 @@ msg_first() {
 --------
 '"$line"'
 --------'
-	elif test $len -gt 78; then
+	elif test $len -gt 78 && ! msg_is_merge; then
 		die 'The first line may be at most 78 characters:
 ------------------------------------------------------------------------------
 '"$line"'
