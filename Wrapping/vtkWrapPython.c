@@ -525,9 +525,11 @@ static void vtkWrapPython_MakeTempVariable(
     if (aType == VTK_PARSE_CHAR_PTR ||
         aType == VTK_PARSE_VOID_PTR ||
         aType == VTK_PARSE_OBJECT_PTR ||
-        aType == VTK_PARSE_OBJECT_REF || aType == VTK_PARSE_OBJECT ||
+        aType == VTK_PARSE_OBJECT_REF ||
+        aType == VTK_PARSE_OBJECT ||
         aType == VTK_PARSE_QOBJECT_PTR ||
-        ((aType == VTK_PARSE_QOBJECT_REF || aType == VTK_PARSE_QOBJECT) &&
+        ((aType == VTK_PARSE_QOBJECT_REF ||
+          aType == VTK_PARSE_QOBJECT) &&
          !vtkWrapPython_IsQtEnum(aClass)))
       {
       fprintf(fp, "*");
@@ -556,6 +558,28 @@ static void vtkWrapPython_MakeTempVariable(
         fprintf(fp, "[%i]", aCount);
         }
       }
+
+    /* add a default value */
+    else if (val->Value)
+      {
+      fprintf(fp, " = %s", val->Value);
+      }
+    else if (aType == VTK_PARSE_CHAR_PTR ||
+             aType == VTK_PARSE_VOID_PTR ||
+             aType == VTK_PARSE_OBJECT_PTR ||
+             aType == VTK_PARSE_OBJECT_REF ||
+             aType == VTK_PARSE_OBJECT ||
+             aType == VTK_PARSE_QOBJECT_PTR ||
+             ((aType == VTK_PARSE_QOBJECT_REF ||
+               aType == VTK_PARSE_QOBJECT) &&
+              !vtkWrapPython_IsQtEnum(aClass)))
+      {
+      fprintf(fp, " = NULL");
+      }
+    else if (aType == VTK_PARSE_BOOL)
+      {
+      fprintf(fp, " = false");
+      }
     }
 
   /* finish off with a semicolon and comment */
@@ -576,7 +600,7 @@ static void vtkWrapPython_MakeTempVariable(
     if (aCount == -1)
       {
       fprintf(fp,
-              "  PyObject *tempT%d = 0;\n",
+              "  PyObject *tempT%d = NULL;\n",
               i);
       }
 
@@ -584,7 +608,7 @@ static void vtkWrapPython_MakeTempVariable(
     if (aType == VTK_PARSE_VOID_PTR)
       {
       fprintf(fp,
-              "  int size%d;\n",
+              "  int size%d = 0;\n",
               i);
       }
 
@@ -593,7 +617,7 @@ static void vtkWrapPython_MakeTempVariable(
         ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_QOBJECT))
       {
       fprintf(fp,
-              "  PyObject *tempH%d = 0;\n",
+              "  PyObject *tempH%d = NULL;\n",
               i);
       }
 
@@ -602,8 +626,8 @@ static void vtkWrapPython_MakeTempVariable(
         aType == VTK_PARSE_BOOL_REF)
       {
       fprintf(fp,
-              "  PyObject *tempB%d = 0;\n"
-              "  int tempI%d;\n",
+              "  PyObject *tempB%d = NULL;\n"
+              "  int tempI%d = 0;\n",
               i, i);
       }
 
@@ -612,7 +636,7 @@ static void vtkWrapPython_MakeTempVariable(
         aType == VTK_PARSE_STRING_REF)
       {
       fprintf(fp,
-              "  const char *tempC%d = 0;\n",
+              "  const char *tempC%d = NULL;\n",
               i);
       }
 
@@ -621,8 +645,8 @@ static void vtkWrapPython_MakeTempVariable(
         aType == VTK_PARSE_UNICODE_STRING_REF)
       {
       fprintf(fp,
-              "  PyObject *tempU%d = 0;\n"
-              "  PyObject *tempS%d = 0;\n",
+              "  PyObject *tempU%d = NULL;\n"
+              "  PyObject *tempS%d = NULL;\n",
               i, i);
       }
     }
@@ -1141,6 +1165,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
   unsigned int argtype;
   int i, j;
   char typeChar;
+  int defaultArgs = 0;
 
   if (currentFunction->NumberOfArguments > 0 &&
       currentFunction->Arguments[0]->Type == VTK_PARSE_FUNCTION)
@@ -1154,6 +1179,15 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     {
     arg = currentFunction->Arguments[i];
     argtype = (arg->Type & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    if (arg->Value && arg->Count == 0 && !defaultArgs)
+      {
+      /* make all arguments optional after this one */
+      result[currPos++] = '|';
+      defaultArgs = 1;
+      }
+
+    /* add the format char to the string */
     result[currPos++] = vtkWrapPython_FormatChar(argtype);
 
     if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER &&
@@ -2884,14 +2918,17 @@ static void vtkWrapPython_GenerateMethods(
             if (argType == VTK_PARSE_OBJECT_PTR)
               {
               fprintf(fp,
-                      "    temp%d = (%s *)vtkPythonUtil::GetPointerFromObject(\n"
-                      "      tempH%d,\"%s\");\n",
-                      i, arg->Class, i,
+                      "    if (tempH%d)\n"
+                      "      {\n"
+                      "      temp%d = (%s *)vtkPythonUtil::GetPointerFromObject(\n"
+                      "        tempH%d,\"%s\");\n",
+                      i, i, arg->Class, i,
                       arg->Class);
               fprintf(fp,
-                      "    if (!temp%d && tempH%d != Py_None)\n"
-                      "      {\n"
-                      "      %s;\n"
+                      "      if (!temp%d && tempH%d != Py_None)\n"
+                      "        {\n"
+                      "        %s;\n"
+                      "        }\n"
                       "      }\n",
                       i, i, on_error);
 
@@ -2904,8 +2941,11 @@ static void vtkWrapPython_GenerateMethods(
               if(vtkWrapPython_IsQtEnum(arg->Class))
                 {
                 fprintf(fp,
-                        "    temp%d = static_cast<%s>(reinterpret_cast<size_t>(vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\")));\n",
-                        i, arg->Class, i,
+                        "    if (tempH%d)\n"
+                        "      {\n"
+                        "      temp%d = static_cast<%s>(reinterpret_cast<size_t>(vtkPythonUtil::SIPGetPointerFromObject(tempH%d,\"%s\")));\n"
+                        "      }\n",
+                        i, i, arg->Class, i,
                         arg->Class);
                 }
               else
@@ -2920,10 +2960,13 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_OBJECT_REF)
               {
               fprintf(fp,
-                      "    temp%d = static_cast<%s *>(\n"
-                      "      vtkPythonUtil::GetPointerFromSpecialObject(\n"
-                      "        tempH%d, \"%s\", &tempH%d));\n",
-                      i, arg->Class, i,
+                      "    if (tempH%d)\n"
+                      "      {\n"
+                      "      temp%d = static_cast<%s *>(\n"
+                      "        vtkPythonUtil::GetPointerFromSpecialObject(\n"
+                      "          tempH%d, \"%s\", &tempH%d));\n"
+                      "      }\n",
+                      i, i, arg->Class, i,
                       arg->Class, i);
 
               fprintf(fp,
@@ -2939,37 +2982,46 @@ static void vtkWrapPython_GenerateMethods(
                      argType == VTK_PARSE_BOOL_REF)
               {
               fprintf(fp,
-                      "    tempI%d = PyObject_IsTrue(tempB%d);\n"
-                      "    if (tempI%d == -1)\n"
+                      "    if (tempB%d)\n"
                       "      {\n"
-                      "      %s;\n"
-                      "      }\n"
-                      "    temp%d = (tempI%d != 0);\n",
-                      i, i, i, on_error, i, i);
+                      "      tempI%d = PyObject_IsTrue(tempB%d);\n"
+                      "      if (tempI%d == -1)\n"
+                      "        {\n"
+                      "        %s;\n"
+                      "        }\n"
+                      "      temp%d = (tempI%d != 0);\n"
+                      "      }",
+                      i, i, i, i, on_error, i, i);
               }
             else if (argType == VTK_PARSE_STRING ||
                      argType == VTK_PARSE_STRING_REF)
               {
               fprintf(fp,
-                      "    temp%d = tempC%d;\n",
-                      i, i);
+                      "    if (tempC%d)\n"
+                      "      {\n"
+                      "      temp%d = tempC%d;\n"
+                      "      }\n",
+                      i, i, i);
               }
 #ifdef Py_USING_UNICODE
             else if (argType == VTK_PARSE_UNICODE_STRING ||
                      argType == VTK_PARSE_UNICODE_STRING_REF)
               {
               fprintf(fp,
-                      "    tempS%d = PyUnicode_AsUTF8String(tempU%d);\n"
-                      "    if (tempS%d)\n"
+                      "    if (tempU%d)\n"
                       "      {\n"
-                      "      temp%d = vtkUnicodeString::from_utf8(PyString_AS_STRING(tempS%d));\n"
-                      "      Py_DECREF(tempS%d);\n"
-                      "      }\n"
-                      "    else\n"
-                      "      {\n"
-                      "      %s;\n"
+                      "      tempS%d = PyUnicode_AsUTF8String(tempU%d);\n"
+                      "      if (tempS%d)\n"
+                      "        {\n"
+                      "        temp%d = vtkUnicodeString::from_utf8(PyString_AS_STRING(tempS%d));\n"
+                      "        Py_DECREF(tempS%d);\n"
+                      "        }\n"
+                      "      else\n"
+                      "        {\n"
+                      "        %s;\n"
+                      "        }\n"
                       "      }\n",
-                      i, i, i, i, i, i, on_error);
+                      i, i, i, i, i, i, i, on_error);
               }
 #endif
             else if (arg->Count == -1)
@@ -2982,7 +3034,7 @@ static void vtkWrapPython_GenerateMethods(
                 }
 
               fprintf(fp,
-                      "    if (PySequence_Check(tempT%d))\n"
+                      "    if (tempT%d && PySequence_Check(tempT%d))\n"
                       "      {\n"
                       "      int typesAreOk = 1;\n"
                       "      Py_ssize_t n = op->%s();\n"
@@ -2996,7 +3048,7 @@ static void vtkWrapPython_GenerateMethods(
                       "        PyErr_SetString(PyExc_TypeError,\n"
                       "          \"VTK-python cannot unpack sequences of more than 20 items\");\n"
                       "        }\n",
-                      i, sizeMethod, i, i);
+                      i, i, sizeMethod, i, i);
 
               fprintf(fp,
                       "      else if (n == m)\n"
@@ -3024,7 +3076,7 @@ static void vtkWrapPython_GenerateMethods(
                       "        PyErr_SetString(PyExc_TypeError, text);\n"
                       "        }\n"
                       "      }\n"
-                      "    else\n"
+                      "    else if (tempT%d)\n"
                       "      {\n"
                       "      PyErr_SetString(PyExc_TypeError, \"a sequence is required\");\n"
                       "      }\n"
@@ -3033,7 +3085,7 @@ static void vtkWrapPython_GenerateMethods(
                       "      %s;\n"
                       "      }\n"
                       "  \n",
-                      on_error);
+                      i, on_error);
               }
             }
           /* make sure passed method is callable  for VAR functions */

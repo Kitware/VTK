@@ -167,6 +167,7 @@ public:
   vtkPythonOverloadHelper() : m_format(0), m_classname(0), m_penalty(0) {};
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
+  bool optional() { return m_optional; };
   int penalty() { return m_penalty; };
   int penalty(int p) {
     if (p > m_penalty) { m_penalty = p; };
@@ -176,6 +177,7 @@ private:
   const char *m_format;
   const char *m_classname;
   int m_penalty;
+  bool m_optional;
   PyCFunction m_meth;
 };
 
@@ -206,12 +208,19 @@ void vtkPythonOverloadHelper::initialize(bool selfIsClass, const char *format)
     }
 
   this->m_penalty = VTK_PYTHON_EXACT_MATCH;
+  this->m_optional = false;
 }
 
 // Get the next format char and, if char is 'O', the classname.
 // The classname is terminated with space, not with null
 bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
 {
+  if (*m_format == '|')
+    {
+    m_optional = true;
+    m_format++;
+    }
+
   if (*m_format == '\0' || *m_format == ' ')
     {
     return false;
@@ -235,7 +244,7 @@ bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
 
   m_format++;
   if (!isalpha(*m_format) && *m_format != '(' && *m_format != ')' &&
-      *m_format != '\0' && *m_format != ' ')
+      *m_format != '|' && *m_format != '\0' && *m_format != ' ')
     {
     m_format++;
     }
@@ -821,11 +830,15 @@ PyObject *vtkPythonUtil::CallOverloadedMethod(
     matchCount = 0;
     for (sig = 0; sig < nsig; sig++)
       {
-      // the "helper->next" check ensures that there are no leftover args
       helper = &helperArray[sig];
       int penalty = helper->penalty();
-      if (penalty <= minPenalty && penalty < VTK_PYTHON_INCOMPATIBLE &&
-          !helper->next(&format, &classname))
+      // check whether too few args were passed for signature
+      if (helper->next(&format, &classname) && !helper->optional())
+        {
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        }
+      // check if this signature has the minimum penalty
+      if (penalty <= minPenalty && penalty < VTK_PYTHON_INCOMPATIBLE)
         {
         if (penalty < minPenalty)
           {
