@@ -479,9 +479,21 @@ static void vtkWrapPython_MakeTempVariable(
       fprintf(fp,"const ");
       }
     }
+  /* do the same for "const char *" with initializer */
+  else
+    {
+    if ((val->Type & VTK_PARSE_CONST) != 0 &&
+        aType == VTK_PARSE_CHAR_PTR &&
+        val->Value &&
+        strcmp(val->Value, "0") != 0 &&
+        strcmp(val->Value, "NULL") != 0)
+      {
+      fprintf(fp,"const ");
+      }
+    }
 
   /* for unsigned, prepend with "unsigned" */
-  if ((aType & VTK_PARSE_UNSIGNED) != 0)
+  if ((aType & VTK_PARSE_UNSIGNED) != 0 && aType != VTK_PARSE_SIZE_T)
     {
     fprintf(fp,"unsigned ");
     }
@@ -505,6 +517,8 @@ static void vtkWrapPython_MakeTempVariable(
     case VTK_PARSE_BOOL:        fprintf(fp,"bool "); break;
     case VTK_PARSE_STRING:      fprintf(fp,"%s ", aClass); break;
     case VTK_PARSE_UNICODE_STRING: fprintf(fp, "vtkUnicodeString "); break;
+    case VTK_PARSE_SSIZE_T:
+      fprintf(fp,"%ssize_t ",((aType == VTK_PARSE_SIZE_T) ? "" : "s")); break;
     case VTK_PARSE_UNKNOWN:     return;
     }
 
@@ -619,6 +633,30 @@ static void vtkWrapPython_MakeTempVariable(
       fprintf(fp,
               "  PyObject *tempH%d = NULL;\n",
               i);
+      }
+
+    if (aType == VTK_PARSE_SSIZE_T ||
+        aType == VTK_PARSE_SSIZE_T_REF)
+      {
+      fprintf(fp,
+#ifdef PY_LONG_LONG
+              "  PY_LONG_LONG tempN%d = %s;\n",
+#else
+              "  long tempN%d = %s;\n",
+#endif
+              i, (val->Value ? val->Value : "0"));
+      }
+
+    if (aType == VTK_PARSE_SIZE_T ||
+        aType == VTK_PARSE_SIZE_T_REF)
+      {
+      fprintf(fp,
+#ifdef PY_LONG_LONG
+              "  unsigned PY_LONG_LONG tempN%d = %s;\n",
+#else
+              "  unsigned long tempN%d = %s;\n",
+#endif
+              i, (val->Value ? val->Value : "0"));
       }
 
     /* ditto for bool */
@@ -818,10 +856,6 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
               deref, MAX_ARGS);
       break;
       }
-#if (VTK_SIZEOF_INT < VTK_SIZEOF_LONG)
-    case VTK_PARSE_UNSIGNED_INT:
-    case VTK_PARSE_UNSIGNED_INT_REF:
-#endif
     case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR_REF:
     case VTK_PARSE_UNSIGNED_SHORT:
@@ -841,6 +875,65 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       break;
       }
 
+    case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_UNSIGNED_INT_REF:
+      {
+      fprintf(fp,
+              "#if VTK_SIZEOF_INT == VTK_SIZEOF_LONG\n"
+              "    if ((long)(%stemp%i) >= 0)\n"
+              "      {\n"
+              "      result = PyInt_FromLong((long)(%stemp%i));\n"
+              "      }\n"
+              "    else\n"
+              "      {\n"
+              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
+              "      }\n"
+              "#else\n"
+              "    result = PyInt_FromLong((long)(%stemp%i));\n"
+              "#endif\n",
+              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
+              deref, MAX_ARGS);
+      break;
+      }
+
+    case VTK_PARSE_SSIZE_T:
+    case VTK_PARSE_SSIZE_T_REF:
+      {
+      fprintf(fp,
+              "#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG\n"
+              "    result = PyInt_FromLong(%stemp%i);\n"
+              "#elif defined(PY_LONG_LONG)\n"
+              "    result = PyLong_FromLongLong(%stemp%i);\n"
+              "#else\n"
+              "    result = PyInt_FromLong((long)%stemp%i);\n"
+              "#endif\n",
+              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS);
+      break;
+      }
+
+    case VTK_PARSE_SIZE_T:
+    case VTK_PARSE_SIZE_T_REF:
+      {
+      fprintf(fp,
+              "#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG\n"
+              "    if (%stemp%i >= VTK_LONG_MAX)\n"
+              "      {\n"
+              "      result = PyInt_FromLong((long)(%stemp%i));\n"
+              "      }\n"
+              "    else\n"
+              "      {\n"
+              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
+              "      }\n"
+              "#elif defined(PY_LONG_LONG)\n"
+              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n"
+              "#else\n"
+              "    result = PyLong_FromUnsignedLong((unsigned long)(%stemp%i));\n"
+              "#endif\n",
+              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
+              deref, MAX_ARGS, deref, MAX_ARGS);
+      break;
+      }
+
     /* PyBool_FromLong was introduced in Python 2.3,
      * but PyInt_FromLong is a good substitute */
     case VTK_PARSE_BOOL:
@@ -856,16 +949,10 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       break;
       }
 
-    /* PyLong_FromUnsignedLong() is new to Python 2.2 */
-#if (VTK_SIZEOF_INT == VTK_SIZEOF_LONG)
-    case VTK_PARSE_UNSIGNED_INT:
-    case VTK_PARSE_UNSIGNED_INT_REF:
-#endif
     case VTK_PARSE_UNSIGNED_LONG:
     case VTK_PARSE_UNSIGNED_LONG_REF:
       {
       fprintf(fp,
-              "#if (PY_VERSION_HEX >= 0x02020000)\n"
               "    if ((long)(%stemp%i) >= 0)\n"
               "      {\n"
               "      result = PyInt_FromLong((long)(%stemp%i));\n"
@@ -873,47 +960,36 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
               "    else\n"
               "      {\n"
               "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
-              "      }\n"
-              "#else\n"
-              "    result = PyInt_FromLong((long)(%stemp%i));\n"
-              "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
-              deref, MAX_ARGS);
+              "      }\n",
+              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS);
       break;
       }
 
     /* Support for vtkIdType depends on config and capabilities */
-#if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG)
     case VTK_PARSE_ID_TYPE:
     case VTK_PARSE_ID_TYPE_REF:
       {
       fprintf(fp,
-              "    result = PyLong_FromLongLong(%stemp%i);\n",
-              deref, MAX_ARGS);
+              "#if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG)\n"
+              "    result = PyLong_FromLongLong(%stemp%i);\n"
+              "#else\n"
+              "    result = PyInt_FromLong((long)%stemp%i);\n"
+              "#endif\n",
+              deref, MAX_ARGS, deref, MAX_ARGS);
       break;
       }
+
     case VTK_PARSE_UNSIGNED_ID_TYPE:
     case VTK_PARSE_UNSIGNED_ID_TYPE_REF:
       {
       fprintf(fp,
-              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n",
-              deref, MAX_ARGS);
-      break;
-      }
-#else
-    case VTK_PARSE_ID_TYPE:
-    case VTK_PARSE_ID_TYPE_REF:
-      {
-      fprintf(fp,
-              "    result = PyInt_FromLong((long)%stemp%i);\n",
-              deref, MAX_ARGS);
-      break;
-      }
-    case VTK_PARSE_UNSIGNED_ID_TYPE:
-    case VTK_PARSE_UNSIGNED_ID_TYPE_REF:
-      {
-      fprintf(fp,
-              "#if (PY_VERSION_HEX >= 0x02020000)\n"
+              "#if defined(VTK_USE_64BIT_IDS)\n"
+              "# if defined(PY_LONG_LONG)\n"
+              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n"
+              "# else\n"
+              "    result = PyLong_FromUnsignedLong((unsigned long)(%stemp%i));\n"
+              "# endif\n"
+              "#elif VTK_SIZEOF_INT == VTK_SIZEOF_LONG\n"
               "    if ((long)(%stemp%i) >= 0)\n"
               "      {\n"
               "      result = PyInt_FromLong((long)(%stemp%i));\n"
@@ -926,69 +1002,39 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
               "    result = PyInt_FromLong((long)(%stemp%i));\n"
               "#endif\n",
               deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
-              deref, MAX_ARGS);
+              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS);
       break;
       }
-#endif
 
     /* support for "long long" depends on config and capabilities */
-#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
-# if defined(PY_LONG_LONG)
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE_LONG_LONG_REF:
     case VTK_PARSE___INT64:
     case VTK_PARSE___INT64_REF:
       {
       fprintf(fp,
-              "    result = PyLong_FromLongLong(%stemp%i);\n",
-              deref, MAX_ARGS);
-      break;
-      }
-    case VTK_PARSE_UNSIGNED_LONG_LONG:
-    case VTK_PARSE_UNSIGNED_LONG_LONG_REF:
-    case VTK_PARSE_UNSIGNED___INT64:
-    case VTK_PARSE_UNSIGNED___INT64_REF:
-      {
-      fprintf(fp,
-              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n",
-              deref, MAX_ARGS);
-      break;
-      }
-# else
-    case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE_LONG_LONG_REF:
-    case VTK_PARSE___INT64:
-    case VTK_PARSE___INT64_REF:
-      {
-      fprintf(fp,
-              "    result = PyLong_FromLong(%stemp%i);\n",
-              deref, MAX_ARGS);
-      break;
-      }
-    case VTK_PARSE_UNSIGNED_LONG_LONG:
-    case VTK_PARSE_UNSIGNED_LONG_LONG_REF:
-    case VTK_PARSE_UNSIGNED___INT64:
-    case VTK_PARSE_UNSIGNED___INT64_REF:
-      {
-      fprintf(fp,
-              "#if (PY_VERSION_HEX >= 0x02020000)\n"
-              "    if ((long)(%stemp%i) >= 0)\n"
-              "      {\n"
-              "      result = PyInt_FromLong((long)(%stemp%i));\n"
-              "      }\n"
-              "    else\n"
-              "      {\n"
-              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
-              "      }\n"
+              "#if defined(PY_LONG_LONG)\n"
+              "    result = PyLong_FromLongLong(%stemp%i);\n"
               "#else\n"
-              "    result = PyInt_FromLong((long)(%stemp%i));\n"
+              "    result = PyLong_FromLong((long)(%stemp%i));\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
-              deref, MAX_ARGS);
+              deref, MAX_ARGS, deref, MAX_ARGS);
       break;
       }
-# endif
-#endif
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_REF:
+    case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE_UNSIGNED___INT64_REF:
+      {
+      fprintf(fp,
+              "#if defined(PY_LONG_LONG)\n"
+              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n"
+              "#else\n"
+              "    result = PyLong_FromUnsignedLong((unsigned long)(%stemp%i));\n"
+              "#endif\n",
+              deref, MAX_ARGS, deref, MAX_ARGS);
+      break;
+      }
 
     /* return a char as a string of unit length */
     case VTK_PARSE_CHAR:
@@ -1096,23 +1142,27 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 #endif
       break;
 #ifdef PY_LONG_LONG
+    case VTK_PARSE_SIZE_T:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
 #if PY_VERSION_HEX >= 0x02030000
       typeChar = 'K';
       break;
 #endif
+    case VTK_PARSE_SSIZE_T:
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
       typeChar = 'L';
       break;
 #else
+    case VTK_PARSE_SIZE_T:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
 #if PY_VERSION_HEX >= 0x02030000
       typeChar = 'k';
       break;
 #endif
+    case VTK_PARSE_SSIZE_T:
     case VTK_PARSE_LONG_LONG:
     case VTK_PARSE___INT64:
       typeChar = 'l';
@@ -1684,36 +1734,21 @@ static const char *vtkWrapPython_PythonSignature(
           }
         vtkWPString_Append(result, ")");
         break;
-      case VTK_PARSE_INT_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < arg->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-          vtkWPString_Append(result, "int");
-          }
-        vtkWPString_Append(result, ")");
-        break;
+      case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      case VTK_PARSE_SIGNED_CHAR_PTR:
       case VTK_PARSE_ID_TYPE_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < arg->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-#if defined(VTK_USE_64BIT_IDS)
-          vtkWPString_Append(result, "long");
-#else
-          vtkWPString_Append(result, "int");
-#endif
-          }
-        vtkWPString_Append(result, ")");
-        break;
+      case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
       case VTK_PARSE_LONG_LONG_PTR:
+      case VTK_PARSE_UNSIGNED___INT64_PTR:
       case VTK_PARSE___INT64_PTR:
+      case VTK_PARSE_UNSIGNED_INT_PTR:
+      case VTK_PARSE_INT_PTR:
+      case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      case VTK_PARSE_SHORT_PTR:
+      case VTK_PARSE_UNSIGNED_LONG_PTR:
+      case VTK_PARSE_LONG_PTR:
+      case VTK_PARSE_SIZE_T_PTR:
+      case VTK_PARSE_SSIZE_T_PTR:
         vtkWPString_Append(result, "(");
         for (j = 0; j < arg->Count; j++)
           {
@@ -1721,7 +1756,7 @@ static const char *vtkWrapPython_PythonSignature(
             {
             vtkWPString_Append(result, ", ");
             }
-          vtkWPString_Append(result, "long");
+          vtkWPString_Append(result, "int");
           }
         vtkWPString_Append(result, ")");
         break;
@@ -1738,6 +1773,7 @@ static const char *vtkWrapPython_PythonSignature(
       case VTK_PARSE_DOUBLE:
         vtkWPString_Append(result, "float");
         break;
+      case VTK_PARSE_UNSIGNED_CHAR:
       case VTK_PARSE_SIGNED_CHAR:
       case VTK_PARSE_ID_TYPE:
       case VTK_PARSE_UNSIGNED_LONG_LONG:
@@ -1750,13 +1786,12 @@ static const char *vtkWrapPython_PythonSignature(
       case VTK_PARSE_SHORT:
       case VTK_PARSE_UNSIGNED_LONG:
       case VTK_PARSE_LONG:
+      case VTK_PARSE_SIZE_T:
+      case VTK_PARSE_SSIZE_T:
         vtkWPString_Append(result, "int");
         break;
       case VTK_PARSE_CHAR:
         vtkWPString_Append(result, "char");
-        break;
-      case VTK_PARSE_UNSIGNED_CHAR:
-        vtkWPString_Append(result, "int");
         break;
       case VTK_PARSE_BOOL:
         vtkWPString_Append(result, "bool");
@@ -1805,36 +1840,21 @@ static const char *vtkWrapPython_PythonSignature(
           }
         vtkWPString_Append(result, ")");
         break;
-      case VTK_PARSE_INT_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < ret->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-          vtkWPString_Append(result, "int");
-          }
-        vtkWPString_Append(result, ")");
-        break;
+      case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      case VTK_PARSE_SIGNED_CHAR_PTR:
       case VTK_PARSE_ID_TYPE_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < ret->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-#if defined(VTK_USE_64BIT_IDS)
-          vtkWPString_Append(result, "long");
-#else
-          vtkWPString_Append(result, "int");
-#endif
-          }
-        vtkWPString_Append(result, ")");
-        break;
+      case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
       case VTK_PARSE_LONG_LONG_PTR:
+      case VTK_PARSE_UNSIGNED___INT64_PTR:
       case VTK_PARSE___INT64_PTR:
+      case VTK_PARSE_UNSIGNED_INT_PTR:
+      case VTK_PARSE_INT_PTR:
+      case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      case VTK_PARSE_SHORT_PTR:
+      case VTK_PARSE_UNSIGNED_LONG_PTR:
+      case VTK_PARSE_LONG_PTR:
+      case VTK_PARSE_SIZE_T_PTR:
+      case VTK_PARSE_SSIZE_T_PTR:
         vtkWPString_Append(result, "(");
         for (j = 0; j < ret->Count; j++)
           {
@@ -1842,7 +1862,7 @@ static const char *vtkWrapPython_PythonSignature(
             {
             vtkWPString_Append(result, ", ");
             }
-          vtkWPString_Append(result, "long");
+          vtkWPString_Append(result, "int");
           }
         vtkWPString_Append(result, ")");
         break;
@@ -1850,19 +1870,21 @@ static const char *vtkWrapPython_PythonSignature(
       case VTK_PARSE_DOUBLE:
         vtkWPString_Append(result, "float");
         break;
-      case VTK_PARSE_ID_TYPE:
-      case VTK_PARSE_LONG_LONG:
-      case VTK_PARSE___INT64:
-      case VTK_PARSE_SIGNED_CHAR:
-      case VTK_PARSE_UNSIGNED_LONG_LONG:
-      case VTK_PARSE_UNSIGNED___INT64:
       case VTK_PARSE_UNSIGNED_CHAR:
+      case VTK_PARSE_SIGNED_CHAR:
+      case VTK_PARSE_ID_TYPE:
+      case VTK_PARSE_UNSIGNED_LONG_LONG:
+      case VTK_PARSE_LONG_LONG:
+      case VTK_PARSE_UNSIGNED___INT64:
+      case VTK_PARSE___INT64:
       case VTK_PARSE_UNSIGNED_INT:
-      case VTK_PARSE_UNSIGNED_SHORT:
-      case VTK_PARSE_UNSIGNED_LONG:
       case VTK_PARSE_INT:
+      case VTK_PARSE_UNSIGNED_SHORT:
       case VTK_PARSE_SHORT:
+      case VTK_PARSE_UNSIGNED_LONG:
       case VTK_PARSE_LONG:
+      case VTK_PARSE_SIZE_T:
+      case VTK_PARSE_SSIZE_T:
         vtkWPString_Append(result, "int");
         break;
       case VTK_PARSE_CHAR:
@@ -2858,6 +2880,13 @@ static void vtkWrapPython_GenerateMethods(
               {
               fprintf(fp,", &tempH%d",i);
               }
+            else if (argType == VTK_PARSE_SSIZE_T ||
+                     argType == VTK_PARSE_SSIZE_T_REF ||
+                     argType == VTK_PARSE_SIZE_T ||
+                     argType == VTK_PARSE_SIZE_T_REF)
+              {
+              fprintf(fp,", &tempN%d",i);
+              }
             else if (argType == VTK_PARSE_BOOL ||
                      argType == VTK_PARSE_BOOL_REF)
               {
@@ -2977,6 +3006,20 @@ static void vtkWrapPython_GenerateMethods(
                       i, on_error);
 
               potential_error = 1;
+              }
+            else if (argType == VTK_PARSE_SSIZE_T ||
+                     argType == VTK_PARSE_SSIZE_T_REF)
+              {
+              fprintf(fp,
+                      "    temp%d = static_cast<ssize_t>(tempN%d);\n",
+                      i, i);
+              }
+            else if (argType == VTK_PARSE_SIZE_T ||
+                     argType == VTK_PARSE_SIZE_T_REF)
+              {
+              fprintf(fp,
+                      "    temp%d = static_cast<size_t>(tempN%d);\n",
+                      i, i);
               }
             else if (argType == VTK_PARSE_BOOL ||
                      argType == VTK_PARSE_BOOL_REF)
@@ -3612,17 +3655,17 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT,
     VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
     VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
+    VTK_PARSE_SSIZE_T, VTK_PARSE_SIZE_T,
 #ifdef VTK_TYPE_USE_LONG_LONG
     VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
 #endif
 #ifdef VTK_TYPE_USE___INT64
     VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
 #endif
-    VTK_PARSE_OBJECT, VTK_PARSE_STRING,
+    VTK_PARSE_OBJECT, VTK_PARSE_QOBJECT, VTK_PARSE_STRING,
 #ifdef Py_USING_UNICODE
     VTK_PARSE_UNICODE_STRING,
 #endif
-    VTK_PARSE_QOBJECT,
     0
   };
 
@@ -3708,6 +3751,9 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     if (argType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
 #endif
 
+    if (argType == VTK_PARSE_SSIZE_T_PTR) args_ok = 0;
+    if (argType == VTK_PARSE_SIZE_T_PTR) args_ok = 0;
+
     if (argType == VTK_PARSE_STRING_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
     }
@@ -3769,6 +3815,9 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
   if (returnType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
 #endif
+
+  if (returnType == VTK_PARSE_SSIZE_T_PTR) args_ok = 0;
+  if (returnType == VTK_PARSE_SIZE_T_PTR) args_ok = 0;
 
   if (returnType == VTK_PARSE_STRING_PTR) args_ok = 0;
   if (returnType == VTK_PARSE_UNICODE_STRING_PTR) args_ok = 0;
@@ -4804,9 +4853,6 @@ void vtkWrapPython_AddConstant(
 
     case VTK_PARSE_LONG:
     case VTK_PARSE_INT:
-#if (VTK_SIZEOF_INT < VTK_SIZEOF_LONG)
-    case VTK_PARSE_UNSIGNED_INT:
-#endif
     case VTK_PARSE_SHORT:
     case VTK_PARSE_UNSIGNED_SHORT:
     case VTK_PARSE_CHAR:
@@ -4818,17 +4864,21 @@ void vtkWrapPython_AddConstant(
       objcreated = 1;
       break;
 
-    case VTK_PARSE_UNSIGNED_LONG:
-#if (VTK_SIZEOF_INT == VTK_SIZEOF_LONG)
     case VTK_PARSE_UNSIGNED_INT:
-#endif
       fprintf(fp,
-              "#if (PY_VERSION_HEX >= 0x02020000)\n"
-              "%s%s = PyLong_FromUnsignedLong(%s);\n"
+              "#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG\n"
+              "%s%s = PyInt_FromLong(%s);\n"
               "#else\n"
-              "%s%s = PyInt_FromLong((long)(%s));\n"
+              "%s%s = PyLong_FromUnsignedLong(%s);\n"
               "#endif\n",
               indent, objvar, valstring, indent, objvar, valstring);
+      objcreated = 1;
+      break;
+
+    case VTK_PARSE_UNSIGNED_LONG:
+      fprintf(fp,
+              "%s%s = PyLong_FromUnsignedLong(%s);\n",
+              indent, objvar, valstring);
       objcreated = 1;
       break;
 
