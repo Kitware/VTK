@@ -1722,7 +1722,7 @@ int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
     {
     for (i = 0; i < n; i++)
       {
-#if defined(PY_LONG_LONG)
+#if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG < 8)
       PyObject *newobj = PyLong_FromLongLong(a[i]);
 #else
       PyObject *newobj = PyInt_FromLong((long)a[i]);
