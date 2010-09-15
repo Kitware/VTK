@@ -1642,6 +1642,54 @@ int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
   return 0;
 }
 
+template<class T>
+inline
+int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int n)
+{
+  int changed = 0;
+
+  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  for (i = 0; i < n; i++)
+    {
+    PyObject *oldobj = PySequence_GetItem(seq, i);
+    T oldval;
+    if (PyLong_Check(oldobj))
+      {
+#if PY_VERSION_HEX >= 0x02030000
+      oldval = (T)PyLong_AsUnsignedLongMask(oldobj);
+#else
+      oldval = (T)PyLong_AsUnsignedLong(oldobj);
+#endif
+      }
+    else
+      {
+#if PY_VERSION_HEX >= 0x02030000
+      oldval = (T)PyInt_AsUnsignedLongMask(oldobj);
+#else
+      oldval = (T)PyInt_AsLong(oldobj);
+#endif
+      }
+    Py_DECREF(oldobj);
+    changed |= (a[i] != oldval);
+    }
+
+  if (changed)
+    {
+    for (i = 0; i < n; i++)
+      {
+      PyObject *newobj = PyLong_FromUnsignedLong(a[i]);
+      int rval = PySequence_SetItem(seq, i, newobj);
+      Py_DECREF(newobj);
+      if (rval == -1)
+        {
+        return -1;
+        }
+      }
+    }
+
+  return 0;
+}
+
 #if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
 template<class T>
 inline
@@ -1674,18 +1722,10 @@ int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
     {
     for (i = 0; i < n; i++)
       {
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_LONG_LONG)
+#if defined(PY_LONG_LONG)
       PyObject *newobj = PyLong_FromLongLong(a[i]);
-# else
-      PyObject *newobj = PyInt_FromLong((long)a[i]);
-# endif
 #else
-# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF___INT64)
-      PyObject *newobj = PyLong_FromLongLong(a[i]);
-# else
       PyObject *newobj = PyInt_FromLong((long)a[i]);
-# endif
 #endif
       int rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
@@ -1698,6 +1738,67 @@ int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
 
   return 0;
 }
+
+template<class T>
+inline
+int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int n)
+{
+  int changed = 0;
+
+  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  for (i = 0; i < n; i++)
+    {
+    PyObject *oldobj = PySequence_GetItem(seq, i);
+    T oldval;
+    if (PyLong_Check(oldobj))
+      {
+#if PY_VERSION_HEX >= 0x02030000
+#ifdef PY_LONG_LONG
+      oldval = PyLong_AsUnsignedLongLongMask(oldobj);
+#else
+      oldval = PyLong_AsUnsignedLongMask(oldobj);
+#endif
+#else
+#ifdef PY_LONG_LONG
+      oldval = PyLong_AsUnsignedLongLong(oldobj);
+#else
+      oldval = PyLong_AsUnsignedLong(oldobj);
+#endif
+#endif
+      }
+    else
+      {
+#if PY_VERSION_HEX >= 0x02030000
+      oldval = PyInt_AsUnsignedLongMask(oldobj);
+#else
+      oldval = PyInt_AsLong(oldobj);
+#endif
+      }
+    Py_DECREF(oldobj);
+    changed |= (a[i] != oldval);
+    }
+
+  if (changed)
+    {
+    for (i = 0; i < n; i++)
+      {
+#if defined(PY_LONG_LONG)
+      PyObject *newobj = PyLong_FromUnsignedLongLong(a[i]);
+#else
+      PyObject *newobj = PyInt_FromUnsignedLong((long)a[i]);
+#endif
+      int rval = PySequence_SetItem(seq, i, newobj);
+      Py_DECREF(newobj);
+      if (rval == -1)
+        {
+        return -1;
+        }
+      }
+    }
+
+  return 0;
+}
+
 #endif
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int n)
@@ -1766,7 +1867,11 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, int *a, int n)
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned int *a, int n)
 {
+#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
   return vtkPythonCheckIntArray(args, i, a, n);
+#else
+  return vtkPythonCheckUIntArray(args, i, a, n);
+#endif
 }
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, long *a, int n)
@@ -1776,7 +1881,7 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, long *a, int n)
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long *a, int n)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckUIntArray(args, i, a, n);
 }
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, float *a, int n)
@@ -1796,7 +1901,7 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, long long *a, int n)
 }
 int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long long *a, int n)
 {
-  return vtkPythonCheckLongArray(args, i, a, n);
+  return vtkPythonCheckULongArray(args, i, a, n);
 }
 #endif
 
@@ -1807,7 +1912,7 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, __int64 *a, int n)
 }
 int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n)
 {
-  return vtkPythonCheckLongArray(args, i, a, n);
+  return vtkPythonCheckULongArray(args, i, a, n);
 }
 #endif
 
