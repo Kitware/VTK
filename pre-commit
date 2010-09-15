@@ -175,16 +175,24 @@ short_commit() {
 }
 
 lookup_config_module_update() {
+	update=$(git config "hooks.$1.update")
+
+	# Special-case "true" to accept any update.
+	test "{$update}" = "{true}" && echo '.' && return
+
 	# Format is "aaaaaa..bbbbbb" for update aaaaaa => bbbbbb.
 	# Convert to regex "^aaaaaa[a-z0-9]* bbbbbb[a-z0-9]*$".
 	sha1ex='[a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9][a-z0-9]*'
 	regex='^\('"$sha1ex"'\)\.\.\('"$sha1ex"'\)$'
-	git config "hooks.$1.update" |
+	echo "$update" |
 	sed -n "/$regex/ {s/$regex/"'^\1[a-z0-9]* \2[a-z0-9]*$/;p;}' |
 	grep '.' # Return false if result is empty.
 }
 
 check_module() {
+	enabled=$(git config --get --bool hooks.submodule) || enabled=true
+	test "$enabled" = "false" && return
+
 	# Allow module-only commits without extra work.
 	test -z "$diffs_normal" && return
 
