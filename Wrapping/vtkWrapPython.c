@@ -307,10 +307,9 @@ static const char *vtkWrapPython_ClassHeader(
 /* Use the hints in the hints file to get the tuple size to use when
  * returning for a pointer-type return value.  The Python return value
  * is created with Py_BuildValue() with the appropriate format string,
- * e.g. Py_BuildValue((char *)"fff", temp20[0], temp20[1], temp20[2]))
+ * e.g. Py_BuildValue((char *)"fff", tempr[0], tempr[1], tempr[2]))
  * for a trio of floats.  The type cast is needed because python 2.0
- * Py_BuildValue does not use const.  The "20" is MAX_ARGS, which is
- * used to signify the return value.  If a null pointer is encountered,
+ * Py_BuildValue does not use const.  If a null pointer is encountered,
  * then Py_BuildValue((char *)"") is used to create a None object. */
 
 static void vtkWrapPython_ReturnHintedValue(FILE *fp, ValueInfo *val)
@@ -381,9 +380,8 @@ static void vtkWrapPython_ReturnHintedValue(FILE *fp, ValueInfo *val)
     {
     /* Check to make sure the pointer is not NULL */
     fprintf(fp,
-            "    if(temp%i)\n"
-            "      {\n",
-            MAX_ARGS);
+            "    if(tempr)\n"
+            "      {\n");
 
     if (count == -1)
       {
@@ -393,9 +391,9 @@ static void vtkWrapPython_ReturnHintedValue(FILE *fp, ValueInfo *val)
               "      for (vtkIdType ic = 0; ic < nc; ic++)\n"
               "        {\n"
               "        PyTuple_SET_ITEM(result, ic,\n"
-              "                         Py_BuildValue((char *)\"%s\",temp%i[ic]));\n"
+              "                         Py_BuildValue((char *)\"%s\",tempr[ic]));\n"
               "        }\n",
-              sizeMethod, c, MAX_ARGS);
+              sizeMethod, c);
       }
     else
       {
@@ -411,7 +409,7 @@ static void vtkWrapPython_ReturnHintedValue(FILE *fp, ValueInfo *val)
 
       for (i = 0; i < count; i++)
         {
-        fprintf(fp, ",temp%i[%d]", MAX_ARGS, i);
+        fprintf(fp, ",tempr[%d]", i);
         }
       fprintf(fp, ");\n");
       }
@@ -551,7 +549,14 @@ static void vtkWrapPython_MakeTempVariable(
     }
 
   /* the variable name */
-  fprintf(fp,"temp%i", i);
+  if (do_return)
+    {
+    fprintf(fp,"tempr");
+    }
+  else
+    {
+    fprintf(fp,"temp%i", i);
+    }
 
   if (!do_return)
     {
@@ -698,8 +703,7 @@ static void vtkWrapPython_MakeTempVariable(
         aType == VTK_PARSE_CHAR_REF)
       {
       fprintf(fp,
-              "  char tempA%d[2];\n",
-              i);
+              "  char tempA[2];\n");
       }
     }
 }
@@ -747,16 +751,15 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_CHAR_PTR:
       {
       fprintf(fp,
-              "    if (temp%i == NULL)\n"
+              "    if (tempr == NULL)\n"
               "      {\n"
               "      Py_INCREF(Py_None);\n"
               "      result = Py_None;\n"
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyString_FromString(temp%i);\n"
-              "      }\n",
-              MAX_ARGS, MAX_ARGS);
+              "      result = PyString_FromString(tempr);\n"
+              "      }\n");
       break;
       }
 
@@ -764,8 +767,7 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_OBJECT_PTR:
       {
       fprintf(fp,
-              "    result = vtkPythonUtil::GetObjectFromPointer((vtkObjectBase *)temp%i);\n",
-              MAX_ARGS);
+              "    result = vtkPythonUtil::GetObjectFromPointer((vtkObjectBase *)tempr);\n");
       break;
       }
 
@@ -773,8 +775,8 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_QOBJECT_REF:
       {
       fprintf(fp,
-              "    result = vtkPythonUtil::SIPGetObjectFromPointer(temp%i, \"%s\", false);\n",
-              MAX_ARGS, returnClass);
+              "    result = vtkPythonUtil::SIPGetObjectFromPointer(tempr, \"%s\", false);\n",
+              returnClass);
       break;
       }
     case VTK_PARSE_QOBJECT:
@@ -782,15 +784,14 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       if(vtkWrapPython_IsQtEnum(returnClass))
         {
         fprintf(fp,
-                "    result = vtkPythonUtil::SIPGetObjectFromPointer(temp%i, \"%s\", true);\n",
-                MAX_ARGS, returnClass);
+                "    result = vtkPythonUtil::SIPGetObjectFromPointer(tempr, \"%s\", true);\n",
+                returnClass);
         }
       else
         {
         fprintf(fp,
-                "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(temp%i), \"%s\", true);\n",
-                returnClass, MAX_ARGS,
-                returnClass);
+                "    result = vtkPythonUtil::SIPGetObjectFromPointer(new %s(tempr), \"%s\", true);\n",
+                returnClass, returnClass);
         }
       break;
       }
@@ -799,8 +800,8 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_OBJECT_REF:
       {
       fprintf(fp,
-              "    result = PyVTKSpecialObject_CopyNew(\"%s\", temp%i);\n",
-              returnClass, MAX_ARGS);
+              "    result = PyVTKSpecialObject_CopyNew(\"%s\", tempr);\n",
+              returnClass);
       break;
       }
 
@@ -808,8 +809,8 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_OBJECT:
       {
       fprintf(fp,
-              "    result = PyVTKSpecialObject_CopyNew(\"%s\", &temp%i);\n",
-              returnClass, MAX_ARGS);
+              "    result = PyVTKSpecialObject_CopyNew(\"%s\", &tempr);\n",
+              returnClass);
       break;
       }
 
@@ -832,16 +833,15 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_VOID_PTR:
       {
       fprintf(fp,
-              "    if (temp%i == NULL)\n"
+              "    if (tempr == NULL)\n"
               "      {\n"
               "      Py_INCREF(Py_None);\n"
               "      result = Py_None;\n"
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyString_FromString(vtkPythonUtil::ManglePointer(temp%i,\"void_p\"));\n"
-              "      }\n",
-              MAX_ARGS, MAX_ARGS);
+              "      result = PyString_FromString(vtkPythonUtil::ManglePointer(tempr,\"void_p\"));\n"
+              "      }\n");
       break;
       }
 
@@ -852,8 +852,8 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_DOUBLE_REF:
       {
       fprintf(fp,
-              "    result = PyFloat_FromDouble(%stemp%i);\n",
-              deref, MAX_ARGS);
+              "    result = PyFloat_FromDouble(%stempr);\n",
+              deref);
       break;
       }
     case VTK_PARSE_UNSIGNED_CHAR:
@@ -870,8 +870,8 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_SIGNED_CHAR_REF:
       {
       fprintf(fp,
-              "    result = PyInt_FromLong(%stemp%i);\n",
-              deref, MAX_ARGS);
+              "    result = PyInt_FromLong(%stempr);\n",
+              deref);
       break;
       }
 
@@ -880,19 +880,18 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if VTK_SIZEOF_INT == VTK_SIZEOF_LONG\n"
-              "    if ((long)(%stemp%i) >= 0)\n"
+              "    if ((long)(%stempr) >= 0)\n"
               "      {\n"
-              "      result = PyInt_FromLong((long)(%stemp%i));\n"
+              "      result = PyInt_FromLong((long)(%stempr));\n"
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
+              "      result = PyLong_FromUnsignedLong(%stempr);\n"
               "      }\n"
               "#else\n"
-              "    result = PyInt_FromLong((long)(%stemp%i));\n"
+              "    result = PyInt_FromLong((long)(%stempr));\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
-              deref, MAX_ARGS);
+              deref, deref, deref, deref);
       break;
       }
 
@@ -901,13 +900,13 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG\n"
-              "    result = PyInt_FromLong(%stemp%i);\n"
+              "    result = PyInt_FromLong(%stempr);\n"
               "#elif defined(PY_LONG_LONG)\n"
-              "    result = PyLong_FromLongLong(%stemp%i);\n"
+              "    result = PyLong_FromLongLong(%stempr);\n"
               "#else\n"
-              "    result = PyInt_FromLong((long)%stemp%i);\n"
+              "    result = PyInt_FromLong((long)%stempr);\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref, deref);
       break;
       }
 
@@ -916,21 +915,20 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if VTK_SIZEOF_VOID_P == VTK_SIZEOF_LONG\n"
-              "    if (%stemp%i >= VTK_LONG_MAX)\n"
+              "    if (%stempr >= VTK_LONG_MAX)\n"
               "      {\n"
-              "      result = PyInt_FromLong((long)(%stemp%i));\n"
+              "      result = PyInt_FromLong((long)(%stempr));\n"
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
+              "      result = PyLong_FromUnsignedLong(%stempr);\n"
               "      }\n"
               "#elif defined(PY_LONG_LONG)\n"
-              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n"
+              "    result = PyLong_FromUnsignedLongLong(%stempr);\n"
               "#else\n"
-              "    result = PyLong_FromUnsignedLong((unsigned long)(%stemp%i));\n"
+              "    result = PyLong_FromUnsignedLong((unsigned long)(%stempr));\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
-              deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref, deref, deref, deref);
       break;
       }
 
@@ -941,11 +939,11 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if PY_VERSION_HEX >= 0x02030000\n"
-              "    result = PyBool_FromLong((long)%stemp%i);\n"
+              "    result = PyBool_FromLong((long)%stempr);\n"
               "#else\n"
-              "    result = PyInt_FromLong((long)%stemp%i);\n"
+              "    result = PyInt_FromLong((long)%stempr);\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref);
       break;
       }
 
@@ -953,15 +951,15 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_UNSIGNED_LONG_REF:
       {
       fprintf(fp,
-              "    if ((long)(%stemp%i) >= 0)\n"
+              "    if ((long)(%stempr) >= 0)\n"
               "      {\n"
-              "      result = PyInt_FromLong((long)(%stemp%i));\n"
+              "      result = PyInt_FromLong((long)(%stempr));\n"
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
+              "      result = PyLong_FromUnsignedLong(%stempr);\n"
               "      }\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref, deref);
       break;
       }
 
@@ -971,11 +969,11 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG)\n"
-              "    result = PyLong_FromLongLong(%stemp%i);\n"
+              "    result = PyLong_FromLongLong(%stempr);\n"
               "#else\n"
-              "    result = PyInt_FromLong((long)%stemp%i);\n"
+              "    result = PyInt_FromLong((long)%stempr);\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref);
       break;
       }
 
@@ -985,24 +983,23 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       fprintf(fp,
               "#if defined(VTK_USE_64BIT_IDS)\n"
               "# if defined(PY_LONG_LONG)\n"
-              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n"
+              "    result = PyLong_FromUnsignedLongLong(%stempr);\n"
               "# else\n"
-              "    result = PyLong_FromUnsignedLong((unsigned long)(%stemp%i));\n"
+              "    result = PyLong_FromUnsignedLong((unsigned long)(%stempr));\n"
               "# endif\n"
               "#elif VTK_SIZEOF_INT == VTK_SIZEOF_LONG\n"
-              "    if ((long)(%stemp%i) >= 0)\n"
+              "    if ((long)(%stempr) >= 0)\n"
               "      {\n"
-              "      result = PyInt_FromLong((long)(%stemp%i));\n"
+              "      result = PyInt_FromLong((long)(%stempr));\n"
               "      }\n"
               "    else\n"
               "      {\n"
-              "      result = PyLong_FromUnsignedLong(%stemp%i);\n"
+              "      result = PyLong_FromUnsignedLong(%stempr);\n"
               "      }\n"
               "#else\n"
-              "    result = PyInt_FromLong((long)(%stemp%i));\n"
+              "    result = PyInt_FromLong((long)(%stempr));\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS,
-              deref, MAX_ARGS, deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref, deref, deref, deref, deref);
       break;
       }
 
@@ -1014,11 +1011,11 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if defined(PY_LONG_LONG)\n"
-              "    result = PyLong_FromLongLong(%stemp%i);\n"
+              "    result = PyLong_FromLongLong(%stempr);\n"
               "#else\n"
-              "    result = PyLong_FromLong((long)(%stemp%i));\n"
+              "    result = PyLong_FromLong((long)(%stempr));\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref);
       break;
       }
     case VTK_PARSE_UNSIGNED_LONG_LONG:
@@ -1028,11 +1025,11 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "#if defined(PY_LONG_LONG)\n"
-              "    result = PyLong_FromUnsignedLongLong(%stemp%i);\n"
+              "    result = PyLong_FromUnsignedLongLong(%stempr);\n"
               "#else\n"
-              "    result = PyLong_FromUnsignedLong((unsigned long)(%stemp%i));\n"
+              "    result = PyLong_FromUnsignedLong((unsigned long)(%stempr));\n"
               "#endif\n",
-              deref, MAX_ARGS, deref, MAX_ARGS);
+              deref, deref);
       break;
       }
 
@@ -1041,10 +1038,10 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_CHAR_REF:
       {
       fprintf(fp,
-              "    tempA%i[0] = %stemp%i;\n"
-              "    tempA%i[1] = \'\\0\';\n"
-              "    result = PyString_FromStringAndSize(tempA%i,1);\n",
-              MAX_ARGS, deref, MAX_ARGS, MAX_ARGS, MAX_ARGS);
+              "    tempA[0] = %stempr;\n"
+              "    tempA[1] = \'\\0\';\n"
+              "    result = PyString_FromStringAndSize(tempA,1);\n",
+              deref);
       break;
       }
 
@@ -1053,8 +1050,8 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     case VTK_PARSE_STRING_REF:
       {
       fprintf(fp,
-              "    result = PyString_FromString(temp%i%sc_str());\n",
-              MAX_ARGS, acces);
+              "    result = PyString_FromString(tempr%sc_str());\n",
+              acces);
       break;
       }
 
@@ -1066,10 +1063,10 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
       {
       fprintf(fp,
               "      {\n"
-              "      const char *s = temp%i%sutf8_str();\n"
+              "      const char *s = tempr%sutf8_str();\n"
               "      result = PyUnicode_DecodeUTF8(s, strlen(s), \"strict\");\n"
               "      }\n",
-              MAX_ARGS, acces);
+              acces);
       break;
       }
     }
@@ -2817,8 +2814,7 @@ static void vtkWrapPython_GenerateMethods(
             }
 
           /* temp variable for C++-type return value */
-          vtkWrapPython_MakeTempVariable(fp, theSignature->ReturnValue,
-                                         MAX_ARGS, 1);
+          vtkWrapPython_MakeTempVariable(fp, theSignature->ReturnValue, 0, 1);
 
           /* temp variable for the Python return value */
           fprintf(fp,
@@ -3249,14 +3245,14 @@ static void vtkWrapPython_GenerateMethods(
                 if ((returnType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF)
                   {
                   fprintf(fp,
-                          "    temp%i = &%s(",
-                          MAX_ARGS, methodname);
+                          "    tempr = &%s(",
+                          methodname);
                   }
                 else
                   {
                   fprintf(fp,
-                          "    temp%i = %s(",
-                          MAX_ARGS, methodname);
+                          "    tempr = %s(",
+                          methodname);
                   }
               }
 
