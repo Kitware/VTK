@@ -439,7 +439,7 @@ static void vtkWrapPython_MakeTempVariable(
 {
   unsigned int aType;
   const char *aClass;
-  int aCount;
+  int j;
 
   if (val == NULL)
     {
@@ -448,7 +448,6 @@ static void vtkWrapPython_MakeTempVariable(
 
   aType = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   aClass = val->Class;
-  aCount = val->Count;
 
   /* handle the function pointer type */
   if (val->Type == VTK_PARSE_FUNCTION)
@@ -561,20 +560,23 @@ static void vtkWrapPython_MakeTempVariable(
   if (!do_return)
     {
     /* print the array decorators */
-    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
+    if (((aType & VTK_PARSE_POINTER_MASK) != 0) &&
         aType != VTK_PARSE_CHAR_PTR &&
         aType != VTK_PARSE_VOID_PTR &&
         aType != VTK_PARSE_OBJECT_PTR &&
         aType != VTK_PARSE_QOBJECT_PTR)
       {
-      if (aCount == -1)
+      if (val->Count == -1)
         {
         /* array size is unknown */
         fprintf(fp, "[%i]", 20);
         }
       else
         {
-        fprintf(fp, "[%i]", aCount);
+        for (j = 0; j < val->NumberOfDimensions; j++)
+          {
+          fprintf(fp, "[%s]", val->Dimensions[j]);
+          }
         }
       }
 
@@ -616,11 +618,30 @@ static void vtkWrapPython_MakeTempVariable(
   if (!do_return)
     {
     /* for arrays of dynamic size (Count == -1), need a tuple */
-    if (aCount == -1)
+    if (val->Count == -1)
       {
+      if ((val->Type & VTK_PARSE_CONST) == 0)
+        {
+        fprintf(fp,
+                "  int dims%d[1];\n",
+                i);
+        }
       fprintf(fp,
               "  PyObject *tempT%d = NULL;\n",
               i);
+      }
+    /* for arrays of constant size, need the dims */
+    else if (val->NumberOfDimensions &&
+             (val->Type & VTK_PARSE_CONST) == 0)
+      {
+      fprintf(fp,
+              "  static int dims%d[%d] = ",
+              i, val->NumberOfDimensions);
+      for (j = 0; j < val->NumberOfDimensions; j++)
+        {
+        fprintf(fp, "%c %s", ((j == 0) ? '{' : ','), val->Dimensions[j]);
+        }
+      fprintf(fp, " };\n");
       }
 
     /* for "void *", add another temp to hold the size of the argument */
@@ -1196,6 +1217,36 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 }
 
 /* -------------------------------------------------------------------- */
+/* Make a format string for an array */
+void vtkWrapPython_ArrayString(
+  char *result, size_t *ip, int typeChar, int ndim, const char **dims)
+{
+  int j, n;
+  size_t currPos = *ip;
+
+  result[currPos++] = '(';
+  n = (int)strtoul(dims[0], 0, 0);
+  if (ndim > 1)
+    {
+    for (j = 0; j < n; j++)
+      {
+      vtkWrapPython_ArrayString(result, &currPos, typeChar,
+                                ndim-1, dims+1);
+      }
+    }
+  else
+    {
+    for (j = 0; j < n; j++)
+      {
+      result[currPos++] = typeChar;
+      }
+    }
+  result[currPos++] = ')';
+
+  *ip = currPos;
+}
+
+/* -------------------------------------------------------------------- */
 /* Create a format string for PyArg_ParseTuple(), see the python
  * documentation for PyArg_ParseTuple() for more information.
  * Briefly, "O" is for objects and "d", "f", "i" etc are basic types.
@@ -1237,7 +1288,8 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     /* add the format char to the string */
     result[currPos++] = vtkWrapPython_FormatChar(argtype);
 
-    if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER &&
+    if (((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER ||
+         (argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_ARRAY) &&
         argtype != VTK_PARSE_OBJECT_PTR && argtype != VTK_PARSE_QOBJECT_PTR)
       {
       /* back up and replace the char */
@@ -1265,7 +1317,12 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
           typeChar = 'i';
           }
 
-        if (arg->Count == -1)
+        if ((argtype & VTK_PARSE_INDIRECT) == VTK_PARSE_ARRAY)
+          {
+          vtkWrapPython_ArrayString(result, &currPos, typeChar,
+                                    arg->NumberOfDimensions, arg->Dimensions);
+          }
+        else if (arg->Count == -1)
           {
           result[currPos++] = 'O';
           }
@@ -1678,6 +1735,104 @@ static void vtkWPString_BreakCommentLine(
 /* -------------------------------------------------------------------- */
 /* Create a signature for the python version of a method. */
 
+void vtkWrapPython_ArraySignature(
+  struct vtkWPString *result, const char *classname,
+  int ndim, const char **dims)
+{
+  int j, n;
+
+  vtkWPString_Append(result, "(");
+  n = (int)strtoul(dims[0], 0, 0);
+  if (ndim > 1)
+    {
+    for (j = 0; j < n; j++)
+      {
+      if (j != 0) { vtkWPString_Append(result, ", "); }
+      vtkWrapPython_ArraySignature(result, classname, ndim-1, dims+1);
+      }
+    }
+  else
+    {
+    for (j = 0; j < n; j++)
+      {
+      if (j != 0) { vtkWPString_Append(result, ", "); }
+      vtkWPString_Append(result, classname);
+      }
+    }
+  vtkWPString_Append(result, ")");
+}
+
+static void vtkWrapPython_TypeSignature(
+  struct vtkWPString *result, ValueInfo *arg)
+{
+  const char *classname = "";
+
+  switch (arg->Type & VTK_PARSE_BASE_TYPE)
+    {
+    case VTK_PARSE_FLOAT:
+    case VTK_PARSE_DOUBLE:
+      classname = "float";
+      break;
+    case VTK_PARSE_UNSIGNED_CHAR:
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_UNSIGNED_LONG_LONG:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE_UNSIGNED___INT64:
+    case VTK_PARSE___INT64:
+    case VTK_PARSE_UNSIGNED_INT:
+    case VTK_PARSE_INT:
+    case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_UNSIGNED_LONG:
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_SIZE_T:
+    case VTK_PARSE_SSIZE_T:
+      classname = "int";
+      break;
+    case VTK_PARSE_CHAR:
+      classname = "char";
+      break;
+    case VTK_PARSE_BOOL:
+      classname = "bool";
+      break;
+    case VTK_PARSE_OBJECT:
+    case VTK_PARSE_QOBJECT:
+      classname = arg->Class;
+      break;
+    case VTK_PARSE_STRING:
+      classname = "string";
+      break;
+    case VTK_PARSE_UNICODE_STRING:
+      classname = "unicode";
+      break;
+    }
+
+  switch (arg->Type & VTK_PARSE_UNQUALIFIED_TYPE)
+    {
+    case VTK_PARSE_VOID_PTR:
+    case VTK_PARSE_CHAR_PTR:
+      classname = "string";
+      break;
+    }
+
+  if (arg->Count == -1)
+    {
+    vtkWPString_Append(result, "(");
+    vtkWPString_Append(result, classname);
+    vtkWPString_Append(result, ", ...)");
+    }
+  else if (arg->NumberOfDimensions)
+    {
+    vtkWrapPython_ArraySignature(result, classname,
+      arg->NumberOfDimensions, arg->Dimensions);
+    }
+  else
+    {
+    vtkWPString_Append(result, classname);
+    }
+}
+
 static const char *vtkWrapPython_PythonSignature(
   FunctionInfo *currentFunction)
 {
@@ -1685,8 +1840,7 @@ static const char *vtkWrapPython_PythonSignature(
   static struct vtkWPString staticString = { NULL, 0, 0 };
   struct vtkWPString *result;
   ValueInfo *arg, *ret;
-  unsigned int argtype;
-  int i, j;
+  int i;
 
   result = &staticString;
   result->len = 0;
@@ -1709,99 +1863,12 @@ static const char *vtkWrapPython_PythonSignature(
       break;
       }
 
-    argtype = (arg->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-
     if (i != 0)
       {
       vtkWPString_Append(result, ", ");
       }
 
-    switch (argtype)
-      {
-      case VTK_PARSE_FLOAT_PTR:
-      case VTK_PARSE_DOUBLE_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < arg->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-          vtkWPString_Append(result, "float");
-          }
-        vtkWPString_Append(result, ")");
-        break;
-      case VTK_PARSE_UNSIGNED_CHAR_PTR:
-      case VTK_PARSE_SIGNED_CHAR_PTR:
-      case VTK_PARSE_ID_TYPE_PTR:
-      case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
-      case VTK_PARSE_LONG_LONG_PTR:
-      case VTK_PARSE_UNSIGNED___INT64_PTR:
-      case VTK_PARSE___INT64_PTR:
-      case VTK_PARSE_UNSIGNED_INT_PTR:
-      case VTK_PARSE_INT_PTR:
-      case VTK_PARSE_UNSIGNED_SHORT_PTR:
-      case VTK_PARSE_SHORT_PTR:
-      case VTK_PARSE_UNSIGNED_LONG_PTR:
-      case VTK_PARSE_LONG_PTR:
-      case VTK_PARSE_SIZE_T_PTR:
-      case VTK_PARSE_SSIZE_T_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < arg->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-          vtkWPString_Append(result, "int");
-          }
-        vtkWPString_Append(result, ")");
-        break;
-      case VTK_PARSE_OBJECT_REF:
-      case VTK_PARSE_OBJECT_PTR:
-      case VTK_PARSE_OBJECT:
-        vtkWPString_Append(result, arg->Class);
-        break;
-      case VTK_PARSE_VOID_PTR:
-      case VTK_PARSE_CHAR_PTR:
-        vtkWPString_Append(result, "string");
-        break;
-      case VTK_PARSE_FLOAT:
-      case VTK_PARSE_DOUBLE:
-        vtkWPString_Append(result, "float");
-        break;
-      case VTK_PARSE_UNSIGNED_CHAR:
-      case VTK_PARSE_SIGNED_CHAR:
-      case VTK_PARSE_ID_TYPE:
-      case VTK_PARSE_UNSIGNED_LONG_LONG:
-      case VTK_PARSE_LONG_LONG:
-      case VTK_PARSE_UNSIGNED___INT64:
-      case VTK_PARSE___INT64:
-      case VTK_PARSE_UNSIGNED_INT:
-      case VTK_PARSE_INT:
-      case VTK_PARSE_UNSIGNED_SHORT:
-      case VTK_PARSE_SHORT:
-      case VTK_PARSE_UNSIGNED_LONG:
-      case VTK_PARSE_LONG:
-      case VTK_PARSE_SIZE_T:
-      case VTK_PARSE_SSIZE_T:
-        vtkWPString_Append(result, "int");
-        break;
-      case VTK_PARSE_CHAR:
-        vtkWPString_Append(result, "char");
-        break;
-      case VTK_PARSE_BOOL:
-        vtkWPString_Append(result, "bool");
-        break;
-      case VTK_PARSE_STRING:
-      case VTK_PARSE_STRING_REF:
-        vtkWPString_Append(result, "string");
-        break;
-      case VTK_PARSE_UNICODE_STRING:
-      case VTK_PARSE_UNICODE_STRING_REF:
-        vtkWPString_Append(result, "unicode");
-        break;
-      }
+    vtkWrapPython_TypeSignature(result, arg);
     }
 
   vtkWPString_Append(result, ")");
@@ -1813,91 +1880,7 @@ static const char *vtkWrapPython_PythonSignature(
     {
     vtkWPString_Append(result, " -> ");
 
-    switch (ret->Type & VTK_PARSE_UNQUALIFIED_TYPE)
-      {
-      case VTK_PARSE_VOID_PTR:
-      case VTK_PARSE_CHAR_PTR:
-        vtkWPString_Append(result, "string");
-        break;
-      case VTK_PARSE_OBJECT_REF:
-      case VTK_PARSE_OBJECT_PTR:
-      case VTK_PARSE_OBJECT:
-        vtkWPString_Append(result, ret->Class);
-        break;
-      case VTK_PARSE_FLOAT_PTR:
-      case VTK_PARSE_DOUBLE_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < ret->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-          vtkWPString_Append(result, "float");
-          }
-        vtkWPString_Append(result, ")");
-        break;
-      case VTK_PARSE_UNSIGNED_CHAR_PTR:
-      case VTK_PARSE_SIGNED_CHAR_PTR:
-      case VTK_PARSE_ID_TYPE_PTR:
-      case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
-      case VTK_PARSE_LONG_LONG_PTR:
-      case VTK_PARSE_UNSIGNED___INT64_PTR:
-      case VTK_PARSE___INT64_PTR:
-      case VTK_PARSE_UNSIGNED_INT_PTR:
-      case VTK_PARSE_INT_PTR:
-      case VTK_PARSE_UNSIGNED_SHORT_PTR:
-      case VTK_PARSE_SHORT_PTR:
-      case VTK_PARSE_UNSIGNED_LONG_PTR:
-      case VTK_PARSE_LONG_PTR:
-      case VTK_PARSE_SIZE_T_PTR:
-      case VTK_PARSE_SSIZE_T_PTR:
-        vtkWPString_Append(result, "(");
-        for (j = 0; j < ret->Count; j++)
-          {
-          if (j != 0)
-            {
-            vtkWPString_Append(result, ", ");
-            }
-          vtkWPString_Append(result, "int");
-          }
-        vtkWPString_Append(result, ")");
-        break;
-      case VTK_PARSE_FLOAT:
-      case VTK_PARSE_DOUBLE:
-        vtkWPString_Append(result, "float");
-        break;
-      case VTK_PARSE_UNSIGNED_CHAR:
-      case VTK_PARSE_SIGNED_CHAR:
-      case VTK_PARSE_ID_TYPE:
-      case VTK_PARSE_UNSIGNED_LONG_LONG:
-      case VTK_PARSE_LONG_LONG:
-      case VTK_PARSE_UNSIGNED___INT64:
-      case VTK_PARSE___INT64:
-      case VTK_PARSE_UNSIGNED_INT:
-      case VTK_PARSE_INT:
-      case VTK_PARSE_UNSIGNED_SHORT:
-      case VTK_PARSE_SHORT:
-      case VTK_PARSE_UNSIGNED_LONG:
-      case VTK_PARSE_LONG:
-      case VTK_PARSE_SIZE_T:
-      case VTK_PARSE_SSIZE_T:
-        vtkWPString_Append(result, "int");
-        break;
-      case VTK_PARSE_CHAR:
-        vtkWPString_Append(result, "char");
-        break;
-      case VTK_PARSE_BOOL:
-        vtkWPString_Append(result, "bool");
-        break;
-      case VTK_PARSE_STRING:
-        vtkWPString_Append(result, "string");
-        break;
-      case VTK_PARSE_UNICODE_STRING:
-        vtkWPString_Append(result, "unicode");
-        break;
-
-      }
+    vtkWrapPython_TypeSignature(result, ret);
     }
 
   if (currentFunction->Signature)
@@ -2453,7 +2436,7 @@ void vtkWrapPython_RemovePreceededMethods(
             {
             val1 = sig1->Arguments[i];
             val2 = sig2->Arguments[i];
-            if (val1->Count != val2->Count)
+            if (val1->NumberOfDimensions != val2->NumberOfDimensions)
               {
               vote1 = 0;
               vote2 = 0;
@@ -2587,7 +2570,7 @@ static void vtkWrapPython_GenerateMethods(
   FILE *fp, ClassInfo *data, HierarchyInfo *hinfo,
   int is_vtkobject, int do_constructors)
 {
-  int i, j, k;
+  int i, j, k, r, p;
   int is_static, is_pure_virtual;
   int fnum, occ;
   int numberOfSignatures, signatureCount;
@@ -2908,11 +2891,19 @@ static void vtkWrapPython_GenerateMethods(
                 {
                 fprintf(fp,", &tempT%d",i);
                 }
-              else if (arg->Count)
+              else if (arg->NumberOfDimensions)
                 {
                 for (j = 0; j < arg->Count; j++)
                   {
-                  fprintf(fp,", &temp%d[%d]",i,j);
+                  fprintf(fp,", &temp%d",i);
+                  p = arg->Count;
+                  r = j;
+                  for (k = 0; k < arg->NumberOfDimensions; k++)
+                    {
+                    p /= strtoul(arg->Dimensions[k],0,0);
+                    fprintf(fp,"[%d]",r/p);
+                    r %= p;
+                    }
                   }
                 }
               else
@@ -3317,25 +3308,24 @@ static void vtkWrapPython_GenerateMethods(
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VOID &&
                 ((arg->Type & VTK_PARSE_CONST) == 0))
               {
-              fprintf(fp,
-                      "    if (vtkPythonUtil::CheckArray(args,%d,temp%d,",
-                      i, i);
-
               if (arg->Count == -1)
                 {
-                fprintf(fp, "\n"
-                        "          op->%s()", sizeMethod);
+                fprintf(fp,
+                        "    dims%d[0] = op->%s();\n",
+                        i, sizeMethod);
                 }
-              else
+              fprintf(fp,
+                      "    if (vtkPythonUtil::CheckArray(args, %d, ",
+                      i);
+              for (j = 1; j < arg->NumberOfDimensions; j++)
                 {
-                fprintf(fp, "%d", arg->Count);
+                fprintf(fp, "%s", "*");
                 }
-
-              fprintf(fp, "))\n"
+              fprintf(fp, "temp%d, %d, dims%d))\n"
                       "      {\n"
                       "      %s;\n"
                       "      }\n",
-                      on_error);
+                      i, arg->NumberOfDimensions, i, on_error);
 
               potential_error = 1;
               }
@@ -3717,9 +3707,8 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
       args_ok = 0;
       }
 
-    if (currentFunction->Arguments[i]->NumberOfDimensions > 1) args_ok = 0;
-
     if (((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
+        ((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_ARRAY) &&
         ((argType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
         ((argType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
@@ -3746,6 +3735,36 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     if (argType == VTK_PARSE_UNSIGNED_SHORT_PTR) args_ok = 0;
     if (argType == VTK_PARSE_UNSIGNED_LONG_PTR) args_ok = 0;
 #endif
+
+    if ((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_ARRAY)
+      {
+      if (baseType != VTK_PARSE_BOOL &&
+          baseType != VTK_PARSE_FLOAT &&
+          baseType != VTK_PARSE_DOUBLE &&
+          baseType != VTK_PARSE_SIGNED_CHAR &&
+          baseType != VTK_PARSE_SHORT &&
+          baseType != VTK_PARSE_INT &&
+          baseType != VTK_PARSE_LONG &&
+          baseType != VTK_PARSE_LONG_LONG &&
+          baseType != VTK_PARSE___INT64
+#if PY_VERSION_HEX >= 0x02030000
+       && baseType != VTK_PARSE_UNSIGNED_CHAR &&
+          baseType != VTK_PARSE_UNSIGNED_SHORT &&
+          baseType != VTK_PARSE_UNSIGNED_INT &&
+          baseType != VTK_PARSE_UNSIGNED_LONG &&
+          baseType != VTK_PARSE_UNSIGNED_LONG_LONG &&
+          baseType != VTK_PARSE___INT64
+#endif
+         ) args_ok = 0;
+
+      for (j = 0; j < currentFunction->Arguments[i]->NumberOfDimensions; j++)
+        {
+        if (strtoul(currentFunction->Arguments[i]->Dimensions[j], 0, 0) == 0)
+          {
+          args_ok = 0;
+          }
+        }
+      }
 
     if (argType == VTK_PARSE_SSIZE_T_PTR) args_ok = 0;
     if (argType == VTK_PARSE_SIZE_T_PTR) args_ok = 0;

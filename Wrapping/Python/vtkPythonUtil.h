@@ -156,25 +156,25 @@ public:
   // Check array arguments sent through the wrappers to see if the
   // underlying C++ method changed the values, and attempt to modify
   // the original python sequence (list or tuple) if so.
-  static int CheckArray(PyObject *args, int i, bool *a, int n);
-  static int CheckArray(PyObject *args, int i, char *a, int n);
-  static int CheckArray(PyObject *args, int i, signed char *a, int n);
-  static int CheckArray(PyObject *args, int i, unsigned char *a, int n);
-  static int CheckArray(PyObject *args, int i, short *a, int n);
-  static int CheckArray(PyObject *args, int i, unsigned short *a, int n);
-  static int CheckArray(PyObject *args, int i, int *a, int n);
-  static int CheckArray(PyObject *args, int i, unsigned int *a, int n);
-  static int CheckArray(PyObject *args, int i, long *a, int n);
-  static int CheckArray(PyObject *args, int i, unsigned long *a, int n);
-  static int CheckArray(PyObject *args, int i, float *a, int n);
-  static int CheckArray(PyObject *args, int i, double *a, int n);
+  static int CheckArray(PyObject *args, int i, bool *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, char *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, signed char *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, unsigned char *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, short *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, unsigned short *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, int *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, unsigned int *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, long *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, unsigned long *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, float *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, double *a, int n, int *d);
 #if defined(VTK_TYPE_USE_LONG_LONG)
-  static int CheckArray(PyObject *args, int i, long long *a, int n);
-  static int CheckArray(PyObject *args, int i, unsigned long long *a, int n);
+  static int CheckArray(PyObject *args, int i, long long *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, unsigned long long *a, int n, int *d);
 #endif
 #if defined(VTK_TYPE_USE___INT64)
-  static int CheckArray(PyObject *args, int i, __int64 *a, int n);
-  static int CheckArray(PyObject *args, int i, unsigned __int64 *a, int n);
+  static int CheckArray(PyObject *args, int i, __int64 *a, int n, int *d);
+  static int CheckArray(PyObject *args, int i, unsigned __int64 *a, int n, int *d);
 #endif
 
   // Description:

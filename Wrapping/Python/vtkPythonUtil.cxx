@@ -699,6 +699,78 @@ int vtkPythonUtil::CheckArg(
 }
 
 //--------------------------------------------------------------------
+// Check a sequence against "(xx)" in a format string.
+
+void vtkPythonUtilCheckArrayArg(
+  PyObject *arg, vtkPythonOverloadHelper *helper)
+{
+  if (!PySequence_Check(arg))
+    {
+    helper->penalty(VTK_PYTHON_INCOMPATIBLE);
+    }
+  else
+    {
+    // Note: we don't reject the method if the sequence count
+    // doesn't match.  If that circumstance occurs, we want the
+    // method to be called with an incorrect count so that a
+    // useful error will be reported to the user.  Also, we want
+    // to mimic C++ semantics, and C++ doesn't care about the
+    // size of arrays when it resolves overloads.
+#if PY_MAJOR_VERSION >= 2
+    Py_ssize_t m = PySequence_Size(arg);
+#else
+    Py_ssize_t m = PySequence_Length(arg);
+#endif
+    for (Py_ssize_t j = 0;; j++)
+      {
+      const char *format;
+      const char *classname;
+
+      if (!helper->next(&format, &classname))
+        {
+        helper->penalty(VTK_PYTHON_INCOMPATIBLE);
+        break;
+        }
+
+      if (*format == ')')
+        {
+        break;
+        }
+      else if (*format == '(')
+        {
+        if (j < m)
+          {
+          PyObject *sarg = PySequence_GetItem(arg, j);
+          vtkPythonUtilCheckArrayArg(sarg, helper);
+          Py_DECREF(sarg);
+          }
+        else
+          {
+          int depth = 1;
+          while (depth && helper->next(&format, &classname))
+            {
+            if (*format == '(')
+              {
+              depth++;
+              }
+            else if (*format == ')')
+              {
+              --depth;
+              }
+            }
+          }
+        }
+      else if (j < m)
+        {
+        PyObject *sarg = PySequence_GetItem(arg, j);
+        helper->penalty(vtkPythonUtil::CheckArg(sarg, format, classname));
+        Py_DECREF(sarg);
+        }
+      }
+    }
+}
+
+//--------------------------------------------------------------------
 // Call the overloaded method that is the best match for the arguments.
 // The first arg is name of the class that the methods belong to, it
 // is there for potential diagnostic usage but is currently unused.
@@ -778,43 +850,7 @@ PyObject *vtkPythonUtil::CallOverloadedMethod(
             }
           else
             {
-            if (!PySequence_Check(arg))
-              {
-              helper->penalty(VTK_PYTHON_INCOMPATIBLE);
-              }
-            else
-              {
-              // Note: we don't reject the method if the sequence count
-              // doesn't match.  If that circumstance occurs, we want the
-              // method to be called with an incorrect count so that a
-              // useful error will be reported to the user.  Also, we want
-              // to mimic C++ semantics, and C++ doesn't care about the
-              // size of arrays when it resolves overloads.
-#if PY_MAJOR_VERSION >= 2
-              Py_ssize_t m = PySequence_Size(arg);
-#else
-              Py_ssize_t m = PySequence_Length(arg);
-#endif
-              for (Py_ssize_t j = 0;; j++)
-                {
-                if (!helper->next(&format, &classname))
-                  {
-                  helper->penalty(VTK_PYTHON_INCOMPATIBLE);
-                  break;
-                  }
-                if (*format == ')')
-                  {
-                  break;
-                  }
-
-                if (j < m)
-                  {
-                  PyObject *sarg = PySequence_GetItem(arg, j);
-                  helper->penalty(vtkPythonUtil::CheckArg(sarg, format, classname));
-                  Py_DECREF(sarg);
-                  }
-                }
-              }
+            vtkPythonUtilCheckArrayArg(arg, helper);
             }
           }
         else
@@ -1580,11 +1616,40 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 
 template<class T>
 inline
-int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int n)
+int vtkPythonCheckSubArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  int changed = 0;
+  int rval = 0;
+  int inc = 1;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
 
-  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  for (i = 1; i < ndim; i++)
+    {
+    inc *= dims[i];
+    }
+
+  for (i = 0; i < n && rval != -1; i++)
+    {
+    rval = vtkPythonUtil::CheckArray(seq, i, a, ndim-1, dims+1);
+    a += inc;
+    }
+
+  return rval;
+}
+
+template<class T>
+inline
+int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int ndim, int *dims)
+{
+  if (ndim > 1)
+    {
+    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    }
+
+  int changed = 0;
+  int rval = 0;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
@@ -1595,28 +1660,31 @@ int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int n)
 
   if (changed)
     {
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n && rval != -1; i++)
       {
       PyObject *newobj = PyFloat_FromDouble(a[i]);
-      int rval = PySequence_SetItem(seq, i, newobj);
+      rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1)
-        {
-        return -1;
-        }
       }
     }
 
-  return 0;
+  Py_DECREF(seq);
+  return rval;
 }
 
 template<class T>
 inline
-int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
+int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  int changed = 0;
+  if (ndim > 1)
+    {
+    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    }
 
-  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  int changed = 0;
+  int rval = 0;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
@@ -1627,28 +1695,31 @@ int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
 
   if (changed)
     {
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n && rval != -1; i++)
       {
       PyObject *newobj = PyInt_FromLong(a[i]);
-      int rval = PySequence_SetItem(seq, i, newobj);
+      rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1)
-        {
-        return -1;
-        }
       }
     }
 
-  return 0;
+  Py_DECREF(seq);
+  return rval;
 }
 
 template<class T>
 inline
-int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int n)
+int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  int changed = 0;
+  if (ndim > 1)
+    {
+    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    }
 
-  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  int changed = 0;
+  int rval = 0;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
@@ -1675,29 +1746,32 @@ int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int n)
 
   if (changed)
     {
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n && rval != -1; i++)
       {
       PyObject *newobj = PyLong_FromUnsignedLong(a[i]);
-      int rval = PySequence_SetItem(seq, i, newobj);
+      rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1)
-        {
-        return -1;
-        }
       }
     }
 
-  return 0;
+  Py_DECREF(seq);
+  return rval;
 }
 
 #if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
 template<class T>
 inline
-int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
+int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  int changed = 0;
+  if (ndim > 1)
+    {
+    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    }
 
-  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  int changed = 0;
+  int rval = 0;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
@@ -1720,32 +1794,35 @@ int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
 
   if (changed)
     {
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n && rval != -1; i++)
       {
 #if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG < 8)
       PyObject *newobj = PyLong_FromLongLong(a[i]);
 #else
       PyObject *newobj = PyInt_FromLong((long)a[i]);
 #endif
-      int rval = PySequence_SetItem(seq, i, newobj);
+      rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1)
-        {
-        return -1;
-        }
       }
     }
 
-  return 0;
+  Py_DECREF(seq);
+  return rval;
 }
 
 template<class T>
 inline
-int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int n)
+int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  int changed = 0;
+  if (ndim > 1)
+    {
+    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    }
 
-  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  int changed = 0;
+  int rval = 0;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
@@ -1780,32 +1857,35 @@ int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int n)
 
   if (changed)
     {
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n && rval != -1; i++)
       {
 #if defined(PY_LONG_LONG)
       PyObject *newobj = PyLong_FromUnsignedLongLong(a[i]);
 #else
       PyObject *newobj = PyInt_FromUnsignedLong((long)a[i]);
 #endif
-      int rval = PySequence_SetItem(seq, i, newobj);
+      rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1)
-        {
-        return -1;
-        }
       }
     }
 
-  return 0;
+  Py_DECREF(seq);
+  return rval;
 }
 
 #endif
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int ndim, int *dims)
 {
-  int changed = 0;
+  if (ndim > 1)
+    {
+    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    }
 
-  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  int changed = 0;
+  int rval = 0;
+  int n = dims[0];
+  PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
@@ -1816,103 +1896,100 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int n)
 
   if (changed)
     {
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n && rval != -1; i++)
       {
 #if PY_VERSION_HEX >= 0x02030000
       PyObject *newobj = PyBool_FromLong(a[i]);
 #else
       PyObject *newobj = PyInt_FromLong(a[i]);
 #endif
-      int rval = PySequence_SetItem(seq, i, newobj);
+      rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
-      if (rval == -1)
-        {
-        return -1;
-        }
       }
     }
 
-  return 0;
+  Py_DECREF(seq);
+  return rval;
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, char *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, char *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, signed char *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, signed char *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned char *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned char *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, short *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, short *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned short *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned short *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, int *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, int *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned int *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned int *a, int n, int *d)
 {
 #if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 #else
-  return vtkPythonCheckUIntArray(args, i, a, n);
+  return vtkPythonCheckUIntArray(args, i, a, n, d);
 #endif
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, long *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, long *a, int n, int *d)
 {
-  return vtkPythonCheckIntArray(args, i, a, n);
+  return vtkPythonCheckIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long *a, int n, int *d)
 {
-  return vtkPythonCheckUIntArray(args, i, a, n);
+  return vtkPythonCheckUIntArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, float *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, float *a, int n, int *d)
 {
-  return vtkPythonCheckFloatArray(args, i, a, n);
+  return vtkPythonCheckFloatArray(args, i, a, n, d);
 }
 
-int vtkPythonUtil::CheckArray(PyObject *args, int i, double *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, double *a, int n, int *d)
 {
-  return vtkPythonCheckFloatArray(args, i, a, n);
+  return vtkPythonCheckFloatArray(args, i, a, n, d);
 }
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
-int vtkPythonUtil::CheckArray(PyObject *args, int i, long long *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, long long *a, int n, int *d)
 {
-  return vtkPythonCheckLongArray(args, i, a, n);
+  return vtkPythonCheckLongArray(args, i, a, n, d);
 }
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long long *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long long *a, int n, int *d)
 {
-  return vtkPythonCheckULongArray(args, i, a, n);
+  return vtkPythonCheckULongArray(args, i, a, n, d);
 }
 #endif
 
 #if defined(VTK_TYPE_USE___INT64)
-int vtkPythonUtil::CheckArray(PyObject *args, int i, __int64 *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, __int64 *a, int n, int *d)
 {
-  return vtkPythonCheckLongArray(args, i, a, n);
+  return vtkPythonCheckLongArray(args, i, a, n, d);
 }
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n)
+int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n, int *d)
 {
-  return vtkPythonCheckULongArray(args, i, a, n);
+  return vtkPythonCheckULongArray(args, i, a, n, d);
 }
 #endif
 
