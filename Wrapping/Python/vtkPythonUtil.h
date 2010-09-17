@@ -17,6 +17,7 @@
 
 #include "vtkPython.h"
 #include "PyVTKClass.h"
+#include "PyVTKMutableObject.h"
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
 
@@ -176,6 +177,28 @@ public:
   static int CheckArray(PyObject *args, int i, __int64 *a, int n, int *d);
   static int CheckArray(PyObject *args, int i, unsigned __int64 *a, int n, int *d);
 #endif
+
+  // Description:
+  // Set an arg that was passed by reference.
+  static int SetArg(PyObject *args, int i, bool a);
+  static int SetArg(PyObject *args, int i, int a);
+  static int SetArg(PyObject *args, int i, unsigned int a);
+  static int SetArg(PyObject *args, int i, long a);
+  static int SetArg(PyObject *args, int i, unsigned long a);
+  static int SetArg(PyObject *args, int i, double a);
+#if defined(VTK_TYPE_USE_LONG_LONG)
+  static int SetArg(PyObject *args, int i, long long a);
+  static int SetArg(PyObject *args, int i, unsigned long long a);
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+  static int SetArg(PyObject *args, int i, __int64 a);
+  static int SetArg(PyObject *args, int i, unsigned __int64 a);
+#endif
+
+  // Description:
+  // To be called after a ValueError occurs on an arg.
+  // Ensures the arg position is part of the reported error.
+  static int RefineArgValueError(int i);
 
   // Description:
   // Compute a hash for a vtkVariant.

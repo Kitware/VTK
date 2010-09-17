@@ -5,6 +5,7 @@
 SET(VTK_PYTHON_CORE_SRCS
   vtkPythonUtil.cxx
   PyVTKClass.cxx
+  PyVTKMutableObject.cxx
   PyVTKObject.cxx
   PyVTKSpecialObject.cxx
 )

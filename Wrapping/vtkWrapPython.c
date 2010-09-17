@@ -3302,9 +3302,8 @@ static void vtkWrapPython_GenerateMethods(
             argType = (arg->Type & VTK_PARSE_UNQUALIFIED_TYPE);
 
             if (arg->Count &&  /* array */
-                (argType & VTK_PARSE_BASE_TYPE) != 0 && /* not special type */
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT &&
-                (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_UNKNOWN &&
+                (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_QOBJECT &&
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VOID &&
                 ((arg->Type & VTK_PARSE_CONST) == 0))
               {
@@ -3315,19 +3314,39 @@ static void vtkWrapPython_GenerateMethods(
                         i, sizeMethod);
                 }
               fprintf(fp,
-                      "    if (vtkPythonUtil::CheckArray(args, %d, ",
-                      i);
+                      "    if (%d < PyTuple_GET_SIZE(args) &&\n"
+                      "        vtkPythonUtil::CheckArray(args, %d, ",
+                      i, i);
               for (j = 1; j < arg->NumberOfDimensions; j++)
                 {
                 fprintf(fp, "%s", "*");
                 }
               fprintf(fp, "temp%d, %d, dims%d))\n"
                       "      {\n"
+                      "      vtkPythonUtil::RefineArgValueError(%d);\n"
                       "      %s;\n"
                       "      }\n",
-                      i, arg->NumberOfDimensions, i, on_error);
+                      i, arg->NumberOfDimensions, i, i, on_error);
 
               potential_error = 1;
+              }
+            else if ((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF &&
+                (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT &&
+                (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_QOBJECT &&
+                (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VOID &&
+                ((arg->Type & VTK_PARSE_CONST) == 0))
+              {
+              fprintf(fp,
+                      "    if (%d < PyTuple_GET_SIZE(args) &&\n"
+                      "        vtkPythonUtil::SetArg(args, %d, temp%d))\n"
+                      "      {\n"
+                      "      vtkPythonUtil::RefineArgValueError(%d);\n"
+                      "      %s;\n"
+                      "      }\n",
+                      i, i, i, i, on_error);
+
+              potential_error = 1;
+
               }
             }
 
@@ -3713,9 +3732,28 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
         ((argType & VTK_PARSE_INDIRECT) != 0)) args_ok = 0;
 
     if (((argType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF) &&
-        (argType != VTK_PARSE_OBJECT_REF) &&
-        ((currentFunction->Arguments[i]->Type & VTK_PARSE_CONST) == 0))
-      args_ok = 0;
+        (currentFunction->Arguments[i]->Type & VTK_PARSE_CONST) == 0)
+      {
+      if (baseType != VTK_PARSE_OBJECT &&
+          baseType != VTK_PARSE_BOOL &&
+          baseType != VTK_PARSE_FLOAT &&
+          baseType != VTK_PARSE_DOUBLE &&
+          baseType != VTK_PARSE_SIGNED_CHAR &&
+          baseType != VTK_PARSE_SHORT &&
+          baseType != VTK_PARSE_INT &&
+          baseType != VTK_PARSE_LONG &&
+          baseType != VTK_PARSE_LONG_LONG &&
+          baseType != VTK_PARSE___INT64
+#if PY_VERSION_HEX >= 0x02030000
+       && baseType != VTK_PARSE_UNSIGNED_CHAR &&
+          baseType != VTK_PARSE_UNSIGNED_SHORT &&
+          baseType != VTK_PARSE_UNSIGNED_INT &&
+          baseType != VTK_PARSE_UNSIGNED_LONG &&
+          baseType != VTK_PARSE_UNSIGNED_LONG_LONG &&
+          baseType != VTK_PARSE___INT64
+#endif
+          ) args_ok = 0;
+      }
 
     if (argType == VTK_PARSE_CHAR_PTR &&
         currentFunction->Arguments[i]->Count > 0) args_ok = 0;
@@ -4370,9 +4408,15 @@ static void vtkWrapPython_SpecialObjectProtocols(
   fprintf(fp,
     "#if PY_VERSION_HEX >= 0x02020000\n"
     "static PyObject *Py%s_New(PyTypeObject *,"
-    "  PyObject *args, PyObject *)\n"
+    "  PyObject *args, PyObject *kwds)\n"
     "{\n"
     "  PyMethodDef *methods = Py%s_%sMethods;\n"
+    "  if (kwds && PyDict_Size(kwds))\n"
+    "    {\n"
+    "    PyErr_SetString(PyExc_TypeError,\n"
+    "                    \"this function takes no keyword arguments\");\n"
+    "    return NULL;\n"
+    "    }\n"
     "  return vtkPythonUtil::CallOverloadedMethod(methods, NULL, args);\n"
     "}\n"
     "#endif\n"

@@ -31,7 +31,7 @@ static void CreateInitFile(const char *libName,
           "#pragma warning ( disable : 4706 )\n"
           "#endif // Windows Warnings \n\n");
 
-for (i = 0; i < numFiles; i++)
+  for (i = 0; i < numFiles; i++)
     {
     fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKAddFile_%s(PyObject *, const char *); }\n", dllexp, files[i]);
     }
@@ -104,6 +104,14 @@ int main(int argc,char *argv[])
     }
   /* close the file */
   fclose(file);
+
+  /* extra object for the Common module */
+  if (strcmp(libName, "vtkCommonPython") == 0)
+    {
+    /* the PyVTKMutableObject */
+    files[numFiles] = strdup("mutable");
+    numFiles++;
+    }
 
   CreateInitFile(libName, numFiles, files, fout);
   fclose(fout);

@@ -320,6 +320,12 @@ int vtkPythonUtil::CheckArg(
 {
   int penalty = VTK_PYTHON_EXACT_MATCH;
 
+  // If mutable object, check the type of the value inside
+  if (PyVTKMutableObject_Check(arg))
+    {
+    arg = PyVTKMutableObject_GetValue(arg);
+    }
+
   switch (*format)
     {
     case 'b':
@@ -1609,6 +1615,32 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 }
 
 //--------------------------------------------------------------------
+// Refine an error by saying what argument it is for
+int vtkPythonUtil::RefineArgValueError(int i)
+{
+  if (PyErr_ExceptionMatches(PyExc_TypeError) ||
+      PyErr_ExceptionMatches(PyExc_ValueError))
+    {
+    PyObject *exc;
+    PyObject *val;
+    PyObject *frame;
+    char text[128];
+    const char *cp = "";
+    PyErr_Fetch(&exc, &val, &frame);
+    if (val && PyString_Check(val))
+      {
+      cp = PyString_AsString(val);
+      }
+    sprintf(text, "argument %d: %.100s", i+1, cp);
+    Py_XDECREF(val);
+    val = PyString_FromString(text);
+    PyErr_Restore(exc, val, frame);
+    }
+  return -1;
+}
+
+
+//--------------------------------------------------------------------
 // These functions check an array that was sent to a method to see if
 // any of the values were changed by the method.
 // If a value was changed, then the corresponding value in the python
@@ -1992,6 +2024,114 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n,
   return vtkPythonCheckULongArray(args, i, a, n, d);
 }
 #endif
+
+
+//--------------------------------------------------------------------
+// These values set an arg that was passed by reference
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, bool a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+#if PY_VERSION_HEX >= 0x02030000
+  PyObject *o = PyBool_FromLong((long)a);
+#else
+  PyObject *o = PyInt_FromLong((long)a);
+#endif
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, int a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+  PyObject *o = PyInt_FromLong(a);
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned int a)
+{
+#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
+  return vtkPythonUtil::SetArg(args, i, static_cast<long>(a));
+#else
+  return vtkPythonUtil::SetArg(args, i, static_cast<unsigned long>(a));
+#endif
+}
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, long a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+  PyObject *o = PyInt_FromLong(a);
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+  PyObject *o;
+  if ((long)(a) >= 0)
+    {
+    o = PyInt_FromLong((long)(a));
+    }
+  else
+    {
+    o = PyLong_FromUnsignedLong(a);
+    }
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, double a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+  PyObject *o = PyFloat_FromDouble(a);
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+
+#if defined(VTK_TYPE_USE_LONG_LONG)
+int vtkPythonUtil::SetArg(PyObject *args, int i, long long a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+#if defined(PY_LONG_LONG)
+  PyObject *o = PyLong_FromLongLong(a);
+#else
+  PyObject *o = PyLong_FromLong((long)(a));
+#endif
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long long a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+#if defined(PY_LONG_LONG)
+  PyObject *o = PyLong_FromUnsignedLongLong(a);
+#else
+  PyObject *o = PyLong_FromUnsignedLong((unsigned long)(a));
+#endif
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+#endif
+
+#if defined(VTK_TYPE_USE___INT64)
+int vtkPythonUtil::SetArg(PyObject *args, int i, __int64 a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+#if defined(PY_LONG_LONG)
+  o = PyLong_FromLongLong(a);
+#else
+  o = PyLong_FromLong((long)(a));
+#endif
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned __int64 a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+#if defined(PY_LONG_LONG)
+  o = PyLong_FromUnsignedLongLong(a);
+#else
+  o = PyLong_FromUnsignedLong((unsigned long)(a));
+#endif
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+#endif
+
+
 
 //--------------------------------------------------------------------
 long vtkPythonUtil::VariantHash(const vtkVariant *v)
