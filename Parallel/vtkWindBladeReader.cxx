@@ -1194,9 +1194,9 @@ void vtkWindBladeReader::SetupBladeData()
   // test first line in turbine tower file to see if it has at least 13th column
   // if so then this is indication of "new" format
   if (inStr.getline(inBuf, LINE_SIZE)) {
-    unsigned int len = strlen(inBuf);
+    size_t len = strlen(inBuf);
     // number of lines corresponds to number of spaces
-    for (unsigned int i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
       if (inBuf[i] == ' ')
         numColumns++;
   }
