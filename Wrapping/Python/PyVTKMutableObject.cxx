@@ -61,7 +61,7 @@ static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
   else if (nb && nb->nb_index)
     {
     opn = nb->nb_index(opn);
-    if (opn == 0 || !PyLong_Check(opn) && !PyInt_Check(opn))
+    if (opn == 0 || (!PyLong_Check(opn) && !PyInt_Check(opn)))
       {
       PyErr_SetString(PyExc_TypeError,
                       "nb_index should return integer object");
@@ -498,7 +498,6 @@ static int PyVTKMutableObject_Compare(PyObject *ob1, PyObject *ob2)
 #if PY_VERSION_HEX < 0x02020000
 static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
 {
-  PyVTKMutableObject *obj = (PyVTKMutableObject *)self;
   char *name = PyString_AsString(attr);
   PyMethodDef *meth;
 
@@ -525,7 +524,7 @@ static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
 
       if ((lst = PyList_New(n)) != NULL)
         {
-        meth = obj->vtk_info->methods;
+        meth = PyVTKMutableObject_Methods;
         for (i = 0; i < n; i++)
           {
           PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
@@ -549,7 +548,7 @@ static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
       }
     }
 
-  for (meth = obj->vtk_info->methods; meth && meth->ml_name; meth++)
+  for (meth = PyVTKMutableObject_Methods; meth && meth->ml_name; meth++)
     {
     if (strcmp(name, meth->ml_name) == 0)
       {
