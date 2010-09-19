@@ -1675,14 +1675,18 @@ template<class T>
 inline
 int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  if (ndim > 1)
+  int n = ndim;
+  if (dims)
     {
-    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    if (ndim > 1)
+      {
+      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+      }
+    n = dims[0];
     }
 
   int changed = 0;
   int rval = 0;
-  int n = dims[0];
   PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
@@ -1703,6 +1707,10 @@ int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int ndim, int *dims)
     }
 
   Py_DECREF(seq);
+  if (rval != -1 && dims == 0)
+    {
+    vtkPythonUtil::RefineArgValueError(i);
+    }
   return rval;
 }
 
@@ -1710,14 +1718,18 @@ template<class T>
 inline
 int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  if (ndim > 1)
+  int n = ndim;
+  if (dims)
     {
-    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    if (ndim > 1)
+      {
+      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+      }
+    n = dims[0];
     }
 
   int changed = 0;
   int rval = 0;
-  int n = dims[0];
   PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
@@ -1738,6 +1750,10 @@ int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
     }
 
   Py_DECREF(seq);
+  if (rval != -1 && dims == 0)
+    {
+    vtkPythonUtil::RefineArgValueError(i);
+    }
   return rval;
 }
 
@@ -1745,14 +1761,18 @@ template<class T>
 inline
 int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  if (ndim > 1)
+  int n = ndim;
+  if (dims)
     {
-    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    if (ndim > 1)
+      {
+      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+      }
+    n = dims[0];
     }
 
   int changed = 0;
   int rval = 0;
-  int n = dims[0];
   PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
@@ -1789,6 +1809,10 @@ int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
     }
 
   Py_DECREF(seq);
+  if (rval != -1 && dims == 0)
+    {
+    vtkPythonUtil::RefineArgValueError(i);
+    }
   return rval;
 }
 
@@ -1797,14 +1821,18 @@ template<class T>
 inline
 int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  if (ndim > 1)
+  int n = ndim;
+  if (dims)
     {
-    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    if (ndim > 1)
+      {
+      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+      }
+    n = dims[0];
     }
 
   int changed = 0;
   int rval = 0;
-  int n = dims[0];
   PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
@@ -1841,6 +1869,10 @@ int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int ndim, int *dims)
     }
 
   Py_DECREF(seq);
+  if (rval != -1 && dims == 0)
+    {
+    vtkPythonUtil::RefineArgValueError(i);
+    }
   return rval;
 }
 
@@ -1848,14 +1880,18 @@ template<class T>
 inline
 int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int ndim, int *dims)
 {
-  if (ndim > 1)
+  int n = ndim;
+  if (dims)
     {
-    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    if (ndim > 1)
+      {
+      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+      }
+    n = dims[0];
     }
 
   int changed = 0;
   int rval = 0;
-  int n = dims[0];
   PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
@@ -1904,6 +1940,10 @@ int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int ndim, int *dims)
     }
 
   Py_DECREF(seq);
+  if (rval != -1 && dims == 0)
+    {
+    vtkPythonUtil::RefineArgValueError(i);
+    }
   return rval;
 }
 
@@ -1911,14 +1951,18 @@ int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int ndim, int *dims)
 
 int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int ndim, int *dims)
 {
-  if (ndim > 1)
+  int n = ndim;
+  if (dims)
     {
-    return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+    if (ndim > 1)
+      {
+      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
+      }
+    n = dims[0];
     }
 
   int changed = 0;
   int rval = 0;
-  int n = dims[0];
   PyObject *seq = PySequence_GetItem(args, i);
   for (i = 0; i < n; i++)
     {
@@ -1943,6 +1987,10 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int ndim, int *dim
     }
 
   Py_DECREF(seq);
+  if (rval != -1 && dims == 0)
+    {
+    vtkPythonUtil::RefineArgValueError(i);
+    }
   return rval;
 }
 
@@ -2031,6 +2079,18 @@ int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n,
 //--------------------------------------------------------------------
 // These values set an arg that was passed by reference
 
+static inline
+int vtkPythonUtilSetArgObject(PyObject *arg, PyObject *o, int i)
+{
+  int r = PyVTKMutableObject_SetValue(arg, o);
+  if (r == 0)
+    {
+    return 0;
+    }
+  vtkPythonUtil::RefineArgValueError(i);
+  return r;
+}
+
 int vtkPythonUtil::SetArg(PyObject *args, int i, bool a)
 {
   PyObject *arg = PyTuple_GET_ITEM(args, i);
@@ -2039,14 +2099,14 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, bool a)
 #else
   PyObject *o = PyInt_FromLong((long)a);
 #endif
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 
 int vtkPythonUtil::SetArg(PyObject *args, int i, int a)
 {
   PyObject *arg = PyTuple_GET_ITEM(args, i);
   PyObject *o = PyInt_FromLong(a);
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 
 int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned int a)
@@ -2062,7 +2122,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, long a)
 {
   PyObject *arg = PyTuple_GET_ITEM(args, i);
   PyObject *o = PyInt_FromLong(a);
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 
 int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long a)
@@ -2077,14 +2137,14 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long a)
     {
     o = PyLong_FromUnsignedLong(a);
     }
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 
 int vtkPythonUtil::SetArg(PyObject *args, int i, double a)
 {
   PyObject *arg = PyTuple_GET_ITEM(args, i);
   PyObject *o = PyFloat_FromDouble(a);
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
@@ -2096,7 +2156,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, long long a)
 #else
   PyObject *o = PyLong_FromLong((long)(a));
 #endif
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long long a)
 {
@@ -2106,7 +2166,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long long a)
 #else
   PyObject *o = PyLong_FromUnsignedLong((unsigned long)(a));
 #endif
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 #endif
 
@@ -2119,7 +2179,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, __int64 a)
 #else
   o = PyLong_FromLong((long)(a));
 #endif
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned __int64 a)
 {
@@ -2129,7 +2189,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned __int64 a)
 #else
   o = PyLong_FromUnsignedLong((unsigned long)(a));
 #endif
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 #endif
 
@@ -2137,7 +2197,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkStdString &a)
 {
   PyObject *arg = PyTuple_GET_ITEM(args, i);
   PyObject *o = PyString_FromString(a.c_str());
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 }
 
 int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkUnicodeString &a)
@@ -2146,7 +2206,7 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkUnicodeString &a)
   PyObject *arg = PyTuple_GET_ITEM(args, i);
   const char *s = a.utf8_str();
   PyObject *o = PyUnicode_DecodeUTF8(s, strlen(s), "strict");
-  return PyVTKMutableObject_SetValue(arg, o);
+  return vtkPythonUtilSetArgObject(arg, o, i);
 #else
   return 0;
 #endif

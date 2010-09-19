@@ -90,7 +90,7 @@ static char vtkWrapPython_FormatChar(
 
 /* create a format string for PyArg_ParseTuple */
 static char *vtkWrapPython_FormatString(
-  FunctionInfo *currentFunction);
+  FunctionInfo *currentFunction, int *requiredArgs);
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePreceededMethods(
@@ -620,18 +620,12 @@ static void vtkWrapPython_MakeTempVariable(
     /* for arrays of dynamic size (Count == -1), need a tuple */
     if (val->Count == -1)
       {
-      if ((val->Type & VTK_PARSE_CONST) == 0)
-        {
-        fprintf(fp,
-                "  int dims%d[1];\n",
-                i);
-        }
       fprintf(fp,
               "  PyObject *tempT%d = NULL;\n",
               i);
       }
-    /* for arrays of constant size, need the dims */
-    else if (val->NumberOfDimensions &&
+    /* for multi-dimensional arrays, need the dims */
+    else if (val->NumberOfDimensions > 1 &&
              (val->Type & VTK_PARSE_CONST) == 0)
       {
       fprintf(fp,
@@ -1250,12 +1244,16 @@ void vtkWrapPython_ArrayString(
 /* Create a format string for PyArg_ParseTuple(), see the python
  * documentation for PyArg_ParseTuple() for more information.
  * Briefly, "O" is for objects and "d", "f", "i" etc are basic types.
+ * An optional arg separator '|' is added before the first arg that
+ * has a default value, and requiredArgs is set to the minimum number
+ * of required arguments.
  *
  * If any new format characters are added here, they must also be
  * added to vtkPythonUtil::CheckArg() in vtkPythonUtil.cxx
  */
 
-static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
+static char *vtkWrapPython_FormatString(
+  FunctionInfo *currentFunction, int *requiredArgs)
 {
   static char result[1024];
   size_t currPos = 0;
@@ -1263,13 +1261,15 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
   unsigned int argtype;
   int i, j;
   char typeChar;
-  int defaultArgs = 0;
+
+  *requiredArgs = currentFunction->NumberOfArguments;
 
   if (currentFunction->NumberOfArguments > 0 &&
       currentFunction->Arguments[0]->Type == VTK_PARSE_FUNCTION)
     {
     result[currPos++] = 'O';
     result[currPos] = '\0';
+    *requiredArgs = 1;
     return result;
     }
 
@@ -1278,11 +1278,12 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
     arg = currentFunction->Arguments[i];
     argtype = (arg->Type & VTK_PARSE_UNQUALIFIED_TYPE);
 
-    if (arg->Value && arg->Count == 0 && !defaultArgs)
+    if (arg->Value && arg->Count == 0 &&
+        *requiredArgs == currentFunction->NumberOfArguments)
       {
       /* make all arguments optional after this one */
       result[currPos++] = '|';
-      defaultArgs = 1;
+      *requiredArgs = i;
       }
 
     /* add the format char to the string */
@@ -1358,7 +1359,7 @@ static char *vtkWrapPython_ArgCheckString(
   size_t currPos = 0;
   ValueInfo *arg;
   unsigned int argtype;
-  int i;
+  int i, requiredArgs;
 
   if (currentFunction->IsExplicit)
     {
@@ -1370,7 +1371,8 @@ static char *vtkWrapPython_ArgCheckString(
     result[currPos++] = '@';
     }
 
-  strcpy(&result[currPos], vtkWrapPython_FormatString(currentFunction));
+  strcpy(&result[currPos],
+         vtkWrapPython_FormatString(currentFunction, &requiredArgs));
   currPos = strlen(result);
 
   if (currentFunction->NumberOfArguments > 0 &&
@@ -2581,6 +2583,7 @@ static void vtkWrapPython_GenerateMethods(
   FunctionInfo *theSignature;
   FunctionInfo *theFunc;
   ValueInfo *arg;
+  int requiredArgs = 0;
   const char *ccp;
   char *cp;
   unsigned int returnType = 0;
@@ -2828,7 +2831,7 @@ static void vtkWrapPython_GenerateMethods(
             {
             fprintf(fp,
                     "  if ((PyArg_ParseTuple(args, (char*)\"%s:%s\"",
-                    vtkWrapPython_FormatString(theSignature),
+                    vtkWrapPython_FormatString(theSignature, &requiredArgs),
                     theSignature->Name);
             }
           else
@@ -2837,7 +2840,7 @@ static void vtkWrapPython_GenerateMethods(
                     "  op = static_cast<%s *>(vtkPythonUtil::VTKParseTuple(\n"
                     "    self, args, \"%s:%s\"",
                     data->Name,
-                    vtkWrapPython_FormatString(theSignature),
+                    vtkWrapPython_FormatString(theSignature, &requiredArgs),
                     theSignature->Name);
             }
 
@@ -3307,26 +3310,43 @@ static void vtkWrapPython_GenerateMethods(
                 (argType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_VOID &&
                 ((arg->Type & VTK_PARSE_CONST) == 0))
               {
+              fprintf(fp,
+                      "    if (");
+              if (i >= requiredArgs)
+                {
+                fprintf(fp, "%d < PyTuple_GET_SIZE(args) &&\n        ", i);
+                }
               if (arg->Count == -1)
                 {
-                fprintf(fp,
-                        "    dims%d[0] = op->%s();\n",
-                        i, sizeMethod);
+                fprintf(fp, "vtkPythonUtil::CheckArray(args, %d, temp%d, op->%s(), 0))\n"
+                      "      {\n"
+                      "      %s;\n"
+                      "      }\n",
+                      i, i, sizeMethod, on_error);
                 }
-              fprintf(fp,
-                      "    if (%d < PyTuple_GET_SIZE(args) &&\n"
-                      "        vtkPythonUtil::CheckArray(args, %d, ",
-                      i, i);
-              for (j = 1; j < arg->NumberOfDimensions; j++)
+              else if (arg->NumberOfDimensions > 1)
                 {
-                fprintf(fp, "%s", "*");
-                }
-              fprintf(fp, "temp%d, %d, dims%d))\n"
+                fprintf(fp, "vtkPythonUtil::CheckArray(args, %d, ", i);
+                for (j = 1; j < arg->NumberOfDimensions; j++)
+                  {
+                  fprintf(fp, "%s", "*");
+                  }
+
+                fprintf(fp, "temp%d, %d, dims%d))\n"
                       "      {\n"
                       "      vtkPythonUtil::RefineArgValueError(%d);\n"
                       "      %s;\n"
                       "      }\n",
                       i, arg->NumberOfDimensions, i, i, on_error);
+                }
+              else
+                {
+                fprintf(fp, "vtkPythonUtil::CheckArray(args, %d, temp%d, %d, 0))\n"
+                      "      {\n"
+                      "      %s;\n"
+                      "      }\n",
+                      i, i, arg->Count, on_error);
+                }
 
               potential_error = 1;
               }
@@ -3337,13 +3357,16 @@ static void vtkWrapPython_GenerateMethods(
                 ((arg->Type & VTK_PARSE_CONST) == 0))
               {
               fprintf(fp,
-                      "    if (%d < PyTuple_GET_SIZE(args) &&\n"
-                      "        vtkPythonUtil::SetArg(args, %d, temp%d))\n"
+                      "    if (");
+              if (i >= requiredArgs)
+                {
+                fprintf(fp, "%d < PyTuple_GET_SIZE(args) &&\n        ", i);
+                }
+              fprintf(fp, "vtkPythonUtil::SetArg(args, %d, temp%d))\n"
                       "      {\n"
-                      "      vtkPythonUtil::RefineArgValueError(%d);\n"
                       "      %s;\n"
                       "      }\n",
-                      i, i, i, i, on_error);
+                      i, i, on_error);
 
               potential_error = 1;
 
@@ -3417,7 +3440,7 @@ static void vtkWrapPython_GenerateMethods(
           }
 
         fprintf(fp,
-               "static PyMethodDef Py%s_%sMethods[] = {\n",
+               "static PyMethodDef Py%s_%s_Methods[] = {\n",
                 data->Name, wrappedFunctions[fnum]->Name);
 
         signatureCount = 0;
@@ -3468,7 +3491,7 @@ static void vtkWrapPython_GenerateMethods(
           }
 
         fprintf(fp,
-                "  {NULL,       NULL, 0, NULL}\n"
+                "  {NULL, NULL, 0, NULL}\n"
                 "};\n"
                 "\n");
 
@@ -3491,7 +3514,7 @@ static void vtkWrapPython_GenerateMethods(
         fprintf(fp,
                 "static PyObject *Py%s_%s(PyObject *self, PyObject *args)\n"
                 "{\n"
-                "  PyMethodDef *methods = Py%s_%sMethods;\n"
+                "  PyMethodDef *methods = Py%s_%s_Methods;\n"
                 "\n"
                 "  return vtkPythonUtil::CallOverloadedMethod(methods, self, args);\n"
                 "}\n",
@@ -3542,7 +3565,7 @@ static void vtkWrapPython_GenerateMethods(
 
   /* output the method table, with pointers to each function defined above */
   fprintf(fp,
-          "static PyMethodDef Py%sMethods[] = {\n",
+          "static PyMethodDef Py%s_Methods[] = {\n",
           data->Name);
 
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
@@ -3605,7 +3628,7 @@ static void vtkWrapPython_GenerateMethods(
 
   /* python expects the method table to end with a "NULL" entry */
   fprintf(fp,
-          "  {NULL,                       NULL, 0, NULL}\n"
+          "  {NULL, NULL, 0, NULL}\n"
           "};\n"
           "\n");
 
@@ -4333,7 +4356,7 @@ static void vtkWrapPython_GenerateObjectNew(
   if (class_has_new)
     {
     fprintf(fp,
-            "static vtkObjectBase *%sStaticNew()\n"
+            "static vtkObjectBase *%s_StaticNew()\n"
             "{\n"
             "  return %s::New();\n"
             "}\n"
@@ -4349,7 +4372,7 @@ static void vtkWrapPython_GenerateObjectNew(
   if (class_has_new)
     {
     fprintf(fp,
-            "  return PyVTKClass_New(&%sStaticNew,\n",
+            "  return PyVTKClass_New(&%s_StaticNew,\n",
             data->Name);
     }
   else
@@ -4359,9 +4382,9 @@ static void vtkWrapPython_GenerateObjectNew(
     }
 
   fprintf(fp,
-          "                        Py%sMethods,\n"
+          "                        Py%s_Methods,\n"
           "                        \"%s\",modulename,\n"
-          "                        %sDoc(),",
+          "                        Py%s_Doc(),",
           data->Name, data->Name, data->Name);
 
   /* find the first superclass that is a VTK class */
@@ -4412,7 +4435,7 @@ static void vtkWrapPython_SpecialObjectProtocols(
     "static PyObject *Py%s_New(PyTypeObject *,"
     "  PyObject *args, PyObject *kwds)\n"
     "{\n"
-    "  PyMethodDef *methods = Py%s_%sMethods;\n"
+    "  PyMethodDef *methods = Py%s_%s_Methods;\n"
     "  if (kwds && PyDict_Size(kwds))\n"
     "    {\n"
     "    PyErr_SetString(PyExc_TypeError,\n"
@@ -4714,7 +4737,7 @@ static void vtkWrapPython_GenerateSpecialType(
 
   /* generate the method table for the New method */
   fprintf(fp,
-    "static PyMethodDef Py%sNewMethod = \\\n"
+    "static PyMethodDef Py%s_NewMethod = \\\n"
     "{ (char*)\"%s\", Py%s_%s, 1,\n"
     "  (char*)\"\" };\n"
     "\n",
@@ -4797,7 +4820,7 @@ static void vtkWrapPython_GenerateSpecialType(
 
   /* class methods introduced in python 2.2 */
   fprintf(fp,
-    "  Py%sMethods, // tp_methods\n"
+    "  Py%s_Methods, // tp_methods\n"
     "  0, // tp_members\n"
     "  0, // tp_getset\n"
     "  0, // tp_base\n"
@@ -4851,10 +4874,10 @@ static void vtkWrapPython_GenerateSpecialType(
     "{\n"
     "  return PyVTKSpecialType_New(\n"
     "    &Py%s_Type,\n"
-    "    Py%sMethods,\n"
-    "    Py%s_%sMethods,\n"
-    "    &Py%sNewMethod,\n"
-    "    %sDoc(), &%s_Copy);\n"
+    "    Py%s_Methods,\n"
+    "    Py%s_%s_Methods,\n"
+    "    &Py%s_NewMethod,\n"
+    "    Py%s_Doc(), &%s_Copy);\n"
     "}\n"
     "\n",
     data->Name, data->Name, data->Name,
@@ -5193,7 +5216,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     {
     fprintf(fp,
             "\n"
-            "static const char **%sDoc();\n"
+            "static const char **Py%s_Doc();\n"
             "\n",
             data->Name);
 
@@ -5305,7 +5328,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   if (data && (is_vtkobject || !data->IsAbstract))
     {
     fprintf(fp,
-            "const char **%sDoc()\n"
+            "const char **Py%s_Doc()\n"
             "{\n"
             "  static const char *docstring[] = {\n",
             data->Name);

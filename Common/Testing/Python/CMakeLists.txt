@@ -4,6 +4,7 @@
 IF (VTK_PYTHON_EXE)
   FOREACH ( tfile
       PythonSmoke
+      TestArrayArguments
       TestGhost
       TestMutable
       TestWeakref
