@@ -3735,6 +3735,8 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
         (currentFunction->Arguments[i]->Type & VTK_PARSE_CONST) == 0)
       {
       if (baseType != VTK_PARSE_OBJECT &&
+          baseType != VTK_PARSE_STRING &&
+          baseType != VTK_PARSE_UNICODE_STRING &&
           baseType != VTK_PARSE_BOOL &&
           baseType != VTK_PARSE_FLOAT &&
           baseType != VTK_PARSE_DOUBLE &&
@@ -4806,7 +4808,11 @@ static void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_init\n"
     "  0, // tp_alloc\n"
     "  Py%s_New, // tp_new\n"
+    "#if PY_VERSION_HEX >= 0x02030000\n"
+    "  PyObject_Del, // tp_free\n"
+    "#else\n"
     "  _PyObject_Del, // tp_free\n"
+    "#endif\n"
     "  0, // tp_is_gc\n",
     data->Name, data->Name);
 

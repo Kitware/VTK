@@ -29,7 +29,7 @@
 // type int or float.
 struct PyVTKMutableObject {
   PyObject_HEAD
-  PyObject *mn_value;
+  PyObject *value;
 };
 
 extern VTK_PYTHON_EXPORT PyTypeObject PyVTKMutableObject_Type;

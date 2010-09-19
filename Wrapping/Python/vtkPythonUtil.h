@@ -26,6 +26,8 @@ class vtkPythonGhostMap;
 class vtkPythonClassMap;
 class vtkPythonSpecialTypeMap;
 class vtkVariant;
+class vtkStdString;
+class vtkUnicodeString;
 
 extern "C" void vtkPythonUtilDelete();
 
@@ -194,6 +196,8 @@ public:
   static int SetArg(PyObject *args, int i, __int64 a);
   static int SetArg(PyObject *args, int i, unsigned __int64 a);
 #endif
+  static int SetArg(PyObject *args, int i, const vtkStdString &a);
+  static int SetArg(PyObject *args, int i, const vtkUnicodeString &a);
 
   // Description:
   // To be called after a ValueError occurs on an arg.

@@ -21,6 +21,8 @@
 #include "vtkSmartPointerBase.h"
 #include "vtkWeakPointerBase.h"
 #include "vtkVariant.h"
+#include "vtkStdString.h"
+#include "vtkUnicodeString.h"
 #include "vtkWindows.h"
 #include "vtkToolkits.h"
 
@@ -2131,6 +2133,24 @@ int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned __int64 a)
 }
 #endif
 
+int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkStdString &a)
+{
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+  PyObject *o = PyString_FromString(a.c_str());
+  return PyVTKMutableObject_SetValue(arg, o);
+}
+
+int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkUnicodeString &a)
+{
+#ifdef Py_USING_UNICODE
+  PyObject *arg = PyTuple_GET_ITEM(args, i);
+  const char *s = a.utf8_str();
+  PyObject *o = PyUnicode_DecodeUTF8(s, strlen(s), "strict");
+  return PyVTKMutableObject_SetValue(arg, o);
+#else
+  return 0;
+#endif
+}
 
 
 //--------------------------------------------------------------------

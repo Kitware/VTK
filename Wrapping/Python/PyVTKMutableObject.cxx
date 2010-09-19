@@ -15,8 +15,9 @@
 /*-----------------------------------------------------------------------
   The PyVTKMutableObject was created in Sep 2010 by David Gobbi.
 
-  This class is a proxy for python int and float, it allows these objects
-  to be passed to VTK methods that require a ref to a numeric type.
+  This class is a proxy for immutable python objects like int, float,
+  and string.  It allows these objects to be passed to VTK methods that
+  require a ref.
 -----------------------------------------------------------------------*/
 
 #include "PyVTKMutableObject.h"
@@ -48,13 +49,17 @@ static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
 
   if (PyFloat_Check(opn) ||
       PyLong_Check(opn) ||
-      PyInt_Check(opn))
+      PyInt_Check(opn) ||
+#ifdef Py_USING_UNICODE
+      PyUnicode_Check(opn) ||
+#endif
+      PyString_Check(opn))
     {
     Py_INCREF(opn);
     }
   else if (PyVTKMutableObject_Check(opn))
     {
-    opn = ((PyVTKMutableObject *)opn)->mn_value;
+    opn = ((PyVTKMutableObject *)opn)->value;
     Py_INCREF(opn);
     }
 #if PY_VERSION_HEX >= 0x02050000
@@ -82,7 +87,7 @@ static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
   else
     {
     PyErr_SetString(PyExc_TypeError,
-                    "a numeric object is required");
+                    "a numeric or string object is required");
     return NULL;
     }
 
@@ -96,7 +101,7 @@ PyObject *PyVTKMutableObject_GetValue(PyObject *self)
 {
   if (PyVTKMutableObject_Check(self))
     {
-    return ((PyVTKMutableObject *)self)->mn_value;
+    return ((PyVTKMutableObject *)self)->value;
     }
   else
     {
@@ -110,7 +115,7 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
 {
   if (PyVTKMutableObject_Check(self))
     {
-    PyObject **op = &((PyVTKMutableObject *)self)->mn_value;
+    PyObject **op = &((PyVTKMutableObject *)self)->value;
 
     if (PyFloat_Check(val) ||
         PyLong_Check(val) ||
@@ -139,7 +144,7 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
 
 static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
 {
-  PyObject *ob = ((PyVTKMutableObject *)self)->mn_value;
+  PyObject *ob = ((PyVTKMutableObject *)self)->value;
 
   if (PyArg_ParseTuple(args, (char*)":get"))
     {
@@ -152,7 +157,7 @@ static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
 
 static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 {
-  PyObject **op = &((PyVTKMutableObject *)self)->mn_value;
+  PyObject **op = &((PyVTKMutableObject *)self)->value;
   PyObject *opn;
 
   if (PyArg_ParseTuple(args, (char*)"O:set", &opn))
@@ -178,205 +183,258 @@ static PyMethodDef PyVTKMutableObject_Methods[] = {
   { NULL, NULL, 0, NULL }
 };
 
+
+//--------------------------------------------------------------------
+// Macros used for defining protocol methods
+
+#define REFOBJECT_INTFUNC(prot, op) \
+static int PyVTKMutableObject_##op(PyObject *ob) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob); \
+}
+
+#define REFOBJECT_SIZEFUNC(prot, op) \
+static Py_ssize_t PyVTKMutableObject_##op(PyObject *ob) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob); \
+}
+
+#define REFOBJECT_INDEXFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob, i); \
+}
+
+#define REFOBJECT_INDEXSETFUNC(prot, op) \
+static int PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i, PyObject *o) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob, i, o); \
+}
+
+#define REFOBJECT_SLICEFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i, Py_ssize_t j) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob, i, j); \
+}
+
+#define REFOBJECT_SLICESETFUNC(prot, op) \
+static int PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i, Py_ssize_t j, PyObject *o) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob, i, j, o); \
+}
+
+#define REFOBJECT_UNARYFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_##op(PyObject *ob) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob); \
+}
+
+#define REFOBJECT_BINARYFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_##op(PyObject *ob1, PyObject *ob2) \
+{ \
+  if (PyVTKMutableObject_Check(ob1)) \
+    { \
+    ob1 = ((PyVTKMutableObject *)ob1)->value; \
+    } \
+  if (PyVTKMutableObject_Check(ob2)) \
+    { \
+    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    } \
+  return Py##prot##_##op(ob1, ob2); \
+}
+
+#define REFOBJECT_INPLACEFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2) \
+{ \
+  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
+  PyObject *obn;\
+  ob1 = ob->value; \
+  if (PyVTKMutableObject_Check(ob2)) \
+    { \
+    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    } \
+  obn = Py##prot##_##op(ob1, ob2); \
+  if (obn) \
+    { \
+    ob->value = obn; \
+    Py_DECREF(ob1); \
+    Py_INCREF(ob); \
+    return (PyObject *)ob; \
+    } \
+  return 0; \
+}
+
+#define REFOBJECT_INPLACEIFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, Py_ssize_t i) \
+{ \
+  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
+  PyObject *obn;\
+  ob1 = ob->value; \
+  obn = Py##prot##_##op(ob1, i); \
+  if (obn) \
+    { \
+    ob->value = obn; \
+    Py_DECREF(ob1); \
+    Py_INCREF(ob); \
+    return (PyObject *)ob; \
+    } \
+  return 0; \
+}
+
+
+#define REFOBJECT_TERNARYFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
+{ \
+  if (PyVTKMutableObject_Check(ob1)) \
+    { \
+    ob1 = ((PyVTKMutableObject *)ob1)->value; \
+    } \
+  if (PyVTKMutableObject_Check(ob2)) \
+    { \
+    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    } \
+  if (PyVTKMutableObject_Check(ob2)) \
+    { \
+    ob3 = ((PyVTKMutableObject *)ob3)->value; \
+    } \
+  return Py##prot##_##op(ob1, ob2, ob3); \
+}
+
+#define REFOBJECT_INPLACETFUNC(prot, op) \
+static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
+{ \
+  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
+  PyObject *obn; \
+  ob1 = ob->value; \
+  if (PyVTKMutableObject_Check(ob2)) \
+    { \
+    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    } \
+  if (PyVTKMutableObject_Check(ob3)) \
+    { \
+    ob3 = ((PyVTKMutableObject *)ob3)->value; \
+    } \
+  obn = Py##prot##_##op(ob1, ob2, ob3); \
+  if (obn) \
+    { \
+    ob->value = obn; \
+    Py_DECREF(ob1); \
+    Py_INCREF(ob); \
+    return (PyObject *)ob; \
+    } \
+  return 0; \
+}
+
 //--------------------------------------------------------------------
 // Number protocol
 
 static int PyVTKMutableObject_NonZero(PyObject *ob)
 {
-  ob = ((PyVTKMutableObject *)ob)->mn_value;
+  ob = ((PyVTKMutableObject *)ob)->value;
   return PyObject_IsTrue(ob);
 }
 
 static int PyVTKMutableObject_Coerce(PyObject **ob1, PyObject **ob2)
 {
-  *ob1 = ((PyVTKMutableObject *)*ob1)->mn_value;
+  *ob1 = ((PyVTKMutableObject *)*ob1)->value;
   if (PyVTKMutableObject_Check(*ob2))
     {
-    *ob2 = ((PyVTKMutableObject *)*ob2)->mn_value;
+    *ob2 = ((PyVTKMutableObject *)*ob2)->value;
     }
   return PyNumber_CoerceEx(ob1, ob2);
 }
 
 static PyObject *PyVTKMutableObject_Hex(PyObject *ob)
 {
-  ob = ((PyVTKMutableObject *)ob)->mn_value;
-  if (PyInt_Check(ob) || PyLong_Check(ob))
+  ob = ((PyVTKMutableObject *)ob)->value;
+#if PY_VERSION_HEX >= 0x02060000
+  return PyNumber_ToBase(ob, 16);
+#else
+  if (ob->ob_type->tp_as_number &&
+      ob->ob_type->tp_as_number->nb_hex)
     {
     return ob->ob_type->tp_as_number->nb_hex(ob);
     }
-#if PY_VERSION_HEX >= 0x02050000
-  else
-    {
-    ob = PyNumber_Index(ob);
-    if (ob)
-      {
-      PyObject *r = ob->ob_type->tp_as_number->nb_hex(ob);
-      Py_DECREF(ob);
-      return r;
-      }
-    else
-      {
-      PyErr_Clear();
-      }
-    }
-#endif
 
   PyErr_SetString(PyExc_TypeError,
                   "hex() argument can't be converted to hex");
   return NULL;
+#endif
 }
 
 static PyObject *PyVTKMutableObject_Oct(PyObject *ob)
 {
-  ob = ((PyVTKMutableObject *)ob)->mn_value;
-  if (PyInt_Check(ob) || PyLong_Check(ob))
+  ob = ((PyVTKMutableObject *)ob)->value;
+#if PY_VERSION_HEX >= 0x02060000
+  return PyNumber_ToBase(ob, 8);
+#else
+  if (ob->ob_type->tp_as_number &&
+      ob->ob_type->tp_as_number->nb_oct)
     {
     return ob->ob_type->tp_as_number->nb_oct(ob);
     }
-#if PY_VERSION_HEX >= 0x02050000
-  else
-    {
-    ob = PyNumber_Index(ob);
-    if (ob)
-      {
-      PyObject *r = ob->ob_type->tp_as_number->nb_oct(ob);
-      Py_DECREF(ob);
-      return r;
-      }
-    else
-      {
-      PyErr_Clear();
-      }
-    }
-#endif
 
   PyErr_SetString(PyExc_TypeError,
                   "oct() argument can't be converted to oct");
   return NULL;
+#endif
 }
 
 
-#define REFOBJECT_UNARYFUNC(op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob) \
-{ \
-  ob = ((PyVTKMutableObject *)ob)->mn_value; \
-  return PyNumber_##op(ob); \
-}
-
-#define REFOBJECT_BINARYFUNC(op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob1, PyObject *ob2) \
-{ \
-  if (PyVTKMutableObject_Check(ob1)) \
-    { \
-    ob1 = ((PyVTKMutableObject *)ob1)->mn_value; \
-    } \
-  if (PyVTKMutableObject_Check(ob2)) \
-    { \
-    ob2 = ((PyVTKMutableObject *)ob2)->mn_value; \
-    } \
-  return PyNumber_##op(ob1, ob2); \
-}
-
-#define REFOBJECT_INPLACEFUNC(op) \
-static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2) \
-{ \
-  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
-  ob1 = ob->mn_value; \
-  if (PyVTKMutableObject_Check(ob2)) \
-    { \
-    ob2 = ((PyVTKMutableObject *)ob2)->mn_value; \
-    } \
-  ob->mn_value = PyNumber_##op(ob1, ob2); \
-  Py_DECREF(ob1); \
-  Py_INCREF(ob); \
-  return (PyObject *)ob; \
-}
-
-#define REFOBJECT_TERNARYFUNC(op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
-{ \
-  if (PyVTKMutableObject_Check(ob1)) \
-    { \
-    ob1 = ((PyVTKMutableObject *)ob1)->mn_value; \
-    } \
-  if (PyVTKMutableObject_Check(ob2)) \
-    { \
-    ob2 = ((PyVTKMutableObject *)ob2)->mn_value; \
-    } \
-  if (PyVTKMutableObject_Check(ob2)) \
-    { \
-    ob3 = ((PyVTKMutableObject *)ob3)->mn_value; \
-    } \
-  return PyNumber_##op(ob1, ob2, ob3); \
-}
-
-#define REFOBJECT_INPLACETFUNC(op) \
-static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
-{ \
-  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
-  ob1 = ob->mn_value; \
-  if (PyVTKMutableObject_Check(ob2)) \
-    { \
-    ob2 = ((PyVTKMutableObject *)ob2)->mn_value; \
-    } \
-  if (PyVTKMutableObject_Check(ob3)) \
-    { \
-    ob3 = ((PyVTKMutableObject *)ob3)->mn_value; \
-    } \
-  ob->mn_value = PyNumber_##op(ob1, ob2, ob3); \
-  Py_DECREF(ob1); \
-  Py_INCREF(ob); \
-  return (PyObject *)ob; \
-}
-
-
-REFOBJECT_BINARYFUNC(Add)
-REFOBJECT_BINARYFUNC(Subtract)
-REFOBJECT_BINARYFUNC(Multiply)
-REFOBJECT_BINARYFUNC(Divide)
-REFOBJECT_BINARYFUNC(Remainder)
-REFOBJECT_BINARYFUNC(Divmod)
-REFOBJECT_TERNARYFUNC(Power)
-REFOBJECT_UNARYFUNC(Negative)
-REFOBJECT_UNARYFUNC(Positive)
-REFOBJECT_UNARYFUNC(Absolute)
+REFOBJECT_BINARYFUNC(Number,Add)
+REFOBJECT_BINARYFUNC(Number,Subtract)
+REFOBJECT_BINARYFUNC(Number,Multiply)
+REFOBJECT_BINARYFUNC(Number,Divide)
+REFOBJECT_BINARYFUNC(Number,Remainder)
+REFOBJECT_BINARYFUNC(Number,Divmod)
+REFOBJECT_TERNARYFUNC(Number,Power)
+REFOBJECT_UNARYFUNC(Number,Negative)
+REFOBJECT_UNARYFUNC(Number,Positive)
+REFOBJECT_UNARYFUNC(Number,Absolute)
 // NonZero
-REFOBJECT_UNARYFUNC(Invert)
-REFOBJECT_BINARYFUNC(Lshift)
-REFOBJECT_BINARYFUNC(Rshift)
-REFOBJECT_BINARYFUNC(And)
-REFOBJECT_BINARYFUNC(Or)
-REFOBJECT_BINARYFUNC(Xor)
+REFOBJECT_UNARYFUNC(Number,Invert)
+REFOBJECT_BINARYFUNC(Number,Lshift)
+REFOBJECT_BINARYFUNC(Number,Rshift)
+REFOBJECT_BINARYFUNC(Number,And)
+REFOBJECT_BINARYFUNC(Number,Or)
+REFOBJECT_BINARYFUNC(Number,Xor)
 // Coerce
-REFOBJECT_UNARYFUNC(Int)
-REFOBJECT_UNARYFUNC(Long)
-REFOBJECT_UNARYFUNC(Float)
+REFOBJECT_UNARYFUNC(Number,Int)
+REFOBJECT_UNARYFUNC(Number,Long)
+REFOBJECT_UNARYFUNC(Number,Float)
 // Hex
 // Oct
 
 #if PY_VERSION_HEX >= 0x02000000
-REFOBJECT_INPLACEFUNC(Add)
-REFOBJECT_INPLACEFUNC(Subtract)
-REFOBJECT_INPLACEFUNC(Multiply)
-REFOBJECT_INPLACEFUNC(Divide)
-REFOBJECT_INPLACEFUNC(Remainder)
-REFOBJECT_INPLACETFUNC(Power)
-REFOBJECT_INPLACEFUNC(Lshift)
-REFOBJECT_INPLACEFUNC(Rshift)
-REFOBJECT_INPLACEFUNC(And)
-REFOBJECT_INPLACEFUNC(Or)
-REFOBJECT_INPLACEFUNC(Xor)
+REFOBJECT_INPLACEFUNC(Number,Add)
+REFOBJECT_INPLACEFUNC(Number,Subtract)
+REFOBJECT_INPLACEFUNC(Number,Multiply)
+REFOBJECT_INPLACEFUNC(Number,Divide)
+REFOBJECT_INPLACEFUNC(Number,Remainder)
+REFOBJECT_INPLACETFUNC(Number,Power)
+REFOBJECT_INPLACEFUNC(Number,Lshift)
+REFOBJECT_INPLACEFUNC(Number,Rshift)
+REFOBJECT_INPLACEFUNC(Number,And)
+REFOBJECT_INPLACEFUNC(Number,Or)
+REFOBJECT_INPLACEFUNC(Number,Xor)
 #endif
 
 #if PY_VERSION_HEX >= 0x02020000
-REFOBJECT_BINARYFUNC(FloorDivide)
-REFOBJECT_BINARYFUNC(TrueDivide)
-REFOBJECT_INPLACEFUNC(FloorDivide)
-REFOBJECT_INPLACEFUNC(TrueDivide)
+REFOBJECT_BINARYFUNC(Number,FloorDivide)
+REFOBJECT_BINARYFUNC(Number,TrueDivide)
+REFOBJECT_INPLACEFUNC(Number,FloorDivide)
+REFOBJECT_INPLACEFUNC(Number,TrueDivide)
 #endif
 
 #if PY_VERSION_HEX >= 0x02050000
-REFOBJECT_UNARYFUNC(Index)
+REFOBJECT_UNARYFUNC(Number,Index)
 #endif
 
 //--------------------------------------------------------------------
@@ -429,11 +487,176 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
 };
 
 //--------------------------------------------------------------------
+// Sequence protocol
+
+#if PY_MAJOR_VERSION >= 2
+REFOBJECT_SIZEFUNC(Sequence,Size)
+#else
+REFOBJECT_SIZEFUNC(Sequence,Length)
+#endif
+REFOBJECT_BINARYFUNC(Sequence,Concat)
+REFOBJECT_INDEXFUNC(Sequence,Repeat)
+REFOBJECT_INDEXFUNC(Sequence,GetItem)
+REFOBJECT_SLICEFUNC(Sequence,GetSlice)
+REFOBJECT_INDEXSETFUNC(Sequence,SetItem)
+REFOBJECT_SLICESETFUNC(Sequence,SetSlice)
+
+#if PY_VERSION_HEX >= 0x02000000
+REFOBJECT_INPLACEFUNC(Sequence,Concat)
+REFOBJECT_INPLACEIFUNC(Sequence,Repeat)
+#endif
+
+//--------------------------------------------------------------------
+static PySequenceMethods PyVTKMutableObject_AsSequence = {
+#if PY_MAJOR_VERSION >= 2
+  PyVTKMutableObject_Size,                   // sq_length
+#else
+  PyVTKMutableObject_Length,                 // sq_length
+#endif
+  PyVTKMutableObject_Concat,                 // sq_concat
+  PyVTKMutableObject_Repeat,                 // sq_repeat
+  PyVTKMutableObject_GetItem,                // sq_item
+  PyVTKMutableObject_GetSlice,               // sq_slice
+  PyVTKMutableObject_SetItem,                // sq_ass_item
+  PyVTKMutableObject_SetSlice,               // sq_ass_slice
+#if PY_VERSION_HEX >= 0x02000000
+  0,                                         // sq_contains
+  PyVTKMutableObject_InPlaceConcat,          // sq_inplace_concat
+  PyVTKMutableObject_InPlaceRepeat,          // sq_inplace_repeat
+#endif
+};
+
+//--------------------------------------------------------------------
+// Mapping protocol
+
+static PyObject *
+PyVTKMutableObject_GetMapItem(PyObject *ob, PyObject *key)
+{
+  ob = ((PyVTKMutableObject *)ob)->value;
+  return PyObject_GetItem(ob, key);
+}
+
+static int
+PyVTKMutableObject_SetMapItem(PyObject *ob, PyObject *key, PyObject *o)
+{
+  ob = ((PyVTKMutableObject *)ob)->value;
+  return PyObject_SetItem(ob, key, o);
+}
+
+//--------------------------------------------------------------------
+static PyMappingMethods PyVTKMutableObject_AsMapping = {
+#if PY_MAJOR_VERSION >= 2
+  PyVTKMutableObject_Size,                   // mp_length
+#else
+  PyVTKMutableObject_Length,                 // mp_length
+#endif
+  PyVTKMutableObject_GetMapItem,             // mp_subscript
+  PyVTKMutableObject_SetMapItem,             // mp_ass_subscript
+};
+
+//--------------------------------------------------------------------
+// Buffer protocol
+
+static Py_ssize_t PyVTKMutableObject_GetReadBuf(
+  PyObject *op, Py_ssize_t segment, void **ptrptr)
+{
+  char text[80];
+  PyBufferProcs *pb;
+  op = ((PyVTKMutableObject *)op)->value;
+  pb = op->ob_type->tp_as_buffer;
+
+  if (pb && pb->bf_getreadbuffer)
+    {
+    return op->ob_type->tp_as_buffer->bf_getreadbuffer(
+      op, segment, ptrptr);
+    }
+
+  sprintf(text, "type \'%.20s\' does not support readable buffer access",
+          op->ob_type->tp_name);
+  PyErr_SetString(PyExc_TypeError, text);
+
+  return -1;
+}
+
+static Py_ssize_t PyVTKMutableObject_GetWriteBuf(
+  PyObject *op, Py_ssize_t segment, void **ptrptr)
+{
+  char text[80];
+  PyBufferProcs *pb;
+  op = ((PyVTKMutableObject *)op)->value;
+  pb = op->ob_type->tp_as_buffer;
+
+  if (pb && pb->bf_getwritebuffer)
+    {
+    return op->ob_type->tp_as_buffer->bf_getwritebuffer(
+      op, segment, ptrptr);
+    }
+
+  sprintf(text, "type \'%.20s\' does not support writeable buffer access",
+          op->ob_type->tp_name);
+  PyErr_SetString(PyExc_TypeError, text);
+
+  return -1;
+}
+
+static Py_ssize_t
+PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
+{
+  char text[80];
+  PyBufferProcs *pb;
+  op = ((PyVTKMutableObject *)op)->value;
+  pb = op->ob_type->tp_as_buffer;
+
+  if (pb && pb->bf_getsegcount)
+    {
+    return op->ob_type->tp_as_buffer->bf_getsegcount(op, lenp);
+    }
+
+  sprintf(text, "type \'%.20s\' does not support buffer access",
+          op->ob_type->tp_name);
+  PyErr_SetString(PyExc_TypeError, text);
+
+  return -1;
+}
+
+static Py_ssize_t PyVTKMutableObject_GetCharBuf(
+  PyObject *op, Py_ssize_t segment, char **ptrptr)
+{
+  char text[80];
+  PyBufferProcs *pb;
+  op = ((PyVTKMutableObject *)op)->value;
+  pb = op->ob_type->tp_as_buffer;
+
+  if (pb && pb->bf_getcharbuffer)
+    {
+    return op->ob_type->tp_as_buffer->bf_getcharbuffer(
+      op, segment, ptrptr);
+    }
+
+  sprintf(text, "type \'%.20s\' does not support character buffer access",
+          op->ob_type->tp_name);
+  PyErr_SetString(PyExc_TypeError, text);
+
+  return -1;
+}
+
+static PyBufferProcs PyVTKMutableObject_AsBuffer = {
+  PyVTKMutableObject_GetReadBuf,       // bf_getreadbuffer
+  PyVTKMutableObject_GetWriteBuf,      // bf_getwritebuffer
+  PyVTKMutableObject_GetSegCount,      // bf_getsegcount
+  PyVTKMutableObject_GetCharBuf,       // bf_getcharbuffer
+#if PY_VERSION_HEX >= 0x02060000
+  0,                                   // bf_getbuffer
+  0                                    // bf_releasebuffer
+#endif
+};
+
+//--------------------------------------------------------------------
 // Object protocol
 
 static void PyVTKMutableObject_Delete(PyObject *ob)
 {
-  Py_DECREF(((PyVTKMutableObject *)ob)->mn_value);
+  Py_DECREF(((PyVTKMutableObject *)ob)->value);
 #if PY_MAJOR_VERSION >= 2
   PyObject_Del(ob);
 #else
@@ -446,7 +669,7 @@ static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
   char textspace[128];
   PyObject *r = 0;
   const char *name = ob->ob_type->tp_name;
-  PyObject *s = PyObject_Repr(((PyVTKMutableObject *)ob)->mn_value);
+  PyObject *s = PyObject_Repr(((PyVTKMutableObject *)ob)->value);
   if (s)
     {
     const char *text = PyString_AsString(s);
@@ -463,7 +686,7 @@ static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
 
 static PyObject *PyVTKMutableObject_Str(PyObject *ob)
 {
-  return PyObject_Str(((PyVTKMutableObject *)ob)->mn_value);
+  return PyObject_Str(((PyVTKMutableObject *)ob)->value);
 }
 
 #if PY_VERSION_HEX >= 0x02010000
@@ -472,11 +695,11 @@ static PyObject *PyVTKMutableObject_RichCompare(
 {
   if (PyVTKMutableObject_Check(ob1))
     {
-    ob1 = ((PyVTKMutableObject *)ob1)->mn_value;
+    ob1 = ((PyVTKMutableObject *)ob1)->value;
     }
   if (PyVTKMutableObject_Check(ob2))
     {
-    ob2 = ((PyVTKMutableObject *)ob2)->mn_value;
+    ob2 = ((PyVTKMutableObject *)ob2)->value;
     }
   return PyObject_RichCompare(ob1, ob2, opid);
 }
@@ -485,20 +708,22 @@ static int PyVTKMutableObject_Compare(PyObject *ob1, PyObject *ob2)
 {
   if (PyVTKMutableObject_Check(ob1))
     {
-    ob1 = ((PyVTKMutableObject *)ob1)->mn_value;
+    ob1 = ((PyVTKMutableObject *)ob1)->value;
     }
   if (PyVTKMutableObject_Check(ob2))
     {
-    ob2 = ((PyVTKMutableObject *)ob2)->mn_value;
+    ob2 = ((PyVTKMutableObject *)ob2)->value;
     }
   return PyObject_Compare(ob1, ob2);
 }
 #endif
 
-#if PY_VERSION_HEX < 0x02020000
 static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
 {
+  char text[128];
   char *name = PyString_AsString(attr);
+  PyObject *a;
+#if PY_VERSION_HEX < 0x02020000
   PyMethodDef *meth;
 
   if (name[0] == '_')
@@ -555,11 +780,31 @@ static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
       return PyCFunction_New(meth, self);
       }
     }
+#else
+  a = PyObject_GenericGetAttr(self, attr);
+  if (a || !PyErr_ExceptionMatches(PyExc_AttributeError))
+    {
+    return a;
+    }
+  PyErr_Clear();
+#endif
 
-  PyErr_SetString(PyExc_AttributeError, name);
+  if (name[0] != '_')
+    {
+    a = PyObject_GetAttr(((PyVTKMutableObject *)self)->value, attr);
+
+    if (a || !PyErr_ExceptionMatches(PyExc_AttributeError))
+      {
+      return a;
+      }
+    PyErr_Clear();
+    }
+
+  sprintf(text, "'%.20s' object has no attribute '%.80s'",
+          self->ob_type->tp_name, name);
+  PyErr_SetString(PyExc_AttributeError, text);
   return NULL;
 }
-#endif
 
 static PyObject *PyVTKMutableObject_New(
   PyTypeObject *, PyObject *args, PyObject *kwds)
@@ -573,7 +818,7 @@ static PyObject *PyVTKMutableObject_New(
     return NULL;
     }
 
-  if (PyArg_ParseTuple(args, "O:mutable", &o))
+  if (PyArg_ParseTuple(args, (char *)"O:mutable", &o))
     {
     o = PyVTKMutableObject_CompatibleObject(o);
 
@@ -584,7 +829,7 @@ static PyObject *PyVTKMutableObject_New(
 #else
       PyVTKMutableObject *self = PyObject_NEW(PyVTKMutableObject, &PyVTKMutableObject_Type);
 #endif
-      self->mn_value = o;
+      self->value = o;
       return (PyObject *)self;
       }
     }
@@ -596,7 +841,7 @@ static PyObject *PyVTKMutableObject_New(
 PyTypeObject PyVTKMutableObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"mutable",                      // tp_name
+  (char*)"vtk.mutable",                  // tp_name
   sizeof(PyVTKMutableObject),            // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMutableObject_Delete,             // tp_dealloc
@@ -610,23 +855,28 @@ PyTypeObject PyVTKMutableObject_Type = {
 #endif
   PyVTKMutableObject_Repr,               // tp_repr
   &PyVTKMutableObject_AsNumber,          // tp_as_number
-  0,                                     // tp_as_sequence
-  0,                                     // tp_as_mapping
+  &PyVTKMutableObject_AsSequence,        // tp_as_sequence
+  &PyVTKMutableObject_AsMapping,         // tp_as_mapping
+#if PY_VERSION_HEX >= 0x02060000
+  PyObject_HashNotImplemented,           // tp_hash
+#else
   0,                                     // tp_hash
+#endif
   0,                                     // tp_call
   PyVTKMutableObject_Str,                // tp_string
-#if PY_VERSION_HEX >= 0x02020000
-  PyObject_GenericGetAttr,               // tp_getattro
-#else
   PyVTKMutableObject_GetAttr,            // tp_getattro
-#endif
   0,                                     // tp_setattro
-  0,                                     // tp_as_buffer
+  &PyVTKMutableObject_AsBuffer,          // tp_as_buffer
 #if PY_VERSION_HEX >= 0x02020000
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  (char*)"A mutable numeric object.",    // tp_doc
+  (char*)"A mutable wrapper for immutable objects.\n\n"
+  "This wrapper class is needed when a VTK method returns a value\n"
+  "in an argument that has been passed by reference.  By calling\n"
+  "\"m = vtk.mutable(a)\" on a value, you can create a mutable proxy\n"
+  "to that value.  The value can be changed by calling \"m.set(b)\".\n",
+  // tp_doc
   0,                                     // tp_traverse
   0,                                     // tp_clear
 #if PY_VERSION_HEX >= 0x02010000
@@ -649,7 +899,11 @@ PyTypeObject PyVTKMutableObject_Type = {
   0,                                     // tp_init
   0,                                     // tp_alloc
   PyVTKMutableObject_New,                // tp_new
+#if PY_VERSION_HEX >= 0x02030000
+  PyObject_Del,                          // tp_free
+#else
   _PyObject_Del,                         // tp_free
+#endif
   0,                                     // tp_is_gc
   0,                                     // tp_bases
   0,                                     // tp_mro
