@@ -23,8 +23,6 @@
 #include "PyVTKMutableObject.h"
 #include "vtkPythonUtil.h"
 
-#include <vtksys/ios/sstream>
-
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (long *)&ptr
@@ -40,6 +38,15 @@ extern "C" { __declspec( dllexport ) void PyVTKAddFile_mutable(PyObject *, const
 #else
 extern "C" { void PyVTKAddFile_mutable(PyObject *, const char *); }
 #endif
+
+//--------------------------------------------------------------------
+
+const char *PyVTKMutableObject_Doc =
+  "A mutable wrapper for immutable objects.\n\n"
+  "This wrapper class is needed when a VTK method returns a value\n"
+  "in an argument that has been passed by reference.  By calling\n"
+  "\"m = vtk.mutable(a)\" on a value, you can create a mutable proxy\n"
+  "to that value.  The value can be changed by calling \"m.set(b)\".\n";
 
 //--------------------------------------------------------------------
 // helper method: make sure than an object is usable
@@ -121,14 +128,40 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
         PyLong_Check(val) ||
         PyInt_Check(val))
       {
-      Py_DECREF(*op);
-      *op = val;
-      return 0;
+      if (PyFloat_Check(*op) ||
+          PyLong_Check(*op) ||
+          PyInt_Check(*op))
+        {
+        Py_DECREF(*op);
+        *op = val;
+        return 0;
+        }
+      PyErr_SetString(PyExc_TypeError,
+                      "cannot set a string mutable to a numeric value");
+      }
+    else if (
+#ifdef Py_USING_UNICODE
+        PyUnicode_Check(val) ||
+#endif
+        PyString_Check(val))
+      {
+      if (
+#ifdef Py_USING_UNICODE
+          PyUnicode_Check(*op) ||
+#endif
+          PyString_Check(*op))
+        {
+        Py_DECREF(*op);
+        *op = val;
+        return 0;
+        }
+      PyErr_SetString(PyExc_TypeError,
+                      "cannot set a numeric mutable to a string value");
       }
     else
       {
       PyErr_SetString(PyExc_TypeError,
-                      "a float, long, or int is required");
+                      "a float, long, int, or string is required");
       }
     }
   else
@@ -144,10 +177,9 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
 
 static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
 {
-  PyObject *ob = ((PyVTKMutableObject *)self)->value;
-
   if (PyArg_ParseTuple(args, (char*)":get"))
     {
+    PyObject *ob = PyVTKMutableObject_GetValue(self);
     Py_INCREF(ob);
     return ob;
     }
@@ -157,7 +189,6 @@ static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
 
 static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 {
-  PyObject **op = &((PyVTKMutableObject *)self)->value;
   PyObject *opn;
 
   if (PyArg_ParseTuple(args, (char*)"O:set", &opn))
@@ -166,11 +197,11 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 
     if (opn)
       {
-      Py_DECREF(*op);
-      *op = opn;
-
-      Py_INCREF(Py_None);
-      return Py_None;
+      if (PyVTKMutableObject_SetValue(self, opn) == 0)
+        {
+        Py_INCREF(Py_None);
+        return Py_None;
+        }
       }
     }
 
@@ -486,6 +517,9 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
 #endif
 };
 
+
+// Disable sequence and mapping protocols until a subtype is made
+#if 0
 //--------------------------------------------------------------------
 // Sequence protocol
 
@@ -553,6 +587,7 @@ static PyMappingMethods PyVTKMutableObject_AsMapping = {
   PyVTKMutableObject_GetMapItem,             // mp_subscript
   PyVTKMutableObject_SetMapItem,             // mp_ass_subscript
 };
+#endif
 
 //--------------------------------------------------------------------
 // Buffer protocol
@@ -855,8 +890,8 @@ PyTypeObject PyVTKMutableObject_Type = {
 #endif
   PyVTKMutableObject_Repr,               // tp_repr
   &PyVTKMutableObject_AsNumber,          // tp_as_number
-  &PyVTKMutableObject_AsSequence,        // tp_as_sequence
-  &PyVTKMutableObject_AsMapping,         // tp_as_mapping
+  0,                                     // tp_as_sequence
+  0,                                     // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,           // tp_hash
 #else
@@ -871,12 +906,7 @@ PyTypeObject PyVTKMutableObject_Type = {
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  (char*)"A mutable wrapper for immutable objects.\n\n"
-  "This wrapper class is needed when a VTK method returns a value\n"
-  "in an argument that has been passed by reference.  By calling\n"
-  "\"m = vtk.mutable(a)\" on a value, you can create a mutable proxy\n"
-  "to that value.  The value can be changed by calling \"m.set(b)\".\n",
-  // tp_doc
+  (char*)PyVTKMutableObject_Doc,         // tp_doc
   0,                                     // tp_traverse
   0,                                     // tp_clear
 #if PY_VERSION_HEX >= 0x02010000
@@ -925,7 +955,7 @@ static PyObject *PyVTKMutableObject_ClassicNew(PyObject *, PyObject *args)
 
 static PyMethodDef PyVTKMutableObject_NewMethod =
   {(char*)"mutable", PyVTKMutableObject_ClassicNew, 1,
-   (char *)"A mutable numeric object."}
+   (char*)PyVTKMutableObject_Doc }
 };
 #endif
 
