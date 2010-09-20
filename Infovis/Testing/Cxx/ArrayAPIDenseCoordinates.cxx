@@ -67,7 +67,7 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(array->GetValue(vtkArrayCoordinates(1, 2)) == 0.5);
     test_expression(array->GetValue(vtkArrayCoordinates(2, 2)) == 1.0);
 
-    for(vtkIdType n = 0; n != array->GetNonNullSize(); ++n)
+    for(vtkArray::SizeT n = 0; n != array->GetNonNullSize(); ++n)
       {
       vtkArrayCoordinates coordinates;
       array->GetCoordinatesN(n, coordinates);

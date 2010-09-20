@@ -131,7 +131,7 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(deep_copy->GetNonNullSize() == array->GetNonNullSize());
     test_expression(deep_copy->GetExtents() == array->GetExtents());
     test_expression(deep_copy->GetNullValue() == array->GetNullValue());
-    for(int n = 0; n != deep_copy->GetNonNullSize(); ++n)
+    for(vtkArray::SizeT n = 0; n != deep_copy->GetNonNullSize(); ++n)
       test_expression(deep_copy->GetValueN(n) == array->GetValueN(n));
 
     // Verify that the Clear() method removes all values from the array ...

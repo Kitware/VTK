@@ -79,8 +79,10 @@ int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkDenseArray<UserType> > dense = vtkSmartPointer<vtkDenseArray<UserType> >::New();
     dense->Resize(3, 4);
     dense->Fill(UserType("red"));
-    for(vtkIdType n = 0; n != dense->GetNonNullSize(); ++n)
+    for(vtkArray::SizeT n = 0; n != dense->GetNonNullSize(); ++n)
+      {
       test_expression(dense->GetValueN(n) == UserType("red"));
+      }
 
     dense->SetValue(1, 2, UserType("green"));
     test_expression(dense->GetValue(1, 2) == UserType("green"));

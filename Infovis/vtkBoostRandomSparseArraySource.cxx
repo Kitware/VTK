@@ -98,7 +98,7 @@ int vtkBoostRandomSparseArraySource::RequestData(
   array->Resize(this->Extents);
 
   vtkArrayCoordinates coordinates;
-  for(vtkIdType n = 0; n != this->Extents.GetSize(); ++n)
+  for(vtkArray::SizeT n = 0; n != this->Extents.GetSize(); ++n)
     {
     this->Extents.GetRightToLeftCoordinatesN(n, coordinates);
 

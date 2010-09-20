@@ -49,7 +49,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(slice.GetSize() == 6);
 
     vtkArrayCoordinates coordinates;
-    for(vtkIdType n = 0; n != slice.GetSize(); ++n)
+    for(vtkArrayExtents::SizeT n = 0; n != slice.GetSize(); ++n)
       {
       slice.GetLeftToRightCoordinatesN(n, coordinates);
       cerr << coordinates << endl;

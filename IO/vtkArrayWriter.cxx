@@ -320,7 +320,7 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
     stream.precision(vtkstd::numeric_limits<ValueT>::digits10 + 1);
 
   vtkArrayCoordinates coordinates;
-  for(vtkIdType n = 0; n != extents.GetSize(); ++n)
+  for(vtkArrayExtents::SizeT n = 0; n != extents.GetSize(); ++n)
     {
     extents.GetRightToLeftCoordinatesN(n, coordinates);
     WriteValue(stream, concrete_array->GetValue(coordinates));
