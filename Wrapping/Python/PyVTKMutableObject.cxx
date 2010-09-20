@@ -654,8 +654,13 @@ PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
   return -1;
 }
 
+#if PY_VERSION_HEX >= 0x02050000
 static Py_ssize_t PyVTKMutableObject_GetCharBuf(
   PyObject *op, Py_ssize_t segment, char **ptrptr)
+#else
+static Py_ssize_t PyVTKMutableObject_GetCharBuf(
+  PyObject *op, Py_ssize_t segment, const char **ptrptr)
+#endif
 {
   char text[80];
   PyBufferProcs *pb;
