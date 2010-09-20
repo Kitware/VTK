@@ -1213,7 +1213,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 /* -------------------------------------------------------------------- */
 /* Make a format string for an array */
 void vtkWrapPython_ArrayString(
-  char *result, size_t *ip, int typeChar, int ndim, const char **dims)
+  char *result, size_t *ip, char typeChar, int ndim, const char **dims)
 {
   int j, n;
   size_t currPos = *ip;

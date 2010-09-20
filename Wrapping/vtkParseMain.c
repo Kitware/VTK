@@ -162,7 +162,8 @@ int main(int argc, char *argv[])
 
   options.InputFileName = argv[argi++];
 
-  if (!(ifile = fopen(options.InputFileName, "r")))
+  ifile = fopen(options.InputFileName, "r");
+  if (!ifile)
     {
     fprintf(stderr,"Error opening input file %s\n", options.InputFileName);
     exit(1);
@@ -183,7 +184,8 @@ int main(int argc, char *argv[])
 
   if (options.HintFileName && options.HintFileName[0] != '\0')
     {
-    if (!(hfile = fopen(options.HintFileName, "r")))
+    hfile = fopen(options.HintFileName, "r");
+    if (!hfile)
       {
       fprintf(stderr, "Error opening hint file %s\n", options.HintFileName);
       fclose(ifile);
