@@ -123,6 +123,14 @@ public:
   int GetSceneHeight();
 
   // Description:
+  // Whether to scale the scene transform when tiling, for example when
+  // using vtkWindowToImageFilter to take a large screenshot.
+  // The default is true.
+  vtkSetMacro(ScaleTiles, bool);
+  vtkGetMacro(ScaleTiles, bool);
+  vtkBooleanMacro(ScaleTiles, bool);
+
+  // Description:
   // Add the scene as an observer on the supplied interactor style.
   void SetInteractorStyle(vtkInteractorStyle *interactor);
 
@@ -258,6 +266,8 @@ protected:
 
   bool BufferIdSupportTested;
   bool BufferIdSupported;
+
+  bool ScaleTiles;
 
   // Description:
   // The scene level transform.

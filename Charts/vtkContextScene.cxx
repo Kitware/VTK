@@ -156,6 +156,7 @@ vtkContextScene::vtkContextScene()
   this->BufferIdSupportTested=false;
   this->BufferIdSupported=false;
   this->UseBufferId = true;
+  this->ScaleTiles = true;
   this->Transform = NULL;
   this->Children = new vtkContextScenePrivate(NULL);
   this->Children->SetScene(this);
