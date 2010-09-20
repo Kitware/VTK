@@ -20,7 +20,29 @@
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
+// fix a redefinition warning on some systems
+#ifdef _XOPEN_SOURCE
+#if _XOPEN_SOURCE == 500
+#define VTKTMP_XOPEN_SOURCE 500
+#undef _XOPEN_SOURCE
+#elif _XOPEN_SOURCE == 600
+#define VTKTMP_XOPEN_SOURCE 600
+#undef _XOPEN_SOURCE
+#endif
+#endif
+
 #include "vtkPython.h"
+
+// re-do the _XOPEN_SOURCE definition
+#if defined(VTKTMP_XOPEN_SOURCE) && !defined(_XOPEN_SOURCE)
+#if VTKTMP_XOPEN_SOURCE == 500
+#define _XOPEN_SOURCE 500
+#elif VTKTMP_XOPEN_SOURCE == 600
+#define _XOPEN_SOURCE 600
+#endif
+#undef VTKTMP_XOPEN_SOURCE
+#endif
+
 
 #include "vtkVersion.h"
 #include "Wrapping/Python/vtkPythonAppInitConfigure.h"
