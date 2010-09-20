@@ -282,7 +282,8 @@ bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostre
     stream.precision(vtkstd::numeric_limits<ValueT>::digits10 + 1);
 
   // Write the array NULL value ...
-  stream << concrete_array->GetNullValue() << "\n";
+  WriteValue(stream, concrete_array->GetNullValue());
+  stream << "\n";
 
   // Write the array contents ...
   const vtkIdType dimensions = array->GetDimensions();
