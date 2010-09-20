@@ -8,7 +8,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkDenseArray<double>* matrix = vtkDenseArray<double>::New();
   matrix->Resize(10, 10);
   matrix->Fill(0.0);
-  
+
   // Increment every value in a sparse-or-dense array
   // with any number of dimensions:
   for(vtkArray::SizeT n = 0; n != matrix->GetNonNullSize(); ++n)
@@ -22,7 +22,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   sum->Fill(0.0);
 
   vtkArrayCoordinates coordinates;
-  for(vtkArray:SizeT n = 0; n != matrix->GetNonNullSize(); ++n)
+  for(vtkArray::SizeT n = 0; n != matrix->GetNonNullSize(); ++n)
     {
     matrix->GetCoordinatesN(n, coordinates);
     sum->SetValue(coordinates[1], sum->GetValue(coordinates[1]) + matrix->GetValueN(n));
@@ -38,7 +38,6 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   sum->Delete();
   matrix->Delete();
-  
+
   return 0;
 }
-
