@@ -119,6 +119,10 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   outTCoords->SetNumberOfComponents(2);
   outTCoords->Allocate(8*numPoints);
 
+  // Copy point data to cell data
+  vtkPointData *inPD = input->GetPointData();
+  vtkCellData  *outCD = output->GetCellData();
+
   double size[2] = {1.0, 1.0};
   if(this->UseIconSize)
     {
@@ -126,9 +130,10 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     size[1] = this->IconSize[1];
     }
 
-  for(int i = 0; i < numPoints; i++)
+  vtkIdType ptId;
+  for(ptId = 0; ptId < numPoints; ++ptId)
     {
-    iconIndex = scalars->GetValue(i);
+    iconIndex = scalars->GetValue(ptId);
 
     if(iconIndex >= 0)
       {
@@ -136,22 +141,22 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
       textureCoord[0] = j/sheetXDim;
       textureCoord[1] = k/sheetYDim;
-      outTCoords->InsertTuple(i * 4, textureCoord);
+      outTCoords->InsertTuple(ptId * 4, textureCoord);
 
       textureCoord[0] = (j + 1.0)/sheetXDim;
       textureCoord[1] = k/sheetYDim;
-      outTCoords->InsertTuple(i * 4 + 1, textureCoord);
+      outTCoords->InsertTuple(ptId * 4 + 1, textureCoord);
 
       textureCoord[0] = (j + 1.0)/sheetXDim;
       textureCoord[1] = (k + 1.0)/sheetYDim;
-      outTCoords->InsertTuple(i * 4 + 2, textureCoord);
+      outTCoords->InsertTuple(ptId * 4 + 2, textureCoord);
 
       textureCoord[0] = j/sheetXDim;
       textureCoord[1] = (k + 1.0)/sheetYDim;
-      outTCoords->InsertTuple(i * 4 + 3, textureCoord);
+      outTCoords->InsertTuple(ptId * 4 + 3, textureCoord);
       }
 
-    input->GetPoint(i, point);
+    input->GetPoint(ptId, point);
 
     switch(this->Gravity)
       {
@@ -193,10 +198,10 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     outPoints->InsertNextPoint(point[0] - 0.5 * size[0], point[1] + 0.5 * size[1], point[2]);
 
     outCells->InsertNextCell(4);
-    outCells->InsertCellPoint(i * 4);
-    outCells->InsertCellPoint(i * 4 + 1);
-    outCells->InsertCellPoint(i * 4 + 2);
-    outCells->InsertCellPoint(i * 4 + 3);
+    outCells->InsertCellPoint(ptId * 4);
+    outCells->InsertCellPoint(ptId * 4 + 1);
+    outCells->InsertCellPoint(ptId * 4 + 2);
+    outCells->InsertCellPoint(ptId * 4 + 3);
     }
 
   output->SetPoints(outPoints);
@@ -208,6 +213,10 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   output->SetPolys(outCells);
   outCells->Delete();
+
+  // Pass the input point data to the cell data because for every point we
+  // generate a quad cell.
+  outCD->PassData(inPD);
 
   return 1;
 }

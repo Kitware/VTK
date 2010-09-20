@@ -383,6 +383,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
 //----------------------------------------------------------------------
 void vtkBalloonRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 {
+  this->Texture->ReleaseGraphicsResources(w);
   this->TextActor->ReleaseGraphicsResources(w);
   this->FrameActor->ReleaseGraphicsResources(w);
   this->TextureActor->ReleaseGraphicsResources(w);
