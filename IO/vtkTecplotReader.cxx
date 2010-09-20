@@ -129,7 +129,9 @@ int FileStreamReader::get()
     this->Pos = 0;
     //read the first buffer
     this->BuffEnd = gzread(this->file,this->buff,this->BUFF_SIZE);
-    if (this->Eof = (this->BuffEnd <= 0 )) //assign EOF to what gzread returned
+    //assign EOF to what gzread returned
+    this->Eof = (this->BuffEnd <= 0);
+    if (this->Eof)
       {
       return this->Eof;
       }
