@@ -44,6 +44,9 @@ vtkStandardNewMacro(vtkOrderStatistics);
 // ----------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
 {
+  // This engine has 2 primary tables: summary and histogram
+  this->NumberOfPrimaryTables = 2;
+
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
 
