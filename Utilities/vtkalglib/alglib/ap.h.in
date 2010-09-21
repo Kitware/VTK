@@ -144,7 +144,7 @@ ALGLIB_EXPORT int vlen(int n1, int n2);
 /********************************************************************
 Exception class.
 ********************************************************************/
-class ALGLIB_EXPORT ap_error
+class ap_error
 {
 public:
     ap_error(){};
