@@ -15,9 +15,10 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkCocoaMacOSXSDKCompatibility - Compatibility header
 // .SECTION Description
 // VTK uses types that were introduced with the 10.5 SDK.
-// This allows us to use these new types even with older SDKs 
-// (where the types are not defined). It is safe to include this
-// header multiple times.
+// Until VTK's minimum requirement is the 10.5 SDK or later,
+// this file allows us to use these new types even with older SDKs
+// (where the types are not defined).
+// It is safe to include this header multiple times.
 
 #ifdef __OBJC__
 
@@ -38,8 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
   #endif
 
 #endif
-
-#include <ApplicationServices/ApplicationServices.h>
 
 #ifndef CGFLOAT_DEFINED
   typedef float CGFloat;
