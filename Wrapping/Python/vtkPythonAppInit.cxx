@@ -31,10 +31,18 @@
 #endif
 #endif
 
+#ifdef _LARGEFILE_SOURCE
+#define VTKTMP_LARGEFILE_SOURCE 1
+#undef _LARGEFILE_SOURCE
+#endif
+
 #include "vtkPython.h"
 
 // re-do the _XOPEN_SOURCE definition
-#if defined(VTKTMP_XOPEN_SOURCE) && !defined(_XOPEN_SOURCE)
+#ifdef VTKTMP_XOPEN_SOURCE
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif
 #if VTKTMP_XOPEN_SOURCE == 500
 #define _XOPEN_SOURCE 500
 #elif VTKTMP_XOPEN_SOURCE == 600
@@ -43,6 +51,12 @@
 #undef VTKTMP_XOPEN_SOURCE
 #endif
 
+#ifdef VTKTMP_LARGEFILE_SOURCE
+#ifndef _LARGEFILE_SOURCE
+#define _LARGEFILE_SOURCE 1
+#endif
+#undef VTKTMP_LARGEFILE_SOURCE
+#endif
 
 #include "vtkVersion.h"
 #include "Wrapping/Python/vtkPythonAppInitConfigure.h"
