@@ -86,20 +86,21 @@ IF (FFMPEG_INCLUDE_DIR)
         ${VTK_CMAKE_DIR}/vtkFFMPEGTestAvAlloc.cxx
         CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${FFMPEG_INCLUDE_DIR}"
           -DCOMPILE_DEFINITIONS:STRING=-D${VTK_FFMPEG_CDEFS}
-          "-DLINK_LIBRARIES:STRING=${FFMPEG_avformat_LIBRARY}"
+          -DCOMPILE_DEFINITIONS:STRING=-D__STDC_CONSTANT_MACROS
+         "-DLINK_LIBRARIES:STRING=${FFMPEG_avformat_LIBRARY}"
         OUTPUT_VARIABLE OUTPUT)
 
-        IF(VTK_FFMPEG_NEW_ALLOC)
-          MESSAGE(STATUS "Checking if FFMPEG has avformat_alloc_context - found")
-          FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
-                  "Checking if FFMPEG has avformat_alloc_context (passed):\n"
-                  "${OUTPUT}\n\n")
-        ELSE(VTK_FFMPEG_NEW_ALLOC)
-          MESSAGE(STATUS "Checking if FFMPEG has avformat_alloc_context - not found")
-          FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-                  "Checking if FFMPEG has avformat_alloc_context (failed):\n"
-                  "${OUTPUT}\n\n")
-        ENDIF(VTK_FFMPEG_NEW_ALLOC)
+      IF(VTK_FFMPEG_NEW_ALLOC)
+        MESSAGE(STATUS "Checking if FFMPEG has avformat_alloc_context - found")
+        FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+                "Checking if FFMPEG has avformat_alloc_context (passed):\n"
+                "${OUTPUT}\n\n")
+      ELSE(VTK_FFMPEG_NEW_ALLOC)
+        MESSAGE(STATUS "Checking if FFMPEG has avformat_alloc_context - not found")
+        FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+                "Checking if FFMPEG has avformat_alloc_context (failed):\n"
+                "${OUTPUT}\n\n")
+      ENDIF(VTK_FFMPEG_NEW_ALLOC)
     ENDIF(FFMPEG_avformat_LIBRARY)
     SET(VTK_FFMPEG_CACHED_AVFORMAT ${FFMPEG_avformat_LIBRARY} CACHE INTERNAL "Previous value of FFMPEG_avformat_LIBRARY" FORCE)
   ENDIF("VTK_FFMPEG_NEW_ALLOC" MATCHES "^VTK_FFMPEG_NEW_ALLOC$" OR NOT "VTK_FFMPEG_CACHED_AVFORMAT" MATCHES "^${FFMPEG_avformat_LIBRARY}$")
