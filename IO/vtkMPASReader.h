@@ -140,6 +140,10 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void SetVerticalLevel(int level);
   vtkGetVector2Macro(VerticalLevelRange, int);
 
+  // Description:
+  // Returns true if the given file can be read.
+  static int CanReadFile(const char *filename);
+
  protected:
   vtkMPASReader();
   ~vtkMPASReader();

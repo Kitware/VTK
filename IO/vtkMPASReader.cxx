@@ -1147,6 +1147,24 @@ void vtkMPASReader::SetVerticalLevel(int level)
   this->CellDataArraySelection->Modified();
 }
 
+//-----------------------------------------------------------------------------
+int vtkMPASReader::CanReadFile(const char *filename)
+{
+  NcFile* ncFile = new NcFile(filename);
+  if (!ncFile->is_valid())
+    {
+    return 0;
+    }
+  bool ret = true;
+  ret &= isNcDim(ncFile, "nCells");
+  ret &= isNcDim(ncFile, "nVertices");
+  ret &= isNcDim(ncFile, "vertexDegree");
+  ret &= isNcDim(ncFile, "Time");
+  ret &= isNcDim(ncFile, "nVertLevels");
+  return ret;
+}
+
+//-----------------------------------------------------------------------------
 void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
