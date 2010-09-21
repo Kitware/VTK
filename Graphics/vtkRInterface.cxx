@@ -76,9 +76,9 @@ public:
     vtksys::SystemTools::PutEnv(newPath.c_str());
     }
     const char* path2 = vtksys::SystemTools::GetEnv("R_HOME");
-    char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
+    const char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
 
-    Rf_initialize_R(sizeof(R_argv)/sizeof(R_argv[0]), R_argv);
+    Rf_initialize_R(sizeof(R_argv)/sizeof(R_argv[0]), const_cast<char *>(R_argv));
 
 #ifdef CSTACK_DEFNS
     R_CStackLimit = (uintptr_t)-1;
