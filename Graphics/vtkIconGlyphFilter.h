@@ -12,17 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkIconGlyphFilter - Filter that generates a polydata with texture
-// coordinates corresponding to icons within a sheet of icons.
+// .NAME vtkIconGlyphFilter - Filter that generates a polydata consisting of
+// quads with texture coordinates referring to a set of icons within a sheet
+// of icons.
 // .SECTION Description
 // vtkIconGlyphFilter takes in a vtkPointSet where each point corresponds to
 // the center of an icon. Scalar integer data must also be set to give each
 // point an icon index. This index is a zero based row major index into an
-// image that contains a grid of icons. You must also set pixel Size of the 
-// icon image and the size of a particular icon.
+// image that contains a grid of icons (each icon is the same size). You must
+// also specify 1) the size of the icon in the icon sheet (in pixels), 2) the
+// size of the icon sheet (in pixels), and 3) the display size of each icon
+// (again in display coordinates, or pixels).
+//
+// Various other parameters are used to control how this data is combined. If
+// UseIconSize is true then the DisplaySize is ignored. If PassScalars is true,
+// then the scalar index information is passed to the output.
 
 // .SECTION See Also
-// vtkPolyDataAlgorithm
+// vtkPolyDataAlgorithm vtkGlyph3D vtkGlyph2D
 
 #ifndef __vtkIconGlyphFilter_h
 #define __vtkIconGlyphFilter_h
@@ -43,29 +50,44 @@
 class VTK_GRAPHICS_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
-
   // Description
+  // Standard VTK methods.
   static vtkIconGlyphFilter *New();
   vtkTypeMacro(vtkIconGlyphFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the Width and Height, in pixels, of an icon in the icon sheet
+  // Specify the Width and Height, in pixels, of an icon in the icon sheet.
   vtkSetVector2Macro(IconSize,int);
   vtkGetVectorMacro(IconSize,int,2);
 
   // Description:
-  // Specify the Width and Height, in pixels, of an icon in the icon sheet
+  // Specify the Width and Height, in pixels, of an icon in the icon sheet.
   vtkSetVector2Macro(IconSheetSize,int);
   vtkGetVectorMacro(IconSheetSize,int,2);
 
+  // Description:
+  // Specify the Width and Height, in pixels, of the size of the icon when it
+  // is rendered. By default, the IconSize is used to set the display size (i.e.,
+  // UseIconSize is true by default).
+  vtkSetVector2Macro(DisplaySize,int);
+  vtkGetVectorMacro(DisplaySize,int,2);
 
   // Description:
   // Specify whether the Quad generated to place the icon on will be either
-  // 1 x 1 or the dimensions specified by IconSize.
-  void SetUseIconSize(bool b);
-  bool GetUseIconSize();
+  // the dimensions specified by IconSize or the DisplaySize.
+  vtkSetMacro(UseIconSize,bool);
+  vtkGetMacro(UseIconSize,bool);
   vtkBooleanMacro(UseIconSize, bool);
+
+  // Description:
+  // Specify whether to pass the scalar icon index to the output. By
+  // default this is not passed since it can affect color during the
+  // rendering process. Note that all other point data is passed to
+  // the output regardless of the value of this flag.
+  vtkSetMacro(PassScalars,bool);
+  vtkGetMacro(PassScalars,bool);
+  vtkBooleanMacro(PassScalars,bool);
 
   // Description:
   // Specify if the input points define the center of the icon quad or one of
@@ -93,9 +115,11 @@ protected:
 
   int IconSize[2]; // Size in pixels of an icon in an icon sheet
   int IconSheetSize[2]; // Size in pixels of the icon sheet
+  int DisplaySize[2]; // Size in pixels of the icon when displayed
 
   int Gravity;
   bool UseIconSize;
+  bool PassScalars;
 
 private:
   vtkIconGlyphFilter(const vtkIconGlyphFilter&);  // Not implemented.

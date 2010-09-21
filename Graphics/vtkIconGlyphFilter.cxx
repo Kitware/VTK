@@ -38,10 +38,13 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
   this->IconSize[1] = 1;
   this->IconSheetSize[0] = 1;
   this->IconSheetSize[1] = 1;
+  this->DisplaySize[0] = 25;
+  this->DisplaySize[1] = 25;
   this->Gravity = VTK_ICON_GRAVITY_CENTER_CENTER;
   this->UseIconSize = true;
+  this->PassScalars = false;
 
-  this->SetInputArrayToProcess(0, 0, 0, 
+  this->SetInputArrayToProcess(0, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
@@ -58,18 +61,6 @@ void vtkIconGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IconSize: " << this->IconSize[0] << " " << this->IconSize[1] << endl;
   os << indent << "IconSheetSize: " << this->IconSheetSize[0] << " " << this->IconSheetSize[1] << endl;
   os << indent << "Gravity: " << this->Gravity << "\n";
-}
-
-//----------------------------------------------------------------------------
-void vtkIconGlyphFilter::SetUseIconSize(bool b)
-{
-  this->UseIconSize = b;
-}
-
-//----------------------------------------------------------------------------
-bool vtkIconGlyphFilter::GetUseIconSize()
-{
-  return this->UseIconSize;
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +114,9 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPointData *inPD = input->GetPointData();
   vtkCellData  *outCD = output->GetCellData();
 
-  double size[2] = {1.0, 1.0};
+  double size[2];
+  size[0] = this->DisplaySize[0];
+  size[1] = this->DisplaySize[1];
   if(this->UseIconSize)
     {
     size[0] = this->IconSize[0];
@@ -216,6 +209,14 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Pass the input point data to the cell data because for every point we
   // generate a quad cell.
+  if ( this->PassScalars )
+    {
+    outCD->CopyScalarsOn();
+    }
+  else
+    {
+    outCD->CopyScalarsOff();
+    }
   outCD->PassData(inPD);
 
   return 1;
