@@ -951,7 +951,7 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
       }
     else
       {
-      displayExtent[k] = -static_cast<int>(-d - VTKCELLPICKER_VOXEL_TOL);
+      displayExtent[k] = static_cast<int>(d - VTKCELLPICKER_VOXEL_TOL);
       }
     }
 
