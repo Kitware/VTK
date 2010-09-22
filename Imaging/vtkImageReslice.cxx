@@ -136,25 +136,28 @@ vtkImageReslice::vtkImageReslice()
   this->TransformInputSampling = 1;
   this->AutoCropOutput = 0;
   this->OutputDimensionality = 3;
+  this->ComputeOutputSpacing = 1;
+  this->ComputeOutputOrigin = 1;
+  this->ComputeOutputExtent = 1;
 
   // flag to use default Spacing
-  this->OutputSpacing[0] = VTK_DOUBLE_MAX;
-  this->OutputSpacing[1] = VTK_DOUBLE_MAX;
-  this->OutputSpacing[2] = VTK_DOUBLE_MAX;
+  this->OutputSpacing[0] = 1.0;
+  this->OutputSpacing[1] = 1.0;
+  this->OutputSpacing[2] = 1.0;
 
   // ditto
-  this->OutputOrigin[0] = VTK_DOUBLE_MAX;
-  this->OutputOrigin[1] = VTK_DOUBLE_MAX;
-  this->OutputOrigin[2] = VTK_DOUBLE_MAX;
+  this->OutputOrigin[0] = 0.0;
+  this->OutputOrigin[1] = 0.0;
+  this->OutputOrigin[2] = 0.0;
 
   // ditto
-  this->OutputExtent[0] = VTK_INT_MIN;
-  this->OutputExtent[2] = VTK_INT_MIN;
-  this->OutputExtent[4] = VTK_INT_MIN;
+  this->OutputExtent[0] = 0;
+  this->OutputExtent[2] = 0;
+  this->OutputExtent[4] = 0;
 
-  this->OutputExtent[1] = VTK_INT_MAX;
-  this->OutputExtent[3] = VTK_INT_MAX;
-  this->OutputExtent[5] = VTK_INT_MAX;
+  this->OutputExtent[1] = 0;
+  this->OutputExtent[3] = 0;
+  this->OutputExtent[5] = 0;
 
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
@@ -282,6 +285,111 @@ void vtkImageReslice::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->InformationInput,
                             "InformationInput");
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputSpacing(double x, double y, double z)
+{
+  double *s = this->OutputSpacing;
+  if (s[0] != x || s[1] != y || s[2] != z)
+    {
+    this->OutputSpacing[0] = x;
+    this->OutputSpacing[1] = y;
+    this->OutputSpacing[2] = z;
+    this->Modified();
+    }
+  else if (this->ComputeOutputSpacing)
+    {
+    this->Modified();
+    }
+  this->ComputeOutputSpacing = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputSpacingToDefault()
+{
+  if (!this->ComputeOutputSpacing)
+    {
+    this->ComputeOutputSpacing = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputOrigin(double x, double y, double z)
+{
+  double *o = this->OutputOrigin;
+  if (o[0] != x || o[1] != y || o[2] != z)
+    {
+    this->OutputOrigin[0] = x;
+    this->OutputOrigin[1] = y;
+    this->OutputOrigin[2] = z;
+    this->Modified();
+    }
+  else if (this->ComputeOutputOrigin)
+    {
+    this->Modified();
+    }
+  this->ComputeOutputOrigin = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputOriginToDefault()
+{
+  if (!this->ComputeOutputOrigin)
+    {
+    this->ComputeOutputOrigin = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputExtent(int a, int b, int c, int d, int e, int f)
+{
+  int *extent = this->OutputExtent;
+  if (extent[0] != a || extent[1] != b || extent[2] != c ||
+      extent[3] != d || extent[4] != e || extent[5] != f)
+    {
+    this->OutputExtent[0] = a;
+    this->OutputExtent[1] = b;
+    this->OutputExtent[2] = c;
+    this->OutputExtent[3] = d;
+    this->OutputExtent[4] = e;
+    this->OutputExtent[5] = f;
+    this->Modified();
+    }
+  else if (this->ComputeOutputExtent)
+    {
+    this->Modified();
+    }
+  this->ComputeOutputExtent = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputExtentToDefault()
+{
+  if (!this->ComputeOutputExtent)
+    {
+    this->ComputeOutputExtent = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+const char *vtkImageReslice::GetInterpolationModeAsString()
+{
+  switch (this->InterpolationMode)
+    {
+    case VTK_RESLICE_NEAREST:
+      return "NearestNeighbor";
+    case VTK_RESLICE_LINEAR:
+      return "Linear";
+    case VTK_RESLICE_RESERVED_2:
+      return "ReservedValue";
+    case VTK_RESLICE_CUBIC:
+      return "Cubic";
+    }
+  return "";
 }
 
 //----------------------------------------------------------------------------
@@ -818,7 +926,7 @@ int vtkImageReslice::RequestInformation(
       e = inWholeExt[2*i];
       }
 
-    if (this->OutputSpacing[i] == VTK_DOUBLE_MAX)
+    if (this->ComputeOutputSpacing)
       {
       outSpacing[i] = s;
       }
@@ -832,8 +940,7 @@ int vtkImageReslice::RequestInformation(
       outWholeExt[2*i] = 0;
       outWholeExt[2*i+1] = 0;
       }
-    else if (this->OutputExtent[2*i] == VTK_INT_MIN ||
-             this->OutputExtent[2*i+1] == VTK_INT_MAX)
+    else if (this->ComputeOutputExtent)
       {
       if (this->AutoCropOutput)
         {
@@ -853,7 +960,7 @@ int vtkImageReslice::RequestInformation(
       {
       outOrigin[i] = 0;
       }
-    else if (this->OutputOrigin[i] == VTK_DOUBLE_MAX)
+    else if (this->ComputeOutputOrigin)
       {
       if (this->AutoCropOutput)
         { // set origin so edge of extent is edge of bounds
