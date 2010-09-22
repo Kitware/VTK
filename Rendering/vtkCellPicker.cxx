@@ -273,12 +273,6 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
     tMin = t1;
     }
 
-  // Actor
-  else if ( (mapper = vtkMapper::SafeDownCast(m)) )
-    {
-    tMin = this->IntersectActorWithLine(p1, p2, t1, t2, tol, prop, mapper);
-    }
-
   // Volume
   else if ( (volumeMapper = vtkAbstractVolumeMapper::SafeDownCast(m)) )
     {
@@ -289,6 +283,12 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   else if ( (imageActor = vtkImageActor::SafeDownCast(prop)) )
     {
     tMin = this->IntersectImageActorWithLine(p1, p2, t1, t2, imageActor);
+    }
+
+  // Actor
+  else if ( (mapper = vtkMapper::SafeDownCast(m)) )
+    {
+    tMin = this->IntersectActorWithLine(p1, p2, t1, t2, tol, prop, mapper);
     }
 
   // Unidentified Prop3D
@@ -937,10 +937,10 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
     }
 
   // Clip the ray with the extent
-  int planeId, displayExtent[6];
-  double tMin, tMax;
-  imageActor->GetDisplayExtent(displayExtent);
-  if (!this->ClipLineWithExtent(displayExtent, x1, x2, tMin, tMax, planeId)
+  int planeId, pt2;
+  double tMin, tMax, displayExtent[6];
+  imageActor->GetDisplayBounds(displayExtent);
+  if (!vtkBox::IntersectWithLine(displayExtent, x1, x2, tMin, tMax, 0, 0, planeId, pt2)
       || tMin < t1 || tMin > t2)
     {
     return VTK_DOUBLE_MAX;
