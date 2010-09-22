@@ -936,11 +936,29 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
     x2[i] = (p2[i] - origin[i])/spacing[i];
     }
 
+  // Convert display bounds to structured coordinates, in order
+  // to retrieve the true DisplayExtent of the image
+  double displayBounds[6];
+  imageActor->GetDisplayBounds(displayBounds);
+
+  int displayExtent[6];
+  for (int k = 0; k < 6; k++)
+    {
+    double d = (displayBounds[k] - origin[k>>1])/spacing[k>>1];
+    if (d > 0)
+      {
+      displayExtent[k] = static_cast<int>(d + VTKCELLPICKER_VOXEL_TOL);
+      }
+    else
+      {
+      displayExtent[k] = static_cast<int>(d - VTKCELLPICKER_VOXEL_TOL);
+      }
+    }
+
   // Clip the ray with the extent
-  int planeId, pt2;
-  double tMin, tMax, displayExtent[6];
-  imageActor->GetDisplayBounds(displayExtent);
-  if (!vtkBox::IntersectWithLine(displayExtent, x1, x2, tMin, tMax, 0, 0, planeId, pt2)
+  int planeId;
+  double tMin, tMax;
+  if (!this->ClipLineWithExtent(displayExtent, x1, x2, tMin, tMax, planeId)
       || tMin < t1 || tMin > t2)
     {
     return VTK_DOUBLE_MAX;
