@@ -596,9 +596,9 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
   double tickSpacing = range / maxTicks;
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
-  double normTickSpacing = tickSpacing * pow(10.0f, -order);
+  double normTickSpacing = tickSpacing * pow(double(10.0), -order);
   double niceTickSpacing = this->NiceNumber(normTickSpacing, true);
-  niceTickSpacing *= pow(10.0f, order);
+  niceTickSpacing *= pow(double(10.0), order);
 
   if (isNegative)
     {
