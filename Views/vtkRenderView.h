@@ -169,6 +169,13 @@ public:
   vtkSetVector2Macro(IconSize, int);
   vtkGetVector2Macro(IconSize, int);
 
+  // Description:
+  // Set the display size of the icon (which may be different from the icon
+  // size). By default, if this value is not set, the the IconSize is used.
+  vtkSetVector2Macro(DisplaySize, int);
+  int* GetDisplaySize();
+  void GetDisplaySize(int &dsx, int &dsy);
+
   //BTX
   enum
     {
@@ -264,6 +271,7 @@ protected:
   vtkAbstractTransform* Transform;
   vtkTexture* IconTexture;
   int IconSize[2];
+  int DisplaySize[2];
 
   //BTX
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;

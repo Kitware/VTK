@@ -86,6 +86,8 @@ vtkRenderView::vtkRenderView()
   this->InHoverTextRender = false;
   this->IconSize[0] = 16;
   this->IconSize[1] = 16;
+  this->DisplaySize[0] = 0;
+  this->DisplaySize[1] = 0;
   this->PickRenderNeedsUpdate = true;
   this->InPickRender = false;
 
@@ -743,6 +745,34 @@ void vtkRenderView::SetLabelRenderMode(int render_mode)
     }
 }
 
+int* vtkRenderView::GetDisplaySize()
+{
+  if ( this->DisplaySize[0] == 0 ||
+       this->DisplaySize[1] == 0 )
+    {
+    return this->IconSize;
+    }
+  else
+    {
+    return this->DisplaySize;
+    }
+}
+
+void vtkRenderView::GetDisplaySize(int &dsx, int &dsy)
+{
+  if ( this->DisplaySize[0] == 0 ||
+       this->DisplaySize[1] == 0 )
+    {
+    dsx = this->IconSize[0];
+    dsy = this->IconSize[1];
+    }
+  else
+    {
+    dsx = this->DisplaySize[0];
+    dsy = this->DisplaySize[1];
+    }
+}
+
 void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -791,4 +821,5 @@ void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
   os << indent << "IconSize: " << this->IconSize[0] << "," << this->IconSize[1] << endl;
+  os << indent << "DisplaySize: " << this->DisplaySize[0] << "," << this->DisplaySize[1] << endl;
 }
