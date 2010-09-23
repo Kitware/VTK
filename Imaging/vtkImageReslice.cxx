@@ -310,6 +310,9 @@ void vtkImageReslice::SetOutputSpacingToDefault()
 {
   if (!this->ComputeOutputSpacing)
     {
+    this->OutputSpacing[0] = 1.0;
+    this->OutputSpacing[1] = 1.0;
+    this->OutputSpacing[2] = 1.0;
     this->ComputeOutputSpacing = 1;
     this->Modified();
     }
@@ -338,6 +341,9 @@ void vtkImageReslice::SetOutputOriginToDefault()
 {
   if (!this->ComputeOutputOrigin)
     {
+    this->OutputOrigin[0] = 0.0;
+    this->OutputOrigin[1] = 0.0;
+    this->OutputOrigin[2] = 0.0;
     this->ComputeOutputOrigin = 1;
     this->Modified();
     }
@@ -370,6 +376,12 @@ void vtkImageReslice::SetOutputExtentToDefault()
 {
   if (!this->ComputeOutputExtent)
     {
+    this->OutputExtent[0] = 0;
+    this->OutputExtent[2] = 0;
+    this->OutputExtent[4] = 0;
+    this->OutputExtent[1] = 0;
+    this->OutputExtent[3] = 0;
+    this->OutputExtent[5] = 0;
     this->ComputeOutputExtent = 1;
     this->Modified();
     }
