@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTypedArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -57,12 +57,12 @@ public:
   typedef typename vtkArray::SizeT SizeT;
 
 #if defined(_MSC_VER) && _MSC_VER < 1400
-  vtkVariant GetVariantValue(CoordinateT i) { return this->vtkArray::GetVariantValue(i); }
-  vtkVariant GetVariantValue(CoordinateT i, CoordinateT j) { return this->vtkArray::GetVariantValue(i,j); }
-  vtkVariant GetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k) { return this->vtkArray::GetVariantValue(i,j,k); }
-  void SetVariantValue(CoordinateT i, const vtkVariant& value) { this->vtkArray::SetVariantValue(i, value); }
-  void SetVariantValue(CoordinateT i, CoordinateT j, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j, value); }
-  void SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j,k, value); }
+  vtkVariant GetVariantValue(vtkIdType i) { return this->vtkArray::GetVariantValue(i); }
+  vtkVariant GetVariantValue(vtkIdType i, vtkIdType j) { return this->vtkArray::GetVariantValue(i,j); }
+  vtkVariant GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k) { return this->vtkArray::GetVariantValue(i,j,k); }
+  void SetVariantValue(vtkIdType i, const vtkVariant& value) { this->vtkArray::SetVariantValue(i, value); }
+  void SetVariantValue(vtkIdType i, vtkIdType j, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j, value); }
+  void SetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j,k, value); }
 #else
   using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::GetVariantValue;
   using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::SetVariantValue;
