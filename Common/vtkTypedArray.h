@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTypedArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -54,12 +54,12 @@ class vtkTypedArray : public vtkTypeTemplate<vtkTypedArray<T>, vtkArray>
 {
 public:
 #if defined(_MSC_VER) && _MSC_VER < 1400
-  vtkVariant GetVariantValue(CoordinateT i) { return this->vtkArray::GetVariantValue(i); }
-  vtkVariant GetVariantValue(CoordinateT i, CoordinateT j) { return this->vtkArray::GetVariantValue(i,j); }
-  vtkVariant GetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k) { return this->vtkArray::GetVariantValue(i,j,k); }
-  void SetVariantValue(CoordinateT i, const vtkVariant& value) { this->vtkArray::SetVariantValue(i, value); }
-  void SetVariantValue(CoordinateT i, CoordinateT j, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j, value); }
-  void SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j,k, value); }
+  vtkVariant GetVariantValue(vtkIdType i) { return this->vtkArray::GetVariantValue(i); }
+  vtkVariant GetVariantValue(vtkIdType i, vtkIdType j) { return this->vtkArray::GetVariantValue(i,j); }
+  vtkVariant GetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k) { return this->vtkArray::GetVariantValue(i,j,k); }
+  void SetVariantValue(vtkIdType i, const vtkVariant& value) { this->vtkArray::SetVariantValue(i, value); }
+  void SetVariantValue(vtkIdType i, vtkIdType j, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j, value); }
+  void SetVariantValue(vtkIdType i, vtkIdType j, vtkIdType k, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j,k, value); }
 #else
   using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::GetVariantValue;
   using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::SetVariantValue;
@@ -84,7 +84,7 @@ public:
   virtual const T& GetValue(vtkIdType i, vtkIdType j) = 0;
   virtual const T& GetValue(vtkIdType i, vtkIdType j, vtkIdType k) = 0;
   virtual const T& GetValue(const vtkArrayCoordinates& coordinates) = 0;
-  
+
   // Description:
   // Returns the n-th value stored in the array, where n is in the
   // range [0, GetNonNullSize()).  This is useful for efficiently
@@ -92,7 +92,7 @@ public:
   // values are visited is undefined, but is guaranteed to match the
   // order used by vtkArray::GetCoordinatesN().
   virtual const T& GetValueN(const vtkIdType n) = 0;
-  
+
   // Description:
   // Overwrites the value stored in the array at the given coordinates.
   // Note that the number of dimensions in the supplied coordinates must
@@ -101,7 +101,7 @@ public:
   virtual void SetValue(vtkIdType i, vtkIdType j, const T& value) = 0;
   virtual void SetValue(vtkIdType i, vtkIdType j, vtkIdType k, const T& value) = 0;
   virtual void SetValue(const vtkArrayCoordinates& coordinates, const T& value) = 0;
-  
+
   // Description:
   // Overwrites the n-th value stored in the array, where n is in the
   // range [0, GetNonNullSize()).  This is useful for efficiently
