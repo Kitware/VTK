@@ -71,6 +71,9 @@ IF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
     SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES SUFFIX ".pyd")
   ENDIF(WIN32 AND NOT CYGWIN)
 
+  # Make sure that no prefix is set on the library
+  SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES PREFIX "")
+
   # The python modules are installed by a setup.py script which does
   # not know how to adjust the RPATH field of the binary.  Therefore
   # we must simply build the modules with no RPATH at all.  The

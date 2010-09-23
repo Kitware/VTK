@@ -10,11 +10,8 @@ static void CreateInitFile(const char *libName,
 {
   int i;
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
+  /* prefix used to be "lib" on UNIX, now there is no prefix */
   const char* prefix = "";
-#else
-  const char* prefix = "lib";
-#endif
 
 #if defined(_WIN32)
   const char* dllexp = "__declspec(dllexport) ";
