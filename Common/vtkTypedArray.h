@@ -53,8 +53,17 @@ template<typename T>
 class vtkTypedArray : public vtkTypeTemplate<vtkTypedArray<T>, vtkArray>
 {
 public:
+#if defined(_MSC_VER) && _MSC_VER < 1400
+  vtkVariant GetVariantValue(CoordinateT i) { return this->vtkArray::GetVariantValue(i); }
+  vtkVariant GetVariantValue(CoordinateT i, CoordinateT j) { return this->vtkArray::GetVariantValue(i,j); }
+  vtkVariant GetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k) { return this->vtkArray::GetVariantValue(i,j,k); }
+  void SetVariantValue(CoordinateT i, const vtkVariant& value) { this->vtkArray::SetVariantValue(i, value); }
+  void SetVariantValue(CoordinateT i, CoordinateT j, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j, value); }
+  void SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, const vtkVariant& value) { this->vtkArray::SetVariantValue(i,j,k, value); }
+#else
   using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::GetVariantValue;
   using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::SetVariantValue;
+#endif
 
   void PrintSelf(ostream &os, vtkIndent indent);
 
