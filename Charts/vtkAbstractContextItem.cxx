@@ -95,44 +95,43 @@ void vtkAbstractContextItem::ClearItems()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &mouse,
-                                             int delta)
+bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
 {
   return false;
 }
@@ -143,7 +142,7 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(const vtkContextMo
   vtkContextMouseEvent childMouse = mouse;
   this->FromParent(mouse.Pos.GetData(), childMouse.Pos.GetData());
   this->FromParent(mouse.LastPos.GetData(), childMouse.LastPos.GetData());
-  for (int i = this->Children->size()-1; i >= 0; --i)
+  for (size_t i = this->Children->size()-1; i >= 0; --i)
     {
     //cerr << "checking child " << i << ": " << (*this->Children)[i]->GetClassName() << endl;
     vtkAbstractContextItem* item = (*this->Children)[i]->GetPickedItem(childMouse);

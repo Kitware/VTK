@@ -18,7 +18,6 @@ SET(Kit_SRCS
   vtkAbstractContextBufferId.cxx
   vtkAbstractContextItem.cxx
   vtkAxis.cxx
-  vtkBarMark.cxx
   vtkBlockItem.cxx
   vtkBrush.cxx
   vtkChart.cxx
@@ -41,16 +40,10 @@ SET(Kit_SRCS
   vtkContextTransform.cxx
   vtkContextView.cxx
   vtkControlPointsItem.cxx
-  vtkDataElement.cxx
-  vtkDataValue.cxx
   vtkImageItem.cxx
-  vtkLineMark.cxx
   vtkLookupTableItem.cxx
-  vtkMark.cxx
-  vtkMarkUtil.cxx
   vtkOpenGLContextBufferId.cxx
   vtkOpenGLContextDevice2D.cxx
-  vtkPanelMark.cxx
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx
@@ -63,7 +56,6 @@ SET(Kit_SRCS
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
   vtkTooltipItem.cxx
-  vtkWedgeMark.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -74,7 +66,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextItem
   vtkContextMapper2D
   vtkControlPointsItem
-  vtkDataValue
   vtkPlot
   vtkScalarsToColorsItem
   ABSTRACT
@@ -83,19 +74,10 @@ SET_SOURCE_FILES_PROPERTIES(
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkContextBufferId
-  vtkBarMark
   vtkChartColors
   vtkContext2D
-  vtkDataElement
-  vtkDataValue
-  vtkLineMark
-  vtkMark
-  vtkMarkUtil
   vtkOpenGLContextBufferId
   vtkOpenGLContextDevice2D
-  vtkPanelMark
-  vtkValueHolder
-  vtkWedgeMark
   WRAP_EXCLUDE
 )
 
