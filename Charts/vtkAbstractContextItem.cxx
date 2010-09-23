@@ -137,15 +137,16 @@ bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
 }
 
 // ----------------------------------------------------------------------------
-vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(const vtkContextMouseEvent &mouse)
+vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
+  const vtkContextMouseEvent &mouse)
 {
   vtkContextMouseEvent childMouse = mouse;
   this->FromParent(mouse.Pos.GetData(), childMouse.Pos.GetData());
   this->FromParent(mouse.LastPos.GetData(), childMouse.LastPos.GetData());
-  for (size_t i = this->Children->size()-1; i >= 0; --i)
+  for(vtkContextScenePrivate::const_reverse_iterator it =
+      this->Children->rbegin(); it != this->Children->rend(); ++it)
     {
-    //cerr << "checking child " << i << ": " << (*this->Children)[i]->GetClassName() << endl;
-    vtkAbstractContextItem* item = (*this->Children)[i]->GetPickedItem(childMouse);
+    vtkAbstractContextItem* item = (*it)->GetPickedItem(childMouse);
     if (item)
       {
       return item;
