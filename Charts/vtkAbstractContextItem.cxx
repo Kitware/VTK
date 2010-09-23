@@ -15,13 +15,15 @@
 
 #include "vtkAbstractContextItem.h"
 #include "vtkObjectFactory.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScenePrivate.h"
 
 //-----------------------------------------------------------------------------
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
   this->Scene = NULL;
-  this->Children = new vtkContextScenePrivate;
+  this->Parent = NULL;
+  this->Children = new vtkContextScenePrivate(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -95,84 +97,36 @@ void vtkAbstractContextItem::ClearItems()
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &mouse)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->Hit(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseEnterEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseMoveEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseLeaveEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseButtonPressEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseButtonReleaseEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
@@ -180,15 +134,25 @@ bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent 
 bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &mouse,
                                              int delta)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(const vtkContextMouseEvent &mouse)
+{
+  vtkContextMouseEvent childMouse = mouse;
+  this->FromParent(mouse.Pos.GetData(), childMouse.Pos.GetData());
+  this->FromParent(mouse.LastPos.GetData(), childMouse.LastPos.GetData());
+  for (int i = this->Children->size()-1; i >= 0; --i)
     {
-    if ((*it)->MouseWheelEvent(mouse, delta))
+    //cerr << "checking child " << i << ": " << (*this->Children)[i]->GetClassName() << endl;
+    vtkAbstractContextItem* item = (*this->Children)[i]->GetPickedItem(childMouse);
+    if (item)
       {
-      return true;
+      return item;
       }
     }
-  return false;
+  return this->Hit(mouse) ? this : NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -206,6 +170,12 @@ void vtkAbstractContextItem::SetScene(vtkContextScene* scene)
 {
   this->Scene = scene;
   this->Children->SetScene(scene);
+}
+
+// ----------------------------------------------------------------------------
+void vtkAbstractContextItem::SetParent(vtkAbstractContextItem* parent)
+{
+  this->Parent = parent;
 }
 
 //-----------------------------------------------------------------------------

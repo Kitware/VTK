@@ -108,6 +108,10 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
                   static_cast<int>(b[2] * size[0]),
                   static_cast<int>(b[3] * size[1]) };
     transform->Translate(-box[0], -box[1]);
+    if (this->Scene->GetScaleTiles())
+      {
+      transform->Scale(scale[0], scale[1]);
+      }
     }
   else if (viewportInfo[0] != size[0] || viewportInfo[1] != size[1] )
     {

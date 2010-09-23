@@ -93,6 +93,11 @@ public:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Return the item under the mouse.
+  // If no item is under the mouse, the method returns a null pointer.
+  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
+
+  // Description:
   // Mouse enter event.
   // Return true if the item holds the event, false if the event can be
   // propagated to other items.
@@ -140,6 +145,69 @@ public:
     return this->Scene;
     }
 
+  // Description:
+  // Set the parent item. The parent will be set for all items except top
+  // level items in a scene.
+  virtual void SetParent(vtkAbstractContextItem *parent);
+
+  // Description:
+  // Get the parent item. The parent will be set for all items except top
+  // level items in a tree.
+  vtkAbstractContextItem* GetParent()
+    {
+    return this->Parent;
+    }
+
+  // Description:
+  // Transforms a point to the parent coordinate system.
+  virtual void ToParent(const float point[2], float parentPoint[2])
+    {
+    parentPoint[0] = point[0];
+    parentPoint[1] = point[1];
+    }
+
+  // Description:
+  // Transforms a point from the parent coordinate system.
+  virtual void FromParent(const float parentPoint[2], float point[2])
+    {
+    point[0] = parentPoint[0];
+    point[1] = parentPoint[1];
+    }
+
+  // Description:
+  // Transforms a point to the scene coordinate system.
+  virtual void ToScene(const float point[2], float scenePoint[2])
+    {
+    if (this->Parent)
+      {
+      float parentPoint[2];
+      this->ToParent(point, parentPoint);
+      this->Parent->ToScene(parentPoint, scenePoint);
+      }
+    else
+      {
+      scenePoint[0] = point[0];
+      scenePoint[1] = point[1];
+      }
+    }
+
+  // Description:
+  // Transforms a point from the scene coordinate system.
+  virtual void FromScene(const float scenePoint[2], float point[2])
+    {
+    if (this->Parent)
+      {
+      float parentPoint[2];
+      this->Parent->FromScene(scenePoint, parentPoint);
+      this->FromParent(parentPoint, point);
+      }
+    else
+      {
+      point[0] = scenePoint[0];
+      point[1] = scenePoint[1];
+      }
+    }
+
 //BTX
 protected:
   vtkAbstractContextItem();
@@ -148,6 +216,10 @@ protected:
   // Description:
   // Point to the scene the item is on - can be null.
   vtkContextScene* Scene;
+
+  // Description:
+  // Point to the parent item - can be null.
+  vtkAbstractContextItem* Parent;
 
   // Description:
   // This structure provides a list of children, along with convenience
