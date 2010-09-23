@@ -16,10 +16,6 @@ IF(PYTHON_EXECUTABLE)
     vtkColor.h
     vtkContextMouseEvent.h
     vtkContextScenePrivate.h
-    vtkDataElement.h
-    vtkDataValue.h
-    vtkMarkUtil.h
-    vtkValueHolder.h
     vtkVector.h
     )
 ENDIF(PYTHON_EXECUTABLE)

@@ -19,11 +19,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestDiagram.cxx
       TestLinePlot.cxx
       TestLinePlotInteraction.cxx
-      TestMarks.cxx
-      TestMarksCallback.cxx
-      TestMarksWedge.cxx
-      TestMarksWedgeCallback.cxx
-      TestMarksWedgeLine.cxx
       TestMultipleChartRenderers.cxx
       TestMultipleRenderers.cxx
       TestMultipleScalarsToColors.cxx
