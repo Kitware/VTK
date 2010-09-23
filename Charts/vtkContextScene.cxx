@@ -467,9 +467,10 @@ void vtkContextScene::UpdateBufferId()
 vtkAbstractContextItem* vtkContextScene::GetPickedItem()
 {
   vtkContextMouseEvent &event = this->Storage->Event;
-  for (size_t i = this->Children->size()-1; i >= 0; --i)
+  for(vtkContextScenePrivate::const_reverse_iterator it =
+      this->Children->rbegin(); it != this->Children->rend(); ++it)
     {
-    vtkAbstractContextItem* item = (*this->Children)[i]->GetPickedItem(event);
+    vtkAbstractContextItem* item = (*it)->GetPickedItem(event);
     if (item)
       {
       return item;
