@@ -125,7 +125,7 @@ public:
   // clear buffers after one's done with the scene.
   // The optional final parameter maxDist will look for a cell within the specified
   // number of pixels from display_position.
-  bool CaptureBuffers();
+  virtual bool CaptureBuffers();
   PixelInformation GetPixelInformation(unsigned int display_position[2])
     { return this->GetPixelInformation(display_position, 0); }
   PixelInformation GetPixelInformation(unsigned int display_position[2],
