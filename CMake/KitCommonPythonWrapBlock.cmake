@@ -74,6 +74,16 @@ IF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
   # Make sure that no prefix is set on the library
   SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES PREFIX "")
 
+  # Compatibility for projects that still expect the "lib" suffix
+  IF(CYGWIN OR NOT WIN32)
+    SET(suf ${CMAKE_SHARED_MODULE_SUFFIX})
+    SET(src vtk${KIT}Python${suf})
+    SET(tgt ${LIBRARY_OUTPUT_PATH}/libvtk${KIT}Python${suf})
+    ADD_CUSTOM_COMMAND(TARGET vtk${KIT}Python POST_BUILD
+                       COMMAND ln -sf ${src} ${tgt}
+                       DEPENDS vtk${KIT}Python)
+  ENDIF(CYGWIN OR NOT WIN32)
+
   # The python modules are installed by a setup.py script which does
   # not know how to adjust the RPATH field of the binary.  Therefore
   # we must simply build the modules with no RPATH at all.  The

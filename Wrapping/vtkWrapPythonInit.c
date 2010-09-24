@@ -10,8 +10,7 @@ static void CreateInitFile(const char *libName,
 {
   int i;
 
-  /* prefix used to be "lib" on UNIX, now there is no prefix */
-  const char* prefix = "";
+  const char *prefix = "";
 
 #if defined(_WIN32)
   const char* dllexp = "__declspec(dllexport) ";
@@ -36,12 +35,31 @@ static void CreateInitFile(const char *libName,
   fprintf(fout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n", libName);
   fprintf(fout,"{NULL, NULL, 0, NULL}};\n\n");
 
-  fprintf(fout,"extern  \"C\" {%svoid init%s%s();}\n\n", dllexp, prefix, libName);
-  fprintf(fout,"void init%s%s()\n{\n", prefix, libName);
+  fprintf(fout,"static void real_init%s(const char *modulename);\n\n", libName);
+
+  for (;;)
+    {
+    fprintf(fout,"extern  \"C\" { %svoid init%s%s(); }\n\n", dllexp, prefix, libName);
+
+    fprintf(fout,"void init%s%s()\n{\n", prefix, libName);
+    fprintf(fout,"  static const char modulename[] = \"%s%s\";\n", prefix, libName);
+    fprintf(fout,"  real_init%s(modulename);\n}\n\n", libName);
+
+#if defined(__CYGWIN__) || !defined(_WIN32)
+    /* add a "lib" prefix for compatibility with old python scripts */
+    if (strcmp(prefix, "lib") != 0)
+      {
+      prefix = "lib";
+      continue;
+      }
+#endif
+    break;
+    }
+
+  fprintf(fout,"void real_init%s(const char *modulename)\n{\n", libName);
 
   /* module init function */
   fprintf(fout,"  PyObject *m, *d;\n\n");
-  fprintf(fout,"  static const char modulename[] = \"%s%s\";\n", prefix, libName);
   fprintf(fout,"  m = Py_InitModule((char*)modulename, Py%s_ClassMethods);\n",
     libName);
 
