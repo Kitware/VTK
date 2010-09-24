@@ -79,7 +79,7 @@ def get_libs():
     # Select platform-specific components of the module file names.
     if os.name == 'posix':
         dir = vtk_lib_dir
-        prefix = 'libvtk'
+        prefix = 'vtk'
         suffix = 'Python' + get_config_var('SO')
     else:
         dir = vtk_bin_dir.replace('/', '\\')
