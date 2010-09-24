@@ -321,9 +321,9 @@ public:
   void ApplyId(vtkIdType id);
 
   // Description:
-  // Float to int conversion, performs truncation but with a
-  // tolerance for float values that are 1/4096 less than the
-  // closest integer.
+  // Float to int conversion, performs truncation but with a rounding
+  // tolerance for float values that are within 1/256 of their closest
+  // integer.
   static int FloatToInt(float x);
 
 //BTX
@@ -365,10 +365,9 @@ inline int vtkContext2D::FloatToInt(float x)
   // make the tolerance too small.  For example, a tolerance
   // of 2^-8 means that the tolerance will be significant
   // for float values up to 2^16 or 65536.0.  But a
-  // tolerance of 2^-16 would only be significant for value
-  // up to 2^8 or 256.0.  Therefore, small tolerances are
-  // bad because they disappear into insignificance when
-  // added to a large float.
+  // tolerance of 2^-16 would only be significant for
+  // float values up to 2^8 or 256.0.  A small tolerance
+  // disappears into insignificance when added to a large float.
   float tol = 0.00390625; // 1.0/256.0
   tol = (x >= 0 ? tol : -tol);
   return static_cast<int>(x + tol);
