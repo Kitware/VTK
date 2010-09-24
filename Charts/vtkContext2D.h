@@ -320,6 +320,12 @@ public:
   // Apply id as a color.
   void ApplyId(vtkIdType id);
 
+  // Description:
+  // Float to int conversion, performs truncation but with a
+  // tolerance for float values that are 1/4096 less than the
+  // closest integer.
+  static int FloatToInt(float x);
+
 //BTX
 protected:
   vtkContext2D();
@@ -351,5 +357,21 @@ private:
 
 //ETX
 };
+
+inline int vtkContext2D::FloatToInt(float x)
+{
+  // Use a tolerance of 1/256 of a pixel when converting.
+  // A float has only 24 bits of precision, so we cannot
+  // make the tolerance too small.  For example, a tolerance
+  // of 2^-8 means that the tolerance will be significant
+  // for float values up to 2^16 or 65536.0.  But a
+  // tolerance of 2^-16 would only be significant for value
+  // up to 2^8 or 256.0.  Therefore, small tolerances are
+  // bad because they disappear into insignificance when
+  // added to a large float.
+  float tol = 0.00390625; // 1.0/256.0
+  tol = (x >= 0 ? tol : -tol);
+  return static_cast<int>(x + tol);
+}
 
 #endif //__vtkContext2D_h
