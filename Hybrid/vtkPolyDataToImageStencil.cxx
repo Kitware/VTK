@@ -269,7 +269,7 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 //----------------------------------------------------------------------------
 inline int vtkPolyDataToImageStencilFloor(double x)
 {
-#if defined i386 || defined _M_IX86 || defined _M_X64
+#if defined i386 || defined _M_IX86 || defined __x86_64__ || defined _M_X64
   // This code assumes IEEE 754 64-bit double.
   // It uses a denormalizer to round the double at the
   // 2^(-16) position, or around 1e-5, and then extracts
