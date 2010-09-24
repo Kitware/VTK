@@ -722,12 +722,6 @@ bool vtkPlotStacked::SelectPoints(const vtkVector2f& min, const vtkVector2f& max
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotStacked::SetParent(vtkChartXY *parent)
-{
-  this->Parent = parent;
-}
-
-//-----------------------------------------------------------------------------
 vtkStringArray *vtkPlotStacked::GetLabels()
 {
   // If the label string is empty, return the y column name

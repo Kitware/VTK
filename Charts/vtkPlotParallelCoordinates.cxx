@@ -64,7 +64,6 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
 {
   this->Points = NULL;
   this->Storage = new vtkPlotParallelCoordinates::Private;
-  this->Parent = NULL;
   this->Pen->SetColor(0, 0, 0, 25);
 }
 
@@ -128,10 +127,13 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
   vtkVector2f* line = new vtkVector2f[cols];
 
   // Update the axis positions
+  vtkChartParallelCoordinates *parent =
+      vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+
   for (size_t i = 0; i < cols; ++i)
     {
-    this->Storage->AxisPos[i] = this->Parent->GetAxis(int(i)) ?
-                                this->Parent->GetAxis(int(i))->GetPoint1()[0] :
+    this->Storage->AxisPos[i] = parent->GetAxis(int(i)) ?
+                                parent->GetAxis(int(i))->GetPoint1()[0] :
                                 0;
     }
 
@@ -202,12 +204,6 @@ int vtkPlotParallelCoordinates::GetNearestPoint(const vtkVector2f& ,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::SetParent(vtkChartParallelCoordinates* parent)
-{
-  this->Parent = parent;
-}
-
-//-----------------------------------------------------------------------------
 bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
                                                    float high)
 {
@@ -271,18 +267,20 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
     }
 
   this->vtkPlot::SetInput(table);
-  if (this->Parent && table)
+  vtkChartParallelCoordinates *parent =
+      vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  if (parent && table)
     {
     // By default make the first 10 columns visible in a plot.
     for (vtkIdType i = 0; i < table->GetNumberOfColumns() && i < 10; ++i)
       {
-      this->Parent->SetColumnVisibility(table->GetColumnName(i), true);
+      parent->SetColumnVisibility(table->GetColumnName(i), true);
       }
     }
-  else if (this->Parent)
+  else if (parent)
     {
     // No table, therefore no visible columns
-    this->Parent->GetVisibleColumns()->SetNumberOfTuples(0);
+    parent->GetVisibleColumns()->SetNumberOfTuples(0);
     }
 }
 
@@ -290,12 +288,14 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
 bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
 {
   // Each axis is a column in our storage array, they are scaled from 0.0 to 1.0
-  if (!this->Parent || !table || table->GetNumberOfColumns() == 0)
+  vtkChartParallelCoordinates *parent =
+      vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+  if (!parent || !table || table->GetNumberOfColumns() == 0)
     {
     return false;
     }
 
-  vtkStringArray* cols = this->Parent->GetVisibleColumns();
+  vtkStringArray* cols = parent->GetVisibleColumns();
   this->Storage->resize(cols->GetNumberOfTuples());
   this->Storage->AxisPos.resize(cols->GetNumberOfTuples());
   vtkIdType rows = table->GetNumberOfRows();
@@ -303,7 +303,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
   for (vtkIdType i = 0; i < cols->GetNumberOfTuples(); ++i)
     {
     vtkstd::vector<float>& col = this->Storage->at(i);
-    vtkAxis* axis = this->Parent->GetAxis(i);
+    vtkAxis* axis = parent->GetAxis(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
         vtkDataArray::SafeDownCast(table->GetColumnByName(cols->GetValue(i)));

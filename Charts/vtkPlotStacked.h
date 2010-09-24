@@ -92,7 +92,7 @@ public:
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
-  // Returns the index of the data series with which the point is associated or 
+  // Returns the index of the data series with which the point is associated or
   // -1.
   virtual int GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
@@ -101,10 +101,6 @@ public:
   // Description:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
-
-  // Description:
-  // Set the parent, required to accumlate base points when positioning is implicit
-  virtual void SetParent(vtkChartXY *parent);
 
 //BTX
 protected:
@@ -116,7 +112,7 @@ protected:
   bool UpdateTableCache(vtkTable *table);
 
   // Descript:
-  // For stacked plots the Extent data must be greater than (or equal to) the 
+  // For stacked plots the Extent data must be greater than (or equal to) the
   // base data. Insure that this is true
   void FixExtent();
 
@@ -140,10 +136,6 @@ protected:
   vtkTimeStamp BuildTime;
 
   bool LogX, LogY;
-
-  // Description:
-  // The parent Chart of this Plot
-  vtkChartXY *Parent;
 
   // Description:
   // The color series to use for each series.
