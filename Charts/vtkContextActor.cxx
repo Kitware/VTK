@@ -103,15 +103,11 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     {
     // Tiled display - work out the transform required
     double *b = window->GetTileViewport();
-    int box[] = { static_cast<int>(b[0] * size[0]),
-                  static_cast<int>(b[1] * size[1]),
-                  static_cast<int>(b[2] * size[0]),
-                  static_cast<int>(b[3] * size[1]) };
+    int box[] = { vtkContext2D::FloatToInt(b[0] * size[0]),
+                  vtkContext2D::FloatToInt(b[1] * size[1]),
+                  vtkContext2D::FloatToInt(b[2] * size[0]),
+                  vtkContext2D::FloatToInt(b[3] * size[1]) };
     transform->Translate(-box[0], -box[1]);
-    if (this->Scene->GetScaleTiles())
-      {
-      transform->Scale(scale[0], scale[1]);
-      }
     }
   else if (viewportInfo[0] != size[0] || viewportInfo[1] != size[1] )
     {

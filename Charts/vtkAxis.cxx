@@ -148,7 +148,7 @@ void vtkAxis::Update()
   this->TickScenePositions->SetNumberOfTuples(n);
   for (vtkIdType i = 0; i < n; ++i)
     {
-    int iPos = static_cast<int>(origin +
+    int iPos = vtkContext2D::FloatToInt(origin +
                                 (this->TickPositions->GetValue(i) -
                                  this->Minimum) * scaling);
     this->TickScenePositions->InsertValue(i, iPos);
@@ -186,37 +186,37 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     if (this->Position == vtkAxis::LEFT)
       {
       // Draw the axis label
-      x = static_cast<int>(this->Point1[0] - this->MaxLabel[0] - 10);
-      y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
+      x = vtkContext2D::FloatToInt(this->Point1[0] - this->MaxLabel[0] - 10);
+      y = vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2;
       prop->SetOrientation(90.0);
       prop->SetVerticalJustificationToBottom();
       }
     else if (this->Position == vtkAxis::RIGHT)
       {
       // Draw the axis label
-      x = static_cast<int>(this->Point1[0] + this->MaxLabel[0] + 10);
-      y = static_cast<int>(this->Point1[1] + this->Point2[1]) / 2;
+      x = vtkContext2D::FloatToInt(this->Point1[0] + this->MaxLabel[0] + 10);
+      y = vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2;
       prop->SetOrientation(90.0);
       prop->SetVerticalJustificationToTop();
       }
     else if (this->Position == vtkAxis::BOTTOM)
       {
-      x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
-      y = static_cast<int>(this->Point1[1] - this->MaxLabel[1] - 10);
+      x = vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2;
+      y = vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 10);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToTop();
       }
     else if (this->Position == vtkAxis::TOP)
       {
-      x = static_cast<int>(this->Point1[0] + this->Point2[0]) / 2;
-      y = static_cast<int>(this->Point1[1] + this->MaxLabel[1] + 10);
+      x = vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2;
+      y = vtkContext2D::FloatToInt(this->Point1[1] + this->MaxLabel[1] + 10);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToBottom();
       }
     else if (this->Position == vtkAxis::PARALLEL)
       {
-      x = static_cast<int>(this->Point1[0]);
-      y = static_cast<int>(this->Point1[1] - this->MaxLabel[1] - 15);
+      x = vtkContext2D::FloatToInt(this->Point1[0]);
+      y = vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 15);
       prop->SetOrientation(0.0);
       prop->SetVerticalJustificationToTop();
       }
@@ -517,7 +517,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
   this->TickLabels->SetNumberOfTuples(0);
   double mult = max > min ? 1.0 : -1.0;
   double range = mult > 0.0 ? max - min : min - max;
-  int n = static_cast<int>(range / this->TickInterval);
+  int n = vtkContext2D::FloatToInt(range / this->TickInterval);
   for (int i = 0; i <= n && i < 200; ++i)
     {
     double value = min + double(i) * mult * this->TickInterval;
@@ -587,7 +587,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
   float pixelRange = this->Point1[0] == this->Point2[0] ?
                      this->Point2[1] - this->Point1[1] :
                      this->Point2[0] - this->Point1[0];
-  int maxTicks = static_cast<int>(pixelRange / 50.0f);
+  int maxTicks = vtkContext2D::FloatToInt(pixelRange / 50.0f);
   if (maxTicks == 0)
     {
     // The axes do not have a valid set of points - return
@@ -596,9 +596,9 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
   double tickSpacing = range / maxTicks;
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
-  double normTickSpacing = tickSpacing * pow(double(10.0), -order);
+  double normTickSpacing = tickSpacing * pow(10.0f, -order);
   double niceTickSpacing = this->NiceNumber(normTickSpacing, true);
-  niceTickSpacing *= pow(double(10.0), order);
+  niceTickSpacing *= pow(10.0f, order);
 
   if (isNegative)
     {

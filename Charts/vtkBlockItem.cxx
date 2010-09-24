@@ -72,8 +72,8 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
                     static_cast<float>(this->Dimensions[2]),
                     static_cast<float>(this->Dimensions[3]));
 
-  int x = static_cast<int>(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
-  int y = static_cast<int>(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
+  int x = vtkContext2D::FloatToInt(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
+  int y = vtkContext2D::FloatToInt(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
   if (this->Label)
     {
     painter->DrawString(static_cast<float>(x),static_cast<float>(y),
