@@ -80,7 +80,7 @@ IF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
     SET(src vtk${KIT}Python${suf})
     SET(tgt ${LIBRARY_OUTPUT_PATH}/libvtk${KIT}Python${suf})
     ADD_CUSTOM_COMMAND(TARGET vtk${KIT}Python POST_BUILD
-                       COMMAND ln -sf ${src} ${tgt})
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${tgt})
   ENDIF(CYGWIN OR NOT WIN32)
 
   # The python modules are installed by a setup.py script which does
