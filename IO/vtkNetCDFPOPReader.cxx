@@ -20,9 +20,6 @@ PURPOSE.  See the above copyright notice for more information.
 // rectilinear grid
 //
 
-#include "netcdf.h"
-#include "string.h"
-
 #include "vtkNetCDFPOPReader.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArraySelection.h"
@@ -37,6 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <string.h>
+#include <netcdf.h>
 
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
