@@ -68,10 +68,6 @@ public:
                                vtkVector2f* location);
 //ETX
 
-  // Description;
-  // Set the parent, required to query the axes etc.
-  virtual void SetParent(vtkChartParallelCoordinates* parent);
-
   // Description:
   // Set the selection criteria on the given axis in normalized space (0.0 - 1.0).
   bool SetSelectionRange(int Axis, float low, float high);
@@ -102,8 +98,6 @@ protected:
   class Private;
   Private* Storage;
   vtkPoints2D* Points;
-
-  vtkChartParallelCoordinates* Parent;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
