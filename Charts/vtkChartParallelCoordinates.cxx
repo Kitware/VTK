@@ -115,6 +115,7 @@ void vtkChartParallelCoordinates::Update()
       (*it)->Delete();
       }
     this->Storage->Axes.clear();
+    this->Storage->AxesSelections.clear();
 
     for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
       {
@@ -122,6 +123,7 @@ void vtkChartParallelCoordinates::Update()
       axis->SetPosition(vtkAxis::PARALLEL);
       this->Storage->Axes.push_back(axis);
       }
+    this->Storage->AxesSelections.resize(this->Storage->Axes.size());
     }
 
   // Now set up their ranges and locations
@@ -142,9 +144,7 @@ void vtkChartParallelCoordinates::Update()
       }
     axis->SetTitle(this->VisibleColumns->GetValue(i));
     }
-  this->Storage->AxesSelections.clear();
 
-  this->Storage->AxesSelections.resize(this->Storage->Axes.size());
   this->GeometryValid = false;
   this->BuildTime.Modified();
 }
