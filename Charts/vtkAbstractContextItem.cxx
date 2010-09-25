@@ -141,8 +141,8 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
   const vtkContextMouseEvent &mouse)
 {
   vtkContextMouseEvent childMouse = mouse;
-  this->FromParent(mouse.Pos.GetData(), childMouse.Pos.GetData());
-  this->FromParent(mouse.LastPos.GetData(), childMouse.LastPos.GetData());
+  childMouse.Pos = this->MapFromParent(mouse.Pos);
+  childMouse.LastPos = this->MapFromParent(mouse.LastPos);
   for(vtkContextScenePrivate::const_reverse_iterator it =
       this->Children->rbegin(); it != this->Children->rend(); ++it)
     {
@@ -176,6 +176,48 @@ void vtkAbstractContextItem::SetScene(vtkContextScene* scene)
 void vtkAbstractContextItem::SetParent(vtkAbstractContextItem* parent)
 {
   this->Parent = parent;
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapToParent(const vtkVector2f& point)
+{
+  return point;
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapFromParent(const vtkVector2f& point)
+{
+  return point;
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapToScene(const vtkVector2f& point)
+{
+  if (this->Parent)
+    {
+    vtkVector2f p = this->MapToParent(point);
+    p = this->Parent->MapToScene(p);
+    return p;
+    }
+  else
+    {
+    return point;
+    }
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
+{
+  if (this->Parent)
+    {
+    vtkVector2f p = this->Parent->MapFromScene(point);
+    p = this->MapFromParent(p);
+    return p;
+    }
+  else
+    {
+    return point;
+    }
 }
 
 //-----------------------------------------------------------------------------

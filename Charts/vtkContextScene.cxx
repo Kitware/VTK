@@ -551,15 +551,15 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
         {
         vtkContextMouseEvent itemEvent = event;
         vtkAbstractContextItem* cur = this->Storage->itemPicked;
-        cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-        cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+        itemEvent.Pos = cur->MapFromScene(event.Pos);
+        itemEvent.LastPos = cur->MapFromScene(event.LastPos);
         while (cur && !cur->MouseLeaveEvent(event))
           {
           cur = cur->GetParent();
           if (cur)
             {
-            cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-            cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+            event.Pos = cur->MapToParent(event.Pos);
+            event.LastPos = cur->MapToParent(event.LastPos);
             }
           }
         }
@@ -568,15 +568,15 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
       {
       vtkContextMouseEvent itemEvent = event;
       vtkAbstractContextItem* cur = newItemPicked;
-      cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-      cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+      itemEvent.Pos = cur->MapFromScene(event.Pos);
+      itemEvent.LastPos = cur->MapFromScene(event.LastPos);
       while (cur && !cur->MouseEnterEvent(event))
         {
         cur = cur->GetParent();
         if (cur)
           {
-          cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-          cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+          event.Pos = cur->MapToParent(event.Pos);
+          event.LastPos = cur->MapToParent(event.LastPos);
           }
         }
       }
@@ -592,15 +592,15 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     {
     vtkContextMouseEvent itemEvent = event;
     vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
-    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    itemEvent.Pos = cur->MapFromScene(event.Pos);
+    itemEvent.LastPos = cur->MapFromScene(event.LastPos);
     while (cur && !cur->MouseMoveEvent(event))
       {
       cur = cur->GetParent();
       if (cur)
         {
-        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        event.Pos = cur->MapToParent(event.Pos);
+        event.LastPos = cur->MapToParent(event.LastPos);
         }
       }
     }
@@ -608,15 +608,15 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
     {
     vtkContextMouseEvent itemEvent = event;
     vtkAbstractContextItem* cur = this->Storage->itemPicked;
-    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    itemEvent.Pos = cur->MapFromScene(event.Pos);
+    itemEvent.LastPos = cur->MapFromScene(event.LastPos);
     while (cur && !cur->MouseMoveEvent(event))
       {
       cur = cur->GetParent();
       if (cur)
         {
-        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        event.Pos = cur->MapToParent(event.Pos);
+        event.LastPos = cur->MapToParent(event.LastPos);
         }
       }
     }
@@ -644,15 +644,15 @@ void vtkContextScene::ButtonPressEvent(int button, int x, int y)
     {
     vtkContextMouseEvent itemEvent = event;
     vtkAbstractContextItem* cur = newItemPicked;
-    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    itemEvent.Pos = cur->MapFromScene(event.Pos);
+    itemEvent.LastPos = cur->MapFromScene(event.LastPos);
     while (cur && !cur->MouseButtonPressEvent(event))
       {
       cur = cur->GetParent();
       if (cur)
         {
-        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        event.Pos = cur->MapToParent(event.Pos);
+        event.LastPos = cur->MapToParent(event.LastPos);
         }
       }
     }
@@ -671,15 +671,15 @@ void vtkContextScene::ButtonReleaseEvent(int button, int x, int y)
     event.Button = button;
     vtkContextMouseEvent itemEvent = event;
     vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
-    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    itemEvent.Pos = cur->MapFromScene(event.Pos);
+    itemEvent.LastPos = cur->MapFromScene(event.LastPos);
     while (cur && !cur->MouseButtonReleaseEvent(event))
       {
       cur = cur->GetParent();
       if (cur)
         {
-        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        event.Pos = cur->MapToParent(event.Pos);
+        event.LastPos = cur->MapToParent(event.LastPos);
         }
       }
     this->Storage->itemMousePressCurrent = NULL;
@@ -703,15 +703,15 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
     {
     vtkContextMouseEvent itemEvent = event;
     vtkAbstractContextItem* cur = newItemPicked;
-    cur->FromScene(event.Pos.GetData(), itemEvent.Pos.GetData());
-    cur->FromScene(event.LastPos.GetData(), itemEvent.LastPos.GetData());
+    itemEvent.Pos = cur->MapFromScene(event.Pos);
+    itemEvent.LastPos = cur->MapFromScene(event.LastPos);
     while (cur && !cur->MouseWheelEvent(event, delta))
       {
       cur = cur->GetParent();
       if (cur)
         {
-        cur->ToParent(event.Pos.GetData(), event.Pos.GetData());
-        cur->ToParent(event.LastPos.GetData(), event.LastPos.GetData());
+        event.Pos = cur->MapToParent(event.Pos);
+        event.LastPos = cur->MapToParent(event.LastPos);
         }
       }
     }
@@ -719,21 +719,6 @@ void vtkContextScene::MouseWheelEvent(int delta, int x, int y)
   if (this->Renderer)
     {
     this->Renderer->GetRenderWindow()->Render();
-    }
-}
-
-//-----------------------------------------------------------------------------
-inline void vtkContextScene::PerformTransform(vtkTransform2D *transform,
-                                              vtkContextMouseEvent &mouse)
-{
-  if (transform)
-    {
-    transform->InverseTransformPoints(&mouse.ScenePos[0], &mouse.Pos[0], 1);
-    }
-  else
-    {
-    mouse.Pos[0] = mouse.ScenePos[0];
-    mouse.Pos[1] = mouse.ScenePos[1];
     }
 }
 
