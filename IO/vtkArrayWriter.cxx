@@ -30,13 +30,12 @@
 namespace {
 
 template<typename T>
-static void WriteValue(std::ostream& stream, const T& value)
+inline void WriteValue(std::ostream& stream, const T& value)
 {
   stream << value;
 }
 
-VTK_TEMPLATE_SPECIALIZE
-static void WriteValue(std::ostream& stream, const double& value)
+inline void WriteValue(std::ostream& stream, const double& value)
 {
   if(std::abs(value) < std::numeric_limits<double>::min())
     stream << 0;
@@ -44,14 +43,12 @@ static void WriteValue(std::ostream& stream, const double& value)
     stream << value;
 }
 
-VTK_TEMPLATE_SPECIALIZE
-static void WriteValue(std::ostream& stream, const vtkStdString& value)
+inline void WriteValue(std::ostream& stream, const vtkStdString& value)
 {
   stream << value;
 }
 
-VTK_TEMPLATE_SPECIALIZE
-static void WriteValue(std::ostream& stream, const vtkUnicodeString& value)
+inline void WriteValue(std::ostream& stream, const vtkUnicodeString& value)
 {
   stream << value.utf8_str();
 }
