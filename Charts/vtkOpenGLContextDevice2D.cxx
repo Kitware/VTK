@@ -733,6 +733,8 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
   glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
+  glColor4ubv(this->Brush->GetColor());
+  glDrawArrays(GL_TRIANGLE_FAN, 0, iterations+1);
   glDisableClientState(GL_VERTEX_ARRAY);
 
   delete[] p;
