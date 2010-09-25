@@ -34,6 +34,8 @@ class vtkPoints2D;
 class vtkImageData;
 class vtkMatrix3x3;
 class vtkAbstractContextBufferId;
+class vtkPen;
+class vtkBrush;
 
 class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
 {
@@ -93,8 +95,7 @@ public:
 
   // Description:
   // Draw some text to the screen.
-  virtual void DrawString(float *point, vtkTextProperty *tprop,
-                          const vtkStdString &string) = 0;
+  virtual void DrawString(float *point, const vtkStdString &string) = 0;
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -103,13 +104,11 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkStdString &string,
-                                   vtkTextProperty *tprop,
                                    float bounds[4]) = 0;
 
   // Description:
   // Draw some text to the screen.
-  virtual void DrawString(float *point, vtkTextProperty *tprop,
-                          const vtkUnicodeString &string) = 0;
+  virtual void DrawString(float *point, const vtkUnicodeString &string) = 0;
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -118,7 +117,6 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
-                                   vtkTextProperty *tprop,
                                    float bounds[4]) = 0;
 
   // Description:
@@ -127,12 +125,41 @@ public:
   virtual void DrawImage(float p[2], float scale, vtkImageData *image) = 0;
 
   // Description:
-  // Set the color for the device using unsigned char of length 4, RGBA.
-  virtual void SetColor4(unsigned char color[4]) = 0;
+  // Apply the supplied pen which controls the outlines of shapes, as well as
+  // lines, points and related primitives. This makes a deep copy of the vtkPen
+  // object in the vtkContext2D, it does not hold a pointer to the supplied object.
+  void ApplyPen(vtkPen *pen);
 
   // Description:
-  // Set the color for the device using unsigned char of length 3, RGB.
-  virtual void SetColor(unsigned char color[3]) = 0;
+  // Get the pen which controls the outlines of shapes, as well as lines,
+  // points and related primitives. This object can be modified and the changes
+  // will be reflected in subsequent drawing operations.
+  vtkGetObjectMacro(Pen, vtkPen);
+
+  // Description:
+  // Apply the supplied brush which controls the outlines of shapes, as well as
+  // lines, points and related primitives. This makes a deep copy of the vtkBrush
+  // object in the vtkContext2D, it does not hold a pointer to the supplied object.
+  void ApplyBrush(vtkBrush *brush);
+
+  // Description:
+  // Get the pen which controls the outlines of shapes as well as lines, points
+  // and related primitives.
+  vtkGetObjectMacro(Brush, vtkBrush);
+
+  // Description:
+  // Apply the supplied text property which controls how text is rendered.
+  // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
+  // it does not hold a pointer to the supplied object.
+  void ApplyTextProp(vtkTextProperty *prop);
+
+  // Description:
+  // Get the text properties object for the vtkContext2D.
+  vtkGetObjectMacro(TextProp, vtkTextProperty);
+
+  // Description:
+  // Set the color for the device using unsigned char of length 4, RGBA.
+  virtual void SetColor4(unsigned char color[4]) = 0;
 
   enum TextureProperty {
     Nearest = 0x01,
@@ -232,6 +259,10 @@ protected:
   int Geometry[2];
 
   vtkAbstractContextBufferId *BufferId;
+
+  vtkPen *Pen;                // Outlining
+  vtkBrush *Brush;            // Fills
+  vtkTextProperty *TextProp;  // Text property
 
 private:
   vtkContextDevice2D(const vtkContextDevice2D &); // Not implemented.
