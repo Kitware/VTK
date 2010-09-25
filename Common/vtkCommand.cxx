@@ -107,6 +107,9 @@ static const char *vtkCommandEventStrings[] = {
   "LoadStateEvent",
   "SaveStateEvent",
   "StateChangedEvent",
+  "WindowMakeCurrentEvent",
+  "WindowIsCurrentEvent",
+  "WindowFrameEvent",
   NULL
 };
 
