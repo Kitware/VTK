@@ -270,7 +270,7 @@ public:
   // Get the pen which controls the outlines of shapes, as well as lines,
   // points and related primitives. This object can be modified and the changes
   // will be reflected in subsequent drawing operations.
-  vtkGetObjectMacro(Pen, vtkPen);
+  vtkPen* GetPen();
 
   // Description:
   // Apply the supplied brush which controls the outlines of shapes, as well as
@@ -281,7 +281,7 @@ public:
   // Description:
   // Get the pen which controls the outlines of shapes as well as lines, points
   // and related primitives.
-  vtkGetObjectMacro(Brush, vtkBrush);
+  vtkBrush* GetBrush();
 
   // Description:
   // Apply the supplied text property which controls how text is rendered.
@@ -291,7 +291,7 @@ public:
 
   // Description:
   // Get the text properties object for the vtkContext2D.
-  vtkGetObjectMacro(TextProp, vtkTextProperty);
+  vtkTextProperty* GetTextProp();
 
   // Description:
   // Set the transform for the context, the underlying device will use the
@@ -332,9 +332,6 @@ protected:
   ~vtkContext2D();
 
   vtkContextDevice2D *Device; // The underlying device
-  vtkPen *Pen;                // Outlining
-  vtkBrush *Brush;            // Fills
-  vtkTextProperty *TextProp;  // Text property
   vtkTransform2D *Transform;  // Current transform
 
   vtkAbstractContextBufferId *BufferId;
@@ -342,14 +339,6 @@ protected:
 private:
   vtkContext2D(const vtkContext2D &); // Not implemented.
   void operator=(const vtkContext2D &);   // Not implemented.
-
-  // Description:
-  // Apply the pen settings to the context
-  void ApplyPen();
-
-  // Description:
-  // Apply the brush settings to the context
-  void ApplyBrush();
 
   // Description:
   // Calculate position of text for rendering in a rectangle.

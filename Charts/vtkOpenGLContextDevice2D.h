@@ -95,8 +95,7 @@ public:
 
   // Description:
   // Draw some text to the screen!
-  virtual void DrawString(float *point, vtkTextProperty *tprop,
-                          const vtkStdString &string);
+  virtual void DrawString(float *point, const vtkStdString &string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -105,13 +104,11 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkStdString &string,
-                                   vtkTextProperty *tprop,
                                    float bounds[4]);
 
   // Description:
   // Draw some text to the screen.
-  virtual void DrawString(float *point, vtkTextProperty *tprop,
-                          const vtkUnicodeString &string);
+  virtual void DrawString(float *point, const vtkUnicodeString &string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -120,7 +117,6 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
-                                   vtkTextProperty *tprop,
                                    float bounds[4]);
 
   // Description:
