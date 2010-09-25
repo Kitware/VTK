@@ -273,10 +273,6 @@ protected:
   // The scene level transform.
   vtkTransform2D* Transform;
 
-  // Description:
-  // Perform translation and fill in the vtkContextMouseEvent struct.
-  void PerformTransform(vtkTransform2D *transform, vtkContextMouseEvent &mouse);
-
 private:
   vtkContextScene(const vtkContextScene &); // Not implemented.
   void operator=(const vtkContextScene &);   // Not implemented.
