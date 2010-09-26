@@ -51,6 +51,7 @@ public:
   // Creates a 2D Painter object.
   static vtkContext2D *New();
 
+//BTX
   // Description:
   // Begin painting on a vtkContextDevice2D, no painting can occur before this call
   // has been made. Only one painter is allowed at a time on any given paint
