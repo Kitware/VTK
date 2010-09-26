@@ -7,6 +7,7 @@ IF (VTK_PYTHON_EXE)
       TestArrayArguments
       TestGhost
       TestMutable
+      TestSubClass
       TestWeakref
       TestNumpySupport
       TestTerminationCrash

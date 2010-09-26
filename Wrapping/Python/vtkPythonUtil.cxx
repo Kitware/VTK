@@ -983,7 +983,7 @@ vtkObjectBase *vtkPythonUtil::VTKParseTuple(
     PyVTKClass *vtkclass = (PyVTKClass *)self;
 
     if (n == 0 || (self = (PyVTKObject *)PyTuple_GetItem(args, 0)) == NULL ||
-        !PyVTKObject_Check(pself) ||
+        !PyVTKObject_Check(self) ||
         !self->vtk_ptr->IsA(PyString_AS_STRING(vtkclass->vtk_name)))
       {
       char buf[256];
