@@ -2511,5 +2511,10 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Replace Invalid Values: "
      << (this->ReplaceInvalidValues ? "On" : "Off") << endl;
   os << indent << "Replacement Value: " << this->ReplacementValue << endl;
+
+  os << indent << "Parse Error Position: " << this->ParseErrorPositon << endl;
+
+  os << indent << "Parse Error: " << (this->ParseError ? this->ParseError : "NULL")
+    << endl;
 }
 
