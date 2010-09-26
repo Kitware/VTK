@@ -44,9 +44,13 @@ vtkFunctionParser::vtkFunctionParser()
   this->VariableMTime.Modified();
   this->ParseMTime.Modified();
   this->FunctionMTime.Modified();
+  this->CheckMTime.Modified();
 
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
+
+  this->ParseErrorPositon = -1;
+  this->ParseError        = NULL;
 }
 
 vtkFunctionParser::~vtkFunctionParser()
@@ -115,6 +119,11 @@ vtkFunctionParser::~vtkFunctionParser()
     delete [] this->Stack;
     this->Stack = NULL;
     }
+
+  if(this->ParseError)
+    {
+    this->SetParseError(0);
+    }
 }
 
 void vtkFunctionParser::SetFunction(const char *function)
@@ -154,7 +163,7 @@ int vtkFunctionParser::Parse()
     return 0;
     }
 
-  this->RemoveSpaces();
+//    this->RemoveSpaces();
 
   result = this->CheckSyntax();
   if (!result)
@@ -532,6 +541,8 @@ bool vtkFunctionParser::Evaluate()
   double temp[3];
 
   this->StackPointer = -1;
+
+//  this->RemoveSpaces();
 
   if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime() ||
     this->VariableMTime.GetMTime() > this->ParseMTime.GetMTime())
@@ -1405,6 +1416,34 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
 
 int vtkFunctionParser::CheckSyntax()
 {
+  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
+     this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
+    {
+    // Do nothing.
+    }
+  else
+    {
+    // Meaning we already checked the syntax.
+    if(this->ParseError || (this->ParseErrorPositon != -1))
+      {
+      return 0;
+      }
+    else
+      {
+      return 1;
+      }
+    }
+
+  std::cout << "Calling once: " << std::endl;
+
+  // Reset.
+  this->ParseErrorPositon = -1;
+  this->ParseError        = NULL;
+
+  this->CheckMTime.Modified();
+
+  this->RemoveSpaces();
+
   int index = 0, parenthesisCount = 0, currentChar;
   char* ptr;
   int functionNumber, constantNumber;
@@ -1431,8 +1470,9 @@ int vtkFunctionParser::CheckSyntax()
       currentChar = this->Function[++index];
       if(index == this->FunctionLength)
         {
-        vtkErrorMacro("Syntax error: unary minus with no operand;"
-                      << " see position " << index);
+        this->ParseErrorPositon = index;
+        this->SetParseError("Syntax error: unary minus with no operand");
+        vtkErrorMacro(<< this->ParseError << "; " << " see position " << index);
         delete [] expectCommaOnParenthesisCount;
         delete [] expectTwoCommasOnParenthesisCount;
         return 0;
@@ -1505,8 +1545,9 @@ int vtkFunctionParser::CheckSyntax()
       { // Check for variable
       if (!this->IsVariableName(index))
         {
-        vtkErrorMacro("Syntax error: expecting a variable name; "
-                      << "see position " << index);
+        this->ParseErrorPositon = index;
+        this->SetParseError("Syntax error: expecting a variable name");
+        vtkErrorMacro(<< this->ParseError << "; " << "see position " << index);
         delete [] expectCommaOnParenthesisCount;
         delete [] expectTwoCommasOnParenthesisCount;
         return 0;
@@ -1549,8 +1590,9 @@ int vtkFunctionParser::CheckSyntax()
         // We can't be closing this function if
         // expectCommaOnParenthesisCount[..] is not 2; either it was always
         // 0 or it should have been incremented to 2.
-        vtkErrorMacro("Syntax Error: two parameters separated by commas "
-                      << "expected; "
+        this->ParseErrorPositon = index;
+        this->SetParseError("Syntax Error: two parameters separated by commas expected");
+        vtkErrorMacro(<< this->ParseError << "; "
                       << expectCommaOnParenthesisCount[parenthesisCount]
                       << " found; see position " << index);
         delete [] expectCommaOnParenthesisCount;
@@ -1563,8 +1605,9 @@ int vtkFunctionParser::CheckSyntax()
         // We can't be closing this function if
         // expectCommaOnParenthesisCount[..] is not 3; either it was always
         // 0 or it should have been incremented to 3.
-        vtkErrorMacro("Syntax Error: three parameters separated by commas "
-                      << "expected; "
+        this->ParseErrorPositon = index;
+        this->SetParseError("Syntax Error: three parameters separated by commas expected");
+        vtkErrorMacro(<< this->ParseError << "; "
                       << expectTwoCommasOnParenthesisCount[parenthesisCount]
                       << " found; see position " << index);
         delete [] expectCommaOnParenthesisCount;
@@ -1574,16 +1617,18 @@ int vtkFunctionParser::CheckSyntax()
       parenthesisCount--;
       if(parenthesisCount < 0)
         {
-        vtkErrorMacro("Syntax Error: mismatched parenthesis; see position "
-                      << index);
+        this->ParseErrorPositon = index;
+        this->SetParseError("Syntax Error: mismatched parenthesis");
+        vtkErrorMacro(<< this->ParseError << "; see position " << index);
         delete [] expectCommaOnParenthesisCount;
         delete [] expectTwoCommasOnParenthesisCount;
         return 0;
         }
       if( this->Function[index - 1] == '(' )
         {
-        vtkErrorMacro("Syntax Error: empty parentheses; see position "
-                      << index);
+        this->ParseErrorPositon = index;
+        this->SetParseError("Syntax Error: empty parentheses");
+        vtkErrorMacro(<< this->ParseError << "; see position " << index);
         delete [] expectCommaOnParenthesisCount;
         delete [] expectTwoCommasOnParenthesisCount;
         return 0;
@@ -1629,8 +1674,9 @@ int vtkFunctionParser::CheckSyntax()
        currentChar != '|' &&
        currentChar != ',')
       {
-      vtkErrorMacro("Syntax error: operator expected; see position "
-                    << index);
+      this->ParseErrorPositon = index;
+      this->SetParseError("Syntax error: operator expected");
+      vtkErrorMacro(<< this->ParseError << "; see position " << index);
       delete [] expectCommaOnParenthesisCount;
       delete [] expectTwoCommasOnParenthesisCount;
       return 0;
@@ -1647,8 +1693,9 @@ int vtkFunctionParser::CheckSyntax()
   // Check that all opened parentheses are also closed
   if(parenthesisCount > 0)
     {
-    vtkErrorMacro("Syntax Error: missing closing parenthesis; see position "
-                  << index);
+    this->ParseErrorPositon = index;
+    this->SetParseError("Syntax Error: missing closing parenthesis");
+    vtkErrorMacro(<< this->ParseError << "; see position " << index);
     delete [] expectCommaOnParenthesisCount;
     delete [] expectTwoCommasOnParenthesisCount;
     return 0;
@@ -2391,6 +2438,16 @@ void vtkFunctionParser::RemoveVectorVariables()
     }
   this->NumberOfVectorVariables = 0;
 }
+
+
+void vtkFunctionParser::CheckExpression(int &pos, char **error)
+{
+  this->CheckSyntax();
+
+  pos    = this->ParseErrorPositon;
+  *error = this->ParseError;
+}
+
 
 void vtkFunctionParser::RemoveAllVariables()
 {
