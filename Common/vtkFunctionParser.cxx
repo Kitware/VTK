@@ -1434,8 +1434,6 @@ int vtkFunctionParser::CheckSyntax()
       }
     }
 
-  std::cout << "Calling once: " << std::endl;
-
   // Reset.
   this->ParseErrorPositon = -1;
   this->ParseError        = NULL;
