@@ -62,6 +62,7 @@ bool vtkPHardwareSelector::CaptureBuffers()
     return this->Superclass::CaptureBuffers();
     }
 
+  this->InvokeEvent(vtkCommand::StartEvent);
   this->BeginSelection();
   vtkRenderWindow* rwin = this->Renderer->GetRenderWindow();
   rwin->AddObserver(vtkCommand::StartEvent, this->Observer);
@@ -86,13 +87,11 @@ bool vtkPHardwareSelector::CaptureBuffers()
 //----------------------------------------------------------------------------
 void vtkPHardwareSelector::StartRender()
 {
-  this->InvokeEvent(vtkCommand::StartEvent);
 }
 
 //----------------------------------------------------------------------------
 void vtkPHardwareSelector::EndRender()
 {
-  this->InvokeEvent(vtkCommand::EndEvent);
 
   this->CurrentPass++;
   for (; this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
@@ -108,6 +107,7 @@ void vtkPHardwareSelector::EndRender()
     vtkRenderWindow* rwin = this->Renderer->GetRenderWindow();
     rwin->RemoveObserver(this->Observer);
     this->EndSelection();
+    this->InvokeEvent(vtkCommand::EndEvent);
     }
 }
 

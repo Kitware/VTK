@@ -190,6 +190,11 @@ public:
     unsigned int x1, unsigned int y1,
     unsigned int x2, unsigned int y2);
 
+  // Description:
+  // returns the prop associated with a ID. This is valid only until
+  // ReleasePixBuffers() gets called.
+  vtkProp* GetProp(int id);
+
 //BTX
   enum PassTypes
     {
