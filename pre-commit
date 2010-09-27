@@ -247,3 +247,9 @@ while read src_mode dst_mode src_obj dst_obj status file; do
 done
 )
 test -z "$bad" || die "$bad"
+
+#-----------------------------------------------------------------------------
+# Style hooks.
+. "$GIT_DIR/hooks/pre-commit-style"
+
+# vim: set filetype=sh tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab :
