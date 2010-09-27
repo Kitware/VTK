@@ -14,6 +14,8 @@
 =========================================================================*/
 
 // Fragment program part with ray cast and composite method with masks.
+// Only regions in the mask texture contribute. Regions outside are as good
+// as completely transparent.
 
 #version 110
 

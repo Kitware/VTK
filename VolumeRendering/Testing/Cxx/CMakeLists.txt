@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestGPURayCastCompositeToMIP.cxx
       TestGPURayCastCropping.cxx
       TestGPURayCastDataTypesMinIP.cxx
+      TestGPURayCastMIPBinaryMask.cxx
       TestGPURayCastDataTypesMIP.cxx
       TestGPURayCastFourComponentsComposite.cxx
       TestGPURayCastFourComponentsCompositeStreaming.cxx

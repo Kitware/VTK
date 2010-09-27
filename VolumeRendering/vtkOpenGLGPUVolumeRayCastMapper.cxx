@@ -146,6 +146,7 @@ extern const char *vtkGPUVolumeRayCastMapper_CompositeCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_CompositeNoCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_HeaderFS;
 extern const char *vtkGPUVolumeRayCastMapper_MIPFS;
+extern const char *vtkGPUVolumeRayCastMapper_MIPBinaryMaskFS;
 extern const char *vtkGPUVolumeRayCastMapper_MIPFourDependentFS;
 extern const char *vtkGPUVolumeRayCastMapper_MIPFourDependentCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_MIPFourDependentNoCroppingFS;
@@ -155,6 +156,7 @@ extern const char *vtkGPUVolumeRayCastMapper_ParallelProjectionFS;
 extern const char *vtkGPUVolumeRayCastMapper_PerspectiveProjectionFS;
 extern const char *vtkGPUVolumeRayCastMapper_ScaleBiasFS;
 extern const char *vtkGPUVolumeRayCastMapper_MinIPFS;
+extern const char *vtkGPUVolumeRayCastMapper_MinIPBinaryMaskFS;
 extern const char *vtkGPUVolumeRayCastMapper_MinIPFourDependentFS;
 extern const char *vtkGPUVolumeRayCastMapper_MinIPFourDependentCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_MinIPFourDependentNoCroppingFS;
@@ -181,9 +183,11 @@ enum
 {
   vtkOpenGLGPUVolumeRayCastMapperMethodNotInitialized,
   vtkOpenGLGPUVolumeRayCastMapperMethodMIP,
+  vtkOpenGLGPUVolumeRayCastMapperMethodMIPBinaryMask,
   vtkOpenGLGPUVolumeRayCastMapperMethodMIPFourDependent,
   vtkOpenGLGPUVolumeRayCastMapperMethodComposite,
   vtkOpenGLGPUVolumeRayCastMapperMethodMinIP,
+  vtkOpenGLGPUVolumeRayCastMapperMethodMinIPBinaryMask,
   vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent,
   vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask,
   vtkOpenGLGPUVolumeRayCastMapperMethodCompositeBinaryMask,
@@ -4135,23 +4139,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
       // If we are using a mask to limit the volume rendering to or blend using a
       // label map mask..
-      if (this->MaskInput != 0)
-        {
-        if (this->MaskType == vtkGPUVolumeRayCastMapper::BinaryMaskType)
-          {
-          rayCastMethod
-            = vtkOpenGLGPUVolumeRayCastMapperMethodCompositeBinaryMask;
-          }
-        else if (this->MaskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
-          {
-          rayCastMethod = vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask;
-          }
-        }
-      else
-        {
-        //cout<<"program is composite+shade"<<endl;
-        rayCastMethod=vtkOpenGLGPUVolumeRayCastMapperMethodComposite;
-        }
+      rayCastMethod = this->MaskInput ?
+         (this->MaskType == vtkGPUVolumeRayCastMapper::BinaryMaskType ?
+              vtkOpenGLGPUVolumeRayCastMapperMethodCompositeBinaryMask :
+              vtkOpenGLGPUVolumeRayCastMapperMethodCompositeMask) :
+            vtkOpenGLGPUVolumeRayCastMapperMethodComposite;
+
       if ( vol->GetProperty()->GetShade() )
         {
         shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeYes;
@@ -4169,7 +4162,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       switch(numberOfScalarComponents)
         {
         case 1:
-          rayCastMethod=vtkOpenGLGPUVolumeRayCastMapperMethodMIP;
+          rayCastMethod= (this->MaskInput && this->MaskType ==
+            vtkGPUVolumeRayCastMapper::BinaryMaskType) ?
+              vtkOpenGLGPUVolumeRayCastMapperMethodMIPBinaryMask :
+              vtkOpenGLGPUVolumeRayCastMapperMethodMIP;
           break;
         case 4:
           rayCastMethod=
@@ -4186,7 +4182,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       switch(numberOfScalarComponents)
         {
         case 1:
-          rayCastMethod=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP;
+          rayCastMethod= (this->MaskInput && this->MaskType ==
+            vtkGPUVolumeRayCastMapper::BinaryMaskType) ?
+              vtkOpenGLGPUVolumeRayCastMapperMethodMinIPBinaryMask :
+              vtkOpenGLGPUVolumeRayCastMapperMethodMinIP;
           break;
         case 4:
           rayCastMethod=
@@ -6315,6 +6314,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
       case vtkOpenGLGPUVolumeRayCastMapperMethodMIP:
         methodCode=vtkGPUVolumeRayCastMapper_MIPFS;
         break;
+      case vtkOpenGLGPUVolumeRayCastMapperMethodMIPBinaryMask:
+        methodCode=vtkGPUVolumeRayCastMapper_MIPBinaryMaskFS;
+        break;
       case vtkOpenGLGPUVolumeRayCastMapperMethodMIPFourDependent:
         methodCode=vtkGPUVolumeRayCastMapper_MIPFourDependentFS;
         break;
@@ -6329,6 +6331,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
         break;
       case vtkOpenGLGPUVolumeRayCastMapperMethodMinIP:
         methodCode=vtkGPUVolumeRayCastMapper_MinIPFS;
+        break;
+      case vtkOpenGLGPUVolumeRayCastMapperMethodMinIPBinaryMask:
+        methodCode=vtkGPUVolumeRayCastMapper_MinIPBinaryMaskFS;
         break;
       case vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent:
         methodCode=vtkGPUVolumeRayCastMapper_MinIPFourDependentFS;
@@ -6349,6 +6354,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
   switch(raycastMethod)
     {
     case vtkOpenGLGPUVolumeRayCastMapperMethodMIP:
+    case vtkOpenGLGPUVolumeRayCastMapperMethodMIPBinaryMask:
       if(this->NumberOfCroppingRegions>1)
         {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMIPCropping;
@@ -6370,6 +6376,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
         }
       break;
     case vtkOpenGLGPUVolumeRayCastMapperMethodMinIP:
+    case vtkOpenGLGPUVolumeRayCastMapperMethodMinIPBinaryMask:
       if(this->NumberOfCroppingRegions>1)
         {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMinIPCropping;
