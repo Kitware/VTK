@@ -68,6 +68,19 @@ class TestSubclass(Testing.vtkTest):
         vtk.vtkDataArray.InsertNextTuple1(a, 2)
         self.assertEqual(a.GetTuple1(0), 2)
 
+    def testPythonRTTI(self):
+        """Test the python isinstance and issubclass methods """
+        o = vtkCustomObject()
+        d = vtk.vtkIntArray()
+        self.assertTrue(isinstance(o, vtk.vtkObjectBase))
+        self.assertTrue(isinstance(d, vtk.vtkObjectBase))
+        self.assertTrue(isinstance(o, vtkCustomObject))
+        self.assertFalse(isinstance(d, vtkCustomObject))
+        self.assertFalse(isinstance(o, vtk.vtkDataArray))
+        self.assertTrue(issubclass(vtkCustomObject, vtk.vtkObject))
+        self.assertFalse(issubclass(vtk.vtkObject, vtkCustomObject))
+        self.assertFalse(issubclass(vtkCustomObject, vtk.vtkDataArray))
+
     def testSubclassGhost(self):
         """Make sure ghosting of the class works"""
         o = vtkCustomObject()
