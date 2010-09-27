@@ -403,6 +403,24 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
       }
     }
 
+  // loop through props and give them a chance to render themselves as
+  // overlay geometry. This allows the overlay geometry
+  // also being selected. The props in overlay can use Pickable or
+  // SupportsSelection variables to decide whether to be included in this pass.
+  for (int i = 0; i < propArrayCount; i++ )
+    {
+    if (!propArray[i]->GetPickable() || !propArray[i]->GetSupportsSelection())
+      {
+      continue;
+      }
+    this->PropID = this->GetPropID(i, propArray[i]);
+    this->Internals->Props[this->PropID] = propArray[i];
+    if (this->IsPropHit(this->PropID))
+      {
+      propsRenderered += propArray[i]->RenderOverlay(renderer);
+      }
+    }
+
   return propsRenderered;
 }
 
