@@ -26,7 +26,9 @@
 //
 // Various other parameters are used to control how this data is combined. If
 // UseIconSize is true then the DisplaySize is ignored. If PassScalars is true,
-// then the scalar index information is passed to the output.
+// then the scalar index information is passed to the output. Also, there is an
+// optional IconScale array which, if UseIconScaling is on, will scale each icon
+// independently.
 
 // .SECTION See Also
 // vtkPolyDataAlgorithm vtkGlyph3D vtkGlyph2D
@@ -45,6 +47,9 @@
 #define VTK_ICON_GRAVITY_BOTTOM_RIGHT  7
 #define VTK_ICON_GRAVITY_BOTTOM_CENTER 8
 #define VTK_ICON_GRAVITY_BOTTOM_LEFT   9
+
+#define VTK_ICON_SCALING_OFF 0
+#define VTK_ICON_SCALING_USE_SCALING_ARRAY 1
 
 
 class VTK_GRAPHICS_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
@@ -68,8 +73,10 @@ public:
 
   // Description:
   // Specify the Width and Height, in pixels, of the size of the icon when it
-  // is rendered. By default, the IconSize is used to set the display size (i.e.,
-  // UseIconSize is true by default).
+  // is rendered. By default, the IconSize is used to set the display size
+  // (i.e., UseIconSize is true by default). Note that assumes that
+  // IconScaling is disabled, or if enabled, the scale of a particular icon
+  // is 1.
   vtkSetVector2Macro(DisplaySize,int);
   vtkGetVectorMacro(DisplaySize,int,2);
 
@@ -79,6 +86,16 @@ public:
   vtkSetMacro(UseIconSize,bool);
   vtkGetMacro(UseIconSize,bool);
   vtkBooleanMacro(UseIconSize, bool);
+
+  // Description:
+  // Specify how to specify individual icons. By default, icon scaling
+  // is off, but if it is on, then the filter looks for an array named
+  // "IconScale" to control individual icon size.
+  vtkSetMacro(IconScaling,int);
+  vtkGetMacro(IconScaling,int);
+  void SetIconScalingToScalingOff() {this->SetIconScaling(VTK_ICON_SCALING_OFF);}
+  void SetIconScalingToScalingArray()
+    {this->SetIconScaling(VTK_ICON_SCALING_USE_SCALING_ARRAY);}
 
   // Description:
   // Specify whether to pass the scalar icon index to the output. By
@@ -117,8 +134,9 @@ protected:
   int IconSheetSize[2]; // Size in pixels of the icon sheet
   int DisplaySize[2]; // Size in pixels of the icon when displayed
 
-  int Gravity;
+  int  Gravity;
   bool UseIconSize;
+  int  IconScaling;
   bool PassScalars;
 
 private:
