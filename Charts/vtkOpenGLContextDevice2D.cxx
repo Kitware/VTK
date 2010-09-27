@@ -417,6 +417,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n)
 {
   if(f && n > 0)
     {
+    this->SetLineType(this->Pen->GetLineType());
     glColor4ubv(this->Pen->GetColor());
     glLineWidth(this->Pen->GetWidth());
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -728,6 +729,7 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     ++i;
     }
 
+  this->SetLineType(this->Pen->GetLineType());
   glColor4ubv(this->Pen->GetColor());
   glLineWidth(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
