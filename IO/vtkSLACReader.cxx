@@ -1302,7 +1302,7 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
           for (int j = 0; j < numComponents; j++)
             {
             double real = dataArray->GetComponent(i, j);
-            double mag= std::abs(real);
+            double mag= fabs(real);
             double startphase = (real >= 0 )? 0.0 : vtkMath::Pi();
             dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
             }
