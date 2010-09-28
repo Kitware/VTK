@@ -294,6 +294,7 @@ if(VTK_WRAP_PYTHON_SIP)
     )
 
   # create the sip module
+  include_directories(${SIP_INCLUDE_DIR})
   add_library(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
   target_link_libraries(${SIP_MODULE} QVTK vtkRenderingPythonD)
   set_target_properties(${SIP_MODULE} PROPERTIES PREFIX "")
