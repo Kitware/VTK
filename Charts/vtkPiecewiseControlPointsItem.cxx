@@ -116,6 +116,7 @@ bool vtkPiecewiseControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
   double pos[2];
   pos[0] = mouse.Pos[0];
   pos[1] = mouse.Pos[1];
+  return true;
   return this->GetPointId(pos) != -1;
 }
 
@@ -156,6 +157,7 @@ bool vtkPiecewiseControlPointsItem::MouseButtonPressEvent(const vtkContextMouseE
   pos[0] = mouse.Pos[0];
   pos[1] = mouse.Pos[1];
   this->MouseOver = this->GetPointId(pos);
+
   if (this->MouseOver == -1)
     {
     this->DeselectAllPoints();
