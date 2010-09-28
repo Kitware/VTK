@@ -276,6 +276,11 @@ protected:
 private:
   vtkContextScene(const vtkContextScene &); // Not implemented.
   void operator=(const vtkContextScene &);   // Not implemented.
+
+  typedef bool (vtkAbstractContextItem::* MouseEvents)(const vtkContextMouseEvent&);
+  void ProcessItem(vtkAbstractContextItem* cur,
+                   const vtkContextMouseEvent& event,
+                   MouseEvents eventPtr);
 //ETX
 };
 
