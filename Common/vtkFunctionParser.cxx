@@ -2579,14 +2579,14 @@ int vtkFunctionParser::FindPositionInOriginalFunction(const int &pos)
 
   if(this->Function && this->FunctionWithSpaces)
     {
-    int withSpacesLen    = strlen(this->FunctionWithSpaces);
-    int withoutSpacesLen = strlen(this->Function);
+    size_t withSpacesLen    = strlen(this->FunctionWithSpaces);
+    size_t withoutSpacesLen = strlen(this->Function);
 
     int counter = 0;
-    for(int i=0; i < withSpacesLen; ++i)
+    for(size_t i=0; i < withSpacesLen; ++i)
       {
       // If we have covered all the characters excluding the spaces.
-      if(counter == withoutSpacesLen || counter == pos)
+      if(counter == static_cast<int>(withoutSpacesLen) || counter == pos)
         {
         return origPos;
         }
