@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkFunctionParser);
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT,
                                                 VTK_PARSER_ERROR_RESULT,
                                                 VTK_PARSER_ERROR_RESULT };
-
+//-----------------------------------------------------------------------------
 vtkFunctionParser::vtkFunctionParser()
 {
   this->NumberOfScalarVariables = 0;
@@ -32,6 +32,7 @@ vtkFunctionParser::vtkFunctionParser()
   this->ScalarVariableValues = NULL;
   this->VectorVariableValues = NULL;
   this->Function = NULL;
+  this->FunctionWithSpaces = NULL;
   this->ByteCode = NULL;
   this->ByteCodeSize = 0;
   this->Immediates = NULL;
@@ -53,6 +54,7 @@ vtkFunctionParser::vtkFunctionParser()
   this->ParseError        = NULL;
 }
 
+//-----------------------------------------------------------------------------
 vtkFunctionParser::~vtkFunctionParser()
 {
   int i;
@@ -102,6 +104,12 @@ vtkFunctionParser::~vtkFunctionParser()
     this->Function = NULL;
     }
 
+  if (this->FunctionWithSpaces)
+    {
+    delete [] this->FunctionWithSpaces;
+    this->FunctionWithSpaces = NULL;
+    }
+
   if (this->ByteCode)
     {
     delete [] this->ByteCode;
@@ -126,6 +134,7 @@ vtkFunctionParser::~vtkFunctionParser()
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::SetFunction(const char *function)
 {
   if (this->Function && function && strcmp(this->Function,function) == 0)
@@ -136,16 +145,21 @@ void vtkFunctionParser::SetFunction(const char *function)
   if (this->Function)
     {
     delete [] this->Function;
+    delete [] this->FunctionWithSpaces;
     }
 
   if (function)
     {
     this->Function = new char[strlen(function)+1];
+    this->FunctionWithSpaces = new char[strlen(function) + 1];
+
     strcpy(this->Function,function);
+    strcpy(this->FunctionWithSpaces, function);
     }
   else
     {
     this->Function = NULL;
+    this->FunctionWithSpaces = NULL;
     }
 
   this->FunctionMTime.Modified();
@@ -218,6 +232,7 @@ int vtkFunctionParser::Parse()
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::DisambiguateOperators()
 {
   unsigned char* tempStack = new unsigned char[this->ByteCodeSize];
@@ -532,6 +547,7 @@ int vtkFunctionParser::DisambiguateOperators()
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 bool vtkFunctionParser::Evaluate()
 {
   int numBytesProcessed;
@@ -963,6 +979,7 @@ bool vtkFunctionParser::Evaluate()
   return true;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::IsScalarResult()
 {
   if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
@@ -974,6 +991,7 @@ int vtkFunctionParser::IsScalarResult()
   return (this->StackPointer == 0);
 }
 
+//-----------------------------------------------------------------------------
 double vtkFunctionParser::GetScalarResult()
 {
   if (!(this->IsScalarResult()))
@@ -995,6 +1013,7 @@ int vtkFunctionParser::IsVectorResult()
   return (this->StackPointer == 2);
 }
 
+//-----------------------------------------------------------------------------
 double *vtkFunctionParser::GetVectorResult()
 {
   if (!(this->IsVectorResult()))
@@ -1005,6 +1024,7 @@ double *vtkFunctionParser::GetVectorResult()
   return this->Stack;
 }
 
+//-----------------------------------------------------------------------------
 char* vtkFunctionParser::GetScalarVariableName(int i)
 {
   if (i >= 0 && i < this->NumberOfScalarVariables)
@@ -1014,6 +1034,7 @@ char* vtkFunctionParser::GetScalarVariableName(int i)
   return NULL;
 }
 
+//-----------------------------------------------------------------------------
 char* vtkFunctionParser::GetVectorVariableName(int i)
 {
   if (i >= 0 && i < this->NumberOfVectorVariables)
@@ -1023,6 +1044,7 @@ char* vtkFunctionParser::GetVectorVariableName(int i)
   return NULL;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::IsVariableName(int currentIndex)
 {
   int i;
@@ -1047,11 +1069,13 @@ int vtkFunctionParser::IsVariableName(int currentIndex)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::IsElementaryOperator(int op)
 {
   return strchr("+-.*/^", op) != NULL;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
                                                double value)
 {
@@ -1120,6 +1144,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
   delete [] variableName;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::SetScalarVariableValue(int i, double value)
 {
   if (i < 0 || i >= this->NumberOfScalarVariables)
@@ -1135,6 +1160,7 @@ void vtkFunctionParser::SetScalarVariableValue(int i, double value)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
 {
   int i;
@@ -1154,6 +1180,7 @@ double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
   return VTK_PARSER_ERROR_RESULT;
 }
 
+//-----------------------------------------------------------------------------
 double vtkFunctionParser::GetScalarVariableValue(int i)
 {
   if (i < 0 || i >= this->NumberOfScalarVariables)
@@ -1166,6 +1193,7 @@ double vtkFunctionParser::GetScalarVariableValue(int i)
   return this->ScalarVariableValues[i];
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
                                                double xValue, double yValue,
                                                double zValue)
@@ -1252,6 +1280,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
   delete [] variableName;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
                                                double yValue, double zValue)
 {
@@ -1271,6 +1300,7 @@ void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
     }
 }
 
+//-----------------------------------------------------------------------------
 double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
 {
   int i;
@@ -1290,6 +1320,7 @@ double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
   return vtkParserVectorErrorResult;
 }
 
+//-----------------------------------------------------------------------------
 double* vtkFunctionParser::GetVectorVariableValue(int i)
 {
   if (i < 0 || i >= this->NumberOfVectorVariables)
@@ -1301,6 +1332,7 @@ double* vtkFunctionParser::GetVectorVariableValue(int i)
   return this->VectorVariableValues[i];
 }
 
+//-----------------------------------------------------------------------------
 char* vtkFunctionParser::RemoveSpacesFrom(const char* variableName)
 {
   int len = static_cast<int>(strlen(variableName));
@@ -1318,6 +1350,7 @@ char* vtkFunctionParser::RemoveSpacesFrom(const char* variableName)
   return resultString;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::RemoveSpaces()
 {
   char *tempString;
@@ -1344,6 +1377,7 @@ void vtkFunctionParser::RemoveSpaces()
   delete [] tempString;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::OperatorWithinVariable(int idx)
 {
   int i;
@@ -1414,6 +1448,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
   return  0;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::CheckSyntax()
 {
   if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
@@ -1468,7 +1503,7 @@ int vtkFunctionParser::CheckSyntax()
       currentChar = this->Function[++index];
       if(index == this->FunctionLength)
         {
-        this->ParseErrorPositon = index;
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax error: unary minus with no operand");
         vtkErrorMacro(<< this->ParseError << "; " << " see position " << index);
         delete [] expectCommaOnParenthesisCount;
@@ -1543,7 +1578,7 @@ int vtkFunctionParser::CheckSyntax()
       { // Check for variable
       if (!this->IsVariableName(index))
         {
-        this->ParseErrorPositon = index;
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax error: expecting a variable name");
         vtkErrorMacro(<< this->ParseError << "; " << "see position " << index);
         delete [] expectCommaOnParenthesisCount;
@@ -1588,7 +1623,7 @@ int vtkFunctionParser::CheckSyntax()
         // We can't be closing this function if
         // expectCommaOnParenthesisCount[..] is not 2; either it was always
         // 0 or it should have been incremented to 2.
-        this->ParseErrorPositon = index;
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax Error: two parameters separated by commas expected");
         vtkErrorMacro(<< this->ParseError << "; "
                       << expectCommaOnParenthesisCount[parenthesisCount]
@@ -1603,7 +1638,7 @@ int vtkFunctionParser::CheckSyntax()
         // We can't be closing this function if
         // expectCommaOnParenthesisCount[..] is not 3; either it was always
         // 0 or it should have been incremented to 3.
-        this->ParseErrorPositon = index;
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax Error: three parameters separated by commas expected");
         vtkErrorMacro(<< this->ParseError << "; "
                       << expectTwoCommasOnParenthesisCount[parenthesisCount]
@@ -1615,7 +1650,7 @@ int vtkFunctionParser::CheckSyntax()
       parenthesisCount--;
       if(parenthesisCount < 0)
         {
-        this->ParseErrorPositon = index;
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax Error: mismatched parenthesis");
         vtkErrorMacro(<< this->ParseError << "; see position " << index);
         delete [] expectCommaOnParenthesisCount;
@@ -1624,7 +1659,7 @@ int vtkFunctionParser::CheckSyntax()
         }
       if( this->Function[index - 1] == '(' )
         {
-        this->ParseErrorPositon = index;
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax Error: empty parentheses");
         vtkErrorMacro(<< this->ParseError << "; see position " << index);
         delete [] expectCommaOnParenthesisCount;
@@ -1672,7 +1707,7 @@ int vtkFunctionParser::CheckSyntax()
        currentChar != '|' &&
        currentChar != ',')
       {
-      this->ParseErrorPositon = index;
+      this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
       this->SetParseError("Syntax error: operator expected");
       vtkErrorMacro(<< this->ParseError << "; see position " << index);
       delete [] expectCommaOnParenthesisCount;
@@ -1691,7 +1726,7 @@ int vtkFunctionParser::CheckSyntax()
   // Check that all opened parentheses are also closed
   if(parenthesisCount > 0)
     {
-    this->ParseErrorPositon = index;
+    this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
     this->SetParseError("Syntax Error: missing closing parenthesis");
     vtkErrorMacro(<< this->ParseError << "; see position " << index);
     delete [] expectCommaOnParenthesisCount;
@@ -1706,6 +1741,7 @@ int vtkFunctionParser::CheckSyntax()
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::BuildInternalFunctionStructure()
 {
   if (this->ByteCode)
@@ -1731,6 +1767,7 @@ int vtkFunctionParser::BuildInternalFunctionStructure()
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
                                                         int endIndex)
 {
@@ -1911,6 +1948,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::AddInternalByte(unsigned char newByte)
 {
   int i;
@@ -1939,6 +1977,7 @@ void vtkFunctionParser::AddInternalByte(unsigned char newByte)
   delete [] tempByteCode;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::IsSubstringCompletelyEnclosed(int beginIndex,
                                                      int endIndex)
 {
@@ -1970,6 +2009,7 @@ int vtkFunctionParser::IsSubstringCompletelyEnclosed(int beginIndex,
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
 {
   // For addition of any new math function, please update
@@ -2077,6 +2117,7 @@ int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::GetMathFunctionNumberByCheckingParenthesis
   ( int currentIndex )
 {
@@ -2152,6 +2193,7 @@ int vtkFunctionParser::GetMathFunctionNumberByCheckingParenthesis
   return retNumber;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
 {
   switch (mathFunctionNumber)
@@ -2190,6 +2232,7 @@ int vtkFunctionParser::GetMathFunctionStringLength(int mathFunctionNumber)
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::GetMathConstantNumber(int currentIndex)
 {
   if (strncmp(&this->Function[currentIndex], "iHat", 4) == 0)
@@ -2208,6 +2251,7 @@ int vtkFunctionParser::GetMathConstantNumber(int currentIndex)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::GetMathConstantStringLength(int mathConstantNumber)
 {
   switch (mathConstantNumber)
@@ -2222,6 +2266,7 @@ int vtkFunctionParser::GetMathConstantStringLength(int mathConstantNumber)
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::GetVariableNameLength(int variableNumber)
 {
   if (variableNumber < this->NumberOfScalarVariables)
@@ -2236,6 +2281,7 @@ int vtkFunctionParser::GetVariableNameLength(int variableNumber)
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::FindEndOfMathFunction(int beginIndex)
 {
   int i = beginIndex, parenthesisCount;
@@ -2253,6 +2299,7 @@ int vtkFunctionParser::FindEndOfMathFunction(int beginIndex)
   return i - 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkFunctionParser::FindEndOfMathConstant(int beginIndex)
 {
   if(int constantNumber = this->GetMathConstantNumber(beginIndex))
@@ -2262,6 +2309,7 @@ int vtkFunctionParser::FindEndOfMathConstant(int beginIndex)
   return beginIndex;
 }
 
+//-----------------------------------------------------------------------------
 unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
 {
   static const char* const operators = "+-*/^";
@@ -2303,6 +2351,7 @@ unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
 {
   int i, variableIndex = -1;
@@ -2399,6 +2448,7 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
   return 0;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::RemoveScalarVariables()
 {
   int i;
@@ -2418,6 +2468,7 @@ void vtkFunctionParser::RemoveScalarVariables()
   this->NumberOfScalarVariables = 0;
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::RemoveVectorVariables()
 {
   int i;
@@ -2437,7 +2488,7 @@ void vtkFunctionParser::RemoveVectorVariables()
   this->NumberOfVectorVariables = 0;
 }
 
-
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::CheckExpression(int &pos, char **error)
 {
   this->CheckSyntax();
@@ -2446,13 +2497,14 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
   *error = this->ParseError;
 }
 
-
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::RemoveAllVariables()
 {
   this->RemoveScalarVariables();
   this->RemoveVectorVariables();
 }
 
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -2461,6 +2513,9 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Function: "
      << (this->Function ? this->Function : "(none)") << endl;
+
+  os << indent << "FunctionWithSpaces: "
+     << (this->FunctionWithSpaces ? this->FunctionWithSpaces : "(none)") << endl;
 
   os << indent << "NumberOfScalarVariables: "
      << this->NumberOfScalarVariables << endl;
@@ -2516,3 +2571,40 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
     << endl;
 }
 
+//-----------------------------------------------------------------------------
+int vtkFunctionParser::FindPositionInOriginalFunction(const int &pos)
+{
+  // Copy the value.
+  int origPos = pos;
+
+  if(this->Function && this->FunctionWithSpaces)
+    {
+    int withSpacesLen    = strlen(this->FunctionWithSpaces);
+    int withoutSpacesLen = strlen(this->Function);
+
+    int counter = 0;
+    for(int i=0; i < withSpacesLen; ++i)
+      {
+      // If we have covered all the characters excluding the spaces.
+      if(counter == withoutSpacesLen || counter == pos)
+        {
+        return origPos;
+        }
+
+      char currentChar = this->FunctionWithSpaces[i];
+      if(currentChar == ' ')
+        {
+        // Every time we hit a whitespace increment the origPos
+        // as the pos is counted without spaces.
+        ++origPos;
+        continue;
+        }
+
+      // This needs to be incremented for all the characters except
+      // spaces.
+      ++counter;
+      }
+    }
+
+  return origPos;
+}
