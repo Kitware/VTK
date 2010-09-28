@@ -35,9 +35,6 @@
 #include "vtkTextProperty.h"
 #include "vtkIntArray.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 //----------------------------------------------------------------------------
 int TestScalarsToColors(int ,  char * [])
 {
