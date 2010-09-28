@@ -266,7 +266,11 @@ protected:
 
   vtkSetStringMacro(ParseError);
 
+  int FindPositionInOriginalFunction(const int& pos);
+
   char* Function;
+  char* FunctionWithSpaces;
+
   int FunctionLength;
   int NumberOfScalarVariables;
   int NumberOfVectorVariables;
