@@ -72,14 +72,14 @@ class TestSubclass(Testing.vtkTest):
         """Test the python isinstance and issubclass methods """
         o = vtkCustomObject()
         d = vtk.vtkIntArray()
-        self.assertTrue(isinstance(o, vtk.vtkObjectBase))
-        self.assertTrue(isinstance(d, vtk.vtkObjectBase))
-        self.assertTrue(isinstance(o, vtkCustomObject))
-        self.assertFalse(isinstance(d, vtkCustomObject))
-        self.assertFalse(isinstance(o, vtk.vtkDataArray))
-        self.assertTrue(issubclass(vtkCustomObject, vtk.vtkObject))
-        self.assertFalse(issubclass(vtk.vtkObject, vtkCustomObject))
-        self.assertFalse(issubclass(vtkCustomObject, vtk.vtkDataArray))
+        self.assertEqual(True, isinstance(o, vtk.vtkObjectBase))
+        self.assertEqual(True, isinstance(d, vtk.vtkObjectBase))
+        self.assertEqual(True, isinstance(o, vtkCustomObject))
+        self.assertEqual(False, isinstance(d, vtkCustomObject))
+        self.assertEqual(False, isinstance(o, vtk.vtkDataArray))
+        self.assertEqual(True, issubclass(vtkCustomObject, vtk.vtkObject))
+        self.assertEqual(False, issubclass(vtk.vtkObject, vtkCustomObject))
+        self.assertEqual(False, issubclass(vtkCustomObject, vtk.vtkDataArray))
 
     def testSubclassGhost(self):
         """Make sure ghosting of the class works"""
