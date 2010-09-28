@@ -819,9 +819,9 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     // if surface_midpoint requested
     if (this->ReadMidpoints)
       {
-      // if midpoints present in file 
+      // if midpoints present in file
       int dummy;
-      if (nc_inq_varid(meshFD(), "surface_midpoint", &dummy) == NC_NOERR) 
+      if (nc_inq_varid(meshFD(), "surface_midpoint", &dummy) == NC_NOERR)
         {
         if (!this->ReadMidpointData(meshFD(), compositeOutput,
                                     this->Internal->MidpointIdCache))
@@ -1250,13 +1250,13 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
         if (imagDataArray)
           {
           // allocate space for complex magnitude data
-          vtkSmartPointer<vtkDataArray> cplxMagArray; 
+          vtkSmartPointer<vtkDataArray> cplxMagArray;
           cplxMagArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
           cplxMagArray->SetNumberOfComponents(1);
           cplxMagArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
 
           // allocate space for phase data
-          vtkSmartPointer<vtkDataArray> phaseArray; 
+          vtkSmartPointer<vtkDataArray> phaseArray;
           phaseArray.TakeReference(vtkDataArray::CreateDataArray(VTK_DOUBLE));
           phaseArray->SetNumberOfComponents(3);
           phaseArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
@@ -1291,6 +1291,22 @@ int vtkSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
           vtkStdString phaseName= name + "_phase";
           phaseArray->SetName(phaseName);
           pd->AddArray(phaseArray);
+          }
+        }
+      else
+        {
+        int numComponents = dataArray->GetNumberOfComponents();
+        vtkIdType numTuples = dataArray->GetNumberOfTuples();
+        double imag = 0.0;
+        for (vtkIdType i = 0; i < numTuples; i++)
+          {
+          for (int j = 0; j < numComponents; j++)
+            {
+            double real = dataArray->GetComponent(i, j);
+            double mag= abs(real);
+            double startphase = (real >= 0 )? 0.0 : vtkMath::Pi();
+            dataArray->SetComponent(i, j, mag*cos(startphase + this->Phase));
+            }
           }
         }
       }
