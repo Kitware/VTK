@@ -41,7 +41,7 @@ public:
 
   virtual void Execute(vtkObject *, unsigned long eventId, void *)
     {
-    if (this->Target)
+    if (this->Target && this->Target->GetAutomaticEventHandling())
       {
       switch (eventId)
         {
@@ -83,6 +83,7 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->RootProcessId = 0;
 
   this->CaptureDelegate = NULL;
+  this->AutomaticEventHandling = true;
 }
 
 //----------------------------------------------------------------------------
@@ -123,6 +124,11 @@ void vtkSynchronizedRenderers::HandleStartRender()
   if (!this->Renderer || !this->ParallelRendering ||
     !this->ParallelController)
     {
+    if (this->CaptureDelegate &&
+      this->CaptureDelegate->GetAutomaticEventHandling() == false)
+      {
+      this->CaptureDelegate->HandleStartRender();
+      }
     return;
     }
 
@@ -146,6 +152,12 @@ void vtkSynchronizedRenderers::HandleStartRender()
       this->LastViewport[1]/this->ImageReductionFactor,
       this->LastViewport[2]/this->ImageReductionFactor,
       this->LastViewport[3]/this->ImageReductionFactor);
+    }
+
+  if (this->CaptureDelegate &&
+    this->CaptureDelegate->GetAutomaticEventHandling() == false)
+    {
+    this->CaptureDelegate->HandleStartRender();
     }
 }
 
@@ -176,6 +188,12 @@ void vtkSynchronizedRenderers::SlaveStartRender()
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::HandleEndRender()
 {
+  if (this->CaptureDelegate &&
+    this->CaptureDelegate->GetAutomaticEventHandling() == false)
+    {
+    this->CaptureDelegate->HandleEndRender();
+    }
+
   if (!this->Renderer || !this->ParallelRendering ||
     !this->ParallelController)
     {
@@ -190,7 +208,6 @@ void vtkSynchronizedRenderers::HandleEndRender()
     {
     this->SlaveEndRender();
     }
-
 
   if (this->WriteBackImages)
     {
@@ -328,13 +345,13 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ImageReductionFactor: " << this->ImageReductionFactor
-       << endl;
-
+  os << indent << "ImageReductionFactor: "
+    << this->ImageReductionFactor << endl;
   os << indent << "WriteBackImages: " << this->WriteBackImages << endl;
   os << indent << "RootProcessId: " << this->RootProcessId << endl;
   os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
-
+  os << indent << "AutomaticEventHandling: "
+    << this->AutomaticEventHandling << endl;
   os << indent << "CaptureDelegate: ";
   if(this->CaptureDelegate==0)
     {
