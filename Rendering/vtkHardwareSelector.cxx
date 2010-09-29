@@ -83,7 +83,7 @@ void vtkHardwareSelector::ReleasePixBuffers()
     delete [] this->PixBuffer[cc];
     this->PixBuffer[cc] = 0;
     }
-  this->Internals->Props.clear();
+  //this->Internals->Props.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -94,6 +94,7 @@ void vtkHardwareSelector::BeginSelection()
   this->Renderer->SetSelector(this);
   this->Renderer->PreserveDepthBufferOn();
   this->Internals->HitProps.clear();
+  this->Internals->Props.clear();
   this->ReleasePixBuffers();
 }
 
