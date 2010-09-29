@@ -76,15 +76,19 @@ vtkTransform2D* vtkContextTransform::GetTransform()
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextTransform::ToParent(const float point[2], float parentPoint[2])
+vtkVector2f vtkContextTransform::MapToParent(const vtkVector2f& point)
 {
-  this->Transform->TransformPoints(point, parentPoint, 1);
+  vtkVector2f p;
+  this->Transform->TransformPoints(point.GetData(), p.GetData(), 1);
+  return p;
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextTransform::FromParent(const float parentPoint[2], float point[2])
+vtkVector2f vtkContextTransform::MapFromParent(const vtkVector2f& point)
 {
-  this->Transform->InverseTransformPoints(parentPoint, point, 1);
+  vtkVector2f p;
+  this->Transform->InverseTransformPoints(point.GetData(), p.GetData(), 1);
+  return p;
 }
 
 //-----------------------------------------------------------------------------

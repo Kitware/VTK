@@ -68,11 +68,11 @@ public:
 
   // Description:
   // Transforms a point to the parent coordinate system.
-  virtual void ToParent(const float point[2], float parentPoint[2]);
+  virtual vtkVector2f MapToParent(const vtkVector2f& point);
 
   // Description:
   // Transforms a point from the parent coordinate system.
-  virtual void FromParent(const float parentPoint[2], float point[2]);
+  virtual vtkVector2f MapFromParent(const vtkVector2f& point);
 
 //BTX
 protected:
