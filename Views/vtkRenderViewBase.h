@@ -48,6 +48,10 @@ public:
   // Get a handle to the render window.
   virtual vtkRenderWindow* GetRenderWindow();
 
+  // Description:
+  // Set the render window for this view. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description.
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
@@ -110,12 +114,11 @@ protected:
   vtkSmartPointer<vtkRenderer> Renderer;
   vtkSmartPointer<vtkRenderWindow> RenderWindow;
   int InteractionMode;
+  bool RenderOnMouseMove;
 
 private:
   vtkRenderViewBase(const vtkRenderViewBase&);  // Not implemented.
   void operator=(const vtkRenderViewBase&);  // Not implemented.
-
-  bool RenderOnMouseMove;
 };
 
 #endif

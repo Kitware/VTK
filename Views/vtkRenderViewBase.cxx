@@ -30,6 +30,7 @@ vtkStandardNewMacro(vtkRenderViewBase);
 
 vtkRenderViewBase::vtkRenderViewBase()
 {
+  cout << "vtkRenderViewBase constructor..." << endl;
   this->RenderOnMouseMove = false;
   this->InteractionMode = -1;
   this->Renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -244,28 +245,18 @@ void vtkRenderViewBase::SetRenderOnMouseMove(bool b)
 
 void vtkRenderViewBase::Render()
 {
-  // Indirectly call this->RenderWindow->Start() without crashing.
-  // to create context if it is not yet created and to make it current
-  // this is required for HoverWidget to be active after the first
-  // render.
-  this->RenderWindow->GetInteractor()->Initialize();
-
-  this->Update();
   this->PrepareForRendering();
-  this->Renderer->ResetCameraClippingRange();
   this->RenderWindow->Render();
 }
 
 void vtkRenderViewBase::ResetCamera()
 {
-  this->Update();
   this->PrepareForRendering();
   this->Renderer->ResetCamera();
 }
 
 void vtkRenderViewBase::ResetCameraClippingRange()
 {
-  this->Update();
   this->PrepareForRendering();
   this->Renderer->ResetCameraClippingRange();
 }
