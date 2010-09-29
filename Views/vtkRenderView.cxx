@@ -68,7 +68,7 @@ vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
 vtkRenderView::vtkRenderView()
 {
   cout << "vtkRenderView constructor..." << endl;
-  this->LabelRenderer = vtkRenderer::New();
+  this->LabelRenderer = vtkSmartPointer<vtkRenderer>::New();
   this->Transform = vtkTransform::New();
   this->DisplayHoverText = false;
   this->IconTexture = 0;
@@ -130,10 +130,6 @@ vtkRenderView::vtkRenderView()
 
 vtkRenderView::~vtkRenderView()
 {
-  if (this->LabelRenderer)
-    {
-    this->LabelRenderer->Delete();
-    }
   if (this->Transform)
     {
     this->Transform->Delete();
@@ -249,7 +245,8 @@ void vtkRenderView::ProcessEvents(
     this->UpdateHoverWidgetState();
     this->PickRenderNeedsUpdate = true;
     }
-  if (caller == this->RenderWindow && eventId == vtkCommand::EndEvent)
+  if (caller == this->RenderWindow.GetPointer()
+      && eventId == vtkCommand::EndEvent)
     {
     vtkDebugMacro(<< "did a render, interacting: " << this->Interacting
          << " in pick render: " << this->InPickRender

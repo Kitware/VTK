@@ -215,7 +215,6 @@ protected:
   // or hover ballooons.
   void UpdatePickRender();
 
-  vtkRenderer* LabelRenderer;
   int SelectionMode;
   int LabelRenderMode;
   bool DisplayHoverText;
@@ -230,6 +229,7 @@ protected:
   int DisplaySize[2];
 
   //BTX
+  vtkSmartPointer<vtkRenderer>                 LabelRenderer;
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
   vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
