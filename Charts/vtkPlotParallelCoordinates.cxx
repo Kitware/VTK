@@ -269,8 +269,10 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
   this->vtkPlot::SetInput(table);
   vtkChartParallelCoordinates *parent =
       vtkChartParallelCoordinates::SafeDownCast(this->Parent);
+
   if (parent && table)
     {
+    parent->SetColumnVisibilityAll(false);
     // By default make the first 10 columns visible in a plot.
     for (vtkIdType i = 0; i < table->GetNumberOfColumns() && i < 10; ++i)
       {
@@ -296,6 +298,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     }
 
   vtkStringArray* cols = parent->GetVisibleColumns();
+
   this->Storage->resize(cols->GetNumberOfTuples());
   this->Storage->AxisPos.resize(cols->GetNumberOfTuples());
   vtkIdType rows = table->GetNumberOfRows();

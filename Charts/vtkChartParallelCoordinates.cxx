@@ -267,6 +267,22 @@ void vtkChartParallelCoordinates::SetColumnVisibility(const char* name,
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SetColumnVisibilityAll(bool visible)
+{
+  if (visible)
+    {
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      {
+      this->SetColumnVisibility(this->VisibleColumns->GetValue(i), visible);
+      }
+    }
+  else
+    {
+    this->VisibleColumns->SetNumberOfTuples(0);
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartParallelCoordinates::GetColumnVisibility(const char* name)
 {
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
