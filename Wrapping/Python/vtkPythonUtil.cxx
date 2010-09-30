@@ -558,7 +558,8 @@ int vtkPythonUtil::CheckArg(
         }
 
       // Assume any pointers are vtkObjectBase-derived types
-      else if (classname[0] == '*' && strncmp(&classname[1], "vtk", 3) == 0)
+      else if (classname[0] == '*' && classname[1] == 'v' &&
+               classname[2] == 't' && classname[3] == 'k')
         {
         classname++;
 
@@ -573,20 +574,20 @@ int vtkPythonUtil::CheckArg(
             {
             // Trace back through superclasses to look for a match
             PyVTKClass *cls = vobj->vtk_class;
-            if (PyTuple_Size(cls->vtk_bases) == 0)
+            if (PyTuple_GET_SIZE(cls->vtk_bases) == 0)
               {
               penalty = VTK_PYTHON_INCOMPATIBLE;
               }
             else
               {
               penalty = VTK_PYTHON_GOOD_MATCH;
-              cls = (PyVTKClass *)PyTuple_GetItem(cls->vtk_bases,0);
+              cls = (PyVTKClass *)PyTuple_GET_ITEM(cls->vtk_bases,0);
               while (strncmp(PyString_AS_STRING(cls->vtk_name),
                      classname, 127) != 0)
                 {
                 if (PyTuple_Size(cls->vtk_bases) > 0)
                   {
-                  cls = (PyVTKClass *)PyTuple_GetItem(cls->vtk_bases,0);
+                  cls = (PyVTKClass *)PyTuple_GET_ITEM(cls->vtk_bases,0);
                   }
                 else
                   {
@@ -608,8 +609,10 @@ int vtkPythonUtil::CheckArg(
         }
 
       // Any other object starting with "vtk" is a special object
-      else if ((classname[0] == '&' && strncmp(&classname[1], "vtk", 3) == 0)
-               || strncmp(classname, "vtk", 3) == 0)
+      else if ((classname[0] == '&' && classname[1] == 'v' &&
+                classname[2] == 't' && classname[3] == 'k') ||
+               (classname[0] == 'v' && classname[1] == 't' &&
+                classname[2] == 'k'))
         {
         // Skip over the "&" that indicates a reference
         if (classname[0] == '&')
@@ -648,7 +651,7 @@ int vtkPythonUtil::CheckArg(
 
       // Check for Qt types
       else if (classname[0] == '*' && classname[1] == 'Q' &&
-        (classname[2] == 't' || classname[2] == toupper(classname[2])))
+               (classname[2] == 't' || isupper(classname[2])))
         {
         classname++;
 
@@ -672,19 +675,40 @@ int vtkPythonUtil::CheckArg(
         {
         // incompatible unless the type checks out
         penalty = VTK_PYTHON_INCOMPATIBLE;
-        if (PySequence_Check(arg))
+        char *cptr = const_cast<char *>(&classname[2]);
+        Py_ssize_t sizeneeded = 0;
+        PyObject *sarg = arg;
+        while (PySequence_Check(sarg))
           {
 #if PY_MAJOR_VERSION >= 2
-          Py_ssize_t m = PySequence_Size(arg);
+          Py_ssize_t m = PySequence_Size(sarg);
 #else
-          Py_ssize_t m = PySequence_Length(arg);
+          Py_ssize_t m = PySequence_Length(sarg);
 #endif
-          if (m > 0)
+          if (m <= 0 || (sizeneeded != 0 && m != sizeneeded))
+            {
+            break;
+            }
+
+          PyObject *sargsave = sarg;
+          sarg = PySequence_GetItem(sarg, 0);
+          if (*cptr != '[')
             {
             // the "bool" is really just a dummy
-            PyObject *sarg = PySequence_GetItem(arg, 0);
             penalty = vtkPythonUtil::CheckArg(sarg, &classname[1], "bool");
             Py_DECREF(sarg);
+            break;
+            }
+
+          cptr++;
+          sizeneeded = (Py_ssize_t)strtol(cptr, &cptr, 0);
+          if (*cptr == ']')
+            {
+            cptr++;
+            }
+          if (sargsave != arg)
+            {
+            Py_DECREF(sargsave);
             }
           }
         }
@@ -704,78 +728,6 @@ int vtkPythonUtil::CheckArg(
     }
 
   return penalty;
-}
-
-//--------------------------------------------------------------------
-// Check a sequence against "(xx)" in a format string.
-
-void vtkPythonUtilCheckArrayArg(
-  PyObject *arg, vtkPythonOverloadHelper *helper)
-{
-  if (!PySequence_Check(arg))
-    {
-    helper->penalty(VTK_PYTHON_INCOMPATIBLE);
-    }
-  else
-    {
-    // Note: we don't reject the method if the sequence count
-    // doesn't match.  If that circumstance occurs, we want the
-    // method to be called with an incorrect count so that a
-    // useful error will be reported to the user.  Also, we want
-    // to mimic C++ semantics, and C++ doesn't care about the
-    // size of arrays when it resolves overloads.
-#if PY_MAJOR_VERSION >= 2
-    Py_ssize_t m = PySequence_Size(arg);
-#else
-    Py_ssize_t m = PySequence_Length(arg);
-#endif
-    for (Py_ssize_t j = 0;; j++)
-      {
-      const char *format;
-      const char *classname;
-
-      if (!helper->next(&format, &classname))
-        {
-        helper->penalty(VTK_PYTHON_INCOMPATIBLE);
-        break;
-        }
-
-      if (*format == ')')
-        {
-        break;
-        }
-      else if (*format == '(')
-        {
-        if (j < m)
-          {
-          PyObject *sarg = PySequence_GetItem(arg, j);
-          vtkPythonUtilCheckArrayArg(sarg, helper);
-          Py_DECREF(sarg);
-          }
-        else
-          {
-          int depth = 1;
-          while (depth && helper->next(&format, &classname))
-            {
-            if (*format == '(')
-              {
-              depth++;
-              }
-            else if (*format == ')')
-              {
-              --depth;
-              }
-            }
-          }
-        }
-      else if (j < m)
-        {
-        PyObject *sarg = PySequence_GetItem(arg, j);
-        helper->penalty(vtkPythonUtil::CheckArg(sarg, format, classname));
-        Py_DECREF(sarg);
-        }
-      }
-    }
 }
 
 //--------------------------------------------------------------------
@@ -840,10 +792,10 @@ PyObject *vtkPythonUtil::CallOverloadedMethod(
     // 2) other conversions third, e.g. double to int
 
     // Loop through args
-    Py_ssize_t n = PyTuple_Size(args);
+    Py_ssize_t n = PyTuple_GET_SIZE(args);
     for (Py_ssize_t i = 0; i < n; i++)
       {
-      PyObject *arg = PyTuple_GetItem(args, i);
+      PyObject *arg = PyTuple_GET_ITEM(args, i);
 
       for (sig = 0; sig < nsig; sig++)
         {
@@ -852,14 +804,7 @@ PyObject *vtkPythonUtil::CallOverloadedMethod(
         if (helper->penalty() != VTK_PYTHON_INCOMPATIBLE &&
             helper->next(&format, &classname))
           {
-          if (*format != '(')
-            {
-            helper->penalty(vtkPythonUtil::CheckArg(arg, format, classname));
-            }
-          else
-            {
-            vtkPythonUtilCheckArrayArg(arg, helper);
-            }
+          helper->penalty(vtkPythonUtil::CheckArg(arg, format, classname));
           }
         else
           {
@@ -965,50 +910,6 @@ PyMethodDef *vtkPythonUtil::FindConversionMethod(
   // the first match that was found instead of raising an error
 
   return method;
-}
-
-//--------------------------------------------------------------------
-vtkObjectBase *vtkPythonUtil::VTKParseTuple(
-  PyObject *pself, PyObject *args, const char *format, ...)
-{
-  PyVTKObject *self = (PyVTKObject *)pself;
-  vtkObjectBase *obj = NULL;
-  va_list va;
-  va_start(va, format);
-
-  /* check if this was called as an unbound method */
-  if (PyVTKClass_Check(pself))
-    {
-    int n = PyTuple_Size(args);
-    PyVTKClass *vtkclass = (PyVTKClass *)self;
-
-    if (n == 0 || (self = (PyVTKObject *)PyTuple_GetItem(args, 0)) == NULL ||
-        !PyVTKObject_Check(self) ||
-        !self->vtk_ptr->IsA(PyString_AS_STRING(vtkclass->vtk_name)))
-      {
-      char buf[256];
-      sprintf(buf,"unbound method requires a %s as the first argument",
-              PyString_AS_STRING(vtkclass->vtk_name));
-      PyErr_SetString(PyExc_ValueError,buf);
-      return NULL;
-      }
-    // re-slice the args to remove 'self'
-    args = PyTuple_GetSlice(args,1,n);
-    if (PyArg_VaParse(args, (char *)format, va))
-      {
-      obj = self->vtk_ptr;
-      }
-    Py_DECREF(args);
-    }
-  /* it was called as a bound method */
-  else
-    {
-    if (PyArg_VaParse(args, (char *)format, va))
-      {
-      obj = self->vtk_ptr;
-      }
-    }
-  return obj;
 }
 
 //--------------------------------------------------------------------
@@ -1286,9 +1187,9 @@ PyObject *vtkPythonUtil::FindNearestBaseClass(vtkObjectBase *ptr)
       PyObject *cls = pyclass;
       PyObject *bases = ((PyVTKClass *)pyclass)->vtk_bases;
       // count the heirarchy depth for this class
-      for (depth = 0; PyTuple_Size(bases) != 0; depth++)
+      for (depth = 0; PyTuple_GET_SIZE(bases) != 0; depth++)
         {
-        cls = PyTuple_GetItem(bases,0);
+        cls = PyTuple_GET_ITEM(bases,0);
         bases = ((PyVTKClass *)cls)->vtk_bases;
         }
       // we want the class that is furthest from vtkObjectBase
@@ -1469,9 +1370,6 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
-  // Clear newobj, it will only be set if a new obj is created
-  *newobj = 0;
-
   // The type name
   const char *object_type = obj->ob_type->tp_name;
 
@@ -1510,14 +1408,19 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
       Py_DECREF(args);
       }
 
-    if (sobj)
+    if (sobj && newobj)
       {
       *newobj = sobj;
       return ((PyVTKSpecialObject *)sobj)->vtk_ptr;
       }
     else if (sobj)
       {
+      char error_text[256];
       Py_DECREF(sobj);
+      sprintf(error_text, "cannot pass %s as a non-const %s reference",
+              object_type, result_type);
+      PyErr_SetString(PyExc_TypeError, error_text);
+      return NULL;
       }
 
     // If a TypeError occurred, clear it and set our own error
@@ -1615,603 +1518,6 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
   // like a SWIG mangled pointer
   return (void *)ptrText;
 }
-
-//--------------------------------------------------------------------
-// Refine an error by saying what argument it is for
-int vtkPythonUtil::RefineArgValueError(int i)
-{
-  if (PyErr_ExceptionMatches(PyExc_TypeError) ||
-      PyErr_ExceptionMatches(PyExc_ValueError))
-    {
-    PyObject *exc;
-    PyObject *val;
-    PyObject *frame;
-    char text[128];
-    const char *cp = "";
-    PyErr_Fetch(&exc, &val, &frame);
-    if (val && PyString_Check(val))
-      {
-      cp = PyString_AsString(val);
-      }
-    sprintf(text, "argument %d: %.100s", i+1, cp);
-    Py_XDECREF(val);
-    val = PyString_FromString(text);
-    PyErr_Restore(exc, val, frame);
-    }
-  return -1;
-}
-
-
-//--------------------------------------------------------------------
-// These functions check an array that was sent to a method to see if
-// any of the values were changed by the method.
-// If a value was changed, then the corresponding value in the python
-// list is modified.
-
-template<class T>
-inline
-int vtkPythonCheckSubArray(PyObject *args, int i, T *a, int ndim, int *dims)
-{
-  int rval = 0;
-  int inc = 1;
-  int n = dims[0];
-  PyObject *seq = PySequence_GetItem(args, i);
-
-  for (i = 1; i < ndim; i++)
-    {
-    inc *= dims[i];
-    }
-
-  for (i = 0; i < n && rval != -1; i++)
-    {
-    rval = vtkPythonUtil::CheckArray(seq, i, a, ndim-1, dims+1);
-    a += inc;
-    }
-
-  return rval;
-}
-
-template<class T>
-inline
-int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int ndim, int *dims)
-{
-  int n = ndim;
-  if (dims)
-    {
-    if (ndim > 1)
-      {
-      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
-      }
-    n = dims[0];
-    }
-
-  int changed = 0;
-  int rval = 0;
-  PyObject *seq = PySequence_GetItem(args, i);
-  for (i = 0; i < n; i++)
-    {
-    PyObject *oldobj = PySequence_GetItem(seq, i);
-    T oldval = (T)PyFloat_AsDouble(oldobj);
-    Py_DECREF(oldobj);
-    changed |= (a[i] != oldval);
-    }
-
-  if (changed)
-    {
-    for (i = 0; i < n && rval != -1; i++)
-      {
-      PyObject *newobj = PyFloat_FromDouble(a[i]);
-      rval = PySequence_SetItem(seq, i, newobj);
-      Py_DECREF(newobj);
-      }
-    }
-
-  Py_DECREF(seq);
-  if (rval != -1 && dims == 0)
-    {
-    vtkPythonUtil::RefineArgValueError(i);
-    }
-  return rval;
-}
-
-template<class T>
-inline
-int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
-{
-  int n = ndim;
-  if (dims)
-    {
-    if (ndim > 1)
-      {
-      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
-      }
-    n = dims[0];
-    }
-
-  int changed = 0;
-  int rval = 0;
-  PyObject *seq = PySequence_GetItem(args, i);
-  for (i = 0; i < n; i++)
-    {
-    PyObject *oldobj = PySequence_GetItem(seq, i);
-    T oldval = (T)PyInt_AsLong(oldobj);
-    Py_DECREF(oldobj);
-    changed |= (a[i] != oldval);
-    }
-
-  if (changed)
-    {
-    for (i = 0; i < n && rval != -1; i++)
-      {
-      PyObject *newobj = PyInt_FromLong(a[i]);
-      rval = PySequence_SetItem(seq, i, newobj);
-      Py_DECREF(newobj);
-      }
-    }
-
-  Py_DECREF(seq);
-  if (rval != -1 && dims == 0)
-    {
-    vtkPythonUtil::RefineArgValueError(i);
-    }
-  return rval;
-}
-
-template<class T>
-inline
-int vtkPythonCheckUIntArray(PyObject *args, int i, T *a, int ndim, int *dims)
-{
-  int n = ndim;
-  if (dims)
-    {
-    if (ndim > 1)
-      {
-      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
-      }
-    n = dims[0];
-    }
-
-  int changed = 0;
-  int rval = 0;
-  PyObject *seq = PySequence_GetItem(args, i);
-  for (i = 0; i < n; i++)
-    {
-    PyObject *oldobj = PySequence_GetItem(seq, i);
-    T oldval;
-    if (PyLong_Check(oldobj))
-      {
-#if PY_VERSION_HEX >= 0x02030000
-      oldval = (T)PyLong_AsUnsignedLongMask(oldobj);
-#else
-      oldval = (T)PyLong_AsUnsignedLong(oldobj);
-#endif
-      }
-    else
-      {
-#if PY_VERSION_HEX >= 0x02030000
-      oldval = (T)PyInt_AsUnsignedLongMask(oldobj);
-#else
-      oldval = (T)PyInt_AsLong(oldobj);
-#endif
-      }
-    Py_DECREF(oldobj);
-    changed |= (a[i] != oldval);
-    }
-
-  if (changed)
-    {
-    for (i = 0; i < n && rval != -1; i++)
-      {
-      PyObject *newobj = PyLong_FromUnsignedLong(a[i]);
-      rval = PySequence_SetItem(seq, i, newobj);
-      Py_DECREF(newobj);
-      }
-    }
-
-  Py_DECREF(seq);
-  if (rval != -1 && dims == 0)
-    {
-    vtkPythonUtil::RefineArgValueError(i);
-    }
-  return rval;
-}
-
-#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
-template<class T>
-inline
-int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int ndim, int *dims)
-{
-  int n = ndim;
-  if (dims)
-    {
-    if (ndim > 1)
-      {
-      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
-      }
-    n = dims[0];
-    }
-
-  int changed = 0;
-  int rval = 0;
-  PyObject *seq = PySequence_GetItem(args, i);
-  for (i = 0; i < n; i++)
-    {
-    PyObject *oldobj = PySequence_GetItem(seq, i);
-    T oldval;
-    if (PyLong_Check(oldobj))
-      {
-#ifdef PY_LONG_LONG
-      oldval = PyLong_AsLongLong(oldobj);
-#else
-      oldval = PyLong_AsLong(oldobj);
-#endif
-      }
-    else
-      {
-      oldval = PyInt_AsLong(oldobj);
-      }
-    Py_DECREF(oldobj);
-    changed |= (a[i] != oldval);
-    }
-
-  if (changed)
-    {
-    for (i = 0; i < n && rval != -1; i++)
-      {
-#if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG < 8)
-      PyObject *newobj = PyLong_FromLongLong(a[i]);
-#else
-      PyObject *newobj = PyInt_FromLong((long)a[i]);
-#endif
-      rval = PySequence_SetItem(seq, i, newobj);
-      Py_DECREF(newobj);
-      }
-    }
-
-  Py_DECREF(seq);
-  if (rval != -1 && dims == 0)
-    {
-    vtkPythonUtil::RefineArgValueError(i);
-    }
-  return rval;
-}
-
-template<class T>
-inline
-int vtkPythonCheckULongArray(PyObject *args, int i, T *a, int ndim, int *dims)
-{
-  int n = ndim;
-  if (dims)
-    {
-    if (ndim > 1)
-      {
-      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
-      }
-    n = dims[0];
-    }
-
-  int changed = 0;
-  int rval = 0;
-  PyObject *seq = PySequence_GetItem(args, i);
-  for (i = 0; i < n; i++)
-    {
-    PyObject *oldobj = PySequence_GetItem(seq, i);
-    T oldval;
-    if (PyLong_Check(oldobj))
-      {
-#if PY_VERSION_HEX >= 0x02030000
-#ifdef PY_LONG_LONG
-      oldval = PyLong_AsUnsignedLongLongMask(oldobj);
-#else
-      oldval = PyLong_AsUnsignedLongMask(oldobj);
-#endif
-#else
-#ifdef PY_LONG_LONG
-      oldval = PyLong_AsUnsignedLongLong(oldobj);
-#else
-      oldval = PyLong_AsUnsignedLong(oldobj);
-#endif
-#endif
-      }
-    else
-      {
-#if PY_VERSION_HEX >= 0x02030000
-      oldval = PyInt_AsUnsignedLongMask(oldobj);
-#else
-      oldval = PyInt_AsLong(oldobj);
-#endif
-      }
-    Py_DECREF(oldobj);
-    changed |= (a[i] != oldval);
-    }
-
-  if (changed)
-    {
-    for (i = 0; i < n && rval != -1; i++)
-      {
-#if defined(PY_LONG_LONG)
-      PyObject *newobj = PyLong_FromUnsignedLongLong(a[i]);
-#else
-      PyObject *newobj = PyInt_FromUnsignedLong((long)a[i]);
-#endif
-      rval = PySequence_SetItem(seq, i, newobj);
-      Py_DECREF(newobj);
-      }
-    }
-
-  Py_DECREF(seq);
-  if (rval != -1 && dims == 0)
-    {
-    vtkPythonUtil::RefineArgValueError(i);
-    }
-  return rval;
-}
-
-#endif
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, bool *a, int ndim, int *dims)
-{
-  int n = ndim;
-  if (dims)
-    {
-    if (ndim > 1)
-      {
-      return vtkPythonCheckSubArray(args, i, a, ndim, dims);
-      }
-    n = dims[0];
-    }
-
-  int changed = 0;
-  int rval = 0;
-  PyObject *seq = PySequence_GetItem(args, i);
-  for (i = 0; i < n; i++)
-    {
-    PyObject *oldobj = PySequence_GetItem(seq, i);
-    bool oldval = (PyObject_IsTrue(oldobj) != 0);
-    Py_DECREF(oldobj);
-    changed |= (a[i] != oldval);
-    }
-
-  if (changed)
-    {
-    for (i = 0; i < n && rval != -1; i++)
-      {
-#if PY_VERSION_HEX >= 0x02030000
-      PyObject *newobj = PyBool_FromLong(a[i]);
-#else
-      PyObject *newobj = PyInt_FromLong(a[i]);
-#endif
-      rval = PySequence_SetItem(seq, i, newobj);
-      Py_DECREF(newobj);
-      }
-    }
-
-  Py_DECREF(seq);
-  if (rval != -1 && dims == 0)
-    {
-    vtkPythonUtil::RefineArgValueError(i);
-    }
-  return rval;
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, char *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, signed char *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned char *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, short *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned short *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, int *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned int *a, int n, int *d)
-{
-#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-#else
-  return vtkPythonCheckUIntArray(args, i, a, n, d);
-#endif
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, long *a, int n, int *d)
-{
-  return vtkPythonCheckIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long *a, int n, int *d)
-{
-  return vtkPythonCheckUIntArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, float *a, int n, int *d)
-{
-  return vtkPythonCheckFloatArray(args, i, a, n, d);
-}
-
-int vtkPythonUtil::CheckArray(PyObject *args, int i, double *a, int n, int *d)
-{
-  return vtkPythonCheckFloatArray(args, i, a, n, d);
-}
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
-int vtkPythonUtil::CheckArray(PyObject *args, int i, long long *a, int n, int *d)
-{
-  return vtkPythonCheckLongArray(args, i, a, n, d);
-}
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned long long *a, int n, int *d)
-{
-  return vtkPythonCheckULongArray(args, i, a, n, d);
-}
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-int vtkPythonUtil::CheckArray(PyObject *args, int i, __int64 *a, int n, int *d)
-{
-  return vtkPythonCheckLongArray(args, i, a, n, d);
-}
-int vtkPythonUtil::CheckArray(PyObject *args, int i, unsigned __int64 *a, int n, int *d)
-{
-  return vtkPythonCheckULongArray(args, i, a, n, d);
-}
-#endif
-
-
-//--------------------------------------------------------------------
-// These values set an arg that was passed by reference
-
-static inline
-int vtkPythonUtilSetArgObject(PyObject *arg, PyObject *o, int i)
-{
-  int r = PyVTKMutableObject_SetValue(arg, o);
-  if (r == 0)
-    {
-    return 0;
-    }
-  vtkPythonUtil::RefineArgValueError(i);
-  return r;
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, bool a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-#if PY_VERSION_HEX >= 0x02030000
-  PyObject *o = PyBool_FromLong((long)a);
-#else
-  PyObject *o = PyInt_FromLong((long)a);
-#endif
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, int a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-  PyObject *o = PyInt_FromLong(a);
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned int a)
-{
-#if VTK_SIZEOF_INT < VTK_SIZEOF_LONG
-  return vtkPythonUtil::SetArg(args, i, static_cast<long>(a));
-#else
-  return vtkPythonUtil::SetArg(args, i, static_cast<unsigned long>(a));
-#endif
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, long a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-  PyObject *o = PyInt_FromLong(a);
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-  PyObject *o;
-  if ((long)(a) >= 0)
-    {
-    o = PyInt_FromLong((long)(a));
-    }
-  else
-    {
-    o = PyLong_FromUnsignedLong(a);
-    }
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, double a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-  PyObject *o = PyFloat_FromDouble(a);
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
-int vtkPythonUtil::SetArg(PyObject *args, int i, long long a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-#if defined(PY_LONG_LONG)
-  PyObject *o = PyLong_FromLongLong(a);
-#else
-  PyObject *o = PyLong_FromLong((long)(a));
-#endif
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned long long a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-#if defined(PY_LONG_LONG)
-  PyObject *o = PyLong_FromUnsignedLongLong(a);
-#else
-  PyObject *o = PyLong_FromUnsignedLong((unsigned long)(a));
-#endif
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-int vtkPythonUtil::SetArg(PyObject *args, int i, __int64 a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-#if defined(PY_LONG_LONG)
-  o = PyLong_FromLongLong(a);
-#else
-  o = PyLong_FromLong((long)(a));
-#endif
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-int vtkPythonUtil::SetArg(PyObject *args, int i, unsigned __int64 a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-#if defined(PY_LONG_LONG)
-  o = PyLong_FromUnsignedLongLong(a);
-#else
-  o = PyLong_FromUnsignedLong((unsigned long)(a));
-#endif
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-#endif
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkStdString &a)
-{
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-  PyObject *o = PyString_FromString(a.c_str());
-  return vtkPythonUtilSetArgObject(arg, o, i);
-}
-
-int vtkPythonUtil::SetArg(PyObject *args, int i, const vtkUnicodeString &a)
-{
-#ifdef Py_USING_UNICODE
-  PyObject *arg = PyTuple_GET_ITEM(args, i);
-  const char *s = a.utf8_str();
-  PyObject *o = PyUnicode_DecodeUTF8(s, strlen(s), "strict");
-  return vtkPythonUtilSetArgObject(arg, o, i);
-#else
-  return 0;
-#endif
-}
-
 
 //--------------------------------------------------------------------
 long vtkPythonUtil::VariantHash(const vtkVariant *v)

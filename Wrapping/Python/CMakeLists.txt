@@ -3,6 +3,7 @@
 #-----------------------
 # for libvtkPythonCore.so, the core classes and utilities for VTK-Python
 SET(VTK_PYTHON_CORE_SRCS
+  vtkPythonArgs.cxx
   vtkPythonUtil.cxx
   PyVTKClass.cxx
   PyVTKMutableObject.cxx
