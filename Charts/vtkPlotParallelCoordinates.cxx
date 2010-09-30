@@ -39,11 +39,11 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
+#include <vector>
+#include <algorithm>
 
 class vtkPlotParallelCoordinates::Private :
-    public vtkstd::vector< vtkstd::vector<float> >
+    public std::vector< std::vector<float> >
 {
 public:
   Private()
@@ -51,7 +51,7 @@ public:
     this->SelectionInitialized = false;
   }
 
-  vtkstd::vector<float> AxisPos;
+  std::vector<float> AxisPos;
   bool SelectionInitialized;
 };
 
@@ -215,7 +215,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
     {
     // Further refine the selection that has already been made
     vtkIdTypeArray *array = vtkIdTypeArray::New();
-    vtkstd::vector<float>& col = this->Storage->at(axis);
+    std::vector<float>& col = this->Storage->at(axis);
     for (vtkIdType i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
       vtkIdType id = 0;
@@ -232,7 +232,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
   else
     {
     // First run - ensure the selection list is empty and build it up
-    vtkstd::vector<float>& col = this->Storage->at(axis);
+    std::vector<float>& col = this->Storage->at(axis);
     for (size_t i = 0; i < col.size(); ++i)
       {
       if (col[i] >= low && col[i] <= high)
@@ -302,7 +302,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
 
   for (vtkIdType i = 0; i < cols->GetNumberOfTuples(); ++i)
     {
-    vtkstd::vector<float>& col = this->Storage->at(i);
+    std::vector<float>& col = this->Storage->at(i);
     vtkAxis* axis = parent->GetAxis(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
