@@ -258,6 +258,10 @@ void vtkChartParallelCoordinates::SetColumnVisibility(const char* name,
           }
         this->VisibleColumns->SetNumberOfTuples(
             this->VisibleColumns->GetNumberOfTuples()-1);
+        if (this->Storage->CurrentAxis >= this->VisibleColumns->GetNumberOfTuples())
+          {
+          this->Storage->CurrentAxis = -1;
+          }
         this->Modified();
         this->Update();
         return;
@@ -279,6 +283,7 @@ void vtkChartParallelCoordinates::SetColumnVisibilityAll(bool visible)
   else
     {
     this->VisibleColumns->SetNumberOfTuples(0);
+    this->Storage->CurrentAxis = -1;
     }
 }
 
