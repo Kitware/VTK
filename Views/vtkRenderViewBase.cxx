@@ -30,6 +30,7 @@ vtkStandardNewMacro(vtkRenderViewBase);
 
 vtkRenderViewBase::vtkRenderViewBase()
 {
+  cout << "vtkRenderViewBase constructor..." << endl;
   this->RenderOnMouseMove = false;
   this->InteractionMode = -1;
   this->Renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -142,44 +143,6 @@ vtkInteractorObserver* vtkRenderViewBase::GetInteractorStyle()
   return this->GetInteractor()->GetInteractorStyle();
 }
 
-void vtkRenderViewBase::SetInteractorStyle(vtkInteractorObserver* style)
-{
-  if (!style)
-    {
-    vtkErrorMacro("Interactor style must not be null.");
-    return;
-    }
-  vtkInteractorObserver* oldStyle = this->GetInteractorStyle();
-  if (style != oldStyle)
-    {
-    if (oldStyle)
-      {
-      oldStyle->RemoveObserver(this->GetObserver());
-      }
-    this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
-    style->AddObserver(
-      vtkCommand::SelectionChangedEvent, this->GetObserver());
-    vtkInteractorStyleRubberBand2D* style2D =
-      vtkInteractorStyleRubberBand2D::SafeDownCast(style);
-    vtkInteractorStyleRubberBand3D* style3D =
-      vtkInteractorStyleRubberBand3D::SafeDownCast(style);
-    if (style2D)
-      {
-      style2D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
-      this->InteractionMode = INTERACTION_MODE_2D;
-      }
-    else if (style3D)
-      {
-      style3D->SetRenderOnMouseMove(this->GetRenderOnMouseMove());
-      this->InteractionMode = INTERACTION_MODE_3D;
-      }
-    else
-      {
-      this->InteractionMode = INTERACTION_MODE_UNKNOWN;
-      }
-    }
-}
-
 void vtkRenderViewBase::SetInteractionMode(int mode)
 {
   if (this->InteractionMode != mode)
@@ -244,28 +207,18 @@ void vtkRenderViewBase::SetRenderOnMouseMove(bool b)
 
 void vtkRenderViewBase::Render()
 {
-  // Indirectly call this->RenderWindow->Start() without crashing.
-  // to create context if it is not yet created and to make it current
-  // this is required for HoverWidget to be active after the first
-  // render.
-  this->RenderWindow->GetInteractor()->Initialize();
-
-  this->Update();
   this->PrepareForRendering();
-  this->Renderer->ResetCameraClippingRange();
   this->RenderWindow->Render();
 }
 
 void vtkRenderViewBase::ResetCamera()
 {
-  this->Update();
   this->PrepareForRendering();
   this->Renderer->ResetCamera();
 }
 
 void vtkRenderViewBase::ResetCameraClippingRange()
 {
-  this->Update();
   this->PrepareForRendering();
   this->Renderer->ResetCameraClippingRange();
 }
