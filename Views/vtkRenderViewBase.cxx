@@ -30,7 +30,6 @@ vtkStandardNewMacro(vtkRenderViewBase);
 
 vtkRenderViewBase::vtkRenderViewBase()
 {
-  cout << "vtkRenderViewBase constructor..." << endl;
   this->RenderOnMouseMove = false;
   this->InteractionMode = -1;
   this->Renderer = vtkSmartPointer<vtkRenderer>::New();
