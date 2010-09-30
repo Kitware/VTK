@@ -50,7 +50,7 @@ vtkContextView::vtkContextView()
       vtkInteractorStyle::SafeDownCast(this->RenderWindow->GetInteractor()
                                        ->GetInteractorStyle()));
 
-  // Single color background
+  // Single color background by default.
   this->Renderer->SetBackground(1.0, 1.0, 1.0);
 }
 
@@ -69,24 +69,6 @@ vtkContext2D* vtkContextView::GetContext()
 vtkContextScene* vtkContextView::GetScene()
 {
   return this->Scene;
-}
-
-//----------------------------------------------------------------------------
-void vtkContextView::Render()
-{
-  this->Update();
-  this->PrepareForRendering();
-  this->Renderer->ResetCameraClippingRange();
-  this->RenderWindow->Render();
-
-  // Render our scene
-/*  this->Context->GetDevice()->Begin(this->Renderer);
-  int size[2];
-  size[0] = this->Renderer->GetSize()[0];
-  size[1] = this->Renderer->GetSize()[1];
-  this->Scene->SetGeometry(&size[0]);
-  this->Scene->Paint(this->Context);
-  this->Context->GetDevice()->End(); */
 }
 
 //----------------------------------------------------------------------------

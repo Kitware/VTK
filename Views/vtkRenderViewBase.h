@@ -21,6 +21,15 @@
 //
 // This class is also the parent class for any more specialized view which uses
 // a renderer.
+//
+// In order to use the view with a QVTKWidget the following code is required
+// to ensure the interactor and render window are initialized properly.
+// \code
+// QVTKWidget *widget = new QVTKWidget;
+// vtkContextView *view = vtkContextView::New();
+// view->SetInteractor(widget->GetInteractor());
+// widget->SetRenderWindow(view->GetRenderWindow());
+// \endcode
 
 #ifndef __vtkRenderViewBase_h
 #define __vtkRenderViewBase_h
@@ -51,11 +60,13 @@ public:
   // Description:
   // Set the render window for this view. Note that this requires special
   // handling in order to do correctly - see the notes in the detailed
-  // description.
+  // description of vtkRenderViewBase.
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
-  // The render window interactor.
+  // The render window interactor. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
   virtual vtkRenderWindowInteractor* GetInteractor();
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
