@@ -498,6 +498,16 @@ int vtkRenderedGraphRepresentation::GetVertexSelectedIcon()
   return this->ApplyVertexIcons->GetSelectedIcon();
 }
 
+void vtkRenderedGraphRepresentation::SetVertexDefaultIcon(int icon)
+{
+  this->ApplyVertexIcons->SetDefaultIcon(icon);
+}
+
+int vtkRenderedGraphRepresentation::GetVertexDefaultIcon()
+{
+  return this->ApplyVertexIcons->GetDefaultIcon();
+}
+
 void vtkRenderedGraphRepresentation::SetVertexIconSelectionMode(int mode)
 {
   this->ApplyVertexIcons->SetSelectionMode(mode);
