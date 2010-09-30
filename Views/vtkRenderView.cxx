@@ -67,7 +67,6 @@ vtkCxxSetObjectMacro(vtkRenderView, IconTexture, vtkTexture);
 
 vtkRenderView::vtkRenderView()
 {
-  cout << "vtkRenderView constructor..." << endl;
   this->LabelRenderer = vtkSmartPointer<vtkRenderer>::New();
   this->Transform = vtkTransform::New();
   this->DisplayHoverText = false;
