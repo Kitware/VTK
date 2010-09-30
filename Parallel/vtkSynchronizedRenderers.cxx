@@ -516,7 +516,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
 
-  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
+  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
