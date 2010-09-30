@@ -19,6 +19,8 @@
 // vtkContextScene, with a default interactor style, renderer etc. It is
 // the simplest way to create a vtkRenderWindow and display a 2D scene inside
 // of it.
+//
+// By default the scene has a white background.
 
 #ifndef __vtkContextView_h
 #define __vtkContextView_h
@@ -52,11 +54,6 @@ public:
   // Description:
   // Get the scene of the view.
   virtual vtkContextScene* GetScene();
-
-  // Description:
-  // Updates the representations, then calls Render() on the render window
-  // associated with this view.
-  virtual void Render();
 
 protected:
   vtkContextView();
