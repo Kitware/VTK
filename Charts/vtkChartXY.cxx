@@ -299,11 +299,10 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     this->RecalculatePlotBounds();
     recalculateTransform = true;
     }
-  if (recalculateTransform)
+  if (this->UpdateLayout(painter) || recalculateTransform)
     {
     this->RecalculatePlotTransforms();
     }
-  this->UpdateLayout(painter);
 
   // Update the clipping if necessary
   this->ChartPrivate->Clip->SetClip(this->Point1[0], this->Point1[1],
@@ -687,7 +686,7 @@ void vtkChartXY::RecalculatePlotBounds()
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartXY::UpdateLayout(vtkContext2D* painter)
+bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
 {
   // The main use of this method is currently to query the visible axes for
   // their bounds, and to udpate the chart in response to that.
@@ -787,6 +786,8 @@ void vtkChartXY::UpdateLayout(vtkContext2D* painter)
     }
   // Put the legend in the top corner of the chart
   this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
+
+  return changed;
 }
 
 //-----------------------------------------------------------------------------
