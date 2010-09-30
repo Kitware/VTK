@@ -19,15 +19,6 @@
 // vtkContextScene, with a default interactor style, renderer etc. It is
 // the simplest way to create a vtkRenderWindow and display a 2D scene inside
 // of it.
-//
-// In order to use the view with a QVTKWidget the following code is required
-// to ensure the interactor and render window are initialized properly.
-// \code
-// QVTKWidget *widget = new QVTKWidget;
-// vtkContextView *view = vtkContextView::New();
-// view->SetInteractor(widget->GetInteractor());
-// widget->SetRenderWindow(view->GetRenderWindow());
-// \endcode
 
 #ifndef __vtkContextView_h
 #define __vtkContextView_h

@@ -59,7 +59,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The render window interactor.
+  // The render window interactor. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   // Description:
