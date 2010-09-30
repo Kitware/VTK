@@ -47,7 +47,7 @@ class vtkApplyIcons::Internals {
 vtkApplyIcons::vtkApplyIcons()
 {
   this->Implementation = new Internals();
-  this->DefaultIcon = 0;
+  this->DefaultIcon = -1;
   this->SelectedIcon = 0;
   this->SetNumberOfInputPorts(2);
   this->SetInputArrayToProcess(0, 0, 0,
