@@ -133,6 +133,10 @@ static int vtkWrapPython_IsConstructor(
 static int vtkWrapPython_IsDestructor(
   ClassInfo *data, FunctionInfo *currentFunction);
 
+/* Check if a method is from a SetVector method */
+static int vtkWrapPython_IsSetVectorMethod(
+  FunctionInfo *currentFunction);
+
 /* Get the python format char for the give type */
 static char vtkWrapPython_FormatChar(
   unsigned int argtype);
@@ -601,7 +605,8 @@ static void vtkWrapPython_DeclareVariables(
     /* temps for arrays */
     if (arg->Count != 0)
       {
-      if ((arg->Type & VTK_PARSE_CONST) == 0)
+      if ((arg->Type & VTK_PARSE_CONST) == 0 &&
+          !vtkWrapPython_IsSetVectorMethod(theFunc))
         {
         /* for saving a copy of the array */
         vtkWrapPython_MakeVariable(fp, arg, "save", i);
@@ -2559,6 +2564,12 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
   int i, j, n;
   int noneDone = 1;
 
+  /* do nothing for SetVector macros */
+  if (vtkWrapPython_IsSetVectorMethod(currentFunction))
+    {
+    return;
+    }
+
   /* save arrays for args that are non-const */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
@@ -2771,6 +2782,12 @@ static void vtkWrapPython_WriteBackToArgs(
   const char *asterisks = "**********";
   ValueInfo *arg;
   int i, j, n;
+
+  /* do nothing for SetVector macros */
+  if (vtkWrapPython_IsSetVectorMethod(currentFunction))
+    {
+    return;
+    }
 
   /* check array value change for args that are non-const */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -3455,6 +3472,19 @@ static int vtkWrapPython_IsConstructor(
       !vtkWrapPython_IsDestructor(data, currentFunction))
     {
     return (strcmp(data->Name, currentFunction->Name) == 0);
+    }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
+static int vtkWrapPython_IsSetVectorMethod(
+  FunctionInfo *currentFunction)
+{
+  if (currentFunction->Macro &&
+      strncmp(currentFunction->Macro, "vtkSetVector", 12) == 0)
+    {
+    return 1;
     }
 
   return 0;

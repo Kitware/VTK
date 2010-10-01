@@ -119,6 +119,7 @@ typedef struct _FunctionInfo
   int            NumberOfArguments;
   ValueInfo    **Arguments;
   ValueInfo     *ReturnValue; /* NULL for constructors and destructors */
+  const char    *Macro;       /* the macro that defined this function */
   int            IsOperator;
   int            IsVariadic;
   int            IsLegacy;    /* marked as a legacy method or function */
