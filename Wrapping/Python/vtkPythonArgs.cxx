@@ -1268,6 +1268,17 @@ void vtkPythonArgs::ArgCountError(int m, int n)
 }
 
 //--------------------------------------------------------------------
+// Static method to write an arg count error.
+void vtkPythonArgs::ArgCountError(const char *name)
+{
+  char text[256];
+
+  sprintf(text, "%.200s%s does not take the supplied number of arguments",
+          (name ? name : "function"), (name ? "()" : ""));
+  PyErr_SetString(PyExc_TypeError, text);
+}
+
+//--------------------------------------------------------------------
 // Raise an exception about pure virtual method call
 void vtkPythonArgs::PureVirtualError()
 {

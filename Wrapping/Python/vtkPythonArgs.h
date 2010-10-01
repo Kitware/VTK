@@ -400,6 +400,10 @@ public:
     do { if (a[i] != b[i]) break; } while (++i < n);
     return (i < n); }
 
+  // Description:
+  // Raise a type error just saying that the arg count is wrong.
+  static void ArgCountError(const char *name);
+
 
 protected:
 
