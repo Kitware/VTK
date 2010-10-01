@@ -1843,6 +1843,40 @@ void vtkGraph::Dump()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetEdgeId(vtkIdType a, vtkIdType b)
+{
+  // Check if there is an edge from b to a
+  vtkSmartPointer<vtkInEdgeIterator> inEdgeIterator =
+    vtkSmartPointer<vtkInEdgeIterator>::New();
+  this->GetInEdges(a, inEdgeIterator);
+
+  while(inEdgeIterator->HasNext())
+    {
+    vtkInEdgeType edge = inEdgeIterator->Next();
+    if(edge.Source == b)
+      {
+      return edge.Id;
+      }
+    }
+
+  // Check if there is an edge from a to b
+  vtkSmartPointer<vtkOutEdgeIterator> outEdgeIterator =
+    vtkSmartPointer<vtkOutEdgeIterator>::New();
+  this->GetOutEdges(a, outEdgeIterator);
+
+  while(outEdgeIterator->HasNext())
+    {
+    vtkOutEdgeType edge = outEdgeIterator->Next();
+    if(edge.Target == b)
+      {
+      return edge.Id;
+      }
+    }
+
+  return -1;
+}
+
+//----------------------------------------------------------------------------
 void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

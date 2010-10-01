@@ -560,6 +560,15 @@ public:
   // Dump the contents of the graph to standard output.
   void Dump();
 
+  // Description:
+  // Returns the Id of the edge between vertex a and vertex b.
+  // This is independent of directionality of the edge, that is,
+  // if edge A->B exists or if edge B->A exists, this function will
+  // return its Id. If multiple edges exist between a and b, here is no guarantee
+  // about which one will be returned.
+  // Returns -1 if no edge exists between a and b.
+  vtkIdType GetEdgeId(vtkIdType a, vtkIdType b);
+
 protected:
   //BTX
   vtkGraph();
