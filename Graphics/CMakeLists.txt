@@ -299,6 +299,13 @@ vtkStreamer
 ABSTRACT
 )
 
+IF(VTK_USE_BOOST)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkReebGraphToJoinSplitTreeFilter.cxx
+    )
+ENDIF(VTK_USE_BOOST)
+
 # Add Matlab Engine and Matlab Mex related files.
 IF(VTK_USE_MATLAB_MEX)
   INCLUDE(${MATLAB_MEX_USE_FILE})
