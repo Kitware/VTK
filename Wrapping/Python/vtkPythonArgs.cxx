@@ -38,7 +38,7 @@ resulting in wrapper code that is faster and more compact.
       PyErr_Warn(PyExc_DeprecationWarning, \
                  "integer argument expected, got float")) \
     { \
-    return NULL; \
+    return -1; \
     }
 #else
 #define VTK_PYTHON_FLOAT_CHECK()
@@ -51,7 +51,7 @@ int vtkPythonGetIntValue(PyObject *o, T &a)
 
   long i = PyInt_AsLong(o);
   a = static_cast<T>(i);
-  if (i != -1 && !PyErr_Occurred())
+  if (i != -1 || !PyErr_Occurred())
     {
     i = 0;
     }
@@ -108,7 +108,7 @@ int vtkPythonGetLongValue(PyObject *o, T &a)
   long i = PyInt_AsLong(o);
 #endif
   a = static_cast<T>(i);
-  if (i != -1 && !PyErr_Occurred())
+  if (i != -1 || !PyErr_Occurred())
     {
     i = 0;
     }
