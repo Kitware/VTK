@@ -401,8 +401,19 @@ public:
     return (i < n); }
 
   // Description:
+  // Get the argument count.
+  static int GetArgCount(PyObject *args) {
+    return static_cast<int>(PyTuple_GET_SIZE(args)); }
+
+  // Description:
+  // Get the argument count for a method that might be unbound.
+  static int GetArgCount(PyObject *self, PyObject *args) {
+    return (static_cast<int>(PyTuple_GET_SIZE(args)) -
+            PyVTKClass_Check(self)); }
+
+  // Description:
   // Raise a type error just saying that the arg count is wrong.
-  static void ArgCountError(const char *name);
+  static void ArgCountError(int n, const char *name);
 
 
 protected:

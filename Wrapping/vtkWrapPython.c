@@ -102,8 +102,9 @@ static void vtkWrapPython_OverloadMethodDef(
 
 /* a master method to choose which overload to call */
 static void vtkWrapPython_OverloadMasterMethod(
-  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction,
-  int numberOfOccurrences, int *overloadMap, int maxArgs, int all_legacy);
+  FILE *fp, ClassInfo *data, int *overloadMap, int maxArgs,
+  FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
+  int numberOfOccurrences, int is_vtkobject, int all_legacy);
 
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(
@@ -166,7 +167,8 @@ static int vtkWrapPython_GetNumberOfRequiredArgs(
 /* generate an int array that maps arg counts to overloads */
 static int *vtkWrapPython_ArgCountToOverloadMap(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
-  int fnum, int numberOfOccurrences, int *nmax, int *overlap);
+  int fnum, int numberOfOccurrences, int is_vtkobject,
+  int *nmax, int *overlap);
 
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
@@ -2494,19 +2496,39 @@ static int vtkWrapPython_GetNumberOfRequiredArgs(
 
 static int *vtkWrapPython_ArgCountToOverloadMap(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
-  int fnum, int numberOfOccurrences, int *nmax, int *overlap)
+  int fnum, int numberOfOccurrences, int is_vtkobject,
+  int *nmax, int *overlap)
 {
   static int overloadMap[100];
   int totalArgs, requiredArgs;
   int occ, occCounter;
   FunctionInfo *theOccurrence;
   FunctionInfo *theFunc;
+  int mixed_static, any_static;
   int i;
 
   *nmax = 0;
   *overlap = 0;
 
   theFunc = wrappedFunctions[fnum];
+
+  any_static = 0;
+  mixed_static = 0;
+  for (i = fnum; i < numberOfWrappedFunctions; i++)
+    {
+    if (wrappedFunctions[i]->Name &&
+        strcmp(wrappedFunctions[i]->Name, theFunc->Name) == 0)
+      {
+      if (wrappedFunctions[i]->IsStatic)
+        {
+        any_static = 1;
+        }
+      else if (any_static)
+        {
+        mixed_static;
+        }
+      }
+    }
 
   for (i = 0; i < 100; i++)
     {
@@ -2529,6 +2551,13 @@ static int *vtkWrapPython_ArgCountToOverloadMap(
     totalArgs = vtkWrapPython_GetNumberOfWrappedArgs(theOccurrence);
     requiredArgs = vtkWrapPython_GetNumberOfRequiredArgs(theOccurrence,
                                                          totalArgs);
+
+    /* vtkobject calls might have an extra "self" arg in front */
+    if (mixed_static && is_vtkobject &&
+        !theOccurrence->IsStatic)
+      {
+      totalArgs++;
+      }
 
     if (totalArgs > *nmax)
       {
@@ -3006,13 +3035,30 @@ static void vtkWrapPython_OverloadMethodDef(
 /* make a method that will choose which overload to call */
 
 static void vtkWrapPython_OverloadMasterMethod(
-  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction,
-  int numberOfOccurrences, int *overloadMap, int maxArgs, int all_legacy)
+  FILE *fp, ClassInfo *data, int *overloadMap, int maxArgs,
+  FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
+  int numberOfOccurrences, int is_vtkobject, int all_legacy)
 {
+  FunctionInfo *currentFunction;
   int overlap = 0;
   int occ;
   int i;
   int foundOne;
+  int any_static = 0;
+
+  currentFunction = wrappedFunctions[fnum];
+
+  for (i = fnum; i < numberOfWrappedFunctions; i++)
+    {
+    if (wrappedFunctions[i]->Name &&
+        strcmp(wrappedFunctions[i]->Name, currentFunction->Name) == 0)
+      {
+      if (wrappedFunctions[i]->IsStatic)
+        {
+        any_static = 1;
+        }
+      }
+    }
 
   for (i = 0; i <= maxArgs; i++)
     {
@@ -3030,7 +3076,7 @@ static void vtkWrapPython_OverloadMasterMethod(
 
   fprintf(fp,
           "static PyObject *\n"
-          "  Py%s_%s(PyObject *self, PyObject *args)\n"
+          "Py%s_%s(PyObject *self, PyObject *args)\n"
           "{\n",
            data->Name, currentFunction->Name);
 
@@ -3042,7 +3088,12 @@ static void vtkWrapPython_OverloadMasterMethod(
     }
 
   fprintf(fp,
-          "  switch (PyTuple_GET_SIZE(args))\n"
+          "  int nargs = vtkPythonArgs::GetArgCount(%sargs);\n"
+          "\n",
+          ((is_vtkobject && !any_static) ? "self, " : ""));
+
+  fprintf(fp,
+          "  switch(nargs)\n"
           "    {\n");
 
   for (occ = 1; occ <= numberOfOccurrences; occ++)
@@ -3086,7 +3137,7 @@ static void vtkWrapPython_OverloadMasterMethod(
           "\n");
 
   fprintf(fp,
-          "  vtkPythonArgs::ArgCountError(\"%.200s\");\n",
+          "  vtkPythonArgs::ArgCountError(nargs, \"%.200s\");\n",
           currentFunction->Name);
 
   fprintf(fp,
@@ -3311,7 +3362,7 @@ static void vtkWrapPython_GenerateMethods(
       /* check for overloads */
       overloadMap = vtkWrapPython_ArgCountToOverloadMap(
         wrappedFunctions, numberOfWrappedFunctions,
-        fnum, numberOfOccurrences, &maxArgs, &overlap);
+        fnum, numberOfOccurrences, is_vtkobject, &maxArgs, &overlap);
 
       if (overlap || do_constructors)
         {
@@ -3326,8 +3377,9 @@ static void vtkWrapPython_GenerateMethods(
         {
         /* declare a "master method" to choose among the overloads */
         vtkWrapPython_OverloadMasterMethod(
-          fp, data, theFunc, numberOfOccurrences, overloadMap, maxArgs,
-          all_legacy);
+          fp, data, overloadMap, maxArgs,
+          wrappedFunctions, numberOfWrappedFunctions,
+          fnum, numberOfOccurrences, is_vtkobject, all_legacy);
         }
 
       /* set the legacy flag */

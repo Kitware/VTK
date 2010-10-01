@@ -1269,12 +1269,13 @@ void vtkPythonArgs::ArgCountError(int m, int n)
 
 //--------------------------------------------------------------------
 // Static method to write an arg count error.
-void vtkPythonArgs::ArgCountError(const char *name)
+void vtkPythonArgs::ArgCountError(int n, const char *name)
 {
   char text[256];
 
-  sprintf(text, "%.200s%s does not take the supplied number of arguments",
-          (name ? name : "function"), (name ? "()" : ""));
+  sprintf(text, "no overloads of %.200s%s take %d argument%s",
+          (name ? name : "function"), (name ? "()" : ""),
+          n, (n == 1 ? "" : "s"));
   PyErr_SetString(PyExc_TypeError, text);
 }
 
