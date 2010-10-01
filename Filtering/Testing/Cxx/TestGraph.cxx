@@ -18,15 +18,41 @@
 // This program tests functions in vtkGraph
 
 #include "vtkMutableUndirectedGraph.h"
+#include "vtkMutableDirectedGraph.h"
 #include <vtkstd/limits>
 #include "vtkSmartPointer.h"
+
+#include <vector>
 
 template<class A>
 bool fuzzyCompare(A a, A b) {
   return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
 }
 
+int TestGetEdgeId();
+int TestToDirectedGraph();
+int TestToUndirectedGraph();
+
 int TestGraph(int,char *[])
+{
+  std::vector<int> results;
+
+  results.push_back(TestGetEdgeId());
+  results.push_back(TestToDirectedGraph());
+  results.push_back(TestToUndirectedGraph());
+
+  for(unsigned int i = 0; i < results.size(); i++)
+    {
+    if(results[i] == EXIT_FAILURE)
+      {
+      return EXIT_FAILURE;
+      }
+    }
+
+  return EXIT_SUCCESS;
+}
+
+int TestGetEdgeId()
 {
   // Create a graph
   vtkSmartPointer<vtkMutableUndirectedGraph> g =
@@ -51,6 +77,60 @@ int TestGraph(int,char *[])
 
   // Test to make sure -1 is returned if the edge does not exist
   if(g->GetEdgeId(v1, 3) != -1)
+    {
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+
+int TestToDirectedGraph()
+{
+  // Create an undirected graph
+  vtkSmartPointer<vtkMutableUndirectedGraph> ug =
+    vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+  vtkIdType v0 = ug->AddVertex();
+  vtkIdType v1 = ug->AddVertex();
+  vtkIdType v2 = ug->AddVertex();
+
+  vtkEdgeType e0 = ug->AddEdge(v0, v1);
+  vtkEdgeType e1 = ug->AddEdge(v1, v2);
+
+  // Convert it to a directed graph
+  vtkSmartPointer<vtkMutableDirectedGraph> dg =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  ug->ToDirectedGraph(dg);
+
+  // Check that the number of vertices and edges is unchanged
+  if(ug->GetNumberOfVertices() != dg->GetNumberOfVertices() ||
+     ug->GetNumberOfEdges() != dg->GetNumberOfEdges())
+    {
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+
+int TestToUndirectedGraph()
+{
+  // Create a directed graph
+  vtkSmartPointer<vtkMutableDirectedGraph> dg =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkIdType v0 = dg->AddVertex();
+  vtkIdType v1 = dg->AddVertex();
+  vtkIdType v2 = dg->AddVertex();
+
+  vtkEdgeType e0 = dg->AddEdge(v0, v1);
+  vtkEdgeType e1 = dg->AddEdge(v1, v2);
+
+  // Convert it to an undirected graph
+  vtkSmartPointer<vtkMutableUndirectedGraph> ug =
+    vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+  dg->ToUndirectedGraph(ug);
+
+  // Check that the number of vertices and edges is unchanged
+  if(ug->GetNumberOfVertices() != dg->GetNumberOfVertices() ||
+     ug->GetNumberOfEdges() != dg->GetNumberOfEdges())
     {
     return EXIT_FAILURE;
     }

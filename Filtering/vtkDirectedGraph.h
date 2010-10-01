@@ -55,14 +55,15 @@ public:
   static vtkDirectedGraph *GetData(vtkInformationVector *v, int i=0);
   //ETX
 
+  // Description:
+  // Check the storage, and accept it if it is a valid
+  // undirected graph. This is public to allow
+  // the ToDirected/UndirectedGraph to work.
+  virtual bool IsStructureValid(vtkGraph *g);
+
 protected:
   vtkDirectedGraph();
   ~vtkDirectedGraph();
-
-  // Description:
-  // Check the storage, and accept it if it is a valid
-  // undirected graph.
-  virtual bool IsStructureValid(vtkGraph *g);
 
 private:
   vtkDirectedGraph(const vtkDirectedGraph&);  // Not implemented.
