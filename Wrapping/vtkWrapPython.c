@@ -2525,7 +2525,7 @@ static int *vtkWrapPython_ArgCountToOverloadMap(
         }
       else if (any_static)
         {
-        mixed_static;
+        mixed_static = 1;
         }
       }
     }
@@ -3129,7 +3129,7 @@ static void vtkWrapPython_OverloadMasterMethod(
         }
       }
     fprintf(fp,
-            "      return vtkPythonUtil::CallOverloadedMethod(methods, self, args);\n");
+            "      return vtkPythonOverload::CallMethod(methods, self, args);\n");
     }
 
   fprintf(fp,
@@ -5082,6 +5082,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   /* lots of important utility functions are defined in vtkPythonArgs.h */
   fprintf(fp,
           "#include \"vtkPythonArgs.h\"\n"
+          "#include \"vtkPythonOverload.h\"\n"
           "#include <vtksys/ios/sstream>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */
