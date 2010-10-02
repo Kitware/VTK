@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-----------------------------------------------------------------------
-The vtkPythonArgs class was created in Oct 2010 by David Gobbi for VTK 6.0.
+The vtkPythonArgs class was created in Oct 2010 by David Gobbi.
 
 This class provides methods for reading an argument tuple from Python
 and converting it to types that can be used by VTK.  It is meant to be
@@ -308,14 +308,14 @@ inline
 bool vtkPythonGetValue(PyObject *o, float &a)
 {
   a = static_cast<float>(PyFloat_AsDouble(o));
-  return !PyErr_Occurred();
+  return (a != -1.0f || !PyErr_Occurred());
 }
 
 inline
 bool vtkPythonGetValue(PyObject *o, double &a)
 {
   a = PyFloat_AsDouble(o);
-  return !PyErr_Occurred();
+  return (a != -1.0f || !PyErr_Occurred());
 }
 
 inline

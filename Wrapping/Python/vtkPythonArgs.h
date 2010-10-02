@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /*-----------------------------------------------------------------------
-The vtkPythonArgs class was created in Oct 2010 by David Gobbi for VTK 6.0.
+The vtkPythonArgs class was created in Oct 2010 by David Gobbi for.
 
 This class provides methods for reading an argument tuple from Python
 and converting it to types that can be used by VTK.  It is meant to be
@@ -70,19 +70,11 @@ public:
 
   // Description:
   // Verify the arg count for a method with optional arguments.
-  bool CheckArgCount(int nmin, int nmax) {
-    int nargs = this->N - this->M;
-    if (nargs >= nmin && nargs <= nmax) { return true; }
-    this->ArgCountError(nmin, nmax); return false;
-    }
+  bool CheckArgCount(int nmin, int nmax);
 
   // Description:
   // Verify the arg count.  Sets a python exception on failure.
-  bool CheckArgCount(int n) {
-    int nargs = this->N - this->M;
-    if (nargs == n) { return true; }
-    this->ArgCountError(n, n); return false;
-    }
+  bool CheckArgCount(int n);
 
   // Description:
   // Returns true if self is an object, false if self is a class.
@@ -90,9 +82,11 @@ public:
 
   // Description:
   // Raise an exception if method call is not bound.
-  bool IsPureVirtual() {
-    if (IsBound()) { return false; }
-    this->PureVirtualError(); return true; }
+  bool IsPureVirtual();
+
+  // Description:
+  // Check if an error has occurred.
+  static bool ErrorOccurred();
 
   // Description:
   // Check if there are any args left.
@@ -471,7 +465,11 @@ private:
 inline
 vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
 {
+#if defined(__GNUC__) || defined(__clang__)
+  if (__builtin_expect(PyVTKObject_Check(self), 1))
+#else
   if (PyVTKObject_Check(self))
+#endif
     {
     return ((PyVTKObject *)self)->vtk_ptr;
     }
@@ -483,6 +481,77 @@ inline
 void *vtkPythonArgs::GetSelfPointer(PyObject *self)
 {
   return ((PyVTKSpecialObject *)self)->vtk_ptr;
+}
+
+//--------------------------------------------------------------------
+// Inline methods for checking the arg count
+
+// Verify the arg count for a method with optional arguments.
+inline
+bool vtkPythonArgs::CheckArgCount(int nmin, int nmax)
+{
+  int nargs = this->N - this->M;
+#if defined(__GNUC__) || defined(__clang__)
+  if (__builtin_expect(nargs >= nmin && nargs <= nmax, 1))
+#else
+  if (nargs >= nmin && nargs <= nmax)
+#endif
+    {
+    return true;
+    }
+  this->ArgCountError(nmin, nmax); return false;
+}
+
+// Verify the arg count for a method with optional arguments.
+inline
+bool vtkPythonArgs::CheckArgCount(int n)
+{
+  int nargs = this->N - this->M;
+#if defined(__GNUC__) || defined(__clang__)
+  if (__builtin_expect(nargs == n, 1))
+#else
+  if (nargs == n)
+#endif
+    {
+    return true;
+    }
+  this->ArgCountError(n, n);
+  return false;
+}
+
+//--------------------------------------------------------------------
+// Inline method for guarding against pure virtual method calls
+
+inline
+bool vtkPythonArgs::IsPureVirtual()
+{
+#if defined(__GNUC__) || defined(__clang__)
+  if (__builtin_expect(IsBound(), 1))
+#else
+  if (IsBound())
+#endif
+    {
+    return false;
+    }
+  this->PureVirtualError();
+  return true;
+}
+
+//--------------------------------------------------------------------
+// Inline method for checking if an error has occurred.
+
+inline
+bool vtkPythonArgs::ErrorOccurred()
+{
+#if defined(__GNUC__) || defined(__clang__)
+  if (__builtin_expect(PyErr_Occurred() == NULL, 1))
+#else
+  if (PyErr_Occurred() == NULL)
+#endif
+    {
+    return false;
+    }
+  return true;
 }
 
 //--------------------------------------------------------------------

@@ -861,7 +861,7 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
   const char *deref = "";
 
   fprintf(fp,
-          "    if (!PyErr_Occurred())\n"
+          "    if (!ap.ErrorOccurred())\n"
           "      {\n");
 
   /* default type is VOID if val == NULL */
@@ -2834,7 +2834,7 @@ static void vtkWrapPython_WriteBackToArgs(
         ((arg->Type & VTK_PARSE_BASE_TYPE) != VTK_PARSE_QOBJECT))
       {
       fprintf(fp,
-              "    if (!PyErr_Occurred())\n"
+              "    if (!ap.ErrorOccurred())\n"
               "      {\n"
               "      ap.SetArgValue(%d, temp%d);\n"
               "      }\n",
@@ -2845,7 +2845,7 @@ static void vtkWrapPython_WriteBackToArgs(
              (arg->Type & VTK_PARSE_CONST) == 0)
       {
       fprintf(fp,
-              "    if (!PyErr_Occurred() &&\n"
+              "    if (!ap.ErrorOccurred() &&\n"
               "        ap.ArrayHasChanged(%.*stemp%d, %.*ssave%d, ",
               (n-1), asterisks, i, (n-1), asterisks, i);
 
@@ -4147,7 +4147,7 @@ static void vtkWrapPython_CustomMethods(
     fprintf(fp,
             "    cbc->Delete();\n"
             "\n"
-            "    if (!PyErr_Occurred())\n"
+            "    if (!ap.ErrorOccurred())\n"
             "      {\n"
             "      result = ap.BuildValue(tempr);\n"
             "      }\n"
