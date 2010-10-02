@@ -426,7 +426,7 @@ bool vtkPythonGetValue(PyObject *o, unsigned int &a)
   return false;
 #else
   unsigned long i = 0;
-  if (vtkPythonGetUnsignedIntValue(o, i))
+  if (vtkPythonGetValue(o, i))
     {
     a = static_cast<unsigned int>(i);
     return true;
@@ -514,7 +514,7 @@ bool vtkPythonGetArray(PyObject *o, T *a, int n)
 #endif
       if (m == n)
         {
-        int r = true;
+        bool r = true;
         for (int i = 0; i < n && r; i++)
           {
           r = false;
@@ -662,7 +662,7 @@ bool vtkPythonSetArray(PyObject *o, const T *a, int n)
           PyObject *s = vtkPythonArgs::BuildValue(a[i]);
           if (s)
             {
-            r = PySequence_SetItem(o, i, s);
+            r = (PySequence_SetItem(o, i, s) != -1);
             Py_DECREF(s);
             }
           }
@@ -752,13 +752,13 @@ bool vtkPythonSetNArray(
           }
         else
           {
-          for (int i = 0; i < n && r != -1; i++)
+          for (int i = 0; i < n && r; i++)
             {
             r = false;
             PyObject *s = vtkPythonArgs::BuildValue(a[i]);
             if (s)
               {
-              r = PySequence_SetItem(o, i, s);
+              r = (PySequence_SetItem(o, i, s) != -1);
               Py_DECREF(s);
               }
             }
@@ -890,7 +890,7 @@ int vtkPythonArgs::GetArgAsEnum(const char *, bool &valid)
 
   // should check enum type for validity
   int i = 0;
-  if (vtkPythonGetValue(o, i) != -1)
+  if (vtkPythonGetValue(o, i))
     {
     valid = true;
     return i;
@@ -925,7 +925,7 @@ int vtkPythonArgs::GetArgAsSIPEnum(const char *, bool &valid)
 
   // should check enum type for validity
   int i = 0;
-  if (vtkPythonGetValue(o, i) != -1)
+  if (vtkPythonGetValue(o, i))
     {
     valid = true;
     return i;
