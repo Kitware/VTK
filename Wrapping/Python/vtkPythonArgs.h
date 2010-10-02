@@ -407,7 +407,7 @@ public:
 
   // Description:
   // Raise a type error just saying that the arg count is wrong.
-  static void ArgCountError(int n, const char *name);
+  static bool ArgCountError(int n, const char *name);
 
 
 protected:
@@ -438,15 +438,15 @@ protected:
 
   // Description:
   // Raise a TypeError if a virtual method call was called.
-  void PureVirtualError();
+  bool PureVirtualError();
 
   // Description:
   // Raise an TypeError stating that the arg count is incorrect.
-  void ArgCountError(int m, int n);
+  bool ArgCountError(int m, int n);
 
   // Description:
   // Prefix a TypeError that has occurred with the arg number.
-  void RefineArgTypeError(int i);
+  bool RefineArgTypeError(int i);
 
 private:
 
@@ -465,15 +465,11 @@ private:
 inline
 vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
 {
-#if defined(__GNUC__) || defined(__clang__)
-  if (__builtin_expect(PyVTKObject_Check(self), 1))
-#else
-  if (PyVTKObject_Check(self))
-#endif
+  if (PyVTKClass_Check(self))
     {
-    return ((PyVTKObject *)self)->vtk_ptr;
+    return vtkPythonArgs::GetSelfFromFirstArg(self, args);
     }
-  return vtkPythonArgs::GetSelfFromFirstArg(self, args);
+  return ((PyVTKObject *)self)->vtk_ptr;
 }
 
 // Get "self" from a PyVTKSpecialObject.
@@ -491,15 +487,12 @@ inline
 bool vtkPythonArgs::CheckArgCount(int nmin, int nmax)
 {
   int nargs = this->N - this->M;
-#if defined(__GNUC__) || defined(__clang__)
-  if (__builtin_expect(nargs >= nmin && nargs <= nmax, 1))
-#else
   if (nargs >= nmin && nargs <= nmax)
-#endif
     {
     return true;
     }
-  this->ArgCountError(nmin, nmax); return false;
+  this->ArgCountError(nmin, nmax);
+  return false;
 }
 
 // Verify the arg count for a method with optional arguments.
@@ -507,11 +500,7 @@ inline
 bool vtkPythonArgs::CheckArgCount(int n)
 {
   int nargs = this->N - this->M;
-#if defined(__GNUC__) || defined(__clang__)
-  if (__builtin_expect(nargs == n, 1))
-#else
   if (nargs == n)
-#endif
     {
     return true;
     }
@@ -525,11 +514,7 @@ bool vtkPythonArgs::CheckArgCount(int n)
 inline
 bool vtkPythonArgs::IsPureVirtual()
 {
-#if defined(__GNUC__) || defined(__clang__)
-  if (__builtin_expect(IsBound(), 1))
-#else
   if (IsBound())
-#endif
     {
     return false;
     }
@@ -543,15 +528,7 @@ bool vtkPythonArgs::IsPureVirtual()
 inline
 bool vtkPythonArgs::ErrorOccurred()
 {
-#if defined(__GNUC__) || defined(__clang__)
-  if (__builtin_expect(PyErr_Occurred() == NULL, 1))
-#else
-  if (PyErr_Occurred() == NULL)
-#endif
-    {
-    return false;
-    }
-  return true;
+  return (PyErr_Occurred() != NULL);
 }
 
 //--------------------------------------------------------------------

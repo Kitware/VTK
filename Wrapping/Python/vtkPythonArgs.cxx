@@ -1186,7 +1186,7 @@ VTK_PYTHON_SET_NARRAY_ARG(unsigned __int64)
 
 //--------------------------------------------------------------------
 // Raise an exception about incorrect arg count.
-void vtkPythonArgs::ArgCountError(int m, int n)
+bool vtkPythonArgs::ArgCountError(int m, int n)
 {
   char text[256];
   const char *name = this->MethodName;
@@ -1199,11 +1199,12 @@ void vtkPythonArgs::ArgCountError(int m, int n)
           ((((nargs < m) ? m : n)) == 1 ? "" : "s"),
           nargs);
   PyErr_SetString(PyExc_TypeError, text);
+  return false;
 }
 
 //--------------------------------------------------------------------
 // Static method to write an arg count error.
-void vtkPythonArgs::ArgCountError(int n, const char *name)
+bool vtkPythonArgs::ArgCountError(int n, const char *name)
 {
   char text[256];
 
@@ -1211,22 +1212,24 @@ void vtkPythonArgs::ArgCountError(int n, const char *name)
           (name ? name : "function"), (name ? "()" : ""),
           n, (n == 1 ? "" : "s"));
   PyErr_SetString(PyExc_TypeError, text);
+  return false;
 }
 
 //--------------------------------------------------------------------
 // Raise an exception about pure virtual method call
-void vtkPythonArgs::PureVirtualError()
+bool vtkPythonArgs::PureVirtualError()
 {
   char text[256];
 
   sprintf(text, "pure virtual method %.200s() was called",
           this->MethodName);
   PyErr_SetString(PyExc_TypeError, text);
+  return false;
 }
 
 //--------------------------------------------------------------------
 // Refine an error by saying what argument it is for
-void vtkPythonArgs::RefineArgTypeError(int i)
+bool vtkPythonArgs::RefineArgTypeError(int i)
 {
   if (PyErr_ExceptionMatches(PyExc_TypeError) ||
       PyErr_ExceptionMatches(PyExc_ValueError) ||
@@ -1248,6 +1251,7 @@ void vtkPythonArgs::RefineArgTypeError(int i)
     val = PyString_FromString(text);
     PyErr_Restore(exc, val, frame);
     }
+  return false;
 }
 
 //--------------------------------------------------------------------
