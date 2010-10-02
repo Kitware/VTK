@@ -638,6 +638,7 @@ bool vtkPythonSetArray(PyObject *o, const T *a, int n)
           PyObject *s = vtkPythonArgs::BuildValue(a[i]);
           if (s)
             {
+            Py_DECREF(PyList_GET_ITEM(o, i));
             PyList_SET_ITEM(o, i, s);
             r = true;
             }
@@ -710,12 +711,13 @@ bool vtkPythonSetNArray(
           }
         else
           {
-          for (int i = 0; i < n && r != -1; i++)
+          for (int i = 0; i < n && r; i++)
             {
             r = false;
             PyObject *s = vtkPythonArgs::BuildValue(a[i]);
             if (s)
               {
+              Py_DECREF(PyList_GET_ITEM(o, i));
               PyList_SET_ITEM(o, i, s);
               r = true;
               }
