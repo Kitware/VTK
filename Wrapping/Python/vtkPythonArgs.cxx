@@ -170,7 +170,8 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
 #endif
       return true;
       }
-    return false;
+
+    exctext = "(unicode conversion error)";
     }
 #endif
 
