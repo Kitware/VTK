@@ -1929,8 +1929,6 @@ bool vtkGraph::ToDirectedGraph(vtkDirectedGraph* g)
     g = NULL;
     return false;
     }
-
-  return true;
 }
 
 //----------------------------------------------------------------------------
