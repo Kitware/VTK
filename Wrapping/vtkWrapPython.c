@@ -3646,7 +3646,7 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
           baseType != VTK_PARSE_UNSIGNED_INT &&
           baseType != VTK_PARSE_UNSIGNED_LONG &&
           baseType != VTK_PARSE_UNSIGNED_LONG_LONG &&
-          baseType != VTK_PARSE___INT64) args_ok = 0;
+          baseType != VTK_PARSE_UNSIGNED___INT64) args_ok = 0;
       }
 
     if (argType == VTK_PARSE_CHAR_PTR &&
