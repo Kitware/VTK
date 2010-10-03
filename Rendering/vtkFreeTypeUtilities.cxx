@@ -1001,6 +1001,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     // Advance to next char
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
+    ++itr;
     }
 
   // Margin for shadow
@@ -1253,6 +1254,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
     // Advance to next char
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
+    ++itr;
     }
   delete [] currentLine;
   return 1;
