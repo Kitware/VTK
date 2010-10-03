@@ -663,7 +663,7 @@ int vtkFreeTypeUtilities::GetFace(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
-                                        unsigned char c,
+                                        FT_UInt32 c,
                                         FT_UInt *gindex)
 {
 #if VTK_FTFC_DEBUG_CD
@@ -705,7 +705,7 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyphIndex(vtkTextProperty *tprop,
-                                        unsigned char c,
+                                        FT_UInt32 c,
                                         FT_UInt *gindex)
 {
   if (!tprop)
@@ -787,7 +787,7 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
 
 //----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::GetGlyph(vtkTextProperty *tprop,
-                                   unsigned char c,
+                                   FT_UInt32 c,
                                    FT_Glyph *glyph,
                                    int request)
 {
