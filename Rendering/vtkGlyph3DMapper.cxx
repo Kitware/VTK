@@ -17,8 +17,11 @@
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkBoundingBox.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkGraphicsFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLookupTable.h"
@@ -31,7 +34,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-#include "vtkGraphicsFactory.h"
 
 #include <assert.h>
 #include <vtkstd/vector>
@@ -387,6 +389,7 @@ int vtkGlyph3DMapper::FillInputPortInformation(int port,
   if (port == 0)
     {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
     return 1;
     }
   else if (port == 1)
@@ -417,199 +420,234 @@ const char *vtkGlyph3DMapper::GetScaleModeAsString(void)
 }
 
 //-------------------------------------------------------------------------
-double *vtkGlyph3DMapper::GetBounds()
+bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
+{
+  if (ds == NULL)
+    {
+    return false;
+    }
+
+  ds->GetBounds(ds_bounds);
+
+  // if the input is not conform to what the mapper expects (use vector
+  // but no vector data), nothing will be mapped.
+  // It make sense to return uninitialized bounds.
+
+  vtkDataArray *scaleArray = this->GetScaleArray(ds);
+  vtkDataArray *orientArray = this->GetOrientationArray(ds);
+  // TODO:
+  // 1. cumulative bbox of all the glyph
+  // 2. scale it by scale factor and maximum scalar value (or vector mag)
+  // 3. enlarge the input bbox half-way in each direction with the
+  // glyphs bbox.
+
+
+  double den=this->Range[1]-this->Range[0];
+  if(den==0.0)
+    {
+    den=1.0;
+    }
+
+  if(this->GetSource(0)==0)
+    {
+    vtkPolyData *defaultSource = vtkPolyData::New();
+    defaultSource->Allocate();
+    vtkPoints *defaultPoints = vtkPoints::New();
+    defaultPoints->Allocate(6);
+    defaultPoints->InsertNextPoint(0, 0, 0);
+    defaultPoints->InsertNextPoint(1, 0, 0);
+    vtkIdType defaultPointIds[2];
+    defaultPointIds[0] = 0;
+    defaultPointIds[1] = 1;
+    defaultSource->SetPoints(defaultPoints);
+    defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
+    defaultSource->SetUpdateExtent(0, 1, 0);
+    this->SetSource(defaultSource);
+    defaultSource->Delete();
+    defaultSource = NULL;
+    defaultPoints->Delete();
+    defaultPoints = NULL;
+    }
+
+  // FB
+
+  // Compute indexRange.
+  int indexRange[2] = {0, 0};
+  int numberOfSources=this->GetNumberOfInputConnections(1);
+  vtkDataArray *indexArray = this->GetSourceIndexArray(ds);
+  if (indexArray)
+    {
+    double range[2];
+    indexArray->GetRange(range, -1);
+    for (int i=0; i<2; i++)
+      {
+      indexRange[i]=static_cast<int>((range[i]-this->Range[0])*numberOfSources/den);
+      indexRange[i] = ::vtkClamp(indexRange[i], 0, numberOfSources-1);
+      }
+    }
+
+  vtkBoundingBox bbox; // empty
+
+  double xScaleRange[2] = {1.0, 1.0};
+  double yScaleRange[2] = {1.0, 1.0};
+  double zScaleRange[2] = {1.0, 1.0};
+
+  if (scaleArray)
+    {
+    switch(this->ScaleMode)
+      {
+    case SCALE_BY_MAGNITUDE:
+      scaleArray->GetRange(xScaleRange,-1);
+      yScaleRange[0]=xScaleRange[0];
+      yScaleRange[1]=xScaleRange[1];
+      zScaleRange[0]=xScaleRange[0];
+      zScaleRange[1]=xScaleRange[1];
+      break;
+
+    case SCALE_BY_COMPONENTS:
+      scaleArray->GetRange(xScaleRange,0);
+      scaleArray->GetRange(yScaleRange,1);
+      scaleArray->GetRange(zScaleRange,2);
+      break;
+
+    default:
+      // NO_DATA_SCALING: do nothing, set variables to avoid warnings.
+      break;
+      }
+
+    if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
+      {
+      xScaleRange[0]=vtkMath::ClampAndNormalizeValue(xScaleRange[0],
+        this->Range);
+      xScaleRange[1]=vtkMath::ClampAndNormalizeValue(xScaleRange[1],
+        this->Range);
+      yScaleRange[0]=vtkMath::ClampAndNormalizeValue(yScaleRange[0],
+        this->Range);
+      yScaleRange[1]=vtkMath::ClampAndNormalizeValue(yScaleRange[1],
+        this->Range);
+      zScaleRange[0]=vtkMath::ClampAndNormalizeValue(zScaleRange[0],
+        this->Range);
+      zScaleRange[1]=vtkMath::ClampAndNormalizeValue(zScaleRange[1],
+        this->Range);
+      }
+    }
+  int index=indexRange[0];
+  while(index<=indexRange[1])
+    {
+    vtkPolyData *source=this->GetSource(index);
+    // Make sure we're not indexing into empty glyph
+    if(source!=0)
+      {
+      double bounds[6];
+      source->GetBounds(bounds);// can be invalid/uninitialized
+      if(vtkMath::AreBoundsInitialized(bounds))
+        {
+        bbox.AddBounds(bounds);
+        }
+      }
+    ++index;
+    }
+
+  if(this->Scaling)
+    {
+    vtkBoundingBox bbox2(bbox);
+    bbox.Scale(xScaleRange[0],yScaleRange[0],zScaleRange[0]);
+    bbox2.Scale(xScaleRange[1],yScaleRange[1],zScaleRange[1]);
+    bbox.AddBox(bbox2);
+    bbox.Scale(this->ScaleFactor,this->ScaleFactor,this->ScaleFactor);
+    }
+
+  if(bbox.IsValid())
+    {
+    double bounds[6];
+    if (orientArray)
+      {
+      // bounding sphere.
+      double c[3];
+      bbox.GetCenter(c);
+      double l=bbox.GetDiagonalLength()/2.0;
+      bounds[0]=c[0]-l;
+      bounds[1]=c[0]+l;
+      bounds[2]=c[1]-l;
+      bounds[3]=c[1]+l;
+      bounds[4]=c[2]-l;
+      bounds[5]=c[2]+l;
+      }
+    else
+      {
+      bbox.GetBounds(bounds);
+      }
+    int j=0;
+    while(j<6)
+      {
+      ds_bounds[j]+=bounds[j];
+      ++j;
+      }
+    }
+  else
+    {
+    return false;
+    }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------
+double* vtkGlyph3DMapper::GetBounds()
 {
   //  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+  vtkMath::UninitializeBounds(this->Bounds);
 
   // do we have an input
   if ( ! this->GetNumberOfInputConnections(0) )
     {
-    vtkMath::UninitializeBounds(this->Bounds);
     return this->Bounds;
     }
-  else
+  if (!this->Static)
     {
-    if (!this->Static)
-      {
-      // For proper clipping, this would be this->Piece,
-      // this->NumberOfPieces.
-      // But that removes all benefites of streaming.
-      // Update everything as a hack for paraview streaming.
-      // This should not affect anything else, because no one uses this.
-      // It should also render just the same.
-      // Just remove this lie if we no longer need streaming in paraview :)
-      //this->GetInput()->SetUpdateExtent(0, 1, 0);
-      //this->GetInput()->Update();
+    // For proper clipping, this would be this->Piece,
+    // this->NumberOfPieces.
+    // But that removes all benefites of streaming.
+    // Update everything as a hack for paraview streaming.
+    // This should not affect anything else, because no one uses this.
+    // It should also render just the same.
+    // Just remove this lie if we no longer need streaming in paraview :)
+    //this->GetInput()->SetUpdateExtent(0, 1, 0);
+    //this->GetInput()->Update();
 
-      // first get the bounds from the input
-      this->Update();
-      }
+    // first get the bounds from the input
+    this->Update();
+    }
 
-    vtkDataSet *input=this->GetInput();
-    input->GetBounds(this->Bounds);
-
-    // if the input is not conform to what the mapper expects (use vector
-    // but no vector data), nothing will be mapped.
-    // It make sense to return uninitialized bounds.
-
-    vtkDataArray *scaleArray = this->GetScaleArray(input);
-    vtkDataArray *orientArray = this->GetOrientationArray(input);
-    // TODO:
-    // 1. cumulative bbox of all the glyph
-    // 2. scale it by scale factor and maximum scalar value (or vector mag)
-    // 3. enlarge the input bbox half-way in each direction with the
-    // glyphs bbox.
-
-
-    double den=this->Range[1]-this->Range[0];
-    if(den==0.0)
-      {
-      den=1.0;
-      }
-
-    if(this->GetSource(0)==0)
-      {
-      vtkPolyData *defaultSource = vtkPolyData::New();
-      defaultSource->Allocate();
-      vtkPoints *defaultPoints = vtkPoints::New();
-      defaultPoints->Allocate(6);
-      defaultPoints->InsertNextPoint(0, 0, 0);
-      defaultPoints->InsertNextPoint(1, 0, 0);
-      vtkIdType defaultPointIds[2];
-      defaultPointIds[0] = 0;
-      defaultPointIds[1] = 1;
-      defaultSource->SetPoints(defaultPoints);
-      defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-      defaultSource->SetUpdateExtent(0, 1, 0);
-      this->SetSource(defaultSource);
-      defaultSource->Delete();
-      defaultSource = NULL;
-      defaultPoints->Delete();
-      defaultPoints = NULL;
-      }
-
-    // FB
-
-    // Compute indexRange.
-    int indexRange[2] = {0, 0};
-    int numberOfSources=this->GetNumberOfInputConnections(1);
-    vtkDataArray *indexArray = this->GetSourceIndexArray(input);
-    if (indexArray)
-      {
-      double range[2];
-      indexArray->GetRange(range, -1);
-      for (int i=0; i<2; i++)
-        {
-        indexRange[i]=static_cast<int>((range[i]-this->Range[0])*numberOfSources/den);
-        indexRange[i] = ::vtkClamp(indexRange[i], 0, numberOfSources-1);
-        }
-      }
-
-    vtkBoundingBox bbox; // empty
-
-    double xScaleRange[2] = {1.0, 1.0};
-    double yScaleRange[2] = {1.0, 1.0};
-    double zScaleRange[2] = {1.0, 1.0};
-
-    if (scaleArray)
-      {
-      switch(this->ScaleMode)
-        {
-      case SCALE_BY_MAGNITUDE:
-        scaleArray->GetRange(xScaleRange,-1);
-        yScaleRange[0]=xScaleRange[0];
-        yScaleRange[1]=xScaleRange[1];
-        zScaleRange[0]=xScaleRange[0];
-        zScaleRange[1]=xScaleRange[1];
-        break;
-
-      case SCALE_BY_COMPONENTS:
-        scaleArray->GetRange(xScaleRange,0);
-        scaleArray->GetRange(yScaleRange,1);
-        scaleArray->GetRange(zScaleRange,2);
-        break;
-
-      default:
-        // NO_DATA_SCALING: do nothing, set variables to avoid warnings.
-        break;
-        }
-
-      if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
-        {
-        xScaleRange[0]=vtkMath::ClampAndNormalizeValue(xScaleRange[0],
-          this->Range);
-        xScaleRange[1]=vtkMath::ClampAndNormalizeValue(xScaleRange[1],
-          this->Range);
-        yScaleRange[0]=vtkMath::ClampAndNormalizeValue(yScaleRange[0],
-          this->Range);
-        yScaleRange[1]=vtkMath::ClampAndNormalizeValue(yScaleRange[1],
-          this->Range);
-        zScaleRange[0]=vtkMath::ClampAndNormalizeValue(zScaleRange[0],
-          this->Range);
-        zScaleRange[1]=vtkMath::ClampAndNormalizeValue(zScaleRange[1],
-          this->Range);
-        }
-      }
-    int index=indexRange[0];
-    while(index<=indexRange[1])
-      {
-      vtkPolyData *source=this->GetSource(index);
-      // Make sure we're not indexing into empty glyph
-      if(source!=0)
-        {
-        double bounds[6];
-        source->GetBounds(bounds);// can be invalid/uninitialized
-        if(vtkMath::AreBoundsInitialized(bounds))
-          {
-          bbox.AddBounds(bounds);
-          }
-        }
-      ++index;
-      }
-
-    if(this->Scaling)
-      {
-      vtkBoundingBox bbox2(bbox);
-      bbox.Scale(xScaleRange[0],yScaleRange[0],zScaleRange[0]);
-      bbox2.Scale(xScaleRange[1],yScaleRange[1],zScaleRange[1]);
-      bbox.AddBox(bbox2);
-      bbox.Scale(this->ScaleFactor,this->ScaleFactor,this->ScaleFactor);
-      }
-
-    if(bbox.IsValid())
-      {
-      double bounds[6];
-      if (orientArray)
-        {
-        // bounding sphere.
-        double c[3];
-        bbox.GetCenter(c);
-        double l=bbox.GetDiagonalLength()/2.0;
-        bounds[0]=c[0]-l;
-        bounds[1]=c[0]+l;
-        bounds[2]=c[1]-l;
-        bounds[3]=c[1]+l;
-        bounds[4]=c[2]-l;
-        bounds[5]=c[2]+l;
-        }
-      else
-        {
-        bbox.GetBounds(bounds);
-        }
-      int j=0;
-      while(j<6)
-        {
-        this->Bounds[j]+=bounds[j];
-        ++j;
-        }
-      }
-    else
-      {
-      vtkMath::UninitializeBounds(this->Bounds);
-      return this->Bounds;
-      }
+  vtkDataObject* dobj = this->GetInputDataObject(0, 0);
+  vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
+  if (ds)
+    {
+    this->GetBoundsInternal(ds, this->Bounds);
     return this->Bounds;
     }
+
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dobj);
+  if (!cd)
+    {
+    return this->Bounds;
+    }
+
+  vtkBoundingBox bbox;
+  vtkCompositeDataIterator* iter = cd->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
+    {
+    ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds)
+      {
+      bbox.AddBounds(ds->GetBounds());
+      }
+    }
+  bbox.GetBounds(this->Bounds);
+  iter->Delete();
+  return this->Bounds;
+
 }
 
 //-------------------------------------------------------------------------
