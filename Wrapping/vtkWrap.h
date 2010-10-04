@@ -128,6 +128,13 @@ int vtkWrap_IsClassWrapped(
   HierarchyInfo *hinfo, const char *classname);
 
 /**
+ * Expand all typedef types that are used in function arguments.
+ * This should be done before any wrapping is done, to make sure
+ * that the wrappers see the real types.
+ */
+void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo);
+
+/**
  * Get the name of a type.  The name will not include "const".
  */
 const char *vtkWrap_GetTypeName(ValueInfo *val);

@@ -34,7 +34,7 @@ IF(NOT CMAKE_CROSSCOMPILING)
   ENDIF (VTK_WRAP_TCL)
 
   IF (VTK_WRAP_PYTHON)
-    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c
+    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
                    vtkParseMain.c vtkParse.tab.c vtkParsePreprocess.c
                    vtkParseHierarchy.c)
     ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)

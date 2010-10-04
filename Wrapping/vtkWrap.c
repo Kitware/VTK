@@ -459,6 +459,33 @@ int vtkWrap_IsClassWrapped(
   return 0;
 }
 
+/* -------------------------------------------------------------------- */
+/* Expand all typedef types that are used in function arguments */
+void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
+{
+  int i, j, n;
+  FunctionInfo *funcInfo;
+
+  n = data->NumberOfFunctions;
+  for (i = 0; i < n; i++)
+    {
+    funcInfo = data->Functions[i];
+    if (funcInfo->Access == VTK_ACCESS_PUBLIC)
+      {
+      for (j = 0; j < funcInfo->NumberOfArguments; j++)
+        {
+        vtkParseHierarchy_ExpandTypedefs(
+          hinfo, funcInfo->Arguments[j], data->Name);
+        }
+      if (funcInfo->ReturnValue)
+        {
+        vtkParseHierarchy_ExpandTypedefs(
+          hinfo, funcInfo->ReturnValue, data->Name);
+        }
+      }
+    }
+}
+
 
 /* -------------------------------------------------------------------- */
 /* get the type name */
