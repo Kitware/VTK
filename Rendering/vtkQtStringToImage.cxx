@@ -103,15 +103,42 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
   QFont fontSpec = this->Implementation->TextPropertyToFont(property);
 
   QString text = QString::fromUtf8(string.utf8_str());
-  QColor textColor =
-      this->Implementation->TextPropertyToColor(property->GetColor(),
-                                                property->GetOpacity());
 
   QRectF rect;
   QPainterPath path;
   path.addText(0, 0, fontSpec, text);
   rect = path.boundingRect();
 
+  recti.SetX(rect.width());
+  recti.SetY(rect.height());
+
+  return recti;
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
+                                          const vtkStdString& string)
+{
+  vtkVector2i recti;
+  if (!QApplication::instance())
+    {
+    vtkErrorMacro("You must initialize a QApplication before using this class.");
+    return recti;
+    }
+
+  if (!property)
+    {
+    return recti;
+    }
+
+  QFont fontSpec = this->Implementation->TextPropertyToFont(property);
+
+  QString text(string.c_str());
+
+  QRectF rect;
+  QPainterPath path;
+  path.addText(0, 0, fontSpec, text);
+  rect = path.boundingRect();
 
   recti.SetX(rect.width());
   recti.SetY(rect.height());
@@ -189,6 +216,13 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
 
   this->QImageToImage->SetQImage(NULL);
   return 1;
+}
+
+int vtkQtStringToImage::RenderString(vtkTextProperty *property,
+                                     const vtkStdString& string,
+                                     vtkImageData *data)
+{
+  return this->RenderString(property, vtkUnicodeString::from_utf8(string), data);
 }
 
 //-----------------------------------------------------------------------------

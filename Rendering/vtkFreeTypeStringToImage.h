@@ -46,12 +46,17 @@ public:
   // was empty).
   virtual vtkVector2i GetBounds(vtkTextProperty *property,
                                 const vtkUnicodeString& string);
+  virtual vtkVector2i GetBounds(vtkTextProperty *property,
+                                const vtkStdString& string);
 
   // Description:
   // Given a text property and a string, this function initializes the
   // vtkImageData *data and renders it in a vtkImageData.
   virtual int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string,
+                           vtkImageData *data);
+  virtual int RenderString(vtkTextProperty *property,
+                           const vtkStdString& string,
                            vtkImageData *data);
 
   // Description:

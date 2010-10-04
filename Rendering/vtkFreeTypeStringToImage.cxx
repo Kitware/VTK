@@ -70,6 +70,26 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
   return recti;
 }
 
+//-----------------------------------------------------------------------------
+vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
+                                                const vtkStdString& string)
+{
+  vtkVector2i recti;
+  int tmp[4];
+  if (!property)
+    {
+    return recti;
+    }
+
+  this->Implementation->FreeType->GetBoundingBox(property, string.c_str(),
+                                                 tmp);
+
+  recti.Set(tmp[1] - tmp[0],
+            tmp[3] - tmp[2]);
+
+  return recti;
+}
+
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
                                            const vtkUnicodeString& string,
                                            vtkImageData *data)
@@ -81,10 +101,25 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
     return 0;
     }
 
-  this->Implementation->FreeType->RenderString(property, string.utf8_str(),0,0,
-                                               data);
+  return this->Implementation->FreeType->RenderString(property,
+                                                      string.utf8_str(),0,0,
+                                                      data);
+}
 
-  return 1;
+int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
+                                           const vtkStdString& string,
+                                           vtkImageData *data)
+{
+  // Get the required size, and initialize a new QImage to draw on.
+  vtkVector2i box = this->GetBounds(property, string);
+  if (box.GetX() == 0 || box.GetY() == 0)
+    {
+    return 0;
+    }
+
+  return this->Implementation->FreeType->RenderString(property,
+                                                      string.c_str(),0,0,
+                                                      data);
 }
 
 //-----------------------------------------------------------------------------
