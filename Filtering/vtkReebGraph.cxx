@@ -544,8 +544,8 @@ double vtkReebGraph::ComputeCustomMetric(
     if(((*(vertexInfo->GetTuple(e.Source))) == GetNodeVertexId(a->NodeId0))
       &&((*(vertexInfo->GetTuple(e.Target))) == GetNodeVertexId(a->NodeId1))){
       edgeId = e.Id;
-      start = (*(vertexInfo->GetTuple(e.Source)));
-      end = (*(vertexInfo->GetTuple(e.Target)));
+      start = static_cast<int>(*(vertexInfo->GetTuple(e.Source)));
+      end = static_cast<int>(*(vertexInfo->GetTuple(e.Target)));
       break;
     }
     }while(eIt->HasNext());
