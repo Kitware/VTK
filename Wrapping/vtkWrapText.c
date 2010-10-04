@@ -814,11 +814,11 @@ const char *vtkWrapText_FormatComment(
 /* Create a signature for the python version of a method. */
 
 static void vtkWrapText_PythonTypeSignature(
-  struct vtkWPString *result, ValueInfo *arg);
+  struct vtkWPString *result, const char *delims[2], ValueInfo *arg);
 
 static void vtkWrapText_PythonArraySignature(
   struct vtkWPString *result, const char *classname,
-  int ndim, const char **dims);
+  const char *delims[2], int ndim, const char **dims);
 
 const char *vtkWrapText_PythonSignature(
   FunctionInfo *currentFunction)
@@ -827,6 +827,9 @@ const char *vtkWrapText_PythonSignature(
   static struct vtkWPString staticString = { NULL, 0, 0 };
   struct vtkWPString *result;
   ValueInfo *arg, *ret;
+  const char *parens[2] = { "(", ")" };
+  const char *braces[2] = { "[", "]" };
+  const char **delims;
   int i, n;
 
   n = vtkWrap_CountWrappedArgs(currentFunction);
@@ -850,7 +853,14 @@ const char *vtkWrapText_PythonSignature(
       vtkWPString_Append(result, ", ");
       }
 
-    vtkWrapText_PythonTypeSignature(result, arg);
+    delims = parens;
+    if (!vtkWrap_IsConst(arg) &&
+        !vtkWrap_IsSetVectorMethod(currentFunction))
+      {
+      delims = braces;
+      }
+
+    vtkWrapText_PythonTypeSignature(result, delims, arg);
     }
 
   vtkWPString_Append(result, ")");
@@ -862,7 +872,7 @@ const char *vtkWrapText_PythonSignature(
     {
     vtkWPString_Append(result, " -> ");
 
-    vtkWrapText_PythonTypeSignature(result, ret);
+    vtkWrapText_PythonTypeSignature(result, parens, ret);
     }
 
   if (currentFunction->Signature)
@@ -875,7 +885,7 @@ const char *vtkWrapText_PythonSignature(
 }
 
 static void vtkWrapText_PythonTypeSignature(
-  struct vtkWPString *result, ValueInfo *arg)
+  struct vtkWPString *result, const char *braces[2], ValueInfo *arg)
 {
   char text[32];
   const char *dimension;
@@ -920,23 +930,24 @@ static void vtkWrapText_PythonTypeSignature(
 
   if (vtkWrap_IsArray(arg))
     {
-    if (arg->Count == -1)
+    if (arg->CountHint)
       {
-      vtkWPString_Append(result, "(");
+      vtkWPString_Append(result, braces[0]);
       vtkWPString_Append(result, classname);
-      vtkWPString_Append(result, ", ...)");
+      vtkWPString_Append(result, ", ...");
+      vtkWPString_Append(result, braces[1]);
       }
     else
       {
       sprintf(text, "%d", arg->Count);
       dimension = text;
-      vtkWrapText_PythonArraySignature(result, classname,
+      vtkWrapText_PythonArraySignature(result, classname, braces,
         1, &dimension);
       }
     }
   else if (vtkWrap_IsNArray(arg))
     {
-    vtkWrapText_PythonArraySignature(result, classname,
+    vtkWrapText_PythonArraySignature(result, classname, braces,
       arg->NumberOfDimensions, arg->Dimensions);
     }
   else
@@ -947,18 +958,19 @@ static void vtkWrapText_PythonTypeSignature(
 
 static void vtkWrapText_PythonArraySignature(
   struct vtkWPString *result, const char *classname,
-  int ndim, const char **dims)
+  const char *braces[2], int ndim, const char **dims)
 {
   int j, n;
 
-  vtkWPString_Append(result, "(");
+  vtkWPString_Append(result, braces[0]);
   n = (int)strtoul(dims[0], 0, 0);
   if (ndim > 1)
     {
     for (j = 0; j < n; j++)
       {
       if (j != 0) { vtkWPString_Append(result, ", "); }
-      vtkWrapText_PythonArraySignature(result, classname, ndim-1, dims+1);
+      vtkWrapText_PythonArraySignature(result, classname,
+        braces, ndim-1, dims+1);
       }
     }
   else
@@ -969,5 +981,5 @@ static void vtkWrapText_PythonArraySignature(
       vtkWPString_Append(result, classname);
       }
     }
-  vtkWPString_Append(result, ")");
+  vtkWPString_Append(result, braces[1]);
 }
