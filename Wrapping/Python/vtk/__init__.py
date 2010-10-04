@@ -38,11 +38,11 @@ if dl and (os.name == 'posix'):
     sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
 
 # Load all required kits.
-from common import *
-from filtering import *
-from io import *
-from imaging import *
-from graphics import *
+from vtkCommonPython import *
+from vtkFilteringPython import *
+from vtkIOPython import *
+from vtkImagingPython import *
+from vtkGraphicsPython import *
 
 # the vtk.kits variable tells us which kits we actually have
 kits = ['common', 'filtering', 'io', 'imaging', 'graphics']
@@ -51,68 +51,68 @@ kits = ['common', 'filtering', 'io', 'imaging', 'graphics']
 # ImportError is actually a link error.
 
 try:
-    from genericfiltering import *
+    from vtkGenericFilteringPython import *
     kits.append('genericfiltering')
 except ImportError, exc:
     __helper.refine_import_err('genericfiltering', 'vtkGenericFilteringPython',
                                exc)
 try:
-    from rendering import *
+    from vtkRenderingPython import *
     kits.append('rendering')
 except ImportError, exc:
     __helper.refine_import_err('rendering', 'vtkRenderingPython', exc)
 
 try:
-    from volumerendering import *
+    from vtkVolumeRenderingPython import *
     kits.append('volumerendering')
 except ImportError, exc:
     __helper.refine_import_err('volumerendering',
                                'vtkVolumeRenderingPython', exc)
 
 try:
-    from hybrid import *
+    from vtkHybridPython import *
     kits.append('hybrid')
 except ImportError, exc:
     __helper.refine_import_err('hybrid', 'vtkHybridPython', exc)
 
 try:
-    from widgets import *
+    from vtkWidgetsPython import *
     kits.append('widgets')
 except ImportError, exc:
     __helper.refine_import_err('widgets', 'vtkWidgetsPython', exc)
 
 try:
-    from charts import *
+    from vtkChartsPython import *
     kits.append('charts')
 except ImportError, exc:
     __helper.refine_import_err('charts', 'vtkChartsPython', exc)
 
 try:
-    from geovis import *
+    from vtkGeovisPython import *
     kits.append('geovis')
 except ImportError, exc:
     __helper.refine_import_err('geovis', 'vtkGeovisPython', exc)
 
 try:
-    from infovis import *
+    from vtkInfovisPython import *
     kits.append('infovis')
 except ImportError, exc:
     __helper.refine_import_err('infovis', 'vtkInfovisPython', exc)
 
 try:
-    from textanalysis import *
+    from vtkTextAnalysisPython import *
     kits.append('textanalysis')
 except ImportError, exc:
     __helper.refine_import_err('textanalysis', 'vtkTextAnalysisPython', exc)
 
 try:
-    from views import *
+    from vtkViewsPython import *
     kits.append('views')
 except ImportError, exc:
     __helper.refine_import_err('views', 'vtkViewsPython', exc)
 
 try:
-    from parallel import *
+    from vtkParallelPython import *
     kits.append('parallel')
 except ImportError, exc:
     __helper.refine_import_err('parallel', 'vtkParallelPython', exc)
