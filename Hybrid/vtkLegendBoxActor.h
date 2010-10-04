@@ -39,6 +39,7 @@
 
 class vtkActor;
 class vtkDoubleArray;
+class vtkImageData;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
@@ -77,13 +78,19 @@ public:
   // entry color is the same as this actor's color.) (Note: use the set
   // methods when you use SetNumberOfEntries().)
   void SetEntry(int i, vtkPolyData *symbol, const char* string, double color[3]);
-  void SetEntrySymbol(int i, vtkPolyData *symbol);
-  void SetEntryString(int i, const char* string);
-  void SetEntryColor(int i, double color[3]);
-  void SetEntryColor(int i, double r, double g, double b);
-  vtkPolyData *GetEntrySymbol(int i);
-  const char* GetEntryString(int i);
-  double *GetEntryColor(int i);
+  void SetEntry(int i, vtkPolyData *symbol, vtkImageData *icon,
+                const char* string, double color[3]);
+
+  void SetEntrySymbol (int i, vtkPolyData *symbol);
+  void SetEntryIcon   (int i, vtkImageData *icon);
+  void SetEntryString (int i, const char* string);
+  void SetEntryColor  (int i, double color[3]);
+  void SetEntryColor  (int i, double r, double g, double b);
+
+  vtkPolyData*  GetEntrySymbol(int i);
+  vtkImageData* GetEntryIcon(int i);
+  const char*   GetEntryString(int i);
+  double*       GetEntryColor(int i);
 
   // Description:
   // Set/Get the text property.
@@ -193,6 +200,7 @@ protected:
   vtkTransformPolyDataFilter **IconTransformFilter;
   vtkPolyDataMapper2D        **IconMapper;
   vtkTexturedActor2D         **IconActor;
+  vtkImageData               **IconImage;
 
   vtkPolyData                *BorderPolyData;
   vtkPolyDataMapper2D        *BorderMapper;
