@@ -66,6 +66,9 @@ int vtkReebGraphSurfaceSkeletonFilter::FillOutputPortInformation(int portNumber,
 void vtkReebGraphSurfaceSkeletonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Field Id: " << this->FieldId << "\n";
+  os << indent << "Number of Samples: " << this->NumberOfSamples << "\n";
+  os << indent << "Number of Smoothing Iterations: " << this->NumberOfSmoothingIterations << "\n";
 }
 
 //----------------------------------------------------------------------------
