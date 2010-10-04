@@ -282,6 +282,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       textActor[i] = vtkActor2D::New();
       textActor[i]->SetMapper(textMapper[i]);
 
+      // Symbol.
       symbol[i] = NULL;
       transform[i] = vtkTransform::New();
       symbolTransform[i] = vtkTransformPolyDataFilter::New();
@@ -291,20 +292,25 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       symbolActor[i] = vtkActor2D::New();
       symbolActor[i]->SetMapper(symbolMapper[i]);
 
+      // Icon.
+      iconImage[i] = NULL;
+
       icon[i] = vtkPlaneSource::New();
       icon[i]->SetPoint1(10.0, 0.0, 0.0);
       icon[i]->SetPoint2(0.0, 10.0, 0.0);
       icon[i]->SetOrigin(0.0, 0.0, 0.0);
       icon[i]->SetResolution(10, 10);
+
       iconTransform[i] = vtkTransform::New();
+
       iconTransformFilter[i] = vtkTransformPolyDataFilter::New();
       iconTransformFilter[i]->SetTransform(iconTransform[i]);
+
       iconMapper[i] = vtkPolyDataMapper2D::New();
       iconMapper[i]->SetInput(iconTransformFilter[i]->GetOutput());
+
       iconActor[i] = vtkTexturedActor2D::New();
       iconActor[i]->SetMapper(iconMapper[i]);
-
-      iconImage[i] = vtkImageData::New();
       }
 
     //Clear out the old stuff
