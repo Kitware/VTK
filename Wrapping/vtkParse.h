@@ -97,6 +97,7 @@ typedef struct _ValueInfo
   unsigned int   Type;       /* as defined in vtkParseType.h   */
   const char    *Class;      /* classname for type */
   int            Count;      /* total number of values, if known */
+  const char    *CountHint;  /* hint about how to get the count */
   int            NumberOfDimensions; /* dimensionality for arrays */
   const char   **Dimensions; /* dimensions for arrays */
   struct _FunctionInfo *Function;  /* for function pointer values */

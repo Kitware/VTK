@@ -135,6 +135,13 @@ int vtkWrap_IsClassWrapped(
 void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo);
 
 /**
+ * Apply any hints about array sizes, e.g. hint that the
+ * GetNumberOfComponents() method gives the tuple size.
+ */
+void vtkWrap_FindCountHints(
+  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo);
+
+/**
  * Get the name of a type.  The name will not include "const".
  */
 const char *vtkWrap_GetTypeName(ValueInfo *val);

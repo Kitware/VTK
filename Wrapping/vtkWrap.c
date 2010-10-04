@@ -196,14 +196,14 @@ int vtkWrap_IsPointer(ValueInfo *val)
 {
   unsigned int i = (val->Type & VTK_PARSE_POINTER_MASK);
   return (i == VTK_PARSE_POINTER && val->Count == 0 &&
-          val->NumberOfDimensions <= 1);
+          val->CountHint == 0 && val->NumberOfDimensions <= 1);
 }
 
 int vtkWrap_IsArray(ValueInfo *val)
 {
   unsigned int i = (val->Type & VTK_PARSE_POINTER_MASK);
-  return (i == VTK_PARSE_POINTER && val->Count != 0 &&
-          val->NumberOfDimensions <= 1);
+  return (i == VTK_PARSE_POINTER && val->NumberOfDimensions <= 1 &&
+          (val->Count != 0 || val->CountHint != 0));
 }
 
 int vtkWrap_IsNArray(ValueInfo *val)
@@ -340,7 +340,8 @@ int vtkWrap_CountRequiredArgs(FunctionInfo *f)
   for (i = 0; i < totalArgs; i++)
     {
     if (f->Arguments[i]->Value == NULL ||
-        f->Arguments[i]->Count != 0)
+        (!vtkWrap_IsArray(f->Arguments[i]) &&
+         !vtkWrap_IsNArray(f->Arguments[i])))
       {
       requiredArgs = i+1;
       }
@@ -458,6 +459,55 @@ int vtkWrap_IsClassWrapped(
 
   return 0;
 }
+
+/* -------------------------------------------------------------------- */
+/* This sets the CountHint for vtkDataArray methods where the
+ * tuple size is equal to GetNumberOfComponents. */
+void vtkWrap_FindCountHints(
+  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
+{
+  int i;
+  const char *countMethod = "GetNumberOfComponents()";
+  FunctionInfo *theFunc;
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+    {
+    theFunc = data->Functions[i];
+
+    /* add hints for array GetTuple methods */
+    if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+      {
+      if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
+           strcmp(theFunc->Name, "GetTupleValue") == 0) &&
+          theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
+          theFunc->NumberOfArguments == 1 &&
+          theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE)
+        {
+        theFunc->ReturnValue->CountHint = countMethod;
+        }
+      else if ((strcmp(theFunc->Name, "SetTuple") == 0 ||
+                strcmp(theFunc->Name, "SetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "GetTuple") == 0 ||
+                strcmp(theFunc->Name, "GetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "InsertTuple") == 0 ||
+                strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
+               theFunc->NumberOfArguments == 2 &&
+               theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE &&
+               theFunc->Arguments[1]->Count == 0)
+        {
+        theFunc->Arguments[1]->CountHint = countMethod;
+        }
+      else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
+                strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
+               theFunc->NumberOfArguments == 1 &&
+               theFunc->Arguments[0]->Count == 0)
+        {
+        theFunc->Arguments[0]->CountHint = countMethod;
+        }
+      }
+    }
+}
+
 
 /* -------------------------------------------------------------------- */
 /* Expand all typedef types that are used in function arguments */
@@ -601,7 +651,7 @@ void vtkWrap_DeclareVariable(
       fprintf(fp, "*");
       }
     /* arrays of unknown size are handled via pointers */
-    else if (val->Count == -1)
+    else if (val->CountHint)
       {
       fprintf(fp, "*");
       }
@@ -625,7 +675,7 @@ void vtkWrap_DeclareVariable(
         aType != VTK_PARSE_VOID_PTR &&
         aType != VTK_PARSE_OBJECT_PTR &&
         !vtkWrap_IsQtObject(val) &&
-        val->Count != -1)
+        val->CountHint == NULL)
       {
       if (val->NumberOfDimensions == 1 && val->Count > 0)
         {
@@ -654,7 +704,7 @@ void vtkWrap_DeclareVariable(
       {
       fprintf(fp, " = NULL");
       }
-    else if (val->Count == -1)
+    else if (val->CountHint)
       {
       fprintf(fp, " = NULL");
       }
@@ -693,12 +743,12 @@ void vtkWrap_DeclareVariableSize(
 
     fprintf(fp, " };\n");
     }
-  else if (val->Count != 0)
+  else if (val->Count != 0 || val->CountHint)
     {
     fprintf(fp,
             "  %sint %s%s = %d;\n",
-            (val->Count > 0 ? "const " : ""), name, idx,
-            (val->Count > 0 ? val->Count : 0));
+            (val->CountHint ? "" : "const "), name, idx,
+            (val->CountHint ? 0 : val->Count));
     }
   else if (val->NumberOfDimensions == 1)
     {

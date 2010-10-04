@@ -8289,6 +8289,7 @@ void vtkParse_InitValue(ValueInfo *val)
   val->Type = 0;
   val->Class = NULL;
   val->Count = 0;
+  val->CountHint = NULL;
   val->NumberOfDimensions = 0;
   val->Function = NULL;
   val->IsStatic = 0;

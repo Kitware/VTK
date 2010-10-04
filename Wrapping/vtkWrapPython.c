@@ -46,10 +46,6 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 static void vtkWrapPython_CustomMethods(
   FILE *fp, ClassInfo *data, int do_constructors);
 
-/* modify the array count for vtkDataArray methods */
-static void vtkWrapPython_DiscoverPointerCounts(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo);
-
 /* print out all methods and the method table */
 static void vtkWrapPython_GenerateMethods(
   FILE *fp, ClassInfo *data, HierarchyInfo *hinfo,
@@ -256,7 +252,7 @@ static void vtkWrapPython_DeclareVariables(
       }
 
     /* temps for arrays */
-    if (arg->Count != 0)
+    if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg))
       {
       storageSize = 4;
       if (!vtkWrap_IsConst(arg) &&
@@ -266,17 +262,14 @@ static void vtkWrapPython_DeclareVariables(
         vtkWrap_DeclareVariable(fp, arg, "save", i, VTK_WRAP_ARG);
         storageSize *= 2;
         }
-      if (arg->Count == -1)
+      if (arg->CountHint)
         {
         fprintf(fp,
                 "  %s small%d[%d];\n",
                 vtkWrap_GetTypeName(arg), i, storageSize);
         }
-      if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg))
-        {
-        /* write an int array containing the dimensions */
-        vtkWrap_DeclareVariableSize(fp, arg, "size", i);
-        }
+      /* write an int array containing the dimensions */
+      vtkWrap_DeclareVariableSize(fp, arg, "size", i);
       }
     }
 
@@ -287,11 +280,11 @@ static void vtkWrapPython_DeclareVariables(
       "tempr", -1, VTK_WRAP_RETURN);
 
     /* the size for a one-dimensional array */
-    if (theFunc->ReturnValue->Count != 0)
+    if (vtkWrap_IsArray(theFunc->ReturnValue))
       {
       fprintf(fp,
               "  int sizer = %d;\n",
-              (theFunc->ReturnValue->Count < 0 ?
+              (theFunc->ReturnValue->CountHint ?
                0 : theFunc->ReturnValue->Count));
       }
     }
@@ -307,7 +300,6 @@ static void vtkWrapPython_DeclareVariables(
 static void vtkWrapPython_GetSizesForArrays(
   FILE *fp, FunctionInfo *theFunc, int is_vtkobject)
 {
-  const char *sizeMethod = "GetNumberOfComponents";
   int i, j, n;
   const char *ndnt;
   const char *mtwo;
@@ -320,7 +312,7 @@ static void vtkWrapPython_GetSizesForArrays(
   j = (is_vtkobject ? 1 : 0);
   for (i = 0; i < n; i++)
     {
-    if (theFunc->Arguments[i]->Count == -1)
+    if (theFunc->Arguments[i]->CountHint)
       {
       if (j == 1)
         {
@@ -330,8 +322,9 @@ static void vtkWrapPython_GetSizesForArrays(
         }
       j += 2;
       fprintf(fp,
-              "  %ssize%d = op->%s();\n",
-              ((j & 1) != 0 ? "  " : ""), i, sizeMethod);
+              "  %ssize%d = op->%s;\n",
+              ((j & 1) != 0 ? "  " : ""), i,
+              theFunc->Arguments[i]->CountHint);
 
       /* for non-const arrays, alloc twice as much space */
       mtwo = "";
@@ -359,7 +352,7 @@ static void vtkWrapPython_GetSizesForArrays(
         }
       }
     }
-  if (theFunc->ReturnValue && theFunc->ReturnValue->Count == -1)
+  if (theFunc->ReturnValue && theFunc->ReturnValue->CountHint)
     {
     if (j == 1)
       {
@@ -369,8 +362,9 @@ static void vtkWrapPython_GetSizesForArrays(
       }
     j += 2;
     fprintf(fp,
-            "  %ssizer = op->%s();\n",
-            ((j & 1) != 0 ? "  " : ""), sizeMethod);
+            "  %ssizer = op->%s;\n",
+            ((j & 1) != 0 ? "  " : ""),
+            theFunc->ReturnValue->CountHint);
     }
   if (j > 1)
     {
@@ -853,7 +847,7 @@ static char *vtkWrapPython_ArgCheckString(
       currPos += strlen(arg->Class);
       }
 
-    else if (arg->Count != 0)
+    else if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg))
       {
       result[currPos++] = ' ';
       result[currPos++] = '*';
@@ -1244,12 +1238,12 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
     {
     arg = currentFunction->Arguments[i];
     n = arg->NumberOfDimensions;
-    if (n < 1 && arg->Count != 0)
+    if (n < 1 && vtkWrap_IsArray(arg))
       {
       n = 1;
       }
 
-    if (arg->Count &&
+    if ((vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg)) &&
         (arg->Type & VTK_PARSE_CONST) == 0)
       {
       noneDone = 0;
@@ -1453,7 +1447,7 @@ static void vtkWrapPython_WriteBackToArgs(
     {
     arg = currentFunction->Arguments[i];
     n = arg->NumberOfDimensions;
-    if (n < 1 && arg->Count != 0)
+    if (n < 1 && vtkWrap_IsArray(arg))
       {
       n = 1;
       }
@@ -1529,7 +1523,7 @@ static void vtkWrapPython_FreeAllocatedArrays(
     {
     arg = currentFunction->Arguments[i];
 
-    if (arg->Count == -1)
+    if (arg->CountHint)
       {
       fprintf(fp,
               "  if (temp%d && temp%d != small%d)\n"
@@ -1849,7 +1843,7 @@ static void vtkWrapPython_GenerateMethods(
   vtkWrapPython_CustomMethods(fp, data, do_constructors);
 
   /* modify the arg count for vtkDataArray methods */
-  vtkWrapPython_DiscoverPointerCounts(fp, data, hinfo);
+  vtkWrap_FindCountHints(fp, data, hinfo);
 
   /* go through all functions and see which are wrappable */
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -2757,54 +2751,6 @@ static void vtkWrapPython_CustomMethods(
             "}\n"
             "\n",
             data->Name, data->Name);
-    }
-}
-
-/* -------------------------------------------------------------------- */
-/* This sets the arg Count to -1 for vtkDataArray methods where the
- * array size is equal to GetNumberOfComponents.  Maybe, eventually,
- * this can be automated using hints. */
-void vtkWrapPython_DiscoverPointerCounts(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
-{
-  int i;
-  FunctionInfo *theFunc;
-
-  for (i = 0; i < data->NumberOfFunctions; i++)
-    {
-    theFunc = data->Functions[i];
-
-    /* add hints for array GetTuple methods */
-    if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
-      {
-      if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
-           strcmp(theFunc->Name, "GetTupleValue") == 0) &&
-          theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
-          theFunc->NumberOfArguments == 1 &&
-          theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE)
-        {
-        theFunc->ReturnValue->Count = -1;
-        }
-      else if ((strcmp(theFunc->Name, "SetTuple") == 0 ||
-                strcmp(theFunc->Name, "SetTupleValue") == 0 ||
-                strcmp(theFunc->Name, "GetTuple") == 0 ||
-                strcmp(theFunc->Name, "GetTupleValue") == 0 ||
-                strcmp(theFunc->Name, "InsertTuple") == 0 ||
-                strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
-               theFunc->NumberOfArguments == 2 &&
-               theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE &&
-               theFunc->Arguments[1]->Count == 0)
-        {
-        theFunc->Arguments[1]->Count = -1;
-        }
-      else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
-                strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
-               theFunc->NumberOfArguments == 1 &&
-               theFunc->Arguments[0]->Count == 0)
-        {
-        theFunc->Arguments[0]->Count = -1;
-        }
-      }
     }
 }
 
