@@ -4242,6 +4242,7 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
 
 class AreaSimplificationMetric : public vtkReebGraphSimplificationMetric{
   public:
+    vtkTypeMacro(AreaSimplificationMetric, vtkReebGraphSimplificationMetric);
     static AreaSimplificationMetric* New();
     double ComputeMetric(vtkDataSet *mesh, vtkDataArray *scalarField,
       vtkIdType startCriticalPoint, vtkAbstractArray *vertexList,
