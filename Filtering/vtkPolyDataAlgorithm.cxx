@@ -156,7 +156,8 @@ int vtkPolyDataAlgorithm::RequestUpdateExtent(
 // an imaging style Execute method.
 int vtkPolyDataAlgorithm::RequestData(
   vtkInformation* request,
-  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector** inputVector,
+//  vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* outputVector)
 {
   // the default implimentation is to do what the old pipeline did find what
