@@ -59,6 +59,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}
       TestBoostAdapter
       TestBoostAlgorithms
+      TestBoostExtractLargestComponent.cxx
       TestBoostBetweennessClustering.cxx
       )
 

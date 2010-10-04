@@ -164,6 +164,7 @@ IF(VTK_USE_BOOST)
     vtkBoostBreadthFirstSearch.cxx
     vtkBoostBreadthFirstSearchTree.cxx
     vtkBoostConnectedComponents.cxx
+    vtkBoostExtractLargestComponent.cxx
     vtkBoostPrimMinimumSpanningTree.cxx
     vtkBoostSplitTableField.cxx
   )
