@@ -242,6 +242,7 @@ static void vtkWrapPython_DeclareVariables(
 {
   ValueInfo *arg;
   int i, n;
+  int storageSize;
 
   n = vtkWrap_CountWrappedArgs(theFunc);
 
@@ -275,11 +276,19 @@ static void vtkWrapPython_DeclareVariables(
     /* temps for arrays */
     if (arg->Count != 0)
       {
+      storageSize = 4;
       if (!vtkWrap_IsConst(arg) &&
           !vtkWrap_IsSetVectorMethod(theFunc))
         {
         /* for saving a copy of the array */
         vtkWrap_DeclareVariable(fp, arg, "save", i, VTK_WRAP_ARG);
+        storageSize *= 2;
+        }
+      if (arg->Count == -1)
+        {
+        fprintf(fp,
+                "  %s small%d[%d];\n",
+                vtkWrap_GetTypeName(arg), i, storageSize);
         }
       if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg))
         {
@@ -318,6 +327,11 @@ static void vtkWrapPython_GetSizesForArrays(
 {
   const char *sizeMethod = "GetNumberOfComponents";
   int i, j, n;
+  const char *ndnt;
+  const char *mtwo;
+
+  /* the indentation amount */
+  ndnt = (is_vtkobject ? "  " : "");
 
   n = vtkWrap_CountWrappedArgs(theFunc);
 
@@ -337,22 +351,29 @@ static void vtkWrapPython_GetSizesForArrays(
               "  %ssize%d = op->%s();\n",
               ((j & 1) != 0 ? "  " : ""), i, sizeMethod);
 
+      /* for non-const arrays, alloc twice as much space */
+      mtwo = "";
       if (!vtkWrap_IsConst(theFunc->Arguments[i]) &&
           !vtkWrap_IsSetVectorMethod(theFunc))
         {
-        fprintf(fp,
-              "  %stemp%d = new %s[2*size%d];\n"
-              "  %ssave%d = &temp%d[size%d];\n",
-              ((j & 1) != 0 ? "  " : ""), i,
-              vtkWrap_GetTypeName(theFunc->Arguments[i]), i,
-              ((j & 1) != 0 ? "  " : ""), i, i, i);
+        mtwo = "2*";
         }
-      else
+
+      fprintf(fp,
+              "  %stemp%d = small%d;\n"
+              "  %sif (size%d > 4)\n"
+              "    %s{\n"
+              "    %stemp%d = new %s[%ssize%d];\n"
+              "    %s}\n",
+              ndnt, i, i, ndnt, i, ndnt, ndnt,
+              i, vtkWrap_GetTypeName(theFunc->Arguments[i]), mtwo, i,
+              ndnt);
+
+      if (*mtwo)
         {
         fprintf(fp,
-              "  %stemp%d = new %s[size%d];\n",
-              ((j & 1) != 0 ? "  " : ""), i,
-              vtkWrap_GetTypeName(theFunc->Arguments[i]), i);
+              "  %ssave%d = &temp%d[size%d];\n",
+              ndnt, i, i, i);
         }
       }
     }
@@ -561,7 +582,7 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
   else if (vtkWrap_IsChar(val) && vtkWrap_IsArray(val))
     {
     fprintf(fp,
-            "      result = ap.BuildBytes(tempr);\n");
+            "      result = ap.BuildBytes(tempr, sizer);\n");
     }
   else if (vtkWrap_IsArray(val))
     {
@@ -2478,11 +2499,11 @@ static void vtkWrapPython_FreeAllocatedArrays(
     if (arg->Count == -1)
       {
       fprintf(fp,
-              "  if (temp%d)\n"
+              "  if (temp%d && temp%d != small%d)\n"
               "    {\n"
               "    delete [] temp%d;\n"
               "    }\n",
-              i, i);
+              i, i, i, i);
       j = 1;
       }
     }
