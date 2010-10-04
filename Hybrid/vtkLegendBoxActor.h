@@ -42,8 +42,10 @@ class vtkDoubleArray;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
+class vtkPlaneSource;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkTexturedActor2D;
 class vtkTransform;
 class vtkTransformPolyDataFilter;
 class vtkProperty2D;
@@ -125,7 +127,7 @@ public:
 
   // Description:
   // Turn on/off flag to control whether the symbol's scalar data
-  // is used to color the symbol. If off, the color of the 
+  // is used to color the symbol. If off, the color of the
   // vtkLegendBoxActor is used.
   vtkSetMacro(ScalarVisibility,int);
   vtkGetMacro(ScalarVisibility,int);
@@ -152,7 +154,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
   int RenderOverlay(vtkViewport* viewport);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
@@ -164,6 +166,7 @@ protected:
 
   void InitializeEntries();
 
+  vtkPolyData createTexturedPlane();
 
   int   Border;
   int   Box;
@@ -178,11 +181,19 @@ protected:
   vtkDoubleArray              *Colors;
   vtkTextMapper              **TextMapper;
   vtkActor2D                 **TextActor;
+
   vtkPolyData                **Symbol;
   vtkTransform               **Transform;
   vtkTransformPolyDataFilter **SymbolTransform;
   vtkPolyDataMapper2D        **SymbolMapper;
   vtkActor2D                 **SymbolActor;
+
+  vtkPlaneSource             **Icon;
+  vtkTransform               **IconTransform;
+  vtkTransformPolyDataFilter **IconTransformFilter;
+  vtkPolyDataMapper2D        **IconMapper;
+  vtkTexturedActor2D         **IconActor;
+
   vtkPolyData                *BorderPolyData;
   vtkPolyDataMapper2D        *BorderMapper;
   vtkActor2D                 *BorderActor;
