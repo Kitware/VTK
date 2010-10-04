@@ -9933,6 +9933,7 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
               case VTK_PARSE_UNSIGNED_LONG_PTR:
               case VTK_PARSE_SIGNED_CHAR_PTR:
               case VTK_PARSE_UNSIGNED_CHAR_PTR:
+              case VTK_PARSE_CHAR_PTR:
                 {
                 if (func_info->ReturnValue &&
                     func_info->ReturnValue->NumberOfDimensions == 0)

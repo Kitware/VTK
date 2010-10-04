@@ -191,6 +191,7 @@ public:
   bool GetArray(float *v, int n);
   bool GetArray(double *v, int n);
   bool GetArray(bool *v, int n);
+  bool GetArray(char *v, int n);
   bool GetArray(signed char *v, int n);
   bool GetArray(unsigned char *v, int n);
   bool GetArray(short *v, int n);
@@ -213,6 +214,7 @@ public:
   bool GetNArray(float *v, int ndims, const int *dims);
   bool GetNArray(double *v, int ndims, const int *dims);
   bool GetNArray(bool *v, int ndims, const int *dims);
+  bool GetNArray(char *v, int ndims, const int *dims);
   bool GetNArray(signed char *v, int ndims, const int *dims);
   bool GetNArray(unsigned char *v, int ndims, const int *dims);
   bool GetNArray(short *v, int ndims, const int *dims);
@@ -260,6 +262,7 @@ public:
   bool SetArray(int i, const float *v, int n);
   bool SetArray(int i, const double *v, int n);
   bool SetArray(int i, const bool *v, int n);
+  bool SetArray(int i, const char *v, int n);
   bool SetArray(int i, const signed char *v, int n);
   bool SetArray(int i, const unsigned char *v, int n);
   bool SetArray(int i, const short *v, int n);
@@ -282,6 +285,7 @@ public:
   bool SetNArray(int i, const float *v, int n, const int *d);
   bool SetNArray(int i, const double *v, int n, const int *d);
   bool SetNArray(int i, const bool *v, int n, const int *d);
+  bool SetNArray(int i, const char *v, int n, const int *d);
   bool SetNArray(int i, const signed char *v, int n, const int *d);
   bool SetNArray(int i, const unsigned char *v, int n, const int *d);
   bool SetNArray(int i, const short *v, int n, const int *d);
@@ -356,6 +360,10 @@ public:
   static PyObject *BuildValue(__int64 v);
   static PyObject *BuildValue(unsigned __int64 v);
 #endif
+
+  // Description:
+  // Build a bytes object (or string).
+  static PyObject *BuildBytes(const char *v, int n);
 
   // Description:
   // Build a tuple for a return value.
@@ -720,5 +728,11 @@ PyObject *vtkPythonArgs::BuildValue(unsigned __int64 a)
 #endif
 }
 #endif
+
+inline
+PyObject *vtkPythonArgs::BuildBytes(const char *a, int n)
+{
+  return PyString_FromStringAndSize(a, n);
+}
 
 #endif

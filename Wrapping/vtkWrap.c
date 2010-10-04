@@ -38,14 +38,14 @@ int vtkWrap_IsVoidFunction(ValueInfo *val)
 
 int vtkWrap_IsVoidPointer(ValueInfo *val)
 {
-  unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  return (t == VTK_PARSE_VOID_PTR);
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+  return (t == VTK_PARSE_VOID && vtkWrap_IsPointer(val));
 }
 
 int vtkWrap_IsCharPointer(ValueInfo *val)
 {
-  unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  return (t == VTK_PARSE_CHAR_PTR);
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+  return (t == VTK_PARSE_CHAR && vtkWrap_IsPointer(val));
 }
 
 int vtkWrap_IsVTKObject(ValueInfo *val)
@@ -113,11 +113,6 @@ int vtkWrap_IsNumeric(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
 
-  if (t == VTK_PARSE_CHAR)
-    {
-    return 0;
-    }
-
   t = (t & ~VTK_PARSE_UNSIGNED);
   switch (t)
     {
@@ -132,11 +127,22 @@ int vtkWrap_IsNumeric(ValueInfo *val)
     case VTK_PARSE___INT64:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_SSIZE_T:
+    case VTK_PARSE_BOOL:
       return 1;
     }
 
   return 0;
 }
+
+int vtkWrap_IsString(ValueInfo *val)
+{
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+  return (t == VTK_PARSE_STRING ||
+          t == VTK_PARSE_UNICODE_STRING);
+}
+
+/* -------------------------------------------------------------------- */
+/* Subcategories */
 
 int vtkWrap_IsBool(ValueInfo *val)
 {
@@ -150,13 +156,32 @@ int vtkWrap_IsChar(ValueInfo *val)
   return (t == VTK_PARSE_CHAR);
 }
 
-int vtkWrap_IsString(ValueInfo *val)
+int vtkWrap_IsInteger(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
-  return (t == VTK_PARSE_STRING ||
-          t == VTK_PARSE_UNICODE_STRING);
+
+  t = (t & ~VTK_PARSE_UNSIGNED);
+  switch (t)
+    {
+    case VTK_PARSE_SHORT:
+    case VTK_PARSE_INT:
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_ID_TYPE:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_SSIZE_T:
+      return 1;
+    }
+
+  return 0;
 }
 
+int vtkWrap_IsRealNumber(ValueInfo *val)
+{
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+  return (t == VTK_PARSE_FLOAT || t == VTK_PARSE_DOUBLE);
+}
 
 /* -------------------------------------------------------------------- */
 /* These are mutually exclusive, as well. */
@@ -183,7 +208,20 @@ int vtkWrap_IsArray(ValueInfo *val)
 
 int vtkWrap_IsNArray(ValueInfo *val)
 {
-  return (val->NumberOfDimensions > 1);
+  int j = 0;
+  unsigned int i = (val->Type & VTK_PARSE_POINTER_MASK);
+  if (i != VTK_PARSE_ARRAY || val->NumberOfDimensions <= 1)
+    {
+    return 0;
+    }
+  for (j = 0; j < val->NumberOfDimensions; j++)
+    {
+    if (val->Dimensions[j] == NULL || val->Dimensions[j][0] == '\0')
+      {
+      return 0;
+      }
+    }
+  return 1;
 }
 
 

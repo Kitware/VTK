@@ -462,18 +462,6 @@ static void vtkWrapPython_GetAllArguments(
       fprintf(fp, "ap.GetValue(temp%d)",
               i);
       }
-    else if (vtkWrap_IsChar(arg) &&
-             vtkWrap_IsScalar(arg))
-      {
-      fprintf(fp, "ap.GetValue(temp%d)",
-              i);
-      }
-    else if (vtkWrap_IsBool(arg) &&
-             vtkWrap_IsScalar(arg))
-      {
-      fprintf(fp, "ap.GetValue(temp%d)",
-              i);
-      }
     else if (vtkWrap_IsNumeric(arg) &&
              vtkWrap_IsScalar(arg))
       {
@@ -569,6 +557,11 @@ static void vtkWrapPython_ReturnValue(FILE *fp, ValueInfo *val)
     {
     fprintf(fp,
             "      result = ap.BuildValue(tempr);\n");
+    }
+  else if (vtkWrap_IsChar(val) && vtkWrap_IsArray(val))
+    {
+    fprintf(fp,
+            "      result = ap.BuildBytes(tempr);\n");
     }
   else if (vtkWrap_IsArray(val))
     {
@@ -3178,8 +3171,6 @@ static int vtkWrapPython_IsValueWrappable(
   if (vtkWrap_IsScalar(val))
     {
     if (vtkWrap_IsNumeric(val) ||
-        vtkWrap_IsBool(val) ||
-        vtkWrap_IsChar(val) ||
         vtkWrap_IsString(val))
       {
       return 1;
@@ -3196,8 +3187,7 @@ static int vtkWrapPython_IsValueWrappable(
     }
   else if (vtkWrap_IsArray(val) || vtkWrap_IsNArray(val))
     {
-    if (vtkWrap_IsNumeric(val) ||
-        vtkWrap_IsBool(val))
+    if (vtkWrap_IsNumeric(val))
       {
       return 1;
       }
@@ -3737,8 +3727,7 @@ void vtkWrapPython_DiscoverPointerCounts(
            strcmp(theFunc->Name, "GetTupleValue") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
           theFunc->NumberOfArguments == 1 &&
-          theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE &&
-          (theFunc->ReturnValue->Type & VTK_PARSE_BASE_TYPE) != VTK_PARSE_CHAR)
+          theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE)
         {
         theFunc->ReturnValue->Count = -1;
         }
@@ -3750,18 +3739,14 @@ void vtkWrapPython_DiscoverPointerCounts(
                 strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
                theFunc->NumberOfArguments == 2 &&
                theFunc->Arguments[0]->Type == VTK_PARSE_ID_TYPE &&
-               theFunc->Arguments[1]->Count == 0 &&
-               (theFunc->Arguments[1]->Type & VTK_PARSE_BASE_TYPE) !=
-                  VTK_PARSE_CHAR)
+               theFunc->Arguments[1]->Count == 0)
         {
         theFunc->Arguments[1]->Count = -1;
         }
       else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
                theFunc->NumberOfArguments == 1 &&
-               theFunc->Arguments[0]->Count == 0 &&
-               (theFunc->Arguments[0]->Type & VTK_PARSE_BASE_TYPE)
-                != VTK_PARSE_CHAR)
+               theFunc->Arguments[0]->Count == 0)
         {
         theFunc->Arguments[0]->Count = -1;
         }

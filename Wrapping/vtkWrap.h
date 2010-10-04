@@ -52,20 +52,32 @@ int vtkWrap_IsQtEnum(ValueInfo *val);
 /**
  * The basic types, all are mutually exclusive.
  * Note that enums are considered to be objects,
- * and bools and chars are not considered to be numeric.
+ * bool and char are considered to be numeric.
  */
 /*@{*/
 int vtkWrap_IsObject(ValueInfo *val);
 int vtkWrap_IsFunction(ValueInfo *val);
 int vtkWrap_IsStream(ValueInfo *val);
 int vtkWrap_IsNumeric(ValueInfo *val);
-int vtkWrap_IsChar(ValueInfo *val);
-int vtkWrap_IsBool(ValueInfo *val);
 int vtkWrap_IsString(ValueInfo *val);
 /*@}*/
 
 /**
+ * Subcategories of numeric types.  In this categorization,
+ * bool and char are not considered to be integers.
+ */
+/*@{*/
+int vtkWrap_IsBool(ValueInfo *val);
+int vtkWrap_IsChar(ValueInfo *val);
+int vtkWrap_IsInteger(ValueInfo *val);
+int vtkWrap_IsRealNumber(ValueInfo *val);
+/*@}*/
+
+/**
  * Arrays and pointers. These are mutually exclusive.
+ * IsPointer() does not include pointers to pointers.
+ * IsArray() and IsNArray() do not include unsized arrays.
+ * Arrays of pointers are not included in any of these.
  */
 /*@{*/
 int vtkWrap_IsScalar(ValueInfo *val);
