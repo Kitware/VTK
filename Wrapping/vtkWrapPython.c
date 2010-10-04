@@ -1468,8 +1468,7 @@ static void vtkWrapPython_WriteBackToArgs(
              !vtkWrap_IsSetVectorMethod(currentFunction))
       {
       fprintf(fp,
-              "    if (!ap.ErrorOccurred() &&\n"
-              "        ap.ArrayHasChanged(%.*stemp%d, %.*ssave%d, ",
+              "    if (ap.ArrayHasChanged(%.*stemp%d, %.*ssave%d, ",
               (n-1), asterisks, i, (n-1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
@@ -1484,7 +1483,8 @@ static void vtkWrapPython_WriteBackToArgs(
         fprintf(fp, "size%d", i);
         }
 
-      fprintf(fp, "))\n"
+      fprintf(fp, ") &&\n"
+              "        !ap.ErrorOccurred())\n"
               "      {\n");
 
       if (vtkWrap_IsNArray(arg))
