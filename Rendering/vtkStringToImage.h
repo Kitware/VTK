@@ -62,9 +62,13 @@ public:
                            const vtkStdString& string,
                            vtkImageData *data) = 0;
 
+
+
 protected:
   vtkStringToImage();
   ~vtkStringToImage();
+
+  bool Antialias;
 
 private:
   vtkStringToImage(const vtkStringToImage &); // Not implemented.

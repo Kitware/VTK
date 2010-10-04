@@ -186,11 +186,13 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
   QTransform trans;
   trans.rotate(rotation);
   QRectF rotBounds = trans.mapRect(bounds);
-  QImage image(static_cast<int>(rotBounds.width()),
-               static_cast<int>(rotBounds.height()),
+  QImage image(ceil(rotBounds.width())+pixelPaddingX,
+               ceil(rotBounds.height()+pixelPaddingY),
                QImage::Format_ARGB32_Premultiplied);
   image.fill(qRgba(0,0,0,0));
   QPainter p(&image);
+  p.setRenderHint(QPainter::TextAntialiasing, this->Antialias);
+  p.setRenderHint(QPainter::Antialiasing, this->Antialias);
   p.translate(-rotBounds.left(), -rotBounds.top());
   p.rotate(rotation);
 
