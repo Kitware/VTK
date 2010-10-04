@@ -1022,18 +1022,18 @@ void vtkWrapPython_RemovePreceededMethods(
                 {
                 if (!vote1) { vote2 = 1; }
                 }
-              /* a "char *" method preceeds a string method */
-              else if ((baseType1 == VTK_PARSE_CHAR) &&
-                       (indirect1 == VTK_PARSE_POINTER) &&
-                       (baseType2 == VTK_PARSE_STRING) &&
-                       ((indirect2 == VTK_PARSE_REF) || (indirect2 == 0)))
-                {
-                if (!vote2) { vote1 = 1; }
-                }
+              /* a string method preceeds a "char *" method */
               else if ((baseType2 == VTK_PARSE_CHAR) &&
                        (indirect2 == VTK_PARSE_POINTER) &&
                        (baseType1 == VTK_PARSE_STRING) &&
                        ((indirect1 == VTK_PARSE_REF) || (indirect1 == 0)))
+                {
+                if (!vote2) { vote1 = 1; }
+                }
+              else if ((baseType1 == VTK_PARSE_CHAR) &&
+                       (indirect1 == VTK_PARSE_POINTER) &&
+                       (baseType2 == VTK_PARSE_STRING) &&
+                       ((indirect2 == VTK_PARSE_REF) || (indirect2 == 0)))
                 {
                 if (!vote1) { vote2 = 1; }
                 }
