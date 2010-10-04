@@ -34,8 +34,9 @@ IF(NOT CMAKE_CROSSCOMPILING)
   ENDIF (VTK_WRAP_TCL)
 
   IF (VTK_WRAP_PYTHON)
-    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkParseMain.c vtkParse.tab.c
-                   vtkParsePreprocess.c vtkParseHierarchy.c)
+    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c
+                   vtkParseMain.c vtkParse.tab.c vtkParsePreprocess.c
+                   vtkParseHierarchy.c)
     ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
     TARGET_LINK_LIBRARIES(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
     EXPORT(TARGETS vtkWrapPython vtkWrapPythonInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
