@@ -17,6 +17,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx
+      #      TestFreeTypeContextUnicode.cxx
+      TestFreeTypeRender.cxx
       TestLinePlot.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx
