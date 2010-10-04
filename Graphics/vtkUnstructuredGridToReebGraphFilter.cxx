@@ -54,6 +54,7 @@ int vtkUnstructuredGridToReebGraphFilter::FillOutputPortInformation(
 void vtkUnstructuredGridToReebGraphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
 //----------------------------------------------------------------------------

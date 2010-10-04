@@ -66,6 +66,8 @@ int vtkReebGraphToJoinSplitTreeFilter::FillOutputPortInformation(
 void vtkReebGraphToJoinSplitTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Is Split Tree: " << this->IsSplitTree << "\n";
+  os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
 //----------------------------------------------------------------------------

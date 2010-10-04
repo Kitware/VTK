@@ -67,6 +67,9 @@ int vtkVolumeContourSpectrumFilter::FillOutputPortInformation(int portNumber,
 void vtkVolumeContourSpectrumFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Arc Id: " << this->ArcId << "\n";
+  os << indent << "Number of Samples: " << this->NumberOfSamples << "\n";
+  os << indent << "Field Id: " << this->FieldId << "\n";
 }
 
 //----------------------------------------------------------------------------
