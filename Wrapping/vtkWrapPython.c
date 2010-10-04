@@ -1843,7 +1843,7 @@ static void vtkWrapPython_GenerateMethods(
   vtkWrapPython_CustomMethods(fp, data, do_constructors);
 
   /* modify the arg count for vtkDataArray methods */
-  vtkWrap_FindCountHints(fp, data, hinfo);
+  vtkWrap_FindCountHints(data, hinfo);
 
   /* go through all functions and see which are wrappable */
   for (i = 0; i < data->NumberOfFunctions; i++)

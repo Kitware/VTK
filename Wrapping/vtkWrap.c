@@ -464,7 +464,7 @@ int vtkWrap_IsClassWrapped(
 /* This sets the CountHint for vtkDataArray methods where the
  * tuple size is equal to GetNumberOfComponents. */
 void vtkWrap_FindCountHints(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo)
+  ClassInfo *data, HierarchyInfo *hinfo)
 {
   int i;
   const char *countMethod = "GetNumberOfComponents()";

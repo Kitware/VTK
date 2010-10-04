@@ -139,7 +139,7 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo);
  * GetNumberOfComponents() method gives the tuple size.
  */
 void vtkWrap_FindCountHints(
-  FILE *fp, ClassInfo *data, HierarchyInfo *hinfo);
+  ClassInfo *data, HierarchyInfo *hinfo);
 
 /**
  * Get the name of a type.  The name will not include "const".
