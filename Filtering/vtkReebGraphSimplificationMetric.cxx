@@ -36,6 +36,8 @@ vtkReebGraphSimplificationMetric::~vtkReebGraphSimplificationMetric()
 void vtkReebGraphSimplificationMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Upper Bound: " << this->UpperBound << "\n";
+  os << indent << "Lower Bound: " << this->LowerBound << "\n";
 }
 
 //----------------------------------------------------------------------------
