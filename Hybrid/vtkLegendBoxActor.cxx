@@ -296,10 +296,10 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       iconImage[i] = NULL;
 
       icon[i] = vtkPlaneSource::New();
-      icon[i]->SetPoint1(10.0, 0.0, 0.0);
-      icon[i]->SetPoint2(0.0, 10.0, 0.0);
+      icon[i]->SetPoint1(1.0, 0.0, 0.0);
+      icon[i]->SetPoint2(0, 1.0, 0.0);
       icon[i]->SetOrigin(0.0, 0.0, 0.0);
-      icon[i]->SetResolution(10, 10);
+      icon[i]->SetResolution(1, 1);
 
       iconTransform[i] = vtkTransform::New();
 
@@ -803,7 +803,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // Place icons.
       size[0] = (int)(0.5 * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
       posX = p1[0] + this->Padding +
-                   0.5*symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
+                   0.625*symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
       for (i=0; i<this->NumberOfEntries; i++)
         {
         if ( this->IconImage[i] )
@@ -842,7 +842,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
                          0.25*tempi[1];
           this->IconTransform[i]->Identity();
           this->IconTransform[i]->Translate(posX, posY, 0.0);
-          this->IconTransform[i]->Scale(0.5*sf, 0.5*sf, 1);
+          this->IconTransform[i]->Scale(0.5 * sf, 0.5 * sf, 1);
           this->IconMapper[i]->SetScalarVisibility(this->ScalarVisibility);
           }// If icon is defined.
         }
