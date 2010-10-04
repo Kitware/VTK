@@ -63,6 +63,7 @@ int vtkReebGraphSimplificationFilter::FillOutputPortInformation(
 void vtkReebGraphSimplificationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Simplification Threshold: " << this->SimplificationThreshold << "\n";
 }
 
 //----------------------------------------------------------------------------
