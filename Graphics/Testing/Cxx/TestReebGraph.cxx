@@ -220,6 +220,7 @@ int LoadVolumeMesh(vtkUnstructuredGrid *vMesh)
   points->InsertNextPoint( -3.48493, 6.40158, 0.75);
   points->InsertNextPoint( -3.25609, 5.89155, 0.75);
   vMesh->SetPoints(points);
+  points->Delete();
   vtkIdType  *vertexIds =
     (vtkIdType *) malloc(sizeof(vtkIdType)*4);
 
@@ -2597,6 +2598,7 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
   points->InsertNextPoint( -3.26217, 6.54238, 0.666667);
   points->InsertNextPoint( -3.00411, 6.33138, 0.333333);
   sMesh->SetPoints(points);
+  points->Delete();
   vtkIdType  *vertexIds =
     (vtkIdType *) malloc(sizeof(vtkIdType)*3);
 
@@ -4734,9 +4736,6 @@ int TestReebGraph( int argc, char* argv[] )
   surfaceReebGraphFilter->Delete();
   surfaceScalarField->Delete();
   surfaceMesh->Delete();
-
-
-
 
   cout << endl << endl << endl
     << "Reeb Graph Tests ========================== Volume Mesh Tests" << endl;
