@@ -76,8 +76,8 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
 
   // Create an array to store the count of the number of vertices
   // in every component
-  double componentRange[2];
-  components->GetRange(componentRange);
+  int componentRange[2];
+  components->GetValueRange(componentRange);
   std::vector<int> componentCount(componentRange[1]);
 
   for(vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
