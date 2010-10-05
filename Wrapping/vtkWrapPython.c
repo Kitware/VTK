@@ -90,7 +90,7 @@ static void vtkWrapPython_FreeConstructedObjects(
 
 /* output the method table for all overloads of a particular method */
 static void vtkWrapPython_OverloadMethodDef(
-  FILE *fp, ClassInfo *data, int *overloadMap, int maxArgs,
+  FILE *fp, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences, int is_vtkobject, int all_legacy);
 
@@ -135,14 +135,13 @@ static void vtkWrapPython_RemovePreceededMethods(
 
 /* look for all signatures of the specified method */
 static int vtkWrapPython_CountAllOccurrences(
-  ClassInfo *data, FunctionInfo **wrappedFunctions, int n,
-  int fnum, int *all_static, int *all_legacy);
+  FunctionInfo **wrappedFunctions, int n, int fnum,
+  int *all_static, int *all_legacy);
 
 /* generate an int array that maps arg counts to overloads */
 static int *vtkWrapPython_ArgCountToOverloadMap(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
-  int fnum, int numberOfOccurrences, int is_vtkobject,
-  int *nmax, int *overlap);
+  int fnum, int is_vtkobject, int *nmax, int *overlap);
 
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
@@ -1080,8 +1079,8 @@ void vtkWrapPython_RemovePreceededMethods(
 /* -------------------------------------------------------------------- */
 /* Look for all signatures of the specified method.  Return the number
  * found, as well as whether all signatures were static or legacy */
-int vtkWrapPython_CountAllOccurrences(
-  ClassInfo *data, FunctionInfo **wrappedFunctions, int n,
+static int vtkWrapPython_CountAllOccurrences(
+  FunctionInfo **wrappedFunctions, int n,
   int fnum, int *all_static, int *all_legacy)
 {
   const char *name;
@@ -1129,8 +1128,7 @@ int vtkWrapPython_CountAllOccurrences(
 
 static int *vtkWrapPython_ArgCountToOverloadMap(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
-  int fnum, int numberOfOccurrences, int is_vtkobject,
-  int *nmax, int *overlap)
+  int fnum, int is_vtkobject, int *nmax, int *overlap)
 {
   static int overloadMap[100];
   int totalArgs, requiredArgs;
@@ -1581,7 +1579,7 @@ static void vtkWrapPython_FreeConstructedObjects(
  * this is also used to write out all constructors for the class */
 
 static void vtkWrapPython_OverloadMethodDef(
-  FILE *fp, ClassInfo *data, int *overloadMap, int maxArgs,
+  FILE *fp, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
   int fnum, int numberOfOccurrences, int is_vtkobject, int all_legacy)
 {
@@ -1880,7 +1878,7 @@ static void vtkWrapPython_GenerateMethods(
 
       /* count all signatures, see if they are static methods or legacy */
       numberOfOccurrences = vtkWrapPython_CountAllOccurrences(
-        data, wrappedFunctions, numberOfWrappedFunctions, fnum,
+        wrappedFunctions, numberOfWrappedFunctions, fnum,
         &all_static, &all_legacy);
 
       /* find all occurances of this method */
@@ -2022,14 +2020,13 @@ static void vtkWrapPython_GenerateMethods(
       /* check for overloads */
       overloadMap = vtkWrapPython_ArgCountToOverloadMap(
         wrappedFunctions, numberOfWrappedFunctions,
-        fnum, numberOfOccurrences, is_vtkobject, &maxArgs, &overlap);
+        fnum, is_vtkobject, &maxArgs, &overlap);
 
       if (overlap || do_constructors)
         {
         /* output the method table for the signatures */
         vtkWrapPython_OverloadMethodDef(
-          fp, data, overloadMap, maxArgs,
-          wrappedFunctions, numberOfWrappedFunctions,
+          fp, data, overloadMap, wrappedFunctions, numberOfWrappedFunctions,
           fnum, numberOfOccurrences, is_vtkobject, all_legacy);
         }
 
