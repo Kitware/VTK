@@ -41,7 +41,7 @@ void vtkReebGraphSimplificationMetric::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-double vtkReebGraphSimplificationMetric::ComputeMetric(vtkDataSet* vtkNotUsed(mesh), vtkDataArray *scalarField, vtkIdType startCriticalPoint, vtkAbstractArray *vertexList, vtkIdType endCriticalPoint)
+double vtkReebGraphSimplificationMetric::ComputeMetric(vtkDataSet* vtkNotUsed(mesh), vtkDataArray* vtkNotUsed(scalarField), vtkIdType vtkNotUsed(startCriticalPoint), vtkAbstractArray* vtkNotUsed(vertexList), vtkIdType vtkNotUsed(endCriticalPoint))
 {
   printf("too bad, wrong code\n");
   return 0;
