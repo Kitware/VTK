@@ -50,8 +50,7 @@ void vtkReebGraph::SetLabel(vtkIdType arcId,vtkReebLabelTag Label)
 }
 
 //----------------------------------------------------------------------------
-void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int ArcNumber,
-                                    vtkIdType* arcTable)
+void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int vtkNotUsed(ArcNumber), vtkIdType* vtkNotUsed(arcTable))
 {
 
   // Remove the arc which opens the loop
@@ -426,7 +425,7 @@ int vtkReebGraph::SimplifyLoops(double simplificationThreshold,
  // refresh information about ArcLoopTable
  this->FindLoops();
 
- int step = (int) ((double)LoopNumber/ 100);
+ // int step = (int) ((double)LoopNumber/ 100);
 
  int NumSimplified=0;
 
@@ -2074,7 +2073,7 @@ void vtkReebGraph::SimplifyLabels(const vtkIdType nodeId,
   static int nactivation=0;
   ++nactivation;
 
-  int A,L,Lprev,Lnext;
+  int A,L,Lnext;
   vtkReebLabel *l;
   vtkReebNode *n=vtkReebGraphGetNode(this, nodeId);
 
