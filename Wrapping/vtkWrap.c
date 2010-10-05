@@ -340,8 +340,8 @@ int vtkWrap_CountRequiredArgs(FunctionInfo *f)
   for (i = 0; i < totalArgs; i++)
     {
     if (f->Arguments[i]->Value == NULL ||
-        (!vtkWrap_IsArray(f->Arguments[i]) &&
-         !vtkWrap_IsNArray(f->Arguments[i])))
+        vtkWrap_IsArray(f->Arguments[i]) ||
+        vtkWrap_IsNArray(f->Arguments[i]))
       {
       requiredArgs = i+1;
       }
