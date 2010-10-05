@@ -961,6 +961,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
       {
       sprintf(etext, "unable to convert to %.200s enum", classname);
       PyErr_SetString(PyExc_TypeError, etext);
+      return NULL;
       }
     // Call PyInt_AsLong() to retrieve the value
     return obj;
