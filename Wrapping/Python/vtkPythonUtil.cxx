@@ -469,7 +469,7 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
         }
       if (PyVTKObject_Check(result))
         {
-        PyErr_SetString(PyExc_ValueError,"__vtk__() doesn't return a VTK object");
+        PyErr_SetString(PyExc_TypeError, "__vtk__() doesn't return a VTK object");
         Py_DECREF(result);
         return NULL;
         }
@@ -484,7 +484,7 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
 #ifdef VTKPYTHONDEBUG
       vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
 #endif
-      PyErr_SetString(PyExc_ValueError,"method requires a VTK object");
+      PyErr_SetString(PyExc_TypeError, "method requires a VTK object");
       return NULL;
       }
     }
@@ -512,7 +512,7 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
 #endif
     sprintf(error_string,"method requires a %s, a %s was provided.",
             result_type,((vtkObjectBase *)ptr)->GetClassName());
-    PyErr_SetString(PyExc_ValueError,error_string);
+    PyErr_SetString(PyExc_TypeError, error_string);
     return NULL;
     }
 }
@@ -581,7 +581,7 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
       }
     if (i <= 0)
       {
-      PyErr_SetString(PyExc_ValueError,"could not extract hexidecimal address from argument string");
+      PyErr_SetString(PyExc_ValueError, "could not extract hexidecimal address from argument string");
       return NULL;
       }
 
@@ -592,14 +592,14 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
       char error_string[256];
       sprintf(error_string,"method requires a %s address, a %s address was provided.",
               type, ptr->GetClassName());
-      PyErr_SetString(PyExc_TypeError,error_string);
+      PyErr_SetString(PyExc_TypeError, error_string);
       return NULL;
       }
 
     return vtkPythonUtil::GetObjectFromPointer(ptr);
     }
 
-  PyErr_SetString(PyExc_TypeError,"method requires a string argument");
+  PyErr_SetString(PyExc_TypeError, "method requires a string argument");
   return NULL;
 }
 
