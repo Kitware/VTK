@@ -34,8 +34,7 @@ vtkUnstructuredGridToReebGraphFilter::~vtkUnstructuredGridToReebGraphFilter()
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridToReebGraphFilter::FillInputPortInformation(
-  int portNumber, vtkInformation *info)
+int vtkUnstructuredGridToReebGraphFilter::FillInputPortInformation( int vtkNotUsed(portNumber), vtkInformation *info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");

@@ -34,8 +34,7 @@ vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToReebGraphFilter::FillInputPortInformation(
-  int portNumber, vtkInformation *info)
+int vtkPolyDataToReebGraphFilter::FillInputPortInformation(int vtkNotUsed(portNumber), vtkInformation *info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");

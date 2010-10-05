@@ -53,8 +53,7 @@ int vtkAreaContourSpectrumFilter::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkAreaContourSpectrumFilter::FillOutputPortInformation(int portNumber,
-  vtkInformation *info)
+int vtkAreaContourSpectrumFilter::FillOutputPortInformation(int vtkNotUsed(portNumber), vtkInformation *info)
 {
 
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
