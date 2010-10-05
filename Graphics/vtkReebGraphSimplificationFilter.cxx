@@ -73,9 +73,7 @@ vtkReebGraph* vtkReebGraphSimplificationFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphSimplificationFilter::RequestData(
-  vtkInformation *request, vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkReebGraphSimplificationFilter::RequestData( vtkInformation* vtkNotUsed(request), vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);

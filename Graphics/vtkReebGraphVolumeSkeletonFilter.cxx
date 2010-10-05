@@ -54,8 +54,7 @@ int vtkReebGraphVolumeSkeletonFilter::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphVolumeSkeletonFilter::FillOutputPortInformation(int portNumber,
-  vtkInformation *info)
+int vtkReebGraphVolumeSkeletonFilter::FillOutputPortInformation(int vtkNotUsed(portNumber), vtkInformation *info)
 {
 
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
