@@ -133,8 +133,9 @@ public:
   // Get the next argument as a SIP object.
   template<class T>
   bool GetSIPObject(T *&v, const char *classname) {
-    v = (T *)this->GetArgAsSIPObject(classname);
-    return (v != NULL); }
+    bool r;
+    v = (T *)this->GetArgAsSIPObject(classname, r);
+    return r; }
 
   // Description:
   // Get the next argument as a SIP enum value.
@@ -438,7 +439,7 @@ protected:
 
   // Description:
   // Get the next argument as an object of the given type.
-  void *GetArgAsSIPObject(const char *classname);
+  void *GetArgAsSIPObject(const char *classname, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.

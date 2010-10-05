@@ -904,19 +904,18 @@ int vtkPythonArgs::GetArgAsEnum(const char *, bool &valid)
 //--------------------------------------------------------------------
 // Define the methods for SIP objects
 
-void *vtkPythonArgs::GetArgAsSIPObject(const char *classname)
+void *vtkPythonArgs::GetArgAsSIPObject(const char *classname, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   void *r = vtkPythonUtil::SIPGetPointerFromObject(o, classname);
-  if (r)
+  if (r || !PyErr_Occurred())
     {
+    valid = true;
     return r;
     }
-  if (PyErr_Occurred())
-    {
-    this->RefineArgTypeError(this->I - this->M - 1);
-    }
-  return r;
+  this->RefineArgTypeError(this->I - this->M - 1);
+  valid = false;
+  return NULL;
 }
 
 int vtkPythonArgs::GetArgAsSIPEnum(const char *classname, bool &valid)
