@@ -938,29 +938,38 @@ static const sipAPIDef *get_sip_api()
 void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classname)
 {
 #ifdef VTK_WRAP_PYTHON_SIP
+  char etext[512];
   const sipAPIDef * api = get_sip_api();
   if(!api)
     {
-    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without api");
+    sprintf(etext, "unable to convert to %.200s without SIP api", classname);
+    PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
     }
 
   const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
     {
-    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
+    sprintf(etext, "unable to convert to %.200s without a typedef", classname);
+    PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
     }
 
   if(sipTypeIsEnum(td))
     {
+    if (!api->api_can_convert_to_enum(obj, td))
+      {
+      sprintf(etext, "unable to convert to %.200s enum", classname);
+      PyErr_SetString(PyExc_TypeError, etext);
+      }
     // Call PyInt_AsLong() to retrieve the value
     return obj;
     }
 
   if(!api->api_can_convert_to_type(obj, td, 0))
     {
-    PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type");
+    sprintf(etext, "unable to convert to %.200s", classname);
+    PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
     }
 
@@ -968,7 +977,8 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   void* ptr = api->api_convert_to_type(obj, td, NULL, 0, NULL, &iserr);
   if(iserr)
     {
-    PyErr_SetString(PyExc_TypeError, "Error doing SIP conversion");
+    sprintf(etext, "error while converting to %.200s", classname);
+    PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
     }
   return ptr;
