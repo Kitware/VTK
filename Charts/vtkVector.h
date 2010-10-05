@@ -25,8 +25,10 @@
 #ifndef __vtkVector_h
 #define __vtkVector_h
 
+#include <vtkSystemIncludes.h>
+
 template<typename T, int Size>
-class vtkVector
+class  vtkVector
 {
 public:
   vtkVector()
@@ -74,7 +76,7 @@ protected:
 // .NAME vtkVector2 - templated base type for storage of 2D vectors.
 //
 template<typename T>
-class vtkVector2 : public vtkVector<T, 2>
+class  vtkVector2 : public vtkVector<T, 2>
 {
 public:
   vtkVector2(const T& x = 0.0, const T& y = 0.0)
@@ -117,7 +119,7 @@ public:
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
 //
 template<typename T>
-class vtkVector3 : public vtkVector<T, 3>
+class  vtkVector3 : public vtkVector<T, 3>
 {
 public:
   vtkVector3(const T& x = 0.0, const T& y = 0.0, const T& z = 0.0)
@@ -168,7 +170,7 @@ public:
 // .NAME vtkRect - templated base type for storage of 2D rectangles.
 //
 template<typename T>
-class vtkRect : public vtkVector<T, 4>
+class  vtkRect : public vtkVector<T, 4>
 {
 public:
   vtkRect(const T& x = 0.0, const T& y = 0.0, const T width = 0.0,
@@ -230,60 +232,60 @@ public:
 
 // Description:
 // Some derived classes for the different vectors commonly used.
-class vtkVector2i : public vtkVector2<int>
+class  vtkVector2i : public vtkVector2<int>
 {
 public:
   vtkVector2i(int x = 0, int y = 0) : vtkVector2<int>(x, y) {}
 };
 
-class vtkVector2f : public vtkVector2<float>
+class  vtkVector2f : public vtkVector2<float>
 {
 public:
   vtkVector2f(float x = 0.0, float y = 0.0) : vtkVector2<float>(x, y) {}
   vtkVector2f(const float* i) : vtkVector2<float>(i) {}
 };
 
-class vtkVector2d : public vtkVector2<double>
+class  vtkVector2d : public vtkVector2<double>
 {
 public:
   vtkVector2d(double x = 0.0, double y = 0.0) : vtkVector2<double>(x, y) {}
 };
 
-class vtkVector3i : public vtkVector3<int>
+class  vtkVector3i : public vtkVector3<int>
 {
 public:
   vtkVector3i(int x = 0, int y = 0, int z = 0) : vtkVector3<int>(x, y, z) {}
 };
 
-class vtkVector3f : public vtkVector3<float>
+class  vtkVector3f : public vtkVector3<float>
 {
 public:
   vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
     : vtkVector3<float>(x, y, z) {}
 };
 
-class vtkVector3d : public vtkVector3<double>
+class  vtkVector3d : public vtkVector3<double>
 {
 public:
   vtkVector3d(double x = 0.0, double y = 0.0, double z = 0.0)
     : vtkVector3<double>(x, y, z) {}
 };
 
-class vtkRecti : public vtkRect<int>
+class  vtkRecti : public vtkRect<int>
 {
 public:
   vtkRecti(int x = 0, int y = 0, int width = 0, int height = 0)
     : vtkRect<int>(x, y, width, height) {}
 };
 
-class vtkRectf : public vtkRect<float>
+class  vtkRectf : public vtkRect<float>
 {
 public:
   vtkRectf(float x = 0.0, float y = 0.0, float width = 0.0, float height = 0.0)
     : vtkRect<float>(x, y, width, height) {}
 };
 
-class vtkRectd : public vtkRect<double>
+class  vtkRectd : public vtkRect<double>
 {
 public:
   vtkRectd(double x = 0.0, double y = 0.0, double width = 0.0,
