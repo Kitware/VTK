@@ -26,6 +26,12 @@
 // evaluate arbitrary function operators (ln, cos, +, if, etc)
 //
 // .SECTION Thanks
+// Juha Nieminen (juha.nieminen@gmail.com) for relicensing this branch of the
+// function parser code that this class is based upon under the new BSD license
+// so that it could be used in VTK. Note, the BSD license applies to this
+// version of the function parser only (by permission of the author), and not
+// the original library.
+//
 // Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
 // two-parameter-parsing and a few functions (sign, min, max).
 //
