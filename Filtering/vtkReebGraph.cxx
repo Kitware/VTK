@@ -29,7 +29,7 @@ void vtkReebGraph::SetLabel(vtkIdType arcId,vtkReebLabelTag Label)
   inputMesh = NULL;
   
   ResizeMainLabelTable(1);
-  vtkIdType L;
+  vtkIdType L=0;
   vtkReebGraphNewLabel(this,L);
   vtkReebLabel* l=vtkReebGraphGetLabel(this,L);
   l->HPrev=0;
@@ -1246,8 +1246,6 @@ void vtkReebGraph::CloseStream()
 
   // vertex -> (down vertices, up vertices)
   std::map<int, std::pair<std::vector<int>, std::vector<int> > > localAdjacency;
-  std::map<int, std::pair<std::vector<int>, std::vector<int> > >::iterator aIt;
-
   while(prevArcId != arcId)
     {
     vtkIdType downVertexId, upVertexId;
@@ -1295,6 +1293,7 @@ void vtkReebGraph::CloseStream()
   std::vector<std::pair<std::pair<int, int>, std::vector<int> > >
     globalAdjacency;
 
+  std::map<int, std::pair<std::vector<int>, std::vector<int> > >::iterator aIt;
   aIt = localAdjacency.begin();
   do
     {
@@ -1625,7 +1624,7 @@ void vtkReebGraph::FindLoops()
 
     if (!Ntouch[Node])
     {
-      int LoopNumber=0;
+      //      int LoopNumber=0;
       ++(this->ConnectedComponentNumber);
 
       memset(Atouch,0,sizeof(bool)*this->MainArcTable.Size);
@@ -1816,9 +1815,9 @@ vtkIdType vtkReebGraph::AddPath(int nodeNumber, vtkIdType* nodeOffset,
   for (i = 0; i < (nodeNumber - 1);i++)
   {
     vtkIdType N0 = nodeOffset[i ];
-    vtkReebNode* n0=vtkReebGraphGetNode(this,N0);
+    //    vtkReebNode* n0=vtkReebGraphGetNode(this,N0);
     vtkIdType N1= nodeOffset[i + 1];
-    vtkReebNode* n1=vtkReebGraphGetNode(this,N1);
+    //    vtkReebNode* n1=vtkReebGraphGetNode(this,N1);
 
     int A;vtkReebGraphNewArc(this,A);
     vtkReebArc* arc =vtkReebGraphGetArc(this,A);
@@ -1890,10 +1889,10 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
     int A1=vtkReebGraphGetLabel(this,L1)->ArcId;
     vtkReebArc* a1=vtkReebGraphGetArc(this,A1);
 
-    vtkReebNode *down0 = vtkReebGraphGetNode(this, a0->NodeId0),
-                *up0 = vtkReebGraphGetNode(this, a0->NodeId1),
-                *down1 = vtkReebGraphGetNode(this, a1->NodeId0),
-                *up1 = vtkReebGraphGetNode(this, a1->NodeId1);
+    vtkReebNode *down0 = vtkReebGraphGetNode(this, a0->NodeId0);
+    vtkReebNode *up0 = vtkReebGraphGetNode(this, a0->NodeId1);
+    vtkReebNode *down1 = vtkReebGraphGetNode(this, a1->NodeId0);
+    vtkReebNode *up1 = vtkReebGraphGetNode(this, a1->NodeId1);
 
     /* it is the same arc, no semplification is done */
     if (A0==A1)
