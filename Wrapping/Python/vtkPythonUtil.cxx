@@ -954,13 +954,8 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
 
   if(sipTypeIsEnum(td))
     {
-    ssize_t v = PyInt_AsLong(obj);
-    if(v == -1)
-      {
-      PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP enum type");
-      return NULL;
-      }
-    return reinterpret_cast<void*>(v);
+    // Call PyInt_AsLong() to retrieve the value
+    return obj;
     }
 
   if(!api->api_can_convert_to_type(obj, td, 0))

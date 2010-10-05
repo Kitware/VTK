@@ -532,24 +532,28 @@ int vtkPythonOverload::CheckArg(
           }
         }
 
-      // Check for Qt types
-      else if (classname[0] == '*' && classname[1] == 'Q' &&
-               (classname[2] == 't' || isupper(classname[2])))
+      // Qt objects and enums
+      else if (((classname[0] == '*' || classname[0] == '&') &&
+                (classname[1] == 'Q' && isalpha(classname[2]))) ||
+               (classname[0] == 'Q' && isalpha(classname[1])))
         {
         classname++;
 
-        if (arg == Py_None)
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        if (classname[0] == '*' && arg == Py_None)
           {
           penalty = VTK_PYTHON_GOOD_MATCH;
-          }
-        void* qobj = vtkPythonUtil::SIPGetPointerFromObject(arg, classname);
-        if(!qobj)
-          {
-          penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         else
           {
-          penalty = VTK_PYTHON_GOOD_MATCH;
+          if (vtkPythonUtil::SIPGetPointerFromObject(arg, classname))
+            {
+            penalty = VTK_PYTHON_GOOD_MATCH;
+            }
+          else
+            {
+            PyErr_Clear();
+            }
           }
         }
 

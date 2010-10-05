@@ -919,13 +919,13 @@ void *vtkPythonArgs::GetArgAsSIPObject(const char *classname)
   return r;
 }
 
-int vtkPythonArgs::GetArgAsSIPEnum(const char *, bool &valid)
+int vtkPythonArgs::GetArgAsSIPEnum(const char *classname, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
 
-  // should check enum type for validity
   int i = 0;
-  if (vtkPythonGetValue(o, i))
+  if (vtkPythonUtil::SIPGetPointerFromObject(o, classname) &&
+      vtkPythonGetValue(o, i))
     {
     valid = true;
     return i;
