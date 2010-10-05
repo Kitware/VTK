@@ -78,7 +78,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   // in every component
   int componentRange[2];
   components->GetValueRange(componentRange);
-  std::vector<int> componentCount(componentRange[1]);
+  std::vector<int> componentCount(componentRange[1] + 1);
 
   for(vtkIdType i = 0; i < components->GetNumberOfTuples(); i++)
     {
