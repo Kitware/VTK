@@ -516,7 +516,7 @@ int vtkPythonOverload::CheckArg(
 
           // The "level != 0" ensures that we don't chain conversions
           if (level != 0 ||
-              (info = vtkPythonUtil::FindSpecialType(classname)) != NULL)
+              (info = vtkPythonUtil::FindSpecialType(classname)) == NULL)
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
             }
@@ -537,21 +537,28 @@ int vtkPythonOverload::CheckArg(
                 (classname[1] == 'Q' && isalpha(classname[2]))) ||
                (classname[0] == 'Q' && isalpha(classname[1])))
         {
-        classname++;
-
-        penalty = VTK_PYTHON_INCOMPATIBLE;
         if (classname[0] == '*' && arg == Py_None)
           {
           penalty = VTK_PYTHON_GOOD_MATCH;
           }
         else
           {
+          if (classname[0] == '&' || classname[0] == '*')
+            {
+            classname++;
+            }
           if (vtkPythonUtil::SIPGetPointerFromObject(arg, classname))
             {
-            penalty = VTK_PYTHON_GOOD_MATCH;
+            // Qt enums keep exact match, but Qt objects just get
+            // a good match because they might have been converted
+            if (classname[0] == 'Q' && isupper(classname[1]))
+              {
+              penalty = VTK_PYTHON_GOOD_MATCH;
+              }
             }
           else
             {
+            penalty = VTK_PYTHON_INCOMPATIBLE;
             PyErr_Clear();
             }
           }
