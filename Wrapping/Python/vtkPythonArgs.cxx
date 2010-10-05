@@ -63,7 +63,7 @@ bool vtkPythonGetValue(PyObject *o, unsigned long &a)
     {
 #endif
 #if PY_VERSION_HEX < 0x2040000
-    l = PyInt_AsLong(o);
+    long l = PyInt_AsLong(o);
     if (l < 0)
       {
       PyErr_SetString(PyExc_OverflowError,
