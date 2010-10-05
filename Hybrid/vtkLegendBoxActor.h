@@ -78,6 +78,7 @@ public:
   // entry color is the same as this actor's color.) (Note: use the set
   // methods when you use SetNumberOfEntries().)
   void SetEntry(int i, vtkPolyData *symbol, const char* string, double color[3]);
+  void SetEntry(int i, vtkImageData *symbol, const char* string, double color[3]);
   void SetEntry(int i, vtkPolyData *symbol, vtkImageData *icon,
                 const char* string, double color[3]);
 

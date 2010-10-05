@@ -242,31 +242,42 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       textActor[i] = this->TextActor[i];
       textActor[i]->Register(this);
 
+      // Symbol.
       symbol[i] = this->Symbol[i];
       if ( symbol[i] )
         {
         symbol[i]->Register(this);
         }
+
       transform[i] = this->Transform[i];
       transform[i]->Register(this);
+
       symbolTransform[i] = this->SymbolTransform[i];
       symbolTransform[i]->Register(this);
+
       symbolMapper[i] = this->SymbolMapper[i];
       symbolMapper[i]->Register(this);
+
       symbolActor[i] = this->SymbolActor[i];
       symbolActor[i]->Register(this);
 
+      // Icon.
       icon[i] = this->Icon[i];
+      icon[i]->Register(this);
+
       iconTransform[i] = this->IconTransform[i];
       iconTransform[i]->Register(this);
+
       iconTransformFilter[i] = this->IconTransformFilter[i];
       iconTransformFilter[i]->Register(this);
+
       iconMapper[i] = this->IconMapper[i];
       iconMapper[i]->Register(this);
+
       iconActor[i] = this->IconActor[i];
       iconActor[i]->Register(this);
-      iconImage[i] = this->IconImage[i];
 
+      iconImage[i] = this->IconImage[i];
       if( iconImage[i] )
         {
         iconImage[i]->Register(this);
@@ -353,6 +364,20 @@ void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, const char* string,
 
   return;
 }
+
+//----------------------------------------------------------------------------
+void vtkLegendBoxActor::SetEntry(int i, vtkImageData *icon, const char* string, double color[3])
+{
+  if ( i >= 0 && i < this->NumberOfEntries )
+    {
+    this->SetEntryIcon(i,icon);
+    this->SetEntryString(i,string);
+    this->SetEntryColor(i,color);
+    }
+
+  return;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, vtkImageData *icon,
@@ -623,7 +648,9 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int tempi[2], fontSize;
     double sf, twr, swr;
     double *bounds;
-    bool iconExists (false);
+    bool iconExists   (false);
+    bool symbolExists (false);
+
     for (swr=0.0, maxLength=i=0; i<this->NumberOfEntries; i++)
       {
       str = this->TextMapper[i]->GetInput();
@@ -639,6 +666,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
       if ( this->Symbol[i] ) //if there is a symbol
         {
+        symbolExists = true;
         this->Symbol[i]->Update();
         bounds = this->Symbol[i]->GetBounds();
         if ( (bounds[3]-bounds[2]) == 0.0 )
@@ -655,10 +683,26 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
           }
         }//if symbol defined
 
+        // We pick the one with highest ratio if both symbol and icon
+        // exists.
         if(this->IconImage[i])
           {
           iconExists = true;
-          }
+
+          bounds = this->IconImage[i]->GetBounds();
+          if ( (bounds[3]-bounds[2]) == 0.0 )
+            {
+            sf = 1.0;
+            }
+          else
+            {
+            sf = (bounds[1]-bounds[0]) / (bounds[3]-bounds[2]);
+            }
+          if ( sf > swr )
+            {
+            swr = sf;
+            }
+          } // if icon defined.
       }
 
     //Compute the final proportion (symbol width to text width)
@@ -677,7 +721,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       symbolSize=0;
       }
 
-    if(iconExists)
+    if(iconExists && symbolExists)
       {
       symbolSize *= 2;
       }
