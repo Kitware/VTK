@@ -18,6 +18,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestMath.cxx
   TestMatrix3x3.cxx
   TestMinimalStandardRandomSequence.cxx
+  TestObservers.cxx
   TestPolynomialSolversUnivariate.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
