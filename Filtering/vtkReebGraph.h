@@ -115,9 +115,8 @@
 #ifndef __vtkReebGraph_h
 #define __vtkReebGraph_h
 
-#include  <algorithm>
-#include  <map>
-#include  <queue>
+#include <map> //needed for internal datastructures
+#include <vector> //needed for internal datastructures
 
 #include  "vtkMutableDirectedGraph.h"
 
