@@ -74,11 +74,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphToJoinSplitTreeFilter(
-    const vtkReebGraphToJoinSplitTreeFilter&);
-  // Not implemented.
-  void operator=(const vtkReebGraphToJoinSplitTreeFilter&);
-  // Not implemented.
+  vtkReebGraphToJoinSplitTreeFilter(const vtkReebGraphToJoinSplitTreeFilter&); // Not implemented.
+  void operator=(const vtkReebGraphToJoinSplitTreeFilter&); // Not implemented.
 };
 
 #endif

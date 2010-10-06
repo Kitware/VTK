@@ -87,11 +87,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphSurfaceSkeletonFilter(
-    const vtkReebGraphSurfaceSkeletonFilter&);
-  // Not implemented.
-  void operator=(const vtkReebGraphSurfaceSkeletonFilter&);
-  // Not implemented.
+  vtkReebGraphSurfaceSkeletonFilter(const vtkReebGraphSurfaceSkeletonFilter&); // Not implemented.
+  void operator=(const vtkReebGraphSurfaceSkeletonFilter&); // Not implemented.
 };
 
 #endif
