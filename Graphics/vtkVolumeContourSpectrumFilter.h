@@ -42,10 +42,9 @@
 #define __vtkVolumeContourSpectrumFilter_h
 
 #include  "vtkDataObjectAlgorithm.h"
-#include  "vtkMath.h"
-#include  "vtkTable.h"
-#include  "vtkTetra.h"
-#include  "vtkReebGraph.h"
+
+class vtkReebGraph;
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkVolumeContourSpectrumFilter :
   public vtkDataObjectAlgorithm

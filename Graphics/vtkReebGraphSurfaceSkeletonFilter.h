@@ -40,12 +40,10 @@
 #ifndef __vtkReebGraphSurfaceSkeletonFilter_h
 #define __vtkReebGraphSurfaceSkeletonFilter_h
 
-#include  "vtkContourFilter.h"
 #include  "vtkDataObjectAlgorithm.h"
-#include  "vtkDoubleArray.h"
-#include  "vtkTable.h"
-#include  "vtkTriangle.h"
-#include  "vtkReebGraph.h"
+
+class vtkReebGraph;
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkReebGraphSurfaceSkeletonFilter :
   public vtkDataObjectAlgorithm

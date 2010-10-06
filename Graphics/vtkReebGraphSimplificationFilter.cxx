@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkReebGraphSimplificationFilter.h"
+#include "vtkReebGraphSimplificationFilter.h"
 
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkReebGraph.h"
 
 vtkCxxRevisionMacro(vtkReebGraphSimplificationFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphSimplificationFilter);

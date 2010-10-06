@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkReebGraphSimplificationMetric.h"
+#include "vtkReebGraphSimplificationMetric.h"
 
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkReebGraphSimplificationMetric, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphSimplificationMetric);
 
 //----------------------------------------------------------------------------

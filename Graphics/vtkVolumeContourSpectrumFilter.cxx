@@ -12,10 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkVolumeContourSpectrumFilter.h"
+#include "vtkVolumeContourSpectrumFilter.h"
 
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkReebGraph.h"
+#include "vtkTable.h"
+#include "vtkTetra.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVariantArray.h"
 
 vtkCxxRevisionMacro(vtkVolumeContourSpectrumFilter, "$Revision$");
 vtkStandardNewMacro(vtkVolumeContourSpectrumFilter);

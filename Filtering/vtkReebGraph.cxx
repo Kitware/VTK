@@ -20,7 +20,17 @@
 
 #include "vtkReebGraph.h"
 
-vtkCxxRevisionMacro(vtkReebGraph, "$Revision: 0.1 $");
+#include "vtkCell.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkDataArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkReebGraphSimplificationMetric.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVariantArray.h"
+
 vtkStandardNewMacro(vtkReebGraph);
 
 //----------------------------------------------------------------------------

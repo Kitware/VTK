@@ -12,10 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkReebGraphSurfaceSkeletonFilter.h"
+#include "vtkReebGraphSurfaceSkeletonFilter.h"
 
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkContourFilter.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkReebGraph.h"
+#include "vtkTable.h"
+#include "vtkTriangle.h"
+#include "vtkVariantArray.h"
 
 vtkCxxRevisionMacro(vtkReebGraphSurfaceSkeletonFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphSurfaceSkeletonFilter);

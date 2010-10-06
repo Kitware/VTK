@@ -12,12 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkAreaContourSpectrumFilter.h"
+#include "vtkAreaContourSpectrumFilter.h"
 
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPointData.h"
+#include "vtkReebGraph.h"
+#include "vtkTable.h"
+#include "vtkTriangle.h"
+#include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkAreaContourSpectrumFilter, "$Revision$");
 vtkStandardNewMacro(vtkAreaContourSpectrumFilter);
 
 //----------------------------------------------------------------------------

@@ -43,20 +43,18 @@
 #ifndef __vtkReebGraphSimplificationMetric_h
 #define __vtkReebGraphSimplificationMetric_h
 
-#include  "vtkDataObjectAlgorithm.h"
-#include  "vtkDataSet.h"
-#include  "vtkEdgeListIterator.h"
-#include  "vtkObjectFactory.h"
-#include  "vtkReebGraph.h"
-#include  "vtkTable.h"
-#include  "vtkTriangle.h"
+#include "vtkObject.h"
+
+class vtkDataSet;
+class vtkDataArray;
+class vtkAbstractArray;
 
 class VTK_FILTERING_EXPORT vtkReebGraphSimplificationMetric : 
   public vtkObject
 {
 public:
   static vtkReebGraphSimplificationMetric* New(); 
-  vtkTypeRevisionMacro(vtkReebGraphSimplificationMetric, vtkObject);
+  vtkTypeMacro(vtkReebGraphSimplificationMetric, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

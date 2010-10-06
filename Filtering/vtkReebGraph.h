@@ -119,18 +119,14 @@
 #include  <map>
 #include  <queue>
 
-#include  "vtkCell.h"
-#include  "vtkEdgeListIterator.h"
-#include  "vtkIdTypeArray.h"
 #include  "vtkMutableDirectedGraph.h"
-#include  "vtkObjectFactory.h"
-#include  "vtkPointData.h"
-#include  "vtkPolyData.h"
-#include  "vtkReebGraphSimplificationMetric.h"
-#include  "vtkUnstructuredGrid.h"
-#include  "vtkVariantArray.h"
 
+class vtkDataArray;
+class vtkDataSet;
+class vtkIdList;
+class vtkPolyData;
 class vtkReebGraphSimplificationMetric;
+class vtkUnstructuredGrid;
 
 class VTK_FILTERING_EXPORT vtkReebGraph : public vtkMutableDirectedGraph
 {
@@ -139,7 +135,7 @@ public:
 
   static vtkReebGraph *New();
 
-  vtkTypeRevisionMacro(vtkReebGraph, vtkMutableDirectedGraph);
+  vtkTypeMacro(vtkReebGraph, vtkMutableDirectedGraph);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum

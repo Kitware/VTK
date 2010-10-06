@@ -21,7 +21,9 @@
 #define __vtkReebGraphSimplificationFilter_h
 
 #include "vtkDirectedGraphAlgorithm.h"
-#include "vtkReebGraph.h"
+
+class vtkReebGraph;
+class vtkReebGraphSimplificationMetric;
 
 class VTK_GRAPHICS_EXPORT vtkReebGraphSimplificationFilter : 
   public vtkDirectedGraphAlgorithm

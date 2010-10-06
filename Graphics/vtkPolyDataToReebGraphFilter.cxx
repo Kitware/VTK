@@ -12,11 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkPolyDataToReebGraphFilter.h"
+#include "vtkPolyDataToReebGraphFilter.h"
 
-#include  "vtkElevationFilter.h"
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkElevationFilter.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPointData.h"
+#include "vtkReebGraph.h"
 
 vtkCxxRevisionMacro(vtkPolyDataToReebGraphFilter, "$Revision$");
 vtkStandardNewMacro(vtkPolyDataToReebGraphFilter);

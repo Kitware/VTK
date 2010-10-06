@@ -24,7 +24,8 @@
 #define __vtkPolyDataToReebGraphFilter_h
 
 #include "vtkDirectedGraphAlgorithm.h"
-#include "vtkReebGraph.h"
+
+class vtkReebGraph;
 
 class VTK_GRAPHICS_EXPORT vtkPolyDataToReebGraphFilter :
   public vtkDirectedGraphAlgorithm
