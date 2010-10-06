@@ -41,12 +41,10 @@
 #ifndef __vtkReebGraphVolumeSkeletonFilter_h
 #define __vtkReebGraphVolumeSkeletonFilter_h
 
-#include  "vtkContourFilter.h"
 #include  "vtkDataObjectAlgorithm.h"
-#include  "vtkDoubleArray.h"
-#include  "vtkTable.h"
-#include  "vtkTetra.h"
-#include  "vtkReebGraph.h"
+
+class vtkReebGraph;
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkReebGraphVolumeSkeletonFilter :
   public vtkDataObjectAlgorithm

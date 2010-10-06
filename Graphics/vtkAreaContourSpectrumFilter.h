@@ -42,9 +42,8 @@
 #define __vtkAreaContourSpectrumFilter_h
 
 #include  "vtkDataObjectAlgorithm.h"
-#include  "vtkTable.h"
-#include  "vtkTriangle.h"
-#include  "vtkReebGraph.h"
+
+class vtkTable;
 
 class VTK_GRAPHICS_EXPORT vtkAreaContourSpectrumFilter :
   public vtkDataObjectAlgorithm
