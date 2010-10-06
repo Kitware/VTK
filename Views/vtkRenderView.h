@@ -69,6 +69,27 @@ public:
   virtual void SetInteractorStyle(vtkInteractorObserver* style);
 
   // Description:
+  // Get the interactor style associated with the render view.
+  virtual vtkInteractorObserver* GetInteractorStyle();
+
+  // Description:
+  // Set the render window for this view. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
+  virtual void SetRenderWindow(vtkRenderWindow *win);
+
+  //BTX
+  enum
+    {
+    INTERACTION_MODE_2D,
+    INTERACTION_MODE_3D,
+    INTERACTION_MODE_UNKNOWN
+    };
+  //ETX
+  void SetInteractionMode(int mode);
+  vtkGetMacro(InteractionMode, int);
+
+  // Description:
   // Set the interaction mode for the view. Choices are:
   // vtkRenderView::INTERACTION_MODE_2D - 2D interactor
   // vtkRenderView::INTERACTION_MODE_3D - 3D interactor
@@ -183,6 +204,11 @@ public:
   virtual void SetLabelRenderModeToQt()
     { this->SetLabelRenderMode(QT); }
 
+  // Description:
+  // Whether to render on every mouse move.
+  void SetRenderOnMouseMove(bool b);
+  vtkGetMacro(RenderOnMouseMove, bool);
+  vtkBooleanMacro(RenderOnMouseMove, bool);
 protected:
   vtkRenderView();
   ~vtkRenderView();
@@ -229,6 +255,9 @@ protected:
   vtkTexture* IconTexture;
   int IconSize[2];
   int DisplaySize[2];
+
+  int InteractionMode;
+  bool RenderOnMouseMove;
 
   //BTX
   vtkSmartPointer<vtkRenderer>                 LabelRenderer;
