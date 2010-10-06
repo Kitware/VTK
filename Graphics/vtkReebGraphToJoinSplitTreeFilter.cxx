@@ -12,10 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include  "vtkReebGraphToJoinSplitTreeFilter.h"
+#include "vtkReebGraphToJoinSplitTreeFilter.h"
 
-#include  "vtkInformation.h"
-#include  "vtkInformationVector.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkReebGraph.h"
+#include "vtkVariantArray.h"
 
 #include  <boost/pending/disjoint_sets.hpp>
 

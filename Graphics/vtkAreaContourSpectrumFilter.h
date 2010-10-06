@@ -50,7 +50,7 @@ class VTK_GRAPHICS_EXPORT vtkAreaContourSpectrumFilter :
 {
 public:
   static vtkAreaContourSpectrumFilter* New();
-  vtkTypeRevisionMacro(vtkAreaContourSpectrumFilter, vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkAreaContourSpectrumFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

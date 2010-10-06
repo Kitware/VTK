@@ -33,7 +33,8 @@
 #define __vtkReebGraphToJoinSplitTreeFilter_h
 
 #include  "vtkDirectedGraphAlgorithm.h"
-#include  "vtkReebGraph.h"
+
+class vtkReebGraph;
 
 class VTK_GRAPHICS_EXPORT vtkReebGraphToJoinSplitTreeFilter :
   public vtkDirectedGraphAlgorithm
