@@ -211,6 +211,14 @@ protected:
   vtkActor2D                 *BoxActor;
   vtkTextProperty            *EntryTextProperty;
 
+  // Background plane.
+  int                         UseBackground;
+  double                      BackgroundOpacity;
+  double                      BackgroundColor[3];
+  vtkPlaneSource             *Background;
+  vtkActor2D                 *BackgroundActor;
+  vtkPolyDataMapper2D        *BackgroundMapper;
+
   // Used to control whether the stuff is recomputed
   int           LegendEntriesVisible;
   int           CachedSize[2];

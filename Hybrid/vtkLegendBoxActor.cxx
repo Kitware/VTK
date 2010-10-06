@@ -116,6 +116,15 @@ vtkLegendBoxActor::vtkLegendBoxActor()
 
   this->BoxActor = vtkActor2D::New();
   this->BoxActor->SetMapper(this->BoxMapper);
+
+  // Background.
+  this->UseBackground = 1;
+  this->BackgroundOpacity = 1.0;
+  this->BackgroundColor[0] =  this->BackgroundColor[1] = this->BackgroundColor[2] = 0.3;
+  this->Background = vtkPlaneSource::New();
+  this->BackgroundActor = vtkActor2D::New();
+  this->BackgroundMapper = vtkPolyDataMapper2D::New();
+  this->BackgroundActor->SetMapper(this->BackgroundMapper);
 }
 
 //----------------------------------------------------------------------------
@@ -135,6 +144,13 @@ vtkLegendBoxActor::~vtkLegendBoxActor()
     this->BoxActor->Delete();
     this->BoxMapper->Delete();
     this->BoxPolyData->Delete();
+    }
+
+  if ( this->BackgroundActor )
+    {
+    this->BackgroundActor->Delete();
+    this->BackgroundMapper->Delete();
+    this->Background->Delete();
     }
 
   this->SetEntryTextProperty(NULL);
@@ -561,6 +577,11 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
     }
 
   int renderedSomething = 0;
+  if ( this->BackgroundActor )
+    {
+    this->BackgroundActor->RenderOverlay(viewport);
+    }
+
   if ( this->Border )
     {
     renderedSomething += this->BorderActor->RenderOverlay(viewport);
@@ -764,6 +785,17 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       pts->SetPoint(3, p1[0],p2[1],0.0);
       }
 
+    if (this->UseBackground)
+      {
+      this->Background->SetOrigin(p1[0], p1[1], 0.0);
+      this->Background->SetPoint1(p2[0], p1[1], 0.0);
+      this->Background->SetPoint2(p1[0], p2[1], 0.0);
+
+      this->BackgroundMapper->SetInput(this->Background->GetOutput());
+      this->BackgroundActor->GetProperty()->SetOpacity(this->BackgroundOpacity);
+      this->BackgroundActor->GetProperty()->SetColor(this->BackgroundColor);
+      }
+
     if (this->Border)
       {
       this->BorderActor->SetProperty(this->GetProperty());
@@ -896,6 +928,11 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
   //Okay, now we're ready to render something
   //Border
   int renderedSomething = 0;
+  if ( this->BackgroundActor )
+    {
+    this->BackgroundActor->RenderOpaqueGeometry(viewport);
+    }
+
   if ( this->Border )
     {
     renderedSomething += this->BorderActor->RenderOpaqueGeometry(viewport);
