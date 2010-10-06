@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkReebGraphToJoinSplitTreeFilter.h"
 
-#include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
