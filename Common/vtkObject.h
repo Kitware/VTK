@@ -240,9 +240,9 @@ private:
   void operator=(const vtkObject&);  // Not implemented.
 
   // Description:
-  // Following classes (vtkClassMemberCallbackBase and
-  // vtkClassMemberCallback) along with
-  // vtkObjectCommandInternal are for supporting
+  // Following classes (vtkClassMemberCallbackBase,
+  // vtkClassMemberCallback, and vtkClassMemberHanderPointer)
+  // along with vtkObjectCommandInternal are for supporting
   // templated AddObserver() overloads that allow developers
   // to add event callbacks that are class member functions.
   class vtkClassMemberCallbackBase
@@ -252,44 +252,47 @@ private:
     // Called when the event is invoked
     virtual void operator()(vtkObject*, unsigned long, void*) = 0;
     virtual ~vtkClassMemberCallbackBase(){}
-  protected:
+    };
 
-    // Description:
-    // A weak pointer for vtkObjects, and a void pointer
-    // for everything else.
-    class vtkDualPointer
+  // Description:
+  // This is a weak pointer for vtObjectBase and a regular
+  // void pointer for everything else
+  template<class T>
+    class vtkClassMemberHandlerPointer
       {
     public:
       void operator=(vtkObjectBase *o)
         {
-        this->VoidPointer = 0;
+        this->VoidPointer = static_cast<T*>(o);
         this->WeakPointer = o;
+        this->UseWeakPointer = true;
         }
       void operator=(void *o)
         {
         this->VoidPointer = o;
         this->WeakPointer = 0;
+        this->UseWeakPointer = false;
         }
-      vtkObjectBase *GetPointer()
+      T *GetPointer()
         {
-        return this->WeakPointer.GetPointer();
-        }
-      void *GetVoidPointer()
-        {
-        return this->VoidPointer;
+        if (this->UseWeakPointer && !this->WeakPointer.GetPointer())
+          {
+          return 0;
+          }
+        return static_cast<T*>(this->VoidPointer);
         }
     private:
       vtkWeakPointerBase WeakPointer;
       void *VoidPointer;
+      bool UseWeakPointer;
       };
 
-    vtkDualPointer Handler;
-    };
-
+  // Description:
+  // Templated member callback.
   template <class T>
     class vtkClassMemberCallback : public vtkClassMemberCallbackBase
       {
-      T* Object;
+      vtkClassMemberHandlerPointer<T> Handler;
       void (T::*Method1)();
       void (T::*Method2)(vtkObject*, unsigned long, void*);
 
@@ -314,19 +317,8 @@ private:
       virtual void operator()(
         vtkObject* caller, unsigned long event, void* calldata)
         {
-        // VoidPointer is for a non-vtkObjectBase handler
-        T* handler = static_cast<T*>(this->Handler.GetVoidPointer());
-        // Pointer is weak pointer for a vtkObjectBase handler
-        if (this->Handler.GetPointer())
-          {
-          handler = dynamic_cast<T*>(this->Handler.GetPointer());
-          // Dynamic cast might fail over program/plugin boundaries
-          if (handler == 0)
-            {
-            void *vp = this->Handler.GetPointer();
-            handler = static_cast<T *>(vp);
-            }
-          }
+        // it is cast to/from the same type, so casting via void* is safe
+        T *handler = this->Handler.GetPointer();
         if (handler)
           {
           if (this->Method1)
