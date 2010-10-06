@@ -109,9 +109,13 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
     {
     this->GetInteractor()->SetInteractorStyle(style);
     }
-  else if (style)
+  else if (style && this->RenderWindow)
     {
-    vtkWarningMacro("RenderWindow has no interactor, so the style will be lost.");
+    vtkGenericRenderWindowInteractor* iren =
+        vtkGenericRenderWindowInteractor::New();
+    this->RenderWindow->SetInteractor(iren);
+    iren->SetInteractorStyle(style);
+    iren->Delete();
     }
 }
 
