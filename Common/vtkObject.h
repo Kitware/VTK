@@ -143,23 +143,35 @@ public:
 //BTX
   // Description:
   // Overloads to AddObserver that allow developers to add class member
-  // functions of vtkObjectBase subclasses as callbacks to be called when an
-  // event is invoked. The callback function can either be a void foo(void) or
-  // void foo(vtkObject*, unsigned long, void*). Typical usage of these
-  // functions is as follows:
+  // functions as callbacks for events.  The callback function can
+  // be one of these two types:
+  // \code
+  // void foo(void)
+  // void foo(vtkObject*, unsigned long, void*)
+  // \endcode
+  // If the callback is a member of a vtkObjectBase-derived object,
+  // then the callback will automatically be disabled if the object
+  // destructs (but the observer will not automatically be removed).
+  // If the callback is a member of any other type of object, then
+  // the observer must be removed before the object destructs or else
+  // its dead pointer will be used the next time the event occurs.
+  // Typical usage of these functions is as follows:
   // \code
   // vtkHandlerClass * observer = vtkHandlerClass::New();
-  // to_observe->AddObserver(event, observer, &vtkHandlerClass::CallbackMethod);
+  // to_observe->AddObserver(
+  //   event, observer, &vtkHandlerClass::CallbackMethod);
   // \endcode
-  // Note that this does not affect the reference count of the \c observer, so
-  // if observer is deleted, then the callback won't be called. Interally, it
-  // uses a vtkWeakPointerBase to avoid dangling pointers.
+  // Note that this does not affect the reference count of a
+  // vtkObjectBase-derived \c observer, which can be safely deleted
+  // with the observer still in place. For non-vtkObjectBase observers,
+  // the observer should never be deleted before it is removed.
   // Return value is a tag that can be used to remove the observer.
   template <class T>
   unsigned long AddObserver(unsigned long event,
     T* observer, void (T::*callback)(), float priority=0.0f)
     {
-    vtkClassMemberCallback<T> *callable = new vtkClassMemberCallback<T>(observer, callback);
+    vtkClassMemberCallback<T> *callable =
+      new vtkClassMemberCallback<T>(observer, callback);
     // callable is deleted when the observer is cleaned up (look at
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
@@ -169,7 +181,8 @@ public:
     T* observer, void (T::*callback)(vtkObject*, unsigned long, void*),
     float priority=0.0f)
     {
-    vtkClassMemberCallback<T> *callable = new vtkClassMemberCallback<T>(observer, callback);
+    vtkClassMemberCallback<T> *callable =
+      new vtkClassMemberCallback<T>(observer, callback);
     // callable is deleted when the observer is cleaned up (look at
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
@@ -227,10 +240,11 @@ private:
   void operator=(const vtkObject&);  // Not implemented.
 
   // Description:
-  // Following classes (vtkClassMemberCallbackBase and vtkClassMemberCallback) along with
+  // Following classes (vtkClassMemberCallbackBase and
+  // vtkClassMemberCallback) along with
   // vtkObjectCommandInternal are for supporting
-  // templated AddObserver() overloads that allow developers to add event
-  // callbacks that are class member functions.
+  // templated AddObserver() overloads that allow developers
+  // to add event callbacks that are class member functions.
   class vtkClassMemberCallbackBase
     {
   public:
@@ -239,7 +253,37 @@ private:
     virtual void operator()(vtkObject*, unsigned long, void*) = 0;
     virtual ~vtkClassMemberCallbackBase(){}
   protected:
-    vtkWeakPointerBase Handler;
+
+    // Description:
+    // A weak pointer for vtkObjects, and a void pointer
+    // for everything else.
+    class vtkDualPointer
+      {
+    public:
+      void operator=(vtkObjectBase *o)
+        {
+        this->VoidPointer = 0;
+        this->WeakPointer = o;
+        }
+      void operator=(void *o)
+        {
+        this->VoidPointer = o;
+        this->WeakPointer = 0;
+        }
+      vtkObjectBase *GetPointer()
+        {
+        return this->WeakPointer.GetPointer();
+        }
+      void *GetVoidPointer()
+        {
+        return this->VoidPointer;
+        }
+    private:
+      vtkWeakPointerBase WeakPointer;
+      void *VoidPointer;
+      };
+
+    vtkDualPointer Handler;
     };
 
   template <class T>
@@ -257,7 +301,8 @@ private:
         this->Method2 = NULL;
         }
 
-      vtkClassMemberCallback(T* handler, void (T::*method)(vtkObject*, unsigned long, void*))
+      vtkClassMemberCallback(
+        T* handler, void (T::*method)(vtkObject*, unsigned long, void*))
         {
         this->Handler = handler;
         this->Method1 = NULL;
@@ -266,11 +311,24 @@ private:
       virtual ~vtkClassMemberCallback() { }
 
       // Called when the event is invoked
-      virtual void operator()(vtkObject* caller, unsigned long event, void* calldata)
+      virtual void operator()(
+        vtkObject* caller, unsigned long event, void* calldata)
         {
+        // VoidPointer is for a non-vtkObjectBase handler
+        T* handler = static_cast<T*>(this->Handler.GetVoidPointer());
+        // Pointer is weak pointer for a vtkObjectBase handler
         if (this->Handler.GetPointer())
           {
-          T* handler = dynamic_cast<T*>(this->Handler.GetPointer());
+          handler = dynamic_cast<T*>(this->Handler.GetPointer());
+          // Dynamic cast might fail over program/plugin boundaries
+          if (handler == 0)
+            {
+            void *vp = this->Handler.GetPointer();
+            handler = static_cast<T *>(vp);
+            }
+          }
+        if (handler)
+          {
           if (this->Method1)
             {
             (handler->*this->Method1)();
