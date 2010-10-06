@@ -337,7 +337,7 @@ vtkReebGraph::vtkReebPath vtkReebGraph::FindPath(vtkIdType arcId,
   entry.ArcTable =0;
   pq.push(entry);
 
-  while (size=pq.size())
+  while (size=static_cast<int>(pq.size()))
   {
     entry=pq.top();
     pq.pop();
