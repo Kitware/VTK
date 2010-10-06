@@ -240,9 +240,9 @@ private:
   void operator=(const vtkObject&);  // Not implemented.
 
   // Description:
-  // Following classes (vtkClassMemberCallbackBase and
-  // vtkClassMemberCallback) along with vtkDualPointer and
-  // vtkObjectCommandInternal are for supporting
+  // Following classes (vtkClassMemberCallbackBase,
+  // vtkClassMemberCallback, and vtkClassMemberHanderPointer)
+  // along with vtkObjectCommandInternal are for supporting
   // templated AddObserver() overloads that allow developers
   // to add event callbacks that are class member functions.
   class vtkClassMemberCallbackBase
