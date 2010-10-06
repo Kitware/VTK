@@ -36,7 +36,7 @@ resulting in wrapper code that is faster and more compact.
 #define VTK_PYTHON_FLOAT_CHECK()\
   if (PyFloat_Check(o) && \
       PyErr_Warn(PyExc_DeprecationWarning, \
-                 "integer argument expected, got float")) \
+                 (char *)"integer argument expected, got float")) \
     { \
     return false; \
     }
