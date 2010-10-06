@@ -263,7 +263,12 @@ private:
     public:
       void operator=(vtkObjectBase *o)
         {
-        this->VoidPointer = static_cast<T*>(o);
+        // Try a dynamic cast in case "o" has multi-inheritance,
+        // fallback to just using its vtkObjectBase as-is.
+        if ((this->VoidPointer = dynamic_cast<T*>(o)) == 0)
+          {
+          this->VoidPointer = o;
+          }
         this->WeakPointer = o;
         this->UseWeakPointer = true;
         }
