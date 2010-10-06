@@ -90,8 +90,7 @@ protected:
   double    LowerBound, UpperBound;
   
 private:
-  vtkReebGraphSimplificationMetric(
-    const vtkReebGraphSimplificationMetric&);  
+  vtkReebGraphSimplificationMetric(const vtkReebGraphSimplificationMetric&);
   // Not implemented.
   void operator=(const vtkReebGraphSimplificationMetric&);  
   // Not implemented.
