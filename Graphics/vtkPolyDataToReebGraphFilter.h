@@ -32,7 +32,7 @@ class VTK_GRAPHICS_EXPORT vtkPolyDataToReebGraphFilter :
 {
 public:
   static vtkPolyDataToReebGraphFilter* New();
-  vtkTypeRevisionMacro(vtkPolyDataToReebGraphFilter, vtkDirectedGraphAlgorithm);
+  vtkTypeMacro(vtkPolyDataToReebGraphFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

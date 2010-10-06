@@ -41,7 +41,7 @@ class VTK_GRAPHICS_EXPORT vtkReebGraphToJoinSplitTreeFilter :
 {
 public:
   static vtkReebGraphToJoinSplitTreeFilter* New();
-  vtkTypeRevisionMacro(vtkReebGraphToJoinSplitTreeFilter,
+  vtkTypeMacro(vtkReebGraphToJoinSplitTreeFilter,
     vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 

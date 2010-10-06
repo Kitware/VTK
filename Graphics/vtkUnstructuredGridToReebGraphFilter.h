@@ -32,7 +32,7 @@ class VTK_GRAPHICS_EXPORT vtkUnstructuredGridToReebGraphFilter :
 {
 public:
   static vtkUnstructuredGridToReebGraphFilter* New();
-  vtkTypeRevisionMacro(vtkUnstructuredGridToReebGraphFilter,
+  vtkTypeMacro(vtkUnstructuredGridToReebGraphFilter,
     vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -27,7 +27,6 @@
 
 #include  <boost/pending/disjoint_sets.hpp>
 
-vtkCxxRevisionMacro(vtkReebGraphToJoinSplitTreeFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphToJoinSplitTreeFilter);
 
 //----------------------------------------------------------------------------

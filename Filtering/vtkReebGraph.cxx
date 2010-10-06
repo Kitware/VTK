@@ -31,6 +31,9 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
+#include <algorithm>
+#include <queue>
+
 vtkStandardNewMacro(vtkReebGraph);
 
 //----------------------------------------------------------------------------

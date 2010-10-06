@@ -28,7 +28,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkVolumeContourSpectrumFilter, "$Revision$");
 vtkStandardNewMacro(vtkVolumeContourSpectrumFilter);
 
 //----------------------------------------------------------------------------

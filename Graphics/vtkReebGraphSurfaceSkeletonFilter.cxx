@@ -28,7 +28,6 @@
 #include "vtkTriangle.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkReebGraphSurfaceSkeletonFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphSurfaceSkeletonFilter);
 
 //----------------------------------------------------------------------------

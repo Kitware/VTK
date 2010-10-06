@@ -22,7 +22,6 @@
 #include "vtkReebGraph.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToReebGraphFilter, "$Revision$");
 vtkStandardNewMacro(vtkUnstructuredGridToReebGraphFilter);
 
 //----------------------------------------------------------------------------

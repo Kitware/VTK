@@ -30,7 +30,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkReebGraphVolumeSkeletonFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphVolumeSkeletonFilter);
 
 //----------------------------------------------------------------------------
