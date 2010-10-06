@@ -218,7 +218,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
         {
           // reverse the list of vertices
           std::vector<std::pair<int, double> > tmpVector(vertexList);
-          for(int i = tmpVector.size() - 1; i >= 0; i--)
+          for(int i = static_cast<int>(tmpVector.size()) - 1; i >= 0; i--)
             {
             vertexList[vertexList.size() - i - 1] = tmpVector[i];
             }
