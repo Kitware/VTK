@@ -50,8 +50,7 @@ class VTK_GRAPHICS_EXPORT vtkReebGraphSurfaceSkeletonFilter :
 {
 public:
   static vtkReebGraphSurfaceSkeletonFilter* New();
-  vtkTypeRevisionMacro(vtkReebGraphSurfaceSkeletonFilter, 
-    vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkReebGraphSurfaceSkeletonFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

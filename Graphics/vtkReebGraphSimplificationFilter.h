@@ -30,8 +30,7 @@ class VTK_GRAPHICS_EXPORT vtkReebGraphSimplificationFilter :
 {
 public:
   static vtkReebGraphSimplificationFilter* New();
-  vtkTypeRevisionMacro(vtkReebGraphSimplificationFilter, 
-    vtkDirectedGraphAlgorithm);
+  vtkTypeMacro(vtkReebGraphSimplificationFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

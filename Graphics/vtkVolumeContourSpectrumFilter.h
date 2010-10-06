@@ -51,7 +51,7 @@ class VTK_GRAPHICS_EXPORT vtkVolumeContourSpectrumFilter :
 {
 public:
   static vtkVolumeContourSpectrumFilter* New();
-  vtkTypeRevisionMacro(vtkVolumeContourSpectrumFilter, vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkVolumeContourSpectrumFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

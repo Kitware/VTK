@@ -51,7 +51,7 @@ class VTK_GRAPHICS_EXPORT vtkReebGraphVolumeSkeletonFilter :
 {
 public:
   static vtkReebGraphVolumeSkeletonFilter* New();
-  vtkTypeRevisionMacro(vtkReebGraphVolumeSkeletonFilter,
+  vtkTypeMacro(vtkReebGraphVolumeSkeletonFilter,
     vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
