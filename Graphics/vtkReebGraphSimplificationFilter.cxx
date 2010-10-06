@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkReebGraph.h"
 
-vtkCxxRevisionMacro(vtkReebGraphSimplificationFilter, "$Revision$");
 vtkStandardNewMacro(vtkReebGraphSimplificationFilter);
 
 //----------------------------------------------------------------------------

@@ -22,7 +22,6 @@
 #include "vtkPointData.h"
 #include "vtkReebGraph.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToReebGraphFilter, "$Revision$");
 vtkStandardNewMacro(vtkPolyDataToReebGraphFilter);
 
 //----------------------------------------------------------------------------
