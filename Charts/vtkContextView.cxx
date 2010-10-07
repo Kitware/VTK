@@ -24,6 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkInteractorStyleRubberBand2D.h"
 
 #include "vtkObjectFactory.h"
 
@@ -46,9 +47,11 @@ vtkContextView::vtkContextView()
   this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
-  this->Scene->SetInteractorStyle(
-      vtkInteractorStyle::SafeDownCast(this->RenderWindow->GetInteractor()
-                                       ->GetInteractorStyle()));
+
+  vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
+  this->GetInteractor()->SetInteractorStyle(style);
+  this->Scene->SetInteractorStyle(style);
+  style->Delete();
 
   // Single color background by default.
   this->Renderer->SetBackground(1.0, 1.0, 1.0);
