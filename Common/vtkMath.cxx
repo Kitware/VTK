@@ -2024,6 +2024,29 @@ bool vtkMath::ProjectVector(const float a[3], const float b[3], float projection
 }
 
 //----------------------------------------------------------------------------
+bool vtkMath::ProjectVector2D(const float a[2], const float b[2], float projection[2])
+{
+  double bSquared = vtkMath::Dot2D(b,b);
+
+  if(bSquared == 0)
+    {
+    projection[0] = 0;
+    projection[1] = 0;
+    return false;
+    }
+
+  double scale = vtkMath::Dot2D(a,b)/bSquared;
+
+  for(unsigned int i = 0; i < 2; i++)
+    {
+    projection[i] = b[i];
+    }
+  vtkMath::MultiplyScalar2D(projection, scale);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 // Extract the eigenvalues and eigenvectors from a 3x3 matrix.
 // The eigenvectors (the columns of V) will be normalized. 
 // The eigenvectors are aligned optimally with the x, y, and z

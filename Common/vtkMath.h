@@ -259,10 +259,26 @@ public:
   }
 
   // Description:
+  // Multiplies a 2-vector by a scalar (float version).
+  // This modifies the input 2-vector.
+  static void MultiplyScalar2D(float a[2], float s) {
+    for (int i = 0; i < 2; ++i)
+      a[i] *= s;
+  }
+
+  // Description:
   // Multiplies a 3-vector by a scalar (double version).
   // This modifies the input 3-vector.
   static void MultiplyScalar(double a[3], double s) {
     for (int i = 0; i < 3; ++i)
+      a[i] *= s;
+  }
+
+  // Description:
+  // Multiplies a 2-vector by a scalar (double version).
+  // This modifies the input 2-vector.
+  static void MultiplyScalar2D(double a[2], double s) {
+    for (int i = 0; i < 2; ++i)
       a[i] *= s;
   }
 
@@ -340,6 +356,13 @@ public:
   // If b is a zero vector, the function returns false and 'projection' is invalid.
   // Otherwise, it returns true.
   static bool ProjectVector(const float a[3], const float b[3], float projection[3]);
+
+  // Description:
+  // Compute the projection of 2D vector 'a' on 2D vector 'b' and returns the result
+  // in projection[2].
+  // If b is a zero vector, the function returns false and 'projection' is invalid.
+  // Otherwise, it returns true.
+  static bool ProjectVector2D(const float a[2], const float b[2], float projection[2]);
 
   // Description:
   // Compute distance squared between two points x and y.
