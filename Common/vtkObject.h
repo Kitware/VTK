@@ -121,7 +121,7 @@ public:
   // priority commands are called first. A command may set an abort
   // flag to stop processing of the event. (See vtkCommand.h for more
   // information.)
-  //BTX
+//BTX
   unsigned long AddObserver(unsigned long event, vtkCommand *, 
                             float priority=0.0f);
   unsigned long AddObserver(const char *event, vtkCommand *, 
@@ -132,7 +132,7 @@ public:
   void RemoveObservers(const char *event, vtkCommand *);
   int HasObserver(unsigned long event, vtkCommand *);
   int HasObserver(const char *event, vtkCommand *);
-  //ETX 
+//ETX
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
@@ -146,8 +146,8 @@ public:
   // functions as callbacks for events.  The callback function can
   // be one of these two types:
   // \code
-  // void foo(void)
-  // void foo(vtkObject*, unsigned long, void*)
+  // void foo(void);
+  // void foo(vtkObject*, unsigned long, void*);
   // \endcode
   // If the callback is a member of a vtkObjectBase-derived object,
   // then the callback will automatically be disabled if the object
@@ -157,9 +157,8 @@ public:
   // its dead pointer will be used the next time the event occurs.
   // Typical usage of these functions is as follows:
   // \code
-  // vtkHandlerClass * observer = vtkHandlerClass::New();
-  // to_observe->AddObserver(
-  //   event, observer, &vtkHandlerClass::CallbackMethod);
+  // SomeClassOfMine* observer = SomeClassOfMine::New();
+  // to_observe->AddObserver(event, observer, &SomeClassOfMine::SomeMethod);
   // \endcode
   // Note that this does not affect the reference count of a
   // vtkObjectBase-derived \c observer, which can be safely deleted
@@ -190,24 +189,13 @@ public:
 //ETX
 
   // Description:
-  // Allow people to add/remove/invoke observers (callbacks) to any
-  // VTK object.  This is an implementation of the subject/observer
-  // design pattern. An observer is added by specifying an event to
-  // respond to and a vtkCommand to execute. It returns an unsigned
-  // long tag which can be used later to remove the event or retrieve
-  // the command.  When events are invoked, the observers are called
-  // in the order they were added. If a priority value is specified,
-  // then the higher priority commands are called first. A command may
-  // set an abort flag to stop processing of the event. (See
-  // vtkCommand.h for more information.)
-
   // This method invokes an event and return whether the event was
   // aborted or not. If the event was aborted, the return value is 1,
   // otherwise it is 0.  
-  //BTX
+//BTX
   int InvokeEvent(unsigned long event, void *callData);
   int InvokeEvent(const char *event, void *callData);
-  //ETX
+//ETX
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
   
@@ -230,10 +218,10 @@ protected:
   // public methods found in the class vtkInteractorObserver. Note that
   // these methods are designed to support vtkInteractorObservers since
   // they use two separate vtkCommands to watch for mouse and keypress events.
-  //BTX
+//BTX
   void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
   void InternalReleaseFocus();
-  //ETX
+//ETX
 //BTX
 private:
   vtkObject(const vtkObject&);  // Not implemented.
