@@ -25,7 +25,8 @@
 #include "vtkReebGraph.h"
 #include "vtkVariantArray.h"
 
-#include  <boost/pending/disjoint_sets.hpp>
+#include <algorithm>
+#include <boost/pending/disjoint_sets.hpp>
 
 vtkStandardNewMacro(vtkReebGraphToJoinSplitTreeFilter);
 
