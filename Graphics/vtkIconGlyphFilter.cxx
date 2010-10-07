@@ -44,7 +44,7 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
   this->UseIconSize = true;
   this->PassScalars = false;
   this->IconScaling = VTK_ICON_SCALING_OFF;
-  this->Offset[0] = this->Offset[0] = 0;
+  this->Offset[0] = this->Offset[1] = 0;
 
   this->SetInputArrayToProcess(0, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
