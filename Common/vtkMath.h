@@ -336,6 +336,12 @@ public:
                              double theta);
 
   // Description:
+  // Compute the projection of vector a on vector b and return it in projection[3].
+  // If b is a zero vector, the function returns false and 'projection' is invalid.
+  // Otherwise, it returns true.
+  static bool ProjectVector(const float a[3], const float b[3], float projection[3]);
+
+  // Description:
   // Compute distance squared between two points x and y.
   static float Distance2BetweenPoints(const float x[3], const float y[3]);
 

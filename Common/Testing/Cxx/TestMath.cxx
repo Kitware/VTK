@@ -82,6 +82,23 @@ static int TestSpecialDoublesReal(double value, const char *name,
 
 int TestMath(int,char *[])
 {
+  // Test ProjectVector
+  {
+  cout << "Testing ProjectVector" << endl;
+  float a[3] = {2,-5,0};
+  float b[3] = {5,1,0};
+  float projection[3];
+  float correct[3] = {25./26., 5./26., 0};
+  vtkMath::ProjectVector(a,b,projection);
+  if(!fuzzyCompare(projection,correct))
+    {
+    std::cerr << "ProjectVector failed! Should be (25./26., 5./26., 0) but it is ("
+                  <<projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
+    return EXIT_FAILURE;
+    }
+  cout << "  * Test passed." << endl;
+  }
+
   int testIntValue;
   
   testIntValue = vtkMath::Factorial(5);
