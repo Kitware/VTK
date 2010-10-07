@@ -1125,7 +1125,7 @@ int vtkReebGraph::Simplify(double simplificationThreshold,
     this->SimplifyBranches(
       simplificationThreshold, simplificationMetric) 
     + this->SimplifyLoops(
-      simplificationThreshold, simplificationMetric); 
+      simplificationThreshold, simplificationMetric)
     + this->SimplifyBranches(
       simplificationThreshold, simplificationMetric);
 
