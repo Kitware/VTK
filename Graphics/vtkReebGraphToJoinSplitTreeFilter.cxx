@@ -85,9 +85,7 @@ vtkReebGraph* vtkReebGraphToJoinSplitTreeFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphToJoinSplitTreeFilter::RequestData(
-  vtkInformation *request, vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
 
   vtkInformation  *inInfoMesh = inputVector[0]->GetInformationObject(0),
@@ -164,7 +162,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
       vtkIdTypeArray *vertexIds = vtkIdTypeArray::New();
       vertexIds->SetName("Vertex Ids");
       unCompressedGraph->GetVertexData()->AddArray(vertexIds);
-      for(int i = 0; i < vertexList.size(); i++)
+      for(unsigned int i = 0; i < vertexList.size(); i++)
         {
         vertexProperties->SetValue(0, vertexList[i].first);
         unCompressedGraph->AddVertex(vertexProperties);
@@ -252,7 +250,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
       // prepare the intermediate data-structure
       std::vector<std::pair<std::pair<int, int>, std::vector<int> > >
         edgeList(vertexList.size());
-      for(int i = 0; i < edgeList.size(); i++)
+      for(unsigned int i = 0; i < edgeList.size(); i++)
         {
         edgeList[i].first.first = -1;
         edgeList[i].first.second = -1;
@@ -270,7 +268,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
 
       // we don't parse the last vertex, for sure it's gonna be the
       // global "max".
-      for(int i = 0; i < vertexList.size() - 1; i++)
+      for(unsigned int i = 0; i < vertexList.size() - 1; i++)
         {
 
         if(halfStars[vertexList[i].first].empty())
@@ -288,14 +286,14 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
           // this is not a leaf node.
           // let's collect the unionFind representatives
 
-          for(int j = 0; j < halfStars[vertexList[i].first].size(); j++)
+          for(unsigned int j = 0; j < halfStars[vertexList[i].first].size(); j++)
             {
             representative = unionFind.find_set(
               vertexToUFQueryMap[halfStars[vertexList[i].first][j]]);
 
             // add it to the representative list
             bool isAlreadyStored = false;
-            for(int k = 0;
+            for(unsigned int k = 0;
               ((k < representatives.size())&&(!isAlreadyStored)); k++)
               {
               // 95% of time this will loop only once (depending on the field
@@ -329,14 +327,14 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
           else
             {
             // close the incoming edges
-            for(int j = 0; j < representatives.size(); j++)
+            for(unsigned int j = 0; j < representatives.size(); j++)
               {
               edgeList[representatives[j]].first.second = vertexList[i].first;
               }
             // now open a new edge
             unionFind.make_set(vertexList[i].first);
             representative = unionFind.find_set(vertexList[i].first);
-            for(int j = 0; j < representatives.size(); j++)
+            for(unsigned int j = 0; j < representatives.size(); j++)
               unionFind.link(representatives[j], representative);
 
             vertexToUFQueryMap[vertexList[i].first] = vertexList[i].first;
@@ -359,11 +357,11 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
 
       std::vector<int>  criticalVertices;
       std::vector<bool> processedVertices(vertexList.size());
-      for(int i = 0; i < processedVertices.size(); i++)
+      for(unsigned int i = 0; i < processedVertices.size(); i++)
         processedVertices[i] = false;
 
       // first, create the list of nodes.
-      for(int i = 0; i < edgeList.size(); i++)
+      for(unsigned int i = 0; i < edgeList.size(); i++)
         {
         if(edgeList[i].first.first != -1)
           {
@@ -389,7 +387,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
       vertexIds = vtkIdTypeArray::New();
       vertexIds->SetName("Vertex Ids");
       outputGraph->GetVertexData()->AddArray(vertexIds);
-      for(int i = 0; i < criticalVertices.size(); i++)
+      for(unsigned int i = 0; i < criticalVertices.size(); i++)
         {
         vertexProperties->SetValue(0, criticalVertices[i]);
         vertexToNodeMap[criticalVertices[i]] = i;
@@ -403,7 +401,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
       deg2NodeIds->SetName("Vertex Ids");
       outputGraph->GetEdgeData()->AddArray(deg2NodeIds);
 
-      for(int i = 0; i < edgeList.size(); i++)
+      for(unsigned int i = 0; i < edgeList.size(); i++)
         {
         if(edgeList[i].first.first != -1)
           {
@@ -413,7 +411,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(
           vtkVariantArray *edgeProperties = vtkVariantArray::New();
           vtkIdTypeArray  *vertexIdList = vtkIdTypeArray::New();
           vertexIdList->SetNumberOfValues(edgeList[i].second.size());
-          for(int j = 0; j < edgeList[i].second.size(); j++)
+          for(unsigned int j = 0; j < edgeList[i].second.size(); j++)
             vertexIdList->SetValue(j, edgeList[i].second[j]);
           edgeProperties->SetNumberOfValues(1);
           edgeProperties->SetValue(0, vertexIdList);
