@@ -122,6 +122,12 @@ public:
   void SetGravityToBottomCenter() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER);};
   void SetGravityToBottomLeft() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT);};
 
+  // Description:
+  // Specify an offset (in pixels or display coordinates) that offsets the icons
+  // from their generating points.
+  vtkSetVector2Macro(Offset,int);
+  vtkGetVectorMacro(Offset,int,2);
+
 protected:
   vtkIconGlyphFilter();
   ~vtkIconGlyphFilter();
@@ -138,6 +144,7 @@ protected:
   bool UseIconSize;
   int  IconScaling;
   bool PassScalars;
+  int Offset[2];
 
 private:
   vtkIconGlyphFilter(const vtkIconGlyphFilter&);  // Not implemented.

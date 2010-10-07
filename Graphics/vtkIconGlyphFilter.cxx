@@ -44,6 +44,7 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
   this->UseIconSize = true;
   this->PassScalars = false;
   this->IconScaling = VTK_ICON_SCALING_OFF;
+  this->Offset[0] = this->Offset[0] = 0;
 
   this->SetInputArrayToProcess(0, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -109,6 +110,7 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     }
 
   double point[3], textureCoord[2];
+  point[2] = 0;
   double sheetXDim = this->IconSheetSize[0]/this->IconSize[0];
   double sheetYDim = this->IconSheetSize[1]/this->IconSize[1];
   int iconIndex = 0;
@@ -165,6 +167,8 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
       }
 
     input->GetPoint(ptId, point);
+    point[0] += this->Offset[0];
+    point[1] += this->Offset[1];
 
     if ( scalingArray )
       {
