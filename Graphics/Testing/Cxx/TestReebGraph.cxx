@@ -4475,7 +4475,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   return 0;
 }
 
-int DisplayVolumeSkeleton(vtkUnstructuredGrid *volumeMesh, vtkTable *skeleton)
+int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable *skeleton)
 {
   // no rendering of the mesh this time, just the skeleton.
   // one could just display the bounding surface of the volume (if the volume is
@@ -4596,7 +4596,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid *volumeMesh, vtkTable *skeleton)
   return 0;
 }
 
-int TestReebGraph( int argc, char* argv[] )
+int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 {
   int errorCode;
 

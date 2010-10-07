@@ -86,9 +86,7 @@ vtkTable* vtkAreaContourSpectrumFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkAreaContourSpectrumFilter::RequestData(
-  vtkInformation *request, vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
 
   vtkInformation  *inInfoMesh = inputVector[0]->GetInformationObject(0),
@@ -189,13 +187,13 @@ int vtkAreaContourSpectrumFilter::RequestData(
         vertexIds[i + 1] = vertexList->GetVariantValue(i).ToInt();
 
       // mark all the input triangles as non visited.
-      for(int i = 0; i < visitedTriangles.size(); i++)
+      for(unsigned int i = 0; i < visitedTriangles.size(); i++)
         visitedTriangles[i] = false;
 
       // now do the parsing
       double  min = scalarField->GetComponent(vertexIds[0], 0),
               max = scalarField->GetComponent(vertexIds[vertexIds.size()-1], 0);
-      for(int i = 0; i < vertexIds.size(); i++)
+      for(unsigned int i = 0; i < vertexIds.size(); i++)
         {
         scalarValues[i] = scalarField->GetComponent(vertexIds[i], 0);
 
@@ -237,7 +235,7 @@ int vtkAreaContourSpectrumFilter::RequestData(
 
       // now adjust to the desired sampling
       std::vector<std::pair<int, double> > samples(NumberOfSamples);
-      int pos = 0;
+      unsigned int pos = 0;
       for(int i = 0; i < NumberOfSamples; i++)
         {
         samples[i].first = 0;
@@ -295,7 +293,7 @@ int vtkAreaContourSpectrumFilter::RequestData(
       // now prepare the output
       vtkVariantArray *outputSignature = vtkVariantArray::New();
       outputSignature->SetNumberOfTuples(samples.size());
-      for(int i = 0; i < samples.size(); i++)
+      for(unsigned int i = 0; i < samples.size(); i++)
         {
         outputSignature->SetValue(i, samples[i].second);
         }
