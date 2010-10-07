@@ -130,13 +130,12 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
         return 0;
 
       // first, uncompress the input Reeb graph.
-      vtkMutableDirectedGraph *unCompressedGraph =
-        vtkMutableDirectedGraph::New();
+      vtkMutableDirectedGraph *unCompressedGraph = vtkMutableDirectedGraph::New();
       std::vector<std::pair<int, double> > vertexList;
       for(int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
         {
-          int vertexId = (int) *(vertexInfo->GetTuple(i));
-          double scalarValue = scalarField->GetComponent(vertexId, 0);
+        int vertexId = (int) *(vertexInfo->GetTuple(i));
+        double scalarValue = scalarField->GetComponent(vertexId, 0);
         vertexList.push_back(std::pair<int, double>(vertexId, scalarValue));
         }
 
@@ -317,8 +316,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
           if(representatives.size() == 1)
             {
             // add a deg2 node
-            edgeList[representative].second.push_back(
-              vertexList[i].first);
+            edgeList[representative].second.push_back(vertexList[i].first);
             // propagate the vertexId to be used to query the UF.
             vertexToUFQueryMap[vertexList[i].first] =
               vertexToUFQueryMap[halfStars[vertexList[i].first][
