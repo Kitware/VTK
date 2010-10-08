@@ -75,10 +75,17 @@ vtkObjectBase::vtkObjectBase()
 {
   this->ReferenceCount = 1;
   this->WeakPointers = 0;
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructingObject(this);
+#endif
 }
 
 vtkObjectBase::~vtkObjectBase() 
 {
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::DestructingObject(this);
+#endif
+
   // warn user if reference counting is on and the object is being referenced
   // by another object
   if ( this->ReferenceCount > 0)

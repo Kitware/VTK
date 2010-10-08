@@ -33,6 +33,7 @@
 
 class vtkDebugLeaksHashTable;
 class vtkSimpleCriticalSection;
+class vtkDebugLeaksObserver;
 
 class VTK_COMMON_EXPORT vtkDebugLeaks : public vtkObject
 {
@@ -64,6 +65,10 @@ public:
   // Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
   static int GetExitError();
   static void SetExitError(int);
+  //BTX
+  static void SetDebugLeaksObserver(vtkDebugLeaksObserver* observer);
+  static vtkDebugLeaksObserver* GetDebugLeaksObserver();
+  //ETX
 
 protected:
   vtkDebugLeaks(){}; 
@@ -74,17 +79,34 @@ protected:
   static void ClassInitialize();
   static void ClassFinalize();
 
+  static void ConstructingObject(vtkObjectBase* object);
+  static void DestructingObject(vtkObjectBase* object);
+
   //BTX
   friend class vtkDebugLeaksManager;
+  friend class vtkObjectBase;
   //ETX
 
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
   static vtkSimpleCriticalSection* CriticalSection;
+  static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 
   vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
   void operator=(const vtkDebugLeaks&);  // Not implemented.
 };
+
+//BTX
+// This class defines callbacks for debugging tools. The callbacks are not for general use.
+// The objects passed as arguments to the callbacks are in partially constructed or destructed
+// state and accessing them may cause undefined behavior.
+class VTK_COMMON_EXPORT vtkDebugLeaksObserver {
+public:
+  virtual ~vtkDebugLeaksObserver() {};
+  virtual void ConstructingObject(vtkObjectBase*) = 0;
+  virtual void DestructingObject(vtkObjectBase*) = 0;
+};
+//ETX
 
 #endif // __vtkDebugLeaks_h
