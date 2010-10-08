@@ -174,7 +174,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
 
 
         std::vector<bool>   visitedTets(inputMesh->GetNumberOfCells());
-        for(int i = 0; i < visitedTets.size(); i++)
+        for(unsigned int i = 0; i < visitedTets.size(); i++)
           visitedTets[i] = false;
 
         std::vector<bool>   visitedVertices(inputMesh->GetNumberOfPoints());
