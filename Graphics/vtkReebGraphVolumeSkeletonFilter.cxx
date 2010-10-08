@@ -90,9 +90,7 @@ vtkTable* vtkReebGraphVolumeSkeletonFilter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkReebGraphVolumeSkeletonFilter::RequestData(
-  vtkInformation *request, vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
 
   vtkInformation  *inInfoMesh = inputVector[0]->GetInformationObject(0),
@@ -180,10 +178,10 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(
           visitedTets[i] = false;
 
         std::vector<bool>   visitedVertices(inputMesh->GetNumberOfPoints());
-        for(int i = 0; i < visitedVertices.size(); i++)
+        for(unsigned int i = 0; i < visitedVertices.size(); i++)
           visitedVertices[i] = false;
 
-        for(int i = 0; i < meshToSubMeshMap.size(); i++)
+        for(unsigned int i = 0; i < meshToSubMeshMap.size(); i++)
           meshToSubMeshMap[i] = -1;
 
         // add the vertices to the subMesh
@@ -332,7 +330,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(
           smoothedArc.push_back(arcSkeleton[0]);
           if(arcSkeleton.size() > 2)
             {
-            for(int j = 1; j < arcSkeleton.size() - 1; j++)
+            for(unsigned int j = 1; j < arcSkeleton.size() - 1; j++)
               {
               std::vector<double> smoothedSample(3);
               for(int k = 0; k < 3; k++)
@@ -345,7 +343,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(
           smoothedArc.push_back(arcSkeleton[arcSkeleton.size() - 1]);
 
           // now, replace arcSkeleton with smoohtedArc for the next Iteration
-          for(int j = 0; j < arcSkeleton.size(); j++)
+          for(unsigned int j = 0; j < arcSkeleton.size(); j++)
             arcSkeleton[j] = smoothedArc[j];
           }
 
@@ -361,11 +359,11 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(
 
       // now prepare the output
       output->Initialize();
-      for(int i = 0; i < skeleton.size(); i++)
+      for(unsigned int i = 0; i < skeleton.size(); i++)
         {
         vtkDoubleArray *outputArc = vtkDoubleArray::New();
         outputArc->SetNumberOfComponents(3);
-        for(int j = 0; j < skeleton[i].size(); j++)
+        for(unsigned int j = 0; j < skeleton[i].size(); j++)
           {
           for(int k = 0; k < 3; k++)
             point[k] = skeleton[i][j][k];
