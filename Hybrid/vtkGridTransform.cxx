@@ -67,7 +67,7 @@ inline int vtkGridFloor(double x, F &f)
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  double i = vtkMath::Floor(x + VTK_GRID_FLOOR_TOL);
+  int i = vtkMath::Floor(x + VTK_GRID_FLOOR_TOL);
   f = x - i;
   return i;
 #endif
