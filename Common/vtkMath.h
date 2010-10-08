@@ -101,8 +101,16 @@ public:
     return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
 
   // Description:
-  // Rounds a double to the nearest integer less than itself.
+  // Rounds a double to the nearest integer not greater than itself.
+  // This is faster than floor() but provides undefined output on
+  // overflow.
   static int Floor(double x);
+
+  // Description:
+  // Rounds a double to the nearest integer not less than itself.
+  // This is faster than ceil() but provides undefined output on
+  // overflow.
+  static int Ceil(double x);
   
   // Description:
   // Compute N factorial, N! = N*(N-1) * (N-2)...*3*2*1.
@@ -1034,7 +1042,23 @@ inline int vtkMath::Floor(double x)
   // round-to-nearest,even mode instead of round-to-nearest,+infinity
   return u.i[0] >> 1;
 #else
-  return static_cast<int>(floor( x ) );
+  const int r = static_cast<int>(x);
+  const int n = ( x != static_cast<double>(r) );
+  const int g = ( x < 0 );
+  return r - ( n & g );
+#endif
+}
+
+//----------------------------------------------------------------------------
+inline int vtkMath::Ceil(double x)
+{
+#if defined i386 || defined _M_IX86
+  return - vtkMath::Floor(-x);
+#else
+  const int r = static_cast<int>(x);
+  const int n = ( x != static_cast<double>(r) );
+  const int g = ( x >= 0 );
+  return r + ( n & g );
 #endif
 }
 
