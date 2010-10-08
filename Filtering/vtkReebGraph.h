@@ -136,6 +136,7 @@ public:
 
   vtkTypeMacro(vtkReebGraph, vtkMutableDirectedGraph);
   void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintNodeData(ostream& os, vtkIndent indent);
 
   enum
   {
