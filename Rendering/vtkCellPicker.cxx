@@ -778,7 +778,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
         if (x[j] < extent[2*j]) { x[j] = extent[2*j]; }
         else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
 
-        xi[j] = int(floor(x[j]));
+        xi[j] = vtkMath::Floor(x[j]);
         pcoords[j] = x[j] - xi[j];
         }
 
@@ -805,16 +805,16 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
           double lastX = x1[k]*(1.0 - lastT) + x2[k]*lastT;
 
           // Increment to next slice boundary along dimension "k",
-          // including a tolerance value for stabilityin cases
+          // including a tolerance value for stability in cases
           // where lastX is just less than an integer value.
           double nextX = 0;
           if (x2[k] > x1[k])
             {
-            nextX = floor(lastX + VTKCELLPICKER_VOXEL_TOL) + 1;
+            nextX = vtkMath::Floor(lastX + VTKCELLPICKER_VOXEL_TOL) + 1;
             }
           else
             {
-            nextX = ceil(lastX - VTKCELLPICKER_VOXEL_TOL) - 1;
+            nextX = vtkMath::Ceil(lastX - VTKCELLPICKER_VOXEL_TOL) - 1;
             }
 
           // Compute the "t" value for this slice boundary
@@ -840,7 +840,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
           x[j] = x1[j]*(1.0 - t) + x2[j]*t;
           if (x[j] < extent[2*j]) { x[j] = extent[2*j]; }
           else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
-          xi[j] = int(floor(x[j]));
+          xi[j] = vtkMath::Floor(x[j]);
           pcoords[j] = x[j] - xi[j];
           }
         }
@@ -1367,7 +1367,7 @@ void vtkCellPicker::SetImageDataPickInfo(const double x[3],
     if (xj < extent[2*j]) { xj = extent[2*j]; }
     if (xj > extent[2*j+1]) { xj = extent[2*j+1]; }
 
-    this->CellIJK[j] = int(floor(xj));
+    this->CellIJK[j] = vtkMath::Floor(xj);
     this->PCoords[j] = xj - this->CellIJK[j];
     // Keep the cell in-bounds if it is on the edge
     if (this->CellIJK[j] == extent[2*j+1] &&
