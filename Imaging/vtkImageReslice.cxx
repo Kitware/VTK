@@ -64,7 +64,6 @@ vtkCxxSetObjectMacro(vtkImageReslice,ResliceTransform,vtkAbstractTransform);
 #define VTK_RESLICE_I386_FLOOR
 #endif
 
-
 // We add a tolerance of 2^-17 (around 7.6e-6) so that float
 // values that are just less than the closest integer are
 // rounded up.  This adds robustness against rounding errors.
@@ -97,9 +96,9 @@ inline int vtkResliceFloor(double x, F &f)
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  double y = floor(x + VTK_RESLICE_FLOOR_TOL);
-  f = x - y;
-  return static_cast<int>(y);
+  int i = vtkMath::Floor(x + VTK_RESLICE_FLOOR_TOL);
+  f = x - i;
+  return i;
 #endif
 }
 
@@ -124,7 +123,7 @@ inline int vtkResliceRound(double x)
   dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  return static_cast<int>(floor(x + (0.5 + VTK_RESLICE_FLOOR_TOL)));
+  return vtkMath::Floor(x + (0.5 + VTK_RESLICE_FLOOR_TOL));
 #endif
 }
 
