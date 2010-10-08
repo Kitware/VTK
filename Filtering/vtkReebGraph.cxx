@@ -701,7 +701,8 @@ int vtkReebGraph::SimplifyBranches(double simplificationThreshold,
       continue;
     }
 
-    int Down,Up;
+    int Down=0;
+    int Up=0;
 
     bool simplified=false;
 
@@ -743,8 +744,6 @@ int vtkReebGraph::SimplifyBranches(double simplificationThreshold,
 
     if (simplified)
     {
-
-
       if (!vtkReebGraphIsNodeCleared(this,Down))
       {
         this->SimplifyLabels(Down);
@@ -877,14 +876,14 @@ int vtkReebGraph::CommitSimplification()
 
     superArc.second.resize(vertexList->GetNumberOfTuples());
     vertexNumber += vertexList->GetNumberOfTuples();
-    for(int i = 0; i < superArc.second.size(); i++)
+    for(unsigned int i = 0; i < superArc.second.size(); i++)
       superArc.second[i] = vertexList->GetVariantValue(i).ToInt();
 
     before.push_back(superArc);
     }while(eIt->HasNext());
 
   segmentedVertices.resize(vertexNumber);
-  for(int i = 0; i < segmentedVertices.size(); i++)
+  for(unsigned int i = 0; i < segmentedVertices.size(); i++)
     segmentedVertices[i] = false;
 
   vtkIdType prevArcId = -1, arcId = 0;
@@ -921,13 +920,13 @@ int vtkReebGraph::CommitSimplification()
   std::map<int, bool> processedInputArcs, processedOutputArcs;
 
   // now map the unsimplified arcs onto the simplified ones
-  for(int i = 0; i < before.size(); i++)
+  for(unsigned int i = 0; i < before.size(); i++)
     {
     std::vector<int> simplifiedCriticalNodes;
     destinationArc = before[i].first;
-    for(int j = 0; j < cancellationHistory.size(); j++)
+    for(unsigned int j = 0; j < cancellationHistory.size(); j++)
       {
-      for(int k = 0; k < cancellationHistory[j].removedArcs.size(); k++)
+      for(unsigned int k = 0; k < cancellationHistory[j].removedArcs.size(); k++)
         {
         if((destinationArc.first == cancellationHistory[j].removedArcs[k].first)
           &&(destinationArc.second
@@ -948,7 +947,7 @@ int vtkReebGraph::CommitSimplification()
               &&(cancellationHistory[j].removedArcs[0].second
                 == destinationArc.second)))
               {
-              for(int l = 0; l < cancellationHistory[j].removedArcs.size(); l++)
+              for(unsigned int l = 0; l < cancellationHistory[j].removedArcs.size(); l++)
                 {
                 if((cancellationHistory[j].removedArcs[l].first
                   != destinationArc.first)
@@ -979,7 +978,7 @@ int vtkReebGraph::CommitSimplification()
       // at this point the deg2-nodes are in before[i].second
 
       // now find the projection in the simplified graph
-      for(int j = 0; j < after.size(); j++)
+      for(unsigned int j = 0; j < after.size(); j++)
         {
         if(destinationArc == after[j].first)
           {
@@ -996,7 +995,7 @@ int vtkReebGraph::CommitSimplification()
             if(before[i].first != destinationArc)
               {
               // adding content of before[i].second to after[j].second
-              for(int k = 0; k < before[i].second.size(); k++)
+              for(unsigned int k = 0; k < before[i].second.size(); k++)
                 {
                 if(!segmentedVertices[before[i].second[k]])
                   {
@@ -1005,7 +1004,7 @@ int vtkReebGraph::CommitSimplification()
                   }
                 }
               }
-              for(int k = 0; k < simplifiedCriticalNodes.size(); k++)
+              for(unsigned int k = 0; k < simplifiedCriticalNodes.size(); k++)
                 {
                 if(!segmentedVertices[simplifiedCriticalNodes[k]])
                   {
@@ -1019,10 +1018,10 @@ int vtkReebGraph::CommitSimplification()
         }
     }
   // ensure the sorting on the arcs  
-  for(int i = 0; i < after.size(); i++)
+  for(unsigned int i = 0; i < after.size(); i++)
     {
     std::vector<std::pair<int, double> > scalarValues;
-    for(int j = 0; j < after[i].second.size(); j++)
+    for(unsigned int j = 0; j < after[i].second.size(); j++)
       {
       std::pair<int, double> scalarVertex;
       scalarVertex.first = after[i].second[j];
@@ -1035,7 +1034,7 @@ int vtkReebGraph::CommitSimplification()
         }
       }
     std::sort(scalarValues.begin(), scalarValues.end(), vtkReebGraphVertexSoS);
-    for(int j = 0; j < after[i].second.size(); j++)
+    for(unsigned int j = 0; j < after[i].second.size(); j++)
       after[i].second[j] = scalarValues[j].first;
     }
 
@@ -1082,7 +1081,7 @@ int vtkReebGraph::CommitSimplification()
   deg2NodeIds->SetName("Vertex Ids");
   GetEdgeData()->AddArray(deg2NodeIds);
 
-  for(int i = 0; i < after.size(); i++)
+  for(unsigned int i = 0; i < after.size(); i++)
     {
     std::map<int, int>::iterator downIt, upIt;
     downIt = vMap.find(after[i].first.first);
@@ -1093,7 +1092,7 @@ int vtkReebGraph::CommitSimplification()
       vtkVariantArray *edgeProperties = vtkVariantArray::New();
       vtkIdTypeArray  *vertexList = vtkIdTypeArray::New();
       vertexList->SetNumberOfValues(after[i].second.size());
-      for(int j = 0; j < after[i].second.size(); j++)
+      for(unsigned int j = 0; j < after[i].second.size(); j++)
         vertexList->SetValue(j, after[i].second[j]);
       edgeProperties->SetNumberOfValues(1);
       edgeProperties->SetValue(0, vertexList);
@@ -1316,7 +1315,7 @@ void vtkReebGraph::CloseStream()
       if(aIt->second.second.size())
         {
         // start the sweep up
-        for(int i = 0; i < aIt->second.second.size(); i++)
+        for(unsigned int i = 0; i < aIt->second.second.size(); i++)
           {
           std::vector<int> deg2List;
           std::map<int,
@@ -1396,7 +1395,7 @@ void vtkReebGraph::CloseStream()
   deg2NodeIds->SetName("Vertex Ids");
   GetEdgeData()->AddArray(deg2NodeIds);
 
-  for(int i = 0; i < globalAdjacency.size(); i++)
+  for(unsigned int i = 0; i < globalAdjacency.size(); i++)
     {
     std::map<int, int>::iterator downIt, upIt;
     downIt = vMap.find(globalAdjacency[i].first.first);
@@ -1407,7 +1406,7 @@ void vtkReebGraph::CloseStream()
       vtkVariantArray *edgeProperties = vtkVariantArray::New();
       vtkIdTypeArray  *vertexList = vtkIdTypeArray::New();
       vertexList->SetNumberOfValues(globalAdjacency[i].second.size());
-      for(int j = 0; j < globalAdjacency[i].second.size(); j++)
+      for(unsigned int j = 0; j < globalAdjacency[i].second.size(); j++)
         vertexList->SetValue(j, globalAdjacency[i].second[j]);
       edgeProperties->SetNumberOfValues(1);
       edgeProperties->SetValue(0, vertexList);
@@ -1904,7 +1903,7 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
 
     vtkReebNode *down0 = vtkReebGraphGetNode(this, a0->NodeId0);
     vtkReebNode *up0 = vtkReebGraphGetNode(this, a0->NodeId1);
-    vtkReebNode *down1 = vtkReebGraphGetNode(this, a1->NodeId0);
+//    vtkReebNode *down1 = vtkReebGraphGetNode(this, a1->NodeId0);
     vtkReebNode *up1 = vtkReebGraphGetNode(this, a1->NodeId1);
 
     /* it is the same arc, no semplification is done */

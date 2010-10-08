@@ -263,7 +263,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       // enables a compressed usage of the UF
       std::vector<int> vertexToUFQueryMap(vertexList.size());
 
-      int representative;
+      int representative=0;
 
       // we don't parse the last vertex, for sure it's gonna be the
       // global "max".
@@ -342,9 +342,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
         }
 
       // put the global "max"
-      representative = unionFind.find_set(
-        vertexToUFQueryMap[halfStars[
-          vertexList[vertexList.size() - 1].first][0]]);
+      representative = unionFind.find_set(vertexToUFQueryMap[halfStars[vertexList[vertexList.size() - 1].first][0]]);
 
       edgeList[representative].first.second =
         vertexList[vertexList.size() - 1].first;
