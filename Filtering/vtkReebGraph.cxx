@@ -1497,9 +1497,6 @@ vtkReebGraph::~vtkReebGraph()
 //----------------------------------------------------------------------------
 void vtkReebGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
-
-  vtkIdType arcId = 0, nodeId = 0;
-
   vtkObject::PrintSelf(os, indent);
   os << indent << "Reeb graph general statistics:" << endl;
   os << indent << indent << "Number Of Node(s): "
@@ -1510,7 +1507,11 @@ void vtkReebGraph::PrintSelf(ostream& os, vtkIndent indent)
     << this->GetNumberOfConnectedComponents() << endl;
   os << indent << indent << "Number Of Loop(s): "
     << this->GetNumberOfLoops() << endl;
+}
 
+void vtkReebGraph::PrintNodeData(ostream& os, vtkIndent indent)
+{
+  vtkIdType arcId = 0, nodeId = 0;
   os << indent << "Node Data:" << endl;
   vtkIdType prevNodeId = -1;
  
