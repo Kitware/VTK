@@ -67,9 +67,9 @@ inline int vtkGridFloor(double x, F &f)
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  double y = floor(x + VTK_GRID_FLOOR_TOL);
-  f = x - y;
-  return static_cast<int>(y);
+  double i = vtkMath::Floor(x + VTK_GRID_FLOOR_TOL);
+  f = x - i;
+  return i;
 #endif
 }
 
@@ -93,7 +93,7 @@ inline int vtkGridRound(double x)
   dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  return static_cast<int>(floor(x + (0.5 + VTK_GRID_FLOOR_TOL)));
+  return vtkMath::Floor(x + (0.5 + VTK_GRID_FLOOR_TOL));
 #endif
 }
 
