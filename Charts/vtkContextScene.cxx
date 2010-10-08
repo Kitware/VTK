@@ -550,13 +550,13 @@ void vtkContextScene::MouseMoveEvent(int x, int y)
       if (this->Storage->itemPicked->GetScene() == this)
         {
         vtkAbstractContextItem* cur = this->Storage->itemPicked;
-        this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseMoveEvent);
+        this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseLeaveEvent);
         }
       }
     if (newItemPicked)
       {
       vtkAbstractContextItem* cur = newItemPicked;
-      this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseMoveEvent);
+      this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseEnterEvent);
       }
     }
 
