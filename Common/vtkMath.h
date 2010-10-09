@@ -364,6 +364,7 @@ public:
   // If b is a zero vector, the function returns false and 'projection' is invalid.
   // Otherwise, it returns true.
   static bool ProjectVector(const float a[3], const float b[3], float projection[3]);
+  static bool ProjectVector(const double a[3], const double b[3], double projection[3]);
 
   // Description:
   // Compute the projection of 2D vector 'a' on 2D vector 'b' and returns the result
@@ -371,6 +372,7 @@ public:
   // If b is a zero vector, the function returns false and 'projection' is invalid.
   // Otherwise, it returns true.
   static bool ProjectVector2D(const float a[2], const float b[2], float projection[2]);
+  static bool ProjectVector2D(const double a[2], const double b[2], double projection[2]);
 
   // Description:
   // Compute distance squared between two points x and y.

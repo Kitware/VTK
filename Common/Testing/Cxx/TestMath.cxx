@@ -89,9 +89,9 @@ static int TestSpecialDoublesReal(double value, const char *name,
 
 int TestMath(int,char *[])
 {
-  // Test ProjectVector
+  // Test ProjectVector float
   {
-  cout << "Testing ProjectVector" << endl;
+  std::cout << "Testing ProjectVector float" << std::endl;
   float a[3] = {2,-5,0};
   float b[3] = {5,1,0};
   float projection[3];
@@ -106,13 +106,47 @@ int TestMath(int,char *[])
   std::cout << "  * Test passed." << std::endl;
   }
 
-  // Test ProjectVector2D
+  // Test ProjectVector2D float
   {
-  cout << "Testing ProjectVector2D" << endl;
+  std::cout << "Testing ProjectVector2D float" << std::endl;
   float a[2] = {2,-5};
   float b[2] = {5,1};
   float projection[2];
   float correct[3] = {25./26., 5./26.};
+  vtkMath::ProjectVector2D(a,b,projection);
+  if(!fuzzyCompare2D(projection,correct))
+    {
+    std::cerr << "ProjectVector failed! Should be (25./26., 5./26.) but it is ("
+                  <<projection[0] << " " << projection[1] << ")" << std::endl;
+    return EXIT_FAILURE;
+    }
+  std::cout << "  * Test passed." << std::endl;
+  }
+
+  // Test ProjectVector double
+  {
+  std::cout << "Testing ProjectVector double" << std::endl;
+  double a[3] = {2,-5,0};
+  double b[3] = {5,1,0};
+  double projection[3];
+  double correct[3] = {25./26., 5./26., 0};
+  vtkMath::ProjectVector(a,b,projection);
+  if(!fuzzyCompare(projection,correct))
+    {
+    std::cerr << "ProjectVector failed! Should be (25./26., 5./26., 0) but it is ("
+                  <<projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
+    return EXIT_FAILURE;
+    }
+  std::cout << "  * Test passed." << std::endl;
+  }
+
+  // Test ProjectVector2D double
+  {
+  std::cout << "Testing ProjectVector2D double" << std::endl;
+  double a[2] = {2,-5};
+  double b[2] = {5,1};
+  double projection[2];
+  double correct[3] = {25./26., 5./26.};
   vtkMath::ProjectVector2D(a,b,projection);
   if(!fuzzyCompare2D(projection,correct))
     {
