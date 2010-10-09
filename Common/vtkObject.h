@@ -146,7 +146,7 @@ public:
   // functions as callbacks for events.  The callback function can
   // be one of these two types:
   // \code
-  // void foo(void);
+  // void foo(void);\n
   // void foo(vtkObject*, unsigned long, void*);
   // \endcode
   // If the callback is a member of a vtkObjectBase-derived object,
@@ -157,17 +157,17 @@ public:
   // its dead pointer will be used the next time the event occurs.
   // Typical usage of these functions is as follows:
   // \code
-  // SomeClassOfMine* observer = SomeClassOfMine::New();
-  // to_observe->AddObserver(event, observer, &SomeClassOfMine::SomeMethod);
+  // SomeClassOfMine* observer = SomeClassOfMine::New();\n
+  // to_observe->AddObserver(event, observer, \&SomeClassOfMine::SomeMethod);
   // \endcode
   // Note that this does not affect the reference count of a
   // vtkObjectBase-derived \c observer, which can be safely deleted
   // with the observer still in place. For non-vtkObjectBase observers,
   // the observer should never be deleted before it is removed.
   // Return value is a tag that can be used to remove the observer.
-  template <class T>
+  template <class U, class T>
   unsigned long AddObserver(unsigned long event,
-    T* observer, void (T::*callback)(), float priority=0.0f)
+    U observer, void (T::*callback)(), float priority=0.0f)
     {
     vtkClassMemberCallback<T> *callable =
       new vtkClassMemberCallback<T>(observer, callback);
@@ -175,9 +175,9 @@ public:
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
     }
-  template <class T>
+  template <class U, class T>
   unsigned long AddObserver(unsigned long event,
-    T* observer, void (T::*callback)(vtkObject*, unsigned long, void*),
+    U observer, void (T::*callback)(vtkObject*, unsigned long, void*),
     float priority=0.0f)
     {
     vtkClassMemberCallback<T> *callable =
@@ -243,7 +243,7 @@ private:
     };
 
   // Description:
-  // This is a weak pointer for vtObjectBase and a regular
+  // This is a weak pointer for vtkObjectBase and a regular
   // void pointer for everything else
   template<class T>
     class vtkClassMemberHandlerPointer
@@ -251,10 +251,11 @@ private:
     public:
       void operator=(vtkObjectBase *o)
         {
-        // Try a dynamic cast in case "o" has multi-inheritance,
-        // fallback to just using its vtkObjectBase as-is.
+        // The cast is needed in case "o" has multi-inheritance,
+        // to offset the pointer to get the vtkObjectBase.
         if ((this->VoidPointer = dynamic_cast<T*>(o)) == 0)
           {
+          // fallback to just using its vtkObjectBase as-is.
           this->VoidPointer = o;
           }
         this->WeakPointer = o;
@@ -310,7 +311,6 @@ private:
       virtual void operator()(
         vtkObject* caller, unsigned long event, void* calldata)
         {
-        // it is cast to/from the same type, so casting via void* is safe
         T *handler = this->Handler.GetPointer();
         if (handler)
           {
