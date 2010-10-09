@@ -18,18 +18,21 @@
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkCompositeDataGeometryFilter.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
-#include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
+#include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
@@ -234,9 +237,7 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 
 void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 {
-  vtkDataSet *ds;
-  vtkPolyData *pd;
-  vtkGeometryFilter *gf = NULL;
+  vtkSmartPointer<vtkPolyData> pd;
   vtkPointData *pntData;
   vtkPoints *points;
   vtkDataArray *normals = NULL;
@@ -276,21 +277,32 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   fprintf(fp,"      children [\n");
   trans->Delete();
-  
-  // get the mappers input and matrix
-  ds = anActor->GetMapper()->GetInput();
-  
-  // we really want polydata
-  if ( ds->GetDataObjectType() != VTK_POLY_DATA )
+
+  vtkDataObject* inputDO = anActor->GetMapper()->GetInput();
+  if (inputDO == NULL)
     {
-    gf = vtkGeometryFilter::New();
-    gf->SetInput(ds);
+    return;
+    }
+  // we really want polydata
+  if (inputDO->IsA("vtkCompositeDataSet"))
+    {
+    vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
+    gf->SetInput(inputDO);
     gf->Update();
     pd = gf->GetOutput();
+    gf->Delete();
+    }
+  else if (inputDO->GetDataObjectType() != VTK_POLY_DATA)
+    {
+    vtkGeometryFilter *gf = vtkGeometryFilter::New();
+    gf->SetInput(inputDO);
+    gf->Update();
+    pd = gf->GetOutput();
+    gf->Delete();
     }
   else
     {
-    pd = static_cast<vtkPolyData *>(ds);
+    pd = static_cast<vtkPolyData *>(inputDO);
     }
 
   pm = vtkPolyDataMapper::New();
@@ -501,10 +513,6 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"      ]\n"); // close the original transforms children
   fprintf(fp,"    }\n"); // close the original transform
   
-  if (gf)
-    {
-    gf->Delete();
-    }
   pm->Delete();
 }
 
