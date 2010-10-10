@@ -24,7 +24,6 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
@@ -138,8 +137,7 @@ bool vtkHardwareSelector::CaptureBuffers()
     }
   this->InvokeEvent(vtkCommand::StartEvent);
 
-  //rwin->SwapBuffersOff();
-  vtkRenderWindowInteractor* iren = rwin->GetInteractor();
+  rwin->SwapBuffersOff();
 
   // Initialize renderer for selection.
   //change the renderer's background to black, which will indicate a miss
@@ -156,17 +154,7 @@ bool vtkHardwareSelector::CaptureBuffers()
       {
       continue;
       }
-    // We go through render window interactor, if available, since that allows
-    // applications, such as ParaView, to do application specific updates etc.
-    // before render gets called.
-    if (false && iren)
-      {
-      iren->Render();
-      }
-    else
-      {
-      rwin->Render();
-      }
+    rwin->Render();
     this->SavePixelBuffer(this->CurrentPass);
     }
   this->EndSelection();
