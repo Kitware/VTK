@@ -31,12 +31,30 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
+#include <vector>
+#include <map>
 #include <algorithm>
 #include <queue>
 
 //----------------------------------------------------------------------------
 // Contain all of the internal data structures, and macros, in the
 // implementation.
+namespace
+{
+typedef struct        _vtkReebCancellation{
+  std::vector<std::pair<int, int> > removedArcs;
+  std::vector<std::pair<int, int> > insertedArcs;
+}vtkReebCancellation;
+}
+
+//----------------------------------------------------------------------------
+// PIMPLed classes...
+class vtkReebGraph::Implementation
+{
+public:
+  std::vector<vtkReebCancellation> cancellationHistory;
+
+};
 
 // INTERNAL MACROS ---------------------------------------------------------
 #define vtkReebGraphSwapVars(type, var1, var2)  \
@@ -307,7 +325,7 @@ void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int vtkNotUsed(ArcNumber), v
       vtkReebCancellation c;
       c.removedArcs.push_back(std::pair<int, int>(middle, up));
       c.insertedArcs.push_back(std::pair<int, int>(down, up));
-      cancellationHistory.push_back(c);
+      this->Storage->cancellationHistory.push_back(c);
       }
     if(A->ArcDwId1)
       {
@@ -319,7 +337,7 @@ void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int vtkNotUsed(ArcNumber), v
       vtkReebCancellation c;
       c.removedArcs.push_back(std::pair<int, int>(middle, up));
       c.insertedArcs.push_back(std::pair<int, int>(down, up));
-      cancellationHistory.push_back(c);
+      this->Storage->cancellationHistory.push_back(c);
       }
     if(A->ArcUpId0)
       {
@@ -331,7 +349,7 @@ void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int vtkNotUsed(ArcNumber), v
       vtkReebCancellation c;
       c.removedArcs.push_back(std::pair<int, int>(down, middle));
       c.insertedArcs.push_back(std::pair<int, int>(down, up));
-      cancellationHistory.push_back(c);
+      this->Storage->cancellationHistory.push_back(c);
       }
     if(A->ArcUpId1)
       {
@@ -343,7 +361,7 @@ void vtkReebGraph::FastArcSimplify(vtkIdType arcId, int vtkNotUsed(ArcNumber), v
       vtkReebCancellation c;
       c.removedArcs.push_back(std::pair<int, int>(down, middle));
       c.insertedArcs.push_back(std::pair<int, int>(down, up));
-      cancellationHistory.push_back(c);
+      this->Storage->cancellationHistory.push_back(c);
       }
     }
 
@@ -743,7 +761,7 @@ int vtkReebGraph::SimplifyLoops(double simplificationThreshold,
       c.removedArcs.push_back(std::pair<int, int>(middle, up));
       c.insertedArcs.push_back(std::pair<int, int>(down, up));
 
-      cancellationHistory.push_back(c);
+      this->Storage->cancellationHistory.push_back(c);
       }
      EndVertex(N);
    }
@@ -1145,49 +1163,52 @@ int vtkReebGraph::CommitSimplification()
     {
     std::vector<int> simplifiedCriticalNodes;
     destinationArc = before[i].first;
-    for(unsigned int j = 0; j < cancellationHistory.size(); j++)
+    for(unsigned int j = 0; j < this->Storage->cancellationHistory.size(); j++)
       {
-      for(unsigned int k = 0; k < cancellationHistory[j].removedArcs.size(); k++)
+      for(unsigned int k = 0;
+          k < this->Storage->cancellationHistory[j].removedArcs.size(); k++)
         {
-        if((destinationArc.first == cancellationHistory[j].removedArcs[k].first)
+        if((destinationArc.first ==
+            this->Storage->cancellationHistory[j].removedArcs[k].first)
           &&(destinationArc.second
-            == cancellationHistory[j].removedArcs[k].second))
+            == this->Storage->cancellationHistory[j].removedArcs[k].second))
           {
           // the arc has been involved in a cancellation
-          destinationArc = cancellationHistory[j].insertedArcs[0];
+          destinationArc = this->Storage->cancellationHistory[j].insertedArcs[0];
 
-          if(cancellationHistory[j].removedArcs.size() > 1)
+          if(this->Storage->cancellationHistory[j].removedArcs.size() > 1)
             {
-            if(((cancellationHistory[j].removedArcs[0].first
+            if(((this->Storage->cancellationHistory[j].removedArcs[0].first
               == destinationArc.first)
-              &&(cancellationHistory[j].removedArcs[1].second
+              &&(this->Storage->cancellationHistory[j].removedArcs[1].second
                 == destinationArc.second))
               ||
-              ((cancellationHistory[j].removedArcs[1].first
+              ((this->Storage->cancellationHistory[j].removedArcs[1].first
                 == destinationArc.first)
-              &&(cancellationHistory[j].removedArcs[0].second
+              &&(this->Storage->cancellationHistory[j].removedArcs[0].second
                 == destinationArc.second)))
               {
-              for(unsigned int l = 0; l < cancellationHistory[j].removedArcs.size(); l++)
+              for(unsigned int l = 0;
+                  l < this->Storage->cancellationHistory[j].removedArcs.size(); l++)
                 {
-                if((cancellationHistory[j].removedArcs[l].first
+                if((this->Storage->cancellationHistory[j].removedArcs[l].first
                   != destinationArc.first)
-                  &&(cancellationHistory[j].removedArcs[l].first
+                  &&(this->Storage->cancellationHistory[j].removedArcs[l].first
                   != destinationArc.second))
                   {
                   // this critical node will become a degree two node, let's
                   // remember it
                   simplifiedCriticalNodes.push_back(
-                    cancellationHistory[j].removedArcs[l].first);
+                    this->Storage->cancellationHistory[j].removedArcs[l].first);
                   }
-                if((cancellationHistory[j].removedArcs[l].second
+                if((this->Storage->cancellationHistory[j].removedArcs[l].second
                   != destinationArc.first)
-                  &&(cancellationHistory[j].removedArcs[l].second
+                  &&(this->Storage->cancellationHistory[j].removedArcs[l].second
                   != destinationArc.second))
                   {
                   // same thing as above
                   simplifiedCriticalNodes.push_back(
-                    cancellationHistory[j].removedArcs[l].second);
+                    this->Storage->cancellationHistory[j].removedArcs[l].second);
                   }
                 }
               }
@@ -1324,7 +1345,7 @@ int vtkReebGraph::CommitSimplification()
     }
   deg2NodeIds->Delete();
 
-  cancellationHistory.clear();
+  this->Storage->cancellationHistory.clear();
 
   return 0;
 }
@@ -1335,7 +1356,7 @@ int vtkReebGraph::Simplify(double simplificationThreshold,
 {
   int deletionNumber = 0;
 
-  cancellationHistory.clear();
+  this->Storage->cancellationHistory.clear();
   historyOn = true;
 
   this->ArcNumber = 0;
@@ -1642,6 +1663,7 @@ void vtkReebGraph::CloseStream()
 //----------------------------------------------------------------------------
 vtkReebGraph::vtkReebGraph()
 {
+  this->Storage = new vtkReebGraph::Implementation;
 
   historyOn = false;
 
@@ -1713,6 +1735,7 @@ vtkReebGraph::~vtkReebGraph()
 
   if(this->TriangleVertexMapAllocatedSize) free(this->TriangleVertexMap);
 
+  delete this->Storage;
 }
 
 //----------------------------------------------------------------------------
@@ -2179,7 +2202,7 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
         c.removedArcs.push_back(std::pair<int, int>(downVertex, upVertex));
         c.insertedArcs.push_back(std::pair<int, int>(downVertex, middleVertex));
         c.insertedArcs.push_back(std::pair<int, int>(middleVertex, upVertex));
-        cancellationHistory.push_back(c);
+        this->Storage->cancellationHistory.push_back(c);
         }
       // a more complicate situation, collapse reaching the less ending point of
       // the arcs.
@@ -2253,7 +2276,7 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
         c.removedArcs.push_back(std::pair<int, int>(v0, v1));
         c.removedArcs.push_back(std::pair<int, int>(v2, v3));
         c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
-        cancellationHistory.push_back(c);
+        this->Storage->cancellationHistory.push_back(c);
         }
       vtkReebGraphVertexCollapse(this,N0,n0);
     }
@@ -2284,7 +2307,7 @@ void vtkReebGraph::Collapse(vtkIdType startingNode, vtkIdType endingNode,
           c.removedArcs.push_back(std::pair<int, int>(v0, v1));
           c.removedArcs.push_back(std::pair<int, int>(v2, v3));
           c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
-          cancellationHistory.push_back(c);
+          this->Storage->cancellationHistory.push_back(c);
           }
         vtkReebGraphVertexCollapse(this,endingNode,nend);
       }

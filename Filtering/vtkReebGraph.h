@@ -361,11 +361,8 @@ protected:
 
   bool                  historyOn;
 
-  typedef struct        _vtkReebCancellation{
-    std::vector<std::pair<int, int> > removedArcs;
-    std::vector<std::pair<int, int> > insertedArcs;
-  }vtkReebCancellation;
-  std::vector<vtkReebCancellation> cancellationHistory;
+  class Implementation;
+  Implementation* Storage;
 
   // Node structure
   typedef struct
