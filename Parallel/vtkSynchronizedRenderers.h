@@ -144,6 +144,10 @@ public:
     // Pushes the image to the viewport.
     bool PushToViewport(vtkRenderer*);
 
+    // This is a raw version of PushToViewport() that assumes that the
+    // glViewport() has already been setup externally.
+    bool PushToFrameBuffer();
+
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
     // the active buffer.

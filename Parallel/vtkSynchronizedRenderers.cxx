@@ -516,13 +516,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
 
-  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
   glEnable(GL_SCISSOR_TEST);
   glViewport(
     static_cast<GLint>(viewport[0]*window_size[0]),
@@ -535,8 +528,26 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
   ren->Clear();
-  glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
+  return this->PushToFrameBuffer();
+}
 
+//----------------------------------------------------------------------------
+bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
+{
+  if (!this->IsValid())
+    {
+    vtkGenericWarningMacro("Image not valid. Cannot push to screen.");
+    return false;
+    }
+
+  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
 
   GLuint tex=0;
   glGenTextures(1, &tex);
@@ -579,7 +590,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   glPopAttrib();
   return true;
 }
-
 
 //----------------------------------------------------------------------------
 bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
