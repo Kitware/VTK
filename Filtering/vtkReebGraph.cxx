@@ -37,7 +37,29 @@
 //----------------------------------------------------------------------------
 // Contain all of the internal data structures, and macros, in the
 // implementation.
+
 // INTERNAL MACROS ---------------------------------------------------------
+#define vtkReebGraphSwapVars(type, var1, var2)  \
+{\
+  type tmp;\
+  tmp=(var1);\
+  (var1)=(var2);\
+  (var2)=tmp;\
+}
+
+#define vtkReebGraphInitialStreamSize 1000
+
+#define vtkReebGraphGetNode(myReebGraph, nodeId) \
+        ((!nodeId) ? 0 : (myReebGraph->MainNodeTable.Buffer + nodeId))
+
+#define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1) \
+((node0->Value < node1->Value) || (node0->Value == node1->Value && nodeId0 < nodeId1))
+//(node0->Value == node1->Value && node0->VertexId < node1->VertexId)
+
+#define vtkReebGraphIsSmaller2(myReebGraph, nodeId0, nodeId1) \
+vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, \
+vtkReebGraphGetNode(myReebGraph, nodeId0), \
+vtkReebGraphGetNode(myReebGraph, nodeId1))
 
 #define vtkReebGraphGetArc(rg,i) \
 ((!i)?(0):((rg)->MainArcTable.Buffer+(i)))
@@ -49,7 +71,6 @@
 ((vtkReebGraphGetNode(rg,a->NodeId1)->Value - \
 vtkReebGraphGetNode(rg,a->NodeId0)->Value) \
 /(this->MaximumScalarValue - this->MinimumScalarValue))
-
 
 #define vtkReebGraphGetDownArc(rg,N) \
 (vtkReebGraphGetNode(rg,N)->ArcDownId)
@@ -169,7 +190,6 @@ if (a->ArcUpId1) vtkReebGraphGetArc(rg,a->ArcUpId1)->ArcDwId1=a->ArcDwId1; else 
 if (a->ArcDwId1) vtkReebGraphGetArc(rg,a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
 }
 
-
 #define vtkReebGraphVertexCollapse(rg,N,n) {\
 int Lb,Lnext,La;\
 vtkReebLabel* lb;\
@@ -227,6 +247,8 @@ stack[nstack++]=(N);\
 #define vtkReebGraphStackTop()   (stack[nstack-1])
 
 #define vtkReebGraphStackPop()   (--nstack)
+
+//----------------------------------------------------------------------------
 namespace
 {
 
@@ -3004,5 +3026,14 @@ int vtkReebGraph::GetNumberOfLoops()
 
   if(!this->ArcLoopTable) this->FindLoops();
   return this->LoopNumber - this->RemovedLoopNumber;
+}
+
+//----------------------------------------------------------------------------
+inline vtkIdType vtkReebGraph::AddArc(vtkIdType nodeId0, vtkIdType nodeId1)
+{
+  if (!vtkReebGraphIsSmaller2(this, nodeId0, nodeId1))
+    vtkReebGraphSwapVars(vtkIdType, nodeId0, nodeId1);
+  vtkIdType nodevtkReebArcble[] = { nodeId0, nodeId1};
+  return AddPath(2, nodevtkReebArcble, 0);
 }
 

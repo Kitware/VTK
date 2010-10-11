@@ -366,35 +366,6 @@ protected:
     std::vector<std::pair<int, int> > insertedArcs;
   }vtkReebCancellation;
   std::vector<vtkReebCancellation> cancellationHistory;
-#define vtkReebGraphSwapVars(type, var1, var2)  \
-{\
-  type tmp;\
-  tmp=(var1);\
-  (var1)=(var2);\
-  (var2)=tmp;\
-}
-
-#define vtkReebGraphInitialStreamSize 1000
-
-#define vtkReebGraphGetNode(myReebGraph, nodeId) \
-        ((!nodeId) ? 0 : (myReebGraph->MainNodeTable.Buffer + nodeId))
-
-#define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1) \
-((node0->Value < node1->Value) || (node0->Value == node1->Value && nodeId0 < nodeId1))
-//(node0->Value == node1->Value && node0->VertexId < node1->VertexId)
-
-#define vtkReebGraphIsSmaller2(myReebGraph, nodeId0, nodeId1) \
-vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, \
-vtkReebGraphGetNode(myReebGraph, nodeId0), \
-vtkReebGraphGetNode(myReebGraph, nodeId1))
-
-  inline vtkIdType AddArc(vtkIdType nodeId0, vtkIdType nodeId1)
-  {
-    if (!vtkReebGraphIsSmaller2(this, nodeId0, nodeId1))
-      vtkReebGraphSwapVars(vtkIdType, nodeId0, nodeId1);
-    vtkIdType nodevtkReebArcble[] = { nodeId0, nodeId1};
-    return AddPath(2, nodevtkReebArcble, 0);
-  }
 
   // Node structure
   typedef struct
@@ -754,6 +725,8 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
 private:
   vtkReebGraph(const vtkReebGraph&); // Not implemented.
   void operator=(const vtkReebGraph&); // Not implemented.
+
+  vtkIdType AddArc(vtkIdType nodeId0, vtkIdType nodeId1);
 
 };
 
