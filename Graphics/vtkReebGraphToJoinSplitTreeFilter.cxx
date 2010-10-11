@@ -28,6 +28,17 @@
 #include <algorithm>
 #include <boost/pending/disjoint_sets.hpp>
 
+namespace
+{
+//----------------------------------------------------------------------------
+inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
+  const std::pair<int, double> v1)
+{
+  return ((v0.second < v1.second)
+    || ((v0.second == v1.second)&&(v0.first < v1.first)));
+}
+}
+
 vtkStandardNewMacro(vtkReebGraphToJoinSplitTreeFilter);
 
 //----------------------------------------------------------------------------
