@@ -139,6 +139,8 @@ vtkTableWriter.cxx
 vtkTableToDatabaseWriter.cxx
 vtkTableToSQLiteWriter.cxx
 vtkTecplotReader.cxx
+vtkTextCodec.cxx
+vtkTextCodecFactory.cxx
 vtkTIFFReader.cxx
 vtkTIFFWriter.cxx
 vtkTreeReader.cxx
@@ -219,6 +221,8 @@ vtkRowQuery
 vtkSQLDatabase
 vtkSQLQuery
 vtkTableToDatabaseWriter
+vtkTextCodec
+vtkTextCodecFactory
 vtkVolumeReader
 vtkWriter
 vtkXMLCompositeDataReader.cxx
