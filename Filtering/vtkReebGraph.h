@@ -49,15 +49,15 @@
 // Topoligical simplification can be either driven by persistence homology
 // concepts (default behavior) or by application specific metrics (see
 // vtkReebGraphSimplificationMetric).
-// In the latter case, designing customized simplification metric evaluation 
-// algorithms enables the user to control the definition of what should be 
+// In the latter case, designing customized simplification metric evaluation
+// algorithms enables the user to control the definition of what should be
 // considered as noise or signal in the topological filtering process.
-// 
+//
 // References:
 // "Topological persistence and simplification",
 // H. Edelsbrunner, D. Letscher, and A. Zomorodian,
 // Discrete Computational Geometry, 28:511-533, 2002.
-// 
+//
 // "Extreme elevation on a 2-manifold",
 // P.K. Agarwal, H. Edelsbrunner, J. Harer, and Y. Wang,
 // ACM Symposium on Computational Geometry, pp. 357-365, 2004.
@@ -160,7 +160,7 @@ public:
   //
   int Build(vtkPolyData *mesh, vtkDataArray *scalarField);
 
-	// Description:
+  // Description:
   // Build the Reeb graph of the field 'scalarField' defined on the volume
   // mesh 'mesh'.
   //
@@ -193,7 +193,7 @@ public:
   //
   int Build(vtkPolyData *mesh, vtkIdType scalarFieldId);
 
-	// Description:
+  // Description:
   // Build the Reeb graph of the field given by the Id 'scalarFieldId',
   // defined on the volume mesh 'mesh'.
   //
@@ -229,7 +229,7 @@ public:
   //
   int Build(vtkPolyData *mesh, const char* scalarFieldName);
 
-	// Description:
+  // Description:
   // Build the Reeb graph of the field given by the name 'scalarFieldName',
   // defined on the volume mesh 'mesh'.
   //
@@ -246,57 +246,57 @@ public:
   //
   int Build(vtkUnstructuredGrid *mesh, const char* scalarFieldName);
 
-	// Description:
-	// Streaming Reeb graph computation.
-	// Add to the streaming computation the triangle of the vtkPolyData surface
-	// mesh described by
-	// 	vertex0Id, scalar0
-	// 	vertex1Id, scalar1
-	// 	vertex2Id, scalar2
-	//
-	// 	where vertex<i>Id is the Id of the vertex in the vtkPolyData structure
-	// 	and scalar<i> is the corresponding scalar field value.
-	//
+  // Description:
+  // Streaming Reeb graph computation.
+  // Add to the streaming computation the triangle of the vtkPolyData surface
+  // mesh described by
+  // 	vertex0Id, scalar0
+  // 	vertex1Id, scalar1
+  // 	vertex2Id, scalar2
+  //
+  // 	where vertex<i>Id is the Id of the vertex in the vtkPolyData structure
+  // 	and scalar<i> is the corresponding scalar field value.
+  //
   // IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
-	int StreamTriangle(	vtkIdType vertex0Id, double scalar0,
-											vtkIdType vertex1Id, double scalar1,
-											vtkIdType vertex2Id, double scalar2);
+  int StreamTriangle(	vtkIdType vertex0Id, double scalar0,
+                      vtkIdType vertex1Id, double scalar1,
+                      vtkIdType vertex2Id, double scalar2);
 
-	// Description:
-	// Streaming Reeb graph computation.
-	// Add to the streaming computation the tetrahedra of the vtkUnstructuredGrid
-	// volume mesh described by
-	// 	vertex0Id, scalar0
-	// 	vertex1Id, scalar1
-	// 	vertex2Id, scalar2
-	// 	vertex3Id, scalar3
-	//
-	// 	where vertex<i>Id is the Id of the vertex in the vtkUnstructuredGrid
-	// 	structure and scalar<i> is the corresponding scalar field value.
-	//
+  // Description:
+  // Streaming Reeb graph computation.
+  // Add to the streaming computation the tetrahedra of the vtkUnstructuredGrid
+  // volume mesh described by
+  // 	vertex0Id, scalar0
+  // 	vertex1Id, scalar1
+  // 	vertex2Id, scalar2
+  // 	vertex3Id, scalar3
+  //
+  // 	where vertex<i>Id is the Id of the vertex in the vtkUnstructuredGrid
+  // 	structure and scalar<i> is the corresponding scalar field value.
+  //
   // IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
-	int StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
-											   vtkIdType vertex1Id, double scalar1,
-											   vtkIdType vertex2Id, double scalar2,
+  int StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
+                         vtkIdType vertex1Id, double scalar1,
+                         vtkIdType vertex2Id, double scalar2,
                          vtkIdType vertex3Id, double scalar3);
 
-	// Description:
-	// Finalize internal data structures, in the case of streaming computations
+  // Description:
+  // Finalize internal data structures, in the case of streaming computations
   // (with StreamTriangle or StreamTetrahedron).
   // After this call, no more triangle or tetrahedron can be inserted via
   // StreamTriangle or StreamTetrahedron.
-	// IMPORTANT: This method _must_ be called when the input stream is finished.
+  // IMPORTANT: This method _must_ be called when the input stream is finished.
   // If you need to get a snapshot of the Reeb graph during the streaming
   // process (to parse or simplify it), do a DeepCopy followed by a
   // CloseStream on the copy.
-	void CloseStream();
+  void CloseStream();
 
   // Descrition:
   // Implements deep copy
   void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // Simplify the Reeb graph given a threshold 'simplificationThreshold' 
+  // Simplify the Reeb graph given a threshold 'simplificationThreshold'
   // (between 0 and 1).
   //
   // This method is the core feature for Reeb graph multi-resolution hierarchy
@@ -352,10 +352,10 @@ protected:
   // INTERNAL DATA-STRUCTURES ------------------------------------------------
 
 
-	// Streaming support
-	int										VertexMapSize, VertexMapAllocatedSize,
-												TriangleVertexMapSize, TriangleVertexMapAllocatedSize;
-	std::map<int, int> 		VertexStream;
+  // Streaming support
+  int										VertexMapSize, VertexMapAllocatedSize,
+                        TriangleVertexMapSize, TriangleVertexMapAllocatedSize;
+  std::map<int, int> 		VertexStream;
 
   typedef unsigned long long vtkReebLabelTag;
 
@@ -437,27 +437,27 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
     {
       return !(
           (SimplificationValue < E.SimplificationValue) ||
-          (SimplificationValue == E.SimplificationValue 
+          (SimplificationValue == E.SimplificationValue
             && ArcNumber < E.ArcNumber) ||
           (SimplificationValue == E.SimplificationValue
-            && ArcNumber == E.ArcNumber 
+            && ArcNumber == E.ArcNumber
             && NodeTable[NodeNumber - 1] < E.NodeTable[E.NodeNumber - 1]));
 /*      return !((
-          (MaximumScalarValue - MinimumScalarValue) 
-            < (E.MaximumScalarValue - E.MinimumScalarValue)) || 
-             ((MaximumScalarValue - MinimumScalarValue) 
-               == (E.MaximumScalarValue-E.MinimumScalarValue) 
-                 && ArcNumber < E.ArcNumber) || 
+          (MaximumScalarValue - MinimumScalarValue)
+            < (E.MaximumScalarValue - E.MinimumScalarValue)) ||
+             ((MaximumScalarValue - MinimumScalarValue)
+               == (E.MaximumScalarValue-E.MinimumScalarValue)
+                 && ArcNumber < E.ArcNumber) ||
              ((MaximumScalarValue - MinimumScalarValue)
                == (E.MaximumScalarValue - E.MinimumScalarValue)
                  && ArcNumber == E.ArcNumber
                    && NodeTable[NodeNumber - 1]<E.NodeTable[E.NodeNumber - 1])
            );*/
-    
+
     }
   };
 
-  vtkReebGraph::vtkReebPath FindPath(vtkIdType arcId, 
+  vtkReebGraph::vtkReebPath FindPath(vtkIdType arcId,
     double simplificationThreshold, vtkReebGraphSimplificationMetric *metric);
 
   struct
@@ -511,13 +511,13 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   vtkIdType AddPath(int nodeNumber, vtkIdType* nodeOffset,
                     vtkReebLabelTag label);
 
-	// Description:
+  // Description:
   //   Add a vertex from the mesh to the Reeb graph.
   //
   //   INTERNAL USE ONLY!
   vtkIdType AddMeshVertex(vtkIdType vertexId, double scalar);
 
-	// Description:
+  // Description:
   //   Add a triangle from the mesh to the Reeb grpah.
   //
   //   INTERNAL USE ONLY!
@@ -599,7 +599,7 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   // Find corresponding joining saddle node (persistence-based simplification).
   //
   // INTERNAL USE ONLY!
-  vtkIdType FindJoinNode(vtkIdType arcId, 
+  vtkIdType FindJoinNode(vtkIdType arcId,
     vtkReebLabelTag label, bool onePathOnly=false);
 
   // Description:
@@ -750,198 +750,6 @@ vtkReebGraphGetNode(myReebGraph, nodeId1))
   // When the first node is reached, this method will keep on returning its Id
   // at each call. See 'GetNextNodeId' to go forwards in the list.
   vtkIdType GetPreviousNodeId();
-
-
-  // INTERNAL MACROS ---------------------------------------------------------
-
-#define vtkReebGraphGetArc(rg,i) \
-((!i)?(0):((rg)->MainArcTable.Buffer+(i)))
-
-#define vtkReebGraphGetLabel(rg,i) \
-((!i)?(0):((rg)->MainLabelTable.Buffer+(i)))
-
-#define vtkReebGraphGetArcPersistence(rg,a)  \
-((vtkReebGraphGetNode(rg,a->NodeId1)->Value - \
-vtkReebGraphGetNode(rg,a->NodeId0)->Value) \
-/(this->MaximumScalarValue - this->MinimumScalarValue))
-
-
-#define vtkReebGraphGetDownArc(rg,N) \
-(vtkReebGraphGetNode(rg,N)->ArcDownId)
-
-#define vtkReebGraphGetArcLabel(rg,A) \
-(vtkReebGraphGetArc(rg,A)->LabelId0)
-
-#define vtkReebGraphGetLabelArc(rg,L) \
-(vtkReebGraphGetLabel(rg,L)->ArcId)
-
-#define vtkReebGraphClearNode(rg,N) \
-(vtkReebGraphGetNode(rg,N)->ArcUpId  = ((int)-2))
-
-#define vtkReebGraphClearArc(rg,A) \
-(vtkReebGraphGetArc(rg,A)->LabelId1   = ((int)-2))
-
-#define vtkReebGraphClearLabel(rg,L) \
-(vtkReebGraphGetLabel(rg,L)->HNext = ((int)-2))
-
-#define vtkReebGraphIsNodeCleared(rg,N) \
-(vtkReebGraphGetNode(rg,N)->ArcUpId  ==((int)-2))
-
-#define vtkReebGraphIsArcCleared(rg,A)  \
-(vtkReebGraphGetArc(rg,A)->LabelId1   ==((int)-2))
-
-#define vtkReebGraphIsLabelCleared(rg,L)  \
-(vtkReebGraphGetLabel(rg,L)->HNext ==((int)-2))
-
-#define vtkReebGraphNewNode(rg,N)    { \
-N=rg->MainNodeTable.FreeZone;\
-rg->MainNodeTable.FreeZone=vtkReebGraphGetNode(rg,N)->ArcDownId;\
-++(rg->MainNodeTable.Number);\
-memset(vtkReebGraphGetNode(rg,N),0,sizeof(vtkReebNode));}
-
-#define vtkReebGraphNewArc(rg,A)    {\
-A=rg->MainArcTable.FreeZone;\
-rg->MainArcTable.FreeZone=vtkReebGraphGetArc(rg,A)->LabelId0;\
-++(rg->MainArcTable.Number);\
-memset(vtkReebGraphGetArc(rg,A),0,sizeof(vtkReebArc));}
-
-#define vtkReebGraphNewLabel(rg,L)    {\
-L=rg->MainLabelTable.FreeZone;\
-rg->MainLabelTable.FreeZone=vtkReebGraphGetLabel(rg,L)->ArcId;\
-++(rg->MainLabelTable.Number);\
-memset(vtkReebGraphGetLabel(rg,L),0,sizeof(vtkReebLabel));}
-
-#define vtkReebGraphDeleteNode(rg,N)     \
-vtkReebGraphClearNode(rg,N); \
-vtkReebGraphGetDownArc(rg,N) = rg->MainNodeTable.FreeZone; \
-rg->MainNodeTable.FreeZone=(N); \
---(rg->MainNodeTable.Number);
-
-#define vtkReebGraphDeleteArc(rg,A)    \
-vtkReebGraphClearArc(rg,A); \
-vtkReebGraphGetArcLabel(rg,A) = rg->MainArcTable.FreeZone; \
-rg->MainArcTable.FreeZone=(A); \
---(rg->MainArcTable.Number);
-
-#define vtkReebGraphDeleteLabel(rg,L)    \
-vtkReebGraphClearLabel(rg,L); \
-vtkReebGraphGetLabelArc(rg,L) = rg->MainLabelTable.FreeZone; \
-rg->MainLabelTable.FreeZone=(L); \
---(rg->MainLabelTable.Number);
-
-#define vtkReebGraphIsHigherThan(rg,N0,N1,n0,n1) \
-((n0->Value >n1->Value) || (n0->Value==n1->Value && n0->VertexId>n1->VertexId))
-
-#define vtkReebGraphIsHigherThan2(rg,N0,N1) \
-vtkReebGraphIsHigherThan(rg,N0,N1,vtkReebGraphGetNode(rg,N0),vtkReebGraphGetNode(rg,N1))
-
-// Note: usually this macro is called after the node has been finilized.
-// otherwise the behaviour is undefined.
-
-#define vtkReebGraphIsRegular(rg,n) \
-  ((!(n)->IsCritical) && \
-  ((n)->ArcDownId && !vtkReebGraphGetArc(rg,(n)->ArcDownId)->ArcDwId1 && \
-  (n)->ArcUpId && !vtkReebGraphGetArc(rg,(n)->ArcUpId)->ArcDwId0))
-
-#define vtkReebGraphGetDownDegree(dst,rg,N) \
-  (dst)=0;\
-  for (int _A=vtkReebGraphGetNode(rg,N)->ArcDownId;_A;_A=vtkReebGraphGetArc(rg,_A)->ArcDwId1)\
-    ++(dst);
-
-#define vtkReebGraphGetUpDegree(dst,rg,N)\
-  (dst)=0;\
-  for (int _A=vtkReebGraphGetNode(rg,N)->ArcUpId;_A;_A=vtkReebGraphGetArc(rg,_A)->ArcDwId0)\
-    ++(dst);
-
-#define vtkReebGraphAddUpArc(rg,N,A) {\
-  vtkReebNode* n=vtkReebGraphGetNode(rg,N);\
-  vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
-  a->ArcUpId0=0;a->ArcDwId0=n->ArcUpId;\
-  if (n->ArcUpId) vtkReebGraphGetArc(rg,n->ArcUpId)->ArcUpId0=(A);\
-  n->ArcUpId=(A);\
-}
-
-#define vtkReebGraphAddDownArc(rg,N,A) {\
-  vtkReebNode* n=vtkReebGraphGetNode(rg,N);\
-  vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
-  a->ArcUpId1=0;\
-  a->ArcDwId1=n->ArcDownId;\
-  if (n->ArcDownId) vtkReebGraphGetArc(rg,n->ArcDownId)->ArcUpId1=(A);\
-  n->ArcDownId=(A);\
-}
-
-#define vtkReebGraphRemoveUpArc(rg,N,A) \
-  vtkReebNode* n=vtkReebGraphGetNode(rg,N);\
-  vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
-  if (a->ArcUpId0) vtkReebGraphGetArc(rg,a->ArcUpId0)->ArcDwId0=a->ArcDwId0; else n->ArcUpId=a->ArcDwId0;\
-  if (a->ArcDwId0) vtkReebGraphGetArc(rg,a->ArcDwId0)->ArcUpId0=a->ArcUpId0;
-
-
-#define vtkReebGraphRemoveDownArc(rg,N,A) {\
-  vtkReebNode* n=vtkReebGraphGetNode(rg,N);\
-  vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
-  if (a->ArcUpId1) vtkReebGraphGetArc(rg,a->ArcUpId1)->ArcDwId1=a->ArcDwId1; else n->ArcDownId=a->ArcDwId1;\
-  if (a->ArcDwId1) vtkReebGraphGetArc(rg,a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
-}
-
-
-#define vtkReebGraphVertexCollapse(rg,N,n) {\
-  int Lb,Lnext,La;\
-  vtkReebLabel* lb;\
-  int A0=n->ArcDownId;\
-  int A1=n->ArcUpId  ;\
-  vtkReebArc *a0=vtkReebGraphGetArc(rg,A0); \
-  vtkReebArc *a1=vtkReebGraphGetArc(rg,A1);\
-  a0->NodeId1  =a1->NodeId1;\
-  a0->ArcUpId1 =a1->ArcUpId1;if (a1->ArcUpId1) vtkReebGraphGetArc(rg,a1->ArcUpId1)->ArcDwId1=A0;\
-  a0->ArcDwId1 =a1->ArcDwId1;if (a1->ArcDwId1) vtkReebGraphGetArc(rg,a1->ArcDwId1)->ArcUpId1=A0;\
-  if (vtkReebGraphGetNode(rg,a1->NodeId1)->ArcDownId==A1) vtkReebGraphGetNode(rg,a1->NodeId1)->ArcDownId=A0;\
-\
-\
-  for (Lb=a1->LabelId0;Lb;Lb=Lnext) \
-  {\
-    lb=vtkReebGraphGetLabel(rg,Lb);\
-    Lnext=lb->HNext;\
-\
-    if (lb->VPrev)\
-    {\
-      La=lb->VPrev;\
-      vtkReebGraphGetLabel(rg,La)->VNext=lb->VNext;\
-    }\
-\
-    if (lb->VNext)\
-      vtkReebGraphGetLabel(rg,lb->VNext)->VPrev=lb->VPrev;\
-\
-    vtkReebGraphDeleteLabel(rg,Lb);\
-  }\
-\
-  vtkReebGraphDeleteArc(rg,A1);\
-  vtkReebGraphDeleteNode(rg,N);\
-}
-
-#ifndef vtkReebGraphMax
-#define vtkReebGraphMax(a,b) (((a)>=(b))?(a):(b))
-#endif
-
-#ifndef vtkReebGraphMin
-#define vtkReebGraphMin(a,b) (((a)<=(b))?(a):(b))
-#endif
-
-#define vtkReebGraphStackPush(N) \
-{\
-  if (nstack==mstack)\
-  {\
-    mstack=vtkReebGraphMax(128,mstack*2);\
-    stack=(int*)realloc(stack,sizeof(int)*mstack);\
-  } \
-  stack[nstack++]=(N);\
-}
-
-#define vtkReebGraphStackSize()  (nstack)
-
-#define vtkReebGraphStackTop()   (stack[nstack-1])
-
-#define vtkReebGraphStackPop()   (--nstack)
 
 private:
   vtkReebGraph(const vtkReebGraph&); // Not implemented.
