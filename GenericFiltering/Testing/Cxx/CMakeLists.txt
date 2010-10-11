@@ -8,9 +8,6 @@
 
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
-INCLUDE_DIRECTORIES(
-  ${VTK_SOURCE_DIR}/GenericFiltering/Testing/Cxx/Bridge
-  )
 
 #SET(KIT Bridge)
 SET(KIT GenericFiltering)
