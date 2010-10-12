@@ -17,33 +17,24 @@ typedef void (*FTCallback)();
 
 struct FTGLRenderContext
 {
-#ifdef FTGL_SUPPORT_MANGLE_MESA  
-  int UseMangleMesa; 
-#endif 
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+  int UseMangleMesa;
+#endif
 };
 
 #ifdef WIN32
 
-    // Under windows avoid including <windows.h> is overrated. 
+    // Under windows avoid including <windows.h> is overrated.
   // Sure, it can be avoided and "name space pollution" can be
   // avoided, but why? It really doesn't make that much difference
   // these days.
     #define  WIN32_LEAN_AND_MEAN
     #include <windows.h>
 
-#else
-
-// Some sgi compilers do not define true, false and bool
-#ifndef false
-#define false 0
-#define true 1
-#define bool char
-#endif
-
 #endif
 
 // Compiler-specific conditional compilation
-#ifdef _MSC_VER // MS Visual C++ 
+#ifdef _MSC_VER // MS Visual C++
 
   // Disable various warning.
   // 4786: template name too long
@@ -61,7 +52,7 @@ struct FTGLRenderContext
 #pragma warning( disable : 4311 ) // same for pointer
 #pragma warning( disable : 4312 ) // same for pointer
 
-#endif /* _MSC_VER */ 
+#endif /* _MSC_VER */
 
 #endif
 
@@ -76,9 +67,9 @@ struct FTGLRenderContext
   // The following definitions control how symbols are exported.
   // If the target is a static library ensure that FTGL_LIBRARY_STATIC
   // is defined. If building a dynamic library (ie DLL) ensure the
-  // FTGL_LIBRARY macro is defined, as it will mark symbols for 
-  // export. If compiling a project to _use_ the _dynamic_ library 
-  // version of the library, no definition is required. 
+  // FTGL_LIBRARY macro is defined, as it will mark symbols for
+  // export. If compiling a project to _use_ the _dynamic_ library
+  // version of the library, no definition is required.
   #ifdef FTGL_LIBRARY_STATIC    // static lib - no special export required
   #  define FTGL_EXPORT
   #else
@@ -86,13 +77,13 @@ struct FTGLRenderContext
   #  define FTGL_EXPORT   __declspec(dllexport)
   #else
   #  define FTGL_EXPORT   __declspec(dllimport)
-  #endif 
-  #endif 
+  #endif
+  #endif
 
 #else
   // Compiler that is not MS Visual C++.
   // Ensure that the export symbol is defined (and blank)
   #define FTGL_EXPORT
-#endif  
+#endif
 
 #endif  //  __FTGL__
