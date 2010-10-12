@@ -358,7 +358,7 @@ bool TestEigen()
   for(vtkIdType i = 0; i < eigenvectors->GetNumberOfTuples(); i++)
     {
     std::cout << "Eigenvector " << i << " : ";
-    double evec[eigenvectors->GetNumberOfComponents()];
+    double* evec = new double[eigenvectors->GetNumberOfComponents()];
     eigenvectors->GetTuple(i, evec);
     for(vtkIdType j = 0; j < eigenvectors->GetNumberOfComponents(); j++)
       {
@@ -373,6 +373,7 @@ bool TestEigen()
          return EXIT_FAILURE;
          }
       }
+    delete evec;
     std::cout << std::endl;
     }
 
