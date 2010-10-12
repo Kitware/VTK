@@ -930,6 +930,7 @@ void vtkWrapPython_RemovePreceededMethods(
               {
               vote1 = 0;
               vote2 = 0;
+              allmatch = 0;
               break;
               }
             else
@@ -1037,6 +1038,7 @@ void vtkWrapPython_RemovePreceededMethods(
                 {
                 vote1 = 0;
                 vote2 = 0;
+                allmatch = 0;
                 break;
                 }
               }
