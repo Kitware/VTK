@@ -21,7 +21,7 @@
 #include "vtkVector.h"
 #include "vtkImageData.h"
 
-#include "vtkFreeTypeUtilities.h"
+#include "vtkFreeTypeTools.h"
 
 #include "vtkObjectFactory.h"
 
@@ -30,9 +30,9 @@ class vtkFreeTypeStringToImage::Internals
 public:
   Internals()
     {
-    this->FreeType = vtkSmartPointer<vtkFreeTypeUtilities>::New();
+    this->FreeType = vtkFreeTypeTools::GetInstance();
     }
-  vtkSmartPointer<vtkFreeTypeUtilities> FreeType;
+  vtkFreeTypeTools *FreeType;
 };
 
 //-----------------------------------------------------------------------------
@@ -61,8 +61,7 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
     return recti;
     }
 
-  this->Implementation->FreeType->GetBoundingBox(property, string.utf8_str(),
-                                                 tmp);
+  this->Implementation->FreeType->GetBoundingBox(property, string, tmp);
 
   recti.Set(tmp[1] - tmp[0],
             tmp[3] - tmp[2]);
@@ -81,8 +80,7 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
     return recti;
     }
 
-  this->Implementation->FreeType->GetBoundingBox(property, string.c_str(),
-                                                 tmp);
+  this->Implementation->FreeType->GetBoundingBox(property, string, tmp);
 
   recti.Set(tmp[1] - tmp[0],
             tmp[3] - tmp[2]);
@@ -102,8 +100,9 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
     }
 
   return this->Implementation->FreeType->RenderString(property,
-                                                      string.utf8_str(),0,0,
+                                                      string,
                                                       data);
+  return 0;
 }
 
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
@@ -117,9 +116,8 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
     return 0;
     }
 
-  return this->Implementation->FreeType->RenderString(property,
-                                                      string.c_str(),0,0,
-                                                      data);
+  return this->Implementation->FreeType->RenderString(property, string, data);
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

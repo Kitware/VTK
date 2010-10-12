@@ -348,8 +348,11 @@ if(VTK_USE_X)
  set(Kit_SRCS ${Kit_SRCS} vtkXGPUInfoList.cxx)
 endif()
 
-SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
-SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities WRAP_EXCLUDE)
+SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx vtkFreeTypeTools.cxx )
+SET_SOURCE_FILES_PROPERTIES(
+  vtkFreeTypeTools
+  vtkFreeTypeUtilities
+  WRAP_EXCLUDE)
 
 SET(Kit_FT_SRCS 
   fonts/face_arial.cxx
