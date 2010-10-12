@@ -49,6 +49,8 @@
 #include "vtkVolumeContourSpectrumFilter.h"
 #include "vtkWindowToImageFilter.h"
 
+#include <map>
+
 // loading code generated automatically.
 // put whatever mesh you like here.
 int LoadVolumeMesh(vtkUnstructuredGrid *vMesh)
