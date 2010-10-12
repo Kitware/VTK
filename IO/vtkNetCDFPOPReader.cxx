@@ -154,9 +154,9 @@ int vtkNetCDFPOPReader::RequestInformation(
         //acquire variable dimensions
         }
       extent[0] = extent[2] = extent[4] =0; //set extent
-      extent[1] = (dimensions[2] -1) / this->Stride[0];;
-      extent[3] = (dimensions[1] -1) / this->Stride[1];
-      extent[5] = (dimensions[0] -1) / this->Stride[2];
+      extent[1] = static_cast<int>((dimensions[2] -1) / this->Stride[0]);
+      extent[3] = static_cast<int>((dimensions[1] -1) / this->Stride[1]);
+      extent[5] = static_cast<int>((dimensions[0] -1) / this->Stride[2]);
       }
     }
   //fill in the extent information
