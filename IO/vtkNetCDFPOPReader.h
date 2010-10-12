@@ -16,23 +16,23 @@
 // .Author Joshua Wu 09.15.2009
 // .SECTION Description
 // vtkNetCDFPOPReader is a source object that reads NetCDF files.
-// It should be able to read most any NetCDF file that wants to output
-// rectilinear grid
-//
+// It should be able to read most any NetCDF file that wants to output a
+// rectilinear grid.  The ordering of the variables is changed such that
+// the NetCDF x, y, z directions correspond to the vtkRectilinearGrid
+// z, y, x directions, respectively.  The striding is done with
+// respect to the vtkRectilinearGrid ordering.  Additionally, the
+// z coordinates of the vtkRectilinearGrid are negated so that the
+// first slice/plane has the highest z-value and the last slice/plane
+// has the lowest z-value.
 
 #ifndef __vtkNetCDFPOPReader_h
 #define __vtkNetCDFPOPReader_h
 
 #include "vtkRectilinearGridAlgorithm.h"
-#include "vtkSmartPointer.h" // For SmartPointer
 
 class vtkDataArraySelection;
 class vtkCallbackCommand;
-
-//TODO: get rid of these completely arbitrary limits
-//or at least protect against overflow
-#define NCDFPOP_MAX_ARRAYS 100
-#define NCDFPOP_MAX_NAMELEN 100
+class vtkNetCDFPOPReaderInternal;
 
 class VTK_IO_EXPORT vtkNetCDFPOPReader : public vtkRectilinearGridAlgorithm
 {
@@ -47,7 +47,7 @@ public:
   vtkGetStringMacro(FileName);
 
   //Description:
-  //Enable subsampling in i,j and k dimensions
+  //Enable subsampling in i,j and k dimensions in the vtkRectilinearGrid
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
 
@@ -61,10 +61,7 @@ public:
 protected:
   vtkNetCDFPOPReader();
   ~vtkNetCDFPOPReader();
-//BTX
-  vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
 
-//ETX
   int RequestData(vtkInformation*,vtkInformationVector**,
                   vtkInformationVector*);
   virtual int RequestInformation(vtkInformation* request,
@@ -75,27 +72,20 @@ protected:
                                         void *clientdata, void *calldata);
 
   static void EventCallback(vtkObject* caller, unsigned long eid,
-                                void* clientdata, void* calldata);
+                            void* clientdata, void* calldata);
 
-  //TODO: these hardcoded limits must be removed
-  char VariableArrayInfo[NCDFPOP_MAX_ARRAYS][NCDFPOP_MAX_NAMELEN];
-  // name of variables that user wants
-  char VariableName[NCDFPOP_MAX_ARRAYS][NCDFPOP_MAX_NAMELEN];
-  //name of all variables
-  int Draw[NCDFPOP_MAX_ARRAYS];
-  //if 0, don't draw, if set to 1, draw out the rectilinear grid
   vtkCallbackCommand* SelectionObserver;
 
   char *FileName;
 
   int NCDFFD; //netcdf file descriptor
-  int NVarsp; //number of variables
-  int NVarspw; //number of variables we list
 
   int Stride[3];
 
 private:
   vtkNetCDFPOPReader(const vtkNetCDFPOPReader&);  // Not implemented.
   void operator=(const vtkNetCDFPOPReader&);  // Not implemented.
+
+  vtkNetCDFPOPReaderInternal* Internals;
 };
 #endif
