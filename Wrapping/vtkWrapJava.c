@@ -835,13 +835,6 @@ int checkFunctionSignature(ClassInfo *data)
     return 0;
     }
 
-  /* The unwrappable methods in Filtering/vtkInformation.c */
-  if (strcmp(data->Name, "vtkInformation") == 0 &&
-      currentFunction->IsLegacy)
-    {
-    return 0;
-    }
-
   /* The GetInput() in vtkMapper cannot be overriden with a
    * different return type, Java doesn't allow this */
   if (strcmp(data->Name, "vtkMapper") == 0 &&

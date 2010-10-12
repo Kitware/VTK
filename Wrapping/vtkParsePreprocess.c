@@ -2138,6 +2138,9 @@ void vtkParsePreprocess_AddStandardMacros(
   int save_external = info->IsExternal;
   info->IsExternal = 1;
 
+  /* a special macro to indicate that this is the wrapper */
+  preproc_add_macro_definition(info, "__WRAP__", "1");
+
   /* language macros - assume that we are wrapping C++ code */
   preproc_add_macro_definition(info, "__cplusplus", "1");
 

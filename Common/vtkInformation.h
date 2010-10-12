@@ -343,7 +343,7 @@ public:
   VTK_COMMON_EXPORT void SetRequest(vtkInformationRequestKey* request);
   VTK_COMMON_EXPORT vtkInformationRequestKey* GetRequest();
 
-  //BTX
+#if !defined(__WRAP__)
   // Description:
   // Copy the key/value pair associated with the given key in the
   // given information object.  If deep=1, a deep copy of the information
@@ -451,7 +451,7 @@ public:
   // @deprecated This convenience method will be removed in some future version.
   VTK_LEGACY(VTK_FILTERING_EXPORT
     static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key));
-  //ETX
+#endif // !defined(__WRAP__)
 
 protected:
   VTK_COMMON_EXPORT vtkInformation();

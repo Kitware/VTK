@@ -2280,13 +2280,6 @@ static int vtkWrapPython_MethodCheck(ClassInfo *data,
     return 0;
     }
 
-  /* The unwrappable methods in Filtering/vtkInformation.c */
-  if (strcmp(data->Name, "vtkInformation") == 0 &&
-      currentFunction->IsLegacy)
-    {
-    return 0;
-    }
-
   /* function pointer arguments for callbacks */
   if (currentFunction->NumberOfArguments == 2 &&
       vtkWrap_IsVoidFunction(currentFunction->Arguments[0]) &&
