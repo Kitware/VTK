@@ -28,7 +28,7 @@
 class vtkWindow;
 class vtkViewport;
 class vtkRenderer;
-class vtkLabelRenderStrategy;
+class vtkStringToImage;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
 
@@ -252,7 +252,7 @@ protected:
 
   // Description:
   // We also need a label render strategy
-  vtkLabelRenderStrategy *TextRenderer;
+  vtkStringToImage *TextRenderer;
 
   // Description:
   // Store whether any text has been drawn to control Start frame end frame
