@@ -44,6 +44,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkMultiCorrelativeStatistics.h"
 
+class vtkDoubleArray;
+
 class VTK_INFOVIS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
 {
 public:
@@ -122,6 +124,29 @@ public:
   // NormalizationScheme is DIAGONAL_SPECIFIED or TRIANGLE_SPECIFIED.
   virtual vtkTable* GetSpecifiedNormalization();
   virtual void SetSpecifiedNormalization( vtkTable* );
+
+  // Description:
+  // Get the eigenvalues. This function:
+  // void GetEigenvalues(int request, int i, vtkDoubleArray*);
+  // does all of the work. The other functions simply call this function with the appropriate
+  // paramters. These functions are not valid unless Update() has been called and the Derive
+  // option is turned on.
+  void GetEigenvalues(int request, vtkDoubleArray*);
+  void GetEigenvalues(vtkDoubleArray*);
+  double GetEigenvalue(int request, int i);
+  double GetEigenvalue(int i);
+
+
+  // Description:
+  // Get the eigenvectors. This function:
+  // void GetEigenvectors(int request, vtkDoubleArray* eigenvectors)
+  // does all of the work. The other functions are convenience functions that call this function
+  // with default arguments. These functions are not valid unless Update() has been called and the Derive
+  // option is turned on.
+  void GetEigenvectors(int request, vtkDoubleArray* eigenvectors);
+  void GetEigenvectors(vtkDoubleArray* eigenvectors);
+  void GetEigenvector(int i, vtkDoubleArray* eigenvector);
+  void GetEigenvector(int request, int i, vtkDoubleArray* eigenvector);
 
   // Description:
   // This variable controls the dimensionality of output tuples in Assess mode.
