@@ -179,14 +179,14 @@ void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenv
     vtkSmartPointer<vtkDoubleArray>::New();
   this->GetEigenvectors(request, eigenvectors);
 
-  double evec[eigenvectors->GetNumberOfComponents()];
+  double* evec = new double[eigenvectors->GetNumberOfComponents()];
   eigenvectors->GetTupleValue(i, evec);
 
   eigenvector->Reset();
   eigenvector->Squeeze();
   eigenvector->SetNumberOfComponents(eigenvectors->GetNumberOfComponents());
   eigenvector->InsertNextTupleValue(evec);
-
+  delete evec;
 }
 
 // ----------------------------------------------------------------------
