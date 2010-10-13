@@ -14,7 +14,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
- *              Thursday, May 27, 2004
+ *              Thusdayr, May 27, 2004
  *
  * Purpose:	Dataset testing functions.
  */

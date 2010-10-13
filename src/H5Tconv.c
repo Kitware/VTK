@@ -241,7 +241,7 @@
 
 #define H5T_CONV_sS(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_xX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_xX, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_sU_CORE(S,D,ST,DT,D_MIN,D_MAX) {			      \
@@ -266,7 +266,7 @@
 
 #define H5T_CONV_sU(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_sU, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_sU, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_uS_CORE(S,D,ST,DT,D_MIN,D_MAX) {			      \
@@ -291,17 +291,17 @@
 
 #define H5T_CONV_uS(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_uS, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_uS, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_uU(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_xX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_xX, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_Ss(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_Xx, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_Xx, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_Su_CORE(S,D,ST,DT,D_MIN,D_MAX) {			      \
@@ -337,17 +337,17 @@
 
 #define H5T_CONV_Su(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_Su, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_Su, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_Us(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_Ux, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_Ux, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_Uu(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_Ux, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_Ux, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_su_CORE(S,D,ST,DT,D_MIN,D_MAX) {			      \
@@ -374,7 +374,7 @@
 
 #define H5T_CONV_su(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)==sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_su, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_su, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_us_CORE(S,D,ST,DT,D_MIN,D_MAX) {			      \
@@ -401,12 +401,12 @@
 
 #define H5T_CONV_us(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)==sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_us, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_us, long long, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)      \
 }
 
 #define H5T_CONV_fF(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)<=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_xX, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_xX, long double, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)    \
 }
 
 /* Same as H5T_CONV_Xx_CORE, except that instead of using D_MAX and D_MIN
@@ -445,7 +445,7 @@
 
 #define H5T_CONV_Ff(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
     HDcompile_assert(sizeof(ST)>=sizeof(DT));				      \
-    H5T_CONV(H5T_CONV_Ff, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_Ff, long double, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)    \
 }
 
 #define H5T_HI_LO_BIT_SET(TYP, V, LO, HI) {                                   \
@@ -536,7 +536,7 @@
 }
 
 #define H5T_CONV_xF(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    H5T_CONV(H5T_CONV_xF, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_xF, long double, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)    \
 }
 
 /* Quincey added the condition branch (else if (*(S) != (ST)((DT)(*(S))))).
@@ -589,7 +589,7 @@
 }
 
 #define H5T_CONV_Fx(STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {			      \
-    H5T_CONV(H5T_CONV_Fx, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)                 \
+    H5T_CONV(H5T_CONV_Fx, long double, STYPE, DTYPE, ST, DT, D_MIN, D_MAX)    \
 }
 
 /* Since all "no exception" cores do the same thing (assign the value in the
@@ -601,7 +601,7 @@
 }
 
 /* The main part of every integer hardware conversion macro */
-#define H5T_CONV(GUTS,STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {		              \
+#define H5T_CONV(GUTS,ATYPE,STYPE,DTYPE,ST,DT,D_MIN,D_MAX) {		      \
     size_t	elmtno;			/*element number		*/    \
     size_t	sprec;			/*source precision		*/    \
     size_t	dprec;			/*destination precision		*/    \
@@ -1783,9 +1783,9 @@ H5T_conv_struct_free(H5T_conv_struct_t *priv)
 
     for (i=0; i<priv->src_nmembs; i++)
         if (src2dst[i] >= 0) {
-            status = H5I_dec_ref(src_memb_id[i]);
+            status = H5I_dec_ref(src_memb_id[i], FALSE);
             HDassert(status >= 0);
-            status = H5I_dec_ref(dst_memb_id[src2dst[i]]);
+            status = H5I_dec_ref(dst_memb_id[src2dst[i]], FALSE);
             HDassert(status >= 0);
         }
 
@@ -3173,9 +3173,9 @@ H5T_conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
             /* Release the temporary datatype IDs used */
             if(tsrc_id >= 0)
-                H5I_dec_ref(tsrc_id);
+                H5I_dec_ref(tsrc_id, FALSE);
             if(tdst_id >= 0)
-                H5I_dec_ref(tdst_id);
+                H5I_dec_ref(tdst_id, FALSE);
             break;
 
         default:    /* Some other command we don't know about yet.*/
@@ -3325,9 +3325,9 @@ H5T_conv_array(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
 
             /* Release the temporary datatype IDs used */
             if(tsrc_id >= 0)
-                H5I_dec_ref(tsrc_id);
+                H5I_dec_ref(tsrc_id, FALSE);
             if(tdst_id >= 0)
-                H5I_dec_ref(tdst_id);
+                H5I_dec_ref(tdst_id, FALSE);
             break;
 
         default:    /* Some other command we don't know about yet.*/

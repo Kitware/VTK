@@ -53,9 +53,6 @@ const H5L_class_t H5L_EXTERN_LINK_CLASS[1] = {{
 /* Valid flags for external links */
 #define H5L_EXT_FLAGS_ALL       0
 
-/* Size of local link name buffer for traversing external links */
-#define H5L_EXT_TRAVERSE_BUF_SIZE       256
-
 
 /*--------------------------------------------------------------------------
 NAME
@@ -208,8 +205,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     H5L_elink_cb_t cb_info;             /* Callback info struct */
     hid_t       fapl_id = -1;           /* File access property list for external link's file */
     hid_t       ext_obj = -1;           /* ID for external link's object */
-    char        *parent_group_name = NULL;/* Temporary pointer to group name */
-    char        local_group_name[H5L_EXT_TRAVERSE_BUF_SIZE];  /* Local buffer to hold group name */
+    char        *temp_group_name = NULL;/* Temporary pointer to group name */
     char        *temp_file_name = NULL; /* Temporary pointer to file name */
     char        *actual_file_name = NULL; /* Parent file's actual name */
     H5P_genplist_t  *fa_plist;          /* File access property list pointer */
@@ -268,33 +264,40 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     /* Make callback if it exists */
     if(cb_info.func) {
         const char  *parent_file_name;  /* Parent file name */
-        ssize_t group_name_len;         /* Length of parent group name */
+        const char  *parent_group_name; /* Parent group name */
 
         /* Get parent file name */
         parent_file_name = H5F_OPEN_NAME(loc.oloc->file);
 
-        /* Query length of parent group name */
-        if((group_name_len = H5G_get_name(&loc, NULL, (size_t) 0, NULL, lapl_id, H5AC_ind_dxpl_id)) < 0)
-            HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve length of group name")
-
-        /* Account for null terminator */
-        group_name_len++;
-
-        /* Check if we need to allocate larger buffer */
-        if((size_t)group_name_len > sizeof(local_group_name)) {
-            if(NULL == (parent_group_name = (char *)H5MM_malloc((size_t)group_name_len)))
-                HGOTO_ERROR(H5E_LINK, H5E_CANTALLOC, FAIL, "can't allocate buffer to hold group name, group_name_len = %Zu", group_name_len)
-        } /* end if */
-        else
-            parent_group_name = local_group_name;
-
         /* Get parent group name */
-        if(H5G_get_name(&loc, parent_group_name, (size_t) group_name_len, NULL, lapl_id, H5AC_ind_dxpl_id) < 0)
-            HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve group name")
+        if(loc.path->user_path_r != NULL && loc.path->obj_hidden == 0)
+            /* Use user_path_r if possible */
+            parent_group_name = H5RS_get_str(loc.path->user_path_r);
+        else {
+            /* Otherwise use H5G_get_name */
+            ssize_t group_name_len; /* Length of parent group name */
+
+            /* Get length of parent group name */
+            if((group_name_len = H5G_get_name(cur_group, NULL, (size_t) 0, lapl_id, H5AC_ind_dxpl_id)) < 0)
+                HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve length of group name")
+
+            /* account for null terminator */
+            group_name_len++;
+
+            /* Copy parent group name */
+            if(NULL == (temp_group_name = (char *)H5MM_malloc((size_t)group_name_len)))
+                HGOTO_ERROR(H5E_LINK, H5E_NOSPACE, FAIL, "memory allocation failed")
+            if(H5G_get_name(cur_group, temp_group_name, (size_t) group_name_len, lapl_id, H5AC_ind_dxpl_id) < 0)
+                HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve group name")
+            parent_group_name = temp_group_name;
+        } /* end else */
 
         /* Make callback */
         if((cb_info.func)(parent_file_name, parent_group_name, file_name, obj_name, &intent, fapl_id, cb_info.user_data) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL, "traversal operator failed")
+
+        /* Free temp_group_name */
+        temp_group_name = (char *)H5MM_xfree(temp_group_name);
 
         /* Check access flags */
         if((intent & H5F_ACC_TRUNC) || (intent & H5F_ACC_EXCL))
@@ -453,19 +456,18 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 
 done:
     /* Release resources */
-    if(fapl_id > 0 && H5I_dec_ref(fapl_id) < 0)
+    if(fapl_id > 0 && H5I_dec_ref(fapl_id, FALSE) < 0)
         HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for file access property list")
     if(ext_file && H5F_try_close(ext_file) < 0)
         HDONE_ERROR(H5E_LINK, H5E_CANTCLOSEFILE, FAIL, "problem closing external file")
-    if(parent_group_name && parent_group_name != local_group_name)
-        parent_group_name = (char *)H5MM_xfree(parent_group_name);
     full_name = (char *)H5MM_xfree(full_name);
+    temp_group_name = (char *)H5MM_xfree(temp_group_name);
     temp_file_name = (char *)H5MM_xfree(temp_file_name);
     actual_file_name = (char *)H5MM_xfree(actual_file_name);
 
     if(ret_value < 0) {
         /* Close object if it's open and something failed */
-        if(ext_obj >= 0 && H5I_dec_ref(ext_obj) < 0)
+        if(ext_obj >= 0 && H5I_dec_ref(ext_obj, FALSE) < 0)
             HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for external object")
     } /* end if */
 

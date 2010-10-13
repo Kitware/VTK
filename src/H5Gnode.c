@@ -55,6 +55,8 @@ typedef struct H5G_node_key_t {
 
 /* Private macros */
 
+#define H5G_NODE_SIZEOF_HDR(F) (H5_SIZEOF_MAGIC + 4)
+
 /* PRIVATE PROTOTYPES */
 
 /* B-tree callbacks */
@@ -236,6 +238,31 @@ H5G_node_debug_key(FILE *stream, int indent, int fwidth, const void *_key,
 
 
 /*-------------------------------------------------------------------------
+ * Function:	H5G_node_size_real
+ *
+ * Purpose:	Returns the total size of a symbol table node.
+ *
+ * Return:	Success:	Total size of the node in bytes.
+ *
+ *		Failure:	Never fails.
+ *
+ * Programmer:	Robb Matzke
+ *		matzke@llnl.gov
+ *		Jun 23 1997
+ *
+ *-------------------------------------------------------------------------
+ */
+size_t
+H5G_node_size_real(const H5F_t *f)
+{
+    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_node_size_real);
+
+    FUNC_LEAVE_NOAPI(H5G_NODE_SIZEOF_HDR(f) +
+                     (2 * H5F_SYM_LEAF_K(f)) * H5G_SIZEOF_ENTRY(f));
+} /* end H5G_node_size_real() */
+
+
+/*-------------------------------------------------------------------------
  * Function:	H5G_node_free
  *
  * Purpose:	Destroy a symbol table node in memory.
@@ -295,6 +322,7 @@ H5G_node_create(H5F_t *f, hid_t dxpl_id, H5B_ins_t UNUSED op, void *_lt_key,
     H5G_node_key_t	*lt_key = (H5G_node_key_t *)_lt_key;
     H5G_node_key_t	*rt_key = (H5G_node_key_t *)_rt_key;
     H5G_node_t		*sym = NULL;
+    hsize_t		size = 0;
     herr_t              ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5G_node_create)
@@ -307,13 +335,14 @@ H5G_node_create(H5F_t *f, hid_t dxpl_id, H5B_ins_t UNUSED op, void *_lt_key,
 
     if(NULL == (sym = H5FL_CALLOC(H5G_node_t)))
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
-    sym->node_size = H5G_NODE_SIZE(f);
-    if(HADDR_UNDEF == (*addr_p = H5MF_alloc(f, H5FD_MEM_BTREE, dxpl_id, (hsize_t)sym->node_size)))
+    size = H5G_node_size_real(f);
+    HDassert(size);
+    if(HADDR_UNDEF == (*addr_p = H5MF_alloc(f, H5FD_MEM_BTREE, dxpl_id, size)))
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to allocate file space")
     if(NULL == (sym->entry = H5FL_SEQ_CALLOC(H5G_entry_t, (size_t)(2 * H5F_SYM_LEAF_K(f)))))
 	HGOTO_ERROR(H5E_SYM, H5E_CANTALLOC, FAIL, "memory allocation failed")
 
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_SNODE, *addr_p, sym, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(f, dxpl_id, H5AC_SNODE, *addr_p, sym, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to cache symbol table leaf node")
     /*
      * The left and right symbols in an empty tree are both the
@@ -640,8 +669,7 @@ H5G_node_insert(H5F_t *f, hid_t dxpl_id, haddr_t addr,
     idx += cmp > 0 ? 1 : 0;
 
     /* Convert link information & name to symbol table entry */
-    if(H5G_ent_convert(f, dxpl_id, udata->common.heap, udata->common.name,
-            udata->lnk, udata->obj_type, udata->crt_info, &ent) < 0)
+    if(H5G_ent_convert(f, dxpl_id, udata->common.heap, udata->common.name, udata->lnk, &ent) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTCONVERT, H5B_INS_ERROR, "unable to convert link")
 
     /* Determine where to place entry in node */
@@ -1239,9 +1267,6 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
         H5O_link_t  lnk;                /* Link to insert */
         const char  *name;              /* Name of source object */
         H5G_entry_t tmp_src_ent;        /* Temperary copy. Change will not affect the cache */
-        H5O_type_t  obj_type;           /* Target object type */
-        H5G_copy_file_ud_t *cpy_udata;  /* Copy file udata */
-        H5G_obj_create_t gcrt_info;     /* Group creation info */
 
         /* expand soft link */
         if(H5G_CACHED_SLINK == src_ent->type && cpy_info->expand_soft_link) {
@@ -1285,18 +1310,8 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
             tmp_src_oloc.addr = src_ent->header;
 
             /* Copy the shared object from source to destination */
-            if(H5O_copy_header_map(&tmp_src_oloc, &new_dst_oloc, dxpl_id,
-                    cpy_info, TRUE, &obj_type, (void **)&cpy_udata) < 0)
+            if(H5O_copy_header_map(&tmp_src_oloc, &new_dst_oloc, dxpl_id, cpy_info, TRUE) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, H5_ITER_ERROR, "unable to copy object")
-
-            /* Set up object creation info for symbol table insertion.  Only
-             * case so far is for inserting old-style groups (for caching stab
-             * info). */
-            if(obj_type == H5O_TYPE_GROUP) {
-                gcrt_info.gcpl_id = H5P_DEFAULT;
-                gcrt_info.cache_type = cpy_udata->cache_type;
-                gcrt_info.cache = cpy_udata->cache;
-            } /* end if */
 
             /* Construct link information for eventual insertion */
             lnk.type = H5L_TYPE_HARD;
@@ -1304,8 +1319,6 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
         } /* ( H5F_addr_defined(src_ent->header)) */
         else if(H5G_CACHED_SLINK == src_ent->type) {
             /* it is a soft link */
-            /* Set object type to unknown */
-            obj_type = H5O_TYPE_UNKNOWN;
 
             /* Construct link information for eventual insertion */
             lnk.type = H5L_TYPE_SOFT;
@@ -1326,9 +1339,7 @@ H5G_node_copy(H5F_t *f, hid_t dxpl_id, const void UNUSED *_lt_key, haddr_t addr,
 
         /* Insert the new object in the destination file's group */
         /* (Don't increment the link count - that's already done above for hard links) */
-        if(H5G_stab_insert_real(udata->dst_file, udata->dst_stab, name, &lnk,
-                obj_type, (obj_type == H5O_TYPE_GROUP ? &gcrt_info : NULL),
-                dxpl_id) < 0)
+        if(H5G_stab_insert_real(udata->dst_file, udata->dst_stab, name, &lnk, dxpl_id) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5_ITER_ERROR, "unable to insert the name")
     } /* end of for (i=0; i<sn->nsyms; i++) */
 
@@ -1421,7 +1432,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5G_node_iterate_size
  *
- * Purpose:     This function gets called by H5B_iterate_helper()
+ * Purpose:     This function gets called by H5B_iterate_btree_size()
  *              to gather storage info for SNODs.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -1443,10 +1454,10 @@ H5G_node_iterate_size(H5F_t *f, hid_t UNUSED dxpl_id, const void UNUSED *_lt_key
     HDassert(f);
     HDassert(stab_size);
 
-    *stab_size += H5G_NODE_SIZE(f);
+    *stab_size += H5G_node_size_real(f);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5G_node_iterate_size() */
+} /* end H5G_btree_node_iterate() */
 
 
 /*-------------------------------------------------------------------------
@@ -1506,7 +1517,7 @@ H5G_node_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, int indent,
                 "Dirty:",
                 sn->cache_info.is_dirty ? "Yes" : "No");
         fprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
-                "Size of Node (in bytes):", (unsigned)sn->node_size);
+                "Size of Node (in bytes):", (unsigned)H5G_node_size_real(f));
         fprintf(stream, "%*s%-*s %u of %u\n", indent, "", fwidth,
                 "Number of Symbols:",
                 sn->nsyms, (unsigned)(2 * H5F_SYM_LEAF_K(f)));

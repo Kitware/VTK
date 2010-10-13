@@ -107,14 +107,24 @@ typedef struct H5FD_sec2_t {
  * some macros here so we don't have to have conditional compilations later
  * throughout the code.
  *
- * HDoff_t:	The datatype for file offsets, the second argument of
- *		the lseek() or lseek64() call.
+ * file_offset_t:	The datatype for file offsets, the second argument of
+ *			the lseek() or lseek64() call.
  *
  */
+/* adding for windows NT file system support. */
+
+#ifdef H5_HAVE_LSEEK64
+#   define file_offset_t	off64_t
+#elif defined (_WIN32) && !defined(__MWERKS__)
+# /*MSVC*/
+#   define file_offset_t        __int64
+#else
+#   define file_offset_t	off_t
+#endif
 
 /*
  * These macros check for overflow of various quantities.  These macros
- * assume that HDoff_t is signed and haddr_t and size_t are unsigned.
+ * assume that file_offset_t is signed and haddr_t and size_t are unsigned.
  *
  * ADDR_OVERFLOW:	Checks whether a file address of type `haddr_t'
  *			is too large to be represented by the second argument
@@ -127,13 +137,13 @@ typedef struct H5FD_sec2_t {
  *			which can be addressed entirely by the second
  *			argument of the file seek function.
  */
-#define MAXADDR (((haddr_t)1<<(8*sizeof(HDoff_t)-1))-1)
+#define MAXADDR (((haddr_t)1<<(8*sizeof(file_offset_t)-1))-1)
 #define ADDR_OVERFLOW(A)	(HADDR_UNDEF==(A) ||			      \
 				 ((A) & ~(haddr_t)MAXADDR))
 #define SIZE_OVERFLOW(Z)	((Z) & ~(hsize_t)MAXADDR)
 #define REGION_OVERFLOW(A,Z)	(ADDR_OVERFLOW(A) || SIZE_OVERFLOW(Z) ||      \
                                  HADDR_UNDEF==(A)+(Z) ||		      \
-				 (HDoff_t)((A)+(Z))<(HDoff_t)(A))
+				 (file_offset_t)((A)+(Z))<(file_offset_t)(A))
 
 /* Prototypes */
 static H5FD_t *H5FD_sec2_open(const char *name, unsigned flags, hid_t fapl_id,
@@ -334,7 +344,7 @@ H5FD_sec2_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
     FUNC_ENTER_NOAPI(H5FD_sec2_open, NULL)
 
     /* Sanity check on file offsets */
-    HDassert(sizeof(HDoff_t) >= sizeof(size_t));
+    HDassert(sizeof(file_offset_t) >= sizeof(size_t));
 
     /* Check arguments */
     if(!name || !*name)
@@ -741,7 +751,7 @@ H5FD_sec2_read(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id,
 
     /* Seek to the correct location */
     if((addr != file->pos || OP_READ != file->op) &&
-            HDlseek(file->fd, (HDoff_t)addr, SEEK_SET) < 0)
+            HDlseek(file->fd, (file_offset_t)addr, SEEK_SET) < 0)
         HSYS_GOTO_ERROR(H5E_IO, H5E_SEEKERROR, FAIL, "unable to seek to proper position")
 
     /*
@@ -755,7 +765,7 @@ H5FD_sec2_read(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id,
         if(-1 == nbytes) { /* error */
             int myerrno = errno;
             time_t mytime = HDtime(NULL);
-            HDoff_t myoffset = HDlseek(file->fd, (HDoff_t)0, SEEK_CUR);
+            file_offset_t myoffset = HDlseek(file->fd, (file_offset_t)0, SEEK_CUR);
 
             HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "file read failed: time = %s, filename = '%s', file descriptor = %d, errno = %d, error message = '%s', buf = %p, size = %lu, offset = %llu", HDctime(&mytime), file->filename, file->fd, myerrno, HDstrerror(myerrno), buf, (unsigned long)size, (unsigned long long)myoffset);
         } /* end if */
@@ -827,7 +837,7 @@ H5FD_sec2_write(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id, had
 
     /* Seek to the correct location */
     if((addr != file->pos || OP_WRITE != file->op) &&
-            HDlseek(file->fd, (HDoff_t)addr, SEEK_SET) < 0)
+            HDlseek(file->fd, (file_offset_t)addr, SEEK_SET) < 0)
         HSYS_GOTO_ERROR(H5E_IO, H5E_SEEKERROR, FAIL, "unable to seek to proper position")
 
     /*
@@ -841,7 +851,7 @@ H5FD_sec2_write(H5FD_t *_file, H5FD_mem_t UNUSED type, hid_t UNUSED dxpl_id, had
         if(-1 == nbytes) { /* error */
             int myerrno = errno;
             time_t mytime = HDtime(NULL);
-            HDoff_t myoffset = HDlseek(file->fd, (HDoff_t)0, SEEK_CUR);
+            file_offset_t myoffset = HDlseek(file->fd, (file_offset_t)0, SEEK_CUR);
 
             HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "file write failed: time = %s, filename = '%s', file descriptor = %d, errno = %d, error message = '%s', buf = %p, size = %lu, offset = %llu", HDctime(&mytime), file->filename, file->fd, myerrno, HDstrerror(myerrno), buf, (unsigned long)size, (unsigned long long)myoffset);
         } /* end if */
@@ -916,11 +926,11 @@ H5FD_sec2_truncate(H5FD_t *_file, hid_t UNUSED dxpl_id, hbool_t UNUSED closing)
 #ifdef H5_VMS
         /* Reset seek offset to the beginning of the file, so that the file isn't
          * re-extended later.  This may happen on Open VMS. */
-        if(-1 == HDlseek(file->fd, (HDoff_t)0, SEEK_SET))
+        if(-1 == HDlseek(file->fd, (file_offset_t)0, SEEK_SET))
             HSYS_GOTO_ERROR(H5E_IO, H5E_SEEKERROR, FAIL, "unable to seek to proper position")
 #endif
 
-        if(-1 == HDftruncate(file->fd, (HDoff_t)file->eoa))
+        if(-1 == HDftruncate(file->fd, (file_offset_t)file->eoa))
             HSYS_GOTO_ERROR(H5E_IO, H5E_SEEKERROR, FAIL, "unable to extend file properly")
 #endif /* _WIN32 */
 

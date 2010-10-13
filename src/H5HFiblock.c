@@ -552,7 +552,7 @@ H5HF_man_iblock_root_double(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_si
     /* Compute size of buffer needed for new indirect block */
     iblock->nrows = new_nrows;
     old_iblock_size = iblock->size;
-    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock->nrows);
+    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock);
 
     /* Allocate [temporary] space for the new indirect block on disk */
     if(H5F_USE_TMP_SPACE(hdr->f)) {
@@ -721,7 +721,7 @@ H5HF_man_iblock_root_halve(H5HF_indirect_t *iblock, hid_t dxpl_id)
     old_nrows = iblock->nrows;
     iblock->nrows = new_nrows;
     old_size = iblock->size;
-    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock->nrows);
+    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock);
 
     /* Allocate [temporary] space for the new indirect block on disk */
     if(H5F_USE_TMP_SPACE(hdr->f)) {
@@ -985,7 +985,7 @@ H5HF_man_iblock_create(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_indirect_t *par_iblo
     iblock->max_rows = max_rows;
 
     /* Compute size of buffer needed for indirect block */
-    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock->nrows);
+    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock);
 
     /* Allocate child block entry array */
     if(NULL == (iblock->ents = H5FL_SEQ_MALLOC(H5HF_indirect_ent_t, (size_t)(iblock->nrows * hdr->man_dtable.cparam.width))))
@@ -1056,7 +1056,7 @@ H5HF_man_iblock_create(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_indirect_t *par_iblo
     iblock->max_child = 0;
 
     /* Cache the new indirect block */
-    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_FHEAP_IBLOCK, *addr_p, iblock, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(hdr->f, dxpl_id, H5AC_FHEAP_IBLOCK, *addr_p, iblock, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't add fractal heap indirect block to cache")
 
 done:

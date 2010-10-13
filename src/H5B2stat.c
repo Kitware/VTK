@@ -131,7 +131,7 @@ H5B2_size(H5B2_t *bt2, hid_t dxpl_id, hsize_t *btree_size)
     hdr = bt2->hdr;
 
     /* Add size of header to B-tree metadata total */
-    *btree_size += hdr->hdr_size;
+    *btree_size += H5B2_HEADER_SIZE(hdr);
 
     /* Iterate through records */
     if(hdr->root.node_nrec > 0) {

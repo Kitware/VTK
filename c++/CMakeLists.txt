@@ -11,7 +11,7 @@ ENDIF (BUILD_SHARED_LIBS)
 #-----------------------------------------------------------------------------
 # Generate configure file
 #-----------------------------------------------------------------------------
-CONFIGURE_FILE (${HDF5_RESOURCES_DIR}/H5cxx_config.h.in
+CONFIGURE_FILE (${HDF5_SOURCE_DIR}/Resources/H5cxx_config.h.in
                 ${HDF5_BINARY_DIR}/H5cxx_pubconf.h
 )
 

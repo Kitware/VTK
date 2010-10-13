@@ -107,8 +107,8 @@ H5FL_SEQ_DEFINE(H5B2_node_info_t);
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2_hdr_init(H5B2_hdr_t *hdr, const H5B2_create_t *cparam, void *ctx_udata,
-    uint16_t depth)
+H5B2_hdr_init(H5F_t *f, H5B2_hdr_t *hdr, const H5B2_create_t *cparam,
+    void *ctx_udata, uint16_t depth)
 {
     size_t sz_max_nrec;                 /* Temporary variable for range checking */
     unsigned u_max_nrec_size;           /* Temporary variable for range checking */
@@ -120,6 +120,7 @@ H5B2_hdr_init(H5B2_hdr_t *hdr, const H5B2_create_t *cparam, void *ctx_udata,
     /*
      * Check arguments.
      */
+    HDassert(f);
     HDassert(hdr);
     HDassert(cparam);
     HDassert(cparam->cls);
@@ -132,6 +133,7 @@ H5B2_hdr_init(H5B2_hdr_t *hdr, const H5B2_create_t *cparam, void *ctx_udata,
     HDassert(cparam->merge_percent < (cparam->split_percent / 2));
 
     /* Initialize basic information */
+    hdr->f = f;
     hdr->rc = 0;
     hdr->pending_delete = FALSE;
 
@@ -256,7 +258,6 @@ H5B2_hdr_alloc(H5F_t *f)
     hdr->f = f;
     hdr->sizeof_addr = H5F_SIZEOF_ADDR(f);
     hdr->sizeof_size = H5F_SIZEOF_SIZE(f);
-    hdr->hdr_size = H5B2_HEADER_SIZE(hdr);
     hdr->root.addr = HADDR_UNDEF;
 
     /* Set return value */
@@ -301,15 +302,15 @@ H5B2_hdr_create(H5F_t *f, hid_t dxpl_id, const H5B2_create_t *cparam,
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, HADDR_UNDEF, "allocation failed for B-tree header")
 
     /* Initialize shared B-tree info */
-    if(H5B2_hdr_init(hdr, cparam, ctx_udata, (uint16_t)0) < 0)
+    if(H5B2_hdr_init(f, hdr, cparam, ctx_udata, (uint16_t)0) < 0)
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, HADDR_UNDEF, "can't create shared B-tree info")
 
     /* Allocate space for the header on disk */
-    if(HADDR_UNDEF == (hdr->addr = H5MF_alloc(f, H5FD_MEM_BTREE, dxpl_id, (hsize_t)hdr->hdr_size)))
+    if(HADDR_UNDEF == (hdr->addr = H5MF_alloc(f, H5FD_MEM_BTREE, dxpl_id, (hsize_t)H5B2_HEADER_SIZE(hdr))))
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, HADDR_UNDEF, "file allocation failed for B-tree header")
 
     /* Cache the new B-tree node */
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_BT2_HDR, hdr->addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(f, dxpl_id, H5AC_BT2_HDR, hdr->addr, hdr, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, HADDR_UNDEF, "can't add B-tree header to cache")
 
     /* Set address of v2 B-tree header to return */

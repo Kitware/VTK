@@ -498,7 +498,7 @@ H5Z_prelude_callback(const H5O_pline_t *pline, hid_t dcpl_id, hid_t type_id,
 {
     H5Z_class2_t    *fclass;                /* Individual filter information */
     size_t          u;                      /* Local index variable */
-    htri_t          ret_value = TRUE;    /* Return value */
+    herr_t          ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5Z_prelude_callback)
 
@@ -526,16 +526,17 @@ H5Z_prelude_callback(const H5O_pline_t *pline, hid_t dcpl_id, hid_t type_id,
                     /* Check if there is a "can apply" callback */
                     if(fclass->can_apply) {
                         /* Make callback to filter's "can apply" function */
-                        htri_t status = (fclass->can_apply)(dcpl_id, type_id, space_id);
+                        herr_t status = (fclass->can_apply)(dcpl_id, type_id, space_id);
 
-                        /* Indicate error during filter callback */
-                        if(status < 0)
-                            HGOTO_ERROR(H5E_PLINE, H5E_CANAPPLY, FAIL, "error during user callback")
-
-                        /* Indicate filter can't apply to this combination of parameters.  
-                         * If the filter is NOT optional, returns failure. */
-                        if(status == FALSE && !(pline->filter[u].flags & H5Z_FLAG_OPTIONAL))
-                            HGOTO_ERROR(H5E_PLINE, H5E_CANAPPLY, FAIL, "filter parameters not appropriate")
+                        /* Check return value */
+                        if(status <= 0) {
+                            /* Indicate filter can't apply to this combination of parameters */
+                            if(status == 0)
+                                HGOTO_ERROR(H5E_PLINE, H5E_CANAPPLY, FAIL, "filter parameters not appropriate")
+                            /* Indicate error during filter callback */
+                            else
+                                HGOTO_ERROR(H5E_PLINE, H5E_CANAPPLY, FAIL, "error during user callback")
+                        } /* end if */
                     } /* end if */
                     break;
 
@@ -637,7 +638,7 @@ H5Z_prepare_prelude_callback_dcpl(hid_t dcpl_id, hid_t type_id, H5Z_prelude_type
     } /* end if */
 
 done:
-    if(space_id > 0 && H5I_dec_ref(space_id) < 0)
+    if(space_id > 0 && H5I_dec_ref(space_id, FALSE) < 0)
         HDONE_ERROR(H5E_PLINE, H5E_CANTRELEASE, FAIL, "unable to close dataspace")
 
     FUNC_LEAVE_NOAPI(ret_value)

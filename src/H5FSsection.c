@@ -367,7 +367,7 @@ HDfprintf(stderr, "%s: fspace->alloc_sect_size = %Hu, fspace->sect_size = %Hu\n"
 
                 /* Check if the section info size in the file has changed */
                 if(fspace->sect_size != fspace->alloc_sect_size)
-                    cache_flags |= H5AC__DELETED_FLAG | H5AC__TAKE_OWNERSHIP_FLAG;
+                    cache_flags |= H5AC__SIZE_CHANGED_FLAG | H5AC__DELETED_FLAG | H5AC__TAKE_OWNERSHIP_FLAG;
             } /* end if */
 
             /* Sanity check */

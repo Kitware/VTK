@@ -8,10 +8,10 @@
 #  SZIP_FOUND, If false, do not try to use SZIP.
 #    also defined, but not for general use are
 #  SZIP_LIBRARY, where to find the SZIP library.
-#  SZIP_LIBRARY_DEBUG - Debug version of SZIP library
-#  SZIP_LIBRARY_RELEASE - Release Version of SZIP library
+#  SZIP_LIBRARY_DEBUG - Debug version of tiff library
+#  SZIP_LIBRARY_RELEASE - Release Version of tiff library
 
-# MESSAGE (STATUS "Finding SZIP library and headers..." )
+# MESSAGE (STATUS "Finding Szip library and headers..." )
 
 ############################################
 #

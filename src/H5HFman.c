@@ -107,7 +107,7 @@ herr_t
 H5HF_man_insert(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t obj_size, const void *obj,
     void *_id)
 {
-    H5HF_free_section_t *sec_node = NULL;   /* Pointer to free space section */
+    H5HF_free_section_t *sec_node;      /* Pointer to free space section */
     H5HF_direct_t *dblock = NULL;       /* Pointer to direct block to modify */
     haddr_t dblock_addr = HADDR_UNDEF;  /* Direct block address */
     size_t dblock_size;                 /* Direct block size */
@@ -176,7 +176,6 @@ H5HF_man_insert(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t obj_size, const void *obj
     /* Reduce (& possibly re-add) single section */
     if(H5HF_sect_single_reduce(hdr, dxpl_id, sec_node, obj_size) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTSHRINK, FAIL, "can't reduce single section node")
-    sec_node = NULL;
 
     /* Encode the object in the block */
     {
@@ -204,11 +203,6 @@ H5HF_man_insert(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t obj_size, const void *obj
         HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't adjust free space for heap")
 
 done:
-    /* Release section node on error */
-    if(ret_value < 0)
-        if(sec_node && H5HF_sect_single_free((H5FS_section_info_t *)sec_node) < 0)
-            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "unable to release section node")
-
     /* Release the direct block (marked as dirty) */
     if(dblock && H5AC_unprotect(hdr->f, dxpl_id, H5AC_FHEAP_DBLOCK, dblock_addr, dblock, H5AC__DIRTIED_FLAG) < 0)
         HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap direct block")
@@ -338,7 +332,7 @@ H5HF_man_op_real(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id,
     blk_off = (size_t)(obj_off - dblock->block_off);
 
     /* Check for object's offset in the direct block prefix information */
-    if(blk_off < (size_t)H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
+    if(blk_off < H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
         HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object located in prefix of direct block")
 
     /* Check for object's length overrunning the end of the direct block */
@@ -559,7 +553,7 @@ H5HF_man_remove(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id)
     blk_off = (size_t)(obj_off - dblock_block_off);
 
     /* Check for object's offset in the direct block prefix information */
-    if(blk_off < (size_t)H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
+    if(blk_off < H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
         HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object located in prefix of direct block")
 
     /* Check for object's length overrunning the end of the direct block */

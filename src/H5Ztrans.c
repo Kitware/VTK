@@ -555,7 +555,7 @@ static H5Z_node *
 H5Z_parse_expression(H5Z_token *current, H5Z_datval_ptrs* dat_val_pointers)
 {
     H5Z_node *expr;
-    H5Z_node *ret_value;        /* Return value */
+    void*         ret_value;
 
     FUNC_ENTER_NOAPI_NOINIT(H5Z_parse_expression)
 
@@ -566,7 +566,7 @@ H5Z_parse_expression(H5Z_token *current, H5Z_datval_ptrs* dat_val_pointers)
 
         current = H5Z_get_token(current);
 
-        switch(current->tok_type) {
+        switch (current->tok_type) {
             case H5Z_XFORM_PLUS:
                 new_node = H5Z_new_node(H5Z_XFORM_PLUS);
 
@@ -612,13 +612,6 @@ H5Z_parse_expression(H5Z_token *current, H5Z_datval_ptrs* dat_val_pointers)
             case H5Z_XFORM_END:
                 HGOTO_DONE(expr)
 
-            case H5Z_XFORM_ERROR:
-            case H5Z_XFORM_INTEGER:
-            case H5Z_XFORM_FLOAT:
-            case H5Z_XFORM_SYMBOL:
-            case H5Z_XFORM_MULT:
-            case H5Z_XFORM_DIVIDE:
-            case H5Z_XFORM_LPAREN:
             default:
                 H5Z_xform_destroy_parse_tree(expr);
                 HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "Error parsing data transform expression")
@@ -1108,69 +1101,54 @@ done:
 static hid_t
 H5Z_xform_find_type(const H5T_t* type)
 {
-    H5T_t *tmp;                         /* Temporary datatype */
-    hid_t ret_value = SUCCEED;          /* Return value */
+    hid_t ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI_NOINIT(H5Z_xform_find_type)
 
     HDassert(type);
 
     /* Check for SHORT type */
-    if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_SHORT, H5I_DATATYPE)) 
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    if((H5T_cmp(type, (const H5T_t *)H5I_object_verify(H5T_NATIVE_SHORT, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_SHORT)
     /* Check for INT type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_INT, H5I_DATATYPE)) 
-            && 0 == H5T_cmp(type, tmp, FALSE))
-        HGOTO_DONE(H5T_NATIVE_INT)
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_INT, H5I_DATATYPE), FALSE)) == 0)
+	HGOTO_DONE(H5T_NATIVE_INT)
     /* Check for LONG type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_LONG, H5I_DATATYPE)) 
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_LONG, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_LONG)
     /* Check for LONGLONG type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_LLONG, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_LLONG, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_LLONG)
     /* Check for UCHAR type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_UCHAR, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_UCHAR, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_UCHAR)
     /* Check for CHAR type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_CHAR, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_CHAR, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_CHAR)
     /* Check for SCHAR type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_SCHAR, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_SCHAR, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_SCHAR)
     /* Check for USHORT type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_USHORT, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_USHORT, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_USHORT)
     /* Check for UINT type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_UINT, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_UINT, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_UINT)
     /* Check for ULONG type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_ULONG, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_ULONG, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_ULONG)
     /* Check for ULONGLONG type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_ULLONG, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_ULLONG, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_ULLONG)
     /* Check for FLOAT type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_FLOAT, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_FLOAT, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_FLOAT)
     /* Check for DOUBLE type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_DOUBLE, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_DOUBLE, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_DOUBLE)
 #if H5_SIZEOF_LONG_DOUBLE !=0
     /* Check for LONGDOUBLE type */
-    else if((tmp = (H5T_t *)H5I_object_verify(H5T_NATIVE_LDOUBLE, H5I_DATATYPE))
-            && 0 == H5T_cmp(type, tmp, FALSE))
+    else if((H5T_cmp(type,  (const H5T_t *)H5I_object_verify(H5T_NATIVE_LDOUBLE, H5I_DATATYPE), FALSE)) == 0)
 	HGOTO_DONE(H5T_NATIVE_LDOUBLE)
 #endif
     else

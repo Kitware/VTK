@@ -32,9 +32,6 @@
 #include "H5Pprivate.h"		/* Property lists			*/
 
 
-/* Local macros */
-
-
 /* PRIVATE PROTOTYPES */
 static void *H5O_layout_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
     unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
@@ -670,6 +667,8 @@ done:
  *
  * Programmer:  Robb Matzke
  *              Wednesday, October  8, 1997
+ *
+ * Modifications:
  *
  *-------------------------------------------------------------------------
  */

@@ -1051,29 +1051,17 @@ H5Oclose(hid_t object_id)
     H5TRACE1("e", "i", object_id);
 
     /* Get the type of the object and close it in the correct way */
-    switch(H5I_get_type(object_id)) {
-        case H5I_GROUP:
-        case H5I_DATATYPE:
-        case H5I_DATASET:
+    switch(H5I_get_type(object_id))
+    {
+        case(H5I_GROUP):
+        case(H5I_DATATYPE):
+        case(H5I_DATASET):
             if(H5I_object(object_id) == NULL)
                 HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a valid object")
-            if(H5I_dec_app_ref(object_id) < 0)
+            if(H5I_dec_ref(object_id, TRUE) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to close object")
             break;
 
-        case H5I_UNINIT:
-        case H5I_BADID:
-        case H5I_FILE:
-        case H5I_DATASPACE:
-        case H5I_ATTR:
-        case H5I_REFERENCE:
-        case H5I_VFL:
-        case H5I_GENPROP_CLS:
-        case H5I_GENPROP_LST:
-        case H5I_ERROR_CLASS:
-        case H5I_ERROR_MSG:
-        case H5I_ERROR_STACK:
-        case H5I_NTYPES:
         default:
             HGOTO_ERROR(H5E_ARGS, H5E_CANTRELEASE, FAIL, "not a valid file object ID (dataset, group, or datatype)")
         break;
@@ -1239,11 +1227,11 @@ H5O_create(H5F_t *f, hid_t dxpl_id, size_t size_hint, hid_t ocpl_id,
     oh->mesg[0].dirty = TRUE;
     oh->mesg[0].native = NULL;
     oh->mesg[0].raw = oh->chunk[0].image + (H5O_SIZEOF_HDR(oh) - H5O_SIZEOF_CHKSUM_OH(oh)) + H5O_SIZEOF_MSGHDR_OH(oh);
-    oh->mesg[0].raw_size = size_hint - (size_t)H5O_SIZEOF_MSGHDR_OH(oh);
+    oh->mesg[0].raw_size = size_hint - H5O_SIZEOF_MSGHDR_OH(oh);
     oh->mesg[0].chunkno = 0;
 
     /* Cache object header */
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_OHDR, oh_addr, oh, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(f, dxpl_id, H5AC_OHDR, oh_addr, oh, H5AC__NO_FLAGS_SET) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, FAIL, "unable to cache object header")
     oh = NULL;
 
@@ -1490,7 +1478,7 @@ H5O_link_oh(H5F_t *f, int adjust, hid_t dxpl_id, H5O_t *oh, hbool_t *deleted)
                 HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "link count would be negative")
 
             /* Adjust the link count for the object header */
-            oh->nlink = (unsigned)((int)oh->nlink + adjust);
+            oh->nlink += adjust;
 
             /* Mark object header as dirty in cache */
             if(H5AC_mark_entry_dirty(oh) < 0)
@@ -1522,7 +1510,7 @@ H5O_link_oh(H5F_t *f, int adjust, hid_t dxpl_id, H5O_t *oh, hbool_t *deleted)
             } /* end if */
 
             /* Adjust the link count for the object header */
-            oh->nlink = (unsigned)((int)oh->nlink + adjust);
+            oh->nlink += adjust;
 
             /* Mark object header as dirty in cache */
             if(H5AC_mark_entry_dirty(oh) < 0)
@@ -1679,7 +1667,6 @@ H5O_protect(const H5O_loc_t *loc, hid_t dxpl_id, H5AC_protect_t prot)
          *      when the object header is actually loaded from the file.
          */
         HDassert(udata.made_attempt == TRUE);
-        HDassert(cont_msg_info.msgs);
 
         /* Construct the user data for protecting chunks */
         chk_udata.decoding = TRUE;
@@ -1703,7 +1690,7 @@ H5O_protect(const H5O_loc_t *loc, hid_t dxpl_id, H5AC_protect_t prot)
             /* Bring the chunk into the cache */
             /* (which adds to the object header) */
             chk_udata.common.addr = cont_msg_info.msgs[curr_msg].addr;
-            chk_udata.size = cont_msg_info.msgs[curr_msg].size;
+            chk_udata.chunk_size = cont_msg_info.msgs[curr_msg].size;
             if(NULL == (chk_proxy = (H5O_chunk_proxy_t *)H5AC_protect(loc->file, dxpl_id, H5AC_OHDR_CHK, cont_msg_info.msgs[curr_msg].addr, &chk_udata, prot)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to load object header chunk")
 
@@ -1721,7 +1708,8 @@ H5O_protect(const H5O_loc_t *loc, hid_t dxpl_id, H5AC_protect_t prot)
         } /* end while */
 
         /* Release any continuation messages built up */
-        cont_msg_info.msgs = (H5O_cont_t *)H5FL_SEQ_FREE(H5O_cont_t, cont_msg_info.msgs);
+        if(cont_msg_info.msgs)
+            cont_msg_info.msgs = (H5O_cont_t *)H5FL_SEQ_FREE(H5O_cont_t, cont_msg_info.msgs);
 
         /* Pass back out some of the chunk's user data */
         udata.common.merged_null_msgs = chk_udata.common.merged_null_msgs;
@@ -1768,9 +1756,6 @@ H5O_protect(const H5O_loc_t *loc, hid_t dxpl_id, H5AC_protect_t prot)
         /* Check for any messages that were modified while being read in */
         if(udata.common.mesgs_modified && prot != H5AC_WRITE)
             oh->mesgs_modified = TRUE;
-
-        /* Reset the field that contained chunk 0's size during speculative load */
-        oh->chunk0_size = 0;
     } /* end if */
 
     /* Take care of loose ends for modifications made while bringing in the
@@ -1807,7 +1792,7 @@ H5O_protect(const H5O_loc_t *loc, hid_t dxpl_id, H5AC_protect_t prot)
                         HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to load object header chunk")
 
                     /* Unprotect chunk, marking it dirty */
-                    if(H5O_chunk_unprotect(loc->file, dxpl_id, chk_proxy, TRUE) < 0)
+                    if(H5O_chunk_unprotect(loc->file, dxpl_id, chk_proxy, H5AC__DIRTIED_FLAG) < 0)
                         HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, NULL, "unable to unprotect object header chunk")
                 } /* end if */
             } /* end for */
@@ -1971,7 +1956,7 @@ herr_t
 H5O_touch_oh(H5F_t *f, hid_t dxpl_id, H5O_t *oh, hbool_t force)
 {
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Chunk that message is in */
-    hbool_t chk_dirtied = FALSE;        /* Flag for unprotecting chunk */
+    unsigned chk_flags = H5AC__NO_FLAGS_SET;   /* Flags for unprotecting chunk */
     time_t	now;                    /* Current time */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
@@ -1995,7 +1980,7 @@ H5O_touch_oh(H5F_t *f, hid_t dxpl_id, H5O_t *oh, hbool_t force)
                     break;
 
             /* Create a new message, if necessary */
-            if(idx == (int)oh->nmesgs) {
+            if(idx == oh->nmesgs) {
                 unsigned mesg_flags = 0;        /* Flags for message in object header */
 
                 /* If we would have to create a new message, but we aren't 'forcing' it, get out now */
@@ -2025,7 +2010,7 @@ H5O_touch_oh(H5F_t *f, hid_t dxpl_id, H5O_t *oh, hbool_t force)
 
             /* Mark the message as dirty */
             oh->mesg[idx].dirty = TRUE;
-            chk_dirtied = TRUE;
+            chk_flags |= H5AC__DIRTIED_FLAG;
         } /* end if */
         else {
             /* XXX: For now, update access time & change fields in the object header */
@@ -2040,7 +2025,7 @@ H5O_touch_oh(H5F_t *f, hid_t dxpl_id, H5O_t *oh, hbool_t force)
 
 done:
     /* Release chunk */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_flags) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2431,35 +2416,23 @@ H5O_get_loc(hid_t object_id)
 
     FUNC_ENTER_NOAPI_NOINIT(H5O_get_loc)
 
-    switch(H5I_get_type(object_id)) {
-        case H5I_GROUP:
+    switch(H5I_get_type(object_id))
+    {
+        case(H5I_GROUP):
             if(NULL == (ret_value = H5O_OBJ_GROUP->get_oloc(object_id)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, NULL, "unable to get object location from group ID")
             break;
 
-        case H5I_DATASET:
+        case(H5I_DATASET):
             if(NULL == (ret_value = H5O_OBJ_DATASET->get_oloc(object_id)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, NULL, "unable to get object location from dataset ID")
             break;
 
-        case H5I_DATATYPE:
+        case(H5I_DATATYPE):
             if(NULL == (ret_value = H5O_OBJ_DATATYPE->get_oloc(object_id)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, NULL, "unable to get object location from datatype ID")
             break;
 
-        case H5I_UNINIT:
-        case H5I_BADID:
-        case H5I_FILE:
-        case H5I_DATASPACE:
-        case H5I_ATTR:
-        case H5I_REFERENCE:
-        case H5I_VFL:
-        case H5I_GENPROP_CLS:
-        case H5I_GENPROP_LST:
-        case H5I_ERROR_CLASS:
-        case H5I_ERROR_MSG:
-        case H5I_ERROR_STACK:
-        case H5I_NTYPES:
         default:
             HGOTO_ERROR(H5E_OHDR, H5E_BADTYPE, NULL, "invalid object type")
     } /* end switch */
@@ -2521,7 +2494,7 @@ H5O_loc_reset(H5O_loc_t *loc)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_loc_copy(H5O_loc_t *dst, H5O_loc_t *src, H5_copy_depth_t depth)
+H5O_loc_copy(H5O_loc_t *dst, const H5O_loc_t *src, H5_copy_depth_t depth)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_loc_copy)
 
@@ -2541,7 +2514,8 @@ H5O_loc_copy(H5O_loc_t *dst, H5O_loc_t *src, H5_copy_depth_t depth)
         if(src->holding_file)
             dst->file->nopen_objs++;
     } else if(depth == H5_COPY_SHALLOW) {
-        H5O_loc_reset(src);
+        /* Discarding 'const' qualifier OK - QAK */
+        H5O_loc_reset((H5O_loc_t *)src);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -2702,7 +2676,7 @@ H5O_get_hdr_info_real(const H5O_t *oh, H5O_hdr_info_t *hdr)
     hdr->flags = oh->flags;
 
     /* Iterate over all the messages, accumulating message size & type information */
-    hdr->space.meta = (hsize_t)H5O_SIZEOF_HDR(oh) + (hsize_t)(H5O_SIZEOF_CHKHDR_OH(oh) * (oh->nchunks - 1));
+    hdr->space.meta = H5O_SIZEOF_HDR(oh) + (H5O_SIZEOF_CHKHDR_OH(oh) * (oh->nchunks - 1));
     hdr->space.mesg = 0;
     hdr->space.free = 0;
     hdr->mesg.present = 0;
@@ -2712,11 +2686,11 @@ H5O_get_hdr_info_real(const H5O_t *oh, H5O_hdr_info_t *hdr)
 
         /* Accumulate space usage information, based on the type of message */
 	if(H5O_NULL_ID == curr_msg->type->id)
-            hdr->space.free += (hsize_t)((size_t)H5O_SIZEOF_MSGHDR_OH(oh) + curr_msg->raw_size);
+            hdr->space.free += H5O_SIZEOF_MSGHDR_OH(oh) + curr_msg->raw_size;
         else if(H5O_CONT_ID == curr_msg->type->id)
-            hdr->space.meta += (hsize_t)((size_t)H5O_SIZEOF_MSGHDR_OH(oh) + curr_msg->raw_size);
+            hdr->space.meta += H5O_SIZEOF_MSGHDR_OH(oh) + curr_msg->raw_size;
         else {
-            hdr->space.meta += (hsize_t)H5O_SIZEOF_MSGHDR_OH(oh);
+            hdr->space.meta += H5O_SIZEOF_MSGHDR_OH(oh);
             hdr->space.mesg += curr_msg->raw_size;
         } /* end else */
 
@@ -3330,7 +3304,7 @@ H5O_visit(hid_t loc_id, const char *obj_name, H5_index_t idx_type,
 
 done:
     if(obj_id > 0) {
-        if(H5I_dec_app_ref(obj_id) < 0)
+        if(H5I_dec_ref(obj_id, TRUE) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to close object")
     } /* end if */
     else if(loc_found && H5G_loc_free(&obj_loc) < 0)

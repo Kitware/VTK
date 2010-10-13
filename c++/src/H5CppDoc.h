@@ -30,7 +30,7 @@
  * It is assumed that the user has knowledge of the HDF5 file format
  * and its components.  If you are not familiar with HDF5 file format,
  * and would like to find out more, please refer to the HDF5 documentation
- * at http://www.hdfgroup.org/HDF5/doc/index.html
+ * at http://hdf.ncsa.uiuc.edu/HDF5/doc/H5.intro.html
  *
  * Because the HDF5 library maps very well to
  * the object oriented design approach, classes in the C++ API can

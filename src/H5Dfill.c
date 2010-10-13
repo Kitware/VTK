@@ -332,9 +332,9 @@ H5D_fill(const void *fill, const H5T_t *fill_type, void *buf,
     } /* end else */
 
 done:
-    if(src_id != (-1) && H5I_dec_ref(src_id) < 0)
+    if(src_id != (-1) && H5I_dec_ref(src_id, FALSE) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
-    if(dst_id != (-1) && H5I_dec_ref(dst_id) < 0)
+    if(dst_id != (-1) && H5I_dec_ref(dst_id, FALSE) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
     if(tmp_buf)
         tmp_buf = H5FL_BLK_FREE(type_conv, tmp_buf);
@@ -363,6 +363,7 @@ done:
  */
 herr_t
 H5D_fill_init(H5D_fill_buf_info_t *fb_info, void *caller_fill_buf,
+    hbool_t alloc_vl_during_refill,
     H5MM_allocate_t alloc_func, void *alloc_info,
     H5MM_free_t free_func, void *free_info,
     const H5O_fill_t *fill, const H5T_t *dset_type, hid_t dset_type_id,
@@ -385,6 +386,7 @@ H5D_fill_init(H5D_fill_buf_info_t *fb_info, void *caller_fill_buf,
     fb_info->fill = fill;
     fb_info->file_type = dset_type;
     fb_info->file_tid = dset_type_id;
+    fb_info->alloc_vl_during_refill = alloc_vl_during_refill;
     fb_info->fill_alloc_func = alloc_func;
     fb_info->fill_alloc_info = alloc_info;
     fb_info->fill_free_func = free_func;
@@ -432,12 +434,16 @@ H5D_fill_init(H5D_fill_buf_info_t *fb_info, void *caller_fill_buf,
                 fb_info->use_caller_fill_buf = TRUE;
             } /* end if */
             else {
-                if(alloc_func)
-                    fb_info->fill_buf = alloc_func(fb_info->fill_buf_size, alloc_info);
-                else
-                    fb_info->fill_buf = H5FL_BLK_MALLOC(non_zero_fill, fb_info->fill_buf_size);
-                if(NULL == fb_info->fill_buf)
-                    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for fill buffer")
+                if(alloc_vl_during_refill)
+                    fb_info->fill_buf = NULL;
+                else {
+                    if(alloc_func)
+                        fb_info->fill_buf = alloc_func(fb_info->fill_buf_size, alloc_info);
+                    else
+                        fb_info->fill_buf = H5FL_BLK_MALLOC(non_zero_fill, fb_info->fill_buf_size);
+                    if(NULL == fb_info->fill_buf)
+                        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for fill buffer")
+                } /* end else */
             } /* end else */
 
             /* Get the datatype conversion path for this operation */
@@ -571,7 +577,16 @@ H5D_fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts, hid_t dxpl_id)
     /* Check args */
     HDassert(fb_info);
     HDassert(fb_info->has_vlen_fill_type);
-    HDassert(fb_info->fill_buf);
+
+    /* Check if we should allocate the fill buffer now */
+    if(fb_info->alloc_vl_during_refill) {
+        if(fb_info->fill_alloc_func)
+            fb_info->fill_buf = fb_info->fill_alloc_func(fb_info->fill_buf_size, fb_info->fill_alloc_info);
+        else
+            fb_info->fill_buf = H5FL_BLK_MALLOC(non_zero_fill, fb_info->fill_buf_size);
+        if(NULL == fb_info->fill_buf)
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for fill buffer")
+    } /* end if */
 
     /* Make a copy of the (disk-based) fill value into the buffer */
     HDmemcpy(fb_info->fill_buf, fb_info->fill->buf, fb_info->file_elmt_size);
@@ -597,9 +612,6 @@ H5D_fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts, hid_t dxpl_id)
         buf = fb_info->fill_alloc_func(fb_info->fill_buf_size, fb_info->fill_alloc_info);
     else
         buf = H5FL_BLK_MALLOC(non_zero_fill, fb_info->fill_buf_size);
-    if(!buf)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "memory allocation failed for temporary fill buffer")
-
     HDmemcpy(buf, fb_info->fill_buf, fb_info->fill_buf_size);
 
     /* Type convert the dataset buffer, to copy any VL components */
@@ -693,7 +705,7 @@ H5D_fill_term(H5D_fill_buf_info_t *fb_info)
     /* Free other resources for vlen fill values */
     if(fb_info->has_vlen_fill_type) {
         if(fb_info->mem_tid > 0)
-            H5I_dec_ref(fb_info->mem_tid);
+            H5I_dec_ref(fb_info->mem_tid, FALSE);
         else if(fb_info->mem_type)
             H5T_close(fb_info->mem_type);
         if(fb_info->bkg_buf)

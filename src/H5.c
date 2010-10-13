@@ -103,7 +103,7 @@ H5_init_library(void)
 {
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(H5_init_library, FAIL);
+    FUNC_ENTER_NOAPI(H5_init_library, FAIL)
     /*
      * Make sure the package information is updated.
      */
@@ -184,7 +184,7 @@ H5_init_library(void)
     H5_debug_mask(HDgetenv("HDF5_DEBUG"));
 
 done:
-    FUNC_LEAVE_NOAPI(ret_value);
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5_init_library() */
 
 
@@ -210,7 +210,7 @@ H5_term_library(void)
     int	pending, ntries = 0, n;
     size_t	at = 0;
     char	loop[1024];
-    H5E_auto_t  func;
+    H5E_auto2_t func;
 
 #ifdef H5_HAVE_THREADSAFE
     /* explicit locking of the API */
@@ -223,11 +223,8 @@ H5_term_library(void)
 	goto done;
 
     /* Check if we should display error output */
-#ifdef H5_USE_16_API_DEFAULT
-    (void)H5Eget_auto(&func, NULL);
-#else
-    (void)H5Eget_auto(H5E_DEFAULT, &func, NULL);
-#endif
+    (void)H5Eget_auto2(H5E_DEFAULT, &func, NULL);
+
     /*
      * Terminate each interface. The termination functions return a positive
      * value if they do something that might affect some other interface in a

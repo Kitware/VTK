@@ -926,7 +926,7 @@ H5F_new(H5F_file_t *shared, hid_t fcpl_id, hid_t fapl_id, H5FD_t *lf)
 	 * The cache might be created with a different number of elements and
 	 * the access property list should be updated to reflect that.
 	 */
-	if(H5AC_create(f, &(f->shared->mdc_initCacheCfg)) < 0)
+	if(SUCCEED != H5AC_create(f, &(f->shared->mdc_initCacheCfg)))
 	    HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, NULL, "unable to create metadata cache")
 
         /* Create the file's "open object" information */
@@ -1056,10 +1056,10 @@ H5F_dest(H5F_t *f, hid_t dxpl_id, hbool_t flush)
         /* Destroy file creation properties */
         if(H5I_GENPROP_LST != H5I_get_type(f->shared->fcpl_id))
             /* Push error, but keep going*/
-            HDONE_ERROR(H5E_FILE, H5E_BADTYPE, FAIL, "not a property list")
-        if(H5I_dec_ref(f->shared->fcpl_id) < 0)
+            HDONE_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a property list")
+        if(H5I_dec_ref(f->shared->fcpl_id, FALSE) < 0)
             /* Push error, but keep going*/
-            HDONE_ERROR(H5E_FILE, H5E_CANTDEC, FAIL, "can't close property list")
+            HDONE_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "can't close property list")
 
         /* Only truncate the file on an orderly close, with write-access */
         if(f->closing && (H5F_ACC_RDWR & H5F_INTENT(f))) {
@@ -1868,7 +1868,7 @@ H5F_try_close(H5F_t *f)
             while((obj_count = H5F_get_obj_ids(f, H5F_OBJ_LOCAL|H5F_OBJ_DATASET|H5F_OBJ_GROUP|H5F_OBJ_ATTR, (int)(sizeof(objs)/sizeof(objs[0])), objs, FALSE)) != 0) {
                 /* Try to close all the open objects in this file */
                 for(u = 0; u < obj_count; u++)
-                    if(H5I_dec_ref(objs[u]) < 0)
+                    if(H5I_dec_ref(objs[u], FALSE) < 0)
                         HGOTO_ERROR(H5E_ATOM, H5E_CLOSEERROR, FAIL, "can't close object")
             } /* end while */
 
@@ -1880,7 +1880,7 @@ H5F_try_close(H5F_t *f)
             while((obj_count = H5F_get_obj_ids(f, H5F_OBJ_LOCAL|H5F_OBJ_DATATYPE, (int)(sizeof(objs)/sizeof(objs[0])), objs, FALSE)) != 0) {
                 /* Try to close all the open objects in this file */
                 for(u = 0; u < obj_count; u++)
-                    if(H5I_dec_ref(objs[u]) < 0)
+                    if(H5I_dec_ref(objs[u], FALSE) < 0)
                         HGOTO_ERROR(H5E_ATOM, H5E_CLOSEERROR, FAIL, "can't close object")
             } /* end while */
         } /* end if */
@@ -1967,7 +1967,7 @@ H5Fclose(hid_t file_id)
      * Decrement reference count on atom.  When it reaches zero the file will
      * be closed.
      */
-    if(H5I_dec_app_ref(file_id) < 0)
+    if(H5I_dec_ref(file_id, TRUE) < 0)
 	HGOTO_ERROR(H5E_ATOM, H5E_CANTCLOSEFILE, FAIL, "decrementing file ID failed")
 
 done:

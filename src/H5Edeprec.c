@@ -389,12 +389,8 @@ H5Eget_auto1(H5E_auto1_t *func, void **client_data)
     /* Get the automatic error reporting information */
     if(H5E_get_auto(estack, &auto_op, client_data) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "can't get automatic error info")
-
-    if(auto_op.user_set && auto_op.vers == 2)
-        HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "wrong API function, H5Eset_auto2 has been called")
-
     if(func)
-        *func = auto_op.func1;
+        *func = auto_op.u.func1;
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -440,8 +436,7 @@ H5Eset_auto1(H5E_auto1_t func, void *client_data)
 
     /* Set the automatic error reporting information */
     auto_op.vers = 1;
-    auto_op.user_set = TRUE;
-    auto_op.func1 = func;
+    auto_op.u.func1 = func;
     if(H5E_set_auto(estack, &auto_op, client_data) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTSET, FAIL, "can't set automatic error info")
 

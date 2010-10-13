@@ -189,27 +189,12 @@ H5F_super_ext_create(H5F_t *f, hid_t dxpl_id, H5O_loc_t *ext_ptr)
     HDassert(!H5F_addr_defined(f->shared->sblock->ext_addr));
     HDassert(ext_ptr);
 
-    /* Check for older version of superblock format that can't support superblock extensions */
-    if(f->shared->sblock->super_vers < HDF5_SUPERBLOCK_VERSION_2)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTCREATE, FAIL, "superblock extension not permitted with version %u of superblock", f->shared->sblock->super_vers)
-    else if(H5F_addr_defined(f->shared->sblock->ext_addr))
-        HGOTO_ERROR(H5E_FILE, H5E_CANTCREATE, FAIL, "superblock extension already exists?!?!")
-    else {
-        /* The superblock extension isn't actually a group, but the
-         * default group creation list should work fine.
-         * If we don't supply a size for the object header, HDF5 will
-         * allocate H5O_MIN_SIZE by default.  This is currently
-         * big enough to hold the biggest possible extension, but should
-         * be tuned if more information is added to the superblock
-         * extension.
-         */
-        H5O_loc_reset(ext_ptr);
-        if(H5O_create(f, dxpl_id, 0, H5P_GROUP_CREATE_DEFAULT, ext_ptr) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTCREATE, FAIL, "unable to create superblock extension")
+    H5O_loc_reset(ext_ptr);
+    if(H5O_create(f, dxpl_id, 0, H5P_GROUP_CREATE_DEFAULT, ext_ptr) < 0)
+	HGOTO_ERROR(H5E_OHDR, H5E_CANTCREATE, FAIL, "unable to create superblock extension")
 
-        /* Record the address of the superblock extension */
-        f->shared->sblock->ext_addr = ext_ptr->addr;
-    } /* end else */
+    /* Record the address of the superblock extension */
+    f->shared->sblock->ext_addr = ext_ptr->addr;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -496,7 +481,7 @@ H5F_super_init(H5F_t *f, hid_t dxpl_id)
         HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to set EOA value for superblock")
 
     /* Insert superblock into cache, pinned */
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_SUPERBLOCK, (haddr_t)0, sblock, H5AC__PIN_ENTRY_FLAG) < 0)
+    if(H5AC_set(f, dxpl_id, H5AC_SUPERBLOCK, (haddr_t)0, sblock, H5AC__PIN_ENTRY_FLAG) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTINS, FAIL, "can't add superblock to cache")
     sblock_in_cache = TRUE;
 

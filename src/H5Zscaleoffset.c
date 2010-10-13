@@ -41,7 +41,7 @@ enum H5Z_scaleoffset_t {t_bad=0, t_uchar=1, t_ushort, t_uint, t_ulong, t_ulong_l
 
 /* Local function prototypes */
 static double H5Z_scaleoffset_rnd(double val);
-static htri_t H5Z_can_apply_scaleoffset(hid_t dcpl_id, hid_t type_id, hid_t space_id);
+static herr_t H5Z_can_apply_scaleoffset(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 static enum H5Z_scaleoffset_t H5Z_scaleoffset_get_type(unsigned dtype_class,
     unsigned dtype_size, unsigned dtype_sign);
 static herr_t H5Z_scaleoffset_set_parms_fillval(H5P_genplist_t *dcpl_plist,
@@ -611,13 +611,13 @@ H5Z_class2_t H5Z_SCALEOFFSET[1] = {{
  *
  *-------------------------------------------------------------------------
  */
-static htri_t
+static herr_t
 H5Z_can_apply_scaleoffset(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED space_id)
 {
     const H5T_t	*type;                  /* Datatype */
     H5T_class_t dtype_class;            /* Datatype's class */
     H5T_order_t dtype_order;            /* Datatype's endianness order */
-    htri_t ret_value = TRUE;            /* Return value */
+    herr_t ret_value = TRUE;            /* Return value */
 
     FUNC_ENTER_NOAPI(H5Z_can_apply_scaleoffset, FAIL)
 
@@ -640,9 +640,9 @@ H5Z_can_apply_scaleoffset(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED spac
 
         /* Range check datatype's endianness order */
         if(dtype_order != H5T_ORDER_LE && dtype_order != H5T_ORDER_BE)
-            HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FALSE, "bad datatype endianness order")
+            HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype endianness order")
     } else
-        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FALSE, "datatype class not supported by scaleoffset")
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "datatype class not supported by scaleoffset")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

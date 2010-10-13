@@ -34,7 +34,7 @@
 #endif
 
 /* Local function prototypes */
-static htri_t H5Z_can_apply_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id);
+static herr_t H5Z_can_apply_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 static herr_t H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 static size_t H5Z_filter_szip (unsigned flags, size_t cd_nelmts,
     const unsigned cd_values[], size_t nbytes, size_t *buf_size, void **buf);
@@ -76,13 +76,13 @@ H5Z_class2_t H5Z_SZIP[1] = {{
  *
  *-------------------------------------------------------------------------
  */
-static htri_t
+static herr_t
 H5Z_can_apply_szip(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED space_id)
 {
     const H5T_t	*type;                  /* Datatype */
     unsigned dtype_size;                /* Datatype's size (in bits) */
     H5T_order_t dtype_order;            /* Datatype's endianness order */
-    htri_t ret_value = TRUE;            /* Return value */
+    herr_t ret_value = TRUE;            /* Return value */
 
     FUNC_ENTER_NOAPI(H5Z_can_apply_szip, FAIL)
 

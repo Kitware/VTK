@@ -158,7 +158,7 @@ extern "C" {
  * The "can_apply" callback returns positive a valid combination, zero for an
  * invalid combination and negative for an error.
  */
-typedef htri_t (*H5Z_can_apply_func_t)(hid_t dcpl_id, hid_t type_id, hid_t space_id);
+typedef herr_t (*H5Z_can_apply_func_t)(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 
 /*
  * After the "can_apply" callbacks are checked for new datasets, the "set_local"

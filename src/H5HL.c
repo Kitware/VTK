@@ -163,7 +163,7 @@ H5HL_create(H5F_t *f, hid_t dxpl_id, size_t size_hint, haddr_t *addr_p/*out*/)
 	HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "memory allocation failed")
 
     /* Add to cache */
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_LHEAP_PRFX, heap->prfx_addr, prfx, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(f, dxpl_id, H5AC_LHEAP_PRFX, heap->prfx_addr, prfx, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "unable to cache local heap prefix")
 
     /* Set address to return */
@@ -210,7 +210,6 @@ H5HL_dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size)
     H5HL_dblk_t *dblk;                  /* Local heap data block */
     haddr_t old_addr;                   /* Old location of heap data block */
     haddr_t new_addr;                   /* New location of heap data block */
-    size_t old_heap_size;               /* Old size of heap data block */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5HL_dblk_realloc)
@@ -221,9 +220,8 @@ H5HL_dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size)
 
     /* Release old space on disk */
     old_addr = heap->dblk_addr;
-    old_heap_size = heap->dblk_size;
-    H5_CHECK_OVERFLOW(old_heap_size, size_t, hsize_t);
-    if(H5MF_xfree(f, H5FD_MEM_LHEAP, dxpl_id, old_addr, (hsize_t)old_heap_size) < 0)
+    H5_CHECK_OVERFLOW(heap->dblk_size, size_t, hsize_t);
+    if(H5MF_xfree(f, H5FD_MEM_LHEAP, dxpl_id, old_addr, (hsize_t)heap->dblk_size) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "can't release old heap data?")
 
     /* Allocate new space on disk */
@@ -231,16 +229,12 @@ H5HL_dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size)
     if(HADDR_UNDEF == (new_addr = H5MF_alloc(f, H5FD_MEM_LHEAP, dxpl_id, (hsize_t)new_heap_size)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "unable to allocate file space for heap")
 
-    /* Update heap info*/
-    heap->dblk_addr = new_addr;
-    heap->dblk_size = new_heap_size;
-
     /* Check if heap data block actually moved in the file */
     if(H5F_addr_eq(old_addr, new_addr)) {
         /* Check if heap data block is contiguous w/prefix */
         if(heap->single_cache_obj) {
             /* Sanity check */
-            HDassert(H5F_addr_eq(heap->prfx_addr + heap->prfx_size, old_addr));
+            HDassert(H5F_addr_eq(heap->prfx_addr + heap->prfx_size, heap->dblk_addr));
             HDassert(heap->prfx);
 
             /* Resize the heap prefix in the cache */
@@ -249,7 +243,7 @@ H5HL_dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size)
         } /* end if */
         else {
             /* Sanity check */
-            HDassert(H5F_addr_ne(heap->prfx_addr + heap->prfx_size, old_addr));
+            HDassert(H5F_addr_ne(heap->prfx_addr + heap->prfx_size, heap->dblk_addr));
             HDassert(heap->dblk);
 
             /* Resize the heap data block in the cache */
@@ -270,7 +264,7 @@ H5HL_dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTRESIZE, FAIL, "unable to resize heap prefix in cache")
 
             /* Insert data block into cache (pinned) */
-            if(H5AC_insert_entry(f, dxpl_id, H5AC_LHEAP_DBLK, new_addr, dblk, H5AC__PIN_ENTRY_FLAG) < 0)
+            if(H5AC_set(f, dxpl_id, H5AC_LHEAP_DBLK, new_addr, dblk, H5AC__PIN_ENTRY_FLAG) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "unable to cache local heap data block")
             dblk = NULL;
 
@@ -291,13 +285,11 @@ H5HL_dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size)
         } /* end else */
     } /* end else */
 
-done:
-    if(ret_value < 0) {
-        /* Restore old heap address & size */
-        heap->dblk_addr = old_addr;
-        heap->dblk_size = old_heap_size;
-    } /* end if */
+    /* Update heap info*/
+    heap->dblk_addr = new_addr;
+    heap->dblk_size = new_heap_size;
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HL_dblk_realloc() */
 

@@ -246,15 +246,15 @@ H5O_sdspace_encode(H5F_t *f, uint8_t *p, const void *_mesg)
     /* Version */
     HDassert(sdim->version > 0);
     HDassert(sdim->type != H5S_NULL || sdim->version >= H5O_SDSPACE_VERSION_2);
-    *p++ = (uint8_t)sdim->version;
+    *p++ = sdim->version;
 
     /* Rank */
-    *p++ = (uint8_t)sdim->rank;
+    *p++ = sdim->rank;
 
     /* Flags */
     if(sdim->max)
         flags |= H5S_VALID_MAX;
-    *p++ = (uint8_t)flags;
+    *p++ = flags;
 
     /* Dataspace type */
     if(sdim->version > H5O_SDSPACE_VERSION_1)
@@ -319,7 +319,7 @@ H5O_sdspace_copy(const void *_mesg, void *_dest)
 
 done:
     if(NULL == ret_value)
-        if(dest && NULL == _dest)
+        if(dest && NULL != _dest)
             dest = H5FL_FREE(H5S_extent_t, dest);
 
     FUNC_LEAVE_NOAPI(ret_value)

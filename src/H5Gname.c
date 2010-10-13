@@ -426,57 +426,49 @@ H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
-    hbool_t *cached, hid_t lapl_id, hid_t dxpl_id)
+H5G_get_name(hid_t id, char *name/*out*/, size_t size, hid_t lapl_id,
+    hid_t dxpl_id)
 {
-    ssize_t len = 0;            /* Length of object's name */
-    ssize_t ret_value;          /* Return value */
+    H5G_loc_t     loc;          /* Object location */
+    ssize_t       ret_value = FAIL;
 
     FUNC_ENTER_NOAPI(H5G_get_name, FAIL)
 
-    /* Sanity check */
-    HDassert(loc);
+    /* get object location */
+    if(H5G_loc(id, &loc) >= 0) {
+        ssize_t len = 0;
 
-    /* If the user path is available and it's not "hidden", use it */
-    if(loc->path->user_path_r != NULL && loc->path->obj_hidden == 0) {
-        len = H5RS_len(loc->path->user_path_r);
+        /* If the user path is available and it's not "hidden", use it */
+        if(loc.path->user_path_r != NULL && loc.path->obj_hidden == 0) {
+            len = H5RS_len(loc.path->user_path_r);
 
-        if(name) {
-            HDstrncpy(name, H5RS_get_str(loc->path->user_path_r), MIN((size_t)(len + 1), size));
-            if((size_t)len >= size)
-                name[size - 1] = '\0';
+            if(name) {
+                HDstrncpy(name, H5RS_get_str(loc.path->user_path_r), MIN((size_t)(len + 1), size));
+                if((size_t)len >= size)
+                    name[size - 1] = '\0';
+            } /* end if */
         } /* end if */
+	else if(!loc.path->obj_hidden) {
+	    hid_t	  file;
 
-        /* Indicate that the name is cached, if requested */
-        /* (Currently only used for testing - QAK, 2010/07/26) */
-        if(cached)
-            *cached = TRUE;
+            /* Retrieve file ID for name search */
+	    if((file = H5I_get_file_id(id, FALSE)) < 0)
+		HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve file ID")
+
+            /* Search for name of object */
+	    if((len = H5G_get_name_by_addr(file, lapl_id, dxpl_id, loc.oloc, name, size)) < 0) {
+                H5I_dec_ref(file, FALSE);
+		HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't determine name")
+            } /* end if */
+
+            /* Close file ID used for search */
+	    if(H5I_dec_ref(file, FALSE) < 0)
+		HGOTO_ERROR(H5E_SYM, H5E_CANTCLOSEFILE, FAIL, "can't determine name")
+	} /* end else */
+
+        /* Set return value */
+        ret_value = len;
     } /* end if */
-    else if(!loc->path->obj_hidden) {
-        hid_t	  file;
-
-        /* Retrieve file ID for name search */
-        if((file = H5F_get_id(loc->oloc->file, FALSE)) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get file ID")
-
-        /* Search for name of object */
-        if((len = H5G_get_name_by_addr(file, lapl_id, dxpl_id, loc->oloc, name, size)) < 0) {
-            H5I_dec_ref(file);
-            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't determine name")
-        } /* end if */
-
-        /* Close file ID used for search */
-        if(H5I_dec_ref(file) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTCLOSEFILE, FAIL, "can't determine name")
-
-        /* Indicate that the name is _not_ cached, if requested */
-        /* (Currently only used for testing - QAK, 2010/07/26) */
-        if(cached)
-            *cached = FALSE;
-    } /* end else */
-
-    /* Set return value */
-    ret_value = len;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

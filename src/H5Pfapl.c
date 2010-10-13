@@ -1330,6 +1330,10 @@ done:
  * Programmer:	J. Mainzer
  *              Thursday, April 7, 2005
  *
+ * Modifications:
+ *
+ *		Done.
+ *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1377,6 +1381,10 @@ done:
  *
  * Programmer:	J. Mainzer
  *              Thursday, April 7, 2005
+ *
+ * Modifications:
+ *
+ *		None.
  *
  *-------------------------------------------------------------------------
  */

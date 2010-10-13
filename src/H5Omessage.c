@@ -1956,7 +1956,7 @@ H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned idx,
 {
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Chunk that message is in */
     H5O_mesg_t *idx_msg = &oh->mesg[idx];       /* Pointer to message to modify */
-    hbool_t chk_dirtied = FALSE;                /* Flag for unprotecting chunk */
+    unsigned chk_flags = H5AC__NO_FLAGS_SET;   /* Flags for unprotecting chunk */
     herr_t      ret_value = SUCCEED;            /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT(H5O_copy_mesg)
@@ -1984,10 +1984,10 @@ H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned idx,
 
     /* Mark the message as modified */
     idx_msg->dirty = TRUE;
-    chk_dirtied = TRUE;
+    chk_flags |= H5AC__DIRTIED_FLAG;
 
     /* Release chunk */
-    if(H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_flags) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
     chk_proxy = NULL;
 
@@ -1998,7 +1998,7 @@ H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned idx,
 
 done:
     /* Release chunk, if not already released */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_flags) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)

@@ -800,8 +800,10 @@ void DataSet::close()
 	{
 	    throw DataSetIException("DataSet::close", "H5Dclose failed");
 	}
-	// reset the id
-	id = 0;
+	// reset the id when the dataset that it represents is no longer
+	// referenced
+	if (getCounter() == 0)
+	    id = 0;
     }
 }
 

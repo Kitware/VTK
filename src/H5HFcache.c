@@ -746,7 +746,7 @@ H5HF_cache_iblock_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, NULL, "can't wrap buffer")
 
     /* Compute size of indirect block */
-    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock->nrows);
+    iblock->size = H5HF_MAN_INDIRECT_SIZE(hdr, iblock);
 
     /* Get a pointer to a buffer that's large enough for serialized indirect block */
     if(NULL == (buf = (uint8_t *)H5WB_actual(wb, iblock->size)))

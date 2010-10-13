@@ -256,8 +256,6 @@ H5G_create_named(const H5G_loc_t *loc, const char *name, hid_t lcpl_id,
 
     /* Set up group creation info */
     gcrt_info.gcpl_id = gcpl_id;
-    gcrt_info.cache_type = H5G_NOTHING_CACHED;
-    HDmemset(&gcrt_info.cache, 0, sizeof(gcrt_info.cache));
 
     /* Set up object creation information */
     ocrt_info.obj_type = H5O_TYPE_GROUP;
@@ -317,7 +315,6 @@ H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id)
 {
     H5G_loc_t	    loc;
     H5G_t	   *grp = NULL;
-    H5G_obj_create_t gcrt_info;         /* Information for group creation */
     hid_t	    ret_value;
 
     FUNC_ENTER_API(H5Gcreate_anon, FAIL)
@@ -341,13 +338,8 @@ H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id)
         if(TRUE != H5P_isa_class(gapl_id, H5P_GROUP_ACCESS))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not group access property list")
 
-    /* Set up group creation info */
-    gcrt_info.gcpl_id = gcpl_id;
-    gcrt_info.cache_type = H5G_NOTHING_CACHED;
-    HDmemset(&gcrt_info.cache, 0, sizeof(gcrt_info.cache));
-
     /* Create the new group & get its ID */
-    if(NULL == (grp = H5G_create(loc.oloc->file, &gcrt_info, H5AC_dxpl_id)))
+    if(NULL == (grp = H5G_create(loc.oloc->file, gcpl_id, H5AC_dxpl_id)))
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group")
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
 	HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register group")
@@ -512,8 +504,7 @@ H5Gget_create_plist(hid_t group_id)
 done:
     if(ret_value < 0) {
         if(new_gcpl_id > 0)
-            if(H5I_dec_app_ref(new_gcpl_id) < 0)
-                HDONE_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "can't free")
+            (void)H5I_dec_ref(new_gcpl_id, TRUE);
     } /* end if */
 
     FUNC_LEAVE_API(ret_value)
@@ -723,7 +714,7 @@ H5Gclose(hid_t group_id)
      * Decrement the counter on the group atom.	 It will be freed if the count
      * reaches zero.
      */
-    if(H5I_dec_app_ref(group_id) < 0)
+    if(H5I_dec_ref(group_id, TRUE) < 0)
     	HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close group")
 
 done:
@@ -861,7 +852,7 @@ H5G_term_interface(void)
  *-------------------------------------------------------------------------
  */
 H5G_t *
-H5G_create(H5F_t *file, H5G_obj_create_t *gcrt_info, hid_t dxpl_id)
+H5G_create(H5F_t *file, hid_t gcpl_id, hid_t dxpl_id)
 {
     H5G_t	*grp = NULL;	/*new group			*/
     unsigned    oloc_init = 0;  /* Flag to indicate that the group object location was created successfully */
@@ -871,7 +862,7 @@ H5G_create(H5F_t *file, H5G_obj_create_t *gcrt_info, hid_t dxpl_id)
 
     /* check args */
     HDassert(file);
-    HDassert(gcrt_info->gcpl_id != H5P_DEFAULT);
+    HDassert(gcpl_id != H5P_DEFAULT);
     HDassert(dxpl_id != H5P_DEFAULT);
 
     /* create an open group */
@@ -881,7 +872,7 @@ H5G_create(H5F_t *file, H5G_obj_create_t *gcrt_info, hid_t dxpl_id)
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Create the group object header */
-    if(H5G_obj_create(file, dxpl_id, gcrt_info, &(grp->oloc)/*out*/) < 0)
+    if(H5G_obj_create(file, dxpl_id, gcpl_id, &(grp->oloc)/*out*/) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "unable to create group object header")
     oloc_init = 1;    /* Indicate that the object location information is valid */
 
@@ -1545,7 +1536,7 @@ H5G_iterate(hid_t loc_id, const char *group_name,
 done:
     /* Release the group opened */
     if(gid > 0) {
-        if(H5I_dec_app_ref(gid) < 0)
+        if(H5I_dec_ref(gid, TRUE) < 0)
             HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close group")
     } /* end if */
     else if(grp && H5G_close(grp) < 0)
@@ -1878,7 +1869,7 @@ done:
 
     /* Release the group opened */
     if(gid > 0) {
-        if(H5I_dec_app_ref(gid) < 0)
+        if(H5I_dec_ref(gid, TRUE) < 0)
             HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close group")
     } /* end if */
     else if(grp && H5G_close(grp) < 0)

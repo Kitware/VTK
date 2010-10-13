@@ -616,10 +616,7 @@ H5O_size(const H5F_t UNUSED *f, const H5O_t *oh, size_t *size_ptr)
     HDassert(size_ptr);
 
     /* Report the object header's prefix+first chunk length */
-    if(oh->chunk0_size)
-       *size_ptr = H5O_SIZEOF_HDR(oh) + oh->chunk0_size;
-    else
-       *size_ptr = oh->chunk[0].size;
+    *size_ptr = (size_t)H5O_SIZEOF_HDR(oh) + oh->chunk0_size;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5O_size() */
@@ -666,11 +663,11 @@ H5O_cache_chk_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "can't wrap buffer")
 
     /* Get a pointer to a buffer that's large enough for serialized header */
-    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, udata->size)))
+    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, udata->chunk_size)))
         HGOTO_ERROR(H5E_OHDR, H5E_NOSPACE, NULL, "can't get actual buffer")
 
     /* Read rest of the raw data */
-    if(H5F_block_read(f, H5FD_MEM_OHDR, addr, udata->size, dxpl_id, buf) < 0)
+    if(H5F_block_read(f, H5FD_MEM_OHDR, addr, udata->chunk_size, dxpl_id, buf) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_READERROR, NULL, "unable to read object header continuation chunk")
 
     /* Check if we are still decoding the object header */
@@ -681,7 +678,7 @@ H5O_cache_chk_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
         HDassert(udata->common.cont_msg_info);
 
         /* Parse the chunk */
-        if(H5O_chunk_deserialize(udata->oh, udata->common.addr, udata->size, buf, &(udata->common), &chk_proxy->cache_info.is_dirty) < 0)
+        if(H5O_chunk_deserialize(udata->oh, udata->common.addr, udata->chunk_size, buf, &(udata->common), &chk_proxy->cache_info.is_dirty) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "can't deserialize object header chunk")
 
         /* Set the fields for the chunk proxy */

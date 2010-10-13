@@ -124,20 +124,17 @@
 /* Define to 1 if you have the `frexpl' function. */
 #undef HAVE_FREXPL
 
+/* Define to 1 if you have the `fseek64' function. */
+#undef HAVE_FSEEK64
+
 /* Define to 1 if you have the `fseeko' function. */
 #undef HAVE_FSEEKO
-
-/* Define to 1 if you have the `fseeko64' function. */
-#undef HAVE_FSEEKO64
 
 /* Define to 1 if you have the `fstat64' function. */
 #undef HAVE_FSTAT64
 
 /* Define to 1 if you have the `ftello' function. */
 #undef HAVE_FTELLO
-
-/* Define to 1 if you have the `ftello64' function. */
-#undef HAVE_FTELLO64
 
 /* Define to 1 if you have the `ftruncate64' function. */
 #undef HAVE_FTRUNCATE64

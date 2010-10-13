@@ -878,7 +878,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5MF_try_shrink
+ * Function:    H5MF_can_shrink
  *
  * Purpose:     Try to shrink the size of a file with a block or absorb it
  *              into a block aggregator.

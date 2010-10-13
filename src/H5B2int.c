@@ -80,10 +80,10 @@ static herr_t H5B2_swap_leaf(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
     H5B2_internal_t *internal, unsigned *internal_flags_ptr,
     unsigned idx, void *swap_loc);
 #ifdef H5B2_DEBUG
-static herr_t H5B2_assert_leaf(const H5B2_hdr_t *hdr, const H5B2_leaf_t *leaf);
-static herr_t H5B2_assert_leaf2(const H5B2_hdr_t *hdr, const H5B2_leaf_t *leaf, const H5B2_leaf_t *leaf2);
-static herr_t H5B2_assert_internal(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_internal_t *internal);
-static herr_t H5B2_assert_internal2(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_internal_t *internal, const H5B2_internal_t *internal2);
+static herr_t H5B2_assert_leaf(H5B2_hdr_t *hdr, H5B2_leaf_t *leaf);
+static herr_t H5B2_assert_leaf2(H5B2_hdr_t *hdr, H5B2_leaf_t *leaf, H5B2_leaf_t *leaf2);
+static herr_t H5B2_assert_internal(hsize_t parent_all_nrec, H5B2_hdr_t *hdr, H5B2_internal_t *internal);
+static herr_t H5B2_assert_internal2(hsize_t parent_all_nrec, H5B2_hdr_t *hdr, H5B2_internal_t *internal, H5B2_internal_t *internal2);
 #endif /* H5B2_DEBUG */
 
 /*********************/
@@ -178,7 +178,7 @@ H5B2_split1(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth, H5B2_node_ptr_t *cur
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
-    void *left_child = NULL, *right_child = NULL;     /* Pointers to child nodes */
+    void *left_child, *right_child;     /* Pointers to child nodes */
     uint16_t *left_nrec, *right_nrec;   /* Pointers to child # of records */
     uint8_t *left_native, *right_native;/* Pointers to childs' native records */
     H5B2_node_ptr_t *left_node_ptrs = NULL, *right_node_ptrs = NULL;/* Pointers to childs' node pointer info */
@@ -324,12 +324,12 @@ H5B2_split1(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth, H5B2_node_ptr_t *cur
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1) {
-        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)left_child, (H5B2_internal_t *)right_child);
-        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, (H5B2_internal_t *)right_child, (H5B2_internal_t *)left_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, left_child, right_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, right_child, left_child);
     } /* end if */
     else {
-        H5B2_assert_leaf2(hdr, (H5B2_leaf_t *)left_child, (H5B2_leaf_t *)right_child);
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)right_child);
+        H5B2_assert_leaf2(hdr, left_child, right_child);
+        H5B2_assert_leaf(hdr, right_child);
     } /* end else */
 #endif /* H5B2_DEBUG */
 
@@ -509,12 +509,12 @@ H5B2_redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1) {
-        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)left_child, (H5B2_internal_t *)right_child);
-        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, (H5B2_internal_t *)right_child, (H5B2_internal_t *)left_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, left_child, right_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, right_child, left_child);
     } /* end if */
     else {
-        H5B2_assert_leaf2(hdr, (H5B2_leaf_t *)left_child, (H5B2_leaf_t *)right_child);
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)right_child);
+        H5B2_assert_leaf2(hdr, left_child, right_child);
+        H5B2_assert_leaf(hdr, right_child);
     } /* end else */
 #endif /* H5B2_DEBUG */
 
@@ -629,12 +629,12 @@ H5B2_redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1) {
-        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)left_child, (H5B2_internal_t *)right_child);
-        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, (H5B2_internal_t *)right_child, (H5B2_internal_t *)left_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, left_child, right_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, right_child, left_child);
     } /* end if */
     else {
-        H5B2_assert_leaf2(hdr, (H5B2_leaf_t *)left_child, (H5B2_leaf_t *)right_child);
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)right_child);
+        H5B2_assert_leaf2(hdr, left_child, right_child);
+        H5B2_assert_leaf(hdr, right_child);
     } /* end else */
 #endif /* H5B2_DEBUG */
 
@@ -672,8 +672,8 @@ H5B2_redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
     haddr_t middle_addr;                /* Address of middle child node */
-    void *left_child = NULL, *right_child = NULL;     /* Pointers to child nodes */
-    void *middle_child = NULL;          /* Pointers to middle child node */
+    void *left_child, *right_child;     /* Pointers to child nodes */
+    void *middle_child;                 /* Pointers to middle child node */
     uint16_t *left_nrec, *right_nrec;   /* Pointers to child # of records */
     uint16_t *middle_nrec;              /* Pointers to middle child # of records */
     uint8_t *left_native, *right_native;    /* Pointers to childs' native records */
@@ -1011,15 +1011,15 @@ H5B2_redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1) {
-        H5B2_assert_internal2(internal->node_ptrs[idx - 1].all_nrec, hdr, (H5B2_internal_t *)left_child, (H5B2_internal_t *)middle_child);
-        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)middle_child, (H5B2_internal_t *)left_child);
-        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)middle_child, (H5B2_internal_t *)right_child);
-        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, (H5B2_internal_t *)right_child, (H5B2_internal_t *)middle_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx - 1].all_nrec, hdr, left_child, middle_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, middle_child, left_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx].all_nrec, hdr, middle_child, right_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx + 1].all_nrec, hdr, right_child, middle_child);
     } /* end if */
     else {
-        H5B2_assert_leaf2(hdr, (H5B2_leaf_t *)left_child, (H5B2_leaf_t *)middle_child);
-        H5B2_assert_leaf2(hdr, (H5B2_leaf_t *)middle_child, (H5B2_leaf_t *)right_child);
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)right_child);
+        H5B2_assert_leaf2(hdr, left_child, middle_child);
+        H5B2_assert_leaf2(hdr, middle_child, right_child);
+        H5B2_assert_leaf(hdr, right_child);
     } /* end else */
 #endif /* H5B2_DEBUG */
 
@@ -1058,7 +1058,7 @@ H5B2_merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
-    void *left_child = NULL, *right_child = NULL;     /* Pointers to left & right child nodes */
+    void *left_child, *right_child;     /* Pointers to left & right child nodes */
     uint16_t *left_nrec, *right_nrec;   /* Pointers to left & right child # of records */
     uint8_t *left_native, *right_native;    /* Pointers to left & right children's native records */
     H5B2_node_ptr_t *left_node_ptrs = NULL, *right_node_ptrs = NULL;/* Pointers to childs' node pointer info */
@@ -1171,9 +1171,9 @@ H5B2_merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1)
-        H5B2_assert_internal(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)left_child);
+        H5B2_assert_internal(internal->node_ptrs[idx].all_nrec, hdr, left_child);
     else
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)left_child);
+        H5B2_assert_leaf(hdr, left_child);
 #endif /* H5B2_DEBUG */
 
 done:
@@ -1212,8 +1212,8 @@ H5B2_merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
     haddr_t middle_addr;                /* Address of middle child node */
-    void *left_child = NULL, *right_child = NULL;     /* Pointers to left & right child nodes */
-    void *middle_child = NULL;          /* Pointer to middle child node */
+    void *left_child, *right_child;     /* Pointers to left & right child nodes */
+    void *middle_child;                 /* Pointer to middle child node */
     uint16_t *left_nrec, *right_nrec;   /* Pointers to left & right child # of records */
     uint16_t *middle_nrec;              /* Pointer to middle child # of records */
     uint8_t *left_native, *right_native;    /* Pointers to left & right children's native records */
@@ -1393,12 +1393,12 @@ H5B2_merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1) {
-        H5B2_assert_internal2(internal->node_ptrs[idx - 1].all_nrec, hdr, (H5B2_internal_t *)left_child, (H5B2_internal_t *)middle_child);
-        H5B2_assert_internal(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)middle_child);
+        H5B2_assert_internal2(internal->node_ptrs[idx - 1].all_nrec, hdr, left_child, middle_child);
+        H5B2_assert_internal(internal->node_ptrs[idx].all_nrec, hdr, middle_child);
     } /* end if */
     else {
-        H5B2_assert_leaf2(hdr, (H5B2_leaf_t *)left_child, (H5B2_leaf_t *)middle_child);
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)middle_child);
+        H5B2_assert_leaf2(hdr, left_child, middle_child);
+        H5B2_assert_leaf(hdr, middle_child);
     } /* end else */
 #endif /* H5B2_DEBUG */
 
@@ -1439,7 +1439,7 @@ H5B2_swap_leaf(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t child_addr;                 /* Address of child node */
-    void *child = NULL;                 /* Pointer to child node */
+    void *child;                        /* Pointer to child node */
     uint8_t *child_native;              /* Pointer to child's native records */
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -1494,9 +1494,9 @@ H5B2_swap_leaf(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 #ifdef H5B2_DEBUG
     H5B2_assert_internal((hsize_t)0, hdr, internal);
     if(depth > 1)
-        H5B2_assert_internal(internal->node_ptrs[idx].all_nrec, hdr, (H5B2_internal_t *)child);
+        H5B2_assert_internal(internal->node_ptrs[idx].all_nrec, hdr, child);
     else
-        H5B2_assert_leaf(hdr, (H5B2_leaf_t *)child);
+        H5B2_assert_leaf(hdr, child);
 #endif /* H5B2_DEBUG */
 
 done:
@@ -1771,7 +1771,7 @@ HDmemset(leaf->leaf_native, 0, hdr->cls->nrec_size * hdr->node_info[0].max_nrec)
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "file allocation failed for B-tree leaf node")
 
     /* Cache the new B-tree node */
-    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_BT2_LEAF, node_ptr->addr, leaf, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(hdr->f, dxpl_id, H5AC_BT2_LEAF, node_ptr->addr, leaf, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "can't add B-tree leaf to cache")
 
 done:
@@ -1890,7 +1890,7 @@ HDmemset(internal->node_ptrs, 0, sizeof(H5B2_node_ptr_t) * (hdr->node_info[depth
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "file allocation failed for B-tree internal node")
 
     /* Cache the new B-tree node */
-    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_BT2_INT, node_ptr->addr, internal, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_set(hdr->f, dxpl_id, H5AC_BT2_INT, node_ptr->addr, internal, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "can't add B-tree internal node to cache")
 
 done:
@@ -3082,7 +3082,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2_assert_leaf(const H5B2_hdr_t *hdr, const H5B2_leaf_t *leaf)
+H5B2_assert_leaf(H5B2_hdr_t *hdr, H5B2_leaf_t *leaf)
 {
     /* General sanity checking on node */
     HDassert(leaf->nrec <= hdr->node_info->split_nrec);
@@ -3105,13 +3105,13 @@ H5B2_assert_leaf(const H5B2_hdr_t *hdr, const H5B2_leaf_t *leaf)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2_assert_leaf2(const H5B2_hdr_t *hdr, const H5B2_leaf_t *leaf, const H5B2_leaf_t UNUSED *leaf2)
+H5B2_assert_leaf2(H5B2_hdr_t *hdr, H5B2_leaf_t *leaf, H5B2_leaf_t *leaf2)
 {
     /* General sanity checking on node */
     HDassert(leaf->nrec <= hdr->node_info->split_nrec);
 
     return(0);
-} /* end H5B2_assert_leaf2() */
+} /* end H5B2_assert_leaf() */
 
 
 /*-------------------------------------------------------------------------
@@ -3128,10 +3128,10 @@ H5B2_assert_leaf2(const H5B2_hdr_t *hdr, const H5B2_leaf_t *leaf, const H5B2_lea
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2_assert_internal(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_internal_t *internal)
+H5B2_assert_internal(hsize_t parent_all_nrec, H5B2_hdr_t *hdr, H5B2_internal_t *internal)
 {
     hsize_t tot_all_nrec;       /* Total number of records at or below this node */
-    uint16_t u, v;               /* Local index variables */
+    unsigned u, v;               /* Local index variables */
 
     /* General sanity checking on node */
     HDassert(internal->nrec <= hdr->node_info->split_nrec);
@@ -3169,10 +3169,10 @@ H5B2_assert_internal(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2_assert_internal2(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_internal_t *internal, const H5B2_internal_t *internal2)
+H5B2_assert_internal2(hsize_t parent_all_nrec, H5B2_hdr_t *hdr, H5B2_internal_t *internal, H5B2_internal_t *internal2)
 {
     hsize_t tot_all_nrec;       /* Total number of records at or below this node */
-    uint16_t u, v;       /* Local index variables */
+    unsigned u, v;       /* Local index variables */
 
     /* General sanity checking on node */
     HDassert(internal->nrec <= hdr->node_info->split_nrec);

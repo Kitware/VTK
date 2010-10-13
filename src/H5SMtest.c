@@ -91,14 +91,10 @@ H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
     /* Check for shared messages being enabled */
     if(H5F_addr_defined(f->shared->sohm_addr)) {
         H5SM_index_header_t *header;        /* Index header for message type */
-        H5SM_table_cache_ud_t cache_udata;  /* User-data for callback */
         ssize_t index_num;                  /* Table index for message type */
 
-        /* Set up user data for callback */
-        cache_udata.f = f;
-
         /* Look up the master SOHM table */
-        if(NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, dxpl_id, H5AC_SOHM_TABLE, f->shared->sohm_addr, &cache_udata, H5AC_READ)))
+        if(NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, dxpl_id, H5AC_SOHM_TABLE, f->shared->sohm_addr, f, H5AC_READ)))
             HGOTO_ERROR(H5E_SOHM, H5E_CANTPROTECT, FAIL, "unable to load SOHM master table")
 
         /* Find the correct index for this message type */

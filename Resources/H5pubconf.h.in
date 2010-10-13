@@ -142,20 +142,17 @@
 /* Define to 1 if you have the `frexpl' function. */
 #cmakedefine H5_HAVE_FREXPL @H5_HAVE_FREXPL@
 
+/* Define to 1 if you have the `fseek64' function. */
+#cmakedefine H5_HAVE_FSEEK64 @H5_HAVE_FSEEK64@
+
 /* Define to 1 if you have the `fseeko' function. */
 #cmakedefine H5_HAVE_FSEEKO @H5_HAVE_FSEEKO@
-
-/* Define to 1 if you have the `fseeko64' function. */
-#cmakedefine H5_HAVE_FSEEKO64 @H5_HAVE_FSEEKO64@
 
 /* Define to 1 if you have the `fstat64' function. */
 #cmakedefine H5_HAVE_FSTAT64 @H5_HAVE_FSTAT64@
 
 /* Define to 1 if you have the `ftello' function. */
 #cmakedefine H5_HAVE_FTELLO @H5_HAVE_FTELLO@
-
-/* Define to 1 if you have the `ftello64' function. */
-#cmakedefine H5_HAVE_FTELLO64 @H5_HAVE_FTELLO64@
 
 /* Define to 1 if you have the `ftruncate64' function. */
 #cmakedefine H5_HAVE_FTRUNCATE64 @H5_HAVE_FTRUNCATE64@
@@ -319,9 +316,6 @@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine H5_HAVE_STDINT_H @H5_HAVE_STDINT_H@
-
-/* Define to 1 if you have the <stdint.h> header file for Cplusplus. */
-#cmakedefine H5_HAVE_STDINT_H_CXX @H5_HAVE_STDINT_H_CXX@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine H5_HAVE_STDLIB_H @H5_HAVE_STDLIB_H@
