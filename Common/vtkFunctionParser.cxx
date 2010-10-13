@@ -2506,6 +2506,8 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
   // The string is ok
   delete [] expectCommaOnParenthesisCount;
   delete [] expectTwoCommasOnParenthesisCount;
+
+  this->CopyParseError(pos, error);
   return;
 }
 
