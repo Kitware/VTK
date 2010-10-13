@@ -2496,6 +2496,7 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
     {
     this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
     this->SetParseError("Syntax Error: missing closing parenthesis");
+    this->CopyParseError(pos, error);
     delete [] expectCommaOnParenthesisCount;
     delete [] expectTwoCommasOnParenthesisCount;
     return;
