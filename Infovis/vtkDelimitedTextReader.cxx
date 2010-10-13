@@ -356,13 +356,22 @@ private:
 // ascii_to_unicode
 
 template<typename OctetIteratorT, typename OutputIteratorT>
-void ascii_to_unicode(OctetIteratorT begin, OctetIteratorT end, OutputIteratorT output)
+void ascii_to_unicode(OctetIteratorT begin, OctetIteratorT end, OutputIteratorT output, bool replace_8bit_characters, vtkTypeUInt32 fallback_character = 'x')
 {
   while(begin != end)
     {
-    const vtkTypeUInt32 code_point = *begin++;
+    vtkTypeUInt32 code_point = *begin++;
     if(code_point > 0x7f)
-      throw vtkstd::runtime_error("Detected a character that isn't valid US-ASCII.");
+      {
+      if (replace_8bit_characters)
+        {
+        code_point = fallback_character;
+        }
+      else
+        {
+        throw vtkstd::runtime_error("Detected a character that isn't valid US-ASCII.");
+        }
+      }
 
     *output++ = code_point;
     }
@@ -428,7 +437,8 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   UnicodeStringDelimiters(vtkUnicodeString::from_utf8("\"")),
   UnicodeWhitespace(vtkUnicodeString::from_utf8(" \t\r\n\v\f")),
   UnicodeEscapeCharacter(vtkUnicodeString::from_utf8("\\")),
-  HaveHeaders(false)
+  HaveHeaders(false),
+  ReplacementCharacter('x')
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -633,7 +643,11 @@ int vtkDelimitedTextReader::RequestData(
 
     if("US-ASCII" == character_set || character_set.empty())
       {
-      ascii_to_unicode(content.begin(), content.end(), iterator);
+      ascii_to_unicode(content.begin(), content.end(), iterator, false, 'x');
+      }
+    else if("US-ASCII-WITH-FALLBACK" == character_set)
+      {
+      ascii_to_unicode(content.begin(), content.end(), iterator, true, this->ReplacementCharacter);
       }
     else if("UTF-8" == character_set)
       {
