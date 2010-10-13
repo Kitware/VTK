@@ -238,11 +238,14 @@ protected:
   ~vtkFunctionParser();
 
   int Parse();
+
   // Description:
   // Evaluate the function, returning true on success, false on failure.
   bool Evaluate();
 
   int CheckSyntax();
+
+  void CopyParseError(int &position, char **error);
 
   void RemoveSpaces();
   char* RemoveSpacesFrom(const char* variableName);
