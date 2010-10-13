@@ -27,6 +27,7 @@
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
 #include <assert.h>
+#include <cmath>
 
 #include "vtkMathConfigure.h"
 #include "vtkBoxMuellerRandomSequence.h"
@@ -2945,6 +2946,32 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
     }
   return 1;
   
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
+{
+  return 1./(sqrt(2.*vtkMath::Pi() * variance)) * exp(-(pow(distanceFromMean,2))/(2.*variance));
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianAmplitude(const double mean, const double variance, const double position)
+{
+  double distanceToMean = std::abs(mean-position);
+  return GaussianAmplitude(variance, distanceToMean);
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianWeight(const double variance, const double distanceFromMean)
+{
+  return exp(-(pow(distanceFromMean,2))/(2.*variance));
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianWeight(const double mean, const double variance, const double position)
+{
+  double distanceToMean = std::abs(mean-position);
+  return GaussianWeight(variance, distanceToMean);
 }
 
 //----------------------------------------------------------------------------
