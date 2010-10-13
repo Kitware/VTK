@@ -17,6 +17,8 @@
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkBoundingBox.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDefaultPainter.h"
@@ -181,8 +183,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     vtkMapper::GetGlobalImmediateModeRendering() ||
     !this->NestedDisplayLists || (selecting_points);
 
-  vtkDataSet *input=
-    vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0,0));
+  vtkDataObject* inputDO = this->GetInputDataObject(0, 0);
 
   vtkProperty *prop=actor->GetProperty();
 
@@ -197,7 +198,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     // if something has changed, regenerate display lists.
     createDisplayList=this->DisplayListId==0 ||
       this->GetMTime() > this->BuildTime ||
-      input->GetMTime() > this->BuildTime ||
+      inputDO->GetMTime() > this->BuildTime ||
       prop->GetMTime() > this->BuildTime ||
       ren->GetRenderWindow() != this->LastWindow.GetPointer();
     }
@@ -206,53 +207,9 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     {
     cout << "Generate lists" << endl;
     int numberOfSources=this->GetNumberOfInputConnections(1);
-    //  vtkPointData *pd=input->GetPointData();
-    // scalars for scaling
-
-    vtkDataArray* scaleArray = this->GetScaleArray(input);
-    vtkDataArray* orientArray = this->GetOrientationArray(input);
-    vtkDataArray* indexArray = this->GetSourceIndexArray(input);
-
-    vtkIdType numPts = input->GetNumberOfPoints();
-    if (numPts < 1)
-      {
-      vtkDebugMacro(<<"No points to glyph!");
-      return;
-      }
-
-    vtkBitArray *maskArray = 0;
-    if (this->Masking)
-      {
-      maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(input));
-      if (maskArray==0)
-        {
-        vtkDebugMacro(<<"masking is enabled but there is no mask array. Ignore masking.");
-        }
-      else
-        {
-        if (maskArray->GetNumberOfComponents()!=1)
-          {
-          vtkErrorMacro(" expecting a mask array with one component, getting "
-            << maskArray->GetNumberOfComponents() << " components.");
-          return;
-          }
-        }
-      }
-
-    if (orientArray!=0 && orientArray->GetNumberOfComponents()!=3)
-      {
-      vtkErrorMacro(" expecting an orientation array with 3 component, getting "
-        << orientArray->GetNumberOfComponents() << " components.");
-      return;
-      }
 
     // Check input for consistency
     //
-    double den=this->Range[1]-this->Range[0];
-    if (den==0.0)
-      {
-      den=1.0;
-      }
 
     // Create a default source, if no source is specified.
     if (this->GetSource(0)==0)
@@ -276,13 +233,12 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       defaultPoints = NULL;
       }
 
-    vtkTransform *trans=vtkTransform::New();
 
     if(this->SourceMappers==0)
       {
       this->SourceMappers=new vtkOpenGLGlyph3DMapperArray;
       }
-    if (indexArray)
+    if (/*indexArray*/ true)
       {
       this->SourceMappers->Mappers.resize(
         static_cast<size_t>(numberOfSources));
@@ -338,222 +294,32 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       this->DisplayListId=glGenLists(1);
       glNewList(this->DisplayListId,GL_COMPILE);
       }
-
     this->UpdatePainterInformation();
-    this->ScalarsToColorsPainter->SetInput(input);
-    this->ScalarsToColorsPainter->Render(ren, actor, 0xff, false);
-    vtkUnsignedCharArray* colors = this->GetColors(
-      vtkDataSet::SafeDownCast(this->ScalarsToColorsPainter->GetOutput()));
-    bool multiplyWithAlpha =
-      this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor)==1;
-    if (multiplyWithAlpha)
+
+    // Render the input dataset or every dataset in the input composite dataset.
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(inputDO);
+    vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(inputDO);
+    if (ds)
       {
-      // We colors were premultiplied by alpha then we change the blending
-      // function to one that will compute correct blended destination alpha
-      // value, otherwise we stick with the default.
-      // save the blend function.
-      glPushAttrib(GL_COLOR_BUFFER_BIT);
-      // the following function is not correct with textures because there
-      // are not premultiplied by alpha.
-      glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+      this->Render(ren, actor, ds);
       }
-
-    // Traverse all Input points, transforming Source points
-    vtkIdType inPtId;
-
-    for (inPtId=0; inPtId < numPts; inPtId++)
+    else if (cd)
       {
-      if ( ! (inPtId % 10000) )
+      vtkCompositeDataIterator* iter = cd->NewIterator();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+        iter->GoToNextItem())
         {
-        this->UpdateProgress (static_cast<double>(inPtId)/
-                              static_cast<double>(numPts));
-        if (this->GetAbortExecute())
+        ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        if (ds)
           {
-          break;
+          if (selector)
+            {
+            selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
+            }
+          this->Render(ren, actor, ds);
           }
         }
-
-      if (maskArray && maskArray->GetValue(inPtId)==0)
-        {
-        continue;
-        }
-
-      double scalex = 1.0;
-      double scaley = 1.0;
-      double scalez = 1.0;
-      // Get the scalar and vector data
-      if (scaleArray)
-        {
-        double* tuple = scaleArray->GetTuple(inPtId);
-        switch (this->ScaleMode)
-          {
-        case SCALE_BY_MAGNITUDE:
-          scalex = scaley = scalez = vtkMath::Norm(tuple,
-            scaleArray->GetNumberOfComponents());
-          break;
-        case SCALE_BY_COMPONENTS:
-          if (scaleArray->GetNumberOfComponents() != 3)
-            {
-            vtkErrorMacro("Cannot scale by components since " <<
-              scaleArray->GetName() << " does not have 3 components.");
-            }
-          else
-            {
-            scalex = tuple[0];
-            scaley = tuple[1];
-            scalez = tuple[2];
-            }
-          break;
-        case NO_DATA_SCALING:
-        default:
-          break;
-          }
-
-        // Clamp data scale if enabled
-        if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
-          {
-          scalex = (scalex < this->Range[0] ? this->Range[0] :
-            (scalex > this->Range[1] ? this->Range[1] : scalex));
-          scalex = (scalex - this->Range[0]) / den;
-          scaley = (scaley < this->Range[0] ? this->Range[0] :
-            (scaley > this->Range[1] ? this->Range[1] : scaley));
-          scaley = (scaley - this->Range[0]) / den;
-          scalez = (scalez < this->Range[0] ? this->Range[0] :
-            (scalez > this->Range[1] ? this->Range[1] : scalez));
-          scalez = (scalez - this->Range[0]) / den;
-          }
-        }
-      scalex *= this->ScaleFactor;
-      scaley *= this->ScaleFactor;
-      scalez *= this->ScaleFactor;
-
-      int index = 0;
-      // Compute index into table of glyphs
-      if (indexArray)
-        {
-        double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
-          indexArray->GetNumberOfComponents());
-        index = static_cast<int>((value-this->Range[0])*numberOfSources/den);
-        index = ::vtkClamp(index, 0, numberOfSources-1);
-        }
-
-      // source can be null.
-      vtkPolyData *source=this->GetSource(index);
-
-      // Make sure we're not indexing into empty glyph
-      if (source!=0)
-        {
-        // Now begin copying/transforming glyph
-        trans->Identity();
-
-        // translate Source to Input point
-        double x[3];
-        input->GetPoint(inPtId, x);
-        trans->Translate(x[0], x[1], x[2]);
-
-        if (orientArray!=0)
-          {
-          double orientation[3];
-          orientArray->GetTuple(inPtId, orientation);
-          switch (this->OrientationMode)
-            {
-          case ROTATION:
-            trans->RotateZ(orientation[2]);
-            trans->RotateX(orientation[0]);
-            trans->RotateY(orientation[1]);
-            break;
-
-          case DIRECTION:
-            if (orientation[1] == 0.0 && orientation[2] == 0.0)
-              {
-              if (orientation[0] < 0) //just flip x if we need to
-                {
-                trans->RotateWXYZ(180.0,0,1,0);
-                }
-              }
-            else
-              {
-              double vMag = vtkMath::Norm(orientation);
-              double vNew[3];
-              vNew[0] = (orientation[0]+vMag) / 2.0;
-              vNew[1] = orientation[1] / 2.0;
-              vNew[2] = orientation[2] / 2.0;
-              trans->RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
-              }
-            break;
-            }
-          }
-
-        // determine scale factor from scalars if appropriate
-        // Copy scalar value
-        if (selecting_points)
-          {
-          selector->RenderAttributeId(inPtId);
-          }
-        else if (colors)
-          {
-          unsigned char rgba[4];
-          colors->GetTupleValue(inPtId, rgba);
-          glColor4ub(rgba[0], rgba[1], rgba[2], rgba[3]);
-          }
-        //glFinish(); // for debug
-        // scale data if appropriate
-        if (this->Scaling)
-          {
-          if ( scalex == 0.0 )
-            {
-            scalex = 1.0e-10;
-            }
-          if ( scaley == 0.0 )
-            {
-            scaley = 1.0e-10;
-            }
-          if ( scalez == 0.0 )
-            {
-            scalez = 1.0e-10;
-            }
-          trans->Scale(scalex,scaley,scalez);
-          }
-
-        // multiply points and normals by resulting matrix
-        // glFinish(); // for debug
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        double *mat = trans->GetMatrix()->Element[0];
-        float mat2[16]; // transpose for OpenGL, float is native OpenGL
-        // format.
-        mat2[0] = static_cast<float>(mat[0]);
-        mat2[1] = static_cast<float>(mat[4]);
-        mat2[2] = static_cast<float>(mat[8]);
-        mat2[3] = static_cast<float>(mat[12]);
-        mat2[4] = static_cast<float>(mat[1]);
-        mat2[5] = static_cast<float>(mat[5]);
-        mat2[6] = static_cast<float>(mat[9]);
-        mat2[7] = static_cast<float>(mat[13]);
-        mat2[8] = static_cast<float>(mat[2]);
-        mat2[9] = static_cast<float>(mat[6]);
-        mat2[10] = static_cast<float>(mat[10]);
-        mat2[11] = static_cast<float>(mat[14]);
-        mat2[12] = static_cast<float>(mat[3]);
-        mat2[13] = static_cast<float>(mat[7]);
-        mat2[14] = static_cast<float>(mat[11]);
-        mat2[15] = static_cast<float>(mat[15]);
-        glMultMatrixf(mat2);
-        this->SourceMappers->Mappers[static_cast<size_t>(
-                                       index)]->Render(ren,actor);
-        // assume glMatrix(GL_MODELVIEW);
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        //glFinish(); // for debug
-        }
-      }
-    trans->Delete();
-
-    // from vtkOpenGLScalarsToColorsPainter::RenderInternal
-    if(multiplyWithAlpha)
-      {
-      // restore the blend function
-      glPopAttrib();
+      iter->Delete();
       }
 
     if(createDisplayList)
@@ -585,6 +351,276 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     }
 
   this->UpdateProgress(1.0);
+}
+
+// ---------------------------------------------------------------------------
+void vtkOpenGLGlyph3DMapper::Render(
+  vtkRenderer* ren, vtkActor* actor, vtkDataSet* dataset)
+{
+  vtkIdType numPts = dataset->GetNumberOfPoints();
+  if (numPts < 1)
+    {
+    vtkDebugMacro(<<"No points to glyph!");
+    return;
+    }
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool selecting_points = selector && (selector->GetFieldAssociation() ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS);
+
+  double den=this->Range[1]-this->Range[0];
+  if (den==0.0)
+    {
+    den=1.0;
+    }
+
+  int numberOfSources=this->GetNumberOfInputConnections(1);
+  vtkTransform *trans=vtkTransform::New();
+  vtkDataArray* scaleArray = this->GetScaleArray(dataset);
+  vtkDataArray* orientArray = this->GetOrientationArray(dataset);
+  vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
+  vtkBitArray *maskArray = 0;
+
+  if (this->Masking)
+    {
+    maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(dataset));
+    if (maskArray==0)
+      {
+      vtkDebugMacro(<<"masking is enabled but there is no mask array. Ignore masking.");
+      }
+    else
+      {
+      if (maskArray->GetNumberOfComponents()!=1)
+        {
+        vtkErrorMacro(" expecting a mask array with one component, getting "
+          << maskArray->GetNumberOfComponents() << " components.");
+        return;
+        }
+      }
+    }
+
+  if (orientArray!=0 && orientArray->GetNumberOfComponents()!=3)
+    {
+    vtkErrorMacro(" expecting an orientation array with 3 component, getting "
+      << orientArray->GetNumberOfComponents() << " components.");
+    return;
+    }
+
+  this->ScalarsToColorsPainter->SetInput(dataset);
+  this->ScalarsToColorsPainter->Render(ren, actor, 0xff, false);
+  vtkUnsignedCharArray* colors = this->GetColors(
+    vtkDataSet::SafeDownCast(this->ScalarsToColorsPainter->GetOutput()));
+  bool multiplyWithAlpha =
+    this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor)==1;
+  if (multiplyWithAlpha)
+    {
+    // We colors were premultiplied by alpha then we change the blending
+    // function to one that will compute correct blended destination alpha
+    // value, otherwise we stick with the default.
+    // save the blend function.
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+    // the following function is not correct with textures because there
+    // are not premultiplied by alpha.
+    glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+  // Traverse all Input points, transforming Source points
+  vtkIdType inPtId;
+
+  for (inPtId=0; inPtId < numPts; inPtId++)
+    {
+    if ( ! (inPtId % 10000) )
+      {
+      this->UpdateProgress (static_cast<double>(inPtId)/
+        static_cast<double>(numPts));
+      if (this->GetAbortExecute())
+        {
+        break;
+        }
+      }
+
+    if (maskArray && maskArray->GetValue(inPtId)==0)
+      {
+      continue;
+      }
+
+    double scalex = 1.0;
+    double scaley = 1.0;
+    double scalez = 1.0;
+    // Get the scalar and vector data
+    if (scaleArray)
+      {
+      double* tuple = scaleArray->GetTuple(inPtId);
+      switch (this->ScaleMode)
+        {
+      case SCALE_BY_MAGNITUDE:
+        scalex = scaley = scalez = vtkMath::Norm(tuple,
+          scaleArray->GetNumberOfComponents());
+        break;
+      case SCALE_BY_COMPONENTS:
+        if (scaleArray->GetNumberOfComponents() != 3)
+          {
+          vtkErrorMacro("Cannot scale by components since " <<
+            scaleArray->GetName() << " does not have 3 components.");
+          }
+        else
+          {
+          scalex = tuple[0];
+          scaley = tuple[1];
+          scalez = tuple[2];
+          }
+        break;
+      case NO_DATA_SCALING:
+      default:
+        break;
+        }
+
+      // Clamp data scale if enabled
+      if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
+        {
+        scalex = (scalex < this->Range[0] ? this->Range[0] :
+          (scalex > this->Range[1] ? this->Range[1] : scalex));
+        scalex = (scalex - this->Range[0]) / den;
+        scaley = (scaley < this->Range[0] ? this->Range[0] :
+          (scaley > this->Range[1] ? this->Range[1] : scaley));
+        scaley = (scaley - this->Range[0]) / den;
+        scalez = (scalez < this->Range[0] ? this->Range[0] :
+          (scalez > this->Range[1] ? this->Range[1] : scalez));
+        scalez = (scalez - this->Range[0]) / den;
+        }
+      }
+    scalex *= this->ScaleFactor;
+    scaley *= this->ScaleFactor;
+    scalez *= this->ScaleFactor;
+
+    int index = 0;
+    // Compute index into table of glyphs
+    if (indexArray)
+      {
+      double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
+        indexArray->GetNumberOfComponents());
+      index = static_cast<int>((value-this->Range[0])*numberOfSources/den);
+      index = ::vtkClamp(index, 0, numberOfSources-1);
+      }
+
+    // source can be null.
+    vtkPolyData *source=this->GetSource(index);
+
+    // Make sure we're not indexing into empty glyph
+    if (source!=0)
+      {
+      // Now begin copying/transforming glyph
+      trans->Identity();
+
+      // translate Source to Input point
+      double x[3];
+      dataset->GetPoint(inPtId, x);
+      trans->Translate(x[0], x[1], x[2]);
+
+      if (orientArray!=0)
+        {
+        double orientation[3];
+        orientArray->GetTuple(inPtId, orientation);
+        switch (this->OrientationMode)
+          {
+        case ROTATION:
+          trans->RotateZ(orientation[2]);
+          trans->RotateX(orientation[0]);
+          trans->RotateY(orientation[1]);
+          break;
+
+        case DIRECTION:
+          if (orientation[1] == 0.0 && orientation[2] == 0.0)
+            {
+            if (orientation[0] < 0) //just flip x if we need to
+              {
+              trans->RotateWXYZ(180.0,0,1,0);
+              }
+            }
+          else
+            {
+            double vMag = vtkMath::Norm(orientation);
+            double vNew[3];
+            vNew[0] = (orientation[0]+vMag) / 2.0;
+            vNew[1] = orientation[1] / 2.0;
+            vNew[2] = orientation[2] / 2.0;
+            trans->RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
+            }
+          break;
+          }
+        }
+
+      // determine scale factor from scalars if appropriate
+      // Copy scalar value
+      if (selecting_points)
+        {
+        selector->RenderAttributeId(inPtId);
+        }
+      else if (colors)
+        {
+        unsigned char rgba[4];
+        colors->GetTupleValue(inPtId, rgba);
+        glColor4ub(rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+      //glFinish(); // for debug
+      // scale data if appropriate
+      if (this->Scaling)
+        {
+        if ( scalex == 0.0 )
+          {
+          scalex = 1.0e-10;
+          }
+        if ( scaley == 0.0 )
+          {
+          scaley = 1.0e-10;
+          }
+        if ( scalez == 0.0 )
+          {
+          scalez = 1.0e-10;
+          }
+        trans->Scale(scalex,scaley,scalez);
+        }
+
+      // multiply points and normals by resulting matrix
+      // glFinish(); // for debug
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+      double *mat = trans->GetMatrix()->Element[0];
+      float mat2[16]; // transpose for OpenGL, float is native OpenGL
+      // format.
+      mat2[0] = static_cast<float>(mat[0]);
+      mat2[1] = static_cast<float>(mat[4]);
+      mat2[2] = static_cast<float>(mat[8]);
+      mat2[3] = static_cast<float>(mat[12]);
+      mat2[4] = static_cast<float>(mat[1]);
+      mat2[5] = static_cast<float>(mat[5]);
+      mat2[6] = static_cast<float>(mat[9]);
+      mat2[7] = static_cast<float>(mat[13]);
+      mat2[8] = static_cast<float>(mat[2]);
+      mat2[9] = static_cast<float>(mat[6]);
+      mat2[10] = static_cast<float>(mat[10]);
+      mat2[11] = static_cast<float>(mat[14]);
+      mat2[12] = static_cast<float>(mat[3]);
+      mat2[13] = static_cast<float>(mat[7]);
+      mat2[14] = static_cast<float>(mat[11]);
+      mat2[15] = static_cast<float>(mat[15]);
+      glMultMatrixf(mat2);
+      this->SourceMappers->Mappers[static_cast<size_t>(
+        index)]->Render(ren,actor);
+      // assume glMatrix(GL_MODELVIEW);
+      glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
+      //glFinish(); // for debug
+      }
+    }
+  trans->Delete();
+
+  // from vtkOpenGLScalarsToColorsPainter::RenderInternal
+  if(multiplyWithAlpha)
+    {
+    // restore the blend function
+    glPopAttrib();
+    }
 }
 
 // ---------------------------------------------------------------------------

@@ -41,7 +41,7 @@ public:
 
   virtual void Execute(vtkObject *, unsigned long eventId, void *)
     {
-    if (this->Target)
+    if (this->Target && this->Target->GetAutomaticEventHandling())
       {
       switch (eventId)
         {
@@ -83,6 +83,7 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->RootProcessId = 0;
 
   this->CaptureDelegate = NULL;
+  this->AutomaticEventHandling = true;
 }
 
 //----------------------------------------------------------------------------
@@ -123,6 +124,11 @@ void vtkSynchronizedRenderers::HandleStartRender()
   if (!this->Renderer || !this->ParallelRendering ||
     !this->ParallelController)
     {
+    if (this->CaptureDelegate &&
+      this->CaptureDelegate->GetAutomaticEventHandling() == false)
+      {
+      this->CaptureDelegate->HandleStartRender();
+      }
     return;
     }
 
@@ -146,6 +152,12 @@ void vtkSynchronizedRenderers::HandleStartRender()
       this->LastViewport[1]/this->ImageReductionFactor,
       this->LastViewport[2]/this->ImageReductionFactor,
       this->LastViewport[3]/this->ImageReductionFactor);
+    }
+
+  if (this->CaptureDelegate &&
+    this->CaptureDelegate->GetAutomaticEventHandling() == false)
+    {
+    this->CaptureDelegate->HandleStartRender();
     }
 }
 
@@ -176,6 +188,12 @@ void vtkSynchronizedRenderers::SlaveStartRender()
 //----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::HandleEndRender()
 {
+  if (this->CaptureDelegate &&
+    this->CaptureDelegate->GetAutomaticEventHandling() == false)
+    {
+    this->CaptureDelegate->HandleEndRender();
+    }
+
   if (!this->Renderer || !this->ParallelRendering ||
     !this->ParallelController)
     {
@@ -190,7 +208,6 @@ void vtkSynchronizedRenderers::HandleEndRender()
     {
     this->SlaveEndRender();
     }
-
 
   if (this->WriteBackImages)
     {
@@ -279,7 +296,8 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
   this->Renderer->ComputeVisiblePropBounds(local_bounds);
 
   // merge local bounds into the bounds passed in to this function call.
-  vtkBoundingBox box(local_bounds);
+  vtkBoundingBox box;
+  box.AddBounds(local_bounds);
   box.AddBounds(bounds);
   box.GetBounds(bounds);
 
@@ -316,7 +334,7 @@ void vtkSynchronizedRenderers::CollectiveExpandForVisiblePropBounds(
       }
 
     vtkBoundingBox bbox;
-    bbox.SetBounds(bounds);
+    bbox.AddBounds(bounds);
     bbox.AddBounds(other_bounds);
     bbox.GetBounds(bounds);
     }
@@ -327,13 +345,13 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ImageReductionFactor: " << this->ImageReductionFactor
-       << endl;
-
+  os << indent << "ImageReductionFactor: "
+    << this->ImageReductionFactor << endl;
   os << indent << "WriteBackImages: " << this->WriteBackImages << endl;
   os << indent << "RootProcessId: " << this->RootProcessId << endl;
   os << indent << "ParallelRendering: " << this->ParallelRendering << endl;
-
+  os << indent << "AutomaticEventHandling: "
+    << this->AutomaticEventHandling << endl;
   os << indent << "CaptureDelegate: ";
   if(this->CaptureDelegate==0)
     {
@@ -498,13 +516,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
 
-  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
   glEnable(GL_SCISSOR_TEST);
   glViewport(
     static_cast<GLint>(viewport[0]*window_size[0]),
@@ -517,8 +528,26 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
   ren->Clear();
-  glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
+  return this->PushToFrameBuffer();
+}
 
+//----------------------------------------------------------------------------
+bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
+{
+  if (!this->IsValid())
+    {
+    vtkGenericWarningMacro("Image not valid. Cannot push to screen.");
+    return false;
+    }
+
+  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
 
   GLuint tex=0;
   glGenTextures(1, &tex);
@@ -561,7 +590,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   glPopAttrib();
   return true;
 }
-
 
 //----------------------------------------------------------------------------
 bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)

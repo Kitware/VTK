@@ -53,6 +53,7 @@ vtkPCosmoReader.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
+vtkPHardwareSelector.cxx
 vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
 vtkPKdTree.cxx

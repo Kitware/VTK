@@ -75,7 +75,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkContextBufferId
   vtkChartColors
-  vtkContext2D
   vtkOpenGLContextBufferId
   vtkOpenGLContextDevice2D
   WRAP_EXCLUDE

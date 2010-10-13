@@ -125,7 +125,7 @@ public:
   // clear buffers after one's done with the scene.
   // The optional final parameter maxDist will look for a cell within the specified
   // number of pixels from display_position.
-  bool CaptureBuffers();
+  virtual bool CaptureBuffers();
   PixelInformation GetPixelInformation(unsigned int display_position[2])
     { return this->GetPixelInformation(display_position, 0); }
   PixelInformation GetPixelInformation(unsigned int display_position[2],
@@ -189,6 +189,11 @@ public:
   virtual vtkSelection* GenerateSelection(
     unsigned int x1, unsigned int y1,
     unsigned int x2, unsigned int y2);
+
+  // Description:
+  // returns the prop associated with a ID. This is valid only until
+  // ReleasePixBuffers() gets called.
+  vtkProp* GetProp(int id);
 
 //BTX
   enum PassTypes

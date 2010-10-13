@@ -96,6 +96,16 @@ public:
   virtual void SetCaptureDelegate(vtkSynchronizedRenderers*);
   vtkGetObjectMacro(CaptureDelegate, vtkSynchronizedRenderers);
 
+  // Description:
+  // When multiple groups of processes are synchronized together using different
+  // controllers, one needs to specify the order in which the various
+  // synchronizers execute. In such cases one starts with the outer most
+  // vtkSynchronizedRenderers, sets the dependent one as a CaptureDelegate on it
+  // and the turn off AutomaticEventHandling on the delegate.
+  vtkSetMacro(AutomaticEventHandling, bool);
+  vtkGetMacro(AutomaticEventHandling, bool);
+  vtkBooleanMacro(AutomaticEventHandling, bool);
+
 //BTX
   enum 
     {
@@ -133,6 +143,10 @@ public:
 
     // Pushes the image to the viewport.
     bool PushToViewport(vtkRenderer*);
+
+    // This is a raw version of PushToViewport() that assumes that the
+    // glViewport() has already been setup externally.
+    bool PushToFrameBuffer();
 
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
@@ -210,6 +224,7 @@ protected:
   int ImageReductionFactor;
   bool WriteBackImages;
   int RootProcessId;
+  bool AutomaticEventHandling;
 
 private:
   vtkSynchronizedRenderers(const vtkSynchronizedRenderers&); // Not implemented

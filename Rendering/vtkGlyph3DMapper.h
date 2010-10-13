@@ -329,6 +329,10 @@ protected:
 private:
   vtkGlyph3DMapper(const vtkGlyph3DMapper&); // Not implemented.
   void operator=(const vtkGlyph3DMapper&); // Not implemented.
+
+  // Description:
+  // Returns true when valid bounds are returned.
+  bool GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6]);
   //ETX
 };
 

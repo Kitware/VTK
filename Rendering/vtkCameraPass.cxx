@@ -191,6 +191,20 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     lowerLeft[1]=0;
     // we assume the drawbuffer state is already initialized before.
     }
+
+  // Save the current viewport and camera matrices.
+  GLint saved_matrix_mode;
+  glGetIntegerv(GL_MATRIX_MODE, &saved_matrix_mode);
+  GLfloat saved_viewport[4];
+  glGetFloatv(GL_VIEWPORT, saved_viewport);
+  GLint saved_scissor_test;
+  glGetIntegerv(GL_SCISSOR_TEST, &saved_scissor_test);
+  GLfloat saved_scissor_box[4];
+  glGetFloatv(GL_SCISSOR_BOX, saved_scissor_box);
+  GLfloat saved_projection_matrix[16];
+  GLfloat saved_modelview_matrix[16];
+  glGetFloatv(GL_PROJECTION_MATRIX, saved_projection_matrix);
+  glGetFloatv(GL_MODELVIEW_MATRIX, saved_modelview_matrix);
   
   glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
@@ -220,12 +234,9 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     // insert camera view transformation 
     glLoadMatrixd(matrix->Element[0]);
     }
-  
-  // push the model view matrix onto the stack, make sure we 
-  // adjust the mode first
+
   glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  
+
   glLoadIdentity();
   
   matrix->DeepCopy(camera->GetViewTransformMatrix());
@@ -254,10 +265,25 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     {
     vtkWarningMacro(<<" no delegate.");
     }
-  
-  // clean up the model view matrix set up by the camera 
+
+  // Restore changed context.
+  glViewport(saved_viewport[0], saved_viewport[1], saved_viewport[2],
+    saved_viewport[3]);
+  glScissor(saved_scissor_box[0], saved_scissor_box[1], saved_scissor_box[2],
+    saved_scissor_box[3]);
+  if (saved_scissor_test)
+    {
+    glEnable(GL_SCISSOR_TEST);
+    }
+  else
+    {
+    glDisable(GL_SCISSOR_TEST);
+    }
   glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+  glLoadMatrixf(saved_modelview_matrix);
+  glMatrixMode(GL_PROJECTION);
+  glLoadMatrixf(saved_projection_matrix);
+  glMatrixMode(saved_matrix_mode);
 }
 
 // ----------------------------------------------------------------------------
