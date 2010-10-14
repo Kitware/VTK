@@ -183,7 +183,8 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
   ENDIF (USER_JAVA_CLASSPATH)
 
   SET (OUT_TEXT)
-  SET (classes)
+  SET (sources)
+  SET (driver)
 
   # get the classes for this lib
   FOREACH(srcName ${ARGN})
@@ -194,20 +195,20 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
     # the input file might be full path so handle that
     GET_FILENAME_COMPONENT(srcPath ${srcName} PATH)
 
-    SET(className "${srcPath}/${srcNameWe}.class")
+    SET (className "${srcPath}/${srcNameWe}.class")
     SET (OUT_TEXT ${OUT_TEXT} "\n    dummy = new ${srcNameWe}()")
-
-    # On Unix we can just call javac ... *.java
-    ADD_CUSTOM_COMMAND(
-      OUTPUT "${className}"
-      COMMAND "${JAVA_COMPILE}" ARGS -classpath "${javaPath}" "${srcPath}/vtk${TARGET}Driver.java"
-      DEPENDS "${srcName}"
-      )
-
-    SET (classes ${classes} ${className})
+    SET (driver "${srcPath}/vtk${TARGET}Driver.class")
+    SET (sources ${sources} ${srcName})
   ENDFOREACH(srcName)
 
-  ADD_CUSTOM_COMMAND(TARGET ${TARGET} SOURCE ${TARGET} DEPENDS ${classes})
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${driver}
+    COMMAND "${JAVA_COMPILE}"
+      -source 5 -classpath "${javaPath}" "${srcPath}/vtk${TARGET}Driver.java"
+    DEPENDS ${sources}
+    )
+  ADD_CUSTOM_COMMAND(TARGET ${TARGET} SOURCE ${TARGET} DEPENDS ${driver})
+
   SET (TARGET_NAME ${TARGET})
   CONFIGURE_FILE(
     ${VTK_CMAKE_DIR}/vtkJavaDriver.java.in
