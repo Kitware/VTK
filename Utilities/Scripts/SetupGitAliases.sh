@@ -19,7 +19,7 @@ GIT=git
 GITCONFIG="${GIT} config ${global}"
 
 # General aliases that could be global
-${GITCONFIG} alias.pullall "!sh -c \"!git pull && git submodule update --init\""
+${GITCONFIG} alias.pullall "!sh -c \"git pull && git submodule update --init\""
 ${GITCONFIG} alias.prepush 'log --graph --stat origin/master..'
 
 # Staging aliases
