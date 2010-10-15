@@ -533,16 +533,19 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
 
   // The font family is in 4 bits (= 5 bits so far)
   // (2 would be enough right now, but who knows, it might grow)
-  int fam = (tprop->GetFontFamily() - tprop->GetFontFamilyMinValue()) << bits;
+  // Avoid unknown as this can cause segfaluts - this should be fixed...
+  int family = tprop->GetFontFamily() == VTK_UNKNOWN_FONT ? VTK_ARIAL :
+                                                            tprop->GetFontFamily();
+  int fam = (family - tprop->GetFontFamilyMinValue()) << bits;
   bits += 4;
 
   // Bold is in 1 bit (= 6 bits so far)
   int bold = (tprop->GetBold() ? 1 : 0) << bits;
-  bits++;
+  ++bits;
 
   // Italic is in 1 bit (= 7 bits so far)
   int italic = (tprop->GetItalic() ? 1 : 0) << bits;
-  bits++;
+  ++bits;
 
   // Orientation (in degrees)
   // We need 9 bits for 0 to 360. What do we need for more precisions:
