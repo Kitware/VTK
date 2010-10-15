@@ -433,9 +433,9 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
     }
 
   // No string to render, bail out now
-  if (str.length() == 0)
+  if (str.empty())
     {
-    return true;
+    return false;
     }
 
   return this->CalculateBoundingBox(tprop, str, bbox);
@@ -454,9 +454,9 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
     }
 
   // No string to render, bail out now
-  if (str.byte_count() == 0)
+  if (str.empty())
     {
-    return true;
+    return false;
     }
 
   return this->CalculateBoundingBox(tprop, str, bbox);
@@ -477,6 +477,11 @@ bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
   if (data->GetNumberOfScalarComponents() > 4)
     {
     vtkErrorMacro("The image data must have a maximum of four components");
+    return false;
+    }
+
+  if (str.empty())
+    {
     return false;
     }
 
@@ -504,6 +509,11 @@ bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
   if (data->GetNumberOfScalarComponents() > 4)
     {
     vtkErrorMacro("The image data must have a maximum of four components");
+    return false;
+    }
+
+  if (str.empty())
+    {
     return false;
     }
 
@@ -663,14 +673,14 @@ bool vtkFreeTypeTools::GetFace(unsigned long tprop_cache_id,
   if (!face)
     {
     vtkErrorMacro(<< "Wrong parameters, face is NULL");
-    return 0;
+    return false;
     }
 
   FTC_Manager *manager = this->GetCacheManager();
   if (!manager)
     {
     vtkErrorMacro(<< "Failed querying the cache manager !");
-    return 0;
+    return false;
     }
 
   // Map the id of a text property in the cache to a FTC_FaceID
@@ -879,7 +889,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(vtkTextProperty *tprop,
                              bitmap_glyph);
     if (!bitmap)
       {
-      // Glyph not found in the face.
+      // Glyph not found in the face. FIXME: do something more elegant here.
+      // We should render an empty rectangle to adhere to the specs...
       continue;
       }
 
@@ -945,7 +956,11 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
                                         int *x, int *y)
 {
   int text_bbox[4];
-  this->GetBoundingBox(tprop, str, text_bbox);
+  if (!this->GetBoundingBox(tprop, str, text_bbox))
+    {
+    vtkErrorMacro(<<"Could not get a valid bounding box.");
+    return;
+    }
   if (!this->IsBoundingBoxValid(text_bbox))
     {
     vtkErrorMacro(<<"no text in input");

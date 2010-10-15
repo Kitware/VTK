@@ -762,12 +762,11 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   float p[] = { floor(point[0]), floor(point[1]) };
 
   vtkImageData *image = vtkImageData::New();
-  int just = this->TextProp->GetJustification();
-  this->TextProp->SetJustification(VTK_TEXT_LEFT);
-  this->TextRenderer->RenderString(this->TextProp, string, image);
-  this->TextProp->SetJustification(just);
-
-//  this->DrawImage(point, 1.0, data);
+  if (!this->TextRenderer->RenderString(this->TextProp, string, image))
+    {
+    image->Delete();
+    return;
+    }
 
   vtkTexture *tex =vtkTexture::New();
   tex->RepeatOff();
