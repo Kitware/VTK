@@ -199,8 +199,8 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glGetIntegerv(GL_VIEWPORT, saved_viewport);
   GLint saved_scissor_test;
   glGetIntegerv(GL_SCISSOR_TEST, &saved_scissor_test);
-  GLfloat saved_scissor_box[4];
-  glGetFloatv(GL_SCISSOR_BOX, saved_scissor_box);
+  GLint saved_scissor_box[4];
+  glGetIntegerv(GL_SCISSOR_BOX, saved_scissor_box);
   GLfloat saved_projection_matrix[16];
   GLfloat saved_modelview_matrix[16];
   glGetFloatv(GL_PROJECTION_MATRIX, saved_projection_matrix);
