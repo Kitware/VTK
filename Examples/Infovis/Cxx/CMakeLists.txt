@@ -28,7 +28,9 @@ TARGET_LINK_LIBRARIES(MultiView vtkViews vtkInfovis vtkRendering vtkImaging vtkI
 
 # If Qt is enabled include the EasyView example
 IF(VTK_USE_QVTK)
-  SUBDIRS(ChartView)
+  IF(VTK_USE_QTCHARTS)
+    SUBDIRS(ChartView)
+  ENDIF()
   SUBDIRS(EasyView)
   SUBDIRS(CustomLinkView)
   SUBDIRS(StatsView)

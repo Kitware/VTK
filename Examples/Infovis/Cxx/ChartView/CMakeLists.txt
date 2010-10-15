@@ -74,5 +74,3 @@ TARGET_LINK_LIBRARIES( ChartView
   vtkViews
 )
 
-
-
