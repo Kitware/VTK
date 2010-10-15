@@ -18,10 +18,12 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkCommunicator.h"
+#include "vtkImageData.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkParallelRenderManager.h"
+#include "vtkPNGWriter.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
@@ -500,6 +502,32 @@ void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomp
   this->Data->SetNumberOfTuples(dx*dy);
   this->Size[0] = dx;
   this->Size[1] = dy;
+}
+
+//----------------------------------------------------------------------------
+void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
+{
+  if (!this->IsValid())
+    {
+    vtkGenericWarningMacro("Image is not valid. Cannot save PNG.");
+    return;
+    }
+
+  vtkImageData* img = vtkImageData::New();
+  img->SetScalarTypeToUnsignedChar();
+  img->SetNumberOfScalarComponents(4);
+  img->SetDimensions(this->Size[0], this->Size[1], 1);
+  img->AllocateScalars();
+  memcpy(img->GetScalarPointer(),
+    this->GetRawPtr()->GetVoidPointer(0),
+    sizeof(unsigned char)*this->Size[0]*this->Size[1]);
+
+  vtkPNGWriter* writer = vtkPNGWriter::New();
+  writer->SetFileName(filename);
+  writer->SetInput(img);
+  writer->Write();
+  writer->Delete();
+  img->Delete();
 }
 
 //----------------------------------------------------------------------------

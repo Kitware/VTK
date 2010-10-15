@@ -153,6 +153,9 @@ public:
     // the active buffer.
     bool Capture(vtkRenderer*);
 
+    // Save the image as a png. Useful for debugging.
+    void SaveAsPNG(const char* filename);
+
   private:
     bool Valid;
     int Size[2];
