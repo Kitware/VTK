@@ -1,6 +1,6 @@
 
 # set up sources to build
-SET ( QVTKLibSrcs
+SET(QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
     vtkQtConnection.cxx
     QVTKApplication.cxx
@@ -19,7 +19,7 @@ SET ( QVTKLibSrcs
     vtkQtTreeModelAdapter.cxx
     )
 
-SET ( QVTKMocHeaders
+SET(QVTKMocHeaders
     QVTKApplication.h
     QVTKInteractorAdapter.h
     QVTKInteractorInternal.h
@@ -33,74 +33,61 @@ SET ( QVTKMocHeaders
     )
 
 IF(VTK_USE_X AND VTK_USE_TDX)
-SET ( QVTKMocHeaders ${QVTKMocHeaders}
-    vtkTDxQtUnixDevices.h
-)
-SET ( QVTKLibSrcs ${QVTKLibSrcs}
-    vtkTDxQtUnixDevices.cxx
-)
+  SET(QVTKMocHeaders ${QVTKMocHeaders}
+      vtkTDxQtUnixDevices.h
+    )
+  SET(QVTKLibSrcs ${QVTKLibSrcs}
+      vtkTDxQtUnixDevices.cxx
+    )
 ENDIF()
 
-SET ( QVTKNonMocHeaders
+SET(QVTKNonMocHeaders
     QVTKWin32Header.h
     vtkEventQtSlotConnect.h
     QVTKInteractor.h
     )
 
-INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 # add additional files if the user will allow Qt's OpenGL support
 IF(VTK_USE_QVTK_QTOPENGL)
-  SET (QT_USE_QTOPENGL 1)
+  SET(QT_USE_QTOPENGL 1)
   SET(QVTKMocHeaders ${QVTKMocHeaders}
     QVTKGraphicsItem.h
     QVTKWidget2.h
     )
-  SET ( QVTKLibSrcs ${QVTKLibSrcs}
+  SET(QVTKLibSrcs ${QVTKLibSrcs}
     QVTKGraphicsItem.cxx
     QVTKWidget2.cxx
     )
 ENDIF(VTK_USE_QVTK_QTOPENGL)
 
-
 # add additional files depending on infovis and/or views
 IF(VTK_USE_VIEWS)
-  SET( QVTKLibSrcs ${QVTKLibSrcs}
+  SET(QVTKLibSrcs ${QVTKLibSrcs}
     vtkQtAnnotationView.cxx
-    vtkQtBarChartView.cxx
-    vtkQtChartRepresentation.cxx
-    vtkQtChartView.cxx
-    vtkQtLineChartView.cxx
     vtkQtListView.cxx
     vtkQtRecordView.cxx
-    vtkQtStackedChartView.cxx
-    vtkQtStatisticalBoxChartView.cxx
     vtkQtTableRepresentation.cxx
     vtkQtTableView.cxx
     vtkQtTreeView.cxx
     vtkQtView.cxx
     )
   SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
-  SET ( QVTKMocHeaders ${QVTKMocHeaders}
+  SET(QVTKMocHeaders ${QVTKMocHeaders}
     vtkQtAnnotationView.h
-    vtkQtBarChartView.h
-    vtkQtChartView.h
-    vtkQtLineChartView.h
     vtkQtListView.h
     vtkQtRecordView.h
-    vtkQtStackedChartView.h
-    vtkQtStatisticalBoxChartView.h
     vtkQtTableView.h
     vtkQtTreeView.h
     vtkQtView.h
     )
-  SET ( QVTKNonMocHeaders ${QVTKNonMocHeaders}
-    vtkQtChartRepresentation.h
+  SET(QVTKNonMocHeaders ${QVTKNonMocHeaders}
     vtkQtTableRepresentation.h
     )
 
   # Rich-text view requires Qt >= 4.5.0
-  # Rich-text depends on QT Webkit which is not portable on Unix (AIX & HP-UX)
+  # Rich-text depends on Qt Webkit which is not portable on Unix (AIX & HP-UX)
   IF(QT_QTWEBKIT_FOUND)
     OPTION(VTK_QT_USE_WEBKIT "Option to use QT Webkit" ON)
     MARK_AS_ADVANCED(VTK_QT_USE_WEBKIT)
@@ -116,11 +103,37 @@ IF(VTK_USE_VIEWS)
   ENDIF(QT_QTWEBKIT_FOUND)
 ENDIF(VTK_USE_VIEWS)
 
+# Should we build the Qt charts - they are now deprecated.
+VTK_DEPENDENT_OPTION(VTK_USE_QTCHARTS "Build Qt based charts - DEPRECATED" OFF
+                     "VTK_USE_QT;VTK_USE_RENDERING" OFF)
+if(VTK_USE_QTCHARTS)
+  if(VTK_USE_VIEWS)
+    set(QVTKLibSrcs ${QVTKLibSrcs}
+      vtkQtBarChartView.cxx
+      vtkQtChartRepresentation.cxx
+      vtkQtChartView.cxx
+      vtkQtLineChartView.cxx
+      vtkQtStackedChartView.cxx
+      vtkQtStatisticalBoxChartView.cxx
+      )
+    set(QVTKMocHeaders ${QVTKMocHeaders}
+      vtkQtBarChartView.h
+      vtkQtChartView.h
+      vtkQtLineChartView.h
+      vtkQtStackedChartView.h
+      vtkQtStatisticalBoxChartView.h
+      )
+    set(QVTKNonMocHeaders ${QVTKNonMocHeaders}
+      vtkQtChartRepresentation.h
+      )
+  endif()
+endif()
+
 # import Qt4 build settings
-SET (QT_USE_QTNETWORK 1)
+SET(QT_USE_QTNETWORK 1)
 INCLUDE(${QT_USE_FILE})
 
-QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
+QT4_WRAP_CPP(QVTKLibMocSrcs ${QVTKMocHeaders})
 
 ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
 # Add target specific compile flags for ABI setttings
@@ -128,13 +141,12 @@ IF(VTK_ABI_CXX_FLAGS)
   SET_PROPERTY(TARGET QVTK APPEND PROPERTY COMPILE_FLAGS "${VTK_ABI_CXX_FLAGS}")
 ENDIF(VTK_ABI_CXX_FLAGS)
 
-
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(QVTK PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 ENDIF(VTK_LIBRARY_PROPERTIES)
 
-TARGET_LINK_LIBRARIES( QVTK
+TARGET_LINK_LIBRARIES(QVTK
   ${QT_LIBRARIES}
   vtkRendering
   vtkGraphics
@@ -142,13 +154,12 @@ TARGET_LINK_LIBRARIES( QVTK
   vtkCommon)
 
 # add extra dependencies if necessary
-TARGET_LINK_LIBRARIES( QVTK vtkQtChart )
 IF(VTK_USE_VIEWS)
-  TARGET_LINK_LIBRARIES( QVTK vtkViews )
+  TARGET_LINK_LIBRARIES(QVTK vtkViews)
 ENDIF(VTK_USE_VIEWS)
 
 IF(VTK_USE_QVTK_QTOPENGL)
-  TARGET_LINK_LIBRARIES( QVTK ${OPENGL_gl_LIBRARY} )
+  TARGET_LINK_LIBRARIES(QVTK ${OPENGL_gl_LIBRARY})
 ENDIF(VTK_USE_QVTK_QTOPENGL)
 
 IF(APPLE)
@@ -157,8 +168,10 @@ IF(APPLE)
   ENDIF(VTK_USE_CARBON)
 ENDIF(APPLE)
 
-# recurse into Chart directory
-SUBDIRS(Chart)
+if(VTK_USE_QTCHARTS)
+  add_subdirectory(Chart)
+  target_link_libraries(QVTK vtkQtChart)
+endif()
 
 # recurse into testing directory if testing is on
 IF(BUILD_TESTING)
@@ -174,15 +187,9 @@ if(VTK_WRAP_PYTHON_SIP)
     QVTKInteractor.h
     vtkEventQtSlotConnect.h
     vtkQtAnnotationView.h
-    vtkQtBarChartView.h
-    vtkQtChartRepresentation.h
-    vtkQtChartView.h
-    vtkQtLineChartView.h
     vtkQtListView.h
     vtkQtSQLDatabase.h
     vtkQtSQLQuery.h
-    vtkQtStackedChartView.h
-    vtkQtStatisticalBoxChartView.h
     vtkQtRecordView.h
     vtkQtTableRepresentation.h
     vtkQtTableView.h
@@ -190,6 +197,16 @@ if(VTK_WRAP_PYTHON_SIP)
     vtkQtTreeView.h
     vtkQtView.h
     )
+  if(VTK_USE_QTCHARTS)
+    set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
+      vtkQtBarChartView.h
+      vtkQtChartRepresentation.h
+      vtkQtChartView.h
+      vtkQtLineChartView.h
+      vtkQtStackedChartView.h
+      vtkQtStatisticalBoxChartView.h
+      )
+  endif()
   IF(VTK_QT_USE_WEBKIT)
     set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
     vtkQtRichTextView.h
@@ -205,7 +222,6 @@ if(VTK_WRAP_PYTHON_SIP)
   IF(WIN32 AND NOT CYGWIN)
     SET_TARGET_PROPERTIES(vtkQtPython PROPERTIES SUFFIX ".pyd")
   ENDIF(WIN32 AND NOT CYGWIN)
-
 
   #### wrap QObject derived classes with SIP
   # list .sip files here for wrapping
