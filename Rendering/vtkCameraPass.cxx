@@ -195,8 +195,8 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   // Save the current viewport and camera matrices.
   GLint saved_matrix_mode;
   glGetIntegerv(GL_MATRIX_MODE, &saved_matrix_mode);
-  GLfloat saved_viewport[4];
-  glGetFloatv(GL_VIEWPORT, saved_viewport);
+  GLint saved_viewport[4];
+  glGetIntegerv(GL_VIEWPORT, saved_viewport);
   GLint saved_scissor_test;
   glGetIntegerv(GL_SCISSOR_TEST, &saved_scissor_test);
   GLfloat saved_scissor_box[4];
