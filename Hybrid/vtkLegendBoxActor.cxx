@@ -579,7 +579,7 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
         {
         renderedSomething += this->SymbolActor[i]->RenderOverlay(viewport);
         }
-      if ( this->Icon[i] )
+      if ( this->IconImage[i] )
         {
         renderedSomething += this->IconActor[i]->RenderOverlay(viewport);
         }
