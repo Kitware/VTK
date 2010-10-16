@@ -118,7 +118,7 @@ static int vtkWrapPython_IsValueWrappable(
 
 /* check whether a method is wrappable */
 static int vtkWrapPython_MethodCheck(
-  ClassInfo *data, FunctionInfo *currentFunction, HierarchyInfo *hinfo);
+  FunctionInfo *currentFunction, HierarchyInfo *hinfo);
 
 /* Get the python format char for the give type */
 static char vtkWrapPython_FormatChar(
@@ -1851,7 +1851,7 @@ static void vtkWrapPython_GenerateMethods(
     theFunc = data->Functions[i];
 
     /* check for wrappability */
-    if (vtkWrapPython_MethodCheck(data, theFunc, hinfo) &&
+    if (vtkWrapPython_MethodCheck(theFunc, hinfo) &&
         !vtkWrap_IsDestructor(data, theFunc) &&
         (!vtkWrap_IsConstructor(data, theFunc) == !do_constructors))
       {
@@ -2262,7 +2262,7 @@ static int vtkWrapPython_IsValueWrappable(
 /* -------------------------------------------------------------------- */
 /* Check a method to see if it is wrappable in python */
 
-static int vtkWrapPython_MethodCheck(ClassInfo *data,
+static int vtkWrapPython_MethodCheck(
   FunctionInfo *currentFunction, HierarchyInfo *hinfo)
 {
   int i, n;
@@ -2430,7 +2430,7 @@ static void vtkWrapPython_ClassDoc(
     {
     for (j = 0; j < data->NumberOfFunctions; j++)
       {
-      if (vtkWrapPython_MethodCheck(data, data->Functions[j], hinfo) &&
+      if (vtkWrapPython_MethodCheck(data->Functions[j], hinfo) &&
           vtkWrap_IsConstructor(data, data->Functions[j]))
         {
         fprintf(fp,"    \"%s\\n\",\n",
@@ -2460,7 +2460,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
   for (i = 0; i < n; i++)
     {
     currentFunction = data->Functions[i];
-    if (vtkWrapPython_MethodCheck(data, currentFunction, hinfo))
+    if (vtkWrapPython_MethodCheck(currentFunction, hinfo))
       {
       classname = "void";
       aType = VTK_PARSE_VOID;
