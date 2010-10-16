@@ -191,11 +191,15 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   vtkRectilinearGrid *rgrid = vtkRectilinearGrid::SafeDownCast(output);
   rgrid->SetExtent(subext);
   //setup extents for netcdf library to read the netcdf data file
-  size_t start[]= {subext[4], subext[2], subext[0]};
+  size_t start[]= {subext[4]*this->Stride[2], subext[2]*this->Stride[1],
+                   subext[0]*this->Stride[0]};
 
-  size_t count[]= {subext[5]-subext[4]+1,
-                   subext[3]-subext[2]+1,
+  size_t count[]= {subext[5]-subext[4]+1, subext[3]-subext[2]+1,
                    subext[1]-subext[0]+1};
+
+  ptrdiff_t rStride[3] = { (ptrdiff_t)this->Stride[2], (ptrdiff_t)this->Stride[1],
+                           (ptrdiff_t)this->Stride[0] };
+
   /*
     vtkMultiThreaderIDType pid = vtkMultiThreader::GetCurrentThreadID();
     //The getpid() and getppid() functions are always successful, and no
@@ -215,9 +219,6 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
            << subext[4] << " " << subext[5] << endl;
   */
   //initialize memory (raw data space, x y z axis space) and rectilinear grid
-
-  ptrdiff_t rStride[3] = { (ptrdiff_t)this->Stride[2], (ptrdiff_t)this->Stride[1],
-                           (ptrdiff_t)this->Stride[0] };
   bool firstPass = true;
   for(size_t i=0;i<this->Internals->VariableMap.size();i++)
     {
@@ -225,16 +226,16 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
        this->Internals->VariableArraySelection->GetArraySetting(
          this->Internals->VariableMap[i]) != 0)
       {
-      int dimidsp[3];
       // varidp is probably i in which case nc_inq_varid isn't needed
       int varidp;
       nc_inq_varid(this->NCDFFD,
                    this->Internals->VariableArraySelection->GetArrayName(
                      this->Internals->VariableMap[i]), &varidp);
 
-      nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);
       if(firstPass == true)
         {
+        int dimidsp[3];
+        nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);
         firstPass = false;
         float* x = new float[count[0]];
         float* y = new float[count[1]];
