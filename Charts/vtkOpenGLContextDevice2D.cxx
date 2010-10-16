@@ -756,6 +756,113 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
+                                         float *p)
+{
+  // Special case multiples of 90 as no transformation is required...
+  if (orientation > -0.0001 && orientation < 0.0001)
+    {
+    switch (this->TextProp->GetJustification())
+      {
+      case VTK_TEXT_LEFT:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[0] -= floor(extent[1] / 2.0);
+        break;
+      case VTK_TEXT_RIGHT:
+        p[0] -= extent[1];
+        break;
+      }
+    switch (this->TextProp->GetVerticalJustification())
+      {
+      case VTK_TEXT_BOTTOM:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[1] -= floor(extent[3] / 2.0);
+        break;
+      case VTK_TEXT_TOP:
+        p[1] -= extent[3];
+        break;
+      }
+    }
+  else if (orientation > 89.9999 && orientation < 90.0001)
+    {
+    switch (this->TextProp->GetJustification())
+      {
+      case VTK_TEXT_LEFT:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[1] -= floor(extent[3] / 2.0);
+        break;
+      case VTK_TEXT_RIGHT:
+        p[1] -= extent[3];
+        break;
+      }
+    switch (this->TextProp->GetVerticalJustification())
+      {
+      case VTK_TEXT_TOP:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[0] -= floor(extent[1] / 2.0);
+        break;
+      case VTK_TEXT_BOTTOM:
+        p[0] -= extent[1];
+        break;
+      }
+    }
+  else if (orientation > 179.9999 && orientation < 180.0001)
+    {
+    switch (this->TextProp->GetJustification())
+      {
+      case VTK_TEXT_RIGHT:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[0] -= floor(extent[1] / 2.0);
+        break;
+      case VTK_TEXT_LEFT:
+        p[0] -= extent[1];
+        break;
+      }
+    switch (this->TextProp->GetVerticalJustification())
+      {
+      case VTK_TEXT_TOP:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[1] -= floor(extent[3] / 2.0);
+        break;
+      case VTK_TEXT_BOTTOM:
+        p[1] -= extent[3];
+        break;
+      }
+    }
+  else if (orientation > 269.9999 && orientation < 270.0001)
+    {
+    switch (this->TextProp->GetJustification())
+      {
+      case VTK_TEXT_LEFT:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[1] -= floor(extent[3] / 2.0);
+        break;
+      case VTK_TEXT_RIGHT:
+        p[1] -= extent[3];
+        break;
+      }
+    switch (this->TextProp->GetVerticalJustification())
+      {
+      case VTK_TEXT_BOTTOM:
+        break;
+      case VTK_TEXT_CENTERED:
+        p[0] -= floor(extent[1] / 2.0);
+        break;
+      case VTK_TEXT_TOP:
+        p[0] -= extent[1];
+        break;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
@@ -781,29 +888,7 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   p[0] -= extent[0];
   p[1] -= extent[2];
 
-  switch (this->TextProp->GetJustification())
-    {
-    case VTK_TEXT_LEFT:
-      break;
-    case VTK_TEXT_CENTERED:
-      p[0] -= floor(extent[1] / 2.0);
-      break;
-    case VTK_TEXT_RIGHT:
-      p[0] -= extent[1];
-      break;
-    }
-
-  switch (this->TextProp->GetVerticalJustification())
-    {
-    case VTK_TEXT_BOTTOM:
-      break;
-    case VTK_TEXT_CENTERED:
-      p[1] -= floor(extent[3] / 2.0);
-      break;
-    case VTK_TEXT_TOP:
-      p[1] -= extent[3];
-      break;
-    }
+  this->AlignText(this->TextProp->GetOrientation(), extent, p);
 
   float points[] = { p[0]          , p[1],
                      p[0]+extent[1]+1, p[1],
