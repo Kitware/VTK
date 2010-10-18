@@ -12,13 +12,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
-      #    TestContextUnicode.cxx # Disabled until Freetype unicode works
+      #TestContextUnicode.cxx # Disabled until Freetype unicode works
       TestBarGraph.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestDiagram.cxx
-      #      TestFreeTypeContextUnicode.cxx
-      TestFreeTypeRender.cxx
+      #TestFreeTypeContextUnicode.cxx
+      #TestFreeTypeRender.cxx
       TestLinePlot.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx
@@ -49,8 +49,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     INCLUDE(${QT_USE_FILE})
     IF (VTK_DATA_ROOT)
       SET(MyTests ${MyTests}
-        TestQtDiagram.cxx
-        TestQtContextUnicode.cxx
+        #TestQtDiagram.cxx
+        #TestQtContextUnicode.cxx
         )
       SET(TestQtDiagramError 25)
       SET(TestQtContextUnicodeError 30)
