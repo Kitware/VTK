@@ -414,7 +414,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
 }
 
 //----------------------------------------------------------------------------
-vtkProp* vtkHardwareSelector::GetProp(int id)
+vtkProp* vtkHardwareSelector::GetPropFromID(int id)
 {
   vtkstd::map<int, vtkSmartPointer<vtkProp> >::iterator iter =
     this->Internals->Props.find(id);

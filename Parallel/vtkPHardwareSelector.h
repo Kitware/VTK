@@ -29,7 +29,7 @@
 
 #include "vtkHardwareSelector.h"
 
-class VTK_EXPORT vtkPHardwareSelector : public vtkHardwareSelector
+class VTK_PARALLEL_EXPORT vtkPHardwareSelector : public vtkHardwareSelector
 {
 public:
   static vtkPHardwareSelector* New();
