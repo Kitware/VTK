@@ -1165,7 +1165,7 @@ inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
     vtkErrorMacro(<< "Failed retrieving the face");
     return false;
     }
-  face_has_kerning = FT_HAS_KERNING(face);
+  face_has_kerning = static_cast<bool>(FT_HAS_KERNING(face));
   return true;
 }
 
