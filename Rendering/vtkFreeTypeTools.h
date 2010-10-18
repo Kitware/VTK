@@ -144,8 +144,8 @@ protected:
   // Description:
   // Internal helper method called by RenderString
   template <typename T>
-  int PopulateImageData(vtkTextProperty *tprop, const T& str,
-                        int x, int y, vtkImageData *data);
+  bool PopulateImageData(vtkTextProperty *tprop, const T& str,
+                         int x, int y, vtkImageData *data);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object
