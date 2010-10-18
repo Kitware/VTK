@@ -461,6 +461,10 @@ void vtkContext2D::DrawString(float x, float y, const vtkStdString &string)
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
+  if (string.empty())
+    {
+    return;
+    }
   float f[] = { x, y };
   this->Device->DrawString(f, string);
 }
@@ -478,6 +482,10 @@ void vtkContext2D::DrawString(float x, float y, const vtkUnicodeString &string)
   if (!this->Device)
     {
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  if (string.empty())
+    {
     return;
     }
   float f[] = { x, y };
