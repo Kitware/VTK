@@ -118,10 +118,16 @@ int vtkNetCDFPOPReader::RequestInformation(
     vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if(this->FileName == NULL)
+    {
+    vtkErrorMacro("FileName not set.");
+    return 0;
+    }
   int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
   if (retval != NC_NOERR)//checks if read file error
     {
     vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
+    return 0;
     }
   // get number of variables from file
   int numberOfVariables;
