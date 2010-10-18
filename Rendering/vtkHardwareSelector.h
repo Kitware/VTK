@@ -193,7 +193,7 @@ public:
   // Description:
   // returns the prop associated with a ID. This is valid only until
   // ReleasePixBuffers() gets called.
-  vtkProp* GetProp(int id);
+  vtkProp* GetPropFromID(int id);
 
 //BTX
   enum PassTypes
