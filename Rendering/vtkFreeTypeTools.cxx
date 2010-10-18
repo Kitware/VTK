@@ -852,6 +852,9 @@ void vtkFreeTypeTools::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MaximumNumberOfBytes: "
      << this->MaximumNumberOfBytes << endl;
+
+  os << indent << "Scale to nearest power of 2 for image sizes: "
+     << this->ScaleToPowerTwo << endl;
 }
 
 //----------------------------------------------------------------------------
