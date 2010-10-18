@@ -1030,10 +1030,10 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
 
 //----------------------------------------------------------------------------
 template <typename T>
-int vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
-                                        const T& str,
-                                        int x, int y,
-                                        vtkImageData *data)
+bool vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
+                                         const T& str,
+                                         int x, int y,
+                                         vtkImageData *data)
 {
   // Map the text property to a unique id that will be used as face id, get the
   // font face and establish whether kerning information is available.
@@ -1115,7 +1115,7 @@ int vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
         static_cast<unsigned char *>(data->GetScalarPointer(pen_x, pen_y, 0));
       if(!data_ptr)
         {
-        return 0;
+        return false;
         }
 
       int data_pitch = (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
@@ -1152,7 +1152,7 @@ int vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     }
-  return 1;
+  return true;
 }
 
 inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
