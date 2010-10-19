@@ -22,8 +22,10 @@
 
 #include "vtkNetCDFCFReader.h"
 
+#include "vtkCellArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
+#include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -34,7 +36,9 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -591,7 +595,8 @@ void vtkNetCDFCFReader::SetOutputType(int type)
     bool typeValid = (   (type == -1)
                       || (type == VTK_IMAGE_DATA)
                       || (type == VTK_RECTILINEAR_GRID)
-                      || (type == VTK_STRUCTURED_GRID) );
+                      || (type == VTK_STRUCTURED_GRID)
+                      || (type == VTK_UNSTRUCTURED_GRID) );
     if (typeValid)
       {
       this->OutputType = type;
@@ -660,7 +665,8 @@ int vtkNetCDFCFReader::RequestDataObject(
         dataType = VTK_STRUCTURED_GRID;
         break;
         }
-      else if (dataType == VTK_STRUCTURED_GRID)
+      else if (   (dataType == VTK_STRUCTURED_GRID)
+               || (dataType == VTK_UNSTRUCTURED_GRID) )
         {
         // Verified that the data can correctly hold spherical coordinates.
         break;
@@ -682,7 +688,8 @@ int vtkNetCDFCFReader::RequestDataObject(
         dataType = VTK_STRUCTURED_GRID;
         break;
         }
-      else if (dataType == VTK_STRUCTURED_GRID)
+      else if (   (dataType == VTK_STRUCTURED_GRID)
+               || (dataType == VTK_UNSTRUCTURED_GRID) )
         {
         // Verified that the data can correctly hold spherical coordinates.
         break;
@@ -710,7 +717,8 @@ int vtkNetCDFCFReader::RequestDataObject(
           break;
           }
         else if (   (dataType == VTK_RECTILINEAR_GRID)
-                 || (dataType == VTK_STRUCTURED_GRID) )
+                 || (dataType == VTK_STRUCTURED_GRID)
+                 || (dataType == VTK_UNSTRUCTURED_GRID) )
           {
           // Verified that the data can correctly hold irregular coordinates.
           break;
@@ -770,10 +778,43 @@ int vtkNetCDFCFReader::RequestDataObject(
       output->Delete();   // Not really deleted.
       }
     }
+  else if (dataType == VTK_UNSTRUCTURED_GRID)
+    {
+    if (!output || !output->IsA("vtkUnstructuredGrid"))
+      {
+      output = vtkUnstructuredGrid::New();
+      output->SetPipelineInformation(outInfo);
+      output->Delete();   // Not really deleted.
+      }
+    }
   else
     {
     vtkErrorMacro(<< "Sanity check failed: bad internal type.");
     return 0;
+    }
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkNetCDFCFReader::RequestInformation(vtkInformation *request,
+                                          vtkInformationVector **inputVector,
+                                          vtkInformationVector *outputVector)
+{
+  // Let the superclass do the heavy lifting.
+  if (!this->Superclass::RequestInformation(request, inputVector, outputVector))
+    {
+    return 0;
+    }
+
+  // Superclass understands structured data, but we have to handle unstructured
+  // "extents" (pieces).
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject *output = vtkDataObject::GetData(outInfo);
+  if (output && (output->GetExtentType() != VTK_3D_EXTENT))
+    {
+    outInfo->Set(
+              vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
     }
 
   return 1;
@@ -805,8 +846,9 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
     this->AddRectilinearCoordinates(rectilinearOutput);
     }
 
-  vtkStructuredGrid *structOutput = vtkStructuredGrid::GetData(outputVector);
-  if (structOutput)
+  vtkStructuredGrid *structuredOutput
+    = vtkStructuredGrid::GetData(outputVector);
+  if (structuredOutput)
     {
     bool shouldUseSphericalCoordinates =
       this->CoordinatesAreSpherical(this->LoadingDimensions);
@@ -814,27 +856,90 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
       {
       if (this->FindDependentDimensionInfo(this->LoadingDimensions))
         {
-        this->Add2DSphericalCoordinates(structOutput);
+        this->Add2DSphericalCoordinates(structuredOutput);
         }
       else
         {
-        this->Add1DSphericalCoordinates(structOutput);
+        this->Add1DSphericalCoordinates(structuredOutput);
         }
       }
     else
       {
       if (this->FindDependentDimensionInfo(this->LoadingDimensions))
         {
-        this->Add2DRectilinearCoordinates(structOutput);
+        this->Add2DRectilinearCoordinates(structuredOutput);
         }
       else
         {
-        this->Add1DRectilinearCoordinates(structOutput);
+        this->Add1DRectilinearCoordinates(structuredOutput);
+        }
+      }
+    }
+
+  vtkUnstructuredGrid *unstructuredOutput
+    = vtkUnstructuredGrid::GetData(outputVector);
+  if (unstructuredOutput)
+    {
+    int pieceNumber, numberOfPieces, ghostLevels;
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+    pieceNumber = outInfo->Get(
+                       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    numberOfPieces = outInfo->Get(
+                   vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    ghostLevels = outInfo->Get(
+             vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+    int extent[6];
+    this->ExtentForDimensionsAndPiece(pieceNumber,
+                                      numberOfPieces,
+                                      ghostLevels,
+                                      extent);
+
+    bool shouldUseSphericalCoordinates =
+      this->CoordinatesAreSpherical(this->LoadingDimensions);
+    if (shouldUseSphericalCoordinates)
+      {
+      if (this->FindDependentDimensionInfo(this->LoadingDimensions))
+        {
+        this->Add2DSphericalCoordinates(unstructuredOutput, extent);
+        }
+      else
+        {
+        this->Add1DSphericalCoordinates(unstructuredOutput, extent);
+        }
+      }
+    else
+      {
+      if (this->FindDependentDimensionInfo(this->LoadingDimensions))
+        {
+        this->Add2DRectilinearCoordinates(unstructuredOutput, extent);
+        }
+      else
+        {
+        this->Add1DRectilinearCoordinates(unstructuredOutput, extent);
         }
       }
     }
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::ExtentForDimensionsAndPiece(int pieceNumber,
+                                                    int numberOfPieces,
+                                                    int ghostLevels,
+                                                    int extent[6])
+{
+  VTK_CREATE(vtkExtentTranslator, extentTranslator);
+
+  extentTranslator->SetWholeExtent(this->WholeExtent);
+  extentTranslator->SetPiece(pieceNumber);
+  extentTranslator->SetNumberOfPieces(numberOfPieces);
+  extentTranslator->SetGhostLevel(ghostLevels);
+
+  extentTranslator->PieceToExtent();
+
+  extentTranslator->GetExtent(extent);
 }
 
 //-----------------------------------------------------------------------------
@@ -906,13 +1011,9 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
-                                            vtkStructuredGrid *structuredOutput)
+void vtkNetCDFCFReader::Add1DRectilinearCoordinates(vtkPoints *points,
+                                                    const int extent[6])
 {
-  int extent[6];
-  structuredOutput->GetExtent(extent);
-
-  VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(  (extent[1]-extent[0]+1)
                             * (extent[3]-extent[2]+1)
@@ -961,25 +1062,19 @@ void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
         }
       }
     }
-
-  structuredOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
-                                                vtkStructuredGrid *structOutput)
+void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkPoints *points,
+                                                    const int extent[6])
 {
-  vtkDependentDimensionInfo *info
-    = this->FindDependentDimensionInfo(this->LoadingDimensions);
-
-  int extent[6];
-  structOutput->GetExtent(extent);
-
-  VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
   points->Allocate(  (extent[1]-extent[0]+1)
                    * (extent[3]-extent[2]+1)
                    * (extent[5]-extent[4]+1) );
+
+  vtkDependentDimensionInfo *info
+    = this->FindDependentDimensionInfo(this->LoadingDimensions);
 
   vtkDoubleArray *longitudeCoordinates = info->GetLongitudeCoordinates();
   vtkDoubleArray *latitudeCoordinates = info->GetLatitudeCoordinates();
@@ -1019,16 +1114,64 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
         }
       }
     }
-
-  structOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFCFReader::Add1DSphericalCoordinates(
-                                                vtkStructuredGrid *structOutput)
+void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
+                                            vtkStructuredGrid *structuredOutput)
 {
   int extent[6];
-  structOutput->GetExtent(extent);
+  structuredOutput->GetExtent(extent);
+
+  VTK_CREATE(vtkPoints, points);
+  this->Add1DRectilinearCoordinates(points, extent);
+  structuredOutput->SetPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
+                                            vtkStructuredGrid *structuredOutput)
+{
+  int extent[6];
+  structuredOutput->GetExtent(extent);
+
+  VTK_CREATE(vtkPoints, points);
+  this->Add2DRectilinearCoordinates(points, extent);
+  structuredOutput->SetPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add1DRectilinearCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6])
+{
+  VTK_CREATE(vtkPoints, points);
+  this->Add1DRectilinearCoordinates(points, extent);
+  unstructuredOutput->SetPoints(points);
+
+  this->AddStructuredCells(unstructuredOutput, extent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add2DRectilinearCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6])
+{
+  VTK_CREATE(vtkPoints, points);
+  this->Add2DRectilinearCoordinates(points, extent);
+  unstructuredOutput->SetPoints(points);
+
+  this->AddStructuredCells(unstructuredOutput, extent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints *points,
+                                                  const int extent[6])
+{
+  points->SetDataTypeToDouble();
+  points->Allocate(  (extent[1]-extent[0]+1)
+                   * (extent[3]-extent[2]+1)
+                   * (extent[5]-extent[4]+1) );
 
   vtkDoubleArray *coordArrays[3];
   for (vtkIdType i = 0; i < this->LoadingDimensions->GetNumberOfTuples(); i++)
@@ -1040,12 +1183,6 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(
   int longitudeDim, latitudeDim, verticalDim;
   this->IdentifySphericalCoordinates(this->LoadingDimensions,
                                      longitudeDim, latitudeDim, verticalDim);
-
-  VTK_CREATE(vtkPoints, points);
-  points->SetDataTypeToDouble();
-  points->Allocate(  (extent[1]-extent[0]+1)
-                   * (extent[3]-extent[2]+1)
-                   * (extent[5]-extent[4]+1) );
 
   // Check the height scale and bias.
   double vertScale = this->VerticalScale;
@@ -1100,25 +1237,19 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(
         }
       }
     }
-
-  structOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFCFReader::Add2DSphericalCoordinates(
-                                                vtkStructuredGrid *structOutput)
+void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkPoints *points,
+                                                  const int extent[6])
 {
-  vtkDependentDimensionInfo *info
-    = this->FindDependentDimensionInfo(this->LoadingDimensions);
-
-  int extent[6];
-  structOutput->GetExtent(extent);
-
-  VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
   points->Allocate(  (extent[1]-extent[0]+1)
                    * (extent[3]-extent[2]+1)
                    * (extent[5]-extent[4]+1) );
+
+  vtkDependentDimensionInfo *info
+    = this->FindDependentDimensionInfo(this->LoadingDimensions);
 
   vtkDoubleArray *longitudeCoordinates = info->GetLongitudeCoordinates();
   vtkDoubleArray *latitudeCoordinates = info->GetLatitudeCoordinates();
@@ -1186,8 +1317,134 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(
         }
       }
     }
+}
 
-  structOutput->SetPoints(points);
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add1DSphericalCoordinates(
+                                            vtkStructuredGrid *structuredOutput)
+{
+  int extent[6];
+  structuredOutput->GetExtent(extent);
+
+  VTK_CREATE(vtkPoints, points);
+  this->Add1DSphericalCoordinates(points, extent);
+  structuredOutput->SetPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add2DSphericalCoordinates(
+                                            vtkStructuredGrid *structuredOutput)
+{
+  int extent[6];
+  structuredOutput->GetExtent(extent);
+
+  VTK_CREATE(vtkPoints, points);
+  this->Add2DSphericalCoordinates(points, extent);
+  structuredOutput->SetPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add1DSphericalCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6])
+{
+  VTK_CREATE(vtkPoints, points);
+  this->Add1DSphericalCoordinates(points, extent);
+  unstructuredOutput->SetPoints(points);
+
+  this->AddStructuredCells(unstructuredOutput, extent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::Add2DSphericalCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6])
+{
+  VTK_CREATE(vtkPoints, points);
+  this->Add2DSphericalCoordinates(points, extent);
+  unstructuredOutput->SetPoints(points);
+
+  this->AddStructuredCells(unstructuredOutput, extent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::AddStructuredCells(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6])
+{
+  vtkIdType numPoints[3];
+  numPoints[0] = extent[1] - extent[0] + 1;
+  numPoints[1] = extent[3] - extent[2] + 1;
+  numPoints[2] = extent[5] - extent[4] + 1;
+
+  vtkIdType numCells[3];
+  numCells[0] = numPoints[0] - 1;
+  numCells[1] = numPoints[1] - 1;
+  numCells[2] = numPoints[2] - 1;
+
+  vtkIdType nextPointRow = numPoints[0];
+  vtkIdType nextPointSlab = nextPointRow*numPoints[1];
+
+  bool extentIs2D = (numCells[2] < 1);
+
+  if (extentIs2D)
+    {
+    vtkIdType totalNumCells = numCells[0]*numCells[1];
+    unstructuredOutput->Allocate(totalNumCells);
+    vtkCellArray *cells = unstructuredOutput->GetCells();
+    cells->Allocate(cells->EstimateSize(totalNumCells, 4));
+
+    for (int j = 0; j < numCells[1]; j++)
+      {
+      vtkIdType rowStart = j*nextPointRow;
+      for (int i = 0; i < numCells[0]; i++)
+        {
+        vtkIdType lowCellPoint = rowStart + i;
+
+        vtkIdType pointIds[4];
+        pointIds[0] = lowCellPoint;
+        pointIds[1] = lowCellPoint + 1;
+        pointIds[2] = lowCellPoint + nextPointRow + 1;
+        pointIds[3] = lowCellPoint + nextPointRow;
+
+        unstructuredOutput->InsertNextCell(VTK_QUAD, 4, pointIds);
+        }
+      }
+    }
+  else // !extentIs2D
+    {
+    vtkIdType totalNumCells = numCells[0]*numCells[1]*numCells[2];
+    unstructuredOutput->Allocate(totalNumCells);
+    vtkCellArray *cells = unstructuredOutput->GetCells();
+    cells->Allocate(cells->EstimateSize(totalNumCells, 8));
+
+    for (int k = 0; k < numCells[2]; k++)
+      {
+      vtkIdType slabStart = k*nextPointSlab;
+      for (int j = 0; j < numCells[1]; j++)
+        {
+        vtkIdType rowStart = slabStart + j*nextPointRow;
+        for (int i = 0; i < numCells[0]; i++)
+          {
+          vtkIdType lowCellPoint = rowStart + i;
+
+          // This code is assuming that all axis are scaling up.  If that is
+          // not the case, this will probably make inverted hexahedra.
+          vtkIdType pointIds[8];
+          pointIds[0] = lowCellPoint;
+          pointIds[1] = lowCellPoint + 1;
+          pointIds[2] = lowCellPoint + nextPointRow + 1;
+          pointIds[3] = lowCellPoint + nextPointRow;
+          pointIds[4] = lowCellPoint + nextPointSlab;
+          pointIds[5] = lowCellPoint + nextPointSlab + 1;
+          pointIds[6] = lowCellPoint + nextPointSlab + nextPointRow + 1;
+          pointIds[7] = lowCellPoint + nextPointSlab + nextPointRow;
+
+          unstructuredOutput->InsertNextCell(VTK_HEXAHEDRON, 8, pointIds);
+          }
+        }
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

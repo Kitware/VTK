@@ -140,6 +140,8 @@ protected:
 
   int ReplaceFillValueWithNan;
 
+  int WholeExtent[6];
+
   virtual int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
                                 vtkInformationVector *outputVector);
