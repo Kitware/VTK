@@ -18,7 +18,7 @@ reader_cartesian SphericalCoordinatesOff
 
 # Extract a region that is non-overlapping.
 vtkExtractGrid voi_cartesian
-voi_cartesian SetInputConnection[reader_cartesian GetOutputPort]
+voi_cartesian SetInputConnection [reader_cartesian GetOutputPort]
 voi_cartesian SetVOI 20 47 0 31 0 0
 
 # Assign the field to scalars.
