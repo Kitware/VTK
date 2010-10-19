@@ -19,6 +19,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     TestTecplotReader.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
+    TestNetCDFPOPReader.cxx
     )
 
 IF(NOT WIN32)
@@ -145,6 +146,10 @@ IF (VTK_LARGE_DATA_ROOT)
          SLACReaderQuadratic -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACReaderQuadratic.png)
+    ADD_TEST(TestNetCDFPOPReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestNetCDFPOPReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestNetCDFPOPReader.png)
     IF(NOT WIN32)
       ADD_TEST(SLACParticleReader ${CXX_TEST_PATH}/${KIT}CxxTests
            SLACParticleReader -D ${VTK_LARGE_DATA_ROOT}
