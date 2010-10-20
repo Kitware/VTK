@@ -235,34 +235,35 @@ int vtkNetCDFReader::RequestInformation(
       }
     }
 
-  // Using the extent information (captured partially in
-  // this->LoadingDimensions) report extents.
+  // Capture the extent information from this->LoadingDimensions.
+  bool pointData = this->DimensionsAreForPointData(this->LoadingDimensions);
+  for (int i = 0 ; i < 3; i++)
+    {
+    this->WholeExtent[2*i] = 0;
+    if (i < this->LoadingDimensions->GetNumberOfTuples())
+      {
+      size_t dimlength;
+      // Remember that netCDF arrays are indexed backward from VTK images.
+      int dim = this->LoadingDimensions->GetValue(numDims-i-1);
+      CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
+      this->WholeExtent[2*i+1] = static_cast<int>(dimlength-1);
+      // For cell data, add one to the extent (which is for points).
+      if (!pointData) this->WholeExtent[2*i+1]++;
+      }
+    else
+      {
+      this->WholeExtent[2*i+1] = 0;
+      }
+    }
+  vtkDebugMacro(<< "Whole extents: "
+                << this->WholeExtent[0] << ", " << this->WholeExtent[1] <<", "
+                << this->WholeExtent[2] << ", " << this->WholeExtent[3] <<", "
+                << this->WholeExtent[4] << ", " << this->WholeExtent[5]);
+
+  // Report extents.
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
   if (output && (output->GetExtentType() == VTK_3D_EXTENT))
     {
-    bool pointData = this->DimensionsAreForPointData(this->LoadingDimensions);
-    for (int i = 0 ; i < 3; i++)
-      {
-      this->WholeExtent[2*i] = 0;
-      if (i < this->LoadingDimensions->GetNumberOfTuples())
-        {
-        size_t dimlength;
-        // Remember that netCDF arrays are indexed backward from VTK images.
-        int dim = this->LoadingDimensions->GetValue(numDims-i-1);
-        CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
-        this->WholeExtent[2*i+1] = static_cast<int>(dimlength-1);
-        // For cell data, add one to the extent (which is for points).
-        if (!pointData) this->WholeExtent[2*i+1]++;
-        }
-      else
-        {
-        this->WholeExtent[2*i+1] = 0;
-        }
-      }
-    vtkDebugMacro(<< "Whole extents: "
-                  << this->WholeExtent[0] << ", " << this->WholeExtent[1] <<", "
-                  << this->WholeExtent[2] << ", " << this->WholeExtent[3] <<", "
-                  << this->WholeExtent[4] << ", " << this->WholeExtent[5]);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                  this->WholeExtent, 6);
     }
