@@ -972,7 +972,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         renderedSomething += this->SymbolActor[i]->RenderOpaqueGeometry(viewport);
         }
-      if( this->Icon[i])
+      if( this->IconImage[i])
         {
         renderedSomething += this->IconActor[i]->RenderOpaqueGeometry(viewport);
         }
