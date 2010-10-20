@@ -111,11 +111,11 @@ ren_struct SetViewport 0.0 0.5 0.5 1.0
 renWin AddRenderer ren_struct
 
 #############################################################################
-# Case 4: Automatic type.
+# Case 4: Unstructured type.
 # Open the file.
 vtkNetCDFCFReader reader_auto
 reader_auto SetFileName "$VTK_DATA_ROOT/Data/tos_O1_2001-2002.nc"
-reader_auto SetOutputTypeToAutomatic
+reader_auto SetOutputTypeToUnstructured
 
 # Set the arrays we want to load.
 reader_auto UpdateMetaData

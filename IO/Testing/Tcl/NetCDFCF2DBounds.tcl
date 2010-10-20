@@ -43,7 +43,7 @@ ren_cartesian SetViewport 0.0 0.0 0.5 1.0
 renWin AddRenderer ren_cartesian
 
 #############################################################################
-# Case 1: Spherical coordinates off.
+# Case 2: Spherical coordinates on.
 # Open the file.
 vtkNetCDFCFReader reader_spherical
 reader_spherical SetFileName "$VTK_DATA_ROOT/Data/sampleCurveGrid4.nc"
