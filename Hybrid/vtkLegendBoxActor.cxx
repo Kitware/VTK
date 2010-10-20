@@ -118,11 +118,11 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   this->BoxActor->SetMapper(this->BoxMapper);
 
   // Background.
-  this->UseBackground = 1;
+  this->UseBackground = 0;
   this->BackgroundOpacity = 1.0;
   this->BackgroundColor[0] =  this->BackgroundColor[1] = this->BackgroundColor[2] = 0.3;
   this->Background = vtkPlaneSource::New();
-  this->BackgroundActor = vtkActor2D::New();
+  this->BackgroundActor = vtkTexturedActor2D::New();
   this->BackgroundMapper = vtkPolyDataMapper2D::New();
   this->BackgroundActor->SetMapper(this->BackgroundMapper);
 }
@@ -577,7 +577,7 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
     }
 
   int renderedSomething = 0;
-  if ( this->BackgroundActor )
+  if ( this->BackgroundActor && this->UseBackground )
     {
     this->BackgroundActor->RenderOverlay(viewport);
     }
@@ -600,7 +600,7 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
         {
         renderedSomething += this->SymbolActor[i]->RenderOverlay(viewport);
         }
-      if ( this->Icon[i] )
+      if ( this->IconImage[i] )
         {
         renderedSomething += this->IconActor[i]->RenderOverlay(viewport);
         }
@@ -821,12 +821,29 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       }
 
+    double symbolSpaceFraction = 0.5;
+    double iconSpaceFraction   = 0.0;
+
+    if(symbolExists && iconExists)
+      {
+      symbolSpaceFraction = 0.25;
+      iconSpaceFraction   = 0.625;
+      }
+    else if(iconExists)
+      {
+      iconSpaceFraction = 0.5;
+      }
+    else
+      {
+      // Do nothing.
+      }
+
     //Place symbols
     //
     //Find the x-y bounds of the symbols...we'll be scaling these as well
     size[0] = (int)(0.5 * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
     posX = p1[0] + this->Padding +
-                 0.25*symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
+                 symbolSpaceFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
     for (i=0; i<this->NumberOfEntries; i++)
       {
       if ( this->Symbol[i] )
@@ -879,7 +896,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       // Place icons.
       size[0] = (int)(0.5 * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
       posX = p1[0] + this->Padding +
-                   0.625*symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
+                   iconSpaceFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
       for (i=0; i<this->NumberOfEntries; i++)
         {
         if ( this->IconImage[i] )
@@ -928,7 +945,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
   //Okay, now we're ready to render something
   //Border
   int renderedSomething = 0;
-  if ( this->BackgroundActor )
+  if ( this->BackgroundActor && this->UseBackground )
     {
     this->BackgroundActor->RenderOpaqueGeometry(viewport);
     }

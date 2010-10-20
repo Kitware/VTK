@@ -142,6 +142,24 @@ public:
   vtkBooleanMacro(ScalarVisibility,int);
 
   // Description:
+  // Turn on/off background.
+  vtkSetMacro(UseBackground, int);
+  vtkGetMacro(UseBackground, int);
+  vtkBooleanMacro(UseBackground, int);
+
+  // Description:
+  // Set/Get background color.
+  // Default is: (0.3, 0.3, 0.3).
+  vtkSetVector3Macro(BackgroundColor, double);
+  vtkGetVector3Macro(BackgroundColor, double);
+
+  // Description:
+  // Set/Get background opacity.
+  // Default is: 1.0
+  vtkSetMacro(BackgroundOpacity, double);
+  vtkGetMacro(BackgroundOpacity, double);
+
+  // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
@@ -216,7 +234,9 @@ protected:
   double                      BackgroundOpacity;
   double                      BackgroundColor[3];
   vtkPlaneSource             *Background;
-  vtkActor2D                 *BackgroundActor;
+
+  // May use texture.
+  vtkTexturedActor2D         *BackgroundActor;
   vtkPolyDataMapper2D        *BackgroundMapper;
 
   // Used to control whether the stuff is recomputed
