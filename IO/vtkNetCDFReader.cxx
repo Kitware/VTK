@@ -615,6 +615,13 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
 }
 
 //-----------------------------------------------------------------------------
+void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *output,
+                                               int extent[6])
+{
+  output->GetUpdateExtent(extent);
+}
+
+//-----------------------------------------------------------------------------
 int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
                                   vtkDataSet *output)
 {
@@ -672,7 +679,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   // Set up read indices.  Also check to make sure the dimensions are consistent
   // with other loaded variables.
   int extent[6];
-  output->GetUpdateExtent(extent);
+  this->GetUpdateExtentForOutput(output, extent);
   if (numDims != this->LoadingDimensions->GetNumberOfTuples())
     {
     vtkWarningMacro(<< "Variable " << varName << " dimensions ("

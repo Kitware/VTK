@@ -200,6 +200,13 @@ protected:
   }
 
   // Description:
+  // Retrieves the update extent for the output object.  The default
+  // implementation just gets the update extent from the object as you would
+  // expect.  However, if a subclass is loading an unstructured data set, this
+  // gives it a chance to set the range of values to read.
+  virtual void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]);
+
+  // Description:
   // Load the variable at the given time into the given data set.  Return 1
   // on success and 0 on failure.
   virtual int LoadVariable(int ncFD, const char *varName, double time,

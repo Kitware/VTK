@@ -227,6 +227,10 @@ protected:
                                    int extent[6]);
 
   // Description:
+  // Overridden to retrieve stored extent for unstructured data.
+  virtual void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]);
+
+  // Description:
   // Internal methods for setting rectilinear coordinates.
   void AddRectilinearCoordinates(vtkImageData *imageOutput);
   void AddRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);

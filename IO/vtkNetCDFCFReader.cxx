@@ -825,6 +825,50 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector)
 {
+  // If the output does not directly support 3D extents, then we have to make
+  // some from the piece information so the superclass knows what portion of
+  // arrays to load.
+  vtkDataObject *output = vtkDataObject::GetData(outputVector);
+  if (output)
+    {
+    if (output->GetExtentType() == VTK_3D_EXTENT)
+      {
+      // Do nothing.  3D extents already set.
+      }
+    else if (output->GetExtentType() == VTK_PIECES_EXTENT)
+      {
+      int pieceNumber, numberOfPieces, ghostLevels;
+      vtkInformation *outInfo = outputVector->GetInformationObject(0);
+      pieceNumber = outInfo->Get(
+                       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+      numberOfPieces = outInfo->Get(
+                   vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+      ghostLevels = outInfo->Get(
+             vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+      int extent[6];
+      this->ExtentForDimensionsAndPiece(pieceNumber,
+                                        numberOfPieces,
+                                        ghostLevels,
+                                        extent);
+
+      // Store the update extent in the output's information object to make it
+      // easy to find whenever loading data for this object.
+      output->GetInformation()->Set(
+                  vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+      }
+    else
+      {
+      vtkWarningMacro(<< "Invalid extent type encountered.  Data arrays may"
+                      << " be loaded incorrectly.");
+      }
+    }
+  else // output == NULL
+    {
+    vtkErrorMacro(<< "No output object.");
+    return 0;
+    }
+
   // Let the superclass do the heavy lifting.
   if (!this->Superclass::RequestData(request, inputVector, outputVector))
     {
@@ -880,20 +924,8 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
     = vtkUnstructuredGrid::GetData(outputVector);
   if (unstructuredOutput)
     {
-    int pieceNumber, numberOfPieces, ghostLevels;
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    pieceNumber = outInfo->Get(
-                       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    numberOfPieces = outInfo->Get(
-                   vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    ghostLevels = outInfo->Get(
-             vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
     int extent[6];
-    this->ExtentForDimensionsAndPiece(pieceNumber,
-                                      numberOfPieces,
-                                      ghostLevels,
-                                      extent);
+    this->GetUpdateExtentForOutput(unstructuredOutput, extent);
 
     bool shouldUseSphericalCoordinates =
       this->CoordinatesAreSpherical(this->LoadingDimensions);
@@ -940,6 +972,21 @@ void vtkNetCDFCFReader::ExtentForDimensionsAndPiece(int pieceNumber,
   extentTranslator->PieceToExtent();
 
   extentTranslator->GetExtent(extent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNetCDFCFReader::GetUpdateExtentForOutput(vtkDataSet *output,
+                                                 int extent[6])
+{
+  vtkInformation *info = output->GetInformation();
+  if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
+    {
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
+    }
+  else
+    {
+    return this->Superclass::GetUpdateExtentForOutput(output, extent);
+    }
 }
 
 //-----------------------------------------------------------------------------
