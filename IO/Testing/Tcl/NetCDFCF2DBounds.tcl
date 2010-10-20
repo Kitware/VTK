@@ -24,7 +24,7 @@ voi_cartesian SetVOI 20 47 0 31 0 0
 # Assign the field to scalars.
 vtkAssignAttribute aa_cartesian
 aa_cartesian SetInputConnection [voi_cartesian GetOutputPort]
-aa_cartesian Assign "sample" "SCALARS" "POINT_DATA"
+aa_cartesian Assign "sample" "SCALARS" "CELL_DATA"
 
 # Extract a surface that we can render.
 vtkDataSetSurfaceFilter surface_cartesian

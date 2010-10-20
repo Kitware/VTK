@@ -166,6 +166,7 @@ protected:
     vtkDependentDimensionInfo(int ncFD, int varId, vtkNetCDFCFReader *parent);
     bool GetValid() const { return this->Valid; }
     bool GetHasBounds() const { return this->HasBounds; }
+    bool GetCellsUnstructured() const { return this->CellsUnstructured; }
     vtkSmartPointer<vtkIntArray> GetGridDimensions() const {
       return this->GridDimensions;
     }
@@ -181,6 +182,7 @@ protected:
   protected:
     bool Valid;
     bool HasBounds;
+    bool CellsUnstructured;
     vtkSmartPointer<vtkIntArray> GridDimensions;
     vtkSmartPointer<vtkDoubleArray> LongitudeCoordinates;
     vtkSmartPointer<vtkDoubleArray> LatitudeCoordinates;
@@ -188,6 +190,8 @@ protected:
     int LoadMetaData(int ncFD, int varId, vtkNetCDFCFReader *parent);
     int LoadCoordinateVariable(int ncFD, int varId, vtkDoubleArray *coords);
     int LoadBoundsVariable(int ncFD, int varId, vtkDoubleArray *coords);
+    int LoadUnstructuredBoundsVariable(int ncFD, int varId,
+                                       vtkDoubleArray *coords);
   };
   friend class vtkDependentDimensionInfo;
   class vtkDependentDimensionInfoVector;
@@ -258,6 +262,15 @@ protected:
   // Internal method for building unstructred cells that match structured cells.
   void AddStructuredCells(vtkUnstructuredGrid *unstructuredOutput,
                           const int extent[6]);
+
+  // Description:
+  // Internal methods for creating unstructured cells.
+  void AddUnstructuredRectilinearCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6]);
+  void AddUnstructuredSphericalCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6]);
 
 
 private:
