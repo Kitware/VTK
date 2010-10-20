@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
          NetCDFCF2DBounds
          NetCDFCFSetOutputType
          NetCDFCFSphericalCoords
+         NetCDFCFUnstructured
          NetCDFReader
          TestAVSucdReader
          TestGAMBITReader
