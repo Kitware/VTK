@@ -45,8 +45,13 @@ int TestLegendBoxActor( int argc, char * argv [] )
   iren->SetInteractorStyle(style);
 
   // Colors.
-  double textColor[3]        = {0.0, 0.0, 0.0};
-  double backgroundColor[3]  = {0.5, 0.5, 0.0};
+  double textColor[5][3]     = {{1.0, 0.0, 0.0},
+                                {0.0, 1.0, 0.0},
+                                {0.0, 0.0, 1.0},
+                                {1.0, 0.5, 0.5},
+                                {0.5, 1.0, 0.5}};
+
+  double backgroundColor[3]  = {0.8, 0.5, 0.0};
 
   const char *text[5] = {"Text1",
                          "Text2",
@@ -65,7 +70,7 @@ int TestLegendBoxActor( int argc, char * argv [] )
   actor->GetPositionCoordinate()->SetValue(-0.7, -0.8);
 
   actor->GetPosition2Coordinate()->SetCoordinateSystemToView();
-  actor->GetPosition2Coordinate()->SetValue(1.0, 1.0);
+  actor->GetPosition2Coordinate()->SetValue(0.7, 0.8);
 
   // Create a test pipeline
   //
@@ -73,13 +78,13 @@ int TestLegendBoxActor( int argc, char * argv [] )
     {
     vtkSmartPointer<vtkLineSource> ls (vtkSmartPointer<vtkLineSource>::New());
     vtkSmartPointer<vtkPolyData> pd = ls->GetOutput();
-    actor->SetEntry(i, pd, text[i], textColor);
+    actor->SetEntry(i, pd, text[i], textColor[i]);
     }
 
   // Add the actors to the renderer, set the background and size
   ren1->AddViewProp(actor);
   ren1->SetBackground(0.0, 0.0, 0.0);
-  renWin->SetSize(300, 300);
+  renWin->SetSize(350, 350);
 
   // render the image
   //
