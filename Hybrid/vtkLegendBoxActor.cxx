@@ -1014,6 +1014,12 @@ void vtkLegendBoxActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
   os << indent << "Box: " << (this->Box ? "On\n" : "Off\n");
   os << indent << "LockBorder: " << (this->LockBorder ? "On\n" : "Off\n");
+
+  os << indent << "UseBackgroud: " << (this->UseBackground ? "On\n" : "Off\n");
+  os << indent << "BackgroundOpacity: " << this->BackgroundOpacity << "\n";
+
+  os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", "
+    << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ")\n";
 }
 
 //----------------------------------------------------------------------------
