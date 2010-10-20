@@ -38,6 +38,7 @@ IF(NOT VTK_USE_DISPLAY)
     TestPolyDataSilhouette.cxx
     TestSpiderPlotActor.cxx
     X3DTest.cxx
+    TestLegendBoxActor.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 

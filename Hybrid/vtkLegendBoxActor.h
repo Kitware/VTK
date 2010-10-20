@@ -156,9 +156,8 @@ public:
   // Description:
   // Set/Get background opacity.
   // Default is: 1.0
-  vtkSetMacro(BackgroundOpacity, double);
-  vtkGetMacro(BackgroundOpacity, double);
   vtkSetClampMacro(BackgroundOpacity, double, 0.0, 1.0);
+  vtkGetMacro(BackgroundOpacity, double);
 
   // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual

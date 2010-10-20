@@ -821,17 +821,21 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       }
 
-    double symbolSpaceFraction = 0.5;
-    double iconSpaceFraction   = 0.0;
+    double sizeFraction = 1.0;
+
+    double symbolsPositionFraction = 0.5;
+    double iconsPositionFraction   = 0.0;
 
     if(symbolExists && iconExists)
       {
-      symbolSpaceFraction = 0.25;
-      iconSpaceFraction   = 0.625;
+      symbolsPositionFraction = 0.25;
+      iconsPositionFraction   = 0.625;
+
+      sizeFraction = 0.5;
       }
     else if(iconExists)
       {
-      iconSpaceFraction = 0.5;
+      iconsPositionFraction = 0.5;
       }
     else
       {
@@ -841,9 +845,9 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     //Place symbols
     //
     //Find the x-y bounds of the symbols...we'll be scaling these as well
-    size[0] = (int)(0.5 * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
+    size[0] = (int)(sizeFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
     posX = p1[0] + this->Padding +
-                 symbolSpaceFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
+                 symbolsPositionFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
     for (i=0; i<this->NumberOfEntries; i++)
       {
       if ( this->Symbol[i] )
@@ -894,9 +898,9 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
 
       // Place icons.
-      size[0] = (int)(0.5 * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
+      size[0] = (int)(sizeFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding));
       posX = p1[0] + this->Padding +
-                   iconSpaceFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
+                   iconsPositionFraction * symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
       for (i=0; i<this->NumberOfEntries; i++)
         {
         if ( this->IconImage[i] )
