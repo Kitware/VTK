@@ -240,3 +240,11 @@ vtkUnicodeString::value_type vtkUTF16TextCodec::NextUnicode(istream& InputStream
 {
   return utf16_to_unicode_next(_bigEndian, InputStream) ;
 }
+
+
+void vtkUTF16TextCodec::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "vtkUTF16TextCodec (" << this << ") \n" ;
+  indent = indent.GetNextIndent();
+  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+}

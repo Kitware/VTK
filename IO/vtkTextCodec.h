@@ -49,6 +49,8 @@ public:
   // Description:
   // The name this codec goes by - should match the string the factory will take to create it
   const virtual char* Name() ;
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   const virtual bool CanHandle(const char* NameString) ;
 
   // Description:

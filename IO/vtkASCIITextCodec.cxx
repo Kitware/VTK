@@ -121,3 +121,11 @@ vtkASCIITextCodec::vtkASCIITextCodec() : vtkTextCodec()
 vtkASCIITextCodec::~vtkASCIITextCodec()
 {
 }
+
+
+void vtkASCIITextCodec::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "vtkASCIITextCodec (" << this << ") \n" ;
+  indent = indent.GetNextIndent();
+  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+}
