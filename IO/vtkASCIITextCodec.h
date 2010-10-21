@@ -46,8 +46,8 @@ public:
 
   // Description:
   // The name this codec goes by - should match the string the factory will take to create it
-  const virtual char* Name() ;
-  const virtual bool CanHandle(const char* NameString) ;
+  virtual const char* Name() ;
+  virtual const bool CanHandle(const char* NameString) ;
 
   // Description:
   // is the given sample valid for this codec?
