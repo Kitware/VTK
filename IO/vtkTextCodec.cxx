@@ -108,3 +108,11 @@ vtkUnicodeString vtkTextCodec::ToUnicode(istream& InputStream)
 
   return returnString ;
 }
+
+
+void vtkTextCodec::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "vtkTextCodec (" << this << ") \n" ;
+  indent = indent.GetNextIndent();
+  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+}

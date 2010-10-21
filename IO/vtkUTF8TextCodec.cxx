@@ -157,3 +157,11 @@ vtkUTF8TextCodec::vtkUTF8TextCodec() : vtkTextCodec()
 vtkUTF8TextCodec::~vtkUTF8TextCodec()
 {
 }
+
+
+void vtkUTF8TextCodec::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "vtkUTF8TextCodec (" << this << ") \n" ;
+  indent = indent.GetNextIndent();
+  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+}

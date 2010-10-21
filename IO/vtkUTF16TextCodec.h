@@ -42,6 +42,7 @@ class VTK_IO_EXPORT vtkUTF16TextCodec : public vtkTextCodec
 public:
   vtkTypeMacro(vtkUTF16TextCodec, vtkTextCodec);
   static vtkUTF16TextCodec* New() ;
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // The name this codec goes by - should match the string the factory will take to create it
