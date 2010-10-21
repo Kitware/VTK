@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkObjectFactory.h>
 #include <vtkTextCodec.h>
 
+#include <algorithm>
 #include <vector>
 
 
