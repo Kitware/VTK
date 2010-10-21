@@ -26,6 +26,7 @@ SET(KIT_LIBS vtkDICOMParser vtkNetCDF vtkNetCDF_cxx
 
 SET( Kit_SRCS
 vtkAbstractParticleWriter.cxx
+vtkASCIITextCodec.cxx
 vtkAVSucdReader.cxx
 vtkBMPReader.cxx
 vtkBMPWriter.cxx
@@ -139,6 +140,8 @@ vtkTableWriter.cxx
 vtkTableToDatabaseWriter.cxx
 vtkTableToSQLiteWriter.cxx
 vtkTecplotReader.cxx
+vtkTextCodec.cxx
+vtkTextCodecFactory.cxx
 vtkTIFFReader.cxx
 vtkTIFFWriter.cxx
 vtkTreeReader.cxx
@@ -146,6 +149,8 @@ vtkTreeWriter.cxx
 vtkUGFacetReader.cxx
 vtkUnstructuredGridReader.cxx
 vtkUnstructuredGridWriter.cxx
+vtkUTF8TextCodec.cxx
+vtkUTF16TextCodec.cxx
 vtkVolume16Reader.cxx
 vtkVolumeReader.cxx
 vtkWriter.cxx
@@ -219,6 +224,8 @@ vtkRowQuery
 vtkSQLDatabase
 vtkSQLQuery
 vtkTableToDatabaseWriter
+vtkTextCodec
+vtkTextCodecFactory
 vtkVolumeReader
 vtkWriter
 vtkXMLCompositeDataReader.cxx
