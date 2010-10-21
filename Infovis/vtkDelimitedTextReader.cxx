@@ -582,6 +582,7 @@ int vtkDelimitedTextReader::RequestData(
 
     transCodec->ToUnicode(file_stream, outIter);
     iterator.ReachedEndOfInput() ;
+    transCodec->Delete() ;
 
     if(this->OutputPedigreeIds)
       {
