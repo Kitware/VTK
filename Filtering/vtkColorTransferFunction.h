@@ -189,6 +189,10 @@ public:
   vtkGetMacro(AllowDuplicateScalars, int);
   vtkBooleanMacro(AllowDuplicateScalars, int);
 
+  // Description:
+  // Get the number of available colors for mapping to.
+  virtual vtkIdType GetNumberOfAvailableColors();
+
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();

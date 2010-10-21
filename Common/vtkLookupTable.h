@@ -246,6 +246,10 @@ public:
     return (this->GetScale() == VTK_SCALE_LOG10)? 1 : 0;
     }
 
+  // Description:
+  // Get the number of available colors for mapping to.
+  virtual vtkIdType GetNumberOfAvailableColors();
+
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();

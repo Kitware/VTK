@@ -162,6 +162,11 @@ public:
   // to colors. Default implementation returns 0.
   virtual int UsingLogScale()
     { return 0; }
+
+  // Description:
+  // Get the number of available colors for mapping to.
+  virtual vtkIdType GetNumberOfAvailableColors() = 0;
+
 protected:
   vtkScalarsToColors();
   ~vtkScalarsToColors() {}

@@ -23,6 +23,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkgl.h"
 #include "vtkImageData.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformation.h"
@@ -43,7 +44,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#define COLOR_TEXTURE_MAP_SIZE 1024
+//#define COLOR_TEXTURE_MAP_SIZE 1024
 
 //-----------------------------------------------------------------------------
 static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
@@ -469,14 +470,21 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     // Get the texture map from the lookup table.
     // Create a dummy ramp of scalars.
     // In the future, we could extend vtkScalarsToColors.
-    double k = (range[1]-range[0]) / (COLOR_TEXTURE_MAP_SIZE-1);
+    vtkIdType numberOfColors = this->LookupTable->GetNumberOfAvailableColors();
+    GLint textureSize;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &textureSize);
+    if(numberOfColors > static_cast<vtkIdType>(textureSize))
+      {
+      numberOfColors = textureSize;
+      }
+    double k = (range[1]-range[0]) / (numberOfColors-1);
     VTK_CREATE(vtkDoubleArray, scalarTable);
-    // Size of lookup is actual 2*COLOR_TEXTURE_MAP_SIZE because one dimension
+    // Size of lookup is actual 2*numberOfColors because one dimension
     // has actual values, then NaNs.
-    scalarTable->SetNumberOfTuples(2*COLOR_TEXTURE_MAP_SIZE);
+    scalarTable->SetNumberOfTuples(2*numberOfColors);
     double* scalarTablePtr = scalarTable->GetPointer(0);
     // The actual scalar values.
-    for (int i = 0; i < COLOR_TEXTURE_MAP_SIZE; ++i)
+    for (int i = 0; i < numberOfColors; ++i)
       {
       *scalarTablePtr = range[0] + i * k;
       if (use_log_scale)
@@ -487,13 +495,13 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
       }
     // Dimension on NaN.
     double nan = vtkMath::Nan();
-    for (int i = 0; i < COLOR_TEXTURE_MAP_SIZE; ++i)
+    for (int i = 0; i < numberOfColors; ++i)
       {
       *scalarTablePtr = nan;
       ++scalarTablePtr;
       }
     this->ColorTextureMap = vtkSmartPointer<vtkImageData>::New();
-    this->ColorTextureMap->SetExtent(0,COLOR_TEXTURE_MAP_SIZE-1, 
+    this->ColorTextureMap->SetExtent(0,numberOfColors-1,
       0,1, 0,0);
     this->ColorTextureMap->SetNumberOfScalarComponents(4);
     this->ColorTextureMap->SetScalarTypeToUnsignedChar();
