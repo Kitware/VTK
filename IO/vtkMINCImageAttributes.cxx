@@ -151,6 +151,8 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
 
   this->Name = 0;
   this->DataType = VTK_VOID;
+
+  this->ValidateAttributes = 1;
 }
 
 //-------------------------------------------------------------------------
@@ -215,6 +217,8 @@ void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageMax: " << this->ImageMax << "\n";
   os << indent << "NumberOfImageMinMaxDimensions: " 
      << this->NumberOfImageMinMaxDimensions << "\n";
+  os << indent << "ValidateAttributes: "
+     << (this->ValidateAttributes ? "On\n" : "Off\n");
 }
 
 //-------------------------------------------------------------------------
@@ -849,8 +853,17 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
     attribs->InsertNextValue(attribute);
     }
 
-  // Print warning if there is something wrong with the attribute
-  this->ValidateAttribute(variable, attribute, array);
+  if (this->ValidateAttributes)
+    {
+    // Print warning if there is something wrong with the attribute
+    int result = this->ValidateAttribute(variable, attribute, array);
+
+    if (result > 1)
+      {
+      vtkWarningMacro("Attribute " << variable << ":" << attribute
+                      << " is not a valid attribute.");
+      }
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -1365,12 +1378,6 @@ int vtkMINCImageAttributes::ValidateAttribute(
       }
     }
   
-  if (result > 1)
-    {
-    vtkWarningMacro("Attribute " << varname << ":" << attname
-                    << " is not a valid attribute.");
-    }
-
   return result;
 }
 
