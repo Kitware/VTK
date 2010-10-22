@@ -46,7 +46,7 @@ class vtkUTF8TextCodecRegister
 static vtkUTF8TextCodecRegister foo ;
 
 
-const bool vtkUTF8TextCodec::CanHandle(const char* testStr)
+bool vtkUTF8TextCodec::CanHandle(const char* testStr)
 {
   if (0 == strcmp(testStr, "UTF-8"))
     return true ;

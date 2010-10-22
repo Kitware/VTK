@@ -51,11 +51,11 @@ public:
   virtual const char* Name() ;
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual const bool CanHandle(const char* NameString) ;
+  virtual bool CanHandle(const char* NameString);
 
   // Description:
   // is the given sample valid for this codec?  The stream will not be advanced.
-  virtual bool IsValid(istream& InputStream) ;
+  virtual bool IsValid(istream& InputStream);
 
   // Description:
   // a base class that any output iterators need to derive from to use the first signature

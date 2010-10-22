@@ -27,7 +27,7 @@ const char* vtkTextCodec::Name()
 }
 
 
-const bool vtkTextCodec::CanHandle(const char* NameString)
+bool vtkTextCodec::CanHandle(const char* NameString)
 {
   return false ;
 }
