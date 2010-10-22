@@ -46,12 +46,12 @@ public:
 
   // Description:
   // The name this codec goes by - should match the string the factory will take to create it
-  virtual const char* Name() ;
-  virtual const bool CanHandle(const char* NameString) ;
+  virtual const char* Name();
+  virtual bool CanHandle(const char* NameString);
 
   // Description:
   // is the given sample valid for this codec?
-  virtual bool IsValid(istream& InputStream) ;
+  virtual bool IsValid(istream& InputStream);
 
 
   // Description:

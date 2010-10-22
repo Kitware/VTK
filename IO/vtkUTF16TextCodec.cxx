@@ -143,7 +143,7 @@ const char* vtkUTF16TextCodec::Name()
 }
 
 
-const bool vtkUTF16TextCodec::CanHandle(const char* NameString)
+bool vtkUTF16TextCodec::CanHandle(const char* NameString)
 {
   if (0 == strcmp(NameString, "UTF-16"))
     {

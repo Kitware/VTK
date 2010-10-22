@@ -48,7 +48,7 @@ static vtkASCIITextCodecRegister foo ;
 const char* vtkASCIITextCodec::Name() {return "US-ASCII" ;}
 
 
-const bool vtkASCIITextCodec::CanHandle(const char* NameStr)
+bool vtkASCIITextCodec::CanHandle(const char* NameStr)
 {
   if (0 == strcmp(NameStr, "US-ASCII") || 0 == strcmp(NameStr, "ASCII"))
     return true ;
