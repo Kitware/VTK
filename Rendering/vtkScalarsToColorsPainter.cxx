@@ -23,7 +23,6 @@
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGraphicsFactory.h"
-#include "vtkgl.h"
 #include "vtkImageData.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformation.h"
@@ -43,8 +42,6 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
-//#define COLOR_TEXTURE_MAP_SIZE 1024
 
 //-----------------------------------------------------------------------------
 static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
@@ -471,9 +468,8 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     // Create a dummy ramp of scalars.
     // In the future, we could extend vtkScalarsToColors.
     vtkIdType numberOfColors = this->LookupTable->GetNumberOfAvailableColors();
-    GLint textureSize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &textureSize);
-    if(numberOfColors > static_cast<vtkIdType>(textureSize))
+    vtkIdType textureSize = this->GetTextureSizeLimit();
+    if(numberOfColors > textureSize)
       {
       numberOfColors = textureSize;
       }
@@ -842,6 +838,12 @@ void vtkScalarsToColorsPainter::ReportReferences(vtkGarbageCollector *collector)
 vtkDataObject *vtkScalarsToColorsPainter::GetOutput()
 {
   return this->OutputData;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkScalarsToColorsPainter::GetTextureSizeLimit()
+{
+  return 1024;
 }
 
 //-----------------------------------------------------------------------------

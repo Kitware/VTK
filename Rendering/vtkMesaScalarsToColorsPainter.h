@@ -35,6 +35,11 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release. 
   virtual void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
+  // Return the texture size limit, i.e. GL_MAX_TEXTURE_SIZE.
+  virtual vtkIdType GetTextureSizeLimit();
+
 protected:
   vtkMesaScalarsToColorsPainter();
   ~vtkMesaScalarsToColorsPainter();
