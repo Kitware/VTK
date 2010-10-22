@@ -88,19 +88,22 @@ void vtkASCIITextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIter
 {
   while (!InputStream.eof())
     {
-    vtkTypeUInt32 CodePoint = InputStream.get() ;
+    vtkTypeUInt32 CodePoint = InputStream.get();
 
-    if(!InputStream.eof() && CodePoint > 0x7f)
-      throw std::runtime_error("Detected a character that isn't valid US-ASCII.");
+    if(!InputStream.eof())
+      {
+      if (CodePoint > 0x7f)
+        throw std::runtime_error("Detected a character that isn't valid US-ASCII.");
 
-    *output++ = CodePoint;
+      *output++ = CodePoint;
+      }
     }
 }
 
 
 vtkUnicodeString::value_type vtkASCIITextCodec::NextUnicode(istream& InputStream)
 {
-  vtkTypeUInt32 CodePoint = InputStream.get() ;
+  vtkTypeUInt32 CodePoint = InputStream.get();
 
   if (!InputStream.eof())
     {
