@@ -289,8 +289,8 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
 }
 
 // Sort filenames lexicographically, ignoring case.
-bool vtkCompareFileNamesIgnoreCase(const vtkstd::string s1,
-                                   const vtkstd::string s2)
+bool vtkCompareFileNamesIgnoreCase(const vtkstd::string& s1,
+                                   const vtkstd::string& s2)
 {
   unsigned int n1 = static_cast<unsigned int>(s1.length());
   unsigned int n2 = static_cast<unsigned int>(s2.length());
@@ -335,8 +335,8 @@ bool vtkCompareFileNamesIgnoreCase(const vtkstd::string s1,
 }
 
 // Sort filenames numerically
-bool vtkCompareFileNamesNumeric(const vtkstd::string s1,
-                                const vtkstd::string s2)
+bool vtkCompareFileNamesNumeric(const vtkstd::string& s1,
+                                const vtkstd::string& s2)
 {
   unsigned int n1 = static_cast<unsigned int>(s1.length());
   unsigned int n2 = static_cast<unsigned int>(s2.length());
@@ -417,8 +417,8 @@ bool vtkCompareFileNamesNumeric(const vtkstd::string s1,
 }
 
 // Sort filenames numerically
-bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string s1,
-                                          const vtkstd::string s2)
+bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string& s1,
+                                          const vtkstd::string& s2)
 {
   unsigned int n1 = static_cast<unsigned int>(s1.length());
   unsigned int n2 = static_cast<unsigned int>(s2.length());
