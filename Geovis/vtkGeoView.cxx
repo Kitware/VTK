@@ -188,7 +188,7 @@ void vtkGeoView::Render()
 
   // Since ZShift or polygon offsets are global, here we would like to
   // use polygon offset to push the polygons (of globe) away so that
-  // other polygons or lines can be drwan on top of it.
+  // other polygons or lines can be drawn on top of it.
   double zShift = 0.0;
   double factor = 0.0;
   double units = 0.0;
