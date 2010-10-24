@@ -967,13 +967,12 @@ void vtkGeoInteractorStyle::ResetCameraClippingRange()
   double rng[2];
   camera->GetClippingRange(rng);
 
-  // When we are 1 unit away from the ground, place the near plane at 0.01
-  // unit away from the camera.
-  double nearDist = distAbove * 0.01;
+  // When we are 1 unit away from the ground, place the near plane at 0.5
+  // units away from the camera.
+  double nearDist = distAbove * 0.5;
   if (rng[0] > nearDist)
     {
     rng[0] = nearDist;
-    rng[1] = distAbove + vtkGeoMath::EarthRadiusMeters() * 2.0 + 100.0;
     camera->SetClippingRange(rng);
     }
 }

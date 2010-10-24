@@ -100,8 +100,6 @@ protected:
   vtkGeoView();
   ~vtkGeoView();
 
-  bool HasMesa();
-
   vtkGlobeSource*    LowResEarthSource;
   vtkPolyDataMapper* LowResEarthMapper;
   vtkActor*          LowResEarthActor;
