@@ -42,8 +42,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-#include "vtkgl.h"
-
 vtkStandardNewMacro(vtkGeoView);
 vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
@@ -188,10 +186,9 @@ void vtkGeoView::Render()
   this->Update();
   this->PrepareForRendering();
 
-  // @Note: This is workaround for the Paraview3 as it adds global Zshift
-  // for any module that gets loaded as plugin.
-  // Save the current state.
-
+  // Since ZShift or polygon offsets are global, here we would like to
+  // use polygon offset to push the polygons (of globe) away so that
+  // other polygons or lines can be drwan on top of it.
   double zShift = 0.0;
   double factor = 0.0;
   double units = 0.0;
@@ -212,17 +209,8 @@ void vtkGeoView::Render()
   vtkMapper::SetResolveCoincidentTopologyZShift(0.0);
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
-  // @Note: This is the workaround for mesa drivers. On Mesa OpenGL
-  // polygon offset is not correctly applied. Its only affecting
-  // the depth values for the outer sphere.
-  if(this->HasMesa())
-    {
-    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 1.0);
-    }
-  else
-    {
-    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 10500.0);
-    }
+  // Apply minimum offset (using factor and units == 1.0).
+  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 1.0);
 
   this->Renderer->GetCullers()->RemoveAllItems();
   this->RenderWindow->Render();
@@ -290,28 +278,6 @@ void vtkGeoView::SetGeoInteractorStyle(vtkGeoInteractorStyle* style)
     this->Renderer->SetActiveCamera(cam->GetVTKCamera());
     this->RenderWindow->GetInteractor()->SetInteractorStyle(style);
     }
-}
-
-
-//----------------------------------------------------------------------------
-bool vtkGeoView::HasMesa()
-{
-  if(this->UsingMesaDrivers == -1)
-    {
-    const char *gl_version =
-        reinterpret_cast<const char *>(glGetString(GL_VERSION));
-    const char *mesa_version = strstr(gl_version,"Mesa");
-    if(!mesa_version)
-      {
-      this->UsingMesaDrivers = 0;
-      }
-    else
-      {
-      this->UsingMesaDrivers = 1;
-      }
-    }
-
-  return (this->UsingMesaDrivers == 1);
 }
 
 //----------------------------------------------------------------------------
