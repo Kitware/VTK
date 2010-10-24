@@ -1171,6 +1171,7 @@ int vtkParallelCoordinatesRepresentation::PlaceLines(vtkPolyData* polyData,
           this->Maxs[position] + this->MaxOffsets[position],
           points));
       }
+    iter->Delete();
     }
 
   return 1;
