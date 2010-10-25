@@ -473,6 +473,10 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
       {
       numberOfColors = textureSize;
       }
+    if(numberOfColors <= 1)
+      {
+      numberOfColors = 2;
+      }
     double k = (range[1]-range[0]) / (numberOfColors-1);
     VTK_CREATE(vtkDoubleArray, scalarTable);
     // Size of lookup is actual 2*numberOfColors because one dimension
