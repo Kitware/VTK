@@ -42,6 +42,11 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
   
   virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
+
+  // Description:
+  // Return the texture size limit, i.e. GL_MAX_TEXTURE_SIZE.
+  virtual vtkIdType GetTextureSizeLimit();
+
 protected:
   vtkOpenGLScalarsToColorsPainter();
   ~vtkOpenGLScalarsToColorsPainter();
