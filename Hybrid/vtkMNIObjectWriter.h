@@ -50,6 +50,9 @@ POSSIBILITY OF SUCH DAMAGES.
 // The MNI .obj file format is used to store geometrical data.  This
 // file format was developed at the McConnell Brain Imaging Centre at
 // the Montreal Neurological Institute and is used by their software.
+// Only polygon and line files are supported by this writer.  For these
+// formats, all data elements are written including normals, colors,
+// and surface properties.  ASCII and binary file types are supported.
 // .SECTION See Also
 // vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
 // .SECTION Thanks

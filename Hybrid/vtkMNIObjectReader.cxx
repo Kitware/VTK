@@ -501,8 +501,8 @@ int vtkMNIObjectReader::ReadNormals(vtkPolyData *data, vtkIdType numPoints)
 
 //-------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadColors(vtkProperty *property,
-                                vtkPolyData *data, vtkIdType numPoints,
-                                vtkIdType numCells)
+                                   vtkPolyData *data, vtkIdType numPoints,
+                                   vtkIdType numCells)
 {
   // Find out what kind of coloring is used
   vtkIdType colorType = 0;
@@ -564,7 +564,7 @@ int vtkMNIObjectReader::ReadColors(vtkProperty *property,
 
 //-------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
-                               int cellType)
+                                  int cellType)
 {
   vtkIntArray *endIndices = vtkIntArray::New();
   vtkIntArray *cellIndices = vtkIntArray::New();
