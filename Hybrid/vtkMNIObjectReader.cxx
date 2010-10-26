@@ -780,7 +780,7 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
   if (objType != 'P' && objType != 'L' &&
       objType != 'M' && objType != 'F' &&
       objType != 'X' && objType != 'Q' &&
-      objType != 'T')
+      objType != 'T' && objType != 'V')
     {
     vtkErrorMacro("ReadFile: File is not a MNI obj file: "
                   << this->FileName);
@@ -827,6 +827,7 @@ int vtkMNIObjectReader::ReadFile(vtkPolyData *output)
       case 'X':
       case 'Q':
       case 'T':
+      case 'V':
         {
         vtkErrorMacro("ReadFile: Reading of obj type \"" << (char)objType <<
                       "\" is not supported: " << this->FileName);
