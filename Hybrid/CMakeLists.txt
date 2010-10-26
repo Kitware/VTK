@@ -53,6 +53,10 @@ vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
 vtkLegendScaleActor.cxx
 vtkLSDynaReader.cxx
+vtkMNIObjectReader.cxx
+vtkMNIObjectWriter.cxx
+vtkMNITransformReader.cxx
+vtkMNITransformWriter.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPieChartActor.cxx
 vtkPolyDataSilhouette.cxx
