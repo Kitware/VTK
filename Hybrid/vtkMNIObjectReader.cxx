@@ -405,16 +405,16 @@ int vtkMNIObjectReader::IsPolygonReversed(
 
   for (vtkIdType j = 0; j < numIndices; j++)
     {
-    vtkIdType index = polyIndices->GetValue(lastEndIndex + j);
+    vtkIdType idx = polyIndices->GetValue(lastEndIndex + j);
 
     double normal[3];
-    normals->GetTuple(index, normal);
+    normals->GetTuple(idx, normal);
     averageNormal[0] += normal[0];
     averageNormal[1] += normal[1];
     averageNormal[2] += normal[2];
 
     double currPoint[3];
-    points->GetPoint(index, currPoint);
+    points->GetPoint(idx, currPoint);
 
     double vec2[3];
     vec2[0] = currPoint[0] - firstPoint[0];
@@ -669,15 +669,15 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
       // Check that the index values are okay and create the cell
       for (vtkIdType j = 0; j < numIndices; j++)
         {
-        vtkIdType index = cellIndices->GetValue(lastEndIndex + j);
-        if (index > numPoints)
+        vtkIdType idx = cellIndices->GetValue(lastEndIndex + j);
+        if (idx > numPoints)
           {
-          vtkErrorMacro("Index " << index << " is greater than the"
+          vtkErrorMacro("Index " << idx << " is greater than the"
                         << " total number of points " << numPoints << " "
                         << this->FileName);
           return 0;
           }
-        cellArray->InsertCellPoint(index);
+        cellArray->InsertCellPoint(idx);
         }
 
       if (cellType == VTK_POLYGON)
