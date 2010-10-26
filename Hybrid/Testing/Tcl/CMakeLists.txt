@@ -34,6 +34,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestGridWarpNearest
       TestICPTransform
       TestImageStencilWithPolydata
+      TestMNIObjects
       TestPCA
       TestProcrustes
       TestProcrustesRigidCentroid
