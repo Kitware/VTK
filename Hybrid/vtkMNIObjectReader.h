@@ -117,10 +117,6 @@ protected:
   int ParseValues(vtkDataArray *array, vtkIdType n);
   int ParseIdValue(vtkIdType *value);
 
-  int IsPolygonReversed(vtkIntArray *polyIndices, vtkPoints *points,
-                        vtkDataArray *normals,
-                        vtkIdType lastEndIndex, vtkIdType numIndices);
-
   int ReadNumberOfPoints(vtkIdType *numCells);
   int ReadNumberOfCells(vtkIdType *numCells);
   int ReadProperty(vtkProperty *property);

@@ -381,69 +381,6 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType *value)
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectReader::IsPolygonReversed(
-  vtkIntArray *polyIndices, vtkPoints *points, vtkDataArray *normals,
-  vtkIdType lastEndIndex, vtkIdType numIndices)
-{
-  double averageNormal[3];
-  averageNormal[0] = 0.0;
-  averageNormal[1] = 0.0;
-  averageNormal[2] = 0.0;
-
-  double calculatedNormal[3];
-  calculatedNormal[0] = 0.0;
-  calculatedNormal[1] = 0.0;
-  calculatedNormal[2] = 0.0;
-
-  double firstPoint[3];
-  points->GetPoint(polyIndices->GetValue(lastEndIndex), firstPoint);
-
-  double vec1[3];
-  vec1[0] = 0.0;
-  vec1[1] = 0.0;
-  vec1[2] = 0.0;
-
-  for (vtkIdType j = 0; j < numIndices; j++)
-    {
-    vtkIdType idx = polyIndices->GetValue(lastEndIndex + j);
-
-    double normal[3];
-    normals->GetTuple(idx, normal);
-    averageNormal[0] += normal[0];
-    averageNormal[1] += normal[1];
-    averageNormal[2] += normal[2];
-
-    double currPoint[3];
-    points->GetPoint(idx, currPoint);
-
-    double vec2[3];
-    vec2[0] = currPoint[0] - firstPoint[0];
-    vec2[1] = currPoint[1] - firstPoint[1];
-    vec2[2] = currPoint[2] - firstPoint[2];
-
-    if (j >= 2)
-      {
-      double vec3[3];
-      vtkMath::Cross(vec1, vec2, vec3);
-      calculatedNormal[0] += vec3[0];
-      calculatedNormal[1] += vec3[1];
-      calculatedNormal[2] += vec3[2];
-      }
-
-    vec1[0] = vec2[0];
-    vec1[1] = vec2[1];
-    vec1[2] = vec2[2];
-    }
-
-  if (vtkMath::Dot(averageNormal, calculatedNormal) < 0.0)
-    {
-    return 1;
-    }
-
-  return 0;
-}
-
-//-------------------------------------------------------------------------
 int vtkMNIObjectReader::ReadProperty(vtkProperty *property)
 {
   vtkFloatArray *tmpArray = vtkFloatArray::New();
@@ -653,9 +590,6 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
     cellArray->GetData()->Allocate(
       numCells + endIndices->GetValue(numCells - 1));
 
-    // Counter for reversed polygons
-    vtkIdType reverseCount = 0;
-
     vtkPoints *points = data->GetPoints();
     vtkIdType numPoints = points->GetNumberOfPoints();
     vtkIdType lastEndIndex = 0;
@@ -680,27 +614,7 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
         cellArray->InsertCellPoint(idx);
         }
 
-      if (cellType == VTK_POLYGON)
-        {
-        // Check the polygon against the normals to see if it has to
-        // be reversed.
-        vtkDataArray *normals = data->GetPointData()->GetNormals();
-
-        if (this->IsPolygonReversed(cellIndices, points, normals,
-                                    lastEndIndex, numIndices))
-          {
-          reverseCount++;
-          cellArray->ReverseCell(lastEndIndex + i);
-          }
-        }
-
       lastEndIndex = endIndex;
-      }
-
-    if (reverseCount > 0)
-      {
-      vtkWarningMacro("There were " << reverseCount << " reversed polygons "
-                      "out of " << numCells << " " << this->FileName);
       }
 
     if (cellType == VTK_POLYGON)
