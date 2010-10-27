@@ -299,7 +299,7 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   for (i = 0; i < n; i++)
     {
     double *p = target->GetPoint(i);
-    for (int k = 0; k < ndim; k++)
+    for (k = 0; k < ndim; k++)
       {
       X[k][i] = p[k];
       }
