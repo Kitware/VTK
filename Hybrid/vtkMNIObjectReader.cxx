@@ -596,7 +596,7 @@ int vtkMNIObjectReader::ReadCells(vtkPolyData *data, vtkIdType numCells,
     for (vtkIdType i = 0; i < numCells; i++)
       {
       vtkIdType endIndex = endIndices->GetValue(i);
-      vtkIdType numIndices = endIndex - lastEndIndex;
+      numIndices = endIndex - lastEndIndex;
 
       cellArray->InsertNextCell(numIndices);
 

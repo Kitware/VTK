@@ -373,10 +373,9 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPoints);
 
-    vtkIdType j = 0;
-    for (j = 0; j < numPoints; j++)
+    for (vtkIdType ii = 0; ii < numPoints; ii++)
       {
-      float *normal = newNormals->GetPointer(3*j);
+      float *normal = newNormals->GetPointer(3*ii);
       normal[0] = 0.0;
       normal[1] = 0.0;
       normal[2] = 0.0;
@@ -476,9 +475,9 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
       }
 
     // Normalize the normals
-    for (j = 0; j < numPoints; j++)
+    for (vtkIdType jj = 0; jj < numPoints; jj++)
       {
-      float *normal = newNormals->GetPointer(3*j);
+      float *normal = newNormals->GetPointer(3*jj);
       vtkMath::Normalize(normal);
       }
 
@@ -536,13 +535,14 @@ int vtkMNIObjectWriter::WriteColors(vtkProperty *property, vtkPolyData *data)
     newScalars = vtkUnsignedCharArray::New();
     newScalars->SetNumberOfComponents(4);
     newScalars->SetNumberOfTuples(1);
-    unsigned char *rgba = newScalars->GetPointer(0);
 
-    if (this->Property)
+    unsigned char rgba[4];
+
+    if (property)
       {
       double color[3];
-      this->Property->GetColor(color);
-      double opacity = this->Property->GetOpacity();
+      property->GetColor(color);
+      double opacity = property->GetOpacity();
 
       rgba[0] = static_cast<unsigned char>(color[0]*255);
       rgba[1] = static_cast<unsigned char>(color[1]*255);
@@ -557,6 +557,7 @@ int vtkMNIObjectWriter::WriteColors(vtkProperty *property, vtkPolyData *data)
       rgba[3] = 255;
       }
 
+    newScalars->SetTupleValue(0, rgba);
     scalars = newScalars;
     }
 
@@ -878,6 +879,11 @@ void vtkMNIObjectWriter::WriteData()
 
   // Open the file
   this->OutputStream = this->OpenVTKFile();
+
+  if (!this->OutputStream)
+    {
+    return;
+    }
 
   // Write the type character
   this->WriteObjectType(objType);
