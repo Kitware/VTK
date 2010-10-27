@@ -77,15 +77,20 @@ Allow skipping the style check for this commit with
 # KWStyle.
 check_for_KWStyle() {
 	KWStyle_path=$(git config hooks.KWStyle.path) ||
-	KWStyle_path=$(which KWStyle) ||
-	die "KWStyle executable was not found.
+	KWStyle_path=$(which KWStyle)
+	if [ $? != 0 ] ; then
+		echo "KWStyle executable was not found.
+
+  No style verification will be performed with KWStyle!
 
 Please install KWStyle or set the executable location with
 
   git config hooks.KWStyle.path /path/to/KWStyle
 
-See http://public.kitware.com/KWStyle/"
-
+See http://public.kitware.com/KWStyle/
+" >&2
+		return 1
+	fi
 	KWStyle_conf=$(git config hooks.KWStyle.conf)
 	if ! test -f "$KWStyle_conf"; then
 		die "The file '$KWStyle_conf' does not exist.
@@ -201,7 +206,10 @@ run_uncrustify_on_file() {
 
 	fi # end if run uncrustify on file
 
-	if $do_KWStyle && run_style_on_file "$MERGED" KWStyle; then
+	if $do_KWStyle &&
+		$have_KWStyle &&
+		run_style_on_file "$MERGED" KWStyle
+	then
 		run_KWStyle_on_file "$MERGED"
 	else
 		return 0
@@ -210,6 +218,11 @@ run_uncrustify_on_file() {
 
 run_uncrustify() {
 	$do_KWStyle && check_for_KWStyle
+	if test $?; then
+		have_KWStyle=false
+	else
+		have_KWStyle=true
+	fi
 
 	merge_tool=$(get_merge_tool "$merge_tool") || die "Merge tool not configured.
 
@@ -245,8 +258,9 @@ elif $do_uncrustify; then
 # do_uncrustify will run KWStyle on the files incrementally so excessive
 # uncrustify merges do not have to occur.
 elif $do_KWStyle; then
-	check_for_KWStyle
-	run_KWStyle
+	if check_for_KWStyle; then
+		run_KWStyle
+	fi
 fi
 
 # vim: set filetype=sh tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab :
