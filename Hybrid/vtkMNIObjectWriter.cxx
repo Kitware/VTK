@@ -880,6 +880,11 @@ void vtkMNIObjectWriter::WriteData()
   // Open the file
   this->OutputStream = this->OpenVTKFile();
 
+  if (!this->OutputStream)
+    {
+    return;
+    }
+
   // Write the type character
   this->WriteObjectType(objType);
 
