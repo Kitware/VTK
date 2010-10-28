@@ -74,6 +74,8 @@ vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
   this->LastWindow = 0;
 
   this->ScalarsToColorsPainter = vtkScalarsToColorsPainter::New();
+  this->ScalarsToColorsPainter->SetInformation(this->PainterInformation);
+
   this->PainterInformation = vtkInformation::New();
 }
 
@@ -205,7 +207,6 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 
   if (immediateMode || createDisplayList)
     {
-    cout << "Generate lists" << endl;
     int numberOfSources=this->GetNumberOfInputConnections(1);
 
     // Check input for consistency
