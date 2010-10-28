@@ -56,6 +56,12 @@ SET(Kit_SRCS
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
   vtkTooltipItem.cxx
+  vtkVector.h
+  )
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkVector
+  HEADER_FILE_ONLY
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -77,6 +83,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkChartColors
   vtkOpenGLContextBufferId
   vtkOpenGLContextDevice2D
+  vtkVector
   WRAP_EXCLUDE
 )
 
