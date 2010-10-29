@@ -98,15 +98,21 @@ void vtkTextCodecFactory::UnRegisterAllCreateCallbacks()
 
 vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
 {
-  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i ;
+  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
     {
     vtkTextCodec* outCodec = (*CF_i)() ;
     if (NULL != outCodec)
+      {
       if (outCodec->CanHandle(codecName))
-        return outCodec ;
+        {
+        return outCodec;
+        }
       else
-        outCodec->Delete() ;
+        {
+        outCodec->Delete();
+        }
+      }
     }
 
   return NULL ;
@@ -115,15 +121,21 @@ vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
 
 vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
 {
-  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i ;
+  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
     {
-    vtkTextCodec* outCodec = (*CF_i)() ;
+    vtkTextCodec* outCodec = (*CF_i)();
     if (NULL != outCodec)
+      {
       if (outCodec->IsValid(SampleData))
-        return outCodec ;
+        {
+        return outCodec;
+        }
       else
-        outCodec->Delete() ;
+        {
+        outCodec->Delete();
+        }
+      }
     }
 
   return NULL ;

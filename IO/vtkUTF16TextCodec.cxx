@@ -112,7 +112,8 @@ namespace
   public:
     virtual testIterator& operator++(int) {return *this ;}
     virtual testIterator& operator*() {return *this ;}
-    virtual testIterator& operator=(const vtkUnicodeString::value_type value) {return *this ;}
+    virtual testIterator& operator=(const vtkUnicodeString::value_type)
+      {return *this ;}
 
     testIterator() {}
     ~testIterator() {}

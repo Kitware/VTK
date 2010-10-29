@@ -61,9 +61,10 @@ namespace
   class testIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    virtual testIterator& operator++(int) {return *this ;}
-    virtual testIterator& operator*() {return *this ;}
-    virtual testIterator& operator=(const vtkUnicodeString::value_type value) {return *this ;}
+    virtual testIterator& operator++(int) {return *this;}
+    virtual testIterator& operator*() {return *this;}
+    virtual testIterator& operator=(const vtkUnicodeString::value_type)
+      {return *this;}
 
     testIterator() {}
     ~testIterator() {}
@@ -140,10 +141,12 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
 
   const vtkTypeUInt32 code_point = vtk_utf8::next(c1, &c[getSize]) ;
 
-  unsigned int nCharExtracted = c1 - c ;
-  unsigned int nCharReturned = getSize - nCharExtracted ;
-  for (int j = 0; j < nCharReturned; ++j)
-    InputStream.unget() ;
+  unsigned int nCharExtracted = c1 - c;
+  unsigned int nCharReturned = getSize - nCharExtracted;
+  for (unsigned int j = 0; j < nCharReturned; ++j)
+    {
+    InputStream.unget();
+    }
 
   return code_point ;
 }

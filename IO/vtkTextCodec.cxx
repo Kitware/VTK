@@ -27,13 +27,13 @@ const char* vtkTextCodec::Name()
 }
 
 
-bool vtkTextCodec::CanHandle(const char* NameString)
+bool vtkTextCodec::CanHandle(const char*)
 {
   return false ;
 }
 
 
-bool vtkTextCodec::IsValid(istream& InputStream)
+bool vtkTextCodec::IsValid(istream&)
 {
   return false ;
 }
