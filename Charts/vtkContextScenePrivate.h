@@ -39,8 +39,8 @@ class vtkContextScenePrivate : public vtkstd::vector<vtkAbstractContextItem*>
 public:
   // Description:
   // Default constructor.
-  vtkContextScenePrivate()
-    : vtkstd::vector<vtkAbstractContextItem*>(), Scene(0)
+  vtkContextScenePrivate(vtkAbstractContextItem* item)
+    : vtkstd::vector<vtkAbstractContextItem*>(), Scene(0), Item(item)
     {
     }
 
@@ -85,9 +85,9 @@ public:
     {
     item->Register(this->Scene);
     item->SetScene(this->Scene);
+    item->SetParent(this->Item);
 
     this->push_back(item);
-    this->State.push_back(false);
     return static_cast<unsigned int>(this->size()-1);
     }
 
@@ -99,6 +99,8 @@ public:
       {
       if (item == *it)
         {
+        item->SetParent(NULL);
+        item->SetScene(NULL);
         (*it)->Delete();
         this->erase(it);
         return true;
@@ -127,7 +129,6 @@ public:
       (*it)->Delete();
       }
     this->clear();
-    this->State.clear();
     }
 
   // Description:
@@ -150,8 +151,9 @@ public:
   vtkContextScene* Scene;
 
   // Description:
-  // Store the state of the items to calculate enter/leave events.
-  vtkstd::vector<bool> State;
+  // Store a reference to the item that these children are part of.
+  // May be NULL for items in the scene itself.
+  vtkAbstractContextItem* Item;
 };
 
 #endif //__vtkContextScenePrivate_h

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArray.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -50,15 +50,15 @@ void vtkArray::PrintSelf(ostream &os, vtkIndent indent)
   Superclass::PrintSelf(os, indent);
 
   os << indent << "Name: " << this->Name << endl;
-  
+
   os << indent << "Dimensions: " << this->GetDimensions() << endl;
   os << indent << "Extents: " << this->GetExtents() << endl;
-  
+
   os << indent << "DimensionLabels:";
-  for(vtkIdType i = 0; i != this->GetDimensions(); ++i)
+  for(DimensionT i = 0; i != this->GetDimensions(); ++i)
     os << " " << this->GetDimensionLabel(i);
   os << endl;
-  
+
   os << indent << "Size: " << this->GetSize() << endl;
   os << indent << "NonNullSize: " << this->GetNonNullSize() << endl;
 }
@@ -137,7 +137,7 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
     return 0;
 }
 
-void vtkArray::Resize(const vtkIdType i)
+void vtkArray::Resize(const CoordinateT i)
 {
   this->Resize(vtkArrayExtents(vtkArrayRange(0, i)));
 }
@@ -147,7 +147,7 @@ void vtkArray::Resize(const vtkArrayRange& i)
   this->Resize(vtkArrayExtents(i));
 }
 
-void vtkArray::Resize(const vtkIdType i, const vtkIdType j)
+void vtkArray::Resize(const CoordinateT i, const CoordinateT j)
 {
   this->Resize(vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j)));
 }
@@ -157,7 +157,7 @@ void vtkArray::Resize(const vtkArrayRange& i, const vtkArrayRange& j)
   this->Resize(vtkArrayExtents(i, j));
 }
 
-void vtkArray::Resize(const vtkIdType i, const vtkIdType j, const vtkIdType k)
+void vtkArray::Resize(const CoordinateT i, const CoordinateT j, const CoordinateT k)
 {
   this->Resize(vtkArrayExtents(vtkArrayRange(0, i), vtkArrayRange(0, j), vtkArrayRange(0, k)));
 }
@@ -168,21 +168,21 @@ void vtkArray::Resize(const vtkArrayRange& i, const vtkArrayRange& j, const vtkA
 }
 
 void vtkArray::Resize(const vtkArrayExtents& extents)
-{    
+{
   this->InternalResize(extents);
 }
 
-const vtkArrayRange vtkArray::GetExtent(vtkIdType dimension)
+const vtkArrayRange vtkArray::GetExtent(DimensionT dimension)
 {
   return this->GetExtents()[dimension];
 }
 
-vtkIdType vtkArray::GetDimensions()
+vtkArray::DimensionT vtkArray::GetDimensions()
 {
   return this->GetExtents().GetDimensions();
 }
 
-vtkIdType vtkArray::GetSize()
+vtkTypeUInt64 vtkArray::GetSize()
 {
   return this->GetExtents().GetSize();
 }
@@ -193,7 +193,7 @@ void vtkArray::SetName(const vtkStdString& raw_name)
   vtkStdString name(raw_name);
   name.erase(vtkstd::remove(name.begin(), name.end(), '\r'), name.end());
   name.erase(vtkstd::remove(name.begin(), name.end(), '\n'), name.end());
-  
+
   this->Name = name;
 }
 
@@ -202,7 +202,7 @@ vtkStdString vtkArray::GetName()
   return this->Name;
 }
 
-void vtkArray::SetDimensionLabel(vtkIdType i, const vtkStdString& raw_label)
+void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
 {
   if(i < 0 || i >= this->GetDimensions())
     {
@@ -218,7 +218,7 @@ void vtkArray::SetDimensionLabel(vtkIdType i, const vtkStdString& raw_label)
   this->InternalSetDimensionLabel(i, label);
 }
 
-vtkStdString vtkArray::GetDimensionLabel(vtkIdType i)
+vtkStdString vtkArray::GetDimensionLabel(DimensionT i)
 {
   if(i < 0 || i >= this->GetDimensions())
     {
@@ -228,5 +228,3 @@ vtkStdString vtkArray::GetDimensionLabel(vtkIdType i)
 
   return this->InternalGetDimensionLabel(i);
 }
-
-

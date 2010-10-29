@@ -40,6 +40,7 @@ IF(VTK_USE_DISPLAY)
     TestManyActors.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
+    TestOpenGLPolyDataMapper.cxx
     TestOSConeCxx.cxx
     TestPOVExporter.cxx
     TestResetCameraVerticalAspectRatio.cxx
@@ -82,6 +83,7 @@ IF(VTK_USE_DISPLAY)
   IF(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
   SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
+      RenderNonFinite.cxx
       SurfacePlusEdges.cxx
       TestLabelPlacementMapper.cxx
       )
@@ -95,15 +97,15 @@ IF(VTK_USE_DISPLAY)
       TestGenericVertexAttributesGLSLAlphaBlending.cxx
       TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
       )
-    # Temporarily disable LIC tests on non-windows platforms
-    IF(WIN32)
+    # Temporarily disable LIC tests on Mac
+    IF(NOT APPLE)
       IF (VTK_DATA_ROOT)
         SET( RenderingTestsWithArguments
         ${RenderingTestsWithArguments}
         TestSurfaceLIC.cxx
         )
       ENDIF (VTK_DATA_ROOT)
-    ENDIF(WIN32)
+    ENDIF()
   ENDIF (VTK_USE_GLSL_SHADERS)
 
 ENDIF(VTK_USE_DISPLAY)

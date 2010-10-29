@@ -35,6 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkPointSet.h"
 #include  "vtkPolyData.h"
 #include  "vtkRectilinearGrid.h"
+#include  "vtkReebGraph.h"
 #include  "vtkSelection.h"
 #include  "vtkStructuredGrid.h"
 #include  "vtkStructuredPoints.h"
@@ -83,6 +84,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkMultiPieceDataSet",
   "vtkDirectedAcyclicGraph",
   "vtkArrayData",
+  "vtkReebGraph",
   NULL
 };
 
@@ -145,6 +147,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 {
+  
   if (!type)
     {
     vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
@@ -236,6 +239,10 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkAnnotationLayers") == 0)
     {
     return vtkAnnotationLayers::New();
+    }
+  else if(strcmp(type, "vtkReebGraph") == 0)
+    {
+    return vtkReebGraph::New();
     }
 #ifdef VTK_USE_N_WAY_ARRAYS
   else if(strcmp(type, "vtkArrayData") == 0)

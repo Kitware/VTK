@@ -18,17 +18,19 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestInterpolationDerivs.cxx
   TestImageIterator.cxx
   TestGenericCell.cxx
+  TestGraph.cxx
   TestHigherOrderCell.cxx  
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx  
+  TestPolygon.cxx
   TestTreeBFSIterator.cxx
   TestTriangle.cxx
-  TestPolygon.cxx
+
   EXTRA_INCLUDE vtkTestDriver.h
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkFiltering vtkGraphics)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)

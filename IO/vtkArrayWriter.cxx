@@ -23,21 +23,39 @@
 #include <vtkSparseArray.h>
 #include <vtkUnicodeString.h>
 
+#include <cmath>
 #include <limits>
 #include <vtkstd/stdexcept>
 
 namespace {
 
-// For the purposes of this file only, we serializae Unicode strings using UTF-8 ...
-ostream& operator<<(ostream& stream, const vtkUnicodeString& value)
+template<typename T>
+inline void WriteValue(std::ostream& stream, const T& value)
 {
-  stream << value.utf8_str();
-  return stream;
+  stream << value;
 }
 
-void WriteHeader(const vtkStdString& array_type, 
-                 const vtkStdString& type_name, 
-                 vtkArray* array, 
+inline void WriteValue(std::ostream& stream, const double& value)
+{
+  if(std::abs(value) < std::numeric_limits<double>::min())
+    stream << 0;
+  else
+    stream << value;
+}
+
+inline void WriteValue(std::ostream& stream, const vtkStdString& value)
+{
+  stream << value;
+}
+
+inline void WriteValue(std::ostream& stream, const vtkUnicodeString& value)
+{
+  stream << value.utf8_str();
+}
+
+void WriteHeader(const vtkStdString& array_type,
+                 const vtkStdString& type_name,
+                 vtkArray* array,
                  ostream& stream,
                  bool WriteBinary)
 {
@@ -194,8 +212,8 @@ bool WriteDenseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostre
   // Serialize the array values ...
   stream.write(
     reinterpret_cast<char*>(concrete_array->GetStorage()),
-    concrete_array->GetNonNullSize() * sizeof(ValueT)); 
-  
+    concrete_array->GetNonNullSize() * sizeof(ValueT));
+
   return true;
 }
 
@@ -264,19 +282,21 @@ bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostre
     stream.precision(vtkstd::numeric_limits<ValueT>::digits10 + 1);
 
   // Write the array NULL value ...
-  stream << concrete_array->GetNullValue() << "\n";
+  WriteValue(stream, concrete_array->GetNullValue());
+  stream << "\n";
 
   // Write the array contents ...
   const vtkIdType dimensions = array->GetDimensions();
   const vtkIdType non_null_size = array->GetNonNullSize();
 
   vtkArrayCoordinates coordinates;
-  for(vtkIdType n = 0; n != non_null_size; ++n) 
+  for(vtkIdType n = 0; n != non_null_size; ++n)
     {
     array->GetCoordinatesN(n, coordinates);
     for(vtkIdType i = 0; i != dimensions; ++i)
       stream << coordinates[i] << " ";
-    stream << concrete_array->GetValueN(n) << "\n";
+    WriteValue(stream, concrete_array->GetValueN(n));
+    stream << "\n";
     }
 
   return true;
@@ -294,18 +314,19 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
 
   // Write the array contents ...
   const vtkArrayExtents extents = array->GetExtents();
-  
+
   // Ensure that floating-point types are serialized with full precision
   if(vtkstd::numeric_limits<ValueT>::is_specialized)
     stream.precision(vtkstd::numeric_limits<ValueT>::digits10 + 1);
 
   vtkArrayCoordinates coordinates;
-  for(vtkIdType n = 0; n != extents.GetSize(); ++n)
+  for(vtkArrayExtents::SizeT n = 0; n != extents.GetSize(); ++n)
     {
     extents.GetRightToLeftCoordinatesN(n, coordinates);
-    stream << concrete_array->GetValue(coordinates) << "\n";
+    WriteValue(stream, concrete_array->GetValue(coordinates));
+    stream << "\n";
     }
-  
+
   return true;
 }
 

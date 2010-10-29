@@ -32,6 +32,7 @@ class vtkFloatArray;
 class vtkDoubleArray;
 class vtkStringArray;
 class vtkTextProperty;
+class vtkRectf;
 
 class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
 {
@@ -39,7 +40,6 @@ public:
   vtkTypeMacro(vtkAxis, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   // Description:
   // Enumeration of the axis locations in a conventional XY chart. Other
   // layouts are possible.
@@ -50,14 +50,13 @@ public:
     TOP,
     PARALLEL
   };
-//ETX
 
   // Description:
   // Creates a 2D Chart object.
   static vtkAxis *New();
 
   // Description:
-  // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP).
+  // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP, PARALLEL).
   vtkSetMacro(Position, int);
   vtkGetMacro(Position, int);
 
@@ -140,9 +139,25 @@ public:
   vtkGetMacro(Precision, int);
 
   // Description:
+  // Enumeration of the axis notations available.
+  enum {
+    STANDARD = 0,
+    SCIENTIFIC,
+    MIXED
+  };
+
+  // Description:
   // Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
   virtual void SetNotation(int notation);
   vtkGetMacro(Notation, int);
+
+  // Description:
+  // Enumeration of the axis behaviors.
+  enum {
+    AUTO = 0,
+    FIXED,
+    CUSTOM
+  };
 
   // Description:
   // Get/set the behavior of the axis (auto, fixed, custom). Default is 0 (auto).
@@ -200,6 +215,13 @@ public:
   // Set the tick labels for the axis.
   virtual void SetTickLabels(vtkStringArray*);
 
+  // Description:
+  // Request the space the axes require to be drawn. This is returned as a
+  // vtkRect4f, with the corner being the offset from Point1, and the width/
+  // height being the total width/height required by the axis. In order to
+  // ensure the numbers are correct, Update() should be called on the axis.
+  vtkRectf GetBoundingRect(vtkContext2D* painter);
+
 //BTX
 protected:
   vtkAxis();
@@ -223,11 +245,11 @@ protected:
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float Point1[2];     // The position of point 1 (usually the origin)
   float Point2[2];     // The position of point 2 (usually the terminus)
-  double TickInterval;  // Interval between tick marks in plot space
+  double TickInterval; // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
   vtkTextProperty* LabelProperties; // Text properties for the labels.
-  double Minimum;       // Minimum value of the axis
-  double Maximum;       // Maximum values of the axis
+  double Minimum;      // Minimum value of the axis
+  double Maximum;      // Maximum values of the axis
   char* Title;         // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
@@ -235,7 +257,8 @@ protected:
   bool LabelsVisible;  // Should the axis labels be visible
   int Precision;       // Numerical precision to use, defaults to 2.
   int Notation;        // The notation to use (standard, scientific, mixed)
-  int Behavior;       // The behaviour of the axis (auto, fixed, custom).
+  int Behavior;        // The behaviour of the axis (auto, fixed, custom).
+  float MaxLabel[2];   // The widest/tallest axis label.
 
   // Description:
   // This object stores the vtkPen that controls how the axis is drawn.

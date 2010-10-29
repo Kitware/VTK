@@ -51,6 +51,7 @@ public:
   // Creates a 2D Painter object.
   static vtkContext2D *New();
 
+//BTX
   // Description:
   // Begin painting on a vtkContextDevice2D, no painting can occur before this call
   // has been made. Only one painter is allowed at a time on any given paint
@@ -151,6 +152,11 @@ public:
   void DrawQuad(float x1, float y1, float x2, float y2,
                 float x3, float y3, float x4, float y4);
   void DrawQuad(float *p);
+
+  // Description:
+  // Draw a strip of quads
+  void DrawQuadStrip(vtkPoints2D *points);
+  void DrawQuadStrip(float *p, int n);
 
   // Description:
   // Draw a polygon specified specified by the points using the x and y arrays
@@ -265,7 +271,7 @@ public:
   // Get the pen which controls the outlines of shapes, as well as lines,
   // points and related primitives. This object can be modified and the changes
   // will be reflected in subsequent drawing operations.
-  vtkGetObjectMacro(Pen, vtkPen);
+  vtkPen* GetPen();
 
   // Description:
   // Apply the supplied brush which controls the outlines of shapes, as well as
@@ -276,7 +282,7 @@ public:
   // Description:
   // Get the pen which controls the outlines of shapes as well as lines, points
   // and related primitives.
-  vtkGetObjectMacro(Brush, vtkBrush);
+  vtkBrush* GetBrush();
 
   // Description:
   // Apply the supplied text property which controls how text is rendered.
@@ -286,7 +292,7 @@ public:
 
   // Description:
   // Get the text properties object for the vtkContext2D.
-  vtkGetObjectMacro(TextProp, vtkTextProperty);
+  vtkTextProperty* GetTextProp();
 
   // Description:
   // Set the transform for the context, the underlying device will use the
@@ -315,15 +321,18 @@ public:
   // Apply id as a color.
   void ApplyId(vtkIdType id);
 
+  // Description:
+  // Float to int conversion, performs truncation but with a rounding
+  // tolerance for float values that are within 1/256 of their closest
+  // integer.
+  static int FloatToInt(float x);
+
 //BTX
 protected:
   vtkContext2D();
   ~vtkContext2D();
 
   vtkContextDevice2D *Device; // The underlying device
-  vtkPen *Pen;                // Outlining
-  vtkBrush *Brush;            // Fills
-  vtkTextProperty *TextProp;  // Text property
   vtkTransform2D *Transform;  // Current transform
 
   vtkAbstractContextBufferId *BufferId;
@@ -333,18 +342,25 @@ private:
   void operator=(const vtkContext2D &);   // Not implemented.
 
   // Description:
-  // Apply the pen settings to the context
-  void ApplyPen();
-
-  // Description:
-  // Apply the brush settings to the context
-  void ApplyBrush();
-
-  // Description:
   // Calculate position of text for rendering in a rectangle.
   vtkVector2f CalculateTextPosition(vtkPoints2D* rect);
 
 //ETX
 };
+
+inline int vtkContext2D::FloatToInt(float x)
+{
+  // Use a tolerance of 1/256 of a pixel when converting.
+  // A float has only 24 bits of precision, so we cannot
+  // make the tolerance too small.  For example, a tolerance
+  // of 2^-8 means that the tolerance will be significant
+  // for float values up to 2^16 or 65536.0.  But a
+  // tolerance of 2^-16 would only be significant for
+  // float values up to 2^8 or 256.0.  A small tolerance
+  // disappears into insignificance when added to a large float.
+  float tol = 0.00390625; // 1.0/256.0
+  tol = (x >= 0 ? tol : -tol);
+  return static_cast<int>(x + tol);
+}
 
 #endif //__vtkContext2D_h

@@ -161,8 +161,24 @@ ENDIF(NOT LIBRARY_OUTPUT_PATH)
 IF(NOT EXECUTABLE_OUTPUT_PATH)
   SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
 ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
-SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
-SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+
+#-----------------------------------------------------------------------------
+# Directories with the configuration subdir, for advanced use only.
+# These are only used when passing arguments to custom commands,
+# or when writing config files for use by external projects.
+# In other circumstances, the build system will handle the config
+# subdirectory automatically.
+
+IF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+  SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})
+  SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH})
+ELSE("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+  SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+  SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+
+#-----------------------------------------------------------------------------
+# Where the cxx tests are, for use in ADD_TEST
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
 #-----------------------------------------------------------------------------
@@ -1121,12 +1137,7 @@ IF(VTK_IGNORE_BTX)
 IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
   # CMake macro
   INCLUDE(vtkWrapHierarchy)
-  # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
 ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
 ENDIF(VTK_IGNORE_BTX)
 
@@ -1134,13 +1145,8 @@ ENDIF(VTK_IGNORE_BTX)
 # Configure Tcl wrapping support, setup executables
 IF(VTK_WRAP_TCL)
   # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
-    SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_TCL_EXE      vtkWrapTcl     LOCATION)
-    GET_TARGET_PROPERTY(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
+  SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
 
   # VTK tcl executables.
   SET(VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)
@@ -1158,22 +1164,8 @@ ENDIF(VTK_WRAP_TCL)
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support, setup the wrapper executables
 IF(VTK_WRAP_PYTHON)
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-    SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_EXE vtkWrapPython LOCATION)
-    GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
-
-  # Save these in cache as other projects including VTK (such as ParaView) may
-  # want to use these.
-  SET(VTK_WRAP_PYTHON_EXE
-    "${VTK_WRAP_PYTHON_EXE}"
-    CACHE INTERNAL "Location of program to do Python wrapping")
-  SET(VTK_WRAP_PYTHON_INIT_EXE
-    "${VTK_WRAP_PYTHON_INIT_EXE}"
-    CACHE INTERNAL "Location of program to do Python wrapping")
+  SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
+  SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
 
   # VTK python executables.
   SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
@@ -1187,13 +1179,8 @@ ENDIF(VTK_WRAP_PYTHON)
 # Configure Java wrapping support, setup executables
 IF(VTK_WRAP_JAVA)
   # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-    SET(VTK_PARSE_JAVA_EXE vtkParseJava)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_JAVA_EXE  vtkWrapJava  LOCATION)
-    GET_TARGET_PROPERTY(VTK_PARSE_JAVA_EXE vtkParseJava LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
+  SET(VTK_PARSE_JAVA_EXE vtkParseJava)
 
   # Java package location.
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
@@ -1202,6 +1189,10 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
+
+#-----------------------------------------------------------------------------
+# Set the encoder for shader programs
+SET(VTK_ENCODESTRING_EXE vtkEncodeString)
 
 #-----------------------------------------------------------------------------
 # Add the option to use Boost

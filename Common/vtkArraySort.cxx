@@ -25,20 +25,20 @@ vtkArraySort::vtkArraySort()
 {
 }
 
-vtkArraySort::vtkArraySort(vtkIdType i) :
+vtkArraySort::vtkArraySort(DimensionT i) :
   Storage(1)
 {
   this->Storage[0] = i;
 }
 
-vtkArraySort::vtkArraySort(vtkIdType i, vtkIdType j) :
+vtkArraySort::vtkArraySort(DimensionT i, DimensionT j) :
   Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
 
-vtkArraySort::vtkArraySort(vtkIdType i, vtkIdType j, vtkIdType k) :
+vtkArraySort::vtkArraySort(DimensionT i, DimensionT j, DimensionT k) :
   Storage(3)
 {
   this->Storage[0] = i;
@@ -46,22 +46,22 @@ vtkArraySort::vtkArraySort(vtkIdType i, vtkIdType j, vtkIdType k) :
   this->Storage[2] = k;
 }
 
-vtkIdType vtkArraySort::GetDimensions() const
+vtkArraySort::DimensionT vtkArraySort::GetDimensions() const
 {
   return this->Storage.size();
 }
 
-void vtkArraySort::SetDimensions(vtkIdType dimensions)
+void vtkArraySort::SetDimensions(DimensionT dimensions)
 {
   this->Storage.assign(dimensions, 0);
 }
 
-vtkIdType& vtkArraySort::operator[](vtkIdType i)
+vtkArraySort::DimensionT& vtkArraySort::operator[](DimensionT i)
 {
   return this->Storage[i];
 }
 
-const vtkIdType& vtkArraySort::operator[](vtkIdType i) const
+const vtkArraySort::DimensionT& vtkArraySort::operator[](DimensionT i) const
 {
   return this->Storage[i];
 }
@@ -78,13 +78,12 @@ bool vtkArraySort::operator!=(const vtkArraySort& rhs) const
 
 ostream& operator<<(ostream& stream, const vtkArraySort& rhs)
 {
-  for(vtkIdType i = 0; i != rhs.GetDimensions(); ++i)
+  for(vtkArraySort::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
     {
     if(i)
       stream << ",";
     stream << rhs[i];
     }
-  
+
   return stream;
 }
-

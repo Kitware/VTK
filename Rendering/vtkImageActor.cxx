@@ -43,7 +43,7 @@ vtkImageActor::vtkImageActor()
   this->DisplayExtent[2] = 0;
   this->DisplayExtent[3] = 0;
   this->DisplayExtent[4] = 0;
-  this->DisplayExtent[5] = 0;  
+  this->DisplayExtent[5] = 0;
   this->ComputedDisplayExtent[0] = 0;
   this->ComputedDisplayExtent[1] = 0;
   this->ComputedDisplayExtent[2] = 0;
@@ -132,7 +132,7 @@ int vtkImageActor::GetSliceNumberMin()
 void vtkImageActor::SetDisplayExtent(int extent[6])
 {
   int idx, modified = 0;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     if (this->DisplayExtent[idx] != extent[idx])
@@ -152,12 +152,12 @@ void vtkImageActor::SetDisplayExtent(int extent[6])
     }
 }
 //----------------------------------------------------------------------------
-void vtkImageActor::SetDisplayExtent(int minX, int maxX, 
+void vtkImageActor::SetDisplayExtent(int minX, int maxX,
                                      int minY, int maxY,
                                      int minZ, int maxZ)
 {
   int extent[6];
-  
+
   extent[0] = minX;  extent[1] = maxX;
   extent[2] = minY;  extent[3] = maxY;
   extent[4] = minZ;  extent[5] = maxZ;
@@ -169,7 +169,7 @@ void vtkImageActor::SetDisplayExtent(int minX, int maxX,
 void vtkImageActor::GetDisplayExtent(int extent[6])
 {
   int idx;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->DisplayExtent[idx];
@@ -333,7 +333,7 @@ double *vtkImageActor::GetDisplayBounds()
     this->DisplayBounds[5] =
       this->ComputedDisplayExtent[4]*spacing[2] + origin[2];
     }
-  
+
   return this->DisplayBounds;
 }
 
@@ -352,7 +352,7 @@ double *vtkImageActor::GetBounds()
 {
   int i,n;
   double *bounds, bbox[24], *fptr;
-  
+
   bounds = this->GetDisplayBounds();
   // Check for the special case when the data bounds are unknown
   if (!bounds)
@@ -369,21 +369,21 @@ double *vtkImageActor::GetBounds()
   bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
   bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
   bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
-  
+
   // save the old transform
   this->Transform->Push();
   this->Transform->SetMatrix(this->GetMatrix());
 
   // and transform into actors coordinates
   fptr = bbox;
-  for (n = 0; n < 8; n++) 
+  for (n = 0; n < 8; n++)
     {
     this->Transform->TransformPoint(fptr,fptr);
     fptr += 3;
     }
-  
-  this->Transform->Pop();  
-  
+
+  this->Transform->Pop();
+
   // now calc the new bounds
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
@@ -413,7 +413,7 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Opacity: " << this->Opacity << "\n";
 
-  int idx;  
+  int idx;
   os << indent << "DisplayExtent: (" << this->DisplayExtent[0];
   for (idx = 1; idx < 6; ++idx)
     {
@@ -426,7 +426,7 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 int vtkImageActor::GetWholeZMin()
 {
   int *extent;
-  
+
   if ( ! this->GetInput())
     {
     return 0;
@@ -440,7 +440,7 @@ int vtkImageActor::GetWholeZMin()
 int vtkImageActor::GetWholeZMax()
 {
   int *extent;
-  
+
   if ( ! this->GetInput())
     {
     return 0;
@@ -452,20 +452,20 @@ int vtkImageActor::GetWholeZMax()
 
 void vtkImageActor::SetInput(vtkImageData *args)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this         
-  << "): setting Input to " << args );     
-  if (this->Input != args)                                       
-    {                                                           
-    if (this->Input != NULL) 
-      { 
-      this->Input->UnRegister(this); 
-      }   
-    this->Input = args;                                          
-    if (this->Input != NULL) 
-      { 
-      this->Input->Register(this); 
-      }     
-    this->Modified();                                           
-    }                                                           
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+  << "): setting Input to " << args );
+  if (this->Input != args)
+    {
+    if (this->Input != NULL)
+      {
+      this->Input->UnRegister(this);
+      }
+    this->Input = args;
+    if (this->Input != NULL)
+      {
+      this->Input->Register(this);
+      }
+    this->Modified();
+    }
 }
 

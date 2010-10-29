@@ -185,7 +185,7 @@ protected:
   // integer (to the left of the binary point), can not exceeds the number of
   // bits in the current precision mode. Thus, in selecting the tie-breaker
   // value, we select the largest number of bits to the right of the binary
-  // point as possible while still maintining that inequality. Thus, extended
+  // point as possible while still maintaining that inequality. Thus, extended
   // precision mode allows a larger number of bits to the right of the binary
   // point.  This, in turn, implies a smaller value of the tie-breaker. And a
   // smaller tie-breaker will impose a tighter window on the range of values

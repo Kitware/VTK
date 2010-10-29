@@ -498,6 +498,16 @@ int vtkRenderedGraphRepresentation::GetVertexSelectedIcon()
   return this->ApplyVertexIcons->GetSelectedIcon();
 }
 
+void vtkRenderedGraphRepresentation::SetVertexDefaultIcon(int icon)
+{
+  this->ApplyVertexIcons->SetDefaultIcon(icon);
+}
+
+int vtkRenderedGraphRepresentation::GetVertexDefaultIcon()
+{
+  return this->ApplyVertexIcons->GetDefaultIcon();
+}
+
 void vtkRenderedGraphRepresentation::SetVertexIconSelectionMode(int mode)
 {
   this->ApplyVertexIcons->SetSelectionMode(mode);
@@ -1017,7 +1027,8 @@ void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
       this->VertexIconActor->GetTexture()->GetInput())
     {
     this->VertexIconGlyph->SetIconSize(view->GetIconSize());
-    this->VertexIconGlyph->SetUseIconSize(true);
+    this->VertexIconGlyph->SetDisplaySize(view->GetDisplaySize());
+    this->VertexIconGlyph->SetUseIconSize(false);
     this->VertexIconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
     this->VertexIconActor->GetTexture()->GetInput()->Update();
     int* dim = this->VertexIconActor->GetTexture()->GetInput()->GetDimensions();

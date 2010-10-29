@@ -39,6 +39,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDecimatePolylineFilter.cxx
     )
 
+  IF(VTK_USE_BOOST)
+    SET(MyTests
+      ${MyTests}
+      TestReebGraph.cxx
+      )
+  ENDIF(VTK_USE_BOOST)
+
   # Add Matlab Engine and Matlab Mex related tests.
   IF(VTK_USE_MATLAB_MEX)
     INCLUDE(${MATLAB_MEX_USE_FILE})
@@ -63,6 +70,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       BoxClipPolyData.cxx
       BoxClipTetrahedra.cxx
       BoxClipTriangulateAndInterpolate.cxx
+      MeshQuality.cxx
       TestActor2DTextures.cxx
       TestArrayCalculator.cxx
       TestGradientAndVorticity.cxx
@@ -76,11 +84,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       UnstructuredGridCellGradients.cxx
       UnstructuredGridFastGradients.cxx
       )
-    IF (VTK_USE_VERDICT)
-      SET(MyTests ${MyTests}
-        MeshQuality.cxx
-        )
-    ENDIF (VTK_USE_VERDICT)
     IF (VTK_USE_PARALLEL)
       SET(MyTests ${MyTests}
         TemporalStatistics.cxx

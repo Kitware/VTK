@@ -51,6 +51,11 @@ public:
   void SetColumnVisibility(const char* name, bool visible);
 
   // Description:
+  // Set the visibility of all columns (true will make them all visible, false
+  // will remove all visible columns).
+  void SetColumnVisibilityAll(bool visible);
+
+  // Description:
   // Get the visibility of the specified column.
   bool GetColumnVisibility(const char* name);
 

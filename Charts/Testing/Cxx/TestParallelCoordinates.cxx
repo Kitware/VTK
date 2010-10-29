@@ -29,7 +29,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestParallelCoordinates(int argc, char* argv[])
+int TestParallelCoordinates(int , char* [])
 {
   // Set up a 2D scene, add an XY chart to it
   VTK_CREATE(vtkContextView, view);
@@ -67,14 +67,7 @@ int TestParallelCoordinates(int argc, char* argv[])
   chart->GetPlot(0)->SetInput(table);
 
   view->GetRenderWindow()->SetMultiSamples(0);
-  //Finally render the scene and compare the image to a reference image
-  //int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 25);
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
-
-  return !retVal;
+  view->GetInteractor()->Initialize();
+  view->GetInteractor()->Start();
+  return EXIT_SUCCESS;
 }

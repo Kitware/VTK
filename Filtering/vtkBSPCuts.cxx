@@ -54,6 +54,20 @@ vtkBSPCuts::~vtkBSPCuts()
 
   this->ResetArrays();
 }
+
+//----------------------------------------------------------------------------
+void vtkBSPCuts::Initialize()
+{
+  if (this->Top)
+    {
+    vtkBSPCuts::DeleteAllDescendants(this->Top);
+    this->Top->Delete();
+    this->Top = NULL;
+    }
+  this->ResetArrays();
+  this->Superclass::Initialize();
+}
+
 //----------------------------------------------------------------------------
 void vtkBSPCuts::ResetArrays()
 {
@@ -128,7 +142,54 @@ void vtkBSPCuts::DeleteAllDescendants(vtkKdNode *nd)
     left->Delete();           // undo vtkKdNode::New()
     right->Delete();
     }
-} 
+}
+
+
+//----------------------------------------------------------------------------
+void vtkBSPCuts::ShallowCopy(vtkDataObject* src)
+{
+  this->Superclass::ShallowCopy(src);
+  vtkBSPCuts* srcCuts = vtkBSPCuts::SafeDownCast(src);
+
+  this->ResetArrays();
+  if (this->Top)
+    {
+    vtkBSPCuts::DeleteAllDescendants(this->Top);
+    this->Top->Delete();
+    this->Top = NULL;
+    }
+
+  if (srcCuts)
+    {
+    if (srcCuts->Top)
+      {
+      this->CreateCuts(srcCuts->Top);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkBSPCuts::DeepCopy(vtkDataObject* src)
+{
+  this->Superclass::DeepCopy(src);
+  this->ResetArrays();
+  if (this->Top)
+    {
+    vtkBSPCuts::DeleteAllDescendants(this->Top);
+    this->Top->Delete();
+    this->Top = NULL;
+    }
+
+  vtkBSPCuts* srcCuts = vtkBSPCuts::SafeDownCast(src);
+  if (srcCuts)
+    {
+    if (srcCuts->Top)
+      {
+      this->CreateCuts(srcCuts->Top);
+      }
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkBSPCuts::CreateCuts(vtkKdNode *kd)
 {
@@ -526,7 +587,17 @@ void vtkBSPCuts::_PrintTree(vtkKdNode *kd, int depth)
 }
 
 //----------------------------------------------------------------------------
+vtkBSPCuts* vtkBSPCuts::GetData(vtkInformation* info)
+{
+  return vtkBSPCuts::SafeDownCast(vtkDataObject::GetData(info));
+}
+//----------------------------------------------------------------------------
+vtkBSPCuts* vtkBSPCuts::GetData(vtkInformationVector* v, int i)
+{
+  return vtkBSPCuts::SafeDownCast(vtkDataObject::GetData(v, i));
+}
 
+//----------------------------------------------------------------------------
 void vtkBSPCuts::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os,indent);

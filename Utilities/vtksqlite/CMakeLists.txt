@@ -16,12 +16,13 @@
 # from the beginning of vtk_sqlite3.c.  
 #
 
+PROJECT(VTKSQLite)
 
 SET( SQLite_SRCS
      vtk_sqlite3.c
 )
 
-INCLUDE_DIRECTORIES( ${VTKSNL_SOURCE_DIR}/Utilities/vtksqlite )
+INCLUDE_DIRECTORIES( ${VTKSQLite_SOURCE_DIR}/Utilities/vtksqlite )
 
 # You really, really want this library to be statically linked on
 # Windows.

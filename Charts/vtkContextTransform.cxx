@@ -76,70 +76,19 @@ vtkTransform2D* vtkContextTransform::GetTransform()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::Hit(const vtkContextMouseEvent &mouse)
+vtkVector2f vtkContextTransform::MapToParent(const vtkVector2f& point)
 {
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::Hit(event);
+  vtkVector2f p;
+  this->Transform->TransformPoints(point.GetData(), p.GetData(), 1);
+  return p;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+vtkVector2f vtkContextTransform::MapFromParent(const vtkVector2f& point)
 {
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::MouseEnterEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
-{
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::MouseMoveEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
-{
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::MouseLeaveEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
-{
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::MouseButtonPressEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
-{
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::MouseButtonReleaseEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse,
-                                             int delta)
-{
-  vtkContextMouseEvent event = mouse;
-  this->TransformMouse(mouse, event);
-  return this->Superclass::MouseWheelEvent(event, delta);
-}
-
-//-----------------------------------------------------------------------------
-inline void vtkContextTransform::TransformMouse(const vtkContextMouseEvent &mouse,
-                                                vtkContextMouseEvent &event)
-{
-  this->Transform->InverseTransformPoints(mouse.Pos.GetData(),
-                                          event.Pos.GetData(), 1);
-  this->Transform->InverseTransformPoints(mouse.LastPos.GetData(),
-                                          event.LastPos.GetData(), 1);
+  vtkVector2f p;
+  this->Transform->InverseTransformPoints(point.GetData(), p.GetData(), 1);
+  return p;
 }
 
 //-----------------------------------------------------------------------------

@@ -13,11 +13,24 @@
 #include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPCAStatistics.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
 
 #include "vtksys/SystemTools.hxx"
+
+// Perform a fuzzy compare of floats/doubles
+template<class A>
+bool fuzzyCompare(A a, A b) {
+//  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+  return fabs(a - b) < .0001;
+}
+
+namespace //anonymous
+{
+bool TestEigen();
+}
 
 //=============================================================================
 int TestPCAStatistics( int argc, char* argv[] )
@@ -230,5 +243,140 @@ int TestPCAStatistics( int argc, char* argv[] )
   pcas->Delete();
   delete [] normScheme;
 
+  if(TestEigen() == EXIT_FAILURE)
+    {
+    return EXIT_FAILURE;
+    }
+
   return testStatus;
 }
+
+
+namespace //anonymous
+{
+bool TestEigen()
+{
+  const char m0Name[] = "M0";
+  vtkSmartPointer<vtkDoubleArray> dataset1Arr =
+      vtkSmartPointer<vtkDoubleArray>::New();
+  dataset1Arr->SetNumberOfComponents( 1 );
+  dataset1Arr->SetName( m0Name );
+  dataset1Arr->InsertNextValue(0);
+  dataset1Arr->InsertNextValue(1);
+  dataset1Arr->InsertNextValue(0);
+
+  const char m1Name[] = "M1";
+  vtkSmartPointer<vtkDoubleArray> dataset2Arr =
+      vtkSmartPointer<vtkDoubleArray>::New();
+  dataset2Arr->SetNumberOfComponents( 1 );
+  dataset2Arr->SetName( m1Name );
+  dataset2Arr->InsertNextValue(0);
+  dataset2Arr->InsertNextValue(0);
+  dataset2Arr->InsertNextValue(1);
+
+  const char m2Name[] = "M2";
+  vtkSmartPointer<vtkDoubleArray> dataset3Arr =
+      vtkSmartPointer<vtkDoubleArray>::New();
+  dataset3Arr->SetNumberOfComponents( 1 );
+  dataset3Arr->SetName( m2Name );
+  dataset3Arr->InsertNextValue(0);
+  dataset3Arr->InsertNextValue(0);
+  dataset3Arr->InsertNextValue(0);
+
+  vtkSmartPointer<vtkTable> datasetTable =
+      vtkSmartPointer<vtkTable>::New();
+  datasetTable->AddColumn( dataset1Arr );
+  datasetTable->AddColumn( dataset2Arr );
+  datasetTable->AddColumn( dataset3Arr );
+
+  vtkSmartPointer<vtkPCAStatistics> pcaStatistics =
+      vtkSmartPointer<vtkPCAStatistics>::New();
+  pcaStatistics->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+
+  pcaStatistics->SetColumnStatus("M0", 1 );
+  pcaStatistics->SetColumnStatus("M1", 1 );
+  pcaStatistics->SetColumnStatus("M2", 1 );
+  pcaStatistics->RequestSelectedColumns();
+
+  pcaStatistics->SetDeriveOption( true );
+
+  pcaStatistics->Update();
+
+  vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS =
+    vtkMultiBlockDataSet::SafeDownCast(
+        pcaStatistics->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
+  vtkSmartPointer<vtkTable> outputMeta =
+    vtkTable::SafeDownCast(outputMetaDS->GetBlock(1));
+
+  outputMeta->Dump();
+
+  ///////// Eigenvalues ////////////
+  vtkSmartPointer<vtkDoubleArray> eigenvalues =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  pcaStatistics->GetEigenvalues(eigenvalues);
+  double eigenvaluesGroundTruth[3] = {.5, .166667, 0};
+  for(vtkIdType i = 0; i < eigenvalues->GetNumberOfTuples(); i++)
+    {
+    std::cout << "Eigenvalue " << i << " = " << eigenvalues->GetValue(i) << std::endl;
+    if(!fuzzyCompare(eigenvalues->GetValue(i), eigenvaluesGroundTruth[i]))
+       {
+       std::cerr << "Eigenvalues (GetEigenvalues) are not correct! (" << eigenvalues->GetValue(i)
+                 << " vs " << eigenvaluesGroundTruth[i] << ")" << std::endl;
+       return EXIT_FAILURE;
+       }
+
+    if(!fuzzyCompare(pcaStatistics->GetEigenvalue(i), eigenvaluesGroundTruth[i]) )
+       {
+       std::cerr << "Eigenvalues (GetEigenvalue) are not correct! (" << pcaStatistics->GetEigenvalue(i)
+                 << " vs " << eigenvaluesGroundTruth[i] << ")" << std::endl;
+       return EXIT_FAILURE;
+       }
+    }
+
+  std::vector<std::vector<double> > eigenvectorsGroundTruth;
+  std::vector<double> e0(3);
+  e0[0] = -.707107;
+  e0[1] = .707107;
+  e0[2] = 0;
+  std::vector<double> e1(3);
+  e1[0] = .707107;
+  e1[1] = .707107;
+  e1[2] = 0;
+  std::vector<double> e2(3);
+  e2[0] = 0;
+  e2[1] = 0;
+  e2[2] = 1;
+  eigenvectorsGroundTruth.push_back(e0);
+  eigenvectorsGroundTruth.push_back(e1);
+  eigenvectorsGroundTruth.push_back(e2);
+
+  vtkSmartPointer<vtkDoubleArray> eigenvectors =
+    vtkSmartPointer<vtkDoubleArray>::New();
+
+  pcaStatistics->GetEigenvectors(eigenvectors);
+  for(vtkIdType i = 0; i < eigenvectors->GetNumberOfTuples(); i++)
+    {
+    std::cout << "Eigenvector " << i << " : ";
+    double* evec = new double[eigenvectors->GetNumberOfComponents()];
+    eigenvectors->GetTuple(i, evec);
+    for(vtkIdType j = 0; j < eigenvectors->GetNumberOfComponents(); j++)
+      {
+      std::cout << evec[j] << " ";
+      vtkSmartPointer<vtkDoubleArray> eigenvectorSingle =
+        vtkSmartPointer<vtkDoubleArray>::New();
+      pcaStatistics->GetEigenvector(i, eigenvectorSingle);
+      if(!fuzzyCompare(eigenvectorsGroundTruth[i][j], evec[j]) ||
+         !fuzzyCompare(eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j)) )
+         {
+         std::cerr << "Eigenvectors do not match!" << std::endl;
+         return EXIT_FAILURE;
+         }
+      }
+    delete evec;
+    std::cout << std::endl;
+    }
+
+  return EXIT_SUCCESS;
+}
+} //end anonymous namespace

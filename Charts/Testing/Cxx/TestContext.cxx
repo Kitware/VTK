@@ -42,7 +42,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestContext( int argc, char * argv [] )
+int TestContext( int, char * [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
@@ -56,15 +56,9 @@ int TestContext( int argc, char * argv [] )
       ->SetStringRendererToFreeType();
 
   view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetRenderWindow()->Render();
-
-  int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
-    }
-  return !retVal;
+  view->GetInteractor()->Initialize();
+  view->GetInteractor()->Start();
+  return EXIT_SUCCESS;
 }
 
 // Make our new derived class to draw a diagram

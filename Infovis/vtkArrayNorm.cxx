@@ -136,7 +136,7 @@ int vtkArrayNorm::RequestData(
       output_array->SetValue(coordinates[vector_dimension], output_array->GetValue(coordinates[vector_dimension]) + pow(input_array->GetValueN(n), this->L));
       }
 
-    for(vtkIdType n = 0; n != output_array->GetNonNullSize(); ++n)
+    for(vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
       {
       output_array->SetValueN(n, pow(output_array->GetValueN(n), 1.0 / this->L));
       }
@@ -144,7 +144,7 @@ int vtkArrayNorm::RequestData(
     // Optionally invert the output vector
     if(this->Invert)
       {
-      for(vtkIdType n = 0; n != output_array->GetNonNullSize(); ++n)
+      for(vtkArray::SizeT n = 0; n != output_array->GetNonNullSize(); ++n)
         {
         if(output_array->GetValueN(n))
           output_array->SetValueN(n, 1.0 / output_array->GetValueN(n));

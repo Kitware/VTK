@@ -63,7 +63,7 @@ void ExtractValue(istream& stream, vtkUnicodeString& value)
   value = vtkUnicodeString::from_utf8(buffer);
 }
 
-void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non_null_size, vtkArray* array)
+void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkArrayExtents::SizeT& non_null_size, vtkArray* array)
 {
   if(!array)
     throw vtkstd::runtime_error("Missing array.");
@@ -78,17 +78,17 @@ void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non_null_s
   vtkstd::getline(stream, extents_string);
   vtkstd::istringstream extents_buffer(extents_string);
 
-  vtkIdType extent;
-  vtkstd::vector<vtkIdType> temp_extents;
+  vtkArrayExtents::CoordinateT extent;
+  vtkstd::vector<vtkArrayExtents::CoordinateT> temp_extents;
   for(extents_buffer >> extent; extents_buffer; extents_buffer >> extent)
     temp_extents.push_back(extent);
 
   extents.SetDimensions(0);
   while(temp_extents.size() > 1)
     {
-    const vtkIdType begin = temp_extents.front();
+    const vtkArrayExtents::CoordinateT begin = temp_extents.front();
     temp_extents.erase(temp_extents.begin());
-    const vtkIdType end = temp_extents.front();
+    const vtkArrayExtents::CoordinateT end = temp_extents.front();
     temp_extents.erase(temp_extents.begin());
     extents.Append(vtkArrayRange(begin, end));
     }
@@ -104,7 +104,7 @@ void ReadHeader(istream& stream, vtkArrayExtents& extents, vtkIdType& non_null_s
   array->Resize(extents);
 
   // Load dimension-labels ...
-  for(vtkIdType i = 0; i != extents.GetDimensions(); ++i)
+  for(vtkArrayExtents::DimensionT i = 0; i != extents.GetDimensions(); ++i)
     {
     vtkstd::string label;
     vtkstd::getline(stream, label);
@@ -131,7 +131,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   bool swap_endian = false;
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
@@ -146,11 +146,11 @@ vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
   // Read array coordinates ...
   array->ReserveStorage(non_null_size);
 
-  for(vtkIdType i = 0; i != array->GetDimensions(); ++i)
+  for(vtkArray::DimensionT i = 0; i != array->GetDimensions(); ++i)
     {
     stream.read(
       reinterpret_cast<char*>(array->GetCoordinateStorage(i)),
-      non_null_size * sizeof(vtkIdType));
+      non_null_size * sizeof(vtkArray::CoordinateT));
     }
 
   // Read array values ...
@@ -158,7 +158,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
     reinterpret_cast<char*>(array->GetValueStorage()),
     non_null_size * sizeof(ValueT));
 
-  array->Register(0); 
+  array->Register(0);
   return array;
 }
 
@@ -170,7 +170,7 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   bool swap_endian = false;
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
@@ -193,21 +193,21 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
   // Read array coordinates ...
   array->ReserveStorage(non_null_size);
 
-  for(vtkIdType i = 0; i != array->GetDimensions(); ++i)
+  for(vtkArray::DimensionT i = 0; i != array->GetDimensions(); ++i)
     {
     stream.read(
       reinterpret_cast<char*>(array->GetCoordinateStorage(i)),
-      non_null_size * sizeof(vtkIdType));
+      non_null_size * sizeof(vtkArray::CoordinateT));
     }
 
   // Read array values ...
   vtkstd::string buffer;
-  vtkIdType index = 0;
+  vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
     {
     if(character == 0)
       {
-      array->SetValueN(index++, buffer);
+      array->SetValueN(n++, buffer);
       buffer.resize(0);
       }
     else
@@ -228,7 +228,7 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   bool swap_endian = false;
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
@@ -251,21 +251,21 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
   // Read array coordinates ...
   array->ReserveStorage(non_null_size);
 
-  for(vtkIdType i = 0; i != array->GetDimensions(); ++i)
+  for(vtkArray::DimensionT i = 0; i != array->GetDimensions(); ++i)
     {
     stream.read(
       reinterpret_cast<char*>(array->GetCoordinateStorage(i)),
-      non_null_size * sizeof(vtkIdType));
+      non_null_size * sizeof(vtkArray::CoordinateT));
     }
 
   // Read array values ...
   vtkstd::string buffer;
-  vtkIdType index = 0;
+  vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
     {
     if(character == 0)
       {
-      array->SetValueN(index++, vtkUnicodeString::from_utf8(buffer));
+      array->SetValueN(n++, vtkUnicodeString::from_utf8(buffer));
       buffer.resize(0);
       }
     else
@@ -286,7 +286,7 @@ vtkDenseArray<ValueT>* ReadDenseArrayBinary(istream& stream)
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   bool swap_endian = false;
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
@@ -308,19 +308,19 @@ vtkDenseArray<vtkStdString>* ReadDenseArrayBinary<vtkStdString>(istream& stream)
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   bool swap_endian = false;
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
 
   // Read array values ...
   vtkstd::string buffer;
-  vtkIdType index = 0;
+  vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
     {
     if(character == 0)
       {
-      array->SetValueN(index++, buffer);
+      array->SetValueN(n++, buffer);
       buffer.resize(0);
       }
     else
@@ -341,19 +341,19 @@ vtkDenseArray<vtkUnicodeString>* ReadDenseArrayBinary<vtkUnicodeString>(istream&
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   bool swap_endian = false;
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
 
   // Read array values ...
   vtkstd::string buffer;
-  vtkIdType index = 0;
+  vtkArray::SizeT n = 0;
   for(int character = stream.get(); stream; character = stream.get())
     {
     if(character == 0)
       {
-      array->SetValueN(index++, vtkUnicodeString::from_utf8(buffer));
+      array->SetValueN(n++, vtkUnicodeString::from_utf8(buffer));
       buffer.resize(0);
       }
     else
@@ -374,7 +374,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 
   // Read the stream header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   ReadHeader(stream, extents, non_null_size, array);
 
   if(non_null_size > extents.GetSize())
@@ -395,13 +395,13 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 
   // Setup storage for the stream contents ...
   array->ReserveStorage(non_null_size);
-  vtkstd::vector<vtkIdType*> coordinates(array->GetDimensions());
-  for(vtkIdType j = 0; j != array->GetDimensions(); ++j)
+  vtkstd::vector<vtkArray::CoordinateT*> coordinates(array->GetDimensions());
+  for(vtkArray::DimensionT j = 0; j != array->GetDimensions(); ++j)
     coordinates[j] = array->GetCoordinateStorage(j);
   ValueT* value = array->GetValueStorage();
 
   // Read the stream contents ...
-  vtkIdType value_count = 0;
+  vtkArray::SizeT value_count = 0;
   for(vtkstd::getline(stream, line_buffer); stream; vtkstd::getline(stream, line_buffer), ++value_count)
     {
     if(value_count + 1 > non_null_size)
@@ -409,8 +409,8 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 
     line_stream.clear();
     line_stream.str(line_buffer);
- 
-    for(vtkIdType j = 0; j != array->GetDimensions(); ++j)
+
+    for(vtkArray::DimensionT j = 0; j != array->GetDimensions(); ++j)
       {
       line_stream >> *(coordinates[j] + value_count);
       if(!extents[j].Contains(*(coordinates[j] + value_count)))
@@ -428,7 +428,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
   if(value_count != non_null_size)
     throw vtkstd::runtime_error("Stream doesn't contain enough values.");
 
-  array->Register(0); 
+  array->Register(0);
   return array;
 }
 
@@ -440,7 +440,7 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
 
   // Read the file header ...
   vtkArrayExtents extents;
-  vtkIdType non_null_size = 0;
+  vtkArrayExtents::SizeT non_null_size = 0;
   ReadHeader(stream, extents, non_null_size, array);
 
   if(non_null_size != extents.GetSize())
@@ -448,7 +448,7 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
 
   // Read the file contents ...
   ValueT value;
-  vtkIdType n = 0;
+  vtkArray::SizeT n = 0;
   vtkArrayCoordinates coordinates;
   for(ExtractValue(stream, value); stream; ExtractValue(stream, value), ++n)
     {
@@ -462,7 +462,7 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
   if(n != non_null_size)
     throw vtkstd::runtime_error("Stream doesn't contain enough values.");
 
-  array->Register(0); 
+  array->Register(0);
   return array;
 }
 
@@ -482,13 +482,13 @@ vtkArrayReader::~vtkArrayReader()
 void vtkArrayReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " 
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
 int vtkArrayReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   try
@@ -522,7 +522,7 @@ vtkArray* vtkArrayReader::Read(istream& stream)
   try
     {
     // Read enough of the file header to identify the type ...
-    vtkstd::string header_string; 
+    vtkstd::string header_string;
     vtkstd::getline(stream, header_string);
     vtkstd::istringstream header_buffer(header_string);
 
@@ -602,8 +602,6 @@ vtkArray* vtkArrayReader::Read(istream& stream)
     {
     vtkGenericWarningMacro(<< e.what());
     }
-      
+
   return 0;
 }
-
-

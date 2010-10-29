@@ -236,6 +236,10 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->HSVWrap = 1; //By default HSV will be wrap
 
   this->Scale = VTK_CTF_LINEAR;
+
+  this->NanColor[0] = 0.5;
+  this->NanColor[1] = 0.0;
+  this->NanColor[2] = 0.0;
   
   this->Function = NULL;
 
@@ -621,6 +625,23 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
                                          int size, double* table )
 {
   int i, j;
+
+  // Special case: If either the start or end is a NaN, then all any
+  // interpolation done on them is also a NaN.  Therefore, fill the table with
+  // the NaN color.
+  if (vtkMath::IsNan(xStart) || vtkMath::IsNan(xEnd))
+    {
+    double *tableEntry = table;
+    for (i = 0; i < size; i++)
+      {
+      tableEntry[0] = this->NanColor[0];
+      tableEntry[1] = this->NanColor[1];
+      tableEntry[2] = this->NanColor[2];
+      tableEntry += 3;
+      }
+    return;
+    }
+
   int idx = 0;
   int numNodes = static_cast<int>(this->Internal->Nodes.size());
   
@@ -1567,6 +1588,10 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
      << this->Range[1] << endl;
 
   os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars << endl;
+
+  os << indent << "NanColor: "
+     << this->NanColor[0] << ", " << this->NanColor[1] << ", "
+     << this->NanColor[2] << endl;
 
   unsigned int i;
   for( i = 0; i < this->Internal->Nodes.size(); i++ )

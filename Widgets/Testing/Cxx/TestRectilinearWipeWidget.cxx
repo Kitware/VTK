@@ -32,7 +32,6 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkCommand.h"
-#include "vtkDebugLeaks.h"
 
 const char eventLog[] =
 "# StreamVersion 1\n"

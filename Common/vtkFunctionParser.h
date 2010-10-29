@@ -20,12 +20,18 @@
 //
 // You can use the "if" operator to create conditional expressions
 // such as if ( test, trueresult, falseresult). These evaluate the boolean
-// valued test expression and then evaluate either the trueresult or the 
+// valued test expression and then evaluate either the trueresult or the
 // falseresult expression to produce a final (scalar or vector valued) value.
 // "test" may contain <,>,=,|,&, and () and all three subexpressions can
 // evaluate arbitrary function operators (ln, cos, +, if, etc)
 //
 // .SECTION Thanks
+// Juha Nieminen (juha.nieminen@gmail.com) for relicensing this branch of the
+// function parser code that this class is based upon under the new BSD license
+// so that it could be used in VTK. Note, the BSD license applies to this
+// version of the function parser only (by permission of the author), and not
+// the original library.
+//
 // Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
 // two-parameter-parsing and a few functions (sign, min, max).
 //
@@ -52,8 +58,8 @@
 #define VTK_PARSER_FLOOR 11
 #define VTK_PARSER_LOGARITHM 12
 #define VTK_PARSER_LOGARITHME 13
-#define VTK_PARSER_LOGARITHM10 14 
-#define VTK_PARSER_SQUARE_ROOT 15 
+#define VTK_PARSER_LOGARITHM10 14
+#define VTK_PARSER_SQUARE_ROOT 15
 #define VTK_PARSER_SINE 16
 #define VTK_PARSER_COSINE 17
 #define VTK_PARSER_TANGENT 18
@@ -118,9 +124,9 @@ public:
   static vtkFunctionParser *New();
   vtkTypeMacro(vtkFunctionParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Decription:
-  // Set/Get input string to evaluate. 
+  // Set/Get input string to evaluate.
   void SetFunction(const char *function);
   vtkGetStringMacro(Function);
 
@@ -165,14 +171,14 @@ public:
   // list of variables, and its value will be set to the new value.
   void SetVectorVariableValue(const char* variableName, double xValue,
                               double yValue, double zValue);
-  void SetVectorVariableValue(const char* variableName, 
+  void SetVectorVariableValue(const char* variableName,
                               const double values[3]) {
     this->SetVectorVariableValue(variableName,values[0],values[1],values[2]);};
   void SetVectorVariableValue(int i, double xValue, double yValue,
                               double zValue);
   void SetVectorVariableValue(int i, const double values[3]) {
     this->SetVectorVariableValue(i,values[0],values[1],values[2]);};
-  
+
   // Description:
   // Get the value of a vector variable.
   double* GetVectorVariableValue(const char* variableName);
@@ -183,7 +189,7 @@ public:
   void GetVectorVariableValue(int i, double value[3]) {
     double *r = this->GetVectorVariableValue(i);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
-  
+
   // Description:
   // Get the number of scalar variables.
   vtkGetMacro(NumberOfScalarVariables,int);
@@ -195,7 +201,7 @@ public:
   // Description:
   // Get the ith scalar variable name.
   char* GetScalarVariableName(int i);
-  
+
   // Description:
   // Get the ith vector variable name.
   char* GetVectorVariableName(int i);
@@ -207,7 +213,7 @@ public:
   // Description:
   // Remove all the scalar variables.
   void RemoveScalarVariables();
-  
+
   // Description:
   // Remove all the vector variables.
   void RemoveVectorVariables();
@@ -222,32 +228,37 @@ public:
   vtkBooleanMacro(ReplaceInvalidValues,int);
   vtkSetMacro(ReplacementValue,double);
   vtkGetMacro(ReplacementValue,double);
-  
+
+  // Description:
+  // Check the validity of the function expression.
+  void CheckExpression(int &pos, char **error);
+
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();
-  
+
   int Parse();
   // Description:
   // Evaluate the function, returning true on success, false on failure.
   bool Evaluate();
 
   int CheckSyntax();
+
   void RemoveSpaces();
   char* RemoveSpacesFrom(const char* variableName);
   int OperatorWithinVariable(int idx);
-  
+
   int BuildInternalFunctionStructure();
   void BuildInternalSubstringStructure(int beginIndex, int endIndex);
   void AddInternalByte(unsigned char newByte);
-  
+
   int IsSubstringCompletelyEnclosed(int beginIndex, int endIndex);
   int FindEndOfMathFunction(int beginIndex);
   int FindEndOfMathConstant(int beginIndex);
-  
+
   int IsVariableName(int currentIndex);
   int IsElementaryOperator(int op);
-  
+
   int GetMathFunctionNumber(int currentIndex);
   int GetMathFunctionNumberByCheckingParenthesis( int currentIndex );
   int GetMathFunctionStringLength(int mathFunctionNumber);
@@ -256,10 +267,16 @@ protected:
   unsigned char GetElementaryOperatorNumber(char op);
   unsigned char GetOperandNumber(int currentIndex);
   int GetVariableNameLength(int variableNumber);
-  
+
   int DisambiguateOperators();
-  
+
+  vtkSetStringMacro(ParseError);
+
+  int FindPositionInOriginalFunction(const int& pos);
+
   char* Function;
+  char* FunctionWithSpaces;
+
   int FunctionLength;
   int NumberOfScalarVariables;
   int NumberOfVectorVariables;
@@ -279,9 +296,13 @@ protected:
   vtkTimeStamp ParseMTime;
   vtkTimeStamp VariableMTime;
   vtkTimeStamp EvaluateMTime;
+  vtkTimeStamp CheckMTime;
 
   int ReplaceInvalidValues;
   double ReplacementValue;
+
+  int   ParseErrorPositon;
+  char* ParseError;
 
 private:
   vtkFunctionParser(const vtkFunctionParser&);  // Not implemented.

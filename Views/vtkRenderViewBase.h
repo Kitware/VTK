@@ -21,6 +21,15 @@
 //
 // This class is also the parent class for any more specialized view which uses
 // a renderer.
+//
+// In order to use the view with a QVTKWidget the following code is required
+// to ensure the interactor and render window are initialized properly.
+// \code
+// QVTKWidget *widget = new QVTKWidget;
+// vtkContextView *view = vtkContextView::New();
+// view->SetInteractor(widget->GetInteractor());
+// widget->SetRenderWindow(view->GetRenderWindow());
+// \endcode
 
 #ifndef __vtkRenderViewBase_h
 #define __vtkRenderViewBase_h
@@ -48,28 +57,18 @@ public:
   // Get a handle to the render window.
   virtual vtkRenderWindow* GetRenderWindow();
 
+  // Description:
+  // Set the render window for this view. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
-  // The render window interactor.
+  // The render window interactor. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
   virtual vtkRenderWindowInteractor* GetInteractor();
-  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
-
-  // Description:
-  // The interactor style associated with the render view.
-  virtual void SetInteractorStyle(vtkInteractorObserver* style);
-  virtual vtkInteractorObserver* GetInteractorStyle();
-
-  //BTX
-  enum
-    {
-    INTERACTION_MODE_2D,
-    INTERACTION_MODE_3D,
-    INTERACTION_MODE_UNKNOWN
-    };
-  //ETX
-  void SetInteractionMode(int mode);
-  vtkGetMacro(InteractionMode, int);
+  virtual void SetInteractor(vtkRenderWindowInteractor*);
 
   // Description:
   // Updates the representations, then calls Render() on the render window
@@ -86,22 +85,9 @@ public:
   // renderer associated with this view.
   virtual void ResetCameraClippingRange();
 
-  // Description:
-  // Whether to render on every mouse move.
-  void SetRenderOnMouseMove(bool b);
-  vtkGetMacro(RenderOnMouseMove, bool);
-  vtkBooleanMacro(RenderOnMouseMove, bool);
-
 protected:
   vtkRenderViewBase();
   ~vtkRenderViewBase();
-
-  // Description:
-  // Called to process events.
-  // Captures StartEvent events from the renderer and calls Update().
-  // This may be overridden by subclasses to process additional events.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData);
 
   // Description:
   // Called by the view when the renderer is about to render.
@@ -109,13 +95,10 @@ protected:
 
   vtkSmartPointer<vtkRenderer> Renderer;
   vtkSmartPointer<vtkRenderWindow> RenderWindow;
-  int InteractionMode;
 
 private:
   vtkRenderViewBase(const vtkRenderViewBase&);  // Not implemented.
   void operator=(const vtkRenderViewBase&);  // Not implemented.
-
-  bool RenderOnMouseMove;
 };
 
 #endif

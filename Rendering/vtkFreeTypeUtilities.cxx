@@ -891,7 +891,6 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     adjustedY = y - originalY;
     }
   itr = currentLine;
-  bool firstTime = true;
   // Render char by char
   for (; *str; ++str)
     {
@@ -959,17 +958,8 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
       // (more precisely, to the pixel just above the bitmap). This distance is
       // expressed in integer pixels, and is positive for upwards y.
-
-      int pen_x;
+      int pen_x = x + bitmap_glyph->left;
       int pen_y = y + bitmap_glyph->top - 1;
-      if(firstTime)
-        {
-        pen_x = x;
-        }
-      else
-        {
-        pen_x = x + bitmap_glyph->left;
-        }
 
       // Add the kerning
 
@@ -1012,7 +1002,6 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     ++itr;
-    firstTime = false;
     }
 
   // Margin for shadow
@@ -1126,7 +1115,6 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
     adjustedX = x - originalX;
     adjustedY = y - originalY;
     }
-  bool firstTime = true;
   // Render char by char
   for (; *str; ++str)
     {
@@ -1206,15 +1194,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 #if VTK_FTFC_DEBUG
       cout << *str << ", orient: " << tprop->GetOrientation() << ", x: " << x << ", y: " << y << ", left: " << bitmap_glyph->left << ", top: " << bitmap_glyph->top << ", width: " << bitmap->width << ", rows: " << bitmap->rows << endl;
 #endif
-      int pen_x;
-      if(firstTime)
-        {
-        pen_x = x;
-        }
-      else
-        {
-        pen_x = x + bitmap_glyph->left;
-        }
+      int pen_x = x + bitmap_glyph->left;
       int pen_y = y + bitmap_glyph->top - 1;
 
       // Add the kerning
@@ -1275,7 +1255,6 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     ++itr;
-    firstTime = false;
     }
   delete [] currentLine;
   return 1;

@@ -35,7 +35,7 @@ vtkVariant vtkTypedArray<T>::GetVariantValue(const vtkArrayCoordinates& coordina
 }
 
 template<typename T>
-vtkVariant vtkTypedArray<T>::GetVariantValueN(const vtkIdType n)
+vtkVariant vtkTypedArray<T>::GetVariantValueN(const SizeT n)
 {
   return vtkVariantCreate<T>(this->GetValueN(n));
 }
@@ -47,7 +47,7 @@ void vtkTypedArray<T>::SetVariantValue(const vtkArrayCoordinates& coordinates, c
 }
 
 template<typename T>
-void vtkTypedArray<T>::SetVariantValueN(const vtkIdType n, const vtkVariant& value)
+void vtkTypedArray<T>::SetVariantValueN(const SizeT n, const vtkVariant& value)
 {
   this->SetValueN(n, vtkVariantCast<T>(value));
 }
@@ -65,7 +65,7 @@ void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& so
 }
 
 template<typename T>
-void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkIdType source_index, const vtkArrayCoordinates& target_coordinates)
+void vtkTypedArray<T>::CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates)
 {
   if(!source->IsA(this->GetClassName()))
     {
@@ -77,7 +77,7 @@ void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkIdType source_index,
 }
 
 template<typename T>
-void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkIdType target_index)
+void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index)
 {
   if(!source->IsA(this->GetClassName()))
     {
@@ -87,4 +87,3 @@ void vtkTypedArray<T>::CopyValue(vtkArray* source, const vtkArrayCoordinates& so
 
   this->SetValueN(target_index, static_cast<vtkTypedArray<T>*>(source)->GetValue(source_coordinates));
 }
-

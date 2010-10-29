@@ -20,8 +20,8 @@ ds.AddColumn("Temp2")
 ds.Update()
 
 dStats = ds.GetOutputDataObject( 1 )
-dPrimary = dStats.GetBlock(0)
-dDerived = dStats.GetBlock(1)
+dPrimary = dStats.GetBlock( 0 )
+dDerived = dStats.GetBlock( 1 )
 dPrimary.Dump( 15 )
 dDerived.Dump( 15 )
 print
@@ -35,8 +35,8 @@ os.AddColumn("Temp2")
 os.Update()
 
 oStats = os.GetOutputDataObject( 1 )
-oPrimary = oStats.GetBlock(0)
-oPrimary.Dump( 15 )
+oQuantiles = oStats.GetBlock( 2 )
+oQuantiles.Dump( 15 )
 print
 
 print "# Calculate deciles:"
@@ -45,8 +45,8 @@ os.SetNumberOfIntervals(10)
 os.Update()
 
 oStats = os.GetOutputDataObject( 1 )
-oPrimary = oStats.GetBlock(0)
-oPrimary.Dump( 9 )
+oQuantiles = oStats.GetBlock( 2 )
+oQuantiles.Dump( 9 )
 print
 
 print "# Calculate correlation and linear regression:"

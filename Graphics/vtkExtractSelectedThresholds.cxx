@@ -143,7 +143,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
     return 1;
     }
 
-  //find out what array we are suppose to threshold in
+  //find out what array we are supposed to threshold in
   vtkDataArray *inScalars = NULL;
   bool use_ids = false;
   if (usePointScalars)
@@ -413,7 +413,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     return 1;
     }
 
-  //find out what array we are suppose to threshold in
+  //find out what array we are supposed to threshold in
   vtkDataArray *inScalars = NULL;
   bool use_ids = false;
   if (sel->GetSelectionList()->GetName())

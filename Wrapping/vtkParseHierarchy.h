@@ -39,19 +39,25 @@
 #ifndef VTK_PARSE_HIERARCHY_H
 #define VTK_PARSE_HIERARCHY_H
 
+/* Need the ValueInfo struct for typedefs */
+#include "vtkParseInternal.h"
+
 /**
  * One entry from the hierarchy file.
  * It contains a class name, the superclasses, and the header file.
  */
 typedef struct _HierarchyEntry
 {
-  char  *ClassName;
-  char  *HeaderFile;
-  int    NumberOfSuperClasses;
-  char **SuperClasses;
-  int   *SuperClassIndex;
-  int    NumberOfProperties;
-  char **Properties;
+  const char  *Name;            /* the class or type name */
+  const char  *HeaderFile;      /* header file the class is defined in */
+  int          NumberOfProperties;   /* number of properties */
+  const char **Properties;
+  int          NumberOfSuperClasses; /* number of superclasses */
+  const char **SuperClasses;
+  int         *SuperClassIndex; /* for internal use only */
+  ValueInfo   *Typedef;         /* for typedefs */
+  int         IsEnum;           /* this entry is for an enum type */
+  int         IsTypedef;        /* this entry is for a typedef */
 } HierarchyEntry;
 
 /**
@@ -59,8 +65,8 @@ typedef struct _HierarchyEntry
  */
 typedef struct _HierarchyInfo
 {
-  int             NumberOfClasses;
-  HierarchyEntry *Classes;
+  int             NumberOfEntries;
+  HierarchyEntry *Entries;
 } HierarchyInfo;
 
 #ifdef __cplusplus
@@ -78,38 +84,32 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename);
 void vtkParseHierarchy_Free(HierarchyInfo *info);
 
 /**
- * Check whether a class is outside the heirarchy
+ * Return the entry for a class or type, or null if not found
  */
-int vtkParseHierarchy_IsExtern(
-  const HierarchyInfo *intp, const char *classname);
-
-/**
- * Check whether class 1 is a subclass of class 2
- */
-int vtkParseHierarchy_IsTypeOf(
-  const HierarchyInfo *info, const char *subclass, const char *superclass);
-
-/**
- * Get the header file for the specified class
- */
-const char *vtkParseHierarchy_ClassHeader(
+HierarchyEntry *vtkParseHierarchy_FindEntry(
   const HierarchyInfo *info, const char *classname);
 
 /**
- * Get the nth superclass for specified class, or return NULL.
- *
- * Calling with i=0 will give the first superclass or NULL.
- */
-const char *vtkParseHierarchy_ClassSuperClass(
-  const HierarchyInfo *info, const char *classname, int i);
-
-/**
  * Get properties for the class.  Returns NULL if the property
- * is not set.  Only a few properties are supported so far:
+ * is not set, and returns either an empty string or a value string
+ * if the property is set. The properties supported are as follows:
  * "WRAP_EXCLUDE", "WRAP_SPECIAL", and "ABSTRACT"
  */
 const char *vtkParseHierarchy_GetProperty(
-  const HierarchyInfo *intp, const char *classname, const char *property);
+  const HierarchyEntry *entry, const char *property);
+
+/**
+ * Check whether class is derived from superclass
+ */
+int vtkParseHierarchy_IsTypeOf(const HierarchyInfo *info,
+  const HierarchyEntry *entry, const char *superclass);
+
+/**
+ * Expand an unrecognized type in a ValueInfo struct by
+ * using the typedefs in the HierarchyInfo struct.
+ */
+int vtkParseHierarchy_ExpandTypedefs(
+  const HierarchyInfo *info, ValueInfo *data, const char *scope);
 
 #ifdef __cplusplus
 } /* extern "C" */

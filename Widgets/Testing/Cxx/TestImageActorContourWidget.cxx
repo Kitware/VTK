@@ -53,6 +53,8 @@
 // Point placers provide an extensible framework to specify constraints on the 
 // placement of widgets.
 
+#include "vtkSmartPointer.h"
+
 #include "vtkImageData.h"
 #include "vtkVolume16Reader.h"
 #include "vtkImageShiftScale.h"
@@ -74,7 +76,6 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkRenderWindow.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkProperty.h"
 
 char TestImageActorContourWidgetLog[] =
@@ -825,7 +826,8 @@ int TestImageActorContourWidget(int argc, char *argv[])
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkVolume16Reader* v16 = vtkVolume16Reader::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 =
+    vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange(1, 93);
@@ -839,7 +841,8 @@ int TestImageActorContourWidget(int argc, char *argv[])
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
-  vtkImageShiftScale* shifter = vtkImageShiftScale::New();
+  vtkSmartPointer<vtkImageShiftScale> shifter =
+    vtkSmartPointer<vtkImageShiftScale>::New();
   shifter->SetShift(-1.0*range[0]);
   shifter->SetScale(255.0/(range[1]-range[0]));
   shifter->SetOutputScalarTypeToUnsignedChar();
@@ -848,12 +851,14 @@ int TestImageActorContourWidget(int argc, char *argv[])
   shifter->Update();
 
   
-  vtkImageViewer2 *imageViewer = vtkImageViewer2::New();
+  vtkSmartPointer<vtkImageViewer2> imageViewer =
+    vtkSmartPointer<vtkImageViewer2>::New();
   imageViewer->SetInput(shifter->GetOutput());
   imageViewer->SetColorLevel(127);
   imageViewer->SetColorWindow(255);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   imageViewer->SetupInteractor(iren);
   imageViewer->GetRenderWindow()->SetMultiSamples(0);
   imageViewer->GetRenderWindow()->SetSize(500, 500);
@@ -863,7 +868,8 @@ int TestImageActorContourWidget(int argc, char *argv[])
 
   imageViewer->Render();    
   
-  vtkSliderRepresentation2D *SliderRepres = vtkSliderRepresentation2D::New();
+  vtkSmartPointer<vtkSliderRepresentation2D> SliderRepres =
+    vtkSmartPointer<vtkSliderRepresentation2D>::New();
   int min = imageViewer->GetSliceMin();
   int max = imageViewer->GetSliceMax();
   SliderRepres->SetMinimumValue(min);
@@ -883,32 +889,33 @@ int TestImageActorContourWidget(int argc, char *argv[])
   SliderRepres->SetTitleHeight(0.02);
   SliderRepres->SetLabelHeight(0.02);
 
-  vtkSliderWidget *SliderWidget = vtkSliderWidget::New();
+  vtkSmartPointer<vtkSliderWidget> SliderWidget =
+    vtkSmartPointer<vtkSliderWidget>::New();
   SliderWidget->SetInteractor(iren);
   SliderWidget->SetRepresentation(SliderRepres);
   SliderWidget->KeyPressActivationOff();
   SliderWidget->SetAnimationModeToAnimate();
   SliderWidget->SetEnabled(true);
   
-  vtkSliderCallback2 *SliderCb = vtkSliderCallback2::New();
+  vtkSmartPointer<vtkSliderCallback2> SliderCb =
+    vtkSmartPointer<vtkSliderCallback2>::New();
   SliderCb->SetImageViewer(imageViewer);
   SliderWidget->AddObserver(vtkCommand::InteractionEvent, SliderCb);  
 
   imageViewer->SetSlice(static_cast<int>(SliderRepres->GetValue()));
 
-  vtkContourWidget *ContourWidget = vtkContourWidget::New();
+  vtkSmartPointer<vtkContourWidget> ContourWidget =
+    vtkSmartPointer<vtkContourWidget>::New();
 
-  vtkOrientedGlyphContourRepresentation *rep =
-    vtkOrientedGlyphContourRepresentation::New();
+  vtkSmartPointer<vtkOrientedGlyphContourRepresentation> rep =
+    vtkSmartPointer<vtkOrientedGlyphContourRepresentation>::New();
   ContourWidget->SetRepresentation(rep);
   
-  vtkImageActorPointPlacer * imageActorPointPlacer = vtkImageActorPointPlacer::New();
+  vtkSmartPointer<vtkImageActorPointPlacer>  imageActorPointPlacer =
+    vtkSmartPointer<vtkImageActorPointPlacer>::New();
   imageActorPointPlacer->SetImageActor(imageViewer->GetImageActor());
   rep->SetPointPlacer(imageActorPointPlacer);
   rep->GetProperty()->SetColor(0,1,0);
-
-  imageActorPointPlacer->Delete();
-  rep->Delete();
 
   ContourWidget->SetInteractor(iren);
   ContourWidget->SetFollowCursor( followCursor );
@@ -918,7 +925,8 @@ int TestImageActorContourWidget(int argc, char *argv[])
   imageViewer->GetRenderWindow()->SetSize(500, 500);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   //recorder->SetFileName("/tmp/record.log");
   recorder->ReadFromInputStringOn();
@@ -939,21 +947,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( imageViewer->GetRenderWindow() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  recorder->Delete();
-  SliderRepres->Delete();
-  SliderCb->Delete();
-  ContourWidget->Delete();
-  v16->Delete();
-  imageViewer->Delete();
-  shifter->Delete();
-  SliderWidget->Delete();
-  iren->Delete();
+  iren->Start();
   
   return EXIT_SUCCESS;
 }

@@ -156,6 +156,7 @@ public:
   // Returns 1 if the bounds have been set and 0 if the box is in its
   // initialized state which is an inverted state
   int IsValid() const;
+  static int IsValid(double bounds[6]);
   
   // Description:
   // Returns the box to its initialized state
@@ -217,6 +218,13 @@ inline int vtkBoundingBox::IsValid() const
           (this->MinPnt[1] <= this->MaxPnt[1]) && 
           (this->MinPnt[2] <= this->MaxPnt[2]));
 } 
+
+inline int vtkBoundingBox::IsValid(double bounds[6])
+{
+  return (bounds[0] <= bounds[1] &&
+    bounds[2] <= bounds[3] &&
+    bounds[4] <= bounds[5]);
+}
 
 inline double vtkBoundingBox::GetLength(int i) const
 {

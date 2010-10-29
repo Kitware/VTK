@@ -90,6 +90,8 @@ protected:
 private:
   vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&); // Not implemented.
   void operator=(const vtkOpenGLGlyph3DMapper&); // Not implemented.
+
+  virtual void Render(vtkRenderer *ren, vtkActor *a, vtkDataSet* ds);
   //ETX
 };
 

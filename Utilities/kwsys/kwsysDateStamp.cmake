@@ -15,7 +15,7 @@
 SET(KWSYS_DATE_STAMP_YEAR  2010)
 
 # KWSys version date month component.  Format is MM.
-SET(KWSYS_DATE_STAMP_MONTH 08)
+SET(KWSYS_DATE_STAMP_MONTH 10)
 
 # KWSys version date day component.  Format is DD.
-SET(KWSYS_DATE_STAMP_DAY   20)
+SET(KWSYS_DATE_STAMP_DAY   13)

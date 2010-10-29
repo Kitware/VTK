@@ -44,7 +44,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestDiagram( int argc, char * argv [] )
+int TestDiagram( int, char * [] )
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
   VTK_CREATE(vtkContextActor, actor);
@@ -64,15 +64,9 @@ int TestDiagram( int argc, char * argv [] )
   VTK_CREATE(vtkRenderWindowInteractor, interactor);
   interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
-  renderWindow->Render();
-
-  int retVal = vtkRegressionTestImage(renderWindow);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    interactor->Start();
-    }
-
-  return !retVal;
+  interactor->Initialize();
+  interactor->Start();
+  return EXIT_SUCCESS;
 }
 
 // Make our new derived class to draw a diagram

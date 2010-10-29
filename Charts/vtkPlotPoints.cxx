@@ -135,7 +135,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
     for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
-      this->GeneraterMarker(static_cast<int>(width+2.7), true);
+      this->GeneraterMarker(vtkContext2D::FloatToInt(width+2.7), true);
 
       painter->GetPen()->SetColor(255, 50, 0, 255);
       painter->GetPen()->SetWidth(width+2.7);
@@ -158,7 +158,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
   // If there is a marker style, then draw the marker for each point too
   if (this->MarkerStyle)
     {
-    this->GeneraterMarker(static_cast<int>(width));
+    this->GeneraterMarker(vtkContext2D::FloatToInt(width));
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
@@ -178,7 +178,7 @@ bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4], int )
       {
       width = 8.0;
       }
-    this->GeneraterMarker(static_cast<int>(width));
+    this->GeneraterMarker(vtkContext2D::FloatToInt(width));
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);

@@ -271,14 +271,18 @@ IF (NETCDF_DISABLE_COMPILER_WARNINGS)
   IF (MSVC)
     STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
         CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
+        CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /w")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w")
   # Borland uses -w- to suppress warnings.
   ELSEIF (BORLAND)
-    SET (HDF5_WARNINGS_BLOCKED 1)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w-")
   ELSE ()
   # Most compilers use -w to suppress warnings.
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w")
   ENDIF ()
 ENDIF (NETCDF_DISABLE_COMPILER_WARNINGS)
 
@@ -313,6 +317,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTKNETCDF_BINARY_DIR}/ncconfig.h
     ${VTKNETCDF_SOURCE_DIR}/netcdf.h
     ${VTKNETCDF_SOURCE_DIR}/netcdf3.h
+    ${VTKNETCDF_SOURCE_DIR}/netcdfcpp.h
     ${VTKNETCDF_SOURCE_DIR}/vtk_netcdf_mangle.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtknetcdf
     COMPONENT Development)

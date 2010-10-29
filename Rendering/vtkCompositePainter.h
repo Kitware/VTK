@@ -24,19 +24,12 @@
 
 #include "vtkPainter.h"
 
-class vtkInformationIntegerKey;
-
 class VTK_RENDERING_EXPORT vtkCompositePainter : public vtkPainter
 {
 public:
   static vtkCompositePainter* New();
   vtkTypeMacro(vtkCompositePainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // When this key is present and set to 1 in the information passed to the
-  // painter, the painter colors each block using a unique color. 
-  static vtkInformationIntegerKey* COLOR_LEAVES();
 
   // Description:
   // Get the output data object from this painter. The default implementation
@@ -53,23 +46,13 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
   // Description:
-  // Called before RenderInternal() if the Information has been changed
-  // since the last time this method was called.
-  // Overridden to update the state of COLOR_LEAVES key.
-  virtual void ProcessInformation(vtkInformation*);
-
-  // Description:
   // Performs the actual rendering. Subclasses may override this method.
   // default implementation merely call a Render on the DelegatePainter,
-  // if any. When RenderInternal() is called, it is assured that the 
+  // if any. When RenderInternal() is called, it is assured that the
   // DelegatePainter is in sync with this painter i.e. UpdateDelegatePainter()
   // has been called.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-                              unsigned long typeflags, bool forceCompileOnly);
-
-  vtkSetMacro(ColorLeaves, int);
-  vtkGetMacro(ColorLeaves, int);
-  int ColorLeaves;
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+    unsigned long typeflags, bool forceCompileOnly);
 
   vtkDataObject* OutputData;
 private:

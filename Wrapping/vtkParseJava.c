@@ -438,7 +438,26 @@ void HandleDataArray(FILE *fp, ClassInfo *data)
   fprintf(fp,"    { SetJavaArray_0(arr); }\n");
 }
 
-void outputFunction(FILE *fp, ClassInfo *data)
+static int isClassWrapped(const char *classname)
+{
+  HierarchyEntry *entry;
+
+  if (hierarchyInfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
+
+    if (entry == 0 ||
+        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+        !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObjectBase"))
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+int checkFunctionSignature(ClassInfo *data)
 {
   static unsigned int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
@@ -466,7 +485,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
       !currentFunction->IsPublic ||
       !currentFunction->Name)
     {
-    return;
+    return 0;
     }
 
   /* NewInstance and SafeDownCast can not be wrapped because it is a
@@ -475,19 +494,12 @@ void outputFunction(FILE *fp, ClassInfo *data)
      looks like polymorphic return type.  */
   if (!strcmp("NewInstance",currentFunction->Name))
     {
-    return ;
+    return 0;
     }
 
   if (!strcmp("SafeDownCast",currentFunction->Name))
     {
-    return ;
-    }
-
-  /* The unwrappable methods in Filtering/vtkInformation.c */
-  if (strcmp(data->Name, "vtkInformation") == 0 &&
-      currentFunction->IsLegacy)
-    {
-    return;
+    return 0;
     }
 
   /* The GetInput() in vtkMapper cannot be overriden with a
@@ -495,7 +507,16 @@ void outputFunction(FILE *fp, ClassInfo *data)
   if (strcmp(data->Name, "vtkMapper") == 0 &&
       strcmp(currentFunction->Name, "GetInput") == 0)
     {
-    return;
+    return 0;
+    }
+
+  /* function pointer arguments for callbacks */
+  if (currentFunction->NumberOfArguments == 2 &&
+      currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION &&
+      currentFunction->ArgTypes[1] == VTK_PARSE_VOID_PTR &&
+      rType == VTK_PARSE_VOID)
+    {
+    return 1;
     }
 
   /* check to see if we can handle the args */
@@ -504,16 +525,13 @@ void outputFunction(FILE *fp, ClassInfo *data)
     aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
     baseType = (aType & VTK_PARSE_BASE_TYPE);
 
-    if (currentFunction->ArgTypes[i] != VTK_PARSE_FUNCTION)
+    for (j = 0; supported_types[j] != 0; j++)
       {
-      for (j = 0; supported_types[j] != 0; j++)
-        {
-        if (baseType == supported_types[j]) { break; }
-        }
-      if (supported_types[j] == 0)
-        {
-        args_ok = 0;
-        }
+      if (baseType == supported_types[j]) { break; }
+      }
+    if (supported_types[j] == 0)
+      {
+      args_ok = 0;
       }
 
     if (baseType == VTK_PARSE_OBJECT)
@@ -522,17 +540,9 @@ void outputFunction(FILE *fp, ClassInfo *data)
         {
         args_ok = 0;
         }
-      else if (hierarchyInfo)
+      else if (!isClassWrapped(currentFunction->ArgClasses[i]))
         {
-        if (vtkParseHierarchy_IsExtern(hierarchyInfo,
-              currentFunction->ArgClasses[i]) ||
-            vtkParseHierarchy_GetProperty(hierarchyInfo,
-              currentFunction->ArgClasses[i], "WRAP_EXCLUDE") ||
-            !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-              currentFunction->ArgClasses[i], "vtkObjectBase"))
-          {
-          args_ok = 0;
-          }
+        args_ok = 0;
         }
       }
 
@@ -567,17 +577,9 @@ void outputFunction(FILE *fp, ClassInfo *data)
       {
       args_ok = 0;
       }
-    else if (hierarchyInfo)
+    else if (!isClassWrapped(currentFunction->ReturnClass))
       {
-      if (vtkParseHierarchy_IsExtern(hierarchyInfo,
-            currentFunction->ReturnClass) ||
-          vtkParseHierarchy_GetProperty(hierarchyInfo,
-            currentFunction->ReturnClass, "WRAP_EXCLUDE") ||
-          !vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-            currentFunction->ReturnClass, "vtkObjectBase"))
-        {
-        args_ok = 0;
-        }
+      args_ok = 0;
       }
     }
 
@@ -593,10 +595,6 @@ void outputFunction(FILE *fp, ClassInfo *data)
   if (rType == VTK_PARSE_UNSIGNED_ID_TYPE_PTR) args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_LONG_LONG_PTR) args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED___INT64_PTR) args_ok = 0;
-
-  if (currentFunction->NumberOfArguments &&
-      (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
-      &&(currentFunction->NumberOfArguments != 1)) args_ok = 0;
 
   /* make sure we have all the info we need for array arguments in */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -665,6 +663,16 @@ void outputFunction(FILE *fp, ClassInfo *data)
     args_ok = 0;
     }
 
+  return args_ok;
+}
+
+void outputFunction(FILE *fp, ClassInfo *data)
+{
+  int i;
+  unsigned int rType =
+    (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  int args_ok = checkFunctionSignature(data);
+
   /* handle DataReader SetBinaryInputString as a special case */
   if (!strcmp("SetBinaryInputString",currentFunction->Name) &&
       (!strcmp("vtkDataReader",data->Name) ||
@@ -697,6 +705,12 @@ void outputFunction(FILE *fp, ClassInfo *data)
           fprintf(fp,",");
           }
         output_temp(fp,i);
+
+        /* ignore args after function pointer */
+        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+          {
+          break;
+          }
         }
       fprintf(fp,");\n");
       fprintf(fp,"  public ");
@@ -710,7 +724,14 @@ void outputFunction(FILE *fp, ClassInfo *data)
           fprintf(fp,",");
           }
         output_temp(fp,i);
+
+        /* ignore args after function pointer */
+        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+          {
+          break;
+          }
         }
+
       /* if returning object, lookup in global hash */
       if (rType == VTK_PARSE_VTK_OBJECT_PTR)
         {
@@ -766,11 +787,6 @@ void outputFunction(FILE *fp, ClassInfo *data)
             fprintf(fp,",");
             }
           fprintf(fp,"id%i",i);
-          }
-        if ((currentFunction->NumberOfArguments == 1) &&
-            (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION))
-          {
-          fprintf(fp,",id1");
           }
         fprintf(fp,"); }\n");
         }

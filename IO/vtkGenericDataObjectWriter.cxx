@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkGenericDataObjectWriter.h"
 
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataWriter.h"
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
 #include "vtkGraph.h"
@@ -79,9 +81,6 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_UNDIRECTED_GRAPH:
       writer = CreateWriter<vtkGraphWriter, vtkGraph>(input);
       break;
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
-      vtkErrorMacro(<< "Cannot write hierarchical box data set");
-      return;
     case VTK_HIERARCHICAL_DATA_SET:
       vtkErrorMacro(<< "Cannot write hierarchical data set");
       return;
@@ -92,8 +91,10 @@ void vtkGenericDataObjectWriter::WriteData()
       writer = CreateWriter<vtkStructuredPointsWriter, vtkImageData>(input);
       break;
     case VTK_MULTIBLOCK_DATA_SET:
-      vtkErrorMacro(<< "Cannot write multiblock data set");
-      return;
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+    case VTK_MULTIPIECE_DATA_SET:
+      writer = CreateWriter<vtkCompositeDataWriter, vtkCompositeDataSet>(input);
+      break;
     case VTK_MULTIGROUP_DATA_SET:
       vtkErrorMacro(<< "Cannot write multigroup data set");
       return;

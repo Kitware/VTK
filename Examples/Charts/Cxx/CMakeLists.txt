@@ -13,12 +13,22 @@ IF(VTK_USE_VIEWS)
   TARGET_LINK_LIBRARIES(GraphItem vtkCharts)
 ENDIF(VTK_USE_VIEWS)
 
+ADD_EXECUTABLE(PiecewiseItem PiecewiseItem.cxx)
+TARGET_LINK_LIBRARIES(PiecewiseItem vtkCharts)
+
 IF(VTK_USE_QVTK)
   FIND_PACKAGE(Qt4 REQUIRED)
   INCLUDE(${QT_USE_FILE})
   INCLUDE_DIRECTORIES(${QT_INCLUDE_DIR})
   ADD_EXECUTABLE(QChartTable QChartTable.cxx)
   TARGET_LINK_LIBRARIES(QChartTable
+    QVTK
+    ${QT_LIBRARIES}
+    vtkRendering
+    vtkCharts
+  )
+  ADD_EXECUTABLE(QScalarsToColors QScalarsToColors.cxx)
+  TARGET_LINK_LIBRARIES(QScalarsToColors
     QVTK
     ${QT_LIBRARIES}
     vtkRendering

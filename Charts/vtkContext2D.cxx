@@ -104,8 +104,6 @@ void vtkContext2D::DrawLine(float x1, float y1, float x2, float y2)
     return;
     }
   float x[] = { x1, y1, x2, y2 };
-
-  this->ApplyPen();
   this->Device->DrawPoly(&x[0], 2);
 }
 
@@ -117,8 +115,6 @@ void vtkContext2D::DrawLine(float p[4])
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-
-  this->ApplyPen();
   this->Device->DrawPoly(&p[0], 2);
 }
 
@@ -136,8 +132,6 @@ void vtkContext2D::DrawLine(vtkPoints2D *points)
     return;
     }
   float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
-
-  this->ApplyPen();
   this->Device->DrawPoly(f, 2);
 }
 
@@ -155,8 +149,6 @@ void vtkContext2D::DrawPoly(float *x, float *y, int n)
     p[2*i]   = x[i];
     p[2*i+1] = y[i];
     }
-
-  this->ApplyPen();
   this->Device->DrawPoly(p, n);
   delete[] p;
 }
@@ -184,8 +176,6 @@ void vtkContext2D::DrawPoly(float *points, int n)
     vtkErrorMacro(<< "Attempted to paint a line with <2 points.");
     return;
     }
-
-  this->ApplyPen();
   this->Device->DrawPoly(points, n);
 }
 
@@ -228,8 +218,6 @@ void vtkContext2D::DrawPoints(float *points, int n)
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-
-  this->ApplyPen();
   this->Device->DrawPoints(points, n);
 }
 
@@ -251,8 +239,6 @@ void vtkContext2D::DrawPointSprites(vtkImageData *sprite, float *points, int n)
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-
-  this->ApplyPen();
   this->Device->DrawPointSprites(sprite, points, n);
 }
 
@@ -271,11 +257,9 @@ void vtkContext2D::DrawRect(float x, float y, float width, float height)
                 x,       y};
 
   // Draw the filled area of the rectangle.
-  this->ApplyBrush();
   this->Device->DrawQuad(&p[0], 4);
 
   // Draw the outline now.
-  this->ApplyPen();
   this->Device->DrawPoly(&p[0], 5);
 }
 
@@ -297,14 +281,34 @@ void vtkContext2D::DrawQuad(float *p)
     }
 
   // Draw the filled area of the quad.
-  this->ApplyBrush();
   this->Device->DrawQuad(p, 4);
 
   // Draw the outline now.
-  this->ApplyPen();
   this->Device->DrawPoly(p, 4);
   float closeLine[] = { p[0], p[1], p[6], p[7] };
   this->Device->DrawPoly(&closeLine[0], 2);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawQuadStrip(vtkPoints2D *points)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  this->DrawQuadStrip(f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawQuadStrip(float *points, int n)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  // Draw the filled area of the polygon.
+  this->Device->DrawQuadStrip(points, n);
 }
 
 //-----------------------------------------------------------------------------
@@ -339,11 +343,9 @@ void vtkContext2D::DrawPolygon(float *points, int n)
     return;
     }
   // Draw the filled area of the polygon.
-  this->ApplyBrush();
   this->Device->DrawPolygon(points, n);
 
   // Draw the outline now.
-  this->ApplyPen();
   this->Device->DrawPoly(points, n);
   float closeLine[] = { points[0], points[1], points[2*n-2], points[2*n-1] };
   this->Device->DrawPoly(&closeLine[0], 2);
@@ -355,8 +357,6 @@ void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
 {
   assert("pre: positive_rx" && rx>=0);
   assert("pre: positive_ry" && ry>=0);
-
-  this->DrawEllipseWedge(x, y, rx, ry, 0.0, 0.0, 0.0, 360.0);
   this->DrawEllipticArc(x, y, rx, ry, 0.0, 360.0);
 }
 
@@ -395,9 +395,6 @@ void vtkContext2D::DrawEllipseWedge(float x, float y, float outRx, float outRy,
   // don't tessellate here. The device context knows what to do with an
   // arc. An OpenGL device context will tessellate but and SVG context with
   // just generate an arc.
-
-  this->ApplyBrush();
-
   this->Device->DrawEllipseWedge(x,y,outRx,outRy,inRx,inRy,startAngle,
                                  stopAngle);
 }
@@ -425,9 +422,6 @@ void vtkContext2D::DrawEllipticArc(float x, float y, float rX, float rY,
   // don't tessellate here. The device context knows what to do with an
   // arc. An OpenGL device context will tessellate but and SVG context with
   // just generate an arc.
-
-  this->ApplyPen();
-
   this->Device->DrawEllipticArc(x,y,rX,rY,startAngle,stopAngle);
 }
 
@@ -468,7 +462,7 @@ void vtkContext2D::DrawString(float x, float y, const vtkStdString &string)
     return;
     }
   float f[] = { x, y };
-  this->Device->DrawString(f, this->TextProp, string);
+  this->Device->DrawString(f, string);
 }
 
 //-----------------------------------------------------------------------------
@@ -487,7 +481,7 @@ void vtkContext2D::DrawString(float x, float y, const vtkUnicodeString &string)
     return;
     }
   float f[] = { x, y };
-  this->Device->DrawString(&f[0], this->TextProp, string);
+  this->Device->DrawString(&f[0], string);
 }
 
 //-----------------------------------------------------------------------------
@@ -521,7 +515,7 @@ void vtkContext2D::ComputeStringBounds(const vtkStdString &string,
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-  this->Device->ComputeStringBounds(string, this->TextProp, bounds);
+  this->Device->ComputeStringBounds(string, bounds);
 }
 
 //-----------------------------------------------------------------------------
@@ -542,7 +536,7 @@ void vtkContext2D::ComputeStringBounds(const vtkUnicodeString &string,
     vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
     return;
     }
-  this->Device->ComputeStringBounds(string, this->TextProp, bounds);
+  this->Device->ComputeStringBounds(string, bounds);
 }
 
 //-----------------------------------------------------------------------------
@@ -576,20 +570,37 @@ void vtkContext2D::DrawImage(float x, float y, float scale, vtkImageData *image)
 //-----------------------------------------------------------------------------
 void vtkContext2D::ApplyPen(vtkPen *pen)
 {
-  this->Pen->DeepCopy(pen);
+  this->Device->ApplyPen(pen);
+}
+
+//-----------------------------------------------------------------------------
+vtkPen* vtkContext2D::GetPen()
+{
+  return this->Device->GetPen();
 }
 
 //-----------------------------------------------------------------------------
 void vtkContext2D::ApplyBrush(vtkBrush *brush)
 {
-  this->Brush->DeepCopy(brush);
+  this->Device->ApplyBrush(brush);
+}
+
+//-----------------------------------------------------------------------------
+vtkBrush* vtkContext2D::GetBrush()
+{
+  return this->Device->GetBrush();
 }
 
 //-----------------------------------------------------------------------------
 void vtkContext2D::ApplyTextProp(vtkTextProperty *prop)
 {
-  // This is really a deep copy, but called shallow copy for some reason...
-  this->TextProp->ShallowCopy(prop);
+  this->Device->ApplyTextProp(prop);
+}
+
+//-----------------------------------------------------------------------------
+vtkTextProperty* vtkContext2D::GetTextProp()
+{
+  return this->Device->GetTextProp();
 }
 
 //-----------------------------------------------------------------------------
@@ -657,29 +668,6 @@ void vtkContext2D::ApplyId(vtkIdType id)
 }
 
 //-----------------------------------------------------------------------------
-inline void vtkContext2D::ApplyPen()
-{
-  if(!this->GetBufferIdMode())
-    {
-    this->Device->SetColor4(this->Pen->GetColor());
-    }
-  this->Device->SetLineWidth(this->Pen->GetWidth());
-  this->Device->SetPointSize(this->Pen->GetWidth());
-  this->Device->SetLineType(this->Pen->GetLineType());
-}
-
-//-----------------------------------------------------------------------------
-inline void vtkContext2D::ApplyBrush()
-{
-  if(!this->GetBufferIdMode())
-    {
-    this->Device->SetColor4(this->Brush->GetColor());
-    this->Device->SetTexture(this->Brush->GetTexture(),
-                             this->Brush->GetTextureProperties());
-    }
-}
-
-//-----------------------------------------------------------------------------
 vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 {
   // Draw the text at the appropriate point inside the rect for the alignment
@@ -693,11 +681,11 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
   vtkVector2f p;
   float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
 
-  if (this->TextProp->GetJustification() == VTK_TEXT_LEFT)
+  if (this->Device->GetTextProp()->GetJustification() == VTK_TEXT_LEFT)
     {
     p.SetX(f[0]);
     }
-  else if (this->TextProp->GetJustification() == VTK_TEXT_CENTERED)
+  else if (this->Device->GetTextProp()->GetJustification() == VTK_TEXT_CENTERED)
     {
     p.SetX(f[0] + 0.5f*f[2]);
     }
@@ -706,11 +694,11 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
     p.SetX(f[0] + f[2]);
     }
 
-  if (this->TextProp->GetVerticalJustification() == VTK_TEXT_BOTTOM)
+  if (this->Device->GetTextProp()->GetVerticalJustification() == VTK_TEXT_BOTTOM)
     {
     p.SetY(f[1]);
     }
-  else if (this->TextProp->GetVerticalJustification() == VTK_TEXT_CENTERED)
+  else if (this->Device->GetTextProp()->GetVerticalJustification() == VTK_TEXT_CENTERED)
     {
     p.SetY(f[1] + 0.5f*f[3]);
     }
@@ -725,31 +713,20 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 vtkContext2D::vtkContext2D()
 {
   this->Device = NULL;
-  this->Pen = vtkPen::New();
-  this->Brush = vtkBrush::New();
-  this->TextProp = vtkTextProperty::New();
   this->Transform = vtkTransform2D::New();
-  this->BufferId=0;
+  this->BufferId = 0;
 }
 
 //-----------------------------------------------------------------------------
 vtkContext2D::~vtkContext2D()
 {
-  this->Pen->Delete();
-  this->Pen = NULL;
-  this->Brush->Delete();
-  this->Brush = NULL;
-  this->TextProp->Delete();
-  this->TextProp = NULL;
   if (this->Device)
     {
     this->Device->Delete();
-    this->Device = NULL;
     }
   if (this->Transform)
     {
     this->Transform->Delete();
-    this->Transform = NULL;
     }
 }
 
@@ -767,9 +744,4 @@ void vtkContext2D::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  os << indent << "Pen: ";
-  this->Pen->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Brush: ";
-  this->Brush->PrintSelf(os, indent.GetNextIndent());
 }
-

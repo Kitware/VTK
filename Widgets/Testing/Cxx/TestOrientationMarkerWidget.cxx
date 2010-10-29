@@ -38,9 +38,6 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTubeFilter.h"
 
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
-
 char TestOMWidgetEventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 215 191 0 0 98 1 b\n"

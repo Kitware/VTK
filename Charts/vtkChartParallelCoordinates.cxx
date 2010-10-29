@@ -36,8 +36,8 @@
 #include "vtkSelectionNode.h"
 #include "vtkStringArray.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
+#include <vector>
+#include <algorithm>
 
 // Minimal storage class for STL containers etc.
 class vtkChartParallelCoordinates::Private
@@ -52,7 +52,7 @@ public:
     }
   ~Private()
     {
-    for (vtkstd::vector<vtkAxis *>::iterator it = this->Axes.begin();
+    for (std::vector<vtkAxis *>::iterator it = this->Axes.begin();
          it != this->Axes.end(); ++it)
       {
       (*it)->Delete();
@@ -60,8 +60,8 @@ public:
     }
   vtkSmartPointer<vtkPlotParallelCoordinates> Plot;
   vtkSmartPointer<vtkTransform2D> Transform;
-  vtkstd::vector<vtkAxis *> Axes;
-  vtkstd::vector<vtkVector<float, 2> > AxesSelections;
+  std::vector<vtkAxis *> Axes;
+  std::vector<vtkVector<float, 2> > AxesSelections;
   int CurrentAxis;
   int AxisResize;
 };
@@ -109,12 +109,13 @@ void vtkChartParallelCoordinates::Update()
   if (static_cast<int>(this->Storage->Axes.size()) !=
       this->VisibleColumns->GetNumberOfTuples())
     {
-    for (vtkstd::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
+    for (std::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
          it != this->Storage->Axes.end(); ++it)
       {
       (*it)->Delete();
       }
     this->Storage->Axes.clear();
+    this->Storage->AxesSelections.clear();
 
     for (int i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
       {
@@ -122,6 +123,7 @@ void vtkChartParallelCoordinates::Update()
       axis->SetPosition(vtkAxis::PARALLEL);
       this->Storage->Axes.push_back(axis);
       }
+    this->Storage->AxesSelections.resize(this->Storage->Axes.size());
     }
 
   // Now set up their ranges and locations
@@ -142,9 +144,7 @@ void vtkChartParallelCoordinates::Update()
       }
     axis->SetTitle(this->VisibleColumns->GetValue(i));
     }
-  this->Storage->AxesSelections.clear();
 
-  this->Storage->AxesSelections.resize(this->Storage->Axes.size());
   this->GeometryValid = false;
   this->BuildTime.Modified();
 }
@@ -188,7 +188,7 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
   painter->PopMatrix();
 
   // Now we have a table, set up the axes accordingly, clear and build.
-  for (vtkstd::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
+  for (std::vector<vtkAxis *>::iterator it = this->Storage->Axes.begin();
        it != this->Storage->Axes.end(); ++it)
     {
     (*it)->Paint(painter);
@@ -258,11 +258,32 @@ void vtkChartParallelCoordinates::SetColumnVisibility(const char* name,
           }
         this->VisibleColumns->SetNumberOfTuples(
             this->VisibleColumns->GetNumberOfTuples()-1);
+        if (this->Storage->CurrentAxis >= this->VisibleColumns->GetNumberOfTuples())
+          {
+          this->Storage->CurrentAxis = -1;
+          }
         this->Modified();
         this->Update();
         return;
         }
       }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SetColumnVisibilityAll(bool visible)
+{
+  if (visible)
+    {
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      {
+      this->SetColumnVisibility(this->VisibleColumns->GetValue(i), visible);
+      }
+    }
+  else
+    {
+    this->VisibleColumns->SetNumberOfTuples(0);
+    this->Storage->CurrentAxis = -1;
     }
 }
 

@@ -346,14 +346,30 @@ void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
   double* internalPoints;
   g->GetEdgePoints(e, numInternalPoints, internalPoints);
 
+  // Duplicate internal point if there is just one, so there are at least
+  // four points, required for B-spline.
+  bool repeat = false;
+  if (numInternalPoints == 1)
+    {
+    repeat = true;
+    numInternalPoints = 2;
+    }
   vtkIdType numPoints = numInternalPoints + 2;
   double* points = new double[3*numPoints];
-  memcpy(points + 3, internalPoints, sizeof(double)*3
-         *static_cast<size_t>(numInternalPoints));
+  if (repeat)
+    {
+    memcpy(points + 3, internalPoints, sizeof(double)*3);
+    memcpy(points + 6, internalPoints, sizeof(double)*3);
+    }
+  else
+    {
+    memcpy(points + 3, internalPoints, sizeof(double)*3
+           *static_cast<size_t>(numInternalPoints));
+    }
   g->GetPoint(g->GetSourceVertex(e), points);
   g->GetPoint(g->GetTargetVertex(e), points + 3*(numInternalPoints+1));
 
-  if (numPoints < 3)
+  if (numPoints <= 3)
     {
     return;
     }

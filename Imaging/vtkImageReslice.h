@@ -204,7 +204,7 @@ public:
     this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
   void SetInterpolationModeToCubic() {
     this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
-  const char *GetInterpolationModeAsString();
+  virtual const char *GetInterpolationModeAsString();
 
   // Description:
   // Turn on and off optimizations (default on, they should only be
@@ -226,28 +226,29 @@ public:
   // Description:
   // Set the voxel spacing for the output data.  The default output
   // spacing is the input spacing permuted through the ResliceAxes.
-  vtkSetVector3Macro(OutputSpacing, double);
+  virtual void SetOutputSpacing(double x, double y, double z);
+  virtual void SetOutputSpacing(const double a[3]) {
+    this->SetOutputSpacing(a[0], a[1], a[2]); };
   vtkGetVector3Macro(OutputSpacing, double);
-  void SetOutputSpacingToDefault() {
-    this->SetOutputSpacing(VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX); };
+  void SetOutputSpacingToDefault();
 
   // Description:
   // Set the origin for the output data.  The default output origin
   // is the input origin permuted through the ResliceAxes.
-  vtkSetVector3Macro(OutputOrigin, double);
+  virtual void SetOutputOrigin(double x, double y, double z);
+  virtual void SetOutputOrigin(const double a[3]) {
+    this->SetOutputOrigin(a[0], a[1], a[2]); };
   vtkGetVector3Macro(OutputOrigin, double);
-  void SetOutputOriginToDefault() {
-    this->SetOutputOrigin(VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX); };
+  void SetOutputOriginToDefault();
 
   // Description:
   // Set the extent for the output data.  The default output extent
   // is the input extent permuted through the ResliceAxes.
-  vtkSetVector6Macro(OutputExtent, int);
+  virtual void SetOutputExtent(int a, int b, int c, int d, int e, int f);
+  virtual void SetOutputExtent(const int a[6]) {
+    this->SetOutputExtent(a[0], a[1], a[2], a[3], a[4], a[5]); };
   vtkGetVector6Macro(OutputExtent, int);
-  void SetOutputExtentToDefault() {
-    this->SetOutputExtent(VTK_INT_MIN, VTK_INT_MAX,
-                          VTK_INT_MIN, VTK_INT_MAX,
-                          VTK_INT_MIN, VTK_INT_MAX); };
+  void SetOutputExtentToDefault();
 
   // Description:
   // Force the dimensionality of the output to either 1, 2,
@@ -274,7 +275,7 @@ public:
   // Convenient methods for switching between nearest-neighbor and linear
   // interpolation.  
   // InterpolateOn() is equivalent to SetInterpolationModeToLinear() and
-  // InterpolateOff() is equivalent to SetInterpolationModeToNearestNeighbor().
+  // InterpolateOff() is equivalent to SetInterpolationModeToNearestNeighbor()
   // You should not use these methods if you use the SetInterpolationMode
   // methods.
   void SetInterpolate(int t) {
@@ -318,6 +319,9 @@ protected:
   int TransformInputSampling;
   int AutoCropOutput;
   int HitInputExtent;
+  int ComputeOutputSpacing;
+  int ComputeOutputOrigin;
+  int ComputeOutputExtent;
 
   vtkMatrix4x4 *IndexMatrix;
   vtkAbstractTransform *OptimizedTransform;
@@ -344,27 +348,4 @@ private:
   void operator=(const vtkImageReslice&);  // Not implemented.
 };
 
-//----------------------------------------------------------------------------
-inline const char *vtkImageReslice::GetInterpolationModeAsString()
-{
-  switch (this->InterpolationMode)
-    {
-    case VTK_RESLICE_NEAREST:
-      return "NearestNeighbor";
-    case VTK_RESLICE_LINEAR:
-      return "Linear";
-    case VTK_RESLICE_RESERVED_2:
-      return "ReservedValue";
-    case VTK_RESLICE_CUBIC:
-      return "Cubic";
-    default:
-      return "";
-    }
-}  
-
 #endif
-
-
-
-
-

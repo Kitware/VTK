@@ -72,6 +72,12 @@ public:
   virtual void SetVariableArrayStatus(const char *name, int status);
 
   // Description:
+  // Convenience method to get a list of variable arrays.  The length of the
+  // returned list is the same as GetNumberOfVariableArrays, and the string
+  // at each index i is the same as returned from GetVariableArrayname(i).
+  virtual vtkStringArray *GetAllVariableArrayNames();
+
+  // Description:
   // Returns an array with string encodings for the dimensions used in each of
   // the variables.  The indices in the returned array correspond to those used
   // in the GetVariableArrayName method.  Two arrays with the same dimensions
@@ -120,6 +126,8 @@ protected:
   vtkSmartPointer<vtkIntArray> LoadingDimensions;
 
   vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
+
+  vtkSmartPointer<vtkStringArray> AllVariableArrayNames;
 
   // Description:
   // Placeholder for structure returned from GetVariableDimensions().

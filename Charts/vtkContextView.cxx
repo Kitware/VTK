@@ -24,6 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkInteractorStyleRubberBand2D.h"
 
 #include "vtkObjectFactory.h"
 
@@ -46,11 +47,13 @@ vtkContextView::vtkContextView()
   this->Scene = actor->GetScene(); // We keep a pointer to this for convenience
   // Should not need to do this...
   this->Scene->SetRenderer(this->Renderer);
-  this->Scene->SetInteractorStyle(
-      vtkInteractorStyle::SafeDownCast(this->RenderWindow->GetInteractor()
-                                       ->GetInteractorStyle()));
 
-  // Single color background
+  vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
+  this->GetInteractor()->SetInteractorStyle(style);
+  this->Scene->SetInteractorStyle(style);
+  style->Delete();
+
+  // Single color background by default.
   this->Renderer->SetBackground(1.0, 1.0, 1.0);
 }
 
@@ -69,24 +72,6 @@ vtkContext2D* vtkContextView::GetContext()
 vtkContextScene* vtkContextView::GetScene()
 {
   return this->Scene;
-}
-
-//----------------------------------------------------------------------------
-void vtkContextView::Render()
-{
-  this->Update();
-  this->PrepareForRendering();
-  this->Renderer->ResetCameraClippingRange();
-  this->RenderWindow->Render();
-
-  // Render our scene
-/*  this->Context->GetDevice()->Begin(this->Renderer);
-  int size[2];
-  size[0] = this->Renderer->GetSize()[0];
-  size[1] = this->Renderer->GetSize()[1];
-  this->Scene->SetGeometry(&size[0]);
-  this->Scene->Paint(this->Context);
-  this->Context->GetDevice()->End(); */
 }
 
 //----------------------------------------------------------------------------

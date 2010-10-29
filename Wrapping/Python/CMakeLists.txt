@@ -3,8 +3,11 @@
 #-----------------------
 # for libvtkPythonCore.so, the core classes and utilities for VTK-Python
 SET(VTK_PYTHON_CORE_SRCS
+  vtkPythonArgs.cxx
+  vtkPythonOverload.cxx
   vtkPythonUtil.cxx
   PyVTKClass.cxx
+  PyVTKMutableObject.cxx
   PyVTKObject.cxx
   PyVTKSpecialObject.cxx
 )
@@ -66,12 +69,6 @@ IF(UNIX)
     DOC "Utility library needed for vtkpython"
     )
   MARK_AS_ADVANCED(PYTHON_UTIL_LIBRARY)
-ENDIF(UNIX)
-
-IF(UNIX)
-  SET(PYTHON_MODULE_PREFIX "lib")
-ELSE(UNIX)
-  SET(PYTHON_MODULE_PREFIX "")
 ENDIF(UNIX)
 
 PYTHON_WRITE_MODULES_HEADER("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
@@ -604,6 +601,17 @@ IF(VTK_USE_MPI)
 ELSE(VTK_USE_MPI)
   SET(VTK_PYTHON_USE_MPI 0)
 ENDIF(VTK_USE_MPI)
+IF(VTK_USE_QT AND VTK_WRAP_PYTHON_SIP)
+  SET(VTK_PYTHON_USE_QT 1)
+ELSE(VTK_USE_QT AND VTK_WRAP_PYTHON_SIP)
+  SET(VTK_PYTHON_USE_QT 0)
+ENDIF(VTK_USE_QT AND VTK_WRAP_PYTHON_SIP)
+IF(VTK_WRAP_PYTHON_SIP)
+  SET(VTK_PYTHON_USE_SIP 1)
+ELSE(VTK_WRAP_PYTHON_SIP)
+  SET(VTK_PYTHON_USE_SIP 0)
+ENDIF(VTK_WRAP_PYTHON_SIP)
+
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in
                ${VTK_BINARY_DIR}/Wrapping/Python/setup.py @ONLY IMMEDIATE)
 

@@ -560,6 +560,26 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ColorMap: (none)\n";
     }
 
+  if ( this->Reslice )
+    {
+    os << indent << "Reslice:\n";
+    this->Reslice->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Reslice: (none)\n";
+    }
+
+  if ( this->ResliceAxes )
+    {
+    os << indent << "ResliceAxes:\n";
+    this->ResliceAxes->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "ResliceAxes: (none)\n";
+    }
+
   double *o = this->PlaneSource->GetOrigin();
   double *pt1 = this->PlaneSource->GetPoint1();
   double *pt2 = this->PlaneSource->GetPoint2();

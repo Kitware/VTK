@@ -2269,6 +2269,7 @@ macro:
   SetMacro '(' any_id ',' {preSig("void Set"); postSig("(");} type ')'
    {
    postSig("a);");
+   currentFunction->Macro = "vtkSetMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Comment = vtkstrdup(getComment());
    add_argument(currentFunction, $<integer>6, getTypeId(), 0);
@@ -2279,6 +2280,7 @@ macro:
    {markSig();} type {swapSig();} ')'
    {
    postSig("();");
+   currentFunction->Macro = "vtkGetMacro";
    currentFunction->Name = vtkstrcat("Get", $<str>4);
    currentFunction->Comment = vtkstrdup(getComment());
    set_return(currentFunction, $<integer>7, getTypeId(), 0);
@@ -2287,6 +2289,7 @@ macro:
 | SetStringMacro '(' {preSig("void Set");} any_id ')'
    {
    postSig("(char *);");
+   currentFunction->Macro = "vtkSetStringMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>4);
    currentFunction->Comment = vtkstrdup(getComment());
    add_argument(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
@@ -2296,6 +2299,7 @@ macro:
 | GetStringMacro '(' {preSig("char *Get");} any_id ')'
    {
    postSig("();");
+   currentFunction->Macro = "vtkGetStringMacro";
    currentFunction->Name = vtkstrcat("Get", $<str>4);
    currentFunction->Comment = vtkstrdup(getComment());
    set_return(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
@@ -2308,6 +2312,7 @@ macro:
    chopSig();
    typeText = copySig();
 
+   currentFunction->Macro = "vtkSetClampMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Signature =
      vtkstrcat5("void ", currentFunction->Name, "(", typeText, ");");
@@ -2316,6 +2321,7 @@ macro:
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
 
+   currentFunction->Macro = "vtkSetClampMacro";
    currentFunction->Name = vtkstrcat3("Get", $<str>3, "MinValue");
    currentFunction->Signature =
      vtkstrcat4(typeText, " ", currentFunction->Name, "();");
@@ -2323,6 +2329,7 @@ macro:
    set_return(currentFunction, $<integer>6, getTypeId(), 0);
    output_function();
 
+   currentFunction->Macro = "vtkSetClampMacro";
    currentFunction->Name = vtkstrcat3("Get", $<str>3, "MaxValue");
    currentFunction->Signature =
      vtkstrcat4(typeText, " ", currentFunction->Name, "();");
@@ -2334,6 +2341,7 @@ macro:
   {preSig("void Set"); postSig("("); } type_red2 ')'
    {
    postSig("*);");
+   currentFunction->Macro = "vtkSetObjectMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Comment = vtkstrdup(getComment());
    add_argument(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
@@ -2344,6 +2352,7 @@ macro:
    {markSig();} type_red2 {swapSig();} ')'
    {
    postSig("();");
+   currentFunction->Macro = "vtkGetObjectMacro";
    currentFunction->Name = vtkstrcat("Get", $<str>4);
    currentFunction->Comment = vtkstrdup(getComment());
    set_return(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
@@ -2351,6 +2360,7 @@ macro:
    }
 | BooleanMacro '(' any_id ',' type_red2 ')'
    {
+   currentFunction->Macro = "vtkBooleanMacro";
    currentFunction->Name = vtkstrcat($<str>3, "On");
    currentFunction->Comment = vtkstrdup(getComment());
    currentFunction->Signature =
@@ -2358,6 +2368,7 @@ macro:
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
 
+   currentFunction->Macro = "vtkBooleanMacro";
    currentFunction->Name = vtkstrcat($<str>3, "Off");
    currentFunction->Comment = vtkstrdup(getComment());
    currentFunction->Signature =
@@ -2411,6 +2422,7 @@ macro:
    const char *typeText;
    chopSig();
    typeText = copySig();
+   currentFunction->Macro = "vtkSetVectorMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Signature =
      vtkstrcat7("void ", currentFunction->Name, "(", typeText,
@@ -2425,6 +2437,7 @@ macro:
      type_red2 ',' INT_LITERAL ')'
    {
    chopSig();
+   currentFunction->Macro = "vtkGetVectorMacro";
    currentFunction->Name = vtkstrcat("Get", $<str>3);
    postSig(" *");
    postSig(currentFunction->Name);
@@ -2436,6 +2449,7 @@ macro:
    }
 | ViewportCoordinateMacro '(' any_id ')'
    {
+     currentFunction->Macro = "vtkViewportCoordinateMacro";
      currentFunction->Name = vtkstrcat3("Get", $<str>3, "Coordinate");
      currentFunction->Signature =
        vtkstrcat3("vtkCoordinate *", currentFunction->Name, "();");
@@ -2443,6 +2457,7 @@ macro:
      set_return(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkCoordinate", 0);
      output_function();
 
+     currentFunction->Macro = "vtkViewportCoordinateMacro";
      currentFunction->Name = vtkstrcat("Set", $<str>3);
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double, double);");
@@ -2452,6 +2467,7 @@ macro:
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
+     currentFunction->Macro = "vtkViewportCoordinateMacro";
      currentFunction->Name = vtkstrcat("Set", $<str>3);
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double a[2]);");
@@ -2460,6 +2476,7 @@ macro:
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
+     currentFunction->Macro = "vtkViewportCoordinateMacro";
      currentFunction->Name = vtkstrcat("Get", $<str>3);
      currentFunction->Signature =
        vtkstrcat3("double *", currentFunction->Name, "();");
@@ -2469,6 +2486,7 @@ macro:
    }
 | WorldCoordinateMacro '(' any_id ')'
    {
+     currentFunction->Macro = "vtkWorldCoordinateMacro";
      currentFunction->Name = vtkstrcat3("Get", $<str>3, "Coordinate");
      currentFunction->Signature =
        vtkstrcat3("vtkCoordinate *", currentFunction->Name, "();");
@@ -2476,6 +2494,7 @@ macro:
      set_return(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkCoordinate", 0);
      output_function();
 
+     currentFunction->Macro = "vtkWorldCoordinateMacro";
      currentFunction->Name = vtkstrcat("Set", $<str>3);
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double, double, double);");
@@ -2486,6 +2505,7 @@ macro:
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
+     currentFunction->Macro = "vtkWorldCoordinateMacro";
      currentFunction->Name = vtkstrcat("Set", $<str>3);
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double a[3]);");
@@ -2494,6 +2514,7 @@ macro:
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
+     currentFunction->Macro = "vtkWorldCoordinateMacro";
      currentFunction->Name = vtkstrcat("Get", $<str>3);
      currentFunction->Signature =
        vtkstrcat3("double *", currentFunction->Name, "();");
@@ -2506,6 +2527,7 @@ macro:
    int is_concrete = 0;
    int i;
 
+   currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = vtkstrdup("GetClassName");
    currentFunction->Signature = vtkstrdup("const char *GetClassName();");
    currentFunction->Comment = vtkstrdup(getComment());
@@ -2513,6 +2535,7 @@ macro:
               "char", 0);
    output_function();
 
+   currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = vtkstrdup("IsA");
    currentFunction->Signature = vtkstrdup("int IsA(const char *name);");
    currentFunction->Comment = vtkstrdup(getComment());
@@ -2521,6 +2544,7 @@ macro:
    set_return(currentFunction, VTK_PARSE_INT, "int", 0);
    output_function();
 
+   currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = vtkstrdup("NewInstance");
    currentFunction->Signature = vtkstrcat($<str>3, " *NewInstance();");
    currentFunction->Comment = vtkstrdup(getComment());
@@ -2538,6 +2562,7 @@ macro:
 
    if ( is_concrete )
      {
+     currentFunction->Macro = "vtkTypeMacro";
      currentFunction->Name = vtkstrdup("SafeDownCast");
      currentFunction->Signature =
        vtkstrcat($<str>3, " *SafeDownCast(vtkObject* o);");
@@ -2651,6 +2676,7 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->Template = NULL;
   func->NumberOfArguments = 0;
   func->ReturnValue = NULL;
+  func->Macro = NULL;
   func->IsStatic = 0;
   func->IsVirtual = 0;
   func->IsPureVirtual = 0;
@@ -2658,10 +2684,10 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->IsVariadic = 0;
   func->IsConst = 0;
   func->IsExplicit = 0;
-  func->ReturnType = VTK_PARSE_VOID;
 
   /* everything below here is legacy information, *
    * maintained only for backwards compatibility  */
+  func->ReturnType = VTK_PARSE_VOID;
   func->ReturnClass = NULL;
   func->HaveHint = 0;
   func->HintSize = 0;
@@ -2689,6 +2715,7 @@ void vtkParse_InitValue(ValueInfo *val)
   val->Type = 0;
   val->Class = NULL;
   val->Count = 0;
+  val->CountHint = NULL;
   val->NumberOfDimensions = 0;
   val->Function = NULL;
   val->IsStatic = 0;
@@ -3239,11 +3266,11 @@ unsigned int guess_constant_type(const char *valstring)
 
     if (result == VTK_PARSE_PREPROC_DOUBLE)
       {
-      return VTK_DOUBLE;
+      return VTK_PARSE_DOUBLE;
       }
     else if (result == VTK_PARSE_PREPROC_FLOAT)
       {
-      return VTK_FLOAT;
+      return VTK_PARSE_FLOAT;
       }
     else if (result == VTK_PARSE_PREPROC_STRING)
       {
@@ -3661,11 +3688,8 @@ void output_function()
   if (currentFunction->NumberOfArguments
       && (currentFunction->Arguments[0]->Type == VTK_PARSE_FUNCTION))
     {
-    if (currentFunction->NumberOfArguments == 2)
-      {
-      currentFunction->NumberOfArguments = 1;
-      }
-    else
+    if (currentFunction->NumberOfArguments != 2 ||
+        currentFunction->Arguments[1]->Type != VTK_PARSE_VOID_PTR)
       {
       currentFunction->ArrayFailure = 1;
       }
@@ -3755,11 +3779,19 @@ void output_function()
 void outputSetVectorMacro(const char *var, unsigned int argType,
                           const char *typeText, int n)
 {
-  int i;
+  static const char *mnames[] = {
+    NULL, NULL,
+    "vtkSetVector2Macro", "vtkSetVector3Macro", "vtkSetVector4Macro",
+    NULL,
+    "vtkSetVector6Macro",
+    NULL };
   char ntext[32];
+  int i, m;
+  m = (n > 7 ? 0 : n);
 
   sprintf(ntext, "%i", n);
 
+  currentFunction->Macro = mnames[m];
   currentFunction->Name = vtkstrcat("Set", var);
   startSig();
   postSig("void ");
@@ -3779,6 +3811,7 @@ void outputSetVectorMacro(const char *var, unsigned int argType,
   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
   output_function();
 
+  currentFunction->Macro = mnames[m];
   currentFunction->Name = vtkstrcat("Set", var);
   currentFunction->Signature =
     vtkstrcat7("void ", currentFunction->Name, "(", getTypeId(),
@@ -3792,6 +3825,16 @@ void outputSetVectorMacro(const char *var, unsigned int argType,
 void outputGetVectorMacro(const char *var, unsigned int argType,
                           const char *typeText, int n)
 {
+  static const char *mnames[] = {
+    NULL, NULL,
+    "vtkGetVector2Macro", "vtkGetVector3Macro", "vtkGetVector4Macro",
+    NULL,
+    "vtkGetVector6Macro",
+    NULL };
+  int m;
+  m = (n > 7 ? 0 : n);
+
+  currentFunction->Macro = mnames[m];
   currentFunction->Name = vtkstrcat("Get", var);
   currentFunction->Signature =
     vtkstrcat4(typeText, " *", currentFunction->Name, "();");
@@ -4038,6 +4081,101 @@ void vtkParse_AddStringToArray(
   (*valueArray)[(*count)++] = value;
 }
 
+/* duplicate the first n bytes of a string and terminate */
+const char *vtkParse_DuplicateString(const char *cp, size_t n)
+{
+  char *res = NULL;
+
+  res = vtkstralloc(n);
+  strncpy(res, cp, n);
+  res[n] = '\0';
+
+  return res;
+}
+
+/* Expand a typedef within a type declaration. */
+void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo)
+{
+  const char *classname;
+  unsigned int baseType;
+  unsigned int pointers;
+  unsigned int qualifiers;
+  unsigned int tmp1, tmp2;
+  int i;
+
+  classname = typedefinfo->Class;
+  baseType = (typedefinfo->Type & VTK_PARSE_BASE_TYPE);
+  pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
+  qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
+
+  /* handle const */
+  if ((valinfo->Type & VTK_PARSE_CONST) != 0)
+    {
+    if ((pointers & VTK_PARSE_POINTER_LOWMASK) != 0)
+      {
+      if ((pointers & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_ARRAY)
+        {
+        /* const turns into const pointer */
+        pointers = (pointers & ~VTK_PARSE_POINTER_LOWMASK);
+        pointers = (pointers | VTK_PARSE_CONST_POINTER);
+        }
+      }
+    else
+      {
+      /* const remains as const value */
+      qualifiers = (qualifiers | VTK_PARSE_CONST);
+      }
+    }
+
+  /* make a reversed copy of the pointer bitfield */
+  tmp1 = (valinfo->Type & VTK_PARSE_POINTER_MASK);
+  tmp2 = 0;
+  while (tmp1)
+    {
+    tmp2 = ((tmp2 << 2) | (tmp1 & VTK_PARSE_POINTER_LOWMASK));
+    tmp1 = ((tmp1 >> 2) & VTK_PARSE_POINTER_MASK);
+    }
+
+  /* turn pointers into zero-element arrays where necessary */
+  if ((pointers & VTK_PARSE_POINTER_LOWMASK) == VTK_PARSE_ARRAY)
+    {
+    tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
+    while (tmp2)
+      {
+      vtkParse_AddStringToArray(
+        &valinfo->Dimensions, &valinfo->NumberOfDimensions, "");
+      tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
+      }
+    }
+  else
+    {
+    /* combine the pointers */
+    while (tmp2)
+      {
+      pointers = ((pointers << 2) | (tmp2 & VTK_PARSE_POINTER_LOWMASK));
+      tmp2 = ((tmp2 >> 2) & VTK_PARSE_POINTER_MASK);
+      }
+    }
+
+  /* combine the arrays */
+  for (i = 0; i < typedefinfo->NumberOfDimensions; i++)
+    {
+    vtkParse_AddStringToArray(
+      &valinfo->Dimensions, &valinfo->NumberOfDimensions,
+      typedefinfo->Dimensions[i]);
+    }
+  if (valinfo->NumberOfDimensions > 1)
+    {
+    pointers = ((pointers & ~VTK_PARSE_POINTER_LOWMASK) | VTK_PARSE_ARRAY);
+    }
+
+  /* put everything together */
+  valinfo->Type = (baseType | pointers | qualifiers);
+  valinfo->Class = classname;
+  valinfo->Function = typedefinfo->Function;
+  valinfo->Count *= typedefinfo->Count;
+}
+
 /* Set a flag to ignore BTX/ETX markers in the files */
 void vtkParse_SetIgnoreBTX(int option)
 {
@@ -4222,6 +4360,7 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
               case VTK_PARSE_UNSIGNED_LONG_PTR:
               case VTK_PARSE_SIGNED_CHAR_PTR:
               case VTK_PARSE_UNSIGNED_CHAR_PTR:
+              case VTK_PARSE_CHAR_PTR:
                 {
                 if (func_info->ReturnValue &&
                     func_info->ReturnValue->NumberOfDimensions == 0)
@@ -4298,4 +4437,14 @@ const char *vtkParse_FindIncludeFile(const char *filename)
 {
   int val;
   return vtkParsePreprocess_FindIncludeFile(&preprocessor, filename, 0, &val);
+}
+
+/** Simple utility for mapping VTK types to VTK_PARSE types */
+unsigned int vtkParse_MapType(int vtktype)
+{
+  if (vtktype > 0 && vtktype <= VTK_UNICODE_STRING)
+    {
+    return vtkParseTypeMap[vtktype];
+    }
+  return 0;
 }

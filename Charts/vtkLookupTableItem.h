@@ -20,12 +20,19 @@
 
 class vtkLookupTable;
 
+// Description:
+// vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
+// vtkScalarsToColors::MaskAboveCurve have no effect here.
 class VTK_CHARTS_EXPORT vtkLookupTableItem: public vtkScalarsToColorsItem
 {
 public:
   static vtkLookupTableItem* New();
   vtkTypeMacro(vtkLookupTableItem, vtkScalarsToColorsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
+
+  // Description:
+  // Reimplemented to return the range of the lookup table
+  virtual void GetBounds(double bounds[4]);
 
   void SetLookupTable(vtkLookupTable* t);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
@@ -35,9 +42,6 @@ protected:
   virtual ~vtkLookupTableItem();
 
   virtual void ComputeTexture();
-  virtual void ScalarsToColorsModified(vtkObject* object,
-                                       unsigned long eid,
-                                       void* calldata);
   vtkLookupTable* LookupTable;
 
 private:

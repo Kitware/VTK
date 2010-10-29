@@ -23,6 +23,7 @@
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDirectedGraph.h"
 #include "vtkDistributedGraphHelper.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkGraphEdge.h"
@@ -32,10 +33,13 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkUndirectedGraph.h"
 #include "vtkVertexListIterator.h"
 #include "vtkVariantArray.h"
 #include "vtkStringArray.h"
@@ -1551,6 +1555,7 @@ void vtkGraph::RemoveVertexInternal(vtkIdType v, bool directed)
     {
     double x[3];
     this->Points->GetPoint(lv, x);
+//    this->Points->GetPoint(lv);
     this->Points->SetPoint(v, x);
     this->Points->SetNumberOfPoints(lv);
     }
@@ -1839,6 +1844,141 @@ void vtkGraph::Dump()
            << this->EdgeList->GetValue(2*e + 1) << ")" << endl;
       }
     cout << endl;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetEdgeId(vtkIdType a, vtkIdType b)
+{
+  // Check if there is an edge from b to a
+  vtkSmartPointer<vtkInEdgeIterator> inEdgeIterator =
+    vtkSmartPointer<vtkInEdgeIterator>::New();
+  this->GetInEdges(a, inEdgeIterator);
+
+  while(inEdgeIterator->HasNext())
+    {
+    vtkInEdgeType edge = inEdgeIterator->Next();
+    if(edge.Source == b)
+      {
+      return edge.Id;
+      }
+    }
+
+  // Check if there is an edge from a to b
+  vtkSmartPointer<vtkOutEdgeIterator> outEdgeIterator =
+    vtkSmartPointer<vtkOutEdgeIterator>::New();
+  this->GetOutEdges(a, outEdgeIterator);
+
+  while(outEdgeIterator->HasNext())
+    {
+    vtkOutEdgeType edge = outEdgeIterator->Next();
+    if(edge.Target == b)
+      {
+      return edge.Id;
+      }
+    }
+
+  return -1;
+}
+
+
+//----------------------------------------------------------------------------
+bool vtkGraph::ToDirectedGraph(vtkDirectedGraph* g)
+{
+  // This function will convert a vtkUndirectedGraph to a
+  // vtkDirectedGraph. It copies all of the data associated
+  // with the graph by calling CopyInternal. Only one directed
+  // edge is added for each input undirected edge.
+
+  if(this->IsA("vtkDirectedGraph"))
+    {
+    // Return the status of CheckedShallowCopy
+    return g->CheckedShallowCopy(this);
+    }
+  else if(this->IsA("vtkUndirectedGraph"))
+    {
+    vtkSmartPointer<vtkMutableDirectedGraph> m =
+      vtkSmartPointer<vtkMutableDirectedGraph>::New();
+    for(vtkIdType i = 0; i < this->GetNumberOfVertices(); i++)
+      {
+      m->AddVertex();
+      }
+
+    // Need to add edges in the same order by index.
+    // vtkEdgeListIterator does not guarantee this, so we cannot use it.
+    for(vtkIdType i = 0; i < this->GetNumberOfEdges(); i++)
+      {
+      m->AddEdge(this->GetSourceVertex(i), this->GetTargetVertex(i));
+      }
+
+    if(g->IsStructureValid(m))
+      {
+      // Force full copy from this, internals will be invalid
+      g->CopyInternal(this, false);
+
+      // Make internals valid
+      g->SetInternals(m->Internals);
+      return true;
+      }
+    else
+      {
+      return false;
+      }
+    }
+  else
+    {
+    g = NULL;
+    return false;
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraph::ToUndirectedGraph(vtkUndirectedGraph* g)
+{
+  // This function will convert a vtkDirectedGraph to a
+  // vtkUndirectedGraph. It copies all of the data associated
+  // with the graph by calling CopyInternal
+
+  if(this->IsA("vtkUndirectedGraph"))
+    {
+    // A normal CheckedShallowCopy will work fine.
+    return g->CheckedShallowCopy(this);
+    }
+  else if(this->IsA("vtkDirectedGraph"))
+    {
+    vtkSmartPointer<vtkMutableUndirectedGraph> m =
+      vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+    for(vtkIdType i = 0; i < this->GetNumberOfVertices(); i++)
+      {
+      m->AddVertex();
+      }
+
+    // Need to add edges in the same order by index.
+    // vtkEdgeListIterator does not guarantee this, so we cannot use it.
+    for(vtkIdType i = 0; i < this->GetNumberOfEdges(); i++)
+      {
+      m->AddEdge(this->GetSourceVertex(i), this->GetTargetVertex(i));
+      }
+
+    if(g->IsStructureValid(m))
+      {
+      // Force full copy from this, internals will be invalid
+      g->CopyInternal(this, false);
+
+      // Make internals valid
+      g->SetInternals(m->Internals);
+
+      return true;
+      }
+    else
+      {
+      return false;
+      }
+    }
+  else
+    {
+    g = NULL;
+    return false;
     }
 }
 

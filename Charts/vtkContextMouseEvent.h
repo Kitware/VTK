@@ -30,9 +30,10 @@ public:
   // Description:
   // Enumeration of mouse buttons.
   enum {
-    LEFT_BUTTON = 0,
-    MIDDLE_BUTTON,
-    RIGHT_BUTTON
+    NO_BUTTON = 0,
+    LEFT_BUTTON = 1,
+    MIDDLE_BUTTON = 2,
+    RIGHT_BUTTON = 4
   };
 
   // Description:
@@ -60,7 +61,7 @@ public:
   vtkVector2i LastScreenPos;
 
   // Description:
-  // Mouse button that was pressed, using the anonymous enumeration.
+  // Mouse button that caused the event, using the anonymous enumeration.
   int Button;
 };
 //ETX

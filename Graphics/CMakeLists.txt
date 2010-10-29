@@ -16,6 +16,7 @@ vtkAppendPolyData.cxx
 vtkAppendSelection.cxx
 vtkApproximatingSubdivisionFilter.cxx
 vtkArcSource.cxx
+vtkAreaContourSpectrumFilter.cxx
 vtkArrayCalculator.cxx
 vtkArrowSource.cxx
 vtkAssignAttribute.cxx
@@ -32,6 +33,7 @@ vtkButtonSource.cxx
 vtkCellCenters.cxx
 vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
+vtkCellLocatorInterpolatedVelocityField.cxx
 vtkCellQuality.cxx
 vtkCleanPolyData.cxx
 vtkClipClosedSurface.cxx
@@ -161,6 +163,7 @@ vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
 vtkModelMetadata.cxx
+vtkModifiedBSPTree.cxx
 vtkMultiBlockDataGroupFilter.cxx
 vtkMultiBlockMergeFilter.cxx
 vtkMultiThreshold.cxx
@@ -179,6 +182,7 @@ vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataPointSampler.cxx
 vtkPolyDataStreamer.cxx
+vtkPolyDataToReebGraphFilter.cxx
 vtkProbeFilter.cxx
 vtkProbePolyhedron.cxx
 vtkProbeSelectedLocations.cxx
@@ -202,6 +206,9 @@ vtkRectilinearGridGeometryFilter.cxx
 vtkRectilinearGridToTetrahedra.cxx
 vtkRectilinearSynchronizedTemplates.cxx
 vtkRecursiveDividingCubes.cxx
+vtkReebGraphSimplificationFilter.cxx
+vtkReebGraphSurfaceSkeletonFilter.cxx
+vtkReebGraphVolumeSkeletonFilter.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx
 vtkReverseSense.cxx
@@ -266,9 +273,11 @@ vtkTriangularTCoords.cxx
 vtkTubeFilter.cxx
 vtkUncertaintyTubeFilter.cxx
 vtkUnstructuredGridGeometryFilter.cxx
+vtkUnstructuredGridToReebGraphFilter.cxx
 vtkVectorDot.cxx
 vtkVectorNorm.cxx
 vtkVertexGlyphFilter.cxx
+vtkVolumeContourSpectrumFilter.cxx
 vtkVoxelContoursToSurfaceFilter.cxx
 vtkWarpLens.cxx
 vtkWarpScalar.cxx
@@ -289,6 +298,13 @@ vtkInterpolatingSubdivisionFilter
 vtkStreamer
 ABSTRACT
 )
+
+IF(VTK_USE_BOOST)
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkReebGraphToJoinSplitTreeFilter.cxx
+    )
+ENDIF(VTK_USE_BOOST)
 
 # Add Matlab Engine and Matlab Mex related files.
 IF(VTK_USE_MATLAB_MEX)

@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSmartPointer.h"
+
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkClipPolyData.h"
@@ -32,11 +34,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
-
-
-double TestImplicitPlaneWidget2bPlaneOrigins[3][3] = 
+double TestImplicitPlaneWidget2bPlaneOrigins[3][3] =
 { { 0, 10, 0 }, { 10, 0 , 0 }, { 0, 0, 0 } };
 
 class vtkTimerCallback : public vtkCommand
@@ -66,7 +64,7 @@ public:
 
           vtkRenderer *renderer = iren->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
 
-          vtkImplicitPlaneRepresentation * rep = 
+          vtkImplicitPlaneRepresentation * rep =
             vtkImplicitPlaneRepresentation::SafeDownCast( this->Widget->GetRepresentation() );
           rep->SetOrigin( TestImplicitPlaneWidget2bPlaneOrigins[this->Count % 3] );
 
@@ -81,17 +79,17 @@ public:
           this->Widget->Render();
 
 
-          cout << "Origin of the widget = (" 
-            << TestImplicitPlaneWidget2bPlaneOrigins[this->Count %3][0] << " " 
-            << TestImplicitPlaneWidget2bPlaneOrigins[this->Count %3][1] << " " 
-            << TestImplicitPlaneWidget2bPlaneOrigins[this->Count %3][2] << ")" << endl;
-          cout << "Bounds of the widget = (" 
-            << b[0] << " " 
-            << b[1] << " " 
+          std::cout << "Origin of the widget = ("
+            << TestImplicitPlaneWidget2bPlaneOrigins[this->Count %3][0] << " "
+            << TestImplicitPlaneWidget2bPlaneOrigins[this->Count %3][1] << " "
+            << TestImplicitPlaneWidget2bPlaneOrigins[this->Count %3][2] << ")" << std::endl;
+          std::cout << "Bounds of the widget = ("
+            << b[0] << " "
+            << b[1] << " "
             << b[2] << " "
-            << b[3] << " " 
-            << b[4] << " " 
-            << b[5] << ")" << endl;
+            << b[3] << " "
+            << b[4] << " "
+            << b[5] << ")" << std::endl;
           }
         }
       else if (tid == this->QuitTimerId)
@@ -99,7 +97,7 @@ public:
         vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
         if (iren)
           {
-          cout << "Calling iren->ExitCallback()..." << endl;
+          std::cout << "Calling iren->ExitCallback()..." << std::endl;
           iren->ExitCallback();
           }
         }
@@ -117,9 +115,12 @@ int TestImplicitPlaneWidget2b( int, char *[] )
 {
   // Create a mace out of filters.
   //
-  vtkSphereSource *sphere = vtkSphereSource::New();
-  vtkConeSource *cone = vtkConeSource::New();
-  vtkGlyph3D *glyph = vtkGlyph3D::New();
+  vtkSmartPointer<vtkSphereSource> sphere =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkConeSource> cone =
+    vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkGlyph3D> glyph =
+    vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
   glyph->SetSource(cone->GetOutput());
   glyph->SetVectorModeToUseNormal();
@@ -127,31 +128,38 @@ int TestImplicitPlaneWidget2b( int, char *[] )
   glyph->SetScaleFactor(0.25);
   glyph->Update();
 
-  // The sphere and spikes are appended into a single polydata. 
+  // The sphere and spikes are appended into a single polydata.
   // This just makes things simpler to manage.
-  vtkAppendPolyData *apd = vtkAppendPolyData::New();
+  vtkSmartPointer<vtkAppendPolyData> apd =
+    vtkSmartPointer<vtkAppendPolyData>::New();
   apd->AddInput(glyph->GetOutput());
   apd->AddInput(sphere->GetOutput());
 
-  vtkPolyDataMapper *maceMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> maceMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(apd->GetOutputPort());
 
-  vtkLODActor *maceActor = vtkLODActor::New();
+  vtkSmartPointer<vtkLODActor> maceActor =
+    vtkSmartPointer<vtkLODActor>::New();
   maceActor->SetMapper(maceMapper);
   maceActor->VisibilityOn();
 
-  // This portion of the code clips the mace with the vtkPlanes 
+  // This portion of the code clips the mace with the vtkPlanes
   // implicit function. The clipped region is colored green.
-  vtkPlane *plane = vtkPlane::New();
-  vtkClipPolyData *clipper = vtkClipPolyData::New();
+  vtkSmartPointer<vtkPlane> plane =
+    vtkSmartPointer<vtkPlane>::New();
+  vtkSmartPointer<vtkClipPolyData> clipper =
+    vtkSmartPointer<vtkClipPolyData>::New();
   clipper->SetInputConnection(apd->GetOutputPort());
   clipper->SetClipFunction(plane);
   clipper->InsideOutOn();
 
-  vtkPolyDataMapper *selectMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkPolyDataMapper> selectMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   selectMapper->SetInputConnection(clipper->GetOutputPort());
 
-  vtkLODActor *selectActor = vtkLODActor::New();
+  vtkSmartPointer<vtkLODActor> selectActor =
+    vtkSmartPointer<vtkLODActor>::New();
   selectActor->SetMapper(selectMapper);
   selectActor->GetProperty()->SetColor(0,1,0);
   selectActor->VisibilityOff();
@@ -159,18 +167,23 @@ int TestImplicitPlaneWidget2b( int, char *[] )
 
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
-  vtkImplicitPlaneRepresentation *rep = vtkImplicitPlaneRepresentation::New();
+  vtkSmartPointer<vtkImplicitPlaneRepresentation> rep =
+    vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
   rep->SetPlaceFactor(1.25);
   rep->PlaceWidget(glyph->GetOutput()->GetBounds());
 
-  vtkImplicitPlaneWidget2 *planeWidget = vtkImplicitPlaneWidget2::New();
+  vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget =
+    vtkSmartPointer<vtkImplicitPlaneWidget2>::New();
   planeWidget->SetInteractor(iren);
   planeWidget->SetRepresentation(rep);
 
@@ -189,33 +202,15 @@ int TestImplicitPlaneWidget2b( int, char *[] )
   planeWidget->SetEnabled(1);
   renWin->Render();
 
-  vtkTimerCallback *cb = vtkTimerCallback::New();
+  vtkSmartPointer<vtkTimerCallback> cb =
+    vtkSmartPointer<vtkTimerCallback>::New();
   iren->AddObserver(vtkCommand::TimerEvent, cb);
   cb->TimerId = iren->CreateRepeatingTimer(2000); // 3 seconds
   cb->Widget = planeWidget;
-  
+
   // And create a one shot timer to quit after 10 seconds.
   cb->QuitTimerId = iren->CreateOneShotTimer(10000);
-  
+
   iren->Start();
-
-  cb->Delete();
-  sphere->Delete();
-  cone->Delete();
-  glyph->Delete();
-  apd->Delete();
-  maceMapper->Delete();
-  maceActor->Delete();
-  plane->Delete();
-  clipper->Delete();
-  selectMapper->Delete();
-  selectActor->Delete();
-  rep->Delete();
-  planeWidget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  
-  return 0;
+  return EXIT_SUCCESS;
 }
-

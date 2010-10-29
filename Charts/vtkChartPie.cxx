@@ -193,7 +193,7 @@ bool vtkChartPie::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button < 0)
+  if (mouse.Button == vtkContextMouseEvent::NO_BUTTON)
     {
     this->Scene->SetDirty(true);
     this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));

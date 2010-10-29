@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkPointwiseMutualInformation.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -51,8 +51,8 @@ void vtkPointwiseMutualInformation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkPointwiseMutualInformation::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   try
@@ -66,7 +66,7 @@ int vtkPointwiseMutualInformation::RequestData(
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
       throw vtkstd::runtime_error("Unsupported input array type.");
-    
+
     // Create an output array ...
     vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
     vtkArrayData* const output = vtkArrayData::GetData(outputVector);
@@ -109,27 +109,34 @@ int vtkPointwiseMutualInformation::RequestData(
 
     if(!array_sum)
       throw vtkstd::runtime_error("Cannot compute PMI with zero array probability.");
-    for(vtkIdType i = 0; i != dimension_count; ++i)
-      {
-      if(vtkstd::count(dimension_sums[i].begin(), dimension_sums[i].end(), 0))
-        throw vtkstd::runtime_error("Cannot compute PMI with zero dimension sums.");
-      }
 
     // Compute the PMI for each array value ...
     for(vtkIdType n = 0; n != value_count; ++n)
       {
       const double value = input_array->GetValueN(n);
-      if(!value)
+      input_array->GetCoordinatesN(n, coordinates);
+
+      bool zero_dim = false;
+      for(vtkIdType i = 0; i != dimension_count; ++i)
+        {
+        if(dimension_sums[i][coordinates[i]] == 0)
+          zero_dim = true;
+        }
+
+      if(!value || zero_dim)
         {
         output_array->SetValueN(n, 0);
         continue;
         }
 
-      input_array->GetCoordinatesN(n, coordinates);
-
       double result = value / array_sum;
       for(vtkIdType i = 0; i != dimension_count; ++i)
         {
+        if(dimension_sums[i][coordinates[i]] == 0)
+          {
+          result = 0;
+          break;
+          }
         result /= (value / dimension_sums[i][coordinates[i]]);
         }
 

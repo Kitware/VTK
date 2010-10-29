@@ -183,14 +183,16 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
     haruspex->AddColumn( columns[i] );
     }
 
-  // Use Learn option for quartiles with InverseCDFAveragedSteps quantile definition
+  // Use Learn and Derive options of order statistics with InverseCDFAveragedSteps quantile definition
   haruspex->SetLearnOption( true );
+  haruspex->SetDeriveOption( true );
+  haruspex->SetTestOption( false );
   haruspex->SetAssessOption( false );
   haruspex->Update();
 
   // Get calculated model
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputTable = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 0 ) );
+  vtkTable* outputTable = vtkTable::SafeDownCast( outputMetaDS->GetBlock( 2 ) );
 
   QTestApp app(argc, argv);
 

@@ -134,15 +134,48 @@ public:
                             double viewDirection[3],
                             double viewUp[3] );
 
+  // Description:
+  // Optionally, set a mask input. This mask may be a binary mask or a label
+  // map. This must be specified via SetMaskType.
+  //
+  // If the mask is a binary mask, the volume rendering is confined to regions
+  // within the binary mask. The binary mask is assumed to have a datatype of
+  // UCHAR and values of 255 (inside) and 0 (outside).
+  //
+  // The mask may also be a label map. The label map is allowed to contain only
+  // 3 labels (values of 0, 1 and 2) and must have a datatype of UCHAR. In voxels
+  // with label value of 0, the color transfer function supplied by component
+  // 0 is used.
+  //   In voxels with label value of 1, the color transfer function supplied by
+  // component 1 is used and blended with the transfer function supplied by
+  // component 0, with the blending weight being determined by
+  // MaskBlendFactor.
+  //    In voxels with a label value of 2, the color transfer function supplied
+  //  by component 2 is used and blended with the transfer function supplied by
+  // component 0, with the blending weight being determined by
+  // MaskBlendFactor.
   void SetMaskInput(vtkImageData *mask);
   vtkGetObjectMacro(MaskInput, vtkImageData);
 
+  //BTX
+  enum { BinaryMaskType = 0, LabelMapMaskType };
+  //ETX
+
+  // Description:
+  // Set the mask type, if mask is to be used. See documentation for
+  // SetMaskInput(). The default is a LabelMapMaskType.
+  vtkSetMacro( MaskType, int );
+  vtkGetMacro( MaskType, int );
+  void SetMaskTypeToBinary();
+  void SetMaskTypeToLabelMap();
+
   // Description:
   // Tells how much mask color transfer function is used compared to the
-  // standard color transfer function when the mask is true.
-  // 0.0 means only standard color transfer function.
-  // 1.0 means only mask color tranfer function.
-  // Initial value is 1.0.
+  // standard color transfer function when the mask is true. This is relevant
+  // only for the label map mask.
+  //   0.0 means only standard color transfer function.
+  //   1.0 means only mask color tranfer function.
+  // The default value is 1.0.
   vtkSetClampMacro(MaskBlendFactor,float,0.0f,1.0f);
   vtkGetMacro(MaskBlendFactor,float);
 
@@ -260,18 +293,15 @@ protected:
   //             this->CroppingRegionPlanes[4]<this->CroppingRegionPlanes[5])
   virtual void ClipCroppingRegionPlanes();
 
-  double ClippedCroppingRegionPlanes[6];
-
-  bool ReportProgress;
-
-  vtkImageData *MaskInput;
-
-  float MaskBlendFactor;
+  double         ClippedCroppingRegionPlanes[6];
+  bool           ReportProgress;
+  vtkImageData * MaskInput;
+  float          MaskBlendFactor;
+  int            MaskType;
+  vtkImageData * TransformedInput;
 
   vtkGetObjectMacro(TransformedInput, vtkImageData);
   void SetTransformedInput(vtkImageData*);
-
-  vtkImageData* TransformedInput;
 
   // Description:
   // This is needed only to check if the input data has been changed since the last

@@ -50,10 +50,10 @@ bool vtkContextClip::Paint(vtkContext2D *painter)
     clipBy = clip;
     }
 
-  int clipi[] = { static_cast<int>(clipBy[0]),
-                  static_cast<int>(clipBy[1]),
-                  static_cast<int>(clipBy[2]),
-                  static_cast<int>(clipBy[3]) };
+  int clipi[] = { vtkContext2D::FloatToInt(clipBy[0]),
+                  vtkContext2D::FloatToInt(clipBy[1]),
+                  vtkContext2D::FloatToInt(clipBy[2]),
+                  vtkContext2D::FloatToInt(clipBy[3]) };
 
   painter->GetDevice()->SetClipping(clipi);
   bool result = this->PaintChildren(painter);

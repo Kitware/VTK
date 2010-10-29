@@ -102,6 +102,16 @@ public:
 
 
   // Description:
+  // Set the color to use when a NaN (not a number) is encountered.  This is an
+  // RGB 3-tuple color of doubles in the range [0,1].
+  // Overridden to pass the NanColor to the internal vtkLookupTable.
+  virtual void SetNanColor(double r, double g, double b);
+  virtual void SetNanColor(double rgb[3]) {
+    this->SetNanColor(rgb[0], rgb[1], rgb[2]);
+  }
+
+
+  // Description:
   // This should return 1 is the subclass is using log scale for mapping scalars
   // to colors. 
   virtual int UsingLogScale()

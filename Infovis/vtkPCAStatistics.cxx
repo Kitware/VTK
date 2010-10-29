@@ -9,6 +9,8 @@
 #ifdef VTK_USE_GNU_R
 #include <vtkRInterface.h>
 #endif // VTK_USE_GNU_R
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
@@ -44,6 +46,154 @@ const char* vtkPCAStatistics::BasisSchemeEnumNames[NUM_BASIS_SCHEMES + 1] =
   "FixedBasisEnergy",
   "InvalidBasisScheme"
 };
+
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
+{
+  vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS =
+      vtkMultiBlockDataSet::SafeDownCast(
+        this->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
+  if(!outputMetaDS)
+    {
+    vtkErrorMacro(<<"NULL dataset pointer!");
+    }
+
+  vtkSmartPointer<vtkTable> outputMeta =
+    vtkTable::SafeDownCast( outputMetaDS->GetBlock( request + 1 ) );
+
+  if(!outputMetaDS)
+    {
+    vtkErrorMacro(<<"NULL table pointer!");
+    }
+
+  vtkDoubleArray* meanCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumnByName("Mean"));
+  vtkStringArray* rowNames = vtkStringArray::SafeDownCast(outputMeta->GetColumnByName("Column"));
+
+  eigenvalues->SetNumberOfComponents(1);
+
+  // Get values
+  int eval = 0;
+  for(vtkIdType i = 0; i < meanCol->GetNumberOfTuples(); i++)
+    {
+    std::stringstream ss;
+    ss << "PCA " << eval;
+
+    std::string rowName = rowNames->GetValue(i);
+    if(rowName.compare(ss.str()) == 0)
+      {
+      eigenvalues->InsertNextValue(meanCol->GetValue(i));
+      eval++;
+      }
+    }
+
+}
+
+// ----------------------------------------------------------------------
+double vtkPCAStatistics::GetEigenvalue(int request, int i)
+{
+  vtkSmartPointer<vtkDoubleArray> eigenvalues =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  this->GetEigenvalues(request, eigenvalues);
+  return eigenvalues->GetValue(i);
+}
+
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::GetEigenvalues(vtkDoubleArray* eigenvalues)
+{
+  this->GetEigenvalues(0, eigenvalues);
+}
+
+// ----------------------------------------------------------------------
+double vtkPCAStatistics::GetEigenvalue(int i)
+{
+  return this->GetEigenvalue(0,i);
+}
+
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors)
+{
+  // Count eigenvalues
+  vtkSmartPointer<vtkDoubleArray> eigenvalues =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  this->GetEigenvalues(request, eigenvalues);
+  vtkIdType numberOfEigenvalues = eigenvalues->GetNumberOfTuples();
+
+  vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS =
+      vtkMultiBlockDataSet::SafeDownCast(
+        this->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
+  if(!outputMetaDS)
+    {
+    vtkErrorMacro(<<"NULL dataset pointer!");
+    }
+
+  vtkSmartPointer<vtkTable> outputMeta =
+    vtkTable::SafeDownCast( outputMetaDS->GetBlock( request + 1 ) );
+
+  if(!outputMeta)
+    {
+    vtkErrorMacro(<<"NULL table pointer!");
+    }
+
+  vtkDoubleArray* meanCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumnByName("Mean"));
+  vtkStringArray* rowNames = vtkStringArray::SafeDownCast(outputMeta->GetColumnByName("Column"));
+
+  eigenvectors->SetNumberOfComponents(numberOfEigenvalues);
+
+  // Get vectors
+  int eval = 0;
+  for(vtkIdType i = 0; i < meanCol->GetNumberOfTuples(); i++)
+    {
+    std::stringstream ss;
+    ss << "PCA " << eval;
+
+    std::string rowName = rowNames->GetValue(i);
+    if(rowName.compare(ss.str()) == 0)
+      {
+      std::vector<double> eigenvector;
+      for(int val = 0; val < numberOfEigenvalues; val++)
+        {
+        // The first two columns will always be "Column" and "Mean", so start with the next one
+        vtkDoubleArray* currentCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumn(val+2));
+        eigenvector.push_back(currentCol->GetValue(i));
+        }
+
+      eigenvectors->InsertNextTupleValue(&eigenvector.front());
+      eval++;
+      }
+    }
+
+}
+
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::GetEigenvectors(vtkDoubleArray* eigenvectors)
+{
+  this->GetEigenvectors(0, eigenvectors);
+}
+
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenvector)
+{
+  vtkSmartPointer<vtkDoubleArray> eigenvectors =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  this->GetEigenvectors(request, eigenvectors);
+
+  double* evec = new double[eigenvectors->GetNumberOfComponents()];
+  eigenvectors->GetTupleValue(i, evec);
+
+  eigenvector->Reset();
+  eigenvector->Squeeze();
+  eigenvector->SetNumberOfComponents(eigenvectors->GetNumberOfComponents());
+  eigenvector->InsertNextTupleValue(evec);
+  delete evec;
+}
+
+// ----------------------------------------------------------------------
+void vtkPCAStatistics::GetEigenvector(int i, vtkDoubleArray* eigenvector)
+{
+  this->GetEigenvector(0, i, eigenvector);
+}
 
 // ======================================================== vtkPCAAssessFunctor
 class vtkPCAAssessFunctor : public vtkMultiCorrelativeAssessFunctor

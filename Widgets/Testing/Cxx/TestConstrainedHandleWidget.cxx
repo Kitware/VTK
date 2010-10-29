@@ -16,6 +16,8 @@
 // This example tests the vtkHandleWidget with a 2D representation
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkHandleWidget.h"
 #include "vtkConstrainedPointHandleRepresentation.h"
 #include "vtkCoordinate.h"
@@ -25,8 +27,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkImageActor.h"
 #include "vtkVolume16Reader.h"
 #include "vtkImageShiftScale.h"
@@ -40,7 +40,8 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
    
-  vtkVolume16Reader* v16 = vtkVolume16Reader::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 =
+    vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange(1, 93);
@@ -54,7 +55,8 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
-  vtkImageShiftScale* shifter = vtkImageShiftScale::New();
+  vtkSmartPointer<vtkImageShiftScale> shifter =
+    vtkSmartPointer<vtkImageShiftScale>::New();
   shifter->SetShift(-1.0*range[0]);
   shifter->SetScale(255.0/(range[1]-range[0]));
   shifter->SetOutputScalarTypeToUnsignedChar();
@@ -62,7 +64,8 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   shifter->ReleaseDataFlagOff();
   shifter->Update();
   
-  vtkImageActor* imageActor = vtkImageActor::New();
+  vtkSmartPointer<vtkImageActor> imageActor =
+    vtkSmartPointer<vtkImageActor>::New();
   imageActor->SetInput(shifter->GetOutput());
   imageActor->VisibilityOn();
 //  imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
@@ -71,17 +74,22 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
     
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
-  vtkConstrainedPointHandleRepresentation *handleRep = vtkConstrainedPointHandleRepresentation::New();
+  vtkSmartPointer<vtkConstrainedPointHandleRepresentation> handleRep =
+    vtkSmartPointer<vtkConstrainedPointHandleRepresentation>::New();
   handleRep->ActiveRepresentationOn();
 
-  vtkHandleWidget *handleWidget = vtkHandleWidget::New();
+  vtkSmartPointer<vtkHandleWidget> handleWidget =
+    vtkSmartPointer<vtkHandleWidget>::New();
   handleWidget->SetInteractor(iren);
   handleWidget->SetRepresentation(handleRep);
 
@@ -99,19 +107,23 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   double bounds[6];
   imageActor->GetBounds( bounds );
   
-  vtkPlane *p1 = vtkPlane::New();
+  vtkSmartPointer<vtkPlane> p1 =
+    vtkSmartPointer<vtkPlane>::New();
   p1->SetOrigin( bounds[0], bounds[2], bounds[4] );
   p1->SetNormal( 1.0, 0.0, 0.0 );
 
-  vtkPlane *p2 = vtkPlane::New();
+  vtkSmartPointer<vtkPlane> p2 =
+    vtkSmartPointer<vtkPlane>::New();
   p2->SetOrigin( bounds[0], bounds[2], bounds[4] );
   p2->SetNormal( 0.0, 0.0, 1.0 );
 
-  vtkPlane *p3 = vtkPlane::New();
+  vtkSmartPointer<vtkPlane> p3 =
+    vtkSmartPointer<vtkPlane>::New();
   p3->SetOrigin( bounds[1], bounds[3], bounds[5] );
   p3->SetNormal( -1.0, 0.0, 0.0 );
 
-  vtkPlane *p4 = vtkPlane::New();
+  vtkSmartPointer<vtkPlane> p4 =
+    vtkSmartPointer<vtkPlane>::New();
   p4->SetOrigin( bounds[1], bounds[3], bounds[5] );
   p4->SetNormal( 0.0, 0.0, -1.0 );
 
@@ -130,28 +142,8 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  v16->Delete();
-  shifter->Delete();
-  imageActor->Delete();
-  handleRep->Delete();
-  handleWidget->Off();
-  handleWidget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  p1->Delete();
-  p2->Delete();
-  p3->Delete();
-  p4->Delete();
+  iren->Start();
   
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
-
-
