@@ -35,11 +35,11 @@ vtkTextCodec* vtkUTF8TextCodecFromCallback()
 
 class vtkUTF8TextCodecRegister
 {
-  public:
-    vtkUTF8TextCodecRegister()
-    {
+public:
+  vtkUTF8TextCodecRegister()
+  {
       vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
-    }
+  }
 };
 
 
@@ -109,28 +109,23 @@ bool vtkUTF8TextCodec::IsValid(istream& InputStream)
 void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
                                  vtkTextCodec::OutputIterator& Output)
 {
-  while (!InputStream.eof())
+  try
     {
-    try
+    while (!InputStream.eof())
       {
-      if (1 <= InputStream.rdbuf()->in_avail())
-        {
-        vtkUnicodeString::value_type CodePoint = this->NextUnicode(InputStream);
-        *Output++ = CodePoint;
-        }
-      else
-        break;
+      vtkUnicodeString::value_type CodePoint = this->NextUnicode(InputStream);
+      *Output++ = CodePoint;
       }
-    catch (std::string& ef)
+    }
+  catch (std::string& ef)
+    {
+    if (ef == "End of Input")
       {
-      if (ef == "End of Input")
-        {
-        return; // we just completed the sequence...
-        }
-      else
-        {
-        throw ef;
-        }
+      return; // we just completed the sequence...
+      }
+    else
+      {
+      throw ef;
       }
     }
 }
@@ -141,22 +136,28 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
   istream::char_type c[5];
   c[4] = '\0';
 
-  unsigned int getSize = InputStream.readsome(c, 5);
-  if (0 == getSize)
+  unsigned int getSize = 0;
+  c[getSize] = InputStream.get();
+  if (InputStream.fail())
     {
     throw(std::string("End of Input"));
+    }
+
+  getSize = vtk_utf8::internal::sequence_length(c);
+
+  if (0 == getSize)
+    throw(std::string("Not enough space"));
+
+  for (unsigned int i = 1; i < getSize; ++i)
+    {
+    c[i] = InputStream.get();
+    if (InputStream.fail())
+      throw(std::string("Not enough space"));
     }
 
   istream::char_type* c1 = c;
 
   const vtkTypeUInt32 code_point = vtk_utf8::next(c1, &c[getSize]);
-
-  unsigned int nCharExtracted = c1 - c;
-  unsigned int nCharReturned = getSize - nCharExtracted;
-  for (unsigned int j = 0; j < nCharReturned; ++j)
-    {
-    InputStream.unget();
-    }
 
   return code_point;
 }
