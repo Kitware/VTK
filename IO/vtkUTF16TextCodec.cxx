@@ -91,17 +91,18 @@ namespace
   void utf16_to_unicode(const bool big_endian, istream& InputStream,
                         vtkTextCodec::OutputIterator& output)
   {
-    while(!InputStream.eof())
+    try
       {
-      unsigned int nAvail = InputStream.rdbuf()->in_avail() ;
-      istream::pos_type StreamPos = InputStream.tellg() ;
-      if (1 < nAvail)
+      while(!InputStream.eof())
         {
-        const vtkTypeUInt32 code_unit = utf16_to_unicode_next(big_endian, InputStream) ;
+        const vtkTypeUInt32 code_unit = utf16_to_unicode_next(big_endian, InputStream);
         *output++ = code_unit;
         }
-      else
-        break ;
+      }
+    catch(...)
+      {
+      if (!InputStream.eof())
+        throw;
       }
   }
 
@@ -118,8 +119,8 @@ namespace
     ~testIterator() {}
 
   private:
-    testIterator(const testIterator&) ; // Not implemented
-    const testIterator& operator=(const testIterator&) ; // Not Implemented
+    testIterator(const testIterator&); // Not implemented
+    const testIterator& operator=(const testIterator&); // Not Implemented
   } ;
 
 
@@ -176,11 +177,16 @@ void vtkUTF16TextCodec::FindEndianness(istream& InputStream)
 {
   _endianExplicitlySet = false ;
 
-  if(InputStream.rdbuf()->in_avail() > 1)
+  try
     {
     istream::char_type c1, c2 ;
-    InputStream.get(c1) ;
-    InputStream.get(c2) ;
+    c1 = InputStream.get() ;
+    if (InputStream.fail())
+        throw "End of Input reached while reading header." ;
+
+    c2 = InputStream.get() ;
+    if (InputStream.fail())
+        throw "End of Input reached while reading header." ;
 
     if(static_cast<unsigned char>(c1) == 0xfe &&
        static_cast<unsigned char>(c2) == 0xff)
@@ -193,8 +199,14 @@ void vtkUTF16TextCodec::FindEndianness(istream& InputStream)
     else
       throw vtkstd::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
     }
-  else
+  catch (char* cstr)
+    {
+    throw vtkstd::runtime_error(cstr) ;
+    }
+  catch (...)
+    {
     throw vtkstd::runtime_error("Cannot detect UTF-16 endianness.  Try 'UTF-16BE' or 'UTF-16LE' instead.");
+    }
 
 }
 
