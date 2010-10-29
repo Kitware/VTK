@@ -48,7 +48,7 @@
 
 // #include <utf8.h>
 
-/////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // DelimitedTextIterator
 
 /// Output iterator object that parses a stream of Unicode characters into records and
@@ -415,6 +415,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << "'" << endl;
   os << indent << "StringDelimiter: " 
      << this->StringDelimiter << endl;
+  os << indent << "ReplacementCharacter: " << this->ReplacementCharacter << endl;
   os << indent << "FieldDelimiterCharacters: "
      << (this->FieldDelimiterCharacters ? this->FieldDelimiterCharacters : "(none)") << endl;
   os << indent << "HaveHeaders: " 
