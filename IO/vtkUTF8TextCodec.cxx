@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkUTF8TextCodec);
 
 vtkTextCodec* vtkUTF8TextCodecFromCallback()
 {
-  return vtkUTF8TextCodec::New() ;
+   return vtkUTF8TextCodec::New();
 }
 
 class vtkUTF8TextCodecRegister
@@ -38,20 +38,24 @@ class vtkUTF8TextCodecRegister
 public:
   vtkUTF8TextCodecRegister()
   {
-    vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
+      vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
   }
 };
 
 
-static vtkUTF8TextCodecRegister foo ;
+static vtkUTF8TextCodecRegister foo;
 
 
 bool vtkUTF8TextCodec::CanHandle(const char* testStr)
 {
   if (0 == strcmp(testStr, "UTF-8"))
+    {
     return true;
+    }
   else
+    {
     return false;
+    }
 }
 
 
@@ -61,18 +65,18 @@ namespace
   class testIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    virtual testIterator& operator++(int) {return *this ;}
-    virtual testIterator& operator*() {return *this ;}
-    virtual testIterator& operator=(const vtkUnicodeString::value_type value)
-    {return *this ;}
+    virtual testIterator& operator++(int) {return *this;}
+    virtual testIterator& operator*() {return *this;}
+    virtual testIterator& operator=(const vtkUnicodeString::value_type)
+      {return *this;}
 
     testIterator() {}
-    ~testIterator() {}
+    virtual ~testIterator() {}
 
   private:
     testIterator(const testIterator&); // Not implemented
     const testIterator& operator=(const testIterator&); // Not Implemented
-  } ;
+  };
 
 
 } // end anonymous namespace
@@ -91,7 +95,7 @@ bool vtkUTF8TextCodec::IsValid(istream& InputStream)
     }
   catch(...)
     {
-    returnBool = false ;
+    returnBool = false;
     }
 
   // reset the stream
@@ -116,9 +120,13 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
   catch (std::string& ef)
     {
     if (ef == "End of Input")
+      {
       return; // we just completed the sequence...
+      }
     else
+      {
       throw ef;
+      }
     }
 }
 
@@ -131,7 +139,9 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
   unsigned int getSize = 0;
   c[getSize] = InputStream.get();
   if (InputStream.fail())
+    {
     throw(std::string("End of Input"));
+    }
 
   getSize = vtk_utf8::internal::sequence_length(c);
 
@@ -165,7 +175,7 @@ vtkUTF8TextCodec::~vtkUTF8TextCodec()
 
 void vtkUTF8TextCodec::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "vtkUTF8TextCodec (" << this << ") \n" ;
+  os << indent << "vtkUTF8TextCodec (" << this << ") \n";
   indent = indent.GetNextIndent();
-  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+  this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }
