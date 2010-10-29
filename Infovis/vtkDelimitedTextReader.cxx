@@ -104,8 +104,12 @@ public:
     // Ensure that all table columns have the same length ...
     for(vtkIdType i = 0; i != this->OutputTable->GetNumberOfColumns(); ++i)
       {
-      if(this->OutputTable->GetColumn(i)->GetNumberOfTuples() != this->OutputTable->GetColumn(0)->GetNumberOfTuples())
-        this->OutputTable->GetColumn(i)->Resize(this->OutputTable->GetColumn(0)->GetNumberOfTuples());
+      if(this->OutputTable->GetColumn(i)->GetNumberOfTuples() !=
+          this->OutputTable->GetColumn(0)->GetNumberOfTuples())
+        {
+        this->OutputTable->GetColumn(i)
+            ->Resize(this->OutputTable->GetColumn(0)->GetNumberOfTuples());
+        }
       }
   }
 
@@ -126,8 +130,9 @@ public:
       {
       return;
       }
-    vtkUnicodeString::value_type value = this->CurrentField[this->CurrentField.character_count()-1];
-    if(!this->RecordDelimiters.count(value)&&!this->Whitespace.count(value))
+    vtkUnicodeString::value_type value =
+        this->CurrentField[this->CurrentField.character_count()-1];
+    if(!this->RecordDelimiters.count(value) && !this->Whitespace.count(value))
       {
       this->InsertField();
       }
@@ -149,10 +154,13 @@ public:
   {
     // If we've already read our maximum number of records, we're done ...
     if(this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)
+      {
       return *this;
+      }
 
     // Strip adjacent record delimiters and whitespace...
-    if(this->RecordAdjacent && (this->RecordDelimiters.count(value) || this->Whitespace.count(value)))
+    if(this->RecordAdjacent && (this->RecordDelimiters.count(value) ||
+                                this->Whitespace.count(value)))
       {
       return *this;
       }
@@ -244,14 +252,16 @@ public:
       }
 
     // Start a string ...
-    if(!this->WithinString && this->StringDelimiters.count(value) && this->UseStringDelimiter)
+    if(!this->WithinString && this->StringDelimiters.count(value) &&
+        this->UseStringDelimiter)
       {
       this->WithinString = value;
       return *this;
       }
     
     // End a string ...
-    if(this->WithinString && (this->WithinString == value) && this->UseStringDelimiter)
+    if(this->WithinString && (this->WithinString == value) &&
+        this->UseStringDelimiter)
       {
       this->WithinString = 0;
       return *this;
@@ -269,7 +279,8 @@ public:
 private:
   void InsertField()
   {
-    if(this->CurrentFieldIndex >= this->OutputTable->GetNumberOfColumns()&& 0 == this->CurrentRecordIndex)
+    if(this->CurrentFieldIndex >= this->OutputTable->GetNumberOfColumns() &&
+        0 == this->CurrentRecordIndex)
       {
       vtkAbstractArray* array;
       if(this->UnicodeArrayOutput)
@@ -536,35 +547,41 @@ int vtkDelimitedTextReader::RequestData(
     // Get the total size of the input file in bytes
     ifstream file_stream(this->FileName, ios::binary);
     if(!file_stream.good())
-      throw vtkstd::runtime_error("Unable to open input file " + std::string(this->FileName));
+      {
+      throw vtkstd::runtime_error(
+            "Unable to open input file " + std::string(this->FileName));
+      }
 
     file_stream.seekg(0, ios::end);
-    const vtkIdType total_bytes = file_stream.tellg();
+    //const vtkIdType total_bytes = file_stream.tellg();
     file_stream.seekg(0, ios::beg);
 
     vtkStdString character_set;
-    vtkTextCodec* transCodec = NULL ;
+    vtkTextCodec* transCodec = NULL;
 
     if(this->UnicodeCharacterSet)
       {
       this->UnicodeOutputArrays = true;
       character_set = this->UnicodeCharacterSet;
-      transCodec = vtkTextCodecFactory::CodecForName(this->UnicodeCharacterSet) ;
+      transCodec = vtkTextCodecFactory::CodecForName(this->UnicodeCharacterSet);
       }
     else
       {
       char tstring[2];
       tstring[1] = '\0';
       tstring[0] = this->StringDelimiter;
-      this->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters));
+      this->SetUnicodeFieldDelimiters(
+            vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters));
       this->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8(tstring));
       this->UnicodeOutputArrays = false;
-      transCodec = vtkTextCodecFactory::CodecToHandle(file_stream) ;
+      transCodec = vtkTextCodecFactory::CodecToHandle(file_stream);
       }
 
     if (NULL == transCodec)
+      {
       // should this use the locale instead??
-      return 1 ;
+      return 1;
+      }
     
     DelimitedTextIterator iterator(
       this->MaxRecords,
@@ -579,11 +596,11 @@ int vtkDelimitedTextReader::RequestData(
       this->UseStringDelimiter,
       output_table);
 
-    vtkTextCodec::OutputIterator& outIter = iterator ;
+    vtkTextCodec::OutputIterator& outIter = iterator;
 
     transCodec->ToUnicode(file_stream, outIter);
-    iterator.ReachedEndOfInput() ;
-    transCodec->Delete() ;
+    iterator.ReachedEndOfInput();
+    transCodec->Delete();
 
     if(this->OutputPedigreeIds)
       {
@@ -610,7 +627,9 @@ int vtkDelimitedTextReader::RequestData(
           }
         else
           {
-          throw vtkstd::runtime_error("Could not find pedigree id array: " + vtkStdString(this->PedigreeIdArrayName));
+          throw vtkstd::runtime_error(
+                "Could not find pedigree id array: " +
+                vtkStdString(this->PedigreeIdArrayName));
           }
       }
     }

@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkUTF8TextCodec);
 
 vtkTextCodec* vtkUTF8TextCodecFromCallback()
 {
-   return vtkUTF8TextCodec::New() ;
+   return vtkUTF8TextCodec::New();
 }
 
 class vtkUTF8TextCodecRegister
@@ -38,20 +38,24 @@ class vtkUTF8TextCodecRegister
   public:
     vtkUTF8TextCodecRegister()
     {
-      vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback) ;
+      vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
     }
-} ;
+};
 
 
-static vtkUTF8TextCodecRegister foo ;
+static vtkUTF8TextCodecRegister foo;
 
 
 bool vtkUTF8TextCodec::CanHandle(const char* testStr)
 {
   if (0 == strcmp(testStr, "UTF-8"))
-    return true ;
+    {
+    return true;
+    }
   else
-    return false ;
+    {
+    return false;
+    }
 }
 
 
@@ -67,12 +71,12 @@ namespace
       {return *this;}
 
     testIterator() {}
-    ~testIterator() {}
+    virtual ~testIterator() {}
 
   private:
-    testIterator(const testIterator&) ; // Not implemented
-    const testIterator& operator=(const testIterator&) ; // Not Implemented
-  } ;
+    testIterator(const testIterator&); // Not implemented
+    const testIterator& operator=(const testIterator&); // Not Implemented
+  };
 
 
 } // end anonymous namespace
@@ -80,25 +84,25 @@ namespace
 
 bool vtkUTF8TextCodec::IsValid(istream& InputStream)
 {
-  bool returnBool = true ;
+  bool returnBool = true;
   // get the position of the stream so we can restore it when we are done
-  istream::pos_type StreamPos = InputStream.tellg() ;
+  istream::pos_type StreamPos = InputStream.tellg();
 
   try
     {
-    testIterator junk ;
-    this->ToUnicode(InputStream, junk) ;
+    testIterator junk;
+    this->ToUnicode(InputStream, junk);
     }
   catch(...)
     {
-    returnBool = false ;
+    returnBool = false;
     }
 
   // reset the stream
-  InputStream.clear() ;
-  InputStream.seekg(StreamPos) ;
+  InputStream.clear();
+  InputStream.seekg(StreamPos);
 
-  return returnBool ;
+  return returnBool;
 }
 
 
@@ -111,18 +115,22 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
       {
       if (1 <= InputStream.rdbuf()->in_avail())
         {
-        vtkUnicodeString::value_type CodePoint = this->NextUnicode(InputStream) ;
-        *Output++ = CodePoint ;
+        vtkUnicodeString::value_type CodePoint = this->NextUnicode(InputStream);
+        *Output++ = CodePoint;
         }
       else
-        break ;
+        break;
       }
     catch (std::string& ef)
       {
       if (ef == "End of Input")
-        return ; // we just completed the sequence...
+        {
+        return; // we just completed the sequence...
+        }
       else
-        throw ef ;
+        {
+        throw ef;
+        }
       }
     }
 }
@@ -130,16 +138,18 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
 
 vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
 {
-  istream::char_type c[5] ;
-  c[4] = '\0' ;
+  istream::char_type c[5];
+  c[4] = '\0';
 
-  unsigned int getSize = InputStream.readsome(c, 5) ;
+  unsigned int getSize = InputStream.readsome(c, 5);
   if (0 == getSize)
-    throw(std::string("End of Input")) ;
+    {
+    throw(std::string("End of Input"));
+    }
 
-  istream::char_type* c1 = c ;
+  istream::char_type* c1 = c;
 
-  const vtkTypeUInt32 code_point = vtk_utf8::next(c1, &c[getSize]) ;
+  const vtkTypeUInt32 code_point = vtk_utf8::next(c1, &c[getSize]);
 
   unsigned int nCharExtracted = c1 - c;
   unsigned int nCharReturned = getSize - nCharExtracted;
@@ -148,7 +158,7 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
     InputStream.unget();
     }
 
-  return code_point ;
+  return code_point;
 }
 
 
@@ -164,7 +174,7 @@ vtkUTF8TextCodec::~vtkUTF8TextCodec()
 
 void vtkUTF8TextCodec::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "vtkUTF8TextCodec (" << this << ") \n" ;
+  os << indent << "vtkUTF8TextCodec (" << this << ") \n";
   indent = indent.GetNextIndent();
-  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+  this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }

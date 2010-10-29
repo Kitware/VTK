@@ -45,7 +45,7 @@ public:
   // Description:
   // The name this codec goes by - should match the string the factory will take
   // to create it
-  virtual const char* Name() ;
+  virtual const char* Name();
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual bool CanHandle(const char* NameString);
@@ -62,44 +62,43 @@ public:
   class OutputIterator
   {
   public:
-    virtual OutputIterator& operator++(int) = 0 ;
-    virtual OutputIterator& operator*() = 0 ;
-    virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0 ;
+    virtual OutputIterator& operator++(int) = 0;
+    virtual OutputIterator& operator*() = 0;
+    virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0;
 
-    OutputIterator() {}
-    virtual ~OutputIterator() {}
+    OutputIterator() {}    virtual ~OutputIterator() {}
 
   private:
-    OutputIterator(const OutputIterator&) ; // Not implemented
-    const OutputIterator& operator=(const OutputIterator&) ; // Not Implemented
-  } ;
+    OutputIterator(const OutputIterator&); // Not implemented
+    const OutputIterator& operator=(const OutputIterator&); // Not Implemented
+  };
 
   // Description:
   // Iterate through the sequence represented by the stream assigning the result
   // to the output iterator.  The stream will be advanced to its end so
   // subsequent use would need to reset it.
   virtual void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) = 0 ;
+                         vtkTextCodec::OutputIterator& output) = 0;
 
   // Description:
   // convinience method to take data from the stream and put it into a
   // vtkUnicodeString.
-  vtkUnicodeString ToUnicode(istream & inputStream) ;
+  vtkUnicodeString ToUnicode(istream & inputStream);
 
   // Description:
   // Return the next code point from the sequence represented by the stream
   // advancing the stream through however many places needed to assemble that
   // code point.
-  virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) = 0 ;
+  virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) = 0;
 
 //BTX
 protected:
-  vtkTextCodec() ;
-  ~vtkTextCodec() ;
+  vtkTextCodec();
+  ~vtkTextCodec();
 
 private:
   vtkTextCodec(const vtkTextCodec &); // Not implemented.
-  void operator=(const vtkTextCodec &) ; // Not implemented.
+  void operator=(const vtkTextCodec &); // Not implemented.
 
 //ETX
 };
