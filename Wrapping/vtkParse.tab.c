@@ -6476,6 +6476,13 @@ yyreduce:
     {postSig(", ");}
     break;
 
+  case 325:
+
+/* Line 1455 of yacc.c  */
+#line 2073 "vtkParse.y"
+    {postSig((yyvsp[(1) - (1)].str));}
+    break;
+
   case 326:
 
 /* Line 1455 of yacc.c  */
@@ -8042,7 +8049,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 8178 "vtkParse.tab.c"
+#line 8185 "vtkParse.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

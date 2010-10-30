@@ -2070,7 +2070,7 @@ templated_id:
 template_params: template_param
                | template_param ',' {postSig(", ");} template_params;
 
-template_param: type | integer_literal;
+template_param: type | integer_literal {postSig($<str>1);};
 
 maybe_scoped_id: VTK_ID {postSig($<str>1);}
                | ID {postSig($<str>1);}
