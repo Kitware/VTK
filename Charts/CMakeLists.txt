@@ -26,6 +26,7 @@ SET(Kit_SRCS
   vtkChartXY.cxx
   vtkChartPie.cxx
   vtkPlotPie.cxx
+  vtkColor.h
   vtkColorSeries.cxx
   vtkColorTransferFunctionItem.cxx
   vtkCompositeTransferFunctionItem.cxx
@@ -36,6 +37,7 @@ SET(Kit_SRCS
   vtkContextDevice2D.cxx
   vtkContextItem.cxx
   vtkContextMapper2D.cxx
+  vtkContextMouseEvent.h
   vtkContextScene.cxx
   vtkContextTransform.cxx
   vtkContextView.cxx
@@ -56,27 +58,40 @@ SET(Kit_SRCS
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
   vtkTooltipItem.cxx
+  vtkVector.h
   )
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkColor
+  vtkContextMouseEvent
+  vtkVector
+  HEADER_FILE_ONLY
+)
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkAbstractContextItem
   vtkChart
+  vtkColor
   vtkContextDevice2D
   vtkContextItem
   vtkContextMapper2D
   vtkControlPointsItem
   vtkPlot
   vtkScalarsToColorsItem
+  vtkVector
   ABSTRACT
   )
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
+  vtkColor
   vtkContextBufferId
+  vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId
   vtkOpenGLContextDevice2D
+  vtkVector
   WRAP_EXCLUDE
 )
 
@@ -90,19 +105,6 @@ IF(VTK_USE_QT)
     LIST (APPEND KIT_LIBS ${QT_LIBRARIES})
   ENDIF (APPLE)
 ENDIF(VTK_USE_QT)
-
-# Headers without a corresponding source file that should be installed.
-# Seems like we should improve the kit macro to cover this at some point.
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  SET(Kit_HDRS
-    vtkColor.h
-    vtkContextMouseEvent.h
-    vtkVector.h
-    )
-  INSTALL(FILES ${Kit_HDRS}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
-    COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
