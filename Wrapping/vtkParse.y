@@ -1377,16 +1377,16 @@ namespace: NAMESPACE class_id { pushNamespace($<str>2); }
 
 class_def: CLASS any_id { start_class($<str>2, 0); }
     optional_scope '{' class_def_body '}' { end_class(); }
-  | CLASS any_id '<' types '>' { reject_class($<str>2, 0); }
+  | CLASS any_id '<' template_params '>' { reject_class($<str>2, 0); }
     optional_scope '{' class_def_body '}' { end_class(); }
   | STRUCT any_id { start_class($<str>2, 1); }
     optional_scope '{' class_def_body '}' { end_class(); }
-  | STRUCT any_id '<' types '>' { reject_class($<str>2, 1); }
+  | STRUCT any_id '<' template_params '>' { reject_class($<str>2, 1); }
     optional_scope '{' class_def_body '}' { end_class(); }
   | STRUCT '{' maybe_other '}'
   | UNION any_id { start_class($<str>2, 2); }
     optional_scope '{' class_def_body '}' { end_class(); }
-  | UNION any_id '<' types '>' { reject_class($<str>2, 2); }
+  | UNION any_id '<' template_params '>' { reject_class($<str>2, 2); }
     optional_scope '{' class_def_body '}' { end_class(); }
   | UNION '{' maybe_other '}';
 
@@ -1740,7 +1740,7 @@ func_sig: any_id '('
       postSig("(");
       set_return(currentFunction, getStorageType(), getTypeId(), 0);
     } args_list ')' { $<str>$ = $<str>1; }
-  | any_id '<' {markSig(); postSig("<");} types '>' '('
+  | any_id '<' {markSig(); postSig("<");} template_params '>' '('
     {
       if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
       postSig(">(");
@@ -1761,7 +1761,7 @@ maybe_initializers: | ':' initializer more_initializers;
 
 more_initializers: | ',' initializer more_initializers;
 
-initializer: any_id '(' maybe_other ')';
+initializer: maybe_scoped_id '(' maybe_other ')';
 
 destructor: destructor_sig
     {
@@ -2057,17 +2057,20 @@ type_red1: type_red2
       {postSig(" "); setTypeId($<str>3); $<integer>$ = VTK_PARSE_UNKNOWN;};
 
 templated_id:
-   VTK_ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
+   VTK_ID '<' { markSig(); postSig($<str>1); postSig("<");} template_params '>'
      {chopSig(); if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();}
- | ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
+ | ID '<' { markSig(); postSig($<str>1); postSig("<");} template_params '>'
      {chopSig(); if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();}
- | QT_ID '<' { markSig(); postSig($<str>1); postSig("<");} types '>'
+ | QT_ID '<' { markSig(); postSig($<str>1); postSig("<");} template_params '>'
      {chopSig(); if (getSig()[strlen(getSig())-1] == '>') { postSig(" "); }
       postSig(">"); $<str>$ = vtkstrdup(copySig()); clearTypeId();};
 
-types: type | type ',' {postSig(", ");} types;
+template_params: template_param
+               | template_param ',' {postSig(", ");} template_params;
+
+template_param: type | integer_literal;
 
 maybe_scoped_id: VTK_ID {postSig($<str>1);}
                | ID {postSig($<str>1);}
