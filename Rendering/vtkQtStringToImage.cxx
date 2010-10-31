@@ -109,8 +109,8 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
   path.addText(0, 0, fontSpec, text);
   rect = path.boundingRect();
 
-  recti.SetX(rect.width());
-  recti.SetY(rect.height());
+  recti.SetX(static_cast<int>(rect.width()));
+  recti.SetY(static_cast<int>(rect.height()));
 
   return recti;
 }
@@ -140,8 +140,8 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
   path.addText(0, 0, fontSpec, text);
   rect = path.boundingRect();
 
-  recti.SetX(rect.width());
-  recti.SetY(rect.height());
+  recti.SetX(static_cast<int>(rect.width()));
+  recti.SetY(static_cast<int>(rect.height()));
 
   return recti;
 }
@@ -186,8 +186,8 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
   QTransform trans;
   trans.rotate(rotation);
   QRectF rotBounds = trans.mapRect(bounds);
-  QImage image(ceil(rotBounds.width())+pixelPaddingX,
-               ceil(rotBounds.height()+pixelPaddingY),
+  QImage image(static_cast<int>(ceil(rotBounds.width() + pixelPaddingX)),
+               static_cast<int>(ceil(rotBounds.height() + pixelPaddingY)),
                QImage::Format_ARGB32_Premultiplied);
   image.fill(qRgba(0,0,0,0));
   QPainter p(&image);
