@@ -40,6 +40,11 @@ public:
   {
       vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
   }
+
+  ~vtkUTF8TextCodecRegister()
+  {
+    vtkTextCodecFactory::UnRegisterCreateCallback(vtkUTF8TextCodecFromCallback) ;
+  }
 };
 
 
