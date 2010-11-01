@@ -13,6 +13,17 @@
 
 =========================================================================*/
 
+// .NAME vtkScalarsToColorsItem - Abstract class for ScalarsToColors items.
+// .SECTION Description
+// vtkScalarsToColorsItem implements item bounds and painting for inherited
+// classes that provide a texture (ComputeTexture()) and optionally a shape
+// .SECTION See Also
+// vtkControlPointsItem
+// vtkLookupTableItem
+// vtkColorTransferFunctionItem
+// vtkCompositeTransferFunctionItem
+// vtkPiecewiseItemFunctionItem
+
 #ifndef __vtkScalarsToColorsItem_h
 #define __vtkScalarsToColorsItem_h
 
@@ -28,14 +39,30 @@ public:
   vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Decription:
+  // Bounds of the item, by default (0, 1, 0, 1) but it mainly depends on the
+  // range of the ScalarsToColors function.
+  // Need to be reimplemented by subclasses if the range is != [0,1]
   virtual void GetBounds(double bounds[4]);
+
+  // Decription:
+  // Paint the texture into a rectangle defined by the bounds. If
+  // MaskAboveCurve is true and a shape has been provided by a subclass, it
+  // draws the texture into the shape
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
-  // Get a pointer to the vtkPen object that controls the was this plot draws
-  // lines.
+  // Get a pointer to the vtkPen object that controls the drawing of the edge
+  // of the shape if any.
+  // PolyLinePen type is vtkPen::NO_PEN by default.
   vtkGetObjectMacro(PolyLinePen, vtkPen);
 
+  // Decription:
+  // Don't fill in the part above the transfer function.
+  // If true texture is not visible above the shape provided by subclasses,
+  // otherwise the whole rectangle defined by the bounds is filled with the
+  // transfer function.
+  // Note: only 2D transfer functions (RGB tf + alpha tf ) support the feature.
   vtkSetMacro(MaskAboveCurve, bool);
   vtkGetMacro(MaskAboveCurve, bool);
 
@@ -43,9 +70,16 @@ protected:
   vtkScalarsToColorsItem();
   virtual ~vtkScalarsToColorsItem();
 
+  // Description:
+  // Need to be reimplemented by subclasses, ComputeTexture() is called at
+  // paint time if the texture is not up to date compared to vtkScalarsToColorsItem
   virtual void ComputeTexture() = 0;
-  static void OnScalarsToColorsModified(vtkObject* caller, unsigned long eid, void *clientdata, void* calldata);
+
+  // Description:
+  // Called whenever the ScalarsToColors function(s) is modified. It internally
+  // calls Modified(). Can be reimplemented by subclasses
   virtual void ScalarsToColorsModified(vtkObject* caller, unsigned long eid, void* calldata);
+  static void OnScalarsToColorsModified(vtkObject* caller, unsigned long eid, void *clientdata, void* calldata);
 
   vtkImageData*       Texture;
   bool                Interpolate;
