@@ -38,6 +38,24 @@ class vtkTextCodecFactory::CallbackVector :
 
 vtkTextCodecFactory::CallbackVector* vtkTextCodecFactory::Callbacks = NULL;
 
+
+// Ensures that there are no leaks when the application exits.
+class vtkTextCodecCleanup
+{
+public:
+  inline void Use()
+    {
+    };
+  ~vtkTextCodecCleanup()
+    {
+    vtkTextCodecFactory::UnRegisterAllCreateCallbacks();
+    }
+};
+
+// Used to clean up the Callbacks
+static vtkTextCodecCleanup vtkCleanupTextCodecGlobal;
+
+
 void vtkTextCodecFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "vtkTextCodecFactory (" << this << ") \n";
@@ -59,6 +77,7 @@ void vtkTextCodecFactory::RegisterCreateCallback(vtkTextCodecFactory::CreateFunc
   if (NULL == vtkTextCodecFactory::Callbacks)
     {
     Callbacks = new vtkTextCodecFactory::CallbackVector();
+    vtkCleanupTextCodecGlobal.Use() ;
     }
 
   if (find(vtkTextCodecFactory::Callbacks->begin(),
@@ -73,32 +92,39 @@ void vtkTextCodecFactory::RegisterCreateCallback(vtkTextCodecFactory::CreateFunc
 void vtkTextCodecFactory::UnRegisterCreateCallback(
   vtkTextCodecFactory::CreateFunction callback)
 {
-  for (vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator i = vtkTextCodecFactory::Callbacks->begin();
-       i != vtkTextCodecFactory::Callbacks->end(); ++i)
+// we don't know for sure what order we are called in so if the global ones goes first this is NULL
+  if (NULL != vtkTextCodecFactory::Callbacks)
     {
-    if (*i == callback)
+    for (vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator i = vtkTextCodecFactory::Callbacks->begin();
+         i != vtkTextCodecFactory::Callbacks->end(); ++i)
       {
-      vtkTextCodecFactory::Callbacks->erase(i);
-      break;
+      if (*i == callback)
+        {
+        vtkTextCodecFactory::Callbacks->erase(i);
+        break;
+        }
       }
-    }
 
-  if (vtkTextCodecFactory::Callbacks->empty())
-    {
-    delete vtkTextCodecFactory::Callbacks;
-    vtkTextCodecFactory::Callbacks = NULL;
+    if (vtkTextCodecFactory::Callbacks->empty())
+      {
+      delete vtkTextCodecFactory::Callbacks;
+      vtkTextCodecFactory::Callbacks = NULL;
+      }
     }
 }
 
 
 void vtkTextCodecFactory::UnRegisterAllCreateCallbacks()
 {
-  vtkTextCodecFactory::Callbacks->clear();
-
-  if (vtkTextCodecFactory::Callbacks->empty())
+  if (NULL != vtkTextCodecFactory::Callbacks)
     {
-    delete vtkTextCodecFactory::Callbacks;
-    vtkTextCodecFactory::Callbacks = NULL;
+    vtkTextCodecFactory::Callbacks->clear();
+
+    if (vtkTextCodecFactory::Callbacks->empty())
+      {
+      delete vtkTextCodecFactory::Callbacks;
+      vtkTextCodecFactory::Callbacks = NULL;
+      }
     }
 }
 

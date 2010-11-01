@@ -35,11 +35,16 @@ vtkTextCodec* vtkUTF16TextCodecFromCallback()
 
 class vtkUTF16TextCodecRegister
 {
-  public:
-    vtkUTF16TextCodecRegister()
-    {
-      vtkTextCodecFactory::RegisterCreateCallback(vtkUTF16TextCodecFromCallback);
-    }
+public:
+  vtkUTF16TextCodecRegister()
+  {
+    vtkTextCodecFactory::RegisterCreateCallback(vtkUTF16TextCodecFromCallback);
+  }
+
+  ~vtkUTF16TextCodecRegister()
+  {
+    vtkTextCodecFactory::UnRegisterCreateCallback(vtkUTF16TextCodecFromCallback);
+  }
 };
 
 
