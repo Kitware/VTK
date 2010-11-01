@@ -41,6 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddView(vtkView* view);
+  void RemoveView(vtkView* view);
 
   void AddAnnotationLink(vtkAnnotationLink* link);
 
