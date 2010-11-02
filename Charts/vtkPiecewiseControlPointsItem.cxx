@@ -117,7 +117,7 @@ bool vtkPiecewiseControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
   pos[0] = mouse.Pos[0];
   pos[1] = mouse.Pos[1];
   return true;
-  return this->GetPointId(pos) != -1;
+  //return this->GetPointId(pos) != -1;
 }
 
 //-----------------------------------------------------------------------------

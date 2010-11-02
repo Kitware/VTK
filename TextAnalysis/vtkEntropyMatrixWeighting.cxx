@@ -29,7 +29,7 @@
 
 #include <vtkstd/stdexcept>
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 
 static inline double log2(double n)
 {

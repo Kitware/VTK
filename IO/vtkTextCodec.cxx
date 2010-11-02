@@ -23,19 +23,19 @@ PURPOSE.  See the above copyright notice for more information.
 
 const char* vtkTextCodec::Name()
 {
-  return "" ;
+  return "";
 }
 
 
-bool vtkTextCodec::CanHandle(const char* NameString)
+bool vtkTextCodec::CanHandle(const char*)
 {
-  return false ;
+  return false;
 }
 
 
-bool vtkTextCodec::IsValid(istream& InputStream)
+bool vtkTextCodec::IsValid(istream&)
 {
-  return false ;
+  return false;
 }
 
 
@@ -54,37 +54,37 @@ namespace
   class vtkUnicodeStringOutputIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    virtual vtkUnicodeStringOutputIterator& operator++(int) ;
-    virtual vtkUnicodeStringOutputIterator& operator*() ;
-    virtual vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value) ;
+    virtual vtkUnicodeStringOutputIterator& operator++(int);
+    virtual vtkUnicodeStringOutputIterator& operator*();
+    virtual vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value);
 
-    vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString) ;
-    ~vtkUnicodeStringOutputIterator() ;
+    vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString);
+    ~vtkUnicodeStringOutputIterator();
 
   private:
-    vtkUnicodeStringOutputIterator() ; // Not implemented
-    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) ; // Not implemented
-    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) ; // Not Implemented
+    vtkUnicodeStringOutputIterator(); // Not implemented
+    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&); // Not implemented
+    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&); // Not Implemented
 
-    vtkUnicodeString& OutputString ;
-    unsigned int StringPosition ;
-  } ;
+    vtkUnicodeString& OutputString;
+    unsigned int StringPosition;
+  };
 
   vtkUnicodeStringOutputIterator& vtkUnicodeStringOutputIterator::operator++(int)
   {
-    this->StringPosition++ ;
-    return *this ;
+    this->StringPosition++;
+    return *this;
   }
 
   vtkUnicodeStringOutputIterator& vtkUnicodeStringOutputIterator::operator*()
   {
-    return *this ;
+    return *this;
   }
 
   vtkUnicodeStringOutputIterator& vtkUnicodeStringOutputIterator::operator=(const vtkUnicodeString::value_type value)
   {
-    this->OutputString += value ;
-    return *this ;
+    this->OutputString += value;
+    return *this;
   }
 
   vtkUnicodeStringOutputIterator::vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString) :
@@ -101,18 +101,18 @@ namespace
 vtkUnicodeString vtkTextCodec::ToUnicode(istream& InputStream)
 {
   // create an output string stream
-  vtkUnicodeString returnString ;
+  vtkUnicodeString returnString;
 
-  vtkUnicodeStringOutputIterator StringIterator(returnString) ;
-  this->ToUnicode(InputStream, StringIterator) ;
+  vtkUnicodeStringOutputIterator StringIterator(returnString);
+  this->ToUnicode(InputStream, StringIterator);
 
-  return returnString ;
+  return returnString;
 }
 
 
 void vtkTextCodec::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "vtkTextCodec (" << this << ") \n" ;
+  os << indent << "vtkTextCodec (" << this << ") \n";
   indent = indent.GetNextIndent();
-  this->Superclass::PrintSelf(os, indent.GetNextIndent()) ;
+  this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }

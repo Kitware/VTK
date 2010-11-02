@@ -36,6 +36,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestGridWarpNearest
         #TestICPTransform  --complex arrays
         TestImageStencilWithPolydata
+        TestMNIObjects
         TestPCA
         TestProcrustes
         TestProjectedTerrainPath

@@ -40,6 +40,11 @@ class vtkASCIITextCodecRegister
     {
       vtkTextCodecFactory::RegisterCreateCallback(vtkASCIITextCodecFromCallback) ;
     }
+
+    ~vtkASCIITextCodecRegister()
+    {
+      vtkTextCodecFactory::UnRegisterCreateCallback(vtkASCIITextCodecFromCallback) ;
+    }
 } ;
 
 static vtkASCIITextCodecRegister foo ;
