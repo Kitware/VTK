@@ -400,6 +400,9 @@ public:
   int Broadcast(int *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
+  int Broadcast(unsigned int *data, vtkIdType length, int srcProcessId) {
+    return this->Communicator->Broadcast(data, length, srcProcessId);
+  }
   int Broadcast(unsigned long *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
@@ -772,6 +775,11 @@ public:
   // takes an identifier defined in the
   // vtkCommunicator::StandardOperations enum to define the operation.
   int Reduce(const int *sendBuffer, int *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
+                                      operation, destProcessId);
+  }
+  int Reduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
