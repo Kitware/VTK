@@ -18,6 +18,7 @@
 #include "vtkSurfaceLICPainter.h"
 #include "vtkObjectFactory.h"
 #include "vtkScalarsToColorsPainter.h"
+#include "vtkCompositePainter.h"
 
 vtkStandardNewMacro(vtkSurfaceLICDefaultPainter);
 vtkCxxSetObjectMacro(vtkSurfaceLICDefaultPainter, SurfaceLICPainter, vtkSurfaceLICPainter);
@@ -39,7 +40,7 @@ void vtkSurfaceLICDefaultPainter::BuildPainterChain()
   this->Superclass::BuildPainterChain();
   
   // Now insert the SurfaceLICPainter after the scalar to colors painter.
-  vtkPainter* stc = this->GetScalarsToColorsPainter();
+  vtkPainter* stc = this->GetCompositePainter();
   
   this->SurfaceLICPainter->SetDelegatePainter(stc->GetDelegatePainter());
   stc->SetDelegatePainter(this->SurfaceLICPainter);
