@@ -29,6 +29,7 @@ IF(VTK_USE_DISPLAY)
     TestGlyph3DMapperPicking.cxx
     TestGPUInfo.cxx
     TestGradientBackground.cxx
+    TestHomogeneousTransformOfActor.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx
