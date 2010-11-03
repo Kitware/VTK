@@ -57,6 +57,7 @@
 #include <vtkstd/vector> // STL Header; Required for vector
 
 class vtkContourLineInterpolator;
+class vtkIncrementalOctreePointLocator;
 class vtkPointPlacer;
 class vtkPolyData;
 
@@ -370,7 +371,6 @@ public:
   // Get the nodes and not the intermediate points in this 
   // contour as a vtkPolyData.
   void GetNodePolyData( vtkPolyData* poly );
- 
 
 protected:
   vtkContourRepresentation();
@@ -440,6 +440,18 @@ protected:
   // This method is protected and accessible only from 
   // vtkContourWidget::Initialize( vtkPolyData * )
   virtual void Initialize( vtkPolyData * );
+
+  //Description:
+  // Adding a point locator to the representation to speed
+  // up lookup of the active node when dealing with large datasets (100k+)
+  vtkIncrementalOctreePointLocator *Locator;
+
+  //Description:
+  // Deletes the previous locator if it exists and creates
+  // a new locator. Also deletes / recreates the attached data set.
+  void ResetLocator();
+
+  void BuildLocator();
 
 private:
   vtkContourRepresentation(const vtkContourRepresentation&);  //Not implemented
