@@ -13,6 +13,7 @@ IF (VTK_USE_DISPLAY)
       TestGeoProjection.cxx
       TestGeoView2D.cxx
       TestGeoView.cxx
+      TestGlobeSource.cxx
       TestLabeledGeoView2D.cxx
       )
   ENDIF (VTK_DATA_ROOT)
@@ -21,7 +22,7 @@ IF (VTK_USE_DISPLAY)
                          EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkGeovis vtkRendering vtkIO)
-  
+
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 
