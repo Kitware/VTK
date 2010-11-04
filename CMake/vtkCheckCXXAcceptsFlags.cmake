@@ -29,6 +29,7 @@ MACRO(vtkCHECK_CXX_ACCEPTS_FLAGS FLAGS VAR)
      "ignoring unknown option"
      "unrecognized option"
      "Incorrect command line option"
+     "warning D9002" # MSVC, language independent
    )
    FOREACH(MSG ${_UNKNOWN_FLAG_MSGS})
      STRING(REGEX MATCH "${MSG}" _FOUNDIT "${OUTPUT}")
