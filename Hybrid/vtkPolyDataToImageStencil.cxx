@@ -163,104 +163,68 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 void vtkPolyDataToImageStencil::DataSetCutter(
   vtkDataSet *input, vtkPolyData *output, double z, vtkMergePoints *locator)
 {
-  vtkIdType cellId, i;
-  vtkPoints *cellPts;
-  vtkDoubleArray *cellScalars;
-  vtkGenericCell *cell;
-  vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPoints;
-  double s;
-  vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
-  int numCellPts;
-  vtkPointData *inPD, *outPD;
-  vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
-  vtkIdList *cellIds;
-  
-  cellScalars=vtkDoubleArray::New();
+  vtkCellData *inCD = input->GetCellData();
+  vtkCellData *outCD = output->GetCellData();
+  vtkDoubleArray *cellScalars = vtkDoubleArray::New();
 
-  // Create objects to hold output of contour operation
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
-  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024)
-    {
-    estimatedSize = 1024;
-    }
+  // For the new points and lines
+  vtkPoints *newPoints = vtkPoints::New();
+  newPoints->Allocate(333);
+  vtkCellArray *newLines = vtkCellArray::New();
+  newLines->Allocate(1000);
 
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(estimatedSize,estimatedSize/2);
-  newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize/2);
-  newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize/2);
-  newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize/2);
+  // No verts or polys are expected
+  vtkCellArray *newVerts = vtkCellArray::New();
+  vtkCellArray *newPolys = vtkCellArray::New();
 
-  // Interpolate data along edge.
-  inPD = input->GetPointData();
-  outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
-  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+  // Allocate space for the cell data
+  outCD->CopyAllocate(inCD, 1000);
     
   // locator used to merge potentially duplicate points
-  //
-  locator->InitPointInsertion (newPoints, input->GetBounds());
+  locator->InitPointInsertion(newPoints, input->GetBounds());
 
   // Compute some information for progress methods
-  //
-  cell = vtkGenericCell::New();
+  vtkGenericCell *cell = vtkGenericCell::New();
   
   // Loop over all cells; get scalar values for all cell points
   // and process each cell.
-  //
-  for (cellId=0; cellId < numCells; cellId++)
+  vtkIdType numCells = input->GetNumberOfCells();
+  for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
-    input->GetCell(cellId,cell);
-    cellPts = cell->GetPoints();
-    cellIds = cell->GetPointIds();
+    input->GetCell(cellId, cell);
+    vtkPoints *cellPts = cell->GetPoints();
+    vtkIdList *cellIds = cell->GetPointIds();
 
-    numCellPts = cellPts->GetNumberOfPoints();
+    vtkIdType numCellPts = cellPts->GetNumberOfPoints();
     cellScalars->SetNumberOfTuples(numCellPts);
-    for (i=0; i < numCellPts; i++)
+    for (vtkIdType i = 0; i < numCellPts; i++)
       {
       // scalar value is distance from the specified z plane
-      s = input->GetPoint(cellIds->GetId(i))[2] - z;
-      cellScalars->SetTuple(i,&s);
+      cellScalars->SetValue(i, input->GetPoint(cellIds->GetId(i))[2]);
       }
 
-    cell->Contour(0.0, cellScalars, locator, 
-                  newVerts, newLines, newPolys, inPD, outPD,
+    cell->Contour(z, cellScalars, locator,
+                  newVerts, newLines, newPolys, NULL, NULL,
                   inCD, cellId, outCD);
     }
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory. 
-  //
   cell->Delete();
   cellScalars->Delete();
 
   output->SetPoints(newPoints);
   newPoints->Delete();
 
-  if (newVerts->GetNumberOfCells())
-    {
-    output->SetVerts(newVerts);
-    }
-  newVerts->Delete();
-
   if (newLines->GetNumberOfCells())
     {
     output->SetLines(newLines);
     }
   newLines->Delete();
-
-  if (newPolys->GetNumberOfCells())
-    {
-    output->SetPolys(newPolys);
-    }
+  newVerts->Delete();
   newPolys->Delete();
 
   locator->Initialize();//release any extra memory
-  output->Squeeze();
 }
 
 //----------------------------------------------------------------------------
