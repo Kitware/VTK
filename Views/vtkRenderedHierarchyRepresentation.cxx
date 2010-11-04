@@ -172,6 +172,23 @@ double vtkRenderedHierarchyRepresentation::GetBundlingStrength(int idx)
   return 0.0;
 }
 
+void vtkRenderedHierarchyRepresentation::SetGraphSplineType(int type, int idx)
+{
+  if (this->ValidIndex(idx))
+    {
+    this->Implementation->Graphs[idx]->SetSplineType(type);
+    }
+}
+
+int vtkRenderedHierarchyRepresentation::GetGraphSplineType(int idx)
+{
+  if (this->ValidIndex(idx))
+    {
+    return this->Implementation->Graphs[idx]->GetSplineType();
+    }
+  return 0;
+}
+
 void vtkRenderedHierarchyRepresentation::SetGraphEdgeLabelFontSize(int size, int idx)
 {
   if (this->ValidIndex(idx))

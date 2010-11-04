@@ -85,6 +85,14 @@ public:
     { return this->GetBundlingStrength(0); }
   virtual double GetBundlingStrength(int idx);
 
+  // Description:
+  // Sets the spline type for the graph edges.
+  // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
+  // vtkSplineGraphEdges::BSPLINE uses a b-spline.
+  // The default is BSPLINE.
+  virtual void SetGraphSplineType(int type, int idx);
+  virtual int GetGraphSplineType(int idx);
+
   virtual void SetGraphEdgeLabelFontSize(int size)
     { this->SetGraphEdgeLabelFontSize(size, 0); }
   virtual void SetGraphEdgeLabelFontSize(int size, int idx);
