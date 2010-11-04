@@ -28,6 +28,7 @@
 #include <math.h>
 #include <vtkstd/vector>
 #include <vtkstd/deque>
+#include <vtkstd/algorithm>
 
 vtkStandardNewMacro(vtkLassooStencilSource);
 vtkCxxSetObjectMacro(vtkLassooStencilSource, InformationInput, vtkImageData);
@@ -284,11 +285,9 @@ static void vtkLassooStencilSourceGenerateStencil(
   vtkstd::deque< vtkstd::vector<double> > &raster)
 {
   // convert each raster line into extents for the stencil
-  size_t m = raster.size();
-  for (size_t j = 0; j < m; j++)
+  for (int idY = subextent[2]; idY <= subextent[3]; idY++)
     {
-    vtkstd::vector<double> &rline = raster[j];
-    int idY = subextent[2] + j;
+    vtkstd::vector<double> &rline = raster[idY - subextent[2]];
 
     // sort the positions where line segments intersected raster lines
     vtkstd::sort(rline.begin(), rline.end());
@@ -530,8 +529,8 @@ static int vtkLassooStencilSourceSpline(
   vtkstd::deque< vtkstd::vector<double> > raster(nraster);
 
   // go around the spline
-  double delta = tmax/dmax;
-  vtkIdType n = tmax/delta;
+  vtkIdType n = vtkMath::Floor(dmax)+1;
+  double delta = tmax/n;
 
   double p0[3], p1[3], p2[3], p3[3];
 
