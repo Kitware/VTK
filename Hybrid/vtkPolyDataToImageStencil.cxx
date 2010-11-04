@@ -161,7 +161,8 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 //----------------------------------------------------------------------------
 // This method was taken from vtkCutter and slightly modified
 void vtkPolyDataToImageStencil::DataSetCutter(
-  vtkDataSet *input, vtkPolyData *output, double z, vtkMergePoints *locator)
+  vtkDataSet *input, vtkPolyData *output, double z, double thickness,
+  vtkMergePoints *locator)
 {
   vtkCellData *inCD = input->GetCellData();
   vtkCellData *outCD = output->GetCellData();
@@ -195,17 +196,36 @@ void vtkPolyDataToImageStencil::DataSetCutter(
     vtkPoints *cellPts = cell->GetPoints();
     vtkIdList *cellIds = cell->GetPointIds();
 
-    vtkIdType numCellPts = cellPts->GetNumberOfPoints();
-    cellScalars->SetNumberOfTuples(numCellPts);
-    for (vtkIdType i = 0; i < numCellPts; i++)
+    if (cell->GetCellDimension() == 1)
       {
-      // scalar value is distance from the specified z plane
-      cellScalars->SetValue(i, input->GetPoint(cellIds->GetId(i))[2]);
+      double *bounds = cell->GetBounds();
+      if (bounds[4] >= z - 0.5*thickness && bounds[5] < z + 0.5*thickness)
+        {
+        vtkIdType numCellPts = cellPts->GetNumberOfPoints();
+        newLines->InsertNextCell(numCellPts);
+        for (vtkIdType i = 0; i < numCellPts; i++)
+          {
+          vtkIdType ptId;
+          locator->InsertUniquePoint(cellPts->GetPoint(i), ptId);
+          newLines->InsertCellPoint(ptId);
+          }
+        outCD->CopyData(inCD, cellId, newLines->GetNumberOfCells()-1);
+        }
       }
+    else if (cell->GetCellDimension() == 2)
+      {
+      vtkIdType numCellPts = cellPts->GetNumberOfPoints();
+      cellScalars->SetNumberOfTuples(numCellPts);
+      for (vtkIdType i = 0; i < numCellPts; i++)
+        {
+        // scalar value is distance from the specified z plane
+        cellScalars->SetValue(i, input->GetPoint(cellIds->GetId(i))[2]);
+        }
 
-    cell->Contour(z, cellScalars, locator,
-                  newVerts, newLines, newPolys, NULL, NULL,
-                  inCD, cellId, outCD);
+      cell->Contour(z, cellScalars, locator,
+                    newVerts, newLines, newPolys, NULL, NULL,
+                    inCD, cellId, outCD);
+      }
     }
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
@@ -375,7 +395,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     slice->PrepareForNewData();
 
     // Step 1: Cut the data into slices
-    this->DataSetCutter(input, slice, z, locator);
+    this->DataSetCutter(input, slice, z, spacing[2], locator);
     
     if (!slice->GetNumberOfLines())
       {

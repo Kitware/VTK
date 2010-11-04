@@ -47,14 +47,12 @@ POSSIBILITY OF SUCH DAMAGES.
 =========================================================================*/
 // .NAME vtkPolyDataToImageStencil - use polydata to mask an image
 // .SECTION Description
-// The vtkPolyDataToImageStencil class will convert a surface mesh
-// into an image stencil that can be used to mask an image with
-// vtkImageStencil, or used to calculate statistics within the
-// enclosed region with vtkImageAccumulate.
+// The vtkPolyDataToImageStencil class will convert polydata into
+// an image stencil.  The polydata can either be a closed surface
+// mesh or a series of polyline contours (one contour per slice).
 // .SECTION Caveats
-// The input polydata must contain polygons (or other 2D cells) that
-// form a 3D surface that encloses a finite volume. Polyline contours
-// are ignored.
+// If contours are provided, the contours must be aligned with the
+// Z planes.  Other contour orientations are not supported.
 // .SECTION See Also
 // vtkImageStencil vtkImageAccumulate vtkImageBlend vtkImageReslice
 
@@ -128,7 +126,8 @@ protected:
                        int extent[6], int threadId);
 
   static void DataSetCutter(vtkDataSet *input, vtkPolyData *output,
-                            double z, vtkMergePoints *locator);
+                            double z, double thickness,
+                            vtkMergePoints *locator);
   
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
