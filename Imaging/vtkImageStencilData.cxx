@@ -500,35 +500,29 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
   int &clistlen = this->ExtentListLengths[incr];
   int *&clist = this->ExtentLists[incr];
 
+  // no space has been allocated yet
   if (clistlen == 0)
-    { // no space has been allocated yet
+    {
     clist = new int[2];
     }
-  else
-    { // check whether more space is needed
+  // check if clistlen is a power of two
+  else if ((clistlen & (clistlen-1)) == 0)
+    {
     // the allocated space is always the smallest power of two
     // that is not less than the number of stored items, therefore
     // we need to allocate space when clistlen is a power of two
-    int clistmaxlen = 2;
-    while (clistlen > clistmaxlen)
+    int *newclist = new int[2*clistlen];
+    for (int k = 0; k < clistlen; k++)
       {
-      clistmaxlen *= 2;
+      newclist[k] = clist[k];
       }
-    if (clistmaxlen == clistlen)
-      { // need to allocate more space
-      clistmaxlen *= 2;
-      int *newclist = new int[clistmaxlen];
-      for (int k = 0; k < clistlen; k++)
-        {
-        newclist[k] = clist[k];
-        }
-      delete [] clist;
-      clist = newclist;
-      }
+    delete [] clist;
+    clist = newclist;
     }
 
-  clist[clistlen++] = r1;
-  clist[clistlen++] = r2 + 1;
+  clist[clistlen] = r1;
+  clist[clistlen + 1] = r2 + 1;
+  clistlen += 2;
 }
 
 //----------------------------------------------------------------------------
@@ -547,20 +541,21 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2,
   if (clistlen == 0)
     { // no space has been allocated yet
     clist = new int[2];
-    clist[clistlen++] = r1;
-    clist[clistlen++] = r2 + 1;
+    clist[clistlen] = r1;
+    clist[clistlen + 1] = r2 + 1;
+    clistlen += 2;
     return;
     }
   
   for (int k = 0; k < clistlen; k+=2)
     {
     if ((r1 >= clist[k] && r1 < clist[k+1]) || 
-      (r2 >= clist[k] && r2 < clist[k+1]))
+        (r2 >= clist[k] && r2 < clist[k+1]))
       {
       // An intersecting extent is already present. Merge with that one.
       if (r1 < clist[k])
         {
-        clist[k]   = r1;
+        clist[k] = r1;
         }
       else if (r2 >= clist[k+1])
         {
@@ -584,36 +579,29 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2,
   // the allocated space is always the smallest power of two
   // that is not less than the number of stored items, therefore
   // we need to allocate space when clistlen is a power of two
-  int clistmaxlen = 2;
-  while (clistlen > clistmaxlen)
+  if ((clistlen & (clistlen-1)) == 0)
     {
-    clistmaxlen *= 2;
-    }
-  int insertIndex = clistlen, offset = 0;
-  if (clistmaxlen == clistlen || r1 < clist[clistlen-1])
-    { // need to allocate more space or rearrange
-    if (clistmaxlen == clistlen)
+    int *newclist = new int[2*clistlen];
+    for (int k = 0; k < clistlen; k++)
       {
-      clistmaxlen *= 2;
-      }
-    int *newclist = new int[clistmaxlen];
-    for (int k = 0; k < clistlen; k+=2)
-      {
-      if (offset == 0 && r1 < clist[k])
-        {
-        insertIndex = k;
-        offset = 2;
-        }
-      newclist[k+offset] = clist[k];
-      newclist[k+1+offset] = clist[k+1];
+      newclist[k] = clist[k];
       }
     delete [] clist;
     clist = newclist;
     }
 
+  // shift to make room for the insertion
+  int insertIndex = clistlen;
+  clistlen += 2;
+  while (r1 < clist[insertIndex-1])
+    {
+    clist[insertIndex] = clist[insertIndex-2];
+    clist[insertIndex+1] = clist[insertIndex-1];
+    insertIndex -= 2;
+    }
+
   clist[insertIndex] = r1;
   clist[insertIndex+1] = r2 + 1;
-  clistlen += 2;
 }
 
 
@@ -750,15 +738,9 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
           // the allocated space is always the smallest power of two
           // that is not less than the number of stored items, therefore
           // we need to allocate space when clistlen is a power of two
-          int clistmaxlen = 2;
-          while (clistlen > clistmaxlen)
+          if ((clistlen & (clistlen-1)) == 0)
             {
-            clistmaxlen *= 2;
-            }
-          if (clistmaxlen == clistlen)
-            { // need to allocate more space
-            clistmaxlen *= 2;
-            int *newclist = new int[clistmaxlen];
+            int *newclist = new int[2*clistlen];
             for (int m = 0; m < clistlen; m++)
               {
               newclist[m] = clist[m];
@@ -766,8 +748,9 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
             delete [] clist;
             clist = newclist;
             }
-          clist[clistlen++] = r2+1;
-          clist[clistlen++] = tmp;
+          clist[clistlen] = r2+1;
+          clist[clistlen+1] = tmp;
+          clistlen += 2;
           }
         }
       else
