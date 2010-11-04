@@ -95,6 +95,7 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
   this->Actor->SetPosition(0.0, 0.0, 1.0);
 
   this->Bundle->SetBundlingStrength(0.5);
+  this->Spline->SetSplineType(vtkSplineGraphEdges::BSPLINE);
   //this->Spline->SetNumberOfSubdivisions(4);
 }
 

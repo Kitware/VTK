@@ -25,6 +25,7 @@
 #include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSplineGraphEdges.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 #include "vtkTreeRingView.h"
@@ -81,6 +82,7 @@ int TestTreeRingView(int argc, char* argv[])
   view->SetAreaHoverArrayName("id");
   view->SetAreaSizeArrayName("VertexDegree");
   vtkRenderedTreeAreaRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphHoverArrayName("graph edge");
+  vtkRenderedTreeAreaRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();

@@ -124,7 +124,7 @@ public:
   // The spline mode to use in vtkSplineGraphEdges.
   // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
   // vtkSplineGraphEdges::BSPLINE uses a b-spline.
-  // The default is CUSTOM.
+  // The default is BSPLINE.
   virtual void SetSplineType(int type);
   virtual int GetSplineType();
 
