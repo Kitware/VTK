@@ -26,7 +26,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderedHierarchyRepresentation.h"
 #include "vtkSelection.h"
+#include "vtkSplineGraphEdges.h"
 #include "vtkTestUtilities.h"
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
@@ -75,6 +77,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   view->Update(); // Needed for now
   view->SetGraphEdgeColorArrayName("graph edge");
   view->SetColorGraphEdgesByArray(true);
+  vtkRenderedHierarchyRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
 
   VTK_CREATE(vtkCosmicTreeLayoutStrategy, ct);
   ct->SetNodeSizeArrayName("VertexDegree");

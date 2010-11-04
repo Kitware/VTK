@@ -22,8 +22,10 @@
 #include "vtkDataRepresentation.h"
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSplineGraphEdges.h"
 #include "vtkTestUtilities.h"
 #include "vtkTreeMapView.h"
 #include "vtkViewTheme.h"
@@ -70,6 +72,8 @@ int TestTreeMapView(int argc, char* argv[])
   view->SetAreaHoverArrayName("id");
   view->SetAreaLabelVisibility(true);
   view->SetAreaSizeArrayName("VertexDegree");
+  view->Update();
+  vtkRenderedTreeAreaRepresentation::SafeDownCast(view->GetRepresentation())->SetGraphSplineType(vtkSplineGraphEdges::CUSTOM, 0);
 
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
