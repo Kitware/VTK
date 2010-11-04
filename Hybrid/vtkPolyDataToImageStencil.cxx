@@ -49,10 +49,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
 
-// don't need all of these
-#include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkCellArray.h"
-#include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkMergePoints.h"
@@ -60,7 +58,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
-#include "vtkLine.h"
 #include "vtkImageData.h"
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -267,29 +264,6 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 }
 
 //----------------------------------------------------------------------------
-inline int vtkPolyDataToImageStencilFloor(double x)
-{
-#if defined i386 || defined _M_IX86 || defined __x86_64__ || defined _M_X64
-  // This code assumes IEEE 754 64-bit double.
-  // It uses a denormalizer to round the double at the
-  // 2^(-16) position, or around 1e-5, and then extracts
-  // the integer portion.  So, essentially, it is a floor()
-  // operation that is accurate to within 1e-5.
-  // We use it because it is many, many times
-  // faster than the floor() function.
-  union { vtkTypeFloat64 d; vtkTypeUInt32 i[2]; } dual;
-  dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
-  return static_cast<int>((dual.i[1]<<16)|(dual.i[0]>>16));
-#else
-  // This doesn't assume IEEE 754 and is a good, fast
-  // floor() approximation on most architectures
-  x += 2147483648.0;
-  vtkTypeUInt32 i = static_cast<unsigned int>(x);
-  return static_cast<int>(i - 2147483648U);
-#endif
-}
-
-//----------------------------------------------------------------------------
 static void vtkFloatingEndPointScanConvertLine2D(
   double pt1[2], double pt2[2], int inflection1, int inflection2,
   double tolerance, int z, int extent[6],
@@ -343,8 +317,8 @@ static void vtkFloatingEndPointScanConvertLine2D(
   // The "+1" is important, it means that if we have two polygons
   // that share a line, and make a stencil from each, the produced
   // regions are guaranteed not to overlap if tolerance=0.
-  Ay = vtkPolyDataToImageStencilFloor(ymin) + 1;
-  By = vtkPolyDataToImageStencilFloor(ymax);
+  Ay = vtkMath::Floor(ymin) + 1;
+  By = vtkMath::Floor(ymax);
 
   // Precompute values for a Bresenham-like line algorithm
   double grad = (x2 - x1)/(y2 - y1);
@@ -652,9 +626,9 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           // Use floor()+1 instead of ceil() to ensure that, if
           // tolerance is zero and there are neighboring extents,
           // there will be no overlap.
-          r1 = vtkPolyDataToImageStencilFloor(x1 - tolerance) + 1;
+          r1 = vtkMath::Floor(x1 - tolerance) + 1;
           // Take floor() of second value in pair
-          r2 = vtkPolyDataToImageStencilFloor(x2 + tolerance);
+          r2 = vtkMath::Floor(x2 + tolerance);
 
           // extents are not allowed to overlap
           if (r1 <= lastr2)
