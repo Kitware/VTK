@@ -32,8 +32,33 @@ stencil SetStencil [dataToStencil GetOutput]
 stencil ReverseStencilOn
 stencil SetBackgroundValue 500
 
+# test again with a contour
+vtkPlane plane
+plane SetOrigin 0 0 0
+plane SetNormal 0 0 1
+
+vtkCutter cutter
+cutter SetInputConnection [sphere GetOutputPort]
+cutter SetCutFunction plane
+
+vtkStripper stripper2
+stripper2 SetInputConnection [cutter GetOutputPort]
+
+vtkPolyDataToImageStencil dataToStencil2
+dataToStencil2 SetInputConnection [stripper2 GetOutputPort]
+dataToStencil2 SetInformationInput [reader GetOutput]
+
+vtkImageStencil stencil2
+stencil2 SetInputConnection [reader GetOutputPort]
+stencil2 SetStencil [dataToStencil2 GetOutput]
+stencil2 SetBackgroundValue 500
+
+vtkImageAppend imageAppend
+imageAppend SetInputConnection [stencil GetOutputPort]
+imageAppend AddInputConnection [stencil2 GetOutputPort]
+
 vtkImageViewer viewer
-viewer SetInputConnection [stencil GetOutputPort]
+viewer SetInputConnection [imageAppend GetOutputPort]
 viewer SetZSlice 0
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

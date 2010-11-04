@@ -49,10 +49,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
 
-// don't need all of these
-#include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkCellArray.h"
-#include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkMergePoints.h"
@@ -60,7 +58,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
-#include "vtkLine.h"
 #include "vtkImageData.h"
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -164,129 +161,90 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 //----------------------------------------------------------------------------
 // This method was taken from vtkCutter and slightly modified
 void vtkPolyDataToImageStencil::DataSetCutter(
-  vtkDataSet *input, vtkPolyData *output, double z, vtkMergePoints *locator)
+  vtkDataSet *input, vtkPolyData *output, double z, double thickness,
+  vtkMergePoints *locator)
 {
-  vtkIdType cellId, i;
-  vtkPoints *cellPts;
-  vtkDoubleArray *cellScalars;
-  vtkGenericCell *cell;
-  vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPoints;
-  double s;
-  vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
-  int numCellPts;
-  vtkPointData *inPD, *outPD;
-  vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
-  vtkIdList *cellIds;
-  
-  cellScalars=vtkDoubleArray::New();
+  vtkCellData *inCD = input->GetCellData();
+  vtkCellData *outCD = output->GetCellData();
+  vtkDoubleArray *cellScalars = vtkDoubleArray::New();
 
-  // Create objects to hold output of contour operation
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
-  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024)
-    {
-    estimatedSize = 1024;
-    }
+  // For the new points and lines
+  vtkPoints *newPoints = vtkPoints::New();
+  newPoints->Allocate(333);
+  vtkCellArray *newLines = vtkCellArray::New();
+  newLines->Allocate(1000);
 
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(estimatedSize,estimatedSize/2);
-  newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize/2);
-  newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize/2);
-  newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize/2);
+  // No verts or polys are expected
+  vtkCellArray *newVerts = vtkCellArray::New();
+  vtkCellArray *newPolys = vtkCellArray::New();
 
-  // Interpolate data along edge.
-  inPD = input->GetPointData();
-  outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
-  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+  // Allocate space for the cell data
+  outCD->CopyAllocate(inCD, 1000);
     
   // locator used to merge potentially duplicate points
-  //
-  locator->InitPointInsertion (newPoints, input->GetBounds());
+  locator->InitPointInsertion(newPoints, input->GetBounds());
 
   // Compute some information for progress methods
-  //
-  cell = vtkGenericCell::New();
+  vtkGenericCell *cell = vtkGenericCell::New();
   
   // Loop over all cells; get scalar values for all cell points
   // and process each cell.
-  //
-  for (cellId=0; cellId < numCells; cellId++)
+  vtkIdType numCells = input->GetNumberOfCells();
+  for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
-    input->GetCell(cellId,cell);
-    cellPts = cell->GetPoints();
-    cellIds = cell->GetPointIds();
+    input->GetCell(cellId, cell);
+    vtkPoints *cellPts = cell->GetPoints();
+    vtkIdList *cellIds = cell->GetPointIds();
 
-    numCellPts = cellPts->GetNumberOfPoints();
-    cellScalars->SetNumberOfTuples(numCellPts);
-    for (i=0; i < numCellPts; i++)
+    if (cell->GetCellDimension() == 1)
       {
-      // scalar value is distance from the specified z plane
-      s = input->GetPoint(cellIds->GetId(i))[2] - z;
-      cellScalars->SetTuple(i,&s);
+      double *bounds = cell->GetBounds();
+      if (bounds[4] >= z - 0.5*thickness && bounds[5] < z + 0.5*thickness)
+        {
+        vtkIdType numCellPts = cellPts->GetNumberOfPoints();
+        newLines->InsertNextCell(numCellPts);
+        for (vtkIdType i = 0; i < numCellPts; i++)
+          {
+          vtkIdType ptId;
+          locator->InsertUniquePoint(cellPts->GetPoint(i), ptId);
+          newLines->InsertCellPoint(ptId);
+          }
+        outCD->CopyData(inCD, cellId, newLines->GetNumberOfCells()-1);
+        }
       }
+    else if (cell->GetCellDimension() == 2)
+      {
+      vtkIdType numCellPts = cellPts->GetNumberOfPoints();
+      cellScalars->SetNumberOfTuples(numCellPts);
+      for (vtkIdType i = 0; i < numCellPts; i++)
+        {
+        // scalar value is distance from the specified z plane
+        cellScalars->SetValue(i, input->GetPoint(cellIds->GetId(i))[2]);
+        }
 
-    cell->Contour(0.0, cellScalars, locator, 
-                  newVerts, newLines, newPolys, inPD, outPD,
-                  inCD, cellId, outCD);
+      cell->Contour(z, cellScalars, locator,
+                    newVerts, newLines, newPolys, NULL, NULL,
+                    inCD, cellId, outCD);
+      }
     }
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory. 
-  //
   cell->Delete();
   cellScalars->Delete();
 
   output->SetPoints(newPoints);
   newPoints->Delete();
 
-  if (newVerts->GetNumberOfCells())
-    {
-    output->SetVerts(newVerts);
-    }
-  newVerts->Delete();
-
   if (newLines->GetNumberOfCells())
     {
     output->SetLines(newLines);
     }
   newLines->Delete();
-
-  if (newPolys->GetNumberOfCells())
-    {
-    output->SetPolys(newPolys);
-    }
+  newVerts->Delete();
   newPolys->Delete();
 
   locator->Initialize();//release any extra memory
-  output->Squeeze();
-}
-
-//----------------------------------------------------------------------------
-inline int vtkPolyDataToImageStencilFloor(double x)
-{
-#if defined i386 || defined _M_IX86 || defined __x86_64__ || defined _M_X64
-  // This code assumes IEEE 754 64-bit double.
-  // It uses a denormalizer to round the double at the
-  // 2^(-16) position, or around 1e-5, and then extracts
-  // the integer portion.  So, essentially, it is a floor()
-  // operation that is accurate to within 1e-5.
-  // We use it because it is many, many times
-  // faster than the floor() function.
-  union { vtkTypeFloat64 d; vtkTypeUInt32 i[2]; } dual;
-  dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
-  return static_cast<int>((dual.i[1]<<16)|(dual.i[0]>>16));
-#else
-  // This doesn't assume IEEE 754 and is a good, fast
-  // floor() approximation on most architectures
-  x += 2147483648.0;
-  vtkTypeUInt32 i = static_cast<unsigned int>(x);
-  return static_cast<int>(i - 2147483648U);
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -343,8 +301,8 @@ static void vtkFloatingEndPointScanConvertLine2D(
   // The "+1" is important, it means that if we have two polygons
   // that share a line, and make a stencil from each, the produced
   // regions are guaranteed not to overlap if tolerance=0.
-  Ay = vtkPolyDataToImageStencilFloor(ymin) + 1;
-  By = vtkPolyDataToImageStencilFloor(ymax);
+  Ay = vtkMath::Floor(ymin) + 1;
+  By = vtkMath::Floor(ymax);
 
   // Precompute values for a Bresenham-like line algorithm
   double grad = (x2 - x1)/(y2 - y1);
@@ -437,7 +395,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     slice->PrepareForNewData();
 
     // Step 1: Cut the data into slices
-    this->DataSetCutter(input, slice, z, locator);
+    this->DataSetCutter(input, slice, z, spacing[2], locator);
     
     if (!slice->GetNumberOfLines())
       {
@@ -652,9 +610,9 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           // Use floor()+1 instead of ceil() to ensure that, if
           // tolerance is zero and there are neighboring extents,
           // there will be no overlap.
-          r1 = vtkPolyDataToImageStencilFloor(x1 - tolerance) + 1;
+          r1 = vtkMath::Floor(x1 - tolerance) + 1;
           // Take floor() of second value in pair
-          r2 = vtkPolyDataToImageStencilFloor(x2 + tolerance);
+          r2 = vtkMath::Floor(x2 + tolerance);
 
           // extents are not allowed to overlap
           if (r1 <= lastr2)
