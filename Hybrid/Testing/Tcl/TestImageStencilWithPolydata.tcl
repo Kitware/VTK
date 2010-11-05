@@ -33,6 +33,11 @@ stencil ReverseStencilOn
 stencil SetBackgroundValue 500
 
 # test again with a contour
+vtkPNGReader reader2
+reader2 SetDataSpacing 0.8 0.8 1.5
+reader2 SetDataOrigin 0.0 0.0 0.0
+reader2 SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
+
 vtkPlane plane
 plane SetOrigin 0 0 0
 plane SetNormal 0 0 1
@@ -46,10 +51,10 @@ stripper2 SetInputConnection [cutter GetOutputPort]
 
 vtkPolyDataToImageStencil dataToStencil2
 dataToStencil2 SetInputConnection [stripper2 GetOutputPort]
-dataToStencil2 SetInformationInput [reader GetOutput]
+dataToStencil2 SetInformationInput [reader2 GetOutput]
 
 vtkImageStencil stencil2
-stencil2 SetInputConnection [reader GetOutputPort]
+stencil2 SetInputConnection [reader2 GetOutputPort]
 stencil2 SetStencil [dataToStencil2 GetOutput]
 stencil2 SetBackgroundValue 500
 
@@ -63,11 +68,3 @@ viewer SetZSlice 0
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 viewer Render
-
-
-
-
-
-
-
-
