@@ -23,6 +23,7 @@
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
@@ -180,6 +181,23 @@ void vtkContext2D::DrawPoly(float *points, int n)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawPoly(float *points, int n,
+                            unsigned char *colors, int nc_comps)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  if (n < 2)
+    {
+    vtkErrorMacro(<< "Attempted to paint a line with <2 points.");
+    return;
+    }
+  this->Device->DrawPoly(points, n, colors, nc_comps);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawPoint(float x, float y)
 {
   float p[] = { x, y };
@@ -229,6 +247,37 @@ void vtkContext2D::DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points)
   // If the points are of type float then call OpenGL directly
   float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
   this->DrawPointSprites(sprite, f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points,
+         vtkUnsignedCharArray *colors)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  int nc = static_cast<int>(colors->GetNumberOfTuples());
+  if (n != nc)
+    {
+    vtkErrorMacro(<< "Attempted to color points with array of wrong length");
+    return;
+    }
+  int nc_comps = static_cast<int>(colors->GetNumberOfComponents());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  unsigned char *c = colors->GetPointer(0);
+  this->DrawPointSprites(sprite, f, n, c, nc_comps);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPointSprites(vtkImageData *sprite, float *points, int n,
+         unsigned char *colors, int nc_comps)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  this->Device->DrawPointSprites(sprite, points, n, colors, nc_comps);
 }
 
 //-----------------------------------------------------------------------------

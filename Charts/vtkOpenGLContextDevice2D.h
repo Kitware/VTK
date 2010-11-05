@@ -48,15 +48,35 @@ public:
   virtual void DrawPoly(float *points, int n);
 
   // Description:
+  // Draw a poly line using the points - fastest code path due to memory
+  // layout of the coordinates. The line will be colored by colors array
+  // which has nc_comps components
+  virtual void DrawPoly(float *f, int n, unsigned char *c, int nc);
+
+  // Description:
   // Draw a series of points - fastest code path due to memory
   // layout of the coordinates.
   virtual void DrawPoints(float *points, int n);
+
+  // Description:
+  // Draw a series of points - fastest code path due to memory
+  // layout of the coordinates. Points are colored by colors array
+  // which has nc_comps components
+  virtual void DrawPoints(float *points, int n, unsigned char* colors, int nc_comps);
 
   // Description:
   // Draw a series of point sprites, images centred at the points supplied.
   // The supplied vtkImageData is the sprite to be drawn, only squares will be
   // drawn and the size is set using SetPointSize.
   virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n);
+
+  // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize. Points are colored by colors array
+  // which has nc_comps components
+  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n,
+                       unsigned char* colors, int nc_comps);
 
   // Description:
   // Draws a rectangle

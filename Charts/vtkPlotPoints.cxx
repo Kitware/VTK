@@ -26,6 +26,8 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkLookupTable.h"
 
 #include "vtkstd/vector"
 #include "vtkstd/algorithm"
@@ -54,6 +56,11 @@ vtkPlotPoints::vtkPlotPoints()
   this->LogY = false;
   this->Marker = NULL;
   this->HighlightMarker = NULL;
+
+  this->LookupTable = 0;
+  this->Colors = 0;
+  this->ScalarVisibility = 0;
+  strcpy(this->ColorArrayName, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -77,6 +84,14 @@ vtkPlotPoints::~vtkPlotPoints()
   if (this->HighlightMarker)
     {
     this->HighlightMarker->Delete();
+    }
+  if (this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    }
+  if ( this->Colors != 0 )
+    {
+    this->Colors->UnRegister(this);
     }
 }
 
@@ -162,7 +177,14 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
-    painter->DrawPointSprites(this->Marker, this->Points);
+    if (this->ScalarVisibility && this->Colors)
+      {
+      painter->DrawPointSprites(this->Marker, this->Points, this->Colors);
+      }
+    else
+      {
+      painter->DrawPointSprites(this->Marker, this->Points);
+      }
     }
 
   return true;
@@ -560,6 +582,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   vtkDataArray* x = this->UseIndexForXSeries ?
                     0 : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
+
   if (!x && !this->UseIndexForXSeries)
     {
     vtkErrorMacro(<< "No X column is set (index 0).");
@@ -615,6 +638,31 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     delete this->Sorted;
     this->Sorted = 0;
     }
+
+  // Additions for color mapping
+  if (this->ScalarVisibility && (this->ColorArrayName[0] != 0))
+    {
+    vtkDataArray* c =
+      vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
+    // TODO: Should add support for categorical coloring & try enum lookup
+    if (c)
+      {
+      if (!this->LookupTable)
+        {
+        this->CreateDefaultLookupTable();
+        }
+      this->Colors = this->LookupTable->MapScalars(c, VTK_COLOR_MODE_MAP_SCALARS, -1);
+      // Consistent register and unregisters
+      this->Colors->Register(this);
+      this->Colors->Delete();
+      }
+    else
+      {
+      this->Colors->UnRegister(this);
+      this->Colors = 0;
+      }
+    }
+
   this->BuildTime.Modified();
   return true;
 }
@@ -758,6 +806,108 @@ inline void vtkPlotPoints::CalculateBounds(double bounds[4])
       }
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::SetLookupTable(vtkScalarsToColors *lut)
+{
+  if ( this->LookupTable != lut )
+    {
+    if ( this->LookupTable)
+      {
+      this->LookupTable->UnRegister(this);
+      }
+    this->LookupTable = lut;
+    if (lut)
+      {
+      lut->Register(this);
+      }
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkScalarsToColors *vtkPlotPoints::GetLookupTable()
+{
+  if ( this->LookupTable == 0 )
+    {
+    this->CreateDefaultLookupTable();
+    }
+  return this->LookupTable;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::CreateDefaultLookupTable()
+{
+  if ( this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    }
+  this->LookupTable = vtkLookupTable::New();
+  // Consistent Register/UnRegisters.
+  this->LookupTable->Register(this);
+  this->LookupTable->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::SelectColorArray(const char *arrayName)
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with no input table set.");
+    return;
+    }
+  if (strcmp(this->ColorArrayName, arrayName) == 0)
+    {
+    return;
+    }
+  for (vtkIdType c = 0; c < table->GetNumberOfColumns(); ++c)
+    {
+    const char *name = table->GetColumnName(c);
+    if (strcmp(name, arrayName) == 0)
+      {
+      strcpy(this->ColorArrayName, arrayName);
+      this->Modified();
+      return;
+      }
+    }
+  vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
+  strcpy(this->ColorArrayName, "");
+  this->Modified();
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with no input table set.");
+    return;
+    }
+  vtkDataArray *col = vtkDataArray::SafeDownCast(table->GetColumn(arrayNum));
+  // TODO: Should add support for categorical coloring & try enum lookup
+  if (!col)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with invalid column index");
+    return;
+    }
+  else
+    {
+    const char *arrayName = table->GetColumnName(arrayNum);
+    if (strcmp(this->ColorArrayName, arrayName) == 0)
+      {
+      return;
+      }
+    else
+      {
+      strcpy(this->ColorArrayName, arrayName);
+      this->Modified();
+      }
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkPlotPoints::PrintSelf(ostream &os, vtkIndent indent)

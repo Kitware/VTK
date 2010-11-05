@@ -23,12 +23,15 @@
 #define __vtkPlotPoints_h
 
 #include "vtkPlot.h"
+#include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
 class vtkStdString;
 class vtkImageData;
+class vtkScalarsToColors;
+class vtkUnsignedCharArray;
 
 class VTK_CHARTS_EXPORT vtkPlotPoints : public vtkPlot
 {
@@ -60,6 +63,29 @@ public:
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   virtual void GetBounds(double bounds[4]);
+
+  // Description:
+  // Specify a lookup table for the mapper to use.
+  void SetLookupTable(vtkScalarsToColors *lut);
+  vtkScalarsToColors *GetLookupTable();
+
+  // Description:
+  // Create default lookup table. Generally used to create one when none
+  // is available with the scalar data.
+  virtual void CreateDefaultLookupTable();
+
+  // Description:
+  // Turn on/off flag to control whether scalar data is used to color objects.
+  vtkSetMacro(ScalarVisibility,int);
+  vtkGetMacro(ScalarVisibility,int);
+  vtkBooleanMacro(ScalarVisibility,int);
+
+  // Description:
+  // When ScalarMode is set to UsePointFieldData or UseCellFieldData,
+  // you can specify which array to use for coloring using these methods.
+  // The lookup table will decide how to convert vectors to colors.
+  void SelectColorArray(vtkIdType arrayNum);
+  void SelectColorArray(const char* arrayName);
 
 //BTX
   // Description:
@@ -146,10 +172,19 @@ protected:
 
   bool LogX, LogY;
 
+  // Description:
+  // Lookup Table for coloring points by scalar value
+  vtkScalarsToColors *LookupTable;
+  vtkUnsignedCharArray *Colors;
+  int ScalarVisibility;
+  char ColorArrayName[256];
+
 private:
   vtkPlotPoints(const vtkPlotPoints &); // Not implemented.
   void operator=(const vtkPlotPoints &); // Not implemented.
 
+// #define  VTK_COLOR_MODE_DEFAULT   0
+// #define  VTK_COLOR_MODE_MAP_SCALARS   1
 //ETX
 };
 

@@ -34,6 +34,7 @@ class vtkTextProperty;
 
 class vtkPoints2D;
 class vtkVector2f;
+class vtkUnsignedCharArray;
 class vtkContextDevice2D;
 class vtkPen;
 class vtkBrush;
@@ -113,6 +114,14 @@ public:
   void DrawPoly(float *points, int n);
 
   // Description:
+  // Draw a poly line between the specified points, where the float array is of
+  // size 2*n and the points are packed x1, y1, x2, y2 etc. The line will be colored by
+  // the colors array, which must have nc_comps components (defining a single color).
+  // Note: Fastest code path - points packed in x and y.
+  void DrawPoly(float *points, int n,
+                unsigned char *colors, int nc_comps);
+
+  // Description:
   // Draw a point at the supplied x and y coordinate
   void DrawPoint(float x, float y);
 
@@ -136,6 +145,16 @@ public:
   // The supplied vtkImageData is the sprite to be drawn, only squares will be
   // drawn and the size is set using SetPointSize.
   void DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points);
+
+  // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize. Points will be colored by
+  // the colors array, which must be the same length as points.
+  void DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points,
+                        vtkUnsignedCharArray *colors);
+  void DrawPointSprites(vtkImageData *sprite, float *points, int n,
+         unsigned char *colors, int nc_comps);
 
   // Description:
   // Draw a series of point sprites, images centred at the points supplied.
