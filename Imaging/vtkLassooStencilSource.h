@@ -32,6 +32,7 @@
 class vtkImageData;
 class vtkPoints;
 class vtkSpline;
+class vtkLSSPointMap;
 
 class VTK_IMAGING_EXPORT vtkLassooStencilSource : public vtkImageStencilSource
 {
@@ -57,11 +58,22 @@ public:
   virtual const char *GetShapeAsString();
 
   // Description:
-  // Set the points that make up the lassoo.  The loop does not
+  // The points that make up the lassoo.  The loop does not
   // have to be closed, the last point will automatically be
   // connected to the first point by a straight line segment.
   virtual void SetPoints(vtkPoints *points);
   vtkGetObjectMacro(Points, vtkPoints);
+
+  // Description:
+  // The points for a particular slice.  This will override the
+  // points that were set by calling SetPoints() for the slice.
+  // To clear the setting, call SetSlicePoints(slice, NULL).
+  virtual void SetSlicePoints(int i, vtkPoints *points);
+  virtual vtkPoints *GetSlicePoints(int i);
+
+  // Description:
+  // Remove points from all slices.
+  virtual void RemoveAllSlicePoints();
 
   // Description:
   // Set a vtkImageData that has the Spacing, Origin, and
@@ -112,6 +124,7 @@ protected:
   vtkPoints *Points;
   vtkSpline *SplineX;
   vtkSpline *SplineY;
+  vtkLSSPointMap *PointMap;
 
   vtkImageData *InformationInput;
 

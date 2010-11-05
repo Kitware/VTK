@@ -24,8 +24,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSmartPointer.h"
 
 #include <math.h>
+#include <vtkstd/map>
 #include <vtkstd/vector>
 #include <vtkstd/deque>
 #include <vtkstd/algorithm>
@@ -33,6 +35,11 @@
 vtkStandardNewMacro(vtkLassooStencilSource);
 vtkCxxSetObjectMacro(vtkLassooStencilSource, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkLassooStencilSource, Points, vtkPoints);
+
+//----------------------------------------------------------------------------
+class vtkLSSPointMap : public vtkstd::map<int, vtkSmartPointer<vtkPoints> >
+{
+};
 
 //----------------------------------------------------------------------------
 vtkLassooStencilSource::vtkLassooStencilSource()
@@ -60,6 +67,8 @@ vtkLassooStencilSource::vtkLassooStencilSource()
   this->OutputWholeExtent[3] = 0;
   this->OutputWholeExtent[4] = 0;
   this->OutputWholeExtent[5] = 0;
+
+  this->PointMap = new vtkLSSPointMap();
 }
 
 //----------------------------------------------------------------------------
@@ -76,6 +85,11 @@ vtkLassooStencilSource::~vtkLassooStencilSource()
     {
     this->SplineY->Delete();
     this->SplineY = NULL;
+    }
+  if (this->PointMap)
+    {
+    delete this->PointMap;
+    this->PointMap = NULL;
     }
 }
 
@@ -97,6 +111,7 @@ void vtkLassooStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Shape: " << this->GetShapeAsString() << "\n";
   os << indent << "Points: " << this->Points << "\n";
+  os << indent << "SlicePoints: " << this->PointMap->size() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -126,9 +141,73 @@ unsigned long int vtkLassooStencilSource::GetMTime()
       }
     }
 
+  if ( !this->PointMap->empty() )
+    {
+    vtkLSSPointMap::iterator iter = this->PointMap->begin();
+    while ( iter != this->PointMap->end() )
+      {
+      unsigned long t = iter->second->GetMTime();
+      if (t > mTime)
+        {
+        mTime = t;
+        }
+      iter++;
+      }
+    }
+
   return mTime;
 }
 
+//----------------------------------------------------------------------------
+void vtkLassooStencilSource::SetSlicePoints(int i, vtkPoints *points)
+{
+  vtkLSSPointMap::iterator iter = this->PointMap->find(i);
+  if (iter != this->PointMap->end())
+    {
+    if (iter->second == points)
+      {
+      return;
+      }
+    else if (points == 0)
+      {
+      this->PointMap->erase(iter);
+      }
+    else
+      {
+      iter->second = points;
+      }
+    }
+  else
+    {
+    if (points == NULL)
+      {
+      return;
+      }
+    else
+      {
+      this->PointMap->insert(iter, vtkLSSPointMap::value_type(i, points));
+      }
+    }
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkLassooStencilSource::RemoveAllSlicePoints()
+{
+  this->PointMap->clear();
+}
+
+//----------------------------------------------------------------------------
+vtkPoints *vtkLassooStencilSource::GetSlicePoints(int i)
+{
+  vtkLSSPointMap::iterator iter = this->PointMap->find(i);
+  if (iter != this->PointMap->end())
+    {
+    return iter->second;
+    }
+  return NULL;
+}
 
 //----------------------------------------------------------------------------
 // tolerance for stencil operations
@@ -138,12 +217,12 @@ unsigned long int vtkLassooStencilSource::GetMTime()
 //----------------------------------------------------------------------------
 // Compute a reduced extent based on the bounds of the shape.
 static void vtkLassooStencilSourceSubExtent(
-  vtkLassooStencilSource *self,
+  vtkPoints *points,
   const double origin[3], const double spacing[3],
   const int extent[6], int subextent[6])
 {
   double bounds[6];
-  self->GetPoints()->GetBounds(bounds);
+  points->GetBounds(bounds);
 
   for (int i = 0; i < 3; i++)
     {
@@ -337,17 +416,12 @@ static void vtkLassooStencilSourceGenerateStencil(
 //----------------------------------------------------------------------------
 // Rasterize a polygon into the stencil
 static int vtkLassooStencilSourcePolygon(
-  vtkLassooStencilSource *self, vtkImageStencilData *data,
+  vtkPoints *points, vtkImageStencilData *data,
   const int extent[6], const double origin[3], const double spacing[3])
 {
-  self->UpdateProgress(0.0);
-
-  // get the points
-  vtkPoints *points = self->GetPoints();
-
   // get the bounds of the polygon
   int subextent[6];
-  vtkLassooStencilSourceSubExtent(self, origin, spacing, extent, subextent);
+  vtkLassooStencilSourceSubExtent(points, origin, spacing, extent, subextent);
 
   // create a vector for each raster line in the Y extent
   int nraster = subextent[3] - subextent[2] + 1;
@@ -404,11 +478,7 @@ static int vtkLassooStencilSourcePolygon(
     inflection1 = inflection2;
     }
 
-  self->UpdateProgress(0.5);
-
   vtkLassooStencilSourceGenerateStencil(data, extent, subextent, raster);
-
-  self->UpdateProgress(1.0);
 
   return 1;
 }
@@ -503,14 +573,11 @@ static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
 //----------------------------------------------------------------------------
 // Rasterize a spline contour into the stencil
 static int vtkLassooStencilSourceSpline(
-  vtkLassooStencilSource *self, vtkImageStencilData *data,
+  vtkPoints *points, vtkImageStencilData *data,
   const int extent[6], const double origin[3], const double spacing[3],
   vtkSpline *xspline, vtkSpline *yspline)
 {
-  self->UpdateProgress(0.0);
-
-  // get the points, create the splines
-  vtkPoints *points = self->GetPoints();
+  // create the splines
   double tmax, dmax;
   vtkLassooStencilSourceCreateSpline(
     points, origin, spacing, xspline, yspline, tmax, dmax);
@@ -522,7 +589,7 @@ static int vtkLassooStencilSourceSpline(
 
   // get the bounds of the polygon as a first guess of the spline bounds
   int subextent[6];
-  vtkLassooStencilSourceSubExtent(self, origin, spacing, extent, subextent);
+  vtkLassooStencilSourceSubExtent(points, origin, spacing, extent, subextent);
 
   // create a vector for each raster line in the Y extent
   int nraster = subextent[3] - subextent[2] + 1;
@@ -585,13 +652,38 @@ static int vtkLassooStencilSourceSpline(
     inflection1 = inflection2;
     }
 
-  self->UpdateProgress(0.5);
-
   vtkLassooStencilSourceGenerateStencil(data, extent, subextent, raster);
 
-  self->UpdateProgress(1.0);
-
   return 1;
+}
+
+//----------------------------------------------------------------------------
+static int vtkLassooStencilSourceExecute(
+  vtkPoints *points, vtkImageStencilData *data, int extent[6],
+  double origin[3], double spacing[3], int shape,
+  vtkSpline *xspline, vtkSpline *yspline)
+{
+  int result = 1;
+
+  if (points == 0 || points->GetNumberOfPoints() < 3)
+    {
+    return 1;
+    }
+
+  switch (shape)
+    {
+    case vtkLassooStencilSource::POLYGON:
+      result = vtkLassooStencilSourcePolygon(
+        points, data, extent, origin, spacing);
+      break;
+    case vtkLassooStencilSource::SPLINE:
+      result = vtkLassooStencilSourceSpline(
+        points, data, extent, origin, spacing,
+        xspline, yspline);
+      break;
+    }
+
+  return result;
 }
 
 
@@ -608,11 +700,6 @@ int vtkLassooStencilSource::RequestData(
 
   this->Superclass::RequestData(request, inputVector, outputVector);
 
-  if (this->Points == 0 || this->Points->GetNumberOfPoints() < 3)
-    {
-    return 1;
-    }
-
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -621,18 +708,64 @@ int vtkLassooStencilSource::RequestData(
   outInfo->Get(vtkDataObject::ORIGIN(), origin);
   outInfo->Get(vtkDataObject::SPACING(), spacing);
 
-  switch (this->Shape)
+  vtkLSSPointMap::iterator iter = this->PointMap->lower_bound(extent[4]);
+  vtkLSSPointMap::iterator maxiter = this->PointMap->upper_bound(extent[5]);
+
+  int slabExtent[6];
+  slabExtent[0] = extent[0]; slabExtent[1] = extent[1];
+  slabExtent[2] = extent[2]; slabExtent[3] = extent[3];
+  slabExtent[4] = extent[4]; slabExtent[5] = extent[5];
+
+  this->SetProgress(0.0);
+
+  while (iter != maxiter && result != 0)
     {
-    case vtkLassooStencilSource::POLYGON:
-      result = vtkLassooStencilSourcePolygon(
-        this, data, extent, origin, spacing);
-      break;
-    case vtkLassooStencilSource::SPLINE:
-      result = vtkLassooStencilSourceSpline(
-        this, data, extent, origin, spacing,
-        this->SplineX, this->SplineY);
-      break;
+    this->SetProgress(
+      (slabExtent[4] - extent[4])*1.0/(extent[5] - extent[4] + 1));
+
+    int i = iter->first;
+    vtkPoints *points = iter->second;
+
+    // fill in the slices with no SlicePoints
+    if (this->Points && i > slabExtent[4])
+      {
+      slabExtent[5] = i-1;
+
+      result = vtkLassooStencilSourceExecute(
+        this->Points, data, slabExtent, origin, spacing,
+        this->Shape, this->SplineX, this->SplineY);
+      }
+
+    // do the slice with its SlicePoints
+    if (result)
+      {
+      slabExtent[4] = i;
+      slabExtent[5] = i;
+
+      result = vtkLassooStencilSourceExecute(
+        points, data, slabExtent, origin, spacing,
+        this->Shape, this->SplineX, this->SplineY);
+
+      slabExtent[4] = slabExtent[5] + 1;
+      }
+
+    ++iter;
     }
+
+  this->SetProgress(
+    (slabExtent[4] - extent[4])*1.0/(extent[5] - extent[4] + 1));
+
+  // fill in the rest
+  if (result && slabExtent[4] <= extent[5])
+    {
+    slabExtent[5] = extent[5];
+
+    result = vtkLassooStencilSourceExecute(
+      this->Points, data, slabExtent, origin, spacing,
+      this->Shape, this->SplineX, this->SplineY);
+    }
+
+  this->SetProgress(1.0);
 
   return result;
 }
