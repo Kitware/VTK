@@ -32,7 +32,7 @@ points2 InsertNextPoint 110 170 0
 
 vtkLassooStencilSource roiStencil1
 roiStencil1 SetShapeToPolygon
-roiStencil1 SetPoints points1
+roiStencil1 SetSlicePoints 0 points1
 roiStencil1 SetInformationInput [reader GetOutput]
 
 vtkLassooStencilSource roiStencil2
@@ -47,7 +47,7 @@ roiStencil3 SetInformationInput [reader GetOutput]
 
 vtkLassooStencilSource roiStencil4
 roiStencil4 SetShapeToSpline
-roiStencil4 SetPoints points2
+roiStencil4 SetSlicePoints 0 points2
 roiStencil4 SetInformationInput [reader GetOutput]
 
 vtkImageStencil stencil1
