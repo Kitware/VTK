@@ -763,9 +763,9 @@ int vtkLassooStencilSource::RequestData(
     result = vtkLassooStencilSourceExecute(
       this->Points, data, slabExtent, origin, spacing,
       this->Shape, this->SplineX, this->SplineY);
-    }
 
-  this->SetProgress(1.0);
+    this->SetProgress(1.0);
+    }
 
   return result;
 }
