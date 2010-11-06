@@ -363,12 +363,10 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
                                        int rmin, int rmax,
                                        int yIdx, int zIdx, int &iter)
 {
-  int extent[6];
-  this->GetExtent(extent);
-  int yExt = extent[3] - extent[2] + 1;
-  int zExt = extent[5] - extent[4] + 1;
-  yIdx -= extent[2];
-  zIdx -= extent[4];
+  int yExt = this->Extent[3] - this->Extent[2] + 1;
+  int zExt = this->Extent[5] - this->Extent[4] + 1;
+  yIdx -= this->Extent[2];
+  zIdx -= this->Extent[4];
 
   // initialize r1, r2 to defaults
   r1 = rmax + 1;
@@ -492,10 +490,10 @@ void vtkImageStencilData::Fill( void )
 void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
 {
   // calculate the index into the extent array
-  int extent[6];
-  this->GetExtent(extent);
-  int yExt = extent[3] - extent[2] + 1;
-  int incr = (zIdx - extent[4])*yExt + (yIdx - extent[2]);
+  int yMin = this->Extent[2];
+  int yMax = this->Extent[3];
+  int zMin = this->Extent[4];
+  int incr = (yMax - yMin + 1)*(zIdx - zMin) + (yIdx - yMin);
 
   int &clistlen = this->ExtentListLengths[incr];
   int *&clist = this->ExtentLists[incr];
@@ -504,6 +502,12 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
   if (clistlen == 0)
     {
     clist = new int[2];
+    }
+  // this extent continues the previous extent
+  else if (r1 == clist[clistlen-1]+1)
+    {
+    clist[clistlen-1] = r2;
+    return;
     }
   // check if clistlen is a power of two
   else if ((clistlen & (clistlen-1)) == 0)
@@ -530,10 +534,10 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2,
                                                int yIdx, int zIdx)
 {
   // calculate the index into the extent array
-  int extent[6];
-  this->GetExtent(extent);
-  int yExt = extent[3] - extent[2] + 1;
-  int incr = (zIdx - extent[4])*yExt + (yIdx - extent[2]);
+  int yMin = this->Extent[2];
+  int yMax = this->Extent[3];
+  int zMin = this->Extent[4];
+  int incr = (yMax - yMin + 1)*(zIdx - zMin) + (yIdx - yMin);
 
   int &clistlen = this->ExtentListLengths[incr];
   int *&clist = this->ExtentLists[incr];
@@ -646,17 +650,20 @@ void vtkImageStencilData::CollapseAdditionalIntersections(int r2, int idx,
 //----------------------------------------------------------------------------
 void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
 {
-  if (zIdx < this->Extent[4] || zIdx > this->Extent[5] || 
-      yIdx < this->Extent[2] || yIdx > this->Extent[3] )
+  int xMin = this->Extent[0];
+  int xMax = this->Extent[1];
+  int yMin = this->Extent[2];
+  int yMax = this->Extent[3];
+  int zMin = this->Extent[4];
+  int zMax = this->Extent[5];
+
+  if (zIdx < zMin || zIdx > zMax || yIdx < yMin || yIdx > yMax )
     {
     return;
     }
   
   // calculate the index into the extent array
-  int extent[6];
-  this->GetExtent(extent);
-  int yExt = extent[3] - extent[2] + 1;
-  int incr = (zIdx - extent[4])*yExt + (yIdx - extent[2]);
+  int incr = (yMax - yMin + 1)*(zIdx - zMin) + (yIdx - yMin);
 
   int &clistlen = this->ExtentListLengths[incr];
   int *&clist = this->ExtentLists[incr];
@@ -666,7 +673,7 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
     return;
     }
 
-  if (r1 <= extent[0] && r2 >= extent[1])
+  if (r1 <= xMin && r2 >= xMax)
     {
     // remove the whole row.
     clistlen = 0;
