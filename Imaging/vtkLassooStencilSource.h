@@ -65,6 +65,12 @@ public:
   vtkGetObjectMacro(Points, vtkPoints);
 
   // Description:
+  // The slice orientation.  The default is 2, which is XY.
+  // Other values are 0, which is YZ, and 1, which is XZ.
+  vtkGetMacro(SliceOrientation, int);
+  vtkSetClampMacro(SliceOrientation, int, 0, 2);
+
+  // Description:
   // The points for a particular slice.  This will override the
   // points that were set by calling SetPoints() for the slice.
   // To clear the setting, call SetSlicePoints(slice, NULL).
@@ -121,6 +127,7 @@ protected:
                                  vtkInformationVector *);
 
   int Shape;
+  int SliceOrientation;
   vtkPoints *Points;
   vtkSpline *SplineX;
   vtkSpline *SplineY;

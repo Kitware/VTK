@@ -47,6 +47,7 @@ vtkLassooStencilSource::vtkLassooStencilSource()
   this->SetNumberOfInputPorts(0);
 
   this->Shape = vtkLassooStencilSource::POLYGON;
+  this->SliceOrientation = 2;
   this->Points = NULL;
   this->SplineX = vtkCardinalSpline::New();
   this->SplineY = vtkCardinalSpline::New();
@@ -111,6 +112,7 @@ void vtkLassooStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Shape: " << this->GetShapeAsString() << "\n";
   os << indent << "Points: " << this->Points << "\n";
+  os << indent << "SliceOrientation: " << this->GetSliceOrientation() << "\n";
   os << indent << "SlicePoints: " << this->PointMap->size() << "\n";
 }
 
@@ -258,7 +260,7 @@ static void vtkLassooStencilSourceSubExtent(
 static void vtkLassooStencilSourceBresenham(
   const double pt1[2], const double pt2[2],
   bool inflection1, bool inflection2,
-  const int extent[6], int subextent[6],
+  const int extentY[2], int subextentY[2],
   vtkstd::deque< vtkstd::vector<double> >& raster)
 {
   double x1 = pt1[0];
@@ -312,26 +314,26 @@ static void vtkLassooStencilSourceBresenham(
   iy1 = vtkMath::Floor(ymin) + 1;
   iy2 = vtkMath::Floor(ymax);
 
-  // Guard against extent
-  if (iy1 < extent[2])
+  // Guard against extentY
+  if (iy1 < extentY[0])
     {
-    iy1 = extent[2];
+    iy1 = extentY[0];
     }
-  if (iy2 > extent[3])
+  if (iy2 > extentY[1])
     {
-    iy2 = extent[3];
+    iy2 = extentY[1];
     }
 
-  // Expand subextent if necessary
-  while (iy1 < subextent[2])
+  // Expand subextentY if necessary
+  while (iy1 < subextentY[0])
     {
     raster.push_front(vtkstd::vector<double>());
-    --(subextent[2]);
+    subextentY[0] = subextentY[0] - 1;
     }
-  while (iy2 > subextent[3])
+  while (iy2 > subextentY[1])
     {
     raster.push_back(vtkstd::vector<double>());
-    ++(subextent[3]);
+    subextentY[1] = subextentY[1] + 1;
     }
 
   // Precompute values for a Bresenham-like line algorithm
@@ -341,8 +343,9 @@ static void vtkLassooStencilSourceBresenham(
   // Go along y and place each x in the proper raster line
   for (int y = iy1; y <= iy2; y++)
     {
-    delta += grad;
     double x = x1 + delta;
+    delta += grad;
+
     // clamp x (because of tolerance, it might not be in range)
     if (x < xmin)
       {
@@ -353,20 +356,82 @@ static void vtkLassooStencilSourceBresenham(
       x = xmax;
       }
 
-    raster[y - subextent[2]].push_back(x);
+    raster[y - subextentY[0]].push_back(x);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Write the generated raster into the stencil when the raster cuts
+// across the stencil. This is not an efficient stencil orientation.
+static void vtkLassooStencilSourceCrosscutStencil(
+  vtkImageStencilData *data, const int extent[6], const int subextent[6],
+  vtkstd::deque< vtkstd::vector<double> > &raster)
+{
+  int r1 = extent[0];
+  int r2 = extent[1];
+  int zmin = subextent[4];
+  int zmax = subextent[5];
+
+  for (int idZ = zmin; idZ <= zmax; idZ++)
+    {
+    vtkstd::vector<double> &rline = raster[idZ - zmin];
+
+    // sort the positions where line segments intersected raster lines
+    vtkstd::sort(rline.begin(), rline.end());
+
+    int lasts = VTK_INT_MIN;
+
+    size_t l = rline.size();
+    l = l - (l & 1); // force l to be an even number
+    for (size_t k = 0; k < l; k += 2)
+      {
+      double y1 = rline[k] - VTK_STENCIL_TOL;
+      double y2 = rline[k+1] + VTK_STENCIL_TOL;
+
+      int s1 = vtkMath::Floor(y1) + 1;
+      int s2 = vtkMath::Floor(y2);
+
+      // ensure no overlap occurs with previous
+      if (s1 <= lasts)
+        {
+        s1 = lasts + 1;
+        }
+      lasts = s2;
+
+      for (int idY = s1; idY <= s2; idY++)
+        {
+        data->InsertNextExtent(r1, r2, idY, idZ);
+        }
+      }
     }
 }
 
 //----------------------------------------------------------------------------
 // Write the generated raster into the stencil
 static void vtkLassooStencilSourceGenerateStencil(
-  vtkImageStencilData *data, const int extent[6], const int subextent[6],
+  vtkImageStencilData *data, int xj, int yj,
+  const int extent[6], const int subextent[6],
   vtkstd::deque< vtkstd::vector<double> > &raster)
 {
-  // convert each raster line into extents for the stencil
-  for (int idY = subextent[2]; idY <= subextent[3]; idY++)
+  if (xj != 0)
     {
-    vtkstd::vector<double> &rline = raster[idY - subextent[2]];
+    vtkLassooStencilSourceCrosscutStencil(
+      data, extent, subextent, raster);
+    return;
+    }
+
+  int zj = 3 - yj;
+  int xmin = extent[0];
+  int xmax = extent[1];
+  int ymin = subextent[2*yj];
+  int ymax = subextent[2*yj+1];
+  int zmin = extent[2*zj];
+  int zmax = extent[2*zj+1];
+
+  // convert each raster line into extents for the stencil
+  for (int idY = ymin; idY <= ymax; idY++)
+    {
+    vtkstd::vector<double> &rline = raster[idY - ymin];
 
     // sort the positions where line segments intersected raster lines
     vtkstd::sort(rline.begin(), rline.end());
@@ -378,11 +443,16 @@ static void vtkLassooStencilSourceGenerateStencil(
     l = l - (l & 1); // force l to be an even number
     for (size_t k = 0; k < l; k += 2)
       {
+      int yz[2];
+
+      yz[yj-1] = idY;
+      yz[zj-1] = zmin;
+
       double x1 = rline[k] - VTK_STENCIL_TOL;
       double x2 = rline[k+1] + VTK_STENCIL_TOL;
 
-      int r1 = vtkMath::Floor(x1);
-      int r2 = vtkMath::Floor(x2) + 1;
+      int r1 = vtkMath::Floor(x1) + 1;
+      int r2 = vtkMath::Floor(x2);
 
       // ensure no overlap occurs between extents
       if (r1 <= lastr)
@@ -393,21 +463,32 @@ static void vtkLassooStencilSourceGenerateStencil(
 
       if (r2 >= r1)
         {
-        data->InsertNextExtent(r1, r2, idY, extent[4]);
+        data->InsertNextExtent(r1, r2, yz[0], yz[1]);
         }
       }
     }
 
   // copy the result to all other slices
-  for (int idZ = extent[4] + 1; idZ <= extent[5]; idZ++)
+  if (zmin < zmax)
     {
-    for (int idY = subextent[2]; idY <= subextent[3]; idY++)
+    for (int idY = ymin; idY <= ymax; idY++)
       {
-      int iter = 0;
       int r1, r2;
+      int yz[2];
 
-      data->GetNextExtent(r1, r2, extent[0], extent[1], idY, extent[4], iter);
-      data->InsertNextExtent(r1, r2, idY, idZ);
+      yz[yj-1] = idY;
+      yz[zj-1] = zmin;
+
+      int iter = 0;
+      while (data->GetNextExtent(r1, r2, xmin, xmax, yz[0], yz[1], iter))
+        {
+        for (int idZ = zmin + 1; idZ <= zmax; idZ++)
+          {
+          yz[zj-1] = idZ;
+          data->InsertNextExtent(r1, r2, yz[0], yz[1]);
+          }
+        yz[zj-1] = zmin;
+        }
       }
     }
 }
@@ -416,7 +497,7 @@ static void vtkLassooStencilSourceGenerateStencil(
 //----------------------------------------------------------------------------
 // Rasterize a polygon into the stencil
 static int vtkLassooStencilSourcePolygon(
-  vtkPoints *points, vtkImageStencilData *data,
+  vtkPoints *points, vtkImageStencilData *data, int xj, int yj,
   const int extent[6], const double origin[3], const double spacing[3])
 {
   // get the bounds of the polygon
@@ -424,37 +505,35 @@ static int vtkLassooStencilSourcePolygon(
   vtkLassooStencilSourceSubExtent(points, origin, spacing, extent, subextent);
 
   // create a vector for each raster line in the Y extent
-  int nraster = subextent[3] - subextent[2] + 1;
+  int nraster = subextent[2*yj+1] - subextent[2*yj] + 1;
   vtkstd::deque< vtkstd::vector<double> > raster(nraster);
 
   // rasterize each line
   vtkIdType n = points->GetNumberOfPoints();
-  double p0[3], p1[3], p2[3], p3[3];
+  double p[3];
+  double p0[2], p1[2], p2[2], p3[2];
 
-  points->GetPoint(n-1, p0);
-  p0[0] = (p0[0] - origin[0])/spacing[0];
-  p0[1] = (p0[1] - origin[1])/spacing[1];
-  p0[2] = (p0[2] - origin[2])/spacing[2];
+  points->GetPoint(n-1, p);
+  p0[0] = (p[xj] - origin[xj])/spacing[xj];
+  p0[1] = (p[yj] - origin[yj])/spacing[yj];
 
-  points->GetPoint(0, p1);
-  p1[0] = (p1[0] - origin[0])/spacing[0];
-  p1[1] = (p1[1] - origin[1])/spacing[1];
-  p1[2] = (p1[2] - origin[2])/spacing[2];
+  points->GetPoint(0, p);
+  p1[0] = (p[xj] - origin[xj])/spacing[xj];
+  p1[1] = (p[yj] - origin[yj])/spacing[yj];
 
-  if (vtkMath::Distance2BetweenPoints(p0, p1) <
-      VTK_STENCIL_TOL*VTK_STENCIL_TOL)
+  double dx = p1[0] - p0[0];
+  double dy = p1[1] - p0[1];
+  if (dx*dx + dy*dy <= VTK_STENCIL_TOL*VTK_STENCIL_TOL)
     {
     n -= 1;
-    points->GetPoint(n-1, p0);
-    p0[0] = (p0[0] - origin[0])/spacing[0];
-    p0[1] = (p0[1] - origin[1])/spacing[1];
-    p0[2] = (p0[2] - origin[2])/spacing[2];
+    points->GetPoint(n-1, p);
+    p0[0] = (p[xj] - origin[xj])/spacing[xj];
+    p0[1] = (p[yj] - origin[yj])/spacing[yj];
     }
 
-  points->GetPoint(1, p2);
-  p2[0] = (p2[0] - origin[0])/spacing[0];
-  p2[1] = (p2[1] - origin[1])/spacing[1];
-  p2[2] = (p2[2] - origin[2])/spacing[2];
+  points->GetPoint(1, p);
+  p2[0] = (p[xj] - origin[xj])/spacing[xj];
+  p2[1] = (p[yj] - origin[yj])/spacing[yj];
 
   // inflection means the line changes vertical direction
   bool inflection1, inflection2;
@@ -462,23 +541,24 @@ static int vtkLassooStencilSourcePolygon(
 
   for (vtkIdType i = 0; i < n; i++)
     {
-    points->GetPoint((i+2)%n, p3);
-    p3[0] = (p3[0] - origin[0])/spacing[0];
-    p3[1] = (p3[1] - origin[1])/spacing[1];
-    p3[2] = (p3[2] - origin[2])/spacing[2];
+    points->GetPoint((i+2)%n, p);
+    p3[0] = (p[xj] - origin[xj])/spacing[xj];
+    p3[1] = (p[yj] - origin[yj])/spacing[yj];
 
     inflection2 = ( (p2[1] - p1[1])*(p3[1] - p2[1]) <= 0 );
 
     vtkLassooStencilSourceBresenham(p1, p2, inflection1, inflection2,
-                                    extent, subextent, raster);
+                                    &extent[2*yj], &subextent[2*yj],
+                                    raster);
 
-    p0[0] = p1[0]; p0[1] = p1[1]; p0[2] = p1[2];
-    p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
-    p2[0] = p3[0]; p2[1] = p3[1]; p2[2] = p3[2];
+    p0[0] = p1[0]; p0[1] = p1[1];
+    p1[0] = p2[0]; p1[1] = p2[1];
+    p2[0] = p3[0]; p2[1] = p3[1];
     inflection1 = inflection2;
     }
 
-  vtkLassooStencilSourceGenerateStencil(data, extent, subextent, raster);
+  vtkLassooStencilSourceGenerateStencil(
+    data, xj, yj, extent, subextent, raster);
 
   return 1;
 }
@@ -490,7 +570,7 @@ static int vtkLassooStencilSourcePolygon(
 // The parametric value for the resulting spline will be valid over
 // the range [0, tmax] where the tmax value is returned by reference.
 static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
-  const double origin[3], const double spacing[3],
+  int xj, int yj, const double origin[3], const double spacing[3],
   vtkSpline *xspline, vtkSpline *yspline, double &tmax, double &dmax)
 {
   // initialize the spline
@@ -501,32 +581,44 @@ static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
 
   // get the number of points and the first/last point
   vtkIdType n = points->GetNumberOfPoints();
-  double p0[3], p1[3];
+  double p[3];
+  double p0[2], p1[2];
 
-  points->GetPoint(n-1, p0);
-  p0[0] = (p0[0] - origin[0])/spacing[0];
-  p0[1] = (p0[1] - origin[1])/spacing[1];
-  p0[2] = (p0[2] - origin[2])/spacing[2];
+  points->GetPoint(n-1, p);
+  p0[0] = (p[xj] - origin[xj])/spacing[xj];
+  p0[1] = (p[yj] - origin[yj])/spacing[yj];
 
-  points->GetPoint(0, p1);
-  p1[0] = (p1[0] - origin[0])/spacing[0];
-  p1[1] = (p1[1] - origin[1])/spacing[1];
-  p1[2] = (p1[2] - origin[2])/spacing[2];
+  points->GetPoint(0, p);
+  p1[0] = (p[xj] - origin[xj])/spacing[xj];
+  p1[1] = (p[yj] - origin[yj])/spacing[yj];
 
   // factor between real distance and parametric distance
   double f = 1.0;
   // the length of the implicit segment for closed loops
   double lastd = 0;
 
+  // aspect ratio
+  double xf = 1.0;
+  double yf = 1.0;
+  if (spacing[xj] > spacing[yj])
+    {
+    xf = spacing[xj]/spacing[yj];
+    }
+  else
+    {
+    yf = spacing[yj]/spacing[xj];
+    }
+
   // if first and last point are same, spline is closed
-  while ((vtkMath::Distance2BetweenPoints(p0, p1) <
-          VTK_STENCIL_TOL*VTK_STENCIL_TOL) && n > 1)
+  double dx = (p1[0] - p0[0])*xf;
+  double dy = (p1[1] - p0[1])*yf;
+  double d2 = dx*dx + dy*dy;
+  while (d2 <= VTK_STENCIL_TOL*VTK_STENCIL_TOL && n > 1)
     {
     n -= 1;
-    points->GetPoint(n-1, p0);
-    p0[0] = (p0[0] - origin[0])/spacing[0];
-    p0[1] = (p0[1] - origin[1])/spacing[1];
-    p0[2] = (p0[2] - origin[2])/spacing[2];
+    points->GetPoint(n-1, p);
+    p0[0] = (p[xj] - origin[xj])/spacing[xj];
+    p0[1] = (p[yj] - origin[yj])/spacing[yj];
 
     xspline->ClosedOn();
     yspline->ClosedOn();
@@ -534,7 +626,10 @@ static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
     // vtkSpline considers the parametric length of the implicit
     // segment of closed loops to be unity, so set "f" so that
     // multiplying the real length of that segment by "f" gives unity.
-    lastd = sqrt(vtkMath::Distance2BetweenPoints(p0, p1));
+    dx = (p1[0] - p0[0])*xf;
+    dy = (p1[1] - p0[1])*yf;
+    d2 = dx*dx + dy*dy;
+    lastd = sqrt(d2);
     if (lastd > 0)
       {
       f = 1.0/lastd;
@@ -545,14 +640,16 @@ static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
   double d = 0.0;
   for (vtkIdType i = 0; i < n; i++)
     {
-    p0[0] = p1[0]; p0[1] = p1[1]; p0[2] = p1[2];
+    p0[0] = p1[0]; p0[1] = p1[1];
 
-    points->GetPoint(i, p1);
-    p1[0] = (p1[0] - origin[0])/spacing[0];
-    p1[1] = (p1[1] - origin[1])/spacing[1];
-    p1[2] = (p1[2] - origin[2])/spacing[2];
+    points->GetPoint(i, p);
+    p1[0] = (p[xj] - origin[xj])/spacing[xj];
+    p1[1] = (p[yj] - origin[yj])/spacing[yj];
 
-    d += sqrt(vtkMath::Distance2BetweenPoints(p0, p1));
+    dx = (p1[0] - p0[0])*xf;
+    dy = (p1[1] - p0[1])*yf;
+
+    d += sqrt(dx*dx + dy*dy);
 
     double t = f*d;
 
@@ -573,14 +670,14 @@ static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
 //----------------------------------------------------------------------------
 // Rasterize a spline contour into the stencil
 static int vtkLassooStencilSourceSpline(
-  vtkPoints *points, vtkImageStencilData *data,
+  vtkPoints *points, vtkImageStencilData *data, int xj, int yj,
   const int extent[6], const double origin[3], const double spacing[3],
   vtkSpline *xspline, vtkSpline *yspline)
 {
   // create the splines
   double tmax, dmax;
   vtkLassooStencilSourceCreateSpline(
-    points, origin, spacing, xspline, yspline, tmax, dmax);
+    points, xj, yj, origin, spacing, xspline, yspline, tmax, dmax);
 
   if (dmax <= VTK_STENCIL_TOL)
     {
@@ -592,14 +689,14 @@ static int vtkLassooStencilSourceSpline(
   vtkLassooStencilSourceSubExtent(points, origin, spacing, extent, subextent);
 
   // create a vector for each raster line in the Y extent
-  int nraster = subextent[3] - subextent[2] + 1;
+  int nraster = subextent[2*yj+1] - subextent[2*yj] + 1;
   vtkstd::deque< vtkstd::vector<double> > raster(nraster);
 
   // go around the spline
   vtkIdType n = vtkMath::Floor(dmax)+1;
   double delta = tmax/n;
 
-  double p0[3], p1[3], p2[3], p3[3];
+  double p0[2], p1[2], p2[2], p3[2];
 
   double t = tmax;
   if (xspline->GetClosed())
@@ -613,17 +710,14 @@ static int vtkLassooStencilSourceSpline(
 
   p0[0] = xspline->Evaluate(t);
   p0[1] = yspline->Evaluate(t);
-  p0[2] = 0;
 
   t = 0;
   p1[0] = xspline->Evaluate(t);
   p1[1] = yspline->Evaluate(t);
-  p1[2] = 0;
 
   t = delta;
   p2[0] = xspline->Evaluate(t);
   p2[1] = yspline->Evaluate(t);
-  p2[2] = 0;
 
   // inflection means the line changes vertical direction
   bool inflection1, inflection2;
@@ -639,12 +733,12 @@ static int vtkLassooStencilSourceSpline(
 
     p3[0] = xspline->Evaluate(t);
     p3[1] = yspline->Evaluate(t);
-    p3[2] = 0;
 
     inflection2 = ( (p2[1] - p1[1])*(p3[1] - p2[1]) <= 0 );
 
     vtkLassooStencilSourceBresenham(p1, p2, inflection1, inflection2,
-                                    extent, subextent, raster);
+                                    &extent[2*yj], &subextent[2*yj],
+                                    raster);
 
     p0[0] = p1[0]; p0[1] = p1[1];
     p1[0] = p2[0]; p1[1] = p2[1];
@@ -652,15 +746,16 @@ static int vtkLassooStencilSourceSpline(
     inflection1 = inflection2;
     }
 
-  vtkLassooStencilSourceGenerateStencil(data, extent, subextent, raster);
+  vtkLassooStencilSourceGenerateStencil(
+    data, xj, yj, extent, subextent, raster);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 static int vtkLassooStencilSourceExecute(
-  vtkPoints *points, vtkImageStencilData *data, int extent[6],
-  double origin[3], double spacing[3], int shape,
+  vtkPoints *points, vtkImageStencilData *data, int xj, int yj,
+  int extent[6], double origin[3], double spacing[3], int shape,
   vtkSpline *xspline, vtkSpline *yspline)
 {
   int result = 1;
@@ -674,11 +769,11 @@ static int vtkLassooStencilSourceExecute(
     {
     case vtkLassooStencilSource::POLYGON:
       result = vtkLassooStencilSourcePolygon(
-        points, data, extent, origin, spacing);
+        points, data, xj, yj, extent, origin, spacing);
       break;
     case vtkLassooStencilSource::SPLINE:
       result = vtkLassooStencilSourceSpline(
-        points, data, extent, origin, spacing,
+        points, data, xj, yj, extent, origin, spacing,
         xspline, yspline);
       break;
     }
@@ -708,60 +803,76 @@ int vtkLassooStencilSource::RequestData(
   outInfo->Get(vtkDataObject::ORIGIN(), origin);
   outInfo->Get(vtkDataObject::SPACING(), spacing);
 
-  vtkLSSPointMap::iterator iter = this->PointMap->lower_bound(extent[4]);
-  vtkLSSPointMap::iterator maxiter = this->PointMap->upper_bound(extent[5]);
-
   int slabExtent[6];
   slabExtent[0] = extent[0]; slabExtent[1] = extent[1];
   slabExtent[2] = extent[2]; slabExtent[3] = extent[3];
   slabExtent[4] = extent[4]; slabExtent[5] = extent[5];
 
-  this->SetProgress(0.0);
+  int xj = 0;
+  int yj = 1;
+  int zj = 2;
+
+  if (this->SliceOrientation == 0)
+    {
+    xj = 1;
+    yj = 2;
+    zj = 0;
+    }
+  else if (this->SliceOrientation == 1)
+    {
+    xj = 0;
+    yj = 2;
+    zj = 1;
+    }
+
+  int zmin = extent[2*zj];
+  int zmax = extent[2*zj+1];
+
+  vtkLSSPointMap::iterator iter = this->PointMap->lower_bound(zmin);
+  vtkLSSPointMap::iterator maxiter = this->PointMap->upper_bound(zmax);
 
   while (iter != maxiter && result != 0)
     {
-    this->SetProgress(
-      (slabExtent[4] - extent[4])*1.0/(extent[5] - extent[4] + 1));
+    this->SetProgress((slabExtent[2*zj] - zmin)*1.0/(zmax - zmin + 1));
 
     int i = iter->first;
     vtkPoints *points = iter->second;
 
     // fill in the slices with no SlicePoints
-    if (this->Points && i > slabExtent[4])
+    if (this->Points && i > slabExtent[2*zj])
       {
-      slabExtent[5] = i-1;
+      slabExtent[2*zj+1] = i-1;
 
       result = vtkLassooStencilSourceExecute(
-        this->Points, data, slabExtent, origin, spacing,
+        this->Points, data, xj, yj, slabExtent, origin, spacing,
         this->Shape, this->SplineX, this->SplineY);
       }
 
     // do the slice with its SlicePoints
     if (result)
       {
-      slabExtent[4] = i;
-      slabExtent[5] = i;
+      slabExtent[2*zj] = i;
+      slabExtent[2*zj+1] = i;
 
       result = vtkLassooStencilSourceExecute(
-        points, data, slabExtent, origin, spacing,
+        points, data, xj, yj, slabExtent, origin, spacing,
         this->Shape, this->SplineX, this->SplineY);
 
-      slabExtent[4] = slabExtent[5] + 1;
+      slabExtent[2*zj] = slabExtent[2*zj+1] + 1;
       }
 
     ++iter;
     }
 
-  this->SetProgress(
-    (slabExtent[4] - extent[4])*1.0/(extent[5] - extent[4] + 1));
+  this->SetProgress((slabExtent[2*zj] - zmin)*1.0/(zmax - zmin + 1));
 
   // fill in the rest
-  if (result && slabExtent[4] <= extent[5])
+  if (result && slabExtent[2*zj] <= zmax)
     {
-    slabExtent[5] = extent[5];
+    slabExtent[2*zj+1] = zmax;
 
     result = vtkLassooStencilSourceExecute(
-      this->Points, data, slabExtent, origin, spacing,
+      this->Points, data, xj, yj, slabExtent, origin, spacing,
       this->Shape, this->SplineX, this->SplineY);
 
     this->SetProgress(1.0);

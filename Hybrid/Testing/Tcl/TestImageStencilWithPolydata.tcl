@@ -51,7 +51,8 @@ stripper2 SetInputConnection [cutter GetOutputPort]
 
 vtkPolyDataToImageStencil dataToStencil2
 dataToStencil2 SetInputConnection [stripper2 GetOutputPort]
-dataToStencil2 SetInformationInput [reader2 GetOutput]
+dataToStencil2 SetOutputSpacing 0.8 0.8 1.5
+dataToStencil2 SetOutputOrigin 0.0 0.0 0.0
 
 vtkImageStencil stencil2
 stencil2 SetInputConnection [reader2 GetOutputPort]
