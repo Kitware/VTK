@@ -314,8 +314,9 @@ static void vtkFloatingEndPointScanConvertLine2D(
   // Go along y and place each x in the proper (y,z) bucket.
   for( int y = Ay; y <= By; y++ )
     {
-    delta += grad;
     double x = x1 + delta;
+    delta += grad;
+
     // clamp x (because of tolerance, it might not be in range)
     if (x < xmin)
       {

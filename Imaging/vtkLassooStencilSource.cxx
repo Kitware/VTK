@@ -343,8 +343,9 @@ static void vtkLassooStencilSourceBresenham(
   // Go along y and place each x in the proper raster line
   for (int y = iy1; y <= iy2; y++)
     {
-    delta += grad;
     double x = x1 + delta;
+    delta += grad;
+
     // clamp x (because of tolerance, it might not be in range)
     if (x < xmin)
       {
@@ -383,8 +384,8 @@ static void vtkLassooStencilSourceGenerateStencil(
       double x1 = rline[k] - VTK_STENCIL_TOL;
       double x2 = rline[k+1] + VTK_STENCIL_TOL;
 
-      int r1 = vtkMath::Floor(x1);
-      int r2 = vtkMath::Floor(x2) + 1;
+      int r1 = vtkMath::Floor(x1) + 1;
+      int r2 = vtkMath::Floor(x2);
 
       // ensure no overlap occurs between extents
       if (r1 <= lastr)
@@ -444,7 +445,7 @@ static int vtkLassooStencilSourcePolygon(
 
   double dx = p1[0] - p0[0];
   double dy = p1[1] - p0[1];
-  if (dx*dx + dy*dy < VTK_STENCIL_TOL*VTK_STENCIL_TOL)
+  if (dx*dx + dy*dy <= VTK_STENCIL_TOL*VTK_STENCIL_TOL)
     {
     n -= 1;
     points->GetPoint(n-1, p);
@@ -533,7 +534,7 @@ static void vtkLassooStencilSourceCreateSpline(vtkPoints *points,
   double dx = (p1[0] - p0[0])*xf;
   double dy = (p1[1] - p0[1])*yf;
   double d2 = dx*dx + dy*dy;
-  while (d2 < VTK_STENCIL_TOL*VTK_STENCIL_TOL && n > 1)
+  while (d2 <= VTK_STENCIL_TOL*VTK_STENCIL_TOL && n > 1)
     {
     n -= 1;
     points->GetPoint(n-1, p);
