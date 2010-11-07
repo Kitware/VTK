@@ -146,6 +146,9 @@ ENDIF(VTK_USE_RENDERING)
 
 IF (VTK_USE_MPI)
   INCLUDE (FindMPI)
+
+  INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
+
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkMPICommunicator.cxx

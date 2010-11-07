@@ -2,6 +2,8 @@
 SET(TMP_WRAP_FILES ${Kit_SRCS} ${Kit_WRAP_HEADERS})
 VTK_WRAP_PYTHON3(vtk${KIT}Python KitPython_SRCS "${TMP_WRAP_FILES}")
 
+INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
+
 # Create a shared library containing the python wrappers.  Executables
 # can link to this but it is not directly loaded dynamically as a
 # module.
