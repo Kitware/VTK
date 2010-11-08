@@ -74,9 +74,8 @@ vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
   this->LastWindow = 0;
 
   this->ScalarsToColorsPainter = vtkScalarsToColorsPainter::New();
-  this->ScalarsToColorsPainter->SetInformation(this->PainterInformation);
-
   this->PainterInformation = vtkInformation::New();
+  this->ScalarsToColorsPainter->SetInformation(this->PainterInformation);
 }
 
 // ---------------------------------------------------------------------------
