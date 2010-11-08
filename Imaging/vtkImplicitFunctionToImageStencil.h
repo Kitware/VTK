@@ -78,6 +78,10 @@ public:
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
 
+  // Description:
+  // Report object referenced by instances of this class.
+  virtual void ReportReferences(vtkGarbageCollector*);
+
 protected:
   vtkImplicitFunctionToImageStencil();
   ~vtkImplicitFunctionToImageStencil();

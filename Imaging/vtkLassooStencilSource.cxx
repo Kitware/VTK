@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSmartPointer.h"
+#include "vtkGarbageCollector.h"
 
 #include <math.h>
 #include <vtkstd/map>
@@ -114,6 +115,14 @@ void vtkLassooStencilSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Points: " << this->Points << "\n";
   os << indent << "SliceOrientation: " << this->GetSliceOrientation() << "\n";
   os << indent << "SlicePoints: " << this->PointMap->size() << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkLassooStencilSource::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InformationInput,
+                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------
@@ -298,30 +307,29 @@ static void vtkLassooStencilSourceBresenham(
   double ymin = y1;
   double ymax = y2;
 
-  if (inflection1)
-    {
-    // if this is a lower inflection point, include a tolerance
-    ymin -= VTK_STENCIL_TOL;
-    }
-  if (inflection2)
-    {
-    // likewise, if upper inflection, add tolerance at top
-    ymax += VTK_STENCIL_TOL;
-    }
+  // if an end is an inflection point, include a tolerance
+  ymin -= inflection1*VTK_STENCIL_TOL;
+  ymax += inflection2*VTK_STENCIL_TOL;
 
   // Integer y values for start and end of line
   int iy1, iy2;
-  iy1 = vtkMath::Floor(ymin) + 1;
-  iy2 = vtkMath::Floor(ymax);
+  iy1 = extentY[0];
+  iy2 = extentY[1];
+
+  // Check for out of bounds
+  if (ymax < iy1 || ymin >= iy2)
+    {
+    return;
+    }
 
   // Guard against extentY
-  if (iy1 < extentY[0])
+  if (ymin >= iy1)
     {
-    iy1 = extentY[0];
+    iy1 = vtkMath::Floor(ymin) + 1;
     }
-  if (iy2 > extentY[1])
+  if (ymax < iy2)
     {
-    iy2 = extentY[1];
+    iy2 = vtkMath::Floor(ymax);
     }
 
   // Expand subextentY if necessary
@@ -369,6 +377,8 @@ static void vtkLassooStencilSourceCrosscutStencil(
 {
   int r1 = extent[0];
   int r2 = extent[1];
+  int ymin = extent[2];
+  int ymax = extent[3];
   int zmin = subextent[4];
   int zmax = subextent[5];
 
@@ -388,8 +398,24 @@ static void vtkLassooStencilSourceCrosscutStencil(
       double y1 = rline[k] - VTK_STENCIL_TOL;
       double y2 = rline[k+1] + VTK_STENCIL_TOL;
 
-      int s1 = vtkMath::Floor(y1) + 1;
-      int s2 = vtkMath::Floor(y2);
+      // make sure one of the ends is in bounds
+      if (y2 < ymin || y1 >= ymax)
+        {
+        continue;
+        }
+
+      // clip the line segment with the bounds
+      int s1 = ymin;
+      int s2 = ymax;
+
+      if (y1 >= ymin)
+        {
+        s1 = vtkMath::Floor(y1) + 1;
+        }
+      if (y2 < ymax)
+        {
+        s2 = vtkMath::Floor(y2);
+        }
 
       // ensure no overlap occurs with previous
       if (s1 <= lasts)
@@ -451,8 +477,22 @@ static void vtkLassooStencilSourceGenerateStencil(
       double x1 = rline[k] - VTK_STENCIL_TOL;
       double x2 = rline[k+1] + VTK_STENCIL_TOL;
 
-      int r1 = vtkMath::Floor(x1) + 1;
-      int r2 = vtkMath::Floor(x2);
+      if (x2 < xmin || x1 >= xmax)
+        {
+        continue;
+        }
+
+      int r1 = xmin;
+      int r2 = xmax;
+
+      if (x1 >= xmin)
+        {
+        r1 = vtkMath::Floor(x1) + 1;
+        }
+      if (x2 < xmax)
+        {
+        r2 = vtkMath::Floor(x2);
+        }
 
       // ensure no overlap occurs between extents
       if (r1 <= lastr)
