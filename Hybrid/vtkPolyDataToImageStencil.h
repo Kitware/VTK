@@ -118,6 +118,10 @@ public:
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
 
+  // Description:
+  // Report object referenced by instances of this class.
+  virtual void ReportReferences(vtkGarbageCollector*);
+
 protected:
   vtkPolyDataToImageStencil();
   ~vtkPolyDataToImageStencil();

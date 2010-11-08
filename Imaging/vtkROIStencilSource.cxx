@@ -22,6 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkGarbageCollector.h"
 
 #include <math.h>
 
@@ -87,6 +88,14 @@ void vtkROIStencilSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->Bounds[1] << " " << this->Bounds[2] << " "
      << this->Bounds[3] << " " << this->Bounds[4] << " "
      << this->Bounds[5] << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkROIStencilSource::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InformationInput,
+                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------

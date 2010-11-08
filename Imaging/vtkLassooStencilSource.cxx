@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSmartPointer.h"
+#include "vtkGarbageCollector.h"
 
 #include <math.h>
 #include <vtkstd/map>
@@ -114,6 +115,14 @@ void vtkLassooStencilSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Points: " << this->Points << "\n";
   os << indent << "SliceOrientation: " << this->GetSliceOrientation() << "\n";
   os << indent << "SlicePoints: " << this->PointMap->size() << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkLassooStencilSource::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InformationInput,
+                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------

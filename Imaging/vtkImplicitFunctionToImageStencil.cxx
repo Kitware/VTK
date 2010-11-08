@@ -21,6 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkGarbageCollector.h"
 
 #include <math.h>
 
@@ -89,6 +90,15 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
     this->OutputWholeExtent[5] << "\n";
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Threshold: " << this->Threshold << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitFunctionToImageStencil::ReportReferences(
+  vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InformationInput,
+                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------

@@ -96,6 +96,10 @@ public:
   vtkSetVector6Macro(OutputWholeExtent, int);
   vtkGetVector6Macro(OutputWholeExtent, int);
 
+  // Description:
+  // Report object referenced by instances of this class.
+  virtual void ReportReferences(vtkGarbageCollector*);
+
 protected:
   vtkROIStencilSource();
   ~vtkROIStencilSource();

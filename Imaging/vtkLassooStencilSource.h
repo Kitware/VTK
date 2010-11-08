@@ -117,6 +117,10 @@ public:
   // Overload GetMTime() to include the timestamp on the points.
   unsigned long GetMTime();
 
+  // Description:
+  // Report object referenced by instances of this class.
+  virtual void ReportReferences(vtkGarbageCollector*);
+
 protected:
   vtkLassooStencilSource();
   ~vtkLassooStencilSource();

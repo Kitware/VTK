@@ -63,6 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkGarbageCollector.h"
 
 #include <math.h>
 
@@ -156,6 +157,15 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
     this->OutputWholeExtent[5] << "\n";
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataToImageStencil::ReportReferences(
+  vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InformationInput,
+                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------
