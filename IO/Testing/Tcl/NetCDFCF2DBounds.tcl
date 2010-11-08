@@ -5,6 +5,7 @@ package require vtk
 vtkRenderWindow renWin
 renWin SetSize 400 200
 
+
 #############################################################################
 # Case 1: Spherical coordinates off.
 # Open the file.
@@ -41,6 +42,7 @@ vtkRenderer ren_cartesian
 ren_cartesian AddActor actor_cartesian
 ren_cartesian SetViewport 0.0 0.0 0.5 1.0
 renWin AddRenderer ren_cartesian
+
 
 #############################################################################
 # Case 2: Spherical coordinates on.
