@@ -1867,7 +1867,7 @@ void* MetaObject
 int MetaObject
 ::GetNumberOfAdditionalReadFields()
 { 
-  return m_AdditionalReadFields.size();
+  return (int)(m_AdditionalReadFields.size());
 }
 
 char * MetaObject
