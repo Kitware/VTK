@@ -258,89 +258,6 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 }
 
 //----------------------------------------------------------------------------
-static void vtkFloatingEndPointScanConvertLine2D(
-  double pt1[2], double pt2[2], int inflection1, int inflection2,
-  double tolerance, int z, int extent[6],
-  vtkstd::vector< vtkstd::vector<double> >& zyBucket)
-{
-  double x1 = pt1[0];
-  double x2 = pt2[0];
-  double y1 = pt1[1];
-  double y2 = pt2[1];
-
-  // swap end points if necessary
-  if (y1 > y2)
-    {
-    x1 = pt2[0];
-    x2 = pt1[0];
-    y1 = pt2[1];
-    y2 = pt1[1];
-    }
-
-  // find min and max of x values
-  double xmin = x1;
-  double xmax = x2;
-  if (x1 > x2)
-    {
-    xmin = x2;
-    xmax = x1;
-    }
-
-  // check for parallel to the x-axis
-  if (y1 == y2)
-    {
-    return;
-    }
-  
-  // Integer y values for start and end of line
-  int Ay, By;
-
-  double ymin = y1;
-  double ymax = y2;
-  if (inflection1 < 0 || inflection2 < 0)
-    {
-    // if this is a lower inflection point, include a tolerance
-    ymin -= tolerance;
-    }
-  if (inflection1 > 0 || inflection2 > 0)
-    {
-    // likewise, if upper inflection, add tolerance at top
-    ymax += tolerance;
-    }
-
-  // The "+1" is important, it means that if we have two polygons
-  // that share a line, and make a stencil from each, the produced
-  // regions are guaranteed not to overlap if tolerance=0.
-  Ay = vtkMath::Floor(ymin) + 1;
-  By = vtkMath::Floor(ymax);
-
-  // Precompute values for a Bresenham-like line algorithm
-  double grad = (x2 - x1)/(y2 - y1);
-  double delta = (Ay - y1)*grad;
-
-  // Take z coordinate and extents into account for bucket index
-  int idx0 = (z - extent[4])*(extent[3] - extent[2] + 1) - extent[2];
-
-  // Go along y and place each x in the proper (y,z) bucket.
-  for( int y = Ay; y <= By; y++ )
-    {
-    double x = x1 + delta;
-    delta += grad;
-
-    // clamp x (because of tolerance, it might not be in range)
-    if (x < xmin)
-      {
-      x = xmin;
-      }
-    else if (x > xmax)
-      {
-      x = xmax;
-      }
-    zyBucket[idx0 + y].push_back( x );
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::ThreadedExecute(
   vtkImageStencilData *data,
   int extent[6],
@@ -352,8 +269,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   //    (if the input polydata is closed, there will be no loose ends) 
   // 3) go through all line segments, and for each integer y value on
   //    a line segment, store the x value at that point in a bucket
-  // 4) for each (y,z) integer index, find all the stored x values
-  //    and use them to create the vtkStencilData
+  // 4) for each z integer index, find all the stored x values
+  //    and use them to create one z slice of the vtkStencilData
     
   // the spacing and origin of the generated stencil
   double *spacing = data->GetSpacing();
@@ -382,19 +299,13 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   // the output produced by cutting the polydata with the Z plane
   vtkPolyData *slice = vtkPolyData::New();
 
-  // Determine data dimensions
-  int dims[3];
-  dims[0] = (extent[1] - extent[0]) + 1;
-  dims[1] = (extent[3] - extent[2]) + 1;
-  dims[2] = (extent[5] - extent[4]) + 1;
-
-  // This vector stores all line segments by recording all "x"
-  // positions on the surface for each (y,z) integer position.
-  vtkstd::vector< vtkstd::vector<double> > zyBucket(dims[1]*dims[2]);
+  // This raster stores all line segments by recording all "x"
+  // positions on the surface for each y integer position.
+  vtkImageStencilRaster raster(&extent[2]);
+  raster.SetTolerance(tolerance);
 
   // Loop through the slices
-  int idxY, idxZ;
-  for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+  for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
     {
     if (threadId == 0)
       {
@@ -404,6 +315,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     double z = idxZ*spacing[2] + origin[2];
 
     slice->PrepareForNewData();
+    raster.PrepareForNewData();
 
     // Step 1: Cut the data into slices
     this->DataSetCutter(input, slice, z, spacing[2], locator);
@@ -435,7 +347,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     vtkSignedCharArray *inflectionPointList = vtkSignedCharArray::New();
     
     // find all points with just a single adjacent point,
-    // also look for lower inflection points
+    // also look for inflection points i.e. where the y direction changes
     for (vtkIdType i = 0; i < numberOfPoints; i++)
       {
       double yval = points->GetPoint(i)[1];
@@ -492,17 +404,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         looseEndIdList->InsertNextId( i );
         looseEndNeighborList->InsertNextId( neighborId );
         }
-      // mark lower inflection points
-      int inflection = 0;
-      if (bottomPoint)
-        {
-        inflection = -1;
-        }
-      else if (topPoint)
-        {
-        inflection = 1;
-        }
-      inflectionPointList->InsertNextValue( inflection );
+      // mark inflection points
+      inflectionPointList->InsertNextValue( bottomPoint | topPoint );
       }
 
     while (looseEndIdList->GetNumberOfIds() >= 2)
@@ -560,11 +463,25 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       lines->InsertNextCell( 2 );
       lines->InsertCellPoint( firstLooseEndId );
       lines->InsertCellPoint( secondLooseEndId );
+
+      // check if the new vertices are vertical inflection points
+      slice->GetPoint( secondLooseEndId, secondLooseEnd );
+      vtkIdType secondNeighborId = looseEndNeighborList->GetId(0);
+      double secondNeighbor[3];
+      slice->GetPoint( secondNeighborId, secondNeighbor);
+
+      inflectionPointList->SetValue(firstLooseEndId,
+        ((firstLooseEnd[1] - neighbor[1])*
+        (secondLooseEnd[1] - firstLooseEnd[1]) <= 0));
+
+      inflectionPointList->SetValue(secondLooseEndId,
+        ((secondLooseEnd[1] - firstLooseEnd[1])*
+         (secondNeighbor[1] - secondLooseEnd[1]) <= 0));
       }
 
     // Step 3: Go through all the line segments for this slice,
     // and for each integer y position on the line segment,
-    // drop the corresponding x position into the (y,z) bucket.
+    // drop the corresponding x position into the y raster line.
     lines->InitTraversal();
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
@@ -577,71 +494,20 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         points->GetPoint(pts[j-1], point1);
         points->GetPoint(pts[j], point2);
         // check to see if line contains a lower inflection point
-        int inflection1 = inflectionPointList->GetValue(pts[j-1]);
-        int inflection2 = inflectionPointList->GetValue(pts[j]);
+        bool inflection1 = (inflectionPointList->GetValue(pts[j-1]) != 0);
+        bool inflection2 = (inflectionPointList->GetValue(pts[j]) != 0);
       
-        vtkFloatingEndPointScanConvertLine2D(point1, point2,
-                                             inflection1, inflection2,
-                                             tolerance, idxZ,
-                                             extent, zyBucket);
+        raster.InsertLine(point1, point2, inflection1, inflection2);
         }
       }
 
     looseEndIdList->Delete();
     looseEndNeighborList->Delete();
     inflectionPointList->Delete();
-    }
 
-  // Step 4: The final part of the algorithm is to fill in the
-  // stencil, i.e. rasterization of the polyhedron.
-  int r1, r2, lastr2;
-  for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
-    {
-    for (idxY = extent[2]; idxY <= extent[3]; idxY++)
-      {
-      vtkstd::vector<double>& xList =
-        zyBucket[(idxZ - extent[4])*dims[1] + (idxY - extent[2])];
-
-      if (xList.empty())
-        {
-        continue;
-        }
-      
-      // handle pairs
-      lastr2 = extent[0] - 1;
-      if (xList.size() % 2 == 0)
-        {
-        vtkstd::sort(xList.begin(), xList.end());
-
-        vtkstd::vector<double>::iterator xIter = xList.begin();
-        while (xIter != xList.end())
-          {
-          double x1 = *xIter++;
-          double x2 = *xIter++;
-          // Use floor()+1 instead of ceil() to ensure that, if
-          // tolerance is zero and there are neighboring extents,
-          // there will be no overlap.
-          r1 = vtkMath::Floor(x1 - tolerance) + 1;
-          // Take floor() of second value in pair
-          r2 = vtkMath::Floor(x2 + tolerance);
-
-          // extents are not allowed to overlap
-          if (r1 <= lastr2)
-            {
-            r1 = lastr2 + 1;
-            // eliminate empty extents
-            if (r1 > r2)
-              {
-              continue;
-              }
-            }
-
-          data->InsertNextExtent(r1, r2, idxY, idxZ);
-
-          lastr2 = r2;
-          }
-        }
-      }
+    // Step 4: Use the x values stored in the xy raster to create
+    // one z slice of the vtkStencilData
+    raster.FillStencilData(data, extent);
     }
 
   slice->Delete();
