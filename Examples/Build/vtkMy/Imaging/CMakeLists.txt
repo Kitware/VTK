@@ -24,6 +24,7 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
 # Create the vtkmyImaging Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
+  INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
   VTK_WRAP_PYTHON3 (vtkmyImagingPython ImagingPython_SRCS "${Imaging_SRCS}")
   ADD_LIBRARY (vtkmyImagingPythonD ${ImagingPython_SRCS})
   ADD_LIBRARY (vtkmyImagingPython MODULE vtkmyImagingPythonInit.cxx)
