@@ -125,6 +125,7 @@ IF(VTK_FOUND)
 
   # Create Python wrappers if VTK is wrapped in Python.
   IF(VTK_WRAP_PYTHON)
+    INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
     INCLUDE(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
     VTK_WRAP_PYTHON3(${PROJECT_NAME}Python vtkLocalPYTHON_SRCS "${vtkLocal_SRCS}")
     ADD_LIBRARY(${PROJECT_NAME}PythonD ${vtkLocalPYTHON_SRCS})
