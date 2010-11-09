@@ -43,6 +43,7 @@ class METAIO_EXPORT MetaObject
       FieldsContainerType m_Fields;
       FieldsContainerType m_UserDefinedWriteFields;
       FieldsContainerType m_UserDefinedReadFields;
+      FieldsContainerType m_AdditionalReadFields;
 
       char  m_FileName[255];
 
@@ -286,11 +287,12 @@ class METAIO_EXPORT MetaObject
                         int _dependsOn=-1 )
         {
         MET_FieldRecordType* mFw = new MET_FieldRecordType;
-        MET_InitWriteField(mFw, _fieldName, _type, _length,_v);
+        MET_InitWriteField(mFw, _fieldName, _type, _length, _v);
         m_UserDefinedWriteFields.push_back(mFw);
 
         MET_FieldRecordType* mFr = new MET_FieldRecordType;
-        MET_InitReadField(mFr,_fieldName, _type, _required,_dependsOn,_length);
+        MET_InitReadField(mFr,_fieldName, _type, _required, _dependsOn,
+          _length);
         m_UserDefinedReadFields.push_back(mFr);
 
         return true;
@@ -301,6 +303,13 @@ class METAIO_EXPORT MetaObject
 
       // Get the user field
       void* GetUserField(const char* _name);
+
+      int GetNumberOfAdditionalReadFields();
+      char * GetAdditionalReadFieldName( int i );
+      char * GetAdditionalReadFieldValue( int i );
+      int GetAdditionalReadFieldValueLength( int i );
+
+      // 
       void SetEvent(MetaEvent* event) {m_Event = event;}
 
       // Set the double precision for writing
