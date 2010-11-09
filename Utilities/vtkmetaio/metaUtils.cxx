@@ -871,20 +871,22 @@ bool MET_GetFilePath(const char *_fName, char *_fPath)
   size_t l = strlen(_fName);
 
   for(i=(long)l-1; i>=0; i--)
+    {
     if(_fName[i] == '\\' || _fName[i] == '/')
       break;
+    }
 
-    if(i >= 0 && (_fName[i] == '/' || _fName[i] == '\\'))
-      {
-      strcpy(_fPath, _fName);
-      _fPath[i+1] = '\0';
-      return true;
-      }
-    else
-      {
-      _fPath[0] = '\0';
-      return false;
-      }
+  if(i >= 0 && (_fName[i] == '/' || _fName[i] == '\\'))
+    {
+    strcpy(_fPath, _fName);
+    _fPath[i+1] = '\0';
+    return true;
+    }
+  else
+    {
+    _fPath[0] = '\0';
+    return false;
+    }
   }
 
 //
