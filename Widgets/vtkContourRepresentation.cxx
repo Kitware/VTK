@@ -25,10 +25,12 @@
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointPlacer.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
+#include "vtkWindow.h"
 
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
@@ -47,6 +49,7 @@ vtkContourRepresentation::vtkContourRepresentation()
   this->PointPlacer              = NULL;
   this->LineInterpolator         = NULL;
   this->Locator                  = NULL;
+  this->RebuildLocator           = false;
   this->ActiveNode               = -1;
   this->NeedToRender             = 0;
   this->ClosedLoop               = 0;
@@ -80,6 +83,8 @@ void vtkContourRepresentation::ResetLocator()
     }
 
   this->Locator = vtkIncrementalOctreePointLocator::New();
+  this->Locator->SetBuildCubicOctree(1);
+  this->RebuildLocator = true;
 }
 
 //----------------------------------------------------------------------
@@ -290,46 +295,13 @@ int vtkContourRepresentation::AddNodeAtDisplayPosition(int X, int Y)
 //----------------------------------------------------------------------
 int vtkContourRepresentation::ActivateNode( double displayPos[2] )
 {
+  this->BuildLocator();
   // Find closest node to this display pos that
   // is within PixelTolerance
-  
-  double currDisplayPos[2];
-  double worldPos[3];
-  double worldOrient[9] = {1.0,0.0,0.0,
-                           0.0,1.0,0.0,
-                           0.0,0.0,1.0};
+  double dPos[3] = {displayPos[0],displayPos[1],0};
   double closestDistance2 = VTK_DOUBLE_MAX;
-  double limit = this->PixelTolerance * this->PixelTolerance;
-
-  
-  // Compute the world position from the display position
-  // based on the concrete representation's constraints
-  // If this is not a valid display location return 0
-  if ( !this->PointPlacer->ComputeWorldPosition( this->Renderer,
-                                                 displayPos, worldPos,
-                                                 worldOrient ) )
-    {
-    return 0;
-    }
-
-  int closestNode = -1;
-  int pointId = this->Locator->FindClosestPoint(worldPos);
-  if ( pointId != -1)
-    {
-    this->GetNthNodeDisplayPosition(pointId, currDisplayPos );
-    double currDistance2 =
-      (currDisplayPos[0] - displayPos[0])*
-      (currDisplayPos[0] - displayPos[0]) +
-      (currDisplayPos[1] - displayPos[1])*
-      (currDisplayPos[1] - displayPos[1]);
-
-    if ( currDistance2 < limit &&
-       currDistance2 < closestDistance2 )
-      {
-      closestNode = pointId;
-      }
-    }
-
+  int closestNode = this->Locator->FindClosestPointWithinRadius(
+    this->PixelTolerance,dPos,closestDistance2);
   if ( closestNode != this->ActiveNode )
     {
     this->ActiveNode = closestNode;
@@ -1034,7 +1006,7 @@ void vtkContourRepresentation::UpdateLines( int index )
     }
   
   this->BuildLines();
-  this->BuildLocator();
+  this->RebuildLocator = true;
 }
 
 //----------------------------------------------------------------------
@@ -1317,18 +1289,87 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
 //----------------------------------------------------------------------
 void vtkContourRepresentation::BuildLocator()
 {
+if (!this->RebuildLocator && !this->NeedToRender)
+    {
+    //rebuild if rebuildLocator or needtorender are true
+    return;
+    }
+
   vtkIdType size = (vtkIdType)this->Internal->Nodes.size();
   vtkPoints *points = vtkPoints::New();
   points->SetNumberOfPoints(size);
+
+  //setup up the matrixes needed to transform
+  //world to display. We are going to do this manually
+  // as calling the renderer will create a new matrix for each call
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(this->Renderer->GetActiveCamera()
+    ->GetCompositeProjectionTransformMatrix(
+    this->Renderer->GetTiledAspectRatio(),0,1));
+
+  //viewport info
+  double viewPortRatio[2];
+  int sizex,sizey;
+
+  /* get physical window dimensions */
+  if ( this->Renderer->GetVTKWindow() )
+    {
+    double *viewPort = this->Renderer->GetViewport();
+    sizex = this->Renderer->GetVTKWindow()->GetSize()[0];
+    sizey = this->Renderer->GetVTKWindow()->GetSize()[1];
+    viewPortRatio[0] = (sizex*(viewPort[2]-viewPort[0])) / 2.0 +
+        sizex*viewPort[0];
+    viewPortRatio[1] = (sizey*(viewPort[3]-viewPort[1])) / 2.0 +
+        sizey*viewPort[1];
+    }
+  else
+    {
+    //can't compute the locator without a vtk window
+    return;
+    }
+
+  double     view[4];
+  double pos[3] = {0,0,0};
+  double *wp;
   for(vtkIdType i=0; i < size; ++i)
     {
-    points->InsertPoint(i,this->Internal->Nodes[i]->WorldPosition);
+    wp = this->Internal->Nodes[i]->WorldPosition;
+    pos[0] = this->Internal->Nodes[i]->WorldPosition[0];
+    pos[1] = this->Internal->Nodes[i]->WorldPosition[1];
+    pos[2] = this->Internal->Nodes[i]->WorldPosition[2];
+
+    //convert from world to view
+    view[0] = wp[0]*matrix->Element[0][0] + wp[1]*matrix->Element[0][1] +
+      wp[2]*matrix->Element[0][2] + matrix->Element[0][3];
+    view[1] = wp[0]*matrix->Element[1][0] + wp[1]*matrix->Element[1][1] +
+      wp[2]*matrix->Element[1][2] + matrix->Element[1][3];
+    view[2] = wp[0]*matrix->Element[2][0] + wp[1]*matrix->Element[2][1] +
+      wp[2]*matrix->Element[2][2] + matrix->Element[2][3];
+    view[3] = wp[0]*matrix->Element[3][0] + wp[1]*matrix->Element[3][1] +
+      wp[2]*matrix->Element[3][2] + matrix->Element[3][3];
+    if (view[3] != 0.0)
+      {
+      pos[0] = view[0]/view[3];
+      pos[1] = view[1]/view[3];
+      }
+
+    //now from view to display
+    pos[0] = (pos[0] + 1.0) * viewPortRatio[0];
+    pos[1] = (pos[1] + 1.0) * viewPortRatio[1];
+    pos[2] = 0;
+
+    points->InsertPoint(i,pos);
     }
+
+  matrix->Delete();
   vtkPolyData *tmp = vtkPolyData::New();
   tmp->SetPoints(points);
   this->Locator->SetDataSet(tmp);
   tmp->FastDelete();
   points->FastDelete();
+
+  //we fully updated the display locator
+  this->RebuildLocator = false;
 }
 //----------------------------------------------------------------------
 void vtkContourRepresentation::SetShowSelectedNodes(int flag )

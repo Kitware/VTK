@@ -372,6 +372,8 @@ public:
   // contour as a vtkPolyData.
   void GetNodePolyData( vtkPolyData* poly );
 
+  vtkSetMacro(RebuildLocator,bool);
+
 protected:
   vtkContourRepresentation();
   ~vtkContourRepresentation();
@@ -452,6 +454,9 @@ protected:
   void ResetLocator();
 
   void BuildLocator();
+
+  bool RebuildLocator;
+
 
 private:
   vtkContourRepresentation(const vtkContourRepresentation&);  //Not implemented
