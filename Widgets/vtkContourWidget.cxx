@@ -203,6 +203,10 @@ void vtkContourWidget::SelectAction( vtkAbstractWidget *w )
           }
         self->EventCallbackCommand->SetAbortFlag( 1 );
         }
+      else
+        {
+        rep->SetRebuildLocator(true);
+        }
       break;
       }
     }
