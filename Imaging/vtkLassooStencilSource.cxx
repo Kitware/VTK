@@ -28,9 +28,6 @@
 
 #include <math.h>
 #include <vtkstd/map>
-#include <vtkstd/vector>
-#include <vtkstd/deque>
-#include <vtkstd/algorithm>
 
 vtkStandardNewMacro(vtkLassooStencilSource);
 vtkCxxSetObjectMacro(vtkLassooStencilSource, Points, vtkPoints);

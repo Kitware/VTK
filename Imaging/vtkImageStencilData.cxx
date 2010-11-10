@@ -24,6 +24,7 @@
 #include "vtkMath.h"
 
 #include <math.h>
+#include <vtkstd/algorithm>
 
 vtkStandardNewMacro(vtkImageStencilData);
 
