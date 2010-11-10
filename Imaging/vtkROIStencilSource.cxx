@@ -22,12 +22,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkGarbageCollector.h"
 
 #include <math.h>
 
 vtkStandardNewMacro(vtkROIStencilSource);
-vtkCxxSetObjectMacro(vtkROIStencilSource, InformationInput, vtkImageData);
 
 //----------------------------------------------------------------------------
 vtkROIStencilSource::vtkROIStencilSource()
@@ -42,29 +40,11 @@ vtkROIStencilSource::vtkROIStencilSource()
   this->Bounds[3] = 0.0;
   this->Bounds[4] = 0.0;
   this->Bounds[5] = 0.0;
-
-  this->InformationInput = NULL;
-
-  this->OutputOrigin[0] = 0;
-  this->OutputOrigin[1] = 0;
-  this->OutputOrigin[2] = 0;
-
-  this->OutputSpacing[0] = 1;
-  this->OutputSpacing[1] = 1;
-  this->OutputSpacing[2] = 1;
-
-  this->OutputWholeExtent[0] = 0;
-  this->OutputWholeExtent[1] = 0;
-  this->OutputWholeExtent[2] = 0;
-  this->OutputWholeExtent[3] = 0;
-  this->OutputWholeExtent[4] = 0;
-  this->OutputWholeExtent[5] = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkROIStencilSource::~vtkROIStencilSource()
 {
-  this->SetInformationInput(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -72,30 +52,11 @@ void vtkROIStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "InformationInput: " << this->InformationInput << "\n";
-
-  os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
-    this->OutputSpacing[1] << " " << this->OutputSpacing[2] << "\n";
-  os << indent << "OutputOrigin: " << this->OutputOrigin[0] << " " <<
-    this->OutputOrigin[1] << " " << this->OutputOrigin[2] << "\n";
-  os << indent << "OutputWholeExtent: " << this->OutputWholeExtent[0] << " " <<
-    this->OutputWholeExtent[1] << " " << this->OutputWholeExtent[2] << " " <<
-    this->OutputWholeExtent[3] << " " << this->OutputWholeExtent[4] << " " <<
-    this->OutputWholeExtent[5] << "\n";
-
   os << indent << "Shape: " << this->GetShapeAsString() << "\n";
   os << indent << "Bounds: " << this->Bounds[0] << " "
      << this->Bounds[1] << " " << this->Bounds[2] << " "
      << this->Bounds[3] << " " << this->Bounds[4] << " "
      << this->Bounds[5] << "\n";
-}
-
-//----------------------------------------------------------------------------
-void vtkROIStencilSource::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->InformationInput,
-                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------
@@ -496,42 +457,4 @@ int vtkROIStencilSource::RequestData(
     }
 
   return result;
-}
-
-//----------------------------------------------------------------------------
-int vtkROIStencilSource::RequestInformation(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  int wholeExtent[6];
-  double spacing[3];
-  double origin[3];
-
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  for (int i = 0; i < 3; i++)
-    {
-    wholeExtent[2*i] = this->OutputWholeExtent[2*i];
-    wholeExtent[2*i+1] = this->OutputWholeExtent[2*i+1];
-    spacing[i] = this->OutputSpacing[i];
-    origin[i] = this->OutputOrigin[i];
-    }
-
-  // If InformationInput is set, then get the spacing,
-  // origin, and whole extent from it.
-  if (this->InformationInput)
-    {
-    this->InformationInput->UpdateInformation();
-    this->InformationInput->GetWholeExtent(wholeExtent);
-    this->InformationInput->GetSpacing(spacing);
-    this->InformationInput->GetOrigin(origin);
-    }
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               wholeExtent, 6);
-  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
-  outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
-
-  return 1;
 }

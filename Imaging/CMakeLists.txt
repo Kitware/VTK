@@ -100,6 +100,7 @@ vtkImageSobel2D.cxx
 vtkImageSobel3D.cxx
 vtkImageSpatialAlgorithm.cxx
 vtkImageStencil.cxx
+vtkImageStencilAlgorithm.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
 vtkImageThreshold.cxx

@@ -29,8 +29,6 @@
 
 #include "vtkImageStencilSource.h"
 
-class vtkImageData;
-
 class VTK_IMAGING_EXPORT vtkROIStencilSource : public vtkImageStencilSource
 {
 public:
@@ -66,57 +64,15 @@ public:
   vtkGetVector6Macro(Bounds, double);
   vtkSetVector6Macro(Bounds, double);
 
-  // Description:
-  // Set a vtkImageData that has the Spacing, Origin, and
-  // WholeExtent that will be used for the stencil.  This
-  // input should be set to the image that you wish to
-  // apply the stencil to.  If you use this method, then
-  // any values set with the SetOutputSpacing, SetOutputOrigin,
-  // and SetOutputWholeExtent methods will be ignored.
-  virtual void SetInformationInput(vtkImageData*);
-  vtkGetObjectMacro(InformationInput, vtkImageData);
-
-  // Description:
-  // Set the Origin to be used for the stencil.  It should be
-  // set to the Origin of the image you intend to apply the
-  // stencil to. The default value is (0,0,0).
-  vtkSetVector3Macro(OutputOrigin, double);
-  vtkGetVector3Macro(OutputOrigin, double);
-
-  // Description:
-  // Set the Spacing to be used for the stencil. It should be
-  // set to the Spacing of the image you intend to apply the
-  // stencil to. The default value is (1,1,1)
-  vtkSetVector3Macro(OutputSpacing, double);
-  vtkGetVector3Macro(OutputSpacing, double);
-
-  // Description:
-  // Set the whole extent for the stencil (anything outside
-  // this extent will be considered to be "outside" the stencil).
-  vtkSetVector6Macro(OutputWholeExtent, int);
-  vtkGetVector6Macro(OutputWholeExtent, int);
-
-  // Description:
-  // Report object referenced by instances of this class.
-  virtual void ReportReferences(vtkGarbageCollector*);
-
 protected:
   vtkROIStencilSource();
   ~vtkROIStencilSource();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
 
   int Shape;
   double Bounds[6];
-
-  vtkImageData *InformationInput;
-
-  int OutputWholeExtent[6];
-  double OutputOrigin[3];
-  double OutputSpacing[3];
 
 private:
   vtkROIStencilSource(const vtkROIStencilSource&);  // Not implemented.

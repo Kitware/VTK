@@ -30,42 +30,66 @@
 #define __vtkImageStencilSource_h
 
 
-#include "vtkAlgorithm.h"
+#include "vtkImageStencilAlgorithm.h"
 
 class vtkImageStencilData;
+class vtkImageData;
 
-class VTK_IMAGING_EXPORT vtkImageStencilSource : public vtkAlgorithm
+class VTK_IMAGING_EXPORT vtkImageStencilSource :
+  public vtkImageStencilAlgorithm
 {
 public:
   static vtkImageStencilSource *New();
-  vtkTypeMacro(vtkImageStencilSource, vtkAlgorithm);
+  vtkTypeMacro(vtkImageStencilSource, vtkImageStencilAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get or set the output for this source.
-  void SetOutput(vtkImageStencilData *output);
-  vtkImageStencilData *GetOutput();
+  // Set a vtkImageData that has the Spacing, Origin, and
+  // WholeExtent that will be used for the stencil.  This
+  // input should be set to the image that you wish to
+  // apply the stencil to.  If you use this method, then
+  // any values set with the SetOutputSpacing, SetOutputOrigin,
+  // and SetOutputWholeExtent methods will be ignored.
+  virtual void SetInformationInput(vtkImageData*);
+  vtkGetObjectMacro(InformationInput, vtkImageData);
 
   // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*);
+  // Set the Origin to be used for the stencil.  It should be
+  // set to the Origin of the image you intend to apply the
+  // stencil to. The default value is (0,0,0).
+  vtkSetVector3Macro(OutputOrigin, double);
+  vtkGetVector3Macro(OutputOrigin, double);
+
+  // Description:
+  // Set the Spacing to be used for the stencil. It should be
+  // set to the Spacing of the image you intend to apply the
+  // stencil to. The default value is (1,1,1)
+  vtkSetVector3Macro(OutputSpacing, double);
+  vtkGetVector3Macro(OutputSpacing, double);
+
+  // Description:
+  // Set the whole extent for the stencil (anything outside
+  // this extent will be considered to be "outside" the stencil).
+  vtkSetVector6Macro(OutputWholeExtent, int);
+  vtkGetVector6Macro(OutputWholeExtent, int);
+
+  // Description:
+  // Report object referenced by instances of this class.
+  virtual void ReportReferences(vtkGarbageCollector*);
 
 protected:
   vtkImageStencilSource();
   ~vtkImageStencilSource();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) { return 1; }
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) { return 1; }
-  vtkImageStencilData *AllocateOutputData(vtkDataObject *out, int* updateExt);
+                                 vtkInformationVector *);
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  vtkImageData *InformationInput;
+
+  int OutputWholeExtent[6];
+  double OutputOrigin[3];
+  double OutputSpacing[3];
 
 private:
   vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
