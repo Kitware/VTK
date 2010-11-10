@@ -76,6 +76,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestSkeleton2D
         TestSobel2D
         TestSobel3D
+        TestStencilToImage
         TestStencilWithFunction
         TestStencilWithImage
         #TestThreshold -- uses lists in lists etc...
