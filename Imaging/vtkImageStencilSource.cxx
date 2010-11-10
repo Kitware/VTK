@@ -15,121 +15,102 @@
 #include "vtkImageStencilSource.h"
 
 #include "vtkImageStencilData.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-
-#include <math.h>
+#include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkImageStencilSource);
+vtkCxxSetObjectMacro(vtkImageStencilSource, InformationInput, vtkImageData);
 
 //----------------------------------------------------------------------------
 vtkImageStencilSource::vtkImageStencilSource()
 {
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
+  this->InformationInput = NULL;
 
-  vtkImageStencilData *output = vtkImageStencilData::New();
-  this->GetExecutive()->SetOutputData(0, output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
+  this->OutputOrigin[0] = 0;
+  this->OutputOrigin[1] = 0;
+  this->OutputOrigin[2] = 0;
+
+  this->OutputSpacing[0] = 1;
+  this->OutputSpacing[1] = 1;
+  this->OutputSpacing[2] = 1;
+
+  this->OutputWholeExtent[0] = 0;
+  this->OutputWholeExtent[1] = 0;
+  this->OutputWholeExtent[2] = 0;
+  this->OutputWholeExtent[3] = 0;
+  this->OutputWholeExtent[4] = 0;
+  this->OutputWholeExtent[5] = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkImageStencilSource::~vtkImageStencilSource()
 {
+  this->SetInformationInput(NULL);
 }
 
 //----------------------------------------------------------------------------
 void vtkImageStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "InformationInput: " << this->InformationInput << "\n";
+
+  os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
+    this->OutputSpacing[1] << " " << this->OutputSpacing[2] << "\n";
+  os << indent << "OutputOrigin: " << this->OutputOrigin[0] << " " <<
+    this->OutputOrigin[1] << " " << this->OutputOrigin[2] << "\n";
+  os << indent << "OutputWholeExtent: " << this->OutputWholeExtent[0] << " " <<
+    this->OutputWholeExtent[1] << " " << this->OutputWholeExtent[2] << " " <<
+    this->OutputWholeExtent[3] << " " << this->OutputWholeExtent[4] << " " <<
+    this->OutputWholeExtent[5] << "\n";
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilSource::SetOutput(vtkImageStencilData *output)
+void vtkImageStencilSource::ReportReferences(vtkGarbageCollector* collector)
 {
-  this->GetExecutive()->SetOutputData(0, output);
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InformationInput,
+                            "InformationInput");
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilData *vtkImageStencilSource::GetOutput()
-{
-  if (this->GetNumberOfOutputPorts() < 1)
-    {
-    return NULL;
-    }
-  
-  return vtkImageStencilData::SafeDownCast(
-    this->GetExecutive()->GetOutputData(0));
-}
-
-//----------------------------------------------------------------------------
-vtkImageStencilData * 
-vtkImageStencilSource::AllocateOutputData(vtkDataObject *out, int* uExt)
-{
-  vtkImageStencilData *res = vtkImageStencilData::SafeDownCast(out);
-  if (!res)
-    {
-    vtkWarningMacro("Call to AllocateOutputData with non vtkImageStencilData"
-                    " output");
-    return NULL;
-    }
-  res->SetExtent(uExt);
-  res->AllocateExtents();
-
-  return res;
-}  
-
-//----------------------------------------------------------------------------
-int vtkImageStencilSource::RequestData(
+int vtkImageStencilSource::RequestInformation(
   vtkInformation *,
   vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
+  int wholeExtent[6];
+  double spacing[3];
+  double origin[3];
+
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject *out = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  this->AllocateOutputData(
-    out,
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
+
+  for (int i = 0; i < 3; i++)
+    {
+    wholeExtent[2*i] = this->OutputWholeExtent[2*i];
+    wholeExtent[2*i+1] = this->OutputWholeExtent[2*i+1];
+    spacing[i] = this->OutputSpacing[i];
+    origin[i] = this->OutputOrigin[i];
+    }
+
+  // If InformationInput is set, then get the spacing,
+  // origin, and whole extent from it.
+  if (this->InformationInput)
+    {
+    this->InformationInput->UpdateInformation();
+    this->InformationInput->GetWholeExtent(wholeExtent);
+    this->InformationInput->GetSpacing(spacing);
+    this->InformationInput->GetOrigin(origin);
+    }
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               wholeExtent, 6);
+  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
+
   return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkImageStencilSource::FillOutputPortInformation(int,
-                                                     vtkInformation* info)
-{
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageStencilData");
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkImageStencilSource::ProcessRequest(vtkInformation* request,
-                                          vtkInformationVector** inputVector,
-                                          vtkInformationVector* outputVector)
-{
-  // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    this->RequestData(request, inputVector, outputVector);
-    return 1;
-    }
-
-  // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    this->RequestInformation(request, inputVector, outputVector);
-    return 1;
-    }
-
-  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    this->RequestUpdateExtent(request, inputVector, outputVector);
-    return 1;
-    }
-
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

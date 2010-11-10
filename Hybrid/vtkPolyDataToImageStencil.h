@@ -64,7 +64,6 @@ POSSIBILITY OF SUCH DAMAGES.
 class vtkMergePoints;
 class vtkDataSet;
 class vtkPolyData;
-class vtkImageData;
 
 class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil :
   public vtkImageStencilSource
@@ -80,47 +79,11 @@ public:
   vtkPolyData *GetInput();
   
   // Description:
-  // Set a vtkImageData that has the Spacing, Origin, and
-  // WholeExtent that will be used for the stencil.  This
-  // input should be set to the image that you wish to
-  // apply the stencil to.  If you use this method, then
-  // any values set with the SetOutputSpacing, SetOutputOrigin,
-  // and SetOutputWholeExtent methods will be ignored.
-  virtual void SetInformationInput(vtkImageData*);
-  vtkGetObjectMacro(InformationInput, vtkImageData);
-
-  // Description:
-  // Set the Origin to be used for the stencil.  It should be
-  // set to the Origin of the image you intend to apply the
-  // stencil to. The default value is (0,0,0).
-  vtkSetVector3Macro(OutputOrigin, double);
-  vtkGetVector3Macro(OutputOrigin, double);
-
-  // Description:
-  // Set the Spacing to be used for the stencil. It should be
-  // set to the Spacing of the image you intend to apply the
-  // stencil to. The default value is (1,1,1)
-  vtkSetVector3Macro(OutputSpacing, double);
-  vtkGetVector3Macro(OutputSpacing, double);
-
-  // Description:
-  // Set the whole extent for the stencil (anything outside
-  // this extent will be considered to be "outside" the stencil).
-  // If this is not set, then the stencil will always use
-  // the requested UpdateExtent as the stencil extent.
-  vtkSetVector6Macro(OutputWholeExtent, int);
-  vtkGetVector6Macro(OutputWholeExtent, int);  
-
-  // Description:
   // The tolerance to apply in when determining whether a voxel
   // is inside the stencil, given as a fraction of a voxel.
   // Only used in X and Y, not in Z.
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
-
-  // Description:
-  // Report object referenced by instances of this class.
-  virtual void ReportReferences(vtkGarbageCollector*);
 
 protected:
   vtkPolyDataToImageStencil();
@@ -135,19 +98,8 @@ protected:
   
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+
   virtual int FillInputPortInformation(int, vtkInformation*);
-
-  // Description:
-  // Set in subclasses where the primary input is not a vtkImageData.
-  vtkImageData *InformationInput;
-
-  // Description:
-  // Set in subclasses where the primary input is not a vtkImageData.
-  int OutputWholeExtent[6];
-  double OutputOrigin[3];
-  double OutputSpacing[3];
 
   // Description:
   // The tolerance distance for favoring the inside of the stencil

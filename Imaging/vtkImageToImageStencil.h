@@ -24,15 +24,15 @@
 #define __vtkImageToImageStencil_h
 
 
-#include "vtkImageStencilSource.h"
+#include "vtkImageStencilAlgorithm.h"
 
 class vtkImageData;
 
-class VTK_IMAGING_EXPORT vtkImageToImageStencil : public vtkImageStencilSource
+class VTK_IMAGING_EXPORT vtkImageToImageStencil : public vtkImageStencilAlgorithm
 {
 public:
   static vtkImageToImageStencil *New();
-  vtkTypeMacro(vtkImageToImageStencil, vtkImageStencilSource);
+  vtkTypeMacro(vtkImageToImageStencil, vtkImageStencilAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
