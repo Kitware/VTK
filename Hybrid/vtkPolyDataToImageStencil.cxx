@@ -264,6 +264,12 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   vtkImageStencilRaster raster(&extent[2]);
   raster.SetTolerance(tolerance);
 
+  // The extent for one slice of the image
+  int sliceExtent[6];
+  sliceExtent[0] = extent[0]; sliceExtent[1] = extent[1];
+  sliceExtent[2] = extent[2]; sliceExtent[3] = extent[3];
+  sliceExtent[4] = extent[4]; sliceExtent[5] = extent[4];
+
   // Loop through the slices
   for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
     {
@@ -467,7 +473,9 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
     // Step 4: Use the x values stored in the xy raster to create
     // one z slice of the vtkStencilData
-    raster.FillStencilData(data, extent);
+    sliceExtent[4] = idxZ;
+    sliceExtent[5] = idxZ;
+    raster.FillStencilData(data, sliceExtent);
     }
 
   slice->Delete();

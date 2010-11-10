@@ -1323,6 +1323,12 @@ void vtkImageStencilRaster::FillStencilData(
       size_t pos = 2*static_cast<size_t>(idY - this->Extent[0]);
       double *rline = this->Raster[pos];
       double *rlineEnd = this->Raster[pos+1];
+
+      if (rline == 0)
+        {
+        continue;
+        }
+
       vtkstd::sort(rline, rlineEnd);
 
       int xy[2];
@@ -1388,6 +1394,12 @@ void vtkImageStencilRaster::FillStencilData(
       size_t pos = 2*static_cast<size_t>(idY - this->Extent[0]);
       double *rline = this->Raster[pos];
       double *rlineEnd = this->Raster[pos+1];
+
+      if (rline == 0)
+        {
+        continue;
+        }
+
       vtkstd::sort(rline, rlineEnd);
 
       int lastr = VTK_INT_MIN;
