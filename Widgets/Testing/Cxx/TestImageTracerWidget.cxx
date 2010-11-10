@@ -486,13 +486,12 @@ int TestImageTracerWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkPolyDataToImageStencil>::New();
   dataToStencil->SetInputConnection( filter->GetOutputPort() );
 
-// TODO: resolve why the following method causes memory leaks when the
-// transform filter supplies the polydata input
-//  dataToStencil->SetInformationInput( extract->GetOutput() );
+  dataToStencil->SetInformationInput( extract->GetOutput() );
 
-  dataToStencil->SetOutputSpacing( extract->GetOutput()->GetSpacing() );
-  dataToStencil->SetOutputOrigin( extract->GetOutput()->GetOrigin() );
-  dataToStencil->SetOutputWholeExtent( extract->GetOutput()->GetWholeExtent() );
+  // Alternative to SetInformationInput:
+  //dataToStencil->SetOutputSpacing( extract->GetOutput()->GetSpacing() );
+  //dataToStencil->SetOutputOrigin( extract->GetOutput()->GetOrigin() );
+  //dataToStencil->SetOutputWholeExtent( extract->GetOutput()->GetWholeExtent() );
 
   vtkSmartPointer<vtkImageStencil> stencil =
     vtkSmartPointer<vtkImageStencil>::New();
