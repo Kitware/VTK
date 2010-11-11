@@ -98,6 +98,7 @@ vtkStackedTreeLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkStrahlerMetric.cxx
 vtkStreamGraph.cxx
+vtkStreamingStatistics.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
