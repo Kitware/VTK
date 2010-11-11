@@ -31,7 +31,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestGPURayCastMIPToComposite.cxx
       TestGPURayCastNearestDataTypesMIP.cxx
       TestGPURayCastPerspectiveParallel.cxx
-      TestHAVSVolumeMapper.cxx
+      #TestHAVSVolumeMapper.cxx
       TestMinIntensityRendering.cxx
       TestProjectedTetrahedra.cxx
       TestProjectedHexahedra.cxx
