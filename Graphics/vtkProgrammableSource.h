@@ -50,17 +50,23 @@ public:
   vtkTypeMacro(vtkProgrammableSource,vtkDataSetAlgorithm);
 
   // Description:
+  // Signature definition for programmable method callbacks. Methods passed
+  // to SetExecuteMethod, SetExecuteMethodArgDelete or
+  // SetRequestInformationMethod must conform to this signature.
+  typedef void (VTK_CB_CC *ProgrammableMethodCallbackType)(void *arg);
+
+  // Description:
   // Specify the function to use to generate the source data. Note
   // that the function takes a single (void *) argument.
-  void SetExecuteMethod(void (*f)(void *), void *arg);
+  void SetExecuteMethod(ProgrammableMethodCallbackType f, void *arg);
 
   // Description:
   // Set the arg delete method. This is used to free user memory.
-  void SetExecuteMethodArgDelete(void (*f)(void *));
+  void SetExecuteMethodArgDelete(ProgrammableMethodCallbackType f);
 
   // Description:
   // Specify the function to use to fill in information about the source data.
-  void SetRequestInformationMethod(void (*f)(void *));
+  void SetRequestInformationMethod(ProgrammableMethodCallbackType f);
 
   // Description:
   // Get the output as a concrete type. This method is typically used by the
@@ -93,10 +99,10 @@ protected:
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void (*ExecuteMethod)(void *); //function to invoke
-  void (*ExecuteMethodArgDelete)(void *);
+  ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
+  ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
-  void (*RequestInformationMethod)(void *); // function to invoke
+  ProgrammableMethodCallbackType RequestInformationMethod; // function to invoke
 
   vtkTimeStamp ExecuteTime;
   int RequestedDataType;
