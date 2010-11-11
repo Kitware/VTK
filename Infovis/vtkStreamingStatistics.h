@@ -31,18 +31,40 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkStreamingStatistics_h
 #define __vtkStreamingStatistics_h
 
-#include "vtkStatisticsAlgorithm.h"
+#include "vtkTableAlgorithm.h"
 #include "vtkSetGet.h"
 class vtkDataObjectCollection;
 class vtkMultiBlockDataSet;
+class vtkStatisticsAlgorithm;
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkStreamingStatistics : public vtkStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkStreamingStatistics : public vtkTableAlgorithm
 {
 public:
-  vtkTypeMacro(vtkStreamingStatistics, vtkStatisticsAlgorithm);
+  vtkTypeMacro(vtkStreamingStatistics, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkStreamingStatistics* New();
+
+  //BTX
+  // Description:
+  // enumeration values to specify input port types
+  enum InputPorts
+    {
+    INPUT_DATA = 0,         //!< Port 0 is for learn data
+    LEARN_PARAMETERS = 1,   //!< Port 1 is for learn parameters (initial guesses, etc.)
+    INPUT_MODEL = 2         //!< Port 2 is for a priori models
+    };
+
+  // Description:
+  // enumeration values to specify output port types
+  enum OutputIndices
+    {
+    OUTPUT_DATA  = 0,       //!< Output 0 mirrors the input data, plus optional assessment columns
+    OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
+    ASSESSMENT   = 2,       //!< This is an old, deprecated name for OUTPUT_TEST.
+    OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
+    };
+//ETX
 
   virtual void SetStatisticsAlgorithm(vtkStatisticsAlgorithm*);
 
@@ -50,34 +72,8 @@ protected:
   vtkStreamingStatistics();
   ~vtkStreamingStatistics();
 
-  // Description:
-  // Placeholder for abstract method
-  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {};
-
-  // Description:
-  // Placeholder for abstract method
-  virtual void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) {};
-
-  // Description:
-  // Placeholder for abstract method
-  virtual void Derive(vtkMultiBlockDataSet*) {};
-
-  // Description:
-  // Placeholder for abstract method
-  virtual void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) {};
-
-  // Description:
-  // Placeholder for abstract method
-  virtual void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) {};
-
-  //BTX
-  // Description:
-  // Placeholder for abstract method
-  virtual void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
-                                    vtkDataObject* vtkNotUsed(inMeta),
-                                    vtkStringArray* vtkNotUsed(rowNames),
-                                    AssessFunctor*& vtkNotUsed(dfunc)) {};
-  //ETX
+  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  virtual int FillOutputPortInformation( int port, vtkInformation* info );
 
   virtual int RequestData(
     vtkInformation*,

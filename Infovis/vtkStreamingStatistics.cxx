@@ -13,17 +13,18 @@
 
 =========================================================================*/
 /*-------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
+  Copyright 2010 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
 #include "vtkStreamingStatistics.h"
-#include "vtkStatisticsAlgorithm.h"
 
 #include "vtkDataObjectCollection.h"
+#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticsAlgorithm.h"
 #include "vtkTable.h"
 
 vtkStandardNewMacro(vtkStreamingStatistics);
@@ -35,6 +36,10 @@ vtkCxxSetObjectMacro(vtkStreamingStatistics,
 // ----------------------------------------------------------------------
 vtkStreamingStatistics::vtkStreamingStatistics()
 {
+  // Setup input/output ports
+  this->SetNumberOfInputPorts(3);
+  this->SetNumberOfOutputPorts(3);
+
   // Initialize internal stats algorithm to NULL
   this->StatisticsAlgorithm = 0;
   this->SetStatisticsAlgorithm(0);
@@ -53,6 +58,53 @@ vtkStreamingStatistics::~vtkStreamingStatistics()
   // Release/delete internal model to NULL
   this->internalModel->Delete();
   this->internalModel = 0;
+}
+
+// ----------------------------------------------------------------------
+int vtkStreamingStatistics::FillInputPortInformation( int port, vtkInformation* info )
+{
+  if ( port == INPUT_DATA )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
+    return 1;
+    }
+  else if ( port == INPUT_MODEL )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet" );
+    return 1;
+    }
+  else if ( port == LEARN_PARAMETERS )
+    {
+    info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
+    return 1;
+    }
+
+  return 0;
+}
+
+// ----------------------------------------------------------------------
+int vtkStreamingStatistics::FillOutputPortInformation( int port, vtkInformation* info )
+{
+  if ( port == OUTPUT_DATA )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    return 1;
+    }
+  else if ( port == OUTPUT_MODEL )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+    return 1;
+    }
+  else if ( port == OUTPUT_TEST )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    return 1;
+    }
+
+  return 0;
 }
 
 // ----------------------------------------------------------------------
