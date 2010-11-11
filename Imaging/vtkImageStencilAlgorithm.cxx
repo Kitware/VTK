@@ -102,7 +102,7 @@ int vtkImageStencilAlgorithm::RequestData(
 int vtkImageStencilAlgorithm::RequestInformation(
   vtkInformation *,
   vtkInformationVector **,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *)
 {
   return 1;
 }
@@ -111,7 +111,7 @@ int vtkImageStencilAlgorithm::RequestInformation(
 int vtkImageStencilAlgorithm::RequestUpdateExtent(
   vtkInformation *,
   vtkInformationVector **,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *)
 {
   return 1;
 }
