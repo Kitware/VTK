@@ -84,7 +84,12 @@ public:
   // Description:
   // Signature definition for programmable method callbacks. Methods passed to
   // SetGlyphMethod or SetGlyphMethodArgDelete must conform to this signature.
+#ifdef __WRAP__
+  // Temporary workaround until the wrappers recognize VTK_CB_CC:
+  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+#else
   typedef void (VTK_CB_CC *ProgrammableMethodCallbackType)(void *arg);
+#endif
 
   // Description:
   // Specify function to be called for each input point.
