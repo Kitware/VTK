@@ -4,6 +4,8 @@ import os.path
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
   data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
+if not os.path.exists(data_dir):
+  data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "temperatures.db"
 
 # Pull the table from the database
