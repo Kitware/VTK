@@ -53,7 +53,12 @@ public:
   // Signature definition for programmable method callbacks. Methods passed
   // to SetExecuteMethod, SetExecuteMethodArgDelete or
   // SetRequestInformationMethod must conform to this signature.
+#ifdef __WRAP__
+  // Temporary workaround until the wrappers recognize VTK_CB_CC:
+  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+#else
   typedef void (VTK_CB_CC *ProgrammableMethodCallbackType)(void *arg);
+#endif
 
   // Description:
   // Specify the function to use to generate the source data. Note
