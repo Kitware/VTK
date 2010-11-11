@@ -82,13 +82,18 @@ public:
   vtkPolyData *GetSource();
 
   // Description:
+  // Signature definition for programmable method callbacks. Methods passed to
+  // SetGlyphMethod or SetGlyphMethodArgDelete must conform to this signature.
+  typedef void (VTK_CB_CC *ProgrammableMethodCallbackType)(void *arg);
+
+  // Description:
   // Specify function to be called for each input point.
-  void SetGlyphMethod(void (*f)(void *), void *arg);
+  void SetGlyphMethod(ProgrammableMethodCallbackType f, void *arg);
 
   // Description:
   // Set the arg delete method. This is used to free user memory that might 
   // be associated with the GlyphMethod().
-  void SetGlyphMethodArgDelete(void (*f)(void *));
+  void SetGlyphMethodArgDelete(ProgrammableMethodCallbackType f);
 
   // Description:
   // Get the current point id during processing. Value only valid during the
@@ -128,8 +133,8 @@ protected:
   vtkPointData *PointData;
   int ColorMode;
   
-  void (*GlyphMethod)(void *); // Support GlyphMethod
-  void (*GlyphMethodArgDelete)(void *);
+  ProgrammableMethodCallbackType GlyphMethod; // Support GlyphMethod
+  ProgrammableMethodCallbackType GlyphMethodArgDelete;
   void *GlyphMethodArg;
   
 private:

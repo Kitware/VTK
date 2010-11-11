@@ -95,7 +95,8 @@ vtkTable *vtkProgrammableFilter::GetTableInput()
 
 // Specify the function to use to operate on the point attribute data. Note
 // that the function takes a single (void *) argument.
-void vtkProgrammableFilter::SetExecuteMethod(void (*f)(void *), void *arg)
+void vtkProgrammableFilter::SetExecuteMethod(ProgrammableMethodCallbackType f,
+  void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
     {
@@ -111,7 +112,8 @@ void vtkProgrammableFilter::SetExecuteMethod(void (*f)(void *), void *arg)
 }
 
 // Set the arg delete method. This is used to free user memory.
-void vtkProgrammableFilter::SetExecuteMethodArgDelete(void (*f)(void *))
+void vtkProgrammableFilter::SetExecuteMethodArgDelete(
+  ProgrammableMethodCallbackType f)
 {
   if ( f != this->ExecuteMethodArgDelete)
     {

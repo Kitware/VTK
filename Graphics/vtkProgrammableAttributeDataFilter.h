@@ -95,13 +95,19 @@ public:
   vtkDataSetCollection *GetInputList() {return this->InputList;};
 
   // Description:
+  // Signature definition for programmable method callbacks. Methods passed to
+  // SetExecuteMethod or SetExecuteMethodArgDelete must conform to this
+  // signature.
+  typedef void (VTK_CB_CC *ProgrammableMethodCallbackType)(void *arg);
+
+  // Description:
   // Specify the function to use to operate on the point attribute data. Note
   // that the function takes a single (void *) argument.
-  void SetExecuteMethod(void (*f)(void *), void *arg);
+  void SetExecuteMethod(ProgrammableMethodCallbackType f, void *arg);
 
   // Description:
   // Set the arg delete method. This is used to free user memory.
-  void SetExecuteMethodArgDelete(void (*f)(void *));
+  void SetExecuteMethodArgDelete(ProgrammableMethodCallbackType f);
 
 protected:
   vtkProgrammableAttributeDataFilter();
@@ -109,8 +115,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkDataSetCollection *InputList; //list of datasets to process
-  void (*ExecuteMethod)(void *); //function to invoke
-  void (*ExecuteMethodArgDelete)(void *);
+  ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
+  ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
 
   virtual void ReportReferences(vtkGarbageCollector*);
