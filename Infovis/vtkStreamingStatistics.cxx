@@ -114,13 +114,18 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
 {
   // Input handles
   vtkTable*             inData       = vtkTable::GetData( inputVector[INPUT_DATA], 0 );
-  vtkMultiBlockDataSet* inModel      = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
-  vtkTable*             inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
 
   // Output handles
   vtkTable*             outData  = vtkTable::GetData( outputVector, OUTPUT_DATA );
   vtkMultiBlockDataSet* outModel = vtkMultiBlockDataSet::GetData( outputVector, OUTPUT_MODEL );
+
+  // These will be used later
+  /*
+  vtkMultiBlockDataSet* inModel      = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
+  vtkTable*             inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
   vtkTable*             outTest  = vtkTable::GetData( outputVector, OUTPUT_TEST );
+  */
+
 
 
   // Note: Experiment code. Lots of use case are currently not handled in
