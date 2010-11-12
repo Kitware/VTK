@@ -92,9 +92,9 @@ protected:
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
 
-  static void DataSetCutter(vtkDataSet *input, vtkPolyData *output,
-                            double z, double thickness,
-                            vtkMergePoints *locator);
+  static void PolyDataCutter(vtkPolyData *input, vtkPolyData *output,
+                             double z, double thickness,
+                             vtkMergePoints *locator);
   
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);

@@ -76,8 +76,8 @@ protected:
                           vtkInformationVector **,
                           vtkInformationVector *);
 
-  int OutsideValue;
-  int InsideValue;
+  double OutsideValue;
+  double InsideValue;
   int OutputScalarType;
 
   virtual int FillInputPortInformation(int, vtkInformation*);

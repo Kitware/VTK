@@ -130,8 +130,8 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 
 //----------------------------------------------------------------------------
 // This method was taken from vtkCutter and slightly modified
-void vtkPolyDataToImageStencil::DataSetCutter(
-  vtkDataSet *input, vtkPolyData *output, double z, double thickness,
+void vtkPolyDataToImageStencil::PolyDataCutter(
+  vtkPolyData *input, vtkPolyData *output, double z, double thickness,
   vtkMergePoints *locator)
 {
   vtkCellData *inCD = input->GetCellData();
@@ -166,7 +166,7 @@ void vtkPolyDataToImageStencil::DataSetCutter(
     vtkPoints *cellPts = cell->GetPoints();
     vtkIdList *cellIds = cell->GetPointIds();
 
-    if (cell->GetCellDimension() == 1)
+    if (cell->GetCellDimension() == 1 && input->GetNumberOfPolys() == 0)
       {
       double *bounds = cell->GetBounds();
       if (bounds[4] >= z - 0.5*thickness && bounds[5] < z + 0.5*thickness)
@@ -214,7 +214,8 @@ void vtkPolyDataToImageStencil::DataSetCutter(
   newVerts->Delete();
   newPolys->Delete();
 
-  locator->Initialize();//release any extra memory
+  //release any extra memory
+  locator->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -284,7 +285,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     raster.PrepareForNewData();
 
     // Step 1: Cut the data into slices
-    this->DataSetCutter(input, slice, z, spacing[2], locator);
+    this->PolyDataCutter(input, slice, z, spacing[2], locator);
     
     if (!slice->GetNumberOfLines())
       {
