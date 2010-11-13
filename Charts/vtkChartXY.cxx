@@ -1210,8 +1210,14 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
           {
           vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                 PlotCorners[i]->GetItem(j));
-          if (plot && plot->SelectPoints(min, max))
+          if (plot)
             {
+            /* 
+             * Populate the internal selection.  This will be referenced later
+             * to subsequently populate the selection inside the annotation link.
+             */
+            plot->SelectPoints(min, max);
+
             if (this->AnnotationLink)
               {
               // FIXME: Build up a selection from each plot?
