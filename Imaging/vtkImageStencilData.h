@@ -176,9 +176,12 @@ protected:
   int NumberOfExtentEntries;
   int *ExtentListLengths;
   int **ExtentLists;
+
 private:
   vtkImageStencilData(const vtkImageStencilData&);  // Not implemented.
   void operator=(const vtkImageStencilData&);  // Not implemented.
+
+  friend class vtkImageStencilIteratorFriendship;
 };
 
 //BTX

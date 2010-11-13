@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
+#include "vtkImageStencilIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -71,12 +72,9 @@ template <class T>
 void vtkImageStencilToImageExecute(
   vtkImageStencilToImage *self,
   vtkImageStencilData *stencil,
-  vtkImageData *outData, T *outPtr,
+  vtkImageData *outData, T *,
   int outExt[6], int id)
 {
-  unsigned long count = 0;
-  unsigned long target;
-
   double inValueD = self->GetInsideValue();
   double outValueD = self->GetOutsideValue();
 
@@ -103,62 +101,30 @@ void vtkImageStencilToImageExecute(
   T inValue = static_cast<T>(inValueD);
   T outValue = static_cast<T>(outValueD);
 
-  target = static_cast<unsigned long>(
-    (outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;
+  vtkImageStencilIterator<T> outIter(outData, stencil, outExt, self, id);
 
-  int numscalars = outData->GetNumberOfScalarComponents();
-  vtkIdType outIncX, outIncY, outIncZ;
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
-  // Loop through output pixels
-  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  // Loop through ouput pixels
+  while (!outIter.IsAtEnd())
     {
-    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
+    T* outPtr = outIter.BeginSpan();
+    T* spanEndPtr = outIter.EndSpan();
+
+    if (outIter.IsInStencil())
       {
-      if (!id)
+      while (outPtr != spanEndPtr)
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        *outPtr++ = inValue;
         }
-
-      int iter = 0;
-      int rval = 1;
-      int r = outExt[0];
-      while (rval)
-        {
-        int r1, r2;
-        rval = stencil->GetNextExtent(
-          r1, r2, outExt[0], outExt[1], idY, idZ, iter);
-
-        if (r1 > r)
-          {
-          size_t n = (r1 - r)*numscalars;
-          do
-            {
-            *outPtr++ = outValue;
-            }
-          while (--n);
-          }
-
-        if (r2 >= r1)
-          {
-          size_t n = (r2 - r1 + 1)*numscalars;
-          do
-            {
-            *outPtr++ = inValue;
-            }
-          while (--n);
-          }
-
-        r = r2+1;
-        }
-      outPtr += outIncY;
       }
-    outPtr += outIncZ;
+    else
+      {
+      while (outPtr != spanEndPtr)
+        {
+        *outPtr++ = outValue;
+        }
+      }
+
+    outIter.NextSpan();
     }
 }
 
