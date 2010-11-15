@@ -61,3 +61,14 @@ bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
  return (sourceModel()->data(idx).toString().contains(filterRegExp()));
 }
 
+bool QFilterTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+  QVariant leftData = this->sourceModel()->data(left);
+  QVariant rightData = this->sourceModel()->data(right);
+
+  QString leftString = leftData.toString();
+  QString rightString = rightData.toString();
+
+  return QString::localeAwareCompare(leftString, rightString) < 0;
+}
+
