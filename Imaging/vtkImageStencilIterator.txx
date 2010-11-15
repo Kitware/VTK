@@ -170,7 +170,7 @@ void vtkImageStencilIterator<DType>::Initialize(
     if (zOffset >= 0)
       {
       this->SpanMinZ = 0;
-      startOffset += zOffset*this->SpanSliceIncrement;;
+      startOffset += zOffset*this->SpanSliceIncrement;
       }
     else
       {
@@ -311,7 +311,7 @@ void vtkImageStencilIterator<DType>::NextSpan()
       this->SpanEndPointer = this->RowEndPointer;
       this->SpanIndexY = 0;
       this->SpanIndexZ++;
-      spanIncr = this->SpanSliceEndIncrement;
+      spanIncr += this->SpanSliceEndIncrement;
       }
     else
       {
