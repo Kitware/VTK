@@ -184,14 +184,14 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
       while (inPtr != spanEndPtr)
         {
         // find the bin for this pixel.
+        bool outOfBounds = false;
         int *outPtrC = outPtr;
-        T *subPtr = inPtr;
         for (int idxC = 0; idxC < numC; ++idxC)
           {
-          if (!ignoreZero || *subPtr != 0)
+          double v = static_cast<double>(*inPtr++);
+          if (!ignoreZero || v != 0)
             {
             // gather statistics
-            double v = static_cast<double>(*subPtr);
             sum[idxC] += v;
             sumSqr[idxC] += v*v;
             if (v > max[idxC])
@@ -206,25 +206,24 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
             }
 
           // compute the index
-          int outIdx = vtkMath::Floor(
-            (static_cast<double>(*subPtr++) - origin[idxC]) / spacing[idxC]);
+          int outIdx = vtkMath::Floor((v - origin[idxC]) / spacing[idxC]);
 
-          if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+          // verify that it is in range
+          if (outIdx >= outExtent[idxC*2] && outIdx <= outExtent[idxC*2+1])
             {
-            // out of bin range
-            outPtrC = NULL;
-            break;
+            outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
             }
-
-          outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+          else
+            {
+            outOfBounds = true;
+            }
           }
 
-        if (outPtrC)
+        // increment the bin
+        if (!outOfBounds)
           {
           ++(*outPtrC);
           }
-
-        inPtr += numC;
         }
       }
 
