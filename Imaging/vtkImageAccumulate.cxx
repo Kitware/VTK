@@ -16,8 +16,10 @@
 
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
+#include "vtkImageStencilIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -125,156 +127,133 @@ vtkImageStencilData *vtkImageAccumulate::GetStencil()
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageAccumulateExecute(vtkImageAccumulate *self,
-                               vtkImageData *inData, T *inPtr,
+                               vtkImageData *inData, T *,
                                vtkImageData *outData, int *outPtr,
                                double min[3], double max[3],
                                double mean[3],
                                double standardDeviation[3],
-                               long int *voxelCount,
+                               vtkIdType *voxelCount,
                                int* updateExtent)
 {
-  int idX, idY, idZ, idxC;
-  int iter, pmin0, pmax0, min0, max0, min1, max1, min2, max2;
-  vtkIdType inInc0, inInc1, inInc2;
-  T *subPtr;
-  int *outPtrC;
-  int numC, outIdx, *outExtent;
-  vtkIdType *outIncs;
-  double *origin, *spacing;
-  unsigned long count = 0;
-  unsigned long target;
-  double sumSqr[3], variance;
-
   // variables used to compute statistics (filter handles max 3 components)
   double sum[3];
   sum[0] = sum[1] = sum[2] = 0.0;
+  double sumSqr[3];
+  sumSqr[0] = sumSqr[1] = sumSqr[2] = 0.0;
   min[0] = min[1] = min[2] = VTK_DOUBLE_MAX;
   max[0] = max[1] = max[2] = VTK_DOUBLE_MIN;
-  sumSqr[0] = sumSqr[1] = sumSqr[2] = 0.0;
   standardDeviation[0] = standardDeviation[1] = standardDeviation[2] = 0.0;
   *voxelCount = 0;
 
+  // input's number of components is used as output dimensionality
+  int numC = inData->GetNumberOfScalarComponents();
+
+  // get information for output data
+  int outExtent[6];
+  outData->GetExtent(outExtent);
+  vtkIdType outIncs[3];
+  outData->GetIncrements(outIncs);
+  double origin[3];
+  outData->GetOrigin(origin);
+  double spacing[3];
+  outData->GetSpacing(spacing);
+
+  // zero count in every bin
+  vtkIdType size = 1;
+  size *= (outExtent[1] - outExtent[0] + 1);
+  size *= (outExtent[3] - outExtent[2] + 1);
+  size *= (outExtent[5] - outExtent[4] + 1);
+  for (vtkIdType j = 0; j < size; j++)
+    {
+    outPtr[j] = 0;
+    }
+
   vtkImageStencilData *stencil = self->GetStencil();
+  bool reverseStencil = (self->GetReverseStencil() != 0);
+  bool ignoreZero = (self->GetIgnoreZero() != 0);
 
-  // Zero count in every bin
-  outData->GetExtent(min0, max0, min1, max1, min2, max2);
-  memset(static_cast<void *>(outPtr), 0,
-         (max0-min0+1)*(max1-min1+1)*(max2-min2+1)*sizeof(int));
+  vtkImageStencilIterator<T> inIter(inData, stencil, updateExtent, self);
 
-  // Get information to march through data
-  numC = inData->GetNumberOfScalarComponents();
-  min0 = updateExtent[0];
-  max0 = updateExtent[1];
-  min1 = updateExtent[2];
-  max1 = updateExtent[3];
-  min2 = updateExtent[4];
-  max2 = updateExtent[5];
-  inData->GetIncrements(inInc0, inInc1, inInc2);
-  outExtent = outData->GetExtent();
-  outIncs = outData->GetIncrements();
-  origin = outData->GetOrigin();
-  spacing = outData->GetSpacing();
-  int ignoreZero = self->GetIgnoreZero();
-
-  target = static_cast<unsigned long>((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
-  target++;
-
-  int reverse = self->GetReverseStencil();
-
-  // Loop through input pixels
-  for (idZ = min2; idZ <= max2; idZ++)
+  while (!inIter.IsAtEnd())
     {
-    for (idY = min1; idY <= max1; idY++)
+    if (inIter.IsInStencil() ^ reverseStencil)
       {
-      if (!(count%target))
+      T *inPtr = inIter.BeginSpan();
+      T *spanEndPtr = inIter.EndSpan();
+
+      while (inPtr != spanEndPtr)
         {
-        self->UpdateProgress(count/(50.0*target));
-        }
-      count++;
-
-      // loop over stencil sub-extents, -1 flags
-      // that we want the complementary extents
-      iter = reverse ? -1 : 0;
-
-      pmin0 = min0;
-      pmax0 = max0;
-      while ((stencil != 0 &&
-              stencil->GetNextExtent(pmin0,pmax0,min0,max0,idY,idZ,iter)) ||
-             (stencil == 0 && iter++ == 0))
-        {
-        // set up pointer for sub extent
-        subPtr = inPtr + (inInc2*(idZ - min2) +
-                           inInc1*(idY - min1) +
-                           numC*(pmin0 - min0));
-
-        // accumulate over the sub extent
-        for (idX = pmin0; idX <= pmax0; idX++)
+        // find the bin for this pixel.
+        int *outPtrC = outPtr;
+        T *subPtr = inPtr;
+        for (int idxC = 0; idxC < numC; ++idxC)
           {
-          // find the bin for this pixel.
-          outPtrC = outPtr;
-          for (idxC = 0; idxC < numC; ++idxC)
+          if (!ignoreZero || *subPtr != 0)
             {
-            if( !ignoreZero || double(*subPtr) != 0. )
+            // gather statistics
+            double v = static_cast<double>(*subPtr);
+            sum[idxC] += v;
+            sumSqr[idxC] += v*v;
+            if (v > max[idxC])
               {
-              // Gather statistics
-              sum[idxC] += *subPtr;
-              sumSqr[idxC] += (static_cast<double>(*subPtr) * (*subPtr));
-              if (*subPtr > max[idxC])
-                {
-                max[idxC] = *subPtr;
-                }
-              if (*subPtr < min[idxC])
-                {
-                min[idxC] = *subPtr;
-                }
-              (*voxelCount)++;
+              max[idxC] = v;
               }
-            // compute the index
-            outIdx = static_cast<int>((static_cast<double>(*subPtr++) - origin[idxC]) / spacing[idxC]);
-            if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+            if (v < min[idxC])
               {
-              // Out of bin range
-              outPtrC = NULL;
-              break;
+              min[idxC] = v;
               }
-            outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+            (*voxelCount)++;
             }
-          if (outPtrC)
+
+          // compute the index
+          int outIdx = vtkMath::Floor(
+            (static_cast<double>(*subPtr++) - origin[idxC]) / spacing[idxC]);
+
+          if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
             {
-            ++(*outPtrC);
+            // out of bin range
+            outPtrC = NULL;
+            break;
             }
+
+          outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
           }
+
+        if (outPtrC)
+          {
+          ++(*outPtrC);
+          }
+
+        inPtr += numC;
         }
       }
+
+    inIter.NextSpan();
     }
 
-  if (*voxelCount) // avoid the div0
-    {
-    mean[0] = sum[0] / static_cast<double>(*voxelCount);
-    mean[1] = sum[1] / static_cast<double>(*voxelCount);
-    mean[2] = sum[2] / static_cast<double>(*voxelCount);
+  // initialize the statistics
+  mean[0] = 0;
+  mean[1] = 0;
+  mean[2] = 0;
 
-    if (*voxelCount - 1) // avoid the div0
-      {
-      variance = sumSqr[0] / static_cast<double>(*voxelCount-1) -
-        (static_cast<double>(*voxelCount) * mean[0] * mean[0] / static_cast<double>(*voxelCount - 1));
-      standardDeviation[0] = sqrt(variance);
-      variance = sumSqr[1] / static_cast<double>(*voxelCount-1) -
-        (static_cast<double>(*voxelCount) * mean[1] * mean[1] / static_cast<double>(*voxelCount - 1));
-      standardDeviation[1] = sqrt(variance);
-      variance = sumSqr[2] / static_cast<double>(*voxelCount-1) -
-        (static_cast<double>(*voxelCount) * mean[2] * mean[2] / static_cast<double>(*voxelCount - 1));
-      standardDeviation[2] = sqrt(variance);
-      }
-    else
-      {
-      standardDeviation[0] = standardDeviation[1] = standardDeviation[2] = 0.0;
-      }
-    }
-  else
+  standardDeviation[0] = 0;
+  standardDeviation[1] = 0;
+  standardDeviation[2] = 0;
+
+  if (*voxelCount != 0) // avoid the div0
     {
-    mean[0] = mean[1] = mean[2] = 0.0;
-    standardDeviation[0] = standardDeviation[1] = standardDeviation[2] = 0.0;
+    double n = static_cast<double>(*voxelCount);
+    mean[0] = sum[0]/n;
+    mean[1] = sum[1]/n;
+    mean[2] = sum[2]/n;
+
+    if (*voxelCount - 1 != 0) // avoid the div0
+      {
+      double m = static_cast<double>(*voxelCount - 1);
+      standardDeviation[0] = sqrt((sumSqr[0] - mean[0]*mean[0]*n)/m);
+      standardDeviation[1] = sqrt((sumSqr[1] - mean[1]*mean[1]*n)/m);
+      standardDeviation[2] = sqrt((sumSqr[2] - mean[2]*mean[2]*n)/m);
+      }
     }
 
 }
