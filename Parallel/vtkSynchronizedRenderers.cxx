@@ -487,6 +487,15 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
 //****************************************************************************
 
 //----------------------------------------------------------------------------
+void vtkSynchronizedRenderers::vtkRawImage::Initialize(
+  int dx, int dy, vtkUnsignedCharArray* data)
+{
+  this->Data = data;
+  this->Size[0] = dx;
+  this->Size[1] = dy;
+}
+
+//----------------------------------------------------------------------------
 void vtkSynchronizedRenderers::vtkRawImage::Allocate(int dx, int dy, int numcomps)
 {
   if (dx*dy < this->Data->GetNumberOfTuples() &&

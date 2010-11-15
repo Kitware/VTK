@@ -132,6 +132,10 @@ public:
       this->Allocate(dx, dy, numcomps);
       }
 
+    // Description:
+    // Create the buffer from an image data.
+    void Initialize(int dx, int dy, vtkUnsignedCharArray* data);
+
     void MarkValid() { this->Valid = true; }
     void MarkInValid() { this->Valid = false; }
 
