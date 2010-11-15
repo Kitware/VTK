@@ -199,7 +199,7 @@ void vtkImageStencilExecute(vtkImageStencil *self,
 
       T *tmpPtr = inPtr;
       int tmpInc = numscalars;
-      if (outIter.IsInStencil() ^ reverseStencil == 0)
+      if (!(outIter.IsInStencil() ^ reverseStencil))
         {
         tmpPtr = background;
         tmpInc = 0;
@@ -243,7 +243,7 @@ void vtkImageStencilExecute(vtkImageStencil *self,
       T* outSpanEndPtr = outIter.EndSpan();
 
       T *tmpPtr = inPtr;
-      if (outIter.IsInStencil() ^ reverseStencil == 0)
+      if (!(outIter.IsInStencil() ^ reverseStencil))
         {
         tmpPtr = inPtr2;
         }
