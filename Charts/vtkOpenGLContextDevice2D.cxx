@@ -406,6 +406,25 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n)
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *c, int nc)
+{
+  if (f && n > 0 && nc == 4)
+    {
+    this->SetLineType(this->Pen->GetLineType());
+    glColor4ubv(c);
+    glLineWidth(this->Pen->GetWidth());
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, f);
+    glDrawArrays(GL_LINE_STRIP, 0, n);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    }
+  else
+    {
+    vtkWarningMacro(<< "Points supplied that were not of type float.");
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
 {
   if (f && n > 0)
@@ -494,6 +513,120 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         glDrawArrays(GL_QUADS, 0, 4);
         }
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+      }
+    if (sprite)
+      {
+      this->Storage->SpriteTexture->PostRender(this->Renderer);
+      glDisable(GL_TEXTURE_2D);
+      }
+    }
+  else
+    {
+    vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c, int nc)
+{
+  if (f && n > 0)
+    {
+    glPointSize(this->Pen->GetWidth());
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, c);
+    glVertexPointer(2, GL_FLOAT, 0, f);
+    glDrawArrays(GL_POINTS, 0, n);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    }
+  else
+    {
+    vtkWarningMacro(<< "Points supplied that were not of type float.");
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
+                    float *points, int n, unsigned char *colors, int nc_comps)
+{
+  if (points && n > 0)
+    {
+    // glColor4ubv(this->Pen->GetColor());
+    glPointSize(this->Pen->GetWidth());
+    if (sprite)
+      {
+      if (!this->Storage->SpriteTexture)
+        {
+        this->Storage->SpriteTexture = vtkTexture::New();
+        this->Storage->SpriteTexture->SetRepeat(false);
+        }
+      this->Storage->SpriteTexture->SetInput(sprite);
+      this->Storage->SpriteTexture->Render(this->Renderer);
+      }
+    if (this->Storage->OpenGL15)
+      {
+      // We can actually use point sprites here
+      glEnable(vtkgl::POINT_SPRITE);
+      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_TRUE);
+      vtkgl::PointParameteri(vtkgl::POINT_SPRITE_COORD_ORIGIN, vtkgl::LOWER_LEFT);
+
+      this->DrawPoints(points, n, colors, nc_comps);
+
+      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_FALSE);
+      glDisable(vtkgl::POINT_SPRITE);
+
+      }
+    else
+      {
+      // Must emulate the point sprites - slower but at least they see something.
+      GLfloat width = 1.0;
+      glGetFloatv(GL_POINT_SIZE, &width);
+      width /= 2.0;
+
+      // Need to get the model view matrix for scaling factors...
+      GLfloat mv[16];
+      glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+      float xWidth = width / mv[0];
+      float yWidth = width / mv[5];
+
+      float p[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+      float c[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+      // This will be the same everytime
+      float texCoord[] = { 0.0, 0.0,
+                           1.0, 0.0,
+                           1.0, 1.0,
+                           0.0, 1.0 };
+
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glEnableClientState(GL_COLOR_ARRAY);
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
+
+      for (int i = 0; i < n; ++i)
+        {
+        p[0] = points[2*i] - xWidth;
+        p[1] = points[2*i+1] - yWidth;
+        p[2] = points[2*i] + xWidth;
+        p[3] = points[2*i+1] - yWidth;
+        p[4] = points[2*i] + xWidth;
+        p[5] = points[2*i+1] + yWidth;
+        p[6] = points[2*i] - xWidth;
+        p[7] = points[2*i+1] + yWidth;
+
+        for (int j = 0; j < 8; ++j)
+          {
+          c[j] = colors[nc_comps*i];
+          }
+
+        glVertexPointer(2, GL_FLOAT, 0, p);
+        glColorPointer(nc_comps, GL_UNSIGNED_BYTE, 0, c);
+        glDrawArrays(GL_QUADS, 0, 4);
+        }
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       }
     if (sprite)
