@@ -43,11 +43,15 @@ vtkImageStencilData::vtkImageStencilData()
   this->ExtentLists = NULL;
   this->ExtentListLengths = NULL;
 
+  this->Extent[0] = 0;
+  this->Extent[1] = -1;
+  this->Extent[2] = 0;
+  this->Extent[3] = -1;
+  this->Extent[4] = 0;
+  this->Extent[5] = -1;
+
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
-
-  int extent[6] = {0, -1, 0, -1, 0, -1};
-  memcpy(this->Extent, extent, 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------

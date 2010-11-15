@@ -39,11 +39,11 @@ vtkImageStencilSource::vtkImageStencilSource()
   this->OutputSpacing[2] = 1;
 
   this->OutputWholeExtent[0] = 0;
-  this->OutputWholeExtent[1] = 0;
+  this->OutputWholeExtent[1] = -1;
   this->OutputWholeExtent[2] = 0;
-  this->OutputWholeExtent[3] = 0;
+  this->OutputWholeExtent[3] = -1;
   this->OutputWholeExtent[4] = 0;
-  this->OutputWholeExtent[5] = 0;
+  this->OutputWholeExtent[5] = -1;
 }
 
 //----------------------------------------------------------------------------
