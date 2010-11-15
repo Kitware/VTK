@@ -55,13 +55,19 @@ vtkImageStencilIterator<DType>::vtkImageStencilIterator()
   this->SliceEndIncrement = 0;
   this->SliceIncrement = 0;
 
-  this->HasStencil = 0;
+  this->HasStencil = false;
   this->InStencil = false;
   this->SpanSliceEndIncrement = 0;
   this->SpanSliceIncrement = 0;
   this->SpanMinX = 0;
   this->SpanMaxX = 0;
-  this->SpanIndex = 0;
+  this->SpanMinY = 0;
+  this->SpanMaxY = 0;
+  this->SpanMinZ = 0;
+  this->SpanMaxZ = 0;
+  this->SpanIndexX = 0;
+  this->SpanIndexY = 0;
+  this->SpanIndexZ = 0;
   this->SpanCountPointer = 0;
   this->SpanListPointer = 0;
 
@@ -94,16 +100,20 @@ void vtkImageStencilIterator<DType>::Initialize(
       extent[3] >= extent[2] &&
       extent[5] >= extent[4])
     {
-    this->SpanEndPointer += this->PixelIncrement*(extent[1] - extent[0] + 1);
-    this->RowEndPointer += this->PixelIncrement*(extent[1] - extent[0] + 1);
-    this->SliceEndPointer += this->RowIncrement*(extent[3] - extent[2] + 1);
-    this->EndPointer += this->SliceIncrement*(extent[5] - extent[4] + 1);
+    this->SpanEndPointer = this->Pointer +
+      this->PixelIncrement*(extent[1] - extent[0] + 1);
+    this->RowEndPointer = this->SpanEndPointer;
+    this->SliceEndPointer = this->RowEndPointer +
+      this->RowIncrement*(extent[3] - extent[2]);
+    this->EndPointer = this->SliceEndPointer +
+      this->SliceIncrement*(extent[5] - extent[4]);
     }
 
   // Code for when a stencil is provided
   if (stencil)
     {
     this->HasStencil = true;
+    this->InStencil = true;
 
     int stencilExtent[6];
     stencil->GetExtent(stencilExtent);
@@ -113,22 +123,68 @@ void vtkImageStencilIterator<DType>::Initialize(
     this->SpanSliceIncrement = 0;
     this->SpanSliceEndIncrement = 0;
 
-    if (stencilExtent[1] >= stencilExtent[0] &&
-        stencilExtent[3] >= stencilExtent[2] &&
+    if (stencilExtent[3] >= stencilExtent[2] &&
         stencilExtent[5] >= stencilExtent[4])
       {
       this->SpanSliceIncrement = stencilExtent[3] - stencilExtent[2] + 1;
-      if (this->SpanSliceIncrement > (extent[3] - extent[2] + 1))
+      int botOffset = extent[2] - stencilExtent[2];
+      if (botOffset >= 0)
         {
-        this->SpanSliceEndIncrement =
-          this->SpanSliceIncrement - (extent[3] - extent[2] + 1);
+        this->SpanSliceEndIncrement += botOffset;
+        }
+      int topOffset = stencilExtent[3] - extent[3];
+      if (topOffset >= 0)
+        {
+        this->SpanSliceEndIncrement += topOffset;
         }
       }
 
+    // The X extent for the spans we want to iterate through
+    this->SpanMinX = extent[0];
+    this->SpanMaxX = extent[1];
+
     // Find the offset to the start position within the YZ array.
-    vtkIdType startOffset =
-      (extent[2] - stencilExtent[2]) +
-      (extent[4] - stencilExtent[4])*this->SpanSliceIncrement;
+    vtkIdType startOffset = 0;
+
+    int yOffset = extent[2] - stencilExtent[2];
+    if (yOffset >= 0)
+      {
+      this->SpanMinY = 0;
+      startOffset += yOffset;
+      }
+    else
+      {
+      this->SpanMinY = -yOffset;
+      }
+
+    if (stencilExtent[3] > extent[3])
+      {
+      this->SpanMaxY = extent[3] - extent[2];
+      }
+    else
+      {
+      this->SpanMaxY = stencilExtent[3] - extent[2];
+      }
+
+    int zOffset = extent[4] - stencilExtent[4];
+    if (zOffset >= 0)
+      {
+      this->SpanMinZ = 0;
+      startOffset += zOffset*this->SpanSliceIncrement;;
+      }
+    else
+      {
+      this->SpanMinZ = -zOffset;
+      }
+
+    if (stencilExtent[5] > extent[5])
+      {
+      this->SpanMaxZ = extent[5] - extent[4];
+      }
+    else
+      {
+      this->SpanMaxZ = stencilExtent[5] - extent[4];
+      }
 
     this->SpanCountPointer =
       vtkImageStencilIteratorFriendship::GetExtentListLengths(stencil) +
@@ -138,9 +194,9 @@ void vtkImageStencilIterator<DType>::Initialize(
       vtkImageStencilIteratorFriendship::GetExtentLists(stencil) +
       startOffset;
 
-    // The X extent for the spans we want to iterate through
-    this->SpanMinX = extent[0];
-    this->SpanMaxX = extent[1];
+    this->SpanIndexX = 0;
+    this->SpanIndexY = 0;
+    this->SpanIndexZ = 0;
 
     // Holds the current position within the span list for the current row
     this->SetSpanState(this->SpanMinX);
@@ -148,13 +204,18 @@ void vtkImageStencilIterator<DType>::Initialize(
   else
     {
     this->HasStencil = false;
-    this->HasStencil = 0;
-    this->InStencil = false;
+    this->InStencil = true;
     this->SpanSliceEndIncrement = 0;
     this->SpanSliceIncrement = 0;
     this->SpanMinX = 0;
     this->SpanMaxX = 0;
-    this->SpanIndex = 0;
+    this->SpanMinY = 0;
+    this->SpanMaxY = 0;
+    this->SpanMinZ = 0;
+    this->SpanMaxZ = 0;
+    this->SpanIndexX = 0;
+    this->SpanIndexY = 0;
+    this->SpanIndexZ = 0;
     this->SpanCountPointer = 0;
     this->SpanListPointer = 0;
     }
@@ -203,7 +264,7 @@ void vtkImageStencilIterator<DType>::SetSpanState(int idX)
     }
 
   // Set the primary span state variables
-  this->SpanIndex = i;
+  this->SpanIndexX = i;
   this->InStencil = inStencil;
 
   // Clamp the span end to SpanMaxX+1
@@ -238,8 +299,9 @@ void vtkImageStencilIterator<DType>::NextSpan()
       this->Pointer = this->RowEndPointer + this->RowEndIncrement;
       this->RowEndPointer += this->RowIncrement;
       this->SpanEndPointer = this->RowEndPointer;
+      this->SpanIndexY++;
       }
-    else
+    else if (this->SpanEndPointer != this->EndPointer)
       {
       // Move to the next slice
       this->Pointer = this->SliceEndPointer + this->SliceEndIncrement;
@@ -247,14 +309,32 @@ void vtkImageStencilIterator<DType>::NextSpan()
       this->RowEndPointer = this->Pointer +
         (this->RowIncrement - this->RowEndIncrement);
       this->SpanEndPointer = this->RowEndPointer;
+      this->SpanIndexY = 0;
+      this->SpanIndexZ++;
       spanIncr = this->SpanSliceEndIncrement;
+      }
+    else
+      {
+      // reached EndPointer
+      this->Pointer = this->EndPointer;
+      return;
       }
 
     if (this->HasStencil)
       {
-      this->SpanCountPointer += spanIncr;
-      this->SpanListPointer += spanIncr;
-      this->SetSpanState(this->SpanMinX);
+      if ((this->SpanIndexY >= this->SpanMinY) &&
+          (this->SpanIndexY <= this->SpanMaxY) &&
+          (this->SpanIndexZ >= this->SpanMinZ) &&
+          (this->SpanIndexZ <= this->SpanMaxZ))
+        {
+        this->SpanCountPointer += spanIncr;
+        this->SpanListPointer += spanIncr;
+        this->SetSpanState(this->SpanMinX);
+        }
+      else
+        {
+        this->InStencil = false;
+        }
       }
 
     if (this->Algorithm)
@@ -269,10 +349,10 @@ void vtkImageStencilIterator<DType>::NextSpan()
 
     // Clamp the span end to SpanMaxX+1
     int endIdX = this->SpanMaxX + 1;
-    this->SpanIndex++;
-    if (this->SpanIndex < *this->SpanCountPointer)
+    this->SpanIndexX++;
+    if (this->SpanIndexX < *this->SpanCountPointer)
       {
-      int tmpIdX = (*this->SpanListPointer)[this->SpanIndex];
+      int tmpIdX = (*this->SpanListPointer)[this->SpanIndexX];
       if (tmpIdX < endIdX)
         {
         endIdX = tmpIdX;

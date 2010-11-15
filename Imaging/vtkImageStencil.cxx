@@ -15,7 +15,9 @@
 #include "vtkImageStencil.h"
 
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 #include "vtkImageStencilData.h"
+#include "vtkImageStencilIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -165,126 +167,111 @@ void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self), T *&background)
 //----------------------------------------------------------------------------
 template <class T>
 void vtkImageStencilExecute(vtkImageStencil *self,
-                            vtkImageData *inData, T *inPtr,
-                            vtkImageData *in2Data,T *in2Ptr,
-                            vtkImageData *outData, T *outPtr,
+                            vtkImageData *inData, T *,
+                            vtkImageData *inData2, T *,
+                            vtkImageData *outData, T *,
                             int outExt[6], int id,
                             vtkInformation *outInfo)
 {
-  int numscalars, inIncX;
-  int idX, idY, idZ;
-  int r1, r2, cr1, cr2, iter, rval;
-  vtkIdType outIncX, outIncY, outIncZ;
-  int inExt[6];
-  vtkIdType inInc[3];
-  int in2Ext[6];
-  vtkIdType in2Inc[3];
-  unsigned long count = 0;
-  unsigned long target;
-  T *background, *tempPtr;
-
-  // get the clipping extents
   vtkImageStencilData *stencil = self->GetStencil();
 
-  // find maximum input range
-  inData->GetExtent(inExt);
-  inData->GetIncrements(inInc);
-  if (in2Data)
+  vtkImageIterator<T> inIter(inData, outExt);
+  vtkImageStencilIterator<T> outIter(outData, stencil, outExt, self, id);
+
+  int numscalars = outData->GetNumberOfScalarComponents();
+
+  // whether to reverse the stencil
+  bool reverseStencil = (self->GetReverseStencil() != 0);
+
+  // if no background image is provided in inData2
+  if (inData2 == 0)
     {
-    in2Data->GetExtent(in2Ext);
-    in2Data->GetIncrements(in2Inc);
-    }
+    // set color for area outside of input volume extent
+    T *background;
+    vtkAllocBackground(self, background, outInfo);
 
-  // Get Increments to march through data 
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  numscalars = inData->GetNumberOfScalarComponents();
-
-  target = static_cast<unsigned long>(
-    (outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;  
-  
-  // set color for area outside of input volume extent
-  vtkAllocBackground(self, background, outInfo);
-
-  // Loop through output pixels
-  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
-    {
-    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+    T *inPtr = inIter.BeginSpan();
+    T *inSpanEndPtr = inIter.EndSpan();
+    while (!outIter.IsAtEnd())
       {
-      if (!id) 
+      T* outPtr = outIter.BeginSpan();
+      T* outSpanEndPtr = outIter.EndSpan();
+
+      T *tmpPtr = inPtr;
+      int tmpInc = numscalars;
+      if (outIter.IsInStencil() ^ reverseStencil == 0)
         {
-        if (!(count%target)) 
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        tmpPtr = background;
+        tmpInc = 0;
         }
 
-      iter = 0;
-      if (self->GetReverseStencil())
-        { // flag that we want the complementary extents
-        iter = -1;
-        }
+      // move inPtr forward by the span size
+      inPtr += (outSpanEndPtr - outPtr);
 
-      cr1 = outExt[0];
-      for (;;)
+      while (outPtr != outSpanEndPtr)
         {
-        rval = 0;
-        r1 = outExt[1] + 1;
-        r2 = outExt[1];
-        if (stencil)
-          {
-          rval = stencil->GetNextExtent(r1, r2, outExt[0], outExt[1],
-                                        idY, idZ, iter);
-          }
-        else if (iter < 0)
-          {
-          r1 = outExt[0];
-          r2 = outExt[1];
-          rval = 1;
-          iter = 1;
-          }
-
-        tempPtr = background;
-        inIncX = 0; 
-        if (in2Ptr)
-          {
-          tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
-                              in2Inc[1]*(idY - in2Ext[2]) +
-                              numscalars*(cr1 - in2Ext[0]));
-          inIncX = numscalars;
-          }
-
-        cr2 = r1 - 1;
-        for (idX = cr1; idX <= cr2; idX++)
-          {
-          vtkCopyPixel(outPtr, tempPtr, numscalars);
-          tempPtr += inIncX;
-          }
-        cr1 = r2 + 1; // for next time 'round
-
-        // break if no foreground extents left
-        if (rval == 0)
-          {
-          break;
-          }
-
-        tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-                           inInc[1]*(idY - inExt[2]) +
-                           numscalars*(r1 - inExt[0]));
-
-        for (idX = r1; idX <= r2; idX++)
-          {
-          vtkCopyPixel(outPtr, tempPtr, numscalars);
-          tempPtr += numscalars;
-          }
+        // CopyPixel increments outPtr but not tmpPtr
+        vtkCopyPixel(outPtr, tmpPtr, numscalars);
+        tmpPtr += tmpInc;
         }
-      outPtr += outIncY;
+
+      outIter.NextSpan();
+
+      // this occurs at the end of a full row
+      if (inPtr == inSpanEndPtr)
+        {
+        inIter.NextSpan();
+        inPtr = inIter.BeginSpan();
+        inSpanEndPtr = inIter.EndSpan();
+        }
       }
-    outPtr += outIncZ;
+
+    vtkFreeBackground(self, background);
     }
 
-  vtkFreeBackground(self, background);
+  // if a background image is given in inData2
+  else
+    {
+    vtkImageIterator<T> inIter2(inData2, outExt);
+
+    T *inPtr = inIter.BeginSpan();
+    T *inPtr2 = inIter2.BeginSpan();
+    T *inSpanEndPtr = inIter.EndSpan();
+    while (!outIter.IsAtEnd())
+      {
+      T* outPtr = outIter.BeginSpan();
+      T* outSpanEndPtr = outIter.EndSpan();
+
+      T *tmpPtr = inPtr;
+      if (outIter.IsInStencil() ^ reverseStencil == 0)
+        {
+        tmpPtr = inPtr2;
+        }
+
+      // move inPtr forward by the span size
+      inPtr += (outSpanEndPtr - outPtr);
+      inPtr2 += (outSpanEndPtr - outPtr);
+
+      while (outPtr != outSpanEndPtr)
+        {
+        // CopyPixel increments outPtr but not tmpPtr
+        vtkCopyPixel(outPtr, tmpPtr, numscalars);
+        tmpPtr += numscalars;
+        }
+
+      outIter.NextSpan();
+
+      // this occurs at the end of a full row
+      if (inPtr == inSpanEndPtr)
+        {
+        inIter.NextSpan();
+        inIter2.NextSpan();
+        inPtr = inIter.BeginSpan();
+        inPtr2 = inIter2.BeginSpan();
+        inSpanEndPtr = inIter.EndSpan();
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

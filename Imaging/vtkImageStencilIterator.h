@@ -73,7 +73,7 @@ public:
     }
 
   // Description:
-  // Return a pointer to the beginning of the span.
+  // Return a pointer to the beginning of the current span.
   DType *BeginSpan()
     {
     return this->Pointer;
@@ -89,12 +89,12 @@ public:
 protected:
 
   // Description
-  // Set all the state variables for the span that includes idX.
+  // Set all the state variables for the stencil span that includes idX.
   void SetSpanState(int idX);
 
   // Description
   // Report the progress and do an abort check.  This must be called
-  // every time one row Only called if
+  // every time that one row of the image is completed. Only called if
   // Algorithm is not null.
   void ReportProgress();
 
@@ -119,7 +119,13 @@ protected:
   int        SpanSliceIncrement;
   int        SpanMinX;
   int        SpanMaxX;
-  int        SpanIndex;
+  int        SpanMinY;
+  int        SpanMaxY;
+  int        SpanMinZ;
+  int        SpanMaxZ;
+  int        SpanIndexX;
+  int        SpanIndexY;
+  int        SpanIndexZ;
   int       *SpanCountPointer;
   int      **SpanListPointer;
 

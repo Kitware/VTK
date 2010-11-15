@@ -16,7 +16,9 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 #include "vtkImageStencilData.h"
+#include "vtkImageStencilIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -282,68 +284,16 @@ int vtkImageBlend::RequestData(
 }
 
 //----------------------------------------------------------------------------
-// helper function for the stencil
-template <class T>
-inline int vtkBlendGetNextExtent(vtkImageStencilData *stencil,
-                                 int &r1, int &r2, int rmin, int rmax,
-                                 int yIdx, int zIdx,
-                                 T *&outPtr, T *&inPtr,
-                                 int outScalars, int inScalars,
-                                 int &iter)
-{
-  // trivial case if stencil is not set
-  if (!stencil)
-    {
-    if (iter++ == 0)
-      {
-      r1 = rmin;
-      r2 = rmax;
-      return 1;
-      }
-    return 0;
-    }
-
-  // save r2
-  int oldr2 = r2;
-  if (iter == 0)
-    { // if no 'last time', start just before rmin
-    oldr2 = rmin - 1;
-    }
-
-  int rval = stencil->GetNextExtent(r1, r2, rmin, rmax, yIdx, zIdx, iter);
-  int incr = r1 - oldr2 - 1;
-  if (rval == 0)
-    {
-    incr = rmax - oldr2;
-    }
-
-  outPtr += incr*outScalars;
-  inPtr += incr*inScalars;
-
-  return rval;
-}
-
-//----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
-                          vtkImageData *inData, T *inPtr,
-                          vtkImageData *outData, T *outPtr,
+                          vtkImageData *inData, T *,
+                          vtkImageData *outData, T *,
                           double opacity, int id)
 {
-  int idxX, idxY, idxZ;
-  int minX = 0;
-  int maxX = 0;
-  int iter;
-  vtkIdType inIncX, inIncY, inIncZ;
-  vtkIdType outIncX, outIncY, outIncZ;
   int inC, outC;
   double minA, maxA;
   double r, f;
-  unsigned long count = 0;
-  unsigned long target;
-
-  vtkImageStencilData *stencil = self->GetStencil();
 
   if (inData->GetScalarType() == VTK_DOUBLE ||
       inData->GetScalarType() == VTK_FLOAT)
@@ -365,132 +315,103 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
   inC = inData->GetNumberOfScalarComponents();
   outC = outData->GetNumberOfScalarComponents();
 
-  target = static_cast<unsigned long>((extent[3] - extent[2] + 1)*
-                                      (extent[5] - extent[4] + 1)/50.0);
-  target++;
+  vtkImageStencilData *stencil = self->GetStencil();
+  vtkImageStencilIterator<T> outIter(outData, stencil, extent, self, id);
+  vtkImageIterator<T> inIter(inData, extent);
 
-  // Get increments to march through data
-  inData->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(extent, outIncX, outIncY, outIncZ);
-
-  // Loop through output pixels
-  for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+  T *inPtr = inIter.BeginSpan();
+  T *inSpanEndPtr = inIter.EndSpan();
+  while (!outIter.IsAtEnd())
     {
-    for (idxY = extent[2]; !self->AbortExecute && idxY <= extent[3]; idxY++)
+    T* outPtr = outIter.BeginSpan();
+    T* outSpanEndPtr = outIter.EndSpan();
+    if (outIter.IsInStencil())
       {
-      if (!id)
-        {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-
-      iter = 0;
       if (outC >= 3 && inC >= 4)
         { // RGB(A) blended with RGBA
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            r = opacity*(inPtr[3]-minA);
-            f = 1.0-r;
-            outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
-            outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
-            outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-            outPtr += outC;
-            inPtr += inC;
-            }
+          r = opacity*(inPtr[3]-minA);
+          f = 1.0-r;
+          outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
+          outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
+          outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
+          outPtr += outC;
+          inPtr += inC;
           }
         }
       else if (outC >= 3 && inC == 3)
         { // RGB(A) blended with RGB
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
-            outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
-            outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-            outPtr += outC;
-            inPtr += inC;
-            }
+          outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
+          outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
+          outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
+          outPtr += outC;
+          inPtr += inC;
           }
         }
       else if (outC >= 3 && inC == 2)
         { // RGB(A) blended with luminance+alpha
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            r = opacity*(inPtr[1]-minA);
-            f = 1.0-r;
-            outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
-            outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
-            outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-            outPtr += outC;
-            inPtr += 2;
-            }
+          r = opacity*(inPtr[1]-minA);
+          f = 1.0-r;
+          outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
+          outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
+          outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
+          outPtr += outC;
+          inPtr += 2;
           }
         }
       else if (outC >= 3 && inC == 1)
         { // RGB(A) blended with luminance
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
-            outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
-            outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-            outPtr += outC;
-            inPtr++;
-            }
+          outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
+          outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
+          outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
+          outPtr += outC;
+          inPtr++;
           }
         }
       else if (inC == 2)
         { // luminance(+alpha) blended with luminance+alpha
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            r = opacity*(inPtr[1]-minA);
-            f = 1.0-r;
-            *outPtr = T((*outPtr)*f + (*inPtr)*r);
-            outPtr += outC;
-            inPtr += 2;
-            }
+          r = opacity*(inPtr[1]-minA);
+          f = 1.0-r;
+          *outPtr = T((*outPtr)*f + (*inPtr)*r);
+          outPtr += outC;
+          inPtr += 2;
           }
         }
       else
         { // luminance(+alpha) blended with luminance
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            *outPtr = T((*outPtr)*f + (*inPtr)*r);
-            outPtr += outC; 
-            inPtr++;
-            }
+          *outPtr = T((*outPtr)*f + (*inPtr)*r);
+          outPtr += outC;
+          inPtr++;
           }
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    // else !IsInStencil()
+    else
+      {
+      vtkIdType outSpanSize = static_cast<vtkIdType>(outSpanEndPtr - outPtr);
+      vtkIdType inSpanSize = outSpanSize/outC*inC;
+      inPtr += inSpanSize;
+      }
+
+    // go to the next span
+    outIter.NextSpan();
+    if (inPtr == inSpanEndPtr)
+      {
+      inIter.NextSpan();
+      inPtr = inIter.BeginSpan();
+      inSpanEndPtr = inIter.EndSpan();
+      }
     }
 }
 
@@ -498,23 +419,13 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
 // This templated function executes the filter specifically for char data
 template <class T>
 void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6], 
-                              vtkImageData *inData, T *inPtr,
-                              vtkImageData *outData, T *outPtr,
+                              vtkImageData *inData, T *,
+                              vtkImageData *outData, T *,
                               double opacity, int id)
 {
-  int idxX, idxY, idxZ;
-  int minX = 0;
-  int maxX = 0;
-  int iter;
-  vtkIdType inIncX, inIncY, inIncZ;
-  vtkIdType outIncX, outIncY, outIncZ;
   int inC, outC;
   unsigned short r, f, o;
   int v0, v1, v2;
-  unsigned long count = 0;
-  unsigned long target;
-
-  vtkImageStencilData *stencil = self->GetStencil();
 
   // round opacity to a value in the range [0,256], because division
   // by 256 can be efficiently achieved by bit-shifting by 8 bits
@@ -525,157 +436,128 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
   inC = inData->GetNumberOfScalarComponents();
   outC = outData->GetNumberOfScalarComponents();
 
-  target = static_cast<unsigned long>((extent[3] - extent[2] + 1)*
-                                      (extent[5] - extent[4] + 1)/50.0);
-  target++;  
+  vtkImageStencilData *stencil = self->GetStencil();
+  vtkImageStencilIterator<T> outIter(outData, stencil, extent, self, id);
+  vtkImageIterator<T> inIter(inData, extent);
 
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(extent, outIncX, outIncY, outIncZ);
-
-  // Loop through ouput pixels
-  for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+  T *inPtr = inIter.BeginSpan();
+  T *inSpanEndPtr = inIter.EndSpan();
+  while (!outIter.IsAtEnd())
     {
-    for (idxY = extent[2]; !self->AbortExecute && idxY <= extent[3]; idxY++)
+    T* outPtr = outIter.BeginSpan();
+    T* outSpanEndPtr = outIter.EndSpan();
+    if (outIter.IsInStencil())
       {
-      if (!id) 
-        {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      
-      iter = 0;
       if (outC >= 3 && inC >= 4)
         { // RGB(A) blended with RGBA
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            // multiply to get a number in the range [0,65280]
-            // where 65280 = 255*256 = range of inPtr[3] * range of o
-            r = inPtr[3]*o;
-            f = 65280 - r;
-            v0 = outPtr[0]*f + inPtr[0]*r;
-            v1 = outPtr[1]*f + inPtr[1]*r;
-            v2 = outPtr[2]*f + inPtr[2]*r;
-            // do some math tricks to achieve division by 65280:
-            // this is not an approximation, it gives exactly the
-            // same result as an integer division by 65280
-            outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-            outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-            outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
-            inPtr += inC;
-            outPtr += outC; 
-            }
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[3] * range of o
+          r = inPtr[3]*o;
+          f = 65280 - r;
+          v0 = outPtr[0]*f + inPtr[0]*r;
+          v1 = outPtr[1]*f + inPtr[1]*r;
+          v2 = outPtr[2]*f + inPtr[2]*r;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+          inPtr += inC;
+          outPtr += outC;
           }
         }
       else if (outC >= 3 && inC == 3)
         { // RGB(A) blended with RGB
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            // the bit-shift achieves a division by 256
-            outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-            outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
-            outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
-            inPtr += 3;
-            outPtr += outC; 
-            }
+          // the bit-shift achieves a division by 256
+          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
+          outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
+          outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
+          inPtr += 3;
+          outPtr += outC;
           }
         }
       else if (outC >= 3 && inC == 2)
         { // RGB(A) blended with luminance+alpha
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            // multiply to get a number in the range [0,65280]
-            // where 65280 = 255*256 = range of inPtr[1] * range of o
-            r = inPtr[1]*o;
-            f = 65280 - r;
-            v0 = outPtr[0]*f + inPtr[0]*r;
-            v1 = outPtr[1]*f + inPtr[0]*r;
-            v2 = outPtr[2]*f + inPtr[0]*r;
-            // do some math tricks to achieve division by 65280:
-            // this is not an approximation, it gives exactly the
-            // same result as an integer division by 65280
-            outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-            outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-            outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
-            inPtr += 2;
-            outPtr += outC; 
-            }
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[1] * range of o
+          r = inPtr[1]*o;
+          f = 65280 - r;
+          v0 = outPtr[0]*f + inPtr[0]*r;
+          v1 = outPtr[1]*f + inPtr[0]*r;
+          v2 = outPtr[2]*f + inPtr[0]*r;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+          inPtr += 2;
+          outPtr += outC;
           }
         }
       else if (outC >= 3 && inC == 1)
         { // RGB(A) blended with luminance
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            // the bit-shift achieves a division by 256
-            outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-            outPtr[1] = (outPtr[1]*f + inPtr[0]*r) >> 8;
-            outPtr[2] = (outPtr[2]*f + inPtr[0]*r) >> 8;
-            inPtr++;
-            outPtr += outC; 
-            }
+          // the bit-shift achieves a division by 256
+          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
+          outPtr[1] = (outPtr[1]*f + inPtr[0]*r) >> 8;
+          outPtr[2] = (outPtr[2]*f + inPtr[0]*r) >> 8;
+          inPtr++;
+          outPtr += outC;
           }
         }
       else if (inC == 2)
         { // luminance(+alpha) blended with luminance+alpha
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            // multiply to get a number in the range [0,65280]
-            // where 65280 = 255*256 = range of inPtr[1] * range of o
-            r = inPtr[1]*o;
-            f = 65280 - r;
-            v0 = outPtr[0]*f + inPtr[0]*r;
-            // do some math tricks to achieve division by 65280:
-            // this is not an approximation, it gives exactly the
-            // same result as an integer division by 65280
-            outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-            inPtr += 2;
-            outPtr += outC; 
-            }
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[1] * range of o
+          r = inPtr[1]*o;
+          f = 65280 - r;
+          v0 = outPtr[0]*f + inPtr[0]*r;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          inPtr += 2;
+          outPtr += outC;
           }
         }
       else
         { // luminance(+alpha) blended with luminance
-        while (vtkBlendGetNextExtent(stencil, minX, maxX, extent[0], extent[1],
-                                     idxY, idxZ,
-                                     outPtr, inPtr, outC, inC, iter))
+        while (outPtr != outSpanEndPtr)
           {
-          for (idxX = minX; idxX <= maxX; idxX++)
-            {
-            // the bit-shift achieves a division by 256
-            outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-            inPtr++;
-            outPtr += outC; 
-            }
+          // the bit-shift achieves a division by 256
+          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
+          inPtr++;
+          outPtr += outC;
           }
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    // else !IsInStencil()
+    else
+      {
+      vtkIdType outSpanSize = static_cast<vtkIdType>(outSpanEndPtr - outPtr);
+      vtkIdType inSpanSize = outSpanSize/outC*inC;
+      inPtr += inSpanSize;
+      }
+
+    // go to the next span
+    outIter.NextSpan();
+    if (inPtr == inSpanEndPtr)
+      {
+      inIter.NextSpan();
+      inPtr = inIter.BeginSpan();
+      inSpanEndPtr = inIter.EndSpan();
+      }
     }
 }
 
@@ -726,34 +608,11 @@ template <class T>
 void vtkImageBlendCompoundExecute(vtkImageBlend *self,
                                   int extent[6], 
                                   vtkImageData *inData, 
-                                  T *inPtr,
+                                  T *,
                                   vtkImageData *tmpData, 
                                   double opacity,
                                   double threshold)
 {
-  unsigned long count = 0;
-  unsigned long target;
-
-  target = static_cast<unsigned long>((extent[3] - extent[2] + 1)*
-                                      (extent[5] - extent[4] + 1)/50.0);
-  target++;
-  
-  // Get increments to march through data 
-
-  vtkIdType inIncX, inIncY, inIncZ;
-  int inC;
-
-  inData->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
-  inC = inData->GetNumberOfScalarComponents();
-
-  vtkIdType tmpIncX, tmpIncY, tmpIncZ;
-  int tmpC;
-
-  tmpData->GetContinuousIncrements(extent, tmpIncX, tmpIncY, tmpIncZ);
-  tmpC = tmpData->GetNumberOfScalarComponents();
-
-  double* tmpPtr = static_cast<double *>(tmpData->GetScalarPointerForExtent(extent));
-
   // Opacity
   double minA, maxA;
   double r;
@@ -773,30 +632,34 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   r = opacity;
   opacity = opacity/(maxA-minA);
 
+  int inC = inData->GetNumberOfScalarComponents();
+  int tmpC = tmpData->GetNumberOfScalarComponents();
+
   if ((inC == 3 || inC == 1) && r <= threshold)
     {
     return;
     }
 
   // Loop through output pixels
+  vtkImageStencilData *stencil = self->GetStencil();
+  vtkImageStencilIterator<double> tmpIter(tmpData, stencil, extent);
+  vtkImageIterator<T> inIter(inData, extent);
 
-  for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+  T *inPtr = inIter.BeginSpan();
+  T *inSpanEndPtr = inIter.EndSpan();
+  while (!tmpIter.IsAtEnd())
     {
-    for (int idxY = extent[2]; !self->AbortExecute && idxY<=extent[3]; idxY++)
+    double *tmpPtr = tmpIter.BeginSpan();
+    double *tmpSpanEndPtr = tmpIter.EndSpan();
+
+    if (tmpIter.IsInStencil())
       {
-      if (!(count%target))
-        {
-        self->UpdateProgress(count/(50.0*target));
-        }
-      count++;
-      
       if (tmpC >= 3)
         {
-
         // RGB(A) blended with RGBA
         if (inC >= 4)
-          { 
-          for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+          {
+          while (tmpPtr != tmpSpanEndPtr)
             {
             r = opacity * (static_cast<double>(inPtr[3]) - minA);
             if (r > threshold) 
@@ -814,7 +677,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
         // RGB(A) blended with RGB
         else if (inC == 3)
           { 
-          for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+          while (tmpPtr != tmpSpanEndPtr)
             {
             tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
             tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
@@ -828,7 +691,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
         // RGB(A) blended with luminance+alpha
         else if (inC == 2)
           { 
-          for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+          while (tmpPtr != tmpSpanEndPtr)
             {
             r = opacity * (static_cast<double>(inPtr[1]) - minA);
             if (r > threshold) 
@@ -846,7 +709,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
         // RGB(A) blended with luminance
         else if (inC == 1)
           { 
-          for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+          while (tmpPtr != tmpSpanEndPtr)
             {
             tmpPtr[0] += static_cast<double>(*inPtr) * r;
             tmpPtr[1] += static_cast<double>(*inPtr) * r;
@@ -861,7 +724,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
       // luminance(+alpha) blended with luminance+alpha
       else if (inC == 2)
         { 
-        for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+        while (tmpPtr != tmpSpanEndPtr)
           {
           r = opacity * (static_cast<double>(inPtr[1]) - minA);
           if (r > threshold) 
@@ -877,7 +740,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
       // luminance(+alpha) blended with luminance
       else
         { 
-        for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+        while (tmpPtr != tmpSpanEndPtr)
           {
           tmpPtr[0] = static_cast<double>(*inPtr) * r;
           tmpPtr[1] += r;
@@ -885,12 +748,23 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           inPtr++;
           }
         }
-
-      tmpPtr += tmpIncY;
-      inPtr += inIncY;
       }
-    tmpPtr += tmpIncZ;
-    inPtr += inIncZ;
+    // else !IsInStencil()
+    else
+      {
+      vtkIdType tmpSpanSize = static_cast<vtkIdType>(tmpSpanEndPtr - tmpPtr);
+      vtkIdType inSpanSize = tmpSpanSize/tmpC*inC;
+      inPtr += inSpanSize;
+      }
+
+    // go to the next span
+    tmpIter.NextSpan();
+    if (inPtr == inSpanEndPtr)
+      {
+      inIter.NextSpan();
+      inPtr = inIter.BeginSpan();
+      inSpanEndPtr = inIter.EndSpan();
+      }
     }
 }
 
@@ -901,35 +775,29 @@ template <class T>
 void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
                                           int extent[6], 
                                           vtkImageData *outData, 
-                                          T *outPtr,
+                                          T *,
                                           vtkImageData *tmpData)
 {
-  // Get increments to march through data 
-
-  vtkIdType outIncX, outIncY, outIncZ;
-  int outC;
-
-  outData->GetContinuousIncrements(extent, outIncX, outIncY, outIncZ);
-  outC = outData->GetNumberOfScalarComponents();
-
-  vtkIdType tmpIncX, tmpIncY, tmpIncZ;
-  int tmpC;
-
-  tmpData->GetContinuousIncrements(extent, tmpIncX, tmpIncY, tmpIncZ);
-  tmpC = tmpData->GetNumberOfScalarComponents();
-
-  double* tmpPtr = static_cast<double *>(
-    tmpData->GetScalarPointerForExtent(extent));
+  int outC = outData->GetNumberOfScalarComponents();
+  int tmpC = tmpData->GetNumberOfScalarComponents();
 
   // Loop through output pixels
+  vtkImageStencilData *stencil = self->GetStencil();
+  vtkImageStencilIterator<T> outIter(outData, stencil, extent);
+  vtkImageIterator<double> tmpIter(tmpData, extent);
 
-  for (int idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+  double *tmpPtr = tmpIter.BeginSpan();
+  double *tmpSpanEndPtr = tmpIter.EndSpan();
+  while (!outIter.IsAtEnd())
     {
-    for (int idxY = extent[2]; !self->AbortExecute && idxY<=extent[3]; idxY++)
+    T *outPtr = outIter.BeginSpan();
+    T *outSpanEndPtr = outIter.EndSpan();
+
+    if (outIter.IsInStencil())
       {
       if (tmpC >= 3)
         {
-        for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+        while (outPtr != outSpanEndPtr)
           {
           double factor = 0.0;
           if (tmpPtr[3] != 0)
@@ -945,7 +813,7 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         }
       else 
         {
-        for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
+        while (outPtr != outSpanEndPtr)
           {
           double factor = 0.0;
           if (tmpPtr[1] != 0)
@@ -957,12 +825,23 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
           outPtr += outC;
           }
         }
-
-      tmpPtr += tmpIncY;
-      outPtr += outIncY;
       }
-    tmpPtr += tmpIncZ;
-    outPtr += outIncZ;
+    // else !IsInStencil()
+    else
+      {
+      vtkIdType outSpanSize = static_cast<vtkIdType>(outSpanEndPtr - outPtr);
+      vtkIdType tmpSpanSize = outSpanSize/outC*tmpC;
+      tmpPtr += tmpSpanSize;
+      }
+
+    // go to the next span
+    outIter.NextSpan();
+    if (tmpPtr == tmpSpanEndPtr)
+      {
+      tmpIter.NextSpan();
+      tmpPtr = tmpIter.BeginSpan();
+      tmpSpanEndPtr = tmpIter.EndSpan();
+      }
     }
 }
 
