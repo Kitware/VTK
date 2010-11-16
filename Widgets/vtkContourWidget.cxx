@@ -203,7 +203,7 @@ void vtkContourWidget::SelectAction( vtkAbstractWidget *w )
           }
         self->EventCallbackCommand->SetAbortFlag( 1 );
         }
-      else
+      else if ( !rep->GetNeedToRender() )
         {
         rep->SetRebuildLocator(true);
         }
@@ -593,6 +593,7 @@ void vtkContourWidget::EndSelectAction( vtkAbstractWidget *w )
   // Do nothing if inactive
   if ( rep->GetCurrentOperation() == vtkContourRepresentation::Inactive )
     {
+    rep->SetRebuildLocator(true);
     return;
     }
 
