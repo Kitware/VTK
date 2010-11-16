@@ -319,7 +319,7 @@ void vtkWindowToImageFilter::RequestData(
     }
 
   // Precompute the tile viewport for each iteration.
-  double viewports[4*num_iterations*num_iterations];
+  double *viewports = new[4*num_iterations*num_iterations];
   for (y = 0; y < num_iterations; y++)
     {
     for (x = 0; x < num_iterations; x++)
@@ -525,6 +525,7 @@ void vtkWindowToImageFilter::RequestData(
   delete [] windowCenters;
   delete [] parallelScale;
   delete [] cams;
+  delete [] viewports;
 
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(1);
