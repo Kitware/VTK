@@ -72,7 +72,7 @@ vtkProgrammableSource::~vtkProgrammableSource()
 
 // Specify the function to use to generate the source data. Note
 // that the function takes a single (void *) argument.
-void vtkProgrammableSource::SetExecuteMethod(ProgrammableMethodCallbackType f,
+void vtkProgrammableSource::SetExecuteMethod(void (*f)(void *),
   void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
@@ -90,7 +90,7 @@ void vtkProgrammableSource::SetExecuteMethod(ProgrammableMethodCallbackType f,
 
 // Set the arg delete method. This is used to free user memory.
 void vtkProgrammableSource::SetExecuteMethodArgDelete(
-  ProgrammableMethodCallbackType f)
+  void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
     {
@@ -100,7 +100,7 @@ void vtkProgrammableSource::SetExecuteMethodArgDelete(
 }
 
 void vtkProgrammableSource::SetRequestInformationMethod(
-  ProgrammableMethodCallbackType f)
+  void (*f)(void *))
 {
   if ( f != this->RequestInformationMethod )
     {
