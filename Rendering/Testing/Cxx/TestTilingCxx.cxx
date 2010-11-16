@@ -41,7 +41,7 @@
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-void VTK_CB_CC colorCells(void *arg)
+void colorCells(void *arg)
 {
   VTK_CREATE(vtkMath, randomColorGenerator);
   vtkProgrammableAttributeDataFilter * randomColors = 
