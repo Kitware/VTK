@@ -46,16 +46,20 @@ public:
   // Signature definition for programmable method callbacks. Methods passed to
   // SetExecuteMethod or SetExecuteMethodArgDelete must conform to this
   // signature.
+  // The presence of this typedef is useful for reference and for external
+  // analysis tools, but it cannot be used in the method signatures in these
+  // header files themselves because it prevents the internal VTK wrapper
+  // generators from wrapping these methods.
   typedef void (*ProgrammableMethodCallbackType)(void *arg);
 
   // Description:
   // Specify the function to use to generate the output data object. Note
   // that the function takes a single (void *) argument.
-  void SetExecuteMethod(ProgrammableMethodCallbackType f, void *arg);
+  void SetExecuteMethod(void (*f)(void *), void *arg);
 
   // Description:
   // Set the arg delete method. This is used to free user memory.
-  void SetExecuteMethodArgDelete(ProgrammableMethodCallbackType f);
+  void SetExecuteMethodArgDelete(void (*f)(void *));
 
 protected:
   vtkProgrammableDataObjectSource();

@@ -69,7 +69,7 @@ void vtkProgrammableAttributeDataFilter::RemoveInput(vtkDataSet *ds)
 // Specify the function to use to operate on the point attribute data. Note
 // that the function takes a single (void *) argument.
 void vtkProgrammableAttributeDataFilter::SetExecuteMethod(
-  ProgrammableMethodCallbackType f, void *arg)
+  void (*f)(void *), void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
     {
@@ -86,7 +86,7 @@ void vtkProgrammableAttributeDataFilter::SetExecuteMethod(
 
 // Set the arg delete method. This is used to free user memory.
 void vtkProgrammableAttributeDataFilter::SetExecuteMethodArgDelete(
-  ProgrammableMethodCallbackType f)
+  void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
     {

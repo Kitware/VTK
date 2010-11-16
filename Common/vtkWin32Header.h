@@ -60,16 +60,6 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 
 #endif
 
-// Calling convention to use with function pointer callback typedefs:
-//
-#ifndef VTK_CB_CC
-#ifdef _WIN32
-#define VTK_CB_CC __stdcall
-#else
-#define VTK_CB_CC
-#endif
-#endif
-
 // Never include the windows header here when building VTK itself.
 #if defined(VTK_IN_VTK)
 # undef VTK_INCLUDE_WINDOWS_H
