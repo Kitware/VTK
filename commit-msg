@@ -125,3 +125,8 @@ case "$hooks_GerritId" in
 	'')      gerrit_advice ;;
 	*)       gerrit_error ;;
 esac
+
+#-----------------------------------------------------------------------------
+# Chain to project-specific hook.
+. "$GIT_DIR/hooks/hooks-chain.bash"
+hooks_chain commit-msg "$@"
