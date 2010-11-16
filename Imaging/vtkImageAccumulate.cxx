@@ -338,28 +338,11 @@ int vtkImageAccumulate::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->ComponentExtent,6);
   outInfo->Set(vtkDataObject::ORIGIN(),this->ComponentOrigin,3);
   outInfo->Set(vtkDataObject::SPACING(),this->ComponentSpacing,3);
-
-  // need to set the spacing and origin of the stencil to match the output
-  if (inInfo2)
-    {
-    vtkImageStencilData *stencil = 
-      vtkImageStencilData::SafeDownCast(
-        inInfo2->Get(vtkDataObject::DATA_OBJECT()));
-    // need to call the set methods on the actual data object, not
-    // on the pipeline, since the pipeline cannot back-propagate
-    // this information
-    if (stencil)
-      {
-      stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
-      stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
-      }
-    }
 
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_INT, 1);
   return 1;

@@ -169,26 +169,6 @@ double vtkImageBlend::GetOpacity(int idx)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageBlend::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed( outputVector ))
-{
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  // this is some scary stuff, propagating info upstream??? - Ken
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil)
-    {
-    stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
-    stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
-    }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 // This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the
 // extent of the output region.  After this method finishes, "region" should
