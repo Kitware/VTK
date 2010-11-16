@@ -154,12 +154,6 @@ protected:
   void InternalComputeInputUpdateExtent(int inExt[6], int outExt[6],
                                         int inWExtent[6]);
 
-  
-
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
-
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,

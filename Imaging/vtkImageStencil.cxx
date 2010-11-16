@@ -85,26 +85,6 @@ vtkImageData *vtkImageStencil::GetBackgroundInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageStencil::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
-{
-  // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  // need to set the spacing and origin of the stencil to match the output
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil)
-    {
-    stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
-    stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
-    }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 // Some helper functions for 'ThreadedRequestData'
 //----------------------------------------------------------------------------
 
