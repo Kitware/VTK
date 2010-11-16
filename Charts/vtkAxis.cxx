@@ -846,10 +846,22 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
                                         bool detaillabels)
 {
   // If the values min and max are not within limits we set defaults
-  if (min < 1.0) min = 1.0;
-  if (min > 9.0) min = 1.0;
-  if (max < 1.0) max = 9.0;
-  if (min > 9.0) max = 9.0;
+  if (min < 1.0)
+    {
+    min = 1.0;
+    }
+  if (min > 9.0)
+    {
+    min = 1.0;
+    }
+  if (max < 1.0)
+    {
+    max = 9.0;
+    }
+  if (max > 9.0)
+    {
+    max = 9.0;
+    }
   if (fabs(max-min) < 1.0)
     {
     min = 1.0;
