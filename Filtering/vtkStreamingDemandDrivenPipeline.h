@@ -207,6 +207,12 @@ public:
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
 
   // Description:
+  // This is set if the update extent is not restricted to the
+  // whole extent, for sources that can generate an extent of
+  // any requested size.
+  static vtkInformationIntegerKey* UNRESTRICTED_UPDATE_EXTENT();
+
+  // Description:
   // Key to store the maximum number of pieces provided in pipeline
   // information.
   static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();

@@ -301,15 +301,6 @@ void vtkImageStencilData::AllocateExtents()
   int ySize = (extent[3] - extent[2] + 1);
   int zSize = (extent[5] - extent[4] + 1);
 
-  // Check for the large default WholeExtent set
-  // by vtkPolyDataToImageStencil.  The code in
-  // that class should be fixed, but for now, here
-  // is a band-aid.
-  if (ySize == (VTK_LARGE_INTEGER >> 1) - 4)
-    {
-    return;
-    }
-
   int numEntries = ySize*zSize;
   if (numEntries != this->NumberOfExtentEntries)
     {

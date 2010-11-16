@@ -112,5 +112,8 @@ int vtkImageStencilSource::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UNRESTRICTED_UPDATE_EXTENT(), 1);
+
   return 1;
 }
