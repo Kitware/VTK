@@ -319,7 +319,7 @@ void vtkWindowToImageFilter::RequestData(
     }
 
   // Precompute the tile viewport for each iteration.
-  double *viewports = new[4*num_iterations*num_iterations];
+  double *viewports = new double[4*num_iterations*num_iterations];
   for (y = 0; y < num_iterations; y++)
     {
     for (x = 0; x < num_iterations; x++)
