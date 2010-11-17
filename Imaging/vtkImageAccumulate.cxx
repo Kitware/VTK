@@ -332,12 +332,11 @@ int vtkImageAccumulate::RequestData(
 //----------------------------------------------------------------------------
 int vtkImageAccumulate::RequestInformation (
   vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
+  vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->ComponentExtent,6);
