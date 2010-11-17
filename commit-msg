@@ -41,6 +41,10 @@ msg_is_merge() {
 	echo "$line" | grep "^Merge " >/dev/null 2>&1
 }
 
+msg_is_revert() {
+	echo "$line" | grep "^Revert " >/dev/null 2>&1
+}
+
 msg_first() {
 	len=$(echo -n "$line" | wc -c)
 	if test $len -eq 0; then
@@ -51,7 +55,7 @@ msg_first() {
 --------
 '"$line"'
 --------'
-	elif test $len -gt 78 && ! msg_is_merge; then
+	elif test $len -gt 78 && ! msg_is_merge && ! msg_is_revert; then
 		die 'The first line may be at most 78 characters:
 ------------------------------------------------------------------------------
 '"$line"'
