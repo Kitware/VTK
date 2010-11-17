@@ -35,18 +35,6 @@ vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
   this->Threshold = 0;
 
   this->Input = NULL;
-
-  // The default output extent is essentially infinite, which allows
-  // this filter to produce any requested size.  This would not be a
-  // great source to connect to some sort of writer or viewer, it
-  // should only be connected to multiple-input filters that take
-  // compute their output extent from one of the other inputs.
-  this->OutputWholeExtent[0] = 0;
-  this->OutputWholeExtent[1] = VTK_LARGE_INTEGER >> 2;
-  this->OutputWholeExtent[2] = 0;
-  this->OutputWholeExtent[3] = VTK_LARGE_INTEGER >> 2;
-  this->OutputWholeExtent[4] = 0;
-  this->OutputWholeExtent[5] = VTK_LARGE_INTEGER >> 2;
 }
 
 //----------------------------------------------------------------------------
