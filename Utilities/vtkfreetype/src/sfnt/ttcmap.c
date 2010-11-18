@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType character mapping table (cmap) support (body).              */
 /*                                                                         */
-/*  Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by            */
+/*  Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 by      */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -158,7 +158,7 @@
     FT_Byte*  p = cmap->data + 4;
 
 
-    cmap_info->format = 0;
+    cmap_info->format   = 0;
     cmap_info->language = (FT_ULong)TT_PEEK_USHORT( p );
 
     return SFNT_Err_Ok;
@@ -534,7 +534,7 @@
     FT_Byte*  p = cmap->data + 4;
 
 
-    cmap_info->format = 2;
+    cmap_info->format   = 2;
     cmap_info->language = (FT_ULong)TT_PEEK_USHORT( p );
 
     return SFNT_Err_Ok;
@@ -883,9 +883,9 @@
     }
 
     {
-      FT_UInt  start, end, offset, n;
-      FT_UInt  last_start = 0, last_end = 0;
-      FT_Int   delta;
+      FT_UInt   start, end, offset, n;
+      FT_UInt   last_start = 0, last_end = 0;
+      FT_Int    delta;
       FT_Byte*  p_start   = starts;
       FT_Byte*  p_end     = ends;
       FT_Byte*  p_delta   = deltas;
@@ -903,10 +903,10 @@
         if ( start > end )
           FT_INVALID_DATA;
 
-        /* this test should be performed at default validation level;  */
+        /* this test should be performed at default validation level; */
         /* unfortunately, some popular Asian fonts have overlapping   */
-        /* ranges in their charmaps                                    */
-        /*                                                             */
+        /* ranges in their charmaps                                   */
+        /*                                                            */
         if ( start <= last_end && n > 0 )
         {
           if ( valid->level >= FT_VALIDATE_TIGHT )
@@ -976,8 +976,8 @@
           /* some fonts (erroneously?) use a range offset of 0xFFFF */
           /* to mean missing glyph in cmap table                    */
           /*                                                        */
-          if ( valid->level >= FT_VALIDATE_PARANOID                     ||
-               n != num_segs - 1                                        ||
+          if ( valid->level >= FT_VALIDATE_PARANOID    ||
+               n != num_segs - 1                       ||
                !( start == 0xFFFFU && end == 0xFFFFU ) )
             FT_INVALID_DATA;
         }
@@ -992,9 +992,9 @@
 
 
   static FT_UInt
-  tt_cmap4_char_map_linear( TT_CMap   cmap,
+  tt_cmap4_char_map_linear( TT_CMap     cmap,
                             FT_UInt32*  pcharcode,
-                            FT_Bool   next )
+                            FT_Bool     next )
   {
     FT_UInt    num_segs2, start, end, offset;
     FT_Int     delta;
@@ -1081,9 +1081,9 @@
 
 
   static FT_UInt
-  tt_cmap4_char_map_binary( TT_CMap   cmap,
+  tt_cmap4_char_map_binary( TT_CMap     cmap,
                             FT_UInt32*  pcharcode,
-                            FT_Bool   next )
+                            FT_Bool     next )
   {
     FT_UInt   num_segs2, start, end, offset;
     FT_Int    delta;
@@ -1370,7 +1370,7 @@
     FT_Byte*  p = cmap->data + 4;
 
 
-    cmap_info->format = 4;
+    cmap_info->format   = 4;
     cmap_info->language = (FT_ULong)TT_PEEK_USHORT( p );
 
     return SFNT_Err_Ok;
@@ -1529,7 +1529,7 @@
     FT_Byte*  p = cmap->data + 4;
 
 
-    cmap_info->format = 6;
+    cmap_info->format   = 6;
     cmap_info->language = (FT_ULong)TT_PEEK_USHORT( p );
 
     return SFNT_Err_Ok;
@@ -1782,7 +1782,7 @@
     FT_Byte*  p = cmap->data + 8;
 
 
-    cmap_info->format = 8;
+    cmap_info->format   = 8;
     cmap_info->language = (FT_ULong)TT_PEEK_ULONG( p );
 
     return SFNT_Err_Ok;
@@ -1931,7 +1931,7 @@
     FT_Byte*  p = cmap->data + 8;
 
 
-    cmap_info->format = 10;
+    cmap_info->format   = 10;
     cmap_info->language = (FT_ULong)TT_PEEK_ULONG( p );
 
     return SFNT_Err_Ok;
@@ -2251,7 +2251,7 @@
     FT_Byte*  p = cmap->data + 8;
 
 
-    cmap_info->format = 12;
+    cmap_info->format   = 12;
     cmap_info->language = (FT_ULong)TT_PEEK_ULONG( p );
 
     return SFNT_Err_Ok;
@@ -2574,10 +2574,7 @@
   }
 
 
-  FT_CALLBACK_TABLE_DEF
-  const TT_CMap_ClassRec  tt_cmap13_class_rec =
-  {
-    {
+  FT_DEFINE_TT_CMAP(tt_cmap13_class_rec,
       sizeof ( TT_CMap13Rec ),
 
       (FT_CMap_InitFunc)     tt_cmap13_init,
@@ -2586,11 +2583,11 @@
       (FT_CMap_CharNextFunc) tt_cmap13_char_next,
 
       NULL, NULL, NULL, NULL, NULL
-    },
+    ,
     13,
     (TT_CMap_ValidateFunc)   tt_cmap13_validate,
     (TT_CMap_Info_GetFunc)   tt_cmap13_get_info
-  };
+  )
 
 #endif /* TT_CONFIG_CMAP_FORMAT_13 */
 
@@ -2692,7 +2689,7 @@
                     FT_Memory  memory )
   {
     FT_UInt32 old_max = cmap->max_results;
-    FT_Error  error   = 0;
+    FT_Error  error   = SFNT_Err_Ok;
 
 
     if ( num_results > cmap->max_results )
@@ -2790,7 +2787,8 @@
         }
 
         /* and the non-default table (these glyphs are specified here) */
-        if ( nondefOff != 0 ) {
+        if ( nondefOff != 0 )
+        {
           FT_Byte*  ndp         = table + nondefOff;
           FT_ULong  numMappings = TT_NEXT_ULONG( ndp );
           FT_ULong  i, lastUni = 0;
@@ -2855,7 +2853,7 @@
   {
     FT_UNUSED( cmap );
 
-    cmap_info->format = 14;
+    cmap_info->format   = 14;
     /* subtable 14 does not define a language field */
     cmap_info->language = 0xFFFFFFFFUL;
 
@@ -2964,8 +2962,8 @@
 
 
   FT_CALLBACK_DEF( FT_UInt )
-  tt_cmap14_char_var_index( TT_CMap   cmap,
-                            TT_CMap   ucmap,
+  tt_cmap14_char_var_index( TT_CMap    cmap,
+                            TT_CMap    ucmap,
                             FT_UInt32  charcode,
                             FT_UInt32  variantSelector)
   {
@@ -2997,7 +2995,7 @@
 
 
   FT_CALLBACK_DEF( FT_Int )
-  tt_cmap14_char_var_isdefault( TT_CMap   cmap,
+  tt_cmap14_char_var_isdefault( TT_CMap    cmap,
                                 FT_UInt32  charcode,
                                 FT_UInt32  variantSelector )
   {
@@ -3378,7 +3376,7 @@
     clazz[i] = NULL;
 
     *output_class = clazz;
-    return FT_Err_Ok;
+    return SFNT_Err_Ok;
   }
 
 #endif /*FT_CONFIG_OPTION_PIC*/
@@ -3394,11 +3392,12 @@
     FT_Byte*           limit = table + face->cmap_size;
     FT_UInt volatile   num_cmaps;
     FT_Byte* volatile  p     = table;
-    FT_Library         library = FT_FACE_LIBRARY(face);
-    FT_UNUSED(library);
+    FT_Library         library = FT_FACE_LIBRARY( face );
+
+    FT_UNUSED( library );
 
 
-    if ( p + 4 > limit )
+    if ( !p || p + 4 > limit )
       return SFNT_Err_Invalid_Table;
 
     /* only recognize format 0 */
@@ -3412,6 +3411,12 @@
     }
 
     num_cmaps = TT_NEXT_USHORT( p );
+#ifdef FT_MAX_CHARMAP_CACHEABLE
+    if ( num_cmaps > FT_MAX_CHARMAP_CACHEABLE )
+      FT_ERROR(( "tt_face_build_cmaps: too many cmap subtables(%d) "
+                 "subtable#%d and later are loaded but cannot be searched\n",
+                 num_cmaps, FT_MAX_CHARMAP_CACHEABLE + 1 ));
+#endif
 
     for ( ; num_cmaps > 0 && p + 8 <= limit; num_cmaps-- )
     {

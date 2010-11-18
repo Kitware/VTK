@@ -176,8 +176,8 @@ FT_BEGIN_HEADER
    *
    */
   typedef void
-  (*T1_Hints_SetStemFunc)( T1_Hints  hints,
-                           FT_UInt   dimension,
+  (*T1_Hints_SetStemFunc)( T1_Hints   hints,
+                           FT_UInt    dimension,
                            FT_Fixed*  coords );
 
 
@@ -210,8 +210,8 @@ FT_BEGIN_HEADER
    *
    */
   typedef void
-  (*T1_Hints_SetStem3Func)( T1_Hints  hints,
-                            FT_UInt   dimension,
+  (*T1_Hints_SetStem3Func)( T1_Hints   hints,
+                            FT_UInt    dimension,
                             FT_Fixed*  coords );
 
 

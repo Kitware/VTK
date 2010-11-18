@@ -203,65 +203,65 @@
     type1  = &face->type1;
 
 #ifndef T1_CONFIG_OPTION_NO_MM_SUPPORT
-      /* release multiple masters information */
-      FT_ASSERT( ( face->len_buildchar == 0 ) == ( face->buildchar == NULL ) );
+    /* release multiple masters information */
+    FT_ASSERT( ( face->len_buildchar == 0 ) == ( face->buildchar == NULL ) );
 
-      if ( face->buildchar )
-      {
-        FT_FREE( face->buildchar );
+    if ( face->buildchar )
+    {
+      FT_FREE( face->buildchar );
 
-        face->buildchar     = NULL;
-        face->len_buildchar = 0;
-      }
+      face->buildchar     = NULL;
+      face->len_buildchar = 0;
+    }
 
-      T1_Done_Blend( face );
-      face->blend = 0;
+    T1_Done_Blend( face );
+    face->blend = 0;
 #endif
 
-      /* release font info strings */
-      {
-        PS_FontInfo  info = &type1->font_info;
+    /* release font info strings */
+    {
+      PS_FontInfo  info = &type1->font_info;
 
 
-        FT_FREE( info->version );
-        FT_FREE( info->notice );
-        FT_FREE( info->full_name );
-        FT_FREE( info->family_name );
-        FT_FREE( info->weight );
-      }
+      FT_FREE( info->version );
+      FT_FREE( info->notice );
+      FT_FREE( info->full_name );
+      FT_FREE( info->family_name );
+      FT_FREE( info->weight );
+    }
 
-      /* release top dictionary */
-      FT_FREE( type1->charstrings_len );
-      FT_FREE( type1->charstrings );
-      FT_FREE( type1->glyph_names );
+    /* release top dictionary */
+    FT_FREE( type1->charstrings_len );
+    FT_FREE( type1->charstrings );
+    FT_FREE( type1->glyph_names );
 
-      FT_FREE( type1->subrs );
-      FT_FREE( type1->subrs_len );
+    FT_FREE( type1->subrs );
+    FT_FREE( type1->subrs_len );
 
-      FT_FREE( type1->subrs_block );
-      FT_FREE( type1->charstrings_block );
-      FT_FREE( type1->glyph_names_block );
+    FT_FREE( type1->subrs_block );
+    FT_FREE( type1->charstrings_block );
+    FT_FREE( type1->glyph_names_block );
 
-      FT_FREE( type1->encoding.char_index );
-      FT_FREE( type1->encoding.char_name );
-      FT_FREE( type1->font_name );
+    FT_FREE( type1->encoding.char_index );
+    FT_FREE( type1->encoding.char_name );
+    FT_FREE( type1->font_name );
 
 #ifndef T1_CONFIG_OPTION_NO_AFM
-      /* release afm data if present */
-      if ( face->afm_data )
-        T1_Done_Metrics( memory, (AFM_FontInfo)face->afm_data );
+    /* release afm data if present */
+    if ( face->afm_data )
+      T1_Done_Metrics( memory, (AFM_FontInfo)face->afm_data );
 #endif
 
-      /* release unicode map, if any */
+    /* release unicode map, if any */
 #if 0
-      FT_FREE( face->unicode_map_rec.maps );
-      face->unicode_map_rec.num_maps = 0;
-      face->unicode_map              = NULL;
+    FT_FREE( face->unicode_map_rec.maps );
+    face->unicode_map_rec.num_maps = 0;
+    face->unicode_map              = NULL;
 #endif
 
-      face->root.family_name = NULL;
-      face->root.style_name  = NULL;
-    }
+    face->root.family_name = NULL;
+    face->root.style_name  = NULL;
+  }
 
 
   /*************************************************************************/
@@ -441,10 +441,11 @@
       root->num_fixed_sizes = 0;
       root->available_sizes = 0;
 
-      root->bbox.xMin =   type1->font_bbox.xMin             >> 16;
-      root->bbox.yMin =   type1->font_bbox.yMin             >> 16;
-      root->bbox.xMax = ( type1->font_bbox.xMax + 0xFFFFU ) >> 16;
-      root->bbox.yMax = ( type1->font_bbox.yMax + 0xFFFFU ) >> 16;
+      root->bbox.xMin =   type1->font_bbox.xMin            >> 16;
+      root->bbox.yMin =   type1->font_bbox.yMin            >> 16;
+      /* no `U' suffix here to 0xFFFF! */
+      root->bbox.xMax = ( type1->font_bbox.xMax + 0xFFFF ) >> 16;
+      root->bbox.yMax = ( type1->font_bbox.yMax + 0xFFFF ) >> 16;
 
       /* Set units_per_EM if we didn't set it in parse_font_matrix. */
       if ( !root->units_per_EM )
@@ -493,14 +494,17 @@
         charmap.face = root;
 
         /* first of all, try to synthesize a Unicode charmap */
-        charmap.platform_id = 3;
-        charmap.encoding_id = 1;
+        charmap.platform_id = TT_PLATFORM_MICROSOFT;
+        charmap.encoding_id = TT_MS_ID_UNICODE_CS;
         charmap.encoding    = FT_ENCODING_UNICODE;
 
-        FT_CMap_New( cmap_classes->unicode, NULL, &charmap, NULL );
+        error = FT_CMap_New( cmap_classes->unicode, NULL, &charmap, NULL );
+        if ( error && FT_Err_No_Unicode_Glyph_Name != error )
+          goto Exit;
+        error = FT_Err_Ok;
 
         /* now, generate an Adobe Standard encoding when appropriate */
-        charmap.platform_id = 7;
+        charmap.platform_id = TT_PLATFORM_ADOBE;
         clazz               = NULL;
 
         switch ( type1->encoding_type )
@@ -534,7 +538,7 @@
         }
 
         if ( clazz )
-          FT_CMap_New( clazz, NULL, &charmap, NULL );
+          error = FT_CMap_New( clazz, NULL, &charmap, NULL );
 
 #if 0
         /* Select default charmap */

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType Cache Manager (body).                                       */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009 by       */
+/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010 by */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -182,7 +182,7 @@
                           FTC_Scaler   scaler,
                           FT_Size     *asize )
   {
-    FT_Error      error;
+    FT_Error     error;
     FTC_MruNode  mrunode;
 
 
@@ -309,7 +309,7 @@
                           FTC_FaceID   face_id,
                           FT_Face     *aface )
   {
-    FT_Error      error;
+    FT_Error     error;
     FTC_MruNode  mrunode;
 
 
@@ -485,7 +485,7 @@
 
         if ( (FT_UInt)node->cache_index >= manager->num_caches )
           FT_TRACE0(( "FTC_Manager_Check: invalid node (cache index = %ld\n",
-                     node->cache_index ));
+                      node->cache_index ));
         else
           weight += cache->clazz.node_weight( node, cache );
 
@@ -495,7 +495,7 @@
 
       if ( weight != manager->cur_weight )
         FT_TRACE0(( "FTC_Manager_Check: invalid weight %ld instead of %ld\n",
-                   manager->cur_weight, weight ));
+                    manager->cur_weight, weight ));
     }
 
     /* check circular list */
@@ -515,7 +515,7 @@
       if ( count != manager->num_nodes )
         FT_TRACE0(( "FTC_Manager_Check:"
                     " invalid cache node count %d instead of %d\n",
-          manager->num_nodes, count ));
+                    manager->num_nodes, count ));
     }
   }
 
@@ -543,8 +543,8 @@
     FTC_Manager_Check( manager );
 
     FT_TRACE0(( "compressing, weight = %ld, max = %ld, nodes = %d\n",
-               manager->cur_weight, manager->max_weight,
-               manager->num_nodes ));
+                manager->cur_weight, manager->max_weight,
+                manager->num_nodes ));
 #endif
 
     if ( manager->cur_weight < manager->max_weight || first == NULL )
@@ -617,7 +617,7 @@
 
   Exit:
     if ( acache )
-    *acache = cache;
+      *acache = cache;
     return error;
   }
 
@@ -670,7 +670,7 @@
      * the face_id as well
      */
     FTC_MruList_RemoveSelection( &manager->faces,
-                                 (FTC_MruNode_CompareFunc)NULL,
+                                 ftc_face_node_compare,
                                  face_id );
 
     for ( nn = 0; nn < manager->num_caches; nn++ )

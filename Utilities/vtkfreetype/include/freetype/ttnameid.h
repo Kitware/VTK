@@ -64,7 +64,7 @@ FT_BEGIN_HEADER
    *     MacOS systems (even if they contain a Microsoft charmap as well).
    *
    *   TT_PLATFORM_ISO ::
-   *     This value was used to specify Unicode charmaps.  It is however
+   *     This value was used to specify ISO/IEC 10646 charmaps.  It is however
    *     now deprecated.  See @TT_ISO_ID_XXX for a list of corresponding
    *     `encoding_id' values.
    *
@@ -855,7 +855,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_LATIN_EXTENDED_A                (1L <<  2) /* U+0100-U+017F */
   /* Bit  3   Latin Extended-B */
 #define TT_UCR_LATIN_EXTENDED_B                (1L <<  3) /* U+0180-U+024F */
-  /* Bit  4   IPA Extensions */
+  /* Bit  4   IPA Extensions                 */
   /*          Phonetic Extensions            */
   /*          Phonetic Extensions Supplement */
 #define TT_UCR_IPA_EXTENSIONS                  (1L <<  4) /* U+0250-U+02AF */
@@ -865,7 +865,7 @@ FT_BEGIN_HEADER
   /*          Modifier Tone Letters    */
 #define TT_UCR_SPACING_MODIFIER                (1L <<  5) /* U+02B0-U+02FF */
                                                           /* U+A700-U+A71F */
-  /* Bit  6   Combining Diacritical Marks */
+  /* Bit  6   Combining Diacritical Marks            */
   /*          Combining Diacritical Marks Supplement */
 #define TT_UCR_COMBINING_DIACRITICS            (1L <<  6) /* U+0300-U+036F */
                                                           /* U+1DC0-U+1DFF */
@@ -887,7 +887,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_HEBREW                          (1L << 11) /* U+0590-U+05FF */
   /* Bit 12   Vai */
 #define TT_UCR_VAI                             (1L << 12) /* U+A500-U+A63F */
-  /* Bit 13   Arabic */
+  /* Bit 13   Arabic            */
   /*          Arabic Supplement */
 #define TT_UCR_ARABIC                          (1L << 13) /* U+0600-U+06FF */
                                                           /* U+0750-U+077F */
@@ -915,7 +915,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_THAI                            (1L << 24) /* U+0E00-U+0E7F */
   /* Bit 25   Lao */
 #define TT_UCR_LAO                             (1L << 25) /* U+0E80-U+0EFF */
-  /* Bit 26   Georgian */
+  /* Bit 26   Georgian            */
   /*          Georgian Supplement */
 #define TT_UCR_GEORGIAN                        (1L << 26) /* U+10A0-U+10FF */
                                                           /* U+2D00-U+2D2F */
@@ -931,7 +931,7 @@ FT_BEGIN_HEADER
                                                           /* U+A720-U+A7FF */
   /* Bit 30   Greek Extended */
 #define TT_UCR_GREEK_EXTENDED                  (1L << 30) /* U+1F00-U+1FFF */
-  /* Bit 31   General Punctuation */
+  /* Bit 31   General Punctuation      */
   /*          Supplemental Punctuation */
 #define TT_UCR_GENERAL_PUNCTUATION             (1L << 31) /* U+2000-U+206F */
                                                           /* U+2E00-U+2E7F */
@@ -947,7 +947,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_NUMBER_FORMS                    (1L <<  4) /* U+2150-U+218F */
   /* Bit 37   Arrows                           */
   /*          Supplemental Arrows-A            */
-  /*          Supplemental Arrows-B   */
+  /*          Supplemental Arrows-B            */
   /*          Miscellaneous Symbols and Arrows */
 #define TT_UCR_ARROWS                          (1L <<  5) /* U+2190-U+21FF */
                                                           /* U+27F0-U+27FF */
@@ -956,7 +956,7 @@ FT_BEGIN_HEADER
   /* Bit 38   Mathematical Operators               */
   /*          Supplemental Mathematical Operators  */
   /*          Miscellaneous Mathematical Symbols-A */
-  /*          Miscellaneous Mathematical Symbols-B   */
+  /*          Miscellaneous Mathematical Symbols-B */
 #define TT_UCR_MATHEMATICAL_OPERATORS          (1L <<  6) /* U+2200-U+22FF */
                                                           /* U+2A00-U+2AFF */
                                                           /* U+27C0-U+27EF */
@@ -984,11 +984,11 @@ FT_BEGIN_HEADER
   /* Bit 49   Hiragana */
 #define TT_UCR_HIRAGANA                        (1L << 17) /* U+3040-U+309F */
   /* Bit 50   Katakana                     */
-  /*          Katakana Phonetic Extensions   */
+  /*          Katakana Phonetic Extensions */
 #define TT_UCR_KATAKANA                        (1L << 18) /* U+30A0-U+30FF */
                                                           /* U+31F0-U+31FF */
   /* Bit 51   Bopomofo          */
-  /*          Bopomofo Extended   */
+  /*          Bopomofo Extended */
 #define TT_UCR_BOPOMOFO                        (1L << 19) /* U+3100-U+312F */
                                                           /* U+31A0-U+31BF */
   /* Bit 52   Hangul Compatibility Jamo */
@@ -1005,7 +1005,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_HANGUL                          (1L << 24) /* U+AC00-U+D7A3 */
   /* Bit 57   High Surrogates              */
   /*          High Private Use Surrogates  */
-  /*          Low Surrogates                */
+  /*          Low Surrogates               */
   /*                                       */
   /* According to OpenType specs v.1.3+,   */
   /* setting bit 57 implies that there is  */
@@ -1023,9 +1023,9 @@ FT_BEGIN_HEADER
   /*          CJK Radicals Supplement            */
   /*          Kangxi Radicals                    */
   /*          Ideographic Description Characters */
-  /*          CJK Unified Ideographs Extension A   */
+  /*          CJK Unified Ideographs Extension A */
   /*          CJK Unified Ideographs Extension B */
-  /*          Kanbun                               */
+  /*          Kanbun                             */
 #define TT_UCR_CJK_UNIFIED_IDEOGRAPHS          (1L << 27) /* U+4E00-U+9FFF */
                                                           /* U+2E80-U+2EFF */
                                                           /* U+2F00-U+2FDF */
@@ -1037,7 +1037,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_PRIVATE_USE                     (1L << 28) /* U+E000-U+F8FF */
   /* Bit 61   CJK Strokes                             */
   /*          CJK Compatibility Ideographs            */
-  /*          CJK Compatibility Ideographs Supplement   */
+  /*          CJK Compatibility Ideographs Supplement */
 #define TT_UCR_CJK_COMPATIBILITY_IDEOGRAPHS    (1L << 29) /* U+31C0-U+31EF */
                                                           /* U+F900-U+FAFF */
                                                           /*U+2F800-U+2FA1F*/
@@ -1069,7 +1069,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_SINHALA                         (1L <<  9) /* U+0D80-U+0DFF */
   /* Bit 74   Myanmar */
 #define TT_UCR_MYANMAR                         (1L << 10) /* U+1000-U+109F */
-  /* Bit 75   Ethiopic */
+  /* Bit 75   Ethiopic            */
   /*          Ethiopic Supplement */
   /*          Ethiopic Extended   */
 #define TT_UCR_ETHIOPIC                        (1L << 11) /* U+1200-U+137F */
@@ -1083,7 +1083,7 @@ FT_BEGIN_HEADER
 #define TT_UCR_OGHAM                           (1L << 14) /* U+1680-U+169F */
   /* Bit 79   Runic */
 #define TT_UCR_RUNIC                           (1L << 15) /* U+16A0-U+16FF */
-  /* Bit 80   Khmer */
+  /* Bit 80   Khmer         */
   /*          Khmer Symbols */
 #define TT_UCR_KHMER                           (1L << 16) /* U+1780-U+17FF */
                                                           /* U+19E0-U+19FF */
@@ -1092,13 +1092,13 @@ FT_BEGIN_HEADER
   /* Bit 82   Braille Patterns */
 #define TT_UCR_BRAILLE                         (1L << 18) /* U+2800-U+28FF */
   /* Bit 83   Yi Syllables */
-  /*          Yi Radicals    */
+  /*          Yi Radicals  */
 #define TT_UCR_YI                              (1L << 19) /* U+A000-U+A48F */
                                                           /* U+A490-U+A4CF */
   /* Bit 84   Tagalog  */
   /*          Hanunoo  */
   /*          Buhid    */
-  /*          Tagbanwa   */
+  /*          Tagbanwa */
 #define TT_UCR_PHILIPPINE                      (1L << 20) /* U+1700-U+171F */
                                                           /* U+1720-U+173F */
                                                           /* U+1740-U+175F */
@@ -1110,7 +1110,7 @@ FT_BEGIN_HEADER
   /* Bit 87   Deseret */
 #define TT_UCR_DESERET                         (1L << 23) /*U+10400-U+1044F*/
   /* Bit 88   Byzantine Musical Symbols      */
-  /*          Musical Symbols             */
+  /*          Musical Symbols                */
   /*          Ancient Greek Musical Notation */
 #define TT_UCR_MUSICAL_SYMBOLS                 (1L << 24) /*U+1D000-U+1D0FF*/
                                                           /*U+1D100-U+1D1FF*/
@@ -1118,10 +1118,10 @@ FT_BEGIN_HEADER
   /* Bit 89   Mathematical Alphanumeric Symbols */
 #define TT_UCR_MATH_ALPHANUMERIC_SYMBOLS       (1L << 25) /*U+1D400-U+1D7FF*/
   /* Bit 90   Private Use (plane 15) */
-  /*          Private Use (plane 16)   */
+  /*          Private Use (plane 16) */
 #define TT_UCR_PRIVATE_USE_SUPPLEMENTARY       (1L << 26) /*U+F0000-U+FFFFD*/
                                                         /*U+100000-U+10FFFD*/
-  /* Bit 91   Variation Selectors */
+  /* Bit 91   Variation Selectors            */
   /*          Variation Selectors Supplement */
 #define TT_UCR_VARIATION_SELECTORS             (1L << 27) /* U+FE00-U+FE0F */
                                                           /*U+E0100-U+E01EF*/

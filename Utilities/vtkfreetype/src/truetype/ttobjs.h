@@ -200,7 +200,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* (This text will probably go into some docs at some time; for now, it  */
   /* is kept here to explain some definitions in the TT_Size_Metrics       */
-  /*  record).                                                             */
+  /* record).                                                              */
   /*                                                                       */
   /* The CVT is a one-dimensional array containing values that control     */
   /* certain important characteristics in a font, like the height of all   */

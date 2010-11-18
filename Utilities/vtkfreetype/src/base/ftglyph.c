@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType convenience functions to handle glyphs (body).              */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2007, 2008 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -282,7 +282,7 @@
    {
      FT_Memory  memory = library->memory;
      FT_Error   error;
-     FT_Glyph   glyph;
+     FT_Glyph   glyph  = NULL;
 
 
      *aglyph = 0;
@@ -372,7 +372,7 @@
     if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
       clazz = FT_BITMAP_GLYPH_CLASS_GET;
 
-    /* it it is an outline too */
+    /* if it is an outline */
     else if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
       clazz = FT_OUTLINE_GLYPH_CLASS_GET;
 
@@ -514,6 +514,10 @@
     FT_BitmapGlyph            bitmap = NULL;
 
     const FT_Glyph_Class*     clazz;
+
+#ifdef FT_CONFIG_OPTION_PIC
+    FT_Library                library = FT_GLYPH( glyph )->library;
+#endif
 
 
     /* check argument */

@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include FT_LZW_H
 #include FT_ERRORS_H
 #include FT_BDF_H
+#include FT_TRUETYPE_IDS_H
 
 #include "pcf.h"
 #include "pcfdrivr.h"
@@ -203,7 +204,7 @@ THE SOFTWARE.
   FT_CALLBACK_DEF( void )
   PCF_Face_Done( FT_Face  pcfface )         /* PCF_Face */
   {
-    PCF_Face   face   = (PCF_Face)pcfface;
+    PCF_Face   face = (PCF_Face)pcfface;
     FT_Memory  memory;
 
 
@@ -227,7 +228,8 @@ THE SOFTWARE.
         {
           prop = &face->properties[i];
 
-          if ( prop ) {
+          if ( prop )
+          {
             FT_FREE( prop->name );
             if ( prop->isString )
               FT_FREE( prop->value.atom );
@@ -280,15 +282,15 @@ THE SOFTWARE.
 
 #ifdef FT_CONFIG_OPTION_USE_ZLIB
       {
-      FT_Error  error2;
+        FT_Error  error2;
 
 
-      /* this didn't work, try gzip support! */
-      error2 = FT_Stream_OpenGzip( &face->gzip_stream, stream );
-      if ( FT_ERROR_BASE( error2 ) == FT_Err_Unimplemented_Feature )
-        goto Fail;
+        /* this didn't work, try gzip support! */
+        error2 = FT_Stream_OpenGzip( &face->gzip_stream, stream );
+        if ( FT_ERROR_BASE( error2 ) == FT_Err_Unimplemented_Feature )
+          goto Fail;
 
-      error = error2;
+        error = error2;
       }
 #endif /* FT_CONFIG_OPTION_USE_ZLIB */
 
@@ -307,21 +309,21 @@ THE SOFTWARE.
       }
 #endif /* FT_CONFIG_OPTION_USE_LZW */
 
-        if ( error )
-          goto Fail;
+      if ( error )
+        goto Fail;
 
-        face->gzip_source = stream;
-        pcfface->stream   = &face->gzip_stream;
+      face->gzip_source = stream;
+      pcfface->stream   = &face->gzip_stream;
 
-        stream = pcfface->stream;
+      stream = pcfface->stream;
 
-        error = pcf_load_font( stream, face );
-        if ( error )
-          goto Fail;
+      error = pcf_load_font( stream, face );
+      if ( error )
+        goto Fail;
 
 #else /* !(FT_CONFIG_OPTION_USE_ZLIB || FT_CONFIG_OPTION_USE_LZW) */
 
-          goto Fail;
+      goto Fail;
 
 #endif
     }
@@ -358,14 +360,15 @@ THE SOFTWARE.
 
         charmap.face        = FT_FACE( face );
         charmap.encoding    = FT_ENCODING_NONE;
-        charmap.platform_id = 0;
-        charmap.encoding_id = 0;
+        /* initial platform/encoding should indicate unset status? */
+        charmap.platform_id = TT_PLATFORM_APPLE_UNICODE;
+        charmap.encoding_id = TT_APPLE_ID_DEFAULT;
 
         if ( unicode_charmap )
         {
           charmap.encoding    = FT_ENCODING_UNICODE;
-          charmap.platform_id = 3;
-          charmap.encoding_id = 1;
+          charmap.platform_id = TT_PLATFORM_MICROSOFT;
+          charmap.encoding_id = TT_MS_ID_UNICODE_CS;
         }
 
         error = FT_CMap_New( &pcf_cmap_class, NULL, &charmap, NULL );
