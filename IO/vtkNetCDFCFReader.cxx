@@ -639,8 +639,8 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadUnstructuredBoundsVariable
     CALL_NETCDF_GW(nc_inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
     }
 
-  int numVertPerCell = dimSizes[1];
-  vtkIdType numCells = dimSizes[0];
+  int numVertPerCell = static_cast<int>(dimSizes[1]);
+  vtkIdType numCells = static_cast<vtkIdType>(dimSizes[0]);
 
   coords->SetNumberOfComponents(numVertPerCell);
   coords->SetNumberOfTuples(numCells);
