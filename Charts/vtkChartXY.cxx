@@ -125,7 +125,7 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate->axes[vtkAxis::RIGHT]->SetPosition(vtkAxis::RIGHT);
   this->ChartPrivate->axes[vtkAxis::TOP]->SetPosition(vtkAxis::TOP);
 
-  // Set up the x and y axes - should be congigured based on data
+  // Set up the x and y axes - should be configured based on data
   this->ChartPrivate->axes[vtkAxis::LEFT]->SetTitle("Y Axis");
   this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetTitle("X Axis");
 
@@ -689,7 +689,7 @@ void vtkChartXY::RecalculatePlotBounds()
 bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
 {
   // The main use of this method is currently to query the visible axes for
-  // their bounds, and to udpate the chart in response to that.
+  // their bounds, and to update the chart in response to that.
   bool changed = false;
   for (int i = 0; i < 4; ++i)
     {
