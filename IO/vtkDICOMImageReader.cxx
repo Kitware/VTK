@@ -19,6 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkErrorCode.h"
 
 #include <vtkstd/vector>
 #include <vtkstd/string>
@@ -253,6 +254,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
   if (!this->FileName && this->DICOMFileNames->size() == 0)
     {
     vtkErrorMacro( << "Either a filename was not specified or the specified directory does not contain any DICOM images.");
+    this->SetErrorCode( vtkErrorCode::NoFileNameError );
     return;
     }
 
@@ -276,6 +278,12 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     unsigned long imageDataLength;
 
     this->AppHelper->GetImageData(imgData, dataType, imageDataLength);
+    if( !imageDataLength )
+      {
+      vtkErrorMacro( << "There was a problem retrieving data from: " << this->FileName );
+      this->SetErrorCode( vtkErrorCode::FileFormatError );
+      return;
+      }
 
     void* buffer = data->GetScalarPointer();
     if (buffer == NULL)
@@ -323,8 +331,9 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
          fiter++)
       {
       count++;
-      vtkDebugMacro( << "File : " << (*fiter).c_str());
-      this->Parser->OpenFile((const char*)(*fiter).c_str());
+      const char *file = fiter->c_str();
+      vtkDebugMacro( << "File : " << file );
+      this->Parser->OpenFile( file );
       this->Parser->ReadHeader();
 
       void* imgData = NULL;
@@ -332,6 +341,12 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       unsigned long imageDataLengthInBytes;
 
       this->AppHelper->GetImageData(imgData, dataType, imageDataLengthInBytes);
+      if( !imageDataLengthInBytes )
+        {
+        vtkErrorMacro( << "There was a problem retrieving data from: " << file );
+        this->SetErrorCode( vtkErrorCode::FileFormatError );
+        return;
+        }
 
       // DICOM stores the upper left pixel as the first pixel in an
       // image. VTK stores the lower left pixel as the first pixel in
