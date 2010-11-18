@@ -345,8 +345,8 @@ void vtkWindowToImageFilter::RequestData(
           }
         if (y > 0 && y < num_iterations-1)
           {
-          cur_viewport[1] -= y * 4.0/winsize[1];
-          cur_viewport[3] -= y * 4.0/winsize[1];
+          cur_viewport[1] -= y * (BORDER_PIXELS * 2.0)/winsize[1];
+          cur_viewport[3] -= y * (BORDER_PIXELS * 2.0)/winsize[1];
           }
         if (y == num_iterations-1)
           {
