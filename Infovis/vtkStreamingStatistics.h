@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkStreamingStatistics_h
 
 #include "vtkTableAlgorithm.h"
-#include "vtkSetGet.h"
+
 class vtkDataObjectCollection;
 class vtkMultiBlockDataSet;
 class vtkStatisticsAlgorithm;
