@@ -163,9 +163,12 @@ int vtkTextRepresentation::RenderOverlay(vtkViewport *w)
 //-------------------------------------------------------------------------
 int vtkTextRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 {
+  // CheckTextBoundary resize the text actor. This needs to happen before we
+  // actually render (previous version was calling this method after
+  // this->TextActor->RenderOpaqueGeometry(), which seems like a bug).
+  this->CheckTextBoundary();
   int count = this->Superclass::RenderOpaqueGeometry(w);
   count += this->TextActor->RenderOpaqueGeometry(w);
-  this->CheckTextBoundary();
   return count;
 }
 
