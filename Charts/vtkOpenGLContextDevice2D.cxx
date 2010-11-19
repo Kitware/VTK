@@ -1018,15 +1018,15 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   tex->Render(this->Renderer);
   int *extent = image->GetExtent();
 
-  p[0] -= extent[0];
-  p[1] -= extent[2];
+  p[0] -= extent[0] - 0.5;
+  p[1] -= extent[2] - 0.5;
 
   this->AlignText(this->TextProp->GetOrientation(), extent, p);
 
-  float points[] = { p[0]          , p[1],
-                     p[0]+extent[1]+1, p[1],
-                     p[0]+extent[1]+1, p[1]+extent[3]+1,
-                     p[0]          , p[1]+extent[3]+1 };
+  float points[] = { p[0]              , p[1],
+                     p[0]+extent[1]+1.0, p[1],
+                     p[0]+extent[1]+1.0, p[1]+extent[3]+1.0,
+                     p[0]              , p[1]+extent[3]+1.0 };
 
   float texCoord[] = { 0.0, 0.0,
                        1.0, 0.0,
