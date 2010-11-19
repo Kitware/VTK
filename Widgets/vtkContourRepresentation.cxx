@@ -1393,6 +1393,8 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Closed Loop: " << (this->ClosedLoop ? "On\n" : "Off\n");
   os << indent << "ShowSelectedNodes: " << this->ShowSelectedNodes <<endl;
+  os << indent << "Rebuild Locator: " <<
+     (this->RebuildLocator ? "On" : "Off") << endl;
   
   os << indent << "Current Operation: ";
   if ( this->CurrentOperation == vtkContourRepresentation::Inactive )
