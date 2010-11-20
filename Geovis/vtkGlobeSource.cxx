@@ -46,6 +46,7 @@ vtkGlobeSource::vtkGlobeSource()
 {
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   this->Radius = vtkGeoMath::EarthRadiusMeters();
+  this->AutoCalculateCurtainHeight = true;
   this->CurtainHeight = 1000.0;
 
   this->LongitudeResolution = 10;
@@ -64,16 +65,16 @@ void vtkGlobeSource::ComputeGlobePoint(
   double theta, double phi, double radius, double* x, double* normal)
 {
   double mynormal[3];
-  
+
   double* n = normal ? normal : mynormal;
-  
+
   // Lets keep this conversion code in a single place.
   double tmp;
   tmp =    cos( vtkMath::RadiansFromDegrees( phi ) );
   n[0] = - tmp * sin( vtkMath::RadiansFromDegrees( theta ) );
   n[1] =   tmp * cos( vtkMath::RadiansFromDegrees( theta ) );
   n[2] =   sin( vtkMath::RadiansFromDegrees( phi ) );
-  
+
   x[0] = n[0] * radius;
   x[1] = n[1] * radius;
   x[2] = n[2] * radius;
@@ -106,16 +107,16 @@ void vtkGlobeSource::AddPoint(
   vtkDoubleArray* newLatLongArray)
 {
   double x[3], n[3];
-  
+
   vtkGlobeSource::ComputeGlobePoint(theta, phi, radius, x, n);
-  
+
   x[0] -= this->Origin[0];
   x[1] -= this->Origin[1];
   x[2] -= this->Origin[2];
-  
+
   newPoints->InsertNextPoint(x);
   newNormals->InsertNextTuple(n);
-  
+
   newLongitudeArray->InsertNextValue(theta);
   newLatitudeArray->InsertNextValue(phi);
   newLatLongArray->InsertNextValue(phi);
@@ -133,14 +134,17 @@ int vtkGlobeSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // I used this to see if the background thread was really 
+  // I used this to see if the background thread was really
   // operating asynchronously.
   //Sleep(2000);
 
   // I am going to compute the curtain height based on the level of the
   // terrain patch.
-  this->CurtainHeight = (this->EndLongitude-this->StartLongitude)
-    * this->Radius / 3600.0;
+  if(this->AutoCalculateCurtainHeight)
+    {
+    this->CurtainHeight = (this->EndLongitude-this->StartLongitude)
+      * this->Radius / 3600.0;
+    }
 
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
@@ -187,7 +191,7 @@ int vtkGlobeSource::RequestData(
   newLatLongArray->SetNumberOfComponents(2);
   newLatLongArray->Allocate(2*numPts);
   newLatLongArray->SetName("LatLong");
-  
+
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
 
@@ -198,12 +202,12 @@ int vtkGlobeSource::RequestData(
   double deltaLatitude;
 
   // Check data, determine increments, and convert to radians
-  deltaLongitude = (this->EndLongitude - this->StartLongitude)  
+  deltaLongitude = (this->EndLongitude - this->StartLongitude)
                  / static_cast<double>(this->LongitudeResolution-1);
 
-  deltaLatitude = (this->EndLatitude - this->StartLatitude) 
+  deltaLatitude = (this->EndLatitude - this->StartLatitude)
                  / static_cast<double>(this->LatitudeResolution-1);
-  
+
   // Create points and point data.
   for (j=0; j<this->LatitudeResolution; j++)
     {
@@ -211,7 +215,7 @@ int vtkGlobeSource::RequestData(
     for (i=0; i < this->LongitudeResolution; i++)
       {
       theta = this->StartLongitude + i*deltaLongitude;
-      this->AddPoint(theta, phi, this->Radius, 
+      this->AddPoint(theta, phi, this->Radius,
                      newPoints, newNormals,
                      newLongitudeArray, newLatitudeArray,
                      newLatLongArray);
@@ -225,7 +229,7 @@ int vtkGlobeSource::RequestData(
     {
     theta = this->StartLongitude + i*deltaLongitude;
     phi = this->StartLatitude;
-    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
+    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
                    newLatLongArray);
@@ -234,16 +238,16 @@ int vtkGlobeSource::RequestData(
     {
     theta = this->StartLongitude + i*deltaLongitude;
     phi = this->EndLatitude;
-    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
+    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
-                   newLatLongArray);    
+                   newLatLongArray);
     }
   for (j=0; j < this->LatitudeResolution; j++)
     {
     theta = this->StartLongitude;
     phi = this->StartLatitude + j*deltaLatitude;
-    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
+    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
                    newLatLongArray);
@@ -252,13 +256,13 @@ int vtkGlobeSource::RequestData(
     {
     theta = this->EndLongitude;
     phi = this->StartLatitude + j*deltaLatitude;
-    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
+    this->AddPoint(theta, phi, this->Radius-this->CurtainHeight,
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray,
-                   newLatLongArray);    
+                   newLatLongArray);
     }
-  
-  
+
+
   // Generate mesh connectivity
   vtkIdType rowId = 0;
   vtkIdType cornerId;
@@ -280,9 +284,9 @@ int vtkGlobeSource::RequestData(
     this->UpdateProgress(
       0.70 + 0.30*j/static_cast<double>(this->LatitudeResolution));
     }
-  
+
   // Create curtain quads.
-  vtkIdType curtainPointId = 
+  vtkIdType curtainPointId =
     this->LongitudeResolution * this->LatitudeResolution;
   vtkIdType edgeOffset;
   edgeOffset = 0;
@@ -328,8 +332,8 @@ int vtkGlobeSource::RequestData(
     newPolys->InsertNextCell(4, pts);
     ++curtainPointId;
     }
-  
-  
+
+
   // Update ourselves and release memeory
   //
   newPoints->Squeeze();
@@ -369,7 +373,7 @@ int vtkGlobeSource::RequestInformation(
 {
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
 
@@ -377,7 +381,7 @@ int vtkGlobeSource::RequestInformation(
                -this->Radius, this->Radius,
                -this->Radius, this->Radius,
                -this->Radius, this->Radius);
-  
+
   return 1;
 }
 
@@ -386,6 +390,8 @@ void vtkGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "AutoCalculateCurtainHeight: " <<
+    (this->AutoCalculateCurtainHeight ? "ON" : "OFF") << "\n";
   os << indent << "CurtainHeight: " << this->CurtainHeight << "\n";
   os << indent << "Longitude Resolution: " << this->LongitudeResolution << "\n";
   os << indent << "Latitude Resolution: " << this->LatitudeResolution << "\n";
@@ -397,7 +403,7 @@ void vtkGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Origin: " << this->Origin[0] << ","
                              << this->Origin[1] << ","
                              << this->Origin[2] << "\n";
-  os << indent 
-     << "Quadrilateral Tessellation: " 
+  os << indent
+     << "Quadrilateral Tessellation: "
      << this->QuadrilateralTessellation << "\n";
 }
