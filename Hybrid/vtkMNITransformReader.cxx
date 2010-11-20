@@ -561,6 +561,7 @@ int vtkMNITransformReader::ReadThinPlateSplineTransform(
 
   if (strcmp(identifier, "Displacements") != 0)
     {
+    points->Delete();
     vtkErrorMacro("Expected \'Displacements\' in "
                   << this->FileName << ":" << this->LineNumber);
     return 0;
@@ -629,6 +630,9 @@ int vtkMNITransformReader::ReadThinPlateSplineTransform(
         (numPoints + 1 + i)*numDimensions + j);
       }
     }
+
+  displacements->Delete();
+  points->Delete();
 
   // Create the source and target point lists
   vtkPoints *source = vtkPoints::New();
