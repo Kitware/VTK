@@ -25,7 +25,7 @@
 #ifndef __vtkContextScenePrivate_h
 #define __vtkContextScenePrivate_h
 
-#include "vtkContextItem.h"
+#include "vtkAbstractContextItem.h"
 #include "vtkContextScene.h"
 
 // STL headers
@@ -75,7 +75,7 @@ public:
     {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
       {
-      if (!vtkContextItem::SafeDownCast(*it) || vtkContextItem::SafeDownCast(*it)->GetVisible())
+      if ((*it)->GetVisible())
         {
         (*it)->Paint(context);
         }
