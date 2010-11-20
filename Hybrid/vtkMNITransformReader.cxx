@@ -646,7 +646,7 @@ int vtkMNITransformReader::ReadThinPlateSplineTransform(
       double dy = p[1] - q[j][1];
       double dz = p[2] - q[j][2];
       double r = sqrt(dx*dx + dy*dy + dz*dz);
-      double U = (numDimensions == 2 ? r*r*log(r) : r);
+      double U = ((numDimensions == 2 && r != 0) ? r*r*log(r) : r);
       x += U*W[j][0];
       y += U*W[j][1];
       z += U*W[j][2];

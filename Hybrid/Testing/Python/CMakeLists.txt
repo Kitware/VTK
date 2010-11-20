@@ -37,6 +37,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         #TestICPTransform  --complex arrays
         TestImageStencilWithPolydata
         TestMNIObjects
+        TestMNITransforms
         TestPCA
         TestProcrustes
         TestProjectedTerrainPath
