@@ -32,29 +32,18 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Get the visibility of the item (should it be drawn).
-  vtkGetMacro(Visible, bool);
-
-  // Description:
-  // Set the visibility of the item (should it be drawn).
-  // Visible by default
-  vtkSetMacro(Visible, bool);
-
-  // Description:
   // Get the opacity of the item.
   vtkGetMacro(Opacity, double);
 
   // Description:
   // Set the opacity of the item.
-  // 1. by default
+  // 1.0 by default.
   vtkSetMacro(Opacity, double);
 
 //BTX
 protected:
   vtkContextItem();
   ~vtkContextItem();
-
-  bool Visible;
 
   double Opacity;
 

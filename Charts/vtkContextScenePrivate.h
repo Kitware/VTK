@@ -75,7 +75,10 @@ public:
     {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
       {
-      (*it)->Paint(context);
+      if ((*it)->GetVisible())
+        {
+        (*it)->Paint(context);
+        }
       }
     }
 
