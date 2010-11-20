@@ -831,7 +831,7 @@ int vtkMNIObjectWriter::WriteLineObject(vtkPolyData *output)
     }
 
   // Write the cells
-  if (this->WriteCells(output, VTK_POLYGON) == 0)
+  if (this->WriteCells(output, VTK_POLY_LINE) == 0)
     {
     return 0;
     }
