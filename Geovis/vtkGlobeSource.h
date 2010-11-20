@@ -24,7 +24,7 @@
 // vtkGlobeSource will generate any "rectangular" patch of the globe
 // given its Longitude-Latitude extent.  It adds two point scalar arrays
 // Longitude and Latitude to the output.  These arrays can be transformed
-// to generate texture coordinates for any texture map.  This source is 
+// to generate texture coordinates for any texture map.  This source is
 // imperfect near the poles as implmented.  It should really reduce the
 // longitude resolution as the triangles become slivers.
 //
@@ -39,7 +39,7 @@ class vtkCellArray;
 class vtkFloatArray;
 
 
-class VTK_GEOVIS_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm 
+class VTK_GEOVIS_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlobeSource,vtkPolyDataAlgorithm);
@@ -75,6 +75,13 @@ public:
   vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Radius,double);
 
+  // Description:
+  vtkSetMacro(AutoCalculateCurtainHeight, bool);
+  vtkGetMacro(AutoCalculateCurtainHeight, bool);
+  vtkBooleanMacro(AutoCalculateCurtainHeight, bool);
+
+  // Description:
+  // Set/Get curtain height.
   vtkSetClampMacro(CurtainHeight,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(CurtainHeight,double);
 
@@ -91,7 +98,7 @@ public:
 
   // Description:
   // Construct sphere with radius=0.5 and default resolution 8 in both latitude
-  // and longitude directions. longitude ranges from (-180,180) 
+  // and longitude directions. longitude ranges from (-180,180)
   // and latitude (-90,90) degrees.
   static vtkGlobeSource *New();
 
@@ -106,18 +113,18 @@ public:
   // point on a sphere.
   static void ComputeLatitudeLongitude(
     double* x, double& theta, double& phi);
-  
+
 protected:
   vtkGlobeSource();
   ~vtkGlobeSource() {}
 
   int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
   int RequestInformation(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   void AddPoint(
@@ -129,13 +136,18 @@ protected:
 
   double Origin[3];
   double Radius;
+
+  bool   AutoCalculateCurtainHeight;
   double CurtainHeight;
+
   int LongitudeResolution;
   int LatitudeResolution;
+
   double StartLongitude;
   double EndLongitude;
   double StartLatitude;
   double EndLatitude;
+
   int QuadrilateralTessellation;
 
 private:
