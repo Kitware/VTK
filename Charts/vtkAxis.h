@@ -242,6 +242,33 @@ protected:
   // number should be between 0.0 and 9.9.
   double NiceNumber(double number, bool roundUp);
 
+  // Description:
+  // Return a tick mark for a logarithmic axis.
+  // If roundUp is true then the upper tick mark is returned.
+  // Otherwise the lower tick mark is returned.
+  // Tick marks will be: ... 0.1 0.2 .. 0.9 1 2 .. 9 10 20 .. 90 100 ...
+  // Parameter nicevalue will be set to true if tick mark is in:
+  // ... 0.1 0.2 0.5 1 2 5 10 20 50 100 ...
+  // Parameter order is set to the detected order of magnitude of the number.
+  double LogScaleTickMark(double number,
+                          bool roundUp,
+                          bool &niceValue,
+                          int &order);
+
+  // Description:
+  // Generate tick marks for logarithmic scale for specific order of magnitude.
+  // Mark generation is limited by parameters min and max.
+  // Tick marks will be: ... 0.1 0.2 .. 0.9 1 2 .. 9 10 20 .. 90 100 ...
+  // Tick labels will be: ... 0.1 0.2 0.5 1 2 5 10 20 50 100 ...
+  // If Parameter detaillabels is disabled tick labels will be:
+  // ... 0.1 1 10 100 ...
+  // If min/max is not in between 1.0 and 9.0 defaults will be used.
+  // If min and max do not differ 1 defaults will be used.
+  void GenerateLogScaleTickMarks(int order,
+                                 double min = 1.0,
+                                 double max = 9.0,
+                                 bool detailLabels = true);
+
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float Point1[2];     // The position of point 1 (usually the origin)
   float Point2[2];     // The position of point 2 (usually the terminus)
@@ -288,6 +315,10 @@ protected:
   // Description:
   // Mark the tick labels as dirty when the min/max value is changed
   bool TickMarksDirty;
+
+  // Description:
+  // Hint as to whether a logarithmic scale is reasonable or not.
+  bool LogScaleReasonable;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
