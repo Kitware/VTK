@@ -573,42 +573,42 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     {
     // We calculate the first tick mark for lowest order of magnitude.
     // and the last for the highest order of magnitude.
-    bool nicetickmark = false;
-    int minorder = 0;
-    int maxorder = 0;
-    double minvalue = LogScaleTickMark(pow(double(10.0), (double)min),
+    bool niceTickMark = false;
+    int minOrder = 0;
+    int maxOrder = 0;
+    double minValue = LogScaleTickMark(pow(double(10.0), double(min)),
                                        true,
-                                       nicetickmark,
-                                       minorder);
-    double maxvalue = LogScaleTickMark(pow(double(10.0), (double)max),
+                                       niceTickMark,
+                                       minOrder);
+    double maxValue = LogScaleTickMark(pow(double(10.0), double(max)),
                                        false,
-                                       nicetickmark,
-                                       maxorder);
+                                       niceTickMark,
+                                       maxOrder);
 
     // We generate the tick marks for all orders of magnitude
-    if (maxorder-minorder == 0)
+    if (maxOrder - minOrder == 0)
       {
-      GenerateLogScaleTickMarks(minorder, minvalue, maxvalue);
+      GenerateLogScaleTickMarks(minOrder, minValue, maxValue);
       }
     else
       {
-      if (maxorder-minorder+1 > 5)
+      if (maxOrder - minOrder + 1 > 5)
         {
-        GenerateLogScaleTickMarks(minorder, minvalue, 9.0, false);
-        for(int i = minorder+1; i < maxorder; i++)
+        GenerateLogScaleTickMarks(minOrder, minValue, 9.0, false);
+        for(int i = minOrder + 1; i < maxOrder; ++i)
           {
           GenerateLogScaleTickMarks(i, 1.0, 9.0, false);
           }
-        GenerateLogScaleTickMarks(maxorder, 1.0, maxvalue, false);
+        GenerateLogScaleTickMarks(maxOrder, 1.0, maxValue, false);
         }
       else
         {
-        GenerateLogScaleTickMarks(minorder, minvalue, 9.0);
-        for(int i = minorder+1; i < maxorder; i++)
+        GenerateLogScaleTickMarks(minOrder, minValue, 9.0);
+        for(int i = minOrder + 1; i < maxOrder; ++i)
           {
           GenerateLogScaleTickMarks(i, 1.0, 9.0);
           }
-        GenerateLogScaleTickMarks(maxorder, 1.0, maxvalue);
+        GenerateLogScaleTickMarks(maxOrder, 1.0, maxValue);
         }
       }
     }
@@ -688,8 +688,8 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
   // Thus the following code works for logarithmic axis with linear scale too.
   if (this->LogScale && !this->LogScaleReasonable)
     {
-    min = pow(double(10.0), (double)min);
-    max = pow(double(10.0), (double)max);
+    min = pow(double(10.0), double(min));
+    max = pow(double(10.0), double(max));
     }
 
   // First get the order of the range of the numbers
@@ -759,11 +759,11 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     // We need to handle value 0 for logarithmic function
     if (min < 1.0e-20)
       {
-        min = pow(double(10.0), (double)(floor(oldmin)));
+        min = pow(double(10.0), (floor(oldmin)));
       }
     if (max < 1.0e-20)
       {
-        max = pow(double(10.0), (double)(floor(oldmax)));
+        max = pow(double(10.0), (floor(oldmax)));
       }
     min = log10(min);
     max = log10(max);
@@ -818,23 +818,23 @@ double vtkAxis::NiceNumber(double n, bool roundUp)
 //-----------------------------------------------------------------------------
 double vtkAxis::LogScaleTickMark(double number,
                                  bool roundUp,
-                                 bool &nicevalue,
+                                 bool &niceValue,
                                  int &order)
 {
-  double result = 0.0;
-  nicevalue = false;
+  double result(0.0);
+  niceValue = false;
   // We need to retrive the order of our number.
   order = static_cast<int>(floor(log10(number)));
 
   // We retrive the basis of our number depending on roundUp and return it as
   // result.
-  number = number * pow(10.0, (double)(order*(-1)));
-  result = roundUp?ceil(number):floor(number);
+  number = number * pow(10.0, static_cast<double>(order*(-1)));
+  result = roundUp ? ceil(number) : floor(number);
 
   // If result is 1.0, 2.0 or 5.0 we mark the result as "nice value".
   if (result == 1.0 || result == 2.0 || result == 5.0)
     {
-    nicevalue = true;
+    niceValue = true;
     }
   return result;
 }
@@ -843,7 +843,7 @@ double vtkAxis::LogScaleTickMark(double number,
 void vtkAxis::GenerateLogScaleTickMarks(int order,
                                         double min,
                                         double max,
-                                        bool detaillabels)
+                                        bool detailLabels)
 {
   // If the values min and max are not within limits we set defaults
   if (min < 1.0)
@@ -869,26 +869,26 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
     }
 
   // Make sure we have integers
-  int minimum = (int)ceil(min);
-  int maximum = (int)floor(max);
+  int minimum = static_cast<int>(ceil(min));
+  int maximum = static_cast<int>(floor(max));
 
 
-  double result = (double)minimum;
-  for(int j = minimum; j <= maximum; j++)
+  double result(minimum);
+  for(int j = minimum; j <= maximum; ++j)
     {
-    // We check if tick mark is getting an label depending on detaillabels
-    bool nicetickmark = false;
-    if (detaillabels)
+    // We check if tick mark is getting an label depending on detailLabels
+    bool niceTickMark = false;
+    if (detailLabels)
       {
-      nicetickmark = (result == 1.0 || result == 2.0 || result == 5.0);
+      niceTickMark = (result == 1.0 || result == 2.0 || result == 5.0);
       }
     else
       {
-      nicetickmark = (result == 1.0);
+      niceTickMark = (result == 1.0);
       }
 
     // We calculate the tick mark value
-    double value = result * pow(10.0, (double)order);
+    double value = result * pow(10.0, static_cast<double>(order));
     this->TickPositions->InsertNextValue(log10(value));
 
     // Now create a label for the tick position
@@ -909,7 +909,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
       }
     ostr << value;
 
-    if (nicetickmark)
+    if (niceTickMark)
       {
       this->TickLabels->InsertNextValue(ostr.str());
       }
@@ -917,7 +917,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
       {
       this->TickLabels->InsertNextValue("");
       }
-    result+=1.0;
+    result += 1.0;
     }
 }
 

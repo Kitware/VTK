@@ -252,7 +252,7 @@ protected:
   // Parameter order is set to the detected order of magnitude of the number.
   double LogScaleTickMark(double number,
                           bool roundUp,
-                          bool &nicevalue,
+                          bool &niceValue,
                           int &order);
 
   // Description:
@@ -267,7 +267,7 @@ protected:
   void GenerateLogScaleTickMarks(int order,
                                  double min = 1.0,
                                  double max = 9.0,
-                                 bool detaillabels = true);
+                                 bool detailLabels = true);
 
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float Point1[2];     // The position of point 1 (usually the origin)
