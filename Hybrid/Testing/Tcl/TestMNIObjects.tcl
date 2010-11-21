@@ -68,12 +68,18 @@ vtkLookupTable colors
   colors SetHueRange 0.0 1.0
   colors Build
 
+# this is just to test using the SetMapper option of vtkMNIObjectWriter
+vtkDataSetMapper mapper
+  mapper SetLookupTable colors
+  mapper UseLookupTableScalarRangeOn
+
 vtkExtractEdges edges
   edges SetInputConnection [scalars GetOutputPort]
 
 # test ascii writing and reading for lines
 vtkMNIObjectWriter lineWriter
-  lineWriter SetLookupTable colors
+  lineWriter SetMapper mapper
+  #lineWriter SetLookupTable colors
   lineWriter SetInputConnection [edges GetOutputPort]
   lineWriter SetFileName "$dir/mni-wire-mesh-ascii.obj"
   lineWriter Write
