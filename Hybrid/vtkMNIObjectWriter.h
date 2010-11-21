@@ -64,6 +64,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkPolyDataWriter.h"
 
+class vtkMapper;
 class vtkProperty;
 class vtkLookupTable;
 class vtkPolyData;
@@ -90,13 +91,21 @@ public:
     return "MNI object"; }
 
   // Description:
-  // Set the property associated with the object.
+  // Set the property associated with the object.  Optional.
+  // This is useful for exporting an actor.
   virtual void SetProperty(vtkProperty *property);
   virtual vtkProperty *GetProperty() { return this->Property; };
 
   // Description:
+  // Set the mapper associated with the object.  Optional.
+  // This is useful for exporting an actor with the same colors
+  // that are used to display the actor within VTK.
+  virtual void SetMapper(vtkMapper *mapper);
+  virtual vtkMapper *GetMapper() { return this->Mapper; };
+
+  // Description:
   // Set the lookup table associated with the object.  This will be
-  // used to convert scalar values to colors, if present.
+  // used to convert scalar values to colors, if a mapper is not set.
   virtual void SetLookupTable(vtkLookupTable *table);
   virtual vtkLookupTable *GetLookupTable() { return this->LookupTable; };
 
@@ -105,6 +114,7 @@ protected:
   ~vtkMNIObjectWriter();
 
   vtkProperty *Property;
+  vtkMapper *Mapper;
   vtkLookupTable *LookupTable;
 
   ostream *OutputStream;
@@ -118,7 +128,7 @@ protected:
   int WriteLineThickness(vtkProperty *property);
   int WritePoints(vtkPolyData *polyData);
   int WriteNormals(vtkPolyData *polyData);
-  int WriteColors(vtkProperty *property, vtkPolyData *data);
+  int WriteColors(vtkProperty *property, vtkMapper *mapper, vtkPolyData *data);
   int WriteCells(vtkPolyData *data, int cellType);
 
   int WritePolygonObject(vtkPolyData *output);

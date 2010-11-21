@@ -59,6 +59,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkProperty.h"
+#include "vtkMapper.h"
 #include "vtkLookupTable.h"
 #include "vtkPolygon.h"
 #include "vtkMath.h"
@@ -77,6 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 vtkStandardNewMacro(vtkMNIObjectWriter);
 
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, Property, vtkProperty);
+vtkCxxSetObjectMacro(vtkMNIObjectWriter, Mapper, vtkMapper);
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, LookupTable, vtkLookupTable);
 
 #define VTK_MNIOBJ_LINE_LENGTH 256
@@ -85,6 +87,7 @@ vtkCxxSetObjectMacro(vtkMNIObjectWriter, LookupTable, vtkLookupTable);
 vtkMNIObjectWriter::vtkMNIObjectWriter()
 {
   this->Property = 0;
+  this->Mapper = 0;
   this->LookupTable = 0;
 
   // Whether file is binary or ASCII
@@ -100,6 +103,10 @@ vtkMNIObjectWriter::~vtkMNIObjectWriter()
     {
     this->Property->Delete();
     }
+  if (this->Mapper)
+    {
+    this->Mapper->Delete();
+    }
   if (this->LookupTable)
     {
     this->LookupTable->Delete();
@@ -112,15 +119,8 @@ void vtkMNIObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Property: " << this->Property << "\n";
-  if (this->Property)
-    {
-    this->Property->PrintSelf(os, indent.GetNextIndent());
-    }
+  os << indent << "Mapper: " << this->Mapper << "\n";
   os << indent << "LookupTable: " << this->LookupTable << "\n";
-  if (this->LookupTable)
-    {
-    this->LookupTable->PrintSelf(os, indent.GetNextIndent());
-    }
 }
 
 //-------------------------------------------------------------------------
@@ -149,7 +149,38 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
   vtkIdType numComponents = array->GetNumberOfComponents();
   vtkIdType n = numTuples * numComponents;
 
-  if (this->FileType == VTK_ASCII)
+  if (this->FileType == VTK_ASCII && dataType == VTK_UNSIGNED_CHAR)
+    {
+    vtkIdType m = numComponents;
+    for (vtkIdType i = 0; i < n; i += m)
+      {
+      unsigned char *cdata = static_cast<unsigned char *>(data) + i;
+      ostream &os = *this->OutputStream;
+
+      double r = cdata[0]/255.0;
+      double g = r;
+      double b = r;
+      double a = 1.0;
+
+      if (m > 2)
+        {
+        g = cdata[1]/255.0;
+        b = cdata[2]/255.0;
+        }
+      if (m == 2 || m == 4)
+        {
+        a = cdata[m-1]/255.0;
+        }
+
+      os << " " << r << " " << g << " " << b << " " << a;
+
+      if (this->WriteNewline() == 0)
+        {
+        return 0;
+        }
+      }
+    }
+  else if (this->FileType == VTK_ASCII)
     {
     vtkIdType valuesPerLine = 8;
     if (numComponents > 1 && numComponents < 8)
@@ -187,13 +218,6 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
             os << " " << val;
             }
             break;
-          case VTK_UNSIGNED_CHAR:
-            {
-            unsigned char *cdata = (unsigned char *)(data);
-            double val = cdata[i]/255.0;
-            os << " " << val;
-            }
-            break;
           }
         }
       if (this->WriteNewline() == 0)
@@ -209,17 +233,34 @@ int vtkMNIObjectWriter::WriteValues(vtkDataArray *array)
       {
       // colors need to be swapped to ABGR order for binary
       char *odata = static_cast<char *>(data);
-      for (vtkIdType i = 0; i < n && this->OutputStream->good(); i += 4)
+      vtkIdType m = numComponents;
+      for (vtkIdType i = 0; i < n && this->OutputStream->good(); i += m)
         {
         char cdata[4];
-        cdata[3] = odata[0];
-        cdata[2] = odata[1];
-        cdata[1] = odata[2];
-        cdata[0] = odata[3];
+        if (m > 2)
+          {
+          cdata[3] = odata[0];
+          cdata[2] = odata[1];
+          cdata[1] = odata[2];
+          }
+        else
+          {
+          cdata[3] = odata[0];
+          cdata[2] = odata[0];
+          cdata[1] = odata[0];
+          }
+        if (m == 2 || m == 4)
+          {
+          cdata[0] = odata[m-1];
+          }
+        else
+          {
+          cdata[0] = static_cast<char>(255);
+          }
 
         this->OutputStream->write(cdata, 4);
 
-        odata += 4;
+        odata += m;
         }
       }
     else if (dataType == VTK_DOUBLE)
@@ -495,7 +536,8 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
 }
 
 //-------------------------------------------------------------------------
-int vtkMNIObjectWriter::WriteColors(vtkProperty *property, vtkPolyData *data)
+int vtkMNIObjectWriter::WriteColors(
+  vtkProperty *property, vtkMapper *mapper, vtkPolyData *data)
 {
   vtkUnsignedCharArray *newScalars = 0;
   vtkDataArray *scalars = data->GetPointData()->GetScalars();
@@ -507,9 +549,41 @@ int vtkMNIObjectWriter::WriteColors(vtkProperty *property, vtkPolyData *data)
     colorType = 1;
     }
 
-  if (scalars != 0 &&
-      (scalars->GetNumberOfComponents() != 4 ||
-       scalars->GetDataType() != VTK_UNSIGNED_CHAR))
+  if (this->Mapper)
+    {
+    int cellFlag = 0;
+
+    scalars = vtkAbstractMapper::GetScalars(
+      data, mapper->GetScalarMode(), mapper->GetArrayAccessMode(),
+      mapper->GetArrayId(), mapper->GetArrayName(), cellFlag);
+
+    if (mapper->GetScalarVisibility() && scalars)
+      {
+      int arrayComponent = mapper->GetArrayComponent();
+      if (scalars->GetNumberOfComponents() <= arrayComponent)
+        {
+        arrayComponent = 0;
+        }
+
+      vtkScalarsToColors *lookupTable = scalars->GetLookupTable();
+      if (lookupTable == 0)
+        {
+        lookupTable = mapper->GetLookupTable();
+        lookupTable->Build();
+        }
+
+      if (!mapper->GetUseLookupTableScalarRange())
+        {
+        lookupTable->SetRange(mapper->GetScalarRange());
+        }
+
+      newScalars = lookupTable->MapScalars(
+        scalars, mapper->GetColorMode(), arrayComponent);
+      newScalars->Register(0);
+      scalars = newScalars;
+      }
+    }
+  else if (scalars != 0)
     {
     if (this->LookupTable)
       {
@@ -520,7 +594,7 @@ int vtkMNIObjectWriter::WriteColors(vtkProperty *property, vtkPolyData *data)
                                                 newScalars->GetPointer(0));
       scalars = newScalars;
       }
-    else
+    else if (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
       {
       vtkWarningMacro("WriterColors: data has scalars but they aren't "
                       "colors, and no lookup table was set.");
@@ -747,7 +821,7 @@ int vtkMNIObjectWriter::WritePolygonObject(vtkPolyData *output)
     }
 
   // Write the colors
-  if (this->WriteColors(this->Property, output) == 0)
+  if (this->WriteColors(this->Property, this->Mapper, output) == 0)
     {
     return 0;
     }
@@ -819,7 +893,7 @@ int vtkMNIObjectWriter::WriteLineObject(vtkPolyData *output)
     }
 
   // Write the colors
-  if (this->WriteColors(this->Property, output) == 0)
+  if (this->WriteColors(this->Property, this->Mapper, output) == 0)
     {
     return 0;
     }

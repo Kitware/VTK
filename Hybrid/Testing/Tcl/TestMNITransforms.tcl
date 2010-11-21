@@ -63,15 +63,19 @@ vtkThinPlateSplineTransform thinPlate0
   thinPlate0 SetTargetLandmarks p2
   thinPlate0 SetBasisToR2LogR
 
+set filename "$dir/mni-thinplatespline.xfm"
+
 # write the tps to a file
 vtkMNITransformWriter tpsWriter
-  tpsWriter SetFileName "$dir/mni-thinplatespline.xfm"
+  tpsWriter SetFileName "$filename"
   tpsWriter SetTransform thinPlate0
   tpsWriter Write
 
 # read it back
 vtkMNITransformReader tpsReader
-  tpsReader SetFileName "$dir/mni-thinplatespline.xfm"
+if { [tpsReader CanReadFile "$filename"] != 0 } {
+  tpsReader SetFileName "$filename"
+}
   set thinPlate [tpsReader GetTransform]
 
 # make a linear transform

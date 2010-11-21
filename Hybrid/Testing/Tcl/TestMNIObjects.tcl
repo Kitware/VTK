@@ -20,13 +20,19 @@ vtkRenderWindow renWin
   renWin AddRenderer ren1
   renWin AddRenderer ren2
   renWin AddRenderer ren3
+  renWin SetMultiSamples 0
 
 vtkProperty property0
   property0 SetDiffuseColor 0.95 0.90 0.70
 
+set filename "$VTK_DATA_ROOT/Data/mni-surface-mesh.obj"
+
 vtkMNIObjectReader asciiReader
-  asciiReader SetFileName "$VTK_DATA_ROOT/Data/mni-surface-mesh.obj"
   set property1 [asciiReader GetProperty]
+
+if { [asciiReader CanReadFile "$filename"] != 0 } {
+  asciiReader SetFileName "$filename"
+}
 
 # this is just to remove the normals, to increase coverage,
 # i.e. by forcing the writer to generate normals
@@ -62,12 +68,18 @@ vtkLookupTable colors
   colors SetHueRange 0.0 1.0
   colors Build
 
+# this is just to test using the SetMapper option of vtkMNIObjectWriter
+vtkDataSetMapper mapper
+  mapper SetLookupTable colors
+  mapper UseLookupTableScalarRangeOn
+
 vtkExtractEdges edges
   edges SetInputConnection [scalars GetOutputPort]
 
 # test ascii writing and reading for lines
 vtkMNIObjectWriter lineWriter
-  lineWriter SetLookupTable colors
+  lineWriter SetMapper mapper
+  #lineWriter SetLookupTable colors
   lineWriter SetInputConnection [edges GetOutputPort]
   lineWriter SetFileName "$dir/mni-wire-mesh-ascii.obj"
   lineWriter Write
