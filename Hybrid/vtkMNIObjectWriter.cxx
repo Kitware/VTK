@@ -590,8 +590,6 @@ int vtkMNIObjectWriter::WriteColors(
       }
     else if (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
       {
-      vtkWarningMacro("WriterColors: data has scalars but they aren't "
-                      "colors, and no lookup table was set.");
       scalars = 0;
       }
     }
