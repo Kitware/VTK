@@ -81,8 +81,6 @@ vtkCxxSetObjectMacro(vtkMNIObjectWriter, Property, vtkProperty);
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, Mapper, vtkMapper);
 vtkCxxSetObjectMacro(vtkMNIObjectWriter, LookupTable, vtkLookupTable);
 
-#define VTK_MNIOBJ_LINE_LENGTH 256
-
 //-------------------------------------------------------------------------
 vtkMNIObjectWriter::vtkMNIObjectWriter()
 {
@@ -579,7 +577,6 @@ int vtkMNIObjectWriter::WriteColors(
 
       newScalars = lookupTable->MapScalars(
         scalars, mapper->GetColorMode(), arrayComponent);
-      newScalars->Register(0);
       scalars = newScalars;
       }
     }
@@ -587,11 +584,8 @@ int vtkMNIObjectWriter::WriteColors(
     {
     if (this->LookupTable)
       {
-      newScalars = vtkUnsignedCharArray::New();
-      newScalars->SetNumberOfComponents(4);
-      newScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
-      this->LookupTable->MapScalarsThroughTable(scalars,
-                                                newScalars->GetPointer(0));
+      newScalars = this->LookupTable->MapScalars(
+        scalars, VTK_COLOR_MODE_MAP_SCALARS, -1);
       scalars = newScalars;
       }
     else if (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
