@@ -131,10 +131,13 @@ int vtkWriter::RequestData(
   unsigned long lastUpdateTime =  this->GetInput(0)->GetUpdateTime();
   for (idx = 1; idx < this->GetNumberOfInputPorts(); ++idx)
     {
-    unsigned long updateTime = this->GetInput(idx)->GetUpdateTime();
-    if ( updateTime > lastUpdateTime )
+    if (this->GetInput(idx))
       {
-      lastUpdateTime = updateTime;
+      unsigned long updateTime = this->GetInput(idx)->GetUpdateTime();
+      if ( updateTime > lastUpdateTime )
+        {
+        lastUpdateTime = updateTime;
+        }
       }
     }
 
