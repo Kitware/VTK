@@ -550,12 +550,31 @@ int vtkMNIObjectWriter::WriteColors(
   if (this->Mapper)
     {
     int cellFlag = 0;
+    scalars = 0;
 
-    scalars = vtkAbstractMapper::GetScalars(
-      data, mapper->GetScalarMode(), mapper->GetArrayAccessMode(),
-      mapper->GetArrayId(), mapper->GetArrayName(), cellFlag);
+    // Get color scalars according to Mapper rules
+    if (mapper->GetScalarVisibility())
+      {
+      scalars = vtkAbstractMapper::GetScalars(
+        data, mapper->GetScalarMode(), mapper->GetArrayAccessMode(),
+        mapper->GetArrayId(), mapper->GetArrayName(), cellFlag);
+      }
 
-    if (mapper->GetScalarVisibility() && scalars)
+    // Cell or point scalars?
+    colorType = 2;
+    if (cellFlag)
+      {
+      colorType = 1;
+      }
+
+    // Cannot use cell scalars for triangle strips
+    if (cellFlag == 1 && data->GetStrips() &&
+        data->GetStrips()->GetNumberOfCells() != 0)
+      {
+      scalars = 0;
+      }
+
+    if (scalars)
       {
       int arrayComponent = mapper->GetArrayComponent();
       if (scalars->GetNumberOfComponents() <= arrayComponent)
