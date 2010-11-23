@@ -67,8 +67,8 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 #define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1) \
 ((node0->Value < node1->Value) || (node0->Value == node1->Value && nodeId0 < nodeId1))
 
-#define vtkReebGraphGetArc(rg,i) \
-((rg)->MainArcTable.Buffer+(i))
+// #define vtkReebGraphGetArc(rg,i) \
+// ((rg)->MainArcTable.Buffer+(i))
 
 #define vtkReebGraphGetLabel(rg,i) \
 ((rg)->MainLabelTable.Buffer+(i))
@@ -85,8 +85,11 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 // #define vtkReebGraphGetDownArc(rg,N) \
 // (vtkReebGraphGetNode(rg,N)->ArcDownId)
 
+// #define vtkReebGraphGetArcLabel(rg,A)         \
+// (vtkReebGraphGetArc(rg,A)->LabelId0)
+
 #define vtkReebGraphGetArcLabel(rg,A) \
-(vtkReebGraphGetArc(rg,A)->LabelId0)
+(this->GetArc(A)->LabelId0)
 
 #define vtkReebGraphGetLabelArc(rg,L) \
 (vtkReebGraphGetLabel(rg,L)->ArcId)
@@ -94,8 +97,8 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 // #define vtkReebGraphClearNode(rg,N) \
 // (vtkReebGraphGetNode(rg,N)->ArcUpId  = ((int)-2))
 
-#define vtkReebGraphClearArc(rg,A) \
-(vtkReebGraphGetArc(rg,A)->LabelId1   = ((int)-2))
+// #define vtkReebGraphClearArc(rg,A) \
+// (vtkReebGraphGetArc(rg,A)->LabelId1 = ((int)-2))
 
 #define vtkReebGraphClearLabel(rg,L) \
 (vtkReebGraphGetLabel(rg,L)->HNext = ((int)-2))
@@ -103,8 +106,8 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 // #define vtkReebGraphIsNodeCleared(rg,N) \
 // (vtkReebGraphGetNode(rg,N)->ArcUpId  ==((int)-2))
 
-#define vtkReebGraphIsArcCleared(rg,A)  \
-(vtkReebGraphGetArc(rg,A)->LabelId1   ==((int)-2))
+// #define vtkReebGraphIsArcCleared(rg,A)  \
+// (vtkReebGraphGetArc(rg,A)->LabelId1 == ((int)-2))
 
 #define vtkReebGraphIsLabelCleared(rg,L)  \
 (vtkReebGraphGetLabel(rg,L)->HNext ==((int)-2))
@@ -123,9 +126,9 @@ memset(this->GetNode(N),0,sizeof(vtkReebNode));}
 
 #define vtkReebGraphNewArc(rg,A)    {\
 A=rg->MainArcTable.FreeZone;\
-rg->MainArcTable.FreeZone=vtkReebGraphGetArc(rg,A)->LabelId0;\
+rg->MainArcTable.FreeZone = this->GetArc(A)->LabelId0;\
 ++(rg->MainArcTable.Number);\
-memset(vtkReebGraphGetArc(rg,A),0,sizeof(vtkReebArc));}
+memset(this->GetArc(A),0,sizeof(vtkReebArc));}
 
 #define vtkReebGraphNewLabel(rg,L)    {\
 L=rg->MainLabelTable.FreeZone;\
@@ -145,8 +148,14 @@ this->GetNode(N)->ArcDownId = rg->MainNodeTable.FreeZone; \
 rg->MainNodeTable.FreeZone=(N); \
 --(rg->MainNodeTable.Number);
 
+// #define vtkReebGraphDeleteArc(rg,A)    \
+// vtkReebGraphClearArc(rg,A); \
+// vtkReebGraphGetArcLabel(rg,A) = rg->MainArcTable.FreeZone; \
+// rg->MainArcTable.FreeZone=(A); \
+// --(rg->MainArcTable.Number);
+
 #define vtkReebGraphDeleteArc(rg,A)    \
-vtkReebGraphClearArc(rg,A); \
+this->GetArc(A)->LabelId1 = ((int)-2);     \
 vtkReebGraphGetArcLabel(rg,A) = rg->MainArcTable.FreeZone; \
 rg->MainArcTable.FreeZone=(A); \
 --(rg->MainArcTable.Number);
@@ -166,10 +175,15 @@ rg->MainLabelTable.FreeZone=(L); \
 // Note: usually this macro is called after the node has been finalized,
 // otherwise the behaviour is undefined.
 
+// #define vtkReebGraphIsRegular(rg,n) \
+// ((!(n)->IsCritical) && \
+// ((n)->ArcDownId && !vtkReebGraphGetArc(rg,(n)->ArcDownId)->ArcDwId1 && \
+// (n)->ArcUpId && !vtkReebGraphGetArc(rg,(n)->ArcUpId)->ArcDwId0))
+
 #define vtkReebGraphIsRegular(rg,n) \
 ((!(n)->IsCritical) && \
-((n)->ArcDownId && !vtkReebGraphGetArc(rg,(n)->ArcDownId)->ArcDwId1 && \
-(n)->ArcUpId && !vtkReebGraphGetArc(rg,(n)->ArcUpId)->ArcDwId0))
+((n)->ArcDownId && !this->GetArc((n)->ArcDownId)->ArcDwId1 && \
+(n)->ArcUpId && !this->GetArc((n)->ArcUpId)->ArcDwId0))
 
 // #define vtkReebGraphGetDownDegree(dst,rg,N) \
 // (dst)=0;\
@@ -178,7 +192,7 @@ rg->MainLabelTable.FreeZone=(L); \
 
 #define vtkReebGraphGetDownDegree(dst,rg,N) \
 (dst)=0;\
-for (int _A = this->GetNode(N)->ArcDownId;_A;_A=vtkReebGraphGetArc(rg,_A)->ArcDwId1) \
+for (int _A = this->GetNode(N)->ArcDownId;_A;_A = this->GetArc(_A)->ArcDwId1) \
   ++(dst);
 
 // #define vtkReebGraphGetUpDegree(dst,rg,N) {\
@@ -188,7 +202,7 @@ for (int _A = this->GetNode(N)->ArcDownId;_A;_A=vtkReebGraphGetArc(rg,_A)->ArcDw
 
 #define vtkReebGraphGetUpDegree(dst,rg,N) {\
 (dst)=0;\
-for (int _A = this->GetNode(N)->ArcUpId;_A;_A=vtkReebGraphGetArc(rg,_A)->ArcDwId0)\
+for (int _A = this->GetNode(N)->ArcUpId;_A;_A = this->GetArc(_A)->ArcDwId0)\
   ++(dst); }
 
 // #define vtkReebGraphAddUpArc(rg,N,A) {\
@@ -201,9 +215,9 @@ for (int _A = this->GetNode(N)->ArcUpId;_A;_A=vtkReebGraphGetArc(rg,_A)->ArcDwId
 
 #define vtkReebGraphAddUpArc(rg,N,A) {\
 vtkReebNode* n = this->GetNode(N);\
-vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
+  vtkReebArc* a = this->GetArc(A);           \
 a->ArcUpId0=0;a->ArcDwId0=n->ArcUpId;\
-if (n->ArcUpId) vtkReebGraphGetArc(rg,n->ArcUpId)->ArcUpId0=(A);\
+if (n->ArcUpId) this->GetArc(n->ArcUpId)->ArcUpId0=(A);\
 n->ArcUpId=(A);\
 }
 
@@ -218,10 +232,10 @@ n->ArcUpId=(A);\
 
 #define vtkReebGraphAddDownArc(rg,N,A) {\
 vtkReebNode* n = this->GetNode(N);\
-vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
+vtkReebArc* a = this->GetArc(A);\
 a->ArcUpId1=0;\
 a->ArcDwId1=n->ArcDownId;\
-if (n->ArcDownId) vtkReebGraphGetArc(rg,n->ArcDownId)->ArcUpId1=(A);\
+if (n->ArcDownId) this->GetArc(n->ArcDownId)->ArcUpId1=(A);\
 n->ArcDownId=(A);\
 }
 
@@ -233,9 +247,9 @@ n->ArcDownId=(A);\
 
 #define vtkReebGraphRemoveUpArc(rg,N,A) {\
 vtkReebNode* n = this->GetNode(N);\
-vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
-if (a->ArcUpId0) vtkReebGraphGetArc(rg,a->ArcUpId0)->ArcDwId0=a->ArcDwId0; else n->ArcUpId=a->ArcDwId0;\
-if (a->ArcDwId0) vtkReebGraphGetArc(rg,a->ArcDwId0)->ArcUpId0=a->ArcUpId0;}
+vtkReebArc* a = this->GetArc(A);\
+if (a->ArcUpId0) this->GetArc(a->ArcUpId0)->ArcDwId0=a->ArcDwId0; else n->ArcUpId=a->ArcDwId0;\
+if (a->ArcDwId0) this->GetArc(a->ArcDwId0)->ArcUpId0=a->ArcUpId0;}
 
 // #define vtkReebGraphRemoveDownArc(rg,N,A) {\
 // vtkReebNode* n=vtkReebGraphGetNode(rg,N);\
@@ -246,9 +260,9 @@ if (a->ArcDwId0) vtkReebGraphGetArc(rg,a->ArcDwId0)->ArcUpId0=a->ArcUpId0;}
 
 #define vtkReebGraphRemoveDownArc(rg,N,A) {\
 vtkReebNode* n = this->GetNode(N);\
-vtkReebArc* a=vtkReebGraphGetArc(rg,A);\
-if (a->ArcUpId1) vtkReebGraphGetArc(rg,a->ArcUpId1)->ArcDwId1=a->ArcDwId1; else n->ArcDownId=a->ArcDwId1;\
-if (a->ArcDwId1) vtkReebGraphGetArc(rg,a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
+vtkReebArc* a = this->GetArc(A);\
+if (a->ArcUpId1) this->GetArc(a->ArcUpId1)->ArcDwId1=a->ArcDwId1; else n->ArcDownId=a->ArcDwId1;\
+if (a->ArcDwId1) this->GetArc(a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
 }
 
 // #define vtkReebGraphVertexCollapse(rg,N,n) {\
@@ -292,13 +306,13 @@ int Lb,Lnext,La;\
 vtkReebLabel* lb;\
 int _A0=n->ArcDownId;\
 int _A1=n->ArcUpId  ;\
-vtkReebArc* _a0=vtkReebGraphGetArc(rg, _A0); \
-vtkReebArc* _a1=vtkReebGraphGetArc(rg, _A1);\
+vtkReebArc* _a0 = this->GetArc(_A0); \
+vtkReebArc* _a1 = this->GetArc(_A1);\
 _a0->NodeId1  = _a1->NodeId1;\
 _a0->ArcUpId1 = _a1->ArcUpId1;\
-if (_a1->ArcUpId1) vtkReebGraphGetArc(rg,_a1->ArcUpId1)->ArcDwId1 = _A0;\
+if (_a1->ArcUpId1) this->GetArc(_a1->ArcUpId1)->ArcDwId1 = _A0;\
 _a0->ArcDwId1 = _a1->ArcDwId1;\
-if (_a1->ArcDwId1) vtkReebGraphGetArc(rg,_a1->ArcDwId1)->ArcUpId1 = _A0;\
+if (_a1->ArcDwId1) this->GetArc(_a1->ArcDwId1)->ArcUpId1 = _A0;\
 if (this->GetNode(_a1->NodeId1)->ArcDownId == _A1)\
   this->GetNode(_a1->NodeId1)->ArcDownId = _A0;\
 \
@@ -373,7 +387,8 @@ public:
 //    vtkReebGraphGetDownArc(this,1)=0;
     this->GetNode(1)->ArcDownId = 0;
     this->MainArcTable.FreeZone=1;
-    vtkReebGraphClearArc(this,1);
+//    vtkReebGraphClearArc(this,1);
+    this->GetArc(1)->LabelId1 = ((int)-2);
     vtkReebGraphGetArcLabel(this,1)=0;
     this->MainLabelTable.FreeZone=1;
     vtkReebGraphClearLabel(this,1);
@@ -1336,7 +1351,8 @@ int vtkReebGraph::Implementation::SimplifyLoops(double simplificationThreshold,
  {
    int A  =this->ArcLoopTable[n];
 
-   if (vtkReebGraphIsArcCleared(this,A))
+//   if (vtkReebGraphIsArcCleared(this,A))
+   if (this->GetArc(A)->LabelId1 == ((int)-2))
      continue;
 
    double simplificationValue = 0;
@@ -1558,7 +1574,8 @@ int vtkReebGraph::Implementation::SimplifyBranches(double simplificationThreshol
       cont=step;
     }
 
-    if (vtkReebGraphIsArcCleared(this,A))
+//    if (vtkReebGraphIsArcCleared(this,A))
+    if (this->GetArc(A)->LabelId1 == ((int)-2))
       continue;
 
     cont++;
@@ -2067,16 +2084,17 @@ int vtkReebGraph::Simplify(double simplificationThreshold,
 void vtkReebGraph::Implementation::FlushLabels()
 {
   for (int A=1;A<this->MainArcTable.Size;A++)
-  {
-    if (!vtkReebGraphIsArcCleared(this,A))
+    {
+//    if (!vtkReebGraphIsArcCleared(this,A))
+    if (!(this->GetArc(A)->LabelId1 == ((int)-2)))
 //      vtkReebGraphGetArc(this,A)->LabelId0 = vtkReebGraphGetArc(this,A)->LabelId1=0;
       this->GetArc(A)->LabelId0 = this->GetArc(A)->LabelId1=0;
-  }
+    }
 
   if (this->MainLabelTable.Buffer)
-  {
+    {
     free(this->MainLabelTable.Buffer);
-  }
+    }
 
   this->MainLabelTable.Buffer=(vtkReebLabel*)malloc(sizeof(vtkReebLabel)*2);
   this->MainLabelTable.Size=2;
@@ -2603,11 +2621,13 @@ void vtkReebGraph::Implementation::ResizeMainArcTable(int newSize)
     for (i=oldsize;i<this->MainArcTable.Size-1;i++)
     {
       vtkReebGraphGetArcLabel(this,i)=i+1;
-      vtkReebGraphClearArc(this,i);
+//      vtkReebGraphClearArc(this,i);
+      this->GetArc(i)->LabelId1 = ((int)-2);
     }
 
     vtkReebGraphGetArcLabel(this,i)=this->MainArcTable.FreeZone;
-    vtkReebGraphClearArc(this,i);
+//    vtkReebGraphClearArc(this,i);
+    this->GetArc(i)->LabelId1 = ((int)-2);
     this->MainArcTable.FreeZone=oldsize;
   }
 }
@@ -3535,9 +3555,11 @@ int vtkReebGraph::Implementation::GetNumberOfArcs()
 {
   if(!this->ArcNumber)
     for(vtkIdType arcId = 1; arcId < this->MainArcTable.Size; arcId++)
-    {
-      if(!vtkReebGraphIsArcCleared(this, arcId)) this->ArcNumber++;
-    }
+      {
+//      if(!vtkReebGraphIsArcCleared(this, arcId))
+      if(!(this->GetArc(arcId)->LabelId1 == ((int)-2)))
+        this->ArcNumber++;
+      }
 
   return this->ArcNumber;
 }
@@ -3606,15 +3628,15 @@ vtkIdType vtkReebGraph::Implementation::GetPreviousNodeId()
 //----------------------------------------------------------------------------
 vtkIdType vtkReebGraph::Implementation::GetNextArcId()
 {
-  for(vtkIdType arcId = this->currentArcId + 1;
-    arcId < this->MainArcTable.Size; arcId++)
-  {
-    if(!vtkReebGraphIsArcCleared(this, arcId))
+  for(vtkIdType arcId = this->currentArcId + 1; arcId < this->MainArcTable.Size; arcId++)
     {
+//    if(!vtkReebGraphIsArcCleared(this, arcId))
+    if(!(this->GetArc(arcId)->LabelId1 == ((int)-2)))
+      {
       this->currentArcId = arcId;
       return this->currentArcId;
+      }
     }
-  }
 
   return this->currentArcId;
 
@@ -3623,23 +3645,22 @@ vtkIdType vtkReebGraph::Implementation::GetNextArcId()
 //----------------------------------------------------------------------------
 vtkIdType vtkReebGraph::Implementation::GetPreviousArcId()
 {
-
   if(!this->currentArcId)
-  {
+    {
     return this->GetNextArcId();
-  }
+    }
 
   for(vtkIdType arcId = this->currentArcId - 1; arcId > 0; arcId--)
-  {
-    if(!vtkReebGraphIsArcCleared(this, arcId))
     {
+//    if(!vtkReebGraphIsArcCleared(this, arcId))
+    if(!(this->GetArc(arcId)->LabelId1 == ((int)-2)))
+      {
       this->currentArcId = arcId;
       return this->currentArcId;
+      }
     }
-  }
 
   return this->currentArcId;
-
 }
 
 //----------------------------------------------------------------------------
