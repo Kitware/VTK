@@ -25,6 +25,7 @@
 #define __vtkChartXY_h
 
 #include "vtkChart.h"
+#include "vtkVector.h"
 
 class vtkPlot;
 class vtkAxis;
@@ -131,6 +132,10 @@ public:
   // The default value is 0.8, 1.0 would lead to bars that touch.
   vtkSetMacro(BarWidthFraction, float);
   vtkGetMacro(BarWidthFraction, float);
+
+  // Description:
+  // Set the information passed to the tooltip
+  virtual void SetTooltipInfo(const vtkContextMouseEvent&, vtkVector2f, int, vtkPlot*);
 
 //BTX
   // Description:

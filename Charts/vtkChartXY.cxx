@@ -1088,26 +1088,8 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
             int seriesIndex = plot->GetNearestPoint(position, tolerance, &plotPos);
             if (seriesIndex >= 0)
               {
-              const char *label = plot->GetLabel(seriesIndex);
               // We found a point, set up the tooltip and return
-              // If axes are set to logarithmic scale we need to convert the
-              // axis value using 10^(axis value)
-              vtksys_ios::ostringstream ostr;
-              ostr.imbue(vtkstd::locale::classic());
-              ostr.setf(ios::fixed, ios::floatfield);
-              ostr << label << ": ";
-              ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
-              ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
-                pow(double(10.0), double(plotPos.X())):
-                plotPos.X());
-              ostr << ",  ";
-              ostr.precision(ChartPrivate->axes[vtkAxis::LEFT]->GetPrecision());
-              ostr << (this->ChartPrivate->axes[vtkAxis::LEFT]->GetLogScale()?
-                pow(double(10.0), double(plotPos.Y())):
-                plotPos.Y());
-              this->Tooltip->SetText(ostr.str().c_str());
-              this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,
-                                         mouse.ScreenPos[1]+2);
+              this->SetTooltipInfo(mouse, plotPos, seriesIndex, plot);
               return true;
               }
             }
@@ -1116,6 +1098,30 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
       }
     }
   return false;
+}
+
+void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse, vtkVector2f plotPos,
+                                int seriesIndex, vtkPlot* plot)
+{
+  const char *label = plot->GetLabel(seriesIndex);
+  // If axes are set to logarithmic scale we need to convert the
+  // axis value using 10^(axis value)
+  vtksys_ios::ostringstream ostr;
+  ostr.imbue(vtkstd::locale::classic());
+  ostr.setf(ios::fixed, ios::floatfield);
+  ostr << label << ": ";
+  ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
+  ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
+    pow(double(10.0), double(plotPos.X())):
+    plotPos.X());
+  ostr << ",  ";
+  ostr.precision(ChartPrivate->axes[vtkAxis::LEFT]->GetPrecision());
+  ostr << (this->ChartPrivate->axes[vtkAxis::LEFT]->GetLogScale()?
+    pow(double(10.0), double(plotPos.Y())):
+    plotPos.Y());
+  this->Tooltip->SetText(ostr.str().c_str());
+  this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,
+               mouse.ScreenPos[1]+2);
 }
 
 //-----------------------------------------------------------------------------
