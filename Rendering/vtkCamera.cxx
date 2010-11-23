@@ -1557,6 +1557,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
   os << indent << "WindowCenter: (" << this->WindowCenter[0] << ", "
      << this->WindowCenter[1] << ")\n";
+  os << indent << "HeadTracked: "<<this->HeadTracked<< endl;
 }
 
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
