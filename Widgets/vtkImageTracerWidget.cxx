@@ -465,6 +465,9 @@ void vtkImageTracerWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->SnapToImage ? "On\n" : "Off\n") ;
   os << indent << "CaptureRadius: " << this->CaptureRadius << "\n";
   os << indent << "NumberOfHandles: " << this->NumberOfHandles << "\n";
+  os << indent << "HandleLeftMouseButton: " << this->HandleLeftMouseButton << "\n";
+  os << indent << "HandleMiddleMouseButton: " << this->HandleMiddleMouseButton << "\n";
+  os << indent << "HandleRightMouseButton: " << this->HandleRightMouseButton << "\n";
   os << indent << "AutoClose: "
      << (this->AutoClose ? "On\n" : "Off\n") ;
 }
