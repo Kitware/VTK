@@ -441,7 +441,7 @@ public:
   // Initial value is false.
   //vtkSetMacro(HeadTracked,bool);
   void SetHeadTracked( int val);
-  vtkGetMacro(HeadTracked,bool);
+  vtkGetMacro(HeadTracked,int);
 
   // Description:
   // Copy the properties of `source' into `this'.
