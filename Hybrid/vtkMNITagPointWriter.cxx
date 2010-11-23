@@ -50,6 +50,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
+#include "vtkInformationVector.h"
 #include "vtkInformation.h"
 #include "vtkPointSet.h"
 #include "vtkPointData.h"
@@ -207,7 +208,7 @@ vtkPoints *vtkMNITagPointWriter::GetPoints(int port)
 }
 
 //-------------------------------------------------------------------------
-void vtkMNITagPointWriter::WriteData()
+void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 {
   static const char *arrayNames[3] = {
     "Weights",
@@ -215,7 +216,6 @@ void vtkMNITagPointWriter::WriteData()
     "PatientIds"
   };
 
-  vtkPointSet *inputs[2];
   vtkPoints *points[2];
 
   vtkStringArray *labels = 0;
@@ -232,7 +232,6 @@ void vtkMNITagPointWriter::WriteData()
   for (int ii = 1; ii >= 0; --ii)
     {
     points[ii] = 0;
-    inputs[ii] = vtkPointSet::SafeDownCast(this->GetInput(ii));
     if (inputs[ii])
       {
       points[ii] = inputs[ii]->GetPoints();
@@ -480,30 +479,33 @@ int vtkMNITagPointWriter::Write()
 
 //-------------------------------------------------------------------------
 int vtkMNITagPointWriter::RequestData(
-  vtkInformation *, vtkInformationVector **,
+  vtkInformation *, vtkInformationVector **inputVector,
   vtkInformationVector *)
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-  int idx;
+  vtkInformation *inInfo[2];
+  inInfo[0] = inputVector[0]->GetInformationObject(0);
+  inInfo[1] = inputVector[1]->GetInformationObject(0);
 
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
-    {
-    if (this->GetInput(idx) != NULL)
-      {
-      this->GetInput(idx)->Update();
-      }
-    }
+  vtkPointSet *input[2];
+  input[0] = 0;
+  input[1] = 0;
 
   unsigned long lastUpdateTime = 0;
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
+  for (int idx = 0; idx < 2; ++idx)
     {
-    if (this->GetInput(idx))
+    if (inInfo[idx])
       {
-      unsigned long updateTime = this->GetInput(idx)->GetUpdateTime();
-      if (updateTime > lastUpdateTime)
+      input[idx] = vtkPointSet::SafeDownCast(
+        inInfo[idx]->Get(vtkDataObject::DATA_OBJECT()));
+      if (input[idx])
         {
-        lastUpdateTime = updateTime;
+        unsigned long updateTime = input[idx]->GetUpdateTime();
+        if (updateTime > lastUpdateTime)
+          {
+          lastUpdateTime = updateTime;
+          }
         }
       }
     }
@@ -515,17 +517,8 @@ int vtkMNITagPointWriter::RequestData(
     }
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
-  this->WriteData();
+  this->WriteData(input);
   this->InvokeEvent(vtkCommand::EndEvent, NULL);
-
-  // Release any inputs if marked for release
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
-    {
-    if (this->GetInput(idx) && this->GetInput(idx)->ShouldIReleaseData())
-      {
-      this->GetInput(idx)->ReleaseData();
-      }
-    }
 
   this->WriteTime.Modified();
 

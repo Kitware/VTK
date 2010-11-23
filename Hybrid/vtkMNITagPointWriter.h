@@ -65,6 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkDataSetWriter.h"
 
 class vtkDataSet;
+class vtkPointSet;
 class vtkStringArray;
 class vtkDoubleArray;
 class vtkIntArray;
@@ -145,7 +146,8 @@ protected:
   vtkIntArray *PatientIds;
   char *Comments;
 
-  void WriteData();
+  virtual void WriteData() {};
+  virtual void WriteData(vtkPointSet *inputs[2]);
 
   int FillInputPortInformation(int port, vtkInformation *info);
 
