@@ -55,6 +55,8 @@ vtkLegendScaleActor.cxx
 vtkLSDynaReader.cxx
 vtkMNIObjectReader.cxx
 vtkMNIObjectWriter.cxx
+vtkMNITagPointReader.cxx
+vtkMNITagPointWriter.cxx
 vtkMNITransformReader.cxx
 vtkMNITransformWriter.cxx
 vtkPCAAnalysisFilter.cxx

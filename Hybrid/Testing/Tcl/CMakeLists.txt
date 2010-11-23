@@ -35,6 +35,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestICPTransform
       TestImageStencilWithPolydata
       TestMNIObjects
+      TestMNITagPoints
       TestMNITransforms
       TestPCA
       TestProcrustes
