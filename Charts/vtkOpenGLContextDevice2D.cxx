@@ -813,9 +813,9 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     // we make sure maxRadius will never be null.
     return;
     }
-  int iterations=this->GetNumberOfArcIterations(rX,rY,startAngle,stopAngle);
+  int iterations = this->GetNumberOfArcIterations(rX, rY, startAngle, stopAngle);
 
-  float *p=new float[2*(iterations+1)];
+  float *p = new float[2*(iterations+1)];
 
   // step in radians.
   double step =
@@ -823,17 +823,14 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
 
   // step have to be lesser or equal to maxStep computed inside
   // GetNumberOfIterations()
-
   double rstart=vtkMath::RadiansFromDegrees(startAngle);
 
   // we are iterating counterclockwise
-  int i=0;
-  while(i<=iterations)
+  for(int i = 0; i <= iterations; ++i)
     {
     double a=rstart+i*step;
     p[2*i  ] = rX * cos(a) + x;
     p[2*i+1] = rY * sin(a) + y;
-    ++i;
     }
 
   this->SetLineType(this->Pen->GetLineType());
@@ -860,32 +857,33 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
   assert("pre: not_both_null" && (rX>0.0 || rY>0.0));
 
 // 1.0: pixel precision. 0.5 (subpixel precision, useful with multisampling)
-  double error=4.0; // experience shows 4.0 is visually enough.
+  double error = 4.0; // experience shows 4.0 is visually enough.
 
   // The tessellation is the most visible on the biggest radius.
   double maxRadius;
-  if(rX>=rY)
+  if(rX >= rY)
     {
-    maxRadius=rX;
+    maxRadius = rX;
     }
   else
     {
-    maxRadius=rY;
+    maxRadius = rY;
     }
 
-  if(error>maxRadius)
+  if(error > maxRadius)
     {
-    error=0.5; // to make sure the argument of asin() is in a valid range.
+    // to make sure the argument of asin() is in a valid range.
+    error = maxRadius;
     }
 
   // Angle of a sector so that its chord is `error' pixels.
   // This is will be our maximum angle step.
-  double maxStep=2.0*asin(error/(2.0*maxRadius));
+  double maxStep = 2.0 * asin(error / (2.0 * maxRadius));
 
   // ceil because we want to make sure we don't underestimate the number of
   // iterations by 1.
   return static_cast<int>(
-    ceil(vtkMath::RadiansFromDegrees(stopAngle-startAngle)/maxStep));
+    ceil(vtkMath::RadiansFromDegrees(stopAngle - startAngle) / maxStep));
 }
 
 //-----------------------------------------------------------------------------
