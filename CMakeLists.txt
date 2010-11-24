@@ -556,11 +556,11 @@ INCLUDE(CTest)
 MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH CVSCOMMAND CVS_UPDATE_OPTIONS DART_TESTING_TIMEOUT)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
-  CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
-    ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
-  FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
-    "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 ENDIF(BUILD_TESTING)
+CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
+  ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
+FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
+  "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 
 OPTION(VTK_USE_DISPLAY "Turn this option off and tests and warning/error macros will not popup windows" ON)
 MARK_AS_ADVANCED(VTK_USE_DISPLAY)
