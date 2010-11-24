@@ -1008,14 +1008,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
     return;
     }
 
-  vtkTexture *tex =vtkTexture::New();
-  tex->RepeatOff();
-  tex->InterpolateOff();
-  tex->EdgeClampOff();
-  tex->PremultipliedAlphaOn();
-  tex->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-  tex->SetInput(image);
-  tex->Render(this->Renderer);
+  this->SetTexture(image);
+  this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
 
   p[0] -= extent[0] - 0.5;
@@ -1042,9 +1036,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  tex->PostRender(this->Renderer);
+  this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-  tex->Delete();
   image->Delete();
 }
 
@@ -1090,9 +1083,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
 void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
-  vtkTexture *tex =vtkTexture::New();
-  tex->SetInput(image);
-  tex->Render(this->Renderer);
+  this->SetTexture(image);
+  this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
   float points[] = { p[0]                    , p[1],
                      p[0]+scale*extent[1]+1.0, p[1],
@@ -1113,9 +1105,8 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  tex->PostRender(this->Renderer);
+  this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-  tex->Delete();
 }
 
 //-----------------------------------------------------------------------------

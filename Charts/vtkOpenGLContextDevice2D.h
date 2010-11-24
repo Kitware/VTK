@@ -154,7 +154,7 @@ public:
 
   // Description:
   // Set the texture for the device, it is used to fill the polygons
-  virtual void SetTexture(vtkImageData* image, int properties);
+  virtual void SetTexture(vtkImageData* image, int properties = 0);
 
   // Description:
   // Set the point size for glyphs/sprites.
