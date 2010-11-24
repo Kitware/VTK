@@ -438,7 +438,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
             }
           else
             {
-            sprintf(text, "x%2.2x", *si);
+            sprintf(text, "x%2.2x", (static_cast<int>(*si) & 0x00ff));
             outfile << text;
             }
           }

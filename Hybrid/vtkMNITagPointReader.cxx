@@ -298,69 +298,52 @@ int vtkMNITagPointReader::ParseStringValue(
         {
         if (pos != linetext.end())
           {
-          char e = *pos;
-          ++pos;
-          switch (e)
+          c = '\0';
+          static char ctrltable[] = {
+            '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r',
+            '\t', 't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0'
+            };
+
+          if (*pos >= 0 && *pos <= 9)
             {
-            case 'a':
-              c = '\a';
-              break;
-            case 'b':
-              c = '\b';
-              break;
-            case 'f':
-              c = '\f';
-              break;
-            case 'n':
-              c = '\n';
-              break;
-            case 'r':
-              c = '\r';
-              break;
-            case 't':
-              c = '\t';
-              break;
-            case 'v':
-              c = '\v';
-              break;
-            case '0': case '1': case '2': case '3':
-            case '4': case '5': case '6': case '7':
-              c = 0;
-              for (int j = 0; j < 3 && pos != linetext.end(); j++)
+            for (int j = 0; j < 3 && pos != linetext.end() &&
+                 *pos >= 0 && *pos <= 9; ++j, ++pos)
+              {
+              c = ((c << 3) | (*pos - '0'));
+              }
+            }
+          else if (*pos == 'x')
+            {
+            ++pos;
+            for (int j = 0; j < 2 && pos != linetext.end() &&
+                 isalnum(*pos); ++j, ++pos)
+              {
+              char x = tolower(*pos);
+              if (x >= '0' && x <= '9')
                 {
-                char x = *pos;
-                ++pos;
-                c <<= 3;
-                if (x >= '0' && x <= '7')
-                  {
-                  c |= (x - '0');
-                  }
+                c = ((c << 4) | (x - '0'));
                 }
-              break;
-            case 'x':
-              c = 0;
-              for (int j = 0; j < 2 && pos != linetext.end(); j++)
+              else if (x >= 'a' && x <= 'f')
                 {
-                char x = *pos;
-                ++pos;
-                c <<= 4;
-                if (x >= '0' && x <= '9')
-                  {
-                  c |= (x - '0');
-                  }
-                if (x >= 'a' && x <= 'f')
-                  {
-                  c |= (x + 10 - 'a');
-                  }
-                if (x >= 'A' && x <= 'F')
-                  {
-                  c |= (x + 10 - 'A');
-                  }
+                c = ((c << 4) | (x - 'a' + 10));
                 }
-              break;
-            default:
-              c = e;
-              break;
+              }
+            }
+          else
+            {
+            for (int ci = 0; ctrltable[ci] != '\0'; ci += 2)
+              {
+              if (*pos == ctrltable[ci+1])
+                {
+                c = ctrltable[ci];
+                break;
+                }
+              }
+            if (c == '\0')
+              {
+              c = *pos;
+              }
+            ++pos;
             }
           }
         }
