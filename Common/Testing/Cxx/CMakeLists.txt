@@ -105,6 +105,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
   ENDFOREACH(test)
 
   IF(VTK_USE_BOOST)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
     ADD_EXECUTABLE(ArrayCasting ArrayCasting.cxx)
     TARGET_LINK_LIBRARIES(ArrayCasting vtkCommon)
     ADD_TEST(Array-ArrayCasting ${CXX_TEST_PATH}/ArrayCasting)
