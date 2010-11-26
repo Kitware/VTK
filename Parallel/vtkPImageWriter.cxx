@@ -17,6 +17,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPipelineSize.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkAlgorithmOutput.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #define vtkPIWCloseFile \
     if (file && fileOpenedHere) \
@@ -119,8 +122,30 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     ++this->FileNumber;
     }
   
-  // Propagate the update extent so we can determine pipeline size
-  this->GetInput()->PropagateUpdateExtent();
+  // Get the pipeline information for the input
+  vtkImageData *input = this->GetInput();
+  vtkAlgorithm *alg = input->GetProducerPort()->GetProducer();
+  int idx = input->GetProducerPort()->GetIndex();
+  vtkStreamingDemandDrivenPipeline *exec =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(alg->GetExecutive());
+
+  if (exec)
+    {
+    vtkInformation *info = exec->GetOutputInformation(idx);
+
+    // Set a hint not to combine with previous requests
+    info->Set(
+       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+       VTK_UPDATE_EXTENT_REPLACE);
+
+    // Propagate the update extent so we can determine pipeline size
+    exec->PropagateUpdateExtent(idx);
+
+    // Go back to the previous behaviour
+    info->Set(
+       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+       VTK_UPDATE_EXTENT_COMBINE);
+    }
 
   // Now we can ask how big the pipeline will be
   inputMemorySize = this->SizeEstimator->GetEstimatedSize(this,0,0);
