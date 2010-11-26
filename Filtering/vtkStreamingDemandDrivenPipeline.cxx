@@ -48,6 +48,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_GHOST_
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_TRANSLATED, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector, 6);
+vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, COMBINED_UPDATE_EXTENT, IntegerVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UNRESTRICTED_UPDATE_EXTENT, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
                                  EXTENT_TRANSLATOR, ObjectBase,
@@ -133,15 +134,72 @@ int vtkStreamingDemandDrivenPipeline
       return 0;
       }
 
+    // Get the output info
+    vtkInformation* outInfo = 0;
+    if (outputPort > -1)
+      {
+      outInfo = outInfoVec->GetInformationObject(outputPort);
+      }
+
+    // Combine the requested extent into COMBINED_UPDATE_EXTENT,
+    // but only do so if the UPDATE_EXTENT key exists and if the
+    // UPDATE_EXTENT is not an empty extent
+    int *updateExtent = 0;
+    if (outInfo &&
+        (updateExtent = outInfo->Get(UPDATE_EXTENT())) != 0)
+      {
+      // Downstream algorithms can set UPDATE_EXTENT_INITIALIZED to
+      // REPLACE if they do not want to combine with previous extents
+      if (outInfo->Get(UPDATE_EXTENT_INITIALIZED()) !=
+          VTK_UPDATE_EXTENT_REPLACE)
+        {
+        int *combinedExtent = outInfo->Get(COMBINED_UPDATE_EXTENT());
+        if (combinedExtent &&
+            combinedExtent[0] <= combinedExtent[1] &&
+            combinedExtent[2] <= combinedExtent[3] &&
+            combinedExtent[4] <= combinedExtent[5])
+          {
+          if (updateExtent[0] <= updateExtent[1] &&
+              updateExtent[2] <= updateExtent[3] &&
+              updateExtent[4] <= updateExtent[5])
+            {
+            int newExtent[6];
+            for (int ii = 0; ii < 6; ii += 2)
+              {
+              newExtent[ii] = combinedExtent[ii];
+              if (updateExtent[ii] < newExtent[ii])
+                {
+                newExtent[ii] = updateExtent[ii];
+                }
+              newExtent[ii+1] = combinedExtent[ii+1];
+              if (updateExtent[ii+1] > newExtent[ii+1])
+                {
+                newExtent[ii+1] = updateExtent[ii+1];
+                }
+              }
+            outInfo->Set(COMBINED_UPDATE_EXTENT(), newExtent, 6);
+            outInfo->Set(UPDATE_EXTENT(), newExtent, 6);
+            }
+          else
+            {
+            outInfo->Set(UPDATE_EXTENT(), combinedExtent, 6);
+            }
+          }
+        else
+          {
+          outInfo->Set(COMBINED_UPDATE_EXTENT(), updateExtent, 6);
+          }
+        }
+      }
+
     // If we need to execute, propagate the update extent.
     int result = 1;
     int N2E = this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec);
     if (!N2E && 
-        outputPort>-1 && 
+        outInfo &&
         this->GetNumberOfInputPorts() &&
         inInfoVec[0]->GetNumberOfInformationObjects () > 0)
       {
-      vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
       vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
       int outNumberOfPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
       int inNumberOfPieces = inInfo->Get(UPDATE_NUMBER_OF_PIECES());
@@ -212,14 +270,20 @@ int vtkStreamingDemandDrivenPipeline
     // Let the superclass handle the request first.
     if(this->Superclass::ProcessRequest(request, inInfoVec, outInfoVec))
       {
-      // Crop the output if the exact extent flag is set.
       for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
         {
         vtkInformation* info = outInfoVec->GetInformationObject(i);
+        // Crop the output if the exact extent flag is set.
         if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
           {
           vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
           vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
+          }
+        // Clear combined update extent, since the update cycle has completed
+        if (info->Has(COMBINED_UPDATE_EXTENT()))
+          {
+          static int emptyExt[6] = { 0, -1, 0, -1, 0, -1 };
+          info->Set(COMBINED_UPDATE_EXTENT(), emptyExt, 6);
           }
         }
       return 1;
