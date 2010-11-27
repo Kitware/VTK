@@ -35,6 +35,11 @@ IF(VTK_USE_N_WAY_ARRAYS)
     vtkParallelCoordinatesRepresentation.cxx
     vtkParallelCoordinatesView.cxx
     )
+
+  IF(VTK_USE_BOOST)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+  ENDIF(VTK_USE_BOOST)
+
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 
 IF(VTK_USE_BOOST)
