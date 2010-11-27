@@ -38,6 +38,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     )
 
   IF(VTK_USE_BOOST)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
     SET(Kit_SRCS
       ${Kit_SRCS}
       vtkPipelineGraphSource.cxx
