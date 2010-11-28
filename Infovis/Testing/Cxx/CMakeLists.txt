@@ -1,3 +1,7 @@
+IF(VTK_USE_BOOST)
+  include_directories(${Boost_INCLUDE_DIRS})
+ENDIF(VTK_USE_BOOST)
+
 # if we have rendering add the following tests
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Infovis)
