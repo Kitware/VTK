@@ -80,7 +80,6 @@ dDerived.Dump( 15 )
 
 
 inter = vtkDescriptiveStatistics()
-inter.SetInput(inputTable)
 inter.AddColumn("Temp1")
 inter.AddColumn("Temp2")
 
