@@ -56,17 +56,17 @@ class Timer(QObject):
     def update(self):
         if (done):
             quit();
-        psuedoStreamingData.Modified()
-        psuedoStreamingData.Update()
-        ss.Modified()
+        psuedoStreamingData.Modified() # Is there a way to avoid this?
         ss.Update()
-        sStats = ss.GetOutputDataObject( 1 )
-        sPrimary = sStats.GetBlock( 0 )
-        sDerived = sStats.GetBlock( 1 )
-        sPrimary.Dump( 15 )
-        sDerived.Dump( 15 )
-        print "Updating Stream"
+        printStats()
 
+
+def printStats():
+    sStats = ss.GetOutputDataObject( 1 )
+    sPrimary = sStats.GetBlock( 0 )
+    sDerived = sStats.GetBlock( 1 )
+    sPrimary.Dump( 15 )
+    sDerived.Dump( 15 )
 
 
 if __name__ == "__main__":
