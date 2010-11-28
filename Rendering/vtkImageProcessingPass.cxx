@@ -172,6 +172,8 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   
   fbo->SetDepthBufferNeeded(true);
   fbo->StartNonOrtho(newWidth,newHeight,false);
+  glViewport(0, 0, newWidth, newHeight);
+  glScissor(0, 0, newWidth, newHeight);
   
   // 2. Delegate render in FBO
   glEnable(GL_DEPTH_TEST);
