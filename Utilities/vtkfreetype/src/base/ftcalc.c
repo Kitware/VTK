@@ -220,7 +220,7 @@
 
     c = (FT_Long)( ( (FT_Int64)a * b + 0x8000L ) >> 16 );
 
-    return ( s > 0 ) ? c : -c ;
+    return ( s > 0 ) ? c : -c;
 
 #endif /* FT_MULFIX_ASSEMBLER */
   }

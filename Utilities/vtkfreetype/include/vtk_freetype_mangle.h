@@ -184,6 +184,8 @@ used when the shared library is loaded/unloaded from an executable.
 #define ft_raster1_renderer_class vtk_freetype_ft_raster1_renderer_class
 #define ft_raster5_renderer_class vtk_freetype_ft_raster5_renderer_class
 #define FT_Realloc vtk_freetype_FT_Realloc
+#define FT_Reference_Face vtk_freetype_FT_Reference_Face
+#define FT_Reference_Library vtk_freetype_FT_Reference_Library
 #define FT_Remove_Module vtk_freetype_FT_Remove_Module
 #define FT_Render_Glyph vtk_freetype_FT_Render_Glyph
 #define FT_Render_Glyph_Internal vtk_freetype_FT_Render_Glyph_Internal

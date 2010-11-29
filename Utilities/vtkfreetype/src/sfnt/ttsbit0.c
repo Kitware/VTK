@@ -43,12 +43,12 @@
   tt_face_load_eblc( TT_Face    face,
                      FT_Stream  stream )
   {
-    FT_Error   error  = SFNT_Err_Ok;
-    FT_Fixed   version;
-    FT_ULong   num_strikes, table_size;
-    FT_Byte*   p;
-    FT_Byte*   p_limit;
-    FT_UInt    count;
+    FT_Error  error = SFNT_Err_Ok;
+    FT_Fixed  version;
+    FT_ULong  num_strikes, table_size;
+    FT_Byte*  p;
+    FT_Byte*  p_limit;
+    FT_UInt   count;
 
 
     face->sbit_num_strikes = 0;
@@ -132,7 +132,7 @@
                                FT_ULong          strike_index,
                                FT_Size_Metrics*  metrics )
   {
-    FT_Byte*         strike;
+    FT_Byte*  strike;
 
 
     if ( strike_index >= (FT_ULong)face->sbit_num_strikes )
@@ -324,11 +324,11 @@
     if ( p + 5 > limit )
       goto Fail;
 
-      metrics->height       = p[0];
-      metrics->width        = p[1];
-      metrics->horiBearingX = (FT_Char)p[2];
-      metrics->horiBearingY = (FT_Char)p[3];
-      metrics->horiAdvance  = p[4];
+    metrics->height       = p[0];
+    metrics->width        = p[1];
+    metrics->horiBearingX = (FT_Char)p[2];
+    metrics->horiBearingY = (FT_Char)p[3];
+    metrics->horiAdvance  = p[4];
 
     p += 5;
     if ( big )
@@ -336,9 +336,9 @@
       if ( p + 3 > limit )
         goto Fail;
 
-        metrics->vertBearingX = (FT_Char)p[0];
-        metrics->vertBearingY = (FT_Char)p[1];
-        metrics->vertAdvance  = p[2];
+      metrics->vertBearingX = (FT_Char)p[0];
+      metrics->vertBearingY = (FT_Char)p[1];
+      metrics->vertAdvance  = p[2];
 
       p += 3;
     }
@@ -561,7 +561,7 @@
     for ( h = height; h > 0; h--, line += pitch )
     {
       FT_Byte*  write = line;
-      FT_Int    w = width;
+      FT_Int    w     = width;
 
 
       /* handle initial byte (in target bitmap) specially if necessary */
@@ -577,7 +577,7 @@
         else if ( nbits < w )
         {
           if ( p < limit )
-          rval  |= *p++;
+            rval |= *p++;
           nbits += 8 - w;
         }
         else
@@ -608,7 +608,7 @@
         if ( nbits < w )
         {
           if ( p < limit )
-          rval   |= *p++;
+            rval |= *p++;
           *write |= ( ( rval >> nbits ) & 0xFF ) & ( 0xFF00U >> w );
           nbits  += 8 - w;
 

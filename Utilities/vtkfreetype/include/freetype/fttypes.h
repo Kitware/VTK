@@ -167,7 +167,7 @@ FT_BEGIN_HEADER
   /*    FT_Tag                                                             */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A typedef for 32-bit tags (as used in the SFNT format).             */
+  /*    A typedef for 32-bit tags (as used in the SFNT format).            */
   /*                                                                       */
   typedef FT_UInt32  FT_Tag;
 

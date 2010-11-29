@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CID objects manager (body).                                          */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2008 by             */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2008, 2010 by       */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -131,7 +131,7 @@
   cid_size_init( FT_Size  cidsize )     /* CID_Size */
   {
     CID_Size           size  = (CID_Size)cidsize;
-    FT_Error           error = 0;
+    FT_Error           error = CID_Err_Ok;
     PSH_Globals_Funcs  funcs = cid_size_get_globals_funcs( size );
 
 
@@ -193,8 +193,8 @@
   FT_LOCAL_DEF( void )
   cid_face_done( FT_Face  cidface )         /* CID_Face */
   {
-    CID_Face   face = (CID_Face)cidface;
-    FT_Memory  memory;
+    CID_Face      face = (CID_Face)cidface;
+    FT_Memory     memory;
     CID_FaceInfo  cid;
     PS_FontInfo   info;
 
@@ -204,51 +204,51 @@
 
     cid    = &face->cid;
     info   = &cid->font_info;
-      memory = cidface->memory;
+    memory = cidface->memory;
 
-      /* release subrs */
-      if ( face->subrs )
+    /* release subrs */
+    if ( face->subrs )
+    {
+      FT_Int  n;
+
+
+      for ( n = 0; n < cid->num_dicts; n++ )
       {
-        FT_Int  n;
+        CID_Subrs  subr = face->subrs + n;
 
 
-        for ( n = 0; n < cid->num_dicts; n++ )
+        if ( subr->code )
         {
-          CID_Subrs  subr = face->subrs + n;
-
-
-          if ( subr->code )
-          {
-            FT_FREE( subr->code[0] );
-            FT_FREE( subr->code );
-          }
+          FT_FREE( subr->code[0] );
+          FT_FREE( subr->code );
         }
-
-        FT_FREE( face->subrs );
       }
 
-      /* release FontInfo strings */
-      FT_FREE( info->version );
-      FT_FREE( info->notice );
-      FT_FREE( info->full_name );
-      FT_FREE( info->family_name );
-      FT_FREE( info->weight );
-
-      /* release font dictionaries */
-      FT_FREE( cid->font_dicts );
-      cid->num_dicts = 0;
-
-      /* release other strings */
-      FT_FREE( cid->cid_font_name );
-      FT_FREE( cid->registry );
-      FT_FREE( cid->ordering );
-
-      cidface->family_name = 0;
-      cidface->style_name  = 0;
-
-      FT_FREE( face->binary_data );
-      FT_FREE( face->cid_stream );
+      FT_FREE( face->subrs );
     }
+
+    /* release FontInfo strings */
+    FT_FREE( info->version );
+    FT_FREE( info->notice );
+    FT_FREE( info->full_name );
+    FT_FREE( info->family_name );
+    FT_FREE( info->weight );
+
+    /* release font dictionaries */
+    FT_FREE( cid->font_dicts );
+    cid->num_dicts = 0;
+
+    /* release other strings */
+    FT_FREE( cid->cid_font_name );
+    FT_FREE( cid->registry );
+    FT_FREE( cid->ordering );
+
+    cidface->family_name = 0;
+    cidface->style_name  = 0;
+
+    FT_FREE( face->binary_data );
+    FT_FREE( face->cid_stream );
+  }
 
 
   /*************************************************************************/
@@ -413,10 +413,11 @@
       cidface->num_fixed_sizes = 0;
       cidface->available_sizes = 0;
 
-      cidface->bbox.xMin =   cid->font_bbox.xMin             >> 16;
-      cidface->bbox.yMin =   cid->font_bbox.yMin             >> 16;
-      cidface->bbox.xMax = ( cid->font_bbox.xMax + 0xFFFFU ) >> 16;
-      cidface->bbox.yMax = ( cid->font_bbox.yMax + 0xFFFFU ) >> 16;
+      cidface->bbox.xMin =   cid->font_bbox.xMin            >> 16;
+      cidface->bbox.yMin =   cid->font_bbox.yMin            >> 16;
+      /* no `U' suffix here to 0xFFFF! */
+      cidface->bbox.xMax = ( cid->font_bbox.xMax + 0xFFFF ) >> 16;
+      cidface->bbox.yMax = ( cid->font_bbox.yMax + 0xFFFF ) >> 16;
 
       if ( !cidface->units_per_EM )
         cidface->units_per_EM = 1000;

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType synthesizing code for emboldening and slanting (body).      */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006 by                   */
+/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006, 2010 by             */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -90,7 +90,7 @@
 
 
     if ( slot->format != FT_GLYPH_FORMAT_OUTLINE &&
-         slot->format != FT_GLYPH_FORMAT_BITMAP )
+         slot->format != FT_GLYPH_FORMAT_BITMAP  )
       return;
 
     /* some reasonable strength */
@@ -100,15 +100,15 @@
 
     if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
     {
-      error = FT_Outline_Embolden( &slot->outline, xstr );
       /* ignore error */
+      (void)FT_Outline_Embolden( &slot->outline, xstr );
 
       /* this is more than enough for most glyphs; if you need accurate */
       /* values, you have to call FT_Outline_Get_CBox                   */
       xstr = xstr * 2;
       ystr = xstr;
     }
-    else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+    else /* slot->format == FT_GLYPH_FORMAT_BITMAP */
     {
       /* round to full pixels */
       xstr &= ~63;

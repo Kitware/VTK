@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Embedded resource forks accessor (body).                             */
 /*                                                                         */
-/*  Copyright 2004, 2005, 2006, 2007, 2008, 2009 by                        */
+/*  Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 by                  */
 /*  Masatake YAMATO and Redhat K.K.                                        */
 /*                                                                         */
 /*  FT_Raccess_Get_HeaderInfo() and raccess_guess_darwin_hfsplus() are     */
@@ -714,7 +714,7 @@
         if ( error )
           return error;
       }
-      }
+    }
 
     return FT_Err_Unknown_File_Format;
   }
@@ -751,7 +751,7 @@
                           const char  *original_name,
                           const char  *insertion )
   {
-    char*        new_name;
+    char*        new_name = NULL;
     const char*  tmp;
     const char*  slash;
     size_t       new_length;

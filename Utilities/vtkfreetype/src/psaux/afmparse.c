@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    AFM parser (body).                                                   */
 /*                                                                         */
-/*  Copyright 2006, 2007, 2008, 2009 by                                    */
+/*  Copyright 2006, 2007, 2008, 2009, 2010 by                              */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -527,7 +527,7 @@
                    FT_Byte*    base,
                    FT_Byte*    limit )
   {
-    AFM_Stream  stream;
+    AFM_Stream  stream = NULL;
     FT_Error    error;
 
 
@@ -774,8 +774,8 @@
   static FT_Error
   afm_parse_kern_data( AFM_Parser  parser )
   {
-    FT_Error  error;
-    char*     key;
+    FT_Error   error;
+    char*      key;
     FT_Offset  len;
 
 
@@ -818,7 +818,7 @@
                            FT_UInt     n,
                            AFM_Token   end_section )
   {
-    char*    key;
+    char*      key;
     FT_Offset  len;
 
 

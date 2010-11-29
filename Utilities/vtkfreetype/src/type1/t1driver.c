@@ -92,10 +92,10 @@
   };
 
 
- /*
-  *  POSTSCRIPT NAME SERVICE
-  *
-  */
+  /*
+   *  POSTSCRIPT NAME SERVICE
+   *
+   */
 
   static const char*
   t1_get_ps_name( T1_Face  face )
@@ -110,10 +110,10 @@
   };
 
 
- /*
-  *  MULTIPLE MASTERS SERVICE
-  *
-  */
+  /*
+   *  MULTIPLE MASTERS SERVICE
+   *
+   */
 
 #ifndef T1_CONFIG_OPTION_NO_MM_SUPPORT
   static const FT_Service_MultiMastersRec  t1_service_multi_masters =
@@ -127,10 +127,10 @@
 #endif
 
 
- /*
-  *  POSTSCRIPT INFO SERVICE
-  *
-  */
+  /*
+   *  POSTSCRIPT INFO SERVICE
+   *
+   */
 
   static FT_Error
   t1_ps_get_font_info( FT_Face          face,
@@ -188,10 +188,10 @@
 #endif
 
 
- /*
-  *  SERVICE LIST
-  *
-  */
+  /*
+   *  SERVICE LIST
+   *
+   */
 
   static const FT_ServiceDescRec  t1_services[] =
   {

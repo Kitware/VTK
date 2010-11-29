@@ -1335,7 +1335,7 @@
     FT_Error   error;
     FT_Int     num_subrs;
 
-    PSAux_Service  psaux  = (PSAux_Service)face->psaux;
+    PSAux_Service  psaux = (PSAux_Service)face->psaux;
 
 
     T1_Skip_Spaces( parser );
@@ -1369,10 +1369,10 @@
         goto Fail;
     }
 
-    /* the format is simple:                                 */
-    /*                                                       */
-    /*   `index' + binary data                               */
-    /*                                                       */
+    /* the format is simple:   */
+    /*                         */
+    /*   `index' + binary data */
+    /*                         */
     for (;;)
     {
       FT_Long   idx, size;
@@ -1628,7 +1628,7 @@
       }
     }
 
-      loader->num_glyphs = n;
+    loader->num_glyphs = n;
 
     /* if /.notdef is found but does not occupy index 0, do our magic. */
     if ( notdef_found                                                 &&
@@ -1701,7 +1701,7 @@
       /* and add our own /.notdef glyph to index 0.               */
 
       /* 0 333 hsbw endchar */
-      FT_Byte  notdef_glyph[] = {0x8B, 0xF7, 0xE1, 0x0D, 0x0E};
+      FT_Byte  notdef_glyph[] = { 0x8B, 0xF7, 0xE1, 0x0D, 0x0E };
       char*    notdef_name    = (char *)".notdef";
 
 
