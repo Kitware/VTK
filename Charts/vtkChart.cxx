@@ -14,6 +14,8 @@
 =========================================================================*/
 
 #include "vtkChart.h"
+#include "vtkAxis.h"
+#include "vtkTransform2D.h"
 
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
@@ -121,6 +123,41 @@ vtkIdType vtkChart::GetNumberOfAxes()
 void vtkChart::RecalculateBounds()
 {
   return;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
+                                      vtkTransform2D *transform)
+{
+  if (!x || !y || !transform)
+    {
+    vtkWarningMacro("Called with null arguments.");
+    return false;
+    }
+  // Get the scale for the plot area from the x and y axes
+  float *min = x->GetPoint1();
+  float *max = x->GetPoint2();
+  if (fabs(max[0] - min[0]) == 0.0f)
+    {
+    return false;
+    }
+  float xScale = (x->GetMaximum() - x->GetMinimum()) / (max[0] - min[0]);
+
+  // Now the y axis
+  min = y->GetPoint1();
+  max = y->GetPoint2();
+  if (fabs(max[1] - min[1]) == 0.0f)
+    {
+    return false;
+    }
+  float yScale = (y->GetMaximum() - y->GetMinimum()) / (max[1] - min[1]);
+
+  transform->Identity();
+  transform->Translate(this->Point1[0], this->Point1[1]);
+  // Get the scale for the plot area from the x and y axes
+  transform->Scale(1.0 / xScale, 1.0 / yScale);
+  transform->Translate(-x->GetMinimum(), -y->GetMinimum());
+  return true;
 }
 
 //-----------------------------------------------------------------------------
