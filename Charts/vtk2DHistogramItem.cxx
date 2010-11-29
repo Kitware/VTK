@@ -15,7 +15,7 @@
 
 #include "vtk2DHistogramItem.h"
 #include "vtkImageData.h"
-#include "vtkColorTransferFunction.h"
+#include "vtkScalarsToColors.h"
 #include "vtkContext2D.h"
 
 #include "vtkObjectFactory.h"
@@ -71,13 +71,13 @@ vtkImageData * vtk2DHistogramItem::GetInput()
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::SetTransferFunction(vtkColorTransferFunction *function)
+void vtk2DHistogramItem::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->TransferFunction = function;
 }
 
 //-----------------------------------------------------------------------------
-vtkColorTransferFunction * vtk2DHistogramItem::GetTransferFunction()
+vtkScalarsToColors * vtk2DHistogramItem::GetTransferFunction()
 {
   return this->TransferFunction;
 }

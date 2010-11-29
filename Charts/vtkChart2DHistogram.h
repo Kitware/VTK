@@ -26,7 +26,7 @@
 
 class vtk2DHistogramItem;
 class vtkImageData;
-class vtkColorTransferFunction;
+class vtkScalarsToColors;
 
 class VTK_CHARTS_EXPORT vtkChart2DHistogram : public vtkChart
 {
@@ -49,7 +49,7 @@ public:
   virtual bool Paint(vtkContext2D *painter);
 
   virtual void SetInput(vtkImageData *data, vtkIdType z = 0);
-  virtual void SetTransferFunction(vtkColorTransferFunction *function);
+  virtual void SetTransferFunction(vtkScalarsToColors *function);
 
   // Description:
   // Get the plot at the specified index, returns null if the index is invalid.

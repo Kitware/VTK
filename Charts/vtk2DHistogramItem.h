@@ -26,7 +26,7 @@
 #include "vtkVector.h"        // Needed for vtkRectf
 
 class vtkImageData;
-class vtkColorTransferFunction;
+class vtkScalarsToColors;
 
 class VTK_CHARTS_EXPORT vtk2DHistogramItem : public vtkContextItem
 {
@@ -55,11 +55,11 @@ public:
   // Description:
   // Set the color transfer funtion that will be used to generate the 2D
   // histogram.
-  void SetTransferFunction(vtkColorTransferFunction *transfer);
+  void SetTransferFunction(vtkScalarsToColors *transfer);
 
   // Description:
   // Get the color transfer function that is used to generate the histogram.
-  vtkColorTransferFunction * GetTransferFunction();
+  vtkScalarsToColors * GetTransferFunction();
 
   virtual void GetBounds(double bounds[4]);
 
@@ -77,7 +77,7 @@ protected:
 
   vtkSmartPointer<vtkImageData> Input;
   vtkSmartPointer<vtkImageData> Output;
-  vtkSmartPointer<vtkColorTransferFunction> TransferFunction;
+  vtkSmartPointer<vtkScalarsToColors> TransferFunction;
   vtkRectf Position;
 
 private:

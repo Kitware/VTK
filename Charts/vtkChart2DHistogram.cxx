@@ -121,7 +121,7 @@ void vtkChart2DHistogram::SetInput(vtkImageData *data, vtkIdType z)
   this->Histogram->SetInput(data, z);
 }
 
-void vtkChart2DHistogram::SetTransferFunction(vtkColorTransferFunction *function)
+void vtkChart2DHistogram::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->Histogram->SetTransferFunction(function);
 }
