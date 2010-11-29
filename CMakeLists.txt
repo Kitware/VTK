@@ -1476,5 +1476,5 @@ INCLUDE(VTKCPack.cmake)
 #-----------------------------------------------------------------------------
 # The commands in this directory are intended to be executed as
 # the end of the whole configuration process, as a "last step".
-# This directory is typically the last SUBDIRS in the main CMakeLists.txt.
+# This directory is typically the last add_subdirectory in the main CMakeLists.txt.
 ADD_SUBDIRECTORY(Utilities/LastConfigureStep)
