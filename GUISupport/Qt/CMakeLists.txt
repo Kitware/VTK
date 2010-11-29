@@ -219,9 +219,6 @@ if(VTK_WRAP_PYTHON_SIP)
 
   PYTHON_ADD_MODULE(vtkQtPython vtkQtPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkQtPython vtkQtPythonD)
-  IF(WIN32 AND NOT CYGWIN)
-    SET_TARGET_PROPERTIES(vtkQtPython PROPERTIES SUFFIX ".pyd")
-  ENDIF(WIN32 AND NOT CYGWIN)
 
   #### wrap QObject derived classes with SIP
   # list .sip files here for wrapping
@@ -245,7 +242,7 @@ if(VTK_WRAP_PYTHON_SIP)
   # auto generate the module .sip file from the list of .sip files above
   set(SIP_MODULE QVTKPython)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in
-    "%Module ${SIP_MODULE} 0\n\n")
+    "%Module vtk.${SIP_MODULE} 0\n\n")
 
   set(SIP_OUT)
   foreach(f ${SIP_FILES})
@@ -310,6 +307,10 @@ if(VTK_WRAP_PYTHON_SIP)
   IF(WIN32 AND NOT CYGWIN)
     SET_TARGET_PROPERTIES(${SIP_MODULE} PROPERTIES SUFFIX ".pyd")
   ENDIF(WIN32 AND NOT CYGWIN)
+  get_target_property(lib_loc ${SIP_MODULE} LOCATION)
+  add_custom_command(TARGET ${SIP_MODULE} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${lib_loc}" "${VTK_BINARY_DIR}/Wrapping/Python/vtk/"
+    )
 
 
   SET_TARGET_PROPERTIES(vtkQtPython QVTKPython PROPERTIES SKIP_BUILD_RPATH 1)
