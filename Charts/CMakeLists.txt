@@ -15,6 +15,7 @@ SET(KIT_LIBS vtkIO vtkftgl
 )
 
 SET(Kit_SRCS
+  vtk2DHistogramItem.cxx
   vtkAbstractContextBufferId.cxx
   vtkAbstractContextItem.cxx
   vtkAxis.cxx
@@ -22,6 +23,7 @@ SET(Kit_SRCS
   vtkBrush.cxx
   vtkChart.cxx
   vtkChartLegend.cxx
+  vtkChart2DHistogram.cxx
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkChartPie.cxx
