@@ -78,16 +78,6 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 ((n)->ArcDownId && !this->GetArc((n)->ArcDownId)->ArcDwId1 && \
 (n)->ArcUpId && !this->GetArc((n)->ArcUpId)->ArcDwId0))
 
-// #define vtkReebGraphGetDownDegree(dst,rg,N) \
-// (dst)=0;\
-// for (int _A = this->GetNode(N)->ArcDownId;_A;_A = this->GetArc(_A)->ArcDwId1) \
-//   ++(dst);
-
-// #define vtkReebGraphGetUpDegree(dst,rg,N) {\
-// (dst)=0;\
-// for (int _A = this->GetNode(N)->ArcUpId;_A;_A = this->GetArc(_A)->ArcDwId0)\
-//   ++(dst); }
-
 #define vtkReebGraphAddUpArc(rg,N,A) {\
 vtkReebNode* n = this->GetNode(N);\
   vtkReebArc* a = this->GetArc(A);           \
@@ -1379,22 +1369,18 @@ int vtkReebGraph::Implementation::SimplifyBranches(double simplificationThreshol
     int _A, Mdown = 0, Nup = 0, Ndown = 0, Mup = 0;
 
     //get the 'down' degree for M
-//    vtkReebGraphGetDownDegree(Mdown,this,M);
     for(_A = this->GetNode(M)->ArcDownId;_A;_A = this->GetArc(_A)->ArcDwId1)
       ++Mdown;
 
     //Get the 'up' degree for N
-//    vtkReebGraphGetUpDegree(Nup,this,N);
     for(_A = this->GetNode(N)->ArcUpId;_A;_A = this->GetArc(_A)->ArcDwId0)
       ++Nup;
 
     //get the 'down' degree for N
-//    vtkReebGraphGetDownDegree(Ndown,this,N);
     for(_A = this->GetNode(N)->ArcDownId;_A;_A = this->GetArc(_A)->ArcDwId1)
       ++Ndown;
 
     //get the 'up' degree for M
-//    vtkReebGraphGetUpDegree(Mup,this,M);
     for(_A = this->GetNode(M)->ArcUpId;_A;_A = this->GetArc(_A)->ArcDwId0)
       ++Mup;
 
