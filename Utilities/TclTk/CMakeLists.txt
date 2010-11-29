@@ -1,4 +1,4 @@
-SUBDIRS(internals lib resources)
+ADD_SUBDIRECTORY(internals lib resources)
 
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/.NoDartCoverage

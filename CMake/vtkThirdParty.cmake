@@ -48,7 +48,7 @@ ENDMACRO(VTK_THIRD_PARTY_INCLUDE2)
 #-----------------------------------------------------------------------------
 MACRO(VTK_THIRD_PARTY_SUBDIR upper lower)
   IF(NOT VTK_USE_SYSTEM_${upper})
-    SUBDIRS(${lower})
+    ADD_SUBDIRECTORY(${lower})
   ENDIF(NOT VTK_USE_SYSTEM_${upper})
 ENDMACRO(VTK_THIRD_PARTY_SUBDIR)
 

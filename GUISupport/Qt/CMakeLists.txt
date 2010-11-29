@@ -175,7 +175,7 @@ endif()
 
 # recurse into testing directory if testing is on
 IF(BUILD_TESTING)
-  SUBDIRS(Testing/Cxx)
+  ADD_SUBDIRECTORY(Testing/Cxx)
 ENDIF(BUILD_TESTING)
 
 # wrapping for python

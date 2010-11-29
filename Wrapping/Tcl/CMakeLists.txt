@@ -179,7 +179,15 @@ IF (VTK_USE_PARALLEL)
 ENDIF (VTK_USE_PARALLEL)
 
 # Process all packages
-SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction vtkio vtktesting)
+ADD_SUBDIRECTORY(vtk)
+ADD_SUBDIRECTORY(vtkbase)
+ADD_SUBDIRECTORY(vtkcommon)
+ADD_SUBDIRECTORY(vtkfiltering)
+ADD_SUBDIRECTORY(vtkgraphics)
+ADD_SUBDIRECTORY(vtkimaging)
+ADD_SUBDIRECTORY(vtkinteraction)
+ADD_SUBDIRECTORY(vtkio)
+ADD_SUBDIRECTORY(vtktesting)
 
 IF(NOT VTK_INSTALL_NO_DOCUMENTATION)
   INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README"
@@ -203,33 +211,33 @@ SET(VTK_TCL_VIEWS_CONFIG "")
 
 IF (VTK_USE_PARALLEL)
   SET(VTK_TCL_PARALLEL_CONFIG "Parallel")
-  SUBDIRS(vtkparallel)
+  ADD_SUBDIRECTORY(vtkparallel)
 ENDIF (VTK_USE_PARALLEL)
 
 IF (VTK_USE_GEOVIS)
   SET(VTK_TCL_GEOVIS_CONFIG "Geovis")
-  SUBDIRS(vtkgeovis)
+  ADD_SUBDIRECTORY(vtkgeovis)
 ENDIF (VTK_USE_GEOVIS)
 
 IF (VTK_USE_INFOVIS)
   SET(VTK_TCL_INFOVIS_CONFIG "Infovis")
-  SUBDIRS(vtkinfovis)
+  ADD_SUBDIRECTORY(vtkinfovis)
 ENDIF (VTK_USE_INFOVIS)
 
 IF (VTK_USE_VIEWS)
   SET(VTK_TCL_VIEWS_CONFIG "Views")
-  SUBDIRS(vtkviews)
+  ADD_SUBDIRECTORY(vtkviews)
 ENDIF (VTK_USE_VIEWS)
 
 IF (VTK_USE_RENDERING)
   SET(VTK_TCL_WIDGETS_CONFIG "Widgets")
-  SUBDIRS(vtkwidgets)
+  ADD_SUBDIRECTORY(vtkwidgets)
   SET(VTK_TCL_HYBRID_CONFIG "Hybrid")
-  SUBDIRS(vtkhybrid)
+  ADD_SUBDIRECTORY(vtkhybrid)
   SET(VTK_TCL_VOLUMERENDERING_CONFIG "VolumeRendering")
-  SUBDIRS(vtkvolumerendering)
+  ADD_SUBDIRECTORY(vtkvolumerendering)
   SET(VTK_TCL_RENDERING_CONFIG "Rendering")
-  SUBDIRS(vtkrendering)
+  ADD_SUBDIRECTORY(vtkrendering)
 ENDIF (VTK_USE_RENDERING)
 
 # Configure the Tcl package index files for the build tree.

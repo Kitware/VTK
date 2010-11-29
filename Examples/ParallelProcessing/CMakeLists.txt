@@ -1,2 +1,2 @@
-SUBDIRS(Generic)
+ADD_SUBDIRECTORY(Generic)
 

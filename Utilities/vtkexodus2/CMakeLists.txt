@@ -235,6 +235,6 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 # Turned off until ExoIICTests.cxx problem is fixed.
 #IF (BUILD_TESTING)
 #  ENABLE_TESTING()
-#  SUBDIRS(test)
+#  ADD_SUBDIRECTORY(test)
 #ENDIF (BUILD_TESTING)
 
