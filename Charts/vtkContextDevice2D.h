@@ -36,6 +36,7 @@ class vtkMatrix3x3;
 class vtkAbstractContextBufferId;
 class vtkPen;
 class vtkBrush;
+class vtkRectf;
 
 class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
 {
@@ -137,6 +138,12 @@ public:
   // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
   // scaled by scale (1.0 would match the image).
   virtual void DrawImage(float p[2], float scale, vtkImageData *image) = 0;
+
+  // Description:
+  // Draw the supplied image at the given position. The origin, width, and
+  // height are specified by the supplied vtkRectf variable pos. The image
+  // will be drawn scaled to that size.
+  virtual void DrawImage(const vtkRectf& pos, vtkImageData *image) = 0;
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as

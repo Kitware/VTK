@@ -1108,6 +1108,35 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
+                                         vtkImageData *image)
+{
+  this->SetTexture(image);
+  this->Storage->Texture->Render(this->Renderer);
+  float points[] = { pos.X()              , pos.Y(),
+                     pos.X() + pos.Width(), pos.Y(),
+                     pos.X() + pos.Width(), pos.Y() + pos.Height(),
+                     pos.X()              , pos.Y() + pos.Height() };
+
+  float texCoord[] = { 0.0, 0.0,
+                       1.0, 0.0,
+                       1.0, 1.0,
+                       0.0, 1.0 };
+
+  glColor4ub(255, 255, 255, 255);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, &points[0]);
+  glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
+  glDrawArrays(GL_QUADS, 0, 4);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+
+  this->Storage->Texture->PostRender(this->Renderer);
+  glDisable(GL_TEXTURE_2D);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetColor4(unsigned char *color)
 {
   glColor4ubv(color);

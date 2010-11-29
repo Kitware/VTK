@@ -625,6 +625,12 @@ void vtkContext2D::DrawImage(float x, float y, float scale, vtkImageData *image)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawImage(const vtkRectf& pos, vtkImageData *image)
+{
+  this->Device->DrawImage(pos, image);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::ApplyPen(vtkPen *pen)
 {
   this->Device->ApplyPen(pen);
