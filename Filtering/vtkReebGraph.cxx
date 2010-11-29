@@ -68,41 +68,41 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 ((this->GetNode(a->NodeId1)->Value - this->GetNode(a->NodeId0)->Value) \
 /(this->MaximumScalarValue - this->MinimumScalarValue))
 
-#define vtkReebGraphNewNode(rg,N)    { \
-N=rg->MainNodeTable.FreeZone;\
-rg->MainNodeTable.FreeZone = this->GetNode(N)->ArcDownId; \
-++(rg->MainNodeTable.Number);\
-memset(this->GetNode(N),0,sizeof(vtkReebNode));}
+// #define vtkReebGraphNewNode(rg,N)    { \
+// N=rg->MainNodeTable.FreeZone;\
+// rg->MainNodeTable.FreeZone = this->GetNode(N)->ArcDownId; \
+// ++(rg->MainNodeTable.Number);\
+// memset(this->GetNode(N),0,sizeof(vtkReebNode));}
 
-#define vtkReebGraphNewArc(rg,A)    {\
-A=rg->MainArcTable.FreeZone;\
-rg->MainArcTable.FreeZone = this->GetArc(A)->LabelId0;\
-++(rg->MainArcTable.Number);\
-memset(this->GetArc(A),0,sizeof(vtkReebArc));}
+// #define vtkReebGraphNewArc(rg,A)    {\
+// A=rg->MainArcTable.FreeZone;\
+// rg->MainArcTable.FreeZone = this->GetArc(A)->LabelId0;\
+// ++(rg->MainArcTable.Number);\
+// memset(this->GetArc(A),0,sizeof(vtkReebArc));}
 
-#define vtkReebGraphNewLabel(rg,L)    {\
-L=rg->MainLabelTable.FreeZone;\
-rg->MainLabelTable.FreeZone = this->GetLabel(L)->ArcId;\
-++(rg->MainLabelTable.Number); \
-memset(this->GetLabel(L),0,sizeof(vtkReebLabel));}
+// #define vtkReebGraphNewLabel(rg,L)    {\
+// L=rg->MainLabelTable.FreeZone;\
+// rg->MainLabelTable.FreeZone = this->GetLabel(L)->ArcId;\
+// ++(rg->MainLabelTable.Number); \
+// memset(this->GetLabel(L),0,sizeof(vtkReebLabel));}
 
-#define vtkReebGraphDeleteNode(rg,N)     \
-  this->GetNode(N)->ArcUpId = ((int)-2);    \
-this->GetNode(N)->ArcDownId = rg->MainNodeTable.FreeZone; \
-rg->MainNodeTable.FreeZone=(N); \
---(rg->MainNodeTable.Number);
+// #define vtkReebGraphDeleteNode(rg,N)     \
+//   this->GetNode(N)->ArcUpId = ((int)-2);    \
+// this->GetNode(N)->ArcDownId = rg->MainNodeTable.FreeZone; \
+// rg->MainNodeTable.FreeZone=(N); \
+// --(rg->MainNodeTable.Number);
 
-#define vtkReebGraphDeleteArc(rg,A)    \
-this->GetArc(A)->LabelId1 = ((int)-2);     \
-this->GetArc(A)->LabelId0 = rg->MainArcTable.FreeZone; \
-rg->MainArcTable.FreeZone=(A); \
---(rg->MainArcTable.Number);
+// #define vtkReebGraphDeleteArc(rg,A)    \
+// this->GetArc(A)->LabelId1 = ((int)-2);     \
+// this->GetArc(A)->LabelId0 = rg->MainArcTable.FreeZone; \
+// rg->MainArcTable.FreeZone=(A); \
+// --(rg->MainArcTable.Number);
 
-#define vtkReebGraphDeleteLabel(rg,L)    \
-this->GetLabel(L)->HNext = ((int)-2);    \
-this->GetLabel(L)->ArcId = rg->MainLabelTable.FreeZone;     \
-rg->MainLabelTable.FreeZone=(L); \
---(rg->MainLabelTable.Number);
+// #define vtkReebGraphDeleteLabel(rg,L)    \
+// this->GetLabel(L)->HNext = ((int)-2);    \
+// this->GetLabel(L)->ArcId = rg->MainLabelTable.FreeZone;     \
+// rg->MainLabelTable.FreeZone=(L); \
+// --(rg->MainLabelTable.Number);
 
 #define vtkReebGraphIsHigherThan(rg,N0,N1,n0,n1) \
 ((n0->Value >n1->Value) || (n0->Value==n1->Value && n0->VertexId>n1->VertexId))
@@ -154,41 +154,45 @@ if (a->ArcUpId1) this->GetArc(a->ArcUpId1)->ArcDwId1=a->ArcDwId1; else n->ArcDow
 if (a->ArcDwId1) this->GetArc(a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
 }
 
-#define vtkReebGraphVertexCollapse(rg,N,n) {\
-int Lb,Lnext,La;\
-vtkReebLabel* lb;\
-int _A0=n->ArcDownId;\
-int _A1=n->ArcUpId  ;\
-vtkReebArc* _a0 = this->GetArc(_A0); \
-vtkReebArc* _a1 = this->GetArc(_A1);\
-_a0->NodeId1  = _a1->NodeId1;\
-_a0->ArcUpId1 = _a1->ArcUpId1;\
-if (_a1->ArcUpId1) this->GetArc(_a1->ArcUpId1)->ArcDwId1 = _A0;\
-_a0->ArcDwId1 = _a1->ArcDwId1;\
-if (_a1->ArcDwId1) this->GetArc(_a1->ArcDwId1)->ArcUpId1 = _A0;\
-if (this->GetNode(_a1->NodeId1)->ArcDownId == _A1)\
-  this->GetNode(_a1->NodeId1)->ArcDownId = _A0;\
-\
-for (Lb = _a1->LabelId0; Lb; Lb=Lnext) \
-{\
-  lb = this->GetLabel(Lb);\
-  Lnext = lb->HNext;\
-\
-  if (lb->VPrev)\
-  {\
-    La=lb->VPrev;\
-    this->GetLabel(La)->VNext = lb->VNext;\
-  }\
-\
-  if (lb->VNext)\
-    this->GetLabel(lb->VNext)->VPrev=lb->VPrev;\
-\
-  vtkReebGraphDeleteLabel(rg,Lb);\
-}\
-\
-vtkReebGraphDeleteArc(rg,_A1);\
-vtkReebGraphDeleteNode(rg,N);\
-}
+// #define vtkReebGraphVertexCollapse(rg,N,n) {\
+// int Lb,Lnext,La;\
+// vtkReebLabel* lb;\
+// int _A0=n->ArcDownId;\
+// int _A1=n->ArcUpId  ;\
+// vtkReebArc* _a0 = this->GetArc(_A0); \
+// vtkReebArc* _a1 = this->GetArc(_A1);\
+// _a0->NodeId1  = _a1->NodeId1;\
+// _a0->ArcUpId1 = _a1->ArcUpId1;\
+// if (_a1->ArcUpId1) this->GetArc(_a1->ArcUpId1)->ArcDwId1 = _A0;\
+// _a0->ArcDwId1 = _a1->ArcDwId1;\
+// if (_a1->ArcDwId1) this->GetArc(_a1->ArcDwId1)->ArcUpId1 = _A0;\
+// if (this->GetNode(_a1->NodeId1)->ArcDownId == _A1)\
+//   this->GetNode(_a1->NodeId1)->ArcDownId = _A0;\
+// \
+// for (Lb = _a1->LabelId0; Lb; Lb=Lnext) \
+// {\
+//   lb = this->GetLabel(Lb);\
+//   Lnext = lb->HNext;\
+// \
+//   if (lb->VPrev)\
+//   {\
+//     La=lb->VPrev;\
+//     this->GetLabel(La)->VNext = lb->VNext;\
+//   }\
+// \
+//   if (lb->VNext)\
+//     this->GetLabel(lb->VNext)->VPrev=lb->VPrev;\
+// \
+//   vtkReebGraphDeleteLabel(rg,Lb);\
+// }\
+// \
+// vtkReebGraphDeleteArc(rg,_A1);\
+//   /*vtkReebGraphDeleteNode(rg,N);*/       \
+// this->GetNode(N)->ArcUpId = ((int)-2);    \
+// this->GetNode(N)->ArcDownId = rg->MainNodeTable.FreeZone; \
+// rg->MainNodeTable.FreeZone=(N); \
+// --(rg->MainNodeTable.Number); \
+// }
 
 #ifndef vtkReebGraphMax
 #define vtkReebGraphMax(a,b) (((a)>=(b))?(a):(b))
@@ -399,6 +403,10 @@ public:
   // Description:
   // Get the Label specified from the graph.
   vtkReebLabel* GetLabel(vtkIdType labelId);
+
+  // Description:
+  // Collapse (consolidate) two nodes in the graph.
+  void CollapseVertex(vtkIdType N, vtkReebNode* n);
 
   // Description:
   // Triggers customized code for simplification metric evaluation.
@@ -661,6 +669,68 @@ vtkReebGraph::Implementation::vtkReebLabel* vtkReebGraph::Implementation::GetLab
 }
 
 //----------------------------------------------------------------------------
+void vtkReebGraph::Implementation::CollapseVertex(vtkIdType N, vtkReebNode* n)
+{
+  int Lb, Lnext, La;
+  vtkReebLabel* lb;
+
+  int _A0 = n->ArcDownId;
+  int _A1 = n->ArcUpId;
+
+  vtkReebArc* _a0 = this->GetArc(_A0);
+  vtkReebArc* _a1 = this->GetArc(_A1);
+
+  _a0->NodeId1  = _a1->NodeId1;
+  _a0->ArcUpId1 = _a1->ArcUpId1;
+
+  if (_a1->ArcUpId1)
+    this->GetArc(_a1->ArcUpId1)->ArcDwId1 = _A0;
+
+  _a0->ArcDwId1 = _a1->ArcDwId1;
+
+  if(_a1->ArcDwId1)
+    this->GetArc(_a1->ArcDwId1)->ArcUpId1 = _A0;
+
+  if (this->GetNode(_a1->NodeId1)->ArcDownId == _A1)
+    this->GetNode(_a1->NodeId1)->ArcDownId = _A0;
+
+  for( Lb = _a1->LabelId0; Lb; Lb=Lnext )
+    {
+    lb = this->GetLabel(Lb);
+    Lnext = lb->HNext;
+
+    if (lb->VPrev)
+      {
+      La=lb->VPrev;
+      this->GetLabel(La)->VNext = lb->VNext;
+      }
+
+    if (lb->VNext)
+      this->GetLabel(lb->VNext)->VPrev=lb->VPrev;
+
+    //delete the label...
+//    vtkReebGraphDeleteLabel(this,Lb);
+    this->GetLabel(Lb)->HNext = ((int)-2);
+    this->GetLabel(Lb)->ArcId = this->MainLabelTable.FreeZone;
+    this->MainLabelTable.FreeZone=(Lb);
+    --(this->MainLabelTable.Number);
+    }
+
+  //delete the arc from the graph...
+//  vtkReebGraphDeleteArc(this,_A1);
+  this->GetArc(_A1)->LabelId1 = ((int)-2);
+  this->GetArc(_A1)->LabelId0 = this->MainArcTable.FreeZone;
+  this->MainArcTable.FreeZone=(_A1);
+  --(this->MainArcTable.Number);
+
+  //delete the node from the graph...
+  this->GetNode(N)->ArcUpId = ((int)-2);
+  this->GetNode(N)->ArcDownId = this->MainNodeTable.FreeZone;
+  this->MainNodeTable.FreeZone=(N);
+  --(this->MainNodeTable.Number);
+}
+
+//----------------------------------------------------------------------------
 void vtkReebGraph::Implementation::DeepCopy(Implementation *srcG)
 {
   MinimumScalarValue = srcG->MinimumScalarValue;
@@ -746,9 +816,16 @@ void vtkReebGraph::Implementation::SetLabel(vtkIdType arcId,
   inputMesh = NULL;
 
   ResizeMainLabelTable(1);
-  vtkIdType L=0;
-  vtkReebGraphNewLabel(this,L);
+
+  //create a new label in the graph
+//   vtkIdType L=0;
+//   vtkReebGraphNewLabel(this,L);
+  vtkIdType L = this->MainLabelTable.FreeZone;
+  this->MainLabelTable.FreeZone = this->GetLabel(L)->ArcId;
+  ++(this->MainLabelTable.Number);
+  memset(this->GetLabel(L),0,sizeof(vtkReebLabel));
   vtkReebLabel* l = this->GetLabel(L);
+
   l->HPrev=0;
   l->HNext=0;
   this->GetArc(arcId)->LabelId0=L;
@@ -837,7 +914,13 @@ void vtkReebGraph::Implementation::FastArcSimplify(vtkIdType arcId,
 
   vtkReebGraphRemoveUpArc(this, nodeId0, arcId);
   vtkReebGraphRemoveDownArc(this, nodeId1, arcId);
-  vtkReebGraphDeleteArc(this, arcId);
+
+  //delete the arc from the graph...
+//  vtkReebGraphDeleteArc(this, arcId);
+  this->GetArc(arcId)->LabelId1 = ((int)-2);
+  this->GetArc(arcId)->LabelId0 = this->MainArcTable.FreeZone;
+  this->MainArcTable.FreeZone=(arcId);
+  --(this->MainArcTable.Number);
 }
 
 //----------------------------------------------------------------------------
@@ -1189,7 +1272,13 @@ int vtkReebGraph::Implementation::SimplifyLoops(double simplificationThreshold,
 
    if (this->GetNode(N)->ArcDownId==0 && this->GetNode(N)->ArcUpId==0)
      {
-     vtkReebGraphDeleteNode(this,N);
+     //delete the node from the graph...
+//     vtkReebGraphDeleteNode(this,N);
+     this->GetNode(N)->ArcUpId = ((int)-2);
+     this->GetNode(N)->ArcDownId = this->MainNodeTable.FreeZone;
+     this->MainNodeTable.FreeZone=(N);
+     --(this->MainNodeTable.Number);
+
      }
 
    else if (vtkReebGraphIsRegular(this,this->GetNode(N)))
@@ -1297,7 +1386,13 @@ int vtkReebGraph::Implementation::SimplifyBranches(double simplificationThreshol
     //simplify atomic nodes
     if (!n->ArcDownId && !n->ArcUpId)
       {
-      vtkReebGraphDeleteNode(this,N);
+      //delete the node from the graph...
+//      vtkReebGraphDeleteNode(this,N);
+      this->GetNode(N)->ArcUpId = ((int)-2);
+      this->GetNode(N)->ArcDownId = this->MainNodeTable.FreeZone;
+      this->MainNodeTable.FreeZone=(N);
+      --(this->MainNodeTable.Number);
+
       }
     else if (!n->ArcDownId)
       {
@@ -1375,7 +1470,13 @@ int vtkReebGraph::Implementation::SimplifyBranches(double simplificationThreshol
       {
       vtkReebGraphRemoveUpArc  (this,N,A);
       vtkReebGraphRemoveDownArc(this,M,A);
-      vtkReebGraphDeleteArc(this,A);
+
+      //delete the arc from the graph...
+//      vtkReebGraphDeleteArc(this,A);
+      this->GetArc(A)->LabelId1 = ((int)-2);
+      this->GetArc(A)->LabelId0 = this->MainArcTable.FreeZone;
+      this->MainArcTable.FreeZone=(A);
+      --(this->MainArcTable.Number);
 
       if (!(this->GetNode(N)->ArcUpId == ((int)-2)) &&
           vtkReebGraphIsRegular(this, this->GetNode(N)))
@@ -2257,7 +2358,14 @@ vtkIdType vtkReebGraph::Implementation::AddMeshVertex(vtkIdType vertexId,
 
   vtkIdType N0;
   ResizeMainNodeTable(1);
-  vtkReebGraphNewNode(this,N0);
+
+  //create a new node in the graph...
+//  vtkReebGraphNewNode(this,N0);
+  N0 = this->MainNodeTable.FreeZone;
+  this->MainNodeTable.FreeZone = this->GetNode(N0)->ArcDownId;
+  ++(this->MainNodeTable.Number);
+  memset(this->GetNode(N0),0,sizeof(vtkReebNode));
+
   vtkReebNode* node = this->GetNode(N0);
   node->VertexId=vertexId;
   node->Value = scalar;
@@ -2388,8 +2496,15 @@ vtkIdType vtkReebGraph::Implementation::AddPath(int nodeNumber,
     vtkIdType N0 = nodeOffset[i ];
     vtkIdType N1= nodeOffset[i + 1];
 
-    int A;vtkReebGraphNewArc(this,A);
+    //create a new arc in the graph
+//    int A;
+//    vtkReebGraphNewArc(this,A);
+    int A = this->MainArcTable.FreeZone;
+    this->MainArcTable.FreeZone = this->GetArc(A)->LabelId0;
+    ++(this->MainArcTable.Number);
+    memset(this->GetArc(A),0,sizeof(vtkReebArc));
     vtkReebArc* arc = this->GetArc(A);
+
     int L=0;
 
     if (!Ret) Ret=A;
@@ -2397,8 +2512,15 @@ vtkIdType vtkReebGraph::Implementation::AddPath(int nodeNumber,
     if (label)
       {
       vtkReebLabel* temporaryLabel;
-      vtkReebGraphNewLabel(this,L);
+
+      //create a new label in the graph
+//      vtkReebGraphNewLabel(this,L);
+      L = this->MainLabelTable.FreeZone;
+      this->MainLabelTable.FreeZone = this->GetLabel(L)->ArcId;
+      ++(this->MainLabelTable.Number);
+      memset(this->GetLabel(L),0,sizeof(vtkReebLabel));
       temporaryLabel = this->GetLabel(L);
+
       temporaryLabel->ArcId = A;
       temporaryLabel->label=label;
       temporaryLabel->VPrev=Lprev;
@@ -2486,7 +2608,13 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode,
 
       this->GetArc(A1)->LabelId0=0;
       this->GetArc(A1)->LabelId1=0;
-      vtkReebGraphDeleteArc(this,A1);
+
+      //delete the arc from the graph...
+//      vtkReebGraphDeleteArc(this,A1);
+      this->GetArc(A1)->LabelId1 = ((int)-2);
+      this->GetArc(A1)->LabelId0 = this->MainArcTable.FreeZone;
+      this->MainArcTable.FreeZone=(A1);
+      --(this->MainArcTable.Number);
 
       L0n = this->GetLabel(L0)->VNext;
       L1n = this->GetLabel(L1)->VNext;
@@ -2529,7 +2657,14 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode,
         {
         int Lnew;
         ResizeMainLabelTable(1);
-        vtkReebGraphNewLabel(this,Lnew);
+
+        //create a new label in the graph
+//        vtkReebGraphNewLabel(this,Lnew);
+        Lnew = this->MainLabelTable.FreeZone;
+        this->MainLabelTable.FreeZone = this->GetLabel(Lnew)->ArcId;
+        ++(this->MainLabelTable.Number);
+        memset(this->GetLabel(Lnew),0,sizeof(vtkReebLabel));
+
         vtkReebLabel* lnew = this->GetLabel(Lnew);
         vtkReebLabel* lcur = this->GetLabel(Lcur);
         lnew->ArcId = A0;
@@ -2578,7 +2713,8 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode,
         c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
         this->cancellationHistory.push_back(c);
         }
-      vtkReebGraphVertexCollapse(this, N0, n0);
+//      vtkReebGraphVertexCollapse(this, N0, n0);
+      this->CollapseVertex(N0, n0);
       }
 
     /* end condition */
@@ -2606,7 +2742,8 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode,
           c.insertedArcs.push_back(std::pair<int, int>(v2, v1));
           this->cancellationHistory.push_back(c);
           }
-        vtkReebGraphVertexCollapse(this, endingNode, nendNode);
+//        vtkReebGraphVertexCollapse(this, endingNode, nendNode);
+        this->CollapseVertex(endingNode, nendNode);
         }
 
       return;
@@ -2655,7 +2792,13 @@ void vtkReebGraph::Implementation::SimplifyLabels(const vtkIdType nodeId,
               if (lcur->HNext)
                 this->GetLabel(lcur->HNext)->HPrev = lcur->HPrev;
               else this->GetArc(CurA)->LabelId1 = lcur->HPrev;
-              vtkReebGraphDeleteLabel(this,Lcur);
+
+              //delete the label
+//              vtkReebGraphDeleteLabel(this,Lcur);
+              this->GetLabel(Lcur)->HNext = ((int)-2);
+              this->GetLabel(Lcur)->ArcId = this->MainLabelTable.FreeZone;
+              this->MainLabelTable.FreeZone=(Lcur);
+              --(this->MainLabelTable.Number);
               }
             }
           }
@@ -2702,7 +2845,13 @@ void vtkReebGraph::Implementation::SimplifyLabels(const vtkIdType nodeId,
                 {
                 cura->LabelId1=lcur->HPrev;
                 }
-              vtkReebGraphDeleteLabel(this,Lcur);
+
+              //delete the label...
+//              vtkReebGraphDeleteLabel(this,Lcur);
+              this->GetLabel(Lcur)->HNext = ((int)-2);
+              this->GetLabel(Lcur)->ArcId = this->MainLabelTable.FreeZone;
+              this->MainLabelTable.FreeZone=(Lcur);
+              --(this->MainLabelTable.Number);
               }
             }
           }
@@ -2729,7 +2878,8 @@ void vtkReebGraph::Implementation::EndVertex(const vtkIdType N)
 
       if (vtkReebGraphIsRegular(this,n))
         {
-        vtkReebGraphVertexCollapse(this,N,n);
+//        vtkReebGraphVertexCollapse(this,N,n);
+        this->CollapseVertex(N, n);
         }
       }
     }
