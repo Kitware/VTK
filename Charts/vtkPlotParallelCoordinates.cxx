@@ -151,7 +151,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 
   // Draw all of the lines
   painter->ApplyPen(this->Pen);
-  int nc_comps;
+  int nc_comps(0);
   if (this->ScalarVisibility && this->Colors)
     {
     nc_comps = static_cast<int>(this->Colors->GetNumberOfComponents());
