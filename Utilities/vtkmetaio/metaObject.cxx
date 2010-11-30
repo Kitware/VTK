@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
+#include <algorithm>
 #if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)
 #include <mem.h>
 #endif
@@ -1742,7 +1742,24 @@ M_Read(void)
    while( it != end )
    {
      mF = MET_GetFieldRecord((*it)->name, &m_Fields);
-     m_UserDefinedWriteFields.push_back(mF);
+     //
+     // DON'T put the same cross-linked element from the UD readFields
+     // into the userDefined write fields more than once. That
+     // causes a double free, and an abort.
+     FieldsContainerType::iterator dup;
+     for(dup m_UserDefinedWriteFields.begin();
+	 dup != m_UserDefinedWriteFields.end();
+	 dup++)
+       {
+       if( (*dup) == mF )
+	 {
+	 break;
+	 }
+       }
+     if(dup == m_UserDefinedWriteFields.end())
+       {
+       m_UserDefinedWriteFields.push_back(mF);
+       }
      it++;
    }
   
