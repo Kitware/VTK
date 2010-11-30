@@ -530,6 +530,7 @@ int vtkMNIObjectReader::ReadColors(vtkProperty *property,
 
   // Read the colors
   vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
+  colors->SetName("Colors");
   colors->SetNumberOfComponents(4);
   int status = this->ParseValues(colors, 4*numColors);
 
