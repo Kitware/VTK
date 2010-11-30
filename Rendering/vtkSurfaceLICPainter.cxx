@@ -17,29 +17,32 @@
 #include "vtkBase64Utilities.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkColorMaterialHelper.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkDataTransferHelper.h"
+#include "vtkFrameBufferObject.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkImageData.h"
-#include "vtkColorMaterialHelper.h"
-#include "vtkDataTransferHelper.h"
-#include "vtkFrameBufferObject.h"
 #include "vtkLightingHelper.h"
 #include "vtkLineIntegralConvolution2D.h"
-#include "vtkNoise200x200.h"
-#include "vtkShaderProgram2.h"
-#include "vtkShader2.h"
-#include "vtkShader2Collection.h"
-#include "vtkUniformVariables.h"
-#include "vtkTextureObject.h"
 #include "vtkMatrix4x4.h"
+#include "vtkMath.h"
+#include "vtkNoise200x200.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkShader2Collection.h"
+#include "vtkShader2.h"
+#include "vtkShaderProgram2.h"
 #include "vtkSmartPointer.h"
+#include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
+#include "vtkUniformVariables.h"
 #include "vtkWeakPointer.h"
 
 #include <assert.h>
@@ -414,7 +417,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
   // on the screen.
 
   double bounds[6];
-  this->GetInputAsPolyData()->GetBounds( bounds );
+  this->GetBounds(this->GetInput(), bounds);
   double worldPoints[8][4];
   worldPoints[0][0] = bounds[0];
   worldPoints[0][1] = bounds[2];
@@ -803,7 +806,7 @@ bool vtkSurfaceLICPainter::PrepareOutput()
     }
 
   // TODO: Handle composite datasets.
-  vtkPolyData * input = this->GetInputAsPolyData();
+  vtkDataObject* input = this->GetInput();
 
   if (  !this->Output || 
         !this->Output->IsA( input->GetClassName() ) ||
@@ -817,49 +820,32 @@ bool vtkSurfaceLICPainter::PrepareOutput()
       this->Output->Delete();
       this->Output = 0;
       }
-      
-    bool           cell_data = false;
-    vtkPolyData  * output = vtkPolyData::New();
+
+    vtkDataObject* output = input->NewInstance();
     output->ShallowCopy( input );
-    vtkDataArray * vectors = NULL;
-    
-    if ( this->Internals->FieldNameSet )
+
+    bool found_some_vectors = false;
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(output);
+    if (ds)
       {
-      vectors = vtkDataArray::SafeDownCast
-                (  this->GetInputArrayToProcess
-                   ( this->Internals->FieldAssociation,
-                     this->Internals->FieldName.c_str(),
-                     output,
-                     &cell_data
-                   )
-                );
+      found_some_vectors = this->FixTCoords(ds);
       }
-    else
+    vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(output);
+    if (cd)
       {
-      vectors = vtkDataArray::SafeDownCast
-                (  this->GetInputArrayToProcess
-                   ( this->Internals->FieldAssociation,
-                     this->Internals->FieldAttributeType, 
-                     output,
-                     &cell_data
-                   )
-                );
+      vtkCompositeDataIterator* iter = cd->NewIterator();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+        {
+        ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        if (ds)
+          {
+          found_some_vectors = this->FixTCoords(ds) || found_some_vectors;
+          }
+        }
+      iter->Delete();
       }
 
-    if ( vectors )
-      {
-      if ( cell_data )
-        {
-        output->GetCellData()->SetTCoords( vectors );
-        }
-      else
-        {
-        output->GetPointData()->SetTCoords( vectors );
-        }
-        
-      vectors = NULL;
-      }
-    else
+    if (!found_some_vectors)
       {
       vtkErrorMacro( "No vectors available." );
       this->Internals->HasVectors = false;
@@ -872,6 +858,68 @@ bool vtkSurfaceLICPainter::PrepareOutput()
 
   input = NULL;
   return this->Internals->HasVectors;
+}
+
+//----------------------------------------------------------------------------
+void vtkSurfaceLICPainter::GetBounds(vtkDataObject* dobj, double bounds[6])
+{
+  vtkMath::UninitializeBounds(bounds);
+  vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
+  if (ds)
+    {
+    ds->GetBounds(bounds);
+    return;
+    }
+
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dobj);
+  if (cd)
+    {
+    vtkBoundingBox bbox;
+    vtkCompositeDataIterator* iter = cd->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (ds)
+        {
+        ds->GetBounds(bounds);
+        bbox.AddBounds(bounds);
+        }
+      }
+    iter->Delete();
+    bbox.GetBounds(bounds);
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkSurfaceLICPainter::FixTCoords(vtkDataSet* ds)
+{
+  bool cell_data;
+  vtkDataArray * vectors = NULL;
+  if ( this->Internals->FieldNameSet )
+    {
+    vectors = vtkDataArray::SafeDownCast(this->GetInputArrayToProcess(
+      this->Internals->FieldAssociation,
+      this->Internals->FieldName.c_str(), ds, &cell_data));
+    }
+  else
+    {
+    vectors = vtkDataArray::SafeDownCast(this->GetInputArrayToProcess(
+      this->Internals->FieldAssociation,
+      this->Internals->FieldAttributeType, ds, &cell_data));
+    }
+  if (vectors)
+    {
+    if (cell_data)
+      {
+      ds->GetCellData()->SetTCoords(vectors);
+      }
+    else
+      {
+      ds->GetPointData()->SetTCoords(vectors);
+      }
+    }
+
+  return vectors != NULL;
 }
 
 //----------------------------------------------------------------------------

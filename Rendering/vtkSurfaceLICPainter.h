@@ -18,25 +18,22 @@
 // .SECTION Description
 //  vtkSurfaceLICPainter painter performs LIC on the surface of arbitrary
 //  geometry. Point vectors are used as the vector field for generating the LIC.
-//  The implementation is based on "Image Space Based Visualization on Unstread
-//  Flow on Surfaces" by Laramee, Jobard and Hauser appered in proceedings of 
+//  The implementation is based on "Image Space Based Visualization on Unsteady
+//  Flow on Surfaces" by Laramee, Jobard and Hauser appeared in proceedings of
 //  IEEE Visualization '03, pages 131-138.
-//  
-// .SECTION See Also
-//  vtkPolyDataPainter
 
 #ifndef __vtkSurfaceLICPainter_h
 #define __vtkSurfaceLICPainter_h
 
-#include "vtkPolyDataPainter.h"
+#include "vtkPainter.h"
 
 class vtkRenderWindow;
 
-class VTK_RENDERING_EXPORT vtkSurfaceLICPainter : public vtkPolyDataPainter
+class VTK_RENDERING_EXPORT vtkSurfaceLICPainter : public vtkPainter
 {
 public:
   static vtkSurfaceLICPainter* New();
-  vtkTypeMacro(vtkSurfaceLICPainter, vtkPolyDataPainter);
+  vtkTypeMacro(vtkSurfaceLICPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -113,6 +110,10 @@ protected:
   ~vtkSurfaceLICPainter();
 
   // Description:
+  // Computes data bounds.
+  void GetBounds(vtkDataObject* data, double bounds[6]);
+
+  // Description:
   // Take part in garbage collection.
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
@@ -136,6 +137,7 @@ protected:
   // Description:
   // Prepares output data. Returns true if vectors are available.
   bool PrepareOutput();
+  bool FixTCoords(vtkDataSet* ds);
 
   // Description:
   // Returns true when rendering LIC is possible.
