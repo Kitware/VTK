@@ -25,6 +25,7 @@
 
 class vtkIdTypeArray;
 class vtkStringArray;
+class vtkPlotParallelCoordinates;
 
 class VTK_CHARTS_EXPORT vtkChartParallelCoordinates : public vtkChart
 {
@@ -83,6 +84,11 @@ public:
   // Request that the chart recalculates the range of its axes. Especially
   // useful in applications after the parameters of plots have been modified.
   virtual void RecalculateBounds();
+
+  // Description
+  // Set plot to use for the chart. Since this type of chart can
+  // only contain one plot, this will replace the previous plot.
+  virtual void SetPlot(vtkPlotParallelCoordinates *plot);
 
 //BTX
   // Description:

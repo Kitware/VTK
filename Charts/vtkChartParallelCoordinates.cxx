@@ -301,6 +301,13 @@ bool vtkChartParallelCoordinates::GetColumnVisibility(const char* name)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SetPlot(vtkPlotParallelCoordinates *plot)
+{
+  this->Storage->Plot = plot;
+  this->Storage->Plot->SetParent(this);
+}
+
+//-----------------------------------------------------------------------------
 vtkPlot* vtkChartParallelCoordinates::GetPlot(vtkIdType)
 {
   return this->Storage->Plot;
