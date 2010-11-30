@@ -38,6 +38,7 @@ vtkOpenGLImageActor::vtkOpenGLImageActor()
   this->RenderWindow = 0;
   this->TextureSize[0] = 0;
   this->TextureSize[1] = 0;
+  this->TextureBytesPerPixel = 1;
 }
 
 vtkOpenGLImageActor::~vtkOpenGLImageActor()
@@ -69,6 +70,7 @@ void vtkOpenGLImageActor::ReleaseGraphicsResources(vtkWindow *renWin)
 #endif
     this->TextureSize[0] = 0;
     this->TextureSize[1] = 0;
+    this->TextureBytesPerPixel = 1;
     }
   this->Index = 0;
   this->RenderWindow = NULL;
@@ -190,7 +192,9 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
 
 #ifdef GL_VERSION_1_1
       // if texture size hasn't changed, reuse old texture
-      if (xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
+      if (xsize == this->TextureSize[0] &&
+          ysize == this->TextureSize[1] &&
+          numComp == this->TextureBytesPerPixel)
         {
         reuseTexture = 1;
         }
@@ -233,7 +237,9 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
 
 #ifdef GL_VERSION_1_1
   // reuse texture if texture size has not changed
-  if (xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
+  if (xsize == this->TextureSize[0] &&
+      ysize == this->TextureSize[1] &&
+      numComp == this->TextureBytesPerPixel)
     {
     reuseTexture = 1;
     xsize = this->ComputedDisplayExtent[xdim*2+1] -
@@ -413,6 +419,7 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
                    GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(data));
       this->TextureSize[0] = xsize;
       this->TextureSize[1] = ysize;
+      this->TextureBytesPerPixel = bytesPerPixel;
       }
 
 #ifndef GL_VERSION_1_1
