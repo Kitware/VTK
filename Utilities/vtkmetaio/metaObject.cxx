@@ -1747,7 +1747,7 @@ M_Read(void)
      // into the userDefined write fields more than once. That
      // causes a double free, and an abort.
      FieldsContainerType::iterator dup;
-     for(dup m_UserDefinedWriteFields.begin();
+     for(dup = m_UserDefinedWriteFields.begin();
 	 dup != m_UserDefinedWriteFields.end();
 	 dup++)
        {
