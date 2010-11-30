@@ -1278,8 +1278,7 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
     }
 
   // Update the contour representation from the nodes using the line interpolator
-  this->PointPlacer->Modified(); //force the UpdateContour to rerun
-  this->UpdateContour();
+  this->UpdateLines(nPoints);
   this->BuildRepresentation();
 
   // Show the contour.
