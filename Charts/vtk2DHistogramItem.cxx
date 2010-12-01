@@ -33,10 +33,14 @@ vtk2DHistogramItem::~vtk2DHistogramItem()
 {
 }
 
+void vtk2DHistogramItem::Update()
+{
+  this->GenerateHistogram();
+}
+
 //-----------------------------------------------------------------------------
 bool vtk2DHistogramItem::Paint(vtkContext2D *painter)
 {
-  this->GenerateHistogram();
   if (this->Output)
     {
     if (this->Input)
