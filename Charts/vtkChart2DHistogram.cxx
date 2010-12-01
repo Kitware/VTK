@@ -23,6 +23,7 @@
 #include "vtkTextProperty.h"
 #include "vtkAxis.h"
 #include "vtk2DHistogramItem.h"
+#include "vtkColorLegend.h"
 #include "vtkContextTransform.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
@@ -71,6 +72,9 @@ vtkChart2DHistogram::vtkChart2DHistogram()
     this->AddItem(this->Storage->Axes.back());
     this->Storage->Axes[i]->SetPosition(i);
     }
+
+  this->Legend = vtkSmartPointer<vtkColorLegend>::New();
+  this->AddItem(this->Legend);
 }
 
 //-----------------------------------------------------------------------------
@@ -87,6 +91,8 @@ void vtkChart2DHistogram::Update()
     {
     (*it)->Update();
     }
+  this->Histogram->Update();
+  this->Legend->Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -124,6 +130,7 @@ void vtkChart2DHistogram::SetInput(vtkImageData *data, vtkIdType z)
 void vtkChart2DHistogram::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->Histogram->SetTransferFunction(function);
+  this->Legend->SetTransferFunction(function);
 }
 
 //-----------------------------------------------------------------------------
@@ -160,7 +167,7 @@ vtkIdType vtkChart2DHistogram::GetNumberOfAxes()
 //-----------------------------------------------------------------------------
 void vtkChart2DHistogram::UpdateGeometry()
 {
-  this->SetBorders(20, 20, 20, 20);
+  this->SetBorders(20, 20, 60, 20);
 
   double bounds[4];
   this->Histogram->GetBounds(bounds);
@@ -177,6 +184,9 @@ void vtkChart2DHistogram::UpdateGeometry()
   axis->SetPoint2(this->Point2[0], this->Point1[1]);
   axis->AutoScale();
   axis->Update();
+
+  this->Legend->SetPosition(vtkRectf(this->Point2[0], this->Point1[1],
+                                     10, this->Point2[1] - this->Point1[1]));
 
   this->CalculatePlotTransform(this->Storage->Axes[vtkAxis::BOTTOM],
                                this->Storage->Axes[vtkAxis::LEFT],
@@ -212,7 +222,7 @@ bool vtkChart2DHistogram::MouseEnterEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart2DHistogram::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkChart2DHistogram::MouseMoveEvent(const vtkContextMouseEvent &)
 {
   return true;
 }
@@ -224,22 +234,19 @@ bool vtkChart2DHistogram::MouseLeaveEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart2DHistogram::MouseButtonPressEvent(
-    const vtkContextMouseEvent& mouse)
+bool vtkChart2DHistogram::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart2DHistogram::MouseButtonReleaseEvent(
-    const vtkContextMouseEvent& mouse)
+bool vtkChart2DHistogram::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart2DHistogram::MouseWheelEvent(const vtkContextMouseEvent &,
-                                                  int)
+bool vtkChart2DHistogram::MouseWheelEvent(const vtkContextMouseEvent &, int)
 {
   return true;
 }

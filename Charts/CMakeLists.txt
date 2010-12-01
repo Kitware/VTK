@@ -27,6 +27,7 @@ SET(Kit_SRCS
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkChartPie.cxx
+  vtkColorLegend.cxx
   vtkPlotPie.cxx
   vtkColor.h
   vtkColorSeries.cxx

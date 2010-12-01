@@ -13,7 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     # add tests that require data
     SET(MyTests ${MyTests}
       #TestContextUnicode.cxx # Disabled until Freetype unicode works
-      Test2DHistogram.cxx
+      #Test2DHistogram.cxx
       TestBarGraph.cxx
       TestContext.cxx
       TestContextImage.cxx

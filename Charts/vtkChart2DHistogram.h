@@ -24,6 +24,7 @@
 #include "vtkChart.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
+class vtkColorLegend;
 class vtk2DHistogramItem;
 class vtkImageData;
 class vtkScalarsToColors;
@@ -104,6 +105,7 @@ protected:
   vtkChart2DHistogram();
   ~vtkChart2DHistogram();
 
+  vtkSmartPointer<vtkColorLegend>     Legend;
   vtkSmartPointer<vtk2DHistogramItem> Histogram;
 
   // Description:
