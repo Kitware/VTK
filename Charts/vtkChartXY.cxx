@@ -1065,7 +1065,8 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
   return false;
 }
 
-void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse, vtkVector2f plotPos,
+void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
+                                const vtkVector2f &plotPos,
                                 int seriesIndex, vtkPlot* plot)
 {
   const char *label = plot->GetLabel(seriesIndex);

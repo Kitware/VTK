@@ -25,7 +25,6 @@
 #define __vtkChartXY_h
 
 #include "vtkChart.h"
-#include "vtkVector.h"
 
 class vtkPlot;
 class vtkAxis;
@@ -36,6 +35,7 @@ class vtkChartLegend;
 class vtkTooltipItem;
 class vtkContextMouseEvent;
 class vtkDataArray;
+class vtkVector2f;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
@@ -135,7 +135,9 @@ public:
 
   // Description:
   // Set the information passed to the tooltip
-  virtual void SetTooltipInfo(const vtkContextMouseEvent&, vtkVector2f, int, vtkPlot*);
+  virtual void SetTooltipInfo(const vtkContextMouseEvent &,
+                              const vtkVector2f &,
+                              int, vtkPlot*);
 
 //BTX
   // Description:
