@@ -53,6 +53,9 @@ public:
   // Gets the renderer for this view.
   virtual vtkRenderer* GetRenderer();
 
+  // Sets the renderer for this view.
+  virtual void SetRenderer(vtkRenderer* ren);
+
   // Description:
   // Get a handle to the render window.
   virtual vtkRenderWindow* GetRenderWindow();
