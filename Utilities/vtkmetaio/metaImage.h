@@ -367,6 +367,8 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     bool M_FileExists(const char* filename) const;
 
+    bool FileIsFullPath(const char* in_name) const;
+
     METAIO_STL::string M_GetTagValue(const METAIO_STL::string & buffer,
                                      const char* tag) const;
 

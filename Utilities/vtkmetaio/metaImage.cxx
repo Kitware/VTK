@@ -1067,6 +1067,45 @@ bool MetaImage::M_FileExists(const char* filename) const
     }
 }
 
+bool MetaImage::FileIsFullPath(const char* in_name) const
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+  // On Windows, the name must be at least two characters long.
+  if(strlen(in_name) < 2)
+    {
+    return false;
+    }
+  if(in_name[1] == ':')
+    {
+    return true;
+    }
+  if(in_name[0] == '\\')
+    {
+    return true;
+    }
+#else
+  // On UNIX, the name must be at least one character long.
+  if(strlen(in_name) < 1)
+    {
+    return false;
+    }
+#endif
+#if !defined(_WIN32)
+  if(in_name[0] == '~')
+    {
+    return true;
+    }
+#endif
+  // On UNIX, the name must begin in a '/'.
+  // On Windows, if the name begins in a '/', then it is a full
+  // network path.
+  if(in_name[0] == '/')
+    {
+    return true;
+    }
+  return false;
+}
+
 // Return the value of a tag
 METAIO_STL::string 
 MetaImage::
@@ -1236,6 +1275,7 @@ CanReadStream(METAIO_STREAM::ifstream * _stream) const
   return false;
   }
 
+
 bool MetaImage::
 ReadStream(int _nDims,
            METAIO_STREAM::ifstream * _stream,
@@ -1324,7 +1364,7 @@ ReadStream(int _nDims,
             {
             s[j--] = '\0';
             }
-          if(usePath)
+          if(usePath && !FileIsFullPath(s))
             {
             sprintf(fName, "%s%s", pathName, s);
             }
@@ -1381,7 +1421,7 @@ ReadStream(int _nDims,
       for(i=minV; i<=maxV; i += stepV)
         {
         sprintf(s, wrds[0], i);
-        if(usePath)
+        if(usePath && !FileIsFullPath(s))
           {
           sprintf(fName, "%s%s", pathName, s);
           }
@@ -1414,7 +1454,7 @@ ReadStream(int _nDims,
       }
     else
       {
-      if(usePath)
+      if(usePath && !FileIsFullPath(m_ElementDataFileName))
         {
         sprintf(fName, "%s%s", pathName, m_ElementDataFileName);
         }
@@ -1425,7 +1465,24 @@ ReadStream(int _nDims,
 
       METAIO_STREAM::ifstream* readStreamTemp = new METAIO_STREAM::ifstream;
 
-      openReadStream(*readStreamTemp,fName);
+      const char *extensions[] = { "", ".gz", ".Z", 0 };
+      for(unsigned i = 0; extensions[i] != 0; i++)
+	{
+	char tempFName[1024];
+	strncpy(tempFName,fName,1024);
+	strncat(tempFName,extensions[i],1024);
+	openReadStream(*readStreamTemp,tempFName);
+	if(readStreamTemp->is_open())
+	  {
+	  if(i > 0)
+	    {
+	    this->CompressedData(true);
+	    this->BinaryData(true);
+	    }
+	  break;
+	  }
+	}
+
       if(!readStreamTemp->is_open())
         {
         METAIO_STREAM::cerr << "MetaImage: Read: Cannot open data file"
@@ -1436,7 +1493,6 @@ ReadStream(int _nDims,
           }
         return false;
         }
-
       M_ReadElements(readStreamTemp, m_ElementData, m_Quantity);
 
       readStreamTemp->close();
@@ -2473,7 +2529,7 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream,
     char dataFileName[255];
     char pathName[255];
     bool usePath = MET_GetFilePath(m_FileName, pathName);
-    if(usePath)
+    if(usePath&& !FileIsFullPath(m_ElementDataFileName))
       {
       sprintf(dataFileName, "%s%s", pathName, m_ElementDataFileName);
       }
@@ -2764,7 +2820,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
             {
             s[j--] = '\0';
             }
-          if(usePath)
+          if(usePath && !FileIsFullPath(s))
             {
             sprintf(fName, "%s%s", pathName, s);
             }
@@ -2844,7 +2900,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
       for(i=minV; i<=maxV; i += stepV)
         {
         sprintf(s, wrds[0], i);
-        if(usePath)
+        if(usePath && !FileIsFullPath(s))
           {
           sprintf(fName, "%s%s", pathName, s);
           }
@@ -2899,7 +2955,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
       }
     else
       {
-      if(usePath)
+      if(usePath && !FileIsFullPath(m_ElementDataFileName))
         {
         sprintf(fName, "%s%s", pathName, m_ElementDataFileName);
         }
@@ -2910,7 +2966,23 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
 
       METAIO_STREAM::ifstream* readStreamTemp = new METAIO_STREAM::ifstream;
 
-      openReadStream(*readStreamTemp, fName);
+      const char *extensions[] = { "", ".gz", ".Z", 0 };
+      for(unsigned i = 0; extensions[i] != 0; i++)
+	{
+	char tempFName[1024];
+	strncpy(tempFName,fName,1024);
+	strncat(tempFName,extensions[i],1024);
+	openReadStream(*readStreamTemp,tempFName);
+	if(readStreamTemp->is_open())
+	  {
+	  if(i > 0)
+	    {
+	    this->CompressedData(true);
+	    this->BinaryData(true);
+	    }
+	  break;
+	  }
+	}
 
       if(!readStreamTemp->is_open())
         {
