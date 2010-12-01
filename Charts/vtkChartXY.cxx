@@ -426,46 +426,11 @@ void vtkChartXY::RecalculatePlotTransforms()
         default:
           vtkWarningMacro("Error: default case in recalculate plot transforms.");
         }
-      this->RecalculatePlotTransform(xAxis, yAxis,
-                                     this->ChartPrivate
-                                     ->PlotCorners[i]->GetTransform());
+      this->CalculatePlotTransform(xAxis, yAxis,
+                                   this->ChartPrivate
+                                   ->PlotCorners[i]->GetTransform());
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-void vtkChartXY::RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
-                                          vtkTransform2D *transform)
-{
-  if (!x || !y || !transform)
-    {
-    vtkWarningMacro("Called with null arguments.");
-    return;
-    }
-  // Get the scale for the plot area from the x and y axes
-  float *min = x->GetPoint1();
-  float *max = x->GetPoint2();
-  if (fabs(max[0] - min[0]) == 0.0f)
-    {
-    return;
-    }
-  float xScale = (x->GetMaximum() - x->GetMinimum()) / (max[0] - min[0]);
-
-  // Now the y axis
-  min = y->GetPoint1();
-  max = y->GetPoint2();
-  if (fabs(max[1] - min[1]) == 0.0f)
-    {
-    return;
-    }
-  float yScale = (y->GetMaximum() - y->GetMinimum()) / (max[1] - min[1]);
-
-  transform->Identity();
-  transform->Translate(this->Point1[0], this->Point1[1]);
-  // Get the scale for the plot area from the x and y axes
-  transform->Scale(1.0 / xScale, 1.0 / yScale);
-  transform->Translate(-x->GetMinimum(), -y->GetMinimum());
-
   this->PlotTransformValid = true;
 }
 
@@ -1298,7 +1263,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
 void vtkChartXY::ZoomInAxes(vtkAxis *x, vtkAxis *y, float *origin, float *max)
 {
   vtkTransform2D *transform = vtkTransform2D::New();
-  this->RecalculatePlotTransform(x, y, transform);
+  this->CalculatePlotTransform(x, y, transform);
   float torigin[2];
   transform->InverseTransformPoints(origin, torigin, 1);
   float tmax[2];

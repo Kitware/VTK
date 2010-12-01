@@ -177,11 +177,6 @@ protected:
   void RecalculatePlotTransforms();
 
   // Description:
-  // Recalculate the supplied transform for the two axes.
-  void RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
-                                vtkTransform2D *transform);
-
-  // Description:
   // Calculate the optimal zoom level such that all of the points to be plotted
   // will fit into the plot area.
   void RecalculatePlotBounds();

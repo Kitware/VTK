@@ -145,6 +145,12 @@ public:
   virtual void DrawImage(float p[2], float scale, vtkImageData *image);
 
   // Description:
+  // Draw the supplied image at the given position. The origin, width, and
+  // height are specified by the supplied vtkRectf variable pos. The image
+  // will be drawn scaled to that size.
+  void DrawImage(const vtkRectf& pos, vtkImageData *image);
+
+  // Description:
   // Set the color for the device using unsigned char of length 4, RGBA.
   virtual void SetColor4(unsigned char color[4]);
 

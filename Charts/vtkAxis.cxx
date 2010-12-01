@@ -38,10 +38,10 @@ vtkStandardNewMacro(vtkAxis);
 vtkAxis::vtkAxis()
 {
   this->Position = vtkAxis::LEFT;
-  this->Point1[0] = 0.0;
-  this->Point1[1] = 0.0;
-  this->Point2[0] = 10.0;
-  this->Point2[1] = 10.0;
+  this->Point1 = this->Position1.GetData();
+  this->Point2 = this->Position2.GetData();
+  this->Position1.SetY(10.0);
+  this->Position2.SetY(10.0);
   this->TickInterval = 1.0;
   this->NumberOfTicks = 6;
   this->LabelProperties = vtkTextProperty::New();
@@ -89,6 +89,20 @@ vtkAxis::~vtkAxis()
   this->GridPen->Delete();
 }
 
+void vtkAxis::SetPoint1(const vtkVector2f &pos)
+{
+  this->TickMarksDirty = true;
+  this->Position1 = pos;
+  this->Modified();
+}
+
+void vtkAxis::SetPoint2(const vtkVector2f &pos)
+{
+  this->TickMarksDirty = true;
+  this->Position2 = pos;
+  this->Modified();
+}
+
 //-----------------------------------------------------------------------------
 void vtkAxis::Update()
 {
@@ -115,6 +129,9 @@ void vtkAxis::Update()
       }
     else
       {
+      // FIXME: We need a specific resize event, to handle position change
+      // independently.
+      //this->RecalculateTickSpacing();
       double first = ceil(this->Minimum / this->TickInterval)
         * this->TickInterval;
       double last = first;

@@ -34,6 +34,7 @@ class vtkTextProperty;
 
 class vtkPoints2D;
 class vtkVector2f;
+class vtkRectf;
 class vtkUnsignedCharArray;
 class vtkContextDevice2D;
 class vtkPen;
@@ -154,7 +155,7 @@ public:
   void DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points,
                         vtkUnsignedCharArray *colors);
   void DrawPointSprites(vtkImageData *sprite, float *points, int n,
-         unsigned char *colors, int nc_comps);
+                        unsigned char *colors, int nc_comps);
 
   // Description:
   // Draw a series of point sprites, images centred at the points supplied.
@@ -249,6 +250,12 @@ public:
   // Draw the supplied image at the given x, y location (bottom corner).
   // Scale the supplied image by scale.
   void DrawImage(float x, float y, float scale, vtkImageData *image);
+
+  // Description:
+  // Draw the supplied image at the given position. The origin, width, and
+  // height are specified by the supplied vtkRectf variable pos. The image
+  // will be drawn scaled to that size.
+  void DrawImage(const vtkRectf& pos, vtkImageData *image);
 
   // Description:
   // Draw some text to the screen in a bounding rectangle with the alignment

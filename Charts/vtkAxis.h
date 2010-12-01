@@ -25,6 +25,7 @@
 
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkVector.h"       // For position variables
 
 class vtkContext2D;
 class vtkPen;
@@ -32,7 +33,6 @@ class vtkFloatArray;
 class vtkDoubleArray;
 class vtkStringArray;
 class vtkTextProperty;
-class vtkRectf;
 
 class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
 {
@@ -62,6 +62,7 @@ public:
 
   // Description:
   // Set point 1 of the axis (in pixels), this is usually the origin.
+  void SetPoint1(const vtkVector2f& pos);
   vtkSetVector2Macro(Point1, float);
 
   // Description:
@@ -70,6 +71,7 @@ public:
 
   // Description:
   // Set point 2 of the axis (in pixels), this is usually the terminus.
+  void SetPoint2(const vtkVector2f& pos);
   vtkSetVector2Macro(Point2, float);
 
   // Description:
@@ -270,8 +272,9 @@ protected:
                                  bool detailLabels = true);
 
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
-  float Point1[2];     // The position of point 1 (usually the origin)
-  float Point2[2];     // The position of point 2 (usually the terminus)
+  float *Point1;       // The position of point 1 (usually the origin)
+  float *Point2;       // The position of point 2 (usually the terminus)
+  vtkVector2f Position1, Position2;
   double TickInterval; // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
   vtkTextProperty* LabelProperties; // Text properties for the labels.

@@ -72,6 +72,7 @@ public:
     this->TextCounter = 0;
     this->GLExtensionsLoaded = false;
     this->OpenGL15 = false;
+    this->OpenGL20 = false;
     this->GLSL = false;
   }
 
@@ -191,6 +192,48 @@ public:
     return texCoord;
   }
 
+  GLuint TextureFromImage(vtkImageData *image)
+  {
+    if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
+      {
+      cout << "Error = not an unsigned char..." << endl;
+      return 0;
+      }
+    int bytesPerPixel = image->GetNumberOfScalarComponents();
+    int size[3];
+    image->GetDimensions(size);
+
+    unsigned char *dataPtr =
+        static_cast<unsigned char*>(image->GetScalarPointer());
+    GLuint tmpIndex(0);
+    GLint glFormat = bytesPerPixel == 3 ? GL_RGB : GL_RGBA;
+    GLint glInternalFormat = bytesPerPixel == 3 ? GL_RGB8 : GL_RGBA8;
+
+    glGenTextures(1, &tmpIndex);
+    glBindTexture(GL_TEXTURE_2D, tmpIndex);
+
+    glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_REPLACE);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                     vtkgl::CLAMP_TO_EDGE );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                     vtkgl::CLAMP_TO_EDGE );
+
+    glTexImage2D(GL_TEXTURE_2D, 0 , glInternalFormat,
+                 size[0], size[1], 0, glFormat,
+                 GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(dataPtr));
+    glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
+    glEnable(GL_ALPHA_TEST);
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_TEXTURE_2D);
+    return tmpIndex;
+  }
+
   vtkTexture *Texture;
   unsigned int TextureProperties;
   vtkTexture *SpriteTexture;
@@ -208,6 +251,7 @@ public:
   vtkVector2i Offset;
   bool GLExtensionsLoaded;
   bool OpenGL15;
+  bool OpenGL20;
   bool GLSL;
 };
 
@@ -1108,6 +1152,37 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
+                                         vtkImageData *image)
+{
+  GLuint index = this->Storage->TextureFromImage(image);
+//  this->SetTexture(image);
+//  this->Storage->Texture->Render(this->Renderer);
+  float points[] = { pos.X()              , pos.Y(),
+                     pos.X() + pos.Width(), pos.Y(),
+                     pos.X() + pos.Width(), pos.Y() + pos.Height(),
+                     pos.X()              , pos.Y() + pos.Height() };
+
+  float texCoord[] = { 0.0, 0.0,
+                       1.0, 0.0,
+                       1.0, 1.0,
+                       0.0, 1.0 };
+
+  glColor4ub(255, 255, 255, 255);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, &points[0]);
+  glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
+  glDrawArrays(GL_QUADS, 0, 4);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+
+//  this->Storage->Texture->PostRender(this->Renderer);
+  glDisable(GL_TEXTURE_2D);
+  glDeleteTextures(1, &index);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetColor4(unsigned char *color)
 {
   glColor4ubv(color);
@@ -1378,6 +1453,15 @@ bool vtkOpenGLContextDevice2D::HasGLSL()
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
+  if(m->ExtensionSupported("GL_VERSION_2_0"))
+    {
+    m->LoadExtension("GL_VERSION_2_0");
+    this->Storage->OpenGL20 = true;
+    }
+  else
+    {
+    this->Storage->OpenGL20 = false;
+    }
   if(m->ExtensionSupported("GL_VERSION_1_5"))
     {
     m->LoadExtension("GL_VERSION_1_5");

@@ -24,6 +24,7 @@
 #include "vtkContextItem.h"
 
 class vtkContext2D;
+class vtkTransform2D;
 class vtkContextScene;
 class vtkPlot;
 class vtkAxis;
@@ -150,6 +151,14 @@ public:
 protected:
   vtkChart();
   ~vtkChart();
+
+  // Description:
+  // Given the x and y vtkAxis, and a transform, calculate the transform that
+  // the points in a chart would need to be drawn within the axes. This assumes
+  // that the axes have the correct start and end positions, and that they are
+  // perpendicular.
+  bool CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
+                              vtkTransform2D *transform);
 
   // Description:
   // Our annotation link, used for sharing selections etc.
