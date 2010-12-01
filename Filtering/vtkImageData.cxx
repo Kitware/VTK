@@ -722,7 +722,7 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   for (i=0; i<3; i++)
     {
     d = x[i] - origin[i];
-    loc[i] = static_cast<int>((d / spacing[i]) + 0.5);
+    loc[i] = vtkMath::Floor((d / spacing[i]) + 0.5);
     if ( loc[i] < extent[i*2] || loc[i] > extent[i*2+1] )
       {
       return -1;
@@ -1120,7 +1120,7 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     d = x[i] - origin[i];
     doubleLoc = d / spacing[i];
     // Floor for negative indexes.
-    ijk[i] = static_cast<int>(floor(doubleLoc));
+    ijk[i] = vtkMath::Floor(doubleLoc);
     if ( ijk[i] >= extent[i*2] && ijk[i] < extent[i*2 + 1] )
       {
       pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
