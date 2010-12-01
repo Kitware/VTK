@@ -81,6 +81,8 @@ IF(NOT VTK_NO_LIBRARY_VERSION)
     )
 ENDIF(NOT VTK_NO_LIBRARY_VERSION)
 
+INCLUDE(vtkTargetExportMacros)
+
 #-----------------------------------------------------------------------------
 # Determine whether we are being built by CTest and if so the version.
 # For CTest 2.2 and higher this will contain the version number.  For
@@ -634,6 +636,7 @@ SET(KWSYS_USE_Glob 1)
 SET(KWSYS_USE_DateStamp 1)
 SET(KWSYS_HEADER_ROOT ${VTK_BINARY_DIR}/Utilities)
 SET(KWSYS_PROPERTIES_CXX ${VTK_LIBRARY_PROPERTIES})
+SET(KWSYS_INSTALL_EXPORT_NAME ${VTK_INSTALL_EXPORT_NAME})
 
 IF(NOT VTK_USE_ANSI_STDLIB)
   SET(KWSYS_IOS_FORCE_OLD 1)

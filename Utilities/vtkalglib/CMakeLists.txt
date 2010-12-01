@@ -33,7 +33,7 @@ include_directories(
   ${alglib_BINARY_DIR}
 )
 
-add_library( vtkalglib
+vtk_add_library( vtkalglib
   ${ALGLIB_SRCS}
 )
 
@@ -68,6 +68,7 @@ endif ( VTK_INSTALL_INCLUDE_DIR_CM24 )
 # Library:
 if ( NOT VTK_INSTALL_NO_LIBRARIES )
   install( TARGETS vtkalglib
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${alglib_install_bin_dir} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${alglib_install_lib_dir} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${alglib_install_lib_dir} COMPONENT Development

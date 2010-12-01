@@ -69,7 +69,7 @@ if ( NOT VERDICT_NO_LIBRARY_VERSION )
   )
 endif ( NOT VERDICT_NO_LIBRARY_VERSION )
 
-add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
+vtk_add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
 set_target_properties( ${verdict_LIBRARY} PROPERTIES DEFINE_SYMBOL verdict_EXPORTS)
 
 # Apply user-defined properties to the library targets.
@@ -155,6 +155,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 install(TARGETS ${verdict_LIBRARY}
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${verdict_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries # .exe, .dll
       LIBRARY DESTINATION ${verdict_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
       ARCHIVE DESTINATION ${verdict_INSTALL_LIB_DIR} COMPONENT Development      # .a, .lib

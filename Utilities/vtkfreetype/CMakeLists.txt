@@ -99,7 +99,7 @@ ENDIF (APPLE AND NOT VTK_USE_X)
 #
 # Define the library (and install it)
 #
-ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
+VTK_ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
 
 #
 # If we want freetype's Mac font support we need to link against
@@ -116,6 +116,7 @@ ENDIF(VTK_LIBRARY_PROPERTIES)
 
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS vtkfreetype
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
