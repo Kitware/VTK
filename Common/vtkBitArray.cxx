@@ -571,7 +571,9 @@ void vtkBitArray::RemoveLastTuple()
 //----------------------------------------------------------------------------
 vtkArrayIterator* vtkBitArray::NewIterator()
 {
-  return vtkBitArrayIterator::New();
+  vtkArrayIterator* iter = vtkBitArrayIterator::New();
+  iter->Initialize(this);
+  return iter;
 }
 
 //----------------------------------------------------------------------------
