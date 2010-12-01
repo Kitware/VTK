@@ -212,10 +212,23 @@ protected:
                                             int &latitudeDim,
                                             int &verticalDim);
 
+  enum CoordinateTypesEnum {
+    COORDS_UNIFORM_RECTILINEAR,
+    COORDS_NONUNIFORM_RECTILINEAR,
+    COORDS_REGULAR_SPHERICAL,
+    COORDS_2D_EUCLIDEAN,
+    COORDS_2D_SPHERICAL,
+    COORDS_EUCLIDEAN_4SIDED_CELLS,
+    COORDS_SPHERICAL_4SIDED_CELLS,
+    COORDS_EUCLIDEAN_PSIDED_CELLS,
+    COORDS_SPHERICAL_PSIDED_CELLS
+  };
+
   // Description:
-  // Convenience function that returns true if the given dimensions can be
-  // used as spherical coordinates, false otherwise.
-  bool CoordinatesAreSpherical(vtkIntArray *dimensions);
+  // Based on the given dimensions and the current state of the reader, returns
+  // how the coordinates should be interpreted.  The returned value is one of
+  // the CoordinateTypesEnum identifiers.
+  CoordinateTypesEnum CoordinateType(vtkIntArray *dimensions);
 
   // Description:
   // Returns false for spherical dimensions, which should use cell data.

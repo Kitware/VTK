@@ -776,113 +776,76 @@ int vtkNetCDFCFReader::RequestDataObject(
       if (currentNumDims < 1) continue;
       }
 
-    vtkDependentDimensionInfo *dependentDimInfo
-      = this->FindDependentDimensionInfo(currentDimensions);
+    CoordinateTypesEnum coordType = this->CoordinateType(currentDimensions);
 
-    // Check to see if using p-sided cells.
-    if (dependentDimInfo && dependentDimInfo->GetCellsUnstructured())
+    int preferredDataType;
+    switch(coordType)
       {
-      if (dataType == -1)
-        {
-        // Automatically choose unstructured grid.
-        dataType = VTK_UNSTRUCTURED_GRID;
+      case COORDS_UNIFORM_RECTILINEAR:
+        preferredDataType = VTK_IMAGE_DATA;
         break;
-        }
-      else if (dataType == VTK_UNSTRUCTURED_GRID)
-        {
-        // Verified that the data can correctly hold spherical coordinates.
+      case COORDS_NONUNIFORM_RECTILINEAR:
+        preferredDataType = VTK_RECTILINEAR_GRID;
         break;
-        }
-      else
-        {
-        vtkWarningMacro(<< "You have set the OutputType to a data type that"
-                        << " cannot handle the unstructured coordinate"
-                        << " data specified for the currently selected"
-                        << " variables.  This coordinate data will be"
-                        << " ignored.");
-        }
+      case COORDS_REGULAR_SPHERICAL:
+      case COORDS_2D_EUCLIDEAN:
+      case COORDS_2D_SPHERICAL:
+      case COORDS_EUCLIDEAN_4SIDED_CELLS:
+      case COORDS_SPHERICAL_4SIDED_CELLS:
+        preferredDataType = VTK_STRUCTURED_GRID;
+        break;
+      case COORDS_EUCLIDEAN_PSIDED_CELLS:
+      case COORDS_SPHERICAL_PSIDED_CELLS:
+        preferredDataType = VTK_UNSTRUCTURED_GRID;
+        break;
+      default:
+        vtkErrorMacro(<< "Internal error: unknown coordinate type.");
+        return 0;
       }
 
-    // Check to see if using 2D coordinate bounds lookup.
-    if (dependentDimInfo && !dependentDimInfo->GetCellsUnstructured())
-      {
-      if (dataType == -1)
-        {
-        // Automatically choose structured grid.
-        dataType = VTK_STRUCTURED_GRID;
-        break;
-        }
-      else if (   (dataType == VTK_STRUCTURED_GRID)
-               || (dataType == VTK_UNSTRUCTURED_GRID) )
-        {
-        // Verified that the data can correctly hold spherical coordinates.
-        break;
-        }
-      else
-        {
-        vtkWarningMacro(<< "You have set the OutputType to a data type that"
-                        << " cannot handle the multidimensional coordinate"
-                        << " data specified for the currently selected"
-                        << " variables.  This coordinate data will be"
-                        << " ignored.");
-        }
-      }
-
-    // Check to see if the dimensions fit spherical coordinates.
-    if (this->CoordinatesAreSpherical(currentDimensions))
-      {
-      if (dataType == -1)
-        {
-        // Automatically choose structured grid.
-        dataType = VTK_STRUCTURED_GRID;
-        break;
-        }
-      else if (   (dataType == VTK_STRUCTURED_GRID)
-               || (dataType == VTK_UNSTRUCTURED_GRID) )
-        {
-        // Verified that the data can correctly hold spherical coordinates.
-        break;
-        }
-      else
-        {
-        vtkWarningMacro(<< "You have set the OutputType to a data type that"
-                        << " cannot hold spherical coordinates.  The"
-                        << " SphericalCoordinates flag will be ignored.");
-        }
-      }
-
-    // Check to see if any dimension has irregular spacing.
-    for (int i = 0; i < currentNumDims; i++)
-      {
-      int dimId = currentDimensions->GetValue(i);
-      if (!this->GetDimensionInfo(dimId)->GetHasRegularSpacing())
-        {
-        if (dataType == -1)
-          {
-          // Automatically choose rectilinear grid.
-          dataType = VTK_RECTILINEAR_GRID;
-          break;
-          }
-        else if (   (dataType == VTK_RECTILINEAR_GRID)
-                 || (dataType == VTK_STRUCTURED_GRID)
-                 || (dataType == VTK_UNSTRUCTURED_GRID) )
-          {
-          // Verified that the data can correctly hold irregular coordinates.
-          break;
-          }
-        else
-          {
-          vtkWarningMacro(<< "OutputType is set to image data, but not all of"
-                          << " the coordinates have uniform spacing.  Because"
-                          << " image data cannot handle uniform spacing, the"
-                          << " coordinate positions will not be accurate.");
-          }
-        }
-      }
-
+    // Check the data type.
     if (dataType == -1)
       {
-      dataType = VTK_IMAGE_DATA;
+      dataType = preferredDataType;
+      }
+    else
+      {
+      switch (dataType)
+        {
+        case VTK_IMAGE_DATA:
+          if (preferredDataType != VTK_IMAGE_DATA)
+            {
+            vtkWarningMacro("You have set the OutputType to a data type that"
+                            " cannot fully represent the topology of the data."
+                            " Some of the topology will be ignored.");
+            }
+          break;
+        case VTK_RECTILINEAR_GRID:
+          if (   (preferredDataType != VTK_IMAGE_DATA)
+              || (preferredDataType != VTK_RECTILINEAR_GRID) )
+            {
+            vtkWarningMacro("You have set the OutputType to a data type that"
+                            " cannot fully represent the topology of the data."
+                            " Some of the topology will be ignored.");
+            }
+          break;
+        case VTK_STRUCTURED_GRID:
+          if (   (preferredDataType != VTK_IMAGE_DATA)
+              || (preferredDataType != VTK_RECTILINEAR_GRID)
+              || (preferredDataType != VTK_STRUCTURED_GRID) )
+            {
+            vtkWarningMacro("You have set the OutputType to a data type that"
+                            " cannot fully represent the topology of the data."
+                            " Some of the topology will be ignored.");
+            }
+          break;
+        case VTK_UNSTRUCTURED_GRID:
+          // Unstructured grid supports all topologies.
+          break;
+        default:
+          vtkErrorMacro(<< "Sanity check failed: bad internal type.");
+          return 0;
+        }
       }
 
     // That's right, break.  We really only want to look at the dimensions of
@@ -1041,31 +1004,33 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
     = vtkStructuredGrid::GetData(outputVector);
   if (structuredOutput)
     {
-    bool shouldUseSphericalCoordinates =
-      this->CoordinatesAreSpherical(this->LoadingDimensions);
-    vtkDependentDimensionInfo *dependentDimInfo
-      = this->FindDependentDimensionInfo(this->LoadingDimensions);
-    if (shouldUseSphericalCoordinates)
+    switch (this->CoordinateType(this->LoadingDimensions))
       {
-      if (dependentDimInfo && !dependentDimInfo->GetCellsUnstructured())
-        {
-        this->Add2DSphericalCoordinates(structuredOutput);
-        }
-      else
-        {
-        this->Add1DSphericalCoordinates(structuredOutput);
-        }
-      }
-    else
-      {
-      if (dependentDimInfo && !dependentDimInfo->GetCellsUnstructured())
-        {
-        this->Add2DRectilinearCoordinates(structuredOutput);
-        }
-      else
-        {
+      case COORDS_UNIFORM_RECTILINEAR:
+      case COORDS_NONUNIFORM_RECTILINEAR:
         this->Add1DRectilinearCoordinates(structuredOutput);
-        }
+        break;
+      case COORDS_REGULAR_SPHERICAL:
+        this->Add1DSphericalCoordinates(structuredOutput);
+        break;
+      case COORDS_2D_EUCLIDEAN:
+      case COORDS_EUCLIDEAN_4SIDED_CELLS:
+        this->Add2DRectilinearCoordinates(structuredOutput);
+        break;
+      case COORDS_2D_SPHERICAL:
+      case COORDS_SPHERICAL_4SIDED_CELLS:
+        this->Add2DSphericalCoordinates(structuredOutput);
+        break;
+      case COORDS_EUCLIDEAN_PSIDED_CELLS:
+      case COORDS_SPHERICAL_PSIDED_CELLS:
+        // There is no sensible way to store p-sided cells in a structured grid.
+        // Just store them as a rectilinear grid, which should at least not
+        // crash (bug #11543).
+        this->Add1DRectilinearCoordinates(structuredOutput);
+        break;
+      default:
+        vtkErrorMacro("Internal error: unknown coordinate type.");
+        return 0;
       }
     }
 
@@ -1076,46 +1041,32 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
     int extent[6];
     this->GetUpdateExtentForOutput(unstructuredOutput, extent);
 
-    bool shouldUseSphericalCoordinates =
-      this->CoordinatesAreSpherical(this->LoadingDimensions);
-    vtkDependentDimensionInfo *dependentDimInfo
-      = this->FindDependentDimensionInfo(this->LoadingDimensions);
-    if (shouldUseSphericalCoordinates)
+    switch (this->CoordinateType(this->LoadingDimensions))
       {
-      if (dependentDimInfo)
-        {
-        if (dependentDimInfo->GetCellsUnstructured())
-          {
-          this->AddUnstructuredSphericalCoordinates(unstructuredOutput, extent);
-          }
-        else
-          {
-          this->Add2DSphericalCoordinates(unstructuredOutput, extent);
-          }
-        }
-      else
-        {
-        this->Add1DSphericalCoordinates(unstructuredOutput, extent);
-        }
-      }
-    else
-      {
-      if (dependentDimInfo)
-        {
-        if (dependentDimInfo->GetCellsUnstructured())
-          {
-          this->AddUnstructuredRectilinearCoordinates(unstructuredOutput,
-                                                      extent);
-          }
-        else
-          {
-          this->Add2DRectilinearCoordinates(unstructuredOutput, extent);
-          }
-        }
-      else
-        {
+      case COORDS_UNIFORM_RECTILINEAR:
+      case COORDS_NONUNIFORM_RECTILINEAR:
         this->Add1DRectilinearCoordinates(unstructuredOutput, extent);
-        }
+        break;
+      case COORDS_REGULAR_SPHERICAL:
+        this->Add1DSphericalCoordinates(unstructuredOutput, extent);
+        break;
+      case COORDS_2D_EUCLIDEAN:
+      case COORDS_EUCLIDEAN_4SIDED_CELLS:
+        this->Add2DRectilinearCoordinates(unstructuredOutput, extent);
+        break;
+      case COORDS_2D_SPHERICAL:
+      case COORDS_SPHERICAL_4SIDED_CELLS:
+        this->Add2DSphericalCoordinates(unstructuredOutput, extent);
+        break;
+      case COORDS_EUCLIDEAN_PSIDED_CELLS:
+        this->AddUnstructuredRectilinearCoordinates(unstructuredOutput, extent);
+        break;
+      case COORDS_SPHERICAL_PSIDED_CELLS:
+        this->AddUnstructuredSphericalCoordinates(unstructuredOutput, extent);
+        break;
+      default:
+        vtkErrorMacro("Internal error: unknown coordinate type.");
+        return 0;
       }
     }
 
@@ -1396,6 +1347,13 @@ void vtkNetCDFCFReader::Add1DSphericalCoordinates(vtkPoints *points,
   int longitudeDim, latitudeDim, verticalDim;
   this->IdentifySphericalCoordinates(this->LoadingDimensions,
                                      longitudeDim, latitudeDim, verticalDim);
+
+  if ((longitudeDim < 0) || (latitudeDim < 0))
+    {
+    vtkErrorMacro(<< "Internal error: treating non spherical coordinates as if"
+                  << " they were spherical.");
+    return;
+    }
 
   // Check the height scale and bias.
   double vertScale = this->VerticalScale;
@@ -1918,53 +1876,100 @@ void vtkNetCDFCFReader::IdentifySphericalCoordinates(vtkIntArray *dimensions,
 }
 
 //-----------------------------------------------------------------------------
-bool vtkNetCDFCFReader::CoordinatesAreSpherical(vtkIntArray *dimensions)
+vtkNetCDFCFReader::CoordinateTypesEnum
+vtkNetCDFCFReader::CoordinateType(vtkIntArray *dimensions)
 {
-  if (!this->SphericalCoordinates)
+  vtkDependentDimensionInfo *dependentDimInfo
+    = this->FindDependentDimensionInfo(dimensions);
+
+  // Check to see if using p-sided cells.
+  if (dependentDimInfo && dependentDimInfo->GetCellsUnstructured())
     {
-    return false;
+    if (this->SphericalCoordinates)
+      {
+      return COORDS_SPHERICAL_PSIDED_CELLS;
+      }
+    else
+      {
+      return COORDS_EUCLIDEAN_PSIDED_CELLS;
+      }
     }
 
-  if (this->FindDependentDimensionInfo(dimensions) != NULL)
+  // Check to see if using 4-sided cells.
+  if (   dependentDimInfo
+      && !dependentDimInfo->GetCellsUnstructured()
+      && dependentDimInfo->GetHasBounds() )
     {
-    return true;
+    if (this->SphericalCoordinates)
+      {
+      return COORDS_SPHERICAL_4SIDED_CELLS;
+      }
+    else
+      {
+      return COORDS_EUCLIDEAN_4SIDED_CELLS;
+      }
     }
 
-  int longitudeDim, latitudeDim, verticalDim;
-  this->IdentifySphericalCoordinates(dimensions,
-                                     longitudeDim, latitudeDim, verticalDim);
-  if (   (longitudeDim != -1) && (latitudeDim != -1)
-      && ((dimensions->GetNumberOfTuples() == 2) || (verticalDim != -1)) )
+  // Check to see if using 2D coordinate lookup.
+  if (   dependentDimInfo
+      && !dependentDimInfo->GetCellsUnstructured()
+      && !dependentDimInfo->GetHasBounds() )
     {
-    return true;
+    if (this->SphericalCoordinates)
+      {
+      return COORDS_2D_SPHERICAL;
+      }
+    else
+      {
+      return COORDS_2D_EUCLIDEAN;
+      }
     }
-  else
+
+  // Check to see if we should (otherwise) be using spherical coordinates.
+  if (this->SphericalCoordinates)
     {
-    return false;
+    int longitudeDim, latitudeDim, verticalDim;
+    this->IdentifySphericalCoordinates(dimensions,
+                                       longitudeDim,
+                                       latitudeDim,
+                                       verticalDim);
+    if (   (longitudeDim != -1) && (latitudeDim != -1)
+        && ((dimensions->GetNumberOfTuples() == 2) || (verticalDim != -1)) )
+      {
+      return COORDS_REGULAR_SPHERICAL;
+      }
     }
+
+  // Check to see if any dimension as irregular spacing.
+  for (int i = 0; i < dimensions->GetNumberOfTuples(); i++)
+    {
+    int dimId = dimensions->GetValue(i);
+    if (!this->GetDimensionInfo(dimId)->GetHasRegularSpacing())
+      {
+      return COORDS_NONUNIFORM_RECTILINEAR;
+      }
+    }
+
+  // All dimensions appear to be uniform rectilinear.
+  return COORDS_UNIFORM_RECTILINEAR;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkNetCDFCFReader::DimensionsAreForPointData(vtkIntArray *dimensions)
 {
-    if (this->CoordinatesAreSpherical(dimensions))
-      {
-      // If the coordiantes are spherical, then the variable is cell data UNLESS
-      // the coordinates are given as depenent coordinates without bounds.
-      vtkDependentDimensionInfo *info
-        = this->FindDependentDimensionInfo(dimensions);
-      if (info && !info->GetHasBounds()) return true;
-
-      return false;
-      }
-    else
-      {
-      // If the coordinates are not spherical, then the variable is point data
-      // unless the coordinates are given as dependent coordinates with bounds.
-      vtkDependentDimensionInfo *info
-        = this->FindDependentDimensionInfo(dimensions);
-      if (info && info->GetHasBounds()) return false;
-
+  switch (this->CoordinateType(dimensions))
+    {
+    case COORDS_UNIFORM_RECTILINEAR:    return true;
+    case COORDS_NONUNIFORM_RECTILINEAR: return true;
+    case COORDS_REGULAR_SPHERICAL:      return false;
+    case COORDS_2D_EUCLIDEAN:           return true;
+    case COORDS_2D_SPHERICAL:           return true;
+    case COORDS_EUCLIDEAN_4SIDED_CELLS: return false;
+    case COORDS_SPHERICAL_4SIDED_CELLS: return false;
+    case COORDS_EUCLIDEAN_PSIDED_CELLS: return false;
+    case COORDS_SPHERICAL_PSIDED_CELLS: return false;
+    default:
+      vtkErrorMacro("Internal error: unknown coordinate type.");
       return true;
-      }
+    }
 }
