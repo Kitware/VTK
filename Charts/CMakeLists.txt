@@ -46,6 +46,7 @@ SET(Kit_SRCS
   vtkImageItem.cxx
   vtkLookupTableItem.cxx
   vtkOpenGLContextBufferId.cxx
+  vtkOpenGL2ContextDevice2D.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
@@ -91,6 +92,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId
+  vtkOpenGL2ContextDevice2D
   vtkOpenGLContextDevice2D
   vtkVector
   WRAP_EXCLUDE
