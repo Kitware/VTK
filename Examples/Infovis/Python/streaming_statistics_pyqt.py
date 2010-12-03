@@ -121,6 +121,3 @@ if __name__ == "__main__":
     stream = Timer()
 
     sys.exit(app.exec_())
-
-    # Some weird leak
-    vtkExecutionScheduler.GetGlobalScheduler().FastDelete()
