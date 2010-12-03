@@ -332,7 +332,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageIterator.cxx
   vtkInformation.cxx
   vtkImageProgressIterator.cxx
-  vtkComputingResources.cxx
   WRAP_EXCLUDE
 )
 
