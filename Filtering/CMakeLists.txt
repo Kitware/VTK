@@ -72,6 +72,7 @@ vtkDistributedGraphHelper.cxx
 vtkEdgeListIterator.cxx
 vtkEmptyCell.cxx
 vtkExecutionScheduler.cxx
+vtkExecutionSchedulerManager.cxx
 vtkExecutive.cxx
 vtkExecutiveCollection.cxx
 vtkExplicitCell.cxx
@@ -326,6 +327,7 @@ vtkViewport
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAMRBox.cxx
+  vtkExecutionSchedulerManager.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkImageIterator.cxx
   vtkInformation.cxx
