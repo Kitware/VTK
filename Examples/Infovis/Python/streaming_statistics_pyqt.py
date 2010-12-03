@@ -57,7 +57,7 @@ class Timer(QObject):
         if (done):
             quit();
         psuedoStreamingData.Modified() # Is there a way to avoid this?
-        ss.Update()
+        psuedoStreamingData.GetExecutive().Push()
         printStats()
 
 
@@ -71,6 +71,12 @@ def printStats():
 
 if __name__ == "__main__":
     """ Main entry point of this python script """
+
+    # Set up streaming executive
+    streamingExec = vtkThreadedStreamingPipeline()
+    vtkAlgorithm.SetDefaultExecutivePrototype(streamingExec)
+    streamingExec.FastDelete()
+    vtkThreadedStreamingPipeline.SetAutoPropagatePush(True)
 
     # Pull the table from the database
     databaseToTable = vtkSQLDatabaseTableSource()
@@ -102,6 +108,8 @@ if __name__ == "__main__":
     inter.AddColumn("Temp2")
 
 
+
+
     # Calculate online(streaming) descriptive statistics
     print "# Calculate online descriptive statistics:"
     ss = vtkStreamingStatistics()
@@ -113,3 +121,6 @@ if __name__ == "__main__":
     stream = Timer()
 
     sys.exit(app.exec_())
+
+    # Some weird leak
+    vtkExecutionScheduler.GetGlobalScheduler().FastDelete()
