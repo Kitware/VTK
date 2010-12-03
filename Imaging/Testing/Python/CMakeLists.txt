@@ -54,6 +54,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestHybridMedian2D
         TestIdealLowPass
         TestImageCanvas
+        TestImageProjection
         TestInPlaceFilter
         TestIslandRemoval2D
         TestLassooStencil
