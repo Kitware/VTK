@@ -1120,7 +1120,14 @@ int vtkContourRepresentation::UpdateContour()
 {
   this->PointPlacer->UpdateInternalState();
 
-  if ( this->ContourBuildTime > this->PointPlacer->GetMTime() )
+  //even if just the camera has moved we need to mark the locator
+  //as needing to be rebuilt
+  if ( this->Locator->GetMTime() < this->Renderer->GetActiveCamera()->GetMTime())
+    {
+    this->RebuildLocator = true;
+    }
+
+  if ( this->ContourBuildTime > this->PointPlacer->GetMTime())
     {
     // Contour does not need to be rebuilt
     return 0;
@@ -1145,7 +1152,7 @@ int vtkContourRepresentation::UpdateContour()
     this->UpdateLine( static_cast<int>(this->Internal->Nodes.size())-1, 0);
     }
   this->BuildLines();
-  this->BuildLocator();
+  this->RebuildLocator = true;
 
   this->ContourBuildTime.Modified();
 
