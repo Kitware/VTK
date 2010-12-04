@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkExecutionSchedulerManager.h"
+#include "vtkExecutionScheduler.h"
 
 // Must NOT be initialized.  Default initialization to zero is required.
 unsigned int vtkExecutionSchedulerManager::Count;

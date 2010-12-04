@@ -22,6 +22,7 @@ IF(PYTHON_EXECUTABLE)
     vtkCompositeDataSetInternals.h
     vtkDataObjectCollection.h
     vtkDataSetCollection.h
+    vtkExecutionSchedulerManager.h
     vtkFactoredArrayData.h
     vtkFactoredArrayDataAlgorithm.h
     vtkFilteringInformationKeyManager.h
