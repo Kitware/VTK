@@ -22,8 +22,9 @@
 #include <vtksys/ios/sstream>
 using vtksys_ios::ostringstream;
 using vtksys_ios::istringstream;
-#include <vtkstd/string>
-using vtkstd::string;
+#include <vtksys/SystemTools.hxx>
+#include <string>
+using std::string;
 #include <locale> // C++ locale
 
 vtkStandardNewMacro(vtkXMLDataElement);
@@ -350,7 +351,8 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
   // No special format just dump what we have.
   if (this->CharacterDataWidth<1)
     {
-    os << indent << this->CharacterData << endl;
+    os << indent << this->EscapeSpecialXMLCharacters(this->CharacterData)
+       << endl;
     }
   // Treat as space/line delimitted fields limiting 
   // the number of field per line.
@@ -360,7 +362,8 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 
     string characterDataToken;
     issCharacterData >> characterDataToken;
-    os << indent << characterDataToken;
+    os << indent << this->EscapeSpecialXMLCharacters(
+      characterDataToken.c_str());
 
     int it=0;
     while (issCharacterData.good())
@@ -375,13 +378,91 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
         }
 
       issCharacterData >> characterDataToken;
-      os << characterDataToken;
-
+      os << this->EscapeSpecialXMLCharacters(characterDataToken.c_str());
       ++it;
       }
 
     os << endl;
     }
+}
+
+//----------------------------------------------------------------------------
+// replaces all & with &amp; except if & is part of &amp;, &lt;, &gt;,
+// &quot;, or &apos;.
+void vtkXMLDataElement::ReplaceAmpersand(string& source)
+{
+  const char replace[] = "&";
+  const char with[] = "&amp;";
+  const char *src = source.c_str();
+  char *searchPos = const_cast<char *>(strstr(src,replace));
+  while(searchPos)
+    {
+    if(strncmp(searchPos, "&amp;", 5) == 0 || strncmp(searchPos, "&lt;", 4) == 0 ||
+       strncmp(searchPos, "&gt;", 4) == 0 || strncmp(searchPos, "&quot;", 6) == 0 ||
+       strncmp(searchPos, "&apos;", 6) == 0 )
+      {
+      searchPos = strstr(searchPos+1, replace);
+      }
+    else
+      {
+      break;
+      }
+    }
+  // get out quick if string is not found
+  if (!searchPos)
+    {
+    return;
+    }
+
+  // perform replacements until done
+  size_t replaceSize = 1;
+  char *orig = strdup(src);
+  char *currentPos = orig;
+  searchPos = searchPos - src + orig;
+
+  // initialize the result
+  source.erase(source.begin(),source.end());
+  do
+    {
+    *searchPos = '\0';
+    source += currentPos;
+    currentPos = searchPos + replaceSize;
+    // replace
+    source += with;
+    searchPos = strstr(currentPos,replace);
+    while(searchPos)
+      {
+      if(strncmp(searchPos, "&amp;", 5) == 0 || strncmp(searchPos, "&lt;", 4) == 0 ||
+         strncmp(searchPos, "&gt;", 4) == 0 || strncmp(searchPos, "&quot;", 6) == 0 ||
+         strncmp(searchPos, "&apos;", 6) == 0 )
+        {
+        searchPos = strstr(searchPos+1, replace);
+        }
+      else
+        {
+        break;
+        }
+      }
+    }
+  while (searchPos);
+
+  // copy any trailing text
+  source += currentPos;
+  free(orig);
+  }
+
+//----------------------------------------------------------------------------
+// method to replace XML special characters <, >, &, ", ' with
+// &lt;, &gt;, &amp;, &quot;, &apos;, respectively.
+string vtkXMLDataElement::EscapeSpecialXMLCharacters(const char* data)
+{
+  string retVal = data;
+  ReplaceAmpersand(retVal);
+  vtksys::SystemTools::ReplaceString(retVal, "<", "&lt;");
+  vtksys::SystemTools::ReplaceString(retVal, ">", "&gt;");
+  vtksys::SystemTools::ReplaceString(retVal, "\"", "&quot;");
+  vtksys::SystemTools::ReplaceString(retVal, "'", "&apos;");
+  return retVal;
 }
 
 //----------------------------------------------------------------------------
@@ -402,7 +483,8 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
   for(i=0;i < this->NumberOfAttributes;++i)
     {
     os << " " << this->AttributeNames[i]
-       << "=\"" << this->AttributeValues[i] << "\"";
+       << "=\"" << this->EscapeSpecialXMLCharacters(
+         this->AttributeValues[i]) << "\"";
     }
   // Long format tag is needed if either or both 
   // nested elements or inline data are present.
