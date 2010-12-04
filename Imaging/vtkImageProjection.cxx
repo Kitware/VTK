@@ -185,13 +185,13 @@ void vtkProjectionRound<vtkTypeUInt32>(double val, vtkTypeUInt32& rnd)
 }
 
 template<>
-void vtkProjectionRound(double val, vtkTypeFloat32& rnd)
+void vtkProjectionRound<vtkTypeFloat32>(double val, vtkTypeFloat32& rnd)
 {
   rnd = val;
 }
 
 template<>
-void vtkProjectionRound(double val, vtkTypeFloat64& rnd)
+void vtkProjectionRound<vtkTypeFloat64>(double val, vtkTypeFloat64& rnd)
 {
   rnd = val;
 }
