@@ -16,16 +16,21 @@ reader SetDataMask 0x7fff
 vtkImageProjection projection1
 projection1 SetInputConnection [reader GetOutputPort]
 projection1 SetOperationToAverage
+projection1 SetSliceDirectionToZ
 
 vtkImageProjection projection2
 projection2 SetInputConnection [reader GetOutputPort]
+projection2 SetOperationToMinimum
 projection2 SetOperationToMaximum
+projection2 MultiSliceOutputOff
+projection2 SetOutputScalarTypeToInputScalarType
 
 vtkImageProjection projection3
 projection3 SetInputConnection [reader GetOutputPort]
-projection3 SetOperationToAverage
-projection3 SetSliceDirection 0
+projection3 SetOperationToSum
+projection3 SetSliceDirectionToX
 projection3 MultiSliceOutputOn
+projection3 SetOutputScalarTypeToDouble
 
 vtkImageReslice reslice3
 reslice3 SetInputConnection [projection3 GetOutputPort]
@@ -49,7 +54,7 @@ reslice4 SetOutputExtent 0 74 0 74 0 0
 vtkImageProjection projection5
 projection5 SetInputConnection [reader GetOutputPort]
 projection5 SetOperationToAverage
-projection5 SetSliceDirection 1
+projection5 SetSliceDirectionToY
 projection5 MultiSliceOutputOn
 
 vtkImageReslice reslice5
@@ -84,8 +89,8 @@ vtkImageMapper mapper2
 
 vtkImageMapper mapper3
   mapper3 SetInputConnection [reslice3 GetOutputPort]
-  mapper3 SetColorWindow 2000
-  mapper3 SetColorLevel 1000
+  mapper3 SetColorWindow 128000
+  mapper3 SetColorLevel 64000
   mapper3 SetZSlice 0
 
 vtkImageMapper mapper4

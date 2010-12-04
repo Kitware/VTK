@@ -21,6 +21,15 @@
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
+#include "vtkTypeTraits.h"
+
+#include "vtkTemplateAliasMacro.h"
+// turn off 64-bit ints when templating over all types, since
+// they cannot be stored in "double" without loss of precision
+# undef VTK_USE_INT64
+# define VTK_USE_INT64 0
+# undef VTK_USE_UINT64
+# define VTK_USE_UINT64 0
 
 #include <math.h>
 
@@ -163,321 +172,58 @@ int vtkImageProjection::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 // rounding functions for each type
 
-inline void vtkProjectionRound(double val, signed char& rnd)
+template<class T>
+void vtkProjectionRound(double val, T& rnd)
 {
-  rnd = static_cast<signed char>(vtkMath::Floor(val + 0.5));
+  rnd = static_cast<T>(vtkMath::Floor(val + 0.5));
 }
 
-inline void vtkProjectionRound(double val, char& rnd)
+template<>
+void vtkProjectionRound<vtkTypeUInt32>(double val, vtkTypeUInt32& rnd)
 {
-  rnd = static_cast<char>(vtkMath::Floor(val + 0.5));
+  rnd = static_cast<vtkTypeUInt32>(val + 0.5);
 }
 
-inline void vtkProjectionRound(double val, unsigned char& rnd)
+template<>
+void vtkProjectionRound(double val, vtkTypeFloat32& rnd)
 {
-  rnd = static_cast<unsigned char>(vtkMath::Floor(val + 0.5));
+  rnd = val;
 }
 
-inline void vtkProjectionRound(double val, short& rnd)
+template<>
+void vtkProjectionRound(double val, vtkTypeFloat64& rnd)
 {
-  rnd = static_cast<short>(vtkMath::Floor(val + 0.5));
-}
-
-inline void vtkProjectionRound(double val, unsigned short& rnd)
-{
-  rnd = static_cast<unsigned short>(vtkMath::Floor(val + 0.5));
-}
-
-inline void vtkProjectionRound(double val, int& rnd)
-{
-  rnd = static_cast<int>(vtkMath::Floor(val + 0.5));
-}
-
-inline void vtkProjectionRound(double val, unsigned int& rnd)
-{
-  rnd = static_cast<unsigned int>(floor(val + 0.5));
-}
-
-inline void vtkProjectionRound(double val, long& rnd)
-{
-  rnd = static_cast<unsigned int>(floor(val + 0.5));
-}
-
-inline void vtkProjectionRound(double val, unsigned long& rnd)
-{
-  rnd = static_cast<unsigned int>(floor(val + 0.5));
-}
-
-#ifdef VTK_LONG_LONG_MIN
-inline void vtkProjectionRound(double val, long long& rnd)
-{
-  rnd = static_cast<long long>(floor(val + 0.5));
-}
-#else /* VTK_LONG_LONG_MIN */
-#ifdef VTK___INT64_MIN
-inline void vtkProjectionRound(double val, __int64& rnd)
-{
-  rnd = static_cast<__int64>(floor(val + 0.5));
-}
-#endif /* VTK___INT64_MIN */
-#endif /* VTK_LONG_LONG_MIN */
-
-#ifdef VTK_UNSIGNED_LONG_LONG_MIN
-inline void vtkProjectionRound(double val, unsigned long long& rnd)
-{
-  rnd = static_cast<unsigned long long>(floor(val + 0.5));
-}
-#else /* VTK_UNSIGNED_LONG_LONG_MIN */
-#ifdef VTK_UNSIGNED__INT64_MIN
-inline void vtkProjectionRound(double val, unsigned __int64& clamp)
-{
-  rnd = static_cast<unsigned __int64>(floor(rnd + 0.5));
-}
-#endif /* VTK_UNSIGNED__INT64_MIN */
-#endif /* VTK_UNSIGNED_LONG_LONG_MIN */
-
-inline void vtkProjectionRound(double val, float& rnd)
-{
-  rnd = static_cast<float>(val);
-}
-
-inline void vtkProjectionRound(double val, double& rnd)
-{
-  rnd = static_cast<double>(val);
+  rnd = val;
 }
 
 //----------------------------------------------------------------------------
 // clamping functions for each type
 
-inline void vtkProjectionClamp(double val, signed char& clamp)
+template<class T>
+void vtkProjectionClamp(double val, T& clamp)
 {
-  if (val >= VTK_SIGNED_CHAR_MIN)
+  if (val >= vtkTypeTraits<T>::Min())
     {
-    if (val <= VTK_SIGNED_CHAR_MAX)
+    if (val <= vtkTypeTraits<T>::Max())
       {
       vtkProjectionRound(val, clamp);
       return;
       }
-    clamp = VTK_SIGNED_CHAR_MAX;
+    clamp = vtkTypeTraits<T>::Max();
     return;
     }
-  clamp = VTK_SIGNED_CHAR_MIN;
+  clamp = vtkTypeTraits<T>::Min();
   return;
 }
 
-inline void vtkProjectionClamp(double val, char& clamp)
-{
-  if (val >= VTK_CHAR_MIN)
-    {
-    if (val <= VTK_CHAR_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_CHAR_MAX;
-    return;
-    }
-  clamp = VTK_CHAR_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, unsigned char& clamp)
-{
-  if (val >= VTK_UNSIGNED_CHAR_MIN)
-    {
-    if (val <= VTK_UNSIGNED_CHAR_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_UNSIGNED_CHAR_MAX;
-    return;
-    }
-  clamp = VTK_UNSIGNED_CHAR_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, short& clamp)
-{
-  if (val >= VTK_SHORT_MIN)
-    {
-    if (val <= VTK_SHORT_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_SHORT_MAX;
-    return;
-    }
-  clamp = VTK_SHORT_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, unsigned short& clamp)
-{
-  if (val >= VTK_UNSIGNED_SHORT_MIN)
-    {
-    if (val <= VTK_UNSIGNED_SHORT_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_UNSIGNED_SHORT_MAX;
-    return;
-    }
-  clamp = VTK_UNSIGNED_SHORT_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, int& clamp)
-{
-  if (val >= VTK_INT_MIN)
-    {
-    if (val <= VTK_INT_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_INT_MAX;
-    return;
-    }
-  clamp = VTK_INT_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, unsigned int& clamp)
-{
-  if (val >= VTK_UNSIGNED_INT_MIN)
-    {
-    if (val <= VTK_UNSIGNED_INT_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_UNSIGNED_INT_MAX;
-    return;
-    }
-  clamp = VTK_UNSIGNED_INT_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, long& clamp)
-{
-  if (val >= VTK_LONG_MIN)
-    {
-    if (val <= VTK_LONG_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_LONG_MAX;
-    return;
-    }
-  clamp = VTK_LONG_MIN;
-  return;
-}
-
-inline void vtkProjectionClamp(double val, unsigned long& clamp)
-{
-  if (val >= VTK_UNSIGNED_LONG_MIN)
-    {
-    if (val <= VTK_UNSIGNED_LONG_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_UNSIGNED_LONG_MAX;
-    return;
-    }
-  clamp = VTK_UNSIGNED_LONG_MIN;
-  return;
-}
-
-#if defined(VTK_LONG_LONG_MIN) && defined(VTK_LONG_LONG_MAX)
-inline void vtkProjectionClamp(double val, long long& clamp)
-{
-  if (val >= VTK_LONG_LONG_MIN)
-    {
-    if (val <= VTK_LONG_LONG_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_LONG_LONG_MAX;
-    return;
-    }
-  clamp = VTK_LONG_LONG_MIN;
-  return;
-}
-#endif /* defined(VTK_LONG_LONG_MIN) && defined(VTK_LONG_LONG_MAX) */
-
-#if defined(VTK_UNSIGNED_LONG_LONG_MIN) && defined(VTK_UNSIGNED_LONG_LONG_MAX)
-inline void vtkProjectionClamp(double val, unsigned long long& clamp)
-{
-  if (val >= VTK_UNSIGNED_LONG_LONG_MIN)
-    {
-    if (val <= VTK_UNSIGNED_LONG_LONG_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_UNSIGNED_LONG_LONG_MAX;
-    return;
-    }
-  clamp = VTK_UNSIGNED_LONG_LONG_MIN;
-  return;
-}
-#endif
-/* defined(VTK_UNSIGNED_LONG_LONG_MIN) && defined(VTK_UNSIGNED_LONG_LONG_MAX)*/
-
-#if defined(VTK_TYPE_USE___INT64) /* to ensure that __int64 is unique */
-#if defined(VTK___INT64_MIN) && defined(VTK___INT64_MAX)
-inline void vtkProjectionClamp(double val, __int64& clamp)
-{
-  if (val >= VTK___INT64_MIN)
-    {
-    if (val <= VTK___INT64_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK___INT64_MAX;
-    return;
-    }
-  clamp = VTK___INT64_MIN;
-  return;
-}
-#endif /* defined(VTK___INT64_MIN) && defined(VTK___INT64_MAX) */
-#endif /* defined(VTK_TYPE_USE___INT64) */
-
-#if defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-#if defined(VTK_UNSIGNED__INT64_MIN) && defined(VTK_UNSIGNED__INT64_MAX)
-inline void vtkProjectionClamp(double val, unsigned __int64& clamp)
-{
-  if (val >= VTK_UNSIGNED__INT64_MIN)
-    {
-    if (val <= VTK_UNSIGNED__INT64_MAX)
-      {
-      vtkProjectionRound(val, clamp);
-      return;
-      }
-    clamp = VTK_UNSIGNED__INT64_MAX;
-    return;
-    }
-  clamp = VTK_UNSIGNED__INT64_MIN;
-  return;
-}
-#endif
-/* defined(VTK_UNSIGNED__INT64_MIN) && defined(VTK_UNSIGNED__INT64_MAX) */
-#endif
-/* defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE) */
-
-inline void vtkProjectionClamp(double val, float& clamp)
+template<>
+void vtkProjectionClamp<vtkTypeFloat32>(double val, float& clamp)
 {
   clamp = val;
 }
 
-inline void vtkProjectionClamp(double val, double& clamp)
+template<>
+void vtkProjectionClamp<vtkTypeFloat64>(double val, double& clamp)
 {
   clamp = val;
 }
@@ -740,7 +486,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
     {
     switch (inScalarType)
       {
-      vtkTemplateMacro(
+      vtkTemplateAliasMacro(
         vtkImageProjectionExecute(this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
           outData[0], static_cast<VTK_TT *>(outPtr), outExt, id));
@@ -753,7 +499,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
     {
     switch (inScalarType)
       {
-      vtkTemplateMacro(
+      vtkTemplateAliasMacro(
         vtkImageProjectionExecute( this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
           outData[0], static_cast<float *>(outPtr), outExt, id));
@@ -766,7 +512,7 @@ void vtkImageProjection::ThreadedRequestData(vtkInformation *,
     {
     switch (inScalarType)
       {
-      vtkTemplateMacro(
+      vtkTemplateAliasMacro(
         vtkImageProjectionExecute(this,
           inData[0][0], static_cast<VTK_TT *>(inPtr),
           outData[0], static_cast<double *>(outPtr), outExt, id));
