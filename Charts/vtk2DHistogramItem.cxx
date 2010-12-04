@@ -63,8 +63,9 @@ bool vtk2DHistogramItem::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::SetInput(vtkImageData *data, vtkIdType z)
+void vtk2DHistogramItem::SetInput(vtkImageData *data, vtkIdType)
 {
+  // FIXME: Store the z too, for slices.
   this->Input = data;
 }
 
