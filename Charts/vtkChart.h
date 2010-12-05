@@ -22,8 +22,8 @@
 #define __vtkChart_h
 
 #include "vtkContextItem.h"
+#include "vtkVector.h"      // For vtkRectf
 
-class vtkContext2D;
 class vtkTransform2D;
 class vtkContextScene;
 class vtkPlot;
@@ -147,7 +147,22 @@ public:
   // Set/get the borders of the chart (space in pixels around the chart).
   void SetBorders(int left, int bottom, int right, int top);
 
-//BTX
+  // Description:
+  // Set the size of the chart. The rect argument specifies the bottom corner,
+  // width and height of the chart. The borders will be laid out within the
+  // specified rectangle.
+  void SetSize(const vtkRectf &rect);
+
+  // Description:
+  // Get the current size of the chart.
+  vtkRectf GetSize();
+
+  // Description:
+  // Set/get whether the chart should automatically resize to fill the current
+  // render window. Default is true.
+  vtkSetMacro(AutoSize, bool);
+  vtkGetMacro(AutoSize, bool);
+
 protected:
   vtkChart();
   ~vtkChart();
@@ -188,10 +203,12 @@ protected:
   // The text properties associated with the chart
   vtkTextProperty* TitleProperties;
 
+  vtkRectf Size;
+  bool AutoSize;
+
 private:
   vtkChart(const vtkChart &); // Not implemented.
   void operator=(const vtkChart &);   // Not implemented.
-//ETX
 };
 
 #endif //__vtkChart_h
