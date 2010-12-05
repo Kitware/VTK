@@ -16,6 +16,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
+#include "vtkAxis.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
@@ -98,6 +99,8 @@ int TestPlotMatrix( int, char * [] )
   view->GetScene()->AddItem(chart4);
   line = chart4->AddPlot(vtkChart::BAR);
   line->SetInput(table, 0, 1);
+  chart4->GetAxis(vtkAxis::BOTTOM)->SetBehavior(vtkAxis::FIXED);
+  chart4->GetAxis(vtkAxis::BOTTOM)->SetRange(0.0, 10.0);
   chart4->SetAutoSize(false);
   chart4->SetSize(vtkRectf(200.0, 150.0, 200.0, 150.0));
 
