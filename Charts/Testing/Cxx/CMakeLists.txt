@@ -27,6 +27,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestMultipleScalarsToColors.cxx
       TestParallelCoordinates.cxx
       TestPieChart.cxx
+      TestPlotMatrix.cxx
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
       TestScientificPlot.cxx
