@@ -37,7 +37,7 @@
 #define vtkSimple3DCirclesStrategyH 1
 
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkVariant.h"
+#include "vtkVariant.h" // For variant API
 
 class vtkAbstractArray;
 class vtkDirectedGraph;
