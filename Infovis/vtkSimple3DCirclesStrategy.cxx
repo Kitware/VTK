@@ -260,6 +260,21 @@ void vtkSimple3DCirclesStrategy::SetDirection( double d[3] )
 
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,MarkedStartVertices,vtkAbstractArray);
 
+void vtkSimple3DCirclesStrategy::SetMarkedValue( vtkVariant val )
+  {
+  if ( !this->MarkedValue.IsEqual(val) )
+    {
+    this->MarkedValue = val;
+    vtkDebugMacro( << "Setting MarkedValue : " << this->MarkedValue );
+    this->Modified();
+    }
+  }
+
+vtkVariant vtkSimple3DCirclesStrategy::GetMarkedValue( void )
+  {
+  return this->MarkedValue;
+  }
+
 void vtkSimple3DCirclesStrategy::SetMinimumDegree( double degree )
   {
   this->SetMinimumRadian( vtkMath::RadiansFromDegrees( degree ) );
