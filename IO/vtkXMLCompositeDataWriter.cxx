@@ -587,7 +587,7 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
   int piece)
 {
   vtkstd::string fname;
-  if(this->Internal->DataTypes[piece] <= 0)
+  if(this->Internal->DataTypes[piece] < 0)
     {
     return fname;
     }
