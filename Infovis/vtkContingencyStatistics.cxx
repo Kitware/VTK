@@ -306,7 +306,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
-  vtksys_stl::map<vtkIdType,vtkIdType> cardinality;
+  vtksys_stl::map<vtkIdType,vtkIdType> cardinalities;
 
   // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
   vtksys_stl::map<vtkStdString,vtksys_stl::pair<vtkStdString,vtkStdString> > marginalToPair;
@@ -346,7 +346,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     x = valx->GetValue( r );
     y = valy->GetValue( r );
     c = card->GetValue( r );
-    cardinality[key] += c;
+    cardinalities[key] += c;
 
     if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
       {
@@ -361,9 +361,9 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
   // have the same cardinality.
-  vtkIdType n = cardinality[0];
-  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator iit = cardinality.begin();
-        iit != cardinality.end(); ++ iit )
+  vtkIdType n = cardinalities[0];
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator iit = cardinalities.begin();
+        iit != cardinalities.end(); ++ iit )
     {
     if ( iit->second != n )
       {
