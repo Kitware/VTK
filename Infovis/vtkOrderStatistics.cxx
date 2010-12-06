@@ -259,6 +259,17 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
+  // Create column of probability mass function to be added to histogram table
+  vtkIdType nRowHist = histogramTab->GetNumberOfRows();
+  if ( ! histogramTab->GetColumnByName( "P" ) )
+    {
+    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "P" );
+    doubleCol->SetNumberOfTuples( nRowHist );
+    histogramTab->AddColumn( doubleCol );
+    doubleCol->Delete();
+    }
+
   // Create quantiles table
   vtkTable* quantileTab = vtkTable::New();
 
@@ -326,7 +337,6 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // Calculate variable cardinalities (which must all be indentical) and value marginal counts
   vtksys_stl::map<vtkIdType,vtkIdType> cardinalities;
   vtkIdType key, c;
-  vtkIdType nRowCont = histogramTab->GetNumberOfRows();
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
 
   // Decide (once and not for each data point for efficiency) whether lexicographic or numeric order is to be used
@@ -335,7 +345,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Use order on real numbers
     double x;
     vtksys_stl::map<vtkIdType, vtksys_stl::map<double,vtkIdType> >marginalCounts;
-    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
       {
       // Find the variable to which the key corresponds
       key = keys->GetValue( r );
@@ -440,7 +450,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Use lexicographic order
     vtkStdString x;
     vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkStdString,vtkIdType> >marginalCounts;
-    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
       {
       // Find the variable to which the key corresponds
       key = keys->GetValue( r );
