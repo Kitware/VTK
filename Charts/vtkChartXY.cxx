@@ -255,19 +255,24 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called.");
-
-  vtkVector2i geometry;
-  if (this->AutoSize)
-    {
-    geometry = vtkVector2i(this->GetScene()->GetSceneWidth(),
-                           this->GetScene()->GetSceneHeight());
-    this->SetSize(vtkRectf(0.0, 0.0, geometry.X(), geometry.Y()));
-    }
-
   if (!this->Visible)
     {
     // The geometry of the chart must be valid before anything can be drawn
     return false;
+    }
+
+  vtkVector2i geometry;
+  bool recalculateTransform = false;
+  if (this->AutoSize)
+    {
+    geometry = vtkVector2i(this->GetScene()->GetSceneWidth(),
+                           this->GetScene()->GetSceneHeight());
+    if (geometry.X() != this->Geometry[0] || geometry.Y() != this->Geometry[1])
+      {
+      recalculateTransform = true;
+      this->LayoutChanged = true;
+      }
+    this->SetSize(vtkRectf(0.0, 0.0, geometry.X(), geometry.Y()));
     }
 
   int visiblePlots = 0;
@@ -285,17 +290,9 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     }
 
   this->Update();
-  bool recalculateTransform = false;
 
-  if (geometry.X() != this->Geometry[0] || geometry.Y() != this->Geometry[1] ||
-      this->MTime > this->ChartPrivate->axes[0]->GetMTime())
+  if (this->MTime > this->ChartPrivate->axes[0]->GetMTime())
     {
-    // Take up the entire window right now, this could be made configurable
-    if (this->AutoSize)
-      {
-      this->SetGeometry(geometry.GetData());
-      }
-
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
     this->LayoutChanged = true;
