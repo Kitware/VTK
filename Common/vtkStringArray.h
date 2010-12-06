@@ -15,26 +15,11 @@
 
 =========================================================================*/
 
-// .NAME vtkStringArray - Subclass of vtkAbstractArray that holds vtkStdStrings
-//
+// .NAME vtkStringArray - a vtkAbstractArray subclass for strings
 // .SECTION Description
 // Points and cells may sometimes have associated data that are stored
-// as strings, e.g. many information visualization projects.  This
-// class provides a reasonably clean way to store and access those.
-//
-//
-// .SECTION Caveats
-//
-// Wrapping support for the Set/Get/Insert methods is a little
-// strange.  The Tcl/Python/Java wrappers treat vtkStdString as const
-// char * right now instead of dealing with native strings.  This is
-// why there are two versions of every Set method: one (which you
-// should use in C++ code) taking a vtkStdString argument and one
-// (used by the wrapper) taking a const char * argument.
-//
-// If you'd like to look into modifying the wrappers to handle this
-// properly, go right ahead...
-//
+// as strings, e.g. labels for information visualization projects.
+// This class provides a clean way to store and access those strings.
 // .SECTION Thanks
 // Andy Wilson (atwilso@sandia.gov) wrote this class.
 
