@@ -387,77 +387,12 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// replaces all & with &amp; except if & is part of &amp;, &lt;, &gt;,
-// &quot;, or &apos;.
-void vtkXMLDataElement::ReplaceAmpersand(string& source)
-{
-  const char replace[] = "&";
-  const char with[] = "&amp;";
-  const char *src = source.c_str();
-  char *searchPos = const_cast<char *>(strstr(src,replace));
-  while(searchPos)
-    {
-    if(strncmp(searchPos, "&amp;", 5) == 0 || strncmp(searchPos, "&lt;", 4) == 0 ||
-       strncmp(searchPos, "&gt;", 4) == 0 || strncmp(searchPos, "&quot;", 6) == 0 ||
-       strncmp(searchPos, "&apos;", 6) == 0 )
-      {
-      searchPos = strstr(searchPos+1, replace);
-      }
-    else
-      {
-      break;
-      }
-    }
-  // get out quick if string is not found
-  if (!searchPos)
-    {
-    return;
-    }
-
-  // perform replacements until done
-  size_t replaceSize = 1;
-  char *orig = strdup(src);
-  char *currentPos = orig;
-  searchPos = searchPos - src + orig;
-
-  // initialize the result
-  source.erase(source.begin(),source.end());
-  do
-    {
-    *searchPos = '\0';
-    source += currentPos;
-    currentPos = searchPos + replaceSize;
-    // replace
-    source += with;
-    searchPos = strstr(currentPos,replace);
-    while(searchPos)
-      {
-      if(strncmp(searchPos, "&amp;", 5) == 0 || strncmp(searchPos, "&lt;", 4) == 0 ||
-         strncmp(searchPos, "&gt;", 4) == 0 || strncmp(searchPos, "&quot;", 6) == 0 ||
-         strncmp(searchPos, "&apos;", 6) == 0 )
-        {
-        searchPos = strstr(searchPos+1, replace);
-        }
-      else
-        {
-        break;
-        }
-      }
-    }
-  while (searchPos);
-
-  // copy any trailing text
-  source += currentPos;
-  free(orig);
-  }
-
-//----------------------------------------------------------------------------
 // method to replace XML special characters <, >, &, ", ' with
 // &lt;, &gt;, &amp;, &quot;, &apos;, respectively.
 string vtkXMLDataElement::EscapeSpecialXMLCharacters(const char* data)
 {
   string retVal = data;
-  ReplaceAmpersand(retVal);
+  vtksys::SystemTools::ReplaceString(retVal, "&", "&amp;");
   vtksys::SystemTools::ReplaceString(retVal, "<", "&lt;");
   vtksys::SystemTools::ReplaceString(retVal, ">", "&gt;");
   vtksys::SystemTools::ReplaceString(retVal, "\"", "&quot;");

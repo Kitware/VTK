@@ -271,7 +271,6 @@ protected:
   vtkXMLDataElement* LookupElementUpScope(const char* id);
   static int IsSpace(char c);
   void PrintCharacterData(ostream &os,vtkIndent indent);
-  static void ReplaceAmpersand(std::string& source);
   static std::string EscapeSpecialXMLCharacters(const char* data);
 
   //BTX
