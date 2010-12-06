@@ -68,3 +68,22 @@ vtkRenderer ren_spherical
 ren_spherical AddActor actor_spherical
 ren_spherical SetViewport 0.5 0.0 1.0 1.0
 renWin AddRenderer ren_spherical
+
+#############################################################################
+# Case 3: Read as structured data.
+# The resulting data is garbage, so we won't actually look at the output.
+# This is just to verify that nothing errors out or crashes.
+vtkNetCDFCFReader reader_structured
+reader_structured SetFileName "$VTK_DATA_ROOT/Data/sampleGenGrid3.nc"
+reader_structured UpdateMetaData
+reader_structured SetVariableArrayStatus "sample" 1
+reader_structured SphericalCoordinatesOn
+
+reader_structured SetOutputTypeToImage
+reader_structured Update
+
+reader_structured SetOutputTypeToRectilinear
+reader_structured Update
+
+reader_structured SetOutputTypeToStructured
+reader_structured Update
