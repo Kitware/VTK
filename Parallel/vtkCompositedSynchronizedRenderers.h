@@ -25,7 +25,7 @@
 class vtkFloatArray;
 class vtkCompositer;
 
-class VTK_EXPORT vtkCompositedSynchronizedRenderers : public vtkSynchronizedRenderers
+class VTK_PARALLEL_EXPORT vtkCompositedSynchronizedRenderers : public vtkSynchronizedRenderers
 {
 public:
   static vtkCompositedSynchronizedRenderers* New();
