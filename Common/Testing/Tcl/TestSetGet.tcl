@@ -26,6 +26,9 @@ vtkMPICommunicator-GetWorldCommunicator
 vtkMPICommunicator-GetLocalProcessId
 vtkMPICommunicator-GetNumberOfProcesses
 vtkMPICommunicator-GetMPIComm
+vtkOpenGLScalarsToColorsPainter-GetTextureSizeLimit
+vtkScalarsToColorsPainter-GetTextureSizeLimit
+vtkMesaScalarsToColorsPainter-GetTextureSizeLimit
 }
 
 proc TestOne {cname} {
