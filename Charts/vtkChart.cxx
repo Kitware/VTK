@@ -165,7 +165,7 @@ bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
 void vtkChart::SetBottomBorder(int border)
 {
   this->Point1[1] = border >= 0 ? border : 0;
-  this->Point1[1] += this->Size.Y();
+  this->Point1[1] += static_cast<int>(this->Size.Y());
 }
 
 //-----------------------------------------------------------------------------
@@ -174,14 +174,14 @@ void vtkChart::SetTopBorder(int border)
  this->Point2[1] = border >=0 ?
                    this->Geometry[1] - border :
                    this->Geometry[1];
- this->Point2[1] += this->Size.Y();
+ this->Point2[1] += static_cast<int>(this->Size.Y());
 }
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetLeftBorder(int border)
 {
   this->Point1[0] = border >= 0 ? border : 0;
-  this->Point1[0] += this->Size.X();
+  this->Point1[0] += static_cast<int>(this->Size.X());
 }
 
 //-----------------------------------------------------------------------------
@@ -190,7 +190,7 @@ void vtkChart::SetRightBorder(int border)
   this->Point2[0] = border >=0 ?
                     this->Geometry[0] - border :
                     this->Geometry[0];
-  this->Point2[0] += this->Size.X();
+  this->Point2[0] += static_cast<int>(this->Size.X());
 }
 
 //-----------------------------------------------------------------------------
@@ -205,8 +205,8 @@ void vtkChart::SetBorders(int left, int bottom, int right, int top)
 void vtkChart::SetSize(const vtkRectf &rect)
 {
   this->Size = rect;
-  this->Geometry[0] = rect.Width();
-  this->Geometry[1] = rect.Height();
+  this->Geometry[0] = static_cast<int>(rect.Width());
+  this->Geometry[1] = static_cast<int>(rect.Height());
 }
 
 vtkRectf vtkChart::GetSize()
