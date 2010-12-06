@@ -1,18 +1,16 @@
 SET(KIT Charts)
 SET(UKIT CHARTS)
 
-SET(KIT_TCL_LIBS vtkHybridTCL vtkViewsTCL ${VTK_TK_LIBRARIES})
-SET(KIT_PYTHON_LIBS vtkHybridPythonD vtkViewsPythonD)
-SET(KIT_JAVA_LIBS vtkHybridJava vtkViewsJava)
+SET(KIT_TCL_LIBS vtkViewsTCL ${VTK_TK_LIBRARIES})
+SET(KIT_PYTHON_LIBS vtkViewsPythonD)
+SET(KIT_JAVA_LIBS vtkViewsJava)
 
 IF (JAVA_AWT_LIBRARY)
   SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY})
 ENDIF (JAVA_AWT_LIBRARY)
 
-SET(KIT_INTERFACE_LIBRARIES vtkHybrid vtkViews)
-SET(KIT_LIBS vtkIO vtkftgl
-  ${VTK_FREETYPE_LIBRARIES}
-)
+SET(KIT_INTERFACE_LIBRARIES vtkViews)
+SET(KIT_LIBS vtkftgl)
 
 SET(Kit_SRCS
   vtk2DHistogramItem.cxx
@@ -113,6 +111,3 @@ ENDIF(VTK_USE_QT)
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
-
-#TARGET_LINK_LIBRARIES(vtkCharts ${QT_LIBRARIES})
-
