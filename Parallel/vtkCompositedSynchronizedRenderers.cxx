@@ -110,4 +110,13 @@ void vtkCompositedSynchronizedRenderers::CaptureRenderedDepthBuffer(
 void vtkCompositedSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Compositer: ";
+  if (this->Compositer)
+    {
+    this->Compositer->PrintSelf(os, indent.GetNextIndent());;
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
