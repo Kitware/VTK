@@ -91,8 +91,8 @@ public:
   vtkGetObjectMacro(MarkedStartVertices,vtkAbstractArray);
   // Description:
   // Set or get MarkedValue. See: MarkedStartVertices.
-  vtkSetMacro(MarkedValue,vtkVariant);
-  vtkGetMacro(MarkedValue,vtkVariant);
+  virtual void SetMarkedValue( vtkVariant _arg );
+  virtual vtkVariant GetMarkedValue( void );
   // Description:
   // Set or get ForceToUseUniversalStartPointsFinder. If ForceToUseUniversalStartPointsFinder is true, MarkedStartVertices won't be used.
   // In this case the input graph must be vtkDirectedAcyclicGraph (Defualt: false).
