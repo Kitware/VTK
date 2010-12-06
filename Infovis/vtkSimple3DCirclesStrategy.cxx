@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkSimple3DCirclesStrategy.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCharArray.h"            // For temporary store for point ordering
 #include "vtkDirectedGraph.h"        // For this->Graph type check
 #include "vtkIdTypeArray.h"          // For Ordered array
@@ -91,7 +92,7 @@ void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
 
   os << indent << "Height : " << this->Height << endl;
 
-  os << indent << "Orign  : (" << this->Orign[0] << "," << this->Orign[1] << "," << this->Orign[2] << ")" << endl;
+  os << indent << "Origin  : (" << this->Origin[0] << "," << this->Origin[1] << "," << this->Origin[2] << ")" << endl;
 
   os << indent << "Direction  : (" << this->Direction[0] << "," << this->Direction[1] << "," << this->Direction[2] << ")" << endl;
 
@@ -257,7 +258,7 @@ void vtkSimple3DCirclesStrategy::SetDirection( double d[3] )
   this->SetDirection( d[0], d[1], d[2] );
   }
 
-vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,MarkedStartVertices,vtkIntArray);
+vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,MarkedStartVertices,vtkAbstractArray);
 
 void vtkSimple3DCirclesStrategy::SetMinimumDegree( double degree )
   {
@@ -273,13 +274,13 @@ vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalLayers,vtkIntArray);
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalOrder,vtkIdTypeArray);
 
 vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
-: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), MarkedValue(0), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::DoublePi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
+: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::DoublePi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
   {
   this->Direction[0] = this->Direction[1] = 0.0; this->Direction[2] = 1.0;
   this->T[0][1] = this->T[0][2] = this->T[1][2] = 0.0;
   this->T[1][0] = this->T[2][0] = this->T[2][1] = 0.0;
   this->T[0][0] = this->T[1][1] = this->T[2][2] = 1.0;
-  this->Orign[0] = this->Orign[1] = this->Orign[2] = 0.0;
+  this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   }
 
 vtkSimple3DCirclesStrategy::~vtkSimple3DCirclesStrategy( void )
@@ -492,7 +493,7 @@ int vtkSimple3DCirclesStrategy::UniversalStartPoints( vtkDirectedGraph * input, 
           layers->SetValue( i, -2 );
           StandAlones->push_back(i);
           }
-        else if ( ( this->MarkedStartVertices->GetValue(i) == this->MarkedValue ) && ( input->GetOutDegree(i) > 0 ) )
+        else if ( ( this->MarkedStartVertices->GetVariantValue(i) == this->MarkedValue ) && ( input->GetOutDegree(i) > 0 ) )
           {
           target->push_back(i);
           layers->SetValue( i, 0 );
@@ -628,8 +629,8 @@ void vtkSimple3DCirclesStrategy::BuildPointOrder( vtkDirectedGraph * input, vtkS
 void vtkSimple3DCirclesStrategy::Transform( double Local[], double Global[] )
   {
   vtkMath::Multiply3x3( this->T, Local, Global );
-  Global[0] = this->Orign[0] + Global[0];
-  Global[1] = this->Orign[1] + Global[1];
-  Global[2] = this->Orign[2] + Global[2];
+  Global[0] = this->Origin[0] + Global[0];
+  Global[1] = this->Origin[1] + Global[1];
+  Global[2] = this->Origin[2] + Global[2];
   }
 

@@ -37,7 +37,9 @@
 #define vtkSimple3DCirclesStrategyH 1
 
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkVariant.h"
 
+class vtkAbstractArray;
 class vtkDirectedGraph;
 class vtkIdTypeArray;
 class vtkIntArray;
@@ -71,9 +73,9 @@ public:
   vtkSetMacro(Height,double);
   vtkGetMacro(Height,double);
   // Description:
-  // Set or get the orign of the geometry. This is the center of the first circle. SetOrign(x,y,z)
-  vtkSetVector3Macro(Orign,double);
-  vtkGetVector3Macro(Orign,double);
+  // Set or get the origin of the geometry. This is the center of the first circle. SetOrigin(x,y,z)
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVector3Macro(Origin,double);
   // Description:
   // Set or get the normal vector of the circles plain. The height is growing in this direction. The direction must not be zero vector.
   // The default vector is (0.0,0.0,1.0)
@@ -85,12 +87,12 @@ public:
   // marked in MarkedStartVertices array.) MarkedStartVertices size must be equal with the number of the vertices in the graph. Start
   // vertices must be marked by MarkedValue. (E.g.: if MarkedValue=3 and MarkedStartPoints is { 0, 3, 5, 3 }, the start points ids will
   // be {1,3}.) )
-  virtual void SetMarkedStartVertices( vtkIntArray * _arg );
-  vtkGetObjectMacro(MarkedStartVertices,vtkIntArray);
+  virtual void SetMarkedStartVertices( vtkAbstractArray * _arg );
+  vtkGetObjectMacro(MarkedStartVertices,vtkAbstractArray);
   // Description:
   // Set or get MarkedValue. See: MarkedStartVertices.
-  vtkSetMacro(MarkedValue,int);
-  vtkGetMacro(MarkedValue,int);
+  vtkSetMacro(MarkedValue,vtkVariant);
+  vtkGetMacro(MarkedValue,vtkVariant);
   // Description:
   // Set or get ForceToUseUniversalStartPointsFinder. If ForceToUseUniversalStartPointsFinder is true, MarkedStartVertices won't be used.
   // In this case the input graph must be vtkDirectedAcyclicGraph (Defualt: false).
@@ -136,11 +138,11 @@ protected:
 
   double Radius;
   double Height;
-  double Orign[3];
+  double Origin[3];
   double Direction[3];
   int Method;
-  vtkIntArray * MarkedStartVertices;
-  int MarkedValue;
+  vtkAbstractArray * MarkedStartVertices;
+  vtkVariant MarkedValue;
   int ForceToUseUniversalStartPointsFinder;
   int AutoHeight;
   double MinimumRadian;
