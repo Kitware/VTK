@@ -460,7 +460,8 @@ void vtkWindowToImageFilter::RequestData(
             {
             if (idxY >= start_y_offset && idxY < size[0] - end_y_offset)
               {
-              memcpy(outPtr + start_x_offset, pixels1, rowSize - end_x_offset);
+              memcpy(outPtr + start_x_offset, pixels1,
+                rowSize - (start_x_offset + end_x_offset));
               }
             outPtr += outIncrY;
             pixels1 += rowSize;
