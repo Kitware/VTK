@@ -19,11 +19,6 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayWriter_h
-#define __vtkArrayWriter_h
-
-#include <vtkArrayDataAlgorithm.h>
-
 // .NAME vtkArrayWriter - Serialize sparse and dense arrays to a file or stream.
 //
 // .SECTION Description
@@ -55,6 +50,11 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
+
+#ifndef __vtkArrayWriter_h
+#define __vtkArrayWriter_h
+
+#include <vtkArrayDataAlgorithm.h>
 
 class vtkArray;
 
