@@ -98,6 +98,7 @@ public:
   // Return the database associated with the query.
   vtkGetObjectMacro(Database, vtkSQLDatabase);
 
+//BTX
   // Description:
   // Bind a parameter to a placeholder in a query.  A full discussion
   // of this feature is beyond the scope of this header file, but in
@@ -126,7 +127,6 @@ public:
   // vtkVariant) dispatches to one of the more type-specific versions.  It
   // should be OK to use in database drivers without modification.
 
-//BTX
   virtual bool BindParameter(int index, unsigned char value);
   virtual bool BindParameter(int index, unsigned short value);
   virtual bool BindParameter(int index, unsigned int value);
@@ -164,6 +164,7 @@ public:
   // Reset all parameter bindings to NULL.
   virtual bool ClearParameterBindings();
 
+//BTX
   // Description:
   // Escape a string for inclusion into an SQL query.
   // If \a addSurroundingQuotes is true, then quotation marks appropriate to the
@@ -173,7 +174,6 @@ public:
   // A default, simple-minded implementation is provided for
   // database backends that do not provde a way to escape
   // strings for use inside queries.
-//BTX
   virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
 //ETX
 

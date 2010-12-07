@@ -136,12 +136,12 @@ public:
   virtual void SetFileId( int f );
   int GetFileId();
 
+//BTX
   // Description:
   // Extra cell data array that can be generated.  By default, this array
   // is off.  The value of the array is the integer global id of the cell.
   // The name of the array is returned by GetGlobalElementIdArrayName()
   // ***NOTE*** No more "unique" global ID. Instead we have an arbitrary number of maps.
-//BTX
   enum {
     SEARCH_TYPE_ELEMENT=0,
     SEARCH_TYPE_NODE,

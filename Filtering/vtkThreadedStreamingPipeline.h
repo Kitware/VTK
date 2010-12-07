@@ -60,17 +60,17 @@ public:
   // Key to store the additional information for an update request
   static vtkInformationObjectBaseKey* EXTRA_INFORMATION();
 
+//BTX
   // Description:
   // Definition of different types of processing units an algorithm
   // can be executed
-  //BTX
   enum
   {
     PROCESSING_UNIT_NONE = 0,
     PROCESSING_UNIT_CPU = 1,
     PROCESSING_UNIT_GPU = 2
   };
-  //ETX
+//ETX
 
   // Description:
   // Enable/Disable Multi-Threaded updating mechanism
