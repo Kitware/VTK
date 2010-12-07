@@ -259,6 +259,18 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
+  // Create column of probability mass function to be added to histogram table
+  vtkIdType nRowHist = histogramTab->GetNumberOfRows();
+  vtkStdString derivedName( "P" );
+  if ( ! histogramTab->GetColumnByName( derivedName ) )
+    {
+    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( derivedName );
+    doubleCol->SetNumberOfTuples( nRowHist );
+    histogramTab->AddColumn( doubleCol );
+    doubleCol->Delete();
+    }
+
   // Create quantiles table
   vtkTable* quantileTab = vtkTable::New();
 
@@ -325,8 +337,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   // Calculate variable cardinalities (which must all be indentical) and value marginal counts
   vtksys_stl::map<vtkIdType,vtkIdType> cardinalities;
-  vtkIdType key, c;
-  vtkIdType nRowCont = histogramTab->GetNumberOfRows();
+  vtkIdType key, c, n;
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
 
   // Decide (once and not for each data point for efficiency) whether lexicographic or numeric order is to be used
@@ -335,7 +346,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Use order on real numbers
     double x;
     vtksys_stl::map<vtkIdType, vtksys_stl::map<double,vtkIdType> >marginalCounts;
-    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
       {
       // Find the variable to which the key corresponds
       key = keys->GetValue( r );
@@ -358,7 +369,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
     // have the same cardinality.
-    vtkIdType n = cardinalities[0];
+    n = cardinalities[0];
     for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator cit = cardinalities.begin();
           cit != cardinalities.end(); ++ cit )
       {
@@ -440,7 +451,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Use lexicographic order
     vtkStdString x;
     vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkStdString,vtkIdType> >marginalCounts;
-    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
       {
       // Find the variable to which the key corresponds
       key = keys->GetValue( r );
@@ -463,7 +474,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
     // have the same cardinality.
-    vtkIdType n = cardinalities[0];
+    n = cardinalities[0];
     for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator cit = cardinalities.begin();
           cit != cardinalities.end(); ++ cit )
       {
@@ -530,6 +541,28 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       quantileTab->InsertNextRow( rowQuant );
       } // mit
     } // else ( this->NumericType )
+
+  // Fill cardinality row (0) with invalid value for probability
+  histogramTab->SetValueByName( 0, derivedName, -1. );
+
+  // Downcast derived array for efficient data access
+  vtkDoubleArray* derivedCol = vtkDoubleArray::SafeDownCast( histogramTab->GetColumnByName( derivedName ) );
+  if ( ! derivedCol )
+    {
+    vtkErrorMacro("Empty derived column. Cannot derive model.\n");
+    return;
+    }
+
+  // Finally calculate and store probabilities
+  double inv_n = 1. / n;
+  double p;
+  for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
+    {
+    c = card->GetValue( r );
+    p = inv_n * c;
+
+    derivedCol->SetValue( r, p );
+    }
 
   // Resize output meta so quantile table can be appended
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
