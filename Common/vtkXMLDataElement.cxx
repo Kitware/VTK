@@ -351,8 +351,9 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
   // No special format just dump what we have.
   if (this->CharacterDataWidth<1)
     {
-    os << indent << this->EscapeSpecialXMLCharacters(this->CharacterData)
-       << endl;
+    os << indent;
+    this->PrintWithEscapedData(os, this->CharacterData);
+    os << endl;
     }
   // Treat as space/line delimitted fields limiting 
   // the number of field per line.
@@ -362,8 +363,8 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 
     string characterDataToken;
     issCharacterData >> characterDataToken;
-    os << indent << this->EscapeSpecialXMLCharacters(
-      characterDataToken.c_str());
+    os << indent;
+    this->PrintWithEscapedData(os, characterDataToken.c_str());
 
     int it=0;
     while (issCharacterData.good())
@@ -378,7 +379,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
         }
 
       issCharacterData >> characterDataToken;
-      os << this->EscapeSpecialXMLCharacters(characterDataToken.c_str());
+      this->PrintWithEscapedData(os, characterDataToken.c_str());
       ++it;
       }
 
@@ -387,17 +388,45 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// method to replace XML special characters <, >, &, ", ' with
+// print out data while replacing XML special characters <, >, &, ", ' with
 // &lt;, &gt;, &amp;, &quot;, &apos;, respectively.
-string vtkXMLDataElement::EscapeSpecialXMLCharacters(const char* data)
+void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
 {
-  string retVal = data;
-  vtksys::SystemTools::ReplaceString(retVal, "&", "&amp;");
-  vtksys::SystemTools::ReplaceString(retVal, "<", "&lt;");
-  vtksys::SystemTools::ReplaceString(retVal, ">", "&gt;");
-  vtksys::SystemTools::ReplaceString(retVal, "\"", "&quot;");
-  vtksys::SystemTools::ReplaceString(retVal, "'", "&apos;");
-  return retVal;
+  for(size_t i=0;i<strlen(data);i++)
+    {
+    switch(data[i])
+      {
+      case '&':
+      {
+      os << "&amp;";
+      break;
+      }
+      case '<':
+      {
+      os << "&lt;";
+      break;
+      }
+      case '>':
+      {
+      os << "&gt;";
+      break;
+      }
+      case '"':
+      {
+      os << "&quot;";
+      break;
+      }
+      case '\'':
+      {
+      os << "&apos;";
+      break;
+      }
+      default:
+      {
+      os << data[i];
+      }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -417,9 +446,9 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
   int i;
   for(i=0;i < this->NumberOfAttributes;++i)
     {
-    os << " " << this->AttributeNames[i]
-       << "=\"" << this->EscapeSpecialXMLCharacters(
-         this->AttributeValues[i]) << "\"";
+    os << " " << this->AttributeNames[i] << "=\"";
+    this->PrintWithEscapedData(os, this->AttributeValues[i]);
+    os << "\"";
     }
   // Long format tag is needed if either or both 
   // nested elements or inline data are present.
