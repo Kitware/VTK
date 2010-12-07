@@ -14,7 +14,7 @@ IF(NOT CMAKE_CROSSCOMPILING)
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-    ADD_EXECUTABLE(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c
+    VTK_ADD_EXECUTABLE(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c
                    vtkWrapHierarchy.c)
     EXPORT(TARGETS vtkWrapHierarchy FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
@@ -27,15 +27,16 @@ IF(NOT CMAKE_CROSSCOMPILING)
   ENDIF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
 
   IF (VTK_WRAP_TCL)
-    ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
+    VTK_ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
                    vtkParsePreprocess.c vtkParseHierarchy.c)
-    ADD_EXECUTABLE(vtkWrapTclInit vtkWrapTclInit.c)
+    VTK_ADD_EXECUTABLE(vtkWrapTclInit vtkWrapTclInit.c)
     EXPORT(TARGETS vtkWrapTcl vtkWrapTclInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
       ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkWrapTcl vtkWrapTclInit)
    ENDIF(COMPILE_TOOLS_TARGET)
     IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
       INSTALL(TARGETS vtkWrapTcl vtkWrapTclInit
+        EXPORT ${VTK_INSTALL_EXPORT_NAME}
         RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development # .exe, .dll
         )
     ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
@@ -44,10 +45,10 @@ IF(NOT CMAKE_CROSSCOMPILING)
   IF (VTK_WRAP_PYTHON)
     INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
 
-    ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
+    VTK_ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
                    vtkParseMain.c vtkParse.tab.c vtkParsePreprocess.c
                    vtkParseHierarchy.c)
-    ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
+    VTK_ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
     TARGET_LINK_LIBRARIES(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
     EXPORT(TARGETS vtkWrapPython vtkWrapPythonInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
@@ -55,15 +56,16 @@ IF(NOT CMAKE_CROSSCOMPILING)
     ENDIF(COMPILE_TOOLS_TARGET)
     IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
       INSTALL(TARGETS vtkWrapPython vtkWrapPythonInit
+        EXPORT ${VTK_INSTALL_EXPORT_NAME}
         RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development # .exe, .dll
         )
     ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   ENDIF (VTK_WRAP_PYTHON)
 
   IF (VTK_WRAP_JAVA)
-    ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParseMain.c vtkParse.tab.c
+    VTK_ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParseMain.c vtkParse.tab.c
                    vtkParsePreprocess.c vtkParseHierarchy.c)
-    ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
+    VTK_ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
                    vtkParsePreprocess.c vtkParseHierarchy.c)
     EXPORT(TARGETS vtkParseJava vtkWrapJava FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
     IF(COMPILE_TOOLS_TARGET)
@@ -71,6 +73,7 @@ IF(NOT CMAKE_CROSSCOMPILING)
     ENDIF(COMPILE_TOOLS_TARGET)
     IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
       INSTALL(TARGETS vtkParseJava vtkWrapJava
+        EXPORT ${VTK_INSTALL_EXPORT_NAME}
         RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development # .exe, .dll
         )
     ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
