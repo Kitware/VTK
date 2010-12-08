@@ -45,7 +45,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkStreamingStatistics* New();
 
-  //BTX
   // Description:
   // enumeration values to specify input port types
   enum InputPorts
@@ -64,7 +63,6 @@ public:
     ASSESSMENT   = 2,       //!< This is an old, deprecated name for OUTPUT_TEST.
     OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
     };
-//ETX
 
   virtual void SetStatisticsAlgorithm(vtkStatisticsAlgorithm*);
 
@@ -85,10 +83,10 @@ private:
   void operator = ( const vtkStreamingStatistics& );   // Not implemented
 
   // Internal statistics algorithm to care for and feed
-  vtkStatisticsAlgorithm *StatisticsAlgorithm;
+  vtkStatisticsAlgorithm* StatisticsAlgorithm;
 
   // Internal model that gets aggregated
-  vtkMultiBlockDataSet *internalModel;
+  vtkMultiBlockDataSet* InternalModel;
 };
 
 #endif
