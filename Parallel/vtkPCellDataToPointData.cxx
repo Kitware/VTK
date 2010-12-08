@@ -78,7 +78,6 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
     return 1;
     }
 
-  vtkInformation* opInfo = this->GetOutputPortInformation(0);
   int extentType = VTK_PIECES_EXTENT;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
