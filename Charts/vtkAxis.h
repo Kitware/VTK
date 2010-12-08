@@ -234,6 +234,10 @@ protected:
   void GenerateTickLabels(double min, double max);
 
   // Description:
+  // Generate tick labels from the supplied double array of tick positions.
+  void GenerateTickLabels();
+
+  // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
   double CalculateNiceMinMax(double &min, double &max);
