@@ -16,6 +16,7 @@
 #ifndef _H5IMpublic_H
 #define _H5IMpublic_H
 
+#include "vtk_libhdf5_hl_mangle.h"
 
 #ifdef __cplusplus
 extern "C" {

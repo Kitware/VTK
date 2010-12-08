@@ -19,6 +19,8 @@
 #ifndef _H5public_H
 #define _H5public_H
 
+#include "vtk_libhdf5_mangle.h"
+
 /* Include files for public use... */
 /*
  * Since H5pubconf.h is a generated header file, it is messy to try

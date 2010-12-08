@@ -19,6 +19,8 @@
  * Windows doesn't have unistd.h header file.
  */
 
+#include "vtk_libhdf5_hl_mangle.h"
+
 #define yy_create_buffer H5LTyy_create_buffer
 #define yy_delete_buffer H5LTyy_delete_buffer
 #define yy_scan_buffer H5LTyy_scan_buffer

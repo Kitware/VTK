@@ -16,6 +16,8 @@
 #ifndef _H5LTpublic_H
 #define _H5LTpublic_H
 
+#include "vtk_libhdf5_hl_mangle.h"
+
 typedef enum H5LT_lang_t {
     H5LT_LANG_ERR = -1, /*this is the first*/
     H5LT_DDL      = 0,  /*for DDL*/

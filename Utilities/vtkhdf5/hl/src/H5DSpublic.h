@@ -16,7 +16,7 @@
 #ifndef _H5DSpublic_H
 #define _H5DSpublic_H
 
-
+#include "vtk_libhdf5_hl_mangle.h"
 
 #define DIMENSION_SCALE_CLASS "DIMENSION_SCALE"
 #define DIMENSION_LIST        "DIMENSION_LIST"
