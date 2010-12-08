@@ -112,7 +112,7 @@ void vtkAxis::Update()
     }
 
   // Figure out what type of behavior we should follow
-  if (this->Behavior == 1)
+  if (this->Behavior == vtkAxis::FIXED)
     {
     this->RecalculateTickSpacing();
     }
@@ -166,10 +166,8 @@ void vtkAxis::Update()
   if (this->TickPositions->GetNumberOfTuples() !=
       this->TickLabels->GetNumberOfTuples())
     {
-    vtkWarningMacro("The number of tick positions is not the same as the "
-                    << "number of tick labels - error.");
-    this->TickScenePositions->SetNumberOfTuples(0);
-    return;
+    // Generate the tick labels based on the tick positions
+    this->GenerateTickLabels();
     }
 
   vtkIdType n = this->TickPositions->GetNumberOfTuples();
@@ -686,6 +684,39 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       }
     }
   this->TickMarksDirty = false;
+}
+
+void vtkAxis::GenerateTickLabels()
+{
+  this->TickLabels->SetNumberOfTuples(0);
+  for (vtkIdType i = 0; i < this->TickPositions->GetNumberOfTuples(); ++i)
+    {
+    double value = this->TickPositions->GetValue(i);
+    // Make a tick mark label for the tick
+    if (this->LogScale)
+      {
+      value = pow(double(10.0), double(value));
+      }
+    // Now create a label for the tick position
+    vtksys_ios::ostringstream ostr;
+    ostr.imbue(vtkstd::locale::classic());
+    if (this->Notation > 0)
+      {
+      ostr.precision(this->Precision);
+      }
+    if (this->Notation == 1)
+      {
+      // Scientific notation
+      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      }
+    else if (this->Notation == 2)
+      {
+      ostr.setf(ios::fixed, ios::floatfield);
+      }
+    ostr << value;
+
+    this->TickLabels->InsertNextValue(ostr.str());
+    }
 }
 
 //-----------------------------------------------------------------------------
