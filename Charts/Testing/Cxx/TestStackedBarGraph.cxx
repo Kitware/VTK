@@ -135,6 +135,7 @@ int TestStackedBarGraph(int , char * [])
   chart->GetAxis(1)->SetMaximum(20.0); // Make some room for the legend
   chart->GetAxis(1)->SetLabelsVisible(false);
   chart->GetAxis(1)->SetTitle("Month");
+  chart->GetAxis(1)->SetNumberOfTicks(12);
   chart->GetAxis(0)->SetTitle("");
   chart->SetTitle("Circulation 2008, 2009");
 

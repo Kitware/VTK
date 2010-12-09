@@ -63,23 +63,26 @@ public:
   // Description:
   // Set point 1 of the axis (in pixels), this is usually the origin.
   void SetPoint1(const vtkVector2f& pos);
-  vtkSetVector2Macro(Point1, float);
+  void SetPoint1(float x, float y);
 
   // Description:
   // Get point 1 of the axis (in pixels), this is usually the origin.
   vtkGetVector2Macro(Point1, float);
+  vtkVector2f GetPosition1();
 
   // Description:
   // Set point 2 of the axis (in pixels), this is usually the terminus.
   void SetPoint2(const vtkVector2f& pos);
-  vtkSetVector2Macro(Point2, float);
+  void SetPoint2(float x, float y);
 
   // Description:
   // Get point 2 of the axis (in pixels), this is usually the terminus.
   vtkGetVector2Macro(Point2, float);
+  vtkVector2f GetPosition2();
 
   // Description:
-  // Set the number of tick marks for this axis.
+  // Set the number of tick marks for this axis. Default is -1, which leads to
+  // automatic calculation of nicely spaced tick marks.
   vtkSetMacro(NumberOfTicks, int);
 
   // Description:
@@ -320,8 +323,12 @@ protected:
   bool UsingNiceMinMax;
 
   // Description:
-  // Mark the tick labels as dirty when the min/max value is changed
+  // Mark the tick labels as dirty when the min/max value is changed.
   bool TickMarksDirty;
+
+  // Description:
+  // Flag to indicate that the axis has been resized.
+  bool Resized;
 
   // Description:
   // Hint as to whether a logarithmic scale is reasonable or not.
