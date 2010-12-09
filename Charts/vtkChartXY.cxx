@@ -646,7 +646,7 @@ void vtkChartXY::RecalculatePlotBounds()
         return;
       }
 
-    if (axis->GetBehavior() == 0 && initialized[i])
+    if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
       {
       axis->SetRange(range[0], range[1]);
       axis->AutoScale();

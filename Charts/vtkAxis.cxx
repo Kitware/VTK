@@ -43,7 +43,7 @@ vtkAxis::vtkAxis()
   this->Position1.SetY(10.0);
   this->Position2.SetY(10.0);
   this->TickInterval = 1.0;
-  this->NumberOfTicks = 6;
+  this->NumberOfTicks = -1;
   this->LabelProperties = vtkTextProperty::New();
   this->LabelProperties->SetColor(0.0, 0.0, 0.0);
   this->LabelProperties->SetFontSize(12);
@@ -77,6 +77,7 @@ vtkAxis::vtkAxis()
   this->TickMarksDirty = true;
   this->LogScaleReasonable = false;
   this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
+  this->Resized = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -91,16 +92,36 @@ vtkAxis::~vtkAxis()
 
 void vtkAxis::SetPoint1(const vtkVector2f &pos)
 {
-  this->TickMarksDirty = true;
   this->Position1 = pos;
+  this->Resized = true;
   this->Modified();
+}
+
+void vtkAxis::SetPoint1(float x, float y)
+{
+  this->SetPoint1(vtkVector2f(x, y));
+}
+
+vtkVector2f vtkAxis::GetPosition1()
+{
+  return this->Position1;
 }
 
 void vtkAxis::SetPoint2(const vtkVector2f &pos)
 {
-  this->TickMarksDirty = true;
   this->Position2 = pos;
+  this->Resized = true;
   this->Modified();
+}
+
+void vtkAxis::SetPoint2(float x, float y)
+{
+  this->SetPoint2(vtkVector2f(x, y));
+}
+
+vtkVector2f vtkAxis::GetPosition2()
+{
+  return this->Position2;
 }
 
 //-----------------------------------------------------------------------------
@@ -109,12 +130,6 @@ void vtkAxis::Update()
   if (!this->Visible || this->BuildTime > this->MTime)
     {
     return;
-    }
-
-  // Figure out what type of behavior we should follow
-  if (this->Behavior == vtkAxis::FIXED)
-    {
-    this->RecalculateTickSpacing();
     }
 
   if (this->Behavior < 2 && this->TickMarksDirty)
@@ -145,6 +160,13 @@ void vtkAxis::Update()
           }
         }
       }
+    }
+
+  // Figure out what type of behavior we should follow
+  if (this->Resized &&
+      (this->Behavior == vtkAxis::AUTO || this->Behavior == vtkAxis::FIXED))
+    {
+    this->RecalculateTickSpacing();
     }
 
   // Figure out the scaling and origin for the scene
@@ -770,10 +792,18 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 
   // Calculate an upper limit on the number of tick marks - at least 30 pixels
   // should be between each tick mark.
-  float pixelRange = this->Point1[0] == this->Point2[0] ?
-                     this->Point2[1] - this->Point1[1] :
-                     this->Point2[0] - this->Point1[0];
-  int maxTicks = vtkContext2D::FloatToInt(pixelRange / 50.0f);
+  int maxTicks = 0;
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
+      || this->Position == vtkAxis::PARALLEL)
+    {
+    float pixelRange = this->Position2.Y() - this->Position1.Y();
+    maxTicks = vtkContext2D::FloatToInt(pixelRange / 30.0f);
+    }
+  else
+    {
+    float pixelRange = this->Position2.X() - this->Position1.X();
+    maxTicks = vtkContext2D::FloatToInt(pixelRange / 45.0f);
+    }
   if (maxTicks == 0)
     {
     // The axes do not have a valid set of points - return
@@ -797,8 +827,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     max = ceil(max / niceTickSpacing) * niceTickSpacing;
     }
 
-  float newRange = max - min;
-  this->NumberOfTicks = static_cast<int>(floor(newRange / niceTickSpacing)) + 1;
+  double newRange = max - min;
 
   // If logarithmic axis is activated and logarithmic scale is NOT reasonable
   // we transform the min/max and tick spacing
@@ -817,7 +846,15 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     max = log10(max);
     niceTickSpacing = log10(niceTickSpacing);
     }
-  return niceTickSpacing;
+
+  if (this->NumberOfTicks > 0)
+    {
+    return newRange / double(this->NumberOfTicks - 1);
+    }
+  else
+    {
+    return niceTickSpacing;
+    }
 }
 
 //-----------------------------------------------------------------------------
