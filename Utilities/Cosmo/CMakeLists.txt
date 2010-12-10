@@ -30,6 +30,7 @@ SET(Cosmo_SOURCES
   FOFHaloProperties.cxx
   ChainingMesh.cxx
   HaloCenterFinder.cxx
+  SODHalo.cxx
 )
 
 INCLUDE_DIRECTORIES (${Cosmo_SOURCE_DIR} ${Cosmo_BINARY_DIR})

@@ -101,10 +101,10 @@ vtkPCosmoHaloFinder::vtkPCosmoHaloFinder()
     }
 
   this->NP = 256;
-  this->RL = 90.140846;
+  this->RL = 100;
   this->Overlap = 5;
   this->BB = .2;
-  this->PMin = 10;
+  this->PMin = 100;
   this->CopyHaloDataToParticles = 1;
 
   this->ComputeMostBoundParticle = 0;
@@ -526,7 +526,7 @@ int vtkPCosmoHaloFinder::RequestData(
         centerFinder.setParticles(size, 
                                   xLocHalo, yLocHalo, zLocHalo, 
                                   massHalo, id);
-        centerFinder.setParameters(this->BB);
+        centerFinder.setParameters(this->BB, this->Overlap);
 
         // Calculate the halo center using MBP (most bound particle)
         // Combination of n^2/2 algorithm and A* algorithm
@@ -549,7 +549,7 @@ int vtkPCosmoHaloFinder::RequestData(
         centerFinder.setParticles(size, 
                                   xLocHalo, yLocHalo, zLocHalo, 
                                   massHalo, id);
-        centerFinder.setParameters(this->BB);
+        centerFinder.setParameters(this->BB, this->Overlap);
 
         // Calculate the halo center using MCP (most connected particle)
         // Combination of n^2/2 algorithm and chaining mesh algorithm
