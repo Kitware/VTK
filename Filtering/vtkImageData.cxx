@@ -741,154 +741,102 @@ vtkIdType vtkImageData::FindPoint(double x[3])
 vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                  vtkGenericCell *vtkNotUsed(gencell),
                                  vtkIdType vtkNotUsed(cellId),
-                                  double vtkNotUsed(tol2),
-                                  int& subId, double pcoords[3],
-                                  double *weights)
+                                 double tol2,
+                                 int& subId, double pcoords[3],
+                                 double *weights)
 {
   return
-    this->FindCell( x, NULL, 0, 0.0, subId, pcoords, weights );
+    this->FindCell( x, NULL, 0, tol2, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                  vtkIdType vtkNotUsed(cellId),
-                                 double vtkNotUsed(tol2),
+                                 double tol2,
                                  int& subId, double pcoords[3], double *weights)
 {
-  int loc[3];
+  int idx[3];
 
-  if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
+  // Compute the voxel index
+  if ( this->ComputeStructuredCoordinates(x, idx, pcoords) == 0 )
     {
-    return -1;
+    // If voxel index is out of bounds, check point "x" against the
+    // bounds to see if within tolerance of the bounds.
+    const int* extent = this->Extent;
+    const double* origin = this->Origin;
+    const double* spacing = this->Spacing;
+
+    // Compute squared distance of point x from the boundary
+    double dist2 = 0.0;
+
+    for (int i=0; i<3; i++)
+      {
+      int minIdx = extent[i*2];
+      int maxIdx = extent[i*2+1];
+      double minBound = minIdx*spacing[i] + origin[i];
+      double maxBound = maxIdx*spacing[i] + origin[i];
+
+      if ( idx[i] < minIdx )
+        {
+        idx[i] = minIdx;
+        pcoords[i] = 0.0;
+        double dist = x[i] - minBound;
+        dist2 += dist*dist;
+        }
+      else if ( idx[i] >= maxIdx )
+        {
+        if (maxIdx == minIdx)
+          {
+          idx[i] = minIdx;
+          pcoords[i] = 0.0;
+          }
+        else
+          {
+          idx[i] = maxIdx-1;
+          pcoords[i] = 1.0;
+          }
+        double dist = x[i] - maxBound;
+        dist2 += dist*dist;
+        }
+      }
+
+    // Check squared distance against the tolerance
+    if (dist2 > tol2)
+      {
+      return -1;
+      }
     }
 
   // NOTE: Do not use the Voxel ivar for this. That ivar may be NULL
   // if the dimensionality of the image data is less than 3.
-  vtkVoxel::InterpolationFunctions(pcoords,weights);
+  if (weights)
+    {
+    vtkVoxel::InterpolationFunctions(pcoords,weights);
+    }
 
   //
   //  From this location get the cell id
   //
   subId = 0;
-  return this->ComputeCellId(loc);
+  return this->ComputeCellId(idx);
 }
 
 //----------------------------------------------------------------------------
 vtkCell *vtkImageData::FindAndGetCell(double x[3],
                                       vtkCell *vtkNotUsed(cell),
                                       vtkIdType vtkNotUsed(cellId),
-                                      double vtkNotUsed(tol2), int& subId,
+                                      double tol2, int& subId,
                                       double pcoords[3], double *weights)
 {
-  int i, j, k, ijk[3], loc[3];
-  vtkIdType npts, idx;
-  double xOut[3];
-  int iMax = 0;
-  int jMax = 0;
-  int kMax = 0;;
-  vtkCell *cell = NULL;
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
-  const int* extent = this->Extent;
+  vtkIdType cellId = this->FindCell(x, 0, 0, tol2, subId, pcoords, 0);
 
-  vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
-
-  if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
+  if (cellId < 0)
     {
     return NULL;
     }
 
-  //
-  // Get the parametric coordinates and weights for interpolation
-  //
-  switch (this->DataDescription)
-    {
-    case VTK_EMPTY:
-      return NULL;
-
-    case VTK_SINGLE_POINT: // cellId can only be = 0
-      iMax = loc[0];
-      jMax = loc[1];
-      kMax = loc[2];
-      cell = this->Vertex;
-      break;
-
-    case VTK_X_LINE:
-      iMax = loc[0] + 1;
-      jMax = loc[1];
-      kMax = loc[2];
-      cell = this->Line;
-      break;
-
-    case VTK_Y_LINE:
-      iMax = loc[0];
-      jMax = loc[1] + 1;
-      kMax = loc[2];
-      cell = this->Line;
-      break;
-
-    case VTK_Z_LINE:
-      iMax = loc[0];
-      jMax = loc[1];
-      kMax = loc[2] + 1;
-      cell = this->Line;
-      break;
-
-    case VTK_XY_PLANE:
-      iMax = loc[0] + 1;
-      jMax = loc[1] + 1;
-      kMax = loc[2];
-      cell = this->Pixel;
-      break;
-
-    case VTK_YZ_PLANE:
-      iMax = loc[0];
-      jMax = loc[1] + 1;
-      kMax = loc[2] + 1;
-      cell = this->Pixel;
-      break;
-
-    case VTK_XZ_PLANE:
-      iMax = loc[0] + 1;
-      jMax = loc[1];
-      kMax = loc[2] + 1;
-      cell = this->Pixel;
-      break;
-
-    case VTK_XYZ_GRID:
-      iMax = loc[0] + 1;
-      jMax = loc[1] + 1;
-      kMax = loc[2] + 1;
-      cell = this->Voxel;
-      break;
-    }
+  vtkCell *cell = this->GetCell(cellId);
   cell->InterpolateFunctions(pcoords, weights);
-
-  npts = 0;
-  for (k = loc[2]; k <= kMax; k++)
-    {
-    ijk[2] = k;
-    xOut[2] = origin[2] + k * spacing[2];
-    for (j = loc[1]; j <= jMax; j++)
-      {
-      ijk[1] = j;
-      xOut[1] = origin[1] + j * spacing[1];
-      for (i = loc[0]; i <= iMax; i++)
-        {
-        ijk[0] = i;
-        xOut[0] = origin[0] + i * spacing[0];
-
-        idx = this->ComputePointId(ijk);
-        cell->PointIds->SetId(npts,idx);
-        cell->Points->SetPoint(npts++,xOut);
-        idx++;
-        }
-      }
-    }
-  subId = 0;
 
   return cell;
 }
@@ -1107,44 +1055,62 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
   const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
-  vtkIdType dims[3];
-  dims[0] = extent[1] - extent[0] + 1;
-  dims[1] = extent[3] - extent[2] + 1;
-  dims[2] = extent[5] - extent[4] + 1;
-
   //
   //  Compute the ijk location
   //
+  int isInBounds = 1;
   for (i=0; i<3; i++)
     {
     d = x[i] - origin[i];
     doubleLoc = d / spacing[i];
     // Floor for negative indexes.
     ijk[i] = vtkMath::Floor(doubleLoc);
-    if ( ijk[i] >= extent[i*2] && ijk[i] < extent[i*2 + 1] )
-      {
-      pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
-      }
 
-    else if ( ijk[i] < extent[i*2] || ijk[i] > extent[i*2+1] )
+    // low boundary check
+    if ( ijk[i] < extent[i*2])
       {
-      return 0;
-      }
-
-    else //if ( ijk[i] == extent[i*2+1] )
-      {
-      if (dims[i] == 1)
+      if ( x[i] == origin[i] + spacing[i]*extent[i*2] )
         {
         pcoords[i] = 0.0;
+        ijk[i] = extent[i*2];
         }
       else
         {
-        ijk[i] -= 1;
-        pcoords[i] = 1.0;
+        isInBounds = 0;
         }
       }
+
+    // high boundary check
+    else if ( ijk[i] >= extent[i*2 + 1] )
+      {
+      if ( x[i] == origin[i] + spacing[i]*extent[i*2 + 1] )
+        {
+        // make sure index is within the allowed cell index range
+        if (extent[i*2] < extent[i*2 + 1])
+          {
+          pcoords[i] = 1.0;
+          ijk[i] = extent[i*2 + 1] - 1;
+          }
+        else
+          {
+          pcoords[i] = 0.0;
+          ijk[i] = extent[i*2];
+          }
+        }
+      else
+        {
+        isInBounds = 0;
+        }
+      }
+
+    // else index is definitely within bounds
+    else
+      {
+      pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
+      }
     }
-  return 1;
+
+  return isInBounds;
 }
 
 
