@@ -827,7 +827,10 @@ vtkIdType vtkChartXY::AddPlot(vtkPlot * plot)
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
   // Mark the scene as dirty
-  this->Scene->SetDirty(true);
+  if (this->Scene)
+    {
+    this->Scene->SetDirty(true);
+    }
   return plotIndex;
 }
 

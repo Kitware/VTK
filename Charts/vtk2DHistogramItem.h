@@ -21,17 +21,17 @@
 #ifndef __vtk2DHistogramItem_h
 #define __vtk2DHistogramItem_h
 
-#include "vtkContextItem.h"
+#include "vtkPlot.h"
 #include "vtkSmartPointer.h"  // Needed for SP ivars
 #include "vtkVector.h"        // Needed for vtkRectf
 
 class vtkImageData;
 class vtkScalarsToColors;
 
-class VTK_CHARTS_EXPORT vtk2DHistogramItem : public vtkContextItem
+class VTK_CHARTS_EXPORT vtk2DHistogramItem : public vtkPlot
 {
 public:
-  vtkTypeMacro(vtk2DHistogramItem, vtkContextItem);
+  vtkTypeMacro(vtk2DHistogramItem, vtkPlot);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -56,7 +56,7 @@ public:
 
   // Description:
   // Get the input table used by the plot.
-  vtkImageData * GetInput();
+  vtkImageData * GetInputImageData();
 
   // Description:
   // Set the color transfer funtion that will be used to generate the 2D

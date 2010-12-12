@@ -68,6 +68,9 @@ int Test2DHistogram( int, char * [] )
   transferFunction->Build();
   chart->SetTransferFunction(transferFunction);
 
+  chart->SetAutoSize(false);
+  chart->SetSize(vtkRectf(0.0, 0.0, size - 40, size));
+
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
