@@ -52,7 +52,10 @@ public:
   // Set the input, we are expecting a vtkImageData with just one component,
   // this would normally be a float or a double. It will be passed to the other
   // functions as a double to generate a color.
-  void SetInput(vtkImageData *data, vtkIdType z = 0);
+  virtual void SetInput(vtkImageData *data, vtkIdType z = 0);
+  virtual void SetInput(vtkTable*) { }
+  virtual void SetInput(vtkTable*, const char*, const char*) { }
+
 
   // Description:
   // Get the input table used by the plot.
