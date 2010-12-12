@@ -56,7 +56,6 @@ public:
   virtual void SetInput(vtkTable*) { }
   virtual void SetInput(vtkTable*, const char*, const char*) { }
 
-
   // Description:
   // Get the input table used by the plot.
   vtkImageData * GetInputImageData();
