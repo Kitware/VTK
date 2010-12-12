@@ -70,7 +70,7 @@ void vtk2DHistogramItem::SetInput(vtkImageData *data, vtkIdType)
 }
 
 //-----------------------------------------------------------------------------
-vtkImageData * vtk2DHistogramItem::GetInput()
+vtkImageData * vtk2DHistogramItem::GetInputImageData()
 {
   return this->Input;
 }
