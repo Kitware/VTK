@@ -135,7 +135,6 @@ void vtkColorLegend::ComputeTexture()
   // Set the axis up
   this->Axis->SetRange(bounds[0], bounds[1]);
   //this->Axis->AutoScale();
-  this->Axis->Print(cout);
 
   // Could depend of the screen resolution
   const int dimension = 256;
