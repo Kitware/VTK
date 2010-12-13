@@ -71,7 +71,7 @@ typedef struct H5E_t H5E_t;
 /*
  * HGOTO_DONE macro, used to facilitate normal return between a FUNC_ENTER()
  * and a FUNC_LEAVE() within a function body. The argument is the return
- * value which is assigned to the `ret_value' variable.	 Control branches to
+ * value which is assigned to the `ret_value' variable.   Control branches to
  * the `done' label.
  */
 #define HGOTO_DONE(ret_val) {ret_value = ret_val; goto done;}

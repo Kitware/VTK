@@ -154,7 +154,7 @@ typedef struct H5F_blk_aggr_t H5F_blk_aggr_t;
 /* Decode a variable-sized buffer into a 32-bit unsigned integer */
 /* (Assumes that the high bits of the integer will be zero) */
 /* (Note: this is exactly the same code as the 64-bit variable-length decoder
- *      and bugs/improvements should be make in both places - QAK)
+ *      and bugs/improvements should be made in both places - QAK)
  */
 #  define UINT32DECODE_VAR(p, n, l) {					      \
    size_t _i;								      \
@@ -191,7 +191,7 @@ typedef struct H5F_blk_aggr_t H5F_blk_aggr_t;
 /* Decode a variable-sized buffer into a 64-bit unsigned integer */
 /* (Assumes that the high bits of the integer will be zero) */
 /* (Note: this is exactly the same code as the 32-bit variable-length decoder
- *      and bugs/improvements should be make in both places - QAK)
+ *      and bugs/improvements should be made in both places - QAK)
  */
 #  define UINT64DECODE_VAR(p, n, l) {					      \
    size_t _i;								      \

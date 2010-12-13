@@ -643,7 +643,7 @@ H5I_clear_type(H5I_type_t type, hbool_t force, hbool_t app_ref)
                     delete_node = TRUE;
                 } /* end if */
                 else {
-                    /* Indicate node should _NOT_ be remove from list */
+                    /* Indicate node should _NOT_ be removed from list */
                     delete_node = FALSE;
                 } /* end else */
             } /* end if */

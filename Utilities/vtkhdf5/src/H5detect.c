@@ -69,7 +69,7 @@ static const char *FileHeader = "\n\
 /* Define H5SETJMP/H5LONGJMP depending on if sigsetjmp/siglongjmp are */
 /* supported. */
 #if defined(H5_HAVE_SIGSETJMP) && defined(H5_HAVE_SIGLONGJMP)
-/* Always save blocked signals to be restore by siglongjmp. */
+/* Always save blocked signals to be restored by siglongjmp. */
 #define H5JMP_BUF	sigjmp_buf
 #define H5SETJMP(buf)	HDsigsetjmp(buf, 1)
 #define H5LONGJMP(buf, val)	HDsiglongjmp(buf, val)

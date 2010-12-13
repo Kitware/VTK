@@ -3622,7 +3622,7 @@ done:
  *
  * Return:	Success:	non-negative
  *
- *		Failure:	nagative
+ *		Failure:	negative
  *
  * Programmer:	Robb Matzke
  *              Tuesday, December 22, 1998

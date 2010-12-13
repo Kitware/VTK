@@ -291,7 +291,7 @@ done:
  * Function:	H5HG_flush
  *
  * Purpose:	Flushes a global heap collection from memory to disk if it's
- *		dirty.  Optionally deletes teh heap from memory.
+ *		dirty.  Optionally deletes the heap from memory.
  *
  * Return:	Non-negative on success/Negative on failure
  *
