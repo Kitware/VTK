@@ -78,13 +78,7 @@ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
     ENDIF (WIN32 AND NOT MINGW)
   ENDIF (${libtype} MATCHES "SHARED")
   
-  SET_TARGET_PROPERTIES (${libtarget}
-      PROPERTIES
-      DEBUG_OUTPUT_NAME          ${LIB_DEBUG_NAME}
-      RELEASE_OUTPUT_NAME        ${LIB_RELEASE_NAME}
-      MINSIZEREL_OUTPUT_NAME     ${LIB_RELEASE_NAME}
-      RELWITHDEBINFO_OUTPUT_NAME ${LIB_RELEASE_NAME}
-  )
+  # library names not mangled in this reduced distribution
   
   #----- Use MSVC Naming conventions for Shared Libraries
   IF (MINGW AND BUILD_SHARED_LIBS)
