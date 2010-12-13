@@ -29,7 +29,7 @@
 #ifdef H5_HAVE_FILTER_DEFLATE
 
 #ifdef H5_HAVE_ZLIB_H
-#   include "zlib.h"
+#   include "hdf5_zlib.h"
 #endif
 
 /* Local function prototypes */
