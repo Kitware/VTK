@@ -32,15 +32,25 @@ typedef struct H5E_t H5E_t;
  * and a FUNC_LEAVE() within a function body.  The arguments are the major
  * error number, the minor error number, and a description of the error.
  */
-#define HERROR(maj_id, min_id, ...) H5E_printf_stack(NULL, __FILE__, FUNC, __LINE__, H5E_ERR_CLS_g, maj_id, min_id, __VA_ARGS__)
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+#  define HERROR(maj_id, min_id, args) H5E_printf_stack(NULL, __FILE__, FUNC, __LINE__, H5E_ERR_CLS_g, maj_id, min_id, args)
+#else
+#  define HERROR(maj_id, min_id, ...) H5E_printf_stack(NULL, __FILE__, FUNC, __LINE__, H5E_ERR_CLS_g, maj_id, min_id, __VA_ARGS__)
+#endif
 
 /*
  * HCOMMON_ERROR macro, used by HDONE_ERROR and HGOTO_ERROR
  * (Shouldn't need to be used outside this header file)
  */
-#define HCOMMON_ERROR(maj, min, ...)  				              \
-   HERROR(maj, min, __VA_ARGS__);						      \
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+#define HCOMMON_ERROR(maj, min, args)                        \
+   HERROR(maj, min, args);                  \
    err_occurred = TRUE;
+#else
+#define HCOMMON_ERROR(maj, min, ...)                        \
+   HERROR(maj, min, __VA_ARGS__);                  \
+   err_occurred = TRUE;
+#endif
 
 /*
  * HDONE_ERROR macro, used to facilitate error reporting between a
@@ -51,10 +61,17 @@ typedef struct H5E_t H5E_t;
  * (This macro can also be used to push an error and set the return value
  *      without jumping to any labels)
  */
-#define HDONE_ERROR(maj, min, ret_val, ...) {				      \
-   HCOMMON_ERROR(maj, min, __VA_ARGS__);					      \
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+#define HDONE_ERROR(maj, min, ret_val, args) {              \
+   HCOMMON_ERROR(maj, min, args);                \
    ret_value = ret_val;                                                       \
 }
+#else
+#define HDONE_ERROR(maj, min, ret_val, ...) {              \
+   HCOMMON_ERROR(maj, min, __VA_ARGS__);                \
+   ret_value = ret_val;                                                       \
+}
+#endif
 
 /*
  * HGOTO_ERROR macro, used to facilitate error reporting between a
@@ -63,10 +80,17 @@ typedef struct H5E_t H5E_t;
  * error string.  The return value is assigned to a variable `ret_value' and
  * control branches to the `done' label.
  */
-#define HGOTO_ERROR(maj, min, ret_val, ...) {				      \
-   HCOMMON_ERROR(maj, min, __VA_ARGS__);					      \
-   HGOTO_DONE(ret_val)						              \
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+#define HGOTO_ERROR(maj, min, ret_val, args) {              \
+   HCOMMON_ERROR(maj, min, args);                \
+   HGOTO_DONE(ret_val)                          \
 }
+#else
+#define HGOTO_ERROR(maj, min, ret_val, ...) {              \
+   HCOMMON_ERROR(maj, min, __VA_ARGS__);                \
+   HGOTO_DONE(ret_val)                          \
+}
+#endif
 
 /*
  * HGOTO_DONE macro, used to facilitate normal return between a FUNC_ENTER()
@@ -93,13 +117,13 @@ H5_DLL herr_t H5E_dump_api_stack(int is_api);
 /* Retrieve the error code description string and push it onto the error
  * stack.
  */
-#define	HSYS_DONE_ERROR(majorcode, minorcode, retcode, str) {		      \
-    int myerrno = errno;							      \
-    HDONE_ERROR(majorcode, minorcode, retcode, "%s, errno = %d, error message = '%s'", str, myerrno, HDstrerror(myerrno));			      \
+#define  HSYS_DONE_ERROR(majorcode, minorcode, retcode, str) {          \
+    int myerrno = errno;                    \
+    HDONE_ERROR(majorcode, minorcode, retcode, "%s, errno = %d, error message = '%s'", str, myerrno, HDstrerror(myerrno));            \
 }
-#define	HSYS_GOTO_ERROR(majorcode, minorcode, retcode, str) {		      \
-    int myerrno = errno;							      \
-    HGOTO_ERROR(majorcode, minorcode, retcode, "%s, errno = %d, error message = '%s'", str, myerrno, HDstrerror(myerrno));			      \
+#define  HSYS_GOTO_ERROR(majorcode, minorcode, retcode, str) {          \
+    int myerrno = errno;                    \
+    HGOTO_ERROR(majorcode, minorcode, retcode, "%s, errno = %d, error message = '%s'", str, myerrno, HDstrerror(myerrno));            \
 }
 
 #ifdef H5_HAVE_PARALLEL
@@ -107,20 +131,20 @@ H5_DLL herr_t H5E_dump_api_stack(int is_api);
  * MPI error handling macros.
  */
 
-extern	char	H5E_mpi_error_str[MPI_MAX_ERROR_STRING];
-extern	int	H5E_mpi_error_str_len;
+extern  char  H5E_mpi_error_str[MPI_MAX_ERROR_STRING];
+extern  int  H5E_mpi_error_str_len;
 
-#define	HMPI_ERROR(mpierr){						      \
+#define  HMPI_ERROR(mpierr){                  \
     MPI_Error_string(mpierr, H5E_mpi_error_str, &H5E_mpi_error_str_len);      \
     HERROR(H5E_INTERNAL, H5E_MPIERRSTR, H5E_mpi_error_str);                   \
 }
-#define	HMPI_DONE_ERROR(retcode, str, mpierr){				      \
-    HMPI_ERROR(mpierr);							      \
-    HDONE_ERROR(H5E_INTERNAL, H5E_MPI, retcode, str);			      \
+#define  HMPI_DONE_ERROR(retcode, str, mpierr){              \
+    HMPI_ERROR(mpierr);                    \
+    HDONE_ERROR(H5E_INTERNAL, H5E_MPI, retcode, str);            \
 }
-#define	HMPI_GOTO_ERROR(retcode, str, mpierr){				      \
-    HMPI_ERROR(mpierr);							      \
-    HGOTO_ERROR(H5E_INTERNAL, H5E_MPI, retcode, str);			      \
+#define  HMPI_GOTO_ERROR(retcode, str, mpierr){              \
+    HMPI_ERROR(mpierr);                    \
+    HGOTO_ERROR(H5E_INTERNAL, H5E_MPI, retcode, str);            \
 }
 #endif /* H5_HAVE_PARALLEL */
 
