@@ -38,7 +38,7 @@ int vfprintf(FILE *, const char *, va_list);
 /**
  * TRIO_REPLACE_STDIO:
  *
- * This macro is defined if teh trio string formatting functions are to
+ * This macro is defined if the trio string formatting functions are to
  * be used instead of the default stdio ones.
  */
 #define TRIO_REPLACE_STDIO

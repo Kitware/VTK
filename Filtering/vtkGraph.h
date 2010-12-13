@@ -677,9 +677,9 @@ protected:
   // Builds a mapping from edge id to source/target vertex id.
   void BuildEdgeList();
 
+  //BTX
   // Description:
   // Friend iterator classes.
-  //BTX
   friend class vtkAdjacentVertexIterator;
   friend class vtkEdgeListIterator;
   friend class vtkInEdgeIterator;

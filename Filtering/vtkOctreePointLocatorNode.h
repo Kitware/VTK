@@ -74,10 +74,10 @@ public:
                      double yMax, double zMin, double zMax);
   void GetDataBounds(double *b) const;
 
+//BTX
   // Description:
   //   Get a pointer to the 3 bound minima (xmin, ymin and zmin) or the
   //   3 bound maxima (xmax, ymax, zmax).  Don't free this pointer.
-//BTX
   vtkGetMacro(MinBounds, double*);
   vtkGetMacro(MaxBounds, double*);
 //ETX
@@ -100,10 +100,10 @@ public:
     this->MaxBounds[2] = maxBounds[2];
   }
 
+//BTX
   // Description:
   //   Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
   //   3 data bound maxima (xmax, ymax, zmax).  Don't free this pointer.
-//BTX
   vtkGetMacro(MinDataBounds, double*);
   vtkGetMacro(MaxDataBounds, double*);
 //ETX

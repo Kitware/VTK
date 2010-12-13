@@ -39,9 +39,9 @@ public:
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
   // Description:
   // Get any input of this filter.
-//BTX
   vtkDataSet *GetInput(int idx);
   vtkDataSet *GetInput() 
     {return this->GetInput( 0 );}

@@ -133,10 +133,10 @@ public:
   // Get the data at a particular index.
   vtkStdString &GetValue(vtkIdType id);
 
+//BTX
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
-//BTX
   void SetValue(vtkIdType id, vtkStdString value)
     { this->Array[id] = value; this->DataChanged(); }
 //ETX
@@ -159,9 +159,9 @@ public:
   int GetNumberOfElementComponents() { return 0; }
   int GetElementComponentSize() { return static_cast<int>(sizeof(vtkStdString::value_type)); }
 
+//BTX
   // Description:
   // Insert data at a specified position in the array.
-//BTX
   void InsertValue(vtkIdType id, vtkStdString f);
 //ETX
   void InsertValue(vtkIdType id, const char *val);
@@ -171,9 +171,9 @@ public:
   // Insert a value into the array from a variant.
   void SetVariantValue(vtkIdType idx, vtkVariant value);
 
+//BTX
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-//BTX
   vtkIdType InsertNextValue(vtkStdString f);
 //ETX
   vtkIdType InsertNextValue(const char *f);

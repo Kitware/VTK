@@ -97,11 +97,11 @@ public:
   void SetDisplayLocationToForeground() 
     {this->DisplayLocation = VTK_FOREGROUND_LOCATION;};
 
+//BTX
   // Description:
   // Have the device specific subclass render this property.
-  //BTX
   virtual void Render (vtkViewport* vtkNotUsed(viewport))  {}
-  //ETX
+//ETX
 
 protected:
   vtkProperty2D();

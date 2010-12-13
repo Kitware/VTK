@@ -123,6 +123,7 @@ public:
   // only when FreeType version is >= 2.1.9
   int GetGlyphIndex(vtkTextProperty *tprop, FT_UInt32 c, FT_UInt *gindex);
 
+  //BTX
   // Description:
   // Given a text property and a character, get the corresponding FreeType
   // glyph. The 'request' parameter can be used to request the glyph to be
@@ -136,7 +137,6 @@ public:
   // Return true on success, false otherwise
   // This method is successful
   // only when FreeType version is >= 2.1.9
-  //BTX
   enum
   {
     GLYPH_REQUEST_DEFAULT = 0,

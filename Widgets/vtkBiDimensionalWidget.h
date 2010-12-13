@@ -131,9 +131,9 @@ public:
   // becomes valid after two of the four points are placed.
   int IsMeasureValid();
 
+  //BTX
   // Description:
   // Events. 
-  //BTX
   enum
   {
   EndWidgetSelectEvent = 10050
@@ -160,8 +160,8 @@ protected:
   vtkBiDimensionalWidget();
   ~vtkBiDimensionalWidget();
 
-  // The state of the widget
 //BTX
+  // The state of the widget
   enum {Start=0,Define,Manipulate};
 //ETX
   int WidgetState;
