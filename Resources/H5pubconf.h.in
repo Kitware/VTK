@@ -317,6 +317,9 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine H5_HAVE_STDINT_H @H5_HAVE_STDINT_H@
 
+/* Define to 1 if you have the <stdint.h> header file for Cplusplus. */
+#cmakedefine H5_HAVE_STDINT_H_CXX @H5_HAVE_STDINT_H_CXX@
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine H5_HAVE_STDLIB_H @H5_HAVE_STDLIB_H@
 

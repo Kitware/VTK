@@ -43,9 +43,13 @@
 #   include <limits.h>		/*for H5T_NATIVE_CHAR defn in H5Tpublic.h    */
 #endif
 #ifndef __cplusplus
-#ifdef H5_HAVE_STDINT_H
+# ifdef H5_HAVE_STDINT_H
 #   include <stdint.h>		/*for C9x types				     */
-#endif
+# endif
+#else
+# ifdef H5_HAVE_STDINT_H_CXX
+#   include <stdint.h>		/*for C9x types	when include from C++	     */
+# endif
 #endif
 #ifdef H5_HAVE_INTTYPES_H
 #   include <inttypes.h>        /* For uint64_t on some platforms            */
