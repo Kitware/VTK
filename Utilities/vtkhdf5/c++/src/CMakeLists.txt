@@ -89,12 +89,14 @@ H5_SET_LIB_OPTIONS (${HDF5_CPP_LIB_TARGET} ${HDF5_CPP_LIB_NAME} ${LIB_TYPE})
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install 
 #-----------------------------------------------------------------------------
+IF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 INSTALL (
     FILES
         ${CPP_HDRS}
     DESTINATION
         include/cpp
 )
+ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
@@ -105,9 +107,9 @@ IF (HDF5_EXPORTED_TARGETS)
           ${HDF5_CPP_LIB_TARGET}
       EXPORT
           ${HDF5_EXPORTED_TARGETS}
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib
-      RUNTIME DESTINATION bin
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development
   )
 ENDIF (HDF5_EXPORTED_TARGETS)
 

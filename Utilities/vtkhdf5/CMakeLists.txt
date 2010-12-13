@@ -531,12 +531,14 @@ CONFIGURE_FILE (${HDF5_SOURCE_DIR}/Resources/H5pubconf.h.in ${HDF5_BINARY_DIR}/H
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install
 #-----------------------------------------------------------------------------
+IF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 INSTALL (
     FILES
         ${PROJECT_BINARY_DIR}/H5pubconf.h
     DESTINATION
         include
 )
+ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
