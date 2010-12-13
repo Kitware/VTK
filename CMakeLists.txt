@@ -541,6 +541,8 @@ INSTALL (
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
 #-----------------------------------------------------------------------------
+# This is not a full HDF5, so do not provide HDF5-config.cmake
+IF(0)
 INSTALL (
     EXPORT
         ${HDF5_EXPORTED_TARGETS}
@@ -567,3 +569,4 @@ EXPORT (
     FILE
         HDF5-config.cmake
 )
+ENDIF(0)
