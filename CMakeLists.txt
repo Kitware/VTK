@@ -1460,8 +1460,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 
   SET(__inst_files
-    ${VTK_BINARY_DIR}/UseVTK.cmake
-    ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
+    ${VTK_BINARY_DIR}/UseVTK.cmake)
   IF(VTK_WRAP_HINTS)
     SET(__inst_files ${__inst_files} ${VTK_WRAP_HINTS})
   ENDIF(VTK_WRAP_HINTS)
