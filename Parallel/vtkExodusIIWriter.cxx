@@ -1712,12 +1712,26 @@ int vtkExodusIIWriter::WriteBlockInformation()
           << nodesPerElement << "), data will not be written correctly");
         }
 
-      for (vtkIdType p=0; p<npts; p++)
+      switch (this->FlattenedInput[i]->GetCellType (j)) 
         {
-        int ExodusPointId = pointOffset + (int) ptIds[ptListIdx++] + 1;
-        connectivity[blockOutIndex][offset + p] = ExodusPointId;
+        case VTK_VOXEL: // reorder to exodus HEX type
+          connectivity[blockOutIndex][offset + 0] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 1] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 3] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 2] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 4] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 5] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 7] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 6] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          break;
+        default:
+          for (vtkIdType p=0; p<npts; p++)
+            {
+            int ExodusPointId = pointOffset + (int) ptIds[ptListIdx++] + 1;
+            connectivity[blockOutIndex][offset + p] = ExodusPointId;
+            }
         }
-
+  
       // the block element attributes
       float *att = this->BlockInfoMap[blockId].BlockAttributes;
 
