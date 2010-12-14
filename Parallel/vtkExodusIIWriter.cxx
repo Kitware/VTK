@@ -911,19 +911,21 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
         b.Type = this->FlattenedInput[i]->GetCellType (j);
         b.NumElements = 1;
         b.ElementStartIndex = 0;
-        if (b.Type == VTK_POLYGON || b.Type == VTK_POLYHEDRON)
+        switch (b.Type)
           {
-          // this block contains variable numbers of nodes per element
-          b.NodesPerElement = 0;
-          b.EntityCounts = std::vector<int>(ncells);
-          b.EntityCounts[0] = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
-          b.EntityNodeOffsets = std::vector<int>(ncells);
-          b.EntityNodeOffsets[0] = 0;
-          }
-        else
-          {
-          b.NodesPerElement = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
-          }
+          case VTK_POLY_LINE:
+          case VTK_POLYGON:
+          case VTK_POLYHEDRON:
+            // this block contains variable numbers of nodes per element
+            b.NodesPerElement = 0;
+            b.EntityCounts = std::vector<int>(ncells);
+            b.EntityCounts[0] = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
+            b.EntityNodeOffsets = std::vector<int>(ncells);
+            b.EntityNodeOffsets[0] = 0;
+            break;
+          default:
+            b.NodesPerElement = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
+          };
 
         // TODO this could be a push if i is different.
         b.GridIndex = i;
@@ -1280,7 +1282,7 @@ char *vtkExodusIIWriter::GetCellTypeName(int t)
       strcpy(nm, "NSIDED");
       break;
     case VTK_POLYHEDRON:
-      strcpy(nm, "NSIDED");
+      strcpy(nm, "NFACED");
       break;
     case VTK_PIXEL:
       strcpy(nm, "sphere");
