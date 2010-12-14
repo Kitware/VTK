@@ -1055,35 +1055,19 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
 //----------------------------------------------------------------------------
 inline int vtkMath::Floor(double x)
 {
-#if defined i386 || defined _M_IX86
-  union { int i[2]; double d; } u;
-  // use 52-bit precision of IEEE double to round (x - 0.25) to 
-  // the nearest multiple of 0.5, according to prevailing rounding
-  // mode which is IEEE round-to-nearest,even
-  u.d = (x - 0.25) + 3377699720527872.0; // (2**51)*1.5
-  // extract mantissa, use shift to divide by 2 and hence get rid
-  // of the bit that gets messed up because the FPU uses
-  // round-to-nearest,even mode instead of round-to-nearest,+infinity
-  return u.i[0] >> 1;
-#else
   const int r = static_cast<int>(x);
   const int n = ( x != static_cast<double>(r) );
   const int g = ( x < 0 );
   return r - ( n & g );
-#endif
 }
 
 //----------------------------------------------------------------------------
 inline int vtkMath::Ceil(double x)
 {
-#if defined i386 || defined _M_IX86
-  return - vtkMath::Floor(-x);
-#else
   const int r = static_cast<int>(x);
   const int n = ( x != static_cast<double>(r) );
   const int g = ( x >= 0 );
   return r + ( n & g );
-#endif
 }
 
 //----------------------------------------------------------------------------
