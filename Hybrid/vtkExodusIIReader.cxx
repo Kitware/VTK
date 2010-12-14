@@ -1164,12 +1164,17 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
 
     for ( int i = 0; i < binfo->Size; ++i )
       {
-      int entitiesPerCell = binfo->PointsPerCell;
+      int entitiesPerCell;
       if ( ent != 0) 
         {
         entitiesPerCell = ent->GetValue (i);
         cellIds.resize( entitiesPerCell );
         }
+      else
+        {
+        entitiesPerCell = binfo->PointsPerCell;
+        }
+
       for ( int p = 0; p < entitiesPerCell; ++p )
         {
         cellIds[p] = this->GetSqueezePointId( binfo, srcIds[p] );
@@ -2201,7 +2206,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
 
     vtkIntArray* iarr = vtkIntArray::New();
-    if (binfop->CellType == VTK_POLYGON)
+    if (binfop->CellType == VTK_POLYGON || binfop->CellType == VTK_POLYHEDRON)
       {
       iarr->SetNumberOfValues (binfop->BdsPerEntry[0]);
       }
@@ -2280,52 +2285,6 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
       }
-    /*
-    else if (binfop->CellType == VTK_POLYGON)
-      {
-      int arrId;
-      if (key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN) 
-        {
-        arrId = 0;
-        }
-      else 
-        {
-        arrId = 1;
-        }
-      vtkIntArray* ent;
-      ent = vtkIntArray::SafeDownCast( 
-                      this->GetCacheOrRead( 
-                              vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, 
-                                                  key.ObjectId, arrId ) ) );
-      if ( ! ent ) 
-        {
-        vtkErrorMacro("Entity used 0 points per cell, but didn't return poly_hedra correctly");
-        iarr = 0;
-        }
-      else 
-        {
-        // reverse each polygon's winding order.
-        for ( c = 0; c < binfop->Size; c ++ )
-          {
-          int *nptr = ptr + ent->GetValue (c);
-          int *eptr = nptr - 1;
-          while ( eptr >= ptr )
-            {
-            *eptr = *eptr - 1;
-            *ptr = *ptr - 1;
-  
-            int tmp = *eptr;
-            *eptr = *ptr;
-            *ptr = tmp; 
-  
-            ptr ++;
-            eptr --;
-            }
-          ptr = nptr;
-          }
-        }
-      }
-      */
     else
       {
       for ( c = 0; c <= iarr->GetMaxId(); ++c, ++ptr )
@@ -2915,11 +2874,8 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
   else if (elemType.substr(0,3) == "PYR") { binfo.CellType = VTK_PYRAMID;    binfo.PointsPerCell = 5; }
   else if (elemType.substr(0,3) == "WED") { binfo.CellType = VTK_WEDGE;      binfo.PointsPerCell = 6; }
   else if (elemType.substr(0,3) == "HEX") { binfo.CellType = VTK_HEXAHEDRON; binfo.PointsPerCell = 8; }
-  else if (elemType.substr(0,3) == "NSI" || elemType.substr(0,3) == "NFA") 
-    { 
-    binfo.CellType = VTK_POLYGON;
-    binfo.PointsPerCell = 0;
-    }
+  else if (elemType.substr(0,3) == "NSI") { binfo.CellType = VTK_POLYGON;    binfo.PointsPerCell = 0; }
+  else if (elemType.substr(0,3) == "NFA") { binfo.CellType = VTK_POLYHEDRON; binfo.PointsPerCell = 0; }
   else if ((elemType.substr(0,3) == "SHE") && (binfo.BdsPerEntry[0] == 3))
     { binfo.CellType = VTK_TRIANGLE;           binfo.PointsPerCell = 3; }
   else if ((elemType.substr(0,3) == "SHE") && (binfo.BdsPerEntry[0] == 4))
