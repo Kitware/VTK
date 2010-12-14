@@ -1069,7 +1069,9 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     // low boundary check
     if ( ijk[i] < extent[i*2])
       {
-      if ( x[i] == origin[i] + spacing[i]*extent[i*2] )
+      double minBound = origin[i] + spacing[i]*extent[i*2];
+      if ( (spacing[i] >= 0 && x[i] >= minBound) ||
+           (spacing[i] < 0 && x[i] <= minBound) )
         {
         pcoords[i] = 0.0;
         ijk[i] = extent[i*2];
@@ -1083,7 +1085,9 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     // high boundary check
     else if ( ijk[i] >= extent[i*2 + 1] )
       {
-      if ( x[i] == origin[i] + spacing[i]*extent[i*2 + 1] )
+      double maxBound = origin[i] + spacing[i]*extent[i*2 + 1];
+      if ( (spacing[i] >= 0 && x[i] <= maxBound ) ||
+           (spacing[i] < 0 && x[i] >= maxBound ) )
         {
         // make sure index is within the allowed cell index range
         if (extent[i*2] < extent[i*2 + 1])
