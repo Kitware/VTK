@@ -366,7 +366,7 @@ void vtkChartXY::CalculateBarPlots()
       if (table)
         {
         vtkDataArray* x = bar->GetData()->GetInputArrayToProcess(0, table);
-        if (x && x->GetSize() > 1)
+        if (x && x->GetNumberOfTuples() > 1)
           {
           double x0 = x->GetTuple1(0);
           double x1 = x->GetTuple1(1);
