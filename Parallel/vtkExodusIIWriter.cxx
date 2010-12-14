@@ -1240,22 +1240,25 @@ char *vtkExodusIIWriter::GetCellTypeName(int t)
       strcpy(nm, "sphere");
       break;
     case VTK_POLY_VERTEX:
-      strcpy(nm, "polyvertex");
+      strcpy(nm, "sup");
       break;
     case VTK_LINE:
       strcpy(nm, "edge");
       break;
     case VTK_POLY_LINE:
-      strcpy(nm, "polyline");
+      strcpy(nm, "NSIDED");
       break;
     case VTK_TRIANGLE:
       strcpy(nm, "TRIANGLE");
       break;
     case VTK_TRIANGLE_STRIP:
-      strcpy(nm, "triangle strip");
+      strcpy(nm, "TRIANGLE");
       break;
     case VTK_POLYGON:
-      strcpy(nm, "polygon");
+      strcpy(nm, "NSIDED");
+      break;
+    case VTK_POLYHEDRON:
+      strcpy(nm, "NSIDED");
       break;
     case VTK_PIXEL:
       strcpy(nm, "sphere");
