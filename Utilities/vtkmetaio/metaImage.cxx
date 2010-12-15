@@ -3120,10 +3120,15 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
         if(subSamplingFactor > 1)
           {
           unsigned char* subdata = new unsigned char[bytesToRead];
-
-          MET_UncompressStream(_fstream, seekoff, subdata,
-                               bytesToRead, m_CompressedDataSize,
-                               m_CompressionTable);
+	  METAIO_STL::streamoff rOff =
+	    MET_UncompressStream(_fstream, seekoff, subdata,
+				 bytesToRead, m_CompressedDataSize,
+				 m_CompressionTable);
+	  // if there was a read error
+	  if(rOff == -1)
+	    {
+	    return false;
+	    }
 
           for(METAIO_STL::streamoff p=0; 
               p<bytesToRead;
@@ -3140,12 +3145,16 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
           }
         else
           {
-          METAIO_STL::streamoff read = MET_UncompressStream(
-                                               _fstream, seekoff, data,
-                                               bytesToRead, m_CompressedDataSize,
-                                               m_CompressionTable);
+          METAIO_STL::streamoff rOff =
+	    MET_UncompressStream(_fstream, seekoff, data,
+				 bytesToRead, m_CompressedDataSize,
+				 m_CompressionTable);
+	  if(rOff == -1)
+	    {
+	    return false;
+	    }
           data += bytesToRead;
-          gc += read;
+          gc += rOff;
           }
 
         if(gc == readSize)
