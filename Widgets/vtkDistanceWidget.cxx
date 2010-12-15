@@ -397,23 +397,8 @@ void vtkDistanceWidget::StartDistanceInteraction(int)
 }
 
 //----------------------------------------------------------------------
-void vtkDistanceWidget::DistanceInteraction(int handle)
+void vtkDistanceWidget::DistanceInteraction(int)
 {
-  double pos[3];
-  if ( handle == 0 )
-    {
-    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
-      GetPoint1Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
-      SetPoint1DisplayPosition(pos);
-    }
-  else
-    {
-    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
-      GetPoint2Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
-      SetPoint2DisplayPosition(pos);
-    }
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 }
 
@@ -434,7 +419,7 @@ void vtkDistanceWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------
-void vtkDistanceWidget::WidgetIsDefined()
+void vtkDistanceWidget::SetWidgetStateToManipulate()
 {
   this->WidgetState = vtkDistanceWidget::Manipulate;
   this->CurrentHandle = -1;
@@ -442,13 +427,6 @@ void vtkDistanceWidget::WidgetIsDefined()
   this->GetRepresentation()->BuildRepresentation(); // update this->Distance
   this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
 }
-
-//----------------------------------------------------------------------
-int vtkDistanceWidget::IsWidgetDefined()
-{
-  return this->WidgetState == vtkDistanceWidget::Manipulate;
-}
-
 
 //----------------------------------------------------------------------
 void vtkDistanceWidget::PrintSelf(ostream& os, vtkIndent indent)

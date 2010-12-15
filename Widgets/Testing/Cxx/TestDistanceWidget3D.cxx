@@ -17,7 +17,7 @@
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkDistanceWidget.h"
-#include "vtkDistanceRepresentation2D.h"
+#include "vtkDistanceRepresentation3D.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -32,14 +32,14 @@
 #include "vtkCoordinate.h"
 #include "vtkMath.h"
 #include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkAxisActor2D.h"
-#include "vtkProperty2D.h"
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkProperty.h"
+#include "vtkCamera.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char TestDistanceWidgetEventLog[] = 
+char TestDistanceWidget3DEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 292 123 0 0 0 0 0\n"
@@ -811,22 +811,22 @@ char TestDistanceWidgetEventLog[] =
 // This callback is responsible for adjusting the point position.
 // It looks in the region around the point and finds the maximum or
 // minimum value.
-class vtkDistanceCallback : public vtkCommand
+class vtkDistanceWidget3DCallback : public vtkCommand
 {
 public:
-  static vtkDistanceCallback *New() 
-    { return new vtkDistanceCallback; }
+  static vtkDistanceWidget3DCallback *New()
+    { return new vtkDistanceWidget3DCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*);
-  vtkDistanceCallback():Renderer(0),RenderWindow(0),DistanceWidget(0),Distance(0) {}
+  vtkDistanceWidget3DCallback():Renderer(0),RenderWindow(0),DistanceWidget(0),Distance(0) {}
   vtkRenderer *Renderer;
   vtkRenderWindow *RenderWindow;
   vtkDistanceWidget *DistanceWidget;
-  vtkDistanceRepresentation2D *Distance;
+  vtkDistanceRepresentation3D *Distance;
 };
 
 
 // Method re-positions the points using random perturbation
-void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
+void vtkDistanceWidget3DCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 {
   if ( eid == vtkCommand::InteractionEvent ||
        eid == vtkCommand::EndInteractionEvent )
@@ -838,14 +838,14 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
     double dist=sqrt(vtkMath::Distance2BetweenPoints(pos1,pos2));
 
     char title[256];
-    this->Distance->GetAxis()->SetRange(0.0,dist);
+//    this->Distance->GetAxis()->SetRange(0.0,dist);
     sprintf(title,"%-#6.3g",dist);
-    this->Distance->GetAxis()->SetTitle(title);
+//    this->Distance->GetAxis()->SetTitle(title);
     }
   else
     {
     int pid = *(reinterpret_cast<int*>(callData));
-    
+
     //From the point id, get the display coordinates
     double pos1[3], pos2[3], *pos;
     this->Distance->GetPoint1DisplayPosition(pos1);
@@ -892,7 +892,7 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 }
 
 // The actual test function
-int TestDistanceWidget( int argc, char *argv[] )
+int TestDistanceWidget3D( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -912,22 +912,19 @@ int TestDistanceWidget( int argc, char *argv[] )
   actor->SetMapper(mapper);
 
   // Create the widget and its representation
-  VTK_CREATE(vtkPointHandleRepresentation2D, handle);
+  VTK_CREATE(vtkPointHandleRepresentation3D, handle);
   handle->GetProperty()->SetColor(1,0,0);
-  VTK_CREATE(vtkDistanceRepresentation2D, rep);
+  VTK_CREATE(vtkDistanceRepresentation3D, rep);
   rep->SetHandleRepresentation(handle);
-  rep->GetAxis()->SetNumberOfMinorTicks(4);
-  rep->GetAxis()->SetTickLength(9);
-  rep->GetAxis()->SetTitlePosition(0.2);
   rep->RulerModeOn();
-  rep->SetRulerDistance(0.25);
+  rep->SetRulerDistance(0.1);
+  rep->SetNumberOfRulerTicks(4);
 
   VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
-  widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-  VTK_CREATE(vtkDistanceCallback, mcbk);
+  VTK_CREATE(vtkDistanceWidget3DCallback, mcbk);
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
   mcbk->Distance = rep;
@@ -946,7 +943,7 @@ int TestDistanceWidget( int argc, char *argv[] )
   //recorder->SetFileName("/tmp/record2.log");
   //recorder->Record();
   recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestDistanceWidgetEventLog);
+  recorder->SetInputString(TestDistanceWidget3DEventLog);
 
   // render the image
   //
@@ -954,7 +951,7 @@ int TestDistanceWidget( int argc, char *argv[] )
   renWin->Render();
   widget->On();
   renWin->Render();
-  recorder->Play();
+//  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
@@ -968,6 +965,6 @@ int TestDistanceWidget( int argc, char *argv[] )
   recorder->Off();
   widget->Off();
   widget->RemoveObserver(mcbk);
-  
+
   return !retVal;
 }

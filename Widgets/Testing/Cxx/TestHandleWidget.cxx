@@ -644,7 +644,7 @@ int TestHandleWidget( int argc, char *argv[] )
     = vtkPointHandleRepresentation3D::New();
   handleRep->SetPlaceFactor(2.5);
   handleRep->PlaceWidget(outlineActor->GetBounds());
-  handleRep->SetHandleSize(10);
+  handleRep->SetHandleSize(30);
 
   vtkHandleWidget *handleWidget = vtkHandleWidget::New();
   handleWidget->SetInteractor(iren);
