@@ -290,7 +290,6 @@ void SODHalo::calculateMassProfile()
   // If the max radius runs into the corner of data for this processor
   // adjust down so as to get a complete sphere
   POSVEL_T limit;
-  POSVEL_T requiredMaxRadius = this->maxRadius;
   for (int dim = 0; dim < DIMENSION; dim++) {
     limit = this->chain->getMaxMine(dim) - this->fofCenterLocation[dim];
     if (this->maxRadius > limit)
