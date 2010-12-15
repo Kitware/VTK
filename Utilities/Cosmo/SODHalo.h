@@ -95,7 +95,12 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////////
 
-class SODHalo {
+#ifdef USE_VTK_COSMO
+class COSMO_EXPORT SODHalo
+#else
+class SODHalo
+#endif
+{
 public:
   SODHalo();
   ~SODHalo();
