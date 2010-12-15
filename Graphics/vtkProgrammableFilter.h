@@ -50,6 +50,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Signature definition for programmable method callbacks. Methods passed to
+  // SetExecuteMethod or SetExecuteMethodArgDelete must conform to this
+  // signature.
+  // The presence of this typedef is useful for reference and for external
+  // analysis tools, but it cannot be used in the method signatures in these
+  // header files themselves because it prevents the internal VTK wrapper
+  // generators from wrapping these methods.
+  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+
+  // Description:
   // Specify the function to use to operate on the point attribute data. Note
   // that the function takes a single (void *) argument.
   void SetExecuteMethod(void (*f)(void *), void *arg);
@@ -104,8 +114,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  void (*ExecuteMethod)(void *); //function to invoke
-  void (*ExecuteMethodArgDelete)(void *);
+  ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
+  ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
   
   bool CopyArrays;

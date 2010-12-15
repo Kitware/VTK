@@ -49,6 +49,13 @@ public:
   virtual void DrawPoly(float *points, int n) = 0;
 
   // Description:
+  // Draw a poly line using the points - fastest code path due to memory
+  // layout of the coordinates. The line will be colored by
+  // the colors array, which must be have nc_comps components (defining a single color).
+  virtual void DrawPoly(float *points, int n,
+                        unsigned char *colors, int nc_comps) = 0;
+
+  // Description:
   // Draw a series of points - fastest code path due to memory
   // layout of the coordinates.
   virtual void DrawPoints(float *points, int n) = 0;
@@ -58,6 +65,13 @@ public:
   // The supplied vtkImageData is the sprite to be drawn, only squares will be
   // drawn and the size is set using SetPointSize.
   virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n) = 0;
+
+  // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize.
+  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n,
+                       unsigned char *colors, int nc_comps) = 0;
 
   // Description:
   // Draw a quad using the specified number of points.

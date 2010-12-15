@@ -20,14 +20,17 @@
 #include "vtkContourLineInterpolator.h"
 #include "vtkCoordinate.h"
 #include "vtkHandleRepresentation.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkIntArray.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointPlacer.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
+#include "vtkWindow.h"
 
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
@@ -40,16 +43,20 @@ vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineI
 vtkContourRepresentation::vtkContourRepresentation()
 {
   this->Internal = new vtkContourRepresentationInternals;
-  
+
   this->PixelTolerance           = 7;
   this->WorldTolerance           = 0.001;
   this->PointPlacer              = NULL;
   this->LineInterpolator         = NULL;
+  this->Locator                  = NULL;
+  this->RebuildLocator           = false;
   this->ActiveNode               = -1;
   this->NeedToRender             = 0;
   this->ClosedLoop               = 0;
   this->ShowSelectedNodes        = 0;
   this->CurrentOperation         = vtkContourRepresentation::Inactive;
+
+  this->ResetLocator();
 }
 
 //----------------------------------------------------------------------
@@ -60,14 +67,34 @@ vtkContourRepresentation::~vtkContourRepresentation()
   this->Internal->ClearNodes();
   
   delete this->Internal;
+
+  if (this->Locator)
+    {
+    this->Locator->Delete();
+    }
+}
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation::ResetLocator()
+{
+  if (this->Locator)
+    {
+    this->Locator->Delete();
+    }
+
+  this->Locator = vtkIncrementalOctreePointLocator::New();
+  this->Locator->SetBuildCubicOctree(1);
+  this->RebuildLocator = true;
 }
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation::ClearAllNodes()
 {
+  this->ResetLocator();
   this->Internal->ClearNodes(); 
   
   this->BuildLines();
+  this->BuildLocator();
   this->NeedToRender = 1;
   this->Modified();
 }
@@ -268,40 +295,18 @@ int vtkContourRepresentation::AddNodeAtDisplayPosition(int X, int Y)
 //----------------------------------------------------------------------
 int vtkContourRepresentation::ActivateNode( double displayPos[2] )
 {
+  this->BuildLocator();
   // Find closest node to this display pos that
   // is within PixelTolerance
-  
-  int closestNode = -1;
+  double dPos[3] = {displayPos[0],displayPos[1],0};
   double closestDistance2 = VTK_DOUBLE_MAX;
-  
-  unsigned int i;
-  double limit = this->PixelTolerance * this->PixelTolerance;
-  
-  for ( i = 0; i < this->Internal->Nodes.size(); i++ )
-    {
-    double currDisplayPos[2];
-    this->GetNthNodeDisplayPosition( i, currDisplayPos );
-    
-    double currDistance2 =
-      (currDisplayPos[0] - displayPos[0])*
-      (currDisplayPos[0] - displayPos[0]) +
-      (currDisplayPos[1] - displayPos[1])*
-      (currDisplayPos[1] - displayPos[1]);
-    
-    if ( currDistance2 < limit &&
-         currDistance2 < closestDistance2 )
-      {
-      closestNode = i;
-      closestDistance2 = currDistance2;
-      }
-    }
-
+  int closestNode = this->Locator->FindClosestPointWithinRadius(
+    this->PixelTolerance,dPos,closestDistance2);
   if ( closestNode != this->ActiveNode )
     {
     this->ActiveNode = closestNode;
     this->NeedToRender = 1;
     }
-
   return ( this->ActiveNode >= 0 );
 }
 //----------------------------------------------------------------------
@@ -597,7 +602,7 @@ void vtkContourRepresentation::SetNthNodeWorldPositionInternal( int n, double wo
   this->Internal->Nodes[n]->WorldPosition[0] = worldPos[0];
   this->Internal->Nodes[n]->WorldPosition[1] = worldPos[1];
   this->Internal->Nodes[n]->WorldPosition[2] = worldPos[2];
-  
+
   this->GetRendererComputedDisplayPositionFromWorldPosition( 
         worldPos, worldOrient, this->Internal->Nodes[n]->NormalizedDisplayPosition );
   this->Renderer->DisplayToNormalizedDisplay( 
@@ -1001,6 +1006,7 @@ void vtkContourRepresentation::UpdateLines( int index )
     }
   
   this->BuildLines();
+  this->RebuildLocator = true;
 }
 
 //----------------------------------------------------------------------
@@ -1139,6 +1145,7 @@ int vtkContourRepresentation::UpdateContour()
     this->UpdateLine( static_cast<int>(this->Internal->Nodes.size())-1, 0);
     }
   this->BuildLines();
+  this->BuildLocator();
    
   this->ContourBuildTime.Modified();
   
@@ -1200,6 +1207,14 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
     }
   this->Internal->Nodes.clear();
 
+  vtkPolyData *tmpPoints = vtkPolyData::New();
+  tmpPoints->DeepCopy(pd);
+  this->Locator->SetDataSet(tmpPoints);
+  tmpPoints->Delete();
+
+  //reserver space in memory to speed up vector push_back
+  this->Internal->Nodes.reserve(nPoints);
+
   vtkIdList *pointIds = pd->GetCell(0)->GetPointIds();
 
   // Get the worldOrient from the point placer
@@ -1212,12 +1227,49 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
   this->PointPlacer->ComputeWorldPosition(this->Renderer,
                                  displayPos, ref, worldPos, worldOrient );
 
-  // Add nodes
-
+  // Add nodes without calling rebuild lines
+  // to improve performance dramatically(~15x) on large datasets
+  double *pos;
   for ( vtkIdType i=0; i < nPoints; i++ )
     {
-    double *p = points->GetPoint( i );
-    this->AddNodeAtWorldPosition( p, worldOrient );
+    pos = points->GetPoint( i );
+    this->GetRendererComputedDisplayPositionFromWorldPosition(
+                          pos, worldOrient, displayPos );
+
+    // Add a new point at this position
+    vtkContourRepresentationNode *node = new vtkContourRepresentationNode;
+    node->WorldPosition[0] = pos[0];
+    node->WorldPosition[1] = pos[1];
+    node->WorldPosition[2] = pos[2];
+    node->Selected = 0;
+
+    node->NormalizedDisplayPosition[0] = displayPos[0];
+    node->NormalizedDisplayPosition[1] = displayPos[1];
+
+    this->Renderer->DisplayToNormalizedDisplay(
+      node->NormalizedDisplayPosition[0],
+      node->NormalizedDisplayPosition[1] );
+
+    memcpy(node->WorldOrientation, worldOrient, 9*sizeof(double) );
+
+    this->Internal->Nodes.push_back(node);
+
+    if ( this->LineInterpolator && this->GetNumberOfNodes() > 1 )
+      {
+      // Give the line interpolator a chance to update the node.
+      int didNodeChange = this->LineInterpolator->UpdateNode(
+        this->Renderer, this, node->WorldPosition, this->GetNumberOfNodes()-1 );
+
+      // Give the point placer a chance to validate the updated node. If its not
+      // valid, discard the LineInterpolator's change.
+      if ( didNodeChange && !this->PointPlacer->ValidateWorldPosition(
+                node->WorldPosition, worldOrient ) )
+        {
+        node->WorldPosition[0] = worldPos[0];
+        node->WorldPosition[1] = worldPos[1];
+        node->WorldPosition[2] = worldPos[2];
+        }
+      }
     }
 
   if ( pointIds->GetNumberOfIds() > nPoints )
@@ -1226,12 +1278,99 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
     }
 
   // Update the contour representation from the nodes using the line interpolator
+  this->PointPlacer->Modified(); //force the UpdateContour to rerun
+  this->UpdateContour();
   this->BuildRepresentation();
 
   // Show the contour.
   this->VisibilityOn();
 }
 
+//----------------------------------------------------------------------
+void vtkContourRepresentation::BuildLocator()
+{
+if (!this->RebuildLocator && !this->NeedToRender)
+    {
+    //rebuild if rebuildLocator or needtorender are true
+    return;
+    }
+
+  vtkIdType size = (vtkIdType)this->Internal->Nodes.size();
+  vtkPoints *points = vtkPoints::New();
+  points->SetNumberOfPoints(size);
+
+  //setup up the matrixes needed to transform
+  //world to display. We are going to do this manually
+  // as calling the renderer will create a new matrix for each call
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(this->Renderer->GetActiveCamera()
+    ->GetCompositeProjectionTransformMatrix(
+    this->Renderer->GetTiledAspectRatio(),0,1));
+
+  //viewport info
+  double viewPortRatio[2];
+  int sizex,sizey;
+
+  /* get physical window dimensions */
+  if ( this->Renderer->GetVTKWindow() )
+    {
+    double *viewPort = this->Renderer->GetViewport();
+    sizex = this->Renderer->GetVTKWindow()->GetSize()[0];
+    sizey = this->Renderer->GetVTKWindow()->GetSize()[1];
+    viewPortRatio[0] = (sizex*(viewPort[2]-viewPort[0])) / 2.0 +
+        sizex*viewPort[0];
+    viewPortRatio[1] = (sizey*(viewPort[3]-viewPort[1])) / 2.0 +
+        sizey*viewPort[1];
+    }
+  else
+    {
+    //can't compute the locator without a vtk window
+    return;
+    }
+
+  double     view[4];
+  double pos[3] = {0,0,0};
+  double *wp;
+  for(vtkIdType i=0; i < size; ++i)
+    {
+    wp = this->Internal->Nodes[i]->WorldPosition;
+    pos[0] = this->Internal->Nodes[i]->WorldPosition[0];
+    pos[1] = this->Internal->Nodes[i]->WorldPosition[1];
+    pos[2] = this->Internal->Nodes[i]->WorldPosition[2];
+
+    //convert from world to view
+    view[0] = wp[0]*matrix->Element[0][0] + wp[1]*matrix->Element[0][1] +
+      wp[2]*matrix->Element[0][2] + matrix->Element[0][3];
+    view[1] = wp[0]*matrix->Element[1][0] + wp[1]*matrix->Element[1][1] +
+      wp[2]*matrix->Element[1][2] + matrix->Element[1][3];
+    view[2] = wp[0]*matrix->Element[2][0] + wp[1]*matrix->Element[2][1] +
+      wp[2]*matrix->Element[2][2] + matrix->Element[2][3];
+    view[3] = wp[0]*matrix->Element[3][0] + wp[1]*matrix->Element[3][1] +
+      wp[2]*matrix->Element[3][2] + matrix->Element[3][3];
+    if (view[3] != 0.0)
+      {
+      pos[0] = view[0]/view[3];
+      pos[1] = view[1]/view[3];
+      }
+
+    //now from view to display
+    pos[0] = (pos[0] + 1.0) * viewPortRatio[0];
+    pos[1] = (pos[1] + 1.0) * viewPortRatio[1];
+    pos[2] = 0;
+
+    points->InsertPoint(i,pos);
+    }
+
+  matrix->Delete();
+  vtkPolyData *tmp = vtkPolyData::New();
+  tmp->SetPoints(points);
+  this->Locator->SetDataSet(tmp);
+  tmp->FastDelete();
+  points->FastDelete();
+
+  //we fully updated the display locator
+  this->RebuildLocator = false;
+}
 //----------------------------------------------------------------------
 void vtkContourRepresentation::SetShowSelectedNodes(int flag )
 {
@@ -1241,6 +1380,7 @@ void vtkContourRepresentation::SetShowSelectedNodes(int flag )
     this->Modified();
     }
 }
+
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
@@ -1253,6 +1393,8 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Closed Loop: " << (this->ClosedLoop ? "On\n" : "Off\n");
   os << indent << "ShowSelectedNodes: " << this->ShowSelectedNodes <<endl;
+  os << indent << "Rebuild Locator: " <<
+     (this->RebuildLocator ? "On" : "Off") << endl;
   
   os << indent << "Current Operation: ";
   if ( this->CurrentOperation == vtkContourRepresentation::Inactive )

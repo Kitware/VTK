@@ -274,20 +274,21 @@ double *vtkVolume::GetBounds()
   bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
   bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
   
-  // save the old transform
-  this->Transform->Push();
-  this->Transform->SetMatrix(this->GetMatrix());
+  // make sure matrix (transform) is up-to-date
+  this->ComputeMatrix();
 
   // and transform into actors coordinates
   fptr = bbox;
   for (n = 0; n < 8; n++) 
     {
-    this->Transform->TransformPoint(fptr,fptr);
+    double homogeneousPt[4] = {fptr[0], fptr[1], fptr[2], 1.0};
+    this->Matrix->MultiplyPoint(homogeneousPt, homogeneousPt);
+    fptr[0] = homogeneousPt[0] / homogeneousPt[3];
+    fptr[1] = homogeneousPt[1] / homogeneousPt[3];
+    fptr[2] = homogeneousPt[2] / homogeneousPt[3];
     fptr += 3;
     }
-  
-  this->Transform->Pop();  
-  
+
   // now calc the new bounds
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;

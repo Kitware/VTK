@@ -116,8 +116,6 @@ static void print_preprocessor_error(int result, const char *cp, size_t n);
 
 ^[\t ]*"#"(\\\n|\\\r\n|[^\n])*  {
      int result = 0;
-     vtkParsePreprocess_RemoveMacro(&preprocessor,
-                                    "VTK_WORKAROUND_WINDOWS_MANGLE");
      result = vtkParsePreprocess_HandleDirective(&preprocessor, yytext);
      if (result == VTK_PARSE_SKIP)
        {

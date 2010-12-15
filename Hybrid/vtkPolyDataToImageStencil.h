@@ -47,14 +47,12 @@ POSSIBILITY OF SUCH DAMAGES.
 =========================================================================*/
 // .NAME vtkPolyDataToImageStencil - use polydata to mask an image
 // .SECTION Description
-// The vtkPolyDataToImageStencil class will convert a surface mesh
-// into an image stencil that can be used to mask an image with
-// vtkImageStencil, or used to calculate statistics within the
-// enclosed region with vtkImageAccumulate.
+// The vtkPolyDataToImageStencil class will convert polydata into
+// an image stencil.  The polydata can either be a closed surface
+// mesh or a series of polyline contours (one contour per slice).
 // .SECTION Caveats
-// The input polydata must contain polygons (or other 2D cells) that
-// form a 3D surface that encloses a finite volume. Polyline contours
-// are ignored.
+// If contours are provided, the contours must be aligned with the
+// Z planes.  Other contour orientations are not supported.
 // .SECTION See Also
 // vtkImageStencil vtkImageAccumulate vtkImageBlend vtkImageReslice
 
@@ -66,7 +64,6 @@ POSSIBILITY OF SUCH DAMAGES.
 class vtkMergePoints;
 class vtkDataSet;
 class vtkPolyData;
-class vtkImageData;
 
 class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil :
   public vtkImageStencilSource
@@ -82,38 +79,6 @@ public:
   vtkPolyData *GetInput();
   
   // Description:
-  // Set a vtkImageData that has the Spacing, Origin, and
-  // WholeExtent that will be used for the stencil.  This
-  // input should be set to the image that you wish to
-  // apply the stencil to.  If you use this method, then
-  // any values set with the SetOutputSpacing, SetOutputOrigin,
-  // and SetOutputWholeExtent methods will be ignored.
-  virtual void SetInformationInput(vtkImageData*);
-  vtkGetObjectMacro(InformationInput, vtkImageData);
-
-  // Description:
-  // Set the Origin to be used for the stencil.  It should be
-  // set to the Origin of the image you intend to apply the
-  // stencil to. The default value is (0,0,0).
-  vtkSetVector3Macro(OutputOrigin, double);
-  vtkGetVector3Macro(OutputOrigin, double);
-
-  // Description:
-  // Set the Spacing to be used for the stencil. It should be
-  // set to the Spacing of the image you intend to apply the
-  // stencil to. The default value is (1,1,1)
-  vtkSetVector3Macro(OutputSpacing, double);
-  vtkGetVector3Macro(OutputSpacing, double);
-
-  // Description:
-  // Set the whole extent for the stencil (anything outside
-  // this extent will be considered to be "outside" the stencil).
-  // If this is not set, then the stencil will always use
-  // the requested UpdateExtent as the stencil extent.
-  vtkSetVector6Macro(OutputWholeExtent, int);
-  vtkGetVector6Macro(OutputWholeExtent, int);  
-
-  // Description:
   // The tolerance to apply in when determining whether a voxel
   // is inside the stencil, given as a fraction of a voxel.
   // Only used in X and Y, not in Z.
@@ -127,24 +92,14 @@ protected:
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
 
-  static void DataSetCutter(vtkDataSet *input, vtkPolyData *output,
-                            double z, vtkMergePoints *locator);
+  static void PolyDataCutter(vtkPolyData *input, vtkPolyData *output,
+                             double z, double thickness,
+                             vtkMergePoints *locator);
   
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+
   virtual int FillInputPortInformation(int, vtkInformation*);
-
-  // Description:
-  // Set in subclasses where the primary input is not a vtkImageData.
-  vtkImageData *InformationInput;
-
-  // Description:
-  // Set in subclasses where the primary input is not a vtkImageData.
-  int OutputWholeExtent[6];
-  double OutputOrigin[3];
-  double OutputSpacing[3];
 
   // Description:
   // The tolerance distance for favoring the inside of the stencil

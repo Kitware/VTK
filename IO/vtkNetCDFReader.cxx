@@ -101,6 +101,10 @@ vtkNetCDFReader::vtkNetCDFReader()
 
   this->VariableDimensions = vtkStringArray::New();
   this->AllDimensions = vtkStringArray::New();
+
+  this->WholeExtent[0] = this->WholeExtent[1]
+    = this->WholeExtent[2] = this->WholeExtent[3]
+    = this->WholeExtent[4] = this->WholeExtent[5] = 0;
 }
 
 vtkNetCDFReader::~vtkNetCDFReader()
@@ -231,38 +235,37 @@ int vtkNetCDFReader::RequestInformation(
       }
     }
 
-  // Using the extent information (captured partially in
-  // this->LoadingDimensions) report extents.
+  // Capture the extent information from this->LoadingDimensions.
+  bool pointData = this->DimensionsAreForPointData(this->LoadingDimensions);
+  for (int i = 0 ; i < 3; i++)
+    {
+    this->WholeExtent[2*i] = 0;
+    if (i < this->LoadingDimensions->GetNumberOfTuples())
+      {
+      size_t dimlength;
+      // Remember that netCDF arrays are indexed backward from VTK images.
+      int dim = this->LoadingDimensions->GetValue(numDims-i-1);
+      CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
+      this->WholeExtent[2*i+1] = static_cast<int>(dimlength-1);
+      // For cell data, add one to the extent (which is for points).
+      if (!pointData) this->WholeExtent[2*i+1]++;
+      }
+    else
+      {
+      this->WholeExtent[2*i+1] = 0;
+      }
+    }
+  vtkDebugMacro(<< "Whole extents: "
+                << this->WholeExtent[0] << ", " << this->WholeExtent[1] <<", "
+                << this->WholeExtent[2] << ", " << this->WholeExtent[3] <<", "
+                << this->WholeExtent[4] << ", " << this->WholeExtent[5]);
+
+  // Report extents.
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
   if (output && (output->GetExtentType() == VTK_3D_EXTENT))
     {
-    bool pointData = this->DimensionsAreForPointData(
-                                  this->LoadingDimensions->GetPointer(0),
-                                  this->LoadingDimensions->GetNumberOfTuples());
-    int extent[6];
-    for (int i = 0 ; i < 3; i++)
-      {
-      extent[2*i] = 0;
-      if (i < this->LoadingDimensions->GetNumberOfTuples())
-        {
-        size_t dimlength;
-        // Remember that netCDF arrays are indexed backward from VTK images.
-        int dim = this->LoadingDimensions->GetValue(numDims-i-1);
-        CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
-        extent[2*i+1] = static_cast<int>(dimlength-1);
-        // For cell data, add one to the extent (which is for points).
-        if (!pointData) extent[2*i+1]++;
-        }
-      else
-        {
-        extent[2*i+1] = 0;
-        }
-      }
-    vtkDebugMacro(<< "Whole extents: "
-                  << extent[0] << ", " << extent[1] << ", "
-                  << extent[2] << ", " << extent[3] << ", "
-                  << extent[4] << ", " << extent[5]);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                 this->WholeExtent, 6);
     }
 
   // If we have time, report that.
@@ -612,6 +615,13 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
 }
 
 //-----------------------------------------------------------------------------
+void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *output,
+                                               int extent[6])
+{
+  output->GetUpdateExtent(extent);
+}
+
+//-----------------------------------------------------------------------------
 int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
                                   vtkDataSet *output)
 {
@@ -664,13 +674,12 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
     }
 
   bool loadingPointData = this->DimensionsAreForPointData(
-                                  this->LoadingDimensions->GetPointer(0),
-                                  this->LoadingDimensions->GetNumberOfTuples());
+                                                       this->LoadingDimensions);
 
   // Set up read indices.  Also check to make sure the dimensions are consistent
   // with other loaded variables.
   int extent[6];
-  output->GetUpdateExtent(extent);
+  this->GetUpdateExtentForOutput(output, extent);
   if (numDims != this->LoadingDimensions->GetNumberOfTuples())
     {
     vtkWarningMacro(<< "Variable " << varName << " dimensions ("

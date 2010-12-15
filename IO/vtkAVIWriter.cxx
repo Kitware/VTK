@@ -56,7 +56,7 @@ vtkAVIWriter::vtkAVIWriter()
   this->Internals->hDIB = NULL;  // handle to DIB, temp handle
   this->PromptCompressionOptions = 0;
   this->CompressorFourCC = NULL;
-  this->SetCompressorFourCC("msvc");
+  this->SetCompressorFourCC("DIB");
 }
 
 //---------------------------------------------------------------------------

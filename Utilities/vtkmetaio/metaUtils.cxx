@@ -871,20 +871,22 @@ bool MET_GetFilePath(const char *_fName, char *_fPath)
   size_t l = strlen(_fName);
 
   for(i=(long)l-1; i>=0; i--)
+    {
     if(_fName[i] == '\\' || _fName[i] == '/')
       break;
+    }
 
-    if(i >= 0 && (_fName[i] == '/' || _fName[i] == '\\'))
-      {
-      strcpy(_fPath, _fName);
-      _fPath[i+1] = '\0';
-      return true;
-      }
-    else
-      {
-      _fPath[0] = '\0';
-      return false;
-      }
+  if(i >= 0 && (_fName[i] == '/' || _fName[i] == '\\'))
+    {
+    strcpy(_fPath, _fName);
+    _fPath[i+1] = '\0';
+    return true;
+    }
+  else
+    {
+    _fPath[0] = '\0';
+    return false;
+    }
   }
 
 //
@@ -1029,7 +1031,8 @@ bool MET_IsComplete(METAIO_STL::vector<MET_FieldRecordType *> * fields)
 //
 bool MET_Read(METAIO_STREAM::istream &fp,
               METAIO_STL::vector<MET_FieldRecordType *> * fields,
-              char _MET_SeperatorChar, bool oneLine, bool display_warnings)
+              char _MET_SeperatorChar, bool oneLine, bool display_warnings,
+              METAIO_STL::vector<MET_FieldRecordType *> * newFields)
   {
 
   char s[1024];
@@ -1236,12 +1239,34 @@ bool MET_Read(METAIO_STREAM::istream &fp,
       }
     if(!found)
       {
-      if(display_warnings)
+      if( newFields != NULL )
         {
-        METAIO_STREAM::cerr << "Skipping unrecognized field "
-                            << s << METAIO_STREAM::endl;
+        MET_SkipToVal(fp);
+        if(fp.eof())
+          {
+          break;
+          }
+        MET_FieldRecordType * mF = new MET_FieldRecordType;
+        MET_InitReadField(mF, s, MET_STRING, false);
+        MET_CHAR_TYPE * str = (MET_CHAR_TYPE *)(mF->value);
+        fp.getline( str, 500 );
+        j = strlen(str) - 1;
+        while(!isprint(str[j]) || isspace(str[j]))
+          {
+          str[j--] = '\0';
+          }
+        mF->length = static_cast<int>( strlen( str ) );
+        newFields->push_back(mF);
         }
-      fp.getline( s, 500 );
+      else
+        {
+        if(display_warnings)
+          {
+          METAIO_STREAM::cerr << "Skipping unrecognized field "
+                              << s << METAIO_STREAM::endl;
+          }
+        fp.getline( s, 500 );
+        }
       }
     if(oneLine)
       {

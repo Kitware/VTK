@@ -46,6 +46,10 @@ vtkCxxSetObjectMacro(vtkImageTracerWidget, SelectedLineProperty, vtkProperty);
 
 vtkImageTracerWidget::vtkImageTracerWidget()
 {
+  this->HandleLeftMouseButton = true;
+  this->HandleMiddleMouseButton = true;
+  this->HandleRightMouseButton = true;
+
   this->State = vtkImageTracerWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkImageTracerWidget::ProcessEvents);
 
@@ -345,22 +349,33 @@ void vtkImageTracerWidget::AddObservers(void)
 {
   // Listen for the following events
   vtkRenderWindowInteractor *i = this->Interactor;
-  if (i)
+  if(!i)
     {
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
-                   this->Priority);
+    return;
+    }
+
+  i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
+                  this->Priority);
+  if(this->HandleLeftMouseButton)
+    {
     i->AddObserver(vtkCommand::LeftButtonPressEvent,
-                   this->EventCallbackCommand, this->Priority);
+                    this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
-                   this->EventCallbackCommand, this->Priority);
+                    this->EventCallbackCommand, this->Priority);
+    }
+  if(this->HandleMiddleMouseButton)
+    {
     i->AddObserver(vtkCommand::MiddleButtonPressEvent,
-                   this->EventCallbackCommand, this->Priority);
+                    this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
-                   this->EventCallbackCommand, this->Priority);
+                    this->EventCallbackCommand, this->Priority);
+    }
+  if(this->HandleRightMouseButton)
+    {
     i->AddObserver(vtkCommand::RightButtonPressEvent,
-                   this->EventCallbackCommand, this->Priority);
+                    this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::RightButtonReleaseEvent,
-                   this->EventCallbackCommand, this->Priority);
+                    this->EventCallbackCommand, this->Priority);
     }
 }
 
@@ -450,6 +465,9 @@ void vtkImageTracerWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->SnapToImage ? "On\n" : "Off\n") ;
   os << indent << "CaptureRadius: " << this->CaptureRadius << "\n";
   os << indent << "NumberOfHandles: " << this->NumberOfHandles << "\n";
+  os << indent << "HandleLeftMouseButton: " << this->HandleLeftMouseButton << "\n";
+  os << indent << "HandleMiddleMouseButton: " << this->HandleMiddleMouseButton << "\n";
+  os << indent << "HandleRightMouseButton: " << this->HandleRightMouseButton << "\n";
   os << indent << "AutoClose: "
      << (this->AutoClose ? "On\n" : "Off\n") ;
 }

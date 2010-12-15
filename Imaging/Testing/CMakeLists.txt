@@ -27,6 +27,7 @@ IF(PYTHON_EXECUTABLE)
     vtkImageMirrorPad.h
     vtkImageNormalize.h
     vtkImageRFFT.h
+    vtkImageStencilIterator.h
     vtkImageWrapPad.h
     vtkSimpleImageFilterExample.h
     )

@@ -83,6 +83,14 @@ public:
   vtkGetMacro(Magnification,int);
 
   // Description:
+  // When this->Magnification > 1, this class render the full image in tiles.
+  // Sometimes that results in artificial artifacts at internal tile seams.
+  // To overcome this issue, set this flag to true.
+  vtkSetMacro(FixBoundary, bool);
+  vtkGetMacro(FixBoundary, bool);
+  vtkBooleanMacro(FixBoundary, bool);
+
+  // Description:
   // Set/Get the flag that determines which buffer to read from.
   // The default is to read from the front buffer.   
   vtkBooleanMacro(ReadFrontBuffer, int);
@@ -135,6 +143,7 @@ protected:
   int ShouldRerender;
   double Viewport[4];
   int InputBufferType;
+  bool FixBoundary;
 
   void RequestData(vtkInformation *, 
                    vtkInformationVector **, vtkInformationVector *);

@@ -57,6 +57,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestImageWeightedSum
         TestInPlaceFilter
         TestIslandRemoval2D
+        TestLassooStencil
         TestMapToRGBABlockStreaming
         TestMapToWindowLevelColors
         TestMapToWindowLevelColors2
@@ -68,6 +69,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestQuantizeTo16Colors 
         TestRange3D
         TestResample
+        TestROIStencil
         TestSeparableFilter
         TestShiftScale
         TestShiftScale2
@@ -75,6 +77,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         TestSkeleton2D
         TestSobel2D
         TestSobel3D
+        TestStencilToImage
         TestStencilWithFunction
         TestStencilWithImage
         TestThreshold

@@ -35,7 +35,11 @@
 
 #include <vtkStdString.h> // Used for ivars.
 
+class vtkImageData;
+class vtkPoints;
+class vtkRectilinearGrid;
 class vtkStructuredGrid;
+class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkNetCDFCFReader : public vtkNetCDFReader
 {
@@ -68,6 +72,22 @@ public:
   vtkSetMacro(VerticalBias, double);
 
   // Description:
+  // Set/get the data type of the output.  The index used is taken from the list
+  // of VTK data types in vtkType.h.  Valid types are VTK_IMAGE_DATA,
+  // VTK_RECTILINEAR_GRID, VTK_STRUCTURED_GRID, and VTK_UNSTRUCTURED_GRID.  In
+  // addition you can set the type to -1 (the default), and this reader will
+  // pick the data type best suited for the dimensions being read.
+  vtkGetMacro(OutputType, int);
+  virtual void SetOutputType(int type);
+  void SetOutputTypeToAutomatic() { this->SetOutputType(-1); }
+  void SetOutputTypeToImage() { this->SetOutputType(VTK_IMAGE_DATA); }
+  void SetOutputTypeToRectilinear() {this->SetOutputType(VTK_RECTILINEAR_GRID);}
+  void SetOutputTypeToStructured() { this->SetOutputType(VTK_STRUCTURED_GRID); }
+  void SetOutputTypeToUnstructured() {
+    this->SetOutputType(VTK_UNSTRUCTURED_GRID);
+  }
+
+  // Description:
   // Returns true if the given file can be read.
   static int CanReadFile(const char *filename);
 
@@ -80,9 +100,15 @@ protected:
   double VerticalScale;
   double VerticalBias;
 
+  int OutputType;
+
   virtual int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
                                 vtkInformationVector *outputVector);
+
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector);
 
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
@@ -140,6 +166,7 @@ protected:
     vtkDependentDimensionInfo(int ncFD, int varId, vtkNetCDFCFReader *parent);
     bool GetValid() const { return this->Valid; }
     bool GetHasBounds() const { return this->HasBounds; }
+    bool GetCellsUnstructured() const { return this->CellsUnstructured; }
     vtkSmartPointer<vtkIntArray> GetGridDimensions() const {
       return this->GridDimensions;
     }
@@ -155,6 +182,7 @@ protected:
   protected:
     bool Valid;
     bool HasBounds;
+    bool CellsUnstructured;
     vtkSmartPointer<vtkIntArray> GridDimensions;
     vtkSmartPointer<vtkDoubleArray> LongitudeCoordinates;
     vtkSmartPointer<vtkDoubleArray> LatitudeCoordinates;
@@ -162,6 +190,8 @@ protected:
     int LoadMetaData(int ncFD, int varId, vtkNetCDFCFReader *parent);
     int LoadCoordinateVariable(int ncFD, int varId, vtkDoubleArray *coords);
     int LoadBoundsVariable(int ncFD, int varId, vtkDoubleArray *coords);
+    int LoadUnstructuredBoundsVariable(int ncFD, int varId,
+                                       vtkDoubleArray *coords);
   };
   friend class vtkDependentDimensionInfo;
   class vtkDependentDimensionInfoVector;
@@ -171,70 +201,81 @@ protected:
   // Finds the dependent dimension information for the given set of dimensions.
   // Returns NULL if no information has been recorded.
   vtkDependentDimensionInfo *FindDependentDimensionInfo(vtkIntArray *dims);
-  vtkDependentDimensionInfo *FindDependentDimensionInfo(const int *dims,
-                                                        int numDims);
 //ETX
 
   // Description:
   // Given the list of dimensions, identify the longitude, latitude, and
   // vertical dimensions.  -1 is returned for any not found.  The results depend
   // on the values in this->DimensionInfo.
-  virtual void IdentifySphericalCoordinates(const int *dimensions,
-                                            int numDimensions,
+  virtual void IdentifySphericalCoordinates(vtkIntArray *dimensions,
                                             int &longitudeDim,
                                             int &latitudeDim,
                                             int &verticalDim);
 
   // Description:
-  // Convienience function that returns true if the given dimensions can be
+  // Convenience function that returns true if the given dimensions can be
   // used as spherical coordinates, false otherwise.
-  bool CoordinatesAreSpherical(const int *dimensions, int numDimensions)
-  {
-    if (this->FindDependentDimensionInfo(dimensions, numDimensions) != NULL)
-      {
-      return true;
-      }
-
-    int longitudeDim, latitudeDim, verticalDim;
-    this->IdentifySphericalCoordinates(dimensions, numDimensions,
-                                       longitudeDim, latitudeDim, verticalDim);
-    if (   (longitudeDim != -1) && (latitudeDim != -1)
-        && ((numDimensions == 2) || (verticalDim != -1)) )
-      {
-      return true;
-      }
-    else
-      {
-      return false;
-      }
-  }
+  bool CoordinatesAreSpherical(vtkIntArray *dimensions);
 
   // Description:
   // Returns false for spherical dimensions, which should use cell data.
-  virtual bool DimensionsAreForPointData(const int *dimensions,
-                                         int numDimensions)
-  {
-    if (!this->SphericalCoordinates) return true;
-    if (!this->CoordinatesAreSpherical(dimensions, numDimensions)) return true;
-
-    // If the coordiantes are spherical, then the variable is cell data UNLESS
-    // the coordinates are given as 2D depenent coordinates without bounds.
-    vtkDependentDimensionInfo *info
-      = this->FindDependentDimensionInfo(dimensions, numDimensions);
-    if (info && !info->GetHasBounds()) return true;
-
-    return false;
-  }
+  virtual bool DimensionsAreForPointData(vtkIntArray *dimensions);
 
   // Description:
-  // Internal methods for setting spherical coordiantes.
-  void Add1DSphericalCoordinates(vtkStructuredGrid *structOutput);
-  void Add2DSphericalCoordinates(vtkStructuredGrid *structOutput);
+  // Convenience function that takes piece information and then returns a set of
+  // extents to load based on this->WholeExtent.  The result is returned in
+  // extent.
+  void ExtentForDimensionsAndPiece(int pieceNumber,
+                                   int numberOfPieces,
+                                   int ghostLevels,
+                                   int extent[6]);
+
+  // Description:
+  // Overridden to retrieve stored extent for unstructured data.
+  virtual void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]);
+
+  // Description:
+  // Internal methods for setting rectilinear coordinates.
+  void AddRectilinearCoordinates(vtkImageData *imageOutput);
+  void AddRectilinearCoordinates(vtkRectilinearGrid *rectilinearOutput);
+  void Add1DRectilinearCoordinates(vtkPoints *points, const int extent[6]);
+  void Add2DRectilinearCoordinates(vtkPoints *points, const int extent[6]);
+  void Add1DRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
+  void Add2DRectilinearCoordinates(vtkStructuredGrid *structuredOutput);
+  void Add1DRectilinearCoordinates(vtkUnstructuredGrid *unstructuredOutput,
+                                   const int extent[6]);
+  void Add2DRectilinearCoordinates(vtkUnstructuredGrid *unstructuredOutput,
+                                   const int extent[6]);
+
+  // Description:
+  // Internal methods for setting spherical coordinates.
+  void Add1DSphericalCoordinates(vtkPoints *points, const int extent[6]);
+  void Add2DSphericalCoordinates(vtkPoints *points, const int extent[6]);
+  void Add1DSphericalCoordinates(vtkStructuredGrid *structuredOutput);
+  void Add2DSphericalCoordinates(vtkStructuredGrid *structuredOutput);
+  void Add1DSphericalCoordinates(vtkUnstructuredGrid *unstructuredOutput,
+                                 const int extent[6]);
+  void Add2DSphericalCoordinates(vtkUnstructuredGrid *unstructuredOutput,
+                                 const int extent[6]);
+
+  // Description:
+  // Internal method for building unstructred cells that match structured cells.
+  void AddStructuredCells(vtkUnstructuredGrid *unstructuredOutput,
+                          const int extent[6]);
+
+  // Description:
+  // Internal methods for creating unstructured cells.
+  void AddUnstructuredRectilinearCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6]);
+  void AddUnstructuredSphericalCoordinates(
+                                        vtkUnstructuredGrid *unstructuredOutput,
+                                        const int extent[6]);
 
 
 private:
   vtkNetCDFCFReader(const vtkNetCDFCFReader &); // Not implemented
-  void operator=(const vtkNetCDFCFReader &);        // Not implemented
+  void operator=(const vtkNetCDFCFReader &);    // Not implemented
 };
 
 #endif //__vtkNetCDFCFReader_h

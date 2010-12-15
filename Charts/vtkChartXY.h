@@ -18,6 +18,9 @@
 // .SECTION Description
 // This class implements an XY chart.
 
+// .SECTION See Also
+// vtkBarChartActor
+
 #ifndef __vtkChartXY_h
 #define __vtkChartXY_h
 
@@ -106,12 +109,14 @@ public:
   // If true then the axes will be drawn at the origin (scientific style).
   vtkSetMacro(DrawAxesAtOrigin, bool);
   vtkGetMacro(DrawAxesAtOrigin, bool);
+  vtkBooleanMacro(DrawAxesAtOrigin, bool);
 
   // Description:
   // If true then the axes will be turned on and off depending upon whether
   // any plots are in that corner. Defaults to true.
   vtkSetMacro(AutoAxes, bool);
   vtkGetMacro(AutoAxes, bool);
+  vtkBooleanMacro(AutoAxes, bool);
 
   // Description:
   // Border size of the axes that are hidden (vtkAxis::GetVisible())

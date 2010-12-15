@@ -383,6 +383,28 @@ public:
   static double Distance2BetweenPoints(const double x[3], const double y[3]);
 
   // Description:
+  // Compute the amplitude of a Gaussian function with mean=0 and specified variance.
+  // That is, 1./(sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
+  static double GaussianAmplitude(const double variance, const double distanceFromMean);
+
+  // Description:
+  // Compute the amplitude of a Gaussian function with specified mean and variance.
+  // That is, 1./(sqrt(2 Pi * variance)) * exp(-(position - mean)^2/(2.*variance)).
+  static double GaussianAmplitude(const double mean, const double variance, const double position);
+
+  // Description:
+  // Compute the amplitude of an unnormalized Gaussian function with mean=0 and specified variance.
+  // That is, exp(-distanceFromMean^2/(2.*variance)). When distanceFromMean = 0, this function
+  // returns 1.
+  static double GaussianWeight(const double variance, const double distanceFromMean);
+
+  // Description:
+  // Compute the amplitude of an unnormalized Gaussian function with specified mean and variance.
+  // That is, exp(-(position - mean)^2/(2.*variance)). When the distance from 'position' to 'mean'
+  // is 0, this function returns 1.
+  static double GaussianWeight(const double mean, const double variance, const double position);
+
+  // Description:
   // Dot product of two 2-vectors.
   static float Dot2D(const float x[2], const float y[2]) {
     return ( x[0] * y[0] + x[1] * y[1] );};

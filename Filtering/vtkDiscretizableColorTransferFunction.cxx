@@ -198,6 +198,16 @@ double* vtkDiscretizableColorTransferFunction::GetRGBPoints()
   return this->Data;
 }
 
+//----------------------------------------------------------------------------
+vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()
+{
+  if(this->Discretize == false)
+    {
+    return 16777216; // 2^24
+    }
+  return this->NumberOfValues;
+}
+
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

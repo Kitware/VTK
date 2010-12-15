@@ -80,6 +80,14 @@ int vtkOpenGLScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(
 }
 
 //-----------------------------------------------------------------------------
+vtkIdType vtkOpenGLScalarsToColorsPainter::GetTextureSizeLimit()
+{
+  GLint textureSize;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &textureSize);
+  return static_cast<vtkIdType>(textureSize);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer, 
                                                      vtkActor *actor,
                                                      unsigned long typeflags,

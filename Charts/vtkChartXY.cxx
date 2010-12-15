@@ -125,7 +125,7 @@ vtkChartXY::vtkChartXY()
   this->ChartPrivate->axes[vtkAxis::RIGHT]->SetPosition(vtkAxis::RIGHT);
   this->ChartPrivate->axes[vtkAxis::TOP]->SetPosition(vtkAxis::TOP);
 
-  // Set up the x and y axes - should be congigured based on data
+  // Set up the x and y axes - should be configured based on data
   this->ChartPrivate->axes[vtkAxis::LEFT]->SetTitle("Y Axis");
   this->ChartPrivate->axes[vtkAxis::BOTTOM]->SetTitle("X Axis");
 
@@ -689,7 +689,7 @@ void vtkChartXY::RecalculatePlotBounds()
 bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
 {
   // The main use of this method is currently to query the visible axes for
-  // their bounds, and to udpate the chart in response to that.
+  // their bounds, and to update the chart in response to that.
   bool changed = false;
   for (int i = 0; i < 4; ++i)
     {
@@ -1090,8 +1090,21 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse)
               {
               const char *label = plot->GetLabel(seriesIndex);
               // We found a point, set up the tooltip and return
+              // If axes are set to logarithmic scale we need to convert the
+              // axis value using 10^(axis value)
               vtksys_ios::ostringstream ostr;
-              ostr << label << ": " << plotPos.X() << ", " << plotPos.Y();
+              ostr.imbue(vtkstd::locale::classic());
+              ostr.setf(ios::fixed, ios::floatfield);
+              ostr << label << ": ";
+              ostr.precision(ChartPrivate->axes[vtkAxis::BOTTOM]->GetPrecision());
+              ostr << (this->ChartPrivate->axes[vtkAxis::BOTTOM]->GetLogScale()?
+                pow(double(10.0), double(plotPos.X())):
+                plotPos.X());
+              ostr << ",  ";
+              ostr.precision(ChartPrivate->axes[vtkAxis::LEFT]->GetPrecision());
+              ostr << (this->ChartPrivate->axes[vtkAxis::LEFT]->GetLogScale()?
+                pow(double(10.0), double(plotPos.Y())):
+                plotPos.Y());
               this->Tooltip->SetText(ostr.str().c_str());
               this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,
                                          mouse.ScreenPos[1]+2);
@@ -1210,8 +1223,14 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
           {
           vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                 PlotCorners[i]->GetItem(j));
-          if (plot && plot->SelectPoints(min, max))
+          if (plot)
             {
+            /* 
+             * Populate the internal selection.  This will be referenced later
+             * to subsequently populate the selection inside the annotation link.
+             */
+            plot->SelectPoints(min, max);
+
             if (this->AnnotationLink)
               {
               // FIXME: Build up a selection from each plot?

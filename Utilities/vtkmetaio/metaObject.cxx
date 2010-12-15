@@ -1468,7 +1468,10 @@ bool MetaObject::
 M_Read(void)
   {
 
-  if(!MET_Read(*m_ReadStream, & m_Fields))
+  m_AdditionalReadFields.clear();
+
+  if(!MET_Read(*m_ReadStream, &m_Fields, '=', false, true,
+     &m_AdditionalReadFields))
     {
     METAIO_STREAM::cerr << "MetaObject: Read: MET_Read Failed" 
                         << METAIO_STREAM::endl;
@@ -1861,6 +1864,29 @@ void* MetaObject
   return NULL;
 }
 
+int MetaObject
+::GetNumberOfAdditionalReadFields()
+{ 
+  return (int)(m_AdditionalReadFields.size());
+}
+
+char * MetaObject
+::GetAdditionalReadFieldName( int i )
+{ 
+  return m_AdditionalReadFields[i]->name;
+}
+
+char * MetaObject
+::GetAdditionalReadFieldValue( int i )
+{ 
+  return (char *)(m_AdditionalReadFields[i]->value);
+}
+
+int MetaObject
+::GetAdditionalReadFieldValueLength( int i )
+{ 
+  return m_AdditionalReadFields[i]->length;
+}
 
 bool MetaObject
 ::AddUserField(const char* _fieldName,MET_ValueEnumType _type,int _length,

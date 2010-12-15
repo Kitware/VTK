@@ -254,6 +254,9 @@ public:
   int Broadcast(int *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data, length, VTK_INT, srcProcessId);
   }
+  int Broadcast(unsigned int *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_UNSIGNED_INT, srcProcessId);
+  }
   int Broadcast(unsigned long *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data,length,VTK_UNSIGNED_LONG,srcProcessId);
   }
@@ -597,6 +600,11 @@ public:
              vtkIdType length, int operation, int destProcessId) {
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_INT, operation, destProcessId);
+  }
+  int Reduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_INT, operation, destProcessId);
   }
   int Reduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {

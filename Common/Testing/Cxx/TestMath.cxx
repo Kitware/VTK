@@ -16,24 +16,30 @@
 #endif
 
 template<class A>
-bool fuzzyCompare(A a, A b)
+bool fuzzyCompare1DWeak(A a, A b)
+{
+  return ABS(a - b) < .0001;
+}
+
+template<class A>
+bool fuzzyCompare1D(A a, A b)
 {
   return ABS(a - b) < vtkstd::numeric_limits<A>::epsilon();
 }
 
 template<class A>
-bool fuzzyCompare(A a[3], A b[3])
+bool fuzzyCompare2D(A a[2], A b[2])
 {
-  return fuzzyCompare(a[0], b[0]) &&
-         fuzzyCompare(a[1], b[1]) &&
-         fuzzyCompare(a[2], b[2]);
+  return fuzzyCompare1D(a[0], b[0]) &&
+         fuzzyCompare1D(a[1], b[1]);
 }
 
 template<class A>
-bool fuzzyCompare2D(A a[2], A b[2])
+bool fuzzyCompare3D(A a[3], A b[3])
 {
-  return fuzzyCompare(a[0], b[0]) &&
-         fuzzyCompare(a[1], b[1]);
+  return fuzzyCompare1D(a[0], b[0]) &&
+         fuzzyCompare1D(a[1], b[1]) &&
+         fuzzyCompare1D(a[2], b[2]);
 }
 
 //=============================================================================
@@ -97,13 +103,12 @@ int TestMath(int,char *[])
   float projection[3];
   float correct[3] = {25./26., 5./26., 0};
   vtkMath::ProjectVector(a,b,projection);
-  if(!fuzzyCompare(projection,correct))
+  if(!fuzzyCompare3D(projection,correct))
     {
     std::cerr << "ProjectVector failed! Should be (25./26., 5./26., 0) but it is ("
                   <<projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
     }
-  std::cout << "  * Test passed." << std::endl;
   }
 
   // Test ProjectVector2D float
@@ -120,7 +125,6 @@ int TestMath(int,char *[])
                   <<projection[0] << " " << projection[1] << ")" << std::endl;
     return EXIT_FAILURE;
     }
-  std::cout << "  * Test passed." << std::endl;
   }
 
   // Test ProjectVector double
@@ -131,13 +135,12 @@ int TestMath(int,char *[])
   double projection[3];
   double correct[3] = {25./26., 5./26., 0};
   vtkMath::ProjectVector(a,b,projection);
-  if(!fuzzyCompare(projection,correct))
+  if(!fuzzyCompare3D(projection,correct))
     {
     std::cerr << "ProjectVector failed! Should be (25./26., 5./26., 0) but it is ("
                   <<projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
     }
-  std::cout << "  * Test passed." << std::endl;
   }
 
   // Test ProjectVector2D double
@@ -154,7 +157,102 @@ int TestMath(int,char *[])
                   <<projection[0] << " " << projection[1] << ")" << std::endl;
     return EXIT_FAILURE;
     }
-  std::cout << "  * Test passed." << std::endl;
+  }
+
+  // Tests for GaussianAmplitude(double,double)
+  {
+  double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 0);
+  if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.39894))
+    {
+    vtkGenericWarningMacro("GaussianAmplitude(1,0) = 0.39894 " <<" != " << gaussianAmplitude);
+    return EXIT_FAILURE;
+    }
+  }
+
+  {
+  double gaussianAmplitude = vtkMath::GaussianAmplitude(2.0, 0);
+  if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.28209))
+    {
+    vtkGenericWarningMacro("GaussianAmplitude(2,0) = 0.28209 " <<" != " << gaussianAmplitude);
+    return EXIT_FAILURE;
+    }
+  }
+
+  {
+  double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 1.0);
+  if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
+    {
+    vtkGenericWarningMacro("GaussianAmplitude(1,2) = 0.24197 " <<" != " << gaussianAmplitude);
+    return EXIT_FAILURE;
+    }
+  }
+
+  // Tests for GaussianAmplitude(double,double,double)
+
+  {
+  double gaussianAmplitude = vtkMath::GaussianAmplitude(0, 1.0, 1.0);
+  if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
+    {
+    vtkGenericWarningMacro("GaussianAmplitude(0,1,1) = 0.24197 " <<" != " << gaussianAmplitude);
+    return EXIT_FAILURE;
+    }
+  }
+
+  {
+  double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 1.0, 2.0);
+  if (!fuzzyCompare1DWeak(gaussianAmplitude, 0.24197))
+    {
+    vtkGenericWarningMacro("GaussianAmplitude(1,1,2) = 0.24197 " <<" != " << gaussianAmplitude);
+    return EXIT_FAILURE;
+    }
+  }
+
+  // Tests for GaussianWeight(double,double)
+  {
+  double gaussianWeight = vtkMath::GaussianWeight(1.0, 0);
+  if (!fuzzyCompare1DWeak(gaussianWeight, 1.0))
+    {
+    vtkGenericWarningMacro("GaussianWeight(1,0) = 1.0 " <<" != " << gaussianWeight);
+    return EXIT_FAILURE;
+    }
+  }
+
+  {
+  double gaussianWeight = vtkMath::GaussianWeight(2.0, 0);
+  if (!fuzzyCompare1DWeak(gaussianWeight, 1.0))
+    {
+    vtkGenericWarningMacro("GaussianWeight(2,0) = 1.0 " <<" != " << gaussianWeight);
+    return EXIT_FAILURE;
+    }
+  }
+
+  {
+  double gaussianWeight = vtkMath::GaussianWeight(1.0, 1.0);
+  if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
+    {
+    vtkGenericWarningMacro("GaussianWeight(1,1) = 0.60653 " <<" != " << gaussianWeight);
+    return EXIT_FAILURE;
+    }
+  }
+
+  // Tests for GaussianWeight(double,double,double)
+
+  {
+  double gaussianWeight = vtkMath::GaussianWeight(0, 1.0, 1.0);
+  if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
+    {
+    vtkGenericWarningMacro("GaussianWeight(0,1,1) = 0.60653 " <<" != " << gaussianWeight);
+    return EXIT_FAILURE;
+    }
+  }
+
+  {
+  double gaussianWeight = vtkMath::GaussianWeight(1.0, 1.0, 2.0);
+  if (!fuzzyCompare1DWeak(gaussianWeight, 0.60653))
+    {
+    vtkGenericWarningMacro("GaussianWeight(1,1,2) = 0.60653 " <<" != " << gaussianWeight);
+    return EXIT_FAILURE;
+    }
   }
 
   int testIntValue;
@@ -195,38 +293,38 @@ int TestMath(int,char *[])
   float ans3f[3] = {3.0, 6.0, 9.0};
 
   vtkMath::Add(a, b, c);
-  if (!fuzzyCompare(c, ans1))
+  if (!fuzzyCompare3D(c, ans1))
     {
     vtkGenericWarningMacro("Double addition failed.");
     return 1;
     }
   vtkMath::Subtract(a, b, c);
-  if (!fuzzyCompare(c, ans2))
+  if (!fuzzyCompare3D(c, ans2))
     {
     vtkGenericWarningMacro("Double subtraction failed.");
     return 1;
     }
   vtkMath::MultiplyScalar(a, 3.0);
-  if (!fuzzyCompare(a, ans3))
+  if (!fuzzyCompare3D(a, ans3))
     {
     vtkGenericWarningMacro("Double scalar multiplication failed.");
     return 1;
     }
   vtkMath::Add(af, bf, cf);
-  if (!fuzzyCompare(cf, ans1f))
+  if (!fuzzyCompare3D(cf, ans1f))
     {
     vtkGenericWarningMacro("Float addition failed.");
 	cout << "Result: { " << cf[0] << ", " << cf[1] << ", " << cf[2] << " }" << endl;
     return 1;
     }
   vtkMath::Subtract(af, bf, cf);
-  if (!fuzzyCompare(cf, ans2f))
+  if (!fuzzyCompare3D(cf, ans2f))
     {
     vtkGenericWarningMacro("Float subtraction failed.");
     return 1;
     }
   vtkMath::MultiplyScalar(af, 3.0f);
-  if (!fuzzyCompare(af, ans3f))
+  if (!fuzzyCompare3D(af, ans3f))
     {
     vtkGenericWarningMacro("Float scalar multiplication failed.");
     return 1;

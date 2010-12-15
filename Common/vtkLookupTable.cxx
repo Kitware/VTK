@@ -1011,3 +1011,8 @@ void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
   this->Table->DeepCopy(lut->Table);
 }
 
+//----------------------------------------------------------------------------
+vtkIdType vtkLookupTable::GetNumberOfAvailableColors()
+{
+  return this->Table->GetNumberOfTuples();
+}

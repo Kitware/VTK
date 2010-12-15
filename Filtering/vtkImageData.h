@@ -379,6 +379,7 @@ protected:
   int Extent[6];
 
   void ComputeIncrements();
+  void ComputeIncrements(vtkIdType inc[3]);
   void CopyOriginAndSpacingFromPipeline();
 
   vtkTimeStamp ExtentComputeTime;
@@ -406,6 +407,12 @@ private:
   void operator=(const vtkImageData&);  // Not implemented.
 };
 
+
+//----------------------------------------------------------------------------
+inline void vtkImageData::ComputeIncrements()
+{
+  this->ComputeIncrements(this->Increments);
+}
 
 //----------------------------------------------------------------------------
 inline void vtkImageData::GetPoint(vtkIdType id, double x[3])

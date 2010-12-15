@@ -175,6 +175,15 @@ public:
   // Maps the point from the scene coordinate system.
   virtual vtkVector2f MapFromScene(const vtkVector2f& point);
 
+  // Description:
+  // Get the visibility of the item (should it be drawn).
+  vtkGetMacro(Visible, bool);
+
+  // Description:
+  // Set the visibility of the item (should it be drawn).
+  // Visible by default.
+  vtkSetMacro(Visible, bool);
+
 //BTX
 protected:
   vtkAbstractContextItem();
@@ -193,6 +202,9 @@ protected:
   // functions to paint the children etc. It is derived from
   // vtkstd::vector<vtkAbstractContextItem>, defined in a private header.
   vtkContextScenePrivate* Children;
+
+  // Description: Store the visibility of the item (default is true).
+  bool Visible;
 
 private:
   vtkAbstractContextItem(const vtkAbstractContextItem &); // Not implemented.

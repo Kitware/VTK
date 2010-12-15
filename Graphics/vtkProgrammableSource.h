@@ -50,6 +50,16 @@ public:
   vtkTypeMacro(vtkProgrammableSource,vtkDataSetAlgorithm);
 
   // Description:
+  // Signature definition for programmable method callbacks. Methods passed
+  // to SetExecuteMethod, SetExecuteMethodArgDelete or
+  // SetRequestInformationMethod must conform to this signature.
+  // The presence of this typedef is useful for reference and for external
+  // analysis tools, but it cannot be used in the method signatures in these
+  // header files themselves because it prevents the internal VTK wrapper
+  // generators from wrapping these methods.
+  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+
+  // Description:
   // Specify the function to use to generate the source data. Note
   // that the function takes a single (void *) argument.
   void SetExecuteMethod(void (*f)(void *), void *arg);
@@ -93,10 +103,10 @@ protected:
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void (*ExecuteMethod)(void *); //function to invoke
-  void (*ExecuteMethodArgDelete)(void *);
+  ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
+  ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
-  void (*RequestInformationMethod)(void *); // function to invoke
+  ProgrammableMethodCallbackType RequestInformationMethod; // function to invoke
 
   vtkTimeStamp ExecuteTime;
   int RequestedDataType;

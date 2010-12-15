@@ -49,7 +49,8 @@ vtkProgrammableDataObjectSource::~vtkProgrammableDataObjectSource()
 
 // Specify the function to use to generate the source data. Note
 // that the function takes a single (void *) argument.
-void vtkProgrammableDataObjectSource::SetExecuteMethod(void (*f)(void *), void *arg)
+void vtkProgrammableDataObjectSource::SetExecuteMethod(
+  void (*f)(void *), void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
     {
@@ -65,7 +66,8 @@ void vtkProgrammableDataObjectSource::SetExecuteMethod(void (*f)(void *), void *
 }
 
 // Set the arg delete method. This is used to free user memory.
-void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(void (*f)(void *))
+void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(
+  void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
     {

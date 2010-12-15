@@ -21,11 +21,11 @@
 // rectangle in which the plot lies.  There are also many other instance
 // variables that control the look of the plot includes its title and legend.
 //
-// Set the text property/attributes of the title and the labels through the 
+// Set the text property/attributes of the title and the labels through the
 // vtkTextProperty objects associated with these components.
 
 // .SECTION See Also
-// vtkParallelCoordinatesActor vtkXYPlotActor2D vtkSpiderPlotActor 
+// vtkParallelCoordinatesActor vtkXYPlotActor vtkSpiderPlotActor
 // vtkPieChartActor
 
 #ifndef __vtkBarChartActor_h

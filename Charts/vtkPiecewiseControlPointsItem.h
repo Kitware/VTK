@@ -13,6 +13,15 @@
 
 =========================================================================*/
 
+// .NAME vtkPiecewiseControlPointsItem - Control points for
+// vtkPiecewiseFunction.
+// .SECTION Description
+// vtkPiecewiseControlPointsItem draws the control points of a vtkPiecewiseFunction.
+// .SECTION See Also
+// vtkControlPointsItem
+// vtkPiecewiseFunctionItem
+// vtkCompositeTransferFunctionItem
+
 #ifndef __vtkPiecewiseControlPointsItem_h
 #define __vtkPiecewiseControlPointsItem_h
 
@@ -23,17 +32,26 @@ class vtkPiecewiseFunction;
 class VTK_CHARTS_EXPORT vtkPiecewiseControlPointsItem: public vtkControlPointsItem
 {
 public:
-  static vtkPiecewiseControlPointsItem* New();
   vtkTypeMacro(vtkPiecewiseControlPointsItem, vtkControlPointsItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Creates a piecewise control points object
+  static vtkPiecewiseControlPointsItem* New();
+
+  // Description:
+  // Set the piecewise function to draw its points
   void SetPiecewiseFunction(vtkPiecewiseFunction* function);
+  // Description
+  // Get the piecewise function
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
 
 protected:
   vtkPiecewiseControlPointsItem();
   virtual ~vtkPiecewiseControlPointsItem();
 
+  // Decription:
+  // Reimplemented to extract the control points from the piecewise function
   virtual void ComputePoints();
 
   // Description:

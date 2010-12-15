@@ -208,6 +208,18 @@ public:
   // Is the path closed or open?
   int IsClosed();
 
+  // Description:
+  // Enable/Disable mouse button events
+  vtkSetMacro(HandleLeftMouseButton,int);
+  vtkGetMacro(HandleLeftMouseButton,int);
+  vtkBooleanMacro(HandleLeftMouseButton,int);
+  vtkSetMacro(HandleMiddleMouseButton,int);
+  vtkGetMacro(HandleMiddleMouseButton,int);
+  vtkBooleanMacro(HandleMiddleMouseButton,int);
+  vtkSetMacro(HandleRightMouseButton,int);
+  vtkGetMacro(HandleRightMouseButton,int);
+  vtkBooleanMacro(HandleRightMouseButton,int);
+
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # define SetPropA SetProp
 # define SetPropW SetProp
@@ -332,6 +344,11 @@ protected:
   vtkProperty *LineProperty;
   vtkProperty *SelectedLineProperty;
   void CreateDefaultProperties();
+
+  // Enable/Disable mouse button events
+  int HandleLeftMouseButton;
+  int HandleMiddleMouseButton;
+  int HandleRightMouseButton;
 
 private:
   vtkImageTracerWidget(const vtkImageTracerWidget&);  //Not implemented

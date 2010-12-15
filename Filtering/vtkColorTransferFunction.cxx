@@ -1459,6 +1459,19 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkColorTransferFunction::GetNumberOfAvailableColors()
+{
+  if(this->Table)
+    {
+    // Not sure if this is correct since it is only set if
+    // "const unsigned char *::GetTable( double xStart, double xEnd,int size)"
+    // has been called.
+    return static_cast<vtkIdType>(this->TableSize);
+    }
+  return 16777216;  //2^24
+}
+
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::FillFromDataPointer(int nb, double *ptr)
 {
   if (nb <= 0 || !ptr)

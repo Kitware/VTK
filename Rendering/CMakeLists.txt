@@ -59,6 +59,7 @@ SET( Kit_SRCS
   vtkExporter.cxx
   vtkFollower.cxx
   vtkFrameBufferObject.cxx
+  vtkFreeTypeStringToImage.cxx
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
@@ -164,6 +165,7 @@ SET( Kit_SRCS
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
+  vtkStringToImage.cxx
   vtkSurfaceLICDefaultPainter.cxx
   vtkSurfaceLICPainter.cxx
   vtkTDxInteractorStyle.cxx
@@ -303,6 +305,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader
   vtkShaderDeviceAdapter
   vtkShaderProgram
+  vtkStringToImage
   vtkTDxInteractorStyle
   vtkVisibilitySort.cxx
   ABSTRACT
@@ -345,8 +348,11 @@ if(VTK_USE_X)
  set(Kit_SRCS ${Kit_SRCS} vtkXGPUInfoList.cxx)
 endif()
 
-SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
-SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities WRAP_EXCLUDE)
+SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx vtkFreeTypeTools.cxx )
+SET_SOURCE_FILES_PROPERTIES(
+  vtkFreeTypeTools
+  vtkFreeTypeUtilities
+  WRAP_EXCLUDE)
 
 SET(Kit_FT_SRCS 
   fonts/face_arial.cxx
@@ -422,6 +428,7 @@ IF(VTK_USE_QT)
     vtkQImageToImageSource.cxx
     vtkQtInitialization.cxx
     vtkQtLabelRenderStrategy.cxx
+    vtkQtStringToImage.cxx
     vtkQtTreeRingLabelMapper.cxx
     )
   # On the Mac, make the QT_LIBRARIES KIT_INTERFACE_LIBRARIES. This is a
@@ -642,6 +649,11 @@ ELSE (WIN32)
     ENDIF(VTK_USE_CARBON)
     IF(VTK_USE_X  AND  OPENGL_gl_LIBRARY)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
+    ELSE (VTK_USE_X  AND  OPENGL_gl_LIBRARY)
+      IF (VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
+        SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkOSOpenGLRenderWindow.cxx)
+        SET (KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY} )
+      ENDIF (VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
     ENDIF(VTK_USE_X  AND  OPENGL_gl_LIBRARY)
   ELSE (APPLE)
     IF (VTK_USE_X AND OPENGL_gl_LIBRARY)

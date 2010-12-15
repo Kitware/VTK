@@ -32,14 +32,25 @@
 // vtkDelimitedTextReader is an interface for pulling in data from a
 // flat, delimited ascii or unicode text file (delimiter can be any character).
 //
-// The behavior of the reader with respect to ascii or unicode input is controlled
-// by the SetUnicodeCharacterSet() method.  By default (without calling SetUnicodeCharacterSet()),
-// the reader will expect to read ascii text and will output vtkStdString columns.  Use
-// the Set and Get methods to set delimiters that do not contain UTF8 in the name when operating
-// the reader in default ascii mode.  If the SetUnicodeCharacterSet() method is called, the reader
-// will output vtkUnicodeString columns in the output table.  In addition, it is necessary to use
-// the Set and Get methods that contain UTF8 in the name to specify delimiters when operating in
-// unicode mode.
+// The behavior of the reader with respect to ascii or unicode input
+// is controlled by the SetUnicodeCharacterSet() method.  By default
+// (without calling SetUnicodeCharacterSet()), the reader will expect
+// to read ascii text and will output vtkStdString columns.  Use the
+// Set and Get methods to set delimiters that do not contain UTF8 in
+// the name when operating the reader in default ascii mode.  If the
+// SetUnicodeCharacterSet() method is called, the reader will output
+// vtkUnicodeString columns in the output table.  In addition, it is
+// necessary to use the Set and Get methods that contain UTF8 in the
+// name to specify delimiters when operating in unicode mode.
+//
+// There is also a special character set US-ASCII-WITH-FALLBACK that
+// will treat the input text as ASCII no matter what.  If and when it
+// encounters a character with its 8th bit set it will replace that
+// character with the code point ReplacementCharacter.  You may use
+// this if you have text that belongs to a code page like LATIN9 or
+// ISO-8859-1 or friends: mostly ASCII but not entirely.  Eventually
+// this class will acquire the ability to read gracefully text from
+// any code page, making this option obsolete.
 //
 // This class emits ProgressEvent for every 100 lines it reads.
 //
@@ -175,6 +186,13 @@ public:
   // after calling Update().
   vtkStdString GetLastError();
 
+  // Description:
+  // Fallback character for use in the US-ASCII-WITH-FALLBACK
+  // character set.  Any characters that have their 8th bit set will
+  // be replaced with this code point.  Defaults to 'x'.
+  vtkSetMacro(ReplacementCharacter, vtkTypeUInt32);
+  vtkGetMacro(ReplacementCharacter, vtkTypeUInt32);
+
 //BTX
 protected:
   vtkDelimitedTextReader();
@@ -204,6 +222,7 @@ protected:
   bool GeneratePedigreeIds;
   bool OutputPedigreeIds;
   vtkStdString LastError;
+  vtkTypeUInt32 ReplacementCharacter;
 
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented

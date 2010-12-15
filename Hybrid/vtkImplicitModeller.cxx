@@ -704,6 +704,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
         for (i = 0; i < this->NumberOfThreads; i++)
           {
+          minPlane[i] = maxPlane[i] = 0;
           //////////////////////////////////////////////////
           // do the 1st clip
           slabMin = i * slabSize;
@@ -726,8 +727,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           minClipper[i] = vtkClipPolyData::New();
           minClipper[i]->SetInput((vtkPolyData *)input);
           minClipper[i]->SetClipFunction(minPlane[i]);
-            minClipper[i]->SetValue( 0.0 );
-                minClipper[i]->InsideOutOn();
+          minClipper[i]->SetValue( 0.0 );
+          minClipper[i]->InsideOutOn();
           minClipper[i]->Update();
 
           if ( minClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
@@ -758,8 +759,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           maxClipper[i] = vtkClipPolyData::New();
           maxClipper[i]->SetInput(minClipper[i]->GetOutput());
           maxClipper[i]->SetClipFunction(maxPlane[i]);
-            maxClipper[i]->SetValue( 0.0 );
-                maxClipper[i]->InsideOutOn();
+          maxClipper[i]->SetValue( 0.0 );
+          maxClipper[i]->InsideOutOn();
           maxClipper[i]->Update();
 
           if ( maxClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
@@ -770,6 +771,10 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
             {
             info.Input[i] = maxClipper[i]->GetOutput();
             }
+          }
+        for (i++; i < this->NumberOfThreads; i++)
+          {
+          minPlane[i] = maxPlane[i] = 0;
           }
         }
       }
@@ -792,8 +797,11 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
         {
         for (i = 0; i < this->NumberOfThreads; i++)
           {
-          minPlane[i]->Delete();
-          minClipper[i]->Delete();
+          if (minPlane[i])
+            {
+            minPlane[i]->Delete();
+            minClipper[i]->Delete();
+            }
           if (maxPlane[i])
             {
             maxPlane[i]->Delete();

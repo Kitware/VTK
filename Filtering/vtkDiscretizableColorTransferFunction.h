@@ -117,6 +117,10 @@ public:
   virtual int UsingLogScale()
     { return this->UseLogScale; }
 
+  // Description:
+  // Get the number of available colors for mapping to.
+  virtual vtkIdType GetNumberOfAvailableColors();
+
 protected:
   vtkDiscretizableColorTransferFunction();
   ~vtkDiscretizableColorTransferFunction();

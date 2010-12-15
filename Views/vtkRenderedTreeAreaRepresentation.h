@@ -184,7 +184,7 @@ public:
   // Sets the spline type for the graph edges.
   // vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
   // vtkSplineGraphEdges::BSPLINE uses a b-spline.
-  // The default is CUSTOM.
+  // The default is BSPLINE.
   virtual void SetGraphSplineType(int type, int idx);
   virtual int GetGraphSplineType(int idx);
 

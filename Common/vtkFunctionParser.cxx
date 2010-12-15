@@ -1451,294 +1451,32 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
 //-----------------------------------------------------------------------------
 int vtkFunctionParser::CheckSyntax()
 {
-  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
-     this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
+  int     pos = -1;
+  char*   error = NULL;
+
+  this->CheckExpression(pos, &error);
+
+  if(pos != -1 || error)
     {
-    // Do nothing.
+    vtkErrorMacro(<< error << "; " << " see position " << pos);
+    return 0;
     }
   else
     {
-    // Meaning we already checked the syntax.
-    if(this->ParseError || (this->ParseErrorPositon != -1))
-      {
-      return 0;
-      }
-    else
-      {
-      return 1;
-      }
+    return 1;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkFunctionParser::CopyParseError(int &position, char **error)
+{
+  if(!error)
+    {
+    return;
     }
 
-  // Reset.
-  this->ParseErrorPositon = -1;
-  this->ParseError        = NULL;
-
-  this->CheckMTime.Modified();
-
-  this->RemoveSpaces();
-
-  int index = 0, parenthesisCount = 0, currentChar;
-  char* ptr;
-  int functionNumber, constantNumber;
-  int *expectCommaOnParenthesisCount = new int[this->FunctionLength];
-  int *expectTwoCommasOnParenthesisCount = new int[this->FunctionLength];
-  int i;
-
-  for (i = 0; i < this->FunctionLength; i++)
-    {
-    expectCommaOnParenthesisCount[i] = 0;
-    expectTwoCommasOnParenthesisCount[i] = 0;
-    }
-
-  while (1)
-    {
-    currentChar = this->Function[index];
-    bool breakToOuterLoop = false;
-
-    // Check for valid operand (must appear)
-
-    // Check for leading -
-    if (currentChar == '-')
-      {
-      currentChar = this->Function[++index];
-      if(index == this->FunctionLength)
-        {
-        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-        this->SetParseError("Syntax error: unary minus with no operand");
-        vtkErrorMacro(<< this->ParseError << "; " << " see position " << index);
-        delete [] expectCommaOnParenthesisCount;
-        delete [] expectTwoCommasOnParenthesisCount;
-        return 0;
-        }
-      }
-
-    // Check for math function
-    if ((functionNumber = this->GetMathFunctionNumberByCheckingParenthesis(index)))
-      {
-      if ((functionNumber == VTK_PARSER_MIN) ||
-          (functionNumber == VTK_PARSER_MAX) ||
-          (functionNumber == VTK_PARSER_CROSS))
-        {
-        expectCommaOnParenthesisCount[parenthesisCount+1] = 1;
-        }
-      if (functionNumber == VTK_PARSER_IF)
-        {
-        expectTwoCommasOnParenthesisCount[parenthesisCount+1] = 1;
-        }
-      index += this->GetMathFunctionStringLength(functionNumber);
-      currentChar = this->Function[index];
-
-      // == currentChar should always be '(' here == a fix to Bug #9208
-      // since GetMathFunctionNumberByCheckingParenthesis() is employed above
-
-      //if ( currentChar != '(' )
-      //  {
-      //  vtkErrorMacro("Syntax error: input to math function not in "
-      //                << "parentheses; see position " << index);
-      //  delete [] expectCommaOnParenthesisCount;
-      //  delete [] expectTwoCommasOnParenthesisCount;
-      //  return 0;
-      //  }
-      }
-
-    // Check for opening parenthesis
-    if( currentChar == '(' )
-      {
-      parenthesisCount++;
-      index++;
-      continue;
-      }
-
-    // Check for number
-    if(isdigit(currentChar) ||
-       (currentChar == '.' && isdigit(this->Function[index+1])))
-      {
-      double value=strtod(&this->Function[index], &ptr);
-      // ignore the return value, we just try to figure out
-      // the position of the pointer after the double value.
-      static_cast<void>(value);
-      index += int(ptr-&this->Function[index]);
-      currentChar = this->Function[index];
-      }
-    // Check for named constant
-    else if ((constantNumber = this->GetMathConstantNumber(index)))
-      {
-      index += this->GetMathConstantStringLength(constantNumber);
-      currentChar = this->Function[index];
-      }
-    // End paraenthesis should indicate that the next character might be a
-    // comma. This is a hack because the while (currentChar == ') below checks
-    // for an incorrect number of commas.
-    else if (currentChar == ')')
-      {
-      ++index;
-      currentChar = this->Function[index];
-      }
-    else
-      { // Check for variable
-      if (!this->IsVariableName(index))
-        {
-        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-        this->SetParseError("Syntax error: expecting a variable name");
-        vtkErrorMacro(<< this->ParseError << "; " << "see position " << index);
-        delete [] expectCommaOnParenthesisCount;
-        delete [] expectTwoCommasOnParenthesisCount;
-        return 0;
-        }
-      index += this->GetVariableNameLength(this->GetOperandNumber(index) -
-                                           VTK_PARSER_BEGIN_VARIABLES);
-      currentChar = this->Function[index];
-      }
-
-    // Check for possible second number from min or max function
-    if (expectCommaOnParenthesisCount[parenthesisCount] > 0)
-      {
-      // Check for comma
-      if (currentChar == ',')
-        {
-        expectCommaOnParenthesisCount[parenthesisCount] += 1;
-        index++;
-        continue;
-        }
-      }
-
-    // Check for possible second or third number from if function
-    if (expectTwoCommasOnParenthesisCount[parenthesisCount] > 0)
-      {
-      // Check for comma
-      if (currentChar == ',')
-        {
-        expectTwoCommasOnParenthesisCount[parenthesisCount] += 1;
-        index++;
-        continue;
-        }
-      }
-
-    // Check for closing parenthesis
-    while ( currentChar == ')' )
-      {
-      if (expectCommaOnParenthesisCount[parenthesisCount] != 0 &&
-            expectCommaOnParenthesisCount[parenthesisCount] != 2)
-        {
-        // We can't be closing this function if
-        // expectCommaOnParenthesisCount[..] is not 2; either it was always
-        // 0 or it should have been incremented to 2.
-        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-        this->SetParseError("Syntax Error: two parameters separated by commas expected");
-        vtkErrorMacro(<< this->ParseError << "; "
-                      << expectCommaOnParenthesisCount[parenthesisCount]
-                      << " found; see position " << index);
-        delete [] expectCommaOnParenthesisCount;
-        delete [] expectTwoCommasOnParenthesisCount;
-        return 0;
-        }
-      if (expectTwoCommasOnParenthesisCount[parenthesisCount] != 0 &&
-          expectTwoCommasOnParenthesisCount[parenthesisCount] != 3)
-        {
-        // We can't be closing this function if
-        // expectCommaOnParenthesisCount[..] is not 3; either it was always
-        // 0 or it should have been incremented to 3.
-        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-        this->SetParseError("Syntax Error: three parameters separated by commas expected");
-        vtkErrorMacro(<< this->ParseError << "; "
-                      << expectTwoCommasOnParenthesisCount[parenthesisCount]
-                      << " found; see position " << index);
-        delete [] expectCommaOnParenthesisCount;
-        delete [] expectTwoCommasOnParenthesisCount;
-        return 0;
-        }
-      parenthesisCount--;
-      if(parenthesisCount < 0)
-        {
-        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-        this->SetParseError("Syntax Error: mismatched parenthesis");
-        vtkErrorMacro(<< this->ParseError << "; see position " << index);
-        delete [] expectCommaOnParenthesisCount;
-        delete [] expectTwoCommasOnParenthesisCount;
-        return 0;
-        }
-      if( this->Function[index - 1] == '(' )
-        {
-        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-        this->SetParseError("Syntax Error: empty parentheses");
-        vtkErrorMacro(<< this->ParseError << "; see position " << index);
-        delete [] expectCommaOnParenthesisCount;
-        delete [] expectTwoCommasOnParenthesisCount;
-        return 0;
-        }
-
-      // Check for possible argument in a multiple argument function. In this
-      // case the next character might be a comman, so break out to the outer
-      // loop before incrementing index.
-      if ((expectCommaOnParenthesisCount[parenthesisCount] > 0 &&
-           expectCommaOnParenthesisCount[parenthesisCount] < 2) ||
-          (expectTwoCommasOnParenthesisCount[parenthesisCount] > 0 &&
-           expectTwoCommasOnParenthesisCount[parenthesisCount] < 3))
-        {
-        breakToOuterLoop = true;
-        break;
-        }
-
-      currentChar = this->Function[++index];
-      } // while ( currentChar == ')' )
-
-    // If necessary, break out to the outer loop.
-    if (breakToOuterLoop == true)
-      {
-      continue;
-      }
-
-    // If we get here, we have a legal operand and now a legal operator or
-    // end of string must follow.
-
-    // Check for EOS
-    // The only way to end the checking loop without error.
-    if (index == this->FunctionLength)
-      {
-      break;
-      }
-
-    // Check for operator
-    if(!this->IsElementaryOperator(currentChar) &&
-       currentChar != '<' &&
-       currentChar != '>' &&
-       currentChar != '=' &&
-       currentChar != '&' &&
-       currentChar != '|' &&
-       currentChar != ',')
-      {
-      this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-      this->SetParseError("Syntax error: operator expected");
-      vtkErrorMacro(<< this->ParseError << "; see position " << index);
-      delete [] expectCommaOnParenthesisCount;
-      delete [] expectTwoCommasOnParenthesisCount;
-      return 0;
-      }
-
-    if (currentChar != ',')
-      {
-      // If we get here, we have an operand and an operator; the next loop will
-      // check for another operand (must appear)
-      index++;
-      }
-    } // while(1)
-
-  // Check that all opened parentheses are also closed
-  if(parenthesisCount > 0)
-    {
-    this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
-    this->SetParseError("Syntax Error: missing closing parenthesis");
-    vtkErrorMacro(<< this->ParseError << "; see position " << index);
-    delete [] expectCommaOnParenthesisCount;
-    delete [] expectTwoCommasOnParenthesisCount;
-    return 0;
-    }
-
-
-  // The string is ok
-  delete [] expectCommaOnParenthesisCount;
-  delete [] expectTwoCommasOnParenthesisCount;
-  return 1;
+  position = this->ParseErrorPositon;
+  *error   = this->ParseError;
 }
 
 //-----------------------------------------------------------------------------
@@ -2491,10 +2229,286 @@ void vtkFunctionParser::RemoveVectorVariables()
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::CheckExpression(int &pos, char **error)
 {
-  this->CheckSyntax();
+  if(this->FunctionMTime.GetMTime() > this->CheckMTime.GetMTime() ||
+     this->VariableMTime.GetMTime() > this->CheckMTime.GetMTime())
+    {
+    // Need to parse again.
+    }
+  else
+    {
+    pos     = this->ParseErrorPositon;
+    *error   = this->ParseError;
+    return;
+    }
 
-  pos    = this->ParseErrorPositon;
-  *error = this->ParseError;
+  // Reset.
+  this->ParseErrorPositon = -1;
+  this->ParseError        = NULL;
+
+  this->CheckMTime.Modified();
+
+  this->RemoveSpaces();
+
+  int index = 0, parenthesisCount = 0, currentChar;
+  char* ptr;
+  int functionNumber, constantNumber;
+  int *expectCommaOnParenthesisCount = new int[this->FunctionLength];
+  int *expectTwoCommasOnParenthesisCount = new int[this->FunctionLength];
+  int i;
+
+  for (i = 0; i < this->FunctionLength; i++)
+    {
+    expectCommaOnParenthesisCount[i] = 0;
+    expectTwoCommasOnParenthesisCount[i] = 0;
+    }
+
+  while (1)
+    {
+    currentChar = this->Function[index];
+    bool breakToOuterLoop = false;
+
+    // Check for valid operand (must appear)
+
+    // Check for leading -
+    if (currentChar == '-')
+      {
+      currentChar = this->Function[++index];
+      if(index == this->FunctionLength)
+        {
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax error: unary minus with no operand");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+      }
+
+    // Check for math function
+    if ((functionNumber = this->GetMathFunctionNumberByCheckingParenthesis(index)))
+      {
+      if ((functionNumber == VTK_PARSER_MIN) ||
+          (functionNumber == VTK_PARSER_MAX) ||
+          (functionNumber == VTK_PARSER_CROSS))
+        {
+        expectCommaOnParenthesisCount[parenthesisCount+1] = 1;
+        }
+      if (functionNumber == VTK_PARSER_IF)
+        {
+        expectTwoCommasOnParenthesisCount[parenthesisCount+1] = 1;
+        }
+      index += this->GetMathFunctionStringLength(functionNumber);
+      currentChar = this->Function[index];
+
+      // == currentChar should always be '(' here == a fix to Bug #9208
+      // since GetMathFunctionNumberByCheckingParenthesis() is employed above
+
+      //if ( currentChar != '(' )
+      //  {
+      //  vtkErrorMacro("Syntax error: input to math function not in "
+      //                << "parentheses; see position " << index);
+      //  delete [] expectCommaOnParenthesisCount;
+      //  delete [] expectTwoCommasOnParenthesisCount;
+      //  return 0;
+      //  }
+      }
+
+    // Check for opening parenthesis
+    if( currentChar == '(' )
+      {
+      parenthesisCount++;
+      index++;
+      continue;
+      }
+
+    // Check for number
+    if(isdigit(currentChar) ||
+       (currentChar == '.' && isdigit(this->Function[index+1])))
+      {
+      double value=strtod(&this->Function[index], &ptr);
+      // ignore the return value, we just try to figure out
+      // the position of the pointer after the double value.
+      static_cast<void>(value);
+      index += int(ptr-&this->Function[index]);
+      currentChar = this->Function[index];
+      }
+    // Check for named constant
+    else if ((constantNumber = this->GetMathConstantNumber(index)))
+      {
+      index += this->GetMathConstantStringLength(constantNumber);
+      currentChar = this->Function[index];
+      }
+    // End paraenthesis should indicate that the next character might be a
+    // comma. This is a hack because the while (currentChar == ') below checks
+    // for an incorrect number of commas.
+    else if (currentChar == ')')
+      {
+      ++index;
+      currentChar = this->Function[index];
+      }
+    else
+      { // Check for variable
+      if (!this->IsVariableName(index))
+        {
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax error: expecting a variable name");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+      index += this->GetVariableNameLength(this->GetOperandNumber(index) -
+                                           VTK_PARSER_BEGIN_VARIABLES);
+      currentChar = this->Function[index];
+      }
+
+    // Check for possible second number from min or max function
+    if (expectCommaOnParenthesisCount[parenthesisCount] > 0)
+      {
+      // Check for comma
+      if (currentChar == ',')
+        {
+        expectCommaOnParenthesisCount[parenthesisCount] += 1;
+        index++;
+        continue;
+        }
+      }
+
+    // Check for possible second or third number from if function
+    if (expectTwoCommasOnParenthesisCount[parenthesisCount] > 0)
+      {
+      // Check for comma
+      if (currentChar == ',')
+        {
+        expectTwoCommasOnParenthesisCount[parenthesisCount] += 1;
+        index++;
+        continue;
+        }
+      }
+
+    // Check for closing parenthesis
+    while ( currentChar == ')' )
+      {
+      if (expectCommaOnParenthesisCount[parenthesisCount] != 0 &&
+            expectCommaOnParenthesisCount[parenthesisCount] != 2)
+        {
+        // We can't be closing this function if
+        // expectCommaOnParenthesisCount[..] is not 2; either it was always
+        // 0 or it should have been incremented to 2.
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax Error: two parameters separated by commas expected");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+      if (expectTwoCommasOnParenthesisCount[parenthesisCount] != 0 &&
+          expectTwoCommasOnParenthesisCount[parenthesisCount] != 3)
+        {
+        // We can't be closing this function if
+        // expectCommaOnParenthesisCount[..] is not 3; either it was always
+        // 0 or it should have been incremented to 3.
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax Error: three parameters separated by commas expected");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+      parenthesisCount--;
+      if(parenthesisCount < 0)
+        {
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax Error: mismatched parenthesis");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+      if( this->Function[index - 1] == '(' )
+        {
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax Error: empty parentheses");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+
+      // Check for possible argument in a multiple argument function. In this
+      // case the next character might be a comman, so break out to the outer
+      // loop before incrementing index.
+      if ((expectCommaOnParenthesisCount[parenthesisCount] > 0 &&
+           expectCommaOnParenthesisCount[parenthesisCount] < 2) ||
+          (expectTwoCommasOnParenthesisCount[parenthesisCount] > 0 &&
+           expectTwoCommasOnParenthesisCount[parenthesisCount] < 3))
+        {
+        breakToOuterLoop = true;
+        break;
+        }
+
+      currentChar = this->Function[++index];
+      } // while ( currentChar == ')' )
+
+    // If necessary, break out to the outer loop.
+    if (breakToOuterLoop == true)
+      {
+      continue;
+      }
+
+    // If we get here, we have a legal operand and now a legal operator or
+    // end of string must follow.
+
+    // Check for EOS
+    // The only way to end the checking loop without error.
+    if (index == this->FunctionLength)
+      {
+      break;
+      }
+
+    // Check for operator
+    if(!this->IsElementaryOperator(currentChar) &&
+       currentChar != '<' &&
+       currentChar != '>' &&
+       currentChar != '=' &&
+       currentChar != '&' &&
+       currentChar != '|' &&
+       currentChar != ',')
+      {
+      this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+      this->SetParseError("Syntax error: operator expected");
+      this->CopyParseError(pos, error);
+      delete [] expectCommaOnParenthesisCount;
+      delete [] expectTwoCommasOnParenthesisCount;
+      return;
+      }
+
+    if (currentChar != ',')
+      {
+      // If we get here, we have an operand and an operator; the next loop will
+      // check for another operand (must appear)
+      index++;
+      }
+    } // while(1)
+
+  // Check that all opened parentheses are also closed
+  if(parenthesisCount > 0)
+    {
+    this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+    this->SetParseError("Syntax Error: missing closing parenthesis");
+    this->CopyParseError(pos, error);
+    delete [] expectCommaOnParenthesisCount;
+    delete [] expectTwoCommasOnParenthesisCount;
+    return;
+    }
+
+
+  // The string is ok
+  delete [] expectCommaOnParenthesisCount;
+  delete [] expectTwoCommasOnParenthesisCount;
+
+  this->CopyParseError(pos, error);
+  return;
 }
 
 //-----------------------------------------------------------------------------

@@ -7,8 +7,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     IF (VTK_PYTHON_EXE)
       SET(tests
          dem
-         NetCDFReader
+         NetCDFCF2DBounds
+         NetCDFCFSetOutputType
          NetCDFCFSphericalCoords
+         NetCDFCFUnstructured
+         NetCDFReader
          TestAVSucdReader
          TestGAMBITReader
          TestImageWriters

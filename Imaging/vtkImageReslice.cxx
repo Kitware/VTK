@@ -856,7 +856,6 @@ int vtkImageReslice::RequestInformation(
   double maxBounds[6];
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (this->InformationInput)
@@ -994,22 +993,6 @@ int vtkImageReslice::RequestInformation(
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 
   this->GetIndexMatrix(inInfo, outInfo);
-
-  // need to set the spacing and origin of the stencil to match the output
-  if (inInfo2)
-    {
-    vtkImageStencilData *stencil = 
-      vtkImageStencilData::SafeDownCast(
-        inInfo2->Get(vtkDataObject::DATA_OBJECT()));
-    // need to call the set methods on the actual data object, not
-    // on the pipeline, since the pipeline cannot back-propagate
-    // this information
-    if (stencil)
-      {
-      stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
-      stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
-      }
-    }
 
   return 1;
 }

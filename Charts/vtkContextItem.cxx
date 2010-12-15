@@ -26,7 +26,6 @@
 //-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
 {
-  this->Visible = true;
   this->Opacity = 1.0;
 }
 

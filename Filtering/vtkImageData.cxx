@@ -1238,25 +1238,17 @@ vtkIdType *vtkImageData::GetIncrements()
 //----------------------------------------------------------------------------
 void vtkImageData::GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ)
 {
-  // Make sure the increments are up to date. The filter bypass and update
-  // mechanism make it tricky to update the increments anywhere other than here
-  this->ComputeIncrements();
-
-  incX = this->Increments[0];
-  incY = this->Increments[1];
-  incZ = this->Increments[2];
+  vtkIdType inc[3];
+  this->ComputeIncrements(inc);
+  incX = inc[0];
+  incY = inc[1];
+  incZ = inc[2];
 }
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetIncrements(vtkIdType inc[3])
 {
-  // Make sure the increments are up to date. The filter bypass and update
-  // mechanism make it tricky to update the increments anywhere other than here
-  this->ComputeIncrements();
-
-  inc[0] = this->Increments[0];
-  inc[1] = this->Increments[1];
-  inc[2] = this->Increments[2];
+  this->ComputeIncrements(inc);
 }
 
 
@@ -1291,16 +1283,17 @@ void vtkImageData::GetContinuousIncrements(int extent[6], vtkIdType &incX,
     }
 
   // Make sure the increments are up to date
-  this->ComputeIncrements();
+  vtkIdType inc[3];
+  this->ComputeIncrements(inc);
 
-  incY = this->Increments[1] - (e1 - e0 + 1)*this->Increments[0];
-  incZ = this->Increments[2] - (e3 - e2 + 1)*this->Increments[1];
+  incY = inc[1] - (e1 - e0 + 1)*inc[0];
+  incZ = inc[2] - (e3 - e2 + 1)*inc[1];
 }
 
 
 //----------------------------------------------------------------------------
 // This method computes the increments from the MemoryOrder and the extent.
-void vtkImageData::ComputeIncrements()
+void vtkImageData::ComputeIncrements(vtkIdType inc[3])
 {
   int idx;
   // make sure we have data before computing incrments to traverse it
@@ -1308,13 +1301,13 @@ void vtkImageData::ComputeIncrements()
     {
     return;
     }
-  vtkIdType inc = this->GetPointData()->GetScalars()->GetNumberOfComponents();
+  vtkIdType incr = this->GetPointData()->GetScalars()->GetNumberOfComponents();
   const int* extent = this->Extent;
 
   for (idx = 0; idx < 3; ++idx)
     {
-    this->Increments[idx] = inc;
-    inc *= (extent[idx*2+1] - extent[idx*2] + 1);
+    inc[idx] = incr;
+    incr *= (extent[idx*2+1] - extent[idx*2] + 1);
     }
 }
 
