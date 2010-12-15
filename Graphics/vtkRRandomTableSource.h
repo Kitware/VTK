@@ -81,10 +81,10 @@ public:
   // the random seed provided by Gnu R based on the current time.
   void SetRandGenSeed(const int seed);
 
+//BTX
   // Description:
   // Available statistical distribution output types.  Depending on the distribution type, up to three
   // parameters (param1, param2, param3) must be specified when using SetStatisticalDistributionForColumn().
-//BTX
   typedef enum 
     {
 

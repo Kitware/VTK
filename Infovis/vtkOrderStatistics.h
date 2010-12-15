@@ -50,14 +50,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkOrderStatistics* New();
 
+//BTX
   // Description:
   // The type of quantile definition.
-  //BTX
   enum QuantileDefinitionType {
     InverseCDF              = 0,
     InverseCDFAveragedSteps = 1 // Ignored for non-numeric types
     };
-  //ETX
+//ETX
 
   // Description:
   // Set/get whether histograms and assessment data should be treated as numeric data.

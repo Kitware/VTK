@@ -408,9 +408,9 @@ public:
   vtkGetMacro(Interaction,int);
   vtkBooleanMacro(Interaction,int);
 
+  //BTX
   // Description:
   // Set action associated to buttons.
-  //BTX
   enum
   {
     VTK_CURSOR_ACTION       = 0,
@@ -425,6 +425,7 @@ public:
   vtkSetClampMacro(RightButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(RightButtonAction, int);
 
+  //BTX
   // Description:
   // Set the auto-modifiers associated to buttons.
   // This allows users to bind some buttons to actions that are usually
@@ -432,7 +433,6 @@ public:
   // you can bind the left button action to VTK_SLICE_MOTION_ACTION (see above) 
   // and the left button auto modifier to VTK_CONTROL_MODIFIER: you end up with
   // the left button controling panning without pressing a key.
-  //BTX
   enum
   {
     VTK_NO_MODIFIER         = 0,

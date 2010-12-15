@@ -110,6 +110,7 @@ public:
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
 
+//BTX
   // Description:
   // Allow people to add/remove/invoke observers (callbacks) to any VTK
   // object.  This is an implementation of the subject/observer design
@@ -121,7 +122,6 @@ public:
   // priority commands are called first. A command may set an abort
   // flag to stop processing of the event. (See vtkCommand.h for more
   // information.)
-//BTX
   unsigned long AddObserver(unsigned long event, vtkCommand *, 
                             float priority=0.0f);
   unsigned long AddObserver(const char *event, vtkCommand *, 
@@ -188,11 +188,11 @@ public:
     }
 //ETX
 
+//BTX
   // Description:
   // This method invokes an event and return whether the event was
   // aborted or not. If the event was aborted, the return value is 1,
   // otherwise it is 0.  
-//BTX
   int InvokeEvent(unsigned long event, void *callData);
   int InvokeEvent(const char *event, void *callData);
 //ETX
@@ -211,6 +211,7 @@ protected:
   vtkTimeStamp      MTime;      // Keep track of modification time
   vtkSubjectHelper *SubjectHelper; // List of observers on this object
 
+//BTX
   // Description:
   // These methods allow a command to exclusively grab all events. (This
   // method is typically used by widgets to grab events once an event
@@ -218,7 +219,6 @@ protected:
   // public methods found in the class vtkInteractorObserver. Note that
   // these methods are designed to support vtkInteractorObservers since
   // they use two separate vtkCommands to watch for mouse and keypress events.
-//BTX
   void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
   void InternalReleaseFocus();
 //ETX

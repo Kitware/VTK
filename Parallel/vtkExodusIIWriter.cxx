@@ -911,7 +911,22 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
         b.Type = this->FlattenedInput[i]->GetCellType (j);
         b.NumElements = 1;
         b.ElementStartIndex = 0;
-        b.NodesPerElements = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
+        switch (b.Type)
+          {
+          case VTK_POLY_LINE:
+          case VTK_POLYGON:
+          case VTK_POLYHEDRON:
+            // this block contains variable numbers of nodes per element
+            b.NodesPerElement = 0;
+            b.EntityCounts = std::vector<int>(ncells);
+            b.EntityCounts[0] = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
+            b.EntityNodeOffsets = std::vector<int>(ncells);
+            b.EntityNodeOffsets[0] = 0;
+            break;
+          default:
+            b.NodesPerElement = this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
+          };
+
         // TODO this could be a push if i is different.
         b.GridIndex = i;
         
@@ -929,6 +944,15 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
           }
 
         this->CellToElementOffset[i][j] = iter->second.NumElements;
+        int index = iter->second.NumElements;
+        if (iter->second.NodesPerElement == 0)
+          {
+          iter->second.EntityCounts[index] =
+                  this->FlattenedInput[i]->GetCell (j)->GetNumberOfPoints ();
+          iter->second.EntityNodeOffsets[index] =
+                  iter->second.EntityNodeOffsets[index - 1] +
+                  iter->second.EntityCounts[index - 1];
+          }
         iter->second.NumElements ++;
         }
       }
@@ -965,15 +989,15 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
         b.Type = globalType;
         }
       int globalNodes;
-      c->AllReduce (&b.NodesPerElements, &globalNodes, 1, vtkCommunicator::MAX_OP);
-      if (b.NodesPerElements != 0 && b.NodesPerElements != globalNodes)
+      c->AllReduce (&b.NodesPerElement, &globalNodes, 1, vtkCommunicator::MAX_OP);
+      if (b.NodesPerElement != globalNodes)
         {
         vtkWarningMacro (
-          << "NodesPerElements associated with ID's across processors doesn't match");
+          << "NodesPerElement associated with ID's across processors doesn't match");
         } 
       else
         {
-        b.NodesPerElements = globalNodes;
+        b.NodesPerElement = globalNodes;
         }
       }
     }
@@ -1240,22 +1264,25 @@ char *vtkExodusIIWriter::GetCellTypeName(int t)
       strcpy(nm, "sphere");
       break;
     case VTK_POLY_VERTEX:
-      strcpy(nm, "polyvertex");
+      strcpy(nm, "sup");
       break;
     case VTK_LINE:
       strcpy(nm, "edge");
       break;
     case VTK_POLY_LINE:
-      strcpy(nm, "polyline");
+      strcpy(nm, "NSIDED");
       break;
     case VTK_TRIANGLE:
       strcpy(nm, "TRIANGLE");
       break;
     case VTK_TRIANGLE_STRIP:
-      strcpy(nm, "triangle strip");
+      strcpy(nm, "TRIANGLE");
       break;
     case VTK_POLYGON:
-      strcpy(nm, "polygon");
+      strcpy(nm, "NSIDED");
+      break;
+    case VTK_POLYHEDRON:
+      strcpy(nm, "NFACED");
       break;
     case VTK_PIXEL:
       strcpy(nm, "sphere");
@@ -1357,7 +1384,7 @@ int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
     blockIds[index] = iter->first;
     blockNames[index] = vtkExodusIIWriter::GetCellTypeName (iter->second.Type);
     numElements[index] = iter->second.NumElements;
-    numNodesPerElement[index] = iter->second.NodesPerElements;
+    numNodesPerElement[index] = iter->second.NodesPerElement;
     numAttributes[index] = 0;
     }
   em->SetBlockIds(blockIds);
@@ -1654,11 +1681,23 @@ int vtkExodusIIWriter::WriteBlockInformation()
     int outputIndex = blockIter->second.OutputIndex;
     int numElts = blockIter->second.NumElements;
     int numAtts = blockIter->second.NumAttributes;
-    int numNodes = blockIter->second.NodesPerElements;
+    int numNodes = blockIter->second.NodesPerElement;
+
+    int numPoints;
+    if (numNodes == 0)
+      {
+      numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
+                + blockIter->second.EntityCounts[numElts - 1];
+      }
+    else
+      {
+      numPoints = numElts * numNodes;
+      }
 
     if (numElts > 0)
       {
-      connectivity[outputIndex] = new int [numElts * numNodes];
+      connectivity[outputIndex] = new int [numPoints];
+
       if (numAtts > 0)
         {
         if (this->PassDoubles)
@@ -1698,26 +1737,42 @@ int vtkExodusIIWriter::WriteBlockInformation()
       int blockId = this->BlockIdList[i]->GetValue(j);//CLM
       int blockOutIndex = this->BlockInfoMap[blockId].OutputIndex;
 
-      int nodesPerElement = this->BlockInfoMap[blockId].NodesPerElements;
+      int nodesPerElement = this->BlockInfoMap[blockId].NodesPerElement;
       vtkIdType elementOffset = this->CellToElementOffset[i][j];
-      int offset = elementOffset * nodesPerElement;
+      int offset;
+      if (nodesPerElement == 0)
+        {
+        offset = this->BlockInfoMap[blockId].EntityNodeOffsets[j];
+        }
+      else
+        {
+        offset = elementOffset * nodesPerElement;
+        }
 
       // the block connectivity array
       vtkIdType ptListIdx = loc[j];
       vtkIdType npts = ptIds[ptListIdx++];
-      if (npts != nodesPerElement)
-        {
-        vtkWarningMacro (
-          << "The nodes per element doesn't match (" << npts << " and " 
-          << nodesPerElement << "), data will not be written correctly");
-        }
 
-      for (vtkIdType p=0; p<npts; p++)
+      switch (this->FlattenedInput[i]->GetCellType (j)) 
         {
-        int ExodusPointId = pointOffset + (int) ptIds[ptListIdx++] + 1;
-        connectivity[blockOutIndex][offset + p] = ExodusPointId;
+        case VTK_VOXEL: // reorder to exodus HEX type
+          connectivity[blockOutIndex][offset + 0] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 1] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 3] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 2] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 4] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 5] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 7] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          connectivity[blockOutIndex][offset + 6] = pointOffset + (int) ptIds[ptListIdx++] + 1;
+          break;
+        default:
+          for (vtkIdType p=0; p<npts; p++)
+            {
+            int ExodusPointId = pointOffset + (int) ptIds[ptListIdx++] + 1;
+            connectivity[blockOutIndex][offset + p] = ExodusPointId;
+            }
         }
-
+  
       // the block element attributes
       float *att = this->BlockInfoMap[blockId].BlockAttributes;
 
@@ -1749,11 +1804,25 @@ int vtkExodusIIWriter::WriteBlockInformation()
        blockIter ++)
     {
     char *name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
-    rc = ex_put_elem_block(this->fid, blockIter->first, 
-                name,
-                blockIter->second.NumElements,
-                blockIter->second.NodesPerElements, 
-                blockIter->second.NumAttributes);
+    if (blockIter->second.NodesPerElement == 0)
+      {
+      int numElts = blockIter->second.NumElements;
+      int numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
+                    + blockIter->second.EntityCounts[numElts - 1];
+      rc = ex_put_elem_block(this->fid, blockIter->first,
+                  name,
+                  blockIter->second.NumElements,
+                  numPoints,
+                  blockIter->second.NumAttributes);
+      }
+    else
+      {
+      rc = ex_put_elem_block(this->fid, blockIter->first,
+                  name,
+                  blockIter->second.NumElements,
+                  blockIter->second.NodesPerElement,
+                  blockIter->second.NumAttributes);
+      }
     delete [] name;
     if (rc < 0)
       {
@@ -1791,6 +1860,12 @@ int vtkExodusIIWriter::WriteBlockInformation()
           {
           continue;
           }
+        }
+
+      if (blockIter->second.NodesPerElement == 0)
+        {
+        rc = ex_put_entity_count_per_polyhedra (this->fid, EX_ELEM_BLOCK,
+                     blockIter->first, &(blockIter->second.EntityCounts[0]));
         }
       }
     }

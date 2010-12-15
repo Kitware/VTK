@@ -82,9 +82,9 @@ public:
   // Get the parent of a vertex.
   vtkIdType GetParent(vtkIdType v);
 
+//BTX
   // Description:
   // Get the edge connecting the vertex to its parent.
-//BTX
   vtkEdgeType GetParentEdge(vtkIdType v);
 //ETX
 

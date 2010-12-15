@@ -110,7 +110,7 @@ public:
     return this->ShapeFunctionWeights+idx;
   }
   // Description:
-  // Access to teh quadrature weights.
+  // Access to the quadrature weights.
   const double *GetQuadratureWeights() const { return this->QuadratureWeights; }
 
 protected:

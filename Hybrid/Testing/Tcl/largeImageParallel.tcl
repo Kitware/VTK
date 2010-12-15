@@ -51,7 +51,7 @@ vtkImageViewer viewer
 
 # on several opengl X window unix implementations
 # multiple context deletes cause errors
-# so we leak teh renWin1 in this test for unix
+# so we leak the renWin1 in this test for unix
 if { $tcl_platform(platform) == "unix" } {
   renWin1 Register ren1
   vtkDebugLeaks dl

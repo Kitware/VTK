@@ -16,6 +16,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestAMRBox.cxx
   TestInterpolationFunctions.cxx
   TestInterpolationDerivs.cxx
+  TestImageDataFindCell.cxx
   TestImageIterator.cxx
   TestGenericCell.cxx
   TestGraph.cxx

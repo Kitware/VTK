@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
+#include <vtksys/SystemTools.hxx>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -29,9 +30,12 @@
 
 vtkStandardNewMacro(vtkSTLWriter);
 
+static char header[]="Visualization Toolkit generated SLA File                                        ";
+
 vtkSTLWriter::vtkSTLWriter()
 {
   this->FileType = VTK_ASCII;
+  strcpy(this->Header, header);
 }
 
 void vtkSTLWriter::WriteData()
@@ -76,8 +80,6 @@ void vtkSTLWriter::WriteData()
       }
     }
 }
-
-static char header[]="Visualization Toolkit generated SLA File                                        ";
 
 void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 {
@@ -174,7 +176,24 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   //  Write header
   //
   vtkDebugMacro("Writing Binary STL file");
-  if (fwrite (header, 1, 80, fp) < 80)
+
+  char szHeader[80+1];
+
+  // Check for STL ASCII format key word 'solid'. According to STL file format
+  // only ASCII files can have 'solid' as start key word, so we ignore it and
+  // use VTK string instead.
+  if (vtksys::SystemTools::StringStartsWith(this->Header, "solid"))
+  {
+    vtkDebugMacro("Invalid header for Binary STL file");
+    strcpy(szHeader, header);
+  }
+  else
+  {
+    memset(szHeader, 32, 80);  // fill with space (ASCII=>32)
+    sprintf(szHeader, "%s", this->Header);
+  }
+
+  if (fwrite (szHeader, 1, 80, fp) < 80)
     {
     fclose(fp);
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);

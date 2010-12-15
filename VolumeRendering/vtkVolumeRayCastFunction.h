@@ -133,13 +133,13 @@ public:
   vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
   // Description:
   // Do the basic initialization. This includes saving the parameters
   // passed in into local variables, as well as grabbing some useful
   // info from the volume property and normal encoder. This initialize
   // routine is called once per render. It also calls the 
   // SpecificFunctionInitialize of the subclass function.
-//BTX
   void FunctionInitialize( vtkRenderer *ren,
                            vtkVolume   *vol,
                            vtkVolumeRayCastStaticInfo *staticInfo );
@@ -157,10 +157,10 @@ protected:
   vtkVolumeRayCastFunction() {};
   ~vtkVolumeRayCastFunction() {};
 
+//BTX
   // Description:
   // This method gives the subclass a chance to do any special
   // initialization that it may need to do
-//BTX
   virtual void SpecificFunctionInitialize( vtkRenderer *ren,
                                            vtkVolume   *vol,
                                            vtkVolumeRayCastStaticInfo *staticInfo,

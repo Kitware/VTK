@@ -303,7 +303,7 @@ public:
   // Set/Get the maximum number of pieces that can be requested.  
   // The maximum number of pieces is meta data for unstructured data sets.
   // It gets set by the source during the update information call.
-  // A value of -1 indicates that there is no maximum.  A value of
+  // A value of -1 indicates that there is no maximum.
   virtual void SetMaximumNumberOfPieces(int);
   virtual int GetMaximumNumberOfPieces();
 
