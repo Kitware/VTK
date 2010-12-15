@@ -51,6 +51,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include "Partition.h"
 #include "SODHalo.h"
 
@@ -222,7 +226,8 @@ void SODHalo::createSODHalo(
   this->fofHaloVelocity[2] = avgZVelocity;
 
   this->fofHaloCount = FOFhaloCount;
-  this->initRadius = pow((FOFhaloMass / this->SODMASS), (1.0 / 3.0));
+  this->initRadius = (POSVEL_T)pow
+  ((POSVEL_T)(FOFhaloMass / this->SODMASS), (POSVEL_T)(1.0 / 3.0));
 
   // Binning for concentric spheres over radius range
   this->minRadius = this->cMinFactor * this->rSmooth;
@@ -311,8 +316,9 @@ void SODHalo::calculateMassProfile()
   // Bin 0 is for all particles less than the minimum
   this->binRadius[0] = this->minRadius;
   for (int bin = 1; bin < this->numberOfBins; bin++) {
-    this->binRadius[bin] = pow(10.0, (this->deltaRadius * bin)) *
-                           this->minRadius;
+    this->binRadius[bin] = (POSVEL_T)pow
+      ((POSVEL_T)10.0, (POSVEL_T)((this->deltaRadius * bin) *
+      this->minRadius));
   }
 
   for (int bin = 0; bin < this->numberOfBins; bin++) {
