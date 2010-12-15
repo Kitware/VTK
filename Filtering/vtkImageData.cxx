@@ -763,8 +763,8 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
     // If voxel index is out of bounds, check point "x" against the
     // bounds to see if within tolerance of the bounds.
     const int* extent = this->Extent;
-    const double* origin = this->Origin;
     const double* spacing = this->Spacing;
+    const double* bounds = this->Bounds;
 
     // Compute squared distance of point x from the boundary
     double dist2 = 0.0;
@@ -773,8 +773,9 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
       {
       int minIdx = extent[i*2];
       int maxIdx = extent[i*2+1];
-      double minBound = minIdx*spacing[i] + origin[i];
-      double maxBound = maxIdx*spacing[i] + origin[i];
+      int negSpacing = (spacing[i] < 0);
+      double minBound = bounds[i*2 + negSpacing];
+      double maxBound = bounds[i*2 + (1-negSpacing)];
 
       if ( idx[i] < minIdx )
         {
@@ -1049,69 +1050,86 @@ void vtkImageData::SetDimensions(const int dim[3])
 int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
                                                double pcoords[3])
 {
-  int i;
-  double d, doubleLoc;
-  const double *origin = this->Origin;
-  const double *spacing = this->Spacing;
+  // tolerance is needed for 2D data (this is squared tolerance)
+  const double tol2 = 1e-12;
+
   const int* extent = this->Extent;
+  const double* spacing = this->Spacing;
+  const double* origin = this->Origin;
+  const double* bounds = NULL;
 
   //
   //  Compute the ijk location
   //
   int isInBounds = 1;
-  for (i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
     {
-    d = x[i] - origin[i];
-    doubleLoc = d / spacing[i];
+    double d = x[i] - origin[i];
+    double doubleLoc = d / spacing[i];
     // Floor for negative indexes.
     ijk[i] = vtkMath::Floor(doubleLoc);
+    pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
+    int tmpInBounds = 0;
+    int minExt = extent[i*2];
+    int maxExt = extent[i*2 + 1];
 
-    // low boundary check
-    if ( ijk[i] < extent[i*2])
+    // check if data is one pixel thick
+    if ( minExt == maxExt )
       {
-      double minBound = origin[i] + spacing[i]*extent[i*2];
-      if ( (spacing[i] >= 0 && x[i] >= minBound) ||
-           (spacing[i] < 0 && x[i] <= minBound) )
+      if (!bounds)
+        {
+        bounds = this->GetBounds();
+        }
+      double dist = x[i] - bounds[2*i];
+      if (dist*dist <= spacing[i]*spacing[i]*tol2)
         {
         pcoords[i] = 0.0;
-        ijk[i] = extent[i*2];
+        ijk[i] = minExt;
+        tmpInBounds = 1;
         }
-      else
+      }
+
+    // low boundary check
+    else if ( ijk[i] < minExt)
+      {
+      if (!bounds)
         {
-        isInBounds = 0;
+        bounds = this->GetBounds();
+        }
+      if ( (spacing[i] >= 0 && x[i] >= bounds[i*2]) ||
+           (spacing[i] < 0 && x[i] <= bounds[i*2 + 1]) )
+        {
+        pcoords[i] = 0.0;
+        ijk[i] = minExt;
+        tmpInBounds = 1;
         }
       }
 
     // high boundary check
-    else if ( ijk[i] >= extent[i*2 + 1] )
+    else if ( ijk[i] >= maxExt )
       {
-      double maxBound = origin[i] + spacing[i]*extent[i*2 + 1];
-      if ( (spacing[i] >= 0 && x[i] <= maxBound ) ||
-           (spacing[i] < 0 && x[i] >= maxBound ) )
+      if (!bounds)
+        {
+        bounds = this->GetBounds();
+        }
+      if ( (spacing[i] >= 0 && x[i] <= bounds[i*2 + 1]) ||
+           (spacing[i] < 0 && x[i] >= bounds[i*2]) )
         {
         // make sure index is within the allowed cell index range
-        if (extent[i*2] < extent[i*2 + 1])
-          {
-          pcoords[i] = 1.0;
-          ijk[i] = extent[i*2 + 1] - 1;
-          }
-        else
-          {
-          pcoords[i] = 0.0;
-          ijk[i] = extent[i*2];
-          }
-        }
-      else
-        {
-        isInBounds = 0;
+        pcoords[i] = 1.0;
+        ijk[i] = maxExt - 1;
+        tmpInBounds = 1;
         }
       }
 
     // else index is definitely within bounds
     else
       {
-      pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
+      tmpInBounds = 1;
       }
+
+    // clear isInBounds if out of bounds for this dimension
+    isInBounds = (isInBounds & tmpInBounds);
     }
 
   return isInBounds;
