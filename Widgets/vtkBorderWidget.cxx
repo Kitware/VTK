@@ -36,16 +36,16 @@ vtkBorderWidget::vtkBorderWidget()
   this->Selectable = 1;
   this->Resizable = 1;
 
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
                                           vtkWidgetEvent::Select,
                                           this, vtkBorderWidget::SelectAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonReleaseEvent,
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
                                           vtkWidgetEvent::EndSelect,
                                           this, vtkBorderWidget::EndSelectAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
                                           vtkWidgetEvent::Translate,
                                           this, vtkBorderWidget::TranslateAction);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonReleaseEvent,
                                           vtkWidgetEvent::EndSelect,
                                           this, vtkBorderWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
