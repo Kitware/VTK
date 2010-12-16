@@ -24,9 +24,13 @@
 #define __vtkChartLegend_h
 
 #include "vtkContextItem.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkVector.h"       // For vtkRectf return value
 
-class vtkVector2f;
 class vtkChart;
+class vtkPen;
+class vtkBrush;
+class vtkTextProperty;
 
 class VTK_CHARTS_EXPORT vtkChartLegend : public vtkContextItem
 {
@@ -46,7 +50,6 @@ public:
   // Get point the legend box is anchored to.
   vtkGetVector2Macro(Point, float);
 
-//BTX
   enum {
     LEFT = 0,
     CENTER,
@@ -62,7 +65,6 @@ public:
   // Description:
   // Get point the legend box is anchored to.
   const vtkVector2f& GetPointVector();
-//ETX
 
   // Description:
   // Set the horizontal alignment of the legend to the point specified.
@@ -81,12 +83,32 @@ public:
   vtkGetMacro(VerticalAlignment, int);
 
   // Description:
+  // Set the padding between legend marks, default is 5.
+  vtkSetMacro(Padding, int);
+
+  // Description:
+  // Get the padding between legend marks.
+  vtkGetMacro(Padding, int);
+
+  // Description:
+  // Set the symbol width, default is 15.
+  vtkSetMacro(SymbolWidth, int);
+
+  // Description:
+  // Get the legend symbol width.
+  vtkGetMacro(SymbolWidth, int);
+
+  // Description:
   // Set the point size of the label text.
-  vtkSetMacro(LabelSize, int);
+  virtual void SetLabelSize(int size);
 
   // Description:
   // Get the point size of the label text.
-  vtkGetMacro(LabelSize, int);
+  virtual int GetLabelSize();
+
+  // Description:
+  // Get the vtkTextProperty for the legend's labels.
+  vtkTextProperty * GetLabelProperties();
 
   // Description:
   // Set the chart that the legend belongs to and will draw the legend for.
@@ -105,7 +127,13 @@ public:
   // Paint event for the axis, called whenever the axis needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
+  // Description:
+  // Request the space the legend requires to be drawn. This is returned as a
+  // vtkRect4f, with the corner being the offset from Point, and the width/
+  // height being the total width/height required by the axis. In order to
+  // ensure the numbers are correct, Update() should be called first.
+  vtkRectf GetBoundingRect(vtkContext2D* painter);
+
 protected:
   vtkChartLegend();
   ~vtkChartLegend();
@@ -113,7 +141,25 @@ protected:
   float* Point;  // The point the legend is anchored to.
   int HorizontalAlignment; // Alignment of the legend to the point it is anchored to.
   int VerticalAlignment; // Alignment of the legend to the point it is anchored to.
-  int LabelSize; // The point size of the labels
+
+  // Description:
+  // The pen used to draw the legend box.
+  vtkSmartPointer<vtkPen> Pen;
+
+  // Description:
+  // The brush used to render the background of the legend.
+  vtkSmartPointer<vtkBrush> Brush;
+
+  // Description:
+  // The text properties of the labels used in the legend.
+  vtkSmartPointer<vtkTextProperty> LabelProperties;
+
+  vtkTimeStamp PlotTime;
+  vtkTimeStamp RectTime;
+
+  vtkRectf Rect;
+  int Padding;
+  int SymbolWidth;
 
   // Private storage class
   class Private;
@@ -122,7 +168,6 @@ protected:
 private:
   vtkChartLegend(const vtkChartLegend &); // Not implemented.
   void operator=(const vtkChartLegend &); // Not implemented.
-//ETX
 };
 
 #endif //__vtkChartLegend_h

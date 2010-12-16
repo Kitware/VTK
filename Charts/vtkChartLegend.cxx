@@ -29,7 +29,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 class vtkChartLegend::Private
@@ -44,10 +44,8 @@ public:
 
   vtkVector2f Point;
   vtkWeakPointer<vtkChart> Chart;
-  vtkstd::vector<vtkPlot*> ActivePlots;
+  std::vector<vtkPlot*> ActivePlots;
 };
-
-//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartLegend);
@@ -58,9 +56,21 @@ vtkChartLegend::vtkChartLegend()
   this->Storage = new vtkChartLegend::Private;
   this->Point = this->Storage->Point.GetData();
   // Defaults to 12pt text, with top, right alignment to the specified point.
-  this->LabelSize = 12;
-  this->HorizontalAlignment = this->RIGHT;
-  this->VerticalAlignment = this->TOP;
+  this->LabelProperties = vtkSmartPointer<vtkTextProperty>::New();
+  this->LabelProperties->SetFontSize(12);
+  this->LabelProperties->SetColor(0.0, 0.0, 0.0);
+  this->LabelProperties->SetJustificationToLeft();
+  this->LabelProperties->SetVerticalJustificationToBottom();
+
+  this->Pen = vtkSmartPointer<vtkPen>::New();
+  this->Pen->SetColor(0, 0, 0);
+  this->Brush = vtkSmartPointer<vtkBrush>::New();
+  this->Brush->SetColor(255, 255, 255, 255);
+  this->HorizontalAlignment = vtkChartLegend::RIGHT;
+  this->VerticalAlignment = vtkChartLegend::TOP;
+
+  this->Padding = 5;
+  this->SymbolWidth = 25;
 }
 
 //-----------------------------------------------------------------------------
@@ -81,7 +91,13 @@ void vtkChartLegend::Update()
       {
       this->Storage->ActivePlots.push_back(this->Storage->Chart->GetPlot(i));
       }
+    if (this->Storage->Chart->GetPlot(i)->GetLabels() &&
+        this->Storage->Chart->GetPlot(i)->GetLabels()->GetNumberOfTuples() > 1)
+      {
+      break;
+      }
     }
+  this->PlotTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -95,18 +111,67 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
     return true;
     }
 
-  painter->GetPen()->SetWidth(1.0);
-  vtkTextProperty *prop = painter->GetTextProp();
-  prop->SetFontSize(this->LabelSize);
-  prop->SetColor(0.0, 0.0, 0.0);
-  prop->SetJustificationToLeft();
-  prop->SetVerticalJustificationToBottom();
+  this->GetBoundingRect(painter);
+
+  // Now draw a box for the legend.
+  painter->ApplyPen(this->Pen);
+  painter->ApplyBrush(this->Brush);
+  painter->DrawRect(this->Rect.X(), this->Rect.Y(),
+                    this->Rect.Width(), this->Rect.Height());
+
+  painter->ApplyTextProp(this->LabelProperties);
 
   vtkVector2f stringBounds[2];
   painter->ComputeStringBounds("Tgyf", stringBounds->GetData());
   float height = stringBounds[1].GetY();
   painter->ComputeStringBounds("The", stringBounds->GetData());
   float baseHeight = stringBounds[1].GetY();
+
+  vtkVector2f pos(this->Rect.X() + this->Padding + this->SymbolWidth,
+                  this->Rect.Y() + this->Rect.Height() - this->Padding - floor(height));
+  vtkRectf rect(this->Rect.X() + this->Padding, pos.Y(),
+               this->SymbolWidth-3, ceil(height));
+
+  // Draw all of the legend labels and marks
+  for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
+    {
+    vtkStringArray *labels = this->Storage->ActivePlots[i]->GetLabels();
+    for (vtkIdType l = 0; labels && (l < labels->GetNumberOfValues()); ++l)
+      {
+      // This is fairly hackish, but gets the text looking reasonable...
+      // Calculate a height for a "normal" string, then if this height is greater
+      // that offset is used to move it down. Effectively hacking in a text
+      // base line until better support is in the text rendering code...
+      // There are still several one pixel glitches, but it looks better than
+      // using the default vertical alignment. FIXME!
+      vtkStdString testString = labels->GetValue(l);
+      testString += "T";
+      painter->ComputeStringBounds(testString, stringBounds->GetData());
+      painter->DrawString(pos.X(), rect.Y() + (baseHeight-stringBounds[1].Y()),
+                          labels->GetValue(l));
+
+      // Paint the legend mark and increment out y value.
+      this->Storage->ActivePlots[i]->PaintLegend(painter, rect.GetData(), l);
+      rect.SetY(rect.Y() - height - this->Padding);
+      }
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
+{
+  if (this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime)
+    {
+    return this->Rect;
+    }
+
+  painter->ApplyTextProp(this->LabelProperties);
+
+  vtkVector2f stringBounds[2];
+  painter->ComputeStringBounds("Tgyf", stringBounds->GetData());
+  float height = stringBounds[1].GetY();
   float maxWidth = 0.0f;
 
   // Calculate the widest legend label - needs the context to calculate font
@@ -114,7 +179,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
     {
     vtkStringArray *labels = this->Storage->ActivePlots[i]->GetLabels();
-    for (vtkIdType l = 0; labels && (l < labels->GetNumberOfTuples()); l++)
+    for (vtkIdType l = 0; labels && (l < labels->GetNumberOfTuples()); ++l)
       {
       painter->ComputeStringBounds(labels->GetValue(l),
                                    stringBounds->GetData());
@@ -126,57 +191,44 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
     }
 
   // Figure out the size of the legend box and store locally.
-  int padding = 5;
-  int symbolWidth = 25;
   int numLabels = 0;
   for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
     {
     numLabels += this->Storage->ActivePlots[i]->GetNumberOfLabels();
     }
 
-  vtkVector2f rectCorner(floor(this->Storage->Point.X()-maxWidth)-2*padding-symbolWidth,
-                         floor(this->Storage->Point.Y() -
-                               numLabels*(height+padding)) -
-                         padding);
+  this->Rect = vtkRectf(floor(this->Storage->Point.X() - maxWidth)
+                        - 2 * this->Padding - this->SymbolWidth,
+                        floor(this->Storage->Point.Y()
+                              - numLabels * (height + this->Padding)) - this->Padding,
+                        ceil(maxWidth) + 2 * this->Padding + this->SymbolWidth,
+                        ceil((numLabels * (height + this->Padding)) + this->Padding));
 
-  vtkVector2f rectDim(ceil(maxWidth)+2*padding+symbolWidth,
-                      ceil((numLabels*(height+padding)) +
-                      padding));
-
-  // Now draw a box for the legend.
-  painter->GetBrush()->SetColor(255, 255, 255, 255);
-  painter->DrawRect(rectCorner.X(), rectCorner.Y(), rectDim.X(), rectDim.Y());
-
-  vtkVector2f pos(rectCorner.X() + padding + symbolWidth,
-                  rectCorner.Y() + rectDim.Y() - padding - floor(height));
-  float rect[] = { rectCorner.X() + padding, pos.Y(),
-                   symbolWidth-3, ceil(height) };
-
-  // Draw all of the legend labels and marks
-  for(size_t i = 0; i < this->Storage->ActivePlots.size(); ++i)
+  switch (this->HorizontalAlignment)
     {
-    vtkStringArray *labels = this->Storage->ActivePlots[i]->GetLabels();
-    for (vtkIdType l = 0; labels && (l < labels->GetNumberOfValues()); l++)
-      {
-      // This is fairly hackish, but gets the text looking reasonable...
-      // Calculate a height for a "normal" string, then if this height is greater
-      // that offset is used to move it down. Effectively hacking in a text
-      // base line until better support is in the text rendering code...
-      // There are still several one pixel glitches, but it looks better than
-      // using the default vertical alignment. FIXME!
-      vtkStdString testString = labels->GetValue(l);
-      testString += "T";
-      painter->ComputeStringBounds(testString, stringBounds->GetData());
-      painter->DrawString(pos.X(), rect[1] + (baseHeight-stringBounds[1].Y()),
-                          labels->GetValue(l));
-
-      // Paint the legend mark and increment out y value.
-      this->Storage->ActivePlots[i]->PaintLegend(painter, rect,l);
-      rect[1] -= height+padding;
-      }
+    case vtkChartLegend::LEFT:
+      this->Rect.SetX(this->Rect.X() + this->Rect.Width());
+      break;
+    case vtkChartLegend::CENTER:
+      this->Rect.SetX(this->Rect.X() + this->Rect.Width() / 2.0);
+      break;
+    }
+  switch (this->VerticalAlignment)
+    {
+    case vtkChartLegend::BOTTOM:
+      this->Rect.SetY(this->Rect.Y() + this->Rect.Height());
+      break;
+    case vtkChartLegend::CENTER:
+      this->Rect.SetY(this->Rect.Y() + this->Rect.Height() / 2.0);
+      break;
     }
 
-  return true;
+  if (this->HorizontalAlignment == this->LEFT)
+    {
+
+    }
+  this->RectTime.Modified();
+  return this->Rect;
 }
 
 //-----------------------------------------------------------------------------
@@ -189,6 +241,24 @@ void vtkChartLegend::SetPoint(const vtkVector2f &point)
 const vtkVector2f& vtkChartLegend::GetPointVector()
 {
   return this->Storage->Point;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartLegend::SetLabelSize(int size)
+{
+  this->LabelProperties->SetFontSize(size);
+}
+
+//-----------------------------------------------------------------------------
+int vtkChartLegend::GetLabelSize()
+{
+  return this->LabelProperties->GetFontSize();
+}
+
+//-----------------------------------------------------------------------------
+vtkTextProperty * vtkChartLegend::GetLabelProperties()
+{
+  return this->LabelProperties;
 }
 
 //-----------------------------------------------------------------------------
