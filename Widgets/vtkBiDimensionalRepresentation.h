@@ -152,13 +152,13 @@ public:
 
   // Description:
   // Get the text shown in the widget's label.
-  char* GetLabelText();
+  virtual char* GetLabelText() = 0;
 
   // Description:
   // Get the position of the widget's label in display coordinates.
-  double* GetLabelPosition();
-  void GetLabelPosition(double pos[3]);
-  void GetWorldLabelPosition(double pos[3]);
+  virtual double* GetLabelPosition() = 0;
+  virtual void GetLabelPosition(double pos[3]) = 0;
+  virtual void GetWorldLabelPosition(double pos[3]) = 0;
 
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.
