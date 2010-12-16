@@ -28,13 +28,9 @@
 
 class vtkPlot;
 class vtkAxis;
-class vtkTransform2D;
 class vtkPlotGrid;
-class vtkTable;
 class vtkChartLegend;
 class vtkTooltipItem;
-class vtkContextMouseEvent;
-class vtkDataArray;
 class vtkVector2f;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
@@ -92,10 +88,13 @@ public:
   void SetPlotCorner(vtkPlot *plot, int corner);
 
   // Description:
-  // Get the axis specified by axisIndex. This should probably
-  // be improved either using a string or enum to select the axis.
-  // (0 - left, 1 - bottom, 2 - right, 3 - top).
+  // Get the axis specified by axisIndex. This is specified with the vtkAxis
+  // position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
+  // vtkAxis::RIGHT and vtkAxis::TOP.
   virtual vtkAxis* GetAxis(int axisIndex);
+
+  // Description:
+  // Get the vtkChartLegend object that will be displayed by the chart.
 
   // Description:
   // Get the number of axes in the current chart.
