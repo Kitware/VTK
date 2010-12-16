@@ -103,27 +103,6 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
 //----------------------------------------------------------------------
 vtkBiDimensionalRepresentation2D::~vtkBiDimensionalRepresentation2D()
 {
-  if ( this->HandleRepresentation )
-    {
-    this->HandleRepresentation->Delete();
-    }
-  if ( this->Point1Representation )
-    {
-    this->Point1Representation->Delete();
-    }
-  if ( this->Point2Representation )
-    {
-    this->Point2Representation->Delete();
-    }
-  if ( this->Point3Representation )
-    {
-    this->Point3Representation->Delete();
-    }
-  if ( this->Point4Representation )
-    {
-    this->Point4Representation->Delete();
-    }
-
   this->LineCells->Delete();
   this->LinePoints->Delete();
   this->LinePolyData->Delete();
@@ -134,183 +113,49 @@ vtkBiDimensionalRepresentation2D::~vtkBiDimensionalRepresentation2D()
   this->TextProperty->Delete();
   this->TextMapper->Delete();
   this->TextActor->Delete();
-  this->SetLabelFormat(0);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D
-::SetHandleRepresentation(vtkHandleRepresentation *handle)
-{
-  if ( handle == NULL || handle == this->HandleRepresentation )
-    {
-    return;
-    }
-  
-  this->Modified();
-  this->HandleRepresentation->Delete();
-  this->HandleRepresentation = handle;
-  this->HandleRepresentation->Register(this);
-  
-  this->Point1Representation->Delete();
-  this->Point2Representation->Delete();
-  this->Point3Representation->Delete();
-  this->Point4Representation->Delete();
-
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->Point3Representation = NULL;
-  this->Point4Representation = NULL;
-
-  this->InstantiateHandleRepresentation();
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint1WorldPosition(double pos[3])
-{
-  this->Point1Representation->GetWorldPosition(pos);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint2WorldPosition(double pos[3])
-{
-  this->Point2Representation->GetWorldPosition(pos);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint3WorldPosition(double pos[3])
-{
-  this->Point3Representation->GetWorldPosition(pos);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint4WorldPosition(double pos[3])
-{
-  this->Point4Representation->GetWorldPosition(pos);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint1DisplayPosition(double x[3])
-{
-  this->Point1Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point1Representation->GetWorldPosition(p);
-  this->Point1Representation->SetWorldPosition(p);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint2DisplayPosition(double x[3])
-{
-  this->Point2Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point2Representation->GetWorldPosition(p);
-  this->Point2Representation->SetWorldPosition(p);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint3DisplayPosition(double x[3])
-{
-  this->Point3Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point3Representation->GetWorldPosition(p);
-  this->Point3Representation->SetWorldPosition(p);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint4DisplayPosition(double x[3])
-{
-  this->Point4Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point4Representation->GetWorldPosition(p);
-  this->Point4Representation->SetWorldPosition(p);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint1WorldPosition(double x[3])
-{
-  this->Point1Representation->SetWorldPosition(x);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint2WorldPosition(double x[3])
-{
-  this->Point2Representation->SetWorldPosition(x);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint3WorldPosition(double x[3])
-{
-  this->Point3Representation->SetWorldPosition(x);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetPoint4WorldPosition(double x[3])
-{
-  this->Point4Representation->SetWorldPosition(x);
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint1DisplayPosition(double pos[3])
-{
-  this->Point1Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint2DisplayPosition(double pos[3])
-{
-  this->Point2Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint3DisplayPosition(double pos[3])
-{
-  this->Point3Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
-}
-
-//----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::GetPoint4DisplayPosition(double pos[3])
-{
-  this->Point4Representation->GetDisplayPosition(pos);
-  pos[2] = 0.0;
 }
 
   
 //----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::InstantiateHandleRepresentation()
-{
-  if ( ! this->Point1Representation )
-    {
-    this->Point1Representation = this->HandleRepresentation->NewInstance();
-    this->Point1Representation->ShallowCopy(this->HandleRepresentation);
-    }
-  
-  if ( ! this->Point2Representation )
-    {
-    this->Point2Representation = this->HandleRepresentation->NewInstance();
-    this->Point2Representation->ShallowCopy(this->HandleRepresentation);
-    }
-
-  if ( ! this->Point3Representation )
-    {
-    this->Point3Representation = this->HandleRepresentation->NewInstance();
-    this->Point3Representation->ShallowCopy(this->HandleRepresentation);
-    }
-  
-  if ( ! this->Point4Representation )
-    {
-    this->Point4Representation = this->HandleRepresentation->NewInstance();
-    this->Point4Representation->ShallowCopy(this->HandleRepresentation);
-    }
-}
-  
-//----------------------------------------------------------------------
-int vtkBiDimensionalRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
+int vtkBiDimensionalRepresentation2D::
+ComputeInteractionState(int X, int Y, int modify)
 {
   this->Modifier = modify;
 
-  // See if we are near one of the end points or outside
+  // Check if we are on end points. The handles must tell us to ensure
+  // consistent state.
+  int p1State = this->Point1Representation->ComputeInteractionState(X,Y,0);
+  int p2State = this->Point2Representation->ComputeInteractionState(X,Y,0);
+  int p3State = this->Point3Representation->ComputeInteractionState(X,Y,0);
+  int p4State = this->Point4Representation->ComputeInteractionState(X,Y,0);
+  if ( p1State == vtkHandleRepresentation::Nearby )
+    {
+    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP1;
+    }
+  else if ( p2State == vtkHandleRepresentation::Nearby )
+    {
+    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP2;
+    }
+  else if ( p3State == vtkHandleRepresentation::Nearby )
+    {
+    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP3;
+    }
+  else if ( p4State == vtkHandleRepresentation::Nearby )
+    {
+    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP4;
+    }
+  else
+    {
+    this->InteractionState = vtkBiDimensionalRepresentation2D::Outside;
+    }
+
+  // Okay if we're near a handle return, otherwise test edges.
+  if ( this->InteractionState != vtkBiDimensionalRepresentation2D::Outside )
+    {
+    return this->InteractionState;
+    }
+
+  // See if we are near the edges. Requires separate computation.
   double pos1[3], pos2[3], pos3[3], pos4[3];
   this->GetPoint1DisplayPosition(pos1);
   this->GetPoint2DisplayPosition(pos2);
@@ -332,27 +177,6 @@ int vtkBiDimensionalRepresentation2D::ComputeInteractionState(int X, int Y, int 
   xyz[2] = p1[2] = p2[2] = p3[2] = p4[2] = 0.0;
 
   double tol2 = this->Tolerance*this->Tolerance;
-  // Check if we are on end points
-  if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
-    {
-    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP1;
-    return this->InteractionState;
-    }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
-    {
-    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP2;
-    return this->InteractionState;
-    }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,p3) <= tol2 )
-    {
-    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP3;
-    return this->InteractionState;
-    }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,p4) <= tol2 )
-    {
-    this->InteractionState = vtkBiDimensionalRepresentation2D::NearP4;
-    return this->InteractionState;
-    }
 
   // Compute intersection point.
   double uIntersect, vIntersect;
@@ -809,10 +633,11 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
-    this->Point1Representation->BuildRepresentation();
-    this->Point2Representation->BuildRepresentation();
-    this->Point3Representation->BuildRepresentation();
-    this->Point4Representation->BuildRepresentation();
+    // Make sure that tolerance is consistent between handles and this representation
+    this->Point1Representation->SetTolerance(this->Tolerance);
+    this->Point2Representation->SetTolerance(this->Tolerance);
+    this->Point3Representation->SetTolerance(this->Tolerance);
+    this->Point4Representation->SetTolerance(this->Tolerance);
 
     // Now bring the lines up to date
     if ( ! this->Line1Visibility )
@@ -985,30 +810,6 @@ void vtkBiDimensionalRepresentation2D::GetWorldLabelPosition(double pos[3])
 }
 
 //----------------------------------------------------------------------
-double vtkBiDimensionalRepresentation2D::GetLength1()
-{
-  double x1[3], x2[3];
-  
-  this->GetPoint1WorldPosition(x1);
-  this->GetPoint2WorldPosition(x2);
-  
-  return sqrt(vtkMath::Distance2BetweenPoints(x1,x2));
-}
-
-
-//----------------------------------------------------------------------
-double vtkBiDimensionalRepresentation2D::GetLength2()
-{
-  double x3[3], x4[3];
-  
-  this->GetPoint3WorldPosition(x3);
-  this->GetPoint4WorldPosition(x4);
-  
-  return sqrt(vtkMath::Distance2BetweenPoints(x3,x4));
-}
-
-
-//----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->LineActor->ReleaseGraphicsResources(w);
@@ -1044,32 +845,11 @@ void vtkBiDimensionalRepresentation2D::Highlight(int highlightOn)
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation2D::SetID(unsigned long id)
-{
-  if (id == this->ID)
-    {
-    return;
-    }
-
-  this->ID = id;
-  this->IDInitialized = 1;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "Tolerance: " << this->Tolerance << "\n";
-
-  os << indent << "Length1: " << this->GetLength1() << "\n";
-  os << indent << "Length2: " << this->GetLength2() << "\n";
-
-  os << indent << "Line1 Visibility: " << (this->Line1Visibility ? "On\n" : "Off\n");
-  os << indent << "Line2 Visibility: " << (this->Line2Visibility ? "On\n" : "Off\n");
-
   if ( this->TextProperty )
     {
     os << indent << "Text Property:\n";
@@ -1099,34 +879,5 @@ void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Selected Line Property: (none)\n";
     }
-
-  os << indent << "Handle Representation: " << this->HandleRepresentation << "\n";
-  
-  os << indent << "ID: " << this->ID << "\n";
-
-  os << indent << "Label Format: ";
-  if ( this->LabelFormat )
-    {
-    os << this->LabelFormat << "\n";
-    }
-  else
-    {
-    os << "(null))\n";
-    }
-  
-  os << indent << "Point1 Representation\n";
-  this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Point2 Representation\n";
-  this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Point3 Representation\n";
-  this->Point3Representation->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Point4 Representation\n";
-  this->Point4Representation->PrintSelf(os,indent.GetNextIndent());
-  
-  os << indent << "Show Label Above Widget: "
-     << (this->ShowLabelAboveWidget ? "On\n" : "Off\n");
 }
 

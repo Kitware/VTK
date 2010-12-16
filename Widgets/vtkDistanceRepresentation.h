@@ -91,6 +91,29 @@ public:
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
 
+  // Description:
+  // Enable or disable ruler mode. When enabled, the ticks on the distance widget
+  // are separated by the amount specified by RulerDistance. Otherwise, the ivar
+  // NumberOfRulerTicks is used to draw the tick marks.
+  vtkSetMacro(RulerMode,int);
+  vtkGetMacro(RulerMode,int);
+  vtkBooleanMacro(RulerMode,int);
+
+  // Description:
+  // Specify the RulerDistance which indicates the spacing of the major ticks.
+  // This ivar only has effect when the RulerMode is on.
+  vtkSetClampMacro(RulerDistance,double,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(RulerDistance,double);
+
+  // Description:
+  // Specify the number of major ruler ticks. This overrides any subclasses
+  // (e.g., vtkDistanceRepresentation2D) that have alternative methods to
+  // specify the number of major ticks. Note: the number of ticks is the
+  // number inbetween the two handle endpoints. This ivar only has effect
+  // when the RulerMode is off.
+  vtkSetClampMacro(NumberOfRulerTicks,int,1,VTK_LARGE_INTEGER);
+  vtkGetMacro(NumberOfRulerTicks,int);
+
 //BTX -- used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearP2};
 //ETX
@@ -116,6 +139,11 @@ protected:
 
   // Format for printing the distance
   char *LabelFormat;
+
+  // Ruler related stuff
+  int RulerMode;
+  double RulerDistance;
+  int NumberOfRulerTicks;
 
 private:
   vtkDistanceRepresentation(const vtkDistanceRepresentation&);  //Not implemented

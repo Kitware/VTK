@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkBiDimensionalWidget.h"
+#include "vtkBiDimensionalRepresentation.h"
 #include "vtkBiDimensionalRepresentation2D.h"
 #include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
@@ -168,7 +169,7 @@ void vtkBiDimensionalWidget::CreateDefaultRepresentation()
     {
     this->WidgetRep = vtkBiDimensionalRepresentation2D::New();
     }
-  vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
+  vtkBiDimensionalRepresentation::SafeDownCast(this->WidgetRep)->
     InstantiateHandleRepresentation();
 }
 
@@ -176,16 +177,16 @@ void vtkBiDimensionalWidget::CreateDefaultRepresentation()
 void vtkBiDimensionalWidget::SetEnabled(int enabling)
 {
   // The handle widgets are not actually enabled until they are placed.
-  // The handle widgets take their representation from the vtkBiDimensionalRepresentation2D.
+  // The handle widgets take their representation from the vtkBiDimensionalRepresentation.
   if ( enabling )
     {
     if ( this->WidgetState == vtkBiDimensionalWidget::Start )
       {
       if (this->WidgetRep)
         {
-        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
+        vtkBiDimensionalRepresentation::SafeDownCast(this->WidgetRep)->
           Line1VisibilityOff();
-        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
+        vtkBiDimensionalRepresentation::SafeDownCast(this->WidgetRep)->
           Line2VisibilityOff();
         }
       }
@@ -193,9 +194,9 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       {
       if (this->WidgetRep)
         {
-        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
+        vtkBiDimensionalRepresentation::SafeDownCast(this->WidgetRep)->
           Line1VisibilityOn();
-        vtkBiDimensionalRepresentation2D::SafeDownCast(this->WidgetRep)->
+        vtkBiDimensionalRepresentation::SafeDownCast(this->WidgetRep)->
           Line2VisibilityOn();
         }
 
@@ -224,7 +225,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point1Widget)
         {
         this->Point1Widget->SetRepresentation(
-          vtkBiDimensionalRepresentation2D::SafeDownCast
+          vtkBiDimensionalRepresentation::SafeDownCast
           (this->WidgetRep)->GetPoint1Representation());
         this->Point1Widget->SetInteractor(this->Interactor);
         this->Point1Widget->GetRepresentation()->SetRenderer(
@@ -233,7 +234,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point2Widget)
         {
         this->Point2Widget->SetRepresentation(
-          vtkBiDimensionalRepresentation2D::SafeDownCast
+          vtkBiDimensionalRepresentation::SafeDownCast
           (this->WidgetRep)->GetPoint2Representation());
         this->Point2Widget->SetInteractor(this->Interactor);
         this->Point2Widget->GetRepresentation()->SetRenderer(
@@ -242,7 +243,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point3Widget)
         {
         this->Point3Widget->SetRepresentation(
-          vtkBiDimensionalRepresentation2D::SafeDownCast
+          vtkBiDimensionalRepresentation::SafeDownCast
           (this->WidgetRep)->GetPoint3Representation());
         this->Point3Widget->SetInteractor(this->Interactor);
         this->Point3Widget->GetRepresentation()->SetRenderer(
@@ -251,7 +252,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       if (this->Point4Widget)
         {
         this->Point4Widget->SetRepresentation(
-          vtkBiDimensionalRepresentation2D::SafeDownCast
+          vtkBiDimensionalRepresentation::SafeDownCast
           (this->WidgetRep)->GetPoint4Representation());
         this->Point4Widget->SetInteractor(this->Interactor);
         this->Point4Widget->GetRepresentation()->SetRenderer(
@@ -316,10 +317,10 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkBiDimensionalWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->StartWidgetDefinition(e);
+    vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->StartWidgetDefinition(e);
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
-    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Line1VisibilityOn();
+    vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->Line1VisibilityOn();
     self->Point1Widget->SetEnabled(1);
     self->CurrentHandle++;
     }
@@ -331,17 +332,17 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     if ( self->CurrentHandle == 1 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
-      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point2WidgetInteraction(e);
+      vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->Point2WidgetInteraction(e);
       self->CurrentHandle++;
       self->Point2Widget->SetEnabled(1);
       self->Point3Widget->SetEnabled(1);
       self->Point4Widget->SetEnabled(1);
-      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Line2VisibilityOn();
+      vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->Line2VisibilityOn();
       }
     else if ( self->CurrentHandle == 2 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
-      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point3WidgetInteraction(e);
+      vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->Point3WidgetInteraction(e);
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
@@ -361,50 +362,50 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     self->CenterSelected = 0;
     int modifier = self->Interactor->GetShiftKey() | self->Interactor->GetControlKey();
     int state = self->WidgetRep->ComputeInteractionState(X,Y,modifier);
-    if ( state == vtkBiDimensionalRepresentation2D::Outside )
+    if ( state == vtkBiDimensionalRepresentation::Outside )
       {
       return;
       }
 
     self->GrabFocus(self->EventCallbackCommand);
-    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->StartWidgetManipulation(e);
-    if ( state == vtkBiDimensionalRepresentation2D::NearP1 ||
-         state == vtkBiDimensionalRepresentation2D::NearP2 )
+    vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->StartWidgetManipulation(e);
+    if ( state == vtkBiDimensionalRepresentation::NearP1 ||
+         state == vtkBiDimensionalRepresentation::NearP2 )
       {
       self->HandleLine1Selected = 1;
       self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::NearP3 ||
-              state == vtkBiDimensionalRepresentation2D::NearP4 )
+    else if ( state == vtkBiDimensionalRepresentation::NearP3 ||
+              state == vtkBiDimensionalRepresentation::NearP4 )
       {
       self->HandleLine2Selected = 1;
       self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnL1Inner)
+    else if ( state == vtkBiDimensionalRepresentation::OnL1Inner)
       {
       self->WidgetRep->Highlight(1);
       self->Line1InnerSelected = 1;
       self->StartBiDimensionalInteraction();
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnL1Outer)
+    else if ( state == vtkBiDimensionalRepresentation::OnL1Outer)
       {
       self->WidgetRep->Highlight(1);
       self->Line1OuterSelected = 1;
       self->StartBiDimensionalInteraction();
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnL2Inner)
+    else if ( state == vtkBiDimensionalRepresentation::OnL2Inner)
       {
       self->WidgetRep->Highlight(1);
       self->Line2InnerSelected = 1;
       self->StartBiDimensionalInteraction();
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnL2Outer)
+    else if ( state == vtkBiDimensionalRepresentation::OnL2Outer)
       {
       self->WidgetRep->Highlight(1);
       self->Line2OuterSelected = 1;
       self->StartBiDimensionalInteraction();
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnCenter )
+    else if ( state == vtkBiDimensionalRepresentation::OnCenter )
       {
       self->WidgetRep->Highlight(1);
       self->CenterSelected = 1;
@@ -439,12 +440,12 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     {
     if ( self->CurrentHandle == 1 )
       {
-      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
+      vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
         Point2WidgetInteraction(e);
       }
     else
       {
-      vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
+      vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
         Point3WidgetInteraction(e);
       }
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
@@ -455,16 +456,16 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     {
     // moving outer portion of line -- rotating
     self->RequestCursorShape(VTK_CURSOR_HAND);
-    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
+    vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
   
   else if ( self->Line1InnerSelected )
     {//must be moving inner portion of line 1 -- line translation
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint1DisplayPosition(p1);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint2DisplayPosition(p2);
     slope = VTK_DOUBLE_MAX;
     if (p1[0] != p2[0])
@@ -480,16 +481,16 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       self->RequestCursorShape(VTK_CURSOR_SIZEWE);
       }
 
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
   else if ( self->Line2InnerSelected )
     {//must be moving inner portion of line 2 -- line translation
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint3DisplayPosition(p1);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint4DisplayPosition(p2);
     slope = VTK_DOUBLE_MAX;
     if (p1[0] != p2[0])
@@ -505,16 +506,16 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       self->RequestCursorShape(VTK_CURSOR_SIZEWE);
       }
 
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
   else if ( self->HandleLine1Selected )
     { // moving one of the endpoints of line 1
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint1DisplayPosition(p1);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint2DisplayPosition(p2);
     slope = VTK_DOUBLE_MAX;
     if (p1[0] != p2[0])
@@ -530,16 +531,16 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       self->RequestCursorShape(VTK_CURSOR_SIZENS);
       }
 
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
   else if ( self->HandleLine2Selected )
     { // moving one of the endpoints of line 2
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint3DisplayPosition(p1);
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       GetPoint4DisplayPosition(p2);
     slope = VTK_DOUBLE_MAX;
     if (p1[0] != p2[0])
@@ -555,7 +556,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       self->RequestCursorShape(VTK_CURSOR_SIZENS);
       }
 
-    reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+    reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
@@ -563,7 +564,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
   else if ( self->CenterSelected )
     {//grabbing center intersection point
     self->RequestCursorShape(VTK_CURSOR_SIZEALL);
-    vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->
+    vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
@@ -571,20 +572,20 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
   else // just moving around, nothing yet selected
     {
     int state = self->WidgetRep->ComputeInteractionState(X,Y);
-    if ( state == vtkBiDimensionalRepresentation2D::Outside )
+    if ( state == vtkBiDimensionalRepresentation::Outside )
       {
       self->RequestCursorShape(VTK_CURSOR_DEFAULT);
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnCenter )
+    else if ( state == vtkBiDimensionalRepresentation::OnCenter )
       {
       self->RequestCursorShape(VTK_CURSOR_SIZEALL);
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::NearP1 ||
-              state == vtkBiDimensionalRepresentation2D::NearP2 )
+    else if ( state == vtkBiDimensionalRepresentation::NearP1 ||
+              state == vtkBiDimensionalRepresentation::NearP2 )
       {
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint1DisplayPosition(p1);
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint2DisplayPosition(p2);
       slope = VTK_DOUBLE_MAX;
       if (p1[0] != p2[0])
@@ -600,12 +601,12 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
         self->RequestCursorShape(VTK_CURSOR_SIZENS);
         }
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::NearP3 ||
-              state == vtkBiDimensionalRepresentation2D::NearP4 )
+    else if ( state == vtkBiDimensionalRepresentation::NearP3 ||
+              state == vtkBiDimensionalRepresentation::NearP4 )
       {
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint3DisplayPosition(p1);
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint4DisplayPosition(p2);
       slope = VTK_DOUBLE_MAX;
       if (p1[0] != p2[0])
@@ -621,11 +622,11 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
         self->RequestCursorShape(VTK_CURSOR_SIZENS);
         }
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnL1Inner )
+    else if ( state == vtkBiDimensionalRepresentation::OnL1Inner )
       {
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint1DisplayPosition(p1);
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint2DisplayPosition(p2);
       slope = VTK_DOUBLE_MAX;
       if (p1[0] != p2[0])
@@ -641,11 +642,11 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
         self->RequestCursorShape(VTK_CURSOR_SIZEWE);
         }
       }
-    else if ( state == vtkBiDimensionalRepresentation2D::OnL2Inner )
+    else if ( state == vtkBiDimensionalRepresentation::OnL2Inner )
       {
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint3DisplayPosition(p1);
-      reinterpret_cast<vtkBiDimensionalRepresentation2D*>(self->WidgetRep)->
+      reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
         GetPoint4DisplayPosition(p2);
       slope = VTK_DOUBLE_MAX;
       if (p1[0] != p2[0])
@@ -699,10 +700,10 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
   self->CurrentHandle = (-1);
   self->WidgetRep->BuildRepresentation();
   int state = self->WidgetRep->GetInteractionState();
-  if ( state == vtkBiDimensionalRepresentation2D::NearP1 ||
-       state == vtkBiDimensionalRepresentation2D::NearP2 ||
-       state == vtkBiDimensionalRepresentation2D::NearP3 ||
-       state == vtkBiDimensionalRepresentation2D::NearP4 )
+  if ( state == vtkBiDimensionalRepresentation::NearP1 ||
+       state == vtkBiDimensionalRepresentation::NearP2 ||
+       state == vtkBiDimensionalRepresentation::NearP3 ||
+       state == vtkBiDimensionalRepresentation::NearP4 )
     {
     self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
     }
@@ -742,7 +743,7 @@ void vtkBiDimensionalWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalWidget::WidgetIsDefined()
+void vtkBiDimensionalWidget::SetWidgetStateToManipulate()
 {
   this->WidgetState = vtkBiDimensionalWidget::Manipulate;
   this->CurrentHandle = -1;
@@ -755,12 +756,6 @@ void vtkBiDimensionalWidget::WidgetIsDefined()
   this->CenterSelected = 0;
   this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
   this->ReleaseFocus();
-}
-
-//----------------------------------------------------------------------
-int vtkBiDimensionalWidget::IsWidgetDefined()
-{
-  return this->WidgetState == vtkBiDimensionalWidget::Manipulate;
 }
 
 //----------------------------------------------------------------------

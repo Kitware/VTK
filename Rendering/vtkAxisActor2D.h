@@ -21,7 +21,7 @@
 // points defining the start and end points of the line (x-y definition using
 // vtkCoordinate class), the number of labels, and the data range
 // (min,max). You can also control what parts of the axis are visible
-// including the line, the tick marks, the labels, and the title.  You can 
+// including the line, the tick marks, the labels, and the title.  You can
 // also specify the label format (a printf style format).
 //
 // This class decides what font size to use and how to locate the labels. It
@@ -30,19 +30,19 @@
 // should be close.
 //
 // Labels are drawn on the "right" side of the axis. The "right" side is
-// the side of the axis on the right as you move from Position to Position2. 
+// the side of the axis on the right as you move from Position to Position2.
 // The way the labels and title line up with the axis and tick marks depends on
 // whether the line is considered horizontal or vertical.
 //
-// The vtkActor2D instance variables Position and Position2 are instances of 
-// vtkCoordinate. Note that the Position2 is an absolute position in that 
+// The vtkActor2D instance variables Position and Position2 are instances of
+// vtkCoordinate. Note that the Position2 is an absolute position in that
 // class (it was by default relative to Position in vtkActor2D).
 //
 // What this means is that you can specify the axis in a variety of coordinate
 // systems. Also, the axis does not have to be either horizontal or vertical.
 // The tick marks are created so that they are perpendicular to the axis.
 //
-// Set the text property/attributes of the title and the labels through the 
+// Set the text property/attributes of the title and the labels through the
 // vtkTextProperty objects associated to this actor.
 //
 // .SECTION See Also
@@ -76,7 +76,7 @@ public:
   // Description:
   // Specify the position of the first point defining the axis.
   // Note: backward compatibility only, use vtkActor2D's Position instead.
-  virtual vtkCoordinate *GetPoint1Coordinate() 
+  virtual vtkCoordinate *GetPoint1Coordinate()
     { return this->GetPositionCoordinate(); };
   virtual void SetPoint1(double x[2]) { this->SetPosition(x); };
   virtual void SetPoint1(double x, double y) { this->SetPosition(x,y); };
@@ -87,7 +87,7 @@ public:
   // the order from Point1 to Point2 controls which side the tick marks
   // are drawn on (ticks are drawn on the right, if visible).
   // Note: backward compatibility only, use vtkActor2D's Position2 instead.
-  virtual vtkCoordinate *GetPoint2Coordinate() 
+  virtual vtkCoordinate *GetPoint2Coordinate()
     { return this->GetPosition2Coordinate(); };
   virtual void SetPoint2(double x[2]) { this->SetPosition2(x); };
   virtual void SetPoint2(double x, double y) { this->SetPosition2(x,y); };
@@ -100,10 +100,26 @@ public:
   vtkGetVectorMacro(Range,double,2);
 
   // Description:
-  // Set/Get the number of annotation labels to show.
+  // Specify whether this axis should act like a measuring tape (or ruler) with
+  // specified major tick spacing. If enabled, the distance between major ticks
+  // is controlled by the RulerDistance ivar.
+  vtkSetMacro(RulerMode,int);
+  vtkGetMacro(RulerMode,int);
+  vtkBooleanMacro(RulerMode,int);
+
+  // Description:
+  // Specify the RulerDistance which indicates the spacing of the major ticks.
+  // This ivar only has effect when the RulerMode is on.
+  vtkSetClampMacro(RulerDistance,double,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(RulerDistance,double);
+
+  // Description:
+  // Set/Get the number of annotation labels to show. This also controls the
+  // number of major ticks shown. Note that this ivar only holds meaning if
+  // the RulerMode is off.
   vtkSetClampMacro(NumberOfLabels, int, 2, VTK_MAX_LABELS);
   vtkGetMacro(NumberOfLabels, int);
-  
+
   // Description:
   // Set/Get the format with which to print the labels on the scalar
   // bar.
@@ -112,32 +128,33 @@ public:
 
   // Description:
   // Set/Get the flag that controls whether the labels and ticks are
-  // adjusted for "nice" numerical values to make it easier to read 
+  // adjusted for "nice" numerical values to make it easier to read
   // the labels. The adjustment is based in the Range instance variable.
   // Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
-  // range and number of labels.
+  // range and number of labels. Note that if RulerMode is on, then the
+  // number of labels is a function of the range and ruler distance.
   vtkSetMacro(AdjustLabels, int);
   vtkGetMacro(AdjustLabels, int);
   vtkBooleanMacro(AdjustLabels, int);
   virtual double *GetAdjustedRange()
-    { 
+    {
       this->UpdateAdjustedRange();
-      return this->AdjustedRange; 
+      return this->AdjustedRange;
     }
   virtual void GetAdjustedRange(double &_arg1, double &_arg2)
-    { 
+    {
       this->UpdateAdjustedRange();
       _arg1 = this->AdjustedRange[0];
       _arg2 = this->AdjustedRange[1];
-    }; 
-  virtual void GetAdjustedRange(double _arg[2]) 
-    { 
+    };
+  virtual void GetAdjustedRange(double _arg[2])
+    {
       this->GetAdjustedRange(_arg[0], _arg[1]);
-    } 
+    }
   virtual int GetAdjustedNumberOfLabels()
     {
       this->UpdateAdjustedRange();
-      return this->AdjustedNumberOfLabels; 
+      return this->AdjustedNumberOfLabels;
     }
 
   // Description:
@@ -149,15 +166,15 @@ public:
   // Set/Get the title text property.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the labels text property.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-      
+
   // Description:
   // Set/Get the length of the tick marks (expressed in pixels or display
-  // coordinates). 
+  // coordinates).
   vtkSetClampMacro(TickLength, int, 0, 100);
   vtkGetMacro(TickLength, int);
 
@@ -172,14 +189,14 @@ public:
   // display coordinates).
   vtkSetClampMacro(MinorTickLength, int, 0, 100);
   vtkGetMacro(MinorTickLength, int);
-  
+
   // Description:
   // Set/Get the offset of the labels (expressed in pixels or display
   // coordinates). The offset is the distance of labels from tick marks
   // or other objects.
   vtkSetClampMacro(TickOffset, int, 0, 100);
   vtkGetMacro(TickOffset, int);
-  
+
   // Description:
   // Set/Get visibility of the axis line.
   vtkSetMacro(AxisVisibility, int);
@@ -224,15 +241,15 @@ public:
   vtkGetMacro(LabelFactor, double);
 
   // Description:
-  // Draw the axis. 
+  // Draw the axis.
   int RenderOverlay(vtkViewport* viewport);
   int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -240,7 +257,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // This method computes the range of the axis given an input range. 
+  // This method computes the range of the axis given an input range.
   // It also computes the number of tick marks given a suggested number.
   // (The number of tick marks includes end ticks as well.)
   // The number of tick marks computed (in conjunction with the output
@@ -248,24 +265,24 @@ public:
   // is (0.25,96.7) and the number of ticks requested is 10, the output range
   // will be (0,100) with the number of computed ticks to 11 to yield tick
   // values of (0,10,20,...,100).
-  static void ComputeRange(double inRange[2], 
+  static void ComputeRange(double inRange[2],
                            double outRange[2],
-                           int inNumTicks, 
-                           int &outNumTicks, 
+                           int inNumTicks,
+                           int &outNumTicks,
                            double &interval);
 
   // Description:
-  // General method to computes font size from a representative size on the 
+  // General method to computes font size from a representative size on the
   // viewport (given by size[2]). The method returns the font size (in points)
   // and the string height/width (in pixels). It also sets the font size of the
   // instance of vtkTextMapper provided. The factor is used when you're trying
   // to create text of different size-factor (it is usually = 1 but you can
   // adjust the font size by making factor larger or smaller).
-  static int SetMultipleFontSize(vtkViewport *viewport, 
-                                 vtkTextMapper **textMappers, 
-                                 int nbOfMappers, 
+  static int SetMultipleFontSize(vtkViewport *viewport,
+                                 vtkTextMapper **textMappers,
+                                 int nbOfMappers,
                                  int *targetSize,
-                                 double factor, 
+                                 double factor,
                                  int *stringSize);
 
   // Description:
@@ -289,6 +306,8 @@ protected:
   char  *Title;
   double Range[2];
   double TitlePosition;
+  int    RulerMode;
+  double RulerDistance;
   int   NumberOfLabels;
   char  *LabelFormat;
   int   AdjustLabels;
@@ -307,22 +326,22 @@ protected:
   int   TickVisibility;
   int   LabelVisibility;
   int   TitleVisibility;
-  
+
   int   LastPosition[2];
   int   LastPosition2[2];
-  
+
   int   LastSize[2];
   int   LastMaxLabelSize[2];
-  
+
   int  SizeFontRelativeToAxis;
 
   virtual void BuildAxis(vtkViewport *viewport);
   static double ComputeStringOffset(double width, double height, double theta);
-  static void SetOffsetPosition(double xTick[3], double theta, 
-                                int stringHeight, int stringWidth, 
+  static void SetOffsetPosition(double xTick[3], double theta,
+                                int stringHeight, int stringWidth,
                                 int offset, vtkActor2D *actor);
   virtual void UpdateAdjustedRange();
-  
+
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
 

@@ -514,7 +514,31 @@ void vtkLineRepresentation::PlaceWidget(double bds[6])
 //----------------------------------------------------------------------------
 int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
-  // See if we are near one of the end points or outside
+  // Check if we are on end points. Use the handles to determine this.
+  int p1State = this->Point1Representation->ComputeInteractionState(X,Y,0);
+  int p2State = this->Point2Representation->ComputeInteractionState(X,Y,0);
+  if ( p1State == vtkHandleRepresentation::Nearby )
+    {
+    this->InteractionState = vtkLineRepresentation::OnP1;
+    this->SetRepresentationState(vtkLineRepresentation::OnP1);
+    }
+  else if ( p2State == vtkHandleRepresentation::Nearby )
+    {
+    this->InteractionState = vtkLineRepresentation::OnP2;
+    this->SetRepresentationState(vtkLineRepresentation::OnP2);
+    }
+  else
+    {
+    this->InteractionState = vtkLineRepresentation::Outside;
+    }
+
+  // Okay if we're near a handle return, otherwise test the line
+  if ( this->InteractionState != vtkLineRepresentation::Outside )
+    {
+    return this->InteractionState;
+    }
+
+  // Check if we are on edges
   double pos1[3], pos2[3];
   this->GetPoint1DisplayPosition(pos1);
   this->GetPoint2DisplayPosition(pos2);
@@ -530,21 +554,7 @@ int vtkLineRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
   xyz[2] = p1[2] = p2[2] = 0.0;
 
   double tol2 = this->Tolerance*this->Tolerance;
-  // Check if we are on end points
-  if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
-    {
-    this->InteractionState = vtkLineRepresentation::OnP1;
-    this->SetRepresentationState(vtkLineRepresentation::OnP1);
-    return this->InteractionState;
-    }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
-    {
-    this->InteractionState = vtkLineRepresentation::OnP2;
-    this->SetRepresentationState(vtkLineRepresentation::OnP2);
-    return this->InteractionState;
-    }
 
-  // Check if we are on edges
   int onLine = (vtkLine::DistanceToLine(xyz,p1,p2,t,closest) <= tol2);
   if ( onLine && t < 1.0 && t > 0.0 )
     {
@@ -684,6 +694,12 @@ void vtkLineRepresentation::BuildRepresentation()
       this->InitializedDisplayPosition = 1;
       }
 
+    // Make sure that tolerance is consistent between handles and this representation
+    this->Point1Representation->SetTolerance(this->Tolerance);
+    this->Point2Representation->SetTolerance(this->Tolerance);
+    this->LineHandleRepresentation->SetTolerance(this->Tolerance);
+
+    // Retrieve end point information
     double x1[3], x2[3];
     this->GetPoint1WorldPosition(x1);
     this->LineSource->SetPoint1(x1);

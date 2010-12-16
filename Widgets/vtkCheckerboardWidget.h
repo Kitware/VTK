@@ -76,6 +76,11 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
+  // Return the representation as a vtkCheckerboardRepresentation.
+  vtkCheckerboardRepresentation *GetCheckerboardRepresentation()
+    {return reinterpret_cast<vtkCheckerboardRepresentation*>(this->WidgetRep);}
+
+  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 

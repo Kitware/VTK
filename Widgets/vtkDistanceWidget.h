@@ -99,6 +99,11 @@ public:
       reinterpret_cast<vtkWidgetRepresentation*>(r));}
 
   // Description:
+  // Return the representation as a vtkDistanceRepresentation.
+  vtkDistanceRepresentation *GetDistanceRepresentation()
+    {return reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep);}
+
+  // Description:
   // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
@@ -108,24 +113,31 @@ public:
   virtual void SetProcessEvents(int);
 
   // Description:
-  // Set the state of the widget to "defined" (in case its widget and its
-  // representation were initialized programmatically). This must generally
-  // be followed by a Render() for things to visually take effect.
-  virtual void WidgetIsDefined();
+  // Description:
+  // Enum defining the state of the widget. By default the widget is in Start mode,
+  // and expects to be interactively placed. While placing the points the widget
+  // transitions to Define state. Once placed, the widget enters the Manipulate state.
+  //BTX
+  enum {Start=0,Define,Manipulate};
+  //ETX
 
   // Description:
-  // Has the widget been defined completely yet ? ie. Have the end points been
-  // laid and is it in Manipulate mode ?
-  virtual int IsWidgetDefined();
+  // Set the state of the widget to "Manipulate" (in case its widget and its
+  // representation will be initialized programmatically and is not interactively
+  // placed). This must generally be followed by a Render() for things to visually
+  // take effect.
+  virtual void SetWidgetStateToManipulate();
+
+  // Description:
+  // Return the current widget state.
+  virtual int GetWidgetState()
+    {return this->WidgetState;}
 
 protected:
   vtkDistanceWidget();
   ~vtkDistanceWidget();
 
   // The state of the widget
-//BTX
-  enum {Start=0,Define,Manipulate};
-//ETX
   int WidgetState;
   int CurrentHandle;
 

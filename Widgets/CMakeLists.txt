@@ -20,6 +20,7 @@ vtkAngleWidget.cxx
 vtkBalloonRepresentation.cxx
 vtkBalloonWidget.cxx
 vtkBezierContourLineInterpolator.cxx
+vtkBiDimensionalRepresentation.cxx
 vtkBiDimensionalRepresentation2D.cxx
 vtkBiDimensionalWidget.cxx
 vtkBorderRepresentation.cxx
@@ -47,6 +48,7 @@ vtkDijkstraImageContourLineInterpolator.cxx
 vtkDistanceWidget.cxx
 vtkDistanceRepresentation.cxx
 vtkDistanceRepresentation2D.cxx
+vtkDistanceRepresentation3D.cxx
 vtkEllipsoidTensorProbeRepresentation.cxx
 vtkEvent.cxx
 vtkFocalPlanePointPlacer.cxx
@@ -124,6 +126,7 @@ vtkAbstractWidget
 vtkAbstractPolygonalHandleRepresentation3D
 vtkAffineRepresentation
 vtkAngleRepresentation
+vtkBiDimensionalRepresentation
 vtkContinuousValueWidget
 vtkContinuousValueWidgetRepresentation
 vtkContourLineInterpolator
