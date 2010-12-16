@@ -83,13 +83,13 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
 {
   int contiguous = 0;
   int numComp = this->Input->GetNumberOfScalarComponents();
-  int xdim, ydim;
 
   reuseTexture = 0;
   
-  // it must be a power of two and contiguous
-  // find the two used dimensions
-  // this assumes a 2D image, no lines here folk
+  // find dimension indices that will correspond to the
+  // columns and rows of the 2D texture
+  int xdim = 1;
+  int ydim = 2;
   if (this->ComputedDisplayExtent[0] != this->ComputedDisplayExtent[1])
     {
     xdim = 0;
@@ -97,15 +97,6 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
       {
       ydim = 1;
       }
-    else
-      {
-      ydim = 2;
-      }
-    }
-  else
-    {
-    xdim = 1;
-    ydim = 2;
     }
   
   double *spacing = this->Input->GetSpacing();
