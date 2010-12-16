@@ -25,6 +25,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkTypeUInt64Array.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -173,12 +174,14 @@ int vtkArrayToTable::RequestData(
 
     if(ConvertVector<double, vtkDoubleArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkTypeUInt32, vtkUnsignedIntArray>(input_array, output_table)) return 1;
+    if(ConvertVector<vtkTypeUInt64, vtkTypeUInt64Array>(input_array, output_table)) return 1;
     if(ConvertVector<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
     
     if(ConvertMatrix<double, vtkDoubleArray>(input_array, output_table)) return 1;
-    if(ConvertVector<vtkTypeUInt32, vtkUnsignedIntArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<vtkTypeUInt32, vtkUnsignedIntArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<vtkTypeUInt64, vtkTypeUInt64Array>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
