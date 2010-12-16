@@ -312,6 +312,17 @@ void vtkBiDimensionalRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ID: " << this->ID << "\n";
 
+  double labelPosition[3] = {0.0, 0.0, 0.0};
+  this->GetLabelPosition(labelPosition);
+  os << indent << "Label Position: (" << labelPosition[0]
+    << ", " << labelPosition[1] << "," << labelPosition[2] << ")\n";
+
+  double worldLabelPosition[3] = {0.0, 0.0, 0.0};
+  this->GetWorldLabelPosition(worldLabelPosition);
+  os << indent << "World Label Position: (" << worldLabelPosition[0]
+    << ", " << worldLabelPosition[1] << "," << worldLabelPosition[2] << ")\n";
+
+  os << indent << "Label Text: " << this->GetLabelText() << "\n";
   os << indent << "Label Format: ";
   if ( this->LabelFormat )
     {
