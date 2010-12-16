@@ -165,7 +165,7 @@ void SODHalo::setParticles(
                         vector<POSVEL_T>* pmass,
                         vector<ID_T>* id)
 {
-  this->particleCount = xLoc->size();
+  this->particleCount = (long)xLoc->size();
 
   // Extract the contiguous data block from a vector pointer
   this->xx = &(*xLoc)[0];
