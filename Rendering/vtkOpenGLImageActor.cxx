@@ -82,8 +82,6 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
                                                      int &reuseTexture)
 {
   int contiguous = 0;
-  unsigned short xs,ys;
-  int powOfTwo = 0;
   int numComp = this->Input->GetNumberOfScalarComponents();
   int xdim, ydim;
 
@@ -149,34 +147,15 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     contiguous = 1;
     }
       
-  // if contiguous is it a pow of 2
   if (contiguous)
     {
-    xsize = ext[xdim*2+1] - ext[xdim*2] + 1;
-    // xsize and ysize must be a power of 2 in OpenGL
-    xs = static_cast<unsigned short>(xsize);
-    while (!(xs & 0x01))
-      {
-      xs = xs >> 1;
-      }
-    if (xs == 1)
-      {
-      powOfTwo = 1;
-      }
-    }
-  
-  if (contiguous && powOfTwo)
-    {
-    // can we make y a power of two also ?
+    xsize = (this->ComputedDisplayExtent[xdim*2+1] -
+             this->ComputedDisplayExtent[xdim*2] + 1);
     ysize = (this->ComputedDisplayExtent[ydim*2+1] -
              this->ComputedDisplayExtent[ydim*2] + 1);
-    ys = static_cast<unsigned short>(ysize);
-    while (!(ys & 0x01))
-      {
-      ys = ys >> 1;
-      }
-    // yes it is a power of two already
-    if (ys == 1)
+    // are the dimensions a power of two already?
+    if (xsize > 0 && (xsize & (xsize-1)) == 0 &&
+        ysize > 0 && (ysize & (ysize-1)) == 0)
       {
       release = 0;
       this->TCoords[0] = (this->ComputedDisplayExtent[xdim*2] - 
