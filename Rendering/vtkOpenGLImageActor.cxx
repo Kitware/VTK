@@ -81,7 +81,6 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
                                                      int &release,
                                                      int &reuseTexture)
 {
-  int contiguous = 0;
   int numComp = this->Input->GetNumberOfScalarComponents();
 
   // the texture can only be reused under certain circumstances
@@ -125,61 +124,6 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   this->Coords[10] = 
     this->ComputedDisplayExtent[2 + (ydim == 1)]*spacing[1] + origin[1];
   this->Coords[11] = this->ComputedDisplayExtent[5]*spacing[2] + origin[2];
-  
-  // now contiguous would require that xdim = 0 and ydim = 1
-  // OR xextent = 1 pixel and xdim = 1 and ydim = 2 
-  // OR xdim = 0 and ydim = 2 and yextent = i pixel. In addition
-  // the corresponding x display extents must match the 
-  // extent of the data
-  int *ext = this->Input->GetExtent();
-  
-  if ( ( xdim == 0 && ydim == 1 && 
-         this->ComputedDisplayExtent[0] == ext[0] && 
-         this->ComputedDisplayExtent[1] == ext[1] )||
-       ( ext[0] == ext[1] && xdim == 1 && 
-         this->ComputedDisplayExtent[2] == ext[2] && 
-         this->ComputedDisplayExtent[3] == ext[3] ) ||
-       ( ext[2] == ext[3] && xdim == 0 && ydim == 2 &&
-         this->ComputedDisplayExtent[0] == ext[0] && 
-         this->ComputedDisplayExtent[1] == ext[1] ) )
-    {
-    contiguous = 1;
-
-    // are the dimensions a power of two already?
-    if (xsizeImage > 0 && (xsizeImage & (xsizeImage-1)) == 0 &&
-        ysizeImage > 0 && (ysizeImage & (ysizeImage-1)) == 0)
-      {
-      // the image can be loaded directly
-      release = 0;
-      xsize = xsizeImage;
-      ysize = ysizeImage;
-
-      this->TCoords[0] = 0.5/xsize;
-      this->TCoords[1] = 0.5/ysize;  
-      this->TCoords[2] = (xsize - 0.5)/xsize;
-      this->TCoords[3] = this->TCoords[1];  
-      this->TCoords[4] = this->TCoords[2];
-      this->TCoords[5] = (ysize - 0.5)/ysize;
-      this->TCoords[6] = this->TCoords[0];
-      this->TCoords[7] = this->TCoords[5];
-
-#ifdef GL_VERSION_1_1
-      // if texture size hasn't changed, reuse old texture
-      if (xsize == this->TextureSize[0] &&
-          ysize == this->TextureSize[1] &&
-          numComp == this->TextureBytesPerPixel)
-        {
-        reuseTexture = 1;
-        }
-#endif
-
-      return static_cast<unsigned char *>(
-        this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
-      }
-    }
-  
-  // if we made it here then we must copy the data and
-  // possibly pad its size to a power of two
 
   // find the target size of the texture
   int xsizeTexture = 1;
@@ -220,15 +164,36 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     }
 #endif
 
-  // if contiguous and texture size hasn't changed, don't copy or pad
-  if (reuseTexture && contiguous)
+  // if the image is already of the desired size
+  if (xsize == xsizeImage && ysize == ysizeImage)
     {
-    release = 0;
-    return static_cast<unsigned char *>(
-      this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
+    // Check if the data needed for the texture is a contiguous region
+    // of the input data: this requires that xdim = 0 and ydim = 1
+    // OR xextent = 1 pixel and xdim = 1 and ydim = 2
+    // OR xdim = 0 and ydim = 2 and yextent = 1 pixel.
+    // In addition the corresponding x display extents must match the
+    // extent of the data
+    int *extent = this->Input->GetExtent();
+
+    if ( ( xdim == 0 && ydim == 1 &&
+           this->ComputedDisplayExtent[0] == extent[0] &&
+           this->ComputedDisplayExtent[1] == extent[1] )||
+         ( extent[0] == extent[1] && xdim == 1 &&
+           this->ComputedDisplayExtent[2] == extent[2] &&
+           this->ComputedDisplayExtent[3] == extent[3] ) ||
+         ( extent[2] == extent[3] && xdim == 0 && ydim == 2 &&
+           this->ComputedDisplayExtent[0] == extent[0] &&
+           this->ComputedDisplayExtent[1] == extent[1] ) )
+      {
+      // if contiguous, then use the input data as-is
+      release = 0;
+      return static_cast<unsigned char *>(
+        this->Input->GetScalarPointerForExtent(
+          this->ComputedDisplayExtent));
+      }
     }
 
-  // allocate the memory
+  // could not directly use input data, so allocate a new array
   unsigned char *res = new unsigned char [ysize*xsize*numComp];
   release = 1;
   
