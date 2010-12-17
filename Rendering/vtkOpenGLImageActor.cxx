@@ -154,14 +154,12 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
       xsize = xsizeImage;
       ysize = ysizeImage;
 
-      this->TCoords[0] = (this->ComputedDisplayExtent[xdim*2] - 
-                          ext[xdim*2] + 0.5)/xsize;
+      this->TCoords[0] = 0.5/xsize;
       this->TCoords[1] = 0.5/ysize;  
-      this->TCoords[2] = (this->ComputedDisplayExtent[xdim*2+1] -
-                          ext[xdim*2] + 0.5)/xsize;
+      this->TCoords[2] = (xsize - 0.5)/xsize;
       this->TCoords[3] = this->TCoords[1];  
       this->TCoords[4] = this->TCoords[2];
-      this->TCoords[5] = 1.0 - 0.5/ysize;  
+      this->TCoords[5] = (ysize - 0.5)/ysize;
       this->TCoords[6] = this->TCoords[0];
       this->TCoords[7] = this->TCoords[5];
 
