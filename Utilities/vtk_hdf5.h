@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtk_zlib.h
+  Module:    vtk_hdf5.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,7 @@
 
 /* Use the zlib library configured for VTK.  */
 #include "vtkToolkits.h"
-#ifdef VTK_USE_HDF5_ZLIB
+#ifdef VTK_USE_SYSTEM_HDF5
 # include <hdf5.h>
 #else
 # include <vtkhdf5/hdf5.h>
