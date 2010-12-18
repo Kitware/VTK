@@ -24,9 +24,16 @@
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkCharArray.h"
+#include "vtkShortArray.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedShortArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkTypeUInt64Array.h"
+#include "vtkUnsignedLongLongArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -174,17 +181,34 @@ int vtkArrayToTable::RequestData(
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
     if(ConvertVector<double, vtkDoubleArray>(input_array, output_table)) return 1;
+    if(ConvertVector<unsigned char, vtkUnsignedCharArray>(input_array, output_table)) return 1;
+    if(ConvertVector<unsigned short, vtkUnsignedShortArray>(input_array, output_table)) return 1;
     if(ConvertVector<unsigned int, vtkUnsignedIntArray>(input_array, output_table)) return 1;
     if(ConvertVector<unsigned long, vtkUnsignedLongArray>(input_array, output_table)) return 1;
+    if(ConvertVector<unsigned long long, vtkUnsignedLongLongArray>(input_array, output_table)) return 1;
     if(ConvertVector<long unsigned int, vtkUnsignedLongArray>(input_array, output_table)) return 1;
+    if(ConvertVector<char, vtkCharArray>(input_array, output_table)) return 1;
+    if(ConvertVector<short, vtkShortArray>(input_array, output_table)) return 1;
+    if(ConvertVector<long, vtkLongArray>(input_array, output_table)) return 1;
+    if(ConvertVector<long long, vtkLongLongArray>(input_array, output_table)) return 1;
+    if(ConvertVector<long int, vtkLongArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
     
     if(ConvertMatrix<double, vtkDoubleArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<unsigned char, vtkUnsignedCharArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<unsigned short, vtkUnsignedShortArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<unsigned int, vtkUnsignedIntArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<unsigned long, vtkUnsignedLongArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<unsigned long long, vtkUnsignedLongLongArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<long unsigned int, vtkUnsignedLongArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<char, vtkCharArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<short, vtkShortArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<int, vtkIntArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<long, vtkLongArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<long long, vtkLongLongArray>(input_array, output_table)) return 1;
+    if(ConvertMatrix<long int, vtkLongArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
