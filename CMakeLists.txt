@@ -748,6 +748,8 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
 VTK_THIRD_PARTY_OPTION(ZLIB zlib)
+VTK_THIRD_PARTY_OPTION(HDF5 hdf5)
+INCLUDE(vtkHDF5Library)
 IF(VTK_USE_GL2PS)
 VTK_THIRD_PARTY_OPTION(GL2PS gl2ps)
 ENDIF(VTK_USE_GL2PS)
