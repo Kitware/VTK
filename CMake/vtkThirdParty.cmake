@@ -48,7 +48,12 @@ ENDMACRO(VTK_THIRD_PARTY_INCLUDE2)
 #-----------------------------------------------------------------------------
 MACRO(VTK_THIRD_PARTY_SUBDIR upper lower)
   IF(NOT VTK_USE_SYSTEM_${upper})
+    # we don't want to build third party tests.
+    SET(__vtk_build_testing ${BUILD_TESTING})
+    SET(BUILD_TESTING OFF)
     ADD_SUBDIRECTORY(${lower})
+    # restore BUILD_TESTING
+    SET (BUILD_TESTING ${__vtk_build_testing})
   ENDIF(NOT VTK_USE_SYSTEM_${upper})
 ENDMACRO(VTK_THIRD_PARTY_SUBDIR)
 
