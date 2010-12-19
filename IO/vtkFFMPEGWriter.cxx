@@ -367,28 +367,22 @@ void vtkFFMPEGWriterInternal::End()
     {
     av_free(this->yuvOutput->data[0]);
     av_free(this->yuvOutput);
-    this->yuvOutput = 0;
+    this->yuvOutput = NULL;
     }
 
   if (this->rgbInput) 
     {
     av_free(this->rgbInput->data[0]);
     av_free(this->rgbInput);
-    this->rgbInput = 0;
+    this->rgbInput = NULL;
     }
   
   if (this->codecBuf)
     {
     av_free(this->codecBuf);
-    this->codecBuf = 0;
+    this->codecBuf = NULL;
     }
 
-  if (this->avStream)
-    {
-    av_free(this->avStream); 
-    this->avStream = 0;
-    }
-  
   if (this->avFormatContext)
     {          
     if (this->openedFile)
@@ -401,11 +395,17 @@ void vtkFFMPEGWriterInternal::End()
 #endif
       this->openedFile = 0;
       }
-    
+
     av_free(this->avFormatContext);
     this->avFormatContext = 0;
     }
-  
+
+  if (this->avStream)
+    {
+    av_free(this->avStream);
+    this->avStream = NULL;
+    }
+
   if (this->avOutputFormat)
     {
     //Next line was done inside av_free(this->avFormatContext).
