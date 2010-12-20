@@ -127,6 +127,22 @@ void vtkChart::RecalculateBounds()
 }
 
 //-----------------------------------------------------------------------------
+void vtkChart::SetShowLegend(bool visible)
+{
+  if (this->ShowLegend != visible)
+    {
+    this->ShowLegend = visible;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChart::GetShowLegend()
+{
+  return this->ShowLegend;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
                                       vtkTransform2D *transform)
 {

@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP, PARALLEL).
-  vtkSetMacro(Position, int);
+  virtual void SetPosition(int position);
   vtkGetMacro(Position, int);
 
   // Description:

@@ -32,7 +32,6 @@ class vtkTextProperty;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
-class vtkTable;
 
 class VTK_CHARTS_EXPORT vtkChart : public vtkContextItem
 {
@@ -124,8 +123,8 @@ public:
 
   // Description:
   // Set/get whether the chart should draw a legend.
-  vtkSetMacro(ShowLegend, bool);
-  vtkGetMacro(ShowLegend, bool);
+  virtual void SetShowLegend(bool visible);
+  virtual bool GetShowLegend();
 
   // Description:
   // Get/set the title text of the chart.

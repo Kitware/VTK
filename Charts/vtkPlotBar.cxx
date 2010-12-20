@@ -112,7 +112,8 @@ class vtkPlotBarSegment : public vtkObject {
       this->Previous = 0;
       }
 
-    void Configure(vtkPlotBar *bar,vtkDataArray *x_array, vtkDataArray *y_array,vtkPlotBarSegment *prev)
+    void Configure(vtkPlotBar *bar, vtkDataArray *x_array,
+                   vtkDataArray *y_array, vtkPlotBarSegment *prev)
       {
       this->Bar = bar;
       this->Sorted = false;
@@ -144,29 +145,32 @@ class vtkPlotBarSegment : public vtkObject {
         }
       }
 
-    void Paint(vtkContext2D *painter, vtkPen *pen, vtkBrush *brush, float width, float offset)
+    void Paint(vtkContext2D *painter, vtkPen *pen, vtkBrush *brush,
+               float width, float offset)
       {
       painter->ApplyPen(pen);
       painter->ApplyBrush(brush);
       int n = this->Points->GetNumberOfPoints();
-      float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
+      float *f =
+          vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
       float *p = 0;
       if (this->Previous)
-        p = vtkFloatArray::SafeDownCast(this->Previous->Points->GetData())->GetPointer(0);
+        p = vtkFloatArray::SafeDownCast(
+              this->Previous->Points->GetData())->GetPointer(0);
 
       for (int i = 0; i < n; ++i)
         {
         if (p)
-          painter->DrawRect(f[2*i]-(width/2)-offset, p[2*i+1], width, f[2*i+1] - p[2*i+1]);
+          painter->DrawRect(f[2*i]-(width/2)-offset, p[2*i+1],
+                            width, f[2*i+1] - p[2*i+1]);
         else
-          painter->DrawRect(f[2*i]-(width/2)-offset, 0.0, width, f[2*i+1]);
+          painter->DrawRect(f[2*i]-(width/2)-offset, 0.0,
+                            width, f[2*i+1]);
         }
       }
 
-    bool GetNearestPoint(const vtkVector2f& point,
-                                     vtkVector2f* location,
-                                     float width,
-                                     float offset)
+    bool GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
+                         float width, float offset)
       {
       if (!this->Points)
         {
@@ -227,7 +231,7 @@ class vtkPlotBarSegment : public vtkObject {
       return false;
       }
 
-    vtkSmartPointer<vtkPlotBarSegment>Previous;
+    vtkSmartPointer<vtkPlotBarSegment> Previous;
     vtkSmartPointer<vtkPoints2D> Points;
     vtkPlotBar *Bar;
     bool Sorted;
@@ -235,64 +239,64 @@ class vtkPlotBarSegment : public vtkObject {
 
 vtkStandardNewMacro(vtkPlotBarSegment);
 
-class vtkPlotBarPrivate {
-  public:
-    vtkPlotBarPrivate(vtkPlotBar *bar) : Bar(bar) {}
-    void Update()
-      {
-      this->Segments.clear();
-      }
+class vtkPlotBarPrivate
+{
+public:
+  vtkPlotBarPrivate(vtkPlotBar *bar) : Bar(bar) {}
 
-    vtkPlotBarSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array,
-                                  vtkPlotBarSegment *prev=0)
-      {
-      vtkSmartPointer<vtkPlotBarSegment> segment =
+  void Update()
+    {
+    this->Segments.clear();
+    }
+
+  vtkPlotBarSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array,
+                                vtkPlotBarSegment *prev=0)
+    {
+    vtkSmartPointer<vtkPlotBarSegment> segment =
         vtkSmartPointer<vtkPlotBarSegment>::New();
-      segment->Configure(this->Bar,x_array,y_array,prev);
-      this->Segments.push_back(segment);
-      return segment;
-      }
+    segment->Configure(this->Bar,x_array,y_array,prev);
+    this->Segments.push_back(segment);
+    return segment;
+    }
 
-    void PaintSegments(vtkContext2D *painter, vtkColorSeries *colorSeries,
-                       vtkPen *pen, vtkBrush *brush, float width, float offset)
+  void PaintSegments(vtkContext2D *painter, vtkColorSeries *colorSeries,
+                     vtkPen *pen, vtkBrush *brush, float width, float offset)
+    {
+    int colorInSeries = 0;
+    bool useColorSeries = this->Segments.size() > 1;
+    for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
+         this->Segments.begin(); it != this->Segments.end(); ++it)
       {
-      int colorInSeries = 0;
-      bool useColorSeries = this->Segments.size() > 1;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
-              this->Segments.begin();
-           it != this->Segments.end(); ++it)
+      if (useColorSeries && colorSeries)
         {
-        if (useColorSeries && colorSeries)
-          brush->SetColor(colorSeries->GetColorRepeating(colorInSeries++).GetData());
-        (*it)->Paint(painter,pen,brush,width,offset);
+        brush->SetColor(colorSeries->GetColorRepeating(colorInSeries++).GetData());
         }
+      (*it)->Paint(painter,pen,brush,width,offset);
       }
+    }
 
 
-    int GetNearestPoint(const vtkVector2f& point,
-                                     vtkVector2f* location,
-                                     float width,
-                                     float offset)
+  int GetNearestPoint(const vtkVector2f& point, vtkVector2f* location,
+                      float width, float offset)
+    {
+    int index = 0;
+    for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
+           this->Segments.begin(); it != this->Segments.end(); ++it)
       {
-      int index = 0;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
-              this->Segments.begin();
-           it != this->Segments.end(); ++it)
+      if ((*it)->GetNearestPoint(point,location,width,offset))
         {
-        if ((*it)->GetNearestPoint(point,location,width,offset))
-          {
-          return index;
-          }
-        ++index;
+        return index;
         }
-      return -1;
+      ++index;
       }
+    return -1;
+    }
 
-    vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
-    vtkPlotBar *Bar;
-    vtkstd::map<int,vtkstd::string> AdditionalSeries;
+  vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
+  vtkPlotBar *Bar;
+  vtkstd::map<int,vtkstd::string> AdditionalSeries;
+  vtkStdString GroupName;
 };
-
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBar);
@@ -359,16 +363,20 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
     }
 
   this->Private->PaintSegments(painter,this->ColorSeries,this->Pen,this->Brush,
-                                this->Width,this->Offset);
+                               this->Width,this->Offset);
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotBar::PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex)
+bool vtkPlotBar::PaintLegend(vtkContext2D *painter, float rect[4],
+                             int legendIndex)
 {
   if (this->ColorSeries)
-    this->Brush->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
+    {
+    this->Brush->SetColor(
+          this->ColorSeries->GetColorRepeating(legendIndex).GetData());
+    }
 
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
@@ -437,7 +445,7 @@ float vtkPlotBar::GetWidth()
 
 //-----------------------------------------------------------------------------
 void vtkPlotBar::SetColor(unsigned char r, unsigned char g, unsigned char b,
-                       unsigned char a)
+                         unsigned char a)
 {
   this->Brush->SetColor(r, g, b, a);
 }
@@ -459,7 +467,8 @@ int vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
                                   const vtkVector2f&,
                                   vtkVector2f* location)
 {
-  return this->Private->GetNearestPoint(point,location,this->Width,this->Offset);
+  return this->Private->GetNearestPoint(point, location, this->Width,
+                                        this->Offset);
 }
 
 //-----------------------------------------------------------------------------
@@ -493,6 +502,20 @@ vtkStringArray *vtkPlotBar::GetLabels()
     {
     return NULL;
     }
+}
+
+void vtkPlotBar::SetGroupName(const vtkStdString &name)
+{
+  if (this->Private->GroupName != name)
+    {
+    this->Private->GroupName = name;
+    this->Modified();
+    }
+}
+
+const char * vtkPlotBar::GetGroupName()
+{
+  return this->Private->GroupName.empty() ? NULL : this->Private->GroupName;
 }
 
 //-----------------------------------------------------------------------------

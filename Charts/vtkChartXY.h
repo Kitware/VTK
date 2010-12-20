@@ -28,13 +28,9 @@
 
 class vtkPlot;
 class vtkAxis;
-class vtkTransform2D;
 class vtkPlotGrid;
-class vtkTable;
 class vtkChartLegend;
 class vtkTooltipItem;
-class vtkContextMouseEvent;
-class vtkDataArray;
 class vtkVector2f;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
@@ -92,10 +88,18 @@ public:
   void SetPlotCorner(vtkPlot *plot, int corner);
 
   // Description:
-  // Get the axis specified by axisIndex. This should probably
-  // be improved either using a string or enum to select the axis.
-  // (0 - left, 1 - bottom, 2 - right, 3 - top).
+  // Get the axis specified by axisIndex. This is specified with the vtkAxis
+  // position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
+  // vtkAxis::RIGHT and vtkAxis::TOP.
   virtual vtkAxis* GetAxis(int axisIndex);
+
+  // Description:
+  // Set whether the chart should draw a legend.
+  virtual void SetShowLegend(bool visible);
+
+  // Description:
+  // Get the vtkChartLegend object that will be displayed by the chart.
+  virtual vtkChartLegend* GetLegend();
 
   // Description:
   // Get the number of axes in the current chart.
@@ -188,6 +192,17 @@ protected:
   // to get font metrics etc. Initially this was added to resize the charts
   // according in response to the size of the axes.
   virtual bool UpdateLayout(vtkContext2D* painter);
+
+  // Description:
+  // Layout for the legend if it is visible. This is run after the axes layout
+  // and will adjust the borders to account for the legend position.
+  // \return The required space in the specified border.
+  virtual int GetLegendBorder(vtkContext2D* painter, int axisPosition);
+
+  // Description:
+  // Called after the edges of the chart are decided, set the position of the
+  // legend, depends upon its alignment.
+  virtual void SetLegendPosition(const vtkRectf& rect);
 
   // Description:
   // The grid for the chart.
