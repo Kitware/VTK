@@ -68,6 +68,7 @@ public:
 
   // Description:
   // Set the horizontal alignment of the legend to the point specified.
+  // Valid values are LEFT, CENTER and RIGHT.
   vtkSetMacro(HorizontalAlignment, int);
 
   // Description:
@@ -76,6 +77,7 @@ public:
 
   // Description:
   // Set the vertical alignment of the legend to the point specified.
+  // Valid values are TOP, CENTER and BOTTOM.
   vtkSetMacro(VerticalAlignment, int);
 
   // Description:
@@ -105,6 +107,13 @@ public:
   // Description:
   // Get the point size of the label text.
   virtual int GetLabelSize();
+
+  // Description:
+  // Get/set if the legend should be drawn inline (inside the chart), or not.
+  // True would generally request that the chart draws it inside the chart,
+  // false would adjust the chart axes and make space to draw the axes outside.
+  vtkSetMacro(Inline, bool);
+  vtkGetMacro(Inline, bool);
 
   // Description:
   // Get the vtkTextProperty for the legend's labels.
@@ -158,8 +167,18 @@ protected:
   vtkTimeStamp RectTime;
 
   vtkRectf Rect;
+
+  // Description:
+  // Padding between symbol and text.
   int Padding;
+
+  // Description:
+  // Width of the symbols in pixels in the legend.
   int SymbolWidth;
+
+  // Description:
+  // Should the legend be drawn inline in its chart?
+  bool Inline;
 
   // Private storage class
   class Private;

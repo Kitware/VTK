@@ -71,6 +71,7 @@ vtkChartLegend::vtkChartLegend()
 
   this->Padding = 5;
   this->SymbolWidth = 25;
+  this->Inline = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -91,6 +92,9 @@ void vtkChartLegend::Update()
       {
       this->Storage->ActivePlots.push_back(this->Storage->Chart->GetPlot(i));
       }
+    // If we have a plot with multiple labels, we generally only want to show
+    // the labels/legend symbols for the first one. So truncate at the first
+    // one we encounter.
     if (this->Storage->Chart->GetPlot(i)->GetLabels() &&
         this->Storage->Chart->GetPlot(i)->GetLabels()->GetNumberOfTuples() > 1)
       {
@@ -197,36 +201,12 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
     numLabels += this->Storage->ActivePlots[i]->GetNumberOfLabels();
     }
 
-  this->Rect = vtkRectf(floor(this->Storage->Point.X() - maxWidth)
-                        - 2 * this->Padding - this->SymbolWidth,
-                        floor(this->Storage->Point.Y()
-                              - numLabels * (height + this->Padding)) - this->Padding,
-                        ceil(maxWidth) + 2 * this->Padding + this->SymbolWidth,
+  // Default point placement is bottom left.
+  this->Rect = vtkRectf(floor(this->Storage->Point.X()),
+                        floor(this->Storage->Point.Y()),
+                        ceil(maxWidth + 2 * this->Padding + this->SymbolWidth),
                         ceil((numLabels * (height + this->Padding)) + this->Padding));
 
-  switch (this->HorizontalAlignment)
-    {
-    case vtkChartLegend::LEFT:
-      this->Rect.SetX(this->Rect.X() + this->Rect.Width());
-      break;
-    case vtkChartLegend::CENTER:
-      this->Rect.SetX(this->Rect.X() + this->Rect.Width() / 2.0);
-      break;
-    }
-  switch (this->VerticalAlignment)
-    {
-    case vtkChartLegend::BOTTOM:
-      this->Rect.SetY(this->Rect.Y() + this->Rect.Height());
-      break;
-    case vtkChartLegend::CENTER:
-      this->Rect.SetY(this->Rect.Y() + this->Rect.Height() / 2.0);
-      break;
-    }
-
-  if (this->HorizontalAlignment == this->LEFT)
-    {
-
-    }
   this->RectTime.Modified();
   return this->Rect;
 }
@@ -235,6 +215,7 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
 void vtkChartLegend::SetPoint(const vtkVector2f &point)
 {
   this->Storage->Point = point;
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
