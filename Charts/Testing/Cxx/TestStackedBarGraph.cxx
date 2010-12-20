@@ -22,6 +22,9 @@
 #include "vtkAxis.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkStringArray.h"
+#include "vtkTextProperty.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
@@ -130,17 +133,52 @@ int TestStackedBarGraph(int , char * [])
   bar->SetInputArray(5,"Video 2009");
 
   chart->SetShowLegend(true);
-  chart->GetAxis(1)->SetBehavior(1);
-  chart->GetAxis(1)->SetMaximum(13.0);
-  chart->GetAxis(1)->SetLabelsVisible(false);
-  chart->GetAxis(1)->SetTitle("Month");
-  chart->GetAxis(1)->SetNumberOfTicks(14);
-  chart->GetAxis(0)->SetTitle("");
+  vtkAxis *axis = chart->GetAxis(vtkAxis::BOTTOM);
+  axis->SetBehavior(1);
+  axis->SetMaximum(13.0);
+  axis->SetTitle("Month");
+  chart->GetAxis(vtkAxis::LEFT)->SetTitle("");
   chart->SetTitle("Circulation 2008, 2009");
 
+  // Set up the legend to be off to the top right of the viewport.
   chart->GetLegend()->SetInline(false);
   chart->GetLegend()->SetHorizontalAlignment(vtkChartLegend::RIGHT);
   chart->GetLegend()->SetVerticalAlignment(vtkChartLegend::TOP);
+
+  // Set up some custom labels for months.
+  vtkSmartPointer<vtkDoubleArray> dates =
+      vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkStringArray> strings =
+      vtkSmartPointer<vtkStringArray>::New();
+  dates->InsertNextValue(1);
+  strings->InsertNextValue("January");
+  dates->InsertNextValue(2);
+  strings->InsertNextValue("February");
+  dates->InsertNextValue(3);
+  strings->InsertNextValue("March");
+  dates->InsertNextValue(4);
+  strings->InsertNextValue("April");
+  dates->InsertNextValue(5);
+  strings->InsertNextValue("May");
+  dates->InsertNextValue(6);
+  strings->InsertNextValue("June");
+  dates->InsertNextValue(7);
+  strings->InsertNextValue("July");
+  dates->InsertNextValue(8);
+  strings->InsertNextValue("August");
+  dates->InsertNextValue(9);
+  strings->InsertNextValue("September");
+  dates->InsertNextValue(10);
+  strings->InsertNextValue("October");
+  dates->InsertNextValue(11);
+  strings->InsertNextValue("November");
+  dates->InsertNextValue(12);
+  strings->InsertNextValue("December");
+  axis->SetTickPositions(dates);
+  axis->SetTickLabels(strings);
+  axis->GetLabelProperties()->SetOrientation(90);
+  axis->GetLabelProperties()->SetVerticalJustification(VTK_TEXT_CENTERED);
+  axis->GetLabelProperties()->SetJustification(VTK_TEXT_RIGHT);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
