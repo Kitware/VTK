@@ -8,7 +8,7 @@ IF(VTK_USE_SYSTEM_HDF5)
 ELSE(VTK_USE_SYSTEM_HDF5)
 
   # Tell hdf5 that we are manually overriding certain settings
-  SET(HDF5_EXTERNALLY_CONFIGURED 1)
+  SET(HDF5_EXTERNALLY_CONFIGURED ON)
   # Avoid duplicating names of installed libraries
   SET(HDF5_EXTERNAL_LIB_PREFIX "vtk")
   # Export configuration to this export variable
@@ -40,20 +40,6 @@ ELSE(VTK_USE_SYSTEM_HDF5)
       SET(ZLIB_LIBRARIES vtkzlib)
     ENDIF(VTK_USE_SYSTEM_ZLIB)
   ENDIF(HDF5_ENABLE_Z_LIB_SUPPORT)
-
-  SET(HDF5_INCLUDE_DIR
-     ${VTK_SOURCE_DIR}/Utilities/vtkhdf5/src
-     ${VTK_BINARY_DIR}/Utilities/vtkhdf5
-     ${VTK_SOURCE_DIR}/Utilities/vtkhdf5/hl/src)
-
-  # Some other modules use these vars to get the hdf5 lib name(s)
-  #SET(VTK_HDF5_LIBRARIES
-  #  vtkhdf5
-#    ${HDF5_CPP_LIB_NAME}
-#    ${HDF5_HL_LIB_NAME}
-#    ${HDF5_HL_CPP_LIB_NAME}
-  #  CACHE INTERNAL ""
-  #)
 
   MARK_AS_ADVANCED(
     H5_SET_LIB_OPTIONS
