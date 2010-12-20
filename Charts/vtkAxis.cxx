@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkAxis);
 //-----------------------------------------------------------------------------
 vtkAxis::vtkAxis()
 {
-  this->Position = vtkAxis::LEFT;
+  this->Position = -1;
   this->Point1 = this->Position1.GetData();
   this->Point2 = this->Position2.GetData();
   this->Position1.SetY(10.0);
@@ -78,6 +78,7 @@ vtkAxis::vtkAxis()
   this->LogScaleReasonable = false;
   this->MaxLabel[0] = this->MaxLabel[1] = 0.0;
   this->Resized = true;
+  this->SetPosition(vtkAxis::LEFT);
 }
 
 //-----------------------------------------------------------------------------
@@ -88,6 +89,48 @@ vtkAxis::~vtkAxis()
   this->LabelProperties->Delete();
   this->Pen->Delete();
   this->GridPen->Delete();
+}
+
+void vtkAxis::SetPosition(int position)
+{
+  if (this->Position != position)
+    {
+    this->Position = position;
+    // Draw the axis label
+    switch (this->Position)
+      {
+      case vtkAxis::LEFT:
+        this->TitleProperties->SetOrientation(90.0);
+        this->TitleProperties->SetVerticalJustificationToBottom();
+        this->LabelProperties->SetJustificationToRight();
+        this->LabelProperties->SetVerticalJustificationToCentered();
+        break;
+      case vtkAxis::RIGHT:
+        this->TitleProperties->SetOrientation(90.0);
+        this->TitleProperties->SetVerticalJustificationToTop();
+        this->LabelProperties->SetJustificationToLeft();
+        this->LabelProperties->SetVerticalJustificationToCentered();
+        break;
+      case vtkAxis::BOTTOM:
+        this->TitleProperties->SetOrientation(0.0);
+        this->TitleProperties->SetVerticalJustificationToTop();
+        this->LabelProperties->SetJustificationToCentered();
+        this->LabelProperties->SetVerticalJustificationToTop();
+        break;
+      case vtkAxis::TOP:
+        this->TitleProperties->SetOrientation(0.0);
+        this->TitleProperties->SetVerticalJustificationToBottom();
+        this->LabelProperties->SetJustificationToCentered();
+        this->LabelProperties->SetVerticalJustificationToBottom();
+        break;
+      case vtkAxis::PARALLEL:
+        this->TitleProperties->SetOrientation(0.0);
+        this->TitleProperties->SetVerticalJustificationToTop();
+        this->LabelProperties->SetJustificationToRight();
+        this->LabelProperties->SetVerticalJustificationToCentered();
+        break;
+      }
+    }
 }
 
 void vtkAxis::SetPoint1(const vtkVector2f &pos)
@@ -217,11 +260,9 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
 
   painter->ApplyPen(this->Pen);
-
   // Draw this axis
   painter->DrawLine(this->Point1[0], this->Point1[1],
                     this->Point2[0], this->Point2[1]);
-  vtkTextProperty *prop = painter->GetTextProp();
 
   // Draw the axis title if there is one
   if (this->Title && this->Title[0])
@@ -236,39 +277,28 @@ bool vtkAxis::Paint(vtkContext2D *painter)
       // Draw the axis label
       x = vtkContext2D::FloatToInt(this->Point1[0] - this->MaxLabel[0] - 10);
       y = vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2;
-      prop->SetOrientation(90.0);
-      prop->SetVerticalJustificationToBottom();
       }
     else if (this->Position == vtkAxis::RIGHT)
       {
       // Draw the axis label
       x = vtkContext2D::FloatToInt(this->Point1[0] + this->MaxLabel[0] + 10);
       y = vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2;
-      prop->SetOrientation(90.0);
-      prop->SetVerticalJustificationToTop();
       }
     else if (this->Position == vtkAxis::BOTTOM)
       {
       x = vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2;
       y = vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 10);
-      prop->SetOrientation(0.0);
-      prop->SetVerticalJustificationToTop();
       }
     else if (this->Position == vtkAxis::TOP)
       {
       x = vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2;
       y = vtkContext2D::FloatToInt(this->Point1[1] + this->MaxLabel[1] + 10);
-      prop->SetOrientation(0.0);
-      prop->SetVerticalJustificationToBottom();
       }
     else if (this->Position == vtkAxis::PARALLEL)
       {
       x = vtkContext2D::FloatToInt(this->Point1[0]);
       y = vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 15);
-      prop->SetOrientation(0.0);
-      prop->SetVerticalJustificationToTop();
       }
-
     painter->DrawString(x, y, this->Title);
     }
 
@@ -283,9 +313,6 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   // class laying out the axes.
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL)
     {
-    prop->SetJustificationToRight();
-    prop->SetVerticalJustificationToCentered();
-
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
@@ -299,9 +326,6 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
   else if (this->Position == vtkAxis::RIGHT)
     {
-    prop->SetJustificationToLeft();
-    prop->SetVerticalJustificationToCentered();
-
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
@@ -315,9 +339,6 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
   else if (this->Position == vtkAxis::BOTTOM)
     {
-    prop->SetJustificationToCentered();
-    prop->SetVerticalJustificationToTop();
-
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
@@ -331,9 +352,6 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
   else if (this->Position == vtkAxis::TOP)
     {
-    prop->SetJustificationToCentered();
-    prop->SetVerticalJustificationToBottom();
-
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
@@ -582,7 +600,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   if (vertical)
     {
-    bounds.SetWidth(widest + titleBounds.GetHeight() + 15);
+    bounds.SetWidth(widest + titleBounds.GetWidth() + 15);
     float range = this->Point1[1] < this->Point2[1] ?
           this->Point2[1] - this->Point1[1] : this->Point1[1] - this->Point2[1];
     bounds.SetHeight(range + tallest + 5);
