@@ -1229,7 +1229,17 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 const vtkVector2f &plotPos,
                                 int seriesIndex, vtkPlot* plot)
 {
-  const char *label = plot->GetLabel(seriesIndex);
+  vtkStdString label;
+  // Check for group names if we are plotting stacked bars
+  if (seriesIndex > 0)
+    {
+    vtkPlotBar *bar = vtkPlotBar::SafeDownCast(plot);
+    if (bar && bar->GetGroupName())
+      {
+      label += vtkStdString(bar->GetGroupName()) + ": ";
+      }
+    }
+  label += plot->GetLabel(seriesIndex);
   // If axes are set to logarithmic scale we need to convert the
   // axis value using 10^(axis value)
   vtksys_ios::ostringstream ostr;
@@ -1247,7 +1257,7 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
     plotPos.Y());
   this->Tooltip->SetText(ostr.str().c_str());
   this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,
-               mouse.ScreenPos[1]+2);
+                             mouse.ScreenPos[1]+2);
 }
 
 //-----------------------------------------------------------------------------
