@@ -22,7 +22,7 @@
 #define __vtkPlot_h
 
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h"  // Needed to hold AutoLabels
+#include "vtkSmartPointer.h"  // Needed to hold SP ivars
 
 class vtkVariant;
 class vtkTable;
@@ -47,7 +47,8 @@ public:
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied. The index is used
   // by Plots that return more than one label.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex);
+  virtual bool PaintLegend(vtkContext2D *painter, float rect[4],
+                           int legendIndex);
 
 //BTX
   // Description:
@@ -55,9 +56,8 @@ public:
   // Returns the index of the data series with which the point is associated or
   // -1.
   virtual int GetNearestPoint(const vtkVector2f& point,
-                               const vtkVector2f& tolerance,
-                               vtkVector2f* location
-                               );
+                              const vtkVector2f& tolerance,
+                              vtkVector2f* location);
 
   // Description:
   // Select all points in the specified rectangle.
@@ -113,7 +113,6 @@ public:
   // Description:
   // Get the label at the specified index.
   const char *GetLabel(vtkIdType index);
-
 
   // Description:
   // Get the data object that the plot will draw.
@@ -191,7 +190,6 @@ protected:
   // Description:
   // Holds Labels when they're auto-created
   vtkSmartPointer<vtkStringArray> AutoLabels;
-
 
   // Description:
   // Use the Y array index for the X value. If true any X column setting will be
