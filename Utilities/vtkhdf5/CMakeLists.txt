@@ -531,6 +531,14 @@ ENDIF (HDF5_BUILD_HL_LIB)
 CONFIGURE_FILE (${HDF5_SOURCE_DIR}/Resources/H5pubconf.h.in ${HDF5_BINARY_DIR}/H5pubconf.h @ONLY)
 
 #-----------------------------------------------------------------------------
+# Generate the HDF5Config file containing build settings used by externaly
+#-----------------------------------------------------------------------------
+CONFIGURE_FILE (
+  ${HDF5_SOURCE_DIR}/Resources/HDF5Config.cmake.in
+  ${HDF5_BINARY_DIR}/vtkHDF5Config.cmake @ONLY
+)
+
+#-----------------------------------------------------------------------------
 # Add file(s) to CMake Install
 #-----------------------------------------------------------------------------
 IF (NOT VTK_INSTALL_NO_DEVELOPMENT)
