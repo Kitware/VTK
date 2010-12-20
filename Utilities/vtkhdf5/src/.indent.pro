@@ -1,0 +1,150 @@
+-bad  /* Blank line after declarations */
+-bap  /* Blank line after procedure */
+-bbb  /* No blank line before boxed comments */
+-bbo  /* Try to break long lines at boolean operators && and || */
+-nbc  /* Don't force newlines after commas in declarations */
+-br   /* Put braces on the same line as the statement (not -bl) */
+-brs  /* Put braces on the same line as the struct declaration (not -bls) */
+-nbs  /* Don't put a space between a sizeof operator and it's object */
+-c33  /* Start comments after code in column 33 */
+-cbi0 /* Indent braces below a case statement 0 spaces to right of case statement */
+-cd33 /* Start comments after declarations in column 33 */
+-ncdb /* Don't put comment delimiters on their own lines */
+-cdw  /* "Cuddle" while statements onto the same line as the closing do statement's brace */
+-nce  /* Don't "Cuddle" else statements onto the same line as the closing if statement's brace */
+-ci8  /* Align continued code 8 spaces from initial indention */
+-cli4 /* Indent case statements 4 spaces to right of switch statement */
+-cp0  /* Start comments after pre-processor directives immediately after the directive */
+-ncs  /* Don't put a space between a cast operator and it's object */
+-d0   /* Align comments on their own line with the surrounding code */
+-nbfda /* Don't force newlines after commas in function argument declarations */
+-di24 /* Align identifiers in declarations in column 24 */
+-nfc1 /* Don't format comments in the first column */
+-nfca /* Don't format comments on their own line */
+-hnl  /* Honor existing new-lines in long boolean statements */
+-i4   /* Indent space spaces */
+-ip8  /* Don't add any extra indention for nested parentheses */
+-l78  /* Try to break long lines in column 78 */
+-lc78 /* Try to break long comment lines in column 78 */
+-nlp  /* Don't align lines continued onto further lines with the opening parentheses */
+-lps  /* Leave spaces in preprocessor directives alone */
+-npcs /* Don't put a space between the procedure name and it's parameters */
+-npcs /* Don't put a space between the procedure name and it's parameters */
+-pi4  /* Extra indentation per open parentheses */
+-pmt  /* Preserve modification times on modified files */
+-nprs /* Don't add spaces around parentheses */
+-psl  /* Force the return type of a procedure to be on it's own line */
+-nsaf /* Don't put a space between a for statement and it's initial parentheses */
+-nsai /* Don't put a space between an if statement and it's initial parentheses */
+-nsaw /* Don't put a space between a while statement and it's initial parentheses */
+-sbi0 /* Indent braces after a struct, union or enum 0 spaces */
+-sc   /* Put stars at the beginning of multi-line comments */
+-nsob /* Don't swallow optional blank lines */
+-ss   /* Put a space before the semicolon if its the only statement in a for or while loop */
+-ts8  /* Hard tab characters are 8 spaces */
+/* The rest are typedefs used by the library, feel free to add missing ones, */
+/*  but try to keep them alphabetized */
+-T H5AC_class_t
+-T H5AC_prot_t
+-T H5AC_slot_t
+-T H5AC_subid_t
+-T H5AC_t
+-T H5A_t
+-T H5Asearch_func_t
+-T H5B_class_t
+-T H5B_ins_t
+-T H5B_key_t
+-T H5B_subid_t
+-T H5B_t
+-T H5C_class_t
+-T H5C_t
+-T H5D_create_t
+-T H5D_layout_t
+-T H5D_t
+-T H5E_error_t
+-T H5E_major_mesg_t
+-T H5E_major_t
+-T H5E_minor_mesg_t
+-T H5E_minor_t
+-T H5E_t
+-T H5F_create_t
+-T H5F_file_t
+-T H5F_isop_t
+-T H5F_istore_key_t
+-T H5F_istore_ud1_t
+-T H5F_low_class_t
+-T H5F_low_t
+-T H5F_search_t
+-T H5F_t
+-T H5Fget_create_t
+-T H5G_bt_ud1_t
+-T H5G_bt_ud2_t
+-T H5G_cache_t
+-T H5G_cwgstk_t
+-T H5G_entry_t
+-T H5G_node_key_t
+-T H5G_node_t
+-T H5G_t
+-T H5G_type_t
+-T H5H_free_t
+-T H5H_t
+-T H5H_type_t
+-T H5M_find_t
+-T H5O_chunk_t
+-T H5O_class_t
+-T H5O_cont_t
+-T H5O_efl_t
+-T H5O_layout_t
+-T H5O_mesg_t
+-T H5O_name_t
+-T H5O_stab_t
+-T H5O_t
+-T H5P_class_t
+-T H5P_simple_t
+-T H5P_t
+-T H5T_class_t
+-T H5T_conv_t
+-T H5T_cset_t
+-T H5T_member_t
+-T H5T_norm_t
+-T H5T_order_t
+-T H5T_pad_t
+-T H5T_path_t
+-T H5T_sign_t
+-T H5T_soft_t
+-T H5T_str_t
+-T H5T_t
+-T H5Tget_member_t
+-T H5_exit_t
+-T H5_init_t
+-T H5_t
+-T H5_term_t
+-T access_t
+-T atom_group_t
+-T atom_info_t
+-T cache_t
+-T child_t
+-T chunk_t
+-T create_t
+-T data_t
+-T detected_t
+-T group_t
+-T haddr_t
+-T hbool_t
+-T heap_t
+-T herr_t
+-T hid_t
+-T hobjtype_t
+-T hsize_t
+-T hssize_t
+-T ino_t
+-T mem_t
+-T memb_t
+-T mesg_t
+-T message_t
+-T meta_func_t
+-T new_t
+-T off_t
+-T size_t
+-T ssize_t
+-T time_t
