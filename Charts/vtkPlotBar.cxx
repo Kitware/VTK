@@ -271,7 +271,7 @@ public:
         {
         brush->SetColor(colorSeries->GetColorRepeating(colorInSeries++).GetData());
         }
-      (*it)->Paint(painter,pen,brush,width,offset);
+      (*it)->Paint(painter, pen, brush, width, offset);
       }
     }
 
@@ -362,8 +362,8 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
     vtkDebugMacro("No selection set.");
     }
 
-  this->Private->PaintSegments(painter,this->ColorSeries,this->Pen,this->Brush,
-                               this->Width,this->Offset);
+  this->Private->PaintSegments(painter,this->ColorSeries, this->Pen,this->Brush,
+                               this->Width, this->Offset);
 
   return true;
 }
@@ -402,8 +402,8 @@ void vtkPlotBar::GetBounds(double bounds[4])
     {
     x->GetRange(&bounds[0]);
     // We surround our point by Width/2 on either side
-    bounds[0] -= this->Width / 2;
-    bounds[1] += this->Width / 2;
+    bounds[0] -= this->Width / 2.0 + this->Offset;
+    bounds[1] += this->Width / 2.0 - this->Offset;
     }
 
   y->GetRange(&bounds[2]);
