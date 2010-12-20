@@ -20,7 +20,7 @@
 #ifdef VTK_USE_SYSTEM_HDF5
 # include <hdf5.h>
 #else
-# include <vtkhdf5/hdf5.h>
+# include <vtkhdf5/src/hdf5.h>
 #endif
 
 #endif
