@@ -34,6 +34,7 @@ MetaObject(void)
   m_NDims = 0;
   this->ClearFields();
   this->ClearUserFields();
+  this->ClearAdditionalFields();
   MetaObject::Clear();
   m_ReadStream = NULL;
   m_WriteStream = NULL;
@@ -49,6 +50,7 @@ MetaObject(const char * _fileName)
   m_NDims = 0;
   this->ClearFields();
   this->ClearUserFields();
+  this->ClearAdditionalFields();
   MetaObject::Clear();
   m_ReadStream = NULL;
   m_WriteStream = NULL;
@@ -64,6 +66,7 @@ MetaObject(unsigned int dim)
   m_NDims = 0;
   this->ClearFields();
   this->ClearUserFields();
+  this->ClearAdditionalFields();
   MetaObject::Clear();
   m_ReadStream = NULL;
   m_WriteStream = NULL;
@@ -84,6 +87,7 @@ MetaObject::
   
   this->ClearFields();
   this->ClearUserFields();
+  this->ClearAdditionalFields();
   }
 
 
@@ -190,6 +194,26 @@ void MetaObject
   m_UserDefinedReadFields.clear();
   }
  
+// Clear AdditionalReadFields
+void MetaObject
+::ClearAdditionalFields()
+  {
+  // Clear read field
+  FieldsContainerType::iterator it  = m_AdditionalReadFields.begin();
+  FieldsContainerType::iterator end = m_AdditionalReadFields.end();
+  while( it != end )
+    {
+    MET_FieldRecordType* field = *it;
+    if( field )
+      {
+      delete field;
+      }
+    ++it;
+    }
+
+  m_AdditionalReadFields.clear();
+  }
+
 //
 //
 void MetaObject::
