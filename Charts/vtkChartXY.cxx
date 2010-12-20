@@ -186,7 +186,6 @@ void vtkChartXY::Update()
     this->ChartPrivate->plots[i]->Update();
     }
   this->Legend->Update();
-  this->Legend->SetVisible(this->ShowLegend);
 
   // Update the selections if necessary.
   if (this->AnnotationLink)
@@ -662,26 +661,27 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
   // The main use of this method is currently to query the visible axes for
   // their bounds, and to update the chart in response to that.
   bool changed = false;
+
+  // Axes
   for (int i = 0; i < 4; ++i)
     {
-    int border = this->HiddenAxisBorder;
+    int border = 0;
     vtkAxis* axis = this->ChartPrivate->axes[i];
     axis->Update();
     if (axis->GetVisible())
       {
       vtkRectf bounds = axis->GetBoundingRect(painter);
-      float hiddenBorder(this->HiddenAxisBorder);
       if (i == 1 || i == 3)
         {// Horizontal axes
-        border = int(bounds.GetHeight() < hiddenBorder ? hiddenBorder :
-                                                         bounds.GetHeight());
+        border = int(bounds.GetHeight());
         }
       else
         {// Vertical axes
-        border = int(bounds.GetWidth() < hiddenBorder ? hiddenBorder :
-                                                        bounds.GetWidth());
+        border = int(bounds.GetWidth());
         }
       }
+    border += this->GetLegendBorder(painter, i);
+    border = border < this->HiddenAxisBorder ? this->HiddenAxisBorder : border;
     if (this->ChartPrivate->Borders[i] != border)
       {
       this->ChartPrivate->Borders[i] = border;
@@ -755,10 +755,148 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
       this->ChartPrivate->axes[i]->Update();
       }
     }
-  // Put the legend in the top corner of the chart
-  this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
+  this->SetLegendPosition(this->Legend->GetBoundingRect(painter));
 
   return changed;
+}
+
+//-----------------------------------------------------------------------------
+int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
+{
+  if (!this->Legend->GetVisible() || this->Legend->GetInline())
+    {
+    return 0;
+    }
+
+  int padding = 10;
+  vtkVector2i legendSize;
+  vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
+                              this->Legend->GetVerticalAlignment());
+  this->Legend->Update();
+  vtkRectf rect = this->Legend->GetBoundingRect(painter);
+  legendSize.Set(static_cast<int>(rect.Width()),
+                 static_cast<int>(rect.Height()));
+
+  // Figure out the correct place and alignment based on the legend layout.
+  if (axisPosition == vtkAxis::LEFT &&
+      legendAlignment.X() == vtkChartLegend::LEFT)
+    {
+    return legendSize.X() + padding;
+    }
+  else if (axisPosition == vtkAxis::RIGHT &&
+           legendAlignment.X() == vtkChartLegend::RIGHT)
+    {
+    return legendSize.X() + padding;
+    }
+  else if ((axisPosition == vtkAxis::TOP || axisPosition == vtkAxis::BOTTOM) &&
+           (legendAlignment.X() == vtkChartLegend::LEFT ||
+            legendAlignment.X() == vtkChartLegend::RIGHT))
+    {
+    return 0;
+    }
+  else if (axisPosition == vtkAxis::TOP &&
+           legendAlignment.Y() == vtkChartLegend::TOP)
+    {
+    return legendSize.Y() + padding;
+    }
+  else if (axisPosition == vtkAxis::BOTTOM &&
+           legendAlignment.Y() == vtkChartLegend::BOTTOM)
+    {
+    return legendSize.Y() + padding;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
+{
+  // Put the legend in the top corner of the chart
+  vtkVector2f pos;
+  int padding = 5;
+  vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
+                              this->Legend->GetVerticalAlignment());
+
+  if (this->Legend->GetInline())
+    {
+    switch (this->Legend->GetHorizontalAlignment())
+      {
+      case vtkChartLegend::LEFT:
+        pos.SetX(this->Point1[0]);
+        break;
+      case vtkChartLegend::CENTER:
+        pos.SetX(((this->Point2[0] - this->Point1[0]) / 2.0)
+                 - rect.Width() / 2.0 + this->Point1[0]);
+        break;
+      case vtkChartLegend::RIGHT:
+      default:
+        pos.SetX(this->Point2[0] - rect.Width());
+      }
+    switch (this->Legend->GetVerticalAlignment())
+      {
+      case vtkChartLegend::TOP:
+        pos.SetY(this->Point2[1] - rect.Height());
+        break;
+      case vtkChartLegend::CENTER:
+        pos.SetY((this->Point2[1] - this->Point1[1]) / 2.0
+                 - rect.Height() / 2.0 + this->Point1[1]);
+        break;
+      case vtkChartLegend::BOTTOM:
+      default:
+        pos.SetY(this->Point1[1]);
+      }
+    }
+  else
+    {
+    // Non-inline legends.
+    if (legendAlignment.X() == vtkChartLegend::LEFT)
+      {
+      pos.SetX(this->Point1[0] - this->ChartPrivate->Borders[vtkAxis::LEFT]
+               + padding);
+      }
+    else if (legendAlignment.X() == vtkChartLegend::RIGHT)
+      {
+      pos.SetX(this->Point2[0] + this->ChartPrivate->Borders[vtkAxis::RIGHT]
+               - rect.Width() - padding);
+      }
+    else if (legendAlignment.X() == vtkChartLegend::CENTER)
+      {
+      pos.SetX(((this->Point2[0] - this->Point1[0]) / 2.0)
+               - (rect.Width() / 2.0) + this->Point1[0]);
+      // Check for the special case where the legend is on the top or bottom
+      if (legendAlignment.Y() == vtkChartLegend::TOP)
+        {
+        pos.SetY(this->Point2[1] + this->ChartPrivate->Borders[vtkAxis::TOP]
+                 - rect.Height() - padding);
+        }
+      else if (legendAlignment.Y() == vtkChartLegend::BOTTOM)
+        {
+        pos.SetY(this->Point1[1] - this->ChartPrivate->Borders[vtkAxis::BOTTOM]
+                 + padding);
+        }
+      }
+    // Vertical alignment
+    if (legendAlignment.X() != vtkChartLegend::CENTER)
+      {
+      if (legendAlignment.Y() == vtkChartLegend::TOP)
+        {
+        pos.SetY(this->Point2[1] - rect.Height());
+        }
+      else if (legendAlignment.Y() == vtkChartLegend::BOTTOM)
+        {
+        pos.SetY(this->Point1[1]);
+        }
+      }
+    if (legendAlignment.Y() == vtkChartLegend::CENTER)
+      {
+      pos.SetY(((this->Point2[1] - this->Point1[1]) / 2.0)
+               - (rect.Height() / 2.0) + this->Point1[1]);
+      }
+    }
+
+  this->Legend->SetPoint(pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -886,6 +1024,19 @@ vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
     {
     return NULL;
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::SetShowLegend(bool visible)
+{
+  this->vtkChart::SetShowLegend(visible);
+  this->Legend->SetVisible(visible);
+}
+
+//-----------------------------------------------------------------------------
+vtkChartLegend* vtkChartXY::GetLegend()
+{
+  return this->Legend;
 }
 
 //-----------------------------------------------------------------------------

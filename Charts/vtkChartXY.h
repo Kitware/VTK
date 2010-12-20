@@ -94,7 +94,12 @@ public:
   virtual vtkAxis* GetAxis(int axisIndex);
 
   // Description:
+  // Set whether the chart should draw a legend.
+  virtual void SetShowLegend(bool visible);
+
+  // Description:
   // Get the vtkChartLegend object that will be displayed by the chart.
+  virtual vtkChartLegend* GetLegend();
 
   // Description:
   // Get the number of axes in the current chart.
@@ -187,6 +192,17 @@ protected:
   // to get font metrics etc. Initially this was added to resize the charts
   // according in response to the size of the axes.
   virtual bool UpdateLayout(vtkContext2D* painter);
+
+  // Description:
+  // Layout for the legend if it is visible. This is run after the axes layout
+  // and will adjust the borders to account for the legend position.
+  // \return The required space in the specified border.
+  virtual int GetLegendBorder(vtkContext2D* painter, int axisPosition);
+
+  // Description:
+  // Called after the edges of the chart are decided, set the position of the
+  // legend, depends upon its alignment.
+  virtual void SetLegendPosition(const vtkRectf& rect);
 
   // Description:
   // The grid for the chart.
