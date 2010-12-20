@@ -2,9 +2,9 @@
 # Configure HDF5
 
 IF(VTK_USE_SYSTEM_HDF5)
-  #find_package(HDF5 REQUIRED)
-  #INCLUDE(${ParaView_CMAKE_DIR}/FindZLIB.cmake)
-  #SET(VTK_HDF5_LIBRARIES ${HDF5_LIBRARIES})
+  find_package(HDF5 REQUIRED)
+  find_package(ZLIB)
+  SET(VTK_HDF5_LIBRARIES ${HDF5_LIBRARIES})
 ELSE(VTK_USE_SYSTEM_HDF5)
 
   # Tell hdf5 that we are manually overriding certain settings
