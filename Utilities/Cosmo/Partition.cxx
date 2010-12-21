@@ -42,9 +42,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
-#include <iostream>
-
 #include "Partition.h"
+
+#include <iostream>
 
 /////////////////////////////////////////////////////////////////////////
 //
