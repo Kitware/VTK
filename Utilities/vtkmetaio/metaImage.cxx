@@ -1466,22 +1466,22 @@ ReadStream(int _nDims,
       METAIO_STREAM::ifstream* readStreamTemp = new METAIO_STREAM::ifstream;
 
       const char *extensions[] = { "", ".gz", ".Z", 0 };
-      for(unsigned i = 0; extensions[i] != 0; i++)
-	{
-	char tempFName[1024];
-	strncpy(tempFName,fName,1024);
-	strncat(tempFName,extensions[i],1024);
-	openReadStream(*readStreamTemp,tempFName);
-	if(readStreamTemp->is_open())
-	  {
-	  if(i > 0)
-	    {
-	    this->CompressedData(true);
-	    this->BinaryData(true);
-	    }
-	  break;
-	  }
-	}
+      for(unsigned ii = 0; extensions[ii] != 0; ii++)
+        {
+        char tempFName[1024];
+        strncpy(tempFName,fName,1024);
+        strncat(tempFName,extensions[ii],1024);
+        openReadStream(*readStreamTemp,tempFName);
+        if(readStreamTemp->is_open())
+          {
+          if(ii > 0)
+            {
+            this->CompressedData(true);
+            this->BinaryData(true);
+            }
+          break;
+          }
+        }
 
       if(!readStreamTemp->is_open())
         {
@@ -2967,22 +2967,22 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
       METAIO_STREAM::ifstream* readStreamTemp = new METAIO_STREAM::ifstream;
 
       const char *extensions[] = { "", ".gz", ".Z", 0 };
-      for(unsigned i = 0; extensions[i] != 0; i++)
-	{
-	char tempFName[1024];
-	strncpy(tempFName,fName,1024);
-	strncat(tempFName,extensions[i],1024);
-	openReadStream(*readStreamTemp,tempFName);
-	if(readStreamTemp->is_open())
-	  {
-	  if(i > 0)
-	    {
-	    this->CompressedData(true);
-	    this->BinaryData(true);
-	    }
-	  break;
-	  }
-	}
+      for(unsigned ii = 0; extensions[ii] != 0; ii++)
+        {
+        char tempFName[1024];
+        strncpy(tempFName,fName,1024);
+        strncat(tempFName,extensions[ii],1024);
+        openReadStream(*readStreamTemp,tempFName);
+        if(readStreamTemp->is_open())
+          {
+          if(ii > 0)
+            {
+            this->CompressedData(true);
+            this->BinaryData(true);
+            }
+          break;
+          }
+        }
 
       if(!readStreamTemp->is_open())
         {
