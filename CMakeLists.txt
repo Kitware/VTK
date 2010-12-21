@@ -182,6 +182,11 @@ ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
 #-----------------------------------------------------------------------------
 # Where the cxx tests are, for use in ADD_TEST
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+IF(CMAKE_CONFIGURATION_TYPES)
+  SET(CXX_TEST_CONFIG \${CTEST_CONFIGURATION_TYPE})
+ELSE()
+  SET(CXX_TEST_CONFIG .)
+ENDIF()
 
 #-----------------------------------------------------------------------------
 # Configure install locations.  This allows parent projects to modify
