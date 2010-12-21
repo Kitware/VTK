@@ -42,19 +42,19 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <set>
-#include <math.h>
-
 #include "Partition.h"
 #include "FOFHaloProperties.h"
 #include "HaloCenterFinder.h"
 #ifndef USE_VTK_COSMO
 #include "Timings.h"
 #endif
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <set>
+#include <math.h>
 
 using namespace std;
 

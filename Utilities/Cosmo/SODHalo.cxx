@@ -42,6 +42,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
+#include "Partition.h"
+#include "SODHalo.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -54,9 +57,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-#include "Partition.h"
-#include "SODHalo.h"
 
 using namespace std;
 
