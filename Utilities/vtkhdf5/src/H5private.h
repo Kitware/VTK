@@ -158,7 +158,7 @@
 #endif
 
 
-#ifdef _WIN32
+#if defined( _WIN32 ) && !defined( __CYGWIN__ )
 
 #define VC_EXTRALEAN		/*Exclude rarely-used stuff from Windows headers */
 #include <windows.h>
