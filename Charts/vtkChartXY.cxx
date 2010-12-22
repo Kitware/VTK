@@ -93,15 +93,13 @@ vtkChartXY::vtkChartXY()
   this->HiddenAxisBorder = 20;
 
   // The grid is drawn first.
-  this->Grid = vtkPlotGrid::New();
-  this->AddItem(this->Grid);
-  this->Grid->Delete();
-  vtkPlotGrid *grid1 = this->Grid;
+  vtkPlotGrid *grid1 = vtkPlotGrid::New();
+  this->AddItem(grid1);
+  grid1->Delete();
 
   // The second grid for the far side/top axis
-  this->Grid = vtkPlotGrid::New();
-  this->AddItem(this->Grid);
-  vtkPlotGrid *grid2 = this->Grid;
+  vtkPlotGrid *grid2 = vtkPlotGrid::New();
+  this->AddItem(grid2);
 
   // The plots are drawn on top of the grid, in a clipped, transformed area.
   this->AddItem(this->ChartPrivate->Clip);
@@ -135,7 +133,7 @@ vtkChartXY::vtkChartXY()
   grid2->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
 
   // Then the legend is drawn
-  this->Legend = vtkChartLegend::New();
+  this->Legend = vtkSmartPointer<vtkChartLegend>::New();
   this->Legend->SetChart(this);
   this->Legend->SetVisible(false);
   this->AddItem(this->Legend);
@@ -149,10 +147,9 @@ vtkChartXY::vtkChartXY()
   this->DrawAxesAtOrigin = false;
   this->BarWidthFraction = 0.8f;
 
-  this->Tooltip = vtkTooltipItem::New();
+  this->Tooltip = vtkSmartPointer<vtkTooltipItem>::New();
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip);
-  this->Tooltip->Delete();
   this->LayoutChanged = true;
 }
 
@@ -169,11 +166,6 @@ vtkChartXY::~vtkChartXY()
     }
   delete this->ChartPrivate;
   this->ChartPrivate = 0;
-
-  this->Grid->Delete();
-  this->Grid = 0;
-  this->Legend->Delete();
-  this->Legend = 0;
 }
 
 //-----------------------------------------------------------------------------
