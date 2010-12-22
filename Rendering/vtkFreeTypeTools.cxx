@@ -995,10 +995,10 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
     if (this->ScaleToPowerTwo)
       {
       new_img_dims[0] =
-          1 << static_cast<int>(ceil(log(static_cast<double>(text_size[0])) /
+          1 << static_cast<int>(ceil(log(static_cast<double>(text_size[0]+1)) /
                                      log(2.0)));
       new_img_dims[1] =
-          1 << static_cast<int>(ceil(log(static_cast<double>(text_size[1])) /
+          1 << static_cast<int>(ceil(log(static_cast<double>(text_size[1]+1)) /
                                      log(2.0)));
       }
     else
