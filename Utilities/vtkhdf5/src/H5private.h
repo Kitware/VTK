@@ -1761,7 +1761,7 @@ static herr_t		H5_INTERFACE_INIT_FUNC(void);
 									      \
     if(!func_check) {			   				      \
         /* Check API status */               				      \
-        HDassert(asrt);				                              \
+      /*HDassert(asrt);*/						\
 									      \
         /* Check function name */               			      \
         H5_CHECK_FUNCNAME(func_name);					      \
