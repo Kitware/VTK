@@ -20,7 +20,7 @@
 #ifndef __QVTKWin32Header_h
 #define __QVTKWin32Header_h
 
-#include "vtkConfigure.h"
+#include "vtkSystemIncludes.h"
 #include "vtkABI.h"
 
 #if defined(VTK_BUILD_SHARED_LIBS)
