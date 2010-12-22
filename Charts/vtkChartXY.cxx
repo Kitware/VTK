@@ -100,6 +100,7 @@ vtkChartXY::vtkChartXY()
   // The second grid for the far side/top axis
   vtkPlotGrid *grid2 = vtkPlotGrid::New();
   this->AddItem(grid2);
+  grid2->Delete();
 
   // The plots are drawn on top of the grid, in a clipped, transformed area.
   this->AddItem(this->ChartPrivate->Clip);
