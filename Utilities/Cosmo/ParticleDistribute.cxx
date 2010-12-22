@@ -42,15 +42,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-
-
-#include "Partition.h"
-#include "ParticleDistribute.h"
-
 #ifdef USE_VTK_COSMO
+#include "CosmoDefinition.h"
 #include "vtkStdString.h"
 #include "vtkSetGet.h"
 #endif
+
+#include "Partition.h"
+#include "ParticleDistribute.h"
 
 #include <iostream>
 #include <fstream>

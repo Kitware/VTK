@@ -16,7 +16,6 @@
 // .SECTION Description
 //
 
-#include "vtksys/SystemTools.hxx"
 #include "vtkSmartPointer.h"
 #include "vtkSQLiteDatabase.h"
 #include "vtkSQLQuery.h"
@@ -26,6 +25,8 @@
 
 #include "vtkTableToSQLiteWriter.h"
 #include "vtkSQLiteToTableReader.h"
+
+#include "vtksys/SystemTools.hxx"
 
 int TestSQLiteTableReadWrite(int argc, char *argv[])
 {

@@ -30,9 +30,11 @@
 #ifndef __QVTKApplication_h
 #define __QVTKApplication_h
 
-#include <QApplication>
+
 #include "QVTKWin32Header.h" // for QVTK_EXPORT
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
+
+#include <QApplication>
 
 #ifdef VTK_USE_TDX
 class vtkTDxDevice;

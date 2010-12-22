@@ -58,9 +58,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ParticleDistribute_h
 #define ParticleDistribute_h
 
-#include "Message.h"
-
-#include <cstdlib>
 
 #ifdef USE_VTK_COSMO
 #include "CosmoDefinition.h"
@@ -75,6 +72,9 @@ using namespace vtkstd;
 
 using namespace std;
 #endif
+
+#include "Message.h"
+#include <cstdlib>
 
 #ifdef USE_VTK_COSMO
 class COSMO_EXPORT ParticleDistribute {
