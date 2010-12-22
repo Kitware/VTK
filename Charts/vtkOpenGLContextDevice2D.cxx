@@ -931,8 +931,8 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
-                                         float *p)
+void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
+                                         float height, float *p)
 {
   // Special case multiples of 90 as no transformation is required...
   if (orientation > -0.0001 && orientation < 0.0001)
@@ -942,10 +942,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_RIGHT:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -953,10 +953,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_BOTTOM:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_TOP:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     }
@@ -967,10 +967,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_RIGHT:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -978,10 +978,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_BOTTOM:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     }
@@ -992,10 +992,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_RIGHT:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_LEFT:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -1003,10 +1003,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_BOTTOM:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     }
@@ -1017,10 +1017,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_RIGHT:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -1028,10 +1028,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_BOTTOM:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_TOP:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     }
@@ -1052,22 +1052,24 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
-  int *extent = image->GetExtent();
 
-  p[0] -= extent[0] - 0.5;
-  p[1] -= extent[2] - 0.5;
+  float width = static_cast<float>(image->GetOrigin()[0]);
+  float height = static_cast<float>(image->GetOrigin()[1]);
 
-  this->AlignText(this->TextProp->GetOrientation(), extent, p);
+  float xw = static_cast<float>(image->GetSpacing()[0]);
+  float xh = static_cast<float>(image->GetSpacing()[1]);
 
-  float points[] = { p[0]              , p[1],
-                     p[0]+extent[1]+1.0, p[1],
-                     p[0]+extent[1]+1.0, p[1]+extent[3]+1.0,
-                     p[0]              , p[1]+extent[3]+1.0 };
+  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
+
+  float points[] = { p[0]        , p[1],
+                     p[0] + width, p[1],
+                     p[0] + width, p[1] + height,
+                     p[0]        , p[1] + height };
 
   float texCoord[] = { 0.0, 0.0,
-                       1.0, 0.0,
-                       1.0, 1.0,
-                       0.0, 1.0 };
+                       xw,  0.0,
+                       xw,  xh,
+                       0.0, xh };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -1457,10 +1459,12 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
     {
     m->LoadExtension("GL_VERSION_2_0");
     this->Storage->OpenGL20 = true;
+    this->TextRenderer->SetScaleToPowerOfTwo(false);
     }
   else
     {
     this->Storage->OpenGL20 = false;
+    this->TextRenderer->SetScaleToPowerOfTwo(true);
     }
   if(m->ExtensionSupported("GL_VERSION_1_5"))
     {

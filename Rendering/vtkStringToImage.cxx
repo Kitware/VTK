@@ -21,11 +21,22 @@
 vtkStringToImage::vtkStringToImage()
 {
   this->Antialias = true;
+  this->ScaleToPowerOfTwo = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkStringToImage::~vtkStringToImage()
 {
+}
+
+//-----------------------------------------------------------------------------
+void vtkStringToImage::SetScaleToPowerOfTwo(bool scale)
+{
+  if (this->ScaleToPowerOfTwo != scale)
+    {
+    this->ScaleToPowerOfTwo = scale;
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -121,6 +121,13 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
 }
 
 //-----------------------------------------------------------------------------
+void vtkFreeTypeStringToImage::SetScaleToPowerOfTwo(bool scale)
+{
+  this->vtkStringToImage::SetScaleToPowerOfTwo(scale);
+  this->Implementation->FreeType->SetScaleToPowerTwo(scale);
+}
+
+//-----------------------------------------------------------------------------
 void vtkFreeTypeStringToImage::DeepCopy(vtkFreeTypeStringToImage *)
 {
 }

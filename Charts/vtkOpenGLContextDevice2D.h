@@ -305,7 +305,7 @@ private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.
   void operator=(const vtkOpenGLContextDevice2D &);   // Not implemented.
 
-  void AlignText(double orientation, int *extent, float *p);
+  void AlignText(double orientation, float width, float height, float *p);
 
 //ETX
 };

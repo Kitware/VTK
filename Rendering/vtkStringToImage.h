@@ -62,13 +62,18 @@ public:
                            const vtkStdString& string,
                            vtkImageData *data) = 0;
 
-
+  // Description:
+  // Should we produce images at powers of 2, makes rendering on old OpenGL
+  // hardware easier. Default is false.
+  virtual void SetScaleToPowerOfTwo(bool scale);
+  vtkGetMacro(ScaleToPowerOfTwo, bool)
 
 protected:
   vtkStringToImage();
   ~vtkStringToImage();
 
   bool Antialias;
+  bool ScaleToPowerOfTwo;
 
 private:
   vtkStringToImage(const vtkStringToImage &); // Not implemented.
