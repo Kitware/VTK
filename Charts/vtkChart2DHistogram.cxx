@@ -37,6 +37,7 @@ vtkChart2DHistogram::vtkChart2DHistogram()
   this->Histogram = vtkSmartPointer<vtk2DHistogramItem>::New();
   this->AddPlot(this->Histogram);
 
+  this->RemoveItem(this->Legend);
   this->Legend = vtkSmartPointer<vtkColorLegend>::New();
   this->AddItem(this->Legend);
 }
@@ -62,15 +63,24 @@ void vtkChart2DHistogram::SetInput(vtkImageData *data, vtkIdType z)
 void vtkChart2DHistogram::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->Histogram->SetTransferFunction(function);
-  this->Legend->SetTransferFunction(function);
+  vtkColorLegend *legend = vtkColorLegend::SafeDownCast(this->Legend);
+  if (legend)
+    {
+    legend->SetTransferFunction(function);
+    }
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChart2DHistogram::UpdateLayout(vtkContext2D *painter)
 {
   this->vtkChartXY::UpdateLayout(painter);
-  this->Legend->SetPosition(vtkRectf(this->Point2[0], this->Point1[1],
-                                     10, this->Point2[1] - this->Point1[1]));
+  vtkColorLegend *legend = vtkColorLegend::SafeDownCast(this->Legend);
+  if (legend)
+    {
+    legend->SetPosition(vtkRectf(this->Point2[0] + 5, this->Point1[1],
+                                 this->Legend->GetSymbolWidth(),
+                                 this->Point2[1] - this->Point1[1]));
+    }
   this->Legend->Update();
   return true;
 }

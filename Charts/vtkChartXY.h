@@ -25,6 +25,7 @@
 #define __vtkChartXY_h
 
 #include "vtkChart.h"
+#include "vtkSmartPointer.h" // For SP ivars
 
 class vtkPlot;
 class vtkAxis;
@@ -205,16 +206,12 @@ protected:
   virtual void SetLegendPosition(const vtkRectf& rect);
 
   // Description:
-  // The grid for the chart.
-  vtkPlotGrid *Grid;
-
-  // Description:
   // The legend for the chart.
-  vtkChartLegend *Legend;
+  vtkSmartPointer<vtkChartLegend> Legend;
 
   // Description:
   // The tooltip item for the chart - can be used to display extra information.
-  vtkTooltipItem *Tooltip;
+  vtkSmartPointer<vtkTooltipItem> Tooltip;
 
   // Description:
   // Does the plot area transform need to be recalculated?
