@@ -56,7 +56,6 @@ protected:
   vtkChart2DHistogram();
   ~vtkChart2DHistogram();
 
-  vtkSmartPointer<vtkColorLegend>     Legend;
   vtkSmartPointer<vtk2DHistogramItem> Histogram;
 
   // Description:
