@@ -1016,9 +1016,9 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
       data->UpdateInformation();
       data->SetUpdateExtent(data->GetWholeExtent());
       data->PropagateUpdateExtent();
-      data->SetOrigin(text_size[0], text_size[1], 0.0);
-      data->SetSpacing(text_size[0] / double(new_img_dims[0]),
-                       text_size[1] / double(new_img_dims[1]),
+      data->SetOrigin(text_size[0] + 1, text_size[1] + 1, 0.0);
+      data->SetSpacing(text_size[0] / double(new_img_dims[0] - 1),
+                       text_size[1] / double(new_img_dims[1] - 1),
                        0.0);
       }
     }
