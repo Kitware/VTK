@@ -25,13 +25,9 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
-#include "vtkOpenGLContextDevice2D.h"
 #include "vtkStdString.h"
 
 #include "vtkRegressionTestImage.h"
-
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
 class APIDiagram : public vtkContextItem
@@ -44,24 +40,23 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestDiagram( int, char * [] )
+int TestDiagram(int, char * [])
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
-  VTK_CREATE(vtkContextActor, actor);
-  VTK_CREATE(APIDiagram, diagram);
+  vtkSmartPointer<vtkContextActor> actor =
+      vtkSmartPointer<vtkContextActor>::New();
+  vtkSmartPointer<APIDiagram> diagram = vtkSmartPointer<APIDiagram>::New();
   actor->GetScene()->AddItem(diagram);
-  VTK_CREATE(vtkRenderer, renderer);
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renderer->SetBackground(1.0, 1.0, 1.0);
-  VTK_CREATE(vtkRenderWindow, renderWindow);
+  vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->SetSize(800, 600);
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
 
-  // Force the use of the freetype based rendering strategy
-  vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
-      ->SetStringRendererToFreeType();
-
-  VTK_CREATE(vtkRenderWindowInteractor, interactor);
+  vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
   interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   interactor->Initialize();
