@@ -311,6 +311,10 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       {
       glEnableClientState(GL_COLOR_ARRAY);
       }
+    else
+      {
+      glColor4ubv(this->Pen->GetColor());
+      }
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
