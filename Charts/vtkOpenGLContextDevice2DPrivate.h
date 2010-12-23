@@ -55,6 +55,7 @@ public:
     this->OpenGL15 = false;
     this->OpenGL20 = false;
     this->GLSL = false;
+    this->PowerOfTwoTextures = true;
   }
 
   ~Private()
@@ -173,6 +174,91 @@ public:
     return texCoord;
   }
 
+  vtkVector2i FindPowerOfTwo(const vtkVector2i& size)
+    {
+    vtkVector2i pow2(1, 1);
+    for (int i = 0; i < 2; ++i)
+      {
+      while (pow2[i] < size[i])
+        {
+        pow2[i] *= 2;
+        }
+      }
+    return pow2;
+    }
+
+  GLuint TextureFromImage(vtkImageData *image, vtkVector2f& texCoords)
+    {
+    if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
+      {
+      cout << "Error = not an unsigned char..." << endl;
+      return 0;
+      }
+    int bytesPerPixel = image->GetNumberOfScalarComponents();
+    int size[3];
+    image->GetDimensions(size);
+    vtkVector2i newImg = this->FindPowerOfTwo(vtkVector2i(size[0], size[1]));
+
+    for (int i = 0; i < 2; ++i)
+      {
+      texCoords[i] = size[i] / float(newImg[i]);
+      }
+
+    unsigned char *dataPtr =
+        new unsigned char[newImg[0] * newImg[1] * bytesPerPixel];
+    unsigned char *origPtr =
+        static_cast<unsigned char*>(image->GetScalarPointer());
+
+    for (int i = 0; i < newImg[0]; ++i)
+      {
+      for (int j = 0; j < newImg[1]; ++j)
+        {
+        for (int k = 0; k < bytesPerPixel; ++k)
+          {
+          if (i < size[0] && j < size[1])
+            {
+            dataPtr[i * newImg[0] * bytesPerPixel + j * bytesPerPixel + k] =
+                origPtr[i * size[0] * bytesPerPixel + j * bytesPerPixel + k];
+            }
+          else
+            {
+            dataPtr[i * newImg[0] * bytesPerPixel + j * bytesPerPixel + k] =
+                k == 3 ? 0 : 255;
+            }
+          }
+        }
+      }
+
+    GLuint tmpIndex(0);
+    GLint glFormat = bytesPerPixel == 3 ? GL_RGB : GL_RGBA;
+    GLint glInternalFormat = bytesPerPixel == 3 ? GL_RGB8 : GL_RGBA8;
+
+    glGenTextures(1, &tmpIndex);
+    glBindTexture(GL_TEXTURE_2D, tmpIndex);
+
+    glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_REPLACE);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                     vtkgl::CLAMP_TO_EDGE );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                     vtkgl::CLAMP_TO_EDGE );
+
+    glTexImage2D(GL_TEXTURE_2D, 0 , glInternalFormat,
+                 newImg[0], newImg[1], 0, glFormat,
+                 GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(dataPtr));
+    glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
+    glEnable(GL_ALPHA_TEST);
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_TEXTURE_2D);
+    delete [] dataPtr;
+    return tmpIndex;
+    }
+
   GLuint TextureFromImage(vtkImageData *image)
   {
     if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
@@ -234,6 +320,7 @@ public:
   bool OpenGL15;
   bool OpenGL20;
   bool GLSL;
+  bool PowerOfTwoTextures;
 };
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H

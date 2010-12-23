@@ -833,7 +833,16 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                                          vtkImageData *image)
 {
-  GLuint index = this->Storage->TextureFromImage(image);
+  vtkVector2f tex(1.0, 1.0);
+  GLuint index = 0;
+  if (this->Storage->PowerOfTwoTextures)
+    {
+    index = this->Storage->TextureFromImage(image, tex);
+    }
+  else
+    {
+    index = this->Storage->TextureFromImage(image, tex);
+    }
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
   float points[] = { pos.X()              , pos.Y(),
@@ -841,10 +850,10 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                      pos.X() + pos.Width(), pos.Y() + pos.Height(),
                      pos.X()              , pos.Y() + pos.Height() };
 
-  float texCoord[] = { 0.0, 0.0,
-                       1.0, 0.0,
-                       1.0, 1.0,
-                       0.0, 1.0 };
+  float texCoord[] = { 0.0   , 0.0,
+                       tex[0], 0.0,
+                       tex[0], tex[1],
+                       0.0   , tex[1] };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);
