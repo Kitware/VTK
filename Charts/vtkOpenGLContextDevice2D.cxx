@@ -1131,15 +1131,15 @@ bool vtkOpenGLContextDevice2D::HasGLSL()
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
-  if(m->ExtensionSupported("GL_VERSION_2_0"))
+  if(m->ExtensionSupported("GL_ARB_texture_non_power_of_two"))
     {
-    m->LoadExtension("GL_VERSION_2_0");
-    this->Storage->OpenGL20 = true;
+    m->LoadExtension("GL_ARB_texture_non_power_of_two");
+    this->Storage->PowerOfTwoTextures = false;
     this->TextRenderer->SetScaleToPowerOfTwo(false);
     }
   else
     {
-    this->Storage->OpenGL20 = false;
+    this->Storage->PowerOfTwoTextures = true;
     this->TextRenderer->SetScaleToPowerOfTwo(true);
     }
   if(m->ExtensionSupported("GL_VERSION_1_5"))
