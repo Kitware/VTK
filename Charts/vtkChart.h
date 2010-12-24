@@ -47,6 +47,14 @@ public:
     POINTS,
     BAR,
     STACKED};
+
+  // Description:
+  // Enum of valid chart action types
+  enum {
+    PAN,
+    ZOOM,
+    SELECT
+    };
 //ETX
 
   // Description:
@@ -162,6 +170,22 @@ public:
   vtkSetMacro(AutoSize, bool);
   vtkGetMacro(AutoSize, bool);
 
+  // Description:
+  // Assign action types to mouse buttons. Available action types are PAN, ZOOM
+  // and SELECT in the chart enum, the default assigns the LEFT_BUTTON to
+  // PAN, MIDDLE_BUTTON to ZOOM and RIGHT_BUTTON to SELECT. Valid mouse enums
+  // are in the vtkContextMouseEvent class.
+  //
+  // Note that only one mouse button can be assigned to each action, an action
+  // will have -1 (invalid button) assigned if it had the same button as the one
+  // assigned to a different action.
+  virtual void SetActionToButton(int action, int button);
+
+  // Description:
+  // Get the mouse button associated with the supplied action. The mouse button
+  // enum is from vtkContextMouseEvent, and the action enum is from vtkChart.
+  virtual int GetActionToButton(int action);
+
 protected:
   vtkChart();
   ~vtkChart();
@@ -204,6 +228,21 @@ protected:
 
   vtkRectf Size;
   bool AutoSize;
+
+  // Description:
+  // Hold mouse action mappings.
+  class MouseActions
+    {
+  public:
+    MouseActions();
+    short& Pan() { return Data[0]; }
+    short& Zoom() { return Data[1]; }
+    short& Select() { return Data[2]; }
+    short& operator[](int index) { return Data[index]; }
+    short Data[3];
+    };
+
+  MouseActions Actions;
 
 private:
   vtkChart(const vtkChart &); // Not implemented.
