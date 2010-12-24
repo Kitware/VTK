@@ -13,11 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotPoints - Class for drawing an XY plot given two columns from a
+// .NAME vtkPlotPoints - Class for drawing an points given two columns from a
 // vtkTable.
 //
 // .SECTION Description
+// This class draws points in a plot given two columns from a table. If you need
+// a line as well you should use vtkPlotLine which derives from vtkPlotPoints
+// and is capable of drawing both points and a line.
 //
+// .SECTION See Also
+// vtkPlotLine
 
 #ifndef __vtkPlotPoints_h
 #define __vtkPlotPoints_h
