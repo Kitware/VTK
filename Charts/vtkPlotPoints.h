@@ -87,6 +87,9 @@ public:
   void SelectColorArray(vtkIdType arrayNum);
   void SelectColorArray(const char* arrayName);
 
+  // Description:
+  // Get the array name to color by.
+  char* GetColorArrayName() { return this->ColorArrayName; }
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
