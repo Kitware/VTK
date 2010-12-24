@@ -25,7 +25,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkstd/algorithm"
+#include <algorithm>
 
 namespace {
 
@@ -212,7 +212,7 @@ int vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f&,
       {
       pointAngle = 180.0 + (180.0 + pointAngle);
       }
-    float *lbound = vtkstd::lower_bound(angles,
+    float *lbound = std::lower_bound(angles,
                                      angles + (this->Points->GetNumberOfPoints() * 2),
                                      pointAngle);
     int ret = lbound - angles;  // Location in the array

@@ -29,15 +29,15 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
+#include <vector>
+#include <algorithm>
 
 // PIMPL for STL vector...
-class vtkPlotPoints::VectorPIMPL : public vtkstd::vector<vtkVector2f>
+class vtkPlotPoints::VectorPIMPL : public std::vector<vtkVector2f>
 {
 public:
   VectorPIMPL(vtkVector2f* startPos, vtkVector2f* finishPos)
-    : vtkstd::vector<vtkVector2f>(startPos, finishPos)
+    : std::vector<vtkVector2f>(startPos, finishPos)
   {
   }
 };
@@ -475,7 +475,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     vtkVector2f* data =
         static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
     this->Sorted = new VectorPIMPL(data, data+n);
-    vtkstd::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
+    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
     }
 
   // Set up our search array, use the STL lower_bound algorithm
@@ -484,7 +484,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
 
   // Get the lowest point we might hit within the supplied tolerance
   vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
-  low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
   // Now consider the y axis
   float highX = point.X() + tol.X();
