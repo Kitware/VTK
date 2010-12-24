@@ -147,9 +147,9 @@ int TestMultipleScalarsToColors(int , char * [])
   iren->Render();
   vtkOpenGLRenderWindow* openGLRenWin =
       vtkOpenGLRenderWindow::SafeDownCast(renwin);
-  if (!openGLRenWin ||
-      !openGLRenWin->GetExtensionManager() ||
-      !openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
+  if (openGLRenWin &&
+      openGLRenWin->GetExtensionManager() &&
+      openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
     {
     // we might be able to support GL Version 1.1 but it requires some modifications
     // on how to apply 1D textures.
