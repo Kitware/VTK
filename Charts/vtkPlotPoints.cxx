@@ -60,7 +60,6 @@ vtkPlotPoints::vtkPlotPoints()
   this->LookupTable = 0;
   this->Colors = 0;
   this->ScalarVisibility = 0;
-  strcpy(this->ColorArrayName, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -857,22 +856,21 @@ void vtkPlotPoints::SelectColorArray(const char *arrayName)
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
     return;
     }
-  if (strcmp(this->ColorArrayName, arrayName) == 0)
+  if (this->ColorArrayName == arrayName)
     {
     return;
     }
   for (vtkIdType c = 0; c < table->GetNumberOfColumns(); ++c)
     {
-    const char *name = table->GetColumnName(c);
-    if (strcmp(name, arrayName) == 0)
+    if (arrayName == table->GetColumnName(c))
       {
-      strcpy(this->ColorArrayName, arrayName);
+      this->ColorArrayName = arrayName;
       this->Modified();
       return;
       }
     }
   vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
-  strcpy(this->ColorArrayName, "");
+  this->ColorArrayName = "";
   this->Modified();
   return;
 }
@@ -896,18 +894,23 @@ void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
   else
     {
     const char *arrayName = table->GetColumnName(arrayNum);
-    if (strcmp(this->ColorArrayName, arrayName) == 0)
+    if (this->ColorArrayName == arrayName || arrayName == 0)
       {
       return;
       }
     else
       {
-      strcpy(this->ColorArrayName, arrayName);
+      this->ColorArrayName = arrayName;
       this->Modified();
       }
     }
 }
 
+//-----------------------------------------------------------------------------
+const char* vtkPlotPoints::GetColorArrayName()
+{
+  return this->ColorArrayName;
+}
 
 //-----------------------------------------------------------------------------
 void vtkPlotPoints::PrintSelf(ostream &os, vtkIndent indent)

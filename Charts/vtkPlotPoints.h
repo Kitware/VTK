@@ -24,6 +24,7 @@
 
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkStdString.h"       // For color array name
 
 class vtkContext2D;
 class vtkTable;
@@ -61,7 +62,7 @@ public:
   virtual bool PaintLegend(vtkContext2D *painter, float rect[4], int legendIndex);
 
   // Description:
-  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
   virtual void GetBounds(double bounds[4]);
 
   // Description:
@@ -89,7 +90,8 @@ public:
 
   // Description:
   // Get the array name to color by.
-  char* GetColorArrayName() { return this->ColorArrayName; }
+  const char* GetColorArrayName();
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
@@ -180,7 +182,7 @@ protected:
   vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *Colors;
   int ScalarVisibility;
-  char ColorArrayName[256];
+  vtkStdString ColorArrayName;
 
 private:
   vtkPlotPoints(const vtkPlotPoints &); // Not implemented.
