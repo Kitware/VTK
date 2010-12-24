@@ -33,9 +33,9 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
-#include "vtkstd/map"
+#include <vector>
+#include <algorithm>
+#include <map>
 
 //-----------------------------------------------------------------------------
 namespace {
@@ -187,12 +187,12 @@ class vtkPlotBarSegment : public vtkObject {
       // bar plots.
       vtkVector2f* data =
           static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-      vtkstd::vector<vtkVector2f> v(data, data+n);
+      std::vector<vtkVector2f> v(data, data+n);
 
       // Sort if necessary - in the case of bar plots render order does not matter
       if (!this->Sorted)
         {
-        vtkstd::sort(v.begin(), v.end(), compVector2fX);
+        std::sort(v.begin(), v.end(), compVector2fX);
         this->Sorted = true;
         }
 
@@ -203,9 +203,9 @@ class vtkPlotBarSegment : public vtkObject {
       // Set up our search array, use the STL lower_bound algorithm
       // When searching, invert the behavior of the offset and
       // compensate for the half width overlap.
-      vtkstd::vector<vtkVector2f>::iterator low;
+      std::vector<vtkVector2f>::iterator low;
       vtkVector2f lowPoint(point.X()-(offset * -1)-halfWidth, 0.0f);
-      low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
       while (low != v.end())
         {
@@ -264,7 +264,7 @@ public:
     {
     int colorInSeries = 0;
     bool useColorSeries = this->Segments.size() > 1;
-    for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
+    for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
          this->Segments.begin(); it != this->Segments.end(); ++it)
       {
       if (useColorSeries && colorSeries)
@@ -280,7 +280,7 @@ public:
                       float width, float offset)
     {
     int index = 0;
-    for (vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
+    for (std::vector<vtkSmartPointer<vtkPlotBarSegment> >::iterator it =
            this->Segments.begin(); it != this->Segments.end(); ++it)
       {
       if ((*it)->GetNearestPoint(point,location,width,offset))
@@ -292,9 +292,9 @@ public:
     return -1;
     }
 
-  vtkstd::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
+  std::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
   vtkPlotBar *Bar;
-  vtkstd::map<int,vtkstd::string> AdditionalSeries;
+  std::map<int,std::string> AdditionalSeries;
   vtkStdString GroupName;
 };
 
@@ -369,7 +369,7 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotBar::PaintLegend(vtkContext2D *painter, float rect[4],
+bool vtkPlotBar::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                              int legendIndex)
 {
   if (this->ColorSeries)
@@ -409,7 +409,7 @@ void vtkPlotBar::GetBounds(double bounds[4])
   y->GetRange(&bounds[2]);
 
   double y_range[2];
-  vtkstd::map< int, vtkstd::string >::iterator it;
+  std::map< int, std::string >::iterator it;
   for ( it = this->Private->AdditionalSeries.begin(); it !=
                   this->Private->AdditionalSeries.end(); ++it )
     {
@@ -490,7 +490,7 @@ vtkStringArray *vtkPlotBar::GetLabels()
     this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1,
                                       this->Data->GetInput())->GetName());
 
-    vtkstd::map< int, vtkstd::string >::iterator it;
+    std::map< int, std::string >::iterator it;
     for ( it = this->Private->AdditionalSeries.begin();
           it != this->Private->AdditionalSeries.end(); ++it )
       {
@@ -546,7 +546,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
 
   vtkPlotBarSegment *prev = this->Private->AddSegment(x,y);
 
-  vtkstd::map< int, vtkstd::string >::iterator it;
+  std::map< int, std::string >::iterator it;
 
   for ( it = this->Private->AdditionalSeries.begin();
         it != this->Private->AdditionalSeries.end(); ++it )
@@ -576,7 +576,7 @@ void vtkPlotBar::SetInputArray(int index, const char *name)
     }
   else
     {
-    this->Private->AdditionalSeries[index] = vtkstd::string(name);
+    this->Private->AdditionalSeries[index] = std::string(name);
     }
   this->AutoLabels = 0; // No longer valid
 }

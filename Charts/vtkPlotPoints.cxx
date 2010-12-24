@@ -29,15 +29,15 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
+#include <vector>
+#include <algorithm>
 
 // PIMPL for STL vector...
-class vtkPlotPoints::VectorPIMPL : public vtkstd::vector<vtkVector2f>
+class vtkPlotPoints::VectorPIMPL : public std::vector<vtkVector2f>
 {
 public:
   VectorPIMPL(vtkVector2f* startPos, vtkVector2f* finishPos)
-    : vtkstd::vector<vtkVector2f>(startPos, finishPos)
+    : std::vector<vtkVector2f>(startPos, finishPos)
   {
   }
 };
@@ -60,7 +60,6 @@ vtkPlotPoints::vtkPlotPoints()
   this->LookupTable = 0;
   this->Colors = 0;
   this->ScalarVisibility = 0;
-  strcpy(this->ColorArrayName, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -191,7 +190,8 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                                int)
 {
   if (this->MarkerStyle)
     {
@@ -475,7 +475,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     vtkVector2f* data =
         static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
     this->Sorted = new VectorPIMPL(data, data+n);
-    vtkstd::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
+    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
     }
 
   // Set up our search array, use the STL lower_bound algorithm
@@ -484,7 +484,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
 
   // Get the lowest point we might hit within the supplied tolerance
   vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
-  low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
   // Now consider the y axis
   float highX = point.X() + tol.X();
@@ -857,22 +857,21 @@ void vtkPlotPoints::SelectColorArray(const char *arrayName)
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
     return;
     }
-  if (strcmp(this->ColorArrayName, arrayName) == 0)
+  if (this->ColorArrayName == arrayName)
     {
     return;
     }
   for (vtkIdType c = 0; c < table->GetNumberOfColumns(); ++c)
     {
-    const char *name = table->GetColumnName(c);
-    if (strcmp(name, arrayName) == 0)
+    if (arrayName == table->GetColumnName(c))
       {
-      strcpy(this->ColorArrayName, arrayName);
+      this->ColorArrayName = arrayName;
       this->Modified();
       return;
       }
     }
   vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
-  strcpy(this->ColorArrayName, "");
+  this->ColorArrayName = "";
   this->Modified();
   return;
 }
@@ -896,18 +895,23 @@ void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
   else
     {
     const char *arrayName = table->GetColumnName(arrayNum);
-    if (strcmp(this->ColorArrayName, arrayName) == 0)
+    if (this->ColorArrayName == arrayName || arrayName == 0)
       {
       return;
       }
     else
       {
-      strcpy(this->ColorArrayName, arrayName);
+      this->ColorArrayName = arrayName;
       this->Modified();
       }
     }
 }
 
+//-----------------------------------------------------------------------------
+const char* vtkPlotPoints::GetColorArrayName()
+{
+  return this->ColorArrayName;
+}
 
 //-----------------------------------------------------------------------------
 void vtkPlotPoints::PrintSelf(ostream &os, vtkIndent indent)

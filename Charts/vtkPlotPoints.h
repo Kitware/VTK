@@ -13,17 +13,23 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotPoints - Class for drawing an XY plot given two columns from a
+// .NAME vtkPlotPoints - Class for drawing an points given two columns from a
 // vtkTable.
 //
 // .SECTION Description
+// This class draws points in a plot given two columns from a table. If you need
+// a line as well you should use vtkPlotLine which derives from vtkPlotPoints
+// and is capable of drawing both points and a line.
 //
+// .SECTION See Also
+// vtkPlotLine
 
 #ifndef __vtkPlotPoints_h
 #define __vtkPlotPoints_h
 
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkStdString.h"       // For color array name
 
 class vtkContext2D;
 class vtkTable;
@@ -58,10 +64,11 @@ public:
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4], int legendIndex);
+  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex);
 
   // Description:
-  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
   virtual void GetBounds(double bounds[4]);
 
   // Description:
@@ -89,7 +96,8 @@ public:
 
   // Description:
   // Get the array name to color by.
-  char* GetColorArrayName() { return this->ColorArrayName; }
+  const char* GetColorArrayName();
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
@@ -180,7 +188,7 @@ protected:
   vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *Colors;
   int ScalarVisibility;
-  char ColorArrayName[256];
+  vtkStdString ColorArrayName;
 
 private:
   vtkPlotPoints(const vtkPlotPoints &); // Not implemented.
