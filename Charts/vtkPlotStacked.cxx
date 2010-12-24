@@ -685,7 +685,8 @@ bool vtkPlotStacked::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                                 int)
 {
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);

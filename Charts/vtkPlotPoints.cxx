@@ -190,7 +190,8 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                                int)
 {
   if (this->MarkerStyle)
     {

@@ -369,7 +369,7 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotBar::PaintLegend(vtkContext2D *painter, float rect[4],
+bool vtkPlotBar::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                              int legendIndex)
 {
   if (this->ColorSeries)

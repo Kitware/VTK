@@ -141,7 +141,8 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
 
 //-----------------------------------------------------------------------------
 
-bool vtkPlotPie::PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex)
+bool vtkPlotPie::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                             int legendIndex)
 {
   if (this->ColorSeries)
     this->Brush

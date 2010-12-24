@@ -36,6 +36,7 @@ class vtkPen;
 class vtkBrush;
 class vtkAxis;
 class vtkVector2f;
+class vtkRectf;
 class vtkStringArray;
 
 class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
@@ -50,7 +51,7 @@ public:
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied. The index is used
   // by Plots that return more than one label.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4],
+  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                            int legendIndex);
 
 //BTX
