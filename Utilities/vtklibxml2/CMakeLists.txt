@@ -24,6 +24,13 @@ SET(LIBXML2_PLATFORM_TEST_FILE_C platformTestsC.c)
 
 FIND_PACKAGE(Threads)
 
+IF(MINGW AND CMAKE_USE_PTHREADS AND CMAKE_USE_WIN32_THREADS)
+  MESSAGE(STATUS
+    "Forcing CMAKE_USE_PTHREADS OFF as only one threading library should be used.")
+  SET(CMAKE_USE_PTHREADS OFF CACHE BOOL
+    "Force pthreads off if WIN32 threads are enabled" FORCE)
+ENDIF()
+
 SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING
   "Thread library used.")
 
