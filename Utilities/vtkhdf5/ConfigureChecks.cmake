@@ -601,6 +601,7 @@ IF (HDF5_ENABLE_HSIZET)
 ENDIF (HDF5_ENABLE_HSIZET)
 IF (CYGWIN)
   SET (H5_HAVE_LSEEK64 0)
+  SET (H5_CYGWIN_ULLONG_TO_LDOUBLE_ROUND_PROBLEM 1)
 ENDIF (CYGWIN)
 
 #-----------------------------------------------------------------------------
