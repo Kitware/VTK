@@ -8,8 +8,8 @@
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkAxisActor.h"
@@ -28,12 +28,12 @@
 
 // ****************************************************************
 // Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002 
+//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
 //   Replace 'New' method with macro to match VTK 4.0 API.
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
+vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 
 // ****************************************************************
 // Instantiate this object.
@@ -42,20 +42,20 @@ vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 //   Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
 //   Initialize new members mustAdjustValue and valueScaleFactor.
 //
-//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001 
+//   Kathleen Bonnell, Wed Nov  7 16:19:16 PST 2001
 //   No longer allocate large amounts of memory for labels, instead
-//   allocate dynamically.  Initialize new members: 
-//   LastLabelStart; LastAxisPosition; LastTickLocation; LastTickVisibility; 
-//   LastDrawGridlines; LastMinorTicksVisible; LastRange; MinorTickPts; 
+//   allocate dynamically.  Initialize new members:
+//   LastLabelStart; LastAxisPosition; LastTickLocation; LastTickVisibility;
+//   LastDrawGridlines; LastMinorTicksVisible; LastRange; MinorTickPts;
 //   MajorTickPts; GridlinePts.
 //
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Initialize new member AxisHasZeroLength. 
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Initialize new member AxisHasZeroLength.
 //
-//   Kathleen Bonnell, Thu Aug  1 13:44:02 PDT 2002 
-//   Initialize new member ForceLabelReset. 
+//   Kathleen Bonnell, Thu Aug  1 13:44:02 PDT 2002
+//   Initialize new member ForceLabelReset.
 //
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //   Removed mustAdjustValue, valueScaleFator, ForceLabelReset.
 //
 //   Kathleen Bonnell, Thu Apr 29 17:02:10 PDT 2004
@@ -78,14 +78,14 @@ vtkAxisActor::vtkAxisActor()
   this->MinorTicksVisible = 1;
   this->MajorTickSize = 1.0;
   this->MinorTickSize = 0.5;
-  this->TickLocation = VTK_TICKS_INSIDE; 
+  this->TickLocation = VTK_TICKS_INSIDE;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
-  
+
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1;
 
-  this->LabelFormat = new char[8]; 
+  this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
   this->TitleVector = vtkVectorText::New();
@@ -93,30 +93,30 @@ vtkAxisActor::vtkAxisActor()
   this->TitleMapper->SetInput(this->TitleVector->GetOutput());
   this->TitleActor = vtkFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
-  
+
   // to avoid deleting/rebuilding create once up front
   this->NumberOfLabelsBuilt = 0;
-  this->LabelVectors = NULL; 
-  this->LabelMappers = NULL; 
-  this->LabelActors = NULL; 
+  this->LabelVectors = NULL;
+  this->LabelMappers = NULL;
+  this->LabelActors = NULL;
 
   this->Axis = vtkPolyData::New();
   this->AxisMapper = vtkPolyDataMapper::New();
   this->AxisMapper->SetInput(this->Axis);
   this->AxisActor = vtkActor::New();
   this->AxisActor->SetMapper(this->AxisMapper);
-  
+
   this->AxisVisibility = 1;
   this->TickVisibility = 1;
   this->LabelVisibility = 1;
   this->TitleVisibility = 1;
-  
-  this->DrawGridlines = 0;
-  this->GridlineXLength = 1.;  
-  this->GridlineYLength = 1.;  
-  this->GridlineZLength = 1.;  
 
-  this->AxisType = VTK_AXIS_TYPE_X; 
+  this->DrawGridlines = 0;
+  this->GridlineXLength = 1.;
+  this->GridlineYLength = 1.;
+  this->GridlineZLength = 1.;
+
+  this->AxisType = VTK_AXIS_TYPE_X;
   //
   // AxisPosition denotes which of the four possibilities in relation
   // to the bounding box.  An x-Type axis with min min, means the x-axis
@@ -127,10 +127,10 @@ vtkAxisActor::vtkAxisActor()
   this->LastLabelStart = 100000;
 
   this->LastAxisPosition = -1;
-  this->LastTickLocation = -1; 
-  this->LastTickVisibility = -1; 
-  this->LastDrawGridlines = -1; 
-  this->LastMinorTicksVisible = -1; 
+  this->LastTickLocation = -1;
+  this->LastTickVisibility = -1;
+  this->LastDrawGridlines = -1;
+  this->LastMinorTicksVisible = -1;
   this->LastRange[0] = -1.0;
   this->LastRange[1] = -1.0;
 
@@ -144,11 +144,15 @@ vtkAxisActor::vtkAxisActor()
   this->MajorStart = 0.;
   this->DeltaMinor = 1.;
   this->DeltaMajor = 1.;
+  this->MinorRangeStart = 0.;
+  this->MajorRangeStart = 0.;
+  this->DeltaRangeMinor = 1.;
+  this->DeltaRangeMajor = 1.;
 }
 
 // ****************************************************************
 // Modifications:
-//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002 
+//   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
 //   Added call to set camera to null.
 // ****************************************************************
 
@@ -168,7 +172,7 @@ vtkAxisActor::~vtkAxisActor()
     this->Point2Coordinate = NULL;
     }
 
-  if (this->LabelFormat) 
+  if (this->LabelFormat)
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
@@ -232,17 +236,17 @@ vtkAxisActor::~vtkAxisActor()
   if (this->MinorTickPts)
     {
     this->MinorTickPts ->Delete();
-    this->MinorTickPts = NULL; 
+    this->MinorTickPts = NULL;
     }
   if (this->MajorTickPts)
     {
     this->MajorTickPts->Delete();
-    this->MajorTickPts = NULL; 
+    this->MajorTickPts = NULL;
     }
   if (this->GridlinePts)
     {
     this->GridlinePts->Delete();
-    this->GridlinePts = NULL; 
+    this->GridlinePts = NULL;
     }
 }
 
@@ -268,7 +272,7 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow *win)
 //   Kathleen Bonnell, Wed Mar  6 13:48:48 PST 2002
 //   Call superclass's method in new VTK 4.0 way.
 //
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //   Removed mustAdjustValue, valueScaleFator.
 //
 // ****************************************************************
@@ -298,11 +302,11 @@ void vtkAxisActor::ShallowCopy(vtkProp *prop)
 // Build the axis, ticks, title, and labels and render.
 //
 // Modifications:
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Don't render a zero-length axis. 
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Don't render a zero-length axis.
 //
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
-//   Added bool argument to BuildAxis. 
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
+//   Added bool argument to BuildAxis.
 //
 // ****************************************************************
 
@@ -347,15 +351,15 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //   Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001
 //   Added logic to only rebuild sub-parts if necessary.
 //
-//   Kathleen Bonnell, Fri Nov 30 17:02:41 PST 2001 
+//   Kathleen Bonnell, Fri Nov 30 17:02:41 PST 2001
 //   Moved setting values for LastRange to end of method, so they
 //   can be used in comparisons elsewhere.
 //
 //   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
 //   Compare vtkTimeStamps correctly.
 //
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Test for zero length axis. 
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Test for zero length axis.
 //
 //   Kathleen Bonnell,  Fri Jul 25 14:37:32 PDT 2003
 //   Added bool argument that will allow all axis components to be built
@@ -363,7 +367,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //   vtkCubeAxesActor.  Remvoed call to Build?TypeAxis, added calls
 //   to BuildLabels, SetAxisPointsAndLines and BuildTitle, (which used to
 //   be handled in Build?TypeAxis). .
-//    
+//
 // **************************************************************************
 
 void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
@@ -427,7 +431,7 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 
   this->BuildLabels(viewport, force);
 
-  if (this->Title != NULL && this->Title[0] != 0) 
+  if (this->Title != NULL && this->Title[0] != 0)
     {
     this->BuildTitle(force);
     }
@@ -442,25 +446,25 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
 
 // ****************************************************************
 //
-//  Set label values and properties. 
+//  Set label values and properties.
 //
 // Modifications:
 //   Kathleen Bonnell, Wed Oct 31 07:57:49 PST 2001
-//   Use valueScaleFactor to scale value if necessary. 
+//   Use valueScaleFactor to scale value if necessary.
 //
-//   Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001 
+//   Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001
 //   Added code for early termination.  Added call to SetNumberOfLabels
 //   for dynamic memory allocation. Number of labels limited to 200.
 //
 //   Kathleen Bonnell, Fri Nov 30 17:02:41 PST 2001
-//   Added test for modified range to determine if labels really need to 
+//   Added test for modified range to determine if labels really need to
 //   be built.
 //
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Use defined constant to limit number of labels.   
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Use defined constant to limit number of labels.
 //
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
-//   Remvoed determination of label text, added call to 
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
+//   Remvoed determination of label text, added call to
 //   SetLabelPositions.
 //
 // ****************************************************************
@@ -472,14 +476,14 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     {
     return;
     }
- 
+
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->SetProperty(this->GetProperty());
     }
 
-  if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() || 
+  if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() ||
       this->AxisPosition != this->LastAxisPosition ||
       this->LastRange[0] != this->Range[0] ||
       this->LastRange[1] != this->Range[1])
@@ -500,14 +504,14 @@ int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 //   ensure proper scaling.  Use Bounds[1] and Bounds[0] for bWidth
 //   instead of Bounds[5] and Bounds[4].
 //
-//   Kathleen Bonnell, Tue Dec  4 09:55:03 PST 2001 
-//   Ensure that scale does not go below MinScale. 
+//   Kathleen Bonnell, Tue Dec  4 09:55:03 PST 2001
+//   Ensure that scale does not go below MinScale.
 //
-//   Kathleen Bonnell, Tue Apr  9 14:41:08 PDT 2002  
+//   Kathleen Bonnell, Tue Apr  9 14:41:08 PDT 2002
 //   Removed MinScale as it allowed axes with very small ranges
-//   to have labels scaled too large for the dataset. 
+//   to have labels scaled too large for the dataset.
 //
-//   Kathleen Bonnell, Fri Jul 18 09:09:31 PDT 2003 
+//   Kathleen Bonnell, Fri Jul 18 09:09:31 PDT 2003
 //   Renamed to SetLabelPosition.  Removed calculation of label
 //   scale factor, added check for no labels to early return test.
 //
@@ -517,7 +521,7 @@ int vtkAxisActorMultiplierTable2[4] = { -1,  1, 1, -1};
 //
 // *******************************************************************
 
-void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force) 
+void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 {
   if (!force && (!this->LabelVisibility || this->NumberOfLabelsBuilt == 0))
     {
@@ -531,17 +535,17 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 
   switch (this->AxisType)
     {
-    case VTK_AXIS_TYPE_X : 
-      xmult = 0; 
-      ymult = vtkAxisActorMultiplierTable1[this->AxisPosition]; 
+    case VTK_AXIS_TYPE_X :
+      xmult = 0;
+      ymult = vtkAxisActorMultiplierTable1[this->AxisPosition];
       break;
-    case VTK_AXIS_TYPE_Y : 
+    case VTK_AXIS_TYPE_Y :
       xmult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-      ymult = 0; 
+      ymult = 0;
       break;
     case VTK_AXIS_TYPE_Z :
       xmult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-      ymult = vtkAxisActorMultiplierTable2[this->AxisPosition]; 
+      ymult = vtkAxisActorMultiplierTable2[this->AxisPosition];
       break;
     }
 
@@ -549,14 +553,14 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
   //
   // xadjust & yadjust are used for positioning the label correctly
   // depending upon the 'orientation' of the axis as determined
-  // by its position in view space (via transformed bounds). 
+  // by its position in view space (via transformed bounds).
   //
   double displayBounds[6] = { 0., 0., 0., 0., 0., 0.};
   this->TransformBounds(viewport, displayBounds);
   double xadjust = (displayBounds[0] > displayBounds[1] ? -1 : 1);
   double yadjust = (displayBounds[2] > displayBounds[3] ? -1 : 1);
 
-  for (i=0; i < this->NumberOfLabelsBuilt && 
+  for (i=0; i < this->NumberOfLabelsBuilt &&
     i < this->MajorTickPts->GetNumberOfPoints(); i++)
     {
     ptIdx = 4*i + 1;
@@ -568,10 +572,10 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     double halfHeight = (bounds[3] - bounds[2]) * 0.5;
 
     center[0] = tick[0] + xmult * (halfWidth  + this->MinorTickSize);
-    center[1] = tick[1] + ymult * (halfHeight + this->MinorTickSize); 
+    center[1] = tick[1] + ymult * (halfHeight + this->MinorTickSize);
     pos[0] = (center[0] - xadjust *halfWidth);
     pos[1] = (center[1] - yadjust *halfHeight);
-    pos[2] = tick[2]; 
+    pos[2] = tick[2];
     this->LabelActors[i]->SetPosition(pos[0], pos[1], pos[2]);
     }
 }
@@ -579,24 +583,24 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 // **********************************************************************
 //  Determines scale and position for the Title.  Currently,
 //  title can only be centered with respect to its axis.
-//  
+//
 //  Modifications:
 //    Kathleen Bonnell, Wed Nov  7 17:45:20 PST 2001
 //    Added logic for early-termination.
 //
 //    Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
 //    Test for modified bounds before early termination, use
-//    MinScale, modified target so title size is a bit more reasonable. 
+//    MinScale, modified target so title size is a bit more reasonable.
 //
-//    Kathleen Bonnell, Tue Apr  9 14:41:08 PDT 2002  
+//    Kathleen Bonnell, Tue Apr  9 14:41:08 PDT 2002
 //    Removed MinScale as it allowed axes with very small ranges
-//    to have labels scaled too large for the dataset. 
+//    to have labels scaled too large for the dataset.
 //
-//    Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//    Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //    Added bool argument that allow the build to be forced, even if
-//    the title won't be visible. 
-//   
-//    Kathleen Bonnell, Tue Aug 31 16:17:43 PDT 2004 
+//    the title won't be visible.
+//
+//    Kathleen Bonnell, Tue Aug 31 16:17:43 PDT 2004
 //    Added TitleTime test so that the title can be rebuilt when its
 //    text has changed.
 //
@@ -631,17 +635,17 @@ void vtkAxisActor::BuildTitle(bool force)
 
   switch (this->AxisType)
     {
-    case VTK_AXIS_TYPE_X : 
-      xmult = 0; 
-      ymult = vtkAxisActorMultiplierTable1[this->AxisPosition]; 
+    case VTK_AXIS_TYPE_X :
+      xmult = 0;
+      ymult = vtkAxisActorMultiplierTable1[this->AxisPosition];
       break;
     case VTK_AXIS_TYPE_Y :
       xmult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-      ymult = 0; 
+      ymult = 0;
       break;
-    case VTK_AXIS_TYPE_Z : 
+    case VTK_AXIS_TYPE_Z :
       xmult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-      ymult = vtkAxisActorMultiplierTable2[this->AxisPosition]; 
+      ymult = vtkAxisActorMultiplierTable2[this->AxisPosition];
       break;
     }
   //
@@ -651,28 +655,28 @@ void vtkAxisActor::BuildTitle(bool force)
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->GetBounds(labBounds);
-    labWidth = labBounds[1] - labBounds[0]; 
-    maxWidth = (labWidth > maxWidth ? labWidth : maxWidth); 
-    labHeight = labBounds[3] - labBounds[2]; 
-    maxHeight = (labHeight > maxHeight ? labHeight : maxHeight); 
+    labWidth = labBounds[1] - labBounds[0];
+    maxWidth = (labWidth > maxWidth ? labWidth : maxWidth);
+    labHeight = labBounds[3] - labBounds[2];
+    maxHeight = (labHeight > maxHeight ? labHeight : maxHeight);
     }
   this->TitleVector->SetText(this->Title);
   this->TitleActor->SetCamera(this->Camera);
   this->TitleActor->SetPosition(p2[0], p2[1], p2[2]);
   this->TitleActor->GetBounds(titleBounds);
-  halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5; 
+  halfTitleWidth  = (titleBounds[1] - titleBounds[0]) * 0.5;
   halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5;
 
   center[0] = p1[0] + (p2[0] - p1[0]) / 2.0;
   center[1] = p1[1] + (p2[1] - p1[1]) / 2.0;
   center[2] = p1[2] + (p2[2] - p1[2]) / 2.0;
 
-  center[0] += xmult * (halfTitleWidth + maxWidth); 
+  center[0] += xmult * (halfTitleWidth + maxWidth);
   center[1] += ymult * (halfTitleHeight + 2*maxHeight);
 
   pos[0] = center[0] - xmult*halfTitleWidth;
   pos[1] = center[1] - ymult*halfTitleHeight;
-  pos[2] = center[2]; 
+  pos[2] = center[2];
   this->TitleActor->SetPosition(pos[0], pos[1], pos[2]);
 }
 
@@ -732,28 +736,28 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
-  os << indent << "Number Of Labels Built: " 
+  os << indent << "Number Of Labels Built: "
      << this->NumberOfLabelsBuilt << "\n";
-  os << indent << "Range: (" << this->Range[0] 
+  os << indent << "Range: (" << this->Range[0]
      << ", " << this->Range[1] << ")\n";
 
   os << indent << "Label Format: " << this->LabelFormat << "\n";
-  
-  os << indent << "Axis Visibility: " 
+
+  os << indent << "Axis Visibility: "
      << (this->AxisVisibility ? "On\n" : "Off\n");
-  
-  os << indent << "Tick Visibility: " 
+
+  os << indent << "Tick Visibility: "
      << (this->TickVisibility ? "On\n" : "Off\n");
-  
-  os << indent << "Label Visibility: " 
+
+  os << indent << "Label Visibility: "
      << (this->LabelVisibility ? "On\n" : "Off\n");
-  
-  os << indent << "Title Visibility: " 
+
+  os << indent << "Title Visibility: "
      << (this->TitleVisibility ? "On\n" : "Off\n");
-  
+
   os << indent << "Point1 Coordinate: " << this->Point1Coordinate << "\n";
   this->Point1Coordinate->PrintSelf(os, indent.GetNextIndent());
-  
+
   os << indent << "Point2 Coordinate: " << this->Point2Coordinate << "\n";
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
 
@@ -807,7 +811,7 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // **************************************************************************
-// Sets text string for label vectors.  Allocates memory if necessary. 
+// Sets text string for label vectors.  Allocates memory if necessary.
 //
 // Programmer:  Kathleen Bonnell
 // Creation:    July 18, 2003
@@ -849,7 +853,7 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
     }
 
   //
-  // Set the label vector text. 
+  // Set the label vector text.
   //
   for (i = 0; i < numLabels; i++)
     {
@@ -860,7 +864,7 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
 }
 
 // **************************************************************************
-// Creates points for ticks (minor, major, gridlines) in correct position 
+// Creates points for ticks (minor, major, gridlines) in correct position
 // for X-type axsis.
 //
 // Programmer:  Kathleen Bonnell
@@ -870,10 +874,10 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
 //   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
 //   Compare vtkTimeStamps correctly.
 //
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Use defined constant VTK_MAX_TICKS to prevent infinite loops. 
-// 
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Use defined constant VTK_MAX_TICKS to prevent infinite loops.
+//
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //   Allow a forced build, despite previous build time.
 //
 // **************************************************************************
@@ -905,28 +909,28 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   //
   // Build Minor Ticks
   //
-  if (this->TickLocation == VTK_TICKS_OUTSIDE) 
+  if (this->TickLocation == VTK_TICKS_OUTSIDE)
     {
-    xPoint1[1] = xPoint2[1] = zPoint[1] = p1[1]; 
-    xPoint1[2] = xPoint2[2] = yPoint[2] = p1[2]; 
-    yPoint[1] = p1[1] + yMult * this->MinorTickSize; 
-    zPoint[2] = p1[2] + zMult * this->MinorTickSize; 
+    xPoint1[1] = xPoint2[1] = zPoint[1] = p1[1];
+    xPoint1[2] = xPoint2[2] = yPoint[2] = p1[2];
+    yPoint[1] = p1[1] + yMult * this->MinorTickSize;
+    zPoint[2] = p1[2] + zMult * this->MinorTickSize;
     }
-  else if (this->TickLocation == VTK_TICKS_INSIDE) 
+  else if (this->TickLocation == VTK_TICKS_INSIDE)
     {
-    yPoint[1] = xPoint2[1] = zPoint[1] = p1[1]; 
-    xPoint1[2] = yPoint[2] = zPoint[2] = p1[2]; 
-    xPoint1[1] = p1[1] - yMult * this->MinorTickSize; 
-    xPoint2[2] = p1[2] - zMult * this->MinorTickSize; 
+    yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
+    xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
+    xPoint1[1] = p1[1] - yMult * this->MinorTickSize;
+    xPoint2[2] = p1[2] - zMult * this->MinorTickSize;
     }
   else // both sides
     {
-    xPoint2[1] = zPoint[1] = p1[1]; 
-    xPoint1[2] = yPoint[2] = p1[2]; 
-    yPoint[1] = p1[1] + yMult * this->MinorTickSize; 
-    zPoint[2] = p1[2] + zMult * this->MinorTickSize; 
-    xPoint1[1] = p1[1] - yMult * this->MinorTickSize; 
-    xPoint2[2] = p1[2] - zMult * this->MinorTickSize; 
+    xPoint2[1] = zPoint[1] = p1[1];
+    xPoint1[2] = yPoint[2] = p1[2];
+    yPoint[1] = p1[1] + yMult * this->MinorTickSize;
+    zPoint[2] = p1[2] + zMult * this->MinorTickSize;
+    xPoint1[1] = p1[1] - yMult * this->MinorTickSize;
+    xPoint2[2] = p1[2] - zMult * this->MinorTickSize;
     }
   x = this->MinorStart;
   numTicks = 0;
@@ -944,12 +948,12 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     }
 
   //
-  // Gridline points 
+  // Gridline points
   //
   yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
-  xPoint1[1] = p1[1] - yMult * this->GridlineYLength; 
-  xPoint1[2] = yPoint[2] = zPoint[2] = p1[2]; 
-  xPoint2[2] = p1[2] - zMult * this->GridlineZLength; 
+  xPoint1[1] = p1[1] - yMult * this->GridlineYLength;
+  xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
+  xPoint2[2] = p1[2] - zMult * this->GridlineZLength;
 
   x = this->MajorStart;
   numTicks = 0;
@@ -969,28 +973,28 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
   //
   // Major ticks
   //
-  if (this->TickLocation == VTK_TICKS_OUTSIDE) 
+  if (this->TickLocation == VTK_TICKS_OUTSIDE)
     {
-    xPoint1[1] = xPoint2[1] = zPoint[1] = p1[1]; 
-    xPoint1[2] = xPoint2[2] = yPoint[2] = p1[2]; 
-    yPoint[1] = p1[1] + yMult * this->MajorTickSize; 
-    zPoint[2] = p1[2] + zMult * this->MajorTickSize; 
+    xPoint1[1] = xPoint2[1] = zPoint[1] = p1[1];
+    xPoint1[2] = xPoint2[2] = yPoint[2] = p1[2];
+    yPoint[1] = p1[1] + yMult * this->MajorTickSize;
+    zPoint[2] = p1[2] + zMult * this->MajorTickSize;
     }
-  else if (this->TickLocation == VTK_TICKS_INSIDE) 
+  else if (this->TickLocation == VTK_TICKS_INSIDE)
     {
-    yPoint[1] = xPoint2[1] = zPoint[1] = p1[1]; 
-    xPoint1[2] = yPoint[2] = zPoint[2] = p1[2]; 
-    xPoint1[1] = p1[1] - yMult * this->MajorTickSize; 
-    xPoint2[2] = p1[2] - zMult * this->MajorTickSize; 
+    yPoint[1] = xPoint2[1] = zPoint[1] = p1[1];
+    xPoint1[2] = yPoint[2] = zPoint[2] = p1[2];
+    xPoint1[1] = p1[1] - yMult * this->MajorTickSize;
+    xPoint2[2] = p1[2] - zMult * this->MajorTickSize;
     }
   else // both sides
     {
-    xPoint2[1] = zPoint[1] = p1[1]; 
-    xPoint1[2] = yPoint[2] = p1[2]; 
-    yPoint[1] = p1[1] + yMult * this->MajorTickSize; 
-    zPoint[2] = p1[2] + zMult * this->MajorTickSize; 
-    xPoint1[1] = p1[1] - yMult * this->MajorTickSize; 
-    xPoint2[2] = p1[2] - zMult * this->MajorTickSize; 
+    xPoint2[1] = zPoint[1] = p1[1];
+    xPoint1[2] = yPoint[2] = p1[2];
+    yPoint[1] = p1[1] + yMult * this->MajorTickSize;
+    zPoint[2] = p1[2] + zMult * this->MajorTickSize;
+    xPoint1[1] = p1[1] - yMult * this->MajorTickSize;
+    xPoint2[2] = p1[2] - zMult * this->MajorTickSize;
     }
   x = this->MajorStart;
   numTicks = 0;
@@ -1011,7 +1015,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
 }
 
 // **************************************************************************
-// Creates points for ticks (minor, major, gridlines) in correct position 
+// Creates points for ticks (minor, major, gridlines) in correct position
 // for Y-type axis.
 //
 // Programmer:  Kathleen Bonnell
@@ -1021,10 +1025,10 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
 //   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
 //   Compare vtkTimeStamps correctly.
 //
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Use defined constant VTK_MAX_TICKS to prevent infinite loops. 
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Use defined constant VTK_MAX_TICKS to prevent infinite loops.
 //
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //   Allow a forced build, despite previous build time.
 //
 // **************************************************************************
@@ -1061,14 +1065,14 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   //
   // minor ticks
   //
-  if (this->TickLocation == VTK_TICKS_INSIDE)      
+  if (this->TickLocation == VTK_TICKS_INSIDE)
     {
-    yPoint1[2] = xPoint[2] = zPoint[2] = p1[2]; 
+    yPoint1[2] = xPoint[2] = zPoint[2] = p1[2];
     yPoint2[0] = xPoint[0] = zPoint[0] = p1[0];
     yPoint1[0] = p1[0] - xMult * this->MinorTickSize;
-    yPoint2[2] = p1[2] - zMult * this->MinorTickSize; 
+    yPoint2[2] = p1[2] - zMult * this->MinorTickSize;
     }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE) 
+  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
     {
     yPoint1[0] = yPoint2[0] = zPoint[0] = p1[0];
     yPoint1[2] = yPoint2[2] = xPoint[2] = p1[2];
@@ -1077,7 +1081,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
   else                              // both sides
     {
-    yPoint1[2] = xPoint[2] = p1[2]; 
+    yPoint1[2] = xPoint[2] = p1[2];
     yPoint2[0] = zPoint[0] = p1[0];
     yPoint1[0] = p1[0] - xMult * this->MinorTickSize;
     yPoint2[2] = p1[2] + zMult * this->MinorTickSize;
@@ -1101,7 +1105,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
 
   //
   // gridlines
-  // 
+  //
   yPoint1[0] = p1[0] - xMult * this->GridlineXLength;
   yPoint2[2] = p1[2] - zMult * this->GridlineZLength;
   yPoint2[0] = xPoint[0] = zPoint[0]  = p1[0];
@@ -1127,12 +1131,12 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
   //
   if (this->TickLocation == VTK_TICKS_INSIDE)
     {
-    yPoint1[2] = xPoint[2] = zPoint[2] = p1[2]; 
+    yPoint1[2] = xPoint[2] = zPoint[2] = p1[2];
     yPoint2[0] = xPoint[0] = zPoint[0] = p1[0];
     yPoint1[0] = p1[0] - xMult * this->MajorTickSize;
-    yPoint2[2] = p1[2] - zMult * this->MajorTickSize; 
+    yPoint2[2] = p1[2] - zMult * this->MajorTickSize;
     }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE) 
+  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
     {
     yPoint1[0] = yPoint2[0] = zPoint[0] = p1[0];
     yPoint1[2] = yPoint2[2] = xPoint[2] = p1[2];
@@ -1141,7 +1145,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
   else                              // both sides
     {
-    yPoint1[2] = xPoint[2] = p1[2]; 
+    yPoint1[2] = xPoint[2] = p1[2];
     yPoint2[0] = zPoint[0] = p1[0];
     yPoint1[0] = p1[0] - xMult * this->MajorTickSize;
     yPoint2[2] = p1[2] + zMult * this->MajorTickSize;
@@ -1166,7 +1170,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
 }
 
 // **************************************************************************
-// Creates points for ticks (minor, major, gridlines) in correct position 
+// Creates points for ticks (minor, major, gridlines) in correct position
 // for Z-type axis.
 //
 // Programmer:  Kathleen Bonnell
@@ -1176,10 +1180,10 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
 //   Kathleen Bonnell, Mon Dec  3 16:49:01 PST 2001
 //   Compare vtkTimeStamps correctly.
 //
-//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002 
-//   Use defined constant VTK_MAX_TICKS to prevent infinite loops. 
+//   Kathleen Bonnell, Thu May 16 10:13:56 PDT 2002
+//   Use defined constant VTK_MAX_TICKS to prevent infinite loops.
 //
-//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003 
+//   Kathleen Bonnell, Fri Jul 25 14:37:32 PDT 2003
 //   Allow a forced build, despite previous build time.
 //
 // **************************************************************************
@@ -1217,14 +1221,14 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   //
   // minor ticks
   //
-  if (this->TickLocation == VTK_TICKS_INSIDE)      
+  if (this->TickLocation == VTK_TICKS_INSIDE)
     {
     zPoint1[0] = p1[0] - xMult * this->MinorTickSize;
     zPoint2[1] = p1[1] - yMult * this->MinorTickSize;
     zPoint2[0] = xPoint[0] = yPoint[0]  = p1[0];
     zPoint1[1] = xPoint[1] = yPoint[1]  = p1[1];
     }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE) 
+  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
     {
     xPoint[0]  = p1[0] + xMult * this->MinorTickSize;
     yPoint[1]  = p1[1] +yMult * this->MinorTickSize;
@@ -1257,7 +1261,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
 
   //
   // gridlines
-  // 
+  //
   zPoint1[0] = p1[0] - xMult * this->GridlineXLength;
   zPoint2[1] = p1[1] - yMult * this->GridlineYLength;
   zPoint1[1] = xPoint[1] = yPoint[1] = p1[1];
@@ -1282,14 +1286,14 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
   // major ticks
   //
 
-  if (this->TickLocation == VTK_TICKS_INSIDE)   
+  if (this->TickLocation == VTK_TICKS_INSIDE)
     {
     zPoint1[0] = p1[0] - xMult * this->MajorTickSize;
     zPoint2[1] = p1[1] - yMult * this->MajorTickSize;
     zPoint2[0] = xPoint[0] = yPoint[0]  = p1[0];
     zPoint1[1] = xPoint[1] = yPoint[1]  = p1[1];
     }
-  else if (this->TickLocation == VTK_TICKS_OUTSIDE) 
+  else if (this->TickLocation == VTK_TICKS_OUTSIDE)
     {
     xPoint[0]  = p1[0] + xMult * this->MajorTickSize;
     yPoint[2]  = p1[1] + yMult * this->MajorTickSize;
@@ -1332,8 +1336,8 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
 //   Kathleen Bonnell, Thu Nov 15 13:20:44 PST 2001
 //   Make ptIds of type vtkIdType to match VTK 4.0 API.
 //
-//   Kathleen Bonnell, Thu Jul 18 13:24:03 PDT 2002 
-//   Allow gridlines to be drawn when enabled, even if ticks are disabled. 
+//   Kathleen Bonnell, Thu Jul 18 13:24:03 PDT 2002
+//   Allow gridlines to be drawn when enabled, even if ticks are disabled.
 //
 //   Kathleen Bonnell, Fri Jul 25 15:10:24 PDT 2003
 //   Removed arguments.
@@ -1347,7 +1351,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
   this->Axis->SetLines(lines);
   pts->Delete();
   lines->Delete();
-  int i, numPts, numLines; 
+  int i, numPts, numLines;
   vtkIdType ptIds[2];
 
   if (this->TickVisibility)
@@ -1399,9 +1403,9 @@ void vtkAxisActor::SetAxisPointsAndLines()
   if (this->AxisVisibility)
     {
     //first axis point
-    ptIds[0] = pts->InsertNextPoint(this->Point1Coordinate->GetValue()); 
+    ptIds[0] = pts->InsertNextPoint(this->Point1Coordinate->GetValue());
     //last axis point
-    ptIds[1] = pts->InsertNextPoint(this->Point2Coordinate->GetValue()); 
+    ptIds[1] = pts->InsertNextPoint(this->Point2Coordinate->GetValue());
     lines->InsertNextCell(2, ptIds);
     }
 }
@@ -1415,14 +1419,14 @@ void vtkAxisActor::SetAxisPointsAndLines()
 bool vtkAxisActor::TickVisibilityChanged()
 {
   bool retVal = (this->TickVisibility != this->LastTickVisibility) ||
-                (this->DrawGridlines != this->LastDrawGridlines)   || 
+                (this->DrawGridlines != this->LastDrawGridlines)   ||
                 (this->MinorTicksVisible != this->LastMinorTicksVisible);
 
   this->LastTickVisibility = this->TickVisibility;
   this->LastDrawGridlines = this->DrawGridlines;
   this->LastMinorTicksVisible = this->MinorTicksVisible;
 
-  return retVal; 
+  return retVal;
 }
 
 // *********************************************************************
@@ -1450,7 +1454,7 @@ vtkAxisActor::SetBounds(double b[6])
 }
 
 // *********************************************************************
-// Retrieves the bounds of this actor. 
+// Retrieves the bounds of this actor.
 //
 // Programmer:  Kathleen Bonnell
 // Creation:    November 7, 2001
@@ -1461,7 +1465,7 @@ double* vtkAxisActor::GetBounds()
 }
 
 // *********************************************************************
-// Retrieves the bounds of this actor. 
+// Retrieves the bounds of this actor.
 //
 // Programmer:  Kathleen Bonnell
 // Creation:    November 7, 2001
@@ -1479,16 +1483,16 @@ void vtkAxisActor::GetBounds(double b[6])
 // Method:  vtkAxisActor::ComputeMaxLabelLength
 //
 // Purpose: Determines the maximum length that a label will occupy
-//          if placed at point 'center' and with a scale of 1. 
+//          if placed at point 'center' and with a scale of 1.
 //
 // Arguments:
-//   center    The position to use for the label actor 
+//   center    The position to use for the label actor
 //
 // Returns:
 //   the maximum length of all the labels, 0 if there are no labels.
 //
 // Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003 
+// Creation:    July 18, 2003
 //
 // Modifications:
 //   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
@@ -1511,7 +1515,7 @@ double vtkAxisActor::ComputeMaxLabelLength(const double center[3])
     this->LabelActors[i]->SetPosition(center[0], center[1] , center[2]);
     this->LabelActors[i]->SetScale(1.);
     length = this->LabelActors[i]->GetLength();
-    maxLength = (length > maxLength ? length : maxLength); 
+    maxLength = (length > maxLength ? length : maxLength);
 
     this->LabelActors[i]->SetPosition(pos);
     this->LabelActors[i]->SetScale(scale);
@@ -1523,16 +1527,16 @@ double vtkAxisActor::ComputeMaxLabelLength(const double center[3])
 // Method:  vtkAxisActor::ComputeTitleLength
 //
 // Purpose: Determines the length that the title will occupy
-//          if placed at point 'center' and with a scale of 1. 
+//          if placed at point 'center' and with a scale of 1.
 //
 // Arguments:
-//   center    The position to use for the title actor 
+//   center    The position to use for the title actor
 //
 // Returns:
-//   the length of all the title, 
+//   the length of all the title,
 //
 // Programmer:  Kathleen Bonnell
-// Creation:    July 25, 2003 
+// Creation:    July 25, 2003
 //
 // Modifications:
 //   Kathleen Bonnell, Tue Dec 16 11:06:21 PST 2003
@@ -1566,7 +1570,7 @@ double vtkAxisActor::ComputeTitleLength(const double center[3])
 //   s      The scale factor to use.
 //
 // Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003 
+// Creation:    July 18, 2003
 //
 // *********************************************************************
 
@@ -1587,7 +1591,7 @@ void vtkAxisActor::SetLabelScale(const double s)
 //   s      The scale factor to use.
 //
 // Programmer:  Kathleen Bonnell
-// Creation:    July 18, 2003 
+// Creation:    July 18, 2003
 //
 // *********************************************************************
 
@@ -1599,17 +1603,17 @@ void vtkAxisActor::SetTitleScale(const double s)
 // *********************************************************************
 // Method:  vtkAxisActor::SetTitle
 //
-// Purpose: Sets the text for the title.  
+// Purpose: Sets the text for the title.
 //
-// Notes:   Not using vtkSetStringMacro so that the modification time of 
+// Notes:   Not using vtkSetStringMacro so that the modification time of
 //          the text can be kept (so the title will be updated as
 //          appropriate when the text changes.)
 //
 // Arguments:
-//   t          The text to use. 
+//   t          The text to use.
 //
 // Programmer:  Kathleen Bonnell
-// Creation:    August 31, 2004 
+// Creation:    August 31, 2004
 //
 // *********************************************************************
 
@@ -1632,7 +1636,7 @@ void vtkAxisActor::SetTitle(const char *t)
     this->Title = new char[strlen(t)+1];
     strcpy(this->Title, t);
     }
-  else 
+  else
     {
     this->Title = NULL;
     }
