@@ -691,13 +691,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
       NSOpenGLPFAAccelerated,
       NSOpenGLPFADepthSize,
       (NSOpenGLPixelFormatAttribute)32,
-      (NSOpenGLPixelFormatAttribute)0,
-      (NSOpenGLPixelFormatAttribute)0,
-      (NSOpenGLPixelFormatAttribute)0,
-      (NSOpenGLPixelFormatAttribute)0,
-      (NSOpenGLPixelFormatAttribute)0,
-      (NSOpenGLPixelFormatAttribute)0,
-      (NSOpenGLPixelFormatAttribute)0
+      0, 0, 0, 0, 0, 0, 0
     };
   unsigned int endIndex = 3;
   if (this->DoubleBuffer)
@@ -710,9 +704,9 @@ void vtkCocoaRenderWindow::CreateGLContext()
   if (this->MultiSamples > 1)
     {
     attribs[endIndex] = NSOpenGLPFASampleBuffers;
-    attribs[endIndex+1] = (NSOpenGLPixelFormatAttribute)1;
+    attribs[endIndex+1] = 1;
     attribs[endIndex+2] = NSOpenGLPFASamples;
-    attribs[endIndex+3] = (NSOpenGLPixelFormatAttribute)(this->MultiSamples);
+    attribs[endIndex+3] = this->MultiSamples;
     attribs[endIndex+4] = NSOpenGLPFANoRecovery;
     endIndex += 5;
     };
