@@ -495,7 +495,6 @@ ELSE (WINDOWS)
       HAVE_ATTRIBUTE
       HAVE_FUNCTION
       HAVE_TM_GMTOFF
-      HAVE_TIMEZONE
       HAVE_STRUCT_TIMEZONE
       HAVE_STAT_ST_BLOCKS
       HAVE_FUNCTION
@@ -511,6 +510,10 @@ ELSE (WINDOWS)
   )
     HDF5_FUNCTION_TEST (${test})
   ENDFOREACH (test)
+
+  IF(NOT CYGWIN)
+    HDF5_FUNCTION_TEST (HAVE_TIMEZONE)
+  ENDIF()
 ENDIF (WINDOWS)
 
 #-----------------------------------------------------------------------------
@@ -601,6 +604,7 @@ IF (HDF5_ENABLE_HSIZET)
 ENDIF (HDF5_ENABLE_HSIZET)
 IF (CYGWIN)
   SET (H5_HAVE_LSEEK64 0)
+  SET (H5_CYGWIN_ULLONG_TO_LDOUBLE_ROUND_PROBLEM 1)
 ENDIF (CYGWIN)
 
 #-----------------------------------------------------------------------------

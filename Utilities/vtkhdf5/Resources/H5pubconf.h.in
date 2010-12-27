@@ -39,6 +39,10 @@
 /* Define if C++ compiler recognizes offsetof */
 #cmakedefine H5_CXX_HAVE_OFFSETOF @H5_CXX_HAVE_OFFSETOF@
 
+/* Define a macro for Cygwin (on XP only) where the compiler has rounding
+   problem converting from unsigned long long to long double */
+#cmakedefine H5_CYGWIN_ULLONG_TO_LDOUBLE_ROUND_PROBLEM @H5_CYGWIN_ULLONG_TO_LDOUBLE_ROUND_PROBLEM@
+
 /* Define the default virtual file driver to compile */
 #cmakedefine H5_DEFAULT_VFD @H5_DEFAULT_VFD@
 

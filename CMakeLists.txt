@@ -22,6 +22,12 @@ IF(APPLE)
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
 ENDIF(APPLE)
 
+# The Cygwin maintainers have requested that we not define WIN32. Thus developers
+# must use the X11 packages to build cygwin vtk.
+IF(CYGWIN)
+  unset(WIN32)
+ENDIF()
+
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
 IF(NOT EXPORT_EXECUTABLES_FILE)
