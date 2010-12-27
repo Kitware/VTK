@@ -749,7 +749,15 @@ M_Write(void)
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
 
-    char* data = new char[(m_NDims*(2+m_NDims)+10)*m_NPoints*elementSize];
+    const unsigned int writeSize = m_NPoints*(m_NDims*(2+m_NDims)+10)*elementSize;
+
+    char* data = new char[writeSize];
+
+    for(unsigned int ii=0; ii < writeSize; ii++ )
+      {
+      data[ii] = '\0';
+      }
+
     int i=0;
     int d;
     while(it != itEnd)
@@ -802,8 +810,7 @@ M_Write(void)
       it++;
       }
 
-    m_WriteStream->write((char *)data,
-                         (m_NDims*(2+m_NDims)+10)*m_NPoints*elementSize);
+    m_WriteStream->write((char *)data,writeSize);
     m_WriteStream->write("\n",1);
     delete [] data;
     }
