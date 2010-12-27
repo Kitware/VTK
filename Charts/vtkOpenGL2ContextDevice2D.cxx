@@ -54,6 +54,38 @@
 vtkStandardNewMacro(vtkOpenGL2ContextDevice2D);
 
 //-----------------------------------------------------------------------------
+bool vtkOpenGL2ContextDevice2D::IsSupported(vtkViewport *viewport)
+{
+  bool supported = false;
+  vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
+  if (gl)
+    {
+    vtkOpenGLRenderWindow *win =
+        vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
+    vtkOpenGLExtensionManager *man = win->GetExtensionManager();
+    if (man->ExtensionSupported("GL_VERSION_2_0"))
+      {
+      supported = true;
+      }
+    }
+
+  if (supported)
+    {
+    // Workaround for a bug in mesa - support for non-power of two textures is
+    // poor at best. Disable, and use power of two textures for mesa rendering.
+    const char *gl_version =
+      reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    const char *mesa_version = strstr(gl_version, "Mesa");
+    if (mesa_version != 0)
+      {
+      supported = false;
+      }
+    }
+
+  return supported;
+}
+
+//-----------------------------------------------------------------------------
 vtkOpenGL2ContextDevice2D::vtkOpenGL2ContextDevice2D()
 {
 }

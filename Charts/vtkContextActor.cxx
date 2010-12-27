@@ -142,22 +142,15 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 void vtkContextActor::Initialize(vtkViewport* viewport)
 {
   vtkContextDevice2D *device = NULL;
-  vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
-  if (gl)
+  if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
     {
-    vtkOpenGLRenderWindow *win =
-        vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
-    vtkOpenGLExtensionManager *man = win->GetExtensionManager();
-    if (man->ExtensionSupported("GL_VERSION_2_0"))
-      {
-      cout << "Using OpenGL 2 for the render." << endl;
-      device = vtkOpenGL2ContextDevice2D::New();
-      }
-    else
-      {
-      cout << "Using OpenGL 1 for the render." << endl;
-      device = vtkOpenGLContextDevice2D::New();
-      }
+    cout << "Using OpenGL 2 for the render." << endl;
+    device = vtkOpenGL2ContextDevice2D::New();
+    }
+  else
+    {
+    cout << "Using OpenGL 1 for the render." << endl;
+    device = vtkOpenGLContextDevice2D::New();
     }
   if (device)
     {
