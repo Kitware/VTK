@@ -691,24 +691,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
       NSOpenGLPFAAccelerated,
       NSOpenGLPFADepthSize,
       (NSOpenGLPixelFormatAttribute)32,
-      0, 0, 0, 0, 0, 0, 0
-    };
-  unsigned int endIndex = 3;
-  if (this->DoubleBuffer)
-    {
-    attribs[endIndex] = NSOpenGLPFADoubleBuffer;
-    endIndex++;
-    }
-  // Adding support for multisamples, following advice from
-  // http://developer.apple.com/library/mac/#documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_fsaa/opengl_fsaa.html
-  if (this->MultiSamples > 1)
-    {
-    attribs[endIndex] = NSOpenGLPFASampleBuffers;
-    attribs[endIndex+1] = 1;
-    attribs[endIndex+2] = NSOpenGLPFASamples;
-    attribs[endIndex+3] = this->MultiSamples;
-    attribs[endIndex+4] = NSOpenGLPFANoRecovery;
-    endIndex += 5;
+      (this->DoubleBuffer != 0) ?
+        (NSOpenGLPixelFormatAttribute)NSOpenGLPFADoubleBuffer :
+        (NSOpenGLPixelFormatAttribute)nil,
+      (NSOpenGLPixelFormatAttribute)nil
     };
 
   NSOpenGLPixelFormat* pixelFormat = [[[NSOpenGLPixelFormat alloc]
