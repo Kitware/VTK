@@ -559,6 +559,14 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", "
      << this->Bounds[5] << ")\n";
 
+
+  os << indent << "XAxisRange: [" << this->XAxisRange[0] << ", "
+    << this->XAxisRange[1] << "] " << endl;
+  os << indent << "YAxisRange: [" << this->YAxisRange[0] << ", "
+    << this->YAxisRange[1] << "] " << endl;
+  os << indent << "ZAxisRange: [" << this->ZAxisRange[0] << ", "
+    << this->ZAxisRange[1] << "] " << endl;
+
   if (this->Camera)
     {
     os << indent << "Camera:\n";
