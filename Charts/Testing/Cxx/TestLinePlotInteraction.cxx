@@ -17,6 +17,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
+#include "vtkAxis.h"
 #include "vtkPlot.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
@@ -133,6 +134,8 @@ int TestLinePlotInteraction(int, char * [])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
+  chart->GetAxis(vtkAxis::LEFT)->SetTitle("");
+  chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("");
   view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
