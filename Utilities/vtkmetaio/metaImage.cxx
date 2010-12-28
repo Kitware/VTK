@@ -2854,7 +2854,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
                                                      elementSize]),
                              quantity, indexMin, indexMax,
                              subSamplingFactor,
-                             m_SubQuantity[m_NDims-1]*m_ElementNumberOfChannels*elementSize);
+                             m_SubQuantity[m_NDims-1]);
 
           cnt++;
           readStreamTemp->close();
@@ -2935,7 +2935,8 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
                                                  elementSize]),
                        quantity, indexMin, indexMax,
                        subSamplingFactor,
-                       m_SubQuantity[m_NDims-1]*m_ElementNumberOfChannels*elementSize);
+                       m_SubQuantity[m_NDims-1]);
+
         cnt++;
 
         delete [] indexMin;
@@ -3384,7 +3385,8 @@ M_ReadElementData(METAIO_STREAM::ifstream * _fstream,
         _fstream->read( (char *)_data, (size_t)chunkToRead );
         _data = (char *)(_data) + chunkToRead;
         bytesRemaining -= chunkToRead;
-        gc += _fstream->gcount();
+        METAIO_STL::streamsize numberOfBytesRead = _fstream->gcount();
+        gc += numberOfBytesRead;
         }
 
       }
@@ -3402,7 +3404,8 @@ M_ReadElementData(METAIO_STREAM::ifstream * _fstream,
         _fstream->read( (char *)_data, (size_t)chunkToRead );
         _data = (char *)(_data) + chunkToRead;
         bytesRemaining -= chunkToRead;
-        gc += _fstream->gcount();
+        METAIO_STL::streamsize numberOfBytesRead = _fstream->gcount();
+        gc += numberOfBytesRead;
         }
       // convert to number of bytes so that it'll match gc's units
       _dataQuantity *= elementNumberOfBytes;
