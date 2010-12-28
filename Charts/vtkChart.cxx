@@ -16,11 +16,20 @@
 #include "vtkChart.h"
 #include "vtkAxis.h"
 #include "vtkTransform2D.h"
+#include "vtkContextMouseEvent.h"
 
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
+
+//-----------------------------------------------------------------------------
+vtkChart::MouseActions::MouseActions()
+{
+  this->Data[0] = vtkContextMouseEvent::LEFT_BUTTON;
+  this->Data[1] = vtkContextMouseEvent::MIDDLE_BUTTON;
+  this->Data[2] = vtkContextMouseEvent::RIGHT_BUTTON;
+}
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
@@ -228,6 +237,28 @@ void vtkChart::SetSize(const vtkRectf &rect)
 vtkRectf vtkChart::GetSize()
 {
   return this->Size;
+}
+
+void vtkChart::SetActionToButton(int action, int button)
+{
+  if (action < 0 || action > 2)
+    {
+    vtkErrorMacro("Error, invalid action value supplied: " << action)
+    return;
+    }
+  this->Actions[action] = button;
+  for (int i = 0; i < 3; ++i)
+    {
+    if (this->Actions[i] == button && i != action)
+      {
+      this->Actions[i] = -1;
+      }
+    }
+}
+
+int vtkChart::GetActionToButton(int action)
+{
+  return this->Actions[action];
 }
 
 //-----------------------------------------------------------------------------
