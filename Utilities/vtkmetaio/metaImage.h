@@ -335,10 +335,15 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     bool  M_Read(void);
 
+    // _dataQuantity is expressed in number of pixels. Internally it will be
+    // scaled by the number of components and number of bytes per component.
     bool  M_ReadElements(METAIO_STREAM::ifstream * _fstream, 
                          void * _data,
                          METAIO_STL::streamoff _dataQuantity);
 
+    // _totalDataQuantity and _dataQuantity are expressed in number of pixels.
+    // Internally they will be scaled by the number of components and number of
+    // bytes per component.
     bool  M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, 
                             void * _data,
                             METAIO_STL::streamoff _dataQuantity,
