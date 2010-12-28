@@ -782,8 +782,8 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DeltaMinor: " << this->DeltaMinor << endl;
   os << indent << "DeltaRangeMajor: " << this->DeltaRangeMajor << endl;
   os << indent << "DeltaRangeMinor: " << this->DeltaRangeMinor << endl;
+  os << indent << "MajorRangeStart: " << this->MajorRangeStart << endl;
   os << indent << "MinorRangeStart: " << this->MinorRangeStart << endl;
-  os << indent << "MajorRangeStart: " << this->MinorRangeStart << endl;
 
   os << indent << "MinorTicksVisible: " << this->MinorTicksVisible << endl;
 
