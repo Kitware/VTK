@@ -45,6 +45,10 @@ public:
   static vtkOpenGL2ContextDevice2D *New();
 
   // Description:
+  // Return true if the current rendering context supports this device.
+  static bool IsSupported(vtkViewport *viewport);
+
+  // Description:
   // Draw a series of point sprites, images centred at the points supplied.
   // The supplied vtkImageData is the sprite to be drawn, only squares will be
   // drawn and the size is set using SetPointSize. Points are colored by colors array

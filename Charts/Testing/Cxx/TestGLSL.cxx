@@ -24,7 +24,7 @@
 #include "vtkContextScene.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
-#include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGL2ContextDevice2D.h"
 #include "vtkPoints2D.h"
 
 #include "vtkShaderProgram2.h"
@@ -122,8 +122,8 @@ vtkStandardNewMacro(GLSLTestItem);
 bool GLSLTestItem::Paint(vtkContext2D *painter)
 {
   // Build and link our shader if necessary
-  vtkOpenGLContextDevice2D* device =
-    vtkOpenGLContextDevice2D::SafeDownCast(painter->GetDevice());
+  vtkOpenGL2ContextDevice2D *device =
+    vtkOpenGL2ContextDevice2D::SafeDownCast(painter->GetDevice());
   if (device)
     {
     this->BuildShader(device->GetRenderWindow());
@@ -134,6 +134,7 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
     }
   else
     {
+    this->IsCompiled = false;
     return false;
     }
 
