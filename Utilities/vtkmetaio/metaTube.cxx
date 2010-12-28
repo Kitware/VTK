@@ -753,10 +753,7 @@ M_Write(void)
 
     char* data = new char[writeSize];
 
-    for(unsigned int ii=0; ii < writeSize; ii++ )
-      {
-      data[ii] = '\0';
-      }
+    memset( data, '\0', writeSize );
 
     int i=0;
     int d;
