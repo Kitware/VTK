@@ -2595,60 +2595,79 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
 {
-  // Do nothing if the OpenGL objects have already been created
-  if ( this->OpenGLObjectsCreated )
-    {
-    return;
-    }
-
-  // We need only two color buffers (ping-pong)
-  this->NumberOfFrameBuffers=2;
-
-  GLuint frameBufferObject;
-  GLuint depthRenderBufferObject;
-
-
-  // TODO: clean this up!
-  // 2*Frame buffers(2d textures)+colorMap (1d texture) +dataset (3d texture)
-  // + opacitymap (1d texture) + grabbed depthMap (2d texture)
-  GLuint textureObjects[vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects];
-
-  // Create the various objects we will need - one frame buffer
-  // which will contain a render buffer for depth and a texture
-  // for color.
-  vtkgl::GenFramebuffersEXT(1, &frameBufferObject); // color
-  vtkgl::GenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
-  int i=0;
-  while(i<( vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
-    {
-    textureObjects[i]=0;
-    ++i;
-    }
-
-  int result=1;
-  int size[2];
-  ren->GetTiledSize(&size[0],&size[1]);
-
-  this->SizeChanged = this->LastSize[0]!=size[0] || this->LastSize[1]!=size[1];
-
-
-  // Frame buffers(2d textures)+colorMap (1d texture) +dataset (3d texture)
-  // + opacity (1d texture)+grabbed depth buffer (2d texture)
-  glGenTextures(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers,textureObjects);
-  // Color buffers
   GLint value;
   glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&value);
   GLuint savedFrameBuffer=static_cast<GLuint>(value);
-  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
-  i=0;
+
+  if ( !this->OpenGLObjectsCreated )
+    {
+    // Initialize only if the objects haven't been created yet.
+
+    // We need only two color buffers (ping-pong)
+    this->NumberOfFrameBuffers=2;
+
+    GLuint frameBufferObject;
+    GLuint depthRenderBufferObject;
+
+
+    // TODO: clean this up!
+    // 2*Frame buffers(2d textures)+colorMap (1d texture) +dataset (3d texture)
+    // + opacitymap (1d texture) + grabbed depthMap (2d texture)
+    GLuint textureObjects[vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects];
+
+    // Create the various objects we will need - one frame buffer
+    // which will contain a render buffer for depth and a texture
+    // for color.
+    vtkgl::GenFramebuffersEXT(1, &frameBufferObject); // color
+    vtkgl::GenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
+    int i=0;
+    while(i<( vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
+      {
+      textureObjects[i]=0;
+      ++i;
+      }
+
+    // Frame buffers(2d textures)+colorMap (1d texture) +dataset (3d texture)
+    // + opacity (1d texture)+grabbed depth buffer (2d texture)
+    glGenTextures(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers,textureObjects);
+    // Color buffers
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
+    i = 0;
+    while(i < this->NumberOfFrameBuffers)
+      {
+      glBindTexture(GL_TEXTURE_2D,textureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]);
+      ++i;
+      }
+
+    // Save GL objects by static casting to standard C types. GL* types
+    // are not allowed in VTK header files.
+    this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
+    this->DepthRenderBufferObject=static_cast<unsigned int>(depthRenderBufferObject);
+    i=0;
+    while(i<(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
+      {
+      this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
+      ++i;
+      }
+
+    this->OpenGLObjectsCreated=1;
+
+    } // endif OpenGLObjectsCreated
+
+
+  int result=1;
+  int size[2];
+  int i=0;
+
+  ren->GetTiledSize(&size[0],&size[1]);
+  this->SizeChanged = this->LastSize[0]!=size[0] || this->LastSize[1]!=size[1];
+
   GLenum errorCode=glGetError();
   while(i <this->NumberOfFrameBuffers && errorCode==GL_NO_ERROR)
     {
-    glBindTexture(GL_TEXTURE_2D,textureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]);
-
     if (this->SizeChanged)
       {
-      glBindTexture(GL_TEXTURE_2D,textureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]);
+      glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]));
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -2675,7 +2694,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
     if(errorCode==GL_NO_ERROR)
       {
       // grabbed depth buffer
-      glBindTexture(GL_TEXTURE_2D,textureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]);
+      glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]));
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -2686,14 +2705,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
 
       // Set up the depth render buffer
 
-      GLint savedFrameBuffer;
-      glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer);
-      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
+      GLint savedFrameBuffer2;
+      glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer2);
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+          static_cast<GLuint>(this->FrameBufferObject));
       vtkgl::BindRenderbufferEXT(
-        vtkgl::RENDERBUFFER_EXT,depthRenderBufferObject);
+        vtkgl::RENDERBUFFER_EXT,
+        static_cast<GLuint>(this->DepthRenderBufferObject));
       vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
                                     vtkgl::DEPTH_COMPONENT24,size[0],size[1]);
-      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                static_cast<GLuint>(savedFrameBuffer2));
       errorCode=glGetError();
       if(errorCode==GL_NO_ERROR)
         {
@@ -2705,36 +2727,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
     }
 
 
+  // Bind the Frame buffer object and then attach 2D texture to the FBO
+  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+          static_cast<GLuint>(this->FrameBufferObject));
   vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
                                  vtkgl::COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,
-                                 textureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront],
+                                 static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront]),
                                  0);
-
 
   // Depth buffer
   vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
-                             depthRenderBufferObject);
+                             static_cast<GLuint>(this->DepthRenderBufferObject));
 
   vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
                                     vtkgl::DEPTH_ATTACHMENT_EXT,
                                     vtkgl::RENDERBUFFER_EXT,
-                                    depthRenderBufferObject);
+                                    static_cast<GLuint>(this->DepthRenderBufferObject));
 
   // Restore default frame buffer.
   vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
 
-  // Save GL objects by static casting to standard C types. GL* types
-  // are not allowed in VTK header files.
-  this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
-  this->DepthRenderBufferObject=static_cast<unsigned int>(depthRenderBufferObject);
-  i=0;
-  while(i<(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
-    {
-    this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
-    ++i;
-    }
-
-  this->OpenGLObjectsCreated=1;
 }
 
 
