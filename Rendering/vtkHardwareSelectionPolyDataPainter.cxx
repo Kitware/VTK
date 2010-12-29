@@ -74,6 +74,16 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
     return;
     }
 
+  vtkPolyData* pd = this->GetInputAsPolyData();
+  this->TotalCells = vtkHardwareSelectionPolyDataPainterGetTotalCells(pd, typeflags);
+
+  if (this->TotalCells == 0)
+    {
+    // skip empty polydatas.
+    this->TimeToDraw = 0;
+    return;
+    }
+
   vtkHardwareSelector* selector = renderer->GetSelector();
   if (this->EnableSelection)
     {
@@ -83,15 +93,6 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
       {
       device->MakeVertexEmphasis(true);
       }
-    }
-  vtkPolyData* pd = this->GetInputAsPolyData();
-  this->TotalCells = vtkHardwareSelectionPolyDataPainterGetTotalCells(pd, typeflags);
-
-  if (this->TotalCells == 0)
-    {
-    // skip empty polydatas.
-    this->TimeToDraw = 0;
-    return;
     }
 
   this->Timer->StartTimer();
