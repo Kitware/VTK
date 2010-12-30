@@ -69,6 +69,8 @@ fi
 bad=$(git diff-index --check --cached $against --) || die "$bad"
 
 # Approximate whitespace=tab-in-indent check with Git < 1.7.2.
+git --version | grep -q " \(1\.[0-6]\|1\.7\.[01]\)" &&
+approx_tab_in_indent=true || approx_tab_in_indent=false
 check_tab() {
 	lines=$(git diff-index -p --cached $against -- "$1" |
 	        grep '^+	') &&
@@ -78,20 +80,22 @@ check_tab() {
 		echo "$line"
 	done
 }
-approx_tab_in_indent() {
+
+# Custom whitespace checks.
+check_whitespace() {
 	ws=$(git check-attr whitespace -- "$file" |
 	     sed 's/^[^:]*: whitespace: //')
-	case ",$ws," in
-		*,tab-in-indent,*) check_tab "$1" ;;
-	esac
+	if $approx_tab_in_indent; then
+		case ",$ws," in
+			*,tab-in-indent,*) check_tab "$1" ;;
+		esac
+	fi
 }
-if git --version | grep " \(1\.[0-6]\|1\.7\.[01]\)" >/dev/null; then
-	bad=$(git diff-index --name-only --cached $against -- |
-	while read file; do
-		approx_tab_in_indent "$file"
-	done)
-	test -z "$bad" || die "$bad"
-fi
+bad=$(git diff-index --name-only --cached $against -- |
+while read file; do
+	check_whitespace "$file"
+done)
+test -z "$bad" || die "$bad"
 
 #-----------------------------------------------------------------------------
 # Check file modes and sizes.
