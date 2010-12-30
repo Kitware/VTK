@@ -135,7 +135,7 @@ INCLUDE(${QT_USE_FILE})
 
 QT4_WRAP_CPP(QVTKLibMocSrcs ${QVTKMocHeaders})
 
-ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
+VTK_ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
 # Add target specific compile flags for ABI setttings
 IF(VTK_ABI_CXX_FLAGS)
   SET_PROPERTY(TARGET QVTK APPEND PROPERTY COMPILE_FLAGS "${VTK_ABI_CXX_FLAGS}")
@@ -175,7 +175,7 @@ endif()
 
 # recurse into testing directory if testing is on
 IF(BUILD_TESTING)
-  SUBDIRS(Testing/Cxx)
+  ADD_SUBDIRECTORY(Testing/Cxx)
 ENDIF(BUILD_TESTING)
 
 # wrapping for python
@@ -214,14 +214,11 @@ if(VTK_WRAP_PYTHON_SIP)
   ENDIF(VTK_QT_USE_WEBKIT)
 
   VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
-  ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
+  VTK_ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
   TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK vtkViewsPythonD vtkRenderingPythonD vtkPythonCore)
 
   PYTHON_ADD_MODULE(vtkQtPython vtkQtPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkQtPython vtkQtPythonD)
-  IF(WIN32 AND NOT CYGWIN)
-    SET_TARGET_PROPERTIES(vtkQtPython PROPERTIES SUFFIX ".pyd")
-  ENDIF(WIN32 AND NOT CYGWIN)
 
   #### wrap QObject derived classes with SIP
   # list .sip files here for wrapping
@@ -245,7 +242,7 @@ if(VTK_WRAP_PYTHON_SIP)
   # auto generate the module .sip file from the list of .sip files above
   set(SIP_MODULE QVTKPython)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in
-    "%Module ${SIP_MODULE} 0\n\n")
+    "%Module vtk.${SIP_MODULE} 0\n\n")
 
   set(SIP_OUT)
   foreach(f ${SIP_FILES})
@@ -303,23 +300,30 @@ if(VTK_WRAP_PYTHON_SIP)
 
   # create the sip module
   include_directories(${SIP_INCLUDE_DIR})
-  add_library(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
+  include_directories("${PYTHON_INCLUDE_PATH}")
+  VTK_ADD_LIBRARY(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
   target_link_libraries(${SIP_MODULE} QVTK vtkRenderingPythonD)
   set_target_properties(${SIP_MODULE} PROPERTIES PREFIX "")
   IF(WIN32 AND NOT CYGWIN)
     SET_TARGET_PROPERTIES(${SIP_MODULE} PROPERTIES SUFFIX ".pyd")
   ENDIF(WIN32 AND NOT CYGWIN)
+  get_target_property(lib_loc ${SIP_MODULE} LOCATION)
+  add_custom_command(TARGET ${SIP_MODULE} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${lib_loc}" "${VTK_BINARY_DIR}/Wrapping/Python/vtk/"
+    )
 
 
   SET_TARGET_PROPERTIES(vtkQtPython QVTKPython PROPERTIES SKIP_BUILD_RPATH 1)
 
   IF(NOT VTK_INSTALL_NO_LIBRARIES)
     INSTALL(TARGETS vtkQtPythonD
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
       LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
     IF(VTK_INSTALL_PYTHON_USING_CMAKE)
       INSTALL(TARGETS vtkQtPython QVTKPython
+        EXPORT ${VTK_INSTALL_EXPORT_NAME}
         RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
         LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
         ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
@@ -353,7 +357,7 @@ IF(BUILD_SHARED_LIBS)
 
   # add QVTK plugin from sources
   # stand-alone as it doesn't depend on QVTK library
-  ADD_LIBRARY ( QVTKWidgetPlugin
+  VTK_ADD_LIBRARY ( QVTKWidgetPlugin
     SHARED
     ${PluginLibSrcs}
     ${PluginMocSrcs}
@@ -423,6 +427,7 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS QVTK
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)

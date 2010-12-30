@@ -36,8 +36,8 @@
 #ifndef Q_VTK_INTERACTOR_H
 #define Q_VTK_INTERACTOR_H
 
-#include <vtkRenderWindowInteractor.h>
 #include "QVTKWin32Header.h"
+#include <vtkRenderWindowInteractor.h>
 #include <QtCore/QObject>
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX

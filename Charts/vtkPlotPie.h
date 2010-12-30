@@ -46,7 +46,7 @@ public:
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
-  bool PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int legendIndex);
 
   // Description:
   // Set the dimensions of the pie, arguments 1 and 2 are the x and y coordinate

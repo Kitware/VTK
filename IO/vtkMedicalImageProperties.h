@@ -403,9 +403,9 @@ protected:
   char *XRayTubeCurrent;
   double DirectionCosine[6];
 
+  //BTX
   // Description:
   // PIMPL Encapsulation for STL containers
-  //BTX
   vtkMedicalImagePropertiesInternals *Internals;
   //ETX
 

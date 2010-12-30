@@ -266,14 +266,14 @@ int vtkCellDataToPointData::RequestDataForUnstructuredGrid
 
     // indices into the field arrays associated with the cell and the point
     // respectively
-    int const srcid = cfl.GetFieldIndex(fid);
-    int const dstid = cfl.GetDSAIndex(0,fid);
+    int const dstid = cfl.GetFieldIndex(fid);
+    int const srcid = cfl.GetDSAIndex(0,fid);
     if  (srcid < 0 || dstid < 0)
       {
       continue;
       }
 
-    vtkCellData * const srccelldata  = src->GetCellData ();
+    vtkCellData * const srccelldata  = clean;
     vtkPointData* const dstpointdata = dst->GetPointData();
 
     if (!srccelldata || !dstpointdata)

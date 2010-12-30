@@ -22,8 +22,9 @@
 #define __vtkChart_h
 
 #include "vtkContextItem.h"
+#include "vtkVector.h"      // For vtkRectf
 
-class vtkContext2D;
+class vtkTransform2D;
 class vtkContextScene;
 class vtkPlot;
 class vtkAxis;
@@ -31,7 +32,6 @@ class vtkTextProperty;
 
 class vtkInteractorStyle;
 class vtkAnnotationLink;
-class vtkTable;
 
 class VTK_CHARTS_EXPORT vtkChart : public vtkContextItem
 {
@@ -47,6 +47,14 @@ public:
     POINTS,
     BAR,
     STACKED};
+
+  // Description:
+  // Enum of valid chart action types
+  enum {
+    PAN,
+    ZOOM,
+    SELECT
+    };
 //ETX
 
   // Description:
@@ -123,8 +131,8 @@ public:
 
   // Description:
   // Set/get whether the chart should draw a legend.
-  vtkSetMacro(ShowLegend, bool);
-  vtkGetMacro(ShowLegend, bool);
+  virtual void SetShowLegend(bool visible);
+  virtual bool GetShowLegend();
 
   // Description:
   // Get/set the title text of the chart.
@@ -146,10 +154,49 @@ public:
   // Set/get the borders of the chart (space in pixels around the chart).
   void SetBorders(int left, int bottom, int right, int top);
 
-//BTX
+  // Description:
+  // Set the size of the chart. The rect argument specifies the bottom corner,
+  // width and height of the chart. The borders will be laid out within the
+  // specified rectangle.
+  void SetSize(const vtkRectf &rect);
+
+  // Description:
+  // Get the current size of the chart.
+  vtkRectf GetSize();
+
+  // Description:
+  // Set/get whether the chart should automatically resize to fill the current
+  // render window. Default is true.
+  vtkSetMacro(AutoSize, bool);
+  vtkGetMacro(AutoSize, bool);
+
+  // Description:
+  // Assign action types to mouse buttons. Available action types are PAN, ZOOM
+  // and SELECT in the chart enum, the default assigns the LEFT_BUTTON to
+  // PAN, MIDDLE_BUTTON to ZOOM and RIGHT_BUTTON to SELECT. Valid mouse enums
+  // are in the vtkContextMouseEvent class.
+  //
+  // Note that only one mouse button can be assigned to each action, an action
+  // will have -1 (invalid button) assigned if it had the same button as the one
+  // assigned to a different action.
+  virtual void SetActionToButton(int action, int button);
+
+  // Description:
+  // Get the mouse button associated with the supplied action. The mouse button
+  // enum is from vtkContextMouseEvent, and the action enum is from vtkChart.
+  virtual int GetActionToButton(int action);
+
 protected:
   vtkChart();
   ~vtkChart();
+
+  // Description:
+  // Given the x and y vtkAxis, and a transform, calculate the transform that
+  // the points in a chart would need to be drawn within the axes. This assumes
+  // that the axes have the correct start and end positions, and that they are
+  // perpendicular.
+  bool CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
+                              vtkTransform2D *transform);
 
   // Description:
   // Our annotation link, used for sharing selections etc.
@@ -179,10 +226,27 @@ protected:
   // The text properties associated with the chart
   vtkTextProperty* TitleProperties;
 
+  vtkRectf Size;
+  bool AutoSize;
+
+  // Description:
+  // Hold mouse action mappings.
+  class MouseActions
+    {
+  public:
+    MouseActions();
+    short& Pan() { return Data[0]; }
+    short& Zoom() { return Data[1]; }
+    short& Select() { return Data[2]; }
+    short& operator[](int index) { return Data[index]; }
+    short Data[3];
+    };
+
+  MouseActions Actions;
+
 private:
   vtkChart(const vtkChart &); // Not implemented.
   void operator=(const vtkChart &);   // Not implemented.
-//ETX
 };
 
 #endif //__vtkChart_h

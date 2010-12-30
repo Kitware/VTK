@@ -25,16 +25,14 @@
 #define __vtkChartXY_h
 
 #include "vtkChart.h"
+#include "vtkSmartPointer.h" // For SP ivars
 
 class vtkPlot;
 class vtkAxis;
-class vtkTransform2D;
 class vtkPlotGrid;
-class vtkTable;
 class vtkChartLegend;
 class vtkTooltipItem;
-class vtkContextMouseEvent;
-class vtkDataArray;
+class vtkVector2f;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
 class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
@@ -91,10 +89,18 @@ public:
   void SetPlotCorner(vtkPlot *plot, int corner);
 
   // Description:
-  // Get the axis specified by axisIndex. This should probably
-  // be improved either using a string or enum to select the axis.
-  // (0 - left, 1 - bottom, 2 - right, 3 - top).
+  // Get the axis specified by axisIndex. This is specified with the vtkAxis
+  // position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
+  // vtkAxis::RIGHT and vtkAxis::TOP.
   virtual vtkAxis* GetAxis(int axisIndex);
+
+  // Description:
+  // Set whether the chart should draw a legend.
+  virtual void SetShowLegend(bool visible);
+
+  // Description:
+  // Get the vtkChartLegend object that will be displayed by the chart.
+  virtual vtkChartLegend* GetLegend();
 
   // Description:
   // Get the number of axes in the current chart.
@@ -131,6 +137,12 @@ public:
   // The default value is 0.8, 1.0 would lead to bars that touch.
   vtkSetMacro(BarWidthFraction, float);
   vtkGetMacro(BarWidthFraction, float);
+
+  // Description:
+  // Set the information passed to the tooltip
+  virtual void SetTooltipInfo(const vtkContextMouseEvent &,
+                              const vtkVector2f &,
+                              int, vtkPlot*);
 
 //BTX
   // Description:
@@ -172,11 +184,6 @@ protected:
   void RecalculatePlotTransforms();
 
   // Description:
-  // Recalculate the supplied transform for the two axes.
-  void RecalculatePlotTransform(vtkAxis *x, vtkAxis *y,
-                                vtkTransform2D *transform);
-
-  // Description:
   // Calculate the optimal zoom level such that all of the points to be plotted
   // will fit into the plot area.
   void RecalculatePlotBounds();
@@ -185,19 +192,26 @@ protected:
   // Update the layout of the chart, this may require the vtkContext2D in order
   // to get font metrics etc. Initially this was added to resize the charts
   // according in response to the size of the axes.
-  bool UpdateLayout(vtkContext2D* painter);
+  virtual bool UpdateLayout(vtkContext2D* painter);
 
   // Description:
-  // The grid for the chart.
-  vtkPlotGrid *Grid;
+  // Layout for the legend if it is visible. This is run after the axes layout
+  // and will adjust the borders to account for the legend position.
+  // \return The required space in the specified border.
+  virtual int GetLegendBorder(vtkContext2D* painter, int axisPosition);
+
+  // Description:
+  // Called after the edges of the chart are decided, set the position of the
+  // legend, depends upon its alignment.
+  virtual void SetLegendPosition(const vtkRectf& rect);
 
   // Description:
   // The legend for the chart.
-  vtkChartLegend *Legend;
+  vtkSmartPointer<vtkChartLegend> Legend;
 
   // Description:
   // The tooltip item for the chart - can be used to display extra information.
-  vtkTooltipItem *Tooltip;
+  vtkSmartPointer<vtkTooltipItem> Tooltip;
 
   // Description:
   // Does the plot area transform need to be recalculated?

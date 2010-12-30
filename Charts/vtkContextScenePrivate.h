@@ -29,18 +29,18 @@
 #include "vtkContextScene.h"
 
 // STL headers
-#include <vtkstd/vector> // Needed for STL vector.
+#include <vector> // Needed for STL vector.
 
 class vtkContext2D;
 
 //-----------------------------------------------------------------------------
-class vtkContextScenePrivate : public vtkstd::vector<vtkAbstractContextItem*>
+class vtkContextScenePrivate : public std::vector<vtkAbstractContextItem*>
 {
 public:
   // Description:
   // Default constructor.
   vtkContextScenePrivate(vtkAbstractContextItem* item)
-    : vtkstd::vector<vtkAbstractContextItem*>(), Scene(0), Item(item)
+    : std::vector<vtkAbstractContextItem*>(), Scene(0), Item(item)
     {
     }
 
@@ -53,20 +53,20 @@ public:
 
   // Description:
   // A few standard defines
-  typedef vtkstd::vector<vtkAbstractContextItem*>::const_iterator
+  typedef std::vector<vtkAbstractContextItem*>::const_iterator
     const_iterator;
-  typedef vtkstd::vector<vtkAbstractContextItem*>::iterator iterator;
+  typedef std::vector<vtkAbstractContextItem*>::iterator iterator;
   // Older versions of GCC did not implement comparison operators for the
   // const_reverse_operator, the simplest thing to do is not use the const
   // form of the operator.
 #ifdef VTK_CONST_REVERSE_ITERATOR_COMPARISON
-  typedef vtkstd::vector<vtkAbstractContextItem*>::const_reverse_iterator
+  typedef std::vector<vtkAbstractContextItem*>::const_reverse_iterator
     const_reverse_iterator;
 #else
-  typedef vtkstd::vector<vtkAbstractContextItem*>::reverse_iterator
+  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
     const_reverse_iterator;
 #endif
-  typedef vtkstd::vector<vtkAbstractContextItem*>::reverse_iterator
+  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
     reverse_iterator;
 
   // Description:

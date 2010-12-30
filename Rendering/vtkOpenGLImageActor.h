@@ -61,6 +61,7 @@ protected:
   double Coords[12];
   double TCoords[8];
   int TextureSize[2];
+  int TextureBytesPerPixel;
   
   // Non-recursive internal method
   void InternalRender(vtkRenderer *ren);

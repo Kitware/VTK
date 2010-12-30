@@ -505,7 +505,7 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
     d_stream->zalloc = (alloc_func)0;
     d_stream->zfree = (free_func)0;
     d_stream->opaque = (voidpf)0;
-    inflateInit(d_stream);
+    inflateInit2(d_stream,47); // allow both gzip and zlib compression headers
     compressionTable->compressedStream = d_stream;
     compressionTable->buffer = new char[1001];
     compressionTable->bufferSize = 0;
@@ -592,7 +592,11 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
     d_stream->avail_in = stream->gcount();
     d_stream->next_out = outdata;
 
-    inflate(d_stream, Z_NO_FLUSH);
+    int inflate_error = inflate(d_stream, Z_NO_FLUSH);
+    if(inflate_error < 0)
+      {
+      return -1;
+      }
 
     METAIO_STL::streampos previousSeekpos = seekpos;
 
@@ -764,7 +768,7 @@ bool MET_PerformUncompression(const unsigned char * sourceCompressed,
   d_stream.zfree = (free_func)0;
   d_stream.opaque = (voidpf)0;
 
-  inflateInit(&d_stream);
+  inflateInit2(&d_stream,47); // allow both gzip and zlib compression headers
   d_stream.next_in  = const_cast<unsigned char *>(sourceCompressed);
   d_stream.avail_in = (uInt)sourceCompressedSize;
   

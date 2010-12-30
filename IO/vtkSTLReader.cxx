@@ -110,14 +110,14 @@ int vtkSTLReader::RequestData(
     }
 
   newPts = vtkPoints::New();
-  newPts->Allocate(5000,10000);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(10000,20000);
 
   // Depending upon file type, read differently
   //
   if ( this->GetSTLFileType(this->FileName) == VTK_ASCII )
     {
+    newPts->Allocate(5000,10000);
+    newPolys->Allocate(10000,20000);
     if (this->ScalarTags)
       {
       newScalars = vtkFloatArray::New();
@@ -263,6 +263,18 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
     << numTris << ")");
     }
 
+  // Verify the numTris with the length of the file
+  unsigned long ulFileLength = vtksys::SystemTools::FileLength(this->FileName);
+  ulFileLength -= (80 + 4); // 80 byte - header, 4 byte - tringle count
+  ulFileLength /= 50;       // 50 byte - twelve 32-bit-floating point numbers + 2 byte for attribute byte count
+
+  if (numTris < static_cast<int>(ulFileLength))
+    numTris = static_cast<int>(ulFileLength);
+
+  // now we can allocate the memory we need for this STL file
+  newPts->Allocate(numTris*3,10000);
+  newPolys->Allocate(numTris,20000);
+
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
     {
     fread(&ibuff2,2,1,fp); //read extra junk
@@ -291,7 +303,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
     if ( (i % 5000) == 0 && i != 0 )
       {
       vtkDebugMacro(<< "triangle# " << i);
-      this->UpdateProgress((i%50000)/50000.0);
+      this->UpdateProgress(static_cast<double>(i)/numTris);
       }
     }
 

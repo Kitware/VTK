@@ -48,6 +48,24 @@ vtkRenderer* vtkRenderViewBase::GetRenderer()
   return this->Renderer;
 }
 
+void vtkRenderViewBase::SetRenderer(vtkRenderer* newren)
+{
+  vtkRendererCollection* rens = this->RenderWindow->GetRenderers();
+  vtkCollectionSimpleIterator cookie;
+  rens->InitTraversal(cookie);
+  while(vtkRenderer *ren = rens->GetNextRenderer(cookie))
+    {
+    if (ren->GetLayer()<2)
+      {
+      ren->SetRenderWindow(NULL);
+      this->RenderWindow->RemoveRenderer(ren);
+      }
+    }
+
+  this->RenderWindow->AddRenderer(newren);
+  this->Renderer = newren;
+}
+
 vtkRenderWindow* vtkRenderViewBase::GetRenderWindow()
 {
   return this->RenderWindow;

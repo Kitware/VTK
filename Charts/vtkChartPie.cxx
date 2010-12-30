@@ -100,7 +100,9 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
     this->SetGeometry(geometry);
     this->SetBorders(20, 20, 20, 20);
     // Put the legend in the top corner of the chart
-    this->Legend->SetPoint(this->Point2[0], this->Point2[1]);
+    vtkRectf rect = this->Legend->GetBoundingRect(painter);
+    this->Legend->SetPoint(this->Point2[0] - rect.Width(),
+                           this->Point2[1] - rect.Height());
 
     // Set the dimensions of the Plot
     if (this->Private->Plot)

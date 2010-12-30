@@ -38,10 +38,10 @@ class  vtkCellPicker;
 class  vtkPolygonalSurfacePointPlacerInternals;
 class  vtkPolyData;
 
+//BTX
 // The Node stores information about the point. This information is used by
 // the interpolator. Reusing this information avoids the need for a second
 // pick operation to regenerate it. (Cellpickers are slow).
-//BTX
 struct vtkPolygonalSurfacePointPlacerNode
 {
   double       WorldPosition[3];
@@ -125,12 +125,12 @@ public:
   vtkSetMacro( DistanceOffset, double ); 
   vtkGetMacro( DistanceOffset, double ); 
 
+//BTX
   // Description:
   // Internally used by the interpolator.
-  //BTX
   typedef vtkPolygonalSurfacePointPlacerNode Node;
   Node *GetNodeAtWorldPosition( double worldPos[3] );
-  //ETX
+//ETX
 
 protected:
   vtkPolygonalSurfacePointPlacer();

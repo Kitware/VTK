@@ -4,7 +4,8 @@
 /*                                                                         */
 /*    Auxiliary functions for PostScript fonts (body).                     */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,   */
+/*            2010 by                                                      */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -186,7 +187,7 @@
     if ( table->cursor + length > table->capacity )
     {
       FT_Error   error;
-      FT_Offset  new_size  = table->capacity;
+      FT_Offset  new_size = table->capacity;
       FT_Long    in_offset;
 
 
@@ -383,7 +384,7 @@
           /* skip octal escape or ignore backslash */
           for ( i = 0; i < 3 && cur < limit; ++i )
           {
-            if ( ! IS_OCTAL_DIGIT( *cur ) )
+            if ( !IS_OCTAL_DIGIT( *cur ) )
               break;
 
             ++cur;
@@ -565,8 +566,8 @@
       cur++;
       if ( cur >= limit || *cur != '>' )             /* >> */
       {
-        FT_ERROR(( "ps_parser_skip_PS_token: "
-                   "unexpected closing delimiter `>'\n" ));
+        FT_ERROR(( "ps_parser_skip_PS_token:"
+                   " unexpected closing delimiter `>'\n" ));
         error = PSaux_Err_Invalid_File_Format;
         goto Exit;
       }
@@ -591,10 +592,10 @@
   Exit:
     if ( cur == parser->cursor )
     {
-      FT_ERROR(( "ps_parser_skip_PS_token: "
+      FT_ERROR(( "ps_parser_skip_PS_token:"
                  " current token is `%c' which is self-delimiting\n"
                  "                        "
-                 "but invalid at this point\n",
+                 " but invalid at this point\n",
                  *cur ));
 
       error = PSaux_Err_Invalid_File_Format;
@@ -1158,7 +1159,7 @@
             FT_ERROR(( "ps_parser_load_field:"
                        " expected a name or string\n"
                        "                     "
-                       "but found token of type %d instead\n",
+                       " but found token of type %d instead\n",
                        token.type ));
             error = PSaux_Err_Invalid_File_Format;
             goto Exit;
@@ -1195,8 +1196,8 @@
 
           if ( result < 0 )
           {
-            FT_ERROR(( "ps_parser_load_field: "
-                       "expected four integers in bounding box\n" ));
+            FT_ERROR(( "ps_parser_load_field:"
+                       " expected four integers in bounding box\n" ));
             error = PSaux_Err_Invalid_File_Format;
             goto Exit;
           }
@@ -1588,6 +1589,13 @@
     FT_Error     error;
 
 
+    /* this might happen in invalid fonts */
+    if ( !outline )
+    {
+      FT_ERROR(( "t1_builder_add_contour: no outline to add points to\n" ));
+      return PSaux_Err_Invalid_File_Format;
+    }
+
     if ( !builder->load_points )
     {
       outline->n_contours++;
@@ -1621,7 +1629,7 @@
 
     if ( builder->parse_state == T1_Parse_Have_Path )
       error = PSaux_Err_Ok;
-    else if ( builder->parse_state == T1_Parse_Have_Moveto )
+    else
     {
       builder->parse_state = T1_Parse_Have_Path;
       error = t1_builder_add_contour( builder );
@@ -1665,7 +1673,7 @@
 
     if ( outline->n_contours > 0 )
     {
-      /* Don't add contours only consisting of one point, i.e., */
+      /* Don't add contours only consisting of one point, i.e.,  */
       /* check whether the first and the last point is the same. */
       if ( first == outline->n_points - 1 )
       {

@@ -3,7 +3,11 @@
 # it creates bridge code for mixing vtkWrapPython code with SIP code
 #
 
-MACRO(VTK_WRAP_PYTHON_SIP KIT SRC_LIST_NAME SOURCES)
+
+# VTK_WRAP_PYTHON_SIP takes a list of vtk source files to create sip bindings for
+# it creates .sip files from a template and then creates .cxx files from those
+# the .cxx files are returned from this macro
+FUNCTION(VTK_WRAP_PYTHON_SIP KIT SRC_LIST_NAME SOURCES)
   IF(NOT SIP_EXECUTABLE)
     MESSAGE(SEND_ERROR "SIP_EXECUTABLE not specified when calling VTK_WRAP_PYTHON_SIP")
   ENDIF(NOT SIP_EXECUTABLE)
@@ -13,7 +17,7 @@ MACRO(VTK_WRAP_PYTHON_SIP KIT SRC_LIST_NAME SOURCES)
   SET(SIP_MOD vtk${KIT}PythonSIP)
   SET(SIP_OUT_SRCS)
   SET(SIP_IN_SRCS)
-  SET(VTK_WRAPPER_INIT_DATA "%Module ${SIP_MOD} 0\n\n")
+  SET(VTK_WRAPPER_INIT_DATA "%Module vtk.${SIP_MOD} 0\n\n")
 
   # For each class
   FOREACH(FILE ${SOURCES})
@@ -69,6 +73,36 @@ MACRO(VTK_WRAP_PYTHON_SIP KIT SRC_LIST_NAME SOURCES)
     COMMENT "Python SIP Wrapping - generating for vtk${KIT}"
     )
 
-  SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${SIP_OUT_SRCS})
+  SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${SIP_OUT_SRCS} PARENT_SCOPE)
 
-ENDMACRO(VTK_WRAP_PYTHON_SIP)
+ENDFUNCTION(VTK_WRAP_PYTHON_SIP)
+
+# create sip module library
+# one is created for use within a VTK build, and another is created for use in an install tree
+# all files passed in WRAP_SRCS are wrapped with sip/vtk bridge code
+function(VTK_CREATE_SIP_MODULE KIT WRAP_SRCS)
+  IF(NOT SIP_EXECUTABLE)
+    MESSAGE(SEND_ERROR "SIP_EXECUTABLE not set.")
+  ELSE(NOT SIP_EXECUTABLE)
+    INCLUDE_DIRECTORIES(${SIP_INCLUDE_DIR})
+    VTK_WRAP_PYTHON_SIP(${KIT} KitPythonSIP_SRCS "${WRAP_SRCS}")
+    VTK_ADD_LIBRARY(vtk${KIT}PythonSIP MODULE ${KitPythonSIP_SRCS})
+    SET_TARGET_PROPERTIES(vtk${KIT}PythonSIP PROPERTIES PREFIX "" SKIP_BUILD_RPATH 1)
+    IF(WIN32 AND NOT CYGWIN)
+      SET_TARGET_PROPERTIES(vtk${KIT}PythonSIP PROPERTIES SUFFIX ".pyd")
+    ENDIF(WIN32 AND NOT CYGWIN)
+    TARGET_LINK_LIBRARIES(vtk${KIT}PythonSIP vtk${KIT}PythonD)
+    get_target_property(lib_loc vtk${KIT}PythonSIP LOCATION)
+    ADD_CUSTOM_COMMAND(TARGET vtk${KIT}PythonSIP POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy "${lib_loc}" "${VTK_BINARY_DIR}/Wrapping/Python/vtk/"
+      )
+
+    IF(VTK_INSTALL_PYTHON_USING_CMAKE AND NOT VTK_INSTALL_NO_LIBRARIES)
+      INSTALL(TARGETS vtk${KIT}PythonSIP
+        EXPORT ${VTK_INSTALL_EXPORT_NAME}
+        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+        LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+        ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+    ENDIF(VTK_INSTALL_PYTHON_USING_CMAKE AND NOT VTK_INSTALL_NO_LIBRARIES)
+  ENDIF(NOT SIP_EXECUTABLE)
+endfunction(VTK_CREATE_SIP_MODULE)

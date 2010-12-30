@@ -37,6 +37,21 @@ vtkStringArray labels
   labels InsertNextValue "11"
   labels InsertNextValue "12"
 
+vtkDoubleArray weights
+  weights InsertNextValue 1.0
+  weights InsertNextValue 1.1
+  weights InsertNextValue 1.2
+  weights InsertNextValue 1.3
+  weights InsertNextValue 1.4
+  weights InsertNextValue 1.5
+  weights InsertNextValue 1.6
+  weights InsertNextValue 1.7
+  weights InsertNextValue 1.8
+  weights InsertNextValue 1.9
+  weights InsertNextValue 0.9
+  weights InsertNextValue 0.8
+  weights InsertNextValue 0.7
+
 set fname "$dir/mni-tagtest.tag"
 
 vtkMNITagPointWriter writer
@@ -44,6 +59,8 @@ vtkMNITagPointWriter writer
   writer SetInputConnection [sphere1 GetOutputPort]
   writer SetInputConnection 1 [xformFilter GetOutputPort]
   writer SetLabelText labels
+  writer SetWeights weights
+  writer SetComments "Volume 1: sphere points\nVolume 2: transformed points"
   writer Write
 
 vtkMNITagPointReader reader

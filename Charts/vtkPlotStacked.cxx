@@ -33,9 +33,9 @@
 #include "vtkColorSeries.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
-#include "vtkstd/map"
+#include <vector>
+#include <algorithm>
+#include <map>
 
 #define vtkStackedMIN(x, y) (((x)<(y))?(x):(y))
 #define vtkStackedMAX(x, y) (((x)>(y))?(x):(y))
@@ -178,8 +178,8 @@ class vtkPlotStackedSegment : public vtkObject {
       vtkIdType n = this->Points->GetNumberOfPoints();
       vtkVector2f* data =
           static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-      vtkstd::vector<vtkVector2f> v(data, data+n);
-      vtkstd::sort(v.begin(), v.end(), compVector2fX);
+      std::vector<vtkVector2f> v(data, data+n);
+      std::sort(v.begin(), v.end(), compVector2fX);
 
       this->CalculateLogSeries();
       this->FindBadPoints();
@@ -406,14 +406,14 @@ class vtkPlotStackedSegment : public vtkObject {
       // Set up our search array, use the STL lower_bound algorithm
       // When searching, invert the behavior of the offset and
       // compensate for the half width overlap.
-      vtkstd::vector<vtkVector2f>::iterator low;
+      std::vector<vtkVector2f>::iterator low;
       vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
 
       vtkVector2f* data =
           static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
-      vtkstd::vector<vtkVector2f> v(data, data+n);
+      std::vector<vtkVector2f> v(data, data+n);
 
-      low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
       // Now consider the y axis.  We only worry about our extent
       // to the base becuase each segment is called in order and the
@@ -494,7 +494,7 @@ class vtkPlotStackedPrivate {
       {
       int colorInSeries = 0;
       bool useColorSeries = this->Segments.size() > 1;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+      for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
         if (useColorSeries && colorSeries)
@@ -511,7 +511,7 @@ class vtkPlotStackedPrivate {
       // Depends on the fact that we check the segments in order. Each
       // Segment only worrys about its own total extent from the base.
       int index = 0;
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+      for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
         if ((*it)->GetNearestPoint(point,tol,location))
@@ -528,7 +528,7 @@ class vtkPlotStackedPrivate {
       // Depends on the fact that we check the segments in order. Each
       // Segment only worrys about its own total extent from the base.
       double segment_bounds[4];
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+      for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
         (*it)->GetBounds(segment_bounds);
@@ -556,16 +556,16 @@ class vtkPlotStackedPrivate {
                       const vtkVector2f& max,
                       vtkIdTypeArray *selection)
       {
-      for (vtkstd::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
+      for (std::vector<vtkSmartPointer<vtkPlotStackedSegment> >::iterator it = this->Segments.begin();
            it != this->Segments.end(); ++it)
         {
         (*it)->SelectPoints(min,max,selection);
         }
       }
 
-    vtkstd::vector<vtkSmartPointer<vtkPlotStackedSegment> > Segments;
+    std::vector<vtkSmartPointer<vtkPlotStackedSegment> > Segments;
     vtkPlotStacked *Stacked;
-    vtkstd::map<int,vtkstd::string> AdditionalSeries;
+    std::map<int,std::string> AdditionalSeries;
 };
 
 //-----------------------------------------------------------------------------
@@ -685,7 +685,8 @@ bool vtkPlotStacked::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                                 int)
 {
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
@@ -739,7 +740,7 @@ vtkStringArray *vtkPlotStacked::GetLabels()
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
     this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
 
-    vtkstd::map< int, vtkstd::string >::iterator it;
+    std::map< int, std::string >::iterator it;
     for ( it = this->Private->AdditionalSeries.begin(); it != this->Private->AdditionalSeries.end(); ++it )
       {
       this->AutoLabels->InsertNextValue((*it).second);
@@ -786,7 +787,7 @@ bool vtkPlotStacked::UpdateTableCache(vtkTable *table)
 
   vtkPlotStackedSegment *prev = this->Private->AddSegment(x,y);
 
-  vtkstd::map< int, vtkstd::string >::iterator it;
+  std::map< int, std::string >::iterator it;
 
   for ( it = this->Private->AdditionalSeries.begin(); it != this->Private->AdditionalSeries.end(); ++it )
     {
@@ -818,7 +819,7 @@ void vtkPlotStacked::SetInputArray(int index, const char *name)
     }
   else
     {
-    this->Private->AdditionalSeries[index] = vtkstd::string(name);
+    this->Private->AdditionalSeries[index] = std::string(name);
     }
   this->AutoLabels = 0; // No longer valid
 }

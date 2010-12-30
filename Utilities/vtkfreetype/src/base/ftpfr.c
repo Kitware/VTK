@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType API for accessing PFR-specific data (body).                 */
 /*                                                                         */
-/*  Copyright 2002, 2003, 2004, 2008 by                                    */
+/*  Copyright 2002, 2003, 2004, 2008, 2010 by                              */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -24,10 +24,11 @@
   static FT_Service_PfrMetrics
   ft_pfr_check( FT_Face  face )
   {
-    FT_Service_PfrMetrics  service;
+    FT_Service_PfrMetrics  service = NULL;
 
 
-    FT_FACE_LOOKUP_SERVICE( face, service, PFR_METRICS );
+    if ( face )
+      FT_FACE_LOOKUP_SERVICE( face, service, PFR_METRICS );
 
     return service;
   }
@@ -65,10 +66,10 @@
 
       /* this is not a PFR font */
       if ( aoutline_resolution )
-      *aoutline_resolution = face->units_per_EM;
+        *aoutline_resolution = face->units_per_EM;
 
       if ( ametrics_resolution )
-      *ametrics_resolution = face->units_per_EM;
+        *ametrics_resolution = face->units_per_EM;
 
       x_scale = y_scale = 0x10000L;
       if ( face->size )
@@ -78,10 +79,10 @@
       }
 
       if ( ametrics_x_scale )
-      *ametrics_x_scale = x_scale;
+        *ametrics_x_scale = x_scale;
 
       if ( ametrics_y_scale )
-      *ametrics_y_scale = y_scale;
+        *ametrics_y_scale = y_scale;
 
       error = FT_Err_Unknown_File_Format;
     }

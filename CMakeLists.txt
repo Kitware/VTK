@@ -22,6 +22,12 @@ IF(APPLE)
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
 ENDIF(APPLE)
 
+# The Cygwin maintainers have requested that we not define WIN32. Thus developers
+# must use the X11 packages to build cygwin vtk.
+IF(CYGWIN)
+  unset(WIN32)
+ENDIF()
+
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
 IF(NOT EXPORT_EXECUTABLES_FILE)
@@ -63,6 +69,15 @@ INCLUDE(vtkCompilerExtras)
 # Check the source tree - right now just for local Git hooks.
 INCLUDE(vtkCheckSourceTree)
 
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Debug' as none was specified.")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
+
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
@@ -80,6 +95,8 @@ IF(NOT VTK_NO_LIBRARY_VERSION)
     SOVERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
     )
 ENDIF(NOT VTK_NO_LIBRARY_VERSION)
+
+INCLUDE(vtkTargetExportMacros)
 
 #-----------------------------------------------------------------------------
 # Determine whether we are being built by CTest and if so the version.
@@ -180,6 +197,11 @@ ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
 #-----------------------------------------------------------------------------
 # Where the cxx tests are, for use in ADD_TEST
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+IF(CMAKE_CONFIGURATION_TYPES)
+  SET(CXX_TEST_CONFIG \${CTEST_CONFIGURATION_TYPE})
+ELSE()
+  SET(CXX_TEST_CONFIG .)
+ENDIF()
 
 #-----------------------------------------------------------------------------
 # Configure install locations.  This allows parent projects to modify
@@ -556,11 +578,11 @@ INCLUDE(CTest)
 MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH CVSCOMMAND CVS_UPDATE_OPTIONS DART_TESTING_TIMEOUT)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
-  CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
-    ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
-  FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
-    "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 ENDIF(BUILD_TESTING)
+CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
+  ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
+FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
+  "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 
 OPTION(VTK_USE_DISPLAY "Turn this option off and tests and warning/error macros will not popup windows" ON)
 MARK_AS_ADVANCED(VTK_USE_DISPLAY)
@@ -634,6 +656,7 @@ SET(KWSYS_USE_Glob 1)
 SET(KWSYS_USE_DateStamp 1)
 SET(KWSYS_HEADER_ROOT ${VTK_BINARY_DIR}/Utilities)
 SET(KWSYS_PROPERTIES_CXX ${VTK_LIBRARY_PROPERTIES})
+SET(KWSYS_INSTALL_EXPORT_NAME ${VTK_INSTALL_EXPORT_NAME})
 
 IF(NOT VTK_USE_ANSI_STDLIB)
   SET(KWSYS_IOS_FORCE_OLD 1)
@@ -745,6 +768,8 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
 VTK_THIRD_PARTY_OPTION(ZLIB zlib)
+VTK_THIRD_PARTY_OPTION(HDF5 hdf5)
+INCLUDE(vtkHDF5Library)
 IF(VTK_USE_GL2PS)
 VTK_THIRD_PARTY_OPTION(GL2PS gl2ps)
 ENDIF(VTK_USE_GL2PS)
@@ -1427,9 +1452,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
-# Save library dependencies.
-EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
-
 
 # Install some files.
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
@@ -1460,8 +1482,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 
   SET(__inst_files
-    ${VTK_BINARY_DIR}/UseVTK.cmake
-    ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
+    ${VTK_BINARY_DIR}/UseVTK.cmake)
   IF(VTK_WRAP_HINTS)
     SET(__inst_files ${__inst_files} ${VTK_WRAP_HINTS})
   ENDIF(VTK_WRAP_HINTS)
@@ -1476,5 +1497,5 @@ INCLUDE(VTKCPack.cmake)
 #-----------------------------------------------------------------------------
 # The commands in this directory are intended to be executed as
 # the end of the whole configuration process, as a "last step".
-# This directory is typically the last SUBDIRS in the main CMakeLists.txt.
+# This directory is typically the last add_subdirectory in the main CMakeLists.txt.
 ADD_SUBDIRECTORY(Utilities/LastConfigureStep)

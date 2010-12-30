@@ -50,166 +50,7 @@
 #include "vtkContextBufferId.h"
 #include "vtkOpenGLContextBufferId.h"
 
-//-----------------------------------------------------------------------------
-class vtkOpenGLContextDevice2D::Private
-{
-public:
-  Private()
-  {
-    this->Texture = NULL;
-    this->TextureProperties = vtkContextDevice2D::Linear |
-        vtkContextDevice2D::Stretch;
-    this->SpriteTexture = NULL;
-    this->SavedLighting = GL_TRUE;
-    this->SavedDepthTest = GL_TRUE;
-    this->SavedAlphaTest = GL_TRUE;
-    this->SavedStencilTest = GL_TRUE;
-    this->SavedBlend = GL_TRUE;
-    this->SavedDrawBuffer = 0;
-    this->SavedClearColor[0] = this->SavedClearColor[1] =
-                               this->SavedClearColor[2] =
-                               this->SavedClearColor[3] = 0.0f;
-    this->TextCounter = 0;
-    this->GLExtensionsLoaded = false;
-    this->OpenGL15 = false;
-    this->GLSL = false;
-  }
-
-  ~Private()
-  {
-    if (this->Texture)
-      {
-      this->Texture->Delete();
-      this->Texture = NULL;
-      }
-    if (this->SpriteTexture)
-      {
-      this->SpriteTexture->Delete();
-      this->SpriteTexture = NULL;
-      }
-  }
-
-  void SaveGLState(bool colorBuffer = false)
-  {
-    this->SavedLighting = glIsEnabled(GL_LIGHTING);
-    this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
-
-    if (colorBuffer)
-      {
-      this->SavedAlphaTest = glIsEnabled(GL_ALPHA_TEST);
-      this->SavedStencilTest = glIsEnabled(GL_STENCIL_TEST);
-      this->SavedBlend = glIsEnabled(GL_BLEND);
-      glGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
-      glGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
-      }
-  }
-
-  void RestoreGLState(bool colorBuffer = false)
-  {
-    this->SetGLCapability(GL_LIGHTING, this->SavedLighting);
-    this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
-
-    if (colorBuffer)
-      {
-      this->SetGLCapability(GL_ALPHA_TEST, this->SavedAlphaTest);
-      this->SetGLCapability(GL_STENCIL_TEST, this->SavedStencilTest);
-      this->SetGLCapability(GL_BLEND, this->SavedBlend);
-
-      if(this->SavedDrawBuffer != GL_BACK_LEFT)
-        {
-        glDrawBuffer(this->SavedDrawBuffer);
-        }
-
-      int i = 0;
-      bool colorDiffer = false;
-      while(!colorDiffer && i < 4)
-        {
-        colorDiffer=this->SavedClearColor[i++] != 0.0;
-        }
-      if(colorDiffer)
-        {
-        glClearColor(this->SavedClearColor[0],
-                     this->SavedClearColor[1],
-                     this->SavedClearColor[2],
-                     this->SavedClearColor[3]);
-        }
-      }
-  }
-
-  void SetGLCapability(GLenum capability, GLboolean state)
-  {
-    if (state)
-      {
-      glEnable(capability);
-      }
-    else
-      {
-      glDisable(capability);
-      }
-  }
-
-  float* TexCoords(float* f, int n)
-  {
-    float* texCoord = new float[2*n];
-    float minX = f[0]; float minY = f[1];
-    float maxX = f[0]; float maxY = f[1];
-    float* fptr = f;
-    for(int i = 0; i < n; ++i)
-      {
-      minX = fptr[0] < minX ? fptr[0] : minX;
-      maxX = fptr[0] > maxX ? fptr[0] : maxX;
-      minY = fptr[1] < minY ? fptr[1] : minY;
-      maxY = fptr[1] > maxY ? fptr[1] : maxY;
-      fptr+=2;
-      }
-    fptr = f;
-    if (this->TextureProperties & vtkContextDevice2D::Repeat)
-      {
-      double* textureBounds = this->Texture->GetInput()->GetBounds();
-      float rangeX = (textureBounds[1] - textureBounds[0]) ?
-        textureBounds[1] - textureBounds[0] : 1.;
-      float rangeY = (textureBounds[3] - textureBounds[2]) ?
-        textureBounds[3] - textureBounds[2] : 1.;
-      for (int i = 0; i < n; ++i)
-        {
-        texCoord[i*2] = (fptr[0]-minX) / rangeX;
-        texCoord[i*2+1] = (fptr[1]-minY) / rangeY;
-        fptr+=2;
-        }
-      }
-    else // this->TextureProperties & vtkContextDevice2D::Stretch
-      {
-      float rangeX = (maxX - minX)? maxX - minX : 1.f;
-      float rangeY = (maxY - minY)? maxY - minY : 1.f;
-      for (int i = 0; i < n; ++i)
-        {
-        texCoord[i*2] = (fptr[0]-minX)/rangeX;
-        texCoord[i*2+1] = (fptr[1]-minY)/rangeY;
-        fptr+=2;
-        }
-      }
-    return texCoord;
-  }
-
-  vtkTexture *Texture;
-  unsigned int TextureProperties;
-  vtkTexture *SpriteTexture;
-  // Store the previous GL state so that we can restore it when complete
-  GLboolean SavedLighting;
-  GLboolean SavedDepthTest;
-  GLboolean SavedAlphaTest;
-  GLboolean SavedStencilTest;
-  GLboolean SavedBlend;
-  GLint SavedDrawBuffer;
-  GLfloat SavedClearColor[4];
-
-  int TextCounter;
-  vtkVector2i Dim;
-  vtkVector2i Offset;
-  bool GLExtensionsLoaded;
-  bool OpenGL15;
-  bool GLSL;
-};
+#include "vtkOpenGLContextDevice2DPrivate.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLContextDevice2D);
@@ -218,21 +59,8 @@ vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 {
   this->Renderer = 0;
-  this->IsTextDrawn = false;
   this->InRender = false;
-#ifdef VTK_USE_QT
-  // Can only use the QtLabelRenderStrategy if there is a QApplication
-  // instance, otherwise fallback to the FreeTypeLabelRenderStrategy.
-/*  if(QApplication::instance())
-    {
-    this->TextRenderer = vtkQtStringToImage::New();
-    }
-  else
-    { */
   this->TextRenderer = vtkFreeTypeStringToImage::New();
-#else
-  this->TextRenderer = vtkFreeTypeStringToImage::New();
-#endif
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->RenderWindow = NULL;
 }
@@ -241,9 +69,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 {
   this->TextRenderer->Delete();
-  this->TextRenderer = 0;
   delete this->Storage;
-  this->Storage = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -278,7 +104,6 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   glEnable(GL_BLEND);
 
   this->Renderer = vtkRenderer::SafeDownCast(viewport);
-  this->IsTextDrawn = false;
 
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
@@ -296,8 +121,6 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
     }
 
   this->InRender = true;
-
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -318,10 +141,7 @@ void vtkOpenGLContextDevice2D::End()
   this->Storage->RestoreGLState();
 
   this->RenderWindow = NULL;
-
   this->InRender = false;
-
-  this->Modified();
 }
 
 // ----------------------------------------------------------------------------
@@ -387,159 +207,58 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n)
+void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
+                                        int nc)
 {
-  if(f && n > 0)
+  assert("f must be non-null" && f != NULL);
+  assert("n must be greater than 0" && n > 0);
+
+  this->SetLineType(this->Pen->GetLineType());
+  glLineWidth(this->Pen->GetWidth());
+
+  if (colors)
     {
-    this->SetLineType(this->Pen->GetLineType());
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    }
+  else
+    {
     glColor4ubv(this->Pen->GetColor());
-    glLineWidth(this->Pen->GetWidth());
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, f);
-    glDrawArrays(GL_LINE_STRIP, 0, n);
-    glDisableClientState(GL_VERTEX_ARRAY);
     }
-  else
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, f);
+  glDrawArrays(GL_LINE_STRIP, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (colors)
     {
-    vtkWarningMacro(<< "Points supplied that were not of type float.");
+    glDisableClientState(GL_COLOR_ARRAY);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *c, int nc)
-{
-  if (f && n > 0 && nc == 4)
-    {
-    this->SetLineType(this->Pen->GetLineType());
-    glColor4ubv(c);
-    glLineWidth(this->Pen->GetWidth());
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, f);
-    glDrawArrays(GL_LINE_STRIP, 0, n);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    }
-  else
-    {
-    vtkWarningMacro(<< "Points supplied that were not of type float.");
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n)
+void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
+                                          int nc)
 {
   if (f && n > 0)
     {
-    glColor4ubv(this->Pen->GetColor());
     glPointSize(this->Pen->GetWidth());
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, f);
-    glDrawArrays(GL_POINTS, 0, n);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    }
-  else
-    {
-    vtkWarningMacro(<< "Points supplied that were not of type float.");
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
-                                                float *points, int n)
-{
-  if (points && n > 0)
-    {
-    glColor4ubv(this->Pen->GetColor());
-    glPointSize(this->Pen->GetWidth());
-    if (sprite)
+    if (c && nc)
       {
-      if (!this->Storage->SpriteTexture)
-        {
-        this->Storage->SpriteTexture = vtkTexture::New();
-        this->Storage->SpriteTexture->SetRepeat(false);
-        }
-      this->Storage->SpriteTexture->SetInput(sprite);
-      this->Storage->SpriteTexture->Render(this->Renderer);
-      }
-    if (this->Storage->OpenGL15)
-      {
-      // We can actually use point sprites here
-      glEnable(vtkgl::POINT_SPRITE);
-      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_TRUE);
-      vtkgl::PointParameteri(vtkgl::POINT_SPRITE_COORD_ORIGIN, vtkgl::LOWER_LEFT);
-
-      this->DrawPoints(points, n);
-
-      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_FALSE);
-      glDisable(vtkgl::POINT_SPRITE);
-
+      glEnableClientState(GL_COLOR_ARRAY);
+      glColorPointer(nc, GL_UNSIGNED_BYTE, 0, c);
       }
     else
       {
-      // Must emulate the point sprites - slower but at least they see something.
-      GLfloat width = 1.0;
-      glGetFloatv(GL_POINT_SIZE, &width);
-      width /= 2.0;
-
-      // Need to get the model view matrix for scaling factors...
-      GLfloat mv[16];
-      glGetFloatv(GL_MODELVIEW_MATRIX, mv);
-      float xWidth = width / mv[0];
-      float yWidth = width / mv[5];
-
-      float p[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-
-      // This will be the same everytime
-      float texCoord[] = { 0.0, 0.0,
-                           1.0, 0.0,
-                           1.0, 1.0,
-                           0.0, 1.0 };
-
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
-
-      for (int i = 0; i < n; ++i)
-        {
-        p[0] = points[2*i] - xWidth;
-        p[1] = points[2*i+1] - yWidth;
-        p[2] = points[2*i] + xWidth;
-        p[3] = points[2*i+1] - yWidth;
-        p[4] = points[2*i] + xWidth;
-        p[5] = points[2*i+1] + yWidth;
-        p[6] = points[2*i] - xWidth;
-        p[7] = points[2*i+1] + yWidth;
-
-        glVertexPointer(2, GL_FLOAT, 0, p);
-        glDrawArrays(GL_QUADS, 0, 4);
-        }
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
+      glColor4ubv(this->Pen->GetColor());
       }
-    if (sprite)
-      {
-      this->Storage->SpriteTexture->PostRender(this->Renderer);
-      glDisable(GL_TEXTURE_2D);
-      }
-    }
-  else
-    {
-    vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c, int nc)
-{
-  if (f && n > 0)
-    {
-    glPointSize(this->Pen->GetWidth());
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, c);
     glVertexPointer(2, GL_FLOAT, 0, f);
     glDrawArrays(GL_POINTS, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    if (c && nc)
+      {
+      glDisableClientState(GL_COLOR_ARRAY);
+      }
     }
   else
     {
@@ -549,7 +268,9 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c, int
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
-                    float *points, int n, unsigned char *colors, int nc_comps)
+                                                float *points, int n,
+                                                unsigned char *colors,
+                                                int nc_comps)
 {
   if (points && n > 0)
     {
@@ -565,70 +286,69 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       this->Storage->SpriteTexture->SetInput(sprite);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
-    if (this->Storage->OpenGL15)
+
+    // Must emulate the point sprites - slower but at least they see something.
+    GLfloat width = 1.0;
+    glGetFloatv(GL_POINT_SIZE, &width);
+    width /= 2.0;
+
+    // Need to get the model view matrix for scaling factors...
+    GLfloat mv[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+    float xWidth = width / mv[0];
+    float yWidth = width / mv[5];
+
+    float p[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    float c[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+    // This will be the same everytime
+    float texCoord[] = { 0.0, 0.0,
+                         1.0, 0.0,
+                         1.0, 1.0,
+                         0.0, 1.0 };
+
+    if (colors && nc_comps)
       {
-      // We can actually use point sprites here
-      glEnable(vtkgl::POINT_SPRITE);
-      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_TRUE);
-      vtkgl::PointParameteri(vtkgl::POINT_SPRITE_COORD_ORIGIN, vtkgl::LOWER_LEFT);
-
-      this->DrawPoints(points, n, colors, nc_comps);
-
-      glTexEnvi(vtkgl::POINT_SPRITE, vtkgl::COORD_REPLACE, GL_FALSE);
-      glDisable(vtkgl::POINT_SPRITE);
-
+      glEnableClientState(GL_COLOR_ARRAY);
       }
     else
       {
-      // Must emulate the point sprites - slower but at least they see something.
-      GLfloat width = 1.0;
-      glGetFloatv(GL_POINT_SIZE, &width);
-      width /= 2.0;
+      glColor4ubv(this->Pen->GetColor());
+      }
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
 
-      // Need to get the model view matrix for scaling factors...
-      GLfloat mv[16];
-      glGetFloatv(GL_MODELVIEW_MATRIX, mv);
-      float xWidth = width / mv[0];
-      float yWidth = width / mv[5];
+    for (int i = 0; i < n; ++i)
+      {
+      p[0] = points[2*i] - xWidth;
+      p[1] = points[2*i+1] - yWidth;
+      p[2] = points[2*i] + xWidth;
+      p[3] = points[2*i+1] - yWidth;
+      p[4] = points[2*i] + xWidth;
+      p[5] = points[2*i+1] + yWidth;
+      p[6] = points[2*i] - xWidth;
+      p[7] = points[2*i+1] + yWidth;
 
-      float p[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-      float c[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-
-      // This will be the same everytime
-      float texCoord[] = { 0.0, 0.0,
-                           1.0, 0.0,
-                           1.0, 1.0,
-                           0.0, 1.0 };
-
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glEnableClientState(GL_COLOR_ARRAY);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
-
-      for (int i = 0; i < n; ++i)
+      if (colors && nc_comps)
         {
-        p[0] = points[2*i] - xWidth;
-        p[1] = points[2*i+1] - yWidth;
-        p[2] = points[2*i] + xWidth;
-        p[3] = points[2*i+1] - yWidth;
-        p[4] = points[2*i] + xWidth;
-        p[5] = points[2*i+1] + yWidth;
-        p[6] = points[2*i] - xWidth;
-        p[7] = points[2*i+1] + yWidth;
-
         for (int j = 0; j < 8; ++j)
           {
           c[j] = colors[nc_comps*i];
           }
-
-        glVertexPointer(2, GL_FLOAT, 0, p);
         glColorPointer(nc_comps, GL_UNSIGNED_BYTE, 0, c);
-        glDrawArrays(GL_QUADS, 0, 4);
         }
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      glDisableClientState(GL_COLOR_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
+
+      glVertexPointer(2, GL_FLOAT, 0, p);
+      glDrawArrays(GL_QUADS, 0, 4);
       }
+    if (colors && nc_comps)
+      {
+      glDisableClientState(GL_COLOR_ARRAY);
+      }
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
     if (sprite)
       {
       this->Storage->SpriteTexture->PostRender(this->Renderer);
@@ -813,9 +533,9 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     // we make sure maxRadius will never be null.
     return;
     }
-  int iterations=this->GetNumberOfArcIterations(rX,rY,startAngle,stopAngle);
+  int iterations = this->GetNumberOfArcIterations(rX, rY, startAngle, stopAngle);
 
-  float *p=new float[2*(iterations+1)];
+  float *p = new float[2*(iterations+1)];
 
   // step in radians.
   double step =
@@ -823,17 +543,14 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
 
   // step have to be lesser or equal to maxStep computed inside
   // GetNumberOfIterations()
-
   double rstart=vtkMath::RadiansFromDegrees(startAngle);
 
   // we are iterating counterclockwise
-  int i=0;
-  while(i<=iterations)
+  for(int i = 0; i <= iterations; ++i)
     {
     double a=rstart+i*step;
     p[2*i  ] = rX * cos(a) + x;
     p[2*i+1] = rY * sin(a) + y;
-    ++i;
     }
 
   this->SetLineType(this->Pen->GetLineType());
@@ -860,37 +577,38 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
   assert("pre: not_both_null" && (rX>0.0 || rY>0.0));
 
 // 1.0: pixel precision. 0.5 (subpixel precision, useful with multisampling)
-  double error=4.0; // experience shows 4.0 is visually enough.
+  double error = 4.0; // experience shows 4.0 is visually enough.
 
   // The tessellation is the most visible on the biggest radius.
   double maxRadius;
-  if(rX>=rY)
+  if(rX >= rY)
     {
-    maxRadius=rX;
+    maxRadius = rX;
     }
   else
     {
-    maxRadius=rY;
+    maxRadius = rY;
     }
 
-  if(error>maxRadius)
+  if(error > maxRadius)
     {
-    error=0.5; // to make sure the argument of asin() is in a valid range.
+    // to make sure the argument of asin() is in a valid range.
+    error = maxRadius;
     }
 
   // Angle of a sector so that its chord is `error' pixels.
   // This is will be our maximum angle step.
-  double maxStep=2.0*asin(error/(2.0*maxRadius));
+  double maxStep = 2.0 * asin(error / (2.0 * maxRadius));
 
   // ceil because we want to make sure we don't underestimate the number of
   // iterations by 1.
   return static_cast<int>(
-    ceil(vtkMath::RadiansFromDegrees(stopAngle-startAngle)/maxStep));
+    ceil(vtkMath::RadiansFromDegrees(stopAngle - startAngle) / maxStep));
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
-                                         float *p)
+void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
+                                         float height, float *p)
 {
   // Special case multiples of 90 as no transformation is required...
   if (orientation > -0.0001 && orientation < 0.0001)
@@ -900,10 +618,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_RIGHT:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -911,10 +629,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_BOTTOM:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_TOP:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     }
@@ -925,10 +643,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_RIGHT:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -936,10 +654,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_BOTTOM:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     }
@@ -950,10 +668,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_RIGHT:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_LEFT:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -961,10 +679,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_BOTTOM:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     }
@@ -975,10 +693,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
-        p[1] -= floor(extent[3] / 2.0);
+        p[1] -= floor(height / 2.0);
         break;
       case VTK_TEXT_RIGHT:
-        p[1] -= extent[3];
+        p[1] -= height;
         break;
       }
     switch (this->TextProp->GetVerticalJustification())
@@ -986,10 +704,10 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, int *extent,
       case VTK_TEXT_BOTTOM:
         break;
       case VTK_TEXT_CENTERED:
-        p[0] -= floor(extent[1] / 2.0);
+        p[0] -= floor(width / 2.0);
         break;
       case VTK_TEXT_TOP:
-        p[0] -= extent[1];
+        p[0] -= width;
         break;
       }
     }
@@ -1008,30 +726,26 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
     return;
     }
 
-  vtkTexture *tex =vtkTexture::New();
-  tex->RepeatOff();
-  tex->InterpolateOff();
-  tex->EdgeClampOff();
-  tex->PremultipliedAlphaOn();
-  tex->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-  tex->SetInput(image);
-  tex->Render(this->Renderer);
-  int *extent = image->GetExtent();
+  this->SetTexture(image);
+  this->Storage->Texture->Render(this->Renderer);
 
-  p[0] -= extent[0] - 0.5;
-  p[1] -= extent[2] - 0.5;
+  float width = static_cast<float>(image->GetOrigin()[0]);
+  float height = static_cast<float>(image->GetOrigin()[1]);
 
-  this->AlignText(this->TextProp->GetOrientation(), extent, p);
+  float xw = static_cast<float>(image->GetSpacing()[0]);
+  float xh = static_cast<float>(image->GetSpacing()[1]);
 
-  float points[] = { p[0]              , p[1],
-                     p[0]+extent[1]+1.0, p[1],
-                     p[0]+extent[1]+1.0, p[1]+extent[3]+1.0,
-                     p[0]              , p[1]+extent[3]+1.0 };
+  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
+
+  float points[] = { p[0]        , p[1],
+                     p[0] + width, p[1],
+                     p[0] + width, p[1] + height,
+                     p[0]        , p[1] + height };
 
   float texCoord[] = { 0.0, 0.0,
-                       1.0, 0.0,
-                       1.0, 1.0,
-                       0.0, 1.0 };
+                       xw,  0.0,
+                       xw,  xh,
+                       0.0, xh };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -1042,9 +756,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  tex->PostRender(this->Renderer);
+  this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-  tex->Delete();
   image->Delete();
 }
 
@@ -1090,9 +803,8 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
 void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
-  vtkTexture *tex =vtkTexture::New();
-  tex->SetInput(image);
-  tex->Render(this->Renderer);
+  this->SetTexture(image);
+  this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
   float points[] = { p[0]                    , p[1],
                      p[0]+scale*extent[1]+1.0, p[1],
@@ -1113,9 +825,48 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  tex->PostRender(this->Renderer);
+  this->Storage->Texture->PostRender(this->Renderer);
   glDisable(GL_TEXTURE_2D);
-  tex->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
+                                         vtkImageData *image)
+{
+  vtkVector2f tex(1.0, 1.0);
+  GLuint index = 0;
+  if (this->Storage->PowerOfTwoTextures)
+    {
+    index = this->Storage->TextureFromImage(image, tex);
+    }
+  else
+    {
+    index = this->Storage->TextureFromImage(image, tex);
+    }
+//  this->SetTexture(image);
+//  this->Storage->Texture->Render(this->Renderer);
+  float points[] = { pos.X()              , pos.Y(),
+                     pos.X() + pos.Width(), pos.Y(),
+                     pos.X() + pos.Width(), pos.Y() + pos.Height(),
+                     pos.X()              , pos.Y() + pos.Height() };
+
+  float texCoord[] = { 0.0   , 0.0,
+                       tex[0], 0.0,
+                       tex[0], tex[1],
+                       0.0   , tex[1] };
+
+  glColor4ub(255, 255, 255, 255);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, &points[0]);
+  glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
+  glDrawArrays(GL_QUADS, 0, 4);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+
+//  this->Storage->Texture->PostRender(this->Renderer);
+  glDisable(GL_TEXTURE_2D);
+  glDeleteTextures(1, &index);
 }
 
 //-----------------------------------------------------------------------------
@@ -1389,6 +1140,17 @@ bool vtkOpenGLContextDevice2D::HasGLSL()
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
+  if(m->ExtensionSupported("GL_ARB_texture_non_power_of_two"))
+    {
+    m->LoadExtension("GL_ARB_texture_non_power_of_two");
+    this->Storage->PowerOfTwoTextures = false;
+    this->TextRenderer->SetScaleToPowerOfTwo(false);
+    }
+  else
+    {
+    this->Storage->PowerOfTwoTextures = true;
+    this->TextRenderer->SetScaleToPowerOfTwo(true);
+    }
   if(m->ExtensionSupported("GL_VERSION_1_5"))
     {
     m->LoadExtension("GL_VERSION_1_5");
@@ -1406,6 +1168,17 @@ bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
   else
     {
     this->Storage->GLSL = false;
+    }
+
+  // Workaround for a bug in mesa - support for non-power of two textures is
+  // poor at best. Disable, and use power of two textures for mesa rendering.
+  const char *gl_version =
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  const char *mesa_version = strstr(gl_version, "Mesa");
+  if (mesa_version != 0)
+    {
+    this->Storage->PowerOfTwoTextures = true;
+    this->TextRenderer->SetScaleToPowerOfTwo(true);
     }
 
   this->Storage->GLExtensionsLoaded = true;

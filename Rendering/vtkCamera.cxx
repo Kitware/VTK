@@ -859,13 +859,6 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 #endif
 
 //------------------------------------------------------------------HeadTracked
-// This is to enable headtracking of the camera.
-void vtkCamera::SetHeadTracked(int val )
-{
-    this->HeadTracked = val;
-}
-
-//------------------------------------------------------------------HeadTracked
 void vtkCamera::SetHeadPose( double x00,  double x01,  double x02, double x03,
                             double x10,  double x11,  double x12, double x13,
                             double x20,  double x21,  double x22, double x23,

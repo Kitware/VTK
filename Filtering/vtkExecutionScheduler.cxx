@@ -750,6 +750,22 @@ void vtkExecutionScheduler::RescheduleNetwork(vtkExecutive *sink)
 }
 
 //----------------------------------------------------------------------------
+void vtkExecutionScheduler::ClassInitialize()
+{
+  // Currently empty - initialize late when required.
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutionScheduler::ClassFinalize()
+{
+  // Clean up our singleton (if it was ever initalized).
+  if (globalScheduler)
+    {
+    globalScheduler->FastDelete();
+    }
+}
+
+//----------------------------------------------------------------------------
 typedef struct 
 {
   vtkExecutionScheduler *scheduler;

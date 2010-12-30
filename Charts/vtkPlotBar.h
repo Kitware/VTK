@@ -52,7 +52,8 @@ public:
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4], int legendIndex);
+  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex);
 
   // Description:
   // Set the plot color
@@ -92,6 +93,14 @@ public:
   // Get the plot labels.
   virtual vtkStringArray *GetLabels();
 
+  // Description:
+  // Set the group name of the bar chart - can be displayed on the X axis.
+  virtual void SetGroupName(const vtkStdString& name);
+
+  // Description:
+  // Get the group name of the bar char - can be displayed on the X axis.
+  virtual const char * GetGroupName();
+
 //BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
@@ -100,9 +109,7 @@ public:
   virtual int GetNearestPoint(const vtkVector2f& point,
                                const vtkVector2f& tolerance,
                                vtkVector2f* location);
-//ETX
 
-//BTX
 protected:
   vtkPlotBar();
   ~vtkPlotBar();

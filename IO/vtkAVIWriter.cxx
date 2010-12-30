@@ -51,12 +51,12 @@ vtkAVIWriter::vtkAVIWriter()
   this->Internals->StreamCompressed = NULL;
   this->Internals->AVIFile = NULL;
   this->Time = 0;
-  this->Quality = 2;
-  this->Rate = 15;
+  this->Quality = 10000;
+  this->Rate = 1000;
   this->Internals->hDIB = NULL;  // handle to DIB, temp handle
   this->PromptCompressionOptions = 0;
   this->CompressorFourCC = NULL;
-  this->SetCompressorFourCC("DIB");
+  this->SetCompressorFourCC("CVID");
 }
 
 //---------------------------------------------------------------------------

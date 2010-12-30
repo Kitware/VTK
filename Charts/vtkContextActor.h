@@ -64,8 +64,13 @@ protected:
   vtkContextActor();
   ~vtkContextActor();
 
+  // Description:
+  // Initialize the actor - right now we just decide which device to initialize.
+  void Initialize(vtkViewport* viewport);
+
   vtkContextScene *Scene;
   vtkContext2D *Context;
+  bool Initialized;
 
 private:
   vtkContextActor(const vtkContextActor&);  // Not implemented.

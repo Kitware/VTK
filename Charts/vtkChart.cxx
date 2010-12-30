@@ -14,11 +14,22 @@
 =========================================================================*/
 
 #include "vtkChart.h"
+#include "vtkAxis.h"
+#include "vtkTransform2D.h"
+#include "vtkContextMouseEvent.h"
 
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
+
+//-----------------------------------------------------------------------------
+vtkChart::MouseActions::MouseActions()
+{
+  this->Data[0] = vtkContextMouseEvent::LEFT_BUTTON;
+  this->Data[1] = vtkContextMouseEvent::MIDDLE_BUTTON;
+  this->Data[2] = vtkContextMouseEvent::RIGHT_BUTTON;
+}
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkChart, AnnotationLink, vtkAnnotationLink);
@@ -40,6 +51,7 @@ vtkChart::vtkChart()
   this->TitleProperties->SetFontSize(12);
   this->TitleProperties->SetFontFamilyToArial();
   this->AnnotationLink = NULL;
+  this->AutoSize = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -124,9 +136,61 @@ void vtkChart::RecalculateBounds()
 }
 
 //-----------------------------------------------------------------------------
+void vtkChart::SetShowLegend(bool visible)
+{
+  if (this->ShowLegend != visible)
+    {
+    this->ShowLegend = visible;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChart::GetShowLegend()
+{
+  return this->ShowLegend;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChart::CalculatePlotTransform(vtkAxis *x, vtkAxis *y,
+                                      vtkTransform2D *transform)
+{
+  if (!x || !y || !transform)
+    {
+    vtkWarningMacro("Called with null arguments.");
+    return false;
+    }
+  // Get the scale for the plot area from the x and y axes
+  float *min = x->GetPoint1();
+  float *max = x->GetPoint2();
+  if (fabs(max[0] - min[0]) == 0.0f)
+    {
+    return false;
+    }
+  float xScale = (x->GetMaximum() - x->GetMinimum()) / (max[0] - min[0]);
+
+  // Now the y axis
+  min = y->GetPoint1();
+  max = y->GetPoint2();
+  if (fabs(max[1] - min[1]) == 0.0f)
+    {
+    return false;
+    }
+  float yScale = (y->GetMaximum() - y->GetMinimum()) / (max[1] - min[1]);
+
+  transform->Identity();
+  transform->Translate(this->Point1[0], this->Point1[1]);
+  // Get the scale for the plot area from the x and y axes
+  transform->Scale(1.0 / xScale, 1.0 / yScale);
+  transform->Translate(-x->GetMinimum(), -y->GetMinimum());
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 void vtkChart::SetBottomBorder(int border)
 {
   this->Point1[1] = border >= 0 ? border : 0;
+  this->Point1[1] += static_cast<int>(this->Size.Y());
 }
 
 //-----------------------------------------------------------------------------
@@ -135,12 +199,14 @@ void vtkChart::SetTopBorder(int border)
  this->Point2[1] = border >=0 ?
                    this->Geometry[1] - border :
                    this->Geometry[1];
+ this->Point2[1] += static_cast<int>(this->Size.Y());
 }
 
 //-----------------------------------------------------------------------------
 void vtkChart::SetLeftBorder(int border)
 {
   this->Point1[0] = border >= 0 ? border : 0;
+  this->Point1[0] += static_cast<int>(this->Size.X());
 }
 
 //-----------------------------------------------------------------------------
@@ -149,6 +215,7 @@ void vtkChart::SetRightBorder(int border)
   this->Point2[0] = border >=0 ?
                     this->Geometry[0] - border :
                     this->Geometry[0];
+  this->Point2[0] += static_cast<int>(this->Size.X());
 }
 
 //-----------------------------------------------------------------------------
@@ -158,6 +225,40 @@ void vtkChart::SetBorders(int left, int bottom, int right, int top)
   this->SetRightBorder(right);
   this->SetTopBorder(top);
   this->SetBottomBorder(bottom);
+}
+
+void vtkChart::SetSize(const vtkRectf &rect)
+{
+  this->Size = rect;
+  this->Geometry[0] = static_cast<int>(rect.Width());
+  this->Geometry[1] = static_cast<int>(rect.Height());
+}
+
+vtkRectf vtkChart::GetSize()
+{
+  return this->Size;
+}
+
+void vtkChart::SetActionToButton(int action, int button)
+{
+  if (action < 0 || action > 2)
+    {
+    vtkErrorMacro("Error, invalid action value supplied: " << action)
+    return;
+    }
+  this->Actions[action] = button;
+  for (int i = 0; i < 3; ++i)
+    {
+    if (this->Actions[i] == button && i != action)
+      {
+      this->Actions[i] = -1;
+      }
+    }
+}
+
+int vtkChart::GetActionToButton(int action)
+{
+  return this->Actions[action];
 }
 
 //-----------------------------------------------------------------------------

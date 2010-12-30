@@ -50,13 +50,13 @@ public:
   vtkTypeMacro(vtkAppendCompositeDataLeaves,vtkCompositeDataSetAlgorithm);
   void PrintSelf( ostream& os, vtkIndent indent );
 
+//BTX
   // Description:
   // Get any input of this filter.
-  //BTX
   vtkCompositeDataSet* GetInput( int idx );
   vtkCompositeDataSet* GetInput() 
     { return this->GetInput( 0 ); }
-  //ETX
+//ETX
 
   // Description:
   // Remove a dataset from the list of data to append.

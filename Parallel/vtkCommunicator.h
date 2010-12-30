@@ -801,6 +801,7 @@ public:
 
   static void SetUseCopy(int useCopy);
 
+//BTX
   // Description:
   // Determine the global bounds for a set of processes.  BBox is
   // initially set (outside of the call to the local bounds of the process
@@ -811,7 +812,6 @@ public:
   // bounds else it will be set to 0
   // The last three arguements are the tags to be used when performing
   // the operation
-//BTX
   virtual int ComputeGlobalBounds(int processorId, int numProcesses,
                                   vtkBoundingBox *bounds,
                                   int *rightHasBounds = 0,

@@ -30,6 +30,7 @@ vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
 vtkCollectTable.cxx
 vtkCommunicator.cxx
+vtkCompositedSynchronizedRenderers.cxx
 vtkCompositer.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx

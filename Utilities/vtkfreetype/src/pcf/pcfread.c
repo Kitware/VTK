@@ -2,7 +2,8 @@
 
     FreeType font driver for pcf fonts
 
-  Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by
+  Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+            2010 by
   Francesco Zappa Nardelli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -607,6 +608,9 @@ THE SOFTWARE.
 
     face->nmetrics = nmetrics;
 
+    if ( !nmetrics )
+      return PCF_Err_Invalid_Table;
+
     FT_TRACE4(( "pcf_get_metrics:\n" ));
 
     FT_TRACE4(( "  number of metrics: %d\n", nmetrics ));
@@ -997,7 +1001,7 @@ THE SOFTWARE.
     PCF_Property  prop;
 
     size_t  nn, len;
-    char*  strings[4] = { NULL, NULL, NULL, NULL };
+    char*   strings[4] = { NULL, NULL, NULL, NULL };
     size_t  lengths[4];
 
 

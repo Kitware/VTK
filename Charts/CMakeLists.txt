@@ -1,20 +1,19 @@
 SET(KIT Charts)
 SET(UKIT CHARTS)
 
-SET(KIT_TCL_LIBS vtkHybridTCL vtkViewsTCL ${VTK_TK_LIBRARIES})
-SET(KIT_PYTHON_LIBS vtkHybridPythonD vtkViewsPythonD)
-SET(KIT_JAVA_LIBS vtkHybridJava vtkViewsJava)
+SET(KIT_TCL_LIBS vtkViewsTCL ${VTK_TK_LIBRARIES})
+SET(KIT_PYTHON_LIBS vtkViewsPythonD)
+SET(KIT_JAVA_LIBS vtkViewsJava)
 
 IF (JAVA_AWT_LIBRARY)
   SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY})
 ENDIF (JAVA_AWT_LIBRARY)
 
-SET(KIT_INTERFACE_LIBRARIES vtkHybrid vtkViews)
-SET(KIT_LIBS vtkIO vtkftgl
-  ${VTK_FREETYPE_LIBRARIES}
-)
+SET(KIT_INTERFACE_LIBRARIES vtkViews)
+SET(KIT_LIBS vtkftgl)
 
 SET(Kit_SRCS
+  vtk2DHistogramItem.cxx
   vtkAbstractContextBufferId.cxx
   vtkAbstractContextItem.cxx
   vtkAxis.cxx
@@ -22,9 +21,11 @@ SET(Kit_SRCS
   vtkBrush.cxx
   vtkChart.cxx
   vtkChartLegend.cxx
+  vtkChart2DHistogram.cxx
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkChartPie.cxx
+  vtkColorLegend.cxx
   vtkPlotPie.cxx
   vtkColor.h
   vtkColorSeries.cxx
@@ -45,6 +46,7 @@ SET(Kit_SRCS
   vtkImageItem.cxx
   vtkLookupTableItem.cxx
   vtkOpenGLContextBufferId.cxx
+  vtkOpenGL2ContextDevice2D.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
@@ -90,6 +92,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId
+  vtkOpenGL2ContextDevice2D
   vtkOpenGLContextDevice2D
   vtkVector
   WRAP_EXCLUDE
@@ -110,6 +113,3 @@ ENDIF(VTK_USE_QT)
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
-
-#TARGET_LINK_LIBRARIES(vtkCharts ${QT_LIBRARIES})
-

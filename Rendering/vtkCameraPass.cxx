@@ -197,18 +197,18 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glGetIntegerv(GL_MATRIX_MODE, &saved_matrix_mode);
   GLint saved_viewport[4];
   glGetIntegerv(GL_VIEWPORT, saved_viewport);
-  GLint saved_scissor_test;
-  glGetIntegerv(GL_SCISSOR_TEST, &saved_scissor_test);
+  GLboolean saved_scissor_test;
+  glGetBooleanv(GL_SCISSOR_TEST, &saved_scissor_test);
   GLint saved_scissor_box[4];
   glGetIntegerv(GL_SCISSOR_BOX, saved_scissor_box);
   GLfloat saved_projection_matrix[16];
   GLfloat saved_modelview_matrix[16];
   glGetFloatv(GL_PROJECTION_MATRIX, saved_projection_matrix);
   glGetFloatv(GL_MODELVIEW_MATRIX, saved_modelview_matrix);
-  
-  glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
+
+  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
+  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   
   double aspectModification = this->AspectRatioOverride > 0.0?
     this->AspectRatioOverride : 1.0;

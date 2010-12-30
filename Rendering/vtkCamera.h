@@ -440,7 +440,7 @@ public:
   // HeadTracker mode. It impacts on the computation of the transforms.
   // Initial value is false.
   //vtkSetMacro(HeadTracked,bool);
-  void SetHeadTracked( int val);
+  vtkSetMacro(HeadTracked,int);
   vtkGetMacro(HeadTracked,int);
 
   // Description:

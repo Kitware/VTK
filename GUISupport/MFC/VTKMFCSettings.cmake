@@ -1,5 +1,5 @@
 # Include this file from a CMakeLists.txt that contains an
-# ADD_EXECUTABLE or ADD_LIBRARY call when the build product
+# VTK_ADD_EXECUTABLE or VTK_ADD_LIBRARY call when the build product
 # links against MFC.
 #
 # This file provides definitions for the following CMake vars:

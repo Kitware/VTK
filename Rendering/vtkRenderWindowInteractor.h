@@ -488,6 +488,7 @@ protected:
   int NumberOfFlyFrames;
   double Dolly;
 
+//BTX
   // Description:
   // These methods allow the interactor to control which events are
   // processed.  When the GrabFocus() method is called, then only events that
@@ -495,20 +496,19 @@ protected:
   // typically used by widgets, i.e., subclasses of vtkInteractorObserver, to
   // grab events once an event sequence begins.) Note that the friend
   // declaration is done here to avoid doing so in the superclass vtkObject.
-  //BTX
   friend class vtkInteractorObserver;
   void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL)
     {this->Superclass::InternalGrabFocus(mouseEvents,keypressEvents);}
   void ReleaseFocus()
     {this->Superclass::InternalReleaseFocus();}
-  //ETX
+//ETX
 
   // Description:
   // Widget mediators are used to resolve contention for cursors and other resources.
   vtkObserverMediator *ObserverMediator;
 
+//BTX
   // Timer related members
-  //BTX
   friend struct vtkTimerStruct;
   vtkTimerIdMap *TimerMap; // An internal, PIMPLd map of timers and associated attributes
   unsigned long  TimerDuration; //in milliseconds
@@ -520,7 +520,7 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
   int GetCurrentTimerId();
-  //ETX
+//ETX
 
   // Force the interactor to handle the Start() event loop, ignoring any 
   // overrides. (Overrides are registered by observing StartEvent on the 

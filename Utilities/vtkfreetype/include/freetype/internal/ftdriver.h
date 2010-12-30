@@ -105,9 +105,9 @@ FT_BEGIN_HEADER
 
 
   typedef FT_Error
-  (*FT_Face_GetAdvancesFunc)( FT_Face     face,
-                              FT_UInt     first,
-                              FT_UInt     count,
+  (*FT_Face_GetAdvancesFunc)( FT_Face    face,
+                              FT_UInt    first,
+                              FT_UInt    count,
                               FT_Int32   flags,
                               FT_Fixed*  advances );
 

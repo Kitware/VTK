@@ -378,9 +378,7 @@ void SystemTools::GetPath(kwsys_stl::vector<kwsys_stl::string>& path, const char
     kwsys_stl::string::size_type endpos = pathEnv.find(pathSep, start);
     if(endpos != kwsys_stl::string::npos)
       {
-      kwsys_stl::string convertedPath;
-      Realpath(pathEnv.substr(start, endpos-start).c_str(), convertedPath);
-      path.push_back(convertedPath);
+      path.push_back(pathEnv.substr(start, endpos-start));
       start = endpos+1;
       }
     else
@@ -736,10 +734,11 @@ bool SystemTools::WriteRegistryValue(const char *key, const char *value,
   
   HKEY hKey;
   DWORD dwDummy;
+  char lpClass[] = "";
   if(RegCreateKeyEx(primaryKey, 
                     second.c_str(), 
                     0, 
-                    "",
+                    lpClass,
                     REG_OPTION_NON_VOLATILE,
                     SystemToolsMakeRegistryMode(KEY_WRITE, view),
                     NULL,
@@ -1642,7 +1641,7 @@ kwsys_stl::string SystemTools::ConvertToUnixOutputPath(const char* path)
   kwsys_stl::string ret = path;
   
   // remove // except at the beginning might be a cygwin drive
-  kwsys_stl::string::size_type pos=0;
+  kwsys_stl::string::size_type pos=1;
   while((pos = ret.find("//", pos)) != kwsys_stl::string::npos)
     {
     ret.erase(pos, 1);

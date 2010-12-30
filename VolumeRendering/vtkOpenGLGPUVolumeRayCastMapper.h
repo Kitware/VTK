@@ -128,7 +128,7 @@ protected:
   // fragment program.
   // \pre extensions_loaded: this->LoadExtensionsSucceeded
   // \post done: this->OpenGLObjectsCreated==1
-  void CreateOpenGLObjects();
+  void CreateOpenGLObjects(vtkRenderer *ren);
 
   // Description:
   // Allocate memory on the GPU for the framebuffers according to the size of
@@ -455,6 +455,10 @@ protected:
   vtkShader2 *CroppingShader;
   vtkShader2 *Component;
   vtkShader2 *Shade;
+
+  // Internal Variable used to keep track of whether or render window's size
+  // changed and therefore we need re-allocation.
+  bool        SizeChanged;
 
   vtkShaderProgram2 *ScaleBiasProgram;
 

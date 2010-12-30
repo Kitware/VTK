@@ -446,21 +446,24 @@ void vtkWindowToImageFilter::RequestData(
           {
           int xpos = int(cur_viewport[0]*size[0]*this->Magnification + 0.5);
           int ypos = int(cur_viewport[1]*size[1]*this->Magnification + 0.5);
+
           outPtr = static_cast<unsigned char *>(
             out->GetScalarPointer(xpos,ypos, 0));
 
           // We skip padding pixels around internal borders.
+          int ncomp = out->GetNumberOfScalarComponents();
           int start_x_offset = (x != 0)? BORDER_PIXELS : 0;
-          start_x_offset *= out->GetNumberOfScalarComponents();
-          int end_x_offset = (x != num_iterations-1)? BORDER_PIXELS : 0;
-          end_x_offset *= out->GetNumberOfScalarComponents();
+          int end_x_offset = (x != num_iterations-1 && x!=0)? BORDER_PIXELS : 0;
           int start_y_offset = (y != 0)? BORDER_PIXELS : 0;
           int end_y_offset = (y != num_iterations-1)? BORDER_PIXELS : 0;
+          start_x_offset *= ncomp;
+          end_x_offset *= ncomp;
           for (idxY = 0; idxY < size[1]; idxY++)
             {
-            if (idxY >= start_y_offset && idxY < size[0] - end_y_offset)
+            if (idxY >= start_y_offset && idxY < size[1] - end_y_offset)
               {
-              memcpy(outPtr + start_x_offset, pixels1, rowSize - end_x_offset);
+              memcpy(outPtr + start_x_offset, pixels1 + start_x_offset,
+                rowSize - (start_x_offset + end_x_offset));
               }
             outPtr += outIncrY;
             pixels1 += rowSize;

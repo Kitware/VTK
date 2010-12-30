@@ -484,7 +484,7 @@
     }
     else
       FT_TRACE0(( "ps_mask_table_merge: ignoring invalid indices (%d,%d)\n",
-                 index1, index2 ));
+                  index1, index2 ));
 
   Exit:
     return error;
@@ -560,7 +560,7 @@
                              FT_UInt       idx,
                              FT_Memory     memory )
   {
-    PS_Mask  mask;
+    PS_Mask   mask;
     FT_Error  error = PSH_Err_Ok;
 
 
@@ -845,7 +845,7 @@
       if ( dimension < 0 || dimension > 1 )
       {
         FT_TRACE0(( "ps_hints_stem: invalid dimension (%d) used\n",
-                   dimension ));
+                    dimension ));
         dimension = ( dimension != 0 );
       }
 
@@ -881,7 +881,7 @@
 
       default:
         FT_TRACE0(( "ps_hints_stem: called with invalid hint type (%d)\n",
-                   hints->hint_type ));
+                    hints->hint_type ));
         break;
       }
     }
@@ -890,8 +890,8 @@
 
   /* add one Type1 counter stem to the current hints table */
   static void
-  ps_hints_t1stem3( PS_Hints  hints,
-                    FT_Int    dimension,
+  ps_hints_t1stem3( PS_Hints   hints,
+                    FT_Int     dimension,
                     FT_Fixed*  stems )
   {
     FT_Error  error = PSH_Err_Ok;
@@ -909,7 +909,7 @@
       if ( dimension < 0 || dimension > 1 )
       {
         FT_TRACE0(( "ps_hints_t1stem3: invalid dimension (%d) used\n",
-                   dimension ));
+                    dimension ));
         dimension = ( dimension != 0 );
       }
 
@@ -924,7 +924,7 @@
           error = ps_dimension_add_t1stem( dim,
                                            (FT_Int)FIXED_TO_INT( stems[0] ),
                                            (FT_Int)FIXED_TO_INT( stems[1] ),
-                    memory, &idx[count] );
+                                           memory, &idx[count] );
           if ( error )
             goto Fail;
         }
@@ -1012,7 +1012,7 @@
       if ( bit_count !=  count1 + count2 )
       {
         FT_TRACE0(( "ps_hints_t2mask:"
-                   "called with invalid bitcount %d (instead of %d)\n",
+                    " called with invalid bitcount %d (instead of %d)\n",
                    bit_count, count1 + count2 ));
 
         /* simply ignore the operator */
@@ -1057,7 +1057,7 @@
       if ( bit_count !=  count1 + count2 )
       {
         FT_TRACE0(( "ps_hints_t2counter:"
-                   "called with invalid bitcount %d (instead of %d)\n",
+                    " called with invalid bitcount %d (instead of %d)\n",
                    bit_count, count1 + count2 ));
 
         /* simply ignore the operator */
@@ -1127,8 +1127,8 @@
   }
 
   static void
-  t1_hints_stem( T1_Hints  hints,
-                 FT_Int    dimension,
+  t1_hints_stem( T1_Hints   hints,
+                 FT_Int     dimension,
                  FT_Fixed*  coords )
   {
     FT_Pos  stems[2];

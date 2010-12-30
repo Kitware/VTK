@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     # add tests that require data
     SET(MyTests ${MyTests}
       #TestContextUnicode.cxx # Disabled until Freetype unicode works
+      Test2DHistogram.cxx
       TestBarGraph.cxx
       TestContext.cxx
       TestContextImage.cxx
@@ -26,6 +27,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestMultipleScalarsToColors.cxx
       TestParallelCoordinates.cxx
       TestPieChart.cxx
+      TestPlotMatrix.cxx
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
       TestScientificPlot.cxx
@@ -38,6 +40,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
         )
     ENDIF(VTK_USE_GLSL_SHADERS)
     # Set the tolerance higher for a few tests that need it
+    set(TestGLSL 12)
     SET(TestLinePlotError 25)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)

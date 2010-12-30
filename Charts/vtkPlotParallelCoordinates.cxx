@@ -151,7 +151,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 
   // Draw all of the lines
   painter->ApplyPen(this->Pen);
-  int nc_comps;
+  int nc_comps(0);
   if (this->ScalarVisibility && this->Colors)
     {
     nc_comps = static_cast<int>(this->Colors->GetNumberOfComponents());
@@ -201,11 +201,12 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotParallelCoordinates::PaintLegend(vtkContext2D *painter,
+                                             const vtkRectf& rect, int)
 {
   painter->ApplyPen(this->Pen);
-  painter->DrawLine(rect[0], rect[1]+0.5*rect[3],
-                    rect[0]+rect[2], rect[1]+0.5*rect[3]);
+  painter->DrawLine(rect[0]          , rect[1] + 0.5 * rect[3],
+                    rect[0] + rect[2], rect[1] + 0.5 * rect[3]);
   return true;
 }
 

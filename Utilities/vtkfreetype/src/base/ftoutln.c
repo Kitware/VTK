@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType outline management (body).                                  */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by       */
+/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010 by */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -91,18 +91,18 @@
         goto Invalid_Outline;
       limit = outline->points + last;
 
-      v_start = outline->points[first];
+      v_start   = outline->points[first];
       v_start.x = SCALED( v_start.x );
       v_start.y = SCALED( v_start.y );
 
-      v_last  = outline->points[last];
+      v_last   = outline->points[last];
       v_last.x = SCALED( v_last.x );
       v_last.y = SCALED( v_last.y );
 
       v_control = v_start;
 
       point = outline->points + first;
-      tags  = outline->tags  + first;
+      tags  = outline->tags   + first;
       tag   = FT_CURVE_TAG( tags[0] );
 
       /* A contour cannot start with a cubic control point! */
@@ -304,9 +304,9 @@
 
     *anoutline = null_outline;
 
-    if ( FT_NEW_ARRAY( anoutline->points,   numPoints * 2L ) ||
-         FT_NEW_ARRAY( anoutline->tags,     numPoints      ) ||
-         FT_NEW_ARRAY( anoutline->contours, numContours    ) )
+    if ( FT_NEW_ARRAY( anoutline->points,   numPoints   ) ||
+         FT_NEW_ARRAY( anoutline->tags,     numPoints   ) ||
+         FT_NEW_ARRAY( anoutline->contours, numContours ) )
       goto Fail;
 
     anoutline->n_points    = (FT_UShort)numPoints;
@@ -990,7 +990,8 @@
 
     int             i;
     FT_Pos          ray_y[3];
-    FT_Orientation  result[3];
+    FT_Orientation  result[3] =
+      { FT_ORIENTATION_NONE, FT_ORIENTATION_NONE, FT_ORIENTATION_NONE };
 
 
     if ( !outline || outline->n_points <= 0 )

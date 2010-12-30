@@ -45,7 +45,7 @@ vtkStreamingStatistics::vtkStreamingStatistics()
   this->SetStatisticsAlgorithm(0);
 
   // Initialize internal model
-  this->internalModel = vtkMultiBlockDataSet::New();
+  this->InternalModel = vtkMultiBlockDataSet::New();
 }
 
 // ----------------------------------------------------------------------
@@ -56,8 +56,8 @@ vtkStreamingStatistics::~vtkStreamingStatistics()
   this->StatisticsAlgorithm = 0;
 
   // Release/delete internal model to NULL
-  this->internalModel->Delete();
-  this->internalModel = 0;
+  this->InternalModel->Delete();
+  this->InternalModel = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -122,13 +122,13 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
   // These will be used later
   /*
   vtkMultiBlockDataSet* inModel      = vtkMultiBlockDataSet::GetData( inputVector[INPUT_MODEL], 0 );
-  vtkTable*             inParameters = vtkTable::GetData( inputVector[LEARN_PARAMETERS], 0 );
-  vtkTable*             outTest  = vtkTable::GetData( outputVector, OUTPUT_TEST );
   */
+  vtkDataObject*        inParameters = vtkDataObject::GetData( inputVector[LEARN_PARAMETERS], 0 );
+  vtkTable*             outTest  = vtkTable::GetData( outputVector, OUTPUT_TEST );
 
 
 
-  // Note: Experiment code. Lots of use case are currently not handled in
+  // Note: Experimental code. Lots of use case are currently not handled in
   // any way and there are a lot of assumptions made about this or that
 
   // Make sure the statistics algorithm is set
@@ -141,17 +141,19 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
 
   // Set the input into my stats algorithms
   this->StatisticsAlgorithm->SetInput(inData);
-  this->StatisticsAlgorithm->SetInputModel(this->internalModel);
+  this->StatisticsAlgorithm->SetLearnOptionParameters( inParameters );
+  this->StatisticsAlgorithm->SetInputModel( this->InternalModel );
 
   // Force an update
   this->StatisticsAlgorithm->Update();
 
   // Grab (DeepCopy) the model for next time
-  this->internalModel->DeepCopy(this->StatisticsAlgorithm->GetOutputDataObject(OUTPUT_MODEL));
+  this->InternalModel->DeepCopy( this->StatisticsAlgorithm->GetOutputDataObject( OUTPUT_MODEL ) );
 
   // Shallow copy the internal output to external output
-  outData->ShallowCopy(this->StatisticsAlgorithm->GetOutput(OUTPUT_DATA));
-  outModel->ShallowCopy(this->StatisticsAlgorithm->GetOutputDataObject(OUTPUT_MODEL));
+  outData->ShallowCopy( this->StatisticsAlgorithm->GetOutput( OUTPUT_DATA ) );
+  outModel->ShallowCopy( this->StatisticsAlgorithm->GetOutputDataObject( OUTPUT_MODEL ) );
+  outTest->ShallowCopy( this->StatisticsAlgorithm->GetOutput( OUTPUT_TEST ) );
 
   return 1;
 }
@@ -165,7 +167,9 @@ void vtkStreamingStatistics::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   if (this->StatisticsAlgorithm)
     {
-    os << indent << "StatisticsAlgorithm: ";
-    this->StatisticsAlgorithm->PrintSelf(os,indent);
+    os << indent << "StatisticsAlgorithm:\n";
+    vtkIndent i2 = indent.GetNextIndent();
+    this->StatisticsAlgorithm->PrintSelf(os,i2);
     }
+  os << indent << "InternalModel: " << this->InternalModel << "\n";
 }

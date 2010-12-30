@@ -57,9 +57,9 @@ public:
   // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
   void RemoveInput(vtkSelection *);
 
+//BTX
   // Description:
   // Get any input of this filter.
-//BTX
   vtkSelection *GetInput(int idx);
   vtkSelection *GetInput() { return this->GetInput( 0 ); };
 //ETX

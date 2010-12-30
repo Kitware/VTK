@@ -1159,10 +1159,21 @@ typedef z_stream FAR *  png_zstreamp;
 #  endif
 #endif
 
+#ifdef __CYGWIN__
+#  undef PNGAPI
+#  define PNGAPI __cdecl
+#  undef PNG_IMPEXP
+#  define PNG_IMPEXP
+#endif
 
-#ifndef PNGAPI
+/* If you define PNGAPI, e.g., with compiler option "-DPNGAPI=__stdcall",
+ * you may get warnings regarding the linkage of png_zalloc and png_zfree.
+ * Don't ignore those warnings; you must also reset the default calling
+ * convention in your compiler to match your PNGAPI, and you must build
+ * zlib and your applications the same way you build libpng.
+ */
 
-#if defined(__MINGW32__) || defined(__CYGWIN__) && !defined(PNG_MODULEDEF)
+#if defined(__MINGW32__) && !defined(PNG_MODULEDEF)
 #  ifndef PNG_NO_MODULEDEF
 #    define PNG_NO_MODULEDEF
 #  endif
@@ -1174,13 +1185,14 @@ typedef z_stream FAR *  png_zstreamp;
 
 #if defined(PNG_DLL) || defined(_DLL) || defined(__DLL__ ) || \
     (( defined(_Windows) || defined(_WINDOWS) || \
-       defined(WIN32) || defined(_WIN32) || defined(__WIN32__) \
-          ) && !defined(__CYGWIN__))
+       defined(WIN32) || defined(_WIN32) || defined(__WIN32__) ))
 
-#  if defined(__GNUC__) || (defined (_MSC_VER) && (_MSC_VER >= 800))
-#    define PNGAPI __cdecl
-#  else
-#    define PNGAPI _cdecl
+#  ifndef PNGAPI
+#     if defined(__GNUC__) || (defined (_MSC_VER) && (_MSC_VER >= 800))
+#        define PNGAPI __cdecl
+#     else
+#        define PNGAPI _cdecl
+#     endif
 #  endif
 
 #  if !defined(PNG_IMPEXP) && (!defined(PNG_DLL) || \
@@ -1218,24 +1230,14 @@ typedef z_stream FAR *  png_zstreamp;
 #     endif
 #  endif  /* PNG_IMPEXP */
 #else /* !(DLL || non-cygwin WINDOWS) */
-#  if defined(__CYGWIN__) && !defined(PNG_DLL)
-#    if !defined(PNG_IMPEXP)
-#      define PNG_IMPEXP
-#    endif
-#    define PNGAPI __cdecl
-#  else
-#    if (defined(__IBMC__) || defined(IBMCPP__)) && defined(__OS2__)
-#      define PNGAPI _System
-#      define PNG_IMPEXP
-#    else
-#      if 0 /* ... other platforms, with other meanings */
-#      else
-#        define PNGAPI
-#        define PNG_IMPEXP
+#   if (defined(__IBMC__) || defined(__IBMCPP__)) && defined(__OS2__)
+#      ifndef PNGAPI
+#         define PNGAPI _System
 #      endif
-#    endif
-#  endif
-#endif
+#   else
+#      if 0 /* ... other platforms, with other meanings */
+#      endif
+#   endif
 #endif
 
 #ifndef PNGAPI

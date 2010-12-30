@@ -25,6 +25,7 @@
 
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkVector.h"       // For position variables
 
 class vtkContext2D;
 class vtkPen;
@@ -32,7 +33,6 @@ class vtkFloatArray;
 class vtkDoubleArray;
 class vtkStringArray;
 class vtkTextProperty;
-class vtkRectf;
 
 class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
 {
@@ -57,27 +57,32 @@ public:
 
   // Description:
   // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP, PARALLEL).
-  vtkSetMacro(Position, int);
+  virtual void SetPosition(int position);
   vtkGetMacro(Position, int);
 
   // Description:
   // Set point 1 of the axis (in pixels), this is usually the origin.
-  vtkSetVector2Macro(Point1, float);
+  void SetPoint1(const vtkVector2f& pos);
+  void SetPoint1(float x, float y);
 
   // Description:
   // Get point 1 of the axis (in pixels), this is usually the origin.
   vtkGetVector2Macro(Point1, float);
+  vtkVector2f GetPosition1();
 
   // Description:
   // Set point 2 of the axis (in pixels), this is usually the terminus.
-  vtkSetVector2Macro(Point2, float);
+  void SetPoint2(const vtkVector2f& pos);
+  void SetPoint2(float x, float y);
 
   // Description:
   // Get point 2 of the axis (in pixels), this is usually the terminus.
   vtkGetVector2Macro(Point2, float);
+  vtkVector2f GetPosition2();
 
   // Description:
-  // Set the number of tick marks for this axis.
+  // Set the number of tick marks for this axis. Default is -1, which leads to
+  // automatic calculation of nicely spaced tick marks.
   vtkSetMacro(NumberOfTicks, int);
 
   // Description:
@@ -232,6 +237,10 @@ protected:
   void GenerateTickLabels(double min, double max);
 
   // Description:
+  // Generate tick labels from the supplied double array of tick positions.
+  void GenerateTickLabels();
+
+  // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
   double CalculateNiceMinMax(double &min, double &max);
@@ -270,8 +279,9 @@ protected:
                                  bool detailLabels = true);
 
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
-  float Point1[2];     // The position of point 1 (usually the origin)
-  float Point2[2];     // The position of point 2 (usually the terminus)
+  float *Point1;       // The position of point 1 (usually the origin)
+  float *Point2;       // The position of point 2 (usually the terminus)
+  vtkVector2f Position1, Position2;
   double TickInterval; // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
   vtkTextProperty* LabelProperties; // Text properties for the labels.
@@ -313,8 +323,12 @@ protected:
   bool UsingNiceMinMax;
 
   // Description:
-  // Mark the tick labels as dirty when the min/max value is changed
+  // Mark the tick labels as dirty when the min/max value is changed.
   bool TickMarksDirty;
+
+  // Description:
+  // Flag to indicate that the axis has been resized.
+  bool Resized;
 
   // Description:
   // Hint as to whether a logarithmic scale is reasonable or not.

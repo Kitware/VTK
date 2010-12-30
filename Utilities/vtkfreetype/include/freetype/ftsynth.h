@@ -70,7 +70,7 @@ FT_BEGIN_HEADER
   FT_EXPORT( void )
   FT_GlyphSlot_Oblique( FT_GlyphSlot  slot );
 
- /* */
+  /* */
 
 FT_END_HEADER
 

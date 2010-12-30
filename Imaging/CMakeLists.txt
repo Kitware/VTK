@@ -82,6 +82,7 @@ vtkImageNormalize.cxx
 vtkImageOpenClose3D.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
+vtkImageProjection.cxx
 vtkImageQuantizeRGBToIndex.cxx
 vtkImageRFFT.cxx
 vtkImageRGBToHSI.cxx

@@ -60,6 +60,11 @@ public:
                            vtkImageData *data);
 
   // Description:
+  // Should we produce images at powers of 2, makes rendering on old OpenGL
+  // hardware easier. Default is false.
+  virtual void SetScaleToPowerOfTwo(bool scale);
+
+  // Description:
   // Make a deep copy of the supplied utility class.
   void DeepCopy(vtkFreeTypeStringToImage *utility);
 

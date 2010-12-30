@@ -42,6 +42,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
+#include "Partition.h"
+#include "ChainingMesh.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -50,9 +53,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <algorithm>
 #include <math.h>
-
-#include "Partition.h"
-#include "ChainingMesh.h"
 
 using namespace std;
 

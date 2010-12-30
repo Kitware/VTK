@@ -361,11 +361,11 @@ public:
   vtkGetMacro( ShowSelectedNodes, int );
   vtkBooleanMacro( ShowSelectedNodes, int );
 
+//BTX
   // Description:
   // Get the points in this contour as a vtkPolyData. 
-  //BTX
   virtual vtkPolyData* GetContourRepresentationAsPolyData() = 0;
-  //ETX
+//ETX
 
   // Description:
   // Get the nodes and not the intermediate points in this 

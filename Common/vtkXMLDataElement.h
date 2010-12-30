@@ -271,6 +271,7 @@ protected:
   vtkXMLDataElement* LookupElementUpScope(const char* id);
   static int IsSpace(char c);
   void PrintCharacterData(ostream &os,vtkIndent indent);
+  static void PrintWithEscapedData(ostream& os, const char* data);
 
   //BTX
   friend class vtkXMLDataParser;

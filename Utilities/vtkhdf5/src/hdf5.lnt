@@ -1,0 +1,97 @@
+// Lint options shared by both PC-Lint for Windows and Flexelint for Linux
+
+// Turn off warnings about not using the inlined H5V* functions:
+-esym(528, H5V_vector_reduce_product, H5V_vector_inc)
+-esym(528, H5V_vector_cmp, H5V_vector_cmp_s, H5V_vector_cmp_u)
+-esym(528, H5V_vector_zerop_s, H5V_vector_zerop_u)
+
+// Suppress message about using 'goto' in a few functions
+-efunc(801,H5_term_library,H5_trace)
+
+// Suppress message about "boolean test of a paranthesized assignment"
+-efunc(820,H5_term_library)
+
+// Suppress message about "Constant value boolean" in FUNC_ENTER* macros
+-emacro(506,FUNC_ENTER_API,FUNC_ENTER_API_NOCLEAR, FUNC_ENTER_NOAPI)
+
+// Suppress message about "Constant value boolean" in TRUE macros
+-emacro(506,TRUE)
+
+// Suppress message about "Constant value boolean" in IS_H5FD_MPI* macros
+-emacro(506,IS_H5FD_MPI)
+
+// Suppress message about "Boolean within 'if' always evaluates false" in IS_H5FD_MPI* macros
+-emacro((774),IS_H5FD_MPI)
+
+// Suppress message about our use of 'goto' in our error macros
+-emacro(801,HGOTO_DONE, H5Epush_goto)
+
+// Turn off warnings about not using the return value from these functions:
+-esym(534, HDfprintf, HDsnprintf, HDvsnprintf)
+-esym(534, H5E_clear_stack, H5E_push_stack)
+-esym(534, H5FL_arr_free, H5FL_blk_free, H5FL_reg_free, H5FL_seq_free)
+-esym(534, H5CS_push, H5CS_pop)
+-esym(534, H5I_clear_type, H5I_dec_type_ref)
+-esym(534, H5MM_xfree)
+-esym(534, H5RC_decr)
+-esym(534, H5V_array_fill)
+
+
+// Turn off warnings about "Expression-like macro not parenthesized" for
+// enumerated type increment & decrement macros:
+-esym(773, H5_INC_ENUM, H5_DEC_ENUM)
+
+/* So far, the following files have been linted with these options:
+        H5.c
+        H5A.c
+        H5AC.c
+        H5B.c
+
+        H5D.c
+        H5Dcompact.c
+        H5Dcontig.c
+        H5Defl.c
+        H5Dio.c
+        H5Distore.c
+        H5E.c
+        H5F.c
+        H5FD.c
+        H5FDcore.c
+        H5FDfamily.c
+        H5FDlog.c
+        H5FDmulti.c
+        H5FDsec2.c
+        H5FDstdio.c
+        H5FL.c
+        H5FO.c
+
+        H5Tcommit.c
+	H5Tcompound.c
+
+        H5Tcset.c
+        H5Tenum.c
+        H5Tfields.c
+        H5Tfixed.c
+        H5Tfloat.c
+        H5Tnative.c
+        H5Toffset.c
+        H5Topaque.c
+        H5Torder.c
+        H5Tpad.c
+        H5Tprecis.c
+        H5Tstrpad.c
+        H5Tvlen.c
+        H5V.c
+        H5Z.c
+        H5Zdeflate.c
+        H5Zfletcher32.c
+        H5Zshuffle.c
+        H5Zszip.c
+
+    The following files have had their FUNC_ENTER, FUNC_LEAVE & HGOTO*
+    macros cleaned up, but have not been linted
+    due to their dependencies on features that we don't support on Windows:
+        H5FDmpio.c
+        H5FDmpiposix.c
+        H5FDstream.c
+*/

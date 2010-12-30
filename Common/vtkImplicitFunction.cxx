@@ -143,7 +143,7 @@ void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-void vtkImplicitFunction::SetTransform(double elements[16])
+void vtkImplicitFunction::SetTransform(const double elements[16])
 {
   vtkTransform* transform = vtkTransform::New();
   transform->SetMatrix(elements);

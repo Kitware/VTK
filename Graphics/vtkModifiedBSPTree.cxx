@@ -12,17 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//
-#include <stack>
-#include <vector>
-#include <algorithm>
-#include <functional>
-//
+
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkPolyData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdListCollection.h"
+
+#include <stack>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
 #include <vtkAppendPolyData.h>
 #include <vtkCubeSource.h>
