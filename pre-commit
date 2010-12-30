@@ -81,6 +81,15 @@ check_tab() {
 	done
 }
 
+# Reject addition of a line without a newline at end-of-file.
+check_no_lf_at_eof() {
+	lines=$(git diff-index -p --cached $against -- "$1" | tail -2)
+	if echo "$lines" | head -1 | grep -q '^+' &&
+	   echo "$lines" | tail -1 | grep -q '^\\ No newline'; then
+		echo "$1: No newline at end of file"
+	fi
+}
+
 # Custom whitespace checks.
 check_whitespace() {
 	ws=$(git check-attr whitespace -- "$file" |
@@ -90,6 +99,9 @@ check_whitespace() {
 			*,tab-in-indent,*) check_tab "$1" ;;
 		esac
 	fi
+	case ",$ws," in
+		*,no-lf-at-eof,*) check_no_lf_at_eof "$1" ;;
+	esac
 }
 bad=$(git diff-index --name-only --cached $against -- |
 while read file; do
