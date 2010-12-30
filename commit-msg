@@ -79,7 +79,15 @@ msg_second() {
 }
 
 msg_rest() {
-	false
+	if echo "$line" | grep -q "^Change-Id:"; then
+		state=gerrit
+	fi
+}
+
+msg_gerrit() {
+	test "x$line" = "x" && return
+	echo "$line" | grep -q '^[A-Za-z0-9-][A-Za-z0-9-]*:' && return
+	die 'The Change-Id line must appear in a footer at the bottom.'
 }
 
 # Pipe commit message into the state machine.
