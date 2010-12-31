@@ -908,7 +908,7 @@ void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
 }
 
 //-----------------------------------------------------------------------------
-const char* vtkPlotPoints::GetColorArrayName()
+vtkStdString vtkPlotPoints::GetColorArrayName()
 {
   return this->ColorArrayName;
 }

@@ -34,7 +34,6 @@ vtkStandardNewMacro(vtkBlockItem);
 //-----------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()
 {
-  this->Label = NULL;
   this->MouseOver = false;
   this->MouseButtonPressed = vtkContextMouseEvent::NO_BUTTON;
   this->scalarFunction = NULL;
@@ -47,7 +46,6 @@ vtkBlockItem::vtkBlockItem()
 //-----------------------------------------------------------------------------
 vtkBlockItem::~vtkBlockItem()
 {
-  this->SetLabel(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -176,6 +174,23 @@ bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
   return true;
 }
 
+//-----------------------------------------------------------------------------
+void vtkBlockItem::SetLabel(const vtkStdString &label)
+{
+  if (this->Label != label)
+    {
+    this->Label = label;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkBlockItem::GetLabel()
+{
+  return this->Label;
+}
+
+//-----------------------------------------------------------------------------
 void vtkBlockItem::SetScalarFunctor(double (*ScalarFunction)(double, double))
 {
   this->scalarFunction = ScalarFunction;

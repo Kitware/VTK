@@ -75,7 +75,7 @@ public:
 
   // Description:
   // When used to set additional arrays, stacked bars are created.
-  virtual void SetInputArray(int index, const char *name);
+  virtual void SetInputArray(int index, const vtkStdString &name);
 
   // Description:
   // Set the color series to use if this becomes a stacked bar plot.
@@ -88,7 +88,6 @@ public:
   // Description
   // Get the plot labels.
   virtual vtkStringArray *GetLabels();
-
 
 //BTX
   // Description:

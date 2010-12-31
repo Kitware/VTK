@@ -69,7 +69,6 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
   this->LookupTable = 0;
   this->Colors = 0;
   this->ScalarVisibility = 0;
-  strcpy(this->ColorArrayName, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -462,7 +461,7 @@ void vtkPlotParallelCoordinates::CreateDefaultLookupTable()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::SelectColorArray(const char *arrayName)
+void vtkPlotParallelCoordinates::SelectColorArray(const vtkStdString &arrayName)
 {
   vtkTable *table = this->Data->GetInput();
   if (!table)
@@ -470,24 +469,29 @@ void vtkPlotParallelCoordinates::SelectColorArray(const char *arrayName)
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
     return;
     }
-  if (strcmp(this->ColorArrayName, arrayName) == 0)
+  if (this->ColorArrayName == arrayName)
     {
     return;
     }
   for (vtkIdType c = 0; c < table->GetNumberOfColumns(); ++c)
     {
-    const char *name = table->GetColumnName(c);
-    if (strcmp(name, arrayName) == 0)
+    if (table->GetColumnName(c) == arrayName)
       {
-      strcpy(this->ColorArrayName, arrayName);
+      this->ColorArrayName = arrayName;
       this->Modified();
       return;
       }
     }
   vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
-  strcpy(this->ColorArrayName, "");
+  this->ColorArrayName = "";
   this->Modified();
   return;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlotParallelCoordinates::GetColorArrayName()
+{
+  return this->ColorArrayName;
 }
 
 //-----------------------------------------------------------------------------
@@ -508,14 +512,13 @@ void vtkPlotParallelCoordinates::SelectColorArray(vtkIdType arrayNum)
     }
   else
     {
-    const char *arrayName = table->GetColumnName(arrayNum);
-    if (strcmp(this->ColorArrayName, arrayName) == 0)
+    if (this->ColorArrayName == table->GetColumnName(arrayNum))
       {
       return;
       }
     else
       {
-      strcpy(this->ColorArrayName, arrayName);
+      this->ColorArrayName = table->GetColumnName(arrayNum);
       this->Modified();
       }
     }

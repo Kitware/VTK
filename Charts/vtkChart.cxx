@@ -44,7 +44,6 @@ vtkChart::vtkChart()
   this->Point2[0] = 0;
   this->Point2[1] = 0;
   this->ShowLegend = false;
-  this->Title = NULL;
   this->TitleProperties = vtkTextProperty::New();
   this->TitleProperties->SetJustificationToCentered();
   this->TitleProperties->SetColor(0.0, 0.0, 0.0);
@@ -57,7 +56,6 @@ vtkChart::vtkChart()
 //-----------------------------------------------------------------------------
 vtkChart::~vtkChart()
 {
-  this->SetTitle(NULL);
   this->TitleProperties->Delete();
   if (this->AnnotationLink)
     {
@@ -149,6 +147,22 @@ void vtkChart::SetShowLegend(bool visible)
 bool vtkChart::GetShowLegend()
 {
   return this->ShowLegend;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetTitle(const vtkStdString &title)
+{
+  if (this->Title != title)
+    {
+    this->Title = title;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkChart::GetTitle()
+{
+  return this->Title;
 }
 
 //-----------------------------------------------------------------------------

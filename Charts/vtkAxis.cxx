@@ -57,7 +57,6 @@ vtkAxis::vtkAxis()
   this->TitleProperties->SetJustificationToCentered();
   this->Minimum = 0.0;
   this->Maximum = 6.66;
-  this->Title = NULL;
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
@@ -84,7 +83,6 @@ vtkAxis::vtkAxis()
 //-----------------------------------------------------------------------------
 vtkAxis::~vtkAxis()
 {
-  this->SetTitle(NULL);
   this->TitleProperties->Delete();
   this->LabelProperties->Delete();
   this->Pen->Delete();
@@ -398,6 +396,22 @@ void vtkAxis::SetRange(double minimum, double maximum)
 {
   this->SetMinimum(minimum);
   this->SetMaximum(maximum);
+}
+
+//-----------------------------------------------------------------------------
+void vtkAxis::SetTitle(const vtkStdString &title)
+{
+  if (this->Title != title)
+    {
+    this->Title = title;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkAxis::GetTitle()
+{
+  return this->Title;
 }
 
 //-----------------------------------------------------------------------------
