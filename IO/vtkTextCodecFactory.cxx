@@ -18,16 +18,17 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include <vtkTextCodecFactory.h>
+#include "vtkTextCodecFactory.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkTextCodec.h>
+#include "vtkObjectFactory.h"
+#include "vtkTextCodec.h"
+
+#include "vtkASCIITextCodec.h"
+#include "vtkUTF8TextCodec.h"
+#include "vtkUTF16TextCodec.h"
 
 #include <algorithm>
 #include <vector>
-
-#include <algorithm>
-
 
 vtkStandardNewMacro(vtkTextCodecFactory);
 
@@ -38,14 +39,13 @@ class vtkTextCodecFactory::CallbackVector :
 
 vtkTextCodecFactory::CallbackVector* vtkTextCodecFactory::Callbacks = NULL;
 
-
 // Ensures that there are no leaks when the application exits.
 class vtkTextCodecCleanup
 {
 public:
-  inline void Use()
+  void Use()
     {
-    };
+    }
   ~vtkTextCodecCleanup()
     {
     vtkTextCodecFactory::UnRegisterAllCreateCallbacks();
@@ -54,7 +54,6 @@ public:
 
 // Used to clean up the Callbacks
 static vtkTextCodecCleanup vtkCleanupTextCodecGlobal;
-
 
 void vtkTextCodecFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -71,13 +70,14 @@ void vtkTextCodecFactory::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }
 
-
-void vtkTextCodecFactory::RegisterCreateCallback(vtkTextCodecFactory::CreateFunction callback)
+void vtkTextCodecFactory::RegisterCreateCallback(
+  vtkTextCodecFactory::CreateFunction callback)
 {
-  if (NULL == vtkTextCodecFactory::Callbacks)
+  if (!vtkTextCodecFactory::Callbacks)
     {
     Callbacks = new vtkTextCodecFactory::CallbackVector();
-    vtkCleanupTextCodecGlobal.Use() ;
+    vtkCleanupTextCodecGlobal.Use();
+    vtkTextCodecFactory::Initialize();
     }
 
   if (find(vtkTextCodecFactory::Callbacks->begin(),
@@ -88,14 +88,14 @@ void vtkTextCodecFactory::RegisterCreateCallback(vtkTextCodecFactory::CreateFunc
     }
 }
 
-
 void vtkTextCodecFactory::UnRegisterCreateCallback(
   vtkTextCodecFactory::CreateFunction callback)
 {
 // we don't know for sure what order we are called in so if the global ones goes first this is NULL
-  if (NULL != vtkTextCodecFactory::Callbacks)
+  if (vtkTextCodecFactory::Callbacks)
     {
-    for (vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator i = vtkTextCodecFactory::Callbacks->begin();
+    for (std::vector <vtkTextCodecFactory::CreateFunction>::iterator i =
+         vtkTextCodecFactory::Callbacks->begin();
          i != vtkTextCodecFactory::Callbacks->end(); ++i)
       {
       if (*i == callback)
@@ -116,26 +116,25 @@ void vtkTextCodecFactory::UnRegisterCreateCallback(
 
 void vtkTextCodecFactory::UnRegisterAllCreateCallbacks()
 {
-  if (NULL != vtkTextCodecFactory::Callbacks)
+  if (vtkTextCodecFactory::Callbacks)
     {
-    vtkTextCodecFactory::Callbacks->clear();
-
-    if (vtkTextCodecFactory::Callbacks->empty())
-      {
-      delete vtkTextCodecFactory::Callbacks;
-      vtkTextCodecFactory::Callbacks = NULL;
-      }
+    delete vtkTextCodecFactory::Callbacks;
+    vtkTextCodecFactory::Callbacks = NULL;
     }
 }
 
 
 vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
 {
-  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
+  if (!vtkTextCodecFactory::Callbacks)
+    {
+    vtkTextCodecFactory::Initialize();
+    }
+  std::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
     {
     vtkTextCodec* outCodec = (*CF_i)();
-    if (NULL != outCodec)
+    if (outCodec)
       {
       if (outCodec->CanHandle(codecName))
         {
@@ -151,10 +150,13 @@ vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
   return NULL;
 }
 
-
 vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
 {
-  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
+  if (!vtkTextCodecFactory::Callbacks)
+    {
+    vtkTextCodecFactory::Initialize();
+    }
+  std::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
     {
     vtkTextCodec* outCodec = (*CF_i)();
@@ -174,11 +176,34 @@ vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
   return NULL;
 }
 
+vtkTextCodec* vtkASCIITextCodecFromCallback()
+{
+   return vtkASCIITextCodec::New();
+}
+
+vtkTextCodec* vtkUTF8TextCodecFromCallback()
+{
+   return vtkUTF8TextCodec::New();
+}
+
+vtkTextCodec* vtkUTF16TextCodecFromCallback()
+{
+   return vtkUTF16TextCodec::New();
+}
+
+void vtkTextCodecFactory::Initialize()
+{
+  if (!vtkTextCodecFactory::Callbacks)
+    {
+    vtkTextCodecFactory::RegisterCreateCallback(vtkASCIITextCodecFromCallback);
+    vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
+    vtkTextCodecFactory::RegisterCreateCallback(vtkUTF16TextCodecFromCallback);
+    }
+}
 
 vtkTextCodecFactory::vtkTextCodecFactory()
 {
 }
-
 
 vtkTextCodecFactory::~vtkTextCodecFactory()
 {

@@ -25,31 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <utf8.h>
 
-
 vtkStandardNewMacro(vtkUTF8TextCodec);
-
-vtkTextCodec* vtkUTF8TextCodecFromCallback()
-{
-   return vtkUTF8TextCodec::New();
-}
-
-class vtkUTF8TextCodecRegister
-{
-public:
-  vtkUTF8TextCodecRegister()
-  {
-      vtkTextCodecFactory::RegisterCreateCallback(vtkUTF8TextCodecFromCallback);
-  }
-
-  ~vtkUTF8TextCodecRegister()
-  {
-    vtkTextCodecFactory::UnRegisterCreateCallback(vtkUTF8TextCodecFromCallback) ;
-  }
-};
-
-
-static vtkUTF8TextCodecRegister foo;
-
 
 bool vtkUTF8TextCodec::CanHandle(const char* testStr)
 {
