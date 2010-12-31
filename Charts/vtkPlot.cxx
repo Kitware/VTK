@@ -234,10 +234,10 @@ void vtkPlot::SetInput(vtkTable *table, const vtkStdString &xColumn,
   this->Data->SetInput(table);
   this->Data->SetInputArrayToProcess(0, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     xColumn);
+                                     xColumn.c_str());
   this->Data->SetInputArrayToProcess(1, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     yColumn);
+                                     yColumn.c_str());
   this->AutoLabels = 0;  // No longer valid
 }
 
@@ -261,7 +261,7 @@ void vtkPlot::SetInputArray(int index, const vtkStdString &name)
 {
   this->Data->SetInputArrayToProcess(index, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     name);
+                                     name.c_str());
   this->AutoLabels = 0; // No longer valid
 }
 

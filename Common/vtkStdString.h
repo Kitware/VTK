@@ -56,7 +56,7 @@ public:
   vtkStdString(const StdString& s, size_type pos=0, size_type n=npos):
     StdString(s, pos, n) {}
 
-  operator const char *() const { return this->c_str(); }
+  operator const char *() { return this->c_str(); }
 };
 
 #endif
