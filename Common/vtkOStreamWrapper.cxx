@@ -17,6 +17,7 @@
 #include "vtkIOStream.h"
 #include "vtkIndent.h"
 #include "vtkLargeInteger.h"
+#include "vtkStdString.h"
 #include "vtkObjectBase.h"
 #include "vtkSmartPointerBase.h"
 
@@ -55,6 +56,7 @@ VTKOSTREAM_OPERATOR(const vtkIndent&);
 VTKOSTREAM_OPERATOR(vtkObjectBase&);
 VTKOSTREAM_OPERATOR(const vtkLargeInteger&);
 VTKOSTREAM_OPERATOR(const vtkSmartPointerBase&);
+VTKOSTREAM_OPERATOR(const vtkStdString&);
 VTKOSTREAM_OPERATOR(ostream&);
 VTKOSTREAM_OPERATOR(const char*);
 VTKOSTREAM_OPERATOR(void*);
