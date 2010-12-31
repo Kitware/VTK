@@ -26,9 +26,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 #include <vector>
 
-#include <algorithm>
-
-
 vtkStandardNewMacro(vtkTextCodecFactory);
 
 class vtkTextCodecFactory::CallbackVector :
@@ -43,9 +40,9 @@ vtkTextCodecFactory::CallbackVector* vtkTextCodecFactory::Callbacks = NULL;
 class vtkTextCodecCleanup
 {
 public:
-  inline void Use()
+  void Use()
     {
-    };
+    }
   ~vtkTextCodecCleanup()
     {
     vtkTextCodecFactory::UnRegisterAllCreateCallbacks();
@@ -72,12 +69,13 @@ void vtkTextCodecFactory::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkTextCodecFactory::RegisterCreateCallback(vtkTextCodecFactory::CreateFunction callback)
+void vtkTextCodecFactory::RegisterCreateCallback(
+  vtkTextCodecFactory::CreateFunction callback)
 {
-  if (NULL == vtkTextCodecFactory::Callbacks)
+  if (!vtkTextCodecFactory::Callbacks)
     {
+    vtkCleanupTextCodecGlobal.Use();
     Callbacks = new vtkTextCodecFactory::CallbackVector();
-    vtkCleanupTextCodecGlobal.Use() ;
     }
 
   if (find(vtkTextCodecFactory::Callbacks->begin(),
@@ -93,9 +91,10 @@ void vtkTextCodecFactory::UnRegisterCreateCallback(
   vtkTextCodecFactory::CreateFunction callback)
 {
 // we don't know for sure what order we are called in so if the global ones goes first this is NULL
-  if (NULL != vtkTextCodecFactory::Callbacks)
+  if (vtkTextCodecFactory::Callbacks)
     {
-    for (vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator i = vtkTextCodecFactory::Callbacks->begin();
+    for (std::vector <vtkTextCodecFactory::CreateFunction>::iterator i =
+         vtkTextCodecFactory::Callbacks->begin();
          i != vtkTextCodecFactory::Callbacks->end(); ++i)
       {
       if (*i == callback)
@@ -131,7 +130,7 @@ void vtkTextCodecFactory::UnRegisterAllCreateCallbacks()
 
 vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
 {
-  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
+  std::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
     {
     vtkTextCodec* outCodec = (*CF_i)();
@@ -154,7 +153,7 @@ vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
 
 vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
 {
-  vtkstd::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
+  std::vector <vtkTextCodecFactory::CreateFunction>::iterator CF_i;
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
     {
     vtkTextCodec* outCodec = (*CF_i)();
