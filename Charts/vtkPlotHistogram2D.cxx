@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtk2DHistogramItem.h"
+#include "vtkPlotHistogram2D.h"
 #include "vtkImageData.h"
 #include "vtkScalarsToColors.h"
 #include "vtkContext2D.h"
@@ -21,25 +21,25 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtk2DHistogramItem);
+vtkStandardNewMacro(vtkPlotHistogram2D);
 
 //-----------------------------------------------------------------------------
-vtk2DHistogramItem::vtk2DHistogramItem()
+vtkPlotHistogram2D::vtkPlotHistogram2D()
 {
 }
 
 //-----------------------------------------------------------------------------
-vtk2DHistogramItem::~vtk2DHistogramItem()
+vtkPlotHistogram2D::~vtkPlotHistogram2D()
 {
 }
 
-void vtk2DHistogramItem::Update()
+void vtkPlotHistogram2D::Update()
 {
   this->GenerateHistogram();
 }
 
 //-----------------------------------------------------------------------------
-bool vtk2DHistogramItem::Paint(vtkContext2D *painter)
+bool vtkPlotHistogram2D::Paint(vtkContext2D *painter)
 {
   if (this->Output)
     {
@@ -63,31 +63,31 @@ bool vtk2DHistogramItem::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::SetInput(vtkImageData *data, vtkIdType)
+void vtkPlotHistogram2D::SetInput(vtkImageData *data, vtkIdType)
 {
   // FIXME: Store the z too, for slices.
   this->Input = data;
 }
 
 //-----------------------------------------------------------------------------
-vtkImageData * vtk2DHistogramItem::GetInputImageData()
+vtkImageData * vtkPlotHistogram2D::GetInputImageData()
 {
   return this->Input;
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::SetTransferFunction(vtkScalarsToColors *function)
+void vtkPlotHistogram2D::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->TransferFunction = function;
 }
 
 //-----------------------------------------------------------------------------
-vtkScalarsToColors * vtk2DHistogramItem::GetTransferFunction()
+vtkScalarsToColors * vtkPlotHistogram2D::GetTransferFunction()
 {
   return this->TransferFunction;
 }
 
-void vtk2DHistogramItem::GetBounds(double bounds[4])
+void vtkPlotHistogram2D::GetBounds(double bounds[4])
 {
   if (this->Input)
     {
@@ -107,19 +107,19 @@ void vtk2DHistogramItem::GetBounds(double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::SetPosition(const vtkRectf& pos)
+void vtkPlotHistogram2D::SetPosition(const vtkRectf& pos)
 {
   this->Position = pos;
 }
 
 //-----------------------------------------------------------------------------
-vtkRectf vtk2DHistogramItem::GetPosition()
+vtkRectf vtkPlotHistogram2D::GetPosition()
 {
   return this->Position;
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::GenerateHistogram()
+void vtkPlotHistogram2D::GenerateHistogram()
 {
   if (!this->Output)
     {
@@ -143,7 +143,7 @@ void vtk2DHistogramItem::GenerateHistogram()
 }
 
 //-----------------------------------------------------------------------------
-void vtk2DHistogramItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlotHistogram2D::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
