@@ -263,7 +263,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
                     this->Point2[0], this->Point2[1]);
 
   // Draw the axis title if there is one
-  if (this->Title && this->Title[0])
+  if (this->Title && !this->Title.empty())
     {
     int x = 0;
     int y = 0;
@@ -605,7 +605,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   // Then, if there is an axis label, add that in.
   vtkRectf titleBounds;
-  if (this->Title && this->Title[0])
+  if (this->Title && !this->Title.empty())
     {
     painter->ApplyTextProp(this->TitleProperties);
     painter->ComputeStringBounds(this->Title,

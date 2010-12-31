@@ -392,7 +392,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     }
 
   // Additions for color mapping
-  if (this->ScalarVisibility && (this->ColorArrayName[0] != 0))
+  if (this->ScalarVisibility && !this->ColorArrayName.empty())
     {
     vtkDataArray* c =
       vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
