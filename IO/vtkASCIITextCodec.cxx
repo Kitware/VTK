@@ -27,27 +27,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkASCIITextCodec);
 
-vtkTextCodec* vtkASCIITextCodecFromCallback()
-{
-   return vtkASCIITextCodec::New() ;
-}
-
-class vtkASCIITextCodecRegister
-{
-public:
-  vtkASCIITextCodecRegister()
-  {
-    vtkTextCodecFactory::RegisterCreateCallback(vtkASCIITextCodecFromCallback);
-  }
-
-  ~vtkASCIITextCodecRegister()
-  {
-    vtkTextCodecFactory::UnRegisterCreateCallback(vtkASCIITextCodecFromCallback);
-  }
-};
-
-static vtkASCIITextCodecRegister foo ;
-
 const char* vtkASCIITextCodec::Name() {return "US-ASCII" ;}
 
 bool vtkASCIITextCodec::CanHandle(const char* NameStr)
