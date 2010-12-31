@@ -96,7 +96,7 @@ public:
 
   // Description:
   // Get the array name to color by.
-  const char* GetColorArrayName();
+  vtkStdString GetColorArrayName();
 
 //BTX
   // Description:

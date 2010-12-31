@@ -229,14 +229,14 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartParallelCoordinates::SetColumnVisibility(const char* name,
+void vtkChartParallelCoordinates::SetColumnVisibility(const vtkStdString& name,
                                                       bool visible)
 {
   if (visible)
     {
     for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
       {
-      if (strcmp(this->VisibleColumns->GetValue(i).c_str(), name) == 0)
+      if (this->VisibleColumns->GetValue(i) == name)
         {
         // Already there, nothing more needs to be done
         return;
@@ -252,7 +252,7 @@ void vtkChartParallelCoordinates::SetColumnVisibility(const char* name,
     // Remove the value if present
     for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
       {
-      if (strcmp(this->VisibleColumns->GetValue(i).c_str(), name) == 0)
+      if (this->VisibleColumns->GetValue(i) == name)
         {
         // Move all the later elements down by one, and reduce the size
         while (i < this->VisibleColumns->GetNumberOfTuples()-1)
@@ -292,11 +292,11 @@ void vtkChartParallelCoordinates::SetColumnVisibilityAll(bool visible)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChartParallelCoordinates::GetColumnVisibility(const char* name)
+bool vtkChartParallelCoordinates::GetColumnVisibility(const vtkStdString& name)
 {
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
     {
-    if (strcmp(this->VisibleColumns->GetValue(i).c_str(), name) == 0)
+    if (this->VisibleColumns->GetValue(i) == name)
       {
       return true;
       }

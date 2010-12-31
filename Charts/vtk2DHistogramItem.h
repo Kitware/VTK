@@ -54,7 +54,7 @@ public:
   // functions as a double to generate a color.
   virtual void SetInput(vtkImageData *data, vtkIdType z = 0);
   virtual void SetInput(vtkTable*) { }
-  virtual void SetInput(vtkTable*, const char*, const char*) { }
+  virtual void SetInput(vtkTable*, const vtkStdString&, const vtkStdString&) { }
 
   // Description:
   // Get the input table used by the plot.

@@ -472,7 +472,7 @@ int vtkPlotBar::GetNearestPoint(const vtkVector2f& point,
 }
 
 //-----------------------------------------------------------------------------
-vtkStringArray *vtkPlotBar::GetLabels()
+vtkStringArray * vtkPlotBar::GetLabels()
 {
   // If the label string is empty, return the y column name
   if (this->Labels)
@@ -513,9 +513,9 @@ void vtkPlotBar::SetGroupName(const vtkStdString &name)
     }
 }
 
-const char * vtkPlotBar::GetGroupName()
+vtkStdString vtkPlotBar::GetGroupName()
 {
-  return this->Private->GroupName.empty() ? NULL : this->Private->GroupName;
+  return this->Private->GroupName;
 }
 
 //-----------------------------------------------------------------------------
@@ -568,15 +568,15 @@ void vtkPlotBar::PrintSelf(ostream &os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 
-void vtkPlotBar::SetInputArray(int index, const char *name)
+void vtkPlotBar::SetInputArray(int index, const vtkStdString &name)
 {
   if (index == 0 || index == 1)
     {
-    vtkPlot::SetInputArray(index,name);
+    vtkPlot::SetInputArray(index, name);
     }
   else
     {
-    this->Private->AdditionalSeries[index] = std::string(name);
+    this->Private->AdditionalSeries[index] = name;
     }
   this->AutoLabels = 0; // No longer valid
 }

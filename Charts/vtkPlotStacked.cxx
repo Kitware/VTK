@@ -811,7 +811,7 @@ void vtkPlotStacked::PrintSelf(ostream &os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 
-void vtkPlotStacked::SetInputArray(int index, const char *name)
+void vtkPlotStacked::SetInputArray(int index, const vtkStdString &name)
 {
   if (index == 0 || index == 1)
     {
@@ -819,7 +819,7 @@ void vtkPlotStacked::SetInputArray(int index, const char *name)
     }
   else
     {
-    this->Private->AdditionalSeries[index] = std::string(name);
+    this->Private->AdditionalSeries[index] = name;
     }
   this->AutoLabels = 0; // No longer valid
 }

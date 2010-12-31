@@ -96,11 +96,11 @@ public:
 
   // Description:
   // Set a single label on this plot.
-  void SetLabel(const char *label);
+  void SetLabel(const vtkStdString &label);
 
   // Description:
   // Get the single label of this plot.
-  const char *GetLabel();
+  vtkStdString GetLabel();
 
   // Description:
   // Set the plot labels.
@@ -116,7 +116,7 @@ public:
 
   // Description:
   // Get the label at the specified index.
-  const char *GetLabel(vtkIdType index);
+  vtkStdString GetLabel(vtkIdType index);
 
   // Description:
   // Get the data object that the plot will draw.
@@ -136,8 +136,8 @@ public:
   // This is a convenience function to set the input table and the x, y column
   // for the plot.
   virtual void SetInput(vtkTable *table);
-  virtual void SetInput(vtkTable *table, const char *xColumn,
-                        const char *yColumn);
+  virtual void SetInput(vtkTable *table, const vtkStdString &xColumn,
+                        const vtkStdString &yColumn);
   void SetInput(vtkTable *table, vtkIdType xColumn, vtkIdType yColumn);
 
   // Description:
@@ -145,10 +145,10 @@ public:
   virtual vtkTable* GetInput();
 
   // Description:
-  // Convenience function to set the input arrays. For most mappers index 0
+  // Convenience function to set the input arrays. For most plots index 0
   // is the x axis, and index 1 is the y axis. The name is the name of the
   // column in the vtkTable.
-  virtual void SetInputArray(int index, const char *name);
+  virtual void SetInputArray(int index, const vtkStdString &name);
 
   virtual void SetSelection(vtkIdTypeArray *id);
   vtkGetObjectMacro(Selection, vtkIdTypeArray);
@@ -172,8 +172,8 @@ public:
   // Description:
   // A General setter/getter that should be overridden. It can silently drop
   // options, case is important
-  void SetProperty(const vtkStdString& property, const vtkVariant& var);
-  vtkVariant GetProperty(const vtkStdString& property);
+  virtual void SetProperty(const vtkStdString &property, const vtkVariant &var);
+  virtual vtkVariant GetProperty(const vtkStdString &property);
 //ETX
 
 //BTX

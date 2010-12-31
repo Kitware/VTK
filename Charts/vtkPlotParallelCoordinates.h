@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotParallelCoordinates - Class for drawing an XY plot given two columns from a
-// vtkTable.
+// .NAME vtkPlotParallelCoordinates - Class for drawing a parallel coordinate
+// plot given columns from a vtkTable.
 //
 // .SECTION Description
 //
@@ -24,6 +24,7 @@
 
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkStdString.h"       // For vtkStdString ivars
 
 class vtkChartParallelCoordinates;
 class vtkTable;
@@ -82,7 +83,8 @@ public:
   // Description:
   // This is a convenience function to set the input table.
   virtual void SetInput(vtkTable *table);
-  virtual void SetInput(vtkTable *table, const char*, const char*)
+  virtual void SetInput(vtkTable *table, const vtkStdString&,
+                        const vtkStdString&)
   {
     this->SetInput(table);
   }
@@ -108,7 +110,11 @@ public:
   // you can specify which array to use for coloring using these methods.
   // The lookup table will decide how to convert vectors to colors.
   void SelectColorArray(vtkIdType arrayNum);
-  void SelectColorArray(const char* arrayName);
+  void SelectColorArray(const vtkStdString &arrayName);
+
+  // Description:
+  // Get the array name to color by.
+  vtkStdString GetColorArrayName();
 
 //BTX
 protected:
@@ -133,7 +139,7 @@ protected:
   vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *Colors;
   int ScalarVisibility;
-  char ColorArrayName[256];
+  vtkStdString ColorArrayName;
 
 private:
   vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &); // Not implemented.

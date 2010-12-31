@@ -25,7 +25,8 @@
 #define __vtkTooltipItem_h
 
 #include "vtkContextItem.h"
-#include "vtkVector.h" // Needed for vtkVector2f
+#include "vtkVector.h"     // Needed for vtkVector2f
+#include "vtkStdString.h"  // For vtkStdString ivars
 
 class vtkPen;
 class vtkBrush;
@@ -51,8 +52,8 @@ public:
 
   // Description:
   // Get/set the text of the item.
-  vtkSetStringMacro(Text);
-  vtkGetStringMacro(Text);
+  virtual void SetText(const vtkStdString &title);
+  virtual vtkStdString GetText();
 
   // Description:
   // Get a pointer to the vtkTextProperty object that controls the way the
@@ -78,7 +79,7 @@ protected:
 
   vtkVector2f PositionVector;
   float* Position;
-  char* Text;
+  vtkStdString Text;
   vtkTextProperty* TextProperties;
   vtkPen* Pen;
   vtkBrush* Brush;
