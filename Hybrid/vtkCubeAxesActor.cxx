@@ -1956,9 +1956,8 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[4])
 {
   char label[64];
   int i, labelCount = 0;
-  double majorStart = axes[0]->GetMajorRangeStart();
   double deltaMajor = axes[0]->GetDeltaMajor();
-  const double *p2        = axes[0]->GetPoint2Coordinate()->GetValue();
+  const double *p2  = axes[0]->GetPoint2Coordinate()->GetValue();
   double *range     = axes[0]->GetRange();
   double lastVal = 0, val = axes[0]->GetMajorStart();
   double extents = range[1] - range[0];
