@@ -224,10 +224,6 @@ void vtkPlot::SetInput(vtkTable *table)
 void vtkPlot::SetInput(vtkTable *table, const vtkStdString &xColumn,
                        const vtkStdString &yColumn)
 {
-  if (xColumn.empty() || yColumn.empty())
-    {
-    vtkErrorMacro(<< "Called with null arguments for X or Y column.")
-    }
   vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str()
                 << "\", " << "Y column = \"" << yColumn.c_str() << "\"");
 
