@@ -316,8 +316,12 @@ int vtkTulipReader::RequestData(
             tok.Type == vtkTulipReaderToken::INT);
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
-          assert(tok.Type == vtkTulipReaderToken::INT);
-          int value = tok.IntValue;
+          assert(tok.Type == vtkTulipReaderToken::TEXT);
+          vtksys_ios::stringstream ss;
+          int value;
+          ss << tok.StringValue;
+          ss >> value;
+          assert(!ss.fail());
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::CLOSE_PAREN);
           vtkTulipReaderNextToken(fin, tok);
