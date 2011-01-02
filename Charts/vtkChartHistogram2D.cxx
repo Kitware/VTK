@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkChart2DHistogram.h"
+#include "vtkChartHistogram2D.h"
 
 #include "vtkContext2D.h"
 #include "vtkBrush.h"
@@ -22,61 +22,71 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkTextProperty.h"
 #include "vtkAxis.h"
-#include "vtk2DHistogramItem.h"
+#include "vtkPlotHistogram2D.h"
 #include "vtkColorLegend.h"
 #include "vtkSmartPointer.h"
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkChart2DHistogram);
+vtkStandardNewMacro(vtkChartHistogram2D);
 
 //-----------------------------------------------------------------------------
-vtkChart2DHistogram::vtkChart2DHistogram()
+vtkChartHistogram2D::vtkChartHistogram2D()
 {
   // Now for the 2D histogram
-  this->Histogram = vtkSmartPointer<vtk2DHistogramItem>::New();
+  this->Histogram = vtkSmartPointer<vtkPlotHistogram2D>::New();
   this->AddPlot(this->Histogram);
 
+  this->RemoveItem(this->Legend);
   this->Legend = vtkSmartPointer<vtkColorLegend>::New();
   this->AddItem(this->Legend);
 }
 
 //-----------------------------------------------------------------------------
-vtkChart2DHistogram::~vtkChart2DHistogram()
+vtkChartHistogram2D::~vtkChartHistogram2D()
 {
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart2DHistogram::Update()
+void vtkChartHistogram2D::Update()
 {
   this->Histogram->Update();
   this->Legend->Update();
   this->vtkChartXY::Update();
 }
 
-void vtkChart2DHistogram::SetInput(vtkImageData *data, vtkIdType z)
+void vtkChartHistogram2D::SetInput(vtkImageData *data, vtkIdType z)
 {
   this->Histogram->SetInput(data, z);
 }
 
-void vtkChart2DHistogram::SetTransferFunction(vtkScalarsToColors *function)
+void vtkChartHistogram2D::SetTransferFunction(vtkScalarsToColors *function)
 {
   this->Histogram->SetTransferFunction(function);
-  this->Legend->SetTransferFunction(function);
+  vtkColorLegend *legend = vtkColorLegend::SafeDownCast(this->Legend);
+  if (legend)
+    {
+    legend->SetTransferFunction(function);
+    }
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart2DHistogram::UpdateLayout(vtkContext2D *painter)
+bool vtkChartHistogram2D::UpdateLayout(vtkContext2D *painter)
 {
   this->vtkChartXY::UpdateLayout(painter);
-  this->Legend->SetPosition(vtkRectf(this->Point2[0], this->Point1[1],
-                                     10, this->Point2[1] - this->Point1[1]));
+  vtkColorLegend *legend = vtkColorLegend::SafeDownCast(this->Legend);
+  if (legend)
+    {
+    legend->SetPosition(vtkRectf(this->Point2[0] + 5, this->Point1[1],
+                                 this->Legend->GetSymbolWidth(),
+                                 this->Point2[1] - this->Point1[1]));
+    }
   this->Legend->Update();
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkChart2DHistogram::Hit(const vtkContextMouseEvent &mouse)
+bool vtkChartHistogram2D::Hit(const vtkContextMouseEvent &mouse)
 {
   if (mouse.ScreenPos[0] > this->Point1[0]-10 &&
       mouse.ScreenPos[0] < this->Point2[0]+10 &&
@@ -92,7 +102,7 @@ bool vtkChart2DHistogram::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChart2DHistogram::PrintSelf(ostream &os, vtkIndent indent)
+void vtkChartHistogram2D::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

@@ -18,6 +18,14 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkGraph.h"
+#include "vtkBoostGraphAdapter.h"
+#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkMath.h"
+#include "vtkSmartPointer.h"
+#include "vtkTimerLog.h"
+
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
 #include <vtksys/stl/utility>
@@ -37,14 +45,6 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/transitive_closure.hpp>
 
-#include "vtkGraph.h"
-#include "vtkBoostGraphAdapter.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMath.h"
-#include "vtkTimerLog.h"
-
-#include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 

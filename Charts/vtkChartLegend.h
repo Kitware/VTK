@@ -141,7 +141,7 @@ public:
   // vtkRect4f, with the corner being the offset from Point, and the width/
   // height being the total width/height required by the axis. In order to
   // ensure the numbers are correct, Update() should be called first.
-  vtkRectf GetBoundingRect(vtkContext2D* painter);
+  virtual vtkRectf GetBoundingRect(vtkContext2D* painter);
 
 protected:
   vtkChartLegend();

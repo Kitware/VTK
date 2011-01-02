@@ -16,7 +16,10 @@
 // .NAME vtkPlot - Abstract class for 2D plots.
 //
 // .SECTION Description
+// The base class for all plot types used in vtkChart derived charts.
 //
+// .SECTION See Also
+// vtkPlotPoints vtkPlotLine vtkPlotBar vtkChart vtkChartXY
 
 #ifndef __vtkPlot_h
 #define __vtkPlot_h
@@ -33,6 +36,7 @@ class vtkPen;
 class vtkBrush;
 class vtkAxis;
 class vtkVector2f;
+class vtkRectf;
 class vtkStringArray;
 
 class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
@@ -42,12 +46,12 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Paint legend event for the XY plot, called whenever the legend needs the
+  // Paint legend event for the plot, called whenever the legend needs the
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied. The index is used
   // by Plots that return more than one label.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4],
+  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                            int legendIndex);
 
 //BTX
@@ -92,11 +96,11 @@ public:
 
   // Description:
   // Set a single label on this plot.
-  void SetLabel(const char *label);
+  void SetLabel(const vtkStdString &label);
 
   // Description:
   // Get the single label of this plot.
-  const char *GetLabel();
+  vtkStdString GetLabel();
 
   // Description:
   // Set the plot labels.
@@ -112,7 +116,7 @@ public:
 
   // Description:
   // Get the label at the specified index.
-  const char *GetLabel(vtkIdType index);
+  vtkStdString GetLabel(vtkIdType index);
 
   // Description:
   // Get the data object that the plot will draw.
@@ -132,8 +136,8 @@ public:
   // This is a convenience function to set the input table and the x, y column
   // for the plot.
   virtual void SetInput(vtkTable *table);
-  virtual void SetInput(vtkTable *table, const char *xColumn,
-                        const char *yColumn);
+  virtual void SetInput(vtkTable *table, const vtkStdString &xColumn,
+                        const vtkStdString &yColumn);
   void SetInput(vtkTable *table, vtkIdType xColumn, vtkIdType yColumn);
 
   // Description:
@@ -141,10 +145,10 @@ public:
   virtual vtkTable* GetInput();
 
   // Description:
-  // Convenience function to set the input arrays. For most mappers index 0
+  // Convenience function to set the input arrays. For most plots index 0
   // is the x axis, and index 1 is the y axis. The name is the name of the
   // column in the vtkTable.
-  virtual void SetInputArray(int index, const char *name);
+  virtual void SetInputArray(int index, const vtkStdString &name);
 
   virtual void SetSelection(vtkIdTypeArray *id);
   vtkGetObjectMacro(Selection, vtkIdTypeArray);
@@ -159,6 +163,8 @@ public:
   vtkGetObjectMacro(YAxis, vtkAxis);
   virtual void SetYAxis(vtkAxis* axis);
 
+  // Description:
+  // Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
   virtual void GetBounds(double bounds[4])
   { bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0; }
 
@@ -166,8 +172,8 @@ public:
   // Description:
   // A General setter/getter that should be overridden. It can silently drop
   // options, case is important
-  void SetProperty(const vtkStdString& property, const vtkVariant& var);
-  vtkVariant GetProperty(const vtkStdString& property);
+  virtual void SetProperty(const vtkStdString &property, const vtkVariant &var);
+  virtual vtkVariant GetProperty(const vtkStdString &property);
 //ETX
 
 //BTX

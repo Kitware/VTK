@@ -37,6 +37,9 @@ vtkColorLegend::vtkColorLegend()
   this->Interpolate = true;
   this->Axis = vtkSmartPointer<vtkAxis>::New();
   this->Axis->SetPosition(vtkAxis::RIGHT);
+  this->SetInline(false);
+  this->SetHorizontalAlignment(vtkChartLegend::RIGHT);
+  this->SetVerticalAlignment(vtkChartLegend::BOTTOM);
 
   this->Callback = vtkSmartPointer<vtkCallbackCommand>::New();
   this->Callback->SetClientData(this);
@@ -116,6 +119,28 @@ vtkRectf vtkColorLegend::GetPosition()
 {
   return this->Position;
 }
+
+//-----------------------------------------------------------------------------
+vtkRectf vtkColorLegend::GetBoundingRect(vtkContext2D *painter)
+{
+  if (this->RectTime > this->GetMTime() && this->RectTime > this->PlotTime &&
+      this->RectTime > this->Axis->GetMTime())
+    {
+    return this->Rect;
+    }
+
+  this->Axis->Update();
+  vtkRectf axisRect = this->Axis->GetBoundingRect(painter);
+
+  // Default point placement is bottom left.
+  this->Rect = vtkRectf(0.0, 0.0,
+                        this->SymbolWidth + axisRect.Width(),
+                        this->Position.Height() + axisRect.Height());
+
+  this->RectTime.Modified();
+  return this->Rect;
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkColorLegend::ComputeTexture()

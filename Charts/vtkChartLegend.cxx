@@ -155,7 +155,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
                           labels->GetValue(l));
 
       // Paint the legend mark and increment out y value.
-      this->Storage->ActivePlots[i]->PaintLegend(painter, rect.GetData(), l);
+      this->Storage->ActivePlots[i]->PaintLegend(painter, rect, l);
       rect.SetY(rect.Y() - height - this->Padding);
       }
     }

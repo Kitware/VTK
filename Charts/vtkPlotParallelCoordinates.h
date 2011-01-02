@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-// .NAME vtkPlotParallelCoordinates - Class for drawing an XY plot given two columns from a
-// vtkTable.
+// .NAME vtkPlotParallelCoordinates - Class for drawing a parallel coordinate
+// plot given columns from a vtkTable.
 //
 // .SECTION Description
 //
@@ -24,6 +24,7 @@
 
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkStdString.h"       // For vtkStdString ivars
 
 class vtkChartParallelCoordinates;
 class vtkTable;
@@ -56,7 +57,8 @@ public:
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4], int legendIndex);
+  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex);
 
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -81,7 +83,8 @@ public:
   // Description:
   // This is a convenience function to set the input table.
   virtual void SetInput(vtkTable *table);
-  virtual void SetInput(vtkTable *table, const char*, const char*)
+  virtual void SetInput(vtkTable *table, const vtkStdString&,
+                        const vtkStdString&)
   {
     this->SetInput(table);
   }
@@ -107,7 +110,11 @@ public:
   // you can specify which array to use for coloring using these methods.
   // The lookup table will decide how to convert vectors to colors.
   void SelectColorArray(vtkIdType arrayNum);
-  void SelectColorArray(const char* arrayName);
+  void SelectColorArray(const vtkStdString &arrayName);
+
+  // Description:
+  // Get the array name to color by.
+  vtkStdString GetColorArrayName();
 
 //BTX
 protected:
@@ -132,7 +139,7 @@ protected:
   vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *Colors;
   int ScalarVisibility;
-  char ColorArrayName[256];
+  vtkStdString ColorArrayName;
 
 private:
   vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &); // Not implemented.

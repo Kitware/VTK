@@ -38,8 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObject.h"
 
-class vtkTextCodec ;
-
+class vtkTextCodec;
 
 class VTK_IO_EXPORT vtkTextCodecFactory : public vtkObject
 {
@@ -50,7 +49,7 @@ public:
 
   // Description:
   // Type for Creation callback.
-  typedef vtkTextCodec* (*CreateFunction)() ;
+  typedef vtkTextCodec* (*CreateFunction)();
 
   // Description:
   // Provides mechanism to register/unregister additional callbacks to create
@@ -65,13 +64,17 @@ public:
   // can handle it.  This is non-deterministic, very messy and should not be
   // your first thing to try.
   // The registered callbacks are tried in the order they are registered.
-  static vtkTextCodec* CodecForName(const char* CodecName) ;
+  static vtkTextCodec* CodecForName(const char* CodecName);
 
   // Description:
   // Given a snippet of the stored data name try to find one of our registered
   // codecs that can handle transforming it into unicode.
   // The registered callbacks are tried in the order they are registered.
-  static vtkTextCodec* CodecToHandle(istream& InputStream) ;
+  static vtkTextCodec* CodecToHandle(istream& InputStream);
+
+  // Description:
+  // Initialize core text codecs - needed for the static compilation case.
+  static void Initialize();
 
 //BTX
 protected:
@@ -84,8 +87,8 @@ private:
 
   // Description;
   // Data structure used to store registered callbacks.
-  class CallbackVector ;
-  static CallbackVector* Callbacks ;
+  class CallbackVector;
+  static CallbackVector* Callbacks;
 
 //ETX
 };

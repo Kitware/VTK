@@ -42,15 +42,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
+#include "Partition.h"
+#include "HaloCenterFinder.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <set>
 #include <math.h>
-
-#include "Partition.h"
-#include "HaloCenterFinder.h"
 
 using namespace std;
 

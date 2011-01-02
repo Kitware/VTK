@@ -22,6 +22,12 @@ IF(APPLE)
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
 ENDIF(APPLE)
 
+# The Cygwin maintainers have requested that we not define WIN32. Thus developers
+# must use the X11 packages to build cygwin vtk.
+IF(CYGWIN)
+  unset(WIN32)
+ENDIF()
+
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
 IF(NOT EXPORT_EXECUTABLES_FILE)
@@ -62,6 +68,15 @@ INCLUDE(vtkCompilerExtras)
 
 # Check the source tree - right now just for local Git hooks.
 INCLUDE(vtkCheckSourceTree)
+
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Debug' as none was specified.")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
 
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
@@ -182,6 +197,11 @@ ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
 #-----------------------------------------------------------------------------
 # Where the cxx tests are, for use in ADD_TEST
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+IF(CMAKE_CONFIGURATION_TYPES)
+  SET(CXX_TEST_CONFIG \${CTEST_CONFIGURATION_TYPE})
+ELSE()
+  SET(CXX_TEST_CONFIG .)
+ENDIF()
 
 #-----------------------------------------------------------------------------
 # Configure install locations.  This allows parent projects to modify

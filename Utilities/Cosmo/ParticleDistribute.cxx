@@ -42,6 +42,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
+#ifdef USE_VTK_COSMO
+#include "CosmoDefinition.h"
+#include "vtkStdString.h"
+#include "vtkSetGet.h"
+#endif
+
+#include "Partition.h"
+#include "ParticleDistribute.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -53,14 +62,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "winDirent.h"
 #else
 #include <dirent.h>
-#endif
-
-#include "Partition.h"
-#include "ParticleDistribute.h"
-
-#ifdef USE_VTK_COSMO
-#include "vtkStdString.h"
-#include "vtkSetGet.h"
 #endif
 
 using namespace std;

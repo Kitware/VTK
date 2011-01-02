@@ -26,6 +26,7 @@
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkVector.h"       // For position variables
+#include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;
 class vtkPen;
@@ -116,8 +117,8 @@ public:
 
   // Description:
   // Get/set the title text of the axis.
-  vtkSetStringMacro(Title);
-  vtkGetStringMacro(Title);
+  virtual void SetTitle(const vtkStdString &title);
+  virtual vtkStdString GetTitle();
 
   // Description:
   // Get the vtkTextProperty that governs how the axis title is displayed.
@@ -287,7 +288,7 @@ protected:
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
-  char* Title;         // The text label drawn on the axis
+  vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
   bool GridVisible;    // Whether the grid for the axis should be drawn

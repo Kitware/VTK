@@ -21,7 +21,7 @@
 #ifndef __vtkColorLegend_h
 #define __vtkColorLegend_h
 
-#include "vtkContextItem.h"
+#include "vtkChartLegend.h"
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkVector.h"       // For vtkRectf
 
@@ -30,10 +30,10 @@ class vtkImageData;
 class vtkScalarsToColors;
 class vtkCallbackCommand;
 
-class VTK_CHARTS_EXPORT vtkColorLegend: public vtkContextItem
+class VTK_CHARTS_EXPORT vtkColorLegend: public vtkChartLegend
 {
 public:
-  vtkTypeMacro(vtkColorLegend, vtkContextItem);
+  vtkTypeMacro(vtkColorLegend, vtkChartLegend);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkColorLegend* New();
 
@@ -59,6 +59,13 @@ public:
 
   virtual void SetPosition(const vtkRectf& pos);
   virtual vtkRectf GetPosition();
+
+  // Description:
+  // Request the space the legend requires to be drawn. This is returned as a
+  // vtkRect4f, with the corner being the offset from Point, and the width/
+  // height being the total width/height required by the axis. In order to
+  // ensure the numbers are correct, Update() should be called first.
+  vtkRectf GetBoundingRect(vtkContext2D* painter);
 
 protected:
   vtkColorLegend();

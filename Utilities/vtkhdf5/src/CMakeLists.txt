@@ -576,9 +576,9 @@ IF (XCODE)
   SET (CMD "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5detect")
 ENDIF (XCODE)
 ADD_EXECUTABLE (H5detect ${HDF5_SRC_DIR}/H5detect.c)
-IF (MSVC)
+IF (WIN32)
   TARGET_LINK_LIBRARIES (H5detect "ws2_32.lib")
-ENDIF (MSVC)
+ENDIF (WIN32)
 
 ADD_CUSTOM_COMMAND (
     OUTPUT ${HDF5_BINARY_DIR}/H5Tinit.c
@@ -592,9 +592,9 @@ IF (XCODE)
   SET (CMDL "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5make_libsettings")
 ENDIF (XCODE)
 ADD_EXECUTABLE (H5make_libsettings ${HDF5_SRC_DIR}/H5make_libsettings.c)
-IF (MSVC)
+IF (WIN32)
   TARGET_LINK_LIBRARIES (H5make_libsettings "ws2_32.lib")
-ENDIF (MSVC)
+ENDIF (WIN32)
 
 ADD_CUSTOM_COMMAND (
     OUTPUT ${HDF5_BINARY_DIR}/H5lib_settings.c
@@ -660,7 +660,7 @@ ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
 #-----------------------------------------------------------------------------
-IF (HDF5_EXPORTED_TARGETS)
+IF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL (
       TARGETS
           ${HDF5_LIB_TARGET}
@@ -670,4 +670,4 @@ IF (HDF5_EXPORTED_TARGETS)
       LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development
   )
-ENDIF (HDF5_EXPORTED_TARGETS)
+ENDIF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)

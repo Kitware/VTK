@@ -15,8 +15,8 @@
 
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
-#include "vtkChart2DHistogram.h"
-#include "vtk2DHistogramItem.h"
+#include "vtkChartHistogram2D.h"
+#include "vtkPlotHistogram2D.h"
 #include "vtkImageData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContextView.h"
@@ -25,15 +25,15 @@
 #include "vtkRenderWindowInteractor.h"
 
 //----------------------------------------------------------------------------
-int Test2DHistogram( int, char * [] )
+int TestHistogram2D(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
   int size = 401;
   vtkSmartPointer<vtkContextView> view =
       vtkSmartPointer<vtkContextView>::New();
   view->GetRenderWindow()->SetSize(size, size);
-  vtkSmartPointer<vtkChart2DHistogram> chart =
-      vtkSmartPointer<vtkChart2DHistogram>::New();
+  vtkSmartPointer<vtkChartHistogram2D> chart =
+      vtkSmartPointer<vtkChartHistogram2D>::New();
 
   view->GetScene()->AddItem(chart);
 
@@ -67,9 +67,6 @@ int Test2DHistogram( int, char * [] )
                                   1.0, 0.2, 1.0, 0.3);
   transferFunction->Build();
   chart->SetTransferFunction(transferFunction);
-
-  chart->SetAutoSize(false);
-  chart->SetSize(vtkRectf(0.0, 0.0, size - 40, size));
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

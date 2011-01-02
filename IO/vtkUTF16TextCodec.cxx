@@ -25,30 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <stdexcept>
 
-
 vtkStandardNewMacro(vtkUTF16TextCodec);
-
-vtkTextCodec* vtkUTF16TextCodecFromCallback()
-{
-   return vtkUTF16TextCodec::New();
-}
-
-class vtkUTF16TextCodecRegister
-{
-public:
-  vtkUTF16TextCodecRegister()
-  {
-    vtkTextCodecFactory::RegisterCreateCallback(vtkUTF16TextCodecFromCallback);
-  }
-
-  ~vtkUTF16TextCodecRegister()
-  {
-    vtkTextCodecFactory::UnRegisterCreateCallback(vtkUTF16TextCodecFromCallback);
-  }
-};
-
-
-static vtkUTF16TextCodecRegister foo;
 
 namespace
 {

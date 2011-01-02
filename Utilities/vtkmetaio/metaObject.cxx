@@ -1492,7 +1492,7 @@ bool MetaObject::
 M_Read(void)
   {
 
-  m_AdditionalReadFields.clear();
+  this->ClearAdditionalFields();
 
   if(!MET_Read(*m_ReadStream, &m_Fields, '=', false, true,
      &m_AdditionalReadFields))

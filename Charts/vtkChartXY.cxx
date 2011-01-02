@@ -93,15 +93,14 @@ vtkChartXY::vtkChartXY()
   this->HiddenAxisBorder = 20;
 
   // The grid is drawn first.
-  this->Grid = vtkPlotGrid::New();
-  this->AddItem(this->Grid);
-  this->Grid->Delete();
-  vtkPlotGrid *grid1 = this->Grid;
+  vtkPlotGrid *grid1 = vtkPlotGrid::New();
+  this->AddItem(grid1);
+  grid1->Delete();
 
   // The second grid for the far side/top axis
-  this->Grid = vtkPlotGrid::New();
-  this->AddItem(this->Grid);
-  vtkPlotGrid *grid2 = this->Grid;
+  vtkPlotGrid *grid2 = vtkPlotGrid::New();
+  this->AddItem(grid2);
+  grid2->Delete();
 
   // The plots are drawn on top of the grid, in a clipped, transformed area.
   this->AddItem(this->ChartPrivate->Clip);
@@ -135,7 +134,7 @@ vtkChartXY::vtkChartXY()
   grid2->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
 
   // Then the legend is drawn
-  this->Legend = vtkChartLegend::New();
+  this->Legend = vtkSmartPointer<vtkChartLegend>::New();
   this->Legend->SetChart(this);
   this->Legend->SetVisible(false);
   this->AddItem(this->Legend);
@@ -149,10 +148,9 @@ vtkChartXY::vtkChartXY()
   this->DrawAxesAtOrigin = false;
   this->BarWidthFraction = 0.8f;
 
-  this->Tooltip = vtkTooltipItem::New();
+  this->Tooltip = vtkSmartPointer<vtkTooltipItem>::New();
   this->Tooltip->SetVisible(false);
   this->AddItem(this->Tooltip);
-  this->Tooltip->Delete();
   this->LayoutChanged = true;
 }
 
@@ -169,11 +167,6 @@ vtkChartXY::~vtkChartXY()
     }
   delete this->ChartPrivate;
   this->ChartPrivate = 0;
-
-  this->Grid->Delete();
-  this->Grid = 0;
-  this->Legend->Delete();
-  this->Legend = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1110,7 +1103,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       }
     }
 
-  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+  if (mouse.Button == this->Actions.Pan())
     {
     // Figure out how much the mouse has moved by in plot coordinates - pan
     double screenPos[2] = { mouse.ScreenPos[0], mouse.ScreenPos[1] };
@@ -1156,14 +1149,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
-  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
-    {
-    this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
-    this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
-    // Mark the scene as dirty
-    this->Scene->SetDirty(true);
-    }
-  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
+  else if (mouse.Button == this->Actions.Zoom() ||
+           mouse.Button == this->Actions.Select())
     {
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
     this->BoxGeometry[1] = mouse.Pos[1] - this->BoxOrigin[1];
@@ -1280,23 +1267,15 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
       return true;
       }
     }
-  if (mouse.Button == vtkContextMouseEvent::LEFT_BUTTON)
+  if (mouse.Button == this->Actions.Pan())
     {
     // The mouse panning action.
     return true;
     }
-  else if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+  else if (mouse.Button == this->Actions.Zoom() ||
+           mouse.Button == this->Actions.Select())
     {
     // Selection, for now at least...
-    this->BoxOrigin[0] = mouse.Pos[0];
-    this->BoxOrigin[1] = mouse.Pos[1];
-    this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
-    this->DrawBox = true;
-    return true;
-    }
-  else if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
-    {
-    // Right mouse button - zoom box
     this->BoxOrigin[0] = mouse.Pos[0];
     this->BoxOrigin[1] = mouse.Pos[1];
     this->BoxGeometry[0] = this->BoxGeometry[1] = 0.0f;
@@ -1320,7 +1299,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
       return true;
       }
     }
-  if (mouse.Button == vtkContextMouseEvent::MIDDLE_BUTTON)
+  if (mouse.Button == this->Actions.Select())
     {
     // Check whether a valid selection box was drawn
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];
@@ -1398,7 +1377,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     this->Scene->SetDirty(true);
     return true;
     }
-  if (mouse.Button == vtkContextMouseEvent::RIGHT_BUTTON)
+  else if (mouse.Button == this->Actions.Zoom())
     {
     // Check whether a valid zoom box was drawn
     this->BoxGeometry[0] = mouse.Pos[0] - this->BoxOrigin[0];

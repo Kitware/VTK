@@ -23,9 +23,8 @@
 #include "vtkIdTypeArray.h"
 #include "vtkContextMapper2D.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
-
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 
 vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
@@ -74,7 +73,7 @@ vtkPlot::~vtkPlot()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlot::PaintLegend(vtkContext2D*, float*, int )
+bool vtkPlot::PaintLegend(vtkContext2D*, const vtkRectf&, int)
 {
   return false;
 }
@@ -134,7 +133,7 @@ float vtkPlot::GetWidth()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetLabel(const char *label)
+void vtkPlot::SetLabel(const vtkStdString& label)
 {
   vtkStringArray *labels = vtkStringArray::New();
   labels->InsertNextValue(label);
@@ -144,7 +143,7 @@ void vtkPlot::SetLabel(const char *label)
 
 //-----------------------------------------------------------------------------
 
-const char *vtkPlot::GetLabel()
+vtkStdString vtkPlot::GetLabel()
 {
   return this->GetLabel(0);
 }
@@ -164,7 +163,7 @@ void vtkPlot::SetLabels(vtkStringArray *labels)
 }
 
 //-----------------------------------------------------------------------------
-vtkStringArray *vtkPlot::GetLabels()
+vtkStringArray * vtkPlot::GetLabels()
 {
   // If the label string is empty, return the y column name
   if (this->Labels)
@@ -202,7 +201,7 @@ int vtkPlot::GetNumberOfLabels()
 }
 
 //-----------------------------------------------------------------------------
-const char *vtkPlot::GetLabel(vtkIdType index)
+vtkStdString vtkPlot::GetLabel(vtkIdType index)
 {
   vtkStringArray *labels = this->GetLabels();
   if (labels && index >= 0 && index < labels->GetNumberOfValues())
@@ -211,7 +210,7 @@ const char *vtkPlot::GetLabel(vtkIdType index)
     }
   else
     {
-    return NULL;
+    return vtkStdString();
     }
 }
 //-----------------------------------------------------------------------------
@@ -222,23 +221,19 @@ void vtkPlot::SetInput(vtkTable *table)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInput(vtkTable *table, const char *xColumn,
-                       const char *yColumn)
+void vtkPlot::SetInput(vtkTable *table, const vtkStdString &xColumn,
+                       const vtkStdString &yColumn)
 {
-  if (!xColumn || !yColumn)
-    {
-    vtkErrorMacro(<< "Called with null arguments for X or Y column.")
-    }
-  vtkDebugMacro(<< "Setting input, X column = \"" << vtkstd::string(xColumn)
-                << "\", " << "Y column = \"" << vtkstd::string(yColumn) << "\"");
+  vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str()
+                << "\", " << "Y column = \"" << yColumn.c_str() << "\"");
 
   this->Data->SetInput(table);
   this->Data->SetInputArrayToProcess(0, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     xColumn);
+                                     xColumn.c_str());
   this->Data->SetInputArrayToProcess(1, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     yColumn);
+                                     yColumn.c_str());
   this->AutoLabels = 0;  // No longer valid
 }
 
@@ -258,11 +253,11 @@ vtkTable* vtkPlot::GetInput()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInputArray(int index, const char *name)
+void vtkPlot::SetInputArray(int index, const vtkStdString &name)
 {
   this->Data->SetInputArrayToProcess(index, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
-                                     name);
+                                     name.c_str());
   this->AutoLabels = 0; // No longer valid
 }
 

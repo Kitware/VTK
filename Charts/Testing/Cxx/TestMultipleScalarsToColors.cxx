@@ -43,15 +43,6 @@ int TestMultipleScalarsToColors(int , char * [])
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
   renwin->SetSize(800, 640);
-  vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(renwin);
-  if (!openGLRenWin ||
-      !openGLRenWin->GetExtensionManager() ||
-      !openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
-    {
-    // we might be able to support GL Version 1.1 but it requires some modifications
-    // on how to apply 1D textures.
-    return EXIT_SUCCESS;
-    }
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
@@ -153,8 +144,22 @@ int TestMultipleScalarsToColors(int , char * [])
       }
     }
 
-  iren->Initialize();
-  iren->Start();
+  iren->Render();
+  vtkOpenGLRenderWindow* openGLRenWin =
+      vtkOpenGLRenderWindow::SafeDownCast(renwin);
+  if (openGLRenWin &&
+      openGLRenWin->GetExtensionManager() &&
+      openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
+    {
+    // we might be able to support GL Version 1.1 but it requires some modifications
+    // on how to apply 1D textures.
+    iren->Initialize();
+    iren->Start();
+    }
+  else
+    {
+    cout << "GL version 1.2 or higher is required." << endl;
+    }
 
   return EXIT_SUCCESS;
 }

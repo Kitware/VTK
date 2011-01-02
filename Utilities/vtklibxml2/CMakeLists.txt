@@ -22,10 +22,18 @@ INCLUDE(libxml2PlatformTests.cmake)
 
 SET(LIBXML2_PLATFORM_TEST_FILE_C platformTestsC.c)
 
-FIND_PACKAGE(Threads)
+set(CMAKE_THREAD_PREFER_PTHREAD OFF)
 
-SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING
-  "Thread library used.")
+FIND_PACKAGE(Threads)
+IF(MINGW AND CMAKE_USE_PTHREADS AND CMAKE_USE_WIN32_THREADS)
+  MESSAGE(STATUS
+    "Forcing CMAKE_USE_PTHREADS OFF as only one threading library should be used.")
+  SET(CMAKE_USE_PTHREADS OFF CACHE BOOL
+    "Force pthreads off if WIN32 threads are enabled" FORCE)
+  SET(CMAKE_THREAD_LIBS "" CACHE STRING "Force pthreads off if WIN32 threads are enabled" FORCE)
+ELSE()
+  SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING "Thread library used.")
+ENDIF()
 
 # This macro checks if the symbol exists in the library and if it
 # does, it appends library to the list.

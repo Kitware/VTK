@@ -42,15 +42,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
+#include "Partition.h"
+#include "ParticleExchange.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 
 #include <sys/types.h>
-
-#include "Partition.h"
-#include "ParticleExchange.h"
 
 using namespace std;
 

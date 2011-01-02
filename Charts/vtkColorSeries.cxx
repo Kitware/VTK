@@ -17,13 +17,13 @@
 
 #include "vtkObjectFactory.h"
 // My STL container
-#include <vtkstd/vector>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 class vtkColorSeries::Private
 {
 public:
-  vtkstd::vector<vtkColor3ub> Colors; // List of colors
+  std::vector<vtkColor3ub> Colors; // List of colors
 };
 
 //-----------------------------------------------------------------------------

@@ -13,7 +13,6 @@ SET(KIT_INTERFACE_LIBRARIES vtkViews)
 SET(KIT_LIBS vtkftgl)
 
 SET(Kit_SRCS
-  vtk2DHistogramItem.cxx
   vtkAbstractContextBufferId.cxx
   vtkAbstractContextItem.cxx
   vtkAxis.cxx
@@ -21,7 +20,7 @@ SET(Kit_SRCS
   vtkBrush.cxx
   vtkChart.cxx
   vtkChartLegend.cxx
-  vtkChart2DHistogram.cxx
+  vtkChartHistogram2D.cxx
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkChartPie.cxx
@@ -46,6 +45,7 @@ SET(Kit_SRCS
   vtkImageItem.cxx
   vtkLookupTableItem.cxx
   vtkOpenGLContextBufferId.cxx
+  vtkOpenGL2ContextDevice2D.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
@@ -53,6 +53,7 @@ SET(Kit_SRCS
   vtkPlot.cxx
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
+  vtkPlotHistogram2D.cxx
   vtkPlotLine.cxx
   vtkPlotStacked.cxx
   vtkPlotParallelCoordinates.cxx
@@ -91,6 +92,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId
+  vtkOpenGL2ContextDevice2D
   vtkOpenGLContextDevice2D
   vtkVector
   WRAP_EXCLUDE

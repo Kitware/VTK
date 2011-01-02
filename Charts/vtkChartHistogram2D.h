@@ -25,19 +25,19 @@
 #include "vtkSmartPointer.h" // For SP ivars
 
 class vtkColorLegend;
-class vtk2DHistogramItem;
+class vtkPlotHistogram2D;
 class vtkImageData;
 class vtkScalarsToColors;
 
-class VTK_CHARTS_EXPORT vtkChart2DHistogram : public vtkChartXY
+class VTK_CHARTS_EXPORT vtkChartHistogram2D : public vtkChartXY
 {
 public:
-  vtkTypeMacro(vtkChart2DHistogram, vtkChartXY);
+  vtkTypeMacro(vtkChartHistogram2D, vtkChartXY);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
   // Creates a 2D histogram chart
-  static vtkChart2DHistogram* New();
+  static vtkChartHistogram2D* New();
 
   // Description:
   // Perform any updates to the item that may be necessary before rendering.
@@ -53,11 +53,10 @@ public:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
 protected:
-  vtkChart2DHistogram();
-  ~vtkChart2DHistogram();
+  vtkChartHistogram2D();
+  ~vtkChartHistogram2D();
 
-  vtkSmartPointer<vtkColorLegend>     Legend;
-  vtkSmartPointer<vtk2DHistogramItem> Histogram;
+  vtkSmartPointer<vtkPlotHistogram2D> Histogram;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
@@ -69,8 +68,8 @@ protected:
   virtual bool UpdateLayout(vtkContext2D *painter);
 
 private:
-  vtkChart2DHistogram(const vtkChart2DHistogram &); // Not implemented.
-  void operator=(const vtkChart2DHistogram &);   // Not implemented.
+  vtkChartHistogram2D(const vtkChartHistogram2D &); // Not implemented.
+  void operator=(const vtkChartHistogram2D &);   // Not implemented.
 };
 
 #endif //__vtkChart2DHistogram_h

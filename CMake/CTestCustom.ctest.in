@@ -85,6 +85,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "Utilities/vtktiff/"
   "xtree.[0-9]+. : warning C4702: unreachable code"
+  "vector.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"
   "math.h.[0-9]+.: warning C4211"
   "variable .var_args[2]*. is used before its value is set"

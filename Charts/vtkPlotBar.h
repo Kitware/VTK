@@ -52,7 +52,8 @@ public:
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
   // and 3). The plot can choose how to fill the space supplied.
-  virtual bool PaintLegend(vtkContext2D *painter, float rect[4], int legendIndex);
+  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex);
 
   // Description:
   // Set the plot color
@@ -78,7 +79,7 @@ public:
 
   // Description:
   // When used to set additional arrays, stacked bars are created.
-  virtual void SetInputArray(int index, const char *name);
+  virtual void SetInputArray(int index, const vtkStdString &name);
 
   // Description:
   // Set the color series to use if this becomes a stacked bar plot.
@@ -98,7 +99,7 @@ public:
 
   // Description:
   // Get the group name of the bar char - can be displayed on the X axis.
-  virtual const char * GetGroupName();
+  virtual vtkStdString GetGroupName();
 
 //BTX
   // Description:

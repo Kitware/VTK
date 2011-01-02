@@ -264,7 +264,12 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
   if(this->OpaquePass!=0)
     {
-     // Test for Hardware support. If not supported, just render the delegate.
+    // Disable the scissor test during the shadow map pass.
+    GLboolean saved_scissor_test;
+    glGetBooleanv(GL_SCISSOR_TEST, &saved_scissor_test);
+    glDisable(GL_SCISSOR_TEST);
+
+    // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
 
     if(!supported)
@@ -661,6 +666,11 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       } // end of the shadow map creations.
     requiredKeys->Delete();
     delete[] propArray;
+
+    if (saved_scissor_test)
+      {
+      glEnable(GL_SCISSOR_TEST);
+      }
     }
   else
     {

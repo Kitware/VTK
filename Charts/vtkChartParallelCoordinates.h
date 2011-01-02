@@ -24,6 +24,7 @@
 #include "vtkChart.h"
 
 class vtkIdTypeArray;
+class vtkStdString;
 class vtkStringArray;
 class vtkPlotParallelCoordinates;
 
@@ -49,7 +50,7 @@ public:
 
   // Description:
   // Set the visibility of the specified column.
-  void SetColumnVisibility(const char* name, bool visible);
+  void SetColumnVisibility(const vtkStdString& name, bool visible);
 
   // Description:
   // Set the visibility of all columns (true will make them all visible, false
@@ -58,7 +59,7 @@ public:
 
   // Description:
   // Get the visibility of the specified column.
-  bool GetColumnVisibility(const char* name);
+  bool GetColumnVisibility(const vtkStdString& name);
 
   // Description:
   // Get a list of the columns, and the order in which they are displayed.

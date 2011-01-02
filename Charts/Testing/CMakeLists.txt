@@ -16,6 +16,7 @@ IF(PYTHON_EXECUTABLE)
     vtkColor.h
     vtkContextMouseEvent.h
     vtkContextScenePrivate.h
+    vtkOpenGLContextDevice2DPrivate.h
     vtkVector.h
     )
 ENDIF(PYTHON_EXECUTABLE)

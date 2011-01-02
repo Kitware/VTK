@@ -7,10 +7,10 @@
   Version:   $Revision$
   Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore Nat'l Laboratory
 
-Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 // .NAME vtkAxisActor - Create an axis with tick marks and labels
@@ -18,18 +18,18 @@ All rights reserved.
 // vtkAxisActor creates an axis with tick marks, labels, and/or a title,
 // depending on the particular instance variable settings. It is assumed that
 // the axes is part of a bounding box and is orthoganal to one of the
-// coordinate axes.  To use this class, you typically specify two points 
-// defining the start and end points of the line (xyz definition using 
-// vtkCoordinate class), the axis type (X, Y or Z), the axis location in 
+// coordinate axes.  To use this class, you typically specify two points
+// defining the start and end points of the line (xyz definition using
+// vtkCoordinate class), the axis type (X, Y or Z), the axis location in
 // relation to the bounding box, the bounding box, the number of labels, and
 // the data range (min,max). You can also control what parts of the axis are
 // visible including the line, the tick marks, the labels, and the title. It
 // is also possible to control gridlines, and specifiy on which 'side' the
-// tickmarks are drawn (again with respect to the underlying assumed 
+// tickmarks are drawn (again with respect to the underlying assumed
 // bounding box). You can also specify the label format (a printf style format).
 //
-// This class decides how to locate the labels, and how to create reasonable 
-// tick marks and labels. 
+// This class decides how to locate the labels, and how to create reasonable
+// tick marks and labels.
 //
 // Labels follow the camera so as to be legible from any viewpoint.
 //
@@ -91,7 +91,7 @@ public:
   // Description:
   // Instantiate object.
   static vtkAxisActor *New();
-  
+
   // Description:
   // Specify the position of the first point defining the axis.
   virtual vtkCoordinate *GetPoint1Coordinate();
@@ -126,7 +126,7 @@ public:
   vtkGetStringMacro(LabelFormat);
 
   // Description:
-  // Set/Get the flag that controls whether the minor ticks are visible. 
+  // Set/Get the flag that controls whether the minor ticks are visible.
   vtkSetMacro(MinorTicksVisible, int);
   vtkGetMacro(MinorTicksVisible, int);
   vtkBooleanMacro(MinorTicksVisible, int);
@@ -138,12 +138,12 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
-  // Set/Get the size of the major tick marks 
+  // Set/Get the size of the major tick marks
   vtkSetMacro(MajorTickSize, double);
   vtkGetMacro(MajorTickSize, double);
-  
+
   // Description:
-  // Set/Get the size of the major tick marks 
+  // Set/Get the size of the major tick marks
   vtkSetMacro(MinorTickSize, double);
   vtkGetMacro(MinorTickSize, double);
 
@@ -158,7 +158,7 @@ public:
     { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
   void SetTickLocationToBoth(void)
     { this->SetTickLocation(VTK_TICKS_BOTH); };
-  
+
   // Description:
   // Set/Get visibility of the axis line.
   vtkSetMacro(AxisVisibility, int);
@@ -190,7 +190,7 @@ public:
   vtkBooleanMacro(DrawGridlines, int);
 
   // Description:
-  // Set/Get the length to use when drawing gridlines. 
+  // Set/Get the length to use when drawing gridlines.
   vtkSetMacro(GridlineXLength, double);
   vtkGetMacro(GridlineXLength, double);
   vtkSetMacro(GridlineYLength, double);
@@ -209,10 +209,10 @@ public:
   // Description:
   // Set/Get the position of this axis (in relation to an an
   // assumed bounding box).  For an x-type axis, MINMIN corresponds
-  // to the x-edge in the bounding box where Y values are minimum and 
-  // Z values are minimum. For a y-type axis, MAXMIN corresponds to the 
+  // to the x-edge in the bounding box where Y values are minimum and
+  // Z values are minimum. For a y-type axis, MAXMIN corresponds to the
   // y-edge where X values are maximum and Z values are minimum.
-  // 
+  //
   vtkSetClampMacro(AxisPosition, int, VTK_AXIS_POS_MINMIN, VTK_AXIS_POS_MAXMIN);
   vtkGetMacro(AxisPosition, int);
 
@@ -232,7 +232,7 @@ public:
   vtkGetObjectMacro(Camera, vtkCamera);
 
   // Description:
-  // Draw the axis. 
+  // Draw the axis.
   virtual int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentGeometry(vtkViewport *) {return 0;}
 
@@ -256,7 +256,7 @@ public:
 
   // Description:
   // Set/Get the starting position for minor and major tick points,
-  // and the delta values that determine their spacing. 
+  // and the delta values that determine their spacing.
   vtkSetMacro(MinorStart, double);
   vtkGetMacro(MinorStart, double);
   vtkSetMacro(MajorStart, double);
@@ -265,6 +265,20 @@ public:
   vtkGetMacro(DeltaMinor, double);
   vtkSetMacro(DeltaMajor, double);
   vtkGetMacro(DeltaMajor, double);
+
+  // Description:
+  // Set/Get the starting position for minor and major tick points on
+  // the range and the delta values that determine their spacing. The
+  // range and the position need not be identical. ie the displayed
+  // values need not match the actual positions in 3D space.
+  vtkSetMacro(MinorRangeStart, double);
+  vtkGetMacro(MinorRangeStart, double);
+  vtkSetMacro(MajorRangeStart, double);
+  vtkGetMacro(MajorRangeStart, double);
+  vtkSetMacro(DeltaRangeMinor, double);
+  vtkGetMacro(DeltaRangeMinor, double);
+  vtkSetMacro(DeltaRangeMajor, double);
+  vtkGetMacro(DeltaRangeMajor, double);
 
 //BTX
   void SetLabels(vtkStringArray *labels);
@@ -284,23 +298,23 @@ protected:
   int    MinorTicksVisible;
   int    LastMinorTicksVisible;
   int    TickLocation;
- 
+
   int    DrawGridlines;
   int    LastDrawGridlines;
   double  GridlineXLength;
   double  GridlineYLength;
   double  GridlineZLength;
-  
+
   int    AxisVisibility;
   int    TickVisibility;
   int    LastTickVisibility;
   int    LabelVisibility;
   int    TitleVisibility;
-  
+
   int    AxisType;
   int    AxisPosition;
   double  Bounds[6];
-  
+
 private:
   vtkAxisActor(const vtkAxisActor&); // Not implemented
   void operator=(const vtkAxisActor&); // Not implemented
@@ -325,11 +339,18 @@ private:
   double  MajorTickSize;
   double  MinorTickSize;
 
+  // for the positions
   double  MajorStart;
   double  MinorStart;
 
   double  DeltaMinor;
   double  DeltaMajor;
+
+  // For the ticks, w.r.t to the set range
+  double  MajorRangeStart;
+  double  MinorRangeStart;
+  double  DeltaRangeMinor;
+  double  DeltaRangeMajor;
 
   int    LastAxisPosition;
   int    LastAxisType;

@@ -17,6 +17,7 @@
 
 #include "vtkContext2D.h"
 #include "vtkPen.h"
+#include "vtkVector.h"
 
 #include "vtkObjectFactory.h"
 
@@ -53,7 +54,7 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotLine::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotLine::PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int)
 {
   painter->ApplyPen(this->Pen);
   painter->DrawLine(rect[0], rect[1]+0.5*rect[3],

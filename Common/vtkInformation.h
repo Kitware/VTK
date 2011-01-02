@@ -60,7 +60,7 @@ class vtkInformationStringVectorKey;
 class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32)
 # define VTK_INFORMATION_EXPORT
 #else
 # define VTK_INFORMATION_EXPORT VTK_COMMON_EXPORT
