@@ -5054,14 +5054,14 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 1437 "vtkParse.y"
-    {access_level = VTK_ACCESS_PROTECTED;}
+    {access_level = VTK_ACCESS_PRIVATE;}
     break;
 
   case 78:
 
 /* Line 1455 of yacc.c  */
 #line 1438 "vtkParse.y"
-    {access_level = VTK_ACCESS_PRIVATE;}
+    {access_level = VTK_ACCESS_PROTECTED;}
     break;
 
   case 79:
