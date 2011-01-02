@@ -16,6 +16,8 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
+#include "vtkCollection.h"
+#include "vtkCollectionIterator.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
@@ -641,6 +643,35 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* newExecutive)
       vtkAlgorithmToExecutiveFriendship::SetAlgorithm(oldExecutive, 0);
       oldExecutive->UnRegister(this);
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::ProcessRequest(vtkInformation* request,
+                                 vtkCollection* inInfo,
+                                 vtkInformationVector* outInfo)
+{
+  vtkSmartPointer<vtkCollectionIterator> iter;
+  iter.TakeReference(inInfo->NewIterator());
+
+  std::vector<vtkInformationVector*> ivectors;
+  for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkInformationVector* iv = vtkInformationVector::SafeDownCast(
+      iter->GetCurrentObject());
+    if (!iv)
+      {
+      return 0;
+      }
+    ivectors.push_back(iv);
+    }
+  if (ivectors.empty())
+    {
+    return this->ProcessRequest(request, (vtkInformationVector**)0, outInfo);
+    }
+  else
+    {
+    return this->ProcessRequest(request, &ivectors[0], outInfo);
     }
 }
 
