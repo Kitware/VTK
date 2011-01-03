@@ -3,6 +3,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # Add tests
   #
   IF (VTK_DATA_ROOT)
+    set(cubeAxes2Error 13)
     FOREACH ( tfile 
       3DMorph
       appendImplicitModel
@@ -52,12 +53,18 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       xyPlot3
       xyPlot4
       )
+      IF(${${tfile}Error})
+        SET(_error_threshold ${${tfile}Error})
+      ELSE()
+        SET(_error_threshold 10)
+      ENDIF()
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
         -V Baseline/Hybrid/${tfile}.png
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
+        -E ${_error_threshold})
     ENDFOREACH( tfile )
   #
   # If we do not have the data, still run the tests that we can
