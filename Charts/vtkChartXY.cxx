@@ -1344,7 +1344,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
           {
           vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                 PlotCorners[i]->GetItem(j));
-          if (plot)
+          if (plot && plot->GetVisible())
             {
             /* 
              * Populate the internal selection.  This will be referenced later
