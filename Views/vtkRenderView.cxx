@@ -294,14 +294,8 @@ void vtkRenderView::SetRenderWindow(vtkRenderWindow* win)
 
 void vtkRenderView::Render()
 {
-  // Indirectly call this->RenderWindow->Start() without crashing.
-  // to create context if it is not yet created and to make it current
-  // this is required for HoverWidget to be active after the first
-  // render.
-  // If using the TestingInteractor, skip the Initialize()
-  if (strcmp(this->RenderWindow->GetInteractor()->GetClassName(),
-             "vtkTestingInteractor") != 0 &&
-             !this->RenderWindow->GetInteractor()->GetInitialized())
+  // Why should we have to initialize in here at all?
+  if (!this->RenderWindow->GetInteractor()->GetInitialized())
     {
     this->RenderWindow->GetInteractor()->Initialize();
     }
