@@ -300,7 +300,8 @@ void vtkRenderView::Render()
   // render.
   // If using the TestingInteractor, skip the Initialize()
   if (strcmp(this->RenderWindow->GetInteractor()->GetClassName(),
-             "vtkTestingInteractor") != 0)
+             "vtkTestingInteractor") != 0 &&
+             !this->RenderWindow->GetInteractor()->GetInitialized())
     {
     this->RenderWindow->GetInteractor()->Initialize();
     }
