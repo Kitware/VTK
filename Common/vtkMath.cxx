@@ -1763,7 +1763,7 @@ template<class T1, class T2>
 
   T2 rr = xx + yy + zz;
   // normalization factor, just in case quaternion was not normalized
-  T2 f = T2(1)/T2(sqrt(ww + rr));
+  T2 f = 1/(ww + rr);
   T2 s = (ww - rr)*f;
   f *= 2;
 
