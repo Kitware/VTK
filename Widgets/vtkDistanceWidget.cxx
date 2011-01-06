@@ -29,12 +29,12 @@ vtkStandardNewMacro(vtkDistanceWidget);
 
 
 // The distance widget observes its two handles.
-// Here we create the command/observer classes to respond to the 
+// Here we create the command/observer classes to respond to the
 // handle widgets.
 class vtkDistanceWidgetCallback : public vtkCommand
 {
 public:
-  static vtkDistanceWidgetCallback *New() 
+  static vtkDistanceWidgetCallback *New()
     { return new vtkDistanceWidgetCallback; }
   virtual void Execute(vtkObject*, unsigned long eventId, void*)
     {
@@ -75,7 +75,7 @@ vtkDistanceWidget::vtkDistanceWidget()
   this->DistanceWidgetCallback1 = vtkDistanceWidgetCallback::New();
   this->DistanceWidgetCallback1->HandleNumber = 0;
   this->DistanceWidgetCallback1->DistanceWidget = this;
-  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->DistanceWidgetCallback1, 
+  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->DistanceWidgetCallback1,
                                   this->Priority);
   this->Point1Widget->AddObserver(vtkCommand::InteractionEvent, this->DistanceWidgetCallback1,
                                   this->Priority);
@@ -85,7 +85,7 @@ vtkDistanceWidget::vtkDistanceWidget()
   this->DistanceWidgetCallback2 = vtkDistanceWidgetCallback::New();
   this->DistanceWidgetCallback2->HandleNumber = 1;
   this->DistanceWidgetCallback2->DistanceWidget = this;
-  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->DistanceWidgetCallback2, 
+  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->DistanceWidgetCallback2,
                                   this->Priority);
   this->Point2Widget->AddObserver(vtkCommand::InteractionEvent, this->DistanceWidgetCallback2,
                                   this->Priority);
@@ -167,7 +167,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
       return;
       }
-    
+
     int X=this->Interactor->GetEventPosition()[0];
     int Y=this->Interactor->GetEventPosition()[1];
 
@@ -185,7 +185,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
 
-    // Set the renderer, interactor and representation on the two handle 
+    // Set the renderer, interactor and representation on the two handle
     // widgets.
     this->Point1Widget->SetRepresentation(
       reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
@@ -198,7 +198,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       GetPoint2Representation());
     this->Point2Widget->SetInteractor(this->Interactor);
     this->Point2Widget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
-    
+
     // listen for the events found in the EventTranslator
     if ( ! this->Parent )
       {
@@ -230,7 +230,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       this->Point1Widget->SetEnabled(1);
       this->Point2Widget->SetEnabled(1);
       }
-    
+
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
 
@@ -258,8 +258,8 @@ void vtkDistanceWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
 
     this->Point1Widget->SetEnabled(0);
-    this->Point2Widget->SetEnabled(0);    
-    
+    this->Point2Widget->SetEnabled(0);
+
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
     }
@@ -268,7 +268,7 @@ void vtkDistanceWidget::SetEnabled(int enabling)
   if ( this->Interactor && !this->Parent )
     {
     this->Interactor->Render();
-    }  
+    }
 }
 
 // The following methods are the callbacks that the measure widget responds to
@@ -416,6 +416,16 @@ void vtkDistanceWidget::SetProcessEvents(int pe)
 
   this->Point1Widget->SetProcessEvents(pe);
   this->Point2Widget->SetProcessEvents(pe);
+}
+
+//----------------------------------------------------------------------
+void vtkDistanceWidget::SetWidgetStateToStart()
+{
+  this->WidgetState = vtkDistanceWidget::Start;
+  this->CurrentHandle = -1;
+  this->ReleaseFocus();
+  this->GetRepresentation()->BuildRepresentation(); // update this->Distance
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
 }
 
 //----------------------------------------------------------------------

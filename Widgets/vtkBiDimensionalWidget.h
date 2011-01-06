@@ -159,10 +159,15 @@ public:
   //ETX
 
   // Description:
-  // Set the state of the widget to "Manipulate" (in case its widget and its
-  // representation will be initialized programmatically and is not interactively
-  // placed). This must generally be followed by a Render() for things to visually
-  // take effect.
+  // Set the state of the widget. If the state is set to "Manipulate" then it
+  // is assumed that the widget and its representation will be initialized
+  // programmatically and is not interactively placed. Initially the widget
+  // state is set to "Start" which means nothing will appear and the user
+  // must interactively place the widget with repeated mouse selections. Set
+  // the state to "Start" if you want interactive placement. Generally state
+  // changes must be followed by a Render() for things to visually take
+  // effect.
+  virtual void SetWidgetStateToStart();
   virtual void SetWidgetStateToManipulate();
 
   // Description:

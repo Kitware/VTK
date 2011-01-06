@@ -31,12 +31,12 @@ vtkStandardNewMacro(vtkBiDimensionalWidget);
 
 
 // The bidimensional widget observes the handles.
-// Here we create the command/observer classes to respond to the 
+// Here we create the command/observer classes to respond to the
 // slider widgets.
 class vtkBiDimensionalWidgetCallback : public vtkCommand
 {
 public:
-  static vtkBiDimensionalWidgetCallback *New() 
+  static vtkBiDimensionalWidgetCallback *New()
     { return new vtkBiDimensionalWidgetCallback; }
   virtual void Execute(vtkObject*, unsigned long eventId, void*)
     {
@@ -94,14 +94,14 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
   // Set up the callbacks on the two handles
   this->BiDimensionalWidgetCallback1 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback1->BiDimensionalWidget = this;
-  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback1, 
+  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback1,
                                   this->Priority);
   this->Point1Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback1,
                                   this->Priority);
 
   this->BiDimensionalWidgetCallback2 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback2->BiDimensionalWidget = this;
-  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback2, 
+  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback2,
                                   this->Priority);
   this->Point2Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback2,
                                   this->Priority);
@@ -109,7 +109,7 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
 
   this->BiDimensionalWidgetCallback3 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback3->BiDimensionalWidget = this;
-  this->Point3Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback3, 
+  this->Point3Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback3,
                                   this->Priority);
   this->Point3Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback3,
                                   this->Priority);
@@ -117,7 +117,7 @@ vtkBiDimensionalWidget::vtkBiDimensionalWidget()
 
   this->BiDimensionalWidgetCallback4 = vtkBiDimensionalWidgetCallback::New();
   this->BiDimensionalWidgetCallback4->BiDimensionalWidget = this;
-  this->Point4Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback4, 
+  this->Point4Widget->AddObserver(vtkCommand::StartInteractionEvent, this->BiDimensionalWidgetCallback4,
                                   this->Priority);
   this->Point4Widget->AddObserver(vtkCommand::EndInteractionEvent, this->BiDimensionalWidgetCallback4,
                                   this->Priority);
@@ -218,7 +218,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
 
   if ( enabling )
     {
-    // Done in this wierd order to get everything to work right. 
+    // Done in this wierd order to get everything to work right.
     // This invocation creates the default representation.
     this->Superclass::SetEnabled(enabling);
 
@@ -279,10 +279,10 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       }
 
     // Done in this wierd order to get everything right. The renderer is
-    // set to null after we disable the sub-widgets. That should give the 
+    // set to null after we disable the sub-widgets. That should give the
     // renderer a chance to remove the representation props before being
     // set to NULL.
-    this->Superclass::SetEnabled(enabling);    
+    this->Superclass::SetEnabled(enabling);
     }
 }
 
@@ -300,7 +300,7 @@ int vtkBiDimensionalWidget::IsMeasureValid()
     }
 }
 
-// The following methods are the callbacks that the bidimensional widget responds to. 
+// The following methods are the callbacks that the bidimensional widget responds to.
 //-------------------------------------------------------------------------
 void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
 {
@@ -346,10 +346,10 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
-      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL); 
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       }
     }
-  
+
   // Maybe we are trying to manipulate the widget handles
   else //if ( self->WidgetState == vtkBiDimensionalWidget::Manipulate )
     {
@@ -412,7 +412,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       self->StartBiDimensionalInteraction();
       }
     }
-  
+
   self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
 }
@@ -460,7 +460,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       WidgetInteraction(e);
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
-  
+
   else if ( self->Line1InnerSelected )
     {//must be moving inner portion of line 1 -- line translation
     reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
@@ -740,6 +740,22 @@ void vtkBiDimensionalWidget::SetProcessEvents(int pe)
   this->Point2Widget->SetProcessEvents(pe);
   this->Point3Widget->SetProcessEvents(pe);
   this->Point4Widget->SetProcessEvents(pe);
+}
+
+//----------------------------------------------------------------------
+void vtkBiDimensionalWidget::SetWidgetStateToStart()
+{
+  this->WidgetState = vtkBiDimensionalWidget::Start;
+  this->CurrentHandle = -1;
+  this->HandleLine1Selected = 0;
+  this->HandleLine2Selected = 0;
+  this->Line1InnerSelected = 0;
+  this->Line1OuterSelected = 0;
+  this->Line2InnerSelected = 0;
+  this->Line2OuterSelected = 0;
+  this->CenterSelected = 0;
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
+  this->ReleaseFocus();
 }
 
 //----------------------------------------------------------------------
