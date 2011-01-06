@@ -28,12 +28,12 @@
 vtkStandardNewMacro(vtkAngleWidget);
 
 // The angle widget observes the handles.
-// Here we create the command/observer classes to respond to the 
+// Here we create the command/observer classes to respond to the
 // slider widgets.
 class vtkAngleWidgetCallback : public vtkCommand
 {
 public:
-  static vtkAngleWidgetCallback *New() 
+  static vtkAngleWidgetCallback *New()
     { return new vtkAngleWidgetCallback; }
   virtual void Execute(vtkObject*, unsigned long eventId, void*)
     {
@@ -76,7 +76,7 @@ vtkAngleWidget::vtkAngleWidget()
   this->AngleWidgetCallback1 = vtkAngleWidgetCallback::New();
   this->AngleWidgetCallback1->HandleNumber = 0;
   this->AngleWidgetCallback1->AngleWidget = this;
-  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->AngleWidgetCallback1, 
+  this->Point1Widget->AddObserver(vtkCommand::StartInteractionEvent, this->AngleWidgetCallback1,
                                   this->Priority);
   this->Point1Widget->AddObserver(vtkCommand::InteractionEvent, this->AngleWidgetCallback1,
                                   this->Priority);
@@ -87,7 +87,7 @@ vtkAngleWidget::vtkAngleWidget()
   this->AngleWidgetCenterCallback = vtkAngleWidgetCallback::New();
   this->AngleWidgetCenterCallback->HandleNumber = 1;
   this->AngleWidgetCenterCallback->AngleWidget = this;
-  this->CenterWidget->AddObserver(vtkCommand::StartInteractionEvent, this->AngleWidgetCenterCallback, 
+  this->CenterWidget->AddObserver(vtkCommand::StartInteractionEvent, this->AngleWidgetCenterCallback,
                                   this->Priority);
   this->CenterWidget->AddObserver(vtkCommand::InteractionEvent, this->AngleWidgetCenterCallback,
                                   this->Priority);
@@ -97,7 +97,7 @@ vtkAngleWidget::vtkAngleWidget()
   this->AngleWidgetCallback2 = vtkAngleWidgetCallback::New();
   this->AngleWidgetCallback2->HandleNumber = 2;
   this->AngleWidgetCallback2->AngleWidget = this;
-  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->AngleWidgetCallback2, 
+  this->Point2Widget->AddObserver(vtkCommand::StartInteractionEvent, this->AngleWidgetCallback2,
                                   this->Priority);
   this->Point2Widget->AddObserver(vtkCommand::InteractionEvent, this->AngleWidgetCallback2,
                                   this->Priority);
@@ -239,7 +239,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
       this->SetCursor(this->WidgetRep->GetInteractionState());
       }
 
-    vtkAngleRepresentation *rep = 
+    vtkAngleRepresentation *rep =
         static_cast<vtkAngleRepresentation*>(this->WidgetRep);
 
     // Set the renderer, representation and interactor on the child widgets.
@@ -250,7 +250,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
       this->Point1Widget->GetRepresentation()->SetRenderer(
         this->CurrentRenderer);
       }
-    
+
     if (this->CenterWidget)
       {
       this->CenterWidget->SetRepresentation(rep->GetCenterRepresentation());
@@ -265,7 +265,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
       this->Point2Widget->SetInteractor(this->Interactor);
       this->Point2Widget->GetRepresentation()->SetRenderer(
         this->CurrentRenderer);
-      }    
+      }
 
     if (rep)
       {
@@ -273,10 +273,10 @@ void vtkAngleWidget::SetEnabled(int enabling)
           this->WidgetState != vtkAngleWidget::Start ? 1 : 0);
       rep->SetRay2Visibility(
           this->WidgetState != vtkAngleWidget::Start ? 1 : 0);
-      rep->SetArcVisibility( 
+      rep->SetArcVisibility(
           this->WidgetState != vtkAngleWidget::Start ? 1 : 0);
       }
-    
+
 
     if ( this->WidgetState != vtkAngleWidget::Start )
       {
@@ -292,7 +292,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
         {
         this->Point2Widget->SetEnabled(1);
         }
-      }    
+      }
 
     this->WidgetRep->BuildRepresentation();
     this->CurrentRenderer->AddViewProp(this->WidgetRep);
@@ -322,7 +322,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
 
 
-    if (vtkAngleRepresentation *rep = 
+    if (vtkAngleRepresentation *rep =
         static_cast<vtkAngleRepresentation*>(this->WidgetRep))
       {
       rep->Ray1VisibilityOff();
@@ -334,17 +334,17 @@ void vtkAngleWidget::SetEnabled(int enabling)
       {
       this->Point1Widget->SetEnabled(0);
       }
-    
+
     if (this->CenterWidget)
       {
       this->CenterWidget->SetEnabled(0);
       }
-    
+
     if (this->Point2Widget)
       {
       this->Point2Widget->SetEnabled(0);
       }
-    
+
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
     }
@@ -354,7 +354,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
   if ( this->Interactor && !this->Parent )
     {
     this->Interactor->Render();
-    }  
+    }
 }
 
 //----------------------------------------------------------------------
@@ -371,7 +371,7 @@ int vtkAngleWidget::IsAngleValid()
     }
 }
 
-// The following methods are the callbacks that the angle widget responds to. 
+// The following methods are the callbacks that the angle widget responds to.
 //-------------------------------------------------------------------------
 void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
 {
@@ -420,7 +420,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       }
     }
-  
+
   // Maybe we are trying to manipulate the widget handles
   else //if ( self->WidgetState == vtkAngleWidget::Manipulate )
     {
@@ -546,6 +546,16 @@ void vtkAngleWidget::SetProcessEvents(int pe)
   this->Point1Widget->SetProcessEvents(pe);
   this->CenterWidget->SetProcessEvents(pe);
   this->Point2Widget->SetProcessEvents(pe);
+}
+
+//----------------------------------------------------------------------
+void vtkAngleWidget::SetWidgetStateToStart()
+{
+  this->WidgetState = vtkAngleWidget::Start;
+  this->CurrentHandle = -1;
+  this->ReleaseFocus();
+  this->GetRepresentation()->BuildRepresentation(); // update this->Angle
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
 }
 
 //----------------------------------------------------------------------

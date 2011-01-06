@@ -17,6 +17,8 @@ vtkAngleRepresentation.cxx
 vtkAngleRepresentation2D.cxx
 vtkAngleRepresentation3D.cxx
 vtkAngleWidget.cxx
+vtkAxesTransformWidget.cxx
+vtkAxesTransformRepresentation.cxx
 vtkBalloonRepresentation.cxx
 vtkBalloonWidget.cxx
 vtkBezierContourLineInterpolator.cxx

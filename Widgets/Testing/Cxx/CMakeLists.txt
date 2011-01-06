@@ -7,12 +7,13 @@ IF(VTK_USE_DISPLAY)
 
 
 # add tests that do not require data
-SET(MyTests     
+SET(MyTests
   BoxWidget.cxx
   BoxWidget2.cxx
 #  TestAffineWidget.cxx
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
+  TestAxesTransformWidget.cxx
   TestBalloonWidget.cxx
 #  TestBorderWidget.cxx
 #  TestCameraWidget.cxx
@@ -29,6 +30,7 @@ SET(MyTests
 #  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
+  TestProgrammaticPlacement.cxx
   TestRectilinearWipeWidget.cxx
   TestSeedWidget.cxx
   TestSliderWidget.cxx
@@ -121,74 +123,74 @@ FOREACH (test ${TestsToRun})
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
   ENDIF (VTK_DATA_ROOT)
-ENDFOREACH (test) 
+ENDFOREACH (test)
 
-# Add any tests with special arguments here.. 
+# Add any tests with special arguments here..
 #
 IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
-  ADD_TEST( TerrainPolylineEditor ${CXX_TEST_PATH}/${KIT}CxxTests 
-         TerrainPolylineEditor 
+  ADD_TEST( TerrainPolylineEditor ${CXX_TEST_PATH}/${KIT}CxxTests
+         TerrainPolylineEditor
          -ProjectionMode 2
          -HeightOffset 100
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TerrainPolylineEditor.png)
-  ADD_TEST( TestHandleWidget ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestHandleWidget ${CXX_TEST_PATH}/${KIT}CxxTests
          TestHandleWidget
          -ConstrainHandlesToPlane
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestHandleWidget.png)
-  ADD_TEST( TestDijkstraGraphGeodesicPath ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestDijkstraGraphGeodesicPath ${CXX_TEST_PATH}/${KIT}CxxTests
          TestDijkstraGraphGeodesicPath
          -DistanceOffset 20.0
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestDijkstraGraphGeodesicPath.png)
 
-  ADD_TEST( TestRectilinearWipeWidget0 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget0 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          0
          -E 40
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestRectilinearWipeWidget0.png)
-  ADD_TEST( TestRectilinearWipeWidget1 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget1 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          1
          -E 40
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestRectilinearWipeWidget1.png)
-  ADD_TEST( TestRectilinearWipeWidget2 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget2 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          2
          -E 40
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestRectilinearWipeWidget2.png)
-  ADD_TEST( TestRectilinearWipeWidget3 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget3 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          3
          -E 40
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestRectilinearWipeWidget3.png)
-  ADD_TEST( TestRectilinearWipeWidget4 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget4 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          4
          -E 40
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestRectilinearWipeWidget4.png)
-  ADD_TEST( TestRectilinearWipeWidget5 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget5 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          5
          -E 40
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -D ${VTK_DATA_ROOT}
          -V Baseline/${KIT}/TestRectilinearWipeWidget5.png)
-  ADD_TEST( TestRectilinearWipeWidget6 ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST( TestRectilinearWipeWidget6 ${CXX_TEST_PATH}/${KIT}CxxTests
          TestRectilinearWipeWidget
          6
          -E 40

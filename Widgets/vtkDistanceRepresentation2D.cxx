@@ -172,7 +172,7 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->Point2Representation->GetWorldPosition(p2);
     this->Distance = sqrt(vtkMath::Distance2BetweenPoints(p1,p2));
 
-    this->AxisActor->GetPoint1Coordinate()->SetValue(p1);
+      this->AxisActor->GetPoint1Coordinate()->SetValue(p1);
     this->AxisActor->GetPoint2Coordinate()->SetValue(p2);
     this->AxisActor->SetRulerMode(this->RulerMode);
     this->AxisActor->SetRulerDistance(this->RulerDistance);

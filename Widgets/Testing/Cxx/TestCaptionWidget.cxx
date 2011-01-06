@@ -916,14 +916,13 @@ int TestCaptionWidget( int argc, char *argv[] )
 
   // Create a test pipeline
   //
-  vtkSmartPointer<vtkSphereSource> ss =
-    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
+  ss->SetCenter(100,250,500);
   ss->Update();
 
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInput(ss->GetOutput());
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   // Create the widget
@@ -980,6 +979,11 @@ int TestCaptionWidget( int argc, char *argv[] )
   recorder->Off();
 #endif
 
+  cout << "Setting new caption\n";
+  rep->GetCaptionActor2D()->SetCaption("Okay the caption has now changed and the border should resize");
+  rep->Modified();
+  renWin->Render();
+
   iren->Start();
 
   double endingPosition[3];
@@ -992,5 +996,6 @@ int TestCaptionWidget( int argc, char *argv[] )
        << endingPosition[0] << ", "
        << endingPosition[1] << ", "
        << endingPosition[2] << endl;
+
   return EXIT_SUCCESS;
 }
