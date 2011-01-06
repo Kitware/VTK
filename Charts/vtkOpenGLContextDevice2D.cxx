@@ -298,8 +298,8 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     float xWidth = width / mv[0];
     float yWidth = width / mv[5];
 
-    float p[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    float c[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    // Four 2D points on the quad.
+    float p[4 * 2] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     // This will be the same everytime
     float texCoord[] = { 0.0, 0.0,
@@ -307,11 +307,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                          1.0, 1.0,
                          0.0, 1.0 };
 
-    if (colors && nc_comps)
-      {
-      glEnableClientState(GL_COLOR_ARRAY);
-      }
-    else
+    if (!colors || !nc_comps)
       {
       glColor4ubv(this->Pen->GetColor());
       }
@@ -330,21 +326,21 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       p[6] = points[2*i] - xWidth;
       p[7] = points[2*i+1] + yWidth;
 
+      // If we have a color array, set the color for each quad.
       if (colors && nc_comps)
         {
-        for (int j = 0; j < 8; ++j)
+        if (nc_comps == 3)
           {
-          c[j] = colors[nc_comps*i];
+          glColor3ubv(&colors[3 * i]);
           }
-        glColorPointer(nc_comps, GL_UNSIGNED_BYTE, 0, c);
+        else if (nc_comps == 4)
+          {
+          glColor4ubv(&colors[4 * i]);
+          }
         }
 
       glVertexPointer(2, GL_FLOAT, 0, p);
       glDrawArrays(GL_QUADS, 0, 4);
-      }
-    if (colors && nc_comps)
-      {
-      glDisableClientState(GL_COLOR_ARRAY);
       }
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
