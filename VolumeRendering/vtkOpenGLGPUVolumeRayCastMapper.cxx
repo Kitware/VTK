@@ -2767,11 +2767,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
   int size[2];
   ren->GetTiledSize(&size[0],&size[1]);
 
-
-  int needNewMaxValueBuffer=this->MaxValueFrameBuffer==0 &&
+  const bool accumulativeBlendMode =
     (this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ||
      this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND ||
      this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND);
+
+  const bool needNewMaxValueBuffer =
+    (this->MaxValueFrameBuffer == 0) && accumulativeBlendMode;
+
+  GLint value;
+  glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&value);
+  GLuint savedFrameBuffer=static_cast<GLuint>(value);
 
   if(needNewMaxValueBuffer)
     {
@@ -2784,63 +2790,41 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     // max scalar frame buffer
     GLuint maxValueFrameBuffer;
     glGenTextures(1,&maxValueFrameBuffer);
-    // Color buffers
-    GLint savedFrameBuffer;
-    glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer);
-    vtkgl::BindFramebufferEXT(
-      vtkgl::FRAMEBUFFER_EXT,static_cast<GLuint>(this->FrameBufferObject));
-    glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer);
-    vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
-                                   vtkgl::COLOR_ATTACHMENT0_EXT+1,
-                                   GL_TEXTURE_2D,maxValueFrameBuffer,0);
     this->MaxValueFrameBuffer=
       static_cast<unsigned int>(maxValueFrameBuffer);
-    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                              static_cast<GLuint>(savedFrameBuffer));
 
     // max scalar frame buffer2
     GLuint maxValueFrameBuffer2;
     glGenTextures(1,&maxValueFrameBuffer2);
-    glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer2);
     this->MaxValueFrameBuffer2=
       static_cast<unsigned int>(maxValueFrameBuffer2);
     }
   else
     {
-     if(this->MaxValueFrameBuffer!=0 &&
-        (this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-         &&
-         this->BlendMode!=vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
-         &&
-         this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND))
-       {
-       // blend mode changed and does not need max value buffer anymore.
+    if (this->MaxValueFrameBuffer && !accumulativeBlendMode)
+      {
+      // blend mode changed and does not need max value buffer anymore.
 
-       GLint savedFrameBuffer;
-       glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&savedFrameBuffer);
-       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                static_cast<GLuint>(this->FrameBufferObject));
-       vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
-                                      vtkgl::COLOR_ATTACHMENT0_EXT+1,
-                                      GL_TEXTURE_2D,0,0); // not scalar buffer
-       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                 static_cast<GLuint>(savedFrameBuffer));
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                               static_cast<GLuint>(this->FrameBufferObject));
+      vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
+                                     vtkgl::COLOR_ATTACHMENT0_EXT+1,
+                                     GL_TEXTURE_2D,0,0); // not scalar buffer
+      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,savedFrameBuffer);
 
-       GLuint maxValueFrameBuffer=
-         static_cast<GLuint>(this->MaxValueFrameBuffer);
-       glDeleteTextures(1,&maxValueFrameBuffer);
-       this->MaxValueFrameBuffer=0;
+      GLuint maxValueFrameBuffer=
+        static_cast<GLuint>(this->MaxValueFrameBuffer);
+      glDeleteTextures(1,&maxValueFrameBuffer);
+      this->MaxValueFrameBuffer=0;
 
-       GLuint maxValueFrameBuffer2=
-         static_cast<GLuint>(this->MaxValueFrameBuffer2);
-       glDeleteTextures(1,&maxValueFrameBuffer2);
-       this->MaxValueFrameBuffer2=0;
-       }
+      GLuint maxValueFrameBuffer2=
+        static_cast<GLuint>(this->MaxValueFrameBuffer2);
+      glDeleteTextures(1,&maxValueFrameBuffer2);
+      this->MaxValueFrameBuffer2=0;
+      }
     }
 
-  if((this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
-      || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND) && (this->SizeChanged || needNewMaxValueBuffer))
+  if (accumulativeBlendMode && (this->SizeChanged || needNewMaxValueBuffer))
     {
     // max scalar frame buffer
     GLuint maxValueFrameBuffer=static_cast<GLuint>(this->MaxValueFrameBuffer);
@@ -2861,6 +2845,18 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
                    0, GL_RGBA, GL_FLOAT, NULL );
       }
 
+
+    // Bind and attach here (after the size has been set, or ATI will cry),
+    // then restore default buffer.
+    vtkgl::BindFramebufferEXT(
+      vtkgl::FRAMEBUFFER_EXT,static_cast<GLuint>(this->FrameBufferObject));
+    vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
+                                   vtkgl::COLOR_ATTACHMENT0_EXT+1,
+                                   GL_TEXTURE_2D,maxValueFrameBuffer,0);
+    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                              static_cast<GLuint>(savedFrameBuffer));
+
+
     // max scalar frame buffer 2
     GLuint maxValueFrameBuffer2=static_cast<GLuint>(this->MaxValueFrameBuffer2);
     glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer2);
@@ -2879,8 +2875,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
       }
-
     }
+
   this->PrintError("AllocateFrameBuffers");
   return result;
 }
