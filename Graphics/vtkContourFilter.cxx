@@ -678,7 +678,7 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
         inRes = inInfo->Get(
                             vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION());
         }
-      if (inRes == 1.0)
+      if (inRes >= 0.99)
         {
         outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),0.0);
         }
