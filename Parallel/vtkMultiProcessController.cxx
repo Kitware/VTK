@@ -17,6 +17,7 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCollection.h"
+#include "vtkCommand.h"
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
@@ -533,6 +534,7 @@ int vtkMultiProcessController::ProcessRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
+  this->InvokeEvent(vtkCommand::StartEvent);
   int triggerMessage[128];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
@@ -612,6 +614,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       }
     } while (!dont_loop);
 
+  this->InvokeEvent(vtkCommand::EndEvent);
   return error;
 }
 
