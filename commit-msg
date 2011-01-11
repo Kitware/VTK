@@ -21,15 +21,17 @@
 commit_msg="$GIT_DIR/COMMIT_MSG"
 sed -n -e '/^#/d' -e '/^diff --git/q' -e 'p;d' "$1" > "$commit_msg"
 
+die_advice='
+To continue editing, run the command
+  git commit -e -F '"$commit_msg"'
+(assuming your working directory is at the top).'
+
 die() {
 	echo 'commit-msg hook failure' 1>&2
 	echo '-----------------------' 1>&2
 	echo '' 1>&2
 	echo "$@" 1>&2
-	echo '
-To continue editing, run the command
-  git commit -e -F '"$commit_msg"'
-(assuming your working directory is at the top).' 1>&2
+	test -n "$die_advice" && echo "$die_advice" 1>&2
 	exit 1
 }
 
@@ -97,6 +99,7 @@ while IFS='' read line; do
 	msg_$state || break
 done &&
 rm -f "$commit_msg" || exit 1
+die_advice='' # No more temporary message file.
 
 #-----------------------------------------------------------------------------
 # Optionally run Gerrit's commit-msg hook to add a Change-Id line.
