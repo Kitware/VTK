@@ -113,20 +113,6 @@ public:
   double GetUpdateResolution(vtkInformation *);
 
   // Description:
-  // Convenience method to set a particular minor update piece within
-  // a particular major update piece. For example, when streaming in
-  // parallel. This is needed in paraview, to let each processor set 
-  // their own piece locally, independent of processor.
-  int SetSplitUpdateExtent(int port, 
-                           int major, int minor,
-                           int numPieces, 
-                           int ghostLevel)
-  {
-    return this->SetUpdateExtent(port, major+minor, numPieces, ghostLevel);
-  }
-  
-
-  // Description:
   // Get/Set the update extent for output ports that use Temporal Extents
   int SetUpdateTimeSteps(int port, double *times, int length);
   int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
