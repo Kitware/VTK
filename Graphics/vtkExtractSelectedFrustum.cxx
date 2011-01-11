@@ -474,8 +474,8 @@ int vtkExtractSelectedFrustum::RequestData(
       numCellPts = cell->GetNumberOfPoints();    
       newCellPts->Reset();
       
-      isect = flag * this->ABoxFrustumIsect(bounds, cell);
-      if (isect == 1)
+      isect = this->ABoxFrustumIsect(bounds, cell);
+      if (isect == 1 && flag == 1 || isect == 0 && flag == -1)
         {
         /*
         NUMCELLS++;
@@ -529,7 +529,8 @@ int vtkExtractSelectedFrustum::RequestData(
           }
         }
 
-      if (isect == -1) //complete reject, remember these points are outside
+      /*
+        if (isect == -1) //complete reject, remember these points are outside
         {
         for (i=0; i < numCellPts; i++)
           {
@@ -537,6 +538,7 @@ int vtkExtractSelectedFrustum::RequestData(
           pointMap[ptId] = -2;
           }
         }
+      */
       }//for all cells
 
     /*
@@ -784,7 +786,7 @@ int vtkExtractSelectedFrustum::OverallBoundsTest(double *bounds)
 
 //--------------------------------------------------------------------------
 //Intersect the cell (with its associated bounds) with the clipping frustum.
-//Return 1 if partially inside, 0 or -1 if not inside.
+//Return 1 if at least partially inside, 0 otherwise.
 //Also return a distance to the near plane.
 int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
 {
@@ -838,7 +840,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       /*
       this->NumRejects++;
       */
-      return -1;
+      return 0;
       }
     pvid = this->np_vertids[pid][1];
     dist = plane->EvaluateFunction(verts[pvid]);
