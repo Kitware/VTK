@@ -143,6 +143,8 @@ protected:
 // Instantiate object with NULL filename.
 vtkPExodusIIReader::vtkPExodusIIReader()
 {
+  this->ProcRank = 0;
+  this->ProcSize = 1;
   // NB. SetController will initialize ProcSize and ProcRank
   this->Controller = 0;
   this->SetController( vtkMultiProcessController::GetGlobalController() );
