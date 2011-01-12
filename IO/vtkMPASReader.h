@@ -73,8 +73,6 @@ class vtkFloatArray;
 class vtkStdString;
 class vtkStringArray;
 
-class vtkInternals;
-
 class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {
  public:
@@ -179,8 +177,6 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   bool infoRequested;
   bool dataRequested;
 
-  vtkInternals *Internals;
-
   char tracerNames[MAX_VAR_NAME][MAX_VARS];
   int numDualCellVars;
   int numDualPointVars;
@@ -195,6 +191,9 @@ class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.
   void operator=(const vtkMPASReader&); // Not implemented.
+
+  class Internal;
+  Internal *Internals;
 
 };
 

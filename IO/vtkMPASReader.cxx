@@ -79,9 +79,9 @@ version available from Los Alamos National Laboratory.
 
 using namespace std;
 
-class vtkInternals {
+class vtkMPASReader::Internal {
 public:
-  vtkInternals() :
+  Internal() :
     ncFile(NULL),
     Time(NULL),
     nCells(NULL),
@@ -240,7 +240,7 @@ vtkStandardNewMacro(vtkMPASReader);
 
 vtkMPASReader::vtkMPASReader()
 {
-  this->Internals = new vtkInternals;
+  this->Internals = new vtkMPASReader::Internal;
 
   // Debugging
   //this->DebugOn();
