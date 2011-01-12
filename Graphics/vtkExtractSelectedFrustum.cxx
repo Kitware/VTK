@@ -475,7 +475,7 @@ int vtkExtractSelectedFrustum::RequestData(
       newCellPts->Reset();
       
       isect = this->ABoxFrustumIsect(bounds, cell);
-      if (isect == 1 && flag == 1 || isect == 0 && flag == -1)
+      if ((isect == 1 && flag == 1) || (isect == 0 && flag == -1))
         {
         /*
         NUMCELLS++;
