@@ -50,7 +50,6 @@
 #ifndef __vtkArrayWriter_h
 #define __vtkArrayWriter_h
 
-#include <vtkArrayData.h>
 #include <vtkWriter.h>
 
 class vtkArray;
