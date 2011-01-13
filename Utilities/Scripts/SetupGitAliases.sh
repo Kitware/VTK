@@ -1,30 +1,18 @@
 #!/usr/bin/env bash
 
-# Set up some useful git aliases, global aliases for general things
-echo -n "Would you like general Git aliases to be global? [y/N]:"
-read answer
-
-if [ "$answer" == "y" ]; then
-  global="--global"
-elif [ "$answer" == "yes" ]; then
-  global="--global"
-elif [ "$answer" == "Yes" ]; then
-  global="--global"
-else
-  global=""
-fi
+# Centralize project variables for each script
+project="VTK"
+projectUrl="vtk.org"
 
 GIT=git
-
-GITCONFIG="${GIT} config ${global}"
+GITCONFIG="${GIT} config"
 
 # General aliases that could be global
 ${GITCONFIG} alias.pullall "!sh -c \"git pull && git submodule update --init\""
 ${GITCONFIG} alias.prepush 'log --graph --stat origin/master..'
 
 # Staging aliases
-GITCONFIG="${GIT} config"
-stage_cmd='ssh git@vtk.org stage VTK'
+stage_cmd="ssh git@${projectUrl} stage ${project}"
 git_branch="\$(git symbolic-ref HEAD | sed -e 's|^refs/heads/||')"
 ${GITCONFIG} alias.stage-cmd "!${stage_cmd}"
 ${GITCONFIG} alias.stage-push "!sh -c \"git fetch stage --prune && git push stage HEAD\""
