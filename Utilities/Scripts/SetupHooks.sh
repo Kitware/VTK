@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
-# Run this script to set up the git hooks for committing changes to VTK.
+# Run this script to set up the git hooks for committing changes
 # For more information, see:
-#   http://www.vtk.org/Wiki/VTK/Git#Hooks
-#   http://www.vtk.org/Wiki/Git/Hooks
+#   http://public.kitware.com/Wiki/Git/Hooks
 
 die() {
-        echo 'Failure during hook setup' 1>&2
-        echo '-------------------------' 1>&2
-        echo '' 1>&2
-        echo "$@" 1>&2
-        exit 1
+  echo 'Failure during hook setup.' 1>&2
+  echo '--------------------------' 1>&2
+  echo '' 1>&2
+  echo "$@" 1>&2
+  exit 1
 }
+
+# Centralize project variables for each script
+project="VTK"
+projectUrl="vtk.org"
 
 u=$(cd "$(echo "$0"|sed 's/[^/]*$//')"; pwd)
 cd "$u/../../.git/hooks"
@@ -28,7 +31,7 @@ if GIT_DIR=.. git for-each-ref refs/remotes/origin/hooks 2>/dev/null | \
   grep -q '\<refs/remotes/origin/hooks$'; then
   git pull .. remotes/origin/hooks
 else
-  git pull http://vtk.org/VTK.git hooks || die "Downloading the hooks failed."
+  git pull http://${projectUrl}/${project}.git hooks || die "Downloading the hooks failed."
 fi
 cd ../..
 
