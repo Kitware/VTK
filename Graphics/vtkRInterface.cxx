@@ -23,7 +23,9 @@
 #undef HAVE_UINTPTR_T
 #ifdef HAVE_VTK_UINTPTR_T
 #define HAVE_UINTPTR_T HAVE_VTK_UINTPTR_T
+#ifndef WIN32
 #include <stdint.h>
+#endif
 #endif
 
 #include "vtkInformation.h"
@@ -84,7 +86,9 @@ public:
     R_CStackLimit = (uintptr_t)-1;
 #endif
 
+#ifndef WIN32
     R_Interactive = static_cast<Rboolean>(TRUE);
+#endif
     setup_Rmainloop();
 
     this->Rinitialized = 1;
