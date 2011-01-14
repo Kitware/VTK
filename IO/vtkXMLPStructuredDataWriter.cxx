@@ -85,8 +85,6 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 //----------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
 {
-  vtkDataSet* input = this->GetInputAsDataSet();
-  
   int extent[6];
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
   vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
@@ -95,9 +93,9 @@ vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
   et->SetGhostLevel(0);
   et->PieceToExtent();
   et->GetExtent(extent);
-  
+
   vtkXMLStructuredDataWriter* pWriter = this->CreateStructuredPieceWriter();
   pWriter->SetWriteExtent(extent);
-  
+
   return pWriter;
 }
