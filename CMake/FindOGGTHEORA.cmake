@@ -46,7 +46,7 @@ IF(NOT _OGGTHEORA_COMPILE_SUCCESS)
   MESSAGE(SEND_ERROR "Failed to compile ${_CURRENT_DIR}/TestOggTheoraSubsampling.c")
 ENDIF(NOT _OGGTHEORA_COMPILE_SUCCESS)
 
-INCLUDE(${_CURRENT_DIR}/FindPackageHandleStandardArgs.cmake)
+INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(OGGTHEORA
   "Could NOT find the ogg and theora libraries"
   OGGTHEORA_ogg_LIBRARY
