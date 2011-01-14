@@ -44,6 +44,8 @@ vtkColorLegend::vtkColorLegend()
   this->Callback = vtkSmartPointer<vtkCallbackCommand>::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(vtkColorLegend::OnScalarsToColorsModified);
+
+  this->TransferFunction = 0;
 }
 
 //-----------------------------------------------------------------------------
