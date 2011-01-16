@@ -2474,8 +2474,6 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode,
   vtkReebNode* nstart = this->GetNode(startingNode);
   vtkReebNode* nend = this->GetNode(endingNode);
 
-  vtkReebGraphIsSmaller(this,startingNode,endingNode,nstart,nend);
-
   if (!vtkReebGraphIsSmaller(this,startingNode,endingNode,nstart,nend))
     {
     vtkReebGraphSwapVars(int,startingNode,endingNode);
