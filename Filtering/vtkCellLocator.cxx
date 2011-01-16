@@ -1391,7 +1391,7 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
   vtkCellArray *polys;
   int l, i, j, k, ii, boundary[3];
   vtkIdType idx = 0;
-  vtkIdList *inside, *Inside[3];
+  vtkIdList *inside, *Inside[3] = {0, 0, 0};
   int numDivs=1;
 
   this->BuildLocatorIfNeeded();

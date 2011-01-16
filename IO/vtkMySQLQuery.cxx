@@ -715,9 +715,6 @@ vtkMySQLQuery::GetFieldType(int column)
       return VTK_VOID;
       }
 
-    MYSQL *db = dbContainer->Private->Connection;
-    assert(db != NULL);
-
     MYSQL_FIELD *field = mysql_fetch_field_direct(this->Internals->Result,
                                                   column);
     if (field == NULL)
