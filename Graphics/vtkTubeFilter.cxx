@@ -302,7 +302,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
   int i, k;
   double p[3];
   double pNext[3];
-  double sNext[3];
+  double sNext[3] = {0.0, 0.0, 0.0};
   double sPrev[3];
   double startCapNorm[3], endCapNorm[3];
   double n[3];

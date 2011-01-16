@@ -3509,7 +3509,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
     }
 
   //  Find the face with points 0 and 1 in them.
-  int f01[4];
+  int f01[4] = {-1, -1, -1, -1};
   for (int j = 1; j < 6; j++)
     {
     int flag0 = 0;
@@ -3547,7 +3547,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
     }
 
   //  Find the face with points 0 and 3 in them.
-  int f03[4];
+  int f03[4] =  {-1, -1, -1, -1};
   for (int j = 1; j < 6; j++)
     {
     int flag0 = 0;
@@ -3780,7 +3780,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
     }
 
   //  Find the quad face with points 0 and 2 in them.
-  int w02[4];
+  int w02[4] = {-1, -1, -1, -1};
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
     {
     if (this->Cells->value[i].faces[j] != base && 
