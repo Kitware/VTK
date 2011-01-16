@@ -361,7 +361,7 @@ int vtkArrayWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformati
 
 void vtkArrayWriter::WriteData()
 {
-  this->Write(this->FileName ? this->FileName : "", this->Binary) ? 1 : 0;
+  this->Write(this->FileName ? this->FileName : "", this->Binary > 0 ? true : false);
 }
 
 int vtkArrayWriter::Write()

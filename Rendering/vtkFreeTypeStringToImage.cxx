@@ -102,7 +102,6 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
   return this->Implementation->FreeType->RenderString(property,
                                                       string,
                                                       data);
-  return 0;
 }
 
 int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
@@ -117,7 +116,6 @@ int vtkFreeTypeStringToImage::RenderString(vtkTextProperty *property,
     }
 
   return this->Implementation->FreeType->RenderString(property, string, data);
-  return 0;
 }
 
 //-----------------------------------------------------------------------------
