@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2009-07-15 11:27:00 barre>
+# Time-stamp: <2011-01-16 21:15:53 barre>
 #
 # Convert VTK headers to doxygen format
 #
@@ -527,7 +527,7 @@ foreach my $source (@files) {
             # pertaining to the same description.
 
             my @declarations = ();
-            while ($line && $line =~ /\s+\S/) {
+            while ($line && $line =~ /\s*\S/) {
                 push @declarations, $line;
                 $line = shift @headerfile
             }
