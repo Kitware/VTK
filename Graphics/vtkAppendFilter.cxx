@@ -32,6 +32,7 @@ vtkStandardNewMacro(vtkAppendFilter);
 vtkAppendFilter::vtkAppendFilter()
 {
   this->InputList = NULL;
+  this->MergePoints = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -98,7 +99,8 @@ int vtkAppendFilter::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-   if ( inputVector[0]->GetNumberOfInformationObjects() > 0 )
+   if (this->MergePoints == 1 &&
+     inputVector[0]->GetNumberOfInformationObjects() > 0 )
      {
      vtkDataSet * tempData = 
      vtkDataSet::SafeDownCast
@@ -620,4 +622,5 @@ int vtkAppendFilter::FillInputPortInformation(int, vtkInformation *info)
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "MergePoints:" << (this->MergePoints?"On":"Off") << endl;
 }
