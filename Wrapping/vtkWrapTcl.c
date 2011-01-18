@@ -1100,14 +1100,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->Name,data->Name);
 
   fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name,data->Name);
-  fprintf(fp,"  int    tempi;\n");
-  fprintf(fp,"  double tempd;\n");
-  fprintf(fp,"  static char temps[80];\n");
-  fprintf(fp,"  int    error;\n\n");
-  fprintf(fp,"  error = 0; error = error;\n");
-  fprintf(fp,"  tempi = 0; tempi = tempi;\n");
-  fprintf(fp,"  tempd = 0; tempd = tempd;\n");
-  fprintf(fp,"  temps[0] = 0; temps[0] = temps[0];\n\n");
+  fprintf(fp,"  int    tempi = 0;      (void)tempi;\n");
+  fprintf(fp,"  double tempd = 0.0;    (void)tempd;\n");
+  fprintf(fp,"  static char temps[80]; (void)temps;\n");
+  fprintf(fp,"  int    error = 0;      (void)error;\n");
+  fprintf(fp,"  temps[0] = 0;\n");
+  fprintf(fp,"\n");
 
   fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp,const_cast<char *>(\"Could not find requested method.\"), TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
 
