@@ -45,6 +45,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VIEWS)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)
     SET(TestMultipleScalarsToColorsError 25)
+    SET(TestParallelCoordinates 15)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)
