@@ -978,32 +978,32 @@ ENDIF(BUILD_TESTING OR VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
-# the VTKData repository from CVS, issue the following commands:
+# the VTKData repository from git, issue the following command:
 #
-# cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData login
-# (respond with password vtk)
-# cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData checkout VTKData
+# git clone git://vtk.org/VTKData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKData.git
 FIND_PATH(VTK_DATA_ROOT VTKData.readme
   ${VTK_SOURCE_DIR}/VTKData
   ${VTK_SOURCE_DIR}/../VTKData
   ${VTK_SOURCE_DIR}/../../VTKData
   $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To obtain from CVS: \"cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK co VTKData\"")
+  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
+  )
 
 #-----------------------------------------------------------------------------
-# Configure the default VTK__LARGE_DATA_ROOT for the location of VTKLargeData.
+# Configure the default VTK_LARGE_DATA_ROOT for the location of VTKLargeData.
+# To get the VTKLargeData repository from git, issue the following command:
+#
+# git clone git://vtk.org/VTKLargeData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKLargeData.git
 FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
   ${VTK_SOURCE_DIR}/VTKLargeData
   ${VTK_SOURCE_DIR}/../VTKLargeData
   ${VTK_SOURCE_DIR}/../../VTKLargeData
   $ENV{VTK_LARGE_DATA_ROOT}
-  DOC "The repository for large data used for testing.  To check out this repository from CVS, first run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK login
-
-(respond with password vtk) and then run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK checkout VTKLargeData"
+  DOC "The repository for large data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKLargeData.git\""
   )
 
 #-----------------------------------------------------------------------------
