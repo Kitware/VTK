@@ -485,6 +485,13 @@ IF(PYTHON_EXECUTABLE)
     SET(VTK_INSTALL_NO_PYTHON 1)
   ENDIF (VTK_INSTALL_PYTHON_USING_CMAKE)
 
+  IF(VTK_INSTALL_PYTHON_USING_CMAKE)
+    # Install python module directory (*.py and *.pyd)
+    INSTALL(DIRECTORY "${VTK_BINARY_DIR}/Wrapping/Python/vtk"
+      DESTINATION "${VTK_INSTALL_BIN_DIR_CM24}/Python" COMPONENT RuntimeLibraries
+      USE_SOURCE_PERMISSIONS)
+  ENDIF(VTK_INSTALL_PYTHON_USING_CMAKE)
+
   # Add a rule to use python distutils to install the python wrappers.
   IF(NOT VTK_INSTALL_NO_PYTHON)
     SET(DOLLAR "$")

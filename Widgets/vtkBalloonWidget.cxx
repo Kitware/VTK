@@ -184,6 +184,7 @@ void vtkBalloonWidget::AddBalloon(vtkProp *prop, vtkStdString *str,
     (*this->PropMap)[prop] = vtkBalloon(str,img);
     if ( prop != NULL )
       {
+      this->Picker->DeletePickList(prop); //ensure only entered once
       this->Picker->AddPickList(prop);
       }
     this->Modified();
@@ -238,6 +239,31 @@ vtkImageData *vtkBalloonWidget::GetBalloonImage(vtkProp *prop)
     return (*iter).second.Image;
     }
   return NULL;
+}
+
+//-------------------------------------------------------------------------
+void vtkBalloonWidget::
+UpdateBalloonString(vtkProp *prop, const char *str)
+{
+  vtkPropMapIterator iter = this->PropMap->find(prop);
+  if ( iter != this->PropMap->end() )
+    {
+    (*iter).second.Text = str;
+    this->WidgetRep->Modified();
+    }
+}
+
+
+//-------------------------------------------------------------------------
+void vtkBalloonWidget::
+UpdateBalloonImage(vtkProp *prop, vtkImageData *image)
+{
+  vtkPropMapIterator iter = this->PropMap->find(prop);
+  if ( iter != this->PropMap->end() )
+    {
+    (*iter).second.Image = image;
+    this->WidgetRep->Modified();
+    }
 }
 
 

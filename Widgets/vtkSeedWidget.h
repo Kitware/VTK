@@ -111,6 +111,11 @@ public:
     }
 
   // Description:
+  // Return the representation as a vtkSeedRepresentation.
+  vtkSeedRepresentation *GetSeedRepresentation()
+    {return reinterpret_cast<vtkSeedRepresentation*>(this->WidgetRep);}
+
+  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 

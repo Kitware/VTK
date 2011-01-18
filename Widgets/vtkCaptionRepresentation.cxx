@@ -50,7 +50,7 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
   this->CaptionActor2D->BorderOn();
   this->CaptionActor2D->LeaderOn();
   this->CaptionActor2D->ThreeDimensionalLeaderOn();
-  
+
   this->CaptionGlyph = vtkConeSource::New();
   this->CaptionGlyph->SetResolution(6);
   this->CaptionGlyph->SetCenter(-0.5,0,0);
@@ -119,6 +119,7 @@ void vtkCaptionRepresentation::SetAnchorRepresentation(vtkPointHandleRepresentat
 void vtkCaptionRepresentation::SetAnchorPosition(double pos[3])
 {
   this->CaptionActor2D->GetAttachmentPointCoordinate()->SetValue(pos);
+  this->AnchorRepresentation->SetWorldPosition(pos);
 }
 
 //-------------------------------------------------------------------------
@@ -130,17 +131,18 @@ void vtkCaptionRepresentation::GetAnchorPosition(double pos[3])
 //-------------------------------------------------------------------------
 void vtkCaptionRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
+       this->CaptionActor2D->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
 
     // If the text actor's text scaling is off, we still want to be able
-    // to change the caption's text size programmatically by changing a 
-    // *relative* font size factor. We will also need to change the  
+    // to change the caption's text size programmatically by changing a
+    // *relative* font size factor. We will also need to change the
     // caption's boundary size accordingly.
 
-    if(!this->Moving && this->CaptionActor2D 
+    if(!this->Moving && this->CaptionActor2D
         && this->CaptionActor2D->GetCaption()
         && (this->CaptionActor2D->GetTextActor()->GetTextScaleMode()
             == vtkTextActor::TEXT_SCALE_MODE_NONE ))
@@ -152,8 +154,8 @@ void vtkCaptionRepresentation::BuildRepresentation()
       tprop->ShallowCopy(this->CaptionActor2D->GetCaptionTextProperty());
       textMapper->SetInput(this->CaptionActor2D->GetCaption());
       int textsize[2];
-      int fsize = vtkTextMapper::SetRelativeFontSize(textMapper, 
-        this->Renderer, this->Renderer->GetSize(), textsize, 
+      int fsize = vtkTextMapper::SetRelativeFontSize(textMapper,
+        this->Renderer, this->Renderer->GetSize(), textsize,
         0.015*this->FontFactor);
       this->CaptionActor2D->GetCaptionTextProperty()->SetFontSize(fsize);
       textMapper->Delete();
@@ -190,7 +192,7 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
       }
 
     int text_bbox[4];
-    ftu->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(), 
+    ftu->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(),
       this->CaptionActor2D->GetCaption(), text_bbox);
     if (!ftu->IsBoundingBoxValid(text_bbox))
       {
@@ -277,7 +279,7 @@ int vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
 void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Caption Actor: " << this->CaptionActor2D << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
 

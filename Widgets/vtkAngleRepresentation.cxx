@@ -28,7 +28,6 @@
 
 vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
-
 //----------------------------------------------------------------------
 vtkAngleRepresentation::vtkAngleRepresentation()
 {
@@ -39,12 +38,12 @@ vtkAngleRepresentation::vtkAngleRepresentation()
 
   this->Tolerance = 5;
   this->Placed = 0;
-  
+
   this->Ray1Visibility = 1;
   this->Ray2Visibility = 1;
   this->ArcVisibility = 1;
-  
-  this->LabelFormat = new char[8]; 
+
+  this->LabelFormat = new char[8];
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 }
 
@@ -68,14 +67,14 @@ vtkAngleRepresentation::~vtkAngleRepresentation()
     this->Point2Representation->Delete();
     }
 
-  if (this->LabelFormat) 
+  if (this->LabelFormat)
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
     }
 }
 
-  
+
 //----------------------------------------------------------------------
 void vtkAngleRepresentation::InstantiateHandleRepresentation()
 {
@@ -84,54 +83,48 @@ void vtkAngleRepresentation::InstantiateHandleRepresentation()
     this->Point1Representation = this->HandleRepresentation->NewInstance();
     this->Point1Representation->ShallowCopy(this->HandleRepresentation);
     }
-  
+
   if ( ! this->CenterRepresentation )
     {
     this->CenterRepresentation = this->HandleRepresentation->NewInstance();
     this->CenterRepresentation->ShallowCopy(this->HandleRepresentation);
     }
-  
+
   if ( ! this->Point2Representation )
     {
     this->Point2Representation = this->HandleRepresentation->NewInstance();
     this->Point2Representation->ShallowCopy(this->HandleRepresentation);
     }
 }
-  
-//----------------------------------------------------------------------
-int vtkAngleRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
-{
-  // See if we are near one of the end points or outside
-  double pos1[3], pos2[3], center[3];
-  this->GetPoint1DisplayPosition(pos1);
-  this->GetCenterDisplayPosition(center);
-  this->GetPoint2DisplayPosition(pos2);
-  
-  double p1[3], p2[3], c[3], xyz[3];
-  xyz[0] = static_cast<double>(X);
-  xyz[1] = static_cast<double>(Y);
-  p1[0] = static_cast<double>(pos1[0]);
-  p1[1] = static_cast<double>(pos1[1]);
-  c[0] = static_cast<double>(center[0]);
-  c[1] = static_cast<double>(center[1]);
-  p2[0] = static_cast<double>(pos2[0]);
-  p2[1] = static_cast<double>(pos2[1]);
-  xyz[2] = p1[2] = p2[2] = c[2] = 0.0;
 
-  double tol2 = this->Tolerance*this->Tolerance;
-  if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
+//----------------------------------------------------------------------
+int vtkAngleRepresentation::
+ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
+{
+  if (this->Point1Representation == NULL ||
+      this->CenterRepresentation == NULL ||
+      this->Point2Representation == NULL )
+    {
+    this->InteractionState = vtkAngleRepresentation::Outside;
+    return this->InteractionState;
+    }
+
+  int p1State = this->Point1Representation->GetInteractionState();
+  int cState = this->CenterRepresentation->GetInteractionState();
+  int p2State = this->Point2Representation->GetInteractionState();
+  if ( p1State == vtkHandleRepresentation::Nearby )
     {
     this->InteractionState = vtkAngleRepresentation::NearP1;
     }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,c) <= tol2 )
+  else if ( cState == vtkHandleRepresentation::Nearby )
     {
     this->InteractionState = vtkAngleRepresentation::NearCenter;
     }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
+  else if ( p2State == vtkHandleRepresentation::Nearby )
     {
     this->InteractionState = vtkAngleRepresentation::NearP2;
     }
-  else 
+  else
     {
     this->InteractionState = vtkAngleRepresentation::Outside;
     }
@@ -175,11 +168,10 @@ void vtkAngleRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation::BuildRepresentation()
 {
-  // We don't worry about mtime 'cause the subclass deals with that
-  // Make sure the handles are up to date
-  this->Point1Representation->BuildRepresentation();
-  this->CenterRepresentation->BuildRepresentation();
-  this->Point2Representation->BuildRepresentation();
+  // Make sure that tolerance is consistent between handles and this representation
+  this->Point1Representation->SetTolerance(this->Tolerance);
+  this->CenterRepresentation->SetTolerance(this->Tolerance);
+  this->Point2Representation->SetTolerance(this->Tolerance);
 }
 
 //----------------------------------------------------------------------
@@ -187,7 +179,7 @@ void vtkAngleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Angle: " << this->GetAngle() << "\n";
   os << indent << "Tolerance: " << this->Tolerance <<"\n";
   os << indent << "Ray1 Visibility: " << (this->Ray1Visibility ? "On\n" : "Off\n");

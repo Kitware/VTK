@@ -77,6 +77,11 @@ vtkHandleRepresentation *vtkSeedRepresentation
     }
   else //create one
     {
+    if (this->HandleRepresentation == NULL)
+      {
+      vtkErrorMacro("GetHandleRepresentation " << num << ", no handle representation has been set yet, cannot create a new handle.");
+      return NULL;
+      }
     vtkHandleRepresentation *rep = this->HandleRepresentation->NewInstance();
     rep->DeepCopy(this->HandleRepresentation);
     this->Handles->push_back( rep );
@@ -130,26 +135,20 @@ int vtkSeedRepresentation::GetNumberOfSeeds()
 }
 
 //----------------------------------------------------------------------
-int vtkSeedRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkSeedRepresentation::
+ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   // Loop over all the seeds to see if the point is close to any of them.
-  double xyz[3], pos[3];
-  double tol2 = this->Tolerance*this->Tolerance;
-  xyz[0] = static_cast<double>(X);
-  xyz[1] = static_cast<double>(Y);
-  xyz[2] = 0.0;
-
   int i;
   vtkHandleListIterator iter;
   for ( i = 0, iter = this->Handles->begin(); iter != this->Handles->end(); ++iter, ++i )
     {
     if ( *iter != NULL )
       {
-      (*iter)->GetDisplayPosition(pos);
-      if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
+      if ( (*iter)->GetInteractionState() != vtkHandleRepresentation::Outside )
         {
-        this->InteractionState = vtkSeedRepresentation::NearSeed;
         this->ActiveHandle = i;
+        this->InteractionState = vtkSeedRepresentation::NearSeed;
         return this->InteractionState;
         }
       }
@@ -176,7 +175,13 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
 
   vtkHandleRepresentation *rep = this->GetHandleRepresentation(
     static_cast<int>(this->Handles->size()));
+  if (rep == NULL)
+    {
+    vtkErrorMacro("CreateHandle: no handle representation set yet! Cannot create a new handle.");
+    return -1;
+    }
   rep->SetDisplayPosition(pos);
+  rep->SetTolerance(this->Tolerance); //needed to ensure that picking is consistent
   this->ActiveHandle = static_cast<int>(this->Handles->size()) - 1;
   return this->ActiveHandle;
 }
