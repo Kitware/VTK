@@ -225,7 +225,6 @@ int vtkAxesTransformRepresentation::ComputeInteractionState(int X, int Y, int vt
   if ( p1State == vtkHandleRepresentation::Nearby )
     {
     this->InteractionState = vtkAxesTransformRepresentation::OnOrigin;
-//     this->SetRepresentationState(vtkAxesTransformRepresentation::OnOrigin);
     }
   else
     {
