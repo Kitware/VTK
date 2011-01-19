@@ -497,7 +497,6 @@
 
 /// test vtkWidgetRepresentation methods
 #define EXERCISE_BASIC_REPRESENTATION_METHODS(className, object)   \
-  {                                                                     \
     EXERCISE_BASIC_PROP_METHODS(className, object);                     \
     std::cout << "Creating a renderer and a default widget..." << std::endl; \
     vtkSmartPointer< vtkCamera > cam1 =  vtkSmartPointer< vtkCamera >::New(); \
@@ -548,9 +547,8 @@
     std::cout << "Trying to get back to init state for further testing." << std::endl; \
     object->SetPlaceFactor(0.5);                                        \
     object->SetHandleSize(0.05);                                        \
-    std::cout << "Done basic rep methods" << std::endl;                 \
-                                                                        \
-  }
+    std::cout << "Done basic rep methods" << std::endl;
+
 
 /// test vtkAngleRepresentation methods
 #define EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(className, object)  \
@@ -731,6 +729,24 @@
     int interactionState = object->ComputeInteractionState(10, 10);     \
     std::cout << "Interaction state = " << interactionState << std::endl; \
   }
+
+/// test vtkAngleRepresentation methods
+#define EXERCISE_BASIC_IMPLICIT_PLANE_REPRESENTATION_METHODS(className, object)  \
+  {                                                                     \
+    EXERCISE_BASIC_REPRESENTATION_METHODS(className, object);           \
+                                                                        \
+    TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Origin, -100, 100);        \
+    TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Normal, -1, 1);            \
+    TEST_SET_GET_BOOLEAN( node1, NormalToXAxis);                        \
+    TEST_SET_GET_BOOLEAN( node1, NormalToYAxis);                        \
+    TEST_SET_GET_BOOLEAN( node1, NormalToZAxis);                        \
+    TEST_SET_GET_BOOLEAN( node1, Tubing);                               \
+    TEST_SET_GET_BOOLEAN( node1, DrawPlane);                            \
+    TEST_SET_GET_BOOLEAN( node1, OutlineTranslation);                   \
+    TEST_SET_GET_BOOLEAN( node1, OutsideBounds);                        \
+    TEST_SET_GET_BOOLEAN( node1, ScaleEnabled);                         \
+  }
+
 
 /// test objects that have Property and SelectedProperty set/get, with vtkProperty
 #define TEST_SET_GET_PROPERTY(object, variable)\

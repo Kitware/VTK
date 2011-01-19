@@ -175,7 +175,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
     }
   else
     {
-    for (unsigned int i = 0; i < da->GetNumberOfTuples(); i++)
+    for (vtkIdType i = 0; i < da->GetNumberOfTuples(); i++)
       {
       double val[3];
       da->GetTupleValue(i, val);
@@ -202,7 +202,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
     }
   else
     {
-    for (unsigned int i = 0; i < da->GetNumberOfTuples(); i++)
+    for (vtkIdType i = 0; i < da->GetNumberOfTuples(); i++)
       {
       double val[3];
       da->GetTupleValue(i, val);

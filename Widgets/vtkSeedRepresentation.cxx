@@ -136,7 +136,7 @@ int vtkSeedRepresentation::GetNumberOfSeeds()
 
 //----------------------------------------------------------------------
 int vtkSeedRepresentation::
-ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
   // Loop over all the seeds to see if the point is close to any of them.
   int i;
