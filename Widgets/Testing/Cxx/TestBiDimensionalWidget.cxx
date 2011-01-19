@@ -1088,7 +1088,7 @@ const char BiDimensionalWidgetEventLog[] =
 class vtkBiDimensionalCallback : public vtkCommand
 {
 public:
-  static vtkBiDimensionalCallback *New() 
+  static vtkBiDimensionalCallback *New()
   { return new vtkBiDimensionalCallback; }
   virtual void Execute(vtkObject *, unsigned long, void*)
   {
@@ -1101,7 +1101,7 @@ int TestBiDimensionalWidget( int argc, char *argv[] )
 {
   // Create the pipeline
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
- 
+
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
@@ -1125,17 +1125,17 @@ int TestBiDimensionalWidget( int argc, char *argv[] )
   shifter->SetInputConnection(v16->GetOutputPort());
   shifter->ReleaseDataFlagOff();
   shifter->Update();
-  
+
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
   imageActor->SetInput(shifter->GetOutput());
   imageActor->VisibilityOn();
   imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
   imageActor->InterpolateOn();
-    
+
   double bounds[6];
   imageActor->GetBounds(bounds);
-    
+
   // Create the RenderWindow, Renderer and both Actors
   //
   vtkSmartPointer<vtkRenderer> ren1 =
@@ -1153,7 +1153,7 @@ int TestBiDimensionalWidget( int argc, char *argv[] )
   iren->SetInteractorStyle(style);
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
-  // and the widget representation that defines how the widget appears in the scene 
+  // and the widget representation that defines how the widget appears in the scene
   // (i.e., matters pertaining to geometry).
   vtkSmartPointer<vtkBiDimensionalRepresentation2D> rep =
     vtkSmartPointer<vtkBiDimensionalRepresentation2D>::New();
