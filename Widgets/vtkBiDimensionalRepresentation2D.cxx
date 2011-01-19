@@ -38,24 +38,8 @@ vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
 //----------------------------------------------------------------------
-vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
+vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D() : vtkBiDimensionalRepresentation()
 {
-  // By default, use one of these handles
-  this->HandleRepresentation  = vtkPointHandleRepresentation2D::New();
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->Point3Representation = NULL;
-  this->Point4Representation = NULL;
-  this->InstantiateHandleRepresentation();
-
-  this->Modifier = 0;
-
-  this->Tolerance = 5;
-  this->Placed = 0;
-
-  this->Line1Visibility = 1;
-  this->Line2Visibility = 1;
-
   // Create the geometry for the two axes
   this->LineCells = vtkCellArray::New();
   this->LineCells->InsertNextCell(2);
@@ -90,14 +74,6 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
   this->TextActor = vtkActor2D::New();
   this->TextActor->SetMapper(this->TextMapper);
   this->TextActor->VisibilityOff();
-
-  this->LabelFormat = new char[6];
-  sprintf(this->LabelFormat,"%s","%0.3g");
-
-  this->ID = VTK_UNSIGNED_LONG_MAX;
-  this->IDInitialized = 0;
-
-  this->ShowLabelAboveWidget = 1;
 }
 
 //----------------------------------------------------------------------
@@ -115,7 +91,7 @@ vtkBiDimensionalRepresentation2D::~vtkBiDimensionalRepresentation2D()
   this->TextActor->Delete();
 }
 
-  
+
 //----------------------------------------------------------------------
 int vtkBiDimensionalRepresentation2D::
 ComputeInteractionState(int X, int Y, int modify)
@@ -161,7 +137,7 @@ ComputeInteractionState(int X, int Y, int modify)
   this->GetPoint2DisplayPosition(pos2);
   this->GetPoint3DisplayPosition(pos3);
   this->GetPoint4DisplayPosition(pos4);
-  
+
   double p1[3], p2[3], p3[3], p4[3], xyz[3];
   double t, closest[3];
   xyz[0] = static_cast<double>(X);
@@ -315,7 +291,7 @@ ComputeInteractionState(int X, int Y, int modify)
     this->InteractionState = vtkBiDimensionalRepresentation2D::Outside;
     this->Modifier = 0;
     }
-  
+
   return this->InteractionState;
 }
 
@@ -331,7 +307,7 @@ void vtkBiDimensionalRepresentation2D::StartWidgetDefinition(double e[2])
   this->SetPoint2DisplayPosition(pos);
   this->SetPoint3DisplayPosition(pos);
   this->SetPoint4DisplayPosition(pos);
-  
+
   this->StartEventPosition[0] = pos[0];
   this->StartEventPosition[1] = pos[1];
   this->StartEventPosition[2] = pos[2];
@@ -344,7 +320,7 @@ void vtkBiDimensionalRepresentation2D::Point2WidgetInteraction(double e[2])
   pos[0] = e[0];
   pos[1] = e[1];
   pos[2] = 0.0;
-  
+
   // Make sure that the two points are not coincident
   this->GetPoint1DisplayPosition(p1);
   if ( ((pos[0]-p1[0])*(pos[0]-p1[0]) + (pos[1]-p1[1])*(pos[1]-p1[1])) < 2 )
@@ -363,7 +339,7 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
   double p1[3], p2[3], p3[3], p4[3];
   double slope1[3], slope2[3];
 
-  // Start by getting the coordinates (P1,P2) defining Line1. Also get 
+  // Start by getting the coordinates (P1,P2) defining Line1. Also get
   // characterisitics of Line1 including its slope, etc.
   this->GetPoint1WorldPosition(p1);
   this->GetPoint2WorldPosition(p2);
@@ -373,7 +349,7 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
   slope2[1] =  slope1[0];
   slope2[2] = 0.0;
   vtkMath::Normalize(slope2);
-  
+
   // The current position of P3 is constrained to lie along Line1. Also,
   // P4 is placed on the opposite side of Line1.
   double pw[4], t, closest[3];
@@ -384,7 +360,7 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
     this->Renderer->GetWorldPoint(pw);
     }
   double dist = sqrt(vtkLine::DistanceToLine(pw,p1,p2,t,closest));
-  
+
   // Set the positions of P3 and P4.
   p3[0] = closest[0] + dist*slope2[0];
   p3[1] = closest[1] + dist*slope2[1];
@@ -426,11 +402,11 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
   vtkLine::Intersection(this->P1World,this->P2World,
                         this->P3World,this->P4World,
                         this->T21,this->T43);
-  
+
   // Compute the center point
   for (i=0; i<3; i++)
     {
-    this->CenterWorld[i] = ((this->P1World[i] + this->T21*this->P21World[i]) + 
+    this->CenterWorld[i] = ((this->P1World[i] + this->T21*this->P21World[i]) +
                             (this->P3World[i] + this->T43*this->P43World[i]))/2.0;
     }
 }
@@ -439,24 +415,24 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
 // This handles all the nasty special cases when the length of the arms of the
 // bidimensional widget become zero. Basically the method prevents the arms
 // from getting too short.
-void vtkBiDimensionalRepresentation2D::ProjectOrthogonalPoint(double x[4], double y[3], double x1[3], double x2[3], 
+void vtkBiDimensionalRepresentation2D::ProjectOrthogonalPoint(double x[4], double y[3], double x1[3], double x2[3],
                                                               double x21[3], double dir, double xP[3])
 {
   double t, closest[3], slope[3], dist;
-  
+
   // determine the distance from the other (orthogonal) line
   dist = dir * sqrt(vtkLine::DistanceToLine(x,x1,x2,t,closest));
 
-  // get the closest point on the other line, use its "mate" point to define the projection point, 
+  // get the closest point on the other line, use its "mate" point to define the projection point,
   // this keeps everything orthogonal.
   vtkLine::DistanceToLine(y,x1,x2,t,closest);
-  
-  // Project the point "dist" orthogonal to ray x21. 
+
+  // Project the point "dist" orthogonal to ray x21.
   // Define an orthogonal line.
   slope[0] = -x21[1];
   slope[1] =  x21[0];
   slope[2] = 0.0;
-  
+
   // Project out the right distance along the calculated slope
   vtkMath::Normalize(slope);
   xP[0] = closest[0] + dist*slope[0];
@@ -513,7 +489,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   this->Renderer->SetDisplayPoint(e[0],e[1],0.0);
   this->Renderer->DisplayToWorld();
   this->Renderer->GetWorldPoint(pw);
-  
+
   // depending on the state, perform different operations
   if ( this->InteractionState == OnCenter )
     {
@@ -552,7 +528,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
     double theta2 = atan2(p2c[1],p2c[0]);
     double theta3 = atan2(p3c[1],p3c[0]);
     double theta4 = atan2(p4c[1],p4c[0]);
-    
+
     //rotate the four points
     p1[0] = this->CenterWorld[0] + r1*cos(theta+theta1);
     p1[1] = this->CenterWorld[1] + r1*sin(theta+theta1);
@@ -625,7 +601,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
        this->Point3Representation->GetMTime() > this->BuildTime ||
@@ -702,7 +678,7 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
 
     // Adjust the font size
     int stringSize[2], *winSize = this->Renderer->GetSize();
-    vtkTextMapper::SetRelativeFontSize(this->TextMapper, this->Renderer, winSize, 
+    vtkTextMapper::SetRelativeFontSize(this->TextMapper, this->Renderer, winSize,
                                        stringSize, 0.015);
 
     int maxX = VTK_INT_MIN, maxY = VTK_INT_MIN;
@@ -757,7 +733,7 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
       {
       this->TextActor->SetPosition(minX - textSize[0]/2, minY-(textSize[1]+9));
       }
-    
+
     this->BuildTime.Modified();
     }
 }
@@ -849,7 +825,7 @@ void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->TextProperty )
     {
     os << indent << "Text Property:\n";
