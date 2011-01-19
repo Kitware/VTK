@@ -32,7 +32,7 @@
 vtkStandardNewMacro(vtkBalloonWidget);
 
 //-- Define the PIMPLd array of vtkProp and vtkString --
-struct vtkBalloon 
+struct vtkBalloon
 {
   vtkStdString Text;
   vtkImageData *Image;
@@ -66,6 +66,14 @@ struct vtkBalloon
   void operator=(const vtkBalloon &balloon)
     {
       this->Text = balloon.Text;
+
+      // Don't leak if we already have an image.
+      if( this->Image )
+        {
+        this->Image->UnRegister(NULL);
+        this->Image = NULL;
+        }
+
       this->Image = balloon.Image;
       if ( this->Image )
         {
@@ -87,7 +95,7 @@ struct vtkBalloon
     {
       return !(*this == balloon);
     }
-};  
+};
 
 
 class vtkPropMap : public vtkstd::map<vtkProp*,vtkBalloon> {};
@@ -99,7 +107,7 @@ vtkBalloonWidget::vtkBalloonWidget()
 {
   this->Picker = vtkPropPicker::New();
   this->Picker->PickFromListOn();
-  
+
   this->CurrentProp = NULL;
   this->PropMap = new vtkPropMap;
 }
@@ -114,7 +122,8 @@ vtkBalloonWidget::~vtkBalloonWidget()
     this->CurrentProp->Delete();
     this->CurrentProp = NULL;
     }
-  
+
+  this->PropMap->clear();
   delete this->PropMap;
 }
 
@@ -283,7 +292,7 @@ int vtkBalloonWidget::SubclassHoverAction()
   vtkAssemblyPath *path = this->Picker->GetPath();
   if ( path != NULL )
     {
-    vtkPropMapIterator iter = 
+    vtkPropMapIterator iter =
       this->PropMap->find(path->GetFirstNode()->GetViewProp());
     if ( iter != this->PropMap->end() )
       {
@@ -318,7 +327,7 @@ int vtkBalloonWidget::SubclassEndHoverAction()
 void vtkBalloonWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Current Prop: ";
   if ( this->CurrentProp )
     {
