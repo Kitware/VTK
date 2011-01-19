@@ -18,6 +18,7 @@
 #include "vtkHandleWidget.h"
 #include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
+#include "vtkRendererCollection.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
@@ -70,23 +71,39 @@ vtkAxesTransformWidget::~vtkAxesTransformWidget()
 //----------------------------------------------------------------------
 void vtkAxesTransformWidget::SetEnabled(int enabling)
 {
-  // We do this step first because it sets the CurrentRenderer
-  this->Superclass::SetEnabled(enabling);
-
   // We defer enabling the handles until the selection process begins
   if ( enabling )
     {
+
+    if ( ! this->CurrentRenderer )
+      {
+      int X=this->Interactor->GetEventPosition()[0];
+      int Y=this->Interactor->GetEventPosition()[1];
+
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
+
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
+      }
+
     // Don't actually turn these on until cursor is near the end points or the line.
     this->CreateDefaultRepresentation();
-    this->OriginWidget->SetRepresentation(reinterpret_cast<vtkAxesTransformRepresentation*>
-                                          (this->WidgetRep)->GetOriginRepresentation());
+    vtkHandleRepresentation * originRep = reinterpret_cast<vtkAxesTransformRepresentation*>
+                                          (this->WidgetRep)->GetOriginRepresentation();
+    originRep->SetRenderer(this->CurrentRenderer);
+    this->OriginWidget->SetRepresentation(originRep);
     this->OriginWidget->SetInteractor(this->Interactor);
-    this->OriginWidget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
 
-    this->SelectionWidget->SetRepresentation(reinterpret_cast<vtkAxesTransformRepresentation*>
-                                          (this->WidgetRep)->GetSelectionRepresentation());
+    vtkHandleRepresentation * selectionRep = reinterpret_cast<vtkAxesTransformRepresentation*>
+                                          (this->WidgetRep)->GetSelectionRepresentation();
+    selectionRep->SetRenderer(this->CurrentRenderer);
+    this->SelectionWidget->SetRepresentation(selectionRep);
     this->SelectionWidget->SetInteractor(this->Interactor);
-    this->SelectionWidget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
+
+    // We do this step first because it sets the CurrentRenderer
+    this->Superclass::SetEnabled(enabling);
     }
   else
     {
