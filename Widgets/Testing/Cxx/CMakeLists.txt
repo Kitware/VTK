@@ -12,15 +12,16 @@ SET(MyTests
 #  TestAffineWidget.cxx
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
-  TestAxesTransformWidget.cxx
+#  TestAxesTransformWidget.cxx
   TestBalloonWidget.cxx
-#  TestBorderWidget.cxx
-#  TestCameraWidget.cxx
-  TestCaptionWidget.cxx
+  TestBorderWidget.cxx
+  TestCameraWidget.cxx
+#  TestCaptionWidget.cxx
+  TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
   TestContourWidget2.cxx
   TestDistanceWidget.cxx
-  TestDistanceWidget3D.cxx
+#  TestDistanceWidget3D.cxx
   TestHandleWidget.cxx
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
@@ -56,9 +57,9 @@ SET(MyTests
   vtkBiDimensionalRepresentation2DTest1.cxx
   vtkCaptionRepresentationTest1.cxx
   vtkTextRepresentationTest1.cxx
-  vtkImplicitPlaneRepresentationTest1.cxx
+#  vtkImplicitPlaneRepresentationTest1.cxx
   vtkLineRepresentationTest1.cxx
-  vtkSplineRepresentationTest1.cxx
+#  vtkSplineRepresentationTest1.cxx
   vtkSeedRepresentationTest1.cxx
 #  vtkPointHandleRepresentation2DTest1.cxx
 #  vtkPointHandleRepresentation3DTest1.cxx
