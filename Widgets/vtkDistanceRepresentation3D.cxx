@@ -282,7 +282,7 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
     double distance;
     if ( this->RulerMode ) // specified tick separation
       {
-      numTicks = (this->RulerDistance <= 0.0 ? 1 : (this->Distance / this->RulerDistance));
+      numTicks = (this->RulerDistance <= 0.0 ? 1 : static_cast<int>(this->Distance / this->RulerDistance));
       numTicks = (numTicks > 99 ? 99 : numTicks);
       distance = this->RulerDistance;
       }
