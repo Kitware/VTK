@@ -34,9 +34,13 @@ vtkDistanceRepresentation::vtkDistanceRepresentation()
 
   this->Tolerance = 5;
   this->Placed = 0;
-  
+
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat,"%s","%-#6.3g");
+
+  this->RulerMode = 0;
+  this->RulerDistance = 1.0;
+  this->NumberOfRulerTicks = 5;
 }
 
 //----------------------------------------------------------------------
@@ -55,14 +59,14 @@ vtkDistanceRepresentation::~vtkDistanceRepresentation()
     this->Point2Representation->Delete();
     }
 
-  if (this->LabelFormat) 
+  if (this->LabelFormat)
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
     }
 }
 
-  
+
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation::InstantiateHandleRepresentation()
 {
@@ -71,14 +75,14 @@ void vtkDistanceRepresentation::InstantiateHandleRepresentation()
     this->Point1Representation = this->HandleRepresentation->NewInstance();
     this->Point1Representation->ShallowCopy(this->HandleRepresentation);
     }
-  
+
   if ( ! this->Point2Representation )
     {
     this->Point2Representation = this->HandleRepresentation->NewInstance();
     this->Point2Representation->ShallowCopy(this->HandleRepresentation);
     }
 }
-  
+
 
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation::GetPoint1WorldPosition(double pos[3])
@@ -93,32 +97,26 @@ void vtkDistanceRepresentation::GetPoint2WorldPosition(double pos[3])
 }
 
 //----------------------------------------------------------------------
-int vtkDistanceRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkDistanceRepresentation::
+ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
-  // See if we are near one of the end points or outside
-  double pos1[3], pos2[3];
-  this->GetPoint1DisplayPosition(pos1);
-  this->GetPoint2DisplayPosition(pos2);
-  
-  double p1[3], p2[3], xyz[3];
-  xyz[0] = static_cast<double>(X);
-  xyz[1] = static_cast<double>(Y);
-  p1[0] = static_cast<double>(pos1[0]);
-  p1[1] = static_cast<double>(pos1[1]);
-  p2[0] = static_cast<double>(pos2[0]);
-  p2[1] = static_cast<double>(pos2[1]);
-  xyz[2] = p1[2] = p2[2] = 0.0;
+  if (this->Point1Representation == NULL || this->Point2Representation == NULL)
+    {
+    this->InteractionState = vtkDistanceRepresentation::Outside;
+    return this->InteractionState;
+    }
 
-  double tol2 = this->Tolerance*this->Tolerance;
-  if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
+  int h1State = this->Point1Representation->GetInteractionState();
+  int h2State = this->Point2Representation->GetInteractionState();
+  if ( h1State == vtkHandleRepresentation::Nearby )
     {
     this->InteractionState = vtkDistanceRepresentation::NearP1;
     }
-  else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
+  else if ( h2State == vtkHandleRepresentation::Nearby )
     {
     this->InteractionState = vtkDistanceRepresentation::NearP2;
     }
-  else 
+  else
     {
     this->InteractionState = vtkDistanceRepresentation::Outside;
     }
@@ -150,10 +148,15 @@ void vtkDistanceRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation::BuildRepresentation()
 {
-  // We don't worry about mtime 'cause the subclass deals with that
-  // Make sure the handles are up to date
-  this->Point1Representation->BuildRepresentation();
-  this->Point2Representation->BuildRepresentation();
+  // Make sure that tolerance is consistent between handles and this representation
+  if(this->Point1Representation)
+    {
+    this->Point1Representation->SetTolerance(this->Tolerance);
+    }
+  if(this->Point2Representation)
+    {
+    this->Point2Representation->SetTolerance(this->Tolerance);
+    }
 }
 
 //----------------------------------------------------------------------
@@ -161,7 +164,7 @@ void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Distance: " << this->GetDistance() <<"\n";
   os << indent << "Tolerance: " << this->Tolerance <<"\n";
   os << indent << "Handle Representation: " << this->HandleRepresentation << "\n";
@@ -175,6 +178,11 @@ void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+
+  os << indent << "Ruler Mode: "
+     << (this->RulerMode ? "On" : "Off") <<"\n";
+  os << indent << "Ruler Distance: " << this->GetRulerDistance() <<"\n";
+  os << indent << "Number of Ruler Ticks: " << this->GetNumberOfRulerTicks() <<"\n";
 
   os << indent << "Point1 Representation: ";
   if ( this->Point1Representation )
@@ -195,4 +203,6 @@ void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+
+
 }

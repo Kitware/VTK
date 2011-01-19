@@ -76,6 +76,11 @@ public:
     }
   
   // Description:
+  // Return the representation as a vtkParallelopipedRepresentation.
+  vtkParallelopipedRepresentation *GetParallelopipedRepresentation()
+    {return reinterpret_cast<vtkParallelopipedRepresentation*>(this->WidgetRep);}
+
+  // Description:
   // Enable/disable the creation of a chair on this widget. If off,
   // chairs cannot be created.
   vtkSetMacro(EnableChairCreation,int);

@@ -78,6 +78,11 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
+  // Return the representation as a vtkAffineRepresentation.
+  vtkAffineRepresentation *GetAffineRepresentation()
+    {return reinterpret_cast<vtkAffineRepresentation*>(this->WidgetRep);}
+
+  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 

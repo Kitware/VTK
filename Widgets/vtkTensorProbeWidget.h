@@ -56,6 +56,11 @@ public:
     }
   
   // Description:
+  // Return the representation as a vtkTensorProbeRepresentation.
+  vtkTensorProbeRepresentation *GetTensorProbeRepresentation()
+    {return reinterpret_cast<vtkTensorProbeRepresentation*>(this->WidgetRep);}
+
+  // Description:
   // See vtkWidgetRepresentation for details.
   virtual void CreateDefaultRepresentation();
 

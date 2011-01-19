@@ -81,7 +81,7 @@ public:
 
   // Description:
   // The tolerance representing the distance to the widget (in pixels) in
-  // which the cursor is considered near enough to the end points of
+  // which the cursor is considered near enough to the seed points of
   // the widget to be active.
   vtkSetClampMacro( Tolerance, int, 1, 100 );
   vtkGetMacro( Tolerance, int );
@@ -98,8 +98,11 @@ public:
   // These are methods specific to vtkSeedRepresentation and which are
   // invoked from vtkSeedWidget.
   virtual int GetActiveHandle();
-  virtual int CreateHandle( double e[2] ); //returns the id of the seed created
-  virtual void RemoveLastHandle(); //delete last handle created
+  // Returns the id of the seed created, -1 on failure. e is the display position.
+  virtual int CreateHandle( double e[2] );
+  // Delete last handle created
+  virtual void RemoveLastHandle();
+  // Delete the currently active handle
   virtual void RemoveActiveHandle();
 
   // Description:
