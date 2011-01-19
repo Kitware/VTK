@@ -149,9 +149,14 @@ void vtkDistanceRepresentation::WidgetInteraction(double e[2])
 void vtkDistanceRepresentation::BuildRepresentation()
 {
   // Make sure that tolerance is consistent between handles and this representation
-  this->Point1Representation->SetTolerance(this->Tolerance);
-  this->Point2Representation->SetTolerance(this->Tolerance);
-
+  if(this->Point1Representation)
+    {
+    this->Point1Representation->SetTolerance(this->Tolerance);
+    }
+  if(this->Point2Representation)
+    {
+    this->Point2Representation->SetTolerance(this->Tolerance);
+    }
 }
 
 //----------------------------------------------------------------------
