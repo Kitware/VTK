@@ -7,7 +7,7 @@ SET(MyTests
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
-    TestAxisActor3D.cxx
+#    TestAxisActor3D.cxx
     TestBarChartActor.cxx
     TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
