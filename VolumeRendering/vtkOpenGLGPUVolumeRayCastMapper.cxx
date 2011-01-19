@@ -361,7 +361,7 @@ public:
             }
           this->LastSampleDistance=sampleDistance;
           }
-        
+
         glTexImage1D(GL_TEXTURE_1D,0,GL_ALPHA16,
                      vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,0,
                      GL_ALPHA,GL_FLOAT,this->Table);
@@ -1929,7 +1929,7 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
 
   this->ActualSampleDistance=1.0;
   this->LastProgressEventTime=0.0; // date in seconds
-  
+
   this->PreserveOrientation=true;
 
   this->Program=0;
@@ -2171,7 +2171,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     this->LoadExtensionsSucceeded=0;
     return;
     }
-  
+
   // Create an extension manager
   vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(window);
@@ -4070,16 +4070,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-  
+
   // See if the volume transform is orientation-preserving
   vtkMatrix4x4 *m=vol->GetMatrix();
   double det=vtkMath::Determinant3x3(
     m->GetElement(0,0),m->GetElement(0,1),m->GetElement(0,2),
     m->GetElement(1,0),m->GetElement(1,1),m->GetElement(1,2),
     m->GetElement(2,0),m->GetElement(2,1),m->GetElement(2,2));
-  
+
   this->PreserveOrientation=det>0;
-  
+
   // If we have clipping planes, render the back faces of the clipped
   // bounding box of the whole dataset to set the zbuffer.
   if(this->ClippingPlanes && this->ClippingPlanes->GetNumberOfItems()!=0)
@@ -4316,7 +4316,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     }
   cout << "AFTER isValid0"  << endl;
 #endif
-  
+
   if(this->NumberOfCroppingRegions>1)
     {
     // framebuffer texture
@@ -4840,7 +4840,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     this->RenderWholeVolume(ren,vol);
     }
   else
-    { 
+    {
     this->ClipCroppingRegionPlanes();
     this->RenderRegions(ren,vol);
     }
@@ -4986,7 +4986,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer *ren,
     this->RenderBlock(ren,vol,0);
     this->PostRender(ren,numberOfScalarComponents);
     }
-  
+
   // Let's just make sure no OpenGL errors occurred during this render
   this->PrintError("End GPU Render");
 
@@ -6121,7 +6121,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
   vtkMatrix4x4::Multiply4x4(eyeToWorld,worldToTexture,eyeToTexture);
 
   GLfloat matrix[16];// used sometimes as 3x3, sometimes as 4x4.
-  double *raw=eyeToTexture->Element[0];
   int index;
   int column;
   int row;
@@ -6138,7 +6137,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       while(row<3)
         {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-        matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+        matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
         }
@@ -6154,7 +6153,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       while(row<4)
         {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-        matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+        matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
         }
@@ -6173,7 +6172,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     while(row<4)
       {
 //      cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-      matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+      matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
       ++index;
       ++row;
       }
@@ -6194,7 +6193,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       while(row<3)
         {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
-        matrix[index]=static_cast<GLfloat>(raw[row*4+column]);
+        matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
         }
