@@ -101,6 +101,7 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
   // The bounding box
   this->BoundingBox = vtkBox::New();
 
+  this->LabelFormat = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -114,6 +115,12 @@ vtkAxesTransformRepresentation::~vtkAxesTransformRepresentation()
   this->LabelText->Delete();
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
+
+  if (this->LabelFormat)
+    {
+    delete [] this->LabelFormat;
+    this->LabelFormat = NULL;
+    }
 
   this->GlyphPoints->Delete();
   this->GlyphVectors->Delete();
@@ -305,11 +312,38 @@ vtkProperty * vtkAxesTransformRepresentation::GetLabelProperty()
 //----------------------------------------------------------------------
 void vtkAxesTransformRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  std::cout << "LabelFormat: " << this->LabelFormat << std::endl;
-  std::cout << "Tolerance: " << this->Tolerance << std::endl;
-  std::cout << "InteractionState: " << this->InteractionState << std::endl;
-  std::cout << "OriginRepresentation: " << this->OriginRepresentation << endl;
-  std::cout << "SelectionRepresentation: " << this->SelectionRepresentation << endl;
+  os << indent << "Label Format: ";
+  if ( this->LabelFormat )
+    {
+    os << this->LabelFormat << endl;
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+
+  os << indent << "Tolerance: " << this->Tolerance << endl;
+  os << indent << "InteractionState: " << this->InteractionState << endl;
+
+  os << indent << "Origin Representation: ";
+  if ( this->OriginRepresentation )
+    {
+    this->OriginRepresentation->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+
+  os << indent << "Selection Representation: " << endl;
+  if ( this->SelectionRepresentation )
+    {
+    this->SelectionRepresentation->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 
   this->Superclass::PrintSelf(os,indent);
 }
