@@ -217,10 +217,12 @@ void vtkDistanceRepresentation3D::GetPoint2DisplayPosition(double pos[3])
 //----------------------------------------------------------------------
 double *vtkDistanceRepresentation3D::GetBounds()
 {
-  this->BuildRepresentation();
-
-  this->BoundingBox->SetBounds(this->Point1Representation->GetBounds());
-  this->BoundingBox->AddBounds(this->Point2Representation->GetBounds());
+  if(this->Point1Representation && this->Point2Representation)
+    {
+    this->BuildRepresentation();
+    this->BoundingBox->SetBounds(this->Point1Representation->GetBounds());
+    this->BoundingBox->AddBounds(this->Point2Representation->GetBounds());
+    }
   this->BoundingBox->AddBounds(this->LineActor->GetBounds());
 
   return this->BoundingBox->GetBounds();
