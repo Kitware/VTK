@@ -305,6 +305,11 @@ vtkProperty * vtkAxesTransformRepresentation::GetLabelProperty()
 //----------------------------------------------------------------------
 void vtkAxesTransformRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
+  std::cout << "LabelFormat: " << this->LabelFormat << std::endl;
+  std::cout << "Tolerance: " << this->Tolerance << std::endl;
+  std::cout << "InteractionState: " << this->InteractionState << std::endl;
+  std::cout << "OriginRepresentation: " << this->OriginRepresentation << endl;
+  std::cout << "SelectionRepresentation: " << this->SelectionRepresentation << endl;
+
   this->Superclass::PrintSelf(os,indent);
 }
