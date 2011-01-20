@@ -29,6 +29,7 @@
 #ifndef QVTK_PAINT_ENGINE_HPP
 #define QVTK_PAINT_ENGINE_HPP
 
+#include "QVTKWin32Header.h"
 #include <QPaintEngine>
 class QVTKWidget;
 class QVTKPaintEngineInternal;

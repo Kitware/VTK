@@ -273,12 +273,6 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
     tMin = t1;
     }
 
-  // Actor
-  else if ( (mapper = vtkMapper::SafeDownCast(m)) )
-    {
-    tMin = this->IntersectActorWithLine(p1, p2, t1, t2, tol, prop, mapper);
-    }
-
   // Volume
   else if ( (volumeMapper = vtkAbstractVolumeMapper::SafeDownCast(m)) )
     {
@@ -289,6 +283,12 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
   else if ( (imageActor = vtkImageActor::SafeDownCast(prop)) )
     {
     tMin = this->IntersectImageActorWithLine(p1, p2, t1, t2, imageActor);
+    }
+
+  // Actor
+  else if ( (mapper = vtkMapper::SafeDownCast(m)) )
+    {
+    tMin = this->IntersectActorWithLine(p1, p2, t1, t2, tol, prop, mapper);
     }
 
   // Unidentified Prop3D
@@ -778,7 +778,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
         if (x[j] < extent[2*j]) { x[j] = extent[2*j]; }
         else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
 
-        xi[j] = int(floor(x[j]));
+        xi[j] = vtkMath::Floor(x[j]);
         pcoords[j] = x[j] - xi[j];
         }
 
@@ -805,16 +805,16 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
           double lastX = x1[k]*(1.0 - lastT) + x2[k]*lastT;
 
           // Increment to next slice boundary along dimension "k",
-          // including a tolerance value for stabilityin cases
+          // including a tolerance value for stability in cases
           // where lastX is just less than an integer value.
           double nextX = 0;
           if (x2[k] > x1[k])
             {
-            nextX = floor(lastX + VTKCELLPICKER_VOXEL_TOL) + 1;
+            nextX = vtkMath::Floor(lastX + VTKCELLPICKER_VOXEL_TOL) + 1;
             }
           else
             {
-            nextX = ceil(lastX - VTKCELLPICKER_VOXEL_TOL) - 1;
+            nextX = vtkMath::Ceil(lastX - VTKCELLPICKER_VOXEL_TOL) - 1;
             }
 
           // Compute the "t" value for this slice boundary
@@ -840,7 +840,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
           x[j] = x1[j]*(1.0 - t) + x2[j]*t;
           if (x[j] < extent[2*j]) { x[j] = extent[2*j]; }
           else if (x[j] > extent[2*j + 1]) { x[j] = extent[2*j+1]; }
-          xi[j] = int(floor(x[j]));
+          xi[j] = vtkMath::Floor(x[j]);
           pcoords[j] = x[j] - xi[j];
           }
         }
@@ -936,10 +936,28 @@ double vtkCellPicker::IntersectImageActorWithLine(const double p1[3],
     x2[i] = (p2[i] - origin[i])/spacing[i];
     }
 
+  // Convert display bounds to structured coordinates, in order
+  // to retrieve the true DisplayExtent of the image
+  double displayBounds[6];
+  imageActor->GetDisplayBounds(displayBounds);
+
+  int displayExtent[6];
+  for (int k = 0; k < 6; k++)
+    {
+    double d = (displayBounds[k] - origin[k>>1])/spacing[k>>1];
+    if (d > 0)
+      {
+      displayExtent[k] = static_cast<int>(d + VTKCELLPICKER_VOXEL_TOL);
+      }
+    else
+      {
+      displayExtent[k] = static_cast<int>(d - VTKCELLPICKER_VOXEL_TOL);
+      }
+    }
+
   // Clip the ray with the extent
-  int planeId, displayExtent[6];
+  int planeId;
   double tMin, tMax;
-  imageActor->GetDisplayExtent(displayExtent);
   if (!this->ClipLineWithExtent(displayExtent, x1, x2, tMin, tMax, planeId)
       || tMin < t1 || tMin > t2)
     {
@@ -1349,7 +1367,7 @@ void vtkCellPicker::SetImageDataPickInfo(const double x[3],
     if (xj < extent[2*j]) { xj = extent[2*j]; }
     if (xj > extent[2*j+1]) { xj = extent[2*j+1]; }
 
-    this->CellIJK[j] = int(floor(xj));
+    this->CellIJK[j] = vtkMath::Floor(xj);
     this->PCoords[j] = xj - this->CellIJK[j];
     // Keep the cell in-bounds if it is on the edge
     if (this->CellIJK[j] == extent[2*j+1] &&

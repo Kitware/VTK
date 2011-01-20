@@ -16,6 +16,8 @@
 // This example tests the vtkAffineWidget.
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkAffineWidget.h"
 #include "vtkAffineRepresentation2D.h"
 #include "vtkImageActor.h"
@@ -29,8 +31,6 @@
 #include "vtkImageActor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 
@@ -41,17 +41,17 @@ class vtkAffineCallback : public vtkCommand
 {
 public:
   static vtkAffineCallback *New() 
-    { return new vtkAffineCallback; }
+  { return new vtkAffineCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*);
   vtkAffineCallback():ImageActor(0),AffineRep(0) 
-    {
-      this->Transform = vtkTransform::New();
-    }
+  {
+    this->Transform = vtkTransform::New();
+  }
   ~vtkAffineCallback()
-    {
-      this->Transform->Delete();
-    }
-  vtkImageActor *ImageActor;
+  {
+    this->Transform->Delete();
+  }
+  vtkSmartPointer<vtkImageActor> ImageActor;
   vtkAffineRepresentation2D *AffineRep;
   vtkTransform *Transform;
 };
@@ -67,9 +67,11 @@ void vtkAffineCallback::Execute(vtkObject*, unsigned long, void*)
 int TestAffineWidget( int argc, char *argv[] )
 {
   // Create the pipeline
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
    
-  vtkVolume16Reader* v16 = vtkVolume16Reader::New();
+  vtkSmartPointer<vtkVolume16Reader> v16 =
+    vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
   v16->SetDataByteOrderToLittleEndian();
   v16->SetImageRange(1, 93);
@@ -83,7 +85,8 @@ int TestAffineWidget( int argc, char *argv[] )
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
-  vtkImageShiftScale* shifter = vtkImageShiftScale::New();
+  vtkSmartPointer<vtkImageShiftScale> shifter =
+    vtkSmartPointer<vtkImageShiftScale>::New();
   shifter->SetShift(-1.0*range[0]);
   shifter->SetScale(255.0/(range[1]-range[0]));
   shifter->SetOutputScalarTypeToUnsignedChar();
@@ -91,7 +94,8 @@ int TestAffineWidget( int argc, char *argv[] )
   shifter->ReleaseDataFlagOff();
   shifter->Update();
   
-  vtkImageActor* imageActor = vtkImageActor::New();
+  vtkSmartPointer<vtkImageActor> imageActor =
+    vtkSmartPointer<vtkImageActor>::New();
   imageActor->SetInput(shifter->GetOutput());
   imageActor->VisibilityOn();
   imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
@@ -102,31 +106,38 @@ int TestAffineWidget( int argc, char *argv[] )
     
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
-  vtkInteractorStyleImage *style = vtkInteractorStyleImage::New();
+  vtkSmartPointer<vtkInteractorStyleImage> style =
+    vtkSmartPointer<vtkInteractorStyleImage>::New();
   iren->SetInteractorStyle(style);
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
   // and the widget representation that defines how the widget appears in the scene 
   // (i.e., matters pertaining to geometry).
-  vtkAffineRepresentation2D *rep = vtkAffineRepresentation2D::New();
+  vtkSmartPointer<vtkAffineRepresentation2D> rep =
+    vtkSmartPointer<vtkAffineRepresentation2D>::New();
   rep->SetBoxWidth(100);
   rep->SetCircleWidth(75);
   rep->SetAxesWidth(60);
   rep->DisplayTextOn();
   rep->PlaceWidget(bounds);
 
-  vtkAffineWidget *widget = vtkAffineWidget::New();
+  vtkSmartPointer<vtkAffineWidget> widget =
+    vtkSmartPointer<vtkAffineWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
-  vtkAffineCallback *acbk = vtkAffineCallback::New();
+  vtkSmartPointer<vtkAffineCallback> acbk =
+    vtkSmartPointer<vtkAffineCallback>::New();
   acbk->AffineRep = rep;
   acbk->ImageActor = imageActor;
   widget->AddObserver(vtkCommand::InteractionEvent,acbk);
@@ -138,7 +149,8 @@ int TestAffineWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -155,28 +167,7 @@ int TestAffineWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  v16->Delete();
-  shifter->Delete();
-  imageActor->Delete();
-  widget->Off();
-  widget->RemoveObserver(acbk);
-  widget->Delete();
-  acbk->Delete();
-  rep->Delete();
-  style->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
+  iren->Start();
   
-  return !retVal;
-
+  return EXIT_SUCCESS;
 }
-
-

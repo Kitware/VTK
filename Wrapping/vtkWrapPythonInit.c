@@ -10,11 +10,7 @@ static void CreateInitFile(const char *libName,
 {
   int i;
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  const char* prefix = "";
-#else
-  const char* prefix = "lib";
-#endif
+  const char *prefix = "";
 
 #if defined(_WIN32)
   const char* dllexp = "__declspec(dllexport) ";
@@ -31,7 +27,7 @@ static void CreateInitFile(const char *libName,
           "#pragma warning ( disable : 4706 )\n"
           "#endif // Windows Warnings \n\n");
 
-for (i = 0; i < numFiles; i++)
+  for (i = 0; i < numFiles; i++)
     {
     fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKAddFile_%s(PyObject *, const char *); }\n", dllexp, files[i]);
     }
@@ -39,12 +35,31 @@ for (i = 0; i < numFiles; i++)
   fprintf(fout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n", libName);
   fprintf(fout,"{NULL, NULL, 0, NULL}};\n\n");
 
-  fprintf(fout,"extern  \"C\" {%svoid init%s%s();}\n\n", dllexp, prefix, libName);
-  fprintf(fout,"void init%s%s()\n{\n", prefix, libName);
+  fprintf(fout,"static void real_init%s(const char *modulename);\n\n", libName);
+
+  for (;;)
+    {
+    fprintf(fout,"extern  \"C\" { %svoid init%s%s(); }\n\n", dllexp, prefix, libName);
+
+    fprintf(fout,"void init%s%s()\n{\n", prefix, libName);
+    fprintf(fout,"  static const char modulename[] = \"%s%s\";\n", prefix, libName);
+    fprintf(fout,"  real_init%s(modulename);\n}\n\n", libName);
+
+#if defined(__CYGWIN__) || !defined(_WIN32)
+    /* add a "lib" prefix for compatibility with old python scripts */
+    if (strcmp(prefix, "lib") != 0)
+      {
+      prefix = "lib";
+      continue;
+      }
+#endif
+    break;
+    }
+
+  fprintf(fout,"void real_init%s(const char *modulename)\n{\n", libName);
 
   /* module init function */
   fprintf(fout,"  PyObject *m, *d;\n\n");
-  fprintf(fout,"  static const char modulename[] = \"%s%s\";\n", prefix, libName);
   fprintf(fout,"  m = Py_InitModule((char*)modulename, Py%s_ClassMethods);\n",
     libName);
 
@@ -104,6 +119,14 @@ int main(int argc,char *argv[])
     }
   /* close the file */
   fclose(file);
+
+  /* extra object for the Common module */
+  if (strcmp(libName, "vtkCommonPython") == 0)
+    {
+    /* the PyVTKMutableObject */
+    files[numFiles] = strdup("mutable");
+    numFiles++;
+    }
 
   CreateInitFile(libName, numFiles, files, fout);
   fclose(fout);

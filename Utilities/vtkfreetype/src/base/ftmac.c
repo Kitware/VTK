@@ -94,7 +94,7 @@
 #endif /* !HAVE_TYPE_RESOURCE_INDEX */
 
 #if ( HAVE_TYPE_RESOURCE_INDEX == 0 )
-typedef short ResourceIndex;
+  typedef short  ResourceIndex;
 #endif
 
 #include <CoreServices/CoreServices.h>
@@ -778,11 +778,11 @@ typedef short ResourceIndex;
     }
   Try_OpenType:
     error = open_face_from_buffer( library,
-                                  sfnt_data,
-                                  sfnt_size,
-                                  face_index,
-                                  is_cff ? "cff" : "truetype",
-                                  aface );
+                                   sfnt_data,
+                                   sfnt_size,
+                                   face_index,
+                                   is_cff ? "cff" : "truetype",
+                                   aface );
   Exit:
     return error;
   }

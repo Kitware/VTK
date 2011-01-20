@@ -45,7 +45,7 @@ CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/.NoDartCoverage
 CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in
                ${VTKJPEG_BINARY_DIR}/jpegDllConfig.h)
 
-ADD_LIBRARY(vtkjpeg ${systemdependent_SRCS} ${common_SRCS} ${compression_SRCS} ${decompression_SRCS})
+VTK_ADD_LIBRARY(vtkjpeg ${systemdependent_SRCS} ${common_SRCS} ${compression_SRCS} ${decompression_SRCS})
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
@@ -54,6 +54,7 @@ ENDIF(VTK_LIBRARY_PROPERTIES)
 
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS vtkjpeg
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)

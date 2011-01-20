@@ -188,7 +188,6 @@ protected:
   int Line1Visibility;
   int Line2Visibility;
 
-
   vtkIdType ID;
   int IDInitialized;
 

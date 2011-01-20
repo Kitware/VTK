@@ -84,11 +84,12 @@ public:
 
   // Set parameters for sizes of the dead/alive space
   void setParameters(
-	POSVEL_T bb);		// Inter particle distance for halos
+        POSVEL_T bb,                  // Inter particle distance for halos
+        POSVEL_T distConvertFactor);  // Scale positions by
 
   // Set alive particle vectors which were created elsewhere
   void setParticles(
-	long particleCount,
+        long particleCount,
         POSVEL_T* xLoc,
         POSVEL_T* yLoc,
         POSVEL_T* zLoc,
@@ -103,55 +104,55 @@ public:
 
   // Calculate actual values between particles within a bucket
   void aStarThisBucketPart(
-	ChainingMesh* haloChain,	// Buckets of particles
-	int* bucketID,			// Map from particle to bucket
-	POSVEL_T* estimate);		// Running minimum potential
+        ChainingMesh* haloChain,        // Buckets of particles
+        int* bucketID,                  // Map from particle to bucket
+        POSVEL_T* estimate);            // Running minimum potential
 
   // Calculate actual values for 26 neighbors in the center of halo
   // Level 1 refinement done for initial guess
   void aStarActualNeighborPart(
-	ChainingMesh* haloChain,	// Buckets of particles
-	int* minActual,			// Range for doing actual vs estimated
-	int* maxActual,
-	int* refineLevel,		// Refinement level of each particle
-	POSVEL_T* estimate);		// Running minimum potential
+        ChainingMesh* haloChain,        // Buckets of particles
+        int* minActual,                 // Range for doing actual vs estimated
+        int* maxActual,
+        int* refineLevel,               // Refinement level of each particle
+        POSVEL_T* estimate);            // Running minimum potential
 
   // Calculate estimated values for 26 neighbors around the edges of halo
   // Level 0 refinement done for initial guess
   void aStarEstimatedNeighborPart(
-	ChainingMesh* haloChain,	// Buckets of particles
-	int* minActual,			// Range for doing actual vs estimated
-	int* maxActual,
-	int* refineLevel,		// Refinement level of each particle
-	POSVEL_T* estimate,		// Running minimum potential
-	POSVEL_T boundarySize);		// Boundary around bucket for estimation
+        ChainingMesh* haloChain,        // Buckets of particles
+        int* minActual,                 // Range for doing actual vs estimated
+        int* maxActual,
+        int* refineLevel,               // Refinement level of each particle
+        POSVEL_T* estimate,             // Running minimum potential
+        POSVEL_T boundarySize);         // Boundary around bucket for estimation
 
   // Calculate estimates for all buckets beyond the 27 closest
   void aStarEstimatedPart(
-	ChainingMesh* haloChain,	// Buckets of particles
-	POSVEL_T* estimate);		// Running minimum potential
+        ChainingMesh* haloChain,        // Buckets of particles
+        POSVEL_T* estimate);            // Running minimum potential
 
   // Refinement of 0 to 1
   void refineAStarLevel_1(
-	ChainingMesh* haloChain,	// Buckets of particles
-	int bi,				// Bucket containing particle to refine
-	int bj,
-	int bk,
-	int* minActual,			// Range for doing actual vs estimated
-	int* maxActual,
-	int minParticle,		// Particle to refine
-	POSVEL_T* estimate,		// Running minimum potential
-	POSVEL_T boundarySize);		// Boundary around bucket for estimation
+        ChainingMesh* haloChain,        // Buckets of particles
+        int bi,                         // Bucket containing particle to refine
+        int bj,
+        int bk,
+        int* minActual,                 // Range for doing actual vs estimated
+        int* maxActual,
+        int minParticle,                // Particle to refine
+        POSVEL_T* estimate,             // Running minimum potential
+        POSVEL_T boundarySize);         // Boundary around bucket for estimation
 
   // Refinement of 1 to N
   void refineAStarLevel_N(
-	ChainingMesh* haloChain,	// Buckets of particles
-	int bi,				// Bucket containing particle to refine
-	int bj,
-	int bk,
-	int minParticle,		// Particle to refine
-	POSVEL_T* estimate,		// Running minimum potential
-	int winDelta);			// Number of buckets to refine out to
+        ChainingMesh* haloChain,        // Buckets of particles
+        int bi,                         // Bucket containing particle to refine
+        int bj,
+        int bk,
+        int minParticle,                // Particle to refine
+        POSVEL_T* estimate,             // Running minimum potential
+        int winDelta);                  // Number of buckets to refine out to
 
   // Find the halo centers using most connected particle (N^2/2)
   int  mostConnectedParticleN2();
@@ -169,14 +170,15 @@ private:
 
   POSVEL_T boxSize;             // Physical box size of the data set
   POSVEL_T deadSize;            // Border size for dead particles
-  POSVEL_T bb;			// Interparticle distance for halos
+  POSVEL_T bb;                  // Interparticle distance for halos
+  POSVEL_T distFactor;          // Scale positions by, used in chain size
 
   long   particleCount;         // Total particles on this processor
 
   POSVEL_T* xx;                 // X location for particles on this processor
   POSVEL_T* yy;                 // Y location for particles on this processor
   POSVEL_T* zz;                 // Z location for particles on this processor
-  POSVEL_T* mass;		// mass for particles on this processor
+  POSVEL_T* mass;               // mass for particles on this processor
   ID_T* tag;                    // Id tag for particles on this processor
 };
 

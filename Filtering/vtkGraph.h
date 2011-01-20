@@ -208,6 +208,7 @@ class vtkAdjacentVertexIterator;
 class vtkCellArray;
 class vtkEdgeListIterator;
 class vtkDataSetAttributes;
+class vtkDirectedGraph;
 class vtkGraphEdge;
 class vtkGraphEdgePoints;
 class vtkDistributedGraphHelper;
@@ -216,6 +217,7 @@ class vtkIdTypeArray;
 class vtkInEdgeIterator;
 class vtkOutEdgeIterator;
 class vtkPoints;
+class vtkUndirectedGraph;
 class vtkVertexListIterator;
 class vtkVariant;
 class vtkVariantArray;
@@ -560,6 +562,23 @@ public:
   // Dump the contents of the graph to standard output.
   void Dump();
 
+  // Description:
+  // Returns the Id of the edge between vertex a and vertex b.
+  // This is independent of directionality of the edge, that is,
+  // if edge A->B exists or if edge B->A exists, this function will
+  // return its Id. If multiple edges exist between a and b, here is no guarantee
+  // about which one will be returned.
+  // Returns -1 if no edge exists between a and b.
+  vtkIdType GetEdgeId(vtkIdType a, vtkIdType b);
+
+  // Description:
+  // Convert the graph to a directed graph.
+  bool ToDirectedGraph(vtkDirectedGraph* g);
+
+  // Description:
+  // Convert the graph to an undirected graph.
+  bool ToUndirectedGraph(vtkUndirectedGraph* g);
+
 protected:
   //BTX
   vtkGraph();
@@ -658,9 +677,9 @@ protected:
   // Builds a mapping from edge id to source/target vertex id.
   void BuildEdgeList();
 
+  //BTX
   // Description:
   // Friend iterator classes.
-  //BTX
   friend class vtkAdjacentVertexIterator;
   friend class vtkEdgeListIterator;
   friend class vtkInEdgeIterator;

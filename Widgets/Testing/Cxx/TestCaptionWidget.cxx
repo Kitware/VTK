@@ -29,8 +29,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkTextProperty.h"
 
 const char eventLog[] =
@@ -944,8 +942,8 @@ int TestCaptionWidget( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   widget->SetRepresentation(rep);
 
   // Print the widget and its representation
-  rep->Print(cout);
-  widget->Print(cout);
+  rep->Print(std::cout);
+  widget->Print(std::cout);
 
   // Add the actors to the renderer, set the background and size
   //
@@ -988,14 +986,14 @@ int TestCaptionWidget( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
 
   double endingPosition[3];
   rep->GetAnchorPosition(endingPosition);
-  cout << "Starting position of anchor: "
+  std::cout << "Starting position of anchor: "
        << startingPosition[0] << ", "
        << startingPosition[1] << ", "
-       << startingPosition[2] << endl;
-  cout << "Ending position of anchor: "
+       << startingPosition[2] << std::endl;
+  std::cout << "Ending position of anchor: "
        << endingPosition[0] << ", "
        << endingPosition[1] << ", "
-       << endingPosition[2] << endl;
+       << endingPosition[2] << std::endl;
 
   return EXIT_SUCCESS;
 }

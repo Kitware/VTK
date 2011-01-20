@@ -48,6 +48,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_GHOST_
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_TRANSLATED, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector, 6);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UNRESTRICTED_UPDATE_EXTENT, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
                                  EXTENT_TRANSLATOR, ObjectBase,
                                  "vtkExtentTranslator");
@@ -862,7 +863,8 @@ int vtkStreamingDemandDrivenPipeline
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5]))
       {
-      if (!outInfo->Has(UPDATE_RESOLUTION()))
+      if (!outInfo->Has(UPDATE_RESOLUTION()) &&
+          !outInfo->Has(UNRESTRICTED_UPDATE_EXTENT()))
         {
         // Update extent is outside the whole extent and is not empty.
         vtkErrorMacro("The update extent specified in the "
@@ -2036,6 +2038,10 @@ double vtkStreamingDemandDrivenPipeline::ComputePriority(int port)
   //tell pipeline what piece to ask about
   rqst = vtkInformation::New();
   rqst->Set(REQUEST_UPDATE_EXTENT());
+  vtkInformation *oInfo = outVec->GetInformationObject(0);
+  static int emptyExtent[6] = {0,-1,0,-1,0,-1};
+  oInfo->Set(UPDATE_EXTENT(), emptyExtent, 6);
+  oInfo->Set(UPDATE_EXTENT_INITIALIZED(), 0);
   rqst->Set(vtkExecutive::FORWARD_DIRECTION(),
             vtkExecutive::RequestUpstream);
   rqst->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);

@@ -62,9 +62,9 @@ public:
   // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
   void RemoveInput(vtkPolyData *);
 
+//BTX
   // Description:
   // Get any input of this filter.
-//BTX
   vtkPolyData *GetInput(int idx);
   vtkPolyData *GetInput() { return this->GetInput( 0 ); };
 //ETX

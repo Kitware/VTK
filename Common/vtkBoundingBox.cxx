@@ -47,23 +47,28 @@ void vtkBoundingBox::AddPoint(double p[3])
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::AddBox(const vtkBoundingBox &bbox)
 {
-  int i;
-  for (i = 0; i < 3; i++)
-    {
-    if (bbox.MinPnt[i] < this->MinPnt[i])
-      {
-      this->MinPnt[i] = bbox.MinPnt[i];
-      }
-
-    if (bbox.MaxPnt[i] > this->MaxPnt[i])
-      {
-      this->MaxPnt[i] = bbox.MaxPnt[i];
-      }
-    }
+  double bds[6];
+  bbox.GetBounds(bds);
+  this->AddBounds(bds);
 }
+
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::AddBounds(double bounds[6])
 {
+  bool this_valid = (this->IsValid() != 0);
+  bool other_valid = (vtkBoundingBox::IsValid(bounds) != 0);
+
+  if (!other_valid)
+    {
+    return;
+    }
+
+  if (other_valid && !this_valid)
+    {
+    this->SetBounds(bounds);
+    return;
+    }
+
   if (bounds[0] < this->MinPnt[0])
     {
     this->MinPnt[0] = bounds[0];

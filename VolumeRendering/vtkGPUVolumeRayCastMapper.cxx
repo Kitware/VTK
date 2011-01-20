@@ -53,7 +53,10 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->CanonicalViewImageData     = NULL;
 
   this->MaskInput                  = NULL;
-  this->MaskBlendFactor=1.0f;
+  this->MaskBlendFactor            = 1.0f;
+  this->MaskType
+    = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
+
 
   this->AMRMode=0;
   this->ClippedCroppingRegionPlanes[0]=VTK_DOUBLE_MAX;
@@ -591,6 +594,7 @@ void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FinalColorWindow: " << this->FinalColorWindow << endl;
   os << indent << "FinalColorLevel: " << this->FinalColorLevel << endl;
   os << indent << "MaskInput: " << this->MaskInput << endl;
+  os << indent << "MaskType: " << this->MaskType << endl;
   os << indent << "MaskBlendFactor: " << this->MaskBlendFactor << endl;
   os << indent << "MaxMemoryInBytes: " << this->MaxMemoryInBytes << endl;
   os << indent << "MaxMemoryFraction: " << this->MaxMemoryFraction << endl;
@@ -653,4 +657,16 @@ void vtkGPUVolumeRayCastMapper::ClipCroppingRegionPlanes()
       }
     ++i;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetMaskTypeToBinary()
+{
+  this->MaskType = vtkGPUVolumeRayCastMapper::BinaryMaskType;
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetMaskTypeToLabelMap()
+{
+  this->MaskType = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
 }

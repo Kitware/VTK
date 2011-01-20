@@ -31,7 +31,7 @@
 #ifndef __vtkRenderView_h
 #define __vtkRenderView_h
 
-#include "vtkView.h"
+#include "vtkRenderViewBase.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
 class vtkAbstractTransform;
@@ -45,41 +45,39 @@ class vtkHoverWidget;
 class vtkInteractorObserver;
 class vtkLabelPlacementMapper;
 class vtkPolyDataMapper2D;
-class vtkRenderer;
-class vtkRenderWindow;
-class vtkRenderWindowInteractor;
 class vtkSelection;
 class vtkTextProperty;
 class vtkTexture;
 class vtkTexturedActor2D;
 class vtkTransformCoordinateSystems;
 
-class VTK_VIEWS_EXPORT vtkRenderView : public vtkView
+class VTK_VIEWS_EXPORT vtkRenderView : public vtkRenderViewBase
 {
 public:
   static vtkRenderView* New();
-  vtkTypeMacro(vtkRenderView, vtkView);
+  vtkTypeMacro(vtkRenderView, vtkRenderViewBase);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Gets the renderer for this view.
-  vtkGetObjectMacro(Renderer, vtkRenderer);
-  
-  // Description:
-  // Get a handle to the render window.
-  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  virtual void SetRenderWindow(vtkRenderWindow *win);
 
   // Description:
-  // The render window interactor.
-  virtual vtkRenderWindowInteractor* GetInteractor();
+  // The render window interactor. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   // Description:
   // The interactor style associated with the render view.
   virtual void SetInteractorStyle(vtkInteractorObserver* style);
+
+  // Description:
+  // Get the interactor style associated with the render view.
   virtual vtkInteractorObserver* GetInteractorStyle();
-  
+
+  // Description:
+  // Set the render window for this view. Note that this requires special
+  // handling in order to do correctly - see the notes in the detailed
+  // description of vtkRenderViewBase.
+  virtual void SetRenderWindow(vtkRenderWindow *win);
+
   //BTX
   enum
     {
@@ -88,17 +86,22 @@ public:
     INTERACTION_MODE_UNKNOWN
     };
   //ETX
+  void SetInteractionMode(int mode);
+  vtkGetMacro(InteractionMode, int);
 
   // Description:
   // Set the interaction mode for the view. Choices are:
   // vtkRenderView::INTERACTION_MODE_2D - 2D interactor
   // vtkRenderView::INTERACTION_MODE_3D - 3D interactor
-  virtual void SetInteractionMode(int mode);
-  vtkGetMacro(InteractionMode, int);
   virtual void SetInteractionModeTo2D()
     { this->SetInteractionMode(INTERACTION_MODE_2D); }
   virtual void SetInteractionModeTo3D()
     { this->SetInteractionMode(INTERACTION_MODE_3D); }
+
+  // Description:
+  // Updates the representations, then calls Render() on the render window
+  // associated with this view.
+  virtual void Render();
 
   // Description:
   // Applies a view theme to this view.
@@ -135,21 +138,6 @@ public:
   void SetSelectionModeToFrustum() { this->SetSelectionMode(FRUSTUM); }
 
   // Description:
-  // Updates the representations, then calls Render() on the render window
-  // associated with this view.
-  virtual void Render();
-  
-  // Description:
-  // Updates the representations, then calls ResetCamera() on the renderer
-  // associated with this view.
-  virtual void ResetCamera();
-  
-  // Description:
-  // Updates the representations, then calls ResetCameraClippingRange() on the renderer
-  // associated with this view.
-  virtual void ResetCameraClippingRange();
-  
-  // Description:
   // Add labels from an input connection with an associated text
   // property. The output must be a vtkLabelHierarchy (normally the
   // output of vtkPointSetToLabelHierarchy).
@@ -168,6 +156,13 @@ public:
   // Set the size of each icon in the icon texture.
   vtkSetVector2Macro(IconSize, int);
   vtkGetVector2Macro(IconSize, int);
+
+  // Description:
+  // Set the display size of the icon (which may be different from the icon
+  // size). By default, if this value is not set, the the IconSize is used.
+  vtkSetVector2Macro(DisplaySize, int);
+  int* GetDisplaySize();
+  void GetDisplaySize(int &dsx, int &dsy);
 
   //BTX
   enum
@@ -209,15 +204,20 @@ public:
   virtual void SetLabelRenderModeToQt()
     { this->SetLabelRenderMode(QT); }
 
+  // Description:
+  // Whether to render on every mouse move.
+  void SetRenderOnMouseMove(bool b);
+  vtkGetMacro(RenderOnMouseMove, bool);
+  vtkBooleanMacro(RenderOnMouseMove, bool);
 protected:
   vtkRenderView();
   ~vtkRenderView();
-  
+
   // Description:
   // Called to process events.
   // Captures StartEvent events from the renderer and calls Update().
   // This may be overridden by subclasses to process additional events.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
     void* callData);
 
   // Description:
@@ -228,7 +228,7 @@ protected:
   // Description:
   // Called by the view when the renderer is about to render.
   virtual void PrepareForRendering();
-  
+
   // Description:
   // Called in PrepareForRendering to update the hover text.
   virtual void UpdateHoverText();
@@ -243,17 +243,7 @@ protected:
   // or hover ballooons.
   void UpdatePickRender();
 
-  // Description:
-  // Whether to render on every mouse move.
-  void SetRenderOnMouseMove(bool b);
-  vtkGetMacro(RenderOnMouseMove, bool);
-  vtkBooleanMacro(RenderOnMouseMove, bool);
-
-  vtkRenderer* Renderer;
-  vtkRenderer* LabelRenderer;
-  vtkRenderWindow* RenderWindow;
   int SelectionMode;
-  int InteractionMode;
   int LabelRenderMode;
   bool DisplayHoverText;
   bool Interacting;
@@ -264,8 +254,13 @@ protected:
   vtkAbstractTransform* Transform;
   vtkTexture* IconTexture;
   int IconSize[2];
+  int DisplaySize[2];
+
+  int InteractionMode;
+  bool RenderOnMouseMove;
 
   //BTX
+  vtkSmartPointer<vtkRenderer>                 LabelRenderer;
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
   vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
@@ -276,8 +271,6 @@ protected:
 private:
   vtkRenderView(const vtkRenderView&);  // Not implemented.
   void operator=(const vtkRenderView&);  // Not implemented.
-
-  bool RenderOnMouseMove;
 };
 
 #endif

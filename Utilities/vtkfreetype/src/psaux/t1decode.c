@@ -4,7 +4,8 @@
 /*                                                                         */
 /*    PostScript Type 1 decoding routines (body).                          */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by */
+/*  Copyright 2000-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009    */
+/*            2010 by                                                      */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -211,7 +212,12 @@
 
     /* `glyph_names' is set to 0 for CID fonts which do not */
     /* include an encoding.  How can we deal with these?    */
+#ifdef FT_CONFIG_OPTION_INCREMENTAL
+    if ( decoder->glyph_names == 0                   &&
+         !face->root.internal->incremental_interface )
+#else
     if ( decoder->glyph_names == 0 )
+#endif /* FT_CONFIG_OPTION_INCREMENTAL */
     {
       FT_ERROR(( "t1operator_seac:"
                  " glyph names table not available in this font\n" ));
@@ -228,8 +234,8 @@
     else
 #endif
     {
-    bchar_index = t1_lookup_glyph_by_stdcharcode( decoder, bchar );
-    achar_index = t1_lookup_glyph_by_stdcharcode( decoder, achar );
+      bchar_index = t1_lookup_glyph_by_stdcharcode( decoder, bchar );
+      achar_index = t1_lookup_glyph_by_stdcharcode( decoder, achar );
     }
 
     if ( bchar_index < 0 || achar_index < 0 )
@@ -367,15 +373,6 @@
 #endif
 
 
-    /* we don't want to touch the source code -- use macro trick */
-#define start_point    t1_builder_start_point
-#define check_points   t1_builder_check_points
-#define add_point      t1_builder_add_point
-#define add_point1     t1_builder_add_point1
-#define add_contour    t1_builder_add_contour
-#define close_contour  t1_builder_close_contour
-
-
     /* compute random seed from stack address of parameter */
     seed = (FT_Fixed)( ( (FT_PtrDist)(char*)&seed              ^
                          (FT_PtrDist)(char*)&decoder           ^
@@ -397,11 +394,11 @@
     /* a font that reads BuildCharArray without setting */
     /* its values first is buggy, but ...               */
     FT_ASSERT( ( decoder->len_buildchar == 0 ) ==
-               ( decoder->buildchar == NULL ) );
+               ( decoder->buildchar == NULL )  );
 
     if ( decoder->len_buildchar > 0 )
       ft_memset( &decoder->buildchar[0],
-              0,
+                 0,
                  sizeof( decoder->buildchar[0] ) * decoder->len_buildchar );
 
     FT_TRACE4(( "\n"
@@ -436,7 +433,7 @@
 #ifdef FT_DEBUG_LEVEL_TRACE
       if ( bol )
       {
-      FT_TRACE5(( " (%d)", decoder->top - decoder->stack ));
+        FT_TRACE5(( " (%d)", decoder->top - decoder->stack ));
         bol = FALSE;
       }
 #endif
@@ -510,8 +507,8 @@
       case 12:
         if ( ip > limit )
         {
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
-                     "invalid escape (12+EOF)\n" ));
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
+                     " invalid escape (12+EOF)\n" ));
           goto Syntax_Error;
         }
 
@@ -546,8 +543,8 @@
           break;
 
         default:
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
-                     "invalid escape (12+%d)\n",
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
+                     " invalid escape (12+%d)\n",
                      ip[-1] ));
           goto Syntax_Error;
         }
@@ -556,15 +553,15 @@
       case 255:    /* four bytes integer */
         if ( ip + 4 > limit )
         {
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
-                     "unexpected EOF in integer\n" ));
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
+                     " unexpected EOF in integer\n" ));
           goto Syntax_Error;
         }
 
-        value = (FT_Int32)( ((FT_Long)ip[0] << 24) |
-                            ((FT_Long)ip[1] << 16) |
-                            ((FT_Long)ip[2] << 8 ) |
-                                      ip[3] );
+        value = (FT_Int32)( ( (FT_Long)ip[0] << 24 ) |
+                            ( (FT_Long)ip[1] << 16 ) |
+                            ( (FT_Long)ip[2] << 8  ) |
+                                       ip[3]         );
         ip += 4;
 
         /* According to the specification, values > 32000 or < -32000 must */
@@ -617,8 +614,8 @@
         }
         else
         {
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
-                     "invalid byte (%d)\n", ip[-1] ));
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
+                     " invalid byte (%d)\n", ip[-1] ));
           goto Syntax_Error;
         }
       }
@@ -663,7 +660,7 @@
 
 #ifdef FT_DEBUG_LEVEL_TRACE
         if ( large_int )
-        FT_TRACE4(( " %ld", value ));
+          FT_TRACE4(( " %ld", value ));
         else
           FT_TRACE4(( " %ld", (FT_Int32)( value >> 16 ) ));
 #endif
@@ -733,8 +730,10 @@
 
           decoder->flex_state        = 1;
           decoder->num_flex_vectors  = 0;
-          if ( start_point( builder, x, y ) ||
-               check_points( builder, 6 )   )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok                                   ||
+               ( error = t1_builder_check_points( builder, 6 ) )
+                 != PSaux_Err_Ok                                   )
             goto Fail;
           break;
 
@@ -751,10 +750,10 @@
             /* point without adding any point to the outline    */
             idx = decoder->num_flex_vectors++;
             if ( idx > 0 && idx < 7 )
-              add_point( builder,
-                         x,
-                         y,
-                         (FT_Byte)( idx == 3 || idx == 6 ) );
+              t1_builder_add_point( builder,
+                                    x,
+                                    y,
+                                    (FT_Byte)( idx == 3 || idx == 6 ) );
           }
           break;
 
@@ -765,12 +764,14 @@
           if ( decoder->flex_state       == 0 ||
                decoder->num_flex_vectors != 7 )
           {
-            FT_ERROR(( "t1_decoder_parse_charstrings: "
-                       "unexpected flex end\n" ));
+            FT_ERROR(( "t1_decoder_parse_charstrings:"
+                       " unexpected flex end\n" ));
             goto Syntax_Error;
           }
 
           /* the two `results' are popped by the following setcurrentpoint */
+          top[0] = x;
+          top[1] = y;
           known_othersubr_result_cnt = 2;
           break;
 
@@ -863,14 +864,14 @@
 
             idx = (FT_Int)( top[0] >> 16 );
 
-            if ( idx < 0                                                 ||
+            if ( idx < 0                                           ||
                  idx + blend->num_designs > decoder->len_buildchar )
               goto Unexpected_OtherSubr;
 
             ft_memcpy( &decoder->buildchar[idx],
-                    blend->weight_vector,
-                    blend->num_designs *
-                      sizeof( blend->weight_vector[ 0 ] ) );
+                       blend->weight_vector,
+                       blend->num_designs *
+                         sizeof( blend->weight_vector[0] ) );
           }
           break;
 
@@ -919,7 +920,7 @@
           break;
 
         case 24:
-          /* <val> <idx> 2 24 callothersubr              */
+          /* <val> <idx> 2 24 callothersubr               */
           /* ==> set BuildCharArray[cvi( <idx> )] = <val> */
           {
             FT_Int    idx;
@@ -939,9 +940,9 @@
           break;
 
         case 25:
-          /* <idx> 1 25 callothersubr pop       */
+          /* <idx> 1 25 callothersubr pop        */
           /* ==> push BuildCharArray[cvi( idx )] */
-          /*    onto T1 stack                   */
+          /*     onto T1 stack                   */
           {
             FT_Int    idx;
             PS_Blend  blend = decoder->blend;
@@ -972,7 +973,7 @@
 
         case 27:
           /* <res1> <res2> <val1> <val2> 4 27 callothersubr pop */
-          /* ==> push <res1> onto T1 stack if <val1> <= <val2>,  */
+          /* ==> push <res1> onto T1 stack if <val1> <= <val2>, */
           /*     otherwise push <res2>                          */
           if ( arg_cnt != 4 )
             goto Unexpected_OtherSubr;
@@ -1008,14 +1009,14 @@
           break;
 
         default:
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
                      " unknown othersubr [%d %d], wish me luck\n",
                      arg_cnt, subr_no ));
           unknown_othersubr_result_cnt = arg_cnt;
           break;
 
         Unexpected_OtherSubr:
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
                      " invalid othersubr [%d %d]\n", arg_cnt, subr_no ));
           goto Syntax_Error;
         }
@@ -1053,9 +1054,9 @@
 
         default:
           if ( top - decoder->stack != num_args )
-            FT_TRACE0(( "t1_decoder_parse_charstrings: "
-                        "too much operands on the stack "
-                        "(seen %d, expected %d)\n",
+            FT_TRACE0(( "t1_decoder_parse_charstrings:"
+                        " too much operands on the stack"
+                        " (seen %d, expected %d)\n",
                         top - decoder->stack, num_args ));
             break;
         }
@@ -1069,18 +1070,18 @@
         case op_endchar:
           FT_TRACE4(( " endchar\n" ));
 
-          close_contour( builder );
+          t1_builder_close_contour( builder );
 
           /* close hints recording session */
           if ( hinter )
           {
-            if (hinter->close( hinter->hints, builder->current->n_points ))
+            if ( hinter->close( hinter->hints, builder->current->n_points ) )
               goto Syntax_Error;
 
             /* apply hints to the loaded glyph outline now */
             hinter->apply( hinter->hints,
                            builder->current,
-                           (PSH_Globals) builder->hints_globals,
+                           (PSH_Globals)builder->hints_globals,
                            decoder->hint_mode );
           }
 
@@ -1168,7 +1169,7 @@
           /* if there is no path, `closepath' is a no-op */
           if ( builder->parse_state == T1_Parse_Have_Path   ||
                builder->parse_state == T1_Parse_Have_Moveto )
-            close_contour( builder );
+            t1_builder_close_contour( builder );
 
           builder->parse_state = T1_Parse_Have_Width;
           break;
@@ -1176,7 +1177,8 @@
         case op_hlineto:
           FT_TRACE4(( " hlineto" ));
 
-          if ( start_point( builder, x, y ) )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok )
             goto Fail;
 
           x += top[0];
@@ -1197,30 +1199,34 @@
         case op_hvcurveto:
           FT_TRACE4(( " hvcurveto" ));
 
-          if ( start_point( builder, x, y ) ||
-               check_points( builder, 3 )   )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok                                   ||
+               ( error = t1_builder_check_points( builder, 3 ) )
+                 != PSaux_Err_Ok                                   )
             goto Fail;
 
           x += top[0];
-          add_point( builder, x, y, 0 );
+          t1_builder_add_point( builder, x, y, 0 );
           x += top[1];
           y += top[2];
-          add_point( builder, x, y, 0 );
+          t1_builder_add_point( builder, x, y, 0 );
           y += top[3];
-          add_point( builder, x, y, 1 );
+          t1_builder_add_point( builder, x, y, 1 );
           break;
 
         case op_rlineto:
           FT_TRACE4(( " rlineto" ));
 
-          if ( start_point( builder, x, y ) )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok )
             goto Fail;
 
           x += top[0];
           y += top[1];
 
         Add_Line:
-          if ( add_point1( builder, x, y ) )
+          if ( ( error = t1_builder_add_point1( builder, x, y ) )
+                 != PSaux_Err_Ok )
             goto Fail;
           break;
 
@@ -1240,43 +1246,48 @@
         case op_rrcurveto:
           FT_TRACE4(( " rrcurveto" ));
 
-          if ( start_point( builder, x, y ) ||
-               check_points( builder, 3 )   )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok                                   ||
+               ( error = t1_builder_check_points( builder, 3 ) )
+                 != PSaux_Err_Ok                                   )
             goto Fail;
 
           x += top[0];
           y += top[1];
-          add_point( builder, x, y, 0 );
+          t1_builder_add_point( builder, x, y, 0 );
 
           x += top[2];
           y += top[3];
-          add_point( builder, x, y, 0 );
+          t1_builder_add_point( builder, x, y, 0 );
 
           x += top[4];
           y += top[5];
-          add_point( builder, x, y, 1 );
+          t1_builder_add_point( builder, x, y, 1 );
           break;
 
         case op_vhcurveto:
           FT_TRACE4(( " vhcurveto" ));
 
-          if ( start_point( builder, x, y ) ||
-               check_points( builder, 3 )   )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok                                   ||
+               ( error = t1_builder_check_points( builder, 3 ) )
+                 != PSaux_Err_Ok                                   )
             goto Fail;
 
           y += top[0];
-          add_point( builder, x, y, 0 );
+          t1_builder_add_point( builder, x, y, 0 );
           x += top[1];
           y += top[2];
-          add_point( builder, x, y, 0 );
+          t1_builder_add_point( builder, x, y, 0 );
           x += top[3];
-          add_point( builder, x, y, 1 );
+          t1_builder_add_point( builder, x, y, 1 );
           break;
 
         case op_vlineto:
           FT_TRACE4(( " vlineto" ));
 
-          if ( start_point( builder, x, y ) )
+          if ( ( error = t1_builder_start_point( builder, x, y ) )
+                 != PSaux_Err_Ok )
             goto Fail;
 
           y += top[0];
@@ -1301,7 +1312,7 @@
           /* otherwise, we divide numbers in 16.16 format --    */
           /* in both cases, it is the same operation            */
           *top = FT_DivFix( top[0], top[1] );
-            ++top;
+          ++top;
 
           large_int = FALSE;
           break;
@@ -1316,15 +1327,15 @@
             idx = (FT_Int)( top[0] >> 16 );
             if ( idx < 0 || idx >= (FT_Int)decoder->num_subrs )
             {
-              FT_ERROR(( "t1_decoder_parse_charstrings: "
-                         "invalid subrs index\n" ));
+              FT_ERROR(( "t1_decoder_parse_charstrings:"
+                         " invalid subrs index\n" ));
               goto Syntax_Error;
             }
 
             if ( zone - decoder->zones >= T1_MAX_SUBRS_CALLS )
             {
-              FT_ERROR(( "t1_decoder_parse_charstrings: "
-                         "too many nested subrs\n" ));
+              FT_ERROR(( "t1_decoder_parse_charstrings:"
+                         " too many nested subrs\n" ));
               goto Syntax_Error;
             }
 
@@ -1351,7 +1362,7 @@
 
             if ( !zone->base )
             {
-              FT_ERROR(( "t1_decoder_parse_charstrings: "
+              FT_ERROR(( "t1_decoder_parse_charstrings:"
                          " invoking empty subrs\n" ));
               goto Syntax_Error;
             }
@@ -1374,7 +1385,7 @@
 
           if ( unknown_othersubr_result_cnt == 0 )
           {
-            FT_ERROR(( "t1_decoder_parse_charstrings: "
+            FT_ERROR(( "t1_decoder_parse_charstrings:"
                        " no more operands for othersubr\n" ));
             goto Syntax_Error;
           }
@@ -1426,7 +1437,7 @@
         case op_vstem:
           FT_TRACE4(( " vstem" ));
 
-          /* record vertical  hint */
+          /* record vertical hint */
           if ( hinter )
           {
             top[0] += orig_x;
@@ -1453,12 +1464,20 @@
         case op_setcurrentpoint:
           FT_TRACE4(( " setcurrentpoint" ));
 
-          /* From the T1 specs, section 6.4:                        */
+          /* From the T1 specification, section 6.4:                */
           /*                                                        */
           /*   The setcurrentpoint command is used only in          */
           /*   conjunction with results from OtherSubrs procedures. */
 
-          /* known_othersubr_result_cnt != 0 is already handled above */
+          /* known_othersubr_result_cnt != 0 is already handled     */
+          /* above.                                                 */
+
+          /* Note, however, that both Ghostscript and Adobe         */
+          /* Distiller handle this situation by silently ignoring   */
+          /* the inappropriate `setcurrentpoint' instruction.  So   */
+          /* we do the same.                                        */
+#if 0
+
           if ( decoder->flex_state != 1 )
           {
             FT_ERROR(( "t1_decoder_parse_charstrings:"
@@ -1466,7 +1485,12 @@
             goto Syntax_Error;
           }
           else
-            decoder->flex_state = 0;
+            ...
+#endif
+
+          x = top[0];
+          y = top[1];
+          decoder->flex_state = 0;
           break;
 
         case op_unknown15:
@@ -1475,8 +1499,8 @@
           break;
 
         default:
-          FT_ERROR(( "t1_decoder_parse_charstrings: "
-                     "unhandled opcode %d\n", op ));
+          FT_ERROR(( "t1_decoder_parse_charstrings:"
+                     " unhandled opcode %d\n", op ));
           goto Syntax_Error;
         }
 

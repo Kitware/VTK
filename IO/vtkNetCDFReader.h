@@ -72,6 +72,12 @@ public:
   virtual void SetVariableArrayStatus(const char *name, int status);
 
   // Description:
+  // Convenience method to get a list of variable arrays.  The length of the
+  // returned list is the same as GetNumberOfVariableArrays, and the string
+  // at each index i is the same as returned from GetVariableArrayname(i).
+  virtual vtkStringArray *GetAllVariableArrayNames();
+
+  // Description:
   // Returns an array with string encodings for the dimensions used in each of
   // the variables.  The indices in the returned array correspond to those used
   // in the GetVariableArrayName method.  Two arrays with the same dimensions
@@ -121,6 +127,8 @@ protected:
 
   vtkSmartPointer<vtkDataArraySelection> VariableArraySelection;
 
+  vtkSmartPointer<vtkStringArray> AllVariableArrayNames;
+
   // Description:
   // Placeholder for structure returned from GetVariableDimensions().
   vtkStringArray *VariableDimensions;
@@ -131,6 +139,8 @@ protected:
 //ETX
 
   int ReplaceFillValueWithNan;
+
+  int WholeExtent[6];
 
   virtual int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
@@ -185,10 +195,16 @@ protected:
   // dimensions should be loaded as point data (return true) or cell data
   // (return false).  The implementation in this class always returns true.
   // Subclasses should override to load cell data for some or all variables.
-  virtual bool DimensionsAreForPointData(const int *vtkNotUsed(dimensions),
-                                         int vtkNotUsed(numDimensions)) {
+  virtual bool DimensionsAreForPointData(vtkIntArray *vtkNotUsed(dimensions)) {
     return true;
   }
+
+  // Description:
+  // Retrieves the update extent for the output object.  The default
+  // implementation just gets the update extent from the object as you would
+  // expect.  However, if a subclass is loading an unstructured data set, this
+  // gives it a chance to set the range of values to read.
+  virtual void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]);
 
   // Description:
   // Load the variable at the given time into the given data set.  Return 1

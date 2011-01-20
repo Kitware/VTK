@@ -34,6 +34,8 @@ class vtkTextProperty;
 
 class vtkPoints2D;
 class vtkVector2f;
+class vtkRectf;
+class vtkUnsignedCharArray;
 class vtkContextDevice2D;
 class vtkPen;
 class vtkBrush;
@@ -51,6 +53,7 @@ public:
   // Creates a 2D Painter object.
   static vtkContext2D *New();
 
+//BTX
   // Description:
   // Begin painting on a vtkContextDevice2D, no painting can occur before this call
   // has been made. Only one painter is allowed at a time on any given paint
@@ -112,6 +115,14 @@ public:
   void DrawPoly(float *points, int n);
 
   // Description:
+  // Draw a poly line between the specified points, where the float array is of
+  // size 2*n and the points are packed x1, y1, x2, y2 etc. The line will be colored by
+  // the colors array, which must have nc_comps components (defining a single color).
+  // Note: Fastest code path - points packed in x and y.
+  void DrawPoly(float *points, int n,
+                unsigned char *colors, int nc_comps);
+
+  // Description:
   // Draw a point at the supplied x and y coordinate
   void DrawPoint(float x, float y);
 
@@ -135,6 +146,16 @@ public:
   // The supplied vtkImageData is the sprite to be drawn, only squares will be
   // drawn and the size is set using SetPointSize.
   void DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points);
+
+  // Description:
+  // Draw a series of point sprites, images centred at the points supplied.
+  // The supplied vtkImageData is the sprite to be drawn, only squares will be
+  // drawn and the size is set using SetPointSize. Points will be colored by
+  // the colors array, which must be the same length as points.
+  void DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points,
+                        vtkUnsignedCharArray *colors);
+  void DrawPointSprites(vtkImageData *sprite, float *points, int n,
+                        unsigned char *colors, int nc_comps);
 
   // Description:
   // Draw a series of point sprites, images centred at the points supplied.
@@ -231,6 +252,12 @@ public:
   void DrawImage(float x, float y, float scale, vtkImageData *image);
 
   // Description:
+  // Draw the supplied image at the given position. The origin, width, and
+  // height are specified by the supplied vtkRectf variable pos. The image
+  // will be drawn scaled to that size.
+  void DrawImage(const vtkRectf& pos, vtkImageData *image);
+
+  // Description:
   // Draw some text to the screen in a bounding rectangle with the alignment
   // of the text properties respecting the rectangle. The points should be
   // supplied as bottom corner (x, y), width, height.
@@ -270,7 +297,7 @@ public:
   // Get the pen which controls the outlines of shapes, as well as lines,
   // points and related primitives. This object can be modified and the changes
   // will be reflected in subsequent drawing operations.
-  vtkGetObjectMacro(Pen, vtkPen);
+  vtkPen* GetPen();
 
   // Description:
   // Apply the supplied brush which controls the outlines of shapes, as well as
@@ -281,7 +308,7 @@ public:
   // Description:
   // Get the pen which controls the outlines of shapes as well as lines, points
   // and related primitives.
-  vtkGetObjectMacro(Brush, vtkBrush);
+  vtkBrush* GetBrush();
 
   // Description:
   // Apply the supplied text property which controls how text is rendered.
@@ -291,7 +318,7 @@ public:
 
   // Description:
   // Get the text properties object for the vtkContext2D.
-  vtkGetObjectMacro(TextProp, vtkTextProperty);
+  vtkTextProperty* GetTextProp();
 
   // Description:
   // Set the transform for the context, the underlying device will use the
@@ -320,15 +347,18 @@ public:
   // Apply id as a color.
   void ApplyId(vtkIdType id);
 
+  // Description:
+  // Float to int conversion, performs truncation but with a rounding
+  // tolerance for float values that are within 1/256 of their closest
+  // integer.
+  static int FloatToInt(float x);
+
 //BTX
 protected:
   vtkContext2D();
   ~vtkContext2D();
 
   vtkContextDevice2D *Device; // The underlying device
-  vtkPen *Pen;                // Outlining
-  vtkBrush *Brush;            // Fills
-  vtkTextProperty *TextProp;  // Text property
   vtkTransform2D *Transform;  // Current transform
 
   vtkAbstractContextBufferId *BufferId;
@@ -338,18 +368,25 @@ private:
   void operator=(const vtkContext2D &);   // Not implemented.
 
   // Description:
-  // Apply the pen settings to the context
-  void ApplyPen();
-
-  // Description:
-  // Apply the brush settings to the context
-  void ApplyBrush();
-
-  // Description:
   // Calculate position of text for rendering in a rectangle.
   vtkVector2f CalculateTextPosition(vtkPoints2D* rect);
 
 //ETX
 };
+
+inline int vtkContext2D::FloatToInt(float x)
+{
+  // Use a tolerance of 1/256 of a pixel when converting.
+  // A float has only 24 bits of precision, so we cannot
+  // make the tolerance too small.  For example, a tolerance
+  // of 2^-8 means that the tolerance will be significant
+  // for float values up to 2^16 or 65536.0.  But a
+  // tolerance of 2^-16 would only be significant for
+  // float values up to 2^8 or 256.0.  A small tolerance
+  // disappears into insignificance when added to a large float.
+  float tol = 0.00390625; // 1.0/256.0
+  tol = (x >= 0 ? tol : -tol);
+  return static_cast<int>(x + tol);
+}
 
 #endif //__vtkContext2D_h

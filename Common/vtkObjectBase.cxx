@@ -85,16 +85,6 @@ vtkObjectBase::~vtkObjectBase()
     {
     vtkGenericWarningMacro(<< "Trying to delete object with non-zero reference count.");
     }
-  // clear all weak pointers to this object
-  if ( this->WeakPointers )
-    {
-    vtkWeakPointerBase **p = this->WeakPointers;
-    while (*p)
-      {
-      vtkObjectBaseToWeakPointerBaseFriendship::ClearPointer(*p++);
-      }
-    delete [] this->WeakPointers;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -270,10 +260,19 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
     return;
     }
 
-  // Decrement the reference count.
+  // Decrement the reference count, delete object if count goes to zero.
   if(--this->ReferenceCount <= 0)
     {
-    // Count has gone to zero.  Delete the object.
+    // Clear all weak pointers to the object before deleting it.
+    if (this->WeakPointers)
+      {
+      vtkWeakPointerBase **p = this->WeakPointers;
+      while (*p)
+        {
+        vtkObjectBaseToWeakPointerBaseFriendship::ClearPointer(*p++);
+        }
+      delete [] this->WeakPointers;
+      }
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::DestructClass(this->GetClassName());
 #endif

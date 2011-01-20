@@ -25,6 +25,8 @@
 
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkVector.h"       // For position variables
+#include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;
 class vtkPen;
@@ -32,7 +34,6 @@ class vtkFloatArray;
 class vtkDoubleArray;
 class vtkStringArray;
 class vtkTextProperty;
-class vtkRectf;
 
 class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
 {
@@ -57,27 +58,32 @@ public:
 
   // Description:
   // Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP, PARALLEL).
-  vtkSetMacro(Position, int);
+  virtual void SetPosition(int position);
   vtkGetMacro(Position, int);
 
   // Description:
   // Set point 1 of the axis (in pixels), this is usually the origin.
-  vtkSetVector2Macro(Point1, float);
+  void SetPoint1(const vtkVector2f& pos);
+  void SetPoint1(float x, float y);
 
   // Description:
   // Get point 1 of the axis (in pixels), this is usually the origin.
   vtkGetVector2Macro(Point1, float);
+  vtkVector2f GetPosition1();
 
   // Description:
   // Set point 2 of the axis (in pixels), this is usually the terminus.
-  vtkSetVector2Macro(Point2, float);
+  void SetPoint2(const vtkVector2f& pos);
+  void SetPoint2(float x, float y);
 
   // Description:
   // Get point 2 of the axis (in pixels), this is usually the terminus.
   vtkGetVector2Macro(Point2, float);
+  vtkVector2f GetPosition2();
 
   // Description:
-  // Set the number of tick marks for this axis.
+  // Set the number of tick marks for this axis. Default is -1, which leads to
+  // automatic calculation of nicely spaced tick marks.
   vtkSetMacro(NumberOfTicks, int);
 
   // Description:
@@ -111,8 +117,8 @@ public:
 
   // Description:
   // Get/set the title text of the axis.
-  vtkSetStringMacro(Title);
-  vtkGetStringMacro(Title);
+  virtual void SetTitle(const vtkStdString &title);
+  virtual vtkStdString GetTitle();
 
   // Description:
   // Get the vtkTextProperty that governs how the axis title is displayed.
@@ -232,6 +238,10 @@ protected:
   void GenerateTickLabels(double min, double max);
 
   // Description:
+  // Generate tick labels from the supplied double array of tick positions.
+  void GenerateTickLabels();
+
+  // Description:
   // Calculate the next "nicest" numbers above and below the current minimum.
   // \return the "nice" spacing of the numbers.
   double CalculateNiceMinMax(double &min, double &max);
@@ -242,15 +252,43 @@ protected:
   // number should be between 0.0 and 9.9.
   double NiceNumber(double number, bool roundUp);
 
+  // Description:
+  // Return a tick mark for a logarithmic axis.
+  // If roundUp is true then the upper tick mark is returned.
+  // Otherwise the lower tick mark is returned.
+  // Tick marks will be: ... 0.1 0.2 .. 0.9 1 2 .. 9 10 20 .. 90 100 ...
+  // Parameter nicevalue will be set to true if tick mark is in:
+  // ... 0.1 0.2 0.5 1 2 5 10 20 50 100 ...
+  // Parameter order is set to the detected order of magnitude of the number.
+  double LogScaleTickMark(double number,
+                          bool roundUp,
+                          bool &niceValue,
+                          int &order);
+
+  // Description:
+  // Generate tick marks for logarithmic scale for specific order of magnitude.
+  // Mark generation is limited by parameters min and max.
+  // Tick marks will be: ... 0.1 0.2 .. 0.9 1 2 .. 9 10 20 .. 90 100 ...
+  // Tick labels will be: ... 0.1 0.2 0.5 1 2 5 10 20 50 100 ...
+  // If Parameter detaillabels is disabled tick labels will be:
+  // ... 0.1 1 10 100 ...
+  // If min/max is not in between 1.0 and 9.0 defaults will be used.
+  // If min and max do not differ 1 defaults will be used.
+  void GenerateLogScaleTickMarks(int order,
+                                 double min = 1.0,
+                                 double max = 9.0,
+                                 bool detailLabels = true);
+
   int Position;        // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
-  float Point1[2];     // The position of point 1 (usually the origin)
-  float Point2[2];     // The position of point 2 (usually the terminus)
+  float *Point1;       // The position of point 1 (usually the origin)
+  float *Point2;       // The position of point 2 (usually the terminus)
+  vtkVector2f Position1, Position2;
   double TickInterval; // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
-  char* Title;         // The text label drawn on the axis
+  vtkStdString Title;  // The text label drawn on the axis
   vtkTextProperty* TitleProperties; // Text properties for the axis title
   bool LogScale;       // Should the axis use a log scale
   bool GridVisible;    // Whether the grid for the axis should be drawn
@@ -286,8 +324,16 @@ protected:
   bool UsingNiceMinMax;
 
   // Description:
-  // Mark the tick labels as dirty when the min/max value is changed
+  // Mark the tick labels as dirty when the min/max value is changed.
   bool TickMarksDirty;
+
+  // Description:
+  // Flag to indicate that the axis has been resized.
+  bool Resized;
+
+  // Description:
+  // Hint as to whether a logarithmic scale is reasonable or not.
+  bool LogScaleReasonable;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.

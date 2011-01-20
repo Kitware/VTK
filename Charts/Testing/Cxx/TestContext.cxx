@@ -56,6 +56,7 @@ int TestContext( int, char * [] )
       ->SetStringRendererToFreeType();
 
   view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
   return EXIT_SUCCESS;
 }

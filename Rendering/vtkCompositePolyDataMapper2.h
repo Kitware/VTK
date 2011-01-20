@@ -31,28 +31,6 @@ public:
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkPainterPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Implemented by sub classes. Actual rendering is done here.
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
-
-  // Description:
-  // Standard vtkProp method to get 3D bounds of a 3D prop
-  double *GetBounds();
-  void GetBounds(double bounds[6]) { this->Superclass::GetBounds( bounds ); };  
-
-
-  // Description:
-  // This calls RenderPiece (in a for loop is streaming is necessary).
-  // Basically a reimplementation for vtkPolyDataMapper::Render() since we don't
-  // want it to give up when vtkCompositeDataSet is encountered.
-  virtual void Render(vtkRenderer *ren, vtkActor *act);
-
-  // Description:
-  // When set, each block is colored with a different color. Note that scalar
-  // coloring will be ignored.
-  vtkSetMacro(ColorBlocks, int);
-  vtkGetMacro(ColorBlocks, int);
-
 //BTX
 protected:
   vtkCompositePolyDataMapper2();
@@ -73,15 +51,9 @@ protected:
   virtual void ComputeBounds();
 
   // Description:
-  // Called when the PainterInformation becomes obsolete. 
-  // It is called before the Render is initiated on the Painter.
-  virtual void UpdatePainterInformation();
-
-  // Description:
   // Time stamp for computation of bounds.
   vtkTimeStamp BoundsMTime;
 
-  int ColorBlocks;
 private:
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.
   void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.

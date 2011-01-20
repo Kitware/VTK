@@ -82,6 +82,7 @@ vtkImageNormalize.cxx
 vtkImageOpenClose3D.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
+vtkImageProjection.cxx
 vtkImageQuantizeRGBToIndex.cxx
 vtkImageRFFT.cxx
 vtkImageRGBToHSI.cxx
@@ -100,6 +101,9 @@ vtkImageSobel2D.cxx
 vtkImageSobel3D.cxx
 vtkImageSpatialAlgorithm.cxx
 vtkImageStencil.cxx
+vtkImageStencilIterator.cxx
+vtkImageStencilToImage.cxx
+vtkImageStencilAlgorithm.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
 vtkImageThreshold.cxx
@@ -109,7 +113,9 @@ vtkImageVariance3D.cxx
 vtkImageWrapPad.cxx
 vtkImageWeightedSum.cxx
 vtkImplicitFunctionToImageStencil.cxx
+vtkLassooStencilSource.cxx
 vtkPointLoad.cxx
+vtkROIStencilSource.cxx
 vtkRTAnalyticSource.cxx
 vtkSampleFunction.cxx
 vtkShepardMethod.cxx
@@ -125,7 +131,13 @@ vtkImageFourierFilter
 vtkImageIterateFilter
 vtkImagePadFilter
 vtkImageSpatialAlgorithm
+vtkImageStencilIterator
   ABSTRACT
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+vtkImageStencilIterator
+  WRAP_EXCLUDE
 )
 
 IF(CMAKE_COMPILER_IS_GNUCXX AND VTK_GNUCXX_VERSION)
@@ -164,3 +176,11 @@ SET(KIT_JAVA_DEPS)
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 #-----------------------------------------------------------------------------
+
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageStencilIterator.txx
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
+    COMPONENT Development
+    )
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

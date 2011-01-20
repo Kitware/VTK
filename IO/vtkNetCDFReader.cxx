@@ -43,6 +43,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtkstd/algorithm>
+#include <vtkstd/set>
 #include <vtksys/SystemTools.hxx>
 
 #include <netcdf.h>
@@ -96,8 +97,14 @@ vtkNetCDFReader::vtkNetCDFReader()
   cbc->SetClientData(this);
   this->VariableArraySelection->AddObserver(vtkCommand::ModifiedEvent, cbc);
 
+  this->AllVariableArrayNames = vtkSmartPointer<vtkStringArray>::New();
+
   this->VariableDimensions = vtkStringArray::New();
   this->AllDimensions = vtkStringArray::New();
+
+  this->WholeExtent[0] = this->WholeExtent[1]
+    = this->WholeExtent[2] = this->WholeExtent[3]
+    = this->WholeExtent[4] = this->WholeExtent[5] = 0;
 }
 
 vtkNetCDFReader::~vtkNetCDFReader()
@@ -118,6 +125,8 @@ void vtkNetCDFReader::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "VariableArraySelection:" << endl;
   this->VariableArraySelection->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "AllVariableArrayNames:" << endl;
+  this->GetAllVariableArrayNames()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VariableDimensions: " << this->VariableDimensions << endl;
   os << indent << "AllDimensions: " << this->AllDimensions << endl;
 }
@@ -226,38 +235,37 @@ int vtkNetCDFReader::RequestInformation(
       }
     }
 
-  // Using the extent information (captured partially in
-  // this->LoadingDimensions) report extents.
+  // Capture the extent information from this->LoadingDimensions.
+  bool pointData = this->DimensionsAreForPointData(this->LoadingDimensions);
+  for (int i = 0 ; i < 3; i++)
+    {
+    this->WholeExtent[2*i] = 0;
+    if (i < this->LoadingDimensions->GetNumberOfTuples())
+      {
+      size_t dimlength;
+      // Remember that netCDF arrays are indexed backward from VTK images.
+      int dim = this->LoadingDimensions->GetValue(numDims-i-1);
+      CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
+      this->WholeExtent[2*i+1] = static_cast<int>(dimlength-1);
+      // For cell data, add one to the extent (which is for points).
+      if (!pointData) this->WholeExtent[2*i+1]++;
+      }
+    else
+      {
+      this->WholeExtent[2*i+1] = 0;
+      }
+    }
+  vtkDebugMacro(<< "Whole extents: "
+                << this->WholeExtent[0] << ", " << this->WholeExtent[1] <<", "
+                << this->WholeExtent[2] << ", " << this->WholeExtent[3] <<", "
+                << this->WholeExtent[4] << ", " << this->WholeExtent[5]);
+
+  // Report extents.
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
   if (output && (output->GetExtentType() == VTK_3D_EXTENT))
     {
-    bool pointData = this->DimensionsAreForPointData(
-                                  this->LoadingDimensions->GetPointer(0),
-                                  this->LoadingDimensions->GetNumberOfTuples());
-    int extent[6];
-    for (int i = 0 ; i < 3; i++)
-      {
-      extent[2*i] = 0;
-      if (i < this->LoadingDimensions->GetNumberOfTuples())
-        {
-        size_t dimlength;
-        // Remember that netCDF arrays are indexed backward from VTK images.
-        int dim = this->LoadingDimensions->GetValue(numDims-i-1);
-        CALL_NETCDF(nc_inq_dimlen(ncFD, dim, &dimlength));
-        extent[2*i+1] = static_cast<int>(dimlength-1);
-        // For cell data, add one to the extent (which is for points).
-        if (!pointData) extent[2*i+1]++;
-        }
-      else
-        {
-        extent[2*i+1] = 0;
-        }
-      }
-    vtkDebugMacro(<< "Whole extents: "
-                  << extent[0] << ", " << extent[1] << ", "
-                  << extent[2] << ", " << extent[3] << ", "
-                  << extent[4] << ", " << extent[5]);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                 this->WholeExtent, 6);
     }
 
   // If we have time, report that.
@@ -410,6 +418,20 @@ void vtkNetCDFReader::SetVariableArrayStatus(const char* name, int status)
 }
 
 //-----------------------------------------------------------------------------
+vtkStringArray *vtkNetCDFReader::GetAllVariableArrayNames()
+{
+  int numArrays = this->GetNumberOfVariableArrays();
+  this->AllVariableArrayNames->SetNumberOfValues(numArrays);
+  for (int arrayIdx = 0; arrayIdx < numArrays; arrayIdx++)
+    {
+    const char *arrayName = this->GetVariableArrayName(arrayIdx);
+    this->AllVariableArrayNames->SetValue(arrayIdx, arrayName);
+    }
+
+  return this->AllVariableArrayNames;
+}
+
+//-----------------------------------------------------------------------------
 void vtkNetCDFReader::SetDimensions(const char *dimensions)
 {
   this->VariableArraySelection->DisableAllArrays();
@@ -472,22 +494,53 @@ vtkStdString vtkNetCDFReader::DescribeDimensions(int ncFD,
 //-----------------------------------------------------------------------------
 int vtkNetCDFReader::ReadMetaData(int ncFD)
 {
-  int i;
-
   vtkDebugMacro("ReadMetaData");
 
-  // Look at all variables and record them so that the user can select
-  // which ones he wants.
-  this->VariableArraySelection->RemoveAllArrays();
+  // Look at all variables and record them so that the user can select which
+  // ones he wants.  This oddness of adding and removing from
+  // VariableArraySelection is to preserve any current settings for variables.
+  typedef vtkstd::set<vtkStdString> stringSet;
+  stringSet variablesToAdd;
+  stringSet variablesToRemove;
+
+  // Initialize variablesToRemove with all the variables.  Then remove them from
+  // the list as we find them.
+  for (int i = 0; i < this->VariableArraySelection->GetNumberOfArrays(); i++)
+    {
+    variablesToRemove.insert(this->VariableArraySelection->GetArrayName(i));
+    }
 
   int numVariables;
   CALL_NETCDF(nc_inq_nvars(ncFD, &numVariables));
 
-  for (i = 0; i < numVariables; i++)
+  for (int i = 0; i < numVariables; i++)
     {
     char name[NC_MAX_NAME+1];
     CALL_NETCDF(nc_inq_varname(ncFD, i, name));
-    this->VariableArraySelection->AddArray(name);
+    if (variablesToRemove.find(name) == variablesToRemove.end())
+      {
+      // Variable not already here.  Insert it in the variables to add.
+      variablesToAdd.insert(name);
+      }
+    else
+      {
+      // Variable already exists.  Leave it be.  Remove it from the
+      // variablesToRemove list.
+      variablesToRemove.erase(name);
+      }
+    }
+
+  // Add and remove variables.  This will be a no-op if the variables have not
+  // changed.
+  for (stringSet::iterator removeItr = variablesToRemove.begin();
+       removeItr != variablesToRemove.end(); removeItr++)
+    {
+    this->VariableArraySelection->RemoveArrayByName(removeItr->c_str());
+    }
+  for (stringSet::iterator addItr = variablesToAdd.begin();
+       addItr != variablesToAdd.end(); addItr++)
+    {
+    this->VariableArraySelection->AddArray(addItr->c_str());
     }
 
   return 1;
@@ -562,6 +615,13 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
 }
 
 //-----------------------------------------------------------------------------
+void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *output,
+                                               int extent[6])
+{
+  output->GetUpdateExtent(extent);
+}
+
+//-----------------------------------------------------------------------------
 int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
                                   vtkDataSet *output)
 {
@@ -614,13 +674,12 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
     }
 
   bool loadingPointData = this->DimensionsAreForPointData(
-                                  this->LoadingDimensions->GetPointer(0),
-                                  this->LoadingDimensions->GetNumberOfTuples());
+                                                       this->LoadingDimensions);
 
   // Set up read indices.  Also check to make sure the dimensions are consistent
   // with other loaded variables.
   int extent[6];
-  output->GetUpdateExtent(extent);
+  this->GetUpdateExtentForOutput(output, extent);
   if (numDims != this->LoadingDimensions->GetNumberOfTuples())
     {
     vtkWarningMacro(<< "Variable " << varName << " dimensions ("

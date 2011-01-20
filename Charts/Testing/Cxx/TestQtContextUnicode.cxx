@@ -24,10 +24,7 @@
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
-
 #include "vtkUnicodeString.h"
-
-#include "vtkRegressionTestImage.h"
 
 #include <QApplication>
 
@@ -52,11 +49,9 @@ int TestQtContextUnicode(int argc, char * argv [])
   view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetRenderWindow()->Render();
-
-  int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 30);
+  view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
-  return !retVal;
+  return EXIT_SUCCESS;
 }
 
 // Make our new derived class to draw a diagram

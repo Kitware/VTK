@@ -366,10 +366,10 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *win);
 
+//BTX
   // Description:
   // Used to specify which texture unit a texture will use.
   // Only relevant when multitexturing.
-//BTX
   enum VTKTextureUnit
   {
     VTK_TEXTURE_UNIT_0 = 0,

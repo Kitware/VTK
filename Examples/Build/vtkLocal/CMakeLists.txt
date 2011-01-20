@@ -1,7 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
-IF(COMMAND CMAKE_POLICY)
-  CMAKE_POLICY(SET CMP0003 NEW)
-ENDIF(COMMAND CMAKE_POLICY)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
 
 # Set the project/library name here.  Classes should be declared as
 # "class vtkLocal_EXPORT vtkFoo", where vtkLocal is the name of the
@@ -125,6 +122,7 @@ IF(VTK_FOUND)
 
   # Create Python wrappers if VTK is wrapped in Python.
   IF(VTK_WRAP_PYTHON)
+    INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
     INCLUDE(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
     VTK_WRAP_PYTHON3(${PROJECT_NAME}Python vtkLocalPYTHON_SRCS "${vtkLocal_SRCS}")
     ADD_LIBRARY(${PROJECT_NAME}PythonD ${vtkLocalPYTHON_SRCS})
@@ -150,5 +148,5 @@ IF(VTK_FOUND)
     ENDFOREACH(c)
   ENDIF(VTK_WRAP_JAVA)
 
-  SUBDIRS(Testing)
+  ADD_SUBDIRECTORY(Testing)
 ENDIF(VTK_FOUND)

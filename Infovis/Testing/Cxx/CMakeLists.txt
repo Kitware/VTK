@@ -1,3 +1,7 @@
+IF(VTK_USE_BOOST)
+  include_directories(${Boost_INCLUDE_DIRS})
+ENDIF(VTK_USE_BOOST)
+
 # if we have rendering add the following tests
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Infovis)
@@ -59,6 +63,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}
       TestBoostAdapter
       TestBoostAlgorithms
+      TestBoostExtractLargestComponent.cxx
       TestBoostBetweennessClustering.cxx
       )
 
@@ -92,12 +97,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       ADD_TEST(TestPBGLAlgorithms
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestPBGLAlgorithms
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestPBGLAlgorithms
         ${VTK_MPI_POSTFLAGS})
     ENDIF (VTK_USE_PARALLEL_BGL)
   ENDIF (VTK_USE_BOOST)
 
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
+    INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
     IF (MPI_LIBRARY)
       SET(MPI_LIBRARIES ${MPI_LIBRARY})
     ENDIF (MPI_LIBRARY)
@@ -118,6 +124,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ADD_EXECUTABLE(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
     TARGET_LINK_LIBRARIES(TestRandomPContingencyStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
 
+    # TestRandomPOrderStatisticsMPI:
+    # MPI test of parallel order statistics
+    ADD_EXECUTABLE(TestRandomPOrderStatisticsMPI TestRandomPOrderStatisticsMPI.cxx)
+    TARGET_LINK_LIBRARIES(TestRandomPOrderStatisticsMPI vtkInfovis vtkParallel ${MPI_LIBRARIES})
+
     # TestParallelKMeansStatisticsMPI:
     # MPI test of parallel KMeans statistics
     ADD_EXECUTABLE(TestParallelKMeansStatisticsMPI TestParallelKMeansStatisticsMPI.cxx)
@@ -127,21 +138,28 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       ADD_TEST(TestParallelRandomStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestParallelRandomStatisticsMPI
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestParallelRandomStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
 
       ADD_TEST(TestRandomPContingencyStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestRandomPContingencyStatisticsMPI
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestRandomPContingencyStatisticsMPI
+        ${VTK_MPI_POSTFLAGS}
+        )
+
+      ADD_TEST(TestRandomPOrderStatisticsMPI
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestRandomPOrderStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
 
       ADD_TEST(TestParallelKMeansStatisticsMPI
         ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
-        ${CXX_TEST_PATH}/\${CTEST_CONFIGURATION_TYPE}/TestParallelKMeansStatisticsMPI
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestParallelKMeansStatisticsMPI
         ${VTK_MPI_POSTFLAGS}
         )
     ENDIF (VTK_MPIRUN_EXE)

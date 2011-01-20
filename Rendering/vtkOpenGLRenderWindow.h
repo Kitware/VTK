@@ -169,9 +169,9 @@ public:
   // Return a string matching the last graphic error status.
   virtual const char *GetLastGraphicErrorString();
 
+//BTX
   // Description:
   // Get the time when the OpenGL context was created.
-//BTX
   vtkGetMacro(ContextCreationTime, vtkTimeStamp);
 //ETX
 

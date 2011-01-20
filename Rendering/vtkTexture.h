@@ -154,10 +154,10 @@ public:
   void SetTransform(vtkTransform *transform);
   vtkGetObjectMacro(Transform, vtkTransform);
 
+//BTX
   // Description:
   // Used to specify how the texture will blend its RGB and Alpha values
   // with other textures and the fragment the texture is rendered upon.
-  //BTX
   enum VTKTextureBlendingMode
   {
     VTK_TEXTURE_BLENDING_MODE_NONE = 0,
@@ -168,7 +168,7 @@ public:
     VTK_TEXTURE_BLENDING_MODE_INTERPOLATE,
     VTK_TEXTURE_BLENDING_MODE_SUBTRACT
   };
-  //ETX
+//ETX
 
   // Description:
   // Used to specify how the texture will blend its RGB and Alpha values

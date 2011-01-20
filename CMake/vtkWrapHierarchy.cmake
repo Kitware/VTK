@@ -125,7 +125,7 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
           SET(OTHER_HIERARCHY_FILES ${OTHER_HIERARCHY_FILES}
             "${quote}${VTK_BINARY_DIR}/${TMP_KIT}/vtk${TMP_KIT}Hierarchy.txt${quote}")
           SET(OTHER_HIERARCHY_TARGETS ${OTHER_HIERARCHY_TARGETS}
-            vtk${TMP_KIT}Hierarchy)
+            vtk${TMP_KIT})
         ENDIF("${TMP_KIT_UPPER}" STREQUAL "${TMP_KIT_CHECK_UPPER}")
       ENDFOREACH (TMP_KIT_CHECK ${VTK_KITS})
     ENDIF(NOT "${TMP_KIT}" STREQUAL "${KIT}")
@@ -181,11 +181,10 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       )
   ELSE(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
     # On Visual Studio builds, the target-timestamp trick does not work,
-    # so re-parse the header files every time and create the hierarchy
-    # file if the VTK hierarchy has changed.
-    ADD_CUSTOM_TARGET(
-      ${TARGET} ALL
-      DEPENDS ${VTK_WRAP_HIERARCHY_EXE} ${OUTPUT_DIR}/${TARGET}.data
+    # so only build hierarchy files when library is built.
+    ADD_CUSTOM_COMMAND(
+      TARGET vtk${KIT} POST_BUILD
+
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
       ${TMP_DEFINITIONS}
       ${TMP_INCLUDE}
@@ -193,13 +192,12 @@ MACRO(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
 
-      COMMENT "Hierarchy Wrapping - updating vtk${KIT}Hierarchy.txt"
+      COMMENT "Updating vtk${KIT}Hierarchy.txt"
       ${verbatim}
-      SOURCES ${INPUT_FILES}
       )
-    # Set target-level dependencies to build in the correct order
-    ADD_DEPENDENCIES(${TARGET} vtkWrapHierarchy ${OTHER_HIERARCHY_TARGETS})
-    ADD_DEPENDENCIES(vtk${KIT} ${TARGET})
+    # Set target-level dependencies so that everything builds in the
+    # correct order, particularly the libraries.
+    ADD_DEPENDENCIES(vtk${KIT} vtkWrapHierarchy ${OTHER_HIERARCHY_TARGETS})
   ENDIF(NOT CMAKE_GENERATOR MATCHES "Visual Studio.*")
 
 ENDMACRO(VTK_WRAP_HIERARCHY)

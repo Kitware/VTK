@@ -147,7 +147,7 @@ int vtkFillHolesFilter::RequestData(
   vtkIdType numHolesFilled=0;
   numCells = newLines->GetNumberOfCells();
   vtkCellArray *newCells = NULL;
-  if ( numCells > 3 ) //only do the work if there are free edges
+  if ( numCells >= 3 ) //only do the work if there are free edges
     {
     double sphere[4];
     vtkIdType startId, neiId, currentCellId, hints[2]; hints[0]=0; hints[1]=0;

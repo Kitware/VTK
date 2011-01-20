@@ -136,9 +136,9 @@ public:
   // becomes valid after two of the four points are placed.
   int IsMeasureValid();
 
+  //BTX
   // Description:
   // Events.
-  //BTX
   enum
   {
   EndWidgetSelectEvent = 10050

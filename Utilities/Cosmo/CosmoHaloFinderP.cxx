@@ -1,46 +1,49 @@
 /*=========================================================================
-                                                                                
+
 Copyright (c) 2007, Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007. Los Alamos National Security, LLC. 
-This software was produced under U.S. Government contract DE-AC52-06NA25396 
-for Los Alamos National Laboratory (LANL), which is operated by 
-Los Alamos National Security, LLC for the U.S. Department of Energy. 
-The U.S. Government has rights to use, reproduce, and distribute this software. 
+Copyright 2007. Los Alamos National Security, LLC.
+This software was produced under U.S. Government contract DE-AC52-06NA25396
+for Los Alamos National Laboratory (LANL), which is operated by
+Los Alamos National Security, LLC for the U.S. Department of Energy.
+The U.S. Government has rights to use, reproduce, and distribute this software.
 NEITHER THE GOVERNMENT NOR LOS ALAMOS NATIONAL SECURITY, LLC MAKES ANY WARRANTY,
-EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  
-If software is modified to produce derivative works, such modified software 
-should be clearly marked, so as not to confuse it with the version available 
+EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
+If software is modified to produce derivative works, such modified software
+should be clearly marked, so as not to confuse it with the version available
 from LANL.
- 
-Additionally, redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following conditions 
+
+Additionally, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions
 are met:
--   Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer. 
+-   Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
 -   Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 -   Neither the name of Los Alamos National Security, LLC, Los Alamos National
     Laboratory, LANL, the U.S. Government, nor the names of its contributors
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission. 
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-                                                                                
+
 =========================================================================*/
+
+#include "Partition.h"
+#include "CosmoHaloFinderP.h"
 
 #include <iostream>
 #include <fstream>
@@ -48,9 +51,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iomanip>
 #include <set>
 #include <math.h>
-
-#include "Partition.h"
-#include "CosmoHaloFinderP.h"
 
 using namespace std;
 
@@ -86,7 +86,7 @@ CosmoHaloFinderP::CosmoHaloFinderP()
 
   // Get the number of processors in each dimension
   Partition::getDecompSize(this->layoutSize);
-  
+
   // Get my position within the Cartesian topology
   Partition::getMyPosition(this->layoutPos);
 
@@ -170,7 +170,7 @@ void CosmoHaloFinderP::setParameters(
   // so that the serial halo finder works as it does in the standalone case
   // and the normalization and subtraction from np happens in the same order.
   //
-  // Third version went back to the first version because we need 
+  // Third version went back to the first version because we need
   // contiguous locations coming out of the halo finder for the center finder
 
   this->haloFinder.np = _np;
@@ -257,8 +257,8 @@ void CosmoHaloFinderP::executeHaloFinder()
   this->haloFinder.setOutFile(this->outFile);
 
 #ifndef USE_VTK_COSMO
-  cout << "Rank " << setw(3) << this->myProc 
-       << " RUNNING SERIAL HALO FINDER on " 
+  cout << "Rank " << setw(3) << this->myProc
+       << " RUNNING SERIAL HALO FINDER on "
        << particleCount << " particles" << endl;
 #endif
 
@@ -277,7 +277,7 @@ void CosmoHaloFinderP::executeHaloFinder()
 /////////////////////////////////////////////////////////////////////////
 //
 // At this point each serial halo finder ran and
-// the particles handed to it included alive and dead.  Get back the 
+// the particles handed to it included alive and dead.  Get back the
 // halo tag array and figure out the indices of the particles in each halo
 // and translate that into absolute particle tags and note alive or dead
 //
@@ -409,7 +409,7 @@ void CosmoHaloFinderP::buildHaloStructure()
       }
       else {
         this->numberOfMixedHalos++;
-        CosmoHalo* halo = new CosmoHalo(p, 
+        CosmoHalo* halo = new CosmoHalo(p,
                                 this->haloAliveSize[p], this->haloDeadSize[p]);
         this->myMixedHalos.push_back(halo);
       }
@@ -418,7 +418,7 @@ void CosmoHaloFinderP::buildHaloStructure()
 
 #ifndef USE_VTK_COSMO
 #ifdef DEBUG
-  cout << "Rank " << this->myProc 
+  cout << "Rank " << this->myProc
        << " #alive halos = " << this->numberOfAliveHalos
        << " #dead halos = " << this->numberOfDeadHalos
        << " #mixed halos = " << this->numberOfMixedHalos << endl;
@@ -437,12 +437,12 @@ void CosmoHaloFinderP::buildHaloStructure()
 
 void CosmoHaloFinderP::processMixedHalos()
 {
-  // Iterate over all particles and add tags to large mixed halos 
+  // Iterate over all particles and add tags to large mixed halos
   for (ID_T p = 0; p < this->particleCount; p++) {
 
     // All particles in the same halo have the same haloTag
-    if (this->haloSize[this->haloTag[p]] >= pmin && 
-        this->haloAliveSize[this->haloTag[p]] > 0 && 
+    if (this->haloSize[this->haloTag[p]] >= pmin &&
+        this->haloAliveSize[this->haloTag[p]] > 0 &&
         this->haloDeadSize[this->haloTag[p]] > 0) {
 
           // Check all each mixed halo to see which this particle belongs to
@@ -493,7 +493,7 @@ void CosmoHaloFinderP::processMixedHalos()
     set<int> haloNeighbor;
 
     for (iter = neighbors->begin(); iter != neighbors->end(); ++iter) {
-      if ((*iter) == X1 || (*iter) == Y1 || (*iter) == Z1 || 
+      if ((*iter) == X1 || (*iter) == Y1 || (*iter) == Z1 ||
           (*iter) == X1_Y1 || (*iter) == Y1_Z1 || (*iter) == Z1_X1 ||
           (*iter) == X1_Y1_Z1) {
             highCount++;
@@ -788,7 +788,7 @@ void CosmoHaloFinderP::assignMixedHalos()
            << " index=" << this->allMixedHalos[m]->getHaloID()
            << " tag=" << (*tags)[0]
            << " alive=" << this->allMixedHalos[m]->getAliveCount()
-           << " dead=" << this->allMixedHalos[m]->getDeadCount() << endl; 
+           << " dead=" << this->allMixedHalos[m]->getDeadCount() << endl;
     }
 #endif
 #endif
@@ -809,7 +809,7 @@ void CosmoHaloFinderP::assignMixedHalos()
         while (n < this->allMixedHalos.size()) {
 
           // Compare to see if there are a number of tags in common
-          int match = compareHalos(this->allMixedHalos[m], 
+          int match = compareHalos(this->allMixedHalos[m],
                                    this->allMixedHalos[n]);
 
           // Keep track of the mixed halo with the most alive particles
@@ -867,8 +867,8 @@ int CosmoHaloFinderP::compareHalos(CosmoHalo* halo1, CosmoHalo* halo2)
   for (unsigned int i = 0; i < member1->size(); i++) {
     bool done = false;
     unsigned int j = 0;
-    while (!done && 
-           (*member1)[i] >= (*member2)[j] && 
+    while (!done &&
+           (*member1)[i] >= (*member2)[j] &&
            j < member2->size()) {
       if ((*member1)[i] == (*member2)[j]) {
         done = true;
@@ -921,10 +921,10 @@ void CosmoHaloFinderP::sendMixedHaloResults
     for (int proc = 1; proc < this->numProc; proc++) {
 #ifdef ID_64
       MPI_Isend(haloBuffer, haloBufSize, MPI_LONG, proc,
-                0, Partition::getComm(), &request); 
+                0, Partition::getComm(), &request);
 #else
       MPI_Isend(haloBuffer, haloBufSize, MPI_INT, proc,
-                0, Partition::getComm(), &request); 
+                0, Partition::getComm(), &request);
 #endif
     }
 #endif
@@ -941,7 +941,7 @@ void CosmoHaloFinderP::sendMixedHaloResults
             this->myMixedHalos[h]->setValid(VALID);
             int newAliveParticles = this->myMixedHalos[h]->getAliveCount() +
                                     this->myMixedHalos[h]->getDeadCount();
-            this->numberOfHaloParticles += newAliveParticles; 
+            this->numberOfHaloParticles += newAliveParticles;
             this->numberOfAliveHalos++;
 
             // Add this halo to valid halos on this processor for
@@ -1067,7 +1067,7 @@ void CosmoHaloFinderP::writeTaggedParticles()
   string ascii = "ascii";
   if (textMode == "ascii") {
 
-    // Output all ALIVE particles that were not part of a mixed halo 
+    // Output all ALIVE particles that were not part of a mixed halo
     // unless that halo is VALID.  Output only the DEAD particles that are
     // part of a VALID halo. This was encoded when mixed halos were found
     // so any ALIVE particle is VALID
@@ -1082,9 +1082,10 @@ void CosmoHaloFinderP::writeTaggedParticles()
         *outStream << str;
         sprintf(str, "%12.4E %12.4E ", this->zz[p], this->vz[p]);
         *outStream << str;
-        int result = (this->haloSize[this->haloTag[p]] < this->pmin) 
+        ID_T result = (this->haloSize[this->haloTag[p]] < this->pmin)
                       ? -1: this->tag[mapIndex[this->haloTag[p]]];
-        sprintf(str, "%12d %12d\n", result, this->tag[p]);
+        sprintf(str, "%12ld %12ld\n", (long int) result,
+                                      (long int) this->tag[p]);
         *outStream << str;
       }
     }
@@ -1094,20 +1095,20 @@ void CosmoHaloFinderP::writeTaggedParticles()
 
     // output in COSMO form
     for (int p = 0; p < this->particleCount; p++) {
-      float fBlock[COSMO_FLOAT];
+      POSVEL_T fBlock[COSMO_FLOAT];
       fBlock[0] = this->xx[p];
       fBlock[1] = this->vx[p];
       fBlock[2] = this->yy[p];
       fBlock[3] = this->vy[p];
       fBlock[4] = this->zz[p];
       fBlock[5] = this->vz[p];
-      fBlock[6] = (this->haloSize[this->haloTag[p]] < this->pmin) 
+      fBlock[6] = (this->haloSize[this->haloTag[p]] < this->pmin)
                    ? -1.0: 1.0 * this->tag[this->haloTag[p]];
-      outStream->write((char *)fBlock, COSMO_FLOAT * sizeof(float));
+      outStream->write((char *)fBlock, COSMO_FLOAT * sizeof(POSVEL_T));
 
-      int iBlock[COSMO_INT];
+      ID_T iBlock[COSMO_INT];
       iBlock[0] = this->tag[p];
-      outStream->write((char *)iBlock, COSMO_INT * sizeof(int));
+      outStream->write((char *)iBlock, COSMO_INT * sizeof(ID_T));
     }
   }
   outStream->close();

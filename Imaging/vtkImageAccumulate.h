@@ -105,7 +105,7 @@ public:
   vtkGetVector3Macro(Max, double);
   vtkGetVector3Macro(Mean, double);
   vtkGetVector3Macro(StandardDeviation, double);
-  vtkGetMacro(VoxelCount, long int);
+  vtkGetMacro(VoxelCount, vtkIdType);
 
   // Description:
   // Should the data with value 0 be ignored? Initial value is false.
@@ -136,7 +136,7 @@ protected:
   double Max[3];
   double Mean[3];
   double StandardDeviation[3];
-  long int VoxelCount;
+  vtkIdType VoxelCount;
 
   int ReverseStencil;
 

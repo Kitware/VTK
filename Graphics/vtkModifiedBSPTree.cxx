@@ -12,17 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//
-#include <stack>
-#include <vector>
-#include <algorithm>
-#include <functional>
-//
+
 #include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkPolyData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdListCollection.h"
+
+#include <stack>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
 #include <vtkAppendPolyData.h>
 #include <vtkCubeSource.h>
@@ -587,8 +587,8 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData *pd)
 
   // Ok, now create cube(oid)s and stuff'em into a polydata thingy
   vtkAppendPolyData *polys = vtkAppendPolyData::New();
-  int s = bl.size();
-  for (int i=0; i<s; i++)
+  size_t s = bl.size();
+  for (size_t i=0; i<s; i++)
     {
     vtkCubeSource *cube = vtkCubeSource::New();
     cube->SetBounds( bl[i].bounds );

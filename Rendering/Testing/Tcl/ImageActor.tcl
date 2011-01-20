@@ -20,8 +20,11 @@ pnmReader SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 # SetOrientationType method with parameter value of 4.
 pnmReader SetOrientationType 4
 
+vtkImageLuminance lum
+lum SetInputConnection [pnmReader GetOutputPort]
+
 vtkImageActor ia
-ia SetInput [pnmReader GetOutput]
+ia SetInput [lum GetOutput]
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor ia
@@ -31,6 +34,9 @@ renWin SetSize 400 400
 # render the image
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
+
+# switch from greyscale input to RGB to test against an old bug
+ia SetInput [pnmReader GetOutput]
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation -30

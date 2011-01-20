@@ -29,18 +29,18 @@
 #include "vtkContextScene.h"
 
 // STL headers
-#include <vtkstd/vector> // Needed for STL vector.
+#include <vector> // Needed for STL vector.
 
 class vtkContext2D;
 
 //-----------------------------------------------------------------------------
-class vtkContextScenePrivate : public vtkstd::vector<vtkAbstractContextItem*>
+class vtkContextScenePrivate : public std::vector<vtkAbstractContextItem*>
 {
 public:
   // Description:
   // Default constructor.
-  vtkContextScenePrivate()
-    : vtkstd::vector<vtkAbstractContextItem*>(), Scene(0)
+  vtkContextScenePrivate(vtkAbstractContextItem* item)
+    : std::vector<vtkAbstractContextItem*>(), Scene(0), Item(item)
     {
     }
 
@@ -53,20 +53,20 @@ public:
 
   // Description:
   // A few standard defines
-  typedef vtkstd::vector<vtkAbstractContextItem*>::const_iterator
+  typedef std::vector<vtkAbstractContextItem*>::const_iterator
     const_iterator;
-  typedef vtkstd::vector<vtkAbstractContextItem*>::iterator iterator;
+  typedef std::vector<vtkAbstractContextItem*>::iterator iterator;
   // Older versions of GCC did not implement comparison operators for the
   // const_reverse_operator, the simplest thing to do is not use the const
   // form of the operator.
 #ifdef VTK_CONST_REVERSE_ITERATOR_COMPARISON
-  typedef vtkstd::vector<vtkAbstractContextItem*>::const_reverse_iterator
+  typedef std::vector<vtkAbstractContextItem*>::const_reverse_iterator
     const_reverse_iterator;
 #else
-  typedef vtkstd::vector<vtkAbstractContextItem*>::reverse_iterator
+  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
     const_reverse_iterator;
 #endif
-  typedef vtkstd::vector<vtkAbstractContextItem*>::reverse_iterator
+  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
     reverse_iterator;
 
   // Description:
@@ -75,7 +75,10 @@ public:
     {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
       {
-      (*it)->Paint(context);
+      if ((*it)->GetVisible())
+        {
+        (*it)->Paint(context);
+        }
       }
     }
 
@@ -85,9 +88,9 @@ public:
     {
     item->Register(this->Scene);
     item->SetScene(this->Scene);
+    item->SetParent(this->Item);
 
     this->push_back(item);
-    this->State.push_back(false);
     return static_cast<unsigned int>(this->size()-1);
     }
 
@@ -99,6 +102,8 @@ public:
       {
       if (item == *it)
         {
+        item->SetParent(NULL);
+        item->SetScene(NULL);
         (*it)->Delete();
         this->erase(it);
         return true;
@@ -127,7 +132,6 @@ public:
       (*it)->Delete();
       }
     this->clear();
-    this->State.clear();
     }
 
   // Description:
@@ -150,8 +154,9 @@ public:
   vtkContextScene* Scene;
 
   // Description:
-  // Store the state of the items to calculate enter/leave events.
-  vtkstd::vector<bool> State;
+  // Store a reference to the item that these children are part of.
+  // May be NULL for items in the scene itself.
+  vtkAbstractContextItem* Item;
 };
 
 #endif //__vtkContextScenePrivate_h

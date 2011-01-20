@@ -65,7 +65,7 @@ int TestSpiderPlotActor( int argc, char * argv [] )
   dobj->GetFieldData()->AddArray(crunchy);
   dobj->GetFieldData()->AddArray(salty);
   dobj->GetFieldData()->AddArray(oily);
-  
+
   vtkSpiderPlotActor *actor = vtkSpiderPlotActor::New();
   actor->SetInput(dobj);
   actor->SetTitle("Spider Plot");
@@ -109,6 +109,7 @@ int TestSpiderPlotActor( int argc, char * argv [] )
   renWin->SetSize(500,200);
 
   // render the image
+  iren->Initialize();
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );

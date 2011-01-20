@@ -101,8 +101,16 @@ public:
     return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
 
   // Description:
-  // Rounds a double to the nearest integer less than itself.
+  // Rounds a double to the nearest integer not greater than itself.
+  // This is faster than floor() but provides undefined output on
+  // overflow.
   static int Floor(double x);
+
+  // Description:
+  // Rounds a double to the nearest integer not less than itself.
+  // This is faster than ceil() but provides undefined output on
+  // overflow.
+  static int Ceil(double x);
   
   // Description:
   // Compute N factorial, N! = N*(N-1) * (N-2)...*3*2*1.
@@ -259,10 +267,26 @@ public:
   }
 
   // Description:
+  // Multiplies a 2-vector by a scalar (float version).
+  // This modifies the input 2-vector.
+  static void MultiplyScalar2D(float a[2], float s) {
+    for (int i = 0; i < 2; ++i)
+      a[i] *= s;
+  }
+
+  // Description:
   // Multiplies a 3-vector by a scalar (double version).
   // This modifies the input 3-vector.
   static void MultiplyScalar(double a[3], double s) {
     for (int i = 0; i < 3; ++i)
+      a[i] *= s;
+  }
+
+  // Description:
+  // Multiplies a 2-vector by a scalar (double version).
+  // This modifies the input 2-vector.
+  static void MultiplyScalar2D(double a[2], double s) {
+    for (int i = 0; i < 2; ++i)
       a[i] *= s;
   }
 
@@ -336,12 +360,49 @@ public:
                              double theta);
 
   // Description:
+  // Compute the projection of vector a on vector b and return it in projection[3].
+  // If b is a zero vector, the function returns false and 'projection' is invalid.
+  // Otherwise, it returns true.
+  static bool ProjectVector(const float a[3], const float b[3], float projection[3]);
+  static bool ProjectVector(const double a[3], const double b[3], double projection[3]);
+
+  // Description:
+  // Compute the projection of 2D vector 'a' on 2D vector 'b' and returns the result
+  // in projection[2].
+  // If b is a zero vector, the function returns false and 'projection' is invalid.
+  // Otherwise, it returns true.
+  static bool ProjectVector2D(const float a[2], const float b[2], float projection[2]);
+  static bool ProjectVector2D(const double a[2], const double b[2], double projection[2]);
+
+  // Description:
   // Compute distance squared between two points x and y.
   static float Distance2BetweenPoints(const float x[3], const float y[3]);
 
   // Description:
   // Compute distance squared between two points x and y(double precision version).
   static double Distance2BetweenPoints(const double x[3], const double y[3]);
+
+  // Description:
+  // Compute the amplitude of a Gaussian function with mean=0 and specified variance.
+  // That is, 1./(sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
+  static double GaussianAmplitude(const double variance, const double distanceFromMean);
+
+  // Description:
+  // Compute the amplitude of a Gaussian function with specified mean and variance.
+  // That is, 1./(sqrt(2 Pi * variance)) * exp(-(position - mean)^2/(2.*variance)).
+  static double GaussianAmplitude(const double mean, const double variance, const double position);
+
+  // Description:
+  // Compute the amplitude of an unnormalized Gaussian function with mean=0 and specified variance.
+  // That is, exp(-distanceFromMean^2/(2.*variance)). When distanceFromMean = 0, this function
+  // returns 1.
+  static double GaussianWeight(const double variance, const double distanceFromMean);
+
+  // Description:
+  // Compute the amplitude of an unnormalized Gaussian function with specified mean and variance.
+  // That is, exp(-(position - mean)^2/(2.*variance)). When the distance from 'position' to 'mean'
+  // is 0, this function returns 1.
+  static double GaussianWeight(const double mean, const double variance, const double position);
 
   // Description:
   // Dot product of two 2-vectors.
@@ -994,19 +1055,19 @@ inline vtkTypeInt64 vtkMath::Factorial( int N )
 //----------------------------------------------------------------------------
 inline int vtkMath::Floor(double x)
 {
-#if defined i386 || defined _M_IX86
-  union { int i[2]; double d; } u;
-  // use 52-bit precision of IEEE double to round (x - 0.25) to 
-  // the nearest multiple of 0.5, according to prevailing rounding
-  // mode which is IEEE round-to-nearest,even
-  u.d = (x - 0.25) + 3377699720527872.0; // (2**51)*1.5
-  // extract mantissa, use shift to divide by 2 and hence get rid
-  // of the bit that gets messed up because the FPU uses
-  // round-to-nearest,even mode instead of round-to-nearest,+infinity
-  return u.i[0] >> 1;
-#else
-  return static_cast<int>(floor( x ) );
-#endif
+  const int r = static_cast<int>(x);
+  const int n = ( x != static_cast<double>(r) );
+  const int g = ( x < 0 );
+  return r - ( n & g );
+}
+
+//----------------------------------------------------------------------------
+inline int vtkMath::Ceil(double x)
+{
+  const int r = static_cast<int>(x);
+  const int n = ( x != static_cast<double>(r) );
+  const int g = ( x >= 0 );
+  return r + ( n & g );
 }
 
 //----------------------------------------------------------------------------

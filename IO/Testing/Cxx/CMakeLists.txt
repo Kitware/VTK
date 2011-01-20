@@ -11,15 +11,17 @@ IF(VTK_USE_FFMPEG_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestFFMPEGWriter.cxx)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
-  SET(ConditionalTests 
-    ${ConditionalTests} 
-    TestHyperOctreeIO.cxx 
+  SET(ConditionalTests
+    ${ConditionalTests}
+    TestHyperOctreeIO.cxx
     TestPLYReader.cxx
+    TestProStarReader.cxx
     TestTecplotReader.cxx
     SLACReaderLinear.cxx
     SLACReaderQuadratic.cxx
+    TestNetCDFPOPReader.cxx
     )
-    
+
 IF(NOT WIN32)
   SET(ConditionalTests
     ${ConditionalTests}
@@ -123,6 +125,10 @@ IF (VTK_DATA_ROOT)
          TestPLYReader -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
+    ADD_TEST(TestProStarReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestProStarReader -D ${VTK_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestProStarReader.png)
     ADD_TEST(TestTecplotReader ${CXX_TEST_PATH}/${KIT}CxxTests
          TestTecplotReader -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -140,6 +146,10 @@ IF (VTK_LARGE_DATA_ROOT)
          SLACReaderQuadratic -D ${VTK_LARGE_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/SLACReaderQuadratic.png)
+    ADD_TEST(TestNetCDFPOPReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestNetCDFPOPReader -D ${VTK_LARGE_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_LARGE_DATA_ROOT}/Baseline/${KIT}/TestNetCDFPOPReader.png)
     IF(NOT WIN32)
       ADD_TEST(SLACParticleReader ${CXX_TEST_PATH}/${KIT}CxxTests
            SLACParticleReader -D ${VTK_LARGE_DATA_ROOT}
@@ -194,12 +204,14 @@ ENDIF(VTK_USE_OGGTHEORA_ENCODER)
 IF(VTK_USE_INFOVIS)
   ADD_TEST(TestDataObjectIO ${CXX_TEST_PATH}/${KIT}CxxTests TestDataObjectIO)
   ADD_TEST(TestDataObjectXMLIO ${CXX_TEST_PATH}/${KIT}CxxTests TestDataObjectXMLIO)
+  set_tests_properties(TestDataObjectXMLIO PROPERTIES RUN_SERIAL ON)
 ENDIF(VTK_USE_INFOVIS)
 
 IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayIOTests ArrayIOCxxTests.cxx
     TestArraySerialization.cxx
+    TestArrayDenormalized.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )
 

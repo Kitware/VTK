@@ -45,7 +45,6 @@ public:
   vtkGetMacro(ReverseStencil, int);
 
   // Description:
-  // NOTE: Not yet implemented, use SetBackgroundValue instead.
   // Set the second input.  This image will be used for the 'outside' of the
   // stencil.  If not set, the output voxels will be filled with
   // BackgroundValue instead.
@@ -69,8 +68,6 @@ protected:
   vtkImageStencil();
   ~vtkImageStencil();
   
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

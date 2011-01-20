@@ -254,6 +254,9 @@ public:
   int Broadcast(int *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data, length, VTK_INT, srcProcessId);
   }
+  int Broadcast(unsigned int *data, vtkIdType length, int srcProcessId) {
+    return this->BroadcastVoidArray(data, length, VTK_UNSIGNED_INT, srcProcessId);
+  }
   int Broadcast(unsigned long *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data,length,VTK_UNSIGNED_LONG,srcProcessId);
   }
@@ -598,6 +601,11 @@ public:
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_INT, operation, destProcessId);
   }
+  int Reduce(const unsigned int *sendBuffer, unsigned int *recvBuffer,
+             vtkIdType length, int operation, int destProcessId) {
+    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
+                                 VTK_UNSIGNED_INT, operation, destProcessId);
+  }
   int Reduce(const unsigned long *sendBuffer, unsigned long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
@@ -793,6 +801,7 @@ public:
 
   static void SetUseCopy(int useCopy);
 
+//BTX
   // Description:
   // Determine the global bounds for a set of processes.  BBox is
   // initially set (outside of the call to the local bounds of the process
@@ -803,7 +812,6 @@ public:
   // bounds else it will be set to 0
   // The last three arguements are the tags to be used when performing
   // the operation
-//BTX
   virtual int ComputeGlobalBounds(int processorId, int numProcesses,
                                   vtkBoundingBox *bounds,
                                   int *rightHasBounds = 0,

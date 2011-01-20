@@ -1,8 +1,8 @@
 SET(KIT Hybrid)
 # add tests that do not require data
-SET(MyTests   
+SET(MyTests
   TestImageStencilData.cxx
-  X3DTest.cxx  
+  X3DTest.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
@@ -17,16 +17,17 @@ IF (VTK_DATA_ROOT)
     TestSpiderPlotActor.cxx
     TestVRMLNormals.cxx
     TestTDxGeo.cxx
+    TestLegendBoxActor.cxx
     )
-  # Temporarily disable LIC tests on non-windows platforms
-  IF (VTK_USE_GLSL_SHADERS AND WIN32)
+  # Temporarily disable LIC tests on Mac platforms
+  IF (VTK_USE_GLSL_SHADERS AND NOT APPLE)
     SET(MyTests ${MyTests}
       TestImageDataLIC2D.cxx
       TestStructuredGridLIC2DXSlice.cxx
       TestStructuredGridLIC2DYSlice.cxx
       TestStructuredGridLIC2DZSlice.cxx
       )
-  ENDIF (VTK_USE_GLSL_SHADERS AND WIN32)
+  ENDIF ()
 ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display of if they need args
@@ -38,10 +39,11 @@ IF(NOT VTK_USE_DISPLAY)
     TestPieChartActor.cxx
     TestPolyDataSilhouette.cxx
     TestSpiderPlotActor.cxx
-    X3DTest.cxx     
-    ) 
+    X3DTest.cxx
+    TestLegendBoxActor.cxx
+    )
 ENDIF(NOT VTK_USE_DISPLAY)
- 
+
 IF (VTK_DATA_ROOT)
   ADD_TEST(TestPolyDataSilhouette ${CXX_TEST_PATH}/${KIT}CxxTests
            TestPolyDataSilhouette ${VTK_DATA_ROOT}/Data/cow.vtp)
@@ -55,7 +57,7 @@ SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx TestPolyDataSilhouette.cxx TestImageStencilData.cxx)
 
 #
-# Add all the executables 
+# Add all the executables
 FOREACH (test ${TestsToRun})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
   IF (VTK_DATA_ROOT)
@@ -65,20 +67,20 @@ FOREACH (test ${TestsToRun})
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
   ENDIF (VTK_DATA_ROOT)
-ENDFOREACH (test) 
+ENDFOREACH (test)
 
 IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
-  ADD_TEST(TestAddStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST(TestAddStencilData ${CXX_TEST_PATH}/${KIT}CxxTests
          TestImageStencilData 1
         -T ${VTK_BINARY_DIR}/Testing/Temporary
         -D ${VTK_DATA_ROOT}
         -V Baseline/${KIT}/TestAddStencilData.png)
-  ADD_TEST(TestSubtractStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
+  ADD_TEST(TestSubtractStencilData ${CXX_TEST_PATH}/${KIT}CxxTests
          TestImageStencilData 2
         -D ${VTK_DATA_ROOT}
         -V Baseline/${KIT}/TestSubtractStencilData.png)
-  ADD_TEST(TestClipStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
-         TestImageStencilData 3 
+  ADD_TEST(TestClipStencilData ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestImageStencilData 3
         -D ${VTK_DATA_ROOT}
         -V Baseline/${KIT}/TestClipStencilData.png)
 ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)

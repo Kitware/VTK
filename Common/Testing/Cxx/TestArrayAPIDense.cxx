@@ -124,7 +124,7 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->Fill(19700827);
 
     // Test unordered access ...
-    for(vtkIdType n = 0; n != array->GetNonNullSize(); ++n)
+    for(vtkArray::SizeT n = 0; n != array->GetNonNullSize(); ++n)
       test_expression(array->GetValueN(n) == 19700827);
 
     // Verify that deep-copy works correctly ...
@@ -134,7 +134,7 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(deep_copy->GetSize() == array->GetSize());
     test_expression(deep_copy->GetNonNullSize() == array->GetNonNullSize());
     test_expression(deep_copy->GetExtents() == array->GetExtents());
-    for(vtkIdType n = 0; n != deep_copy->GetNonNullSize(); ++n)
+    for(vtkArray::SizeT n = 0; n != deep_copy->GetNonNullSize(); ++n)
       test_expression(deep_copy->GetValueN(n) == 19700827);
 
     // Verify that data is organized in fortran-order ...

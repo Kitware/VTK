@@ -96,8 +96,6 @@ public:
   vtkSetClampMacro(MaximumNumberOfBytes,unsigned long,1,VTK_UNSIGNED_LONG_MAX);
   vtkGetMacro(MaximumNumberOfBytes, unsigned long);
 
-
-
   // Description:
   // Given a text property, get the corresponding FreeType size object
   // (a structure storing both a face and a specific size metric).
@@ -123,8 +121,9 @@ public:
   // Return true on success, false otherwise
   // This method is successful
   // only when FreeType version is >= 2.1.9
-  int GetGlyphIndex(vtkTextProperty *tprop, unsigned char c, FT_UInt *gindex);
+  int GetGlyphIndex(vtkTextProperty *tprop, FT_UInt32 c, FT_UInt *gindex);
 
+  //BTX
   // Description:
   // Given a text property and a character, get the corresponding FreeType
   // glyph. The 'request' parameter can be used to request the glyph to be
@@ -138,7 +137,6 @@ public:
   // Return true on success, false otherwise
   // This method is successful
   // only when FreeType version is >= 2.1.9
-  //BTX
   enum
   {
     GLYPH_REQUEST_DEFAULT = 0,
@@ -147,7 +145,7 @@ public:
   };
   //ETX
   int GetGlyph(vtkTextProperty *tprop,
-               unsigned char c,
+               FT_UInt32 c,
                FT_Glyph *glyph,
                int request = GLYPH_REQUEST_DEFAULT);
 
@@ -199,7 +197,7 @@ public:
   // only when FreeType version is >= 2.1.9
   int GetSize(unsigned long tprop_cache_id, int font_size, FT_Size *size);
   int GetFace(unsigned long tprop_cache_id, FT_Face *face);
-  int GetGlyphIndex(unsigned long tprop_cache_id, unsigned char c,
+  int GetGlyphIndex(unsigned long tprop_cache_id, FT_UInt32 c,
                     FT_UInt *gindex);
   int GetGlyph(unsigned long tprop_cache_id,
                int font_size,

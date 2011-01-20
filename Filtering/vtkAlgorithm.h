@@ -34,6 +34,7 @@
 class vtkAbstractArray;
 class vtkAlgorithmInternals;
 class vtkAlgorithmOutput;
+class vtkCollection;
 class vtkDataArray;
 class vtkDataObject;
 class vtkExecutive;
@@ -92,6 +93,13 @@ public:
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
+
+  // Description:
+  // Version of ProcessRequest() that is wrapped. This converts the
+  // collection to an array and calls the other version.
+  int ProcessRequest(vtkInformation* request,
+                     vtkCollection* inInfo,
+                     vtkInformationVector* outInfo);
 
   // Description:
   // A special version of ProcessRequest meant specifically for the

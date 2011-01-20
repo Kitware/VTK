@@ -21,6 +21,7 @@
 #include "t42error.h"
 #include FT_INTERNAL_DEBUG_H
 #include FT_LIST_H
+#include FT_TRUETYPE_IDS_H
 
 
 #undef  FT_COMPONENT
@@ -330,39 +331,42 @@
         charmap.face = root;
 
         /* first of all, try to synthesize a Unicode charmap */
-        charmap.platform_id = 3;
-        charmap.encoding_id = 1;
+        charmap.platform_id = TT_PLATFORM_MICROSOFT;
+        charmap.encoding_id = TT_MS_ID_UNICODE_CS;
         charmap.encoding    = FT_ENCODING_UNICODE;
 
-        FT_CMap_New( cmap_classes->unicode, NULL, &charmap, NULL );
+        error = FT_CMap_New( cmap_classes->unicode, NULL, &charmap, NULL );
+        if ( error && FT_Err_No_Unicode_Glyph_Name != error )
+          goto Exit;
+        error = FT_Err_Ok;
 
         /* now, generate an Adobe Standard encoding when appropriate */
-        charmap.platform_id = 7;
+        charmap.platform_id = TT_PLATFORM_ADOBE;
         clazz               = NULL;
 
         switch ( type1->encoding_type )
         {
         case T1_ENCODING_TYPE_STANDARD:
           charmap.encoding    = FT_ENCODING_ADOBE_STANDARD;
-          charmap.encoding_id = 0;
+          charmap.encoding_id = TT_ADOBE_ID_STANDARD;
           clazz               = cmap_classes->standard;
           break;
 
         case T1_ENCODING_TYPE_EXPERT:
           charmap.encoding    = FT_ENCODING_ADOBE_EXPERT;
-          charmap.encoding_id = 1;
+          charmap.encoding_id = TT_ADOBE_ID_EXPERT;
           clazz               = cmap_classes->expert;
           break;
 
         case T1_ENCODING_TYPE_ARRAY:
           charmap.encoding    = FT_ENCODING_ADOBE_CUSTOM;
-          charmap.encoding_id = 2;
+          charmap.encoding_id = TT_ADOBE_ID_CUSTOM;
           clazz               = cmap_classes->custom;
           break;
 
         case T1_ENCODING_TYPE_ISOLATIN1:
           charmap.encoding    = FT_ENCODING_ADOBE_LATIN_1;
-          charmap.encoding_id = 3;
+          charmap.encoding_id = TT_ADOBE_ID_LATIN_1;
           clazz               = cmap_classes->unicode;
           break;
 
@@ -371,7 +375,7 @@
         }
 
         if ( clazz )
-          FT_CMap_New( clazz, NULL, &charmap, NULL );
+          error = FT_CMap_New( clazz, NULL, &charmap, NULL );
 
 #if 0
         /* Select default charmap */
@@ -396,48 +400,48 @@
     if ( !face )
       return;
 
-      type1  = &face->type1;
-      info   = &type1->font_info;
-      memory = face->root.memory;
+    type1  = &face->type1;
+    info   = &type1->font_info;
+    memory = face->root.memory;
 
-      /* delete internal ttf face prior to freeing face->ttf_data */
-      if ( face->ttf_face )
-        FT_Done_Face( face->ttf_face );
+    /* delete internal ttf face prior to freeing face->ttf_data */
+    if ( face->ttf_face )
+      FT_Done_Face( face->ttf_face );
 
-      /* release font info strings */
-      FT_FREE( info->version );
-      FT_FREE( info->notice );
-      FT_FREE( info->full_name );
-      FT_FREE( info->family_name );
-      FT_FREE( info->weight );
+    /* release font info strings */
+    FT_FREE( info->version );
+    FT_FREE( info->notice );
+    FT_FREE( info->full_name );
+    FT_FREE( info->family_name );
+    FT_FREE( info->weight );
 
-      /* release top dictionary */
-      FT_FREE( type1->charstrings_len );
-      FT_FREE( type1->charstrings );
-      FT_FREE( type1->glyph_names );
+    /* release top dictionary */
+    FT_FREE( type1->charstrings_len );
+    FT_FREE( type1->charstrings );
+    FT_FREE( type1->glyph_names );
 
-      FT_FREE( type1->charstrings_block );
-      FT_FREE( type1->glyph_names_block );
+    FT_FREE( type1->charstrings_block );
+    FT_FREE( type1->glyph_names_block );
 
-      FT_FREE( type1->encoding.char_index );
-      FT_FREE( type1->encoding.char_name );
-      FT_FREE( type1->font_name );
+    FT_FREE( type1->encoding.char_index );
+    FT_FREE( type1->encoding.char_name );
+    FT_FREE( type1->font_name );
 
-      FT_FREE( face->ttf_data );
+    FT_FREE( face->ttf_data );
 
 #if 0
-      /* release afm data if present */
-      if ( face->afm_data )
-        T1_Done_AFM( memory, (T1_AFM*)face->afm_data );
+    /* release afm data if present */
+    if ( face->afm_data )
+      T1_Done_AFM( memory, (T1_AFM*)face->afm_data );
 #endif
 
-      /* release unicode map, if any */
-      FT_FREE( face->unicode_map.maps );
-      face->unicode_map.num_maps = 0;
+    /* release unicode map, if any */
+    FT_FREE( face->unicode_map.maps );
+    face->unicode_map.num_maps = 0;
 
-      face->root.family_name = 0;
-      face->root.style_name  = 0;
-    }
+    face->root.family_name = 0;
+    face->root.style_name  = 0;
+  }
 
 
   /*************************************************************************/

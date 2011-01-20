@@ -27,6 +27,7 @@
 #include "vtkRenderView.h"
 
 #include <vtksys/stl/vector>
+#include <vtksys/stl/algorithm>
 
 vtkStandardNewMacro(vtkViewUpdater);
 
@@ -68,7 +69,14 @@ void vtkViewUpdater::AddView(vtkView* view)
   this->Internals->Views.push_back(view);
   //view->AddObserver(vtkCommand::SelectionChangedEvent, this->Internals);
 }
-
+void vtkViewUpdater::RemoveView(vtkView* view)
+{
+  vtksys_stl::vector<vtkView*>::iterator p;
+  p = vtksys_stl::find(this->Internals->Views.begin(), this->Internals->Views.end(), view);
+  if(p == this->Internals->Views.end())
+    return;
+  this->Internals->Views.erase(p);
+}
 void vtkViewUpdater::AddAnnotationLink(vtkAnnotationLink* link)
 {
   link->AddObserver(vtkCommand::AnnotationChangedEvent, this->Internals);

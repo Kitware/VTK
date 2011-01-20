@@ -26,16 +26,18 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkLookupTable.h"
 
-#include "vtkstd/vector"
-#include "vtkstd/algorithm"
+#include <vector>
+#include <algorithm>
 
 // PIMPL for STL vector...
-class vtkPlotPoints::VectorPIMPL : public vtkstd::vector<vtkVector2f>
+class vtkPlotPoints::VectorPIMPL : public std::vector<vtkVector2f>
 {
 public:
   VectorPIMPL(vtkVector2f* startPos, vtkVector2f* finishPos)
-    : vtkstd::vector<vtkVector2f>(startPos, finishPos)
+    : std::vector<vtkVector2f>(startPos, finishPos)
   {
   }
 };
@@ -54,6 +56,10 @@ vtkPlotPoints::vtkPlotPoints()
   this->LogY = false;
   this->Marker = NULL;
   this->HighlightMarker = NULL;
+
+  this->LookupTable = 0;
+  this->Colors = 0;
+  this->ScalarVisibility = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -77,6 +83,14 @@ vtkPlotPoints::~vtkPlotPoints()
   if (this->HighlightMarker)
     {
     this->HighlightMarker->Delete();
+    }
+  if (this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    }
+  if ( this->Colors != 0 )
+    {
+    this->Colors->UnRegister(this);
     }
 }
 
@@ -129,15 +143,32 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     width = 8.0;
     }
 
+  // If there is a marker style, then draw the marker for each point too
+  if (this->MarkerStyle)
+    {
+    this->GeneraterMarker(vtkContext2D::FloatToInt(width));
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
+    painter->GetPen()->SetWidth(width);
+    if (this->ScalarVisibility && this->Colors)
+      {
+      painter->DrawPointSprites(this->Marker, this->Points, this->Colors);
+      }
+    else
+      {
+      painter->DrawPointSprites(this->Marker, this->Points);
+      }
+    }
+
   // Now add some decorations for our selected points...
   if (this->Selection)
     {
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
     for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
-      this->GeneraterMarker(static_cast<int>(width+2.7), true);
+      this->GeneraterMarker(vtkContext2D::FloatToInt(width+2.7), true);
 
-      painter->GetPen()->SetColor(255, 50, 0, 255);
+      painter->GetPen()->SetColor(255, 50, 0, 150);
       painter->GetPen()->SetWidth(width+2.7);
 
       vtkIdType id = 0;
@@ -155,21 +186,12 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     vtkDebugMacro("No selection set.");
     }
 
-  // If there is a marker style, then draw the marker for each point too
-  if (this->MarkerStyle)
-    {
-    this->GeneraterMarker(static_cast<int>(width));
-    painter->ApplyPen(this->Pen);
-    painter->ApplyBrush(this->Brush);
-    painter->GetPen()->SetWidth(width);
-    painter->DrawPointSprites(this->Marker, this->Points);
-    }
-
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4], int )
+bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                                int)
 {
   if (this->MarkerStyle)
     {
@@ -178,7 +200,7 @@ bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, float rect[4], int )
       {
       width = 8.0;
       }
-    this->GeneraterMarker(static_cast<int>(width));
+    this->GeneraterMarker(vtkContext2D::FloatToInt(width));
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
@@ -453,7 +475,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
     vtkVector2f* data =
         static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
     this->Sorted = new VectorPIMPL(data, data+n);
-    vtkstd::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
+    std::sort(this->Sorted->begin(), this->Sorted->end(), compVector2fX);
     }
 
   // Set up our search array, use the STL lower_bound algorithm
@@ -462,7 +484,7 @@ int vtkPlotPoints::GetNearestPoint(const vtkVector2f& point,
 
   // Get the lowest point we might hit within the supplied tolerance
   vtkVector2f lowPoint(point.X()-tol.X(), 0.0f);
-  low = vtkstd::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
+  low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
   // Now consider the y axis
   float highX = point.X() + tol.X();
@@ -560,6 +582,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   vtkDataArray* x = this->UseIndexForXSeries ?
                     0 : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
+
   if (!x && !this->UseIndexForXSeries)
     {
     vtkErrorMacro(<< "No X column is set (index 0).");
@@ -615,6 +638,31 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     delete this->Sorted;
     this->Sorted = 0;
     }
+
+  // Additions for color mapping
+  if (this->ScalarVisibility && !this->ColorArrayName.empty())
+    {
+    vtkDataArray* c =
+      vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
+    // TODO: Should add support for categorical coloring & try enum lookup
+    if (c)
+      {
+      if (!this->LookupTable)
+        {
+        this->CreateDefaultLookupTable();
+        }
+      this->Colors = this->LookupTable->MapScalars(c, VTK_COLOR_MODE_MAP_SCALARS, -1);
+      // Consistent register and unregisters
+      this->Colors->Register(this);
+      this->Colors->Delete();
+      }
+    else
+      {
+      this->Colors->UnRegister(this);
+      this->Colors = 0;
+      }
+    }
+
   this->BuildTime.Modified();
   return true;
 }
@@ -757,6 +805,112 @@ inline void vtkPlotPoints::CalculateBounds(double bounds[4])
       end = nPoints;
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::SetLookupTable(vtkScalarsToColors *lut)
+{
+  if ( this->LookupTable != lut )
+    {
+    if ( this->LookupTable)
+      {
+      this->LookupTable->UnRegister(this);
+      }
+    this->LookupTable = lut;
+    if (lut)
+      {
+      lut->Register(this);
+      }
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkScalarsToColors *vtkPlotPoints::GetLookupTable()
+{
+  if ( this->LookupTable == 0 )
+    {
+    this->CreateDefaultLookupTable();
+    }
+  return this->LookupTable;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::CreateDefaultLookupTable()
+{
+  if ( this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    }
+  this->LookupTable = vtkLookupTable::New();
+  // Consistent Register/UnRegisters.
+  this->LookupTable->Register(this);
+  this->LookupTable->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::SelectColorArray(const vtkStdString& arrayName)
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with no input table set.");
+    return;
+    }
+  if (this->ColorArrayName == arrayName)
+    {
+    return;
+    }
+  for (vtkIdType c = 0; c < table->GetNumberOfColumns(); ++c)
+    {
+    if (arrayName == table->GetColumnName(c))
+      {
+      this->ColorArrayName = arrayName;
+      this->Modified();
+      return;
+      }
+    }
+  vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
+  this->ColorArrayName = "";
+  this->Modified();
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with no input table set.");
+    return;
+    }
+  vtkDataArray *col = vtkDataArray::SafeDownCast(table->GetColumn(arrayNum));
+  // TODO: Should add support for categorical coloring & try enum lookup
+  if (!col)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with invalid column index");
+    return;
+    }
+  else
+    {
+    const char *arrayName = table->GetColumnName(arrayNum);
+    if (this->ColorArrayName == arrayName || arrayName == 0)
+      {
+      return;
+      }
+    else
+      {
+      this->ColorArrayName = arrayName;
+      this->Modified();
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlotPoints::GetColorArrayName()
+{
+  return this->ColorArrayName;
 }
 
 //-----------------------------------------------------------------------------

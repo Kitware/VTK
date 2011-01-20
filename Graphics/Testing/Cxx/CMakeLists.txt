@@ -39,6 +39,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDecimatePolylineFilter.cxx
     )
 
+  IF(VTK_USE_BOOST)
+    SET(MyTests
+      ${MyTests}
+      TestReebGraph.cxx
+      )
+  ENDIF(VTK_USE_BOOST)
+
   # Add Matlab Engine and Matlab Mex related tests.
   IF(VTK_USE_MATLAB_MEX)
     INCLUDE(${MATLAB_MEX_USE_FILE})

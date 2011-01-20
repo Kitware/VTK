@@ -39,13 +39,27 @@ public:
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
   // Description:
   // Get any input of this filter.
-//BTX
   vtkDataSet *GetInput(int idx);
   vtkDataSet *GetInput() 
     {return this->GetInput( 0 );}
 //ETX
+
+  // Description:
+  // Get if the filter should merge coincidental points
+  // Note: The filter will only merge points if the ghost cell array doesn't exist
+  // Defaults to Off
+  vtkGetMacro(MergePoints,int);
+
+  // Description:
+  // Set the filter to merge coincidental points.
+  // Note: The filter will only merge points if the ghost cell array doesn't exist
+  // Defaults to Off
+  vtkSetMacro(MergePoints,int);
+
+  vtkBooleanMacro(MergePoints,int);
 
   // Description:
   // Remove a dataset from the list of data to append.
@@ -77,6 +91,10 @@ protected:
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
   vtkDataSetCollection *InputList;
+
+  //If true we will attempt to merge points. Must also not have
+  //ghost cells defined.
+  int MergePoints;
 
 private:
   vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.

@@ -1,4 +1,4 @@
-This directory contains a subset of the Freetype2 library (2.3.11) and
+This directory contains a subset of the Freetype2 library (2.4.4) and
 some custom changes that VTK needs.
 
 We only include enough of the distribution to provide the functionalities
@@ -14,15 +14,18 @@ vs the original freetype code
 
 Added Files
 -----------
-builds/win32/freetype/config/ftoption.h: 
+.NoDartCoverage
+  - new file, added so that coverage calculations ignore freetype code
+
+builds/win32/freetype/config/ftoption.h:
   -new file, created from include/freetype/config/ftoption.h
   -you'll need to manually merge changes from newer freetypes.
   -the changes from the file it's based on are marked with VTK_FREETYPE_CHANGE:
     -conditional disabling of compiler warnings
-    -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_USE_LZW
+    -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_LZW, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_INCREMENTAL, TT_CONFIG_OPTION_BYTECODE_INTERPRETER, FT_CONFIG_OPTION_OLD_INTERNALS
     -additions to support DLL build for Windows
 
-builds/unix/ftconfig.h.in: 
+builds/unix/ftconfig.h.in:
   -new file, created from builds/unix/ftconfig.in
   -you'll need to manually merge changes from newer freetypes.
   -the changes from the file it's based on are marked with VTK_FREETYPE_CHANGE:
@@ -54,12 +57,9 @@ include/ft2build.h:
   -extensive changes, see file for comments
 
 include/freetype/config/ftoption.h:
-  -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_USE_LZW
-  
+  -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_LZW, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_OLD_INTERNALS
+
 src/pshinter/pshalgo.c:
   -commented out piece of code to workaround a bug, see bug 10052.
-
-src/truetype/ttgxvar.c
-  -fixed warning by taking post-2.3.11 code from freetype git
 
 searching for "VTK_FREETYPE_CHANGE" is a good idea too.

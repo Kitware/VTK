@@ -421,7 +421,7 @@ vtkAbstractArray *vtkFieldData::GetAbstractArray(int i)
 }
 
 //----------------------------------------------------------------------------
-// Copy a field by reference counting the data arrays.
+// Copy a field by creating new data arrays
 void vtkFieldData::DeepCopy(vtkFieldData *f)
 {
   vtkAbstractArray *data, *newData;

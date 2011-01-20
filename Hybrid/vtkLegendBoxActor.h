@@ -39,11 +39,14 @@
 
 class vtkActor;
 class vtkDoubleArray;
+class vtkImageData;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
+class vtkPlaneSource;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkTexturedActor2D;
 class vtkTransform;
 class vtkTransformPolyDataFilter;
 class vtkProperty2D;
@@ -75,13 +78,20 @@ public:
   // entry color is the same as this actor's color.) (Note: use the set
   // methods when you use SetNumberOfEntries().)
   void SetEntry(int i, vtkPolyData *symbol, const char* string, double color[3]);
-  void SetEntrySymbol(int i, vtkPolyData *symbol);
-  void SetEntryString(int i, const char* string);
-  void SetEntryColor(int i, double color[3]);
-  void SetEntryColor(int i, double r, double g, double b);
-  vtkPolyData *GetEntrySymbol(int i);
-  const char* GetEntryString(int i);
-  double *GetEntryColor(int i);
+  void SetEntry(int i, vtkImageData *symbol, const char* string, double color[3]);
+  void SetEntry(int i, vtkPolyData *symbol, vtkImageData *icon,
+                const char* string, double color[3]);
+
+  void SetEntrySymbol (int i, vtkPolyData *symbol);
+  void SetEntryIcon   (int i, vtkImageData *icon);
+  void SetEntryString (int i, const char* string);
+  void SetEntryColor  (int i, double color[3]);
+  void SetEntryColor  (int i, double r, double g, double b);
+
+  vtkPolyData*  GetEntrySymbol(int i);
+  vtkImageData* GetEntryIcon(int i);
+  const char*   GetEntryString(int i);
+  double*       GetEntryColor(int i);
 
   // Description:
   // Set/Get the text property.
@@ -125,11 +135,29 @@ public:
 
   // Description:
   // Turn on/off flag to control whether the symbol's scalar data
-  // is used to color the symbol. If off, the color of the 
+  // is used to color the symbol. If off, the color of the
   // vtkLegendBoxActor is used.
   vtkSetMacro(ScalarVisibility,int);
   vtkGetMacro(ScalarVisibility,int);
   vtkBooleanMacro(ScalarVisibility,int);
+
+  // Description:
+  // Turn on/off background.
+  vtkSetMacro(UseBackground, int);
+  vtkGetMacro(UseBackground, int);
+  vtkBooleanMacro(UseBackground, int);
+
+  // Description:
+  // Set/Get background color.
+  // Default is: (0.3, 0.3, 0.3).
+  vtkSetVector3Macro(BackgroundColor, double);
+  vtkGetVector3Macro(BackgroundColor, double);
+
+  // Description:
+  // Set/Get background opacity.
+  // Default is: 1.0
+  vtkSetClampMacro(BackgroundOpacity, double, 0.0, 1.0);
+  vtkGetMacro(BackgroundOpacity, double);
 
   // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual
@@ -152,7 +180,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
   int RenderOverlay(vtkViewport* viewport);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
@@ -164,6 +192,7 @@ protected:
 
   void InitializeEntries();
 
+  vtkPolyData createTexturedPlane();
 
   int   Border;
   int   Box;
@@ -178,11 +207,20 @@ protected:
   vtkDoubleArray              *Colors;
   vtkTextMapper              **TextMapper;
   vtkActor2D                 **TextActor;
+
   vtkPolyData                **Symbol;
   vtkTransform               **Transform;
   vtkTransformPolyDataFilter **SymbolTransform;
   vtkPolyDataMapper2D        **SymbolMapper;
   vtkActor2D                 **SymbolActor;
+
+  vtkPlaneSource             **Icon;
+  vtkTransform               **IconTransform;
+  vtkTransformPolyDataFilter **IconTransformFilter;
+  vtkPolyDataMapper2D        **IconMapper;
+  vtkTexturedActor2D         **IconActor;
+  vtkImageData               **IconImage;
+
   vtkPolyData                *BorderPolyData;
   vtkPolyDataMapper2D        *BorderMapper;
   vtkActor2D                 *BorderActor;
@@ -190,6 +228,16 @@ protected:
   vtkPolyDataMapper2D        *BoxMapper;
   vtkActor2D                 *BoxActor;
   vtkTextProperty            *EntryTextProperty;
+
+  // Background plane.
+  int                         UseBackground;
+  double                      BackgroundOpacity;
+  double                      BackgroundColor[3];
+  vtkPlaneSource             *Background;
+
+  // May use texture.
+  vtkTexturedActor2D         *BackgroundActor;
+  vtkPolyDataMapper2D        *BackgroundMapper;
 
   // Used to control whether the stuff is recomputed
   int           LegendEntriesVisible;

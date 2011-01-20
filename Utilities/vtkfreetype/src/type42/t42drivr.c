@@ -49,11 +49,11 @@
 #define FT_COMPONENT  trace_t42
 
 
- /*
-  *
-  *  GLYPH DICT SERVICE
-  *
-  */
+  /*
+   *
+   *  GLYPH DICT SERVICE
+   *
+   */
 
   static FT_Error
   t42_get_glyph_name( T42_Face    face,
@@ -94,11 +94,11 @@
   };
 
 
- /*
-  *
-  *  POSTSCRIPT NAME SERVICE
-  *
-  */
+  /*
+   *
+   *  POSTSCRIPT NAME SERVICE
+   *
+   */
 
   static const char*
   t42_get_ps_font_name( T42_Face  face )
@@ -113,11 +113,11 @@
   };
 
 
- /*
-  *
-  *  POSTSCRIPT INFO SERVICE
-  *
-  */
+  /*
+   *
+   *  POSTSCRIPT INFO SERVICE
+   *
+   */
 
   static FT_Error
   t42_ps_get_font_info( FT_Face          face,
@@ -167,11 +167,11 @@
   };
 
 
- /*
-  *
-  *  SERVICE LIST
-  *
-  */
+  /*
+   *
+   *  SERVICE LIST
+   *
+   */
 
   static const FT_ServiceDescRec  t42_services[] =
   {

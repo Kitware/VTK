@@ -25,7 +25,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkstd/algorithm"
+#include <algorithm>
 
 namespace {
 
@@ -82,8 +82,8 @@ vtkPlotPie::vtkPlotPie()
   this->ColorSeries = vtkSmartPointer<vtkColorSeries>::New();
   this->Points = 0;
   this->Private = new vtkPlotPiePrivate();
-  this->Dimensions[0] = this->Dimensions[0] = this->Dimensions[0] =
-    this->Dimensions[0] = 0;
+  this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] =
+    this->Dimensions[3] = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +141,8 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
 
 //-----------------------------------------------------------------------------
 
-bool vtkPlotPie::PaintLegend(vtkContext2D *painter, float rect[4],int legendIndex)
+bool vtkPlotPie::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                             int legendIndex)
 {
   if (this->ColorSeries)
     this->Brush
@@ -211,7 +212,7 @@ int vtkPlotPie::GetNearestPoint(const vtkVector2f& point, const vtkVector2f&,
       {
       pointAngle = 180.0 + (180.0 + pointAngle);
       }
-    float *lbound = vtkstd::lower_bound(angles,
+    float *lbound = std::lower_bound(angles,
                                      angles + (this->Points->GetNumberOfPoints() * 2),
                                      pointAngle);
     int ret = lbound - angles;  // Location in the array

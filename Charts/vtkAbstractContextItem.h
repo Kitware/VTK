@@ -30,6 +30,7 @@ class vtkContext2D;
 class vtkContextMouseEvent;
 class vtkContextScene;
 class vtkContextScenePrivate;
+class vtkVector2f;
 
 class VTK_CHARTS_EXPORT vtkAbstractContextItem : public vtkObject
 {
@@ -93,6 +94,11 @@ public:
   virtual bool Hit(const vtkContextMouseEvent &mouse);
 
   // Description:
+  // Return the item under the mouse.
+  // If no item is under the mouse, the method returns a null pointer.
+  virtual vtkAbstractContextItem* GetPickedItem(const vtkContextMouseEvent &mouse);
+
+  // Description:
   // Mouse enter event.
   // Return true if the item holds the event, false if the event can be
   // propagated to other items.
@@ -140,6 +146,44 @@ public:
     return this->Scene;
     }
 
+  // Description:
+  // Set the parent item. The parent will be set for all items except top
+  // level items in a scene.
+  virtual void SetParent(vtkAbstractContextItem *parent);
+
+  // Description:
+  // Get the parent item. The parent will be set for all items except top
+  // level items in a tree.
+  vtkAbstractContextItem* GetParent()
+    {
+    return this->Parent;
+    }
+
+  // Description:
+  // Maps the point to the parent coordinate system.
+  virtual vtkVector2f MapToParent(const vtkVector2f& point);
+
+  // Description:
+  // Maps the point from the parent coordinate system.
+  virtual vtkVector2f MapFromParent(const vtkVector2f& point);
+
+  // Description:
+  // Maps the point to the scene coordinate system.
+  virtual vtkVector2f MapToScene(const vtkVector2f& point);
+
+  // Description:
+  // Maps the point from the scene coordinate system.
+  virtual vtkVector2f MapFromScene(const vtkVector2f& point);
+
+  // Description:
+  // Get the visibility of the item (should it be drawn).
+  vtkGetMacro(Visible, bool);
+
+  // Description:
+  // Set the visibility of the item (should it be drawn).
+  // Visible by default.
+  vtkSetMacro(Visible, bool);
+
 //BTX
 protected:
   vtkAbstractContextItem();
@@ -150,10 +194,17 @@ protected:
   vtkContextScene* Scene;
 
   // Description:
+  // Point to the parent item - can be null.
+  vtkAbstractContextItem* Parent;
+
+  // Description:
   // This structure provides a list of children, along with convenience
   // functions to paint the children etc. It is derived from
   // vtkstd::vector<vtkAbstractContextItem>, defined in a private header.
   vtkContextScenePrivate* Children;
+
+  // Description: Store the visibility of the item (default is true).
+  bool Visible;
 
 private:
   vtkAbstractContextItem(const vtkAbstractContextItem &); // Not implemented.

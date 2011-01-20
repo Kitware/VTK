@@ -27,6 +27,7 @@
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
 #include <assert.h>
+#include <cmath>
 
 #include "vtkMathConfigure.h"
 #include "vtkBoxMuellerRandomSequence.h"
@@ -1762,7 +1763,7 @@ template<class T1, class T2>
 
   T2 rr = xx + yy + zz;
   // normalization factor, just in case quaternion was not normalized
-  T2 f = T2(1)/T2(sqrt(ww + rr));
+  T2 f = 1/(ww + rr);
   T2 s = (ww - rr)*f;
   f *= 2;
 
@@ -1997,6 +1998,100 @@ double vtkMath::Norm(const double* x, int n)
     }
 
   return sqrt(sum);
+}
+
+//----------------------------------------------------------------------------
+bool vtkMath::ProjectVector(const float a[3], const float b[3], float projection[3])
+{
+  float bSquared = vtkMath::Dot(b,b);
+
+  if(bSquared == 0)
+    {
+    projection[0] = 0;
+    projection[1] = 0;
+    projection[2] = 0;
+    return false;
+    }
+
+  float scale = vtkMath::Dot(a,b)/bSquared;
+
+  for(unsigned int i = 0; i < 3; i++)
+    {
+    projection[i] = b[i];
+    }
+  vtkMath::MultiplyScalar(projection, scale);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMath::ProjectVector(const double a[3], const double b[3], double projection[3])
+{
+  double bSquared = vtkMath::Dot(b,b);
+
+  if(bSquared == 0)
+    {
+    projection[0] = 0;
+    projection[1] = 0;
+    projection[2] = 0;
+    return false;
+    }
+
+  double scale = vtkMath::Dot(a,b)/bSquared;
+
+  for(unsigned int i = 0; i < 3; i++)
+    {
+    projection[i] = b[i];
+    }
+  vtkMath::MultiplyScalar(projection, scale);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMath::ProjectVector2D(const float a[2], const float b[2], float projection[2])
+{
+  float bSquared = vtkMath::Dot2D(b,b);
+
+  if(bSquared == 0)
+    {
+    projection[0] = 0;
+    projection[1] = 0;
+    return false;
+    }
+
+  float scale = vtkMath::Dot2D(a,b)/bSquared;
+
+  for(unsigned int i = 0; i < 2; i++)
+    {
+    projection[i] = b[i];
+    }
+  vtkMath::MultiplyScalar2D(projection, scale);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMath::ProjectVector2D(const double a[2], const double b[2], double projection[2])
+{
+  double bSquared = vtkMath::Dot2D(b,b);
+
+  if(bSquared == 0)
+    {
+    projection[0] = 0;
+    projection[1] = 0;
+    return false;
+    }
+
+  double scale = vtkMath::Dot2D(a,b)/bSquared;
+
+  for(unsigned int i = 0; i < 2; i++)
+    {
+    projection[i] = b[i];
+    }
+  vtkMath::MultiplyScalar2D(projection, scale);
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -2851,6 +2946,32 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
     }
   return 1;
   
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
+{
+  return 1./(sqrt(2.*vtkMath::Pi() * variance)) * exp(-(pow(distanceFromMean,2))/(2.*variance));
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianAmplitude(const double mean, const double variance, const double position)
+{
+  double distanceToMean = std::abs(mean-position);
+  return GaussianAmplitude(variance, distanceToMean);
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianWeight(const double variance, const double distanceFromMean)
+{
+  return exp(-(pow(distanceFromMean,2))/(2.*variance));
+}
+
+//----------------------------------------------------------------------------
+double vtkMath::GaussianWeight(const double mean, const double variance, const double position)
+{
+  double distanceToMean = std::abs(mean-position);
+  return GaussianWeight(variance, distanceToMean);
 }
 
 //----------------------------------------------------------------------------

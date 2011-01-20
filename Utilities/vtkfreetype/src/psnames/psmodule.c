@@ -190,7 +190,7 @@
         return 1;
       else if ( unicode1 < unicode2 )
         return -1;
-    else
+      else
         return 0;
     }
   }
@@ -249,9 +249,9 @@
 
   static void
   ps_check_extra_glyph_name( const char*  gname,
-                     FT_UInt      glyph,
+                             FT_UInt      glyph,
                              FT_UInt*     extra_glyphs,
-                     FT_UInt     *states )
+                             FT_UInt     *states )
   {
     FT_UInt  n;
 
@@ -276,7 +276,7 @@
 
   static void
   ps_check_extra_glyph_unicode( FT_UInt32  uni_char,
-                        FT_UInt   *states )
+                                FT_UInt   *states )
   {
     FT_UInt  n;
 
@@ -353,7 +353,7 @@
         if ( extra_glyph_list_states[n] == 1 )
         {
           /* This glyph name has an additional representation. */
-          /* Add it to the cmap.                                    */
+          /* Add it to the cmap.                               */
 
           map->unicode     = ft_extra_glyph_unicodes[n];
           map->glyph_index = extra_glyphs[n];
@@ -366,11 +366,13 @@
 
       if ( count == 0 )
       {
+        /* No unicode chars here! */
         FT_FREE( table->maps );
         if ( !error )
-          error = PSnames_Err_Invalid_Argument;  /* No unicode chars here! */
+          error = PSnames_Err_No_Unicode_Glyph_Name;
       }
-      else {
+      else
+      {
         /* Reallocate if the number of used entries is much smaller. */
         if ( count < num_glyphs / 2 )
         {
@@ -561,8 +563,7 @@
   psnames_get_service( FT_Module    module,
                        const char*  service_id )
   {
-    FT_Library library = module->library;
-    FT_UNUSED(library);
+    FT_UNUSED( module );
 
     return ft_service_list_lookup( FT_PSCMAPS_SERVICES_GET, service_id );
   }
@@ -577,7 +578,7 @@
 #endif
 
   FT_DEFINE_MODULE(psnames_module_class,
-
+  
     0,  /* this is not a font driver, nor a renderer */
     sizeof ( FT_ModuleRec ),
 

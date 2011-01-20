@@ -6,8 +6,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
       dem
-      NetCDFReader
+      NetCDFCF2DBounds
+      NetCDFCFSetOutputType
       NetCDFCFSphericalCoords
+      NetCDFCFUnstructured
+      NetCDFReader
       TestAVSucdReader
       TestGAMBITReader
       TestImageWriters
@@ -40,6 +43,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         -V Baseline/IO/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
+    set_tests_properties(TestXMLImageDataIO-image PROPERTIES RUN_SERIAL ON)
     IF (VTK_USE_PARALLEL)
       FOREACH ( tfile 
         TestXMLPolyDataIO
@@ -53,6 +57,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         -V Baseline/IO/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
       ENDFOREACH( tfile )
+      set_tests_properties(TestXMLPolyDataIO-image PROPERTIES RUN_SERIAL ON)
     ENDIF (VTK_USE_PARALLEL)
     # tests that don't produce images
     FOREACH ( tfile

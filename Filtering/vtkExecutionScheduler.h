@@ -40,6 +40,7 @@
 #define __vtkExecutionScheduler_h
 
 #include "vtkObject.h"
+#include "vtkExecutionSchedulerManager.h" // For singleton instantiation/cleanup
 
 class vtkExecutive;
 class vtkComputingResources;
@@ -161,6 +162,12 @@ protected:
   friend void * vtkExecutionScheduler_ExecuteThread(void *data);
 
 //ETX
+
+  // Description: Functions and friend class to take care of initialization
+  // and clean up of the vtkExecutionScheduler singleton.
+  static void ClassInitialize();
+  static void ClassFinalize();
+  friend class vtkExecutionSchedulerManager;
 
 private:
   vtkExecutionScheduler(const vtkExecutionScheduler&);  // Not implemented.

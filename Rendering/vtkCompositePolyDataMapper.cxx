@@ -93,7 +93,7 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
       // Make a copy of the data to break the pipeline here
       vtkPolyData *newpd = vtkPolyData::New();
       newpd->ShallowCopy(pd);
-      vtkPolyDataMapper *pdmapper = vtkPolyDataMapper::New();
+      vtkPolyDataMapper *pdmapper = this->MakeAMapper();
       pdmapper->Register( this );
       pdmapper->SetInput(newpd);
       this->Internal->Mappers.push_back(pdmapper);
@@ -121,7 +121,7 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
         // Make a copy of the data to break the pipeline here
         vtkPolyData *newpd = vtkPolyData::New();
         newpd->ShallowCopy(pd);
-        vtkPolyDataMapper *pdmapper = vtkPolyDataMapper::New();
+        vtkPolyDataMapper *pdmapper = this->MakeAMapper();
         pdmapper->Register(this);
         pdmapper->SetInput(newpd);
         this->Internal->Mappers.push_back(pdmapper);
@@ -304,4 +304,9 @@ void vtkCompositePolyDataMapper::ReleaseGraphicsResources( vtkWindow *win )
 void vtkCompositePolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+vtkPolyDataMapper *vtkCompositePolyDataMapper::MakeAMapper()
+{
+  return vtkPolyDataMapper::New();
 }

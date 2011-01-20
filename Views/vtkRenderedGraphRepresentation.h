@@ -124,6 +124,8 @@ public:
   virtual int GetVertexIconAlignment();
   virtual void SetVertexSelectedIcon(int icon);
   virtual int GetVertexSelectedIcon();
+  virtual void SetVertexDefaultIcon(int icon);
+  virtual int GetVertexDefaultIcon();
 
   // Description:
   // Set the mode to one of

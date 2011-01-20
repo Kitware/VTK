@@ -272,7 +272,8 @@ int vtkProgrammableGlyphFilter::RequestData(
 
 
 // Specify function to be called before object executes.
-void vtkProgrammableGlyphFilter::SetGlyphMethod(void (*f)(void *), void *arg)
+void vtkProgrammableGlyphFilter::SetGlyphMethod(
+  void (*f)(void *), void *arg)
 {
   if ( f != this->GlyphMethod || arg != this->GlyphMethodArg )
     {
@@ -288,7 +289,8 @@ void vtkProgrammableGlyphFilter::SetGlyphMethod(void (*f)(void *), void *arg)
 }
 
 // Set the arg delete method. This is used to free user memory.
-void vtkProgrammableGlyphFilter::SetGlyphMethodArgDelete(void (*f)(void *))
+void vtkProgrammableGlyphFilter::SetGlyphMethodArgDelete(
+  void (*f)(void *))
 {
   if ( f != this->GlyphMethodArgDelete)
     {

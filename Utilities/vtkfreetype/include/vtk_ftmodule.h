@@ -1,12 +1,20 @@
 /*
  *  VTK_FREETYPE_CHANGE this file is new for VTK.
  *
- *  This is used to override the default module headers.
- *
  *  This file is based on freetype's include/freetype/config/ftmodule.h.
  *  Be sure to keep it in sync with the original file when updating freetype
  *
- *  Please read `docs/CUSTOMIZE' section IV-3 for more information.
+ */
+
+/*
+ *  This file registers the FreeType modules compiled into the library.
+ *
+ *  If you use GNU make, this file IS NOT USED!  Instead, it is created in
+ *  the objects directory (normally `<topdir>/objs/') based on information
+ *  from `<topdir>/modules.cfg'.
+ *
+ *  Please read `docs/INSTALL.ANY' and `docs/CUSTOMIZE' how to compile
+ *  FreeType without GNU make.
  *
  */
 

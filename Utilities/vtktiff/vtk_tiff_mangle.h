@@ -15,7 +15,9 @@ nm libvtktiff.a |grep " [TRD] "
 */
 
 #define _TIFFerrorHandler vtk__TIFFerrorHandler
+#define _TIFFerrorHandlerExt vtk__TIFFerrorHandlerExt
 #define _TIFFwarningHandler vtk__TIFFwarningHandler
+#define _TIFFwarningHandlerExt vtk__TIFFwarningHandlerExt
 #define LogL10fromY vtk_tiff_LogL10fromY
 #define LogL10toY vtk_tiff_LogL10toY
 #define LogL16fromY vtk_tiff_LogL16fromY
@@ -112,6 +114,7 @@ nm libvtktiff.a |grep " [TRD] "
 #define TIFFNumberOfStrips vtk_TIFFNumberOfStrips
 #define TIFFNumberOfTiles vtk_TIFFNumberOfTiles
 #define TIFFOpen vtk_TIFFOpen
+#define TIFFOpenW vtk_TIFFOpenW
 #define TIFFPredictorInit vtk_TIFFPredictorInit
 #define TIFFPrintDirectory vtk_TIFFPrintDirectory
 #define TIFFRGBAImageBegin vtk_TIFFRGBAImageBegin

@@ -21,40 +21,40 @@ Copyright (c) 2007, 2009, Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007, 2009. Los Alamos National Security, LLC. 
-This software was produced under U.S. Government contract DE-AC52-06NA25396 
-for Los Alamos National Laboratory (LANL), which is operated by 
-Los Alamos National Security, LLC for the U.S. Department of Energy. 
-The U.S. Government has rights to use, reproduce, and distribute this software. 
+Copyright 2007, 2009. Los Alamos National Security, LLC.
+This software was produced under U.S. Government contract DE-AC52-06NA25396
+for Los Alamos National Laboratory (LANL), which is operated by
+Los Alamos National Security, LLC for the U.S. Department of Energy.
+The U.S. Government has rights to use, reproduce, and distribute this software.
 NEITHER THE GOVERNMENT NOR LOS ALAMOS NATIONAL SECURITY, LLC MAKES ANY WARRANTY,
-EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  
-If software is modified to produce derivative works, such modified software 
-should be clearly marked, so as not to confuse it with the version available 
+EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
+If software is modified to produce derivative works, such modified software
+should be clearly marked, so as not to confuse it with the version available
 from LANL.
- 
-Additionally, redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following conditions 
+
+Additionally, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions
 are met:
--   Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer. 
+-   Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
 -   Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 -   Neither the name of Los Alamos National Security, LLC, Los Alamos National
     Laboratory, LANL, the U.S. Government, nor the names of its contributors
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission. 
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
@@ -85,6 +85,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FOFHaloProperties.h"
 #include "HaloCenterFinder.h"
 #include "Partition.h"
+#include "ChainingMesh.h"
+#include "SODHalo.h"
 
 vtkStandardNewMacro(vtkPCosmoHaloFinder);
 
@@ -100,15 +102,20 @@ vtkPCosmoHaloFinder::vtkPCosmoHaloFinder()
       this->SetController(vtkSmartPointer<vtkDummyController>::New());
     }
 
-  this->RL = 90.140846;
+  this->NP = 256;
+  this->RL = 100;
   this->Overlap = 5;
   this->BB = .2;
-  this->PMin = 10;
-  this->CopyHaloDataToParticles = 1;
+  this->PMin = 100;
+  this->CopyHaloDataToParticles = 0;
 
   this->ComputeMostBoundParticle = 0;
   this->ComputeMostConnectedParticle = 0;
-  this->HaloPositionType = 0;
+
+  this->ComputeSOD = 0;
+  this->SODCenterType = 0;
+  this->RhoCScale = 1.0;
+  this->SODMassScale = 1.0;
 }
 
 /****************************************************************************/
@@ -141,7 +148,10 @@ void vtkPCosmoHaloFinder::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ComputeMostBoundParticle: " << this->ComputeMostBoundParticle << endl;
   os << indent << "ComputeMostConnectedParticle: " << this->ComputeMostConnectedParticle
      << endl;
-  os << indent << "HaloPositionType: " << this->HaloPositionType << endl;
+  os << indent << "ComputeSOD: " << this->ComputeSOD << endl;
+  os << indent << "SODCenterType: " << this->SODCenterType << endl;
+  os << indent << "RhoCScale: " << this->RhoCScale << endl;
+  os << indent << "SODMassScale: " << this->SODMassScale << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -182,7 +192,7 @@ int vtkPCosmoHaloFinder::RequestInformation
 {
 #ifndef USE_SERIAL_COSMO
   // check for controller
-  if(!this->Controller) 
+  if(!this->Controller)
     {
     vtkErrorMacro(<< "Unable to work without a Controller.");
     return 0;
@@ -223,22 +233,22 @@ int vtkPCosmoHaloFinder::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  int rno = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT()); 
+  int rno = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
 
   // get the info objects
   vtkInformation* inInfo = (*inputVector)->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* catInfo = outputVector->GetInformationObject(1);
-                                                                        
+
   // get the input and output
   vtkUnstructuredGrid* input = vtkUnstructuredGrid::SafeDownCast
     (inInfo->Get(vtkDataObject::DATA_OBJECT()));
-                                                                 
+
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast
-    (outInfo->Get(vtkDataObject::DATA_OBJECT()));  
+    (outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkUnstructuredGrid* catalog = vtkUnstructuredGrid::SafeDownCast
-    (catInfo->Get(vtkDataObject::DATA_OBJECT()));  
+    (catInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if(!input || !output || !catalog)
     {
@@ -248,7 +258,7 @@ int vtkPCosmoHaloFinder::RequestData(
   // check that the piece number is correct
   int updatePiece = 0;
   int updateTotal = 1;
-  if(rno == 0) 
+  if(rno == 0)
     {
     if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
       {
@@ -274,7 +284,7 @@ int vtkPCosmoHaloFinder::RequestData(
         Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
       }
     }
-  
+
   if(updatePiece != this->Controller->GetLocalProcessId() ||
      updateTotal != this->Controller->GetNumberOfProcesses())
     {
@@ -296,22 +306,16 @@ int vtkPCosmoHaloFinder::RequestData(
   // Initialize the partitioner which uses MPI Cartesian Topology
   Partition::initialize();
 
-  // create the halo finder
-  CosmoHaloFinderP haloFinder;
-
-  haloFinder.setParameters
-    ("", this->RL, this->Overlap, this->NP, this->PMin, this->BB);
-
   // halo finder needs vectors so take the time to turn them into vectors
   // FIXME: ought to go into the halo finder and put some #ifdefs
   // so that it can use vtkDataArray as is - ought to do that with the
-  // reader as well
+  // reader as well, because it doubles the memory requirement currently
   if(!output->GetPointData()->HasArray("velocity") ||
      !output->GetPointData()->HasArray("mass") ||
      !output->GetPointData()->HasArray("tag") ||
      !output->GetPointData()->HasArray("ghost"))
     {
-    vtkErrorMacro(<< "The input data does not have one or more of" <<
+    vtkErrorMacro(<< "The input data does not have one or more of " <<
                   "the following point arrays: velocity, mass, tag, or ghost.");
     return 0;
     }
@@ -326,8 +330,8 @@ int vtkPCosmoHaloFinder::RequestData(
   vtkIntArray* owner = vtkIntArray::SafeDownCast
     (output->GetPointData()->GetArray("ghost"));
 
-  if(velocity == 0 || pmass == 0 || uid == 0 || owner == 0 || 
-     velocity->GetNumberOfComponents() != DIMENSION) 
+  if(velocity == 0 || pmass == 0 || uid == 0 || owner == 0 ||
+     velocity->GetNumberOfComponents() != DIMENSION)
     {
     vtkErrorMacro(<< "One or more of the input point data arrays is" <<
                   "malformed: velocity, mass, tag, or ghost.");
@@ -350,7 +354,7 @@ int vtkPCosmoHaloFinder::RequestData(
   vector<ID_T>* tag = new vector<ID_T>;
   vector<STATUS_T>* status = new vector<STATUS_T>;
 
-  for(int i = 0; i < numberOfLocalPoints; i = i + 1) 
+  for(int i = 0; i < numberOfLocalPoints; i = i + 1)
     {
     // get and set the point
     double pt[DIMENSION];
@@ -362,7 +366,7 @@ int vtkPCosmoHaloFinder::RequestData(
 
     // get and set the velocity
     float vel[DIMENSION];
-    
+
     velocity->GetTupleValue(i, vel);
     vx->push_back(vel[0]);
     vy->push_back(vel[1]);
@@ -389,11 +393,15 @@ int vtkPCosmoHaloFinder::RequestData(
   // Merge the halos so that only one copy of each is written
   // Parallel halo finder must consult with each of the 26 possible neighbor
   // halo finders to see who will report a particular halo
-  haloFinder.setParticles(xx, yy, zz, vx, vy, vz, 
-			  potential, tag, mask, status);
-  haloFinder.executeHaloFinder();
-  haloFinder.collectHalos();
-  haloFinder.mergeHalos();
+  CosmoHaloFinderP* haloFinder = new CosmoHaloFinderP();;
+
+  haloFinder->setParameters
+    ("", this->RL, this->Overlap, this->NP, this->PMin, this->BB);
+  haloFinder->setParticles(xx, yy, zz, vx, vy, vz,
+                           potential, tag, mask, status);
+  haloFinder->executeHaloFinder();
+  haloFinder->collectHalos();
+  haloFinder->mergeHalos();
 
   // adjust ghost cells, because halo finder updates it
   vtkUnsignedCharArray* newghost = vtkUnsignedCharArray::New();
@@ -409,60 +417,61 @@ int vtkPCosmoHaloFinder::RequestData(
   // Collect information from the halo finder needed for halo properties
   // Vector halos is the index of the first particle for halo in the haloList
   // Following the chain of indices in the haloList retrieves all particles
-  int numberOfFOFHalos = haloFinder.getNumberOfHalos();
-  int* fofHalos = haloFinder.getHalos();
-  int* fofHaloCount = haloFinder.getHaloCount();
-  int* fofHaloList = haloFinder.getHaloList();
+  int numberOfFOFHalos = haloFinder->getNumberOfHalos();
+  int* fofHalos = haloFinder->getHalos();
+  int* fofHaloCount = haloFinder->getHaloCount();
+  int* fofHaloList = haloFinder->getHaloList();
   int* fofHaloTags = new int[numberOfFOFHalos];
 
-  FOFHaloProperties fof;
-  fof.setHalos(numberOfFOFHalos, fofHalos, fofHaloCount, fofHaloList);
-  fof.setParameters("", this->RL, this->Overlap, this->BB);
-  fof.setParticles(xx, yy, zz, vx, vy, vz, mass, potential, tag, mask, status);
+  FOFHaloProperties* fof = new FOFHaloProperties();
+  fof->setHalos(numberOfFOFHalos, fofHalos, fofHaloCount, fofHaloList);
+  fof->setParameters("", this->RL, this->Overlap, this->BB);
+  fof->setParticles
+    (xx, yy, zz, vx, vy, vz, mass, potential, tag, mask, status);
 
   // Find the mass of every FOF halo
   vector<POSVEL_T>* fofMass = new vector<POSVEL_T>;
-  fof.FOFHaloMass(fofMass);
+  fof->FOFHaloMass(fofMass);
 
   // Find the average position of every FOF halo
   vector<POSVEL_T>* fofXPos = new vector<POSVEL_T>;
   vector<POSVEL_T>* fofYPos = new vector<POSVEL_T>;
   vector<POSVEL_T>* fofZPos = new vector<POSVEL_T>;
-  fof.FOFPosition(fofXPos, fofYPos, fofZPos);
+  fof->FOFPosition(fofXPos, fofYPos, fofZPos);
 
   // Find the center of mass of every FOF halo
   vector<POSVEL_T>* fofXCofMass = new vector<POSVEL_T>;
   vector<POSVEL_T>* fofYCofMass = new vector<POSVEL_T>;
   vector<POSVEL_T>* fofZCofMass = new vector<POSVEL_T>;
-  fof.FOFCenterOfMass(fofXCofMass, fofYCofMass, fofZCofMass);
+  fof->FOFCenterOfMass(fofXCofMass, fofYCofMass, fofZCofMass);
 
   // Find the average velocity of every FOF halo
   vector<POSVEL_T>* fofXVel = new vector<POSVEL_T>;
   vector<POSVEL_T>* fofYVel = new vector<POSVEL_T>;
   vector<POSVEL_T>* fofZVel = new vector<POSVEL_T>;
-  fof.FOFVelocity(fofXVel, fofYVel, fofZVel);
+  fof->FOFVelocity(fofXVel, fofYVel, fofZVel);
 
   // Find the velocity dispersion of every FOF halo
   vector<POSVEL_T>* fofVelDisp = new vector<POSVEL_T>;
-  fof.FOFVelocityDispersion(fofXVel, fofYVel, fofZVel, fofVelDisp);
+  fof->FOFVelocityDispersion(fofXVel, fofYVel, fofZVel, fofVelDisp);
 
   // set the tags to -1
   for(int i = 0; i < numberOfFOFHalos; i = i + 1)
     {
     fofHaloTags[i] = -1;
     }
-  
+
   // walk the list to get the lowest tag id
   int pminHalos = 0;
   for(int i = 0; i < numberOfFOFHalos; i = i + 1)
     {
     int size = fofHaloCount[i];
-    
-    if(size >= this->PMin) 
+
+    if(size >= this->PMin)
       {
       pminHalos = pminHalos + 1;
       int index = fofHalos[i];
-      for(int j = 0; j < size; j = j + 1) 
+      for(int j = 0; j < size; j = j + 1)
         {
         if(fofHaloTags[i] == -1 || fofHaloTags[i] > (*tag)[index])
           {
@@ -478,9 +487,9 @@ int vtkPCosmoHaloFinder::RequestData(
   int* mbpCenter = 0;
   int* mcpCenter = 0;
   int mbpOn = this->ComputeMostBoundParticle ||
-    this->HaloPositionType == 2;
+    (this->ComputeSOD && this->SODCenterType == 2);
   int mcpOn = this->ComputeMostConnectedParticle ||
-    this->HaloPositionType == 3;
+    (this->ComputeSOD && this->SODCenterType == 3);
   if(mbpOn)
     {
     mbpCenter = new int[numberOfFOFHalos];
@@ -489,18 +498,19 @@ int vtkPCosmoHaloFinder::RequestData(
     {
     mcpCenter = new int[numberOfFOFHalos];
     }
- 
+
   if(mcpOn || mbpOn)
     {
     for(int i = 0; i < numberOfFOFHalos; i = i + 1)
-    {
-      // Allocate arrays which will hold halo particle information
+      {
+      // skip if it's not large enough
       long size = fofHaloCount[i];
       if(size < this->PMin)
         {
         continue;
         }
 
+      // Allocate arrays which will hold halo particle information
       POSVEL_T* xLocHalo = new POSVEL_T[size];
       POSVEL_T* yLocHalo = new POSVEL_T[size];
       POSVEL_T* zLocHalo = new POSVEL_T[size];
@@ -511,29 +521,29 @@ int vtkPCosmoHaloFinder::RequestData(
       ID_T* id = new ID_T[size];
 
       int* actualIndex = new int[size];
-      fof.extractInformation(i, actualIndex,
-                             xLocHalo, yLocHalo, zLocHalo,
-                             xVelHalo, yVelHalo, zVelHalo, 
-                             massHalo, id);
+      fof->extractInformation(i, actualIndex,
+                              xLocHalo, yLocHalo, zLocHalo,
+                              xVelHalo, yVelHalo, zVelHalo,
+                              massHalo, id);
 
       // Most bound particle method of center finding
       int centerIndex;
       POTENTIAL_T minPotential;
-      if(mbpOn) 
+      if(mbpOn)
         {
         HaloCenterFinder centerFinder;
-        centerFinder.setParticles(size, 
-                                  xLocHalo, yLocHalo, zLocHalo, 
+        centerFinder.setParticles(size,
+                                  xLocHalo, yLocHalo, zLocHalo,
                                   massHalo, id);
-        centerFinder.setParameters(this->BB);
+        centerFinder.setParameters(this->BB, this->Overlap);
 
         // Calculate the halo center using MBP (most bound particle)
         // Combination of n^2/2 algorithm and A* algorithm
-        if(size < MBP_THRESHOLD) 
+        if(size < MBP_THRESHOLD)
           {
           centerIndex = centerFinder.mostBoundParticleN2(&minPotential);
-          } 
-        else 
+          }
+        else
           {
           centerIndex = centerFinder.mostBoundParticleAStar(&minPotential);
           }
@@ -542,25 +552,25 @@ int vtkPCosmoHaloFinder::RequestData(
         }
 
       // Most connected particle method of center finding
-      if(mcpOn) 
+      if(mcpOn)
         {
         HaloCenterFinder centerFinder;
-        centerFinder.setParticles(size, 
-                                  xLocHalo, yLocHalo, zLocHalo, 
+        centerFinder.setParticles(size,
+                                  xLocHalo, yLocHalo, zLocHalo,
                                   massHalo, id);
-        centerFinder.setParameters(this->BB);
+        centerFinder.setParameters(this->BB, this->Overlap);
 
         // Calculate the halo center using MCP (most connected particle)
         // Combination of n^2/2 algorithm and chaining mesh algorithm
-        if(size < MCP_THRESHOLD) 
+        if(size < MCP_THRESHOLD)
           {
           centerIndex = centerFinder.mostConnectedParticleN2();
           }
-        else 
+        else
           {
           centerIndex = centerFinder.mostConnectedParticleChainMesh();
           }
-       
+
         mcpCenter[i] = actualIndex[centerIndex];
         }
 
@@ -576,6 +586,194 @@ int vtkPCosmoHaloFinder::RequestData(
       }
     }
 
+  // calculate SOD halos
+  vtkFloatArray* sodPos = 0;
+  vtkFloatArray* sodCofMass = 0;
+  vtkFloatArray* sodMass = 0;
+  vtkFloatArray* sodVelocity = 0;
+  vtkFloatArray* sodDispersion = 0;
+  vtkFloatArray* sodRadius = 0;
+  if(this->ComputeSOD)
+    {
+    // set up the arrays
+    sodPos = vtkFloatArray::New();
+    sodPos->SetName("sod_average_position");
+    sodPos->SetNumberOfComponents(3);
+    sodPos->SetNumberOfTuples(pminHalos);
+
+    sodCofMass = vtkFloatArray::New();
+    sodCofMass->SetName("sod_center_of_mass");
+    sodCofMass->SetNumberOfComponents(3);
+    sodCofMass->SetNumberOfTuples(pminHalos);
+
+    sodMass = vtkFloatArray::New();
+    sodMass->SetName("sod_mass");
+    sodMass->SetNumberOfTuples(pminHalos);
+
+    sodVelocity = vtkFloatArray::New();
+    sodVelocity->SetName("sod_average_velocity");
+    sodVelocity->SetNumberOfComponents(3);
+    sodVelocity->SetNumberOfTuples(pminHalos);
+
+    sodDispersion = vtkFloatArray::New();
+    sodDispersion->SetName("sod_velocity_dispersion");
+    sodDispersion->SetNumberOfTuples(pminHalos);
+
+    sodRadius = vtkFloatArray::New();
+    sodRadius->SetName("sod_radius");
+    sodRadius->SetNumberOfTuples(pminHalos);
+
+    float rhoC = this->RhoCScale * RHO_C;
+    float sMass = this->SODMassScale * SOD_MASS;
+    ChainingMesh* chain =
+      new ChainingMesh(this->RL, this->Overlap, CHAIN_SIZE, xx, yy, zz);
+
+    int index = 0;
+    for(int i = 0; i < numberOfFOFHalos; i = i + 1)
+      {
+      // skip if it's not large enough
+      if(fofHaloCount[i] < this->PMin)
+        {
+        continue;
+        }
+
+      // only calculate the SOD if it is big enough
+      if((*fofMass)[i] >= MIN_SOD_MASS)
+        {
+        SODHalo* sod = new SODHalo();
+        sod->setParameters(chain, NUM_SOD_BINS, this->RL, this->NP,
+                           rhoC, sMass, RHO_RATIO,
+                           MIN_RADIUS_FACTOR, MAX_RADIUS_FACTOR);
+        sod->setParticles(xx, yy, zz, vx, vy, vz, mass, tag);
+
+        // no minimum potential array like in the sim
+        // FIXME: possibly have a minimum potential calculation?
+
+        if(this->SODCenterType == 0)
+          {
+          sod->createSODHalo(fofHaloCount[i],
+                             (*fofXCofMass)[i],
+                             (*fofYCofMass)[i],
+                             (*fofZCofMass)[i],
+                             (*fofXVel)[i],
+                             (*fofYVel)[i],
+                             (*fofZVel)[i],
+                             (*fofMass)[i]);
+          }
+        else if(this->SODCenterType == 1)
+          {
+          sod->createSODHalo(fofHaloCount[i],
+                             (*fofXPos)[i],
+                             (*fofYPos)[i],
+                             (*fofZPos)[i],
+                             (*fofXVel)[i],
+                             (*fofYVel)[i],
+                             (*fofZVel)[i],
+                             (*fofMass)[i]);
+          }
+        else
+          {
+          int center =
+            this->SODCenterType == 2 ? mbpCenter[i] :
+            mcpCenter[i];
+
+          sod->createSODHalo(fofHaloCount[i],
+                             (*xx)[center],
+                             (*yy)[center],
+                             (*zz)[center],
+                             (*fofXVel)[i],
+                             (*fofYVel)[i],
+                             (*fofZVel)[i],
+                             (*fofMass)[i]);
+          }
+
+        // get the halo and fill in the array
+        if(sod->SODHaloSize() > 0)
+          {
+          POSVEL_T tempPos[DIMENSION];
+          POSVEL_T tempCofMass[DIMENSION];
+          POSVEL_T tempMass;
+          POSVEL_T tempVelocity[DIMENSION];
+          POSVEL_T tempDispersion;
+          POSVEL_T tempRadius;
+
+          sod->SODAverageLocation(tempPos);
+          sod->SODCenterOfMass(tempCofMass);
+          sod->SODMass(&tempMass);
+          sod->SODAverageVelocity(tempVelocity);
+          sod->SODVelocityDispersion(&tempDispersion);
+          tempRadius = sod->SODRadius();
+
+          sodPos->SetComponent(index, 0, tempPos[0]);
+          sodPos->SetComponent(index, 1, tempPos[1]);
+          sodPos->SetComponent(index, 2, tempPos[2]);
+
+          sodCofMass->SetComponent(index, 0, tempCofMass[0]);
+          sodCofMass->SetComponent(index, 1, tempCofMass[1]);
+          sodCofMass->SetComponent(index, 2, tempCofMass[2]);
+
+          sodMass->SetComponent(index, 0, tempMass);
+
+          sodVelocity->SetComponent(index, 0, tempVelocity[0]);
+          sodVelocity->SetComponent(index, 1, tempVelocity[1]);
+          sodVelocity->SetComponent(index, 2, tempVelocity[2]);
+
+          sodDispersion->SetComponent(index, 0, tempDispersion);
+
+          sodRadius->SetComponent(index, 0, tempRadius);
+          }
+        // fill in a blank entry for the array
+        else
+          {
+          sodPos->SetComponent(index, 0, 0);
+          sodPos->SetComponent(index, 1, 0);
+          sodPos->SetComponent(index, 2, 0);
+
+          sodCofMass->SetComponent(index, 0, 0);
+          sodCofMass->SetComponent(index, 1, 0);
+          sodCofMass->SetComponent(index, 2, 0);
+
+          sodMass->SetComponent(index, 0, 0);
+
+          sodVelocity->SetComponent(index, 0, 0);
+          sodVelocity->SetComponent(index, 1, 0);
+          sodVelocity->SetComponent(index, 2, 0);
+
+          sodDispersion->SetComponent(index, 0, 0);
+
+          sodRadius->SetComponent(index, 0, -1);
+          }
+
+        delete sod;
+        }
+      // fill in a blank entry for the array
+      else
+        {
+        sodPos->SetComponent(index, 0, 0);
+        sodPos->SetComponent(index, 1, 0);
+        sodPos->SetComponent(index, 2, 0);
+
+        sodCofMass->SetComponent(index, 0, 0);
+        sodCofMass->SetComponent(index, 1, 0);
+        sodCofMass->SetComponent(index, 2, 0);
+
+        sodMass->SetComponent(index, 0, 0);
+
+        sodVelocity->SetComponent(index, 0, 0);
+        sodVelocity->SetComponent(index, 1, 0);
+        sodVelocity->SetComponent(index, 2, 0);
+
+        sodDispersion->SetComponent(index, 0, 0);
+
+        sodRadius->SetComponent(index, 0, -1);
+        }
+
+      index = index + 1;
+      }
+
+    delete chain;
+    }
+
   // walk the list again to set the values for the points and catalog
   vtkIntArray* partTag = 0;
   vtkFloatArray* partPos = 0;
@@ -586,7 +784,7 @@ int vtkPCosmoHaloFinder::RequestData(
 
   vtkFloatArray* partMBP = 0;
   vtkFloatArray* partMCP = 0;
- 
+
   // if we are copying to particles get the arrays ready
   if(this->CopyHaloDataToParticles)
     {
@@ -604,16 +802,16 @@ int vtkPCosmoHaloFinder::RequestData(
     partCofMass->SetName("halo_center_of_mass");
     partCofMass->SetNumberOfComponents(3);
     partCofMass->SetNumberOfTuples(numberOfLocalPoints);
-    
+
     partMass = vtkFloatArray::New();
     partMass->SetName("halo_mass");
     partMass->SetNumberOfValues(numberOfLocalPoints);
-    
+
     partVelocity = vtkFloatArray::New();
     partVelocity->SetName("halo_average_velocity");
     partVelocity->SetNumberOfComponents(3);
     partVelocity->SetNumberOfTuples(numberOfLocalPoints);
-    
+
     partDispersion = vtkFloatArray::New();
     partDispersion->SetName("halo_velocity_dispersion");
     partDispersion->SetNumberOfValues(numberOfLocalPoints);
@@ -640,7 +838,7 @@ int vtkPCosmoHaloFinder::RequestData(
   catpoints->SetDataTypeToFloat();
   catalog->Allocate(pminHalos);
   catalog->SetPoints(catpoints);
-  
+
   vtkIntArray* haloTag = vtkIntArray::New();
   haloTag->SetName("halo_tag");
   haloTag->SetNumberOfValues(pminHalos);
@@ -649,7 +847,7 @@ int vtkPCosmoHaloFinder::RequestData(
   haloPos->SetName("halo_average_position");
   haloPos->SetNumberOfComponents(3);
   haloPos->SetNumberOfTuples(pminHalos);
-  
+
   vtkFloatArray* haloCofMass = vtkFloatArray::New();
   haloCofMass->SetName("halo_center_of_mass");
   haloCofMass->SetNumberOfComponents(3);
@@ -691,49 +889,17 @@ int vtkPCosmoHaloFinder::RequestData(
   int halocount = 0;
   for(int i = 0; i < numberOfFOFHalos; i = i + 1)
     {
-    int size = fofHaloCount[i];
-    if(size < this->PMin)
+    // skip if not large enough
+    if(fofHaloCount[i] < this->PMin)
       {
       continue;
       }
 
     // set the catalog position
     vtkIdType pid;
-    switch(this->HaloPositionType)
-      {
-      case 1:
-        {
-        pid = catpoints->InsertNextPoint
-          ((*fofXCofMass)[i], (*fofYCofMass)[i], (*fofZCofMass)[i]);
-        catalog->InsertNextCell(1, 1, &pid);
-        }
-      break;
-
-      case 2:
-        {
-        pid = catpoints->InsertNextPoint
-          ((*xx)[mbpCenter[i]], (*yy)[mbpCenter[i]], (*zz)[mbpCenter[i]]);
-        catalog->InsertNextCell(1, 1, &pid);
-        }
-      break;
-
-      case 3:
-        {
-        pid = catpoints->InsertNextPoint
-          ((*xx)[mcpCenter[i]], (*yy)[mcpCenter[i]], (*zz)[mcpCenter[i]]);
-        catalog->InsertNextCell(1, 1, &pid);
-         }
-      break;
-
-      case 0:
-      default:
-        {
-        pid = catpoints->InsertNextPoint
-          ((*fofXPos)[i], (*fofYPos)[i], (*fofZPos)[i]);
-        catalog->InsertNextCell(1, 1, &pid);
-        }
-      break;
-    }
+    pid = catpoints->InsertNextPoint
+      ((*fofXPos)[i], (*fofYPos)[i], (*fofZPos)[i]);
+    catalog->InsertNextCell(1, 1, &pid);
 
     // set the halo data
     haloTag->SetValue(halocount, fofHaloTags[i]);
@@ -770,9 +936,9 @@ int vtkPCosmoHaloFinder::RequestData(
     if(this->CopyHaloDataToParticles)
       {
       int index = fofHalos[i];
-      for(int j = 0; j < size; j = j + 1) 
+      for(int j = 0; j < fofHaloCount[i]; j = j + 1)
         {
-        partTag->SetValue(index, fofHaloTags[i]); 
+        partTag->SetValue(index, fofHaloTags[i]);
         partPos->SetComponent(index, 0, (*fofXPos)[i]);
         partPos->SetComponent(index, 1, (*fofYPos)[i]);
         partPos->SetComponent(index, 2, (*fofZPos)[i]);
@@ -784,7 +950,7 @@ int vtkPCosmoHaloFinder::RequestData(
         partVelocity->SetComponent(index, 1, (*fofYVel)[i]);
         partVelocity->SetComponent(index, 2, (*fofZVel)[i]);
         partDispersion->SetValue(index, (*fofVelDisp)[i]);
-        
+
         if(partMBP)
           {
           partMBP->SetComponent(index, 0, (*xx)[mbpCenter[i]]);
@@ -798,7 +964,7 @@ int vtkPCosmoHaloFinder::RequestData(
           partMCP->SetComponent(index, 1, (*yy)[mcpCenter[i]]);
           partMCP->SetComponent(index, 2, (*zz)[mcpCenter[i]]);
           }
-           
+
         index = fofHaloList[index];
         }
       }
@@ -838,6 +1004,16 @@ int vtkPCosmoHaloFinder::RequestData(
   if(haloMCP)
     {
     catalog->GetPointData()->AddArray(haloMCP);
+    }
+
+  if(sodPos)
+    {
+    catalog->GetPointData()->AddArray(sodPos);
+    catalog->GetPointData()->AddArray(sodCofMass);
+    catalog->GetPointData()->AddArray(sodMass);
+    catalog->GetPointData()->AddArray(sodVelocity);
+    catalog->GetPointData()->AddArray(sodDispersion);
+    catalog->GetPointData()->AddArray(sodRadius);
     }
 
   // cleanup
@@ -890,6 +1066,16 @@ int vtkPCosmoHaloFinder::RequestData(
     delete [] mcpCenter;
     }
 
+  if(sodPos)
+    {
+    sodPos->Delete();
+    sodCofMass->Delete();
+    sodMass->Delete();
+    sodVelocity->Delete();
+    sodDispersion->Delete();
+    sodRadius->Delete();
+    }
+
   delete xx;
   delete yy;
   delete zz;
@@ -914,6 +1100,9 @@ int vtkPCosmoHaloFinder::RequestData(
   delete fofYVel;
   delete fofZVel;
   delete fofVelDisp;
+
+  delete fof;
+  delete haloFinder;
 
   return 1;
 }

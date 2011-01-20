@@ -22,10 +22,18 @@ INCLUDE(libxml2PlatformTests.cmake)
 
 SET(LIBXML2_PLATFORM_TEST_FILE_C platformTestsC.c)
 
-FIND_PACKAGE(Threads)
+set(CMAKE_THREAD_PREFER_PTHREAD OFF)
 
-SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING
-  "Thread library used.")
+FIND_PACKAGE(Threads)
+IF(MINGW AND CMAKE_USE_PTHREADS AND CMAKE_USE_WIN32_THREADS)
+  MESSAGE(STATUS
+    "Forcing CMAKE_USE_PTHREADS OFF as only one threading library should be used.")
+  SET(CMAKE_USE_PTHREADS OFF CACHE BOOL
+    "Force pthreads off if WIN32 threads are enabled" FORCE)
+  SET(CMAKE_THREAD_LIBS "" CACHE STRING "Force pthreads off if WIN32 threads are enabled" FORCE)
+ELSE()
+  SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING "Thread library used.")
+ENDIF()
 
 # This macro checks if the symbol exists in the library and if it
 # does, it appends library to the list.
@@ -295,7 +303,7 @@ INCLUDE_DIRECTORIES(BEFORE ${vtklibxml2_BINARY_DIR})
 IF(NOT BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DLIBXML_STATIC)
 ENDIF(NOT BUILD_SHARED_LIBS)
-ADD_LIBRARY(vtklibxml2 ${vtklibxml2_la_SOURCES})
+VTK_ADD_LIBRARY(vtklibxml2 ${vtklibxml2_la_SOURCES})
 TARGET_LINK_LIBRARIES(vtklibxml2 ${LIBXML2_LIBS})
 
 # Apply user-defined properties to the library target.
@@ -305,6 +313,7 @@ ENDIF(VTK_LIBRARY_PROPERTIES)
 
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS vtklibxml2
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)

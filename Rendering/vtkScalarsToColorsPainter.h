@@ -118,6 +118,12 @@ public:
   // Subclasses need to override this to return the output of the pipeline.
   virtual vtkDataObject *GetOutput();
 
+  // Description:
+  // Return the texture size limit. Subclasses need to override this
+  // to return the actual correct texture size limit.  Here it is
+  // hardcoded to 1024.
+  virtual vtkIdType GetTextureSizeLimit();
+
 //BTX
 protected:
   vtkScalarsToColorsPainter();
@@ -170,7 +176,7 @@ protected:
   void UpdateColorTextureMap(double alpha, int multiply_with_alpha);
 
   // Methods to set the ivars. These are purposefully protected.
-  // The only means of affecting these should be using teh vtkInformation 
+  // The only means of affecting these should be using the vtkInformation
   // object.
   vtkSetMacro(UseLookupTableScalarRange,int);
   vtkSetVector2Macro(ScalarRange,double);

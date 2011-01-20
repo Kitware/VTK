@@ -26,6 +26,7 @@ SET(KIT_LIBS vtkDICOMParser vtkNetCDF vtkNetCDF_cxx
 
 SET( Kit_SRCS
 vtkAbstractParticleWriter.cxx
+vtkASCIITextCodec.cxx
 vtkAVSucdReader.cxx
 vtkBMPReader.cxx
 vtkBMPWriter.cxx
@@ -36,6 +37,8 @@ vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
 vtkCGMWriter.cxx
 vtkChacoReader.cxx
+vtkCompositeDataReader.cxx
+vtkCompositeDataWriter.cxx
 vtkDatabaseToTableReader.cxx
 vtkDEMReader.cxx
 vtkDICOMImageReader.cxx
@@ -108,6 +111,7 @@ vtkParticleReader.cxx
 vtkPolyDataReader.cxx
 vtkPolyDataWriter.cxx
 vtkPostScriptWriter.cxx
+vtkProStarReader.cxx
 vtkRectilinearGridReader.cxx
 vtkRectilinearGridWriter.cxx
 vtkRTXMLPolyDataReader.cxx
@@ -136,6 +140,8 @@ vtkTableWriter.cxx
 vtkTableToDatabaseWriter.cxx
 vtkTableToSQLiteWriter.cxx
 vtkTecplotReader.cxx
+vtkTextCodec.cxx
+vtkTextCodecFactory.cxx
 vtkTIFFReader.cxx
 vtkTIFFWriter.cxx
 vtkTreeReader.cxx
@@ -143,6 +149,8 @@ vtkTreeWriter.cxx
 vtkUGFacetReader.cxx
 vtkUnstructuredGridReader.cxx
 vtkUnstructuredGridWriter.cxx
+vtkUTF8TextCodec.cxx
+vtkUTF16TextCodec.cxx
 vtkVolume16Reader.cxx
 vtkVolumeReader.cxx
 vtkWriter.cxx
@@ -216,6 +224,8 @@ vtkRowQuery
 vtkSQLDatabase
 vtkSQLQuery
 vtkTableToDatabaseWriter
+vtkTextCodec
+vtkTextCodecFactory
 vtkVolumeReader
 vtkWriter
 vtkXMLCompositeDataReader.cxx
@@ -276,6 +286,10 @@ IF (VTK_USE_FFMPEG_ENCODER)
 
   INCLUDE_DIRECTORIES(${FFMPEG_INCLUDE_DIR})
   SET(Kit_SRCS ${Kit_SRCS} vtkFFMPEGWriter.cxx)
+
+  SET_SOURCE_FILES_PROPERTIES( vtkFFMPEGWriter.cxx
+    PROPERTIES COMPILE_DEFINITIONS __STDC_CONSTANT_MACROS )
+
   SET(KIT_LIBS ${KIT_LIBS}
     ${FFMPEG_avformat_LIBRARY}
     ${FFMPEG_avcodec_LIBRARY}

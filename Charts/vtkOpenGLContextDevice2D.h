@@ -13,12 +13,16 @@
 
 =========================================================================*/
 
-// .NAME vtkOpenGLContextDevice2D - Class for drawing 2D primitives using OpenGL.
+// .NAME vtkOpenGLContextDevice2D - Class for drawing 2D primitives using OpenGL
+// 1.1+.
 //
 // .SECTION Description
 // This class takes care of drawing the 2D primitives for the vtkContext2D class.
 // In general this class should not be used directly, but called by vtkContext2D
 // which takes care of many of the higher level details.
+//
+// .SECTION See Also
+// vtkOpenGL2ContextDevice2D
 
 #ifndef __vtkOpenGLContextDevice2D_h
 #define __vtkOpenGLContextDevice2D_h
@@ -28,7 +32,7 @@
 class vtkWindow;
 class vtkViewport;
 class vtkRenderer;
-class vtkLabelRenderStrategy;
+class vtkStringToImage;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
 
@@ -44,19 +48,25 @@ public:
 
   // Description:
   // Draw a poly line using the points - fastest code path due to memory
-  // layout of the coordinates.
-  virtual void DrawPoly(float *points, int n);
+  // layout of the coordinates. The line will be colored by colors array
+  // which has nc_comps components
+  virtual void DrawPoly(float *f, int n, unsigned char *colors = 0,
+                        int nc_comps = 0);
 
   // Description:
   // Draw a series of points - fastest code path due to memory
-  // layout of the coordinates.
-  virtual void DrawPoints(float *points, int n);
+  // layout of the coordinates. Points are colored by colors array
+  // which has nc_comps components
+  virtual void DrawPoints(float *points, int n, unsigned char* colors = 0,
+                          int nc_comps = 0);
 
   // Description:
   // Draw a series of point sprites, images centred at the points supplied.
   // The supplied vtkImageData is the sprite to be drawn, only squares will be
-  // drawn and the size is set using SetPointSize.
-  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n);
+  // drawn and the size is set using SetPointSize. Points are colored by colors
+  // array which has nc_comps components - this part is optional.
+  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n,
+                                unsigned char* colors = 0, int nc_comps = 0);
 
   // Description:
   // Draws a rectangle
@@ -95,8 +105,7 @@ public:
 
   // Description:
   // Draw some text to the screen!
-  virtual void DrawString(float *point, vtkTextProperty *tprop,
-                          const vtkStdString &string);
+  virtual void DrawString(float *point, const vtkStdString &string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -105,13 +114,11 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkStdString &string,
-                                   vtkTextProperty *tprop,
                                    float bounds[4]);
 
   // Description:
   // Draw some text to the screen.
-  virtual void DrawString(float *point, vtkTextProperty *tprop,
-                          const vtkUnicodeString &string);
+  virtual void DrawString(float *point, const vtkUnicodeString &string);
 
   // Description:
   // Compute the bounds of the supplied string. The bounds will be copied to the
@@ -120,13 +127,18 @@ public:
   // bounding box.
   // NOTE: This function does not take account of the text rotation.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
-                                   vtkTextProperty *tprop,
                                    float bounds[4]);
 
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
   // scaled by scale (1.0 would match the image).
   virtual void DrawImage(float p[2], float scale, vtkImageData *image);
+
+  // Description:
+  // Draw the supplied image at the given position. The origin, width, and
+  // height are specified by the supplied vtkRectf variable pos. The image
+  // will be drawn scaled to that size.
+  void DrawImage(const vtkRectf& pos, vtkImageData *image);
 
   // Description:
   // Set the color for the device using unsigned char of length 4, RGBA.
@@ -138,7 +150,7 @@ public:
 
   // Description:
   // Set the texture for the device, it is used to fill the polygons
-  virtual void SetTexture(vtkImageData* image, int properties);
+  virtual void SetTexture(vtkImageData* image, int properties = 0);
 
   // Description:
   // Set the point size for glyphs/sprites.
@@ -256,11 +268,7 @@ protected:
 
   // Description:
   // We also need a label render strategy
-  vtkLabelRenderStrategy *TextRenderer;
-
-  // Description:
-  // Store whether any text has been drawn to control Start frame end frame
-  bool IsTextDrawn;
+  vtkStringToImage *TextRenderer;
 
   // Description:
   // Is the device currently rendering? Prevent multiple End() calls.
@@ -273,7 +281,7 @@ protected:
 
   // Description:
   // Load the OpenGL extensions we need.
-  bool LoadExtensions(vtkOpenGLExtensionManager *m);
+  virtual bool LoadExtensions(vtkOpenGLExtensionManager *m);
 
   // Description:
   // The OpenGL render window being used by the device
@@ -282,6 +290,8 @@ protected:
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.
   void operator=(const vtkOpenGLContextDevice2D &);   // Not implemented.
+
+  void AlignText(double orientation, float width, float height, float *p);
 
 //ETX
 };

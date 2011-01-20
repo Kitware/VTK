@@ -19,6 +19,7 @@ int vtkTextRepresentationTest1(int , char * [] )
   EXERCISE_BASIC_BORDER_REPRESENTATION_METHODS(vtkTextRepresentation, node1);
 
 
+
   vtkSmartPointer<vtkTextActor> textActor = vtkSmartPointer<vtkTextActor>::New();
   node1->SetTextActor(textActor);
   if (node1->GetTextActor() != textActor)

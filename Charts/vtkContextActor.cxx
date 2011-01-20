@@ -16,11 +16,15 @@
 
 #include "vtkContext2D.h"
 #include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGL2ContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkTransform2D.h"
 
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 
 #include "vtkObjectFactory.h"
 
@@ -33,12 +37,8 @@ vtkCxxSetObjectMacro(vtkContextActor, Scene, vtkContextScene);
 vtkContextActor::vtkContextActor()
 {
   this->Context = vtkContext2D::New();
-  vtkOpenGLContextDevice2D *pd = vtkOpenGLContextDevice2D::New();
-  this->Context->Begin(pd);
-  pd->Delete();
-  pd = NULL;
-
   this->Scene = vtkContextScene::New();
+  this->Initialized = false;
 }
 
 //----------------------------------------------------------------------------
@@ -62,10 +62,14 @@ vtkContextActor::~vtkContextActor()
 //----------------------------------------------------------------------------
 void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
 {
-  vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice())
-      ->ReleaseGraphicsResources(window);
+  vtkOpenGLContextDevice2D *device =
+      vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice());
+  if (device)
+    {
+    device->ReleaseGraphicsResources(window);
+    }
 
-  if(this->Scene!=0)
+  if(this->Scene)
     {
     this->Scene->ReleaseGraphicsResources();
     }
@@ -103,11 +107,15 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     {
     // Tiled display - work out the transform required
     double *b = window->GetTileViewport();
-    int box[] = { static_cast<int>(b[0] * size[0]),
-                  static_cast<int>(b[1] * size[1]),
-                  static_cast<int>(b[2] * size[0]),
-                  static_cast<int>(b[3] * size[1]) };
+    int box[] = { vtkContext2D::FloatToInt(b[0] * size[0]),
+                  vtkContext2D::FloatToInt(b[1] * size[1]),
+                  vtkContext2D::FloatToInt(b[2] * size[0]),
+                  vtkContext2D::FloatToInt(b[3] * size[1]) };
     transform->Translate(-box[0], -box[1]);
+    if (this->Scene->GetScaleTiles())
+      {
+      transform->Scale(scale[0], scale[1]);
+      }
     }
   else if (viewportInfo[0] != size[0] || viewportInfo[1] != size[1] )
     {
@@ -115,14 +123,46 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     size[1]=viewportInfo[1];
     }
 
+  if (!this->Initialized)
+    {
+    this->Initialize(viewport);
+    }
+
   // This is the entry point for all 2D rendering.
   // First initialize the drawing device.
   this->Context->GetDevice()->Begin(viewport);
-  this->Scene->SetGeometry(&size[0]);
+  this->Scene->SetGeometry(size);
   this->Scene->Paint(this->Context);
   this->Context->GetDevice()->End();
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkContextActor::Initialize(vtkViewport* viewport)
+{
+  vtkContextDevice2D *device = NULL;
+  if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
+    {
+    vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
+    device = vtkOpenGL2ContextDevice2D::New();
+    }
+  else
+    {
+    vtkDebugMacro("Using OpenGL 1 for 2D rendering.")
+    device = vtkOpenGLContextDevice2D::New();
+    }
+  if (device)
+    {
+    this->Context->Begin(device);
+    device->Delete();
+    this->Initialized = true;
+    }
+  else
+    {
+    // Failed
+    vtkErrorMacro("Error: failed to initialize the render device.")
+    }
 }
 
 //----------------------------------------------------------------------------

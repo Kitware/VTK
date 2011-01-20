@@ -1,8 +1,7 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
+
 PROJECT(VTKExamples)
 INCLUDE_REGULAR_EXPRESSION("^.*$")
-
-# VTK examples now require CMake 2.4 or higher.
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3)
 
 IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK REQUIRED)
@@ -11,49 +10,49 @@ ENDIF(NOT VTK_BINARY_DIR)
 
 # Most examples require rendering support.
 IF(VTK_USE_RENDERING)
-  SUBDIRS(
-    Build/vtkLocal
-    Build/vtkMy
-    AMR/Cxx
-    Annotation/Cxx/LabeledMesh
-    MultiBlock/Cxx
-    GUI/Motif
-    DataManipulation/Cxx
-    Hybrid/Cxx
-    ImageProcessing/Cxx
-    IO/Cxx
-    Medical/Cxx
-    Modelling/Cxx
-    Rendering/Cxx
-    Tutorial/Step1/Cxx
-    Tutorial/Step2/Cxx
-    Tutorial/Step3/Cxx
-    Tutorial/Step4/Cxx
-    Tutorial/Step5/Cxx
-    Tutorial/Step6/Cxx
-    VisualizationAlgorithms/Cxx
-    VolumeRendering/Cxx
-    Widgets/Cxx
-    )
-   IF(VTK_USE_PARALLEL)
-    SUBDIRS(ParallelProcessing)
+  ADD_SUBDIRECTORY(Build/vtkLocal)
+  ADD_SUBDIRECTORY(Build/vtkMy)
+  ADD_SUBDIRECTORY(AMR/Cxx)
+  ADD_SUBDIRECTORY(Annotation/Cxx/LabeledMesh)
+  ADD_SUBDIRECTORY(MultiBlock/Cxx)
+  ADD_SUBDIRECTORY(GUI/Motif)
+  ADD_SUBDIRECTORY(DataManipulation/Cxx)
+  ADD_SUBDIRECTORY(Hybrid/Cxx)
+  ADD_SUBDIRECTORY(ImageProcessing/Cxx)
+  ADD_SUBDIRECTORY(IO/Cxx)
+  ADD_SUBDIRECTORY(Medical/Cxx)
+  ADD_SUBDIRECTORY(Modelling/Cxx)
+  ADD_SUBDIRECTORY(Rendering/Cxx)
+  ADD_SUBDIRECTORY(Tutorial/Step1/Cxx)
+  ADD_SUBDIRECTORY(Tutorial/Step2/Cxx)
+  ADD_SUBDIRECTORY(Tutorial/Step3/Cxx)
+  ADD_SUBDIRECTORY(Tutorial/Step4/Cxx)
+  ADD_SUBDIRECTORY(Tutorial/Step5/Cxx)
+  ADD_SUBDIRECTORY(Tutorial/Step6/Cxx)
+  ADD_SUBDIRECTORY(VisualizationAlgorithms/Cxx)
+  ADD_SUBDIRECTORY(VolumeRendering/Cxx)
+  ADD_SUBDIRECTORY(Widgets/Cxx)
+  IF(VTK_USE_PARALLEL)
+    ADD_SUBDIRECTORY(ParallelProcessing)
   ENDIF(VTK_USE_PARALLEL)
   
   IF(VTK_USE_INFOVIS)
-    SUBDIRS(Charts/Cxx)
-    SUBDIRS(Infovis/Cxx)
+    IF(VTK_USE_CHARTS)
+      ADD_SUBDIRECTORY(Charts/Cxx)
+    ENDIF(VTK_USE_CHARTS)
+    ADD_SUBDIRECTORY(Infovis/Cxx)
     IF(VTK_USE_N_WAY_ARRAYS)
-      SUBDIRS(Array/Cxx)
+      ADD_SUBDIRECTORY(Array/Cxx)
     ENDIF(VTK_USE_N_WAY_ARRAYS)
   ENDIF(VTK_USE_INFOVIS)
    IF(VTK_USE_QVTK)
-    SUBDIRS(GUI/Qt)
+    ADD_SUBDIRECTORY(GUI/Qt)
   ENDIF(VTK_USE_QVTK)
    IF(WIN32)
-    SUBDIRS(GUI/Win32/SimpleCxx)
+    ADD_SUBDIRECTORY(GUI/Win32/SimpleCxx)
      IF(VTK_USE_MFC)
-      SUBDIRS(GUI/Win32/SampleMFC)
-      SUBDIRS(GUI/Win32/vtkMFC)
+      ADD_SUBDIRECTORY(GUI/Win32/SampleMFC)
+      ADD_SUBDIRECTORY(GUI/Win32/vtkMFC)
     ENDIF(VTK_USE_MFC)
   ENDIF(WIN32)
 ENDIF(VTK_USE_RENDERING)

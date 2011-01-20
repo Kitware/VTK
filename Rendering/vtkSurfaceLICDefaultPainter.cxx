@@ -17,7 +17,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkSurfaceLICPainter.h"
 #include "vtkObjectFactory.h"
-#include "vtkScalarsToColorsPainter.h"
+#include "vtkClipPlanesPainter.h"
 
 vtkStandardNewMacro(vtkSurfaceLICDefaultPainter);
 vtkCxxSetObjectMacro(vtkSurfaceLICDefaultPainter, SurfaceLICPainter, vtkSurfaceLICPainter);
@@ -37,12 +37,11 @@ vtkSurfaceLICDefaultPainter::~vtkSurfaceLICDefaultPainter()
 void vtkSurfaceLICDefaultPainter::BuildPainterChain()
 {
   this->Superclass::BuildPainterChain();
-  
-  // Now insert the SurfaceLICPainter after the scalar to colors painter.
-  vtkPainter* stc = this->GetScalarsToColorsPainter();
-  
-  this->SurfaceLICPainter->SetDelegatePainter(stc->GetDelegatePainter());
-  stc->SetDelegatePainter(this->SurfaceLICPainter);
+
+  // Now insert the SurfaceLICPainter before the display-list painter.
+  vtkPainter* prevPainter = this->GetClipPlanesPainter();
+  this->SurfaceLICPainter->SetDelegatePainter(prevPainter->GetDelegatePainter());
+  prevPainter->SetDelegatePainter(this->SurfaceLICPainter);
 }
 
 //----------------------------------------------------------------------------

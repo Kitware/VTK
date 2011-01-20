@@ -26,47 +26,74 @@ vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
 
 
 //--------------------------------------------------------------------------
-// The 'floor' function on x86 and mips is many times slower than these
-// and is used a lot in this code, optimize for different CPU architectures
+// This rounding code is from vtkImageReslice, because we want
+// vtkGridTransform to perform interpolation using exactly the
+// same math as that class.
+
+#if defined ia64 || defined __ia64__ || defined _M_IA64
+#define VTK_GRID_64BIT_FLOOR
+#elif defined __ppc64__ || defined __x86_64__ || defined _M_X64
+#define VTK_GRID_64BIT_FLOOR
+#elif defined __ppc__ || defined sparc || defined mips
+#define VTK_GRID_32BIT_FLOOR
+#elif defined i386 || defined _M_IX86
+#define VTK_GRID_I386_FLOOR
+#endif
+
+#define VTK_GRID_FLOOR_TOL 7.62939453125e-06
+
 template<class F>
 inline int vtkGridFloor(double x, F &f)
 {
-#if defined mips || defined sparc || defined __ppc__
-  x += 2147483648.0;
-  unsigned int i = (unsigned int)(x);
+#if defined VTK_GRID_64BIT_FLOOR
+  x += (103079215104.0 + VTK_GRID_FLOOR_TOL);
+#ifdef VTK_TYPE_USE___INT64
+  __int64 i = static_cast<__int64>(x);
   f = x - i;
-  return (int)(i - 2147483648U);
-#elif defined i386 || defined _M_IX86
+  return static_cast<int>(i - 103079215104i64);
+#else
+  long long i = static_cast<long long>(x);
+  f = x - i;
+  return static_cast<int>(i - 103079215104LL);
+#endif
+#elif defined VTK_GRID_32BIT_FLOOR
+  x += (2147483648.0 + VTK_GRID_FLOOR_TOL);
+  unsigned int i = static_cast<unsigned int>(x);
+  f = x - i;
+  return static_cast<int>(i - 2147483648U);
+#elif defined VTK_GRID_I386_FLOOR
   union { double d; unsigned short s[4]; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
-  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
-#elif defined ia64 || defined __ia64__ || defined IA64
-  x += 103079215104.0;
-  long long i = (long long)(x);
-  f = x - i;
-  return (int)(i - 103079215104LL);
+  return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  double y = floor(x);
-  f = x - y;
-  return (int)(y);
+  int i = vtkMath::Floor(x + VTK_GRID_FLOOR_TOL);
+  f = x - i;
+  return i;
 #endif
 }
 
 inline int vtkGridRound(double x)
 {
-#if defined mips || defined sparc || defined __ppc__
-  return (int)((unsigned int)(x + 2147483648.5) - 2147483648U);
-#elif defined i386 || defined _M_IX86
+#if defined VTK_GRID_64BIT_FLOOR
+  x += (103079215104.5 + VTK_GRID_FLOOR_TOL);
+#ifdef VTK_TYPE_USE___INT64
+  __int64 i = static_cast<__int64>(x);
+  return static_cast<int>(i - 103079215104i64);
+#else
+  long long i = static_cast<long long>(x);
+  return static_cast<int>(i - 103079215104LL);
+#endif
+#elif defined VTK_GRID_32BIT_FLOOR
+  x += (2147483648.5 + VTK_GRID_FLOOR_TOL);
+  unsigned int i = static_cast<unsigned int>(x);
+  return static_cast<int>(i - 2147483648U);
+#elif defined VTK_GRID_I386_FLOOR
   union { double d; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
-  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
-#elif defined ia64 || defined __ia64__ || defined IA64
-  x += 103079215104.5;
-  long long i = (long long)(x);
-  return (int)(i - 103079215104LL);
+  return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  return (int)(floor(x+0.5));
+  return vtkMath::Floor(x + (0.5 + VTK_GRID_FLOOR_TOL));
 #endif
 }
 

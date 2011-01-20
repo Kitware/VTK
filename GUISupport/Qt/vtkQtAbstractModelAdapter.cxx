@@ -18,8 +18,8 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkQtAbstractModelAdapter.h"
 #include "vtkObject.h" // For vtkGenericWarningMacro
+#include "vtkQtAbstractModelAdapter.h"
 
 int vtkQtAbstractModelAdapter::ModelColumnToFieldDataColumn(int col) const
 {

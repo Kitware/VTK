@@ -276,7 +276,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
   int i;
   double p[3];
   double pNext[3];
-  double sNext[3];
+  double sNext[3] = {0, 0, 0};
   double sPrev[3];
   double n[3];
   double s[3], sp[3], sm[3], v[3];

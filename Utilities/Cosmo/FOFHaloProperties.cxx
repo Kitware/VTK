@@ -1,53 +1,46 @@
 /*=========================================================================
-                                                                                
+
 Copyright (c) 2007, Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007. Los Alamos National Security, LLC. 
-This software was produced under U.S. Government contract DE-AC52-06NA25396 
-for Los Alamos National Laboratory (LANL), which is operated by 
-Los Alamos National Security, LLC for the U.S. Department of Energy. 
-The U.S. Government has rights to use, reproduce, and distribute this software. 
+Copyright 2007. Los Alamos National Security, LLC.
+This software was produced under U.S. Government contract DE-AC52-06NA25396
+for Los Alamos National Laboratory (LANL), which is operated by
+Los Alamos National Security, LLC for the U.S. Department of Energy.
+The U.S. Government has rights to use, reproduce, and distribute this software.
 NEITHER THE GOVERNMENT NOR LOS ALAMOS NATIONAL SECURITY, LLC MAKES ANY WARRANTY,
-EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  
-If software is modified to produce derivative works, such modified software 
-should be clearly marked, so as not to confuse it with the version available 
+EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
+If software is modified to produce derivative works, such modified software
+should be clearly marked, so as not to confuse it with the version available
 from LANL.
- 
-Additionally, redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following conditions 
+
+Additionally, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions
 are met:
--   Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer. 
+-   Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
 -   Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 -   Neither the name of Los Alamos National Security, LLC, Los Alamos National
     Laboratory, LANL, the U.S. Government, nor the names of its contributors
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission. 
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-                                                                                
-=========================================================================*/
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <set>
-#include <math.h>
+=========================================================================*/
 
 #include "Partition.h"
 #include "FOFHaloProperties.h"
@@ -55,6 +48,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef USE_VTK_COSMO
 #include "Timings.h"
 #endif
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <set>
+#include <math.h>
 
 using namespace std;
 
@@ -184,15 +184,15 @@ void FOFHaloProperties::setParticles(
 void FOFHaloProperties::FOFHaloCenterMinimumPotential(vector<int>* haloCenter)
 {
   for (int halo = 0; halo < this->numberOfHalos; halo++) {
-                        
+
     // First particle in halo
     int p = this->halos[halo];
     POTENTIAL_T minPotential = this->pot[p];
     int centerIndex = p;
-  
+
     // Next particle
     p = this->haloList[p];
-  
+
     // Search for minimum
     while (p != -1) {
       if (minPotential > this->pot[p]) {
@@ -372,7 +372,7 @@ void FOFHaloProperties::FOFVelocityDispersion(
     particleDot /= this->haloCount[halo];
 
     // Dot product of the average velocity for the entire halo
-    POSVEL_T haloDot = dotProduct((*xAvgVel)[halo], 
+    POSVEL_T haloDot = dotProduct((*xAvgVel)[halo],
                                   (*yAvgVel)[halo], (*zAvgVel)[halo]);
 
     // Velocity dispersion
@@ -396,24 +396,24 @@ POSVEL_T FOFHaloProperties::dotProduct(POSVEL_T x, POSVEL_T y, POSVEL_T z)
 }
 
 /////////////////////////////////////////////////////////////////////////
-//                      
+//
 // Calculate the Kahan summation
 // Reduces roundoff error in floating point arithmetic
-//                      
+//
 /////////////////////////////////////////////////////////////////////////
-                        
+
 POSVEL_T FOFHaloProperties::KahanSummation(int halo, POSVEL_T* data)
-{                       
+{
   POSVEL_T dataSum, dataRem, v, w;
-                        
+
   // First particle in halo and first step in Kahan summation
   int p = this->halos[halo];
   dataSum = data[p];
   dataRem = 0.0;
-  
+
   // Next particle
   p = this->haloList[p];
-  
+
   // Remaining steps in Kahan summation
   while (p != -1) {
     v = data[p] - dataRem;
@@ -427,25 +427,25 @@ POSVEL_T FOFHaloProperties::KahanSummation(int halo, POSVEL_T* data)
 }
 
 /////////////////////////////////////////////////////////////////////////
-//                      
+//
 // Calculate the Kahan summation on two variables multiplied
 // Reduces roundoff error in floating point arithmetic
-//                      
+//
 /////////////////////////////////////////////////////////////////////////
-                        
-POSVEL_T FOFHaloProperties::KahanSummation2(int halo, 
+
+POSVEL_T FOFHaloProperties::KahanSummation2(int halo,
                                             POSVEL_T* data1, POSVEL_T* data2)
-{                       
+{
   POSVEL_T dataSum, dataRem, v, w;
-                        
+
   // First particle in halo and first step in Kahan summation
   int p = this->halos[halo];
   dataSum = data1[p] * data2[p];
   dataRem = 0.0;
-  
+
   // Next particle
   p = this->haloList[p];
-  
+
   // Remaining steps in Kahan summation
   while (p != -1) {
     v = (data1[p] * data2[p]) - dataRem;
@@ -498,7 +498,7 @@ POSVEL_T FOFHaloProperties::incrementalMean(int halo, POSVEL_T* data)
 //
 // Write the halo catalog file
 //
-// Output one entry per halo 
+// Output one entry per halo
 // Location (xx,yy,zz) is the location of particle closest to centroid
 // Eventually this needs to be the particle with the minimum potential
 // Velocity (vx,vy,vz) is the average velocity of all halo particles
@@ -536,14 +536,14 @@ void FOFHaloProperties::FOFHaloCatalog(
     int haloTag = this->tag[this->halos[halo]];
 
     // Write ascii
-    sprintf(str, "%12.4E %12.4E %12.4E %12.4E %12.4E %12.4E %12.4E %12d\n", 
+    sprintf(str, "%12.4E %12.4E %12.4E %12.4E %12.4E %12.4E %12.4E %12d\n",
       this->xx[centerIndex],
       (*xMeanVel)[halo],
       this->yy[centerIndex],
       (*yMeanVel)[halo],
       this->zz[centerIndex],
       (*zMeanVel)[halo],
-      (*haloMass)[halo], 
+      (*haloMass)[halo],
       haloTag);
       aStream << str;
 
@@ -554,11 +554,15 @@ void FOFHaloProperties::FOFHaloCatalog(
     fBlock[4] = this->zz[centerIndex];
     fBlock[5] = (*zMeanVel)[halo];
     fBlock[6] = (*haloMass)[halo];
-    cStream.write(reinterpret_cast<char*>(fBlock), COSMO_FLOAT * sizeof(float));
+    cStream.write(reinterpret_cast<char*>(fBlock),
+                  COSMO_FLOAT * sizeof(POSVEL_T));
 
     iBlock[0] = haloTag;
-    cStream.write(reinterpret_cast<char*>(iBlock), COSMO_INT * sizeof(int));
+    cStream.write(reinterpret_cast<char*>(iBlock),
+                  COSMO_INT * sizeof(ID_T));
   }
+  aStream.close();
+  cStream.close();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -571,13 +575,11 @@ void FOFHaloProperties::printHaloSizes(int minSize)
 {
   for (int i = 0; i < this->numberOfHalos; i++)
     if (this->haloCount[i] > minSize)
-      cout << "Rank " << Partition::getMyProc() 
-           << " Halo " << i 
+      cout << "Rank " << Partition::getMyProc()
+           << " Halo " << i
            << " size = " << this->haloCount[i] << endl;
 }
 
-#endif
- 
 /////////////////////////////////////////////////////////////////////////
 //
 // Copy locations and tags of halo particles to the allocated arrays
@@ -602,6 +604,8 @@ void FOFHaloProperties::extractLocation(
     p = this->haloList[p];
   }
 }
+
+#endif
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -650,7 +654,7 @@ void FOFHaloProperties::printLocations(int halo)
   int p = this->halos[halo];
   for (int i = 0; i < this->haloCount[halo]; i++) {
     cout << "FOF INFO " << this->myProc << " " << halo
-         << " INDEX " << p << " TAG " << this->tag[p] << " LOCATION " 
+         << " INDEX " << p << " TAG " << this->tag[p] << " LOCATION "
          << this->xx[p] << " " << this->yy[p] << " " << this->zz[p] << endl;
     p = this->haloList[p];
   }
@@ -690,7 +694,7 @@ void FOFHaloProperties::printBoundingBox(int halo)
 
     p = this->haloList[p];
   }
-  cout << "FOF BOUNDING BOX " << this->myProc << " " << halo << ": " 
+  cout << "FOF BOUNDING BOX " << this->myProc << " " << halo << ": "
          << minBox[0] << ":" << maxBox[0] << "  "
          << minBox[1] << ":" << maxBox[1] << "  "
          << minBox[2] << ":" << maxBox[2] << "  " << endl;

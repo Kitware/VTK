@@ -44,8 +44,10 @@
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
+#include "vtkLogLookupTable.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -117,6 +119,19 @@ static vtkSmartPointer<vtkLookupTable> CreateLookupTable()
   return lut;
 }
 
+static vtkSmartPointer<vtkLogLookupTable> CreateLogLookupTable()
+{
+  VTK_CREATE(vtkLogLookupTable, lut);
+
+  lut->SetRampToLinear();
+  lut->SetScaleToLinear();
+  lut->SetTableRange(0.0, 1.0);
+  lut->SetHueRange(0.6, 0.0);
+  lut->SetNanColor(1.0, 0.0, 1.0, 1.0);
+
+  return lut;
+}
+
 static vtkSmartPointer<vtkColorTransferFunction> CreateColorTransferFunction()
 {
   VTK_CREATE(vtkColorTransferFunction, ctf);
@@ -126,6 +141,21 @@ static vtkSmartPointer<vtkColorTransferFunction> CreateColorTransferFunction()
   ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0,
                      1.0, 0.0, 1.0, 1.0);
   ctf->SetNanColor(1.0, 0.0, 1.0);
+
+  return ctf;
+}
+
+static vtkSmartPointer<vtkDiscretizableColorTransferFunction> CreateDiscretizableColorTransferFunction()
+{
+  VTK_CREATE(vtkDiscretizableColorTransferFunction, ctf);
+
+  ctf->DiscretizeOn();
+  ctf->SetColorSpaceToHSV();
+  ctf->HSVWrapOff();
+  ctf->AddHSVSegment(0.0, 0.6, 1.0, 1.0,
+                     1.0, 0.0, 1.0, 1.0);
+  ctf->SetNanColor(1.0, 0.0, 1.0);
+  ctf->Build();
 
   return ctf;
 }
@@ -149,30 +179,48 @@ static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
   return renderer;
 }
 
+const int NUM_RENDERERS = 8;
+static void AddRenderer(vtkRenderer *renderer, vtkRenderWindow *renwin)
+{
+  static int rencount = 0;
+  renderer->SetViewport(static_cast<double>(rencount)/NUM_RENDERERS, 0.0,
+                        static_cast<double>(rencount+1)/NUM_RENDERERS, 1.0);
+  renwin->AddRenderer(renderer);
+  rencount++;
+}
+
 int RenderNonFinite(int argc, char *argv[])
 {
   vtkSmartPointer<vtkPolyData> input = CreateData();
 
   VTK_CREATE(vtkRenderWindow, renwin);
-  renwin->SetSize(200, 200);
+  renwin->SetSize(300, 200);
 
   vtkSmartPointer<vtkRenderer> renderer;
 
   renderer = CreateRenderer(input, CreateLookupTable(), 0);
-  renderer->SetViewport(0.0, 0.0, 0.25, 1.0);
-  renwin->AddRenderer(renderer);
+  AddRenderer(renderer, renwin);
 
   renderer = CreateRenderer(input, CreateLookupTable(), 1);
-  renderer->SetViewport(0.25, 0.0, 0.5, 1.0);
-  renwin->AddRenderer(renderer);
+  AddRenderer(renderer, renwin);
+
+  renderer = CreateRenderer(input, CreateLogLookupTable(), 0);
+  AddRenderer(renderer, renwin);
+
+  renderer = CreateRenderer(input, CreateLogLookupTable(), 1);
+  AddRenderer(renderer, renwin);
 
   renderer = CreateRenderer(input, CreateColorTransferFunction(), 0);
-  renderer->SetViewport(0.5, 0.0, 0.75, 1.0);
-  renwin->AddRenderer(renderer);
+  AddRenderer(renderer, renwin);
 
   renderer = CreateRenderer(input, CreateColorTransferFunction(), 1);
-  renderer->SetViewport(0.75, 0.0, 1.0, 1.0);
-  renwin->AddRenderer(renderer);
+  AddRenderer(renderer, renwin);
+
+  renderer = CreateRenderer(input, CreateDiscretizableColorTransferFunction(), 0);
+  AddRenderer(renderer, renwin);
+
+  renderer = CreateRenderer(input, CreateDiscretizableColorTransferFunction(), 1);
+  AddRenderer(renderer, renwin);
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

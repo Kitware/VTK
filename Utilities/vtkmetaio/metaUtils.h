@@ -412,7 +412,9 @@ bool MET_InitReadField(MET_FieldRecordType * _mf,
 METAIO_EXPORT
 bool MET_Read(METAIO_STREAM::istream &fp,
            METAIO_STL::vector<MET_FieldRecordType *> * fields,
-           char _sepChar='=', bool oneLine=false, bool display_warnings=true);
+           char _sepChar='=', bool oneLine=false,
+           bool display_warnings=true,
+           METAIO_STL::vector<MET_FieldRecordType *> * newFields=NULL);
 
 
 /////////////////////////////////////////////////////////

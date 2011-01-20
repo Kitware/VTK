@@ -22,6 +22,12 @@ IF(APPLE)
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
 ENDIF(APPLE)
 
+# The Cygwin maintainers have requested that we not define WIN32. Thus developers
+# must use the X11 packages to build cygwin vtk.
+IF(CYGWIN)
+  unset(WIN32)
+ENDIF()
+
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
 IF(NOT EXPORT_EXECUTABLES_FILE)
@@ -63,6 +69,15 @@ INCLUDE(vtkCompilerExtras)
 # Check the source tree - right now just for local Git hooks.
 INCLUDE(vtkCheckSourceTree)
 
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Debug' as none was specified.")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
+
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
@@ -80,6 +95,8 @@ IF(NOT VTK_NO_LIBRARY_VERSION)
     SOVERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
     )
 ENDIF(NOT VTK_NO_LIBRARY_VERSION)
+
+INCLUDE(vtkTargetExportMacros)
 
 #-----------------------------------------------------------------------------
 # Determine whether we are being built by CTest and if so the version.
@@ -161,9 +178,30 @@ ENDIF(NOT LIBRARY_OUTPUT_PATH)
 IF(NOT EXECUTABLE_OUTPUT_PATH)
   SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
 ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
-SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
-SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+
+#-----------------------------------------------------------------------------
+# Directories with the configuration subdir, for advanced use only.
+# These are only used when passing arguments to custom commands,
+# or when writing config files for use by external projects.
+# In other circumstances, the build system will handle the config
+# subdirectory automatically.
+
+IF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+  SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})
+  SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH})
+ELSE("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+  SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+  SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
+
+#-----------------------------------------------------------------------------
+# Where the cxx tests are, for use in ADD_TEST
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+IF(CMAKE_CONFIGURATION_TYPES)
+  SET(CXX_TEST_CONFIG \${CTEST_CONFIGURATION_TYPE})
+ELSE()
+  SET(CXX_TEST_CONFIG .)
+ENDIF()
 
 #-----------------------------------------------------------------------------
 # Configure install locations.  This allows parent projects to modify
@@ -540,11 +578,11 @@ INCLUDE(CTest)
 MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH CVSCOMMAND CVS_UPDATE_OPTIONS DART_TESTING_TIMEOUT)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
-  CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
-    ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
-  FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
-    "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 ENDIF(BUILD_TESTING)
+CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
+  ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
+FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
+  "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 
 OPTION(VTK_USE_DISPLAY "Turn this option off and tests and warning/error macros will not popup windows" ON)
 MARK_AS_ADVANCED(VTK_USE_DISPLAY)
@@ -618,6 +656,7 @@ SET(KWSYS_USE_Glob 1)
 SET(KWSYS_USE_DateStamp 1)
 SET(KWSYS_HEADER_ROOT ${VTK_BINARY_DIR}/Utilities)
 SET(KWSYS_PROPERTIES_CXX ${VTK_LIBRARY_PROPERTIES})
+SET(KWSYS_INSTALL_EXPORT_NAME ${VTK_INSTALL_EXPORT_NAME})
 
 IF(NOT VTK_USE_ANSI_STDLIB)
   SET(KWSYS_IOS_FORCE_OLD 1)
@@ -729,6 +768,8 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
 VTK_THIRD_PARTY_OPTION(ZLIB zlib)
+VTK_THIRD_PARTY_OPTION(HDF5 hdf5)
+INCLUDE(vtkHDF5Library)
 IF(VTK_USE_GL2PS)
 VTK_THIRD_PARTY_OPTION(GL2PS gl2ps)
 ENDIF(VTK_USE_GL2PS)
@@ -937,32 +978,32 @@ ENDIF(BUILD_TESTING OR VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
-# the VTKData repository from CVS, issue the following commands:
+# the VTKData repository from git, issue the following command:
 #
-# cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData login
-# (respond with password vtk)
-# cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTKData checkout VTKData
+# git clone git://vtk.org/VTKData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKData.git
 FIND_PATH(VTK_DATA_ROOT VTKData.readme
   ${VTK_SOURCE_DIR}/VTKData
   ${VTK_SOURCE_DIR}/../VTKData
   ${VTK_SOURCE_DIR}/../../VTKData
   $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To obtain from CVS: \"cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK co VTKData\"")
+  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
+  )
 
 #-----------------------------------------------------------------------------
-# Configure the default VTK__LARGE_DATA_ROOT for the location of VTKLargeData.
+# Configure the default VTK_LARGE_DATA_ROOT for the location of VTKLargeData.
+# To get the VTKLargeData repository from git, issue the following command:
+#
+# git clone git://vtk.org/VTKLargeData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKLargeData.git
 FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
   ${VTK_SOURCE_DIR}/VTKLargeData
   ${VTK_SOURCE_DIR}/../VTKLargeData
   ${VTK_SOURCE_DIR}/../../VTKLargeData
   $ENV{VTK_LARGE_DATA_ROOT}
-  DOC "The repository for large data used for testing.  To check out this repository from CVS, first run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK login
-
-(respond with password vtk) and then run
-
-cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/VTK checkout VTKLargeData"
+  DOC "The repository for large data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKLargeData.git\""
   )
 
 #-----------------------------------------------------------------------------
@@ -1129,13 +1170,8 @@ ENDIF(VTK_IGNORE_BTX)
 # Configure Tcl wrapping support, setup executables
 IF(VTK_WRAP_TCL)
   # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
-    SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_TCL_EXE      vtkWrapTcl     LOCATION)
-    GET_TARGET_PROPERTY(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
+  SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
 
   # VTK tcl executables.
   SET(VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)
@@ -1153,22 +1189,8 @@ ENDIF(VTK_WRAP_TCL)
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support, setup the wrapper executables
 IF(VTK_WRAP_PYTHON)
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-    SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_EXE vtkWrapPython LOCATION)
-    GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
-
-  # Save these in cache as other projects including VTK (such as ParaView) may
-  # want to use these.
-  SET(VTK_WRAP_PYTHON_EXE
-    "${VTK_WRAP_PYTHON_EXE}"
-    CACHE INTERNAL "Location of program to do Python wrapping")
-  SET(VTK_WRAP_PYTHON_INIT_EXE
-    "${VTK_WRAP_PYTHON_INIT_EXE}"
-    CACHE INTERNAL "Location of program to do Python wrapping")
+  SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
+  SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
 
   # VTK python executables.
   SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
@@ -1182,13 +1204,8 @@ ENDIF(VTK_WRAP_PYTHON)
 # Configure Java wrapping support, setup executables
 IF(VTK_WRAP_JAVA)
   # Wrapping executables.
-  IF(CMAKE_CROSSCOMPILING)
-    SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-    SET(VTK_PARSE_JAVA_EXE vtkParseJava)
-  ELSE(CMAKE_CROSSCOMPILING)
-    GET_TARGET_PROPERTY(VTK_WRAP_JAVA_EXE  vtkWrapJava  LOCATION)
-    GET_TARGET_PROPERTY(VTK_PARSE_JAVA_EXE vtkParseJava LOCATION)
-  ENDIF(CMAKE_CROSSCOMPILING)
+  SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
+  SET(VTK_PARSE_JAVA_EXE vtkParseJava)
 
   # Java package location.
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
@@ -1197,6 +1214,10 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
+
+#-----------------------------------------------------------------------------
+# Set the encoder for shader programs
+SET(VTK_ENCODESTRING_EXE vtkEncodeString)
 
 #-----------------------------------------------------------------------------
 # Add the option to use Boost
@@ -1431,9 +1452,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
-# Save library dependencies.
-EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
-
 
 # Install some files.
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
@@ -1442,8 +1460,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_CMAKE_DIR}/FindMySQL.cmake
     ${VTK_CMAKE_DIR}/FindTCL.cmake
     ${VTK_CMAKE_DIR}/FindPythonLibs.cmake
-    ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs.cmake
-    ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs2.cmake
     ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
     ${VTK_CMAKE_DIR}/vtkExportKit.cmake
     ${VTK_CMAKE_DIR}/vtkKit.cmake.in
@@ -1464,8 +1480,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 
   SET(__inst_files
-    ${VTK_BINARY_DIR}/UseVTK.cmake
-    ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
+    ${VTK_BINARY_DIR}/UseVTK.cmake)
   IF(VTK_WRAP_HINTS)
     SET(__inst_files ${__inst_files} ${VTK_WRAP_HINTS})
   ENDIF(VTK_WRAP_HINTS)
@@ -1480,5 +1495,5 @@ INCLUDE(VTKCPack.cmake)
 #-----------------------------------------------------------------------------
 # The commands in this directory are intended to be executed as
 # the end of the whole configuration process, as a "last step".
-# This directory is typically the last SUBDIRS in the main CMakeLists.txt.
+# This directory is typically the last add_subdirectory in the main CMakeLists.txt.
 ADD_SUBDIRECTORY(Utilities/LastConfigureStep)

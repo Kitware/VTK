@@ -36,6 +36,7 @@
 
 #include "QVTKPaintEngine.h"
 #include "QVTKInteractorAdapter.h"
+#include "QVTKInteractor.h"
 
 #include "qevent.h"
 #include "qapplication.h"

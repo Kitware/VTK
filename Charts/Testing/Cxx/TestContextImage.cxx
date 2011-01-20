@@ -46,6 +46,7 @@ int TestContextImage(int argc, char * argv [])
   item->SetPosition(25, 30);
 
   view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
   return EXIT_SUCCESS;
 }

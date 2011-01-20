@@ -41,6 +41,8 @@
 
 #include <sys/stat.h>
 
+#include <vtksys/SystemTools.hxx>
+
 vtkStandardNewMacro(vtkTesting);
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
@@ -187,7 +189,8 @@ const char *vtkTesting::GetDataRoot()
   string dr=vtkTestingGetArgOrEnvOrDefault(
                 "-D",this->Args, "VTK_DATA_ROOT","../../../../VTKData");
 #endif
-  this->SetDataRoot(dr.c_str());
+  this->SetDataRoot(
+     vtksys::SystemTools::CollapseFullPath(dr.c_str()).c_str());
 
   return this->DataRoot;
 }
@@ -196,8 +199,8 @@ const char *vtkTesting::GetTempDirectory()
 {
   string td=vtkTestingGetArgOrEnvOrDefault(
                 "-T",this->Args, "VTK_TEMP_DIR","../../../Testing/Temporary");
-
-  this->SetTempDirectory(td.c_str());
+  this->SetTempDirectory(
+    vtksys::SystemTools::CollapseFullPath(td.c_str()).c_str());
 
   return this->TempDirectory;
 }

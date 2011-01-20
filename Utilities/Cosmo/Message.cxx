@@ -42,6 +42,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
+#include "Message.h"
+#include "Partition.h"
+
 #ifdef USE_SERIAL_COSMO
 #include <string.h>
 #endif
@@ -49,9 +52,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 using namespace std;
-
-#include "Message.h"
-#include "Partition.h"
 
 ////////////////////////////////////////////////////////////////////////////
 //

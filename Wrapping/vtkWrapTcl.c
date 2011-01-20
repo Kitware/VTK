@@ -123,7 +123,9 @@ void output_temp(FILE *fp, int i, unsigned int aType,
     }
 
   /* for const * return types prototype with const */
-  if ((i == MAX_ARGS) && ((aType & VTK_PARSE_CONST) != 0))
+  if ((i == MAX_ARGS) &&
+      ((aType & VTK_PARSE_INDIRECT) != 0) &&
+      ((aType & VTK_PARSE_CONST) != 0))
     {
     fprintf(fp,"    const ");
     }
@@ -671,7 +673,35 @@ void get_args(FILE *fp, int i)
     }
 }
 
-void outputFunction(FILE *fp, ClassInfo *data)
+/* make a guess about whether a class is wrapped */
+static int isClassWrapped(const char *classname)
+{
+  HierarchyEntry *entry;
+
+  if (hierarchyInfo)
+    {
+    entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
+
+    if (entry)
+      {
+      /* only allow non-excluded vtkObjects as args */
+      if (vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+          !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObject"))
+        {
+        /* make a special exemption for vtkObjectBase */
+        if (strcmp(classname, "vtkObjectBase") != 0)
+          {
+          return 0;
+          }
+        }
+      }
+    }
+
+  return 1;
+}
+
+/* check whether a function is wrappable */
+int checkFunctionSignature(ClassInfo *data)
 {
   static unsigned int supported_types[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
@@ -702,14 +732,17 @@ void outputFunction(FILE *fp, ClassInfo *data)
       !currentFunction->IsPublic ||
       !currentFunction->Name)
     {
-    return;
+    return 0;
     }
 
-  /* The unwrappable methods in Filtering/vtkInformation.c */
-  if (strcmp(data->Name, "vtkInformation") == 0 &&
-      currentFunction->IsLegacy)
+  /* function pointer arguments for callbacks */
+  if (currentFunction->NumberOfArguments == 2 &&
+      currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION &&
+      currentFunction->ArgTypes[1] == VTK_PARSE_VOID_PTR &&
+      (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
+      == VTK_PARSE_VOID)
     {
-    return;
+    return 1;
     }
 
   /* check to see if we can handle the args */
@@ -718,16 +751,13 @@ void outputFunction(FILE *fp, ClassInfo *data)
     argType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
     baseType = (argType & VTK_PARSE_BASE_TYPE);
 
-    if (currentFunction->ArgTypes[i] != VTK_PARSE_FUNCTION)
+    for (j = 0; supported_types[j] != 0; j++)
       {
-      for (j = 0; supported_types[j] != 0; j++)
-        {
-        if (baseType == supported_types[j]) { break; }
-        }
-      if (supported_types[j] == 0)
-        {
-        args_ok = 0;
-        }
+      if (baseType == supported_types[j]) { break; }
+      }
+    if (supported_types[j] == 0)
+      {
+      args_ok = 0;
       }
 
     if (baseType == VTK_PARSE_STRING &&
@@ -743,22 +773,9 @@ void outputFunction(FILE *fp, ClassInfo *data)
         {
         args_ok = 0;
         }
-      else if (hierarchyInfo &&
-               !vtkParseHierarchy_IsExtern(hierarchyInfo,
-                 currentFunction->ArgClasses[i]))
+      else if (!isClassWrapped(currentFunction->ArgClasses[i]))
         {
-        /* only allow non-excluded vtkObjects as args */
-        if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-              currentFunction->ArgClasses[i], "vtkObject") ||
-            vtkParseHierarchy_GetProperty(hierarchyInfo,
-              currentFunction->ArgClasses[i], "WRAP_EXCLUDE"))
-          {
-          /* make a special exemption for vtkObjectBase */
-          if (strcmp(currentFunction->ArgClasses[i], "vtkObjectBase") != 0)
-            {
-            args_ok = 0;
-            }
-          }
+        args_ok = 0;
         }
       }
 
@@ -821,35 +838,15 @@ void outputFunction(FILE *fp, ClassInfo *data)
       {
       args_ok = 0;
       }
-    else if (hierarchyInfo &&
-             !vtkParseHierarchy_IsExtern(hierarchyInfo,
-               currentFunction->ReturnClass))
+    else if (!isClassWrapped(currentFunction->ReturnClass))
       {
-      /* only allow non-excluded vtkObjects as return values */
-      if (!vtkParseHierarchy_IsTypeOf(hierarchyInfo,
-            currentFunction->ReturnClass, "vtkObject") ||
-          vtkParseHierarchy_GetProperty(hierarchyInfo,
-            currentFunction->ReturnClass, "WRAP_EXCLUDE"))
-        {
-        /* make a special exemption for vtkObjectBase */
-        if (strcmp(currentFunction->ReturnClass, "vtkObjectBase") != 0)
-          {
-          args_ok = 0;
-          }
-        }
+      args_ok = 0;
       }
     }
 
   if (((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER) &&
       ((returnType & VTK_PARSE_INDIRECT) != VTK_PARSE_REF) &&
       ((returnType & VTK_PARSE_INDIRECT) != 0))
-    {
-    args_ok = 0;
-    }
-
-  if (currentFunction->NumberOfArguments &&
-      (currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION) &&
-      (currentFunction->NumberOfArguments != 1))
     {
     args_ok = 0;
     }
@@ -908,18 +905,30 @@ void outputFunction(FILE *fp, ClassInfo *data)
       }
     }
 
+  return args_ok;
+}
+
+void outputFunction(FILE *fp, ClassInfo *data)
+{
+  int i;
+  int required_args = 0;
+
   /* if the args are OK and it is not a constructor or destructor */
-  if (args_ok &&
+  if (checkFunctionSignature(data) &&
       strcmp(data->Name,currentFunction->Name) &&
       strcmp(data->Name,currentFunction->Name + 1))
     {
-    int required_args = 0;
-
     /* calc the total required args */
     for (i = 0; i < currentFunction->NumberOfArguments; i++)
       {
       required_args = required_args +
         (currentFunction->ArgCounts[i] ? currentFunction->ArgCounts[i] : 1);
+
+      /* ignore args after function pointer */
+      if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        {
+        break;
+        }
       }
 
     if(currentFunction->IsLegacy)
@@ -935,6 +944,12 @@ void outputFunction(FILE *fp, ClassInfo *data)
       output_temp(fp, i, currentFunction->ArgTypes[i],
                   currentFunction->ArgClasses[i],
                   currentFunction->ArgCounts[i]);
+
+      /* ignore args after function pointer */
+      if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        {
+        break;
+        }
       }
     output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
                 currentFunction->ReturnClass, 0);
@@ -977,6 +992,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
       if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
         fprintf(fp,"vtkTclVoidFunc,static_cast<void *>(temp%i)",i);
+        break;
         }
       else
         {
@@ -1084,14 +1100,12 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->Name,data->Name);
 
   fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name,data->Name);
-  fprintf(fp,"  int    tempi;\n");
-  fprintf(fp,"  double tempd;\n");
-  fprintf(fp,"  static char temps[80];\n");
-  fprintf(fp,"  int    error;\n\n");
-  fprintf(fp,"  error = 0; error = error;\n");
-  fprintf(fp,"  tempi = 0; tempi = tempi;\n");
-  fprintf(fp,"  tempd = 0; tempd = tempd;\n");
-  fprintf(fp,"  temps[0] = 0; temps[0] = temps[0];\n\n");
+  fprintf(fp,"  int    tempi = 0;      (void)tempi;\n");
+  fprintf(fp,"  double tempd = 0.0;    (void)tempd;\n");
+  fprintf(fp,"  static char temps[80]; (void)temps;\n");
+  fprintf(fp,"  int    error = 0;      (void)error;\n");
+  fprintf(fp,"  temps[0] = 0;\n");
+  fprintf(fp,"\n");
 
   fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp,const_cast<char *>(\"Could not find requested method.\"), TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
 
@@ -1162,6 +1176,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
       {
       numArgs = numArgs +
         (currentFunction->ArgCounts[j] ? currentFunction->ArgCounts[j] : 1);
+      if (currentFunction->ArgTypes[j] == VTK_PARSE_FUNCTION)
+        {
+        break;
+        }
       }
 
     if (numArgs > 1)
@@ -1264,7 +1282,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
             {
               fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"function\" );\n" );
-              continue;
+              break;
             }
 
           argtype =

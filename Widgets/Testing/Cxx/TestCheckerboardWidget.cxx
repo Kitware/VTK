@@ -31,7 +31,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkDebugLeaks.h"
 
 const char eventLog[] =
 "# StreamVersion 1\n"

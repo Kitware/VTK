@@ -72,6 +72,10 @@ public:
                           int initializedExternally);
 
   // Description:
+  // Same as Initialize(0, 0, 1). Mainly for calling from wrapped languages.
+  virtual void Initialize();
+
+  // Description:
   // This method is for cleaning up and has to be called before
   // the end of the program if MPI was initialized with
   //Initialize()

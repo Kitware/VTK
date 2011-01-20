@@ -405,6 +405,7 @@ public:
   static vtkPolyData* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+//BTX
   // Description:
   // Scalar field critical point classification (for manifold 2D meshes).
   // Reference: J. Milnor "Morse Theory", Princeton University Press, 1963.
@@ -422,7 +423,6 @@ public:
   // vtkPolyData::ERR_INCORRECT_FIELD: the number of entries in the scalar field
   // array is different form the number of vertices in the mesh.
   // vtkPolyData::ERR_NO_SUCH_FIELD: the specified scalar field does not exist.
-  //BTX
   enum
     {
     ERR_NO_SUCH_FIELD = -4,
@@ -433,7 +433,7 @@ public:
     SADDLE = 1,
     MAXIMUM = 2
     };
-  //ETX
+//ETX
   int GetScalarFieldCriticalIndex (vtkIdType pointId, 
                                    vtkDataArray *scalarField);
   int GetScalarFieldCriticalIndex (vtkIdType pointId, int fieldId);

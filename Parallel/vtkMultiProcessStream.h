@@ -45,6 +45,7 @@ public:
   vtkMultiProcessStream& operator << (vtkTypeInt64 value);
   vtkMultiProcessStream& operator << (vtkTypeUInt64 value);
   vtkMultiProcessStream& operator << (const vtkstd::string& value);
+  vtkMultiProcessStream& operator << (const vtkMultiProcessStream&);
 
   // Description:
   // Remove-from-stream operators. Removes from the head of the stream.
@@ -57,6 +58,7 @@ public:
   vtkMultiProcessStream& operator >> (vtkTypeInt64 &value);
   vtkMultiProcessStream& operator >> (vtkTypeUInt64 &value);
   vtkMultiProcessStream& operator >> (vtkstd::string &value);
+  vtkMultiProcessStream& operator >> (vtkMultiProcessStream&);
 
   // Description:
   // Clears everything in the stream.

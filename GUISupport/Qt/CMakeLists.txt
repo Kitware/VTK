@@ -1,6 +1,6 @@
 
 # set up sources to build
-SET ( QVTKLibSrcs
+SET(QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
     vtkQtConnection.cxx
     QVTKApplication.cxx
@@ -19,7 +19,7 @@ SET ( QVTKLibSrcs
     vtkQtTreeModelAdapter.cxx
     )
 
-SET ( QVTKMocHeaders
+SET(QVTKMocHeaders
     QVTKApplication.h
     QVTKInteractorAdapter.h
     QVTKInteractorInternal.h
@@ -33,73 +33,61 @@ SET ( QVTKMocHeaders
     )
 
 IF(VTK_USE_X AND VTK_USE_TDX)
-SET ( QVTKMocHeaders ${QVTKMocHeaders}
-    vtkTDxQtUnixDevices.h
-)
-SET ( QVTKLibSrcs ${QVTKLibSrcs}
-    vtkTDxQtUnixDevices.cxx
-)
+  SET(QVTKMocHeaders ${QVTKMocHeaders}
+      vtkTDxQtUnixDevices.h
+    )
+  SET(QVTKLibSrcs ${QVTKLibSrcs}
+      vtkTDxQtUnixDevices.cxx
+    )
 ENDIF()
 
-SET ( QVTKNonMocHeaders
+SET(QVTKNonMocHeaders
     QVTKWin32Header.h
     vtkEventQtSlotConnect.h
+    QVTKInteractor.h
     )
 
-INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 # add additional files if the user will allow Qt's OpenGL support
 IF(VTK_USE_QVTK_QTOPENGL)
-  SET (QT_USE_QTOPENGL 1)
+  SET(QT_USE_QTOPENGL 1)
   SET(QVTKMocHeaders ${QVTKMocHeaders}
     QVTKGraphicsItem.h
     QVTKWidget2.h
     )
-  SET ( QVTKLibSrcs ${QVTKLibSrcs}
+  SET(QVTKLibSrcs ${QVTKLibSrcs}
     QVTKGraphicsItem.cxx
     QVTKWidget2.cxx
     )
 ENDIF(VTK_USE_QVTK_QTOPENGL)
 
-
 # add additional files depending on infovis and/or views
 IF(VTK_USE_VIEWS)
-  SET( QVTKLibSrcs ${QVTKLibSrcs}
+  SET(QVTKLibSrcs ${QVTKLibSrcs}
     vtkQtAnnotationView.cxx
-    vtkQtBarChartView.cxx
-    vtkQtChartRepresentation.cxx
-    vtkQtChartView.cxx
-    vtkQtLineChartView.cxx
     vtkQtListView.cxx
     vtkQtRecordView.cxx
-    vtkQtStackedChartView.cxx
-    vtkQtStatisticalBoxChartView.cxx
     vtkQtTableRepresentation.cxx
     vtkQtTableView.cxx
     vtkQtTreeView.cxx
     vtkQtView.cxx
     )
   SET_SOURCE_FILES_PROPERTIES(vtkQtView.cxx ABSTRACT )
-  SET ( QVTKMocHeaders ${QVTKMocHeaders}
+  SET(QVTKMocHeaders ${QVTKMocHeaders}
     vtkQtAnnotationView.h
-    vtkQtBarChartView.h
-    vtkQtChartView.h
-    vtkQtLineChartView.h
     vtkQtListView.h
     vtkQtRecordView.h
-    vtkQtStackedChartView.h
-    vtkQtStatisticalBoxChartView.h
     vtkQtTableView.h
     vtkQtTreeView.h
     vtkQtView.h
     )
-  SET ( QVTKNonMocHeaders ${QVTKNonMocHeaders}
-    vtkQtChartRepresentation.h
+  SET(QVTKNonMocHeaders ${QVTKNonMocHeaders}
     vtkQtTableRepresentation.h
     )
 
   # Rich-text view requires Qt >= 4.5.0
-  # Rich-text depends on QT Webkit which is not portable on Unix (AIX & HP-UX)
+  # Rich-text depends on Qt Webkit which is not portable on Unix (AIX & HP-UX)
   IF(QT_QTWEBKIT_FOUND)
     OPTION(VTK_QT_USE_WEBKIT "Option to use QT Webkit" ON)
     MARK_AS_ADVANCED(VTK_QT_USE_WEBKIT)
@@ -115,25 +103,50 @@ IF(VTK_USE_VIEWS)
   ENDIF(QT_QTWEBKIT_FOUND)
 ENDIF(VTK_USE_VIEWS)
 
+# Should we build the Qt charts - they are now deprecated.
+VTK_DEPENDENT_OPTION(VTK_USE_QTCHARTS "Build Qt based charts - DEPRECATED" OFF
+                     "VTK_USE_QT;VTK_USE_RENDERING" OFF)
+if(VTK_USE_QTCHARTS)
+  if(VTK_USE_VIEWS)
+    set(QVTKLibSrcs ${QVTKLibSrcs}
+      vtkQtBarChartView.cxx
+      vtkQtChartRepresentation.cxx
+      vtkQtChartView.cxx
+      vtkQtLineChartView.cxx
+      vtkQtStackedChartView.cxx
+      vtkQtStatisticalBoxChartView.cxx
+      )
+    set(QVTKMocHeaders ${QVTKMocHeaders}
+      vtkQtBarChartView.h
+      vtkQtChartView.h
+      vtkQtLineChartView.h
+      vtkQtStackedChartView.h
+      vtkQtStatisticalBoxChartView.h
+      )
+    set(QVTKNonMocHeaders ${QVTKNonMocHeaders}
+      vtkQtChartRepresentation.h
+      )
+  endif()
+endif()
+
 # import Qt4 build settings
-SET (QT_USE_QTNETWORK 1)
+SET(QT_USE_QTNETWORK 1)
 INCLUDE(${QT_USE_FILE})
 
-QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
+QT4_WRAP_CPP(QVTKLibMocSrcs ${QVTKMocHeaders})
 
-ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
+VTK_ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
 # Add target specific compile flags for ABI setttings
 IF(VTK_ABI_CXX_FLAGS)
   SET_PROPERTY(TARGET QVTK APPEND PROPERTY COMPILE_FLAGS "${VTK_ABI_CXX_FLAGS}")
 ENDIF(VTK_ABI_CXX_FLAGS)
-
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
   SET_TARGET_PROPERTIES(QVTK PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 ENDIF(VTK_LIBRARY_PROPERTIES)
 
-TARGET_LINK_LIBRARIES( QVTK
+TARGET_LINK_LIBRARIES(QVTK
   ${QT_LIBRARIES}
   vtkRendering
   vtkGraphics
@@ -141,13 +154,12 @@ TARGET_LINK_LIBRARIES( QVTK
   vtkCommon)
 
 # add extra dependencies if necessary
-TARGET_LINK_LIBRARIES( QVTK vtkQtChart )
 IF(VTK_USE_VIEWS)
-  TARGET_LINK_LIBRARIES( QVTK vtkViews )
+  TARGET_LINK_LIBRARIES(QVTK vtkViews)
 ENDIF(VTK_USE_VIEWS)
 
 IF(VTK_USE_QVTK_QTOPENGL)
-  TARGET_LINK_LIBRARIES( QVTK ${OPENGL_gl_LIBRARY} )
+  TARGET_LINK_LIBRARIES(QVTK ${OPENGL_gl_LIBRARY})
 ENDIF(VTK_USE_QVTK_QTOPENGL)
 
 IF(APPLE)
@@ -156,12 +168,14 @@ IF(APPLE)
   ENDIF(VTK_USE_CARBON)
 ENDIF(APPLE)
 
-# recurse into Chart directory
-SUBDIRS(Chart)
+if(VTK_USE_QTCHARTS)
+  add_subdirectory(Chart)
+  target_link_libraries(QVTK vtkQtChart)
+endif()
 
 # recurse into testing directory if testing is on
 IF(BUILD_TESTING)
-  SUBDIRS(Testing/Cxx)
+  ADD_SUBDIRECTORY(Testing/Cxx)
 ENDIF(BUILD_TESTING)
 
 # wrapping for python
@@ -173,15 +187,9 @@ if(VTK_WRAP_PYTHON_SIP)
     QVTKInteractor.h
     vtkEventQtSlotConnect.h
     vtkQtAnnotationView.h
-    vtkQtBarChartView.h
-    vtkQtChartRepresentation.h
-    vtkQtChartView.h
-    vtkQtLineChartView.h
     vtkQtListView.h
     vtkQtSQLDatabase.h
     vtkQtSQLQuery.h
-    vtkQtStackedChartView.h
-    vtkQtStatisticalBoxChartView.h
     vtkQtRecordView.h
     vtkQtTableRepresentation.h
     vtkQtTableView.h
@@ -189,6 +197,16 @@ if(VTK_WRAP_PYTHON_SIP)
     vtkQtTreeView.h
     vtkQtView.h
     )
+  if(VTK_USE_QTCHARTS)
+    set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
+      vtkQtBarChartView.h
+      vtkQtChartRepresentation.h
+      vtkQtChartView.h
+      vtkQtLineChartView.h
+      vtkQtStackedChartView.h
+      vtkQtStatisticalBoxChartView.h
+      )
+  endif()
   IF(VTK_QT_USE_WEBKIT)
     set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
     vtkQtRichTextView.h
@@ -196,23 +214,11 @@ if(VTK_WRAP_PYTHON_SIP)
   ENDIF(VTK_QT_USE_WEBKIT)
 
   VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
-  ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
+  VTK_ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
   TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK vtkViewsPythonD vtkRenderingPythonD vtkPythonCore)
 
   PYTHON_ADD_MODULE(vtkQtPython vtkQtPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkQtPython vtkQtPythonD)
-  IF(WIN32 AND NOT CYGWIN)
-    SET_TARGET_PROPERTIES(vtkQtPython PROPERTIES SUFFIX ".pyd")
-  ENDIF(WIN32 AND NOT CYGWIN)
-
-
-  IF(NOT VTK_INSTALL_NO_LIBRARIES)
-    INSTALL(TARGETS vtkQtPython vtkQtPythonD
-      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
-      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
-      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
-  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-
 
   #### wrap QObject derived classes with SIP
   # list .sip files here for wrapping
@@ -236,7 +242,7 @@ if(VTK_WRAP_PYTHON_SIP)
   # auto generate the module .sip file from the list of .sip files above
   set(SIP_MODULE QVTKPython)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${SIP_MODULE}.sip.in
-    "%Module ${SIP_MODULE} 0\n\n")
+    "%Module vtk.${SIP_MODULE} 0\n\n")
 
   set(SIP_OUT)
   foreach(f ${SIP_FILES})
@@ -293,18 +299,35 @@ if(VTK_WRAP_PYTHON_SIP)
     )
 
   # create the sip module
-  add_library(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
+  include_directories(${SIP_INCLUDE_DIR})
+  include_directories("${PYTHON_INCLUDE_PATH}")
+  VTK_ADD_LIBRARY(${SIP_MODULE} MODULE ${SIP_OUT} ${SIP_FILES})
   target_link_libraries(${SIP_MODULE} QVTK vtkRenderingPythonD)
   set_target_properties(${SIP_MODULE} PROPERTIES PREFIX "")
   IF(WIN32 AND NOT CYGWIN)
     SET_TARGET_PROPERTIES(${SIP_MODULE} PROPERTIES SUFFIX ".pyd")
   ENDIF(WIN32 AND NOT CYGWIN)
+  get_target_property(lib_loc ${SIP_MODULE} LOCATION)
+  add_custom_command(TARGET ${SIP_MODULE} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${lib_loc}" "${VTK_BINARY_DIR}/Wrapping/Python/vtk/"
+    )
+
+
+  SET_TARGET_PROPERTIES(vtkQtPython QVTKPython PROPERTIES SKIP_BUILD_RPATH 1)
 
   IF(NOT VTK_INSTALL_NO_LIBRARIES)
-    INSTALL(TARGETS QVTKPython
+    INSTALL(TARGETS vtkQtPythonD
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
       LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+    IF(VTK_INSTALL_PYTHON_USING_CMAKE)
+      INSTALL(TARGETS vtkQtPython QVTKPython
+        EXPORT ${VTK_INSTALL_EXPORT_NAME}
+        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+        LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+        ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+    ENDIF(VTK_INSTALL_PYTHON_USING_CMAKE)
   ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
   IF(BUILD_TESTING)
@@ -319,72 +342,73 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
                ${VTK_BINARY_DIR}/VTKConfigQt.cmake @ONLY IMMEDIATE)
 
 # build plugin
+IF(BUILD_SHARED_LIBS)
+  SET ( PluginLibSrcs
+        Q4VTKWidgetPlugin.cxx
+        )
 
-SET ( PluginLibSrcs
-      Q4VTKWidgetPlugin.cxx
+  SET ( PluginMocHeaders
+        Q4VTKWidgetPlugin.h
+        )
+
+  ADD_DEFINITIONS(-DQT_PLUGIN)
+  INCLUDE_DIRECTORIES(${QT_QTDESIGNER_INCLUDE_DIR})
+  QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
+
+  # add QVTK plugin from sources
+  # stand-alone as it doesn't depend on QVTK library
+  VTK_ADD_LIBRARY ( QVTKWidgetPlugin
+    SHARED
+    ${PluginLibSrcs}
+    ${PluginMocSrcs}
+  )
+
+  SET_TARGET_PROPERTIES(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
+
+  # link with Qt libs
+  TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
+    ${QT_QTGUI_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+  )
+
+  # install rules
+
+  # The VTK_INSTALL_QT_PLUGIN_DIR variable sets the location
+  # in which the Qt plugin will be installed.  It may or may not contain
+  # variable references to CMAKE_INSTALL_PREFIX and VTK_INSTALL_QT_DIR.
+  # The default is to install to VTK_INSTALL_QT_DIR under the installation
+  # prefix.  The default VTK_INSTALL_QT_DIR will allow the designer plugin
+  # path to be set to vtk-install-prefix/plugins to get the plugin.
+  IF(NOT VTK_INSTALL_QT_DIR)
+    SET(VTK_INSTALL_QT_DIR /plugins/designer)
+  ENDIF(NOT VTK_INSTALL_QT_DIR)
+
+  # If no runtime is to be installed then do not install the qt plugin.
+  IF(VTK_INSTALL_NO_RUNTIME)
+    SET(VTK_INSTALL_NO_QT_PLUGIN 1)
+  ENDIF(VTK_INSTALL_NO_RUNTIME)
+
+  IF(NOT VTK_INSTALL_NO_QT_PLUGIN)
+    # Set default plugin install directory.
+    SET(DOLLAR "$")
+    IF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
+    ELSE(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
+      SET(VTK_INSTALL_QT_PLUGIN_DIR "${DOLLAR}{CMAKE_INSTALL_PREFIX}${DOLLAR}{VTK_INSTALL_QT_DIR}"
+        CACHE STRING "Directory in which the VTK Qt plugin is placed during installation.")
+      MARK_AS_ADVANCED(VTK_INSTALL_QT_PLUGIN_DIR)
+    ENDIF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
+
+    # Configure the plugin install script.  This is used instead of
+    # INSTALL TARGETS to allow the plugin to be installed outside the
+    # main install prefix.  Attach the script as a post-install script.
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/PluginInstall.cmake.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
+                   @ONLY IMMEDIATE)
+    SET_TARGET_PROPERTIES(QVTK PROPERTIES POST_INSTALL_SCRIPT
+      ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
       )
-
-SET ( PluginMocHeaders
-      Q4VTKWidgetPlugin.h
-      )
-
-ADD_DEFINITIONS(-DQT_PLUGIN)
-INCLUDE_DIRECTORIES(${QT_QTDESIGNER_INCLUDE_DIR})
-QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
-
-# add QVTK plugin from sources
-# stand-alone as it doesn't depend on QVTK library
-ADD_LIBRARY ( QVTKWidgetPlugin
-  SHARED
-  ${PluginLibSrcs}
-  ${PluginMocSrcs}
-)
-
-SET_TARGET_PROPERTIES(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
-
-# link with Qt libs
-TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
-  ${QT_QTGUI_LIBRARY}
-  ${QT_QTCORE_LIBRARY}
-)
-
-# install rules
-
-# The VTK_INSTALL_QT_PLUGIN_DIR variable sets the location
-# in which the Qt plugin will be installed.  It may or may not contain
-# variable references to CMAKE_INSTALL_PREFIX and VTK_INSTALL_QT_DIR.
-# The default is to install to VTK_INSTALL_QT_DIR under the installation
-# prefix.  The default VTK_INSTALL_QT_DIR will allow the designer plugin
-# path to be set to vtk-install-prefix/plugins to get the plugin.
-IF(NOT VTK_INSTALL_QT_DIR)
-  SET(VTK_INSTALL_QT_DIR /plugins/designer)
-ENDIF(NOT VTK_INSTALL_QT_DIR)
-
-# If no runtime is to be installed then do not install the qt plugin.
-IF(VTK_INSTALL_NO_RUNTIME)
-  SET(VTK_INSTALL_NO_QT_PLUGIN 1)
-ENDIF(VTK_INSTALL_NO_RUNTIME)
-
-IF(NOT VTK_INSTALL_NO_QT_PLUGIN)
-  # Set default plugin install directory.
-  SET(DOLLAR "$")
-  IF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
-  ELSE(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
-    SET(VTK_INSTALL_QT_PLUGIN_DIR "${DOLLAR}{CMAKE_INSTALL_PREFIX}${DOLLAR}{VTK_INSTALL_QT_DIR}"
-      CACHE STRING "Directory in which the VTK Qt plugin is placed during installation.")
-    MARK_AS_ADVANCED(VTK_INSTALL_QT_PLUGIN_DIR)
-  ENDIF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
-
-  # Configure the plugin install script.  This is used instead of
-  # INSTALL TARGETS to allow the plugin to be installed outside the
-  # main install prefix.  Attach the script as a post-install script.
-  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/PluginInstall.cmake.in
-                 ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
-                 @ONLY IMMEDIATE)
-  SET_TARGET_PROPERTIES(QVTK PROPERTIES POST_INSTALL_SCRIPT
-    ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
-    )
-ENDIF(NOT VTK_INSTALL_NO_QT_PLUGIN)
+  ENDIF(NOT VTK_INSTALL_NO_QT_PLUGIN)
+ENDIF(BUILD_SHARED_LIBS)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
@@ -403,6 +427,7 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS QVTK
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)

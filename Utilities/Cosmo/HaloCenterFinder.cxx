@@ -1,46 +1,49 @@
 /*=========================================================================
-                                                                                
+
 Copyright (c) 2007, Los Alamos National Security, LLC
 
 All rights reserved.
 
-Copyright 2007. Los Alamos National Security, LLC. 
-This software was produced under U.S. Government contract DE-AC52-06NA25396 
-for Los Alamos National Laboratory (LANL), which is operated by 
-Los Alamos National Security, LLC for the U.S. Department of Energy. 
-The U.S. Government has rights to use, reproduce, and distribute this software. 
+Copyright 2007. Los Alamos National Security, LLC.
+This software was produced under U.S. Government contract DE-AC52-06NA25396
+for Los Alamos National Laboratory (LANL), which is operated by
+Los Alamos National Security, LLC for the U.S. Department of Energy.
+The U.S. Government has rights to use, reproduce, and distribute this software.
 NEITHER THE GOVERNMENT NOR LOS ALAMOS NATIONAL SECURITY, LLC MAKES ANY WARRANTY,
-EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  
-If software is modified to produce derivative works, such modified software 
-should be clearly marked, so as not to confuse it with the version available 
+EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
+If software is modified to produce derivative works, such modified software
+should be clearly marked, so as not to confuse it with the version available
 from LANL.
- 
-Additionally, redistribution and use in source and binary forms, with or 
-without modification, are permitted provided that the following conditions 
+
+Additionally, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions
 are met:
--   Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer. 
+-   Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
 -   Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 -   Neither the name of Los Alamos National Security, LLC, Los Alamos National
     Laboratory, LANL, the U.S. Government, nor the names of its contributors
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission. 
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-                                                                                
+
 =========================================================================*/
+
+#include "Partition.h"
+#include "HaloCenterFinder.h"
 
 #include <iostream>
 #include <fstream>
@@ -48,9 +51,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iomanip>
 #include <set>
 #include <math.h>
-
-#include "Partition.h"
-#include "HaloCenterFinder.h"
 
 using namespace std;
 
@@ -81,10 +81,12 @@ HaloCenterFinder::~HaloCenterFinder()
 /////////////////////////////////////////////////////////////////////////
 
 void HaloCenterFinder::setParameters(
-                        POSVEL_T pDist)
+                        POSVEL_T pDist,
+                        POSVEL_T distConvertFactor)
 {
   // Halo finder parameters
   this->bb = pDist;
+  this->distFactor = distConvertFactor;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -95,7 +97,7 @@ void HaloCenterFinder::setParameters(
 /////////////////////////////////////////////////////////////////////////
 
 void HaloCenterFinder::setParticles(
-			long haloCount,
+                        long haloCount,
                         POSVEL_T* xLoc,
                         POSVEL_T* yLoc,
                         POSVEL_T* zLoc,
@@ -122,7 +124,7 @@ void HaloCenterFinder::setParticles(
 /////////////////////////////////////////////////////////////////////////
 
 int HaloCenterFinder::mostConnectedParticleN2()
-{       
+{
   // Arrange in an upper triangular grid of friend counts
   // friendCount will hold number of friends that a particle has
   //
@@ -141,7 +143,7 @@ int HaloCenterFinder::mostConnectedParticleN2()
       POSVEL_T xdist = fabs(this->xx[p] - this->xx[q]);
       POSVEL_T ydist = fabs(this->yy[p] - this->yy[q]);
       POSVEL_T zdist = fabs(this->zz[p] - this->zz[q]);
-      
+
       if ((xdist < this->bb) && (ydist < this->bb) && (zdist < this->bb)) {
         POSVEL_T dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
         if (dist < this->bb) {
@@ -177,6 +179,11 @@ int HaloCenterFinder::mostConnectedParticleN2()
 
 int HaloCenterFinder::mostConnectedParticleChainMesh()
 {
+  int bp, bi, bj, bk;
+  int wp, wi, wj, wk;
+  int first[DIMENSION], last[DIMENSION];
+  POSVEL_T xdist, ydist, zdist, dist;
+
   // Build the chaining mesh
   int chainFactor = MCP_CHAIN_FACTOR;
   POSVEL_T chainSize = this->bb / chainFactor;
@@ -192,15 +199,39 @@ int HaloCenterFinder::mostConnectedParticleChainMesh()
   int* bucketList = haloChain->getBucketList();
   int* meshSize = haloChain->getMeshSize();
 
-  // Walk every bucket in the chaining mesh, processing all particles in bucket
-  // Examine particles in a walking window around the current bucket
-  int first[DIMENSION], last[DIMENSION];
-  POSVEL_T xdist, ydist, zdist, dist;
+  // Calculate the friend count within each bucket using upper triangular loop
+  for (bi = 0; bi < meshSize[0]; bi++) {
+    for (bj = 0; bj < meshSize[1]; bj++) {
+      for (bk = 0; bk < meshSize[2]; bk++) {
 
-  for (int bi = 0; bi < meshSize[0]; bi++) {
-    for (int bj = 0; bj < meshSize[1]; bj++) {
-      for (int bk = 0; bk < meshSize[2]; bk++) {
-   
+        bp = buckets[bi][bj][bk];
+        while (bp != -1) {
+
+          wp = bucketList[bp];
+          while (wp != -1) {
+            xdist = (POSVEL_T)fabs(this->xx[bp] - this->xx[wp]);
+            ydist = (POSVEL_T)fabs(this->yy[bp] - this->yy[wp]);
+            zdist = (POSVEL_T)fabs(this->zz[bp] - this->zz[wp]);
+            dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
+            if (dist != 0.0 && dist < this->bb) {
+              friendCount[bp]++;
+              friendCount[wp]++;
+            }
+            wp = bucketList[wp];
+          }
+          bp = bucketList[bp];
+        }
+      }
+    }
+  }
+
+  // Walk every bucket in the chaining mesh, processing all particles in bucket
+  // against all neighbor bucket particles one time, storing the friend
+  // count in two places, using the sliding window trick
+  for (bi = 0; bi < meshSize[0]; bi++) {
+    for (bj = 0; bj < meshSize[1]; bj++) {
+      for (bk = 0; bk < meshSize[2]; bk++) {
+
         // Set the walking window around this bucket
         first[0] = bi - chainFactor; last[0] = bi + chainFactor;
         first[1] = bj - chainFactor; last[1] = bj + chainFactor;
@@ -214,35 +245,72 @@ int HaloCenterFinder::mostConnectedParticleChainMesh()
         }
 
         // First particle in the bucket being processed
-        int bp = buckets[bi][bj][bk];
+        bp = buckets[bi][bj][bk];
         while (bp != -1) {
 
-          // For the current particle in the current bucket
-          // compare it against all particles in the walking window buckets
-          for (int wi = first[0]; wi <= last[0]; wi++) {
-            for (int wj = first[1]; wj <= last[1]; wj++) {
-              for (int wk = first[2]; wk <= last[2]; wk++) {
-    
-                // Iterate on all particles in this bucket
-                int wp = buckets[wi][wj][wk];
+          // For the current particle in the current bucket count friends
+          // going to all neighbor buckets in the chaining mesh.
+          // With the sliding window we calculate the distance between
+          // two particles and can fill in both, but when the second particle's
+          // bucket is reached we can't calculate and add in again
+          // So we must be aware of which buckets have not already been
+          // compared to this bucket and calculate only for planes and rows
+          // that have not already been processed
+
+          // Do entire trailing plane of buckets that has not been processed
+          for (wi = bi + 1; wi <= last[0]; wi++) {
+            for (wj = first[1]; wj <= last[1]; wj++) {
+              for (wk = first[2]; wk <= last[2]; wk++) {
+                wp = buckets[wi][wj][wk];
                 while (wp != -1) {
-    
-                  // Calculate distance between the two
-                  xdist = fabs(this->xx[bp] - this->xx[wp]);
-                  ydist = fabs(this->yy[bp] - this->yy[wp]);
-                  zdist = fabs(this->zz[bp] - this->zz[wp]);
-    
-                  if ((xdist < this->bb) && 
-                      (ydist < this->bb) && 
-                      (zdist < this->bb)) {
-                        dist = 
-                          sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
-                        if (dist > 0.0 && dist < this->bb)
-                          friendCount[bp]++;
+                  xdist = (POSVEL_T) fabs(this->xx[bp] - this->xx[wp]);
+                  ydist = (POSVEL_T) fabs(this->yy[bp] - this->yy[wp]);
+                  zdist = (POSVEL_T) fabs(this->zz[bp] - this->zz[wp]);
+                  dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
+                  if (dist != 0.0 && dist < this->bb) {
+                    friendCount[bp]++;
+                    friendCount[wp]++;
                   }
                   wp = bucketList[wp];
                 }
               }
+            }
+          }
+
+          // Do entire trailing row that has not been processed in this plane
+          wi = bi;
+          for (wj = bj + 1; wj <= last[1]; wj++) {
+            for (wk = first[2]; wk <= last[2]; wk++) {
+              wp = buckets[wi][wj][wk];
+              while (wp != -1) {
+                xdist = (POSVEL_T) fabs(this->xx[bp] - this->xx[wp]);
+                ydist = (POSVEL_T) fabs(this->yy[bp] - this->yy[wp]);
+                zdist = (POSVEL_T) fabs(this->zz[bp] - this->zz[wp]);
+                dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
+                if (dist != 0.0 && dist < this->bb) {
+                  friendCount[bp]++;
+                  friendCount[wp]++;
+                }
+                wp = bucketList[wp];
+              }
+            }
+          }
+
+          // Do bucket trailing buckets in this row
+          wi = bi;
+          wj = bj;
+          for (wk = bk+1; wk <= last[2]; wk++) {
+            wp = buckets[wi][wj][wk];
+            while (wp != -1) {
+              xdist = (POSVEL_T) fabs(this->xx[bp] - this->xx[wp]);
+              ydist = (POSVEL_T) fabs(this->yy[bp] - this->yy[wp]);
+              zdist = (POSVEL_T) fabs(this->zz[bp] - this->zz[wp]);
+              dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
+              if (dist != 0.0 && dist < this->bb) {
+                friendCount[bp]++;
+                friendCount[wp]++;
+              }
+              wp = bucketList[wp];
             }
           }
           bp = bucketList[bp];
@@ -311,7 +379,7 @@ int HaloCenterFinder::mostBoundParticleN2(POTENTIAL_T* minPotential)
       *minPotential = lpot[i];
       result = i;
     }
-  } 
+  }
   delete [] lpot;
 
   return result;
@@ -343,11 +411,10 @@ int HaloCenterFinder::mostBoundParticleN2(POTENTIAL_T* minPotential)
 int HaloCenterFinder::mostBoundParticleAStar(POTENTIAL_T* minimumPotential)
 {
   // Chaining mesh size is a factor of the interparticle halo distance
-  POSVEL_T chainFactor = 1.0;
-  POSVEL_T chainSize = this->bb * chainFactor;
+  POSVEL_T chainSize = this->bb * this->distFactor;
 
   // Boundary around edges of a bucket for calculating estimate
-  POSVEL_T boundaryFactor = 10.0f * chainFactor;
+  POSVEL_T boundaryFactor = 10.0f * this->distFactor;
   POSVEL_T boundarySize = chainSize / boundaryFactor;
 
   // Actual values calculated for 26 neighbors in the center of a halo
@@ -392,7 +459,7 @@ int HaloCenterFinder::mostBoundParticleAStar(POTENTIAL_T* minimumPotential)
 
   //////////////////////////////////////////////////////////////////////////
   //
-  // Calculate actual values for immediate 26 neighbors for buckets in 
+  // Calculate actual values for immediate 26 neighbors for buckets in
   // the center of the halo (refinement level = 1)
   //
   aStarActualNeighborPart(haloChain, minActual, maxActual,
@@ -400,7 +467,7 @@ int HaloCenterFinder::mostBoundParticleAStar(POTENTIAL_T* minimumPotential)
 
   //////////////////////////////////////////////////////////////////////////
   //
-  // Calculate estimated values for immediate 26 neighbors for buckets on 
+  // Calculate estimated values for immediate 26 neighbors for buckets on
   // the edges of the halo (refinement level = 0)
   //
   aStarEstimatedNeighborPart(haloChain, minActual, maxActual,
@@ -463,7 +530,7 @@ int HaloCenterFinder::mostBoundParticleAStar(POTENTIAL_T* minimumPotential)
         // replacing an estimate with an actual
         if (refineLevel[minParticleCur] == 1) {
           refineAStarLevel_1(haloChain, bi, bj, bk, minActual, maxActual,
-                             minParticleCur, estimate, 
+                             minParticleCur, estimate,
                              boundarySize);
         } else {
           refineAStarLevel_N(haloChain, bi, bj, bk,
@@ -545,7 +612,7 @@ void HaloCenterFinder::aStarThisBucketPart(
         while (bp != -1) {
 
           // Remember the bucket that every particle is in
-          bucketID[bp] = (bi * meshSize[1] * meshSize[2]) + 
+          bucketID[bp] = (bi * meshSize[1] * meshSize[2]) +
                          (bj * meshSize[2]) + bk;
 
           bp2 = bucketList[bp];
@@ -601,13 +668,13 @@ void HaloCenterFinder::aStarActualNeighborPart(
   // but which will get estimate values for their own particles
   for (bi = minActual[0] - 1; bi <= maxActual[0] + 1; bi++) {
     for (bj = minActual[1] - 1; bj <= maxActual[1] + 1; bj++) {
-      for (bk = minActual[2] - 1; bk <= maxActual[2] + 1; bk++) { 
+      for (bk = minActual[2] - 1; bk <= maxActual[2] + 1; bk++) {
 
         // Only do the perimeter buckets
         if ((bucketCount[bi][bj][bk] > 0) &&
             ((bi < minActual[0] || bi > maxActual[0]) ||
-	     (bj < minActual[1] || bj > maxActual[1]) ||
-	     (bk < minActual[2] || bk > maxActual[2]))) {
+             (bj < minActual[1] || bj > maxActual[1]) ||
+             (bk < minActual[2] || bk > maxActual[2]))) {
 
           // Set a window around this bucket for calculating actual potentials
           first[0] = bi - 1;    last[0] = bi + 1;
@@ -660,8 +727,8 @@ void HaloCenterFinder::aStarActualNeighborPart(
   // Process the buckets in the center
   for (bi = minActual[0]; bi <= maxActual[0]; bi++) {
     for (bj = minActual[1]; bj <= maxActual[1]; bj++) {
-      for (bk = minActual[2]; bk <= maxActual[2]; bk++) { 
-  
+      for (bk = minActual[2]; bk <= maxActual[2]; bk++) {
+
         // Set a window around this bucket for calculating actual potentials
         first[0] = bi - 1;    last[0] = bi + 1;
         first[1] = bj - 1;    last[1] = bj + 1;
@@ -760,13 +827,13 @@ void HaloCenterFinder::aStarActualNeighborPart(
 /////////////////////////////////////////////////////////////////////////
 
 void HaloCenterFinder::aStarEstimatedNeighborPart(
-                        ChainingMesh* haloChain, 
+                        ChainingMesh* haloChain,
                         int* minActual,
                         int* maxActual,
                         int* refineLevel,
                         POSVEL_T* estimate,
                         POSVEL_T boundarySize)
-{   
+{
   // Walking window extents and size
   int bp, bi, bj, bk;
   int wp, wi, wj, wk;
@@ -778,17 +845,17 @@ void HaloCenterFinder::aStarEstimatedNeighborPart(
   POSVEL_T xdist, ydist, zdist, dist;
 
   // Get chaining mesh information
-  int*** bucketCount = haloChain->getBucketCount(); 
+  int*** bucketCount = haloChain->getBucketCount();
   int*** buckets = haloChain->getBuckets();
   int* bucketList = haloChain->getBucketList();
   int* meshSize = haloChain->getMeshSize();
   POSVEL_T* minRange = haloChain->getMinRange();
   POSVEL_T chainSize = haloChain->getChainSize();
-      
+
   // Calculate estimates for all buckets not in the center
   for (bi = 0; bi < meshSize[0]; bi++) {
     for (bj = 0; bj < meshSize[1]; bj++) {
-      for (bk = 0; bk < meshSize[2]; bk++) { 
+      for (bk = 0; bk < meshSize[2]; bk++) {
 
         if ((bucketCount[bi][bj][bk] > 0) &&
             ((bi < minActual[0] || bi > maxActual[0]) ||
@@ -799,7 +866,7 @@ void HaloCenterFinder::aStarEstimatedNeighborPart(
           first[0] = bi - 1;    last[0] = bi + 1;
           first[1] = bj - 1;    last[1] = bj + 1;
           first[2] = bk - 1;    last[2] = bk + 1;
-            
+
           // Calculate the bounding box around the current bucket
           minBound[0] = minRange[0] + (bi * chainSize) - boundarySize;
           maxBound[0] = minRange[0] + ((bi + 1) * chainSize) + boundarySize;
@@ -807,22 +874,22 @@ void HaloCenterFinder::aStarEstimatedNeighborPart(
           maxBound[1] = minRange[1] + ((bj + 1) * chainSize) + boundarySize;
           minBound[2] = minRange[2] + (bk * chainSize) - boundarySize;
           maxBound[2] = minRange[2] + ((bk + 1) * chainSize) + boundarySize;
-                
-          for (int dim = 0; dim < DIMENSION; dim++) { 
+
+          for (int dim = 0; dim < DIMENSION; dim++) {
             if (first[dim] < 0) {
-              first[dim] = 0; 
+              first[dim] = 0;
               minBound[dim] = 0.0;
-            }           
+            }
             if (last[dim] >= meshSize[dim]) {
               last[dim] = meshSize[dim] - 1;
               maxBound[dim] = (meshSize[dim] - 1) * chainSize;
-            }           
-          }               
-  
+            }
+          }
+
           // Calculate actual and estimated for every particle in this bucket
           bp = buckets[bi][bj][bk];
-          while (bp != -1) { 
-                
+          while (bp != -1) {
+
             // Since it is not fully calculated refinement level is 0
             refineLevel[bp] = 0;
 
@@ -853,11 +920,11 @@ void HaloCenterFinder::aStarEstimatedNeighborPart(
                     wp = buckets[wi][wj][wk];
                     int estimatedParticleCount = 0;
                     while (wp != -1) {
-                      if (this->xx[wp] > minBound[0] && 
+                      if (this->xx[wp] > minBound[0] &&
                           this->xx[wp] < maxBound[0] &&
-                          this->yy[wp] > minBound[1] && 
+                          this->yy[wp] > minBound[1] &&
                           this->yy[wp] < maxBound[1] &&
-                          this->zz[wp] > minBound[2] && 
+                          this->zz[wp] > minBound[2] &&
                           this->zz[wp] < maxBound[2]) {
 
                         // Is the window particle within the boundary condition
@@ -883,7 +950,7 @@ void HaloCenterFinder::aStarEstimatedNeighborPart(
                     zdist = (POSVEL_T)fabs(this->zz[bp] - zNear);
                     dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
                     if (dist != 0) {
-                      estimate[bp] -= 
+                      estimate[bp] -=
                         ((this->mass[bp] / dist) * estimatedParticleCount);
                     }
                   }
@@ -941,7 +1008,7 @@ void HaloCenterFinder::aStarEstimatedPart(
         for (wi = 0; wi < meshSize[0]; wi++) {
           for (wj = 0; wj < meshSize[1]; wj++) {
             for (wk = 0; wk < meshSize[2]; wk++) {
-                
+
               // Exclude the buckets for which actual values were calculated
               if ((wi < first[0] || wi > last[0] ||
                    wj < first[1] || wj > last[1] ||
@@ -959,7 +1026,7 @@ void HaloCenterFinder::aStarEstimatedPart(
                   yNear += chainSize;
                 if (this->zz[bp] > zNear)
                   zNear += chainSize;
-                  
+
                 // Iterate on all particles in the bucket doing the estimate
                 // to the near corner of the other buckets
                 while (bp != -1) {
@@ -968,7 +1035,7 @@ void HaloCenterFinder::aStarEstimatedPart(
                   zdist = fabs(this->zz[bp] - zNear);
                   dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
                   if (dist != 0) {
-                    estimate[bp] -= 
+                    estimate[bp] -=
                       ((this->mass[bp] / dist) * bucketCount[wi][wj][wk]);
                   }
                   bp = bucketList[bp];
@@ -988,11 +1055,11 @@ void HaloCenterFinder::aStarEstimatedPart(
 // given the buckets in the chaining mesh, relative locations of particles
 // in this halo, the index of this halo, and the bucket it is in
 // The newly refined estimate is updated.
-//                
+//
 /////////////////////////////////////////////////////////////////////////
-                
+
 void HaloCenterFinder::refineAStarLevel_1(
-                        ChainingMesh* haloChain, 
+                        ChainingMesh* haloChain,
                         int bi,
                         int bj,
                         int bk,
@@ -1013,18 +1080,18 @@ void HaloCenterFinder::refineAStarLevel_1(
   // Get chaining mesh information
   POSVEL_T chainSize = haloChain->getChainSize();
   int*** bucketCount = haloChain->getBucketCount();
-  int*** buckets = haloChain->getBuckets(); 
+  int*** buckets = haloChain->getBuckets();
   int* bucketList = haloChain->getBucketList();
-  int* meshSize = haloChain->getMeshSize(); 
+  int* meshSize = haloChain->getMeshSize();
   POSVEL_T* minRange = haloChain->getMinRange();
-                    
+
   // Going out window delta in all directions
   // Subtract the estimate from the current value
   // Add the new values
   first[0] = bi - 1;   last[0] = bi + 1;
   first[1] = bj - 1;   last[1] = bj + 1;
   first[2] = bk - 1;   last[2] = bk + 1;
-        
+
   // Calculate the bounding box around the current bucket
   minBound[0] = minRange[0] + (bi * chainSize) - boundarySize;
   maxBound[0] = minRange[0] + ((bi + 1) * chainSize) + boundarySize;
@@ -1037,17 +1104,17 @@ void HaloCenterFinder::refineAStarLevel_1(
     if (first[dim] < 0) {
       first[dim] = 0;
       minBound[dim] = 0.0;
-    } 
+    }
     if (last[dim] >= meshSize[dim]) {
       last[dim] = meshSize[dim] - 1;
       maxBound[dim] = meshSize[dim] * chainSize;
     }
   }
-                        
+
   for (wi = first[0]; wi <= last[0]; wi++) {
     for (wj = first[1]; wj <= last[1]; wj++) {
       for (wk = first[2]; wk <= last[2]; wk++) {
-                        
+
         // If bucket has particles, and is not within the region which
         // calculates actual neighbor values (because if it is, it would
         // have already calculated actuals for this bucket) and if it is
@@ -1058,7 +1125,7 @@ void HaloCenterFinder::refineAStarLevel_1(
              (wk > maxActual[2] || wk < minActual[2])) &&
             (wi != bi || wj != bj || wk != bk)) {
 
-  
+
           // What is the nearest point between buckets
           if (wi < bi)  xNear = minBound[0];
           if (wi == bi) xNear = (minBound[0] + maxBound[0]) / 2.0;
@@ -1175,7 +1242,7 @@ void HaloCenterFinder::refineAStarLevel_N(
             if (this->xx[bp] > xNear) xNear += chainSize;
             if (this->yy[bp] > yNear) yNear += chainSize;
             if (this->zz[bp] > zNear) zNear += chainSize;
-                  
+
             // Distance of this particle to the corner gives estimate
             // which was subtracted in initialPhase and now is added back
             xdist = (POSVEL_T)fabs(this->xx[bp] - xNear);
@@ -1183,7 +1250,7 @@ void HaloCenterFinder::refineAStarLevel_N(
             zdist = (POSVEL_T)fabs(this->zz[bp] - zNear);
             dist = sqrt((xdist*xdist) + (ydist*ydist) + (zdist*zdist));
             if (dist != 0) {
-              estimate[bp] += 
+              estimate[bp] +=
                 ((this->mass[bp] / dist) * bucketCount[wi][wj][wk]);
             }
 
@@ -1234,9 +1301,22 @@ ChainingMesh* HaloCenterFinder::buildChainingMesh(POSVEL_T chainSize)
     if (maxLoc[2] < this->zz[p]) maxLoc[2] = this->zz[p];
   }
 
+  // Want chaining mesh greater than 2 in any dimension
+  bool tooSmall = true;
+  while (tooSmall == true) {
+    tooSmall = false;
+    for (int dim = 0; dim < DIMENSION; dim++) {
+      if (((maxLoc[dim] - minLoc[dim]) / chainSize) < 3.0)
+        tooSmall = true;
+    }
+    if (tooSmall == true) {
+      chainSize /= 2.0;
+    }
+  }
+
   // Build the chaining mesh
   ChainingMesh* haloChain = new ChainingMesh(minLoc, maxLoc, chainSize,
-                        this->particleCount, 
+                        this->particleCount,
                         this->xx, this->yy, this->zz);
   delete [] minLoc;
   delete [] maxLoc;

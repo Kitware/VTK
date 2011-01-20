@@ -1,7 +1,7 @@
 Notes on the Python Wrappers for VTK
 
 First version by David Gobbi: Dec 19, 2002
-Updated May 11, 2010 for VTK 6.0
+Last update was on Oct 7, 2010.
 
 Abstract:
 =========
@@ -16,11 +16,19 @@ Overview:
 
 Nearly all the power of VTK objects are available through Python
 (with a few exceptions as noted below).  The C++ symantics are
-translated as directly as possible to Python symantics.
+translated as directly as possible to Python symantics.  Currently,
+full support is provided for Python 2.3 through Python 2.6, though
+the full Python 2 series should work (but not Python 3, yet).
 
 
 The Basics:
 ===========
+
+If VTK has been properly built and installed with the python wrappers,
+then VTK can be accessed by importing the "vtk" module:
+    import vtk
+or
+    from vtk import *
 
 For the most part, using VTK from Python is very similar to using VTK
 from C++ except for changes in syntax, e.g.
@@ -40,19 +48,23 @@ list or array to a method that requires a C++ array e.g.:
 >>> p = (100.0, 200.0, 100.0)
 >>> a.SetPosition(p)
 
-or if the C++ array is used to return information, you must pass a
-Python list or array that has the correct number of slots:
+If the C++ array parameter is used to return information, you must
+pass a Python list or array that has the correct number of slots to
+accept the returned values:
 
 >>> z = [0.0, 0.0, 0.0]
 >>> vtkMath.Cross((1,0,0),(0,1,0),z)
 >>> print z
 [0.0, 0.0, 1.0]
 
+For multi-dimensional arrays, it is your choice whether to use
+a nested list, or whether to use a numpy array with the correct
+size and number of dimensions.
+
 If the C++ method returns a pointer to an array, then that method is
-only wrapped if there is a hint that gives the size of the array.
-This hint is either given in the 'hints' file e.g. VTK/Wrapping/hints
-or by the number specified in the macro used to declare the method in
-the C++ header file e.g. vtkGetVectorMacro(Position,float,3):
+only wrapped if there is a hint (usually in VTK/Wrapping/hints)
+that gives the size of the array.  Hinted pointers are returned as
+tuples:
 
 >>> a = vtkActor()
 >>> print a.GetPosition()
@@ -69,12 +81,17 @@ And perhaps one of the most pleasant features of Python is that all
 type-checking is performed at run time, so the type casts that are
 often necessary in VTK-C++ are never needed in VTK-Python.
 
-Finally, a C++ method that requires a void * can be passed
-any python object that supports the "buffer" protocol, which
-include string objects, numpy arrays and even VTK arrays.
-No check is done to ensure that the string is the correct
-size, and the string's reference count is not incremented.  Extreme
-caution should be applied when using this feature.
+
+Constants
+---------
+
+Most VTK constants are available in Python, usually in the "vtk"
+module but sometimes as class attributes:
+
+>>> vtk.VTK_DOUBLE_MAX
+1.0000000000000001e+299
+>>> vtk.vtkCommand.ErrorEvent
+39
 
 
 Unavailable methods
@@ -82,14 +99,13 @@ Unavailable methods
 
 A method is not wrapped if
 1) its parameter list contains a pointer that isn't a vtkObject
-   pointer, char pointer, or void pointer
-2) its parameter list contains a reference that isn't a reference to
-   a special vtk type like vtkVariant
-3) its parameter list contains a multidimensional array
-4) it returns a pointer that is not a vtkObject pointer, char pointer,
+   pointer, char pointer, or void pointer -- though the vtkDataArray
+   "Tuple" methods are an exception, they are wrapped
+2) it returns a pointer that is not a vtkObject pointer, char pointer,
    or void pointer, unless the method has an entry in the wrapping
-   hints file
-5) it is an operator method
+   hints file -- again, vtkDataArray methods are an exception
+3) its parameter list contains a named enum constant
+4) it is an operator method
 
 
 Unavailable classes
@@ -137,15 +153,21 @@ from the built-in "docstrings":
 >>> help(vtk.vtkActor.SetUserTransform)
 [ lots of info printed, try it yourself ]
 
+If you have an object, rather than a class, you must get the
+documentation from the class, because it is the class that has
+the docs:
+
+>>> help(a.__class__)
+
 For the method documentation, all the different 'signatures' for the
-method are given in the original C++ format:
+method are given in Python format and the original C++ format:
 
 >>> help(vtkActor.SetPosition)
-Help on built-in function SetPosition:
-
 SetPosition(...)
-    virtual void SetPosition(float _arg1, float _arg2, float _arg3)
-    virtual void SetPosition(float _arg[3])
+    V.SetPosition(float, float, float)
+    C++: virtual void SetPosition(double _arg1, double _arg2, double _arg3)
+    V.SetPosition([float, float, float])
+    C++: virtual void SetPosition(double _arg[3])
 
     Set/Get/Add the position of the Prop3D in world coordinates.
 
@@ -166,33 +188,19 @@ local reference to the object was the last remaining reference to the
 object from within Python.
 
 
-Class methods
--------------
+Pass-by-reference
+-----------------
 
-In C++, if you want to call a method from a superclass you can do the
-following:
+Pass-by-reference of values that are mutable in C++ but not in
+Python (such as string, int, and float) is only possible by
+using vtk.mutable(), which is in the vtk module:
 
-vtkActor *a = vtkActor::New();
-a->vtkProp3D::SetPosition(10,20,50);
-
-The equivalent in python is
-
->>> a = vtkActor()
->>> vtkProp3D.SetPosition(a,10,20,50)
-
-The wrappers also provide an additional feature which isn't very
-'pythonic' at all: support for static methods e.g. class methods
-that don't require a 'self' (equivalent to the C++ 'this'):
-
-vtkMath::Norm(x);
-
-becomes
-
->>> vtkMath.Norm(x)
-
-This sort of thing is not allowed by most Python classes!  In fact,
-the wrapped VTK classes aren't real Python classes at all, they just
-behave similarly.
+>>> plane = vtkPlane()
+>>> t = mutable(0.0)
+>>> x = [0.0, 0.0, 0.0]
+>>> plane.InsersectWithLine([0, 0, -1], [0, 0, 1], t, x)
+>>> print t
+0.5
 
 
 Subclassing a VTK class
@@ -207,6 +215,33 @@ the class from Python.
 It is therefore not reasonable, for instance, to subclass the
 vtkInteractorStyle to provide custom python interaction.  Instead,
 you have to do this by adding Observers to the vtkInteractor object.
+
+
+Class methods
+-------------
+
+In C++, if you want to call a method from a superclass you can do the
+following:
+
+vtkActor *a = vtkActor::New();
+a->vtkProp3D::SetPosition(10,20,50);
+
+The equivalent in python is
+
+>>> a = vtkActor()
+>>> vtkProp3D.SetPosition(a,10,20,50)
+
+
+Void pointers
+-------------
+
+As a special feature, a C++ method that requires a void * can
+be passed any python object that supports the "buffer" protocol,
+which include string objects, numpy arrays and even VTK arrays.
+Extreme caution should be applied when using this feature.
+
+Methods that return a void * in C++ will, in Python, return a
+string with a hexidecimal number that gives the memory address.
 
 
 Transmitting data from Python to VTK
@@ -229,14 +264,36 @@ than a new wrapper being created.  If you want to use this feature
 of vtkpython, please think twice.
 
 
+VTK C++ methods with "pythonic" equivalents
+-------------------------------------------
+
+SafeDownCast(): Python knows the real type of any VTK object,
+so casts don't do anything.
+
+IsA(): Python provides a built-in isinstance() method.
+
+IsTypeOf(): Python provides a built-in issubclass() method.
+
+GetClassName(): This info is given by o.__class__.__name__
+
+
 Special VTK types
 ===================
 
 In addition to VTK objects that are derived from vtkObjectBase, there
 are many lightweight types in VTK such as vtkTimeStamp or vtkVariant.
-These types are wrapped in different way from vtkObject-based types.
-The main difference is that instead of python maintaining a "reference"
-to these objects, python makes its own copy of the object.
+These can usually be distinguished from vtkObjects because they do
+not have a C++ "::New()" method for construction.
+
+These types are wrapped in different way from vtkObject-derived classes.
+In Python they look like "types" instead of looking like python "classes".
+They cannot be subclassed, and the details of memory management are
+different because Python actually keeps a copy of the object within
+its "wrapper", whereas for vtkObjects it just keeps a pointer.
+
+An incomplete list of these types is as follows:
+vtkVariant, vtkTimeStamp, vtkArrayCoordinates, vtkArrayExtents,
+vtkArrayExtentsList, vtkArrayRange
 
 
 Automatic conversion
@@ -268,7 +325,8 @@ The reason that all vtkObjects can be easily hashed, while vtk
 special types are hard to hash, is that vtkObjects are hashed
 by memory address.  This cannot be done for special types, since
 they must be hashed by value, not by address.  I.e. vtkVariant(1)
-must hash equal to every other vtkVariant(1).
+must hash equal to every other vtkVariant(1), even though the
+various instances will lie and different memory addresses.
 
 
 Special attributes available from VTK-Python

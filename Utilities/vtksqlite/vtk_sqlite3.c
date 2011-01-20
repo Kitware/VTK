@@ -28932,7 +28932,7 @@ VTK_SQLITE_API int vtk_sqlite3_current_time = 0;
 ** current time and date as a Julian Day number into *prNow and
 ** return 0.  Return 1 if the time and date cannot be found.
 */
-int winCurrentTime(vtk_sqlite3_vfs *pVfs, double *prNow){
+int vtk_winCurrentTime(vtk_sqlite3_vfs *pVfs, double *prNow){
   FILETIME ft;
   /* FILETIME structure is a 64-bit value representing the number of 
      100-nanosecond intervals since January 1, 1601 (= JD 2305813.5). 
@@ -29036,7 +29036,7 @@ VTK_SQLITE_API int vtk_sqlite3_os_init(void){
     winDlClose,        /* xDlClose */
     winRandomness,     /* xRandomness */
     winSleep,          /* xSleep */
-    winCurrentTime,    /* xCurrentTime */
+    vtk_winCurrentTime,/* xCurrentTime */
     winGetLastError    /* xGetLastError */
   };
 
@@ -60925,7 +60925,7 @@ static int exprStructSize(Expr *p){
 ** Note that with flags==EXPRDUP_REDUCE, this routines works on full-size
 ** (unreduced) Expr objects as they or originally constructed by the parser.
 ** During expression analysis, extra information is computed and moved into
-** later parts of teh Expr object and that extra information might get chopped
+** later parts of the Expr object and that extra information might get chopped
 ** off if the expression is reduced.  Note also that it does not work to
 ** make a EXPRDUP_REDUCE copy of a reduced expression.  It is only legal
 ** to reduce a pristine expression tree from the parser.  The implementation

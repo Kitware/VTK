@@ -619,60 +619,41 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 // Returns the direction cosines of the plane on which the contour lies
 // on in world co-ordinates. This would be the same matrix that would be
 // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
-// passing through the contour points. The origin passed here must be the 
-// origin on the image data under the contour. 
+// passing through the contour points. The origin passed here must be the
+// origin on the image data under the contour.
 vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
 ::GetContourPlaneDirectionCosines( const double origin[3] )
 {
-  if (this->ContourPlaneDirectionCosines->GetMTime() 
+  if (this->ContourPlaneDirectionCosines->GetMTime()
                        >= this->Renderer->GetMTime() ||
-      this->ContourPlaneDirectionCosines->GetMTime() 
+      this->ContourPlaneDirectionCosines->GetMTime()
                        >=    this->Lines->GetMTime() )
     {
     return this->ContourPlaneDirectionCosines;
     }
-    
-  double pDisplay[3], pWorld[4];
-  double fp[4], z, xAxis[3];
-  
+
+  vtkMatrix4x4::Transpose(
+      this->Renderer->GetActiveCamera()->GetViewTransformMatrix(),
+      this->ContourPlaneDirectionCosines );
+
+  double pWorld[4], fp[4];
+
   this->Renderer->GetActiveCamera()->GetFocalPoint(fp);
-
-  double *vup = this->Renderer->GetActiveCamera()->GetViewUp();
-  double *directionOfProjection = this->Renderer->GetActiveCamera()->GetDirectionOfProjection();
- 
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
+  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
                                      fp[0], fp[1], fp[2], fp);
-  z = fp[2];
 
-  // This is the Y axis
-  this->ContourPlaneDirectionCosines->SetElement(0, 1, vup[0]);
-  this->ContourPlaneDirectionCosines->SetElement(1, 1, vup[1]);
-  this->ContourPlaneDirectionCosines->SetElement(2, 1, vup[2]);
-  this->ContourPlaneDirectionCosines->SetElement(3, 1, 0.0);
-
-  // The Z Axis
-  vtkMath::Cross( vup, directionOfProjection, xAxis );
-  this->ContourPlaneDirectionCosines->SetElement(0, 2, directionOfProjection[0]);
-  this->ContourPlaneDirectionCosines->SetElement(1, 2, directionOfProjection[1]);
-  this->ContourPlaneDirectionCosines->SetElement(2, 2, directionOfProjection[2]);
-  this->ContourPlaneDirectionCosines->SetElement(3, 2, 0.0);
-  
-  // X axis = Cross of y and z
-  this->ContourPlaneDirectionCosines->SetElement(0, 0, -xAxis[0]);
-  this->ContourPlaneDirectionCosines->SetElement(1, 0, -xAxis[1]);
-  this->ContourPlaneDirectionCosines->SetElement(2, 0, -xAxis[2]);
-  this->ContourPlaneDirectionCosines->SetElement(3, 0, 0.0);
- 
   // What point does the origin of the display co-ordinates map to in world
   // co-ordinates with respect to the world co-ordinate origin ?
-  pDisplay[0] = 0.0; 
-  pDisplay[1] = 0.0;
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, 
-      pDisplay[0], pDisplay[1], z, pWorld);
+  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,
+      0.0, 0.0, fp[2], pWorld);
   this->ContourPlaneDirectionCosines->SetElement(0, 3, pWorld[0] - origin[0]);
   this->ContourPlaneDirectionCosines->SetElement(1, 3, pWorld[1] - origin[1]);
   this->ContourPlaneDirectionCosines->SetElement(2, 3, pWorld[2] - origin[2]);
-  this->ContourPlaneDirectionCosines->SetElement(3, 3, 1.0);
+
+  // Blank out the other side that was a side effect of transposing.
+  this->ContourPlaneDirectionCosines->SetElement(3, 0, 0);
+  this->ContourPlaneDirectionCosines->SetElement(3, 1, 0);
+  this->ContourPlaneDirectionCosines->SetElement(3, 2, 0);
 
   return this->ContourPlaneDirectionCosines;
 }

@@ -130,6 +130,14 @@ void vtkDiscretizableColorTransferFunction::SetAlpha(double alpha)
 }
 
 //-----------------------------------------------------------------------------
+void vtkDiscretizableColorTransferFunction::SetNanColor(
+                                                   double r, double g, double b)
+{
+  this->LookupTable->SetNanColor(r, g, b, 1.0);
+  this->Superclass::SetNanColor(r, g, b);
+}
+
+//-----------------------------------------------------------------------------
 unsigned char* vtkDiscretizableColorTransferFunction::MapValue(double v)
 {
   this->Build();
@@ -188,6 +196,16 @@ double* vtkDiscretizableColorTransferFunction::GetRGBPoints()
       }
     }
   return this->Data;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()
+{
+  if(this->Discretize == false)
+    {
+    return 16777216; // 2^24
+    }
+  return this->NumberOfValues;
 }
 
 //-----------------------------------------------------------------------------

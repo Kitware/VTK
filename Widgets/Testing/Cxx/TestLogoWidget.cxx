@@ -16,6 +16,8 @@
 // This example tests the vtkLogoWidget.
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkSmartPointer.h"
+
 #include "vtkLogoWidget.h"
 #include "vtkLogoRepresentation.h"
 #include "vtkSphereSource.h"
@@ -29,8 +31,6 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
 
@@ -38,48 +38,64 @@ int TestLogoWidget( int argc, char *argv[] )
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkRenderer *ren1 = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkSmartPointer<vtkRenderer> ren1 =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin =
+    vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
-  vtkInteractorStyleTrackballCamera *style = vtkInteractorStyleTrackballCamera::New();
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
+    vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
   // Create an image for the balloon widget
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
-  vtkTIFFReader *image1 = vtkTIFFReader::New();
+  vtkSmartPointer<vtkTIFFReader> image1 =
+    vtkSmartPointer<vtkTIFFReader>::New();
   image1->SetFileName(fname);
-  image1->SetOrientation( 4 );     
+  image1->SetOrientationType( 4 );
 
   // Create a test pipeline
   //
-  vtkSphereSource *ss = vtkSphereSource::New();
-  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkSphereSource> ss =
+    vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInput(ss->GetOutput());
-  vtkActor *sph = vtkActor::New();
+  vtkSmartPointer<vtkActor> sph =
+    vtkSmartPointer<vtkActor>::New();
   sph->SetMapper(mapper);
 
-  vtkCylinderSource *cs = vtkCylinderSource::New();
-  vtkPolyDataMapper *csMapper = vtkPolyDataMapper::New();
+  vtkSmartPointer<vtkCylinderSource> cs =
+    vtkSmartPointer<vtkCylinderSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> csMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   csMapper->SetInput(cs->GetOutput());
-  vtkActor *cyl = vtkActor::New();
+  vtkSmartPointer<vtkActor> cyl =
+    vtkSmartPointer<vtkActor>::New();
   cyl->SetMapper(csMapper);
   cyl->AddPosition(5,0,0);
-  
-  vtkConeSource *coneSource = vtkConeSource::New();
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
+
+  vtkSmartPointer<vtkConeSource> coneSource =
+    vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkPolyDataMapper> coneMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInput(coneSource->GetOutput());
-  vtkActor *cone = vtkActor::New();
+  vtkSmartPointer<vtkActor> cone =
+    vtkSmartPointer<vtkActor>::New();
   cone->SetMapper(coneMapper);
   cone->AddPosition(0,5,0);
 
   // Create the widget
-  vtkLogoRepresentation *rep = vtkLogoRepresentation::New();
+  vtkSmartPointer<vtkLogoRepresentation> rep =
+    vtkSmartPointer<vtkLogoRepresentation>::New();
   rep->SetImage(image1->GetOutput());
 
-  vtkLogoWidget *widget = vtkLogoWidget::New();
+  vtkSmartPointer<vtkLogoWidget> widget =
+    vtkSmartPointer<vtkLogoWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 
@@ -92,7 +108,8 @@ int TestLogoWidget( int argc, char *argv[] )
   renWin->SetSize(300, 300);
 
   // record events
-  vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
+  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
+    vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
 //  recorder->Record();
@@ -110,25 +127,10 @@ int TestLogoWidget( int argc, char *argv[] )
   // testing option fails.
   recorder->Off();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
+  iren->Start();
 
-  ss->Delete();
-  mapper->Delete();
-  sph->Delete();
-  widget->Off();
-  widget->Delete();
-  iren->Delete();
-  renWin->Delete();
-  ren1->Delete();
-  recorder->Delete();
   delete [] fname;
 
-  return !retVal;
+  return EXIT_SUCCESS;
 
 }
-
-

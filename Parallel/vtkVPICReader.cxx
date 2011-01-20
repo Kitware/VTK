@@ -70,6 +70,17 @@ vtkVPICReader::vtkVPICReader()
   this->ghostLevel0 = 1;
   this->ghostLevel1 = 2;
 
+  this->Stride[0] = 1;
+  this->Stride[1] = 1;
+  this->Stride[2] = 1;
+
+  this->XLayout[0] = 1;
+  this->YLayout[0] = 1;
+  this->ZLayout[0] = 1;
+  this->XLayout[1] = -1;
+  this->YLayout[1] = -1;
+  this->ZLayout[1] = -1;
+
   this->MPIController = vtkMultiProcessController::GetGlobalController();
 
   if(this->MPIController)

@@ -105,7 +105,7 @@ vtkPCosmoReader::vtkPCosmoReader()
     }
 
   this->FileName = NULL;
-  this->RL = 90.140846;
+  this->RL = 100;
   this->Overlap = 5;
   this->ReadMode = 1;
   this->CosmoFormat = 1;

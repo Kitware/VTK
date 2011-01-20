@@ -42,47 +42,88 @@ vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceTransform,vtkAbstractTransform);
 
 //--------------------------------------------------------------------------
-// The 'floor' function on x86 and mips is many times slower than these
-// and is used a lot in this code, optimize for different CPU architectures
+// The 'floor' function is slow, so we want to do an integer
+// cast but keep the "floor" behavior of always rounding down,
+// rather than truncating, i.e. we want -0.6 to become -1.
+// The easiest way to do this is to add a large value in
+// order to make the value "unsigned", then cast to int, and
+// then subtract off the large value.
+
+// On the old i386 architecture, even a cast to int is very
+// expensive because it requires changing the rounding mode
+// on the FPU.  So we use a bit-trick similar to the one
+// described at http://www.stereopsis.com/FPU.html
+
+#if defined ia64 || defined __ia64__ || defined _M_IA64
+#define VTK_RESLICE_64BIT_FLOOR
+#elif defined __ppc64__ || defined __x86_64__ || defined _M_X64
+#define VTK_RESLICE_64BIT_FLOOR
+#elif defined __ppc__ || defined sparc || defined mips
+#define VTK_RESLICE_32BIT_FLOOR
+#elif defined i386 || defined _M_IX86
+#define VTK_RESLICE_I386_FLOOR
+#endif
+
+// We add a tolerance of 2^-17 (around 7.6e-6) so that float
+// values that are just less than the closest integer are
+// rounded up.  This adds robustness against rounding errors.
+
+#define VTK_RESLICE_FLOOR_TOL 7.62939453125e-06
+
+
 template<class F>
 inline int vtkResliceFloor(double x, F &f)
 {
-#if defined mips || defined sparc || defined __ppc__
-  x += 2147483648.0;
+#if defined VTK_RESLICE_64BIT_FLOOR
+  x += (103079215104.0 + VTK_RESLICE_FLOOR_TOL);
+#ifdef VTK_TYPE_USE___INT64
+  __int64 i = static_cast<__int64>(x);
+  f = x - i;
+  return static_cast<int>(i - 103079215104i64);
+#else
+  long long i = static_cast<long long>(x);
+  f = x - i;
+  return static_cast<int>(i - 103079215104LL);
+#endif
+#elif defined VTK_RESLICE_32BIT_FLOOR
+  x += (2147483648.0 + VTK_RESLICE_FLOOR_TOL);
   unsigned int i = static_cast<unsigned int>(x);
   f = x - i;
   return static_cast<int>(i - 2147483648U);
-#elif defined i386 || defined _M_IX86
+#elif defined VTK_RESLICE_I386_FLOOR
   union { double d; unsigned short s[4]; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
-#elif defined ia64 || defined __ia64__ || defined IA64
-  x += 103079215104.0;
-  long long i = static_cast<long long>(x);
-  f = x - i;
-  return static_cast<int>(i - 103079215104LL);
 #else
-  double y = floor(x);
-  f = x - y;
-  return static_cast<int>(y);
+  int i = vtkMath::Floor(x + VTK_RESLICE_FLOOR_TOL);
+  f = x - i;
+  return i;
 #endif
 }
 
+
 inline int vtkResliceRound(double x)
 {
-#if defined mips || defined sparc || defined __ppc__
-  return static_cast<int>(static_cast<unsigned int>(x + 2147483648.5) - 2147483648U);
-#elif defined i386 || defined _M_IX86
+#if defined VTK_RESLICE_64BIT_FLOOR
+  x += (103079215104.5 + VTK_RESLICE_FLOOR_TOL);
+#ifdef VTK_TYPE_USE___INT64
+  __int64 i = static_cast<__int64>(x);
+  return static_cast<int>(i - 103079215104i64);
+#else
+  long long i = static_cast<long long>(x);
+  return static_cast<int>(i - 103079215104LL);
+#endif
+#elif defined VTK_RESLICE_32BIT_FLOOR
+  x += (2147483648.5 + VTK_RESLICE_FLOOR_TOL);
+  unsigned int i = static_cast<unsigned int>(x);
+  return static_cast<int>(i - 2147483648U);
+#elif defined VTK_RESLICE_I386_FLOOR
   union { double d; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
-#elif defined ia64 || defined __ia64__ || defined IA64
-  x += 103079215104.5;
-  long long i = static_cast<long long>(x);
-  return static_cast<int>(i - 103079215104LL);
 #else
-  return static_cast<int>(floor(x+0.5));
+  return vtkMath::Floor(x + (0.5 + VTK_RESLICE_FLOOR_TOL));
 #endif
 }
 
@@ -94,25 +135,28 @@ vtkImageReslice::vtkImageReslice()
   this->TransformInputSampling = 1;
   this->AutoCropOutput = 0;
   this->OutputDimensionality = 3;
+  this->ComputeOutputSpacing = 1;
+  this->ComputeOutputOrigin = 1;
+  this->ComputeOutputExtent = 1;
 
   // flag to use default Spacing
-  this->OutputSpacing[0] = VTK_DOUBLE_MAX;
-  this->OutputSpacing[1] = VTK_DOUBLE_MAX;
-  this->OutputSpacing[2] = VTK_DOUBLE_MAX;
+  this->OutputSpacing[0] = 1.0;
+  this->OutputSpacing[1] = 1.0;
+  this->OutputSpacing[2] = 1.0;
 
   // ditto
-  this->OutputOrigin[0] = VTK_DOUBLE_MAX;
-  this->OutputOrigin[1] = VTK_DOUBLE_MAX;
-  this->OutputOrigin[2] = VTK_DOUBLE_MAX;
+  this->OutputOrigin[0] = 0.0;
+  this->OutputOrigin[1] = 0.0;
+  this->OutputOrigin[2] = 0.0;
 
   // ditto
-  this->OutputExtent[0] = VTK_INT_MIN;
-  this->OutputExtent[2] = VTK_INT_MIN;
-  this->OutputExtent[4] = VTK_INT_MIN;
+  this->OutputExtent[0] = 0;
+  this->OutputExtent[2] = 0;
+  this->OutputExtent[4] = 0;
 
-  this->OutputExtent[1] = VTK_INT_MAX;
-  this->OutputExtent[3] = VTK_INT_MAX;
-  this->OutputExtent[5] = VTK_INT_MAX;
+  this->OutputExtent[1] = 0;
+  this->OutputExtent[3] = 0;
+  this->OutputExtent[5] = 0;
 
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
@@ -240,6 +284,123 @@ void vtkImageReslice::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->InformationInput,
                             "InformationInput");
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputSpacing(double x, double y, double z)
+{
+  double *s = this->OutputSpacing;
+  if (s[0] != x || s[1] != y || s[2] != z)
+    {
+    this->OutputSpacing[0] = x;
+    this->OutputSpacing[1] = y;
+    this->OutputSpacing[2] = z;
+    this->Modified();
+    }
+  else if (this->ComputeOutputSpacing)
+    {
+    this->Modified();
+    }
+  this->ComputeOutputSpacing = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputSpacingToDefault()
+{
+  if (!this->ComputeOutputSpacing)
+    {
+    this->OutputSpacing[0] = 1.0;
+    this->OutputSpacing[1] = 1.0;
+    this->OutputSpacing[2] = 1.0;
+    this->ComputeOutputSpacing = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputOrigin(double x, double y, double z)
+{
+  double *o = this->OutputOrigin;
+  if (o[0] != x || o[1] != y || o[2] != z)
+    {
+    this->OutputOrigin[0] = x;
+    this->OutputOrigin[1] = y;
+    this->OutputOrigin[2] = z;
+    this->Modified();
+    }
+  else if (this->ComputeOutputOrigin)
+    {
+    this->Modified();
+    }
+  this->ComputeOutputOrigin = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputOriginToDefault()
+{
+  if (!this->ComputeOutputOrigin)
+    {
+    this->OutputOrigin[0] = 0.0;
+    this->OutputOrigin[1] = 0.0;
+    this->OutputOrigin[2] = 0.0;
+    this->ComputeOutputOrigin = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputExtent(int a, int b, int c, int d, int e, int f)
+{
+  int *extent = this->OutputExtent;
+  if (extent[0] != a || extent[1] != b || extent[2] != c ||
+      extent[3] != d || extent[4] != e || extent[5] != f)
+    {
+    this->OutputExtent[0] = a;
+    this->OutputExtent[1] = b;
+    this->OutputExtent[2] = c;
+    this->OutputExtent[3] = d;
+    this->OutputExtent[4] = e;
+    this->OutputExtent[5] = f;
+    this->Modified();
+    }
+  else if (this->ComputeOutputExtent)
+    {
+    this->Modified();
+    }
+  this->ComputeOutputExtent = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetOutputExtentToDefault()
+{
+  if (!this->ComputeOutputExtent)
+    {
+    this->OutputExtent[0] = 0;
+    this->OutputExtent[2] = 0;
+    this->OutputExtent[4] = 0;
+    this->OutputExtent[1] = 0;
+    this->OutputExtent[3] = 0;
+    this->OutputExtent[5] = 0;
+    this->ComputeOutputExtent = 1;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+const char *vtkImageReslice::GetInterpolationModeAsString()
+{
+  switch (this->InterpolationMode)
+    {
+    case VTK_RESLICE_NEAREST:
+      return "NearestNeighbor";
+    case VTK_RESLICE_LINEAR:
+      return "Linear";
+    case VTK_RESLICE_RESERVED_2:
+      return "ReservedValue";
+    case VTK_RESLICE_CUBIC:
+      return "Cubic";
+    }
+  return "";
 }
 
 //----------------------------------------------------------------------------
@@ -695,7 +856,6 @@ int vtkImageReslice::RequestInformation(
   double maxBounds[6];
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (this->InformationInput)
@@ -776,7 +936,7 @@ int vtkImageReslice::RequestInformation(
       e = inWholeExt[2*i];
       }
 
-    if (this->OutputSpacing[i] == VTK_DOUBLE_MAX)
+    if (this->ComputeOutputSpacing)
       {
       outSpacing[i] = s;
       }
@@ -790,8 +950,7 @@ int vtkImageReslice::RequestInformation(
       outWholeExt[2*i] = 0;
       outWholeExt[2*i+1] = 0;
       }
-    else if (this->OutputExtent[2*i] == VTK_INT_MIN ||
-             this->OutputExtent[2*i+1] == VTK_INT_MAX)
+    else if (this->ComputeOutputExtent)
       {
       if (this->AutoCropOutput)
         {
@@ -811,7 +970,7 @@ int vtkImageReslice::RequestInformation(
       {
       outOrigin[i] = 0;
       }
-    else if (this->OutputOrigin[i] == VTK_DOUBLE_MAX)
+    else if (this->ComputeOutputOrigin)
       {
       if (this->AutoCropOutput)
         { // set origin so edge of extent is edge of bounds
@@ -834,22 +993,6 @@ int vtkImageReslice::RequestInformation(
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 
   this->GetIndexMatrix(inInfo, outInfo);
-
-  // need to set the spacing and origin of the stencil to match the output
-  if (inInfo2)
-    {
-    vtkImageStencilData *stencil = 
-      vtkImageStencilData::SafeDownCast(
-        inInfo2->Get(vtkDataObject::DATA_OBJECT()));
-    // need to call the set methods on the actual data object, not
-    // on the pipeline, since the pipeline cannot back-propagate
-    // this information
-    if (stencil)
-      {
-      stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
-      stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
-      }
-    }
 
   return 1;
 }

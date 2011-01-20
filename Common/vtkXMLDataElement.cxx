@@ -22,8 +22,9 @@
 #include <vtksys/ios/sstream>
 using vtksys_ios::ostringstream;
 using vtksys_ios::istringstream;
-#include <vtkstd/string>
-using vtkstd::string;
+#include <vtksys/SystemTools.hxx>
+#include <string>
+using std::string;
 #include <locale> // C++ locale
 
 vtkStandardNewMacro(vtkXMLDataElement);
@@ -350,7 +351,9 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
   // No special format just dump what we have.
   if (this->CharacterDataWidth<1)
     {
-    os << indent << this->CharacterData << endl;
+    os << indent;
+    this->PrintWithEscapedData(os, this->CharacterData);
+    os << endl;
     }
   // Treat as space/line delimitted fields limiting 
   // the number of field per line.
@@ -360,7 +363,8 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 
     string characterDataToken;
     issCharacterData >> characterDataToken;
-    os << indent << characterDataToken;
+    os << indent;
+    this->PrintWithEscapedData(os, characterDataToken.c_str());
 
     int it=0;
     while (issCharacterData.good())
@@ -375,12 +379,53 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
         }
 
       issCharacterData >> characterDataToken;
-      os << characterDataToken;
-
+      this->PrintWithEscapedData(os, characterDataToken.c_str());
       ++it;
       }
 
     os << endl;
+    }
+}
+
+//----------------------------------------------------------------------------
+// print out data while replacing XML special characters <, >, &, ", ' with
+// &lt;, &gt;, &amp;, &quot;, &apos;, respectively.
+void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
+{
+  for(size_t i=0;i<strlen(data);i++)
+    {
+    switch(data[i])
+      {
+      case '&':
+      {
+      os << "&amp;";
+      break;
+      }
+      case '<':
+      {
+      os << "&lt;";
+      break;
+      }
+      case '>':
+      {
+      os << "&gt;";
+      break;
+      }
+      case '"':
+      {
+      os << "&quot;";
+      break;
+      }
+      case '\'':
+      {
+      os << "&apos;";
+      break;
+      }
+      default:
+      {
+      os << data[i];
+      }
+      }
     }
 }
 
@@ -401,8 +446,9 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
   int i;
   for(i=0;i < this->NumberOfAttributes;++i)
     {
-    os << " " << this->AttributeNames[i]
-       << "=\"" << this->AttributeValues[i] << "\"";
+    os << " " << this->AttributeNames[i] << "=\"";
+    this->PrintWithEscapedData(os, this->AttributeValues[i]);
+    os << "\"";
     }
   // Long format tag is needed if either or both 
   // nested elements or inline data are present.

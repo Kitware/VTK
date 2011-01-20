@@ -83,18 +83,16 @@ public:
   virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
 
   // Description:
-  // Restore data object to initial state,
+  // Restore data object to initial state.
   virtual void Initialize();
 
   // Description:
-  // Pass your way. This is for backward compatibility only.
-  // Use SetExtent() instead.
+  // \deprecated{This is for backward compatibility only - use SetExtent().}
   // Same as SetExtent(0, i-1, 0, j-1, 0, k-1)
   virtual void SetDimensions(int i, int j, int k);
 
   // Description:
-  // Pass your way. This is for backward compatibility only.
-  // Use SetExtent() instead.
+  // \deprecated{This is for backward compatibility only - use SetExtent().}
   // Same as SetExtent(0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1)
   virtual void SetDimensions(const int dims[3]);
 
@@ -185,7 +183,7 @@ public:
   virtual double GetScalarTypeMax();
 
   // Description:
-  // Set the size of the scalar type in bytes.
+  // Get the size of the scalar type in bytes.
   virtual int GetScalarSize();
 
   // Description:
@@ -379,6 +377,7 @@ protected:
   int Extent[6];
 
   void ComputeIncrements();
+  void ComputeIncrements(vtkIdType inc[3]);
   void CopyOriginAndSpacingFromPipeline();
 
   vtkTimeStamp ExtentComputeTime;
@@ -408,6 +407,12 @@ private:
 
 
 //----------------------------------------------------------------------------
+inline void vtkImageData::ComputeIncrements()
+{
+  this->ComputeIncrements(this->Increments);
+}
+
+//----------------------------------------------------------------------------
 inline void vtkImageData::GetPoint(vtkIdType id, double x[3])
 {
   const double *p = this->GetPoint(id);
@@ -433,6 +438,3 @@ inline int vtkImageData::GetDataDimension()
 }
 
 #endif
-
-
-

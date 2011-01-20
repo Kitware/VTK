@@ -15,6 +15,8 @@
 
 #include "vtkAxis.h"
 #include "vtkContextActor.h"
+#include "vtkContext2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkChartXY.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkColorTransferFunctionItem.h"
@@ -29,7 +31,6 @@
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -39,20 +40,11 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestMultipleScalarsToColors( int argc, char * argv [] )
+int TestMultipleScalarsToColors(int , char * [])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
   renwin->SetSize(800, 640);
-  vtkOpenGLRenderWindow* openGLRenWin = vtkOpenGLRenderWindow::SafeDownCast(renwin);
-  if (!openGLRenWin ||
-      !openGLRenWin->GetExtensionManager() ||
-      !openGLRenWin->GetExtensionManager()->ExtensionSupported("GL_VERSION_1_2"))
-    {
-    // we might be able to support GL Version 1.1 but it requires some modifications
-    // on how to apply 1D textures.
-    return EXIT_SUCCESS;
-    }
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
@@ -63,6 +55,9 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
     0.3,0.0,1.0,0.5,
     0.0,0.5,0.5,1.0,
     0.5,0.5,1.0,1.0};
+
+  // Save one of the context actors
+  vtkContextActor *actor = 0;
 
   // Lookup Table
   vtkSmartPointer<vtkLookupTable> lookupTable =
@@ -96,6 +91,7 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
     chartActor->SetScene(chartScene);
 
     //both needed
+    actor = chartActor;
     ren->AddActor(chartActor);
     chartScene->SetRenderer(ren);
 
@@ -154,12 +150,19 @@ int TestMultipleScalarsToColors( int argc, char * argv [] )
       }
     }
 
-  int retVal = vtkRegressionTestImage(renwin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  // Needed to ensure there has been a render. This test supports as low as
+  // OpenGL 1.2, but further granularity must be added to the device to detect
+  // down to there. For now disable is < OpenGL 2, should fix Mesa segfaults.
+  renwin->Render();
+  if (actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
     {
     iren->Initialize();
     iren->Start();
     }
+  else
+    {
+    cout << "GL version 2 or higher is required." << endl;
+    }
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

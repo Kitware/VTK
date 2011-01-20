@@ -23,7 +23,6 @@
 #include "vtkPlot.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
@@ -35,7 +34,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestMultipleRenderers( int argc, char * argv [] )
+int TestMultipleRenderers(int , char * [])
 {
 
   VTK_CREATE(vtkRenderWindow, renwin);
@@ -119,8 +118,8 @@ int TestMultipleRenderers( int argc, char * argv [] )
   ren3d->SetViewport(0,0,1,0.5);
   ren2d->SetViewport(0,0.5,1,1);
 
-  int retVal = vtkRegressionTestImage(iren->GetRenderWindow());
+  iren->Initialize();
   iren->Start();
 
-  return !retVal;
+  return EXIT_SUCCESS;
 }

@@ -42,13 +42,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                                                                 
 =========================================================================*/
 
+#include "CosmoHaloFinder.h"
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
-
-#include "CosmoHaloFinder.h"
 
 #ifndef USE_VTK_COSMO
 #ifdef DEBUG

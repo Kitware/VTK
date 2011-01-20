@@ -43,12 +43,19 @@ void vtkParse_InitTemplateArgs(TemplateArgs *arg);
 void vtkParse_InitTemplateArg(TemplateArg *arg);
 /*@}*/
 
+
+/**
+ * Make a persistent copy of a string for use with AddStringToArray:
+ * At most 'n' chars will be copied, and the string will be terminated.
+ * If a null pointer is provided, then a null pointer will be returned.
+ */
+const char *vtkParse_DuplicateString(const char *cp, size_t n);
+
 /**
  * Add a string to an array of strings, grow array as necessary.
  */
 void vtkParse_AddStringToArray(
   const char ***valueArray, int *count, const char *value);
-
 
 /**
  * Expand the Item array for classes and namespaces.
@@ -79,6 +86,16 @@ void vtkParse_AddUsingToNamespace(NamespaceInfo *info, UsingInfo *item);
 void vtkParse_AddArgumentToFunction(FunctionInfo *info, ValueInfo *item);
 void vtkParse_AddArgumentToTemplate(TemplateArgs *info, TemplateArg *item);
 /*@}*/
+
+/**
+ * Expand a typedef within a type declaration.
+ */
+void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo);
+
+/**
+ * Simple utility for mapping VTK types to VTK_PARSE types.
+ */
+unsigned int vtkParse_MapType(int vtktype);
 
 /**
  * Ignore BTX/ETX markers

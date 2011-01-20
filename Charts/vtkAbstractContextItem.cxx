@@ -15,13 +15,16 @@
 
 #include "vtkAbstractContextItem.h"
 #include "vtkObjectFactory.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScenePrivate.h"
 
 //-----------------------------------------------------------------------------
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
   this->Scene = NULL;
-  this->Children = new vtkContextScenePrivate;
+  this->Parent = NULL;
+  this->Children = new vtkContextScenePrivate(this);
+  this->Visible = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -93,102 +96,64 @@ void vtkAbstractContextItem::ClearItems()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::Hit(const vtkContextMouseEvent &)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->Hit(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseEnterEvent(const vtkContextMouseEvent &)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseEnterEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseMoveEvent(const vtkContextMouseEvent &)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseMoveEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseLeaveEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseButtonPressEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
+bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
-    {
-    if ((*it)->MouseButtonReleaseEvent(mouse))
-      {
-      return true;
-      }
-    }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &mouse,
-                                             int delta)
+bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
 {
-  for(vtkContextScenePrivate::const_iterator it = this->Children->begin();
-    it != this->Children->end(); ++it)
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
+  const vtkContextMouseEvent &mouse)
+{
+  vtkContextMouseEvent childMouse = mouse;
+  childMouse.Pos = this->MapFromParent(mouse.Pos);
+  childMouse.LastPos = this->MapFromParent(mouse.LastPos);
+  for(vtkContextScenePrivate::const_reverse_iterator it =
+      this->Children->rbegin(); it != this->Children->rend(); ++it)
     {
-    if ((*it)->MouseWheelEvent(mouse, delta))
+    vtkAbstractContextItem* item = (*it)->GetPickedItem(childMouse);
+    if (item)
       {
-      return true;
+      return item;
       }
     }
-  return false;
+  return this->Hit(mouse) ? this : NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -206,6 +171,54 @@ void vtkAbstractContextItem::SetScene(vtkContextScene* scene)
 {
   this->Scene = scene;
   this->Children->SetScene(scene);
+}
+
+// ----------------------------------------------------------------------------
+void vtkAbstractContextItem::SetParent(vtkAbstractContextItem* parent)
+{
+  this->Parent = parent;
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapToParent(const vtkVector2f& point)
+{
+  return point;
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapFromParent(const vtkVector2f& point)
+{
+  return point;
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapToScene(const vtkVector2f& point)
+{
+  if (this->Parent)
+    {
+    vtkVector2f p = this->MapToParent(point);
+    p = this->Parent->MapToScene(p);
+    return p;
+    }
+  else
+    {
+    return point;
+    }
+}
+
+// ----------------------------------------------------------------------------
+vtkVector2f vtkAbstractContextItem::MapFromScene(const vtkVector2f& point)
+{
+  if (this->Parent)
+    {
+    vtkVector2f p = this->Parent->MapFromScene(point);
+    p = this->MapFromParent(p);
+    return p;
+    }
+  else
+    {
+    return point;
+    }
 }
 
 //-----------------------------------------------------------------------------

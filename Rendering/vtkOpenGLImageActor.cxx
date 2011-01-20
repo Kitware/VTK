@@ -38,6 +38,7 @@ vtkOpenGLImageActor::vtkOpenGLImageActor()
   this->RenderWindow = 0;
   this->TextureSize[0] = 0;
   this->TextureSize[1] = 0;
+  this->TextureBytesPerPixel = 1;
 }
 
 vtkOpenGLImageActor::~vtkOpenGLImageActor()
@@ -69,6 +70,7 @@ void vtkOpenGLImageActor::ReleaseGraphicsResources(vtkWindow *renWin)
 #endif
     this->TextureSize[0] = 0;
     this->TextureSize[1] = 0;
+    this->TextureBytesPerPixel = 1;
     }
   this->Index = 0;
   this->RenderWindow = NULL;
@@ -79,17 +81,15 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
                                                      int &release,
                                                      int &reuseTexture)
 {
-  int contiguous = 0;
-  unsigned short xs,ys;
-  int powOfTwo = 0;
   int numComp = this->Input->GetNumberOfScalarComponents();
-  int xdim, ydim;
 
+  // the texture can only be reused under certain circumstances
   reuseTexture = 0;
-  
-  // it must be a power of two and contiguous
-  // find the two used dimensions
-  // this assumes a 2D image, no lines here folk
+
+  // find dimension indices that will correspond to the
+  // columns and rows of the 2D texture
+  int xdim = 1;
+  int ydim = 2;
   if (this->ComputedDisplayExtent[0] != this->ComputedDisplayExtent[1])
     {
     xdim = 0;
@@ -97,21 +97,19 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
       {
       ydim = 1;
       }
-    else
-      {
-      ydim = 2;
-      }
     }
-  else
-    {
-    xdim = 1;
-    ydim = 2;
-    }
-  
+
+  // compute the image dimensions
+  int xsizeImage = (this->ComputedDisplayExtent[xdim*2+1] -
+                    this->ComputedDisplayExtent[xdim*2] + 1);
+  int ysizeImage = (this->ComputedDisplayExtent[ydim*2+1] -
+                    this->ComputedDisplayExtent[ydim*2] + 1);
+
+  // get spacing/origin for the quad coordinates
   double *spacing = this->Input->GetSpacing();
   double *origin = this->Input->GetOrigin();
-  
-  // compute the world coordinates
+
+  // compute the world coordinates of the quad
   this->Coords[0] = this->ComputedDisplayExtent[0]*spacing[0] + origin[0];
   this->Coords[1] = this->ComputedDisplayExtent[2]*spacing[1] + origin[1];
   this->Coords[2] = this->ComputedDisplayExtent[4]*spacing[2] + origin[2];
@@ -126,178 +124,108 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   this->Coords[10] = 
     this->ComputedDisplayExtent[2 + (ydim == 1)]*spacing[1] + origin[1];
   this->Coords[11] = this->ComputedDisplayExtent[5]*spacing[2] + origin[2];
-  
-  // now contiguous would require that xdim = 0 and ydim = 1
-  // OR xextent = 1 pixel and xdim = 1 and ydim = 2 
-  // OR xdim = 0 and ydim = 2 and yextent = i pixel. In addition
-  // the corresponding x display extents must match the 
-  // extent of the data
-  int *ext = this->Input->GetExtent();
-  
-  if ( ( xdim == 0 && ydim == 1 && 
-         this->ComputedDisplayExtent[0] == ext[0] && 
-         this->ComputedDisplayExtent[1] == ext[1] )||
-       ( ext[0] == ext[1] && xdim == 1 && 
-         this->ComputedDisplayExtent[2] == ext[2] && 
-         this->ComputedDisplayExtent[3] == ext[3] ) ||
-       ( ext[2] == ext[3] && xdim == 0 && ydim == 2 &&
-         this->ComputedDisplayExtent[0] == ext[0] && 
-         this->ComputedDisplayExtent[1] == ext[1] ) )
-    {
-    contiguous = 1;
-    }
-      
-  // if contiguous is it a pow of 2
-  if (contiguous)
-    {
-    xsize = ext[xdim*2+1] - ext[xdim*2] + 1;
-    // xsize and ysize must be a power of 2 in OpenGL
-    xs = static_cast<unsigned short>(xsize);
-    while (!(xs & 0x01))
-      {
-      xs = xs >> 1;
-      }
-    if (xs == 1)
-      {
-      powOfTwo = 1;
-      }
-    }
-  
-  if (contiguous && powOfTwo)
-    {
-    // can we make y a power of two also ?
-    ysize = (this->ComputedDisplayExtent[ydim*2+1] -
-             this->ComputedDisplayExtent[ydim*2] + 1);
-    ys = static_cast<unsigned short>(ysize);
-    while (!(ys & 0x01))
-      {
-      ys = ys >> 1;
-      }
-    // yes it is a power of two already
-    if (ys == 1)
-      {
-      release = 0;
-      this->TCoords[0] = (this->ComputedDisplayExtent[xdim*2] - 
-                          ext[xdim*2] + 0.5)/xsize;
-      this->TCoords[1] = 0.5/ysize;  
-      this->TCoords[2] = (this->ComputedDisplayExtent[xdim*2+1] -
-                          ext[xdim*2] + 0.5)/xsize;
-      this->TCoords[3] = this->TCoords[1];  
-      this->TCoords[4] = this->TCoords[2];
-      this->TCoords[5] = 1.0 - 0.5/ysize;  
-      this->TCoords[6] = this->TCoords[0];
-      this->TCoords[7] = this->TCoords[5];
 
-#ifdef GL_VERSION_1_1
-      // if texture size hasn't changed, reuse old texture
-      if (xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
-        {
-        reuseTexture = 1;
-        }
-#endif
-      return static_cast<unsigned char *>(
-        this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
-      }
+  // find the target size of the texture
+  int xsizeTexture = 1;
+  while (xsizeTexture < xsizeImage)
+    {
+    xsizeTexture <<= 1;
     }
-  
-  // if we made it here then we must copy the data and possibly pad 
-  // it as well
+  int ysizeTexture = 1;
+  while (ysizeTexture < ysizeImage)
+    {
+    ysizeTexture <<= 1;
+    }
 
-  // find the target size
-  xsize = 1;
-  while (xsize <
-         this->ComputedDisplayExtent[xdim*2+1] -
-         this->ComputedDisplayExtent[xdim*2] + 1)
-    {
-    xsize *= 2;
-    }
-  ysize = 1;
-  while (ysize < 
-         this->ComputedDisplayExtent[ydim*2+1] -
-         this->ComputedDisplayExtent[ydim*2] + 1)
-    {
-    ysize *= 2;
-    }
-  
   // compute the tcoords
-  this->TCoords[0] = 0.5/xsize;
-  this->TCoords[1] = 0.5/ysize;  
-  this->TCoords[2] = (this->ComputedDisplayExtent[xdim*2+1] -
-                      this->ComputedDisplayExtent[xdim*2] + 0.5)/xsize;
+  this->TCoords[0] = 0.5/xsizeTexture;
+  this->TCoords[1] = 0.5/ysizeTexture;
+  this->TCoords[2] = (xsizeImage - 0.5)/xsizeTexture;
   this->TCoords[3] = this->TCoords[1];  
   this->TCoords[4] = this->TCoords[2];
-  this->TCoords[5] = (this->ComputedDisplayExtent[ydim*2+1] -
-                      this->ComputedDisplayExtent[ydim*2] + 0.5)/ysize;  
+  this->TCoords[5] = (ysizeImage - 0.5)/ysizeTexture;
   this->TCoords[6] = this->TCoords[0];
   this->TCoords[7] = this->TCoords[5];  
 
+  // generally, the whole texture will have to be reloaded
+  xsize = xsizeTexture;
+  ysize = ysizeTexture;
+
 #ifdef GL_VERSION_1_1
   // reuse texture if texture size has not changed
-  if (xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
+  if (xsizeTexture == this->TextureSize[0] &&
+      ysizeTexture == this->TextureSize[1] &&
+      numComp == this->TextureBytesPerPixel)
     {
+    // if texture is reused, only reload the image portion
+    xsize = xsizeImage;
+    ysize = ysizeImage;
     reuseTexture = 1;
-    xsize = this->ComputedDisplayExtent[xdim*2+1] -
-      this->ComputedDisplayExtent[xdim*2] + 1;
-    ysize = this->ComputedDisplayExtent[ydim*2+1] -
-      this->ComputedDisplayExtent[ydim*2] + 1;
     }
 #endif
 
-  // if contiguous and texture size hasn't changed, don't copy or pad
-  if (reuseTexture && contiguous)
+  // if the image is already of the desired size
+  if (xsize == xsizeImage && ysize == ysizeImage)
     {
-    release = 0;
-    return static_cast<unsigned char *>(
-      this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
+    // Check if the data needed for the texture is a contiguous region
+    // of the input data: this requires that xdim = 0 and ydim = 1
+    // OR xextent = 1 pixel and xdim = 1 and ydim = 2
+    // OR xdim = 0 and ydim = 2 and yextent = 1 pixel.
+    // In addition the corresponding x display extents must match the
+    // extent of the data
+    int *extent = this->Input->GetExtent();
+
+    if ( ( xdim == 0 && ydim == 1 &&
+           this->ComputedDisplayExtent[0] == extent[0] &&
+           this->ComputedDisplayExtent[1] == extent[1] )||
+         ( extent[0] == extent[1] && xdim == 1 &&
+           this->ComputedDisplayExtent[2] == extent[2] &&
+           this->ComputedDisplayExtent[3] == extent[3] ) ||
+         ( extent[2] == extent[3] && xdim == 0 && ydim == 2 &&
+           this->ComputedDisplayExtent[0] == extent[0] &&
+           this->ComputedDisplayExtent[1] == extent[1] ) )
+      {
+      // if contiguous, then use the input data as-is
+      release = 0;
+      return static_cast<unsigned char *>(
+        this->Input->GetScalarPointerForExtent(
+          this->ComputedDisplayExtent));
+      }
     }
 
-  // allocate the memory
+  // could not directly use input data, so allocate a new array
   unsigned char *res = new unsigned char [ysize*xsize*numComp];
   release = 1;
   
-  // copy the input data to the memory
+  // input pointer and increments
   vtkIdType inIncX, inIncY, inIncZ;
-  int idxZ, idxY, idxR;
   unsigned char *inPtr = static_cast<unsigned char *>(
     this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
   this->Input->GetContinuousIncrements(this->ComputedDisplayExtent, 
                                        inIncX, inIncY, inIncZ);
-  int rowLength = numComp*(this->ComputedDisplayExtent[1] -
-                           this->ComputedDisplayExtent[0] +1);
+
+  // output pointer and increments
   unsigned char *outPtr = res;
-  vtkIdType outIncY, outIncZ;
+  vtkIdType outIncY = numComp * (xsize - xsizeImage);
+  vtkIdType outIncZ = 0;
   if (ydim == 2)
     {
-    if (xdim == 0)
-      {
-      outIncZ = numComp * 
-        (xsize - (this->ComputedDisplayExtent[1] -
-                  this->ComputedDisplayExtent[0] + 1));
-      }
-    else
-      {
-      outIncZ = numComp * 
-        (xsize - (this->ComputedDisplayExtent[3] -
-                  this->ComputedDisplayExtent[2] + 1));
-      }
+    outIncZ = outIncY;
     outIncY = 0;
     }
-  else
-    {
-    outIncY = numComp * 
-      (xsize - (this->ComputedDisplayExtent[1] -
-                this->ComputedDisplayExtent[0] + 1));
-    outIncZ = 0;    
-    }
-  
-      
-  for (idxZ = this->ComputedDisplayExtent[4];
+
+  // number of values per row of input image
+  int rowLength = numComp*(this->ComputedDisplayExtent[1] -
+                           this->ComputedDisplayExtent[0] +1);
+
+  // loop through the data and copy it for the texture
+  for (int idxZ = this->ComputedDisplayExtent[4];
        idxZ <= this->ComputedDisplayExtent[5]; idxZ++)
     {
-    for (idxY = this->ComputedDisplayExtent[2];
+    for (int idxY = this->ComputedDisplayExtent[2];
          idxY <= this->ComputedDisplayExtent[3]; idxY++)
       {
-      for (idxR = 0; idxR < rowLength; idxR++)
+      for (int idxR = 0; idxR < rowLength; idxR++)
         {
         // Pixel operation
         *outPtr = *inPtr;
@@ -310,6 +238,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     outPtr += outIncZ;
     inPtr += inIncZ;
     }
+
   return res;
 }
 
@@ -327,7 +256,7 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
     {
     int xsize, ysize;
     int release, reuseTexture;
-    unsigned char *data = this->MakeDataSuitable(xsize,ysize,
+    unsigned char *data = this->MakeDataSuitable(xsize, ysize,
                                                  release, reuseTexture);
     int bytesPerPixel = this->Input->GetNumberOfScalarComponents();
     GLuint tempIndex=0;
@@ -413,6 +342,7 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
                    GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(data));
       this->TextureSize[0] = xsize;
       this->TextureSize[1] = ysize;
+      this->TextureBytesPerPixel = bytesPerPixel;
       }
 
 #ifndef GL_VERSION_1_1

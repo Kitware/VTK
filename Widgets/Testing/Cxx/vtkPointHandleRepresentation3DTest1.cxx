@@ -65,7 +65,6 @@ int vtkPointHandleRepresentation3DTest1(int , char * [] )
     return EXIT_FAILURE;
     }
 
-
   vtkSmartPointer<vtkProperty> prop2 = vtkSmartPointer<vtkProperty>::New();
   colour[0] += 0.1;
   colour[2] += 0.1;

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType GX Font Variation loader                                    */
 /*                                                                         */
-/*  Copyright 2004, 2005, 2006, 2007, 2008, 2009 by                        */
+/*  Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 by                  */
 /*  David Turner, Robert Wilhelm, Werner Lemberg, and George Williams.     */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -17,29 +17,29 @@
 
 
   /*************************************************************************/
-/*                                                                         */
-/* Apple documents the `fvar', `gvar', `cvar', and `avar' tables at        */
-/*                                                                         */
-/*   http://developer.apple.com/fonts/TTRefMan/RM06/Chap6[fgca]var.html    */
-/*                                                                         */
-/* The documentation for `fvar' is inconsistent.  At one point it says     */
+  /*                                                                       */
+  /* Apple documents the `fvar', `gvar', `cvar', and `avar' tables at      */
+  /*                                                                       */
+  /*   http://developer.apple.com/fonts/TTRefMan/RM06/Chap6[fgca]var.html  */
+  /*                                                                       */
+  /* The documentation for `fvar' is inconsistent.  At one point it says   */
   /* that `countSizePairs' should be 3, at another point 2.  It should     */
   /* be 2.                                                                 */
-/*                                                                         */
+  /*                                                                       */
   /* The documentation for `gvar' is not intelligible; `cvar' refers you   */
   /* to `gvar' and is thus also incomprehensible.                          */
-/*                                                                         */
-/* The documentation for `avar' appears correct, but Apple has no fonts    */
-/* with an `avar' table, so it is hard to test.                            */
-/*                                                                         */
-/* Many thanks to John Jenkins (at Apple) in figuring this out.            */
-/*                                                                         */
-/*                                                                         */
+  /*                                                                       */
+  /* The documentation for `avar' appears correct, but Apple has no fonts  */
+  /* with an `avar' table, so it is hard to test.                          */
+  /*                                                                       */
+  /* Many thanks to John Jenkins (at Apple) in figuring this out.          */
+  /*                                                                       */
+  /*                                                                       */
   /* Apple's `kern' table has some references to tuple indices, but as     */
   /* there is no indication where these indices are defined, nor how to    */
-/* interpolate the kerning values (different tuples have different         */
-/* classes) this issue is ignored.                                         */
-/*                                                                         */
+  /* interpolate the kerning values (different tuples have different       */
+  /* classes) this issue is ignored.                                       */
+  /*                                                                       */
   /*************************************************************************/
 
 
@@ -91,12 +91,8 @@
   /* indicates that there is a delta for every point without needing to    */
   /* enumerate all of them.                                                */
   /*                                                                       */
-#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#include <stdint.h>
-#define ALL_POINTS  (FT_UShort*)UINTPTR_MAX
-#else
 #define ALL_POINTS  (FT_UShort*)( -1 )
-#endif
+
 
 #define GX_PT_POINTS_ARE_WORDS      0x80
 #define GX_PT_POINT_RUN_COUNT_MASK  0x7F
@@ -134,7 +130,7 @@
     FT_Int     j;
     FT_Int     first;
     FT_Memory  memory = stream->memory;
-    FT_Error   error = TT_Err_Ok;
+    FT_Error   error  = TT_Err_Ok;
 
     FT_UNUSED( error );
 
@@ -158,7 +154,7 @@
         runcnt = runcnt & GX_PT_POINT_RUN_COUNT_MASK;
         first  = points[i++] = FT_GET_USHORT();
 
-        if ( runcnt < 1 )
+        if ( runcnt < 1 || i + runcnt >= n )
           goto Exit;
 
         /* first point not included in runcount */
@@ -169,7 +165,7 @@
       {
         first = points[i++] = FT_GET_BYTE();
 
-        if ( runcnt < 1 )
+        if ( runcnt < 1 || i + runcnt >= n )
           goto Exit;
 
         for ( j = 0; j < runcnt; ++j )
@@ -214,12 +210,12 @@
   ft_var_readpackeddeltas( FT_Stream  stream,
                            FT_Offset  delta_cnt )
   {
-    FT_Short  *deltas;
+    FT_Short  *deltas = NULL;
     FT_UInt    runcnt;
     FT_Offset  i;
     FT_UInt    j;
     FT_Memory  memory = stream->memory;
-    FT_Error   error = TT_Err_Ok;
+    FT_Error   error  = TT_Err_Ok;
 
     FT_UNUSED( error );
 
@@ -686,7 +682,11 @@
       if ( fvar_head.version != (FT_Long)0x00010000L                      ||
            fvar_head.countSizePairs != 2                                  ||
            fvar_head.axisSize != 20                                       ||
+           /* axisCount limit implied by 16-bit instanceSize */
+           fvar_head.axisCount > 0x3FFE                                   ||
            fvar_head.instanceSize != 4 + 4 * fvar_head.axisCount          ||
+           /* instanceCount limit implied by limited range of name IDs */
+           fvar_head.instanceCount > 0x7EFF                               ||
            fvar_head.offsetToData + fvar_head.axisCount * 20U +
              fvar_head.instanceCount * fvar_head.instanceSize > table_len )
       {
@@ -697,7 +697,7 @@
       if ( FT_NEW( face->blend ) )
         goto Exit;
 
-      /* XXX: TODO - check for overflows */
+      /* cannot overflow 32-bit arithmetic because of limits above */
       face->blend->mmvar_len =
         sizeof ( FT_MM_Var ) +
         fvar_head.axisCount * sizeof ( FT_Var_Axis ) +
@@ -912,7 +912,7 @@
     }
     else
     {
-          manageCvt = mcvt_retain;
+      manageCvt = mcvt_retain;
       for ( i = 0; i < num_coords; ++i )
       {
         if ( blend->normalizedcoords[i] != coords[i] )

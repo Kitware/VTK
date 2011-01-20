@@ -34,7 +34,6 @@ vtkStandardNewMacro(vtkBlockItem);
 //-----------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()
 {
-  this->Label = NULL;
   this->MouseOver = false;
   this->MouseButtonPressed = vtkContextMouseEvent::NO_BUTTON;
   this->scalarFunction = NULL;
@@ -47,7 +46,6 @@ vtkBlockItem::vtkBlockItem()
 //-----------------------------------------------------------------------------
 vtkBlockItem::~vtkBlockItem()
 {
-  this->SetLabel(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -72,8 +70,8 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
                     static_cast<float>(this->Dimensions[2]),
                     static_cast<float>(this->Dimensions[3]));
 
-  int x = static_cast<int>(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
-  int y = static_cast<int>(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
+  int x = vtkContext2D::FloatToInt(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
+  int y = vtkContext2D::FloatToInt(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
   if (this->Label)
     {
     painter->DrawString(static_cast<float>(x),static_cast<float>(y),
@@ -176,6 +174,23 @@ bool vtkBlockItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
   return true;
 }
 
+//-----------------------------------------------------------------------------
+void vtkBlockItem::SetLabel(const vtkStdString &label)
+{
+  if (this->Label != label)
+    {
+    this->Label = label;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkBlockItem::GetLabel()
+{
+  return this->Label;
+}
+
+//-----------------------------------------------------------------------------
 void vtkBlockItem::SetScalarFunctor(double (*ScalarFunction)(double, double))
 {
   this->scalarFunction = ScalarFunction;

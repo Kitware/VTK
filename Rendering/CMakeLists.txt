@@ -59,6 +59,7 @@ SET( Kit_SRCS
   vtkExporter.cxx
   vtkFollower.cxx
   vtkFrameBufferObject.cxx
+  vtkFreeTypeStringToImage.cxx
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
@@ -164,6 +165,7 @@ SET( Kit_SRCS
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
+  vtkStringToImage.cxx
   vtkSurfaceLICDefaultPainter.cxx
   vtkSurfaceLICPainter.cxx
   vtkTDxInteractorStyle.cxx
@@ -303,6 +305,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkShader
   vtkShaderDeviceAdapter
   vtkShaderProgram
+  vtkStringToImage
   vtkTDxInteractorStyle
   vtkVisibilitySort.cxx
   ABSTRACT
@@ -345,8 +348,11 @@ if(VTK_USE_X)
  set(Kit_SRCS ${Kit_SRCS} vtkXGPUInfoList.cxx)
 endif()
 
-SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx )
-SET_SOURCE_FILES_PROPERTIES(vtkFreeTypeUtilities WRAP_EXCLUDE)
+SET(Kit_SRCS ${Kit_SRCS} vtkFreeTypeUtilities.cxx vtkFreeTypeTools.cxx )
+SET_SOURCE_FILES_PROPERTIES(
+  vtkFreeTypeTools
+  vtkFreeTypeUtilities
+  WRAP_EXCLUDE)
 
 SET(Kit_FT_SRCS 
   fonts/face_arial.cxx
@@ -422,6 +428,7 @@ IF(VTK_USE_QT)
     vtkQImageToImageSource.cxx
     vtkQtInitialization.cxx
     vtkQtLabelRenderStrategy.cxx
+    vtkQtStringToImage.cxx
     vtkQtTreeRingLabelMapper.cxx
     )
   # On the Mac, make the QT_LIBRARIES KIT_INTERFACE_LIBRARIES. This is a
@@ -490,9 +497,9 @@ ENDIF(VTK_USE_X)
 # Parse the extensions into vtkgl.h/vtkgl.cxx.
 ADD_CUSTOM_COMMAND(
   OUTPUT ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
-  COMMAND ${VTK_PARSEOGLEXT_EXE}
+  COMMAND vtkParseOGLExt
   ARGS ${VTK_BINARY_DIR}/Rendering ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE}
-  DEPENDS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE} ${VTK_PARSEOGLEXT_EXE}
+  DEPENDS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE} vtkParseOGLExt
   )
 
 SET_SOURCE_FILES_PROPERTIES(vtkOpenGLExtensionManager.cxx
@@ -642,6 +649,11 @@ ELSE (WIN32)
     ENDIF(VTK_USE_CARBON)
     IF(VTK_USE_X  AND  OPENGL_gl_LIBRARY)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkXOpenGLRenderWindow.cxx)
+    ELSE (VTK_USE_X  AND  OPENGL_gl_LIBRARY)
+      IF (VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
+        SET(KitOpenGL_SRCS ${KitOpenGL_SRCS} vtkOSOpenGLRenderWindow.cxx)
+        SET (KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY} )
+      ENDIF (VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
     ENDIF(VTK_USE_X  AND  OPENGL_gl_LIBRARY)
   ELSE (APPLE)
     IF (VTK_USE_X AND OPENGL_gl_LIBRARY)
@@ -814,7 +826,7 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
         vtkCocoaTkUtilities.mm)
   ENDIF (VTK_USE_COCOA)
 
-  ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
+  VTK_ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
               ${RenderingPythonTkWidgets_SRCS})
   SET(VTK_PYTHONTK_LIBRARIES ${VTK_TK_LIBRARIES})
   IF(VTK_USE_X)
@@ -836,6 +848,7 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
 
   IF(NOT VTK_INSTALL_NO_LIBRARIES)
     INSTALL(TARGETS vtkRenderingPythonTkWidgets
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
       LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)

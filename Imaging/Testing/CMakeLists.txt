@@ -1,11 +1,11 @@
-SUBDIRS(Cxx)
+ADD_SUBDIRECTORY(Cxx)
 
 IF (VTK_WRAP_TCL)
-  SUBDIRS(Tcl)
+  ADD_SUBDIRECTORY(Tcl)
 ENDIF (VTK_WRAP_TCL)
 
 IF (VTK_WRAP_PYTHON)
-  SUBDIRS(Python)
+  ADD_SUBDIRECTORY(Python)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF(PYTHON_EXECUTABLE)
@@ -27,6 +27,7 @@ IF(PYTHON_EXECUTABLE)
     vtkImageMirrorPad.h
     vtkImageNormalize.h
     vtkImageRFFT.h
+    vtkImageStencilIterator.h
     vtkImageWrapPad.h
     vtkSimpleImageFilterExample.h
     )

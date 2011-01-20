@@ -130,9 +130,9 @@ int vtkGeoAdaptiveArcs::RequestData(
     bool lastPointOnOtherSide = false;
 #endif
     double curPoint[3];
-    double lastPtLL[2];
+    double lastPtLL[2] = {0.0, 0.0};
     double curPtLL[2];
-    double lastVec[3];
+    double lastVec[3] = {0.0, 0.0, 0.0};
     double curVec[3];
     curPoint[0] = pointsPtr[3*pts[0]+0];
     curPoint[1] = pointsPtr[3*pts[0]+1];

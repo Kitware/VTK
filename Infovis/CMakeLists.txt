@@ -98,6 +98,7 @@ vtkStackedTreeLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkStrahlerMetric.cxx
 vtkStreamGraph.cxx
+vtkStreamingStatistics.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
@@ -142,6 +143,7 @@ vtkXMLTreeReader.cxx
 
 
 IF(VTK_USE_BOOST)
+  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
   IF( "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}" LESS 1.36)
     IF( HAVE_CMAKE_SIZEOF_VOID_P AND CMAKE_SIZEOF_VOID_P EQUAL 8 )
       SET( BOOST_OLD_VERSION TRUE )
@@ -164,6 +166,7 @@ IF(VTK_USE_BOOST)
     vtkBoostBreadthFirstSearch.cxx
     vtkBoostBreadthFirstSearchTree.cxx
     vtkBoostConnectedComponents.cxx
+    vtkBoostExtractLargestComponent.cxx
     vtkBoostPrimMinimumSpanningTree.cxx
     vtkBoostSplitTableField.cxx
   )
@@ -218,6 +221,7 @@ IF(VTK_USE_PARALLEL)
     vtkPDescriptiveStatistics.cxx
     vtkPKMeansStatistics.cxx
     vtkPMultiCorrelativeStatistics.cxx
+    vtkPOrderStatistics.cxx
     vtkPPCAStatistics.cxx
     )
 

@@ -29,6 +29,7 @@ IF(VTK_USE_DISPLAY)
     TestGlyph3DMapperPicking.cxx
     TestGPUInfo.cxx
     TestGradientBackground.cxx
+    TestHomogeneousTransformOfActor.cxx
     TestInteractorTimers.cxx
     TestLabelPlacer.cxx
     TestLabelPlacer2D.cxx
@@ -97,15 +98,15 @@ IF(VTK_USE_DISPLAY)
       TestGenericVertexAttributesGLSLAlphaBlending.cxx
       TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
       )
-    # Temporarily disable LIC tests on non-windows platforms
-    IF(WIN32)
+    # Temporarily disable LIC tests on Mac
+    IF(NOT APPLE)
       IF (VTK_DATA_ROOT)
         SET( RenderingTestsWithArguments
         ${RenderingTestsWithArguments}
         TestSurfaceLIC.cxx
         )
       ENDIF (VTK_DATA_ROOT)
-    ENDIF(WIN32)
+    ENDIF()
   ENDIF (VTK_USE_GLSL_SHADERS)
 
 ENDIF(VTK_USE_DISPLAY)
@@ -129,9 +130,16 @@ ADD_EXECUTABLE(TestFBOImplementation
 TARGET_LINK_LIBRARIES(TestFBOImplementation
   vtkRendering ${OPENGL_gl_LIBRARY})
 
+IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
+  TARGET_LINK_LIBRARIES(TestFBOImplementation ${OSMESA_LIBRARY})
+ENDIF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
+
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO ${OPENGL_gl_LIBRARY})
 
+IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
+  TARGET_LINK_LIBRARIES(${KIT}CxxTests ${OSMESA_LIBRARY})
+ENDIF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
@@ -172,6 +180,9 @@ FOREACH (exe
   IF (APPLE)
     TARGET_LINK_LIBRARIES(${exe} "-framework GLUT")
   ENDIF (APPLE)
+  IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
+    TARGET_LINK_LIBRARIES(${exe} ${OSMESA_LIBRARY})
+  ENDIF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
 ENDFOREACH (exe)
 
 IF(VTK_USE_GLSL_SHADERS AND VTK_USE_DISPLAY)

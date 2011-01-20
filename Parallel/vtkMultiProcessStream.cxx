@@ -35,7 +35,8 @@ public:
     float_value,
     string_value,
     int64_value,
-    uint64_value
+    uint64_value,
+    stream_value,
     };
 
   void Push(const unsigned char* data, size_t length)
@@ -82,6 +83,10 @@ public:
       case uchar_value:
         wordSize = sizeof(char);
         break;
+
+      case stream_value:
+        wordSize = sizeof(int);
+        break;
         }
 
       switch (wordSize)
@@ -90,6 +95,28 @@ public:
       case 4: vtkSwap4(&(*iter)); break;
       case 8: vtkSwap8(&(*iter)); break;
         }
+
+      unsigned int to_skip = 0;
+      switch (type)
+        {
+      case stream_value:
+          {
+          unsigned char* data = reinterpret_cast<unsigned char*>(&to_skip);
+          for (size_t cc=0; cc < sizeof(unsigned int); cc++)
+            {
+            data[cc] = *iter;
+            iter++;
+            }
+          wordSize = 0;
+          }
+        break;
+        }
+
+      for (unsigned int cc=0; cc < to_skip; cc++)
+        {
+        iter++;
+        }
+
       while (wordSize>0)
         {
         iter++;
@@ -210,6 +237,40 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (const vtkstd::string&
   const char* c_value = value.c_str();
   this->Internals->Push(reinterpret_cast<const unsigned char*>(c_value),
     strlen(c_value)+1);
+  return (*this);
+}
+
+//----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (
+  const vtkMultiProcessStream& value)
+{
+  unsigned int size = static_cast<unsigned int>(value.Internals->Data.size());
+  size += 1;
+  this->Internals->Data.push_back(vtkInternals::stream_value);
+  this->Internals->Push(reinterpret_cast<unsigned char*>(&size),
+    sizeof(unsigned int));
+  this->Internals->Data.push_back(value.Endianness);
+  this->Internals->Data.insert(this->Internals->Data.end(),
+    value.Internals->Data.begin(), value.Internals->Data.end());
+  return (*this);
+}
+
+//----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator >> (
+  vtkMultiProcessStream& value)
+{
+  assert(this->Internals->Data.front() == vtkInternals::stream_value);
+  this->Internals->Data.pop_front();
+
+  unsigned int size;
+  this->Internals->Pop(reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int));
+
+  assert(size>=1);
+  this->Internals->Pop(&value.Endianness, 1);
+  size--;
+
+  value.Internals->Data.resize(size);
+  this->Internals->Pop(&value.Internals->Data[0], size);
   return (*this);
 }
 

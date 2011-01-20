@@ -74,7 +74,11 @@ protected:
   // This is the build method for creating the internal polydata
   // mapper that do the actual work
   void BuildPolyDataMapper();
-  
+
+  // Description:
+  // BuildPolyDataMapper uses this for each mapper. It is broken out so we can change types.
+  virtual vtkPolyDataMapper *MakeAMapper();
+
   // Description:
   // Need to loop over the hierarchy to compute bounds
   void ComputeBounds();

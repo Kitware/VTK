@@ -1124,7 +1124,7 @@ xmlRelaxNGAddStates(xmlRelaxNGValidCtxtPtr ctxt,
 /**
  * xmlRelaxNGFreeStates:
  * @ctxt:  a Relax-NG validation context
- * @states:  teh container
+ * @states:  the container
  *
  * Free a RelaxNG validation state container
  */

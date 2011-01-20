@@ -102,15 +102,21 @@ const int   DIMENSION   = 3;
 const int   BUF_SZ      = 512;  // Character buffer
 
 // Constants for Spherical Over Dense calculation
-const double    CHAIN_SIZE = 2.0;               // Size for bucket mesh
-const double    RHO_C   = 2.77536627e11;        // Critical density
-const double    RHO_RATIO = 200.0;              // density/critical density
-const double    MASS_FACTOR = 1.0e14;		// divide halo mass by this
-const double    MIN_RADIUS_FACTOR = 0.5;        // Factor of initial SOD radius
-const double    MAX_RADIUS_FACTOR = 2.0;        // Factor of initial SOD radius
-const int       MIN_SOD_SIZE = 1000;            // Min FOF halo for SOD
-const float     MIN_SOD_MASS = 5.0e12;          // Min FOF mass for SOD
-const int       NUM_SOD_BINS = 20;              // Log bins for SOD halo
+const double CHAIN_SIZE         = 2.0;           // Size for bucket mesh
+const double RHO_C              = 2.77536627e11; // Critical density
+                                                 // in (M_sun/h) / (Mpc/h)^3
+const double RHO_RATIO          = 200.0;         // density/critical density
+const double SOD_MASS           = 1.0e14;        // for initial SOD radius
+                                                 // in (M_sun/h)
+const double MIN_RADIUS_FACTOR  = 0.5;           // Factor of initial SOD radius
+const double MAX_RADIUS_FACTOR  = 2.0;           // Factor of initial SOD radius
+const int    MIN_SOD_SIZE       = 1000;          // Min FOF halo for SOD
+const float  MIN_SOD_MASS       = 5.0e12;        // Min FOF mass for SOD
+const int    NUM_SOD_BINS       = 20;            // Log bins for SOD halo
+
+// Constants for subhalo finding
+const double GRAVITY_C          = 43.015e-10;    // Gravitional constant for
+                                                 // potential energy
 
 // Cosmology record data in .cosmo format
 const int   COSMO_FLOAT = 7;    // x,y,z location and velocity plus mass
@@ -196,15 +202,32 @@ enum NEIGHBOR
 
 const int NUM_OF_NEIGHBORS      = 26;
 
-// Header for Gadget-2 input files
-struct CosmoHeader {
-  int      npart[6];
-  double   mass[6];
+// Header for Gadget input files
+const int GADGET_GAS            = 0;
+const int GADGET_HALO           = 1;
+const int GADGET_DISK           = 2;
+const int GADGET_BULGE          = 3;
+const int GADGET_STARS          = 4;
+const int GADGET_BOUND          = 5;
+const int NUM_GADGET_TYPES      = 6;    // Types of gadget particles
+
+const int GADGET_HEADER_SIZE    = 256;  // Size when the endian matches
+const int GADGET_HEADER_SIZE_SWP= 65536;// Size when the endian doesn't match
+const int GADGET_FILL           = 60;   // Current fill to HEADER SIZE
+const int GADGET_SKIP           = 4;    // Bytes the indicate block size
+const int GADGET_2_SKIP         = 16;   // Extra bytes in gadget-2
+
+const int GADGET_1              = 1;
+const int GADGET_2              = 2;
+
+struct GadgetHeader {
+  int      npart[NUM_GADGET_TYPES];
+  double   mass[NUM_GADGET_TYPES];
   double   time;
   double   redshift;
   int      flag_sfr;
   int      flag_feedback;
-  int      npartTotal[6];
+  int      npartTotal[NUM_GADGET_TYPES];
   int      flag_cooling;
   int      num_files;
   double   BoxSize;
@@ -213,9 +236,9 @@ struct CosmoHeader {
   double   HubbleParam;
   int      flag_stellarage;
   int      flag_metals;
-  int      npartTotalHighWord[6];
-  int      flag_entropy_instead_u;
-  char     fill[60];  /* fills to 256 Bytes */
+  int      HighWord[NUM_GADGET_TYPES];
+  int      flag_entropy;
+  char     fill[GADGET_FILL];
 };
 
 #endif

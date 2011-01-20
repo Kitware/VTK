@@ -103,10 +103,10 @@ FT_BEGIN_HEADER
 
   typedef struct  T1_FontRec_
   {
-    PS_FontInfoRec   font_info;         /* font info dictionary */
+    PS_FontInfoRec   font_info;         /* font info dictionary   */
     PS_FontExtraRec  font_extra;        /* font info extra fields */
-    PS_PrivateRec    private_dict;      /* private dictionary   */
-    FT_String*       font_name;         /* top-level dictionary */
+    PS_PrivateRec    private_dict;      /* private dictionary     */
+    FT_String*       font_name;         /* top-level dictionary   */
 
     T1_EncodingType  encoding_type;
     T1_EncodingRec   encoding;

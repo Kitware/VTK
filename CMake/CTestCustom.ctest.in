@@ -85,6 +85,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "Utilities/vtktiff/"
   "xtree.[0-9]+. : warning C4702: unreachable code"
+  "vector.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"
   "math.h.[0-9]+.: warning C4211"
   "variable .var_args[2]*. is used before its value is set"
@@ -231,6 +232,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "boost.*warning.*signed/unsigned mismatch"
   "boost.*warning.*conversion from .* to .*, possible loss of data"
   "boost.*warning.*declaration of .* shadows a member of"
+  "boost.*warning.*unused parameter"
+  "boost.*warning.*comparison between signed and unsigned integer expressions"
 
   "Utilities.vtklibproj4.*warning.*defined but not used"
   "Utilities.vtklibproj4.*warning.*initialization discards qualifiers from pointer target type"
