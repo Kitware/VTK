@@ -6,20 +6,20 @@
 #include "WidgetTestingMacros.h"
 #include "vtkPolyData.h"
 
-#include <vtkProperty2D.h> 
+#include <vtkProperty2D.h>
 
 int vtkPointHandleRepresentation2DTest1(int , char * [] )
 {
   vtkSmartPointer< vtkPointHandleRepresentation2D > node1 = vtkSmartPointer< vtkPointHandleRepresentation2D >::New();
-  
+
   EXERCISE_BASIC_HANDLE_REPRESENTATION_METHODS(vtkPointHandleRepresentation2D, node1);
-  
+
   std::cout << "Done exercise basic handl representation methods" << std::endl;
   if (node1->GetBounds() == NULL)
     {
     std::cout << "Bounds are null." << std::endl;
     }
-  
+
   vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
   node1->SetCursorShape(pd);
   vtkSmartPointer<vtkPolyData> pd2 = node1->GetCursorShape();
@@ -29,7 +29,7 @@ int vtkPointHandleRepresentation2DTest1(int , char * [] )
     std::cerr << "Error in Set/Get cursor shape." << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   vtkSmartPointer<vtkProperty2D> prop1 = vtkSmartPointer<vtkProperty2D>::New();
   double colour[3] = {0.2, 0.3, 0.4};
   prop1->SetColor(colour);
@@ -53,7 +53,7 @@ int vtkPointHandleRepresentation2DTest1(int , char * [] )
     std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   vtkSmartPointer<vtkProperty2D> prop2 = vtkSmartPointer<vtkProperty2D>::New();
   colour[0] += 0.1;
   colour[2] += 0.1;
@@ -79,6 +79,6 @@ int vtkPointHandleRepresentation2DTest1(int , char * [] )
     std::cerr << "Got wrong selected colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   return EXIT_SUCCESS;
 }

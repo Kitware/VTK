@@ -14,6 +14,6 @@ int vtkImplicitPlaneWidget2Test1(int , char * [] )
 
   vtkSmartPointer<vtkImplicitPlaneRepresentation> rep1 = vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
   node1->SetRepresentation(rep1);
-  
+
   return EXIT_SUCCESS;
 }

@@ -15,8 +15,8 @@
 int vtkCaptionRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkCaptionRepresentation > node1 = vtkSmartPointer< vtkCaptionRepresentation >::New();
-  
-  EXERCISE_BASIC_BORDER_REPRESENTATION_METHODS(vtkCaptionRepresentation, node1); 
+
+  EXERCISE_BASIC_BORDER_REPRESENTATION_METHODS(vtkCaptionRepresentation, node1);
 
   double pos[3] = {-99.0, 100.0, 50.0};
   node1->SetAnchorPosition(pos);
@@ -46,6 +46,6 @@ int vtkCaptionRepresentationTest1(int , char * [] )
     return EXIT_FAILURE;
     }
   TEST_SET_GET_DOUBLE_RANGE(node1, FontFactor, 1.1, 9.0);
-  
+
   return EXIT_SUCCESS;
 }

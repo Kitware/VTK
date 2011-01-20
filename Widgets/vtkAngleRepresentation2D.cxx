@@ -203,7 +203,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     // for now, return. Could create defaults here.
     return;
     }
-      
+
   if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->CenterRepresentation->GetMTime() > this->BuildTime ||
@@ -221,7 +221,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     this->Point1Representation->GetDisplayPosition(p1d);
     this->CenterRepresentation->GetDisplayPosition(cd);
     this->Point2Representation->GetDisplayPosition(p2d);
-    
+
     // Update the rays
     this->Ray1->GetPosition2Coordinate()->SetValue(p1w);
     this->Ray1->GetPositionCoordinate()->SetValue(cw);

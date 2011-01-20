@@ -13,7 +13,7 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
 {
   vtkSmartPointer< vtkBiDimensionalRepresentation2D > node1 = vtkSmartPointer< vtkBiDimensionalRepresentation2D >::New();
 
-  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkBiDimensionalRepresentation2D, node1); 
+  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkBiDimensionalRepresentation2D, node1);
 
   double pos[3] = {55.0, 66.6, 77.9};
   double p[3];
@@ -108,7 +108,7 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
     std::cerr << "Failure in Get/Set Point4DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   TEST_SET_GET_BOOLEAN(node1, Line1Visibility);
   TEST_SET_GET_BOOLEAN(node1, Line2Visibility);
 

@@ -79,56 +79,56 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
 
   // test Set/GetPosition, in display coords, so only x,y are used
   double pos[3] = {10.0, 11.0, -12.0};
-  double *pos2 = NULL;                                                
-  node1->SetPosition(pos);                                           
-  pos2 = node1->GetPosition();                                       
+  double *pos2 = NULL;
+  node1->SetPosition(pos);
+  pos2 = node1->GetPosition();
   if (pos2 == NULL)
     {
-    std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl; 
-    return EXIT_FAILURE;             
+    std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl;
+    return EXIT_FAILURE;
     }
-  else if (pos2[0] != pos[0] ||                                            
+  else if (pos2[0] != pos[0] ||
            pos2[1] != pos[1])
-    {                                                                 
-    std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl; 
-    return EXIT_FAILURE;                                              
-    }                                                                 
-  else                                                                
-    {                                                                 
-    std::cout << "Set Position to "  << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl; 
+    {
+    std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl;
+    return EXIT_FAILURE;
+    }
+  else
+    {
+    std::cout << "Set Position to "  << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl;
     }
   pos[0] = 12.0;
   node1->SetPosition(pos[0], pos[1], pos[2]);
   pos2 = node1->GetPosition();
    if (pos2 == NULL)
     {
-    std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl; 
-    return EXIT_FAILURE;             
+    std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl;
+    return EXIT_FAILURE;
     }
-  else if (pos2[0] != pos[0] ||                                            
-           pos2[1] != pos[1])                                              
-    {                                                                 
-    std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl; 
-    return EXIT_FAILURE;                                              
-    }                                                                 
-  else                                                                
-    {                                                                 
-    std::cout << "Set Position to "  << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl; 
+  else if (pos2[0] != pos[0] ||
+           pos2[1] != pos[1])
+    {
+    std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl;
+    return EXIT_FAILURE;
+    }
+  else
+    {
+    std::cout << "Set Position to "  << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl;
     }
 
    pos[0] -= 1.0;
    node1->SetPosition(pos[0], pos[1], pos[2]);
    double pos3[3];
    node1->GetPosition(pos3);
-   if (pos3[0] != pos[0] ||                                            
-       pos3[1] != pos[1])                                              
-    {                                                                 
-    std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos3[0] << ", " << pos3[1] << ", " << pos3[2]  << std::endl; 
-    return EXIT_FAILURE;                                              
-    }                                                                 
-  else                                                                
-    {                                                                 
-    std::cout << "Set Position to "  << pos3[0] << ", " << pos3[1] << ", " << pos3[2]  << std::endl; 
+   if (pos3[0] != pos[0] ||
+       pos3[1] != pos[1])
+    {
+    std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos3[0] << ", " << pos3[1] << ", " << pos3[2]  << std::endl;
+    return EXIT_FAILURE;
+    }
+  else
+    {
+    std::cout << "Set Position to "  << pos3[0] << ", " << pos3[1] << ", " << pos3[2]  << std::endl;
     }
 
    // Properties
@@ -155,7 +155,7 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   vtkSmartPointer<vtkProperty> prop2 = vtkSmartPointer<vtkProperty>::New();
   colour[0] += 0.1;
   colour[2] += 0.1;

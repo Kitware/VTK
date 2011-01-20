@@ -5,7 +5,6 @@ SET(KIT Widgets)
 #
 IF(VTK_USE_DISPLAY)
 
-
 # add tests that do not require data
 SET(MyTests
   BoxWidget.cxx
@@ -29,7 +28,7 @@ SET(MyTests
   TestImplicitPlaneWidget2b.cxx
 #  TestLogoWidget.cxx
   TestOrientationMarkerWidget.cxx
-#  TestPlaybackWidget.cxx
+  TestPlaybackWidget.cxx
   TestProgrammaticPlacement.cxx
   TestRectilinearWipeWidget.cxx
   TestSeedWidget.cxx

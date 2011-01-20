@@ -282,7 +282,7 @@ double vtkBiDimensionalRepresentation::GetLength2()
 
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalRepresentation::SetID(unsigned long id)
+void vtkBiDimensionalRepresentation::SetID(vtkIdType id)
 {
   if (id == this->ID)
     {

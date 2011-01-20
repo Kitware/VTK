@@ -13,6 +13,6 @@ int vtkPolygonalHandleRepresentation3DTest1(int , char * [] )
 
 
   TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Offset, -10.0, 10.0);
-  
+
   return EXIT_SUCCESS;
 }

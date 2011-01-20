@@ -38,7 +38,7 @@ int vtkPointHandleRepresentation3DTest1(int , char * [] )
   node1->AllOn();
   node1->AllOff();
 
-  TEST_SET_GET_PROPERTY(object, Property);          
+  TEST_SET_GET_PROPERTY(object, Property);
   TEST_SET_GET_PROPERTY(object, SelectedProperty);
   /*
   vtkSmartPointer<vtkProperty> prop1 = vtkSmartPointer<vtkProperty>::New();
@@ -64,7 +64,8 @@ int vtkPointHandleRepresentation3DTest1(int , char * [] )
     std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
     return EXIT_FAILURE;
     }
-  
+
+
   vtkSmartPointer<vtkProperty> prop2 = vtkSmartPointer<vtkProperty>::New();
   colour[0] += 0.1;
   colour[2] += 0.1;

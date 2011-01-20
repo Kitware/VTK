@@ -13,6 +13,6 @@ int vtkOrientedPolygonalHandleRepresentation3DTest1(int , char * [] )
 
   EXERCISE_BASIC_ABSTRACT_POLYGONAL_HANDLE_REPRESENTATION3D_METHODS(vtkOrientedPolygonalHandleRepresentation3D, node1);
 
-  
+
   return EXIT_SUCCESS;
 }

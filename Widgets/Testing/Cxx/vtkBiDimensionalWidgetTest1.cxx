@@ -19,6 +19,6 @@ int vtkBiDimensionalWidgetTest1(int , char * [] )
 
    vtkSmartPointer<vtkBiDimensionalRepresentation2D> rep1 = vtkSmartPointer<vtkBiDimensionalRepresentation2D>::New();
   node1->SetRepresentation(rep1);
-  
+
   return EXIT_SUCCESS;
 }

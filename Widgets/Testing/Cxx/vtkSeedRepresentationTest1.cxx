@@ -15,18 +15,18 @@
 int vtkSeedRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkSeedRepresentation > node1 = vtkSmartPointer< vtkSeedRepresentation >::New();
-  
-  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkSeedRepresentation, node1); 
+
+  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkSeedRepresentation, node1);
 
   std::cout << "Number of Seeds = " << node1->GetNumberOfSeeds() << std::endl;
-  
+
   double pos[3] = {1.0, 2.0, -3.0};
   double pos2[3];
   int s = 0;
   node1->SetSeedDisplayPosition(s, pos);
   node1->GetSeedWorldPosition(s, pos2);
   node1->GetSeedDisplayPosition(s,pos);
-  
+
 
   // set/get display and world position will fail without seeds having been
   // created, so add some and then do the testing of return values.
@@ -34,7 +34,7 @@ int vtkSeedRepresentationTest1(int , char * [] )
   // have to set rep first
   vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep = vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   node1->SetHandleRepresentation(handleRep);
-  
+
   double e[2] ={ 10.0, 10.0};
   int numSeeds = 10;
   for (int n = 0; n < numSeeds; n++)
@@ -57,8 +57,8 @@ int vtkSeedRepresentationTest1(int , char * [] )
 
   node1->GetSeedWorldPosition(s, pos2);
   std::cout << "Get Seed world position " << s << " = " << pos2[0] << ", " << pos2[1] <<  ", " << pos2[2] << std::endl;
- 
-  vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep2; 
+
+  vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep2;
   handleRep2 = vtkPointHandleRepresentation3D::SafeDownCast(node1->GetHandleRepresentation());
   if (handleRep2 == NULL ||
       handleRep2 != handleRep)
@@ -72,7 +72,7 @@ int vtkSeedRepresentationTest1(int , char * [] )
     std::cerr << "Error in Set/Get handle rep 0." << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   // clamped 1,100
   TEST_SET_GET_INT_RANGE(node1, Tolerance, 2, 99);
 
@@ -85,6 +85,6 @@ int vtkSeedRepresentationTest1(int , char * [] )
 
   node1->RemoveHandle(0);
 
-  
+
   return EXIT_SUCCESS;
 }

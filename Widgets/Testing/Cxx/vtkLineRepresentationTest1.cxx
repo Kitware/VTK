@@ -17,10 +17,10 @@ int vtkLineRepresentationTest1(int , char * [] )
   vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep = vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   node1->SetHandleRepresentation(handleRep);
   node1->InstantiateHandleRepresentation();
-  
+
   EXERCISE_BASIC_REPRESENTATION_METHODS(vtkLineRepresentation, node1);
 
-  
+
   double pos[3] = {-100.0, 0.0, 99.9};
   double pos2[3];
   double *posptr = NULL;
@@ -92,7 +92,7 @@ int vtkLineRepresentationTest1(int , char * [] )
     std::cout << "GetPoint1DisplayPosition = " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl;
     }
   */
-  
+
   // point 2 world
 
   pos[1] = 77.0;
@@ -131,7 +131,7 @@ int vtkLineRepresentationTest1(int , char * [] )
   subHandleRep = node1->GetPoint1Representation();
   subHandleRep = node1->GetPoint2Representation();
   subHandleRep = node1->GetLineHandleRepresentation();
-    
+
   vtkSmartPointer<vtkProperty> prop = node1->GetEndPointProperty();
   if (prop == NULL)
     {
@@ -153,7 +153,7 @@ int vtkLineRepresentationTest1(int , char * [] )
     {
     std::cout << "Selected End Point2 Property is NULL." << std::endl;
     }
-  
+
   prop = node1->GetLineProperty();
   if (prop == NULL)
     {
@@ -164,7 +164,7 @@ int vtkLineRepresentationTest1(int , char * [] )
     {
     std::cout << "Selected Line Property is NULL." << std::endl;
     }
-  
+
   TEST_SET_GET_INT_RANGE(node1, Tolerance, 2, 99);
   // 0 is invalid
   TEST_SET_GET_INT_RANGE(node1, Resolution, 2, 100);
@@ -175,7 +175,7 @@ int vtkLineRepresentationTest1(int , char * [] )
     {
     std::cout << "Polydata is null" << std::endl;
     }
-  
+
   // clamped 0-6
   TEST_SET_GET_INT_RANGE(node1, InteractionState, 1, 5);
   // fails on 0
@@ -195,6 +195,6 @@ int vtkLineRepresentationTest1(int , char * [] )
   prop = node1->GetDistanceAnnotationProperty();
 
   vtkSmartPointer<vtkFollower> follower = node1->GetTextActor();
-  
+
   return EXIT_SUCCESS;
 }

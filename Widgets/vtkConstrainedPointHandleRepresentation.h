@@ -22,9 +22,9 @@
 // take care to define cursor geometry that makes sense for this widget.
 // The geometry will be aligned on the constraining plane, with the plane
 // normal aligned with the X axis of the geometry (similar behavior to
-// vtkGlyph3D). 
+// vtkGlyph3D).
 //
-// TODO: still need to work on 
+// TODO: still need to work on
 // 1) translation when mouse is outside bounding planes
 // 2) size of the widget
 //
@@ -77,13 +77,13 @@ public:
 
   // Description:
   // Set the projection normal to lie along the x, y, or z axis,
-  // or to be oblique. If it is oblique, then the plane is 
+  // or to be oblique. If it is oblique, then the plane is
   // defined in the ObliquePlane ivar.
   vtkSetClampMacro(ProjectionNormal,int,
                    vtkConstrainedPointHandleRepresentation::XAxis,
                    vtkConstrainedPointHandleRepresentation::Oblique);
   vtkGetMacro(ProjectionNormal,int);
- 
+
   void SetProjectionNormalToXAxis()
     { this->SetProjectionNormal(vtkConstrainedPointHandleRepresentation::XAxis); }
   void SetProjectionNormalToYAxis()
@@ -94,7 +94,7 @@ public:
     { this->SetProjectionNormal(vtkConstrainedPointHandleRepresentation::Oblique); }
 
   // Description:
-  // If the ProjectionNormal is set to Oblique, then this is the 
+  // If the ProjectionNormal is set to Oblique, then this is the
   // oblique plane used to constrain the handle position
   void SetObliquePlane(vtkPlane *);
   vtkGetObjectMacro(ObliquePlane, vtkPlane);
@@ -121,7 +121,7 @@ public:
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
-  
+
   // Description:
   // Overridden from the base class. It converts the display
   // co-ordinates to world co-ordinates. It returns 1 if the point lies
@@ -136,22 +136,22 @@ public:
   void SetPosition(double xyz[3]);
   double* GetPosition();
   void GetPosition(double xyz[3]);
-  
+
   // Description:
-  // This is the property used when the handle is not active 
+  // This is the property used when the handle is not active
   // (the mouse is not near the handle)
   vtkGetObjectMacro(Property,vtkProperty);
-  
+
   // Description:
   // This is the property used when the mouse is near the
   // handle (but the user is not yet interacting with it)
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  
+
   // Description:
   // This is the property used when the user is interacting
   // with the handle.
   vtkGetObjectMacro(ActiveProperty,vtkProperty);
-  
+
   // Description:
   // Subclasses of vtkConstrainedPointHandleRepresentation must implement these methods. These
   // are the methods that the widget and its representation use to
@@ -182,7 +182,7 @@ public:
 //ETX
 
   void Highlight(int highlight);
-    
+
 protected:
   vtkConstrainedPointHandleRepresentation();
   ~vtkConstrainedPointHandleRepresentation();
@@ -199,7 +199,7 @@ protected:
   // Support picking
   double LastPickPosition[3];
   double LastEventPosition[2];
-  
+
   // Methods to manipulate the cursor
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
@@ -211,7 +211,7 @@ protected:
   vtkProperty   *SelectedProperty;
   vtkProperty   *ActiveProperty;
   void           CreateDefaultProperties();
-  
+
   // Controlling vars
   int             ProjectionNormal;
   double          ProjectionPosition;
@@ -228,17 +228,17 @@ protected:
 
   // Internal method for getting the project normal as a vector
   void GetProjectionNormal( double normal[3] );
-  
-  // Internal method for getting the origin of the 
+
+  // Internal method for getting the origin of the
   // constraining plane as a 3-tuple
   void GetProjectionOrigin( double origin[3] );
-  
-  
-  
+
+
+
   // Distance between where the mouse event happens and where the
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
-  
+
 private:
   vtkConstrainedPointHandleRepresentation(const vtkConstrainedPointHandleRepresentation&);  //Not implemented
   void operator=(const vtkConstrainedPointHandleRepresentation&);  //Not implemented

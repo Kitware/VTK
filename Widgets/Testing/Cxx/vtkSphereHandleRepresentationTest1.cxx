@@ -15,7 +15,7 @@ int vtkSphereHandleRepresentationTest1(int , char * [] )
   EXERCISE_BASIC_HANDLE_REPRESENTATION_METHODS(vtkSphereHandleRepresentation, node1);
 
   std::cout << "Done basic handle rep methods." << std::endl;
-  
+
   TEST_SET_GET_BOOLEAN(node1, TranslationMode);
 
   TEST_SET_GET_DOUBLE_RANGE(node1, SphereRadius, 0.0, 100.0);
@@ -43,7 +43,7 @@ int vtkSphereHandleRepresentationTest1(int , char * [] )
     std::cerr << "Got wrong colour back after setting it! Expected " << colour[0] << ", " << colour[1] << ", " << colour[2] << ", but got " << col[0] << ", " << col[1] << ", " << col[2] << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   vtkSmartPointer<vtkProperty> prop2 = vtkSmartPointer<vtkProperty>::New();
   colour[0] += 0.1;
   colour[2] += 0.1;
@@ -73,6 +73,6 @@ int vtkSphereHandleRepresentationTest1(int , char * [] )
   // clamped 0-1
   TEST_SET_GET_DOUBLE_RANGE(node1, HotSpotSize, 0.1, 0.9);
 
-  
+
   return EXIT_SUCCESS;
 }

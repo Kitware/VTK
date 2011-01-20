@@ -9,7 +9,7 @@ int vtkAngleRepresentation3DTest1(int , char * [] )
 {
   vtkSmartPointer< vtkAngleRepresentation3D > node1 = vtkSmartPointer< vtkAngleRepresentation3D >::New();
 
-  EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(vtkAngleRepresentation3D, node1); 
+  EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(vtkAngleRepresentation3D, node1);
 
   vtkActor *actor = node1->GetRay1();
   if (actor == NULL)
@@ -42,6 +42,6 @@ int vtkAngleRepresentation3DTest1(int , char * [] )
     std::cerr << "Error in setting text actor scale, used " << scale[0] << ", " << scale[1] << ", " << scale[2] << " but got back " <<  retScale[0] << ", " << retScale[1] << ", " << retScale[2] << std::endl;
     return EXIT_FAILURE;
     }
-      
+
   return EXIT_SUCCESS;
 }

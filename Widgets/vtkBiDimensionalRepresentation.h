@@ -147,8 +147,8 @@ public:
 
   // Description:
   // Set/get the id to display in the label.
-  void SetID(unsigned long id);
-  vtkGetMacro(ID, unsigned long);
+  void SetID(vtkIdType id);
+  vtkGetMacro(ID, vtkIdType);
 
   // Description:
   // Get the text shown in the widget's label.
@@ -188,7 +188,8 @@ protected:
   int Line1Visibility;
   int Line2Visibility;
 
-  unsigned long ID;
+
+  vtkIdType ID;
   int IDInitialized;
 
   // Internal variables

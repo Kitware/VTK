@@ -12,7 +12,7 @@ int vtkCaptionWidgetTest1(int , char * [] )
   vtkSmartPointer< vtkCaptionWidget > node1 = vtkSmartPointer< vtkCaptionWidget >::New();
 
   EXERCISE_BASIC_BORDER_METHODS (node1 );
-  
+
   vtkSmartPointer<vtkCaptionRepresentation> rep1 = vtkSmartPointer<vtkCaptionRepresentation>::New();
   node1->SetRepresentation(rep1);
 
@@ -32,6 +32,6 @@ int vtkCaptionWidgetTest1(int , char * [] )
     std::cerr << "Failed to get back expected caption actor" << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   return EXIT_SUCCESS;
 }

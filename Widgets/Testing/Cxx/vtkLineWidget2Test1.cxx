@@ -14,9 +14,9 @@ int vtkLineWidget2Test1(int , char * [] )
 
   node1->SetProcessEvents(0);
   node1->SetProcessEvents(1);
-  
+
   vtkSmartPointer<vtkLineRepresentation> rep1 = vtkSmartPointer<vtkLineRepresentation>::New();
   node1->SetRepresentation(rep1);
-  
+
   return EXIT_SUCCESS;
 }

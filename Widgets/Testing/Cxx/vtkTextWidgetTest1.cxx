@@ -12,7 +12,7 @@ int vtkTextWidgetTest1(int , char * [] )
   vtkSmartPointer< vtkTextWidget > node1 = vtkSmartPointer< vtkTextWidget >::New();
 
   EXERCISE_BASIC_BORDER_METHODS (node1 );
-  
+
   vtkSmartPointer<vtkTextRepresentation> rep1 = vtkSmartPointer<vtkTextRepresentation>::New();
   node1->SetRepresentation(rep1);
 
@@ -32,6 +32,6 @@ int vtkTextWidgetTest1(int , char * [] )
     std::cerr << "Failed to get back expected text actor" << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   return EXIT_SUCCESS;
 }

@@ -14,7 +14,7 @@ int vtkImplicitPlaneRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkImplicitPlaneRepresentation > node1 = vtkSmartPointer< vtkImplicitPlaneRepresentation >::New();
 
-  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkImplicitPlaneRepresentation, node1); 
+  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkImplicitPlaneRepresentation, node1);
 
   TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Origin, -100, 100);
   TEST_SET_GET_VECTOR3_DOUBLE_RANGE(node1, Normal, -1, 1);
@@ -33,7 +33,7 @@ int vtkImplicitPlaneRepresentationTest1(int , char * [] )
     {
     std::cout << "Polydata is null" << std::endl;
     }
-  
+
   vtkSmartPointer<vtkPolyDataAlgorithm> pda = node1->GetPolyDataAlgorithm();
   if (pda == NULL)
     {
@@ -91,7 +91,7 @@ int vtkImplicitPlaneRepresentationTest1(int , char * [] )
 
   // clamped 0-7
   TEST_SET_GET_INT_RANGE(node1, InteractionState, 1, 6);
-  
+
   TEST_SET_GET_INT_RANGE(node1, RepresentationState, 0, 5);
   return EXIT_SUCCESS;
 }

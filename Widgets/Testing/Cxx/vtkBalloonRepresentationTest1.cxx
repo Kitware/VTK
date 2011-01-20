@@ -13,7 +13,7 @@ int vtkBalloonRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkBalloonRepresentation > node1 = vtkSmartPointer< vtkBalloonRepresentation >::New();
 
-  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkBalloonRepresentation, node1); 
+  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkBalloonRepresentation, node1);
 
   vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
   node1->SetBalloonImage(imageData);
@@ -24,7 +24,7 @@ int vtkBalloonRepresentationTest1(int , char * [] )
     return EXIT_FAILURE;
     }
   TEST_SET_GET_STRING(node1, BalloonText);
-  
+
   TEST_SET_GET_VECTOR2_INT_RANGE(node1, ImageSize, 0, 100);
 
   vtkSmartPointer<vtkTextProperty> textProp = vtkSmartPointer<vtkTextProperty>::New();
@@ -63,6 +63,6 @@ int vtkBalloonRepresentationTest1(int , char * [] )
 
   TEST_SET_GET_VECTOR2_INT_RANGE(node1, Offset, -1, 1);
   TEST_SET_GET_INT_RANGE(node1, Padding, 1, 99);
-  
+
   return EXIT_SUCCESS;
 }

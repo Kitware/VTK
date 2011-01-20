@@ -28,7 +28,7 @@ int vtkBalloonWidgetTest1(int , char * [] )
   vtkStdString stdString = "something with a space";
   const char *cstr = "string1";
   const char *retstr = NULL;
-  
+
   node1->AddBalloon(prop1, stdString, imageData);
   retstr = node1->GetBalloonString(prop1);
   if (!retstr)
@@ -55,7 +55,7 @@ int vtkBalloonWidgetTest1(int , char * [] )
     return EXIT_FAILURE;
     }
 
-  
+
   node1->AddBalloon(prop1, "string2", imageData);
   // check the image data first, since adding other balloons resets it
   vtkImageData *retImageData = node1->GetBalloonImage(prop1);
@@ -102,6 +102,6 @@ int vtkBalloonWidgetTest1(int , char * [] )
     return EXIT_FAILURE;
     }
 
- 
+
   return EXIT_SUCCESS;
 }

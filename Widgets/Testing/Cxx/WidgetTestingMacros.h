@@ -761,7 +761,7 @@
                                                                         \
                                                                         \
   }                                                                     \
-  
+
 /// test vtkHandleRepresentation methods
 /// these don't work well in isolation, seg faults when try to get/set display
 /// and world positions.

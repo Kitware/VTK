@@ -15,10 +15,9 @@
 int vtkTextRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkTextRepresentation > node1 = vtkSmartPointer< vtkTextRepresentation >::New();
-  
-  EXERCISE_BASIC_BORDER_REPRESENTATION_METHODS(vtkTextRepresentation, node1); 
 
- 
+  EXERCISE_BASIC_BORDER_REPRESENTATION_METHODS(vtkTextRepresentation, node1);
+
 
   vtkSmartPointer<vtkTextActor> textActor = vtkSmartPointer<vtkTextActor>::New();
   node1->SetTextActor(textActor);
@@ -29,7 +28,7 @@ int vtkTextRepresentationTest1(int , char * [] )
     }
 
   TEST_SET_GET_INT_RANGE(node1, WindowLocation, 0, 6);
-  
+
   double pos[2] = {-99.0, 100.0};
   node1->SetPosition(pos);
   double *pos2;

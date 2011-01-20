@@ -16,7 +16,7 @@ int vtkSeedWidgetTest1(int , char * [] )
 
   node1->SetProcessEvents(0);
   node1->SetProcessEvents(1);
-  
+
   vtkSmartPointer<vtkSeedRepresentation> rep1 = vtkSmartPointer<vtkSeedRepresentation>::New();
   node1->SetRepresentation(rep1);
 
@@ -41,11 +41,11 @@ int vtkSeedWidgetTest1(int , char * [] )
     std::cerr << "Failed to get seed 0 handle" << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   // try deleting a seed that doesn't exist
   node1->DeleteSeed(100);
   // now delete the one that we added
   node1->DeleteSeed(0);
-  
+
   return EXIT_SUCCESS;
 }

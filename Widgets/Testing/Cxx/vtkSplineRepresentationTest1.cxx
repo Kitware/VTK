@@ -17,9 +17,9 @@
 int vtkSplineRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkSplineRepresentation > node1 = vtkSmartPointer< vtkSplineRepresentation >::New();
-  
+
   EXERCISE_BASIC_REPRESENTATION_METHODS(vtkSplineRepresentation, node1);
-  
+
   vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<vtkPlaneSource>::New();
   node1->SetPlaneSource(planeSource);
 
@@ -63,7 +63,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
     {
     std::cout << "Selected Line Property is NULL." << std::endl;
     }
-  
+
   node1->SetNumberOfHandles(10);
   int numHandles = node1->GetNumberOfHandles();
   if (numHandles != 10)
@@ -182,7 +182,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
       std::cout << i << " = " << val[0] << ", " << val[1] << ", " << val[2] << std::endl;
       }
     }
-  
+
 
   TEST_SET_GET_BOOLEAN(node1, Closed);
   std::cout << "Closed = " << node1->IsClosed() << std::endl;
@@ -209,10 +209,10 @@ int vtkSplineRepresentationTest1(int , char * [] )
       std::cout << i << " = " << val[0] << ", " << val[1] << ", " << val[2] << std::endl;
       }
     }
-  
+
 
   node1->SetLineColor(1.0, 0.5, 0.3);
-    
-  
+
+
   return EXIT_SUCCESS;
 }
