@@ -22,7 +22,7 @@ builds/win32/freetype/config/ftoption.h:
   -you'll need to manually merge changes from newer freetypes.
   -the changes from the file it's based on are marked with VTK_FREETYPE_CHANGE:
     -conditional disabling of compiler warnings
-    -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_LZW, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_INCREMENTAL, TT_CONFIG_OPTION_BYTECODE_INTERPRETER, FT_CONFIG_OPTION_OLD_INTERNALS
+    -disable FT_CONFIG_OPTION_INLINE_MULFIX, FT_CONFIG_OPTION_USE_LZW, FT_CONFIG_OPTION_USE_ZLIB, FT_CONFIG_OPTION_OLD_INTERNALS
     -additions to support DLL build for Windows
 
 builds/unix/ftconfig.h.in:
