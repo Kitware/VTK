@@ -104,171 +104,111 @@ double vtkAngleRepresentation3D::GetAngle()
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint1WorldPosition(double pos[3])
 {
-  if (this->Point1Representation)
-    {
-    this->Point1Representation->GetWorldPosition(pos);
-    }
-  else
-    {
-    pos[0] = pos[1] = pos[2] = 0.0;
-    }
+  this->Point1Representation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetCenterWorldPosition(double pos[3])
 {
-  if (this->CenterRepresentation)
-    {
-    this->CenterRepresentation->GetWorldPosition(pos);
-     }
-  else
-    {
-    pos[0] = pos[1] = pos[2] = 0.0;
-    }
+  this->CenterRepresentation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint2WorldPosition(double pos[3])
 {
-  if (this->Point2Representation)
-    {
-    this->Point2Representation->GetWorldPosition(pos);
-    }
-  else
-    {
-    pos[0] = pos[1] = pos[2] = 0.0;
-    }
+  this->Point2Representation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint1WorldPosition(double x[3])
 {
-  if (!this->Point1Representation)
-    {
-    vtkErrorMacro("SetPoint1WorldPosition: null point 1 representation");
-    return;
-    }
   this->Point1Representation->SetWorldPosition(x);
+  this->Line1Source->SetPoint1(x);
+  this->Modified();
+  this->NeedToRender = 1;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetCenterWorldPosition(double x[3])
 {
-   if (!this->CenterRepresentation)
-    {
-    vtkErrorMacro("SetCenterWorldPosition: null center representation");
-    return;
-    }
   this->CenterRepresentation->SetWorldPosition(x);
+  this->Line1Source->SetPoint2(x);
+  this->Line2Source->SetPoint1(x);
+  this->Modified();
+  this->NeedToRender = 1;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint2WorldPosition(double x[3])
 {
-   if (!this->Point2Representation)
-    {
-    vtkErrorMacro("SetPoint2WorldPosition: null point 2 representation");
-    return;
-    }
   this->Point2Representation->SetWorldPosition(x);
+  this->Line2Source->SetPoint2(x);
+  this->Modified();
+  this->NeedToRender = 1;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint1DisplayPosition(double x[3])
 {
-  if (!this->Point1Representation)
-    {
-    vtkErrorMacro("SetPoint1DisplayPosition: null point 1 representation");
-    return;
-    }
   this->Point1Representation->SetDisplayPosition(x);
   double p[3];
   this->Point1Representation->GetWorldPosition(p);
   this->Point1Representation->SetWorldPosition(p);
+  this->Line1Source->SetPoint1(p);
+  this->Modified();
+  this->NeedToRender = 1;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetCenterDisplayPosition(double x[3])
 {
-  if (!this->CenterRepresentation)
-    {
-    vtkErrorMacro("SetCenterDisplayPosition: null center point representation");
-    return;
-    }
   this->CenterRepresentation->SetDisplayPosition(x);
   double p[3];
   this->CenterRepresentation->GetWorldPosition(p);
   this->CenterRepresentation->SetWorldPosition(p);
+  this->Line1Source->SetPoint2(p);
+  this->Line2Source->SetPoint1(p);
+  this->Modified();
+  this->NeedToRender = 1;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::SetPoint2DisplayPosition(double x[3])
 {
-  if (!this->Point2Representation)
-    {
-    vtkErrorMacro("SetPoint2DisplayPosition: null point 2 representation");
-    return;
-    }
   this->Point2Representation->SetDisplayPosition(x);
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
+  this->Line2Source->SetPoint2(p);
+  this->Modified();
+  this->NeedToRender = 1;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint1DisplayPosition(double pos[3])
 {
-  if (this->Point1Representation)
-    {
-    this->Point1Representation->GetDisplayPosition(pos);
-    pos[2] = 0.0;
-    }
-  else
-    {
-    pos[0] = pos[1] = pos[2] = 0.0;
-    }
+  this->Point1Representation->GetDisplayPosition(pos);
+  pos[2] = 0.0;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetCenterDisplayPosition(double pos[3])
 {
-  if (this->CenterRepresentation)
-    {
-    this->CenterRepresentation->GetDisplayPosition(pos);
-    pos[2] = 0.0;
-    }
-  else
-    {
-    pos[0] = pos[1] = pos[2] = 0.0;
-    }
+  this->CenterRepresentation->GetDisplayPosition(pos);
+  pos[2] = 0.0;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::GetPoint2DisplayPosition(double pos[3])
 {
-  if (this->Point2Representation)
-    {
-    this->Point2Representation->GetDisplayPosition(pos);
-    pos[2] = 0.0;
-    }
-  else
-    {
-    pos[0] = pos[1] = pos[2] = 0.0;
-    }
+  this->Point2Representation->GetDisplayPosition(pos);
+  pos[2] = 0.0;
 }
 
 //----------------------------------------------------------------------
 void vtkAngleRepresentation3D::BuildRepresentation()
 {
-  if (this->Point1Representation == NULL ||
-      this->CenterRepresentation == NULL ||
-      this->Point2Representation == NULL ||
-      this->ArcSource == NULL)
-    {
-    // for now, return. Could create defaults here.
-    return;
-    }
-  if ( this->GetMTime() <= this->BuildTime ||
+  if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
        this->CenterRepresentation->GetMTime() > this->BuildTime ||
        this->Point2Representation->GetMTime() > this->BuildTime ||
@@ -285,72 +225,69 @@ void vtkAngleRepresentation3D::BuildRepresentation()
     this->CenterRepresentation->GetDisplayPosition(cd);
     this->Point2Representation->GetDisplayPosition(p2d);
 
-    // Update the lines
-    this->Line1Source->SetPoint1(p1);
-    this->Line1Source->SetPoint2(c);
-    this->Line2Source->SetPoint1(c);
-    this->Line2Source->SetPoint2(p2);
-
     double l1 = 0.0, l2 = 0.0;
     // Compute the angle (only if necessary since we don't want
     // fluctuations in angle value as the camera moves, etc.)
-    if ( p1[0]-c[0] == 0.0 || p2[0]-c[0] == 0.0 )
-       {
-       return;
-       }
-
-    vector1[0] = p1[0] - c[0];
-    vector1[1] = p1[1] - c[1];
-    vector1[2] = p1[2] - c[2];
-    vector2[0] = p2[0] - c[0];
-    vector2[1] = p2[1] - c[1];
-    vector2[2] = p2[2] - c[2];
-    l1 = vtkMath::Normalize( vector1 );
-    l2 = vtkMath::Normalize( vector2 );
-    this->Angle = acos( vtkMath::Dot( vector1, vector2 ) );
-
-    // Place the label and place the arc
-
-    // If too small or no render get out
-    if ( !this->Renderer )
+    if ( this->GetMTime() > this->BuildTime )
       {
-      this->ArcVisibility = 0;
-      return;
-      }
+      if ( p1[0]-c[0] == 0.0 || p2[0]-c[0] == 0.0 )
+         {
+         return;
+         }
 
-    const double length = l1 < l2 ? l1 : l2;
-    const double anglePlacementRatio = 0.5;
-    const double l = length * anglePlacementRatio;
-    double arcp1[3] = { l * vector1[0] + c[0],
-                        l * vector1[1] + c[1],
-                        l * vector1[2] + c[2] };
-    double arcp2[3] = { l * vector2[0] + c[0],
-                        l * vector2[1] + c[1],
-                        l * vector2[2] + c[2] };
-    this->ArcSource->SetPoint1( arcp1 );
-    this->ArcSource->SetPoint2( arcp2 );
-    this->ArcSource->SetCenter( c );
-    if (this->Ray1Visibility && this->Ray2Visibility)
-      {
-      this->ArcSource->Update();
+      vector1[0] = p1[0] - c[0];
+      vector1[1] = p1[1] - c[1];
+      vector1[2] = p1[2] - c[2];
+      vector2[0] = p2[0] - c[0];
+      vector2[1] = p2[1] - c[1];
+      vector2[2] = p2[2] - c[2];
+      l1 = vtkMath::Normalize( vector1 );
+      l2 = vtkMath::Normalize( vector2 );
+      this->Angle = acos( vtkMath::Dot( vector1, vector2 ) );
 
-      vtkPoints *points = this->ArcSource->GetOutput()->GetPoints();
-      const int npoints = points->GetNumberOfPoints();
-      points->GetPoint(npoints/2, this->TextPosition );
+      // Place the label and place the arc
 
-      char string[512];
-      sprintf( string, this->LabelFormat, vtkMath::DegreesFromRadians( this->Angle ) );
-
-      this->TextInput->SetText( string );
-      this->TextActor->SetCamera( this->Renderer->GetActiveCamera() );
-      this->TextActor->SetPosition( this->TextPosition );
-
-      if (!this->ScaleInitialized)
+      // If too small or no render get out
+      if ( !this->Renderer )
         {
-        // If a font size hasn't been specified by the user, scale the text
-        // (font size) according to the length of the shortest arm of the
-        // angle measurement.
-        this->TextActor->SetScale( length/10.0, length/10.0, length/10.0 );
+        this->ArcVisibility = 0;
+        return;
+        }
+
+      const double length = l1 < l2 ? l1 : l2;
+      const double anglePlacementRatio = 0.5;
+      const double l = length * anglePlacementRatio;
+      double arcp1[3] = { l * vector1[0] + c[0],
+                          l * vector1[1] + c[1],
+                          l * vector1[2] + c[2] };
+      double arcp2[3] = { l * vector2[0] + c[0],
+                          l * vector2[1] + c[1],
+                          l * vector2[2] + c[2] };
+      this->ArcSource->SetPoint1( arcp1 );
+      this->ArcSource->SetPoint2( arcp2 );
+      this->ArcSource->SetCenter( c );
+      if (this->Ray1Visibility && this->Ray2Visibility)
+        {
+        this->ArcSource->Update();
+
+        vtkPoints *points = this->ArcSource->GetOutput()->GetPoints();
+        const int npoints = points->GetNumberOfPoints();
+        points->GetPoint(npoints/2, this->TextPosition );
+
+        char string[512];
+        sprintf( string, this->LabelFormat, vtkMath::DegreesFromRadians( this->Angle ) );
+
+        this->TextInput->SetText( string );
+        this->TextActor->SetCamera( this->Renderer->GetActiveCamera() );
+        this->TextActor->SetPosition( this->TextPosition );
+
+        if (!this->ScaleInitialized)
+          {
+          // If a font size hasn't been specified by the user, scale the text
+          // (font size) according to the length of the shortest arm of the
+          // angle measurement.
+          this->TextActor->SetScale( length/10.0, length/10.0, length/10.0 );
+          }
         }
       }
 

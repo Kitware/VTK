@@ -84,11 +84,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkHandleRepresentation.
-  vtkHandleRepresentation *GetHandleRepresentation()
-    {return reinterpret_cast<vtkHandleRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set. By default
   // an instance of vtkPointHandleRepresenation3D is created.
   void CreateDefaultRepresentation();

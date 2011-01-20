@@ -104,11 +104,6 @@ public:
   void CreateDefaultRepresentation();
 
   // Description:
-  // Return the representation as a vtkAngleRepresentation.
-  vtkAngleRepresentation *GetAngleRepresentation()
-    {return reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // A flag indicates whether the angle is valid. The angle value only becomes
   // valid after two of the three points are placed.
   int IsAngleValid();
@@ -119,35 +114,24 @@ public:
   virtual void SetProcessEvents(int);
 
   // Description:
-  // Enum defining the state of the widget. By default the widget is in Start mode,
-  // and expects to be interactively placed. While placing the points the widget
-  // transitions to Define state. Once placed, the widget enters the Manipulate state.
-  //BTX
-  enum {Start=0,Define,Manipulate};
-  //ETX
+  // Set the state of the widget to "defined" (in case its widget and its
+  // representation were initialized programmatically). This must generally
+  // be followed by a Render() for things to visually take effect.
+  virtual void WidgetIsDefined();
 
   // Description:
-  // Set the state of the widget. If the state is set to "Manipulate" then it
-  // is assumed that the widget and its representation will be initialized
-  // programmatically and is not interactively placed. Initially the widget
-  // state is set to "Start" which means nothing will appear and the user
-  // must interactively place the widget with repeated mouse selections. Set
-  // the state to "Start" if you want interactive placement. Generally state
-  // changes must be followed by a Render() for things to visually take
-  // effect.
-  virtual void SetWidgetStateToStart();
-  virtual void SetWidgetStateToManipulate();
-
-  // Description:
-  // Return the current widget state.
-  virtual int GetWidgetState()
-    {return this->WidgetState;}
+  // Has the widget been defined completely yet ? ie. Have the end points been
+  // laid and is it in Manipulate mode ?
+  virtual int IsWidgetDefined();
 
 protected:
   vtkAngleWidget();
   ~vtkAngleWidget();
 
   // The state of the widget
+//BTX
+  enum {Start=0,Define,Manipulate};
+//ETX
   int WidgetState;
   int CurrentHandle;
 

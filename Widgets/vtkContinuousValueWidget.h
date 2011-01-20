@@ -81,11 +81,6 @@ public:
      (reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkContinuousValueWidgetRepresentation.
-  vtkContinuousValueWidgetRepresentation *GetContinuousValueWidgetRepresentation()
-    {return reinterpret_cast<vtkContinuousValueWidgetRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Get the value for this widget. 
   double GetValue();
   void SetValue(double v);

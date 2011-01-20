@@ -119,7 +119,6 @@ void vtkCaptionRepresentation::SetAnchorRepresentation(vtkPointHandleRepresentat
 void vtkCaptionRepresentation::SetAnchorPosition(double pos[3])
 {
   this->CaptionActor2D->GetAttachmentPointCoordinate()->SetValue(pos);
-  this->AnchorRepresentation->SetWorldPosition(pos);
 }
 
 //-------------------------------------------------------------------------
@@ -132,7 +131,6 @@ void vtkCaptionRepresentation::GetAnchorPosition(double pos[3])
 void vtkCaptionRepresentation::BuildRepresentation()
 {
   if ( this->GetMTime() > this->BuildTime ||
-       this->CaptionActor2D->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {

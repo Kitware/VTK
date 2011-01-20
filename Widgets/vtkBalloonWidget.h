@@ -102,11 +102,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkBalloonRepresentation.
-  vtkBalloonRepresentation *GetBalloonRepresentation()
-    {return reinterpret_cast<vtkBalloonRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 
@@ -126,12 +121,6 @@ public:
   // associated with the specified vtkProp.
   const char *GetBalloonString(vtkProp *prop);
   vtkImageData *GetBalloonImage(vtkProp *prop);
-
-  // Description:
-  // Update the balloon string or image. If the specified prop does not exist,
-  // then nothing is added not changed.
-  void UpdateBalloonString(vtkProp *prop, const char *str);
-  void UpdateBalloonImage(vtkProp *prop, vtkImageData *image);
 
   // Description:
   // Return the current vtkProp that is being hovered over. Note that the

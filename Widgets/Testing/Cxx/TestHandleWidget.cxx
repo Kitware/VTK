@@ -659,7 +659,7 @@ int TestHandleWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   handleRep->SetPlaceFactor(2.5);
   handleRep->PlaceWidget(outlineActor->GetBounds());
-  handleRep->SetHandleSize(30);
+  handleRep->SetHandleSize(10);
 
   vtkSmartPointer<vtkHandleWidget> handleWidget =
     vtkSmartPointer<vtkHandleWidget>::New();

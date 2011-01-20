@@ -117,7 +117,6 @@ public:
   // Description:
   // Set or get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   void   SetBounds(double bounds[6]);
-  void   SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   double *GetBounds(void);
   void   GetBounds(double bounds[6]);
 

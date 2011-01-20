@@ -28,6 +28,7 @@
 
 vtkCxxSetObjectMacro(vtkAngleRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
+
 //----------------------------------------------------------------------
 vtkAngleRepresentation::vtkAngleRepresentation()
 {
@@ -98,29 +99,35 @@ void vtkAngleRepresentation::InstantiateHandleRepresentation()
 }
 
 //----------------------------------------------------------------------
-int vtkAngleRepresentation::
-ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
+int vtkAngleRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
-  if (this->Point1Representation == NULL ||
-      this->CenterRepresentation == NULL ||
-      this->Point2Representation == NULL )
-    {
-    this->InteractionState = vtkAngleRepresentation::Outside;
-    return this->InteractionState;
-    }
+  // See if we are near one of the end points or outside
+  double pos1[3], pos2[3], center[3];
+  this->GetPoint1DisplayPosition(pos1);
+  this->GetCenterDisplayPosition(center);
+  this->GetPoint2DisplayPosition(pos2);
 
-  int p1State = this->Point1Representation->GetInteractionState();
-  int cState = this->CenterRepresentation->GetInteractionState();
-  int p2State = this->Point2Representation->GetInteractionState();
-  if ( p1State == vtkHandleRepresentation::Nearby )
+  double p1[3], p2[3], c[3], xyz[3];
+  xyz[0] = static_cast<double>(X);
+  xyz[1] = static_cast<double>(Y);
+  p1[0] = static_cast<double>(pos1[0]);
+  p1[1] = static_cast<double>(pos1[1]);
+  c[0] = static_cast<double>(center[0]);
+  c[1] = static_cast<double>(center[1]);
+  p2[0] = static_cast<double>(pos2[0]);
+  p2[1] = static_cast<double>(pos2[1]);
+  xyz[2] = p1[2] = p2[2] = c[2] = 0.0;
+
+  double tol2 = this->Tolerance*this->Tolerance;
+  if ( vtkMath::Distance2BetweenPoints(xyz,p1) <= tol2 )
     {
     this->InteractionState = vtkAngleRepresentation::NearP1;
     }
-  else if ( cState == vtkHandleRepresentation::Nearby )
+  else if ( vtkMath::Distance2BetweenPoints(xyz,c) <= tol2 )
     {
     this->InteractionState = vtkAngleRepresentation::NearCenter;
     }
-  else if ( p2State == vtkHandleRepresentation::Nearby )
+  else if ( vtkMath::Distance2BetweenPoints(xyz,p2) <= tol2 )
     {
     this->InteractionState = vtkAngleRepresentation::NearP2;
     }
@@ -168,10 +175,11 @@ void vtkAngleRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation::BuildRepresentation()
 {
-  // Make sure that tolerance is consistent between handles and this representation
-  this->Point1Representation->SetTolerance(this->Tolerance);
-  this->CenterRepresentation->SetTolerance(this->Tolerance);
-  this->Point2Representation->SetTolerance(this->Tolerance);
+  // We don't worry about mtime 'cause the subclass deals with that
+  // Make sure the handles are up to date
+  this->Point1Representation->BuildRepresentation();
+  this->CenterRepresentation->BuildRepresentation();
+  this->Point2Representation->BuildRepresentation();
 }
 
 //----------------------------------------------------------------------

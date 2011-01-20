@@ -61,9 +61,6 @@ vtkAxisActor2D::vtkAxisActor2D()
 
   this->SizeFontRelativeToAxis = 0;
 
-  this->RulerMode = 0;
-  this->RulerDistance = 1.0;
-
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetBold(1);
   this->LabelTextProperty->SetItalic(1);
@@ -255,9 +252,6 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
-  os << indent << "Ruler Mode: "
-     << (this->RulerMode ? "On" : "Off") <<"\n";
-  os << indent << "Ruler Distance: " << this->GetRulerDistance() <<"\n";
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
   os << indent << "Number Of Labels Built: "
      << this->NumberOfLabelsBuilt << "\n";
@@ -416,43 +410,15 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     theta = atan2(deltaY, deltaX);
     }
 
-  // First axis point, where first tick is located
+  // First axis point
   ptIds[0] = pts->InsertNextPoint(p1);
   xTick[0] = p1[0] + this->TickLength*sin(theta);
   xTick[1] = p1[1] - this->TickLength*cos(theta);
   xTick[2] = 0.0;
+
   pts->InsertNextPoint(xTick);
-
-  // Set up creation of ticks
-  double p21[3], length;
-  p21[0] = p2[0] - p1[0];
-  p21[1] = p2[1] - p1[1];
-  p21[2] = p2[2] - p1[2];
-  length = vtkMath::Normalize(p21);
-
-  int numTicks;
-  double distance;
-  if ( this->RulerMode )
-    {
-    double wp1[3], wp2[3], wp21[3], wLength, wDistance;
-    this->PositionCoordinate->GetValue(wp1);
-    this->Position2Coordinate->GetValue(wp2);
-    wp21[0] = wp2[0] - wp1[0];
-    wp21[1] = wp2[1] - wp1[1];
-    wp21[2] = wp2[2] - wp1[2];
-    wLength = vtkMath::Norm(wp21);
-    wDistance = this->RulerDistance / (this->NumberOfMinorTicks+1);
-    numTicks = (wDistance <= 0.0 ? 0 : static_cast<int>(wLength / wDistance)+1);
-    wDistance *= numTicks;
-    distance = (length / (numTicks-1)) * (wDistance/wLength);
-    }
-  else
-    {
-    numTicks = (this->AdjustedNumberOfLabels-1) *
-      (this->NumberOfMinorTicks+1) + 1;
-    distance = length / (numTicks-1);
-    }
-
+  int numTicks = (this->AdjustedNumberOfLabels-1)*(
+    this->NumberOfMinorTicks+1)+1;
   for (i = 1; i < numTicks - 1; i++)
     {
     int tickLength = 0;
@@ -464,8 +430,8 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       {
       tickLength = this->MinorTickLength;
       }
-    xTick[0] = p1[0] + i * p21[0] * distance;
-    xTick[1] = p1[1] + i * p21[1] * distance;
+    xTick[0] = p1[0] + i * (p2[0] - p1[0]) / (numTicks - 1);
+    xTick[1] = p1[1] + i * (p2[1] - p1[1]) / (numTicks - 1);
     pts->InsertNextPoint(xTick);
     xTick[0] = xTick[0] + tickLength * sin(theta);
     xTick[1] = xTick[1] - tickLength * cos(theta);
@@ -478,13 +444,13 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   xTick[1] = p2[1] - this->TickLength*cos(theta);
   pts->InsertNextPoint(xTick);
 
-  // Add the axis if requested
   if (this->AxisVisibility)
     {
     lines->InsertNextCell(2, ptIds);
     }
 
-  // Create lines representing the tick marks
+  // Create points and lines
+
   if (this->TickVisibility)
     {
     for (i = 0; i < numTicks; i++)

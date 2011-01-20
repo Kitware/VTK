@@ -76,8 +76,8 @@ public:
   // Description:
   // Define the text to be placed in the caption. The text can be multiple
   // lines (separated by "\n").
-  virtual void SetCaption(const char* caption);
-  virtual char* GetCaption();
+  vtkSetStringMacro(Caption);
+  vtkGetStringMacro(Caption);
 
   // Description:
   // Set/Get the attachment point for the caption. By default, the attachment
@@ -184,6 +184,7 @@ protected:
 
   vtkCoordinate *AttachmentPointCoordinate;
 
+  char  *Caption;
   int   Border;
   int   Leader;
   int   ThreeDimensionalLeader;

@@ -181,8 +181,6 @@ public:
   enum {XAxis=0,YAxis,ZAxis,Oblique};
 //ETX
 
-  void Highlight(int highlight);
-
 protected:
   vtkConstrainedPointHandleRepresentation();
   ~vtkConstrainedPointHandleRepresentation();
@@ -203,7 +201,7 @@ protected:
   // Methods to manipulate the cursor
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
-
+  void Highlight(int highlight);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
