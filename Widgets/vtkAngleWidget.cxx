@@ -190,8 +190,6 @@ void vtkAngleWidget::SetEnabled(int enabling)
     }
 
 
-
-
   if ( enabling ) //----------------
     {
     if ( this->Enabled ) //already enabled, just return
@@ -491,12 +489,8 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
     }
 
-  if ( self->WidgetRep->GetNeedToRender() )
-    {
-    self->WidgetRep->BuildRepresentation();
-    self->Render();
-    self->WidgetRep->NeedToRenderOff();
-    }
+  self->WidgetRep->BuildRepresentation();
+  self->Render();
 }
 
 //-------------------------------------------------------------------------
@@ -530,31 +524,8 @@ void vtkAngleWidget::StartAngleInteraction(int)
 }
 
 //----------------------------------------------------------------------
-void vtkAngleWidget::AngleInteraction(int handle)
+void vtkAngleWidget::AngleInteraction(int)
 {
-  double pos[3];
-  if ( handle == 0 )
-    {
-    reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-      GetPoint1Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-      SetPoint1DisplayPosition(pos);
-    }
-  else if ( handle == 1 )
-    {
-    reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-      GetCenterRepresentation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-      SetCenterDisplayPosition(pos);
-    }
-  else //if ( handle == 2 )
-    {
-    reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-      GetPoint2Representation()->GetDisplayPosition(pos);
-    reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-      SetPoint2DisplayPosition(pos);
-    }
-
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 }
 
@@ -578,9 +549,9 @@ void vtkAngleWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------
-void vtkAngleWidget::WidgetIsDefined()
+void vtkAngleWidget::SetWidgetStateToStart()
 {
-  this->WidgetState = vtkAngleWidget::Manipulate;
+  this->WidgetState = vtkAngleWidget::Start;
   this->CurrentHandle = -1;
   this->ReleaseFocus();
   this->GetRepresentation()->BuildRepresentation(); // update this->Angle
@@ -588,11 +559,14 @@ void vtkAngleWidget::WidgetIsDefined()
 }
 
 //----------------------------------------------------------------------
-int vtkAngleWidget::IsWidgetDefined()
+void vtkAngleWidget::SetWidgetStateToManipulate()
 {
-  return this->WidgetState == vtkAngleWidget::Manipulate;
+  this->WidgetState = vtkAngleWidget::Manipulate;
+  this->CurrentHandle = -1;
+  this->ReleaseFocus();
+  this->GetRepresentation()->BuildRepresentation(); // update this->Angle
+  this->SetEnabled(this->GetEnabled()); // show/hide the handles properly
 }
-
 
 //----------------------------------------------------------------------
 void vtkAngleWidget::PrintSelf(ostream& os, vtkIndent indent)

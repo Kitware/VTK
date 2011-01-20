@@ -187,13 +187,13 @@ public:
   virtual void SetRenderer(vtkRenderer *ren);
 
   // Description:
-  // Show the distance between the points
+  // Show the distance between the points.
   vtkSetMacro( DistanceAnnotationVisibility, int );
   vtkGetMacro( DistanceAnnotationVisibility, int );
   vtkBooleanMacro( DistanceAnnotationVisibility, int );
 
   // Description:
-  // Specify the format to use for labelling the angle. Note that an empty
+  // Specify the format to use for labelling the line. Note that an empty
   // string results in no label, or a format string without a "%" character
   // will not print the angle value.
   vtkSetStringMacro(DistanceAnnotationFormat);
@@ -201,6 +201,14 @@ public:
   
   // Description:
   // Scale text (font size along each dimension).
+  void SetDistanceAnnotationScale(double x, double y, double z)
+  {
+    double scale[3];
+    scale[0] = x;
+    scale[1] = y;
+    scale[2] = z;
+    this->SetDistanceAnnotationScale(scale);
+  }
   virtual void SetDistanceAnnotationScale( double scale[3] );
   virtual double * GetDistanceAnnotationScale();
 

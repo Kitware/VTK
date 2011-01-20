@@ -100,7 +100,23 @@ public:
   vtkGetVectorMacro(Range,double,2);
 
   // Description:
-  // Set/Get the number of annotation labels to show.
+  // Specify whether this axis should act like a measuring tape (or ruler) with
+  // specified major tick spacing. If enabled, the distance between major ticks
+  // is controlled by the RulerDistance ivar.
+  vtkSetMacro(RulerMode,int);
+  vtkGetMacro(RulerMode,int);
+  vtkBooleanMacro(RulerMode,int);
+
+  // Description:
+  // Specify the RulerDistance which indicates the spacing of the major ticks.
+  // This ivar only has effect when the RulerMode is on.
+  vtkSetClampMacro(RulerDistance,double,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(RulerDistance,double);
+
+  // Description:
+  // Set/Get the number of annotation labels to show. This also controls the
+  // number of major ticks shown. Note that this ivar only holds meaning if
+  // the RulerMode is off.
   vtkSetClampMacro(NumberOfLabels, int, 2, VTK_MAX_LABELS);
   vtkGetMacro(NumberOfLabels, int);
 
@@ -115,7 +131,8 @@ public:
   // adjusted for "nice" numerical values to make it easier to read
   // the labels. The adjustment is based in the Range instance variable.
   // Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
-  // range and number of labels.
+  // range and number of labels. Note that if RulerMode is on, then the
+  // number of labels is a function of the range and ruler distance.
   vtkSetMacro(AdjustLabels, int);
   vtkGetMacro(AdjustLabels, int);
   vtkBooleanMacro(AdjustLabels, int);
@@ -289,6 +306,8 @@ protected:
   char  *Title;
   double Range[2];
   double TitlePosition;
+  int    RulerMode;
+  double RulerDistance;
   int   NumberOfLabels;
   char  *LabelFormat;
   int   AdjustLabels;

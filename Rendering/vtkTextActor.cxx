@@ -191,6 +191,7 @@ void vtkTextActor::SetInput(const char* str)
     }
   this->Input = new char[strlen(str)+1];
   strcpy(this->Input, str);
+  cout << "Setting input rendered to false\n";
   this->InputRendered = false;
   this->Modified();
 }
@@ -308,6 +309,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     this->ImageData->Modified();
     this->Texture->SetInput(this->ImageData);
+    this->Texture->Modified();
     this->InputRendered = true;
     this->BuildTime.Modified();
     }
@@ -487,34 +489,41 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
     // Check to see whether we have to rebuild everything
     int positionsHaveChanged = 0;
     int orientationHasChanged = 0;
-    if (   viewport->GetMTime() > this->BuildTime
-        || (   viewport->GetVTKWindow()
-            && viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
+    //First check the obvious, am I changed (e.g., text changed)
+    if ( this->GetMTime() > this->BuildTime )
       {
-      // if the viewport has changed we may - or may not need
-      // to rebuild, it depends on if the projected coords change
-      if (   (this->LastSize[0]   != size[0])
-          || (this->LastSize[1]   != size[1])
-          || (this->LastOrigin[0] != point1[0])
-          || (this->LastOrigin[1] != point1[1]) )
-        {
-        positionsHaveChanged = 1;
-        }
+      positionsHaveChanged = 1; // short circuit the work of checking positions, etc.
       }
-
-    // If the orientation has changed then we'll probably need to change our
-    // constrained font size as well
-    if(this->FormerOrientation != this->Orientation)
+    else
       {
-      this->Transform->Identity();
-      this->Transform->RotateZ(this->Orientation);
-      this->FormerOrientation = this->Orientation;
-      orientationHasChanged = 1;
+      if (   viewport->GetMTime() > this->BuildTime
+          || (   viewport->GetVTKWindow()
+              && viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
+        {
+        // if the viewport has changed we may - or may not need
+        // to rebuild, it depends on if the projected coords change
+        if (   (this->LastSize[0]   != size[0])
+            || (this->LastSize[1]   != size[1])
+            || (this->LastOrigin[0] != point1[0])
+            || (this->LastOrigin[1] != point1[1]) )
+          {
+          positionsHaveChanged = 1;
+          }
+        }
+
+      // If the orientation has changed then we'll probably need to change our
+      // constrained font size as well
+      if(this->FormerOrientation != this->Orientation)
+        {
+        this->Transform->Identity();
+        this->Transform->RotateZ(this->Orientation);
+        this->FormerOrientation = this->Orientation;
+        orientationHasChanged = 1;
+        }
       }
 
     // Check to see whether we have to rebuild everything
     if (   positionsHaveChanged || orientationHasChanged
-        || (this->GetMTime() > this->BuildTime)
         || (this->Mapper && this->Mapper->GetMTime() > this->BuildTime)
         || (   this->TextProperty
             && (this->TextProperty->GetMTime() > this->BuildTime) ) )
@@ -526,13 +535,15 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
 
       //  Lets try to minimize the number of times we change the font size.
       //  If the width of the font box has not changed by more than a pixel
-      // (numerical issues) do not recompute font size.
-      if (   (this->Mapper && this->Mapper->GetMTime() > this->BuildTime)
-          || (   this->TextProperty
-              && (this->TextProperty->GetMTime() > this->BuildTime) )
-          || (this->LastSize[0] < size[0]-1) || (this->LastSize[1] < size[1]-1)
-          || (this->LastSize[0] > size[0]+1) || (this->LastSize[1] > size[1]+1)
-          || orientationHasChanged)
+      // (numerical issues) do not recompute font size. Also, if the text
+      // string has changed then we have to change font size.
+      if ( (this->Mapper && this->Mapper->GetMTime() > this->BuildTime) ||
+           (this->Mapper && this->GetMTime() > this->Mapper->GetMTime()) ||
+           (this->TextProperty
+            && (this->TextProperty->GetMTime() > this->BuildTime) ) ||
+           (this->LastSize[0] < size[0]-1) || (this->LastSize[1] < size[1]-1) ||
+           (this->LastSize[0] > size[0]+1) || (this->LastSize[1] > size[1]+1) ||
+           orientationHasChanged)
         {
         this->LastSize[0] = size[0];
         this->LastSize[1] = size[1];
@@ -713,6 +724,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     yo += this->TextProperty->GetLineOffset();
     } //end unscaled text case
 
+  cout << "Text actor rectangel\n";
   x = xo;
   y = yo;
   this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );

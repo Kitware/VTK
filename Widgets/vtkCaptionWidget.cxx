@@ -21,6 +21,8 @@
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindow.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
 
 vtkStandardNewMacro(vtkCaptionWidget);
 
@@ -60,6 +62,13 @@ vtkCaptionWidget::vtkCaptionWidget()
   this->HandleWidget = vtkHandleWidget::New();
   this->HandleWidget->SetPriority(this->Priority+0.01); 
   this->HandleWidget->KeyPressActivationOff();
+
+  // over ride the call back mapper on the border widget superclass to move
+  // the caption widget using the left mouse button (still moves on middle
+  // mouse button press). Release is already mapped to end select action
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
+                                          vtkWidgetEvent::Select,
+                                          this, vtkBorderWidget::TranslateAction);
 
   this->AnchorCallback = vtkCaptionAnchorCallback::New();
   this->AnchorCallback->CaptionWidget = this;
