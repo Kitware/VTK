@@ -154,18 +154,14 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
                               T *outPtrC, int *pcycle, int target, 
                               int *pcount, int total)
 {
-  int maxC, max0, max1;
+  int maxC, max0 = 0, max1 = 0;
   int idxC, idx0, idx1, idxK;
   vtkIdType *inIncs, *outIncs;
-  vtkIdType inInc0, inInc1, inIncK, outInc0, outInc1;
+  vtkIdType inInc0 = 0, inInc1 = 0, inIncK, outInc0 = 0, outInc1 = 0;
   T *outPtr1, *outPtr0;
   T *inPtr1, *inPtr0, *inPtrK;
   double *ptrK, sum;
-  
-  // avoid warnings
-  self = self;
-  max0 = max1 = inInc0 = inInc1 = outInc0 = outInc1 = 0;
-  
+
   // I am counting on the fact that tight loops (component on outside)
   // is more important than cache misses from shuffled access.
 

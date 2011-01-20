@@ -351,11 +351,11 @@ inline double vtkApplyLogScale(double v, const double range[2],
       }
     }
   return v;
-}                 
+}
 
 //----------------------------------------------------------------------------
 // Apply shift/scale to the scalar value v and do table lookup.
-inline unsigned char *vtkLinearLookup(double v,   
+inline unsigned char *vtkLinearLookup(double v,
                                       unsigned char *table,
                                       double maxIndex,
                                       double shift, double scale,
@@ -367,17 +367,17 @@ inline unsigned char *vtkLinearLookup(double v,
     }
 
   double findx = (v + shift)*scale;
-  if (findx < 0)
+  if (findx < 0.0)
     {
-    findx = 0;
+    findx = 0.0;
     }
-  if (findx > maxIndex)
+  else if (findx > maxIndex)
     {
     findx = maxIndex;
     }
-  return &table[4*static_cast<int>(findx)];
+  return &table[4*static_cast<unsigned int>(findx)];
   /* round
-  return &table[4*(int)(findx + 0.5f)];
+  return &table[4*(unsigned int)(findx + 0.5f)];
   */
 }
 
