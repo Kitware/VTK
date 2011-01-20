@@ -107,6 +107,9 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
 //----------------------------------------------------------------------
 vtkAxesTransformRepresentation::~vtkAxesTransformRepresentation()
 {
+  this->OriginRepresentation->Delete();
+  this->SelectionRepresentation->Delete();
+
   this->LinePoints->Delete();
   this->LinePolyData->Delete();
   this->LineMapper->Delete();
