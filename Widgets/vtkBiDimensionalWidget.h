@@ -47,8 +47,8 @@
 // representation (e.g., vtkBiDimensionalRepresentation2D). The widget is
 // implemented using four instances of vtkHandleWidget which are used to
 // position the end points of the two intersecting lines. The representations
-// for these handle widgets are provided by the vtkBiDimensionalRepresentation
-// class.
+// for these handle widgets are provided by the
+// vtkBiDimensionalRepresentation2D class.
 //
 // .SECTION Event Bindings
 // By default, the widget responds to the following VTK events (i.e., it
@@ -92,7 +92,7 @@
 
 #include "vtkAbstractWidget.h"
 
-class vtkBiDimensionalRepresentation;
+class vtkBiDimensionalRepresentation2D;
 class vtkHandleWidget;
 class vtkBiDimensionalWidgetCallback;
 
@@ -119,13 +119,8 @@ public:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
-  void SetRepresentation(vtkBiDimensionalRepresentation *r)
+  void SetRepresentation(vtkBiDimensionalRepresentation2D *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-
-  // Description:
-  // Return the representation as a vtkBiDimensionalRepresentation.
-  vtkBiDimensionalRepresentation *GetBiDimensionalRepresentation()
-    {return reinterpret_cast<vtkBiDimensionalRepresentation*>(this->WidgetRep);}
 
   // Description:
   // Create the default widget representation if one is not set.
@@ -151,35 +146,24 @@ public:
   virtual void SetProcessEvents(int);
 
   // Description:
-  // Enum defining the state of the widget. By default the widget is in Start mode,
-  // and expects to be interactively placed. While placing the points the widget
-  // transitions to Define state. Once placed, the widget enters the Manipulate state.
-  //BTX
-  enum {Start=0,Define,Manipulate};
-  //ETX
+  // Set the state of the widget to "defined" (in case its widget and its
+  // representation were initialized programmatically). This must generally
+  // be followed by a Render() for things to visually take effect.
+  virtual void WidgetIsDefined();
 
   // Description:
-  // Set the state of the widget. If the state is set to "Manipulate" then it
-  // is assumed that the widget and its representation will be initialized
-  // programmatically and is not interactively placed. Initially the widget
-  // state is set to "Start" which means nothing will appear and the user
-  // must interactively place the widget with repeated mouse selections. Set
-  // the state to "Start" if you want interactive placement. Generally state
-  // changes must be followed by a Render() for things to visually take
-  // effect.
-  virtual void SetWidgetStateToStart();
-  virtual void SetWidgetStateToManipulate();
-
-  // Description:
-  // Return the current widget state.
-  virtual int GetWidgetState()
-    {return this->WidgetState;}
+  // Has the widget been defined completely yet ? ie. Have the end points been
+  // laid and is it in Manipulate mode ?
+  virtual int IsWidgetDefined();
 
 protected:
   vtkBiDimensionalWidget();
   ~vtkBiDimensionalWidget();
 
+//BTX
   // The state of the widget
+  enum {Start=0,Define,Manipulate};
+//ETX
   int WidgetState;
   int CurrentHandle;
   int HandleLine1Selected;

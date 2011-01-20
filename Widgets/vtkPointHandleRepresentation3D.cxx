@@ -642,7 +642,6 @@ void vtkPointHandleRepresentation3D::ShallowCopy(vtkProp *prop)
     this->SetZShadows(rep->GetZShadows());
     this->SetTranslationMode(rep->GetTranslationMode());
     this->SetProperty(rep->GetProperty());
-    this->Actor->SetProperty(rep->GetProperty());
     this->SetSelectedProperty(rep->GetSelectedProperty());
     this->SetHotSpotSize(rep->GetHotSpotSize());
     }

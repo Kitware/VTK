@@ -86,11 +86,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkSliderRepresentation.
-  vtkSliderRepresentation *GetSliderRepresentation()
-    {return reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Control the behavior of the slider when selecting the tube or caps. If
   // Jump, then selecting the tube, left cap, or right cap causes the slider to
   // jump to the selection point. If the mode is Animate, the slider moves

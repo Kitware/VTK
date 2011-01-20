@@ -7,7 +7,6 @@ SET(MyTests
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
-#    TestAxisActor3D.cxx
     TestBarChartActor.cxx
     TestExodusImplicitArrays.cxx
     #TestLabelPlacerExodus.cxx
@@ -33,7 +32,6 @@ ENDIF (VTK_DATA_ROOT)
 # remove some tests if there is no display of if they need args
 IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests
-    TestAxisActor3D.cxx
     TestBarChartActor.cxx
     TestLegendScaleActor.cxx
     TestPieChartActor.cxx

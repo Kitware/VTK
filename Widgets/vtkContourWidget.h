@@ -145,11 +145,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
 
   // Description:
-  // Return the representation as a vtkContourRepresentation.
-  vtkContourRepresentation *GetContourRepresentation()
-    {return reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 

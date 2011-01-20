@@ -91,11 +91,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkSliderRepresentation.
-  vtkSliderRepresentation *GetSliderRepresentation()
-    {return reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 

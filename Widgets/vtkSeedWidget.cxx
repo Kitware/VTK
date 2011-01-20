@@ -387,20 +387,12 @@ vtkHandleWidget * vtkSeedWidget::CreateNewHandle()
   widget->SetParent(this);
   widget->SetInteractor(this->Interactor);
   vtkHandleRepresentation *handleRep = rep->GetHandleRepresentation(currentHandleNumber);
-  if (!handleRep)
-    {
-    widget->Delete();
-    return NULL;
-    }
-  else
-    {
-    handleRep->SetRenderer(this->CurrentRenderer);
-    widget->SetRepresentation(handleRep);
+  handleRep->SetRenderer(this->CurrentRenderer);
+  widget->SetRepresentation(handleRep);
 
-    // Now place the widget into the list of handle widgets (if not already there)
-    this->Seeds->push_back( widget );
-    return widget;
-    }
+  // Now place the widget into the list of handle widgets (if not already there)
+  this->Seeds->push_back( widget );
+  return widget;
 }
 
 //----------------------------------------------------------------------

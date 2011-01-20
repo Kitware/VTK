@@ -23,9 +23,9 @@ proc rtOtherTest { fileid } {
   if {$a == "vtkTimeStamp"} {
       continue
   }
-  if {$a == "vtkOutputWindow"} {
-      continue
-  }
+        if {$a == "vtkOutputWindow"} {
+           continue
+        }
   catch {
            $a b
            puts "calling [b GetClassName]::Print"

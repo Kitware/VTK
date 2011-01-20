@@ -110,11 +110,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkLineRepresentation.
-  vtkLineRepresentation *GetLineRepresentation()
-    {return reinterpret_cast<vtkLineRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 

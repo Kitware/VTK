@@ -109,7 +109,6 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
 
-  void Highlight(int highlight);
 protected:
   vtkSphereHandleRepresentation();
   ~vtkSphereHandleRepresentation();
@@ -118,7 +117,7 @@ protected:
   vtkActor          *Actor;
   vtkPolyDataMapper *Mapper;
   vtkSphereSource   *Sphere;
-  // void Highlight(int highlight);
+  void Highlight(int highlight);
 
   // Do the picking
   vtkCellPicker *CursorPicker;

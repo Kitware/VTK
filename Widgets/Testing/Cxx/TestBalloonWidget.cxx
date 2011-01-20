@@ -32,7 +32,6 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
-#include "vtkPropPicker.h"
 
 class vtkBalloonCallback : public vtkCommand
 {
@@ -47,26 +46,6 @@ public:
         std::cout << "Prop selected\n";
         }
     }
-
-  vtkActor *PickedActor;
-
-};
-
-class vtkBalloonPickCallback : public vtkCommand
-{
-public:
-  static vtkBalloonPickCallback *New()
-    { return new vtkBalloonPickCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
-      vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
-      vtkProp *prop = picker->GetViewProp();
-      if ( prop != NULL )
-        {
-        this->BalloonWidget->UpdateBalloonString(prop,"Picked");
-        }
-    }
-  vtkBalloonWidget *BalloonWidget;
 };
 
 int TestBalloonWidget( int argc, char *argv[] )
@@ -79,11 +58,6 @@ int TestBalloonWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
-
-  vtkSmartPointer<vtkPropPicker> picker = vtkSmartPointer<vtkPropPicker>::New();
-  vtkSmartPointer<vtkBalloonPickCallback> pcbk = vtkSmartPointer<vtkBalloonPickCallback>::New();
-  picker->AddObserver(vtkCommand::PickEvent,pcbk);
-  iren->SetPicker(picker);
 
   // Create an image for the balloon widget
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
@@ -123,7 +97,6 @@ int TestBalloonWidget( int argc, char *argv[] )
   widget->AddBalloon(sph,"This is a sphere",NULL);
   widget->AddBalloon(cyl,"This is a\ncylinder",image1->GetOutput());
   widget->AddBalloon(cone,"This is a\ncone,\na really big cone,\nyou wouldn't believe how big",image1->GetOutput());
-  pcbk->BalloonWidget = widget;
 
   vtkSmartPointer<vtkBalloonCallback> cbk = vtkSmartPointer<vtkBalloonCallback>::New();
   widget->AddObserver(vtkCommand::WidgetActivateEvent,cbk);

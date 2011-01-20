@@ -113,11 +113,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkBorderRepresentation.
-  vtkBorderRepresentation *GetBorderRepresentation()
-    {return reinterpret_cast<vtkBorderRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set. 
   virtual void CreateDefaultRepresentation();
 

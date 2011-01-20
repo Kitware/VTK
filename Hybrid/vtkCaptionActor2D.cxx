@@ -55,6 +55,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->vtkActor2D::SetWidth(0.25);
   this->vtkActor2D::SetHeight(0.10);
 
+  this->Caption = NULL;
   this->Border = 1;
   this->Leader = 1;
   this->AttachEdgeOnly = 0;
@@ -167,6 +168,11 @@ vtkCaptionActor2D::vtkCaptionActor2D()
 //----------------------------------------------------------------------------
 vtkCaptionActor2D::~vtkCaptionActor2D()
 {
+  if ( this->Caption )
+    {
+    delete [] this->Caption;
+    }
+
   this->AttachmentPointCoordinate->Delete();
 
   this->TextActor->Delete();
@@ -195,19 +201,6 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
 
   this->SetCaptionTextProperty(NULL);
 }
-
-//----------------------------------------------------------------------------
-void vtkCaptionActor2D::SetCaption(const char* caption)
-{
- this->TextActor->SetInput(caption);
-}
-
-//----------------------------------------------------------------------------
-char* vtkCaptionActor2D::GetCaption()
-{
-  return this->TextActor->GetInput();
-}
-
 
 //----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
@@ -438,6 +431,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // assign properties
   //
+  this->TextActor->SetInput(this->Caption);
+
   this->TextActor->SetProperty(this->GetProperty());
   this->BorderActor->SetProperty(this->GetProperty());
   this->LeaderActor2D->SetProperty(this->GetProperty());
@@ -492,9 +487,9 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Caption: ";
-  if ( this->TextActor->GetInput() )
+  if ( this->Caption )
     {
-    os << this->TextActor->GetInput() << "\n";
+    os << this->Caption << "\n";
     }
   else
     {

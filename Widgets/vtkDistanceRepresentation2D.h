@@ -17,13 +17,10 @@
 // The vtkDistanceRepresentation2D is a representation for the
 // vtkDistanceWidget. This representation consists of a measuring line (axis)
 // and two vtkHandleWidgets to place the end points of the line. Note that
-// this particular widget draws its representation in the overlay plane, and
-// the handles also operate in the 2D overlay plane. (If you desire to use
-// the distance widget for 3D measurements, use the
-// vtkDistanceRepresentation3D.)
+// this particular widget draws its representation in the overlay plane.
 
 // .SECTION See Also
-// vtkDistanceWidget vtkDistanceRepresentation vtkDistanceRepresentation3D
+// vtkDistanceWidget vtkDistanceRepresentation
 
 
 #ifndef __vtkDistanceRepresentation2D_h

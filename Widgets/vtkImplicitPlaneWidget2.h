@@ -111,11 +111,6 @@ public:
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
   
   // Description:
-  // Return the representation as a vtkImplicitPlaneRepresentation.
-  vtkImplicitPlaneRepresentation *GetImplicitPlaneRepresentation()
-    {return reinterpret_cast<vtkImplicitPlaneRepresentation*>(this->WidgetRep);}
-
-  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 

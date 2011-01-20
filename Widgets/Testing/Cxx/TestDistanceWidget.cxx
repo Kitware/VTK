@@ -914,11 +914,10 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   handle->GetProperty()->SetColor(1,0,0);
   VTK_CREATE(vtkDistanceRepresentation2D, rep);
   rep->SetHandleRepresentation(handle);
+
   rep->GetAxis()->SetNumberOfMinorTicks(4);
   rep->GetAxis()->SetTickLength(9);
   rep->GetAxis()->SetTitlePosition(0.2);
-  rep->RulerModeOn();
-  rep->SetRulerDistance(0.25);
 
   VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
