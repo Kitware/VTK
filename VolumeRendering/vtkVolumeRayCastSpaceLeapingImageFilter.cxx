@@ -76,13 +76,13 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::PrintSelf(ostream& os, vtkIndent i
   os << indent << "ComputeGradientOpacity: " << this->ComputeGradientOpacity << "\n";
   os << indent << "IndependentComponents: " << this->IndependentComponents << "\n";
   os << indent << "CurrentScalars: " << this->CurrentScalars << "\n";
-  // TableShift
-  // TableScale
-  // TableSize
-  // ScalarOpacityTable
-  // GradientOpacityTable
-  // MinNonZeroScalarIndex
-  // MinNonZeroGradientMagnitudeIndex
+  // this->TableShift
+  // this->TableScale
+  // this->TableSize
+  // this->ScalarOpacityTable
+  // this->GradientOpacityTable
+  // this->MinNonZeroScalarIndex
+  // this->MinNonZeroGradientMagnitudeIndex
 }
 
 //----------------------------------------------------------------------------

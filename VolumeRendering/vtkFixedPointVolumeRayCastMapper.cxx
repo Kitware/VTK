@@ -42,6 +42,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkFixedPointRayCastImage.h"
+#include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
 #include <vtkstd/exception>
 #include <math.h>
@@ -80,71 +81,8 @@ vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPoi
   B[1] = A[0]*M[1]  + A[1]*M[5]  + A[2]*M[9]; \
   B[2] = A[0]*M[2]  + A[1]*M[6]  + A[2]*M[10]
 
-template <class T>
-void vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume( T *dataPtr, unsigned short *minMaxVolume,
-                                                         int fullDim[3], int smallDim[4],
-                                                         int independent, int components,
-                                                         float *shift, float *scale )
-{
-  int i, j, k, c;
-  int sx1, sx2, sy1, sy2, sz1, sz2;
-  int x, y, z;
-  
-  T *dptr = dataPtr;
-  
-  for ( k = 0; k < fullDim[2]; k++ )
-    {
-    sz1 = (k < 1)?(0):(static_cast<int>((k-1)/4));
-    sz2 =              static_cast<int>((k  )/4);
-    sz2 = ( k == fullDim[2]-1 )?(sz1):(sz2);
-    for ( j = 0; j < fullDim[1]; j++ )
-      {      
-      sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
-      sy2 =              static_cast<int>((j  )/4);
-      sy2 = ( j == fullDim[1]-1 )?(sy1):(sy2);
-      for ( i = 0; i < fullDim[0]; i++ )
-        {
-        sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
-        sx2 =              static_cast<int>((i  )/4);
-        sx2 = ( i == fullDim[0]-1 )?(sx1):(sx2);
-        
-        for ( c = 0; c < smallDim[3]; c++ )
-          {
-          unsigned short val;
-          if ( independent )
-            {
-            val = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
-            dptr++;
-            }
-          else
-            {
-            val = static_cast<unsigned short>((*(dptr+components-1) + 
-                   shift[components-1]) * scale[components-1]);
-            dptr += components;
-            }
-          
-          for ( z = sz1; z <= sz2; z++ )
-            {
-            for ( y = sy1; y <= sy2; y++ )
-              {
-              for ( x = sx1; x <= sx2; x++ )
-                {
-                unsigned short *tmpPtr = minMaxVolume +
-                  3*( z*smallDim[0]*smallDim[1]*smallDim[3] +
-                      y*smallDim[0]*smallDim[3] +
-                      x*smallDim[3] + c);
-                
-                tmpPtr[0] = (val<tmpPtr[0])?(val):(tmpPtr[0]);
-                tmpPtr[1] = (val>tmpPtr[1])?(val):(tmpPtr[1]);
-                }
-              }
-            }
-          } 
-        }
-      }
-    }
-}
 
+//----------------------------------------------------------------------------
 template <class T>
 void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
                                                            int dim[3], 
@@ -684,6 +622,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
     }
 }
 
+//----------------------------------------------------------------------------
 // Construct a new vtkFixedPointVolumeRayCastMapper with default values
 vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 {
@@ -815,11 +754,15 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->TableScale[1] = 1;
   this->TableScale[2] = 1;
   this->TableScale[3] = 1;
+
+  this->SpaceLeapFilter = vtkVolumeRayCastSpaceLeapingImageFilter::New();
 }
 
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
 vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
 {
+  this->SpaceLeapFilter->Delete();
+
   this->PerspectiveMatrix->Delete();
   this->ViewToWorldMatrix->Delete();
   this->ViewToVoxelsMatrix->Delete();
@@ -900,9 +843,6 @@ vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
   delete [] this->TransformedClippingPlanes;
 
   this->ImageDisplayHelper->Delete();
-  
-  // Delete storage used by min/max volume
-  delete [] this->MinMaxVolume;
 }
 
 float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( float desiredTime,
@@ -1056,103 +996,47 @@ int vtkFixedPointVolumeRayCastMapper::GetNumberOfThreads()
   return 0;
 }
 
-void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[3],
-                                                                    int smallDim[4] )
-{
-  int i, j, k, c;
-  int sx1, sx2, sy1, sy2, sz1, sz2;
-  int x, y, z;
-  
-  
-  for ( k = 0; k < fullDim[2]; k++ )
-    {
-    sz1 = (k < 1)?(0):(static_cast<int>((k-1)/4));
-    sz2 =              static_cast<int>((k  )/4);
-    sz2 = ( k == fullDim[2]-1 )?(sz1):(sz2);
-    
-    unsigned char *dptr = this->GradientMagnitude[k];
-    
-    for ( j = 0; j < fullDim[1]; j++ )
-      {      
-      sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
-      sy2 =              static_cast<int>((j  )/4);
-      sy2 = ( j == fullDim[1]-1 )?(sy1):(sy2);
-
-      for ( i = 0; i < fullDim[0]; i++ )
-        {
-        sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
-        sx2 =              static_cast<int>((i  )/4);
-        sx2 = ( i == fullDim[0]-1 )?(sx1):(sx2);
-
-        for ( c = 0; c < smallDim[3]; c++ )
-          {
-          unsigned char val;
-          val = *dptr;
-          dptr++;
-          
-          for ( z = sz1; z <= sz2; z++ )
-            {
-            for ( y = sy1; y <= sy2; y++ )
-              {
-              for ( x = sx1; x <= sx2; x++ )
-                {
-                unsigned short *tmpPtr = this->MinMaxVolume +
-                  3*( z*smallDim[0]*smallDim[1]*smallDim[3] +
-                      y*smallDim[0]*smallDim[3] +
-                      x*smallDim[3] + c);
-                
-                // Need to keep track of max gradient magnitude in upper
-                // eight bits. No need to preserve lower eight (the flag)
-                // since we will be recomputing this.
-                tmpPtr[2] = (val>(tmpPtr[2]>>8))?(val<<8):(tmpPtr[2]);
-                }
-              }
-            }
-          } 
-        }
-      }
-    }
-}
-
+//----------------------------------------------------------------------------
 // This method should be called after UpdateColorTables since it
 // relies on some information (shift and scale) computed in that method,
 // as well as the last built time for the color tables.
 void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
 {
   int i, j, k, c;
-  
+
   // A three bit variable:
   //   first bit indicates need to update flags
   //   second bit indicates need to update scalars
   //   third bit indicates need to update gradient magnitudes
   int needToUpdate = 0;
-  
+
   // Get the image data
   vtkImageData *input = this->GetInput();
 
   // We'll need this info later
   int components   = this->CurrentScalars->GetNumberOfComponents();
   int independent  = vol->GetProperty()->GetIndependentComponents();
-  int dim[3];    
-  input->GetDimensions( dim );  
+  int dim[3];
+  input->GetDimensions( dim );
+
 
   // Has the data itself changed?
   if ( input != this->SavedMinMaxInput ||
-       input->GetMTime() > this->SavedMinMaxBuildTime.GetMTime() ||
+       input->GetMTime() > this->SpaceLeapFilter->GetLastMinMaxBuildTime() ||
        this->CurrentScalars != this->PreviousScalars )
     {
     needToUpdate |= 0x03;
     }
-  
+
   // Do the gradient magnitudes need to be filled in?
-  if ( this->GradientOpacityRequired &&
-       ( needToUpdate&0x02 || 
-         this->SavedGradientsMTime.GetMTime() > 
-         this->SavedMinMaxBuildTime.GetMTime() ) )
+  if ( this->GradientOpacityRequired && // done
+       ( needToUpdate&0x02 ||  // done
+         this->SavedGradientsMTime.GetMTime() >
+         this->SpaceLeapFilter->GetLastMinMaxBuildTime() ) )
     {
     needToUpdate |= 0x05;
     }
-  
+
   // Have the parameters changed which means the flags need
   // to be recomputed. Actually, we could be checking just
   // a subset of these parameters (we don't need to recompute
@@ -1161,210 +1045,50 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   // complicate the code)
   if ( !(needToUpdate&0x01) &&
        this->SavedParametersMTime.GetMTime() >
-       this->SavedMinMaxFlagTime.GetMTime() )
+       this->SpaceLeapFilter->GetLastMinMaxFlagTime() )
     {
     needToUpdate |= 0x01;
     }
-  
 
   if ( !needToUpdate )
     {
     return;
     }
 
+  // Set the update flags, telling the filter what to update...
+  this->SpaceLeapFilter->SetInput(this->GetInput());
+  this->SpaceLeapFilter->SetCurrentScalars(this->CurrentScalars);
+  this->SpaceLeapFilter->SetIndependentComponents(
+      vol->GetProperty()->GetIndependentComponents());
+  this->SpaceLeapFilter->SetComputeMinMax(needToUpdate&0x02);
+  this->SpaceLeapFilter->SetComputeGradientOpacity(needToUpdate&0x04);
+  this->SpaceLeapFilter->SetGradientMagnitude(this->GradientMagnitude);
+  this->SpaceLeapFilter->SetTableSize(this->TableSize);
+  this->SpaceLeapFilter->SetTableShift(this->TableShift);
+  this->SpaceLeapFilter->SetTableScale(this->TableScale);
+  for (unsigned int compIdx = 0; compIdx < 4; ++compIdx)
+    {
+    this->SpaceLeapFilter->SetScalarOpacityTable(
+          compIdx, this->ScalarOpacityTable[compIdx]);
+    this->SpaceLeapFilter->SetGradientOpacityTable(
+          compIdx, this->GradientOpacityTable[compIdx]);
+    }
+  this->SpaceLeapFilter->Update();
+  this->MinMaxVolume =
+    this->SpaceLeapFilter->GetMinMaxVolume(this->MinMaxVolumeSize);
+
+  // If the line below is commented out, we get reference counting loops
+  this->SpaceLeapFilter->SetInput(NULL);
+
+
   // Regenerate the min max values if necessary
   if ( needToUpdate&0x02 )
     {
-    // How big should the min/max volume be?
-    int targetSize[4];
-    
-    for ( i = 0; i < 3; i++ )
-      {
-      // We group four cells (which require 5 samples) into one element in the min/max tree
-      targetSize[i] =
-        (dim[i] < 2) ? (1) : ( 1 + static_cast<int>((dim[i] - 2)/4));
-      }
-
-    // This fourth dimension is the number of independent components for which we
-    // need to keep track of min/max
-    targetSize[3] = (independent)?(components):(1);
-    
-    if ( this->MinMaxVolumeSize[0] != targetSize[0] ||
-         this->MinMaxVolumeSize[1] != targetSize[1] ||
-         this->MinMaxVolumeSize[2] != targetSize[2] ||
-         this->MinMaxVolumeSize[3] != targetSize[3] )
-      {
-      delete [] this->MinMaxVolume;
-      
-      // One entry for min, one for max, one shared by max gradient 
-      // magnitude, and a flag set based on opacity transfer functions
-      this->MinMaxVolume = new unsigned short [3 * ( targetSize[0] *
-                                                     targetSize[1] *
-                                                     targetSize[2] *
-                                                     targetSize[3] ) ];
-      
-      // Don't really do anything about it - but reporting this error may
-      // save some debugging time later...
-      if ( !this->MinMaxVolume )
-        {
-        vtkErrorMacro( "Problem allocating min/max volume" );
-        this->MinMaxVolumeSize[0] = 0;
-        this->MinMaxVolumeSize[1] = 0;
-        this->MinMaxVolumeSize[2] = 0;
-        this->MinMaxVolumeSize[3] = 0;
-        return;
-        }
-      
-      this->MinMaxVolumeSize[0] = targetSize[0];
-      this->MinMaxVolumeSize[1] = targetSize[1];
-      this->MinMaxVolumeSize[2] = targetSize[2];
-      this->MinMaxVolumeSize[3] = targetSize[3];
-      
-      // Initialize the structure
-      unsigned short *tmpPtr = this->MinMaxVolume;
-      for ( i = 0; i < targetSize[0] * targetSize[1] * targetSize[2]; i++ )
-        {
-        for ( j = 0; j < targetSize[3]; j++ )
-          {
-          *(tmpPtr++) = 0xffff;  // Min Scalar
-          *(tmpPtr++) = 0;       // Max Scalar
-          *(tmpPtr++) = 0;       // Max Gradient Magnitude and
-          }                      // Flag computed from transfer functions
-        }
-      
-      // Now put the scalar data values into the structure
-      int scalarType   = this->CurrentScalars->GetDataType();
-      void *dataPtr = this->CurrentScalars->GetVoidPointer(0);
-      
-      switch ( scalarType )
-        {
-        vtkTemplateMacro( 
-          vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume(
-            (VTK_TT *)(dataPtr), this->MinMaxVolume, dim, targetSize, 
-            independent, components, this->TableShift, this->TableScale) );
-        }
-      }
-    
     this->SavedMinMaxInput = input;
-    this->SavedMinMaxBuildTime.Modified();
     }
-
-  if ( needToUpdate&0x04 )
-    {
-    // Now put the gradient magnitude values into the structure
-    this->FillInMaxGradientMagnitudes( dim, this->MinMaxVolumeSize );
-    
-    // It is OK to use this same variable for scalars and gradient magnitudes - either
-    // we just rebuilt the min max volume from the scalars, or the MTime on the input
-    // is already less than this build time so updating it again won't matter for
-    // future checks
-    this->SavedMinMaxBuildTime.Modified();
-    }
-  
-  // Update the flags now
-  unsigned short *minNonZeroScalarIndex = new unsigned short [this->MinMaxVolumeSize[3]];
-  for ( c = 0; c < this->MinMaxVolumeSize[3]; c++ )
-    {
-    for ( i = 0; i < this->TableSize[c]; i++ )
-      {
-      if ( this->ScalarOpacityTable[c][i] )
-        {
-        break;
-        }
-      }
-    minNonZeroScalarIndex[c] = i;
-    }
-  
-  unsigned char *minNonZeroGradientMagnitudeIndex = new unsigned char [this->MinMaxVolumeSize[3]];
-  for ( c = 0; c < this->MinMaxVolumeSize[3]; c++ )
-    {
-    for ( i = 0; i < 256; i++ )
-      {
-      if ( this->GradientOpacityTable[c][i] )
-        {
-        break;
-        }
-      }
-    minNonZeroGradientMagnitudeIndex[c] = i;
-    }
-
-  unsigned short *tmpPtr = this->MinMaxVolume;  
-  int zero = 0;
-  int nonZero = 0;
-  
-  for ( k = 0; k < this->MinMaxVolumeSize[2]; k++ )
-    {
-    for ( j = 0; j < this->MinMaxVolumeSize[1]; j++ )
-      {
-      for ( i = 0; i < this->MinMaxVolumeSize[0]; i++ )
-        {
-        for ( c = 0; c < this->MinMaxVolumeSize[3]; c++ )
-          {
-          // We definite have 0 opacity because our maximum scalar value in
-          // this region is below the minimum scalar value with non-zero opacity
-          // for this component
-          if ( tmpPtr[1] < minNonZeroScalarIndex[c] )
-            {
-            tmpPtr[2] &= 0xff00;
-            zero++;
-            }
-          // We have 0 opacity because we are using gradient magnitudes and
-          // the maximum gradient magnitude in this area is below the minimum
-          // gradient magnitude with non-zero opacity for this component
-          else if ( this->GradientOpacityRequired &&
-                    (tmpPtr[2]>>8) < minNonZeroGradientMagnitudeIndex[c] )
-            {
-            tmpPtr[2] &= 0xff00;
-            zero++;
-            }
-          // We definitely have non-zero opacity because our minimum scalar
-          // value is lower than our first scalar with non-zero opacity, and
-          // the maximum scalar value is greater than this threshold - so
-          // we must encounter scalars with opacity in between
-          else if ( tmpPtr[0] < minNonZeroScalarIndex[c] )
-            {
-            tmpPtr[2] &= 0xff00;
-            tmpPtr[2] |= 0x0001;
-            nonZero++;
-            }
-          // We have to search between min scalar value and the
-          // max scalar stored in the minmax volume to look for non-zero
-          // opacity since both values must be above our first non-zero
-          // threshold so we don't have information in this area
-          else
-            {
-            int loop;
-            for ( loop = tmpPtr[0]; loop <= tmpPtr[1]; loop++ )
-              {
-              if ( this->ScalarOpacityTable[c][loop] )
-                {
-                break;
-                }
-              }
-            if ( loop <= tmpPtr[1] )
-              {
-              tmpPtr[2] &= 0xff00;
-              tmpPtr[2] |= 0x0001;
-              nonZero++;
-              }
-            else
-              {
-              tmpPtr[2] &= 0xff00;
-              zero++;
-              }
-            }
-          tmpPtr += 3;
-          }
-        }      
-      }
-    }
-  
-  this->SavedMinMaxFlagTime.Modified();
-
-  delete [] minNonZeroGradientMagnitudeIndex;
-  delete [] minNonZeroScalarIndex;
 }
 
+//----------------------------------------------------------------------------
 void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 {
   this->ConvertCroppingRegionPlanesToVoxels();
@@ -1551,7 +1275,11 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
   this->UpdateColorTable( vol );
   this->UpdateGradients( vol );
   this->UpdateShadingTable( ren, vol );
+
+  // Calls SpaceLeapFilter for a multi-threaded optimized computation of the
+  // min-max structure.
   this->UpdateMinMaxVolume( vol );
+
 }
 
 // This is the initialization that should be done once per subvolume
@@ -3671,6 +3399,7 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
   os << indent << "Final Color Window: " << this->FinalColorWindow << endl;
   os << indent << "Final Color Level: " << this->FinalColorLevel << endl;
+  os << indent << "Space leaping filter: " << this->SpaceLeapFilter << endl;
 
   // These are all things that shouldn't be printed....
   //os << indent << "ShadingRequired: " << this->ShadingRequired << endl;
