@@ -89,7 +89,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::PrintSelf(ostream& os, vtkIndent i
 int vtkVolumeRayCastSpaceLeapingImageFilter::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -238,7 +238,6 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
   unsigned int sx1, sx2, sy1, sy2, sz1, sz2;
   unsigned int x, y, z;
 
-  T *dptr0 = static_cast< T * >(scalars->GetVoidPointer(0));
   T *dptr = static_cast< T * >(scalars->GetVoidPointer(0));
   unsigned short val;
   unsigned short *outBasePtr = static_cast< unsigned short * >(
@@ -704,8 +703,6 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
                 outData->GetScalarPointerForExtent(outExt));
   unsigned short *minNonZeroScalarIndex
                      = this->GetMinNonZeroScalarIndex();
-  unsigned char  *minNonZeroGradientMagnitudeIndex
-                     = this->GetMinNonZeroGradientMagnitudeIndex();
 
   int i, j, k, c, loop;
 
@@ -772,11 +769,11 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 //----------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector,
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
   vtkImageData **outData,
-  int outExt[6], int id)
+  int outExt[6], int vtkNotUsed(id))
 {
 
   // A. Initialize the data with a blank flag.
@@ -950,7 +947,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
     }
 
   // Update the flags now
-  unsigned int i;
+  int i;
   this->MinNonZeroScalarIndex = new unsigned short [nComponents];
   for ( unsigned int c = 0; c < nComponents; c++ )
     {
