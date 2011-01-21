@@ -123,7 +123,6 @@ int vtkImageMarchingCubes::RequestData(
   // multiply by the area of each slice
   temp *= extent[1] - extent[0] + 1;
   temp *= extent[3] - extent[2] + 1;
-  temp = temp;
   // temp holds memory per image. (+1 to avoid dividing by zero)
   this->NumberOfSlicesPerChunk = this->InputMemoryLimit * 1024 / (temp + 1);
   if (this->NumberOfSlicesPerChunk < minSlicesPerChunk)

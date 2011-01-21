@@ -50,10 +50,10 @@ public:
   // Description:
   // Set the elements of the matrix to the same values as the elements
   // of the source Matrix.
-  void DeepCopy(vtkMatrix4x4 *source) 
+  void DeepCopy(const vtkMatrix4x4 *source)
     {vtkMatrix4x4::DeepCopy(*this->Element,source); this->Modified(); }
 //BTX
-  static void DeepCopy(double Elements[16], vtkMatrix4x4 *source) 
+  static void DeepCopy(double Elements[16], const vtkMatrix4x4 *source)
     {vtkMatrix4x4::DeepCopy(Elements,*source->Element); }
   static void DeepCopy(double Elements[16], const double newElements[16]);
 //ETX
@@ -82,7 +82,7 @@ public:
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
   // Academic Press, 1990).
-  static void Invert(vtkMatrix4x4 *in, vtkMatrix4x4 *out) 
+  static void Invert(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
     {vtkMatrix4x4::Invert(*in->Element,*out->Element); out->Modified(); }
   void Invert() 
     { vtkMatrix4x4::Invert(this,this); }
@@ -93,7 +93,7 @@ public:
 
   // Description:
   // Transpose the matrix and put it into out. 
-  static void Transpose(vtkMatrix4x4 *in, vtkMatrix4x4 *out) 
+  static void Transpose(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
     {vtkMatrix4x4::Transpose(*in->Element,*out->Element); out->Modified(); }
   void Transpose() 
     { vtkMatrix4x4::Transpose(this,this); }
@@ -128,7 +128,7 @@ public:
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
-  static void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
+  static void Multiply4x4(const vtkMatrix4x4 *a, const vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
     vtkMatrix4x4::Multiply4x4(*a->Element,*b->Element,*c->Element); };
 //BTX
   static void Multiply4x4(const double a[16], const double b[16], 
@@ -137,7 +137,7 @@ public:
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
-  void Adjoint(vtkMatrix4x4 *in, vtkMatrix4x4 *out) 
+  void Adjoint(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
     {vtkMatrix4x4::Adjoint(*in->Element,*out->Element);}
 //BTX
   static void Adjoint(const double inElements[16], double outElements[16]);

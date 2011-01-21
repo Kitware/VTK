@@ -46,7 +46,7 @@
 // Cross platform sleep
 inline void vtkSleep(double duration)
 {
-  duration = duration; // avoid warnings
+  (void)duration;
   // sleep according to OS preference
 #ifdef _WIN32
   Sleep((int)(1000*duration));
