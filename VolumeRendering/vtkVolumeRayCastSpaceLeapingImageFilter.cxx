@@ -923,8 +923,12 @@ int vtkVolumeRayCastSpaceLeapingImageFilter
 {
   // the number of independent components for which we need to keep track of
   // min/max
-  const int components = this->CurrentScalars->GetNumberOfComponents();
-  return ((this->IndependentComponents) ? components : 1);
+  if(this->CurrentScalars)
+    {
+    const int components = this->CurrentScalars->GetNumberOfComponents();
+    return ((this->IndependentComponents) ? components : 1);
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -934,8 +938,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Find the first non-zero scalar opacity and gradient opacity points on
   // the respective transfer functions
 
-  const unsigned int nComponents = static_cast< unsigned int >(
-                      this->GetNumberOfIndependentComponents());
+  const int nComponents = this->GetNumberOfIndependentComponents();
 
   // Initialize these arrays.
   if (this->MinNonZeroScalarIndex)
@@ -950,9 +953,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
     }
 
   // Update the flags now
-  unsigned int i;
+  int i;
   this->MinNonZeroScalarIndex = new unsigned short [nComponents];
-  for ( unsigned int c = 0; c < nComponents; c++ )
+  for ( int c = 0; c < nComponents; c++ )
     {
     for ( i = 0; i < this->TableSize[c]; i++ )
       {
@@ -965,7 +968,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
     }
 
   this->MinNonZeroGradientMagnitudeIndex = new unsigned char [nComponents];
-  for ( unsigned int c = 0; c < nComponents; c++ )
+  for ( int c = 0; c < nComponents; c++ )
     {
     for ( i = 0; i < 256; i++ )
       {
