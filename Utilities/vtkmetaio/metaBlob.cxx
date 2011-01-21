@@ -351,29 +351,31 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
       {
-        char* num = new char[sizeof(float)];
+        float* num = new float[1];
+        char* numAlias = reinterpret_cast<char*>(num);
         for(k=0;k<sizeof(float);k++)
           {
-          num[k] = _data[i+k];
+          numAlias[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
+        float td = num[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
-        i+=sizeof(float); 
-        pnt->m_X[d] = (float)td;
+        i+=sizeof(float);
+        pnt->m_X[d] = td;
         delete [] num;
       }
 
       for(d=0; d<4; d++)
       {
-        char* num = new char[sizeof(float)];
+        float* num = new float[1];
+        char* numAlias = reinterpret_cast<char*>(num);
         for(k=0;k<sizeof(float);k++)
           {
-          num[k] = _data[i+k];
+          numAlias[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
+        float td = num[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
-        pnt->m_Color[d] = (float)td;
+        pnt->m_Color[d] = td;
         delete [] num;
       }
 
@@ -495,4 +497,3 @@ M_Write(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-
