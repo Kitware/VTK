@@ -779,43 +779,57 @@ void vtkMFIXReader::GetInt(istream& in, int &val)
 //----------------------------------------------------------------------------
 void vtkMFIXReader::SwapInt(int &value)
 {
-  static char Swapped[4];
-  int * Addr = &value;
-  Swapped[0]=*((char*)Addr+3);
-  Swapped[1]=*((char*)Addr+2);
-  Swapped[2]=*((char*)Addr+1);
-  Swapped[3]=*((char*)Addr  );
-  value = *(reinterpret_cast<int*>(Swapped));
+  int result = ((value & 0x00FF) << 24) |
+               ((value & 0xFF00) << 8) |
+               ((value >> 8) & 0xFF00) |
+               ((value >> 24) & 0x00FF);
+  value = result;
 }
 
 //----------------------------------------------------------------------------
 void vtkMFIXReader::SwapDouble(double &value)
 {
-  static char Swapped[8];
-  double * Addr = &value;
+  union Swap
+    {
+    double valDouble;
+    unsigned char valByte[8];
+    };
 
-  Swapped[0]=*((char*)Addr+7);
-  Swapped[1]=*((char*)Addr+6);
-  Swapped[2]=*((char*)Addr+5);
-  Swapped[3]=*((char*)Addr+4);
-  Swapped[4]=*((char*)Addr+3);
-  Swapped[5]=*((char*)Addr+2);
-  Swapped[6]=*((char*)Addr+1);
-  Swapped[7]=*((char*)Addr  );
-  value = *(reinterpret_cast<double*>(Swapped));
+  Swap source;
+  source.valDouble = value;
+
+  Swap result;
+  result.valByte[0] = source.valByte[7];
+  result.valByte[1] = source.valByte[6];
+  result.valByte[2] = source.valByte[5];
+  result.valByte[3] = source.valByte[4];
+  result.valByte[4] = source.valByte[3];
+  result.valByte[5] = source.valByte[2];
+  result.valByte[6] = source.valByte[1];
+  result.valByte[7] = source.valByte[0];
+
+  value = result.valDouble;
 }
 
 //----------------------------------------------------------------------------
 void vtkMFIXReader::SwapFloat(float &value)
 {
-  static char Swapped[4];
-  float * Addr = &value;
+  union Swap
+    {
+    float valFloat;
+    unsigned char valByte[4];
+    };
 
-  Swapped[0]=*((char*)Addr+3);
-  Swapped[1]=*((char*)Addr+2);
-  Swapped[2]=*((char*)Addr+1);
-  Swapped[3]=*((char*)Addr  );
-  value = *(reinterpret_cast<float*>(Swapped));
+  Swap source;
+  source.valFloat = value;
+
+  Swap result;
+  result.valByte[0] = source.valByte[3];
+  result.valByte[1] = source.valByte[2];
+  result.valByte[2] = source.valByte[1];
+  result.valByte[3] = source.valByte[0];
+
+  value = result.valFloat;
 }
 
 //----------------------------------------------------------------------------

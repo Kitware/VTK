@@ -687,7 +687,7 @@ vtkVariant ConvertStringToSignedShort(bool isBinary, const char *rawData)
 {
   if (isBinary)
     {
-    short result;
+    short result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
     }
@@ -704,7 +704,7 @@ vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char *rawData)
 {
   if (isBinary)
     {
-    unsigned short result;
+    unsigned short result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
     }
@@ -721,7 +721,7 @@ vtkVariant ConvertStringToSignedInt(bool isBinary, const char *rawData)
 {
   if (isBinary)
     {
-    int result;
+    int result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
     }
@@ -738,7 +738,7 @@ vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char *rawData)
 {
   if (isBinary)
     {
-    unsigned int result;
+    unsigned int result = 0;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
     }
@@ -833,7 +833,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
     // and then transmits them that way.  This... frightens me.  It assumes
     // that both sender and recipient use IEEE floats.  Still, I'm not sure
     // there's any other good way to do it.
-    unsigned int intResult;
+    unsigned int intResult = 0;
     ConvertFromNetworkOrder(intResult, rawData);
 
     // This is the idiom that libpq uses internally to convert between the
@@ -936,7 +936,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
     // there's any other good way to do it.
     
     // Let's hope that we always have a 64-bit type.
-    vtkTypeUInt64 intResult;
+    vtkTypeUInt64 intResult = 0;
     ConvertFromNetworkOrder(intResult, rawData);
     union {
       vtkTypeUInt64 i;
