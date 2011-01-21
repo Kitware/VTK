@@ -133,7 +133,7 @@ public:
   // component by the vtkFixedPointVolumeRayCastMapper
   void SetScalarOpacityTable( int c, unsigned short * t);
   void SetGradientOpacityTable( int c, unsigned short * t );
-  // ETX
+  //ETX
 
   // Description:
   // INTERNAL - Do not use
