@@ -191,7 +191,6 @@ void vtkTextActor::SetInput(const char* str)
     }
   this->Input = new char[strlen(str)+1];
   strcpy(this->Input, str);
-  cout << "Setting input rendered to false\n";
   this->InputRendered = false;
   this->Modified();
 }
@@ -724,7 +723,6 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     yo += this->TextProperty->GetLineOffset();
     } //end unscaled text case
 
-  cout << "Text actor rectangel\n";
   x = xo;
   y = yo;
   this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
