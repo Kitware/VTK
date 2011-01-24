@@ -117,7 +117,7 @@ const char* vtkQtChartRepresentation::GetSeriesName(int series)
     }
 
   this->Internal->LastSeriesName =
-    this->GetSeriesModel()->getSeriesName(series).toString().toStdString();
+    this->GetSeriesModel()->getSeriesName(series).toString().toAscii().data();
   return this->Internal->LastSeriesName.c_str();
 }
 

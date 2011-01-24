@@ -43,7 +43,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
   //QCoreApplication app(argc, argv);
   //for (int i = 0; i < QCoreApplication::libraryPaths().count(); i++)
   //  {
-  //  cerr << QCoreApplication::libraryPaths().at(i).toStdString() << endl;
+  //  cerr << QCoreApplication::libraryPaths().at(i).toAscii().data() << endl;
   //  }
 
   bool interactive = false;
@@ -133,11 +133,11 @@ int TestQtSQLDatabase(int argc, char* argv[])
     }
 
   vtkQtSQLDatabase* db = vtkQtSQLDatabase::New();
-  db->SetDatabaseType(dbtype.toStdString().c_str());
-  db->SetDatabaseName(database.toStdString().c_str());
-  db->SetUserName(user.toStdString().c_str());
+  db->SetDatabaseType(dbtype.toAscii().data().c_str());
+  db->SetDatabaseName(database.toAscii().data().c_str());
+  db->SetUserName(user.toAscii().data().c_str());
   db->SetPort(port);
-  if (!db->Open(password.toStdString().c_str()))
+  if (!db->Open(password.toAscii().data().c_str()))
     {
     cerr << "Unable to open database" << endl;
     return 1;
@@ -155,8 +155,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
   if (!dataExists)
     {
     QString createQuery("CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
-    cout << createQuery.toStdString() << endl;
-    query->SetQuery(createQuery.toStdString().c_str());
+    cout << createQuery.toAscii().data() << endl;
+    query->SetQuery(createQuery.toAscii().data().c_str());
     if (!query->Execute())
       {
       cerr << "Create query failed" << endl;
@@ -166,8 +166,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
     for (int i = 0; i < 40; i++)
       {
       QString insertQuery = QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10*i);
-      cout << insertQuery.toStdString() << endl;
-      query->SetQuery(insertQuery.toStdString().c_str());
+      cout << insertQuery.toAscii().data() << endl;
+      query->SetQuery(insertQuery.toAscii().data().c_str());
       if (!query->Execute())
         {
         cerr << "Insert query failed" << endl;
@@ -176,7 +176,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
       }
     }
 
-  query->SetQuery(queryText.toStdString().c_str());
+  query->SetQuery(queryText.toAscii().data().c_str());
   cerr << endl << "Running query: " << query->GetQuery() << endl;
 
   cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
