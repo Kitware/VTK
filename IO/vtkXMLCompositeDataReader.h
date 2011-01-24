@@ -29,6 +29,8 @@
 #include "vtkXMLReader.h"
 
 class vtkCompositeDataSet;
+class vtkInformationIntegerKey;
+class vtkInformationIntegerVectorKey;
 //BTX
 struct vtkXMLCompositeDataReaderInternals;
 //ETX
