@@ -156,7 +156,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
     {
     QString createQuery("CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
     cout << createQuery.toAscii().data() << endl;
-    query->SetQuery(createQuery.toAscii().data()));
+    query->SetQuery(createQuery.toAscii().data());
     if (!query->Execute())
       {
       cerr << "Create query failed" << endl;
@@ -167,7 +167,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
       {
       QString insertQuery = QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10*i);
       cout << insertQuery.toAscii().data() << endl;
-      query->SetQuery(insertQuery.toAscii().data()));
+      query->SetQuery(insertQuery.toAscii().data());
       if (!query->Execute())
         {
         cerr << "Insert query failed" << endl;
