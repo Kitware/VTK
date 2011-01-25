@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Get/Set the number of threads to create when rendering
-  vtkSetMacro( NumberOfThreads, int );
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
   // Description:
