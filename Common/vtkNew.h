@@ -30,6 +30,22 @@
 //
 // vtkSmartPointer<vtkClass> b = a.GetPointer();
 // b->SomeOtherMethod();
+// \endcode
+//
+// It should be noted that vtkNew is not a drop in replacement for
+// vtkSmartPointer as it is not implicitly cast to a pointer in functions
+// requiring a pointer. The GetPointer() method must be used, for example,
+//
+// \code
+// vtkNew<vtkRenderer> ren;
+// vtkNew<vtkRenderWindow> renWin;
+// renWin->AddRenderer(ren.GetPointer());
+// vtkNew<vtkRenderWindowInteractor> iren;
+// iren->SetRenderWindow(renWin.GetPointer());
+// \endcode
+//
+// .SECTION See Also
+// vtkSmartPointer vtkWeakPointer
 
 #ifndef __vtkNew_h
 #define __vtkNew_h
