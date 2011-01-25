@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNew - Hold a reference to a vtkObjectBase instance.
+// .NAME vtkNew - Allocate and hold a VTK object.
 // .SECTION Description
 // vtkNew is a class template that on construction allocates and
 // initializes an instance of its template argument using T::New().
@@ -105,7 +105,7 @@ private:
 };
 
 // Description:
-// Streaming operator to print scoped pointer like regular pointers.
+// Streaming operator to print vtkNew like regular pointers.
 template <class T>
 inline ostream& operator << (ostream& os, const vtkNew<T>& p)
 {
