@@ -23,6 +23,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkWeakPointer.h"
 
+#include "vtkTestNewVar.h"
+
 int TestNew(int,char *[])
 {
   bool error = false;
@@ -63,6 +65,23 @@ int TestNew(int,char *[])
     cerr << "Error, vtkNew failed to delete the object it contained, "
          << "or the smart pointer failed to increment it. Reference count: "
          << si->GetReferenceCount() << endl;
+    }
+
+  vtkNew<vtkTestNewVar> newVarObj;
+  if (newVarObj->GetPointsRefCount() != 1)
+    {
+    error = true;
+    cerr << "The mmeber pointer failed to set the correct reference count: "
+         << newVarObj->GetPointsRefCount() << endl;
+    }
+
+  vtkSmartPointer<vtkObject> points = newVarObj->GetPoints();
+  if (points->GetReferenceCount() != 2)
+    {
+    error = true;
+    cerr << "Error, vtkNew failed to keep the object it contained, "
+         << "or the smart pointer failed to increment it. Reference count: "
+         << points->GetReferenceCount() << endl;
     }
 
   return error ? 1 : 0;
