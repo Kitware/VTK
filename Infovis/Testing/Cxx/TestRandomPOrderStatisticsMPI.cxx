@@ -108,7 +108,6 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   pos->SetDeriveOption( true );
   pos->SetAssessOption( true );
   pos->SetTestOption( false );
-  pos->SetNumericType( true ); // Data set is numeric
   pos->Update();
 
   // Synchronize and stop clock

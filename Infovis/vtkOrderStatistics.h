@@ -61,16 +61,6 @@ public:
 //ETX
 
   // Description:
-  // Set/get whether histograms and assessment data should be treated as numeric data.
-  // Otherwise, then everything is treated as strings, which always works, and is thus the
-  // the default.
-  // Note that if the data is indeed numeric but this is not set, some strange results will
-  // occur because of the use of the lexicographic order instead of the order on reals.
-  vtkSetMacro( NumericType, int );
-  vtkGetMacro( NumericType, int );
-  vtkBooleanMacro( NumericType, int );
-
-  // Description:
   // Set/Get the number of quantiles (with uniform spacing).
   vtkSetMacro( NumberOfIntervals, vtkIdType );
   vtkGetMacro( NumberOfIntervals, vtkIdType );
@@ -127,7 +117,6 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  int NumericType;
   int NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 

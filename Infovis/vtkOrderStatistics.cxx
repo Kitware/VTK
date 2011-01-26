@@ -52,7 +52,6 @@ vtkOrderStatistics::vtkOrderStatistics()
 
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "Quantile" );
-  this->NumericType = 0; // By default, treat values as strings (which will always work)
 }
 
 // ----------------------------------------------------------------------
@@ -64,7 +63,6 @@ vtkOrderStatistics::~vtkOrderStatistics()
 void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "NumericType: " << this->NumericType << endl;
   os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
 }
@@ -96,13 +94,6 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
                                        int vtkNotUsed( index ),
                                        vtkVariant value )
 {
-  if ( ! strcmp( parameter, "NumericType" ) )
-    {
-    this->SetNumericType( value.ToInt() );
-
-    return true;
-    }
-
   if ( ! strcmp( parameter, "NumberOfIntervals" ) )
     {
     this->SetNumberOfIntervals( value.ToInt() );
@@ -340,207 +331,98 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   vtkIdType key, c, n;
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
 
-  // Decide (once and not for each data point for efficiency) whether lexicographic or numeric order is to be used
-  if ( this->NumericType )
+  // Use lexicographic order
+  vtkStdString x;
+  vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkStdString,vtkIdType> >marginalCounts;
+  for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
     {
-    // Use order on real numbers
-    double x;
-    vtksys_stl::map<vtkIdType, vtksys_stl::map<double,vtkIdType> >marginalCounts;
-    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
+    // Find the variable to which the key corresponds
+    key = keys->GetValue( r );
+
+    if ( key < 0 || key >= nRowSumm )
       {
-      // Find the variable to which the key corresponds
-      key = keys->GetValue( r );
-
-      if ( key < 0 || key >= nRowSumm )
-        {
-        vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
-                       <<  key
-                       <<". Cannot derive model." );
-        return;
-        }
-
-      // Update cardinalities and marginal counts
-      x = atof( vals->GetValue( r ).c_str() );
-      c = card->GetValue( r );
-      cardinalities[key] += c;
-      // It is assumed that the histogram be consistent (no repeated values for a given variable)
-      marginalCounts[key][x] = c;
+      vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
+                     <<  key
+                     <<". Cannot derive model." );
+      return;
       }
 
-    // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
-    // have the same cardinality.
-    n = cardinalities[0];
-    for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator cit = cardinalities.begin();
-          cit != cardinalities.end(); ++ cit )
-      {
-      if ( cit->second != n )
-        {
-        vtkErrorMacro( "Inconsistent input: variables do not have equal cardinalities: "
-                       << cit->first
-                       << " != "
-                       << n
-                       <<". Cannot derive model." );
-        return;
-        }
-      }
+    // Update cardinalities and marginal counts
+    x = vals->GetValue( r );
+    c = card->GetValue( r );
+    cardinalities[key] += c;
+    // It is assumed that the histogram be consistent (no repeated values for a given variable)
+    marginalCounts[key][x] = c;
+    }
 
-    // We have a unique value for the cardinality and can henceforth proceed
-    histogramTab->SetValueByName( 0, "Cardinality", n );
-
-    // Now calculate and store quantile thresholds
-    vtksys_stl::vector<double> quantileThresholds;
-    double dh = n / static_cast<double>( this->NumberOfIntervals );
-    for ( int j = 0; j < this->NumberOfIntervals; ++ j )
-      {
-      quantileThresholds.push_back( j * dh );
-      }
-
-    // Finally calculate quantiles and store them iterating over variables
-    vtkStdString col;
-    for ( vtksys_stl::map<vtkIdType,vtksys_stl::map<double,vtkIdType> >::iterator mit = marginalCounts.begin();
-          mit != marginalCounts.end(); ++ mit  )
-      {
-      // Get variable and name and set corresponding row value
-      col = vars->GetValue( mit->first );
-      rowQuant->SetValue( 0, col );
-
-      // Also set cardinality which is known
-      rowQuant->SetValue( 1, n );
-
-      // Then calculate quantiles
-      vtkIdType sum = 0;
-      int j = 2;
-      bool midPt = ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps ? 1 : 0 );
-      vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
-      for ( vtksys_stl::map<double,vtkIdType>::iterator nit = mit->second.begin();
-            nit != mit->second.end(); ++ nit  )
-        {
-        for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
-          {
-          // Mid-point interpolation when such is requested
-          if ( midPt && sum == *qit )
-            {
-            vtksys_stl::map<double,vtkIdType>::iterator oit = nit;
-            double midVal = ( (++ oit)->first + nit->first ) * .5;
-            rowQuant->SetValue( j ++, midVal );
-            }
-          else
-            {
-            rowQuant->SetValue( j ++, nit->first );
-            }
-          } // qit
-        } // nit
-
-      // Finally store quantiles for this variable after a last sanity check
-      if ( j != this->NumberOfIntervals + 2 )
-        {
-        vtkErrorMacro( "Inconsistent quantile table: calculated "
-                       << j - 1
-                       << " quantiles != "
-                       << this->NumberOfIntervals + 1
-                       <<". Cannot derive model." );
-        return;
-        }
-
-      rowQuant->SetValue( j, mit->second.rbegin()->first );
-      quantileTab->InsertNextRow( rowQuant );
-      } // mit
-    } // if ( this->NumericType )
-  else
+  // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
+  // have the same cardinality.
+  n = cardinalities[0];
+  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator cit = cardinalities.begin();
+        cit != cardinalities.end(); ++ cit )
     {
-    // Use lexicographic order
-    vtkStdString x;
-    vtksys_stl::map<vtkIdType, vtksys_stl::map<vtkStdString,vtkIdType> >marginalCounts;
-    for ( int r = 1; r < nRowHist; ++ r ) // Skip first row which contains data set cardinality
+    if ( cit->second != n )
       {
-      // Find the variable to which the key corresponds
-      key = keys->GetValue( r );
+      vtkErrorMacro( "Inconsistent input: variables do not have equal cardinalities: "
+                     << cit->first
+                     << " != "
+                     << n
+                     <<". Cannot derive model." );
+      return;
+      }
+    }
 
-      if ( key < 0 || key >= nRowSumm )
+  // We have a unique value for the cardinality and can henceforth proceed
+  histogramTab->SetValueByName( 0, "Cardinality", n );
+
+  // Now calculate and store quantile thresholds
+  vtksys_stl::vector<double> quantileThresholds;
+  double dh = n / static_cast<double>( this->NumberOfIntervals );
+  for ( int j = 0; j < this->NumberOfIntervals; ++ j )
+    {
+    quantileThresholds.push_back( j * dh );
+    }
+
+  // Finally calculate quantiles and store them iterating over variables
+  vtkStdString col;
+  for ( vtksys_stl::map<vtkIdType,vtksys_stl::map<vtkStdString,vtkIdType> >::iterator mit = marginalCounts.begin();
+        mit != marginalCounts.end(); ++ mit  )
+    {
+    // Get variable and name and set corresponding row value
+    col = vars->GetValue( mit->first );
+    rowQuant->SetValue( 0, col );
+
+    // Also set cardinality which is known
+    rowQuant->SetValue( 1, n );
+
+    // Then calculate quantiles
+    vtkIdType sum = 0;
+    int j = 2;
+    vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
+    for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator nit = mit->second.begin();
+          nit != mit->second.end(); ++ nit  )
+      {
+      for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
         {
-        vtkErrorMacro( "Inconsistent input: dictionary does not have a row "
-                       <<  key
-                       <<". Cannot derive model." );
-        return;
-        }
+        // No mid-point interpolation for non-numeric types
+        rowQuant->SetValue( j ++, nit->first );
+        } // qit
+      } // nit
 
-      // Update cardinalities and marginal counts
-      x = vals->GetValue( r );
-      c = card->GetValue( r );
-      cardinalities[key] += c;
-      // It is assumed that the histogram be consistent (no repeated values for a given variable)
-      marginalCounts[key][x] = c;
+    // Finally store quantiles for this variable after a last sanity check
+    if ( j != this->NumberOfIntervals + 2 )
+      {
+      vtkErrorMacro( "Inconsistent quantile table: calculated "
+                     << j - 1
+                     << " quantiles != "
+                     << this->NumberOfIntervals + 1
+                     <<". Cannot derive model." );
+      return;
       }
 
-    // Data set cardinality: unknown yet, pick the cardinality of the first variable and make sure all others
-    // have the same cardinality.
-    n = cardinalities[0];
-    for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator cit = cardinalities.begin();
-          cit != cardinalities.end(); ++ cit )
-      {
-      if ( cit->second != n )
-        {
-        vtkErrorMacro( "Inconsistent input: variables do not have equal cardinalities: "
-                       << cit->first
-                       << " != "
-                       << n
-                       <<". Cannot derive model." );
-        return;
-        }
-      }
-
-    // We have a unique value for the cardinality and can henceforth proceed
-    histogramTab->SetValueByName( 0, "Cardinality", n );
-
-    // Now calculate and store quantile thresholds
-    vtksys_stl::vector<double> quantileThresholds;
-    double dh = n / static_cast<double>( this->NumberOfIntervals );
-    for ( int j = 0; j < this->NumberOfIntervals; ++ j )
-      {
-      quantileThresholds.push_back( j * dh );
-      }
-
-    // Finally calculate quantiles and store them iterating over variables
-    vtkStdString col;
-    for ( vtksys_stl::map<vtkIdType,vtksys_stl::map<vtkStdString,vtkIdType> >::iterator mit = marginalCounts.begin();
-          mit != marginalCounts.end(); ++ mit  )
-      {
-      // Get variable and name and set corresponding row value
-      col = vars->GetValue( mit->first );
-      rowQuant->SetValue( 0, col );
-
-      // Also set cardinality which is known
-      rowQuant->SetValue( 1, n );
-
-      // Then calculate quantiles
-      vtkIdType sum = 0;
-      int j = 2;
-      vtksys_stl::vector<double>::iterator qit = quantileThresholds.begin();
-      for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator nit = mit->second.begin();
-            nit != mit->second.end(); ++ nit  )
-        {
-        for ( sum += nit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
-          {
-          // No mid-point interpolation for non-numeric types
-          rowQuant->SetValue( j ++, nit->first );
-          } // qit
-        } // nit
-
-      // Finally store quantiles for this variable after a last sanity check
-      if ( j != this->NumberOfIntervals + 2 )
-        {
-        vtkErrorMacro( "Inconsistent quantile table: calculated "
-                       << j - 1
-                       << " quantiles != "
-                       << this->NumberOfIntervals + 1
-                       <<". Cannot derive model." );
-        return;
-        }
-
-      rowQuant->SetValue( j, mit->second.rbegin()->first );
-      quantileTab->InsertNextRow( rowQuant );
-      } // mit
-    } // else ( this->NumericType )
+    rowQuant->SetValue( j, mit->second.rbegin()->first );
+    quantileTab->InsertNextRow( rowQuant );
+    } // mit
 
   // Fill cardinality row (0) with invalid value for probability
   histogramTab->SetValueByName( 0, derivedName, -1. );
@@ -939,23 +821,9 @@ void vtkOrderStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
 
-      // Select assess functor depending on column type and requested order
-      if ( this->NumericType )
+      // Select assess functor
+      else
         {
-        if ( vals->IsA( "vtkDataArray" ) )
-          {
-          // If numeric type then use order on real numbers
-          dfunc = new NumericColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
-          }
-        else
-          {
-          // If non-numeric type then force conversion to doubles to use order on reals
-          dfunc = new StringColumnToDoubleQuantizationFunctor( vals, quantileTab->GetRow( r ) );
-          }
-        }
-      else //  if ( this->NumericType )
-        {
-        // If non-numeric ordering requested then treat everything as strings
         dfunc = new StringColumnQuantizationFunctor( vals, quantileTab->GetRow( r ) );
         }
       return;
