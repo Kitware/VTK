@@ -56,6 +56,9 @@ else
 	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 fi
 
+# Merge ("git commit" after "git merge" with conflicts or --no-commit)
+merge_head=$(git rev-parse -q --verify MERGE_HEAD) || merge_head=''
+
 # Disallow non-ascii file names.  The printable range starts at the
 # space character and ends with tilde.
 if test "$(git diff --cached --name-only --diff-filter=A -z $against |
@@ -208,6 +211,11 @@ lookup_config_module_update() {
 check_module() {
 	enabled=$(git config --get --bool hooks.submodule) || enabled=true
 	test "$enabled" = "false" && return
+
+	# Allow merged submodule updates.
+	test -n "$merge_head" &&
+	merge_obj=$(git rev-parse -q --verify "$merge_head:$file") &&
+	test "$merge_obj" = "$dst_obj" && return
 
 	# Allow module-only commits without extra work.
 	test -z "$diffs_normal" && return
