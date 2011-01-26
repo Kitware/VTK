@@ -126,52 +126,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Summary table: assigns a unique key to each variable
-  vtkTable* summaryTab = vtkTable::New();
-
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
-  summaryTab->AddColumn( stringCol );
-  stringCol->Delete();
-
-  // The actual histogram table, indexed by the key of the summary
-  vtkTable* histogramTab = vtkTable::New();
-
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Key" );
-  histogramTab->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
-  stringCol = vtkStringArray::New();
-  stringCol->SetName( "Value" );
-  histogramTab->AddColumn( stringCol );
-  stringCol->Delete();
-
-  idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Cardinality" );
-  histogramTab->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
-  // Row to be used to insert into summary table
-  vtkVariantArray* row1 = vtkVariantArray::New();
-  row1->SetNumberOfValues( 1 );
-
-  // Row to be used to insert into histogram table
-  vtkVariantArray* row3 = vtkVariantArray::New();
-  row3->SetNumberOfValues( 3 );
-
-  // Insert first row which will always contain the data set cardinality, with key -1
-  // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
-  // learn mode to make it clear that it is not a correct value. This is an issue of database
-  // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
-  // when the input meta table is calculated by something else than the learn mode (e.g., is specified
-  // by the user).
-  vtkStdString zString = vtkStdString( "" );
-  row3->SetValue( 0, -1 );
-  row3->SetValue( 1, zString );
-  row3->SetValue( 2, -1 );
-  histogramTab->InsertNextRow( row3 );
-
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin();
@@ -188,13 +142,62 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    // Create entry in summary for variable col and set its index to be the key
-    // for values of col in the histogram table
-    row1->SetValue( 0, col );
-    row3->SetValue( 0, summaryTab->GetNumberOfRows() );
-    summaryTab->InsertNextRow( row1 );
-
+    // Get hold of data for this variable
     vtkAbstractArray* vals = inData->GetColumnByName( col );
+
+    // Create histogram table for this variable
+    vtkTable* histogramTab = vtkTable::New();
+
+    // Switch depending on data type
+    if ( vals->IsA("vtkDataArray") )
+      {
+      vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( "Value" );
+      histogramTab->AddColumn( doubleCol );
+      doubleCol->Delete();
+      }
+    else if ( vals->IsA("vtkStringArray") )
+      {
+      vtkStringArray* stringCol = vtkStringArray::New();
+      stringCol->SetName( "Value" );
+      histogramTab->AddColumn( stringCol );
+      stringCol->Delete();
+      }
+    else if ( vals->IsA("vtkVariantArray") )
+      {
+      vtkVariantArray* variantCol = vtkVariantArray::New();
+      variantCol->SetName( "Value" );
+      histogramTab->AddColumn( variantCol );
+      variantCol->Delete();
+      }
+    else
+      {
+      vtkWarningMacro( "Unsupported data type for column "
+                       << col.c_str()
+                       << ". Ignoring it." );
+
+      continue;
+      }
+
+    vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+    idTypeCol->SetName( "Cardinality" );
+    histogramTab->AddColumn( idTypeCol );
+    idTypeCol->Delete();
+
+    // Row to be used to insert into histogram table
+    vtkVariantArray* row = vtkVariantArray::New();
+    row->SetNumberOfValues( 2 );
+
+    // Insert first row which will always contain the data set cardinality, with key -1
+    // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
+    // learn mode to make it clear that it is not a correct value. This is an issue of database
+    // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
+    // when the input meta table is calculated by something else than the learn mode (e.g., is specified
+    // by the user).
+    vtkStdString zString = vtkStdString( "" );
+    row->SetValue( 0, zString );
+    row->SetValue( 1, -1 );
+    histogramTab->InsertNextRow( row );
 
     // Calculate histogram
     vtksys_stl::map<vtkStdString,vtkIdType> histogram;
@@ -208,24 +211,20 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
           mit != histogram.end(); ++ mit  )
       {
-      row3->SetValue( 1, mit->first );
-      row3->SetValue( 2, mit->second );
-      histogramTab->InsertNextRow( row3 );
+      row->SetValue( 1, mit->first );
+      row->SetValue( 2, mit->second );
+      histogramTab->InsertNextRow( row );
       }
-    }
 
-  // Finally set summary and histogram blocks of output meta port
-  outMeta->SetNumberOfBlocks( 2 );
-  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Summary" );
-  outMeta->SetBlock( 0, summaryTab );
-  outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Histogram" );
-  outMeta->SetBlock( 1, histogramTab );
+    // Clean up
+    histogramTab->Delete();
+    row->Delete();
 
-  // Clean up
-  summaryTab->Delete();
-  histogramTab->Delete();
-  row1->Delete();
-  row3->Delete();
+    // Finally set summary and histogram blocks of output meta port
+    outMeta->SetNumberOfBlocks( 1 );
+    outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Histogram" );
+    outMeta->SetBlock( 0, histogramTab );
+    } // rit
 
   return;
 }
