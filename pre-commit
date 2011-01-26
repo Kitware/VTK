@@ -249,6 +249,31 @@ to checkout the current version of the submodule in your work tree.
 Test your changes again to see if they still work with the module.
 Finally, try the commit again.
 '
+	return 1
+}
+
+check_module_rewind() {
+	parent_name="$1"
+	parent_commit="$2"
+	base=$(GIT_DIR="$file/.git" \
+	       git merge-base $src_obj $dst_obj 2>/dev/null) || base=''
+	test "$base" != "$dst_obj" && return
+	parent_short=$(short_commit "$parent_commit")
+	src_short=$(GIT_DIR="$file/.git" short_commit "$src_obj")
+	dst_short=$(GIT_DIR="$file/.git" short_commit "$dst_obj")
+	echo 'This commit would rewind a submodule link:
+
+  "'"$file"'"  '"$src_short => $dst_short"'
+
+from the newer version in '"$parent_name"' ('"$parent_short"').  Run
+
+  git reset '"$parent_name"' -- "'"$file"'"
+  git submodule update -- "'"$file"'"
+
+to checkout the newer version of the submodule in your work tree.
+Then try the commit again.
+'
+	return 1
 }
 
 diffs=$(git diff-index --cached $against -- |
@@ -267,7 +292,28 @@ while read src_mode dst_mode src_obj dst_obj status file; do
 done
 test -n "$diffs_module" && echo "$diffs_module" |
 while read src_mode dst_mode src_obj dst_obj status file; do
-	check_module
+	check_module_rewind HEAD "$against" &&
+	check_module ||
+	break
+done
+)
+test -z "$bad" || die "$bad"
+
+#-----------------------------------------------------------------------------
+# Merge checks.
+if test -n "$merge_head"; then
+	merge_diffs=$(git diff-index --cached $merge_head -- |
+	              sed -n '/^:[^:]/ {s/^://;p;}')
+else
+	merge_diffs=''
+fi
+merge_diffs_normal=$(echo "$merge_diffs" | grep -v '^...... 160000')
+merge_diffs_module=$(echo "$merge_diffs" | grep    '^...... 160000')
+bad=$(
+test -n "$merge_diffs_module" && echo "$merge_diffs_module" |
+while read src_mode dst_mode src_obj dst_obj status file; do
+	check_module_rewind MERGE_HEAD "$merge_head" ||
+	break
 done
 )
 test -z "$bad" || die "$bad"
