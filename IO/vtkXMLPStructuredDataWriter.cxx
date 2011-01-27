@@ -48,7 +48,6 @@ void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtk
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 {
-  vtkWarningMacro(<< getpid() << " is writing out ppiece for " << index);
   int extent[6];
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
   vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
