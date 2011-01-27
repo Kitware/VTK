@@ -21,6 +21,8 @@
 #include "vtkDataSet.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
 #include "vtkMultiBlockDataSet.h"
@@ -36,10 +38,10 @@
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <vtkstd/map>
+#include <vtkstd/set>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 #include <vtksys/SystemTools.hxx>
-
 
 struct vtkXMLCompositeDataReaderEntry
 {
@@ -60,6 +62,8 @@ struct vtkXMLCompositeDataReaderInternals
     this->MinDataset = 0;
     this->MaxDataset = 0;
     }
+  vtkstd::set<int> UpdateIndices;
+  bool HasUpdateRestriction;
 };
 
 //----------------------------------------------------------------------------
@@ -269,6 +273,23 @@ void vtkXMLCompositeDataReader::ReadXMLData()
     this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece;
     }
 
+  vtkInformation* outInfo = this->GetCurrentOutputInformation();
+  if (outInfo->Has(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES()))
+    {
+    this->Internal->HasUpdateRestriction = true;
+    this->Internal->UpdateIndices = vtkstd::set<int>();
+    int length = outInfo->Length(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES());
+    if (length > 0)
+      {
+      int* idx = outInfo->Get(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES());
+      this->Internal->UpdateIndices = vtkstd::set<int>(idx, idx+length);
+      }
+    }
+  else
+    {
+    this->Internal->HasUpdateRestriction = false;
+    }
+
   // All process create the  entire tree structure however, only each one only
   // reads the datasets assigned to it.
   unsigned int dataSetIndex=0;
@@ -278,8 +299,19 @@ void vtkXMLCompositeDataReader::ReadXMLData()
 //----------------------------------------------------------------------------
 int vtkXMLCompositeDataReader::ShouldReadDataSet(unsigned int dataSetIndex)
 {
-  return (dataSetIndex >= this->Internal->MinDataset && 
-    dataSetIndex < this->Internal->MaxDataset)? 1 : 0;
+  bool shouldRead =
+    (dataSetIndex >= this->Internal->MinDataset &&
+     dataSetIndex < this->Internal->MaxDataset);
+
+  if (shouldRead && this->Internal->HasUpdateRestriction)
+    {
+    if (this->Internal->UpdateIndices.find(dataSetIndex) ==
+        this->Internal->UpdateIndices.end())
+      {
+      shouldRead = false;
+      }
+    }
+  return shouldRead;
 }
 
 //----------------------------------------------------------------------------
