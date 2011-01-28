@@ -383,12 +383,14 @@ public:
 
     int getlowbound(int iBoundNum = 0) const
     {
+        (void)iBoundNum;
         return m_iLow;
     };
 
 
     int gethighbound(int iBoundNum = 0) const
     {
+        (void)iBoundNum;
         return m_iHigh;
     };
 

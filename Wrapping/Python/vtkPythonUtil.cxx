@@ -984,8 +984,8 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
     }
   return ptr;
 #else
-  obj = obj;
-  classname = classname;
+  (void)obj;
+  (void)classname;
   PyErr_SetString(PyExc_TypeError, "method requires VTK built with SIP support");
   return NULL;
 #endif
@@ -1023,9 +1023,9 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
   return api->api_convert_from_type(const_cast<void*>(ptr), td, NULL);
 
 #else
-  ptr = ptr;
-  classname = classname;
-  is_new = is_new;
+  (void)ptr;
+  (void)classname;
+  (void)is_new;
   PyErr_SetString(PyExc_TypeError, "method requires VTK built with SIP support");
   return NULL;
 #endif
