@@ -257,6 +257,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_CHARTS_EXPORT VTK_ABI_IMPORT
  #endif
 
+ #if defined(vtkAMR_EXPORTS)
+  #define VTK_AMR_EXPORT VTK_ABI_EXPORT
+ #else
+  #define VTK_AMR_EXPORT VTK_ABI_IMPORT
+ #endif
+
 #else
  #define VTK_COMMON_EXPORT
  #define VTK_FILTERING_EXPORT
@@ -275,6 +281,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_PARALLEL_EXPORT
  #define VTK_VIEWS_EXPORT
  #define VTK_CHARTS_EXPORT
+ #define VTK_AMR_EXPORT
  #define VTK_EXPORT
 #endif
 
