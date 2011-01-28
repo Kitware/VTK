@@ -231,27 +231,27 @@ void vtkImageMultipleInputFilter::MultiThread(vtkImageData **inputs,
 
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
-void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData 
-                                  **vtkNotUsed(inData), 
+void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData
+                                  **vtkNotUsed(inData),
                                   vtkImageData *vtkNotUsed(outData),
                                   int extent[6], int threadId)
 {
-  extent = extent;
+  (void)extent;
   if (threadId == 0)
     {
     vtkErrorMacro("subclass must override ThreadedExecute!!!");
     }
 }
 
-  
+
 //----------------------------------------------------------------------------
 // For streaming and threads.  Splits output update extent into num pieces.
 // This method needs to be called num times.  Results must not overlap for
 // consistent starting extent.  Subclass can override this method.
 // This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".  
+// This can be from 1 to "total".
 // If 1 is returned, the extent cannot be split.
-int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6], 
+int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6],
                                              int num, int total)
 {
   int splitAxis;
@@ -259,7 +259,7 @@ int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6],
 
   vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
                 << startExt[2] << ", " << startExt[3] << ", "
-                << startExt[4] << ", " << startExt[5] << "), " 
+                << startExt[4] << ", " << startExt[5] << "), "
                 << num << " of " << total);
 
   // start with same extent

@@ -82,19 +82,6 @@ bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
   return true;
 }
 
-void InitializeData(vtkStructuredGrid* Data)
-{
-  Data->SetDimensions(2, 3, 4);
-}
-
-bool CompareData(vtkStructuredGrid* Output, vtkStructuredGrid* Input)
-{
-  if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
-    return false;
-
-  return true;
-}
-
 void InitializeData(vtkUnstructuredGrid* Data)
 {
   vtkCubeSource* const source = vtkCubeSource::New();
