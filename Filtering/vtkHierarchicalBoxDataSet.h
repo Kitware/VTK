@@ -209,6 +209,16 @@ protected:
   ~vtkHierarchicalBoxDataSet();
 
   // Description:
+  // Computes the point visibility array of the given grid @the provided level.
+  virtual void GeneratePointVisibility( const unsigned int level,
+      vtkUniformGrid *gridPtr );
+
+  // Description:
+  // Computes the cell visibility array of the given grid based on the pre-
+  // computed point visibility array.
+  virtual void GenerateCellVisibility( vtkUniformGrid *gridPtr );
+
+  // Description:
   // Compute the range of the scalars and cache it into ScalarRange
   // only if the cache became invalid (ScalarRangeComputeTime).
   virtual void ComputeScalarRange();

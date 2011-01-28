@@ -31,10 +31,11 @@
 #define __vtkAMRBox_h
 
 #include "vtkObject.h"
+#include "vtkSerializable.h"
 #include "vtkType.h" //For utility functions.
 #include <vtkstd/vector> // STL Header
 
-class VTK_FILTERING_EXPORT vtkAMRBox
+class VTK_FILTERING_EXPORT vtkAMRBox : public vtkSerializable
 {
 public:
   // Description:
@@ -80,6 +81,11 @@ public:
   // are valid.
   int GetDimensionality() const { return this->Dimension; }
   void SetDimensionality(int dim);
+
+  // Description:
+  // Checks if the point is inside this AMRBox instance.
+  // x,y,z the world point
+  bool HasPoint( const double x, const double y, const double z );
 
   // Description:
   // Set the dimensions of the box. ilo,jlo,klo,ihi,jhi,khi
@@ -195,8 +201,34 @@ public:
   void Coarsen(int r);
 
   // Description:
+  // Gets the real coordinates of the point within the virtual
+  // AMR box at the given ijk coordinates.
+  // ijk -- the computational coordinate of the point in query (in)
+  // pnt -- the physical (real) coordinate of the point (out)
+  void GetPoint( const int ijk[3], double pnt[3] );
+
+  // Description:
   // Send the box to a stream. "(ilo,jlo,jhi),(ihi,jhi,khi)"
   ostream &Print(ostream &os) const;
+
+  // Description:
+  // Serializes this object instance into a byte-stream.
+  // buffer   -- user-supplied pointer where the serialized object is stored.
+  // bytesize -- number of bytes, i.e., the size of the buffer.
+  // NOTE: buffer is allocated internally by this method.
+  // Pre-conditions:
+  //   buffer == NULL
+  // Post-conditions:
+  //   buffer   != NULL
+  //   bytesize != 0
+  void Serialize( unsigned char*& buffer, size_t &bytesize );
+
+  // Description:
+  // Deserializes this object instance from the given byte-stream.
+  // Pre-conditions:
+  //   buffer != NULL
+  //   bytesize != 0
+  void Deserialize( unsigned char* buffer, const size_t &bytesize );
 
   //BTX
   // @deprecated Replaced by Contains() as of VTK 5.4.

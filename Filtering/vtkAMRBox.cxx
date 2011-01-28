@@ -17,9 +17,12 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellData.h"
 #include "vtkType.h"
+#include "vtkAssertUtils.hpp"
 
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
+#include <cstring>
+#include <cassert>
 using vtkstd::vector;
 using vtkstd::copy;
 
@@ -101,14 +104,7 @@ vtkAMRBox::vtkAMRBox(int dim, const int *dims)
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(const vtkAMRBox &other)
 {
-  if (this==&other) return;
-  this->SetDimensionality(other.GetDimensionality());
-  int lo[3];
-  int hi[3];
-  other.GetDimensions(lo,hi);
-  this->SetDimensions(lo,hi);
-  this->SetGridSpacing(other.GetGridSpacing());
-  this->SetDataSetOrigin(other.GetDataSetOrigin());
+  *this = other;
 }
 
 //-----------------------------------------------------------------------------
@@ -467,6 +463,18 @@ bool vtkAMRBox::Empty() const
 }
 
 //-----------------------------------------------------------------------------
+bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
+{
+  int i = floor( (x-this->LoCorner[0])/this->DX[0] );
+  int j = floor( (y-this->LoCorner[1])/this->DX[1] );
+  int k = floor( (z-this->LoCorner[2])/this->DX[2] );
+
+  if( this->Contains( i, j, k) )
+    return true;
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAMRBox::operator==(const vtkAMRBox &other)
 {
   if ( this->Dimension!=other.Dimension)
@@ -546,6 +554,7 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
 {
+  assert( !this->Empty() );
   switch (this->Dimension)
     {
     case 1:
@@ -641,22 +650,31 @@ void vtkAMRBox::Refine(int r)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Coarsen(int r)
 {
+  assert( !this->Empty() );
   if (this->Empty())
     {
     return;
     }
 
+  std::cout << "=============================\n";
+  std::cout << "Before coarsening:\n";
+  this->Print( std::cout );
+  std::cout << std::endl;
+  std::cout.flush( );
+
   // sanity check.
-  int nCells[3];
-  this->GetNumberOfCells(nCells);
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    if (nCells[q]%r)
-      {
-      vtkGenericWarningMacro("This box cannot be coarsened.");
-      return;
-      }
-    }
+//  int nCells[3];
+//  this->GetNumberOfCells(nCells);
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//     if (nCells[q]%r)
+//      {
+//      vtkGenericWarningMacro( << "nCells[q]: " << nCells[q] <<
+//        " r:" << r << " nCells[q]%r: " << nCells[q]%r );
+//      vtkGenericWarningMacro("This box cannot be coarsened.");
+//      return;
+//      }
+//    }
 
   int lo[3];
   int hi[3];
@@ -670,28 +688,105 @@ void vtkAMRBox::Coarsen(int r)
   this->DX[0]*=r;
   this->DX[1]*=r;
   this->DX[2]*=r;
+
+  std::cout << "After coarsening:\n";
+  this->Print( std::cout );
+  std::cout << std::endl;
+  std::cout << "=============================\n";
+  std::cout.flush( );
+
 }
 
 //-----------------------------------------------------------------------------
 ostream &vtkAMRBox::Print(ostream &os) const
 {
-  os << "("  << this->LoCorner[0]
+  os << "Low: ("  << this->LoCorner[0]
      << ","  << this->LoCorner[1]
      << ","  << this->LoCorner[2]
-     << ")(" << this->HiCorner[0]
+     << ") High: (" << this->HiCorner[0]
      << ","  << this->HiCorner[1]
      << ","  << this->HiCorner[2]
-     << ")(" << this->X0[0]
+     << ") Origin: (" << this->X0[0]
      << ","  << this->X0[1]
      << ","  << this->X0[2]
-     << ")(" << this->DX[0]
+     << ") Spacing: (" << this->DX[0]
      << ","  << this->DX[1]
      << ","  << this->DX[2]
      << ")";
   return os;
 }
 
+//-----------------------------------------------------------------------------
+void vtkAMRBox::GetPoint( const int ijk[3], double pnt[3] )
+{
+  // Compiler should unroll this small loop!
+  for( int i=0; i < this->Dimension; ++i )
+    {
+    // Sanity Check!
+    vtkAssertUtils::assertInRange(
+        ijk[i],0, this->HiCorner[i]-1,
+        __FILE__, __LINE__ );
 
+    if( ijk[i] == 0 )
+      pnt[i] = this->X0[i];
+    else
+      pnt[i] = this->X0[i]+ijk[i]*this->DX[i];
+    }
+
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::Serialize( unsigned char*& buffer, size_t &bytesize )
+{
+
+  vtkAssertUtils::assertNull( buffer, __FILE__, __LINE__ );
+
+  size_t bufsize = sizeof( int )+6*sizeof( double );
+  buffer         = new unsigned char[ bufsize ];
+  vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
+
+  // STEP 0: set pointer to traverse the buffer
+  unsigned char* ptr = buffer;
+
+  // STEP 1: serialize the dimension
+  std::memcpy( ptr, &(this->Dimension), sizeof(int) );
+  ptr += sizeof( int );
+
+  // STEP 2: serialize the coordinates array
+  std::memcpy( ptr, &(this->X0), (3*sizeof(double)) );
+  ptr += 3*sizeof( double );
+
+  // STEP 3: serialize the spacing array
+  std::memcpy( ptr, &(this->DX), (3*sizeof(double) ) );
+  ptr += 3*sizeof( double );
+
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::Deserialize( unsigned char* buffer, const size_t &bytesize )
+{
+
+  vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
+  vtkAssertUtils::assertTrue( (bytesize > 0), __FILE__, __LINE__ );
+
+  // STEP 0: set pointer to traverse the buffer
+  unsigned char *ptr = buffer;
+
+  // STEP 1: de-serialize the dimension
+  std::memcpy( &(this->Dimension), ptr, sizeof(int) );
+  ptr += sizeof( int );
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+
+  // STEP 2: de-serialize the coordinates
+  std::memcpy( &(this->X0), ptr, 3*sizeof(double) );
+  ptr += 3*sizeof(double);
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+
+  // STEP 3: de-serialize the spacing array
+  std::memcpy( &(this->DX), ptr, 3*sizeof(double) );
+  ptr += 3*sizeof(double);
+
+}
 
 
 

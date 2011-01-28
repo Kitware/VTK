@@ -142,6 +142,16 @@ public:
   virtual void SetCellVisibilityArray(vtkUnsignedCharArray *pointVisibility);
 
   // Description:
+  // Attaches the CellVisibility array to the Cell data.
+  // Used primarily for debugging.
+  virtual void AttachCellVisibilityToCellData( );
+
+  // Description:
+  // Attaches the PointVisibility arry to the Point data.
+  // Used primarily for debugging.
+  virtual void AttachPointVisibilityToPointData( );
+
+  // Description:
   // Return non-zero value if specified point is visible.
   // These methods should be called only after the dimensions of the
   // grid are set.
