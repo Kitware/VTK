@@ -46,15 +46,17 @@
 // Cross platform sleep
 inline void vtkSleep(double duration)
 {
-  (void)duration;
-  // sleep according to OS preference
+  // sleep according to OS
 #ifdef _WIN32
-  Sleep((int)(1000*duration));
-#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
+  Sleep( (int)( 1000 * duration ) );
+#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi) || defined(__APPLE__)
   struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = static_cast<int>(duration);
-  sleep_time.tv_nsec = static_cast<int>(1000000000*(duration-sleep_time.tv_sec));
-  nanosleep(&sleep_time,&dummy);
+  sleep_time.tv_sec = static_cast<int>( duration );
+  sleep_time.tv_nsec = static_cast<int>( 1000000000 * ( duration - sleep_time.tv_sec ) );
+  nanosleep( &sleep_time, &dummy );
+#else
+  (void)duration;
+  #warning Missing sleep implementation
 #endif
 }
 
