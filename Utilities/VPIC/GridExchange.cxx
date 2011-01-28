@@ -691,5 +691,9 @@ void GridExchange::exchange(int sendTo, int recvFrom, GRID_T* data)
       }
     }
   }
+#else
+  (void)sendTo;
+  (void)recvFrom;
+  (void)data;
 #endif
 }
