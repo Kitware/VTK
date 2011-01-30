@@ -51,7 +51,6 @@ public:
                            int width);
 
   void packTreeNodes(vtkIdType treeNode,
-                     vtkstd::vector<vtkIdType>& packedNodes,
                      double originX,
                      double originY,
                      double enclosingCircleRadius,
@@ -59,8 +58,7 @@ public:
                      vtkDataArray* sizeArray,
                      vtkTree* tree);
 
-  void packBrotherNodes(vtkIdType treeNode,
-                        vtkstd::vector<vtkIdType>& packedNodes,
+  void packBrotherNodes(vtkstd::vector<vtkIdType>& packedNodes,
                         double originX,
                         double originY,
                         double enclosingCircleRadius,
@@ -126,10 +124,10 @@ vtkCirclePackFrontChainLayoutStrategyImplementation::~vtkCirclePackFrontChainLay
 }
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::createCirclePacking(vtkTree* tree,
-                                                               vtkDataArray* sizeArray,
-                                                               vtkDataArray* circlesArray,
-                                                               int height,
-                                                               int width)
+                                                                              vtkDataArray* sizeArray,
+                                                                              vtkDataArray* circlesArray,
+                                                                              int height,
+                                                                              int width)
 {
 
   double enclosingCircleRadius = height/2.0;
@@ -138,9 +136,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::createCirclePacking(vt
     enclosingCircleRadius = width/2.0;
     }
 
-  vtkstd::vector<vtkIdType> packingList;
   this->packTreeNodes(tree->GetRoot(),
-                      packingList,
                       width/2.0,
                       height/2.0,
                       enclosingCircleRadius,
@@ -151,13 +147,12 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::createCirclePacking(vt
 }
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::packTreeNodes(vtkIdType treeNode,
-                                                         vtkstd::vector<vtkIdType>& packedNodes,
-                                                         double originX,
-                                                         double originY,
-                                                         double enclosingCircleRadius,
-                                                         vtkDataArray* circlesArray,
-                                                         vtkDataArray* sizeArray,
-                                                         vtkTree* tree)
+                                                                        double originX,
+                                                                        double originY,
+                                                                        double enclosingCircleRadius,
+                                                                        vtkDataArray* circlesArray,
+                                                                        vtkDataArray* sizeArray,
+                                                                        vtkTree* tree)
 {
 
   if(tree->IsLeaf(treeNode))
@@ -180,8 +175,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packTreeNodes(vtkIdTyp
       {
       childNodesPackList.push_back(tree->GetChild(treeNode,i));
       }
-    this->packBrotherNodes(treeNode,
-                           childNodesPackList,
+    this->packBrotherNodes(childNodesPackList,
                            originX,
                            originY,
                            enclosingCircleRadius,
@@ -191,14 +185,13 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packTreeNodes(vtkIdTyp
     }
 }
 
-void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(vtkIdType treeNode,
-                                                            vtkstd::vector<vtkIdType>& packedNodes,
-                                                            double originX,
-                                                            double originY,
-                                                            double enclosingCircleRadius,
-                                                            vtkDataArray* circlesArray,
-                                                            vtkDataArray* sizeArray,
-                                                            vtkTree* tree)
+void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(vtkstd::vector<vtkIdType>& packedNodes,
+                                                                           double originX,
+                                                                           double originY,
+                                                                           double enclosingCircleRadius,
+                                                                           vtkDataArray* circlesArray,
+                                                                           vtkDataArray* sizeArray,
+                                                                           vtkTree* tree)
 {
 
   if(!packedNodes.size())
@@ -330,7 +323,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(vtkId
                  Cn,
                  frontChain);
 
-    for(int i = 3;i < packedNodes.size();i++)
+    for(int i = 3;i < (int) packedNodes.size();i++)
       {
       circle[0] = 0.0;
       circle[1] = 0.0;
@@ -421,7 +414,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(vtkId
   double scaleFactor = enclosingCircleRadius/layoutRadius;
 
   // Scale and translate each circle
-  for(int i = 0;i < packedNodes.size();i++)
+  for(int i = 0;i < (int) packedNodes.size();i++)
     {
     circlesArray->GetTuple(packedNodes[i],
                            circle);
@@ -435,13 +428,11 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(vtkId
   // Now that each circle at this level is positioned and scaled,
   // find the layout for the children of each circle and add the
   // result to the packing list.
-  vtkstd::vector<vtkIdType> childNodesPackList;
-  for(int i = 0;i < packedNodes.size();i++)
+  for(int i = 0;i < (int) packedNodes.size();i++)
     {
     double circle[3];
     circlesArray->GetTuple(packedNodes[i], circle);
     this->packTreeNodes(packedNodes[i],
-                        childNodesPackList,
                         circle[0],
                         circle[1],
                         circle[2],
@@ -530,8 +521,8 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle
   vtkstd::list<vtkIdType>::iterator CjfromCm = frontChain.end();
   vtkstd::list<vtkIdType>::iterator lCm = Cm;
   vtkstd::list<vtkIdType>::iterator lCn = Cn;
-  int fcl = frontChain.size();
-  int searchPathLength = ceil(((double) fcl - 2.0)/2.0);
+  int fcl = (int) frontChain.size();
+  int searchPathLength = (int) ceil(((double) fcl - 2.0)/2.0);
 
   this->findCircleCenter(Ci,
                          *Cm,
@@ -747,24 +738,26 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::deleteSection(vtkstd::
                                                          vtkstd::list<vtkIdType>::iterator circleToEndAt,
                                                          vtkstd::list<vtkIdType>& frontChain)
 {
-  for (++circleToStartAt; (circleToStartAt!=frontChain.end())&&(circleToStartAt!=circleToEndAt); ++circleToStartAt)
+  ++circleToStartAt;
+  while ( (circleToStartAt != frontChain.end())&&(circleToStartAt != circleToEndAt) )
     {
-    frontChain.erase(circleToStartAt);
+    circleToStartAt = frontChain.erase(circleToStartAt);
     }
 
   if(circleToStartAt != circleToEndAt)
     {
-    for (circleToStartAt = frontChain.begin(); (circleToStartAt!=frontChain.end())&&(circleToStartAt!=circleToEndAt); ++circleToStartAt)
+    circleToStartAt = frontChain.begin();
+    while ( (circleToStartAt != frontChain.end())&&(circleToStartAt != circleToEndAt) )
       {
-      frontChain.erase(circleToStartAt);
+      circleToStartAt = frontChain.erase(circleToStartAt);
       }
     }
 }
 
 vtkCirclePackFrontChainLayoutStrategy::vtkCirclePackFrontChainLayoutStrategy()
 {
-  this->Width = 1.0;
-  this->Height = 1.0;
+  this->Width = 1;
+  this->Height = 1;
   this->pimpl = new vtkCirclePackFrontChainLayoutStrategyImplementation;
 }
 
