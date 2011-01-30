@@ -122,6 +122,7 @@ int vtkCirclePackToPolyData::RequestData(
 void vtkCirclePackToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Resolution: " << this->Resolution << endl;
 }
 
 void vtkCirclePackToPolyData::CreateCircle(const double& x,
