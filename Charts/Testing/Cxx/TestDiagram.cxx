@@ -26,6 +26,7 @@
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkStdString.h"
+#include "vtkNew.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -43,21 +44,18 @@ public:
 int TestDiagram(int, char * [])
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
-  vtkSmartPointer<vtkContextActor> actor =
-      vtkSmartPointer<vtkContextActor>::New();
-  vtkSmartPointer<APIDiagram> diagram = vtkSmartPointer<APIDiagram>::New();
-  actor->GetScene()->AddItem(diagram);
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkNew<vtkContextActor> actor;
+  vtkNew<APIDiagram> diagram;
+  actor->GetScene()->AddItem(diagram.GetPointer());
+  vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(1.0, 1.0, 1.0);
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(800, 600);
-  renderWindow->AddRenderer(renderer);
-  renderer->AddActor(actor);
+  renderWindow->AddRenderer(renderer.GetPointer());
+  renderer->AddActor(actor.GetPointer());
 
-  vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  interactor->SetRenderWindow(renderWindow);
+  vtkNew<vtkRenderWindowInteractor> interactor;
+  interactor->SetRenderWindow(renderWindow.GetPointer());
   renderWindow->SetMultiSamples(0);
   interactor->Initialize();
   interactor->Start();
