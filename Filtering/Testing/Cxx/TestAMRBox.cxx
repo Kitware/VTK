@@ -277,6 +277,34 @@ int TestAMRBox(int , char *[])
     return 1;
     }
   }
+  // Serialize/Deserialize
+  {
+    vtkAMRBox A( 0,0,0, 9,9,9 );
+    unsigned char *buffer = NULL;
+    size_t bytesize       = 0;
+    A.Serialize( buffer, bytesize );
+    if( (buffer == NULL) || (bytesize == 0) )
+      {
+      std::cerr << "Failed serializing AMR box." << std::endl;
+      return 1;
+      }
+    size_t expectedByteSize = sizeof( int )+( 6*sizeof(double) );
+    if( bytesize != expectedByteSize )
+      {
+      std::cerr << "Bytesize of buffer did not match expected size.\n";
+      return 1;
+      }
+
+    vtkAMRBox B;
+    B.Deserialize( buffer, bytesize );
+
+    if( !(A == B) )
+      {
+      std::cerr << "Deserialization of AMR box did not match initial box.\n";
+      return 1;
+      }
+
+  }
   return 0;
 }
 
