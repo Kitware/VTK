@@ -430,7 +430,6 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(vtkst
   // result to the packing list.
   for(int i = 0;i < (int) packedNodes.size();i++)
     {
-    double circle[3];
     circlesArray->GetTuple(packedNodes[i], circle);
     this->packTreeNodes(packedNodes[i],
                         circle[0],
@@ -507,12 +506,12 @@ bool vtkCirclePackFrontChainLayoutStrategyImplementation::validCjBeforeCm(vtkIdT
 }
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle(vtkIdType Ci,
-                                                                  bool& CjAfterCn,
-                                                                  vtkstd::list<vtkIdType>::iterator& Cj,
-                                                                  vtkstd::list<vtkIdType>::iterator Cm,
-                                                                  vtkstd::list<vtkIdType>::iterator Cn,
-                                                                  vtkDataArray* circlesArray,
-                                                                  vtkstd::list<vtkIdType>& frontChain)
+                                                                                 bool& CjAfterCn,
+                                                                                 vtkstd::list<vtkIdType>::iterator& Cj,
+                                                                                 vtkstd::list<vtkIdType>::iterator Cm,
+                                                                                 vtkstd::list<vtkIdType>::iterator Cn,
+                                                                                 vtkDataArray* circlesArray,
+                                                                                 vtkstd::list<vtkIdType>& frontChain)
 {
   // Start from Cn and look for the first intersection Cj until we have searched half
   // of the frontChain.  Do the same for Cm.  Compare the Cm and Cn search lengths and
@@ -616,9 +615,9 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle
 }
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::findCircleCenter(vtkIdType Ci,
-                                                            vtkIdType Cm,
-                                                            vtkIdType Cn,
-                                                            vtkDataArray* circlesArray)
+                                                                           vtkIdType Cm,
+                                                                           vtkIdType Cn,
+                                                                           vtkDataArray* circlesArray)
 {
 
   double circle[3];
@@ -674,10 +673,10 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findCircleCenter(vtkId
 }
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::findCm(double originX,
-                                                  double originY,
-                                                  vtkDataArray* circlesArray,
-                                                  vtkstd::list<vtkIdType>::iterator& Cm,
-                                                  vtkstd::list<vtkIdType>& frontChain)
+                                                                 double originY,
+                                                                 vtkDataArray* circlesArray,
+                                                                 vtkstd::list<vtkIdType>::iterator& Cm,
+                                                                 vtkstd::list<vtkIdType>& frontChain)
 {
   double minDistance = vtkstd::numeric_limits<double>::max();
   vtkstd::list<vtkIdType>::iterator it;
@@ -697,8 +696,8 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findCm(double originX,
 }
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::findCn(vtkstd::list<vtkIdType>::iterator Cm,
-                                                  vtkstd::list<vtkIdType>::iterator& Cn,
-                                                  vtkstd::list<vtkIdType>& frontChain)
+                                                                 vtkstd::list<vtkIdType>::iterator& Cn,
+                                                                 vtkstd::list<vtkIdType>& frontChain)
 {
   ++Cm;
   if(Cm == frontChain.end())
@@ -712,8 +711,8 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findCn(vtkstd::list<vt
 }
 
 bool vtkCirclePackFrontChainLayoutStrategyImplementation::circlesIntersect(vtkIdType circleOne,
-                                                            vtkIdType circleTwo,
-                                                            vtkDataArray* circlesArray)
+                                                                           vtkIdType circleTwo,
+                                                                           vtkDataArray* circlesArray)
 {
   double c1[3];
   double c2[3];
@@ -735,8 +734,8 @@ bool vtkCirclePackFrontChainLayoutStrategyImplementation::circlesIntersect(vtkId
 // Delete all circles out of fronChain from circleToStartAt to circleToEndAt, not including circleToStartAt and circleToEndAt.
 // Insert all deleted elements into circlePacking list.
 void vtkCirclePackFrontChainLayoutStrategyImplementation::deleteSection(vtkstd::list<vtkIdType>::iterator circleToStartAt,
-                                                         vtkstd::list<vtkIdType>::iterator circleToEndAt,
-                                                         vtkstd::list<vtkIdType>& frontChain)
+                                                                        vtkstd::list<vtkIdType>::iterator circleToEndAt,
+                                                                        vtkstd::list<vtkIdType>& frontChain)
 {
   ++circleToStartAt;
   while ( (circleToStartAt != frontChain.end())&&(circleToStartAt != circleToEndAt) )
@@ -771,8 +770,8 @@ vtkCirclePackFrontChainLayoutStrategy::~vtkCirclePackFrontChainLayoutStrategy()
 }
 
 void vtkCirclePackFrontChainLayoutStrategy::Layout(vtkTree *inputTree,
-                                           vtkDataArray *areaArray,
-                                           vtkDataArray* sizeArray)
+                                                   vtkDataArray *areaArray,
+                                                   vtkDataArray* sizeArray)
 {
     this->pimpl->createCirclePacking(inputTree,
                                      sizeArray,
