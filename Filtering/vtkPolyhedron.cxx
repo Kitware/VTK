@@ -1642,10 +1642,6 @@ void vtkPolyhedron::GenerateFaces()
     for (i=1; i <= npts; ++i)
       {
       id = (*this->PointIdMap)[gFace[i]];
-      if (id < 0)
-        {
-        id = id;
-        }
       face[i] = id;
       }
     gFace += gFace[0] + 1;
