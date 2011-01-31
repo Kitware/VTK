@@ -3091,10 +3091,10 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         faceCount += numFacesPerElement[i];
         }
 
-      /*/ xxx begin
-      delete [] numFacesPerElement;
-      delete [] numNodesPerFace;
-      //*//// xxx end
+      //xxx begin
+      //delete [] numFacesPerElement;
+      //delete [] numNodesPerFace;
+      //xxx end
 
       // number of nodes of all elements
       for (i = 0; i < numElements; i++)
@@ -3123,7 +3123,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       int         nodeIdx = 0;    // indexing nodes throughout all polyhedra
       int         arayIdx = 0;    // indexing the array of Ids (info of faces)
       vtkIdType * faceAry = NULL; // array of Ids describing a vtkPolyhedron
-      //*//// yyy end
+      // yyy end
 
       for (i = 0; i < numElements; i++)
         {
@@ -3143,7 +3143,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
             faceAry[ arayIdx ++ ] = nodeIdList[ nodeIdx ++ ] - 1;
             }
           }
-        //*//// yyy end
+        //yyy end
 
         for (j = 0; j < numNodesPerElement[i]; j++)
           {
@@ -3156,10 +3156,10 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
           nodeCount++;
           }
 
-        /*/ xxx begin
-        cellId = output->InsertNextCell( VTK_CONVEX_POINT_SET,
-                                         elementNodeCount, nodeIds );
-        //*//// xxx end
+        // xxx begin
+        //cellId = output->InsertNextCell( VTK_CONVEX_POINT_SET,
+        //                                 elementNodeCount, nodeIds );
+        // xxx end
 
         // yyy begin
         cellId = output->InsertNextCell( VTK_POLYHEDRON, elementNodeCount,
@@ -3167,7 +3167,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
                                          faceAry );
         delete [] faceAry;
         faceAry = NULL;
-        //*//// yyy end
+        //yyy end
 
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
 
@@ -3179,7 +3179,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       delete [] numFacesPerElement;
       numNodesPerFace    = NULL;
       numFacesPerElement = NULL;
-      //*//// yyy end
+      // yyy end
 
       delete [] nodeMarker;
       delete [] nodeIdList;
