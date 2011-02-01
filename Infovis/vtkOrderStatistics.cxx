@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -148,6 +149,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     // Create histogram table for this variable
     vtkTable* histogramTab = vtkTable::New();
 
+    // Row to be used to insert into histogram table
+    vtkVariantArray* row = vtkVariantArray::New();
+    row->SetNumberOfValues( 2 );
+
     // Switch depending on data type
     if ( vals->IsA("vtkDataArray") )
       {
@@ -155,6 +160,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       doubleCol->SetName( "Value" );
       histogramTab->AddColumn( doubleCol );
       doubleCol->Delete();
+
+      // Value of cardinality row is NaN
+      double noVal = vtkMath::Nan();
+      row->SetValue( 0, noVal );
       }
     else if ( vals->IsA("vtkStringArray") )
       {
@@ -162,6 +171,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       stringCol->SetName( "Value" );
       histogramTab->AddColumn( stringCol );
       stringCol->Delete();
+
+      // Value of cardinality row is the empty string
+      vtkStdString noVal = vtkStdString( "" );
+      row->SetValue( 0, noVal );
       }
     else if ( vals->IsA("vtkVariantArray") )
       {
@@ -169,6 +182,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       variantCol->SetName( "Value" );
       histogramTab->AddColumn( variantCol );
       variantCol->Delete();
+
+      // Value of cardinality row is the empty variant
+      vtkVariant noVal = vtkVariant( "" );
+      row->SetValue( 0, noVal );
       }
     else
       {
@@ -184,18 +201,12 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     histogramTab->AddColumn( idTypeCol );
     idTypeCol->Delete();
 
-    // Row to be used to insert into histogram table
-    vtkVariantArray* row = vtkVariantArray::New();
-    row->SetNumberOfValues( 2 );
-
-    // Insert first row which will always contain the data set cardinality, with key -1
+    // Insert first row which will always contain the data set cardinality
     // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
     // learn mode to make it clear that it is not a correct value. This is an issue of database
     // normalization: including the cardinality to the other counts can lead to inconsistency, in particular
     // when the input meta table is calculated by something else than the learn mode (e.g., is specified
     // by the user).
-    vtkStdString zString = vtkStdString( "" );
-    row->SetValue( 0, zString );
     row->SetValue( 1, -1 );
     histogramTab->InsertNextRow( row );
 
@@ -211,19 +222,22 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
           mit != histogram.end(); ++ mit  )
       {
-      row->SetValue( 1, mit->first );
-      row->SetValue( 2, mit->second );
+      row->SetValue( 0, mit->first );
+      row->SetValue( 1, mit->second );
       histogramTab->InsertNextRow( row );
       }
+
+    histogramTab->Dump();
+
+    // Resize output meta so histogram table can be appended
+    unsigned int nBlocks = outMeta->GetNumberOfBlocks();
+    outMeta->SetNumberOfBlocks( nBlocks + 1 );
+    outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), col );
+    outMeta->SetBlock( nBlocks, histogramTab );
 
     // Clean up
     histogramTab->Delete();
     row->Delete();
-
-    // Finally set summary and histogram blocks of output meta port
-    outMeta->SetNumberOfBlocks( 1 );
-    outMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Histogram" );
-    outMeta->SetBlock( 0, histogramTab );
     } // rit
 
   return;
