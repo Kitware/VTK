@@ -288,7 +288,7 @@ int TestAMRBox(int , char *[])
       std::cerr << "Failed serializing AMR box." << std::endl;
       return 1;
       }
-    size_t expectedByteSize = sizeof( int )+( 6*sizeof(double) );
+    size_t expectedByteSize = vtkAMRBox::GetBytesize();
     if( bytesize != expectedByteSize )
       {
       std::cerr << "Bytesize of buffer did not match expected size.\n";
