@@ -41,6 +41,9 @@ vtkAMRBox::vtkAMRBox(int dim)
   this->Invalidate();
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -52,6 +55,9 @@ vtkAMRBox::vtkAMRBox(
   this->SetDimensions(ilo,jlo,0,ihi,jhi,0);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,6 +69,9 @@ vtkAMRBox::vtkAMRBox(
   this->SetDimensions(ilo,jlo,klo,ihi,jhi,khi);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -72,6 +81,9 @@ vtkAMRBox::vtkAMRBox(const int *lo, const int *hi)
   this->SetDimensions(lo,hi);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -81,6 +93,9 @@ vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
   this->SetDimensions(lo,hi);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -90,6 +105,9 @@ vtkAMRBox::vtkAMRBox(const int *dims)
   this->SetDimensions(dims);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -99,6 +117,32 @@ vtkAMRBox::vtkAMRBox(int dim, const int *dims)
   this->SetDimensions(dims);
   this->X0[0]=this->X0[1]=this->X0[2]=0.0;
   this->DX[0]=this->DX[1]=this->DX[2]=1.0;
+  this->ProcessId  = -1;
+  this->BlockId    = -1;
+  this->BlockLevel = -1;
+}
+
+//-----------------------------------------------------------------------------
+vtkAMRBox::vtkAMRBox(
+      const double origin[3], const int dim, const int ndim[3],
+      const double h[3], const int blockIdx, const int level,
+      const int rank )
+{
+  // Sanity Check!
+  vtkAssertUtils::assertInRange( dim, 2, 3, __FILE__, __LINE__ );
+
+  // low corner ijk is @ (0,0,0)
+  this->LoCorner[ 0 ] = this->LoCorner[ 1 ] = this->LoCorner[ 2 ] = 0;
+
+  for( int i=0; i < 3; ++i )
+    {
+      this->X0[ i ]       = origin[ i ];
+      this->DX[ i ]       = h[ i ];
+      this->HiCorner[ i ] = ndim[i]-1; // we are indexing from 0!
+    }
+  this->BlockId    = blockIdx;
+  this->BlockLevel = level;
+  this->ProcessId  = rank;
 }
 
 //-----------------------------------------------------------------------------
@@ -118,6 +162,9 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
   this->SetDimensions(lo,hi);
   this->SetGridSpacing(other.GetGridSpacing());
   this->SetDataSetOrigin(other.GetDataSetOrigin());
+  this->ProcessId  = other.ProcessId;
+  this->BlockId    = other.BlockId;
+  this->BlockLevel = other.BlockLevel;
   return *this;
 }
 
@@ -131,6 +178,27 @@ void vtkAMRBox::SetDimensionality(int dim)
     return;
     }
   this->Dimension=dim;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::SetProcessId( const int pid )
+{
+  vtkAssertUtils::assertTrue( (pid>=0), __FILE__, __LINE__ );
+  this->ProcessId = pid;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::SetBlockId( const int blockIdx )
+{
+  vtkAssertUtils::assertTrue( (blockIdx>=0), __FILE__, __LINE__ );
+  this->BlockId = blockIdx;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::SetLevel( const int level )
+{
+  vtkAssertUtils::assertTrue( (level>=0), __FILE__, __LINE__ );
+  this->BlockLevel = level;
 }
 
 //-----------------------------------------------------------------------------
@@ -386,6 +454,8 @@ void vtkAMRBox::Grow(int byN)
     }
   int lo[3];
   int hi[3];
+
+  // TODO: There is no bound checking here?
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]-byN;
@@ -403,6 +473,8 @@ void vtkAMRBox::Shrink(int byN)
     }
   int lo[3];
   int hi[3];
+
+  // TODO: There is no bound checking here?
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]+byN;
@@ -477,6 +549,7 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::operator==(const vtkAMRBox &other)
 {
+  // TODO: fix this to check for equality of meta-data as well
   if ( this->Dimension!=other.Dimension)
     {
     return false;
@@ -554,7 +627,7 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::Contains(int i,int j,int k) const
 {
-  assert( !this->Empty() );
+  vtkAssertUtils::assertFalse( this->Empty(), __FILE__, __LINE__ );
   switch (this->Dimension)
     {
     case 1:
@@ -656,11 +729,11 @@ void vtkAMRBox::Coarsen(int r)
     return;
     }
 
-  std::cout << "=============================\n";
-  std::cout << "Before coarsening:\n";
-  this->Print( std::cout );
-  std::cout << std::endl;
-  std::cout.flush( );
+//  std::cout << "=============================\n";
+//  std::cout << "Before coarsening:\n";
+//  this->Print( std::cout );
+//  std::cout << std::endl;
+//  std::cout.flush( );
 
   // sanity check.
 //  int nCells[3];
@@ -689,11 +762,11 @@ void vtkAMRBox::Coarsen(int r)
   this->DX[1]*=r;
   this->DX[2]*=r;
 
-  std::cout << "After coarsening:\n";
-  this->Print( std::cout );
-  std::cout << std::endl;
-  std::cout << "=============================\n";
-  std::cout.flush( );
+//  std::cout << "After coarsening:\n";
+//  this->Print( std::cout );
+//  std::cout << std::endl;
+//  std::cout << "=============================\n";
+//  std::cout.flush( );
 
 }
 
@@ -714,6 +787,24 @@ ostream &vtkAMRBox::Print(ostream &os) const
      << ","  << this->DX[2]
      << ")";
   return os;
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::ExtrudeGhostCells( int nlayers )
+{
+  vtkAssertUtils::assertTrue( (nlayers>=1), __FILE__, __LINE__ );
+
+  for( int layer=0; layer < nlayers; ++layer )
+    {
+      // STEP 0: Shift origin and increase the dimension
+      for( int i=0; i < this->Dimension; ++i )
+        {
+          vtkAssertUtils::assertEquals(this->LoCorner[i],0,__FILE__,__LINE__);
+          this->X0[i]       -= this->DX[i];
+          this->HiCorner[i] += 2;
+        }
+    }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -741,7 +832,7 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, size_t &bytesize )
 
   vtkAssertUtils::assertNull( buffer, __FILE__, __LINE__ );
 
-  size_t bufsize = sizeof( int )+6*sizeof( double );
+  size_t bufsize = vtkAMRBox::GetBytesize();
   buffer         = new unsigned char[ bufsize ];
   vtkAssertUtils::assertNotNull( buffer, __FILE__, __LINE__ );
 
@@ -760,6 +851,25 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, size_t &bytesize )
   std::memcpy( ptr, &(this->DX), (3*sizeof(double) ) );
   ptr += 3*sizeof( double );
 
+  // STEP 4: serialize the block ID
+  std::memcpy( ptr, &(this->BlockId), sizeof(int) );
+  ptr += sizeof( int );
+
+  // STEP 5: serialize the process ID
+  std::memcpy(ptr, &(this->ProcessId), sizeof(int) );
+  ptr += sizeof( int );
+
+  // STEP 6: serialize the block level
+  std::memcpy(ptr, &(this->BlockLevel), sizeof(int) );
+  ptr += sizeof( int );
+
+  // STEP 7: serialize the low corner
+  std::memcpy(ptr, &(this->LoCorner), 3*sizeof(int) );
+  ptr += 3*sizeof( int );
+
+  // STEP 8: serialize the high corner
+  std::memcpy(ptr, &(this->HiCorner), 3*sizeof(int) );
+  ptr += 3*sizeof( int );
 }
 
 //-----------------------------------------------------------------------------
@@ -785,9 +895,32 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const size_t &bytesize )
   // STEP 3: de-serialize the spacing array
   std::memcpy( &(this->DX), ptr, 3*sizeof(double) );
   ptr += 3*sizeof(double);
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
 
+  // STEP 4: de-serialize the block ID
+  std::memcpy( &(this->BlockId), ptr, sizeof(int) );
+  ptr += sizeof( int );
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+
+  // STEP 5: de-serialize the process ID
+  std::memcpy( &(this->ProcessId), ptr, sizeof(int) );
+  ptr += sizeof( int );
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+
+  // STEP 6: serialize the block level
+  std::memcpy(&(this->BlockLevel), ptr, sizeof(int) );
+  ptr += sizeof( int );
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+
+  // STEP 7: serialize the low corner
+  std::memcpy( &(this->LoCorner), ptr, 3*sizeof(int) );
+  ptr += 3*sizeof( int );
+  vtkAssertUtils::assertNotNull( ptr, __FILE__, __LINE__ );
+
+  // STEP 8: serialize the high corner
+  std::memcpy(&(this->HiCorner), ptr,  3*sizeof(int) );
+  ptr += 3*sizeof( int );
 }
-
 
 
 

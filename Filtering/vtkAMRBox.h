@@ -65,6 +65,21 @@ public:
   vtkAMRBox(const int dims[6]);
 
   // Description:
+  // Construct a specific box & set all of its meta-data
+  // origin   -- 3-tuple consisting of the x,y,z world origin of the box
+  // dim      -- The dimension of the corresponding block, i.e., 2 or 3
+  // ndim     -- 3-tuple of the number of points along each dimension
+  //             Note, this constructor assumes loCorner to be 0
+  // h        -- 3-tuple consisting of the mesh spacing at each dimension
+  // blockIdx -- the ID of the block corresponding to this instance
+  // level    -- the level of this instance
+  // rank     -- the corresponding process rank that owns this block
+  vtkAMRBox(
+      const double origin[3], const int dim, const int ndim[3],
+      const double h[3], const int blockIdx, const int level,
+      const int rank );
+
+  // Description:
   // Copy construct this box from another.
   vtkAMRBox(const vtkAMRBox &other);
 
@@ -81,6 +96,21 @@ public:
   // are valid.
   int GetDimensionality() const { return this->Dimension; }
   void SetDimensionality(int dim);
+
+  // Description:
+  // Get/Set the process ID of the process that owns the box.
+  int GetProcessId() const { return this->ProcessId; }
+  void SetProcessId( const int pid );
+
+  // Description:
+  // Get/Set the Block ID of the AMR grid corresponding to this AMR box.
+  int GetBlockId() const { return this->BlockId; }
+  void SetBlockId( const int blockIdx );
+
+  // Description:
+  // Get/Set the Block level of the AMR grid corresponding to this AMR box.
+  int GetLevel() const { return this->BlockLevel; }
+  void SetLevel( const int level );
 
   // Description:
   // Checks if the point is inside this AMRBox instance.
@@ -201,6 +231,11 @@ public:
   void Coarsen(int r);
 
   // Description:
+  // Extrudes a provided number of (virtual) ghost cells
+  // nlayers -- the number of layers of ghost cells to extrude. Default is 1.
+  void ExtrudeGhostCells( int nlayers=1 );
+
+  // Description:
   // Gets the real coordinates of the point within the virtual
   // AMR box at the given ijk coordinates.
   // ijk -- the computational coordinate of the point in query (in)
@@ -230,6 +265,12 @@ public:
   //   bytesize != 0
   void Deserialize( unsigned char* buffer, const size_t &bytesize );
 
+  // Description:
+  // Returns the number of bytes allocated by this instance. In addition,
+  // this number of bytes corresponds to the buffer size required to serialize
+  // any vtkAMRBox instance.
+  static size_t GetBytesize(){return (10*sizeof(int)+6*sizeof(double)); };
+
   //BTX
   // @deprecated Replaced by Contains() as of VTK 5.4.
   // Do not use! See Contains().
@@ -249,9 +290,13 @@ public:
   int HiCorner[3]; // hi corner cell id.
 
 private:
-  int Dimension;         // 2 or 3.
-  double X0[3];          // Dataset origin (not box origin). low corner cell's, low corner node.
-  double DX[3];          // grid spacing.
+  int Dimension;  // 2 or 3.
+  int BlockId;    // The ID of the corresponding block
+  int ProcessId;  // The process ID that owns this block
+  int BlockLevel; // The level of this AMR box instance
+  double X0[3];   // Dataset origin (not box origin).
+  double DX[3];   // grid spacing.
+
 };
 
 // NOTE 2008-11-10
