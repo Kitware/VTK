@@ -210,22 +210,79 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     row->SetValue( 1, -1 );
     histogramTab->InsertNextRow( row );
 
-    // Calculate histogram
-    vtksys_stl::map<vtkStdString,vtkIdType> histogram;
-    for ( vtkIdType r = 0; r < nRow; ++ r )
+    // Switch depending on data type
+    if ( vals->IsA("vtkDataArray") )
       {
-      ++ histogram
-        [vals->GetVariantValue( r ).ToString()];
+      // Downcast column to double array for efficient data access
+      vtkDataArray* darr = vtkDataArray::SafeDownCast( vals );
+
+      // Calculate histogram
+      vtksys_stl::map<double,vtkIdType> histogram;
+      for ( vtkIdType r = 0; r < nRow; ++ r )
+        {
+        ++ histogram[darr->GetTuple1( r )];
+        }
+
+      // Store histogram
+      for ( vtksys_stl::map<double,vtkIdType>::iterator mit = histogram.begin();
+            mit != histogram.end(); ++ mit  )
+        {
+        row->SetValue( 0, mit->first );
+        row->SetValue( 1, mit->second );
+        histogramTab->InsertNextRow( row );
+        }
+      }
+    else if ( vals->IsA("vtkStringArray") )
+      {
+      // Downcast column to string array for efficient data access
+      vtkStringArray* sarr = vtkStringArray::SafeDownCast( vals );
+
+      // Calculate histogram
+      vtksys_stl::map<vtkStdString,vtkIdType> histogram;
+      for ( vtkIdType r = 0; r < nRow; ++ r )
+        {
+        ++ histogram[sarr->GetValue( r )];
+        }
+
+      // Store histogram
+      for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
+            mit != histogram.end(); ++ mit  )
+        {
+        row->SetValue( 0, mit->first );
+        row->SetValue( 1, mit->second );
+        histogramTab->InsertNextRow( row );
+        }
+      }
+    else if ( vals->IsA("vtkVariantArray") )
+      {
+      // Downcast column to string array for efficient data access
+      vtkVariantArray* varr = vtkVariantArray::SafeDownCast( vals );
+
+      // Calculate histogram
+      vtksys_stl::map<vtkVariant,vtkIdType> histogram;
+      for ( vtkIdType r = 0; r < nRow; ++ r )
+        {
+        ++ histogram[varr->GetVariantValue( r )];
+        }
+
+      // Store histogram
+      for ( vtksys_stl::map<vtkVariant,vtkIdType>::iterator mit = histogram.begin();
+            mit != histogram.end(); ++ mit  )
+        {
+        row->SetValue( 0, mit->first );
+        row->SetValue( 1, mit->second );
+        histogramTab->InsertNextRow( row );
+        }
+      }
+    else
+      {
+      vtkWarningMacro( "Unsupported data type for column "
+                       << col.c_str()
+                       << ". Ignoring it." );
+
+      continue;
       }
 
-    // Store histogram
-    for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
-          mit != histogram.end(); ++ mit  )
-      {
-      row->SetValue( 0, mit->first );
-      row->SetValue( 1, mit->second );
-      histogramTab->InsertNextRow( row );
-      }
 
     histogramTab->Dump();
 
