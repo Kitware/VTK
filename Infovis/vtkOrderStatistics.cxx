@@ -407,6 +407,9 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       probaCol = vtkDoubleArray::SafeDownCast( abstrCol );
       }
 
+    // Store invalid probability for cardinality row
+    histogramTab->SetValueByName( 0, "P", -1. );
+
     // Finally calculate and store probabilities
     double inv_n = 1. / n;
     double p;
