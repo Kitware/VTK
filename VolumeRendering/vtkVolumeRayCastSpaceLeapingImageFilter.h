@@ -44,7 +44,6 @@ public:
 
   // Description:
   // Set the scalars.
-  // FIXME Rename to Scalars ?
   virtual void SetCurrentScalars( vtkDataArray * );
   vtkGetObjectMacro( CurrentScalars, vtkDataArray );
 
@@ -60,12 +59,18 @@ public:
   vtkBooleanMacro( ComputeGradientOpacity, int );
 
   // Description:
-  // Compute the min max structure ?. At least ComputeGradientOpacity or
-  // ComputeMinMax or both have to enabled for the filter to execute.
+  // Compute the min max structure ?.
   vtkSetMacro( ComputeMinMax, int );
   vtkGetMacro( ComputeMinMax, int );
   vtkBooleanMacro( ComputeMinMax, int );
 
+  // Description:
+  // Update the gradient opacity flags. (The scalar opacity flags are always
+  // updated upon execution of this filter.)
+  vtkSetMacro( UpdateGradientOpacityFlags, int );
+  vtkGetMacro( UpdateGradientOpacityFlags, int );
+  vtkBooleanMacro( UpdateGradientOpacityFlags, int );
+  
   // Description:
   // Get the last execution time. This is updated every
   // time the scalars or the gradient opacity values are computed
@@ -107,6 +112,12 @@ public:
   unsigned short * GetMinMaxVolume( int dims[4] );
 
   // Description:
+  // INTERNAL - Do not use
+  // Set the last cached min-max volume, as used by
+  // vtkFixedPointVolumeRayCastMapper.
+  virtual void SetCache(vtkImageData * imageCache);
+
+  // Description:
   // Compute the extents and dimensions of the input that's required to
   // generate an output min-max structure given by outExt.
   // INTERNAL - Do not use
@@ -141,6 +152,13 @@ public:
   // the data starting at extents ext.
   unsigned long ComputeOffset(int ext[6], int wholeExt[6], int nComponents);
 
+  //BTX
+  // This method helps debug. It writes out a specific component of the
+  // computed min-max-volume structure
+  //static void WriteMinMaxVolume( int component, unsigned short *minMaxVolume,
+  //                           int minMaxVolumeSize[4], const char *filename );
+  //ETX
+
 protected:
   vtkVolumeRayCastSpaceLeapingImageFilter();
   ~vtkVolumeRayCastSpaceLeapingImageFilter();
@@ -154,31 +172,36 @@ protected:
   int               TableSize[4];
   int               ComputeGradientOpacity;
   int               ComputeMinMax;
+  int               UpdateGradientOpacityFlags;
   unsigned short *  MinNonZeroScalarIndex;
   unsigned char  *  MinNonZeroGradientMagnitudeIndex;
   unsigned char  ** GradientMagnitude;
   unsigned short  * ScalarOpacityTable[4];
   unsigned short  * GradientOpacityTable[4];
+  vtkImageData    * Cache;
 
 
+  void InternalRequestUpdateExtent(int *, int*);
+
+  // Description:
+  // See superclass for details
   virtual int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  void InternalRequestUpdateExtent(int *, int*);
-
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
-  virtual int RequestData( vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
-
+  void ThreadedRequestData(       vtkInformation *request,
+                                  vtkInformationVector **inputVector,
+                                  vtkInformationVector *outputVector,
+                                  vtkImageData ***inData,
+                                  vtkImageData **outData,
+                                  int outExt[6], int id);
+  virtual int RequestData(        vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
   virtual int RequestInformation( vtkInformation *,
                                   vtkInformationVector**,
                                   vtkInformationVector *);
 
+  // Description:
   // Compute the first non-zero scalar opacity and gradient opacity values
   // that are encountered when marching from the beginning of the transfer
   // function tables.
@@ -186,13 +209,24 @@ protected:
 
   // Description:
   // Fill the flags after processing the min/max/gradient structure. This
+  // optimized version is invoked when only scalar opacity table is needed.
+  void FillScalarOpacityFlags(
+      vtkImageData *minMaxVolume, int outExt[6] );
+
+  // Description:
+  // Fill the flags after processing the min/max/gradient structure. This
   // optimized version is invoked when both scalar and gradient opacity
   // tables need to be visited.
   void FillScalarAndGradientOpacityFlags(
       vtkImageData *minMaxVolume, int outExt[6] );
-  void FillScalarOpacityFlags(
-      vtkImageData *minMaxVolume, int outExt[6] );
 
+  // Description:
+  // Allocate the output data. If we have a cache with the same metadata as
+  // the output we are going to generate, re-use the cache as we may not be
+  // updating all data in the min-max structure.
+  virtual void AllocateOutputData( vtkImageData *out, int *uExtent );
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
+  
 private:
   vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
   void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
