@@ -1,13 +1,21 @@
-/**
- * @brief A Simple assertion library for self-checks that can be turned on/off
- * at compile time based on the ASSERT_ON flag.
- * @file vtkAssertUtils.hpp
- * @date Jan 26, 2011
- * @author gzagaris
- */
+/*=========================================================================
 
+  Program:   Visualization Toolkit
+  Module:    vtkAMRBox.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #ifndef VTKASSERTUTILS_HPP_
 #define VTKASSERTUTILS_HPP_
+
+#include <cassert>
 
 class vtkAssertUtils
 {
