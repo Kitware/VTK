@@ -17,6 +17,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellData.h"
 #include "vtkType.h"
+#include "vtkStructuredData.h"
 #include "vtkAssertUtils.hpp"
 
 #include <vtkstd/vector>
@@ -44,6 +45,7 @@ vtkAMRBox::vtkAMRBox(int dim)
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -58,6 +60,13 @@ vtkAMRBox::vtkAMRBox(
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
+  this->RealExtent[0] = ilo;
+  this->RealExtent[1] = ihi;
+  this->RealExtent[2] = jlo;
+  this->RealExtent[3] = jhi;
+  this->RealExtent[4] = 0;
+  this->RealExtent[5] = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -72,6 +81,13 @@ vtkAMRBox::vtkAMRBox(
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
+  this->RealExtent[0] = ilo;
+  this->RealExtent[1] = ihi;
+  this->RealExtent[2] = jlo;
+  this->RealExtent[3] = jhi;
+  this->RealExtent[4] = klo;
+  this->RealExtent[5] = khi;
 }
 
 //-----------------------------------------------------------------------------
@@ -84,6 +100,13 @@ vtkAMRBox::vtkAMRBox(const int *lo, const int *hi)
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
+  this->RealExtent[0] = lo[0];
+  this->RealExtent[1] = hi[0];
+  this->RealExtent[2] = lo[1];
+  this->RealExtent[3] = hi[1];
+  this->RealExtent[4] = lo[2];
+  this->RealExtent[5] = hi[2];
 }
 
 //-----------------------------------------------------------------------------
@@ -96,6 +119,13 @@ vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
+  this->RealExtent[0] = lo[0];
+  this->RealExtent[1] = hi[0];
+  this->RealExtent[2] = lo[1];
+  this->RealExtent[3] = hi[1];
+  this->RealExtent[4] = lo[2];
+  this->RealExtent[5] = hi[2];
 }
 
 //-----------------------------------------------------------------------------
@@ -108,6 +138,7 @@ vtkAMRBox::vtkAMRBox(const int *dims)
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -120,6 +151,8 @@ vtkAMRBox::vtkAMRBox(int dim, const int *dims)
   this->ProcessId  = -1;
   this->BlockId    = -1;
   this->BlockLevel = -1;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -131,18 +164,124 @@ vtkAMRBox::vtkAMRBox(
   // Sanity Check!
   vtkAssertUtils::assertInRange( dim, 2, 3, __FILE__, __LINE__ );
 
+  this->Dimension = dim;
+
   // low corner ijk is @ (0,0,0)
   this->LoCorner[ 0 ] = this->LoCorner[ 1 ] = this->LoCorner[ 2 ] = 0;
 
   for( int i=0; i < 3; ++i )
     {
+      vtkAssertUtils::assertTrue( ndim[i]>=1, __FILE__, __LINE__ );
       this->X0[ i ]       = origin[ i ];
       this->DX[ i ]       = h[ i ];
       this->HiCorner[ i ] = ndim[i]-1; // we are indexing from 0!
+      vtkAssertUtils::assertTrue( this->HiCorner[i]>=0, __FILE__, __LINE__ );
     }
   this->BlockId    = blockIdx;
   this->BlockLevel = level;
   this->ProcessId  = rank;
+  this->NG[0]=this->NG[1]=this->NG[2]=0;
+  this->RealExtent[0] = this->LoCorner[0];
+  this->RealExtent[1] = this->HiCorner[0];
+  this->RealExtent[2] = this->LoCorner[1];
+  this->RealExtent[3] = this->HiCorner[1];
+  this->RealExtent[4] = this->LoCorner[2];
+  this->RealExtent[5] = this->HiCorner[2];
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMRBox::GetNodeLinearIndex( const int i, const int j, const int k )
+{
+  // Sanity Check!
+  vtkAssertUtils::assertInRange( i, 0, this->HiCorner[0], __FILE__, __LINE__ );
+  vtkAssertUtils::assertInRange( j, 0, this->HiCorner[1], __FILE__, __LINE__ );
+  vtkAssertUtils::assertInRange( k, 0, this->HiCorner[2], __FILE__, __LINE__ );
+
+  int ndim[3];
+  int ijk[3];
+  ijk[0]=i; ijk[1]=j; ijk[2]=k;
+  this->GetNumberOfNodes( ndim );
+  int idx = vtkStructuredData::ComputePointId( ndim, ijk );
+  return( idx );
+}
+
+//-----------------------------------------------------------------------------
+int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
+{
+  // Sanity Check!
+  vtkAssertUtils::assertInRange( i, 0, this->HiCorner[0]-1,__FILE__, __LINE__ );
+  vtkAssertUtils::assertInRange( j, 0, this->HiCorner[1]-1,__FILE__, __LINE__ );
+  vtkAssertUtils::assertInRange( k, 0, this->HiCorner[2]-1,__FILE__, __LINE__ );
+
+  int ndim[3];
+  int ijk[3];
+  ijk[0]=i; ijk[1]=j; ijk[2]=k;
+  this->GetNumberOfCells( ndim );
+  int idx = vtkStructuredData::ComputeCellId( ndim, ijk );
+  return( idx );
+}
+
+//-----------------------------------------------------------------------------
+void vtkAMRBox::WriteToVtkFile( const char *file )
+{
+  // Sanity Checks
+  vtkAssertUtils::assertNotNull( file, __FILE__, __LINE__ );
+  vtkAssertUtils::assertTrue( std::strlen( file )>0, __FILE__, __LINE__ );
+
+  std::ofstream ofs;
+  ofs.open( file );
+  vtkAssertUtils::assertTrue( ofs.is_open(), __FILE__, __LINE__ );
+
+  ofs << "# vtk DataFile Version 3.0\n";
+  ofs << "Grid:" << this->BlockId << " Level:" << this->BlockLevel << "\n";
+  ofs << "ASCII\n";
+  ofs << "DATASET STRUCTURED_GRID\n";
+
+  int nodeExtent[3];
+  this->GetNumberOfNodes( nodeExtent );
+  ofs << "DIMENSIONS " << nodeExtent[0] << " " << nodeExtent[1];
+  ofs << " " << nodeExtent[2 ] << std::endl;
+  ofs << "POINTS " << this->GetNumberOfNodes() << " double\n";
+
+
+  int *isghost = new int[ this->GetNumberOfNodes() ];
+  vtkAssertUtils::assertNotNull( isghost, __FILE__, __LINE__ );
+
+  int    ijk[3];
+  double pnt[3];
+  pnt[0] = pnt[1] = pnt[2] = 0;
+  for( int i=0; i < nodeExtent[0]; ++i )
+    {
+      ijk[0] = i;
+      for( int j=0; j < nodeExtent[1]; ++j )
+        {
+          ijk[1] = j;
+          for( int k=0; k < nodeExtent[2]; ++k )
+            {
+              int pntIdx = this->GetNodeLinearIndex( i,j,k );
+              ijk[2] = k;
+              this->GetPoint( ijk, pnt );
+              ofs << pnt[ 0 ] << " " << pnt[ 1 ] << " " << pnt[ 2 ] << "\n";
+
+              if( this->IsGhostNode( i,j,k ) )
+                isghost[ pntIdx ] = 0;
+              else
+                isghost[ pntIdx ] = 1;
+            } // END for all k
+        } // END for all j
+    } // END for all i
+
+  // Attach Ghost status as point data
+  ofs << "POINT_DATA " << this->GetNumberOfNodes() << std::endl;
+  ofs << "SCALARS GHOSTFLAG int 1\n";
+  ofs << "LOOKUP_TABLE default\n";
+  for( int i=0; i < this->GetNumberOfNodes(); ++i )
+   ofs << isghost[ i ] << std::endl;
+
+  delete[] isghost;
+  isghost = NULL;
+
+  ofs.close( );
 }
 
 //-----------------------------------------------------------------------------
@@ -382,67 +521,100 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetNumberOfCells(int *ext) const
 {
-  if (this->Empty())
-    {
-    ext[0]=ext[1]=0;
-    if (this->Dimension>2){ ext[2]=0; }
-    return;
-    }
+  // Sanity!
+ vtkAssertUtils::assertTrue(
+  this->HiCorner[0]>=this->LoCorner[0], __FILE__, __LINE__ );
+ vtkAssertUtils::assertTrue(
+  this->HiCorner[1]>=this->LoCorner[1], __FILE__, __LINE__ );
+ vtkAssertUtils::assertTrue(
+  this->HiCorner[2]>=this->LoCorner[2], __FILE__, __LINE__ );
 
-  ext[2]=1;
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    ext[q]=this->HiCorner[q]-this->LoCorner[q]+1;
-    }
+  ext[0]=this->HiCorner[0]-this->LoCorner[0];
+  ext[1]=this->HiCorner[1]-this->LoCorner[1];
+  ext[2]=this->HiCorner[2]-this->LoCorner[2];
+// TODO: ?
+//  if (this->Empty())
+//    {
+//    ext[0]=ext[1]=0;
+//    if (this->Dimension>2){ ext[2]=0; }
+//    return;
+//    }
+//
+//  ext[2]=1;
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    ext[q]=this->HiCorner[q]-this->LoCorner[q]+1;
+//    }
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkAMRBox::GetNumberOfCells() const
 {
-  if (this->Empty())
-    {
-    return 0;
-    }
-
-  vtkIdType nCells=1;
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    nCells*=this->HiCorner[q]-this->LoCorner[q]+1;
-    }
-  return nCells;
+  int cellExtent[3];
+  this->GetNumberOfCells( cellExtent );
+  return( (cellExtent[0]*cellExtent[1]*cellExtent[2]) );
+// TODO: ?
+//  if (this->Empty())
+//    {
+//    return 0;
+//    }
+//
+//  vtkIdType nCells=1;
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    nCells*=this->HiCorner[q]-this->LoCorner[q]+1;
+//    }
+//  return nCells;
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetNumberOfNodes(int *ext) const
 {
-  if (this->Empty())
-    {
-    ext[0]=ext[1]=0;
-    if (this->Dimension>2){ ext[2]=0; }
-    return;
-    }
+  // Sanity!
+  vtkAssertUtils::assertTrue(
+   this->HiCorner[0]>=this->LoCorner[0], __FILE__, __LINE__ );
+  vtkAssertUtils::assertTrue(
+   this->HiCorner[1]>=this->LoCorner[1], __FILE__, __LINE__ );
+  vtkAssertUtils::assertTrue(
+   this->HiCorner[2]>=this->LoCorner[2], __FILE__, __LINE__ );
 
-  ext[2]=1;
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    ext[q]=this->HiCorner[q]-this->LoCorner[q]+2;
-    }
+  ext[0] = (this->HiCorner[0]-this->LoCorner[0])+1;
+  ext[1] = (this->HiCorner[1]-this->LoCorner[1])+1;
+  ext[2] = (this->HiCorner[2]-this->LoCorner[2])+1;
+
+// TODO: ?
+//  if (this->Empty())
+//    {
+//    ext[0]=ext[1]=0;
+//    if (this->Dimension>2){ ext[2]=0; }
+//    return;
+//    }
+//
+//  ext[2]=1;
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    ext[q]=this->HiCorner[q]-this->LoCorner[q]+2;
+//    }
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkAMRBox::GetNumberOfNodes() const
 {
-  if (this->Empty())
-    {
-    return 0;
-    }
-
-  vtkIdType nPoints=1;
-  for (int q=0; q<this->Dimension; ++q)
-    {
-    nPoints*=this->HiCorner[q]-this->LoCorner[q]+2;
-    }
-  return nPoints;
+  int ext[3];
+  this->GetNumberOfNodes( ext );
+  return( (ext[0]*ext[1]*ext[2]) );
+// TODO: ?
+//  if (this->Empty())
+//    {
+//    return 0;
+//    }
+//
+//  vtkIdType nPoints=1;
+//  for (int q=0; q<this->Dimension; ++q)
+//    {
+//    nPoints*=this->HiCorner[q]-this->LoCorner[q]+2;
+//    }
+//  return nPoints;
 }
 
 //-----------------------------------------------------------------------------
@@ -802,9 +974,66 @@ void vtkAMRBox::ExtrudeGhostCells( int nlayers )
           vtkAssertUtils::assertEquals(this->LoCorner[i],0,__FILE__,__LINE__);
           this->X0[i]       -= this->DX[i];
           this->HiCorner[i] += 2;
+          this->NG[i]++;
         }
     }
 
+  // Update the RealExtent
+  switch( this->Dimension )
+    {
+    case 1:
+      this->RealExtent[0] = this->LoCorner[0]+nlayers; // real-imin
+      this->RealExtent[1] = this->HiCorner[0]-nlayers; // real-imax
+      break;
+    case 2:
+      this->RealExtent[0] = this->LoCorner[0]+nlayers; // real-imin
+      this->RealExtent[1] = this->HiCorner[0]-nlayers; // real-imax
+      this->RealExtent[2] = this->LoCorner[1]+nlayers; // real-jmin
+      this->RealExtent[3] = this->HiCorner[1]-nlayers; // real-jmax
+      break;
+    case 3:
+      this->RealExtent[0] = this->LoCorner[0]+nlayers; // real-imin
+      this->RealExtent[1] = this->HiCorner[0]-nlayers; // real-imax
+      this->RealExtent[2] = this->LoCorner[1]+nlayers; // real-jmin
+      this->RealExtent[3] = this->HiCorner[1]-nlayers; // real-jmax
+      this->RealExtent[4] = this->LoCorner[2]+nlayers; // real-kmin
+      this->RealExtent[5] = this->HiCorner[2]-nlayers; // real-kmax
+      break;
+    default:
+      // Code should not reach here!
+      // TODO: Better error handling of this case!
+      this->Invalidate();
+    }
+
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRBox::IsGhostNode( const int i, const int j, const int k )
+{
+  bool status = false;
+  switch( this->Dimension )
+    {
+    case 1:
+      if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) )
+        status = true;
+      break;
+    case 2:
+      if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) ||
+          (j < this->RealExtent[2]) || (j > this->RealExtent[3])    )
+        status = true;
+      break;
+    case 3:
+      if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) ||
+          (j < this->RealExtent[2]) || (j > this->RealExtent[3]) ||
+          (k < this->RealExtent[4]) || (k > this->RealExtent[5] )   )
+        status = true;
+      break;
+    default:
+      // Code should not reach here!
+      // TODO: Better error handling of this case!
+      this->Invalidate();
+    }
+  return status;
 }
 
 //-----------------------------------------------------------------------------
@@ -815,7 +1044,7 @@ void vtkAMRBox::GetPoint( const int ijk[3], double pnt[3] )
     {
     // Sanity Check!
     vtkAssertUtils::assertInRange(
-        ijk[i],0, this->HiCorner[i]-1,
+        ijk[i],0, this->HiCorner[i],
         __FILE__, __LINE__ );
 
     if( ijk[i] == 0 )

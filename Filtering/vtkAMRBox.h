@@ -92,6 +92,10 @@ public:
   void Invalidate();
 
   // Description:
+  //
+  void GetNumberOfGhosts( int *ng );
+
+  // Description:
   // Get/Set the spatial dimension of the box. Only 2 and 3 
   // are valid.
   int GetDimensionality() const { return this->Dimension; }
@@ -231,9 +235,27 @@ public:
   void Coarsen(int r);
 
   // Description:
+  // Returns the linear index of the given node structured coordinates
+  int GetNodeLinearIndex( const int i, const int j, const int k );
+
+  // Description:
+  // Returns the linear index of the given cell structured coordinates
+  int GetCellLinearIndex( const int i, const int j, const int k );
+
+  // Description:
+  // Checks to see if the node corresponding to the given
+  // i-j-k coordinates is a ghost node.
+  bool IsGhostNode( const int i, const int j, const int k );
+
+  // Description:
   // Extrudes a provided number of (virtual) ghost cells
   // nlayers -- the number of layers of ghost cells to extrude. Default is 1.
   void ExtrudeGhostCells( int nlayers=1 );
+
+  // Description:
+  // Writes this instance of AMR box as a uniform grid in a VTK file
+  // that can be visualized with ParaView.
+  void WriteToVtkFile( const char *file );
 
   // Description:
   // Gets the real coordinates of the point within the virtual
@@ -290,13 +312,14 @@ public:
   int HiCorner[3]; // hi corner cell id.
 
 private:
-  int Dimension;  // 2 or 3.
-  int BlockId;    // The ID of the corresponding block
-  int ProcessId;  // The process ID that owns this block
-  int BlockLevel; // The level of this AMR box instance
-  double X0[3];   // Dataset origin (not box origin).
-  double DX[3];   // grid spacing.
-
+  int Dimension;      // 2 or 3
+  int BlockId;        // The ID of the corresponding block
+  int ProcessId;      // The process ID that owns this block
+  int BlockLevel;     // The level of this AMR box instance
+  int NG[3];          // Number of ghosts along each dimension
+  double X0[3];       // Dataset origin (not box origin)
+  double DX[3];       // grid spacing
+  int RealExtent[6];  // Extent of the all the real nodes, i.e., not the ghosts
 };
 
 // NOTE 2008-11-10

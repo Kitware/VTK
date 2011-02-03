@@ -8,5 +8,10 @@ ENDIF(NOT VTK_USE_RENDERING)
 INCLUDE(${VTK_USE_FILE})
 ENDIF(NOT VTK_BINARY_DIR)
 
+## Add HierarchicalBoxPipeline executable
 ADD_EXECUTABLE(HierarchicalBoxPipeline HierarchicalBoxPipeline.cxx)
 TARGET_LINK_LIBRARIES(HierarchicalBoxPipeline vtkRendering vtkIO)
+
+## Add TestAMRBoxGrhodCellExtrusion executable
+ADD_EXECUTABLE(TestAMRBoxGhostCellExtrusion TestAMRBoxGhostCellExtrusion.cxx)
+TARGET_LINK_LIBRARIES(TestAMRBoxGhostCellExtrusion vtkFiltering)
