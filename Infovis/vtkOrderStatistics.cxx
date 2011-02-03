@@ -302,34 +302,24 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  // A quantile row contains: variable name, cardinality, and NumberOfIntervals + 1 quantiles
-  vtkVariantArray* rowQuant = vtkVariantArray::New();
-  rowQuant->SetNumberOfValues( this->NumberOfIntervals + 3 );
-
   // Create quantiles table
   vtkTable* quantileTab = vtkTable::New();
 
   vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
+  stringCol->SetName( "Quantile" );
   quantileTab->AddColumn( stringCol );
   stringCol->Delete();
-
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Cardinality" );
-  quantileTab->AddColumn( idTypeCol );
-  idTypeCol->Delete();
 
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
     {
-    stringCol = vtkStringArray::New();
 
     // Handle special case of quartiles and median for convenience
     div_t q = div( i << 2, this->NumberOfIntervals );
     if ( q.rem )
       {
       // General case
-      stringCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+      stringCol->InsertNextValue( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
       }
     else
       {
@@ -337,27 +327,25 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       switch ( q.quot )
         {
         case 0:
-          stringCol->SetName( "Minimum" );
+          stringCol->InsertNextValue( "Minimum" );
           break;
         case 1:
-          stringCol->SetName( "First Quartile" );
+          stringCol->InsertNextValue( "First Quartile" );
           break;
         case 2:
-          stringCol->SetName( "Median" );
+          stringCol->InsertNextValue( "Median" );
           break;
         case 3:
-          stringCol->SetName( "Third Quartile" );
+          stringCol->InsertNextValue( "Third Quartile" );
           break;
         case 4:
-          stringCol->SetName( "Maximum" );
+          stringCol->InsertNextValue( "Maximum" );
           break;
         default:
-          stringCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+          stringCol->InsertNextValue( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
           break;
         }
       }
-    quantileTab->AddColumn( stringCol );
-    stringCol->Delete();
     }
 
   // Iterate over primary tables
@@ -429,12 +417,13 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       quantileThresholds.push_back( j * dh );
       }
 
-    quantileTab->InsertNextRow( rowQuant );
+//    quantileTab->InsertNextRow( rowQuant );
 
     histogramTab->Dump();
 
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
+  quantileTab->Dump();
 
 //   // Finally calculate quantiles and store them iterating over variables
 //   vtkStdString col;
@@ -483,7 +472,6 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   inMeta->SetBlock( nBlocks, quantileTab );
 
   // Clean up
-  rowQuant->Delete();
   quantileTab->Delete();
 }
 
